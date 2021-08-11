@@ -414,6 +414,7 @@ Some useful tools for Kotlin/Java development include:
 * [KTLint](https://ktlint.github.io/): the Kotlin linter that we use to format our KT code
     * Install the [IntelliJ KLint plugin](https://plugins.jetbrains.com/plugin/15057-ktlint-unofficial-) or configure it to follow standard Kotlin conventions as follows on a mac: `cd ./prime-router && brew install ktlint && ktlint applyToIDEAProject`
 * [Microsoft VSCode](https://code.visualstudio.com/Download) with the available Kotlin extension
+* [Java Profiling in ReportStream](./getting-started/java-profiling.md)
 
 # Miscelanious subjects
 
