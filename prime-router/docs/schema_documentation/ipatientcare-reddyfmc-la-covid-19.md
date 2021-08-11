@@ -982,7 +982,7 @@ Is the patient pregnant?
 
 **PII**: No
 
-**Default Value**: T
+**Default Value**: P
 
 **Cardinality**: [0..1]
 
