@@ -205,7 +205,7 @@ class HttpUtilities {
         }
 
         /**
-         * A generic function to POST a Prime Data Hub report File to a particular Prime Data Hub Environment,
+         * A generic function to POST a Prime ReportStream report File to a particular Prime Data Hub Environment,
          * as if from sendingOrgName.sendingOrgClientName.
          * Returns Pair(Http response code, json response text)
          */
@@ -235,7 +235,7 @@ class HttpUtilities {
         }
 
         /**
-         * A generic function to POST data to a particular Prime Data Hub Environment,
+         * A generic function to POST data to a particular Prime ReportStream Environment,
          * as if from sendingOrgName.sendingOrgClientName.
          * Returns Pair(Http response code, json response text)
          */

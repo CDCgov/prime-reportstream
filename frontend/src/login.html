@@ -1,15 +1,15 @@
 ---
 layout: protected.liquid
-title: Sign in
+pageStyle: "fullWidth"
+title: Log in
 show_navbar: true
 protected: false
 hide_signin: true
 permalink: "{{ title | slug }}/"
 ---
 
-<body>
-    <div id="okta-login-container"></div>
-    <script>
-        login();
-    </script>
-</body>
+<div id="okta-login-container"></div>
+<script>
+    login();
+</script>
+

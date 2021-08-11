@@ -24,10 +24,10 @@ import java.time.format.DateTimeFormatter
 
 plugins {
     kotlin("jvm") version "1.5.21"
-    id("org.flywaydb.flyway") version "7.11.2"
+    id("org.flywaydb.flyway") version "7.12.1"
     id("nu.studer.jooq") version "6.0"
     id("com.github.johnrengelman.shadow") version "7.0.0"
-    id("com.microsoft.azure.azurefunctions") version "1.5.1"
+    id("com.microsoft.azure.azurefunctions") version "1.6.0"
     id("org.jlleitschuh.gradle.ktlint") version "10.1.0"
     id("com.adarshr.test-logger") version "3.0.0"
     id("jacoco")
@@ -423,19 +423,19 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-common:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
     implementation("com.microsoft.azure.functions:azure-functions-java-library:1.4.2")
-    implementation("com.azure:azure-core:1.18.0")
-    implementation("com.azure:azure-core-http-netty:1.10.1")
-    implementation("com.azure:azure-storage-blob:12.11.1") {
+    implementation("com.azure:azure-core:1.19.0")
+    implementation("com.azure:azure-core-http-netty:1.10.2")
+    implementation("com.azure:azure-storage-blob:12.13.0") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-storage-queue:12.9.1") {
+    implementation("com.azure:azure-storage-queue:12.10.0") {
         exclude(group = "com.azure", module = "azure-core")
     }
     implementation("com.azure:azure-security-keyvault-secrets:4.3.1") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
-    implementation("com.azure:azure-identity:1.3.3") {
+    implementation("com.azure:azure-identity:1.3.4") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
@@ -453,9 +453,9 @@ dependencies {
     implementation("com.github.javafaker:javafaker:1.0.2")
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
-    implementation("com.googlecode.libphonenumber:libphonenumber:8.12.27")
+    implementation("com.googlecode.libphonenumber:libphonenumber:8.12.29")
     implementation("org.thymeleaf:thymeleaf:3.0.12.RELEASE")
-    implementation("com.sendgrid:sendgrid-java:4.7.2")
+    implementation("com.sendgrid:sendgrid-java:4.7.3")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.1")
     implementation("com.github.kittinunf.fuel:fuel:2.3.1") {
         exclude(group = "org.json", module = "json")
@@ -471,7 +471,7 @@ dependencies {
     implementation("commons-io:commons-io:2.11.0")
     implementation("org.postgresql:postgresql:42.2.23")
     implementation("com.zaxxer:HikariCP:5.0.0")
-    implementation("org.flywaydb:flyway-core:7.11.2")
+    implementation("org.flywaydb:flyway-core:7.12.1")
     implementation("com.github.kayr:fuzzy-csv:1.6.48")
     implementation("org.commonmark:commonmark:0.18.0")
     implementation("com.google.guava:guava:30.1.1-jre")

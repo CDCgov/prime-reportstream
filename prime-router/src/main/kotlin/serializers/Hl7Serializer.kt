@@ -259,27 +259,52 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
                 var value = ""
                 for (i in 0 until hl7Fields.size) {
                     val hl7Field = hl7Fields[i]
-                    value =
+                    value = when {
                         // Decode a phone number
-                        if (element.type == Element.Type.TELEPHONE || element.type == Element.Type.EMAIL) {
+                        element.type == Element.Type.TELEPHONE ||
+                            element.type == Element.Type.EMAIL ->
                             decodeHl7TelecomData(terser, element, hl7Field)
-                        }
+
                         // Decode a timestamp
-                        else if (element.type == Element.Type.DATETIME ||
-                            element.type == Element.Type.DATE
-                        ) {
+                        element.type == Element.Type.DATETIME ||
+                            element.type == Element.Type.DATE ->
                             decodeHl7DateTime(terser, element, hl7Field, warnings)
-                        }
+
                         // Decode an AOE question
-                        else if (hl7Field == "AOE") {
+                        hl7Field == "AOE" ->
                             decodeAOEQuestion(element, terser, errors)
+
+                        // Process a CODE type field.  IMPORTANT: Must be checked after AOE as AOE is a CODE field
+                        element.type == Element.Type.CODE -> {
+                            val rawValue = queryTerserForValue(
+                                terser, getTerserSpec(hl7Field), errors
+                            )
+                            // This verifies the code received is good.  Note the translated value will be the same as
+                            // the raw value for valuesets and altvalues
+                            try {
+                                when {
+                                    rawValue.isBlank() -> ""
+
+                                    element.altValues != null && element.altValues.isNotEmpty() ->
+                                        element.toNormalized(rawValue, Element.altDisplayToken)
+
+                                    !element.valueSet.isNullOrEmpty() ->
+                                        element.toNormalized(rawValue, Element.codeToken)
+
+                                    else -> rawValue
+                                }
+                            } catch (e: IllegalStateException) {
+                                warnings.add("The code $rawValue for field $hl7Field is invalid.")
+                                ""
+                            }
                         }
+
                         // No special case here, so get a value from an HL7 field
-                        else {
+                        else ->
                             queryTerserForValue(
                                 terser, getTerserSpec(hl7Field), errors
                             )
-                        }
+                    }
                     if (value.isNotBlank()) break
                 }
 
@@ -391,6 +416,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
     ) {
         // set up our configuration
         val hl7Config = report.destination?.translation as? Hl7Configuration
+        val replaceValue = hl7Config?.replaceValue ?: emptyMap()
         val suppressQst = hl7Config?.suppressQstForAoe ?: false
         val suppressAoe = hl7Config?.suppressAoe ?: false
         // and we have some fields to suppress
@@ -424,6 +450,9 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
             if (suppressedFields.contains(element.hl7Field) && element.hl7OutputFields.isNullOrEmpty())
                 return@forEach
 
+            if (element.hl7Field == "AOE" && suppressAoe)
+                return@forEach
+
             // some fields need to be blank instead of passing in UNK
             // so in this case we'll just go by field name and set the value to blank
             if (blanksForUnknownFields.contains(element.name) &&
@@ -438,6 +467,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
                 element.hl7OutputFields.forEach outputFields@{ hl7Field ->
                     if (suppressedFields.contains(hl7Field))
                         return@outputFields
+
                     // some of our schema elements are actually subcomponents of the HL7 fields, and are individually
                     // text, but need to be truncated because they're the first part of an HD field. For example,
                     // ORC-2-2 and ORC-3-2, so we are manually pulling them aside to truncate them
@@ -532,6 +562,16 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
             if (!hl7Config?.reportingFacilityIdType.isNullOrEmpty()) {
                 pathSpec = formPathSpec("MSH-4-3")
                 terser.set(pathSpec, hl7Config?.reportingFacilityIdType)
+            }
+        }
+
+        // after all values have been set or blanked, check for values that need replacement
+        // isNotEmpty returns true only when a value exists. Whitespace only is considered a value
+        replaceValue.forEach { element ->
+            var pathSpec = formPathSpec(element.key)
+            val valueInMessage = terser.get(pathSpec) ?: ""
+            if (valueInMessage.isNotEmpty()) {
+                terser.set(pathSpec, element.value)
             }
         }
     }
@@ -1137,7 +1177,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
         const val MESSAGE_CODE = "ORU"
         const val MESSAGE_TRIGGER_EVENT = "R01"
         const val SOFTWARE_VENDOR_ORGANIZATION: String = "Centers for Disease Control and Prevention"
-        const val SOFTWARE_PRODUCT_NAME: String = "PRIME Data Hub"
+        const val SOFTWARE_PRODUCT_NAME: String = "PRIME ReportStream"
 
         /*
         From the HL7 2.5.1 Ch 2A spec...

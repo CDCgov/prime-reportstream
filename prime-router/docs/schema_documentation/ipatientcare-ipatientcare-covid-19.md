@@ -556,7 +556,7 @@ The patient's city
 
 **PII**: Yes
 
-**Format**: M/d/yyyy
+**Format**: M/d/yyyy H:nn
 
 **Cardinality**: [0..1]
 
@@ -589,8 +589,6 @@ U|Unknown
 H|Hispanic or Latino
 N|Non Hispanic or Latino
 U|Unknown
-U|Unknown
-U|Unknown
 
 **Alt Value Sets**
 
@@ -599,12 +597,10 @@ Code | Display
 H|Hispanic or Latino
 N|Non Hispanic or Latino
 U|Patient Declines
-U|NULL
-U|WHITE
 
 **Documentation**:
 
-NOTE - awaiting valid ethnicity values from iPatientCare
+NOTE - awaiting any additional ethnicity values from iPatientCare
 
 ---
 
@@ -627,6 +623,8 @@ The patient's first name
 **Type**: CODE
 
 **PII**: No
+
+**Format**: $display
 
 **Cardinality**: [0..1]
 
@@ -744,11 +742,21 @@ Code | Display
 UNK|Unknown
 ASKU|Asked, but unknown
 2106-3|White
+2106-3|White
+2106-3|White
+2106-3|White
 1002-5|American Indian or Alaska Native
 2028-9|Asian
+UNK|Unknown
+2054-5|Black or African American
+2054-5|Black or African American
+2054-5|Black or African American
 2054-5|Black or African American
 2076-8|Native Hawaiian or Other Pacific Islander
 2131-1|Other
+2131-1|Other
+2131-1|Other
+UNK|Unknown
 UNK|Unknown
 UNK|Unknown
 ASKU|Asked, but unknown
@@ -758,18 +766,29 @@ ASKU|Asked, but unknown
 Code | Display
 ---- | -------
 2106-3|White
+2106-3|W
+2106-3|CAUCASIAN
+2106-3|C
 1002-5|American Indian or Alaska Native
 2028-9|Asian
+UNK|ASIAN INDIAN
 2054-5|Black
+2054-5|African American
+2054-5|AFRICAN AMERICAN,BLACK
+2054-5|B
 2076-8|Native Hawaiian or Other Pacific Islander
 2131-1|Other
+2131-1|OTHER RACE
+2131-1|OTHER RACE,WHITE
 UNK|Unknown
 UNK|null
+UNK|NULL
 ASKU|Asked, but unknown
 
 **Documentation**:
 
-NOTE - awaiting valid race values from iPatientCare
+The patient's race. There is a common valueset defined for race values, but some states may choose to define different code/value combinations.
+
 
 ---
 
@@ -846,6 +865,9 @@ Code | Display
 60001007|Not Pregnant
 60001007|Not Pregnant
 60001007|Not Pregnant
+60001007|Not Pregnant
+60001007|Not Pregnant
+60001007|Not Pregnant
 261665006|Unknown
 261665006|Unknown
 261665006|Unknown
@@ -860,6 +882,9 @@ Code | Display
 77386006|Currently Pregnant
 60001007|N
 60001007|NO
+60001007| No
+60001007| No *** High ***
+60001007| No *** Low ***
 60001007|Not Pregnant
 60001007|Not Currently Pregnant
 261665006|U
@@ -1039,6 +1064,12 @@ Code | Display
 373121007|Test not done
 260385009|Negative
 260385009|Negative
+260385009|Negative
+260385009|Negative
+10828004|Positive
+10828004|Positive
+10828004|Positive
+10828004|Positive
 10828004|Positive
 10828004|Positive
 
@@ -1047,8 +1078,14 @@ Code | Display
 Code | Display
 ---- | -------
 260385009|Negative
+260385009|Negative *** High ***
+260385009|Negative *** Low ***
 260385009|Neg
 10828004|Positive
+10828004|Positive 
+10828004|Positive *** High ***
+10828004|Positive  *** High ***
+10828004|Positive  *** Low ***
 10828004|Pos
 
 **Documentation**:
