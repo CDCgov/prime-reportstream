@@ -1,10 +1,8 @@
 # Profiling ReportStream
 
 You can use the Mission Control application to monitor and manage the ReportStream 
-Java Application.  A Java Profiler is a tool that monitors Java bytecode constructs 
-and operations at the JVM level. These code constructs and operations include object 
-creation, iterative executions (including recursive calls), method executions, 
-thread executions, and garbage collections.  
+Java Application.  Mission Control can be used as a Java Profiler to monitors Java bytecode constructs 
+and operations at the JVM level.   
 
 1. Download and run the [JDK Mission Control](https://openjdk.java.net/projects/jmc/)
 or the [Azul Missing Control](https://www.azul.com/products/components/zulu-mission-control/)
