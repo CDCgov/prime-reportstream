@@ -146,7 +146,7 @@
       topic: covid-19
       schemaName: Experity/guc-la-covid-19
       format: CSV
-      
+
 - name: az-phd
   description: Arizona PHD
   jurisdiction: STATE

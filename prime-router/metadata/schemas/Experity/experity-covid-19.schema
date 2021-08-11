@@ -71,29 +71,25 @@ elements:
       csvFields: [{ name: Patient_race, format: $display}]
       default: UNK
 
+# Specimen & Order Info
+    - name currentdatetime_temp
+      mapper: timestamp(yyyyMMdd)
+#      csvFields: [{name: Specimen_collection_date_time, format: "M/d/yyyy HH:mm"}]
 
-    - name: specimen_collection_date_time
-      csvFields: [{name: Specimen_collection_date_time, format: "M/d/yyyy HH:nn"}]
+#    - name: specimen_collection_date_time
+#      csvFields: [{name: Specimen_collection_date_time, format: "M/d/yyyy HH:mm"}]
 
     - name: order_test_date
-      csvFields: [{name: Order_test_date, format: "M/d/yyyy HH:nn"}]
+      csvFields: [{name: Order_test_date, format: "M/d/yyyy"}]
 
     - name: testing_lab_specimen_received_datetime
-      csvFields: [{name: Specimen_collection_date_time, format: "M/d/yyyy HH:nn"}]
+      csvFields: [{name: Specimen_collection_date_time, format: "M/d/yyyy HH:mm"}]
 
     - name: test_result_date
       csvFields: [{name: Date_result_released, format: "M/d/yyyy HH:mm"}]
 
     - name: test_result_report_date
-      csvFields: [{name: Test_date, format: "M/d/yyyy HH:mm"}]
-
-#   POPULATED with device ID
-#    - name: test_performed_name
-#      csvFields: [{name: TestName}]
-
-#    - name: ordered_test_name
-#      csvFields: [{name: TestName}]
-
+      csvFields: [{name: Test_date, format: "M/d/yyyy"}]
 
     - name: test_result
       type: CODE
@@ -107,14 +103,27 @@ elements:
 
     - name: order_result_status
       csvFields: [{name: Order_result_status}]
-      default: F 
+      default: F
+
+    - name: test_performed_description_temp
+      csvFields: [{name: Test_performed_description}]
+
+    - name: filler_order_id
+      mapper: concat(patient_id, test_performed_description_temp, order_test_date)
+
 
 # Ordering provider
+    - name: ordering_provider_id
+      csvFields: [{name: Ordering_provider_ID}]
+
     - name: ordering_provider_first_name
       csvFields: [{name: Ordering_provider_first_name}]
 
     - name: ordering_provider_last_name
       csvFields: [{name: Ordering_provider_last_name}]
+
+    - name: ordering_provider_lastfirst_name
+      mapper: concat(ordering_provider_last_name, ordering_provider_first_name )
 
     - name: ordering_provider_street
       csvFields: [{name: Ordering_provider_street}]
@@ -134,15 +143,18 @@ elements:
     - name: ordering_provider_phone_number
       csvFields: [{name: Ordering_provider_phone}]
 
-#ordering facility
-    - name: testing_lab_name
+#ordering facility + reporting facility name
+    - name: testing_lab_name_temp
       csvFields: [{name: Testing_lab_name}]
 
-    - name: ordering_facility_name1
+    - name: ordering_facility_name_temp
       csvFields: [{name: Ordering_facility_name}]
 
+    - name: reporting_facility_name
+      mapper: concat(testing_lab_name_temp, ordering_facility_name_temp)
+
     - name: ordering_facility_name
-      mapper: concat(testing_lab_name, ordering facility_name1)
+      mapper: concat(testing_lab_name_temp, ordering_facility_name_temp)
 
     - name: ordering_facility_street
       csvFields: [{name: Ordering_facility_street}]
@@ -160,6 +172,9 @@ elements:
       csvFields: [{name: Ordering_facility_phone_number}]
 
 #testing lab
+    - name: testing_lab_name
+      mapper: concat(testing_lab_name_temp, ordering_facility_name_temp)
+
     - name: testing_lab_street
       csvFields: [{name: Testing_lab_street}]
 
@@ -175,16 +190,8 @@ elements:
     - name: testing_lab_phone_number
       csvFields: [{name: Ordering_facility_phone_number}]
 
-
-    - name: reporting_facility_name
-      csvFields: [{name: Ordering_facility_name}]
-
     - name: patient_id_assigner
       csvFields: [{name: Ordering_facility_name}]
-
-#    - name: testing_lab_name
-#      csvFields: [{name: Ordering_facility_name}]
-
 
 #CLIA
     - name: testing_lab_clia
@@ -200,12 +207,6 @@ elements:
       csvFields: [{name: Testing_lab_ID}]
 
 
-#specimen/accession fields
-    - name: filler_order_id
-      csvFields: [{name: Testing_lab_accession_number}]
-
-
-
 #AOE fields
     - name: pregnant
       type: CODE
@@ -213,31 +214,27 @@ elements:
       documentation: Translate multiple inbound values into the Pregnancy SNOMED Codes
       csvFields: [{ name: Pregnant, format: $display}]
 
-#    - name: pregnant
-#      csvFields: [{name: Pregnant, format: $alt}]
-#      altValues:
-#        - code: 77386006
-#          display: Y
-#        - code: 77386006
-#          display: YES
-#        - code: 77386006
-#          display: Pregnant
-#        - code: 77386006
-#          display: Currently Pregnant
-#        - code: 60001007
-#          display: N
-#        - code: 60001007
-#          display: NO
-#        - code: 60001007
-#          display: Not Pregnant
-#        - code: 60001007
-#          display: Not Currently Pregnant
-#        - code: 261665006
-#          display: U
-#        - code: 261665006
-#          display: UNK
-#        - code: 261665006
-#          display: Unknown
+    - name: first_test
+      type: CODE
+      valueSet: sender-automation/yesno
+      documentation: Translate multiple inbound Y/N/U AOE values to RS values
+      csvFields: [{ name: First_test, format: $display}]
+
+    - name: employed_in_healthcare
+      type: CODE
+      valueSet: sender-automation/yesno
+      documentation: Translate multiple inbound Y/N/U AOE values to RS values
+      csvFields: [{ name: Employed_in_healthcare, format: $display}]
+
+    - name: symptomatic_for_disease
+      valueSet: sender-automation/yesno
+      documentation: Translate multiple inbound Y/N/U AOE values to RS values
+      csvFields: [{ name: Symptomatic_for_disease, format: $display}]
+
+    - name: illness_onset_date
+      default: ""
+      csvFields: [{name: Illness_onset_date, format: "M/d/yyyy"}]
+
 
 # Default Values
     - name: hospitalized
@@ -255,15 +252,3 @@ elements:
 
 
 #unused fields
-
-    - name: first_test
-      type: CODE
-      valueSet: sender-automation/yesno
-      documentation: Translate multiple inbound Y/N/U AOE values to RS values
-      csvFields: [{ name: First_test, format: $display}]
-
-    - name: employed_in_healthcare
-      csvFields: [{name: Employed_in_healthcare}]
-
-    - name: symptomatic_for_disease
-      csvFields: [{name: Symptomatic_for_disease}]
