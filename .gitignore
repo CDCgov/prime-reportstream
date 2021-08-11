@@ -104,3 +104,4 @@ prime-router/.vault/env/**
 
 gitleaks.report.json
 gitleaks.log
+prime-router/src/testLoadJmeter/results.jtl
