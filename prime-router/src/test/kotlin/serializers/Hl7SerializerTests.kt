@@ -20,8 +20,8 @@ import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.FileSource
 import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.Metadata
-import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Receiver
+import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.TestSource
 import io.mockk.every
