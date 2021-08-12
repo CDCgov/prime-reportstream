@@ -3,6 +3,7 @@
 This document will walk you through the setup instructions to get a functioning development environment.
 
 # Table of contents
+- [Table of contents](#table-of-contents)
 - [Locally installed software prerequisites](#locally-installed-software-prerequisites)
 - [Bulding the Baseline](#bulding-the-baseline)
     * [First Build](#first-build)
@@ -29,7 +30,7 @@ This document will walk you through the setup instructions to get a functioning 
     * [Data conversion quick test](#data-conversion-quick-test)
     * [Running the end-to-end tests](#running-the-end-to-end-tests)
 - [Resetting your environment](#resetting-your-environment)
-    * [Resetting just your database](#resetting-just-your-database)
+    * [Resetting the Database](#resetting-the-database)
 - [Additional tooling](#additional-tooling)
 - [Miscelanious subjects](#miscelanious-subjects)
     * [Using different database credentials than the default](#using-different-database-credentials-than-the-default)
@@ -365,20 +366,17 @@ cd ./prime-router
 
 When invoked with `--prune-volumes`, this script will also reset your PostgreSQL database. This can be useful to get back to a known and/or empty state.
 
-## Resetting just your database
-
-You can also use [Flyway](https://flywaydb.org/) to reset your database:
-```bash
-# drop and recreate the database; you may be prompted for a password
-export PGHOST=localhost
-export PGUSER=prime
-export PGDATABASE=prime_data_hub
-dropdb --force ${PGDATABASE?}
-createdb --owner=${PGUSER?} ${PGDATABASE?}
-
-# migrate the local database by hand
-./gradlew migrate
-```
+## Resetting the Database
+1. Stop your ReportStream container if it is running.
+    ```bash
+    docker compose down
+    ```
+1. Run the following command to delete all ReportStream related tables from the database and recreate them.  This
+is very useful to reset your database to a clean state.  Note that the database will be re-populated the
+next time you run ReportStream.
+    ```bash
+    ./gradlew reloadDB
+    ```
 
 # Additional tooling
 
