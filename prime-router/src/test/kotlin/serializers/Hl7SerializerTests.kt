@@ -20,8 +20,8 @@ import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.FileSource
 import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.Metadata
-import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Receiver
+import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.TestSource
 import io.mockk.every
@@ -605,27 +605,6 @@ NTE|1|L|This is a final comment|RE"""
         val serializer = Hl7Serializer(metadata)
         every { mockTerser.set(any(), any()) } returns Unit
 
-        val hl7Config = mockkClass(Hl7Configuration::class).also {
-            every { it.replaceValue }.returns(emptyMap())
-            every { it.format }.returns(Report.Format.HL7)
-            every { it.useTestProcessingMode }.returns(false)
-            every { it.suppressQstForAoe }.returns(false)
-            every { it.suppressAoe }.returns(false)
-            every { it.suppressHl7Fields }.returns(null)
-            every { it.useBlankInsteadOfUnknown }.returns(null)
-            every { it.convertTimestampToDateTime }.returns(null)
-            every { it.truncateHDNamespaceIds }.returns(false)
-            every { it.phoneNumberFormatting }.returns(Hl7Configuration.PhoneNumberFormatting.STANDARD)
-            every { it.usePid14ForPatientEmail }.returns(false)
-            every { it.reportingFacilityName }.returns(null)
-            every { it.reportingFacilityId }.returns(null)
-            every { it.reportingFacilityIdType }.returns(null)
-            every { it.cliaForOutOfStateTesting }.returns(null)
-        }
-        val receiver = mockkClass(Receiver::class).also {
-            every { it.translation }.returns(hl7Config)
-            every { it.format }.returns(Report.Format.HL7)
-        }
         serializer.setCliaComponent(
             mockTerser,
             "XYZ",
@@ -645,29 +624,6 @@ NTE|1|L|This is a final comment|RE"""
         every { mockTerser.set(any(), any()) } returns Unit
         val hl7Field = "ORC-3-3"
         val value = "dummy"
-
-        val hl7Config = mockkClass(Hl7Configuration::class).also {
-            every { it.replaceValue }.returns(emptyMap())
-            every { it.format }.returns(Report.Format.HL7)
-            every { it.useTestProcessingMode }.returns(false)
-            every { it.suppressQstForAoe }.returns(false)
-            every { it.suppressAoe }.returns(false)
-            every { it.suppressHl7Fields }.returns(null)
-            every { it.useBlankInsteadOfUnknown }.returns(null)
-            every { it.convertTimestampToDateTime }.returns(null)
-            every { it.truncateHDNamespaceIds }.returns(false)
-            every { it.phoneNumberFormatting }.returns(Hl7Configuration.PhoneNumberFormatting.STANDARD)
-            every { it.usePid14ForPatientEmail }.returns(false)
-            every { it.reportingFacilityName }.returns(null)
-            every { it.reportingFacilityId }.returns(null)
-            every { it.reportingFacilityIdType }.returns(null)
-            every { it.cliaForOutOfStateTesting }.returns(null)
-        }
-
-        val receiver = mockkClass(Receiver::class).also {
-            every { it.translation }.returns(hl7Config)
-            every { it.format }.returns(Report.Format.HL7)
-        }
 
         serializer.setCliaComponent(
             mockTerser,
