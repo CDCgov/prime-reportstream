@@ -109,11 +109,12 @@ NTE|1|L|This is a final comment|RE"""
             every { it.reportingFacilityName }.returns(null)
             every { it.reportingFacilityId }.returns(null)
             every { it.reportingFacilityIdType }.returns(null)
-            every { it.cliaForOutOfStateTesting }.returns(null)
+            every { it.cliaForOutOfStateTesting }.returns("1234FAKECLIA")
         }
         val receiver = mockkClass(Receiver::class).also {
             every { it.translation }.returns(hl7Config)
             every { it.format }.returns(Report.Format.HL7)
+            every { it.organizationName }.returns("ca-dph")
         }
 
         val testReport = csvSerializer.readExternal(schema, inputStream, listOf(TestSource), receiver).report ?: fail()
@@ -621,11 +622,14 @@ NTE|1|L|This is a final comment|RE"""
             every { it.reportingFacilityIdType }.returns(null)
             every { it.cliaForOutOfStateTesting }.returns(null)
         }
+        val receiver = mockkClass(Receiver::class).also {
+            every { it.translation }.returns(hl7Config)
+            every { it.format }.returns(Report.Format.HL7)
+        }
         serializer.setCliaComponent(
             mockTerser,
             "XYZ",
-            "OBX-23-10",
-            hl7Config
+            "OBX-23-10"
         )
 
         verify {
@@ -660,11 +664,15 @@ NTE|1|L|This is a final comment|RE"""
             every { it.cliaForOutOfStateTesting }.returns(null)
         }
 
+        val receiver = mockkClass(Receiver::class).also {
+            every { it.translation }.returns(hl7Config)
+            every { it.format }.returns(Report.Format.HL7)
+        }
+
         serializer.setCliaComponent(
             mockTerser,
             value,
-            hl7Field,
-            hl7Config
+            hl7Field
         )
 
         verify {
