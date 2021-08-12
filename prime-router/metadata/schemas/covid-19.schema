@@ -854,7 +854,7 @@ elements:
     natFlatFileField: Reporting_facility_name
     hhsGuidanceField:
     hl7Field: MSH-4-1
-    hl7OutputFields: [ MSH-4-1, PID-3-4-1 ]
+    hl7OutputFields: [ MSH-4-1, PID-3-4-1, PID-3-6-1 ]
     documentation: The reporting facility's name
 
   - name: reporting_facility_clia
@@ -1163,7 +1163,7 @@ elements:
 
   - name: testing_lab_id_assigner
     type: HD
-    mapper: ifPresent(testing_lab_clia, CLIA^2.16.840.1.113883.19.4.6^ISO)
+    mapper: ifPresent(testing_lab_clia, CLIA^2.16.840.1.113883.19.4.7^ISO)
     hl7Field: OBX-23-6
     documentation: This is the assigner of the CLIA for the testing lab. If the testing lab has a CLIA, this field will be filled in.
 
