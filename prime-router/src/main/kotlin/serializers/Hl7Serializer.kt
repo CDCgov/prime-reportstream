@@ -12,17 +12,7 @@ import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.parser.EncodingNotSupportedException
 import ca.uhn.hl7v2.parser.ModelClassFactory
 import ca.uhn.hl7v2.util.Terser
-import gov.cdc.prime.router.Element
-import gov.cdc.prime.router.ElementAndValue
-import gov.cdc.prime.router.FileSettings
-import gov.cdc.prime.router.Hl7Configuration
-import gov.cdc.prime.router.Mapper
-import gov.cdc.prime.router.Metadata
-import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.ResultDetail
-import gov.cdc.prime.router.Schema
-import gov.cdc.prime.router.Source
-import gov.cdc.prime.router.ValueSet
+import gov.cdc.prime.router.*
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.InputStream
 import java.io.OutputStream
@@ -35,7 +25,10 @@ import java.time.format.DateTimeFormatter
 import java.util.Properties
 import java.util.TimeZone
 
-class Hl7Serializer(val metadata: Metadata) : Logging {
+class Hl7Serializer(
+    val metadata: Metadata,
+    val settings: SettingsProvider
+) : Logging {
     data class Hl7Mapping(
         val mappedRows: Map<String, List<String>>,
         val rows: List<RowResult>,
@@ -573,7 +566,6 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
             val pathSpecTestingState = formPathSpec(testingStateField)
             val testingState = terser.get(pathSpecTestingState)
 
-            val settings = FileSettings(FileSettings.defaultSettingsDirectory)
             val stateCode = report.destination?.let { settings.findOrganization(it.organizationName)?.stateCode }
 
             if (!testingState.equals(stateCode)) {
