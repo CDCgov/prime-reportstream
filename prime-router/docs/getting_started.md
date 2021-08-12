@@ -377,9 +377,7 @@ dropdb --force ${PGDATABASE?}
 createdb --owner=${PGUSER?} ${PGDATABASE?}
 
 # migrate the local database by hand
-flyway "-user=${PGUSER?}" -password=changeIT! \
-    -url=jdbc:postgresql://${PGHOST?}:5432/${PGDATABASE?} \
-    -locations=filesystem:./src/main/resources/db/migration migrate
+./gradlew migrate
 ```
 
 # Additional tooling
