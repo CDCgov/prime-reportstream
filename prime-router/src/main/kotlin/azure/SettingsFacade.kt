@@ -318,12 +318,12 @@ class SenderAPI
     schemaName: String,
     override var meta: SettingMetadata?,
 ) : Sender(
-        name,
-        organizationName,
-        format,
-        topic,
-        schemaName,
-    ),
+    name,
+    organizationName,
+    format,
+    topic,
+    schemaName,
+),
     SettingAPI
 
 class ReceiverAPI
@@ -341,16 +341,16 @@ class ReceiverAPI
     transport: TransportType? = null,
     override var meta: SettingMetadata?,
 ) : Receiver(
-        name,
-        organizationName,
-        topic,
-        translation,
-        jurisdictionalFilter,
-        qualityFilter,
-        reverseTheQualityFilter,
-        deidentify,
-        timing,
-        description,
-        transport
-    ),
+    name,
+    organizationName,
+    topic,
+    translation,
+    jurisdictionalFilter,
+    qualityFilter,
+    reverseTheQualityFilter,
+    deidentify,
+    timing,
+    description,
+    transport
+),
     SettingAPI
