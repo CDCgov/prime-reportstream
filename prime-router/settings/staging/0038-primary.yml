@@ -8,4 +8,4 @@
     organizationName: primary
     topic: covid-19
     schemaName: direct/primary-covid-19
-    format: CSV
+    format: HL7
