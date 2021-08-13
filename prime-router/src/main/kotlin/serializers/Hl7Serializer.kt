@@ -477,7 +477,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
                         hl7Field in HD_FIELDS_LOCAL &&
                         hl7Config?.truncateHDNamespaceIds == true
                     ) {
-                        value.substring(0, HD_TRUNCATION_LIMIT)
+                        value.substring(0, setTruncationLimitWithEncoding(value, HD_TRUNCATION_LIMIT))
                     } else {
                         value
                     }
@@ -524,7 +524,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
                     value.length > HD_TRUNCATION_LIMIT &&
                     hl7Config?.truncateHDNamespaceIds == true
                 ) {
-                    value.substring(0, HD_TRUNCATION_LIMIT)
+                    value.substring(0, setTruncationLimitWithEncoding(value, HD_TRUNCATION_LIMIT))
                 } else {
                     value
                 }
@@ -611,7 +611,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
     ) {
         val hl7Config = report.destination?.translation as? Hl7Configuration?
         val hdFieldMaximumLength = if (hl7Config?.truncateHDNamespaceIds == true) {
-            HD_TRUNCATION_LIMIT
+            setTruncationLimitWithEncoding(value, HD_TRUNCATION_LIMIT)
         } else {
             null
         }
@@ -909,6 +909,16 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
         terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-1", "1")
         terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-2", "CWE")
         terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-23-7", "XX")
+    }
+
+    private fun setTruncationLimitWithEncoding(value: String, truncationLimit: Int): Int {
+        val regex = "[^&~|]".toRegex()
+        val match = regex.containsMatchIn(value)
+        return if (match) {
+            truncationLimit.minus(2)
+        } else {
+            truncationLimit
+        }
     }
 
     private fun createHeaders(report: Report): String {

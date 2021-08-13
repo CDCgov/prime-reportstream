@@ -103,7 +103,7 @@ NTE|1|L|This is a final comment|RE"""
             every { it.suppressHl7Fields }.returns(null)
             every { it.useBlankInsteadOfUnknown }.returns(null)
             every { it.convertTimestampToDateTime }.returns(null)
-            every { it.truncateHDNamespaceIds }.returns(false)
+            every { it.truncateHDNamespaceIds }.returns(true)
             every { it.phoneNumberFormatting }.returns(Hl7Configuration.PhoneNumberFormatting.STANDARD)
             every { it.usePid14ForPatientEmail }.returns(false)
             every { it.reportingFacilityName }.returns(null)
