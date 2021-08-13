@@ -39,6 +39,7 @@ services:
     ports:
       - 7071:7071 # default function port
       - 5005:5005 # Java debug port
+      - 9090:9090 # Java JMX port
     networks:
       - prime-router_build
 
