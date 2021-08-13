@@ -790,9 +790,5 @@ data class Element(
                 else -> error("Internal Error: Invalid EI value '$value'")
             }
         }
-
-//        fun delimiterInValue(value: String): Boolean {
-//
-//        }
     }
 }
