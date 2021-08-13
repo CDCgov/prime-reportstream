@@ -19,11 +19,11 @@ nestedPage: true
 
   **On this page:**
 
-  - [Data security and storage](#data-security-and-storage) 
-  - [Data configuration and formatting](#data-configuration-and-formatting) 
-  - [Data transport and sending](#data-transport-and-sending) 
-  - [File testing and launch](#file-testing-and-launch) 
-  - [Data access](#data-access) 
+  - <a href="#data-security-and-storage" class="usa-link">Data security and storage</a> 
+  - <a href="#data-configuration-and-formatting" class="usa-link">Data configuration and formatting</a> 
+  - <a href="#data-transport-and-sending" class="usa-link">Data transport and sending</a> 
+  - <a href="#file-testing-and-launch" class="usa-link">File testing and launch</a>
+  - <a href="#data-access" class="usa-link">Data access</a>
 
 </section>
 <hr class="margin-y-6" />
@@ -33,15 +33,15 @@ nestedPage: true
 
   All ReportStream data is encrypted in transit and rest using a TLS 1.2+ Azure standard. It is routed through a CDC cloud environment, where it is deleted after 30 days. Additional encryption can be provided if required by public health departments. 
 
-  As a project of  of the U.S. federal government, ReportStream also complies with the [Federal Information System Management Act](https://csrc.nist.gov/Projects/risk-management/fisma-background) (FISMA). FISMA sets standards and requires federal agencies to implement information security plans to protect sensitive data.   
+  As a project of  of the U.S. federal government, ReportStream also complies with the <a href="https://csrc.nist.gov/Projects/risk-management/fisma-background" class="usa-link">Federal Information System Management Act</a> (FISMA). FISMA sets standards and requires federal agencies to implement information security plans to protect sensitive data.   
 
-  Get more information on [ReportStream security practices](/how-it-works/security-practices). 
+  Get more information on <a href="/how-it-works/security-practices" class="usa-link">ReportStream security practices</a>. 
 
   ## <a name="data-configuration-and-formatting"></a>Data configuration and formatting 
   
   ReportStream submits data via HL7, version 2.5.1.  
 
-  ReportStream data follows [HHS guidance for COVID-19 Lab Data Reporting](https://www.hhs.gov/answers/is-additional-information-including-technical-specifications-available-to-support-laboratories-with-implementation/index.html), including the recommended Health and Human Services COVID-19 “Ask on Order Entry” questions. Sending Ask on Order Entry questions (via [OBX fields](https://hl7-definition.caristix.com/v2/HL7v2.5/Segments/OBX)) is optional. 
+  ReportStream data follows <a href="https://www.hhs.gov/answers/is-additional-information-including-technical-specifications-available-to-support-laboratories-with-implementation/index.html" class="usa-link">HHS guidance for COVID-19 Lab Data Reporting</a>, including the recommended Health and Human Services COVID-19 “Ask on Order Entry” questions. Sending Ask on Order Entry questions (via <a href="https://hl7-definition.caristix.com/v2/HL7v2.5/Segments/OBX" class="usa-link">OBX fields</a>) is optional. 
 
   Public health departments can request data be sent via other file formats such as CSV. Setting up alternative formats is possible, but requires more time throughout the data integration process. 
 
@@ -55,7 +55,7 @@ nestedPage: true
 
   ReportStream can send a variety of data types to a public health department test environment to make sure everything is working correctly before launch. 
 
-  - **Synthetic data (standard):** ReportStream always sends synthetic data in our [standard data schema](https://github.com/CDCgov/prime-data-hub/blob/production/prime-router/docs/schema_documentation/primedatainput-pdi-covid-19.md&sa=D&source=editors&ust=1619546431803000&usg=AOvVaw1E09LDMJ0kGE2qa_OPZojW) for your review. 
+  - **Synthetic data (standard):** ReportStream always sends synthetic data in our <a href="https://github.com/CDCgov/prime-data-hub/blob/production/prime-router/docs/schema_documentation/primedatainput-pdi-covid-19.md&sa=D&source=editors&ust=1619546431803000&usg=AOvVaw1E09LDMJ0kGE2qa_OPZojW" class="usa-link">standard data schema</a> for your review. 
   - **Patient data (as needed):** If required, ReportStream can also send patient data. In some cases, there may not be a testing facility that is registered with ReportStream in your jurisdiction. In this case, we’ll finish all of the possible steps on your side. Once a testing facility registers we’ll notify you, then move to approval and launch. 
 
   ### Approval and launch 
