@@ -115,6 +115,7 @@
       display: No
     - code: UNK
       display: Unknown
+      system: NULLFL
 
 - name: patient_age_units
   reference: Per the HHS guidance
