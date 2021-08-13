@@ -266,7 +266,7 @@ data class Element(
                         toCode(normalizedValue)
                             ?: error(
                                 "Schema Error: " +
-                                    "'$normalizedValue' is not in valueSet '$valueSet' for $fieldMapping/'$format'. " +
+                                                 "'$normalizedValue' is not in valueSet '$valueSet' for $fieldMapping/'$format'. " +
                                     "\nAvailable values are " +
                                     "${valueSetRef?.values?.joinToString { "${it.code} -> ${it.display}" }}" +
                                     "\nAlt values (${altValues?.count()}) are " +
