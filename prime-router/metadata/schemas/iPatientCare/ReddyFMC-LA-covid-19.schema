@@ -11,7 +11,7 @@ extends: ipatientCare/ipatientcare-covid-19
 elements:
 
     - name: processing_mode_code
-      default: T
+      default: P
       
     - name: sender_id
       default: reddyfmc
