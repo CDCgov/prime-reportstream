@@ -29,7 +29,7 @@ class RequeueFunction : Logging {
     ): HttpResponseMessage {
         logger.info("Entering requeue/send api")
         val workflowEngine = WorkflowEngine()
-        val actionHistory = ActionHistory(TaskAction.resend, context)
+        val actionHistory = ActionHistory(TaskAction.resend, workflowEngine, context)
         actionHistory.trackActionParams(request)
         var msgs = mutableListOf<String>()
         val response = try {

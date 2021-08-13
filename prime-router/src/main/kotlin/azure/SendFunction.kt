@@ -46,7 +46,7 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
         @BindingName("NextVisibleTime") nextVisibleTime: Date? = null,
         @BindingName("InsertionTime") insertionTime: Date? = null,
     ) {
-        val actionHistory = ActionHistory(TaskAction.send, context)
+        val actionHistory = ActionHistory(TaskAction.send, workflowEngine, context)
         actionHistory.trackActionParams(message)
         context.logger.info(
             "Started Send Function: $message, id=$messageId," +

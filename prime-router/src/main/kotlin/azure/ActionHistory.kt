@@ -88,14 +88,20 @@ class ActionHistory {
     private val reportLineages = mutableListOf<ReportLineage>()
 
     /**
+     * The workflow engine.
+     */
+    private val workflowEngine: WorkflowEngine
+
+    /**
      * Set of new parent->child Item mappings created by this Action.
      * Note this crucial assumption: the ordering of rows is fixed within any one report.
      */
     val itemLineages = mutableSetOf<ItemLineage>()
 
-    constructor(taskAction: TaskAction, context: ExecutionContext? = null) {
+    constructor(taskAction: TaskAction, workflowEngine: WorkflowEngine? = null, context: ExecutionContext? = null) {
         action.actionName = taskAction
         this.context = context
+        this.workflowEngine = workflowEngine ?: WorkflowEngine()
     }
 
     fun setActionType(taskAction: TaskAction) {
@@ -346,7 +352,7 @@ class ActionHistory {
     }
 
     private fun queueMessage(event: Event) {
-        WorkflowEngine().queue.sendMessage(event)
+        workflowEngine.queue.sendMessage(event)
         context?.logger?.info("Queued event: ${event.toQueueMessage()}")
     }
 

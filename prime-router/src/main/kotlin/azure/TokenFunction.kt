@@ -45,7 +45,7 @@ class TokenFunction : Logging {
         if (!Scope.isWellFormedScope(scope))
             return HttpUtilities.bad(request, "Incorrect scope format: $scope", HttpStatus.UNAUTHORIZED)
         val workflowEngine = WorkflowEngine()
-        val actionHistory = ActionHistory(TaskAction.token_auth, context)
+        val actionHistory = ActionHistory(TaskAction.token_auth, workflowEngine, context)
         actionHistory.trackActionParams(request)
         val senderKeyFinder = FindSenderKeyInSettings(scope)
         val tokenAuthentication = TokenAuthentication(DatabaseJtiCache(workflowEngine.db))

@@ -32,7 +32,7 @@ class AS2TransportTests {
     val logger = mockkClass(Logger::class)
     val reportId = UUID.randomUUID()
     val as2Transport = spyk<AS2Transport>()
-    val actionHistory = ActionHistory(TaskAction.send, context)
+    val actionHistory = ActionHistory(TaskAction.send, context = context)
     val transportType = AS2TransportType("", "id1", "id2", "a@cdc.gov")
     val task = Task(
         reportId,

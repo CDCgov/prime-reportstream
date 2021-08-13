@@ -32,7 +32,7 @@ class RedoxTransportTests {
     val logger = mockkClass(Logger::class)
     val reportId = UUID.randomUUID()
     val redox = spyk<RedoxTransport>()
-    val actionHistory = ActionHistory(TaskAction.send, context)
+    val actionHistory = ActionHistory(TaskAction.send, context = context)
     val secretService = mockk<SecretService>()
     val transportType = RedoxTransportType("", "baseURL")
     val task = Task(

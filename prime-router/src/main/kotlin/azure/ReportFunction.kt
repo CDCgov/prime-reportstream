@@ -103,16 +103,18 @@ class ReportFunction : Logging {
     ): HttpResponseMessage {
 
         logger.debug(" request headers: ${request.headers}")
+        val workflowEngine = WorkflowEngine()
         val authenticationStrategy = AuthenticationStrategy.authStrategy(
             request.headers["authentication-type"],
-            PrincipalLevel.USER
+            PrincipalLevel.USER,
+            workflowEngine
         )
         val senderName = request.headers[CLIENT_PARAMETER]
             ?: request.queryParameters.getOrDefault(CLIENT_PARAMETER, "")
         // todo This code is redundant w/validateRequest. Remove from validateRequest once old endpoint is removed
         if (senderName.isBlank())
             return HttpUtilities.bad(request, "Expected a '$CLIENT_PARAMETER' query parameter")
-        val sender = WorkflowEngine().settings.findSender(senderName)
+        val sender = workflowEngine.settings.findSender(senderName)
             ?: return HttpUtilities.bad(request, "'$CLIENT_PARAMETER:$senderName': unknown sender")
 
         if (authenticationStrategy is OktaAuthentication) {
@@ -133,7 +135,7 @@ class ReportFunction : Logging {
 
     private fun ingestReport(request: HttpRequestMessage<String?>, context: ExecutionContext): HttpResponseMessage {
         val workflowEngine = WorkflowEngine()
-        val actionHistory = ActionHistory(TaskAction.receive, context)
+        val actionHistory = ActionHistory(TaskAction.receive, workflowEngine, context)
         var report: Report? = null
         actionHistory.trackActionParams(request)
         val httpResponseMessage = try {
@@ -160,7 +162,7 @@ class ReportFunction : Logging {
                     routeReport(context, workflowEngine, validatedRequest, actionHistory)
                     if (request.body != null && validatedRequest.sender != null) {
                         workflowEngine.recordReceivedReport(
-                            report, request.body!!.toByteArray(), validatedRequest.sender!!,
+                            report, request.body!!.toByteArray(), validatedRequest.sender,
                             actionHistory, workflowEngine
                         )
                     } else error(
@@ -473,7 +475,7 @@ class ReportFunction : Logging {
             if (result.report != null) {
                 it.writeStringField("id", result.report.id.toString())
                 it.writeStringField("timestamp", DateTimeFormatter.ISO_INSTANT.format(Instant.now()))
-                it.writeStringField("topic", result.report.schema.topic.toString())
+                it.writeStringField("topic", result.report.schema.topic)
                 it.writeNumberField("reportItemCount", result.report.itemCount)
             } else
                 it.writeNullField("id")
