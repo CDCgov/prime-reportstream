@@ -1,35 +1,90 @@
 {
-    "title": "ReportStream makes it easier to collect public health data — for free",
-    "summary": "ReportStream is a free, open source data platform that makes it easier for health departments to get faster, more accurate public health data from testing facilities.",
-    "heroImg": "report-stream-application.png",
+    "title": "ReportStream makes it easier to send and collect public health data — for free",
+    "summary": "ReportStream is an open source, cloud based platform that aggregates and delivers COVID-19 test results to health departments",
+    "description": "Get faster, more accurate data directly from testing facilities, labs, and more — through a single connection.",
+    "heroImg": "rs-diagram.svg",
     "heroImgAlt": "Example screenshot of the ReportStream web application",
-    "partners": [
+
+    "sections": [
         {
-            "type": "State",
-            "title": "Public health departments",
-            "summary": "Get fast, complete COVID-19 electronic test results from your jurisdiction",
+            "title": "Why ReportStream?",
+            "summary": "Get faster, more accurate data directly from testing facilities, labs, and more — through a single connection.",
+            "bullets": [
+                { "content": "100% free" },
+                { "content": "Backed by the CDC" },
+                { "content": "Secure data encryption" }
+            ],
             "features": [
                 {
-                    "title": "Support fewer connections",
-                    "summary": "ReportStream's model focuses on aggregating data from multiple sources and senders, which you receive together in a single feed at your preferred frequency and format.",
-                    "icon": "code.svg",
-                    "iconDescription": "computer code"
-                },
-                {
-                    "title": "Receive data from SimpleReport",
-                    "summary": "If your jurisdiction is interested in receiving point-of-care tests results from SimpleReport, you can get this data via ReportStream.",
-                    "icon": "content_copy.svg",
+                    "title": "Aggregated, clean data",
+                    "summary": "Get aggregated, validated test results from across your jurisdiction, all through a single connection.",
+                    "icon": "copy",
                     "iconDescription": "multiple documents"
                 },
                 {
-                    "title": "Get valuable insights",
-                    "summary": "ReportStream gives you insights about your data, such as reporting trends, and alerts you if there are any errors.",
-                    "icon": "assessment.svg",
+                    "title": "Analytics and insights",
+                    "summary": "Get insights on reporting trends and real-time alerts that help you inform and manage your COVID-19 response.",
+                    "icon": "chart-line",
                     "iconDescription": "a chart"
+                },
+                {
+                    "title": "A built-in network",
+                    "summary": "ReportStream works directly with COVID-19 test manufacturers, labs, and apps like <a href='https://simplereport.gov'>SimpleReport</a> to deliver more results to public health departments across the U.S.",
+                    "icon": "network-wired",
+                    "iconDescription": "multiple documents"
+                },
+                {
+                    "title": "Free and created by the CDC",
+                    "summary": "Developed for testing sites and public health departments, ReportStream is 100% free.",
+                    "icon": "viruses",
+                    "iconDescription": "multiple documents"
+                },
+                {
+                    "title": "Safe and secure",
+                    "summary": "Test results and patient data are securely stored and protected by two-factor authentication, database encryption, and HTTPS.",
+                    "icon": "shield-alt",
+                    "iconDescription": "multiple documents"
+                }
+            ]
+        },
+        {
+            "title": "ReportStream offers two ways to deliver data directly to your public health department",
+            "summary": "Log in and download test results quickly through our web application, or work with ReportStream to set up a customized ELR connection.",
+            "features": [
+                {
+                    "title": "Data download",
+                    "summary": "Get access to daily COVID-19 test results, in just a few clicks.",
+                    "icon": "cloud-download-alt",
+                    "iconDescription": "multiple documents"
+                },
+                {
+                    "title": "Industry standard data formatting",
+                    "summary": "Save time with less manual data entry. Download daily data in standard HL7 or CSV format in minutes, without setting up an ELR.",
+                    "icon": "industry",
+                    "iconDescription": "multiple documents"
+                }
+            ]
+        },
+        {
+            "title": "Electronic lab reporting",
+            "summary": "Fast COVID-19 test results, integrated with your <a href='https://www.cdc.gov/elr/about.html' class='usa-link' target='_blank' rel='noopener'>ELR</a> system.",
+            "features": [
+                {
+                    "title": "Centralize your connections",
+                    "summary": "Get data from multiple testing facilities — in less time —  through a single connection.",
+                    "icon": "plug",
+                    "iconDescription": "multiple documents"
+                },
+                {
+                    "title": "Customized, clean data",
+                    "summary": "ReportStream works 1:1 with public health departments to make sure data arrives in the format you need, when you need it.",
+                    "icon": "hand-sparkles",
+                    "iconDescription": "multiple documents"
                 }
             ]
         }
     ],
+
     "documentation": {
         "title": "Documentation",
         "summary": "For states interested in making an ELR connection with ReportStream, please check out the following resources to learn more.",
@@ -51,6 +106,7 @@
             }
         ]
     },
+
     "freeSecure": [
         {
             "title": "Free and created by the CDC",
@@ -65,10 +121,11 @@
             "iconDescription": "Icon of a shield"
         }
     ],
+
     "cta": {
-        "title": "Get started with ReportStream",
-        "summary": "Ready to bring ReportStream to your jurisdiction?",
-        "buttonText": "Contact us at",
+        "title": "Interested in learning more about ReportStream?",
+        "summary": "ReportStream works with public health departments looking to get better quality COVID-19 data from jurisdictions. We also collaborate with testing facilities, data aggregators , and manufacturers, and more to send test results to health departments.<br /><br />Either way, if you send or analyze COVID-19 data, we’d like to help.",
+        "buttonText": "Get in touch",
         "buttonUrlSubject": "?subject=I'm interested in learning more about ReportStream"
     }
 }

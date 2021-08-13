@@ -11,7 +11,6 @@ export const Login = ({ config }) => {
         console.log(tokens);
         let organization = tokens?.accessToken?.claims?.organization[0];
         console.log(`organization = ${organization}`);
-        //setValue('organization', groupToOrg( organization ))
 
         console.log(`g2o = ${groupToOrg(organization)}`);
     };

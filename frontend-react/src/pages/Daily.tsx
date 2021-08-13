@@ -7,7 +7,7 @@ import { groupToOrg } from "../webreceiver-utils";
 import download from "downloadjs";
 
 const TableData = ({ sortBy }: { sortBy?: string }) => {
-    const [reports] = useResource([ReportResource.list(), { sortBy }]);
+    const reports = useResource(ReportResource.list(), { sortBy });
 
     return (
         <tbody id="tBody" className="font-mono-2xs">
