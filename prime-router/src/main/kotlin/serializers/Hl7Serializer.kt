@@ -33,6 +33,7 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Properties
 import java.util.TimeZone
+import java.util.regex.Pattern
 
 class Hl7Serializer(val metadata: Metadata) : Logging {
     data class Hl7Mapping(
@@ -477,7 +478,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
                         hl7Field in HD_FIELDS_LOCAL &&
                         hl7Config?.truncateHDNamespaceIds == true
                     ) {
-                        value.substring(0, setTruncationLimitWithEncoding(value, HD_TRUNCATION_LIMIT))
+                        value.substring(0, getTruncationLimitWithEncoding(value, HD_TRUNCATION_LIMIT))
                     } else {
                         value
                     }
@@ -524,7 +525,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
                     value.length > HD_TRUNCATION_LIMIT &&
                     hl7Config?.truncateHDNamespaceIds == true
                 ) {
-                    value.substring(0, setTruncationLimitWithEncoding(value, HD_TRUNCATION_LIMIT))
+                    value.substring(0, getTruncationLimitWithEncoding(value, HD_TRUNCATION_LIMIT))
                 } else {
                     value
                 }
@@ -624,7 +625,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
     ) {
         val hl7Config = report.destination?.translation as? Hl7Configuration?
         val hdFieldMaximumLength = if (hl7Config?.truncateHDNamespaceIds == true) {
-            setTruncationLimitWithEncoding(value, HD_TRUNCATION_LIMIT)
+            getTruncationLimitWithEncoding(value, HD_TRUNCATION_LIMIT)
         } else {
             null
         }
@@ -924,11 +925,18 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
         terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-23-7", "XX")
     }
 
-    private fun setTruncationLimitWithEncoding(value: String, truncationLimit: Int): Int {
-        val regex = "[^&~|]".toRegex()
-        val match = regex.containsMatchIn(value)
-        return if (match) {
-            truncationLimit.minus(2)
+    /**
+     * Get a new truncationlimit accounting for the encoding of HL7 special characters.
+     * @param value string value to search for HL7 special characters
+     * @param truncationLimit the starting limit
+     * @return the new truncation limit or starting limit if no special characters are found
+     */
+    internal fun getTruncationLimitWithEncoding(value: String, truncationLimit: Int): Int {
+        val regex = "[&^~|]".toRegex()
+        val matchCount = regex.findAll(value).count()
+
+        return if (matchCount > 0) {
+            truncationLimit.minus(matchCount.times(2))
         } else {
             truncationLimit
         }

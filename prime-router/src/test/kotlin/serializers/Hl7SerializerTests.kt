@@ -40,6 +40,7 @@ import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Date
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.fail
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -103,7 +104,7 @@ NTE|1|L|This is a final comment|RE"""
             every { it.suppressHl7Fields }.returns(null)
             every { it.useBlankInsteadOfUnknown }.returns(null)
             every { it.convertTimestampToDateTime }.returns(null)
-            every { it.truncateHDNamespaceIds }.returns(true)
+            every { it.truncateHDNamespaceIds }.returns(false)
             every { it.phoneNumberFormatting }.returns(Hl7Configuration.PhoneNumberFormatting.STANDARD)
             every { it.usePid14ForPatientEmail }.returns(false)
             every { it.reportingFacilityName }.returns(null)
@@ -633,6 +634,16 @@ NTE|1|L|This is a final comment|RE"""
             mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-3-3", value)
             mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-3-4", "CLIA")
         }
+    }
+
+    @Test
+    fun `test setTruncationLimitWithEncoding`() {
+
+        val testValue = "Test & Value ~ Text ^ String"
+        val testLimit = 20
+        val newLimit = serializer.getTruncationLimitWithEncoding(testValue, testLimit)
+
+        assertEquals(newLimit, 14)
     }
 
     @Test
