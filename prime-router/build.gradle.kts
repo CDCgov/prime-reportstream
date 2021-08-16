@@ -438,7 +438,7 @@ dependencies {
     implementation("com.azure:azure-storage-queue:12.10.0") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-security-keyvault-secrets:4.3.1") {
+    implementation("com.azure:azure-security-keyvault-secrets:4.3.2") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
@@ -489,7 +489,7 @@ dependencies {
     implementation("org.bouncycastle:bcprov-jdk15on:1.69")
 
     implementation("com.cronutils:cron-utils:9.1.5")
-    implementation("khttp:khttp:0.1.0")
+    implementation("khttp:khttp:1.0.0")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.1")
     runtimeOnly("com.github.kittinunf.fuel:fuel-jackson:2.3.1")
