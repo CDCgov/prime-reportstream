@@ -24,6 +24,7 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Properties
 import java.util.TimeZone
+import java.util.regex.Pattern
 
 class Hl7Serializer(
     val metadata: Metadata,
@@ -472,7 +473,7 @@ class Hl7Serializer(
                         hl7Field in HD_FIELDS_LOCAL &&
                         hl7Config?.truncateHDNamespaceIds == true
                     ) {
-                        value.substring(0, HD_TRUNCATION_LIMIT)
+                        value.substring(0, getTruncationLimitWithEncoding(value, HD_TRUNCATION_LIMIT))
                     } else {
                         value
                     }
@@ -519,7 +520,7 @@ class Hl7Serializer(
                     value.length > HD_TRUNCATION_LIMIT &&
                     hl7Config?.truncateHDNamespaceIds == true
                 ) {
-                    value.substring(0, HD_TRUNCATION_LIMIT)
+                    value.substring(0, getTruncationLimitWithEncoding(value, HD_TRUNCATION_LIMIT))
                 } else {
                     value
                 }
@@ -634,7 +635,7 @@ class Hl7Serializer(
     ) {
         val hl7Config = report.destination?.translation as? Hl7Configuration?
         val hdFieldMaximumLength = if (hl7Config?.truncateHDNamespaceIds == true) {
-            HD_TRUNCATION_LIMIT
+            getTruncationLimitWithEncoding(value, HD_TRUNCATION_LIMIT)
         } else {
             null
         }
@@ -932,6 +933,23 @@ class Hl7Serializer(
         terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-1", "1")
         terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-2", "CWE")
         terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-23-7", "XX")
+    }
+
+    /**
+     * Get a new truncationlimit accounting for the encoding of HL7 special characters.
+     * @param value string value to search for HL7 special characters
+     * @param truncationLimit the starting limit
+     * @return the new truncation limit or starting limit if no special characters are found
+     */
+    internal fun getTruncationLimitWithEncoding(value: String, truncationLimit: Int): Int {
+        val regex = "[&^~|]".toRegex()
+        val matchCount = regex.findAll(value).count()
+
+        return if (matchCount > 0) {
+            truncationLimit.minus(matchCount.times(2))
+        } else {
+            truncationLimit
+        }
     }
 
     private fun createHeaders(report: Report): String {

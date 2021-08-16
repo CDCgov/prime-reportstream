@@ -41,6 +41,7 @@ import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Date
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.fail
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -645,6 +646,19 @@ NTE|1|L|This is a final comment|RE"""
             mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-3-3", value)
             mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-3-4", "CLIA")
         }
+    }
+
+    @Test
+    fun `test setTruncationLimitWithEncoding`() {
+
+        val testValueWithSpecialChars = "Test & Value ~ Text ^ String"
+        val testValueNoSpecialChars = "Test Value Text String"
+        val testLimit = 20
+        val newLimitWithSpecialChars = serializer.getTruncationLimitWithEncoding(testValueWithSpecialChars, testLimit)
+        val newLimitNoSpecialChars = serializer.getTruncationLimitWithEncoding(testValueNoSpecialChars, testLimit)
+
+        assertEquals(newLimitWithSpecialChars, 14)
+        assertEquals(newLimitNoSpecialChars, testLimit)
     }
 
     @Test
