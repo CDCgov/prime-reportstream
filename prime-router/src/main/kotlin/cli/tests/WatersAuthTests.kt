@@ -95,6 +95,7 @@ class WatersAuthTests : CoolTest() {
         // create a fake report
         fakeReportFile = FileUtilities.createFakeFile(
             metadata,
+            settings,
             sender = savedSender,
             count = 1,
             format = Report.Format.CSV,

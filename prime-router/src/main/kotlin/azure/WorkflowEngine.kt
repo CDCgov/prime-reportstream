@@ -517,7 +517,7 @@ class WorkflowEngine(
         }
 
         val hl7Serializer: Hl7Serializer by lazy {
-            Hl7Serializer(metadata)
+            Hl7Serializer(metadata, settings)
         }
 
         val redoxSerializer: RedoxSerializer by lazy {
