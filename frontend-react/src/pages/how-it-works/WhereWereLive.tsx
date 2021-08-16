@@ -1,12 +1,7 @@
-import USAMap from "react-usa-map";
-
-import states from "../../content/live.json";
+import live from "../../content/live.json";
+import CdcMap from "@cdc/map";
 
 export const WhereWereLive = () => {
-    const statesCustomConfig = () => {
-        return states;
-    };
-
     return (
         <>
             <section id="anchor-top">
@@ -28,11 +23,17 @@ export const WhereWereLive = () => {
                 </p>
             </section>
             <section>
-                <USAMap customize={statesCustomConfig()} />
+                <CdcMap config={live} />
                 ReportStream has established connections to send and report
                 public health data for each of the states and territories listed
                 here.
-                <ul></ul>
+                <ul>
+                    {live.data
+                        .sort((a, b) => a.state.localeCompare(b.state))
+                        .map((data) => (
+                            <li>{data.state}</li>
+                        ))}
+                </ul>
                 Companies or testing facilities sending test results may still
                 need to register directly with the state before sending data to
                 their public health department.

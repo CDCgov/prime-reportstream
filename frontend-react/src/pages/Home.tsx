@@ -6,7 +6,7 @@ import { library } from "@fortawesome/fontawesome-svg-core";
 import { fas } from "@fortawesome/free-solid-svg-icons";
 import CdcMap from "@cdc/map";
 import live from "../content/live.json";
-import { Link } from "react-router-dom";
+import { Button, Link } from "@trussworks/react-uswds";
 
 const Hero = () => {
     return (
@@ -29,98 +29,213 @@ const Hero = () => {
     );
 };
 
+interface SectionProp {
+    title?: string;
+    type?: string;
+    summary?: string;
+    bullets?: { content?: string }[];
+    features?: FeatureProp[];
+    description?: string;
+    buttonText?: string;
+    buttonUrlSubject?: string;
+}
+
+interface FeatureProp {
+    method?: number;
+    title?: string;
+    icon?: string;
+    img?: string;
+    imgAlt?: string;
+    summary?: string;
+    items?: { title?: string; summary?: string }[];
+}
+
+const Feature = ({
+    section,
+    feature,
+}: {
+    section: SectionProp;
+    feature: FeatureProp;
+}) => {
+    if (section.type === "deliveryMethods") {
+        return <DeliveryMethodsFeature section={section} feature={feature} />;
+    } else if (section.type === "liveMap") {
+        return <LiveMapFeature section={section} feature={feature} />;
+    } else
+        return (
+            <div className="tablet:grid-col-4 margin-bottom-0">
+                <h3 className="font-sans-md tablet:font-sans-lg padding-top-3 border-top-05 border-base-lighter">
+                    <FontAwesomeIcon
+                        icon={feature.icon as IconName}
+                        color="#005EA2"
+                        className="margin-right-1"
+                    />
+                    {feature.title}
+                </h3>
+                <p
+                    className="usa-prose"
+                    dangerouslySetInnerHTML={{ __html: feature!.summary! }}
+                ></p>
+            </div>
+        );
+};
+
+const DeliveryMethodsFeature = ({
+    section,
+    feature,
+}: {
+    section: SectionProp;
+    feature: FeatureProp;
+}) => {
+    return (
+        <div className="grid-col-12 margin-bottom-3">
+            <div className="grid-row grid-gap display-flex flex-row flex-align-top">
+                <div className="tablet:grid-col-6">
+                    <img
+                        src={site.imgPath + feature.img}
+                        alt="{ feature.imgAlt }"
+                    />
+                </div>
+                <div className="tablet:grid-col-6 ">
+                    <h3 className="font-sans-lg margin-top-0 padding-top-3 margin-bottom-1 tablet:border-top-05 tablet:border-base-lighter">
+                        <FontAwesomeIcon
+                            icon={feature.icon as IconName}
+                            color="#005EA2"
+                            className="margin-right-1"
+                        />
+                        {feature.title}
+                    </h3>
+                    <p className="usa-prose">{feature!.items![0]?.summary}</p>
+                    <p className="usa-prose">{feature!.items![1]?.summary}</p>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const LiveMapFeature = ({
+    section,
+    feature,
+}: {
+    section: SectionProp;
+    feature: FeatureProp;
+}) => {
+    return (
+        <>
+            <div className="tablet:grid-col-4 margin-bottom-0">
+                <h3 className="font-sans-md tablet:font-sans-lg padding-top-3 border-top-05 border-base-lighter">
+                    {feature.title}
+                </h3>
+                <p className="usa-prose">{feature.summary}</p>
+            </div>
+        </>
+    );
+};
+
+const Section = ({ section }: { section: SectionProp }) => {
+    if (section.type === "cta") return <CtaSection section={section} />;
+    else if (section.type === "liveMap")
+        return <LiveMapSection section={section} />;
+    else
+        return (
+            <div className="tablet:grid-col-10 ">
+                <h2 className="font-sans-lg tablet:font-sans-xl margin-top-0 tablet:margin-bottom-0">
+                    {section.title}
+                </h2>
+                <p className="usa-intro margin-top-1 text-base">
+                    {section.summary}
+                </p>
+            </div>
+        );
+};
+
+const CtaSection = ({ section }: { section: SectionProp }) => {
+    return (
+        <>
+            <div className="tablet:grid-col-8">
+                <h2 className="font-sans-lg tablet:font-sans-xl margin-top-0 tablet:margin-bottom-0">
+                    {section.title}
+                </h2>
+                <p className="usa-prose">{section.description}</p>
+                <p className="usa-prose">{section.summary}</p>
+                <Button className="usa-button margin-top-2" type="button">
+                    {section.buttonText}
+                </Button>
+            </div>
+        </>
+    );
+};
+
+const LiveMapSection = ({ section }: { section: SectionProp }) => {
+    return (
+        <>
+            <div>
+                <h2 className="font-sans-lg tablet:font-sans-xl margin-top-0 tablet:margin-bottom-0">
+                    {section.title}
+                </h2>
+                <p className="usa-intro margin-top-1 text-base">
+                    {section.summary}
+                </p>
+                <div className="tablet:grid-col-10">
+                    <CdcMap config={live} />
+                </div>
+                <p
+                    className="usa-prose margin-top-2"
+                    dangerouslySetInnerHTML={{ __html: section!.description! }}
+                ></p>
+            </div>
+        </>
+    );
+};
+
 export const Home = () => {
     library.add(fas);
     return (
         <>
             <Hero />
             <div className="grid-container">
-                {content.sections.map((section, idx) => (
-                    <section className="usa-section margin-y-0 padding-y-0">
-                        <div className="grid-row grid-gap margin-bottom-0">
-                            <div className="tablet:grid-col-12">
-                                <h2 className="font-sans-xl margin-top-0 tablet:margin-bottom-0">
-                                    {section.title}
-                                </h2>
-                                <p
-                                    className="font-sans-lg margin-top-1 text-base"
-                                    dangerouslySetInnerHTML={{
-                                        __html: section.summary,
-                                    }}
-                                ></p>
+                {content.sections.map((section) => {
+                    return (
+                        <section className="usa-section margin-y-0 tablet:padding-top-2 tablet:padding-bottom-2">
+                            <div className="grid-row grid-gap">
+                                <Section section={section} />
                             </div>
-                        </div>
-                        <div className="grid-row grid-gap margin-bottom-8">
-                            {section.features.map((feature) => {
-                                return (
-                                    <div className="tablet:grid-col-4 margin-bottom-0">
-                                        <h3>
-                                            <FontAwesomeIcon
-                                                color="#005EA2"
-                                                icon={feature.icon as IconName}
-                                                className="margin-right-1"
+                            <div className="grid-row grid-gap margin-bottom-2 ">
+                                {section.features?.map((feature) => {
+                                    return (
+                                        <Feature
+                                            section={section}
+                                            feature={feature}
+                                        />
+                                    );
+                                })}
+                            </div>
+                        </section>
+                    );
+                })}
+
+                <section className="usa-section">
+                    <div className="grid-row grid-gap  margin-bottom-4 padding-top-0">
+                        {content.freeSecure.map((item) => {
+                            return (
+                                <>
+                                    <div className="tablet:grid-col-6">
+                                        <h3 className="font-sans-lg padding-top-3 border-top-05 border-base-lighter">
+                                            <img
+                                                src={"/assets/" + item.icon}
+                                                alt="cdc logo"
+                                                height="36"
+                                                className="margin-right-2"
                                             />
-                                            {feature.title}
+                                            {item.title}
                                         </h3>
-                                        <p
-                                            className="usa-prose"
-                                            dangerouslySetInnerHTML={{
-                                                __html: feature.summary,
-                                            }}
-                                        ></p>
+                                        <p className="usa-prose">
+                                            {item.summary}
+                                        </p>
                                     </div>
-                                );
-                            })}
-                        </div>
-                    </section>
-                ))}
-            </div>
-
-            <div className="grid-container">
-                <section className="usa-section margin-top-0 padding-top-0 padding-bottom-6 border-bottom-1px border-base-lighter">
-                    <div className="grid-row grid-gap  margin-bottom-2 ">
-                        <div className="tablet:grid-col-12">
-                            <h2 className="font-sans-xl margin-top-0 tablet:margin-bottom-0">
-                                Where is ReportStream live?
-                            </h2>
-                            <p className="font-sans-lg margin-top-1 margin-bottom-6">
-                                ReportStream partners with health departments,
-                                test manufacturers, data aggregators, and others
-                                across the U.S.
-                            </p>
-                            <CdcMap config={live} />
-                            <p className="usa-prose margin-top-2">
-                                We’re growing quickly. Take a look at the{" "}
-                                <Link to="/how-it-works/where-were-live">
-                                    complete list of ReportStream partners
-                                </Link>
-                                .
-                            </p>
-                        </div>
-                    </div>
-                </section>
-            </div>
-
-            <div className="grid-container margin-bottom-15">
-                <section className="usa-section margin-top-0 padding-top-0 padding-bottom-6 border-bottom-1px border-base-lighter">
-                    <div className="grid-row grid-gap  margin-bottom-2 ">
-                        <div className="tablet:grid-col-12">
-                            <h2 className="font-sans-xl margin-top-0 tablet:margin-bottom-0">
-                                {content.cta.title}
-                            </h2>
-                            <p
-                                className="font-sans-lg margin-top-1 margin-bottom-6"
-                                dangerouslySetInnerHTML={{
-                                    __html: content.cta.summary,
-                                }}
-                            ></p>
-                            <a
-                                className="usa-button"
-                                href={"mailto:" + site.orgs.RS.email}
-                            >
-                                {content.cta.buttonText}
-                            </a>
-                        </div>
+                                </>
+                            );
+                        })}
                     </div>
                 </section>
             </div>
