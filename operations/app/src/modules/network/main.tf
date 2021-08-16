@@ -1,11 +1,116 @@
+/* Network security groups */
 resource "azurerm_network_security_group" "nsg_public" {
-  name = "${var.resource_prefix}-nsg.public"
-  location = var.location
-  resource_group_name = var.resource_group
+    name                = "${var.resource_prefix}-nsg.public"
+    location            = var.location
+    resource_group_name = var.resource_group
 }
 
 resource "azurerm_network_security_group" "nsg_private" {
-  name = "${var.resource_prefix}-nsg.private"
-  location = var.location
-  resource_group_name = var.resource_group
+    name                = "${var.resource_prefix}-nsg.private"
+    location            = var.location
+    resource_group_name = var.resource_group
+}
+
+
+/* Public subnet */
+resource "azurerm_subnet" "public_subnet" {
+    for_each = data.azurerm_virtual_network.vnet
+
+    name                 = "public"
+    resource_group_name  = var.resource_group
+    virtual_network_name = each.value.name
+    address_prefixes     = [
+        local.vnet_subnets[each.value.name][0],
+    ]
+    service_endpoints    = [
+        "Microsoft.ContainerRegistry",
+        "Microsoft.Storage",
+        "Microsoft.Sql",
+        "Microsoft.Web",
+        "Microsoft.KeyVault",
+    ]
+    delegation {
+        name = "server_farms"
+        service_delegation {
+            name    = "Microsoft.Web/serverFarms"
+            actions = [
+                "Microsoft.Network/virtualNetworks/subnets/action",
+            ]
+        }
+    }
+}
+
+resource "azurerm_subnet_network_security_group_association" "public_to_nsg_public" {
+    for_each = azurerm_subnet.public_subnet
+
+    subnet_id                 = each.value.id
+    network_security_group_id = azurerm_network_security_group.nsg_public.id
+}
+
+
+/* Container subnet */
+resource "azurerm_subnet" "container_subnet" {
+    for_each = data.azurerm_virtual_network.vnet
+
+    name                 = "container"
+    resource_group_name  = var.resource_group
+    virtual_network_name = each.value.name
+    address_prefixes     = [
+        local.vnet_subnets[each.value.name][1],
+    ]
+    service_endpoints    = [
+        "Microsoft.Storage",
+        "Microsoft.KeyVault",
+    ]
+    delegation {
+        name = "container_groups"
+        service_delegation {
+            name    = "Microsoft.ContainerInstance/containerGroups"
+            actions = [
+                "Microsoft.Network/virtualNetworks/subnets/action",
+            ]
+        }
+    }
+}
+
+resource "azurerm_subnet_network_security_group_association" "container_to_nsg_public" {
+    for_each = azurerm_subnet.container_subnet
+
+    subnet_id                 = each.value.id
+    network_security_group_id = azurerm_network_security_group.nsg_public.id
+}
+
+
+/* Private subnet */
+resource "azurerm_subnet" "private_subnet" {
+    for_each = data.azurerm_virtual_network.vnet
+
+    name = "private"
+    resource_group_name = var.resource_group
+    virtual_network_name = each.value.name
+    address_prefixes = [
+        local.vnet_subnets[each.value.name][2],
+    ]
+    service_endpoints = [
+        "Microsoft.Storage",
+        "Microsoft.Sql",
+        "Microsoft.KeyVault",
+    ]
+
+    delegation {
+        name = "server_farms"
+        service_delegation {
+            name = "Microsoft.Web/serverFarms"
+            actions = [
+                "Microsoft.Network/virtualNetworks/subnets/action",
+            ]
+        }
+    }
+}
+
+resource "azurerm_subnet_network_security_group_association" "private_to_nsg_private" {
+    for_each = azurerm_subnet.private_subnet
+
+    subnet_id = each.value.id
+    network_security_group_id = azurerm_network_security_group.nsg_private.id
 }
