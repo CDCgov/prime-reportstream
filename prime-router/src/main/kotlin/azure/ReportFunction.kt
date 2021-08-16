@@ -52,8 +52,8 @@ class ReportFunction : Logging {
 
     data class ValidatedRequest(
         val httpStatus: HttpStatus,
-        val errors: MutableList<ResultDetail> = mutableListOf<ResultDetail>(),
-        val warnings: MutableList<ResultDetail> = mutableListOf<ResultDetail>(),
+        val errors: MutableList<ResultDetail> = mutableListOf(),
+        val warnings: MutableList<ResultDetail> = mutableListOf(),
         val options: Options = Options.None,
         val defaults: Map<String, String> = emptyMap(),
         val routeTo: List<String> = emptyList(),
@@ -135,7 +135,7 @@ class ReportFunction : Logging {
 
     private fun ingestReport(request: HttpRequestMessage<String?>, context: ExecutionContext): HttpResponseMessage {
         val workflowEngine = WorkflowEngine()
-        val actionHistory = ActionHistory(TaskAction.receive, workflowEngine, context)
+        val actionHistory = ActionHistory(TaskAction.receive, context)
         var report: Report? = null
         actionHistory.trackActionParams(request)
         val httpResponseMessage = try {
@@ -181,7 +181,7 @@ class ReportFunction : Logging {
         }
         actionHistory.trackActionResult(httpResponseMessage)
         workflowEngine.recordAction(actionHistory)
-        actionHistory.queueMessages() // Must be done after creating TASK record.
+        actionHistory.queueMessages(workflowEngine) // Must be done after creating TASK record.
         // write the data to the table if we're dealing with covid-19. this has to happen
         // here AFTER we've written the report to the DB
         writeCovidResultMetadataForReport(report, context, workflowEngine)

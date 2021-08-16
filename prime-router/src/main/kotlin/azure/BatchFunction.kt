@@ -34,7 +34,7 @@ class BatchFunction {
             val receiver = workflowEngine.settings.findReceiver(event.receiverName)
                 ?: error("Internal Error: receiver name ${event.receiverName}")
             val maxBatchSize = receiver.timing?.maxReportCount ?: defaultBatchSize
-            val actionHistory = ActionHistory(event.eventAction.toTaskAction(), workflowEngine, context)
+            val actionHistory = ActionHistory(event.eventAction.toTaskAction(), context)
             actionHistory.trackActionParams(message)
 
             workflowEngine.handleReceiverEvent(event, maxBatchSize) { headers, txn ->
@@ -70,7 +70,7 @@ class BatchFunction {
                 actionHistory.trackActionResult(msg)
                 workflowEngine.recordAction(actionHistory, txn) // save to db
             }
-            actionHistory.queueMessages() // Must be done after txn, to avoid race condition
+            actionHistory.queueMessages(workflowEngine) // Must be done after txn, to avoid race condition
         } catch (e: Exception) {
             context.logger.log(Level.SEVERE, "Batch function exception for event: $message", e)
         }

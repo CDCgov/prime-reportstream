@@ -28,7 +28,6 @@ import org.jooq.DSLContext
 import org.jooq.tools.jdbc.MockConnection
 import org.jooq.tools.jdbc.MockDataProvider
 import org.jooq.tools.jdbc.MockResult
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.TestInstance
 import java.io.ByteArrayOutputStream
@@ -40,23 +39,15 @@ import kotlin.test.assertTrue
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ActionHistoryTests {
-    private val workflowEngine = WorkflowEngine()
-
-    @BeforeAll
-    internal fun initWorkflowEngine() {
-        // Check that we have a connection to the database.  This will also initialize the connection.
-        workflowEngine.db.checkConnection()
-    }
-
     @Test
     fun `test constructor`() {
-        val actionHistory = ActionHistory(TaskAction.batch, workflowEngine)
+        val actionHistory = ActionHistory(TaskAction.batch)
         assertThat(actionHistory.action.actionName).isEqualTo(TaskAction.batch)
     }
 
     @Test
     fun `test trackActionResult`() {
-        val actionHistory1 = ActionHistory(TaskAction.batch, workflowEngine)
+        val actionHistory1 = ActionHistory(TaskAction.batch)
         actionHistory1.trackActionResult("foobar")
         assertThat(actionHistory1.action.actionResult).isEqualTo("foobar")
         val giantStr = "x".repeat(3000)
@@ -72,7 +63,7 @@ class ActionHistoryTests {
             sources = listOf(ClientSource("myOrg", "myClient")),
             metadata = Metadata()
         )
-        val actionHistory1 = ActionHistory(TaskAction.receive, workflowEngine)
+        val actionHistory1 = ActionHistory(TaskAction.receive)
         val blobInfo1 = BlobAccess.BlobInfo(Report.Format.CSV, "myUrl", byteArrayOf(0x11, 0x22))
         actionHistory1.trackExternalInputReport(report1, blobInfo1)
         assertNotNull(actionHistory1.reportsReceived[report1.id])
@@ -108,7 +99,7 @@ class ActionHistoryTests {
                 )
             )
         val orgReceiver = org.receivers[0]
-        val actionHistory1 = ActionHistory(TaskAction.receive, workflowEngine)
+        val actionHistory1 = ActionHistory(TaskAction.receive)
         val blobInfo1 = BlobAccess.BlobInfo(Report.Format.CSV, "myUrl", byteArrayOf(0x11, 0x22))
         actionHistory1.trackCreatedReport(event1, report1, orgReceiver, blobInfo1)
 
@@ -130,7 +121,7 @@ class ActionHistoryTests {
     @Test
     fun `test trackExistingInputReport`() {
         val uuid = UUID.randomUUID()
-        val actionHistory1 = ActionHistory(TaskAction.send, workflowEngine)
+        val actionHistory1 = ActionHistory(TaskAction.send)
         actionHistory1.trackExistingInputReport(uuid)
         assertThat(actionHistory1.reportsIn[uuid]).isNotNull()
         val reportFile = actionHistory1.reportsIn[uuid] !!
@@ -157,7 +148,7 @@ class ActionHistoryTests {
                 )
             )
         val orgReceiver = org.receivers[0]
-        val actionHistory1 = ActionHistory(TaskAction.receive, workflowEngine)
+        val actionHistory1 = ActionHistory(TaskAction.receive)
         actionHistory1.trackSentReport(orgReceiver, uuid, "filename1", "params1", "result1", 15)
         assertThat(actionHistory1.reportsOut[uuid]).isNotNull()
         val reportFile = actionHistory1.reportsOut[uuid] !!
@@ -205,7 +196,7 @@ class ActionHistoryTests {
         val header = WorkflowEngine.Header(
             Task(), reportFile1, null, org, org.receivers[0], schema, "".toByteArray()
         )
-        val actionHistory1 = ActionHistory(TaskAction.download, workflowEngine)
+        val actionHistory1 = ActionHistory(TaskAction.download)
         val uuid2 = UUID.randomUUID()
         actionHistory1.trackDownloadedReport(header, "filename1", uuid2, "bob")
         assertThat(actionHistory1.reportsOut[uuid2]).isNotNull()
@@ -244,7 +235,7 @@ class ActionHistoryTests {
             metadata = Metadata()
         )
 
-        val actionHistory1 = ActionHistory(TaskAction.receive, workflowEngine)
+        val actionHistory1 = ActionHistory(TaskAction.receive)
         val blobInfo1 = BlobAccess.BlobInfo(Report.Format.CSV, "myUrl", byteArrayOf(0x11, 0x22))
         actionHistory1.trackExternalInputReport(report1, blobInfo1)
 
@@ -272,7 +263,7 @@ class ActionHistoryTests {
                 )
             )
         val settings = FileSettings().loadOrganizationList(listOf(org0, org1))
-        val actionHistory = ActionHistory(TaskAction.batch, workflowEngine)
+        val actionHistory = ActionHistory(TaskAction.batch)
         val r0 = ReportFile()
         r0.reportId = UUID.randomUUID()
         r0.receivingOrg = org0.name
