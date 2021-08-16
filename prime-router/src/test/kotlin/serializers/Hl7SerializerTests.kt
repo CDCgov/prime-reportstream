@@ -639,11 +639,14 @@ NTE|1|L|This is a final comment|RE"""
     @Test
     fun `test setTruncationLimitWithEncoding`() {
 
-        val testValue = "Test & Value ~ Text ^ String"
+        val testValueWithSpecialChars = "Test & Value ~ Text ^ String"
+        val testValueNoSpecialChars = "Test Value Text String"
         val testLimit = 20
-        val newLimit = serializer.getTruncationLimitWithEncoding(testValue, testLimit)
+        val newLimitWithSpecialChars = serializer.getTruncationLimitWithEncoding(testValueWithSpecialChars, testLimit)
+        val newLimitNoSpecialChars = serializer.getTruncationLimitWithEncoding(testValueNoSpecialChars, testLimit)
 
-        assertEquals(newLimit, 14)
+        assertEquals(newLimitWithSpecialChars, 14)
+        assertEquals(newLimitNoSpecialChars, testLimit)
     }
 
     @Test
