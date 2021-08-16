@@ -29,7 +29,6 @@ import org.jooq.tools.jdbc.MockConnection
 import org.jooq.tools.jdbc.MockDataProvider
 import org.jooq.tools.jdbc.MockResult
 import org.junit.jupiter.api.Disabled
-import org.junit.jupiter.api.TestInstance
 import java.io.ByteArrayOutputStream
 import java.time.OffsetDateTime
 import java.util.UUID
@@ -37,7 +36,6 @@ import kotlin.test.Test
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ActionHistoryTests {
     @Test
     fun `test constructor`() {
