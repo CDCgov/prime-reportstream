@@ -36,6 +36,8 @@ elements:
 
 # Force failure on all results except COVID-19
         - code: 99999999
+          display: "non-CDC 2019-ncov coronavirus, SARS (COVID-19)"
+        - code: 99999999
           display: "Flu A & B, Real-time RT-PCR (RNA)"
         - code: 99999999
           display: "Glucose - Accu-Chek"

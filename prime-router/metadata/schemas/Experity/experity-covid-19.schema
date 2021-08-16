@@ -72,12 +72,12 @@ elements:
       default: UNK
 
 # Specimen & Order Info
-    - name currentdatetime_temp
-      mapper: timestamp(yyyyMMdd)
+#    - name currentdatetime_temp
+#      mapper: timestamp(yyyyMMdd)
 #      csvFields: [{name: Specimen_collection_date_time, format: "M/d/yyyy HH:mm"}]
 
-#    - name: specimen_collection_date_time
-#      csvFields: [{name: Specimen_collection_date_time, format: "M/d/yyyy HH:mm"}]
+    - name: specimen_collection_date_time
+      csvFields: [{name: Specimen_collection_date_time, format: "M/d/yyyy HH:mm"}]
 
     - name: order_test_date
       csvFields: [{name: Order_test_date, format: "M/d/yyyy"}]
