@@ -12,7 +12,17 @@ import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.parser.EncodingNotSupportedException
 import ca.uhn.hl7v2.parser.ModelClassFactory
 import ca.uhn.hl7v2.util.Terser
-import gov.cdc.prime.router.*
+import gov.cdc.prime.router.Element
+import gov.cdc.prime.router.ElementAndValue
+import gov.cdc.prime.router.Hl7Configuration
+import gov.cdc.prime.router.Mapper
+import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.ResultDetail
+import gov.cdc.prime.router.Schema
+import gov.cdc.prime.router.SettingsProvider
+import gov.cdc.prime.router.Source
+import gov.cdc.prime.router.ValueSet
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.InputStream
 import java.io.OutputStream
@@ -24,7 +34,6 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Properties
 import java.util.TimeZone
-import java.util.regex.Pattern
 
 class Hl7Serializer(
     val metadata: Metadata,
