@@ -52,8 +52,8 @@ class ReportFunction : Logging {
 
     data class ValidatedRequest(
         val httpStatus: HttpStatus,
-        val errors: MutableList<ResultDetail> = mutableListOf<ResultDetail>(),
-        val warnings: MutableList<ResultDetail> = mutableListOf<ResultDetail>(),
+        val errors: MutableList<ResultDetail> = mutableListOf(),
+        val warnings: MutableList<ResultDetail> = mutableListOf(),
         val options: Options = Options.None,
         val defaults: Map<String, String> = emptyMap(),
         val routeTo: List<String> = emptyList(),
@@ -103,16 +103,18 @@ class ReportFunction : Logging {
     ): HttpResponseMessage {
 
         logger.debug(" request headers: ${request.headers}")
+        val workflowEngine = WorkflowEngine()
         val authenticationStrategy = AuthenticationStrategy.authStrategy(
             request.headers["authentication-type"],
-            PrincipalLevel.USER
+            PrincipalLevel.USER,
+            workflowEngine
         )
         val senderName = request.headers[CLIENT_PARAMETER]
             ?: request.queryParameters.getOrDefault(CLIENT_PARAMETER, "")
         // todo This code is redundant w/validateRequest. Remove from validateRequest once old endpoint is removed
         if (senderName.isBlank())
             return HttpUtilities.bad(request, "Expected a '$CLIENT_PARAMETER' query parameter")
-        val sender = WorkflowEngine().settings.findSender(senderName)
+        val sender = workflowEngine.settings.findSender(senderName)
             ?: return HttpUtilities.bad(request, "'$CLIENT_PARAMETER:$senderName': unknown sender")
 
         if (authenticationStrategy is OktaAuthentication) {
@@ -166,7 +168,7 @@ class ReportFunction : Logging {
                     routeReport(context, workflowEngine, validatedRequest, actionHistory)
                     if (request.body != null && validatedRequest.sender != null) {
                         workflowEngine.recordReceivedReport(
-                            report, request.body!!.toByteArray(), validatedRequest.sender!!,
+                            report, request.body!!.toByteArray(), validatedRequest.sender,
                             actionHistory, workflowEngine
                         )
                     } else error(
@@ -194,7 +196,7 @@ class ReportFunction : Logging {
         // add the response to the action table as JSONB and record the httpsStatus
         actionHistory.trackActionResponse(httpResponseMessage, verboseResponse.toString())
         workflowEngine.recordAction(actionHistory)
-        actionHistory.queueMessages() // Must be done after creating TASK record.
+        actionHistory.queueMessages(workflowEngine) // Must be done after creating TASK record.
         // write the data to the table if we're dealing with covid-19. this has to happen
         // here AFTER we've written the report to the DB
         writeCovidResultMetadataForReport(report, context, workflowEngine)
@@ -497,7 +499,7 @@ class ReportFunction : Logging {
             if (result.report != null) {
                 it.writeStringField("id", result.report.id.toString())
                 it.writeStringField("timestamp", DateTimeFormatter.ISO_INSTANT.format(Instant.now()))
-                it.writeStringField("topic", result.report.schema.topic.toString())
+                it.writeStringField("topic", result.report.schema.topic)
                 it.writeNumberField("reportItemCount", result.report.itemCount)
             } else
                 it.writeNullField("id")

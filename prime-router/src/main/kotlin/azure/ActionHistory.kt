@@ -377,14 +377,14 @@ class ActionHistory {
         insertAll(txn)
     }
 
-    fun queueMessages() {
+    fun queueMessages(workflowEngine: WorkflowEngine) {
         messages.forEach { event ->
-            queueMessage(event)
+            queueMessage(event, workflowEngine)
         }
     }
 
-    private fun queueMessage(event: Event) {
-        WorkflowEngine().queue.sendMessage(event)
+    private fun queueMessage(event: Event, workflowEngine: WorkflowEngine) {
+        workflowEngine.queue.sendMessage(event)
         context?.logger?.info("Queued event: ${event.toQueueMessage()}")
     }
 
