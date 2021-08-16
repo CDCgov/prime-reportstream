@@ -1,98 +1,108 @@
-% Developer Getting Started Guide
+# Developer Getting Started Guide
 
-This document will walk you through the setup instructions to get a functioning development environment from first clone to completion of your first run of the end-to-end tests.
+This document will walk you through the setup instructions to get a functioning development environment.
 
 # Table of contents
-
-* [Locally installed software prerequisites](#locally-installed-software-prerequisites)
-* [First build](#first-build)
-    * [Build dependencies](#build-dependencies)
-* [Committing to this repository](#committing-to-this-repository)
+- [Table of contents](#table-of-contents)
+- [Locally installed software prerequisites](#locally-installed-software-prerequisites)
+- [Bulding the Baseline](#bulding-the-baseline)
+    * [First Build](#first-build)
+    * [Build Dependencies](#build-dependencies)
+- [Building the Baseline](#building-the-baseline)
+- [Committing to this repository](#committing-to-this-repository)
     * [Git Hooks](#git-hooks)
-* [Building in the course of development](#building-in-the-course-of-development)
+        + [pre-commit: Gitleaks](#pre-commit--gitleaks)
     * [Updating schema documentation](#updating-schema-documentation)
-* [Running ReportStream](#running-reportstream)
-    * [Inspecting Logs](#inspecting-logs)
-    * [Debugging ReportStream](#debugging-reportstream)
+- [Running ReportStream](#running-reportstream)
+    * [Restarting After a Code Update](#restarting-after-a-code-update)
+        + [Inspecting the Logs](#inspecting-the-logs)
+        + [Debugging ReportStream](#debugging-reportstream)
     * [Finding misconfigurations](#finding-misconfigurations)
     * [Getting around SSL errors](#getting-around-ssl-errors)
-* [Function development with docker-compose](#function-development-with-docker-compose)
+- [Function development with docker-compose](#function-development-with-docker-compose)
     * [Running ReportStream locally](#running-reportstream-locally)
-* [Credentials and secrets vault](#credentials-and-secrets-vault)
+- [Credentials and secrets vault](#credentials-and-secrets-vault)
     * [Initializing the vault](#initializing-the-vault)
     * [Re-initializing the vault](#re-initializing-the-vault)
     * [Using the vault locally](#using-the-vault-locally)
-* [Testing](#testing)
+- [Testing](#testing)
     * [Running the unit tests](#running-the-unit-tests)
     * [Data conversion quick test](#data-conversion-quick-test)
     * [Running the end-to-end tests](#running-the-end-to-end-tests)
-* [Resetting your environment](#resetting-your-environment)
-    * [Resetting just your database](#resetting-just-your-database)
-* [Additional tooling](#additional-tooling)
-* [Miscelanious subjects](#miscelanious-subjects)
+- [Resetting your environment](#resetting-your-environment)
+    * [Resetting the Database](#resetting-the-database)
+- [Additional tooling](#additional-tooling)
+- [Miscelanious subjects](#miscelanious-subjects)
     * [Using different database credentials than the default](#using-different-database-credentials-than-the-default)
-    * [Using local configuration for organizations.yml](#using-local-configuration-for-organizations.yml)
-    * [PRIME_DATA_HUB_INSECURE_SSL environment variable](#prime_data_hub_insecure_ssl-environment-variable)
+    * [Using local configuration for organizations.yml](#using-local-configuration-for-organizationsyml)
+    * [`PRIME_DATA_HUB_INSECURE_SSL` environment variable](#-prime-data-hub-insecure-ssl--environment-variable)
 
 # Locally installed software prerequisites
 
-You will need to have at least the following pieces of software installed _locally_ in order to be able to build and/or debug the product:
+You will need to have at least the following pieces of software installed _locally_ in order to be able to build and/or debug this baseline:
 
 * [git](getting-started/install-git.md) including git-bash if you're on Windows
-* [Docker](getting-started/install-docker.md)
+* [Docker or Docker Desktop](getting-started/install-docker.md)
 * [OpenJDK](getting-started/install-openjdk.md) (currently targetting 11 through 15)
 * [Azure Functions Core Tools](getting-started/install-afct.md) (currently targetting 3)
 
-The following tools may be installed for development or debugging purposes:
+The following are optional tools that can aid you during development or debugging:
 
 * [Azure Storage Explorer](https://docs.microsoft.com/en-us/azure/vs-azure-tools-storage-manage-with-storage-explorer)
 * [AzureCLI](getting-started/install-azurecli.md)
 * [Gradle](getting-started/install-gradle.md)
 * One or more [PostgreSQL Clients](getting-started/psql-clients.md)
 
-# First build
+# Bulding the Baseline
 
-After having installed all software dependencies, you should be able to successfully run your first build by executing:
+## First Build
+
+1. [Clone the prime-reportstream repository](https://docs.github.com/en/github/creating-cloning-and-archiving-repositories/cloning-a-repository-from-github/cloning-a-repository)
+   to your workstation using git.
+
+1. If you are using Docker Desktop, verify that it is running prior to building or running ReportStream locally.
+
+1. Initialize your environment and run an initial build by running the following command using a Linux shell.
+   Note you can run `cleanslate.sh` script to reset your environment as well (run `./cleanslate.sh --help` for more
+   information). The `cleanslate.sh` script not only cleans, but also performs a first build and setup of all artifacts
+   needed for the build
 
 ```bash
 cd ./prime-router
 ./cleanslate.sh
 ```
-The `cleanslate.sh` script not only cleans, but also performs a first build and setup of all artifacts as well: it sets you up from clone to first-run in a single step. Upon successful completion of `./cleanslate.sh`, you should be able to run the instructions advertised the end of the script, i.e. loading your vault information as environment variables followed by running the end-to-end tests ('`$`' indicates your prompt):
 
-```bash
-$ cd ./prime-router
-$ ./cleanslate.sh --instructions
-Please run the following command to load your credentials and run the End-to-End tests:
-
-    $ export $(xargs < .vault/env/.env.local)
-    $ ./gradlew testEnd2End
-
-# This loads the credentials to the vault as exported environment variables
-$ export $(xargs < .vault/env/.env.local)
-# Runs the end-to-end tests
-$ ./gradlew testEnd2End
-```
-
-You can execute `./cleanslate.sh --help` for more information. If this is truly your first time building anything, you do not have to specify any arguments to the script.
-
-## Build dependencies
-
-The `./cleanslate.sh` script will bring up any build dependencies needed for you. But it is still important to understand what these are.
-
-In order to successfully build, you will need to have a locally accessible PostgreSQL instance. **We highly recommend running this instance as a docker container** that is brought up through docker-compose. Without this locally accessible instance, your build will fail due to not being able to migrate your schema.
-
-The `./prime-router` directory contains a docker-compose file(*) that will bring up a properly configured PostgreSQL instance for you. The `docker-compose.build.yml` file contains the default credentials that are provisioned as 'root' user (with equivalent powers as '`postgres`') in this PostgreSQL instance.
+## Build Dependencies
+1. If you are using Docker Desktop, verify that it is running prior to building or running ReportStream locally.
+1. Building and running ReportStream requires a locally accessible PostgreSQL database instance that is initially setup
+   and run by the `cleanslate.sh` script.  This database instance runs as a Docker container defined by the
+   `docker-compose.build.yml` file.  You will need to start this database instance upon a workstation reboot by
+   using the following command:
 
 ```bash
 cd ./prime-router
-# Note the --file argument!
 docker-compose --file "docker-compose.build.yml" up --detach
 ```
 
-Running this instance as a docker container enables you to easily clean it (and its data) up without affecting any other parts of your local system.
+# Building the Baseline
 
-(*) _Note that this `docker-compose.build.yml` file contains other artifacts that are used in our CI/CD build pipeline. Specifically there is a '`builder`' service which will start and terminate on bringing this docker-compose environment. For all intents and purposes, you can ignore this service._
+You can invoke `gradlew` from the `./prime-router` directory to build the baseline as follows:
+
+```bash
+./gradlew clean package
+```
+
+The most useful gradle tasks are:
+
+* `clean`: deletes the build artifacts
+* `compile`: compiles the code
+* `test`: runs the unit tests
+* `testIntegration`: runs the integration tests
+* `package`: packages the build artifacts for deployment
+* `quickpackage`: re-packages the build artifacts for deployment without running the tests
+* `testSmoke`: runs all the smoke tests; this requires [that you are running ReportStream](#running-reportstream)
+* `testEnd2End`: runs the end-to-end test; this requires [that you are running ReportStream](#running-reportstream)
+* `primeCLI`: run the prime CLI.  Specify arguments with `"--args=<args>"`
 
 # Committing to this repository
 
@@ -108,8 +118,8 @@ We make use of git hooks in this repository and rely on them for certain levels 
 Gitleaks is one of the checks that are run as part of the `pre-commit` hook. It must pass successfully for the commit to proceed (i.e. for the commit to actually happen, failure will prevent the commit from being made and will leave your staged files in staged status). Gitleaks scans files that are marked as "staged" (i.e. `git add`) for known patterns of secrets or keys.
 
 The output of this tool consists of 2 files, both in the root of your repository, which can be inspected for more information about the check:
-        * `gitleaks.report.json`: the details about any leaks it finds, serialized as JSON. If no leaks are found, this file contains the literal "`null`"; if leaks are found, then this file will contain an array of found leak candidates.
-        * `gitleaks.log`: the simplified logging output of the gitleaks tool
+* `gitleaks.report.json`: the details about any leaks it finds, serialized as JSON. If no leaks are found, this file contains the literal "`null`"; if leaks are found, then this file will contain an array of found leak candidates.
+* `gitleaks.log`: the simplified logging output of the gitleaks tool
 
 When gitleaks reports leaks/violations, the right course of action is typically to remove the leak and replace it with a value that is collected at run-time. There are limited cases where the leak is a false positive, in which case a _strict and narrow_ exemption may be added to the `.environment/gitleaks/gitleaks-config.toml` configuration file. _If an exemption is added, it must be signed off on by a member of the DevOps team_.
 
@@ -117,68 +127,37 @@ This tool can also be manually invoked through `.environment/gitleaks/run-gitlea
 
 See [Allow-listing Gitleaks False Positives](allowlist-gitleaks-false-positives.md) for more details on how to prevent False Positives!
 
-# Building in the course of development
-
-You can invoke gradle from the `./prime-router` directory to build the product:
-
-```bash
-# if you have gradle (>=7.0) installed locally, use 'gradle' instead of './gradlew'
-# Your most invoked build command
-./gradlew package
-
-# cleans up build artifacts (not as thorough as ./cleanslate.sh though)
-./gradlew clean
-```
-
-Your most used gradle tasks will be:
-
-* `clean`: deletes the build artifacts
-* `compile`: compiles the code
-* `migrate`: loads the database with the current schema
-* `package`: packages the build artifacts for deployment
-* `primeCLI`: run the prime CLI.  Specify arguments with `"--args=<args>"`
-* `test`: runs the unit tests
-* `testEnd2End`: runs the end to end tests; this requires [that you are running ReportStream](#running-reportstream)
-* `testIntegration`: runs the integration tests; this requires [that you are running ReportStream](#running-reportstream)
-
-If you see any SSL errors during this step, follow the directions in [Getting Around SSL Errors](#getting-around-ssl-errors).
-
 ## Updating schema documentation
-Run the following gradle command to generate the schema documentation. This documentation is written to `docs/schema-documentation`
+You must run the schema document generator after a schema file is updated.  The updated documents are stored in
+`docs/schema-documentation` and must be included with your schema changes. The CI/CD pipeline checks for the need to update
+schema documentation and the build will fail if the schema documentation updates are not included.
 
 ```bash
 ./gradlew generateDocs
 ```
 
-The CI/CD pipeline checks for the need to update schema documentation and will fail the build if this documentation is lacking.
-
 # Running ReportStream
 
-You can bring up an entire ReportStream environment by running the command listed underneath. Note that this requires that you have successfully built in the past (see "[Building in the course of development](#building-in-the-course-of-development)" and/or "[First Build](#first-build)") as it tries to bring the ReportStream container itself up as well.
+You can bring up the entire ReportStream environment by running the `devenv-infrastructure.sh` script after building
+the baseline (see "[Building in the course of development](#building-in-the-course-of-development)" and/or "[First Build](#first-build)")
 
 ```bash
 cd ./prime-router
+./gradlew package
 ./devenv-infrastructure.sh
 ```
+If you see any SSL errors during this step, follow the directions in [Getting Around SSL Errors](#getting-around-ssl-errors).
 
-If you have made modifications and would like to see these reflected in your running ReportStream, restart the service as follows:
+## Restarting After a Code Update
+You must re-package the build and restart the prime_dev container to see any modifications you have made to the files:
 
 ```bash
 cd ./prime-router
-# restart just the prime_dev service (which is the one running ReportStream)
+./gradlew package
 docker-compose restart prime_dev
 ```
 
-The `devenv-infrastructure.sh` script can also be used to restart your _entire_ environment:
-
-```bash
-cd ./prime
-./devenv-infrastructure.sh restart
-```
-
-Note that this script '_detaches_' from the docker containers it fires up.
-
-## Inspecting logs
+### Inspecting the Logs
 
 The docker containers produce logging output. When dealing with failures or bugs, it can be very useful to inspect this output. You can inspect the output of each container using ('`$`' indicates your prompt):
 
@@ -198,9 +177,10 @@ docker logs prime-router_postgresql_1
 docker logs prime-router_prime_dev_1 --follow
 ```
 
-## Debugging ReportStream
+### Debugging ReportStream
 
-The '`prime_dev`' service from the [`docker-compose.yml`](../docker-compose.yml) file exposes a local port `5005` to which you can attach a Java debugger (i.e. `localhost:5005`).
+The Docker container running ReportStream exposes local port `5005` for remote Java debugging. Connect your
+debugger to `localhost:5005` while the Docker container is running and set the necessary breakpoints.
 
 ## Finding misconfigurations
 
@@ -386,22 +366,17 @@ cd ./prime-router
 
 When invoked with `--prune-volumes`, this script will also reset your PostgreSQL database. This can be useful to get back to a known and/or empty state.
 
-## Resetting just your database
-
-You can also use [Flyway](https://flywaydb.org/) to reset your database:
-```bash
-# drop and recreate the database; you may be prompted for a password
-export PGHOST=localhost
-export PGUSER=prime
-export PGDATABASE=prime_data_hub
-dropdb --force ${PGDATABASE?}
-createdb --owner=${PGUSER?} ${PGDATABASE?}
-
-# migrate the local database by hand
-flyway "-user=${PGUSER?}" -password=changeIT! \
-    -url=jdbc:postgresql://${PGHOST?}:5432/${PGDATABASE?} \
-    -locations=filesystem:./src/main/resources/db/migration migrate
-```
+## Resetting the Database
+1. Stop your ReportStream container if it is running.
+    ```bash
+    docker-compose down
+    ```
+1. Run the following command to delete all ReportStream related tables from the database and recreate them.  This
+is very useful to reset your database to a clean state.  Note that the database will be re-populated the
+next time you run ReportStream.
+    ```bash
+    ./gradlew reloadDB
+    ```
 
 # Additional tooling
 
@@ -414,6 +389,7 @@ Some useful tools for Kotlin/Java development include:
 * [KTLint](https://ktlint.github.io/): the Kotlin linter that we use to format our KT code
     * Install the [IntelliJ KLint plugin](https://plugins.jetbrains.com/plugin/15057-ktlint-unofficial-) or configure it to follow standard Kotlin conventions as follows on a mac: `cd ./prime-router && brew install ktlint && ktlint applyToIDEAProject`
 * [Microsoft VSCode](https://code.visualstudio.com/Download) with the available Kotlin extension
+* [Java Profiling in ReportStream](./getting-started/java-profiling.md)
 
 # Miscelanious subjects
 
@@ -424,7 +400,7 @@ In cases where you want to change which credentials are used by any of our tooli
 * `DB_USER`: PostgreSQL database username (defaults to `prime`)
 * `DB_PASSWORD`: PostgreSQL database password (defaults to `changeIT!`)
 * `DB_URL`: PostgreSQL database URL (defaults to \
-    `jdbc:postgresql://localhost:5432/prime_data_hub`)
+  `jdbc:postgresql://localhost:5432/prime_data_hub`)
 
 Example:
 

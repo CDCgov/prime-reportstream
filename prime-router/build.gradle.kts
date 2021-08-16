@@ -387,6 +387,13 @@ tasks.register("migrate") {
     dependsOn("flywayMigrate")
 }
 
+tasks.register("reloadDB") {
+    group = rootProject.description ?: ""
+    description = "Delete all tables in the database and recreate from the latest schema"
+    dependsOn("flywayClean")
+    dependsOn("flywayMigrate")
+}
+
 tasks.register("package") {
     group = rootProject.description ?: ""
     description = "Package the code and necessary files to run the Azure functions"
