@@ -88,7 +88,7 @@ const SignInOrUser = () => {
 };
 
 export const ReportStreamHeader = () => {
-    const { oktaAuth, authState } = useOktaAuth();
+    const { authState } = useOktaAuth();
     const [isOpen, setIsOpen] = useState(false);
     const testMenuItems = [
         <Link href="/how-it-works/getting-started" key="getting-started">
