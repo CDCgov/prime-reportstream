@@ -919,8 +919,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
             null
         }
         val encodingCharacters = "^~\\&"
-        val sendingApp = formatHD(
-            Element.parseHD(report.getString(0, "sending_application") ?: "", hdFieldMaximumLength)
+        val sendingApp = formatHD(Element.parseHD(report.getString(0, "sending_application") ?: "", hdFieldMaximumLength)
         )
         val sendingFacility = formatHD(
             Element.parseHD(report.getString(0, "sending_application") ?: "", hdFieldMaximumLength)
