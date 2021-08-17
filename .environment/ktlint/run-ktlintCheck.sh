@@ -5,7 +5,7 @@ RC=0
 errorMessage=""
 
 echo Checking format...
-(cd ${REPO_ROOT}/prime-router/ && ./gradlew ktlintCheck ) 2>$errorMessage
+(cd ${REPO_ROOT}/prime-router/ && ./gradlew ktlintCheck ) 2>${errorMessage}
 echo Checking format finished
 
 
