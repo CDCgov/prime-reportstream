@@ -63,7 +63,11 @@ const Upload = () => {
     const handleSubmit = async (event) => {
         event.preventDefault();
         setIsSubmitting(true);
-
+        setReportId(null);
+        setSuccessTimestamp('');
+        setWarnings([]);
+        setErrors([]);
+        setHttpErrors(null);
         if (file) {
             let response;
             try {
@@ -100,10 +104,31 @@ const Upload = () => {
         }
     }
 
-    const formatedSuccessDate = (format) => {
+    const formattedSuccessDate = (format) => {
         const timestampDate = new Date(successTimestamp);
         return moment(timestampDate).format(format);
     }
+
+    const timeZoneAbbreviated = () => {
+        const x: RegExpMatchArray | null = new Date().toString().match(/\((.+)\)/);
+
+        // In Chrome browser, new Date().toString() is
+        // "Thu Aug 06 2020 16:21:38 GMT+0530 (India Standard Time)"
+
+        // In Safari browser, new Date().toString() is
+        // "Thu Aug 06 2020 16:24:03 GMT+0530 (IST)"
+        if (x) {
+            if (x["1"].includes(" ")) {
+                return x["1"]
+                    .split(" ")
+                    .map(([first]) => first)
+                    .join("");
+            } else {
+                return x["1"];
+            }
+        }
+        return 'unknown timezone';
+    };
 
     return (
         <div className="grid-container usa-section margin-bottom-10">
@@ -132,14 +157,14 @@ const Upload = () => {
                         <p id="orgName" className="text-normal text-base margin-bottom-0">
                             Date Received
                         </p>
-                        <p className="margin-top-05">{formatedSuccessDate('DD MMMM YYYY')}</p>
+                        <p className="margin-top-05">{formattedSuccessDate('DD MMMM YYYY')}</p>
                     </div>
 
                     <div>
                         <p id="orgName" className="text-normal text-base margin-bottom-0">
                             Time Received
                         </p>
-                        <p className="margin-top-05">{formatedSuccessDate('h:mm A z')}</p>
+                        <p className="margin-top-05">{`${formattedSuccessDate('h:mm')} ${timeZoneAbbreviated()}`}</p>
                     </div>
                     <div>
                         <p id="orgName" className="text-normal text-base margin-bottom-0">
