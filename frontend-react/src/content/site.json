@@ -9,7 +9,8 @@
         },
         "PRIME": {
             "name": "Pandemic Ready Interoperability Modernization Effort",
-            "email": "usds@cdc.gov"
+            "email": "usds@cdc.gov",
+            "url": "https://www.cdc.gov/surveillance/projects/pandemic-ready-it-systems.html"
         },
         "RS": {
             "name": "ReportStream",

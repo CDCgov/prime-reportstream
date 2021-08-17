@@ -23,7 +23,7 @@ const OrganizationDropDown = () => {
         sortBy: undefined,
     }).sort((a, b) => a.description.localeCompare(b.description));
 
-    let setValue = (e: any) => {};
+    let setValue = (e: any) => { };
 
     return (
         <Dropdown
@@ -75,12 +75,12 @@ const SignInOrUser = () => {
                 onClick={() => oktaAuth.signOut()}
                 className="usa-link"
             >
-                Logout
+                Log out
             </a>
         </div>
     ) : (
         <Button type="button" outline>
-            <Link href="/daily">Sign In</Link>
+            <Link href="/daily">Log in</Link>
         </Button>
     );
 };

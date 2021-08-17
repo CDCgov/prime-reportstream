@@ -1,4 +1,5 @@
 import live from "../../content/live.json";
+import site from "../../content/site.json";
 import CdcMap from "@cdc/map";
 
 export const WhereWereLive = () => {
@@ -13,13 +14,11 @@ export const WhereWereLive = () => {
                 </p>
                 <p className="usa-intro">
                     Don’t see your state or territory?{" "}
-                    <a
-                        href="mailto:{{ site.orgs.RS.email }}"
-                        className="usa-link"
-                    >
-                        Get in touch
-                    </a>
-                    .
+                    <a href={
+                        "mailto:" +
+                        site.orgs.RS.email +
+                        "?subject=Getting started with ReportStream"
+                    } className="margin-left-1">Get in touch</a>.
                 </p>
             </section>
             <section>

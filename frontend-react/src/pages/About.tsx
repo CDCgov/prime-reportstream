@@ -1,77 +1,26 @@
+import site from "../content/site.json";
+
 export const About = () => {
     return (
-        <>
-            <section className="margin-bottom-6">
-                <h1 className="margin-top-0">About ReportStream</h1>
-                <p className="usa-intro margin-top-0">
-                    ReportStream was created as part of the{" "}
-                    <a
-                        href="https://www.cdc.gov/surveillance/projects/pandemic-ready-it-systems.html"
-                        rel="noreferrer"
-                        className="usa-link"
-                        target="_blank"
-                    >
-                        Pandemic-Ready Interoperability Modernization Effort
-                        (PRIME)
-                    </a>
-                    . PRIME is a multi-year collaboration between the Centers
-                    for Disease Control and Prevention (CDC) and the U.S.
-                    Digital Service (USDS) to strengthen data quality and
-                    information technology systems in state and local health
-                    departments.{" "}
-                </p>
-                <a
-                    href="../assets/pdf/PRIME-1-pager.pdf"
-                    className="usa-button usa-button--outline"
-                >
-                    Download PRIME 1-pager
-                </a>
-                <a
-                    href="mailto:reportstream@cdc.gov"
-                    className="usa-button usa-button--outline"
-                >
-                    Contact us
-                </a>
-            </section>
-            <hr className="margin-y-6" />
+        <div className="grid-container">
+            <section id="anchor-top" className="usa-section margin-y-0 tablet:padding-top-2 tablet:padding-bottom-2">
 
-            <section>
-                <h2>Centers for Disease Control and Prevention</h2>
-                <p>
-                    The{" "}
-                    <a href="https://www.cdc.gov/">
-                        Centers for Disease Control and Prevention
-                    </a>{" "}
-                    works 24/7 to protect America from health, safety and
-                    security threats, both foreign and in the U.S. Whether
-                    diseases start at home or abroad, are chronic or acute,
-                    curable or preventable, human error or deliberate attack,
-                    CDC fights disease and supports communities and citizens to
-                    do the same.
-                </p>
-                <p>
-                    CDC increases the health security of our nation. As the
-                    nation’s health protection agency, CDC saves lives and
-                    protects people from health threats. To accomplish our
-                    mission, CDC conducts critical science and provides health
-                    information that protects our nation against expensive and
-                    dangerous health threats, and responds when these arise.
-                </p>
-            </section>
+                <h1 className="margin-top-0">About</h1>
 
-            <section>
-                <h2>U.S. Digital Service</h2>
-                <p>
-                    The <a href="https://www.usds.gov/">U.S. Digital Service</a>{" "}
-                    is a group of technologists from diverse backgrounds working
-                    across the federal government to transform critical services
-                    for the people. These specialists join for tours of civic
-                    service to create a steady influx of fresh perspectives.
-                    Today USDS continues its non-partisan mission by bringing
-                    better government services to all Americans through design
-                    and technology.
-                </p>
+                <p className="usa-intro">ReportStream is an open source, cloud based platform that aggregates and delivers COVID-19 test results to health departments. We send data directly from testing facilities, labs, and more through a single connection.</p>
+
+                <a href={site.pdfPath + "PRIME-1-pager.pdf"} className="usa-button usa-button--outline margin-bottom-2 tablet:margin-bottom-0">Download PRIME 1-pager</a>
+                <a href={"mailto:" + site.orgs.RS.email} className="usa-button usa-button--outline">Contact us</a>
+
+                <hr className="margin-y-6" />
+
+                <div className="grid-row grid-gap">
+                    <p className="usa-prose">ReportStream (also known as PRIME ReportStream) was created for the public good by the <a href={site.orgs.CDC.url} className="usa-link">Centers for Disease Control and Prevention (CDC)</a>, and the <a href={site.orgs.USDS.url} className="usa-link">U.S. Digital Service (USDS)</a>.</p>
+                    <p>Part of the <a href={site.orgs.PRIME.url} className="usa-link">Pandemic-Ready Interoperability Modernization Effort (PRIME)</a>, ReportStream helps to streamline and improve public health reporting during the COVID-19 pandemic, and beyond.</p>
+
+                    <p>The U.S. Digital Service is a group of technologists from diverse backgrounds working across the federal government to transform critical services for the people. Specialists join for tours of civic service to create a steady influx of fresh perspectives. USDS continues its non-partisan mission by bringing better government services to all Americans through design and technology.</p>
+                </div>
             </section>
-        </>
+        </div>
     );
 };
