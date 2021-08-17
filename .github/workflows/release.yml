@@ -135,7 +135,6 @@ jobs:
         uses: golfzaptw/action-connect-ovpn@2.0.1
         id: connect_vpn
         with:
-          PING_URL: "https://${{ env.PREFIX }}storageaccount.privatelink.file.core.windows.net/"
           FILE_OVPN: ".github/vpn/dev.ovpn"
           TLS_KEY: ${{ secrets.TLS_KEY }}
         env:
@@ -228,7 +227,6 @@ jobs:
         uses: golfzaptw/action-connect-ovpn@2.0.1
         id: connect_vpn
         with:
-          PING_URL: "https://${{ env.PREFIX }}storageaccount.privatelink.file.core.windows.net/"
           FILE_OVPN: ".github/vpn/test.ovpn"
           TLS_KEY: ${{ secrets.TLS_KEY }}
         env:
@@ -322,7 +320,6 @@ jobs:
         uses: golfzaptw/action-connect-ovpn@2.0.1
         id: connect_vpn
         with:
-          PING_URL: "https://${{ env.PREFIX }}storageaccount.privatelink.file.core.windows.net/"
           FILE_OVPN: ".github/vpn/staging.ovpn"
           TLS_KEY: ${{ secrets.TLS_KEY }}
         env:
@@ -416,7 +413,6 @@ jobs:
         uses: golfzaptw/action-connect-ovpn@2.0.1
         id: connect_vpn
         with:
-          PING_URL: "https://${{ env.PREFIX }}storageaccount.privatelink.file.core.windows.net/"
           FILE_OVPN: ".github/vpn/prod.ovpn"
           TLS_KEY: ${{ secrets.TLS_KEY }}
         env:
