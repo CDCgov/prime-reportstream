@@ -43,18 +43,15 @@ $ kill -${SIGNAL} $(cat "/tmp/${USER}/openvpn.pid")
 
 ## Troubleshooting
 - **Trouble Accessing Items in the Azure Portal?**
+
 Some browsers like Firefox or Chrome have started defaulting to use custom DNS-over-HTTPS (DOH) providers. This will interfere with the VPN's DNS server. You will need to disable DOH on your browser. Directions below:
 
 https://learn.akamai.com/en-us/webhelp/enterprise-threat-protector/etp-client-configuration-guide/GUID-04D2A852-CB51-4210-9CE3-7F6ABB3B84E2.html
 
 - **I am getting an error on Windows when connecting: ssl routines tls_process_server_certificate certificate verify failed**
+
 If you are using OpenVPN Connect, uninstall it and install the [OpenVPN Client](https://openvpn.net/community-downloads/).  
  
-## Trouble Accessing Items in the Azure Portal?
-
-Some browsers like Firefox or Chrome have started defaulting to use custom DNS-over-HTTPS (DOH) providers. This will interfere with the VPN's DNS server. You will need to disable DOH on your browser. Directions below:
-
-https://learn.akamai.com/en-us/webhelp/enterprise-threat-protector/etp-client-configuration-guide/GUID-04D2A852-CB51-4210-9CE3-7F6ABB3B84E2.html
 
 # For VPN Administrators
 ## Generate a VPN Profile
