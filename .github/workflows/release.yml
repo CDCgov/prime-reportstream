@@ -132,7 +132,7 @@ jobs:
           sudo apt install openvpn-systemd-resolved
 
       - name: Connect VPN
-        uses: golfzaptw/action-connect-ovpn@2.0.1
+        uses: golfzaptw/action-connect-ovpn@v2.0.1
         id: connect_vpn
         with:
           PING_URL: "10.0.2.4"
@@ -225,7 +225,7 @@ jobs:
           sudo apt install openvpn-systemd-resolved
 
       - name: Connect VPN
-        uses: golfzaptw/action-connect-ovpn@2.0.1
+        uses: golfzaptw/action-connect-ovpn@v2.0.1
         id: connect_vpn
         with:
           PING_URL: "10.0.2.4"
@@ -319,7 +319,7 @@ jobs:
           sudo apt install openvpn-systemd-resolved
 
       - name: Connect VPN
-        uses: golfzaptw/action-connect-ovpn@2.0.1
+        uses: golfzaptw/action-connect-ovpn@v2.0.1
         id: connect_vpn
         with:
           PING_URL: "10.0.2.5"
@@ -413,7 +413,7 @@ jobs:
           sudo apt install openvpn-systemd-resolved
 
       - name: Connect VPN
-        uses: golfzaptw/action-connect-ovpn@2.0.1
+        uses: golfzaptw/action-connect-ovpn@v2.0.1
         id: connect_vpn
         with:
           PING_URL: "10.0.2.4"
