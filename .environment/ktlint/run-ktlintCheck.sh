@@ -5,7 +5,7 @@ RC=0
 errorMessage=""
 
 echo Checking format...
-erroMessage=(cd ${REPO_ROOT}/prime-router/ && ./gradlew ktlintCheck ) 1>/dev/null
+erroMessage=$(cd ${REPO_ROOT}/prime-router/ && ./gradlew ktlintCheck 1>/dev/null) 
 echo Checking format finished
 
 
