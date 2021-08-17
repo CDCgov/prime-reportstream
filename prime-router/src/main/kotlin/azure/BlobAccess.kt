@@ -116,11 +116,13 @@ class BlobAccess(
         blobContainerName: String = defaultBlobContainerName,
         blobConnEnvVar: String = defaultConnEnvVar
     ): String {
+        logger.info("Starting uploadBlob of $blobName")
         val blobClient = getBlobContainer(blobContainerName, blobConnEnvVar).getBlobClient(blobName)
         blobClient.upload(
             ByteArrayInputStream(bytes),
             bytes.size.toLong()
         )
+        logger.info("Done uploadBlob of $blobName")
         return blobClient.blobUrl
     }
 
