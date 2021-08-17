@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 
-echo ------------------  Checking format...
+echo Checking format...
 (cd ../../prime-router && ./gradlew ktlintCheck) 1>/dev/null
-echo ------------------  Checking finished
+echo Checking format finished
