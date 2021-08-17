@@ -12,8 +12,7 @@ echo Checking format finished.
 
 if [[ RC -ne 0 ]]; then
     echo "ktlint found format violations!"
-    echo $erromessage
-    
+    echo $erromessage 
 fi
 
 exit ${RC}
