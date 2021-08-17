@@ -14,18 +14,20 @@ jobs:
     name: Pre Job
     runs-on: ubuntu-latest
     outputs:
-      has_frontend_change: ${{ steps.skip_check.outputs.frontend }}
+      has_frontend_change: ${{ steps.frontend.outputs.frontend }}
+      has_react_change: ${{ steps.frontend.outputs.frontend-react }}
     steps:
       - name: "Check out changes"
         uses: actions/checkout@v2
       - uses: dorny/paths-filter@v2
-        id: skip_check
+        id: frontend
         with:
           list-files: csv
           filters: |
             frontend:
-              - 'frontend-react/**'
-              - '.github/workflows/build_frontend.yml'
+              - '/frontend/**'
+            frontend-react:
+              -'/frontend-react/**'
 
   build_frontend:
     name: Build Frontend
@@ -52,3 +54,25 @@ jobs:
 
       - name: Validate static website server
         run: bash ci_validate.bash
+
+  build_frontend_react:
+    name: Build Frontend React
+    needs: pre_job
+    if: ${{ needs.pre_job.outputs.has_react_change == 'true' }}
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: frontend-react
+
+    steps:
+      - name: "Check out changes"
+        uses: actions/checkout@v2
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+      - run: npm install      
+      - run: npm run build
+
