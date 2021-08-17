@@ -6,7 +6,6 @@ import { library } from "@fortawesome/fontawesome-svg-core";
 import { fas } from "@fortawesome/free-solid-svg-icons";
 import CdcMap from "@cdc/map";
 import live from "../content/live.json";
-import { Button } from "@trussworks/react-uswds";
 
 const Hero = () => {
     return (
