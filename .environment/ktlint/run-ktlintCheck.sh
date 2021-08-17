@@ -4,7 +4,7 @@ REPO_ROOT="$(git rev-parse --show-toplevel)"
 RC-0
 
 echo Checking format...
-(cd ${REPO_ROOT}/prime-router && ./gradlew ktlintCheck) 2>${LOGFILE?}
+(cd ${REPO_ROOT}/prime-router && ./gradlew ktlintCheck) 2>"${LOGFILE?}"
 echo Checking format finished
 
 RC=$?
