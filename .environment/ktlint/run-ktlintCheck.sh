@@ -5,16 +5,16 @@ RC=0
 errorMessage=""
 
 echo Checking format...
-erroMessage=$(cd ${REPO_ROOT}/prime-router/ && ./gradlew ktlintCheck 1>/dev/null) 
+errorMessage=$(cd ${REPO_ROOT}/prime-router/ && ./gradlew ktlintCheck 1>/dev/null) 
 echo Checking format finished
 
 
 
-if [[ ! -z "$erroMessage" ]]; then
+if [[ ! -z "$errorMessage" ]]; then
     RC=1
     echo "ktlint found format violations!"
     echo $erromessage
-    exit 1
+    
 fi
 
-exit 0
+exit ${RC}
