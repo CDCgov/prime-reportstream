@@ -15,6 +15,6 @@ if [[ ! -z "$erromessage" ]]; then
     echo $erromessage
 fi
 
-return=${RC}
+return ${RC}
 
 exit ${RC}
