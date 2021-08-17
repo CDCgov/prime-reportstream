@@ -44,7 +44,9 @@ $ kill -${SIGNAL} $(cat "/tmp/${USER}/openvpn.pid")
 ## Windows
 ### VPN DNS Resolution
 There is an issue where the DNS server for the VPN adapter is not used when resolving hostnames.  This is due to the interface metric of the VPN loosing to the metric of your normal network adapter.  Run the following command to look up the IP of a server in the Azure environment and test if this is an issue .  For example:
+
 `nslookup pdhstaging-pgsql.postgres.database.azure.com`
+
 should return a 10.x.x.x IP address which is in the range used by the VPN.  If you see an address outside of this 10.x.x.x range then continue with the instructions here to fix this issue.
 
 To fix this issue:
@@ -59,9 +61,6 @@ To fix this issue:
 
 Run the Windows command `netsh interface ip show config` to verify the InterfaceMetric value has change to 1 for the OpenVPN TAP-Windows interface.  For example:
 
-
-Reference: https://aws.amazon.com/premiumsupport/knowledge-center/client-vpn-fix-dns-query-forwarding/ - it says that changing this setting via the control panel does not work, but this has been confirmed to work.
-
 ```
 Configuration for interface "OpenVPN TAP-Windows6"
     DHCP enabled:                         Yes
@@ -72,6 +71,8 @@ Configuration for interface "OpenVPN TAP-Windows6"
     Register with which suffix:           Primary only
     WINS servers configured through DHCP: None
 ```
+
+Reference: https://aws.amazon.com/premiumsupport/knowledge-center/client-vpn-fix-dns-query-forwarding/ - it says that changing this setting via the control panel does not work, but this has been confirmed to work.
 
 ## Troubleshooting
 - **Trouble Accessing Items in the Azure Portal?**
