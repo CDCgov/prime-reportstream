@@ -12,16 +12,7 @@ import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.parser.EncodingNotSupportedException
 import ca.uhn.hl7v2.parser.ModelClassFactory
 import ca.uhn.hl7v2.util.Terser
-import gov.cdc.prime.router.Element
-import gov.cdc.prime.router.ElementAndValue
-import gov.cdc.prime.router.Hl7Configuration
-import gov.cdc.prime.router.Mapper
-import gov.cdc.prime.router.Metadata
-import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.ResultDetail
-import gov.cdc.prime.router.Schema
-import gov.cdc.prime.router.Source
-import gov.cdc.prime.router.ValueSet
+import gov.cdc.prime.router.*
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.InputStream
 import java.io.OutputStream
@@ -33,8 +24,12 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Properties
 import java.util.TimeZone
+import java.util.regex.Pattern
 
-class Hl7Serializer(val metadata: Metadata) : Logging {
+class Hl7Serializer(
+    val metadata: Metadata,
+    val settings: SettingsProvider
+) : Logging {
     data class Hl7Mapping(
         val mappedRows: Map<String, List<String>>,
         val rows: List<RowResult>,
@@ -419,6 +414,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
         val replaceValue = hl7Config?.replaceValue ?: emptyMap()
         val suppressQst = hl7Config?.suppressQstForAoe ?: false
         val suppressAoe = hl7Config?.suppressAoe ?: false
+
         // and we have some fields to suppress
         val suppressedFields = hl7Config
             ?.suppressHl7Fields
@@ -477,7 +473,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
                         hl7Field in HD_FIELDS_LOCAL &&
                         hl7Config?.truncateHDNamespaceIds == true
                     ) {
-                        value.substring(0, HD_TRUNCATION_LIMIT)
+                        value.substring(0, getTruncationLimitWithEncoding(value, HD_TRUNCATION_LIMIT))
                     } else {
                         value
                     }
@@ -524,7 +520,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
                     value.length > HD_TRUNCATION_LIMIT &&
                     hl7Config?.truncateHDNamespaceIds == true
                 ) {
-                    value.substring(0, HD_TRUNCATION_LIMIT)
+                    value.substring(0, getTruncationLimitWithEncoding(value, HD_TRUNCATION_LIMIT))
                 } else {
                     value
                 }
@@ -565,13 +561,41 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
             }
         }
 
+        // check for alt CLIA for out of state testing
+        if (!hl7Config?.cliaForOutOfStateTesting.isNullOrEmpty()) {
+            val testingStateField = "OBX-24-4"
+            val pathSpecTestingState = formPathSpec(testingStateField)
+            val testingState = terser.get(pathSpecTestingState)
+
+            val stateCode = report.destination?.let { settings.findOrganization(it.organizationName)?.stateCode }
+
+            if (!testingState.equals(stateCode)) {
+                val sendingFacility = "MSH-4-2"
+                val pathSpecSendingFacility = formPathSpec(sendingFacility)
+                terser.set(pathSpecSendingFacility, hl7Config?.cliaForOutOfStateTesting)
+            }
+        }
+
         // after all values have been set or blanked, check for values that need replacement
         // isNotEmpty returns true only when a value exists. Whitespace only is considered a value
         replaceValue.forEach { element ->
-            var pathSpec = formPathSpec(element.key)
-            val valueInMessage = terser.get(pathSpec) ?: ""
-            if (valueInMessage.isNotEmpty()) {
-                terser.set(pathSpec, element.value)
+
+            if (element.key.substring(0, 3).equals("OBX")) {
+                val observationReps = message.patienT_RESULT.ordeR_OBSERVATION.observationReps
+
+                for (i in 0..observationReps.minus(1)) {
+                    var pathSpec = formPathSpec(element.key, i)
+                    val valueInMessage = terser.get(pathSpec) ?: ""
+                    if (valueInMessage.isNotEmpty()) {
+                        terser.set(pathSpec, element.value)
+                    }
+                }
+            } else {
+                var pathSpec = formPathSpec(element.key)
+                val valueInMessage = terser.get(pathSpec) ?: ""
+                if (valueInMessage.isNotEmpty()) {
+                    terser.set(pathSpec, element.value)
+                }
             }
         }
     }
@@ -611,7 +635,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
     ) {
         val hl7Config = report.destination?.translation as? Hl7Configuration?
         val hdFieldMaximumLength = if (hl7Config?.truncateHDNamespaceIds == true) {
-            HD_TRUNCATION_LIMIT
+            getTruncationLimitWithEncoding(value, HD_TRUNCATION_LIMIT)
         } else {
             null
         }
@@ -909,6 +933,23 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
         terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-1", "1")
         terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-2", "CWE")
         terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-23-7", "XX")
+    }
+
+    /**
+     * Get a new truncationlimit accounting for the encoding of HL7 special characters.
+     * @param value string value to search for HL7 special characters
+     * @param truncationLimit the starting limit
+     * @return the new truncation limit or starting limit if no special characters are found
+     */
+    internal fun getTruncationLimitWithEncoding(value: String, truncationLimit: Int): Int {
+        val regex = "[&^~|]".toRegex()
+        val matchCount = regex.findAll(value).count()
+
+        return if (matchCount > 0) {
+            truncationLimit.minus(matchCount.times(2))
+        } else {
+            truncationLimit
+        }
     }
 
     private fun createHeaders(report: Report): String {

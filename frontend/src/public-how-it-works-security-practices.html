@@ -1,0 +1,70 @@
+---
+layout: protected.liquid
+pageStyle: sidebarMenu
+templateEngineOverride: liquid, md
+title: Security practices
+permalink: "{{ site.howItWorksPath }}{{ title | slug }}/"
+protected: false
+show_navbar: true
+how_it_works: true
+nestedPage: true
+---
+<section id="anchor-top">
+
+  <h1 class="margin-top-0">{{ title }}</h1>
+
+  <p class="usa-intro">Get answers to common questions about ReportStream security and data practices.</p>
+
+</section>
+<hr class="margin-y-6" />
+<section>
+
+  ## Does ReportStream have security audits and attestations? 
+
+  As a project of the U.S. federal government, ReportStream complies with the Federal Information System Modernization Act (FISMA) of 2014.
+  
+  FISMA sets standards and requires federal agencies to implement information security plans to protect sensitive data. FISMA and the National Institute of Standards and Technology (NIST) set the FISMA compliance guidelines. More specifically, NIST guidelines:
+
+  - Set minimum requirements for information security plans and procedures.
+  - Recommend security systems, software, etc. that agencies must implement and approve.
+  - Standardize the risk assessment process and set varying standards of information security based on agency risk assessments.
+  
+  As part of the FISMA process, ReportStream has full authority to operate (ATO). This authority was granted by CDC’s Chief Information Officer/Authorizing Official after an extensive review process documenting over 500 security controls, reviews by multiple teams, and penetration testing by third parties.
+
+  Learn more about the FISMA process and the [NIST Risk Management Framework](https://csrc.nist.gov/projects/risk-management). 
+
+  ## Is ReportStream FedRAMP approved? 
+
+  Federal information systems like ReportStream are not in the scope of the Federal Risk and Authorization Management Program (FedRAMP), which is for vendors that sell cloud products or services to the federal government. However, as mentioned above, ReportStream follows FISMA guidelines. Both FISMA and FedRAMP share the same NIST security guidelines and standards. 
+
+  ## How is ReportStream hosted? 
+
+  ReportStream is hosted in a secured FedRAMP accredited environment.
+
+  ## Is ReportStream data encrypted in transit? 
+
+  All data is encrypted in transit. ReportStream also uses data-in-transit encryption for connections to send test results to states.
+
+  ## Is ReportSteam data encrypted at rest? 
+
+  All data is encrypted when stored using facilities of the secured FedRAMP-accredited environment.
+
+  ## Who has access to ReportStream data? 
+
+  ReportStream filters and routes data to state and local public health agencies through their electronic reporting interfaces. In addition, public health agencies may designate users who can download ReportStream data. There are security controls placed on user accounts including multi-factor authentication and automatic disablement due to inactivity.
+
+  Some ReportStream staff have  administrative access to ReportStream data in order to maintain and  operate the service.  All ReportStream team members withs administrative access go through federal government background checks. 
+
+  ## Does ReportStream keep an audit trail? 
+
+  For business and security purposes, ReportStream keeps activity logs. In particular, ReportStream keeps a line item level audit trail of all test results that are sent to ReportStream and all public health departments that are part of ReportStream. The ReportStream audit trail is kept for multiple years. 
+
+  ## How long is data stored? 
+
+  ReportStream is a data conduit , not a store of record. However, to operate reliably, it is necessary to temporarily retain data in ReportStream. The current retention period for test results and other personal identifiable information (PII) and  protected health information (PHI) is 30 days.
+
+  ## Does ReportStream have terms of service?
+
+  All organizations that send and receive test results through ReportStream to public health agencies are governed under these <a href="/terms-of-service" class="usa-link">terms of service</a>. 
+
+</section>

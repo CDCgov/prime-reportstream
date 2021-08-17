@@ -52,11 +52,11 @@
       maxReportCount: 10000
     description: ""
     transport:
-      host: "3.217.175.115"
-      port: "22"
-      filePath: "./public/giang"
-      credentialName: null
-      type: "SFTP"
+      type: SFTP
+      host: sftp
+      port: 22
+      filePath: ./upload
+      credentialName: DEFAULT-SFTP
     externalName: null
   - name: "giang2"
     organizationName: "waters"
@@ -1007,6 +1007,7 @@
         receivingFacilityOID: 2.16.840.1.114222.4.1.214104
         suppressAoe: true
         truncateHDNamespaceIds: true
+        cliaForOutOfStateTesting: CDPH000075
       transport:
         type: SFTP
         host: sftp
@@ -1033,6 +1034,7 @@
         receivingFacilityName: CDPH CA REDIE
         receivingFacilityOID: 2.16.840.1.114222.4.3.3 .10.1.1
         messageProfileId: PHLabReport-Batch^^2.16.840.1.113883.9.10^ISO
+        cliaForOutOfStateTesting: CDPH000076
       transport:
         type: SFTP
         host: sftp

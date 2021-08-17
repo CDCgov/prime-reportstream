@@ -1424,7 +1424,7 @@ Custom field. Note, value matched LIVD column "F", "Test Performed LOINC Code"
 
 **PII**: No
 
-**Default Value**: T
+**Default Value**: P
 
 **Cardinality**: [0..1]
 

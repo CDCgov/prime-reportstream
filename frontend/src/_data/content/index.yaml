@@ -1,82 +1,93 @@
 ---
-title: ReportStream makes it easier to collect public health data — for free
+title: ReportStream makes it easier to send and collect public health data — for free
 summary: >-
-  ReportStream is a free, open source data platform that makes it easier for health departments to get faster, more accurate public health data from testing facilities.
-# bullets:
-#  - content: 100% free
-#  - content: Backed by the CDC
-#  - content: Secure data encryption
-#  - content: Aggregated, single connection
-heroImg: report-stream-application.png
+  ReportStream is an open source, cloud based platform that aggregates and delivers COVID-19 test results to health departments
+description: Get faster, more accurate data directly from testing facilities, labs, and more — through a single connection. 
+heroImg: rs-diagram.svg
 heroImgAlt: Example screenshot of the ReportStream web application
 
-partners:
-  - type: State
-    title: Public health departments
-    summary: Get fast, complete COVID-19 electronic test results from your jurisdiction
+sections:
+  - title: Why ReportStream?
+    type: why
+    summary: >-
+      Get faster, more accurate data directly from testing facilities, labs, and more — through a single connection
+    bullets:
+      - content: 100% free
+      - content: Backed by the CDC
+      - content: Secure data encryption
     features:
-      - title: Support fewer connections
+      - title: Aggregated, clean data
         summary: >-
-          ReportStream's model focuses on aggregating data from multiple sources and senders, which you receive together in a single feed at your preferred frequency and format.
-        icon: code.svg
-        iconDescription: computer code
-      - title: Receive data from SimpleReport
-        summary: >-
-          If your jurisdiction is interested in receiving point-of-care tests results from  <a href="https://simplereport.gov">SimpleReport</a>, you can get this data via ReportStream.
+          Get aggregated, validated test results from across your jurisdiction, all through a single connection.
         icon: content_copy.svg
         iconDescription: multiple documents
-      - title: Get valuable insights
-        summary: ReportStream gives you insights about your data, such as reporting trends, and alerts you if there are any errors.
+      - title: Analytics and insights 
+        summary: >-
+          Get insights on reporting trends and real-time alerts that help you inform and manage your COVID-19 response.
         icon: assessment.svg
         iconDescription: a chart
-#      - title:   Receive faster data
-#        summary: >-
-#          Get direct access to data from senders connected with ReportStream, such as facilities using <a href="https://simplereport.gov">SimpleReport</a>, in your jurisdiction.
-#        icon: send.svg
-#        iconDescription: a paper airplane
-#      - title: No ELR connection necessary
-#        summary: Receive data directly via a ReportStream web account.
-#        icon: cloud.svg
-#        iconDescription: cloud computing
-  #- type: Local
-  #  title: Local public health departments
-  #  summary: Get access to COVID-19 electronic test results without building an Electronic Lab Reporting (ELR) connection
-  #  features:
-  #    - title:   Receive faster data
-  #      summary: >-
-  #        Get direct access to data from senders connected with ReportStream, such as facilities using <a href="https://simplereport.gov">SimpleReport</a>, in your jurisdiction.
-  #      icon: send.svg
-  #      iconDescription: a paper airplane
-  #    - title: No ELR connection necessary
-  #      icon: cloud.svg
-  #    iconDescription: cloud computing
+      - title: A built-in network  
+        summary: >-
+          ReportStream works directly with COVID-19 test manufacturers, labs, and apps like <a href="https://simplereport.gov" class="usa-link">SimpleReport</a> to deliver more results to public health departments across the U.S. 
+        icon: content_copy.svg
+        iconDescription: multiple documents
+      #- title: Free and created by the CDC
+      #  summary: Developed for testing sites and public health departments, ReportStream is 100% free.
+      #- title: Safe and secure
+      #  summary: Test results and patient data are securely stored and protected by two-factor authentication, database encryption, and HTTPS.
+  - title: ReportStream offers two ways to deliver data directly to your public health department 
+    summary: Log in and download test results quickly through our web application, or work with ReportStream to set up a customized ELR connection
+    type: deliveryMethods
+    features:
+      - title: Data download
+        method: 1
+        summary: >-
+          Log in and download test results quickly through our web application
+        img: report-stream-application.png
+        imgAlt: Example screenshot of the ReportStream web application 
+        itemOne: Set up made simple 
+        summaryOne: >-
+          Get verified, then simply log in to download data from our online portal. Give your team access to data from anyone in your jurisdiction that’s connected to ReportStream.
+        itemTwo: Industry standard data formatting 
+        summaryTwo: >-
+         Save time with less manual data entry. Download daily data in standard HL7 or CSV format in minutes, without setting up an ELR. 
+      - title: Electronic lab reporting
+        method: 2
+        summary: >-
+          Work with ReportStream to set up a customized ELR connection
+        img: rs-diagram.svg
+        imgAlt: Example screenshot of the ReportStream web application 
+        itemOne: Centralize your connections
+        summaryOne: >-
+          Get data from multiple testing facilities — in less time —  through a single connection. 
+        itemTwo: Customized, clean data
+        summaryTwo: >-
+         ReportStream works 1:1 with public health departments to make sure data arrives in the format you need, when you need it. 
+  - title: Where is ReportStream live?
+    type: liveMap
+    summary: ReportStream partners with health departments, test manufacturers, data aggregators, and others across the U.S. 
+    description: >-
+      We’re growing quickly. Take a look at the complete <a href="/how-it-works/where-were-live">list of ReportStream partners</a>.
+    features:
+      - img: rs-live-stlt.svg
+        imgAlt: Map of the U.S. showing states and territories where ReportStream is currently live
+        linkInternal: /how-it-works/where-were-live
+  - title: Interested in learning more about ReportStream?
+    type: cta
+    summary: >-
+      Either way, if you send or analyze COVID-19 data, we’d like to help.
+    description: >-
+      ReportStream works with public health departments looking to get better quality COVID-19 data from jurisdictions. We also collaborate with testing facilities, data aggregators, manufacturers, and more to send test results to health departments.
+    buttonText: Get in touch
+    # email address for above button is located in template
+    buttonUrlSubject: ?subject=I'm interested in learning more about ReportStream
 
-documentation:
-  title: Documentation
-  summary: For states interested in making an ELR connection with ReportStream, please check out the following resources to learn more.
-  files:
-    - name: About PRIME
-      type: pdf
-      url: PRIME-1-pager.pdf
-    - name: ELR integration guide
-      type: pdf
-      url: ReportStream-ELR-Onboarding-Guide-April-2021.pdf
-    - name: Web receiver guide
-      type: pdf
-      url: ReportStream-Web-Receiver-Onboarding-Guide-April-2021.pdf
 freeSecure:
   - title: Free and created by the CDC
-    summary: Developed for testing sites and public health departments, ReportStream is 100% free.
+    summary: Developed for COVID-19 test data and public health departments, ReportStream is 100% free.
     icon: cdc-logo.svg
     iconDescription: CDC logo
   - title: Safe and secure
     summary: Test results and patient data are securely stored and protected by two-factor authentication, database encryption, and HTTPS.
     icon: shield.svg
     iconDescription: Icon of a shield
-cta:
-  title: Get started with ReportStream
-  summary: >-
-    Ready to bring ReportStream to your jurisdiction?
-  buttonText: Contact us at
-  # email address for above button is located in template
-  buttonUrlSubject: ?subject=I'm interested in learning more about ReportStream

@@ -6,7 +6,6 @@ import assertk.assertions.isTrue
 import java.io.ByteArrayInputStream
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
 
 class TranslatorTests {
     private val receiversYaml = """
@@ -117,6 +116,7 @@ class TranslatorTests {
                 suppressHl7Fields: PID-5-7, ORC-12-1, OBR-16-1
                 replaceValue:
                   PID-22-3: CDCREC
+                  OBX-2-1: TestVal
               timing:
                 operation: MERGE
                 numberPerDay: 1440 # Every minute
@@ -133,7 +133,7 @@ class TranslatorTests {
             it.loadOrganizations(ByteArrayInputStream(receiverAKYaml.toByteArray()))
         }
         val translation = settings.receivers.elementAt(0).translation as? Hl7Configuration?
-        val replaceVal = translation?.replaceValue?.get("PID-22-3")
-        assertEquals(replaceVal, "CDCREC")
+        val replaceVal = translation?.replaceValue?.get("OBX-2-1")
+        assertEquals(replaceVal, "TestVal")
     }
 }

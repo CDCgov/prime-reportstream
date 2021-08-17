@@ -133,6 +133,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
             '^#',                                                                           # Comment
             '^if vault secrets list \|',
             '^import (.)+ from (.)+',                                                       # react import statement (simplified)
+            'aad_object_keyvault_admin = "[0-9a-f]{8}\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\b[0-9a-f]{12}"',                           # Line contains AAD Security Group SID, not a credential
             'API_ENDPOINT_HOST = "PRIME_RS_REPORTS_API_ENDPOINT_HOST",',
             'API_ENDPOINT_HOST\"\) \?: \"localhost\"',
             'API_ENDPOINT_HOST\"\) \?: \"localhost\"',
