@@ -21,6 +21,7 @@ NC='\033[0m' # No Color
 
 # let's make it possible for run for different states
 RUN_AZ=0
+RUN_AK=0
 RUN_FL=0
 RUN_GU=0
 RUN_LA=0
@@ -52,6 +53,7 @@ for arg in "$@"
 do
   case "$arg" in
     az | AZ) RUN_AZ=1;;
+    ak | AK) RUN_AK=1;;
     fl | FL) RUN_FL=1;;
     gu | GU) RUN_GU=1;;
     la | LA) RUN_LA=1;;
@@ -76,6 +78,7 @@ done
 if [ $RUN_ALL -ne 0 ]
 then
   RUN_AZ=1
+  RUN_AK=1
   RUN_FL=1
   RUN_GU=1
   RUN_LA=1
@@ -331,6 +334,14 @@ then
   echo Generate fake VT data, HL7!
   text=$(run_prime_cli data --input-fake 50 --input-schema vt/vt-covid-19 --output-dir $outputdir --target-states VT --target-counties Essex --output-format HL7_BATCH)
   parse_prime_output_for_filename "$text" "[/\\]vt.*\.hl7"
+fi
+
+# run AK
+if [ $RUN_AK -ne 0 ]
+then
+  echo Generate fake AK data, HL7
+  text=$(run_prime_cli data --input-fake 50 --input-schema covid-19 --output-dir $outputdir --target-states AK --output-format HL7_BATCH)
+  parse_prime_output_for_filename "$text" "[/\\].*\.hl7"
 fi
 
 # run MT

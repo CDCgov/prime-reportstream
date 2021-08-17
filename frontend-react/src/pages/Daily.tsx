@@ -7,7 +7,7 @@ import { groupToOrg } from "../webreceiver-utils";
 import download from "downloadjs";
 
 const TableData = ({ sortBy }: { sortBy?: string }) => {
-    const [reports] = useResource([ReportResource.list(), { sortBy }]);
+    const reports = useResource(ReportResource.list(), { sortBy });
 
     return (
         <tbody id="tBody" className="font-mono-2xs">
@@ -48,7 +48,7 @@ const ReportLink = ({ reportId }) => {
         (report) => report.reportId === reportId
     );
 
-    const handleClick = (e: { preventDefault: () => void }) => {
+    const handleClick = (e: any) => {
         e.preventDefault();
         if (report !== undefined) {
             download(report.content, report.fileName, report.mimeType);

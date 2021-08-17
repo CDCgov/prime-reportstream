@@ -11,23 +11,47 @@
     </div>
     <nav aria-label="Primary navigation" class="usa-nav">
       <button class="usa-nav__close"><img src="/assets/img/close.svg" role="img" alt="close"></button>
-      <ul class="usa-nav__primary font-sans-md">
+      <ul class="usa-nav__primary usa-accordion font-sans-md">
         <li id="navmenu" class="usa-nav__primary-item {% if title == "Daily data" %}usa-current{% endif %}">
           <a class="usa-nav__link" href="/daily-data/"><span>Daily data</span></a>
         </li>
-        <li class="usa-nav__primary-item {% if documentation %}usa-current{% endif %}">
-          <a class="usa-nav__link" href="{{ site.documentationPath }}"><span>Documentation</span></a>
+        
+        <li class="usa-nav__primary-item {% if about %}usa-current{% endif %}">
+          <a class="usa-nav__link" href="/about/"><span>About</span></a>
+        </li>
+        <li class="usa-nav__primary-item {% if how_it_works %}usa-current{% endif %}">
+          <button class="usa-accordion__button usa-nav__link" aria-label="How it works - open navigation menu" aria-expanded="false" aria-controls="cdc-nav-how-it-works"><span>How it works</span></button>
+          <ul id="cdc-nav-how-it-works" class="usa-nav__submenu" hidden="">
+            <li class="usa-nav__submenu-item">
+              <a href="{{ site.howItWorksPath }}getting-started/" class="">Getting started</a>
+            </li>
+            <li class="usa-nav__submenu-item">
+              <a href="{{ site.howItWorksPath }}elr-onboarding-checklist/" class="">ELR onboarding checklist</a>
+            </li>
+            <li class="usa-nav__submenu-item">
+              <a href="{{ site.howItWorksPath }}data-download-website-guide/" class="">Data download website guide</a>
+            </li>
+            <li class="usa-nav__submenu-item">
+              <a href="{{ site.howItWorksPath }}where-were-live/" class="">Where we're live</a>
+            </li>
+            <li class="usa-nav__submenu-item">
+              <a href="{{ site.howItWorksPath }}system-and-settings/" class="">System and settings</a>
+            </li>
+            <li class="usa-nav__submenu-item">
+              <a href="{{ site.howItWorksPath }}security-practices/" class="">Security practices</a>
+            </li>
+          </ul>
         </li>
       </ul>
       {% unless hide_signin %}
         <span id="signInButton">
-          <a class="usa-button usa-button--outline" href="/sign-in/"><span>Sign&nbsp;in</span></a>
+          <a class="usa-button usa-button--outline" title="Log in to the ReportStream web application" href="/log-in/"><span>Log&nbsp;in</span></a>
         </span>
         <div class="prime-user-account">
           <span id="emailUser"></span>
           <div id="orgDropdown" class="display-none"></div>
           <br />
-          <a href="javascript:logout()" id="logout" class="usa-link"></a>
+          <a href="javascript:logout()" id="logout" title="Log out of the ReportStream web application" class="usa-link"></a>
         </div>
       {% endunless %}
     </nav>

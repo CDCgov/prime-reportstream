@@ -9,18 +9,11 @@
     background: black;
     height: 100%;
     width: 100%;
-  }
+}
 
 #spinner {
     position: fixed;
     left: 30%;
     height: 100%;
-    width: 100%;
-}
-
-.footer {
-    position: fixed;
-    left: 0;
-    bottom: 0;
     width: 100%;
 }

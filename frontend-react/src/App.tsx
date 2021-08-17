@@ -2,7 +2,7 @@ import "./App.css";
 import { Home } from "./pages/Home";
 import { ReportStreamFooter } from "./components/ReportStreamFooter";
 import { Daily } from "./pages/Daily";
-import { Documentation } from "./pages/Documentation";
+import { HowItWorks } from "./pages/HowItWorks";
 import { Details } from "./pages/Details";
 import { Login } from "./pages/Login";
 import { TermsOfService } from "./pages/TermsOfService";
@@ -15,6 +15,7 @@ import { OktaAuth, toRelativeUrl } from "@okta/okta-auth-js";
 import { Security, SecureRoute, LoginCallback } from "@okta/okta-react";
 import { NetworkErrorBoundary } from "rest-hooks";
 import { SpinnerCircular } from "spinners-react";
+import { About } from "./pages/About";
 import {AuthorizedRoute} from "./components/AuthorizedRoute";
 import {PERMISSIONS} from "./resources/PermissionsResource";
 import {permissionCheck, reportReceiver} from "./webreceiver-utils";
@@ -70,9 +71,10 @@ const App = () => {
                         <Switch>
                             <Route path="/" exact={true} component={Home} />
                             <SecureRoute path="/daily" component={Daily} />
+                            <Route path="/about" component={About} />
                             <Route
-                                path="/documentation"
-                                component={Documentation}
+                                path="/how-it-works"
+                                component={HowItWorks}
                             />
                             <SecureRoute
                                 path="/report-details"

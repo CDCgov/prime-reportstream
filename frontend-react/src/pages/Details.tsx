@@ -4,11 +4,7 @@ import moment from "moment";
 import { useResource } from "rest-hooks";
 import ReportResource from "../resources/ReportResource";
 
-const ReportLink = ({ reportId }) => {
-    let report = useResource(ReportResource.list(), { sortBy: undefined }).find(
-        (report) => report.reportId === reportId
-    );
-
+const ReportLink = ({ report }: { report: ReportResource | undefined }) => {
     const handleClick = (e: { preventDefault: () => void }) => {
         e.preventDefault();
         if (report !== undefined) {
@@ -31,11 +27,7 @@ const ReportLink = ({ reportId }) => {
         </Button>
     );
 };
-const Summary = (props: { reportId?: String }) => {
-    let report = useResource(ReportResource.list(), { sortBy: undefined }).find(
-        (report) => report.reportId === props.reportId
-    );
-
+const Summary = ({ report }: { report: ReportResource | undefined }) => {
     return (
         <section className="grid-container">
             <nav
@@ -60,7 +52,7 @@ const Summary = (props: { reportId?: String }) => {
                     </li>
                 </ol>
             </nav>
-            <ReportLink reportId={props.reportId} />
+            <ReportLink report={report} />
             <h3 className="margin-top-0 margin-bottom-4">
                 <p id="download" className="margin-top-0 margin-bottom-0">
                     Report:{" "}
@@ -86,10 +78,7 @@ function useQuery() {
     return queryMap;
 }
 
-const ReportDetails = (props: { reportId?: String }) => {
-    let report = useResource(ReportResource.list(), { sortBy: undefined }).find(
-        (report) => report.reportId === props.reportId
-    );
+const ReportDetails = ({ report }: { report: ReportResource | undefined }) => {
     return (
         <section className="grid-container margin-top-0 margin-bottom-5">
             <hr />
@@ -129,50 +118,58 @@ const ReportDetails = (props: { reportId?: String }) => {
         </section>
     );
 };
-/*
-const Facilities = (props: {reportId?:String}) => {
-  let report = useResource( ReportResource.list(), {sortBy: undefined} )
-                .find( (report)=>report.reportId === props.reportId)
 
-  return (
-<section id="facilities" className="grid-container margin-bottom-5">
-  <h2>Facilities reporting ({report!.facilities.length})</h2>
-  <table id="facilitiestable" className="usa-table usa-table--borderless prime-table" summary="Previous results">
-    <thead>
-      <tr>
-        <th scope="col">Organization</th>
-        <th scope="col">Location</th>
-        <th scope="col">CLIA</th>
-        <th scope="col">Total tests</th>
-        <th scope="col">Total positive</th>
-        <th scope="col">Report history</th>
-      </tr>
-    </thead>
-    <tbody id="tBodyFac" className="font-mono-2xs">
-      { report!.facilities.map( facility => 
-        <tr>
-          <td>{facility.facility}</td>
-          <td>{facility.location? facility.location : '-'}</td>
-          <td>{facility.CLIA}</td>
-          <td>{facility.total}</td>
-          <td>{facility.positive? facility.positive : 'Unknown' }</td>
-          <td></td>
-        </tr>
-        )}
-    </tbody>
-  </table>
+const Facilities = ({ report }: { report: ReportResource | undefined }) => {
+    return (
+        <section id="facilities" className="grid-container margin-bottom-5">
+            <h2>Facilities reporting ({report!.facilities.length})</h2>
+            <table
+                id="facilitiestable"
+                className="usa-table usa-table--borderless prime-table"
+                summary="Previous results"
+            >
+                <thead>
+                    <tr>
+                        <th scope="col">Organization</th>
+                        <th scope="col">Location</th>
+                        <th scope="col">CLIA</th>
+                        <th scope="col">Total tests</th>
+                        <th scope="col">Total positive</th>
+                    </tr>
+                </thead>
+                <tbody id="tBodyFac" className="font-mono-2xs">
+                    {report!.facilities.map((facility) => (
+                        <tr key={facility.CLIA}>
+                            <td>{facility.facility}</td>
+                            <td>
+                                {facility.location ? facility.location : "-"}
+                            </td>
+                            <td>{facility.CLIA}</td>
+                            <td>{facility.total}</td>
+                            <td>
+                                {facility.positive ? facility.positive : "-"}
+                            </td>
+                            <td></td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </section>
+    );
+};
 
-</section>
-  )                
-} */
-
-export const Details = ({ sortBy }: { sortBy?: String }) => {
+export const Details = () => {
     let queryMap = useQuery();
+    let reportId = queryMap["reportId"];
+    let report = useResource(ReportResource.list(), { sortBy: undefined }).find(
+        (r) => r.reportId === reportId
+    );
 
     return (
         <>
-            <Summary reportId={queryMap["reportId"]} />
-            <ReportDetails reportId={queryMap["reportId"]} />
+            <Summary report={report} />
+            <ReportDetails report={report} />
+            <Facilities report={report} />
         </>
     );
 };

@@ -5,6 +5,8 @@ import {
     Button,
     Link,
     Dropdown,
+    NavDropDownButton,
+    Menu,
 } from "@trussworks/react-uswds";
 import { useOktaAuth } from "@okta/okta-react";
 import { useEffect, useState } from "react";
@@ -17,6 +19,7 @@ import {PERMISSIONS} from "../resources/PermissionsResource";
  *
  * @returns OrganizationDropDown
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const OrganizationDropDown = () => {
     let orgs = useResource(OrganizationResource.list(), {
         sortBy: undefined,
@@ -64,11 +67,9 @@ const SignInOrUser = () => {
             <br />
             {authState.accessToken?.claims.organization.some(
                 (o: String) => o === "DHPrimeAdmins"
-            ) ? (
-                <OrganizationDropDown></OrganizationDropDown>
-            ) : (
-                ""
-            )}
+            )
+                ? "" //<OrganizationDropDown></OrganizationDropDown>
+                : ""}
             <br />
             <a
                 href="/"
@@ -88,16 +89,56 @@ const SignInOrUser = () => {
 
 export const ReportStreamHeader = () => {
     const { oktaAuth, authState } = useOktaAuth();
+    const [isOpen, setIsOpen] = useState(false);
+    const testMenuItems = [
+        <Link href="/how-it-works/getting-started" key="getting-started">
+            Getting started
+        </Link>,
+        <Link href="/how-it-works/elr-checklist" key="elr-checklist">
+            ELR onboarding checklist
+        </Link>,
+        <Link
+            href="/how-it-works/data-download-guide"
+            key="data-download-guide"
+        >
+            Data download website guide
+        </Link>,
+        <Link href="/how-it-works/where-were-live" key="where-were-live">
+            Where we're live
+        </Link>,
+        <Link
+            href="/how-it-works/systems-and-settings"
+            key="systems-and-settings"
+        >
+            System and settings
+        </Link>,
+        <Link href="/how-it-works/security-practices" key="security-practices">
+            Security practices
+        </Link>,
+    ];
 
     let itemsMenu = [
-        <Link
-            href="/documentation/about"
-            id="docs"
-            key="docs"
-            className="usa-nav__link"
-        >
-            <span>Documentation</span>
+        <Link href="/about" id="docs" key="docs" className="usa-nav__link">
+            <span>About</span>
         </Link>,
+        <>
+            <NavDropDownButton
+                menuId="testDropDownOne"
+                onToggle={(): void => {
+                    setIsOpen(true);
+                }}
+                isOpen={isOpen}
+                label="How it works"
+                isCurrent={isOpen}
+            />
+            <Menu
+                key="one"
+                items={testMenuItems}
+                isOpen={isOpen}
+                id="testDropDownOne"
+                onClick={(): void => setIsOpen(false)}
+            />
+        </>,
     ];
 
     if (authState !== null) {
@@ -126,14 +167,13 @@ export const ReportStreamHeader = () => {
         }
     }
 
-
-    if( !authState || !authState.isAuthenticated )
+    if (!authState || !authState.isAuthenticated)
         itemsMenu = itemsMenu.slice(1);
 
     return (
         <Header basic={true}>
             <div className="usa-nav-container">
-                <div className="usa-navbar">
+                <div className="usa-navbar margin-right-5">
                     <Title>
                         <a href="/">ReportStream</a>
                     </Title>
