@@ -2,7 +2,6 @@ import "./App.css";
 import { Home } from "./pages/Home";
 import { ReportStreamFooter } from "./components/ReportStreamFooter";
 import { Daily } from "./pages/Daily";
-import Upload from "./pages/Upload";
 import { Documentation } from "./pages/Documentation";
 import { Details } from "./pages/Details";
 import { Login } from "./pages/Login";
@@ -19,6 +18,7 @@ import { SpinnerCircular } from "spinners-react";
 import {AuthorizedRoute} from "./components/AuthorizedRoute";
 import {PERMISSIONS} from "./resources/PermissionsResource";
 import {permissionCheck, reportReceiver} from "./webreceiver-utils";
+import Upload from "./pages/Upload";
 
 const oktaAuth = new OktaAuth(oktaAuthConfig);
 

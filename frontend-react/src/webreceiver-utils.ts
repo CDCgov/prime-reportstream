@@ -18,10 +18,10 @@ const permissionCheck = (permission: String, authState: AuthState) => {
     if (permission === PERMISSIONS['receiver']) {
         return reportReceiver(authState);
     }
-    return authState.accessToken?.claims.organization.find(o => o === permission);
+    return authState.accessToken?.claims.organization.find(o => o.includes(permission));
 };
 
 // A receiver is anyone with an organization that is not "DHSender", i.e.: "DHaz_phd"
-const reportReceiver = (authState: AuthState) => {return authState.accessToken?.claims.organization.find(o => o !== PERMISSIONS['sender'])};
+const reportReceiver = (authState: AuthState) => {return authState.accessToken?.claims.organization.find(o => !o.includes(PERMISSIONS['sender']))};
 
 export { groupToOrg, permissionCheck, reportReceiver };

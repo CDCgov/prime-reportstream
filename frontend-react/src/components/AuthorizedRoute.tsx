@@ -6,7 +6,7 @@ import {SecureRoute, useOktaAuth} from '@okta/okta-react';
 import {permissionCheck} from '../webreceiver-utils';
 
 export const AuthorizedRoute = ({component: Component, authorize: permission, ...rest}) => {
-    const {oktaAuth, authState} = useOktaAuth();
+    const { authState } = useOktaAuth();
     return (<SecureRoute {...rest} render={props => {
 
         if (authState && !permissionCheck(permission, authState)) {
