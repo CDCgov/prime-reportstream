@@ -17,4 +17,4 @@ fi
 
 return=${RC}
 
-exit ${RC?}
+exit ${RC}
