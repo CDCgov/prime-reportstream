@@ -13,8 +13,7 @@ if [[ ! -z "$erromessage" ]]; then
     RC=1
     echo "ktlint found format violations!"
     echo $erromessage
+    return ${RC}
 fi
-
-return ${RC}
 
 exit ${RC}
