@@ -1,13 +1,10 @@
 name: "WIP - Prepare the deployment branch"
 
 on:
-  push:
-    branches:
-      - "td/auto-branch-1851"
-  # schedule:
-  #   # At 16:00 on Monday and Wednesday (https://crontab.guru/#0_16_*_*_1,3)
-  #   # GitHub actions run in UTC (and EDT is UTC-4)
-  #   - cron: "0 16 * * 1,3"
+  schedule:
+    # At 16:00 on Monday and Wednesday (https://crontab.guru/#0_16_*_*_1,3)
+    # GitHub actions run in UTC (and EDT is UTC-4)
+    - cron: "0 16 * * 1,3"
 
 jobs:
   prepare_branch:
