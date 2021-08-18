@@ -20,7 +20,7 @@ jobs:
       - name: Set Environment Variables
         # TODO: de-uniquify the branch name (this is here for testing purposes)
         run: |
-          echo >> $GITHUB_ENV BRANCH_NAME=td/WIP-ignore-deployment-$(date +%Y-%m-%d_%HH%MM%SS)
+          echo >> $GITHUB_ENV BRANCH_NAME=td/WIP-ignore-deployment-$(date +%Y-%m-%d_%H%M%S)
 
       - name: Output Branch Name
         # TODO: de-uniquify the branch name (this is here for testing purposes)
