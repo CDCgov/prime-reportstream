@@ -1,4 +1,4 @@
-name: "Prepare the deployment branch"
+name: "WIP - Prepare the deployment branch"
 
 on:
   pull_request:
