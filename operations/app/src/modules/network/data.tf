@@ -16,7 +16,7 @@ locals {
     ]
     vnet_primary = data.azurerm_virtual_network.vnet[local.vnets[0]]
 
-    vnet_subnets = {for vnet in data.azurerm_virtual_network.vnet : vnet.name => cidrsubnets(vnet.address_space[0], 3, 3, 3, 3)}
+    vnet_subnets = {for vnet in data.azurerm_virtual_network.vnet : vnet.name => cidrsubnets(vnet.address_space[0], 3, 3, 3, 3, 2)}
 }
 
 data "azurerm_virtual_network" "vnet" {
