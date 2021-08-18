@@ -134,12 +134,6 @@ resource "azurerm_subnet" "endpoint" {
     service_endpoints = ["Microsoft.Storage"]
 }
 
-resource "azurerm_private_dns_zone" "dns_zone_private" {
-    for_each = toset(local.dns_zones_private)
-    name = each.value
-    resource_group_name = var.resource_group
-}
-
 # Associate the DNS zone with our VNET, so the VNET will resolve these addresses
 resource "azurerm_private_dns_zone_virtual_network_link" "dns_zone_private_link" {
     for_each = azurerm_private_dns_zone.dns_zone_private
