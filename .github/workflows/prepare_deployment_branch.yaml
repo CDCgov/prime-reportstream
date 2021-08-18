@@ -32,12 +32,12 @@ jobs:
           echo "Branch name: \"${BRANCH_NAME}\""
           cat "${GITHUB_ENV}"
 
-      # - name: "Create deployment branch"
-      #   uses: peterjgrainger/action-create-branch@v2.0.1
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   with:
-      #     branch: "${{ env.BRANCH_NAME }}"
+      - name: "Create deployment branch"
+        uses: peterjgrainger/action-create-branch@v2.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          branch: "${{ env.BRANCH_NAME }}"
 
       - name: "Create PR from deployment branch into production"
         id: cpr
