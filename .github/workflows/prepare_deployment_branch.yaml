@@ -45,7 +45,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           base: "td/auto-branch-1851"             # TODO: make this master (the 'from')
-          branch: "td/1851-target-ignore"         # TODO: make this production (the 'to')
+          branch: "td/1851-target-2-ignore"       # TODO: make this production (the 'to')
           assignees: td-usds
           title: "[Deployment] Deployment branch for ${{ env.DEPLOYMENT_DATE }}"
           body: |
