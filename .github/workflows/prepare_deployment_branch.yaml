@@ -40,14 +40,23 @@ jobs:
           branch: "${{ env.BRANCH_NAME }}"
 
       - name: "Prepare a Pull Request from ${{ env.BRANCH_NAME }} into target branch" # TODO: Fix name
+        uses: k3rnels-actions/pr-update@v1
         id: pr
-        uses: sudoStatus200/create-sync-pr@0.3.1
         with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SOURCE_BRANCH: "${{ env.BRANCH_NAME }}"
-          TARGET_BRANCH: "td/IGNORE-dest-1"     # TODO: Change this to production
+          token: ${{ secrets.GITHUB_TOKEN }}
+          pr_title: "[Deployment on $${{ env.DEPLOYMENT_DATE }}]"
+          pr_source: "${{ env.BRANCH_NAME }}"
+          pr_target: "td/IGNORE-dest-1" # TODO Change this to production
+          pr_labels: devops,chore
+          pr_assignees: td-usds
+          pr_body: |
+            ## Deployment of ${{ env.DEPLOYMENT_DATE }}
+            This PR contains the changes that will go into the deployment scheduled for ${{ env.DEPLOYMENT_DATE }}
+
+            - Sample
+            - Other
 
       - name: "Produce Pull Request URL"
         run: |
-          echo "PR URL:       ${{ steps.pr.outputs.PULL_REQUEST_URL }}"
-          echo "PR Id:        ${{ steps.pr.outputs.PULL_REQUEST_NUMBER }}"
+          echo "PR URL:       https://github.com/CDCgov/prime-reportstream/pull/${{ steps.pr.outputs.pr_nr }}"
+          echo "PR Id:        ${{ steps.pr.outputs.pr_nr }}"
