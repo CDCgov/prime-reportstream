@@ -9,9 +9,25 @@ import java.util.Base64
 /**
  * Responsible for storing blobs in Azure containers and messages into Azure queues
  */
-class QueueAccess {
-    val timeToLiveDays = 7L
+object QueueAccess {
+    /**
+     * Queue message time to live.
+     */
+    private const val timeToLiveDays = 7L
 
+    /**
+     * Queue connection string.
+     */
+    private val connectionString = System.getenv("AzureWebJobsStorage")
+
+    /**
+     * Queue clients
+     */
+    private var clients = mutableMapOf<String, QueueClient>()
+
+    /**
+     * Send a message to the queue based on the [event].
+     */
     fun sendMessage(event: Event) {
         val queueName = event.eventAction.toQueueName() ?: return
         val base64Message = String(Base64.getEncoder().encode(event.toQueueMessage().toByteArray()))
@@ -39,11 +55,17 @@ class QueueAccess {
         return Event.parseQueueMessage(message)
     }
 
+    /**
+     * Creates the queue client for the given queue [name] or reuses an existing one.
+     * @return the queue client
+     */
     private fun createQueueClient(name: String): QueueClient {
-        val connectionString = System.getenv("AzureWebJobsStorage")
-        return QueueServiceClientBuilder()
-            .connectionString(connectionString)
-            .buildClient()
-            .createQueue(name)
+        return if (clients.containsKey(name)) clients[name]!! else {
+            clients[name] = QueueServiceClientBuilder()
+                .connectionString(connectionString)
+                .buildClient()
+                .createQueue(name)
+            clients[name]!!
+        }
     }
 }

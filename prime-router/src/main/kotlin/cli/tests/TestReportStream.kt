@@ -165,7 +165,7 @@ Examples:
         val problem: Boolean = when (env) {
             "staging" -> !dbEnv.contains("pdhstaging")
             "test" -> !dbEnv.contains("pdhtest")
-            "local" -> !dbEnv.contains("postgresql") && !dbEnv.contains("localhost")
+            "local" -> !dbEnv.contains("postgresql") || !dbEnv.contains("localhost")
             "prod" -> !dbEnv.contains("pdhprod")
             else -> true
         }
@@ -258,7 +258,7 @@ Examples:
             DataCompareTest(),
             SantaClaus(),
             OtcProctored(),
-            WatersAuth(),
+            WatersAuthTests(),
         )
     }
 }
@@ -644,6 +644,7 @@ class End2End : CoolTest() {
         val fakeItemCount = allGoodReceivers.size * options.items
         val file = FileUtilities.createFakeFile(
             metadata,
+            settings,
             simpleRepSender,
             fakeItemCount,
             receivingStates,
@@ -685,6 +686,7 @@ class Merge : CoolTest() {
         ugly("Starting merge test:  Merge ${options.submits} reports, each of which sends to $allGoodCounties")
         val file = FileUtilities.createFakeFile(
             metadata,
+            settings,
             simpleRepSender,
             fakeItemCount,
             receivingStates,
@@ -723,6 +725,7 @@ class Hl7Null : CoolTest() {
         ugly("Starting hl7null Test: test of many threads all doing database interactions, but no sends. ")
         val file = FileUtilities.createFakeFile(
             metadata,
+            settings,
             simpleRepSender,
             fakeItemCount,
             receivingStates,
@@ -842,6 +845,7 @@ class Strac : CoolTest() {
         val fakeItemCount = allGoodReceivers.size * options.items
         val file = FileUtilities.createFakeFile(
             metadata,
+            settings,
             stracSender,
             fakeItemCount,
             receivingStates,
@@ -898,6 +902,7 @@ class StracPack : CoolTest() {
         )
         val file = FileUtilities.createFakeFile(
             metadata,
+            settings,
             stracSender,
             options.items,
             receivingStates,
@@ -945,6 +950,7 @@ class Waters : CoolTest() {
         ugly("Starting Waters: sending ${options.items} Waters items to ${blobstoreReceiver.name} receiver")
         val file = FileUtilities.createFakeFile(
             metadata,
+            settings,
             watersSender,
             options.items,
             receivingStates,
@@ -1032,6 +1038,7 @@ class HammerTime : CoolTest() {
         ugly("Starting Hammertime Test: $description")
         val file = FileUtilities.createFakeFile(
             metadata,
+            settings,
             simpleRepSender,
             options.items,
             receivingStates,
@@ -1081,6 +1088,7 @@ class Garbage : CoolTest() {
         val fakeItemCount = allGoodReceivers.size * options.items
         val file = FileUtilities.createFakeFile(
             metadata,
+            settings,
             emptySender,
             fakeItemCount,
             receivingStates,
@@ -1161,6 +1169,7 @@ class QualityFilter : CoolTest() {
         val fakeItemCount = 5
         val file = FileUtilities.createFakeFile(
             metadata,
+            settings,
             emptySender,
             fakeItemCount,
             receivingStates,
@@ -1178,6 +1187,7 @@ class QualityFilter : CoolTest() {
         ugly("\nTest a QualityFilter that allows some data through")
         val file2 = FileUtilities.createFakeFile(
             metadata,
+            settings,
             emptySender,
             fakeItemCount,
             receivingStates,
@@ -1195,6 +1205,7 @@ class QualityFilter : CoolTest() {
         ugly("\nTest a QualityFilter that allows NO data through.")
         val file3 = FileUtilities.createFakeFile(
             metadata,
+            settings,
             emptySender,
             fakeItemCount,
             receivingStates,
@@ -1212,6 +1223,7 @@ class QualityFilter : CoolTest() {
         ugly("\nTest the REVERSE of the QualityFilter that allows some data through")
         val file4 = FileUtilities.createFakeFile(
             metadata,
+            settings,
             emptySender,
             fakeItemCount,
             receivingStates,
@@ -1239,6 +1251,7 @@ class Huge : CoolTest() {
         ugly("Starting huge Test: Attempting to send a report with $fakeItemCount items. This is terrapin slow.")
         val file = FileUtilities.createFakeFile(
             metadata,
+            settings,
             simpleRepSender,
             fakeItemCount,
             receivingStates,
@@ -1274,6 +1287,7 @@ class TooBig : CoolTest() {
         ugly("Starting toobig test: Attempting to send a report with $fakeItemCount items. This is slllooooowww.")
         val file = FileUtilities.createFakeFile(
             metadata,
+            settings,
             simpleRepSender,
             fakeItemCount,
             receivingStates,
@@ -1316,6 +1330,7 @@ class DbConnections : CoolTest() {
         ugly("Starting dbconnections Test: test of many threads attempting to sftp ${options.items} HL7s.")
         val file = FileUtilities.createFakeFile(
             metadata,
+            settings,
             simpleRepSender,
             options.items,
             receivingStates,
@@ -1364,6 +1379,7 @@ class BadSftp : CoolTest() {
         ugly("Starting badsftp Test: test that our code handles sftp connectivity problems")
         val file = FileUtilities.createFakeFile(
             metadata,
+            settings,
             simpleRepSender,
             options.items,
             receivingStates,
@@ -1469,6 +1485,7 @@ class InternationalContent : CoolTest() {
         ugly("Starting $name Test: send ${simpleRepSender.fullName} data to $receiverName")
         val file = FileUtilities.createFakeFile(
             metadata,
+            settings,
             simpleRepSender,
             1,
             receivingStates,
@@ -1558,6 +1575,7 @@ class SantaClaus : CoolTest() {
 
             val file = FileUtilities.createFakeFile(
                 metadata = metadata,
+                settings = settings,
                 sender = sender,
                 count = states.size,
                 format = if (sender.format == Sender.Format.CSV) Report.Format.CSV else Report.Format.HL7_BATCH,

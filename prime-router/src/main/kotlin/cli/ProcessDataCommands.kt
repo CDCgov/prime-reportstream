@@ -8,17 +8,7 @@ import com.github.ajalt.clikt.parameters.options.convert
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.int
-import gov.cdc.prime.router.CustomConfiguration
-import gov.cdc.prime.router.DefaultValues
-import gov.cdc.prime.router.FakeReport
-import gov.cdc.prime.router.FileSettings
-import gov.cdc.prime.router.FileSource
-import gov.cdc.prime.router.Hl7Configuration
-import gov.cdc.prime.router.Metadata
-import gov.cdc.prime.router.Receiver
-import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.ResultDetail
-import gov.cdc.prime.router.Translator
+import gov.cdc.prime.router.*
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import gov.cdc.prime.router.serializers.ReadResult
@@ -191,12 +181,13 @@ class ProcessData : CliktCommand(
 
     private fun mergeReports(
         metadata: Metadata,
+        settings: SettingsProvider,
         listOfFiles: String
     ): Report {
         if (listOfFiles.isEmpty()) error("No files to merge.")
         val files = listOfFiles.split(",", " ").filter { it.isNotBlank() }
         if (files.isEmpty()) error("No files to merge found in comma separated list.  Need at least one file.")
-        val reports = files.map { readReportFromFile(metadata, it) }
+        val reports = files.map { readReportFromFile(metadata, settings, it) }
         echo("Merging ${reports.size} reports.")
         return Report.merge(reports)
     }
@@ -216,6 +207,7 @@ class ProcessData : CliktCommand(
 
     private fun readReportFromFile(
         metadata: Metadata,
+        settings: SettingsProvider,
         fileName: String
     ): Report {
         val schemaName = inputSchema?.lowercase() ?: ""
@@ -225,7 +217,7 @@ class ProcessData : CliktCommand(
         echo("Opened: ${file.absolutePath}")
         return when (file.extension.lowercase()) {
             "hl7" -> {
-                val hl7Serializer = Hl7Serializer(metadata)
+                val hl7Serializer = Hl7Serializer(metadata, settings)
                 val result = hl7Serializer.readExternal(
                     schemaName,
                     file.inputStream(),
@@ -338,15 +330,15 @@ class ProcessData : CliktCommand(
         val metadata = Metadata(Metadata.defaultMetadataDirectory)
         val fileSettings = FileSettings(FileSettings.defaultSettingsDirectory)
         val csvSerializer = CsvSerializer(metadata)
-        val hl7Serializer = Hl7Serializer(metadata)
+        val hl7Serializer = Hl7Serializer(metadata, fileSettings)
         val redoxSerializer = RedoxSerializer(metadata)
         echo("Loaded schema and receivers")
         // Gather input source
         var inputReport: Report = when (inputSource) {
             is InputSource.ListOfFilesSource ->
-                mergeReports(metadata, (inputSource as InputSource.ListOfFilesSource).commaSeparatedList)
+                mergeReports(metadata, fileSettings, (inputSource as InputSource.ListOfFilesSource).commaSeparatedList)
             is InputSource.FileSource ->
-                readReportFromFile(metadata, (inputSource as InputSource.FileSource).fileName)
+                readReportFromFile(metadata, fileSettings, (inputSource as InputSource.FileSource).fileName)
             is InputSource.DirSource ->
                 TODO("Dir source is not implemented")
             is InputSource.FakeSource -> {
