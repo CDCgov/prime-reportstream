@@ -1,13 +1,17 @@
 /* Network security groups */
-resource "azurerm_network_security_group" "nsg_public" {
-    name                = "${var.resource_prefix}-nsg.public"
-    location            = var.location
+resource "azurerm_network_security_group" "vnet_nsg_public" {
+    for_each = data.azurerm_virtual_network.vnet
+
+    name                = "${var.resource_prefix}-${each.value.location}-nsg.public"
+    location            = each.value.location
     resource_group_name = var.resource_group
 }
 
-resource "azurerm_network_security_group" "nsg_private" {
-    name                = "${var.resource_prefix}-nsg.private"
-    location            = var.location
+resource "azurerm_network_security_group" "vnet_nsg_private" {
+    for_each = data.azurerm_virtual_network.vnet
+
+    name                = "${var.resource_prefix}-${each.value.location}-nsg.private"
+    location            = each.value.location
     resource_group_name = var.resource_group
 }
 
@@ -44,7 +48,7 @@ resource "azurerm_subnet_network_security_group_association" "public_to_nsg_publ
     for_each = azurerm_subnet.public_subnet
 
     subnet_id                 = each.value.id
-    network_security_group_id = azurerm_network_security_group.nsg_public.id
+    network_security_group_id = azurerm_network_security_group.vnet_nsg_public[each.key].id
 }
 
 
@@ -77,7 +81,7 @@ resource "azurerm_subnet_network_security_group_association" "container_to_nsg_p
     for_each = azurerm_subnet.container_subnet
 
     subnet_id                 = each.value.id
-    network_security_group_id = azurerm_network_security_group.nsg_public.id
+    network_security_group_id = azurerm_network_security_group.vnet_nsg_public[each.key].id
 }
 
 
@@ -112,7 +116,7 @@ resource "azurerm_subnet_network_security_group_association" "private_to_nsg_pri
     for_each = azurerm_subnet.private_subnet
 
     subnet_id                 = each.value.id
-    network_security_group_id = azurerm_network_security_group.nsg_private.id
+    network_security_group_id = azurerm_network_security_group.vnet_nsg_private[each.key].id
 }
 
 
@@ -137,5 +141,5 @@ resource "azurerm_subnet_network_security_group_association" "endpoint_to_nsg_pr
     for_each = azurerm_subnet.endpoint_subnet
 
     subnet_id                 = each.value.id
-    network_security_group_id = azurerm_network_security_group.nsg_private.id
+    network_security_group_id = azurerm_network_security_group.vnet_nsg_private[each.key].id
 }
