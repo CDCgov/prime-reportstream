@@ -19,8 +19,9 @@ jobs:
 
       - name: Set Environment Variables
         # TODO: de-uniquify the branch name (this is here for testing purposes)
+        # 86400: seconds in a 24h time-window
         run: |
-          let TOMORROWS_SECONDS_SINCE_EPOCH=$(date +%s)+(60*60*24)
+          let TOMORROWS_SECONDS_SINCE_EPOCH=$(date +%s)+86400
           echo >> $GITHUB_ENV DEPLOYMENT_DATE=$(date --date=@${TOMORROWS_SECONDS_SINCE_EPOCH} +%Y-%m-%d)
           echo >> $GITHUB_ENV BRANCH_NAME=td/WIP-ignore-deployment-${DEPLOYMENT_DATE}
 
