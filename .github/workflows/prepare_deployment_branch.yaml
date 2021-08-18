@@ -20,6 +20,7 @@ jobs:
       - name: Set Environment Variables
         run: |
           echo >> $GITHUB_ENV $BRANCH_NAME=ignore-deployment-$(date +%Y-%m-%d)
+          echo "Branch name: \"${BRANCH_NAME}\""
 
       - name: "Create deployment branch"
         uses: peterjgrainger/action-create-branch@v2.0.1
@@ -28,9 +29,11 @@ jobs:
         with:
           branch: "${{ env.BRANCH_NAME }}"
 
-      # - name: "Create PR from deployment branch into production"
-      #   uses: poorva17/create-pr-action@main
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #     HEAD_BRANCH: "${{ env.BRANCH_NAME }}"
-      #     BASE_BRANCH: "production"
+      - name: "Create PR from deployment branch into production"
+        uses: poorva17/create-pr-action@main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HEAD_BRANCH: "${{ env.BRANCH_NAME }}"
+          # NOTE: Created for the sole purpose to NOT go against production during testing
+          # TODO: Change this to 'production' once we validate that the PR is a PR and not a merge
+          BASE_BRANCH: "td/1851-target-ignore"
