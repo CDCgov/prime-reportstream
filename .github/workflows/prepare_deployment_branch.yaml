@@ -53,8 +53,6 @@ jobs:
             ## Deployment of ${{ env.DEPLOYMENT_DATE }}
             This PR contains the changes that will go into the deployment scheduled for ${{ env.DEPLOYMENT_DATE }}
 
-            - duplicate run
-
       - name: "Produce Pull Request URL"
         run: |
           echo "PR URL:       https://github.com/CDCgov/prime-reportstream/pull/${{ steps.pr.outputs.pr_nr }}"
