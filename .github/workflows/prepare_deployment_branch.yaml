@@ -43,7 +43,7 @@ jobs:
         id: cpr
         uses: peter-evans/create-pull-request@v3
         with:
-          # token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           base: "td/auto-branch-1851"             # TODO: make this master (the 'from')
           branch: "${{ env.BRANCH_NAME }}"       # TODO: make this production (the 'to')
           assignees: td-usds
