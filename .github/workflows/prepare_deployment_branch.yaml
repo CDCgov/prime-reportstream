@@ -30,7 +30,6 @@ jobs:
         # TODO: de-uniquify the branch name (this is here for testing purposes)
         run: |
           echo "Branch name: \"${BRANCH_NAME}\""
-          cat "${GITHUB_ENV}"
 
       - name: "Create a new branch that contains the changes to go into the deployment"
         uses: peterjgrainger/action-create-branch@v2.0.1
@@ -44,14 +43,14 @@ jobs:
         id: pr
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          pr_title: "Deployment on ${{ env.DEPLOYMENT_DATE }}"
+          pr_title: "Deployment of ${{ env.DEPLOYMENT_DATE }}"
           pr_source: "${{ env.BRANCH_NAME }}"
           pr_target: "td/IGNORE-dest-1" # TODO Change this to production
           pr_labels: devops,chore,deployment
           pr_assignees: td-usds
           pr_body: |
             ## Deployment of ${{ env.DEPLOYMENT_DATE }}
-            This PR contains the changes that will go into the deployment scheduled for ${{ env.DEPLOYMENT_DATE }}
+            This PR contains the changes that will go into the deployment scheduled for ${{ env.DEPLOYMENT_DATE }}.
 
       - name: "Produce Pull Request URL"
         run: |
