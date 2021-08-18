@@ -47,7 +47,7 @@ jobs:
           pr_title: "Deployment on ${{ env.DEPLOYMENT_DATE }}"
           pr_source: "${{ env.BRANCH_NAME }}"
           pr_target: "td/IGNORE-dest-1" # TODO Change this to production
-          pr_labels: devops,chore
+          pr_labels: devops,chore,deployment
           pr_assignees: td-usds
           pr_body: |
             ## Deployment of ${{ env.DEPLOYMENT_DATE }}
