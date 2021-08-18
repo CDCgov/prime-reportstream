@@ -53,8 +53,7 @@ jobs:
             ## Deployment of ${{ env.DEPLOYMENT_DATE }}
             This PR contains the changes that will go into the deployment scheduled for ${{ env.DEPLOYMENT_DATE }}
 
-            - Sample
-            - Other
+            - duplicate run
 
       - name: "Produce Pull Request URL"
         run: |
