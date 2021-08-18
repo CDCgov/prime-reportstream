@@ -20,7 +20,9 @@ jobs:
       - name: Set Environment Variables
         # TODO: de-uniquify the branch name (this is here for testing purposes)
         run: |
-          echo >> $GITHUB_ENV BRANCH_NAME=td/WIP-ignore-deployment-$(date +%Y-%m-%d_%H%M%S)
+          let TOMORROWS_SECONDS_SINCE_EPOCH=$(date +%s)+(60*60*24)
+          echo >> $GITHUB_ENV DEPLOYMENT_DATE=$(date --date=@${TOMORROWS_SECONDS_SINCE_EPOCH} +%Y-%m-%d)
+          echo >> $GITHUB_ENV BRANCH_NAME=td/WIP-ignore-deployment-${DEPLOYMENT_DATE}
 
       - name: Output Branch Name
         # TODO: de-uniquify the branch name (this is here for testing purposes)
@@ -35,10 +37,10 @@ jobs:
           branch: "${{ env.BRANCH_NAME }}"
 
       - name: "Create PR from deployment branch into production"
-        uses: poorva17/create-pr-action@main
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          HEAD_BRANCH: "${{ env.BRANCH_NAME }}"
-          # NOTE: Created for the sole purpose to NOT go against production during testing
-          # TODO: Change this to 'production' once we validate that the PR is a PR and not a merge
-          BASE_BRANCH: "td/1851-target-ignore"
+        uses: peter-evans/create-pull-request@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          assignees: td-usds
+          title: "[Deployment] Deployment branch for ${{ env.DEPLOYMENT_DATE }}"
+          body: |
+            This PR contains the deployment for ${{ env.DEPLOYMENT_DATE }}
