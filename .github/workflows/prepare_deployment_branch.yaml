@@ -1,9 +1,9 @@
 name: "WIP - Prepare the deployment branch"
 
 on:
-  pull_request:
+  push:
     branches:
-      - "td/1851-target-ignore"
+      - "td/auto-branch-1851"
   # schedule:
   #   # At 16:00 on Monday and Wednesday (https://crontab.guru/#0_16_*_*_1,3)
   #   # GitHub actions run in UTC (and EDT is UTC-4)
