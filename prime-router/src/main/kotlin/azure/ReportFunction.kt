@@ -52,8 +52,8 @@ class ReportFunction : Logging {
 
     data class ValidatedRequest(
         val httpStatus: HttpStatus,
-        val errors: MutableList<ResultDetail> = mutableListOf<ResultDetail>(),
-        val warnings: MutableList<ResultDetail> = mutableListOf<ResultDetail>(),
+        val errors: MutableList<ResultDetail> = mutableListOf(),
+        val warnings: MutableList<ResultDetail> = mutableListOf(),
         val options: Options = Options.None,
         val defaults: Map<String, String> = emptyMap(),
         val routeTo: List<String> = emptyList(),
@@ -103,16 +103,18 @@ class ReportFunction : Logging {
     ): HttpResponseMessage {
 
         logger.debug(" request headers: ${request.headers}")
+        val workflowEngine = WorkflowEngine()
         val authenticationStrategy = AuthenticationStrategy.authStrategy(
             request.headers["authentication-type"],
-            PrincipalLevel.USER
+            PrincipalLevel.USER,
+            workflowEngine
         )
         val senderName = request.headers[CLIENT_PARAMETER]
             ?: request.queryParameters.getOrDefault(CLIENT_PARAMETER, "")
         // todo This code is redundant w/validateRequest. Remove from validateRequest once old endpoint is removed
         if (senderName.isBlank())
             return HttpUtilities.bad(request, "Expected a '$CLIENT_PARAMETER' query parameter")
-        val sender = WorkflowEngine().settings.findSender(senderName)
+        val sender = workflowEngine.settings.findSender(senderName)
             ?: return HttpUtilities.bad(request, "'$CLIENT_PARAMETER:$senderName': unknown sender")
 
         if (authenticationStrategy is OktaAuthentication) {
@@ -135,23 +137,29 @@ class ReportFunction : Logging {
         val workflowEngine = WorkflowEngine()
         val actionHistory = ActionHistory(TaskAction.receive, context)
         var report: Report? = null
+        val verboseResponse = StringBuilder()
         actionHistory.trackActionParams(request)
         val httpResponseMessage = try {
             val validatedRequest = validateRequest(workflowEngine, request)
+            // track the sending organization and client based on the header
+            actionHistory.trackActionSender(extractClientHeader(request))
             when {
                 validatedRequest.options == Options.CheckConnections -> {
                     workflowEngine.checkConnections()
-                    HttpUtilities.okResponse(request, createResponseBody(validatedRequest))
+                    verboseResponse.append(createResponseBody(validatedRequest, false))
+                    HttpUtilities.okResponse(request, verboseResponse.toString())
                 }
                 validatedRequest.report == null -> {
+                    verboseResponse.append(createResponseBody(validatedRequest, false))
                     HttpUtilities.httpResponse(
                         request,
-                        createResponseBody(validatedRequest),
+                        verboseResponse.toString(),
                         validatedRequest.httpStatus
                     )
                 }
                 validatedRequest.options == Options.ValidatePayload -> {
-                    HttpUtilities.okResponse(request, createResponseBody(validatedRequest))
+                    verboseResponse.append(createResponseBody(validatedRequest, false))
+                    HttpUtilities.okResponse(request, verboseResponse.toString())
                 }
                 else -> {
                     // Regular happy path workflow is here
@@ -160,7 +168,7 @@ class ReportFunction : Logging {
                     routeReport(context, workflowEngine, validatedRequest, actionHistory)
                     if (request.body != null && validatedRequest.sender != null) {
                         workflowEngine.recordReceivedReport(
-                            report, request.body!!.toByteArray(), validatedRequest.sender!!,
+                            report, request.body!!.toByteArray(), validatedRequest.sender,
                             actionHistory, workflowEngine
                         )
                     } else error(
@@ -168,7 +176,14 @@ class ReportFunction : Logging {
                         "Unable to save original report ${report.name} due to null " +
                             "request body or sender"
                     )
-                    val responseBody = createResponseBody(validatedRequest, actionHistory)
+                    val responseBody = createResponseBody(validatedRequest, validatedRequest.verbose, actionHistory)
+                    // if a verbose response was not requested, then generate one for the actionResponse
+                    verboseResponse.append(
+                        if (validatedRequest.verbose)
+                            responseBody
+                        else
+                            createResponseBody(validatedRequest, true, actionHistory)
+                    )
                     HttpUtilities.createdResponse(request, responseBody)
                 }
             }
@@ -178,8 +193,10 @@ class ReportFunction : Logging {
             HttpUtilities.internalErrorResponse(request)
         }
         actionHistory.trackActionResult(httpResponseMessage)
+        // add the response to the action table as JSONB and record the httpsStatus
+        actionHistory.trackActionResponse(httpResponseMessage, verboseResponse.toString())
         workflowEngine.recordAction(actionHistory)
-        actionHistory.queueMessages() // Must be done after creating TASK record.
+        actionHistory.queueMessages(workflowEngine) // Must be done after creating TASK record.
         // write the data to the table if we're dealing with covid-19. this has to happen
         // here AFTER we've written the report to the DB
         writeCovidResultMetadataForReport(report, context, workflowEngine)
@@ -235,6 +252,14 @@ class ReportFunction : Logging {
         }
     }
 
+    /**
+     * Extract client header from request headers or query string parameters
+     * @param request the http request message from the client
+     */
+    private fun extractClientHeader(request: HttpRequestMessage<String?>): String {
+        return request.headers[CLIENT_PARAMETER] ?: request.queryParameters.getOrDefault(CLIENT_PARAMETER, "")
+    }
+
     private fun validateRequest(engine: WorkflowEngine, request: HttpRequestMessage<String?>): ValidatedRequest {
         val errors = mutableListOf<ResultDetail>()
         val warnings = mutableListOf<ResultDetail>()
@@ -268,7 +293,7 @@ class ReportFunction : Logging {
             .map { ResultDetail.param(ROUTE_TO_PARAMETER, "Invalid receiver name: $it") }
         errors.addAll(receiverNameErrors)
 
-        val clientName = request.headers[CLIENT_PARAMETER] ?: request.queryParameters.getOrDefault(CLIENT_PARAMETER, "")
+        val clientName = extractClientHeader(request)
         if (clientName.isBlank())
             errors.add(ResultDetail.param(CLIENT_PARAMETER, "Expected a '$CLIENT_PARAMETER' query parameter"))
 
@@ -463,6 +488,7 @@ class ReportFunction : Logging {
     // todo I think all of this info is now in ActionHistory.  Move to there.   Already did destinations.
     private fun createResponseBody(
         result: ValidatedRequest,
+        verbose: Boolean,
         actionHistory: ActionHistory? = null,
     ): String {
         val factory = JsonFactory()
@@ -473,14 +499,14 @@ class ReportFunction : Logging {
             if (result.report != null) {
                 it.writeStringField("id", result.report.id.toString())
                 it.writeStringField("timestamp", DateTimeFormatter.ISO_INSTANT.format(Instant.now()))
-                it.writeStringField("topic", result.report.schema.topic.toString())
+                it.writeStringField("topic", result.report.schema.topic)
                 it.writeNumberField("reportItemCount", result.report.itemCount)
             } else
                 it.writeNullField("id")
 
             actionHistory?.prettyPrintDestinationsJson(it, WorkflowEngine.settings, result.options)
             // print the report routing when in verbose mode
-            if (result.verbose) {
+            if (verbose) {
                 it.writeArrayFieldStart("routing")
                 createItemRouting(result, actionHistory).forEach { ij ->
                     it.writeStartObject()
