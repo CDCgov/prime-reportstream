@@ -15,16 +15,14 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Set Environment Variables
-        # TODO: de-uniquify the branch name (this is here for testing purposes)
         # 86400: seconds in a 24h time-window
         run: |
           let TOMORROWS_SECONDS_SINCE_EPOCH=$(date +%s)+86400
           DEPLOYMENT_DATE=$(date --date=@${TOMORROWS_SECONDS_SINCE_EPOCH} +%Y-%m-%d)
           echo >> ${GITHUB_ENV} DEPLOYMENT_DATE=${DEPLOYMENT_DATE?}
-          echo >> ${GITHUB_ENV} BRANCH_NAME=td/WIP-ignore-deployment-${DEPLOYMENT_DATE?}
+          echo >> ${GITHUB_ENV} BRANCH_NAME=deployment/${DEPLOYMENT_DATE?}
 
       - name: Output Branch Name
-        # TODO: de-uniquify the branch name (this is here for testing purposes)
         run: |
           echo "Branch name: \"${BRANCH_NAME}\""
 
@@ -35,14 +33,14 @@ jobs:
         with:
           branch: "${{ env.BRANCH_NAME }}"
 
-      - name: "Prepare a Pull Request from ${{ env.BRANCH_NAME }} into target branch" # TODO: Fix name
+      - name: "Prepare a Pull Request from ${{ env.BRANCH_NAME }} into production branch"
         uses: k3rnels-actions/pr-update@v1
         id: pr
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           pr_title: "Deployment of ${{ env.DEPLOYMENT_DATE }}"
           pr_source: "${{ env.BRANCH_NAME }}"
-          pr_target: "td/IGNORE-dest-1" # TODO Change this to production
+          pr_target: "production"
           pr_labels: devops,chore,deployment
           pr_assignees: td-usds
           pr_body: |
