@@ -1,4 +1,4 @@
-name: "WIP - Prepare the deployment branch"
+name: "Create a deployment branch in preparation of the upcoming scheduled deployment"
 
 on:
   schedule:
