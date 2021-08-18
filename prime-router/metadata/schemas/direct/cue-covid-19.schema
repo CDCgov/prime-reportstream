@@ -11,6 +11,5 @@ elements:
     default: CueHlth
 
   - name: processing_mode_code
-    default: T
-
+    default: P
 

@@ -8,17 +8,17 @@ The VPN uses OpenVPN to connect with certificate-based authentication. You will 
 
 Recommended clients:
 
-- [Tunnelblock](https://tunnelblick.net/index.html) (Mac)
-- [OpenVPN Connect](https://openvpn.net/client-connect-vpn-for-windows/) (Windows)
-- [OpenVPN](https://openvpn.net/) (Linux)
+- Mac : [Tunnelblock](https://tunnelblick.net/index.html)
+- Windows: [OpenVPN Client](https://openvpn.net/community-downloads/) - Do not use [OpenVPN Connect](https://openvpn.net/client-connect-vpn-for-windows/) as it is unable to verify the server's identity
+- Linux: [OpenVPN](https://openvpn.net/)
 
 # Using the VPN
 
-You will be provided a VPN profile that is unique to you for each environment. The profile will include all keys, certificates and settings required to connect to the VPN Gateway and route the appropriate traffic through it.
+You will be provided a VPN profile that is unique to you for each environment. The profile will include all keys, certificates and settings required to connect to the VPN Gateway and route the appropriate traffic through it.  Maintain these profiles secured as they contain your credentials to login to the VPN.
 
-## Mac and Linux
+## Using your Profiles
 
-Once you receive your VPN profile, import the profile into the OpenVPN client of your choice.
+Once you receive your VPN profile, import the profile into the OpenVPN client of your choice.  See the clients documentation for more information.
 
 ## Linux
 
@@ -41,13 +41,20 @@ $ kill -${SIGNAL} $(cat "/tmp/${USER}/openvpn.pid")
 # On termination, openvpn will remove the PID file
 ```
 
-## Trouble Accessing Items in the Azure Portal?
+## Troubleshooting
+- **Trouble Accessing Items in the Azure Portal?**
 
 Some browsers like Firefox or Chrome have started defaulting to use custom DNS-over-HTTPS (DOH) providers. This will interfere with the VPN's DNS server. You will need to disable DOH on your browser. Directions below:
 
 https://learn.akamai.com/en-us/webhelp/enterprise-threat-protector/etp-client-configuration-guide/GUID-04D2A852-CB51-4210-9CE3-7F6ABB3B84E2.html
 
-# Generate a VPN Profile
+- **I am getting an error on Windows when connecting: ssl routines tls_process_server_certificate certificate verify failed**
+
+If you are using OpenVPN Connect, uninstall it and install the [OpenVPN Client](https://openvpn.net/community-downloads/).  
+ 
+
+# For VPN Administrators
+## Generate a VPN Profile
 
 To generate keys for a VPN profile, follow the below steps. These steps [are derived from this Azure document](https://docs.microsoft.com/en-us/azure/vpn-gateway/vpn-gateway-certificates-point-to-site-linux).
 
@@ -72,7 +79,7 @@ openssl pkcs12 -in "${VPN_USERNAME}Cert.pem" -inkey "${VPN_USERNAME}Key.pem" -ce
     * `${VPN_USERNAME}Key.pem` to `<key></key>`
 * Securely transmit the VPN profile to the recipient
 
-# Revoke a VPN Profile
+## Revoke a VPN Profile
 
 If a VPN profile needs to be revoked for any reason this can be done via Azure.
 
