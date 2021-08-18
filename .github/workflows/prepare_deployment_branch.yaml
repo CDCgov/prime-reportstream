@@ -26,7 +26,7 @@ jobs:
         run: |
           echo "Branch name: \"${BRANCH_NAME}\""
 
-      - name: "Create a new branch that contains the changes to go into the deployment"
+      - name: "Create branch '${{ env.BRANCH_NAME }}' to contain the changes for the deployment on ${{ env.DEPLOYMENT_DATE }}"
         uses: peterjgrainger/action-create-branch@v2.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
