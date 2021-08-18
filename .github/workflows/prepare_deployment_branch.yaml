@@ -44,7 +44,7 @@ jobs:
         id: pr
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          pr_title: "[Deployment on $${{ env.DEPLOYMENT_DATE }}]"
+          pr_title: "Deployment on ${{ env.DEPLOYMENT_DATE }}"
           pr_source: "${{ env.BRANCH_NAME }}"
           pr_target: "td/IGNORE-dest-1" # TODO Change this to production
           pr_labels: devops,chore
