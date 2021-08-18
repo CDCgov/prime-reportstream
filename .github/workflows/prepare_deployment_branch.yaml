@@ -1,0 +1,36 @@
+name: "Prepare the deployment branch"
+
+on:
+  pull_request:
+    branches:
+      - "td/auto-branch-1851"
+  # schedule:
+  #   # At 16:00 on Monday and Wednesday (https://crontab.guru/#0_16_*_*_1,3)
+  #   # GitHub actions run in UTC
+  #   - cron: "0 16 * * 1,3"
+
+jobs:
+  prepare_branch:
+    name: Prepare the deployment branch
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Check out changes"
+        uses: actions/checkout@v2
+
+      - name: Set Environment Variables
+        run: |
+          echo >> $GITHUB_ENV $BRANCH_NAME=ignore-deployment-$(date +%Y-%m-%d)
+
+      - name: "Create deployment branch"
+        uses: peterjgrainger/action-create-branch@v2.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          branch: "${{ env.BRANCH_NAME }}"
+
+      # - name: "Create PR from deployment branch into production"
+      #   uses: poorva17/create-pr-action@main
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #     HEAD_BRANCH: "${{ env.BRANCH_NAME }}"
+      #     BASE_BRANCH: "production"
