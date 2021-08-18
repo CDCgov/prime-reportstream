@@ -32,20 +32,20 @@ jobs:
           echo "Branch name: \"${BRANCH_NAME}\""
           cat "${GITHUB_ENV}"
 
-      - name: "Create deployment branch"
-        uses: peterjgrainger/action-create-branch@v2.0.1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          branch: "${{ env.BRANCH_NAME }}"
+      # - name: "Create deployment branch"
+      #   uses: peterjgrainger/action-create-branch@v2.0.1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     branch: "${{ env.BRANCH_NAME }}"
 
       - name: "Create PR from deployment branch into production"
         id: cpr
         uses: peter-evans/create-pull-request@v3
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          # token: ${{ secrets.GITHUB_TOKEN }}
           base: "td/auto-branch-1851"             # TODO: make this master (the 'from')
-          branch: "td/1851-target-2-ignore"       # TODO: make this production (the 'to')
+          branch: "${{ env.BRANCH_NAME }}"       # TODO: make this production (the 'to')
           assignees: td-usds
           title: "[Deployment] Deployment branch for ${{ env.DEPLOYMENT_DATE }}"
           body: |
@@ -53,4 +53,6 @@ jobs:
 
       - name: "Produce Pull Request URL"
         run: |
-          echo "Created Pull Request: ${{ steps.cpr.outputs.pull-request-url }}"
+          echo "PR Operation: ${{ steps.cpr.outputs.pull-request-operation }}"
+          echo "PR URL:       ${{ steps.cpr.outputs.pull-request-url }}"
+          echo "PR Id:        ${{ steps.cpr.outputs.pull-request-number }}"
