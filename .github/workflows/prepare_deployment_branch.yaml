@@ -22,13 +22,14 @@ jobs:
         # 86400: seconds in a 24h time-window
         run: |
           let TOMORROWS_SECONDS_SINCE_EPOCH=$(date +%s)+86400
-          echo >> $GITHUB_ENV DEPLOYMENT_DATE=$(date --date=@${TOMORROWS_SECONDS_SINCE_EPOCH} +%Y-%m-%d)
-          echo >> $GITHUB_ENV BRANCH_NAME=td/WIP-ignore-deployment-${DEPLOYMENT_DATE}
+          echo >> ${GITHUB_ENV} DEPLOYMENT_DATE=$(date --date=@${TOMORROWS_SECONDS_SINCE_EPOCH?} +%Y-%m-%d)
+          echo >> ${GITHUB_ENV} BRANCH_NAME=td/WIP-ignore-deployment-${DEPLOYMENT_DATE?}
 
       - name: Output Branch Name
         # TODO: de-uniquify the branch name (this is here for testing purposes)
         run: |
           echo "Branch name: \"${BRANCH_NAME}\""
+          cat "${GITHUB_ENV?}"
 
       - name: "Create deployment branch"
         uses: peterjgrainger/action-create-branch@v2.0.1
