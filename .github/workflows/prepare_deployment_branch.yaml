@@ -8,7 +8,7 @@ on:
 
 jobs:
   prepare_branch:
-    name: Prepare the deployment branch
+    name: "Prepare the deployment branch and file a PR"
     runs-on: ubuntu-latest
     steps:
       - name: "Check out changes"
