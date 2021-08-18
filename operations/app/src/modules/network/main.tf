@@ -85,13 +85,13 @@ resource "azurerm_subnet_network_security_group_association" "container_to_nsg_p
 resource "azurerm_subnet" "private_subnet" {
     for_each = data.azurerm_virtual_network.vnet
 
-    name = "private"
-    resource_group_name = var.resource_group
+    name                 = "private"
+    resource_group_name  = var.resource_group
     virtual_network_name = each.value.name
-    address_prefixes = [
+    address_prefixes     = [
         local.vnet_subnets[each.value.name][2],
     ]
-    service_endpoints = [
+    service_endpoints    = [
         "Microsoft.Storage",
         "Microsoft.Sql",
         "Microsoft.KeyVault",
@@ -100,7 +100,7 @@ resource "azurerm_subnet" "private_subnet" {
     delegation {
         name = "server_farms"
         service_delegation {
-            name = "Microsoft.Web/serverFarms"
+            name    = "Microsoft.Web/serverFarms"
             actions = [
                 "Microsoft.Network/virtualNetworks/subnets/action",
             ]
@@ -111,6 +111,31 @@ resource "azurerm_subnet" "private_subnet" {
 resource "azurerm_subnet_network_security_group_association" "private_to_nsg_private" {
     for_each = azurerm_subnet.private_subnet
 
-    subnet_id = each.value.id
+    subnet_id                 = each.value.id
+    network_security_group_id = azurerm_network_security_group.nsg_private.id
+}
+
+
+/* Endpoint subnet */
+resource "azurerm_subnet" "endpoint_subnet" {
+    for_each = data.azurerm_virtual_network.vnet
+
+    name                 = "endpoint"
+    resource_group_name  = var.resource_group
+    virtual_network_name = each.value.name
+    address_prefixes     = [
+        local.vnet_subnets[each.value.name][3],
+    ]
+    service_endpoints    = [
+        "Microsoft.Storage"
+    ]
+
+    enforce_private_link_endpoint_network_policies = true
+}
+
+resource "azurerm_subnet_network_security_group_association" "endpoint_to_nsg_private" {
+    for_each = azurerm_subnet.endpoint_subnet
+
+    subnet_id                 = each.value.id
     network_security_group_id = azurerm_network_security_group.nsg_private.id
 }
