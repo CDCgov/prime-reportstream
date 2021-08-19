@@ -262,7 +262,7 @@ open class BaseHistoryFunction : Logging {
                                             else it.externalName
                                     )
                                     .content(
-                                            ""
+                                            content
                                     ) // don't get the content for now. that can get beefy
                                     .fileName(filename)
                                     .mimeType(mimeType)
@@ -338,7 +338,10 @@ open class BaseHistoryFunction : Logging {
                 actionHistory.trackItemLineages(
                         Report.createItemLineagesFromDb(header, externalReportId)
                 )
-                WorkflowEngine().recordAction(actionHistory)
+
+                actionHistory.trackItemLineages(Report.createItemLineagesFromDb(header, externalReportId))
+                workflowEngine.recordAction(actionHistory)
+
 
                 return response
             }
@@ -399,7 +402,7 @@ open class BaseHistoryFunction : Logging {
             }
         }
         if (userName.isNotBlank() && orgName.isNotBlank()) {
-            val organization = WorkflowEngine().settings.findOrganization(orgName.replace('_', '-'))
+            val organization = workflowEngine.settings.findOrganization(orgName.replace('_', '-'))
             if (organization != null) {
                 return AuthClaims(userName, organization)
             } else {

@@ -11,13 +11,13 @@ extends: ipatientCare/ipatientcare-covid-19
 elements:
 
     - name: processing_mode_code
-      default: T
+      default: P
       
     - name: sender_id
       default: reddyfmc
       
     - name: message_id
-      mapper: concat(patient_id, filler_order_id)
+      csvFields: [{name: Accession_no}]
 
     - name: test_kit_name_id
       type: CODE
@@ -28,11 +28,6 @@ elements:
         - code: 10811877011290
           display: "     SARS-CoV-2 (COVID-19) Ag"
           
-    - name: patient_ethnicity
-      type: TEXT
-      default: U
-      documentation: Defaulting to Unknown. Reddy sends WHITE, BLACK, ASIAN, NULL, and OTHER for ethnicity
-
 # Ordering provider
     - name: ordering_provider_id
       type: CODE

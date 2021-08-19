@@ -28,7 +28,7 @@ class HttpUtilities {
         const val jsonMediaType = "application/json"
         const val oldApi = "/api/reports"
         const val watersApi = "/api/waters"
-        const val tokenApi =  "/api/token"
+        const val tokenApi = "/api/token"
 
         fun okResponse(
             request: HttpRequestMessage<String?>,
