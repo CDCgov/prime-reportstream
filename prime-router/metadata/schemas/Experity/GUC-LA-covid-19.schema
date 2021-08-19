@@ -12,8 +12,8 @@ elements:
     - name: processing_mode_code
       default: T
 
-    - name: message_id
-      mapper: concat(patient_id, test_performed_description_temp, order_test_date)
+#    - name: message_id
+#      mapper: concat(patient_id, test_performed_description_temp, order_test_date)
 
     - name: ordering_provider_id
       type: CODE
