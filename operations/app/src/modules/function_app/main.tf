@@ -46,9 +46,9 @@ locals {
   functionapp_slot_settings_names = distinct(concat(local.functionapp_slot_prod_settings_names, local.functionapp_slot_candidate_settings_names))
 
   sticky_slot_implicit_settings_names = tolist([
-    "AzureWebJobsStorage"])
+  "AzureWebJobsStorage"])
   # Any settings provided implicitly by Azure that we don't want to swap
-  sticky_slot_unique_settings_names   = tolist(setsubtract(local.functionapp_slot_settings_names, keys(local.all_app_settings)))
+  sticky_slot_unique_settings_names = tolist(setsubtract(local.functionapp_slot_settings_names, keys(local.all_app_settings)))
   # Any setting not in the common list is therefore unique
 }
 
@@ -114,7 +114,7 @@ resource "azurerm_function_app" "function_app" {
 
   lifecycle {
     ignore_changes = [
-      site_config[0].linux_fx_version]
+    site_config[0].linux_fx_version]
     # Allows Docker versioning via GitHub Actions
   }
 }
@@ -125,7 +125,7 @@ resource "azurerm_key_vault_access_policy" "functionapp_app_config_access_policy
   object_id    = azurerm_function_app.function_app.identity.0.principal_id
 
   secret_permissions = [
-    "Get"]
+  "Get"]
 }
 
 resource "azurerm_key_vault_access_policy" "functionapp_client_config_access_policy" {
@@ -134,7 +134,7 @@ resource "azurerm_key_vault_access_policy" "functionapp_client_config_access_pol
   object_id    = azurerm_function_app.function_app.identity.0.principal_id
 
   secret_permissions = [
-    "Get"]
+  "Get"]
 }
 
 resource "azurerm_app_service_virtual_network_swift_connection" "function_app_vnet_integration" {

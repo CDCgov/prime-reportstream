@@ -1,7 +1,7 @@
 locals {
   slots = {
-    active: azurerm_function_app.function_app
-    candidate: azurerm_function_app_slot.candidate
+    active : azurerm_function_app.function_app
+    candidate : azurerm_function_app_slot.candidate
   }
 }
 
@@ -77,7 +77,7 @@ resource "azurerm_key_vault_access_policy" "slot_candidate_app_config_access_pol
   object_id    = azurerm_function_app_slot.candidate.identity.0.principal_id
 
   secret_permissions = [
-    "Get"]
+  "Get"]
 }
 
 resource "azurerm_key_vault_access_policy" "slot_candidate_client_config_access_policy" {
@@ -86,7 +86,7 @@ resource "azurerm_key_vault_access_policy" "slot_candidate_client_config_access_
   object_id    = azurerm_function_app_slot.candidate.identity.0.principal_id
 
   secret_permissions = [
-    "Get"]
+  "Get"]
 }
 
 resource "azurerm_app_service_slot_virtual_network_swift_connection" "candidate_slot_vnet_integration" {
