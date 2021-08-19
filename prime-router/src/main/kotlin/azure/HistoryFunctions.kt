@@ -325,7 +325,7 @@ open class BaseHistoryFunction : Logging {
                                                                                                         it.externalName
                                                                         )
                                                                         .content(
-                                                                                        ""
+                                                                                        content
                                                                         ) // don't get the content
                                                                         // for now. that can get
                                                                         // beefy
