@@ -10,6 +10,15 @@ basedOn: covid-19
 
 elements:
 
+    - name: sender_id
+      csvFields: [{name: sender_id}]
+
+    - name: processing_mode_code
+      csvFields: [{name: processing_mode_code}]
+
+    - name: message_id
+      csvFields: [{name: Testing_lab_accession_number}]
+
 #demographics
     - name: patient_id
       csvFields: [{name: Patient_ID}]
@@ -71,11 +80,6 @@ elements:
       csvFields: [{ name: Patient_race, format: $display}]
       default: UNK
 
-# Specimen & Order Info
-#    - name currentdatetime_temp
-#      mapper: timestamp(yyyyMMdd)
-#      csvFields: [{name: Specimen_collection_date_time, format: "M/d/yyyy H:nn"}]
-
     - name: specimen_collection_date_time
       csvFields: [{name: Specimen_collection_date_time, format: "M/d/yyyy H:nn"}]
 
@@ -105,11 +109,8 @@ elements:
 #      csvFields: [{name: Order_result_status}]
 #      default: F
 
-    - name: test_performed_description_temp
-      csvFields: [{name: Test_performed_description}]
-
     - name: filler_order_id
-      mapper: concat(patient_id, test_performed_description_temp, order_test_date)
+      csvFields: [{name: Testing_lab_accession_number}]
 
 
 # Ordering provider
@@ -213,23 +214,28 @@ elements:
       valueSet: sender-automation/pregnant
       documentation: Translate multiple inbound values into the Pregnancy SNOMED Codes
       csvFields: [{ name: Pregnant, format: $display}]
+      default: ""
 
     - name: first_test
       type: CODE
       valueSet: sender-automation/yesno
       documentation: Translate multiple inbound Y/N/U AOE values to RS values
       csvFields: [{ name: First_test, format: $display}]
+      default: ""
 
     - name: employed_in_healthcare
       type: CODE
       valueSet: sender-automation/yesno
       documentation: Translate multiple inbound Y/N/U AOE values to RS values
       csvFields: [{ name: Employed_in_healthcare, format: $display}]
+      default: ""
 
     - name: symptomatic_for_disease
+      type: CODE
       valueSet: sender-automation/yesno
       documentation: Translate multiple inbound Y/N/U AOE values to RS values
       csvFields: [{ name: Symptomatic_for_disease, format: $display}]
+      default: ""
 
     - name: illness_onset_date
       default: ""
