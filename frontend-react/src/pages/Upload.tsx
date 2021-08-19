@@ -20,7 +20,8 @@ const Upload = () => {
     const [file, setFile] = useState(null);
     const [warnings, setWarnings] = useState([]);
     const [errors, setErrors] = useState([]);
-    const [httpErrors, setHttpErrors] = useState(null);
+    const [destinations, setDestinations] = useState('');
+    const [httpErrors, setHttpErrors] = useState('');
     const [reportId, setReportId] = useState(null);
     const [successTimestamp, setSuccessTimestamp] = useState('');
     const [buttonText, setButtonText] = useState('Upload');
@@ -38,7 +39,7 @@ const Upload = () => {
     }
 
     const organization = useResource(OrganizationResource.detail(), {
-        name: client,
+        name: client
     });
 
     const uploadReport =
@@ -62,12 +63,16 @@ const Upload = () => {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
+
+        // reset the state on subsequent uploads
         setIsSubmitting(true);
         setReportId(null);
         setSuccessTimestamp('');
         setWarnings([]);
         setErrors([]);
-        setHttpErrors(null);
+        setDestinations('');
+        setHttpErrors('');
+
         if (file) {
             let response;
             try {
@@ -75,6 +80,7 @@ const Upload = () => {
                 response = await uploadReport(file);
                 setWarnings(response.warnings);
                 setErrors(response.errors);
+                setDestinations(response.destinations.map(d => d['organization']).join(', '));
 
                 if (response.id) {
                     setReportId(response.id);
@@ -97,7 +103,12 @@ const Upload = () => {
 
             } catch (error) {
                 console.log(error);
-                setHttpErrors(error);
+                if (typeof error === 'object') {
+                    setErrors(response.errors);
+                } else {
+                    setHttpErrors(error);
+                }
+                setButtonText('Upload my edited file');
             }
             console.log(response);
             setIsSubmitting(false);
@@ -170,7 +181,14 @@ const Upload = () => {
                         <p id="orgName" className="text-normal text-base margin-bottom-0">
                             Recipients
                         </p>
-                        <p className="margin-top-05">{successTimestamp}</p>
+                        {destinations && (
+                            <p className="margin-top-05">
+                                {destinations}
+                            </p>
+                        )}
+                        {(!destinations) && (
+                            <p className="margin-top-05">There are no known recipients at this time.</p>
+                        )}
                     </div>
                 </div>
             )}
@@ -182,16 +200,16 @@ const Upload = () => {
                             <h4 className="usa-alert__heading">Alert: Additional Edits Requested</h4>
                             <p className="usa-alert__text">
                                 Your file has been accepted. However, we detected fields that are unusable. These
-                                are
-                                crucial for public health action. Please consider editing your file and uploading a
-                                new
-                                version that addresses these issues.
+                                are crucial for public health action. Please consider editing your file and uploading a
+                                new  that addresses these issues.
                             </p>
                         </div>
                     </div>
                     <ul>
                         {warnings.map((w, i) => {
-                            return (<li key={i}>{w['details']}</li>);
+                            return (<li key={i}>
+                                {w['id'] && (<span>{w['id']}: </span>)}{w['details']}
+                            </li>);
                         })}
                     </ul>
                 </div>
