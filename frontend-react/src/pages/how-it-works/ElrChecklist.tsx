@@ -59,7 +59,7 @@ export const ELRChecklist = () => {
 
                 <h3 id="data-requirements-and-preferences">Data requirements and preferences </h3>
 
-                <p>ReportStream sends data as an <a href="http://why.hl7.org/">HL7</a> file via Secure File Transfer Protocol (SFTP). We capture Health and Human Services (HHS) required fields, including “Ask on Order Entry” questions.  </p>
+                <p>ReportStream sends data as an <a href="https://why.hl7.org/">HL7</a> file via Secure File Transfer Protocol (SFTP). We capture Health and Human Services (HHS) required fields, including “Ask on Order Entry” questions.  </p>
 
                 <p>Please note: ReportStream follows industry standards for <a href="https://github.com/CDCgov/prime-data-hub/blob/production/prime-router/docs/schema_documentation/primedatainput-pdi-covid-19.md">data formatting</a> and reporting. While we can support custom format or sending mechanisms, this will increase the time required to build your connection. </p>
 
