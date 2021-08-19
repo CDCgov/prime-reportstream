@@ -45,9 +45,13 @@ $ kill -${SIGNAL} $(cat "/tmp/${USER}/openvpn.pid")
 ### VPN DNS Resolution
 There is an issue where the DNS server for the VPN adapter is not used when resolving hostnames.  This is due to the interface metric of the VPN loosing to the metric of your normal network adapter.  Run the following command to look up the IP of a server in the Azure environment and test if this is an issue .  For example:
 
-`nslookup pdhstaging-pgsql.postgres.database.azure.com`
+```
+nslookup pdh<env>-pgsql.postgres.database.azure.com
+For example:
+nslookup pdhstaging-pgsql.postgres.database.azure.com
+```
 
-should return a 10.x.x.x IP address which is in the range used by the VPN.  If you see an address outside of this 10.x.x.x range then continue with the instructions here to fix this issue.
+should return an IP address in the 10.0.0.0/8 range which is in the range used by the VPN.  If you see an address outside of this 10.0.0.0/8 range then continue with the instructions here to fix this issue.
 
 To fix this issue:
 1. Open Control Panel as an administrator
