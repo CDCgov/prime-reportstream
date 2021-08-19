@@ -74,19 +74,19 @@ elements:
 # Specimen & Order Info
 #    - name currentdatetime_temp
 #      mapper: timestamp(yyyyMMdd)
-#      csvFields: [{name: Specimen_collection_date_time, format: "M/d/yyyy HH:mm"}]
+#      csvFields: [{name: Specimen_collection_date_time, format: "M/d/yyyy H:nn"}]
 
     - name: specimen_collection_date_time
-      csvFields: [{name: Specimen_collection_date_time, format: "M/d/yyyy HH:mm"}]
+      csvFields: [{name: Specimen_collection_date_time, format: "M/d/yyyy H:nn"}]
 
     - name: order_test_date
       csvFields: [{name: Order_test_date, format: "M/d/yyyy"}]
 
     - name: testing_lab_specimen_received_datetime
-      csvFields: [{name: Specimen_collection_date_time, format: "M/d/yyyy HH:mm"}]
+      csvFields: [{name: Specimen_collection_date_time, format: "M/d/yyyy H:nn"}]
 
     - name: test_result_date
-      csvFields: [{name: Date_result_released, format: "M/d/yyyy HH:mm"}]
+      csvFields: [{name: Date_result_released, format: "M/d/yyyy H:nn"}]
 
     - name: test_result_report_date
       csvFields: [{name: Test_date, format: "M/d/yyyy"}]
@@ -101,9 +101,9 @@ elements:
       csvFields: [{name: Test_result_status}]
       default: F
 
-    - name: order_result_status
-      csvFields: [{name: Order_result_status}]
-      default: F
+#    - name: order_result_status
+#      csvFields: [{name: Order_result_status}]
+#      default: F
 
     - name: test_performed_description_temp
       csvFields: [{name: Test_performed_description}]
