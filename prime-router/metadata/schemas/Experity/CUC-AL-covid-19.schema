@@ -1,0 +1,83 @@
+# Schema for Compass Urgent Care in Alabama
+# This schema is to be used to parse the standard lab report from experity
+# Created by Rick Hood
+# Last Update: 08/19/2021
+# 
+name: cuc-al-covid-19
+topic: covid-19
+description: Experity CSV lab report schema, Compass Urgent Care, AL
+extends: experity/experity-covid-19
+
+elements:
+    - name: processing_mode_code
+      default: T
+
+    - name: message_id
+      mapper: concat(patient_id, test_performed_description_temp, order_test_date)
+
+    - name: ordering_provider_id
+      type: CODE
+      csvFields: [{name: Ordering_provider_last_name, format: $alt}]
+      altValues:
+        - code: 1295186302
+          display: Bonner
+        - code: 1295186302
+          display: Andrews
+
+    - name: test_kit_name_id
+      type: CODE
+      default: 99999999
+      csvFields: [{name: Ordered_test_description, format: $alt}]
+      altValues:
+        - code: "CareStart COVID-19 Antigen test_Access Bio, Inc."
+          display: "Coronavirus Antigen IA Rapid Test"
+        - code: 10811877011269
+          display: "Abbott-ID NOW COVID-19 (Molecular)"
+
+# Force failure on all results except COVID-19
+        - code: 99999999
+          display: "non-CDC 2019-ncov coronavirus, SARS (COVID-19)"
+        - code: 99999999
+          display: "Flu A & B, Real-time RT-PCR (RNA)"
+        - code: 99999999
+          display: "Glucose - Accu-Chek"
+        - code: 99999999
+          display: "Glucose - quant"
+        - code: 99999999
+          display: "RSV Ag - rapid"
+        - code: 99999999
+          display: "Strep A Ag - rapid"
+        - code: 99999999
+          display: "UA Dipstick Auto w/o Micro"
+
+    - name: specimen_type
+      type: TEXT
+      csvFields: [{name: Specimen_type_description, format: $alt}]
+      default: "258500001"
+      altValues:
+        - code: "258529004"
+          display: "Oral"
+        - code: "258529004"
+          display: "Oropharyngeal"
+        - code: "258529004"
+          display: "Throat"
+        - code: "258500001"
+          display: "Varied"
+        - code: "258500001"
+          display: "Nasal"
+
+    - name: specimen_source_site_code
+      type: TEXT
+      csvFields: [{name: Specimen_type_description, format: $alt}]
+      default: "71836000"
+      altValues:
+        - code: "31389004"
+          display: "Oral"
+        - code: "31389004"
+          display: "Oropharyngeal"
+        - code: "31389004"
+          display: "Throat"
+        - code: "71836000"
+          display: "Varied"
+        - code: "71836000"
+          display: "Nasal"
