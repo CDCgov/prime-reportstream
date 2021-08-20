@@ -90,6 +90,10 @@
       display: UNK
     - code: UNK
       display: U
+    - code: UNK
+      display: Patient Declines
+    - code: UNK
+      display: NULL
     - code: ASKU
       display: Asked, but unknown
 
@@ -149,7 +153,10 @@
       display: U
     - code: UNK
       display: UNK
-
+    - code: ""
+      display: "N/A"
+    - code: ""
+      display: "NR"
 
 - name: sender-automation/pregnant
   reference: Multiple values are mapped to the Pregnancy SNOMED Codes
@@ -178,7 +185,8 @@
       display: U
     - code: 261665006
       display: UNK
-
+    - code: ""
+      display: "N/A"
 
 - name: sender-automation/test_result
   reference: This maps multiple values to the ReportStream internal codes which are SNOMED-CT codes
