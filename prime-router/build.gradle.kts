@@ -346,7 +346,10 @@ tasks.azureFunctionsRun {
             "VAULT_API_ADDR" to "http://localhost:8200"
         )
     )
-    azurefunctions.localDebug = "transport=dt_socket,server=y,suspend=n,address=5005"
+    azurefunctions {
+        localDebug = "transport=dt_socket,server=y,suspend=n,address=5005"
+        runtime.os("linux")
+    }
 }
 
 tasks.register("run") {
