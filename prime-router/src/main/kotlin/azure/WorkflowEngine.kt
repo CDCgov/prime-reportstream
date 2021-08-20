@@ -49,12 +49,13 @@ class WorkflowEngine(
     // New connection for every function
     val db: DatabaseAccess = databaseAccess,
     val blob: BlobAccess = BlobAccess(csvSerializer, hl7Serializer, redoxSerializer),
-    val queue: QueueAccess = QueueAccess(),
+    val queue: QueueAccess = QueueAccess,
     val sftpTransport: SftpTransport = SftpTransport(),
     val redoxTransport: RedoxTransport = RedoxTransport(),
-    val blobStoreTransport: BlobStoreTransport = BlobStoreTransport(),
     val as2Transport: AS2Transport = AS2Transport()
 ) {
+    val blobStoreTransport: BlobStoreTransport = BlobStoreTransport(this)
+
     /**
      * Check the connections to Azure Storage and DB
      */
@@ -517,7 +518,7 @@ class WorkflowEngine(
         }
 
         val hl7Serializer: Hl7Serializer by lazy {
-            Hl7Serializer(metadata)
+            Hl7Serializer(metadata, settings)
         }
 
         val redoxSerializer: RedoxSerializer by lazy {

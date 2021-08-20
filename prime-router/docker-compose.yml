@@ -39,12 +39,13 @@ services:
     ports:
       - 7071:7071 # default function port
       - 5005:5005 # Java debug port
+      - 9090:9090 # Java JMX port
     networks:
       - prime-router_build
 
   # Azurite is the Azure storage emulator for local development
   azurite:
-    image: mcr.microsoft.com/azure-storage/azurite:3.12.0
+    image: mcr.microsoft.com/azure-storage/azurite:3.14.0
     # uncomment the line below to skip x-ms-version checks
     # command: azurite --skipApiVersionCheck --blobHost 0.0.0.0 --queueHost 0.0.0.0
     volumes:

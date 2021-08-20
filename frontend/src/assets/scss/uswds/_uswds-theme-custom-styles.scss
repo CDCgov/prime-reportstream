@@ -1,0 +1,198 @@
+/*
+* * * * * ==============================
+* * * * * ==============================
+* * * * * ==============================
+* * * * * ==============================
+========================================
+========================================
+========================================
+----------------------------------------
+USWDS THEME CUSTOM STYLES
+----------------------------------------
+!! Copy this file to your project's
+sass root. Don't edit the version
+in node_modules.
+----------------------------------------
+Custom project SASS goes here.
+
+i.e.
+@include u-padding-right('05');
+----------------------------------------
+*/
+
+body {
+   display: flex;
+   min-height: 100vh;
+   flex-direction: column;
+}
+
+main {
+   flex: 1;
+   width: 100%;
+   padding: 4rem 0;
+   border-top: 1px solid #dfe1e2;
+}
+
+.usa-banner__inner, .usa-banner__header--expanded .usa-banner__inner {
+   margin-left: 0;
+   margin-right: 0;
+}
+
+// NAVIGATION
+
+.usa-overlay {
+   z-index: 300;
+}
+
+.usa-nav__close {
+   cursor: pointer;
+}
+
+.usa-nav__primary {
+   margin-top: 0;
+   margin-bottom: 0;
+   list-style: none;
+}
+
+.usa-logo {
+   margin: units(3) units(3) units(3) 0;
+}
+
+.usa-nav__request-account {
+   font-weight: normal;
+   text-decoration: underline;
+}
+
+.usa-nav__primary-item a.usa-button {
+   color: #005ea2;
+}
+
+// TYPOGRAPHY
+
+.usa-intro {
+   line-height: units(4);
+}
+
+.usa-process-list__heading {
+   @include u-font('sans', 'md');
+}
+
+// MEDIA: DESKTOP
+
+@media (min-width: 64em) {
+   .usa-header--basic .usa-nav-container {
+      max-width: 100%;
+      padding-left: 2rem;
+      padding-right: 2rem;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-start;
+      align-content: flex-start;
+   }
+
+   .usa-header--basic .usa-navbar {
+      width: auto;
+   }
+
+   .usa-header--basic .usa-nav {
+      display: flex;
+      flex-direction: row;
+      justify-content: flex-start;
+      padding: 0;
+   }
+
+   .usa-header--basic .usa-nav__primary {
+      flex: 1;
+   }
+
+   .usa-header--basic .usa-nav__link {
+      position: relative;
+   }
+
+   .usa-nav__primary > .usa-nav__primary-item > a {
+      font-weight: normal;
+      color: #2e2e2e;
+      padding: units(3);
+   }
+
+   .usa-nav__primary button {
+      padding: units(3);
+      color: #2e2e2e;
+      font-weight: normal;
+   }
+
+   .usa-nav__primary button[aria-expanded="true"] span {
+      color: #ffffff;
+   }
+
+   .usa-nav__primary button span {
+      font-weight: normal;
+      color: #2e2e2e;
+   }
+
+   .usa-nav__primary > .usa-nav__primary-item > a::after {
+
+   }
+
+   .usa-nav__primary > .usa-nav__primary-item.usa-current > a {
+      color: #0b4778;
+      padding: units(3);
+   }
+
+   .usa-nav__primary > .usa-current > a::after {
+      background-color: #005ea2;
+      border-radius: 0;
+      content: "";
+      display: block;
+      position: absolute;
+      bottom: units(-0.5);
+      height: .25rem;
+      left: 1rem;
+      right: 1rem;
+   }
+
+   .usa-header--basic .usa-nav__primary-item:last-of-type .usa-nav__submenu {
+      left: 0;
+   }
+
+   .prime-user-account {
+      text-align: right;
+   }
+}
+
+// MEDIA: MOBILE
+
+@media (max-width: 63.99em) {
+   main {
+      padding: 2rem 0;
+   }
+   .usa-logo {
+      margin-left: 1rem;
+   }
+   .usa-header--basic .usa-nav {
+      align-items: start;
+      width: 15rem;
+   }
+   .usa-header--basic .usa-navbar {
+      width: 100%;
+      z-index: 200;
+      position: relative;
+      border-bottom: none;
+   }
+   .usa-nav__primary {
+      width: 100%;
+   }
+   .prime-user-account {
+      width: 100%;
+      text-align: left;
+      margin-bottom: 2rem;
+      margin-left: 1rem;
+   }
+   h1 {
+      @include u-line-height('sans', 2);
+   }
+   h2 {
+      @include u-line-height('sans', 3);
+   }
+}

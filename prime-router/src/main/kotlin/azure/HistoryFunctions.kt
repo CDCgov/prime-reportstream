@@ -300,7 +300,7 @@ open class BaseHistoryFunction : Logging {
                     authClaims.userName,
                 )
                 actionHistory.trackItemLineages(Report.createItemLineagesFromDb(header, externalReportId))
-                WorkflowEngine().recordAction(actionHistory)
+                workflowEngine.recordAction(actionHistory)
 
                 return response
             }
@@ -357,7 +357,7 @@ open class BaseHistoryFunction : Logging {
             }
         }
         if (userName.isNotBlank() && orgName.isNotBlank()) {
-            val organization = WorkflowEngine().settings.findOrganization(orgName.replace('_', '-'))
+            val organization = workflowEngine.settings.findOrganization(orgName.replace('_', '-'))
             if (organization != null) {
                 return AuthClaims(userName, organization)
             } else {

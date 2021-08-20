@@ -19,7 +19,7 @@ import java.io.File
 /**
  *
  */
-class WatersAuth : CoolTest() {
+class WatersAuthTests : CoolTest() {
     override val name = "watersauth"
     override val description = "Test FHIR Auth"
     override val status = TestStatus.SMOKE
@@ -95,6 +95,7 @@ class WatersAuth : CoolTest() {
         // create a fake report
         fakeReportFile = FileUtilities.createFakeFile(
             metadata,
+            settings,
             sender = savedSender,
             count = 1,
             format = Report.Format.CSV,

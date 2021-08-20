@@ -1,0 +1,66 @@
+---
+partners:
+  - name: Alabama
+    type: state
+    abbreviation: AL
+    production: true
+  - name: Arizona
+    type: state
+    abbreviation: AZ
+    production: true
+  - name: Colorado
+    type: state
+    abbreviation: CO
+    production: true
+  - name: Florida
+    type: state
+    abbreviation: FL
+    production: true
+  - name: Guam
+    type: territory
+    abbreviation: GU
+    production: true
+  - name: Louisiana
+    type: state
+    abbreviation: LA
+    production: true
+  - name: Maryland
+    type: state
+    abbreviation: MD
+    production: true
+  - name: Massachusetts
+    type: state
+    abbreviation: MA
+    production: true
+  - name: Mississippi
+    type: state
+    abbreviation: MS
+    production: true
+  - name: Montana
+    type: state
+    abbreviation: MT
+    production: false
+  - name: New Mexico
+    type: state
+    abbreviation: NM
+    production: true
+  - name: North Dakota
+    type: state
+    abbreviation: ND
+    production: true
+  - name: Ohio
+    type: state
+    abbreviation: OH
+    production: true
+  - name: Pennsylvania
+    type: state
+    abbreviation: PA
+    production: true
+  - name: Texas
+    type: state
+    abbreviation: TX
+    production: true
+  - name: Vermont
+    type: state
+    abbreviation: VT
+    production: true
