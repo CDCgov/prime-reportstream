@@ -29,6 +29,16 @@ class BlobAccess(
 ) : Logging {
     private val defaultConnEnvVar = "AzureWebJobsStorage"
 
+    /**
+     * Metadata of a blob container.
+     */
+    private data class BlobContainerMetadata(val name: String, val connectionString: String)
+
+    /**
+     * THe blob containers.
+     */
+    private val blobContainerClients = mutableMapOf<BlobContainerMetadata, BlobContainerClient>()
+
     // Basic info about a blob: its format, url in azure, and its sha256 hash
     data class BlobInfo(
         val format: Report.Format,
@@ -79,7 +89,7 @@ class BlobAccess(
             Event.EventAction.RECEIVE -> "receive/$subfolderNameChecked$reportName"
             Event.EventAction.SEND -> "ready/$subfolderNameChecked$reportName"
             Event.EventAction.BATCH -> "batch/$subfolderNameChecked$reportName"
-            else -> error("Cannot determine folder to store blob.  Unsupported action $action for report $reportName")
+            else -> "other/$subfolderNameChecked$reportName"
         }
         val digest = sha256Digest(blobBytes)
         val blobUrl = uploadBlob(blobName, blobBytes)
@@ -106,11 +116,13 @@ class BlobAccess(
         blobContainerName: String = defaultBlobContainerName,
         blobConnEnvVar: String = defaultConnEnvVar
     ): String {
+        logger.info("Starting uploadBlob of $blobName")
         val blobClient = getBlobContainer(blobContainerName, blobConnEnvVar).getBlobClient(blobName)
         blobClient.upload(
             ByteArrayInputStream(bytes),
             bytes.size.toLong()
         )
+        logger.info("Done uploadBlob of $blobName")
         return blobClient.blobUrl
     }
 
@@ -123,8 +135,7 @@ class BlobAccess(
     fun copyBlob(fromBlobUrl: String, toBlobContainer: String, toBlobConnEnvVar: String): String {
         val fromBytes = this.downloadBlob(fromBlobUrl)
         logger.info("Ready to copy ${fromBytes.size} bytes from $fromBlobUrl")
-        val fromBlobClient = getBlobClient(fromBlobUrl) // only used to get the filename.
-        val toFilename = BlobInfo.getBlobFilename(fromBlobClient.blobName)
+        val toFilename = BlobInfo.getBlobFilename(fromBlobUrl)
         logger.info("New blob filename will be $toFilename")
         val toBlobUrl = uploadBlob(toFilename, fromBytes, toBlobContainer, toBlobConnEnvVar)
         logger.info("New blob URL is $toBlobUrl")
@@ -140,21 +151,32 @@ class BlobAccess(
         BlobServiceClientBuilder().connectionString(blobConnection).buildClient()
     }
 
+    /**
+     * Creates the blob container client for the given blob [name] and connection string (obtained from the
+     * environment variable [blobConnEnvVar], or reuses an existing one.
+     * @return the blob container client
+     */
     fun getBlobContainer(name: String, blobConnEnvVar: String = defaultConnEnvVar): BlobContainerClient {
         val blobConnection = System.getenv(blobConnEnvVar)
-        val blobServiceClient = BlobServiceClientBuilder().connectionString(blobConnection).buildClient()
-        val containerClient = blobServiceClient.getBlobContainerClient(name)
-        try {
-            if (!containerClient.exists()) containerClient.create()
-        } catch (error: BlobStorageException) {
-            // This can happen when there are concurrent calls to the API
-            if (error.errorCode.equals(BlobErrorCode.CONTAINER_ALREADY_EXISTS)) {
-                logger.warn("Container $name already exists")
-            } else {
-                throw error
+        val blobContainerMetadata = BlobContainerMetadata(name, blobConnection)
+
+        return if (blobContainerClients.containsKey(blobContainerMetadata)) {
+            blobContainerClients[blobContainerMetadata]!!
+        } else {
+            val blobServiceClient = BlobServiceClientBuilder().connectionString(blobConnection).buildClient()
+            val containerClient = blobServiceClient.getBlobContainerClient(name)
+            try {
+                if (!containerClient.exists()) containerClient.create()
+            } catch (error: BlobStorageException) {
+                // This can happen when there are concurrent calls to the API
+                if (error.errorCode.equals(BlobErrorCode.CONTAINER_ALREADY_EXISTS)) {
+                    logger.warn("Container $name already exists")
+                } else {
+                    throw error
+                }
             }
+            containerClient
         }
-        return containerClient
     }
 
     fun getBlobClient(blobUrl: String, blobConnEnvVar: String = defaultConnEnvVar): BlobClient {

@@ -9,18 +9,10 @@ import ca.uhn.hl7v2.model.v251.datatype.TS
 import ca.uhn.hl7v2.model.v251.datatype.XTN
 import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
+import ca.uhn.hl7v2.parser.EncodingNotSupportedException
 import ca.uhn.hl7v2.parser.ModelClassFactory
 import ca.uhn.hl7v2.util.Terser
-import gov.cdc.prime.router.Element
-import gov.cdc.prime.router.ElementAndValue
-import gov.cdc.prime.router.Hl7Configuration
-import gov.cdc.prime.router.Mapper
-import gov.cdc.prime.router.Metadata
-import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.ResultDetail
-import gov.cdc.prime.router.Schema
-import gov.cdc.prime.router.Source
-import gov.cdc.prime.router.ValueSet
+import gov.cdc.prime.router.*
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.InputStream
 import java.io.OutputStream
@@ -32,8 +24,12 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Properties
 import java.util.TimeZone
+import java.util.regex.Pattern
 
-class Hl7Serializer(val metadata: Metadata) : Logging {
+class Hl7Serializer(
+    val metadata: Metadata,
+    val settings: SettingsProvider
+) : Logging {
     data class Hl7Mapping(
         val mappedRows: Map<String, List<String>>,
         val rows: List<RowResult>,
@@ -224,11 +220,23 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
         // if the message is empty, return a row result that warns of empty data
         if (cleanedMessage.isEmpty()) {
             logger.debug("Skipping empty message during parsing")
-            return RowResult(emptyMap(), emptyList(), listOf("Cannot parse empty message"))
+            return RowResult(emptyMap(), emptyList(), listOf("Cannot parse empty HL7 message"))
+        }
+
+        val hapiMsg = try {
+            parser.parse(cleanedMessage)
+        } catch (e: HL7Exception) {
+            logger.error("${e.localizedMessage} ${e.stackTraceToString()}")
+            if (e is EncodingNotSupportedException) {
+                // This exception error message is a bit cryptic, so let's provide a better one.
+                errors.add("Error parsing HL7 message: Invalid HL7 message format")
+            } else {
+                errors.add("Error parsing HL7 message: ${e.localizedMessage}")
+            }
+            return RowResult(emptyMap(), errors, warnings)
         }
 
         try {
-            val hapiMsg = parser.parse(cleanedMessage)
             val terser = Terser(hapiMsg)
 
             // First, extract any data elements from the HL7 message.
@@ -246,27 +254,52 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
                 var value = ""
                 for (i in 0 until hl7Fields.size) {
                     val hl7Field = hl7Fields[i]
-                    value =
+                    value = when {
                         // Decode a phone number
-                        if (element.type == Element.Type.TELEPHONE || element.type == Element.Type.EMAIL) {
+                        element.type == Element.Type.TELEPHONE ||
+                            element.type == Element.Type.EMAIL ->
                             decodeHl7TelecomData(terser, element, hl7Field)
-                        }
+
                         // Decode a timestamp
-                        else if (element.type == Element.Type.DATETIME ||
-                            element.type == Element.Type.DATE
-                        ) {
+                        element.type == Element.Type.DATETIME ||
+                            element.type == Element.Type.DATE ->
                             decodeHl7DateTime(terser, element, hl7Field, warnings)
-                        }
+
                         // Decode an AOE question
-                        else if (hl7Field == "AOE") {
+                        hl7Field == "AOE" ->
                             decodeAOEQuestion(element, terser, errors)
+
+                        // Process a CODE type field.  IMPORTANT: Must be checked after AOE as AOE is a CODE field
+                        element.type == Element.Type.CODE -> {
+                            val rawValue = queryTerserForValue(
+                                terser, getTerserSpec(hl7Field), errors
+                            )
+                            // This verifies the code received is good.  Note the translated value will be the same as
+                            // the raw value for valuesets and altvalues
+                            try {
+                                when {
+                                    rawValue.isBlank() -> ""
+
+                                    element.altValues != null && element.altValues.isNotEmpty() ->
+                                        element.toNormalized(rawValue, Element.altDisplayToken)
+
+                                    !element.valueSet.isNullOrEmpty() ->
+                                        element.toNormalized(rawValue, Element.codeToken)
+
+                                    else -> rawValue
+                                }
+                            } catch (e: IllegalStateException) {
+                                warnings.add("The code $rawValue for field $hl7Field is invalid.")
+                                ""
+                            }
                         }
+
                         // No special case here, so get a value from an HL7 field
-                        else {
+                        else ->
                             queryTerserForValue(
                                 terser, getTerserSpec(hl7Field), errors
                             )
-                        }
+                    }
                     if (value.isNotBlank()) break
                 }
 
@@ -352,7 +385,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
         mappedRows.forEach {
             logger.debug("${it.key} -> ${it.value.joinToString()}")
         }
-        val report = Report(schema, mappedRows, source, metadata = metadata)
+        val report = if (errors.size > 0) null else Report(schema, mappedRows, source, metadata = metadata)
         return ReadResult(report, errors, warnings)
     }
 
@@ -378,8 +411,10 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
     ) {
         // set up our configuration
         val hl7Config = report.destination?.translation as? Hl7Configuration
+        val replaceValue = hl7Config?.replaceValue ?: emptyMap()
         val suppressQst = hl7Config?.suppressQstForAoe ?: false
         val suppressAoe = hl7Config?.suppressAoe ?: false
+
         // and we have some fields to suppress
         val suppressedFields = hl7Config
             ?.suppressHl7Fields
@@ -411,6 +446,9 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
             if (suppressedFields.contains(element.hl7Field) && element.hl7OutputFields.isNullOrEmpty())
                 return@forEach
 
+            if (element.hl7Field == "AOE" && suppressAoe)
+                return@forEach
+
             // some fields need to be blank instead of passing in UNK
             // so in this case we'll just go by field name and set the value to blank
             if (blanksForUnknownFields.contains(element.name) &&
@@ -425,6 +463,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
                 element.hl7OutputFields.forEach outputFields@{ hl7Field ->
                     if (suppressedFields.contains(hl7Field))
                         return@outputFields
+
                     // some of our schema elements are actually subcomponents of the HL7 fields, and are individually
                     // text, but need to be truncated because they're the first part of an HD field. For example,
                     // ORC-2-2 and ORC-3-2, so we are manually pulling them aside to truncate them
@@ -434,7 +473,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
                         hl7Field in HD_FIELDS_LOCAL &&
                         hl7Config?.truncateHDNamespaceIds == true
                     ) {
-                        value.substring(0, HD_TRUNCATION_LIMIT)
+                        value.substring(0, getTruncationLimitWithEncoding(value, HD_TRUNCATION_LIMIT))
                     } else {
                         value
                     }
@@ -481,7 +520,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
                     value.length > HD_TRUNCATION_LIMIT &&
                     hl7Config?.truncateHDNamespaceIds == true
                 ) {
-                    value.substring(0, HD_TRUNCATION_LIMIT)
+                    value.substring(0, getTruncationLimitWithEncoding(value, HD_TRUNCATION_LIMIT))
                 } else {
                     value
                 }
@@ -521,6 +560,44 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
                 terser.set(pathSpec, hl7Config?.reportingFacilityIdType)
             }
         }
+
+        // check for alt CLIA for out of state testing
+        if (!hl7Config?.cliaForOutOfStateTesting.isNullOrEmpty()) {
+            val testingStateField = "OBX-24-4"
+            val pathSpecTestingState = formPathSpec(testingStateField)
+            val testingState = terser.get(pathSpecTestingState)
+
+            val stateCode = report.destination?.let { settings.findOrganization(it.organizationName)?.stateCode }
+
+            if (!testingState.equals(stateCode)) {
+                val sendingFacility = "MSH-4-2"
+                val pathSpecSendingFacility = formPathSpec(sendingFacility)
+                terser.set(pathSpecSendingFacility, hl7Config?.cliaForOutOfStateTesting)
+            }
+        }
+
+        // after all values have been set or blanked, check for values that need replacement
+        // isNotEmpty returns true only when a value exists. Whitespace only is considered a value
+        replaceValue.forEach { element ->
+
+            if (element.key.substring(0, 3).equals("OBX")) {
+                val observationReps = message.patienT_RESULT.ordeR_OBSERVATION.observationReps
+
+                for (i in 0..observationReps.minus(1)) {
+                    var pathSpec = formPathSpec(element.key, i)
+                    val valueInMessage = terser.get(pathSpec) ?: ""
+                    if (valueInMessage.isNotEmpty()) {
+                        terser.set(pathSpec, element.value)
+                    }
+                }
+            } else {
+                var pathSpec = formPathSpec(element.key)
+                val valueInMessage = terser.get(pathSpec) ?: ""
+                if (valueInMessage.isNotEmpty()) {
+                    terser.set(pathSpec, element.value)
+                }
+            }
+        }
     }
 
     private fun setComponentForTable(terser: Terser, element: Element, report: Report, row: Int) {
@@ -558,13 +635,13 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
     ) {
         val hl7Config = report.destination?.translation as? Hl7Configuration?
         val hdFieldMaximumLength = if (hl7Config?.truncateHDNamespaceIds == true) {
-            HD_TRUNCATION_LIMIT
+            getTruncationLimitWithEncoding(value, HD_TRUNCATION_LIMIT)
         } else {
             null
         }
         val pathSpec = formPathSpec(hl7Field)
         when (element.type) {
-            Element.Type.ID_CLIA -> setCliaComponent(terser, value, hl7Field, element)
+            Element.Type.ID_CLIA -> setCliaComponent(terser, value, hl7Field)
             Element.Type.HD -> {
                 if (value.isNotEmpty()) {
                     val hd = Element.parseHD(value, hdFieldMaximumLength)
@@ -643,7 +720,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
      * and set 'CLIA' as the Universal ID Type.
      * If [hl7Field] points to CE field, set [value] as the Identifier and 'CLIA' as the Text.
      */
-    internal fun setCliaComponent(terser: Terser, value: String, hl7Field: String, element: Element) {
+    internal fun setCliaComponent(terser: Terser, value: String, hl7Field: String) {
         if (value.isEmpty()) return
 
         val pathSpec = formPathSpec(hl7Field)
@@ -856,6 +933,23 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
         terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-1", "1")
         terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-2", "CWE")
         terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-23-7", "XX")
+    }
+
+    /**
+     * Get a new truncationlimit accounting for the encoding of HL7 special characters.
+     * @param value string value to search for HL7 special characters
+     * @param truncationLimit the starting limit
+     * @return the new truncation limit or starting limit if no special characters are found
+     */
+    internal fun getTruncationLimitWithEncoding(value: String, truncationLimit: Int): Int {
+        val regex = "[&^~|]".toRegex()
+        val matchCount = regex.findAll(value).count()
+
+        return if (matchCount > 0) {
+            truncationLimit.minus(matchCount.times(2))
+        } else {
+            truncationLimit
+        }
     }
 
     private fun createHeaders(report: Report): String {
@@ -1081,7 +1175,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
                             val r = Regex("^[A-Z]+\\[[0-9]{12,}\\.?[0-9]{0,4}[+-][0-9]{4}]\$")
                             if (!r.matches(rawValue)) {
                                 warnings.add(
-                                    "Timestamp for $hl7Field - ${element.name} needs to provide more " +
+                                    "Timestamp for $hl7Field - ${element.name} should provide more " +
                                         "precision. Should be formatted as YYYYMMDDHHMM[SS[.S[S[S[S]+/-ZZZZ"
                                 )
                             }
@@ -1093,7 +1187,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
                             val r = Regex("^[A-Z]+\\[[0-9]{8,}.*")
                             if (!r.matches(rawValue)) {
                                 warnings.add(
-                                    "Date for $hl7Field - ${element.name} needs to provide more " +
+                                    "Date for $hl7Field - ${element.name} should provide more " +
                                         "precision. Should be formatted as YYYYMMDD"
                                 )
                             }
@@ -1124,7 +1218,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
         const val MESSAGE_CODE = "ORU"
         const val MESSAGE_TRIGGER_EVENT = "R01"
         const val SOFTWARE_VENDOR_ORGANIZATION: String = "Centers for Disease Control and Prevention"
-        const val SOFTWARE_PRODUCT_NAME: String = "PRIME Data Hub"
+        const val SOFTWARE_PRODUCT_NAME: String = "PRIME ReportStream"
 
         /*
         From the HL7 2.5.1 Ch 2A spec...

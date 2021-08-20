@@ -83,6 +83,9 @@ elements:
     mapper: use(specimen_id)
     csvFields: [{ name: testId}]
 
+  - name: previous_message_id
+    csvFields: [{name: correctedTestId}]
+
   - name: patient_age
     csvFields: [{ name: patientAge}]
 

@@ -920,6 +920,20 @@ Does the patient reside in a congregate care setting?
 
 ---
 
+**Name**: Site_of_care
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The type of facility providing care (Hospital, Nursing Home, etc.).
+
+---
+
 **Name**: Specimen_collection_date_time
 
 **Type**: DATETIME
@@ -994,6 +1008,7 @@ Code | Display
 440500007|Dried blood spot specimen
 258580003|Whole blood sample
 122555007|Venous blood specimen
+119297000|Blood specimen
 
 **Documentation**:
 

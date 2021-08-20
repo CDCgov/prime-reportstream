@@ -26,6 +26,73 @@
       topic: covid-19
       schemaName: waters/waters-covid-19
       format: CSV
+  receivers:
+  - name: "giang"
+    organizationName: "waters"
+    topic: "covid-19"
+    translation:
+      schemaName: "waters/waters-covid-19"
+      format: "CSV"
+      defaults: {}
+      nameFormat: "STANDARD"
+      receivingOrganization: null
+      type: "CUSTOM"
+    jurisdictionalFilter:
+    - "hasAtLeastOneOf(waters_submitter, sender_id)"
+    - "orEquals(patient_state, GH, ordering_facility_state, GH)"
+    qualityFilter:
+    - "allowAll()"
+    reverseTheQualityFilter: false
+    deidentify: true
+    timing:
+      operation: "MERGE"
+      numberPerDay: 1440
+      initialTime: "00:00"
+      timeZone: "EASTERN"
+      maxReportCount: 10000
+    description: ""
+    transport:
+      type: SFTP
+      host: sftp
+      port: 22
+      filePath: ./upload
+      credentialName: DEFAULT-SFTP
+    externalName: null
+  - name: "giang2"
+    organizationName: "waters"
+    topic: "covid-19"
+    translation:
+      schemaName: "waters/waters-covid-19"
+      format: "CSV"
+      defaults: {}
+      nameFormat: "STANDARD"
+      receivingOrganization: null
+      type: "CUSTOM"
+    jurisdictionalFilter:
+    - "hasAtLeastOneOf(waters_submitter, sender_id)"
+    - "orEquals(patient_state, GH, ordering_facility_state, GH)"
+    qualityFilter:
+    - "allowAll()"
+    reverseTheQualityFilter: false
+    deidentify: true
+    timing:
+      operation: "MERGE"
+      numberPerDay: 1440
+      initialTime: "00:00"
+      timeZone: "EASTERN"
+      maxReportCount: 10000
+    description: ""
+    transport:
+      storageName: "PartnerStorage"
+      containerName: "hhsprotect"
+      type: "BLOBSTORE"
+    externalName: null
+
+
+
+
+
+
 
 - name: safehealth
   description: SAFE - Safe Health Systems
@@ -67,6 +134,16 @@
       schemaName: direct/imagemover-covid-19
       format: CSV
 
+- name: anavasidx
+  description: AnavasiDx
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: anavasidx
+      topic: covid-19
+      schemaName: direct/anavasidx-covid-19
+      format: CSV
+
 - name: strac
   description: STRAC POC testing app
   jurisdiction: FEDERAL
@@ -97,6 +174,36 @@
       schemaName: direct/careevolution-covid-19
       format: HL7
 
+- name: primary
+  description: Primary Diagnostics, Inc. (primary.health)
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: primary
+      topic: covid-19
+      schemaName: direct/primary-covid-19
+      format: HL7
+
+- name: "johns_hopkins"
+  description: "Johns Hopkin's / IHS school testing program"
+  jurisdiction: "FEDERAL"
+  senders:
+    - name: "default"
+      organizationName: "johns_hopkins"
+      format: "CSV"
+      topic: "covid-19"
+      schemaName: "AZ/az-ihs-covid-19"
+
+- name: reddyfmc-la
+  description: iPatientCare CSV lab report schema, Reddy Family Medical Clinic, LA
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: reddyfmc-la
+      topic: covid-19
+      schemaName: iPatientCare/reddyfmc-la-covid-19
+      format: CSV
+      
 - name: az-phd
   description: Arizona PHD
   jurisdiction: STATE
@@ -122,6 +229,24 @@
         port: 22
         filePath: ./upload
         credentialName: DEFAULT-SFTP
+    - name: elr-secondary
+      organizationName: az-phd
+      topic: covid-19
+      jurisdictionalFilter:
+        - matches(ordering_facility_state,AZ)
+      reverseTheQualityFilter: true
+      translation:
+        type: CUSTOM
+        schemaName: az/az-covid-19
+        format: CSV
+        nameFormat: standard_secondary
+
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+        timeZone: ARIZONA
+      # Download only, no transport
 
 - name: pima-az-phd
   description: Pima County, Arizona PHD
@@ -367,7 +492,7 @@
       organizationName: la-doh
       topic: covid-19
       jurisdictionalFilter:
-        - matches(ordering_facility_state, LA)
+        - "orEquals(ordering_facility_state, LA, patient_state, LA)"
       translation:
         type: HL7
         useBatchHeaders: true
@@ -430,6 +555,7 @@
   stateCode: NM
   receivers:
     - name: elr
+      externalName: Primary
       organizationName: nm-doh
       topic: covid-19
       jurisdictionalFilter:
@@ -459,6 +585,7 @@
         filePath: ./upload
         credentialName: DEFAULT-SFTP
     - name: elr-csv
+      externalName: Secondary
       organizationName: nm-doh
       topic: covid-19
       jurisdictionalFilter:
@@ -544,7 +671,7 @@
         type: SFTP
         host: sftp
         port: 22
-        filePath: ./
+        filePath: ./upload
         credentialName: DEFAULT-SFTP
       timing:
         operation: MERGE
@@ -870,6 +997,34 @@
       topic: covid-19
       jurisdictionalFilter:
         - orEquals(ordering_facility_state, CA, patient_state, CA)
+      reverseTheQualityFilter: false
+      translation:
+        type: HL7
+        useBatchHeaders: false
+        receivingApplicationName: CDPH CA REDIE
+        receivingApplicationOID: 2.16.840.1.114222.4.3.3 .10.1.1
+        receivingFacilityName: CDPH_CID
+        receivingFacilityOID: 2.16.840.1.114222.4.1.214104
+        suppressAoe: true
+        truncateHDNamespaceIds: true
+        cliaForOutOfStateTesting: CDPH000075
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+      timing:
+        operation: MERGE
+        numberPerDay: 1440
+        initialTime: 00:00
+        timeZone: EASTERN
+    - name: elr-secondary
+      organizationName: ca-dph
+      topic: covid-19
+      jurisdictionalFilter:
+        - orEquals(ordering_facility_state, CA, patient_state, CA)
+      reverseTheQualityFilter: true
       translation:
         type: HL7
         useBatchHeaders: true
@@ -879,6 +1034,7 @@
         receivingFacilityName: CDPH CA REDIE
         receivingFacilityOID: 2.16.840.1.114222.4.3.3 .10.1.1
         messageProfileId: PHLabReport-Batch^^2.16.840.1.113883.9.10^ISO
+        cliaForOutOfStateTesting: CDPH000076
       transport:
         type: SFTP
         host: sftp
@@ -1487,6 +1643,9 @@
       translation:
         type: HL7
         useBatchHeaders: true
+        suppressHl7Fields: PID-5-7, ORC-12-1, OBR-16-1
+        replaceValue:
+          PID-22-3: CDCREC
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute

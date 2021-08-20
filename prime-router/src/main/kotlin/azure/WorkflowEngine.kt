@@ -21,7 +21,6 @@ import gov.cdc.prime.router.serializers.Hl7Serializer
 import gov.cdc.prime.router.serializers.RedoxSerializer
 import gov.cdc.prime.router.transport.AS2Transport
 import gov.cdc.prime.router.transport.BlobStoreTransport
-import gov.cdc.prime.router.transport.NullTransport
 import gov.cdc.prime.router.transport.RedoxTransport
 import gov.cdc.prime.router.transport.RetryItems
 import gov.cdc.prime.router.transport.RetryToken
@@ -48,15 +47,15 @@ class WorkflowEngine(
     val redoxSerializer: RedoxSerializer = WorkflowEngine.redoxSerializer,
     val translator: Translator = Translator(metadata, settings),
     // New connection for every function
-    val db: DatabaseAccess = WorkflowEngine.databaseAccess,
+    val db: DatabaseAccess = databaseAccess,
     val blob: BlobAccess = BlobAccess(csvSerializer, hl7Serializer, redoxSerializer),
-    val queue: QueueAccess = QueueAccess(),
+    val queue: QueueAccess = QueueAccess,
     val sftpTransport: SftpTransport = SftpTransport(),
     val redoxTransport: RedoxTransport = RedoxTransport(),
-    val blobStoreTransport: BlobStoreTransport = BlobStoreTransport(),
-    val nullTransport: NullTransport = NullTransport(),
     val as2Transport: AS2Transport = AS2Transport()
 ) {
+    val blobStoreTransport: BlobStoreTransport = BlobStoreTransport(this)
+
     /**
      * Check the connections to Azure Storage and DB
      */
@@ -186,7 +185,7 @@ class WorkflowEngine(
         // Send immediately.
         val nextEvent = ReportEvent(Event.EventAction.SEND, reportId, at = null)
         db.transact { txn ->
-            val task = db.fetchAndLockTask(reportId, txn)
+            val task = db.fetchAndLockTask(reportId, txn) // Required, it creates lock.
             val organization = settings.findOrganization(receiver.organizationName)
                 ?: throw Exception("No such organization ${receiver.organizationName}")
             val header = fetchHeader(reportId, organization) // exception if not found
@@ -269,12 +268,12 @@ class WorkflowEngine(
             for (i in 0 until reportFile.itemCount) this[i] = RedoxTransport.ResultStatus.NEVER_ATTEMPTED
         }
         val childReportIds = db.fetchChildReports(reportFile.reportId)
-        childReportIds.forEach { childId ->
+        childReportIds.forEach childIdFor@{ childId ->
             val lineages = db.fetchItemLineagesForReport(childId, reportFile.itemCount)
-            lineages?.forEach lin@{ lineage ->
+            lineages?.forEach lineageFor@{ lineage ->
                 // Once a success, always a success
                 if (itemsDispositionMap[lineage.parentIndex] == RedoxTransport.ResultStatus.SUCCESS)
-                    return@lin
+                    return@lineageFor
                 itemsDispositionMap[lineage.parentIndex] = when {
                     lineage.transportResult.startsWith(RedoxTransport.ResultStatus.FAILURE.name) ->
                         RedoxTransport.ResultStatus.FAILURE
@@ -519,7 +518,7 @@ class WorkflowEngine(
         }
 
         val hl7Serializer: Hl7Serializer by lazy {
-            Hl7Serializer(metadata)
+            Hl7Serializer(metadata, settings)
         }
 
         val redoxSerializer: RedoxSerializer by lazy {

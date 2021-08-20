@@ -2,8 +2,9 @@ FROM node:alpine as static_site
 WORKDIR /usr/app
 COPY package.json ./
 ENV NODE_ENV=development
-RUN npm install --save-dev
-RUN npx @11ty/eleventy --config eleventy.config.js
+RUN apk add git
+RUN npm install --save-dev --force
+RUN npm run build
 COPY . ./
 
 

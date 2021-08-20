@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.transport
 
+import com.hierynomus.sshj.userauth.keyprovider.OpenSSHKeyV1KeyFile
 import com.microsoft.azure.functions.ExecutionContext
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
@@ -12,11 +13,14 @@ import gov.cdc.prime.router.credentials.CredentialHelper
 import gov.cdc.prime.router.credentials.CredentialRequestReason
 import gov.cdc.prime.router.credentials.SftpCredential
 import gov.cdc.prime.router.credentials.UserPassCredential
+import gov.cdc.prime.router.credentials.UserPemCredential
 import gov.cdc.prime.router.credentials.UserPpkCredential
 import net.schmizz.sshj.SSHClient
 import net.schmizz.sshj.sftp.RemoteResourceFilter
 import net.schmizz.sshj.sftp.StatefulSFTPClient
 import net.schmizz.sshj.transport.verification.PromiscuousVerifier
+import net.schmizz.sshj.userauth.keyprovider.OpenSSHKeyFile
+import net.schmizz.sshj.userauth.keyprovider.PKCS8KeyFile
 import net.schmizz.sshj.userauth.keyprovider.PuTTYKeyFile
 import net.schmizz.sshj.userauth.password.PasswordUtils
 import net.schmizz.sshj.xfer.InMemorySourceFile
@@ -105,6 +109,15 @@ class SftpTransport : ITransport, Logging {
                 sshClient.connect(host, port.toInt())
                 when (credential) {
                     is UserPassCredential -> sshClient.authPassword(credential.user, credential.pass)
+                    is UserPemCredential -> {
+                        val key = OpenSSHKeyV1KeyFile()
+                        val keyContents = StringReader(credential.key)
+                        when (StringUtils.isBlank(credential.keyPass)) {
+                            true -> key.init(keyContents)
+                            false -> key.init(keyContents, PasswordUtils.createOneOff(credential.keyPass.toCharArray()))
+                        }
+                        sshClient.authPublickey(credential.user, key)
+                    }
                     is UserPpkCredential -> {
                         val key = PuTTYKeyFile()
                         val keyContents = StringReader(credential.key)
@@ -163,8 +176,8 @@ class SftpTransport : ITransport, Logging {
             val lsResults = mutableListOf<String>()
             try {
                 try {
-                    sshClient.use { sshClient ->
-                        sshClient.newSFTPClient().use {
+                    sshClient.use { ssh_Client ->
+                        ssh_Client.newSFTPClient().use {
                             it.ls(path, resourceFilter).map { l -> lsResults.add(l.toString()) }
                         }
                     }
@@ -188,8 +201,8 @@ class SftpTransport : ITransport, Logging {
         fun rm(sshClient: SSHClient, path: String, fileName: String) {
             try {
                 try {
-                    sshClient.use { sshClient ->
-                        sshClient.newSFTPClient().use {
+                    sshClient.use { ssh_Client ->
+                        ssh_Client.newSFTPClient().use {
                             it.rm("$path/$fileName")
                         }
                     }
@@ -209,7 +222,7 @@ class SftpTransport : ITransport, Logging {
         }
 
         fun pwd(sshClient: SSHClient): String {
-            var pwd = ""
+            var pwd: String
             try {
                 sshClient.newStatefulSFTPClient().use { client ->
                     val statefulClient = client as StatefulSFTPClient

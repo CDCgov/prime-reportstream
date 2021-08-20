@@ -232,29 +232,33 @@ class DataCompareTest : CoolTest() {
         db.transact { txn ->
             // Get the output files from the database
             val outputFilename = sftpFilenameQuery(txn, reportId, output.receiver!!.name)
-            val outputFile = File(sftpDir, outputFilename)
-            val expectedOutputPath = "$testDataDir/${output.outputFile}"
-            // Note we can only use input streams since the file may be in a JAR
-            val expectedOutputStream = this::class.java.getResourceAsStream(expectedOutputPath)
-            val schema = metadata.findSchema(output.receiver!!.schemaName)
-            if (outputFilename != null && outputFile.canRead() && expectedOutputStream != null && schema != null) {
-                TermUi.echo("----------------------------------------------------------")
-                TermUi.echo("Comparing expected data from $expectedOutputPath")
-                TermUi.echo("with actual data from $sftpDir/$outputFilename")
-                TermUi.echo("using schema ${schema.name}...")
-                val result = CompareData().compare(
-                    expectedOutputStream, outputFile.inputStream(),
-                    output.receiver!!.format, schema
-                )
-                if (result.passed) {
-                    good("Test passed: Data comparison")
-                } else {
-                    bad("***$name Test FAILED***: Data comparison FAILED")
+            if (!outputFilename.isNullOrBlank()) {
+                val outputFile = File(sftpDir, outputFilename)
+                val expectedOutputPath = "$testDataDir/${output.outputFile}"
+                // Note we can only use input streams since the file may be in a JAR
+                val expectedOutputStream = this::class.java.getResourceAsStream(expectedOutputPath)
+                val schema = metadata.findSchema(output.receiver!!.schemaName)
+                if (outputFile.canRead() && expectedOutputStream != null && schema != null) {
+                    TermUi.echo("----------------------------------------------------------")
+                    TermUi.echo("Comparing expected data from $expectedOutputPath")
+                    TermUi.echo("with actual data from $sftpDir/$outputFilename")
+                    TermUi.echo("using schema ${schema.name}...")
+                    val result = CompareData().compare(
+                        expectedOutputStream, outputFile.inputStream(),
+                        output.receiver!!.format, schema
+                    )
+                    if (result.passed) {
+                        good("Test passed: Data comparison")
+                    } else {
+                        bad("***$name Test FAILED***: Data comparison FAILED")
+                    }
+                    if (result.errors.size > 0) bad(result.errors.joinToString("\n", "ERROR: "))
+                    if (result.warnings.size > 0) TermUi.echo(result.warnings.joinToString("\n", "WARNING: "))
+                    TermUi.echo("")
+                    passed = passed and result.passed
                 }
-                if (result.errors.size > 0) bad(result.errors.joinToString("\n", "ERROR: "))
-                if (result.warnings.size > 0) TermUi.echo(result.warnings.joinToString("\n", "WARNING: "))
-                TermUi.echo("")
-                passed = passed and result.passed
+            } else {
+                bad("***$name Test FAILED***: Unable to get SFTP filename from database")
             }
         }
         return passed
@@ -577,14 +581,6 @@ class CompareCsvData {
         val schemaPatLastNameIndex = schema.findElementColumn("patient_last_name")
         val schemaPatStateIndex = schema.findElementColumn("patient_state")
 
-        // Check to see if the expected CSV file has headers
-        var startRowIndex = 0
-        if (actualRows.isNotEmpty() && actualRows[0].isNotEmpty()) {
-            val elementCol = schema.findElement(actualRows[0][0])
-            val csvCol = schema.findElementByCsvName(actualRows[0][0])
-            if (elementCol != null || csvCol != null) startRowIndex = 1
-        }
-
         // Sanity check.  The schema need either the message ID, or patient last name and state.
         if (schemaMsgIdIndex == null && (schemaPatLastNameIndex == null || schemaPatStateIndex == null)) {
             error("Schema ${schema.name} needs to have message ID or (patient last name and state) for the test.")
@@ -592,8 +588,12 @@ class CompareCsvData {
 
         // Check that we have the same number of records
         if (expectedRows.size == actualRows.size) {
+            val expectedMsgIdIndex = getCsvColumnIndex(schema.findElement("message_id"), expectedRows[0])
+            val expectedPatLastNameIndex = getCsvColumnIndex(schema.findElement("patient_last_name"), expectedRows[0])
+            val expectedPatStateIndex = getCsvColumnIndex(schema.findElement("patient_state"), expectedRows[0])
+
             // Loop through all the actual rows ignoring the header row
-            for (i in startRowIndex until actualRows.size) {
+            for (i in actualRows.indices) {
                 val actualRow = actualRows[i]
                 val actualMsgId = if (schemaMsgIdIndex != null) actualRow[schemaMsgIdIndex].trim() else null
                 val actualLastName = if (schemaPatLastNameIndex != null)
@@ -602,16 +602,22 @@ class CompareCsvData {
                     actualRow[schemaPatStateIndex].trim() else null
 
                 // Find the expected row that matches the actual record
-                val expectedRowRaw = expectedRows.filter {
-                    schemaMsgIdIndex != null && it[schemaMsgIdIndex] == actualMsgId ||
+                val matchingExpectedRow = expectedRows.filter {
+                    val expectedMsgId = if (expectedMsgIdIndex >= 0) it[expectedMsgIdIndex].trim() else null
+                    val expectedLastName = if (expectedPatLastNameIndex >= 0)
+                        it[expectedPatLastNameIndex].trim() else null
+                    val expectedPatState = if (expectedPatStateIndex >= 0)
+                        it[expectedPatStateIndex].trim() else null
+
+                    schemaMsgIdIndex != null && expectedMsgId == actualMsgId ||
                         (
                             schemaPatLastNameIndex != null && schemaPatStateIndex != null &&
-                                it[schemaPatLastNameIndex] == actualLastName &&
-                                it[schemaPatStateIndex] == actualPatState
+                                expectedLastName == actualLastName &&
+                                expectedPatState == actualPatState
                             )
                 }
-                if (expectedRowRaw.size == 1) {
-                    if (!compareCsvRow(actualRow, expectedRowRaw[0], schema, i, result)) {
+                if (matchingExpectedRow.size == 1) {
+                    if (!compareCsvRow(actualRow, matchingExpectedRow[0], expectedRows[0], schema, i, result)) {
                         result.errors.add("Comparison for row #$i FAILED")
                     }
                 } else {
@@ -650,6 +656,7 @@ class CompareCsvData {
     fun compareCsvRow(
         actualRow: List<String>,
         expectedRow: List<String>,
+        expectedHeaders: List<String>,
         schema: Schema,
         actualRowNum: Int,
         result: CompareData.Result
@@ -669,23 +676,28 @@ class CompareCsvData {
         } else {
             if (actualRow.size > expectedRow.size) {
                 result.warnings.add(
-                    "Actual report has more columns than expected.  Actual has ${actualRow.size} and expected " +
+                    "Actual report has more columns than expected data.  Actual has ${actualRow.size} and expected " +
                         "${expectedRow.size}"
                 )
             }
 
-            // Loop through all the expected columns ignoring the header row
-            for (j in expectedRow.indices) {
+            // Loop through all the actual columns
+            for (j in actualRow.indices) {
+                val actualValue = actualRow[j].trim()
                 val colName = schema.elements[j].name
 
-                if (expectedRow[j].isNotBlank()) {
-                    val actualValue = actualRow[j].trim()
-                    val expectedValue = expectedRow[j].trim()
+                val expectedColIndex = getCsvColumnIndex(schema.elements[j], expectedHeaders)
+                val expectedValue = if (expectedColIndex >= 0)
+                    expectedRow[expectedColIndex].trim()
+                else ""
+
+                // If there is an expected value then compare it.
+                if (expectedValue.isNotBlank()) {
+
                     // For date/time values, the string has timezone offsets that can differ per environment, so
                     // compare the numeric value instead of just the string
-                    val a = schema.elements[j].type
                     if (schema.elements[j].type != null &&
-                        schema.elements[j].type == Element.Type.DATETIME && actualRow[j].isNotBlank()
+                        schema.elements[j].type == Element.Type.DATETIME && actualValue.isNotBlank()
                     ) {
                         try {
                             val expectedTime =
@@ -730,5 +742,31 @@ class CompareCsvData {
         }
         result.passed = result.passed and passed
         return passed
+    }
+
+    /**
+     * Get the index of an [element]'s data column in the expected data [expectedHeaders].
+     * @return the index of the column or -1 if it is not found
+     */
+    private fun getCsvColumnIndex(element: Element?, expectedHeaders: List<String>?): Int {
+        if (element == null || expectedHeaders.isNullOrEmpty()) return -1
+
+        // Find the proper column in the expected data, so we do not rely on column ordering
+        // Searching both by element name and CSV name allows for having internal.csv files.
+        val possibleCsvHeaders = element.csvFields?.map { it.name }
+        val expectedColIndexByElementIndex = expectedHeaders.indexOf(element.name)
+        val expectedColIndexByCsvIndex = possibleCsvHeaders?.let {
+            var index = -1
+            possibleCsvHeaders.forEach csvLoop@{
+                if (expectedHeaders.indexOf(it) >= 0) {
+                    index = expectedHeaders.indexOf(it)
+                    return@csvLoop
+                }
+            }
+            index
+        }
+        return if (expectedColIndexByCsvIndex != null && expectedColIndexByCsvIndex >= 0)
+            expectedColIndexByCsvIndex
+        else expectedColIndexByElementIndex
     }
 }

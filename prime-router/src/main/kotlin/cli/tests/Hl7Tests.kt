@@ -25,6 +25,7 @@ class Hl7Ingest : CoolTest() {
         ugly("Starting $name Test: send ${sender.fullName} data to $allGoodCounties")
         val file = FileUtilities.createFakeFile(
             metadata,
+            settings,
             sender,
             itemCount,
             receivingStates,

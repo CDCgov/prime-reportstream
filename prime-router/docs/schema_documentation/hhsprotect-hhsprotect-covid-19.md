@@ -955,7 +955,7 @@ The zip code of the provider
 
 ---
 
-**Name**: patient_age_units
+**Name**: patAgeUnits
 
 **Type**: CODE
 
@@ -1338,6 +1338,20 @@ Custom.  ReportStream uses the 'pregnant' code, not this text value.
 
 ---
 
+**Name**: correctedTestId
+
+**Type**: ID
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+pointer/link to the unique id of a previously submitted result.  Usually blank. Or, if an item modifies/corrects a prior item, this field holds the message_id of the prior item.
+
+---
+
 **Name**: previousTestDate
 
 **Type**: DATE
@@ -1590,6 +1604,7 @@ Code | Display
 440500007|Dried blood spot specimen
 258580003|Whole blood sample
 122555007|Venous blood specimen
+119297000|Blood specimen
 
 **Documentation**:
 
