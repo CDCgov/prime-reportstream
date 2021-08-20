@@ -11,7 +11,7 @@ extends: experity/experity-covid-19
 elements:
 
     - name: sender_id
-      default: cuc
+      default: cuc-al
 
     - name: processing_mode_code
       default: P
