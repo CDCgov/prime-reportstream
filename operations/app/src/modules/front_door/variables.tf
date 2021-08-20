@@ -19,7 +19,7 @@ variable "location" {
 }
 
 variable "https_cert_names" {
-  type        = list(any)
+  type        = list(string)
   description = "The HTTPS cert to associate with the front door. Omitting will not associate a domain to the front door."
 }
 

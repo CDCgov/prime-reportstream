@@ -44,7 +44,7 @@ resource "azurerm_key_vault_access_policy" "dev_access_policy" {
     "Delete",
     "Recover",
     "Backup",
-    "Restore"
+    "Restore",
   ]
 
   secret_permissions = [
@@ -54,7 +54,7 @@ resource "azurerm_key_vault_access_policy" "dev_access_policy" {
     "Delete",
     "Recover",
     "Backup",
-    "Restore"
+    "Restore",
   ]
 
   certificate_permissions = [
@@ -72,7 +72,7 @@ resource "azurerm_key_vault_access_policy" "dev_access_policy" {
     "GetIssuers",
     "ListIssuers",
     "SetIssuers",
-    "DeleteIssuers"
+    "DeleteIssuers",
   ]
 }
 
@@ -82,9 +82,11 @@ resource "azurerm_key_vault_access_policy" "frontdoor_access_policy" {
   object_id    = local.frontdoor_object_id
 
   secret_permissions = [
-  "Get"]
+    "Get",
+  ]
   certificate_permissions = [
-  "Get"]
+    "Get",
+  ]
 }
 
 resource "azurerm_key_vault_access_policy" "terraform_access_policy" {
@@ -93,9 +95,11 @@ resource "azurerm_key_vault_access_policy" "terraform_access_policy" {
   object_id    = local.terraform_object_id
 
   secret_permissions = [
-  "Get"]
+    "Get",
+  ]
   key_permissions = [
-  "Get"]
+    "Get",
+  ]
 }
 
 module "application_private_endpoint" {
@@ -150,7 +154,7 @@ resource "azurerm_key_vault_access_policy" "dev_app_config_access_policy" {
     "Delete",
     "Recover",
     "Backup",
-    "Restore"
+    "Restore",
   ]
 
   certificate_permissions = []
@@ -162,7 +166,8 @@ resource "azurerm_key_vault_access_policy" "terraform_app_config_access_policy" 
   object_id    = local.terraform_object_id
 
   secret_permissions = [
-  "Get"]
+    "Get",
+  ]
 }
 
 module "app_config_private_endpoint" {
@@ -176,8 +181,9 @@ module "app_config_private_endpoint" {
 }
 
 resource "azurerm_key_vault" "client_config" {
-  name = "${var.resource_prefix}-clientconfig"
   # Does not include "-keyvault" due to char limits (24)
+  name = "${var.resource_prefix}-clientconfig"
+
   location                        = var.location
   resource_group_name             = var.resource_group
   sku_name                        = "premium"
@@ -217,7 +223,7 @@ resource "azurerm_key_vault_access_policy" "dev_client_config_access_policy" {
     "Delete",
     "Recover",
     "Backup",
-    "Restore"
+    "Restore",
   ]
 
   certificate_permissions = []
