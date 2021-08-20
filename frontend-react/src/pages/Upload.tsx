@@ -71,7 +71,7 @@ const Upload = () => {
         setWarnings([]);
         setErrors([]);
         setDestinations('');
-        setHttpErrors('');
+        //setHttpErrors('');
 
         if (file) {
             let response;
@@ -104,7 +104,7 @@ const Upload = () => {
             } catch (error) {
                 console.log(error);
                 if (typeof error === 'object') {
-                    setErrors(response.errors);
+                    setErrors(error);
                 } else {
                     setHttpErrors(error);
                 }
@@ -260,7 +260,19 @@ const Upload = () => {
                     />
                 </FormGroup>
                 <Button type="submit" disabled={isSubmitting}>
-                    {buttonText}
+                {isSubmitting && (
+                        <i
+                        className="fa fa-refresh fa-spin"
+                        style={{ marginRight: "5px" }}
+                        />
+                    )
+                }
+
+                {!isSubmitting && <span>Upload my edited file</span>}
+                {isSubmitting && <span>Processing file...</span>}
+                    
+                    
+
                 </Button>
             </Form>
         </div>
