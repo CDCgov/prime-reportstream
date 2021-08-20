@@ -80,6 +80,7 @@ elements:
       csvFields: [{ name: Patient_race, format: $display}]
       default: UNK
 
+# Specimen/Order Info
     - name: specimen_collection_date_time
       csvFields: [{name: Specimen_collection_date_time, format: "M/d/yyyy H:nn"}]
 
@@ -105,13 +106,41 @@ elements:
       csvFields: [{name: Test_result_status}]
       default: F
 
-#    - name: order_result_status
-#      csvFields: [{name: Order_result_status}]
-#      default: F
-
     - name: filler_order_id
       csvFields: [{name: Testing_lab_accession_number}]
 
+
+    - name: specimen_type
+      type: CODE
+      csvFields: [{name: Specimen_type_description, format: $alt}]
+      default: "258500001"
+      altValues:
+        - code: "258529004"
+          display: "Oral"
+        - code: "258529004"
+          display: "Oropharyngeal"
+        - code: "258529004"
+          display: "Throat"
+        - code: "258500001"
+          display: "Varied"
+        - code: "258500001"
+          display: "Nasal"
+
+    - name: specimen_source_site_code
+      type: CODE
+      csvFields: [{name: Specimen_type_description, format: $alt}]
+      default: "71836000"
+      altValues:
+        - code: "31389004"
+          display: "Oral"
+        - code: "31389004"
+          display: "Oropharyngeal"
+        - code: "31389004"
+          display: "Throat"
+        - code: "71836000"
+          display: "Varied"
+        - code: "71836000"
+          display: "Nasal"
 
 # Ordering provider
     - name: ordering_provider_id

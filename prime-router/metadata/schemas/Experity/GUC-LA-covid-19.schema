@@ -16,15 +16,6 @@ elements:
     - name: processing_mode_code
       default: P
 
-    - name: ordering_provider_id
-      type: CODE
-      csvFields: [{name: Ordering_provider_last_name, format: $alt}]
-      altValues:
-        - code: 1295186302
-          display: Bonner
-        - code: 1295186302
-          display: Andrews
-
     - name: test_kit_name_id
       type: CODE
       default: 99999999
@@ -52,7 +43,7 @@ elements:
           display: "UA Dipstick Auto w/o Micro"
 
     - name: specimen_type
-      type: TEXT
+      type: CODE
       csvFields: [{name: Specimen_type_description, format: $alt}]
       default: "258500001"
       altValues:
@@ -68,7 +59,7 @@ elements:
           display: "Nasal"
 
     - name: specimen_source_site_code
-      type: TEXT
+      type: CODE
       csvFields: [{name: Specimen_type_description, format: $alt}]
       default: "71836000"
       altValues:
