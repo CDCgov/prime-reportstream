@@ -1,4 +1,4 @@
-name: "Create a deployment branch in preparation of the upcoming scheduled deployment"
+name: "Prepare Deployment Branch"
 
 on:
   schedule:
