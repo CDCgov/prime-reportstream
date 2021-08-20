@@ -63,12 +63,6 @@ const SignInOrUser = () => {
         <div className="prime-user-account">
             <span id="emailUser">{user ? user : ""}</span>
             <br />
-            {authState.accessToken?.claims.organization.some(
-                (o: String) => o === "DHPrimeAdmins"
-            )
-                ? "" //<OrganizationDropDown></OrganizationDropDown>
-                : ""}
-            <br />
             <a
                 href="/"
                 id="logout"

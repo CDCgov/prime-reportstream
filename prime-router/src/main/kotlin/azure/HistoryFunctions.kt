@@ -278,6 +278,7 @@ open class BaseHistoryFunction : Logging {
                                                         val externalOrgName =
                                                                         header.receiver?.displayName
 
+<<<<<<< HEAD
                                                         ReportView.Builder()
                                                                         .reportId(
                                                                                         it.reportId
@@ -336,6 +337,37 @@ open class BaseHistoryFunction : Logging {
                                                         null
                                                 }
                                         }
+=======
+                            ReportView.Builder()
+                                    .reportId(it.reportId.toString())
+                                    .sent(it.createdAt.toEpochSecond() * 1000)
+                                    .via(it.bodyFormat)
+                                    .total(it.itemCount.toLong())
+                                    .fileType(it.bodyFormat)
+                                    .type("ELR")
+                                    .expires(
+                                            it.createdAt.plusDays(DAYS_TO_SHOW).toEpochSecond() *
+                                                    1000
+                                    )
+                                    .facilities(ArrayList(facilities))
+                                    .actions(actions)
+                                    .receivingOrg(it.receivingOrg)
+                                    .receivingOrgSvc(externalOrgName ?: it.receivingOrgSvc)
+                                    .displayName(
+                                            if (it.externalName.isNullOrBlank()) it.receivingOrgSvc
+                                            else it.externalName
+                                    )
+                                    .content(
+                                            content
+                                    ) // don't get the content for now. that can get beefy
+                                    .fileName(filename)
+                                    .mimeType(mimeType)
+                                    .build()
+                        } else {
+                            null
+                        }
+                    }
+>>>>>>> ec1df9c5267465d6f8f4a5eab77151be90bdaa9e
 
                         response =
                                         request.createResponseBuilder(HttpStatus.OK)
@@ -414,6 +446,7 @@ open class BaseHistoryFunction : Logging {
                                                                 .body(fileReturn)
                                                                 .build()
 
+<<<<<<< HEAD
                                 val actionHistory = ActionHistory(TaskAction.download, context)
                                 actionHistory.trackActionRequestResponse(request, response)
                                 // Give the external report_file a new UUID, so we can track its
@@ -434,6 +467,27 @@ open class BaseHistoryFunction : Logging {
                                                 )
                                 )
                                 WorkflowEngine().recordAction(actionHistory)
+=======
+                val actionHistory = ActionHistory(TaskAction.download, context)
+                actionHistory.trackActionRequestResponse(request, response)
+                // Give the external report_file a new UUID, so we can track its history distinct
+                // from the
+                // internal blob.   This is going to be very confusing.
+                val externalReportId = UUID.randomUUID()
+                actionHistory.trackDownloadedReport(
+                        header,
+                        filename,
+                        externalReportId,
+                        authClaims.userName,
+                )
+                actionHistory.trackItemLineages(
+                        Report.createItemLineagesFromDb(header, externalReportId)
+                )
+
+                actionHistory.trackItemLineages(Report.createItemLineagesFromDb(header, externalReportId))
+                workflowEngine.recordAction(actionHistory)
+
+>>>>>>> ec1df9c5267465d6f8f4a5eab77151be90bdaa9e
 
                                 return response
                         }
