@@ -347,16 +347,22 @@ tasks.azureFunctionsRun {
             "VAULT_API_ADDR" to "http://localhost:8200"
         )
     )
-    azurefunctions {
-        localDebug = "transport=dt_socket,server=y,suspend=n,address=5005"
-        runtime.os("linux")
-    }
+    azurefunctions.localDebug = "transport=dt_socket,server=y,suspend=n,address=5005"
 }
 
 tasks.register("run") {
     group = rootProject.description ?: ""
     description = "Run the Azure functions locally.  Note this needs the required services running as well"
     dependsOn("azureFunctionsRun")
+}
+
+tasks.register("quickRun") {
+    dependsOn("azureFunctionsRun")
+    tasks["test"].enabled = false
+    tasks["jacocoTestReport"].enabled = false
+    tasks["compileTestKotlin"].enabled = false
+    tasks["migrate"].enabled = false
+    tasks["flywayMigrate"].enabled = false
 }
 
 // Configuration for Flyway migration tool

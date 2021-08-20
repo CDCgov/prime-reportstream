@@ -32,10 +32,10 @@ http://localhost:7071.  All logs will be shown in the same terminal you run this
 
 `./gradlew run`
 
-Need to re-run faster?  You can skip the test task, which takes quite some time to complete, but do so at your own risk as the 
+Need to re-run faster?  You can skip the test and migrate tasks, which takes quite some time to complete, but do so at your own risk as the 
 tests will not run:
 
-`./gradlew run -x test`
+`./gradlew quickRun`
 
 To stop the run simply press CTRL-C in the window running the functions.
 
