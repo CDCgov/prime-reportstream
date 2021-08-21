@@ -39,7 +39,7 @@ class SettingsFacade(
         // Format OffsetDateTime as an ISO string
         mapper.registerModule(JavaTimeModule())
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-        // Unknown properties in the json payload may be a new property defined in a new version of the CLI of the code
+        // Unknown properties in the payload may be caused by new versions of the CLI of the code
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
     }
 

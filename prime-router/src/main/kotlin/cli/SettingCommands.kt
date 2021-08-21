@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.cli
 
+import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
@@ -78,6 +79,9 @@ abstract class SettingCommand(
         jsonMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
         yamlMapper.registerModule(JavaTimeModule())
         yamlMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+        // Unknown properties in a file or a payload may be caused by newer versions of the code in the environment
+        jsonMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+        yamlMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
     }
 
     fun getEnvironment(): Environment {
