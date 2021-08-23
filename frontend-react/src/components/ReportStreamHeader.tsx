@@ -83,37 +83,35 @@ export const ReportStreamHeader = () => {
     const { authState } = useOktaAuth();
     const [isOpen, setIsOpen] = useState(false);
     const testMenuItems = [
-        <Link href="/how-it-works/getting-started" key="getting-started">
+        <Link href="/how-it-works/getting-started" >
             Getting started
         </Link>,
-        <Link href="/how-it-works/elr-checklist" key="elr-checklist">
+        <Link href="/how-it-works/elr-checklist" >
             ELR onboarding checklist
         </Link>,
         <Link
             href="/how-it-works/data-download-guide"
-            key="data-download-guide"
         >
             Data download website guide
         </Link>,
-        <Link href="/how-it-works/where-were-live" key="where-were-live">
+        <Link href="/how-it-works/where-were-live" >
             Where we're live
         </Link>,
         <Link
             href="/how-it-works/systems-and-settings"
-            key="systems-and-settings"
         >
             System and settings
         </Link>,
-        <Link href="/how-it-works/security-practices" key="security-practices">
+        <Link href="/how-it-works/security-practices" >
             Security practices
         </Link>,
     ];
 
     let itemsMenu = [
-        <Link href="/daily" key="daily" id="daily" className="usa-nav__link">
+        <Link href="/daily" id="daily" className="usa-nav__link">
             <span>Daily data</span>
         </Link>,
-        <Link href="/about" id="docs" key="docs" className="usa-nav__link">
+        <Link href="/about" id="docs" className="usa-nav__link">
             <span>About</span>
         </Link>,
         <>
@@ -127,7 +125,6 @@ export const ReportStreamHeader = () => {
                 isCurrent={isOpen}
             />
             <Menu
-                key="one"
                 items={testMenuItems}
                 isOpen={isOpen}
                 id="testDropDownOne"
