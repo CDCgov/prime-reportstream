@@ -1,8 +1,9 @@
-# Proposal to improve translations
+# A Translations does Everything a Schema can do
 
-## Goals & Background
+## Goals
+
 As the ReportStream project expands from COVID-19 reporting to general ELR reporting and other data flows, there is an opportunity to simplify the engineering and operation of the pipeline. In particular, this proposal aims to:
-1. To reduce onboarding costs by supporting more sender and receiver onboarding without code changes.
+1. To reduce on-boarding costs by supporting more sender and receiver on-boarding without code changes.
 2. To minimize test and development cost, remove some generalizations that have not been proven useful.
 3. To improve maintainability, use fewer but more consistently applied concepts.
 
@@ -40,8 +41,19 @@ The proposed concept is diagrammed below.
 
 The work would be staged in several PRs, roughly based on the steps of the solutions.
 
+### Details
+
+The solution outlined creates a new set of `Translation` classes, one for each serializer and deserializer class.
+The current `HL7Translation` and `RedoxTranslation` would not change. 
+However, the `CustomTranslation` would be removed or replaced by a new `CSVTranslation`. 
+Much like the current `HL7Translation`, this new `CSVTranslation` could have settings like empty values and date formats that affect the whole conversion. 
+
+In addition, it makes sense to move the format specific information in `Element` class, the `csvFields` and the `hl7Fields`, to their respective translation objects. This move will simplify the schema.
+
+A new set of input translations would be created as well. It is anticipated that each new CSV sender will create a new `CSVInputTranslation` object with a list of their current fields. HL7 senders should not need
+
 ## Alternatives Considered
-A smaller scope proposal for onboarding new senders is possible. However, tackling both the deficiency in translations and the testing matrix problem together proved to be synergistic.
+A smaller scope proposal for on-boarding new senders is possible. However, tackling both the deficiency in translations and the testing matrix problem together proved to be synergistic.
 
 ## Further Work
 This proposal does not touch the Schema Element class, but one could make a similar proposal for this class and its associated structures. Likewise, filtering and routing improvements are not addressed. 
