@@ -105,3 +105,5 @@ prime-router/.vault/env/**
 gitleaks.report.json
 gitleaks.log
 *.jtl
+
+terraform-fmt.log
