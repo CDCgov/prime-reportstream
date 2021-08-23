@@ -19,6 +19,7 @@ state_fips,state,state_abbr,zipcode,county,city
 1,Alabama,AL,35043,Shelby,Chelsea
 1,Alabama,AL,35044,Talladega,Coosa pines
 1,Alabama,AL,35045,Chilton,Clanton
+1,Alabama,AL,35046,Chilton,Clanton
 1,Alabama,AL,35049,Blount,Cleveland
 1,Alabama,AL,35051,Shelby,Columbiana
 1,Alabama,AL,35052,St Clair,Cook springs
@@ -487,6 +488,7 @@ state_fips,state,state_abbr,zipcode,county,city
 1,Alabama,AL,36562,Baldwin,Perdido
 1,Alabama,AL,36564,Baldwin,Point clear
 1,Alabama,AL,36567,Baldwin,Robertsdale
+1,Alabama,AL,36568,Mobile,Saint Elmo
 1,Alabama,AL,36569,Washington,Saint stephens
 1,Alabama,AL,36570,Clarke,Salitpa
 1,Alabama,AL,36571,Mobile,Saraland
@@ -518,6 +520,9 @@ state_fips,state,state_abbr,zipcode,county,city
 1,Alabama,AL,36617,Mobile,Mobile
 1,Alabama,AL,36618,Mobile,Mobile
 1,Alabama,AL,36619,Mobile,Mobile
+1,Alabama,AL,36685,Mobile,Mobile
+1,Alabama,AL,36688,Mobile,Mobile
+1,Alabama,AL,36691,Mobile,Mobile
 1,Alabama,AL,36693,Mobile,Mobile
 1,Alabama,AL,36695,Mobile,Mobile
 1,Alabama,AL,36701,Dallas,Selma
@@ -14646,6 +14651,7 @@ state_fips,state,state_abbr,zipcode,county,city
 28,Mississippi,MS,39531,Harrison,Biloxi
 28,Mississippi,MS,39532,Harrison,North bay
 28,Mississippi,MS,39553,Jackson,Gautier
+28,Mississippi,MS,39555,Jackson,Hurley
 28,Mississippi,MS,39556,Hancock,Kiln
 28,Mississippi,MS,39560,Harrison,Long beach
 28,Mississippi,MS,39561,Stone,Mc henry
