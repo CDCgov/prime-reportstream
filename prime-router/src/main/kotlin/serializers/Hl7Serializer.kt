@@ -941,11 +941,11 @@ class Hl7Serializer(
      * @param truncationLimit the starting limit
      * @return the new truncation limit or starting limit if no special characters are found
      */
-    internal fun getTruncationLimitWithEncoding(value: String, truncationLimit: Int): Int {
+    internal fun getTruncationLimitWithEncoding(value: String, truncationLimit: Int?): Int? {
         val regex = "[&^~|]".toRegex()
         val matchCount = regex.findAll(value).count()
 
-        return if (matchCount > 0) {
+        return if (matchCount > 0 && truncationLimit != null) {
             truncationLimit.minus(matchCount.times(2))
         } else {
             truncationLimit
@@ -953,6 +953,11 @@ class Hl7Serializer(
     }
 
     private fun createHeaders(report: Report): String {
+        val sendingApplicationReport = report.getString(0, "sending_application") ?: ""
+        val receivingApplicationReport = report.getString(0, "receiving_application") ?: ""
+        val receivingFacilityReport = report.getString(0, "receiving_facility") ?: ""
+
+
         val hl7Config = report.destination?.translation as? Hl7Configuration?
         val hdFieldMaximumLength = if (hl7Config?.truncateHDNamespaceIds == true) {
             HD_TRUNCATION_LIMIT
@@ -961,16 +966,16 @@ class Hl7Serializer(
         }
         val encodingCharacters = "^~\\&"
         val sendingApp = formatHD(
-            Element.parseHD(report.getString(0, "sending_application") ?: "", hdFieldMaximumLength)
+            Element.parseHD(sendingApplicationReport, getTruncationLimitWithEncoding(sendingApplicationReport, hdFieldMaximumLength))
         )
         val sendingFacility = formatHD(
-            Element.parseHD(report.getString(0, "sending_application") ?: "", hdFieldMaximumLength)
+            Element.parseHD(sendingApplicationReport, getTruncationLimitWithEncoding(sendingApplicationReport, hdFieldMaximumLength))
         )
         val receivingApp = formatHD(
-            Element.parseHD(report.getString(0, "receiving_application") ?: "", hdFieldMaximumLength)
+            Element.parseHD(receivingApplicationReport, getTruncationLimitWithEncoding(receivingApplicationReport, hdFieldMaximumLength))
         )
         val receivingFacility = formatHD(
-            Element.parseHD(report.getString(0, "receiving_facility") ?: "", hdFieldMaximumLength)
+            Element.parseHD(receivingFacilityReport, getTruncationLimitWithEncoding(receivingFacilityReport, hdFieldMaximumLength))
         )
 
         return "FHS|$encodingCharacters|" +
