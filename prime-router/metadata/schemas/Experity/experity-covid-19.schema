@@ -286,4 +286,121 @@ elements:
       mapper: livdLookup()
 
 
-#unused fields
+#unused fields - these are added here to suppress warnings.
+    - name: Patient_ID_assigner_Ignore
+      type: TEXT
+      csvFields: [{name: Patient_ID_assigner}]
+      documentation: This field is ignored.
+
+    - name: Patient_ID_2_Ignore
+      type: TEXT
+      csvFields: [{name: Patient_ID_2}]
+      documentation: This field is ignored.
+
+    - name: Patient_ID_2_assigner_Ignore
+      type: TEXT
+      csvFields: [{name: Patient_ID_2_assigner}]
+      documentation: This field is ignored.
+
+    - name: Patient_suffix_Ignore
+      type: TEXT
+      csvFields: [{name: Patient_suffix}]
+      documentation: This field is ignored.
+
+    - name: Patient_age_Ignore
+      type: TEXT
+      csvFields: [{name: Patient_age}]
+      documentation: This field is ignored.
+
+    - name: Patient_age_units_Ignore
+      type: TEXT
+      csvFields: [{name: Patient_age_units}]
+      documentation: This field is ignored.
+
+    - name: Patient_county_Ignore
+      type: TEXT
+      csvFields: [{name: Patient_county}]
+      documentation: This field is ignored.
+
+    - name: Hospitalized_Ignore
+      type: TEXT
+      csvFields: [{name: Hospitalized}]
+      documentation: This field is ignored.
+
+    - name: ICU_Ignore
+      type: TEXT
+      csvFields: [{name: ICU}]
+      documentation: This field is ignored.
+
+    - name: Ordering_provider_county_Ignore
+      type: TEXT
+      csvFields: [{name: Ordering_provider_county}]
+      documentation: This field is ignored.
+
+
+
+
+
+
+Warning in report: Unexpected 'Ordering_provider_county' header is ignored
+Warning in report: Unexpected 'Ordering_facility_street_2' header is ignored
+Warning in report: Unexpected 'Ordering_facility_county' header is ignored
+Warning in report: Unexpected 'Specimen_type_free_text' header is ignored
+Warning in report: Unexpected 'Specimen_Sender_site_descrip' header is ignored
+Warning in report: Unexpected 'Submitter_unique_sample_ID' header is ignored
+Warning in report: Unexpected 'Specimen_received_date_time' header is ignored
+Warning in report: Unexpected 'Testing_lab_specimen_ID' header is ignored
+Warning in report: Unexpected 'Test_performed_number' header is ignored
+Warning in report: Unexpected 'Test_performed_description' header is ignored
+Warning in report: Unexpected 'Test_result_free_text' header is ignored
+Warning in report: Unexpected 'Test_result_description' header is ignored
+Warning in report: Unexpected 'Test_result_comparator' header is ignored
+Warning in report: Unexpected 'Test_result_number' header is ignored
+Warning in report: Unexpected 'Test_result_number_separator' header is ignored
+Warning in report: Unexpected 'Test_result_number2' header is ignored
+Warning in report: Unexpected 'Test_result_units' header is ignored
+Warning in report: Unexpected 'Reference_range' header is ignored
+Warning in report: Unexpected 'Abnormal_flag' header is ignored
+Warning in report: Unexpected 'Comments' header is ignored
+Warning in report: Unexpected 'Employed_in_high_risk_setting' header is ignored
+Warning in report: Unexpected 'Patient_occupation' header is ignored
+Warning in report: Unexpected 'Disease_symptoms' header is ignored
+Warning in report: Unexpected 'Patient_location' header is ignored
+Warning in report: Unexpected 'Resident_congregate_setting' header is ignored
+Warning in report: Unexpected 'Patient_residency_type' header is ignored
+Warning in report: Unexpected 'Patient_death_date' header is ignored
+Warning in report: Unexpected 'Patient_died' header is ignored
+Warning in report: Unexpected 'Public_health_case_ID' header is ignored
+Warning in report: Unexpected 'Travel_history' header is ignored
+Warning in report: Unexpected 'Test_kit_EUA_ID' header is ignored
+Warning in report: Unexpected 'Test_kit_instance_ID' header is ignored
+Warning in report: Unexpected 'Test_kit_model_ID' header is ignored
+Warning in report: Unexpected 'Test_kit_model_name' header is ignored
+Warning in report: Unexpected 'Instrument_instance_ID' header is ignored
+Warning in report: Unexpected 'Instrument_model_ID' header is ignored
+Warning in report: Unexpected 'Instrument_model_name' header is ignored
+Warning in report: Unexpected 'Order_result_status' header is ignored
+Warning in report: Unexpected 'Link_test_to_parent_result' header is ignored
+Warning in report: Unexpected 'Link_test_to_parent_accession' header is ignored
+Warning in report: Unexpected 'Ordered_test_code' header is ignored
+Warning in report: Unexpected 'Ordered_test_code_system' header is ignored
+Warning in report: Unexpected 'Specimen_Sender_site_code' header is ignored
+Warning in report: Unexpected 'Specimen_Sender_site_code_sys' header is ignored
+Warning in report: Unexpected 'Specimen_type_code' header is ignored
+Warning in report: Unexpected 'Specimen_type_code_system' header is ignored
+Warning in report: Unexpected 'Test_method_description' header is ignored
+Warning in report: Unexpected 'Test_result_code_system' header is ignored
+Warning in report: Unexpected 'Test_performed_code' header is ignored
+Warning in report: Unexpected 'Test_performed_code_system' header is ignored
+Warning in report: Unexpected 'Result_format' header is ignored
+Warning in report: Unexpected 'Test_result_sub_ID' header is ignored
+Warning in report: Unexpected 'Submitter_sample_ID_assigner' header is ignored
+Warning in report: Unexpected 'Patient_ID_2_type' header is ignored
+Warning in report: Unexpected 'Patient_ID_type' header is ignored
+Warning in report: Unexpected 'Testing_lab_street2' header is ignored
+Warning in report: Unexpected 'Testing_lab_county' header is ignored
+Warning in report: Unexpected 'Reporting_facility_ID' header is ignored
+Warning in report: Unexpected 'Reporting_facility_name' header is ignored
+Warning in report: Unexpected 'Report_facil_data_Sender_app' header is ignored
+Warning in report: Unexpected 'File_created_date' header is ignored
+Warning in report: Unexpected 'flatfile_version_no' header is ignored
