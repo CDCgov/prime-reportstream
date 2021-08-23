@@ -337,70 +337,303 @@ elements:
       csvFields: [{name: Ordering_provider_county}]
       documentation: This field is ignored.
 
+    - name: Ordering_facility_street_2_Ignore
+      type: TEXT
+      csvFields: [{name: Ordering_facility_street_2}]
+      documentation: This field is ignored.
+
+    - name: Ordering_facility_county_Ignore
+      type: TEXT
+      csvFields: [{name: Ordering_facility_county}]
+      documentation: This field is ignored.
+
+    - name: Specimen_type_free_text_Ignore
+      type: TEXT
+      csvFields: [{name: Specimen_type_free_text}]
+      documentation: This field is ignored.
+
+    - name: Specimen_Sender_site_descrip_Ignore
+      type: TEXT
+      csvFields: [{name: Specimen_Sender_site_descrip}]
+      documentation: This field is ignored.
+
+    - name: Submitter_unique_sample_ID_Ignore
+      type: TEXT
+      csvFields: [{name: Submitter_unique_sample_ID}]
+      documentation: This field is ignored.
+
+    - name: Specimen_received_date_time_Ignore
+      type: TEXT
+      csvFields: [{name: Specimen_received_date_time}]
+      documentation: This field is ignored.
+
+    - name: Testing_lab_specimen_ID_Ignore
+      type: TEXT
+      csvFields: [{name: Testing_lab_specimen_ID}]
+      documentation: This field is ignored.
+
+    - name: Test_performed_number_Ignore
+      type: TEXT
+      csvFields: [{name: Test_performed_number}]
+      documentation: This field is ignored.
+
+    - name: Test_performed_description_Ignore
+      type: TEXT
+      csvFields: [{name: Test_performed_description}]
+      documentation: This field is ignored.
+
+    - name: Test_result_free_text_Ignore
+      type: TEXT
+      csvFields: [{name: Test_result_free_text}]
+      documentation: This field is ignored.
+
+    - name: Test_result_description_Ignore
+      type: TEXT
+      csvFields: [{name: Test_result_description}]
+      documentation: This field is ignored.
+
+    - name: Test_result_comparator_Ignore
+      type: TEXT
+      csvFields: [{name: Test_result_comparator}]
+      documentation: This field is ignored.
+
+    - name: Test_result_number_Ignore
+      type: TEXT
+      csvFields: [{name: Test_result_number}]
+      documentation: This field is ignored.
+
+    - name: Test_result_number_separator_Ignore
+      type: TEXT
+      csvFields: [{name: Test_result_number_separator}]
+      documentation: This field is ignored.
+
+    - name: Test_result_number2_Ignore
+      type: TEXT
+      csvFields: [{name: Test_result_number2}]
+      documentation: This field is ignored.
+
+    - name: Test_result_units_Ignore
+      type: TEXT
+      csvFields: [{name: Test_result_units}]
+      documentation: This field is ignored.
+
+    - name: Reference_range_Ignore
+      type: TEXT
+      csvFields: [{name: Reference_range}]
+      documentation: This field is ignored.
+
+    - name: Abnormal_flag_Ignore
+      type: TEXT
+      csvFields: [{name: Abnormal_flag}]
+      documentation: This field is ignored.
+
+    - name: Comments_Ignore
+      type: TEXT
+      csvFields: [{name: Comments}]
+      documentation: This field is ignored.
+
+    - name: Employed_in_high_risk_setting_Ignore
+      type: TEXT
+      csvFields: [{name: Employed_in_high_risk_setting}]
+      documentation: This field is ignored.
+
+    - name: Patient_occupation_Ignore
+      type: TEXT
+      csvFields: [{name: Patient_occupation}]
+      documentation: This field is ignored.
+
+    - name: Disease_symptoms_Ignore
+      type: TEXT
+      csvFields: [{name: Disease_symptoms}]
+      documentation: This field is ignored.
+
+    - name: Patient_location_Ignore
+      type: TEXT
+      csvFields: [{name: Patient_location}]
+      documentation: This field is ignored.
+
+    - name: Resident_congregate_setting_Ignore
+      type: TEXT
+      csvFields: [{name: Resident_congregate_setting}]
+      documentation: This field is ignored.
+
+    - name: Patient_residency_type_Ignore
+      type: TEXT
+      csvFields: [{name: Patient_residency_type}]
+      documentation: This field is ignored.
+
+    - name: Patient_death_date_Ignore
+      type: TEXT
+      csvFields: [{name: Patient_death_date}]
+      documentation: This field is ignored.
+
+    - name: Patient_died_Ignore
+      type: TEXT
+      csvFields: [{name: Patient_died}]
+      documentation: This field is ignored.
+
+    - name: Public_health_case_ID_Ignore
+      type: TEXT
+      csvFields: [{name: Public_health_case_ID}]
+      documentation: This field is ignored.
+
+    - name: Travel_history_Ignore
+      type: TEXT
+      csvFields: [{name: Travel_history}]
+      documentation: This field is ignored.
+
+    - name: Test_kit_EUA_ID_Ignore
+      type: TEXT
+      csvFields: [{name: Test_kit_EUA_ID}]
+      documentation: This field is ignored.
+
+    - name: Test_kit_instance_ID_Ignore
+      type: TEXT
+      csvFields: [{name: Test_kit_instance_ID}]
+      documentation: This field is ignored.
+
+    - name: Test_kit_model_ID_Ignore
+      type: TEXT
+      csvFields: [{name: Test_kit_model_ID}]
+      documentation: This field is ignored.
+
+    - name: Test_kit_model_name_Ignore
+      type: TEXT
+      csvFields: [{name: Test_kit_model_name}]
+      documentation: This field is ignored.
+
+    - name: Instrument_instance_ID_Ignore
+      type: TEXT
+      csvFields: [{name: Instrument_instance_ID}]
+      documentation: This field is ignored.
+
+    - name: Instrument_model_ID_Ignore
+      type: TEXT
+      csvFields: [{name: Instrument_model_ID}]
+      documentation: This field is ignored.
+
+    - name: Instrument_model_name_Ignore
+      type: TEXT
+      csvFields: [{name: Instrument_model_name}]
+      documentation: This field is ignored.
+
+    - name: Order_result_status_Ignore
+      type: TEXT
+      csvFields: [{name: Order_result_status}]
+      documentation: This field is ignored.
+
+    - name: Link_test_to_parent_result_Ignore
+      type: TEXT
+      csvFields: [{name: Link_test_to_parent_result}]
+      documentation: This field is ignored.
+
+    - name: Link_test_to_parent_accession_Ignore
+      type: TEXT
+      csvFields: [{name: Link_test_to_parent_accession}]
+      documentation: This field is ignored.
 
 
+    - name: Ordered_test_code_Ignore
+      type: TEXT
+      csvFields: [{name: Ordered_test_code}]
+      documentation: This field is ignored.
 
+    - name: Ordered_test_code_system_Ignore
+      type: TEXT
+      csvFields: [{name: Ordered_test_code_system}]
+      documentation: This field is ignored.
 
+    - name: Specimen_Sender_site_code_Ignore
+      type: TEXT
+      csvFields: [{name: Specimen_Sender_site_code}]
+      documentation: This field is ignored.
 
-Warning in report: Unexpected 'Ordering_provider_county' header is ignored
-Warning in report: Unexpected 'Ordering_facility_street_2' header is ignored
-Warning in report: Unexpected 'Ordering_facility_county' header is ignored
-Warning in report: Unexpected 'Specimen_type_free_text' header is ignored
-Warning in report: Unexpected 'Specimen_Sender_site_descrip' header is ignored
-Warning in report: Unexpected 'Submitter_unique_sample_ID' header is ignored
-Warning in report: Unexpected 'Specimen_received_date_time' header is ignored
-Warning in report: Unexpected 'Testing_lab_specimen_ID' header is ignored
-Warning in report: Unexpected 'Test_performed_number' header is ignored
-Warning in report: Unexpected 'Test_performed_description' header is ignored
-Warning in report: Unexpected 'Test_result_free_text' header is ignored
-Warning in report: Unexpected 'Test_result_description' header is ignored
-Warning in report: Unexpected 'Test_result_comparator' header is ignored
-Warning in report: Unexpected 'Test_result_number' header is ignored
-Warning in report: Unexpected 'Test_result_number_separator' header is ignored
-Warning in report: Unexpected 'Test_result_number2' header is ignored
-Warning in report: Unexpected 'Test_result_units' header is ignored
-Warning in report: Unexpected 'Reference_range' header is ignored
-Warning in report: Unexpected 'Abnormal_flag' header is ignored
-Warning in report: Unexpected 'Comments' header is ignored
-Warning in report: Unexpected 'Employed_in_high_risk_setting' header is ignored
-Warning in report: Unexpected 'Patient_occupation' header is ignored
-Warning in report: Unexpected 'Disease_symptoms' header is ignored
-Warning in report: Unexpected 'Patient_location' header is ignored
-Warning in report: Unexpected 'Resident_congregate_setting' header is ignored
-Warning in report: Unexpected 'Patient_residency_type' header is ignored
-Warning in report: Unexpected 'Patient_death_date' header is ignored
-Warning in report: Unexpected 'Patient_died' header is ignored
-Warning in report: Unexpected 'Public_health_case_ID' header is ignored
-Warning in report: Unexpected 'Travel_history' header is ignored
-Warning in report: Unexpected 'Test_kit_EUA_ID' header is ignored
-Warning in report: Unexpected 'Test_kit_instance_ID' header is ignored
-Warning in report: Unexpected 'Test_kit_model_ID' header is ignored
-Warning in report: Unexpected 'Test_kit_model_name' header is ignored
-Warning in report: Unexpected 'Instrument_instance_ID' header is ignored
-Warning in report: Unexpected 'Instrument_model_ID' header is ignored
-Warning in report: Unexpected 'Instrument_model_name' header is ignored
-Warning in report: Unexpected 'Order_result_status' header is ignored
-Warning in report: Unexpected 'Link_test_to_parent_result' header is ignored
-Warning in report: Unexpected 'Link_test_to_parent_accession' header is ignored
-Warning in report: Unexpected 'Ordered_test_code' header is ignored
-Warning in report: Unexpected 'Ordered_test_code_system' header is ignored
-Warning in report: Unexpected 'Specimen_Sender_site_code' header is ignored
-Warning in report: Unexpected 'Specimen_Sender_site_code_sys' header is ignored
-Warning in report: Unexpected 'Specimen_type_code' header is ignored
-Warning in report: Unexpected 'Specimen_type_code_system' header is ignored
-Warning in report: Unexpected 'Test_method_description' header is ignored
-Warning in report: Unexpected 'Test_result_code_system' header is ignored
-Warning in report: Unexpected 'Test_performed_code' header is ignored
-Warning in report: Unexpected 'Test_performed_code_system' header is ignored
-Warning in report: Unexpected 'Result_format' header is ignored
-Warning in report: Unexpected 'Test_result_sub_ID' header is ignored
-Warning in report: Unexpected 'Submitter_sample_ID_assigner' header is ignored
-Warning in report: Unexpected 'Patient_ID_2_type' header is ignored
-Warning in report: Unexpected 'Patient_ID_type' header is ignored
-Warning in report: Unexpected 'Testing_lab_street2' header is ignored
-Warning in report: Unexpected 'Testing_lab_county' header is ignored
-Warning in report: Unexpected 'Reporting_facility_ID' header is ignored
-Warning in report: Unexpected 'Reporting_facility_name' header is ignored
-Warning in report: Unexpected 'Report_facil_data_Sender_app' header is ignored
-Warning in report: Unexpected 'File_created_date' header is ignored
-Warning in report: Unexpected 'flatfile_version_no' header is ignored
+    - name: Specimen_Sender_site_code_sys_Ignore
+      type: TEXT
+      csvFields: [{name: Specimen_Sender_site_code_sys}]
+      documentation: This field is ignored.
+
+    - name: Specimen_type_code_Ignore
+      type: TEXT
+      csvFields: [{name: Specimen_type_code}]
+      documentation: This field is ignored.
+
+    - name: Test_method_description_Ignore
+      type: TEXT
+      csvFields: [{name: Test_method_description}]
+      documentation: This field is ignored.
+
+    - name: Test_result_code_system_Ignore
+      type: TEXT
+      csvFields: [{name: Test_result_code_system}]
+      documentation: This field is ignored.
+
+    - name: Test_performed_code_Ignore
+      type: TEXT
+      csvFields: [{name: Test_performed_code}]
+      documentation: This field is ignored.
+
+    - name: Test_performed_code_system_Ignore
+      type: TEXT
+      csvFields: [{name: Test_performed_code_system}]
+      documentation: This field is ignored.
+
+    - name: Result_format_Ignore
+      type: TEXT
+      csvFields: [{name: Result_format}]
+      documentation: This field is ignored.
+
+    - name: Test_result_sub_ID_Ignore
+      type: TEXT
+      csvFields: [{name: Test_result_sub_ID}]
+      documentation: This field is ignored.
+
+    - name: Submitter_sample_ID_assigner_Ignore
+      type: TEXT
+      csvFields: [{name: Submitter_sample_ID_assigner}]
+      documentation: This field is ignored.
+
+    - name: Patient_ID_2_type_Ignore
+      type: TEXT
+      csvFields: [{name: Patient_ID_2_type}]
+      documentation: This field is ignored.
+
+    - name: Patient_ID_type_Ignore
+      type: TEXT
+      csvFields: [{name: Patient_ID_type}]
+      documentation: This field is ignored.
+
+    - name: Testing_lab_street2_Ignore
+      type: TEXT
+      csvFields: [{name: Testing_lab_street2}]
+      documentation: This field is ignored.
+
+    - name: Testing_lab_county_Ignore
+      type: TEXT
+      csvFields: [{name: Testing_lab_county}]
+      documentation: This field is ignored.
+
+    - name: Reporting_facility_ID_Ignore
+      type: TEXT
+      csvFields: [{name: Reporting_facility_ID}]
+      documentation: This field is ignored.
+
+    - name: Reporting_facility_name_Ignore
+      type: TEXT
+      csvFields: [{name: Reporting_facility_name}]
+      documentation: This field is ignored.
+
+    - name: Report_facil_data_Sender_app_Ignore
+      type: TEXT
+      csvFields: [{name: Report_facil_data_Sender_app}]
+      documentation: This field is ignored.
+
+    - name: File_created_date_Ignore
+      type: TEXT
+      csvFields: [{name: File_created_date}]
+      documentation: This field is ignored.
+
+    - name: flatfile_version_no_Ignore
+      type: TEXT
+      csvFields: [{name: flatfile_version_no}]
+      documentation: This field is ignored.
