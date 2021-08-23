@@ -291,36 +291,6 @@ iPatientCare is an ambulatory EMR, so this field is defaulted to 'N'.
 
 ---
 
-**Name**: order_result_status
-
-**Type**: CODE
-
-**PII**: No
-
-**Default Value**: F
-
-**Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display
----- | -------
-A|Some, but not all, results available
-C|Corrected, final
-F|Final results
-I|No results available; specimen received, procedure incomplete
-M|Corrected, not final
-N|Procedure completed, results pending
-O|Order received; specimen not yet received
-P|Preliminary
-R|Results stored; not yet verified
-S|No results available; procedure scheduled, but not done
-X|No results available; Order canceled
-Y|No order on record for this test
-Z|No record of this patient
-
----
-
 **Name**: DateColl
 
 **Type**: DATE
@@ -588,6 +558,8 @@ N|Non Hispanic or Latino
 U|Unknown
 H|Hispanic or Latino
 N|Non Hispanic or Latino
+N|Non Hispanic or Latino
+U|Unknown
 U|Unknown
 
 **Alt Value Sets**
@@ -596,11 +568,15 @@ Code | Display
 ---- | -------
 H|Hispanic or Latino
 N|Non Hispanic or Latino
+N|Not Hispanic or Latino
 U|Patient Declines
+U|Unknown
 
 **Documentation**:
 
-NOTE - awaiting any additional ethnicity values from iPatientCare
+The patient's ethnicity. There is a valueset defined based on the values in PID-22, but downstream
+consumers are free to define their own values. Please refer to the consumer-specific schema if you have questions.
+
 
 ---
 
