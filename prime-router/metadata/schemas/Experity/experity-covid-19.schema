@@ -558,6 +558,11 @@ elements:
       csvFields: [{name: Specimen_type_code}]
       documentation: This field is ignored.
 
+    - name: Specimen_type_code_system_Ignore
+      type: TEXT
+      csvFields: [{name: Specimen_type_code_system}]
+      documentation: This field is ignored.
+
     - name: Test_method_description_Ignore
       type: TEXT
       csvFields: [{name: Test_method_description}]
