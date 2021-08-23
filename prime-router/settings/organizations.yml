@@ -1099,6 +1099,7 @@
         suppressHl7Fields: ORC-23-1,PID-13-1,ORC-14-1,OBR-17-1
         reportingFacilityName: CDC PRIME
         reportingFacilityId: 11D2030855
+        replaceDiiWithOid: true
       transport:
         type: SFTP
         host: sftp
