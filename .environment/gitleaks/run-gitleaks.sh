@@ -45,6 +45,7 @@ function note() {
 GITLEAKS_IMG_NAME="zricethezav/gitleaks:v7.5.0"
 REPO_ROOT=$(git rev-parse --show-toplevel)
 CONTAINER_SOURCE_LOCATION="/repo"
+CONTAINER_LOCATION="repo"
 VERBOSE=${VERBOSE:-0}
 
 REPORT_JSON="gitleaks.report.json"
@@ -58,9 +59,9 @@ function scan_uncommitted() {
     docker run \
         -v "${REPO_ROOT?}:${CONTAINER_SOURCE_LOCATION?}" \
         "${GITLEAKS_IMG_NAME?}" \
-        --path="${CONTAINER_SOURCE_LOCATION?}" \
+        --path="${CONTAINER_LOCATION?}" \
         --repo-config-path="${REPO_CONFIG_PATH?}" \
-        --report="${CONTAINER_SOURCE_LOCATION?}/${REPORT_JSON?}" \
+        --report="${CONTAINER_LOCATION?}/${REPORT_JSON?}" \
         $(if [[ ${VERBOSE?} != 0 ]]; then echo "--verbose"; else echo ""; fi) \
         --unstaged \
         2>"${LOGFILE?}"
@@ -74,9 +75,9 @@ function scan_no_git() {
     docker run \
         -v "${REPO_ROOT?}:${CONTAINER_SOURCE_LOCATION?}" \
         "${GITLEAKS_IMG_NAME?}" \
-        --path="${CONTAINER_SOURCE_LOCATION?}" \
+        --path="${CONTAINER_LOCATION?}" \
         --config-path="${CONTAINER_SOURCE_LOCATION?}/${REPO_CONFIG_PATH?}" \
-        --report="${CONTAINER_SOURCE_LOCATION?}/${REPORT_JSON?}" \
+        --report="${CONTAINER_LOCATION?}/${REPORT_JSON?}" \
         $(if [[ ${VERBOSE?} != 0 ]]; then echo "--verbose"; else echo ""; fi) \
         --no-git \
         2>"${LOGFILE?}"
@@ -93,9 +94,9 @@ function scan_x_last_commits() {
     docker run \
         -v "${REPO_ROOT?}:${CONTAINER_SOURCE_LOCATION?}" \
         "${GITLEAKS_IMG_NAME?}" \
-        --path="${CONTAINER_SOURCE_LOCATION?}" \
+        --path="${CONTAINER_LOCATION?}" \
         --repo-config-path="${REPO_CONFIG_PATH?}" \
-        --report="${CONTAINER_SOURCE_LOCATION?}/${REPORT_JSON?}" \
+        --report="${CONTAINER_LOCATION?}/${REPORT_JSON?}" \
         $(if [[ ${VERBOSE?} != 0 ]]; then echo "--verbose"; else echo ""; fi) \
         --depth ${DEPTH?} \
         2>"${LOGFILE?}"
@@ -112,9 +113,9 @@ function scan_since() {
     docker run \
         -v "${REPO_ROOT?}:${CONTAINER_SOURCE_LOCATION?}" \
         "${GITLEAKS_IMG_NAME?}" \
-        --path="${CONTAINER_SOURCE_LOCATION?}" \
+        --path="${CONTAINER_LOCATION?}" \
         --repo-config-path="${REPO_CONFIG_PATH?}" \
-        --report="${CONTAINER_SOURCE_LOCATION?}/${REPORT_JSON?}" \
+        --report="${CONTAINER_LOCATION?}/${REPORT_JSON?}" \
         $(if [[ ${VERBOSE?} != 0 ]]; then echo "--verbose"; else echo ""; fi) \
         --commit-since "${SINCE?}" \
         2>"${LOGFILE?}"
