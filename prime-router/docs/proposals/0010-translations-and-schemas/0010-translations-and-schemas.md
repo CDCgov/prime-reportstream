@@ -1,5 +1,7 @@
 # A Translations does Everything a Schema can do
 
+This proposal is part of a series of recommendations that try to solve multiple problems together in one suggestion. These proposals consider the learnings and the experience from operating ReportStream for the past six months and the current production directions for the service for the next six months.
+
 ## Goals
 
 As the ReportStream project expands from COVID-19 reporting to general ELR reporting and other data flows, there is an opportunity to simplify the engineering and operation of the pipeline. In particular, this proposal aims to:
@@ -22,7 +24,7 @@ After about six months of experience with the current pipeline, the team has dis
 1. Schema modification is complex logistically, requiring a production rollout. Settings and Translations are the current solutions to this logistic problem, but they are less expressive than Schemas. Often both settings and schema modifications are needed to onboard a state or sender.
 2. There isn't the equivalent of the Translation concept for senders.
 3. Because any schema can translate theoretically to any other schema, there is an n-squared testing matrix and verification problem. The current tests execute some combinations, but not all.
-4. In a similar vein, each schema can be for serialization and deserialization. In practice, schemas are either used for input or output, but not both. It can be difficult to design a schema that work in both directions. 
+4. In a similar vein, each schema can be used for both serialization and deserialization. In practice, schemas are either used for input or output, but not both. It can be difficult to design a schema that works in both directions. 
 
 ## Solution
 The proposed concept is diagrammed below.  
@@ -37,7 +39,7 @@ The proposed concept is diagrammed below.
 6. Likewise, eliminate the need to check in and generate schema docs.
 7. Eliminate the based-on concept. Every translation must have all the elements of the topic's schema.
 8. Avoid the n^2 testing problem by defining translations as either sender or receiver translations and guaranteeing that each translation works to the common elements.
-9. Add a least one test file per translation.
+9. Add at least one test file per translation.
 
 The work would be staged in several PRs, roughly based on the steps of the solutions.
 
