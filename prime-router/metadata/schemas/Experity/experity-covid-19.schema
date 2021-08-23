@@ -352,9 +352,9 @@ elements:
       csvFields: [{name: Specimen_type_free_text}]
       documentation: This field is ignored.
 
-    - name: Specimen_Sender_site_descrip_Ignore
+    - name: Specimen_source_site_descrip_Ignore
       type: TEXT
-      csvFields: [{name: Specimen_Sender_site_descrip}]
+      csvFields: [{name: Specimen_source_site_descrip}]
       documentation: This field is ignored.
 
     - name: Submitter_unique_sample_ID_Ignore
@@ -543,14 +543,14 @@ elements:
       csvFields: [{name: Ordered_test_code_system}]
       documentation: This field is ignored.
 
-    - name: Specimen_Sender_site_code_Ignore
+    - name: Specimen_source_site_code_Ignore
       type: TEXT
-      csvFields: [{name: Specimen_Sender_site_code}]
+      csvFields: [{name: Specimen_source_site_code}]
       documentation: This field is ignored.
 
-    - name: Specimen_Sender_site_code_sys_Ignore
+    - name: Specimen_source_site_code_sys_Ignore
       type: TEXT
-      csvFields: [{name: Specimen_Sender_site_code_sys}]
+      csvFields: [{name: Specimen_source_site_code_sys}]
       documentation: This field is ignored.
 
     - name: Specimen_type_code_Ignore
@@ -628,9 +628,9 @@ elements:
       csvFields: [{name: Reporting_facility_name}]
       documentation: This field is ignored.
 
-    - name: Report_facil_data_Sender_app_Ignore
+    - name: Report_facil_data_source_app_Ignore
       type: TEXT
-      csvFields: [{name: Report_facil_data_Sender_app}]
+      csvFields: [{name: Report_facil_data_source_app}]
       documentation: This field is ignored.
 
     - name: File_created_date_Ignore
