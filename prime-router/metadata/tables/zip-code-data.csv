@@ -10707,6 +10707,7 @@ state_fips,state,state_abbr,zipcode,county,city
 22,Louisiana,LA,70131,Orleans,New orleans
 22,Louisiana,LA,70163,Orleans,New orleans
 22,Louisiana,LA,70301,Lafourche,Thibodaux
+22,Louisiana,LA,70302,Lafourche,Thibodaux
 22,Louisiana,LA,70339,Assumption,Pierre part
 22,Louisiana,LA,70341,Assumption,Belle rose
 22,Louisiana,LA,70342,St Mary,Berwick
@@ -10866,6 +10867,7 @@ state_fips,state,state_abbr,zipcode,county,city
 22,Louisiana,LA,70663,Calcasieu,Sulphur
 22,Louisiana,LA,70668,Calcasieu,Vinton
 22,Louisiana,LA,70669,Calcasieu,Westlake
+22,Louisiana,LA,70707,Ascension,Gonzales
 22,Louisiana,LA,70710,West Baton Rouge,Addis
 22,Louisiana,LA,70711,Livingston,Albany
 22,Louisiana,LA,70712,West Feliciana,Angola
@@ -10906,6 +10908,7 @@ state_fips,state,state_abbr,zipcode,county,city
 22,Louisiana,LA,70762,Pointe Coupee,Oscar
 22,Louisiana,LA,70763,St James,Paulina
 22,Louisiana,LA,70764,Iberville,Plaquemine
+22,Louisiana,LA,70765,Iberville,Plaquemine
 22,Louisiana,LA,70767,West Baton Rouge,Port allen
 22,Louisiana,LA,70769,Ascension,Galvez
 22,Louisiana,LA,70770,East Baton Rouge,Pride
@@ -10942,6 +10945,7 @@ state_fips,state,state_abbr,zipcode,county,city
 22,Louisiana,LA,70818,East Baton Rouge,Baton rouge
 22,Louisiana,LA,70819,East Baton Rouge,Baton rouge
 22,Louisiana,LA,70820,East Baton Rouge,Baton rouge
+22,Louisiana,LA,70835,East Baton Rouge,Baton rouge
 22,Louisiana,LA,70836,East Baton Rouge,Baton rouge
 22,Louisiana,LA,71001,Bienville,Arcadia
 22,Louisiana,LA,71002,Natchitoches,Ashland
