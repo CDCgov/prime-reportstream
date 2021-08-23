@@ -24,7 +24,6 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Properties
 import java.util.TimeZone
-import java.util.regex.Pattern
 
 class Hl7Serializer(
     val metadata: Metadata,
@@ -943,7 +942,7 @@ class Hl7Serializer(
      */
     internal fun getTruncationLimitWithEncoding(value: String, truncationLimit: Int): Int {
         val regex = "[&^~|]".toRegex()
-        val matchCount = regex.findAll(value).count()
+        val matchCount = regex.findAll(value.substring(0, truncationLimit)).count()
 
         return if (matchCount > 0) {
             truncationLimit.minus(matchCount.times(2))
@@ -964,8 +963,14 @@ class Hl7Serializer(
         val hl7Config = report.destination?.translation as? Hl7Configuration?
         if (hl7Config?.truncateHDNamespaceIds == true) {
             sendingAppTruncationLimit = getTruncationLimitWithEncoding(sendingApplicationReport, HD_TRUNCATION_LIMIT)
-            receivingAppTruncationLimit = getTruncationLimitWithEncoding(receivingApplicationReport, HD_TRUNCATION_LIMIT)
-            receivingFacilityTruncationLimit = getTruncationLimitWithEncoding(receivingFacilityReport, HD_TRUNCATION_LIMIT)
+            receivingAppTruncationLimit = getTruncationLimitWithEncoding(
+                receivingApplicationReport,
+                HD_TRUNCATION_LIMIT
+            )
+            receivingFacilityTruncationLimit = getTruncationLimitWithEncoding(
+                receivingFacilityReport,
+                HD_TRUNCATION_LIMIT
+            )
         }
 
         val encodingCharacters = "^~\\&"
