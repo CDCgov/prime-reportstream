@@ -523,7 +523,7 @@ abstract class CoolTest {
                 waitSecs += 120
             } else if (secsElapsed > (60 - plusSecs)) {
                 // Uh oh, we are close to the top of the minute *now*, so 'receive' might not finish in time.
-                waitSecs += 20
+                waitSecs += 60
             }
             echo("Waiting $waitSecs seconds for ReportStream to fully receive, batch, and send the data")
             for (i in 1..waitSecs) {
@@ -685,11 +685,10 @@ class Merge : CoolTest() {
     override val status = TestStatus.SMOKE
 
     override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
-        // Remove HL7 - it does not merge   TODO write a notMerging test for HL7, but its similar to end2end
-        val mergingReceivers = listOf<Receiver>(csvReceiver, hl7BatchReceiver, redoxReceiver)
+        val mergingReceivers = listOf<Receiver>(csvReceiver, hl7BatchReceiver)
         val mergingCounties = mergingReceivers.map { it.name }.joinToString(",")
         val fakeItemCount = mergingReceivers.size * options.items
-        ugly("Starting merge test:  Merge ${options.submits} reports, each of which sends to $allGoodCounties")
+        ugly("Starting merge test:  Merge ${options.submits} reports, each of which sends to $mergingCounties")
         val file = FileUtilities.createFakeFile(
             metadata,
             settings,
@@ -878,18 +877,11 @@ class Strac : CoolTest() {
             if (warningCount == expectedWarningCount) {
                 good("First part of strac Test passed: $warningCount warnings were returned.")
             } else {
-                // Current expectation is that all non-REDOX counties fail.   If those issues get fixed,
-                // then we'll need to fix this test as well.
                 bad("***strac Test FAILED: Expecting $expectedWarningCount warnings but got $warningCount***")
                 passed = false
             }
-            // OK, fine, the others failed.   All our hope now rests on you, REDOX - don't let us down!
             waitABit(25, environment)
-            return passed and examineLineageResults(
-                reportId = reportId,
-                receivers = listOf(redoxReceiver),
-                totalItems = options.items
-            )
+            return passed and examineLineageResults(reportId, allGoodReceivers, fakeItemCount)
         } catch (e: Exception) {
             return bad("***strac Test FAILED***: Unexpected json returned")
         }
