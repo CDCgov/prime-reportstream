@@ -258,6 +258,7 @@ Examples:
             DataCompareTest(),
             SantaClaus(),
             OtcProctored(),
+            BadHl7(),
             WatersAuthTests(),
         )
     }
