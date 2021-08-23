@@ -453,21 +453,23 @@ abstract class CoolTest {
         val hl7Sender = settings.findSender("$orgName.$hl7SenderName")
             ?: error("Unable to find sender $hl7SenderName for organization ${org.name}")
 
-        val allGoodReceivers = settings.receivers.filter {
-            it.organizationName == orgName &&
-                !it.name.contains("FAIL") &&
-                !it.name.contains("BLOBSTORE") &&
-                !it.name.contains("QUALITY") &&
-                !it.name.contains("AS2") &&
-                !it.name.contains("OTC")
-        }
-        val allGoodCounties = allGoodReceivers.map { it.name }.joinToString(",")
+        val csvReceiver = settings.receivers.filter { it.organizationName == orgName && it.name == "CSV" }[0]
+        val hl7Receiver = settings.receivers.filter { it.organizationName == orgName && it.name == "HL7" }[0]
+        val hl7BatchReceiver = settings.receivers.filter { it.organizationName == orgName && it.name == "HL7_BATCH" }[0]
+        val redoxReceiver = settings.receivers.filter { it.organizationName == orgName && it.name == "REDOX" }[0]
+        val hl7NullReceiver = settings.receivers.filter { it.organizationName == orgName && it.name == "HL7_NULL" }[0]
 
-        val csvReceiver = allGoodReceivers.filter { it.name == "CSV" }[0]
-        val hl7Receiver = allGoodReceivers.filter { it.name == "HL7" }[0]
-        val hl7BatchReceiver = allGoodReceivers.filter { it.name == "HL7_BATCH" }[0]
-        val redoxReceiver = allGoodReceivers.filter { it.name == "REDOX" }[0]
-        val hl7NullReceiver = allGoodReceivers.filter { it.name == "HL7_NULL" }[0]
+        lateinit var allGoodReceivers:  List<Receiver>
+        lateinit var allGoodCounties: String
+
+        fun initListOfGoodReceiversAndCounties(env: ReportStreamEnv) {
+           allGoodReceivers = if (env == ReportStreamEnv.LOCAL)
+               listOf(csvReceiver, hl7Receiver, hl7BatchReceiver, redoxReceiver, hl7NullReceiver)
+            else
+                listOf(csvReceiver, hl7Receiver, hl7BatchReceiver, hl7NullReceiver)
+            allGoodCounties = allGoodReceivers.map { it.name }.joinToString(",")
+        }
+
         val blobstoreReceiver = settings.receivers.filter {
             it.organizationName == orgName && it.name == "BLOBSTORE"
         }[0]
@@ -516,10 +518,12 @@ abstract class CoolTest {
             val secsElapsed = OffsetDateTime.now().second % 60
             // Wait until the top of the next minute, and pluSecs more, for 'batch', and 'send' to finish.
             var waitSecs = 60 - secsElapsed + plusSecs
-            if (secsElapsed > (60 - plusSecs) || env != ReportStreamEnv.LOCAL) {
+            if (env != ReportStreamEnv.LOCAL) {
+                // We are in Test or Staging, which don't execute on the top of the minute. Hack:
+                waitSecs += 120
+            } else if (secsElapsed > (60 - plusSecs)) {
                 // Uh oh, we are close to the top of the minute *now*, so 'receive' might not finish in time.
-                // Or, we are in Test or Staging, which don't execute on the top of the minute.
-                waitSecs += 90
+                waitSecs += 20
             }
             echo("Waiting $waitSecs seconds for ReportStream to fully receive, batch, and send the data")
             for (i in 1..waitSecs) {
@@ -640,6 +644,7 @@ class End2End : CoolTest() {
     override val status = TestStatus.SMOKE
 
     override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+        initListOfGoodReceiversAndCounties(environment)
         var passed = true
         ugly("Starting $name Test: send ${simpleRepSender.fullName} data to $allGoodCounties")
         val fakeItemCount = allGoodReceivers.size * options.items
@@ -841,6 +846,7 @@ class Strac : CoolTest() {
     override val status = TestStatus.SMOKE
 
     override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+        initListOfGoodReceiversAndCounties(environment)
         ugly("Starting bigly strac Test: sending Strac data to all of these receivers: $allGoodCounties!")
         var passed = true
         val fakeItemCount = allGoodReceivers.size * options.items
@@ -1084,6 +1090,7 @@ class Garbage : CoolTest() {
     override val status = TestStatus.FAILS // new quality checks now prevent any data from flowing to other checks
 
     override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+        initListOfGoodReceiversAndCounties(environment)
         ugly("Starting $name Test: send ${emptySender.fullName} data to $allGoodCounties")
         var passed = true
         val fakeItemCount = allGoodReceivers.size * options.items
