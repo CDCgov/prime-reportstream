@@ -24,7 +24,6 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Properties
 import java.util.TimeZone
-import java.util.regex.Pattern
 
 class Hl7Serializer(
     val metadata: Metadata,
@@ -135,14 +134,17 @@ class Hl7Serializer(
             if (it.startsWith("FTS"))
                 return@forEach
 
-            if (nextMessage.isNotEmpty() && it.startsWith("MSH")) {
+            if (nextMessage.isNotBlank() && it.startsWith("MSH")) {
                 deconstructStringMessage()
             }
-            nextMessage.append("$it\r")
+
+            if (it.isNotBlank()) {
+                nextMessage.append("$it\r")
+            }
         }
 
         // catch the last message
-        if (nextMessage.isNotEmpty()) {
+        if (nextMessage.isNotBlank()) {
             deconstructStringMessage()
         }
 
