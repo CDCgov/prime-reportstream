@@ -669,7 +669,6 @@ NTE|1|L|This is a final comment|RE"""
 
         val emptyHL7 = ByteArrayInputStream("".toByteArray())
         var result = serializer.readExternal(hl7SchemaName, emptyHL7, TestSource)
-        assertThat(result.warnings).isNotEmpty()
         assertThat(result.report).isNotNull()
         assertThat(result.report!!.itemCount).isEqualTo(0)
 
