@@ -17,7 +17,7 @@ class Hl7Ingest : CoolTest() {
     override val description = "Create HL7 Fake data, submit, wait, confirm sent via database lineage data"
     override val status = TestStatus.SMOKE
 
-    override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+    override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
         initListOfGoodReceiversAndCounties(environment)
         var passed = true
         val sender = hl7Sender
@@ -34,7 +34,7 @@ class Hl7Ingest : CoolTest() {
             options.dir,
             Report.Format.HL7_BATCH
         )
-        TermUi.echo("Created datafile $file")
+        echo("Created datafile $file")
 
         // Now send it to ReportStream.
         val (responseCode, json) =
@@ -47,7 +47,7 @@ class Hl7Ingest : CoolTest() {
         }
 
         // Check the response from the endpoint
-        TermUi.echo(json)
+        echo(json)
         passed = passed and examineResponse(json)
 
         // Now check the lineage data
@@ -99,7 +99,7 @@ PID|1|ABC123DF|AND234DA_PID3|PID_4_ALTID|Patlast^Patfirst^Mid||19670202|F|||4505
 ORC|RE|73a6e9bd-aaec-418e-813a-0ad33366ca85|73a6e9bd-aaec-418e-813a-0ad33366ca85|||||||||1629082607^Eddin^Husam^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI||^WPN^^^1^386^6825220|20210209||||||Avante at Ormond Beach|170 North King Road^^Ormond Beach^IG^32174^^^^12127|^WPN^^jbrush@avantecenters.com^1^407^7397506|^^^^32174
 OBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN||260415000^Not detected^SCT|||N^Normal (applies to non-numeric results)^HL70078|||F|||202102090000-0600|||CareStart COVID-19 Antigen test_Access Bio, Inc._EUA^^99ELR||202102090000-0600||||Avante at Ormond Beach^^^^^CLIA&2.16.840.1.113883.19.4.6&ISO^^^^10D08761999^CLIA|170 North King Road^^Ormond Beach^FL^32174^^^^12127
 SPM|1|b518ef23-1d9a-40c1-ac4b-ed7b438dfc4b||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (body structure)^SCT^^^^2020-09-01|||||||||20201102063552-0500|20201102063552-0500"""
-    override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+    override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
         val sender = hl7Sender
         val csv = """
             A,b
@@ -149,7 +149,7 @@ SPM|1|b518ef23-1d9a-40c1-ac4b-ed7b438dfc4b||258500001^Nasopharyngeal swab^SCT|||
                 sender,
                 options.key
             )
-            TermUi.echo("ResponseCode to POST: $responseCode")
+            echo("ResponseCode to POST: $responseCode")
             if (responseCode >= 400 && responseCode < 500) {
                 good("Test for $name ${pair.first} passed: received $responseCode response code.")
             } else {

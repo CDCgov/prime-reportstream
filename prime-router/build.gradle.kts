@@ -468,6 +468,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-common:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.1")
     implementation("com.microsoft.azure.functions:azure-functions-java-library:1.4.2")
     implementation("com.azure:azure-core:1.19.0")
     implementation("com.azure:azure-core-http-netty:1.10.2")
