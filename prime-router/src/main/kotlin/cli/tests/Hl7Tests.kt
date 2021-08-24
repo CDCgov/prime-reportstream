@@ -18,6 +18,7 @@ class Hl7Ingest : CoolTest() {
     override val status = TestStatus.SMOKE
 
     override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+        initListOfGoodReceiversAndCounties(environment)
         var passed = true
         val sender = hl7Sender
         val receivers = allGoodReceivers
