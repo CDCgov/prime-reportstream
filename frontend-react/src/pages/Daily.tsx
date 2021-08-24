@@ -44,13 +44,14 @@ const TableData = ({ sortBy }: { sortBy?: string }) => {
 };
 
 const ReportLink = ({ reportId }) => {
-    let report = useResource(ReportResource.list(), { sortBy: undefined }).find(
-        (report) => report.reportId === reportId
-    );
+    let report = useResource(ReportResource.detail(), { reportId });
+
+    console.log(report);
 
     const handleClick = (e: any) => {
         e.preventDefault();
         if (report !== undefined) {
+            console.log(report.content);
             download(report.content, report.fileName, report.mimeType);
         }
     };

@@ -21,18 +21,20 @@ import com.microsoft.azure.functions.annotation.TimerTrigger
 import com.okta.jwt.JwtVerifiers
 import com.sendgrid.Method
 import com.sendgrid.Request
+import com.sendgrid.Response
 import com.sendgrid.SendGrid
 import com.sendgrid.helpers.mail.Mail
 import com.sendgrid.helpers.mail.objects.Email
 import com.sendgrid.helpers.mail.objects.Personalization
 import gov.cdc.prime.router.azure.db.enums.SettingType
 import gov.cdc.prime.router.secrets.SecretHelper
-import org.json.JSONObject
 import java.io.IOException
+import java.time.OffsetDateTime
 import java.time.ZonedDateTime
 import java.util.logging.Level
 import java.util.logging.Logger
 import khttp.get as httpGet
+import org.json.JSONObject
 
 const val SCHEDULE = "*/5 * * * *" // every 5 minutes
 const val OKTA_ISSUER = "https://hhs-prime.okta.com/oauth2/default"
@@ -46,31 +48,30 @@ const val USER_CLAIM = "sub"
 const val ADMIN_GRP = "DHPrimeAdmins"
 
 data class EmailSchedule(
-    val template: String,
-    val type: String,
-    val cronSchedule: String,
-    val organizations: List<String> = ArrayList<String>(),
-    val emails: List<String> = ArrayList<String>(),
-    val parameters: Map<String, String> = HashMap<String, String>()
+        val template: String,
+        val type: String,
+        val cronSchedule: String,
+        val organizations: List<String> = ArrayList<String>(),
+        val emails: List<String> = ArrayList<String>(),
+        val parameters: Map<String, String> = HashMap<String, String>()
 )
 
 class EmailScheduleEngine {
 
     val workflowEngine = WorkflowEngine()
 
-    /**
-     * Create Email Schedule
-     */
+    /** Create Email Schedule */
     @FunctionName("createEmailSchedule")
     @StorageAccount("AzureWebJobsStorage")
     fun createEmailSchedule(
-        @HttpTrigger(
-            name = "createEmailSchedule",
-            methods = [HttpMethod.POST],
-            authLevel = AuthorizationLevel.ANONYMOUS,
-            route = "email-schedule"
-        ) request: HttpRequestMessage<String?>,
-        context: ExecutionContext,
+            @HttpTrigger(
+                    name = "createEmailSchedule",
+                    methods = [HttpMethod.POST],
+                    authLevel = AuthorizationLevel.ANONYMOUS,
+                    route = "email-schedule"
+            )
+            request: HttpRequestMessage<String?>,
+            context: ExecutionContext,
     ): HttpResponseMessage {
         var user: String? = validateUser(request.headers["authorization"] ?: "", context.logger)
         var ret = request.createResponseBuilder(HttpStatus.UNAUTHORIZED)
@@ -83,20 +84,19 @@ class EmailScheduleEngine {
         return ret.build()
     }
 
-    /**
-     * Delete (inactivate) Email Schedule
-     */
+    /** Delete (inactivate) Email Schedule */
     @FunctionName("deleteEmailSchedule")
     @StorageAccount("AzureWebJobsStorage")
     fun deleteEmailSchedule(
-        @HttpTrigger(
-            name = "deleteEmailSchedule",
-            methods = [HttpMethod.DELETE],
-            authLevel = AuthorizationLevel.ANONYMOUS,
-            route = "email-schedule/{scheduleId}"
-        ) request: HttpRequestMessage<String?>,
-        @BindingName("scheduleId") scheduleId: Int,
-        context: ExecutionContext,
+            @HttpTrigger(
+                    name = "deleteEmailSchedule",
+                    methods = [HttpMethod.DELETE],
+                    authLevel = AuthorizationLevel.ANONYMOUS,
+                    route = "email-schedule/{scheduleId}"
+            )
+            request: HttpRequestMessage<String?>,
+            @BindingName("scheduleId") scheduleId: Int,
+            context: ExecutionContext,
     ): HttpResponseMessage {
         var user: String? = validateUser(request.headers["authorization"] ?: "", context.logger)
         var ret = request.createResponseBuilder(HttpStatus.UNAUTHORIZED)
@@ -109,25 +109,24 @@ class EmailScheduleEngine {
         return ret.build()
     }
 
-    /**
-     * Timer Trigger to fire when processing schedules
-     *   (fires every 5 minutes)
-     */
+    /** Timer Trigger to fire when processing schedules (fires every 5 minutes) */
     @FunctionName("emailScheduleEngine")
     @StorageAccount("AzureWebJobsStorage")
     fun run(
-        @Suppress("UNUSED_PARAMETER")
-        @TimerTrigger(name = "emailScheduleEngine", schedule = SCHEDULE)
-        timerInfo: String,
-        context: ExecutionContext
+            @Suppress("UNUSED_PARAMETER")
+            @TimerTrigger(name = "emailScheduleEngine", schedule = SCHEDULE)
+            timerInfo: String,
+            context: ExecutionContext
     ) {
         val logger: Logger = context.logger
         val mapper = ObjectMapper().registerModule(KotlinModule())
 
         // get the schedules to fire
-        val schedulesToFire: Iterable<EmailSchedule> = WorkflowEngine.databaseAccess.fetchEmailSchedules()
-            .map { mapper.readValue<EmailSchedule>(it) }
-            .filter { shouldFire(it) }
+        val schedulesToFire: Iterable<EmailSchedule> =
+                WorkflowEngine.databaseAccess
+                        .fetchEmailSchedules()
+                        .map { mapper.readValue<EmailSchedule>(it) }
+                        .filter { shouldFire(it) }
 
         schedulesToFire.forEach { schedule ->
             val orgs: Iterable<String> = getOrgs(schedule)
@@ -136,14 +135,45 @@ class EmailScheduleEngine {
 
             // get the orgs to fire for
             orgs.forEach { org ->
-                val emails: Iterable<String> = if (schedule.emails.size > 0) schedule.emails else getEmails(org, logger)
-                logger.info("EmailEngineFunction:: processing organization $org within ${schedule.template}")
+                val countOfRecords =
+                        workflowEngine.db.fetchDownloadableReportFiles(
+                                        OffsetDateTime.now().minusDays(1L),
+                                        org
+                                )
+                                .size
+                val template = getTemplate(schedule.template, countOfRecords, logger)
+                val emails: Iterable<String> =
+                        if (schedule.emails.size > 0) schedule.emails else getEmails(org, logger)
+                logger.info("EmailEngineFunction:: processing organization $org within ${template}")
                 emails.forEach { email ->
-                    logger.info("EmailEngineFunction:: sending email to $email")
-                    dispatchToSendGrid(schedule.template, listOf(email), logger)
+                    logger.info(
+                            "EmailEngineFunction:: sending email template ${template} to $email"
+                    )
+                    dispatchToSendGrid(template, listOf(email), logger)
                 }
             }
         }
+    }
+
+    /**
+     * Get the template to use. A template comes in 2 forms, either a straight UUID or a pair of
+     * UUIDs separated by a ':' (the part on the left representing the 'we have results', and the
+     * part on the right representing the 'we dont have results')
+     *
+     * @param template the template string from the database (i.e d-12345678 or
+     * d-12345678:d-87654321)
+     * @param count of records found in the last 24hrs
+     *
+     * @returns template name to use
+     */
+    private fun getTemplate(template: String, count: Int, logger: Logger): String {
+        var retValue = template
+        val split = template.split(":")
+
+        if (split.size > 2) logger.warning("More than one :, taking only the first 2 templates")
+
+        if (split.size > 1) retValue = if (count == 0) split[1].trim() else split[0]
+        return retValue
     }
 
     /**
@@ -162,9 +192,9 @@ class EmailScheduleEngine {
         val timeFromLastExecution = executionTime.timeFromLastExecution(now)
 
         /*
-        So, the timer function doesn't fire on exactly every 5 minutes, so this is the "catch" at assure that anytime within 
-        less than 5 minutes of the last timer execution is valid (i.e. timer trigger fires at 11:59 but the cron for the 
-        schedule is at noon, without this, they don't "line up" and the schedule is always reported as shouldFire = false)  
+        So, the timer function doesn't fire on exactly every 5 minutes, so this is the "catch" at assure that anytime within
+        less than 5 minutes of the last timer execution is valid (i.e. timer trigger fires at 11:59 but the cron for the
+        schedule is at noon, without this, they don't "line up" and the schedule is always reported as shouldFire = false)
         This accounts for a difference in cron timers (Azure's and the one referenced here)
         */
         return (timeFromLastExecution.get().toSeconds() < FIVE_MINUTES_IN_SECONDS)
@@ -178,12 +208,7 @@ class EmailScheduleEngine {
      * @returns List of organizations for the schedule
      */
     private fun getOrgs(schedule: EmailSchedule): Iterable<String> {
-        return (
-            if (schedule.organizations.size > 0)
-                schedule.organizations
-            else
-                fetchAllOrgs()
-            )
+        return (if (schedule.organizations.size > 0) schedule.organizations else fetchAllOrgs())
     }
 
     /**
@@ -196,15 +221,13 @@ class EmailScheduleEngine {
         return workflowEngine.db.transactReturning { tx ->
             @Suppress("UNRESOLVED_REFERENCE")
             val settings = workflowEngine.db.fetchSettings(SettingType.ORGANIZATION, tx)
-            @Suppress("NEW_INFERENCE_NO_INFORMATION_FOR_PARAMETER")
-            settings.map { it.getName() }
+            @Suppress("NEW_INFERENCE_NO_INFORMATION_FOR_PARAMETER") settings.map { it.getName() }
         }
     }
 
     /**
-     * Validates the JWT Token supplied in the authorization header.  To be
-     *  valid, the token must be from okta and must be part of the DHPrimeAdmins
-     *  group
+     * Validates the JWT Token supplied in the authorization header. To be valid, the token must be
+     * from okta and must be part of the DHPrimeAdmins group
      *
      * @param request the HTTPRequest object
      * @param logger logger
@@ -215,26 +238,28 @@ class EmailScheduleEngine {
      */
     fun validateUser(requestToken: String, logger: Logger): String? {
 
-        val jwtToken = if (requestToken.length > AUTH_KEY.length) requestToken.substring(AUTH_KEY.length) else ""
+        val jwtToken =
+                if (requestToken.length > AUTH_KEY.length) requestToken.substring(AUTH_KEY.length)
+                else ""
 
         var user: String? = null
 
         if (jwtToken.isNotBlank()) {
             try {
                 // get the access token verifier
-                val jwtVerifier = JwtVerifiers.accessTokenVerifierBuilder()
-                    .setIssuer(OKTA_ISSUER)
-                    .build()
+                val jwtVerifier =
+                        JwtVerifiers.accessTokenVerifierBuilder().setIssuer(OKTA_ISSUER).build()
                 // get it to decode the token from the header
-                val jwt = jwtVerifier.decode(jwtToken)
-                    ?: throw Throwable("Error in validation of jwt token")
+                val jwt =
+                        jwtVerifier.decode(jwtToken)
+                                ?: throw Throwable("Error in validation of jwt token")
 
                 // get the user name
                 @Suppress("UNCHECKED_CAST")
-                user = if ((jwt.claims[ORG_CLAIM] as List<String>).contains(ADMIN_GRP))
-                    jwt.claims[USER_CLAIM].toString()
-                else
-                    null
+                user =
+                        if ((jwt.claims[ORG_CLAIM] as List<String>).contains(ADMIN_GRP))
+                                jwt.claims[USER_CLAIM].toString()
+                        else null
             } catch (ex: Throwable) {
                 logger.log(Level.WARNING, "Error in verification of token", ex)
             }
@@ -273,20 +298,23 @@ class EmailScheduleEngine {
                 var grp = encodeOrg(org)
 
                 // get the OKTA Group Id
-                var response1 = httpGet(
-                    url = "$OKTA_GROUPS_API?q=$grp",
-                    headers = mapOf("Authorization" to "SSWS $ssws")
-                )
+                var response1 =
+                        httpGet(
+                                url = "$OKTA_GROUPS_API?q=$grp",
+                                headers = mapOf("Authorization" to "SSWS $ssws")
+                        )
                 var grpId = ((response1.jsonArray).get(0) as JSONObject).getString("id")
 
                 // get the users within that OKTA group
-                var response = httpGet(
-                    url = "$OKTA_GROUPS_API/$grpId/users",
-                    headers = mapOf("Authorization" to "SSWS $ssws")
-                )
+                var response =
+                        httpGet(
+                                url = "$OKTA_GROUPS_API/$grpId/users",
+                                headers = mapOf("Authorization" to "SSWS $ssws")
+                        )
 
-                for (user in response.jsonArray)
-                    emails.add((user as JSONObject).getJSONObject("profile").getString("email"))
+                for (user in response.jsonArray) emails.add(
+                        (user as JSONObject).getJSONObject("profile").getString("email")
+                )
             }
         } catch (ex: Throwable) {
             logger.warning("Error in fetching emails")
@@ -303,11 +331,7 @@ class EmailScheduleEngine {
      * @param emails list of emails to send to
      * @param logger context logger
      */
-    private fun dispatchToSendGrid(
-        template: String,
-        emails: Iterable<String>,
-        logger: Logger
-    ) {
+    private fun dispatchToSendGrid(template: String, emails: Iterable<String>, logger: Logger) {
         val p: Personalization = Personalization()
         emails.forEach { to -> p.addTo(Email(to)) }
         p.setSubject(SUBJECT_EMAIL)
@@ -319,18 +343,24 @@ class EmailScheduleEngine {
         mail.setTemplateId(template)
 
         var sendgridId: String? = SecretHelper.getSecretService().fetchSecret("SENDGRID_ID")
+        var response: Response = Response()
 
         if (sendgridId !== null) {
 
             val sg: SendGrid = SendGrid(sendgridId)
             val request: Request = Request()
+
             try {
                 request.setMethod(Method.POST)
                 request.setEndpoint("mail/send")
                 request.setBody(mail.build())
-                sg.api(request)
+                response = sg.api(request)
             } catch (ex: IOException) {
                 logger.warning("Can't contact sendgrid")
+            } finally {
+                logger.info("sending to $emails - result ${response.getStatusCode()}")
+                if (!(200..299).contains(response.getStatusCode()))
+                        logger.severe("error - ${response.getBody()}")
             }
         } else {
             logger.info("Can't find SENDGRID_ID secret")

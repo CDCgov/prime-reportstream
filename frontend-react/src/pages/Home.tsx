@@ -6,7 +6,6 @@ import { library } from "@fortawesome/fontawesome-svg-core";
 import { fas } from "@fortawesome/free-solid-svg-icons";
 import CdcMap from "@cdc/map";
 import live from "../content/live.json";
-import { Button, Link } from "@trussworks/react-uswds";
 
 const Hero = () => {
     return (
@@ -158,9 +157,16 @@ const CtaSection = ({ section }: { section: SectionProp }) => {
                 </h2>
                 <p className="usa-prose">{section.description}</p>
                 <p className="usa-prose">{section.summary}</p>
-                <Button className="usa-button margin-top-2" type="button">
-                    {section.buttonText}
-                </Button>
+                <a
+                    href={
+                        "mailto:" +
+                        site.orgs.RS.email +
+                        "?subject=Getting started with ReportStream"
+                    }
+                    className="usa-button"
+                >
+                    Get in touch
+                </a>
             </div>
         </>
     );

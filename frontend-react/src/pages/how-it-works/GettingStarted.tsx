@@ -1,3 +1,5 @@
+import site from "../../content/site.json";
+
 /* eslint-disable jsx-a11y/anchor-has-content */
 export const GettingStarted = () => {
     return (
@@ -17,7 +19,11 @@ export const GettingStarted = () => {
                     and we’ll get back to you in about a week.
                 </p>
                 <a
-                    href="mailto:{{ site.orgs.RS.email }}{{ mailtoSubject }}"
+                    href={
+                        "mailto:" +
+                        site.orgs.RS.email +
+                        "?subject=Getting started with ReportStream"
+                    }
                     className="usa-button usa-button--outline"
                 >
                     Contact us
@@ -41,9 +47,8 @@ export const GettingStarted = () => {
             <hr className="margin-y-6" />
 
             <section>
-                <h2>
-                    <a href="#data-download" id="data-download"></a>Data
-                    download
+                <h2 id="data-download">
+                    <a href="#data-download"></a>Data download
                 </h2>
                 Our fastest option to get up and running, our web application
                 gives you access to reporting results via manual download from
@@ -54,9 +59,16 @@ export const GettingStarted = () => {
                             Kickoff and onboarding
                         </h4>
                         <p className="margin-top-05">
-                            <a href="mailto:{{ site.orgs.RS.email }}{{ mailtoSubject }}">
+                            <a
+                                href={
+                                    "mailto:" +
+                                    site.orgs.RS.email +
+                                    "?subject=Getting started with ReportStream"
+                                }
+                                className="margin-right-1"
+                            >
                                 Send us an email
-                            </a>{" "}
+                            </a>
                             with the information below. In most cases we’ll
                             review and approve your account in about a week.
                         </p>
@@ -83,8 +95,8 @@ export const GettingStarted = () => {
                         </p>
                     </li>
                 </ol>
-                <h2>
-                    <a href="#elr-connection" id="elr-connection"></a>
+                <h2 id="elr-connection">
+                    <a href="#elr-connection"></a>
                     ELR connection
                 </h2>
                 If you’ve decided you’ll need an ELR connection for your public
@@ -100,7 +112,7 @@ export const GettingStarted = () => {
                         <p className="margin-top-05">
                             Tell us your data configuration requirements and
                             preferences by submitting our{" "}
-                            <a href="{{ site.forms.intakeElr.url}}">
+                            <a href={site.forms.intakeElr.url}>
                                 ReportStream ELR onboarding form
                             </a>
                             . We’ll review your requirements and reach out to
@@ -133,11 +145,8 @@ export const GettingStarted = () => {
                         </p>
                     </li>
                 </ol>
-                <h2>
-                    <a
-                        href="#connecting-to-testing-facilities"
-                        id="connecting-to-testing-facilities"
-                    ></a>
+                <h2 id="connecting-to-testing-facilities">
+                    <a href="#connecting-to-testing-facilities"></a>
                     Connecting to testing facilities
                 </h2>
                 New testing facilities join ReportStream on a regular basis,
@@ -151,13 +160,13 @@ export const GettingStarted = () => {
                 know if you have any special requirements for them to complete
                 before they join. ### ELR onboarding checklist Check out our{" "}
                 <a
-                    href="/how-it-works/elr-onboarding-checklist/"
-                    className="usa-link"
+                    href="/how-it-works/elr-checklist/"
+                    className="usa-link margin-right-1"
                 >
                     ELR onboarding checklist
-                </a>{" "}
+                </a>
                 to preview the information you’ll need to complete step one: the{" "}
-                <a href="{{ site.forms.intakeElr.url }}" className="usa-link">
+                <a href={site.forms.intakeElr.url} className="usa-link">
                     ReportStream ELR onboarding form
                 </a>
                 .
@@ -165,12 +174,18 @@ export const GettingStarted = () => {
                 <h2>Get started with ReportStream</h2>
                 Ready to bring ReportStream to your jurisdiction or just have
                 more questions? Email us and we’ll follow up with next steps.
-                <a
-                    href="mailto:{{ site.orgs.RS.email }}{{ mailtoSubject}}"
-                    className="usa-button usa-button--outline"
-                >
-                    Get in touch
-                </a>
+                <p>
+                    <a
+                        href={
+                            "mailto:" +
+                            site.orgs.RS.email +
+                            "?subject=Getting started with ReportStream"
+                        }
+                        className="usa-button usa-button--outline"
+                    >
+                        Get in touch
+                    </a>
+                </p>
             </section>
         </>
     );

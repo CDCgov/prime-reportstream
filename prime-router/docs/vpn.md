@@ -41,6 +41,43 @@ $ kill -${SIGNAL} $(cat "/tmp/${USER}/openvpn.pid")
 # On termination, openvpn will remove the PID file
 ```
 
+## Windows
+### VPN DNS Resolution
+There is an issue where the DNS server for the VPN adapter is not used when resolving hostnames.  This is due to the interface metric of the VPN loosing to the metric of your normal network adapter.  Run the following command to look up the IP of a server in the Azure environment and test if this is an issue .  For example:
+
+```
+nslookup pdh<env>-pgsql.postgres.database.azure.com
+For example:
+nslookup pdhstaging-pgsql.postgres.database.azure.com
+```
+
+should return an IP address in the 10.0.0.0/8 range which is in the range used by the VPN.  If you see an address outside of this 10.0.0.0/8 range then continue with the instructions here to fix this issue.
+
+To fix this issue:
+1. Open Control Panel as an administrator
+2. Choose Network and Internet, and then choose Network Connections.
+3. Right-click the TAP-Windows Adapter V9 tap adapter.
+4. Choose Properties, and then choose Internet Protocol Version 4.
+5. Choose Properties, and then choose Advanced.
+6. Clear the Automatic Metric box.
+7. Enter 1 for Interface Metric.
+8. Choose OK.
+
+Run the Windows command `netsh interface ip show config` to verify the InterfaceMetric value has change to 1 for the OpenVPN TAP-Windows interface.  For example:
+
+```
+Configuration for interface "OpenVPN TAP-Windows6"
+    DHCP enabled:                         Yes
+    IP Address:                           192.168.10.5
+    Subnet Prefix:                        192.168.10.0/24 (mask 255.255.255.0)
+    InterfaceMetric:                      1
+    DNS servers configured through DHCP:  10.0.2.5
+    Register with which suffix:           Primary only
+    WINS servers configured through DHCP: None
+```
+
+Reference: https://aws.amazon.com/premiumsupport/knowledge-center/client-vpn-fix-dns-query-forwarding/ - it says that changing this setting via the control panel does not work, but this has been confirmed to work.
+
 ## Troubleshooting
 - **Trouble Accessing Items in the Azure Portal?**
 

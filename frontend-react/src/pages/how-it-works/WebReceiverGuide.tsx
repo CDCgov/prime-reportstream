@@ -1,3 +1,4 @@
+import site from "../../content/site.json";
 export const WebReceiverGuide = () => {
     return (
         <>
@@ -17,12 +18,11 @@ export const WebReceiverGuide = () => {
                 >
                     Download this guide
                 </a>
-                <a
-                    href="mailto:reportstream@cdc.gov"
-                    className="usa-button usa-button--outline"
-                >
-                    Contact us
-                </a>
+                <a href={
+                    "mailto:" +
+                    site.orgs.RS.email +
+                    "?subject=Getting started with ReportStream"
+                } className="usa-button usa-button--outline">Contact us</a>
             </section>
             <hr className="margin-y-6" />
             <section>
@@ -222,10 +222,12 @@ export const WebReceiverGuide = () => {
                 <h4>Support</h4>
                 <p>
                     Do you have questions, problems, or bugs to report? Email
-                    the team at{" "}
-                    <a href="mailto:reportstream@cdc.gov" className="usa-link">
-                        reportstream@cdc.gov
-                    </a>{" "}
+                    the team at
+                    <a href={
+                        "mailto:" +
+                        site.orgs.RS.email +
+                        "?subject=Getting started with ReportStream"
+                    } className="margin-left-1 margin-right-1">reportstream@cdc.gov</a>
                     for help.
                 </p>
 
