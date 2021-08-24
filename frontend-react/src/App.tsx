@@ -19,7 +19,7 @@ import { About } from "./pages/About";
 import {AuthorizedRoute} from "./components/AuthorizedRoute";
 import {PERMISSIONS} from "./resources/PermissionsResource";
 import {permissionCheck, reportReceiver} from "./webreceiver-utils";
-import Upload from "./pages/Upload";
+import { Upload } from "./pages/Upload";
 
 const oktaAuth = new OktaAuth(oktaAuthConfig);
 

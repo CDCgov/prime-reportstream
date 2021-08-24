@@ -14,7 +14,7 @@ import {groupToOrg} from "../webreceiver-utils";
 import OrganizationResource from "../resources/OrganizationResource";
 import moment from "moment";
 
-const Upload = () => {
+export const Upload = () => {
     const {authState} = useOktaAuth();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [file, setFile] = useState(null);
@@ -71,16 +71,17 @@ const Upload = () => {
         setWarnings([]);
         setErrors([]);
         setDestinations('');
-        //setHttpErrors('');
+        setHttpErrors('');
 
         if (file) {
             let response;
             try {
 
                 response = await uploadReport(file);
-                setWarnings(response.warnings);
-                setErrors(response.errors);
-                setDestinations(response.destinations.map(d => d['organization']).join(', '));
+
+                if (response.destinations && response.destinations.length) {
+                    setDestinations(response.destinations.map(d => d['organization']).join(', '));
+                }
 
                 if (response.id) {
                     setReportId(response.id);
@@ -103,10 +104,13 @@ const Upload = () => {
 
             } catch (error) {
                 console.log(error);
-                if (typeof error === 'object') {
+                if (response && response.errors) {
+                    setErrors(response.errors);
+                } else if (typeof error === 'object') {
                     setErrors(error);
                 } else {
-                    setHttpErrors(error);
+                    // just in case the error is not a string, convert it to a string
+                    setHttpErrors(String(error));
                 }
                 setButtonText('Upload my edited file');
             }
@@ -201,7 +205,7 @@ const Upload = () => {
                             <p className="usa-alert__text">
                                 Your file has been accepted. However, we detected fields that are unusable. These
                                 are crucial for public health action. Please consider editing your file and uploading a
-                                new  that addresses these issues.
+                                new that addresses these issues.
                             </p>
                         </div>
                     </div>
@@ -260,23 +264,21 @@ const Upload = () => {
                     />
                 </FormGroup>
                 <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting && (
-                        <i
-                        className="fa fa-refresh fa-spin"
-                        style={{ marginRight: "5px" }}
-                        />
-                    )
-                }
+                    {
+                        isSubmitting && (
+                            <span>
+                                <i
+                                    className="fa fa-refresh fa-spin"
+                                    style={{marginRight: "5px"}}
+                                />
+                                <span>Processing file...</span>
+                            </span>
+                        )
+                    }
 
-                {!isSubmitting && <span>Upload my edited file</span>}
-                {isSubmitting && <span>Processing file...</span>}
-                    
-                    
-
+                    {!isSubmitting && <span>{buttonText}</span>}
                 </Button>
             </Form>
         </div>
     );
 }
-
-export default Upload;
