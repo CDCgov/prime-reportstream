@@ -459,12 +459,12 @@ abstract class CoolTest {
         val redoxReceiver = settings.receivers.filter { it.organizationName == orgName && it.name == "REDOX" }[0]
         val hl7NullReceiver = settings.receivers.filter { it.organizationName == orgName && it.name == "HL7_NULL" }[0]
 
-        lateinit var allGoodReceivers:  MutableList<Receiver>
+        lateinit var allGoodReceivers: MutableList<Receiver>
         lateinit var allGoodCounties: String
 
         fun initListOfGoodReceiversAndCounties(env: ReportStreamEnv) {
             allGoodReceivers = mutableListOf(csvReceiver, hl7Receiver, hl7BatchReceiver, hl7NullReceiver)
-            if (env == ReportStreamEnv.LOCAL){
+            if (env == ReportStreamEnv.LOCAL) {
                 allGoodReceivers.add(redoxReceiver)
             }
 
@@ -1016,7 +1016,7 @@ class RepeatWaters : CoolTest() {
         }
         echo("$name Test took ${elapsed.inWholeSeconds} seconds. Expected pace/hr: $pace.")
         if (elapsed.inWholeSeconds > 600) {
-            // pace calculation is inaccurate for short times, due to the hack long wait at the end.
+            // pace calculation is inaccurate for short times, due to the kluge long wait at the end.
             val actualPace = (totalItems / elapsed.inWholeSeconds) * 3600
             echo(" Actual pace: $actualPace")
         }
