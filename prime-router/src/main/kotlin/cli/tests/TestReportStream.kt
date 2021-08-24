@@ -459,14 +459,15 @@ abstract class CoolTest {
         val redoxReceiver = settings.receivers.filter { it.organizationName == orgName && it.name == "REDOX" }[0]
         val hl7NullReceiver = settings.receivers.filter { it.organizationName == orgName && it.name == "HL7_NULL" }[0]
 
-        lateinit var allGoodReceivers:  List<Receiver>
+        lateinit var allGoodReceivers:  MutableList<Receiver>
         lateinit var allGoodCounties: String
 
         fun initListOfGoodReceiversAndCounties(env: ReportStreamEnv) {
-           allGoodReceivers = if (env == ReportStreamEnv.LOCAL)
-               listOf(csvReceiver, hl7Receiver, hl7BatchReceiver, redoxReceiver, hl7NullReceiver)
-            else
-                listOf(csvReceiver, hl7Receiver, hl7BatchReceiver, hl7NullReceiver)
+            allGoodReceivers = mutableListOf(csvReceiver, hl7Receiver, hl7BatchReceiver, hl7NullReceiver)
+            if (env == ReportStreamEnv.LOCAL){
+                allGoodReceivers.add(redoxReceiver)
+            }
+
             allGoodCounties = allGoodReceivers.map { it.name }.joinToString(",")
         }
 
