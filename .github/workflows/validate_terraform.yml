@@ -37,6 +37,10 @@ jobs:
       - name: Check Out Changes
         uses: actions/checkout@v2
 
+      - name: Verify Terraform Formatting
+        run: |
+          make tf-cmd TF_CMD="terraform fmt -check -recursive /app/src"
+
       - name: Validate All Terraform Modules
         run: |
           make TF_ENV=staging tf-validate
