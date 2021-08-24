@@ -1,9 +1,9 @@
-# Run this:  ./prime multiple-settings set --input ./settings/staging/0039-hhsprotect.yml --env staging
+# Run this:  ./prime receiver set --input ./settings/staging/0039-hhsprotect.yml --env staging
 ---
 name: "elr"
 organizationName: "hhsprotect"
 topic: "covid-19"
-translation: !<CUSTOM>
+translation:
   schemaName: "hhsprotect/hhsprotect-covid-19"
   format: "CSV"
   defaults: {}
@@ -23,7 +23,7 @@ timing:
   timeZone: "EASTERN"
   maxReportCount: 500
 description: ""
-transport: !<BLOBSTORE>
+transport:
   storageName: "PartnerStorage"
   containerName: "hhsprotect"
   type: "BLOBSTORE"
