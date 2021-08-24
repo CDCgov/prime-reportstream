@@ -12,7 +12,7 @@
     "devDependencies": {
         "@11ty/eleventy": "^0.12.1",
         "@fortawesome/fontawesome-free": "^5.15.4",
-        "autoprefixer": "^10.3.1",
+        "autoprefixer": "^10.3.2",
         "cross-env": "^7.0.3",
         "eslint": "^7.32.0",
         "express": "^4.17.1",
