@@ -4,6 +4,11 @@ import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 
+enum class FtpsProtocol {
+    SSL,
+    TLS
+}
+
 @JsonTypeInfo(
     use = JsonTypeInfo.Id.NAME,
     include = JsonTypeInfo.As.EXISTING_PROPERTY,
@@ -70,7 +75,7 @@ data class FTPSTransportType
     val port: Int,
     val username: String,
     val password: String,
-    val protocol: String = "SSL", // TODO: make enum SSL/TLS
+    val protocol: FtpsProtocol = FtpsProtocol.SSL,
     val binaryTransfer: Boolean = true,
     /**
      * @param acceptAllCerts  pass true to ignore all cert checks, helpful for testing

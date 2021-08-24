@@ -1,10 +1,7 @@
 package gov.cdc.prime.router.transport
 
 import com.microsoft.azure.functions.ExecutionContext
-import gov.cdc.prime.router.FTPSTransportType
-import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.ReportId
-import gov.cdc.prime.router.TransportType
+import gov.cdc.prime.router.*
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
@@ -114,12 +111,12 @@ class FTPSTransport : ITransport, Logging {
             val port: Int = ftpsTransportType.port
             val username: String = ftpsTransportType.username
             val password: String = ftpsTransportType.password
-            val protocol: String = ftpsTransportType.protocol
+            val protocol: FtpsProtocol = ftpsTransportType.protocol
             val server: String = ftpsTransportType.host
             val binaryTransfer: Boolean = ftpsTransportType.binaryTransfer
             val acceptAllCerts: Boolean = ftpsTransportType.acceptAllCerts
 
-            val ftpsClient = FTPSClient(protocol)
+            val ftpsClient = FTPSClient(protocol.toString())
             ftpsClient.addProtocolCommandListener(PrintCommandListener(PrintWriter(System.out)))
             try {
 

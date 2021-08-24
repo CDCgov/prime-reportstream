@@ -2528,10 +2528,34 @@
         initialTime: 00:00
         timeZone: EASTERN
       transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+
+- name: wy-phd
+  description: Wyoming Public Health Department (FTPS)
+  jurisdiction: STATE
+  stateCode: WY
+  receivers:
+    - name: elr
+      organizationName: wy-phd
+      topic: covid-19
+      jurisdictionalFilter:
+        - orEquals(ordering_facility_state, WY, patient_state, WY)
+      translation:
+        type: HL7
+        useBatchHeaders: true
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+        timeZone: EASTERN
+      transport:
         type: FTPS
         host: ftps
         username: ftps
         password: ftps
         port: 21
         acceptAllCerts: true
-

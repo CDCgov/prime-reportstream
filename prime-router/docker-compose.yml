@@ -74,10 +74,10 @@ services:
       - "21000:21"
       - "30000-30009:30000-30009"
     volumes:
-      - ftps_volume:/home/ftpusers
-      - ftps_volume:/etc/ssl/private
-      - ftps_volume:/etc/pure-ftpd/passwd/
-      - ftps_volume:/var/log/pure-ftpd/
+      - ./build/ftps:/home/ftpusers
+      - ./build/ftps:/etc/ssl/private
+      - ./build/ftps:/etc/pure-ftpd/passwd/
+      - ./build/ftps:/var/log/pure-ftpd/
     environment:
       PUBLICHOST: "ftps"
       FTP_USER_NAME: ftps
@@ -158,8 +158,7 @@ services:
 volumes:
   # For storing a local encrypted secrets database
   vault:
-  # ftps server
-  ftps_volume:
+
 
 
 
