@@ -157,8 +157,8 @@ class RedoxTransport() : ITransport, SecretManagement {
     private fun getKeyAndSecret(redox: RedoxTransportType): Pair<String, String> {
         // Dev Note: The Redox API key doesn't change, while the secret can
         // If there is no secret set in the environment then set a dummy one for the local environment.
-        val secret = secretService.fetchSecret(secretEnvName) ?:
-            if ("local" == System.getenv("PRIME_ENVIRONMENT")) "some_secret" else ""
+        val secret = secretService.fetchSecret(secretEnvName)
+            ?: if ("local" == System.getenv("PRIME_ENVIRONMENT")) "some_secret" else ""
         if (secret.isBlank()) error("Unable to find $secretEnvName")
         return Pair(redox.apiKey, secret)
     }
