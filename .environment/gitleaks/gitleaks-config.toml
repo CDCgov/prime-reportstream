@@ -248,6 +248,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
             '127\.(\d+\.){2}\d+',                       # Cheapo 127.0.0.0/8 range
             '165.225.48.87',                            # zScaler
             '172\.(1[6-9]|2[0-9]|3[0-1])\.',            # 172.16.0.0/12 (172.16.0.0.0 -> 172.31.255.255) range is private
+            '192\.168.\d+\.\d+',                        # Cheapo 192.168.0.0/16 range
             'receivingApplicationOID',
             'receivingFacilityOID',
             'reportingFacilityId',
