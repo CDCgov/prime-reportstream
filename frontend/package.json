@@ -31,7 +31,7 @@
         "postcss-csso": "^5.0.1",
         "rimraf": "^3.0.2",
         "sass": "^1.37.5",
-        "uswds": "^2.12.0",
+        "uswds": "^2.12.1",
         "uswds-gulp": "github:uswds/uswds-gulp"
     },
     "scripts": {
