@@ -14,7 +14,6 @@ jobs:
     name: Pre Job
     runs-on: ubuntu-latest
     outputs:
-      has_frontend_change: ${{ steps.frontend.outputs.frontend }}
       has_react_change: ${{ steps.frontend.outputs.frontend-react }}
     steps:
       - name: "Check out changes"
@@ -24,36 +23,8 @@ jobs:
         with:
           list-files: csv
           filters: |
-            frontend:
-              - '/frontend/**'
             frontend-react:
               -'/frontend-react/**'
-
-  build_frontend:
-    name: Build Frontend
-    needs: pre_job
-    if: ${{ needs.pre_job.outputs.has_frontend_change == 'true' }}
-    runs-on: ubuntu-latest
-
-    defaults:
-      run:
-        working-directory: frontend
-
-    steps:
-      - name: "Check out changes"
-        uses: actions/checkout@v2
-
-      - name: Run Build Script
-        run: bash ci_build.bash
-
-      - name: Save Static Website
-        uses: actions/upload-artifact@v2
-        with:
-          name: static_website
-          path: frontend/dist
-
-      - name: Validate static website server
-        run: bash ci_validate.bash
 
   build_frontend_react:
     name: Build Frontend React
