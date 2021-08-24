@@ -499,7 +499,7 @@ dependencies {
     implementation("com.github.javafaker:javafaker:1.0.2")
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
-    implementation("com.googlecode.libphonenumber:libphonenumber:8.12.29")
+    implementation("com.googlecode.libphonenumber:libphonenumber:8.12.31")
     implementation("org.thymeleaf:thymeleaf:3.0.12.RELEASE")
     implementation("com.sendgrid:sendgrid-java:4.7.4")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.1")
