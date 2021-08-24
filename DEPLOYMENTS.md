@@ -17,9 +17,9 @@ The GitHub Action automatically deploys changes in the following branches to the
 
 Code merged to the above branches always go through a PR review.
 
-The deployment process is zero-downtime with a blue/green deployment process used [via Azure Function deployment slots](https://docs.microsoft.com/en-us/azure/azure-functions/functions-deployment-slots). The deployment process is documented in PR #1318.
+The deployment process is zero-downtime with a blue/green deployment process used [via Azure Function deployment slots](https://docs.microsoft.com/en-us/azure/azure-functions/functions-deployment-slots). The deployment process is [documented in PR #1318](https://github.com/CDCgov/prime-reportstream/issues/1318).
 
-Smoke tests are run manually after a deployment, but in the near future the will run automatically before directing traffic to the newly deployed code (work tracked in #656).
+Smoke tests are run manually after a deployment, but in the near future the will run automatically before directing traffic to the newly deployed code ([work tracked in #656](https://github.com/CDCgov/prime-reportstream/issues/656)).
 
 ## What is deployed?
 
@@ -29,7 +29,7 @@ The GitHub Action deploys changes in the following directories:
 |:--|:--|
 | [/prime-router](/prime-router) | New version released to Azure Functions |
 | [/frontend](/frontend) | Static site served via an Azure Storage Account |
-| [/operations](/operations) | Not deployed. Coming soon in #578 |
+| [/operations](/operations) | Not deployed. [Coming soon in #578](https://github.com/CDCgov/prime-reportstream/issues/578) |
 
 ## What is our deployment process for production?
 
