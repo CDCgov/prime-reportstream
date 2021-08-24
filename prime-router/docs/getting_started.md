@@ -447,7 +447,7 @@ PRIME_DATA_HUB_INSECURE_SSL=true docker-compose build
 1. SFTP Upload Permission denied - If you get a Permission Denied exception in the logs then it is most likely the atmoz/sftp
    Docker container has the incorrect permissions for the folder used by the local SFTP server.
 
-`FAILED Sftp upload of inputReportId xxxx to SFTPTransportType(host=sftp, port=22, filePath=./upload, credentialName=DEFAULT-SFTP) (orgService = ignore.HL7), Exception: Permission denied`
+`FAILED Sftp upload of inputReportId xxxx to SFTPTransportType(...) (orgService = ignore.HL7), Exception: Permission denied`
 
 Run the following command to change the permissions for the folder:
 ```bash
