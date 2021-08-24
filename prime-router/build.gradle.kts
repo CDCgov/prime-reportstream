@@ -324,6 +324,47 @@ tasks.register("copyAzureScripts") {
     }
 }
 
+tasks.azureFunctionsPackage {
+    finalizedBy("copyAzureResources")
+    finalizedBy("copyAzureScripts")
+}
+
+tasks.azureFunctionsRun {
+    // This storage account key is not a secret, just a dummy value.
+    val devAzureConnectString =
+        "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=" +
+            "Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=" +
+            "http://localhost:10000/devstoreaccount1;QueueEndpoint=http://localhost:10001/devstoreaccount1;"
+    environment(
+        mapOf(
+            "AzureWebJobsStorage" to devAzureConnectString,
+            "PartnerStorage" to devAzureConnectString,
+            "POSTGRES_USER" to dbUser,
+            "POSTGRES_PASSWORD" to dbPassword,
+            "POSTGRES_URL" to dbUrl,
+            "PRIME_ENVIRONMENT" to "local",
+            "REDOX_SECRET" to "some_secret",
+            "VAULT_API_ADDR" to "http://localhost:8200"
+        )
+    )
+    azurefunctions.localDebug = "transport=dt_socket,server=y,suspend=n,address=5005"
+}
+
+tasks.register("run") {
+    group = rootProject.description ?: ""
+    description = "Run the Azure functions locally.  Note this needs the required services running as well"
+    dependsOn("azureFunctionsRun")
+}
+
+tasks.register("quickRun") {
+    dependsOn("azureFunctionsRun")
+    tasks["test"].enabled = false
+    tasks["jacocoTestReport"].enabled = false
+    tasks["compileTestKotlin"].enabled = false
+    tasks["migrate"].enabled = false
+    tasks["flywayMigrate"].enabled = false
+}
+
 // Configuration for Flyway migration tool
 flyway {
     url = dbUrl
@@ -398,8 +439,6 @@ tasks.register("package") {
     group = rootProject.description ?: ""
     description = "Package the code and necessary files to run the Azure functions"
     dependsOn("azureFunctionsPackage")
-    dependsOn("copyAzureResources")
-    dependsOn("copyAzureScripts")
     dependsOn("fatJar")
 }
 
@@ -460,7 +499,7 @@ dependencies {
     implementation("com.github.javafaker:javafaker:1.0.2")
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
-    implementation("com.googlecode.libphonenumber:libphonenumber:8.12.29")
+    implementation("com.googlecode.libphonenumber:libphonenumber:8.12.31")
     implementation("org.thymeleaf:thymeleaf:3.0.12.RELEASE")
     implementation("com.sendgrid:sendgrid-java:4.7.4")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.1")
