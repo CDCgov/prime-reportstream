@@ -9,12 +9,6 @@ permalink: "{{ title | slug }}/"
 ---
 
 
-
-<div id="okta-login-container"></div>
-<script>
-    login();
-</script>
-
 <section class="usa-section margin-y-0 tablet:padding-top-4 tablet:padding-bottom-2" role="region">
     <div class="grid-row grid-gap">
         <div class="tablet:grid-col-8 tablet:grid-offset-2">
@@ -25,10 +19,16 @@ permalink: "{{ title | slug }}/"
                         no
                         expectation of privacy. Misuse is subject to criminal and civil penalties. By logging in, you
                         are agreeing
-                        to our terms of service.
+                        to our <a href="/terms-of-service/" class="usa-identifier__required-link usa-link">terms of
+                            service</a>
                     </p>
                 </div>
             </div>
         </div>
     </div>
 </section>
+
+<div id="okta-login-container"></div>
+<script>
+    login();
+</script>
