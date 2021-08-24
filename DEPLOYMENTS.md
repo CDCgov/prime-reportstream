@@ -16,7 +16,7 @@ We automatically deploy changes through [GitHub Actions](.github/workflows/relea
 The deployment process is zero-downtime with a blue/green deployment process used [via Azure Function deployment slots](https://docs.microsoft.com/en-us/azure/azure-functions/functions-deployment-slots). The deployment process is [documented in PR #1318](https://github.com/CDCgov/prime-reportstream/issues/1318).
 
 Our CI/CD pipeline does not run the Smoke Tests; therefor you *must* run the Smoke tests manually after every deployment. While this will change in the near future (i.e. in the future, they _will_ be included in the pipeline), until that time, *you must run the Smoke tests manually and validate they complete successfully* before directing _any_ traffic to the newly deployed code.
-You can track #656 for the status on running the Smoke tests automatically.
+You can track [#656](https://github.com/CDCgov/prime-reportstream/issues/656) for the status on running the Smoke tests automatically.
 
 ## What is deployed?
 
@@ -41,9 +41,12 @@ The cutoff time is automatically enforced via automatic branching from `master` 
 
 1. At the specified cut-off time (Mondays and Wednesdays at noon ET), the GitHub action creates a new branch named `deployment/YYYY-MM-DD` (where the YYYY-MM-DD is `today + 1day`, i.e. the date of the deployment, not the date of the branching) which branches from `master`. This branch now contains everything that was present in `master` at that cut-off time. This is the content that is/will be part of the production deployment.
 1. A new PR from the deployment branch is filed to merge `deployment/YYYY-MM-DD` into `production`. The PR has title `"Deployment of YYYY-MM-DD"` and is tagged with the [`deployment` tag](https://github.com/CDCgov/prime-reportstream/issues?q=label%3Adeployment).
-2. The contents of `master` is deployed to the staging environment for verification
+1. The contents of `master` is deployed to the staging environment for verification
     * Manual testing takes place
-3. The PR is reviewed by the team
-4. The PR is merged during the specified deployment window by an approved team member.   Note: Special care must be taken if the release includes schema changes that add or remove data elements for receivers whose data is waiting for the `batch` step at the time of deployment.    Inconsistencies between data models and actual internal data can cause errors.  At this time, our solution has been to do the deployments at times when there is no work-in-progress (WIP) in the system.
-5. The GitHub Action deploys the PR to the production environment
-6. A smoke test is run against production
+1. The PR is reviewed by the team
+1. The PR is merged during the specified deployment window by an approved team member.
+    * **Note:** Special care must be taken if the release includes schema changes that add or remove data elements for receivers whose data is waiting for the `batch` step at the time of deployment.
+    * Inconsistencies between data models and actual internal data can cause errors.
+    * At this time, our solution has been to do the deployments at times when there is no work-in-progress (WIP) in the system.
+1. The GitHub Action deploys the PR to the production environment
+1. A smoke test is run against production
