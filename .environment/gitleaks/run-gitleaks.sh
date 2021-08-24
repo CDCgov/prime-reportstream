@@ -76,7 +76,7 @@ function scan_no_git() {
         -v "${REPO_ROOT?}:${CONTAINER_SOURCE_LOCATION?}" \
         "${GITLEAKS_IMG_NAME?}" \
         --path="${CONTAINER_LOCATION?}" \
-        --config-path="${CONTAINER_SOURCE_LOCATION?}/${REPO_CONFIG_PATH?}" \
+        --config-path="${CONTAINER_LOCATION?}/${REPO_CONFIG_PATH?}" \
         --report="${CONTAINER_LOCATION?}/${REPORT_JSON?}" \
         $(if [[ ${VERBOSE?} != 0 ]]; then echo "--verbose"; else echo ""; fi) \
         --no-git \

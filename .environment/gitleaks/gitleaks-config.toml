@@ -16,12 +16,16 @@ title = "PRIME ReportStream Gitleaks Configuration"
         '.terraform/providers/',
         'frontend-react/build/',
         'frontend-react/node_modules/',
+        'frontend/node_modules/',
+        'frontend/dist',
+        'frontend/src/assets',
         'prime-router/.gradle/',
         'prime-router/build/',
         'prime-router/docs/dependency-graph-full/dependency-graph-full.txt',
         'prime-router/docs/schema_documentation/',
         'prime-router/src/test/csv_test_files/input/',
         'prime-router/src/main/kotlin/cli/tests/TestKeys.kt',
+        'prime-router/.vault/env/',
     ]
 
 [[rules]]
@@ -244,6 +248,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
             '([0-1])\.0\.0\.0',
             '\d+\.\d+\.\d+\.\d+\.',                     # Fix for bug in regex (allows trailing dots)
             '1\.1\.1\.1',                               # Public DNS
+            '192\.(\d+\.){2}\d+',                        # Cheapo 10.0.0.0/8 range
             '10\.(\d+\.){2}\d+',                        # Cheapo 10.0.0.0/8 range
             '127\.(\d+\.){2}\d+',                       # Cheapo 127.0.0.0/8 range
             '165.225.48.87',                            # zScaler

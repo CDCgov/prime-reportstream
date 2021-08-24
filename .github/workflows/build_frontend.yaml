@@ -14,12 +14,7 @@ jobs:
     name: Pre Job
     runs-on: ubuntu-latest
     outputs:
-<<<<<<< Updated upstream
       has_frontend_change: ${{ steps.skip_check.outputs.frontend }}
-=======
-      has_frontend_change: ${{ steps.frontend.outputs.frontend }}
-      has_react_change: 'true'
->>>>>>> Stashed changes
     steps:
       - name: "Check out changes"
         uses: actions/checkout@v2
@@ -29,7 +24,7 @@ jobs:
           list-files: csv
           filters: |
             frontend:
-              - 'frontend-react/**'
+              - 'frontend/**'
               - '.github/workflows/build_frontend.yml'
 
   build_frontend:
