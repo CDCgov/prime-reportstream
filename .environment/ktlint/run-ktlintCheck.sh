@@ -17,32 +17,40 @@
 
 # exit ${RC}
 
-
+echo "checking for ktlint code violations..."
 # This gets the list of staged files that will be included in the commit (removed files are ignored).
 # If a file is only partially staged (some changes in it are unstaged), then the file is not included
 # in checks. That is because the checks re-add the file to ensure autocorrected fixes are included
 # in the commit, and we don't want to add the whole file since that would mess with the intention
 # of partial staging.
-stagedFilename=.tmpStagedFiles
-unstagedFilename=.tmpUnstagedFiles
+stagedFile=.tmpStagedFiles
+unstagedFile=.tmpUnstagedFiles
+RC=0
 
 git diff --cached --name-only --diff-filter=ACM | grep '\.kt[s"]\?$' | sort > $stagedFilename
 git diff --name-only --diff-filter=ACM | grep '\.kt[s"]\?$' | sort > $unstagedFilename
 
+function error() {
+    echo "Gitleaks> ERROR: Your code has ktlint format violations!"
+}
+
 # This returns a list of lines that are only in the staged list
-filesToCheck=$(comm -23 $stagedFilename $unstagedFilename | tr '\n' ' ')
+filesToCheck=$(comm -23 $stagedFile $unstagedFile | tr '\n' ' ')
 
-# Delete the files, which were created for temporary processing
-rm -f $stagedFilename
-rm -f $unstagedFilename
+# Delete temp files
+rm -f $stagedFile
+rm -f $unstagedFile
 
-# If the list of files is not empty then run checks on them
+# Run ktlintCheck
 if [ ! -z "$filesToCheck" ]
 then
 	ktlint --check $filesToCheck
-	if [ $? -ne 0 ]; then exit 1; fi
-	# If we haven't exited because of an error it means we were able to
-	# fix issues with autocorrect. However, we need to add the changes in
-	# order for them to be included in the pending commit.
+	if [ $? -ne 0 ]; then
+    error
+    exit 1 
+    fi
+	# If no code violations are found, we add the changes
 	git add $filesToCheck
 fi
+
+exit ${RC}
