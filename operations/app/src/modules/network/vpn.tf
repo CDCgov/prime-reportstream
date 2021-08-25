@@ -106,10 +106,10 @@ resource "azurerm_subnet" "gateway_subnet" {
   name = "GatewaySubnet"
 
   resource_group_name  = var.resource_group
-  virtual_network_name = local.vnet_primary.name
+  virtual_network_name = local.vnet_primary_name
 
   address_prefixes = [
-    local.vnet_subnets_cidrs[local.vnet_primary.name][4],
+    module.subnet_addresses[local.vnet_primary_name].network_cidr_blocks["GatewaySubnet"],
   ]
 }
 

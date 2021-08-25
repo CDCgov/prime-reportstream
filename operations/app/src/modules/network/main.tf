@@ -1,3 +1,39 @@
+/* Subnet CIDRs */
+module "subnet_addresses" {
+  for_each = data.azurerm_virtual_network.vnet
+
+  source  = "hashicorp/subnets/cidr"
+  version = "1.0.0"
+
+  // VNETs can have multiple address spaces associated with them; we are using the first CIDR to create out subnets
+  base_cidr_block = each.value.address_space[0]
+
+  // If additional subnets need to be added or created in the future, read the module documentation to ensure CIDRs remain the same
+  // https://registry.terraform.io/modules/hashicorp/subnets/cidr/latest
+  networks = [
+    {
+      name     = "public"
+      new_bits = 3
+    },
+    {
+      name     = "container"
+      new_bits = 3
+    },
+    {
+      name     = "private"
+      new_bits = 3
+    },
+    {
+      name     = "endpoint"
+      new_bits = 3
+    },
+    {
+      name     = "GatewaySubnet"
+      new_bits = 2
+    },
+  ]
+}
+
 /* Network security groups */
 resource "azurerm_network_security_group" "vnet_nsg_public" {
   for_each = data.azurerm_virtual_network.vnet
@@ -22,9 +58,9 @@ resource "azurerm_subnet" "public_subnet" {
 
   name                 = "public"
   resource_group_name  = var.resource_group
-  virtual_network_name = each.value.name
+  virtual_network_name = each.key
   address_prefixes = [
-    local.vnet_subnets_cidrs[each.value.name][0],
+    module.subnet_addresses[each.key].network_cidr_blocks["public"],
   ]
   service_endpoints = [
     "Microsoft.ContainerRegistry",
@@ -58,9 +94,9 @@ resource "azurerm_subnet" "container_subnet" {
 
   name                 = "container"
   resource_group_name  = var.resource_group
-  virtual_network_name = each.value.name
+  virtual_network_name = each.key
   address_prefixes = [
-    local.vnet_subnets_cidrs[each.value.name][1],
+    module.subnet_addresses[each.key].network_cidr_blocks["container"],
   ]
   service_endpoints = [
     "Microsoft.Storage",
@@ -91,9 +127,9 @@ resource "azurerm_subnet" "private_subnet" {
 
   name                 = "private"
   resource_group_name  = var.resource_group
-  virtual_network_name = each.value.name
+  virtual_network_name = each.key
   address_prefixes = [
-    local.vnet_subnets_cidrs[each.value.name][2],
+    module.subnet_addresses[each.key].network_cidr_blocks["private"],
   ]
   service_endpoints = [
     "Microsoft.Storage",
@@ -126,9 +162,9 @@ resource "azurerm_subnet" "endpoint_subnet" {
 
   name                 = "endpoint"
   resource_group_name  = var.resource_group
-  virtual_network_name = each.value.name
+  virtual_network_name = each.key
   address_prefixes = [
-    local.vnet_subnets_cidrs[each.value.name][3],
+    module.subnet_addresses[each.key].network_cidr_blocks["endpoint"],
   ]
   service_endpoints = [
     "Microsoft.Storage"
