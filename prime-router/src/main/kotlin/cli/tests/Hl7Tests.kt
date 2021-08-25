@@ -18,6 +18,7 @@ class Hl7Ingest : CoolTest() {
     override val status = TestStatus.SMOKE
 
     override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+        initListOfGoodReceiversAndCounties(environment)
         var passed = true
         val sender = hl7Sender
         val receivers = allGoodReceivers
@@ -133,8 +134,18 @@ SPM|1|b518ef23-1d9a-40c1-ac4b-ed7b438dfc4b||258500001^Nasopharyngeal swab^SCT|||
             Pair("XML FILE", xml_data),
             Pair("JSON", "{\"alive\": true}"),
             /* Bad data */
-            Pair("Duplicate PID", strHl7Message + "PID|||||Richards^Mary||19340428|F|||||||||||||||||||\\nPID|||||||19700510105000|M|||||||||||||||||||"),
-            Pair("Only MSH", "MSH|^~\\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|Avante at Ormond Beach^10D0876999^CLIA|PRIME_DOH|Prime Data Hub|20210210170737||ORU^R01^ORU_R01|371784|P|2.5.1|||NE|NE|USA||||PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO"),
+            Pair(
+                "Duplicate PID",
+                strHl7Message + "PID|||||Richards^Mary||19340428|F|||||||||||||||||||\\nPID" +
+                    "|||||||19700510105000|M|||||||||||||||||||"
+            ),
+            Pair(
+                "Only MSH",
+                "MSH|^~\\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|" +
+                    "Avante at Ormond Beach^10D0876999^CLIA|PRIME_DOH|Prime Data Hub|20210210170737||" +
+                    "ORU^R01^ORU_R01|371784|P|2.5.1|||NE|NE|USA||||" +
+                    "PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO"
+            ),
             Pair("Partially Terminated", "MSH|^~\\&"),
             Pair("RANDOM TEXT", "foobar"),
             Pair("NON-UTF", "®"),
@@ -168,14 +179,20 @@ SPM|1|b518ef23-1d9a-40c1-ac4b-ed7b438dfc4b||258500001^Nasopharyngeal swab^SCT|||
                 if (errorCount > 0) {
                     good("Test for $name ${pair.first} passed: ErrorCount of $errorCount was returned.")
                 } else {
-                    bad("***Test for $name ${pair.first} FAILED***: Expected a non-zero ErrorCount, got $errorCount error(s)")
+                    bad(
+                        "***Test for $name ${pair.first} FAILED***: Expected a non-zero ErrorCount, got" +
+                            " $errorCount error(s)"
+                    )
                     failures.add("${pair.first}")
                 }
                 val warningCount = tree["warningCount"].intValue()
                 if (warningCount == 0) {
                     good("Test for BadHl7 ${pair.first} passed: $warningCount warning was returned.")
                 } else {
-                    bad("***Test for $name ${pair.first} FAILED***: Expected zero warning, got $warningCount warning(s)")
+                    bad(
+                        "***Test for $name ${pair.first} FAILED***: Expected zero warning, got " +
+                            "$warningCount warning(s)"
+                    )
                     failures.add("${pair.first}")
                 }
             } catch (e: NullPointerException) {

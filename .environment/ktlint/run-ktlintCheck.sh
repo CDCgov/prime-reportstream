@@ -25,7 +25,8 @@ rm -f $unstagedFile
 # Run ktlintCheck
 if [ ! -z "$filesToCheck" ]
 then
-	$(cd ${REPO_ROOT}/prime-router/ && ktlint --check $filesToCheck)
+	#$(cd ${REPO_ROOT}/prime-router/)
+    ktlint $filesToCheck
 	if [ $? -ne 0 ]; then
     error
     exit 1 

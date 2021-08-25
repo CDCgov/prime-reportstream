@@ -17,6 +17,9 @@ elements:
   - name: patient_suffix
     csvFields: [{name: Patient_suffix}]
 
+  - name: patient_tribal_citizenship
+    csvFields: [{name: Patient_tribal_affiliation}]
+
   # Patient ID is generated internally by SimpleReport
   - name: patient_id
     csvFields: [{name: Patient_ID}]
