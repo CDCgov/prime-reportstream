@@ -211,7 +211,9 @@ Examples:
             coolTestList.filter { it.status == TestStatus.SMOKE }
         }
         if (tests.isNotEmpty()) {
-            CoolTest.uglyToConsole("Running the following tests, POSTing to ${environment.urlPrefix}:")
+            TermUi.echo(
+                CoolTest.uglyMsgFormat("Running the following tests, POSTing to ${environment.urlPrefix}:")
+            )
             printTestList(tests)
             runTests(tests, environment)
         } else {
@@ -230,6 +232,9 @@ Examples:
         val failures = mutableListOf<CoolTest>()
         val options = CoolTestOptions(items, submits, key, dir, sftpDir = sftpDir, env = env, sender = sender)
 
+        /**
+         * Run a [test].
+         */
         suspend fun runTest(test: CoolTest) {
             echo("Running test ${test.name}...")
             if (!test.run(environment, options))
@@ -251,9 +256,14 @@ Examples:
         }
 
         if (failures.isNotEmpty()) {
-            CoolTest.badToConsole("*** Tests FAILED:  ${failures.map { it.name }.joinToString(",")} ***")
+            TermUi.echo(
+                CoolTest
+                    .badMsgFormat("*** Tests FAILED:  ${failures.map { it.name }.joinToString(",")} ***")
+            )
         } else {
-            CoolTest.goodToConsole("All tests passed")
+            TermUi.echo(
+                CoolTest.goodMsgFormat("All tests passed")
+            )
         }
     }
 
@@ -303,6 +313,10 @@ abstract class CoolTest {
     abstract val name: String
     abstract val description: String
     abstract val status: TestStatus
+
+    /**
+     * Stores a list of output messages instead of printing the messages to the console.
+     */
     private val outputMsgs = mutableListOf<String>()
 
     abstract suspend fun run(
@@ -312,28 +326,48 @@ abstract class CoolTest {
 
     lateinit var db: DatabaseAccess
 
+    /**
+     * Store a message [msg] string.
+     */
     fun storeMsg(msg: String) {
         outputMsgs.add(msg)
     }
 
+    /**
+     * Output all messages to the console.
+     */
     fun outputAllMsgs() {
         outputMsgs.forEach { TermUi.echo(it) }
     }
 
+    /**
+     * Store a good [msg] message.
+     * @return true
+     */
     fun good(msg: String): Boolean {
-        storeMsg(ANSI_GREEN + msg + ANSI_RESET)
+        storeMsg(goodMsgFormat(msg))
         return true
     }
 
+    /**
+     * Store a bad [msg] message.
+     * @return false
+     */
     fun bad(msg: String): Boolean {
-        storeMsg(ANSI_RED + msg + ANSI_RESET)
+        storeMsg(badMsgFormat(msg))
         return false
     }
 
+    /**
+     * Store an ugly [msg] message.
+     */
     fun ugly(msg: String) {
-        storeMsg(ANSI_CYAN + msg + ANSI_RESET)
+        storeMsg(uglyMsgFormat(msg))
     }
 
+    /**
+     * Store a [msg] message with no formatting.
+     */
     fun echo(msg: String = "") {
         storeMsg(msg)
     }
@@ -537,18 +571,28 @@ abstract class CoolTest {
         const val ANSI_BLUE = "\u001B[34m"
         const val ANSI_CYAN = "\u001B[36m"
 
-        fun goodToConsole(msg: String): Boolean {
-            echo(ANSI_GREEN + msg + ANSI_RESET)
-            return true
+        /**
+         * Format a [msg] string as a good message.
+         * @return a formatted message string
+         */
+        fun goodMsgFormat(msg: String): String {
+            return ANSI_GREEN + msg + ANSI_RESET
         }
 
-        fun badToConsole(msg: String): Boolean {
-            echo(ANSI_RED + msg + ANSI_RESET)
-            return false
+        /**
+         * Format a [msg] string as a bad message.
+         * @return a formatted message string
+         */
+        fun badMsgFormat(msg: String): String {
+            return ANSI_RED + msg + ANSI_RESET
         }
 
-        fun uglyToConsole(msg: String) {
-            echo(ANSI_CYAN + msg + ANSI_RESET)
+        /**
+         * Format a [msg] string as an ugly message.
+         * @return a formatted message string
+         */
+        fun uglyMsgFormat(msg: String): String {
+            return ANSI_CYAN + msg + ANSI_RESET
         }
 
         fun itemLineageCountQuery(
@@ -685,6 +729,14 @@ class Merge : CoolTest() {
     override val description = "Submit multiple files, wait, confirm via db that merge occurred"
     override val status = TestStatus.SMOKE
 
+    /**
+     * Examine the results stored in the database and compare the number of reports to the expected number.
+     * @param reportIds the list of report IDs that were sent to the API
+     * @param receivers the list of receivers the reports were sent to
+     * @param itemsPerReport the number of reports in each file sent
+     * @param reportCount the total number of reports sent
+     * @return true if the number of reports matches the expected, false otherwise
+     */
     fun examineMergeResults(
         reportIds: List<ReportId>,
         receivers: List<Receiver>,
