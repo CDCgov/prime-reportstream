@@ -21,11 +21,13 @@ export const Upload = () => {
     const [warnings, setWarnings] = useState([]);
     const [errors, setErrors] = useState([]);
     const [destinations, setDestinations] = useState('');
-    const [httpErrors, setHttpErrors] = useState('');
     const [reportId, setReportId] = useState(null);
     const [successTimestamp, setSuccessTimestamp] = useState('');
     const [buttonText, setButtonText] = useState('Upload');
     const [headerMessage, setHeaderMessage] = useState('Upload your COVID-19 results');
+    const [errorMessageText, setErrorMessageText] = useState(
+        `Please resolve the errors below and upload your edited file. Your file has not been accepted.`
+    );
 
     const claimsSenderOrganization = authState!.accessToken?.claims.organization.find(o => o.includes("DHSender"))
     const senderOrganization = claimsSenderOrganization.replace('Sender_', '');
@@ -44,17 +46,36 @@ export const Upload = () => {
 
     const uploadReport =
         async function postData(file) {
-            const response = await fetch(`${AuthResource.getBaseUrl()}/api/waters`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'text/csv',
-                    'client': client,
-                    'authentication-type': 'okta',
-                    'Authorization': `Bearer ${authState?.accessToken?.accessToken}`
-                },
-                body: file
-            });
-            return response.json();
+            try {
+                const response = await fetch(`${AuthResource.getBaseUrl()}/api/waters`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'text/csv',
+                        'client': 'not valid',
+                        'authentication-type': 'okta',
+                        'Authorization': `Bearer ${authState?.accessToken?.accessToken}`
+                    },
+                    body: file
+                });
+                if (response.ok) {
+                    return response.json();
+                }
+
+                return {
+                    ok: false,
+                    errors: [{
+                        details: `${response.status} ${response.statusText}`
+                    }]
+                };
+            } catch (error) {
+
+                return {
+                    ok: false,
+                    errors: [{
+                        details: error
+                    }]};
+            }
+
         }
 
     const handleChange = (event) => {
@@ -71,7 +92,6 @@ export const Upload = () => {
         setWarnings([]);
         setErrors([]);
         setDestinations('');
-        setHttpErrors('');
 
         if (file) {
             let response;
@@ -98,6 +118,9 @@ export const Upload = () => {
                 if (response.errors && response.errors.length) {
                     setErrors(response.errors);
                     setButtonText('Upload my edited file');
+                    if (!response.ok) {
+                        setErrorMessageText('There was a server error. Your file has not been accepted.');
+                    }
                 }
 
                 setHeaderMessage('Your COVID-19 Results');
@@ -106,11 +129,8 @@ export const Upload = () => {
                 console.log(error);
                 if (response && response.errors) {
                     setErrors(response.errors);
-                } else if (typeof error === 'object') {
-                    setErrors(error);
                 } else {
-                    // just in case the error is not a string, convert it to a string
-                    setHttpErrors(String(error));
+                    setErrors(error);
                 }
                 setButtonText('Upload my edited file');
             }
@@ -225,8 +245,7 @@ export const Upload = () => {
                         <div className="usa-alert__body">
                             <h4 className="usa-alert__heading">Error: File not accepted</h4>
                             <p className="usa-alert__text">
-                                Please resolve the errors below and upload your edited file. Your file has not been
-                                accepted.
+                                {errorMessageText}
                             </p>
                         </div>
                     </div>
@@ -235,17 +254,6 @@ export const Upload = () => {
                             return (<li key={i}>{e['details']}</li>);
                         })}
                     </ul>
-                </div>
-            )}
-
-            {httpErrors && (
-                <div className="usa-alert usa-alert--error" role="alert">
-                    <div className="usa-alert__body">
-                        <h4 className="usa-alert__heading">Error</h4>
-                        <p className="usa-alert__text">
-                            {httpErrors}
-                        </p>
-                    </div>
                 </div>
             )}
 
