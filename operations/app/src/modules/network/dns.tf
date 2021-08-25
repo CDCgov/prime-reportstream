@@ -1,3 +1,4 @@
+// This resource exists once per resource group
 resource "azurerm_private_dns_zone" "dns_zone_private" {
   for_each = toset(local.dns_zones_private)
 
@@ -5,20 +6,13 @@ resource "azurerm_private_dns_zone" "dns_zone_private" {
   resource_group_name = var.resource_group
 }
 
-resource "azurerm_private_dns_zone_virtual_network_link" "dns_zone_private_link_primary" {
-  for_each = azurerm_private_dns_zone.dns_zone_private
+// This resource exists once per vnet
+module "vnet_dns" {
+  for_each = data.azurerm_virtual_network.vnet
+  source   = "../common/vnet_dns_zones"
 
-  name                  = "${var.resource_prefix}-vnet-primary-${each.value.name}"
-  private_dns_zone_name = each.value.name
-  resource_group_name   = var.resource_group
-  virtual_network_id    = local.vnet_primary.id
-}
-
-resource "azurerm_private_dns_zone_virtual_network_link" "dns_zone_private_link_secondary" {
-  for_each = azurerm_private_dns_zone.dns_zone_private
-
-  name                  = "${var.resource_prefix}-vnet-secondary-${each.value.name}"
-  private_dns_zone_name = each.value.name
-  resource_group_name   = var.resource_group
-  virtual_network_id    = data.azurerm_virtual_network.vnet[local.vnet_names[1]].id
+  resource_prefix = var.resource_prefix
+  resource_group  = var.resource_group
+  dns_zone_names  = local.dns_zones_private
+  vnet            = each.value
 }
