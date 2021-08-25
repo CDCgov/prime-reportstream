@@ -109,7 +109,7 @@ resource "azurerm_subnet" "gateway_subnet" {
   virtual_network_name = local.vnet_primary.name
 
   address_prefixes = [
-    local.vnet_subnets[local.vnet_primary.name][4],
+    local.vnet_subnets_cidrs[local.vnet_primary.name][4],
   ]
 }
 

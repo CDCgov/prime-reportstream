@@ -24,7 +24,7 @@ resource "azurerm_subnet" "public_subnet" {
   resource_group_name  = var.resource_group
   virtual_network_name = each.value.name
   address_prefixes = [
-    local.vnet_subnets[each.value.name][0],
+    local.vnet_subnets_cidrs[each.value.name][0],
   ]
   service_endpoints = [
     "Microsoft.ContainerRegistry",
@@ -60,7 +60,7 @@ resource "azurerm_subnet" "container_subnet" {
   resource_group_name  = var.resource_group
   virtual_network_name = each.value.name
   address_prefixes = [
-    local.vnet_subnets[each.value.name][1],
+    local.vnet_subnets_cidrs[each.value.name][1],
   ]
   service_endpoints = [
     "Microsoft.Storage",
@@ -93,7 +93,7 @@ resource "azurerm_subnet" "private_subnet" {
   resource_group_name  = var.resource_group
   virtual_network_name = each.value.name
   address_prefixes = [
-    local.vnet_subnets[each.value.name][2],
+    local.vnet_subnets_cidrs[each.value.name][2],
   ]
   service_endpoints = [
     "Microsoft.Storage",
@@ -128,7 +128,7 @@ resource "azurerm_subnet" "endpoint_subnet" {
   resource_group_name  = var.resource_group
   virtual_network_name = each.value.name
   address_prefixes = [
-    local.vnet_subnets[each.value.name][3],
+    local.vnet_subnets_cidrs[each.value.name][3],
   ]
   service_endpoints = [
     "Microsoft.Storage"
