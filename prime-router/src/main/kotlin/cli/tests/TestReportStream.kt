@@ -230,13 +230,17 @@ Examples:
 
     private fun runTests(tests: List<CoolTest>, environment: ReportStreamEnv) {
         val failures = mutableListOf<CoolTest>()
-        val options = CoolTestOptions(items, submits, key, dir, sftpDir = sftpDir, env = env, sender = sender)
+        val options = CoolTestOptions(
+            items, submits, key, dir, sftpDir = sftpDir, env = env, sender = sender,
+            runSequential = runSequential
+        )
 
         /**
          * Run a [test].
          */
         suspend fun runTest(test: CoolTest) {
             echo("Running test ${test.name}...")
+            test.outputToConsole = options.runSequential
             if (!test.run(environment, options))
                 failures.add(test)
             echo("********************************")
@@ -306,13 +310,15 @@ data class CoolTestOptions(
     var muted: Boolean = false, // if true, print out less stuff,
     val sftpDir: String,
     val env: String,
-    val sender: String? = null
+    val sender: String? = null,
+    val runSequential: Boolean = false
 )
 
 abstract class CoolTest {
     abstract val name: String
     abstract val description: String
     abstract val status: TestStatus
+    var outputToConsole = false
 
     /**
      * Stores a list of output messages instead of printing the messages to the console.
@@ -329,8 +335,11 @@ abstract class CoolTest {
     /**
      * Store a message [msg] string.
      */
-    fun storeMsg(msg: String) {
-        outputMsgs.add(msg)
+    private fun storeMsg(msg: String) {
+        if (outputToConsole)
+            TermUi.echo(msg)
+        else
+            outputMsgs.add(msg)
     }
 
     /**
@@ -391,6 +400,7 @@ abstract class CoolTest {
         echo("Waiting $waitSecs seconds for ReportStream to fully receive, batch, and send the data")
         for (i in 1..waitSecs) {
             delay(1000)
+            if (outputToConsole) print(".")
         }
         echo()
     }
@@ -973,8 +983,8 @@ class Strac : CoolTest() {
             waitABit(25, environment)
             return passed and examineLineageResults(
                 reportId = reportId,
-                receivers = listOf(redoxReceiver),
-                totalItems = options.items
+                receivers = allGoodReceivers,
+                totalItems = fakeItemCount
             )
         } catch (e: Exception) {
             return bad("***strac Test FAILED***: Unexpected json returned")
