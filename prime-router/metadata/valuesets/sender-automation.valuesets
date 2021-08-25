@@ -66,9 +66,9 @@
       display: Black or African American
     - code: 2054-5
       display: African American
-   - code: 2054-5
+    - code: 2054-5
       display: African American Alaska Native
-   - code: 2054-5
+    - code: 2054-5
       display: African American Black
     - code: 2054-5
       display: Black
@@ -197,7 +197,7 @@
       display: U
     - code: 261665006
       display: UNK
-    - code: U
+    - code: 261665006
       display: N/A
 
 - name: sender-automation/test_result
