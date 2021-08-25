@@ -38,13 +38,22 @@ LOGFILE="terraform-fmt.log"
 
 function terraform_fmt_check() {
     note "Checking Terraform formatting."
-    make -C "${REPO_ROOT?}/operations" -f "${REPO_ROOT?}/operations/Makefile" tf-cmd TF_CMD="terraform fmt -check -recursive /app/src" > "${REPO_ROOT?}/${LOGFILE?}" 2>&1
-    return $?
+    MODIFIED_TF_FILES_COUNT=$(git status --porcelain | grep "\.tf$" | wc -l)
+    RC=0
+    if [[ ${MODIFIED_TF_FILES_COUNT?} != 0 ]]; then
+        make -C "${REPO_ROOT?}/operations" -f "${REPO_ROOT?}/operations/Makefile" tf-cmd TF_CMD="terraform fmt -check -recursive /app/src" >"${REPO_ROOT?}/${LOGFILE?}" 2>&1
+        RC=$?
+    else
+        note "Skipping this check, you made no changes to Terraform files..."
+        RC=0
+    fi
+
+    return ${RC?}
 }
 
 function terraform_fmt_fix() {
     warning "Formatting all Terraform files."
-    make -C "${REPO_ROOT?}/operations" -f "${REPO_ROOT?}/operations/Makefile" tf-cmd TF_CMD="terraform fmt -recursive /app/src" > "${REPO_ROOT?}/${LOGFILE?}" 2>&1
+    make -C "${REPO_ROOT?}/operations" -f "${REPO_ROOT?}/operations/Makefile" tf-cmd TF_CMD="terraform fmt -recursive /app/src" >"${REPO_ROOT?}/${LOGFILE?}" 2>&1
     return $?
 }
 
