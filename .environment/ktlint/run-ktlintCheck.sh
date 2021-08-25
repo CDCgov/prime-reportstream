@@ -27,8 +27,8 @@ stagedFile=.tmpStagedFiles
 unstagedFile=.tmpUnstagedFiles
 RC=0
 
-git diff --cached --name-only --diff-filter=ACM | grep '\.kt[s"]\?$' | sort > $stagedFilename
-git diff --name-only --diff-filter=ACM | grep '\.kt[s"]\?$' | sort > $unstagedFilename
+git diff --cached --name-only --diff-filter=ACM | grep '\.kt[s"]\?$' | sort > $stagedFile
+git diff --name-only --diff-filter=ACM | grep '\.kt[s"]\?$' | sort > $unstagedFile
 
 function error() {
     echo "Gitleaks> ERROR: Your code has ktlint format violations!"
