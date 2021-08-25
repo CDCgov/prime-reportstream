@@ -3,6 +3,7 @@
 
 echo "checking for ktlint code violations..."
 
+REPO_ROOT=$(git rev-parse --show-toplevel)
 stagedFile=.tmpStagedFiles
 unstagedFile=.tmpUnstagedFiles
 RC=0
@@ -24,7 +25,7 @@ rm -f $unstagedFile
 # Run ktlintCheck
 if [ ! -z "$filesToCheck" ]
 then
-	ktlint --check $filesToCheck
+	$(cd ${REPO_ROOT}/prime-router/ && ktlint --check $filesToCheck)
 	if [ $? -ne 0 ]; then
     error
     exit 1 
