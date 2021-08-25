@@ -144,14 +144,17 @@ class Hl7Serializer(
             if (it.startsWith("FTS"))
                 return@forEach
 
-            if (nextMessage.isNotEmpty() && it.startsWith("MSH")) {
+            if (nextMessage.isNotBlank() && it.startsWith("MSH")) {
                 deconstructStringMessage()
             }
-            nextMessage.append("$it\r")
+
+            if (it.isNotBlank()) {
+                nextMessage.append("$it\r")
+            }
         }
 
         // catch the last message
-        if (nextMessage.isNotEmpty()) {
+        if (nextMessage.isNotBlank()) {
             deconstructStringMessage()
         }
 
