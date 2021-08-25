@@ -376,7 +376,7 @@ abstract class CoolTest {
      * A hack attempt to wait enough time, but not too long, for ReportStream to finish.
      * This assumes the batch/send executes on the minute boundary.
      */
-    suspend fun waitABit(plusSecs: Int, env: ReportStreamEnv, silent: Boolean = false) {
+    suspend fun waitABit(plusSecs: Int, env: ReportStreamEnv) {
         // seconds elapsed so far in this minute
         val secsElapsed = OffsetDateTime.now().second % 60
         // Wait until the top of the next minute, and pluSecs more, for 'batch', and 'send' to finish.
@@ -1061,7 +1061,7 @@ class Waters : CoolTest() {
         val reportId = getReportIdFromResponse(json)
             ?: return bad("***$name Test FAILED***: A report ID came back as null")
         echo("Id of submitted report: $reportId")
-        waitABit(60, environment, options.muted)
+        waitABit(60, environment)
         if (file.exists()) file.delete() // because of RepeatWaters
         return examineLineageResults(
             reportId = reportId,
