@@ -189,6 +189,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
             'SecretHelper\.getSecretService\(\)\.fetchSecret\(',                            # You are fetching the secret properly
             'secretService getProperty \"',
             'secretService\.fetchSecret\(',                                                 # You are fetching the secret properly
+            'some_secret',                                                                  # Old local dummy REDOX secret
             'user = if \(',
             'USER" to dbUser,',
             'user\)\.isEqualTo\("user"',

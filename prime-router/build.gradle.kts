@@ -343,7 +343,6 @@ tasks.azureFunctionsRun {
             "POSTGRES_PASSWORD" to dbPassword,
             "POSTGRES_URL" to dbUrl,
             "PRIME_ENVIRONMENT" to "local",
-            "REDOX_SECRET" to "some_secret",
             "VAULT_API_ADDR" to "http://localhost:8200"
         )
     )
