@@ -25,7 +25,8 @@ rm -f $unstagedFile
 # Run ktlintCheck
 if [ ! -z "$filesToCheck" ]
 then
-	#$(cd ${REPO_ROOT}/prime-router/)
+	# ktlint needs to be installed in system 
+    # in order to run ktlint command
     ktlint $filesToCheck
 	if [ $? -ne 0 ]; then
     error
