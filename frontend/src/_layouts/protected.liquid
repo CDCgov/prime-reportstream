@@ -56,9 +56,14 @@ local_styles:
   {% include navbar %}
 {% endif %}
 
-<main id="main-content" {% if title == "index" %}class="padding-y-0"{% endif %}>
+<main id="main-content" {% if title == "index"%}class="padding-y-0"{% elsif alert %}class="padding-top-0 padding-bottom-6"{% endif %}>
+  {% if alert %}
+      {% include site_alert %}
+  {% endif %}
   {% if pageStyle == "fullWidth" %}
     {{ content }}
+  {% elsif pageStyle == "pageAlert" %}
+    {% include page_alert %}
   {% elsif pageStyle == "sidebarMenu" %}
     {% include page_sidebar_menu %}
   {% else %}

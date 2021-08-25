@@ -6,5 +6,5 @@ indent_style = space
 insert_final_newline = false
 tab_width = 4
 
-[{*.yaml,*.yml}]
+[{*.yaml,*.yml, *.tf}]
 indent_size = 2

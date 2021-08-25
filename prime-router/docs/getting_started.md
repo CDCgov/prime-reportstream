@@ -217,6 +217,7 @@ If you see any SSL errors during this step, follow the directions in [Getting Ar
 # Credentials and secrets vault
 
 Our `docker-compose.yml` includes a Hashicorp Vault instance alongside our other containers to enable local secrets storage. Under normal circumstances, developers will not have to interact directly with the Vault configuration.
+This vault is used locally to provide the SFTP credentials used by the Send function to upload files to the locally running atmoz/sftp SFTP server.
 
 ## Initializing the vault
 
@@ -390,6 +391,7 @@ Some useful tools for Kotlin/Java development include:
     * Install the [IntelliJ KLint plugin](https://plugins.jetbrains.com/plugin/15057-ktlint-unofficial-) or configure it to follow standard Kotlin conventions as follows on a mac: `cd ./prime-router && brew install ktlint && ktlint applyToIDEAProject`
 * [Microsoft VSCode](https://code.visualstudio.com/Download) with the available Kotlin extension
 * [Java Profiling in ReportStream](./getting-started/java-profiling.md)
+* [Tips for faster development](./getting-started/faster-development.md)
 
 # Miscelanious subjects
 
@@ -438,4 +440,16 @@ When building the ReportStream container, you can set this value to `true` to en
 
 ```bash
 PRIME_DATA_HUB_INSECURE_SSL=true docker-compose build
+```
+
+# Troubleshooting
+## Local SFTP Issues
+1. SFTP Upload Permission denied - If you get a Permission Denied exception in the logs then it is most likely the atmoz/sftp
+   Docker container has the incorrect permissions for the folder used by the local SFTP server.
+
+`FAILED Sftp upload of inputReportId xxxx to SFTPTransportType(...) (orgService = ignore.HL7), Exception: Permission denied`
+
+Run the following command to change the permissions for the folder:
+```bash
+docker exec -it prime-router_sftp_1 chmod 777 /home/foo/upload
 ```
