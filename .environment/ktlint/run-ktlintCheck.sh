@@ -1,28 +1,8 @@
 #!/usr/bin/env bash
 
-# REPO_ROOT="$(git rev-parse --show-toplevel)"
-# RC=0
-
-
-# echo Checking format...
-# $(cd ${REPO_ROOT}/prime-router/ && ./gradlew ktlintCheck >/dev/null 2>&1)
-# RC=$?
-# echo Checking format finished.
-
-
-# if [[ RC -ne 0 ]]; then
-#     echo "ktlint found format violations!"
-#     echo $erromessage 
-# fi
-
-# exit ${RC}
 
 echo "checking for ktlint code violations..."
-# This gets the list of staged files that will be included in the commit (removed files are ignored).
-# If a file is only partially staged (some changes in it are unstaged), then the file is not included
-# in checks. That is because the checks re-add the file to ensure autocorrected fixes are included
-# in the commit, and we don't want to add the whole file since that would mess with the intention
-# of partial staging.
+
 stagedFile=.tmpStagedFiles
 unstagedFile=.tmpUnstagedFiles
 RC=0
