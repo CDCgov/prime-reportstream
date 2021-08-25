@@ -204,6 +204,7 @@
   reference: This maps multiple values to the ReportStream internal codes which are SNOMED-CT codes
   system: SNOMED_CT
   referenceUrl: https://www.hhs.gov/sites/default/files/hhs-guidance-implementation.pdf
+  # Note: if adding values here, please update the OBX-8 mapper
   values:
     - code: 260385009
       display: Negative
