@@ -205,7 +205,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
             'var keymap = require\(',
             'var tokenSigningSecret = "UVD4QOJ3H295Zi9Ayl3ySuoXNKiE8WYuOsaXOZfug3dwTUVBC1ZIKRPpG5LEyZDZ"',         # Invalidated
             'xox[baprs]-([0-9a-zA-Z]{10,48})',
-			'some_secret',                                                                  # Old local dummy REDOX secret
+            'some_secret',                                                                  # Old local dummy REDOX secret
         ]
         paths = [
             '.terraform/modules/',
