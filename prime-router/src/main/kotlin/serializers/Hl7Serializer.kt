@@ -12,7 +12,17 @@ import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.parser.EncodingNotSupportedException
 import ca.uhn.hl7v2.parser.ModelClassFactory
 import ca.uhn.hl7v2.util.Terser
-import gov.cdc.prime.router.*
+import gov.cdc.prime.router.Element
+import gov.cdc.prime.router.ElementAndValue
+import gov.cdc.prime.router.Hl7Configuration
+import gov.cdc.prime.router.Mapper
+import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.ResultDetail
+import gov.cdc.prime.router.Schema
+import gov.cdc.prime.router.SettingsProvider
+import gov.cdc.prime.router.Source
+import gov.cdc.prime.router.ValueSet
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.InputStream
 import java.io.OutputStream
@@ -24,7 +34,6 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Properties
 import java.util.TimeZone
-import java.util.regex.Pattern
 
 class Hl7Serializer(
     val metadata: Metadata,
@@ -478,7 +487,7 @@ class Hl7Serializer(
                         value
                     }
                     if (element.hl7Field != null && element.mapperRef != null && element.type == Element.Type.TABLE) {
-                        setComponentForTable(terser, element, hl7Field, report, row)
+                        setComponentForTable(terser, element, hl7Field, report, row, hl7Config)
                     } else {
                         setComponent(terser, element, hl7Field, truncatedValue, report)
                     }
@@ -507,7 +516,7 @@ class Hl7Serializer(
             } else if (element.hl7Field == "MSH-11") {
                 setComponent(terser, element, "MSH-11", processingId, report)
             } else if (element.hl7Field != null && element.mapperRef != null && element.type == Element.Type.TABLE) {
-                setComponentForTable(terser, element, report, row)
+                setComponentForTable(terser, element, report, row, hl7Config)
             } else if (
                 element.type == Element.Type.TEXT &&
                 !element.hl7Field.isNullOrEmpty() &&
@@ -579,7 +588,6 @@ class Hl7Serializer(
         // after all values have been set or blanked, check for values that need replacement
         // isNotEmpty returns true only when a value exists. Whitespace only is considered a value
         replaceValue.forEach { element ->
-
             if (element.key.substring(0, 3).equals("OBX")) {
                 val observationReps = message.patienT_RESULT.ordeR_OBSERVATION.observationReps
 
@@ -600,11 +608,24 @@ class Hl7Serializer(
         }
     }
 
-    private fun setComponentForTable(terser: Terser, element: Element, report: Report, row: Int) {
-        setComponentForTable(terser, element, element.hl7Field!!, report, row)
+    private fun setComponentForTable(
+        terser: Terser,
+        element: Element,
+        report: Report,
+        row: Int,
+        config: Hl7Configuration? = null
+    ) {
+        setComponentForTable(terser, element, element.hl7Field!!, report, row, config)
     }
 
-    private fun setComponentForTable(terser: Terser, element: Element, hl7Field: String, report: Report, row: Int) {
+    private fun setComponentForTable(
+        terser: Terser,
+        element: Element,
+        hl7Field: String,
+        report: Report,
+        row: Int,
+        config: Hl7Configuration? = null
+    ) {
         val lookupValues = mutableMapOf<String, String>()
         val pathSpec = formPathSpec(hl7Field)
         val mapper: Mapper? = element.mapperRef
@@ -621,8 +642,17 @@ class Hl7Serializer(
         if (valuesForMapper == null) {
             terser.set(pathSpec, "")
         } else {
-            val mappedValue = mapper.apply(element, args, valuesForMapper)
-            terser.set(pathSpec, mappedValue ?: "")
+            val mappedValue = mapper.apply(element, args, valuesForMapper) ?: ""
+            // there are instances where we need to replace the DII value that comes from the LIVD
+            // table with an OID that reflects that this is an equipment UID instead. NH raised this
+            // as an issue, and the HHS spec on confluence supports their configuration, but we need
+            // to isolate out this option, so we don't affect other states we're already in production with
+            if (mappedValue == "DII" && config?.replaceDiiWithOid == true && hl7Field == "OBX-18-3") {
+                terser.set(formPathSpec("OBX-18-2"), OBX_18_EQUIPMENT_UID_OID)
+                terser.set(formPathSpec("OBX-18-3"), "ISO")
+            } else {
+                terser.set(pathSpec, mappedValue)
+            }
         }
     }
 
@@ -936,7 +966,7 @@ class Hl7Serializer(
     }
 
     /**
-     * Get a new truncationlimit accounting for the encoding of HL7 special characters.
+     * Get a new truncation limit accounting for the encoding of HL7 special characters.
      * @param value string value to search for HL7 special characters
      * @param truncationLimit the starting limit
      * @return the new truncation limit or starting limit if no special characters are found
@@ -1219,6 +1249,7 @@ class Hl7Serializer(
         const val MESSAGE_TRIGGER_EVENT = "R01"
         const val SOFTWARE_VENDOR_ORGANIZATION: String = "Centers for Disease Control and Prevention"
         const val SOFTWARE_PRODUCT_NAME: String = "PRIME ReportStream"
+        const val OBX_18_EQUIPMENT_UID_OID: String = "2.16.840.1.113883.3.3719"
 
         /*
         From the HL7 2.5.1 Ch 2A spec...

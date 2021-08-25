@@ -81,6 +81,7 @@ data class Hl7Configuration
     val phoneNumberFormatting: PhoneNumberFormatting = PhoneNumberFormatting.STANDARD,
     // pass this around as a property now
     val processingModeCode: String? = null,
+    val replaceDiiWithOid: Boolean? = null,
     override val nameFormat: String = "standard",
     override val receivingOrganization: String?,
 ) : TranslatorConfiguration("HL7") {
