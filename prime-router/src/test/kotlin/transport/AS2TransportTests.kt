@@ -105,19 +105,19 @@ class AS2TransportTests {
         assertThat(retryItems).isNull()
     }
 
-//    @Test
-//    fun `test connection error`() {
-//        // Setup to throw a connection error
-//        val header = makeHeader()
-//        setupLogger()
-//        every { as2Transport.sendViaAS2(any(), any(), any(), any(), any()) }
-//            .throws(WrappedAS2Exception("cannot connect", ConnectException()))
-//        every { as2Transport.lookupCredentials(any()) }
-//            .returns(UserJksCredential("x", "xzy", "pass", "a1", "a2"))
-//
-//        // Test that retryItems was returned
-//        val retryItems = as2Transport.send(transportType, header, UUID.randomUUID(), null, context, actionHistory)
-//
-//        assertThat(retryItems).isSameAs(RetryToken.allItems)
-//    }
+    @Test
+    fun `test connection error`() {
+        // Setup to throw a connection error
+        val header = makeHeader()
+        setupLogger()
+        every { as2Transport.sendViaAS2(any(), any(), any(), any(), any()) }
+            .throws(WrappedAS2Exception("cannot connect", ConnectException()))
+        every { as2Transport.lookupCredentials(any()) }
+            .returns(UserJksCredential("x", "xzy", "pass", "a1", "a2"))
+
+        // Test that retryItems was returned
+        val retryItems = as2Transport.send(transportType, header, UUID.randomUUID(), null, context, actionHistory)
+
+        assertThat(retryItems).isSameAs(RetryToken.allItems)
+    }
 }
