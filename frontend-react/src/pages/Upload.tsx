@@ -13,6 +13,11 @@ import {useOktaAuth} from "@okta/okta-react";
 import {groupToOrg} from "../webreceiver-utils";
 import OrganizationResource from "../resources/OrganizationResource";
 import moment from "moment";
+import {library} from '@fortawesome/fontawesome-svg-core';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import {faSync} from '@fortawesome/free-solid-svg-icons';
+
+library.add(faSync);
 
 export const Upload = () => {
     const {authState} = useOktaAuth();
@@ -277,10 +282,7 @@ export const Upload = () => {
                     {
                         isSubmitting && (
                             <span>
-                                <i
-                                    className="fa fa-refresh fa-spin"
-                                    style={{marginRight: "5px"}}
-                                />
+                                <FontAwesomeIcon icon="sync" spin className="margin-right-05" />
                                 <span>Processing file...</span>
                             </span>
                         )
