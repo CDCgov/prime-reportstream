@@ -47,8 +47,9 @@ export const Upload = () => {
     const uploadReport =
         async function postData(file) {
             let textBody;
+            let response;
             try {
-                const response = await fetch(`${AuthResource.getBaseUrl()}/api/waters`, {
+                response = await fetch(`${AuthResource.getBaseUrl()}/api/waters`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'text/csv',
@@ -68,9 +69,11 @@ export const Upload = () => {
 
                 return {
                     ok: false,
+                    status: response ? response.status : 500,
                     errors: [{
                         details: textBody ? textBody : error
-                    }]};
+                    }]
+                };
             }
 
         }
@@ -115,10 +118,12 @@ export const Upload = () => {
                 if (response.errors && response.errors.length) {
                     setErrors(response.errors);
                     setButtonText('Upload my edited file');
-                    if (response.ok) {
-                        setErrorMessageText('Please resolve the errors below and upload your edited file. Your file has not been accepted.');
-                    } else {
+
+                    // if there is a response status, then there was most likely a server-side error as the json was not parsed
+                    if (response.status) {
                         setErrorMessageText('There was a server error. Your file has not been accepted.');
+                    } else {
+                        setErrorMessageText('Please resolve the errors below and upload your edited file. Your file has not been accepted.');
                     }
                 }
 
