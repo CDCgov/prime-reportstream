@@ -168,7 +168,13 @@
     - code: U
       display: N/A
     - code: U
+      display: NA
+    - code: U
       display: NR
+    - code: U
+      display: NP
+    - code: U
+      display: maybe
 
 - name: sender-automation/pregnant
   reference: Multiple values are mapped to the Pregnancy SNOMED Codes
@@ -199,6 +205,14 @@
       display: UNK
     - code: 261665006
       display: N/A
+    - code: 261665006
+      display: NA
+    - code: 261665006
+      display: NR
+    - code: 261665006
+      display: NP
+    - code: 261665006
+      display: maybe
 
 - name: sender-automation/test_result
   reference: This maps multiple values to the ReportStream internal codes which are SNOMED-CT codes
