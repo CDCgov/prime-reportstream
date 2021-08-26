@@ -29,7 +29,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
         'prime-router/frontend/src/assets/img',
         'prime-router/frontend/src/assets/fonts',
         'prime-router/frontend/src/assets/webfonts',
-        'prime-router/frontend/src/assets/pdf',   
+        'prime-router/frontend/src/assets/pdf',
         'prime-router/build.gradle.kts',
         'frontend-react/src/components/ReportStreamHeader.tsx',
     ]
@@ -96,6 +96,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
             '^# ',                                              # Comment
             'DB_PASSWORD=mypass(word)?',                        # Not real
             'DB_USER=prime',                                    # Not real
+            'FAILED Sftp upload of inputReportId xxxx to SFTPTransportType\(host=sftp', # Not a secret, part of the docs
             'gpgkey=https:\/\/packages\.microsoft\.com\/keys\/microsoft\.asc\" \| tee \/etc\/yum\.repos\.d\/azure-cli\.repo',
             'HOST=localhost',                                   # Default cred, this is allowed (too broad??)
             'pdhstaging-pgsql\.postgres\.database\.azure\.com', # Not a secret
