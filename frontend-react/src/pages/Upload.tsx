@@ -46,33 +46,30 @@ export const Upload = () => {
 
     const uploadReport =
         async function postData(file) {
+            let textBody;
             try {
                 const response = await fetch(`${AuthResource.getBaseUrl()}/api/waters`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'text/csv',
-                        'client': 'not valid',
+                        'client': client,
                         'authentication-type': 'okta',
                         'Authorization': `Bearer ${authState?.accessToken?.accessToken}`
                     },
                     body: file
                 });
-                if (response.ok) {
-                    return response.json();
-                }
 
-                return {
-                    ok: false,
-                    errors: [{
-                        details: `${response.status} ${response.statusText}`
-                    }]
-                };
+                textBody = await response.text();
+
+                // if this JSON.parse fails, the body was most likely an error string from the server
+                return JSON.parse(textBody);
+
             } catch (error) {
 
                 return {
                     ok: false,
                     errors: [{
-                        details: error
+                        details: textBody ? textBody : error
                     }]};
             }
 
@@ -118,7 +115,9 @@ export const Upload = () => {
                 if (response.errors && response.errors.length) {
                     setErrors(response.errors);
                     setButtonText('Upload my edited file');
-                    if (!response.ok) {
+                    if (response.ok) {
+                        setErrorMessageText('Please resolve the errors below and upload your edited file. Your file has not been accepted.');
+                    } else {
                         setErrorMessageText('There was a server error. Your file has not been accepted.');
                     }
                 }
@@ -126,7 +125,6 @@ export const Upload = () => {
                 setHeaderMessage('Your COVID-19 Results');
 
             } catch (error) {
-                console.log(error);
                 if (response && response.errors) {
                     setErrors(response.errors);
                 } else {
@@ -134,7 +132,6 @@ export const Upload = () => {
                 }
                 setButtonText('Upload my edited file');
             }
-            console.log(response);
             setIsSubmitting(false);
         }
     }
