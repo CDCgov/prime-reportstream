@@ -34,6 +34,7 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Properties
 import java.util.TimeZone
+import kotlin.math.min
 
 class Hl7Serializer(
     val metadata: Metadata,
@@ -976,7 +977,8 @@ class Hl7Serializer(
      */
     internal fun getTruncationLimitWithEncoding(value: String, truncationLimit: Int): Int {
         val regex = "[&^~|]".toRegex()
-        val matchCount = regex.findAll(value.substring(0, truncationLimit)).count()
+        val endIndex = min(value.length, truncationLimit)
+        val matchCount = regex.findAll(value.substring(0, endIndex)).count()
 
         return if (matchCount > 0) {
             truncationLimit.minus(matchCount.times(2))
