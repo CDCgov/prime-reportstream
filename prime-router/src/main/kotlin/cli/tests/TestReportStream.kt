@@ -398,11 +398,16 @@ abstract class CoolTest {
             waitSecs += 60
         }
         echo("Waiting $waitSecs seconds for ReportStream to fully receive, batch, and send the data")
-        for (i in 1..waitSecs) {
-            delay(1000)
-            if (outputToConsole) print(".")
+        // Print out some nice dots to show we are waiting only when the output goes directly to the console.
+        if (outputToConsole) {
+            for (i in 1..waitSecs) {
+                delay(1000)
+                print(".")
+            }
+            echo()
+        } else {
+            delay(waitSecs.toLong() * 1000)
         }
-        echo()
     }
 
     fun examineLineageResults(
