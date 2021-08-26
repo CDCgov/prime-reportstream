@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-KTLINT_IMAGE_NAME="reportstream-ktlint/latest"
+KTLINT_IMAGE_NAME="reportstream-ktlint:latest"
 REPO_ROOT=$(git rev-parse --show-toplevel)
 CONTAINER_SOURCE_LOCATION="/src"
 LOG_FILE="ktlint.log"
@@ -13,7 +13,7 @@ function usage() {
     echo ""
     echo "Options:"
     echo "    --full|-f     Scans all files (shorthand: lower-case f)"
-    echo "    --fix|-F      Fix violations (shorthand: UPPER-case F)"
+    echo "    --format|-F   Fix violations (shorthand: UPPER-case F)"
     echo "    --help|-h     Shows this help and exits successfully"
     echo ""
     echo "Examples:"
@@ -66,8 +66,8 @@ while [[ ! -z "${1}" ]]; do
             $(find -type f -iname "*.kts")
         )
         ;;
-    "--fix" | "-F")
-        DO_FORMAT="--format"
+    "--format" | "-F")
+        DO_FORMAT="${1}"
         ;;
     "--help" | "-h")
         usage
@@ -93,7 +93,7 @@ if [[ ${#TARGETS[@]} > 0 ]]; then
 
     if [[ ${RC?} != 0 ]]; then
         error "You likely have ktlint violations, check the output or '${LOG_FILE?}' for more information"
-        note "You may be able to fix the violations by invoking '${0} --fix'."
+        note "You may be able to fix the violations by invoking '${0} --format'."
     fi
 else
     note "Skipping this check, there are no target files to scan."

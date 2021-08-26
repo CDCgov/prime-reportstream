@@ -1,4 +1,4 @@
-FROM alpine:3 as downloader
+FROM alpine:3 AS downloader
 
 ARG KTLINT_VERSION=0.42.1
 RUN apk update \
