@@ -11,6 +11,7 @@ import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.parser.EncodingNotSupportedException
 import ca.uhn.hl7v2.parser.ModelClassFactory
+import ca.uhn.hl7v2.preparser.PreParser
 import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.ElementAndValue
@@ -115,17 +116,21 @@ class Hl7Serializer(
         val cleanedMessage = reg.replace(message, hl7SegmentDelimiter)
         val messageLines = cleanedMessage.split(hl7SegmentDelimiter)
         val nextMessage = StringBuilder()
+        var reportNumber = 1
 
-        fun deconstructStringMessage() {
-            val parsedMessage = convertMessageToMap(nextMessage.toString(), schema)
-            errors.addAll(parsedMessage.errors)
-            warnings.addAll(parsedMessage.warnings)
-            // there is a chance that there's an empty row (for example, an empty line)
-            // that won't parse. so we should skip that because it's not valid HL7
-            if (parsedMessage.row.isEmpty())
-                return
-            rowResults.add(parsedMessage)
-            nextMessage.clear()
+        /**
+         * Parse an HL7 [message] from a string.
+         */
+        fun parseStringMessage(message: String) {
+            val parsedMessage = convertMessageToMap(message, schema)
+            parsedMessage.errors.forEach {
+                errors.add("Report $reportNumber: $it")
+            }
+            parsedMessage.warnings.forEach {
+                warnings.add("Report $reportNumber: $it")
+            }
+            if (parsedMessage.row.isNotEmpty())
+                rowResults.add(parsedMessage)
             parsedMessage.row.forEach { (k, v) ->
                 if (!mappedRows.containsKey(k))
                     mappedRows[k] = mutableListOf()
@@ -145,7 +150,9 @@ class Hl7Serializer(
                 return@forEach
 
             if (nextMessage.isNotBlank() && it.startsWith("MSH")) {
-                deconstructStringMessage()
+                parseStringMessage(nextMessage.toString())
+                nextMessage.clear()
+                reportNumber++
             }
 
             if (it.isNotBlank()) {
@@ -155,7 +162,7 @@ class Hl7Serializer(
 
         // catch the last message
         if (nextMessage.isNotBlank()) {
-            deconstructStringMessage()
+            parseStringMessage(nextMessage.toString())
         }
 
         return Hl7Mapping(mappedRows, rowResults, errors, warnings)
@@ -236,7 +243,14 @@ class Hl7Serializer(
         }
 
         val hapiMsg = try {
-            parser.parse(cleanedMessage)
+            // First check that we have an HL7 message we can parse
+            when (val msgStructure = PreParser.getFields(cleanedMessage, "MSH-9-3")[0]) {
+                "ORU_R01" -> parser.parse(cleanedMessage)
+                else -> {
+                    warnings.add("Ignoring unsupported HL7 message type $msgStructure")
+                    return RowResult(emptyMap(), errors, warnings)
+                }
+            }
         } catch (e: HL7Exception) {
             logger.error("${e.localizedMessage} ${e.stackTraceToString()}")
             if (e is EncodingNotSupportedException) {
