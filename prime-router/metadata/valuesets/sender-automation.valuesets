@@ -165,15 +165,15 @@
       display: U
     - code: UNK
       display: UNK
-    - code: U
+    - code: UNK
       display: N/A
-    - code: U
+    - code: UNK
       display: NA
-    - code: U
+    - code: UNK
       display: NR
-    - code: U
+    - code: UNK
       display: NP
-    - code: U
+    - code: UNK
       display: maybe
 
 - name: sender-automation/pregnant
