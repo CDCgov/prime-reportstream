@@ -41,11 +41,11 @@ class Facility private constructor(
 
         fun organization(organization: String) = apply { this.organization = organization }
         fun facility(facility: String) = apply { this.facility = facility }
-        fun location(location: String) = apply { this.location = location}
+        fun location(location: String) = apply { this.location = location }
         fun CLIA(CLIA: String) = apply { this.CLIA = CLIA }
         fun positive(positive: Long) = apply { this.positive = positive }
         fun total(total: Long) = apply { this.total = total }
-        fun build() = Facility(organization, facility, location,CLIA, positive, total)
+        fun build() = Facility(organization, facility, location, CLIA, positive, total)
     }
 }
 
@@ -215,12 +215,12 @@ open class BaseHistoryFunction : Logging {
                     org.name.lowercase() == organizationName
                 }
                 val header =
-                        try {
-                                workflowEngine.fetchHeader(it.reportId,adminOrg?: authClaims.organization )
-                        } catch (ex: Exception) {
-                                context.logger.severe( "Unable to find file for ${it.reportId} ${ex.message}")
-                                null
-                        } 
+                    try {
+                        workflowEngine.fetchHeader(it.reportId, adminOrg ?: authClaims.organization)
+                    } catch (ex: Exception) {
+                        context.logger.severe("Unable to find file for ${it.reportId} ${ex.message}")
+                        null
+                    }
                 val receiver = workflowEngine.settings.findReceiver("${it.receivingOrg}.${it.receivingOrgSvc}")
 
                 val filename = Report.formExternalFilename(
@@ -231,7 +231,7 @@ open class BaseHistoryFunction : Logging {
                     it.createdAt
                 )
 
-                val content = if (header !== null && header.content !== null) String( header.content) else ""
+                val content = if (header !== null && header.content !== null) String(header.content) else ""
                 val mimeType = Report.Format.safeValueOf(it.bodyFormat).mimeType
                 val externalOrgName = receiver?.displayName
 
