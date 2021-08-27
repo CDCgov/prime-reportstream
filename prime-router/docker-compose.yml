@@ -159,8 +159,5 @@ volumes:
   # For storing a local encrypted secrets database
   vault:
 
-
-
-
 networks:
   prime-router_build:
