@@ -1,0 +1,124 @@
+{
+    "general": {
+        "territoriesLabel": "Territories:  ",
+        "type": "data",
+        "geoType": "us",
+        "headerColor": "theme-blue",
+        "showSidebar": false,
+        "showTitle": false,
+        "geoBorderColor": "sameAsBackground",
+        "showDownloadButton": false,
+        "expandDataTable": false,
+        "showDownloadMediaButton": false,
+        "displayAsHex": false,
+        "displayStateLabels": true,
+        "language": "en",
+        "hasRegions": false,
+        "fullBorder": false
+    },
+    "type": "map",
+    "color": "greenbluereverse",
+    "columns": {
+        "geo": {
+            "name": "state",
+            "label": "Location",
+            "tooltip": false,
+            "dataTable": false
+        },
+        "primary": {
+            "name": "Handled",
+            "label": "Data Label",
+            "dataTable": false,
+            "tooltip": false
+        }
+    },
+    "legend": {
+        "descriptions": {},
+        "specialClasses": [],
+        "unified": false,
+        "singleColumn": false,
+        "dynamicDescription": false,
+        "type": "category",
+        "position": "side",
+        "title": ""
+    },
+    "filters": [],
+    "dataTable": {
+        "forceDisplay": false,
+        "title": "Data Table"
+    },
+    "data": [
+        {
+            "Handled": 1,
+            "state": "Alabama"
+        },
+        {
+            "Handled": 1,
+            "state": "Arizona"
+        },
+        {
+            "Handled": 1,
+            "state": "Colorado"
+        },
+        {
+            "Handled": 1,
+            "state": "Florida"
+        },
+        {
+            "Handled": 1,
+            "state": "Guam"
+        },
+        {
+            "Handled": 1,
+            "state": "Louisiana"
+        },
+        {
+            "Handled": 1,
+            "state": "Maryland"
+        },
+        {
+            "Handled": 1,
+            "state": "Massachusetts"
+        },
+        {
+            "Handled": 1,
+            "state": "Mississippi"
+        },
+        {
+            "Handled": 1,
+            "state": "New Mexico"
+        },
+        {
+            "Handled": 1,
+            "state": "North Dakota"
+        },
+        {
+            "Handled": 1,
+            "state": "Ohio"
+        },
+        {
+            "Handled": 1,
+            "state": "Pennsylvania"
+        },
+        {
+            "Handled": 1,
+            "state": "Texas"
+        },
+        {
+            "Handled": 1,
+            "state": "Vermont"
+        },
+        {
+            "Handled": 1,
+            "state": "California"
+        },
+        {
+            "Handled": 1,
+            "state": "Montana"
+        },
+        {
+            "Handled": 1,
+            "state": "Minnesota"
+        }
+    ]
+}

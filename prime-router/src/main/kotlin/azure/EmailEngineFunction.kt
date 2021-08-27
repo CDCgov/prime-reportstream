@@ -28,13 +28,13 @@ import com.sendgrid.helpers.mail.objects.Email
 import com.sendgrid.helpers.mail.objects.Personalization
 import gov.cdc.prime.router.azure.db.enums.SettingType
 import gov.cdc.prime.router.secrets.SecretHelper
+import org.json.JSONObject
 import java.io.IOException
 import java.time.OffsetDateTime
 import java.time.ZonedDateTime
 import java.util.logging.Level
 import java.util.logging.Logger
 import khttp.get as httpGet
-import org.json.JSONObject
 
 const val SCHEDULE = "*/5 * * * *" // every 5 minutes
 const val OKTA_ISSUER = "https://hhs-prime.okta.com/oauth2/default"
@@ -48,12 +48,12 @@ const val USER_CLAIM = "sub"
 const val ADMIN_GRP = "DHPrimeAdmins"
 
 data class EmailSchedule(
-        val template: String,
-        val type: String,
-        val cronSchedule: String,
-        val organizations: List<String> = ArrayList<String>(),
-        val emails: List<String> = ArrayList<String>(),
-        val parameters: Map<String, String> = HashMap<String, String>()
+    val template: String,
+    val type: String,
+    val cronSchedule: String,
+    val organizations: List<String> = ArrayList<String>(),
+    val emails: List<String> = ArrayList<String>(),
+    val parameters: Map<String, String> = HashMap<String, String>()
 )
 
 class EmailScheduleEngine {
@@ -64,14 +64,14 @@ class EmailScheduleEngine {
     @FunctionName("createEmailSchedule")
     @StorageAccount("AzureWebJobsStorage")
     fun createEmailSchedule(
-            @HttpTrigger(
-                    name = "createEmailSchedule",
-                    methods = [HttpMethod.POST],
-                    authLevel = AuthorizationLevel.ANONYMOUS,
-                    route = "email-schedule"
-            )
-            request: HttpRequestMessage<String?>,
-            context: ExecutionContext,
+        @HttpTrigger(
+            name = "createEmailSchedule",
+            methods = [HttpMethod.POST],
+            authLevel = AuthorizationLevel.ANONYMOUS,
+            route = "email-schedule"
+        )
+        request: HttpRequestMessage<String?>,
+        context: ExecutionContext,
     ): HttpResponseMessage {
         var user: String? = validateUser(request.headers["authorization"] ?: "", context.logger)
         var ret = request.createResponseBuilder(HttpStatus.UNAUTHORIZED)
@@ -88,15 +88,15 @@ class EmailScheduleEngine {
     @FunctionName("deleteEmailSchedule")
     @StorageAccount("AzureWebJobsStorage")
     fun deleteEmailSchedule(
-            @HttpTrigger(
-                    name = "deleteEmailSchedule",
-                    methods = [HttpMethod.DELETE],
-                    authLevel = AuthorizationLevel.ANONYMOUS,
-                    route = "email-schedule/{scheduleId}"
-            )
-            request: HttpRequestMessage<String?>,
-            @BindingName("scheduleId") scheduleId: Int,
-            context: ExecutionContext,
+        @HttpTrigger(
+            name = "deleteEmailSchedule",
+            methods = [HttpMethod.DELETE],
+            authLevel = AuthorizationLevel.ANONYMOUS,
+            route = "email-schedule/{scheduleId}"
+        )
+        request: HttpRequestMessage<String?>,
+        @BindingName("scheduleId") scheduleId: Int,
+        context: ExecutionContext,
     ): HttpResponseMessage {
         var user: String? = validateUser(request.headers["authorization"] ?: "", context.logger)
         var ret = request.createResponseBuilder(HttpStatus.UNAUTHORIZED)
@@ -113,20 +113,20 @@ class EmailScheduleEngine {
     @FunctionName("emailScheduleEngine")
     @StorageAccount("AzureWebJobsStorage")
     fun run(
-            @Suppress("UNUSED_PARAMETER")
-            @TimerTrigger(name = "emailScheduleEngine", schedule = SCHEDULE)
-            timerInfo: String,
-            context: ExecutionContext
+        @Suppress("UNUSED_PARAMETER")
+        @TimerTrigger(name = "emailScheduleEngine", schedule = SCHEDULE)
+        timerInfo: String,
+        context: ExecutionContext
     ) {
         val logger: Logger = context.logger
         val mapper = ObjectMapper().registerModule(KotlinModule())
 
         // get the schedules to fire
         val schedulesToFire: Iterable<EmailSchedule> =
-                WorkflowEngine.databaseAccess
-                        .fetchEmailSchedules()
-                        .map { mapper.readValue<EmailSchedule>(it) }
-                        .filter { shouldFire(it) }
+            WorkflowEngine.databaseAccess
+                .fetchEmailSchedules()
+                .map { mapper.readValue<EmailSchedule>(it) }
+                .filter { shouldFire(it) }
 
         schedulesToFire.forEach { schedule ->
             val orgs: Iterable<String> = getOrgs(schedule)
@@ -136,18 +136,18 @@ class EmailScheduleEngine {
             // get the orgs to fire for
             orgs.forEach { org ->
                 val countOfRecords =
-                        workflowEngine.db.fetchDownloadableReportFiles(
-                                        OffsetDateTime.now().minusDays(1L),
-                                        org
-                                )
-                                .size
+                    workflowEngine.db.fetchDownloadableReportFiles(
+                        OffsetDateTime.now().minusDays(1L),
+                        org
+                    )
+                        .size
                 val template = getTemplate(schedule.template, countOfRecords, logger)
                 val emails: Iterable<String> =
-                        if (schedule.emails.size > 0) schedule.emails else getEmails(org, logger)
-                logger.info("EmailEngineFunction:: processing organization $org within ${template}")
+                    if (schedule.emails.size > 0) schedule.emails else getEmails(org, logger)
+                logger.info("EmailEngineFunction:: processing organization $org within $template")
                 emails.forEach { email ->
                     logger.info(
-                            "EmailEngineFunction:: sending email template ${template} to $email"
+                        "EmailEngineFunction:: sending email template $template to $email"
                     )
                     dispatchToSendGrid(template, listOf(email), logger)
                 }
@@ -239,8 +239,8 @@ class EmailScheduleEngine {
     fun validateUser(requestToken: String, logger: Logger): String? {
 
         val jwtToken =
-                if (requestToken.length > AUTH_KEY.length) requestToken.substring(AUTH_KEY.length)
-                else ""
+            if (requestToken.length > AUTH_KEY.length) requestToken.substring(AUTH_KEY.length)
+            else ""
 
         var user: String? = null
 
@@ -248,18 +248,18 @@ class EmailScheduleEngine {
             try {
                 // get the access token verifier
                 val jwtVerifier =
-                        JwtVerifiers.accessTokenVerifierBuilder().setIssuer(OKTA_ISSUER).build()
+                    JwtVerifiers.accessTokenVerifierBuilder().setIssuer(OKTA_ISSUER).build()
                 // get it to decode the token from the header
                 val jwt =
-                        jwtVerifier.decode(jwtToken)
-                                ?: throw Throwable("Error in validation of jwt token")
+                    jwtVerifier.decode(jwtToken)
+                        ?: throw Throwable("Error in validation of jwt token")
 
                 // get the user name
                 @Suppress("UNCHECKED_CAST")
                 user =
-                        if ((jwt.claims[ORG_CLAIM] as List<String>).contains(ADMIN_GRP))
-                                jwt.claims[USER_CLAIM].toString()
-                        else null
+                    if ((jwt.claims[ORG_CLAIM] as List<String>).contains(ADMIN_GRP))
+                        jwt.claims[USER_CLAIM].toString()
+                    else null
             } catch (ex: Throwable) {
                 logger.log(Level.WARNING, "Error in verification of token", ex)
             }
@@ -299,21 +299,21 @@ class EmailScheduleEngine {
 
                 // get the OKTA Group Id
                 var response1 =
-                        httpGet(
-                                url = "$OKTA_GROUPS_API?q=$grp",
-                                headers = mapOf("Authorization" to "SSWS $ssws")
-                        )
+                    httpGet(
+                        url = "$OKTA_GROUPS_API?q=$grp",
+                        headers = mapOf("Authorization" to "SSWS $ssws")
+                    )
                 var grpId = ((response1.jsonArray).get(0) as JSONObject).getString("id")
 
                 // get the users within that OKTA group
                 var response =
-                        httpGet(
-                                url = "$OKTA_GROUPS_API/$grpId/users",
-                                headers = mapOf("Authorization" to "SSWS $ssws")
-                        )
+                    httpGet(
+                        url = "$OKTA_GROUPS_API/$grpId/users",
+                        headers = mapOf("Authorization" to "SSWS $ssws")
+                    )
 
                 for (user in response.jsonArray) emails.add(
-                        (user as JSONObject).getJSONObject("profile").getString("email")
+                    (user as JSONObject).getJSONObject("profile").getString("email")
                 )
             }
         } catch (ex: Throwable) {
@@ -360,7 +360,7 @@ class EmailScheduleEngine {
             } finally {
                 logger.info("sending to $emails - result ${response.getStatusCode()}")
                 if (!(200..299).contains(response.getStatusCode()))
-                        logger.severe("error - ${response.getBody()}")
+                    logger.severe("error - ${response.getBody()}")
             }
         } else {
             logger.info("Can't find SENDGRID_ID secret")

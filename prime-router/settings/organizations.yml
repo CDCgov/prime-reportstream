@@ -757,6 +757,8 @@
         receivingFacilityName: NJDOH
         receivingFacilityOID: 2.16.840.1.113883.3.1299
         truncateHDNamespaceIds: true
+        reportingFacilityName: CDC PRIME
+        reportingFacilityId: 11D2030855
       transport:
         type: SFTP
         host: sftp
@@ -1094,6 +1096,10 @@
         messageProfileId: PHLabReport-Batch^^2.16.840.1.113883.9.11^ISO
         receivingFacilityName: NH_DHHS
         receivingFacilityOID: 2.16.840.1.114222.4.1.3669
+        suppressHl7Fields: ORC-23-1,PID-13-1,ORC-14-1,OBR-17-1
+        reportingFacilityName: CDC PRIME
+        reportingFacilityId: 11D2030855
+        replaceDiiWithOid: true
       transport:
         type: SFTP
         host: sftp

@@ -24,7 +24,7 @@ import java.time.format.DateTimeFormatter
 
 plugins {
     kotlin("jvm") version "1.5.21"
-    id("org.flywaydb.flyway") version "7.12.1"
+    id("org.flywaydb.flyway") version "7.14.0"
     id("nu.studer.jooq") version "6.0"
     id("com.github.johnrengelman.shadow") version "7.0.0"
     id("com.microsoft.azure.azurefunctions") version "1.6.0"
@@ -343,7 +343,6 @@ tasks.azureFunctionsRun {
             "POSTGRES_PASSWORD" to dbPassword,
             "POSTGRES_URL" to dbUrl,
             "PRIME_ENVIRONMENT" to "local",
-            "REDOX_SECRET" to "some_secret",
             "VAULT_API_ADDR" to "http://localhost:8200"
         )
     )
@@ -481,7 +480,7 @@ dependencies {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
-    implementation("com.azure:azure-identity:1.3.4") {
+    implementation("com.azure:azure-identity:1.3.5") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
@@ -499,7 +498,7 @@ dependencies {
     implementation("com.github.javafaker:javafaker:1.0.2")
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
-    implementation("com.googlecode.libphonenumber:libphonenumber:8.12.29")
+    implementation("com.googlecode.libphonenumber:libphonenumber:8.12.31")
     implementation("org.thymeleaf:thymeleaf:3.0.12.RELEASE")
     implementation("com.sendgrid:sendgrid-java:4.7.4")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.1")

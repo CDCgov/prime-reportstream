@@ -16,12 +16,22 @@ title = "PRIME ReportStream Gitleaks Configuration"
         '.terraform/providers/',
         'frontend-react/build/',
         'frontend-react/node_modules/',
+        'frontend/node_modules/',
+        'frontend/dist',
+        'frontend/src/assets',
         'prime-router/.gradle/',
         'prime-router/build/',
         'prime-router/docs/dependency-graph-full/dependency-graph-full.txt',
         'prime-router/docs/schema_documentation/',
         'prime-router/src/test/csv_test_files/input/',
         'prime-router/src/main/kotlin/cli/tests/TestKeys.kt',
+        'prime-router/.vault/env/',
+        'prime-router/frontend/src/assets/img',
+        'prime-router/frontend/src/assets/fonts',
+        'prime-router/frontend/src/assets/webfonts',
+        'prime-router/frontend/src/assets/pdf',
+        'prime-router/build.gradle.kts',
+        'frontend-react/src/components/ReportStreamHeader.tsx',
     ]
 
 [[rules]]
@@ -86,6 +96,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
             '^# ',                                              # Comment
             'DB_PASSWORD=mypass(word)?',                        # Not real
             'DB_USER=prime',                                    # Not real
+            'FAILED Sftp upload of inputReportId xxxx to SFTPTransportType\(host=sftp', # Not a secret, part of the docs
             'gpgkey=https:\/\/packages\.microsoft\.com\/keys\/microsoft\.asc\" \| tee \/etc\/yum\.repos\.d\/azure-cli\.repo',
             'HOST=localhost',                                   # Default cred, this is allowed (too broad??)
             'pdhstaging-pgsql\.postgres\.database\.azure\.com', # Not a secret
@@ -179,6 +190,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
             'SecretHelper\.getSecretService\(\)\.fetchSecret\(',                            # You are fetching the secret properly
             'secretService getProperty \"',
             'secretService\.fetchSecret\(',                                                 # You are fetching the secret properly
+            'some_secret',                                                                  # Old local dummy REDOX secret
             'user = if \(',
             'USER" to dbUser,',
             'user\)\.isEqualTo\("user"',
