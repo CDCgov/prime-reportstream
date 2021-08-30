@@ -243,15 +243,17 @@ class Hl7Serializer(
         }
 
         val hapiMsg = try {
-            // First check that we have an HL7 message we can parse
-            when (val msgStructure = PreParser.getFields(cleanedMessage, "MSH-9-3")[0]) {
-                "ORU_R01" -> parser.parse(cleanedMessage)
-                null -> {
-                    errors.add("Missing required HL7 message structure field MSH-9-3")
+            // First check that we have an HL7 message we can parse.  Note some older messages may have
+            // only MSH 9-1 and MSH-9-2, or even just MSH-9-1, so we need use those two fields to compare
+            val msgType = PreParser.getFields(cleanedMessage, "MSH-9-1", "MSH-9-2")
+            when {
+                msgType.isNullOrEmpty() || msgType[0] == null -> {
+                    errors.add("Missing required HL7 message type field MSH-9")
                     return RowResult(emptyMap(), errors, warnings)
                 }
+                arrayOf("ORU", "R01") contentEquals msgType -> parser.parse(cleanedMessage)
                 else -> {
-                    warnings.add("Ignoring unsupported HL7 message type $msgStructure")
+                    warnings.add("Ignoring unsupported HL7 message type ${msgType.joinToString(",")}")
                     return RowResult(emptyMap(), errors, warnings)
                 }
             }
@@ -609,18 +611,18 @@ class Hl7Serializer(
         // after all values have been set or blanked, check for values that need replacement
         // isNotEmpty returns true only when a value exists. Whitespace only is considered a value
         replaceValue.forEach { element ->
-            if (element.key.substring(0, 3).equals("OBX")) {
+            if (element.key.substring(0, 3) == "OBX") {
                 val observationReps = message.patienT_RESULT.ordeR_OBSERVATION.observationReps
 
                 for (i in 0..observationReps.minus(1)) {
-                    var pathSpec = formPathSpec(element.key, i)
+                    val pathSpec = formPathSpec(element.key, i)
                     val valueInMessage = terser.get(pathSpec) ?: ""
                     if (valueInMessage.isNotEmpty()) {
                         terser.set(pathSpec, element.value)
                     }
                 }
             } else {
-                var pathSpec = formPathSpec(element.key)
+                val pathSpec = formPathSpec(element.key)
                 val valueInMessage = terser.get(pathSpec) ?: ""
                 if (valueInMessage.isNotEmpty()) {
                     terser.set(pathSpec, element.value)
