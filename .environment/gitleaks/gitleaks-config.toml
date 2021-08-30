@@ -153,6 +153,8 @@ title = "PRIME ReportStream Gitleaks Configuration"
             'apiKey: \"some_key\"',
             'apiVersion',
             'authenticationType == "',
+            'authentication-type',
+            'AuthorizedRoute path=',
             'azure_key_vault_certificate_secret_version',                                   # Terraform artifact
             'class(Name)?=',                                                                # this is HTML
             'const val [A-Z]+_KEY_ALIAS = \"as2ohp\"',
@@ -169,7 +171,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
             'it\.key\.contains\(',                                                          # iterator key access
             'key.((starts|ends)With|substr)\(',
             'key(\s)*=(=)?(\s)*"(daily|docs|noModifier|noValue|receiver|security|user)"',
-            'key=value',
+            'key=(value|\{i\})',
             'KeyVaultSecret\(\"',                                                           # You are doing the right hting
             'let key of \[',
             'localAuth [=!]= ',
