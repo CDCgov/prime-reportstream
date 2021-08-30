@@ -246,7 +246,8 @@ Examples:
             val passed = try {
                 test.run(environment, options)
             } catch (e: java.lang.Exception) {
-                test.echo("Exception: ${e.message}: ${e.stackTrace.joinToString(System.lineSeparator())}")
+                test.echo("Exception: ${e.javaClass.name}, ${e.message}: " +
+                    "${e.stackTrace.joinToString(System.lineSeparator())}")
                 false
             }
             test.outputAllMsgs()
