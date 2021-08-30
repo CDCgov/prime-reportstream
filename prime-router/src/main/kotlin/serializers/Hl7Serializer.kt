@@ -648,8 +648,8 @@ class Hl7Serializer(
             // as an issue, and the HHS spec on confluence supports their configuration, but we need
             // to isolate out this option, so we don't affect other states we're already in production with
             if (mappedValue == "DII" && config?.replaceDiiWithOid == true && hl7Field == "OBX-18-3") {
-                terser.set(formPathSpec("OBX-18-2"), OBX_18_EQUIPMENT_UID_OID)
-                terser.set(formPathSpec("OBX-18-3"), "ISO")
+                terser.set(formPathSpec("OBX-18-3"), OBX_18_EQUIPMENT_UID_OID)
+                terser.set(formPathSpec("OBX-18-4"), "ISO")
             } else {
                 terser.set(pathSpec, mappedValue)
             }
