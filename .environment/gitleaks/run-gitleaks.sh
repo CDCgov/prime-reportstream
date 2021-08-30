@@ -58,6 +58,7 @@ function scan_uncommitted() {
     # NOTE: ironically, the switch to scan your staged (i.e. to be committed) changes is to use the --unstaged switch
     docker run \
         -v "${REPO_ROOT?}:${CONTAINER_SOURCE_LOCATION?}" \
+        --rm \
         "${GITLEAKS_IMG_NAME?}" \
         --path="${CONTAINER_LOCATION?}" \
         --repo-config-path="${REPO_CONFIG_PATH?}" \
@@ -74,6 +75,7 @@ function scan_no_git() {
     note "Scanning the current state of the repository."
     docker run \
         -v "${REPO_ROOT?}:${CONTAINER_SOURCE_LOCATION?}" \
+        --rm \
         "${GITLEAKS_IMG_NAME?}" \
         --path="${CONTAINER_LOCATION?}" \
         --config-path="${CONTAINER_LOCATION?}/${REPO_CONFIG_PATH?}" \
@@ -93,6 +95,7 @@ function scan_x_last_commits() {
 
     docker run \
         -v "${REPO_ROOT?}:${CONTAINER_SOURCE_LOCATION?}" \
+        --rm \
         "${GITLEAKS_IMG_NAME?}" \
         --path="${CONTAINER_LOCATION?}" \
         --repo-config-path="${REPO_CONFIG_PATH?}" \
@@ -112,6 +115,7 @@ function scan_since() {
 
     docker run \
         -v "${REPO_ROOT?}:${CONTAINER_SOURCE_LOCATION?}" \
+        --rm \
         "${GITLEAKS_IMG_NAME?}" \
         --path="${CONTAINER_LOCATION?}" \
         --repo-config-path="${REPO_CONFIG_PATH?}" \

@@ -155,7 +155,7 @@ class WatersAuthTests : CoolTest() {
             )
     }
 
-    override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+    override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
         var passed = true
         ugly("Starting $name test of server-server authentication using keypairs:")
 

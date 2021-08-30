@@ -686,6 +686,20 @@ The patient's phone number with area code
 
 ---
 
+**Name**: Patient_preferred_language
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The patient's preferred language
+
+---
+
 **Name**: Patient_race
 
 **Type**: CODE

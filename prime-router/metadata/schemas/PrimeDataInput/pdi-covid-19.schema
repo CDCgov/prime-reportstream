@@ -92,6 +92,12 @@ elements:
   - name: patient_ethnicity
     csvFields: [{name: Patient_ethnicity}]
 
+  - name: patient_preferred_language
+    documentation: The patient's preferred language
+    cardinality: ZERO_OR_ONE
+    csvFields: [{name: Patient_preferred_language}]
+    type: TEXT
+
   - name: patient_street
     csvFields: [{name: Patient_street}]
 
