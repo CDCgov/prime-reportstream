@@ -64,9 +64,13 @@ receivers.
 Finally, this will allow us to build out the functionality of the HL7 ingestion by including
 the ability to process a second message type on something very small and straightforward.
 
+## Next Steps
+- Identify the different partners we could work with to test this out
+- Identify what our responsibilities are around a `NACK` message
+- Plan out what the website will look like for reporting our errors
+
 ## References
 [https://repository.immregistries.org/files/resources/5835adc2add61/guidance_for_hl7_acknowledgement_messages_to_support_interoperability_.pdf](https://repository.immregistries.org/files/resources/5835adc2add61/guidance_for_hl7_acknowledgement_messages_to_support_interoperability_.pdf)
 
 ## Discussion Points
-- If we build this, will states use it?
-- If we accept a `NACK` message, what should our response be? Do we have an SLA that outlines our responsibilities here?
+- Can we flip this around and use with senders? Can we pilot this with SimpleReport and one other sender?
