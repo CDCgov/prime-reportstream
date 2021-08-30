@@ -241,12 +241,18 @@ Examples:
         suspend fun runTest(test: CoolTest) {
             echo("Running test ${test.name}...")
             test.outputToConsole = options.runSequential
-            if (!test.run(environment, options))
-                failures.add(test)
-            echo("********************************")
-            echo("Output for test ${test.name}...")
+            test.echo("********************************")
+            test.echo("Output for test ${test.name}...")
+            val passed = try {
+                test.run(environment, options)
+            } catch (e: java.lang.Exception) {
+                test.echo("Exception: ${e.message}: ${e.stackTrace.joinToString(System.lineSeparator())}")
+                false
+            }
             test.outputAllMsgs()
-            echo("********************************")
+            test.echo("********************************")
+            if (!passed)
+                failures.add(test)
         }
 
         runBlocking {
