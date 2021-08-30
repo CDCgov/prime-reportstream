@@ -879,10 +879,11 @@ class Hl7Serializer(
         suppressQst: Boolean = false,
     ) {
         // if the value type is a date, we need to specify that for the AOE questions
-        val valueType = if (element.type == Element.Type.DATE) {
-            "DT"
-        } else {
-            "CWE"
+        val valueType = when (element.type) {
+            Element.Type.DATE -> "DT"
+            Element.Type.NUMBER -> "NM"
+            Element.Type.CODE -> "CWE"
+            else -> "ST"
         }
         terser.set(formPathSpec("OBX-1", aoeRep), (aoeRep + 1).toString())
         terser.set(formPathSpec("OBX-2", aoeRep), valueType)
