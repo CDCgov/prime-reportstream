@@ -247,7 +247,7 @@ class Hl7Serializer(
             when (val msgStructure = PreParser.getFields(cleanedMessage, "MSH-9-3")[0]) {
                 "ORU_R01" -> parser.parse(cleanedMessage)
                 null -> {
-                    errors.add("Missing required HL7 message type field MSH-9-3")
+                    errors.add("Missing required HL7 message structure field MSH-9-3")
                     return RowResult(emptyMap(), errors, warnings)
                 }
                 else -> {
