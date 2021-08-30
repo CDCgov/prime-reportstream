@@ -152,8 +152,8 @@ title = "PRIME ReportStream Gitleaks Configuration"
             'apiKey: \"some_key\"',
             'apiKey: \"some_key\"',
             'apiVersion',
-            'authenticationType == "',
             'authentication-type',
+            'authenticationType == "',
             'AuthorizedRoute path=',
             'azure_key_vault_certificate_secret_version',                                   # Terraform artifact
             'class(Name)?=',                                                                # this is HTML
