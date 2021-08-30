@@ -347,7 +347,8 @@ tasks.azureFunctionsRun {
         "PRIME_ENVIRONMENT" to "local",
         "VAULT_API_ADDR" to "http://localhost:8200",
         "SFTP_HOST_OVERRIDE" to "localhost",
-        "SFTP_PORT_OVERRIDE" to "2222"
+        "SFTP_PORT_OVERRIDE" to "2222",
+        "REDOX_URL_OVERRIDE" to "http://localhost:1080"
     )
 
     // Load the vault variables
