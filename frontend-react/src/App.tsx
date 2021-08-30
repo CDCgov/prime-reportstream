@@ -16,6 +16,10 @@ import { Security, SecureRoute, LoginCallback } from "@okta/okta-react";
 import { NetworkErrorBoundary } from "rest-hooks";
 import { SpinnerCircular } from "spinners-react";
 import { About } from "./pages/About";
+import {AuthorizedRoute} from "./components/AuthorizedRoute";
+import {PERMISSIONS} from "./resources/PermissionsResource";
+import {permissionCheck, reportReceiver} from "./webreceiver-utils";
+import { Upload } from "./pages/Upload";
 
 const oktaAuth = new OktaAuth(oktaAuthConfig);
 
@@ -27,6 +31,14 @@ const App = () => {
     };
 
     const restoreOriginalUri = async (_oktaAuth, originalUri) => {
+        // check if the user would have any data to receive via their organizations from the okta claim
+        // direct them to the /upload page if they do not have an organization that receives data
+        const authState = oktaAuth.authStateManager._authState;
+        if (!reportReceiver(authState) && permissionCheck(PERMISSIONS['sender'], authState) ) {
+            history.replace(toRelativeUrl(`${window.location.origin}/upload`, window.location.origin));
+            return;
+        }
+
         history.replace(toRelativeUrl(originalUri, window.location.origin));
     };
 
@@ -82,6 +94,8 @@ const App = () => {
                                 path="/login/callback"
                                 component={LoginCallback}
                             />
+                            <AuthorizedRoute path='/daily' authorize={PERMISSIONS['receiver']} component={Daily} />
+                            <AuthorizedRoute path='/upload' authorize={PERMISSIONS['sender']} component={Upload} />
                         </Switch>
                         <div className="footer">
                             <ReportStreamFooter />
