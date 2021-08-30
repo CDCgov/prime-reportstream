@@ -11,6 +11,7 @@ import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.parser.EncodingNotSupportedException
 import ca.uhn.hl7v2.parser.ModelClassFactory
+import ca.uhn.hl7v2.preparser.PreParser
 import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.ElementAndValue
@@ -116,17 +117,21 @@ class Hl7Serializer(
         val cleanedMessage = reg.replace(message, hl7SegmentDelimiter)
         val messageLines = cleanedMessage.split(hl7SegmentDelimiter)
         val nextMessage = StringBuilder()
+        var reportNumber = 1
 
-        fun deconstructStringMessage() {
-            val parsedMessage = convertMessageToMap(nextMessage.toString(), schema)
-            errors.addAll(parsedMessage.errors)
-            warnings.addAll(parsedMessage.warnings)
-            // there is a chance that there's an empty row (for example, an empty line)
-            // that won't parse. so we should skip that because it's not valid HL7
-            if (parsedMessage.row.isEmpty())
-                return
-            rowResults.add(parsedMessage)
-            nextMessage.clear()
+        /**
+         * Parse an HL7 [message] from a string.
+         */
+        fun parseStringMessage(message: String) {
+            val parsedMessage = convertMessageToMap(message, schema)
+            parsedMessage.errors.forEach {
+                errors.add("Report $reportNumber: $it")
+            }
+            parsedMessage.warnings.forEach {
+                warnings.add("Report $reportNumber: $it")
+            }
+            if (parsedMessage.row.isNotEmpty())
+                rowResults.add(parsedMessage)
             parsedMessage.row.forEach { (k, v) ->
                 if (!mappedRows.containsKey(k))
                     mappedRows[k] = mutableListOf()
@@ -146,7 +151,9 @@ class Hl7Serializer(
                 return@forEach
 
             if (nextMessage.isNotBlank() && it.startsWith("MSH")) {
-                deconstructStringMessage()
+                parseStringMessage(nextMessage.toString())
+                nextMessage.clear()
+                reportNumber++
             }
 
             if (it.isNotBlank()) {
@@ -156,7 +163,7 @@ class Hl7Serializer(
 
         // catch the last message
         if (nextMessage.isNotBlank()) {
-            deconstructStringMessage()
+            parseStringMessage(nextMessage.toString())
         }
 
         return Hl7Mapping(mappedRows, rowResults, errors, warnings)
@@ -237,7 +244,20 @@ class Hl7Serializer(
         }
 
         val hapiMsg = try {
-            parser.parse(cleanedMessage)
+            // First check that we have an HL7 message we can parse.  Note some older messages may have
+            // only MSH 9-1 and MSH-9-2, or even just MSH-9-1, so we need use those two fields to compare
+            val msgType = PreParser.getFields(cleanedMessage, "MSH-9-1", "MSH-9-2")
+            when {
+                msgType.isNullOrEmpty() || msgType[0] == null -> {
+                    errors.add("Missing required HL7 message type field MSH-9")
+                    return RowResult(emptyMap(), errors, warnings)
+                }
+                arrayOf("ORU", "R01") contentEquals msgType -> parser.parse(cleanedMessage)
+                else -> {
+                    warnings.add("Ignoring unsupported HL7 message type ${msgType.joinToString(",")}")
+                    return RowResult(emptyMap(), errors, warnings)
+                }
+            }
         } catch (e: HL7Exception) {
             logger.error("${e.localizedMessage} ${e.stackTraceToString()}")
             if (e is EncodingNotSupportedException) {
@@ -592,18 +612,18 @@ class Hl7Serializer(
         // after all values have been set or blanked, check for values that need replacement
         // isNotEmpty returns true only when a value exists. Whitespace only is considered a value
         replaceValue.forEach { element ->
-            if (element.key.substring(0, 3).equals("OBX")) {
+            if (element.key.substring(0, 3) == "OBX") {
                 val observationReps = message.patienT_RESULT.ordeR_OBSERVATION.observationReps
 
                 for (i in 0..observationReps.minus(1)) {
-                    var pathSpec = formPathSpec(element.key, i)
+                    val pathSpec = formPathSpec(element.key, i)
                     val valueInMessage = terser.get(pathSpec) ?: ""
                     if (valueInMessage.isNotEmpty()) {
                         terser.set(pathSpec, element.value)
                     }
                 }
             } else {
-                var pathSpec = formPathSpec(element.key)
+                val pathSpec = formPathSpec(element.key)
                 val valueInMessage = terser.get(pathSpec) ?: ""
                 if (valueInMessage.isNotEmpty()) {
                     terser.set(pathSpec, element.value)
