@@ -169,14 +169,20 @@ SPM|1|b518ef23-1d9a-40c1-ac4b-ed7b438dfc4b||258500001^Nasopharyngeal swab^SCT|||
                 if (errorCount > 0) {
                     good("Test for $name ${pair.first} passed: ErrorCount of $errorCount was returned.")
                 } else {
-                    bad("***Test for $name ${pair.first} FAILED***: Expected a non-zero ErrorCount, got $errorCount error(s)")
+                    bad(
+                        "***Test for $name ${pair.first} " +
+                            "FAILED***: Expected a non-zero ErrorCount, got $errorCount error(s)"
+                    )
                     failures.add("${pair.first}")
                 }
                 val warningCount = tree["warningCount"].intValue()
                 if (warningCount == 0) {
                     good("Test for BadHl7 ${pair.first} passed: $warningCount warning was returned.")
                 } else {
-                    bad("***Test for $name ${pair.first} FAILED***: Expected zero warning, got $warningCount warning(s)")
+                    bad(
+                        "***Test for $name ${pair.first} " +
+                            "FAILED***: Expected zero warning, got $warningCount warning(s)"
+                    )
                     failures.add("${pair.first}")
                 }
             } catch (e: NullPointerException) {
