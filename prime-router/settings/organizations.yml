@@ -144,7 +144,17 @@
     - name: default
       organizationName: guc-la
       topic: covid-19
-      schemaName: Experity/guc-la-covid-19
+      schemaName: experity/guc-la-covid-19
+      format: CSV
+
+- name: cuc-al
+  description: Experity CSV lab report schema, Compass Urgent Care, AL
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: cuc-al
+      topic: covid-19
+      schemaName: experity/cuc-al-covid-19
       format: CSV
 
 - name: az-phd
