@@ -132,7 +132,7 @@ export const ReportStreamHeader = () => {
         </>,
     ];
 
-    if (authState !== null) {
+    if (authState !== null && authState.isAuthenticated) {
         if (reportReceiver(authState)) {
             itemsMenu.splice(0, 0,
                 <Link href="/daily"
@@ -157,9 +157,6 @@ export const ReportStreamHeader = () => {
             );
         }
     }
-
-    if (!authState || !authState.isAuthenticated)
-        itemsMenu = itemsMenu.slice(1);
 
     return (
         <Header basic={true}>
