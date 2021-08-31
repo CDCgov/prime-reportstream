@@ -291,36 +291,6 @@ iPatientCare is an ambulatory EMR, so this field is defaulted to 'N'.
 
 ---
 
-**Name**: order_result_status
-
-**Type**: CODE
-
-**PII**: No
-
-**Default Value**: F
-
-**Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display
----- | -------
-A|Some, but not all, results available
-C|Corrected, final
-F|Final results
-I|No results available; specimen received, procedure incomplete
-M|Corrected, not final
-N|Procedure completed, results pending
-O|Order received; specimen not yet received
-P|Preliminary
-R|Results stored; not yet verified
-S|No results available; procedure scheduled, but not done
-X|No results available; Order canceled
-Y|No order on record for this test
-Z|No record of this patient
-
----
-
 **Name**: DateColl
 
 **Type**: DATE
@@ -345,7 +315,7 @@ DateColl populates multiple fields.  This instance populates order_test_date.
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-04-28
+**Table**: LIVD-SARS-CoV-2-2021-08-11
 
 **Table Column**: Test Ordered LOINC Long Name
 
@@ -556,7 +526,7 @@ The patient's city
 
 **PII**: Yes
 
-**Format**: M/d/yyyy
+**Format**: M/d/yyyy H:nn
 
 **Cardinality**: [0..1]
 
@@ -588,7 +558,7 @@ N|Non Hispanic or Latino
 U|Unknown
 H|Hispanic or Latino
 N|Non Hispanic or Latino
-U|Unknown
+N|Non Hispanic or Latino
 U|Unknown
 U|Unknown
 
@@ -598,13 +568,15 @@ Code | Display
 ---- | -------
 H|Hispanic or Latino
 N|Non Hispanic or Latino
+N|Not Hispanic or Latino
 U|Patient Declines
-U|NULL
-U|WHITE
+U|Unknown
 
 **Documentation**:
 
-NOTE - awaiting valid ethnicity values from iPatientCare
+The patient's ethnicity. There is a valueset defined based on the values in PID-22, but downstream
+consumers are free to define their own values. Please refer to the consumer-specific schema if you have questions.
+
 
 ---
 
@@ -627,6 +599,8 @@ The patient's first name
 **Type**: CODE
 
 **PII**: No
+
+**Format**: $display
 
 **Cardinality**: [0..1]
 
@@ -744,11 +718,21 @@ Code | Display
 UNK|Unknown
 ASKU|Asked, but unknown
 2106-3|White
+2106-3|White
+2106-3|White
+2106-3|White
 1002-5|American Indian or Alaska Native
 2028-9|Asian
+UNK|Unknown
+2054-5|Black or African American
+2054-5|Black or African American
+2054-5|Black or African American
 2054-5|Black or African American
 2076-8|Native Hawaiian or Other Pacific Islander
 2131-1|Other
+2131-1|Other
+2131-1|Other
+UNK|Unknown
 UNK|Unknown
 UNK|Unknown
 ASKU|Asked, but unknown
@@ -758,18 +742,29 @@ ASKU|Asked, but unknown
 Code | Display
 ---- | -------
 2106-3|White
+2106-3|W
+2106-3|CAUCASIAN
+2106-3|C
 1002-5|American Indian or Alaska Native
 2028-9|Asian
+UNK|ASIAN INDIAN
 2054-5|Black
+2054-5|African American
+2054-5|AFRICAN AMERICAN,BLACK
+2054-5|B
 2076-8|Native Hawaiian or Other Pacific Islander
 2131-1|Other
+2131-1|OTHER RACE
+2131-1|OTHER RACE,WHITE
 UNK|Unknown
 UNK|null
+UNK|NULL
 ASKU|Asked, but unknown
 
 **Documentation**:
 
-NOTE - awaiting valid race values from iPatientCare
+The patient's race. There is a common valueset defined for race values, but some states may choose to define different code/value combinations.
+
 
 ---
 
@@ -846,6 +841,9 @@ Code | Display
 60001007|Not Pregnant
 60001007|Not Pregnant
 60001007|Not Pregnant
+60001007|Not Pregnant
+60001007|Not Pregnant
+60001007|Not Pregnant
 261665006|Unknown
 261665006|Unknown
 261665006|Unknown
@@ -860,6 +858,9 @@ Code | Display
 77386006|Currently Pregnant
 60001007|N
 60001007|NO
+60001007| No
+60001007| No *** High ***
+60001007| No *** Low ***
 60001007|Not Pregnant
 60001007|Not Currently Pregnant
 261665006|U
@@ -928,6 +929,9 @@ The reporting facility's CLIA
 
 - [MSH-4-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/MSH.4.1)
 - [PID-3-4-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4.1)
+- [PID-3-6-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.6.1)
+- [SPM-2-1-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.1.2)
+- [SPM-2-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2.2)
 
 **Cardinality**: [0..1]
 
@@ -994,7 +998,7 @@ DateColl populates multiple fields.  This instance populates specimen_collection
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-04-28
+**Table**: LIVD-SARS-CoV-2-2021-08-11
 
 **Table Column**: Test Performed LOINC Long Name
 
@@ -1039,6 +1043,12 @@ Code | Display
 373121007|Test not done
 260385009|Negative
 260385009|Negative
+260385009|Negative
+260385009|Negative
+10828004|Positive
+10828004|Positive
+10828004|Positive
+10828004|Positive
 10828004|Positive
 10828004|Positive
 
@@ -1047,8 +1057,14 @@ Code | Display
 Code | Display
 ---- | -------
 260385009|Negative
+260385009|Negative *** High ***
+260385009|Negative *** Low ***
 260385009|Neg
 10828004|Positive
+10828004|Positive 
+10828004|Positive *** High ***
+10828004|Positive  *** High ***
+10828004|Positive  *** Low ***
 10828004|Pos
 
 **Documentation**:
@@ -1194,6 +1210,7 @@ Typically this will be the same as the `testing_lab_clia`, but potentially could
 
 - [OBR-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.2.2)
 - [OBR-3-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.3.2)
+- [OBX-15-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.15.2)
 - [OBX-23-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.23.1)
 - [ORC-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.2.2)
 - [ORC-3-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.3.2)

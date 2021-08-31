@@ -4,9 +4,7 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
 import java.io.ByteArrayInputStream
-import java.lang.IllegalStateException
 import kotlin.test.Test
-import kotlin.test.assertEquals
 import kotlin.test.assertFails
 import kotlin.test.fail
 
@@ -91,19 +89,19 @@ class MapperTests {
             deviceElement,
             "BinaxNOW COVID-19 Ag Card Home Test_Abbott Diagnostics Scarborough, Inc._EUA"
         )
-        assertEquals("94558-4", mapper.apply(codeElement, emptyList(), listOf(ev1)))
+        assertThat(mapper.apply(codeElement, emptyList(), listOf(ev1))).isEqualTo("94558-4")
 
         // Test with a truncated device ID
         val ev1a = ElementAndValue(deviceElement, "BinaxNOW COVID-19 Ag Card Home Test_Abb#")
-        assertEquals("94558-4", mapper.apply(codeElement, emptyList(), listOf(ev1a)))
+        assertThat(mapper.apply(codeElement, emptyList(), listOf(ev1a))).isEqualTo("94558-4")
 
         // Test with a ID NOW device id which is has a FDA number
         val ev2 = ElementAndValue(deviceElement, "10811877011269_DII")
-        assertEquals("94534-5", mapper.apply(codeElement, emptyList(), listOf(ev2)))
+        assertThat(mapper.apply(codeElement, emptyList(), listOf(ev2))).isEqualTo("94534-5")
 
         // With GUDID DI
         val ev3 = ElementAndValue(deviceElement, "10811877011269")
-        assertEquals("94534-5", mapper.apply(codeElement, emptyList(), listOf(ev3)))
+        assertThat(mapper.apply(codeElement, emptyList(), listOf(ev3))).isEqualTo("94534-5")
     }
 
     @Test
@@ -119,11 +117,11 @@ class MapperTests {
 
         // Test with a EUA
         val ev1 = ElementAndValue(modelElement, "BinaxNOW COVID-19 Ag Card")
-        assertEquals("94558-4", mapper.apply(codeElement, emptyList(), listOf(ev1)))
+        assertThat(mapper.apply(codeElement, emptyList(), listOf(ev1))).isEqualTo("94558-4")
 
         // Test with a ID NOW device id
         val ev2 = ElementAndValue(modelElement, "ID NOW")
-        assertEquals("94534-5", mapper.apply(codeElement, emptyList(), listOf(ev2)))
+        assertThat(mapper.apply(codeElement, emptyList(), listOf(ev2))).isEqualTo("94534-5")
     }
 
     @Test
@@ -164,11 +162,11 @@ class MapperTests {
 
         // Test with an FDA device id
         val ev1 = ElementAndValue(deviceElement, "10811877011337")
-        assertEquals("N", mapper.apply(codeElement, emptyList(), listOf(ev1)))
+        assertThat(mapper.apply(codeElement, emptyList(), listOf(ev1))).isEqualTo("N")
 
         // Test with a truncated device ID
         val ev1a = ElementAndValue(deviceElement, "BinaxNOW COVID-19 Ag Card 2 Home#")
-        assertEquals("Y", mapper.apply(codeElement, emptyList(), listOf(ev1a)))
+        assertThat(mapper.apply(codeElement, emptyList(), listOf(ev1a))).isEqualTo("Y")
     }
 
     @Test
@@ -184,11 +182,11 @@ class MapperTests {
 
         // Test with an FDA device id
         val ev1 = ElementAndValue(deviceElement, "BinaxNOW COVID-19 Ag Card Home Test")
-        assertEquals("N", mapper.apply(codeElement, emptyList(), listOf(ev1)))
+        assertThat(mapper.apply(codeElement, emptyList(), listOf(ev1))).isEqualTo("N")
 
         // Test with another
         val ev1a = ElementAndValue(deviceElement, "BinaxNOW COVID-19 Ag Card 2 Home Test")
-        assertEquals("Y", mapper.apply(codeElement, emptyList(), listOf(ev1a)))
+        assertThat(mapper.apply(codeElement, emptyList(), listOf(ev1a))).isEqualTo("Y")
     }
 
     @Test
@@ -328,7 +326,6 @@ class MapperTests {
         val expected = "20210302000000.0000-0600"
         val actual = mapper.apply(element, args, values)
         // assert
-        assertEquals(expected, actual, "Expected $expected. Actual: $actual")
         assertThat(actual).isEqualTo(expected)
     }
 
@@ -347,7 +344,7 @@ class MapperTests {
         var expected = "c"
         var actual = mapper.apply(element, args, values)
         // assert
-        assertEquals(expected, actual, "Expected $expected. Actual $actual")
+        assertThat(actual).isEqualTo(expected)
 
         values = listOf(
             ElementAndValue(Element("a"), ""),

@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.transport
 
+import com.hierynomus.sshj.userauth.keyprovider.OpenSSHKeyV1KeyFile
 import com.microsoft.azure.functions.ExecutionContext
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
@@ -12,6 +13,7 @@ import gov.cdc.prime.router.credentials.CredentialHelper
 import gov.cdc.prime.router.credentials.CredentialRequestReason
 import gov.cdc.prime.router.credentials.SftpCredential
 import gov.cdc.prime.router.credentials.UserPassCredential
+import gov.cdc.prime.router.credentials.UserPemCredential
 import gov.cdc.prime.router.credentials.UserPpkCredential
 import net.schmizz.sshj.SSHClient
 import net.schmizz.sshj.sftp.RemoteResourceFilter
@@ -105,6 +107,15 @@ class SftpTransport : ITransport, Logging {
                 sshClient.connect(host, port.toInt())
                 when (credential) {
                     is UserPassCredential -> sshClient.authPassword(credential.user, credential.pass)
+                    is UserPemCredential -> {
+                        val key = OpenSSHKeyV1KeyFile()
+                        val keyContents = StringReader(credential.key)
+                        when (StringUtils.isBlank(credential.keyPass)) {
+                            true -> key.init(keyContents)
+                            false -> key.init(keyContents, PasswordUtils.createOneOff(credential.keyPass.toCharArray()))
+                        }
+                        sshClient.authPublickey(credential.user, key)
+                    }
                     is UserPpkCredential -> {
                         val key = PuTTYKeyFile()
                         val keyContents = StringReader(credential.key)

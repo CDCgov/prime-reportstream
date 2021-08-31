@@ -172,7 +172,7 @@ if [[ "${ACTUAL_RESULTS?}" == "${EXPECTED_RESULTS?}" ]]; then
         ACTUAL_RESULTS="${ACTUAL_RESULTS?}${?}"
         ;;
 
-    import)
+    import*)
         # Some commands require arguments in a different location
         EXPECTED_RESULTS="${EXPECTED_RESULTS?}0"
         TFCMD_BEFORE=$(echo "${TFCMD?}" | cut -d' ' -f 1)

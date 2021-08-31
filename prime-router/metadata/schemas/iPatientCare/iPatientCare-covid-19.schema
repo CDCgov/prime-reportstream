@@ -52,34 +52,53 @@ elements:
       csvFields: [{name: Patient phone}]
 
     - name: patient_dob
-      csvFields: [{name: Birth Date, format: "M/d/yyyy"}]
+      csvFields: [{name: Birth Date, format: "M/d/yyyy H:nn"}]
 
     - name: patient_gender
-      csvFields: [{name: Sex}]
-
+      csvFields: [{name: Sex, format: $display}]
 
     - name: patient_race
       csvFields: [{name: RACE, format: $alt}]
       altValues:
         - code: 2106-3
           display: White
+        - code: 2106-3
+          display: W
+        - code: 2106-3
+          display: CAUCASIAN
+        - code: 2106-3
+          display: C
         - code: 1002-5
           display: American Indian or Alaska Native
         - code: 2028-9
           display: Asian
+        - code: UNK
+          display: ASIAN INDIAN
         - code: 2054-5
           display: Black
+        - code: 2054-5
+          display: African American
+        - code: 2054-5
+          display: AFRICAN AMERICAN,BLACK
+        - code: 2054-5
+          display: B
         - code: 2076-8
           display: Native Hawaiian or Other Pacific Islander
         - code: 2131-1
           display: Other
+        - code: 2131-1
+          display: OTHER RACE
+        - code: 2131-1
+          display: OTHER RACE,WHITE
         - code: UNK
           display: Unknown
         - code: UNK
           display: 
+        - code: UNK
+          display: "NULL"
         - code: ASKU
           display: Asked, but unknown
-      documentation: NOTE - awaiting valid race values from iPatientCare
+
             
     - name: patient_ethnicity
       csvFields: [{name: Ethnicity, format: $alt}]
@@ -88,14 +107,12 @@ elements:
           display: Hispanic or Latino
         - code: N
           display: Non Hispanic or Latino
+        - code: N
+          display: Not Hispanic or Latino
         - code: U
           display: Patient Declines
         - code: U
-          display: "NULL"
-        - code: U
-          display: WHITE    #????
-      documentation: NOTE - awaiting valid ethnicity values from iPatientCare
-
+          display: Unknown
 
 
     - name: specimen_collection_date_time
@@ -136,19 +153,28 @@ elements:
       - code: 260385009
         display: Negative
       - code: 260385009
+        display: Negative *** High ***
+      - code: 260385009
+        display: Negative *** Low ***
+      - code: 260385009
         display: Neg
       - code: 10828004
         display: Positive
       - code: 10828004
+        display: "Positive "
+      - code: 10828004
+        display: Positive *** High ***
+      - code: 10828004
+        display: Positive  *** High ***
+      - code: 10828004
+        display: Positive  *** Low ***
+      - code: 10828004
         display: Pos
       documentation: For now, Positive and Negative are the only results
-        
-        
+
+
 
     - name: test_result_status
-      default: F
-
-    - name: order_result_status
       default: F
 
     - name: result_format
@@ -281,6 +307,12 @@ elements:
         - code: 60001007
           display: NO
         - code: 60001007
+          display: " No"
+        - code: 60001007
+          display: " No *** High ***"
+        - code: 60001007
+          display: " No *** Low ***"
+        - code: 60001007
           display: Not Pregnant
         - code: 60001007
           display: Not Currently Pregnant
@@ -290,6 +322,8 @@ elements:
           display: UNK
         - code: 261665006
           display: Unknown
+
+
 
     - name: hospitalized
       default: N

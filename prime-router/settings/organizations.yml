@@ -26,6 +26,73 @@
       topic: covid-19
       schemaName: waters/waters-covid-19
       format: CSV
+  receivers:
+  - name: "giang"
+    organizationName: "waters"
+    topic: "covid-19"
+    translation:
+      schemaName: "waters/waters-covid-19"
+      format: "CSV"
+      defaults: {}
+      nameFormat: "STANDARD"
+      receivingOrganization: null
+      type: "CUSTOM"
+    jurisdictionalFilter:
+    - "hasAtLeastOneOf(waters_submitter, sender_id)"
+    - "orEquals(patient_state, GH, ordering_facility_state, GH)"
+    qualityFilter:
+    - "allowAll()"
+    reverseTheQualityFilter: false
+    deidentify: true
+    timing:
+      operation: "MERGE"
+      numberPerDay: 1440
+      initialTime: "00:00"
+      timeZone: "EASTERN"
+      maxReportCount: 10000
+    description: ""
+    transport:
+      type: SFTP
+      host: sftp
+      port: 22
+      filePath: ./upload
+      credentialName: DEFAULT-SFTP
+    externalName: null
+  - name: "giang2"
+    organizationName: "waters"
+    topic: "covid-19"
+    translation:
+      schemaName: "waters/waters-covid-19"
+      format: "CSV"
+      defaults: {}
+      nameFormat: "STANDARD"
+      receivingOrganization: null
+      type: "CUSTOM"
+    jurisdictionalFilter:
+    - "hasAtLeastOneOf(waters_submitter, sender_id)"
+    - "orEquals(patient_state, GH, ordering_facility_state, GH)"
+    qualityFilter:
+    - "allowAll()"
+    reverseTheQualityFilter: false
+    deidentify: true
+    timing:
+      operation: "MERGE"
+      numberPerDay: 1440
+      initialTime: "00:00"
+      timeZone: "EASTERN"
+      maxReportCount: 10000
+    description: ""
+    transport:
+      storageName: "PartnerStorage"
+      containerName: "hhsprotect"
+      type: "BLOBSTORE"
+    externalName: null
+
+
+
+
+
+
 
 - name: safehealth
   description: SAFE - Safe Health Systems
@@ -710,6 +777,8 @@
         receivingFacilityName: NJDOH
         receivingFacilityOID: 2.16.840.1.113883.3.1299
         truncateHDNamespaceIds: true
+        reportingFacilityName: CDC PRIME
+        reportingFacilityId: 11D2030855
       transport:
         type: SFTP
         host: sftp
@@ -960,6 +1029,7 @@
         receivingFacilityOID: 2.16.840.1.114222.4.1.214104
         suppressAoe: true
         truncateHDNamespaceIds: true
+        cliaForOutOfStateTesting: CDPH000075
       transport:
         type: SFTP
         host: sftp
@@ -986,6 +1056,7 @@
         receivingFacilityName: CDPH CA REDIE
         receivingFacilityOID: 2.16.840.1.114222.4.3.3 .10.1.1
         messageProfileId: PHLabReport-Batch^^2.16.840.1.113883.9.10^ISO
+        cliaForOutOfStateTesting: CDPH000076
       transport:
         type: SFTP
         host: sftp
@@ -1045,6 +1116,10 @@
         messageProfileId: PHLabReport-Batch^^2.16.840.1.113883.9.11^ISO
         receivingFacilityName: NH_DHHS
         receivingFacilityOID: 2.16.840.1.114222.4.1.3669
+        suppressHl7Fields: ORC-23-1,PID-13-1,ORC-14-1,OBR-17-1
+        reportingFacilityName: CDC PRIME
+        reportingFacilityId: 11D2030855
+        replaceDiiWithOid: true
       transport:
         type: SFTP
         host: sftp
@@ -1319,7 +1394,7 @@
     - name: "elr"
       organizationName: "hhsprotect"
       topic: "covid-19"
-      jurisdictionalFilter: [ "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*,Strac,InBios)" ]
+      jurisdictionalFilter: [ "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*,Strac,InBios,reddyfmc)" ]
       qualityFilter: [ "allowAll()" ]
       translation:
         type: "CUSTOM"

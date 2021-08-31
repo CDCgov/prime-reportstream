@@ -86,7 +86,7 @@ function checkBrowser() {
  * 
  * @returns truthy if logged in; falsy otherwise
  */
-function isLoggedIn(){
+function isLoggedIn() {
     const token = window.sessionStorage.getItem("jwt");
     const claims = token ? JSON.parse(atob(token.split('.')[1])) : null;
     return (token && claims && moment().isBefore(moment.unix(claims.exp)))
@@ -98,7 +98,7 @@ function isLoggedIn(){
  */
 function checkJWT() {
     if (!isLoggedIn())
-        window.location.replace('/sign-in/?return=/daily-data/');
+        window.location.replace('/log-in/?return=/daily-data/');
 }
 
 /**
@@ -123,15 +123,16 @@ async function fetchOrgName() {
 /**
  *  If the user is logged in, starts an idle timer that when expires
  *      after 15 min, clears session storage and redirects to the
- *      sign-in page
+ *      login page
  */
 function idleTimer() {
     if (isLoggedIn()) {
         window.sessionStorage.setItem("idle-timer", "true");
         idleTimeout(() => {
             window.sessionStorage.clear();
-            window.location.replace(`/sign-in/`);
-        }, {
+            window.location.replace(`/log-in/`);
+        },
+            {
                 element: document,
                 timeout: 1000 * 60 * 15,
                 loop: false
@@ -148,7 +149,7 @@ function login() {
     const redirectUri = window.location.origin;
 
     const config = {
-        logo: '//logo.clearbit.com/cdc.gov',
+        logo: 'https://reportstream.cdc.gov/assets/img/cdc-logo.svg',
         language: 'en',
         features: {
             registration: false, // Enable self-service registration flow
@@ -182,14 +183,14 @@ function logout() {
     window.sessionStorage.removeItem("oldOrg");
     window.location.replace(`${window.location.origin}`);
     const _signIn = document.getElementById("signInButton");
-    if (_signIn){
-        _signIn.removeAttribute( "hidden" );
+    if (_signIn) {
+        _signIn.removeAttribute("hidden");
     }
 }
 
-async function fetchReportFeeds(){
+async function fetchReportFeeds() {
     let reports = await fetchReports();
-    let receivingOrgSvc = reports ? reports.map( rep => {
+    let receivingOrgSvc = reports ? reports.map(rep => {
         debug(`display name = ${rep.displayName}`)
         return rep.receivingOrgSvc
     }) : []
@@ -205,9 +206,9 @@ async function fetchReports(filter) {
     debug(`invoking ${url}`);
     const retValue = window.jwt ? await axios(apiConfig(url))
         .then(res => res.data)
-        .catch(e => { console.log(e); return [] }): [];
+        .catch(e => { console.log(e); return [] }) : [];
     debug(retValue);
-    return filter? retValue.filter( report => report.receivingOrgSvc === filter ) : retValue;
+    return filter ? retValue.filter(report => report.receivingOrgSvc === filter) : retValue;
 }
 
 async function fetchAllOrgs() {
@@ -226,7 +227,7 @@ async function requestFile(reportId) {
             // The filename to use for the download should not contain blob folders if present
             let filename = decodeURIComponent(csv.filename);
             let filenameStartIndex = filename.lastIndexOf("/");
-            if (filenameStartIndex >= 0 && filename.length > filenameStartIndex + 1) 
+            if (filenameStartIndex >= 0 && filename.length > filenameStartIndex + 1)
                 filename = filename.substring(filenameStartIndex + 1);
             download(csv.content, filename, csv.mimetype)
         }) : null;
@@ -237,7 +238,7 @@ async function requestFile(reportId) {
  *
  * @returns
  */
-function isLocalhost(){
+function isLocalhost() {
     return window.location.origin.includes("localhost");
 }
 
@@ -245,10 +246,10 @@ function isLocalhost(){
  *
  * @returns
  */
-async function changeOrg(event){
+async function changeOrg(event) {
     debug(`org = ${event.value}`)
     window.org = event.value;
-    window.sessionStorage.setItem( "oldOrg", window.org );
+    window.sessionStorage.setItem("oldOrg", window.org);
     window.location.replace(`${window.location.origin}/daily-data/`);
     processOrgName();
     const details = document.querySelector("#details");
@@ -258,7 +259,7 @@ async function changeOrg(event){
     let feeds = await processReportFeeds();
     // reports
     // I don't think I'm necessary now
-    let promises = feeds.map(async (feed,idx) => {
+    let promises = feeds.map(async (feed, idx) => {
         debug(`processing Reports ${feed} ${idx}`);
         await processReports(feed, idx);
     });
@@ -275,7 +276,7 @@ function populateOrgDropdown() {
         _dropdown.id = "dropdown";
 
         let _orgsOptions = "";
-        window.orgs.sort().forEach( org => {
+        window.orgs.sort().forEach(org => {
             _orgsOptions +=
                 `
                         <option value="${org}" ${convertOrgName(window.org) === org ? 'selected="selected"' : ""} >
@@ -303,7 +304,7 @@ function isAnAdmin() {
  *
  * @param {boolean} redirect
  */
-function processJwtToken(){
+function processJwtToken() {
     let token = window.sessionStorage.getItem("jwt");
     let claims = token ? JSON.parse(atob(token.split('.')[1])) : null;
 
@@ -317,13 +318,13 @@ function processJwtToken(){
         // refresh our signin link/remove it
         const _signIn = document.querySelector("#signInButton");
         if (_signIn) {
-            _signIn.setAttribute( "hidden", "hidden");
+            _signIn.setAttribute("hidden", "hidden");
         }
         // process the org so the dropdown looks correct
         const _org = claims.organization.filter(c => c !== "DHPrimeAdmins");
-        const oldOrg = window.sessionStorage.getItem( "oldOrg");
-        window.org = oldOrg ? oldOrg : (_org && _org.length > 0) ? convertOrgName( _org[0] ) : null;
-        window.sessionStorage.setItem( "oldOrg", window.org );
+        const oldOrg = window.sessionStorage.getItem("oldOrg");
+        window.org = oldOrg ? oldOrg : (_org && _org.length > 0) ? convertOrgName(_org[0]) : null;
+        window.sessionStorage.setItem("oldOrg", window.org);
         window.user = claims.sub;
         // set the token here
         window.jwt = token;
@@ -341,11 +342,11 @@ function processJwtToken(){
             populateOrgDropdown();
         }
     } else {
-        const navmenu = document.getElementById( "navmenu" );
-        if( navmenu ) navmenu.setAttribute( "hidden", "hidden" );
+        const navmenu = document.getElementById("navmenu");
+        if (navmenu) navmenu.setAttribute("hidden", "hidden");
 
-        const _signIn = document.getElementById( "signInButton" );
-        if( _signIn ) _signIn.removeAttribute( "hidden" );
+        const _signIn = document.getElementById("signInButton");
+        if (_signIn) _signIn.removeAttribute("hidden");
     }
 }
 
@@ -353,7 +354,7 @@ function processJwtToken(){
  *
  * @returns {string} organization name; possibly null
  */
-async function processOrgName(){
+async function processOrgName() {
     let orgName = null;
 
     try {
@@ -373,12 +374,12 @@ async function processOrgName(){
 function titleCase(str) {
     str = str.toLowerCase().split(' ');
     for (let i = 0; i < str.length; i++) {
-      str[i] = str[i].charAt(0).toUpperCase() + str[i].slice(1); 
+        str[i] = str[i].charAt(0).toUpperCase() + str[i].slice(1);
     }
     return str.join(' ');
-  }
+}
 
-async function processReportFeeds(){
+async function processReportFeeds() {
     // get our DOM elements
     const tabs = document.querySelector("#tabs");
     // show a waiting message
@@ -388,7 +389,7 @@ async function processReportFeeds(){
     const feeds = await fetchReportFeeds();
     debug(feeds);
     if (tabs) {
-        tabs.innerHTML = `<div id="reportFeeds" class=${feeds.length>1?"tab-wrap":""}></div>`;
+        tabs.innerHTML = `<div id="reportFeeds" class=${feeds.length > 1 ? "tab-wrap" : ""}></div>`;
     }
     const reportFeeds = document.querySelector("#reportFeeds");
     if (reportFeeds) {
@@ -455,7 +456,7 @@ async function processReportFeeds(){
  *
  * @returns {Array<Report>} an array of the received reports; possibly empty
  */
-async function processReports(feed, idx){
+async function processReports(feed, idx) {
     let reports = [];
     const tBody = document.querySelector(`tbody[data-feed-name='${feed}']`);
     debug(tBody);
@@ -490,7 +491,7 @@ async function processReports(feed, idx){
                     </th>
               </tr>`;
             }
-    });
+        });
     }
     if (!reports || reports.length === 0) {
         if (tBody) tBody.innerHTML +=
@@ -502,16 +503,16 @@ async function processReports(feed, idx){
 }
 
 const sortFacilities = (facilityOne, facilityTwo) => {
-  const fOne = facilityOne.facility.toUpperCase();
-  const fTwo = facilityTwo.facility.toUpperCase();
+    const fOne = facilityOne.facility.toUpperCase();
+    const fTwo = facilityTwo.facility.toUpperCase();
 
-  if (fOne < fTwo) {
-      return -1;
-  }
-  if (fOne > fTwo) {
-      return 1;
-  }
-  return 0;
+    if (fOne < fTwo) {
+        return -1;
+    }
+    if (fOne > fTwo) {
+        return 1;
+    }
+    return 0;
 };
 
 /**
@@ -519,11 +520,11 @@ const sortFacilities = (facilityOne, facilityTwo) => {
  * @param {Array<Report>} reports array
  * @returns {Report} selected report; possibly null
  */
-async function processReport( reports ){
+async function processReport(reports) {
     const details = document.querySelector("#details");
-    const facilities = document.querySelector( "#tBodyFac");
-    const noFac = document.querySelector( '#nofacilities' );
-    const facTable = document.querySelector( '#facilitiestable');
+    const facilities = document.querySelector("#tBodyFac");
+    const noFac = document.querySelector('#nofacilities');
+    const facTable = document.querySelector('#facilitiestable');
     let report = null;
     if (reports && reports.length > 0) {
         if (window.location.search === "")
@@ -561,9 +562,9 @@ async function processReport( reports ){
         }
 
         if (report.facilities && report.facilities.length) {
-            if (noFac) noFac.setAttribute( "hidden", "hidden" );
+            if (noFac) noFac.setAttribute("hidden", "hidden");
         } else {
-            if (facTable) facTable.setAttribute( "hidden", "hidden" );
+            if (facTable) facTable.setAttribute("hidden", "hidden");
         }
 
         const reportId = document.querySelector("#report-id");

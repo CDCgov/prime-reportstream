@@ -24,7 +24,7 @@ import java.time.format.DateTimeFormatter
 
 plugins {
     kotlin("jvm") version "1.5.21"
-    id("org.flywaydb.flyway") version "7.12.1"
+    id("org.flywaydb.flyway") version "7.14.0"
     id("nu.studer.jooq") version "6.0"
     id("com.github.johnrengelman.shadow") version "7.0.0"
     id("com.microsoft.azure.azurefunctions") version "1.6.0"
@@ -324,6 +324,46 @@ tasks.register("copyAzureScripts") {
     }
 }
 
+tasks.azureFunctionsPackage {
+    finalizedBy("copyAzureResources")
+    finalizedBy("copyAzureScripts")
+}
+
+tasks.azureFunctionsRun {
+    // This storage account key is not a secret, just a dummy value.
+    val devAzureConnectString =
+        "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=" +
+            "Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=" +
+            "http://localhost:10000/devstoreaccount1;QueueEndpoint=http://localhost:10001/devstoreaccount1;"
+    environment(
+        mapOf(
+            "AzureWebJobsStorage" to devAzureConnectString,
+            "PartnerStorage" to devAzureConnectString,
+            "POSTGRES_USER" to dbUser,
+            "POSTGRES_PASSWORD" to dbPassword,
+            "POSTGRES_URL" to dbUrl,
+            "PRIME_ENVIRONMENT" to "local",
+            "VAULT_API_ADDR" to "http://localhost:8200"
+        )
+    )
+    azurefunctions.localDebug = "transport=dt_socket,server=y,suspend=n,address=5005"
+}
+
+tasks.register("run") {
+    group = rootProject.description ?: ""
+    description = "Run the Azure functions locally.  Note this needs the required services running as well"
+    dependsOn("azureFunctionsRun")
+}
+
+tasks.register("quickRun") {
+    dependsOn("azureFunctionsRun")
+    tasks["test"].enabled = false
+    tasks["jacocoTestReport"].enabled = false
+    tasks["compileTestKotlin"].enabled = false
+    tasks["migrate"].enabled = false
+    tasks["flywayMigrate"].enabled = false
+}
+
 // Configuration for Flyway migration tool
 flyway {
     url = dbUrl
@@ -387,12 +427,17 @@ tasks.register("migrate") {
     dependsOn("flywayMigrate")
 }
 
+tasks.register("reloadDB") {
+    group = rootProject.description ?: ""
+    description = "Delete all tables in the database and recreate from the latest schema"
+    dependsOn("flywayClean")
+    dependsOn("flywayMigrate")
+}
+
 tasks.register("package") {
     group = rootProject.description ?: ""
     description = "Package the code and necessary files to run the Azure functions"
     dependsOn("azureFunctionsPackage")
-    dependsOn("copyAzureResources")
-    dependsOn("copyAzureScripts")
     dependsOn("fatJar")
 }
 
@@ -422,20 +467,21 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-common:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.1")
     implementation("com.microsoft.azure.functions:azure-functions-java-library:1.4.2")
     implementation("com.azure:azure-core:1.19.0")
     implementation("com.azure:azure-core-http-netty:1.10.2")
-    implementation("com.azure:azure-storage-blob:12.11.1") {
+    implementation("com.azure:azure-storage-blob:12.13.0") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-storage-queue:12.9.1") {
+    implementation("com.azure:azure-storage-queue:12.10.0") {
         exclude(group = "com.azure", module = "azure-core")
     }
     implementation("com.azure:azure-security-keyvault-secrets:4.3.1") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
-    implementation("com.azure:azure-identity:1.3.4") {
+    implementation("com.azure:azure-identity:1.3.5") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
@@ -453,9 +499,9 @@ dependencies {
     implementation("com.github.javafaker:javafaker:1.0.2")
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
-    implementation("com.googlecode.libphonenumber:libphonenumber:8.12.29")
+    implementation("com.googlecode.libphonenumber:libphonenumber:8.12.31")
     implementation("org.thymeleaf:thymeleaf:3.0.12.RELEASE")
-    implementation("com.sendgrid:sendgrid-java:4.7.3")
+    implementation("com.sendgrid:sendgrid-java:4.7.4")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.1")
     implementation("com.github.kittinunf.fuel:fuel:2.3.1") {
         exclude(group = "org.json", module = "json")
@@ -471,7 +517,7 @@ dependencies {
     implementation("commons-io:commons-io:2.11.0")
     implementation("org.postgresql:postgresql:42.2.23")
     implementation("com.zaxxer:HikariCP:5.0.0")
-    implementation("org.flywaydb:flyway-core:7.12.1")
+    implementation("org.flywaydb:flyway-core:7.13.0")
     implementation("com.github.kayr:fuzzy-csv:1.6.48")
     implementation("org.commonmark:commonmark:0.18.0")
     implementation("com.google.guava:guava:30.1.1-jre")
@@ -482,7 +528,7 @@ dependencies {
     implementation("org.bouncycastle:bcprov-jdk15on:1.69")
 
     implementation("com.cronutils:cron-utils:9.1.5")
-    implementation("khttp:khttp:0.1.0")
+    implementation("khttp:khttp:1.0.0")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.1")
     runtimeOnly("com.github.kittinunf.fuel:fuel-jackson:2.3.1")

@@ -8,7 +8,11 @@ class AuthenticationStrategy() : Logging {
     companion object Types {
 
         // Returns an OktaAuthentication strategy if the authenticationType is "okta"
-        fun authStrategy(authenticationType: String?, principalLevel: PrincipalLevel): Any {
+        fun authStrategy(
+            authenticationType: String?,
+            principalLevel: PrincipalLevel,
+            workflowEngine: WorkflowEngine
+        ): Any {
 
             // Clients using Okta will send "authentication-type": "okta" in the request header
             if (authenticationType == "okta") {
@@ -16,7 +20,7 @@ class AuthenticationStrategy() : Logging {
             }
 
             // default is TokenAuthentication
-            return TokenAuthentication(DatabaseJtiCache(WorkflowEngine().db))
+            return TokenAuthentication(DatabaseJtiCache(workflowEngine.db))
         }
     }
 }

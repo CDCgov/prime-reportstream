@@ -13,6 +13,7 @@ import gov.cdc.prime.router.credentials.CredentialManagement
 import gov.cdc.prime.router.credentials.CredentialRequestReason
 import gov.cdc.prime.router.credentials.UserJksCredential
 import gov.cdc.prime.router.credentials.UserPassCredential
+import gov.cdc.prime.router.credentials.UserPemCredential
 import gov.cdc.prime.router.credentials.UserPpkCredential
 import org.apache.logging.log4j.Level
 import org.apache.logging.log4j.core.config.Configurator
@@ -40,6 +41,7 @@ class CredentialsCli : CredentialManagement, CliktCommand(
     val type by option(help = "Type of credential to create")
         .groupChoice(
             "UserPass" to UserPassCredentialOptions(),
+            "UserPem" to UserPemCredentialOptions(),
             "UserPpk" to UserPpkCredentialOptions(),
             "UserJks" to UserJksCredentialOptions()
         ).required()
@@ -53,6 +55,7 @@ class CredentialsCli : CredentialManagement, CliktCommand(
     override fun run() {
         val credential = when (val it = type) {
             is UserPassCredentialOptions -> UserPassCredential(it.user, it.pass)
+            is UserPemCredentialOptions -> UserPemCredential(it.user, it.file.readText(Charsets.UTF_8), it.filePass)
             is UserPpkCredentialOptions -> UserPpkCredential(it.user, it.file.readText(Charsets.UTF_8), it.filePass)
             is UserJksCredentialOptions -> {
                 val jksEncoded = Base64.getEncoder().encodeToString(it.file.readBytes())
@@ -82,6 +85,12 @@ sealed class CredentialConfig(name: String) : OptionGroup(name)
 class UserPassCredentialOptions : CredentialConfig("Options for credential type 'UserPass'") {
     val user by option(help = "SFTP username").prompt(default = "")
     val pass by option(help = "SFTP password").prompt(default = "", requireConfirmation = true)
+}
+
+class UserPemCredentialOptions : CredentialConfig("Options for credential type 'UserPem'") {
+    val user by option("--pem-user", help = "Username to authenticate alongside the PEM").prompt(default = "")
+    val file by option("--pem-file", help = "Path to the PEM file").file(mustExist = true).required()
+    val filePass by option("--pem-file-pass", help = "Password to decrypt the PEM").prompt(default = "")
 }
 
 class UserPpkCredentialOptions : CredentialConfig("Options for credential type 'UserPpk'") {
