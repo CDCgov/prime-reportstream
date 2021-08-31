@@ -12,6 +12,8 @@ import { useOktaAuth } from "@okta/okta-react";
 import { useEffect, useState } from "react";
 import { useResource } from "rest-hooks";
 import OrganizationResource from "../resources/OrganizationResource";
+import {permissionCheck, reportReceiver} from "../webreceiver-utils";
+import {PERMISSIONS} from "../resources/PermissionsResource";
 
 /**
  *
@@ -132,6 +134,32 @@ export const ReportStreamHeader = () => {
             />
         </>,
     ];
+
+    if (authState !== null) {
+        if (reportReceiver(authState)) {
+            itemsMenu.splice(0, 0,
+                <Link href="/daily"
+                      key="daily"
+                      data-attribute="hidden"
+                      hidden={true}
+                      className="usa-nav__link">
+                    <span>Daily data</span>
+                </Link>
+            );
+        }
+
+        if (permissionCheck(PERMISSIONS['sender'], authState)) {
+            itemsMenu.splice(1, 0,
+                <Link href="/upload"
+                      key="upload"
+                      data-attribute="hidden"
+                      hidden={true}
+                      className="usa-nav__link">
+                    <span>Upload</span>
+                </Link>
+            );
+        }
+    }
 
     if (!authState || !authState.isAuthenticated)
         itemsMenu = itemsMenu.slice(1);

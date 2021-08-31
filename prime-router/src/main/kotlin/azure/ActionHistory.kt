@@ -23,9 +23,11 @@ import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
+import gov.cdc.prime.router.azure.db.tables.records.ItemLineageRecord
 import org.jooq.Configuration
 import org.jooq.DSLContext
 import org.jooq.JSONB
+import org.jooq.TableRecord
 import org.jooq.impl.DSL
 import java.io.ByteArrayOutputStream
 import java.time.OffsetDateTime
@@ -486,9 +488,20 @@ class ActionHistory {
     }
 
     private fun insertItemLineages(itemLineages: Set<ItemLineage>, txn: Configuration) {
-        itemLineages.forEach {
-            DSL.using(txn).newRecord(ITEM_LINEAGE, it).store()
-        }
+        DSL.using(txn)
+            .batchInsert(
+                itemLineages.map { il ->
+                    ItemLineageRecord().also { record ->
+                        record.parentReportId = il.parentReportId
+                        record.parentIndex = il.parentIndex
+                        record.childReportId = il.childReportId
+                        record.childIndex = il.childIndex
+                        record.trackingId = il.trackingId
+                    }
+                }
+            )
+            .execute()
+
         context?.logger?.info(
             "Inserted ${itemLineages.size} " +
                 "Item lineages into db for action ${action.actionId}: ${action.actionName}"
