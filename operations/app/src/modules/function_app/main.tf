@@ -35,7 +35,19 @@ locals {
 
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE" = false
 
-    "APPINSIGHTS_INSTRUMENTATIONKEY" = var.ai_instrumentation_key
+    # App Insights
+    "APPINSIGHTS_INSTRUMENTATIONKEY"                  = var.ai_instrumentation_key
+    "APPINSIGHTS_PROFILERFEATURE_VERSION"             = "1.0.0"
+    "APPINSIGHTS_SNAPSHOTFEATURE_VERSION"             = "1.0.0"
+    "APPLICATIONINSIGHTS_CONFIGURATION_CONTENT"       = ""
+    "APPLICATIONINSIGHTS_CONNECTION_STRING"           = ""
+    "ApplicationInsightsAgent_EXTENSION_VERSION"      = "~3"
+    "DiagnosticServices_EXTENSION_VERSION"            = "~3"
+    "InstrumentationEngine_EXTENSION_VERSION"         = "disabled"
+    "SnapshotDebugger_EXTENSION_VERSION"              = "disabled"
+    "XDT_MicrosoftApplicationInsights_BaseExtensions" = "disabled"
+    "XDT_MicrosoftApplicationInsights_Mode"           = "recommended"
+    "XDT_MicrosoftApplicationInsights_PreemptSdk"     = "disabled"
 
     "FEATURE_FLAG_SETTINGS_ENABLED" = true
   }
