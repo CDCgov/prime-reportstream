@@ -657,7 +657,7 @@ NTE|1|L|This is a final comment|RE"""
         val newLimitWithSpecialChars = serializer.getTruncationLimitWithEncoding(testValueWithSpecialChars, testLimit)
         val newLimitNoSpecialChars = serializer.getTruncationLimitWithEncoding(testValueNoSpecialChars, testLimit)
 
-        assertEquals(newLimitWithSpecialChars, 14)
+        assertEquals(newLimitWithSpecialChars, 16)
         assertEquals(newLimitNoSpecialChars, testLimit)
     }
 
