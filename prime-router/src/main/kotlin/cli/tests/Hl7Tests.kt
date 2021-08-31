@@ -178,13 +178,8 @@ SPM|1|b518ef23-1d9a-40c1-ac4b-ed7b438dfc4b||258500001^Nasopharyngeal swab^SCT|||
                     good("Test for $name ${pair.first} passed: ErrorCount of $errorCount was returned.")
                 } else {
                     bad(
-<<<<<<< HEAD
-                        "***Test for $name ${pair.first} " +
-                            "FAILED***: Expected a non-zero ErrorCount, got $errorCount error(s)"
-=======
                         "***Test for $name ${pair.first} FAILED***: " +
                             "Expected a non-zero ErrorCount, got $errorCount error(s)"
->>>>>>> master
                     )
                     failures.add("${pair.first}")
                 }
@@ -193,13 +188,8 @@ SPM|1|b518ef23-1d9a-40c1-ac4b-ed7b438dfc4b||258500001^Nasopharyngeal swab^SCT|||
                     good("Test for BadHl7 ${pair.first} passed: $warningCount warning was returned.")
                 } else {
                     bad(
-<<<<<<< HEAD
-                        "***Test for $name ${pair.first} " +
-                            "FAILED***: Expected zero warning, got $warningCount warning(s)"
-=======
                         "***Test for $name ${pair.first} FAILED***: " +
                             "Expected zero warning, got $warningCount warning(s)"
->>>>>>> master
                     )
                     failures.add("${pair.first}")
                 }

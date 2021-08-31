@@ -363,7 +363,10 @@ open class BaseHistoryFunction : Logging {
 
                 // a user can now be part of a sender group as well, so find the first "non-sender" group in their claims
                 @Suppress("UNCHECKED_CAST")
-                val org = if (orgs !== null) (orgs as List<String>).find { org -> !org.lowercase().contains("sender") } else ""
+                val org = if (orgs !== null) (orgs as List<String>).find {
+                    org ->
+                    !org.lowercase().contains("sender")
+                } else ""
                 if (org != null) {
                     orgName = if (org.length > 3) org.substring(2) else ""
                 }
