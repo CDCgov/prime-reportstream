@@ -19,7 +19,8 @@ ReportStream is currently live and in development in the following jurisdictions
   * Massachusetts
   * Minnesota
   * Mississippi 
-  * Montana 
+  * Montana
+  * New Jersey 
   * New Mexico 
   * North Dakota 
   * Ohio 
@@ -39,7 +40,6 @@ ReportStream is currently live and in development in the following jurisdictions
   * Delaware
   * Illinois
   * New Hampshire 
-  * New Jersey 
   * New York
   * Oregon
   * Tennessee
