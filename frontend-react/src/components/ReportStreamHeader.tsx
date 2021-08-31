@@ -110,9 +110,6 @@ export const ReportStreamHeader = () => {
     ];
 
     let itemsMenu = [
-        <Link href="/daily" id="daily" className="usa-nav__link">
-            <span>Daily data</span>
-        </Link>,
         <Link href="/about" id="docs" className="usa-nav__link">
             <span>About</span>
         </Link>,

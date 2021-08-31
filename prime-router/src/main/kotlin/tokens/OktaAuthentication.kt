@@ -51,6 +51,7 @@ class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLev
     fun checkAccess(
         request: HttpRequestMessage<String?>,
         organizationName: String,
+        oktaSender: Boolean = false,
         block: (AuthenticatedClaims) -> HttpResponseMessage
     ): HttpResponseMessage {
         try {
@@ -66,7 +67,7 @@ class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLev
                 logger.error("Wrong Authentication Verifier being used: ${claimVerifier::class} for $host")
                 return HttpUtilities.unauthorizedResponse(request)
             }
-            val claims = claimVerifier.checkClaims(accessToken, minimumLevel, organizationName)
+            val claims = claimVerifier.checkClaims(accessToken, minimumLevel, organizationName, oktaSender)
             if (claims == null) {
                 logger.info("Invalid Authorization Header: ${request.httpMethod}:${request.uri.path}")
                 return HttpUtilities.unauthorizedResponse(request, invalidClaim)
