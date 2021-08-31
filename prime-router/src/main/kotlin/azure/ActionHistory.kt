@@ -27,7 +27,6 @@ import gov.cdc.prime.router.azure.db.tables.records.ItemLineageRecord
 import org.jooq.Configuration
 import org.jooq.DSLContext
 import org.jooq.JSONB
-import org.jooq.TableRecord
 import org.jooq.impl.DSL
 import java.io.ByteArrayOutputStream
 import java.time.OffsetDateTime
