@@ -1,6 +1,6 @@
 
-### Schema:         experity/guc-la-covid-19
-#### Description:   Experity CSV lab report schema, Greenlight Urgent Care, LA
+### Schema:         experity/cuc-al-covid-19
+#### Description:   Experity CSV lab report schema, Compass Urgent Care, AL
 
 ---
 
@@ -1902,7 +1902,7 @@ The reporting facility's name
 
 **PII**: No
 
-**Default Value**: guc-la
+**Default Value**: cuc-al
 
 **Cardinality**: [0..1]
 
@@ -2085,7 +2085,7 @@ Translate multiple inbound Y/N/U AOE values to RS values
 
 Code | Display
 ---- | -------
-CareStart COVID-19 Antigen test_Access Bio, Inc.|Coronavirus Antigen IA Rapid Test
+Sofia SARS Antigen FIA_Quidel Corporation|Sofia SARS Antigen FIA
 10811877011269|Abbott-ID NOW COVID-19 (Molecular)
 99999999|non-CDC 2019-ncov coronavirus, SARS (COVID-19)
 99999999|Flu A & B, Real-time RT-PCR (RNA)
