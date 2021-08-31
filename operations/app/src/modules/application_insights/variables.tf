@@ -17,3 +17,8 @@ variable "resource_prefix" {
   type        = string
   description = "Resource Prefix"
 }
+
+variable "is_metabase_env" {
+  type        = bool
+  description = "Should Metabase be deployed in this environment"
+}

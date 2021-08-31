@@ -27,6 +27,7 @@ module "application_insights" {
   resource_group  = var.resource_group
   resource_prefix = var.resource_prefix
   location        = var.location
+  is_metabase_env = var.is_metabase_env
 }
 
 module "function_app" {
@@ -67,5 +68,5 @@ module "metabase" {
   resource_group         = var.resource_group
   resource_prefix        = var.resource_prefix
   location               = var.location
-  ai_instrumentation_key = module.application_insights.instrumentation_key
+  ai_instrumentation_key = module.application_insights.metabase_instrumentation_key
 }
