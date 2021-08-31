@@ -41,6 +41,7 @@ ReportStream is currently live and in development in the following jurisdictions
   * New Hampshire 
   * New Jersey 
   * New York
+  * Oregon
   * Tennessee
   * Wisconsin 
 
