@@ -1,13 +1,13 @@
-locals{
-  ping_url = (var.environment == "prod" ? "https://prime.cdc.gov" : "https://${var.environment}.prime.cdc.gov")
+locals {
+  ping_url         = (var.environment == "prod" ? "https://prime.cdc.gov" : "https://${var.environment}.prime.cdc.gov")
   alerting_enabled = (var.environment == "prod" || var.environment == "staging" ? 1 : 0)
 }
 
 resource "azurerm_application_insights" "app_insights" {
-  name = "${var.resource_prefix}-appinsights"
-  location = var.location
+  name                = "${var.resource_prefix}-appinsights"
+  location            = var.location
   resource_group_name = var.resource_group
-  application_type = "web"
+  application_type    = "web"
 
   tags = {
     environment = var.environment
@@ -15,14 +15,14 @@ resource "azurerm_application_insights" "app_insights" {
 }
 
 resource "azurerm_monitor_action_group" "action_group" {
-  count = local.alerting_enabled
-  name = "${var.resource_prefix}-actiongroup"
+  count               = local.alerting_enabled
+  name                = "${var.resource_prefix}-actiongroup"
   resource_group_name = var.resource_group
-  short_name = "ReportStream"
+  short_name          = "ReportStream"
 
   webhook_receiver {
-    name = "PagerDuty"
-    service_uri = data.azurerm_key_vault_secret.pagerduty_url.value
+    name                    = "PagerDuty"
+    service_uri             = data.azurerm_key_vault_secret.pagerduty_url.value
     use_common_alert_schema = true
   }
 
@@ -38,21 +38,21 @@ resource "azurerm_monitor_action_group" "action_group" {
 # Severity 4 - Verbose
 
 resource "azurerm_monitor_metric_alert" "availability_alert" {
-  count = local.alerting_enabled
-  name = "Degraded Availability"
-  description = "Degraded Availability"
+  count               = local.alerting_enabled
+  name                = "Degraded Availability"
+  description         = "Degraded Availability"
   resource_group_name = var.resource_group
-  scopes = [azurerm_application_insights.app_insights.id]
-  window_size = "PT1H"
-  frequency = "PT1M"
-  severity = 0
+  scopes              = [azurerm_application_insights.app_insights.id]
+  window_size         = "PT1H"
+  frequency           = "PT1M"
+  severity            = 0
 
   criteria {
     metric_namespace = "microsoft.insights/components"
-    metric_name = "availabilityResults/availabilityPercentage"
-    aggregation = "Average"
-    operator = "LessThan"
-    threshold = 100
+    metric_name      = "availabilityResults/availabilityPercentage"
+    aggregation      = "Average"
+    operator         = "LessThan"
+    threshold        = 100
   }
 
   action {
@@ -65,21 +65,21 @@ resource "azurerm_monitor_metric_alert" "availability_alert" {
 }
 
 resource "azurerm_monitor_metric_alert" "exception_alert_critical" {
-  count = local.alerting_enabled
-  name = "Over 100 Exceptions Raised in the Last Hour"
-  description = "Over 100 Exceptions Raised in the Last Hour"
+  count               = local.alerting_enabled
+  name                = "Over 100 Exceptions Raised in the Last Hour"
+  description         = "Over 100 Exceptions Raised in the Last Hour"
   resource_group_name = var.resource_group
-  scopes = [azurerm_application_insights.app_insights.id]
-  window_size = "PT1H"
-  frequency = "PT1M"
-  severity = 0
+  scopes              = [azurerm_application_insights.app_insights.id]
+  window_size         = "PT1H"
+  frequency           = "PT1M"
+  severity            = 0
 
   criteria {
     metric_namespace = "microsoft.insights/components"
-    metric_name = "exceptions/count"
-    aggregation = "Count"
-    operator = "GreaterThan"
-    threshold = 99
+    metric_name      = "exceptions/count"
+    aggregation      = "Count"
+    operator         = "GreaterThan"
+    threshold        = 99
   }
 
   action {
@@ -92,21 +92,21 @@ resource "azurerm_monitor_metric_alert" "exception_alert_critical" {
 }
 
 resource "azurerm_monitor_metric_alert" "exception_alert_error" {
-  count = local.alerting_enabled
-  name = "Over 10 Exceptions Raised in the Last Hour"
-  description = "Over 10 Exceptions Raised in the Last Hour"
+  count               = local.alerting_enabled
+  name                = "Over 10 Exceptions Raised in the Last Hour"
+  description         = "Over 10 Exceptions Raised in the Last Hour"
   resource_group_name = var.resource_group
-  scopes = [azurerm_application_insights.app_insights.id]
-  window_size = "PT1H"
-  frequency = "PT1M"
-  severity = 1
+  scopes              = [azurerm_application_insights.app_insights.id]
+  window_size         = "PT1H"
+  frequency           = "PT1M"
+  severity            = 1
 
   criteria {
     metric_namespace = "microsoft.insights/components"
-    metric_name = "exceptions/count"
-    aggregation = "Count"
-    operator = "GreaterThan"
-    threshold = 9
+    metric_name      = "exceptions/count"
+    aggregation      = "Count"
+    operator         = "GreaterThan"
+    threshold        = 9
   }
 
   action {
@@ -119,21 +119,21 @@ resource "azurerm_monitor_metric_alert" "exception_alert_error" {
 }
 
 resource "azurerm_monitor_metric_alert" "exception_alert_warn" {
-  count = local.alerting_enabled
-  name = "One or More Exceptions Raised in the Last Hour"
-  description = "One or More Exceptions Raised in the Last Hour"
+  count               = local.alerting_enabled
+  name                = "One or More Exceptions Raised in the Last Hour"
+  description         = "One or More Exceptions Raised in the Last Hour"
   resource_group_name = var.resource_group
-  scopes = [azurerm_application_insights.app_insights.id]
-  window_size = "PT1H"
-  frequency = "PT1M"
-  severity = 2
+  scopes              = [azurerm_application_insights.app_insights.id]
+  window_size         = "PT1H"
+  frequency           = "PT1M"
+  severity            = 2
 
   criteria {
     metric_namespace = "microsoft.insights/components"
-    metric_name = "exceptions/count"
-    aggregation = "Count"
-    operator = "GreaterThan"
-    threshold = 0
+    metric_name      = "exceptions/count"
+    aggregation      = "Count"
+    operator         = "GreaterThan"
+    threshold        = 0
   }
 
   action {
@@ -146,17 +146,17 @@ resource "azurerm_monitor_metric_alert" "exception_alert_warn" {
 }
 
 resource "azurerm_application_insights_web_test" "ping_test" {
-  count = local.alerting_enabled
-  name = "${var.resource_prefix}-pingfunctions"
-  location = var.location
-  resource_group_name = var.resource_group
+  count                   = local.alerting_enabled
+  name                    = "${var.resource_prefix}-pingfunctions"
+  location                = var.location
+  resource_group_name     = var.resource_group
   application_insights_id = azurerm_application_insights.app_insights.id
-  kind = "ping"
-  frequency = 300
-  timeout = 60
-  enabled = true
-  retry_enabled = true
-  geo_locations = ["us-va-ash-azr"]
+  kind                    = "ping"
+  frequency               = 300
+  timeout                 = 60
+  enabled                 = true
+  retry_enabled           = true
+  geo_locations           = ["us-va-ash-azr"]
 
   configuration = <<XML
     <WebTest Name="" Id="" Enabled="True" CssProjectStructure="" CssIteration="" Timeout="60" WorkItemIds="" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010" Description="" CredentialUserName="" CredentialPassword="" PreAuthenticate="True" Proxy="default" StopOnError="False" RecordedResultFile="" ResultsLocale="">

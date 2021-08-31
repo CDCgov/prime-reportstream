@@ -62,7 +62,7 @@ Is the patient employed in health care?
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
 
-**Table**: LIVD-SARS-CoV-2-2021-04-28
+**Table**: LIVD-SARS-CoV-2-2021-08-11
 
 **Table Column**: Model
 
@@ -990,7 +990,7 @@ Is the patient symptomatic?
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-04-28
+**Table**: LIVD-SARS-CoV-2-2021-08-11
 
 **Table Column**: Test Performed LOINC Code
 
@@ -1008,7 +1008,7 @@ The LOINC code of the test performed. This is a standardized coded value describ
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-04-28
+**Table**: LIVD-SARS-CoV-2-2021-08-11
 
 **Table Column**: Test Performed LOINC Long Name
 

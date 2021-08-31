@@ -16,12 +16,22 @@ title = "PRIME ReportStream Gitleaks Configuration"
         '.terraform/providers/',
         'frontend-react/build/',
         'frontend-react/node_modules/',
+        'frontend/node_modules/',
+        'frontend/dist',
+        'frontend/src/assets',
         'prime-router/.gradle/',
         'prime-router/build/',
         'prime-router/docs/dependency-graph-full/dependency-graph-full.txt',
         'prime-router/docs/schema_documentation/',
         'prime-router/src/test/csv_test_files/input/',
         'prime-router/src/main/kotlin/cli/tests/TestKeys.kt',
+        'prime-router/.vault/env/',
+        'prime-router/frontend/src/assets/img',
+        'prime-router/frontend/src/assets/fonts',
+        'prime-router/frontend/src/assets/webfonts',
+        'prime-router/frontend/src/assets/pdf',
+        'prime-router/build.gradle.kts',
+        'frontend-react/src/components/ReportStreamHeader.tsx',
     ]
 
 [[rules]]
@@ -86,6 +96,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
             '^# ',                                              # Comment
             'DB_PASSWORD=mypass(word)?',                        # Not real
             'DB_USER=prime',                                    # Not real
+            'FAILED Sftp upload of inputReportId xxxx to SFTPTransportType\(host=sftp', # Not a secret, part of the docs
             'gpgkey=https:\/\/packages\.microsoft\.com\/keys\/microsoft\.asc\" \| tee \/etc\/yum\.repos\.d\/azure-cli\.repo',
             'HOST=localhost',                                   # Default cred, this is allowed (too broad??)
             'pdhstaging-pgsql\.postgres\.database\.azure\.com', # Not a secret
@@ -141,7 +152,9 @@ title = "PRIME ReportStream Gitleaks Configuration"
             'apiKey: \"some_key\"',
             'apiKey: \"some_key\"',
             'apiVersion',
+            'authentication-type',
             'authenticationType == "',
+            'AuthorizedRoute path=',
             'azure_key_vault_certificate_secret_version',                                   # Terraform artifact
             'class(Name)?=',                                                                # this is HTML
             'const val [A-Z]+_KEY_ALIAS = \"as2ohp\"',
@@ -158,7 +171,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
             'it\.key\.contains\(',                                                          # iterator key access
             'key.((starts|ends)With|substr)\(',
             'key(\s)*=(=)?(\s)*"(daily|docs|noModifier|noValue|receiver|security|user)"',
-            'key=value',
+            'key=(value|\{i\})',
             'KeyVaultSecret\(\"',                                                           # You are doing the right hting
             'let key of \[',
             'localAuth [=!]= ',
@@ -179,6 +192,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
             'SecretHelper\.getSecretService\(\)\.fetchSecret\(',                            # You are fetching the secret properly
             'secretService getProperty \"',
             'secretService\.fetchSecret\(',                                                 # You are fetching the secret properly
+            'some_secret',                                                                  # Old local dummy REDOX secret
             'user = if \(',
             'USER" to dbUser,',
             'user\)\.isEqualTo\("user"',
@@ -248,6 +262,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
             '127\.(\d+\.){2}\d+',                       # Cheapo 127.0.0.0/8 range
             '165.225.48.87',                            # zScaler
             '172\.(1[6-9]|2[0-9]|3[0-1])\.',            # 172.16.0.0/12 (172.16.0.0.0 -> 172.31.255.255) range is private
+            '192\.168.\d+\.\d+',                        # Cheapo 192.168.0.0/16 range
             'receivingApplicationOID',
             'receivingFacilityOID',
             'reportingFacilityId',

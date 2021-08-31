@@ -1374,7 +1374,7 @@
     - name: "elr"
       organizationName: "hhsprotect"
       topic: "covid-19"
-      jurisdictionalFilter: [ "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*,Strac,InBios)" ]
+      jurisdictionalFilter: [ "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*,Strac,InBios,reddyfmc)" ]
       qualityFilter: [ "allowAll()" ]
       translation:
         type: "CUSTOM"
