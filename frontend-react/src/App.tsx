@@ -70,7 +70,6 @@ const App = () => {
                         <ReportStreamHeader />
                         <Switch>
                             <Route path="/" exact={true} component={Home} />
-                            <SecureRoute path="/daily" component={Daily} />
                             <Route path="/about" component={About} />
                             <Route
                                 path="/how-it-works"
