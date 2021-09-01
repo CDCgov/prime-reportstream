@@ -6,7 +6,7 @@ html, body {
 
 .content {
   flex: 1 0 auto;
-  min-height: calc(100vh - 200px)
+  min-height: calc(100vh - 230px)
 }
 .footer {
   flex-shrink: 0;
