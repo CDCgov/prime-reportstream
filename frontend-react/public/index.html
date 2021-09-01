@@ -10,19 +10,20 @@
       http-equiv="Content-Security-Policy"
       content="default-src 'self';
         script-src 'self'
-            https://hss-prime-okta.com
-            https://global.oktacdn.com
-            https://www.google-analytics.com
-            https://*.in.applicationinsights.azure.com;
+          https://hss-prime-okta.com
+          https://global.oktacdn.com
+          https://www.google-analytics.com
+          https://*.in.applicationinsights.azure.com;
         style-src 'self' 'unsafe-inline'
-            https://global.oktacdn.com
-            https://cdnjs.cloudflare.com;
+          https://global.oktacdn.com
+          https://cdnjs.cloudflare.com;
         frame-src 'self' https://hhs-prime.okta.com;
         img-src 'self' https://hhs-prime.okta.com https://reportstream.cdc.gov/ data: ;
         connect-src 'self'
-         https://www.google-analytics.com
-         https://hhs-prime.okta.com
-         %REACT_APP_BACKEND_URL% ;"
+          https://www.google-analytics.com
+          https://*.in.applicationinsights.azure.com
+          https://hhs-prime.okta.com
+          %REACT_APP_BACKEND_URL% ;"
     />
     <link rel="apple-touch-icon" href="%REACT_APP_PUBLIC_URL%/logo192.png" />
     <!--
