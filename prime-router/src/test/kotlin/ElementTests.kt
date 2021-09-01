@@ -10,7 +10,8 @@ import java.time.ZoneId
 import kotlin.test.Test
 import kotlin.test.assertFails
 
-internal class ElementTests {
+internal class
+ElementTests {
 
     @Test
     fun `create element`() {
