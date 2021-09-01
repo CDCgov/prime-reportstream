@@ -102,7 +102,7 @@ class DataCompareTest : CoolTest() {
         EXPECTED_COUNT("Expected count")
     }
 
-    override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+    override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
         var passed = true
         val configs = readTestConfig("$testDataDir/$testConfigFile")
 
