@@ -16,8 +16,6 @@ test changes more quickly and/or save memory you can then run the Azure function
 
 ## Instructions
 ### Setup
-1. Add `sftp` to your hosts file to point to localhost or 127.0.0.1.  Alternatively, you can change all the host 
-   references of sftp to locahost in the organizations.yml file.
 1. The following commands start the database and other services needed by the Azure functions.  This is
 a one time procedure and only needs to be run at workstation startup or when you perform a clean:
 

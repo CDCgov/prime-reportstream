@@ -19,8 +19,10 @@ Properties to control the execution and output using the Gradle -P arguments:
 
 import org.apache.tools.ant.filters.ReplaceTokens
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import java.io.FileInputStream
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.Properties
 
 plugins {
     kotlin("jvm") version "1.5.21"
@@ -68,7 +70,7 @@ val dbUrl = (
 val reportsApiEndpointHost = (
     System.getenv(KEY_PRIME_RS_API_ENDPOINT_HOST)
         ?: "localhost"
-    ) as String
+    )
 
 val jooqSourceDir = "build/generated-src/jooq/src/main/java"
 val jooqPackageName = "gov.cdc.prime.router.azure.db"
@@ -335,17 +337,27 @@ tasks.azureFunctionsRun {
         "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=" +
             "Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=" +
             "http://localhost:10000/devstoreaccount1;QueueEndpoint=http://localhost:10001/devstoreaccount1;"
-    environment(
-        mapOf(
-            "AzureWebJobsStorage" to devAzureConnectString,
-            "PartnerStorage" to devAzureConnectString,
-            "POSTGRES_USER" to dbUser,
-            "POSTGRES_PASSWORD" to dbPassword,
-            "POSTGRES_URL" to dbUrl,
-            "PRIME_ENVIRONMENT" to "local",
-            "VAULT_API_ADDR" to "http://localhost:8200"
-        )
+
+    val env = mutableMapOf(
+        "AzureWebJobsStorage" to devAzureConnectString,
+        "PartnerStorage" to devAzureConnectString,
+        "POSTGRES_USER" to dbUser,
+        "POSTGRES_PASSWORD" to dbPassword,
+        "POSTGRES_URL" to dbUrl,
+        "PRIME_ENVIRONMENT" to "local",
+        "VAULT_API_ADDR" to "http://localhost:8200",
+        "SFTP_HOST_OVERRIDE" to "localhost",
+        "SFTP_PORT_OVERRIDE" to "2222",
+        "REDOX_URL_OVERRIDE" to "http://localhost:1080"
     )
+
+    // Load the vault variables
+    val file = File(".vault/env/.env.local")
+    val prop = Properties()
+    FileInputStream(file).use { prop.load(it) }
+    prop.forEach { key, value -> env[key.toString()] = value.toString().replace("\"", "") }
+
+    environment(env)
     azurefunctions.localDebug = "transport=dt_socket,server=y,suspend=n,address=5005"
 }
 
