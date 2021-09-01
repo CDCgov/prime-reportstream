@@ -5,7 +5,7 @@
         "@okta/jwt-verifier": "^2.3.0",
         "axios": "^0.21.1",
         "chart.js": "^3.5",
-        "cypress": "^8.3.0",
+        "cypress": "^8.3.1",
         "http-proxy-middleware": "^2.0.1",
         "moment": "^2.29.1"
     },
