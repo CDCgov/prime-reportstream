@@ -1,0 +1,7 @@
+# See also https://docs.github.com/en/github/creating-cloning-and-archiving-repositories/creating-a-repository-on-github/about-code-owners
+
+/.environment/          @cdcgov/PRIME-ReportStream-DevOps
+/.github/               @cdcgov/PRIME-ReportStream-DevOps
+/.vscode/               @cdcgov/PRIME-ReportStream-DevOps
+/operations/            @cdcgov/PRIME-ReportStream-DevOps
+/CODEOWNERS             @cdcgov/PRIME-ReportStream-DevOps
