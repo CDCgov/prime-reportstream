@@ -111,7 +111,7 @@ Is the patient employed in health care?
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
 
-**Table**: LIVD-SARS-CoV-2-2021-04-28
+**Table**: LIVD-SARS-CoV-2-2021-08-11
 
 **Table Column**: Model
 
@@ -683,6 +683,20 @@ The patient's last name
 **Documentation**:
 
 The patient's phone number with area code
+
+---
+
+**Name**: Patient_preferred_language
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The patient's preferred language
 
 ---
 
@@ -1708,7 +1722,7 @@ Is the test authorized for unproctored administration by the FDA (Y, N, UNK)
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-04-28
+**Table**: LIVD-SARS-CoV-2-2021-08-11
 
 **Table Column**: Test Performed LOINC Code
 

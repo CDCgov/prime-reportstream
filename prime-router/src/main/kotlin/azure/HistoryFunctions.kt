@@ -360,9 +360,16 @@ open class BaseHistoryFunction : Logging {
                 // get the user name and org
                 userName = jwt.claims["sub"].toString()
                 val orgs = jwt.claims["organization"]
+
+                // a user can now be part of a sender group as well, so find the first "non-sender" group in their claims
                 @Suppress("UNCHECKED_CAST")
-                val org = if (orgs !== null) (orgs as List<String>)[0] else ""
-                orgName = if (org.length > 3) org.substring(2) else ""
+                val org = if (orgs !== null) (orgs as List<String>).find {
+                    org ->
+                    !org.lowercase().contains("sender")
+                } else ""
+                if (org != null) {
+                    orgName = if (org.length > 3) org.substring(2) else ""
+                }
             } catch (ex: Throwable) {
                 context.logger.log(Level.WARNING, "Error in verification of token", ex)
                 return null

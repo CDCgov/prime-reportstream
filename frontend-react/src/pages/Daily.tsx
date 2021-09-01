@@ -95,8 +95,10 @@ const TableReports = () => {
 
 const OrgName = () => {
     const { authState } = useOktaAuth();
+
+    // finds the first organization that does not have the word "sender" in it
     const organization = groupToOrg(
-        authState!.accessToken?.claims.organization[0]
+        authState!.accessToken?.claims.organization.find(o => !o.toLowerCase().includes('sender'))
     );
     const org = useResource(OrganizationResource.detail(), {
         name: organization,

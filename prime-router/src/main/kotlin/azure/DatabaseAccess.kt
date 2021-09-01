@@ -697,11 +697,10 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                 if (it.get(COVID_RESULT_METADATA.TESTING_LAB_CITY)
                     .isNullOrBlank()
                 )
-                    "${it.get(COVID_RESULT_METADATA.TESTING_LAB_STATE)}"
-                else {
+                    it.get(COVID_RESULT_METADATA.TESTING_LAB_STATE)
+                else
                     "${it.get(COVID_RESULT_METADATA.TESTING_LAB_CITY)}, " +
-                        "${it.get(COVID_RESULT_METADATA.TESTING_LAB_STATE)}"
-                }
+                        it.get(COVID_RESULT_METADATA.TESTING_LAB_STATE)
             )
                 .build()
         }

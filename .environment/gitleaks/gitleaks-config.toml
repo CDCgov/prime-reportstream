@@ -29,7 +29,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
         'prime-router/frontend/src/assets/img',
         'prime-router/frontend/src/assets/fonts',
         'prime-router/frontend/src/assets/webfonts',
-        'prime-router/frontend/src/assets/pdf',   
+        'prime-router/frontend/src/assets/pdf',
         'prime-router/build.gradle.kts',
         'frontend-react/src/components/ReportStreamHeader.tsx',
     ]
@@ -96,6 +96,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
             '^# ',                                              # Comment
             'DB_PASSWORD=mypass(word)?',                        # Not real
             'DB_USER=prime',                                    # Not real
+            'FAILED Sftp upload of inputReportId xxxx to SFTPTransportType\(host=sftp', # Not a secret, part of the docs
             'gpgkey=https:\/\/packages\.microsoft\.com\/keys\/microsoft\.asc\" \| tee \/etc\/yum\.repos\.d\/azure-cli\.repo',
             'HOST=localhost',                                   # Default cred, this is allowed (too broad??)
             'pdhstaging-pgsql\.postgres\.database\.azure\.com', # Not a secret
@@ -151,7 +152,9 @@ title = "PRIME ReportStream Gitleaks Configuration"
             'apiKey: \"some_key\"',
             'apiKey: \"some_key\"',
             'apiVersion',
+            'authentication-type',
             'authenticationType == "',
+            'AuthorizedRoute path=',
             'azure_key_vault_certificate_secret_version',                                   # Terraform artifact
             'class(Name)?=',                                                                # this is HTML
             'const val [A-Z]+_KEY_ALIAS = \"as2ohp\"',
@@ -168,7 +171,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
             'it\.key\.contains\(',                                                          # iterator key access
             'key.((starts|ends)With|substr)\(',
             'key(\s)*=(=)?(\s)*"(daily|docs|noModifier|noValue|receiver|security|user)"',
-            'key=value',
+            'key=(value|\{i\})',
             'KeyVaultSecret\(\"',                                                           # You are doing the right hting
             'let key of \[',
             'localAuth [=!]= ',

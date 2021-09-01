@@ -1,0 +1,45 @@
+# Schema for Greenlight Urgent Care
+# This schema is to be used to parse the standard lab report from experity
+# Created by Herman Cordero
+# Last Update: 07/27/2021
+# 
+name: guc-la-covid-19
+topic: covid-19
+description: Experity CSV lab report schema, Greenlight Urgent Care, LA
+extends: experity/experity-covid-19
+
+elements:
+
+    - name: sender_id
+      default: guc-la
+
+    - name: processing_mode_code
+      default: P
+
+    - name: test_kit_name_id
+      type: CODE
+      default: 99999999
+      csvFields: [{name: Ordered_test_description, format: $alt}]
+      altValues:
+# This should translate to LOINC: 94558-4
+        - code: "CareStart COVID-19 Antigen test_Access Bio, Inc."
+          display: "Coronavirus Antigen IA Rapid Test"
+# Should translate to LOINC: 94534-5
+        - code: 10811877011269
+          display: "Abbott-ID NOW COVID-19 (Molecular)"
+
+# Force failure on all results except COVID-19
+        - code: 99999999
+          display: "non-CDC 2019-ncov coronavirus, SARS (COVID-19)"
+        - code: 99999999
+          display: "Flu A & B, Real-time RT-PCR (RNA)"
+        - code: 99999999
+          display: "Glucose - Accu-Chek"
+        - code: 99999999
+          display: "Glucose - quant"
+        - code: 99999999
+          display: "RSV Ag - rapid"
+        - code: 99999999
+          display: "Strep A Ag - rapid"
+        - code: 99999999
+          display: "UA Dipstick Auto w/o Micro"
