@@ -133,7 +133,7 @@ body {
 
 .prime-user-account{
   font-size: .88rem;
-  vertical-align: u-text("vertical-align");
+  vertical-align: middle;
   line-height: 1.25rem;
 }
 
