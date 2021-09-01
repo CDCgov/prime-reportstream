@@ -39,8 +39,16 @@ class SftpTransport : ITransport, Logging {
         actionHistory: ActionHistory,
     ): RetryItems? {
         val sftpTransportType = transportType as SFTPTransportType
-        val host: String = sftpTransportType.host
-        val port: String = sftpTransportType.port
+
+        // Override the SFTP host and port only if provided and in the local environment.
+        val host: String = if ("local" == System.getenv("PRIME_ENVIRONMENT") &&
+            !System.getenv("SFTP_HOST_OVERRIDE").isNullOrBlank()
+        )
+            System.getenv("SFTP_HOST_OVERRIDE") else sftpTransportType.host
+        val port: String = if ("local" == System.getenv("PRIME_ENVIRONMENT") &&
+            !System.getenv("SFTP_PORT_OVERRIDE").isNullOrBlank()
+        )
+            System.getenv("SFTP_PORT_OVERRIDE") else sftpTransportType.port
         return try {
             if (header.content == null)
                 error("No content to sftp for report ${header.reportFile.reportId}")
