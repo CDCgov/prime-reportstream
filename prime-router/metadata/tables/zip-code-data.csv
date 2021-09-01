@@ -883,6 +883,7 @@ state_fips,state,state_abbr,zipcode,county,city
 4,Arizona,AZ,85054,Maricopa,Phoenix
 4,Arizona,AZ,85085,Maricopa,Phoenix
 4,Arizona,AZ,85086,Maricopa,Phoenix
+4,Arizona,AZ,85138,Pinal,Maricopa
 4,Arizona,AZ,85201,Maricopa,Mesa
 4,Arizona,AZ,85202,Maricopa,Mesa
 4,Arizona,AZ,85203,Maricopa,Mesa
@@ -2368,6 +2369,7 @@ state_fips,state,state_abbr,zipcode,county,city
 6,California,CA,92808,Orange,Anaheim
 6,California,CA,92821,Orange,Anaheim
 6,California,CA,92823,Orange,Anaheim
+6,California,CA,92831,Orange,Fullerton
 6,California,CA,93001,Ventura,San buenaventura
 6,California,CA,93003,Ventura,San buenaventura
 6,California,CA,93004,Ventura,San buenaventura
@@ -10670,6 +10672,8 @@ state_fips,state,state_abbr,zipcode,county,city
 22,Louisiana,LA,70057,St Charles,Hahnville
 22,Louisiana,LA,70058,Jefferson,Harvey
 22,Louisiana,LA,70062,Jefferson,Kenner
+22,Louisiana,LA,70063,Jefferson,Kenner
+22,Louisiana,LA,70064,Jefferson,Kenner
 22,Louisiana,LA,70065,Jefferson,Kenner
 22,Louisiana,LA,70066,St Charles,Killona
 22,Louisiana,LA,70067,Jefferson,Lafitte
@@ -10744,13 +10748,16 @@ state_fips,state,state_abbr,zipcode,county,city
 22,Louisiana,LA,70395,Terrebonne,Schriever
 22,Louisiana,LA,70397,Terrebonne,Theriot
 22,Louisiana,LA,70401,Tangipahoa,Hammond
+22,Louisiana,LA,70402,Tangipahoa,Hammond
 22,Louisiana,LA,70403,Tangipahoa,Hammond
+22,Louisiana,LA,70404,Tangipahoa,Hammond
 22,Louisiana,LA,70420,St Tammany,Abita springs
 22,Louisiana,LA,70422,Tangipahoa,Amite
 22,Louisiana,LA,70426,Washington,Angie
 22,Louisiana,LA,70427,Washington,Bogalusa
 22,Louisiana,LA,70431,St Tammany,Bush
 22,Louisiana,LA,70433,St Tammany,Covington
+22,Louisiana,LA,70435,St Tammany,Covington
 22,Louisiana,LA,70436,Tangipahoa,Fluker
 22,Louisiana,LA,70437,St Tammany,Folsom
 22,Louisiana,LA,70438,Washington,Franklinton
@@ -10778,6 +10785,9 @@ state_fips,state,state_abbr,zipcode,county,city
 22,Louisiana,LA,70464,St Tammany,Talisheek
 22,Louisiana,LA,70465,Tangipahoa,Tangipahoa
 22,Louisiana,LA,70466,Tangipahoa,Tickfaw
+22,Louisiana,LA,70469,St Tammany,Slidell
+22,Louisiana,LA,70470,St Tammany,Mandeville
+22,Louisiana,LA,70471,St Tammany,Mandeville
 22,Louisiana,LA,70501,Lafayette,Lafayette
 22,Louisiana,LA,70503,Lafayette,Lafayette
 22,Louisiana,LA,70506,Lafayette,Lafayette
@@ -10872,6 +10882,7 @@ state_fips,state,state_abbr,zipcode,county,city
 22,Louisiana,LA,70663,Calcasieu,Sulphur
 22,Louisiana,LA,70668,Calcasieu,Vinton
 22,Louisiana,LA,70669,Calcasieu,Westlake
+22,Louisiana,LA,70706,Livingston,Denham Springs
 22,Louisiana,LA,70707,Ascension,Gonzales
 22,Louisiana,LA,70710,West Baton Rouge,Addis
 22,Louisiana,LA,70711,Livingston,Albany
@@ -26992,6 +27003,7 @@ state_fips,state,state_abbr,zipcode,county,city
 48,Texas,TX,77389,Harris,Spring
 48,Texas,TX,77396,Harris,Humble
 48,Texas,TX,77401,Harris,Bellaire
+48,Texas,TX,77406,Ft Bend,Richmond
 48,Texas,TX,77412,Colorado,Altair
 48,Texas,TX,77414,Matagorda,Sargent
 48,Texas,TX,77415,Matagorda,Cedar lane
