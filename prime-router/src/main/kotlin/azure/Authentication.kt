@@ -4,6 +4,7 @@ import com.okta.jwt.JwtVerifiers
 
 // These constants match how PRIME Okta subscription is configured
 const val oktaGroupPrefix = "DH"
+const val oktaSenderGroupPrefix = "DHSender_"
 const val oktaAdminGroupSuffix = "Admins"
 const val oktaSystemAdminGroup = "DHPrimeAdmins"
 const val oktaSubjectClaim = "sub"
@@ -30,11 +31,16 @@ interface AuthenticationVerifier {
 
     /**
      * Return AuthenticatedClaims if accessToken is valid. Null otherwise.
+     * @param accessToken
+     * @param minimumLevel
+     * @param organizationName
+     * @param oktaSender (optional) We are expecting the user to be part of a group in Okta called "DHSender_<organization name>.<sender name>
      */
     fun checkClaims(
         accessToken: String,
         minimumLevel: PrincipalLevel,
-        organizationName: String? = null
+        organizationName: String? = null,
+        oktaSender: Boolean = false
     ): AuthenticatedClaims?
 }
 
@@ -44,7 +50,8 @@ class TestAuthenticationVerifier : AuthenticationVerifier {
     override fun checkClaims(
         accessToken: String,
         minimumLevel: PrincipalLevel,
-        organizationName: String?
+        organizationName: String?,
+        oktaSender: Boolean
     ): AuthenticatedClaims {
         return AuthenticatedClaims("local@test.com", minimumLevel, organizationName)
     }
@@ -58,7 +65,8 @@ class OktaAuthenticationVerifier : AuthenticationVerifier {
     override fun checkClaims(
         accessToken: String,
         minimumLevel: PrincipalLevel,
-        organizationName: String?
+        organizationName: String?,
+        oktaSender: Boolean
     ): AuthenticatedClaims? {
         val jwtVerifier = JwtVerifiers.accessTokenVerifierBuilder()
             .setIssuer("https://$issuerBaseUrl/oauth2/default")
@@ -68,15 +76,24 @@ class OktaAuthenticationVerifier : AuthenticationVerifier {
         val userName = jwt.claims[oktaSubjectClaim]?.toString() ?: return null
         @Suppress("UNCHECKED_CAST")
         val memberships = jwt.claims[oktaMembershipClaim] as? Collection<String> ?: return null
-        if (!checkMembership(memberships, minimumLevel, organizationName)) return null
+
+        if (!checkMembership(memberships, minimumLevel, organizationName, oktaSender)) return null
         return AuthenticatedClaims(userName, minimumLevel, organizationName)
     }
+
 
     internal fun checkMembership(
         memberships: Collection<String>,
         minimumLevel: PrincipalLevel,
-        organizationName: String?
+        organizationName: String?,
+        oktaSender: Boolean = false
     ): Boolean {
+        // We are expecting a group name of:
+        // DH<org name> if oktaSender is false
+        // DHSender_<org name>.<sender name> if oktaSender is true
+        // Example receiver: If the receiver org name is "ignore", the Okta group name will be "DHignore
+        // Example sender: If the sender org name is "ignore", and the sender name is "ignore-waters",
+        // the Okta group name will be "DHSender_ignore.ignore_waters
         val groupName = organizationName?.replace('-', '_')
         val lookupMemberships = when (minimumLevel) {
             PrincipalLevel.SYSTEM_ADMIN -> listOf(oktaSystemAdminGroup)
@@ -88,7 +105,7 @@ class OktaAuthenticationVerifier : AuthenticationVerifier {
             }
             PrincipalLevel.USER ->
                 listOf(
-                    "$oktaGroupPrefix$groupName",
+                    "${if (oktaSender) oktaSenderGroupPrefix else oktaGroupPrefix}$groupName",
                     "$oktaGroupPrefix$groupName$oktaAdminGroupSuffix",
                     oktaSystemAdminGroup
                 )
