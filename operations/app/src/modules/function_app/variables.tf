@@ -24,6 +24,12 @@ variable "ai_instrumentation_key" {
   sensitive   = true
 }
 
+variable "ai_connection_string" {
+  type        = string
+  description = "Application Insights Connection String"
+  sensitive   = true
+}
+
 variable "okta_redirect_url" {
   type        = string
   description = "Okta Redirect URL"
