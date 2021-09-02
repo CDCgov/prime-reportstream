@@ -80,6 +80,8 @@ data class Hl7Configuration
     val phoneNumberFormatting: PhoneNumberFormatting = PhoneNumberFormatting.STANDARD,
     // pass this around as a property now
     val processingModeCode: String? = null,
+    // Per APHL recommendations, if site_of_care == k12 enrich the ordering_facility_name with the nces id
+    val useNCESFacilityName: Boolean = false,
     override val nameFormat: String = "standard",
     override val receivingOrganization: String?,
 ) : TranslatorConfiguration("HL7") {

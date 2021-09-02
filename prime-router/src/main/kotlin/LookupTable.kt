@@ -293,11 +293,15 @@ class LookupTable(
 
     companion object {
         fun read(fileName: String): LookupTable {
-            return read(File(fileName).inputStream())
+            val file = File(fileName)
+            return read(file.inputStream(), isTsv = file.extension == "tsv")
         }
 
-        fun read(inputStream: InputStream): LookupTable {
-            val table = csvReader().readAll(inputStream)
+        fun read(inputStream: InputStream, isTsv: Boolean = false): LookupTable {
+            val reader = csvReader {
+                delimiter = if (isTsv) '\t' else ','
+            }
+            val table = reader.readAll(inputStream)
             return LookupTable(table)
         }
     }

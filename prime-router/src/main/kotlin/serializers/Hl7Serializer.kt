@@ -15,6 +15,7 @@ import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.ElementAndValue
 import gov.cdc.prime.router.Hl7Configuration
+import gov.cdc.prime.router.LookupTable
 import gov.cdc.prime.router.Mapper
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
@@ -59,6 +60,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
     } else {
         null
     }
+    private val ncesTable = lazy {  }
 
     init {
         val buildProperties = Properties()
@@ -419,6 +421,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
         val replaceValue = hl7Config?.replaceValue ?: emptyMap()
         val suppressQst = hl7Config?.suppressQstForAoe ?: false
         val suppressAoe = hl7Config?.suppressAoe ?: false
+        val enrichFacilityName = hl7Config?.useNCESFacilityName ?: false
         // and we have some fields to suppress
         val suppressedFields = hl7Config
             ?.suppressHl7Fields
@@ -504,6 +507,8 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
                         setAOE(terser, element, aoeSequence++, date, "UNK", report, row, suppressQst = suppressQst)
                     }
                 }
+            } else if (element.hl7Field == "ORC-21-1" && enrichFacilityName) {
+                setFacilityNameComponent(terser, element, report, row, value)
             } else if (element.hl7Field == "NTE-3") {
                 setNote(terser, value)
             } else if (element.hl7Field == "MSH-7") {
@@ -587,6 +592,36 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
                 }
             }
         }
+    }
+
+    /**
+     * Set the ORC-21-1 component name. If possible,
+     * do a NCES lookup to enrich the facility name.
+     */
+    private fun setFacilityNameComponent(
+        terser: Terser,
+        element: Element,
+        report: Report,
+        row: Int,
+        value: String
+    ) {
+        val facilityName = if (report.getString(row, "site_of_care") == "k12") {
+            // The NCES table comes from the NCES organization
+            // The fields are: SCH_NAME, NCESSCH, LSTREET1,	LCITY, LSTATE, LZIP, PHONE
+            val zipCode = report.getString(row, "ordering_facility_zip_code", 5) ?: ""
+            val ncesId = ncesLookupTable.value.lookupValues(
+                indexValues = listOf("LZIP" to zipCode, "SCH_NAME" to value),
+                lookupColumn = "NCESSCH"
+            )
+            if (ncesId != null) {
+                "${value}_NCES_$ncesId"
+            } else {
+                value
+            }
+        } else {
+            value
+        }
+        setComponent(terser, element, element.hl7Field!!, facilityName, report)
     }
 
     private fun setComponentForTable(terser: Terser, element: Element, report: Report, row: Int) {
@@ -1191,6 +1226,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
         const val MESSAGE_TRIGGER_EVENT = "R01"
         const val SOFTWARE_VENDOR_ORGANIZATION: String = "Centers for Disease Control and Prevention"
         const val SOFTWARE_PRODUCT_NAME: String = "PRIME ReportStream"
+        const val ORDERING_FACILITY_NAME_SEGMENT = "ORC-21-1"
 
         /*
         From the HL7 2.5.1 Ch 2A spec...
@@ -1222,5 +1258,9 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
          * List of fields that have a CE type
          */
         val CE_FIELDS = listOf("OBX-15-1")
+
+        val ncesLookupTable = lazy {
+            LookupTable.read("./metadata/tables/nces_id.tsv")
+        }
     }
 }
