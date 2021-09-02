@@ -41,6 +41,11 @@ class TranslationTests {
     private val metadata = Metadata("./metadata")
 
     /**
+     * The settings
+     */
+    private val settings = FileSettings("./settings")
+
+    /**
      * The translator
      */
     private val translator = Translator(metadata, FileSettings(FileSettings.defaultSettingsDirectory))
@@ -221,7 +226,7 @@ class TranslationTests {
 
             return when (format) {
                 Report.Format.HL7 -> {
-                    val readResult = Hl7Serializer(metadata).readExternal(
+                    val readResult = Hl7Serializer(metadata, settings).readExternal(
                         schema.name,
                         input,
                         TestSource
@@ -263,8 +268,8 @@ class TranslationTests {
         ): InputStream {
             val outputStream = ByteArrayOutputStream()
             when (format) {
-                Report.Format.HL7_BATCH -> Hl7Serializer(metadata).writeBatch(report, outputStream)
-                Report.Format.HL7 -> Hl7Serializer(metadata).write(report, outputStream)
+                Report.Format.HL7_BATCH -> Hl7Serializer(metadata, settings).writeBatch(report, outputStream)
+                Report.Format.HL7 -> Hl7Serializer(metadata, settings).write(report, outputStream)
                 Report.Format.INTERNAL -> CsvSerializer(metadata).writeInternal(report, outputStream)
                 else -> CsvSerializer(metadata).write(report, outputStream)
             }

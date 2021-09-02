@@ -24,6 +24,7 @@ import kotlin.collections.ArrayList
 class Facility private constructor(
     val organization: String?,
     val facility: String?,
+    val location: String?,
     val CLIA: String?,
     val positive: Long?,
     val total: Long?
@@ -32,6 +33,7 @@ class Facility private constructor(
     data class Builder(
         var organization: String? = null,
         var facility: String? = null,
+        var location: String? = null,
         var CLIA: String? = null,
         var positive: Long? = null,
         var total: Long? = null
@@ -39,10 +41,11 @@ class Facility private constructor(
 
         fun organization(organization: String) = apply { this.organization = organization }
         fun facility(facility: String) = apply { this.facility = facility }
+        fun location(location: String) = apply { this.location = location }
         fun CLIA(CLIA: String) = apply { this.CLIA = CLIA }
         fun positive(positive: Long) = apply { this.positive = positive }
         fun total(total: Long) = apply { this.total = total }
-        fun build() = Facility(organization, facility, CLIA, positive, total)
+        fun build() = Facility(organization, facility, location, CLIA, positive, total)
     }
 }
 
@@ -211,6 +214,13 @@ open class BaseHistoryFunction : Logging {
                 val adminOrg = workflowEngine.settings.organizations.firstOrNull { org ->
                     org.name.lowercase() == organizationName
                 }
+                val header =
+                    try {
+                        workflowEngine.fetchHeader(it.reportId, adminOrg ?: authClaims.organization)
+                    } catch (ex: Exception) {
+                        context.logger.severe("Unable to find file for ${it.reportId} ${ex.message}")
+                        null
+                    }
                 val receiver = workflowEngine.settings.findReceiver("${it.receivingOrg}.${it.receivingOrgSvc}")
 
                 val filename = Report.formExternalFilename(
@@ -220,6 +230,8 @@ open class BaseHistoryFunction : Logging {
                     Report.Format.safeValueOf(it.bodyFormat),
                     it.createdAt
                 )
+
+                val content = if (header !== null && header.content !== null) String(header.content) else ""
                 val mimeType = Report.Format.safeValueOf(it.bodyFormat).mimeType
                 val externalOrgName = receiver?.displayName
 
@@ -236,7 +248,7 @@ open class BaseHistoryFunction : Logging {
                     .receivingOrg(it.receivingOrg)
                     .receivingOrgSvc(externalOrgName ?: it.receivingOrgSvc)
                     .displayName(if (it.externalName.isNullOrBlank()) it.receivingOrgSvc else it.externalName)
-                    .content("") // don't get the content for now. that can get beefy
+                    .content(content) // don't get the content for now. that can get beefy
                     .fileName(filename)
                     .mimeType(mimeType)
                     .build()
@@ -300,7 +312,7 @@ open class BaseHistoryFunction : Logging {
                     authClaims.userName,
                 )
                 actionHistory.trackItemLineages(Report.createItemLineagesFromDb(header, externalReportId))
-                WorkflowEngine().recordAction(actionHistory)
+                workflowEngine.recordAction(actionHistory)
 
                 return response
             }
@@ -348,16 +360,23 @@ open class BaseHistoryFunction : Logging {
                 // get the user name and org
                 userName = jwt.claims["sub"].toString()
                 val orgs = jwt.claims["organization"]
+
+                // a user can now be part of a sender group as well, so find the first "non-sender" group in their claims
                 @Suppress("UNCHECKED_CAST")
-                val org = if (orgs !== null) (orgs as List<String>)[0] else ""
-                orgName = if (org.length > 3) org.substring(2) else ""
+                val org = if (orgs !== null) (orgs as List<String>).find {
+                    org ->
+                    !org.lowercase().contains("sender")
+                } else ""
+                if (org != null) {
+                    orgName = if (org.length > 3) org.substring(2) else ""
+                }
             } catch (ex: Throwable) {
                 context.logger.log(Level.WARNING, "Error in verification of token", ex)
                 return null
             }
         }
         if (userName.isNotBlank() && orgName.isNotBlank()) {
-            val organization = WorkflowEngine().settings.findOrganization(orgName.replace('_', '-'))
+            val organization = workflowEngine.settings.findOrganization(orgName.replace('_', '-'))
             if (organization != null) {
                 return AuthClaims(userName, organization)
             } else {

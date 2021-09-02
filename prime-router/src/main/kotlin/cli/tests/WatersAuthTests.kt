@@ -22,7 +22,7 @@ import java.io.File
 class WatersAuthTests : CoolTest() {
     override val name = "watersauth"
     override val description = "Test FHIR Auth"
-    override val status = TestStatus.SMOKE
+    override val status = TestStatus.DRAFT
 
     // create sender in 'ignore' organization
     private val accessTokenDummy = "dummy"
@@ -95,6 +95,7 @@ class WatersAuthTests : CoolTest() {
         // create a fake report
         fakeReportFile = FileUtilities.createFakeFile(
             metadata,
+            settings,
             sender = savedSender,
             count = 1,
             format = Report.Format.CSV,
@@ -154,7 +155,7 @@ class WatersAuthTests : CoolTest() {
             )
     }
 
-    override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+    override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
         var passed = true
         ugly("Starting $name test of server-server authentication using keypairs:")
 

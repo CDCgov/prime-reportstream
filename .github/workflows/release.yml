@@ -92,11 +92,38 @@ jobs:
       - name: Validate static website server
         run: bash ci_validate.bash
 
+
+  build_frontend_react_release:
+    name: "Release: Build Frontend React"
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend-react
+
+    steps:
+      - name: "Check out changes"
+        uses: actions/checkout@v2
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+      - run: npm install      
+      - run: npm run build
+      
+      - name: Save Static Website
+        uses: actions/upload-artifact@v2
+        with:
+          name: static_website_react-${{ github.run_id }}
+          path: frontend-react/build
+          retention-days: 7
+
+
   deploy_release_dev:
     name: "Deploy Release: DEV"
     needs:
       - build_release
-      - build_frontend_release
+      - build_frontend_react_release
     if: github.ref == 'refs/heads/dev-rheft'
     environment: dev
     concurrency: dev
@@ -121,6 +148,12 @@ jobs:
           name: static_website-${{ github.run_id }}
           path: frontend/dist
 
+      - name: Download Frontend-React Artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: static_website_react-${{ github.run_id }}
+          path: frontend-react/build          
+
       - name: Build Docker Image
         run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:${{ github.sha }}
 
@@ -131,10 +164,9 @@ jobs:
           sudo apt install openvpn-systemd-resolved
 
       - name: Connect VPN
-        uses: golfzaptw/action-connect-ovpn@master
+        uses: golfzaptw/action-connect-ovpn@2.0.1
         id: connect_vpn
         with:
-          PING_URL: "127.0.0.1"
           FILE_OVPN: ".github/vpn/dev.ovpn"
           TLS_KEY: ${{ secrets.TLS_KEY }}
         env:
@@ -179,25 +211,25 @@ jobs:
         run: |
           az functionapp config access-restriction remove -g ${{ env.RESOURCE_GROUP }} -n ${{ env.PREFIX }}-functionapp --slot candidate --rule-name GitHubActionIPV4 > /dev/null 2>&1
 
-      - name: Upload Static Site
+      - name: Upload Static Site React
         uses: azure/CLI@v1
         with:
           inlineScript: |
-            az storage blob upload-batch --account-name ${{ env.PREFIX }}public -d '$web' -s frontend/dist
+            az storage blob upload-batch --account-name ${{ env.PREFIX }}public -d '$web' -s frontend-react/build
 
-  deploy_release_staging:
-    name: "Deploy Release: STAGING"
+  deploy_release_test:
+    name: "Deploy Release: TEST"
     needs:
       - build_release
       - build_frontend_release
     if: github.ref == 'refs/heads/master'
-    environment: staging
-    concurrency: staging
+    environment: test
+    concurrency: test
     runs-on: ubuntu-latest
     env:
-      RESOURCE_GROUP: prime-data-hub-staging
-      ACR_REPO: pdhstagingcontainerregistry.azurecr.io
-      PREFIX: pdhstaging
+      RESOURCE_GROUP: prime-data-hub-test
+      ACR_REPO: pdhtestcontainerregistry.azurecr.io
+      PREFIX: pdhtest
     steps:
       - name: "Check out changes"
         uses: actions/checkout@v2
@@ -224,10 +256,102 @@ jobs:
           sudo apt install openvpn-systemd-resolved
 
       - name: Connect VPN
-        uses: golfzaptw/action-connect-ovpn@master
+        uses: golfzaptw/action-connect-ovpn@2.0.1
         id: connect_vpn
         with:
-          PING_URL: "127.0.0.1"
+          FILE_OVPN: ".github/vpn/test.ovpn"
+          TLS_KEY: ${{ secrets.TLS_KEY }}
+        env:
+          CA_CRT: ${{ secrets.CA_CRT}}
+          USER_CRT: ${{ secrets.USER_CRT }}
+          USER_KEY: ${{ secrets.USER_KEY }}
+
+      - name: Login to Azure CLI
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+
+      - name: ACR Login
+        run: az acr login --name ${{ env.ACR_REPO }}
+
+      - name: Push Docker Image
+        run: docker push ${{ env.ACR_REPO }}/${{ env.PREFIX }} --all-tags
+
+      - name: Whitelist GitHub Action Runner in Function App Slot
+        id: ip-whitelist-create
+        run: |
+          RUNNER_IP="$(dig +short myip.opendns.com @resolver1.opendns.com)"
+          echo "::add-mask::$RUNNER_IP"
+          az functionapp config access-restriction add -g ${{ env.RESOURCE_GROUP }} -n ${{ env.PREFIX }}-functionapp --slot candidate --rule-name GitHubActionIPV4 --action Allow --ip-address $RUNNER_IP --priority 750 > /dev/null 2>&1
+
+      - name: Deploy to Candidate App Slot
+        uses: Azure/functions-container-action@v1
+        id: deploy-candidate
+        with:
+          app-name: ${{ env.PREFIX }}-functionapp
+          image: ${{ env.ACR_REPO }}/${{ env.PREFIX }}:${{ github.sha }}
+          slot-name: candidate
+
+      - name: Promote Candidate Slot
+        id: promote-candidate
+        working-directory: operations
+        run: make TF_ENV=test AZ_RESOURCE_PREFIX=${{ env.PREFIX }} AZ_RESOURCE_GROUP=${{ env.RESOURCE_GROUP }} zdd-promote-slot
+
+      - name: Remove GitHub Action IP Whitelist
+        if: ${{ always() }} # This should happen even on a failure
+        id: ip-whitelist-destroy
+        run: |
+          az functionapp config access-restriction remove -g ${{ env.RESOURCE_GROUP }} -n ${{ env.PREFIX }}-functionapp --slot candidate --rule-name GitHubActionIPV4 > /dev/null 2>&1
+
+      - name: Upload Static Site
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+            az storage blob delete-batch --account-name ${{ env.PREFIX }}public -s '$web'
+            az storage blob upload-batch --account-name ${{ env.PREFIX }}public -d '$web' -s frontend/dist
+
+  deploy_release_staging:
+    name: "Deploy Release: STAGING"
+    needs:
+      - build_release
+      - build_frontend_react_release
+    if: github.ref == 'refs/heads/master'
+    environment: staging
+    concurrency: staging
+    runs-on: ubuntu-latest
+    env:
+      RESOURCE_GROUP: prime-data-hub-staging
+      ACR_REPO: pdhstagingcontainerregistry.azurecr.io
+      PREFIX: pdhstaging
+    steps:
+      - name: "Check out changes"
+        uses: actions/checkout@v2
+
+      - name: Download Router Artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: prime-router-build-${{ github.run_id }}
+          path: prime-router/build
+
+      - name: Download Frontend Artifact (React)
+        uses: actions/download-artifact@v2
+        with:
+          name: static_website_react-${{ github.run_id }}
+          path: frontend-react/build
+
+      - name: Build Docker Image
+        run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:${{ github.sha }}
+
+      - name: Install OpenVPN
+        run: |
+          sudo apt-get update
+          sudo apt-get install openvpn
+          sudo apt install openvpn-systemd-resolved
+
+      - name: Connect VPN
+        uses: golfzaptw/action-connect-ovpn@2.0.1
+        id: connect_vpn
+        with:
           FILE_OVPN: ".github/vpn/staging.ovpn"
           TLS_KEY: ${{ secrets.TLS_KEY }}
         env:
@@ -277,7 +401,7 @@ jobs:
         with:
           inlineScript: |
             az storage blob delete-batch --account-name ${{ env.PREFIX }}public -s '$web'
-            az storage blob upload-batch --account-name ${{ env.PREFIX }}public -d '$web' -s frontend/dist
+            az storage blob upload-batch --account-name ${{ env.PREFIX }}public -d '$web' -s frontend-react/build
 
   deploy_release_prod:
     name: "Deploy Release: PROD"
@@ -318,10 +442,9 @@ jobs:
           sudo apt install openvpn-systemd-resolved
 
       - name: Connect VPN
-        uses: golfzaptw/action-connect-ovpn@master
+        uses: golfzaptw/action-connect-ovpn@2.0.1
         id: connect_vpn
         with:
-          PING_URL: "127.0.0.1"
           FILE_OVPN: ".github/vpn/prod.ovpn"
           TLS_KEY: ${{ secrets.TLS_KEY }}
         env:

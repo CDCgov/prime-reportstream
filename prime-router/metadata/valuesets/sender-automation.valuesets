@@ -1,0 +1,281 @@
+# Sender Automation specific valueset to translate inbound values to RS accepted values
+#
+# These ValueSets are associated with covid-19 topic
+# ValueSets are used with CODE data elements and their display equivalents
+#
+# Name conventions
+#
+#  for SNOMED-CT use the standard element name
+#  for hl7 value sets use the HL7 name
+#  for LOINC value sets use TBD
+#  for LOCAL match the standard element
+#
+# sort alphabetically
+#
+---
+
+- name: sender-automation/gender
+  # See M, F, U in the reference URL.
+  reference: This maps multiple values to the ReportStream internal (M, F, U, O - Other, A - Ambiguous)
+  system: LOCAL
+  referenceUrl: https://www.hhs.gov/sites/default/files/non-lab-based-covid19-test-reporting.pdf
+  values:
+    - code: F
+      display: Female
+    - code: F
+      display: F
+    - code: M
+      display: Male
+    - code: M
+      display: M
+    - code: U
+      display: U
+    - code: U
+      display: UNK
+    - code: U
+      display: UNKNOWN
+    - code: O
+      display: O
+    - code: O
+      display: Other
+    - code: O
+      display: OTH
+    - code: A
+      display: A
+    - code: A
+      display: Ambiguous
+
+- name: sender-automation/race
+  system: LOCAL
+  reference: Map multiple values for Race to the OMB Values to hl70005
+  referenceUrl: https://phinvads.cdc.gov/vads/ViewValueSet.action?id=B246B692-6DF8-E111-B875-001A4BE7FA90
+  values:
+    - code: 2106-3
+      display: White
+    - code: 2106-3
+      display: W
+    - code: 2106-3
+      display: Caucasian
+    - code: 1002-5
+      display: American Indian or Alaska Native
+    - code: 1002-5
+      display: American Indian
+    - code: 1002-5
+      display: Native American
+    - code: 2054-5
+      display: Black or African American
+    - code: 2054-5
+      display: African American
+    - code: 2054-5
+      display: African American Alaska Native
+    - code: 2054-5
+      display: African American Black
+    - code: 2054-5
+      display: Black
+    - code: 2054-5
+      display: B
+    - code: 2076-8
+      display: Native Hawaiian or Other Pacific Islander
+    - code: 2076-8
+      display: Hawaiian
+    - code: 2076-8
+      display: NH
+    - code: 2131-1
+      display: Other
+    - code: 2131-1
+      display: OTH
+    - code: 2131-1
+      display: O
+    - code: 2131-1
+      display: Other Race
+    - code: 2131-1
+      display: Other Race White
+    - code: 2131-1
+      display: Other Race Black
+    - code: 2028-9
+      display: Asian
+    - code: UNK
+      display: Unknown
+    - code: UNK
+      display: UNK
+    - code: UNK
+      display: U
+    - code: UNK
+      display: Patient Declines
+    - code: UNK
+      display: NULL
+    - code: ASKU
+      display: Asked, but unknown
+
+- name: sender-automation/ethnicity
+  system: LOCAL
+  reference: Map multiple ethnicity values to RS internal values
+  referenceUrl: https://www.hl7.org/fhir/v2/0189/index.html
+  values:
+    - code: H
+      display: Hispanic or Latino
+    - code: H
+      display: Hispanic
+    - code: H
+      display: Latino
+    - code: H
+      display: Mex. Amer./Hispanic
+    - code: N
+      display: Non Hispanic or Latino
+    - code: N
+      display: Non Hispanic
+    - code: N
+      display: Not Hispanic or Latino
+    - code: N
+      display: Not Hispanic
+    - code: U
+      display: Unknown
+    - code: U
+      display: U
+    - code: U
+      display: UNK
+    - code: U
+      display: Black
+    - code: U
+      display: White
+    - code: U
+      display: African American
+    - code: U
+      display: "NULL"
+    - code: U
+      display: Patient Declines
+
+- name: sender-automation/yesno
+  # See YES, NO, UNK in the reference URL.
+  reference: This maps (YES,NO,UNK) to the ReportStream internal hl70136 (Y,N,UNK)
+  system: LOCAL
+  referenceUrl: https://www.hhs.gov/sites/default/files/non-lab-based-covid19-test-reporting.pdf
+  values:
+    - code: Y
+      display: YES
+    - code: Y
+      display: Y
+    - code: N
+      display: NO
+    - code: N
+      display: N
+    - code: UNK
+      display: Unknown
+    - code: UNK
+      display: U
+    - code: UNK
+      display: UNK
+    - code: UNK
+      display: N/A
+    - code: UNK
+      display: NA
+    - code: UNK
+      display: NR
+    - code: UNK
+      display: NP
+    - code: UNK
+      display: maybe
+
+- name: sender-automation/pregnant
+  reference: Multiple values are mapped to the Pregnancy SNOMED Codes
+  system: SNOMED_CT
+  referenceUrl: https://loinc.org/82810-3/
+  values:
+    - code: 77386006
+      display: Pregnant
+    - code: 77386006
+      display: Currently Pregnant
+    - code: 77386006
+      display: Y
+    - code: 77386006
+      display: YES
+    - code: 60001007
+      display: Not Pregnant
+    - code: 60001007
+      display: Not Currently Pregnant
+    - code: 60001007
+      display: N
+    - code: 60001007
+      display: NO
+    - code: 261665006
+      display: Unknown
+    - code: 261665006
+      display: U
+    - code: 261665006
+      display: UNK
+    - code: 261665006
+      display: N/A
+    - code: 261665006
+      display: NA
+    - code: 261665006
+      display: NR
+    - code: 261665006
+      display: NP
+    - code: 261665006
+      display: maybe
+
+- name: sender-automation/test_result
+  reference: This maps multiple values to the ReportStream internal codes which are SNOMED-CT codes
+  system: SNOMED_CT
+  referenceUrl: https://www.hhs.gov/sites/default/files/hhs-guidance-implementation.pdf
+  # Note: if adding values here, please update the OBX-8 mapper
+  values:
+    - code: 260385009
+      display: Negative
+    - code: 260385009
+      display: Neg
+    - code: 260415000
+      display: Not detected
+    - code: 260415000
+      display: NDET
+    - code: 260373001
+      display: Detected
+    - code: 260373001
+      display: DET
+    - code: 10828004
+      display: Positive
+    - code: 10828004
+      display: Pos
+    - code: 10828004
+      display: Positive (Abnormal)
+    - code: 10828004
+      display: Positive (Alpha Abnormal)
+    - code: 720735008
+      display: Presumptive positive
+    - code: 419984006
+      display: Inconclusive
+    - code: 419984006
+      display: Inconclusive Result
+    - code: 42425007
+      display: Equivocal
+    - code: 895231008
+      display: Not detected in pooled specimen
+    - code: 462371000124108
+      display: Detected in pooled specimen
+    - code: 455371000124106
+      display: Invalid result
+    - code: 125154007
+      display: Specimen unsatisfactory for evaluation
+    - code: 840539006
+      display: Disease caused by sever acute respiratory syndrome coronavirus 2 (disorder)
+      version: 20200309
+    - code: 840544004
+      display: Suspected disease caused by severe acute respiratory coronavirus 2 (situation)
+      version: 20200309
+    - code: 840546002
+      display: Exposure to severe acute respiratory syndrome coronavirus 2 (event)
+      version: 20200309
+    - code: 840533007
+      display: Severe acute respiratory syndrome coronavirus 2 (organism)
+      version: 20200309
+    - code: 840536004
+      display: Antigen of severe acute respiratory syndrome coronavirus 2 (substance)
+      version: 20200309
+    - code: 840535000
+      display: Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
+      version: 20200309
+    - code: 840534001
+      display: Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
+      version: 20200309
+    - code: 373121007
+      display: Test not done

@@ -291,41 +291,11 @@ iPatientCare is an ambulatory EMR, so this field is defaulted to 'N'.
 
 ---
 
-**Name**: message_id
+**Name**: Accession_no
 
 **PII**: No
 
 **Cardinality**: [0..1]
-
----
-
-**Name**: order_result_status
-
-**Type**: CODE
-
-**PII**: No
-
-**Default Value**: F
-
-**Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display
----- | -------
-A|Some, but not all, results available
-C|Corrected, final
-F|Final results
-I|No results available; specimen received, procedure incomplete
-M|Corrected, not final
-N|Procedure completed, results pending
-O|Order received; specimen not yet received
-P|Preliminary
-R|Results stored; not yet verified
-S|No results available; procedure scheduled, but not done
-X|No results available; Order canceled
-Y|No order on record for this test
-Z|No record of this patient
 
 ---
 
@@ -353,7 +323,7 @@ DateColl populates multiple fields.  This instance populates order_test_date.
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-04-28
+**Table**: LIVD-SARS-CoV-2-2021-08-11
 
 **Table Column**: Test Ordered LOINC Long Name
 
@@ -651,13 +621,11 @@ Other states may choose to define their own formats.
 
 **Name**: Ethnicity
 
-**Type**: TEXT
+**Type**: CODE
 
 **PII**: No
 
 **Format**: $alt
-
-**Default Value**: U
 
 **Cardinality**: [0..1]
 
@@ -668,6 +636,11 @@ Code | Display
 H|Hispanic or Latino
 N|Non Hispanic or Latino
 U|Unknown
+H|Hispanic or Latino
+N|Non Hispanic or Latino
+N|Non Hispanic or Latino
+U|Unknown
+U|Unknown
 
 **Alt Value Sets**
 
@@ -675,11 +648,15 @@ Code | Display
 ---- | -------
 H|Hispanic or Latino
 N|Non Hispanic or Latino
+N|Not Hispanic or Latino
 U|Patient Declines
+U|Unknown
 
 **Documentation**:
 
-Defaulting to Unknown. Reddy sends WHITE, BLACK, ASIAN, NULL, and OTHER for ethnicity
+The patient's ethnicity. There is a valueset defined based on the values in PID-22, but downstream
+consumers are free to define their own values. Please refer to the consumer-specific schema if you have questions.
+
 
 ---
 
@@ -1032,6 +1009,9 @@ The reporting facility's CLIA
 
 - [MSH-4-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/MSH.4.1)
 - [PID-3-4-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4.1)
+- [PID-3-6-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.6.1)
+- [SPM-2-1-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.1.2)
+- [SPM-2-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2.2)
 
 **Cardinality**: [0..1]
 
@@ -1131,7 +1111,7 @@ Code | Display
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-04-28
+**Table**: LIVD-SARS-CoV-2-2021-08-11
 
 **Table Column**: Test Performed LOINC Long Name
 
@@ -1343,6 +1323,7 @@ Typically this will be the same as the `testing_lab_clia`, but potentially could
 
 - [OBR-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.2.2)
 - [OBR-3-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.3.2)
+- [OBX-15-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.15.2)
 - [OBX-23-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.23.1)
 - [ORC-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.2.2)
 - [ORC-3-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.3.2)

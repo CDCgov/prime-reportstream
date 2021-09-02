@@ -19,8 +19,6 @@ import net.schmizz.sshj.SSHClient
 import net.schmizz.sshj.sftp.RemoteResourceFilter
 import net.schmizz.sshj.sftp.StatefulSFTPClient
 import net.schmizz.sshj.transport.verification.PromiscuousVerifier
-import net.schmizz.sshj.userauth.keyprovider.OpenSSHKeyFile
-import net.schmizz.sshj.userauth.keyprovider.PKCS8KeyFile
 import net.schmizz.sshj.userauth.keyprovider.PuTTYKeyFile
 import net.schmizz.sshj.userauth.password.PasswordUtils
 import net.schmizz.sshj.xfer.InMemorySourceFile
@@ -41,8 +39,16 @@ class SftpTransport : ITransport, Logging {
         actionHistory: ActionHistory,
     ): RetryItems? {
         val sftpTransportType = transportType as SFTPTransportType
-        val host: String = sftpTransportType.host
-        val port: String = sftpTransportType.port
+
+        // Override the SFTP host and port only if provided and in the local environment.
+        val host: String = if ("local" == System.getenv("PRIME_ENVIRONMENT") &&
+            !System.getenv("SFTP_HOST_OVERRIDE").isNullOrBlank()
+        )
+            System.getenv("SFTP_HOST_OVERRIDE") else sftpTransportType.host
+        val port: String = if ("local" == System.getenv("PRIME_ENVIRONMENT") &&
+            !System.getenv("SFTP_PORT_OVERRIDE").isNullOrBlank()
+        )
+            System.getenv("SFTP_PORT_OVERRIDE") else sftpTransportType.port
         return try {
             if (header.content == null)
                 error("No content to sftp for report ${header.reportFile.reportId}")

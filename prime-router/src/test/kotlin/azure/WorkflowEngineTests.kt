@@ -49,7 +49,7 @@ class WorkflowEngineTests {
             metadata,
             settings,
             csvSerializer = CsvSerializer(metadata),
-            hl7Serializer = Hl7Serializer(metadata),
+            hl7Serializer = Hl7Serializer(metadata, settings),
             redoxSerializer = RedoxSerializer(metadata),
             db = accessSpy,
             blob = blobMock,

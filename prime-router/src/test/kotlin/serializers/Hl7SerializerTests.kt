@@ -17,6 +17,7 @@ import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.router.Element
+import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.FileSource
 import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.Metadata
@@ -40,6 +41,7 @@ import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Date
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.fail
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -55,17 +57,18 @@ class Hl7SerializerTests {
 
     init {
         val metadata = Metadata("./metadata")
+        val settings = FileSettings("./settings")
         val inputStream = File("./src/test/unit_test_files/fake-pdi-covid-19.csv").inputStream()
         covid19Schema = metadata.findSchema(hl7SchemaName) ?: fail("Could not find target schema")
         csvSerializer = CsvSerializer(metadata)
-        serializer = Hl7Serializer(metadata)
+        serializer = Hl7Serializer(metadata, settings)
         testReport = csvSerializer.readExternal("primedatainput/pdi-covid-19", inputStream, TestSource).report ?: fail()
         sampleHl7Message = """MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|Avante at Ormond Beach^10D0876999^CLIA|||20210210170737||ORU^R01^ORU_R01|371784|P|2.5.1|||NE|NE|USA||||PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
 SFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME ReportStream|0.1-SNAPSHOT||20210210
 PID|1||2a14112c-ece1-4f82-915c-7b3a8d152eda^^^Avante at Ormond Beach^PI||Buckridge^Kareem^Millie^^^^L||19580810|F||2106-3^White^HL70005^^^^2.5.1|688 Leighann Inlet^^South Rodneychester^TX^67071||^PRN^^roscoe.wilkinson@email.com^1^211^2240784|||||||||U^Unknown^HL70189||||||||N
 ORC|RE|73a6e9bd-aaec-418e-813a-0ad33366ca85|73a6e9bd-aaec-418e-813a-0ad33366ca85|||||||||1629082607^Eddin^Husam^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI||^WPN^^^1^386^6825220|20210209||||||Avante at Ormond Beach|170 North King Road^^Ormond Beach^FL^32174^^^^12127|^WPN^^jbrush@avantecenters.com^1^407^7397506|^^^^32174
 OBR|1|73a6e9bd-aaec-418e-813a-0ad33366ca85||94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN|||202102090000-0600|202102090000-0600||||||||1629082607^Eddin^Husam^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI|^WPN^^^1^386^6825220|||||202102090000-0600|||F
-OBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN||260415000^Not detected^SCT|||N^Normal (applies to non-numeric results)^HL70078|||F|||202102090000-0600|||CareStart COVID-19 Antigen test_Access Bio, Inc._EUA^^99ELR||202102090000-0600||||Avante at Ormond Beach^^^^^CLIA&2.16.840.1.113883.19.4.6&ISO^^^^10D0876999^CLIA|170 North King Road^^Ormond Beach^FL^32174^^^^12127
+OBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN||260415000^Not detected^SCT|||N^Normal (applies to non-numeric results)^HL70078|||F|||202102090000-0600|||CareStart COVID-19 Antigen test_Access Bio, Inc._EUA^^99ELR||202102090000-0600||||Avante at Ormond Beach^^^^^CLIA&2.16.840.1.113883.4.7&ISO^^^^10D0876999^CLIA|170 North King Road^^Ormond Beach^FL^32174^^^^12127
 NTE|1|L|This is a comment|RE
 OBX|2|CWE|95418-0^Whether patient is employed in a healthcare setting^LN^^^^2.69||Y^Yes^HL70136||||||F|||202102090000-0600|||||||||||||||QST
 OBX|3|CWE|95417-2^First test for condition of interest^LN^^^^2.69||Y^Yes^HL70136||||||F|||202102090000-0600|||||||||||||||QST
@@ -109,10 +112,12 @@ NTE|1|L|This is a final comment|RE"""
             every { it.reportingFacilityName }.returns(null)
             every { it.reportingFacilityId }.returns(null)
             every { it.reportingFacilityIdType }.returns(null)
+            every { it.cliaForOutOfStateTesting }.returns("1234FAKECLIA")
         }
         val receiver = mockkClass(Receiver::class).also {
             every { it.translation }.returns(hl7Config)
             every { it.format }.returns(Report.Format.HL7)
+            every { it.organizationName }.returns("ca-dph")
         }
 
         val testReport = csvSerializer.readExternal(schema, inputStream, listOf(TestSource), receiver).report ?: fail()
@@ -210,7 +215,8 @@ NTE|1|L|This is a final comment|RE"""
     @Test
     fun `test XTN phone decoding`() {
         val metadata = Metadata("./metadata")
-        val serializer = Hl7Serializer(metadata)
+        val settings = FileSettings("./settings")
+        val serializer = Hl7Serializer(metadata, settings)
         val mockTerser = mockk<Terser>()
         val mockSegment = mockk<Segment>()
         val emptyPhoneField = mockk<XTN>()
@@ -303,7 +309,8 @@ NTE|1|L|This is a final comment|RE"""
     @Test
     fun `test XTN email decoding`() {
         val metadata = Metadata("./metadata")
-        val serializer = Hl7Serializer(metadata)
+        val settings = FileSettings("./settings")
+        val serializer = Hl7Serializer(metadata, settings)
         val mockTerser = mockk<Terser>()
         val mockSegment = mockk<Segment>()
         val emailField = mockk<XTN>()
@@ -347,7 +354,8 @@ NTE|1|L|This is a final comment|RE"""
     @Test
     fun `test date time decoding`() {
         val metadata = Metadata("./metadata")
-        val serializer = Hl7Serializer(metadata)
+        val settings = FileSettings("./settings")
+        val serializer = Hl7Serializer(metadata, settings)
         val mockTerser = mockk<Terser>()
         val mockSegment = mockk<Segment>()
         val mockTS = mockk<TS>()
@@ -505,7 +513,7 @@ SFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME ReportStream|0
 PID|1||2a14112c-ece1-4f82-915c-7b3a8d152eda^^^Avante at Ormond Beach^PI||$greekString^Kareem^Millie^^^^L||19580810|F||2106-3^White^HL70005^^^^2.5.1|688 Leighann Inlet^^South Rodneychester^TX^67071||^PRN^^roscoe.wilkinson@email.com^1^211^2240784|||||||||U^Unknown^HL70189||||||||N
 ORC|RE|73a6e9bd-aaec-418e-813a-0ad33366ca85|73a6e9bd-aaec-418e-813a-0ad33366ca85|||||||||1629082607^Eddin^Husam^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI||^WPN^^^1^386^6825220|20210209||||||Avante at Ormond Beach|170 North King Road^^Ormond Beach^FL^32174^^^^12127|^WPN^^jbrush@avantecenters.com^1^407^7397506|^^^^32174
 OBR|1|73a6e9bd-aaec-418e-813a-0ad33366ca85||94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN|||202102090000-0600|202102090000-0600||||||||1629082607^Eddin^Husam^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI|^WPN^^^1^386^6825220|||||202102090000-0600|||F
-OBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN||260415000^Not detected^SCT|||N^Normal (applies to non-numeric results)^HL70078|||F|||202102090000-0600|||CareStart COVID-19 Antigen test_Access Bio, Inc._EUA^^99ELR||202102090000-0600||||Avante at Ormond Beach^^^^^CLIA&2.16.840.1.113883.19.4.6&ISO^^^^10D0876999^CLIA|170 North King Road^^Ormond Beach^FL^32174^^^^12127
+OBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN||260415000^Not detected^SCT|||N^Normal (applies to non-numeric results)^HL70078|||F|||202102090000-0600|||CareStart COVID-19 Antigen test_Access Bio, Inc._EUA^^99ELR||202102090000-0600||||Avante at Ormond Beach^^^^^CLIA&2.16.840.1.113883.4.7&ISO^^^^10D0876999^CLIA|170 North King Road^^Ormond Beach^FL^32174^^^^12127
 NTE|1|L|This is a comment|RE
 OBX|2|CWE|95418-0^Whether patient is employed in a healthcare setting^LN^^^^2.69||Y^Yes^HL70136||||||F|||202102090000-0600|||||||||||||||QST
 OBX|3|CWE|95417-2^First test for condition of interest^LN^^^^2.69||Y^Yes^HL70136||||||F|||202102090000-0600|||||||||||||||QST
@@ -530,7 +538,8 @@ NTE|1|L|This is a final comment|RE"""
     @Test
     fun `test terser spec generator`() {
         val metadata = Metadata("./metadata")
-        val serializer = Hl7Serializer(metadata)
+        val settings = FileSettings("./settings")
+        val serializer = Hl7Serializer(metadata, settings)
         assertThat(serializer.getTerserSpec("MSH-1-1")).isEqualTo("/MSH-1-1")
         assertThat(serializer.getTerserSpec("PID-1")).isEqualTo("/.PID-1")
         assertThat(serializer.getTerserSpec("")).isEqualTo("/.")
@@ -539,8 +548,9 @@ NTE|1|L|This is a final comment|RE"""
     @Test
     fun `test setTelephoneComponents for patient`() {
         val metadata = Metadata("./metadata")
+        val settings = FileSettings("./settings")
+        val serializer = Hl7Serializer(metadata, settings)
         val mockTerser = mockk<Terser>()
-        val serializer = Hl7Serializer(metadata)
         every { mockTerser.set(any(), any()) } returns Unit
         every { mockTerser.get("/PATIENT_RESULT/PATIENT/PID-13(0)-2") } returns ""
 
@@ -567,8 +577,9 @@ NTE|1|L|This is a final comment|RE"""
     @Test
     fun `test setTelephoneComponents for facility`() {
         val metadata = Metadata("./metadata")
+        val settings = FileSettings("./settings")
+        val serializer = Hl7Serializer(metadata, settings)
         val mockTerser = mockk<Terser>()
-        val serializer = Hl7Serializer(metadata)
         every { mockTerser.set(any(), any()) } returns Unit
 
         val facilityPathSpec = serializer.formPathSpec("ORC-23")
@@ -599,8 +610,9 @@ NTE|1|L|This is a final comment|RE"""
     @Test
     fun `test setCliaComponents`() {
         val metadata = Metadata("./metadata")
+        val settings = FileSettings("./settings")
+        val serializer = Hl7Serializer(metadata, settings)
         val mockTerser = mockk<Terser>()
-        val serializer = Hl7Serializer(metadata)
         every { mockTerser.set(any(), any()) } returns Unit
 
         serializer.setCliaComponent(
@@ -617,8 +629,9 @@ NTE|1|L|This is a final comment|RE"""
     @Test
     fun `test setCliaComponents in HD`() {
         val metadata = Metadata("./metadata")
+        val settings = FileSettings("./settings")
+        val serializer = Hl7Serializer(metadata, settings)
         val mockTerser = mockk<Terser>()
-        val serializer = Hl7Serializer(metadata)
         every { mockTerser.set(any(), any()) } returns Unit
         val hl7Field = "ORC-3-3"
         val value = "dummy"
@@ -636,13 +649,26 @@ NTE|1|L|This is a final comment|RE"""
     }
 
     @Test
+    fun `test setTruncationLimitWithEncoding`() {
+
+        val testValueWithSpecialChars = "Test & Value ~ Text ^ String"
+        val testValueNoSpecialChars = "Test Value Text String"
+        val testLimit = 20
+        val newLimitWithSpecialChars = serializer.getTruncationLimitWithEncoding(testValueWithSpecialChars, testLimit)
+        val newLimitNoSpecialChars = serializer.getTruncationLimitWithEncoding(testValueNoSpecialChars, testLimit)
+
+        assertEquals(newLimitWithSpecialChars, 16)
+        assertEquals(newLimitNoSpecialChars, testLimit)
+    }
+
+    @Test
     fun `test incorrect HL7 content`() {
         val metadata = Metadata("./metadata")
-        val serializer = Hl7Serializer(metadata)
+        val settings = FileSettings("./settings")
+        val serializer = Hl7Serializer(metadata, settings)
 
         val emptyHL7 = ByteArrayInputStream("".toByteArray())
         var result = serializer.readExternal(hl7SchemaName, emptyHL7, TestSource)
-        assertThat(result.warnings).isNotEmpty()
         assertThat(result.report).isNotNull()
         assertThat(result.report!!.itemCount).isEqualTo(0)
 
@@ -676,7 +702,7 @@ NTE|1|L|This is a final comment|RE"""
             PID|1||2a14112c-ece1-4f82-915c-7b3a8d152eda^^^Avante at Ormond Beach^PI||Doe^Kareem^Millie^^^^L||19580810|F||2106-3^White^HL70005^^^^2.5.1|688 Leighann Inlet^^South Rodneychester^TX^67071||^PRN^^roscoe.wilkinson@email.com^1^211^2240784|||||||||U^Unknown^HL70189||||||||N
             ORC|RE|73a6e9bd-aaec-418e-813a-0ad33366ca85|73a6e9bd-aaec-418e-813a-0ad33366ca85|||||||||1629082607^Eddin^Husam^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI||^WPN^^^1^386^6825220|20210209||||||Avante at Ormond Beach|170 North King Road^^Ormond Beach^FL^32174^^^^12127|^WPN^^jbrush@avantecenters.com^1^407^7397506|^^^^32174
             OBR|1|73a6e9bd-aaec-418e-813a-0ad33366ca85||94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN|||202102090000-0600|202102090000-0600||||||||1629082607^Eddin^Husam^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI|^WPN^^^1^386^6825220|||||202102090000-0600|||F
-            OBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN||260415000^Not detected^SCT|||N^Normal (applies to non-numeric results)^HL70078|||F|||202102090000-0600|||CareStart COVID-19 Antigen test_Access Bio, Inc._EUA^^99ELR||202102090000-0600||||Avante at Ormond Beach^^^^^CLIA&2.16.840.1.113883.19.4.6&ISO^^^^10D0876999^CLIA|170 North King Road^^Ormond Beach^FL^32174^^^^12127
+            OBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN||260415000^Not detected^SCT|||N^Normal (applies to non-numeric results)^HL70078|||F|||202102090000-0600|||CareStart COVID-19 Antigen test_Access Bio, Inc._EUA^^99ELR||202102090000-0600||||Avante at Ormond Beach^^^^^CLIA&2.16.840.1.113883.4.7&ISO^^^^10D0876999^CLIA|170 North King Road^^Ormond Beach^FL^32174^^^^12127
             """.trimIndent().toByteArray()
         )
         result = serializer.readExternal(hl7SchemaName, wrongHL7Version, TestSource)

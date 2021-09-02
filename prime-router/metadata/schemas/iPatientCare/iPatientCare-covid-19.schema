@@ -107,9 +107,12 @@ elements:
           display: Hispanic or Latino
         - code: N
           display: Non Hispanic or Latino
+        - code: N
+          display: Not Hispanic or Latino
         - code: U
           display: Patient Declines
-      documentation: NOTE - awaiting any additional ethnicity values from iPatientCare
+        - code: U
+          display: Unknown
 
 
     - name: specimen_collection_date_time
@@ -172,9 +175,6 @@ elements:
 
 
     - name: test_result_status
-      default: F
-
-    - name: order_result_status
       default: F
 
     - name: result_format

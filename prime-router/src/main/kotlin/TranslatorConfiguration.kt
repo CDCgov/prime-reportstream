@@ -77,9 +77,11 @@ data class Hl7Configuration
     val truncateHDNamespaceIds: Boolean = false,
     val usePid14ForPatientEmail: Boolean = false,
     val convertTimestampToDateTime: String? = null,
+    val cliaForOutOfStateTesting: String? = null,
     val phoneNumberFormatting: PhoneNumberFormatting = PhoneNumberFormatting.STANDARD,
     // pass this around as a property now
     val processingModeCode: String? = null,
+    val replaceDiiWithOid: Boolean? = null,
     // Per APHL recommendations, if site_of_care == k12 enrich the ordering_facility_name with the nces id
     val useNCESFacilityName: Boolean = false,
     override val nameFormat: String = "standard",

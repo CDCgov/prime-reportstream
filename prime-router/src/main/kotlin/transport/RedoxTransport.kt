@@ -151,12 +151,16 @@ class RedoxTransport() : ITransport, SecretManagement {
     }
 
     private fun getBaseUrl(redox: RedoxTransportType): String {
-        return redox.baseUrl ?: redoxBaseUrl
+        return if ("local" == System.getenv("PRIME_ENVIRONMENT") &&
+            !System.getenv("REDOX_URL_OVERRIDE").isNullOrBlank()
+        ) System.getenv("REDOX_URL_OVERRIDE") else redox.baseUrl ?: redoxBaseUrl
     }
 
     private fun getKeyAndSecret(redox: RedoxTransportType): Pair<String, String> {
         // Dev Note: The Redox API key doesn't change, while the secret can
-        val secret = secretService.fetchSecret(secretEnvName) ?: ""
+        // If there is no secret set in the environment then set a dummy one for the local environment.
+        val secret = secretService.fetchSecret(secretEnvName)
+            ?: if ("local" == System.getenv("PRIME_ENVIRONMENT")) "some_secret" else ""
         if (secret.isBlank()) error("Unable to find $secretEnvName")
         return Pair(redox.apiKey, secret)
     }

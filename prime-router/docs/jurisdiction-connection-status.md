@@ -1,6 +1,6 @@
 ## Supported Jurisdictions
 
-## Last updated: August 16, 2021
+## Last updated: August 31, 2021
 
 ReportStream is currently live and in development in the following jurisdictions:  
 
@@ -12,20 +12,23 @@ ReportStream is currently live and in development in the following jurisdictions
   * Arizona 
   * California
   * Colorado 
+  * Florida
   * Guam
   * Louisiana
   * Maryland
   * Massachusetts
   * Minnesota
   * Mississippi 
-  * Montana 
+  * Montana
+  * New Jersey 
   * New Mexico 
   * North Dakota 
   * Ohio 
   * Pennsylvania 
   * Texas 
   * Vermont 
-  * Florida
+  * Washington
+  * Wyoming
 
 
 ### In development 
@@ -35,12 +38,11 @@ ReportStream is currently live and in development in the following jurisdictions
   * Alaska
   * Connecticut
   * Delaware
+  * Illinois
   * New Hampshire 
-  * New Jersey 
   * New York
+  * Oregon
   * Tennessee
-  * Washington 
   * Wisconsin 
-  * Wyoming
 
 Note: When ReportStream is “Live” with a state, each sender may still need to register their facility information with the state before sending production data to the state. 
