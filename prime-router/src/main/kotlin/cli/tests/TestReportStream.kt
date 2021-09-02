@@ -241,12 +241,19 @@ Examples:
         suspend fun runTest(test: CoolTest) {
             echo("Running test ${test.name}...")
             test.outputToConsole = options.runSequential
-            if (!test.run(environment, options))
-                failures.add(test)
-            echo("********************************")
-            echo("Output for test ${test.name}...")
+            test.echo("********************************")
+            test.echo("Output for test ${test.name}...")
+            val passed = try {
+                test.run(environment, options)
+            } catch (e: java.lang.Exception) {
+                test.echo("Exception: ${e.javaClass.name}, ${e.message}: " +
+                    "${e.stackTrace.joinToString(System.lineSeparator())}")
+                false
+            }
             test.outputAllMsgs()
-            echo("********************************")
+            test.echo("********************************")
+            if (!passed)
+                failures.add(test)
         }
 
         runBlocking {
@@ -392,7 +399,7 @@ abstract class CoolTest {
         var waitSecs = 60 - secsElapsed + plusSecs
         if (env != ReportStreamEnv.LOCAL) {
             // We are in Test or Staging, which don't execute on the top of the minute. Hack:
-            waitSecs += 120
+            waitSecs += 130
         } else if (secsElapsed > (60 - plusSecs)) {
             // Uh oh, we are close to the top of the minute *now*, so 'receive' might not finish in time.
             waitSecs += 60
