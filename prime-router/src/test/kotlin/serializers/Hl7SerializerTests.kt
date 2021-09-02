@@ -113,6 +113,7 @@ NTE|1|L|This is a final comment|RE"""
             every { it.reportingFacilityId }.returns(null)
             every { it.reportingFacilityIdType }.returns(null)
             every { it.cliaForOutOfStateTesting }.returns("1234FAKECLIA")
+            every { it.useNCESFacilityName }.returns(false)
         }
         val receiver = mockkClass(Receiver::class).also {
             every { it.translation }.returns(hl7Config)
