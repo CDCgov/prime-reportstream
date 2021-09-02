@@ -198,8 +198,7 @@ class HttpUtilities {
             val content = request.body
             if (content != null && content.length > PAYLOAD_MAX_BYTES) {
                 return HttpStatus.PAYLOAD_TOO_LARGE to
-                    "ERROR: body size ${content.length} is larger than max $PAYLOAD_MAX_BYTES " +
-                    "(content-length header = $contentLength"
+                    "Your file size of ${content.length} exceeds the maximum of $PAYLOAD_MAX_BYTES per file. Reduce file size."
             }
             return HttpStatus.OK to ""
         }

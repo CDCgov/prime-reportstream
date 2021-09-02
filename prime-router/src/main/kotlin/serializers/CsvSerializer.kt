@@ -74,7 +74,7 @@ class CsvSerializer(val metadata: Metadata) {
                     if (rows.size > REPORT_MAX_ITEMS) {
                         errors.add(
                             ResultDetail.report(
-                                "Report rows ${rows.size} exceeds max allowed $REPORT_MAX_ITEMS rows"
+                                "Your file's row size of ${rows.size} exceeds the maximum of $REPORT_MAX_ITEMS rows per file. Reduce the amount of rows in this file."
                             )
                         )
                         return@open
@@ -82,7 +82,7 @@ class CsvSerializer(val metadata: Metadata) {
                     if (row.size > REPORT_MAX_ITEM_COLUMNS) {
                         errors.add(
                             ResultDetail.report(
-                                "Number of report columns ${row.size} exceeds max allowed $REPORT_MAX_ITEM_COLUMNS"
+                                "Number of columns (#cols) in your report exceeds the maximum of $REPORT_MAX_ITEMS allowed. Adjust the excess columnar data in your report."
                             )
                         )
                         return@open
@@ -90,15 +90,15 @@ class CsvSerializer(val metadata: Metadata) {
                 }
             } catch (ex: CSVFieldNumDifferentException) {
                 errors.add(
-                    ResultDetail.report("CSV file has an inconsistent number of columns on row: ${ex.csvRowNum}")
+                    ResultDetail.report("Expecting [X number] columns, but found [Y number] in row ${ex.csvRowNum}.")
                 )
             } catch (ex: CSVParseFormatException) {
                 errors.add(
-                    ResultDetail.report("General CSV parsing error on row: ${ex.rowNum}")
+                    ResultDetail.report("There's an issue parsing your file. Contact the ReportStream team at reportstream@cdc.gov.")
                 )
             } catch (ex: MalformedCSVException) {
                 errors.add(
-                    ResultDetail.report("General CSV parsing error: ${ex.message}")
+                    ResultDetail.report("There's an issue parsing your file. Contact the ReportStream team at reportstream@cdc.gov.")
                 )
             }
         }
@@ -116,10 +116,7 @@ class CsvSerializer(val metadata: Metadata) {
         warnings.addAll(csvMapping.warnings.map { ResultDetail.report(it) })
         if (errors.size > REPORT_MAX_ERRORS) {
             errors.add(
-                ResultDetail.report(
-                    "Number of errors (${errors.size}) exceeded $REPORT_MAX_ERRORS.  Stopping further work."
-                )
-            )
+                ResultDetail.report("Report file failed: Number of errors exceeded threshold. Contact the ReportStream team at reportstream@cdc.gov for assistance."))
             return ReadResult(null, errors, warnings)
         }
         if (csvMapping.errors.isNotEmpty()) {
@@ -275,11 +272,11 @@ class CsvSerializer(val metadata: Metadata) {
         val missingOptionalHeaders = optionalHeaders - actualHeaders
         val ignoredHeaders = actualHeaders - requiredHeaders - optionalHeaders - headersWithDefault
         val errors = missingRequiredHeaders.map {
-            "Missing ${schema.findElementByCsvName(it)?.fieldMapping} header"
+            "Your file is missing ${schema.findElementByCsvName(it)?.fieldMapping} header in [column]. Add a header."
         }
         val warnings = missingOptionalHeaders.map {
-            "Missing ${schema.findElementByCsvName(it)?.fieldMapping} header"
-        } + ignoredHeaders.map { "Unexpected '$it' header is ignored" }
+            "Your file is missing ${schema.findElementByCsvName(it)?.fieldMapping} header in [column]. Add a header."
+        } + ignoredHeaders.map { "Unexpected column header found, ({column header}) will be ignored." }
 
         return CsvMapping(useCsv, useMapper, useDefault, errors, warnings)
     }
@@ -362,7 +359,7 @@ class CsvSerializer(val metadata: Metadata) {
             }
             if (value.isBlank() && !element.canBeBlank) {
                 when (element.cardinality) {
-                    Element.Cardinality.ONE -> errors += "Empty value for ${element.fieldMapping}"
+                    Element.Cardinality.ONE -> errors += "This field cannot be empty in [rows/columns]. Enter a value."
                     Element.Cardinality.ZERO_OR_ONE -> {
                     }
                 }
