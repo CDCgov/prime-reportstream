@@ -34,11 +34,18 @@ export const Upload = () => {
         `Please resolve the errors below and upload your edited file. Your file has not been accepted.`
     );
 
-    const claimsSenderOrganization = authState!.accessToken?.claims.organization.find(o => o.includes("DHSender"))
-    const senderOrganization = claimsSenderOrganization.replace('Sender_', '');
+    const claimsSenderOrganization = authState!.accessToken?.claims.organization.find(o => o.includes("DHSender"));
+    const claimsSenderOrganizationArray = claimsSenderOrganization.split('.');
 
-    const client =
+    // should end up like "DHignore" from "DHSender_ignore.ignore-waters" from Okta
+    const senderOrganization = claimsSenderOrganizationArray[0].replace('Sender_', '');
+
+    // should end up like "ignore" from "DHSender_ignore.ignore-waters" from Okta"
+    const organizationName =
         groupToOrg(senderOrganization);
+
+    // should end up like "ignore.ignore-waters" from "DHSender_ignore.ignore-waters" from Okta
+    const senderClient = `${organizationName}.${claimsSenderOrganizationArray[1]}`;
 
     const userName = {
         firstName: authState!.accessToken?.claims.given_name,
@@ -46,7 +53,7 @@ export const Upload = () => {
     }
 
     const organization = useResource(OrganizationResource.detail(), {
-        name: client
+        name: organizationName
     });
 
     const uploadReport =
@@ -58,7 +65,7 @@ export const Upload = () => {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'text/csv',
-                        'client': client,
+                        'client': senderClient,
                         'authentication-type': 'okta',
                         'Authorization': `Bearer ${authState?.accessToken?.accessToken}`
                     },

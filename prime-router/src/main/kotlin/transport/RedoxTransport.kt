@@ -151,7 +151,9 @@ class RedoxTransport() : ITransport, SecretManagement {
     }
 
     private fun getBaseUrl(redox: RedoxTransportType): String {
-        return redox.baseUrl ?: redoxBaseUrl
+        return if ("local" == System.getenv("PRIME_ENVIRONMENT") &&
+            !System.getenv("REDOX_URL_OVERRIDE").isNullOrBlank()
+        ) System.getenv("REDOX_URL_OVERRIDE") else redox.baseUrl ?: redoxBaseUrl
     }
 
     private fun getKeyAndSecret(redox: RedoxTransportType): Pair<String, String> {

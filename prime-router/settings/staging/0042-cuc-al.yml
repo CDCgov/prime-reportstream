@@ -1,0 +1,11 @@
+# Run this:  ./prime multiple-settings set --input ./settings/staging/0042-cuc-al.yml --env staging
+---
+- name: cuc-al
+  description: Experity CSV lab report schema, Compass Urgent Care, AL
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: cuc-al
+      topic: covid-19
+      schemaName: experity/cuc-al-covid-19
+      format: CSV
