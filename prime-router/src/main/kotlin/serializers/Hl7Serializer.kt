@@ -598,11 +598,17 @@ class Hl7Serializer(
         if (!hl7Config?.cliaForOutOfStateTesting.isNullOrEmpty()) {
             val testingStateField = "OBX-24-4"
             val pathSpecTestingState = formPathSpec(testingStateField)
-            val testingState = terser.get(pathSpecTestingState)
+            var originState = terser.get(pathSpecTestingState)
+
+            if (originState.isEmpty()) {
+                val orderingStateField = "ORC-24-4"
+                val pathSpecOrderingState = formPathSpec(orderingStateField)
+                originState = terser.get(pathSpecOrderingState)
+            }
 
             val stateCode = report.destination?.let { settings.findOrganization(it.organizationName)?.stateCode }
 
-            if (!testingState.equals(stateCode)) {
+            if (!originState.equals(stateCode)) {
                 val sendingFacility = "MSH-4-2"
                 val pathSpecSendingFacility = formPathSpec(sendingFacility)
                 terser.set(pathSpecSendingFacility, hl7Config?.cliaForOutOfStateTesting)
