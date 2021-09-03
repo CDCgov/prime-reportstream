@@ -23,3 +23,9 @@ variable "ai_instrumentation_key" {
   description = "Application Insights Instrumentation Key"
   sensitive   = true
 }
+
+variable "ai_connection_string" {
+  type        = string
+  description = "Application Insights Connection String"
+  sensitive   = true
+}

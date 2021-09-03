@@ -152,6 +152,9 @@ state_fips,state,state_abbr,zipcode,county,city
 1,Alabama,AL,35481,Pickens,Reform
 1,Alabama,AL,35490,Tuscaloosa,Vance
 1,Alabama,AL,35501,Walker,Jasper
+1,Alabama,AL,35502,Walker,Jasper
+1,Alabama,AL,35503,Walker,Jasper
+1,Alabama,AL,35504,Walker,Jasper
 1,Alabama,AL,35540,Winston,Addison
 1,Alabama,AL,35541,Winston,Arley
 1,Alabama,AL,35542,Fayette,Bankston
@@ -192,6 +195,10 @@ state_fips,state,state_abbr,zipcode,county,city
 1,Alabama,AL,35603,Morgan,Decatur
 1,Alabama,AL,35610,Lauderdale,Anderson
 1,Alabama,AL,35611,Limestone,Athens
+1,Alabama,AL,35612,Limestone,Athens
+1,Alabama,AL,35613,Limestone,Athens
+1,Alabama,AL,35614,Limestone,Athens
+1,Alabama,AL,35615,Limestone,Belle Mina
 1,Alabama,AL,35616,Colbert,Cherokee
 1,Alabama,AL,35618,Lawrence,Courtland
 1,Alabama,AL,35619,Morgan,Danville
@@ -339,6 +346,7 @@ state_fips,state,state_abbr,zipcode,county,city
 1,Alabama,AL,36071,Crenshaw,Rutledge
 1,Alabama,AL,36075,Macon,Shorter
 1,Alabama,AL,36078,Elmore,Tallassee
+1,Alabama,AL,36079,Coffee,Troy
 1,Alabama,AL,36080,Elmore,Titus
 1,Alabama,AL,36081,Pike,Troy
 1,Alabama,AL,36083,Macon,Tuskegee
@@ -420,6 +428,7 @@ state_fips,state,state_abbr,zipcode,county,city
 1,Alabama,AL,36376,Houston,Webb
 1,Alabama,AL,36401,Conecuh,Evergreen
 1,Alabama,AL,36420,Covington,Andalusia
+1,Alabama,AL,36421,Covington,Andalusia
 1,Alabama,AL,36425,Monroe,Beatrice
 1,Alabama,AL,36426,Escambia,East brewton
 1,Alabama,AL,36432,Conecuh,Castleberry
@@ -505,6 +514,7 @@ state_fips,state,state_abbr,zipcode,county,city
 1,Alabama,AL,36584,Washington,Vinegar bend
 1,Alabama,AL,36585,Washington,Wagarville
 1,Alabama,AL,36587,Mobile,Wilmer
+1,Alabama,AL,36601,Mobile,Mobile
 1,Alabama,AL,36602,Mobile,Mobile
 1,Alabama,AL,36603,Mobile,Mobile
 1,Alabama,AL,36604,Mobile,Mobile
@@ -517,11 +527,15 @@ state_fips,state,state_abbr,zipcode,county,city
 1,Alabama,AL,36611,Mobile,Chickasaw
 1,Alabama,AL,36612,Mobile,Mobile
 1,Alabama,AL,36613,Mobile,Eight mile
+1,Alabama,AL,36616,Mobile,Mobile
+1,Alabama,AL,36616,Mobile,Mobile
 1,Alabama,AL,36617,Mobile,Mobile
 1,Alabama,AL,36618,Mobile,Mobile
 1,Alabama,AL,36619,Mobile,Mobile
+1,Alabama,AL,36652,Mobile,Mobile
 1,Alabama,AL,36685,Mobile,Mobile
 1,Alabama,AL,36688,Mobile,Mobile
+1,Alabama,AL,36689,Mobile,Mobile
 1,Alabama,AL,36691,Mobile,Mobile
 1,Alabama,AL,36693,Mobile,Mobile
 1,Alabama,AL,36695,Mobile,Mobile
@@ -883,6 +897,7 @@ state_fips,state,state_abbr,zipcode,county,city
 4,Arizona,AZ,85054,Maricopa,Phoenix
 4,Arizona,AZ,85085,Maricopa,Phoenix
 4,Arizona,AZ,85086,Maricopa,Phoenix
+4,Arizona,AZ,85138,Pinal,Maricopa
 4,Arizona,AZ,85201,Maricopa,Mesa
 4,Arizona,AZ,85202,Maricopa,Mesa
 4,Arizona,AZ,85203,Maricopa,Mesa
@@ -2368,6 +2383,7 @@ state_fips,state,state_abbr,zipcode,county,city
 6,California,CA,92808,Orange,Anaheim
 6,California,CA,92821,Orange,Anaheim
 6,California,CA,92823,Orange,Anaheim
+6,California,CA,92831,Orange,Fullerton
 6,California,CA,93001,Ventura,San buenaventura
 6,California,CA,93003,Ventura,San buenaventura
 6,California,CA,93004,Ventura,San buenaventura
@@ -4471,7 +4487,10 @@ state_fips,state,state_abbr,zipcode,county,city
 12,Florida,FL,32544,Okaloosa,Hurlburt field
 12,Florida,FL,32547,Okaloosa,Fort walton beac
 12,Florida,FL,32548,Okaloosa,Fort walton beac
+12,Florida,FL,32560,Escambia,Gonzalez
 12,Florida,FL,32561,Santa Rosa,Gulf breeze
+12,Florida,FL,32562,Santa Rosa,Gulf breeze
+12,Florida,FL,32563,Santa Rosa,Gulf breeze
 12,Florida,FL,32564,Okaloosa,Holt
 12,Florida,FL,32565,Santa Rosa,Jay
 12,Florida,FL,32566,Santa Rosa,Navarre
@@ -5790,6 +5809,7 @@ state_fips,state,state_abbr,zipcode,county,city
 13,Georgia,GA,31905,Chattahoochee,Custer terrace
 13,Georgia,GA,31906,Muscogee,Columbus
 13,Georgia,GA,31907,Muscogee,Columbus
+13,Georgia,GA,31908,Muscogee,Columbus
 13,Georgia,GA,31909,Muscogee,Columbus
 15,Hawaii,HI,96701,Honolulu,Aiea
 15,Hawaii,HI,96703,Kauai,Anahola
@@ -10670,6 +10690,8 @@ state_fips,state,state_abbr,zipcode,county,city
 22,Louisiana,LA,70057,St Charles,Hahnville
 22,Louisiana,LA,70058,Jefferson,Harvey
 22,Louisiana,LA,70062,Jefferson,Kenner
+22,Louisiana,LA,70063,Jefferson,Kenner
+22,Louisiana,LA,70064,Jefferson,Kenner
 22,Louisiana,LA,70065,Jefferson,Kenner
 22,Louisiana,LA,70066,St Charles,Killona
 22,Louisiana,LA,70067,Jefferson,Lafitte
@@ -10744,13 +10766,16 @@ state_fips,state,state_abbr,zipcode,county,city
 22,Louisiana,LA,70395,Terrebonne,Schriever
 22,Louisiana,LA,70397,Terrebonne,Theriot
 22,Louisiana,LA,70401,Tangipahoa,Hammond
+22,Louisiana,LA,70402,Tangipahoa,Hammond
 22,Louisiana,LA,70403,Tangipahoa,Hammond
+22,Louisiana,LA,70404,Tangipahoa,Hammond
 22,Louisiana,LA,70420,St Tammany,Abita springs
 22,Louisiana,LA,70422,Tangipahoa,Amite
 22,Louisiana,LA,70426,Washington,Angie
 22,Louisiana,LA,70427,Washington,Bogalusa
 22,Louisiana,LA,70431,St Tammany,Bush
 22,Louisiana,LA,70433,St Tammany,Covington
+22,Louisiana,LA,70435,St Tammany,Covington
 22,Louisiana,LA,70436,Tangipahoa,Fluker
 22,Louisiana,LA,70437,St Tammany,Folsom
 22,Louisiana,LA,70438,Washington,Franklinton
@@ -10778,6 +10803,9 @@ state_fips,state,state_abbr,zipcode,county,city
 22,Louisiana,LA,70464,St Tammany,Talisheek
 22,Louisiana,LA,70465,Tangipahoa,Tangipahoa
 22,Louisiana,LA,70466,Tangipahoa,Tickfaw
+22,Louisiana,LA,70469,St Tammany,Slidell
+22,Louisiana,LA,70470,St Tammany,Mandeville
+22,Louisiana,LA,70471,St Tammany,Mandeville
 22,Louisiana,LA,70501,Lafayette,Lafayette
 22,Louisiana,LA,70503,Lafayette,Lafayette
 22,Louisiana,LA,70506,Lafayette,Lafayette
@@ -10872,6 +10900,7 @@ state_fips,state,state_abbr,zipcode,county,city
 22,Louisiana,LA,70663,Calcasieu,Sulphur
 22,Louisiana,LA,70668,Calcasieu,Vinton
 22,Louisiana,LA,70669,Calcasieu,Westlake
+22,Louisiana,LA,70706,Livingston,Denham Springs
 22,Louisiana,LA,70707,Ascension,Gonzales
 22,Louisiana,LA,70710,West Baton Rouge,Addis
 22,Louisiana,LA,70711,Livingston,Albany
@@ -14650,6 +14679,7 @@ state_fips,state,state_abbr,zipcode,county,city
 28,Mississippi,MS,39530,Harrison,Biloxi
 28,Mississippi,MS,39531,Harrison,Biloxi
 28,Mississippi,MS,39532,Harrison,North bay
+28,Mississippi,MS,39540,Harrison,Diberville
 28,Mississippi,MS,39553,Jackson,Gautier
 28,Mississippi,MS,39555,Jackson,Hurley
 28,Mississippi,MS,39556,Hancock,Kiln
@@ -14659,7 +14689,10 @@ state_fips,state,state_abbr,zipcode,county,city
 28,Mississippi,MS,39563,Jackson,Kreole
 28,Mississippi,MS,39564,Jackson,Ocean springs
 28,Mississippi,MS,39565,Jackson,Ocean springs
+28,Mississippi,MS,39566,Jackson,Ocean springs
 28,Mississippi,MS,39567,Jackson,Pascagoula
+28,Mississippi,MS,39568,Jackson,Pascagoula
+28,Mississippi,MS,39569,Jackson,Pascagoula
 28,Mississippi,MS,39571,Harrison,Pass christian
 28,Mississippi,MS,39572,Hancock,Pearlington
 28,Mississippi,MS,39573,Stone,Perkinston
@@ -26992,6 +27025,7 @@ state_fips,state,state_abbr,zipcode,county,city
 48,Texas,TX,77389,Harris,Spring
 48,Texas,TX,77396,Harris,Humble
 48,Texas,TX,77401,Harris,Bellaire
+48,Texas,TX,77406,Ft Bend,Richmond
 48,Texas,TX,77412,Colorado,Altair
 48,Texas,TX,77414,Matagorda,Sargent
 48,Texas,TX,77415,Matagorda,Cedar lane
@@ -31522,3 +31556,6 @@ state_fips,state,state_abbr,zipcode,county,city
 14,Guam,GU,96910,Guam,Hagatna
 14,Guam,GU,96932,Guam,Hagatna
 14,Guam,GU,96929,Guam,Yigo
+72,Puerto Rico,PR,00678,Quebradillas,Quebradillas
+72,Puerto Rico,PR,00965,Guaynabo,Guaynabo
+78,Virgin Islands,VI,00824,Saint Croix,Christiansted
