@@ -1,11 +1,12 @@
 terraform {
-  required_version = "= 1.0.5" # This version must also be changed in other environments
+  # This version must also be changed in other environments
+  required_version = "= 1.0.5"
 
   required_providers {
     azurerm = {
-      source  = "hashicorp/azurerm"
-      version = ">= 2.61.0"
+      source = "hashicorp/azurerm"
       # This version must also be changed in other environments
+      version = ">= 2.61.0"
     }
   }
 
@@ -27,6 +28,7 @@ module "application_insights" {
   resource_group  = var.resource_group
   resource_prefix = var.resource_prefix
   location        = var.location
+  is_metabase_env = var.is_metabase_env
 }
 
 module "function_app" {
@@ -36,6 +38,7 @@ module "function_app" {
   resource_prefix        = var.resource_prefix
   location               = var.location
   ai_instrumentation_key = module.application_insights.instrumentation_key
+  ai_connection_string   = module.application_insights.connection_string
   okta_redirect_url      = var.okta_redirect_url
 }
 
@@ -67,5 +70,6 @@ module "metabase" {
   resource_group         = var.resource_group
   resource_prefix        = var.resource_prefix
   location               = var.location
-  ai_instrumentation_key = module.application_insights.instrumentation_key
+  ai_instrumentation_key = module.application_insights.metabase_instrumentation_key
+  ai_connection_string   = module.application_insights.metabase_connection_string
 }

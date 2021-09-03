@@ -30,7 +30,7 @@ export const WhereWereLive = () => {
                     {live.data
                         .sort((a, b) => a.state.localeCompare(b.state))
                         .map((data) => (
-                            <li>{data.state}</li>
+                            <li key={`key_${data.state}`}>{data.state}</li>
                         ))}
                 </ul>
                 Companies or testing facilities sending test results may still

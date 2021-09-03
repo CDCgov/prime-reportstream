@@ -280,7 +280,7 @@ export const Upload = () => {
                         id="upload-csv-input"
                         name="upload-csv-input"
                         aria-describedby="upload-csv-input-label"
-                        accept="text/csv"
+                        accept=".csv, text/csv"
                         onChange={(e) => handleChange(e)}
                         required
                     />

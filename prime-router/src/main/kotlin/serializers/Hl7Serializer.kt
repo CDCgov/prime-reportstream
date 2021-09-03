@@ -598,11 +598,17 @@ class Hl7Serializer(
         if (!hl7Config?.cliaForOutOfStateTesting.isNullOrEmpty()) {
             val testingStateField = "OBX-24-4"
             val pathSpecTestingState = formPathSpec(testingStateField)
-            val testingState = terser.get(pathSpecTestingState)
+            var originState = terser.get(pathSpecTestingState)
+
+            if (originState.isEmpty()) {
+                val orderingStateField = "ORC-24-4"
+                val pathSpecOrderingState = formPathSpec(orderingStateField)
+                originState = terser.get(pathSpecOrderingState)
+            }
 
             val stateCode = report.destination?.let { settings.findOrganization(it.organizationName)?.stateCode }
 
-            if (!testingState.equals(stateCode)) {
+            if (!originState.equals(stateCode)) {
                 val sendingFacility = "MSH-4-2"
                 val pathSpecSendingFacility = formPathSpec(sendingFacility)
                 terser.set(pathSpecSendingFacility, hl7Config?.cliaForOutOfStateTesting)
@@ -672,8 +678,8 @@ class Hl7Serializer(
             // as an issue, and the HHS spec on confluence supports their configuration, but we need
             // to isolate out this option, so we don't affect other states we're already in production with
             if (mappedValue == "DII" && config?.replaceDiiWithOid == true && hl7Field == "OBX-18-3") {
-                terser.set(formPathSpec("OBX-18-2"), OBX_18_EQUIPMENT_UID_OID)
-                terser.set(formPathSpec("OBX-18-3"), "ISO")
+                terser.set(formPathSpec("OBX-18-3"), OBX_18_EQUIPMENT_UID_OID)
+                terser.set(formPathSpec("OBX-18-4"), "ISO")
             } else {
                 terser.set(pathSpec, mappedValue)
             }
