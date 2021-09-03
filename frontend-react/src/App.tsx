@@ -51,12 +51,10 @@ const App = () => {
             <Suspense
                 fallback={
                     <div id="div">
-                        <div id="spinner">
-                            <SpinnerCircular
-                                color="rgba(57, 88, 172, 1)"
-                                size="30%"
-                            />
-                        </div>
+                        <SpinnerCircular
+                            color="rgba(57, 88, 172, 1)"
+                            size="15%"
+                        />
                     </div>
                 }
             >
