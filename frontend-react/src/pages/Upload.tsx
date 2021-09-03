@@ -34,15 +34,15 @@ export const Upload = () => {
         `Please resolve the errors below and upload your edited file. Your file has not been accepted.`
     );
 
-    const userName = {
-        firstName: authState!.accessToken?.claims.given_name,
-        lastName: authState!.accessToken?.claims.family_name
-    }
-
     const client = senderClient(authState);
     const organization = useResource(SenderOrganizationResource.detail(), {
         name: client
     });
+
+    const userName = {
+        firstName: authState!.accessToken?.claims.given_name,
+        lastName: authState!.accessToken?.claims.family_name
+    }
 
     const uploadReport =
         async function postData(file) {

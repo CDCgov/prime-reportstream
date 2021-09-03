@@ -1,4 +1,3 @@
-import AuthResource from './AuthResource';
 import SenderAuthResource from "./SenderAuthResource";
 
 export default class SenderOrganizationResource extends SenderAuthResource {
