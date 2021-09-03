@@ -1,7 +1,6 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import { useOktaAuth } from "@okta/okta-react";
-import { Resource } from "@rest-hooks/rest";
-import { groupToOrg, senderClient } from "../webreceiver-utils";
+import { senderClient } from "../webreceiver-utils";
 import AuthResource from "./AuthResource";
 
 export default class SenderAuthResource extends AuthResource {
