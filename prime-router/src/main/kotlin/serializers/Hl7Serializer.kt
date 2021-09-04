@@ -537,7 +537,8 @@ class Hl7Serializer(
                     }
                 }
             } else if (element.hl7Field == "ORC-21-1" && enrichFacilityName) {
-                setFacilityNameComponent(terser, element, report, row, value)
+                val facilityName = getEnrichedFacilityName(report, row, rawFacilityName = value)
+                setComponent(terser, element, element.hl7Field, facilityName, report)
             } else if (element.hl7Field == "NTE-3") {
                 setNote(terser, value)
             } else if (element.hl7Field == "MSH-7") {
@@ -639,33 +640,33 @@ class Hl7Serializer(
 
 
     /**
-     * Set the ORC-21-1 component name. If possible,
-     * do a NCES lookup to enrich the facility name.
+     * If possible, enrich the ordering facility name
+     * 
+     * This code implements APHL's guidance to enrich the ORC-21-1 ordering facility name with the
+     * NCES ID when testing in k12 schools. 
      */
-    private fun setFacilityNameComponent(
-        terser: Terser,
-        element: Element,
-        report: Report,
-        row: Int,
-        value: String
-    ) {
-        val facilityName = if (report.getString(row, "site_of_care") == "k12") {
-            // The NCES table comes from the NCES organization
-            // The fields are: SCH_NAME, NCESSCH, LSTREET1,	LCITY, LSTATE, LZIP, PHONE
-            val zipCode = report.getString(row, "ordering_facility_zip_code", 5) ?: ""
-            val ncesId = ncesLookupTable.value.lookupValues(
-                indexValues = listOf("LZIP" to zipCode, "SCH_NAME" to value),
-                lookupColumn = "NCESSCH"
-            )
-            if (ncesId != null) {
-                "${value}_NCES_$ncesId"
-            } else {
-                value
-            }
+    internal fun getEnrichedFacilityName(report: Report, row: Int, rawFacilityName: String): String {
+        // This code only works on the COVID-19 schema or its extensions
+        if (!report.schema.containsElement("ordering_facility_name")) return rawFacilityName
+        // This recommendation only applies to k-12 schools
+        if (report.getString(row, "site_of_care") != "k12") return rawFacilityName
+        // Don't bother to do a lookup when something already has been enriched
+        if (rawFacilityName.contains(NCES_EXTENSION)) return rawFacilityName
+
+        // NCES lookup is based on school name and zip code
+        // Note: this match could be replaced with more fuzzy match. Also, a few schools have multiple NCESIDs.
+        // This enrichment will return one of them.
+        val zipCode = report.getString(row, "ordering_facility_zip_code", 5) ?: ""
+        val canonicalFacilityName = rawFacilityName.uppercase().trim()
+        val ncesId = ncesLookupTable.value.lookupValues(
+            indexValues = listOf("LZIP" to zipCode, "SCHNAME" to canonicalFacilityName),
+            lookupColumn = "NCESID"
+        )
+        return if (ncesId != null) {
+            "$rawFacilityName$NCES_EXTENSION$ncesId"
         } else {
-            value
+            rawFacilityName
         }
-        setComponent(terser, element, element.hl7Field!!, facilityName, report)
     }
 
     private fun setComponentForTable(
@@ -1326,7 +1327,7 @@ class Hl7Serializer(
         const val MESSAGE_TRIGGER_EVENT = "R01"
         const val SOFTWARE_VENDOR_ORGANIZATION: String = "Centers for Disease Control and Prevention"
         const val SOFTWARE_PRODUCT_NAME: String = "PRIME ReportStream"
-        const val ORDERING_FACILITY_NAME_SEGMENT = "ORC-21-1"
+        const val NCES_EXTENSION = "_NCES_"
         const val OBX_18_EQUIPMENT_UID_OID: String = "2.16.840.1.113883.3.3719"
 
         /*
@@ -1361,7 +1362,7 @@ class Hl7Serializer(
         val CE_FIELDS = listOf("OBX-15-1")
 
         val ncesLookupTable = lazy {
-            LookupTable.read("./metadata/tables/nces_id.tsv")
+            LookupTable.read("./metadata/tables/nces_id.csv")
         }
     }
 }

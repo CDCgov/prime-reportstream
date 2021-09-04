@@ -650,6 +650,35 @@ NTE|1|L|This is a final comment|RE"""
     }
 
     @Test
+    fun `test getEnrichedFacilityName`() {
+        // Get a bunch of k12 rows
+        val testCSV = File("./src/test/unit_test_files/pdi-covid-19-wa-k12.csv").inputStream()
+        val testReport = csvSerializer
+            .readExternal("primedatainput/pdi-covid-19", testCSV, TestSource)
+            .report ?: fail()
+
+        // This row is the happy path
+        val rawValidFacilityName = testReport.getString(0, "ordering_facility_name") ?: fail()
+        val enrichedFacilityName = serializer.getEnrichedFacilityName(testReport, 0, rawValidFacilityName);
+        assertThat(enrichedFacilityName).isEqualTo("Holmes Elementary_NCES_530825001381")
+
+        // This row doesn't match on zip code
+        val rawInvalidZip = testReport.getString(8, "ordering_facility_name") ?: fail()
+        val enrichedInvalidZip = serializer.getEnrichedFacilityName(testReport, 8, rawInvalidZip);
+        assertThat(enrichedInvalidZip).isEqualTo(rawInvalidZip)
+
+        // This row doesn't match on school name
+        val rawInvalidName = testReport.getString(10, "ordering_facility_name") ?: fail()
+        val enrichedInvalidName = serializer.getEnrichedFacilityName(testReport, 10, rawInvalidName);
+        assertThat(enrichedInvalidName).isEqualTo(rawInvalidName)
+
+        // This row doesn't match on site
+        val rawInvalidSite = testReport.getString(11, "ordering_facility_name") ?: fail()
+        val enrichedInvalidSite = serializer.getEnrichedFacilityName(testReport, 11, rawInvalidSite);
+        assertThat(enrichedInvalidSite).isEqualTo(rawInvalidSite)
+    }
+
+    @Test
     fun `test setTruncationLimitWithEncoding`() {
 
         val testValueWithSpecialChars = "Test & Value ~ Text ^ String"
