@@ -246,8 +246,10 @@ Examples:
             val passed = try {
                 test.run(environment, options)
             } catch (e: java.lang.Exception) {
-                test.echo("Exception: ${e.javaClass.name}, ${e.message}: " +
-                    "${e.stackTrace.joinToString(System.lineSeparator())}")
+                test.echo(
+                    "Exception: ${e.javaClass.name}, ${e.message}: " +
+                        "${e.stackTrace.joinToString(System.lineSeparator())}"
+                )
                 false
             }
             test.outputAllMsgs()
@@ -297,6 +299,7 @@ Examples:
             HammerTime(),
             Waters(),
             RepeatWaters(),
+            Parallel(),
             Jti(),
             InternationalContent(),
             Hl7Ingest(),
@@ -891,7 +894,7 @@ class TooManyCols : CoolTest() {
         echo(json)
         try {
             val tree = jacksonObjectMapper().readTree(json)
-            val firstError = ((tree["errors"] as ArrayNode)[0]) as ObjectNode
+            val firstError = (tree["errors"][0]) as ObjectNode
             if (firstError["details"].textValue().contains("columns")) {
                 return good("toomanycols Test passed.")
             } else {
@@ -1052,6 +1055,98 @@ class StracPack : CoolTest() {
             passed = passed and
                 examineLineageResults(reportId = it, receivers = listOf(redoxReceiver), totalItems = options.items)
         }
+        return passed
+    }
+}
+
+class Parallel : CoolTest() {
+    override val name = "parallel"
+    override val description = "Does '--submits X' submisssions in parallel, " +
+        "each with '--items Y' items, for 2 minutes. hl7null, so no sends."
+    override val status = TestStatus.LOAD
+
+    @ExperimentalTime
+    fun runTheParallelTest(
+        file: File,
+        numThreads: Int,
+        numRounds: Int,
+        environment: ReportStreamEnv,
+        options: CoolTestOptions
+    ): Boolean {
+        var passed = true
+        val elapsed: Duration = measureTime {
+            val threads = mutableListOf<Thread>()
+            echo("starting $numThreads threads, each submitting $numRounds times")
+            for (threadNum in 1..numThreads) {
+                val th = thread {
+                    for (i in 1..numRounds) {
+                        val (responseCode, json) =
+                            HttpUtilities.postReportFile(
+                                environment,
+                                file,
+                                stracSender,
+                                options.key,
+                                ReportFunction.Options.SkipSend
+                            )
+                        if (responseCode != HttpURLConnection.HTTP_CREATED) {
+                            echo(json)
+                            passed = bad("$threadNum: ***Parallel Test FAILED***:  response code $responseCode")
+                        } else {
+                            val reportId = getReportIdFromResponse(json)
+                            if (reportId == null) {
+                                passed = bad("$threadNum: ***Parallel Test FAILED***:  No reportId.")
+                            }
+                        }
+                        print(".")
+                    }
+                }
+                threads.add(th)
+            }
+            threads.forEach { it.join() }
+        }
+        echo("")
+        if (passed) {
+            good("$numThreads X $numRounds  = ${numThreads * numRounds} total submissions in ${elapsed.inWholeSeconds} seconds")
+        } else {
+            bad("$numThreads X $numRounds  = ${numThreads * numRounds} total submissions in ${elapsed.inWholeSeconds} seconds")
+        }
+        return passed
+    }
+
+    @ExperimentalTime
+    override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+        val n = 50
+        ugly(
+            "Starting parallel Test: Increasing numbers of threads submitting in parallel," +
+                " as fast as they can for $n rounds.  hl7null ${options.items} items per submission."
+        )
+        val file = FileUtilities.createFakeFile(
+            metadata,
+            settings,
+            stracSender,
+            options.items,
+            receivingStates,
+            hl7NullReceiver.name,
+            options.dir,
+        )
+        echo("Created datafile $file")
+        echo("Priming the pump by submitting twice:")
+        val (r1, _) =
+            HttpUtilities.postReportFile(environment, file, stracSender, options.key, ReportFunction.Options.SkipSend)
+        echo("First response to POST: $r1")
+        val (r2, _) =
+            HttpUtilities.postReportFile(environment, file, stracSender, options.key, ReportFunction.Options.SkipSend)
+        echo("Second response to POST: $r2.  Ready for the real test:")
+        var passed = runTheParallelTest(file, 1, n, environment, options)
+        passed = passed and runTheParallelTest(file, 2, n, environment, options)
+        passed = passed and runTheParallelTest(file, 3, n, environment, options)
+        passed = passed and runTheParallelTest(file, 4, n, environment, options)
+        passed = passed and runTheParallelTest(file, 5, n, environment, options)
+        passed = passed and runTheParallelTest(file, 6, n, environment, options)
+        passed = passed and runTheParallelTest(file, 7, n, environment, options)
+        passed = passed and runTheParallelTest(file, 8, n, environment, options)
+        passed = passed and runTheParallelTest(file, 9, n, environment, options)
+        passed = passed and runTheParallelTest(file, 10, n, environment, options)
         return passed
     }
 }
@@ -1421,7 +1516,7 @@ class TooBig : CoolTest() {
         echo(json)
         try {
             val tree = jacksonObjectMapper().readTree(json)
-            val firstError = ((tree["errors"] as ArrayNode)[0]) as ObjectNode
+            val firstError = (tree["errors"][0]) as ObjectNode
             if (firstError["details"].textValue().contains("rows")) {
                 return good("toobig Test passed.")
             } else {
