@@ -275,7 +275,7 @@ class LookupTable(
         searchColumn: String,
         searchValue: String,
         lookupColumn: String,
-        canonicalize: (String) -> List<String>,
+        canonicalize: (String) -> String = { it },
         commonWords: List<String> = emptyList(),
         filterColumn: String? = null,
         filterValue: String? = null,
@@ -291,9 +291,17 @@ class LookupTable(
             }
         }
 
+        fun wordsFromRaw(input: String): List<String> {
+            val canonicalWords = canonicalize(input)
+            return canonicalWords
+                .trim()
+                .replace("\\s+".toRegex(), " ")
+                .split(" ")
+        }
+
         fun scoreRows(rows: List<List<String>>): List<Pair<Double, Int>> {
             // Score based on the search words that are passed in
-            val searchWords = canonicalize(searchValue)
+            val searchWords = wordsFromRaw(searchValue)
             val uncommonSearchWords = searchWords.filter { !commonWords.contains(it) }
             val commonSearchWords = searchWords.filter { commonWords.contains(it) }
             val uncommonFactor = uncommonSearchWords.size + 1
@@ -302,7 +310,7 @@ class LookupTable(
             val searchColumnIndex = headerIndex[searchColumn] ?: error("Invalid index column name")
             return rows.mapIndexed { rowIndex, rawRow ->
                 // match uncommon search words
-                val rowWords = canonicalize(rawRow[searchColumnIndex])
+                val rowWords = wordsFromRaw(rawRow[searchColumnIndex])
                 val uncommonCount = uncommonSearchWords.fold(0) { count, word ->
                     if (rowWords.contains(word)) count + 1 else count
                 }

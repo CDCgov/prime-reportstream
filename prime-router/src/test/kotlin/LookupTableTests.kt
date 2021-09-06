@@ -135,7 +135,7 @@ class LookupTableTests {
             3,X EX GX 
         """.trimIndent()
         val table = LookupTable.read(ByteArrayInputStream(csv.toByteArray()))
-        val canonicalize = { s: String -> s.split(" ") }
+        val canonicalize = { s: String -> s }
 
         // Match with one word
         val oneResult = table.lookupBestMatch(
@@ -172,7 +172,7 @@ class LookupTableTests {
             "b",
             "D",
             "a",
-            canonicalize,
+            { it },
             listOf("A", "D", "X")
         )
         assertThat(commonResult).isNull()
@@ -197,7 +197,7 @@ class LookupTableTests {
             3,V,X EX GX 
         """.trimIndent()
         val table = LookupTable.read(ByteArrayInputStream(csv.toByteArray()))
-        val canonicalize = { s: String -> s.split(" ") }
+        val canonicalize = { s: String -> s }
 
         // Match with one word
         val oneResult = table.lookupBestMatch(
@@ -221,6 +221,6 @@ class LookupTableTests {
             filterColumn = "b",
             filterValue = "V"
         )
-        assertThat(noMatch).isNull()    
+        assertThat(noMatch).isNull()
     }
 }

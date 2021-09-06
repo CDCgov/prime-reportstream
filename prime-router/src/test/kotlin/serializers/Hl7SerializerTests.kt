@@ -679,6 +679,40 @@ NTE|1|L|This is a final comment|RE"""
     }
 
     @Test
+    fun `test canonicalSchoolName`() {
+        // Use NCES actual table values to test
+        val senior = serializer.canonicalizeSchoolName("SHREWSBURY SR HIGH")
+        assertThat(senior).isEqualTo("SHREWSBURY SENIOR HIGH")
+
+        val stJohns = serializer.canonicalizeSchoolName("ST JOHN'S HIGH SCHOOL")
+        assertThat(stJohns).isEqualTo("ST JOHNS HIGH")
+
+        val sizer = serializer.canonicalizeSchoolName("SIZER SCHOOL: A NORTH CENTRAL CHARTER ESSENTIAL SCHOOL")
+        assertThat(sizer).isEqualTo("SIZER NORTH CENTRAL CHARTER ESSENTIAL")
+
+        val elem = serializer.canonicalizeSchoolName("NORTHERN LINCOLN ELEM.")
+        assertThat(elem).isEqualTo("NORTHERN LINCOLN ELEMENTARY")
+
+        val elem2 = serializer.canonicalizeSchoolName("WAKEFIELD HILLS EL. SCHOOL")
+        assertThat(elem2).isEqualTo("WAKEFIELD HILLS ELEMENTARY")
+
+        val jr1 = serializer.canonicalizeSchoolName("M. L. KING JR. MIDDLE SCHOOL")
+        assertThat(jr1).isEqualTo("KING JR MIDDLE")
+
+        val jr2 = serializer.canonicalizeSchoolName("CHURCHILL JR HIGH SCHOOL")
+        assertThat(jr2).isEqualTo("CHURCHILL JUNIOR HIGH")
+
+        val tahono = serializer.canonicalizeSchoolName("TOHONO O`ODHAM HIGH SCHOOL")
+        assertThat(tahono).isEqualTo("TOHONO ODHAM HIGH")
+
+        val possesive = serializer.canonicalizeSchoolName("ST TIMOTHY'S EPISCOPAL DAY SCHOOL")
+        assertThat(possesive).isEqualTo("ST TIMOTHYS EPISCOPAL DAY")
+
+        val tse = serializer.canonicalizeSchoolName("TSE'II'AHI' COMMUNITY SCHOOL")
+        assertThat(tse).isEqualTo("TSE II AHI COMMUNITY")
+    }
+
+    @Test
     fun `test setTruncationLimitWithEncoding`() {
 
         val testValueWithSpecialChars = "Test & Value ~ Text ^ String"
