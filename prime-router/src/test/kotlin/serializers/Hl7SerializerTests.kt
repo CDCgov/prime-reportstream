@@ -659,23 +659,33 @@ NTE|1|L|This is a final comment|RE"""
 
         // This row is the happy path
         val rawValidFacilityName = testReport.getString(0, "ordering_facility_name") ?: fail()
-        val enrichedFacilityName = serializer.getEnrichedFacilityName(testReport, 0, rawValidFacilityName);
+        val enrichedFacilityName = serializer.getEnrichedFacilityName(testReport, 0, rawValidFacilityName)
         assertThat(enrichedFacilityName).isEqualTo("Holmes Elementary_NCES_530825001381")
 
         // This row doesn't match on zip code
         val rawInvalidZip = testReport.getString(8, "ordering_facility_name") ?: fail()
-        val enrichedInvalidZip = serializer.getEnrichedFacilityName(testReport, 8, rawInvalidZip);
+        val enrichedInvalidZip = serializer.getEnrichedFacilityName(testReport, 8, rawInvalidZip)
         assertThat(enrichedInvalidZip).isEqualTo(rawInvalidZip)
 
-        // This row doesn't match on school name
-        val rawInvalidName = testReport.getString(10, "ordering_facility_name") ?: fail()
-        val enrichedInvalidName = serializer.getEnrichedFacilityName(testReport, 10, rawInvalidName);
-        assertThat(enrichedInvalidName).isEqualTo(rawInvalidName)
+        // This row does a best match
+        val rawPartialName = testReport.getString(10, "ordering_facility_name") ?: fail()
+        val enrichedPartialName = serializer.getEnrichedFacilityName(testReport, 10, rawPartialName)
+        assertThat(enrichedPartialName).isEqualTo("Holmes_NCES_530825001381")
 
-        // This row doesn't match on site
+        // This row doesn't match on site type
         val rawInvalidSite = testReport.getString(11, "ordering_facility_name") ?: fail()
-        val enrichedInvalidSite = serializer.getEnrichedFacilityName(testReport, 11, rawInvalidSite);
+        val enrichedInvalidSite = serializer.getEnrichedFacilityName(testReport, 11, rawInvalidSite)
         assertThat(enrichedInvalidSite).isEqualTo(rawInvalidSite)
+
+        // There are three schools that have the same first name in this zip-code
+        val rawHighSchool = testReport.getString(12, "ordering_facility_name") ?: fail()
+        val enrichedHighSchool = serializer.getEnrichedFacilityName(testReport, 12, rawHighSchool)
+        assertThat(enrichedHighSchool).isEqualTo("Bellingham High School_NCES_530042000099")
+
+        // There are three schools that have the same first name in this zip-code. This one has a very long name.
+        val rawPartnershipSchool = testReport.getString(13, "ordering_facility_name") ?: fail()
+        val enrichedPartnershipSchool = serializer.getEnrichedFacilityName(testReport, 13, rawPartnershipSchool)
+        assertThat(enrichedPartnershipSchool).isEqualTo("Bellingham Family Partnership Pr_NCES_530042003476")
     }
 
     @Test

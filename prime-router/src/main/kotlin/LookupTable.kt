@@ -275,14 +275,14 @@ class LookupTable(
         searchColumn: String,
         searchValue: String,
         lookupColumn: String,
-        canonicalize: (String) -> String = { it },
+        canonicalize: (String) -> String,
         commonWords: List<String> = emptyList(),
         filterColumn: String? = null,
         filterValue: String? = null,
     ): String? {
         fun filterRows(): List<List<String>> {
             return if(filterColumn != null && filterValue != null) {
-                val filterColumnIndex = headerIndex[filterColumn] ?: error("Invalid filter column name")
+                val filterColumnIndex = headerIndex[filterColumn.lowercase()] ?: error("Invalid filter column name")
                 table.filterIndexed { index, row ->
                     index > 0 && row[filterColumnIndex].equals(filterValue, ignoreCase = true)
                 }
@@ -307,7 +307,7 @@ class LookupTable(
             val uncommonFactor = uncommonSearchWords.size + 1
             // +1 means that a full match on common words is less than an uncommon word match
 
-            val searchColumnIndex = headerIndex[searchColumn] ?: error("Invalid index column name")
+            val searchColumnIndex = headerIndex[searchColumn.lowercase()] ?: error("Invalid index column name")
             return rows.mapIndexed { rowIndex, rawRow ->
                 // match uncommon search words
                 val rowWords = wordsFromRaw(rawRow[searchColumnIndex])
@@ -335,7 +335,7 @@ class LookupTable(
         val rowScores = scoreRows(filteredRows)
         val maxRow = rowScores.maxByOrNull { it.first }
         return if (maxRow != null && maxRow.first > 0.0) {
-            val lookupColumnIndex = headerIndex[lookupColumn] ?: error("Invalid lookup column name")
+            val lookupColumnIndex = headerIndex[lookupColumn.lowercase()] ?: error("Invalid lookup column name")
             filteredRows[maxRow.second][lookupColumnIndex]
         } else null
     }

@@ -643,7 +643,7 @@ class Hl7Serializer(
      * If possible, enrich the ordering facility name
      * 
      * This code implements APHL's guidance to enrich the ORC-21-1 ordering facility name with the
-     * NCES ID when testing in k12 schools. 
+     * NCES ID when testing in k12 schools. Truncate to 50 characters per HL7 spec if necessary.
      */
     internal fun getEnrichedFacilityName(report: Report, row: Int, rawFacilityName: String): String {
         // This code only works on the COVID-19 schema or its extensions
@@ -654,18 +654,21 @@ class Hl7Serializer(
         if (rawFacilityName.contains(NCES_EXTENSION)) return rawFacilityName
 
         // NCES lookup is based on school name and zip code
-        // Note: this match could be replaced with more fuzzy match. Also, a few schools have multiple NCESIDs.
-        // This enrichment will return one of them.
         val zipCode = report.getString(row, "ordering_facility_zip_code", 5) ?: ""
-        val canonicalFacilityName = rawFacilityName.uppercase().trim()
-        val ncesId = ncesLookupTable.value.lookupValues(
-            indexValues = listOf("LZIP" to zipCode, "SCHNAME" to canonicalFacilityName),
-            lookupColumn = "NCESID"
+        val ncesId = ncesLookupTable.value.lookupBestMatch(
+            lookupColumn = "NCESID",
+            searchColumn = "SCHNAME",
+            searchValue = rawFacilityName,
+            filterColumn = "LZIP",
+            filterValue = zipCode,
+            canonicalize = { canonicalizeSchoolName(it) },
+            commonWords = listOf("ELEMENTARY", "JUNIOR", "HIGH", "MIDDLE")
         )
         return if (ncesId != null) {
-            "$rawFacilityName$NCES_EXTENSION$ncesId"
+            // Need to ensure result doesn't exceed 50 (per APHL recommendation)
+            "${rawFacilityName.trim().take(32)}$NCES_EXTENSION$ncesId"
         } else {
-            rawFacilityName
+            rawFacilityName.trim().take(50)
         }
     }
 
