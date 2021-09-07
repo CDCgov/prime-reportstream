@@ -82,7 +82,7 @@ class AS2Transport : ITransport, Logging {
                 val msg = "FAILED AS2 upload of inputReportId $reportId to $as2Info (orgService = $receiverFullName);" +
                     "Retry all items; Exception: ${t.javaClass.canonicalName} ${t.localizedMessage}"
                 context.logger.warning(msg)
-                actionHistory.setActionType(TaskAction.send_error)
+                actionHistory.setActionType(TaskAction.send_warning)
                 actionHistory.trackActionResult(msg)
                 RetryToken.allItems
             } else {
