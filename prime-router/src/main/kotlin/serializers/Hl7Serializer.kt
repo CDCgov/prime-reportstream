@@ -66,7 +66,6 @@ class Hl7Serializer(
     } else {
         null
     }
-    private val ncesTable = lazy {  }
 
     init {
         val buildProperties = Properties()
@@ -672,7 +671,7 @@ class Hl7Serializer(
     ) {
         if (ncesId == null) {
             // No NCES id, just truncate the name to required 50
-            terser.set(formPathSpec("ORC-21-1"), rawFacilityName.take(50))
+            terser.set(formPathSpec("ORC-21-1"), rawFacilityName.trim().take(50))
             return
         }
 
