@@ -837,6 +837,10 @@ components:
           description: The name of the receiving organization in the message
           type: string
           default: null
+        useNCESFacilityName:
+          description: Lookup NCES ID and follow APHL guidance for ORC-21
+          type: boolean
+          default: false
         transport:
           oneOf:
             - $ref: '#/components/schemas/SFTPTransport'
