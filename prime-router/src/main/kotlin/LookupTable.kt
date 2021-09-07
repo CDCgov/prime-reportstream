@@ -261,10 +261,10 @@ class LookupTable(
      * return the value in the [lookupColumn]. Optionally, filter the table before matching using [filterColumn] and
      * [filterValue]. Similar to lookupValue, but with a different heuristic match algorithm.
      *
-     * The best match algorithm counts matches of words in the [searchValue] to the table's column. To make this
-     * algorithm work, the caller must first canonicalize the strings for comparison by passing in a
+     * The best match algorithm is a simplified weighted word match algorithm of [searchValue] to the table's column.
+     * To make this algorithm work, the caller must first canonicalize the strings for comparison by passing in a
      * [canonicalize] function. Typically, the [canonicalize] functions should remove punctuations, case,
-     * and empty search value words. Empty search value words depends on the domain, but single and two letter words
+     * and empty search value words. Empty search value words depends on the domain, but single letter words
      * are typically removed.
      *
      * Next, the caller should pass in a list of [commonWords]. Common words are a list of
@@ -291,6 +291,7 @@ class LookupTable(
             }
         }
 
+        // Split into words
         fun wordsFromRaw(input: String): List<String> {
             val canonicalWords = canonicalize(input)
             return canonicalWords
@@ -299,6 +300,8 @@ class LookupTable(
                 .split(" ")
         }
 
+        // Scoring is based on simplified implementation of a weighted word match algorithm.
+        // Common words are given a low weight, others are given a high weight.
         fun scoreRows(rows: List<List<String>>): List<Pair<Double, Int>> {
             // Score based on the search words that are passed in
             val searchWords = wordsFromRaw(searchValue)
@@ -335,6 +338,7 @@ class LookupTable(
         val rowScores = scoreRows(filteredRows)
         val maxRow = rowScores.maxByOrNull { it.first }
         return if (maxRow != null && maxRow.first > 0.0) {
+            // If a match, do a lookup
             val lookupColumnIndex = headerIndex[lookupColumn.lowercase()] ?: error("Invalid lookup column name")
             filteredRows[maxRow.second][lookupColumnIndex]
         } else null
