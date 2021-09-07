@@ -5,13 +5,13 @@ import OrganizationResource from "../resources/OrganizationResource";
 import { useOktaAuth } from "@okta/okta-react";
 import { groupToOrg } from "../webreceiver-utils";
 import download from "downloadjs";
+import { SpinnerCircular } from "spinners-react";
 
-const TableData = ({ sortBy }: { sortBy?: string }) => {
-    const reports = useResource(ReportResource.list(), { sortBy });
 
+const TableData = (props) => {
     return (
         <tbody id="tBody" className="font-mono-2xs">
-            {reports.map((report, idx) => (
+            {props.reports.map((report, idx) => (
                 <tr key={idx}>
                     <th scope="row">
                         <a
@@ -67,7 +67,9 @@ const ReportLink = ({ reportId }) => {
     );
 };
 
-const TableReports = () => {
+const TableReports = ({ sortBy }: { sortBy?: string }) => {
+    const reports = useResource(ReportResource.list(), { sortBy });
+
     return (
         <section className="grid-container margin-top-5">
             <div className="grid-col-12">
@@ -86,8 +88,14 @@ const TableReports = () => {
                             <th scope="col">File</th>
                         </tr>
                     </thead>
-                    <TableData />
+                    <TableData reports={reports} />
                 </table>
+                {
+                    reports.length === 0 ?
+                        <p>No results</p>
+                        :
+                        null
+                }
             </div>
         </section>
     );
@@ -123,6 +131,7 @@ const HipaaNotice = () => {
 }
 
 export const Daily = () => {
+
     return (
         <>
             <section className="grid-container margin-bottom-5">
