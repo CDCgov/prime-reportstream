@@ -395,7 +395,10 @@ state_fips,state,state_abbr,zipcode,county,city
 1,Alabama,AL,36279,Calhoun,Wellington
 1,Alabama,AL,36280,Randolph,Woodland
 1,Alabama,AL,36301,Houston,Taylor
+1,Alabama,AL,36302,Houston,Dothan
 1,Alabama,AL,36303,Houston,Napier field
+1,Alabama,AL,36304,Houston,Dothan
+1,Alabama,AL,36305,Houston,Dothan
 1,Alabama,AL,36310,Henry,Abbeville
 1,Alabama,AL,36311,Dale,Ariton
 1,Alabama,AL,36312,Houston,Ashford
@@ -532,6 +535,8 @@ state_fips,state,state_abbr,zipcode,county,city
 1,Alabama,AL,36617,Mobile,Mobile
 1,Alabama,AL,36618,Mobile,Mobile
 1,Alabama,AL,36619,Mobile,Mobile
+1,Alabama,AL,36630,Mobile,Mobile
+1,Alabama,AL,36633,Mobile,Mobile
 1,Alabama,AL,36652,Mobile,Mobile
 1,Alabama,AL,36685,Mobile,Mobile
 1,Alabama,AL,36688,Mobile,Mobile
