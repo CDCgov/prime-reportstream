@@ -130,18 +130,6 @@ const HipaaNotice = () => {
     );
 }
 
-const LoadingSpinner = (props) => {
-    if (!props.visible) return null;
-
-    return (
-        <section className="grid-container">
-            <SpinnerCircular
-                color="rgba(57, 88, 172, 1)"
-                size="5%" />
-        </section>
-    )
-}
-
 export const Daily = () => {
 
     return (
