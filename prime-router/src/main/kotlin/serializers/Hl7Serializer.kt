@@ -449,7 +449,7 @@ class Hl7Serializer(
         val replaceValue = hl7Config?.replaceValue ?: emptyMap()
         val suppressQst = hl7Config?.suppressQstForAoe ?: false
         val suppressAoe = hl7Config?.suppressAoe ?: false
-        val enrichFacilityName = hl7Config?.useNCESFacilityName ?: false
+        val useNCESFacilityName = hl7Config?.useNCESFacilityName ?: false
 
         // and we have some fields to suppress
         val suppressedFields = hl7Config
@@ -536,9 +536,9 @@ class Hl7Serializer(
                         setAOE(terser, element, aoeSequence++, date, "UNK", report, row, suppressQst = suppressQst)
                     }
                 }
-            } else if (element.hl7Field == "ORC-21-1" && enrichFacilityName) {
-                val facilityName = getEnrichedFacilityName(report, row, rawFacilityName = value)
-                setComponent(terser, element, element.hl7Field, facilityName, report)
+            } else if (element.hl7Field == "ORC-21-1") {
+                val ncesId = if (useNCESFacilityName) getSchoolId(report, row, rawFacilityName = value) else null
+                setOrderingFacilityComponent(terser, rawFacilityName = value, ncesId)
             } else if (element.hl7Field == "NTE-3") {
                 setNote(terser, value)
             } else if (element.hl7Field == "MSH-7") {
@@ -640,22 +640,17 @@ class Hl7Serializer(
 
 
     /**
-     * If possible, enrich the ordering facility name
-     * 
-     * This code implements APHL's guidance to enrich the ORC-21-1 ordering facility name with the
-     * NCES ID when testing in k12 schools. Truncate to 50 characters per HL7 spec if necessary.
+     * Lookup the NCES id if the site_type is a k12 school
      */
-    internal fun getEnrichedFacilityName(report: Report, row: Int, rawFacilityName: String): String {
+    internal fun getSchoolId(report: Report, row: Int, rawFacilityName: String): String? {
         // This code only works on the COVID-19 schema or its extensions
-        if (!report.schema.containsElement("ordering_facility_name")) return rawFacilityName
+        if (!report.schema.containsElement("ordering_facility_name")) return null
         // This recommendation only applies to k-12 schools
-        if (report.getString(row, "site_of_care") != "k12") return rawFacilityName
-        // Don't bother to do a lookup when something already has been enriched
-        if (rawFacilityName.contains(NCES_EXTENSION)) return rawFacilityName
+        if (report.getString(row, "site_of_care") != "k12") return null
 
         // NCES lookup is based on school name and zip code
         val zipCode = report.getString(row, "ordering_facility_zip_code", 5) ?: ""
-        val ncesId = ncesLookupTable.value.lookupBestMatch(
+        return ncesLookupTable.value.lookupBestMatch(
             lookupColumn = "NCESID",
             searchColumn = "SCHNAME",
             searchValue = rawFacilityName,
@@ -664,12 +659,31 @@ class Hl7Serializer(
             canonicalize = { canonicalizeSchoolName(it) },
             commonWords = listOf("ELEMENTARY", "JUNIOR", "HIGH", "MIDDLE")
         )
-        return if (ncesId != null) {
-            // Need to ensure result doesn't exceed 50 (per APHL recommendation)
-            "${rawFacilityName.trim().take(32)}$NCES_EXTENSION$ncesId"
-        } else {
-            rawFacilityName.trim().take(50)
+    }
+
+    /**
+     * If [ncesId] is not null, set the [terser]'s ORC-21 in accordance to APHL guidance using the [rawFacilityName]
+     * and [ncesId] value. If [ncesId] is null, just set ORC-21 with the [rawFacilityName].
+     */
+    internal fun setOrderingFacilityComponent(
+        terser: Terser,
+        rawFacilityName: String,
+        ncesId: String?
+    ) {
+        if (ncesId == null) {
+            // No NCES id, just truncate the name to required 50
+            terser.set(formPathSpec("ORC-21-1"), rawFacilityName.take(50))
+            return
         }
+
+        // Implement APHL guidance for ORC-21 when NCES is known
+        val facilityName = "${rawFacilityName.trim().take(32)}$NCES_EXTENSION$ncesId"
+        terser.set(formPathSpec("ORC-21-1"), facilityName)
+        terser.set(formPathSpec("ORC-21-6-1"), "NCES.IES")
+        terser.set(formPathSpec("ORC-21-6-2"), "2.16.840.1.113883.3.8589.4.1.119")
+        terser.set(formPathSpec("ORC-21-6-3"), "ISO")
+        terser.set(formPathSpec("ORC-21-7"), "XX")
+        terser.set(formPathSpec("ORC-21-10"), ncesId)
     }
 
     /**
@@ -1392,6 +1406,7 @@ class Hl7Serializer(
          */
         val CE_FIELDS = listOf("OBX-15-1")
 
+        // Do a lazy init because this table may never be used and it is large
         val ncesLookupTable = lazy {
             LookupTable.read("./metadata/tables/nces_id.csv")
         }

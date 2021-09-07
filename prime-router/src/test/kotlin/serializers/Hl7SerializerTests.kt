@@ -25,6 +25,7 @@ import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.TestSource
+import io.mockk.MockK
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkClass
@@ -650,7 +651,7 @@ NTE|1|L|This is a final comment|RE"""
     }
 
     @Test
-    fun `test getEnrichedFacilityName`() {
+    fun `test getSchoolId`() {
         // Get a bunch of k12 rows
         val testCSV = File("./src/test/unit_test_files/pdi-covid-19-wa-k12.csv").inputStream()
         val testReport = csvSerializer
@@ -659,33 +660,61 @@ NTE|1|L|This is a final comment|RE"""
 
         // This row is the happy path
         val rawValidFacilityName = testReport.getString(0, "ordering_facility_name") ?: fail()
-        val enrichedFacilityName = serializer.getEnrichedFacilityName(testReport, 0, rawValidFacilityName)
-        assertThat(enrichedFacilityName).isEqualTo("Holmes Elementary_NCES_530825001381")
+        val validNCES = serializer.getSchoolId(testReport, 0, rawValidFacilityName)
+        assertThat(validNCES).isEqualTo("530825001381")
 
         // This row doesn't match on zip code
         val rawInvalidZip = testReport.getString(8, "ordering_facility_name") ?: fail()
-        val enrichedInvalidZip = serializer.getEnrichedFacilityName(testReport, 8, rawInvalidZip)
-        assertThat(enrichedInvalidZip).isEqualTo(rawInvalidZip)
+        val invalidZip = serializer.getSchoolId(testReport, 8, rawInvalidZip)
+        assertThat(invalidZip).isNull()
 
         // This row does a best match
         val rawPartialName = testReport.getString(10, "ordering_facility_name") ?: fail()
-        val enrichedPartialName = serializer.getEnrichedFacilityName(testReport, 10, rawPartialName)
-        assertThat(enrichedPartialName).isEqualTo("Holmes_NCES_530825001381")
+        val partialNCES = serializer.getSchoolId(testReport, 10, rawPartialName)
+        assertThat(partialNCES).isEqualTo("530825001381")
 
         // This row doesn't match on site type
         val rawInvalidSite = testReport.getString(11, "ordering_facility_name") ?: fail()
-        val enrichedInvalidSite = serializer.getEnrichedFacilityName(testReport, 11, rawInvalidSite)
-        assertThat(enrichedInvalidSite).isEqualTo(rawInvalidSite)
+        val invalidSite = serializer.getSchoolId(testReport, 11, rawInvalidSite)
+        assertThat(invalidSite).isNull()
 
         // There are three schools that have the same first name in this zip-code
         val rawHighSchool = testReport.getString(12, "ordering_facility_name") ?: fail()
-        val enrichedHighSchool = serializer.getEnrichedFacilityName(testReport, 12, rawHighSchool)
-        assertThat(enrichedHighSchool).isEqualTo("Bellingham High School_NCES_530042000099")
+        val highSchool = serializer.getSchoolId(testReport, 12, rawHighSchool)
+        assertThat(highSchool).isEqualTo("530042000099")
 
         // There are three schools that have the same first name in this zip-code. This one has a very long name.
         val rawPartnershipSchool = testReport.getString(13, "ordering_facility_name") ?: fail()
-        val enrichedPartnershipSchool = serializer.getEnrichedFacilityName(testReport, 13, rawPartnershipSchool)
-        assertThat(enrichedPartnershipSchool).isEqualTo("Bellingham Family Partnership Pr_NCES_530042003476")
+        val partnershipSchool = serializer.getSchoolId(testReport, 13, rawPartnershipSchool)
+        assertThat(partnershipSchool).isEqualTo("530042003476")
+    }
+
+    @Test
+    fun `test setOrderingFacilityComponent no NCES`() {
+        val mockTerser = mockk<Terser>()
+        every { mockTerser.set(any(), any()) } returns Unit
+        val facilityName = "Very Long Facility Name That Should Truncate After Here"
+        serializer.setOrderingFacilityComponent(mockTerser, facilityName, null)
+        verify {
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-21-1", facilityName.take(50))
+        }
+    }
+
+    @Test
+    fun `test setOrderingFacilityComponent with NCES`() {
+        val mockTerser = mockk<Terser>()
+        every { mockTerser.set(any(), any()) } returns Unit
+        val facilityName = "Very Long Facility Name That Should Truncate After Here"
+        val ncesId = "A00000009"
+        serializer.setOrderingFacilityComponent(mockTerser, facilityName, ncesId)
+        verify {
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-21-1", "${facilityName.take(32)}_NCES_$ncesId")
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-21-6-1", "NCES.IES")
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-21-6-2", "2.16.840.1.113883.3.8589.4.1.119")
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-21-6-3", "ISO")
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-21-7", "XX")
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-21-10", ncesId)
+        }
     }
 
     @Test
