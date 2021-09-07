@@ -48,9 +48,7 @@ import kotlin.concurrent.thread
 import kotlin.math.abs
 import kotlin.random.Random
 import kotlin.system.exitProcess
-import kotlin.time.Duration
-import kotlin.time.ExperimentalTime
-import kotlin.time.measureTime
+import kotlin.system.measureTimeMillis
 
 enum class TestStatus(val description: String) {
     DRAFT("Experimental"), // Tests that are experimental
@@ -283,6 +281,7 @@ Examples:
             Ping(),
             End2End(),
             Merge(),
+            WatersAuthTests(),
             QualityFilter(),
             Hl7Null(),
             TooManyCols(),
@@ -292,7 +291,6 @@ Examples:
             Hl7Ingest(),
             OtcProctored(),
             BadHl7(),
-            WatersAuthTests(),
             Jti(),
             Huge(),
             TooBig(),
@@ -389,10 +387,6 @@ abstract class CoolTest {
         storeMsg(msg)
     }
 
-    /**
-     * A hack attempt to wait enough time, but not too long, for ReportStream to finish.
-     * This assumes the batch/send executes on the minute boundary.
-     */
     suspend fun waitABit(plusSecs: Int, env: ReportStreamEnv) {
         // seconds elapsed so far in this minute
         val secsElapsed = OffsetDateTime.now().second % 60
@@ -418,20 +412,61 @@ abstract class CoolTest {
         }
     }
 
-    fun examineLineageResults(
+    suspend fun pollForLineageResults(
         reportId: ReportId,
         receivers: List<Receiver>,
         totalItems: Int,
         filterOrgName: Boolean = false,
-        silent: Boolean = false
+        silent: Boolean = false,
+        maxPollSecs: Int = 180,
+        pollSleepSecs: Int = 20, // I had this as every 5 secs, but was getting failures.  The queries run unfastly.
     ): Boolean {
-        var passed = true
+        var timeElapsedSecs = 0
+        var queryResults = listOf<Pair<Boolean, String>>()
+        echo("Polling for ReportStream results.  (Max poll time $maxPollSecs seconds)")
+        val actualTimeElapsedMillis = measureTimeMillis {
+            while (timeElapsedSecs <= maxPollSecs) {
+                if (outputToConsole) {
+                    for (i in 1..pollSleepSecs) {
+                        delay(1000)
+                        // Print out some contemplative dots to show we are waiting.
+                        print(".")
+                    }
+                    echo()
+                } else {
+                    delay(pollSleepSecs.toLong() * 1000)
+                }
+                timeElapsedSecs += pollSleepSecs
+                queryResults = queryForLineageResults(reportId, receivers, totalItems, filterOrgName)
+                if (!queryResults.map { it.first }.contains(false)) break // everything passed!
+            }
+        }
+        echo("Test $name finished in ${actualTimeElapsedMillis / 1000 } seconds")
+        if (!silent) {
+            queryResults.forEach {
+                if (it.first)
+                    good(it.second)
+                else
+                    bad(it.second)
+            }
+        }
+        return ! queryResults.map { it.first }.contains(false) // no falses == it passed!
+    }
+
+    fun queryForLineageResults(
+        reportId: ReportId,
+        receivers: List<Receiver>,
+        totalItems: Int,
+        filterOrgName: Boolean = false,
+    ): List<Pair<Boolean, String>> {
+        var queryResults = mutableListOf<Pair<Boolean, String>>()
         db = WorkflowEngine().db
         db.transact { txn ->
             val expected = totalItems / receivers.size
             receivers.forEach { receiver ->
                 val actionsList = mutableListOf(TaskAction.receive)
                 // Bug:  this is looking at local cli data, but might be querying staging or prod.
+                // The hope is that the 'ignore' org is same in local, staging, prod.
                 if (receiver.timing != null) actionsList.add(TaskAction.batch)
                 if (receiver.transport != null) actionsList.add(TaskAction.send)
                 actionsList.forEach { action ->
@@ -443,25 +478,22 @@ abstract class CoolTest {
                         action = action
                     )
                     if (count == null || expected != count) {
-                        if (!silent) {
-                            bad(
-                                "*** TEST FAILED*** for ${receiver.fullName} action $action: " +
-                                    " Expecting $expected item lineage records but got $count"
-                            )
-                        }
-                        passed = false
+                        queryResults += Pair(
+                            false,
+                            "*** TEST FAILED*** for ${receiver.fullName} action $action: " +
+                                " Expecting $expected item lineage records but got $count"
+                        )
                     } else {
-                        if (!silent) {
-                            good(
-                                "Test passed: for ${receiver.fullName} action $action: " +
-                                    " Expecting $expected item lineage records and got $count"
-                            )
-                        }
+                        queryResults += Pair(
+                            true,
+                            "Test passed: for ${receiver.fullName} action $action: " +
+                                " Expecting $expected item lineage records and got $count"
+                        )
                     }
                 }
             }
         }
-        return passed
+        return queryResults
     }
 
     /**
@@ -737,10 +769,9 @@ class End2End : CoolTest() {
         }
         echo(json)
         passed = passed and examineResponse(json)
-        waitABit(25, environment)
         val reportId = getReportIdFromResponse(json)
         if (reportId != null) {
-            passed = passed and examineLineageResults(reportId, allGoodReceivers, fakeItemCount)
+            passed = passed and pollForLineageResults(reportId, allGoodReceivers, fakeItemCount)
         }
 
         return passed
@@ -760,16 +791,15 @@ class Merge : CoolTest() {
      * @param reportCount the total number of reports sent
      * @return true if the number of reports matches the expected, false otherwise
      */
-    fun examineMergeResults(
+    fun queryForMergeResults(
         reportIds: List<ReportId>,
         receivers: List<Receiver>,
         itemsPerReport: Int,
-        reportCount: Int
-    ): Boolean {
-        var passed = true
+    ): List<Pair<Boolean, String>> {
+        var queryResults = mutableListOf<Pair<Boolean, String>>()
         db = WorkflowEngine().db
         db.transact { txn ->
-            val expected = (itemsPerReport * reportCount) / receivers.size
+            val expected = (itemsPerReport * reportIds.size) / receivers.size
             receivers.forEach { receiver ->
                 val actionsList = mutableListOf<TaskAction>()
                 if (receiver.timing != null) actionsList.add(TaskAction.batch)
@@ -780,13 +810,14 @@ class Merge : CoolTest() {
                         count += itemLineageCountQuery(txn, reportId, receiver.name, action = action) ?: 0
                     }
                     if (expected != count) {
-                        bad(
+                        queryResults += Pair(
+                            false,
                             "*** TEST FAILED*** for ${receiver.fullName} action $action: " +
                                 " Expecting sum(itemCount)=$expected but got $count"
                         )
-                        passed = false
                     } else {
-                        good(
+                        queryResults += Pair(
+                            true,
                             "Test passed: for ${receiver.fullName} action $action: " +
                                 " Expecting sum(itemCount)=$expected and got $count"
                         )
@@ -794,7 +825,45 @@ class Merge : CoolTest() {
                 }
             }
         }
-        return passed
+        return queryResults
+    }
+
+    // todo  arglebargle - this is mostly repeat of pollForLineageResults, but ever so slightly different.
+    suspend fun pollForMergeResults(
+        reportIds: List<ReportId>,
+        receivers: List<Receiver>,
+        itemsPerReport: Int,
+        silent: Boolean = false,
+        maxPollSecs: Int = 180,
+        pollSleepSecs: Int = 20,
+    ): Boolean {
+        var timeElapsedSecs = 0
+        var queryResults = listOf<Pair<Boolean, String>>()
+        echo("Polling for ReportStream results.  (Max poll time $maxPollSecs seconds)")
+        // Print out some nice dots to show we are waiting only when the output goes directly to the console.
+        while (timeElapsedSecs <= maxPollSecs) {
+            if (outputToConsole) {
+                for (i in 1..pollSleepSecs) {
+                    delay(1000)
+                    print(".")
+                }
+                echo()
+            } else {
+                delay(pollSleepSecs.toLong() * 1000)
+            }
+            timeElapsedSecs += pollSleepSecs
+            queryResults = queryForMergeResults(reportIds, receivers, itemsPerReport)
+            if (! queryResults.map { it.first }.contains(false)) break // everything passed!
+        }
+        if (!silent) {
+            queryResults.forEach {
+                if (it.first)
+                    good(it.second)
+                else
+                    bad(it.second)
+            }
+        }
+        return ! queryResults.map { it.first }.contains(false) // no falses == it passed!
     }
 
     override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
@@ -825,8 +894,7 @@ class Merge : CoolTest() {
             echo("Id of submitted report: $reportId")
             reportId
         }
-        waitABit(40, environment)
-        return examineMergeResults(reportIds, mergingReceivers, fakeItemCount, options.submits)
+        return pollForMergeResults(reportIds, mergingReceivers, fakeItemCount)
     }
 }
 
@@ -866,8 +934,7 @@ class Hl7Null : CoolTest() {
             echo("Id of submitted report: $reportId")
             reportId
         }
-        waitABit(30, environment)
-        return examineLineageResults(
+        return pollForLineageResults(
             reportId = reportIds[0],
             receivers = listOf(hl7NullReceiver),
             totalItems = fakeItemCount
@@ -993,8 +1060,7 @@ class Strac : CoolTest() {
                 bad("***strac Test FAILED: Expecting $expectedWarningCount warnings but got $warningCount***")
                 passed = false
             }
-            waitABit(25, environment)
-            return passed and examineLineageResults(
+            return passed and pollForLineageResults(
                 reportId = reportId,
                 receivers = allGoodReceivers,
                 totalItems = fakeItemCount
@@ -1052,7 +1118,7 @@ class StracPack : CoolTest() {
         waitABit(5 * options.submits, environment) // SWAG: wait extra seconds extra per file submitted
         reportIds.forEach {
             passed = passed and
-                examineLineageResults(reportId = it, receivers = listOf(redoxReceiver), totalItems = options.items)
+                pollForLineageResults(reportId = it, receivers = listOf(redoxReceiver), totalItems = options.items)
         }
         return passed
     }
@@ -1063,10 +1129,9 @@ class Parallel : CoolTest() {
     override val name = "parallel"
     override val description = "Each thread Submits $n submissions as fast as it can, " +
         "first with 1 thread, then 2 threads etc up to 10 threads." +
-        " Each submit has --items Y items"
+        " Each submit has --items Y items.  Does NOT check batch/send steps."
     override val status = TestStatus.LOAD
 
-    @ExperimentalTime
     fun runTheParallelTest(
         file: File,
         numThreads: Int,
@@ -1075,7 +1140,7 @@ class Parallel : CoolTest() {
         options: CoolTestOptions
     ): Boolean {
         var passed = true
-        val elapsed: Duration = measureTime {
+        val elapsedMillis = measureTimeMillis {
             val threads = mutableListOf<Thread>()
             echo("Parallel Test: Starting $numThreads threads, each submitting $numRounds times")
             for (threadNum in 1..numThreads) {
@@ -1107,14 +1172,19 @@ class Parallel : CoolTest() {
         }
         echo("")
         if (passed) {
-            good("$numThreads X $numRounds  = ${numThreads * numRounds} total submissions in ${elapsed.inWholeSeconds} seconds")
+            good(
+                "$numThreads X $numRounds  = ${numThreads * numRounds} total submissions" +
+                    " in ${elapsedMillis / 1000} seconds"
+            )
         } else {
-            bad("$numThreads X $numRounds  = ${numThreads * numRounds} total submissions in ${elapsed.inWholeSeconds} seconds")
+            bad(
+                "$numThreads X $numRounds  = ${numThreads * numRounds} total submissions" +
+                    " in ${elapsedMillis / 1000} seconds"
+            )
         }
         return passed
     }
 
-    @ExperimentalTime
     override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
         ugly(
             "Starting parallel Test: Increasing numbers of threads submitting in parallel," +
@@ -1178,8 +1248,7 @@ class Waters : CoolTest() {
         val reportId = getReportIdFromResponse(json)
             ?: return bad("***$name Test FAILED***: A report ID came back as null")
         echo("Id of submitted report: $reportId")
-        waitABit(60, environment)
-        return examineLineageResults(
+        return pollForLineageResults(
             reportId = reportId,
             receivers = listOf(blobstoreReceiver),
             totalItems = options.items
@@ -1194,7 +1263,6 @@ class RepeatWaters : CoolTest() {
         "  Can vary the sleeptime to determine what is a sustainable pace of submissions."
     override val status = TestStatus.LOAD
 
-    @ExperimentalTime
     override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
         val sleepBetweenSubmitMillis = 1000
         val variationMillis = 360
@@ -1218,11 +1286,11 @@ class RepeatWaters : CoolTest() {
             options.dir,
         )
         echo("Created datafile $file")
-        val elapsed: Duration = measureTime {
+        val elapsedMillis = measureTimeMillis {
             val threads = mutableListOf<Thread>()
             for (i in 1..options.submits) {
                 val thread = thread {
-                    var success = true
+                    var success: Boolean
                     runBlocking {
                         val (responseCode, json) =
                             HttpUtilities.postReportFile(environment, file, watersSender, options.key)
@@ -1236,8 +1304,8 @@ class RepeatWaters : CoolTest() {
                                 success = bad("***$name Test FAILED***: A report ID came back as null")
                             } else {
                                 echo("Id of submitted report: $reportId")
-                                waitABit(60, environment)
-                                success = examineLineageResults(
+                                waitABit(30, environment)
+                                success = pollForLineageResults(
                                     reportId = reportId,
                                     receivers = listOf(blobstoreReceiver),
                                     totalItems = options.items
@@ -1261,11 +1329,11 @@ class RepeatWaters : CoolTest() {
             echo("Submits done.  Now waiting for checking results to complete")
             threads.forEach { it.join() }
         }
-        echo("$name Test took ${elapsed.inWholeSeconds} seconds. Expected pace/hr: $pace.")
-        if (elapsed.inWholeSeconds > 600) {
+        echo("$name Test took ${elapsedMillis / 1000} seconds. Expected pace/hr: $pace.")
+        if ((elapsedMillis / 1000) > 600) {
             // pace calculation is inaccurate for short times, due to the kluge long wait at the end.
-            val actualPace = (totalItems / elapsed.inWholeSeconds) * 3600
-            echo(" Actual pace: $actualPace")
+            val actualPace = (totalItems / (elapsedMillis / 1000)) * 3600 // advanced math
+            echo(" Actual pace/hr: $actualPace")
         }
         return allPassed
     }
@@ -1321,7 +1389,7 @@ class HammerTime : CoolTest() {
         waitABit(5 * options.submits, environment) // SWAG: wait 5 seconds extra per file submitted
         reportIds.forEach {
             passed = passed and
-                examineLineageResults(reportId = it, receivers = listOf(receiverToTest), totalItems = options.items)
+                pollForLineageResults(reportId = it, receivers = listOf(receiverToTest), totalItems = options.items)
         }
         return passed
     }
@@ -1523,7 +1591,7 @@ class Huge : CoolTest() {
             ?: return bad("***$name Test FAILED***: A report ID came back as null")
         echo("Id of submitted report: $reportId")
         waitABit(30, environment)
-        return examineLineageResults(reportId = reportId, receivers = listOf(csvReceiver), totalItems = fakeItemCount)
+        return pollForLineageResults(reportId = reportId, receivers = listOf(csvReceiver), totalItems = fakeItemCount)
     }
 }
 
@@ -1608,7 +1676,7 @@ class DbConnections : CoolTest() {
         var passed = true
         reportIds.forEach {
             passed = passed and
-                examineLineageResults(reportId = it, receivers = listOf(hl7Receiver), totalItems = options.items)
+                pollForLineageResults(reportId = it, receivers = listOf(hl7Receiver), totalItems = options.items)
         }
         return passed
     }
@@ -1651,7 +1719,7 @@ class BadSftp : CoolTest() {
         echo("Id of submitted report: $reportId")
         waitABit(30, environment)
         echo("For this test, failure during send, is a 'pass'.   Need to fix this.")
-        return examineLineageResults(
+        return pollForLineageResults(
             reportId = reportId,
             receivers = listOf(sftpFailReceiver),
             totalItems = options.items
@@ -1711,7 +1779,7 @@ class InternationalContent : CoolTest() {
                 ?: return bad("***$name Test FAILED***: A report ID came back as null")
 
             echo("Id of submitted report: $reportId")
-            waitABit(25, environment)
+            waitABit(60, environment)
             // Go to the database and get the SFTP filename that was sent
             db = WorkflowEngine().db
             var asciiOnly = false
@@ -1747,33 +1815,23 @@ class SantaClaus : CoolTest() {
     override val status = TestStatus.DRAFT
 
     override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
-
         var passed = true
-
         if (options.env !in listOf("local", "staging")) {
             return createBad("This test can only be run locally or on staging")
         }
-
         var sendersToTestWith = settings.senders.filter {
             it.organizationName in listOf("simple_report", "waters", "strac", "safehealth")
         }
-
         options.sender?.let {
-
             // validates sender existence
             val sender = settings.findSender(it) ?: return createBad("The sender indicated doesn't exists '$it'")
-
             // replace the list of senders to test
             // with the indicated by parameter
             sendersToTestWith = listOf(sender)
         }
-
         val states = metadata.findLookupTable("fips-county")?.getDistinctValuesInColumn("State")?.toList() ?: listOf()
-
         sendersToTestWith.forEach { sender ->
-
             ugly("Starting $name Test: send with ${sender.fullName}")
-
             val file = FileUtilities.createFakeFile(
                 metadata = metadata,
                 settings = settings,
@@ -1785,33 +1843,25 @@ class SantaClaus : CoolTest() {
                 targetCounties = null
             )
             echo("Created datafile $file")
-
             // Now send it to ReportStream.
             val (responseCode, json) =
                 HttpUtilities.postReportFile(environment, file, sender, null)
-
             if (responseCode != HttpURLConnection.HTTP_CREATED) {
                 return bad("***$name Test FAILED***:  response code $responseCode")
             } else {
                 good("Posting of report succeeded with response code $responseCode")
             }
             echo(json)
-
             val tree = jacksonObjectMapper().readTree(json)
             val reportId = getReportIdFromResponse(json)
                 ?: return bad("***$name Test FAILED***: A report ID came back as null")
-
             val destinations = tree["destinations"]
             if (destinations != null && destinations.size() > 0) {
-
                 val receivers = mutableListOf<Receiver>()
-
                 destinations.forEach { destination ->
                     if (destination != null && destination.has("service")) {
-
                         val receiverName = destination["service"].textValue()
                         val organizationId = destination["organization_id"].textValue()
-
                         receivers.addAll(
                             settings.receivers.filter {
                                 it.organizationName == organizationId && it.name == receiverName
@@ -1819,36 +1869,8 @@ class SantaClaus : CoolTest() {
                         )
                     }
                 }
-
                 if (!receivers.isNullOrEmpty()) {
-
-                    // give some time to let the system
-                    // finish with the expected output
-                    waitWithConditionalRetry(
-                        90,
-                        {
-                            examineLineageResults(
-                                reportId = reportId,
-                                receivers = receivers,
-                                totalItems = receivers.size,
-                                filterOrgName = true,
-                                silent = true
-                            )
-                        },
-                        callback = { succeed, retryCount ->
-                            if (!succeed) {
-                                if (retryCount == 0) {
-                                    echo("Waiting for examining lineage results of sender '${sender.fullName}'")
-                                }
-                                echo(".")
-                            } else {
-                                echo("")
-                            }
-                        }
-                    )
-
-                    // just to print to console some beautified output
-                    passed = passed and examineLineageResults(
+                    passed = passed and pollForLineageResults(
                         reportId = reportId,
                         receivers = receivers,
                         totalItems = receivers.size,
@@ -1858,7 +1880,6 @@ class SantaClaus : CoolTest() {
                 }
             }
         }
-
         return passed
     }
 

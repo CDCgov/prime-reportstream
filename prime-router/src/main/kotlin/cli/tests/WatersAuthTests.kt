@@ -299,7 +299,7 @@ class WatersAuthTests : CoolTest() {
 class Jti : CoolTest() {
     override val name = "jti"
     override val description = "Test the JTI Cache"
-    override val status = TestStatus.SMOKE
+    override val status = TestStatus.DRAFT // Not SMOKE because it requires login to do settings stuff.  Can't automate
 
     override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
         ugly("Starting jti Test: $description")
