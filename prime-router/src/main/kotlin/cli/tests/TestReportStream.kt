@@ -867,6 +867,7 @@ class Merge : CoolTest() {
     }
 
     override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+        var passed: Boolean
         val mergingReceivers = listOf<Receiver>(csvReceiver, hl7BatchReceiver)
         val mergingCounties = mergingReceivers.map { it.name }.joinToString(",")
         val fakeItemCount = mergingReceivers.size * options.items
@@ -881,20 +882,24 @@ class Merge : CoolTest() {
             options.dir,
         )
         echo("Created datafile $file")
-        // Now send it to ReportStream over and over
-        val reportIds = (1..options.submits).map {
-            val (responseCode, json) =
-                HttpUtilities.postReportFile(environment, file, simpleRepSender, options.key)
-            echo("Response to POST: $responseCode")
-            if (responseCode != HttpURLConnection.HTTP_CREATED) {
-                return bad("***Merge Test FAILED***:  response code $responseCode")
+        val actualTimeElapsedMillis = measureTimeMillis {
+            // Now send it to ReportStream over and over
+            val reportIds = (1..options.submits).map {
+                val (responseCode, json) =
+                    HttpUtilities.postReportFile(environment, file, simpleRepSender, options.key)
+                echo("Response to POST: $responseCode")
+                if (responseCode != HttpURLConnection.HTTP_CREATED) {
+                    return bad("***Merge Test FAILED***:  response code $responseCode")
+                }
+                val reportId = getReportIdFromResponse(json)
+                    ?: return bad("***$name Test FAILED***: A report ID came back as null")
+                echo("Id of submitted report: $reportId")
+                reportId
             }
-            val reportId = getReportIdFromResponse(json)
-                ?: return bad("***$name Test FAILED***: A report ID came back as null")
-            echo("Id of submitted report: $reportId")
-            reportId
+            passed = pollForMergeResults(reportIds, mergingReceivers, fakeItemCount)
         }
-        return pollForMergeResults(reportIds, mergingReceivers, fakeItemCount)
+        echo("$name test took ${actualTimeElapsedMillis / 1000} seconds.")
+        return passed
     }
 }
 

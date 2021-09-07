@@ -26,7 +26,7 @@ import java.util.*
 class WatersAuthTests : CoolTest() {
     override val name = "watersauth"
     override val description = "Test FHIR Auth"
-    override val status = TestStatus.SMOKE
+    override val status = TestStatus.DRAFT // Not SMOKE because it requires login to do settings stuff.  Can't automate
     // create sender in 'ignore' organization
     private val accessTokenDummy = "dummy"
     val organization = "ignore"
@@ -299,7 +299,7 @@ class WatersAuthTests : CoolTest() {
 class Jti : CoolTest() {
     override val name = "jti"
     override val description = "Test the JTI Cache"
-    override val status = TestStatus.DRAFT // Not SMOKE because it requires login to do settings stuff.  Can't automate
+    override val status = TestStatus.SMOKE
 
     override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
         ugly("Starting jti Test: $description")
