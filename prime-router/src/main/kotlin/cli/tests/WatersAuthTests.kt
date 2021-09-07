@@ -7,14 +7,18 @@ import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.ReportStreamEnv
+import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.cli.DeleteSenderSetting
 import gov.cdc.prime.router.cli.FileUtilities
 import gov.cdc.prime.router.cli.GetSenderSetting
 import gov.cdc.prime.router.cli.OktaCommand
 import gov.cdc.prime.router.cli.PutSenderSetting
 import gov.cdc.prime.router.cli.SettingCommand
+import gov.cdc.prime.router.tokens.DatabaseJtiCache
 import gov.cdc.prime.router.tokens.SenderUtils
 import java.io.File
+import java.time.OffsetDateTime
+import java.util.*
 
 /**
  *
@@ -22,8 +26,7 @@ import java.io.File
 class WatersAuthTests : CoolTest() {
     override val name = "watersauth"
     override val description = "Test FHIR Auth"
-    override val status = TestStatus.DRAFT
-
+    override val status = TestStatus.SMOKE
     // create sender in 'ignore' organization
     private val accessTokenDummy = "dummy"
     val organization = "ignore"
@@ -286,6 +289,56 @@ class WatersAuthTests : CoolTest() {
         }
 
         teardown()
+        return passed
+    }
+}
+
+/**
+ * Exercise the database jticache
+ */
+class Jti : CoolTest() {
+    override val name = "jti"
+    override val description = "Test the JTI Cache"
+    override val status = TestStatus.SMOKE
+
+    override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+        ugly("Starting jti Test: $description")
+        val db = WorkflowEngine().db
+        val jtiCache = DatabaseJtiCache(db)
+        var passed = true
+        val uuid1 = UUID.randomUUID().toString()
+        if (!jtiCache.isJTIOk(uuid1, OffsetDateTime.now())) {
+            echo("JTI-1 $uuid1 has never been seen before.   It should have been OK, but was not.")
+            passed = false
+        }
+        val uuid2 = UUID.randomUUID().toString()
+        if (!jtiCache.isJTIOk(uuid2, OffsetDateTime.now().plusMinutes(10))) {
+            echo("JTI-2 $uuid2 has never been seen before.   It should have been OK, but was not.")
+            passed = false
+        }
+        val uuid3 = UUID.randomUUID().toString()
+        if (!jtiCache.isJTIOk(uuid3, OffsetDateTime.now().minusMinutes(10))) {
+            echo("JTI-3 $uuid3 has never been seen before.   It should have been OK, but was not.")
+            passed = false
+        }
+        // Now send them all again.  All should return false
+        if (jtiCache.isJTIOk(uuid1, OffsetDateTime.now())) {
+            echo("JTI-1 $uuid1 has been seen before.   It should have failed, but it passed.")
+            passed = false
+        }
+        if (jtiCache.isJTIOk(uuid2, OffsetDateTime.now())) {
+            echo("JTI-2 $uuid2 has been seen before.   It should have failed, but it passed.")
+            passed = false
+        }
+        if (jtiCache.isJTIOk(uuid3, OffsetDateTime.now())) {
+            echo("JTI-3 $uuid3 has been seen before.   It should have failed, but it passed.")
+            passed = false
+        }
+        if (passed) {
+            good("JTI Database Cache test passed")
+        } else {
+            bad("JTI Database Cache test ****FAILED***")
+        }
         return passed
     }
 }

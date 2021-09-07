@@ -31,7 +31,6 @@ import gov.cdc.prime.router.azure.db.Tables.ACTION
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.cli.FileUtilities
-import gov.cdc.prime.router.tokens.DatabaseJtiCache
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -45,7 +44,6 @@ import java.nio.file.Files
 import java.nio.file.Paths
 import java.time.OffsetDateTime
 import java.util.Locale
-import java.util.UUID
 import kotlin.concurrent.thread
 import kotlin.math.abs
 import kotlin.random.Random
@@ -285,29 +283,29 @@ Examples:
             Ping(),
             End2End(),
             Merge(),
-            Garbage(),
             QualityFilter(),
             Hl7Null(),
             TooManyCols(),
             BadCsv(),
             Strac(),
-            Huge(),
-            TooBig(),
-            DbConnections(),
-            BadSftp(),
-            StracPack(),
-            HammerTime(),
             Waters(),
-            RepeatWaters(),
-            Parallel(),
-            Jti(),
-            InternationalContent(),
             Hl7Ingest(),
-            DataCompareTest(),
-            SantaClaus(),
             OtcProctored(),
             BadHl7(),
             WatersAuthTests(),
+            Jti(),
+            Huge(),
+            TooBig(),
+            Parallel(),
+            HammerTime(),
+            StracPack(),
+            RepeatWaters(),
+            InternationalContent(),
+            DataCompareTest(),
+            SantaClaus(),
+            DbConnections(),
+            BadSftp(),
+            Garbage(),
         )
     }
 }
@@ -1009,14 +1007,15 @@ class Strac : CoolTest() {
 
 class StracPack : CoolTest() {
     override val name = "stracpack" // no its not 'strackpack'
-    override val description = "Does '--submits X' simultaneous strac " +
-        "submissions, each with '--items Y' items. Redox only"
+    override val description = "Submits via '--submits X' threads sending Strac data to Redox" +
+        ", Each submit has '--items Y' items." +
+        "  Same as hammertime, no delays between thread starts, so all threads start at once."
     override val status = TestStatus.LOAD
 
     override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
         ugly(
-            "Starting stracpack Test: simultaneously submitting ${options.submits} batches " +
-                "of Strac ${options.items} items per batch to the ${redoxReceiver.name} receiver only."
+            "Starting stracpack Test: Starting ${options.submits} simultaneous threads, each submitting" +
+                " ${options.items} items of Strac data to the ${redoxReceiver.name} receiver only."
         )
         val file = FileUtilities.createFakeFile(
             metadata,
@@ -1060,9 +1059,11 @@ class StracPack : CoolTest() {
 }
 
 class Parallel : CoolTest() {
+    val n = 50
     override val name = "parallel"
-    override val description = "Does '--submits X' submisssions in parallel, " +
-        "each with '--items Y' items, for 2 minutes. hl7null, so no sends."
+    override val description = "Each thread Submits $n submissions as fast as it can, " +
+        "first with 1 thread, then 2 threads etc up to 10 threads." +
+        " Each submit has --items Y items"
     override val status = TestStatus.LOAD
 
     @ExperimentalTime
@@ -1076,7 +1077,7 @@ class Parallel : CoolTest() {
         var passed = true
         val elapsed: Duration = measureTime {
             val threads = mutableListOf<Thread>()
-            echo("starting $numThreads threads, each submitting $numRounds times")
+            echo("Parallel Test: Starting $numThreads threads, each submitting $numRounds times")
             for (threadNum in 1..numThreads) {
                 val th = thread {
                     for (i in 1..numRounds) {
@@ -1115,7 +1116,6 @@ class Parallel : CoolTest() {
 
     @ExperimentalTime
     override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
-        val n = 50
         ugly(
             "Starting parallel Test: Increasing numbers of threads submitting in parallel," +
                 " as fast as they can for $n rounds.  hl7null ${options.items} items per submission."
@@ -1179,7 +1179,6 @@ class Waters : CoolTest() {
             ?: return bad("***$name Test FAILED***: A report ID came back as null")
         echo("Id of submitted report: $reportId")
         waitABit(60, environment)
-        if (file.exists()) file.delete() // because of RepeatWaters
         return examineLineageResults(
             reportId = reportId,
             receivers = listOf(blobstoreReceiver),
@@ -1190,25 +1189,61 @@ class Waters : CoolTest() {
 
 class RepeatWaters : CoolTest() {
     override val name = "repeatwaters"
-    override val description = "Submit waters over and over, sending to BLOBSTORE"
+    override val description = "Submits via '--submits X' threads, sending Waters data to BLOBSTORE" +
+        "  Each submit has '--items Y' items.  Brief sleep between each thread creation." +
+        "  Can vary the sleeptime to determine what is a sustainable pace of submissions."
     override val status = TestStatus.LOAD
 
     @ExperimentalTime
     override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
-        ugly("Starting $name Test: sending Waters data ${options.submits} times.")
+        val sleepBetweenSubmitMillis = 1000
+        val variationMillis = 360
+        ugly(
+            "Starting repeatwaters Test: Starting ${options.submits} submissions, each submitting" +
+                " ${options.items} items of Waters data to the ${blobstoreReceiver.name} receiver only. " +
+                " Delay between each submission of $sleepBetweenSubmitMillis millis."
+        )
         var allPassed = true
         var totalItems = 0
-        val sleepBetweenSubmitMillis = 360
-        val variationMillis = 360
         val pace = (3600000 / sleepBetweenSubmitMillis) * options.items
         echo("Submitting at an expected pace of $pace items per hour")
         options.muted = true
+        val file = FileUtilities.createFakeFile(
+            metadata,
+            settings,
+            watersSender,
+            options.items,
+            receivingStates,
+            blobstoreReceiver.name,
+            options.dir,
+        )
+        echo("Created datafile $file")
         val elapsed: Duration = measureTime {
             val threads = mutableListOf<Thread>()
             for (i in 1..options.submits) {
                 val thread = thread {
+                    var success = true
                     runBlocking {
-                        val success = Waters().run(environment, options)
+                        val (responseCode, json) =
+                            HttpUtilities.postReportFile(environment, file, watersSender, options.key)
+                        echo("Response to POST: $responseCode")
+                        if (!options.muted) echo(json)
+                        if (responseCode != HttpURLConnection.HTTP_CREATED) {
+                            success = bad("***One Waters Test FAILED***:  response code $responseCode")
+                        } else {
+                            val reportId = getReportIdFromResponse(json)
+                            if (reportId == null) {
+                                success = bad("***$name Test FAILED***: A report ID came back as null")
+                            } else {
+                                echo("Id of submitted report: $reportId")
+                                waitABit(60, environment)
+                                success = examineLineageResults(
+                                    reportId = reportId,
+                                    receivers = listOf(blobstoreReceiver),
+                                    totalItems = options.items
+                                )
+                            }
+                        }
                         synchronized(allPassed) {
                             if (success) totalItems += options.items
                             allPassed = allPassed && success
@@ -1242,12 +1277,16 @@ class RepeatWaters : CoolTest() {
 class HammerTime : CoolTest() {
     val receiverToTest = hl7Receiver
     override val name = "hammertime"
-    override val description = "Does '--submits X' ${receiverToTest.name} " +
-        "submissions in parallel, each with '--items Y' items."
+    override val description = "Submits via '--submits X' threads sending SimpleRep data to an sftp site" +
+        ", Each submit has '--items Y' items." +
+        "  Unlike repeatwaters, no delays between thread starts, so all threads start at once."
     override val status = TestStatus.LOAD
 
     override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
-        ugly("Starting Hammertime Test: $description")
+        ugly(
+            "Starting hammertime test: Starting ${options.submits} simultaneous threads, each submitting" +
+                " ${options.items} items of SimpleRep data to ${receiverToTest.name}"
+        )
         val file = FileUtilities.createFakeFile(
             metadata,
             settings,
@@ -1261,7 +1300,6 @@ class HammerTime : CoolTest() {
         // Now send it to ReportStream over and over
         val reportIds = mutableListOf<ReportId>()
         var passed = true
-        // submit in thread grouping somewhat smaller than our database pool size.
         for (i in 1..options.submits) {
             thread {
                 val (responseCode, json) =
@@ -1618,56 +1656,6 @@ class BadSftp : CoolTest() {
             receivers = listOf(sftpFailReceiver),
             totalItems = options.items
         )
-    }
-}
-
-/**
- * Exercise the database jticache
- */
-class Jti : CoolTest() {
-    override val name = "jti"
-    override val description = "Test the JTI Cache"
-    override val status = TestStatus.DRAFT
-
-    override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
-        ugly("Starting jti Test: $description")
-        val db = WorkflowEngine().db
-        val jtiCache = DatabaseJtiCache(db)
-        var passed = true
-        val uuid1 = UUID.randomUUID().toString()
-        if (!jtiCache.isJTIOk(uuid1, OffsetDateTime.now())) {
-            echo("JTI-1 $uuid1 has never been seen before.   It should have been OK, but was not.")
-            passed = false
-        }
-        val uuid2 = UUID.randomUUID().toString()
-        if (!jtiCache.isJTIOk(uuid2, OffsetDateTime.now().plusMinutes(10))) {
-            echo("JTI-2 $uuid2 has never been seen before.   It should have been OK, but was not.")
-            passed = false
-        }
-        val uuid3 = UUID.randomUUID().toString()
-        if (!jtiCache.isJTIOk(uuid3, OffsetDateTime.now().minusMinutes(10))) {
-            echo("JTI-3 $uuid3 has never been seen before.   It should have been OK, but was not.")
-            passed = false
-        }
-        // Now send them all again.  All should return false
-        if (jtiCache.isJTIOk(uuid1, OffsetDateTime.now())) {
-            echo("JTI-1 $uuid1 has been seen before.   It should have failed, but it passed.")
-            passed = false
-        }
-        if (jtiCache.isJTIOk(uuid2, OffsetDateTime.now())) {
-            echo("JTI-2 $uuid2 has been seen before.   It should have failed, but it passed.")
-            passed = false
-        }
-        if (jtiCache.isJTIOk(uuid3, OffsetDateTime.now())) {
-            echo("JTI-3 $uuid3 has been seen before.   It should have failed, but it passed.")
-            passed = false
-        }
-        if (passed) {
-            good("JTI Database Cache test passed")
-        } else {
-            bad("JTI Database Cache test ****FAILED***")
-        }
-        return passed
     }
 }
 
