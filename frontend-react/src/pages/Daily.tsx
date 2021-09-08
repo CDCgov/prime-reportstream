@@ -50,7 +50,6 @@ const ReportLink = (props) => {
     const handleClick = (e: any) => {
         e.preventDefault();
         if (props.report !== undefined) {
-            console.log(props.report.content);
             download(props.report.content, props.report.fileName, props.report.mimeType);
         }
     };
