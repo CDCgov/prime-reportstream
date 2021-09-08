@@ -293,7 +293,7 @@ iPatientCare is an ambulatory EMR, so this field is defaulted to 'N'.
 
 **Name**: DateColl
 
-**Type**: DATE
+**Type**: DATETIME
 
 **PII**: No
 

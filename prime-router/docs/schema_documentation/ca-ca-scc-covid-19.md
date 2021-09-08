@@ -143,7 +143,7 @@ Code | Display
 
 **Name**: Date Test Ordered
 
-**Type**: DATE
+**Type**: DATETIME
 
 **PII**: No
 
