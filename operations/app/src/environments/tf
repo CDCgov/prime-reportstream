@@ -6,6 +6,7 @@ GREEN="\e[1;92m"
 YELLOW="\e[1;33m"
 NORMAL="\e[0m"
 WHITE="\e[1;97m"
+GRAY="\e[1;37m"
 
 # HERE = the leaf directory we are running from (without any slashes)
 HERE=${PWD##*/}
@@ -18,6 +19,13 @@ VERBOSE=${VERBOSE:-0}
 SCRIPT_DIR="$(dirname "$(realpath "${0}")")"
 CONFIGS_DIR="${SCRIPT_DIR?}/configurations"
 PLAN_DIR="${SCRIPT_DIR?}/../../plan"
+
+# IP and services that need to be whitelisted in the firewall
+PUBLIC_IP="$(curl -s ifconfig.me)"
+PUBLIC_IP_HASH="$(echo -n "${PUBLIC_IP?}" | sha1sum | awk '{print $1}')"
+declare -a KeyVaults=("-keyvault" "-appconfig" "-clientconfig")
+declare -a StorageAccounts=("storageaccount" "public" "partner" "candidate" "candpartner")
+declare -a FunctionApps=("-functionapp")
 
 # Does the command require an Azure backend?
 case "${TFCMD?}" in
@@ -157,6 +165,65 @@ else
         -backend=false
 fi
 ACTUAL_RESULTS="${ACTUAL_RESULTS?}${?}"
+
+RESOURCE_GROUP="$(echo "var.resource_group" | terraform console --var-file ${TFVARS?} | xargs)"
+RESOURCE_PREFIX="$(echo "var.resource_prefix" | terraform console --var-file ${TFVARS?} | xargs)"
+
+# Whitelist our IP to access firewalled resources
+function add_ip_whitelist() {
+    echo -e "${GRAY?}"
+    echo -e "Whitelisting IP ${PUBLIC_IP?} for Azure resources:"
+
+    for resource in "${KeyVaults[@]}"; do
+        RESOURCE_NAME="${RESOURCE_PREFIX?}${resource?}"
+        echo -e "\t${RESOURCE_NAME?}..."
+        az keyvault network-rule add -g "${RESOURCE_GROUP?}" -n "${RESOURCE_NAME?}" --ip-address "${PUBLIC_IP?}"  > /dev/null 2>&1
+    done
+
+    for resource in "${StorageAccounts[@]}"; do
+        RESOURCE_NAME="${RESOURCE_PREFIX?}${resource?}"
+        echo -e "\t${RESOURCE_NAME?}..."
+        az storage account network-rule add -g "${RESOURCE_GROUP?}" -n "${RESOURCE_NAME?}" --ip-address "${PUBLIC_IP?}"  > /dev/null 2>&1
+    done
+
+    for resource in "${FunctionApps[@]}"; do
+        RESOURCE_NAME="${RESOURCE_PREFIX?}${resource?}"
+        echo -e "\t${RESOURCE_NAME?}..."
+        az functionapp config access-restriction add -g "${RESOURCE_GROUP?}" -n "${RESOURCE_NAME?}" --slot production --rule-name "tf-${PUBLIC_IP_HASH}" --action Allow --ip-address "${PUBLIC_IP?}" --priority 750 > /dev/null 2>&1
+        az functionapp config access-restriction add -g "${RESOURCE_GROUP?}" -n "${RESOURCE_NAME?}" --slot candidate --rule-name "tf-${PUBLIC_IP_HASH}" --action Allow --ip-address "${PUBLIC_IP?}" --priority 750 > /dev/null 2>&1
+    done
+
+    echo -e "${NORMAL?}"
+}
+
+function remove_ip_whitelist() {
+    echo -e "${GRAY?}"
+    echo -e "Removing IP whitelist ${PUBLIC_IP?} for Azure resources:"
+
+    for resource in "${KeyVaults[@]}"; do
+        RESOURCE_NAME="${RESOURCE_PREFIX?}${resource?}"
+        echo -e "\t${RESOURCE_NAME?}..."
+        az keyvault network-rule remove -g "${RESOURCE_GROUP?}" -n "${RESOURCE_NAME?}" --ip-address "${PUBLIC_IP?}"  > /dev/null 2>&1
+    done
+
+    for resource in "${StorageAccounts[@]}"; do
+        RESOURCE_NAME="${RESOURCE_PREFIX?}${resource?}"
+        echo -e "\t${RESOURCE_NAME?}..."
+        az storage account network-rule remove -g "${RESOURCE_GROUP?}" -n "${RESOURCE_NAME?}" --ip-address "${PUBLIC_IP?}"  > /dev/null 2>&1
+    done
+
+    for resource in "${FunctionApps[@]}"; do
+        RESOURCE_NAME="${RESOURCE_PREFIX?}${resource?}"
+        echo -e "\t${RESOURCE_NAME?}..."
+        az functionapp config access-restriction remove -g "${RESOURCE_GROUP?}" -n "${RESOURCE_NAME?}" --slot production --rule-name "tf-${PUBLIC_IP_HASH}" --priority 750 > /dev/null 2>&1
+        az functionapp config access-restriction remove -g "${RESOURCE_GROUP?}" -n "${RESOURCE_NAME?}" --slot candidate --rule-name "tf-${PUBLIC_IP_HASH}" --priority 750 > /dev/null 2>&1
+    done
+
+    echo -e "${NORMAL?}"
+}
+
+trap remove_ip_whitelist EXIT
+add_ip_whitelist
 
 # Now do whatever you asked terraform to do (but only if we did not encounter any 'significant' errors)
 if [[ "${ACTUAL_RESULTS?}" == "${EXPECTED_RESULTS?}" ]]; then

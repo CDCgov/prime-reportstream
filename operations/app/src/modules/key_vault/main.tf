@@ -18,11 +18,13 @@ resource "azurerm_key_vault" "application" {
     bypass                     = "AzureServices"
     default_action             = "Deny"
     virtual_network_subnet_ids = []
-    // We're using a private endpoint, so none need to be associated
   }
 
   lifecycle {
     prevent_destroy = true
+    ignore_changes = [
+      network_acls[0].ip_rules, # Support IP whitelisting outside of Terraform
+    ]
   }
 
   tags = {
@@ -128,11 +130,13 @@ resource "azurerm_key_vault" "app_config" {
     bypass                     = "AzureServices"
     default_action             = "Deny"
     virtual_network_subnet_ids = []
-    // We're using a private endpoint, so none need to be associated
   }
 
   lifecycle {
     prevent_destroy = true
+    ignore_changes = [
+      network_acls[0].ip_rules, # Support IP whitelisting outside of Terraform
+    ]
   }
 
   tags = {
@@ -197,11 +201,13 @@ resource "azurerm_key_vault" "client_config" {
     bypass                     = "AzureServices"
     default_action             = "Deny"
     virtual_network_subnet_ids = []
-    // We're using a private endpoint, so none need to be associated
   }
 
   lifecycle {
     prevent_destroy = true
+    ignore_changes = [
+      network_acls[0].ip_rules, # Support IP whitelisting outside of Terraform
+    ]
   }
 
   tags = {
