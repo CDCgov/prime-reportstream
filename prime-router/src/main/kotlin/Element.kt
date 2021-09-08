@@ -400,7 +400,7 @@ data class Element(
                     LocalDate.parse(formattedValue, formatter)
                     null
                 } catch (e: DateTimeParseException) {
-                    "Invalid date format in [rows/columns]. Reformat to [correct format]."
+                    "Invalid date format in ${rowAndColumnMessageToken}. Reformat to [$format]."
                 }
             }
             Type.DATETIME -> {
@@ -432,7 +432,7 @@ data class Element(
                     LocalDate.parse(formattedValue, formatter)
                     null
                 } catch (e: DateTimeParseException) {
-                    "Invalid date format in [rows/columns]. Reformat to [correct format]."
+                    "Invalid date format in ${rowAndColumnMessageToken}. Reformat to [$format]."
                 }
             }
             Type.CODE -> {
@@ -449,11 +449,11 @@ data class Element(
                         codeToken -> {
                             val values = altValues ?: valueSetRef.values
                             if (values.find { it.code == formattedValue } != null) null else
-                                "Invalid value in [rows/columns]. Reformat to [correct format]."
+                                "Invalid value in ${rowAndColumnMessageToken}. Reformat to [$format]."
                         }
                         else ->
                             if (valueSetRef.toNormalizedCode(formattedValue) != null) null else
-                                "Invalid value in [rows/columns]. Reformat to [correct format]."
+                                "Invalid value in ${rowAndColumnMessageToken}. Reformat to [$format]."
                     }
                 }
             }
@@ -463,17 +463,17 @@ data class Element(
                     // this then causes a report level failure, not an element level failure
                     val number = phoneNumberUtil.parse(formattedValue, "US")
                     if (!number.hasNationalNumber() || number.nationalNumber > 9999999999L)
-                        "Invalid phone number format in [rows/columns]. Reformat to a 10-digit phone number (e.g. (555) - 555-5555)."
+                        "Invalid phone number format in ${rowAndColumnMessageToken}. Reformat to a 10-digit phone number (e.g. (555) - 555-5555)."
                     else
                         null
                 } catch (ex: Exception) {
-                    "Invalid phone number format in [rows/columns]. Reformat to a 10-digit phone number (e.g. (555) - 555-5555)."
+                    "Invalid phone number format in ${rowAndColumnMessageToken}. Reformat to a 10-digit phone number (e.g. (555) - 555-5555)."
                 }
             }
             Type.POSTAL_CODE -> {
                 // Let in all formats defined by http://www.dhl.com.tw/content/dam/downloads/tw/express/forms/postcode_formats.pdf
                 return if (!Regex("^[A-Za-z\\d\\- ]{3,12}\$").matches(formattedValue))
-                    "Invalid postal code format in [rows/columns]. Reformat to [correct format]."
+                    "Invalid postal code format in ${rowAndColumnMessageToken}. Reformat to [$format]."
                 else
                     null
             }
@@ -524,7 +524,7 @@ data class Element(
                     val formatter = DateTimeFormatter.ofPattern(format ?: datePattern, Locale.ENGLISH)
                     LocalDate.parse(formattedValue, formatter)
                 } catch (e: DateTimeParseException) {
-                    error("Invalid date format in [rows/columns]. Reformat to [correct format].")
+                    error("Invalid date format in ${rowAndColumnMessageToken}. Reformat to [$format].")
                 }
                 normalDate.format(dateFormatter)
             }
@@ -555,7 +555,7 @@ data class Element(
                     val zoneOffset = ZoneId.of(USTimeZone.CENTRAL.zoneId).rules.getOffset(Instant.now())
                     OffsetDateTime.of(date, LocalTime.of(0, 0), zoneOffset)
                 } catch (e: DateTimeParseException) {
-                    error("Invalid date format in [rows/columns]. Reformat to [correct format].")
+                    error("Invalid date format in ${rowAndColumnMessageToken}. Reformat to [$format].")
                 }
                 normalDateTime.format(datetimeFormatter)
             }
@@ -577,7 +577,7 @@ data class Element(
                     displayToken ->
                         valueSetRef?.toCodeFromDisplay(formattedValue)
                             ?: error(
-                                "Invalid value in [rows/columns]. Reformat to [correct format]."
+                                "Invalid value in ${rowAndColumnMessageToken}. Reformat to [$format]."
                             )
                     else ->
                         valueSetRef?.toNormalizedCode(formattedValue)
@@ -590,14 +590,14 @@ data class Element(
             Type.TELEPHONE -> {
                 val number = phoneNumberUtil.parse(formattedValue, "US")
                 if (!number.hasNationalNumber() || number.nationalNumber > 9999999999L)
-                    error("Invalid phone number format in [rows/columns]. Reformat to a 10-digit phone number (e.g. (555) - 555-5555).")
+                    error("Invalid phone number format in ${rowAndColumnMessageToken}. Reformat to a 10-digit phone number (e.g. (555) - 555-5555).")
                 val nationalNumber = DecimalFormat("0000000000").format(number.nationalNumber)
                 "${nationalNumber}$phoneDelimiter${number.countryCode}$phoneDelimiter${number.extension}"
             }
             Type.POSTAL_CODE -> {
                 // Let in all formats defined by http://www.dhl.com.tw/content/dam/downloads/tw/express/forms/postcode_formats.pdf
                 if (!Regex("^[A-Za-z\\d\\- ]{3,12}\$").matches(formattedValue))
-                    error("Invalid postal code format in [rows/columns]. Reformat to [correct format].")
+                    error("Invalid postal code format in ${rowAndColumnMessageToken}. Reformat to [$format].")
                 formattedValue.replace(" ", "")
             }
             Type.HD -> {
@@ -760,6 +760,7 @@ data class Element(
         const val zipFivePlusFourToken = "\$zipFivePlusFour"
         const val usZipFormat = """^(\d{5})[- ]?(\d{4})?$"""
         const val zipDefaultFormat = zipFiveToken
+        const val rowAndColumnMessageToken = "[rows/columns]"
 
         fun csvFields(name: String, format: String? = null): List<CsvField> {
             return listOf(CsvField(name, format))

@@ -82,7 +82,7 @@ class CsvSerializer(val metadata: Metadata) {
                     if (row.size > REPORT_MAX_ITEM_COLUMNS) {
                         errors.add(
                             ResultDetail.report(
-                                "Number of columns (#cols) in your report exceeds the maximum of $REPORT_MAX_ITEMS allowed. Adjust the excess columnar data in your report."
+                                "Number of columns (#cols) in your report exceeds the maximum of $REPORT_MAX_ITEMS allowed. Adjust the dexcess columnar data in your report."
                             )
                         )
                         return@open
@@ -90,7 +90,7 @@ class CsvSerializer(val metadata: Metadata) {
                 }
             } catch (ex: CSVFieldNumDifferentException) {
                 errors.add(
-                    ResultDetail.report("Expecting [X number] columns, but found [Y number] in row ${ex.csvRowNum}.")
+                    ResultDetail.report("Expecting [${REPORT_MAX_ITEM_COLUMNS}] columns, but found [${rows.size}] in row ${ex.csvRowNum}.")
                 )
             } catch (ex: CSVParseFormatException) {
                 errors.add(
@@ -124,7 +124,7 @@ class CsvSerializer(val metadata: Metadata) {
         }
 
         val mappedRows = rows.mapIndexedNotNull { index, row ->
-            val result = mapRow(schema, csvMapping, row)
+            val result = mapRow(schema, csvMapping, row, index)
             val trackingColumn = schema.findElementColumn(schema.trackingElement ?: "")
             var trackingId = if (trackingColumn != null) result.row[trackingColumn] else ""
             if (trackingId.isEmpty())
@@ -292,25 +292,43 @@ class CsvSerializer(val metadata: Metadata) {
      *
      * Also, format values into the normalized format for the type
      */
-    private fun mapRow(schema: Schema, csvMapping: CsvMapping, inputRow: Map<String, String>): RowResult {
+    private fun mapRow(schema: Schema, csvMapping: CsvMapping, inputRow: Map<String, String>, rowIndex: Int): RowResult {
         val lookupValues = mutableMapOf<String, String>()
         val errors = mutableListOf<String>()
         val warnings = mutableListOf<String>()
         val placeholderValue = "**%%placeholder**"
         val failureValue = "**^^validationFail**"
 
-        fun useCsv(element: Element): String? {
+        fun useCsv(element: Element): String?
+        {
+            // Return null if element is not in the mapping
             val csvFields = csvMapping.useCsv[element.name] ?: return null
-            val subValues = csvFields.map {
+
+            val subValues = csvFields.map{
                 val value = inputRow.getValue(it.name)
                 Element.SubValue(it.name, value, it.format)
             }
-            for (subValue in subValues) {
+
+            for (subValue in subValues)
+            {
+                // Check if element is blank
                 if (subValue.value.isBlank()) {
                     return if (element.canBeBlank) "" else null
                 }
-                val error = element.checkForError(subValue.value, subValue.format)
-                if (error != null) {
+
+                // Check for format errors
+                var error = element.checkForError(subValue.value, subValue.format)
+
+                if (error != null)
+                {
+                    // String replace the [rows/columns] if present in the error string
+                    val matchIndex = error.indexOf(Element.rowAndColumnMessageToken, 0)
+
+                    if (matchIndex >= 0)
+                    {
+                        val replacedError = error.replace(Element.rowAndColumnMessageToken, "[row: ${rowIndex}/name: ${subValue.name}]")
+                        error = replacedError
+                    }
                     when (element.cardinality) {
                         Element.Cardinality.ONE -> errors += error
                         Element.Cardinality.ZERO_OR_ONE -> warnings += error
@@ -359,7 +377,7 @@ class CsvSerializer(val metadata: Metadata) {
             }
             if (value.isBlank() && !element.canBeBlank) {
                 when (element.cardinality) {
-                    Element.Cardinality.ONE -> errors += "This field cannot be empty in [rows/columns]. Enter a value."
+                    Element.Cardinality.ONE -> errors += "This field cannot be empty in [row: ${rowIndex}/name: ${element.name}]\". Enter a value."
                     Element.Cardinality.ZERO_OR_ONE -> {
                     }
                 }
