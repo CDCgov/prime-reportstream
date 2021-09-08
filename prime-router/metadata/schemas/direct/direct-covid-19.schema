@@ -153,8 +153,29 @@ elements:
     documentation: Expecting a CLIA number here.  eg, "10D2218834"
     csvFields: [{ name: performingFacility}]
 
+  - name: testing_lab_name
+    csvFields: [{ name: performingFacilityName}]
+
+  - name: testing_lab_street
+    csvFields: [{ name: performingFacilityStreet}]
+
+  - name: testing_lab_street2
+    csvFields: [{ name: performingFacilityStreet2}]
+
+  - name: testing_lab_city
+    csvFields: [{ name: performingFacilityCity}]
+
+  - name: testing_lab_state
+    csvFields: [{ name: performingFacilityState}]
+
   - name: testing_lab_zip_code
     csvFields: [{ name: performingFacilityZip}]
+
+  - name: testing_lab_county
+    csvFields: [{ name: performingFacilityCounty}]
+
+  - name: testing_lab_phone_number
+    csvFields: [{ name: performingFacilityPhone}]
 
   - name: specimen_type
     csvFields: [{ name: specimenSource}]
@@ -310,10 +331,34 @@ elements:
     documentation: Expecting an ISO heirarchic designator here. eg, "1265050918" (same value as in ordering_provider_npi).  Note that reporting_facility_text is also available as a field, if a name is needed.
     csvFields: [{ name: reportingFacility}]
 
+  - name: ordering_facility_name
+    csvFields: [{ name: orderingFacilityName}]
+
+  - name: ordering_facility_street
+    csvFields: [{ name: orderingFacilityStreet}]
+
+  - name: ordering_facility_street2
+    csvFields: [{ name: orderingFacilityStreet2}]
+
+  - name: ordering_facility_city
+    csvFields: [{ name: orderingFacilityCity}]
+
   - name: ordering_facility_state
     cardinality:  ZERO_OR_ONE
-    documentation:  Note that many states expect this field to be available, or ReportStream is not able rto route data to them.  Please provide if possible in order for us to route to as many states as possible.
+    documentation:  Note that many states expect this field to be available, or ReportStream is not able to route data to them.  Please provide if possible in order for us to route to as many states as possible.
     csvFields: [{ name: orderingFacilityState}]
+
+  - name: ordering_facility_zip_code
+    csvFields: [{ name: orderingFacilityZip}]
+
+  - name: ordering_facility_county
+    csvFields: [{ name: orderingFacilityCounty}]
+
+  - name: ordering_facility_phone_number
+    csvFields: [{ name: orderingFacilityPhone}]
+
+  - name: ordering_facility_email
+    csvFields: [{ name: orderingFacilityEmail}]
 
   # These fields are calculated
   - name: test_authorized_for_otc
