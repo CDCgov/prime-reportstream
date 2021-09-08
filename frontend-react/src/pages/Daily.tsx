@@ -46,6 +46,7 @@ const TableData = (props) => {
 };
 
 const ReportLink = (props) => {
+    console.log("From ReportLink: " + props.report)
 
     const handleClick = (e: any) => {
         e.preventDefault();
@@ -56,7 +57,7 @@ const ReportLink = (props) => {
     };
 
     return (
-        <a href="/" onClick={() => handleClick} className="usa-link">
+        <a href="/" onClick={handleClick} className="usa-link">
             {props.report !== undefined
                 ? props.report.fileType === "HL7_BATCH"
                     ? "HL7(BATCH)"
