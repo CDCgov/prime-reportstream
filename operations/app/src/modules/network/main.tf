@@ -27,10 +27,6 @@ module "subnet_addresses" {
       name     = "endpoint"
       new_bits = 3
     },
-    {
-      name     = "GatewaySubnet"
-      new_bits = 2
-    },
   ]
 }
 
