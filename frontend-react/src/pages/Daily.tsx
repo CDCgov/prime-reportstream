@@ -5,7 +5,9 @@ import OrganizationResource from "../resources/OrganizationResource";
 import { useOktaAuth } from "@okta/okta-react";
 import { groupToOrg } from "../webreceiver-utils";
 import download from "downloadjs";
-import { SpinnerCircular } from "spinners-react";
+import { getListOfSenders } from "../controllers/ReportController";
+import { ButtonGroup, Button } from "@trussworks/react-uswds"
+import { useState } from "react";
 
 
 const TableData = (props) => {
@@ -35,7 +37,7 @@ const TableData = (props) => {
                     </th>
                     <th scope="row">{report.total}</th>
                     <th scope="row">
-                        <ReportLink reportId={report.reportId} />
+                        <ReportLink report={report} />
                     </th>
                 </tr>
             ))}
@@ -43,38 +45,48 @@ const TableData = (props) => {
     );
 };
 
-const ReportLink = ({ reportId }) => {
-    let report = useResource(ReportResource.detail(), { reportId });
-
-    console.log(report);
+const ReportLink = (props) => {
 
     const handleClick = (e: any) => {
         e.preventDefault();
-        if (report !== undefined) {
-            console.log(report.content);
-            download(report.content, report.fileName, report.mimeType);
+        if (props.report !== undefined) {
+            console.log(props.report.content);
+            download(props.report.content, props.report.fileName, props.report.mimeType);
         }
     };
 
     return (
-        <a href="/" onClick={handleClick} className="usa-link">
-            {report !== undefined
-                ? report.fileType === "HL7_BATCH"
+        <a href="/" onClick={() => handleClick} className="usa-link">
+            {props.report !== undefined
+                ? props.report.fileType === "HL7_BATCH"
                     ? "HL7(BATCH)"
-                    : report.fileType
+                    : props.report.fileType
                 : ""}
         </a>
     );
 };
 
 const TableReports = ({ sortBy }: { sortBy?: string }) => {
-    const reports = useResource(ReportResource.list(), { sortBy });
+    const reports: ReportResource[] = useResource(ReportResource.list(), { sortBy });
+    const senders: string[] = Array.from(getListOfSenders(reports));
+    const [chosen, setChosen] = useState(senders[0])
+
+    // Returns the chosen state from <TableButtonGroup>
+    const handleCallback = (chosen) => {
+        setChosen(chosen)
+    }
 
     return (
         <section className="grid-container margin-top-5">
             <div className="grid-col-12">
                 <h2>Test results</h2>
-
+                {
+                    // Button group shows to switch between senders ONLY if there is more than one sender
+                    senders.length > 1 ?
+                        <TableButtonGroup senders={senders} chosenCallback={handleCallback} />
+                        :
+                        null
+                }
                 <table
                     className="usa-table usa-table--borderless prime-table"
                     summary="Previous results"
@@ -88,10 +100,10 @@ const TableReports = ({ sortBy }: { sortBy?: string }) => {
                             <th scope="col">File</th>
                         </tr>
                     </thead>
-                    <TableData reports={reports} />
+                    <TableData reports={reports.filter(report => report.sendingOrg === chosen)} />
                 </table>
                 {
-                    reports.length === 0 ?
+                    reports.filter(report => report.sendingOrg === chosen).length === 0 ?
                         <p>No results</p>
                         :
                         null
@@ -100,6 +112,34 @@ const TableReports = ({ sortBy }: { sortBy?: string }) => {
         </section>
     );
 };
+
+const TableButtonGroup = (props) => {
+
+    const senders: string[] = props.senders
+    const [chosen, setChosen] = useState(senders[0])
+
+    const handleClick = (id) => {
+        setChosen(id)
+        props.chosenCallback(id)
+    }
+
+    return (
+        <ButtonGroup type="segmented">
+            {
+                senders.map((val) => {
+                    return <Button
+                        key={val}
+                        id={val}
+                        onClick={() => handleClick(val)}
+                        type="button"
+                        outline={val != chosen}>
+                        {val}
+                    </Button>
+                })
+            }
+        </ButtonGroup>
+    )
+}
 
 const OrgName = () => {
     const { authState } = useOktaAuth();
