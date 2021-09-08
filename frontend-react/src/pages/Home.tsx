@@ -182,11 +182,13 @@ const LiveMapSection = ({ section }: { section: SectionProp }) => {
                 <p className="usa-intro margin-top-1 text-base">
                     {section.summary}
                 </p>
+
                 <div className="tablet:grid-col-10">
-                    <CdcMap config={live} />
+                    <CdcMap config={live} isEditor={false} />
                 </div>
+
                 <p
-                    className="usa-prose margin-top-2"
+                    className="usa-intro margin-top-1 text-base"
                     dangerouslySetInnerHTML={{ __html: section!.description! }}
                 ></p>
             </div>
@@ -226,7 +228,7 @@ export const Home = () => {
                             return (
                                 <>
                                     <div className="tablet:grid-col-6">
-                                        <h3 className="font-sans-lg padding-top-3 border-top-05 border-base-lighter">
+                                        <h3 className="font-sans-lg padding-top-3">
                                             <img
                                                 src={"/assets/" + item.icon}
                                                 alt="cdc logo"

@@ -5,7 +5,6 @@ import OrganizationResource from "../resources/OrganizationResource";
 import { useOktaAuth } from "@okta/okta-react";
 import { groupToOrg } from "../webreceiver-utils";
 import download from "downloadjs";
-import { SpinnerCircular } from "spinners-react";
 
 
 const TableData = (props) => {
