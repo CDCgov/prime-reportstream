@@ -76,6 +76,9 @@ class TokenAuthentication(val jtiCache: JtiCache) : Logging {
         } catch (e: IllegalArgumentException) {
             logErr(actionHistory, "Rejecting SenderToken JWT: $e")
             return false
+        } catch (e: NullPointerException) {
+            logErr(actionHistory, "Rejecting SenderToken JWT: $e")
+            return false
         }
     }
 
