@@ -46,7 +46,6 @@ const TableData = (props) => {
 };
 
 const ReportLink = (props) => {
-    console.log("From ReportLink: " + props.report)
 
     const handleClick = (e: any) => {
         e.preventDefault();
