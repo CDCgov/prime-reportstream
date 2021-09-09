@@ -9,7 +9,6 @@ import { getListOfSenders } from "../controllers/ReportController";
 import { ButtonGroup, Button } from "@trussworks/react-uswds"
 import { useState } from "react";
 
-
 const TableData = (props) => {
     return (
         <tbody id="tBody" className="font-mono-2xs">
