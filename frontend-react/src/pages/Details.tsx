@@ -3,30 +3,8 @@ import download from "downloadjs";
 import moment from "moment";
 import { useResource } from "rest-hooks";
 import ReportResource from "../resources/ReportResource";
+import ReportLink from "./Daily/Table/ReportLink";
 
-const ReportLink = ({ report }: { report: ReportResource | undefined }) => {
-    const handleClick = (e: { preventDefault: () => void }) => {
-        e.preventDefault();
-        if (report !== undefined) {
-            download(report.content, report.fileName, report.mimeType);
-        }
-    };
-
-    return (
-        <Button
-            type="button"
-            outline
-            onClick={handleClick}
-            className="usa-button usa-button--outline float-right"
-        >
-            {report !== undefined
-                ? report.fileType === "HL7_BATCH"
-                    ? "HL7(BATCH)"
-                    : report.fileType
-                : ""}
-        </Button>
-    );
-};
 const Summary = ({ report }: { report: ReportResource | undefined }) => {
     return (
         <section className="grid-container">
@@ -52,7 +30,7 @@ const Summary = ({ report }: { report: ReportResource | undefined }) => {
                     </li>
                 </ol>
             </nav>
-            <ReportLink report={report} />
+            <ReportLink report={report} button />
             <h3 className="margin-top-0 margin-bottom-4">
                 <p id="download" className="margin-top-0 margin-bottom-0">
                     Report:{" "}
