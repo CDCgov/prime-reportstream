@@ -189,7 +189,7 @@ unique id to track the usage of the message
 
 **Name**: Order_test_date
 
-**Type**: DATE
+**Type**: DATETIME
 
 **PII**: No
 
