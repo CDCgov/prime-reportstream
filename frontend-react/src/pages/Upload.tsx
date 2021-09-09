@@ -246,7 +246,7 @@ export const Upload = () => {
                     <ul>
                         {warnings.map((w, i) => {
                             return (<li key={i}>
-                                {w['id'] && (<span>{w['id']}: </span>)}{w['details']}
+                                {w['details']}
                             </li>);
                         })}
                     </ul>
