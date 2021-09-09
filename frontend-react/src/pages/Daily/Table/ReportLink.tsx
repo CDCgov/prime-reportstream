@@ -14,6 +14,11 @@ type Props = {
     button?: boolean
 }
 
+const formatFileType = (fileType: string) => {
+    if (fileType === "HL7_BATCH") return "HL7(BATCH)"
+    return fileType
+}
+
 /* 
     This element provides a download link on each row of the table and on the report
     details page
@@ -28,12 +33,16 @@ function ReportLink(props: Props) {
 
     if (!props.button) {
         return (
-            <a href="/" onClick={handleClick} className="usa-link">
-                {props.report !== undefined
-                    ? props.report.fileType === "HL7_BATCH"
-                        ? "HL7(BATCH)"
-                        : props.report.fileType
-                    : ""}
+            <a
+                href="/"
+                onClick={handleClick}
+                className="usa-link">
+                {
+                    props.report !== undefined ?
+                        formatFileType(props.report.fileType)
+                        :
+                        ""
+                }
             </a>
         );
     } else {
@@ -44,11 +53,12 @@ function ReportLink(props: Props) {
                 onClick={handleClick}
                 className="usa-button usa-button--outline float-right"
             >
-                {props.report !== undefined
-                    ? props.report.fileType === "HL7_BATCH"
-                        ? "HL7(BATCH)"
-                        : props.report.fileType
-                    : ""}
+                {
+                    props.report !== undefined ?
+                        formatFileType(props.report.fileType)
+                        :
+                        ""
+                }
             </Button>
         );
     }

@@ -3,7 +3,7 @@ import { Home } from "./pages/Home";
 import { ReportStreamFooter } from "./components/ReportStreamFooter";
 import Daily from "./pages/Daily/Daily";
 import { HowItWorks } from "./pages/HowItWorks";
-import { Details } from "./pages/Details";
+import { Details } from "./pages/Details/Details";
 import { Login } from "./pages/Login";
 import { TermsOfService } from "./pages/TermsOfService";
 import { GovBanner } from "@trussworks/react-uswds";
