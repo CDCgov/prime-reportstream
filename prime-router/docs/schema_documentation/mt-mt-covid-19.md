@@ -528,7 +528,7 @@ Z|No record of this patient
 
 **Name**: order_test_date
 
-**Type**: DATE
+**Type**: DATETIME
 
 **PII**: No
 

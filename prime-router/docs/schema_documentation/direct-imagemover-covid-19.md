@@ -711,7 +711,7 @@ ReportStream copies value from the specimenId if none is provided by the sender.
 
 **Name**: testOrderedDate
 
-**Type**: DATE
+**Type**: DATETIME
 
 **PII**: No
 
