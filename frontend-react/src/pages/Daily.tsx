@@ -130,7 +130,7 @@ const TableButtonGroup = (props) => {
                         id={val}
                         onClick={() => handleClick(val)}
                         type="button"
-                        outline={val != chosen}>
+                        outline={val !== chosen}>
                         {val}
                     </Button>
                 })
