@@ -114,12 +114,8 @@ class ReportFunction : Logging {
         val sender = workflowEngine.settings.findSender(senderName)
             ?: return HttpUtilities.bad(request, "'$CLIENT_PARAMETER:$senderName': unknown sender")
         if (authenticationStrategy is OktaAuthentication) {
-            // The oktaSenderName is the same as the sender.fullName, but with dashes instead of underscores.
-            // later, in the Okta Verifier,
-            // the dashes in the oktaSenderName are turned into underscores to match the Okta Organization naming scheme
-            val oktaSenderName = sender.fullName.replace('_', '-')
             // The report is coming from a sender that is using Okta, so set "oktaSender" to true
-            return authenticationStrategy.checkAccess(request, oktaSenderName, true) {
+            return authenticationStrategy.checkAccess(request, senderName, true) {
                 return@checkAccess ingestReport(request, context)
             }
         }

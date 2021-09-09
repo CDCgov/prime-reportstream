@@ -211,7 +211,7 @@ unique id to track the usage of the message
 
 **Name**: testOrderedDate
 
-**Type**: DATE
+**Type**: DATETIME
 
 **PII**: No
 

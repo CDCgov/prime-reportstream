@@ -16,6 +16,7 @@ import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.ElementAndValue
 import gov.cdc.prime.router.Hl7Configuration
+import gov.cdc.prime.router.LookupTable
 import gov.cdc.prime.router.Mapper
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
@@ -447,6 +448,7 @@ class Hl7Serializer(
         val replaceValue = hl7Config?.replaceValue ?: emptyMap()
         val suppressQst = hl7Config?.suppressQstForAoe ?: false
         val suppressAoe = hl7Config?.suppressAoe ?: false
+        val useNCESFacilityName = hl7Config?.useNCESFacilityName ?: false
 
         // and we have some fields to suppress
         val suppressedFields = hl7Config
@@ -533,6 +535,9 @@ class Hl7Serializer(
                         setAOE(terser, element, aoeSequence++, date, "UNK", report, row, suppressQst = suppressQst)
                     }
                 }
+            } else if (element.hl7Field == "ORC-21-1") {
+                val ncesId = if (useNCESFacilityName) getSchoolId(report, row, rawFacilityName = value) else null
+                setOrderingFacilityComponent(terser, rawFacilityName = value, ncesId)
             } else if (element.hl7Field == "NTE-3") {
                 setNote(terser, value)
             } else if (element.hl7Field == "MSH-7") {
@@ -636,6 +641,82 @@ class Hl7Serializer(
                 }
             }
         }
+    }
+
+
+    /**
+     * Lookup the NCES id if the site_type is a k12 school
+     */
+    internal fun getSchoolId(report: Report, row: Int, rawFacilityName: String): String? {
+        // This code only works on the COVID-19 schema or its extensions
+        if (!report.schema.containsElement("ordering_facility_name")) return null
+        // This recommendation only applies to k-12 schools
+        if (report.getString(row, "site_of_care") != "k12") return null
+
+        // NCES lookup is based on school name and zip code
+        val zipCode = report.getString(row, "ordering_facility_zip_code", 5) ?: ""
+        return ncesLookupTable.value.lookupBestMatch(
+            lookupColumn = "NCESID",
+            searchColumn = "SCHNAME",
+            searchValue = rawFacilityName,
+            filterColumn = "LZIP",
+            filterValue = zipCode,
+            canonicalize = { canonicalizeSchoolName(it) },
+            commonWords = listOf("ELEMENTARY", "JUNIOR", "HIGH", "MIDDLE")
+        )
+    }
+
+    /**
+     * If [ncesId] is not null, set the [terser]'s ORC-21 in accordance to APHL guidance using the [rawFacilityName]
+     * and [ncesId] value. If [ncesId] is null, just set ORC-21 with the [rawFacilityName].
+     */
+    internal fun setOrderingFacilityComponent(
+        terser: Terser,
+        rawFacilityName: String,
+        ncesId: String?
+    ) {
+        if (ncesId == null) {
+            // No NCES id, just truncate the name to required 50
+            terser.set(formPathSpec("ORC-21-1"), rawFacilityName.trim().take(50))
+            return
+        }
+
+        // Implement APHL guidance for ORC-21 when NCES is known
+        val facilityName = "${rawFacilityName.trim().take(32)}$NCES_EXTENSION$ncesId"
+        terser.set(formPathSpec("ORC-21-1"), facilityName)
+        terser.set(formPathSpec("ORC-21-6-1"), "NCES.IES")
+        terser.set(formPathSpec("ORC-21-6-2"), "2.16.840.1.113883.3.8589.4.1.119")
+        terser.set(formPathSpec("ORC-21-6-3"), "ISO")
+        terser.set(formPathSpec("ORC-21-7"), "XX")
+        terser.set(formPathSpec("ORC-21-10"), ncesId)
+    }
+
+    /**
+     * Prepare the string for matching by throwing away non-searchable characters and spacing
+     */
+    internal fun canonicalizeSchoolName(schoolName: String): String {
+        val normalizeSchoolType = schoolName
+            .uppercase()
+            .replace("SCHOOL", "")
+            .replace("(H)", "HIGH")
+            .replace("(M)", "MIDDLE")
+            .replace("K-8", "K8")
+            .replace("K-12", "K12")
+            .replace("\\(E\\)|ELEM\\.|EL\\.".toRegex(), "ELEMENTARY")
+            .replace("ELEM\\s|ELEM$".toRegex(), "ELEMENTARY ")
+            .replace("SR HIGH", "SENIOR HIGH")
+            .replace("JR HIGH", "JUNIOR HIGH")
+
+        val possesive = normalizeSchoolType
+            .replace("\'S", "S")
+        val onlyLettersAndSpaces = possesive
+            .replace("[^A-Z0-9\\s]".toRegex(), " ")
+
+        // Throw away single letter words
+        return onlyLettersAndSpaces
+            .split(" ")
+            .filter { it.length > 1 }
+            .joinToString(" ")
     }
 
     private fun setComponentForTable(
@@ -1296,6 +1377,7 @@ class Hl7Serializer(
         const val MESSAGE_TRIGGER_EVENT = "R01"
         const val SOFTWARE_VENDOR_ORGANIZATION: String = "Centers for Disease Control and Prevention"
         const val SOFTWARE_PRODUCT_NAME: String = "PRIME ReportStream"
+        const val NCES_EXTENSION = "_NCES_"
         const val OBX_18_EQUIPMENT_UID_OID: String = "2.16.840.1.113883.3.3719"
 
         /*
@@ -1328,5 +1410,10 @@ class Hl7Serializer(
          * List of fields that have a CE type
          */
         val CE_FIELDS = listOf("OBX-15-1")
+
+        // Do a lazy init because this table may never be used and it is large
+        val ncesLookupTable = lazy {
+            LookupTable.read("./metadata/tables/nces_id.csv")
+        }
     }
 }
