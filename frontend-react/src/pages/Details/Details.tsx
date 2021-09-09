@@ -4,10 +4,6 @@ import Summary from "./Summary"
 import ReportDetails from './ReportDetails'
 import FacilitiesTable from './FacilitiesTable'
 
-type Props = {
-    report: ReportResource | undefined
-}
-
 function useQuery() {
     let query = window.location.search.slice(1);
     const queryMap = {};
