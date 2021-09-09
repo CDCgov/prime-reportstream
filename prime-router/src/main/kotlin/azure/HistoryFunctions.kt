@@ -247,6 +247,7 @@ open class BaseHistoryFunction : Logging {
                     .actions(actions)
                     .receivingOrg(it.receivingOrg)
                     .receivingOrgSvc(externalOrgName ?: it.receivingOrgSvc)
+                    .sendingOrg(it.sendingOrg ?: "")
                     .displayName(if (it.externalName.isNullOrBlank()) it.receivingOrgSvc else it.externalName)
                     .content(content) // don't get the content for now. that can get beefy
                     .fileName(filename)
