@@ -1,7 +1,7 @@
 import { IconName } from "@fortawesome/fontawesome-svg-core";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import DeliveryMethodsFeature from "./DeliveryMethodsFeature";
-import { FeatureProp, SectionProp } from "../Interfaces";
+import { FeatureProp, SectionProp } from "../HomeProps";
 import LiveMapFeature from "./LiveMapFeature";
 
 export default function Feature({
@@ -12,9 +12,9 @@ export default function Feature({
     feature: FeatureProp;
 }) {
     if (section.type === "deliveryMethods") {
-        return <DeliveryMethodsFeature section={section} feature={feature} />;
+        return <DeliveryMethodsFeature feature={feature} />;
     } else if (section.type === "liveMap") {
-        return <LiveMapFeature section={section} feature={feature} />;
+        return <LiveMapFeature feature={feature} />;
     } else
         return (
             <div className="tablet:grid-col-4 margin-bottom-0">

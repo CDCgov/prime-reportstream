@@ -1,6 +1,6 @@
 import ReportResource from '../../resources/ReportResource';
 
-type Props = {
+interface Props {
     /* REQUIRED
     Passing in a report allows this component to map through the facilities property
     to display a row per facility on the FaclitiesTable. */

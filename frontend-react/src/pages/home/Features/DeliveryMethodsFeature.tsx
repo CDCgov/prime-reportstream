@@ -1,15 +1,10 @@
 import { IconName } from "@fortawesome/fontawesome-svg-core";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { FeatureProp, SectionProp } from "../Interfaces";
+import { FeatureProp } from "../HomeProps";
 import site from "../../../content/site.json";
 
-export default function DeliveryMethodsFeature({
-    section,
-    feature,
-}: {
-    section: SectionProp;
-    feature: FeatureProp;
-}) {
+export default function DeliveryMethodsFeature({ feature }: { feature: FeatureProp }) {
+
     return (
         <div className="grid-col-12 margin-bottom-3">
             <div className="grid-row grid-gap display-flex flex-row flex-align-top">

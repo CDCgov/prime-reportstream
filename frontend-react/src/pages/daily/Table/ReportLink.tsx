@@ -2,7 +2,7 @@ import download from "downloadjs";
 import ReportResource from "../../../resources/ReportResource";
 import { Button } from "@trussworks/react-uswds";
 
-type Props = {
+interface Props {
     /* REQURIED
     A ReportResource is passed in using this property. This is necessary for download()
     since that function relies on the content, fileName, and mimeType properties */

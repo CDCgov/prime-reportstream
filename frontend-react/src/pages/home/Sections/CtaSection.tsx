@@ -1,4 +1,4 @@
-import { SectionProp } from "../Interfaces";
+import { SectionProp } from "../HomeProps";
 import site from "../../../content/site.json";
 
 

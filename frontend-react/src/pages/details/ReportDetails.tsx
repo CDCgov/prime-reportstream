@@ -1,7 +1,7 @@
 import moment from 'moment'
 import ReportResource from '../../resources/ReportResource'
 
-type Props = {
+interface Props {
     /* REQUIRED
     Passing in a report allows this component to extract key properties (type, sent,
     total, and expires) and display them on the Details page. */

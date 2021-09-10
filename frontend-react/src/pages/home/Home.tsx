@@ -5,11 +5,19 @@ import Hero from './Hero'
 import Section from "./Sections/Section";
 import Feature from "./Features/Feature";
 
+/* INFO
+   to change any of the content rendered by Home.tsx, Ctrl+click (shortcut for VScode) on the content import above 
+   to be taken to content.json. There you may make changes within each object held in the section and freeSecure arrays. No
+   content is hard-coded in this file. */
 export const Home = () => {
     library.add(fas);
     return (
         <>
             <Hero />
+
+            {/* INFO
+                this block of code maps through the section array in content.json to render all section
+                and the features held in the feature array of each section. */}
             <div className="grid-container">
                 {content.sections.map((section) => {
                     return (
@@ -31,6 +39,9 @@ export const Home = () => {
                     );
                 })}
 
+                {/* INFO
+                    this block of code, similar to the one above, maps through the freeSecure array in content.json to
+                    render out all its contents. */}
                 <section className="usa-section">
                     <div className="grid-row grid-gap  margin-bottom-4 padding-top-0">
                         {content.freeSecure.map((item) => {

@@ -1,12 +1,6 @@
-import { FeatureProp, SectionProp } from "../Interfaces";
+import { FeatureProp } from "../HomeProps";
 
-export default function LiveMapFeature({
-    section,
-    feature,
-}: {
-    section: SectionProp;
-    feature: FeatureProp;
-}) {
+export default function LiveMapFeature({ feature }: { feature: FeatureProp }) {
     return (
         <>
             <div className="tablet:grid-col-4 margin-bottom-0">

@@ -1,7 +1,7 @@
-import ReportLink from "../Daily/Table/ReportLink";
+import ReportLink from "../daily/Table/ReportLink";
 import ReportResource from '../../resources/ReportResource'
 
-type Props = {
+interface Props {
     /* REQUIRED
     Passing in a report allows this component to extract key properties (id) 
     and display them on the Details page. */

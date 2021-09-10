@@ -1,3 +1,8 @@
+
+/* INFO
+   this interface is structured to provide typing to sections passed into components as
+   props in Home.tsx and its subcomponents. Content that fits this model can be found in
+   content/content.json */
 export interface SectionProp {
     title?: string;
     type?: string;
@@ -9,6 +14,10 @@ export interface SectionProp {
     buttonUrlSubject?: string;
 }
 
+/* INFO
+   this interface is structured to provide typing to features passed into components as
+   props in Home.tsx and its subcomponents. Content that fits this model can be found in
+   content/content.json */
 export interface FeatureProp {
     method?: number;
     title?: string;

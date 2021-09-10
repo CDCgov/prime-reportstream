@@ -1,5 +1,5 @@
 import CtaSection from "./CtaSection";
-import { SectionProp } from "../Interfaces";
+import { SectionProp } from "../HomeProps";
 import LiveMapSection from "./LiveMapSection";
 
 

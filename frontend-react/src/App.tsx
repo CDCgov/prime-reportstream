@@ -1,9 +1,9 @@
 import "./App.css";
-import { Home } from "./pages/Home/Home";
+import { Home } from "./pages/home/Home";
 import { ReportStreamFooter } from "./components/ReportStreamFooter";
-import Daily from "./pages/Daily/Daily";
-import { HowItWorks } from "./pages/HowItWorks";
-import { Details } from "./pages/Details/Details";
+import Daily from "./pages/daily/Daily";
+import { HowItWorks } from "./pages/how-it-works/HowItWorks";
+import { Details } from "./pages/details/Details";
 import { Login } from "./pages/Login";
 import { TermsOfService } from "./pages/TermsOfService";
 import { GovBanner } from "@trussworks/react-uswds";

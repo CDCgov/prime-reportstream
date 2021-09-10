@@ -1,4 +1,4 @@
-import { SectionProp } from "../Interfaces";
+import { SectionProp } from "../HomeProps";
 import CdcMap from "@cdc/map";
 import live from "../../../content/live.json";
 
