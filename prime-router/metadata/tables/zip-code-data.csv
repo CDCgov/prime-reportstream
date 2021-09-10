@@ -8,6 +8,8 @@ state_fips,state,state_abbr,zipcode,county,city
 1,Alabama,AL,35016,Marshall,Arab
 1,Alabama,AL,35019,Cullman,Baileyton
 1,Alabama,AL,35020,Jefferson,Bessemer
+1,Alabama,AL,35021,Jefferson,Bessemer
+1,Alabama,AL,35022,Jefferson,Bessemer
 1,Alabama,AL,35023,Jefferson,Hueytown
 1,Alabama,AL,35031,Blount,Blountsville
 1,Alabama,AL,35033,Cullman,Bremen
@@ -111,7 +113,7 @@ state_fips,state,state_abbr,zipcode,county,city
 1,Alabama,AL,35222,Jefferson,Birmingham
 1,Alabama,AL,35223,Jefferson,Mountain brook
 1,Alabama,AL,35224,Jefferson,Birmingham
-1,Alabama,AL,35226,Jefferson,Bluff park
+1,Alabama,AL,35226,Jefferson,Birmingham
 1,Alabama,AL,35228,Jefferson,Midfield
 1,Alabama,AL,35233,Jefferson,Birmingham
 1,Alabama,AL,35234,Jefferson,Birmingham
@@ -395,7 +397,10 @@ state_fips,state,state_abbr,zipcode,county,city
 1,Alabama,AL,36279,Calhoun,Wellington
 1,Alabama,AL,36280,Randolph,Woodland
 1,Alabama,AL,36301,Houston,Taylor
+1,Alabama,AL,36302,Houston,Dothan
 1,Alabama,AL,36303,Houston,Napier field
+1,Alabama,AL,36304,Houston,Dothan
+1,Alabama,AL,36305,Houston,Dothan
 1,Alabama,AL,36310,Henry,Abbeville
 1,Alabama,AL,36311,Dale,Ariton
 1,Alabama,AL,36312,Houston,Ashford
@@ -484,6 +489,7 @@ state_fips,state,state_abbr,zipcode,county,city
 1,Alabama,AL,36542,Baldwin,Fort morgan
 1,Alabama,AL,36544,Mobile,Irvington
 1,Alabama,AL,36545,Clarke,Jackson
+1,Alabama,AL,36547,Baldwin,Gulf Shores
 1,Alabama,AL,36548,Washington,Leroy
 1,Alabama,AL,36549,Baldwin,Lillian
 1,Alabama,AL,36550,Baldwin,Little river
@@ -514,6 +520,7 @@ state_fips,state,state_abbr,zipcode,county,city
 1,Alabama,AL,36584,Washington,Vinegar bend
 1,Alabama,AL,36585,Washington,Wagarville
 1,Alabama,AL,36587,Mobile,Wilmer
+1,Alabama,AL,36590,Mobile,Theodore
 1,Alabama,AL,36601,Mobile,Mobile
 1,Alabama,AL,36602,Mobile,Mobile
 1,Alabama,AL,36603,Mobile,Mobile
@@ -532,7 +539,14 @@ state_fips,state,state_abbr,zipcode,county,city
 1,Alabama,AL,36617,Mobile,Mobile
 1,Alabama,AL,36618,Mobile,Mobile
 1,Alabama,AL,36619,Mobile,Mobile
+1,Alabama,AL,36625,Mobile,Mobile
+1,Alabama,AL,36630,Mobile,Mobile
+1,Alabama,AL,36633,Mobile,Mobile
 1,Alabama,AL,36652,Mobile,Mobile
+1,Alabama,AL,36660,Mobile,Mobile
+1,Alabama,AL,36670,Mobile,Mobile
+1,Alabama,AL,36671,Mobile,Mobile
+1,Alabama,AL,36675,Mobile,Mobile
 1,Alabama,AL,36685,Mobile,Mobile
 1,Alabama,AL,36688,Mobile,Mobile
 1,Alabama,AL,36689,Mobile,Mobile
@@ -5162,6 +5176,11 @@ state_fips,state,state_abbr,zipcode,county,city
 12,Florida,FL,34996,Martin,Stuart
 12,Florida,FL,34997,Martin,Stuart
 13,Georgia,GA,30002,DeKalb,Avondale estates
+13,Georgia,GA,30010,Gwinnett,Norcross
+13,Georgia,GA,30011,Barrow,Auburn
+13,Georgia,GA,30012,Rockdale,Conyers
+13,Georgia,GA,30015,Newton,Covington
+13,Georgia,GA,30016,Newton,Covington
 13,Georgia,GA,30021,DeKalb,Clarkston
 13,Georgia,GA,30030,DeKalb,Decatur
 13,Georgia,GA,30032,DeKalb,Decatur
@@ -31556,6 +31575,12 @@ state_fips,state,state_abbr,zipcode,county,city
 14,Guam,GU,96910,Guam,Hagatna
 14,Guam,GU,96932,Guam,Hagatna
 14,Guam,GU,96929,Guam,Yigo
+72,Puerto Rico,PR,00674,Manati,Manati
 72,Puerto Rico,PR,00678,Quebradillas,Quebradillas
 72,Puerto Rico,PR,00965,Guaynabo,Guaynabo
+72,Puerto Rico,PR,00979,Carolina,Carolina
+78,Virgin Islands,VI,00803,Saint Thomas,Saint Thomas
 78,Virgin Islands,VI,00824,Saint Croix,Christiansted
+,AE,AE,09012,AE,AE
+,AE,AE,09366,AE,AE
+,AP,AP,96251,AP,AP
