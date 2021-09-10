@@ -190,6 +190,11 @@ class ProcessData : CliktCommand(
         help = "the receiving facility"
     )
 
+    /**
+     * A list of generated output files.
+     */
+    val outputReportFiles = mutableListOf<String>()
+
     private fun mergeReports(
         metadata: Metadata,
         settings: SettingsProvider,
@@ -298,6 +303,7 @@ class ProcessData : CliktCommand(
                     )
                     File(outputDir ?: ".", fileName)
                 }
+                outputReportFiles.add(outputFile.absolutePath)
                 echo(outputFile.absolutePath)
                 if (!outputFile.exists()) {
                     outputFile.createNewFile()
