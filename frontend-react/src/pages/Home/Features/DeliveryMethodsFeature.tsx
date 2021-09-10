@@ -1,0 +1,37 @@
+import { IconName } from "@fortawesome/fontawesome-svg-core";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { FeatureProp, SectionProp } from "../Interfaces";
+import site from "../../../content/site.json";
+
+export default function DeliveryMethodsFeature({
+    section,
+    feature,
+}: {
+    section: SectionProp;
+    feature: FeatureProp;
+}) {
+    return (
+        <div className="grid-col-12 margin-bottom-3">
+            <div className="grid-row grid-gap display-flex flex-row flex-align-top">
+                <div className="tablet:grid-col-6">
+                    <img
+                        src={site.imgPath + feature.img}
+                        alt="{ feature.imgAlt }"
+                    />
+                </div>
+                <div className="tablet:grid-col-6 ">
+                    <h3 className="font-sans-lg margin-top-0 padding-top-3 margin-bottom-1 tablet:border-top-05 tablet:border-base-lighter">
+                        <FontAwesomeIcon
+                            icon={feature.icon as IconName}
+                            color="#005EA2"
+                            className="margin-right-1"
+                        />
+                        {feature.title}
+                    </h3>
+                    <p className="usa-prose">{feature!.items![0]?.summary}</p>
+                    <p className="usa-prose">{feature!.items![1]?.summary}</p>
+                </div>
+            </div>
+        </div>
+    );
+};

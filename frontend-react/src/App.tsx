@@ -1,5 +1,5 @@
 import "./App.css";
-import { Home } from "./pages/Home";
+import { Home } from "./pages/Home/Home";
 import { ReportStreamFooter } from "./components/ReportStreamFooter";
 import Daily from "./pages/Daily/Daily";
 import { HowItWorks } from "./pages/HowItWorks";
