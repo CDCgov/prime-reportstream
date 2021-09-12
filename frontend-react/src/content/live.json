@@ -1,124 +1,198 @@
 {
-    "general": {
-        "territoriesLabel": "Territories:  ",
-        "type": "data",
-        "geoType": "us",
-        "headerColor": "theme-blue",
-        "showSidebar": false,
-        "showTitle": false,
-        "geoBorderColor": "sameAsBackground",
-        "showDownloadButton": false,
-        "expandDataTable": false,
-        "showDownloadMediaButton": false,
-        "displayAsHex": false,
-        "displayStateLabels": true,
-        "language": "en",
-        "hasRegions": false,
-        "fullBorder": false
+  "general": {
+    "territoriesLabel": "Territories:  ",
+    "type": "data",
+    "geoType": "us",
+    "headerColor": "theme-blue",
+    "showSidebar": false,
+    "showTitle": false,
+    "geoBorderColor": "sameAsBackground",
+    "showDownloadButton": false,
+    "expandDataTable": false,
+    "showDownloadMediaButton": false,
+    "displayAsHex": false,
+    "displayStateLabels": true,
+    "language": "en",
+    "hasRegions": false,
+    "fullBorder": false
+  },
+  "type": "map",
+  "color": "greenbluereverse",
+  "columns": {
+    "geo": {
+      "name": "state",
+      "label": "Location",
+      "tooltip": false,
+      "dataTable": false
     },
-    "type": "map",
-    "color": "greenbluereverse",
-    "columns": {
-        "geo": {
-            "name": "state",
-            "label": "Location",
-            "tooltip": false,
-            "dataTable": false
-        },
-        "primary": {
-            "name": "Handled",
-            "label": "Data Label",
-            "dataTable": false,
-            "tooltip": false
-        }
+    "primary": {
+      "name": "status",
+      "label": "Data Label",
+      "dataTable": false,
+      "tooltip": false,
+      "prefix": "",
+      "suffix": ""
     },
-    "legend": {
-        "descriptions": {},
-        "specialClasses": [],
-        "unified": false,
-        "singleColumn": false,
-        "dynamicDescription": false,
-        "type": "category",
-        "position": "side",
-        "title": ""
+    "navigate": {
+      "name": ""
     },
-    "filters": [],
-    "dataTable": {
-        "forceDisplay": false,
-        "title": "Data Table"
+    "additionalColumn1": {
+      "label": "New Column",
+      "dataTable": false,
+      "tooltips": false,
+      "prefix": "",
+      "suffix": ""
+    }
+  },
+  "legend": {
+    "descriptions": {},
+    "specialClasses": [],
+    "unified": false,
+    "singleColumn": true,
+    "dynamicDescription": false,
+    "type": "category",
+    "position": "side",
+    "title": "ReportStream Connections",
+    "numberOfItems": 3
+  },
+  "filters": [],
+  "dataTable": {
+    "forceDisplay": false,
+    "title": "Data Table"
+  },
+  "tooltips": {
+    "appearanceType": "hover",
+    "linkLabel": "Learn More",
+    "capitalizeLabels": true
+  },
+  "data": [
+    {
+      "status": "Live",
+      "state": "Alabama"
     },
-    "data": [
-        {
-            "Handled": 1,
-            "state": "Alabama"
-        },
-        {
-            "Handled": 1,
-            "state": "Arizona"
-        },
-        {
-            "Handled": 1,
-            "state": "Colorado"
-        },
-        {
-            "Handled": 1,
-            "state": "Florida"
-        },
-        {
-            "Handled": 1,
-            "state": "Guam"
-        },
-        {
-            "Handled": 1,
-            "state": "Louisiana"
-        },
-        {
-            "Handled": 1,
-            "state": "Maryland"
-        },
-        {
-            "Handled": 1,
-            "state": "Massachusetts"
-        },
-        {
-            "Handled": 1,
-            "state": "Mississippi"
-        },
-        {
-            "Handled": 1,
-            "state": "New Mexico"
-        },
-        {
-            "Handled": 1,
-            "state": "North Dakota"
-        },
-        {
-            "Handled": 1,
-            "state": "Ohio"
-        },
-        {
-            "Handled": 1,
-            "state": "Pennsylvania"
-        },
-        {
-            "Handled": 1,
-            "state": "Texas"
-        },
-        {
-            "Handled": 1,
-            "state": "Vermont"
-        },
-        {
-            "Handled": 1,
-            "state": "California"
-        },
-        {
-            "Handled": 1,
-            "state": "Montana"
-        },
-        {
-            "Handled": 1,
-            "state": "Minnesota"
-        }
-    ]
+    {
+      "status": "Live",
+      "state": "Arizona"
+    },
+    {
+      "status": "Live",
+      "state": "California"
+    },
+    {
+      "status": "Live",
+      "state": "Colorado"
+    },
+    {
+      "status": "Live",
+      "state": "Florida"
+    },
+    {
+      "status": "Live",
+      "state": "Guam"
+    },
+    {
+      "status": "Live",
+      "state": "Louisiana"
+    },
+    {
+      "status": "Live",
+      "state": "Maryland"
+    },
+    {
+      "status": "Live",
+      "state": "Massachusetts"
+    },
+    {
+      "status": "Live",
+      "state": "Minnesota"
+    },
+    {
+      "status": "Live",
+      "state": "Mississippi"
+    },
+    {
+      "status": "Live",
+      "state": "Montana"
+    },
+    {
+      "status": "Live",
+      "state": "New Jersey"
+    },
+    {
+      "status": "Live",
+      "state": "New Mexico"
+    },
+    {
+      "status": "Live",
+      "state": "North Dakota"
+    },
+    {
+      "status": "Live",
+      "state": "Ohio"
+    },
+    {
+      "status": "Live",
+      "state": "Pennsylvania"
+    },
+    {
+      "status": "Live",
+      "state": "Texas"
+    },
+    {
+      "status": "Live",
+      "state": "Vermont"
+    },
+    {
+      "status": "Live",
+      "state": "Washington"
+    },
+    {
+      "status": "Live",
+      "state": "Wyoming"
+    },
+    {
+      "status": "Building",
+      "state": "Oregon"
+    },
+    {
+      "status": "Building",
+      "state": "Alaska"
+    },
+    {
+      "status": "Building",
+      "state": "Wisconsin"
+    },
+    {
+      "status": "Building",
+      "state": "Illinois"
+    },
+    {
+      "status": "Building",
+      "state": "Tennessee"
+    },
+    {
+      "status": "Building",
+      "state": "North Carolina"
+    },
+    {
+      "status": "Building",
+      "state": "Deleware"
+    },
+    {
+      "status": "Building",
+      "state": "New York"
+    },
+    {
+      "status": "Building",
+      "state": "New Jersey"
+    },
+    {
+      "status": "Building",
+      "state": "Connecticut"
+    },
+    {
+      "status": "Building",
+      "state": "New Hampshire"
+    }
+  ]
 }
