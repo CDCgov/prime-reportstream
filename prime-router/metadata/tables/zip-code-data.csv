@@ -356,6 +356,7 @@ state_fips,state,state_abbr,zipcode,county,city
 1,Alabama,AL,36089,Bullock,Union springs
 1,Alabama,AL,36091,Chilton,Verbena
 1,Alabama,AL,36092,Elmore,Wetumpka
+1,Alabama,AL,36093,Elmore,Wetumpka
 1,Alabama,AL,36104,Montgomery,Montgomery
 1,Alabama,AL,36105,Montgomery,Montgomery
 1,Alabama,AL,36106,Montgomery,Montgomery
@@ -544,6 +545,7 @@ state_fips,state,state_abbr,zipcode,county,city
 1,Alabama,AL,36633,Mobile,Mobile
 1,Alabama,AL,36652,Mobile,Mobile
 1,Alabama,AL,36660,Mobile,Mobile
+1,Alabama,AL,36663,Mobile,Mobile
 1,Alabama,AL,36670,Mobile,Mobile
 1,Alabama,AL,36671,Mobile,Mobile
 1,Alabama,AL,36675,Mobile,Mobile
@@ -1740,6 +1742,8 @@ state_fips,state,state_abbr,zipcode,county,city
 5,Arkansas,AR,72752,Madison,Pettigrew
 5,Arkansas,AR,72753,Washington,Prairie grove
 5,Arkansas,AR,72756,Benton,Rogers
+5,Arkansas,AR,72757,Benton,Rogers
+5,Arkansas,AR,72758,Benton,Rogers
 5,Arkansas,AR,72760,Madison,Saint paul
 5,Arkansas,AR,72761,Benton,Siloam springs
 5,Arkansas,AR,72762,Washington,Springdale
@@ -4490,6 +4494,7 @@ state_fips,state,state_abbr,zipcode,county,city
 12,Florida,FL,32507,Escambia,Pensacola
 12,Florida,FL,32508,Escambia,Pensacola
 12,Florida,FL,32514,Escambia,Pensacola
+12,Florida,FL,32516,Escambia,Pensacola
 12,Florida,FL,32526,Escambia,Pensacola
 12,Florida,FL,32531,Okaloosa,Baker
 12,Florida,FL,32533,Escambia,Cantonment
@@ -5222,8 +5227,12 @@ state_fips,state,state_abbr,zipcode,county,city
 13,Georgia,GA,30116,Carroll,Carrollton
 13,Georgia,GA,30117,Carroll,Carrollton
 13,Georgia,GA,30120,Bartow,Cartersville
+13,Georgia,GA,30121,Bartow,Cartersville
+13,Georgia,GA,30122,Douglas,Lithia Springs
 13,Georgia,GA,30124,Floyd,Cave spring
 13,Georgia,GA,30125,Polk,Cedartown
+13,Georgia,GA,30126,Cobb,Mableton
+13,Georgia,GA,30127,Cobb,Powder Springs
 13,Georgia,GA,30132,Paulding,Dallas
 13,Georgia,GA,30134,Douglas,Douglasville
 13,Georgia,GA,30135,Douglas,Douglasville
@@ -25913,7 +25922,9 @@ state_fips,state,state_abbr,zipcode,county,city
 47,Tennessee,TN,37923,Knox,Knoxville
 47,Tennessee,TN,37924,Knox,Knoxville
 47,Tennessee,TN,37931,Knox,Knoxville
-47,Tennessee,TN,37932,Knox,Concord farragut
+47,Tennessee,TN,37932,Knox,Knoxville
+47,Tennessee,TN,37933,Knox,Knoxville
+47,Tennessee,TN,37934,Knox,Farragut
 47,Tennessee,TN,37938,Knox,Knoxville
 47,Tennessee,TN,38001,Crockett,Alamo
 47,Tennessee,TN,38002,Shelby,Arlington
@@ -31583,4 +31594,5 @@ state_fips,state,state_abbr,zipcode,county,city
 78,Virgin Islands,VI,00824,Saint Croix,Christiansted
 ,AE,AE,09012,AE,AE
 ,AE,AE,09366,AE,AE
+,AP,AP,96319,AP,AP
 ,AP,AP,96251,AP,AP
