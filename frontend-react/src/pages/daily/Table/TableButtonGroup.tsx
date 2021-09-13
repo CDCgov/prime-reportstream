@@ -1,7 +1,7 @@
 import { ButtonGroup, Button } from '@trussworks/react-uswds'
 import { useState } from 'react'
 
-type Props = {
+interface Props {
     /* REQUIRED
     A list of senders gathered by calling getListOfSenders() */
     senders: string[]

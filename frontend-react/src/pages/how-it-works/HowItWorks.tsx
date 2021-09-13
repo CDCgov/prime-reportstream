@@ -1,11 +1,11 @@
 import { SideNav } from "@trussworks/react-uswds";
 import { NavLink, Route, Switch, useRouteMatch } from "react-router-dom";
-import { SecurityPractices } from "./how-it-works/SecurityPractices";
-import { ELRChecklist } from "./how-it-works/ElrChecklist";
-import { GettingStarted } from "./how-it-works/GettingStarted";
-import { WhereWereLive } from "./how-it-works/WhereWereLive";
-import { WebReceiverGuide } from "./how-it-works/WebReceiverGuide";
-import { SystemsAndSettings } from "./how-it-works/SystemsAndSettings";
+import { SecurityPractices } from "./SecurityPractices";
+import { ELRChecklist } from "./ElrChecklist";
+import { GettingStarted } from "./GettingStarted";
+import { WhereWereLive } from "./WhereWereLive";
+import { WebReceiverGuide } from "./WebReceiverGuide";
+import { SystemsAndSettings } from "./SystemsAndSettings";
 
 export const HowItWorks = () => {
     let { path, url } = useRouteMatch();
