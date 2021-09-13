@@ -14,6 +14,20 @@ import kotlin.test.fail
 
 /**
  * Test the translation of data and file naming convention as configured in /quicktests/schema-translations.csv.
+ * The configuration file has the following parameters:
+ *   Num Records - the number of fake records to generate
+ *   Input Schema - the schema to use for the fake records
+ *   Target state - (OPTIONAL) a target state for the data
+ *   Target county - (OPTIONAL) a target county for the data
+ *   Output format - the output format (CSV, HL7, HL7_BATCH)
+ *   Name format - (OPTIONAL) a filename name format
+ *   Recv organization - (OPTIONAL) a receiving organization for the fake data
+ *   Output filename pattern - The pattern to test for when testing the output filename
+
+/**
+ * Any extra arguments to be passed in to the data processor separated by spaces.
+*/
+EXTRA_ARGS("Extra args
  */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class QuickSchemaTranslationTests {
