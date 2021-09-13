@@ -14,14 +14,14 @@ export const TermsOfService = () => {
                     and Prevention (CDC) and the U.S. Department of Health and
                     Human Services (HHS), you acknowledge and agree that you are
                     solely responsible for and shall abide by these Terms of
-                    Service, as well as any relevant sections of 
+                    Service, as well as any relevant sections of
                     <a
                         href="https://www.cdc.gov/other/information.html"
                         className="usa-link"
                     >
                         CDC’s Privacy Policies
                     </a>
-                     (collectively, Terms).
+                    (collectively, Terms).
                 </p>
 
                 <h2>Definitions</h2>
@@ -136,7 +136,7 @@ export const TermsOfService = () => {
                     protection and disclosure of information obtained or sent
                     through PRIME ReportStream. If you would like more
                     information about the application of the Privacy Act at
-                    CDC, 
+                    CDC,
                     <a
                         href="https://www.cms.gov/Research-Statistics-Data-and-Systems/Computer-Data-and-Systems/Privacy/PrivacyActof1974.html"
                         className="usa-link"
