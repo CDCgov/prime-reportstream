@@ -1,4 +1,4 @@
-import { getListOfSenders } from '../../../controllers/ReportController';
+import { getUniqueReceiverSvc } from '../../../controllers/ReportController';
 import ReportResource from '../../../resources/ReportResource';
 import TableButtonGroup from './TableButtonGroup';
 import TableReportsData from './TableReportsData';
@@ -12,8 +12,8 @@ import { useState } from 'react'
 */
 function TableReports({ sortBy }: { sortBy?: string }) {
     const reports: ReportResource[] = useResource(ReportResource.list(), { sortBy });
-    const senders: string[] = Array.from(getListOfSenders(reports));
-    const [chosen, setChosen] = useState(senders[0])
+    const receiverSVCs: string[] = Array.from(getUniqueReceiverSvc(reports));
+    const [chosen, setChosen] = useState(receiverSVCs[0])
 
     /* This syncs the chosen state from <TableButtonGroup> with the chosen state here */
     const handleCallback = (chosen) => {
@@ -32,8 +32,8 @@ function TableReports({ sortBy }: { sortBy?: string }) {
                         as most data input thus far does not have a proper sendingOrg property.
                         >> 09/09/2021 (Kevin Haube)
                     */
-                    senders.length > 1 ?
-                        <TableButtonGroup senders={senders} chosenCallback={handleCallback} />
+                    receiverSVCs.length > 1 ?
+                        <TableButtonGroup senders={receiverSVCs} chosenCallback={handleCallback} />
                         :
                         null
                 }
@@ -50,10 +50,10 @@ function TableReports({ sortBy }: { sortBy?: string }) {
                             <th scope="col">File</th>
                         </tr>
                     </thead>
-                    <TableReportsData reports={reports.filter(report => report.sendingOrg === chosen)} />
+                    <TableReportsData reports={reports.filter(report => report.receivingOrgSvc === chosen)} />
                 </table>
                 {
-                    reports.filter(report => report.sendingOrg === chosen).length === 0 ?
+                    reports.filter(report => report.receivingOrgSvc === chosen).length === 0 ?
                         <p>No results</p>
                         :
                         null
