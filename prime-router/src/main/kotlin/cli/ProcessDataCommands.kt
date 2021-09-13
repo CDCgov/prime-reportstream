@@ -36,7 +36,11 @@ sealed class InputSource {
     data class ListOfFilesSource(val commaSeparatedList: String) : InputSource() // supports merge.
 }
 
-class ProcessData : CliktCommand(
+/**
+ * Command to process data in a variety of ways. Pass in a [metadataInstance]
+ * to reuse this class programatically and make it run faster.
+ */
+class ProcessData(private val metadataInstance: Metadata? = null) : CliktCommand(
     name = "data",
     help = """
     process data
@@ -344,7 +348,7 @@ class ProcessData : CliktCommand(
 
     override fun run() {
         // Load the schema and receivers
-        val metadata = Metadata(Metadata.defaultMetadataDirectory)
+        val metadata = metadataInstance ?: Metadata(Metadata.defaultMetadataDirectory)
         val fileSettings = FileSettings(FileSettings.defaultSettingsDirectory)
         val csvSerializer = CsvSerializer(metadata)
         val hl7Serializer = Hl7Serializer(metadata, fileSettings)

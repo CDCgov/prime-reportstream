@@ -9,13 +9,14 @@ import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.TestFactory
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.function.Executable
+import quicktests.QuickTestUtils
 import kotlin.test.fail
 
 /**
- * Test the tranalation of data and file naming convention as configured in /quicktests/schema-translations.csv.
+ * Test the translation of data and file naming convention as configured in /quicktests/schema-translations.csv.
  */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class SchemaTranslationTests {
+class QuickSchemaTranslationTests {
 
     /**
      * Location of configuration file in the classpath
@@ -140,12 +141,12 @@ class SchemaTranslationTests {
     /**
      * Test a schema translation and file name pattern based on the [config] provided.
      */
-    inner class SchemaTranslationTest(val config: TestConfig) : Executable {
+    inner class SchemaTranslationTest(private val config: TestConfig) : Executable {
 
         /**
          * The data generator.
          */
-        private val dataGenerator = ProcessData()
+        private val dataGenerator = ProcessData(QuickTestUtils.metadata)
 
         /**
          * Run the data generator.
