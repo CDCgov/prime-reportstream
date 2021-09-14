@@ -643,7 +643,6 @@ class Hl7Serializer(
         }
     }
 
-
     /**
      * Lookup the NCES id if the site_type is a k12 school
      */
