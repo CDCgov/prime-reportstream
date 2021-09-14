@@ -32,6 +32,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
         'prime-router/frontend/src/assets/pdf',
         'prime-router/build.gradle.kts',
         'frontend-react/src/components/ReportStreamHeader.tsx',
+        'prime-router/src/test/kotlin/credentials/CredentialTests',
     ]
 
 [[rules]]
