@@ -38,9 +38,12 @@ sealed class InputSource {
 
 /**
  * Command to process data in a variety of ways. Pass in a [metadataInstance]
- * to reuse this class programatically and make it run faster.
+ * and/or [fileSettingsInstance] to reuse this class programatically and make it run faster.
  */
-class ProcessData(private val metadataInstance: Metadata? = null) : CliktCommand(
+class ProcessData(
+    private val metadataInstance: Metadata? = null,
+    private val fileSettingsInstance: FileSettings? = null
+) : CliktCommand(
     name = "data",
     help = """
     process data
@@ -349,7 +352,7 @@ class ProcessData(private val metadataInstance: Metadata? = null) : CliktCommand
     override fun run() {
         // Load the schema and receivers
         val metadata = metadataInstance ?: Metadata(Metadata.defaultMetadataDirectory)
-        val fileSettings = FileSettings(FileSettings.defaultSettingsDirectory)
+        val fileSettings = fileSettingsInstance ?: FileSettings(FileSettings.defaultSettingsDirectory)
         val csvSerializer = CsvSerializer(metadata)
         val hl7Serializer = Hl7Serializer(metadata, fileSettings)
         val redoxSerializer = RedoxSerializer(metadata)

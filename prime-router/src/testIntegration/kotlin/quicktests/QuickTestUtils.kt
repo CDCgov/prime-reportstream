@@ -3,6 +3,7 @@ package quicktests
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isGreaterThan
+import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.cli.ProcessData
@@ -16,12 +17,14 @@ object QuickTestUtils {
      */
     val metadata = Metadata(Metadata.defaultMetadataDirectory)
 
+    val fileSettings = FileSettings(FileSettings.defaultSettingsDirectory)
+
     /**
      * Translate an [inputFile] report to the given [schema].
      * @return the pathname to the generated file
      */
     fun translateReport(schema: String, inputFile: String): String {
-        val dataGenerator = ProcessData(metadata)
+        val dataGenerator = ProcessData(metadata, fileSettings)
         val args = mutableListOf(
             "--input-schema", schema,
             "--input", inputFile,
@@ -37,7 +40,7 @@ object QuickTestUtils {
      * @return the list of generated files
      */
     fun routeReport(schema: String, inputFile: String): List<String> {
-        val dataGenerator = ProcessData(metadata)
+        val dataGenerator = ProcessData(metadata, fileSettings)
         val args = mutableListOf(
             "--input-schema", schema,
             "--input", inputFile,
@@ -60,7 +63,7 @@ object QuickTestUtils {
         targetState: String = "",
         targetCounty: String = ""
     ): String {
-        val dataGenerator = ProcessData(metadata)
+        val dataGenerator = ProcessData(metadata, fileSettings)
         val args = mutableListOf(
             "--input-fake", numReports.toString(), "--input-schema", schema,
             "--output-dir", "build/csv_test_files", "--output-format", outputFormat.toString()
@@ -77,7 +80,7 @@ object QuickTestUtils {
      * @return the pathname to the output file
      */
     fun mergeData(schema: String, fileList: List<String>): String {
-        val dataGenerator = ProcessData(metadata)
+        val dataGenerator = ProcessData(metadata, fileSettings)
         val args = mutableListOf(
             "--merge", fileList.joinToString(","), "--input-schema", schema,
             "--output-dir", "build/csv_test_files"
