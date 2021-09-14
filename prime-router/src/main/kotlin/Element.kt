@@ -395,10 +395,18 @@ data class Element(
                     return null
                 } catch (e: DateTimeParseException) {
                 }
-                return try {
+                try {
                     val formatter = DateTimeFormatter.ofPattern(format ?: datePattern, Locale.ENGLISH)
                     LocalDate.parse(formattedValue, formatter)
-                    null
+                    return null
+                } catch (e: DateTimeParseException) {
+                }
+                try {
+                    val optionalDateTime = variableDateTimePattern
+                    val df = DateTimeFormatter.ofPattern(optionalDateTime)
+                    val ta = df.parseBest(formattedValue, OffsetDateTime::from, LocalDateTime::from, Instant::from)
+                    LocalDate.from(ta)
+                    return null
                 } catch (e: DateTimeParseException) {
                     "Invalid date: '$formattedValue' for element $fieldMapping"
                 }
@@ -425,6 +433,15 @@ data class Element(
                     return null
                 } catch (e: DateTimeParseException) {
                 }
+                try {
+                    // this is a saving throw
+                    val optionalDateTime = variableDateTimePattern
+                    val df = DateTimeFormatter.ofPattern(optionalDateTime)
+                    val ta = df.parseBest(formattedValue, OffsetDateTime::from, LocalDateTime::from, Instant::from)
+                    LocalDateTime.from(ta).atZone(ZoneId.of(USTimeZone.CENTRAL.zoneId)).toOffsetDateTime()
+                    return null
+                } catch (e: DateTimeParseException) {
+                }
                 return try {
                     // Try to parse using a LocalDate pattern, assuming it follows a non-canonical format value.
                     // Example: 'yyyy-mm-dd' - the incoming data is a Date, but not our canonical date format.
@@ -432,7 +449,7 @@ data class Element(
                     LocalDate.parse(formattedValue, formatter)
                     null
                 } catch (e: DateTimeParseException) {
-                    "Invalid date: '$formattedValue' for element $fieldMapping"
+                    "Invalid date time: '$formattedValue' for element $fieldMapping"
                 }
             }
             Type.CODE -> {
@@ -523,6 +540,13 @@ data class Element(
                 } ?: try {
                     val formatter = DateTimeFormatter.ofPattern(format ?: datePattern, Locale.ENGLISH)
                     LocalDate.parse(formattedValue, formatter)
+                } catch(e: DateTimeParseException) {
+                    null
+                } ?: try {
+                    val optionalDateTime = variableDateTimePattern
+                    val df = DateTimeFormatter.ofPattern(optionalDateTime)
+                    val ta = df.parseBest(formattedValue, OffsetDateTime::from, LocalDateTime::from, Instant::from)
+                    LocalDate.from(ta)
                 } catch (e: DateTimeParseException) {
                     error("Invalid date: '$formattedValue' for element $fieldMapping")
                 }
@@ -554,6 +578,14 @@ data class Element(
                     val date = LocalDate.parse(formattedValue, formatter)
                     val zoneOffset = ZoneId.of(USTimeZone.CENTRAL.zoneId).rules.getOffset(Instant.now())
                     OffsetDateTime.of(date, LocalTime.of(0, 0), zoneOffset)
+                } catch (e: DateTimeParseException) {
+                    null
+                } ?: try {
+                    // this is a saving throw
+                    val optionalDateTime = variableDateTimePattern
+                    val df = DateTimeFormatter.ofPattern(optionalDateTime)
+                    val ta = df.parseBest(formattedValue, OffsetDateTime::from, LocalDateTime::from, Instant::from)
+                    LocalDateTime.from(ta).atZone(ZoneId.of(USTimeZone.CENTRAL.zoneId)).toOffsetDateTime()
                 } catch (e: DateTimeParseException) {
                     error("Invalid date: '$formattedValue' for element $fieldMapping")
                 }
@@ -730,6 +762,7 @@ data class Element(
     companion object {
         const val datePattern = "yyyyMMdd"
         const val datetimePattern = "yyyyMMddHHmmZZZ"
+        const val variableDateTimePattern = "[yyyyMMddHHmmssZ][yyyyMMddHHmmZ][yyyyMMddHHmmss]"
         val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern(datePattern, Locale.ENGLISH)
         val datetimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern(datetimePattern, Locale.ENGLISH)
         const val displayToken = "\$display"

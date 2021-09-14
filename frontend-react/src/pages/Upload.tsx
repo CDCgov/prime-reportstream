@@ -10,12 +10,12 @@ import {
 import {useResource} from 'rest-hooks';
 import AuthResource from "../resources/AuthResource";
 import {useOktaAuth} from "@okta/okta-react";
-import {groupToOrg} from "../webreceiver-utils";
-import OrganizationResource from "../resources/OrganizationResource";
+import {senderClient} from "../webreceiver-utils";
 import moment from "moment";
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faSync} from '@fortawesome/free-solid-svg-icons';
+import SenderOrganizationResource from "../resources/SenderOrganizationResource";
 
 library.add(faSync);
 
@@ -34,27 +34,15 @@ export const Upload = () => {
         `Please resolve the errors below and upload your edited file. Your file has not been accepted.`
     );
 
-    const claimsSenderOrganization = authState!.accessToken?.claims.organization.find(o => o.includes("DHSender"));
-    const claimsSenderOrganizationArray = claimsSenderOrganization.split('.');
-
-    // should end up like "DHignore" from "DHSender_ignore.ignore-waters" from Okta
-    const senderOrganization = claimsSenderOrganizationArray[0].replace('Sender_', '');
-
-    // should end up like "ignore" from "DHSender_ignore.ignore-waters" from Okta"
-    const organizationName =
-        groupToOrg(senderOrganization);
-
-    // should end up like "ignore.ignore-waters" from "DHSender_ignore.ignore-waters" from Okta
-    const senderClient = `${organizationName}.${claimsSenderOrganizationArray[1]}`;
+    const client = senderClient(authState);
+    const organization = useResource(SenderOrganizationResource.detail(), {
+        name: client
+    });
 
     const userName = {
         firstName: authState!.accessToken?.claims.given_name,
         lastName: authState!.accessToken?.claims.family_name
     }
-
-    const organization = useResource(OrganizationResource.detail(), {
-        name: organizationName
-    });
 
     const uploadReport =
         async function postData(file) {
@@ -65,7 +53,7 @@ export const Upload = () => {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'text/csv',
-                        'client': senderClient,
+                        'client': client,
                         'authentication-type': 'okta',
                         'Authorization': `Bearer ${authState?.accessToken?.accessToken}`
                     },
@@ -76,7 +64,6 @@ export const Upload = () => {
 
                 // if this JSON.parse fails, the body was most likely an error string from the server
                 return JSON.parse(textBody);
-
             } catch (error) {
 
                 return {
@@ -87,7 +74,6 @@ export const Upload = () => {
                     }]
                 };
             }
-
         }
 
     const handleChange = (event) => {
@@ -289,7 +275,7 @@ export const Upload = () => {
                     {
                         isSubmitting && (
                             <span>
-                                <FontAwesomeIcon icon="sync" spin className="margin-right-05" />
+                                <FontAwesomeIcon icon="sync" spin className="margin-right-05"/>
                                 <span>Processing file...</span>
                             </span>
                         )

@@ -244,16 +244,104 @@ class LookupTable(
         filters: Map<String, String>,
         ignoreCase: Boolean = true
     ): LookupTable {
-        if (filters.isEmpty() || filters.count() == 0) return this
+        if (filters.isEmpty()) return this
         val filteredRows = table
             .filter { row ->
                 filters.all { (k, v) ->
-                    val filterColumNumber = headerIndex[k.lowercase()] ?: error("$k doesn't exist in lookup table")
-                    row[filterColumNumber].equals(v, ignoreCase)
+                    val filterColumnNumber = headerIndex[k.lowercase()] ?: error("$k doesn't exist in lookup table")
+                    row[filterColumnNumber].equals(v, ignoreCase)
                 }
             }
         val headerAndFilteredRows = listOf(headerRow) + filteredRows
         return LookupTable(headerAndFilteredRows)
+    }
+
+    /**
+     * Get the best match for the passed in [searchValue] in the table's [searchColumn]. If a match is found,
+     * return the value in the [lookupColumn]. Optionally, filter the table before matching using [filterColumn] and
+     * [filterValue]. Similar to lookupValue, but with a different heuristic match algorithm.
+     *
+     * The best match algorithm is a simplified weighted word match algorithm of [searchValue] to the table's column.
+     * To make this algorithm work, the caller must first canonicalize the strings for comparison by passing in a
+     * [canonicalize] function. Typically, the [canonicalize] functions should remove punctuations, case,
+     * and empty search value words. Empty search value words depends on the domain, but single letter words
+     * are typically removed.
+     *
+     * Next, the caller should pass in a list of [commonWords]. Common words are a list of
+     * words which have search value, but which are frequently used in the table. The algorithm will use common words
+     * as a tie-breaker, but will never return a match on just common words.
+     */
+    fun lookupBestMatch(
+        searchColumn: String,
+        searchValue: String,
+        lookupColumn: String,
+        canonicalize: (String) -> String,
+        commonWords: List<String> = emptyList(),
+        filterColumn: String? = null,
+        filterValue: String? = null,
+    ): String? {
+        fun filterRows(): List<List<String>> {
+            return if(filterColumn != null && filterValue != null) {
+                val filterColumnIndex = headerIndex[filterColumn.lowercase()] ?: error("Invalid filter column name")
+                table.filterIndexed { index, row ->
+                    index > 0 && row[filterColumnIndex].equals(filterValue, ignoreCase = true)
+                }
+            } else {
+                table.takeLast(table.size - 1)
+            }
+        }
+
+        // Split into words
+        fun wordsFromRaw(input: String): List<String> {
+            val canonicalWords = canonicalize(input)
+            return canonicalWords
+                .trim()
+                .replace("\\s+".toRegex(), " ")
+                .split(" ")
+        }
+
+        // Scoring is based on simplified implementation of a weighted word match algorithm.
+        // Common words are given a low weight, others are given a high weight.
+        fun scoreRows(rows: List<List<String>>): List<Pair<Double, Int>> {
+            // Score based on the search words that are passed in
+            val searchWords = wordsFromRaw(searchValue)
+            val uncommonSearchWords = searchWords.filter { !commonWords.contains(it) }
+            val commonSearchWords = searchWords.filter { commonWords.contains(it) }
+            val uncommonFactor = uncommonSearchWords.size + 1
+            // +1 means that a full match on common words is less than an uncommon word match
+
+            val searchColumnIndex = headerIndex[searchColumn.lowercase()] ?: error("Invalid index column name")
+            return rows.mapIndexed { rowIndex, rawRow ->
+                // match uncommon search words
+                val rowWords = wordsFromRaw(rawRow[searchColumnIndex])
+                val uncommonCount = uncommonSearchWords.fold(0) { count, word ->
+                    if (rowWords.contains(word)) count + 1 else count
+                }
+
+                // if uncommon words don't match, the score zero
+                if (uncommonCount == 0) return@mapIndexed Pair(0.0, rowIndex)
+
+                // count the common matches for tie breaks
+                val commonCount = commonSearchWords.fold(0) { count, word ->
+                    if (rowWords.contains(word)) count + 1 else count
+                }
+
+                // normalize against the possible where all common words are never worth more than an uncommon word
+                val score =
+                    (uncommonCount * uncommonFactor + commonCount).toDouble() /
+                    (uncommonSearchWords.size * uncommonFactor + commonSearchWords.size).toDouble()
+                Pair(score, rowIndex)
+            }
+        }
+
+        val filteredRows = filterRows()
+        val rowScores = scoreRows(filteredRows)
+        val maxRow = rowScores.maxByOrNull { it.first }
+        return if (maxRow != null && maxRow.first > 0.0) {
+            // If a match, do a lookup
+            val lookupColumnIndex = headerIndex[lookupColumn.lowercase()] ?: error("Invalid lookup column name")
+            filteredRows[maxRow.second][lookupColumnIndex]
+        } else null
     }
 
     /**
@@ -293,11 +381,15 @@ class LookupTable(
 
     companion object {
         fun read(fileName: String): LookupTable {
-            return read(File(fileName).inputStream())
+            val file = File(fileName)
+            return read(file.inputStream(), isTsv = file.extension == "tsv")
         }
 
-        fun read(inputStream: InputStream): LookupTable {
-            val table = csvReader().readAll(inputStream)
+        fun read(inputStream: InputStream, isTsv: Boolean = false): LookupTable {
+            val reader = csvReader {
+                delimiter = if (isTsv) '\t' else ','
+            }
+            val table = reader.readAll(inputStream)
             return LookupTable(table)
         }
     }

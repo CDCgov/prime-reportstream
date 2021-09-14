@@ -121,7 +121,7 @@ unique id to track the usage of the message
 
 **Name**: order_test_date
 
-**Type**: DATE
+**Type**: DATETIME
 
 **PII**: No
 
