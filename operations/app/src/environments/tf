@@ -22,8 +22,8 @@ PLAN_DIR="${SCRIPT_DIR?}/../../plan"
 
 # IP and services that need to be whitelisted in the firewall
 PUBLIC_IP="$(curl -s ifconfig.me)"
-PUBLIC_IP_HASH="$(echo -n "${PUBLIC_IP?}" | sha1sum | awk '{print $1}')"
 PUBLIC_IP_CIDR="${PUBLIC_IP?}/32"
+PUBLIC_IP_HASH="$(echo -n "${PUBLIC_IP_CIDR?}" | sha1sum | awk '{print $1}')"
 declare -a KeyVaults=("-keyvault" "-appconfig" "-clientconfig")
 declare -a StorageAccounts=("storageaccount" "public" "partner" "candidate" "candpartner")
 declare -a FunctionApps=("-functionapp")
@@ -184,7 +184,7 @@ function add_ip_whitelist() {
     for resource in "${StorageAccounts[@]}"; do
         RESOURCE_NAME="${RESOURCE_PREFIX?}${resource?}"
         echo -e "\t${RESOURCE_NAME?}..."
-        az storage account network-rule add -g "${RESOURCE_GROUP_NAME?}" -n "${RESOURCE_NAME?}" --ip-address "${PUBLIC_IP_CIDR?}" > /dev/null 2>&1
+        az storage account network-rule add -g "${RESOURCE_GROUP_NAME?}" -n "${RESOURCE_NAME?}" --ip-address "${PUBLIC_IP?}" > /dev/null 2>&1
     done
 
     for resource in "${FunctionApps[@]}"; do
@@ -210,7 +210,7 @@ function remove_ip_whitelist() {
     for resource in "${StorageAccounts[@]}"; do
         RESOURCE_NAME="${RESOURCE_PREFIX?}${resource?}"
         echo -e "\t${RESOURCE_NAME?}..."
-        az storage account network-rule remove -g "${RESOURCE_GROUP_NAME?}" -n "${RESOURCE_NAME?}" --ip-address "${PUBLIC_IP_CIDR?}" > /dev/null 2>&1
+        az storage account network-rule remove -g "${RESOURCE_GROUP_NAME?}" -n "${RESOURCE_NAME?}" --ip-address "${PUBLIC_IP?}" > /dev/null 2>&1
     done
 
     for resource in "${FunctionApps[@]}"; do

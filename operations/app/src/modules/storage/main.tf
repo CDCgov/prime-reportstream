@@ -10,9 +10,13 @@ resource "azurerm_storage_account" "storage_account" {
 
   network_rules {
     default_action = "Deny"
+    bypass         = ["None"]
+
     ip_rules = concat(
-      [var.terraform_caller_ip_address],
+      split(",", data.azurerm_key_vault_secret.cyberark_ip_ingress.value),
+      [split("/", var.terraform_caller_ip_address)[0]], # Storage accounts only allow CIDR-notation for /[0-30]
     )
+
     virtual_network_subnet_ids = [
       data.azurerm_subnet.public.id,
       data.azurerm_subnet.container.id,
@@ -164,10 +168,14 @@ resource "azurerm_storage_account" "storage_partner" {
 
   network_rules {
     default_action = "Deny"
+    bypass         = ["None"]
+
     ip_rules = concat(
       split(",", data.azurerm_key_vault_secret.hhsprotect_ip_ingress.value),
-      [var.terraform_caller_ip_address],
+      split(",", data.azurerm_key_vault_secret.cyberark_ip_ingress.value),
+      [split("/", var.terraform_caller_ip_address)[0]], # Storage accounts only allow CIDR-notation for /[0-30]
     )
+
     virtual_network_subnet_ids = [
       data.azurerm_subnet.public.id,
       data.azurerm_subnet.endpoint.id

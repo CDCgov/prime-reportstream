@@ -133,6 +133,7 @@ resource "azurerm_key_vault" "app_config" {
     default_action = "Deny"
 
     ip_rules = concat(
+      split(",", data.azurerm_key_vault_secret.cyberark_ip_ingress.value),
       [var.terraform_caller_ip_address],
     )
 
@@ -206,6 +207,7 @@ resource "azurerm_key_vault" "client_config" {
     default_action = "Deny"
 
     ip_rules = concat(
+      split(",", data.azurerm_key_vault_secret.cyberark_ip_ingress.value),
       [var.terraform_caller_ip_address],
     )
 
