@@ -7,6 +7,8 @@ import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.cli.ProcessData
+import org.apache.commons.io.FilenameUtils
+import kotlin.test.assertTrue
 
 /**
  * Utilities to run the quick tests.
@@ -88,5 +90,17 @@ object QuickTestUtils {
         dataGenerator.main(args)
         assertThat(dataGenerator.outputReportFiles.size).isEqualTo(1)
         return dataGenerator.outputReportFiles[0]
+    }
+
+    /**
+     * Check a [pathname] for the existing of a filename with the matching
+     * [regex].
+     */
+    fun checkFilename(pathname: String, regex: String) {
+        val filename = FilenameUtils.getName(pathname)
+        assertTrue(
+            Regex(regex).containsMatchIn(filename),
+            "Filename $filename does not match regex $regex"
+        )
     }
 }

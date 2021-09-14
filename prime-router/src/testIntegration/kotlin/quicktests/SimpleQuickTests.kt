@@ -21,24 +21,21 @@ import kotlin.test.assertTrue
 class SimpleQuickTests {
     @Test
     fun `test waters data translation`() {
-        val watersFilenameRegex = Regex("[/\\\\]waters.*\\.csv")
-        val watersFile = QuickTestUtils.generateFakeData(
+        val watersFilenameRegex = "waters.*\\.csv"
+        var watersFile = QuickTestUtils.generateFakeData(
             "waters/waters-covid-19", 50, Report.Format.CSV,
             "CA", "Santa Clara"
         )
-        assertThat(watersFilenameRegex.containsMatchIn(watersFile)).isTrue()
+        QuickTestUtils.checkFilename(watersFile, watersFilenameRegex)
 
         // Now run the generated file back through
-        val file = QuickTestUtils.translateReport("waters/waters-covid-19", watersFile)
-        assertThat(
-            watersFilenameRegex
-                .containsMatchIn(file)
-        ).isTrue()
+        watersFile = QuickTestUtils.translateReport("waters/waters-covid-19", watersFile)
+        QuickTestUtils.checkFilename(watersFile, watersFilenameRegex)
     }
 
     @Test
     fun `test merge using fake data`() {
-        val stracsFilenameRegex = Regex("[/\\\\]strac-covid-19.*\\.csv")
+        val stracsFilenameRegex = "strac-covid-19.*\\.csv"
         val stracsNumFakeRecords = 5
 
         /**
@@ -50,7 +47,7 @@ class SimpleQuickTests {
                 "strac/strac-covid-19", stracsNumFakeRecords,
                 Report.Format.CSV, county
             )
-            assertThat(stracsFilenameRegex.containsMatchIn(stracsFile)).isTrue()
+            QuickTestUtils.checkFilename(stracsFile, stracsFilenameRegex)
             return stracsFile
         }
 
@@ -75,7 +72,7 @@ class SimpleQuickTests {
 
         // Now merge it
         val mergedFile = QuickTestUtils.mergeData("strac/strac-covid-19", fileList)
-        assertThat(stracsFilenameRegex.containsMatchIn(mergedFile)).isTrue()
+        QuickTestUtils.checkFilename(mergedFile, stracsFilenameRegex)
 
         // Check that all the county records are in the merged file
         for (i in countyList.indices) {

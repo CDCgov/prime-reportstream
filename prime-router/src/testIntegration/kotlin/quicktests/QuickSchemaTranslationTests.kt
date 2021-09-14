@@ -4,13 +4,11 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
 import gov.cdc.prime.router.cli.ProcessData
-import org.apache.commons.io.FilenameUtils
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.TestFactory
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.function.Executable
 import quicktests.QuickTestUtils
-import kotlin.test.assertTrue
 import kotlin.test.fail
 
 /**
@@ -190,11 +188,7 @@ class QuickSchemaTranslationTests {
         override fun execute() {
             generateData()
             assertThat(dataGenerator.outputReportFiles.size).isEqualTo(1)
-            val filename = FilenameUtils.getName(dataGenerator.outputReportFiles[0])
-            assertTrue(
-                Regex(config.expectedOutputFilePattern).containsMatchIn(filename),
-                "Filename $filename does not match regex ${config.expectedOutputFilePattern}"
-            )
+            QuickTestUtils.checkFilename(dataGenerator.outputReportFiles[0], config.expectedOutputFilePattern)
         }
     }
 }
