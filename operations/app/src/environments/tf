@@ -166,7 +166,7 @@ else
 fi
 ACTUAL_RESULTS="${ACTUAL_RESULTS?}${?}"
 
-RESOURCE_GROUP="$(echo "var.resource_group" | terraform console --var-file ${TFVARS?} | xargs)"
+RESOURCE_GROUP_NAME="$(echo "var.resource_group" | terraform console --var-file ${TFVARS?} | xargs)"
 RESOURCE_PREFIX="$(echo "var.resource_prefix" | terraform console --var-file ${TFVARS?} | xargs)"
 
 # Whitelist our IP to access firewalled resources
@@ -177,20 +177,20 @@ function add_ip_whitelist() {
     for resource in "${KeyVaults[@]}"; do
         RESOURCE_NAME="${RESOURCE_PREFIX?}${resource?}"
         echo -e "\t${RESOURCE_NAME?}..."
-        az keyvault network-rule add -g "${RESOURCE_GROUP?}" -n "${RESOURCE_NAME?}" --ip-address "${PUBLIC_IP?}"  > /dev/null 2>&1
+        az keyvault network-rule add -g "${RESOURCE_GROUP_NAME?}" -n "${RESOURCE_NAME?}" --ip-address "${PUBLIC_IP?}" > /dev/null 2>&1
     done
 
     for resource in "${StorageAccounts[@]}"; do
         RESOURCE_NAME="${RESOURCE_PREFIX?}${resource?}"
         echo -e "\t${RESOURCE_NAME?}..."
-        az storage account network-rule add -g "${RESOURCE_GROUP?}" -n "${RESOURCE_NAME?}" --ip-address "${PUBLIC_IP?}"  > /dev/null 2>&1
+        az storage account network-rule add -g "${RESOURCE_GROUP_NAME?}" -n "${RESOURCE_NAME?}" --ip-address "${PUBLIC_IP?}" > /dev/null 2>&1
     done
 
     for resource in "${FunctionApps[@]}"; do
         RESOURCE_NAME="${RESOURCE_PREFIX?}${resource?}"
         echo -e "\t${RESOURCE_NAME?}..."
-        az functionapp config access-restriction add -g "${RESOURCE_GROUP?}" -n "${RESOURCE_NAME?}" --slot production --rule-name "tf-${PUBLIC_IP_HASH}" --action Allow --ip-address "${PUBLIC_IP?}" --priority 750 > /dev/null 2>&1
-        az functionapp config access-restriction add -g "${RESOURCE_GROUP?}" -n "${RESOURCE_NAME?}" --slot candidate --rule-name "tf-${PUBLIC_IP_HASH}" --action Allow --ip-address "${PUBLIC_IP?}" --priority 750 > /dev/null 2>&1
+        az functionapp config access-restriction add -g "${RESOURCE_GROUP_NAME?}" -n "${RESOURCE_NAME?}" --slot production --rule-name "tf-${PUBLIC_IP_HASH}" --action Allow --ip-address "${PUBLIC_IP?}" --priority 750 > /dev/null 2>&1
+        az functionapp config access-restriction add -g "${RESOURCE_GROUP_NAME?}" -n "${RESOURCE_NAME?}" --slot candidate --rule-name "tf-${PUBLIC_IP_HASH}" --action Allow --ip-address "${PUBLIC_IP?}" --priority 750 > /dev/null 2>&1
     done
 
     echo -e "${NORMAL?}"
@@ -203,20 +203,20 @@ function remove_ip_whitelist() {
     for resource in "${KeyVaults[@]}"; do
         RESOURCE_NAME="${RESOURCE_PREFIX?}${resource?}"
         echo -e "\t${RESOURCE_NAME?}..."
-        az keyvault network-rule remove -g "${RESOURCE_GROUP?}" -n "${RESOURCE_NAME?}" --ip-address "${PUBLIC_IP?}"  > /dev/null 2>&1
+        az keyvault network-rule remove -g "${RESOURCE_GROUP_NAME?}" -n "${RESOURCE_NAME?}" --ip-address "${PUBLIC_IP?}" > /dev/null 2>&1
     done
 
     for resource in "${StorageAccounts[@]}"; do
         RESOURCE_NAME="${RESOURCE_PREFIX?}${resource?}"
         echo -e "\t${RESOURCE_NAME?}..."
-        az storage account network-rule remove -g "${RESOURCE_GROUP?}" -n "${RESOURCE_NAME?}" --ip-address "${PUBLIC_IP?}"  > /dev/null 2>&1
+        az storage account network-rule remove -g "${RESOURCE_GROUP_NAME?}" -n "${RESOURCE_NAME?}" --ip-address "${PUBLIC_IP?}" > /dev/null 2>&1
     done
 
     for resource in "${FunctionApps[@]}"; do
         RESOURCE_NAME="${RESOURCE_PREFIX?}${resource?}"
         echo -e "\t${RESOURCE_NAME?}..."
-        az functionapp config access-restriction remove -g "${RESOURCE_GROUP?}" -n "${RESOURCE_NAME?}" --slot production --rule-name "tf-${PUBLIC_IP_HASH}" --priority 750 > /dev/null 2>&1
-        az functionapp config access-restriction remove -g "${RESOURCE_GROUP?}" -n "${RESOURCE_NAME?}" --slot candidate --rule-name "tf-${PUBLIC_IP_HASH}" --priority 750 > /dev/null 2>&1
+        az functionapp config access-restriction remove -g "${RESOURCE_GROUP_NAME?}" -n "${RESOURCE_NAME?}" --slot production --rule-name "tf-${PUBLIC_IP_HASH}" --priority 750 > /dev/null 2>&1
+        az functionapp config access-restriction remove -g "${RESOURCE_GROUP_NAME?}" -n "${RESOURCE_NAME?}" --slot candidate --rule-name "tf-${PUBLIC_IP_HASH}" --priority 750 > /dev/null 2>&1
     done
 
     echo -e "${NORMAL?}"
