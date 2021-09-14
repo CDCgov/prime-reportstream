@@ -199,7 +199,8 @@ class ActionHistory {
      */
     fun trackActionResponse(response: HttpResponseMessage, verboseResponse: String) {
         action.httpStatus = response.status.value()
-        action.actionResponse = JSONB.valueOf(verboseResponse)
+        if (!verboseResponse.isNullOrBlank())
+            action.actionResponse = JSONB.valueOf(verboseResponse)
     }
 
     /**
