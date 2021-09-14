@@ -3,7 +3,7 @@
     "version": "0.0.0",
     "dependencies": {
         "@okta/jwt-verifier": "^2.3.0",
-        "axios": "^0.21.1",
+        "axios": "^0.21.4",
         "chart.js": "^3.5",
         "cypress": "^8.3.1",
         "http-proxy-middleware": "^2.0.1",
@@ -12,7 +12,7 @@
     "devDependencies": {
         "@11ty/eleventy": "^0.12.1",
         "@fortawesome/fontawesome-free": "^5.15.4",
-        "autoprefixer": "^10.3.3",
+        "autoprefixer": "^10.3.4",
         "cross-env": "^7.0.3",
         "eslint": "^7.32.0",
         "express": "^4.17.1",
@@ -30,7 +30,7 @@
         "postcss": "^8.3.5",
         "postcss-csso": "^5.0.1",
         "rimraf": "^3.0.2",
-        "sass": "^1.38.2",
+        "sass": "^1.39.2",
         "uswds": "^2.12.1",
         "uswds-gulp": "github:uswds/uswds-gulp"
     },
