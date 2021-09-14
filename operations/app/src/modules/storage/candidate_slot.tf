@@ -12,7 +12,9 @@ resource "azurerm_storage_account" "storage_account_candidate" {
 
   network_rules {
     default_action = "Deny"
-    ip_rules       = []
+    ip_rules = concat(
+      [var.terraform_caller_ip_address],
+    )
     virtual_network_subnet_ids = [
       data.azurerm_subnet.public.id,
       data.azurerm_subnet.container.id,
@@ -123,7 +125,10 @@ resource "azurerm_storage_account" "storage_partner_candidate" {
 
   network_rules {
     default_action = "Deny"
-    ip_rules       = split(",", data.azurerm_key_vault_secret.hhsprotect_ip_ingress.value)
+    ip_rules = concat(
+      split(",", data.azurerm_key_vault_secret.hhsprotect_ip_ingress.value),
+      [var.terraform_caller_ip_address],
+    )
     virtual_network_subnet_ids = [
       data.azurerm_subnet.public.id,
       data.azurerm_subnet.endpoint.id

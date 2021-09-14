@@ -32,14 +32,15 @@ module "application_insights" {
 }
 
 module "function_app" {
-  source                 = "../../modules/function_app"
-  environment            = var.environment
-  resource_group         = var.resource_group
-  resource_prefix        = var.resource_prefix
-  location               = var.location
-  ai_instrumentation_key = module.application_insights.instrumentation_key
-  ai_connection_string   = module.application_insights.connection_string
-  okta_redirect_url      = var.okta_redirect_url
+  source                      = "../../modules/function_app"
+  environment                 = var.environment
+  resource_group              = var.resource_group
+  resource_prefix             = var.resource_prefix
+  location                    = var.location
+  ai_instrumentation_key      = module.application_insights.instrumentation_key
+  ai_connection_string        = module.application_insights.connection_string
+  okta_redirect_url           = var.okta_redirect_url
+  terraform_caller_ip_address = var.terraform_caller_ip_address
 }
 
 module "front_door" {

@@ -23,6 +23,7 @@ PLAN_DIR="${SCRIPT_DIR?}/../../plan"
 # IP and services that need to be whitelisted in the firewall
 PUBLIC_IP="$(curl -s ifconfig.me)"
 PUBLIC_IP_HASH="$(echo -n "${PUBLIC_IP?}" | sha1sum | awk '{print $1}')"
+PUBLIC_IP_CIDR="${PUBLIC_IP?}/32"
 declare -a KeyVaults=("-keyvault" "-appconfig" "-clientconfig")
 declare -a StorageAccounts=("storageaccount" "public" "partner" "candidate" "candpartner")
 declare -a FunctionApps=("-functionapp")
@@ -166,8 +167,8 @@ else
 fi
 ACTUAL_RESULTS="${ACTUAL_RESULTS?}${?}"
 
-RESOURCE_GROUP_NAME="$(echo "var.resource_group" | terraform console --var-file ${TFVARS?} | xargs)"
-RESOURCE_PREFIX="$(echo "var.resource_prefix" | terraform console --var-file ${TFVARS?} | xargs)"
+RESOURCE_GROUP_NAME="$(echo "var.resource_group" | terraform console --var-file "${TFVARS?}" -var="terraform_caller_ip_address=${PUBLIC_IP_CIDR?}" | xargs)"
+RESOURCE_PREFIX="$(echo "var.resource_prefix" | terraform console --var-file "${TFVARS?}" -var="terraform_caller_ip_address=${PUBLIC_IP_CIDR?}" | xargs)"
 
 # Whitelist our IP to access firewalled resources
 function add_ip_whitelist() {
@@ -177,20 +178,20 @@ function add_ip_whitelist() {
     for resource in "${KeyVaults[@]}"; do
         RESOURCE_NAME="${RESOURCE_PREFIX?}${resource?}"
         echo -e "\t${RESOURCE_NAME?}..."
-        az keyvault network-rule add -g "${RESOURCE_GROUP_NAME?}" -n "${RESOURCE_NAME?}" --ip-address "${PUBLIC_IP?}" > /dev/null 2>&1
+        az keyvault network-rule add -g "${RESOURCE_GROUP_NAME?}" -n "${RESOURCE_NAME?}" --ip-address "${PUBLIC_IP_CIDR?}" > /dev/null 2>&1
     done
 
     for resource in "${StorageAccounts[@]}"; do
         RESOURCE_NAME="${RESOURCE_PREFIX?}${resource?}"
         echo -e "\t${RESOURCE_NAME?}..."
-        az storage account network-rule add -g "${RESOURCE_GROUP_NAME?}" -n "${RESOURCE_NAME?}" --ip-address "${PUBLIC_IP?}" > /dev/null 2>&1
+        az storage account network-rule add -g "${RESOURCE_GROUP_NAME?}" -n "${RESOURCE_NAME?}" --ip-address "${PUBLIC_IP_CIDR?}" > /dev/null 2>&1
     done
 
     for resource in "${FunctionApps[@]}"; do
         RESOURCE_NAME="${RESOURCE_PREFIX?}${resource?}"
         echo -e "\t${RESOURCE_NAME?}..."
-        az functionapp config access-restriction add -g "${RESOURCE_GROUP_NAME?}" -n "${RESOURCE_NAME?}" --slot production --rule-name "tf-${PUBLIC_IP_HASH}" --action Allow --ip-address "${PUBLIC_IP?}" --priority 750 > /dev/null 2>&1
-        az functionapp config access-restriction add -g "${RESOURCE_GROUP_NAME?}" -n "${RESOURCE_NAME?}" --slot candidate --rule-name "tf-${PUBLIC_IP_HASH}" --action Allow --ip-address "${PUBLIC_IP?}" --priority 750 > /dev/null 2>&1
+        az functionapp config access-restriction add -g "${RESOURCE_GROUP_NAME?}" -n "${RESOURCE_NAME?}" --slot production --rule-name "tf-${PUBLIC_IP_HASH}" --action Allow --ip-address "${PUBLIC_IP_CIDR?}" --priority 750 > /dev/null 2>&1
+        az functionapp config access-restriction add -g "${RESOURCE_GROUP_NAME?}" -n "${RESOURCE_NAME?}" --slot candidate --rule-name "tf-${PUBLIC_IP_HASH}" --action Allow --ip-address "${PUBLIC_IP_CIDR?}" --priority 750 > /dev/null 2>&1
     done
 
     echo -e "${NORMAL?}"
@@ -203,13 +204,13 @@ function remove_ip_whitelist() {
     for resource in "${KeyVaults[@]}"; do
         RESOURCE_NAME="${RESOURCE_PREFIX?}${resource?}"
         echo -e "\t${RESOURCE_NAME?}..."
-        az keyvault network-rule remove -g "${RESOURCE_GROUP_NAME?}" -n "${RESOURCE_NAME?}" --ip-address "${PUBLIC_IP?}" > /dev/null 2>&1
+        az keyvault network-rule remove -g "${RESOURCE_GROUP_NAME?}" -n "${RESOURCE_NAME?}" --ip-address "${PUBLIC_IP_CIDR?}" > /dev/null 2>&1
     done
 
     for resource in "${StorageAccounts[@]}"; do
         RESOURCE_NAME="${RESOURCE_PREFIX?}${resource?}"
         echo -e "\t${RESOURCE_NAME?}..."
-        az storage account network-rule remove -g "${RESOURCE_GROUP_NAME?}" -n "${RESOURCE_NAME?}" --ip-address "${PUBLIC_IP?}" > /dev/null 2>&1
+        az storage account network-rule remove -g "${RESOURCE_GROUP_NAME?}" -n "${RESOURCE_NAME?}" --ip-address "${PUBLIC_IP_CIDR?}" > /dev/null 2>&1
     done
 
     for resource in "${FunctionApps[@]}"; do
@@ -246,6 +247,7 @@ if [[ "${ACTUAL_RESULTS?}" == "${EXPECTED_RESULTS?}" ]]; then
         TFCMD_AFTER=$(echo "${TFCMD?}" | sed 's/[^ ]* //')
         terraform ${TFCMD_BEFORE?} \
             --var-file "${TFVARS?}" \
+            -var="terraform_caller_ip_address=${PUBLIC_IP_CIDR?}" \
             ${TFCMD_AFTER?}
         ACTUAL_RESULTS="${ACTUAL_RESULTS?}${?}"
         ;;
@@ -255,6 +257,7 @@ if [[ "${ACTUAL_RESULTS?}" == "${EXPECTED_RESULTS?}" ]]; then
         EXPECTED_RESULTS="${EXPECTED_RESULTS?}0"
         terraform plan \
             --var-file "${TFVARS?}" \
+            -var="terraform_caller_ip_address=${PUBLIC_IP_CIDR?}" \
             -out=${PLAN_DIR?}/${ENVIRONMENT?}-${HERE?}.tfplan \
             1> ${PLAN_DIR?}/${ENVIRONMENT?}-${HERE?}.tfplan.stdout \
             2> ${PLAN_DIR?}/${ENVIRONMENT?}-${HERE?}.tfplan.stderr
@@ -268,7 +271,8 @@ if [[ "${ACTUAL_RESULTS?}" == "${EXPECTED_RESULTS?}" ]]; then
     *)
         EXPECTED_RESULTS="${EXPECTED_RESULTS?}0"
         terraform ${TFCMD?} \
-            --var-file "${TFVARS?}"
+            --var-file "${TFVARS?}" \
+            -var="terraform_caller_ip_address=${PUBLIC_IP_CIDR?}"
         ACTUAL_RESULTS="${ACTUAL_RESULTS?}${?}"
         ;;
     esac

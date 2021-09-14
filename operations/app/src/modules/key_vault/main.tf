@@ -15,16 +15,18 @@ resource "azurerm_key_vault" "application" {
   purge_protection_enabled        = true
 
   network_acls {
-    bypass                     = "AzureServices"
-    default_action             = "Deny"
+    bypass         = "AzureServices"
+    default_action = "Deny"
+
+    ip_rules = concat(
+      [var.terraform_caller_ip_address],
+    )
+
     virtual_network_subnet_ids = []
   }
 
   lifecycle {
     prevent_destroy = true
-    ignore_changes = [
-      network_acls[0].ip_rules, # Support IP whitelisting outside of Terraform
-    ]
   }
 
   tags = {
@@ -127,16 +129,18 @@ resource "azurerm_key_vault" "app_config" {
   purge_protection_enabled        = true
 
   network_acls {
-    bypass                     = "AzureServices"
-    default_action             = "Deny"
+    bypass         = "AzureServices"
+    default_action = "Deny"
+
+    ip_rules = concat(
+      [var.terraform_caller_ip_address],
+    )
+
     virtual_network_subnet_ids = []
   }
 
   lifecycle {
     prevent_destroy = true
-    ignore_changes = [
-      network_acls[0].ip_rules, # Support IP whitelisting outside of Terraform
-    ]
   }
 
   tags = {
@@ -198,16 +202,18 @@ resource "azurerm_key_vault" "client_config" {
   purge_protection_enabled        = true
 
   network_acls {
-    bypass                     = "AzureServices"
-    default_action             = "Deny"
+    bypass         = "AzureServices"
+    default_action = "Deny"
+
+    ip_rules = concat(
+      [var.terraform_caller_ip_address],
+    )
+
     virtual_network_subnet_ids = []
   }
 
   lifecycle {
     prevent_destroy = true
-    ignore_changes = [
-      network_acls[0].ip_rules, # Support IP whitelisting outside of Terraform
-    ]
   }
 
   tags = {
