@@ -60,9 +60,9 @@ class Report : Logging {
             // Default to CSV if weird or unknown
             fun safeValueOf(formatStr: String?): Format {
                 return try {
-                    Format.valueOf(formatStr ?: "CSV")
+                    valueOf(formatStr ?: "CSV")
                 } catch (e: IllegalArgumentException) {
-                    Format.CSV
+                    CSV
                 }
             }
         }
@@ -569,6 +569,9 @@ class Report : Logging {
                     it.siteOfCare = row.getStringOrNull("site_of_care").trimToNull()
                     it.reportId = this.id
                     it.reportIndex = idx
+                    it.senderId = row.getStringOrNull("sender_id").trimToNull()
+                    it.testKitNameId = row.getStringOrNull("test_kit_name_id").trimToNull()
+                    it.testPerformedLoincCode = row.getStringOrNull("test_performed_code").trimToNull()
                 }
             }
         } catch (e: Exception) {
@@ -691,7 +694,7 @@ class Report : Logging {
 
         fun createItemLineages(parentReports: List<Report>, childReport: Report): List<ItemLineage> {
             var childRowNum = 0
-            var itemLineages = mutableListOf<ItemLineage>()
+            val itemLineages = mutableListOf<ItemLineage>()
             parentReports.forEach { parentReport ->
                 parentReport.itemIndices.forEach {
                     itemLineages.add(createItemLineageForRow(parentReport, it, childReport, childRowNum))
@@ -704,7 +707,6 @@ class Report : Logging {
         /**
          * Use a tablesaw Selection bitmap to create a mapping from this report items to newReport items.
          * Note: A tablesaw Selection is just an array of the row indexes in the oldReport that meet the filter criteria
-         * That is, selection[childRowNum] is the parentRowNum
          */
         fun createItemLineages(selection: Selection, parentReport: Report, childReport: Report): List<ItemLineage> {
             return selection.mapIndexed() { childRowNum, parentRowNum ->
