@@ -91,10 +91,12 @@ class OktaAuthenticationVerifier : AuthenticationVerifier {
         // We are expecting a group name of:
         // DH<org name> if oktaSender is false
         // DHSender_<org name>.<sender name> if oktaSender is true
-        // Example receiver: If the receiver org name is "ignore", the Okta group name will be "DHignore
+        // Example receiver: If the receiver org name is "ignore", the Okta group name will be "DHignore"
         // Example sender: If the sender org name is "ignore", and the sender name is "ignore-waters",
-        // the Okta group name will be "DHSender_ignore.ignore_waters
-        val groupName = organizationName?.replace('-', '_')
+        // the Okta group name will be "DHSender_ignore.ignore-waters
+        // If the sender is from Okta, their "organizationName" will match their group from Okta,
+        // so do not replace anything in the string
+        val groupName = if(oktaSender) organizationName else organizationName?.replace('-', '_')
         val lookupMemberships = when (minimumLevel) {
             PrincipalLevel.SYSTEM_ADMIN -> listOf(oktaSystemAdminGroup)
             PrincipalLevel.ORGANIZATION_ADMIN -> {

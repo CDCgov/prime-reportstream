@@ -108,21 +108,14 @@ class ReportFunction : Logging {
             PrincipalLevel.USER,
             workflowEngine
         )
-
-        // replace to make the senderName match with the ReportStream database (dashes instead of underscores)
-        // later, in the Okta Verifier,
-        // all the dashes in the sender.fullName are turned into underscores to match the Okta Organization naming scheme
-        val senderName = request.headers[CLIENT_PARAMETER]?.replace('_', '-')
-            ?: request.queryParameters.getOrDefault(CLIENT_PARAMETER, "").replace('_', '-')
-        // todo This code is redundant w/validateRequest. Remove from validateRequest once old endpoint is removed
-        if (senderName.isBlank())
+        val senderName = extractClientHeader(request)
+        if (senderName.isNullOrBlank())
             return HttpUtilities.bad(request, "Expected a '$CLIENT_PARAMETER' query parameter")
         val sender = workflowEngine.settings.findSender(senderName)
             ?: return HttpUtilities.bad(request, "'$CLIENT_PARAMETER:$senderName': unknown sender")
         if (authenticationStrategy is OktaAuthentication) {
-            // Okta Auth
             // The report is coming from a sender that is using Okta, so set "oktaSender" to true
-            return authenticationStrategy.checkAccess(request, sender.fullName, true) {
+            return authenticationStrategy.checkAccess(request, senderName, true) {
                 return@checkAccess ingestReport(request, context)
             }
         }
@@ -260,10 +253,9 @@ class ReportFunction : Logging {
      * @param request the http request message from the client
      */
     private fun extractClientHeader(request: HttpRequestMessage<String?>): String {
-        // replace to make the senderName match with the ReportStream database (dashes instead of underscores)
-        // in the Okta Verifier,
-        // all the dashes in the sender.fullName are turned into underscores to match the Okta Organization naming scheme
-        return request.headers[CLIENT_PARAMETER]?.replace('_', '-') ?: request.queryParameters.getOrDefault(CLIENT_PARAMETER, "").replace('_', '-')
+        // client can be in the header or in the url parameters:
+        return request.headers[CLIENT_PARAMETER]
+            ?: request.queryParameters.getOrDefault(CLIENT_PARAMETER, "")
     }
 
     private fun validateRequest(engine: WorkflowEngine, request: HttpRequestMessage<String?>): ValidatedRequest {

@@ -5,8 +5,12 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
+import assertk.assertions.startsWith
 import java.time.Instant
+import java.time.LocalDateTime
+import java.time.OffsetDateTime
 import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import kotlin.test.Test
 import kotlin.test.assertFails
 
@@ -86,6 +90,9 @@ internal class ElementTests {
         one.toNormalized("199803300000+0000").run {
             assertThat(this).isEqualTo("199803300000+0000")
         }
+        one.toNormalized("20210908105903").run {
+            assertThat(this).startsWith("202109081059")
+        }
         val two = Element(
             "a",
             type = Element.Type.DATETIME,
@@ -105,6 +112,15 @@ internal class ElementTests {
         )
         three.toNormalized("2020-12-09", "yyyy-MM-dd").run {
             assertThat(this).isEqualTo("202012090000$offset")
+        }
+        mapOf(
+            "20210908105903" to "20210908105903",
+            "199803300000+0000" to "19980330000000").forEach {
+            val optionalDateTime = "[yyyyMMddHHmmssZ][yyyyMMddHHmmZ][yyyyMMddHHmmss]"
+            val df = DateTimeFormatter.ofPattern(optionalDateTime)
+            val ta = df.parseBest(it.key, OffsetDateTime::from, LocalDateTime::from, Instant::from)
+            val dt = LocalDateTime.from(ta)
+            assertThat(df.format(dt)).isEqualTo(it.value)
         }
     }
 

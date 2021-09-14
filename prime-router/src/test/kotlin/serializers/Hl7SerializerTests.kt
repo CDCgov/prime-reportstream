@@ -25,6 +25,7 @@ import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.TestSource
+import io.mockk.MockK
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkClass
@@ -113,6 +114,7 @@ NTE|1|L|This is a final comment|RE"""
             every { it.reportingFacilityId }.returns(null)
             every { it.reportingFacilityIdType }.returns(null)
             every { it.cliaForOutOfStateTesting }.returns("1234FAKECLIA")
+            every { it.useNCESFacilityName }.returns(false)
         }
         val receiver = mockkClass(Receiver::class).also {
             every { it.translation }.returns(hl7Config)
@@ -646,6 +648,107 @@ NTE|1|L|This is a final comment|RE"""
             mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-3-3", value)
             mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-3-4", "CLIA")
         }
+    }
+
+    @Test
+    fun `test getSchoolId`() {
+        // Get a bunch of k12 rows
+        val testCSV = File("./src/test/unit_test_files/pdi-covid-19-wa-k12.csv").inputStream()
+        val testReport = csvSerializer
+            .readExternal("primedatainput/pdi-covid-19", testCSV, TestSource)
+            .report ?: fail()
+
+        // This row is the happy path
+        val rawValidFacilityName = testReport.getString(0, "ordering_facility_name") ?: fail()
+        val validNCES = serializer.getSchoolId(testReport, 0, rawValidFacilityName)
+        assertThat(validNCES).isEqualTo("530825001381")
+
+        // This row doesn't match on zip code
+        val rawInvalidZip = testReport.getString(8, "ordering_facility_name") ?: fail()
+        val invalidZip = serializer.getSchoolId(testReport, 8, rawInvalidZip)
+        assertThat(invalidZip).isNull()
+
+        // This row does a best match
+        val rawPartialName = testReport.getString(10, "ordering_facility_name") ?: fail()
+        val partialNCES = serializer.getSchoolId(testReport, 10, rawPartialName)
+        assertThat(partialNCES).isEqualTo("530825001381")
+
+        // This row doesn't match on site type
+        val rawInvalidSite = testReport.getString(11, "ordering_facility_name") ?: fail()
+        val invalidSite = serializer.getSchoolId(testReport, 11, rawInvalidSite)
+        assertThat(invalidSite).isNull()
+
+        // There are three schools that have the same first name in this zip-code
+        val rawHighSchool = testReport.getString(12, "ordering_facility_name") ?: fail()
+        val highSchool = serializer.getSchoolId(testReport, 12, rawHighSchool)
+        assertThat(highSchool).isEqualTo("530042000099")
+
+        // There are three schools that have the same first name in this zip-code. This one has a very long name.
+        val rawPartnershipSchool = testReport.getString(13, "ordering_facility_name") ?: fail()
+        val partnershipSchool = serializer.getSchoolId(testReport, 13, rawPartnershipSchool)
+        assertThat(partnershipSchool).isEqualTo("530042003476")
+    }
+
+    @Test
+    fun `test setOrderingFacilityComponent no NCES`() {
+        val mockTerser = mockk<Terser>()
+        every { mockTerser.set(any(), any()) } returns Unit
+        val facilityName = "Very Long Facility Name That Should Truncate After Here"
+        serializer.setOrderingFacilityComponent(mockTerser, facilityName, null)
+        verify {
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-21-1", facilityName.take(50))
+        }
+    }
+
+    @Test
+    fun `test setOrderingFacilityComponent with NCES`() {
+        val mockTerser = mockk<Terser>()
+        every { mockTerser.set(any(), any()) } returns Unit
+        val facilityName = "Very Long Facility Name That Should Truncate After Here"
+        val ncesId = "A00000009"
+        serializer.setOrderingFacilityComponent(mockTerser, facilityName, ncesId)
+        verify {
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-21-1", "${facilityName.take(32)}_NCES_$ncesId")
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-21-6-1", "NCES.IES")
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-21-6-2", "2.16.840.1.113883.3.8589.4.1.119")
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-21-6-3", "ISO")
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-21-7", "XX")
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-21-10", ncesId)
+        }
+    }
+
+    @Test
+    fun `test canonicalSchoolName`() {
+        // Use NCES actual table values to test
+        val senior = serializer.canonicalizeSchoolName("SHREWSBURY SR HIGH")
+        assertThat(senior).isEqualTo("SHREWSBURY SENIOR HIGH")
+
+        val stJohns = serializer.canonicalizeSchoolName("ST JOHN'S HIGH SCHOOL")
+        assertThat(stJohns).isEqualTo("ST JOHNS HIGH")
+
+        val sizer = serializer.canonicalizeSchoolName("SIZER SCHOOL: A NORTH CENTRAL CHARTER ESSENTIAL SCHOOL")
+        assertThat(sizer).isEqualTo("SIZER NORTH CENTRAL CHARTER ESSENTIAL")
+
+        val elem = serializer.canonicalizeSchoolName("NORTHERN LINCOLN ELEM.")
+        assertThat(elem).isEqualTo("NORTHERN LINCOLN ELEMENTARY")
+
+        val elem2 = serializer.canonicalizeSchoolName("WAKEFIELD HILLS EL. SCHOOL")
+        assertThat(elem2).isEqualTo("WAKEFIELD HILLS ELEMENTARY")
+
+        val jr1 = serializer.canonicalizeSchoolName("M. L. KING JR. MIDDLE SCHOOL")
+        assertThat(jr1).isEqualTo("KING JR MIDDLE")
+
+        val jr2 = serializer.canonicalizeSchoolName("CHURCHILL JR HIGH SCHOOL")
+        assertThat(jr2).isEqualTo("CHURCHILL JUNIOR HIGH")
+
+        val tahono = serializer.canonicalizeSchoolName("TOHONO O`ODHAM HIGH SCHOOL")
+        assertThat(tahono).isEqualTo("TOHONO ODHAM HIGH")
+
+        val possesive = serializer.canonicalizeSchoolName("ST TIMOTHY'S EPISCOPAL DAY SCHOOL")
+        assertThat(possesive).isEqualTo("ST TIMOTHYS EPISCOPAL DAY")
+
+        val tse = serializer.canonicalizeSchoolName("TSE'II'AHI' COMMUNITY SCHOOL")
+        assertThat(tse).isEqualTo("TSE II AHI COMMUNITY")
     }
 
     @Test

@@ -14,6 +14,7 @@ export default class ReportResource extends AuthResource {
     readonly expires: number = 1;
     readonly sendingOrg: string = "sendingOrg";
     readonly receivingOrg: string = "receivingOrg";
+    readonly receivingOrgSvc: string = "elr";
     readonly facilities: FacilityResource[] = [];
     readonly actions: ActionResource[] = [];
     readonly content: string = ""

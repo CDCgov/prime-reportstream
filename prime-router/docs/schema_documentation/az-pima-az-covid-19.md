@@ -134,7 +134,7 @@ Is this the patient's first test for this condition?
 
 **Name**: Order_test_date
 
-**Type**: DATE
+**Type**: DATETIME
 
 **PII**: No
 

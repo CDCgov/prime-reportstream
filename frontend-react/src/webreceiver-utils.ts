@@ -24,4 +24,23 @@ const permissionCheck = (permission: String, authState: AuthState) => {
 // A receiver is anyone with an organization that is not "DHSender", i.e.: "DHaz_phd"
 const reportReceiver = (authState: AuthState) => {return authState.accessToken?.claims.organization.find(o => !o.includes(PERMISSIONS['sender']))};
 
-export { groupToOrg, permissionCheck, reportReceiver };
+const senderClient = (authState: AuthState | null) => {
+    if(authState) {
+        const claimsSenderOrganization = authState!.accessToken?.claims.organization.find(o => o.includes("DHSender"));
+        const claimsSenderOrganizationArray = claimsSenderOrganization.split('.');
+
+        // should end up like "DHignore" from "DHSender_ignore.ignore-waters" from Okta
+        const claimsOrganization = claimsSenderOrganizationArray[0].replace('Sender_', '');
+
+        // should end up like "ignore" from "DHSender_ignore.ignore-waters" from Okta"
+        const organizationName =
+            groupToOrg(claimsOrganization);
+
+        // should end up like "ignore.ignore_waters" from "DHSender_ignore.ignore-waters" from Okta.
+        // This is used on the RS side to validate the user claims, so, it need the underscores ("_")
+        return `${organizationName}.${claimsSenderOrganizationArray[1]}`;
+    }
+    return '';
+}
+
+export { groupToOrg, permissionCheck, reportReceiver, senderClient };

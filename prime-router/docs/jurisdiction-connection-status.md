@@ -1,6 +1,6 @@
 ## Supported Jurisdictions
 
-## Last updated: August 31, 2021
+## Last updated: September 3, 2021
 
 ReportStream is currently live and in development in the following jurisdictions:  
 
