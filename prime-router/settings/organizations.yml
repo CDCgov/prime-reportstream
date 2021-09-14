@@ -1157,7 +1157,7 @@
         credentialName: DEFAULT-SFTP
       timing:
         operation: MERGE
-        numberPerDay: 1440
+        numberPerDay: 360   # Useful when you need a bit more of: This thing all things devours: Birds, beasts, trees, flowers
         initialTime: 00:00
         timeZone: EASTERN
 

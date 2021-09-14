@@ -308,23 +308,35 @@ class WorkflowEngine(
             )
             val ids = tasks.map { it.reportId }
             val reportFiles = ids
-                .map { db.fetchReportFile(it, org = null, txn = txn) }
+                .mapNotNull {
+                    try {
+                        db.fetchReportFile(it, org = null, txn = txn)
+                    } catch (e: Exception) {
+                        println(e.printStackTrace())
+                        // sanityCheckReport below will log the problem in better detail.
+                        // note that we are logging but ignoring this error, so that it doesn't poison the entire batch
+                        null // id not found. Can occur if errors in ReportFunction fail to write to REPORT_FILE
+                    }
+                }
                 .map { (it.reportId as ReportId) to it }
                 .toMap()
             val (organization, receiver) = findOrganizationAndReceiver(messageEvent.receiverName, txn)
-            // todo remove this check
+            // This check is needed as long as TASK does not FK to REPORT_FILE.  @todo FK TASK to REPORT_FILE
             ActionHistory.sanityCheckReports(tasks, reportFiles, false)
-            // todo Note that the sanity check means the !! is safe.
-            val headers = tasks.map {
-                createHeader(it, reportFiles[it.reportId]!!, null, organization, receiver)
+            val headers = tasks.mapNotNull {
+                if (reportFiles[it.reportId] != null) {
+                    createHeader(it, reportFiles[it.reportId]!!, null, organization, receiver)
+                } else {
+                    null
+                }
             }
 
             updateBlock(headers, txn)
 
-            headers.forEach {
-                val currentAction = Event.EventAction.parseQueueMessage(it.task.nextAction.literal)
+            tasks.forEach {
+                val currentAction = Event.EventAction.parseQueueMessage(it.nextAction.literal)
                 updateHeader(
-                    it.task.reportId,
+                    it.reportId,
                     currentAction,
                     Event.EventAction.NONE,
                     nextActionAt = null,
