@@ -9,6 +9,12 @@
  */
 
 /*
+ * The vw_results_by_county_lat_long view was manually created in prod, so we need to drop it first.
+ * Another PR will add the view back in the repo.
+ */
+DROP VIEW IF EXISTS public.vw_results_by_county_lat_long;
+
+/*
  * Add several new columns to the covid_result_metadata table to track sender ID and testkit.
  */
 ALTER TABLE covid_result_metadata
