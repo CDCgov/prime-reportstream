@@ -173,7 +173,7 @@ RESOURCE_PREFIX="$(echo "var.resource_prefix" | terraform console --var-file "${
 # Whitelist our IP to access firewalled resources
 function add_ip_whitelist() {
     echo -e "${GRAY?}"
-    echo -e "Whitelisting IP ${PUBLIC_IP?} for Azure resources:"
+    echo -e "Whitelisting IP for Azure resources:"
 
     for resource in "${KeyVaults[@]}"; do
         RESOURCE_NAME="${RESOURCE_PREFIX?}${resource?}"
@@ -201,7 +201,7 @@ function add_ip_whitelist() {
 
 function remove_ip_whitelist() {
     echo -e "${GRAY?}"
-    echo -e "Removing IP whitelist ${PUBLIC_IP?} for Azure resources:"
+    echo -e "Removing IP whitelist for Azure resources:"
 
     for resource in "${KeyVaults[@]}"; do
         RESOURCE_NAME="${RESOURCE_PREFIX?}${resource?}"

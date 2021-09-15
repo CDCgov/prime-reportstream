@@ -18,9 +18,9 @@ resource "azurerm_key_vault" "application" {
     bypass         = "AzureServices"
     default_action = "Deny"
 
-    ip_rules = concat(
+    ip_rules = sensitive(concat(
       [var.terraform_caller_ip_address],
-    )
+    ))
 
     virtual_network_subnet_ids = []
   }
@@ -132,10 +132,10 @@ resource "azurerm_key_vault" "app_config" {
     bypass         = "AzureServices"
     default_action = "Deny"
 
-    ip_rules = concat(
+    ip_rules = sensitive(concat(
       split(",", data.azurerm_key_vault_secret.cyberark_ip_ingress.value),
       [var.terraform_caller_ip_address],
-    )
+    ))
 
     virtual_network_subnet_ids = []
   }
@@ -206,10 +206,10 @@ resource "azurerm_key_vault" "client_config" {
     bypass         = "AzureServices"
     default_action = "Deny"
 
-    ip_rules = concat(
+    ip_rules = sensitive(concat(
       split(",", data.azurerm_key_vault_secret.cyberark_ip_ingress.value),
       [var.terraform_caller_ip_address],
-    )
+    ))
 
     virtual_network_subnet_ids = []
   }
