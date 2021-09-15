@@ -4,6 +4,8 @@ import { useOktaAuth } from "@okta/okta-react";
 import { groupToOrg } from "../../webreceiver-utils";
 import HipaaNotice from "../../components/HipaaNotice";
 import TableReports from "./Table/TableReports";
+import { Suspense } from "react";
+import Spinner from "../../components/Spinner";
 
 const OrgName = () => {
     const { authState } = useOktaAuth();
@@ -27,14 +29,18 @@ function Daily() {
 
     return (
         <>
-            <section className="grid-container margin-bottom-5">
-                <h3 className="margin-bottom-0">
-                    <OrgName />
-                </h3>
-                <h1 className="margin-top-0 margin-bottom-0">COVID-19</h1>
-            </section>
-            <section className="grid-container margin-top-0"></section>
-            <TableReports />
+            <Suspense fallback={<Spinner />}>
+                <section className="grid-container margin-bottom-5">
+                    <h3 className="margin-bottom-0">
+                        <OrgName />
+                    </h3>
+                    <h1 className="margin-top-0 margin-bottom-0">COVID-19</h1>
+                </section>
+            </Suspense>
+            <Suspense fallback={<Spinner />}>
+                <section className="grid-container margin-top-0"></section>
+                <TableReports />
+            </Suspense>
             <HipaaNotice />
         </>
     );
