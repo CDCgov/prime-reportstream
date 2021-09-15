@@ -43,3 +43,10 @@ elements:
           display: "Strep A Ag - rapid"
         - code: 99999999
           display: "UA Dipstick Auto w/o Micro"
+
+    - name: patient_county
+      type: TABLE
+      table: zip-code-data
+      tableColumn: county
+#      cardinality: ZERO_OR_ONE
+      mapper: zipCodeToCounty(patient_zip_code)

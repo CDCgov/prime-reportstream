@@ -53,11 +53,11 @@ elements:
     - name: patient_zip_code
       csvFields: [{name: Patient_zip_code}]
 
-    - name: patient_county
-      type: TABLE
-      table: zip-code-data
-      tableColumn: county
-      mapper: zipCodeToCounty(patient_zip_code)
+#    - name: patient_county
+#      type: TABLE
+#      table: zip-code-data
+#      tableColumn: county
+#      mapper: zipCodeToCounty(patient_zip_code)
 
     - name: patient_phone_number
       csvFields: [{name: Patient_phone_number}]
@@ -408,6 +408,11 @@ elements:
       csvFields: [{name: Testing_lab_specimen_ID}]
       documentation: This field is ignored.
 
+    - name: Test_performed_number_Ignore
+      type: TEXT
+      csvFields: [{name: Test_performed_number}]
+      documentation: This field is ignored unless there is an antibody test.  Then this must be set in the Child Schema.
+
     - name: Test_performed_description_Ignore
       type: TEXT
       csvFields: [{name: Test_performed_description}]
@@ -604,14 +609,14 @@ elements:
       csvFields: [{name: Test_result_code_system}]
       documentation: This field is ignored.
 
-    - name: Test_performed_code_Ignore
-      type: TEXT
-      csvFields: [{name: Test_performed_code}]
-      documentation: This field is ignored.
-
     - name: Test_performed_code_system_Ignore
       type: TEXT
       csvFields: [{name: Test_performed_code_system}]
+      documentation: This field is ignored.
+
+    - name: Test_performed_code_Ignore
+      type: TEXT
+      csvFields: [{name: Test_performed_code}]
       documentation: This field is ignored.
 
     - name: Result_format_Ignore
