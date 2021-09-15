@@ -23,6 +23,12 @@ elements:
     - name: patient_id
       csvFields: [{name: Patient_ID}]
 
+    - name: patient_id_assigner
+      csvFields: [{name: Ordering_facility_name}]
+
+    - name: patient_id_type
+      default: "PI"
+
     - name: patient_last_name
       csvFields: [{name: Patient_last_name}]
 
@@ -93,6 +99,9 @@ elements:
     - name: test_result_date
       csvFields: [{name: Date_result_released, format: "M/d/yyyy H:nn"}]
 
+    - name: date_result_released
+      csvFields: [{name: Date_result_released, format: "M/d/yyyy H:nn"}]
+
     - name: test_result_report_date
       csvFields: [{name: Test_date, format: "M/d/yyyy"}]
 
@@ -109,38 +118,66 @@ elements:
     - name: filler_order_id
       csvFields: [{name: Testing_lab_accession_number}]
 
+    - name: placer_order_id
+      csvFields: [{name: Testing_lab_accession_number}]
 
     - name: specimen_type
       type: CODE
-      csvFields: [{name: Specimen_type_description, format: $alt}]
+      valueSet: sender-automation/specimen_type
+      documentation: Translate inbound text to outbound SNOMED Codes
+      csvFields: [{ name: Specimen_type_description, format: $display}]
       default: "258500001"
-      altValues:
-        - code: "258529004"
-          display: "Oral"
-        - code: "258529004"
-          display: "Oropharyngeal"
-        - code: "258529004"
-          display: "Throat"
-        - code: "258500001"
-          display: "Varied"
-        - code: "258500001"
-          display: "Nasal"
+
+#    - name: specimen_type
+#      type: CODE
+#      csvFields: [{name: Specimen_type_description, format: $alt}]
+#      default: "258500001"
+#      altValues:
+#        - code: "258529004"
+#          display: "Oral"
+#        - code: "258529004"
+#          display: "Oropharyngeal"
+#        - code: "258529004"
+#          display: "Throat"
+#        - code: "258500001"
+#          display: "Varied"
+#        - code: "258500001"
+#          display: "Nasal"
+#        - code: "119364003"
+#          display: "Serum"
+#        - code: "119361006"
+#          display: "Plasma"
+#        - code: "258580003"
+#          display: "Whole Blood"
 
     - name: specimen_source_site_code
       type: CODE
-      csvFields: [{name: Specimen_type_description, format: $alt}]
+      valueSet: sender-automation/specimen_source_site_code
+      documentation: Translate inbound text to outbound SNOMED Codes
+      csvFields: [{ name: Specimen_type_description, format: $display}]
       default: "71836000"
-      altValues:
-        - code: "31389004"
-          display: "Oral"
-        - code: "31389004"
-          display: "Oropharyngeal"
-        - code: "31389004"
-          display: "Throat"
-        - code: "71836000"
-          display: "Varied"
-        - code: "71836000"
-          display: "Nasal"
+
+#    - name: specimen_source_site_code
+#      type: CODE
+#      csvFields: [{name: Specimen_type_description, format: $alt}]
+#      default: "71836000"
+#      altValues:
+#        - code: "31389004"
+#          display: "Oral"
+#        - code: "31389004"
+#          display: "Oropharyngeal"
+#        - code: "31389004"
+#          display: "Throat"
+#        - code: "71836000"
+#          display: "Varied"
+#        - code: "71836000"
+#          display: "Nasal"
+#        - code: "29092000"
+#          display: "Serum"
+#        - code: "29092000"
+#          display: "Plasma"
+#        - code: "29092000"
+#          display: "Whole Blood"
 
 # Ordering provider
     - name: ordering_provider_id
@@ -201,6 +238,7 @@ elements:
     - name: ordering_facility_phone_number
       csvFields: [{name: Ordering_facility_phone_number}]
 
+
 #testing lab
     - name: testing_lab_name
       mapper: concat(testing_lab_name_temp, ordering_facility_name_temp)
@@ -220,8 +258,6 @@ elements:
     - name: testing_lab_phone_number
       csvFields: [{name: Ordering_facility_phone_number}]
 
-    - name: patient_id_assigner
-      csvFields: [{name: Ordering_facility_name}]
 
 #CLIA
     - name: testing_lab_clia
@@ -370,11 +406,6 @@ elements:
     - name: Testing_lab_specimen_ID_Ignore
       type: TEXT
       csvFields: [{name: Testing_lab_specimen_ID}]
-      documentation: This field is ignored.
-
-    - name: Test_performed_number_Ignore
-      type: TEXT
-      csvFields: [{name: Test_performed_number}]
       documentation: This field is ignored.
 
     - name: Test_performed_description_Ignore
