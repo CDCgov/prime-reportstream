@@ -8,21 +8,22 @@ import java.util.UUID
 import kotlin.test.Test
 
 internal class CredentialTests {
+    private val user = UUID.randomUUID()
     private val key = UUID.randomUUID()
     private val pass = UUID.randomUUID()
     private val keyPass = UUID.randomUUID()
 
     private val ppkCredentialWithPass = """
-        {"@type":"UserPpk","user":"user","pass":"$pass","key":"$key","keyPass":"$keyPass"}
+        {"@type":"UserPpk","user":"$user","pass":"$pass","key":"$key","keyPass":"$keyPass"}
     """.trimIndent()
     private val ppkCredentialWithoutPass = """
-        {"@type":"UserPpk","user":"user","key":"$key","keyPass":"$keyPass"}
+        {"@type":"UserPpk","user":"$user","key":"$key","keyPass":"$keyPass"}
     """.trimIndent()
     private val pemCredentialWithPass = """
-        {"@type":"UserPem","user":"user","pass":"$pass","key":"$key","keyPass":"$keyPass"}
+        {"@type":"UserPem","user":"$user","pass":"$pass","key":"$key","keyPass":"$keyPass"}
     """.trimIndent()
     private val pemCredentialWithoutPass = """
-        {"@type":"UserPem","user":"user","key":"$key","keyPass":"$keyPass"}
+        {"@type":"UserPem","user":"$user","key":"$key","keyPass":"$keyPass"}
     """.trimIndent()
 
     @Test
@@ -50,7 +51,7 @@ internal class CredentialTests {
         Credential.fromJSON(ppkCredentialWithPass).run {
             assertThat(this is UserPpkCredential).isTrue()
             if (this is UserPpkCredential) {
-                assertThat(this.user).isEqualTo("user")
+                assertThat(this.user).isEqualTo(this.user)
                 assertThat(this.pass).isEqualTo(this.pass)
                 assertThat(this.keyPass).isEqualTo(this.keyPass)
                 assertThat(this.key).isEqualTo(this.key)
@@ -60,7 +61,7 @@ internal class CredentialTests {
         Credential.fromJSON(ppkCredentialWithoutPass).run {
             assertThat(this is UserPpkCredential).isTrue()
             if (this is UserPpkCredential) {
-                assertThat(this.user).isEqualTo("user")
+                assertThat(this.user).isEqualTo(this.user)
                 assertThat(this.pass).isNull()
                 assertThat(this.keyPass).isEqualTo(this.keyPass)
                 assertThat(this.key).isEqualTo(this.key)
@@ -70,7 +71,7 @@ internal class CredentialTests {
         Credential.fromJSON(pemCredentialWithPass).run {
             assertThat(this is UserPemCredential).isTrue()
             if (this is UserPemCredential) {
-                assertThat(this.user).isEqualTo("user")
+                assertThat(this.user).isEqualTo(this.user)
                 assertThat(this.pass).isEqualTo(this.pass)
                 assertThat(this.keyPass).isEqualTo(this.keyPass)
                 assertThat(this.key).isEqualTo(this.key)
@@ -80,7 +81,7 @@ internal class CredentialTests {
         Credential.fromJSON(pemCredentialWithoutPass).run {
             assertThat(this is UserPemCredential).isTrue()
             if (this is UserPemCredential) {
-                assertThat(this.user).isEqualTo("user")
+                assertThat(this.user).isEqualTo(this.user)
                 assertThat(this.pass).isNull()
                 assertThat(this.keyPass).isEqualTo(keyPass)
                 assertThat(this.key).isEqualTo(key)
