@@ -22,11 +22,7 @@ import kotlin.test.fail
  *   Name format - (OPTIONAL) a filename name format
  *   Recv organization - (OPTIONAL) a receiving organization for the fake data
  *   Output filename pattern - The pattern to test for when testing the output filename
-
-/**
- * Any extra arguments to be passed in to the data processor separated by spaces.
-*/
-EXTRA_ARGS("Extra args
+ *   Extra args - extra arguments to be passed in to the data processor separated by spaces
  */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class QuickSchemaTranslationTests {
@@ -159,7 +155,7 @@ class QuickSchemaTranslationTests {
         /**
          * The data generator.
          */
-        private val dataGenerator = ProcessData(QuickTestUtils.metadata)
+        private val dataGenerator = ProcessData(QuickTestUtils.metadata, QuickTestUtils.fileSettings)
 
         /**
          * Run the data generator.
@@ -167,7 +163,7 @@ class QuickSchemaTranslationTests {
         private fun generateData() {
             val args = mutableListOf(
                 "--input-fake", config.numRecords.toString(), "--input-schema", config.inputSchema,
-                "--output-dir", "build/csv_test_files", "--target-states", config.targetState,
+                "--output-dir", QuickTestUtils.outputDir, "--target-states", config.targetState,
                 "--output-format", config.outputFormat
             )
             if (config.targetCounty.isNotBlank()) {

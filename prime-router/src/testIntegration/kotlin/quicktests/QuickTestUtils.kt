@@ -19,8 +19,15 @@ object QuickTestUtils {
      */
     val metadata = Metadata(Metadata.defaultMetadataDirectory)
 
+    /**
+     * File settings instance. This is used to speed the test as ProcessData recreates this every time by default.
+     */
     val fileSettings = FileSettings(FileSettings.defaultSettingsDirectory)
 
+    /**
+     * The output directory for the test files.
+     */
+    val outputDir = "build/csv_test_files"
     /**
      * Translate an [inputFile] report to the given [schema].
      * @return the pathname to the generated file
@@ -30,7 +37,7 @@ object QuickTestUtils {
         val args = mutableListOf(
             "--input-schema", schema,
             "--input", inputFile,
-            "--output-dir", "build/csv_test_files"
+            "--output-dir", outputDir
         )
         dataGenerator.main(args)
         assertThat(dataGenerator.outputReportFiles.size).isEqualTo(1)
@@ -46,7 +53,7 @@ object QuickTestUtils {
         val args = mutableListOf(
             "--input-schema", schema,
             "--input", inputFile,
-            "--output-dir", "build/csv_test_files", "--route"
+            "--output-dir", outputDir, "--route"
         )
         dataGenerator.main(args)
         assertThat(dataGenerator.outputReportFiles.size).isGreaterThan(0)
@@ -68,7 +75,7 @@ object QuickTestUtils {
         val dataGenerator = ProcessData(metadata, fileSettings)
         val args = mutableListOf(
             "--input-fake", numReports.toString(), "--input-schema", schema,
-            "--output-dir", "build/csv_test_files", "--output-format", outputFormat.toString()
+            "--output-dir", outputDir, "--output-format", outputFormat.toString()
         )
         if (targetState.isNotBlank()) args.addAll(listOf("--target-states", targetState))
         if (targetCounty.isNotBlank()) args.addAll(listOf("--target-counties", targetCounty))
@@ -85,7 +92,7 @@ object QuickTestUtils {
         val dataGenerator = ProcessData(metadata, fileSettings)
         val args = mutableListOf(
             "--merge", fileList.joinToString(","), "--input-schema", schema,
-            "--output-dir", "build/csv_test_files"
+            "--output-dir", outputDir
         )
         dataGenerator.main(args)
         assertThat(dataGenerator.outputReportFiles.size).isEqualTo(1)
