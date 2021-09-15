@@ -462,6 +462,8 @@ jooq {
 tasks.named<nu.studer.gradle.jooq.JooqGenerate>("generateJooq") {
     dependsOn("migrate")
     allInputsDeclared.set(true)
+    inputs.files(project.fileTree("src/main/resources/db/migration")).withPropertyName("migrations")
+        .withPathSensitivity(PathSensitivity.RELATIVE)
 }
 
 /**
@@ -485,7 +487,6 @@ tasks.register("reloadDB") {
     description = "Delete all tables in the database and recreate from the latest schema"
     dependsOn("flywayClean")
     dependsOn("flywayMigrate")
-    dependsOn("reloadSettings")
 }
 
 repositories {

@@ -569,7 +569,12 @@ class Report : Logging {
                     it.siteOfCare = row.getStringOrNull("site_of_care").trimToNull()
                     it.reportId = this.id
                     it.reportIndex = idx
+                    // For sender ID, use first the provided ID and if not use the client ID.
                     it.senderId = row.getStringOrNull("sender_id").trimToNull()
+                    if (it.senderId.isNullOrBlank()) {
+                        val clientSource = sources.firstOrNull { source -> source is ClientSource } as ClientSource?
+                        if (clientSource != null) it.senderId = "${clientSource.organization}.${clientSource.client}"
+                    }
                     it.testKitNameId = row.getStringOrNull("test_kit_name_id").trimToNull()
                     it.testPerformedLoincCode = row.getStringOrNull("test_performed_code").trimToNull()
                 }
@@ -709,7 +714,7 @@ class Report : Logging {
          * Note: A tablesaw Selection is just an array of the row indexes in the oldReport that meet the filter criteria
          */
         fun createItemLineages(selection: Selection, parentReport: Report, childReport: Report): List<ItemLineage> {
-            return selection.mapIndexed() { childRowNum, parentRowNum ->
+            return selection.mapIndexed { childRowNum, parentRowNum ->
                 createItemLineageForRow(parentReport, parentRowNum, childReport, childRowNum)
             }.toList()
         }
