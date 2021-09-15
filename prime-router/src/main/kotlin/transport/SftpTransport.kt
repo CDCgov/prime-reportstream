@@ -20,6 +20,9 @@ import net.schmizz.sshj.sftp.RemoteResourceFilter
 import net.schmizz.sshj.sftp.StatefulSFTPClient
 import net.schmizz.sshj.transport.verification.PromiscuousVerifier
 import net.schmizz.sshj.userauth.keyprovider.PuTTYKeyFile
+import net.schmizz.sshj.userauth.method.AuthMethod
+import net.schmizz.sshj.userauth.method.AuthPassword
+import net.schmizz.sshj.userauth.method.AuthPublickey
 import net.schmizz.sshj.userauth.password.PasswordUtils
 import net.schmizz.sshj.xfer.InMemorySourceFile
 import net.schmizz.sshj.xfer.LocalSourceFile
@@ -122,7 +125,11 @@ class SftpTransport : ITransport, Logging {
                             true -> key.init(keyContents)
                             false -> key.init(keyContents, PasswordUtils.createOneOff(credential.keyPass.toCharArray()))
                         }
-                        sshClient.authPublickey(credential.user, key)
+                        val authProviders = mutableListOf<AuthMethod>(AuthPublickey(key))
+                        if (StringUtils.isNotBlank(credential.pass) && credential.pass != null) {
+                            authProviders.add(AuthPassword(PasswordUtils.createOneOff(credential.pass.toCharArray())))
+                        }
+                        sshClient.auth(credential.user, authProviders)
                     }
                     is UserPpkCredential -> {
                         val key = PuTTYKeyFile()
@@ -131,7 +138,11 @@ class SftpTransport : ITransport, Logging {
                             true -> key.init(keyContents)
                             false -> key.init(keyContents, PasswordUtils.createOneOff(credential.keyPass.toCharArray()))
                         }
-                        sshClient.authPublickey(credential.user, key)
+                        val authProviders = mutableListOf<AuthMethod>(AuthPublickey(key))
+                        if (StringUtils.isNotBlank(credential.pass) && credential.pass != null) {
+                            authProviders.add(AuthPassword(PasswordUtils.createOneOff(credential.pass.toCharArray())))
+                        }
+                        sshClient.auth(credential.user, authProviders)
                     }
                     else -> error("Unknown SftpCredential ${credential::class.simpleName}")
                 }

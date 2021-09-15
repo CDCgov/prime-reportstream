@@ -271,7 +271,7 @@ open class BaseFunction(
             // if the user is an okta sender, their organization name matches the okta group naming schema
             // it would be something like "ignore.ignore-waters", where "ignore" is the organization name
             // split the organizationName to get the correct organization to find in the settings database
-            val settingValue = if(oktaSender) settingName.split(".")[0] else settingName
+            val settingValue = if (oktaSender) settingName.split(".")[0] else settingName
             val setting = facade.findSettingAsJson(settingValue, clazz, organizationName)
                 ?: return@checkAccess HttpUtilities.notFoundResponse(request)
             HttpUtilities.okResponse(request, setting)
