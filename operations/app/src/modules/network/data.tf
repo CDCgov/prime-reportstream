@@ -20,7 +20,8 @@ locals {
 }
 
 data "azurerm_virtual_network" "vnet" {
-  for_each            = toset(local.vnet_names)
+  for_each = toset(local.vnet_names)
+
   name                = each.value
   resource_group_name = var.resource_group
 }

@@ -382,7 +382,12 @@ class TokenFunctionTests {
         assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
         verify {
             anyConstructed<ActionHistory>().trackActionResult(
+<<<<<<< HEAD
+                "AccessToken Request Denied: " +
+                    "Error while requesting simple_report.default.report: " +
+=======
                 "AccessToken Request Denied: Error while requesting simple_report.default.report: " +
+>>>>>>> master
                     "Unable to find auth key for simple_report.default with scope=simple_report.default.report, " +
                     "kid=null, and alg=RS256"
             )
