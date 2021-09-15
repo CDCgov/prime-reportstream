@@ -54,3 +54,9 @@ variable "aad_object_keyvault_admin" {
   type        = string
   description = "Azure Active Directory ID for a user or group who will be given write access to Key Vaults"
 }
+
+variable "terraform_caller_ip_address" {
+  type        = string
+  description = "The IP address of the Terraform script caller. This IP will have already been whitelisted; it's inclusion is to prevent its removal during terraform apply calls."
+  sensitive   = true
+}
