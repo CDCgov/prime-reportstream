@@ -115,7 +115,8 @@ internal class ElementTests {
         }
         mapOf(
             "20210908105903" to "20210908105903",
-            "199803300000+0000" to "19980330000000").forEach {
+            "199803300000+0000" to "19980330000000"
+        ).forEach {
             val optionalDateTime = "[yyyyMMddHHmmssZ][yyyyMMddHHmmZ][yyyyMMddHHmmss]"
             val df = DateTimeFormatter.ofPattern(optionalDateTime)
             val ta = df.parseBest(it.key, OffsetDateTime::from, LocalDateTime::from, Instant::from)
