@@ -29,6 +29,7 @@ ReportStream is currently live and in development in the following jurisdictions
   * Vermont 
   * Washington
   * Wyoming
+  * Illinois
 
 
 ### In development 
@@ -38,7 +39,6 @@ ReportStream is currently live and in development in the following jurisdictions
   * Alaska
   * Connecticut
   * Delaware
-  * Illinois
   * New Hampshire 
   * New York
   * Oregon
