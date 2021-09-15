@@ -281,7 +281,7 @@ class LookupTable(
         filterValue: String? = null,
     ): String? {
         fun filterRows(): List<List<String>> {
-            return if(filterColumn != null && filterValue != null) {
+            return if (filterColumn != null && filterValue != null) {
                 val filterColumnIndex = headerIndex[filterColumn.lowercase()] ?: error("Invalid filter column name")
                 table.filterIndexed { index, row ->
                     index > 0 && row[filterColumnIndex].equals(filterValue, ignoreCase = true)
@@ -329,7 +329,7 @@ class LookupTable(
                 // normalize against the possible where all common words are never worth more than an uncommon word
                 val score =
                     (uncommonCount * uncommonFactor + commonCount).toDouble() /
-                    (uncommonSearchWords.size * uncommonFactor + commonSearchWords.size).toDouble()
+                        (uncommonSearchWords.size * uncommonFactor + commonSearchWords.size).toDouble()
                 Pair(score, rowIndex)
             }
         }
