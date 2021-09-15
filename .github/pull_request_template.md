@@ -31,7 +31,7 @@ Test Steps:
 *Create GitHub issues to track the work remaining, if any*
 - #issue
 
-### Specific Security-related subjects a reviewer should pay specific attention to
+## Specific Security-related subjects a reviewer should pay specific attention to
 - Does this PR introduce new endpoints?
     - new endpoint A
     - new endpoint B
