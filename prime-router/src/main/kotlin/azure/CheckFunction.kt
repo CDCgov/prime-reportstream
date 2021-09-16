@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.azure
 
+import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
@@ -7,12 +8,15 @@ import com.microsoft.azure.functions.HttpStatus
 import com.microsoft.azure.functions.annotation.AuthorizationLevel
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
+import com.microsoft.azure.functions.annotation.TimerTrigger
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.SFTPTransportType
+import gov.cdc.prime.router.azure.db.enums.SettingType
 import gov.cdc.prime.router.transport.SftpTransport
 import net.schmizz.sshj.sftp.RemoteResourceFilter
 import net.schmizz.sshj.sftp.RemoteResourceInfo
 import org.apache.logging.log4j.kotlin.Logging
+import java.time.Instant
 import java.util.UUID
 
 /*
@@ -96,6 +100,48 @@ class CheckFunction : Logging {
             httpStatus = HttpStatus.BAD_REQUEST
         }
         return HttpUtilities.httpResponse(request, responseBody.joinToString("\n") + "\n", httpStatus)
+    }
+
+    /**
+     * Runs a check of all remote connections for all receivers and stores the results in a table.
+     * This is set up to run as a cron job in Azure.
+     * The current cron set up is 0 0 *12 * * * which means to run every two hours
+     */
+    @FunctionName("scheduled-run")
+    fun scheduledRun(
+        @TimerTrigger(name = "scheduledRunTrigger", schedule = "0 0 */12 * * *") timerInfo: String,
+        context: ExecutionContext
+    ) {
+        val settings = WorkflowEngine.settings
+        val db = WorkflowEngine.databaseAccess
+        settings.receivers.forEach {
+            // create the response body
+            val responseBody: MutableList<String> = mutableListOf()
+            // test the transport
+            val initiatedAt = Instant.now()
+            testTransport(it, null, responseBody)
+            val completedOn = Instant.now()
+            db.transact { txn ->
+                // get the id for the organization
+                val organizationId = db.fetchSetting(
+                    SettingType.ORGANIZATION,
+                    it.organizationName,
+                    null,
+                    txn
+                ).let { setting ->
+                    setting?.organizationId
+                }
+                // get the id for the receiver
+                val receiverId = db.fetchSetting(SettingType.RECEIVER, it.name, organizationId, txn).let { receiver ->
+                    receiver?.settingId
+                }
+                // save the record
+                if (organizationId != null && receiverId != null) {
+                    // update and move on
+                }
+            }
+        }
+        return
     }
 
     /**
