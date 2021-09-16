@@ -15,10 +15,14 @@ resource "azurerm_key_vault" "application" {
   purge_protection_enabled        = true
 
   network_acls {
-    bypass                     = "AzureServices"
-    default_action             = "Deny"
+    bypass         = "AzureServices"
+    default_action = "Deny"
+
+    ip_rules = sensitive(concat(
+      [var.terraform_caller_ip_address],
+    ))
+
     virtual_network_subnet_ids = []
-    // We're using a private endpoint, so none need to be associated
   }
 
   lifecycle {
@@ -125,10 +129,15 @@ resource "azurerm_key_vault" "app_config" {
   purge_protection_enabled        = true
 
   network_acls {
-    bypass                     = "AzureServices"
-    default_action             = "Deny"
+    bypass         = "AzureServices"
+    default_action = "Deny"
+
+    ip_rules = sensitive(concat(
+      split(",", data.azurerm_key_vault_secret.cyberark_ip_ingress.value),
+      [var.terraform_caller_ip_address],
+    ))
+
     virtual_network_subnet_ids = []
-    // We're using a private endpoint, so none need to be associated
   }
 
   lifecycle {
@@ -194,10 +203,15 @@ resource "azurerm_key_vault" "client_config" {
   purge_protection_enabled        = true
 
   network_acls {
-    bypass                     = "AzureServices"
-    default_action             = "Deny"
+    bypass         = "AzureServices"
+    default_action = "Deny"
+
+    ip_rules = sensitive(concat(
+      split(",", data.azurerm_key_vault_secret.cyberark_ip_ingress.value),
+      [var.terraform_caller_ip_address],
+    ))
+
     virtual_network_subnet_ids = []
-    // We're using a private endpoint, so none need to be associated
   }
 
   lifecycle {

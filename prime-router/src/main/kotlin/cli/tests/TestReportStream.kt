@@ -401,7 +401,7 @@ abstract class CoolTest {
         var waitSecs = 60 - secsElapsed + plusSecs
         if (env != ReportStreamEnv.LOCAL) {
             // We are in Test or Staging, which don't execute on the top of the minute. Hack:
-            waitSecs += 120
+            waitSecs += 130
         } else if (secsElapsed > (60 - plusSecs)) {
             // Uh oh, we are close to the top of the minute *now*, so 'receive' might not finish in time.
             waitSecs += 60

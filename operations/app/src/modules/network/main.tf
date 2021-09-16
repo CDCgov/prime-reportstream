@@ -1,12 +1,12 @@
 /* Subnet CIDRs */
 module "subnet_addresses" {
-  for_each = data.azurerm_virtual_network.vnet
+  for_each = toset(local.vnet_names)
 
   source  = "hashicorp/subnets/cidr"
   version = "1.0.0"
 
   // VNETs can have multiple address spaces associated with them; we are using the first CIDR to create out subnets
-  base_cidr_block = each.value.address_space[0]
+  base_cidr_block = data.azurerm_virtual_network.vnet[each.value].address_space[0]
 
   // If additional subnets need to be added or created in the future, read the module documentation to ensure CIDRs remain the same
   // https://registry.terraform.io/modules/hashicorp/subnets/cidr/latest
@@ -26,10 +26,6 @@ module "subnet_addresses" {
     {
       name     = "endpoint"
       new_bits = 3
-    },
-    {
-      name     = "GatewaySubnet"
-      new_bits = 2
     },
   ]
 }

@@ -12,7 +12,7 @@ const oktaAuthConfig: OktaAuthOptions = {
 };
 
 const oktaSignInConfig = {
-    logo: "//logo.clearbit.com/cdc.gov",
+    logo: "https://reportstream.cdc.gov/assets/img/cdc-logo.svg",
     language: "en",
     features: {
         registration: false, // Disable self-service registration flow

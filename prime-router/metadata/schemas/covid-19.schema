@@ -217,7 +217,7 @@ elements:
     hl7Field: OBR-25
 
   - name: order_test_date
-    type: DATE
+    type: DATETIME
     natFlatFileField: Order_test_date
     hhsGuidanceField:
     hl7Field: ORC-15

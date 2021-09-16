@@ -102,24 +102,20 @@ class ReportFunction : Logging {
         context: ExecutionContext,
     ): HttpResponseMessage {
 
-        logger.debug(" request headers: ${request.headers}")
         val workflowEngine = WorkflowEngine()
         val authenticationStrategy = AuthenticationStrategy.authStrategy(
             request.headers["authentication-type"],
             PrincipalLevel.USER,
             workflowEngine
         )
-        val senderName = request.headers[CLIENT_PARAMETER]
-            ?: request.queryParameters.getOrDefault(CLIENT_PARAMETER, "")
-        // todo This code is redundant w/validateRequest. Remove from validateRequest once old endpoint is removed
-        if (senderName.isBlank())
+        val senderName = extractClientHeader(request)
+        if (senderName.isNullOrBlank())
             return HttpUtilities.bad(request, "Expected a '$CLIENT_PARAMETER' query parameter")
         val sender = workflowEngine.settings.findSender(senderName)
             ?: return HttpUtilities.bad(request, "'$CLIENT_PARAMETER:$senderName': unknown sender")
-
         if (authenticationStrategy is OktaAuthentication) {
-            // Okta Auth
-            return authenticationStrategy.checkAccess(request, senderName) {
+            // The report is coming from a sender that is using Okta, so set "oktaSender" to true
+            return authenticationStrategy.checkAccess(request, senderName, true) {
                 return@checkAccess ingestReport(request, context)
             }
         }
@@ -257,7 +253,9 @@ class ReportFunction : Logging {
      * @param request the http request message from the client
      */
     private fun extractClientHeader(request: HttpRequestMessage<String?>): String {
-        return request.headers[CLIENT_PARAMETER] ?: request.queryParameters.getOrDefault(CLIENT_PARAMETER, "")
+        // client can be in the header or in the url parameters:
+        return request.headers[CLIENT_PARAMETER]
+            ?: request.queryParameters.getOrDefault(CLIENT_PARAMETER, "")
     }
 
     private fun validateRequest(engine: WorkflowEngine, request: HttpRequestMessage<String?>): ValidatedRequest {

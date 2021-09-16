@@ -1,9 +1,9 @@
 import "./App.css";
-import { Home } from "./pages/Home";
+import { Home } from "./pages/home/Home";
 import { ReportStreamFooter } from "./components/ReportStreamFooter";
-import { Daily } from "./pages/Daily";
-import { HowItWorks } from "./pages/HowItWorks";
-import { Details } from "./pages/Details";
+import Daily from "./pages/daily/Daily";
+import { HowItWorks } from "./pages/how-it-works/HowItWorks";
+import { Details } from "./pages/details/Details";
 import { Login } from "./pages/Login";
 import { TermsOfService } from "./pages/TermsOfService";
 import { GovBanner } from "@trussworks/react-uswds";
@@ -16,9 +16,9 @@ import { Security, SecureRoute, LoginCallback } from "@okta/okta-react";
 import { NetworkErrorBoundary } from "rest-hooks";
 import { SpinnerCircular } from "spinners-react";
 import { About } from "./pages/About";
-import {AuthorizedRoute} from "./components/AuthorizedRoute";
-import {PERMISSIONS} from "./resources/PermissionsResource";
-import {permissionCheck, reportReceiver} from "./webreceiver-utils";
+import { AuthorizedRoute } from "./components/AuthorizedRoute";
+import { PERMISSIONS } from "./resources/PermissionsResource";
+import { permissionCheck, reportReceiver } from "./webreceiver-utils";
 import { Upload } from "./pages/Upload";
 
 const oktaAuth = new OktaAuth(oktaAuthConfig);
@@ -34,7 +34,7 @@ const App = () => {
         // check if the user would have any data to receive via their organizations from the okta claim
         // direct them to the /upload page if they do not have an organization that receives data
         const authState = oktaAuth.authStateManager._authState;
-        if (!reportReceiver(authState) && permissionCheck(PERMISSIONS['sender'], authState) ) {
+        if (!reportReceiver(authState) && permissionCheck(PERMISSIONS.SENDER, authState)) {
             history.replace(toRelativeUrl(`${window.location.origin}/upload`, window.location.origin));
             return;
         }
@@ -50,13 +50,11 @@ const App = () => {
         >
             <Suspense
                 fallback={
-                    <div id="div">
-                        <div id="spinner">
-                            <SpinnerCircular
-                                color="rgba(57, 88, 172, 1)"
-                                size="30%"
-                            />
-                        </div>
+                    <div id="spinner">
+                        <SpinnerCircular
+                            color="rgba(57, 88, 172, 1)"
+                            size="15%"
+                        />
                     </div>
                 }
             >
@@ -70,7 +68,6 @@ const App = () => {
                         <ReportStreamHeader />
                         <Switch>
                             <Route path="/" exact={true} component={Home} />
-                            <SecureRoute path="/daily" component={Daily} />
                             <Route path="/about" component={About} />
                             <Route
                                 path="/how-it-works"
@@ -94,13 +91,13 @@ const App = () => {
                                 path="/login/callback"
                                 component={LoginCallback}
                             />
-                            <AuthorizedRoute path='/daily' authorize={PERMISSIONS['receiver']} component={Daily} />
-                            <AuthorizedRoute path='/upload' authorize={PERMISSIONS['sender']} component={Upload} />
+                            <AuthorizedRoute path='/daily' authorize={PERMISSIONS.RECEIVER} component={Daily} />
+                            <AuthorizedRoute path='/upload' authorize={PERMISSIONS.SENDER} component={Upload} />
                         </Switch>
-                        <div className="footer">
-                            <ReportStreamFooter />
-                        </div>
                     </div>
+                    <footer className="usa-identifier footer">
+                        <ReportStreamFooter />
+                    </footer>
                 </NetworkErrorBoundary>
             </Suspense>
         </Security>

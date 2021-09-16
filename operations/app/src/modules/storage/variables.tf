@@ -22,3 +22,9 @@ variable "rsa_key_4096" {
   type        = string
   description = "Name of the 2048 length RSA key in the Key Vault. Omitting will use Azure-managed key instead of a customer-key."
 }
+
+variable "terraform_caller_ip_address" {
+  type        = string
+  description = "The IP address of the Terraform script caller. This IP will have already been whitelisted; it's inclusion is to prevent its removal during terraform apply calls."
+  sensitive   = true
+}
