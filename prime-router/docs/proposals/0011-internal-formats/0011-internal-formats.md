@@ -5,7 +5,7 @@ This proposal is part of a series of recommendations that try to solve multiple 
 ## Going beyond COVID-19
 USDS created ReportStream in response to the COVID-19 public health emergency, but with the thought that it would last beyond this emergency. Although the public health emergency is not over, several product requests indicate that it is time to consider how to take ReportStream beyond the public health emergency. Among these are: 
 
-1. Full ELR support for HCA: The HCA team has requested full ELR support from ReportStream first and VXU and ADT support in the future.  
+1. Full ELR support, followed by VXU and ADT support in the future.  
 
 2. Simple Report's lead testing: SimpleReport, the first sender to ReportStream, is adding lead testing to its capabilities. 
 
