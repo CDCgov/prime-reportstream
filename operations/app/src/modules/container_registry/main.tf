@@ -12,6 +12,11 @@ resource "azurerm_container_registry" "container_registry" {
       action    = "Allow"
       subnet_id = data.azurerm_subnet.public.id
     }
+
+    virtual_network {
+      action    = "Allow"
+      subnet_id = data.azurerm_subnet.public_subnet.id
+    }
   }
 
   trust_policy {

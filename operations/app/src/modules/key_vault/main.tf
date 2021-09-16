@@ -116,6 +116,16 @@ module "application_private_endpoint" {
   endpoint_subnet_id = data.azurerm_subnet.endpoint.id
 }
 
+module "application_vault_private_endpoint" {
+  source             = "../common/private_endpoint"
+  resource_id        = azurerm_key_vault.application.id
+  name               = azurerm_key_vault.application.name
+  type               = "key_vault"
+  resource_group     = var.resource_group
+  location           = var.location
+  endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet.id
+}
+
 resource "azurerm_key_vault" "app_config" {
   name = "${var.resource_prefix}-appconfig"
   # Does not include "-keyvault" due to char limits (24)
@@ -189,6 +199,16 @@ module "app_config_private_endpoint" {
   endpoint_subnet_id = data.azurerm_subnet.endpoint.id
 }
 
+module "app_config_vault_private_endpoint" {
+  source             = "../common/private_endpoint"
+  resource_id        = azurerm_key_vault.app_config.id
+  name               = azurerm_key_vault.app_config.name
+  type               = "key_vault"
+  resource_group     = var.resource_group
+  location           = var.location
+  endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet.id
+}
+
 resource "azurerm_key_vault" "client_config" {
   # Does not include "-keyvault" due to char limits (24)
   name = "${var.resource_prefix}-clientconfig"
@@ -251,4 +271,14 @@ module "client_config_private_endpoint" {
   resource_group     = var.resource_group
   location           = var.location
   endpoint_subnet_id = data.azurerm_subnet.endpoint.id
+}
+
+module "client_config_vault_private_endpoint" {
+  source             = "../common/private_endpoint"
+  resource_id        = azurerm_key_vault.client_config.id
+  name               = azurerm_key_vault.client_config.name
+  type               = "key_vault"
+  resource_group     = var.resource_group
+  location           = var.location
+  endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet.id
 }

@@ -7,7 +7,7 @@ resource "azurerm_network_profile" "sftp_network_profile" {
     name = "sftp_container_network_interface"
     ip_configuration {
       name      = "sftp_container_ip_configuration"
-      subnet_id = data.azurerm_subnet.container.id
+      subnet_id = var.environment != "prod" ? data.azurerm_subnet.container_subnet.id : data.azurerm_subnet.container.id
     }
   }
 }
