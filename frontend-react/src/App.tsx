@@ -8,13 +8,13 @@ import { Login } from "./pages/Login";
 import { TermsOfService } from "./pages/TermsOfService";
 import { GovBanner } from "@trussworks/react-uswds";
 import { ReportStreamHeader } from "./components/ReportStreamHeader";
-import { Suspense } from "react";
+
 import { oktaSignInConfig, oktaAuthConfig } from "./oktaConfig";
 import { Route, useHistory, Switch } from "react-router-dom";
 import { OktaAuth, toRelativeUrl } from "@okta/okta-auth-js";
 import { Security, SecureRoute, LoginCallback } from "@okta/okta-react";
 import { NetworkErrorBoundary } from "rest-hooks";
-import Spinner from './components/Spinner'
+
 import { About } from "./pages/About";
 import { AuthorizedRoute } from "./components/AuthorizedRoute";
 import { PERMISSIONS } from "./resources/PermissionsResource";
@@ -81,7 +81,7 @@ const App = () => {
                             path="/login/callback"
                             component={LoginCallback}
                         />
-                        <AuthorizedRoute path='/daily' authorize={PERMISSIONS.RECEIVER} component={Daily} />
+                        <AuthorizedRoute path='/daily-data' authorize={PERMISSIONS.RECEIVER} component={Daily} />
                         <AuthorizedRoute path='/upload' authorize={PERMISSIONS.SENDER} component={Upload} />
                     </Switch>
                 </div>
