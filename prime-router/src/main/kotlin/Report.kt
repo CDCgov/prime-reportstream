@@ -573,7 +573,7 @@ class Report : Logging {
                     it.senderId = row.getStringOrNull("sender_id").trimToNull()
                     if (it.senderId.isNullOrBlank()) {
                         val clientSource = sources.firstOrNull { source -> source is ClientSource } as ClientSource?
-                        if (clientSource != null) it.senderId = "${clientSource.organization}.${clientSource.client}"
+                        if (clientSource != null) it.senderId = clientSource.name
                     }
                     it.testKitNameId = row.getStringOrNull("test_kit_name_id").trimToNull()
                     it.testPerformedLoincCode = row.getStringOrNull("test_performed_code").trimToNull()

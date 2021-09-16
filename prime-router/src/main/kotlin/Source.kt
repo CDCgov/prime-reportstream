@@ -10,6 +10,8 @@ data class FileSource(val fileName: String) : Source()
 
 data class ReportSource(val id: ReportId, val action: String) : Source()
 
-data class ClientSource(val organization: String, val client: String) : Source()
+data class ClientSource(val organization: String, val client: String) : Source() {
+    val name = "$organization.$client"
+}
 
 object TestSource : Source()
