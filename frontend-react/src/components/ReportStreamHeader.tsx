@@ -75,7 +75,7 @@ const SignInOrUser = () => {
             </a>
         </div>
     ) : (
-        <Link href="/daily">
+        <Link href="/daily-data">
             <Button type="button" outline>
                 Log in
             </Button>
@@ -137,7 +137,7 @@ export const ReportStreamHeader = () => {
     if (authState !== null && authState.isAuthenticated) {
         if (reportReceiver(authState)) {
             itemsMenu.splice(0, 0,
-                <Link href="/daily"
+                <Link href="/daily-data"
                     key="daily"
                     data-attribute="hidden"
                     hidden={true}
