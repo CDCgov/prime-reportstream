@@ -25,7 +25,7 @@ import java.time.format.DateTimeFormatter
 import java.util.Properties
 
 plugins {
-    kotlin("jvm") version "1.5.21"
+    kotlin("jvm") version "1.5.30"
     id("org.flywaydb.flyway") version "7.14.0"
     id("nu.studer.jooq") version "6.0"
     id("com.github.johnrengelman.shadow") version "7.0.0"
@@ -77,7 +77,7 @@ val jooqPackageName = "gov.cdc.prime.router.azure.db"
 
 defaultTasks("package")
 
-val kotlinVersion = "1.5.21"
+val kotlinVersion = "1.5.30"
 jacoco.toolVersion = "0.8.7"
 
 // Set the compiler JVM target
@@ -501,13 +501,13 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-core:[2.13.2,)")
     implementation("org.apache.logging.log4j:log4j-slf4j-impl:[2.13.2,)")
     implementation("org.apache.logging.log4j:log4j-api-kotlin:1.0.0")
-    implementation("com.github.doyaaaaaken:kotlin-csv-jvm:0.15.2")
+    implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.1.0")
     implementation("tech.tablesaw:tablesaw-core:0.38.5")
     implementation("com.github.ajalt.clikt:clikt-jvm:3.2.0")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.12.4")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.12.4")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.12.4")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.12.4")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.12.5")
     implementation("com.github.javafaker:javafaker:1.0.2")
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
