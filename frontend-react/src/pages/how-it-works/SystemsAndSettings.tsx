@@ -43,7 +43,7 @@ export const SystemsAndSettings = () => {
 
                 <p>ReportStream uses a Secure File Transfer Protocol (SFTP) standard ELR connection. Public health departments using the ReportStream ELR can request data be sent in real time, or batched according to your needs.</p>
 
-                <p>Public health departments can request alternative transport platforms such as VPN, PNIMS, SOAP, etc. Setting up alternative formats is possible, but requires more time throughout the data integration process.</p>
+                <p>Public health departments can request alternative transport platforms such as VPN, PHINMS, SOAP, etc. Setting up alternative formats is possible, but requires more time throughout the data integration process.</p>
 
                 <h2 id="file-testing-and-launch">File testing and launch</h2>
 
