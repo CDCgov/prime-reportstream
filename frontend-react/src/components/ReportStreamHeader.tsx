@@ -147,7 +147,7 @@ export const ReportStreamHeader = () => {
             );
         }
 
-        if (permissionCheck(PERMISSIONS['sender'], authState)) {
+        if (permissionCheck(PERMISSIONS.SENDER, authState)) {
             itemsMenu.splice(1, 0,
                 <Link href="/upload"
                     key="upload"

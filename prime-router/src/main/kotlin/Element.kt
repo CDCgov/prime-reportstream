@@ -540,7 +540,7 @@ data class Element(
                 } ?: try {
                     val formatter = DateTimeFormatter.ofPattern(format ?: datePattern, Locale.ENGLISH)
                     LocalDate.parse(formattedValue, formatter)
-                } catch(e: DateTimeParseException) {
+                } catch (e: DateTimeParseException) {
                     null
                 } ?: try {
                     val optionalDateTime = variableDateTimePattern

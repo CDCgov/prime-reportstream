@@ -59,7 +59,7 @@ resource "azurerm_private_endpoint" "endpoint" {
 
   # Automatically register the private endpoint in the private DNS zones
   dynamic "private_dns_zone_group" {
-    for_each = (var.location == "eastus") ? [0] : [] # DNS not needed for peered VNET
+    for_each = [0] # DNS needed for all zones. For each block retained to keep existing resource paths.
     content {
       name                 = local.endpoint_name
       private_dns_zone_ids = [for dns_zone in data.azurerm_private_dns_zone.private_dns_cname : dns_zone.id]
