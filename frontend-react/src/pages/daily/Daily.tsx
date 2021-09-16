@@ -29,14 +29,15 @@ function Daily() {
 
     return (
         <>
-            <Suspense fallback={<Spinner />}>
-                <section className="grid-container margin-bottom-5">
+            <section className="grid-container margin-bottom-5">
+                <Suspense fallback={<span className="text-normal text-base">Loading Info...</span>}>
                     <h3 className="margin-bottom-0">
                         <OrgName />
                     </h3>
-                    <h1 className="margin-top-0 margin-bottom-0">COVID-19</h1>
-                </section>
-            </Suspense>
+
+                </Suspense>
+                <h1 className="margin-top-0 margin-bottom-0">COVID-19</h1>
+            </section>
             <Suspense fallback={<Spinner />}>
                 <section className="grid-container margin-top-0"></section>
                 <TableReports />
