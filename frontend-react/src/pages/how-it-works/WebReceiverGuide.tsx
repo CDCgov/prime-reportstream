@@ -101,8 +101,7 @@ export const WebReceiverGuide = () => {
                     ReportStream is utilizing a{" "}
                     <a href="https://www.hhs.gov/" className="usa-link">
                         Health and Human Services
-                    </a>{" "}
-                    owned <a href="https://okta.com">Okta</a> account for
+                    </a>-owned <a href="https://okta.com">Okta</a> account for
                     managing access to the application. Okta is a U.S. based
                     cloud software provider that specializes in access and
                     identity management.
