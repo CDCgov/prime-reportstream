@@ -1,4 +1,12 @@
-enum class ResponseMsgType { NONE, PAYLOAD_SIZE, OPTION, ROUTE_TO, REPORT, MISSING, UNEXPECTED, INVALID_DATE, INVALID_CODE, TRANSLATION }
+enum class ResponseMsgType { 
+    MISSING,
+    INVALID_DATE,
+    INVALID_CODE,
+    INVALID_PHONE,
+    INVALID_POSTAL,
+    UNSUPPORTED_HD,
+    UNSUPPORTED_EI,
+}
 
 interface ResponseMessage {
     val type: ResponseMsgType
