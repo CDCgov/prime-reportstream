@@ -9,6 +9,11 @@ on:
     branches:
       - master
 
+env:
+  # These are for CI and not credentials of any system
+  DB_USER: prime
+  DB_PASSWORD: changeIT!
+
 jobs:
   pre_job:
     name: Pre Job
@@ -32,10 +37,6 @@ jobs:
     needs: pre_job
     if: ${{ needs.pre_job.outputs.has_router_change == 'true' }}
     runs-on: ubuntu-latest
-    env:
-      # These are for CI and not credentials of any system
-      POSTGRES_USER: prime
-      POSTGRES_PASSWORD: changeIT!
     defaults:
       run:
         working-directory: prime-router
@@ -43,21 +44,6 @@ jobs:
     steps:
       - name: "Check out changes"
         uses: actions/checkout@v2
-
-      - name: Set Environment Variables
-        run: |
-          echo >> $GITHUB_ENV DB_USER=${POSTGRES_USER}
-          echo >> $GITHUB_ENV DB_PASSWORD=${POSTGRES_PASSWORD}
-          if [ "$GITHUB_BASE_REF" == "production" ]
-          then
-              echo "Building for the production environment."
-              echo >> $GITHUB_ENV ACR_REPO=pdhprodcontainerregistry.azurecr.io
-              echo >> $GITHUB_ENV PREFIX=pdhprod
-          else
-              echo "Building for the test environment."
-              echo >> $GITHUB_ENV ACR_REPO=pdhstagingcontainerregistry.azurecr.io
-              echo >> $GITHUB_ENV PREFIX=pdhstaging
-          fi
 
       # Appears not to be needed on GitHub (but needed when running act [https://github.com/nektos/act] locally)
       # - name: Install docker-compose
@@ -91,6 +77,82 @@ jobs:
           # This path is from the root of the repo as needed by the plugin
           files: prime-router/build/test-results/testIntegration/**/*.xml
           check_name: "Integration Test Results"
+
+  smoke_tests:
+    name: Smoke Tests
+    needs: pre_job
+    if: ${{ needs.pre_job.outputs.has_router_change == 'true' }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: prime-router
+
+    steps:
+      - name: "Check out changes"
+        uses: actions/checkout@v2
+
+      # Appears not to be needed on GitHub (but needed when running act [https://github.com/nektos/act] locally)
+      # - name: Install docker-compose
+      #   run: apt-get update && apt-get --yes install docker-compose
+
+      - name: Build Prime Router Package
+        run: bash ./cleanslate.sh
+
+      - name: Run Smoke Tests
+        run: bash ./build.sh -- gradle testSmoke
+
+
+  docker_build_test:
+    name: Testing Docker Build
+    needs: pre_job
+    if: ${{ needs.pre_job.outputs.has_router_change == 'true' }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: prime-router
+
+    steps:
+      - name: "Check out changes"
+        uses: actions/checkout@v2
+
+      # Appears not to be needed on GitHub (but needed when running act [https://github.com/nektos/act] locally)
+      # - name: Install docker-compose
+      #   run: apt-get update && apt-get --yes install docker-compose
+
+      - name: Build Prime Router Package
+        run: bash ./build.sh -- gradle clean package -x fatjar
+
+      - name: Build Docker Image
+        run: docker build . --file Dockerfile --tag cdcgov/reportstream:latest
+          
+  linting:
+    name: Check Linting
+    needs: pre_job
+    if: ${{ needs.pre_job.outputs.has_router_change == 'true' }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: prime-router
+
+    steps:
+      - name: "Check out changes"
+        uses: actions/checkout@v2
+
+      - name: Run Linting Check
+        run: bash ./build.sh -- gradle ktlintCheck
+
+  docs:
+    name: Check Docs
+    needs: pre_job
+    if: ${{ needs.pre_job.outputs.has_router_change == 'true' }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: prime-router
+
+    steps:
+      - name: "Check out changes"
+        uses: actions/checkout@v2
 
       - name: Generate New Docs
         run: |
@@ -140,6 +202,3 @@ jobs:
         if: ${{ steps.check_changes.outcome == 'failure' }}
         run: |
           false
-
-      - name: Build Docker Image
-        run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest
