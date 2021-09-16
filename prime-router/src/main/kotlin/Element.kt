@@ -386,8 +386,8 @@ data class Element(
     /**
      * Take a formatted value and check to see if can be stored in a report.
      */
-    fun checkForError(formattedValue: String, format: String? = null): String? {
-        if (formattedValue.isBlank() && !isOptional && !canBeBlank) return "Blank value for element $fieldMapping"
+    fun checkForError(formattedValue: String, format: String? = null): ResponseMessage? {
+        if (formattedValue.isBlank() && !isOptional && !canBeBlank) return MissingFieldMessage.new(fieldMapping)
         return when (type) {
             Type.DATE -> {
                 try {
@@ -408,7 +408,7 @@ data class Element(
                     LocalDate.from(ta)
                     return null
                 } catch (e: DateTimeParseException) {
-                    "Invalid date: '$formattedValue' for element $fieldMapping"
+                    InvalidDateMessage.new(formattedValue, fieldMapping)
                 }
             }
             Type.DATETIME -> {
@@ -449,28 +449,28 @@ data class Element(
                     LocalDate.parse(formattedValue, formatter)
                     null
                 } catch (e: DateTimeParseException) {
-                    "Invalid date time: '$formattedValue' for element $fieldMapping"
+                    InvalidDateMessage.new(formattedValue, fieldMapping)
                 }
             }
             Type.CODE -> {
                 // First, prioritize use of a local $alt format, even if no value set exists.
                 return if (format == altDisplayToken) {
                     if (toAltCode(formattedValue) != null) null else
-                        "Invalid code: '$formattedValue' is not a display value in altValues set for $fieldMapping"
+                        InvalidCodeMessage.new(formattedValue, fieldMapping)
                 } else {
                     if (valueSetRef == null) error("Schema Error: missing value set for $fieldMapping")
                     when (format) {
                         displayToken ->
                             if (valueSetRef.toCodeFromDisplay(formattedValue) != null) null else
-                                "Invalid code: '$formattedValue' not a display value for element $fieldMapping"
+                                InvalidCodeMessage.new(formattedValue, fieldMapping)
                         codeToken -> {
                             val values = altValues ?: valueSetRef.values
                             if (values.find { it.code == formattedValue } != null) null else
-                                "Invalid code: '$formattedValue' is not a code value for element $fieldMapping"
+                                InvalidCodeMessage.new(formattedValue, fieldMapping)
                         }
                         else ->
                             if (valueSetRef.toNormalizedCode(formattedValue) != null) null else
-                                "Invalid code: '$formattedValue' does not match any codes for $fieldMapping"
+                                InvalidCodeMessage.new(formattedValue, fieldMapping)
                     }
                 }
             }
@@ -480,17 +480,17 @@ data class Element(
                     // this then causes a report level failure, not an element level failure
                     val number = phoneNumberUtil.parse(formattedValue, "US")
                     if (!number.hasNationalNumber() || number.nationalNumber > 9999999999L)
-                        "Invalid phone number '$formattedValue' for $fieldMapping"
+                        InvalidPhoneMessage.new(formattedValue, fieldMapping)
                     else
                         null
                 } catch (ex: Exception) {
-                    "Invalid phone number '$formattedValue' for $fieldMapping"
+                        InvalidPhoneMessage.new(formattedValue, fieldMapping)
                 }
             }
             Type.POSTAL_CODE -> {
                 // Let in all formats defined by http://www.dhl.com.tw/content/dam/downloads/tw/express/forms/postcode_formats.pdf
                 return if (!Regex("^[A-Za-z\\d\\- ]{3,12}\$").matches(formattedValue))
-                    "Invalid postal code '$formattedValue' for $fieldMapping"
+                    InvalidPostalMessage.new(formattedValue, fieldMapping)
                 else
                     null
             }
@@ -502,9 +502,9 @@ data class Element(
                     hdSystemToken -> null
                     hdCompleteFormat -> {
                         val parts = formattedValue.split(hdDelimiter)
-                        if (parts.size == 1 || parts.size == 3) null else "Invalid HD format"
+                        if (parts.size == 1 || parts.size == 3) null else UnsupportedHDMessage.new()
                     }
-                    else -> "Unsupported HD format for input: '$format' in $fieldMapping"
+                    else -> UnsupportedHDMessage.new(format, fieldMapping)
                 }
             }
             Type.EI -> {
@@ -515,9 +515,9 @@ data class Element(
                     eiSystemToken -> null
                     eiCompleteFormat -> {
                         val parts = formattedValue.split(eiDelimiter)
-                        if (parts.size == 1 || parts.size == 4) null else "Invalid EI format"
+                        if (parts.size == 1 || parts.size == 4) null else UnsupportedEIMessage.new()
                     }
-                    else -> "Unsupported EI format for input: '$format' in $fieldMapping"
+                    else -> UnsupportedEIMessage.new(format, fieldMapping)
                 }
             }
 

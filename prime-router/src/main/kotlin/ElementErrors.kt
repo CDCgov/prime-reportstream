@@ -1,3 +1,5 @@
+package gov.cdc.prime.router
+
 data class MissingFieldMessage(
     override val type: ResponseMsgType = ResponseMsgType.MISSING,
     val formattedValue: String = "",
@@ -12,8 +14,8 @@ data class MissingFieldMessage(
     }
 
     companion object {
-        fun new(formattedValue: String, fieldMapping: String): MissingFieldMessage {
-            return MissingFieldMessage(ResponseMsgType.MISSING, formattedValue, fieldMapping)
+        fun new(fieldMapping: String): MissingFieldMessage {
+            return MissingFieldMessage(ResponseMsgType.MISSING, fieldMapping)
         }
     }
 }
@@ -58,7 +60,7 @@ data class InvalidCodeMessage(
     }
 }
 
-data class InvalidPoneMessage(
+data class InvalidPhoneMessage(
     override val type: ResponseMsgType = ResponseMsgType.INVALID_PHONE,
     val formattedValue: String = "",
     val fieldMapping: String = ""
@@ -72,8 +74,8 @@ data class InvalidPoneMessage(
     }
 
     companion object {
-        fun new(formattedValue: String, fieldMapping: String): InvalidPoneMessage {
-            return InvalidPoneMessage(ResponseMsgType.INVALID_PHONE, formattedValue, fieldMapping)
+        fun new(formattedValue: String, fieldMapping: String): InvalidPhoneMessage {
+            return InvalidPhoneMessage(ResponseMsgType.INVALID_PHONE, formattedValue, fieldMapping)
         }
     }
 }
@@ -112,6 +114,10 @@ data class UnsupportedHDMessage(
     }
 
     companion object {
+        fun new(): UnsupportedHDMessage {
+            return UnsupportedHDMessage(ResponseMsgType.UNSUPPORTED_HD)
+        }
+
         fun new(formattedValue: String, fieldMapping: String): UnsupportedHDMessage {
             return UnsupportedHDMessage(ResponseMsgType.UNSUPPORTED_HD, formattedValue, fieldMapping)
         }
@@ -132,6 +138,10 @@ data class UnsupportedEIMessage(
     }
 
     companion object {
+        fun new(): UnsupportedEIMessage {
+            return UnsupportedEIMessage(ResponseMsgType.UNSUPPORTED_EI)
+        }
+
         fun new(formattedValue: String, fieldMapping: String): UnsupportedEIMessage {
             return UnsupportedEIMessage(ResponseMsgType.UNSUPPORTED_EI, formattedValue, fieldMapping)
         }

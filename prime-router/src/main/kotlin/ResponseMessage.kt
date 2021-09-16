@@ -1,3 +1,5 @@
+package gov.cdc.prime.router
+
 enum class ResponseMsgType { 
     MISSING,
     INVALID_DATE,
