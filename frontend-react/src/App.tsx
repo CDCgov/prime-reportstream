@@ -48,11 +48,6 @@ const App = () => {
             onAuthRequired={customAuthHandler}
             restoreOriginalUri={restoreOriginalUri}
         >
-            {/* <Suspense
-                fallback={
-                    <Spinner />
-                }
-            > */}
             <NetworkErrorBoundary
                 fallbackComponent={() => {
                     return <div></div>;
@@ -94,7 +89,6 @@ const App = () => {
                     <ReportStreamFooter />
                 </footer>
             </NetworkErrorBoundary>
-            {/* </Suspense> */}
         </Security>
     );
 };
