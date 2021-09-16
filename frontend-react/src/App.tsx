@@ -14,7 +14,7 @@ import { Route, useHistory, Switch } from "react-router-dom";
 import { OktaAuth, toRelativeUrl } from "@okta/okta-auth-js";
 import { Security, SecureRoute, LoginCallback } from "@okta/okta-react";
 import { NetworkErrorBoundary } from "rest-hooks";
-import { SpinnerCircular } from "spinners-react";
+import Spinner from './components/Spinner'
 import { About } from "./pages/About";
 import { AuthorizedRoute } from "./components/AuthorizedRoute";
 import { PERMISSIONS } from "./resources/PermissionsResource";
@@ -48,58 +48,47 @@ const App = () => {
             onAuthRequired={customAuthHandler}
             restoreOriginalUri={restoreOriginalUri}
         >
-            <Suspense
-                fallback={
-                    <div id="spinner">
-                        <SpinnerCircular
-                            color="rgba(57, 88, 172, 1)"
-                            size="15%"
-                        />
-                    </div>
-                }
+            <NetworkErrorBoundary
+                fallbackComponent={() => {
+                    return <div></div>;
+                }}
             >
-                <NetworkErrorBoundary
-                    fallbackComponent={() => {
-                        return <div></div>;
-                    }}
-                >
-                    <div className="content">
-                        <GovBanner aria-label="Official government website" />
-                        <ReportStreamHeader />
-                        <Switch>
-                            <Route path="/" exact={true} component={Home} />
-                            <Route path="/about" component={About} />
-                            <Route
-                                path="/how-it-works"
-                                component={HowItWorks}
-                            />
-                            <SecureRoute
-                                path="/report-details"
-                                component={Details}
-                            />
-                            <Route
-                                path="/terms-of-service"
-                                component={TermsOfService}
-                            />
-                            <Route
-                                path="/login"
-                                render={() => (
-                                    <Login config={oktaSignInConfig} />
-                                )}
-                            />
-                            <Route
-                                path="/login/callback"
-                                component={LoginCallback}
-                            />
-                            <AuthorizedRoute path='/daily' authorize={PERMISSIONS.RECEIVER} component={Daily} />
-                            <AuthorizedRoute path='/upload' authorize={PERMISSIONS.SENDER} component={Upload} />
-                        </Switch>
-                    </div>
-                    <footer className="usa-identifier footer">
-                        <ReportStreamFooter />
-                    </footer>
-                </NetworkErrorBoundary>
-            </Suspense>
+                <div className="content">
+                    <GovBanner aria-label="Official government website" />
+                    <ReportStreamHeader />
+                    <Switch>
+                        <Route path="/" exact={true} component={Home} />
+                        <Route path="/about" component={About} />
+                        <Route
+                            path="/how-it-works"
+                            component={HowItWorks}
+                        />
+                        <SecureRoute
+                            path="/report-details"
+                            component={Details}
+                        />
+                        <Route
+                            path="/terms-of-service"
+                            component={TermsOfService}
+                        />
+                        <Route
+                            path="/login"
+                            render={() => (
+                                <Login config={oktaSignInConfig} />
+                            )}
+                        />
+                        <Route
+                            path="/login/callback"
+                            component={LoginCallback}
+                        />
+                        <AuthorizedRoute path='/daily' authorize={PERMISSIONS.RECEIVER} component={Daily} />
+                        <AuthorizedRoute path='/upload' authorize={PERMISSIONS.SENDER} component={Upload} />
+                    </Switch>
+                </div>
+                <footer className="usa-identifier footer">
+                    <ReportStreamFooter />
+                </footer>
+            </NetworkErrorBoundary>
         </Security>
     );
 };
