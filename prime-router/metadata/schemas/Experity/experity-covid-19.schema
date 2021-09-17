@@ -53,12 +53,6 @@ elements:
     - name: patient_zip_code
       csvFields: [{name: Patient_zip_code}]
 
-#    - name: patient_county
-#      type: TABLE
-#      table: zip-code-data
-#      tableColumn: county
-#      mapper: zipCodeToCounty(patient_zip_code)
-
     - name: patient_phone_number
       csvFields: [{name: Patient_phone_number}]
 
@@ -128,28 +122,6 @@ elements:
       csvFields: [{ name: Specimen_type_description, format: $display}]
       default: "258500001"
 
-#    - name: specimen_type
-#      type: CODE
-#      csvFields: [{name: Specimen_type_description, format: $alt}]
-#      default: "258500001"
-#      altValues:
-#        - code: "258529004"
-#          display: "Oral"
-#        - code: "258529004"
-#          display: "Oropharyngeal"
-#        - code: "258529004"
-#          display: "Throat"
-#        - code: "258500001"
-#          display: "Varied"
-#        - code: "258500001"
-#          display: "Nasal"
-#        - code: "119364003"
-#          display: "Serum"
-#        - code: "119361006"
-#          display: "Plasma"
-#        - code: "258580003"
-#          display: "Whole Blood"
-
     - name: specimen_source_site_code
       type: CODE
       valueSet: sender-automation/specimen_source_site_code
@@ -157,27 +129,6 @@ elements:
       csvFields: [{ name: Specimen_type_description, format: $display}]
       default: "71836000"
 
-#    - name: specimen_source_site_code
-#      type: CODE
-#      csvFields: [{name: Specimen_type_description, format: $alt}]
-#      default: "71836000"
-#      altValues:
-#        - code: "31389004"
-#          display: "Oral"
-#        - code: "31389004"
-#          display: "Oropharyngeal"
-#        - code: "31389004"
-#          display: "Throat"
-#        - code: "71836000"
-#          display: "Varied"
-#        - code: "71836000"
-#          display: "Nasal"
-#        - code: "29092000"
-#          display: "Serum"
-#        - code: "29092000"
-#          display: "Plasma"
-#        - code: "29092000"
-#          display: "Whole Blood"
 
 # Ordering provider
     - name: ordering_provider_id
