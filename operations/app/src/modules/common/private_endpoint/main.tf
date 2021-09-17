@@ -40,7 +40,7 @@ locals {
   }
 
   option        = local.options[var.type] # Make options a little easier to reference
-  endpoint_name = "${var.name}-${var.type}"
+  endpoint_name = "${var.name}-${var.type}-${substr(sha1(var.endpoint_subnet_id), 0, 8)}"
 }
 
 resource "azurerm_private_endpoint" "endpoint" {
@@ -64,6 +64,15 @@ resource "azurerm_private_endpoint" "endpoint" {
       name                 = local.endpoint_name
       private_dns_zone_ids = [for dns_zone in data.azurerm_private_dns_zone.private_dns_cname : dns_zone.id]
     }
+  }
+
+  lifecycle {
+    ignore_changes = [
+      # Added the subnet id to new private endpoints to avoid collisions, but we don't want to rename existing endpoints
+      name,
+      private_service_connection[0].name,
+      private_dns_zone_group[0].name,
+    ]
   }
 }
 

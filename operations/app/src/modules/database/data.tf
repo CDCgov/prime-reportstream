@@ -15,6 +15,18 @@ data "azurerm_subnet" "endpoint_replica" {
   resource_group_name  = var.resource_group
 }
 
+data "azurerm_subnet" "endpoint_subnet_east" {
+  name                 = "endpoint"
+  virtual_network_name = "${var.resource_prefix}-East-vnet"
+  resource_group_name  = var.resource_group
+}
+
+data "azurerm_subnet" "endpoint_subnet_west" {
+  name                 = "endpoint"
+  virtual_network_name = "${var.resource_prefix}-West-vnet"
+  resource_group_name  = var.resource_group
+}
+
 
 // Key Vault
 
