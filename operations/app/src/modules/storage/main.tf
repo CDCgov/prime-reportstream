@@ -20,7 +20,10 @@ resource "azurerm_storage_account" "storage_account" {
     virtual_network_subnet_ids = [
       data.azurerm_subnet.public.id,
       data.azurerm_subnet.container.id,
-      data.azurerm_subnet.endpoint.id
+      data.azurerm_subnet.endpoint.id,
+      data.azurerm_subnet.public_subnet.id,
+      data.azurerm_subnet.container_subnet.id,
+      data.azurerm_subnet.endpoint_subnet.id,
     ]
   }
 
@@ -66,6 +69,36 @@ module "storageaccount_queue_private_endpoint" {
   resource_group     = var.resource_group
   location           = var.location
   endpoint_subnet_id = data.azurerm_subnet.endpoint.id
+}
+
+module "storage_blob_private_endpoint" {
+  source             = "../common/private_endpoint"
+  resource_id        = azurerm_storage_account.storage_account.id
+  name               = azurerm_storage_account.storage_account.name
+  type               = "storage_account_blob"
+  resource_group     = var.resource_group
+  location           = var.location
+  endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet.id
+}
+
+module "storage_file_private_endpoint" {
+  source             = "../common/private_endpoint"
+  resource_id        = azurerm_storage_account.storage_account.id
+  name               = azurerm_storage_account.storage_account.name
+  type               = "storage_account_file"
+  resource_group     = var.resource_group
+  location           = var.location
+  endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet.id
+}
+
+module "storage_queue_private_endpoint" {
+  source             = "../common/private_endpoint"
+  resource_id        = azurerm_storage_account.storage_account.id
+  name               = azurerm_storage_account.storage_account.name
+  type               = "storage_account_queue"
+  resource_group     = var.resource_group
+  location           = var.location
+  endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet.id
 }
 
 # Point-in-time restore, soft delete, versioning, and change feed were
@@ -178,7 +211,9 @@ resource "azurerm_storage_account" "storage_partner" {
 
     virtual_network_subnet_ids = [
       data.azurerm_subnet.public.id,
-      data.azurerm_subnet.endpoint.id
+      data.azurerm_subnet.endpoint.id,
+      data.azurerm_subnet.public_subnet.id,
+      data.azurerm_subnet.endpoint_subnet.id,
     ]
   }
 
@@ -225,6 +260,16 @@ module "storageaccountpartner_blob_private_endpoint" {
   resource_group     = var.resource_group
   location           = var.location
   endpoint_subnet_id = data.azurerm_subnet.endpoint.id
+}
+
+module "storage_partner_blob_private_endpoint" {
+  source             = "../common/private_endpoint"
+  resource_id        = azurerm_storage_account.storage_partner.id
+  name               = azurerm_storage_account.storage_partner.name
+  type               = "storage_account_blob"
+  resource_group     = var.resource_group
+  location           = var.location
+  endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet.id
 }
 
 resource "azurerm_storage_container" "storage_container_hhsprotect" {
