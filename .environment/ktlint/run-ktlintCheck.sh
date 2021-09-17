@@ -62,8 +62,8 @@ while [[ ! -z "${1}" ]]; do
     case "${1}" in
     "--all" | "-a")
         TARGETS=(
-            $(find -type f -iname "*.kt")
-            $(find -type f -iname "*.kts")
+            $(find ./ -type f -iname "*.kt")
+            $(find ./ -type f -iname "*.kts")
         )
         ;;
     "--format" | "-F")
