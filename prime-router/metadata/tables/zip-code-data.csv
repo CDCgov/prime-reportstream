@@ -122,10 +122,12 @@ state_fips,state,state_abbr,zipcode,county,city
 1,Alabama,AL,35243,Jefferson,Cahaba heights
 1,Alabama,AL,35244,Jefferson,Hoover
 1,Alabama,AL,35401,Tuscaloosa,Tuscaloosa
+1,Alabama,AL,35402,Tuscaloosa,Tuscaloosa
 1,Alabama,AL,35403,Tuscaloosa,Tuscaloosa
 1,Alabama,AL,35404,Tuscaloosa,Holt
 1,Alabama,AL,35405,Tuscaloosa,Tuscaloosa
 1,Alabama,AL,35406,Tuscaloosa,Tuscaloosa
+1,Alabama,AL,35407,Tuscaloosa,Tuscaloosa
 1,Alabama,AL,35441,Hale,Stewart
 1,Alabama,AL,35442,Pickens,Aliceville
 1,Alabama,AL,35443,Greene,Boligee
@@ -147,11 +149,15 @@ state_fips,state,state_abbr,zipcode,county,city
 1,Alabama,AL,35469,Greene,Knoxville
 1,Alabama,AL,35470,Sumter,Coatopa
 1,Alabama,AL,35471,Pickens,Mc shan
-1,Alabama,AL,35474,Hale,Cypress
+1,Alabama,AL,35473,Pickens,Mc shan
+1,Alabama,AL,35474,Tuscaloosa,Northport
 1,Alabama,AL,35476,Tuscaloosa,Northport
 1,Alabama,AL,35477,Sumter,Panola
+1,Alabama,AL,35478,Tuscaloosa,Peterson
 1,Alabama,AL,35480,Tuscaloosa,Ralph
 1,Alabama,AL,35481,Pickens,Reform
+1,Alabama,AL,35486,Tuscaloosa,Tuscaloosa
+1,Alabama,AL,35487,Tuscaloosa,Tuscaloosa
 1,Alabama,AL,35490,Tuscaloosa,Vance
 1,Alabama,AL,35501,Walker,Jasper
 1,Alabama,AL,35502,Walker,Jasper
@@ -535,14 +541,18 @@ state_fips,state,state_abbr,zipcode,county,city
 1,Alabama,AL,36611,Mobile,Chickasaw
 1,Alabama,AL,36612,Mobile,Mobile
 1,Alabama,AL,36613,Mobile,Eight mile
-1,Alabama,AL,36616,Mobile,Mobile
+1,Alabama,AL,36615,Mobile,Mobile
 1,Alabama,AL,36616,Mobile,Mobile
 1,Alabama,AL,36617,Mobile,Mobile
 1,Alabama,AL,36618,Mobile,Mobile
 1,Alabama,AL,36619,Mobile,Mobile
 1,Alabama,AL,36625,Mobile,Mobile
+1,Alabama,AL,36628,Mobile,Mobile
 1,Alabama,AL,36630,Mobile,Mobile
 1,Alabama,AL,36633,Mobile,Mobile
+1,Alabama,AL,36640,Mobile,Mobile
+1,Alabama,AL,36641,Mobile,Mobile
+1,Alabama,AL,36644,Mobile,Mobile
 1,Alabama,AL,36652,Mobile,Mobile
 1,Alabama,AL,36660,Mobile,Mobile
 1,Alabama,AL,36663,Mobile,Mobile
@@ -601,7 +611,8 @@ state_fips,state,state_abbr,zipcode,county,city
 1,Alabama,AL,36832,Lee,Auburn
 1,Alabama,AL,36849,Lee,Auburn
 1,Alabama,AL,36850,Tallapoosa,Camp hill
-1,Alabama,AL,36852,Lee,Cusseta
+1,Alabama,AL,36851,Russell,Cottonton
+1,Alabama,AL,36852,Chambers,Cusseta
 1,Alabama,AL,36853,Tallapoosa,Dadeville
 1,Alabama,AL,36854,Chambers,Valley
 1,Alabama,AL,36855,Chambers,Five points
@@ -631,247 +642,245 @@ state_fips,state,state_abbr,zipcode,county,city
 1,Alabama,AL,36921,Choctaw,Toxey
 1,Alabama,AL,36922,Choctaw,Ward
 1,Alabama,AL,36925,Sumter,York
-1,Alabama,AL,38852,Colbert,
-2,Alaska,AK,99501,Anchorage Borough,Anchorage
-2,Alaska,AK,99502,Anchorage Borough,Anchorage
-2,Alaska,AK,99503,Anchorage Borough,Anchorage
-2,Alaska,AK,99504,Anchorage Borough,Anchorage
-2,Alaska,AK,99505,Anchorage Borough,Fort richardson
-2,Alaska,AK,99506,Anchorage Borough,Elmendorf afb
-2,Alaska,AK,99507,Anchorage Borough,Anchorage
-2,Alaska,AK,99508,Anchorage Borough,Anchorage
-2,Alaska,AK,99513,Anchorage Borough,Anchorage
-2,Alaska,AK,99515,Anchorage Borough,Anchorage
-2,Alaska,AK,99516,Anchorage Borough,Anchorage
-2,Alaska,AK,99517,Anchorage Borough,Anchorage
-2,Alaska,AK,99518,Anchorage Borough,Anchorage
-2,Alaska,AK,99540,Anchorage Borough,Indian
-2,Alaska,AK,99547,Aleutians West Census Area,Atka
-2,Alaska,AK,99548,Lake and Peninsula Borough,Chignik lake
-2,Alaska,AK,99549,Lake and Peninsula Borough,Port heiden
-2,Alaska,AK,99550,Kodiak Island Borough,Port lions
-2,Alaska,AK,99551,Bethel Census Area,Akiachak
-2,Alaska,AK,99552,Bethel Census Area,Akiak
-2,Alaska,AK,99553,Aleutians East Borough,Akutan
-2,Alaska,AK,99554,Wade Hampton Census Area,Alakanuk
-2,Alaska,AK,99555,Dillingham Census Area,Aleknagik
-2,Alaska,AK,99556,Kenai Peninsula Borough,Nikolaevsk
-2,Alaska,AK,99557,Bethel Census Area,Chuathbaluk
-2,Alaska,AK,99558,Yukon-Koyukuk Census Area,Anvik
-2,Alaska,AK,99559,Bethel Census Area,Atmautluak
-2,Alaska,AK,99561,Bethel Census Area,Chefornak
-2,Alaska,AK,99563,Wade Hampton Census Area,Chevak
-2,Alaska,AK,99564,Lake and Peninsula Borough,Chignik
-2,Alaska,AK,99565,Lake and Peninsula Borough,Chignik lagoon
-2,Alaska,AK,99566,Valdez-Cordova Census Area,Chitina
-2,Alaska,AK,99567,Anchorage Borough,Chugiak
-2,Alaska,AK,99568,Kenai Peninsula Borough,Clam gulch
-2,Alaska,AK,99569,Dillingham Census Area,Clarks point
-2,Alaska,AK,99571,Aleutians East Borough,Nelson lagoon
-2,Alaska,AK,99572,Kenai Peninsula Borough,Cooper landing
-2,Alaska,AK,99573,Valdez-Cordova Census Area,Copper center
-2,Alaska,AK,99574,Valdez-Cordova Census Area,Chenega bay
-2,Alaska,AK,99575,Bethel Census Area,Crooked creek
-2,Alaska,AK,99576,Dillingham Census Area,Koliganek
-2,Alaska,AK,99577,Anchorage Borough,Eagle river
-2,Alaska,AK,99578,Bethel Census Area,Eek
-2,Alaska,AK,99579,Lake and Peninsula Borough,Egegik
-2,Alaska,AK,99580,Dillingham Census Area,Ekwok
-2,Alaska,AK,99581,Wade Hampton Census Area,Emmonak
-2,Alaska,AK,99583,Aleutians East Borough,False pass
-2,Alaska,AK,99585,Wade Hampton Census Area,Marshall
-2,Alaska,AK,99586,Valdez-Cordova Census Area,Slana
-2,Alaska,AK,99587,Anchorage Borough,Girdwood
-2,Alaska,AK,99588,Valdez-Cordova Census Area,Glennallen
-2,Alaska,AK,99589,Bethel Census Area,Goodnews bay
-2,Alaska,AK,99590,Yukon-Koyukuk Census Area,Grayling
-2,Alaska,AK,99591,Aleutians West Census Area,Saint george isl
-2,Alaska,AK,99602,Yukon-Koyukuk Census Area,Holy cross
-2,Alaska,AK,99603,Kenai Peninsula Borough,Port graham
-2,Alaska,AK,99604,Wade Hampton Census Area,Hooper bay
-2,Alaska,AK,99605,Kenai Peninsula Borough,Hope
-2,Alaska,AK,99606,Lake and Peninsula Borough,Kokhanok
-2,Alaska,AK,99607,Bethel Census Area,Kalskag
-2,Alaska,AK,99608,Kodiak Island Borough,Karluk
-2,Alaska,AK,99609,Bethel Census Area,Kasigluk
-2,Alaska,AK,99610,Kenai Peninsula Borough,Kasilof
-2,Alaska,AK,99611,Kenai Peninsula Borough,Kenai
-2,Alaska,AK,99612,Aleutians East Borough,King cove
-2,Alaska,AK,99613,Bristol Bay Borough,Igiugig
-2,Alaska,AK,99614,Bethel Census Area,Kipnuk
-2,Alaska,AK,99615,Kodiak Island Borough,Akhiok
-2,Alaska,AK,99620,Wade Hampton Census Area,Kotlik
-2,Alaska,AK,99621,Bethel Census Area,Kwethluk
-2,Alaska,AK,99622,Bethel Census Area,Kwigillingok
-2,Alaska,AK,99624,Kodiak Island Borough,Larsen bay
-2,Alaska,AK,99625,Lake and Peninsula Borough,Levelock
-2,Alaska,AK,99626,Bethel Census Area,Lower kalskag
-2,Alaska,AK,99627,Yukon-Koyukuk Census Area,Mc grath
-2,Alaska,AK,99628,Dillingham Census Area,Manokotak
-2,Alaska,AK,99630,Bethel Census Area,Mekoryuk
-2,Alaska,AK,99631,Kenai Peninsula Borough,Moose pass
-2,Alaska,AK,99632,Wade Hampton Census Area,Mountain village
-2,Alaska,AK,99633,Bristol Bay Borough,Naknek
-2,Alaska,AK,99634,Bethel Census Area,Napakiak
-2,Alaska,AK,99635,Kenai Peninsula Borough,Nikiski
-2,Alaska,AK,99636,Dillingham Census Area,New stuyahok
-2,Alaska,AK,99637,Bethel Census Area,Toksook bay
-2,Alaska,AK,99638,Aleutians West Census Area,Nikolski
-2,Alaska,AK,99639,Kenai Peninsula Borough,Ninilchik
-2,Alaska,AK,99640,Lake and Peninsula Borough,Nondalton
-2,Alaska,AK,99641,Bethel Census Area,Nunapitchuk
-2,Alaska,AK,99643,Kodiak Island Borough,Old harbor
-2,Alaska,AK,99644,Kodiak Island Borough,Ouzinkie
-2,Alaska,AK,99645,Matanuska-Susitna Borough,Butte
-2,Alaska,AK,99647,Lake and Peninsula Borough,Pedro bay
-2,Alaska,AK,99648,Lake and Peninsula Borough,Perryville
-2,Alaska,AK,99649,Lake and Peninsula Borough,Pilot point
-2,Alaska,AK,99650,Wade Hampton Census Area,Pilot station
-2,Alaska,AK,99651,Bethel Census Area,Platinum
-2,Alaska,AK,99652,Matanuska-Susitna Borough,Big lake
-2,Alaska,AK,99653,Lake and Peninsula Borough,Port alsworth
-2,Alaska,AK,99654,Matanuska-Susitna Borough,Wasilla
-2,Alaska,AK,99655,Bethel Census Area,Quinhagak
-2,Alaska,AK,99656,Bethel Census Area,Red devil
-2,Alaska,AK,99657,Wade Hampton Census Area,Russian mission
-2,Alaska,AK,99658,Wade Hampton Census Area,Saint marys
-2,Alaska,AK,99659,Nome Census Area,Saint michael
-2,Alaska,AK,99660,Aleutians West Census Area,Saint paul islan
-2,Alaska,AK,99661,Aleutians East Borough,Sand point
-2,Alaska,AK,99662,Wade Hampton Census Area,Scammon bay
-2,Alaska,AK,99663,Kenai Peninsula Borough,Seldovia
-2,Alaska,AK,99664,Kenai Peninsula Borough,Seward
-2,Alaska,AK,99665,Yukon-Koyukuk Census Area,Shageluk
-2,Alaska,AK,99666,Wade Hampton Census Area,Sheldon point
-2,Alaska,AK,99667,Matanuska-Susitna Borough,Skwentna
-2,Alaska,AK,99668,Bethel Census Area,Sleetmute
-2,Alaska,AK,99669,Kenai Peninsula Borough,Soldotna
-2,Alaska,AK,99670,Bristol Bay Borough,South naknek
-2,Alaska,AK,99671,Nome Census Area,Stebbins
-2,Alaska,AK,99672,Kenai Peninsula Borough,Sterling
-2,Alaska,AK,99674,Matanuska-Susitna Borough,Chickaloon
-2,Alaska,AK,99675,Yukon-Koyukuk Census Area,Takotna
-2,Alaska,AK,99676,Matanuska-Susitna Borough,Talkeetna
-2,Alaska,AK,99677,Valdez-Cordova Census Area,Tatitlek
-2,Alaska,AK,99678,Dillingham Census Area,Togiak
-2,Alaska,AK,99679,Bethel Census Area,Tuluksak
-2,Alaska,AK,99680,Bethel Census Area,Tuntutuliak
-2,Alaska,AK,99681,Bethel Census Area,Tununak
-2,Alaska,AK,99682,Kenai Peninsula Borough,Tyonek
-2,Alaska,AK,99683,Matanuska-Susitna Borough,Trapper creek
-2,Alaska,AK,99684,Nome Census Area,Unalakleet
-2,Alaska,AK,99685,Aleutians West Census Area,Unalaska
-2,Alaska,AK,99686,Valdez-Cordova Census Area,Valdez
-2,Alaska,AK,99687,Matanuska-Susitna Borough,Wasilla
-2,Alaska,AK,99688,Matanuska-Susitna Borough,Willow
+2,Alaska,AK,99501,Anchorage,Anchorage
+2,Alaska,AK,99502,Anchorage,Anchorage
+2,Alaska,AK,99503,Anchorage,Anchorage
+2,Alaska,AK,99504,Anchorage,Anchorage
+2,Alaska,AK,99505,Anchorage,Fort richardson
+2,Alaska,AK,99506,Anchorage,Elmendorf afb
+2,Alaska,AK,99507,Anchorage,Anchorage
+2,Alaska,AK,99508,Anchorage,Anchorage
+2,Alaska,AK,99513,Anchorage,Anchorage
+2,Alaska,AK,99515,Anchorage,Anchorage
+2,Alaska,AK,99516,Anchorage,Anchorage
+2,Alaska,AK,99517,Anchorage,Anchorage
+2,Alaska,AK,99518,Anchorage,Anchorage
+2,Alaska,AK,99540,Anchorage,Indian
+2,Alaska,AK,99547,Aleutians West,Atka
+2,Alaska,AK,99548,Lake and Peninsula,Chignik lake
+2,Alaska,AK,99549,Lake and Peninsula,Port heiden
+2,Alaska,AK,99550,Kodiak Island,Port lions
+2,Alaska,AK,99551,Bethel,Akiachak
+2,Alaska,AK,99552,Bethel,Akiak
+2,Alaska,AK,99553,Aleutians East,Akutan
+2,Alaska,AK,99554,Wade Hampton,Alakanuk
+2,Alaska,AK,99555,Dillingham,Aleknagik
+2,Alaska,AK,99556,Kenai Peninsula,Nikolaevsk
+2,Alaska,AK,99557,Bethel,Chuathbaluk
+2,Alaska,AK,99558,Yukon-Koyukuk,Anvik
+2,Alaska,AK,99559,Bethel,Atmautluak
+2,Alaska,AK,99561,Bethel,Chefornak
+2,Alaska,AK,99563,Wade Hampton,Chevak
+2,Alaska,AK,99564,Lake and Peninsula,Chignik
+2,Alaska,AK,99565,Lake and Peninsula,Chignik lagoon
+2,Alaska,AK,99566,Valdez-Cordova,Chitina
+2,Alaska,AK,99567,Anchorage,Chugiak
+2,Alaska,AK,99568,Kenai Peninsula,Clam gulch
+2,Alaska,AK,99569,Dillingham,Clarks point
+2,Alaska,AK,99571,Aleutians East,Nelson lagoon
+2,Alaska,AK,99572,Kenai Peninsula,Cooper landing
+2,Alaska,AK,99573,Valdez-Cordova,Copper center
+2,Alaska,AK,99574,Valdez-Cordova,Chenega bay
+2,Alaska,AK,99575,Bethel,Crooked creek
+2,Alaska,AK,99576,Dillingham,Koliganek
+2,Alaska,AK,99577,Anchorage,Eagle river
+2,Alaska,AK,99578,Bethel,Eek
+2,Alaska,AK,99579,Lake and Peninsula,Egegik
+2,Alaska,AK,99580,Dillingham,Ekwok
+2,Alaska,AK,99581,Wade Hampton,Emmonak
+2,Alaska,AK,99583,Aleutians East,False pass
+2,Alaska,AK,99585,Wade Hampton,Marshall
+2,Alaska,AK,99586,Valdez-Cordova,Slana
+2,Alaska,AK,99587,Anchorage,Girdwood
+2,Alaska,AK,99588,Valdez-Cordova,Glennallen
+2,Alaska,AK,99589,Bethel,Goodnews bay
+2,Alaska,AK,99590,Yukon-Koyukuk,Grayling
+2,Alaska,AK,99591,Aleutians West,Saint george isl
+2,Alaska,AK,99602,Yukon-Koyukuk,Holy cross
+2,Alaska,AK,99603,Kenai Peninsula,Port graham
+2,Alaska,AK,99604,Wade Hampton,Hooper bay
+2,Alaska,AK,99605,Kenai Peninsula,Hope
+2,Alaska,AK,99606,Lake and Peninsula,Kokhanok
+2,Alaska,AK,99607,Bethel,Kalskag
+2,Alaska,AK,99608,Kodiak Island,Karluk
+2,Alaska,AK,99609,Bethel,Kasigluk
+2,Alaska,AK,99610,Kenai Peninsula,Kasilof
+2,Alaska,AK,99611,Kenai Peninsula,Kenai
+2,Alaska,AK,99612,Aleutians East,King cove
+2,Alaska,AK,99613,Bristol Bay,Igiugig
+2,Alaska,AK,99614,Bethel,Kipnuk
+2,Alaska,AK,99615,Kodiak Island,Kodiak
+2,Alaska,AK,99620,Wade Hampton,Kotlik
+2,Alaska,AK,99621,Bethel,Kwethluk
+2,Alaska,AK,99622,Bethel,Kwigillingok
+2,Alaska,AK,99624,Kodiak Island,Larsen bay
+2,Alaska,AK,99625,Lake and Peninsula,Levelock
+2,Alaska,AK,99626,Bethel,Lower kalskag
+2,Alaska,AK,99627,Yukon-Koyukuk,Mc grath
+2,Alaska,AK,99628,Dillingham,Manokotak
+2,Alaska,AK,99630,Bethel,Mekoryuk
+2,Alaska,AK,99631,Kenai Peninsula,Moose pass
+2,Alaska,AK,99632,Wade Hampton,Mountain village
+2,Alaska,AK,99633,Bristol Bay,Naknek
+2,Alaska,AK,99634,Bethel,Napakiak
+2,Alaska,AK,99635,Kenai Peninsula,Nikiski
+2,Alaska,AK,99636,Dillingham,New stuyahok
+2,Alaska,AK,99637,Bethel,Toksook bay
+2,Alaska,AK,99638,Aleutians West,Nikolski
+2,Alaska,AK,99639,Kenai Peninsula,Ninilchik
+2,Alaska,AK,99640,Lake and Peninsula,Nondalton
+2,Alaska,AK,99641,Bethel,Nunapitchuk
+2,Alaska,AK,99643,Kodiak Island,Old harbor
+2,Alaska,AK,99644,Kodiak Island,Ouzinkie
+2,Alaska,AK,99645,Matanuska-Susitna,Butte
+2,Alaska,AK,99647,Lake and Peninsula,Pedro bay
+2,Alaska,AK,99648,Lake and Peninsula,Perryville
+2,Alaska,AK,99649,Lake and Peninsula,Pilot point
+2,Alaska,AK,99650,Wade Hampton,Pilot station
+2,Alaska,AK,99651,Bethel,Platinum
+2,Alaska,AK,99652,Matanuska-Susitna,Big lake
+2,Alaska,AK,99653,Lake and Peninsula,Port alsworth
+2,Alaska,AK,99654,Matanuska-Susitna,Wasilla
+2,Alaska,AK,99655,Bethel,Quinhagak
+2,Alaska,AK,99656,Bethel,Red devil
+2,Alaska,AK,99657,Wade Hampton,Russian mission
+2,Alaska,AK,99658,Wade Hampton,Saint marys
+2,Alaska,AK,99659,Nome,Saint michael
+2,Alaska,AK,99660,Aleutians West,Saint paul islan
+2,Alaska,AK,99661,Aleutians East,Sand point
+2,Alaska,AK,99662,Wade Hampton,Scammon bay
+2,Alaska,AK,99663,Kenai Peninsula,Seldovia
+2,Alaska,AK,99664,Kenai Peninsula,Seward
+2,Alaska,AK,99665,Yukon-Koyukuk,Shageluk
+2,Alaska,AK,99666,Wade Hampton,Sheldon point
+2,Alaska,AK,99667,Matanuska-Susitna,Skwentna
+2,Alaska,AK,99668,Bethel,Sleetmute
+2,Alaska,AK,99669,Kenai Peninsula,Soldotna
+2,Alaska,AK,99670,Bristol Bay,South naknek
+2,Alaska,AK,99671,Nome,Stebbins
+2,Alaska,AK,99672,Kenai Peninsula,Sterling
+2,Alaska,AK,99674,Matanuska-Susitna,Chickaloon
+2,Alaska,AK,99675,Yukon-Koyukuk,Takotna
+2,Alaska,AK,99676,Matanuska-Susitna,Talkeetna
+2,Alaska,AK,99677,Valdez-Cordova,Tatitlek
+2,Alaska,AK,99678,Dillingham,Togiak
+2,Alaska,AK,99679,Bethel,Tuluksak
+2,Alaska,AK,99680,Bethel,Tuntutuliak
+2,Alaska,AK,99681,Bethel,Tununak
+2,Alaska,AK,99682,Kenai Peninsula,Tyonek
+2,Alaska,AK,99683,Matanuska-Susitna,Trapper creek
+2,Alaska,AK,99684,Nome,Unalakleet
+2,Alaska,AK,99685,Aleutians West,Unalaska
+2,Alaska,AK,99686,Valdez-Cordova,Valdez
+2,Alaska,AK,99687,Matanuska-Susitna,Wasilla
+2,Alaska,AK,99688,Matanuska-Susitna,Willow
 2,Alaska,AK,99689,Yakutat Borou,Yakutat
-2,Alaska,AK,99690,Bethel Census Area,Nightmute
-2,Alaska,AK,99691,Yukon-Koyukuk Census Area,Nikolai
-2,Alaska,AK,99692,Aleutians West Census Area,Dutch harbor
-2,Alaska,AK,99693,Valdez-Cordova Census Area,Whittier
-2,Alaska,AK,99694,Matanuska-Susitna Borough,Houston
-2,Alaska,AK,99695,Matanuska-Susitna Borough,Anchorage
-2,Alaska,AK,99697,Kodiak Island Borough,Kodiak
-2,Alaska,AK,99701,Fairbanks North Star Borough,Coldfoot
-2,Alaska,AK,99702,Fairbanks North Star Borough,Eielson afb
-2,Alaska,AK,99703,Fairbanks North Star Borough,Fort wainwright
-2,Alaska,AK,99704,Denali Borough,Clear
-2,Alaska,AK,99705,Fairbanks North Star Borough,North pole
-2,Alaska,AK,99709,Fairbanks North Star Borough,Fairbanks
-2,Alaska,AK,99712,Fairbanks North Star Borough,Fairbanks
-2,Alaska,AK,99714,Fairbanks North Star Borough,Salcha
-2,Alaska,AK,99720,Yukon-Koyukuk Census Area,Allakaket
-2,Alaska,AK,99721,North Slope Borough,Anaktuvuk pass
-2,Alaska,AK,99722,Yukon-Koyukuk Census Area,Arctic village
-2,Alaska,AK,99723,North Slope Borough,Barrow
-2,Alaska,AK,99724,Yukon-Koyukuk Census Area,Beaver
-2,Alaska,AK,99725,Fairbanks North Star Borough,Ester
-2,Alaska,AK,99726,Yukon-Koyukuk Census Area,Bettles field
-2,Alaska,AK,99727,Northwest Arctic Borough,Buckland
-2,Alaska,AK,99729,Denali Borough,Cantwell
-2,Alaska,AK,99730,Yukon-Koyukuk Census Area,Central
-2,Alaska,AK,99732,Southeast Fairbanks Census Area,Chicken
-2,Alaska,AK,99733,Yukon-Koyukuk Census Area,Circle
-2,Alaska,AK,99736,Northwest Arctic Borough,Deering
-2,Alaska,AK,99737,Southeast Fairbanks Census Area,Dot lake
-2,Alaska,AK,99738,Southeast Fairbanks Census Area,Eagle
-2,Alaska,AK,99739,Nome Census Area,Elim
-2,Alaska,AK,99740,Yukon-Koyukuk Census Area,Fort yukon
-2,Alaska,AK,99741,Yukon-Koyukuk Census Area,Galena
-2,Alaska,AK,99742,Nome Census Area,Gambell
-2,Alaska,AK,99743,Denali Borough,Healy
-2,Alaska,AK,99744,Denali Borough,Anderson
-2,Alaska,AK,99745,Yukon-Koyukuk Census Area,Hughes
-2,Alaska,AK,99746,Yukon-Koyukuk Census Area,Huslia
-2,Alaska,AK,99747,North Slope Borough,Kaktovik
-2,Alaska,AK,99748,Yukon-Koyukuk Census Area,Kaltag
-2,Alaska,AK,99749,Northwest Arctic Borough,Kiana
-2,Alaska,AK,99750,Northwest Arctic Borough,Kivalina
-2,Alaska,AK,99751,Northwest Arctic Borough,Kobuk
-2,Alaska,AK,99752,Northwest Arctic Borough,Kotzebue
-2,Alaska,AK,99753,Nome Census Area,Koyuk
-2,Alaska,AK,99754,Yukon-Koyukuk Census Area,Koyukuk
-2,Alaska,AK,99755,Denali Borough,Denali national
-2,Alaska,AK,99756,Yukon-Koyukuk Census Area,Manley hot sprin
-2,Alaska,AK,99757,Yukon-Koyukuk Census Area,Lake minchumina
-2,Alaska,AK,99758,Yukon-Koyukuk Census Area,Minto
-2,Alaska,AK,99759,North Slope Borough,Point lay
-2,Alaska,AK,99760,Yukon-Koyukuk Census Area,Nenana
-2,Alaska,AK,99761,Northwest Arctic Borough,Noatak
-2,Alaska,AK,99762,Nome Census Area,Golovin
-2,Alaska,AK,99763,Northwest Arctic Borough,Noorvik
-2,Alaska,AK,99764,Southeast Fairbanks Census Area,Northway
-2,Alaska,AK,99765,Yukon-Koyukuk Census Area,Nulato
-2,Alaska,AK,99766,North Slope Borough,Point hope
-2,Alaska,AK,99767,Yukon-Koyukuk Census Area,Rampart
-2,Alaska,AK,99768,Yukon-Koyukuk Census Area,Ruby
-2,Alaska,AK,99769,Nome Census Area,Savoonga
-2,Alaska,AK,99770,Northwest Arctic Borough,Selawik
-2,Alaska,AK,99771,Nome Census Area,Shaktoolik
-2,Alaska,AK,99772,Nome Census Area,Shishmaref
-2,Alaska,AK,99773,Northwest Arctic Borough,Shungnak
-2,Alaska,AK,99774,Yukon-Koyukuk Census Area,Stevens village
-2,Alaska,AK,99775,Fairbanks North Star Borough,Fairbanks
-2,Alaska,AK,99776,Southeast Fairbanks Census Area,Tanacross
-2,Alaska,AK,99777,Yukon-Koyukuk Census Area,Tanana
-2,Alaska,AK,99778,Nome Census Area,Teller
-2,Alaska,AK,99779,Southeast Fairbanks Census Area,Tetlin
-2,Alaska,AK,99780,Southeast Fairbanks Census Area,Border
-2,Alaska,AK,99781,Yukon-Koyukuk Census Area,Venetie
-2,Alaska,AK,99782,North Slope Borough,Wainwright
-2,Alaska,AK,99783,Nome Census Area,Wales
-2,Alaska,AK,99784,Nome Census Area,White mountain
-2,Alaska,AK,99785,Nome Census Area,Brevig mission
-2,Alaska,AK,99786,Northwest Arctic Borough,Ambler
-2,Alaska,AK,99788,Yukon-Koyukuk Census Area,Chalkyitsik
-2,Alaska,AK,99789,North Slope Borough,Nuiqsut
-2,Alaska,AK,99791,North Slope Borough,Atqasuk
-2,Alaska,AK,99801,Juneau Borough,Juneau
-2,Alaska,AK,99820,Skagway-Hoonah-Angoon Census Area,Angoon
-2,Alaska,AK,99824,Juneau Borough,Douglas
-2,Alaska,AK,99825,Skagway-Hoonah-Angoon Census Area,Elfin cove
-2,Alaska,AK,99826,Skagway-Hoonah-Angoon Census Area,Gustavus
-2,Alaska,AK,99827,Haines Borough,Haines
-2,Alaska,AK,99829,Skagway-Hoonah-Angoon Census Area,Hoonah
-2,Alaska,AK,99830,Wrangell-Petersburg Census Area,Kake
-2,Alaska,AK,99832,Skagway-Hoonah-Angoon Census Area,Pelican
-2,Alaska,AK,99833,Wrangell-Petersburg Census Area,Petersburg
-2,Alaska,AK,99835,Sitka Borough,Sitka
-2,Alaska,AK,99840,Skagway-Hoonah-Angoon Census Area,Skagway
-2,Alaska,AK,99841,Skagway-Hoonah-Angoon Census Area,Tenakee springs
-2,Alaska,AK,99850,Haines Borough,Juneau
-2,Alaska,AK,99901,Ketchikan Gateway Borough,Ketchikan
-2,Alaska,AK,99903,Prince of Wales-Outer Ketchikan Census,Meyers chuck
-2,Alaska,AK,99918,Prince of Wales-Outer Ketchikan Census,Coffman cove
-2,Alaska,AK,99919,Prince of Wales-Outer Ketchikan Census,Thorne bay
-2,Alaska,AK,99921,Prince of Wales-Outer Ketchikan Census,Craig
-2,Alaska,AK,99922,Prince of Wales-Outer Ketchikan Census,Hydaburg
-2,Alaska,AK,99923,Prince of Wales-Outer Ketchikan Census,Hyder
-2,Alaska,AK,99925,Prince of Wales-Outer Ketchikan Census,Klawock
-2,Alaska,AK,99926,Prince of Wales-Outer Ketchikan Census,Metlakatla
-2,Alaska,AK,99927,Prince of Wales-Outer Ketchikan Census,Point baker
-2,Alaska,AK,99929,Wrangell-Petersburg Census Area,Wrangell
-2,Alaska,AK,99950,Ketchikan Gateway Borough,Ketchikan
+2,Alaska,AK,99690,Bethel,Nightmute
+2,Alaska,AK,99691,Yukon-Koyukuk,Nikolai
+2,Alaska,AK,99692,Aleutians West,Dutch harbor
+2,Alaska,AK,99693,Valdez-Cordova,Whittier
+2,Alaska,AK,99694,Matanuska-Susitna,Houston
+2,Alaska,AK,99695,Matanuska-Susitna,Anchorage
+2,Alaska,AK,99697,Kodiak Island,Kodiak
+2,Alaska,AK,99701,Fairbanks North Star,Coldfoot
+2,Alaska,AK,99702,Fairbanks North Star,Eielson afb
+2,Alaska,AK,99703,Fairbanks North Star,Fort wainwright
+2,Alaska,AK,99704,Denali,Clear
+2,Alaska,AK,99705,Fairbanks North Star,North pole
+2,Alaska,AK,99709,Fairbanks North Star,Fairbanks
+2,Alaska,AK,99712,Fairbanks North Star,Fairbanks
+2,Alaska,AK,99714,Fairbanks North Star,Salcha
+2,Alaska,AK,99720,Yukon-Koyukuk,Allakaket
+2,Alaska,AK,99721,North Slope,Anaktuvuk pass
+2,Alaska,AK,99722,Yukon-Koyukuk,Arctic village
+2,Alaska,AK,99723,North Slope,Barrow
+2,Alaska,AK,99724,Yukon-Koyukuk,Beaver
+2,Alaska,AK,99725,Fairbanks North Star,Ester
+2,Alaska,AK,99726,Yukon-Koyukuk,Bettles field
+2,Alaska,AK,99727,Northwest Arctic,Buckland
+2,Alaska,AK,99729,Denali,Cantwell
+2,Alaska,AK,99730,Yukon-Koyukuk,Central
+2,Alaska,AK,99732,Southeast Fairbanks,Chicken
+2,Alaska,AK,99733,Yukon-Koyukuk,Circle
+2,Alaska,AK,99736,Northwest Arctic,Deering
+2,Alaska,AK,99737,Southeast Fairbanks,Dot lake
+2,Alaska,AK,99738,Southeast Fairbanks,Eagle
+2,Alaska,AK,99739,Nome,Elim
+2,Alaska,AK,99740,Yukon-Koyukuk,Fort yukon
+2,Alaska,AK,99741,Yukon-Koyukuk,Galena
+2,Alaska,AK,99742,Nome,Gambell
+2,Alaska,AK,99743,Denali,Healy
+2,Alaska,AK,99744,Denali,Anderson
+2,Alaska,AK,99745,Yukon-Koyukuk,Hughes
+2,Alaska,AK,99746,Yukon-Koyukuk,Huslia
+2,Alaska,AK,99747,North Slope,Kaktovik
+2,Alaska,AK,99748,Yukon-Koyukuk,Kaltag
+2,Alaska,AK,99749,Northwest Arctic,Kiana
+2,Alaska,AK,99750,Northwest Arctic,Kivalina
+2,Alaska,AK,99751,Northwest Arctic,Kobuk
+2,Alaska,AK,99752,Northwest Arctic,Kotzebue
+2,Alaska,AK,99753,Nome,Koyuk
+2,Alaska,AK,99754,Yukon-Koyukuk,Koyukuk
+2,Alaska,AK,99755,Denali,Denali national
+2,Alaska,AK,99756,Yukon-Koyukuk,Manley hot sprin
+2,Alaska,AK,99757,Yukon-Koyukuk,Lake minchumina
+2,Alaska,AK,99758,Yukon-Koyukuk,Minto
+2,Alaska,AK,99759,North Slope,Point lay
+2,Alaska,AK,99760,Yukon-Koyukuk,Nenana
+2,Alaska,AK,99761,Northwest Arctic,Noatak
+2,Alaska,AK,99762,Nome,Golovin
+2,Alaska,AK,99763,Northwest Arctic,Noorvik
+2,Alaska,AK,99764,Southeast Fairbanks,Northway
+2,Alaska,AK,99765,Yukon-Koyukuk,Nulato
+2,Alaska,AK,99766,North Slope,Point hope
+2,Alaska,AK,99767,Yukon-Koyukuk,Rampart
+2,Alaska,AK,99768,Yukon-Koyukuk,Ruby
+2,Alaska,AK,99769,Nome,Savoonga
+2,Alaska,AK,99770,Northwest Arctic,Selawik
+2,Alaska,AK,99771,Nome,Shaktoolik
+2,Alaska,AK,99772,Nome,Shishmaref
+2,Alaska,AK,99773,Northwest Arctic,Shungnak
+2,Alaska,AK,99774,Yukon-Koyukuk,Stevens village
+2,Alaska,AK,99775,Fairbanks North Star,Fairbanks
+2,Alaska,AK,99776,Southeast Fairbanks,Tanacross
+2,Alaska,AK,99777,Yukon-Koyukuk,Tanana
+2,Alaska,AK,99778,Nome,Teller
+2,Alaska,AK,99780,Southeast Fairbanks,Border
+2,Alaska,AK,99781,Yukon-Koyukuk,Venetie
+2,Alaska,AK,99782,North Slope,Wainwright
+2,Alaska,AK,99783,Nome,Wales
+2,Alaska,AK,99784,Nome,White mountain
+2,Alaska,AK,99785,Nome,Brevig mission
+2,Alaska,AK,99786,Northwest Arctic,Ambler
+2,Alaska,AK,99788,Yukon-Koyukuk,Chalkyitsik
+2,Alaska,AK,99789,North Slope,Nuiqsut
+2,Alaska,AK,99791,North Slope,Atqasuk
+2,Alaska,AK,99801,Juneau,Juneau
+2,Alaska,AK,99820,Skagway-Hoonah-Angoon,Angoon
+2,Alaska,AK,99824,Juneau,Douglas
+2,Alaska,AK,99825,Skagway-Hoonah-Angoon,Elfin cove
+2,Alaska,AK,99826,Skagway-Hoonah-Angoon,Gustavus
+2,Alaska,AK,99827,Haines,Haines
+2,Alaska,AK,99829,Skagway-Hoonah-Angoon,Hoonah
+2,Alaska,AK,99830,Wrangell-Petersburg,Kake
+2,Alaska,AK,99832,Skagway-Hoonah-Angoon,Pelican
+2,Alaska,AK,99833,Wrangell-Petersburg,Petersburg
+2,Alaska,AK,99835,Sitka,Sitka
+2,Alaska,AK,99840,Skagway-Hoonah-Angoon,Skagway
+2,Alaska,AK,99841,Skagway-Hoonah-Angoon,Tenakee springs
+2,Alaska,AK,99850,Haines,Juneau
+2,Alaska,AK,99901,Ketchikan Gateway,Ketchikan
+2,Alaska,AK,99903,Prince of Wales-Outer Ketchikan,Meyers chuck
+2,Alaska,AK,99918,Prince of Wales-Outer Ketchikan,Coffman cove
+2,Alaska,AK,99919,Prince of Wales-Outer Ketchikan,Thorne bay
+2,Alaska,AK,99921,Prince of Wales-Outer Ketchikan,Craig
+2,Alaska,AK,99922,Prince of Wales-Outer Ketchikan,Hydaburg
+2,Alaska,AK,99923,Prince of Wales-Outer Ketchikan,Hyder
+2,Alaska,AK,99925,Prince of Wales-Outer Ketchikan,Klawock
+2,Alaska,AK,99926,Prince of Wales-Outer Ketchikan,Metlakatla
+2,Alaska,AK,99927,Prince of Wales-Outer Ketchikan,Point baker
+2,Alaska,AK,99929,Wrangell-Petersburg,Wrangell
+2,Alaska,AK,99950,Ketchikan Gateway,Ketchikan
 4,Arizona,AZ,84536,Navajo,
 4,Arizona,AZ,85003,Maricopa,Phoenix
 4,Arizona,AZ,85004,Maricopa,Phoenix
@@ -5186,20 +5195,32 @@ state_fips,state,state_abbr,zipcode,county,city
 13,Georgia,GA,30012,Rockdale,Conyers
 13,Georgia,GA,30015,Newton,Covington
 13,Georgia,GA,30016,Newton,Covington
+13,Georgia,GA,30017,Gwinnett,Grayson
+13,Georgia,GA,30018,Walton,Jersey
 13,Georgia,GA,30021,DeKalb,Clarkston
+13,Georgia,GA,30022,Fulton,Alpharetta
+13,Georgia,GA,30023,Fulton,Alpharetta
+13,Georgia,GA,30024,Gwinnett,Suwanee
 13,Georgia,GA,30030,DeKalb,Decatur
 13,Georgia,GA,30032,DeKalb,Decatur
 13,Georgia,GA,30033,DeKalb,Decatur
 13,Georgia,GA,30034,DeKalb,Decatur
 13,Georgia,GA,30035,DeKalb,Decatur
+13,Georgia,GA,30036,DeKalb,Decatur
+13,Georgia,GA,30037,DeKalb,Decatur
 13,Georgia,GA,30038,DeKalb,Lithonia
 13,Georgia,GA,30058,DeKalb,Centerville gwin
 13,Georgia,GA,30060,Cobb,Marietta
+13,Georgia,GA,30061,Cobb,Marietta
 13,Georgia,GA,30062,Cobb,Marietta
+13,Georgia,GA,30063,Cobb,Marietta
 13,Georgia,GA,30064,Cobb,Marietta
+13,Georgia,GA,30065,Cobb,Marietta
 13,Georgia,GA,30066,Cobb,Marietta
 13,Georgia,GA,30067,Cobb,Marietta
 13,Georgia,GA,30068,Cobb,Marietta
+13,Georgia,GA,30069,Cobb,Marietta
+13,Georgia,GA,30070,Newton,Porterdale
 13,Georgia,GA,30071,Gwinnett,Norcross
 13,Georgia,GA,30072,DeKalb,Pine lake
 13,Georgia,GA,30075,Fulton,Roswell
@@ -5639,6 +5660,7 @@ state_fips,state,state_abbr,zipcode,county,city
 13,Georgia,GA,31312,Effingham,Guyton
 13,Georgia,GA,31313,Liberty,Hinesville
 13,Georgia,GA,31314,Liberty,Fort stewart
+13,Georgia,GA,31315,Liberty,Fort stewart
 13,Georgia,GA,31316,Long,Ludowici
 13,Georgia,GA,31318,Effingham,Meldrim
 13,Georgia,GA,31319,McIntosh,Meridian
@@ -25621,6 +25643,7 @@ state_fips,state,state_abbr,zipcode,county,city
 47,Tennessee,TN,37115,Davidson,Madison
 47,Tennessee,TN,37118,Rutherford,Milton
 47,Tennessee,TN,37122,Wilson,Mount juliet
+47,Tennessee,TN,37128,Rutherford,Murfreesboro
 47,Tennessee,TN,37129,Rutherford,Murfreesboro
 47,Tennessee,TN,37130,Rutherford,Murfreesboro
 47,Tennessee,TN,37134,Humphreys,New johnsonville
@@ -31589,7 +31612,19 @@ state_fips,state,state_abbr,zipcode,county,city
 72,Puerto Rico,PR,00674,Manati,Manati
 72,Puerto Rico,PR,00678,Quebradillas,Quebradillas
 72,Puerto Rico,PR,00965,Guaynabo,Guaynabo
+72,Puerto Rico,PR,00975,San Juan,San Juan
+72,Puerto Rico,PR,00976,Trujillo Alta,Trujillo Alta
+72,Puerto Rico,PR,00977,Trujillo Alta,Trujillo Alta
+72,Puerto Rico,PR,00978,Trujillo Alta,Saint Just
 72,Puerto Rico,PR,00979,Carolina,Carolina
+72,Puerto Rico,PR,00981,Carolina,Carolina
+72,Puerto Rico,PR,00982,Carolina,Carolina
+72,Puerto Rico,PR,00983,Carolina,Carolina
+72,Puerto Rico,PR,00984,Carolina,Carolina
+72,Puerto Rico,PR,00985,Carolina,Carolina
+72,Puerto Rico,PR,00986,Carolina,Carolina
+72,Puerto Rico,PR,00987,Carolina,Carolina
+72,Puerto Rico,PR,00988,Carolina,Carolina
 78,Virgin Islands,VI,00803,Saint Thomas,Saint Thomas
 78,Virgin Islands,VI,00824,Saint Croix,Christiansted
 ,AE,AE,09012,AE,AE
