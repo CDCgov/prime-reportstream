@@ -378,6 +378,10 @@ next time you run ReportStream.
     ```bash
     ./gradlew reloadDB
     ```
+1. Run ReportStream and run the following command to load the organization settings into the database:
+    ```bash
+    ./gradlew reloadSettings
+    ```
 
 # Additional tooling
 
