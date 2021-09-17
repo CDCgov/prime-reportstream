@@ -214,7 +214,10 @@ state_fips,state,state_abbr,zipcode,county,city
 1,Alabama,AL,35621,Morgan,Eva
 1,Alabama,AL,35622,Morgan,Falkville
 1,Alabama,AL,35630,Lauderdale,Florence
+1,Alabama,AL,35631,Lauderdale,Florence
+1,Alabama,AL,35632,Lauderdale,Florence
 1,Alabama,AL,35633,Lauderdale,Florence
+1,Alabama,AL,35634,Lauderdale,Florence
 1,Alabama,AL,35640,Morgan,Hartselle
 1,Alabama,AL,35643,Lawrence,Hillsboro
 1,Alabama,AL,35645,Lauderdale,Killen
@@ -280,6 +283,7 @@ state_fips,state,state_abbr,zipcode,county,city
 1,Alabama,AL,35905,Etowah,Glencoe
 1,Alabama,AL,35906,Etowah,Rainbow city
 1,Alabama,AL,35950,Marshall,Albertville
+1,Alabama,AL,35951,Marshall,Albertville
 1,Alabama,AL,35952,Etowah,Snead
 1,Alabama,AL,35953,St Clair,Ashville
 1,Alabama,AL,35954,Etowah,Attalla
@@ -379,6 +383,7 @@ state_fips,state,state_abbr,zipcode,county,city
 1,Alabama,AL,36203,Calhoun,Oxford
 1,Alabama,AL,36205,Calhoun,Fort mc clellan
 1,Alabama,AL,36206,Calhoun,Anniston
+1,Alabama,AL,36207,Calhoun,Anniston
 1,Alabama,AL,36250,Calhoun,Alexandria
 1,Alabama,AL,36251,Clay,Ashland
 1,Alabama,AL,36255,Clay,Cragford
@@ -30190,6 +30195,7 @@ state_fips,state,state_abbr,zipcode,county,city
 54,West virginia,WV,25302,Kanawha,Big chimney
 54,West virginia,WV,25303,Kanawha,South charleston
 54,West virginia,WV,25304,Kanawha,Charleston
+54,West virginia,WV,25305,Kanawha,Charleston
 54,West virginia,WV,25306,Kanawha,Malden
 54,West virginia,WV,25309,Kanawha,South charleston
 54,West virginia,WV,25311,Kanawha,Charleston
@@ -30199,6 +30205,10 @@ state_fips,state,state_abbr,zipcode,county,city
 54,West virginia,WV,25315,Kanawha,Marmet
 54,West virginia,WV,25320,Kanawha,Sissonville
 54,West virginia,WV,25401,Berkeley,Martinsburg
+54,West virginia,WV,25402,Berkeley,Martinsburg
+54,West virginia,WV,25403,Berkeley,Martinsburg
+54,West virginia,WV,25404,Berkeley,Martinsburg
+54,West virginia,WV,25405,Berkeley,Martinsburg
 54,West virginia,WV,25411,Morgan,Hancock
 54,West virginia,WV,25413,Berkeley,Bunker hill
 54,West virginia,WV,25414,Jefferson,Charles town
