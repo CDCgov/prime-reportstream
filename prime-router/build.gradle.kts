@@ -27,7 +27,7 @@ import java.util.Properties
 plugins {
     kotlin("jvm") version "1.5.30"
     id("org.flywaydb.flyway") version "7.14.0"
-    id("nu.studer.jooq") version "6.0"
+    id("nu.studer.jooq") version "6.0.1"
     id("com.github.johnrengelman.shadow") version "7.0.0"
     id("com.microsoft.azure.azurefunctions") version "1.7.0"
     id("org.jlleitschuh.gradle.ktlint") version "10.1.0"
@@ -96,6 +96,9 @@ tasks.clean {
     delete("target")
 }
 
+/**
+ * Building tasks
+ */
 val coverageExcludedClasses = listOf("gov/cdc/prime/router/azure/db/*", "gov/cdc/prime/router/cli/*")
 tasks.test {
     // Use JUnit 5 for running tests
@@ -232,10 +235,13 @@ tasks.register("fatJar") {
     dependsOn("shadowJar")
 }
 
+/**
+ * PRIME CLI tasks
+ */
 tasks.register<JavaExec>("primeCLI") {
     group = rootProject.description ?: ""
     description = "Run the Prime CLI tool.  Specify arguments with --args='<args>'"
-    main = primeMainClass
+    mainClass.set(primeMainClass)
     classpath = sourceSets["main"].runtimeClasspath
     // Default arguments is to display the help
     environment["POSTGRES_URL"] = dbUrl
@@ -280,6 +286,16 @@ tasks.register("generateDocs") {
     finalizedBy("primeCLI")
 }
 
+tasks.register("reloadSettings") {
+    group = rootProject.description ?: ""
+    description = "Reload the settings database table"
+    project.extra["cliArgs"] = listOf("multiple-settings", "set", "-i", "./settings/organizations.yml")
+    finalizedBy("primeCLI")
+}
+
+/**
+ * Packaging and running related tasks
+ */
 tasks.azureFunctionsPackage {
     dependsOn("test")
 }
@@ -331,6 +347,25 @@ tasks.azureFunctionsPackage {
     finalizedBy("copyAzureScripts")
 }
 
+tasks.register("package") {
+    group = rootProject.description ?: ""
+    description = "Package the code and necessary files to run the Azure functions"
+    dependsOn("azureFunctionsPackage")
+    dependsOn("fatJar")
+}
+
+tasks.register("quickPackage") {
+    // Quick package for development purposes.  Use with caution.
+    dependsOn("azureFunctionsPackage")
+    dependsOn("copyAzureResources")
+    dependsOn("copyAzureScripts")
+    tasks["test"].enabled = false
+    tasks["jacocoTestReport"].enabled = false
+    tasks["compileTestKotlin"].enabled = false
+    tasks["migrate"].enabled = false
+    tasks["flywayMigrate"].enabled = false
+}
+
 tasks.azureFunctionsRun {
     // This storage account key is not a secret, just a dummy value.
     val devAzureConnectString =
@@ -376,6 +411,9 @@ tasks.register("quickRun") {
     tasks["flywayMigrate"].enabled = false
 }
 
+/**
+ * Database related configuration and tasks
+ */
 // Configuration for Flyway migration tool
 flyway {
     url = dbUrl
@@ -424,8 +462,13 @@ jooq {
 tasks.named<nu.studer.gradle.jooq.JooqGenerate>("generateJooq") {
     dependsOn("migrate")
     allInputsDeclared.set(true)
+    inputs.files(project.fileTree("src/main/resources/db/migration")).withPropertyName("migrations")
+        .withPathSensitivity(PathSensitivity.RELATIVE)
 }
 
+/**
+ * Convinience tasks
+ */
 // Convenience tasks
 tasks.register("compile") {
     group = rootProject.description ?: ""
@@ -444,25 +487,6 @@ tasks.register("reloadDB") {
     description = "Delete all tables in the database and recreate from the latest schema"
     dependsOn("flywayClean")
     dependsOn("flywayMigrate")
-}
-
-tasks.register("package") {
-    group = rootProject.description ?: ""
-    description = "Package the code and necessary files to run the Azure functions"
-    dependsOn("azureFunctionsPackage")
-    dependsOn("fatJar")
-}
-
-tasks.register("quickPackage") {
-    // Quick package for development purposes.  Use with caution.
-    dependsOn("azureFunctionsPackage")
-    dependsOn("copyAzureResources")
-    dependsOn("copyAzureScripts")
-    tasks["test"].enabled = false
-    tasks["jacocoTestReport"].enabled = false
-    tasks["compileTestKotlin"].enabled = false
-    tasks["migrate"].enabled = false
-    tasks["flywayMigrate"].enabled = false
 }
 
 repositories {
@@ -541,9 +565,12 @@ dependencies {
 
     implementation("com.cronutils:cron-utils:9.1.5")
     implementation("khttp:khttp:1.0.0")
+    implementation("io.jsonwebtoken:jjwt-api:0.11.2")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.1")
     runtimeOnly("com.github.kittinunf.fuel:fuel-jackson:2.3.1")
+    runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.2")
+    runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.2")
 
     testImplementation(kotlin("test-junit5"))
     testImplementation("com.github.KennethWussmann:mock-fuel:1.3.0") {
@@ -558,7 +585,4 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.2")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.24")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.7.2")
-    implementation("io.jsonwebtoken:jjwt-api:0.11.2")
-    runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.2")
-    runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.2")
 }

@@ -193,7 +193,8 @@ class ReportFunction : Logging {
         actionHistory.trackActionResponse(httpResponseMessage, verboseResponse.toString())
         workflowEngine.recordAction(actionHistory)
         actionHistory.queueMessages(workflowEngine) // Must be done after creating TASK record.
-        // write the data to the table if we're dealing with covid-19. this has to happen
+
+        // Write the data to the table if we're dealing with covid-19. this has to happen
         // here AFTER we've written the report to the DB
         writeCovidResultMetadataForReport(report, context, workflowEngine)
         return httpResponseMessage
