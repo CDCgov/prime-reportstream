@@ -1494,6 +1494,20 @@ The patient's city
 
 ---
 
+**Name**: patient_county
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [1..1]
+
+**Table**: zip-code-data
+
+**Table Column**: county
+
+---
+
 **Name**: Patient_DOB
 
 **Type**: DATE

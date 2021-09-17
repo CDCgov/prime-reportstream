@@ -1500,7 +1500,7 @@ The patient's city
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Table**: zip-code-data
 
@@ -2117,13 +2117,6 @@ Code | Display
 ---- | -------
 CareStart COVID-19 Antigen test_Access Bio, Inc.|Coronavirus Antigen IA Rapid Test
 10811877011269|Abbott-ID NOW COVID-19 (Molecular)
-99999999|non-CDC 2019-ncov coronavirus, SARS (COVID-19)
-99999999|Flu A & B, Real-time RT-PCR (RNA)
-99999999|Glucose - Accu-Chek
-99999999|Glucose - quant
-99999999|RSV Ag - rapid
-99999999|Strep A Ag - rapid
-99999999|UA Dipstick Auto w/o Micro
 
 ---
 
