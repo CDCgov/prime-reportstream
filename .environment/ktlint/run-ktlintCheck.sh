@@ -12,7 +12,7 @@ function usage() {
     echo "By default, this script will only check files that you added or changed (staged and unstaged)."
     echo ""
     echo "Options:"
-    echo "    --full|-f     Scans all files (shorthand: lower-case f)"
+    echo "    --all|-a     Scans all files (shorthand: lower-case f)"
     echo "    --format|-F   Fix violations (shorthand: UPPER-case F)"
     echo "    --help|-h     Shows this help and exits successfully"
     echo ""
@@ -60,7 +60,7 @@ TARGETS=(
 
 while [[ ! -z "${1}" ]]; do
     case "${1}" in
-    "--full" | "-f")
+    "--all" | "-a")
         TARGETS=(
             $(find -type f -iname "*.kt")
             $(find -type f -iname "*.kts")
