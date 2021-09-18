@@ -19,8 +19,8 @@ interface Props {
     list
 */
 function TableButtonGroup(props: Props) {
-    const senders: string[] = props.senders
-    const [chosen, setChosen] = useState(senders[0])
+    const receiverSVCs: string[] = props.senders
+    const [chosen, setChosen] = useState(receiverSVCs[0])
 
     /* This sets both the <TableButtonGroup> AND <TableReports> chosen state variable */
     const handleClick = (id) => {
@@ -31,7 +31,7 @@ function TableButtonGroup(props: Props) {
     return (
         <ButtonGroup type="segmented">
             {
-                senders.map((val) => {
+                receiverSVCs.map((val) => {
                     return <Button
                         key={val}
                         id={val}
@@ -41,7 +41,7 @@ function TableButtonGroup(props: Props) {
                         {
                             /* Accounting for the fact we have not been POSTing items with
                             a sendingOrg property yet */
-                            val === "" ? "No Sender ID" : val
+                            val === "" ? "No Receiver SVC" : val
                         }
                     </Button>
                 })
