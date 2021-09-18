@@ -251,6 +251,13 @@ resource "azurerm_virtual_network_peering" "virtual_network_peer" {
   remote_virtual_network_id = azurerm_virtual_network.virtual_network_2.id
 }
 
+resource "azurerm_virtual_network_peering" "virtual_network_peer-remote" {
+  name                      = "${var.resource_prefix}-peering-remote-001"
+  resource_group_name       = var.resource_group
+  virtual_network_name      = azurerm_virtual_network.virtual_network_2.name
+  remote_virtual_network_id = azurerm_virtual_network.virtual_network.id
+}
+
 # This subnet is where the private endpoints will exist
 # They need a dedicated subnet, since Azure requires full automatic management capabilities of the ACL
 resource "azurerm_subnet" "endpoint2" {

@@ -81,7 +81,6 @@ class OktaAuthenticationVerifier : AuthenticationVerifier {
         return AuthenticatedClaims(userName, minimumLevel, organizationName)
     }
 
-
     internal fun checkMembership(
         memberships: Collection<String>,
         minimumLevel: PrincipalLevel,
@@ -96,7 +95,7 @@ class OktaAuthenticationVerifier : AuthenticationVerifier {
         // the Okta group name will be "DHSender_ignore.ignore-waters
         // If the sender is from Okta, their "organizationName" will match their group from Okta,
         // so do not replace anything in the string
-        val groupName = if(oktaSender) organizationName else organizationName?.replace('-', '_')
+        val groupName = if (oktaSender) organizationName else organizationName?.replace('-', '_')
         val lookupMemberships = when (minimumLevel) {
             PrincipalLevel.SYSTEM_ADMIN -> listOf(oktaSystemAdminGroup)
             PrincipalLevel.ORGANIZATION_ADMIN -> {
