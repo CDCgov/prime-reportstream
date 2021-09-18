@@ -313,7 +313,7 @@ class WorkflowEngine(
                         db.fetchReportFile(it, org = null, txn = txn)
                     } catch (e: Exception) {
                         println(e.printStackTrace())
-                        // sanityCheckReport below will log the problem in better detail.
+                        // Call to sanityCheckReports further below will log the problem in better detail.
                         // note that we are logging but ignoring this error, so that it doesn't poison the entire batch
                         null // id not found. Can occur if errors in ReportFunction fail to write to REPORT_FILE
                     }
@@ -332,7 +332,9 @@ class WorkflowEngine(
             }
 
             updateBlock(headers, txn)
-
+            // Here we iterate through the original tasks, rather than headers.
+            // So even TASK entries whose report_id is missing from REPORT_FILE are marked as done,
+            // because missing report_id is an unrecoverable error. @todo  See #2185 for better solution.
             tasks.forEach {
                 val currentAction = Event.EventAction.parseQueueMessage(it.nextAction.literal)
                 updateHeader(
