@@ -21,25 +21,19 @@ elements:
       default: 99999999
       csvFields: [{name: Ordered_test_description, format: $alt}]
       altValues:
-# This should translate to LOINC: 95209-3
+# Used with the test_performed_code to assign the LOINC: 95209-3 and set the Device ID on the outbound HL7
         - code: "Sofia SARS Antigen FIA_Quidel Corporation"
           display: "Sofia SARS Antigen FIA"
-# Should translate to LOINC: 94534-5
+# Used with the test_performed_code to assign the LOINC: 94534-5 and set the Device ID on the outbound HL7
         - code: 10811877011269
           display: "Abbott-ID NOW COVID-19 (Molecular)"
+# Used with the test_performed_code to assign the LOINC: 94508-9 or 94507-1 for IgM or IgG, and set the Device ID on the outbound HL7
+        - code: "COVID-19 IgG/IgM Rapid Test Cassette (Whole Blood/Serum/Plasma)_Healgen Scientific LLC"
+          display: "Healgen COVID-19 IgG IgM Rapid Test"
 
-# Force failure on all results except COVID-19
-        - code: 99999999
-          display: "non-CDC 2019-ncov coronavirus, SARS (COVID-19)"
-        - code: 99999999
-          display: "Flu A & B, Real-time RT-PCR (RNA)"
-        - code: 99999999
-          display: "Glucose - Accu-Chek"
-        - code: 99999999
-          display: "Glucose - quant"
-        - code: 99999999
-          display: "RSV Ag - rapid"
-        - code: 99999999
-          display: "Strep A Ag - rapid"
-        - code: 99999999
-          display: "UA Dipstick Auto w/o Micro"
+
+# The passed in LOINC Code along with the test_kit_name_id set in the Child Schema will force the appropriate LOINC & Device ID coding
+#      This entry should be made only if you have Antibody or any other Test that uses the same test_kit_name_id for multiple results
+    - name: test_performed_code
+      type: TEXT
+      csvFields: [{name: Test_performed_number}]
