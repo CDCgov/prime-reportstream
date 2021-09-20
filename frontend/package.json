@@ -30,7 +30,7 @@
         "postcss": "^8.3.5",
         "postcss-csso": "^5.0.1",
         "rimraf": "^3.0.2",
-        "sass": "^1.39.2",
+        "sass": "^1.41.1",
         "uswds": "^2.12.1",
         "uswds-gulp": "github:uswds/uswds-gulp"
     },
