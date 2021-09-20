@@ -68,6 +68,7 @@ state_fips,state,state_abbr,zipcode,county,city
 1,Alabama,AL,35125,St Clair,Pell city
 1,Alabama,AL,35126,Jefferson,Dixiana
 1,Alabama,AL,35127,Jefferson,Pleasant grove
+1,Alabama,AL,35128,Saint Clair,Pell City
 1,Alabama,AL,35130,Walker,Quinton
 1,Alabama,AL,35131,St Clair,Ragland
 1,Alabama,AL,35133,Blount,Remlap
@@ -252,6 +253,8 @@ state_fips,state,state_abbr,zipcode,county,city
 1,Alabama,AL,35752,Jackson,Hollywood
 1,Alabama,AL,35754,Morgan,Laceys spring
 1,Alabama,AL,35755,Marshall,Langston
+1,Alabama,AL,35756,Limestone,Madison
+1,Alabama,AL,35757,Madison,Madison
 1,Alabama,AL,35758,Madison,Triana
 1,Alabama,AL,35759,Madison,Meridianville
 1,Alabama,AL,35760,Madison,New hope
@@ -282,6 +285,7 @@ state_fips,state,state_abbr,zipcode,county,city
 1,Alabama,AL,35904,Etowah,Gadsden
 1,Alabama,AL,35905,Etowah,Glencoe
 1,Alabama,AL,35906,Etowah,Rainbow city
+1,Alabama,AL,35907,Etowah,Gadsden
 1,Alabama,AL,35950,Marshall,Albertville
 1,Alabama,AL,35951,Marshall,Albertville
 1,Alabama,AL,35952,Etowah,Snead
@@ -475,6 +479,7 @@ state_fips,state,state_abbr,zipcode,county,city
 1,Alabama,AL,36483,Covington,Wing
 1,Alabama,AL,36501,Clarke,Alma
 1,Alabama,AL,36502,Escambia,Atmore
+1,Alabama,AL,36504,Escambia,Atmore
 1,Alabama,AL,36505,Mobile,Axis
 1,Alabama,AL,36507,Baldwin,Bay minette
 1,Alabama,AL,36509,Mobile,Bayou la batre
@@ -4368,6 +4373,7 @@ state_fips,state,state_abbr,zipcode,county,city
 12,Florida,FL,32148,Putnam,Interlachen
 12,Florida,FL,32157,Putnam,Lake como
 12,Florida,FL,32159,Lake,Lady lake
+12,Florida,FL,32164,Flagler,Palm Coast
 12,Florida,FL,32168,Volusia,New smyrna beach
 12,Florida,FL,32169,Volusia,New smyrna beach
 12,Florida,FL,32174,Volusia,Ormond beach
@@ -4515,6 +4521,9 @@ state_fips,state,state_abbr,zipcode,county,city
 12,Florida,FL,32534,Escambia,Pensacola
 12,Florida,FL,32535,Escambia,Century
 12,Florida,FL,32536,Okaloosa,Crestview
+12,Florida,FL,32537,Okaloosa,Milligan
+12,Florida,FL,32538,Walton,Paxton
+12,Florida,FL,32539,Okaloosa,Crestview
 12,Florida,FL,32541,Okaloosa,Sandestin
 12,Florida,FL,32542,Okaloosa,Eglin a f b
 12,Florida,FL,32544,Okaloosa,Hurlburt field
@@ -5198,6 +5207,8 @@ state_fips,state,state_abbr,zipcode,county,city
 13,Georgia,GA,30010,Gwinnett,Norcross
 13,Georgia,GA,30011,Barrow,Auburn
 13,Georgia,GA,30012,Rockdale,Conyers
+13,Georgia,GA,30013,Rockdale,Conyers
+13,Georgia,GA,30014,Newton,Covington
 13,Georgia,GA,30015,Newton,Covington
 13,Georgia,GA,30016,Newton,Covington
 13,Georgia,GA,30017,Gwinnett,Grayson
@@ -5326,8 +5337,12 @@ state_fips,state,state_abbr,zipcode,county,city
 13,Georgia,GA,30276,Coweta,Senoia
 13,Georgia,GA,30277,Coweta,Sharpsburg
 13,Georgia,GA,30281,Henry,Stockbridge
+13,Georgia,GA,30284,Spalding,Sunny Side
 13,Georgia,GA,30285,Upson,The rock
 13,Georgia,GA,30286,Upson,Thomaston
+13,Georgia,GA,30287,Clayton,Morrow
+13,Georgia,GA,30288,Dekalb,Conley
+13,Georgia,GA,30289,Coweta,Turin
 13,Georgia,GA,30290,Fayette,Tyrone
 13,Georgia,GA,30291,Fulton,Union city
 13,Georgia,GA,30292,Pike,Williamson
@@ -24763,6 +24778,7 @@ state_fips,state,state_abbr,zipcode,county,city
 44,Rhode island,RI,02838,Providence,Manville
 44,Rhode island,RI,02839,Providence,Mapleville
 44,Rhode island,RI,02840,Newport,Middletown
+44,Rhode island,RI,02841,Newport,Newport
 44,Rhode island,RI,02842,Newport,Middletown
 44,Rhode island,RI,02852,Washington,North kingstown
 44,Rhode island,RI,02857,Providence,North scituate
