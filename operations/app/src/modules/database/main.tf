@@ -48,6 +48,7 @@ module "postgres_private_endpoint" {
   resource_group     = var.resource_group
   location           = var.location
   endpoint_subnet_id = data.azurerm_subnet.endpoint.id
+  create_dns_record  = true
 }
 
 module "postgres_server_private_endpoint" {
@@ -58,6 +59,7 @@ module "postgres_server_private_endpoint" {
   resource_group     = var.resource_group
   location           = var.location
   endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet_east.id
+  create_dns_record  = false
 }
 
 
@@ -114,6 +116,7 @@ module "postgres_private_endpoint_replica" {
   resource_group     = var.resource_group
   location           = azurerm_postgresql_server.postgres_server_replica.location
   endpoint_subnet_id = data.azurerm_subnet.endpoint_replica.id
+  create_dns_record  = true
 }
 
 module "postgres_server_private_endpoint_replica" {
@@ -124,6 +127,7 @@ module "postgres_server_private_endpoint_replica" {
   resource_group     = var.resource_group
   location           = azurerm_postgresql_server.postgres_server_replica.location
   endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet_west.id
+  create_dns_record  = false
 }
 
 

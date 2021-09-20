@@ -114,6 +114,7 @@ module "application_private_endpoint" {
   resource_group     = var.resource_group
   location           = var.location
   endpoint_subnet_id = data.azurerm_subnet.endpoint.id
+  create_dns_record  = true
 }
 
 module "application_vault_private_endpoint" {
@@ -124,6 +125,7 @@ module "application_vault_private_endpoint" {
   resource_group     = var.resource_group
   location           = var.location
   endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet.id
+  create_dns_record  = false
 }
 
 resource "azurerm_key_vault" "app_config" {
@@ -197,6 +199,7 @@ module "app_config_private_endpoint" {
   resource_group     = var.resource_group
   location           = var.location
   endpoint_subnet_id = data.azurerm_subnet.endpoint.id
+  create_dns_record  = true
 }
 
 module "app_config_vault_private_endpoint" {
@@ -207,6 +210,7 @@ module "app_config_vault_private_endpoint" {
   resource_group     = var.resource_group
   location           = var.location
   endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet.id
+  create_dns_record  = false
 }
 
 resource "azurerm_key_vault" "client_config" {
@@ -271,6 +275,7 @@ module "client_config_private_endpoint" {
   resource_group     = var.resource_group
   location           = var.location
   endpoint_subnet_id = data.azurerm_subnet.endpoint.id
+  create_dns_record  = true
 }
 
 module "client_config_vault_private_endpoint" {
@@ -281,4 +286,5 @@ module "client_config_vault_private_endpoint" {
   resource_group     = var.resource_group
   location           = var.location
   endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet.id
+  create_dns_record  = false
 }

@@ -49,6 +49,7 @@ module "storageaccount_blob_private_endpoint" {
   resource_group     = var.resource_group
   location           = var.location
   endpoint_subnet_id = data.azurerm_subnet.endpoint.id
+  create_dns_record  = true
 }
 
 module "storageaccount_file_private_endpoint" {
@@ -59,6 +60,7 @@ module "storageaccount_file_private_endpoint" {
   resource_group     = var.resource_group
   location           = var.location
   endpoint_subnet_id = data.azurerm_subnet.endpoint.id
+  create_dns_record  = true
 }
 
 module "storageaccount_queue_private_endpoint" {
@@ -69,6 +71,7 @@ module "storageaccount_queue_private_endpoint" {
   resource_group     = var.resource_group
   location           = var.location
   endpoint_subnet_id = data.azurerm_subnet.endpoint.id
+  create_dns_record  = true
 }
 
 module "storage_blob_private_endpoint" {
@@ -79,6 +82,7 @@ module "storage_blob_private_endpoint" {
   resource_group     = var.resource_group
   location           = var.location
   endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet.id
+  create_dns_record  = false
 }
 
 module "storage_file_private_endpoint" {
@@ -89,6 +93,7 @@ module "storage_file_private_endpoint" {
   resource_group     = var.resource_group
   location           = var.location
   endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet.id
+  create_dns_record  = false
 }
 
 module "storage_queue_private_endpoint" {
@@ -99,6 +104,7 @@ module "storage_queue_private_endpoint" {
   resource_group     = var.resource_group
   location           = var.location
   endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet.id
+  create_dns_record  = false
 }
 
 # Point-in-time restore, soft delete, versioning, and change feed were
@@ -260,6 +266,7 @@ module "storageaccountpartner_blob_private_endpoint" {
   resource_group     = var.resource_group
   location           = var.location
   endpoint_subnet_id = data.azurerm_subnet.endpoint.id
+  create_dns_record  = true
 }
 
 module "storage_partner_blob_private_endpoint" {
@@ -270,6 +277,7 @@ module "storage_partner_blob_private_endpoint" {
   resource_group     = var.resource_group
   location           = var.location
   endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet.id
+  create_dns_record  = false
 }
 
 resource "azurerm_storage_container" "storage_container_hhsprotect" {
