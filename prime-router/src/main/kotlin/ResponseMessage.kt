@@ -1,6 +1,7 @@
 package gov.cdc.prime.router
 
 enum class ResponseMsgType { 
+    // CSV Serializing errors
     INVALID_DATE,
     INVALID_CODE,
     INVALID_PARAM,
@@ -11,6 +12,8 @@ enum class ResponseMsgType {
     TRANSLATION,
     UNSUPPORTED_HD,
     UNSUPPORTED_EI,
+    // HL7 Serializing errors
+    INVALID_HL7,
 }
 
 interface ResponseMessage {

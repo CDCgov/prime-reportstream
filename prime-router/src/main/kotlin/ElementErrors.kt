@@ -204,3 +204,23 @@ data class InvalidTranslationMessage(
         }
     }
 }
+
+
+data class InvalidHL7Message(
+    override val type: ResponseMsgType = ResponseMsgType.INVALID_HL7,
+    val message: String = "",
+) : ResponseMessage {
+    override fun detailMsg() : String {
+        return message
+    }
+
+    override fun groupingId(): String {
+        return message
+    }
+
+    companion object {
+        fun new(message: String): InvalidHL7Message {
+            return InvalidHL7Message(ResponseMsgType.INVALID_HL7, message)
+        }
+    }
+}
