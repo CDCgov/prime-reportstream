@@ -147,3 +147,60 @@ data class UnsupportedEIMessage(
         }
     }
 }
+
+data class InvalidParamMessage(
+    override val type: ResponseMsgType = ResponseMsgType.INVALID_PARAM,
+    val message: String = "",
+) : ResponseMessage {
+    override fun detailMsg() : String {
+        return message
+    }
+
+    override fun groupingId(): String {
+        return message
+    }
+
+    companion object {
+        fun new(message: String): InvalidParamMessage {
+            return InvalidParamMessage(ResponseMsgType.INVALID_PARAM, message)
+        }
+    }
+}
+
+data class InvalidReportMessage(
+    override val type: ResponseMsgType = ResponseMsgType.REPORT,
+    val message: String = "",
+) : ResponseMessage {
+    override fun detailMsg() : String {
+        return message
+    }
+
+    override fun groupingId(): String {
+        return message
+    }
+
+    companion object {
+        fun new(message: String): InvalidReportMessage {
+            return InvalidReportMessage(ResponseMsgType.REPORT, message)
+        }
+    }
+}
+
+data class InvalidTranslationMessage(
+    override val type: ResponseMsgType = ResponseMsgType.TRANSLATION,
+    val message: String = "",
+) : ResponseMessage {
+    override fun detailMsg() : String {
+        return message
+    }
+
+    override fun groupingId(): String {
+        return message
+    }
+
+    companion object {
+        fun new(message: String): InvalidTranslationMessage {
+            return InvalidTranslationMessage(ResponseMsgType.TRANSLATION, message)
+        }
+    }
+}

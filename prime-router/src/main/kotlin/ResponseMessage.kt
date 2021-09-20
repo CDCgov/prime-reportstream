@@ -1,11 +1,14 @@
 package gov.cdc.prime.router
 
 enum class ResponseMsgType { 
-    MISSING,
     INVALID_DATE,
     INVALID_CODE,
+    INVALID_PARAM,
     INVALID_PHONE,
     INVALID_POSTAL,
+    MISSING,
+    REPORT,
+    TRANSLATION,
     UNSUPPORTED_HD,
     UNSUPPORTED_EI,
 }
