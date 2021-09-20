@@ -12,6 +12,8 @@ import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.REPORT_MAX_ERRORS
 import gov.cdc.prime.router.REPORT_MAX_ITEMS
 import gov.cdc.prime.router.REPORT_MAX_ITEM_COLUMNS
+import gov.cdc.prime.router.MissingFieldMessage
+import gov.cdc.prime.router.ResponseMessage
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
@@ -43,8 +45,8 @@ class CsvSerializer(val metadata: Metadata) {
 
     private data class RowResult(
         val row: List<String>,
-        val errors: List<String>,
-        val warnings: List<String>,
+        val errors: List<ResponseMessage>,
+        val warnings: List<ResponseMessage>,
     )
 
     fun readExternal(schemaName: String, input: InputStream, source: Source): ReadResult {
@@ -132,8 +134,8 @@ class CsvSerializer(val metadata: Metadata) {
             var trackingId = if (trackingColumn != null) result.row[trackingColumn] else ""
             if (trackingId.isEmpty())
                 trackingId = "row$index"
-            errors.addAll(result.errors.map { ResultDetail.item(trackingId, it) })
-            warnings.addAll(result.warnings.map { ResultDetail.item(trackingId, it) })
+            errors.addAll(result.errors.map { ResultDetail.item(trackingId, it.detailMsg()) })
+            warnings.addAll(result.warnings.map { ResultDetail.item(trackingId, it.detailMsg()) })
             if (result.errors.isEmpty()) {
                 result.row
             } else {
@@ -297,8 +299,8 @@ class CsvSerializer(val metadata: Metadata) {
      */
     private fun mapRow(schema: Schema, csvMapping: CsvMapping, inputRow: Map<String, String>): RowResult {
         val lookupValues = mutableMapOf<String, String>()
-        val errors = mutableListOf<String>()
-        val warnings = mutableListOf<String>()
+        val errors = mutableListOf<ResponseMessage>()
+        val warnings = mutableListOf<ResponseMessage>()
         val placeholderValue = "**%%placeholder**"
         val failureValue = "**^^validationFail**"
 
@@ -317,7 +319,8 @@ class CsvSerializer(val metadata: Metadata) {
                     when (element.cardinality) {
                         Element.Cardinality.ONE -> errors += error
                         Element.Cardinality.ZERO_OR_ONE -> warnings += error
-                        else -> warnings += "$error - setting value to ''"
+                        else -> warnings += error
+                        // else -> warnings += "$error - setting value to ''"
                     }
                     return failureValue
                 }
@@ -362,7 +365,7 @@ class CsvSerializer(val metadata: Metadata) {
             }
             if (value.isBlank() && !element.canBeBlank) {
                 when (element.cardinality) {
-                    Element.Cardinality.ONE -> errors += "Empty value for ${element.fieldMapping}"
+                    Element.Cardinality.ONE -> errors += MissingFieldMessage.new(element.fieldMapping)
                     Element.Cardinality.ZERO_OR_ONE -> {
                     }
                 }

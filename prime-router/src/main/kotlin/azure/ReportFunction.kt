@@ -343,7 +343,7 @@ class ReportFunction : Logging {
                 }
                 val error = element.checkForError(parts[1])
                 if (error != null) {
-                    errors.add(ResultDetail.param(DEFAULT_PARAMETER, error))
+                    errors.add(ResultDetail.param(DEFAULT_PARAMETER, error.detailMsg()))
                     return@mapNotNull null
                 }
                 Pair(parts[0], parts[1])
