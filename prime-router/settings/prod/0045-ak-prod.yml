@@ -17,7 +17,7 @@
       receivingFacilityOID: null
       messageProfileId: null
       replaceValue: {
-        "PID-22-3": "CDCREC"
+        PID-22-3: "CDCREC"
       }
       reportingFacilityName: null
       reportingFacilityId: null
