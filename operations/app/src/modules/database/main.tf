@@ -60,6 +60,11 @@ module "postgres_server_private_endpoint" {
   location           = var.location
   endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet_east.id
   create_dns_record  = false
+
+  depends_on = [
+    # Prevent unexpected order-of-operations by placing a hard dependency against the current private endpoint
+    module.postgres_private_endpoint
+  ]
 }
 
 
@@ -128,6 +133,11 @@ module "postgres_server_private_endpoint_replica" {
   location           = azurerm_postgresql_server.postgres_server_replica.location
   endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet_west.id
   create_dns_record  = false
+
+  depends_on = [
+    # Prevent unexpected order-of-operations by placing a hard dependency against the current private endpoint
+    module.postgres_private_endpoint_replica
+  ]
 }
 
 

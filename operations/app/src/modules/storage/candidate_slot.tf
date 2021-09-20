@@ -82,6 +82,11 @@ module "storage_candidate_blob_private_endpoint" {
   location           = var.location
   endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet.id
   create_dns_record  = false
+
+  depends_on = [
+    # Prevent unexpected order-of-operations by placing a hard dependency against the current private endpoint
+    module.storageaccount_candidate_blob_private_endpoint
+  ]
 }
 
 module "storage_candidate_file_private_endpoint" {
@@ -93,6 +98,11 @@ module "storage_candidate_file_private_endpoint" {
   location           = var.location
   endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet.id
   create_dns_record  = false
+
+  depends_on = [
+    # Prevent unexpected order-of-operations by placing a hard dependency against the current private endpoint
+    module.storageaccount_candidate_file_private_endpoint
+  ]
 }
 
 module "storage_candidate_queue_private_endpoint" {
@@ -104,6 +114,11 @@ module "storage_candidate_queue_private_endpoint" {
   location           = var.location
   endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet.id
   create_dns_record  = false
+
+  depends_on = [
+    # Prevent unexpected order-of-operations by placing a hard dependency against the current private endpoint
+    module.storageaccount_candidate_queue_private_endpoint
+  ]
 }
 
 resource "azurerm_storage_management_policy" "retention_policy_candidate" {
@@ -234,6 +249,11 @@ module "storage_candidatepartner_blob_private_endpoint" {
   location           = var.location
   endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet.id
   create_dns_record  = false
+
+  depends_on = [
+    # Prevent unexpected order-of-operations by placing a hard dependency against the current private endpoint
+    module.storageaccountcandidatepartner_blob_private_endpoint
+  ]
 }
 
 resource "azurerm_storage_container" "storage_candidate_container_hhsprotect" {

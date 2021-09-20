@@ -126,6 +126,11 @@ module "application_vault_private_endpoint" {
   location           = var.location
   endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet.id
   create_dns_record  = false
+
+  depends_on = [
+    # Prevent unexpected order-of-operations by placing a hard dependency against the current private endpoint
+    module.application_private_endpoint
+  ]
 }
 
 resource "azurerm_key_vault" "app_config" {
@@ -211,6 +216,11 @@ module "app_config_vault_private_endpoint" {
   location           = var.location
   endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet.id
   create_dns_record  = false
+
+  depends_on = [
+    # Prevent unexpected order-of-operations by placing a hard dependency against the current private endpoint
+    module.app_config_private_endpoint
+  ]
 }
 
 resource "azurerm_key_vault" "client_config" {
@@ -287,4 +297,9 @@ module "client_config_vault_private_endpoint" {
   location           = var.location
   endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet.id
   create_dns_record  = false
+
+  depends_on = [
+    # Prevent unexpected order-of-operations by placing a hard dependency against the current private endpoint
+    module.client_config_private_endpoint
+  ]
 }
