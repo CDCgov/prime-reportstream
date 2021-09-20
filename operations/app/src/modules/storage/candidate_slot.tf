@@ -240,21 +240,21 @@ module "storageaccountcandidatepartner_blob_private_endpoint" {
   create_dns_record  = true
 }
 
-module "storage_candidatepartner_blob_private_endpoint" {
-  source             = "../common/private_endpoint"
-  resource_id        = azurerm_storage_account.storage_partner_candidate.id
-  name               = azurerm_storage_account.storage_partner_candidate.name
-  type               = "storage_account_blob"
-  resource_group     = var.resource_group
-  location           = var.location
-  endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet.id
-  create_dns_record  = false
-
-  depends_on = [
-    # Prevent unexpected order-of-operations by placing a hard dependency against the current private endpoint
-    module.storageaccountcandidatepartner_blob_private_endpoint
-  ]
-}
+//module "storage_candidatepartner_blob_private_endpoint" {
+//  source             = "../common/private_endpoint"
+//  resource_id        = azurerm_storage_account.storage_partner_candidate.id
+//  name               = azurerm_storage_account.storage_partner_candidate.name
+//  type               = "storage_account_blob"
+//  resource_group     = var.resource_group
+//  location           = var.location
+//  endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet.id
+//  create_dns_record  = false
+//
+//  depends_on = [
+//    # Prevent unexpected order-of-operations by placing a hard dependency against the current private endpoint
+//    module.storageaccountcandidatepartner_blob_private_endpoint
+//  ]
+//}
 
 resource "azurerm_storage_container" "storage_candidate_container_hhsprotect" {
   name                 = "hhsprotect"
