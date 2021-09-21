@@ -24,6 +24,10 @@ partners:
     type: territory
     abbreviation: GU
     production: true
+  - name: Illinois
+    type: state
+    abbreviation: IL
+    production: true
   - name: Louisiana
     type: state
     abbreviation: LA
