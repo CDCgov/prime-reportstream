@@ -1536,7 +1536,7 @@
       translation:
         type: HL7
         useBatchHeaders: true
-    - name: HL7_NULL
+    - name: HL7_NULL     # Null Transport.
       organizationName: ignore
       topic: covid-19
       jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, HL7_NULL)" ]
@@ -1547,7 +1547,7 @@
       translation:
         type: CUSTOM
         schemaName: tx/tx-covid-19
-        format: HL7
+        format: HL7_BATCH
     - name: BLOBSTORE
       organizationName: ignore
       topic: covid-19
