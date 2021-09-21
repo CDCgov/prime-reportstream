@@ -21,7 +21,7 @@ export const ReportStreamFooter = () => {
                     </IdentifierLogo>
                 </IdentifierLogos>
                 <IdentifierIdentity domain="cdc.gov">
-                    An official website of the
+                    An official website of the{" "}
                     <Link href="https://cdc.gov">
                         Centers for Disease Control and Prevention
                     </Link>

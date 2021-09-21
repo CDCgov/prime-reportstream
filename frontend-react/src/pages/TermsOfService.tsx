@@ -1,14 +1,26 @@
-const updated_at = `June 14, 2021`;
+import { Alert } from "@trussworks/react-uswds";
+
 export const TermsOfService = () => {
     return (        
         <>
-            <section id="anchor-top">
+            <section className="grid-container margin-top-5" id="anchor-top">
+
+                <Alert type="info" heading="This is a U.S. government service" className="margin-bottom-5">
+                    <p className="">You are accessing a US Government information system, which includes (1) this computer, (2) this computer network, (3) all computers connected to this network, and (4) all devices and storage media attached to this network or to a computer on this network.</p>
+                    <p>This information system is provided for US Government-authorized use only. Unauthorized or improper use of this system may result in disciplinary action, as well as civil and criminal penalties.</p> 
+                    <p>By using this information system, you understand and consent to the following:</p>
+                    <ul>
+                        <li>You have no reasonable expectation of privacy regarding any communication or data transiting or stored on this information system.</li>
+                        <li>At any time, and for any lawful government purpose, the government may monitor, intercept, and search and seize any communication or data transiting or stored on this information system.</li>
+                        <li>Any communication or data transiting or stored on this information system may be disclosed or used for any lawful Government purpose.</li>
+                    </ul>
+                </Alert>
 
                 <h1 className="margin-top-0">Terms of service – PRIME ReportStream</h1>
 
-                <p><i>Effective { updated_at }</i></p>
+                <p><i>Effective June 14, 2021</i></p>
 
-                <p>As a User accessing or using the PRIME ReportStream infrastructure provided by the Centers for Disease Control and Prevention (CDC) and the U.S. Department of Health and Human Services (HHS), you acknowledge and agree that you are solely responsible for and shall abide by these Terms of Service, as well as any relevant sections of <a href="https://www.cdc.gov/other/information.html" className="usa-link">CDC’s Privacy Policies</a> (collectively, Terms).</p> 
+                <p>As a User accessing or using the PRIME ReportStream infrastructure provided by the Centers for Disease Control and Prevention (CDC) and the U.S. Department of Health and Human Services (HHS), you acknowledge and agree that you are solely responsible for and shall abide by these Terms of Service, as well as any relevant sections of <a href="https://www.cdc.gov/other/information.html" className="usa-link">CDC’s Privacy Policies</a> (collectively, Terms).</p>
 
                 <h2>Definitions</h2>
 

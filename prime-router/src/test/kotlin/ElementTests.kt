@@ -115,7 +115,8 @@ internal class ElementTests {
         }
         mapOf(
             "20210908105903" to "20210908105903",
-            "199803300000+0000" to "19980330000000").forEach {
+            "199803300000+0000" to "19980330000000"
+        ).forEach {
             val optionalDateTime = "[yyyyMMddHHmmssZ][yyyyMMddHHmmZ][yyyyMMddHHmmss]"
             val df = DateTimeFormatter.ofPattern(optionalDateTime)
             val ta = df.parseBest(it.key, OffsetDateTime::from, LocalDateTime::from, Instant::from)
@@ -482,6 +483,33 @@ internal class ElementTests {
             maxLength = 0, // zilch is an ok value
         ).run {
             assertThat(this.truncateIfNeeded("abcde")).isEqualTo("")
+        }
+    }
+
+    @Test
+    fun `test toFormatted values for UNK`() {
+        val values = ValueSet(
+            "hl70136",
+            system = ValueSet.SetSystem.HL7,
+            values = listOf(
+                ValueSet.Value(code = "Y", display = "Yes"),
+                ValueSet.Value(code = "N", display = "No"),
+                ValueSet.Value(code = "UNK", display = "Unk")
+            )
+        )
+        val element = Element(
+            "a",
+            valueSet = "test",
+            valueSetRef = values,
+            type = Element.Type.CODE,
+            altValues = listOf(
+                ValueSet.Value(code = "Y", display = "Yes"),
+                ValueSet.Value(code = "N", display = "No"),
+                ValueSet.Value(code = "UNK", display = "Unknown")
+            )
+        )
+        element.toFormatted("UNK", "\$system").run {
+            assertThat(this).isEqualTo("NULLFL")
         }
     }
 }

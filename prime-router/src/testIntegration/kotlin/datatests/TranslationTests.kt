@@ -115,7 +115,7 @@ class TranslationTests {
      * @return a list of tests to perform
      */
     private fun readTestConfig(configPathname: String): List<TestConfig> {
-        var config = emptyList<TestConfig>()
+        val config: List<TestConfig>
         // Note we can only use input streams since the file may be in a JAR
         val resourceStream = this::class.java.getResourceAsStream(configPathname)
         if (resourceStream != null) {
@@ -151,6 +151,8 @@ class TranslationTests {
                     fail("One or more config columns in $configPathname are empty.")
                 }
             }
+        } else {
+            fail("Test configuration file $configPathname not found in classpath.")
         }
         return config
     }

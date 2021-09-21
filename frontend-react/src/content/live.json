@@ -153,50 +153,6 @@
     {
       "status": "Live",
       "state": "Wyoming"
-    },
-    {
-      "status": "Building",
-      "state": "Oregon"
-    },
-    {
-      "status": "Building",
-      "state": "Alaska"
-    },
-    {
-      "status": "Building",
-      "state": "Wisconsin"
-    },
-    {
-      "status": "Building",
-      "state": "Illinois"
-    },
-    {
-      "status": "Building",
-      "state": "Tennessee"
-    },
-    {
-      "status": "Building",
-      "state": "North Carolina"
-    },
-    {
-      "status": "Building",
-      "state": "Deleware"
-    },
-    {
-      "status": "Building",
-      "state": "New York"
-    },
-    {
-      "status": "Building",
-      "state": "New Jersey"
-    },
-    {
-      "status": "Building",
-      "state": "Connecticut"
-    },
-    {
-      "status": "Building",
-      "state": "New Hampshire"
     }
   ]
 }
