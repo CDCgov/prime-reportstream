@@ -1,5 +1,3 @@
-import { IconName } from "@fortawesome/fontawesome-svg-core";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { FeatureProp } from "../HomeProps";
 import site from "../../../content/site.json";
 

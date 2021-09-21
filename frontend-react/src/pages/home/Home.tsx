@@ -1,6 +1,4 @@
 import content from "../../content/content.json";
-import { library } from "@fortawesome/fontawesome-svg-core";
-import { fas } from "@fortawesome/free-solid-svg-icons";
 import Hero from './Hero'
 import Section from "./Sections/Section";
 import Feature from "./Features/Feature";
@@ -10,7 +8,6 @@ import Feature from "./Features/Feature";
    to be taken to content.json. There you may make changes within each object held in the section and freeSecure arrays. No
    content is hard-coded in this file. */
 export const Home = () => {
-    library.add(fas);
     return (
         <>
             <Hero />
@@ -21,7 +18,7 @@ export const Home = () => {
             <div className="grid-container">
                 {content.sections.map((section) => {
                     return (
-                        <section key={section.title} className="usa-section margin-y-0 tablet:padding-top-2 tablet:padding-bottom-2">
+                        <section key={section.type} className="usa-section margin-y-0 tablet:padding-top-2 tablet:padding-bottom-2">
                             <div className="grid-row grid-gap">
                                 <Section section={section} />
                             </div>
