@@ -798,7 +798,7 @@ This field is ignored.
 
 **Documentation**:
 
-This field is ignored.
+This field is ignored unless there is an antibody test.  Then this must be set in the Child Schema.
 
 ---
 
@@ -981,6 +981,18 @@ This field is ignored.
 **Documentation**:
 
 This field is ignored.
+
+---
+
+**Name**: Date_result_released
+
+**Type**: DATETIME
+
+**PII**: No
+
+**Format**: M/d/yyyy H:nn
+
+**Cardinality**: [0..1]
 
 ---
 
@@ -1638,6 +1650,18 @@ The name of the assigner of the patient_id field. Typically we use the name of t
 
 ---
 
+**Name**: patient_id_type
+
+**Type**: TEXT
+
+**PII**: No
+
+**Default Value**: PI
+
+**Cardinality**: [0..1]
+
+---
+
 **Name**: Patient_last_name
 
 **Type**: PERSON_NAME
@@ -1784,6 +1808,25 @@ The patient's second address line
 **Documentation**:
 
 The patient's zip code
+
+---
+
+**Name**: Testing_lab_accession_number
+
+**Type**: ID
+
+**PII**: No
+
+**HL7 Fields**
+
+- [OBR-2-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.2.1)
+- [ORC-2-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.2.1)
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The ID number of the lab order from the placer
 
 ---
 
@@ -1940,7 +1983,7 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 
 **PII**: No
 
-**Format**: $alt
+**Format**: $display
 
 **Default Value**: 71836000
 
@@ -1950,29 +1993,22 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 
 Code | Display
 ---- | -------
-119297000|Blood specimen (specimen)
 71836000|Nasopharyngeal structure (body structure)
-45206002|Nasal structure (body structure)
-53342003|Internal nose structure (body structure)
-31389004|Oral
-31389004|Oropharyngeal
-31389004|Throat
-71836000|Nasopharyngeal structure (body structure)
-71836000|Nasopharyngeal structure (body structure)
-
-**Alt Value Sets**
-
-Code | Display
----- | -------
-31389004|Oral
-31389004|Oropharyngeal
-31389004|Throat
 71836000|Varied
 71836000|Nasal
+45206002|Nasal structure (body structure)
+53342003|Internal nose structure (body structure)
+119297000|Serum
+119297000|Plasma
+119297000|Whole Blood
+119297000|Blood specimen (specimen)
+31389004|Oral
+31389004|Oropharyngeal
+31389004|Oropharyngeal Swab
 
 **Documentation**:
 
-Refers back to the specimen source site, which is then encoded into the SPM-8 segment
+Translate inbound text to outbound SNOMED Codes
 
 ---
 
@@ -1982,7 +2018,7 @@ Refers back to the specimen source site, which is then encoded into the SPM-8 se
 
 **PII**: No
 
-**Format**: $alt
+**Format**: $display
 
 **Default Value**: 258500001
 
@@ -1994,39 +2030,33 @@ Code | Display
 ---- | -------
 445297001|Swab of internal nose
 258500001|Nasopharyngeal swab
+258500001|Nasal
+258500001|Varied
 871810001|Mid-turbinate nasal swab
 697989009|Anterior nares swab
 258411007|Nasopharyngeal aspirate
 429931000124105|Nasal aspirate
 258529004|Throat swab
+258529004|Throat
+258529004|Oral
+258529004|Oropharyngeal
+258529004|Oropharyngeal Swab
 119334006|Sputum specimen
 119342007|Saliva specimen
 258607008|Bronchoalveolar lavage fluid sample
 119364003|Serum specimen
+119364003|Serum
 119361006|Plasma specimen
+119361006|Plasma
 440500007|Dried blood spot specimen
 258580003|Whole blood sample
+258580003|Whole blood
 122555007|Venous blood specimen
 119297000|Blood specimen
-258529004|Throat swab
-258529004|Throat swab
-258529004|Throat swab
-258500001|Nasopharyngeal swab
-258500001|Nasopharyngeal swab
-
-**Alt Value Sets**
-
-Code | Display
----- | -------
-258529004|Oral
-258529004|Oropharyngeal
-258529004|Throat
-258500001|Varied
-258500001|Nasal
 
 **Documentation**:
 
-The specimen source, such as Blood or Serum
+Translate inbound text to outbound SNOMED Codes
 
 ---
 
@@ -2098,6 +2128,7 @@ Code | Display
 895231008|Not detected in pooled specimen
 462371000124108|Detected in pooled specimen
 455371000124106|Invalid result
+455371000124106|Invalid
 125154007|Specimen unsatisfactory for evaluation
 840539006|Disease caused by sever acute respiratory syndrome coronavirus 2 (disorder)
 840544004|Suspected disease caused by severe acute respiratory coronavirus 2 (situation)
