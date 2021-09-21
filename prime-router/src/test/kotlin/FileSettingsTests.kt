@@ -25,6 +25,7 @@ class FileSettingsTests {
                 - name: elr
                   organizationName: phd1
                   topic: test
+                  customerStatus: active
                   jurisdictionalFilter: [ "matches(a, 1)"]
                   deidentify: false
                   translation:
@@ -45,6 +46,7 @@ class FileSettingsTests {
                   - name: elr
                     organizationName: phd1
                     topic: test
+                    customerStatus: active
                     jurisdictionalFilter: [ "matches(a, 1)"]
                     deidentify: false
                     timing:
@@ -60,6 +62,7 @@ class FileSettingsTests {
                   - name: sender
                     organizationName: phd1
                     topic: topic
+                    customerStatus: active
                     schemaName: one
                     format: CSV
     """.trimIndent()
