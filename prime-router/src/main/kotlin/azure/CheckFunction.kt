@@ -30,6 +30,15 @@ class CheckFunction : Logging {
         val contents: String,
     )
 
+    data class RemoteConnectionCheck(
+        val organizationId: Int,
+        val receiverId: Int,
+        val checkSuccessful: Boolean,
+        val initiatedOn: Instant,
+        val completedAt: Instant,
+        val checkResult: String
+    )
+
     class TestFileFilter(val fileName: String) : RemoteResourceFilter {
         override fun accept(resource: RemoteResourceInfo?): Boolean {
             resource?. let {
@@ -109,7 +118,7 @@ class CheckFunction : Logging {
      */
     @FunctionName("scheduled-run")
     fun scheduledRun(
-        @TimerTrigger(name = "scheduledRunTrigger", schedule = "0 0 */12 * * *") timerInfo: String,
+        @TimerTrigger(name = "scheduledRunTrigger", schedule = "%REMOTE_CONNECTION_CHECK_SCHEDULE%") timerInfo: String,
         context: ExecutionContext
     ) {
         val settings = WorkflowEngine.settings
@@ -119,7 +128,7 @@ class CheckFunction : Logging {
             val responseBody: MutableList<String> = mutableListOf()
             // test the transport
             val initiatedAt = Instant.now()
-            testTransport(it, null, responseBody)
+            val successful = testTransport(it, null, responseBody)
             val completedOn = Instant.now()
             db.transact { txn ->
                 // get the id for the organization
@@ -138,6 +147,15 @@ class CheckFunction : Logging {
                 // save the record
                 if (organizationId != null && receiverId != null) {
                     // update and move on
+                    val connectionCheck = RemoteConnectionCheck(
+                        organizationId,
+                        receiverId,
+                        successful,
+                        initiatedAt,
+                        completedOn,
+                        responseBody.joinToString("\n"),
+                    )
+                    db.saveRemoteConnectionCheck(txn, connectionCheck)
                 }
             }
         }

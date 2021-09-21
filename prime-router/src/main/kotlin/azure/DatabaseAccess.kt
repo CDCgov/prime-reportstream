@@ -733,6 +733,13 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             ?.getValue(DSL.max(SETTING.CREATED_AT))
     }
 
+    fun saveRemoteConnectionCheck(
+        txn: DataAccessTransaction? = null,
+        connectionCheck: CheckFunction.RemoteConnectionCheck
+    ) {
+        val ctx = if (txn != null) DSL.using(txn) else create
+    }
+
     /** Common companion object */
     companion object {
         /** Global var. Set to false prior to the lazy init, to prevent flyway migrations */
