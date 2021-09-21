@@ -25,7 +25,7 @@ export const Home = () => {
                             <div className="grid-row grid-gap">
                                 <Section section={section} />
                             </div>
-                            <div className="grid-row grid-gap margin-bottom-2 ">
+                            <div className="grid-row grid-gap margin-bottom-4 ">
                                 {section.features?.map((feature) => {
                                     return (
                                         <Feature
@@ -49,12 +49,12 @@ export const Home = () => {
                             return (
                                 <div key={item.title} className="tablet:grid-col-6">
                                     <h3 className="font-sans-lg padding-top-3 border-top-05 border-base-lighter">
-                                        <img
+                                        {/* <img
                                             src={"/assets/" + item.icon}
                                             alt="cdc logo"
                                             height="36"
                                             className="margin-right-2"
-                                        />
+                                        /> */}
                                         {item.title}
                                     </h3>
                                     <p className="usa-prose">

@@ -16,11 +16,6 @@ export default function DeliveryMethodsFeature({ feature }: { feature: FeaturePr
                 </div>
                 <div className="tablet:grid-col-6 ">
                     <h3 className="font-sans-lg margin-top-0 padding-top-3 margin-bottom-1 tablet:border-top-05 tablet:border-base-lighter">
-                        <FontAwesomeIcon
-                            icon={feature.icon as IconName}
-                            color="#005EA2"
-                            className="margin-right-1"
-                        />
                         {feature.title}
                     </h3>
                     <p className="usa-prose">{feature!.items![0]?.summary}</p>
