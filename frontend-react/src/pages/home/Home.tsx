@@ -21,7 +21,7 @@ export const Home = () => {
             <div className="grid-container">
                 {content.sections.map((section) => {
                     return (
-                        <section className="usa-section margin-y-0 tablet:padding-top-2 tablet:padding-bottom-2">
+                        <section key={section.title} className="usa-section margin-y-0 tablet:padding-top-2 tablet:padding-bottom-2">
                             <div className="grid-row grid-gap">
                                 <Section section={section} />
                             </div>
@@ -29,6 +29,7 @@ export const Home = () => {
                                 {section.features?.map((feature) => {
                                     return (
                                         <Feature
+                                            key={feature.title}
                                             section={section}
                                             feature={feature}
                                         />
@@ -46,22 +47,20 @@ export const Home = () => {
                     <div className="grid-row grid-gap  margin-bottom-4 padding-top-0">
                         {content.freeSecure.map((item) => {
                             return (
-                                <>
-                                    <div className="tablet:grid-col-6">
-                                        <h3 className="font-sans-lg padding-top-3 border-top-05 border-base-lighter">
-                                            <img
-                                                src={"/assets/" + item.icon}
-                                                alt="cdc logo"
-                                                height="36"
-                                                className="margin-right-2"
-                                            />
-                                            {item.title}
-                                        </h3>
-                                        <p className="usa-prose">
-                                            {item.summary}
-                                        </p>
-                                    </div>
-                                </>
+                                <div key={item.title} className="tablet:grid-col-6">
+                                    <h3 className="font-sans-lg padding-top-3 border-top-05 border-base-lighter">
+                                        <img
+                                            src={"/assets/" + item.icon}
+                                            alt="cdc logo"
+                                            height="36"
+                                            className="margin-right-2"
+                                        />
+                                        {item.title}
+                                    </h3>
+                                    <p className="usa-prose">
+                                        {item.summary}
+                                    </p>
+                                </div>
                             );
                         })}
                     </div>
