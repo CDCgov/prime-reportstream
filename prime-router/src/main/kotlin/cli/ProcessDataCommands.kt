@@ -483,6 +483,7 @@ class ProcessData(
                             "emptyReceiver",
                             "emptyOrganization",
                             "covid-19",
+                            "unknown",
                             hl7Configuration
                         )
                         report.copy(destination, Report.Format.HL7_BATCH)

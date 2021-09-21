@@ -41,7 +41,7 @@ class WorkflowEngineTests {
     val queueMock = mockkClass(QueueAccess::class)
     val oneOrganization = DeepOrganization(
         "phd", "test", Organization.Jurisdiction.FEDERAL,
-        receivers = listOf(Receiver("elr", "phd", "topic", "one"))
+        receivers = listOf(Receiver("elr", "phd", "topic", "status", "one"))
     )
 
     private fun makeEngine(metadata: Metadata, settings: SettingsProvider): WorkflowEngine {
@@ -72,7 +72,7 @@ class WorkflowEngineTests {
         val bodyFormat = Report.Format.CSV
         val bodyUrl = "http://anyblob.com"
         val actionHistory = mockk<ActionHistory>()
-        val receiver = Receiver("myRcvr", "topic", "mytopic", "mySchema")
+        val receiver = Receiver("myRcvr", "topic", "mytopic", "status", "mySchema")
 
         every { blobMock.uploadBody(report = eq(report1), any(), any()) }
             .returns(BlobAccess.BlobInfo(bodyFormat, bodyUrl, "".toByteArray()))
@@ -106,7 +106,7 @@ class WorkflowEngineTests {
         val bodyFormat = Report.Format.CSV
         val bodyUrl = "http://anyblob.com"
         val actionHistory = mockk<ActionHistory>()
-        val receiver = Receiver("MyRcvr", "topic", "mytopic", "mySchema")
+        val receiver = Receiver("MyRcvr", "topic", "mytopic", "status", "mySchema")
 
         every { blobMock.uploadBody(report = eq(report1), any(), any()) }
             .returns(BlobAccess.BlobInfo(bodyFormat, bodyUrl, "".toByteArray()))
@@ -141,7 +141,7 @@ class WorkflowEngineTests {
         val settings = FileSettings()
         val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource)
         val actionHistory = mockk<ActionHistory>()
-        val sender = Sender("senderName", "org", Sender.Format.CSV, "covid-19", one.name)
+        val sender = Sender("senderName", "org", Sender.Format.CSV, "covid-19", "status", one.name)
 
         every { blobMock.uploadBody(Report.Format.CSV, any(), any(), sender.fullName, Event.EventAction.RECEIVE) }
             .returns(BlobAccess.BlobInfo(Report.Format.CSV, "http://anyblob.com", "".toByteArray()))

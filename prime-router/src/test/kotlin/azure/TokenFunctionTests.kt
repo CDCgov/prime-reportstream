@@ -150,6 +150,7 @@ class TokenFunctionTests {
         "simple_report",
         Sender.Format.CSV,
         "covid-19",
+        "unknown",
         "default"
     )
     var validScope = "simple_report.default.report"

@@ -67,6 +67,7 @@ class TokenAuthenticationTests {
         "bar",
         Sender.Format.CSV,
         "covid-19",
+        "status",
         "mySchema",
         keys = null
     )

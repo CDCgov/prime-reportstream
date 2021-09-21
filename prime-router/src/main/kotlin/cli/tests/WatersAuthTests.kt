@@ -53,6 +53,7 @@ class WatersAuthTests : CoolTest() {
             organizationName = organization,
             format = Sender.Format.CSV,
             topic = "covid-19",
+            customerStatus = "inactive",
             schemaName = "primedatainput/pdi-covid-19"
         )
 

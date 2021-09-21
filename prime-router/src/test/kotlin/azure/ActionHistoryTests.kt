@@ -93,7 +93,7 @@ class ActionHistoryTests {
                 description = "blah blah",
                 jurisdiction = Organization.Jurisdiction.FEDERAL,
                 receivers = listOf(
-                    Receiver("myService", "myOrg", "topic", "schema")
+                    Receiver("myService", "myOrg", "topic", "status", "schema")
                 )
             )
         val orgReceiver = org.receivers[0]
@@ -142,7 +142,7 @@ class ActionHistoryTests {
                 description = "blah blah",
                 jurisdiction = Organization.Jurisdiction.FEDERAL,
                 receivers = listOf(
-                    Receiver("myService", "myOrg", "topic1", "schema1", format = Report.Format.REDOX)
+                    Receiver("myService", "myOrg", "topic1", "status", "schema1", format = Report.Format.REDOX)
                 )
             )
         val orgReceiver = org.receivers[0]
@@ -187,7 +187,7 @@ class ActionHistoryTests {
                 description = "blah blah",
                 jurisdiction = Organization.Jurisdiction.FEDERAL,
                 receivers = listOf(
-                    Receiver("receiverX", "myOrg", "topic", "schema", format = Report.Format.HL7)
+                    Receiver("receiverX", "myOrg", "topic", "status", "schema", format = Report.Format.HL7)
                 )
             )
         val schema = Schema("schema", "topic")
@@ -248,7 +248,7 @@ class ActionHistoryTests {
                 description = "foo bar",
                 jurisdiction = Organization.Jurisdiction.FEDERAL,
                 receivers = listOf(
-                    Receiver("service0", "org0", "topic", "schema", format = Report.Format.REDOX)
+                    Receiver("service0", "org0", "topic", "status", "schema", format = Report.Format.REDOX)
                 )
             )
         val org1 =
@@ -257,7 +257,7 @@ class ActionHistoryTests {
                 description = "blah blah",
                 jurisdiction = Organization.Jurisdiction.FEDERAL,
                 receivers = listOf(
-                    Receiver("service1", "org1", "topic", "schema", format = Report.Format.HL7)
+                    Receiver("service1", "org1", "topic", "status", "schema", format = Report.Format.HL7)
                 )
             )
         val settings = FileSettings().loadOrganizationList(listOf(org0, org1))

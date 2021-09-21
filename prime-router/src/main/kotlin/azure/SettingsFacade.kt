@@ -315,6 +315,7 @@ class SenderAPI
     organizationName: String,
     format: Format,
     topic: String,
+    customerStatus: String,
     schemaName: String,
     override var meta: SettingMetadata?,
 ) : Sender(
@@ -322,6 +323,7 @@ class SenderAPI
     organizationName,
     format,
     topic,
+    customerStatus,
     schemaName,
 ),
     SettingAPI
@@ -331,6 +333,7 @@ class ReceiverAPI
     name: String,
     organizationName: String,
     topic: String,
+    customerStatus: String,
     translation: TranslatorConfiguration,
     jurisdictionalFilter: List<String> = emptyList(),
     qualityFilter: List<String> = emptyList(),
@@ -344,6 +347,7 @@ class ReceiverAPI
     name,
     organizationName,
     topic,
+    customerStatus,
     translation,
     jurisdictionalFilter,
     qualityFilter,
