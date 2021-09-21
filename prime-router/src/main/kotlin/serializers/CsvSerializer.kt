@@ -7,17 +7,17 @@ import com.github.doyaaaaaken.kotlincsv.util.CSVParseFormatException
 import com.github.doyaaaaaken.kotlincsv.util.MalformedCSVException
 import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.ElementAndValue
+import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Mapper
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.MissingFieldMessage
 import gov.cdc.prime.router.REPORT_MAX_ERRORS
 import gov.cdc.prime.router.REPORT_MAX_ITEMS
 import gov.cdc.prime.router.REPORT_MAX_ITEM_COLUMNS
-import gov.cdc.prime.router.MissingFieldMessage
-import gov.cdc.prime.router.ResponseMessage
-import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
+import gov.cdc.prime.router.ResponseMessage
 import gov.cdc.prime.router.ResultDetail
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Source
@@ -77,7 +77,9 @@ class CsvSerializer(val metadata: Metadata) {
                     if (rows.size > REPORT_MAX_ITEMS) {
                         errors.add(
                             ResultDetail.report(
-                                InvalidReportMessage.new("Report rows ${rows.size} exceeds max allowed $REPORT_MAX_ITEMS rows")
+                                InvalidReportMessage.new(
+                                    "Report rows ${rows.size} exceeds max allowed $REPORT_MAX_ITEMS rows"
+                                )
                             )
                         )
                         return@open
@@ -85,7 +87,9 @@ class CsvSerializer(val metadata: Metadata) {
                     if (row.size > REPORT_MAX_ITEM_COLUMNS) {
                         errors.add(
                             ResultDetail.report(
-                                InvalidReportMessage.new("Number of report columns ${row.size} exceeds max allowed $REPORT_MAX_ITEM_COLUMNS")
+                                InvalidReportMessage.new(
+                                    "Number of report columns ${row.size} exceeds max allowed $REPORT_MAX_ITEM_COLUMNS"
+                                )
                             )
                         )
                         return@open
@@ -93,7 +97,11 @@ class CsvSerializer(val metadata: Metadata) {
                 }
             } catch (ex: CSVFieldNumDifferentException) {
                 errors.add(
-                    ResultDetail.report(InvalidReportMessage.new("CSV file has an inconsistent number of columns on row: ${ex.csvRowNum}"))
+                    ResultDetail.report(
+                        InvalidReportMessage.new(
+                            "CSV file has an inconsistent number of columns on row: ${ex.csvRowNum}"
+                        )
+                    )
                 )
             } catch (ex: CSVParseFormatException) {
                 errors.add(
@@ -120,7 +128,9 @@ class CsvSerializer(val metadata: Metadata) {
         if (errors.size > REPORT_MAX_ERRORS) {
             errors.add(
                 ResultDetail.report(
-                    InvalidReportMessage.new("Number of errors (${errors.size}) exceeded $REPORT_MAX_ERRORS.  Stopping further work.")
+                    InvalidReportMessage.new(
+                        "Number of errors (${errors.size}) exceeded $REPORT_MAX_ERRORS.  Stopping further work."
+                    )
                 )
             )
             return ReadResult(null, errors, warnings)
@@ -146,7 +156,9 @@ class CsvSerializer(val metadata: Metadata) {
         if (errors.size > REPORT_MAX_ERRORS) {
             errors.add(
                 ResultDetail.report(
-                    InvalidReportMessage.new("Number of errors (${errors.size}) exceeded $REPORT_MAX_ERRORS.  Stopping.")
+                    InvalidReportMessage.new(
+                        "Number of errors (${errors.size}) exceeded $REPORT_MAX_ERRORS.  Stopping."
+                    )
                 )
             )
             return ReadResult(null, errors, warnings)

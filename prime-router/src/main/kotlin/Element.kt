@@ -484,7 +484,7 @@ data class Element(
                     else
                         null
                 } catch (ex: Exception) {
-                        InvalidPhoneMessage.new(formattedValue, fieldMapping)
+                    InvalidPhoneMessage.new(formattedValue, fieldMapping)
                 }
             }
             Type.POSTAL_CODE -> {

@@ -5,7 +5,7 @@ data class MissingFieldMessage(
     val formattedValue: String = "",
     val fieldMapping: String = ""
 ) : ResponseMessage {
-    override fun detailMsg() : String {
+    override fun detailMsg(): String {
         return "Blank value for element $fieldMapping"
     }
 
@@ -25,7 +25,7 @@ data class InvalidDateMessage(
     val formattedValue: String = "",
     val fieldMapping: String = ""
 ) : ResponseMessage {
-    override fun detailMsg() : String {
+    override fun detailMsg(): String {
         return "Invalid date: '$formattedValue' for element $fieldMapping"
     }
 
@@ -45,7 +45,7 @@ data class InvalidCodeMessage(
     val formattedValue: String = "",
     val fieldMapping: String = ""
 ) : ResponseMessage {
-    override fun detailMsg() : String {
+    override fun detailMsg(): String {
         return "Invalid code: '$formattedValue' is not a display value in altValues set for $fieldMapping"
     }
 
@@ -65,7 +65,7 @@ data class InvalidPhoneMessage(
     val formattedValue: String = "",
     val fieldMapping: String = ""
 ) : ResponseMessage {
-    override fun detailMsg() : String {
+    override fun detailMsg(): String {
         return "Invalid phone number '$formattedValue' for $fieldMapping"
     }
 
@@ -85,7 +85,7 @@ data class InvalidPostalMessage(
     val formattedValue: String = "",
     val fieldMapping: String = ""
 ) : ResponseMessage {
-    override fun detailMsg() : String {
+    override fun detailMsg(): String {
         return "Invalid postal code '$formattedValue' for $fieldMapping"
     }
 
@@ -105,7 +105,7 @@ data class UnsupportedHDMessage(
     val formattedValue: String = "",
     val fieldMapping: String = ""
 ) : ResponseMessage {
-    override fun detailMsg() : String {
+    override fun detailMsg(): String {
         return "Unsupported HD format for input: '$formattedValue' in $fieldMapping"
     }
 
@@ -129,7 +129,7 @@ data class UnsupportedEIMessage(
     val formattedValue: String = "",
     val fieldMapping: String = ""
 ) : ResponseMessage {
-    override fun detailMsg() : String {
+    override fun detailMsg(): String {
         return "Unsupported EI format for input: '$formattedValue' in $fieldMapping"
     }
 
@@ -152,7 +152,7 @@ data class InvalidParamMessage(
     override val type: ResponseMsgType = ResponseMsgType.INVALID_PARAM,
     val message: String = "",
 ) : ResponseMessage {
-    override fun detailMsg() : String {
+    override fun detailMsg(): String {
         return message
     }
 
@@ -171,7 +171,7 @@ data class InvalidReportMessage(
     override val type: ResponseMsgType = ResponseMsgType.REPORT,
     val message: String = "",
 ) : ResponseMessage {
-    override fun detailMsg() : String {
+    override fun detailMsg(): String {
         return message
     }
 
@@ -190,7 +190,7 @@ data class InvalidTranslationMessage(
     override val type: ResponseMsgType = ResponseMsgType.TRANSLATION,
     val message: String = "",
 ) : ResponseMessage {
-    override fun detailMsg() : String {
+    override fun detailMsg(): String {
         return message
     }
 
@@ -205,12 +205,11 @@ data class InvalidTranslationMessage(
     }
 }
 
-
 data class InvalidHL7Message(
     override val type: ResponseMsgType = ResponseMsgType.INVALID_HL7,
     val message: String = "",
 ) : ResponseMessage {
-    override fun detailMsg() : String {
+    override fun detailMsg(): String {
         return message
     }
 

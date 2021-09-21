@@ -416,7 +416,11 @@ class Hl7Serializer(
         val mapping = convertBatchMessagesToMap(messageBody, schema)
         val mappedRows = mapping.mappedRows
         errors.addAll(mapping.errors.map { ResultDetail(ResultDetail.DetailScope.ITEM, "", InvalidHL7Message.new(it)) })
-        warnings.addAll(mapping.warnings.map { ResultDetail(ResultDetail.DetailScope.ITEM, "", InvalidHL7Message.new(it)) })
+        warnings.addAll(
+            mapping.warnings.map {
+                ResultDetail(ResultDetail.DetailScope.ITEM, "", InvalidHL7Message.new(it))
+            }
+        )
         mappedRows.forEach {
             logger.debug("${it.key} -> ${it.value.joinToString()}")
         }

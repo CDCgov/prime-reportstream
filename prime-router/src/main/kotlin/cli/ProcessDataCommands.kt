@@ -14,7 +14,6 @@ import gov.cdc.prime.router.FakeReport
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.FileSource
 import gov.cdc.prime.router.Hl7Configuration
-import gov.cdc.prime.router.InvalidTranslationMessage
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report

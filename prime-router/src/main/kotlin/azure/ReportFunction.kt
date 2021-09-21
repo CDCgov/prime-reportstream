@@ -296,17 +296,28 @@ class ReportFunction : Logging {
 
         val clientName = extractClientHeader(request)
         if (clientName.isBlank())
-            errors.add(ResultDetail.param(CLIENT_PARAMETER, InvalidParamMessage.new("Expected a '$CLIENT_PARAMETER' query parameter")))
+            errors.add(
+                ResultDetail.param(
+                    CLIENT_PARAMETER, InvalidParamMessage.new("Expected a '$CLIENT_PARAMETER' query parameter")
+                )
+            )
 
         val sender = engine.settings.findSender(clientName)
         if (sender == null)
-            errors.add(ResultDetail.param(CLIENT_PARAMETER, InvalidParamMessage.new("'$CLIENT_PARAMETER:$clientName': unknown sender")))
+            errors.add(
+                ResultDetail.param(
+                    CLIENT_PARAMETER, InvalidParamMessage.new("'$CLIENT_PARAMETER:$clientName': unknown sender")
+                )
+            )
 
         val schema = engine.metadata.findSchema(sender?.schemaName ?: "")
         if (sender != null && schema == null)
             errors.add(
                 ResultDetail.param(
-                    CLIENT_PARAMETER, InvalidParamMessage.new("'$CLIENT_PARAMETER:$clientName': unknown schema '${sender.schemaName}'")
+                    CLIENT_PARAMETER,
+                    InvalidParamMessage.new(
+                        "'$CLIENT_PARAMETER:$clientName': unknown schema '${sender.schemaName}'"
+                    )
                 )
             )
 
@@ -318,7 +329,11 @@ class ReportFunction : Logging {
         if (contentType.isBlank()) {
             errors.add(ResultDetail.param(HttpHeaders.CONTENT_TYPE, InvalidParamMessage.new("missing")))
         } else if (sender != null && sender.format.mimeType != contentType) {
-            errors.add(ResultDetail.param(HttpHeaders.CONTENT_TYPE, InvalidParamMessage.new("expecting '${sender.format.mimeType}'")))
+            errors.add(
+                ResultDetail.param(
+                    HttpHeaders.CONTENT_TYPE, InvalidParamMessage.new("expecting '${sender.format.mimeType}'")
+                )
+            )
         }
 
         val content = request.body ?: ""
@@ -340,7 +355,9 @@ class ReportFunction : Logging {
                 }
                 val element = schema.findElement(parts[0])
                 if (element == null) {
-                    errors.add(ResultDetail.report(InvalidReportMessage.new("'${parts[0]}' is not a valid element name")))
+                    errors.add(
+                        ResultDetail.report(InvalidReportMessage.new("'${parts[0]}' is not a valid element name"))
+                    )
                     return@mapNotNull null
                 }
                 val error = element.checkForError(parts[1])
