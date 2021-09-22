@@ -46,12 +46,6 @@ export const Home = () => {
                             return (
                                 <div key={item.title} className="tablet:grid-col-6">
                                     <h3 className="font-sans-lg padding-top-3 border-top-05 border-base-lighter">
-                                        {/* <img
-                                            src={"/assets/" + item.icon}
-                                            alt="cdc logo"
-                                            height="36"
-                                            className="margin-right-2"
-                                        /> */}
                                         {item.title}
                                     </h3>
                                     <p className="usa-prose">
