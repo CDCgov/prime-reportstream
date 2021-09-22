@@ -576,8 +576,9 @@ class ReportFunction : Logging {
                     val areaEffected = 
                         if (messagesAndRows[message]?.size == 0) "" else "Rows: " + messagesAndRows[message].toString()
                     it.writeStringField("areaEffected", areaEffected)
-                    it.writeEndArray()
+                    it.writeEndObject()
                 }
+                it.writeEndArray()
             }
             writeConsolidatedArray("errorsConsolidated", result.errors)
             writeConsolidatedArray("warningsConsolidated", result.warnings)
