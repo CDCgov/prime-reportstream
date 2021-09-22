@@ -24,7 +24,7 @@ function usage() {
     echo "  $ ${0} --all"
     echo "      Runs ktlint over all Kotlin (*.kt) files"
     echo ""
-    echo "  $ ${0} --format"
+    echo "  $ ${0} --all --format"
     echo "      Uses ktlint to fix all violations it finds in all kotlin (*.kt) files"
     echo ""
     echo ""
