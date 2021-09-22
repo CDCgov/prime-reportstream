@@ -96,9 +96,6 @@
 
 
 
-
-
-
 - name: safehealth
   description: SAFE - Safe Health Systems
   jurisdiction: FEDERAL
@@ -1066,7 +1063,6 @@
       organizationName: ca-dph
       topic: covid-19
       customerStatus: active
-      customerStatus: active
       jurisdictionalFilter:
         - orEquals(ordering_facility_state, CA, patient_state, CA)
       reverseTheQualityFilter: false
@@ -1489,31 +1485,31 @@
     - name: ignore-strac      # Use this to test sending strac data
       organizationName: ignore
       topic: covid-19
-      customerStatus: active
+      customerStatus: inactive
       schemaName: strac/strac-covid-19
       format: CSV
     - name: ignore-simple-report      # Use this to test sending simple_report data
       organizationName: ignore
       topic: covid-19
-      customerStatus: active
+      customerStatus: inactive
       schemaName: primedatainput/pdi-covid-19
       format: CSV
     - name: ignore-waters      # Use this to test sending waters data
       organizationName: ignore
       topic: covid-19
-      customerStatus: active
+      customerStatus: inactive
       schemaName: waters/waters-covid-19
       format: CSV
     - name: ignore-empty      # Use this to test sending data from the 'empty' schema
       organizationName: ignore
       topic: covid-19
-      customerStatus: active
+      customerStatus: inactive
       schemaName: empty
       format: CSV
     - name: ignore-hl7      # Use this to test sending data from the HL7 schema
       organizationName: ignore
       topic: covid-19
-      customerStatus: active
+      customerStatus: inactive
       schemaName: hl7/hl7-ingest-covid-19
       format: HL7
   receivers:
@@ -1521,7 +1517,7 @@
       externalName: The CSV receiver for Ignore
       organizationName: ignore
       topic: covid-19
-      customerStatus: active
+      customerStatus: inactive
       jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, CSV)" ]
       timing:
         operation: MERGE
@@ -1541,7 +1537,7 @@
       externalName: Ignore HL7
       organizationName: ignore
       topic: covid-19
-      customerStatus: active
+      customerStatus: inactive
       jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, HL7)" ]
       timing:
         operation: MERGE
@@ -1561,7 +1557,7 @@
       externalName: Ignore HL7_BATCH
       organizationName: ignore
       topic: covid-19
-      customerStatus: active
+      customerStatus: inactive
       jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, HL7_BATCH)" ]
       timing:
         operation: MERGE
@@ -1580,7 +1576,7 @@
     - name: REDOX
       organizationName: ignore
       topic: covid-19
-      customerStatus: active
+      customerStatus: inactive
       jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, REDOX)" ]
       timing:
         operation: MERGE
@@ -1603,7 +1599,7 @@
     - name: AS2
       organizationName: ignore
       topic: covid-19
-      customerStatus: active
+      customerStatus: inactive
       jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, AS2)" ]
       timing:
         operation: MERGE
@@ -1615,7 +1611,7 @@
     - name: HL7_NULL
       organizationName: ignore
       topic: covid-19
-      customerStatus: active
+      customerStatus: inactive
       jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, HL7_NULL)" ]
       timing:
         operation: MERGE
@@ -1628,7 +1624,7 @@
     - name: BLOBSTORE
       organizationName: ignore
       topic: covid-19
-      customerStatus: active
+      customerStatus: inactive
       jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, BLOBSTORE)" ]
       timing:
         operation: MERGE
@@ -1645,7 +1641,7 @@
     - name: SFTP_FAIL    # If you put "FAIL" in the receiver name, then the happy-path tests in TestReportStream will ignore them.
       organizationName: ignore
       topic: covid-19
-      customerStatus: active
+      customerStatus: inactive
       jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, SFTP_FAIL)" ]
       timing:
         operation: MERGE
@@ -1663,7 +1659,7 @@
     - name: QUALITY_PASS
       organizationName: ignore
       topic: covid-19
-      customerStatus: active
+      customerStatus: inactive
       jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, QUALITY_PASS, removed)" ]
       qualityFilter:
         - hasValidDataFor(message_id,ordering_facility_county,ordering_facility_state)
@@ -1676,7 +1672,7 @@
     - name: QUALITY_REVERSED
       organizationName: ignore
       topic: covid-19
-      customerStatus: active
+      customerStatus: inactive
       jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, QUALITY_REVERSED, kept)" ]
       qualityFilter:
         - hasValidDataFor(message_id,ordering_facility_county,ordering_facility_state)
@@ -1691,7 +1687,7 @@
     - name: QUALITY_ALL
       organizationName: ignore
       topic: covid-19
-      customerStatus: active
+      customerStatus: inactive
       jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, QUALITY_ALL)" ]
       qualityFilter: [ "allowAll()" ]
       translation:
@@ -1701,7 +1697,7 @@
     - name: QUALITY_FAIL
       organizationName: ignore
       topic: covid-19
-      customerStatus: active
+      customerStatus: inactive
       jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, QUALITY_FAIL)" ]
       qualityFilter: [ "hasValidDataFor(blankField)", "hasAtLeastOneOf(message_id,blankField)" ]
       translation:
@@ -1711,7 +1707,7 @@
     - name: OTC_PROCTORED_YYY
       organizationName: ignore
       topic: covid-19
-      customerStatus: active
+      customerStatus: inactive
       jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, OTC_PROCTORED)" ]
       qualityFilter: [ "matches(test_authorized_for_otc, Y)","matches(test_authorized_for_home, Y)","matches(test_authorized_for_unproctored, Y)" ]
       translation:
@@ -1722,7 +1718,7 @@
     - name: OTC_PROCTORED_NYY
       organizationName: ignore
       topic: covid-19
-      customerStatus: active
+      customerStatus: inactive
       jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, OTC_PROCTORED)" ]
       qualityFilter: [ "matches(test_authorized_for_otc, N)","matches(test_authorized_for_home, Y)","matches(test_authorized_for_unproctored, Y)" ]
       translation:
@@ -1733,7 +1729,7 @@
     - name: OTC_PROCTORED_NUNKUNK
       organizationName: ignore
       topic: covid-19
-      customerStatus: active
+      customerStatus: inactive
       jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, OTC_PROCTORED)" ]
       qualityFilter: [ "matches(test_authorized_for_otc, N)","matches(test_authorized_for_home, UNK)","matches(test_authorized_for_unproctored, UNK)" ]
       translation:
