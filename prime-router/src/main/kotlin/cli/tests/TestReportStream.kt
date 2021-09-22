@@ -31,7 +31,6 @@ import gov.cdc.prime.router.azure.db.Tables.ACTION
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.cli.FileUtilities
-import gov.cdc.prime.router.tokens.DatabaseJtiCache
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -45,14 +44,11 @@ import java.nio.file.Files
 import java.nio.file.Paths
 import java.time.OffsetDateTime
 import java.util.Locale
-import java.util.UUID
 import kotlin.concurrent.thread
 import kotlin.math.abs
 import kotlin.random.Random
 import kotlin.system.exitProcess
-import kotlin.time.Duration
-import kotlin.time.ExperimentalTime
-import kotlin.time.measureTime
+import kotlin.system.measureTimeMillis
 
 enum class TestStatus(val description: String) {
     DRAFT("Experimental"), // Tests that are experimental
@@ -285,28 +281,29 @@ Examples:
             Ping(),
             End2End(),
             Merge(),
-            Garbage(),
+            WatersAuthTests(),
             QualityFilter(),
             Hl7Null(),
             TooManyCols(),
             BadCsv(),
             Strac(),
-            Huge(),
-            TooBig(),
-            DbConnections(),
-            BadSftp(),
-            StracPack(),
-            HammerTime(),
             Waters(),
-            RepeatWaters(),
-            Jti(),
-            InternationalContent(),
             Hl7Ingest(),
-            DataCompareTest(),
-            SantaClaus(),
             OtcProctored(),
             BadHl7(),
-            WatersAuthTests(),
+            Jti(),
+            Huge(),
+            TooBig(),
+            Parallel(),
+            HammerTime(),
+            StracPack(),
+            RepeatWaters(),
+            InternationalContent(),
+            DataCompareTest(),
+            SantaClaus(),
+            DbConnections(),
+            BadSftp(),
+            Garbage(),
         )
     }
 }
@@ -390,10 +387,6 @@ abstract class CoolTest {
         storeMsg(msg)
     }
 
-    /**
-     * A hack attempt to wait enough time, but not too long, for ReportStream to finish.
-     * This assumes the batch/send executes on the minute boundary.
-     */
     suspend fun waitABit(plusSecs: Int, env: ReportStreamEnv) {
         // seconds elapsed so far in this minute
         val secsElapsed = OffsetDateTime.now().second % 60
@@ -419,20 +412,61 @@ abstract class CoolTest {
         }
     }
 
-    fun examineLineageResults(
+    suspend fun pollForLineageResults(
         reportId: ReportId,
         receivers: List<Receiver>,
         totalItems: Int,
         filterOrgName: Boolean = false,
-        silent: Boolean = false
+        silent: Boolean = false,
+        maxPollSecs: Int = 180,
+        pollSleepSecs: Int = 20, // I had this as every 5 secs, but was getting failures.  The queries run unfastly.
     ): Boolean {
-        var passed = true
+        var timeElapsedSecs = 0
+        var queryResults = listOf<Pair<Boolean, String>>()
+        echo("Polling for ReportStream results.  (Max poll time $maxPollSecs seconds)")
+        val actualTimeElapsedMillis = measureTimeMillis {
+            while (timeElapsedSecs <= maxPollSecs) {
+                if (outputToConsole) {
+                    for (i in 1..pollSleepSecs) {
+                        delay(1000)
+                        // Print out some contemplative dots to show we are waiting.
+                        print(".")
+                    }
+                    echo()
+                } else {
+                    delay(pollSleepSecs.toLong() * 1000)
+                }
+                timeElapsedSecs += pollSleepSecs
+                queryResults = queryForLineageResults(reportId, receivers, totalItems, filterOrgName)
+                if (!queryResults.map { it.first }.contains(false)) break // everything passed!
+            }
+        }
+        echo("Test $name finished in ${actualTimeElapsedMillis / 1000 } seconds")
+        if (!silent) {
+            queryResults.forEach {
+                if (it.first)
+                    good(it.second)
+                else
+                    bad(it.second)
+            }
+        }
+        return ! queryResults.map { it.first }.contains(false) // no falses == it passed!
+    }
+
+    fun queryForLineageResults(
+        reportId: ReportId,
+        receivers: List<Receiver>,
+        totalItems: Int,
+        filterOrgName: Boolean = false,
+    ): List<Pair<Boolean, String>> {
+        var queryResults = mutableListOf<Pair<Boolean, String>>()
         db = WorkflowEngine().db
         db.transact { txn ->
             val expected = totalItems / receivers.size
             receivers.forEach { receiver ->
                 val actionsList = mutableListOf(TaskAction.receive)
                 // Bug:  this is looking at local cli data, but might be querying staging or prod.
+                // The hope is that the 'ignore' org is same in local, staging, prod.
                 if (receiver.timing != null) actionsList.add(TaskAction.batch)
                 if (receiver.transport != null) actionsList.add(TaskAction.send)
                 actionsList.forEach { action ->
@@ -444,25 +478,22 @@ abstract class CoolTest {
                         action = action
                     )
                     if (count == null || expected != count) {
-                        if (!silent) {
-                            bad(
-                                "*** TEST FAILED*** for ${receiver.fullName} action $action: " +
-                                    " Expecting $expected item lineage records but got $count"
-                            )
-                        }
-                        passed = false
+                        queryResults += Pair(
+                            false,
+                            "*** TEST FAILED*** for ${receiver.fullName} action $action: " +
+                                " Expecting $expected item lineage records but got $count"
+                        )
                     } else {
-                        if (!silent) {
-                            good(
-                                "Test passed: for ${receiver.fullName} action $action: " +
-                                    " Expecting $expected item lineage records and got $count"
-                            )
-                        }
+                        queryResults += Pair(
+                            true,
+                            "Test passed: for ${receiver.fullName} action $action: " +
+                                " Expecting $expected item lineage records and got $count"
+                        )
                     }
                 }
             }
         }
-        return passed
+        return queryResults
     }
 
     /**
@@ -738,10 +769,9 @@ class End2End : CoolTest() {
         }
         echo(json)
         passed = passed and examineResponse(json)
-        waitABit(25, environment)
         val reportId = getReportIdFromResponse(json)
         if (reportId != null) {
-            passed = passed and examineLineageResults(reportId, allGoodReceivers, fakeItemCount)
+            passed = passed and pollForLineageResults(reportId, allGoodReceivers, fakeItemCount)
         }
 
         return passed
@@ -761,16 +791,15 @@ class Merge : CoolTest() {
      * @param reportCount the total number of reports sent
      * @return true if the number of reports matches the expected, false otherwise
      */
-    fun examineMergeResults(
+    fun queryForMergeResults(
         reportIds: List<ReportId>,
         receivers: List<Receiver>,
         itemsPerReport: Int,
-        reportCount: Int
-    ): Boolean {
-        var passed = true
+    ): List<Pair<Boolean, String>> {
+        var queryResults = mutableListOf<Pair<Boolean, String>>()
         db = WorkflowEngine().db
         db.transact { txn ->
-            val expected = (itemsPerReport * reportCount) / receivers.size
+            val expected = (itemsPerReport * reportIds.size) / receivers.size
             receivers.forEach { receiver ->
                 val actionsList = mutableListOf<TaskAction>()
                 if (receiver.timing != null) actionsList.add(TaskAction.batch)
@@ -781,13 +810,14 @@ class Merge : CoolTest() {
                         count += itemLineageCountQuery(txn, reportId, receiver.name, action = action) ?: 0
                     }
                     if (expected != count) {
-                        bad(
+                        queryResults += Pair(
+                            false,
                             "*** TEST FAILED*** for ${receiver.fullName} action $action: " +
                                 " Expecting sum(itemCount)=$expected but got $count"
                         )
-                        passed = false
                     } else {
-                        good(
+                        queryResults += Pair(
+                            true,
                             "Test passed: for ${receiver.fullName} action $action: " +
                                 " Expecting sum(itemCount)=$expected and got $count"
                         )
@@ -795,10 +825,49 @@ class Merge : CoolTest() {
                 }
             }
         }
-        return passed
+        return queryResults
+    }
+
+    // todo  arglebargle - this is mostly repeat of pollForLineageResults, but ever so slightly different.
+    suspend fun pollForMergeResults(
+        reportIds: List<ReportId>,
+        receivers: List<Receiver>,
+        itemsPerReport: Int,
+        silent: Boolean = false,
+        maxPollSecs: Int = 180,
+        pollSleepSecs: Int = 20,
+    ): Boolean {
+        var timeElapsedSecs = 0
+        var queryResults = listOf<Pair<Boolean, String>>()
+        echo("Polling for ReportStream results.  (Max poll time $maxPollSecs seconds)")
+        // Print out some nice dots to show we are waiting only when the output goes directly to the console.
+        while (timeElapsedSecs <= maxPollSecs) {
+            if (outputToConsole) {
+                for (i in 1..pollSleepSecs) {
+                    delay(1000)
+                    print(".")
+                }
+                echo()
+            } else {
+                delay(pollSleepSecs.toLong() * 1000)
+            }
+            timeElapsedSecs += pollSleepSecs
+            queryResults = queryForMergeResults(reportIds, receivers, itemsPerReport)
+            if (! queryResults.map { it.first }.contains(false)) break // everything passed!
+        }
+        if (!silent) {
+            queryResults.forEach {
+                if (it.first)
+                    good(it.second)
+                else
+                    bad(it.second)
+            }
+        }
+        return ! queryResults.map { it.first }.contains(false) // no falses == it passed!
     }
 
     override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+        var passed: Boolean
         val mergingReceivers = listOf<Receiver>(csvReceiver, hl7BatchReceiver)
         val mergingCounties = mergingReceivers.map { it.name }.joinToString(",")
         val fakeItemCount = mergingReceivers.size * options.items
@@ -813,21 +882,24 @@ class Merge : CoolTest() {
             options.dir,
         )
         echo("Created datafile $file")
-        // Now send it to ReportStream over and over
-        val reportIds = (1..options.submits).map {
-            val (responseCode, json) =
-                HttpUtilities.postReportFile(environment, file, simpleRepSender, options.key)
-            echo("Response to POST: $responseCode")
-            if (responseCode != HttpURLConnection.HTTP_CREATED) {
-                return bad("***Merge Test FAILED***:  response code $responseCode")
+        val actualTimeElapsedMillis = measureTimeMillis {
+            // Now send it to ReportStream over and over
+            val reportIds = (1..options.submits).map {
+                val (responseCode, json) =
+                    HttpUtilities.postReportFile(environment, file, simpleRepSender, options.key)
+                echo("Response to POST: $responseCode")
+                if (responseCode != HttpURLConnection.HTTP_CREATED) {
+                    return bad("***Merge Test FAILED***:  response code $responseCode")
+                }
+                val reportId = getReportIdFromResponse(json)
+                    ?: return bad("***$name Test FAILED***: A report ID came back as null")
+                echo("Id of submitted report: $reportId")
+                reportId
             }
-            val reportId = getReportIdFromResponse(json)
-                ?: return bad("***$name Test FAILED***: A report ID came back as null")
-            echo("Id of submitted report: $reportId")
-            reportId
+            passed = pollForMergeResults(reportIds, mergingReceivers, fakeItemCount)
         }
-        waitABit(40, environment)
-        return examineMergeResults(reportIds, mergingReceivers, fakeItemCount, options.submits)
+        echo("$name test took ${actualTimeElapsedMillis / 1000} seconds.")
+        return passed
     }
 }
 
@@ -867,8 +939,7 @@ class Hl7Null : CoolTest() {
             echo("Id of submitted report: $reportId")
             reportId
         }
-        waitABit(30, environment)
-        return examineLineageResults(
+        return pollForLineageResults(
             reportId = reportIds[0],
             receivers = listOf(hl7NullReceiver),
             totalItems = fakeItemCount
@@ -893,7 +964,7 @@ class TooManyCols : CoolTest() {
         echo(json)
         try {
             val tree = jacksonObjectMapper().readTree(json)
-            val firstError = ((tree["errors"] as ArrayNode)[0]) as ObjectNode
+            val firstError = (tree["errors"][0]) as ObjectNode
             if (firstError["details"].textValue().contains("columns")) {
                 return good("toomanycols Test passed.")
             } else {
@@ -994,8 +1065,7 @@ class Strac : CoolTest() {
                 bad("***strac Test FAILED: Expecting $expectedWarningCount warnings but got $warningCount***")
                 passed = false
             }
-            waitABit(25, environment)
-            return passed and examineLineageResults(
+            return passed and pollForLineageResults(
                 reportId = reportId,
                 receivers = allGoodReceivers,
                 totalItems = fakeItemCount
@@ -1008,14 +1078,15 @@ class Strac : CoolTest() {
 
 class StracPack : CoolTest() {
     override val name = "stracpack" // no its not 'strackpack'
-    override val description = "Does '--submits X' simultaneous strac " +
-        "submissions, each with '--items Y' items. Redox only"
+    override val description = "Submits via '--submits X' threads sending Strac data to Redox" +
+        ", Each submit has '--items Y' items." +
+        "  Same as hammertime, no delays between thread starts, so all threads start at once."
     override val status = TestStatus.LOAD
 
     override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
         ugly(
-            "Starting stracpack Test: simultaneously submitting ${options.submits} batches " +
-                "of Strac ${options.items} items per batch to the ${redoxReceiver.name} receiver only."
+            "Starting stracpack Test: Starting ${options.submits} simultaneous threads, each submitting" +
+                " ${options.items} items of Strac data to the ${redoxReceiver.name} receiver only."
         )
         val file = FileUtilities.createFakeFile(
             metadata,
@@ -1052,8 +1123,105 @@ class StracPack : CoolTest() {
         waitABit(5 * options.submits, environment) // SWAG: wait extra seconds extra per file submitted
         reportIds.forEach {
             passed = passed and
-                examineLineageResults(reportId = it, receivers = listOf(redoxReceiver), totalItems = options.items)
+                pollForLineageResults(reportId = it, receivers = listOf(redoxReceiver), totalItems = options.items)
         }
+        return passed
+    }
+}
+
+class Parallel : CoolTest() {
+    val n = 50
+    override val name = "parallel"
+    override val description = "Each thread Submits $n submissions as fast as it can, " +
+        "first with 1 thread, then 2 threads etc up to 10 threads." +
+        " Each submit has --items Y items.  Does NOT check batch/send steps."
+    override val status = TestStatus.LOAD
+
+    fun runTheParallelTest(
+        file: File,
+        numThreads: Int,
+        numRounds: Int,
+        environment: ReportStreamEnv,
+        options: CoolTestOptions
+    ): Boolean {
+        var passed = true
+        val elapsedMillis = measureTimeMillis {
+            val threads = mutableListOf<Thread>()
+            echo("Parallel Test: Starting $numThreads threads, each submitting $numRounds times")
+            for (threadNum in 1..numThreads) {
+                val th = thread {
+                    for (i in 1..numRounds) {
+                        val (responseCode, json) =
+                            HttpUtilities.postReportFile(
+                                environment,
+                                file,
+                                stracSender,
+                                options.key,
+                                ReportFunction.Options.SkipSend
+                            )
+                        if (responseCode != HttpURLConnection.HTTP_CREATED) {
+                            echo(json)
+                            passed = bad("$threadNum: ***Parallel Test FAILED***:  response code $responseCode")
+                        } else {
+                            val reportId = getReportIdFromResponse(json)
+                            if (reportId == null) {
+                                passed = bad("$threadNum: ***Parallel Test FAILED***:  No reportId.")
+                            }
+                        }
+                        print(".")
+                    }
+                }
+                threads.add(th)
+            }
+            threads.forEach { it.join() }
+        }
+        echo("")
+        if (passed) {
+            good(
+                "$numThreads X $numRounds  = ${numThreads * numRounds} total submissions" +
+                    " in ${elapsedMillis / 1000} seconds"
+            )
+        } else {
+            bad(
+                "$numThreads X $numRounds  = ${numThreads * numRounds} total submissions" +
+                    " in ${elapsedMillis / 1000} seconds"
+            )
+        }
+        return passed
+    }
+
+    override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+        ugly(
+            "Starting parallel Test: Increasing numbers of threads submitting in parallel," +
+                " as fast as they can for $n rounds.  hl7null ${options.items} items per submission."
+        )
+        val file = FileUtilities.createFakeFile(
+            metadata,
+            settings,
+            stracSender,
+            options.items,
+            receivingStates,
+            hl7NullReceiver.name,
+            options.dir,
+        )
+        echo("Created datafile $file")
+        echo("Priming the pump by submitting twice:")
+        val (r1, _) =
+            HttpUtilities.postReportFile(environment, file, stracSender, options.key, ReportFunction.Options.SkipSend)
+        echo("First response to POST: $r1")
+        val (r2, _) =
+            HttpUtilities.postReportFile(environment, file, stracSender, options.key, ReportFunction.Options.SkipSend)
+        echo("Second response to POST: $r2.  Ready for the real test:")
+        var passed = runTheParallelTest(file, 1, n, environment, options)
+        passed = passed and runTheParallelTest(file, 2, n, environment, options)
+        passed = passed and runTheParallelTest(file, 3, n, environment, options)
+        passed = passed and runTheParallelTest(file, 4, n, environment, options)
+        passed = passed and runTheParallelTest(file, 5, n, environment, options)
+        passed = passed and runTheParallelTest(file, 6, n, environment, options)
+        passed = passed and runTheParallelTest(file, 7, n, environment, options)
+        passed = passed and runTheParallelTest(file, 8, n, environment, options)
+        passed = passed and runTheParallelTest(file, 9, n, environment, options)
+        passed = passed and runTheParallelTest(file, 10, n, environment, options)
         return passed
     }
 }
@@ -1085,9 +1253,7 @@ class Waters : CoolTest() {
         val reportId = getReportIdFromResponse(json)
             ?: return bad("***$name Test FAILED***: A report ID came back as null")
         echo("Id of submitted report: $reportId")
-        waitABit(60, environment)
-        if (file.exists()) file.delete() // because of RepeatWaters
-        return examineLineageResults(
+        return pollForLineageResults(
             reportId = reportId,
             receivers = listOf(blobstoreReceiver),
             totalItems = options.items
@@ -1097,25 +1263,60 @@ class Waters : CoolTest() {
 
 class RepeatWaters : CoolTest() {
     override val name = "repeatwaters"
-    override val description = "Submit waters over and over, sending to BLOBSTORE"
+    override val description = "Submits via '--submits X' threads, sending Waters data to BLOBSTORE" +
+        "  Each submit has '--items Y' items.  Brief sleep between each thread creation." +
+        "  Can vary the sleeptime to determine what is a sustainable pace of submissions."
     override val status = TestStatus.LOAD
 
-    @ExperimentalTime
     override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
-        ugly("Starting $name Test: sending Waters data ${options.submits} times.")
+        val sleepBetweenSubmitMillis = 1000
+        val variationMillis = 360
+        ugly(
+            "Starting repeatwaters Test: Starting ${options.submits} submissions, each submitting" +
+                " ${options.items} items of Waters data to the ${blobstoreReceiver.name} receiver only. " +
+                " Delay between each submission of $sleepBetweenSubmitMillis millis."
+        )
         var allPassed = true
         var totalItems = 0
-        val sleepBetweenSubmitMillis = 360
-        val variationMillis = 360
         val pace = (3600000 / sleepBetweenSubmitMillis) * options.items
         echo("Submitting at an expected pace of $pace items per hour")
         options.muted = true
-        val elapsed: Duration = measureTime {
+        val file = FileUtilities.createFakeFile(
+            metadata,
+            settings,
+            watersSender,
+            options.items,
+            receivingStates,
+            blobstoreReceiver.name,
+            options.dir,
+        )
+        echo("Created datafile $file")
+        val elapsedMillis = measureTimeMillis {
             val threads = mutableListOf<Thread>()
             for (i in 1..options.submits) {
                 val thread = thread {
+                    var success: Boolean
                     runBlocking {
-                        val success = Waters().run(environment, options)
+                        val (responseCode, json) =
+                            HttpUtilities.postReportFile(environment, file, watersSender, options.key)
+                        echo("Response to POST: $responseCode")
+                        if (!options.muted) echo(json)
+                        if (responseCode != HttpURLConnection.HTTP_CREATED) {
+                            success = bad("***One Waters Test FAILED***:  response code $responseCode")
+                        } else {
+                            val reportId = getReportIdFromResponse(json)
+                            if (reportId == null) {
+                                success = bad("***$name Test FAILED***: A report ID came back as null")
+                            } else {
+                                echo("Id of submitted report: $reportId")
+                                waitABit(30, environment)
+                                success = pollForLineageResults(
+                                    reportId = reportId,
+                                    receivers = listOf(blobstoreReceiver),
+                                    totalItems = options.items
+                                )
+                            }
+                        }
                         synchronized(allPassed) {
                             if (success) totalItems += options.items
                             allPassed = allPassed && success
@@ -1133,11 +1334,11 @@ class RepeatWaters : CoolTest() {
             echo("Submits done.  Now waiting for checking results to complete")
             threads.forEach { it.join() }
         }
-        echo("$name Test took ${elapsed.inWholeSeconds} seconds. Expected pace/hr: $pace.")
-        if (elapsed.inWholeSeconds > 600) {
+        echo("$name Test took ${elapsedMillis / 1000} seconds. Expected pace/hr: $pace.")
+        if ((elapsedMillis / 1000) > 600) {
             // pace calculation is inaccurate for short times, due to the kluge long wait at the end.
-            val actualPace = (totalItems / elapsed.inWholeSeconds) * 3600
-            echo(" Actual pace: $actualPace")
+            val actualPace = (totalItems / (elapsedMillis / 1000)) * 3600 // advanced math
+            echo(" Actual pace/hr: $actualPace")
         }
         return allPassed
     }
@@ -1149,12 +1350,16 @@ class RepeatWaters : CoolTest() {
 class HammerTime : CoolTest() {
     val receiverToTest = hl7Receiver
     override val name = "hammertime"
-    override val description = "Does '--submits X' ${receiverToTest.name} " +
-        "submissions in parallel, each with '--items Y' items."
+    override val description = "Submits via '--submits X' threads sending SimpleRep data to an sftp site" +
+        ", Each submit has '--items Y' items." +
+        "  Unlike repeatwaters, no delays between thread starts, so all threads start at once."
     override val status = TestStatus.LOAD
 
     override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
-        ugly("Starting Hammertime Test: $description")
+        ugly(
+            "Starting hammertime test: Starting ${options.submits} simultaneous threads, each submitting" +
+                " ${options.items} items of SimpleRep data to ${receiverToTest.name}"
+        )
         val file = FileUtilities.createFakeFile(
             metadata,
             settings,
@@ -1168,7 +1373,6 @@ class HammerTime : CoolTest() {
         // Now send it to ReportStream over and over
         val reportIds = mutableListOf<ReportId>()
         var passed = true
-        // submit in thread grouping somewhat smaller than our database pool size.
         for (i in 1..options.submits) {
             thread {
                 val (responseCode, json) =
@@ -1190,7 +1394,7 @@ class HammerTime : CoolTest() {
         waitABit(5 * options.submits, environment) // SWAG: wait 5 seconds extra per file submitted
         reportIds.forEach {
             passed = passed and
-                examineLineageResults(reportId = it, receivers = listOf(receiverToTest), totalItems = options.items)
+                pollForLineageResults(reportId = it, receivers = listOf(receiverToTest), totalItems = options.items)
         }
         return passed
     }
@@ -1392,7 +1596,7 @@ class Huge : CoolTest() {
             ?: return bad("***$name Test FAILED***: A report ID came back as null")
         echo("Id of submitted report: $reportId")
         waitABit(30, environment)
-        return examineLineageResults(reportId = reportId, receivers = listOf(csvReceiver), totalItems = fakeItemCount)
+        return pollForLineageResults(reportId = reportId, receivers = listOf(csvReceiver), totalItems = fakeItemCount)
     }
 }
 
@@ -1423,7 +1627,7 @@ class TooBig : CoolTest() {
         echo(json)
         try {
             val tree = jacksonObjectMapper().readTree(json)
-            val firstError = ((tree["errors"] as ArrayNode)[0]) as ObjectNode
+            val firstError = (tree["errors"][0]) as ObjectNode
             if (firstError["details"].textValue().contains("rows")) {
                 return good("toobig Test passed.")
             } else {
@@ -1477,7 +1681,7 @@ class DbConnections : CoolTest() {
         var passed = true
         reportIds.forEach {
             passed = passed and
-                examineLineageResults(reportId = it, receivers = listOf(hl7Receiver), totalItems = options.items)
+                pollForLineageResults(reportId = it, receivers = listOf(hl7Receiver), totalItems = options.items)
         }
         return passed
     }
@@ -1520,61 +1724,11 @@ class BadSftp : CoolTest() {
         echo("Id of submitted report: $reportId")
         waitABit(30, environment)
         echo("For this test, failure during send, is a 'pass'.   Need to fix this.")
-        return examineLineageResults(
+        return pollForLineageResults(
             reportId = reportId,
             receivers = listOf(sftpFailReceiver),
             totalItems = options.items
         )
-    }
-}
-
-/**
- * Exercise the database jticache
- */
-class Jti : CoolTest() {
-    override val name = "jti"
-    override val description = "Test the JTI Cache"
-    override val status = TestStatus.DRAFT
-
-    override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
-        ugly("Starting jti Test: $description")
-        val db = WorkflowEngine().db
-        val jtiCache = DatabaseJtiCache(db)
-        var passed = true
-        val uuid1 = UUID.randomUUID().toString()
-        if (!jtiCache.isJTIOk(uuid1, OffsetDateTime.now())) {
-            echo("JTI-1 $uuid1 has never been seen before.   It should have been OK, but was not.")
-            passed = false
-        }
-        val uuid2 = UUID.randomUUID().toString()
-        if (!jtiCache.isJTIOk(uuid2, OffsetDateTime.now().plusMinutes(10))) {
-            echo("JTI-2 $uuid2 has never been seen before.   It should have been OK, but was not.")
-            passed = false
-        }
-        val uuid3 = UUID.randomUUID().toString()
-        if (!jtiCache.isJTIOk(uuid3, OffsetDateTime.now().minusMinutes(10))) {
-            echo("JTI-3 $uuid3 has never been seen before.   It should have been OK, but was not.")
-            passed = false
-        }
-        // Now send them all again.  All should return false
-        if (jtiCache.isJTIOk(uuid1, OffsetDateTime.now())) {
-            echo("JTI-1 $uuid1 has been seen before.   It should have failed, but it passed.")
-            passed = false
-        }
-        if (jtiCache.isJTIOk(uuid2, OffsetDateTime.now())) {
-            echo("JTI-2 $uuid2 has been seen before.   It should have failed, but it passed.")
-            passed = false
-        }
-        if (jtiCache.isJTIOk(uuid3, OffsetDateTime.now())) {
-            echo("JTI-3 $uuid3 has been seen before.   It should have failed, but it passed.")
-            passed = false
-        }
-        if (passed) {
-            good("JTI Database Cache test passed")
-        } else {
-            bad("JTI Database Cache test ****FAILED***")
-        }
-        return passed
     }
 }
 
@@ -1630,7 +1784,7 @@ class InternationalContent : CoolTest() {
                 ?: return bad("***$name Test FAILED***: A report ID came back as null")
 
             echo("Id of submitted report: $reportId")
-            waitABit(25, environment)
+            waitABit(60, environment)
             // Go to the database and get the SFTP filename that was sent
             db = WorkflowEngine().db
             var asciiOnly = false
@@ -1666,33 +1820,23 @@ class SantaClaus : CoolTest() {
     override val status = TestStatus.DRAFT
 
     override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
-
         var passed = true
-
         if (options.env !in listOf("local", "staging")) {
             return createBad("This test can only be run locally or on staging")
         }
-
         var sendersToTestWith = settings.senders.filter {
             it.organizationName in listOf("simple_report", "waters", "strac", "safehealth")
         }
-
         options.sender?.let {
-
             // validates sender existence
             val sender = settings.findSender(it) ?: return createBad("The sender indicated doesn't exists '$it'")
-
             // replace the list of senders to test
             // with the indicated by parameter
             sendersToTestWith = listOf(sender)
         }
-
         val states = metadata.findLookupTable("fips-county")?.getDistinctValuesInColumn("State")?.toList() ?: listOf()
-
         sendersToTestWith.forEach { sender ->
-
             ugly("Starting $name Test: send with ${sender.fullName}")
-
             val file = FileUtilities.createFakeFile(
                 metadata = metadata,
                 settings = settings,
@@ -1704,33 +1848,25 @@ class SantaClaus : CoolTest() {
                 targetCounties = null
             )
             echo("Created datafile $file")
-
             // Now send it to ReportStream.
             val (responseCode, json) =
                 HttpUtilities.postReportFile(environment, file, sender, null)
-
             if (responseCode != HttpURLConnection.HTTP_CREATED) {
                 return bad("***$name Test FAILED***:  response code $responseCode")
             } else {
                 good("Posting of report succeeded with response code $responseCode")
             }
             echo(json)
-
             val tree = jacksonObjectMapper().readTree(json)
             val reportId = getReportIdFromResponse(json)
                 ?: return bad("***$name Test FAILED***: A report ID came back as null")
-
             val destinations = tree["destinations"]
             if (destinations != null && destinations.size() > 0) {
-
                 val receivers = mutableListOf<Receiver>()
-
                 destinations.forEach { destination ->
                     if (destination != null && destination.has("service")) {
-
                         val receiverName = destination["service"].textValue()
                         val organizationId = destination["organization_id"].textValue()
-
                         receivers.addAll(
                             settings.receivers.filter {
                                 it.organizationName == organizationId && it.name == receiverName
@@ -1738,36 +1874,8 @@ class SantaClaus : CoolTest() {
                         )
                     }
                 }
-
                 if (!receivers.isNullOrEmpty()) {
-
-                    // give some time to let the system
-                    // finish with the expected output
-                    waitWithConditionalRetry(
-                        90,
-                        {
-                            examineLineageResults(
-                                reportId = reportId,
-                                receivers = receivers,
-                                totalItems = receivers.size,
-                                filterOrgName = true,
-                                silent = true
-                            )
-                        },
-                        callback = { succeed, retryCount ->
-                            if (!succeed) {
-                                if (retryCount == 0) {
-                                    echo("Waiting for examining lineage results of sender '${sender.fullName}'")
-                                }
-                                echo(".")
-                            } else {
-                                echo("")
-                            }
-                        }
-                    )
-
-                    // just to print to console some beautified output
-                    passed = passed and examineLineageResults(
+                    passed = passed and pollForLineageResults(
                         reportId = reportId,
                         receivers = receivers,
                         totalItems = receivers.size,
@@ -1777,7 +1885,6 @@ class SantaClaus : CoolTest() {
                 }
             }
         }
-
         return passed
     }
 

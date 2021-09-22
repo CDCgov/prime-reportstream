@@ -26,7 +26,7 @@ import java.util.Properties
 
 plugins {
     kotlin("jvm") version "1.5.30"
-    id("org.flywaydb.flyway") version "7.14.0"
+    id("org.flywaydb.flyway") version "7.15.0"
     id("nu.studer.jooq") version "6.0.1"
     id("com.github.johnrengelman.shadow") version "7.0.0"
     id("com.microsoft.azure.azurefunctions") version "1.7.0"
@@ -77,7 +77,7 @@ val jooqPackageName = "gov.cdc.prime.router.azure.db"
 
 defaultTasks("package")
 
-val kotlinVersion = "1.5.30"
+val kotlinVersion = "1.5.31"
 jacoco.toolVersion = "0.8.7"
 
 // Set the compiler JVM target
@@ -503,9 +503,9 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-common:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
     implementation("com.microsoft.azure.functions:azure-functions-java-library:1.4.2")
-    implementation("com.azure:azure-core:1.19.0")
+    implementation("com.azure:azure-core:1.20.0")
     implementation("com.azure:azure-core-http-netty:1.10.2")
     implementation("com.azure:azure-storage-blob:12.13.0") {
         exclude(group = "com.azure", module = "azure-core")
@@ -528,10 +528,10 @@ dependencies {
     implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.1.0")
     implementation("tech.tablesaw:tablesaw-core:0.38.5")
     implementation("com.github.ajalt.clikt:clikt-jvm:3.2.0")
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.12.4")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.12.5")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.12.4")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.12.4")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.12.4")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.12.5")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.12.5")
     implementation("com.github.javafaker:javafaker:1.0.2")
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
@@ -553,8 +553,8 @@ dependencies {
     implementation("commons-io:commons-io:2.11.0")
     implementation("org.postgresql:postgresql:42.2.23")
     implementation("com.zaxxer:HikariCP:5.0.0")
-    implementation("org.flywaydb:flyway-core:7.13.0")
-    implementation("com.github.kayr:fuzzy-csv:1.6.48")
+    implementation("org.flywaydb:flyway-core:7.15.0")
+    implementation("com.github.kayr:fuzzy-csv:1.7.0")
     implementation("org.commonmark:commonmark:0.18.0")
     implementation("com.google.guava:guava:30.1.1-jre")
     implementation("com.helger.as2:as2-lib:4.7.1")
@@ -579,10 +579,10 @@ dependencies {
         exclude(group = "com.github.kittinunf.fuel", module = "fuel")
     }
     // kotlinx-coroutines-core is needed by mock-fuel
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.1-native-mt")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
     testImplementation("com.github.KennethWussmann:mock-fuel:1.3.0")
     testImplementation("io.mockk:mockk:1.12.0")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.2")
-    testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.24")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.7.2")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.0")
+    testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.25")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.0")
 }
