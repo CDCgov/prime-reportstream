@@ -554,7 +554,28 @@ class ReportFunction : Logging {
             }
             writeDetailsArray("errors", result.errors)
             writeDetailsArray("warnings", result.warnings)
-            it.writeEndObject()
+
+            fun writeConsolidatedArray(field: String, array: List<ResultDetail>) {
+                val messagesAndRows = hashMapOf<String, MutableList<Int>>()
+                array.forEach { resultDetail -> 
+                    val groupingId = resultDetail.responseMessage.groupingId()
+                    if (messagesAndRows.containsKey(groupingId)) {
+                        messagesAndRows[groupingId]?.add(resultDetail.row)
+                    } else {
+                        messagesAndRows[groupingId] = mutableListOf(resultDetail.row)
+                    }
+                }
+                it.writeArrayFieldStart(field)
+                messagesAndRows.keys.forEach { message -> 
+                    it.writeStartObject()
+                    it.writeStringField("message", message)
+                    it.writeArrayFieldStart("rows")
+                    it.writeArray(messagesAndRows[message]?.toTypedArray(), 0, 0)
+                    it.writeEndArray()
+                }
+            }
+            writeConsolidatedArray("errorsConsolidated", result.errors)
+            writeConsolidatedArray("warningsConsolidated", result.warnings)
         }
         return outStream.toString()
     }

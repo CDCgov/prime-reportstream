@@ -5,7 +5,7 @@ package gov.cdc.prime.router
  * @property id of the result (depends on scope)
  * @property details of the result
  */
-data class ResultDetail(val scope: DetailScope, val id: String, val responseMessage: ResponseMessage) {
+data class ResultDetail(val scope: DetailScope, val id: String, val responseMessage: ResponseMessage, val row: Int) {
     /**
      * @property REPORT scope for the detail
      * @property ITEM scope for the detail
