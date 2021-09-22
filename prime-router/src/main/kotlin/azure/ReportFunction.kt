@@ -562,15 +562,20 @@ class ReportFunction : Logging {
                     if (messagesAndRows.containsKey(groupingId)) {
                         messagesAndRows[groupingId]?.add(resultDetail.row)
                     } else {
-                        messagesAndRows[groupingId] = mutableListOf(resultDetail.row)
+                        if (resultDetail.row == -1) {
+                            messagesAndRows[groupingId] = mutableListOf()
+                        } else {
+                            messagesAndRows[groupingId] = mutableListOf(resultDetail.row)
+                        }
                     }
                 }
                 it.writeArrayFieldStart(field)
                 messagesAndRows.keys.forEach { message -> 
                     it.writeStartObject()
                     it.writeStringField("message", message)
-                    it.writeArrayFieldStart("rows")
-                    it.writeArray(messagesAndRows[message]?.toTypedArray(), 0, 0)
+                    val areaEffected = 
+                        if (messagesAndRows[message]?.size == 0) "" else "Rows: " + messagesAndRows[message].toString()
+                    it.writeStringField("areaEffected", areaEffected)
                     it.writeEndArray()
                 }
             }
