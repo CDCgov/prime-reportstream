@@ -9,7 +9,9 @@ package gov.cdc.prime.router
 data class ResultDetail(
     val scope: DetailScope,
     val id: String,
-    val responseMessage: ResponseMessage, val row: Int = -1) {
+    val responseMessage: ResponseMessage,
+    val row: Int = -1
+) {
     /**
      * @property REPORT scope for the detail
      * @property ITEM scope for the detail

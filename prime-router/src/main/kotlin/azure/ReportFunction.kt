@@ -557,7 +557,7 @@ class ReportFunction : Logging {
 
             fun writeConsolidatedArray(field: String, array: List<ResultDetail>) {
                 val messagesAndRows = hashMapOf<String, MutableList<Int>>()
-                array.forEach { resultDetail -> 
+                array.forEach { resultDetail ->
                     val groupingId = resultDetail.responseMessage.groupingId()
                     if (messagesAndRows.containsKey(groupingId)) {
                         messagesAndRows[groupingId]?.add(resultDetail.row)
@@ -570,10 +570,10 @@ class ReportFunction : Logging {
                     }
                 }
                 it.writeArrayFieldStart(field)
-                messagesAndRows.keys.forEach { message -> 
+                messagesAndRows.keys.forEach { message ->
                     it.writeStartObject()
                     it.writeStringField("message", message)
-                    val areaEffected = 
+                    val areaEffected =
                         if (messagesAndRows[message]?.size == 0) "" else "Rows: " + messagesAndRows[message].toString()
                     it.writeStringField("areaEffected", areaEffected)
                     it.writeEndObject()
