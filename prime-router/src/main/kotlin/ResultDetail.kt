@@ -6,7 +6,10 @@ package gov.cdc.prime.router
  * @property details of the result
  * @property row of csv related to message (set to -1 if not applicable)
  */
-data class ResultDetail(val scope: DetailScope, val id: String, val responseMessage: ResponseMessage, val row: Int) {
+data class ResultDetail(
+    val scope: DetailScope,
+    val id: String,
+    val responseMessage: ResponseMessage, val row: Int = -1) {
     /**
      * @property REPORT scope for the detail
      * @property ITEM scope for the detail
