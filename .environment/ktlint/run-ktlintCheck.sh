@@ -13,7 +13,7 @@ function usage() {
     echo ""
     echo "Options:"
     echo "    --all|-a     Scans all files (shorthand: lower-case f)"
-    echo "    --format|-F   Fix violations (shorthand: UPPER-case F)"
+    echo "    --fix|-F   Fix violations (shorthand: UPPER-case F)"
     echo "    --help|-h     Shows this help and exits successfully"
     echo ""
     echo "Examples:"
@@ -21,10 +21,10 @@ function usage() {
     echo "  $ ${0}"
     echo "      Runs ktlint over the files that are new or modified (ACM in staging or modified)"
     echo ""
-    echo "  $ ${0} --full"
+    echo "  $ ${0} --all"
     echo "      Runs ktlint over all Kotlin (*.kt) files"
     echo ""
-    echo "  $ ${0} --full --fix"
+    echo "  $ ${0} --all --fix"
     echo "      Uses ktlint to fix all violations it finds in all kotlin (*.kt) files"
     echo ""
     echo ""
@@ -66,7 +66,7 @@ while [[ ! -z "${1}" ]]; do
             $(find ./ -type f -iname "*.kts")
         )
         ;;
-    "--format" | "-F")
+    "--fix" | "-F")
         DO_FORMAT="${1}"
         ;;
     "--help" | "-h")
