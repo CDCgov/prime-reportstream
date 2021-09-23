@@ -20,7 +20,7 @@ function Summary(props: Props) {
                 <ol className="usa-breadcrumb__list">
                     <li className="usa-breadcrumb__list-item">
                         <a
-                            href="/daily"
+                            href="/daily-data"
                             className="usa-breadcrumb__link"
                             id="orgName"
                         >
