@@ -9,6 +9,164 @@ info:
   version: 0.2.0-oas3
 paths:
 
+  # The sender end-point handles receive actions.
+  #
+  # EX
+  # /sender/orgid/{}
+  # /sender/admin/
+  #
+  # /submissions                       - (we already know user, & assoc. orgs), return basic list
+  # /sender&DateRange=5             - (we already know user, & assoc. orgs), return basic list
+  # /sender&DateRange=N&Offset=N  - (we already know user, & assoc. orgs), return basic list
+  # /sender&OrgID=12,34,56        - (admin, supervisor, superadmin) return lists across multiple/specific Orgs
+  # /sender&reportID=999          - return report with ID of 999, provided user has permission
+  #
+  #
+  #
+  #
+  #
+  # /sender&OrgID=0000          - return basic list, default to last 30 days
+  # /sender&OrgID=0000&daterange=10 - return basic list from the last ten days
+  # /sender&admin=true         - return all
+  # /sender&admin=true&OrgFilter=123,456,789         - return all from specific Orgs
+  # /sender&admin=true$daterange=5 - return all from the last five days
+  # /sender&action=999         - return report with ID of 999
+  #
+  #
+  #
+  #
+  #
+  # 30 days (based on where request orignates)
+  # pagination?
+  # admin filter on org
+  # filter selections (date range, column headers, etc.)
+  # records of what users have done?
+  # PDF exports?
+  # Org admin, multi-org aggregate
+  # 
+  #
+  /submissions/:
+    get:
+      description: Return a list of all basic info on all receive actions and associated reports. Must have admin access, or be member of multiple Organizations.
+      security:
+        - OAuth2: [ system_admin ]
+        - ApiKeyAuth: []
+      parameters:
+        - in: query
+          name: days
+          schema:
+            type: integer
+          required: false
+          description: The number of days back to collect results from (default 30).
+        - in: query
+          name: dateRange
+          schema:
+            type: string
+          required: false
+          description: Return results only from specified date range in the format `dateRange=start,end`. Ex `dateRange=YYYY-MM-DD,YYYY-MM-DD` (default ALL).
+        - in: query
+          name: offset
+          schema:
+            type: integer
+          required: false
+          description: The number of items to skip before starting to collect the result set (default 0).
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          required: false
+          description: The numbers of items to return (default ALL).
+        - in: query
+          name: orgID
+          schema:
+            type: string
+          required: false
+          description: Return results only from specified Organizations in the format `orgID=X,Y,Z`. Ex `orgID=A001,B002,C003` (default ALL).
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Report'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+
+  /submissions/{reportID}:
+    get:
+      description: Return a single receive action, and its received report.
+      security:
+        - OAuth2: [ system_admin ]
+        - ApiKeyAuth: []
+      parameters:
+        - in: query
+          name: reportID
+          schema:
+            type: string
+          required: true
+          description: Return a single specified result.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Report'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+
+  /submissions/{organizationName}:
+    get:
+      description: Return a list of basic info on receive actions and associated reports with authorized Organization only.
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - in: path
+          schema:
+            type: string
+          required: true
+          name: organizationName
+          description: The name of the organization
+        - in: query
+          name: days
+          schema:
+            type: integer
+          required: false
+          description: The number of days back to collect results from (default 30).
+        - in: query
+          name: dateRange
+          schema:
+            type: string
+          required: false
+          description: Return results only from specified date range in the format `dateRange=start,end`. Ex `dateRange=YYYY-MM-DD,YYYY-MM-DD` (default ALL).
+        - in: query
+          name: offset
+          schema:
+            type: integer
+          required: false
+          description: The number of items to skip before starting to collect the result set (default 0).
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          required: false
+          description: The numbers of items to return (default ALL).
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Report'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+
   # The reports end-point handles the
   #
   /reports:
