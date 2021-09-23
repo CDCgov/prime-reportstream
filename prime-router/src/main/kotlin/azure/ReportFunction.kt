@@ -555,6 +555,31 @@ class ReportFunction : Logging {
             writeDetailsArray("errors", result.errors)
             writeDetailsArray("warnings", result.warnings)
 
+            fun createRowsDescription(rows: MutableList<Int>?): String {
+                if (rows == null || rows.isEmpty()) return ""
+                rows.sort()
+                val sb = StringBuilder().append("Rows: ")
+                var isListing = false
+                rows.forEachIndexed { i, row ->
+                    if (i == 0) {
+                        sb.append(row.toString())
+                    } else {
+                        if (row == rows[i-1] + 1) {
+                            isListing = true
+                        } else {
+                            if (isListing) {
+                                sb.append("–" + rows[i-1].toString() + ", ")
+                            } else {
+                                sb.append(", ")
+                            }
+                            sb.append(row.toString())
+                            isListing = false
+                        }
+                    }
+                }
+                return sb.toString()
+            }
+
             fun writeConsolidatedArray(field: String, array: List<ResultDetail>) {
                 val messagesAndRows = hashMapOf<String, MutableList<Int>>()
                 array.forEach { resultDetail ->
@@ -574,9 +599,7 @@ class ReportFunction : Logging {
                 messagesAndRows.keys.forEach { message ->
                     it.writeStartObject()
                     it.writeStringField("message", message)
-                    val rows =
-                        if (messagesAndRows[message]?.size == 0) "" else "Rows: " + messagesAndRows[message].toString()
-                    it.writeStringField("rows", rows)
+                    it.writeStringField("rows", createRowsDescription(messagesAndRows[message]))
                     it.writeEndObject()
                 }
                 it.writeEndArray()
