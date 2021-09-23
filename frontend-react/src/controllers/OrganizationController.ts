@@ -11,5 +11,5 @@ export function useOrgName(): string {
             authState!.accessToken?.claims.organization.find(o => !o.toLowerCase().includes('sender'))
         )
     });
-    return org?.description
+    return org?.description || ""
 }
