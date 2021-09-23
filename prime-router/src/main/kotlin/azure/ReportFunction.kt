@@ -586,16 +586,16 @@ class ReportFunction : Logging {
             fun writeConsolidatedArray(field: String, array: List<ResultDetail>) {
                 val messagesAndRows = hashMapOf<String, MutableList<Int>>()
                 array.forEach { resultDetail ->
-                    val groupingId = resultDetail.responseMessage.groupingId()
-                    if (messagesAndRows.containsKey(groupingId)) {
+                    val groupingMsg = resultDetail.responseMessage.detailMsg()
+                    if (messagesAndRows.containsKey(groupingMsg)) {
                         // Add 2 to account for array offset and csv header
-                        messagesAndRows[groupingId]?.add(resultDetail.row + 2)
+                        messagesAndRows[groupingMsg]?.add(resultDetail.row + 2)
                     } else {
                         if (resultDetail.row == -1) {
-                            messagesAndRows[groupingId] = mutableListOf()
+                            messagesAndRows[groupingMsg] = mutableListOf()
                         } else {
                             // Add 2 to account for array offset and csv header
-                            messagesAndRows[groupingId] = mutableListOf(resultDetail.row + 2)
+                            messagesAndRows[groupingMsg] = mutableListOf(resultDetail.row + 2)
                         }
                     }
                 }
