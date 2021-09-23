@@ -104,18 +104,15 @@ export const Upload = () => {
                 if (response.id) {
                     setReportId(response.id);
                     setSuccessTimestamp(response.timestamp);
-                    setButtonText('Upload another file');
                     event.target.reset();
                 }
 
                 if (response.warnings && response.warnings.length) {
                     setWarnings(response.warnings);
-                    setButtonText('Upload my edited file');
                 }
 
                 if (response.errors && response.errors.length) {
                     setErrors(response.errors);
-                    setButtonText('Upload my edited file');
 
                     // if there is a response status, then there was most likely a server-side error as the json was not parsed
                     if (response.status) {
@@ -126,6 +123,7 @@ export const Upload = () => {
                 }
 
                 setHeaderMessage('Your COVID-19 Results');
+                setButtonText('Upload another file');
 
             } catch (error) {
                 if (response && response.errors) {
@@ -133,7 +131,7 @@ export const Upload = () => {
                 } else {
                     setErrors(error);
                 }
-                setButtonText('Upload my edited file');
+                setButtonText('Upload another file');
             }
             setIsSubmitting(false);
         }
@@ -221,11 +219,11 @@ export const Upload = () => {
                 <div>
                     <div className="usa-alert usa-alert--warning">
                         <div className="usa-alert__body">
-                            <h4 className="usa-alert__heading">Alert: Additional Edits Requested</h4>
+                            <h4 className="usa-alert__heading">Alert: Unusable Fields Detected</h4>
                             <p className="usa-alert__text">
-                                Your file has been accepted. However, we detected fields that are unusable. These
-                                are crucial for public health action. Please consider editing your file and uploading a
-                                new that addresses these issues.
+                                Your file has been accepted with warnings.
+                                There were fields detected that are unusable for public health action.
+                                Enter valid information for future submissions.
                             </p>
                         </div>
                     </div>

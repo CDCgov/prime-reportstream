@@ -25,12 +25,12 @@ import java.time.format.DateTimeFormatter
 import java.util.Properties
 
 plugins {
-    kotlin("jvm") version "1.5.30"
+    kotlin("jvm") version "1.5.31"
     id("org.flywaydb.flyway") version "7.15.0"
     id("nu.studer.jooq") version "6.0.1"
     id("com.github.johnrengelman.shadow") version "7.0.0"
     id("com.microsoft.azure.azurefunctions") version "1.7.0"
-    id("org.jlleitschuh.gradle.ktlint") version "10.1.0"
+    id("org.jlleitschuh.gradle.ktlint") version "10.2.0"
     id("com.adarshr.test-logger") version "3.0.0"
     id("jacoco")
 }
@@ -506,11 +506,11 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
     implementation("com.microsoft.azure.functions:azure-functions-java-library:1.4.2")
     implementation("com.azure:azure-core:1.20.0")
-    implementation("com.azure:azure-core-http-netty:1.10.2")
-    implementation("com.azure:azure-storage-blob:12.13.0") {
+    implementation("com.azure:azure-core-http-netty:1.11.0")
+    implementation("com.azure:azure-storage-blob:12.14.0") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-storage-queue:12.10.0") {
+    implementation("com.azure:azure-storage-queue:12.11.0") {
         exclude(group = "com.azure", module = "azure-core")
     }
     implementation("com.azure:azure-security-keyvault-secrets:4.3.3") {
@@ -535,7 +535,7 @@ dependencies {
     implementation("com.github.javafaker:javafaker:1.0.2")
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
-    implementation("com.googlecode.libphonenumber:libphonenumber:8.12.31")
+    implementation("com.googlecode.libphonenumber:libphonenumber:8.12.33")
     implementation("org.thymeleaf:thymeleaf:3.0.12.RELEASE")
     implementation("com.sendgrid:sendgrid-java:4.7.4")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.1")
