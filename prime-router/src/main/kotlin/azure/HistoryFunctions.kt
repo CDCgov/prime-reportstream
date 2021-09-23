@@ -216,7 +216,11 @@ open class BaseHistoryFunction : Logging {
                 }
                 val header =
                     try {
-                        workflowEngine.fetchHeader(it.reportId, adminOrg ?: authClaims.organization)
+                        workflowEngine.fetchHeader(
+                            it.reportId,
+                            adminOrg ?: authClaims.organization,
+                            fetchBlobBody = false
+                        )
                     } catch (ex: Exception) {
                         context.logger.severe("Unable to find file for ${it.reportId} ${ex.message}")
                         null
