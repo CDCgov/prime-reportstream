@@ -507,7 +507,7 @@ dependencies {
     implementation("com.microsoft.azure.functions:azure-functions-java-library:1.4.2")
     implementation("com.azure:azure-core:1.20.0")
     implementation("com.azure:azure-core-http-netty:1.11.0")
-    implementation("com.azure:azure-storage-blob:12.13.0") {
+    implementation("com.azure:azure-storage-blob:12.14.0") {
         exclude(group = "com.azure", module = "azure-core")
     }
     implementation("com.azure:azure-storage-queue:12.10.0") {
@@ -524,7 +524,7 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-api:[2.13.2,)")
     implementation("org.apache.logging.log4j:log4j-core:[2.13.2,)")
     implementation("org.apache.logging.log4j:log4j-slf4j-impl:[2.13.2,)")
-    implementation("org.apache.logging.log4j:log4j-api-kotlin:1.0.0")
+    implementation("org.apache.logging.log4j:log4j-api-kotlin:1.1.0")
     implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.1.0")
     implementation("tech.tablesaw:tablesaw-core:0.38.5")
     implementation("com.github.ajalt.clikt:clikt-jvm:3.2.0")
