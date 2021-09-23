@@ -588,7 +588,8 @@ class ReportFunction : Logging {
                 array.forEach { resultDetail ->
                     val groupingId = resultDetail.responseMessage.groupingId()
                     if (messagesAndRows.containsKey(groupingId)) {
-                        messagesAndRows[groupingId]?.add(resultDetail.row)
+                        // Add 2 to account for array offset and csv header
+                        messagesAndRows[groupingId]?.add(resultDetail.row + 2)
                     } else {
                         if (resultDetail.row == -1) {
                             messagesAndRows[groupingId] = mutableListOf()
