@@ -254,6 +254,8 @@
       display: Detected in pooled specimen
     - code: 455371000124106
       display: Invalid result
+    - code: 455371000124106
+      display: Invalid
     - code: 125154007
       display: Specimen unsatisfactory for evaluation
     - code: 840539006
@@ -279,3 +281,101 @@
       version: 20200309
     - code: 373121007
       display: Test not done
+
+- name: sender-automation/specimen_source_site_code
+  system: SNOMED_CT
+  reference: Subset of the all body structure codes
+  referenceUrl: https://phinvads.cdc.gov/vads/ViewValueSet.action?id=9A2D4051-3AA6-42EB-AE88-541C9094B0FB
+  values:
+    - code: 71836000
+      display: Nasopharyngeal structure (body structure)
+      version: 2020-09-01
+    - code: 71836000
+      display: Varied
+      version: 2020-09-01
+    - code: 71836000
+      display: Nasal
+      version: 2020-09-01
+    - code: 45206002
+      display: Nasal structure (body structure)
+      version: 2020-09-01
+    - code: 53342003
+      display: Internal nose structure (body structure)
+      version: 2020-09-01
+    - code: 119297000
+      display: Serum
+      version: 2020-09-01
+    - code: 119297000
+      display: Plasma
+      version: 2020-09-01
+    - code: 119297000
+      display: Whole Blood
+      version: 2020-09-01
+    - code: 119297000
+      display: Blood specimen (specimen)
+      version: 2020-09-01
+    - code: 31389004
+      display: Oral
+      version: 2020-09-01
+    - code: 31389004
+      display: Oropharyngeal
+      version: 2020-09-01
+    - code: 31389004
+      display: Oropharyngeal Swab
+      version: 2020-09-01
+
+- name: sender-automation/specimen_type
+  system: SNOMED_CT
+  version: 2.67
+  referenceUrl: https://www.hhs.gov/sites/default/files/hhs-guidance-implementation.pdf
+  values:
+    - code: 445297001
+      display: Swab of internal nose
+    - code: 258500001
+      display: Nasopharyngeal swab
+    - code: 258500001
+      display: Nasal
+    - code: 258500001
+      display: Varied
+    - code: 871810001
+      display: Mid-turbinate nasal swab 
+    - code: 697989009
+      display: Anterior nares swab 
+    - code: 258411007
+      display: Nasopharyngeal aspirate 
+    - code: 429931000124105
+      display: Nasal aspirate 
+    - code: 258529004
+      display: Throat swab 
+    - code: 258529004
+      display: Throat
+    - code: 258529004
+      display: Oral
+    - code: 258529004
+      display: Oropharyngeal
+    - code: 258529004
+      display: Oropharyngeal Swab
+    - code: 119334006
+      display: Sputum specimen 
+    - code: 119342007
+      display: Saliva specimen 
+    - code: 258607008
+      display: Bronchoalveolar lavage fluid sample 
+    - code: 119364003
+      display: Serum specimen 
+    - code: 119364003
+      display: Serum 
+    - code: 119361006
+      display: Plasma specimen 
+    - code: 119361006
+      display: Plasma
+    - code: 440500007
+      display: Dried blood spot specimen 
+    - code: 258580003
+      display: Whole blood sample 
+    - code: 258580003
+      display: Whole blood 
+    - code: 122555007
+      display: Venous blood specimen
+    - code: 119297000
+      display: Blood specimen

@@ -1116,10 +1116,11 @@
         messageProfileId: PHLabReport-Batch^^2.16.840.1.113883.9.11^ISO
         receivingFacilityName: NH_DHHS
         receivingFacilityOID: 2.16.840.1.114222.4.1.3669
-        suppressHl7Fields: ORC-23-1,PID-13-1,ORC-14-1,OBR-17-1
+        suppressHl7Fields: ORC-23-1,ORC-14-1,OBR-17-1,OBX-18-1, OBX-18-2, OBX-18-3, PID-13-1
         reportingFacilityName: CDC PRIME
         reportingFacilityId: 11D2030855
         replaceDiiWithOid: true
+        usePid14ForPatientEmail: true
       transport:
         type: SFTP
         host: sftp
@@ -1157,7 +1158,7 @@
         credentialName: DEFAULT-SFTP
       timing:
         operation: MERGE
-        numberPerDay: 1440
+        numberPerDay: 360   # Useful when you need a bit more of: This thing all things devours: Birds, beasts, trees, flowers
         initialTime: 00:00
         timeZone: EASTERN
 
@@ -1535,7 +1536,7 @@
       translation:
         type: HL7
         useBatchHeaders: true
-    - name: HL7_NULL
+    - name: HL7_NULL     # Null Transport.
       organizationName: ignore
       topic: covid-19
       jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, HL7_NULL)" ]
@@ -1546,7 +1547,7 @@
       translation:
         type: CUSTOM
         schemaName: tx/tx-covid-19
-        format: HL7
+        format: HL7_BATCH
     - name: BLOBSTORE
       organizationName: ignore
       topic: covid-19

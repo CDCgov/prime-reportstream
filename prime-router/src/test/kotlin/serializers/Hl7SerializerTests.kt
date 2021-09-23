@@ -25,7 +25,6 @@ import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.TestSource
-import io.mockk.MockK
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkClass

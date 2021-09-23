@@ -27,19 +27,3 @@ elements:
 # Should translate to LOINC: 94534-5
         - code: 10811877011269
           display: "Abbott-ID NOW COVID-19 (Molecular)"
-
-# Force failure on all results except COVID-19
-        - code: 99999999
-          display: "non-CDC 2019-ncov coronavirus, SARS (COVID-19)"
-        - code: 99999999
-          display: "Flu A & B, Real-time RT-PCR (RNA)"
-        - code: 99999999
-          display: "Glucose - Accu-Chek"
-        - code: 99999999
-          display: "Glucose - quant"
-        - code: 99999999
-          display: "RSV Ag - rapid"
-        - code: 99999999
-          display: "Strep A Ag - rapid"
-        - code: 99999999
-          display: "UA Dipstick Auto w/o Micro"
