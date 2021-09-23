@@ -440,13 +440,14 @@ class WorkflowEngine(
         reportFile: ReportFile,
         itemLineages: List<ItemLineage>?,
         organization: Organization?,
-        receiver: Receiver?
+        receiver: Receiver?,
+        fetchBlobBody: Boolean = true
     ): Header {
         val schema = if (reportFile.schemaName != null)
             metadata.findSchema(reportFile.schemaName)
         else null
 
-        val content = if (reportFile.bodyUrl != null)
+        val content = if (reportFile.bodyUrl != null && fetchBlobBody)
             blob.downloadBlob(reportFile.bodyUrl)
         else null
         return Header(task, reportFile, itemLineages, organization, receiver, schema, content)
@@ -455,6 +456,7 @@ class WorkflowEngine(
     fun fetchHeader(
         reportId: ReportId,
         organization: Organization,
+        fetchBlobBody: Boolean = true
     ): Header {
         val reportFile = db.fetchReportFile(reportId, organization)
         val task = db.fetchTask(reportId)
@@ -465,7 +467,7 @@ class WorkflowEngine(
         // todo remove this sanity check
         ActionHistory.sanityCheckReport(task, reportFile, false)
         val itemLineages = db.fetchItemLineagesForReport(reportId, reportFile.itemCount)
-        return createHeader(task, reportFile, itemLineages, organization, receiver)
+        return createHeader(task, reportFile, itemLineages, organization, receiver, fetchBlobBody)
     }
 
     /**
