@@ -934,7 +934,23 @@ class Hl7Serializer(
             while (terser.get("/PATIENT_RESULT/PATIENT/PID-13($rep)-2")?.isEmpty() == false) {
                 rep += 1
             }
-            setComponents("/PATIENT_RESULT/PATIENT/PID-13($rep)", "PRN")
+            // if the first component contains an email value, we want to extract the values, and we want to then
+            // put the patient phone number into rep 1 for PID-13. this means that the phone number will always
+            // appear first in the list of repeats in PID-13
+            if (rep > 0 && terser.get("/PATIENT_RESULT/PATIENT/PID-13(0)-2") == "NET") {
+                // get the email back out
+                val email = terser.get("/PATIENT_RESULT/PATIENT/PID-13(0)-4")
+                // clear out the email value now so it's empty for the phone number repeat
+                terser.set("/PATIENT_RESULT/PATIENT/PID-13(0)-4", "")
+                // overwrite the first repeat
+                setComponents("/PATIENT_RESULT/PATIENT/PID-13(0)", "PRN")
+                // now write the second repeat
+                terser.set("/PATIENT_RESULT/PATIENT/PID-13(1)-2", "NET")
+                terser.set("/PATIENT_RESULT/PATIENT/PID-13(1)-3", "Internet")
+                terser.set("/PATIENT_RESULT/PATIENT/PID-13(1)-4", email)
+            } else {
+                setComponents("/PATIENT_RESULT/PATIENT/PID-13($rep)", "PRN")
+            }
         } else {
             setComponents(pathSpec, "WPN")
         }
