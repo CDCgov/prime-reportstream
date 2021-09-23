@@ -225,14 +225,18 @@ export const Upload = () => {
                             </p>
                         </div>
                     </div>
-                    <table>
-                        <tr>
-                            <th>Requested Edit</th>
-                            <th>Areas Containing the Requested Edit</th>
-                        </tr>
-                        {consolidatedErrors.map((e, i) => {
-                            return (<tr key={i}><td>{e['message']}</td><td>{e['rows']}</td></tr>)
-                        })}
+                    <table className="usa-table usa-table--borderless">
+                        <thead>
+                            <tr>
+                                <th>Requested Edit</th>
+                                <th>Areas Containing the Requested Edit</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {consolidatedErrors.map((e, i) => {
+                                return (<tr key={i}><td>{e['message']}</td><td>{e['rows']}</td></tr>)
+                            })}
+                        </tbody>
                     </table>
                 </div>
             )}
@@ -249,14 +253,18 @@ export const Upload = () => {
                             </p>
                         </div>
                     </div>
-                    <table>
-                        <tr>
-                            <th>Requested Edit</th>
-                            <th>Areas Containing the Requested Edit</th>
-                        </tr>
-                        {consolidatedWarnings.map((e, i) => {
-                            return (<tr key={i}><td>{e['message']}</td><td>{e['rows']}</td></tr>)
-                        })}
+                    <table className="usa-table usa-table--borderless">
+                        <thead>
+                            <tr>
+                                <th>Requested Edit</th>
+                                <th>Areas Containing the Requested Edit</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {consolidatedWarnings.map((e, i) => {
+                                return (<tr key={i}><td>{e['message']}</td><td>{e['rows']}</td></tr>)
+                            })}
+                        </tbody>
                     </table>
                 </div>
             )}
