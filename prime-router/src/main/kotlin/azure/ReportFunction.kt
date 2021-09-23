@@ -565,7 +565,8 @@ class ReportFunction : Logging {
                         if (resultDetail.row == -1) {
                             messagesAndRows[groupingId] = mutableListOf()
                         } else {
-                            messagesAndRows[groupingId] = mutableListOf(resultDetail.row)
+                            // Add 2 to account for array offset and csv header
+                            messagesAndRows[groupingId] = mutableListOf(resultDetail.row + 2)
                         }
                     }
                 }
@@ -573,9 +574,9 @@ class ReportFunction : Logging {
                 messagesAndRows.keys.forEach { message ->
                     it.writeStartObject()
                     it.writeStringField("message", message)
-                    val areaEffected =
+                    val rows =
                         if (messagesAndRows[message]?.size == 0) "" else "Rows: " + messagesAndRows[message].toString()
-                    it.writeStringField("areaEffected", areaEffected)
+                    it.writeStringField("rows", rows)
                     it.writeEndObject()
                 }
                 it.writeEndArray()
