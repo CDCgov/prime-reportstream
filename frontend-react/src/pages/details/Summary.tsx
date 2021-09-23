@@ -10,8 +10,8 @@ interface Props {
 }
 
 function Summary(props: Props) {
-    const { report } = props
-    const orgName = useOrgName()
+    const { report }: Props = props
+    const orgName: string = useOrgName()
 
     return (
         <section className="grid-container">
