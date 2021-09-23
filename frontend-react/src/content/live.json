@@ -72,6 +72,10 @@
     },
     {
       "status": "Live",
+      "state": "Alaska"
+    },
+    {
+      "status": "Live",
       "state": "Arizona"
     },
     {
@@ -121,6 +125,10 @@
     {
       "status": "Live",
       "state": "New Jersey"
+    },
+    {
+      "status": "Live",
+      "state": "New Hampshire"
     },
     {
       "status": "Live",

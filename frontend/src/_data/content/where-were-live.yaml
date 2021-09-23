@@ -4,6 +4,10 @@ partners:
     type: state
     abbreviation: AL
     production: true
+  - name: Alaska
+    type: state
+    abbreviation: AK
+    production: true
   - name: Arizona
     type: state
     abbreviation: AZ
@@ -51,6 +55,10 @@ partners:
   - name: Montana
     type: state
     abbreviation: MT
+    production: true
+  - name: New Hampshire
+    type: state
+    abbreviation: NH
     production: true
   - name: New Mexico
     type: state
