@@ -5,7 +5,7 @@ import Spinner from "../../components/Spinner";
 import { useOrgName } from "../../controllers/OrganizationController";
 
 const OrgName = () => {
-    const orgName = useOrgName()
+    const orgName: string = useOrgName()
     return (
         <span id="orgName" className="text-normal text-base">
             {orgName}
