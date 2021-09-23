@@ -564,7 +564,7 @@ class ReportFunction : Logging {
                     if (i == 0) {
                         sb.append(row.toString())
                     } else {
-                        if (row == rows[i-1] + 1) {
+                        if (row == rows[i-1] || row == rows[i-1] + 1) {
                             isListing = true
                         } else {
                             if (isListing) {
@@ -575,6 +575,9 @@ class ReportFunction : Logging {
                             sb.append(row.toString())
                             isListing = false
                         }
+                    }
+                    if (i == rows.lastIndex && isListing) {
+                        sb.append("–" + rows[rows.lastIndex].toString())
                     }
                 }
                 return sb.toString()
