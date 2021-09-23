@@ -581,8 +581,8 @@ class ReportFunction : Logging {
                 }
                 it.writeEndArray()
             }
-            writeConsolidatedArray("errorsConsolidated", result.errors)
-            writeConsolidatedArray("warningsConsolidated", result.warnings)
+            writeConsolidatedArray("consolidatedErrors", result.errors)
+            writeConsolidatedArray("consolidatedWarnings", result.warnings)
         }
         return outStream.toString()
     }
