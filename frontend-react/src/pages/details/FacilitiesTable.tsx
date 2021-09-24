@@ -11,7 +11,7 @@ interface Props {
 
 function FacilitiesTable(props: Props) {
     const { reportId } = props
-    const facilities = useResource(FacilityResource.getFacilities(reportId), { sortBy: undefined }) as FacilityResource[]
+    const facilities = useResource(ReportResource.getFacilities(reportId), {}) as FacilityResource[]
 
     return (
         <section id="facilities" className="grid-container margin-bottom-5">
