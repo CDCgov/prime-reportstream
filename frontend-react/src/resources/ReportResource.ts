@@ -26,4 +26,12 @@ export default class ReportResource extends AuthResource {
     }
 
     static urlRoot = `${AuthResource.getBaseUrl()}/api/history/report`;
+
+    static getFacilities<FacilityResource>(this: FacilityResource, reportId: string | undefined) {
+        const endpoint = super.list();
+        return endpoint.extend({
+          fetch() { return endpoint(this); },
+          url() { return `/${reportId}/facilities` },
+        });
+    };
 }
