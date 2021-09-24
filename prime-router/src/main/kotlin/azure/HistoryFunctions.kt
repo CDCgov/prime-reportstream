@@ -207,8 +207,10 @@ open class BaseHistoryFunction : Logging {
                 organizationName ?: authClaims.organization.name
             )
             @Suppress("NEW_INFERENCE_NO_INFORMATION_FOR_PARAMETER")
-            val reports = headers.sortedByDescending { it.createdAt }.mapNotNull {
-                val facilities = workflowEngine.db.getFacilitiesForDownloadableReport(it.reportId)
+            val reports = headers.sortedByDescending { it.createdAt }.map {
+                // removing the call for facilities for now so we can call a
+                // method directly to just get the facilities and display them then
+                val facilities = listOf<Facility>() // workflowEngine.db.getFacilitiesForDownloadableReport(it.reportId)
                 val actions = arrayListOf<Action>()
                 // get the org passed in
                 val adminOrg = workflowEngine.settings.organizations.firstOrNull { org ->
