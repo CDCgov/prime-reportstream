@@ -13,7 +13,7 @@ interface Props {
 }
 
 function FacilitiesTable(props: Props) {
-    const { reportId } = props
+    const { reportId } = props;
 
     /* DEBUG
        This will be our approach to getting facilities from the API once rest-hooks is 
