@@ -48,17 +48,24 @@ module "postgres_private_endpoint" {
   resource_group     = var.resource_group
   location           = var.location
   endpoint_subnet_id = data.azurerm_subnet.endpoint.id
+  create_dns_record  = true
 }
 
-module "postgres_server_private_endpoint" {
-  source             = "../common/private_endpoint"
-  resource_id        = azurerm_postgresql_server.postgres_server.id
-  name               = azurerm_postgresql_server.postgres_server.name
-  type               = "postgres_server"
-  resource_group     = var.resource_group
-  location           = var.location
-  endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet_east.id
-}
+//module "postgres_server_private_endpoint" {
+//  source             = "../common/private_endpoint"
+//  resource_id        = azurerm_postgresql_server.postgres_server.id
+//  name               = azurerm_postgresql_server.postgres_server.name
+//  type               = "postgres_server"
+//  resource_group     = var.resource_group
+//  location           = var.location
+//  endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet_east.id
+//  create_dns_record  = false
+//
+//  depends_on = [
+//    # Prevent unexpected order-of-operations by placing a hard dependency against the current private endpoint
+//    module.postgres_private_endpoint
+//  ]
+//}
 
 
 // Replicate Server
@@ -114,17 +121,24 @@ module "postgres_private_endpoint_replica" {
   resource_group     = var.resource_group
   location           = azurerm_postgresql_server.postgres_server_replica.location
   endpoint_subnet_id = data.azurerm_subnet.endpoint_replica.id
+  create_dns_record  = true
 }
 
-module "postgres_server_private_endpoint_replica" {
-  source             = "../common/private_endpoint"
-  resource_id        = azurerm_postgresql_server.postgres_server_replica.id
-  name               = azurerm_postgresql_server.postgres_server_replica.name
-  type               = "postgres_server"
-  resource_group     = var.resource_group
-  location           = azurerm_postgresql_server.postgres_server_replica.location
-  endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet_west.id
-}
+//module "postgres_server_private_endpoint_replica" {
+//  source             = "../common/private_endpoint"
+//  resource_id        = azurerm_postgresql_server.postgres_server_replica.id
+//  name               = azurerm_postgresql_server.postgres_server_replica.name
+//  type               = "postgres_server"
+//  resource_group     = var.resource_group
+//  location           = azurerm_postgresql_server.postgres_server_replica.location
+//  endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet_west.id
+//  create_dns_record  = false
+//
+//  depends_on = [
+//    # Prevent unexpected order-of-operations by placing a hard dependency against the current private endpoint
+//    module.postgres_private_endpoint_replica
+//  ]
+//}
 
 
 // User Administration

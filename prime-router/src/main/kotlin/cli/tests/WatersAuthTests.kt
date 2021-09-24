@@ -18,7 +18,7 @@ import gov.cdc.prime.router.tokens.DatabaseJtiCache
 import gov.cdc.prime.router.tokens.SenderUtils
 import java.io.File
 import java.time.OffsetDateTime
-import java.util.*
+import java.util.UUID
 
 /**
  *

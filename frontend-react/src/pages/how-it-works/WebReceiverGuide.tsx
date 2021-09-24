@@ -12,12 +12,6 @@ export const WebReceiverGuide = () => {
                     enables a public health department to access data from
                     senders via a secure, online portal.
                 </p>
-                <a
-                    href="/assets/pdf/ReportStream-Web-Receiver-Onboarding-Guide-April-2021.pdf"
-                    className="usa-button usa-button--outline"
-                >
-                    Download this guide
-                </a>
                 <a href={
                     "mailto:" +
                     site.orgs.RS.email +
