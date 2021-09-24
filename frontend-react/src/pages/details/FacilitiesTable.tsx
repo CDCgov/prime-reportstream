@@ -1,6 +1,7 @@
 import { useResource } from '@rest-hooks/core';
+import { useState, useEffect } from 'react';
+import AuthResource from '../../resources/AuthResource';
 import FacilityResource from '../../resources/FacilityResource';
-import ReportResource from '../../resources/ReportResource';
 
 interface Props {
     /* REQUIRED
@@ -11,7 +12,23 @@ interface Props {
 
 function FacilitiesTable(props: Props) {
     const { reportId } = props
-    const facilities = useResource(ReportResource.getFacilities(reportId), {}) as FacilityResource[]
+
+    /* DEBUG
+       This will be our approach to getting facilities from the API once rest-hooks is 
+       configured properly
+       >>> Kevin Haube, Sep 24, 2021 */
+
+    // const facilities: FacilityResource[] = useResource(FacilityResource.getFacilities(reportId), {})
+
+    /* INFO
+       This is a temporary fix while I work on learning how to configure custom endpoints
+       and calls with the rest-hooks library. 
+       >>> Kevin Haube, Sep 24, 2021 */
+    const [facilities, setFacilicites] = useState([]);
+    useEffect(() => {
+        fetch(`${AuthResource.getBaseUrl()}/api/history/report/${reportId}/facilities`)
+            .then(res => console.log(res))
+    }, [])
 
     return (
         <section id="facilities" className="grid-container margin-bottom-5">
@@ -30,7 +47,7 @@ function FacilitiesTable(props: Props) {
                         <th scope="col">Total positive</th>
                     </tr>
                 </thead>
-                <tbody id="tBodyFac" className="font-mono-2xs">
+                {/* <tbody id="tBodyFac" className="font-mono-2xs">
                     {facilities.map((facility) => (
                         <tr key={facility.CLIA}>
                             <td>{facility.facility}</td>
@@ -45,7 +62,7 @@ function FacilitiesTable(props: Props) {
                             <td></td>
                         </tr>
                     ))}
-                </tbody>
+                </tbody> */}
             </table>
         </section>
     );

@@ -11,5 +11,4 @@ export default class FacilityResource extends AuthResource {
     pk(){
         return this.CLIA;
     }
-    
 }
