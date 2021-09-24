@@ -76,8 +76,8 @@ function FacilitiesTable(props: Props) {
                         </tr>
                     ))}
                 </tbody> */}
-            </table>
-        </section>
+            </table >
+        </section >
     );
 }
 
