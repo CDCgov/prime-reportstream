@@ -1,4 +1,3 @@
-import FacilityResource  from './FacilityResource'
 import ActionResource from './ActionResource'
 import AuthResource from './AuthResource';
 
@@ -15,7 +14,7 @@ export default class ReportResource extends AuthResource {
     readonly sendingOrg: string = "sendingOrg";
     readonly receivingOrg: string = "receivingOrg";
     readonly receivingOrgSvc: string = "elr";
-    readonly facilities: FacilityResource[] = [];
+    // readonly facilities: FacilityResource[] = []; 
     readonly actions: ActionResource[] = [];
     readonly content: string = ""
     readonly fileName: string = ""
@@ -27,11 +26,4 @@ export default class ReportResource extends AuthResource {
 
     static urlRoot = `${AuthResource.getBaseUrl()}/api/history/report`;
 
-    static getFacilities<FacilityResource>(this: FacilityResource, reportId: string | undefined) {
-        const endpoint = super.list();
-        return endpoint.extend({
-          fetch() { return endpoint(this); },
-          url() { return `/${reportId}/facilities` },
-        });
-    };
 }
