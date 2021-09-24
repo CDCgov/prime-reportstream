@@ -1,7 +1,9 @@
+import { useOktaAuth } from '@okta/okta-react';
 import { useResource } from '@rest-hooks/core';
 import { useState, useEffect } from 'react';
 import AuthResource from '../../resources/AuthResource';
 import FacilityResource from '../../resources/FacilityResource';
+import { groupToOrg } from '../../webreceiver-utils';
 
 interface Props {
     /* REQUIRED
@@ -24,9 +26,20 @@ function FacilitiesTable(props: Props) {
        This is a temporary fix while I work on learning how to configure custom endpoints
        and calls with the rest-hooks library. 
        >>> Kevin Haube, Sep 24, 2021 */
+
     const [facilities, setFacilicites] = useState([]);
+
+    const { authState } = useOktaAuth();
+    const organization = groupToOrg(
+        authState!.accessToken?.claims.organization.find(o => !o.toLowerCase().includes('sender'))
+    );
+
+    const headers = new Headers({
+        'Authorization': `Bearer ${authState?.accessToken?.accessToken}`,
+        'Organization': organization!
+    });
     useEffect(() => {
-        fetch(`${AuthResource.getBaseUrl()}/api/history/report/${reportId}/facilities`)
+        fetch(`${AuthResource.getBaseUrl()}/api/history/report/${reportId}/facilities`, { headers: headers })
             .then(res => console.log(res))
     }, [])
 
