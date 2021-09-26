@@ -447,7 +447,7 @@ class Hl7Serializer(
         val replaceValue = hl7Config?.replaceValue ?: emptyMap()
         val suppressQst = hl7Config?.suppressQstForAoe ?: false
         val suppressAoe = hl7Config?.suppressAoe ?: false
-        val useOrderingFacilityName = hl7Config?.useOrderingFacilityName 
+        val useOrderingFacilityName = hl7Config?.useOrderingFacilityName
             ?: Hl7Configuration.OrderingFacilityName.STANDARD
 
         // and we have some fields to suppress

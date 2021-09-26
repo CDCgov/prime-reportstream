@@ -689,6 +689,56 @@ NTE|1|L|This is a final comment|RE"""
     }
 
     @Test
+    fun `test setOrderingFacilityComponent`() {
+        val mockTerser = mockk<Terser>()
+        every { mockTerser.set(any(), any()) } returns Unit
+        val facilityName = "Very Long Facility Name That Should Truncate After Here"
+        // Get a bunch of k12 rows
+        val testCSV = File("./src/test/unit_test_files/pdi-covid-19-wa-k12.csv").inputStream()
+        val testReport = csvSerializer
+            .readExternal("primedatainput/pdi-covid-19", testCSV, TestSource)
+            .report ?: fail()
+
+        // Test with STANDARD
+        serializer.setOrderingFacilityComponent(
+            mockTerser,
+            facilityName,
+            useOrderingFacilityName = Hl7Configuration.OrderingFacilityName.STANDARD,
+            testReport,
+            row = 0
+        )
+
+        verify {
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-21-1", facilityName.take(50))
+        }
+    }
+
+    @Test
+    fun `test setOrderingFacilityComponent with Organization Name`() {
+        val mockTerser = mockk<Terser>()
+        every { mockTerser.set(any(), any()) } returns Unit
+        val facilityName = "Very Long Facility Name That Should Truncate After Here"
+        // Get a bunch of k12 rows
+        val testCSV = File("./src/test/unit_test_files/pdi-covid-19-wa-k12.csv").inputStream()
+        val testReport = csvSerializer
+            .readExternal("primedatainput/pdi-covid-19", testCSV, TestSource)
+            .report ?: fail()
+
+        // Test with STANDARD
+        serializer.setOrderingFacilityComponent(
+            mockTerser,
+            facilityName,
+            useOrderingFacilityName = Hl7Configuration.OrderingFacilityName.ORGANIZATION_NAME,
+            testReport,
+            row = 0
+        )
+
+        verify {
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-21-1", "Spokane School District")
+        }
+    }
+
+    @Test
     fun `test setPlainOrderingFacility`() {
         val mockTerser = mockk<Terser>()
         every { mockTerser.set(any(), any()) } returns Unit
