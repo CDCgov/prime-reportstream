@@ -28,7 +28,6 @@ import gov.cdc.prime.router.ValueSet
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.InputStream
 import java.io.OutputStream
-import java.lang.IllegalStateException
 import java.time.Instant
 import java.time.LocalDate
 import java.time.OffsetDateTime
@@ -448,7 +447,7 @@ class Hl7Serializer(
         val replaceValue = hl7Config?.replaceValue ?: emptyMap()
         val suppressQst = hl7Config?.suppressQstForAoe ?: false
         val suppressAoe = hl7Config?.suppressAoe ?: false
-        val useNCESFacilityName = hl7Config?.useNCESFacilityName ?: false
+        val useOrderingFacilityName = hl7Config?.useOrderingFacilityName ?: Hl7Configuration.OrderingFacilityName.STANDARD
 
         // and we have some fields to suppress
         val suppressedFields = hl7Config
@@ -536,8 +535,7 @@ class Hl7Serializer(
                     }
                 }
             } else if (element.hl7Field == "ORC-21-1") {
-                val ncesId = if (useNCESFacilityName) getSchoolId(report, row, rawFacilityName = value) else null
-                setOrderingFacilityComponent(terser, rawFacilityName = value, ncesId)
+                setOrderingFacilityComponent(terser, rawFacilityName = value, useOrderingFacilityName, report, row)
             } else if (element.hl7Field == "NTE-3") {
                 setNote(terser, value)
             } else if (element.hl7Field == "MSH-7") {
@@ -644,6 +642,68 @@ class Hl7Serializer(
     }
 
     /**
+     * Set the [terser]'s ORC-21 in accordance to the [useOrderingFacilityName] value.
+     */
+    internal fun setOrderingFacilityComponent(
+        terser: Terser,
+        rawFacilityName: String,
+        useOrderingFacilityName: Hl7Configuration.OrderingFacilityName,
+        report: Report,
+        row: Int,
+    ) {
+        when (useOrderingFacilityName) {
+            // No overrides
+            Hl7Configuration.OrderingFacilityName.STANDARD -> {
+                setPlainOrderingFacility(terser, rawFacilityName)
+            }
+
+            // Override with NCES ID if available
+            Hl7Configuration.OrderingFacilityName.NCES -> {
+                val ncesId = getSchoolId(report, row, rawFacilityName)
+                if (ncesId == null)
+                    setPlainOrderingFacility(terser, rawFacilityName)
+                else
+                    setNCESOrderingFacility(terser, rawFacilityName, ncesId)
+            }
+
+            // Override with organization name if available
+            Hl7Configuration.OrderingFacilityName.ORGANIZATION_NAME -> {
+                val organizationName = report.getString(row, "organization_name") ?: rawFacilityName
+                setPlainOrderingFacility(terser, organizationName)
+            }
+        }
+    }
+
+    /**
+     * Set the [terser]'s ORC-21-1 with just the [rawFacilityName]
+     */
+    internal fun setPlainOrderingFacility(
+        terser: Terser,
+        rawFacilityName: String,
+    ) {
+        terser.set(formPathSpec("ORC-21-1"), rawFacilityName.trim().take(50))
+    }
+
+    /**
+     * Set the [terser]'s ORC-21 in accordance to APHL guidance using the [rawFacilityName]
+     * and the [ncesId] value.
+     */
+    internal fun setNCESOrderingFacility(
+        terser: Terser,
+        rawFacilityName: String,
+        ncesId: String
+    ) {
+        // Implement APHL guidance for ORC-21 when NCES is known
+        val facilityName = "${rawFacilityName.trim().take(32)}$NCES_EXTENSION$ncesId"
+        terser.set(formPathSpec("ORC-21-1"), facilityName)
+        terser.set(formPathSpec("ORC-21-6-1"), "NCES.IES")
+        terser.set(formPathSpec("ORC-21-6-2"), "2.16.840.1.113883.3.8589.4.1.119")
+        terser.set(formPathSpec("ORC-21-6-3"), "ISO")
+        terser.set(formPathSpec("ORC-21-7"), "XX")
+        terser.set(formPathSpec("ORC-21-10"), ncesId)
+    }
+
+    /**
      * Lookup the NCES id if the site_type is a k12 school
      */
     internal fun getSchoolId(report: Report, row: Int, rawFacilityName: String): String? {
@@ -663,31 +723,6 @@ class Hl7Serializer(
             canonicalize = { canonicalizeSchoolName(it) },
             commonWords = listOf("ELEMENTARY", "JUNIOR", "HIGH", "MIDDLE")
         )
-    }
-
-    /**
-     * If [ncesId] is not null, set the [terser]'s ORC-21 in accordance to APHL guidance using the [rawFacilityName]
-     * and [ncesId] value. If [ncesId] is null, just set ORC-21 with the [rawFacilityName].
-     */
-    internal fun setOrderingFacilityComponent(
-        terser: Terser,
-        rawFacilityName: String,
-        ncesId: String?
-    ) {
-        if (ncesId == null) {
-            // No NCES id, just truncate the name to required 50
-            terser.set(formPathSpec("ORC-21-1"), rawFacilityName.trim().take(50))
-            return
-        }
-
-        // Implement APHL guidance for ORC-21 when NCES is known
-        val facilityName = "${rawFacilityName.trim().take(32)}$NCES_EXTENSION$ncesId"
-        terser.set(formPathSpec("ORC-21-1"), facilityName)
-        terser.set(formPathSpec("ORC-21-6-1"), "NCES.IES")
-        terser.set(formPathSpec("ORC-21-6-2"), "2.16.840.1.113883.3.8589.4.1.119")
-        terser.set(formPathSpec("ORC-21-6-3"), "ISO")
-        terser.set(formPathSpec("ORC-21-7"), "XX")
-        terser.set(formPathSpec("ORC-21-10"), ncesId)
     }
 
     /**
