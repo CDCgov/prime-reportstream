@@ -3,6 +3,7 @@ import ReportResource from "../../resources/ReportResource";
 import Summary from "./Summary"
 import ReportDetails from './ReportDetails'
 import FacilitiesTable from './FacilitiesTable'
+import HipaaNotice from "../../components/HipaaNotice";
 
 function useQuery() {
     let query = window.location.search.slice(1);
@@ -29,6 +30,7 @@ export const Details = () => {
             <Summary report={report} />
             <ReportDetails report={report} />
             <FacilitiesTable report={report} />
+            <HipaaNotice />
         </>
     );
 };
