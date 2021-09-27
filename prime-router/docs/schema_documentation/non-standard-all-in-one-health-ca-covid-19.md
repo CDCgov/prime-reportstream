@@ -88,6 +88,20 @@ This field is ignored.
 
 ---
 
+**Name**: Specimen Site
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+This field is ignored.
+
+---
+
 **Name**: Test Name
 
 **Type**: TEXT
@@ -108,7 +122,7 @@ This field is ignored.
 
 **PII**: No
 
-**Format**: yyyymmdd
+**Format**: yyyyMMdd
 
 **Cardinality**: [0..1]
 
@@ -182,7 +196,7 @@ unique id to track the usage of the message
 
 **PII**: No
 
-**Format**: yyyymmdd
+**Format**: yyyyMMdd
 
 **Cardinality**: [0..1]
 
@@ -446,7 +460,7 @@ The patient's city
 
 **PII**: Yes
 
-**Format**: yyyymmdd
+**Format**: yyyyMMdd
 
 **Cardinality**: [0..1]
 
@@ -817,7 +831,7 @@ ID name of org that is sending this data to ReportStream.  Suitable for provenan
 
 **PII**: No
 
-**Format**: yyyymmdd
+**Format**: yyyyMMdd
 
 **HL7 Fields**
 
@@ -956,7 +970,7 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 
 **PII**: No
 
-**Format**: yyyymmdd
+**Format**: yyyyMMdd
 
 **Cardinality**: [0..1]
 
@@ -968,7 +982,7 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 
 **PII**: No
 
-**Format**: yyyymmdd
+**Format**: yyyyMMdd
 
 **Cardinality**: [0..1]
 
@@ -1113,7 +1127,7 @@ The phone number of the testing lab
 
 **PII**: No
 
-**Format**: yyyymmdd
+**Format**: yyyyMMdd
 
 **Cardinality**: [0..1]
 

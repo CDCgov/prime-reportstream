@@ -61,7 +61,7 @@ elements:
       csvFields: [{name: Patient Phone Number}]
 
     - name: patient_dob
-      csvFields: [{name: Patient Date Of Birth, format: "yyyymmdd"}]
+      csvFields: [{name: Patient Date Of Birth, format: "yyyyMMdd"}]
 
     - name: patient_gender
       type: CODE
@@ -90,22 +90,22 @@ elements:
 
 # Specimen/Order Info
     - name: specimen_collection_date_time
-      csvFields: [{name: Specimen Collection Date, format: "yyyymmdd"}]
+      csvFields: [{name: Specimen Collection Date, format: "yyyyMMdd"}]
 
     - name: order_test_date
-      csvFields: [{name: Date Test Ordered, format: "yyyymmdd"}]
+      csvFields: [{name: Date Test Ordered, format: "yyyyMMdd"}]
 
     - name: testing_lab_specimen_received_datetime
-      csvFields: [{name: Specimen Received Date, format: "yyyymmdd"}]
+      csvFields: [{name: Specimen Received Date, format: "yyyyMMdd"}]
 
     - name: test_result_date
-      csvFields: [{name: Result Date, format: "yyyymmdd"}]
+      csvFields: [{name: Result Date, format: "yyyyMMdd"}]
 
     - name: date_result_released
-      csvFields: [{name: Date Reported, format: "yyyymmdd"}]
+      csvFields: [{name: Date Reported, format: "yyyyMMdd"}]
 
     - name: test_result_report_date
-      csvFields: [{name: Date Reported, format: "yyyymmdd"}]
+      csvFields: [{name: Date Reported, format: "yyyyMMdd"}]
 
     - name: test_result
       type: TEXT
@@ -286,4 +286,9 @@ elements:
     - name: Notes_Ignore
       type: TEXT
       csvFields: [{name: Notes}]
+      documentation: This field is ignored.
+
+    - name: Specimen_Site_Ignore
+      type: TEXT
+      csvFields: [{name: Specimen Site}]
       documentation: This field is ignored.
