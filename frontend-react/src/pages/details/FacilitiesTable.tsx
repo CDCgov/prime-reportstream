@@ -2,7 +2,7 @@ import { useOktaAuth } from '@okta/okta-react';
 import { useState, useEffect } from 'react';
 import Spinner from '../../components/Spinner';
 import AuthResource from '../../resources/AuthResource';
-import { groupToOrg } from '../../webreceiver-utils';
+import { getOrganization } from '../../webreceiver-utils';
 
 interface Props {
     /* REQUIRED
@@ -48,19 +48,15 @@ function FacilitiesTable(props: Props) {
     }, [])
 
     const getFacilities = async () => {
-        const organization = groupToOrg(
-            authState!.accessToken?.claims.organization.find(o => !o.toLowerCase().includes('sender'))
-        );
+        const organization = getOrganization(authState)
         const headers = new Headers({
             'Authorization': `Bearer ${authState?.accessToken?.accessToken}`,
             'Organization': organization!
         });
-
         const response = await fetch(`${AuthResource.getBaseUrl()}/api/history/report/${reportId}/facilities`, {
             method: 'GET',
             headers: headers
         })
-
         const data = await response.json()
         setFacilicites(data)
     }
