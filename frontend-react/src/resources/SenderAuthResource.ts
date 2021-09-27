@@ -15,7 +15,6 @@ export default class SenderAuthResource extends AuthResource {
                 ...init.headers,
                 Authorization: `Bearer ${authState?.accessToken?.accessToken}`,
                 Organization: senderOrganization,
-                'Access-Control-Allow-Origin': '*',
                 'authentication-type': 'okta',
             },
         };

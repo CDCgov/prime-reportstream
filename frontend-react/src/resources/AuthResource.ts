@@ -25,7 +25,6 @@ export default class AuthResource extends Resource {
                 ...init.headers,
                 Authorization: `Bearer ${authState?.accessToken?.accessToken}`,
                 Organization: organization,
-                'Access-Control-Allow-Origin': '*',
                 'authentication-type': 'okta',
             },
         };
