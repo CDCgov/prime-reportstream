@@ -246,6 +246,7 @@
     - name: default
       organizationName: all-in-one-health-ca
       topic: covid-19
+      customerStatus: active
       schemaName: non-standard/all-in-one-health-ca-covid-19
       format: CSV
 

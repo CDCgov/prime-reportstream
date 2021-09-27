@@ -14,7 +14,7 @@ open class Sender(
     val organizationName: String,
     val format: Format,
     val topic: String,
-    val customerStatus: CustomerStatus,
+    val customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
     val schemaName: String,
     val keys: List<JwkSet>? = null // used to track server-to-server auths for this Sender via public keys sets
 ) {

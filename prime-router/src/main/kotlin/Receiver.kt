@@ -27,7 +27,7 @@ open class Receiver(
     val name: String,
     val organizationName: String,
     val topic: String,
-    val customerStatus: CustomerStatus,
+    val customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
     val translation: TranslatorConfiguration,
     val jurisdictionalFilter: List<String> = emptyList(),
     val qualityFilter: List<String> = emptyList(),
@@ -44,7 +44,7 @@ open class Receiver(
         name: String,
         organizationName: String,
         topic: String,
-        customerStatus: CustomerStatus,
+        customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
         schemaName: String,
         format: Report.Format = Report.Format.CSV
     ) : this(

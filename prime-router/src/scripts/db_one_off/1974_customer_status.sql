@@ -18,7 +18,7 @@ where type in ('SENDER','RECEIVER')
     'az-phd','pima-az-phd','ca-scc-phd','co-phd','tx-phd','fl-phd','gu-doh','vt-doh',
     'nd-doh','la-doh','oh-doh','nm-doh','mt-doh','tx-doh','nj-doh','mn-doh','ms-doh',
     'ca-dph','ma-phd','al-phd','pa-phd','pa-chester-phd','pa-montgomery-phd','pa-philadelphia-phd',
-    'md-doh','md-phd','hhsprotect','ignore','il-phd','wa-phd','wy-phd','ak-phd','nh-dphs');
+    'md-doh','md-phd','hhsprotect','ignore','il-phd','wa-phd','wy-phd','ak-phd','nh-dphs','all-in-one-health-ca');
 
 -- set testing senders and receivers to 'testing'
 update setting

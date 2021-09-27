@@ -316,7 +316,7 @@ class SenderAPI
     organizationName: String,
     format: Format,
     topic: String,
-    customerStatus: CustomerStatus,
+    customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
     schemaName: String,
     override var meta: SettingMetadata?,
 ) : Sender(
@@ -334,7 +334,7 @@ class ReceiverAPI
     name: String,
     organizationName: String,
     topic: String,
-    customerStatus: CustomerStatus,
+    customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
     translation: TranslatorConfiguration,
     jurisdictionalFilter: List<String> = emptyList(),
     qualityFilter: List<String> = emptyList(),
