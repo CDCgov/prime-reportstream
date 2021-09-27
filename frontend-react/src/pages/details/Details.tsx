@@ -29,7 +29,7 @@ export const Details = () => {
         <>
             <Summary report={report} />
             <ReportDetails report={report} />
-            <FacilitiesTable report={report} />
+            <FacilitiesTable reportId={report?.reportId} />
             <HipaaNotice />
         </>
     );
