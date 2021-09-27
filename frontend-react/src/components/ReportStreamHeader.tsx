@@ -23,11 +23,12 @@ import { PERMISSIONS } from "../resources/PermissionsResource";
 export const OrganizationDropDown = () => {
     try {
         const orgs = useResource(OrganizationResource.list(), {
-        sortBy: undefined,
+        sortBy: '',
     }).sort((a, b) => a.description.localeCompare(b.description));
 
         // @ts-ignore
         const setValue = (e: any) => {
+            // TODO: Shouldn't this do something? Fix.
         };
 
     return (

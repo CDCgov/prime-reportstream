@@ -16,7 +16,7 @@ const groupToOrg = (group: String | undefined): string => {
 
 const getOrganization = (authState: AuthState | null): string => {
     return groupToOrg(
-        authState!.accessToken?.claims.organization.find((o:string) => !o.toLowerCase().includes('sender'))
+        authState?.accessToken?.claims.organization.find((o:string) => !o.toLowerCase().includes('sender'))
     );
 }
 
@@ -24,15 +24,15 @@ const permissionCheck = (permission: string, authState: AuthState) => {
     if (permission === PERMISSIONS.RECEIVER) {
         return reportReceiver(authState);
     }
-    return authState!.accessToken?.claims.organization.find((o:string) => o.includes(permission));
+    return authState?.accessToken?.claims.organization.find((o:string) => o.includes(permission));
 };
 
 // A receiver is anyone with an organization that is not "DHSender", i.e.: "DHaz_phd"
-const reportReceiver = (authState: AuthState) => {return authState.accessToken?.claims.organization.find((o:string) => !o.includes(PERMISSIONS.SENDER))};
+const reportReceiver = (authState: AuthState) => {return authState?.accessToken?.claims.organization.find((o:string) => !o.includes(PERMISSIONS.SENDER))};
 
 const senderClient = (authState: AuthState | null) => {
     if(authState) {
-        const claimsSenderOrganization = authState!.accessToken?.claims.organization.find((o:string) => o.includes("DHSender"));
+        const claimsSenderOrganization = authState?.accessToken?.claims.organization.find((o:string) => o.includes("DHSender"));
         const claimsSenderOrganizationArray = claimsSenderOrganization.split('.');
 
         // should end up like "DHignore" from "DHSender_ignore.ignore-waters" from Okta
