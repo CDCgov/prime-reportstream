@@ -1547,10 +1547,12 @@ H|Hispanic or Latino
 H|Hispanic
 H|Latino
 H|Mex. Amer./Hispanic
+H|H
 N|Non Hispanic or Latino
 N|Non Hispanic
 N|Not Hispanic or Latino
 N|Not Hispanic
+N|N
 U|Unknown
 U|U
 U|UNK
