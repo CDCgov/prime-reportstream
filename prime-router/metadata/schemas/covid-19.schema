@@ -467,6 +467,10 @@ elements:
     hl7Field: ORC-24-5
     documentation: The zip code of the provider
 
+  - name: organization_name
+    type: TEXT
+    documentation: The SimpleReport concept of organization. It refers to organization for the ordering & performing facility
+
   - name: patient_age
     type: NUMBER
     pii: false
