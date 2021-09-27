@@ -1,6 +1,8 @@
 import { useOktaAuth } from '@okta/okta-react';
+import { IOktaContext } from '@okta/okta-react/bundles/types/OktaContext';
 import { useResource } from '@rest-hooks/core';
 import { useState, useEffect } from 'react';
+import Spinner from '../../components/Spinner';
 import AuthResource from '../../resources/AuthResource';
 import FacilityResource from '../../resources/FacilityResource';
 import { groupToOrg } from '../../webreceiver-utils';
@@ -11,6 +13,16 @@ interface Props {
     to display a row per facility on the FaclitiesTable. */
     reportId: string | undefined
 }
+
+type Facility = {
+    organization: string | undefined
+    facility: string | undefined
+    location: string | undefined
+    CLIA: string | undefined
+    positive: string | undefined
+    total: string | undefined
+}
+
 
 function FacilitiesTable(props: Props) {
     const { reportId } = props;
@@ -27,21 +39,38 @@ function FacilitiesTable(props: Props) {
        and calls with the rest-hooks library. 
        >>> Kevin Haube, Sep 24, 2021 */
 
-    const [facilities, setFacilicites] = useState([]);
-
+    const [facilities, setFacilicites] = useState<Facility[]>([]);
     const { authState } = useOktaAuth();
-    const organization = groupToOrg(
-        authState!.accessToken?.claims.organization.find(o => !o.toLowerCase().includes('sender'))
-    );
 
-    const headers = new Headers({
-        'Authorization': `Bearer ${authState?.accessToken?.accessToken}`,
-        'Organization': organization!
-    });
     useEffect(() => {
-        fetch(`${AuthResource.getBaseUrl()}/api/history/report/${reportId}/facilities`, { headers: headers })
-            .then(res => console.log(res))
+        getFacilities()
     }, [])
+
+    const getFacilities = async () => {
+        const organization = groupToOrg(
+            authState!.accessToken?.claims.organization.find(o => !o.toLowerCase().includes('sender'))
+        );
+        const headers = new Headers({
+            'Authorization': `Bearer ${authState?.accessToken?.accessToken}`,
+            'Organization': organization!
+        });
+
+        const response = await fetch(`${AuthResource.getBaseUrl()}/api/history/report/${reportId}/facilities`, {
+            method: 'GET',
+            headers: headers
+        })
+
+        const data = await response.json()
+        setFacilicites(data)
+    }
+
+    if (facilities.length === 0) {
+        return (
+            <Spinner />
+        )
+    }
+
+    /* END of temporary fix code */
 
     return (
         <section id="facilities" className="grid-container margin-bottom-5">
@@ -60,7 +89,7 @@ function FacilitiesTable(props: Props) {
                         <th scope="col">Total positive</th>
                     </tr>
                 </thead>
-                {/* <tbody id="tBodyFac" className="font-mono-2xs">
+                <tbody id="tBodyFac" className="font-mono-2xs">
                     {facilities.map((facility) => (
                         <tr key={facility.CLIA}>
                             <td>{facility.facility}</td>
@@ -75,7 +104,7 @@ function FacilitiesTable(props: Props) {
                             <td></td>
                         </tr>
                     ))}
-                </tbody> */}
+                </tbody>
             </table>
         </section>
     );
