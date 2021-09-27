@@ -36,7 +36,6 @@ BEGIN
             FROM item_lineage il JOIN tmp ON (
                         tmp.parent_report_id = il.child_report_id
                     AND tmp.parent_index = il.child_index
-                    AND tmp.tracking_id = il.tracking_id
                 )
         )
         SELECT
@@ -51,7 +50,6 @@ BEGIN
                 JOIN covid_result_metadata a
                      ON t.parent_report_id = a.report_id
                             AND t.parent_index = a.report_index
-                            AND t.tracking_id = a.message_id
         GROUP BY
             a.testing_lab_name,
             a.testing_lab_clia,
