@@ -14,6 +14,12 @@ const groupToOrg = (group: String | undefined): string => {
         : "";
 };
 
+const getOrganization = (authState) => {
+    return groupToOrg(
+        authState!.accessToken?.claims.organization.find(o => !o.toLowerCase().includes('sender'))
+    );
+}
+
 const permissionCheck = (permission: String, authState: AuthState) => {
     if (permission === PERMISSIONS.RECEIVER) {
         return reportReceiver(authState);
@@ -43,4 +49,4 @@ const senderClient = (authState: AuthState | null) => {
     return '';
 }
 
-export { groupToOrg, permissionCheck, reportReceiver, senderClient };
+export { groupToOrg, getOrganization, permissionCheck, reportReceiver, senderClient };

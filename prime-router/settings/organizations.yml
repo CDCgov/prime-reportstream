@@ -224,6 +224,16 @@
       schemaName: experity/cuc-al-covid-19
       format: CSV
 
+- name: all-in-one-health-ca
+  description: All-In-One Health CSV lab report schema, California
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: all-in-one-health-ca
+      topic: covid-19
+      schemaName: non-standard/all-in-one-health-ca-covid-19
+      format: CSV
+
 - name: az-phd
   description: Arizona PHD
   jurisdiction: STATE
@@ -1158,7 +1168,7 @@
         credentialName: DEFAULT-SFTP
       timing:
         operation: MERGE
-        numberPerDay: 1440
+        numberPerDay: 360   # Useful when you need a bit more of: This thing all things devours: Birds, beasts, trees, flowers
         initialTime: 00:00
         timeZone: EASTERN
 
@@ -1536,7 +1546,7 @@
       translation:
         type: HL7
         useBatchHeaders: true
-    - name: HL7_NULL
+    - name: HL7_NULL     # Null Transport.
       organizationName: ignore
       topic: covid-19
       jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, HL7_NULL)" ]
@@ -1547,7 +1557,7 @@
       translation:
         type: CUSTOM
         schemaName: tx/tx-covid-19
-        format: HL7
+        format: HL7_BATCH
     - name: BLOBSTORE
       organizationName: ignore
       topic: covid-19
@@ -2459,7 +2469,7 @@
         receivingFacilityOID: 1.3.6.1.4.1.38630.2.1.1.19
         suppressQstForAoe: true
         phoneNumberFormatting: ONLY_DIGITS_IN_COMPONENT_ONE
-        useNCESFacilityName: true
+        useOrderingFacilityName: ORGANIZATION_NAME
       timing:
         operation: MERGE
         numberPerDay: 720 # Every other minute staggered with negative results
@@ -2492,7 +2502,7 @@
         receivingFacilityOID: 1.3.6.1.4.1.38630.2.1.1.19
         suppressQstForAoe: true
         phoneNumberFormatting: ONLY_DIGITS_IN_COMPONENT_ONE
-        useNCESFacilityName: true
+        useOrderingFacilityName: ORGANIZATION_NAME
       timing:
         operation: MERGE
         numberPerDay: 720 # Every other minute

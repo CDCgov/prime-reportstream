@@ -155,7 +155,7 @@ class DataCompareTest : CoolTest() {
                         waitABit(25, environment)
                         var totalItemCount = 0
                         outputList.forEach { totalItemCount += it.expectedCount }
-                        passed = passed and examineLineageResults(reportId, receivers, totalItemCount)
+                        passed = passed and pollForLineageResults(reportId, receivers, totalItemCount)
 
                         // Compare the data
                         outputList.forEach { output ->
