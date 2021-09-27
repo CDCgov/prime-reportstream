@@ -12,7 +12,7 @@ function usage() {
     echo "By default, this script will only check files that you added or changed (staged and unstaged)."
     echo ""
     echo "Options:"
-    echo "    --all|-a     Scans all files (shorthand: lower-case f)"
+    echo "    --all|-a     Scans all files (shorthand: lower-case a)"
     echo "    --format|-F   Fix violations (shorthand: UPPER-case F)"
     echo "    --help|-h     Shows this help and exits successfully"
     echo ""
