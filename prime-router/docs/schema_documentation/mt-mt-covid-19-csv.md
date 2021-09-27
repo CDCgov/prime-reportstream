@@ -448,6 +448,10 @@ The zip code of the provider
 
 **Cardinality**: [0..1]
 
+**Documentation**:
+
+The SimpleReport concept of organization. It refers to organization for the ordering & performing facility
+
 ---
 
 **Name**: Patient_city
