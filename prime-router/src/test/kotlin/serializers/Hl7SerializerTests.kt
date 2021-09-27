@@ -129,7 +129,7 @@ NTE|1|L|This is a final comment|RE"""
             every { it.reportingFacilityId }.returns(null)
             every { it.reportingFacilityIdType }.returns(null)
             every { it.cliaForOutOfStateTesting }.returns("1234FAKECLIA")
-            every { it.useNCESFacilityName }.returns(false)
+            every { it.useOrderingFacilityName }.returns(Hl7Configuration.OrderingFacilityName.STANDARD)
         }
         val receiver = mockkClass(Receiver::class).also {
             every { it.translation }.returns(hl7Config)
@@ -736,23 +736,73 @@ NTE|1|L|This is a final comment|RE"""
     }
 
     @Test
-    fun `test setOrderingFacilityComponent no NCES`() {
+    fun `test setOrderingFacilityComponent`() {
         val mockTerser = mockk<Terser>()
         every { mockTerser.set(any(), any()) } returns Unit
         val facilityName = "Very Long Facility Name That Should Truncate After Here"
-        serializer.setOrderingFacilityComponent(mockTerser, facilityName, null)
+        // Get a bunch of k12 rows
+        val testCSV = File("./src/test/unit_test_files/pdi-covid-19-wa-k12.csv").inputStream()
+        val testReport = csvSerializer
+            .readExternal("primedatainput/pdi-covid-19", testCSV, TestSource)
+            .report ?: fail()
+
+        // Test with STANDARD
+        serializer.setOrderingFacilityComponent(
+            mockTerser,
+            facilityName,
+            useOrderingFacilityName = Hl7Configuration.OrderingFacilityName.STANDARD,
+            testReport,
+            row = 0
+        )
+
         verify {
             mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-21-1", facilityName.take(50))
         }
     }
 
     @Test
-    fun `test setOrderingFacilityComponent with NCES`() {
+    fun `test setOrderingFacilityComponent with Organization Name`() {
+        val mockTerser = mockk<Terser>()
+        every { mockTerser.set(any(), any()) } returns Unit
+        val facilityName = "Very Long Facility Name That Should Truncate After Here"
+        // Get a bunch of k12 rows
+        val testCSV = File("./src/test/unit_test_files/pdi-covid-19-wa-k12.csv").inputStream()
+        val testReport = csvSerializer
+            .readExternal("primedatainput/pdi-covid-19", testCSV, TestSource)
+            .report ?: fail()
+
+        // Test with STANDARD
+        serializer.setOrderingFacilityComponent(
+            mockTerser,
+            facilityName,
+            useOrderingFacilityName = Hl7Configuration.OrderingFacilityName.ORGANIZATION_NAME,
+            testReport,
+            row = 0
+        )
+
+        verify {
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-21-1", "Spokane School District")
+        }
+    }
+
+    @Test
+    fun `test setPlainOrderingFacility`() {
+        val mockTerser = mockk<Terser>()
+        every { mockTerser.set(any(), any()) } returns Unit
+        val facilityName = "Very Long Facility Name That Should Truncate After Here"
+        serializer.setPlainOrderingFacility(mockTerser, facilityName)
+        verify {
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-21-1", facilityName.take(50))
+        }
+    }
+
+    @Test
+    fun `test setNCESOrderingFacility`() {
         val mockTerser = mockk<Terser>()
         every { mockTerser.set(any(), any()) } returns Unit
         val facilityName = "Very Long Facility Name That Should Truncate After Here"
         val ncesId = "A00000009"
-        serializer.setOrderingFacilityComponent(mockTerser, facilityName, ncesId)
+        serializer.setNCESOrderingFacility(mockTerser, facilityName, ncesId)
         verify {
             mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-21-1", "${facilityName.take(32)}_NCES_$ncesId")
             mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-21-6-1", "NCES.IES")
