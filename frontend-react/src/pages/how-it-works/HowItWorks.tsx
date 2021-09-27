@@ -8,9 +8,9 @@ import { WebReceiverGuide } from "./WebReceiverGuide";
 import { SystemsAndSettings } from "./SystemsAndSettings";
 
 export const HowItWorks = () => {
-    let { path, url } = useRouteMatch();
+    const { path, url } = useRouteMatch();
 
-    var itemsMenu = [
+    const itemsMenu = [
         <NavLink
             to={`${url}/getting-started`}
             activeClassName="usa-current"

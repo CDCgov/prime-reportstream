@@ -3,11 +3,13 @@ import OktaSignInWidget from "../components/OktaSignInWidget";
 import { useOktaAuth } from "@okta/okta-react";
 import { groupToOrg } from "../webreceiver-utils";
 import { Alert } from "@trussworks/react-uswds";
+import {Tokens} from "@okta/okta-auth-js";
+import {oktaSignInConfig} from "../oktaConfig";
 
-export const Login = ({ config }) => {
+export const Login = () => {
     const { oktaAuth, authState } = useOktaAuth();
 
-    const onSuccess = (tokens) => {
+    const onSuccess = (tokens:Tokens) => {
         oktaAuth.handleLoginRedirect(tokens);
         console.log(tokens);
         let organization = tokens?.accessToken?.claims?.organization[0];
@@ -16,7 +18,7 @@ export const Login = ({ config }) => {
         console.log(`g2o = ${groupToOrg(organization)}`);
     };
 
-    const onError = (err) => {
+    const onError = (err: Error) => {
         console.log("error logging in", err);
     };
 
@@ -34,7 +36,7 @@ export const Login = ({ config }) => {
         <>
             <MonitoringAlert />
             <OktaSignInWidget
-                config={config}
+                config={oktaSignInConfig}
                 onSuccess={onSuccess}
                 onError={onError}
             />

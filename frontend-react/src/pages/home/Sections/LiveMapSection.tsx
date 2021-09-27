@@ -1,4 +1,5 @@
 import { SectionProp } from "../HomeProps";
+// @ts-ignore // TODO: find typedef for cdc map
 import CdcMap from "@cdc/map";
 import live from "../../../content/live.json";
 

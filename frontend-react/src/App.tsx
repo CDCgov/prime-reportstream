@@ -9,7 +9,7 @@ import { TermsOfService } from "./pages/TermsOfService";
 import { GovBanner } from "@trussworks/react-uswds";
 import { ReportStreamHeader } from "./components/ReportStreamHeader";
 
-import { oktaSignInConfig, oktaAuthConfig } from "./oktaConfig";
+import { oktaAuthConfig } from "./oktaConfig";
 import { Route, useHistory, Switch } from "react-router-dom";
 import { OktaAuth, toRelativeUrl } from "@okta/okta-auth-js";
 import { Security, SecureRoute, LoginCallback } from "@okta/okta-react";
@@ -32,7 +32,7 @@ const App = () => {
         history.push("/login");
     };
 
-    const restoreOriginalUri = async (_oktaAuth, originalUri) => {
+    const restoreOriginalUri = async (_oktaAuth: any, originalUri: string) => {
         // check if the user would have any data to receive via their organizations from the okta claim
         // direct them to the /upload page if they do not have an organization that receives data
         const authState = oktaAuth.authStateManager._authState;
@@ -63,7 +63,7 @@ const App = () => {
                         <Route path="/about" component={About} />
                         <Route path="/how-it-works" component={HowItWorks} />
                         <Route path="/terms-of-service" component={TermsOfService} />
-                        <Route path="/login" render={() => (<Login config={oktaSignInConfig} />)} />
+                        <Route path="/login" render={() => (<Login />)} />
                         <Route path="/login/callback" component={LoginCallback} />
                         <AuthorizedRoute path='/daily-data' authorize={PERMISSIONS.RECEIVER} component={Daily} />
                         <AuthorizedRoute path='/upload' authorize={PERMISSIONS.SENDER} component={Upload} />

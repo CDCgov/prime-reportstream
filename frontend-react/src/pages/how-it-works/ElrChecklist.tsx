@@ -14,9 +14,7 @@ export const ELRChecklist = () => {
 
                 <a href={site.forms.intakeElr.url} target="_blank" rel="noreferrer" className="usa-button margin-bottom-2 tablet:margin-bottom-0">ELR onboarding form</a>
                 <a href={
-                    "mailto:" +
-                    site.orgs.RS.email +
-                    "?subject=Getting started with ReportStream"
+                    `mailto:${site.orgs.RS.email}?subject=Getting started with ReportStream`
                 } className="usa-button usa-button--outline">Contact us</a>
 
                 <hr className="margin-y-6" />
@@ -122,9 +120,7 @@ export const ELRChecklist = () => {
                 <p>Have questions or aren’t quite ready for our ELR connection? Send us an email and we’ll help you figure out next steps.</p>
 
                 <p><a href={
-                    "mailto:" +
-                    site.orgs.RS.email +
-                    "?subject=Getting started with ReportStream"
+                    `mailto:site.orgs.RS.email?subject=Getting started with ReportStream`
                 } className="usa-button usa-button--outline">Get in touch</a></p>
 
             </section>

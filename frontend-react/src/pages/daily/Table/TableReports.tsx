@@ -1,41 +1,41 @@
+import { useState } from 'react';
+import { useResource } from 'rest-hooks';
 import { getUniqueReceiverSvc } from '../../../controllers/ReportController';
 import ReportResource from '../../../resources/ReportResource';
 import TableButtonGroup from './TableButtonGroup';
 import TableReportsData from './TableReportsData';
-import { useResource } from 'rest-hooks';
-import { useState } from 'react'
 
-/* 
+/*
     This is the main exported component from this file. It provides container styling,
     table headers, and applies the <TableData> component to the table that is created in this
     component.
 */
-function TableReports({ sortBy }: { sortBy?: string }) {
-    const reports: ReportResource[] = useResource(ReportResource.list(), { sortBy });
-    const receiverSVCs: string[] = Array.from(getUniqueReceiverSvc(reports));
-    const [chosen, setChosen] = useState(receiverSVCs[0])
+function TableReports() {
+  const reports: ReportResource[] = useResource(ReportResource.list(), {});
+  const receiverSVCs: string[] = Array.from(getUniqueReceiverSvc(reports));
+  const [chosen, setChosen] = useState(receiverSVCs[0]);
 
-    /* This syncs the chosen state from <TableButtonGroup> with the chosen state here */
-    const handleCallback = (chosen) => {
-        setChosen(chosen)
-    }
+  /* This syncs the chosen state from <TableButtonGroup> with the chosen state here */
+  const handleCallback = (newchosen: any) => {
+    setChosen(newchosen);
+  };
 
-    return (
+  return (
         <section className="grid-container margin-top-5">
             <div className="grid-col-12">
                 <h2>Test results</h2>
                 {
                     /* Button group only shows when there is more than a single sender. */
 
-                    /*  
-                        TODO: This may need to be remedied not to show "sendingOrg" as a unique sender
-                        as most data input thus far does not have a proper sendingOrg property.
+                    /*
+                        TODO: This may need to be remedied not to show "sendingOrg"
+                         as a unique sender as most data input thus far
+                         does not have a proper sendingOrg property.
                         >> 09/09/2021 (Kevin Haube)
                     */
-                    receiverSVCs.length > 1 ?
-                        <TableButtonGroup senders={receiverSVCs} chosenCallback={handleCallback} />
-                        :
-                        null
+                    receiverSVCs.length > 1
+                      ? <TableButtonGroup senders={receiverSVCs} chosenCallback={handleCallback} />
+                      : null
                 }
                 <table
                     className="usa-table usa-table--borderless prime-table"
@@ -50,17 +50,17 @@ function TableReports({ sortBy }: { sortBy?: string }) {
                             <th scope="col">File</th>
                         </tr>
                     </thead>
-                    <TableReportsData reports={reports.filter(report => report.receivingOrgSvc === chosen)} />
+                    <TableReportsData
+                      reports={reports.filter((report) => report.receivingOrgSvc === chosen)} />
                 </table>
                 {
-                    reports.filter(report => report.receivingOrgSvc === chosen).length === 0 ?
-                        <p>No results</p>
-                        :
-                        null
+                    reports.filter((report) => report.receivingOrgSvc === chosen).length === 0
+                      ? <p>No results</p>
+                      : <></>
                 }
             </div>
         </section>
-    );
+  );
 }
 
-export default TableReports
+export default TableReports;

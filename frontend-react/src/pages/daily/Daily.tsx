@@ -1,11 +1,13 @@
+
 import HipaaNotice from "../../components/HipaaNotice";
 import TableReports from "./Table/TableReports";
 import { Suspense } from "react";
 import Spinner from "../../components/Spinner";
 import { useOrgName } from "../../controllers/OrganizationController";
+import { NetworkErrorBoundary } from "rest-hooks";
 
 const OrgName = () => {
-    const orgName: string = useOrgName();
+  const orgName: string = useOrgName();
     return (
         <span id="orgName" className="text-normal text-base">
             {orgName}
@@ -16,7 +18,11 @@ const OrgName = () => {
 function Daily() {
 
     return (
-        <>
+        <NetworkErrorBoundary
+            fallbackComponent={() => {
+              return <div>Network Error</div>;
+            }}
+        >
             <section className="grid-container margin-bottom-5">
                 <Suspense fallback={<span className="text-normal text-base">Loading Info...</span>}>
                     <h3 className="margin-bottom-0">
@@ -31,8 +37,8 @@ function Daily() {
                 <TableReports />
             </Suspense>
             <HipaaNotice />
-        </>
+        </NetworkErrorBoundary>
     );
-};
+}
 
 export default Daily

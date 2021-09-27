@@ -1,5 +1,6 @@
 import live from "../../content/live.json";
 import site from "../../content/site.json";
+// @ts-ignore // TODO: typechecking: investigate getting
 import CdcMap from "@cdc/map";
 
 export const WhereWereLive = () => {

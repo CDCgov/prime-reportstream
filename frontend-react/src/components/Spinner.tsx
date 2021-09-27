@@ -1,4 +1,5 @@
-import { SpinnerCircular } from 'spinners-react'
+import React from 'react';
+import { SpinnerCircular } from 'spinners-react';
 
 interface SpinnerProps {
     /* Will this spinner be a full page spinner? Marking this true will center the

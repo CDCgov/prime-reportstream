@@ -13,7 +13,7 @@ interface Props {
     chosenCallback: Function
 }
 
-/* 
+/*
     These are the buttons used to swap between various senders of data
     to see only reports sent by individual senders populated on their
     list
@@ -23,7 +23,7 @@ function TableButtonGroup(props: Props) {
     const [chosen, setChosen] = useState(receiverSVCs[0])
 
     /* This sets both the <TableButtonGroup> AND <TableReports> chosen state variable */
-    const handleClick = (id) => {
+    const handleClick = (id:string) => {
         setChosen(id)
         props.chosenCallback(id)
     }

@@ -1,3 +1,4 @@
+/* eslint-disable */ // TODO: this file doesn't pass linter. fix
 import {
     Header,
     Title,
@@ -19,13 +20,15 @@ import { PERMISSIONS } from "../resources/PermissionsResource";
  *
  * @returns OrganizationDropDown
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const OrganizationDropDown = () => {
-    let orgs = useResource(OrganizationResource.list(), {
+export const OrganizationDropDown = () => {
+    try {
+        const orgs = useResource(OrganizationResource.list(), {
         sortBy: undefined,
     }).sort((a, b) => a.description.localeCompare(b.description));
 
-    let setValue = (e: any) => { };
+        // @ts-ignore
+        const setValue = (e: any) => {
+        };
 
     return (
         <Dropdown
@@ -42,6 +45,10 @@ const OrganizationDropDown = () => {
             ))}
         </Dropdown>
     );
+    } catch (e:unknown) {
+        console.error(e);
+        return <></>;   // todo: add the agency name.
+    }
 };
 
 /**

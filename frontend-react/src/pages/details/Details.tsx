@@ -5,25 +5,23 @@ import ReportDetails from './ReportDetails'
 import FacilitiesTable from './FacilitiesTable'
 import HipaaNotice from "../../components/HipaaNotice";
 
-function useQuery() {
-    let query = window.location.search.slice(1);
-    const queryMap = {};
-    Object.assign(
-        queryMap,
-        ...query
-            .split(",")
-            .map((s) => s.split("="))
-            .map(([k, v]) => ({ [k]: v }))
-    );
-    return queryMap;
+function urlParseParams(): { [key: string]: string } {
+  const query = window.location.search.slice(1);
+  const queryMap = {};
+  Object.assign(
+    queryMap,
+    ...query
+      .split(',')
+      .map((s) => s.split('='))
+      .map(([k, v]) => ({ [k]: v })),
+  );
+  return queryMap;
 }
 
 export const Details = () => {
-    let queryMap = useQuery();
-    let reportId = queryMap["reportId"];
-    let report = useResource(ReportResource.list(), { sortBy: undefined }).find(
-        (r) => r.reportId === reportId
-    );
+  const queryMap = urlParseParams();
+  const reportId = queryMap?.reportId || '';
+  const report = useResource(ReportResource.list(), { sortBy: '' }).find((r) => (r.reportId === reportId));
 
     return (
         <>

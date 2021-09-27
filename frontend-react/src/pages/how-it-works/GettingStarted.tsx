@@ -19,9 +19,7 @@ export const GettingStarted = () => {
                 </p>
                 <a
                     href={
-                        "mailto:" +
-                        site.orgs.RS.email +
-                        "?subject=Getting started with ReportStream"
+                        `mailto:${site.orgs.RS.email}?subject=Getting started with ReportStream`
                     }
                     className="usa-button usa-button--outline"
                 >
@@ -60,9 +58,7 @@ export const GettingStarted = () => {
                         <p className="margin-top-05">
                             <a
                                 href={
-                                    "mailto:" +
-                                    site.orgs.RS.email +
-                                    "?subject=Getting started with ReportStream"
+                                    `mailto:${site.orgs.RS.email}?subject=Getting started with ReportStream`
                                 }
                                 className="margin-right-1 usa-link"
                             >
@@ -181,9 +177,7 @@ export const GettingStarted = () => {
                 <p>
                     <a
                         href={
-                            "mailto:" +
-                            site.orgs.RS.email +
-                            "?subject=Getting started with ReportStream"
+                            `mailto:${site.orgs.RS.email}?subject=Getting started with ReportStream`
                         }
                         className="usa-button usa-button--outline"
                     >

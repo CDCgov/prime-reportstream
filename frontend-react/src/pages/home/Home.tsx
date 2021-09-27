@@ -4,7 +4,7 @@ import Section from "./Sections/Section";
 import Feature from "./Features/Feature";
 
 /* INFO
-   to change any of the content rendered by Home.tsx, Ctrl+click (shortcut for VScode) on the content import above 
+   to change any of the content rendered by Home.tsx, Ctrl+click (shortcut for VScode) on the content import above
    to be taken to content.json. There you may make changes within each object held in the section and freeSecure arrays. No
    content is hard-coded in this file. */
 export const Home = () => {
@@ -24,9 +24,9 @@ export const Home = () => {
                             </div>
                             <div className="grid-row grid-gap margin-bottom-4 ">
                                 {section.features?.map((feature) => {
-                                    return (
-                                        <Feature
-                                            key={feature.title}
+                                  return (
+                                        <Feature // @ts-ignore (.title may not exist)
+                                            key={feature?.title || ''}
                                             section={section}
                                             feature={feature}
                                         />
