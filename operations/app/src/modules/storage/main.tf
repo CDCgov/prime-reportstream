@@ -74,53 +74,53 @@ module "storageaccount_queue_private_endpoint" {
   create_dns_record  = true
 }
 
-//module "storage_blob_private_endpoint" {
-//  source             = "../common/private_endpoint"
-//  resource_id        = azurerm_storage_account.storage_account.id
-//  name               = azurerm_storage_account.storage_account.name
-//  type               = "storage_account_blob"
-//  resource_group     = var.resource_group
-//  location           = var.location
-//  endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet.id
-//  create_dns_record  = false
-//
-//  depends_on = [
-//    # Prevent unexpected order-of-operations by placing a hard dependency against the current private endpoint
-//    module.storageaccount_blob_private_endpoint
-//  ]
-//}
+module "storage_blob_private_endpoint" {
+  source             = "../common/private_endpoint"
+  resource_id        = azurerm_storage_account.storage_account.id
+  name               = azurerm_storage_account.storage_account.name
+  type               = "storage_account_blob"
+  resource_group     = var.resource_group
+  location           = var.location
+  endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet.id
+  create_dns_record  = false
 
-//module "storage_file_private_endpoint" {
-//  source             = "../common/private_endpoint"
-//  resource_id        = azurerm_storage_account.storage_account.id
-//  name               = azurerm_storage_account.storage_account.name
-//  type               = "storage_account_file"
-//  resource_group     = var.resource_group
-//  location           = var.location
-//  endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet.id
-//  create_dns_record  = false
-//
-//  depends_on = [
-//    # Prevent unexpected order-of-operations by placing a hard dependency against the current private endpoint
-//    module.storageaccount_file_private_endpoint
-//  ]
-//}
+  depends_on = [
+    # Prevent unexpected order-of-operations by placing a hard dependency against the current private endpoint
+    module.storageaccount_blob_private_endpoint
+  ]
+}
 
-//module "storage_queue_private_endpoint" {
-//  source             = "../common/private_endpoint"
-//  resource_id        = azurerm_storage_account.storage_account.id
-//  name               = azurerm_storage_account.storage_account.name
-//  type               = "storage_account_queue"
-//  resource_group     = var.resource_group
-//  location           = var.location
-//  endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet.id
-//  create_dns_record  = false
-//
-//  depends_on = [
-//    # Prevent unexpected order-of-operations by placing a hard dependency against the current private endpoint
-//    module.storageaccount_queue_private_endpoint
-//  ]
-//}
+module "storage_file_private_endpoint" {
+  source             = "../common/private_endpoint"
+  resource_id        = azurerm_storage_account.storage_account.id
+  name               = azurerm_storage_account.storage_account.name
+  type               = "storage_account_file"
+  resource_group     = var.resource_group
+  location           = var.location
+  endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet.id
+  create_dns_record  = false
+
+  depends_on = [
+    # Prevent unexpected order-of-operations by placing a hard dependency against the current private endpoint
+    module.storageaccount_file_private_endpoint
+  ]
+}
+
+module "storage_queue_private_endpoint" {
+  source             = "../common/private_endpoint"
+  resource_id        = azurerm_storage_account.storage_account.id
+  name               = azurerm_storage_account.storage_account.name
+  type               = "storage_account_queue"
+  resource_group     = var.resource_group
+  location           = var.location
+  endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet.id
+  create_dns_record  = false
+
+  depends_on = [
+    # Prevent unexpected order-of-operations by placing a hard dependency against the current private endpoint
+    module.storageaccount_queue_private_endpoint
+  ]
+}
 
 # Point-in-time restore, soft delete, versioning, and change feed were
 # enabled in the portal as terraform does not currently support this.
@@ -284,21 +284,21 @@ module "storageaccountpartner_blob_private_endpoint" {
   create_dns_record  = true
 }
 
-//module "storage_partner_blob_private_endpoint" {
-//  source             = "../common/private_endpoint"
-//  resource_id        = azurerm_storage_account.storage_partner.id
-//  name               = azurerm_storage_account.storage_partner.name
-//  type               = "storage_account_blob"
-//  resource_group     = var.resource_group
-//  location           = var.location
-//  endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet.id
-//  create_dns_record  = false
-//
-//  depends_on = [
-//    # Prevent unexpected order-of-operations by placing a hard dependency against the current private endpoint
-//    module.storageaccountpartner_blob_private_endpoint
-//  ]
-//}
+module "storage_partner_blob_private_endpoint" {
+  source             = "../common/private_endpoint"
+  resource_id        = azurerm_storage_account.storage_partner.id
+  name               = azurerm_storage_account.storage_partner.name
+  type               = "storage_account_blob"
+  resource_group     = var.resource_group
+  location           = var.location
+  endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet.id
+  create_dns_record  = false
+
+  depends_on = [
+    # Prevent unexpected order-of-operations by placing a hard dependency against the current private endpoint
+    module.storageaccountpartner_blob_private_endpoint
+  ]
+}
 
 resource "azurerm_storage_container" "storage_container_hhsprotect" {
   name                 = "hhsprotect"

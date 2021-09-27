@@ -27,6 +27,13 @@ resource "azurerm_function_app_slot" "candidate" {
     }
 
     ip_restriction {
+      action                    = "Allow"
+      name                      = "AllowVNetEastTraffic"
+      priority                  = 100
+      virtual_network_subnet_id = data.azurerm_subnet.public_subnet.id
+    }
+
+    ip_restriction {
       action      = "Allow"
       name        = "AllowFrontDoorTraffic"
       priority    = 110
@@ -97,5 +104,5 @@ resource "azurerm_key_vault_access_policy" "slot_candidate_client_config_access_
 resource "azurerm_app_service_slot_virtual_network_swift_connection" "candidate_slot_vnet_integration" {
   slot_name      = azurerm_function_app_slot.candidate.name
   app_service_id = azurerm_function_app.function_app.id
-  subnet_id      = var.environment == "dev" ? data.azurerm_subnet.public_subnet.id : data.azurerm_subnet.public.id
+  subnet_id      = var.environment != "prod" ? data.azurerm_subnet.public_subnet.id : data.azurerm_subnet.public.id
 }
