@@ -3,6 +3,7 @@ import TableReports from "./Table/TableReports";
 import { Suspense } from "react";
 import Spinner from "../../components/Spinner";
 import { useOrgName } from "../../controllers/OrganizationController";
+import { Helmet } from "react-helmet";
 
 const OrgName = () => {
     const orgName: string = useOrgName();
@@ -17,6 +18,9 @@ function Daily() {
 
     return (
         <>
+            <Helmet>
+                <title>Daily data | {process.env.REACT_APP_TITLE}</title>
+            </Helmet>
             <section className="grid-container margin-bottom-5">
                 <Suspense fallback={<span className="text-normal text-base">Loading Info...</span>}>
                     <h3 className="margin-bottom-0">

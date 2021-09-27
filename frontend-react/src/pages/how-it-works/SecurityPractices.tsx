@@ -1,8 +1,12 @@
 import { Link } from "react-router-dom";
+import { Helmet } from "react-helmet";
 
 export const SecurityPractices = () => {
     return (
         <>
+            <Helmet>
+                <title>Security practices | How it works | {process.env.REACT_APP_TITLE}</title>
+            </Helmet>
             <section id="anchor-top">
                 <h1 className="margin-top-0">
                     Security practices
