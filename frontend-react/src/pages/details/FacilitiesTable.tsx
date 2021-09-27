@@ -1,10 +1,7 @@
 import { useOktaAuth } from '@okta/okta-react';
-import { IOktaContext } from '@okta/okta-react/bundles/types/OktaContext';
-import { useResource } from '@rest-hooks/core';
 import { useState, useEffect } from 'react';
 import Spinner from '../../components/Spinner';
 import AuthResource from '../../resources/AuthResource';
-import FacilityResource from '../../resources/FacilityResource';
 import { groupToOrg } from '../../webreceiver-utils';
 
 interface Props {
@@ -105,8 +102,8 @@ function FacilitiesTable(props: Props) {
                         </tr>
                     ))}
                 </tbody>
-            </table>
-        </section>
+            </table >
+        </section >
     );
 }
 
