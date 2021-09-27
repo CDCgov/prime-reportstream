@@ -68,8 +68,8 @@ class RedoxTransport() : ITransport, SecretManagement {
                 val itemId = "${header.reportFile.reportId}-$index"
                 val sendResult = when {
                     (retryItems == null) ||
-                        RetryToken.isAllItems(retryItems)
-                        || retryItems.contains(index.toString())
+                        RetryToken.isAllItems(retryItems) ||
+                        retryItems.contains(index.toString())
                     -> {
                         attemptedCount++
                         try {

@@ -114,7 +114,24 @@ module "application_private_endpoint" {
   resource_group     = var.resource_group
   location           = var.location
   endpoint_subnet_id = data.azurerm_subnet.endpoint.id
+  create_dns_record  = true
 }
+
+//module "application_vault_private_endpoint" {
+//  source             = "../common/private_endpoint"
+//  resource_id        = azurerm_key_vault.application.id
+//  name               = azurerm_key_vault.application.name
+//  type               = "key_vault"
+//  resource_group     = var.resource_group
+//  location           = var.location
+//  endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet.id
+//  create_dns_record  = false
+//
+//  depends_on = [
+//    # Prevent unexpected order-of-operations by placing a hard dependency against the current private endpoint
+//    module.application_private_endpoint
+//  ]
+//}
 
 resource "azurerm_key_vault" "app_config" {
   name = "${var.resource_prefix}-appconfig"
@@ -187,7 +204,24 @@ module "app_config_private_endpoint" {
   resource_group     = var.resource_group
   location           = var.location
   endpoint_subnet_id = data.azurerm_subnet.endpoint.id
+  create_dns_record  = true
 }
+
+//module "app_config_vault_private_endpoint" {
+//  source             = "../common/private_endpoint"
+//  resource_id        = azurerm_key_vault.app_config.id
+//  name               = azurerm_key_vault.app_config.name
+//  type               = "key_vault"
+//  resource_group     = var.resource_group
+//  location           = var.location
+//  endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet.id
+//  create_dns_record  = false
+//
+//  depends_on = [
+//    # Prevent unexpected order-of-operations by placing a hard dependency against the current private endpoint
+//    module.app_config_private_endpoint
+//  ]
+//}
 
 resource "azurerm_key_vault" "client_config" {
   # Does not include "-keyvault" due to char limits (24)
@@ -251,4 +285,21 @@ module "client_config_private_endpoint" {
   resource_group     = var.resource_group
   location           = var.location
   endpoint_subnet_id = data.azurerm_subnet.endpoint.id
+  create_dns_record  = true
 }
+
+//module "client_config_vault_private_endpoint" {
+//  source             = "../common/private_endpoint"
+//  resource_id        = azurerm_key_vault.client_config.id
+//  name               = azurerm_key_vault.client_config.name
+//  type               = "key_vault"
+//  resource_group     = var.resource_group
+//  location           = var.location
+//  endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet.id
+//  create_dns_record  = false
+//
+//  depends_on = [
+//    # Prevent unexpected order-of-operations by placing a hard dependency against the current private endpoint
+//    module.client_config_private_endpoint
+//  ]
+//}

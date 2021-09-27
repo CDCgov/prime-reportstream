@@ -3,21 +3,15 @@ export const WebReceiverGuide = () => {
     return (
         <>
             <section id="anchor-top">
-                <h1 className="margin-top-0">Web Receiver guide</h1>
+                <h1 className="margin-top-0">Data download website guide</h1>
                 <p className="usa-intro">
                     The{" "}
                     <a href="/login/" className="usa-link">
-                        Web Receiver experience
+                        data download website
                     </a>{" "}
                     enables a public health department to access data from
                     senders via a secure, online portal.
                 </p>
-                <a
-                    href="/assets/pdf/ReportStream-Web-Receiver-Onboarding-Guide-April-2021.pdf"
-                    className="usa-button usa-button--outline"
-                >
-                    Download this guide
-                </a>
                 <a href={
                     "mailto:" +
                     site.orgs.RS.email +
@@ -163,16 +157,6 @@ export const WebReceiverGuide = () => {
                     </li>
                 </ul>
 
-                <h4>Accessing data</h4>
-                <p>
-                    You will have the option to download a CSV of the most
-                    recently reported test result data for the day, as well as
-                    download up to 30 days of previously reported data. After 30
-                    days has passed for each file, test results will be
-                    permanently deleted from ReportStream as per our retention
-                    policy.
-                </p>
-
                 <h4>Account management</h4>
                 <p>
                     ReportStream will manually manage user accounts for your
@@ -200,23 +184,19 @@ export const WebReceiverGuide = () => {
                     </li>
                 </ul>
 
-                <h4>Data retention</h4>
+                <h4>Accessing data</h4>
                 <p>
-                    Due to the presence of personally identifiable information
-                    or personal health information, ReportStream will not be a
-                    permanent repository for reported test data.
+                    You will be able to download the most recently reported test result data, as well as
+                    up to 30 days of previously reported data. Due to the presence of personally
+                    identifiable information or personal health information,
+                    ReportStream will not be a permanent repository for reported test data.
                 </p>
                 <p>
-                    Each day's report will be held for 30 days, and will be
-                    accessible through the application for the duration of that
-                    period. After 30 days has passed for an individual report,
-                    the file will be permanently deleted and will not be
-                    recoverable.
+                    Each report will be held for 30 days, and will be accessible through the application
+                    for the duration of that period. After 30 days has passed for an individual report,
+                    the file will be permanently deleted and will not be recoverable.
                 </p>
-                <p>
-                    Please download data and ingest it into your systems as soon
-                    as possible.
-                </p>
+                <p>Please download data and ingest it into your systems as soon as possible.</p>
 
                 <h4>Support</h4>
                 <p>
@@ -226,7 +206,7 @@ export const WebReceiverGuide = () => {
                         "mailto:" +
                         site.orgs.RS.email +
                         "?subject=Getting started with ReportStream"
-                    } className="margin-left-1 margin-right-1">reportstream@cdc.gov</a>
+                    } className="margin-left-1 margin-right-1 usa-link">reportstream@cdc.gov</a>
                     for help.
                 </p>
 

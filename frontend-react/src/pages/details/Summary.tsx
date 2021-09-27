@@ -1,5 +1,6 @@
 import ReportLink from "../daily/Table/ReportLink";
 import ReportResource from '../../resources/ReportResource'
+import { useOrgName } from "../../controllers/OrganizationController";
 
 interface Props {
     /* REQUIRED
@@ -9,7 +10,8 @@ interface Props {
 }
 
 function Summary(props: Props) {
-    const { report } = props
+    const { report }: Props = props
+    const orgName: string = useOrgName()
 
     return (
         <section className="grid-container">
@@ -20,11 +22,11 @@ function Summary(props: Props) {
                 <ol className="usa-breadcrumb__list">
                     <li className="usa-breadcrumb__list-item">
                         <a
-                            href="/daily"
+                            href="/daily-data"
                             className="usa-breadcrumb__link"
                             id="orgName"
                         >
-                            COVID-19
+                            {orgName}
                         </a>
                     </li>
                     <li

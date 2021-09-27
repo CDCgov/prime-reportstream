@@ -651,6 +651,9 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                         record.patientRaceCode = td.patientRaceCode
                         record.patientState = td.patientState?.take(METADATA_MAX_LENGTH)
                         record.siteOfCare = td.siteOfCare?.take(METADATA_MAX_LENGTH)
+                        record.senderId = td.senderId?.take(METADATA_MAX_LENGTH)
+                        record.testKitNameId = td.testKitNameId?.take(METADATA_MAX_LENGTH)
+                        record.testPerformedLoincCode = td.testPerformedLoincCode?.take(METADATA_MAX_LENGTH)
                     }
                 }
             )
@@ -724,7 +727,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             ) > 0
     }
 
-    /** Fetch the newest CreatedAt timestamp, active or deleted, or return [ifEmptySettings] */
+    /** Fetch the newest CreatedAt timestamp, active or deleted. */
     fun fetchLastModified(txn: DataAccessTransaction? = null): OffsetDateTime? {
         val ctx = if (txn != null) DSL.using(txn) else create
         return ctx.select(DSL.max(SETTING.CREATED_AT))

@@ -47,5 +47,5 @@ resource "azurerm_app_service" "metabase" {
 
 resource "azurerm_app_service_virtual_network_swift_connection" "metabase_vnet_integration" {
   app_service_id = azurerm_app_service.metabase.id
-  subnet_id      = data.azurerm_subnet.public.id
+  subnet_id      = var.environment == "dev" ? data.azurerm_subnet.public_subnet.id : data.azurerm_subnet.public.id
 }

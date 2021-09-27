@@ -25,7 +25,7 @@ module "subnet_addresses" {
     },
     {
       name     = "endpoint"
-      new_bits = 3
+      new_bits = 2
     },
   ]
 }
@@ -74,6 +74,12 @@ resource "azurerm_subnet" "public_subnet" {
       ]
     }
   }
+
+  lifecycle {
+    ignore_changes = [
+      delegation[0].name, # FW team renamed this, and if we change it, a new resource will be created
+    ]
+  }
 }
 
 resource "azurerm_subnet_network_security_group_association" "public_to_nsg_public" {
@@ -106,6 +112,12 @@ resource "azurerm_subnet" "container_subnet" {
         "Microsoft.Network/virtualNetworks/subnets/action",
       ]
     }
+  }
+
+  lifecycle {
+    ignore_changes = [
+      delegation[0].name, # FW team renamed this, and if we change it, a new resource will be created
+    ]
   }
 }
 
@@ -141,6 +153,12 @@ resource "azurerm_subnet" "private_subnet" {
         "Microsoft.Network/virtualNetworks/subnets/action",
       ]
     }
+  }
+
+  lifecycle {
+    ignore_changes = [
+      delegation[0].name, # FW team renamed this, and if we change it, a new resource will be created
+    ]
   }
 }
 

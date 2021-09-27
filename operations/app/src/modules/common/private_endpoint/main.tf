@@ -40,7 +40,7 @@ locals {
   }
 
   option        = local.options[var.type] # Make options a little easier to reference
-  endpoint_name = "${var.name}-${var.type}"
+  endpoint_name = "${var.name}-${var.type}-${substr(sha1(var.endpoint_subnet_id), 0, 8)}"
 }
 
 resource "azurerm_private_endpoint" "endpoint" {
@@ -59,7 +59,7 @@ resource "azurerm_private_endpoint" "endpoint" {
 
   # Automatically register the private endpoint in the private DNS zones
   dynamic "private_dns_zone_group" {
-    for_each = [0] # DNS needed for all zones. For each block retained to keep existing resource paths.
+    for_each = var.create_dns_record ? [0] : []
     content {
       name                 = local.endpoint_name
       private_dns_zone_ids = [for dns_zone in data.azurerm_private_dns_zone.private_dns_cname : dns_zone.id]

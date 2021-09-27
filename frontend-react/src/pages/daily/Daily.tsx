@@ -1,26 +1,14 @@
-import { useResource } from "rest-hooks";
-import OrganizationResource from "../../resources/OrganizationResource";
-import { useOktaAuth } from "@okta/okta-react";
-import { groupToOrg } from "../../webreceiver-utils";
 import HipaaNotice from "../../components/HipaaNotice";
 import TableReports from "./Table/TableReports";
 import { Suspense } from "react";
 import Spinner from "../../components/Spinner";
+import { useOrgName } from "../../controllers/OrganizationController";
 
 const OrgName = () => {
-    const { authState } = useOktaAuth();
-
-    // finds the first organization that does not have the word "sender" in it
-    const organization = groupToOrg(
-        authState!.accessToken?.claims.organization.find(o => !o.toLowerCase().includes('sender'))
-    );
-    const org = useResource(OrganizationResource.detail(), {
-        name: organization,
-    });
-
+    const orgName: string = useOrgName();
     return (
         <span id="orgName" className="text-normal text-base">
-            {org?.description}
+            {orgName}
         </span>
     );
 };
