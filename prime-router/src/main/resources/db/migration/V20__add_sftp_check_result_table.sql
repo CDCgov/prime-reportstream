@@ -13,7 +13,7 @@ CREATE TABLE receiver_connection_check_results
   connection_check_result_id BIGSERIAL PRIMARY KEY,
   organization_id INTEGER NOT NULL REFERENCES setting(setting_id) ON DELETE CASCADE,
   receiver_id INTEGER NOT NULL REFERENCES  setting(setting_id) ON DELETE CASCADE,
-  connection_check_result VARCHAR(2048) NOT NULL,
+  connection_check_result TEXT NOT NULL,
   connection_check_successful BOOLEAN NOT NULL DEFAULT FALSE,
   connection_check_started_at TIMESTAMP WITH TIME ZONE NOT NULL,
   connection_check_completed_at TIMESTAMP WITH TIME ZONE NOT NULL

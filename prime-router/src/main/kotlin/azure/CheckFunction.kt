@@ -116,19 +116,31 @@ class CheckFunction : Logging {
      * This is set up to run as a cron job in Azure.
      * The current cron set up is 0 0 *12 * * * which means to run every two hours
      */
-    @FunctionName("scheduled-run")
+    @FunctionName("scheduled-remote-connection-check")
     fun scheduledRun(
-        @TimerTrigger(name = "scheduledRunTrigger", schedule = "%REMOTE_CONNECTION_CHECK_SCHEDULE%") timerInfo: String,
+        @TimerTrigger(
+            name = "scheduledRemoteConnectionCheckTrigger",
+            schedule = "%REMOTE_CONNECTION_CHECK_SCHEDULE%"
+        ) timerInfo: String,
         context: ExecutionContext
     ) {
+        logger.info("Staring scheduled check of remote receiver connections")
         val settings = WorkflowEngine.settings
         val db = WorkflowEngine.databaseAccess
         settings.receivers.forEach {
+            logger.info("Checking connection for ${it.organizationName}-${it.name}")
             // create the response body
             val responseBody: MutableList<String> = mutableListOf()
             // test the transport
             val initiatedAt = Instant.now()
-            val successful = testTransport(it, null, responseBody)
+            val successful = try {
+                testTransport(it, null, responseBody)
+            } catch (ex: Throwable) {
+                responseBody.add(ex.localizedMessage)
+                responseBody.add(ex.stackTraceToString())
+                false
+            }
+
             val completedOn = Instant.now()
             db.transact { txn ->
                 // get the id for the organization
@@ -138,7 +150,7 @@ class CheckFunction : Logging {
                     null,
                     txn
                 ).let { setting ->
-                    setting?.organizationId
+                    setting?.settingId
                 }
                 // get the id for the receiver
                 val receiverId = db.fetchSetting(SettingType.RECEIVER, it.name, organizationId, txn).let { receiver ->
@@ -156,9 +168,13 @@ class CheckFunction : Logging {
                         responseBody.joinToString("\n"),
                     )
                     db.saveRemoteConnectionCheck(txn, connectionCheck)
+                } else {
+                    logger.info("Unable to save connection check for ${it.organizationName}-${it.name}" +
+                        " because organizationId ($organizationId) or receiverId ($receiverId) is null")
                 }
             }
         }
+        logger.info("Done checking remote receiver connections")
         return
     }
 
