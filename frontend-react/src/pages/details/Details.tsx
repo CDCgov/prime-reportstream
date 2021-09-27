@@ -6,7 +6,7 @@ import FacilitiesTable from './FacilitiesTable'
 import HipaaNotice from "../../components/HipaaNotice";
 
 function useQuery() {
-    let query = window.location.search.slice(1); 
+    let query = window.location.search.slice(1);
     const queryMap = {};
     Object.assign(
         queryMap,
