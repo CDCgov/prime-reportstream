@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.serializers
 
 import assertk.assertThat
+import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
@@ -50,10 +51,12 @@ class Hl7SerializerTests {
     private val hl7SchemaName = "hl7/hl7-ingest-covid-19"
     private val testReport: Report
     private val context = DefaultHapiContext()
+    private val mcf = CanonicalModelClassFactory("2.5.1")
     private val serializer: Hl7Serializer
     private val csvSerializer: CsvSerializer
     private val covid19Schema: Schema
     private val sampleHl7Message: String
+    private val sampleHl7MessageWithRepeats: String
 
     init {
         val metadata = Metadata("./metadata")
@@ -66,6 +69,19 @@ class Hl7SerializerTests {
         sampleHl7Message = """MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|Avante at Ormond Beach^10D0876999^CLIA|||20210210170737||ORU^R01^ORU_R01|371784|P|2.5.1|||NE|NE|USA||||PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
 SFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME ReportStream|0.1-SNAPSHOT||20210210
 PID|1||2a14112c-ece1-4f82-915c-7b3a8d152eda^^^Avante at Ormond Beach^PI||Buckridge^Kareem^Millie^^^^L||19580810|F||2106-3^White^HL70005^^^^2.5.1|688 Leighann Inlet^^South Rodneychester^TX^67071||^PRN^^roscoe.wilkinson@email.com^1^211^2240784|||||||||U^Unknown^HL70189||||||||N
+ORC|RE|73a6e9bd-aaec-418e-813a-0ad33366ca85|73a6e9bd-aaec-418e-813a-0ad33366ca85|||||||||1629082607^Eddin^Husam^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI||^WPN^^^1^386^6825220|20210209||||||Avante at Ormond Beach|170 North King Road^^Ormond Beach^FL^32174^^^^12127|^WPN^^jbrush@avantecenters.com^1^407^7397506|^^^^32174
+OBR|1|73a6e9bd-aaec-418e-813a-0ad33366ca85||94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN|||202102090000-0600|202102090000-0600||||||||1629082607^Eddin^Husam^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI|^WPN^^^1^386^6825220|||||202102090000-0600|||F
+OBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN||260415000^Not detected^SCT|||N^Normal (applies to non-numeric results)^HL70078|||F|||202102090000-0600|||CareStart COVID-19 Antigen test_Access Bio, Inc._EUA^^99ELR||202102090000-0600||||Avante at Ormond Beach^^^^^CLIA&2.16.840.1.113883.4.7&ISO^^^^10D0876999^CLIA|170 North King Road^^Ormond Beach^FL^32174^^^^12127
+NTE|1|L|This is a comment|RE
+OBX|2|CWE|95418-0^Whether patient is employed in a healthcare setting^LN^^^^2.69||Y^Yes^HL70136||||||F|||202102090000-0600|||||||||||||||QST
+OBX|3|CWE|95417-2^First test for condition of interest^LN^^^^2.69||Y^Yes^HL70136||||||F|||202102090000-0600|||||||||||||||QST
+OBX|4|CWE|95421-4^Resides in a congregate care setting^LN^^^^2.69||N^No^HL70136||||||F|||202102090000-0600|||||||||||||||QST
+OBX|5|CWE|95419-8^Has symptoms related to condition of interest^LN^^^^2.69||N^No^HL70136||||||F|||202102090000-0600|||||||||||||||QST
+SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (body structure)^SCT^^^^2020-09-01|||||||||202102090000-0600^202102090000-0600
+NTE|1|L|This is a final comment|RE"""
+        sampleHl7MessageWithRepeats = """MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|Avante at Ormond Beach^10D0876999^CLIA|||20210210170737||ORU^R01^ORU_R01|371784|P|2.5.1|||NE|NE|USA||||PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
+SFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME ReportStream|0.1-SNAPSHOT||20210210
+PID|1||2a14112c-ece1-4f82-915c-7b3a8d152eda^^^Avante at Ormond Beach^PI||Buckridge^Kareem^Millie^^^^L||19580810|F||2106-3^White^HL70005^^^^2.5.1|688 Leighann Inlet^^South Rodneychester^TX^67071||^NET^Internet^roscoe.wilkinson@email.com~(211)224-0784^PRN^PH^^1^211^2240784|||||||||U^Unknown^HL70189||||||||N
 ORC|RE|73a6e9bd-aaec-418e-813a-0ad33366ca85|73a6e9bd-aaec-418e-813a-0ad33366ca85|||||||||1629082607^Eddin^Husam^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI||^WPN^^^1^386^6825220|20210209||||||Avante at Ormond Beach|170 North King Road^^Ormond Beach^FL^32174^^^^12127|^WPN^^jbrush@avantecenters.com^1^407^7397506|^^^^32174
 OBR|1|73a6e9bd-aaec-418e-813a-0ad33366ca85||94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN|||202102090000-0600|202102090000-0600||||||||1629082607^Eddin^Husam^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI|^WPN^^^1^386^6825220|||||202102090000-0600|||F
 OBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN||260415000^Not detected^SCT|||N^Normal (applies to non-numeric results)^HL70078|||F|||202102090000-0600|||CareStart COVID-19 Antigen test_Access Bio, Inc._EUA^^99ELR||202102090000-0600||||Avante at Ormond Beach^^^^^CLIA&2.16.840.1.113883.4.7&ISO^^^^10D0876999^CLIA|170 North King Road^^Ormond Beach^FL^32174^^^^12127
@@ -148,6 +164,37 @@ NTE|1|L|This is a final comment|RE"""
         assertThat(oru).isNotNull()
         assertThat(oru.patienT_RESULT.patient).isNotNull()
         assertThat(oru.patienT_RESULT.patient.pid).isNotNull()
+        println(oru.printStructure())
+    }
+
+    @Test
+    fun `test reading pid repeats`() {
+        // arrange
+        context.modelClassFactory = mcf
+        val parser = context.pipeParser
+        // act
+        val reg = "[\r\n]".toRegex()
+        val cleanedMessage = reg.replace(sampleHl7MessageWithRepeats, "\r")
+        val hapiMsg = parser.parse(cleanedMessage)
+        val terser = Terser(hapiMsg)
+        // these messages are of type ORU_R01, so we can cast to that
+        // as well, and let's test that while we're here as well
+        val oru = hapiMsg as ORU_R01
+        // ^NET^Internet^roscoe.wilkinson@email.com~(211)224-0784^PRN^PH^^1^211^2240784
+        // assert
+        assertThat(terser.get("/PATIENT_RESULT/PATIENT/PID-13(0)-2")).isEqualTo("NET")
+        assertThat(terser.get("/PATIENT_RESULT/PATIENT/PID-13(0)-3")).isEqualTo("Internet")
+        assertThat(terser.get("/PATIENT_RESULT/PATIENT/PID-13(1)-1")).isEqualTo("(211)224-0784")
+        assertThat(terser.get("/PATIENT_RESULT/PATIENT/PID-13(1)-2")).isEqualTo("PRN")
+        println(terser.get("/PATIENT_RESULT/PATIENT/PID-13(0)"))
+        println(terser.get("/PATIENT_RESULT/PATIENT/PID-13(1)"))
+        // check the oru cast
+        assertThat(oru).isNotNull()
+        assertThat(oru.patienT_RESULT.patient).isNotNull()
+        assertThat(oru.patienT_RESULT.patient.pid).isNotNull()
+        assertThat(oru.patienT_RESULT.patient.pid.phoneNumberHome).isNotNull()
+        assertThat(oru.patienT_RESULT.patient.pid.phoneNumberHome).hasSize(2)
+        println(oru.patienT_RESULT.patient.pid.phoneNumberHome[0])
         println(oru.printStructure())
     }
 

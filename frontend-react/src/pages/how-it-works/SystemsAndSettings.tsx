@@ -50,7 +50,7 @@ export const SystemsAndSettings = () => {
                 <p>ReportStream can send a variety of data types to a public health department test environment to make sure everything is working correctly before launch.</p>
 
                 <ul>
-                    <li><span className="text-bold">Synthetic data (standard):</span> ReportStream always sends synthetic data in our <a href="https://github.com/CDCgov/prime-data-hub/blob/production/prime-router/docs/schema_documentation/primedatainput-pdi-covid-19.md&sa=D&source=editors&ust=1619546431803000&usg=AOvVaw1E09LDMJ0kGE2qa_OPZojW" className="usa-link">standard data schema</a> for your review.</li>
+                    <li><span className="text-bold">Synthetic data (standard):</span> ReportStream always sends synthetic data in our <a href="https://github.com/CDCgov/prime-reportstream/blob/production/prime-router/docs/schema_documentation/primedatainput-pdi-covid-19.md" target="_blank" rel="noreferrer" className="usa-link">standard data schema</a> for your review.</li>
                     <li><span className="text-bold">Patient data (as needed):</span> If required, ReportStream can also send patient data. In some cases, there may not be a testing facility that is registered with ReportStream in your jurisdiction. In this case, we’ll finish all of the possible steps on your side. Once a testing facility registers we’ll notify you, then move to approval and launch.</li>
                 </ul>
 
