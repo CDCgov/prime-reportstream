@@ -42,8 +42,8 @@ export const Upload = () => {
     });
 
     const userName = {
-        firstName: authState!.accessToken?.claims.given_name,
-        lastName: authState!.accessToken?.claims.family_name
+        firstName: authState?.accessToken?.claims.given_name || '',
+        lastName: authState?.accessToken?.claims.family_name || ''
     }
 
     const uploadReport =
