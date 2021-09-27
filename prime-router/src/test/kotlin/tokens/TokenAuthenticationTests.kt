@@ -2,6 +2,7 @@ package gov.cdc.prime.router.tokens
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.kittinunf.fuel.util.decodeBase64
+import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Sender
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.JwsHeader
@@ -67,7 +68,7 @@ class TokenAuthenticationTests {
         "bar",
         Sender.Format.CSV,
         "covid-19",
-        "status",
+        CustomerStatus.INACTIVE,
         "mySchema",
         keys = null
     )

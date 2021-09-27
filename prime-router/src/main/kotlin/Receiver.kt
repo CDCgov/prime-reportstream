@@ -12,8 +12,8 @@ import java.time.ZoneId
  *
  * @param name of the receiver
  * @param organizationName of the receiver
- * @param topic defines the set of schemas that can translate to each other\
- * @param customerStatus defines if the receiver is set up for automatic records pull. valid values: inactive,testing,active
+ * @param topic defines the set of schemas that can translate to each other
+ * @param customerStatus defines if the receiver is fully onboarded
  * @param translation configuration to translate
  * @param jurisdictionalFilter defines the set of elements and regexes that filter the data for this receiver
  * @param qualityFilter defines the set of elements and regexes that do qualiyty filtering on the data for this receiver
@@ -27,7 +27,7 @@ open class Receiver(
     val name: String,
     val organizationName: String,
     val topic: String,
-    val customerStatus: String,
+    val customerStatus: CustomerStatus,
     val translation: TranslatorConfiguration,
     val jurisdictionalFilter: List<String> = emptyList(),
     val qualityFilter: List<String> = emptyList(),
@@ -44,7 +44,7 @@ open class Receiver(
         name: String,
         organizationName: String,
         topic: String,
-        customerStatus: String,
+        customerStatus: CustomerStatus,
         schemaName: String,
         format: Report.Format = Report.Format.CSV
     ) : this(

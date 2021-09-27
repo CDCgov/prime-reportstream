@@ -1156,7 +1156,7 @@
     - name: elr
       organizationName: nh-dphs
       topic: covid-19
-      customerStatus: testing
+      customerStatus: active
       jurisdictionalFilter:
         - orEquals(ordering_facility_state, NH, patient_state, NH)
       translation:
@@ -1747,7 +1747,7 @@
     - name: elr
       organizationName: ak-phd
       topic: covid-19
-      customerStatus: testing
+      customerStatus: active
       jurisdictionalFilter:
         - orEquals(ordering_facility_state, AK, patient_state, AK)
       translation:

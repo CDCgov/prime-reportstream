@@ -13,7 +13,7 @@ import kotlin.test.Test
 
 class JurisdictionalFilterTests {
 
-    private val rcvr = Receiver("name", "org", "topic", "status", "schema", Report.Format.CSV)
+    private val rcvr = Receiver("name", "org", "topic", CustomerStatus.INACTIVE, "schema", Report.Format.CSV)
 
     @Test
     fun `test Matches`() {
