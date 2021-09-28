@@ -23,8 +23,8 @@ export const Upload = () => {
     const {authState} = useOktaAuth();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [file, setFile] = useState(null);
-    const [warnings, setWarnings] = useState([]);
-    const [errors, setErrors] = useState([]);
+    const [warnings, setWarnings] = useState([{}]);
+    const [errors, setErrors] = useState([{}]);
     const [destinations, setDestinations] = useState('');
     const [reportId, setReportId] = useState(null);
     const [successTimestamp, setSuccessTimestamp] = useState('');
@@ -125,11 +125,11 @@ export const Upload = () => {
                 setHeaderMessage('Your COVID-19 Results');
                 setButtonText('Upload another file');
 
-            } catch (error) {
+            } catch (error: any) {
                 if (response && response.errors) {
                     setErrors(response.errors);
                 } else {
-                    setErrors(error);
+                    setErrors([error]);
                 }
                 setButtonText('Upload another file');
             }
