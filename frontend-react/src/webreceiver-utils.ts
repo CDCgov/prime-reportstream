@@ -46,7 +46,8 @@ const senderClient = (authState: AuthState | null) => {
         // This is used on the RS side to validate the user claims, so, it need the underscores ("_")
         // The ternary checks if there is anything after the "." in the group name, if not, it leaves it blank
         // i.e. if the sender name is "DHSender_all-in-one-health-ca", there will be no "."
-        return `${organizationName}${claimsSenderOrganizationArray[1] ? `.${claimsSenderOrganizationArray[1]}` : ''}`;
+        const senderName = claimsSenderOrganizationArray[1] ? `.${claimsSenderOrganizationArray[1]}` : ''
+        return `${organizationName}${senderName}`;
     }
     return '';
 }
