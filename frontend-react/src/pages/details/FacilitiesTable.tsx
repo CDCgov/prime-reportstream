@@ -42,14 +42,15 @@ function FacilitiesTable(props: Props) {
 
     const [facilities, setFacilicites] = useState<Facility[]>([]);
     const { authState } = useOktaAuth();
+    const facilitiesURL = `${AuthResource.getBaseUrl()}/api/history/report/${reportId}/facilities`
 
-    const getFacilities = async () => {
+    const getFacilities = async (fetchURL) => {
         const organization = getOrganization(authState)
         const headers = new Headers({
             'Authorization': `Bearer ${authState?.accessToken?.accessToken}`,
             'Organization': organization!
         });
-        const response = await fetch(`${AuthResource.getBaseUrl()}/api/history/report/${reportId}/facilities`, {
+        const response = await fetch(fetchURL, {
             method: 'GET',
             headers: headers
         })
@@ -58,8 +59,8 @@ function FacilitiesTable(props: Props) {
     }
 
     useEffect(() => {
-        getFacilities()
-    });
+        getFacilities(facilitiesURL)
+    }, [facilitiesURL]);
 
     if (facilities.length === 0) {
         return (
