@@ -2,7 +2,7 @@ import { Link, Redirect } from "react-router-dom";
 import OktaSignInWidget from "../components/OktaSignInWidget";
 import { useOktaAuth } from "@okta/okta-react";
 import { groupToOrg } from "../webreceiver-utils";
-import { Alert, SiteAlert } from "@trussworks/react-uswds";
+import { SiteAlert } from "@trussworks/react-uswds";
 
 export const Login = ({ config }) => {
     const { oktaAuth, authState } = useOktaAuth();
