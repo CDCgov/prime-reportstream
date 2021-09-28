@@ -43,10 +43,6 @@ function FacilitiesTable(props: Props) {
     const [facilities, setFacilicites] = useState<Facility[]>([]);
     const { authState } = useOktaAuth();
 
-    useEffect(() => {
-        getFacilities()
-    }, [])
-
     const getFacilities = async () => {
         const organization = getOrganization(authState)
         const headers = new Headers({
@@ -60,6 +56,10 @@ function FacilitiesTable(props: Props) {
         const data = await response.json()
         setFacilicites(data)
     }
+
+    useEffect(() => {
+        getFacilities()
+    });
 
     if (facilities.length === 0) {
         return (
