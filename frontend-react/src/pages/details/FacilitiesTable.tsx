@@ -1,5 +1,5 @@
 import { useOktaAuth } from '@okta/okta-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Spinner from '../../components/Spinner';
 import AuthResource from '../../resources/AuthResource';
 import { getOrganization } from '../../webreceiver-utils';
@@ -44,7 +44,7 @@ function FacilitiesTable(props: Props) {
     const { authState } = useOktaAuth();
     const facilitiesURL = `${AuthResource.getBaseUrl()}/api/history/report/${reportId}/facilities`
 
-    const getFacilities = async (fetchURL) => {
+    const getFacilities = useCallback(async (fetchURL) => {
         const organization = getOrganization(authState)
         const headers = new Headers({
             'Authorization': `Bearer ${authState?.accessToken?.accessToken}`,
@@ -56,11 +56,11 @@ function FacilitiesTable(props: Props) {
         })
         const data = await response.json()
         setFacilicites(data)
-    }
+    }, [authState])
 
     useEffect(() => {
         getFacilities(facilitiesURL)
-    }, [facilitiesURL]);
+    }, [getFacilities, facilitiesURL]);
 
     if (facilities.length === 0) {
         return (
