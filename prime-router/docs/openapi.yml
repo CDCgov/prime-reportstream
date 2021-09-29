@@ -11,27 +11,25 @@ paths:
 
   # The sender end-point handles receive actions.
   #
-  # EX
-  # /sender/orgid/{}
-  # /sender/admin/
+  # END-POINTS
+  # /submissions
+  # /submissions/multorg
+  # /submissions/{reportid}
+  # /submissions/{organizationName}
   #
-  # /submissions                       - (we already know user, & assoc. orgs), return basic list
-  # /sender&DateRange=5             - (we already know user, & assoc. orgs), return basic list
-  # /sender&DateRange=N&Offset=N  - (we already know user, & assoc. orgs), return basic list
-  # /sender&OrgID=12,34,56        - (admin, supervisor, superadmin) return lists across multiple/specific Orgs
-  # /sender&reportID=999          - return report with ID of 999, provided user has permission
-  #
-  #
-  #
-  #
-  #
-  # /sender&OrgID=0000          - return basic list, default to last 30 days
-  # /sender&OrgID=0000&daterange=10 - return basic list from the last ten days
-  # /sender&admin=true         - return all
-  # /sender&admin=true&OrgFilter=123,456,789         - return all from specific Orgs
-  # /sender&admin=true$daterange=5 - return all from the last five days
-  # /sender&action=999         - return report with ID of 999
-  #
+  # FILTERS (OPTIONAL)
+  # ?offset=INT
+  # ?limit=INT
+  # ?dateStart=STRING (YYYY-MM-DD) || INT (NN [days back] | default: 30)
+  # ?dateEnd=STRING (YYYY-MM-DD | default: Today)
+  # ?year=INT (YYYY | default: ALL)
+  # ?month=INT (MM | default: ALL | requires ?year)
+  # ?organizations=INT (default: ALL)
+  # ?recipients=ARRAY
+  # ?sender=ARRAY
+  # ?warnings=BOOLEAN
+  # ?errors=BOOLEAN
+  # ?receipts=BOOLEAN
   #
   #
   #
@@ -43,27 +41,23 @@ paths:
   # records of what users have done?
   # PDF exports?
   # Org admin, multi-org aggregate
+  #
+  # 
+  # /REJECTION:
+  # Submission Date | Filename | Reason(s) of Rejection
+  # 
+  # /Confirmation of Acceptance
+  # 
+  # 
   # 
   #
-  /submissions/:
+  /submissions:
     get:
-      description: Return a list of all basic info on all receive actions and associated reports. Must have admin access, or be member of multiple Organizations.
+      description: Return a list of all basic info on all receive actions and associated reports. Must have admin access.
       security:
         - OAuth2: [ system_admin ]
         - ApiKeyAuth: []
       parameters:
-        - in: query
-          name: days
-          schema:
-            type: integer
-          required: false
-          description: The number of days back to collect results from (default 30).
-        - in: query
-          name: dateRange
-          schema:
-            type: string
-          required: false
-          description: Return results only from specified date range in the format `dateRange=start,end`. Ex `dateRange=YYYY-MM-DD,YYYY-MM-DD` (default ALL).
         - in: query
           name: offset
           schema:
@@ -75,13 +69,178 @@ paths:
           schema:
             type: integer
           required: false
-          description: The numbers of items to return (default ALL).
+          description: The numbers of items to return (default `ALL`).
         - in: query
-          name: orgID
+          name: dateStart
+          schema:
+            oneOf:
+              - type: integer
+              - type: string
+          required: false
+          description: (`YYYY-MM-DD` || `NNN` - default `30`) The start date or the number of days back from today to collect results from.
+        - in: query
+          name: dateEnd
+          schema:
+            oneOf:
+              - type: integer
+              - type: string
+          required: false
+          description: (`YYYY-MM-DD` || `NNN` - default `0`) The end date or the number of days back from today to collect results from.
+        - in: query
+          name: year
+          schema:
+            type: integer
+          required: false
+          description: (`YYYY` - default `ALL`) Return results from specific Year.
+        - in: query
+          name: month
+          schema:
+            type: integer
+          required: false
+          description: (`MM` - default `ALL`) Return results from specific Month. Requires `year` being set.
+        - in: query
+          name: organizations
+          schema:
+            oneOf:
+              - type: array
+              - type: integer
+          required: false
+          description: (`{INT, INT, INT}` || `INT` - default `ALL`) Return results from specific Organization or array of Organizations. Admin or member of multiple Organizations required.
+        - in: query
+          name: recipients
+          schema:
+            oneOf:
+              - type: array
+              - type: integer
+          required: false
+          description: (`{INT, INT, INT}` || `INT` - default `ALL`) Return results from specific Recipient or array of Recipients.
+        - in: query
+          name: senders
+          schema:
+            oneOf:
+              - type: array
+              - type: integer
+          required: false
+          description: (`{INT, INT, INT}`  || `INT` - default `ALL`) Return results from specific Sender or array of Senders.
+        - in: query
+          name: warnings
           schema:
             type: string
           required: false
-          description: Return results only from specified Organizations in the format `orgID=X,Y,Z`. Ex `orgID=A001,B002,C003` (default ALL).
+          description: (`ALL` || `WITH` || `WITHOUT` - default `ALL`) If `WITH` only return results with Warning(s). If `WITHOUT` only results without Warning(s).
+        - in: query
+          name: errors
+          schema:
+            type: string
+          required: false
+          description: (`ALL` || `WITH` || `WITHOUT` - default `ALL`) If `WITH` only return results with Error(s). If `WITHOUT` only results without Error(s).
+        - in: query
+          name: receipts
+          schema:
+            type: string
+          required: false
+          description: (`ALL` || `WITH` || `WITHOUT` - default `ALL`) If `WITH` only return results with Receipt(s). If `WITHOUT` only results without Receipt(s).
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Report'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+
+
+  /submissions/multiorg:
+    get:
+      description: Return a list of all basic info on all receive actions and associated reports. Must be member of multiple Organizations. Same as Super Admin endpoint but scoped to user who is a member of multiple organizations.
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - in: query
+          name: offset
+          schema:
+            type: integer
+          required: false
+          description: The number of items to skip before starting to collect the result set (default 0).
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          required: false
+          description: The numbers of items to return (default `ALL`).
+        - in: query
+          name: dateStart
+          schema:
+            oneOf:
+              - type: integer
+              - type: string
+          required: false
+          description: (`YYYY-MM-DD` || `NNN` - default `30`) The start date or the number of days back from today to collect results from.
+        - in: query
+          name: dateEnd
+          schema:
+            oneOf:
+              - type: integer
+              - type: string
+          required: false
+          description: (`YYYY-MM-DD` || `NNN` - default `0`) The end date or the number of days back from today to collect results from.
+        - in: query
+          name: year
+          schema:
+            type: integer
+          required: false
+          description: (`YYYY` - default `ALL`) Return results from specific Year.
+        - in: query
+          name: month
+          schema:
+            type: integer
+          required: false
+          description: (`MM` - default `ALL`) Return results from specific Month. Requires `year` being set.
+        - in: query
+          name: organizations
+          schema:
+            oneOf:
+              - type: array
+              - type: integer
+          required: false
+          description: (`{INT, INT, INT}` || `INT` - default `ALL`) Return results from specific Organization or array of Organizations. Admin or member of multiple Organizations required.
+        - in: query
+          name: recipients
+          schema:
+            oneOf:
+              - type: array
+              - type: integer
+          required: false
+          description: (`{INT, INT, INT}` || `INT` - default `ALL`) Return results from specific Recipient or array of Recipients.
+        - in: query
+          name: senders
+          schema:
+            oneOf:
+              - type: array
+              - type: integer
+          required: false
+          description: (`{INT, INT, INT}`  || `INT` - default `ALL`) Return results from specific Sender or array of Senders.
+        - in: query
+          name: warnings
+          schema:
+            type: string
+          required: false
+          description: (`ALL` || `WITH` || `WITHOUT` - default `ALL`) If `WITH` only return results with Warning(s). If `WITHOUT` only results without Warning(s).
+        - in: query
+          name: errors
+          schema:
+            type: string
+          required: false
+          description: (`ALL` || `WITH` || `WITHOUT` - default `ALL`) If `WITH` only return results with Error(s). If `WITHOUT` only results without Error(s).
+        - in: query
+          name: receipts
+          schema:
+            type: string
+          required: false
+          description: (`ALL` || `WITH` || `WITHOUT` - default `ALL`) If `WITH` only return results with Receipt(s). If `WITHOUT` only results without Receipt(s).
       responses:
         '200':
           description: OK
@@ -98,10 +257,9 @@ paths:
     get:
       description: Return a single receive action, and its received report.
       security:
-        - OAuth2: [ system_admin ]
         - ApiKeyAuth: []
       parameters:
-        - in: query
+        - in: path
           name: reportID
           schema:
             type: string
@@ -132,18 +290,6 @@ paths:
           name: organizationName
           description: The name of the organization
         - in: query
-          name: days
-          schema:
-            type: integer
-          required: false
-          description: The number of days back to collect results from (default 30).
-        - in: query
-          name: dateRange
-          schema:
-            type: string
-          required: false
-          description: Return results only from specified date range in the format `dateRange=start,end`. Ex `dateRange=YYYY-MM-DD,YYYY-MM-DD` (default ALL).
-        - in: query
           name: offset
           schema:
             type: integer
@@ -154,7 +300,77 @@ paths:
           schema:
             type: integer
           required: false
-          description: The numbers of items to return (default ALL).
+          description: The numbers of items to return (default `ALL`).
+        - in: query
+          name: dateStart
+          schema:
+            oneOf:
+              - type: integer
+              - type: string
+          required: false
+          description: (`YYYY-MM-DD` || `NNN` - default `30`) The start date or the number of days back from today to collect results from.
+        - in: query
+          name: dateEnd
+          schema:
+            oneOf:
+              - type: integer
+              - type: string
+          required: false
+          description: (`YYYY-MM-DD` || `NNN` - default `0`) The end date or the number of days back from today to collect results from.
+        - in: query
+          name: year
+          schema:
+            type: integer
+          required: false
+          description: (`YYYY` - default `ALL`) Return results from specific Year.
+        - in: query
+          name: month
+          schema:
+            type: integer
+          required: false
+          description: (`MM` - default `ALL`) Return results from specific Month. Requires `year` being set.
+        - in: query
+          name: organizations
+          schema:
+            oneOf:
+              - type: array
+              - type: integer
+          required: false
+          description: (`{INT, INT, INT}` || `INT` - default `ALL`) Return results from specific Organization or array of Organizations. Admin or member of multiple Organizations required.
+        - in: query
+          name: recipients
+          schema:
+            oneOf:
+              - type: array
+              - type: integer
+          required: false
+          description: (`{INT, INT, INT}` || `INT` - default `ALL`) Return results from specific Recipient or array of Recipients.
+        - in: query
+          name: senders
+          schema:
+            oneOf:
+              - type: array
+              - type: integer
+          required: false
+          description: (`{INT, INT, INT}`  || `INT` - default `ALL`) Return results from specific Sender or array of Senders.
+        - in: query
+          name: warnings
+          schema:
+            type: string
+          required: false
+          description: (`ALL` || `WITH` || `WITHOUT` - default `ALL`) If `WITH` only return results with Warning(s). If `WITHOUT` only results without Warning(s).
+        - in: query
+          name: errors
+          schema:
+            type: string
+          required: false
+          description: (`ALL` || `WITH` || `WITHOUT` - default `ALL`) If `WITH` only return results with Error(s). If `WITHOUT` only results without Error(s).
+        - in: query
+          name: receipts
+          schema:
+            type: string
+          required: false
+          description: (`ALL` || `WITH` || `WITHOUT` - default `ALL`) If `WITH` only return results with Receipt(s). If `WITHOUT` only results without Receipt(s).
       responses:
         '200':
           description: OK
