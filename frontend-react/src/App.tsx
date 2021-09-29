@@ -12,7 +12,7 @@ import { ReportStreamHeader } from "./components/ReportStreamHeader";
 import { oktaSignInConfig, oktaAuthConfig } from "./oktaConfig";
 import { Route, useHistory, Switch } from "react-router-dom";
 import { OktaAuth, toRelativeUrl } from "@okta/okta-auth-js";
-import { Security, SecureRoute, LoginCallback, useOktaAuth } from "@okta/okta-react";
+import { Security, SecureRoute, LoginCallback } from "@okta/okta-react";
 import { NetworkErrorBoundary } from "rest-hooks";
 
 import { About } from "./pages/About";
