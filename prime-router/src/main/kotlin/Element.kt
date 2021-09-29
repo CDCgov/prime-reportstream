@@ -55,6 +55,7 @@ data class Element(
     val maxLength: Int? = null, // used to truncate outgoing formatted String fields.  null == no length limit.
     val default: String? = null,
     val mapper: String? = null,
+    val mapperAlwaysRun: Boolean = false,
     val mapperRef: Mapper? = null, // set during fixup
     val mapperArgs: List<String>? = null, // set during fixup
 
@@ -177,6 +178,11 @@ data class Element(
             type == Type.STREET_OR_BLANK ||
             type == Type.TABLE_OR_BLANK ||
             type == Type.BLANK
+
+    /**
+     * True if this element has a table lookup.
+     */
+    val isTableLookup get() = mapperRef != null && type == Element.Type.TABLE
 
     // Creates a field mapping string showing the external CSV header name(s)
     // and the corresponding internal field name
@@ -757,6 +763,56 @@ data class Element(
             code.equals(it.code, ignoreCase = true) || code.equals(it.replaces, ignoreCase = true)
         } ?: values.find { "*" == it.code }
         return codeValue?.code
+    }
+
+    /**
+     * Determine the value for this element based on the schema configuration.  This function checks if a
+     * mapper needs to be run or if a default needs to be applied.
+     * @param rawValue the raw value for this element from the data
+     * @param allElementValues the values for all other elements.  Used for the mappers.
+     * @param schema the schema
+     * @param defaultOverrides element name and value pairs of defaults that override schema defaults
+     * @return a mutable set with the processed value or empty string
+     */
+    fun processValue(
+        allElementValues: MutableMap<String, String>,
+        schema: Schema,
+        defaultOverrides: Map<String, String> = emptyMap()
+    ): String {
+        var retVal = if (allElementValues[name].isNullOrEmpty()) "" else allElementValues[name]!!
+        if (mapperRef != null && (mapperAlwaysRun || retVal.isBlank())) {
+            // This gets the requiredvalue names, then gets the value from mappedRows that has the data
+            val args = mapperArgs ?: emptyList()
+            val valueNames = mapperRef!!.valueNames(this, args)
+            val valuesForMapper = valueNames.mapNotNull { elementName ->
+                val valueElement = schema.findElement(elementName)
+                if (valueElement != null && allElementValues.containsKey(elementName) &&
+                    !allElementValues[elementName].isNullOrEmpty()
+                ) {
+                    ElementAndValue(valueElement, allElementValues[elementName]!!)
+                } else {
+                    null
+                }
+            }
+            // Only overwrite an existing value if the mapper returns a string
+            val value = mapperRef.apply(this, args, valuesForMapper)
+            if (!value.isNullOrBlank()) {
+                retVal = value
+            }
+        }
+
+        // Finally, add a default value or empty string to elements that still have a null value.
+        if (retVal.isNullOrBlank()) {
+            retVal = if (defaultOverrides.containsKey(name)) {
+                defaultOverrides[name] ?: ""
+            } else if (!default.isNullOrBlank()) {
+                default
+            } else {
+                ""
+            }
+        }
+
+        return retVal
     }
 
     companion object {

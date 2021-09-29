@@ -512,4 +512,52 @@ internal class ElementTests {
             assertThat(this).isEqualTo("NULLFL")
         }
     }
+
+    @Test
+    fun `test processing of raw data`() {
+        val elements = listOf(
+            Element("a", Element.Type.TEXT),
+            Element("b", Element.Type.TEXT, default = "someDefault"),
+            Element(
+                "c", Element.Type.TEXT, mapper = "concat(a,e)", mapperRef = ConcatenateMapper(),
+                mapperArgs = listOf("a", "e"), default = "someDefault"
+            ),
+            Element(
+                "d", Element.Type.TEXT, mapper = "concat(a,e)", mapperRef = ConcatenateMapper(),
+                mapperArgs = listOf("a", "e"), default = "someDefault"
+            ),
+            Element(
+                "e", Element.Type.TEXT, mapper = "concat(a,e)", mapperRef = ConcatenateMapper(),
+                mapperArgs = listOf("a", "e"), mapperAlwaysRun = true, default = "someDefault"
+            )
+        )
+        val schema = Schema("one", "covid-19", elements)
+        val mappedValues = mutableMapOf(
+            elements[0].name to "TEST",
+            elements[1].name to "",
+            elements[2].name to "",
+            elements[3].name to "TEST3",
+            elements[4].name to "TEST4"
+        )
+
+        // Element has value and mapperAlwaysRun is false, so we get the raw value
+        var finalValue = elements[0].processValue(mappedValues, schema)
+        assertThat(finalValue).isEqualTo(mappedValues[elements[0].name])
+
+        // Element with no raw value, no mapper and default returns a default.
+        finalValue = elements[1].processValue(mappedValues, schema)
+        assertThat(finalValue).isEqualTo(elements[1].default)
+
+        // Element with mapper and no raw value returns mapper value
+        finalValue = elements[2].processValue(mappedValues, schema)
+        assertThat(finalValue).isEqualTo("${mappedValues[elements[0].name]}, ${mappedValues[elements[4].name]}")
+
+        // Element with raw value and mapperAlwaysRun to false returns raw value
+        finalValue = elements[3].processValue(mappedValues, schema)
+        assertThat(finalValue).isEqualTo(mappedValues[elements[3].name])
+
+        // Element with raw value and mapperAlwaysRun to true returns mapper value
+        finalValue = elements[4].processValue(mappedValues, schema)
+        assertThat(finalValue).isEqualTo("${mappedValues[elements[0].name]}, ${mappedValues[elements[4].name]}")
+    }
 }
