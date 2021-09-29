@@ -29,7 +29,7 @@ plugins {
     id("org.flywaydb.flyway") version "7.15.0"
     id("nu.studer.jooq") version "6.0.1"
     id("com.github.johnrengelman.shadow") version "7.0.0"
-    id("com.microsoft.azure.azurefunctions") version "1.7.0"
+    id("com.microsoft.azure.azurefunctions") version "1.8.0"
     id("org.jlleitschuh.gradle.ktlint") version "10.2.0"
     id("com.adarshr.test-logger") version "3.0.0"
     id("jacoco")
@@ -524,7 +524,7 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-api:[2.13.2,)")
     implementation("org.apache.logging.log4j:log4j-core:[2.13.2,)")
     implementation("org.apache.logging.log4j:log4j-slf4j-impl:[2.13.2,)")
-    implementation("org.apache.logging.log4j:log4j-api-kotlin:1.0.0")
+    implementation("org.apache.logging.log4j:log4j-api-kotlin:1.1.0")
     implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.1.0")
     implementation("tech.tablesaw:tablesaw-core:0.38.5")
     implementation("com.github.ajalt.clikt:clikt-jvm:3.2.0")
