@@ -4,6 +4,7 @@ const oktaAuthConfig: OktaAuthOptions = {
     issuer: `https://hhs-prime.okta.com/oauth2/default`,
     clientId: "0oa6fm8j4G1xfrthd4h6",
     redirectUri: window.location.origin + "/login/callback",
+    postLogoutRedirectUri: window.localStorage.origin + "/login",
     responseMode: "fragment",
     tokenManager: {
         storage: "sessionStorage",

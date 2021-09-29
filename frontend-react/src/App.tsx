@@ -41,12 +41,12 @@ const App = () => {
         }
         history.replace(toRelativeUrl(originalUri, window.location.origin));
     };
-    const handleIdle = () => {
+    const handleIdle = (): void => {
         if (OKTA_AUTH.authStateManager._authState.isAuthenticated) OKTA_AUTH.signOut();
     }
 
     useIdleTimer({
-        timeout: 1000 * 60 * .25,
+        timeout: 1000 * 60 * 15,
         onIdle: handleIdle,
         debounce: 500
     })
