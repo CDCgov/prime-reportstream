@@ -564,10 +564,10 @@ class ReportFunction : Logging {
                 rows.forEachIndexed { i, row ->
                     if (i == 0) {
                         sb.append(row.toString())
-                    } else if (row == rows[i-1] || row == rows[i-1] + 1) {
+                    } else if (row == rows[i - 1] || row == rows[i - 1] + 1) {
                         isListing = true
                     } else if (isListing) {
-                        sb.append("–" + rows[i-1].toString() + ", " + row.toString())
+                        sb.append("–" + rows[i - 1].toString() + ", " + row.toString())
                         isListing = false
                     } else {
                         sb.append(", " + row.toString())
