@@ -21,11 +21,7 @@ import { AuthorizedRoute } from "./components/AuthorizedRoute";
 import { PERMISSIONS } from "./resources/PermissionsResource";
 import { permissionCheck, reportReceiver } from "./webreceiver-utils";
 import { Upload } from "./pages/Upload";
-import { Suspense } from "react";
-import Spinner from "./components/Spinner";
 import { useIdleTimer } from "react-idle-timer";
-import { NotFound } from "./pages/error/NotFound";
-import { UnsupportedBrowser } from "./pages/error/UnsupportedBrowser";
 import { CODES, ErrorPage } from "./pages/error/ErrorPage";
 
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
