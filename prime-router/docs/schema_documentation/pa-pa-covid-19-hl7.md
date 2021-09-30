@@ -1016,6 +1016,20 @@ The zip code of the provider
 
 ---
 
+**Name**: organization_name
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The SimpleReport concept of organization. It refers to organization for the ordering & performing facility
+
+---
+
 **Name**: patient_age
 
 **Type**: NUMBER

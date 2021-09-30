@@ -55,7 +55,8 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
                     warnings.add(
                         ResultDetail(
                             ResultDetail.DetailScope.TRANSLATION,
-                            "TO:${receiver.fullName}:${receiver.schemaName}", e.localizedMessage
+                            "TO:${receiver.fullName}:${receiver.schemaName}",
+                            InvalidTranslationMessage.new(e.localizedMessage)
                         )
                     )
                 }
