@@ -1,10 +1,14 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 /* eslint-disable jsx-a11y/anchor-has-content */
 import site from "../../content/site.json";
+import { Helmet } from "react-helmet";
 
 export const ELRChecklist = () => {
     return (
         <>
+            <Helmet>
+                <title>ELR onboarding checklist | How it works | {process.env.REACT_APP_TITLE}</title>
+            </Helmet>
             <section id="anchor-top">
 
                 <h1 className="margin-top-0">ELR Onboarding Checklist</h1>

@@ -120,6 +120,8 @@
       display: Latino
     - code: H
       display: Mex. Amer./Hispanic
+    - code: H
+      display: H
     - code: N
       display: Non Hispanic or Latino
     - code: N
@@ -128,6 +130,8 @@
       display: Not Hispanic or Latino
     - code: N
       display: Not Hispanic
+    - code: N
+      display: N
     - code: U
       display: Unknown
     - code: U

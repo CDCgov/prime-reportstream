@@ -169,7 +169,7 @@ Examples:
         val problem: Boolean = when (env) {
             "staging" -> !dbEnv.contains("pdhstaging")
             "test" -> !dbEnv.contains("pdhtest")
-            "local" -> !dbEnv.contains("postgresql") || !dbEnv.contains("localhost")
+            "local" -> !(dbEnv.contains("postgresql:5432") || dbEnv.contains("localhost"))
             "prod" -> !dbEnv.contains("pdhprod")
             else -> true
         }
@@ -269,6 +269,7 @@ Examples:
                 CoolTest
                     .badMsgFormat("*** Tests FAILED:  ${failures.map { it.name }.joinToString(",")} ***")
             )
+            exitProcess(-1)
         } else {
             TermUi.echo(
                 CoolTest.goodMsgFormat("All tests passed")
