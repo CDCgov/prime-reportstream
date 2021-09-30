@@ -851,9 +851,64 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 
 **Name**: Specimen Type
 
-**Type**: TEXT
+**Type**: CODE
 
 **PII**: No
+
+**Format**: $display
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+71836000|Nasopharyngeal structure (body structure)
+71836000|Varied
+71836000|Nasal
+71836000|Nasopharyngeal swab
+71836000|258500001
+71836000|71836000
+45206002|Nasal structure (body structure)
+45206002|45206002
+53342003|Internal nose structure (body structure)
+53342003|Swab of internal nose
+53342003|Anterior nares swab
+53342003|Mid-turbinate nasal swab
+53342003|Nasal Swab
+53342003|445297001
+53342003|53342003
+119297000|Serum
+119297000|Serum specimen
+119297000|Plasma
+119297000|Plasma specimen
+119297000|Whole Blood
+119297000|Whole Blood Sample
+119297000|Blood specimen
+119297000|Venous blood specimen
+119297000|258580003
+119297000|119361006
+119297000|119364003
+119297000|119297000
+31389004|Oral
+31389004|Throat Swab
+31389004|Oropharyngeal
+31389004|Oropharyngeal Swab
+31389004|31389004
+
+**Documentation**:
+
+Translate inbound text to outbound SNOMED Codes
+
+---
+
+**Name**: Specimen Type
+
+**Type**: CODE
+
+**PII**: No
+
+**Format**: $display
 
 **Cardinality**: [0..1]
 
@@ -862,25 +917,51 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 Code | Display
 ---- | -------
 445297001|Swab of internal nose
+445297001|Nasal Swab
+445297001|445297001
 258500001|Nasopharyngeal swab
+258500001|Nasal
+258500001|Varied
+258500001|258500001
 871810001|Mid-turbinate nasal swab
+871810001|871810001
 697989009|Anterior nares swab
+697989009|697989009
 258411007|Nasopharyngeal aspirate
+258411007|258411007
 429931000124105|Nasal aspirate
+429931000124105|429931000124105
 258529004|Throat swab
+258529004|Throat
+258529004|Oral
+258529004|Oropharyngeal
+258529004|Oropharyngeal Swab
+258529004|258529004
 119334006|Sputum specimen
+119334006|119334006
 119342007|Saliva specimen
+119342007|119342007
 258607008|Bronchoalveolar lavage fluid sample
+258607008|258607008
 119364003|Serum specimen
+119364003|Serum
+119364003|119364003
 119361006|Plasma specimen
+119361006|Plasma
+119361006|119361006
 440500007|Dried blood spot specimen
+440500007|440500007
 258580003|Whole blood sample
+258580003|Whole blood
+258580003|258580003
 122555007|Venous blood specimen
+122555007|122555007
 119297000|Blood specimen
+119297000|119297000
 
 **Documentation**:
 
-The specimen source, such as Blood or Serum
+Translate inbound text to outbound SNOMED Codes
 
 ---
 
@@ -1118,6 +1199,20 @@ The name of the laboratory which performed the test, can be the same as the send
 **Documentation**:
 
 The phone number of the testing lab
+
+---
+
+**Name**: Specimen ID
+
+**Type**: ID
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The specimen-id from the testing lab
 
 ---
 
