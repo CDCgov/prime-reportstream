@@ -1,9 +1,8 @@
 import site from '../../content/site.json'
-import { ErrorPage } from './ErrorPage'
 
 export const NotFound = () => {
 
-    const content: JSX.Element =
+    return (
         <div className="usa-prose">
             <h1>Page not found</h1>
             <p className="usa-intro">We’re sorry, we can’t find the page you're looking for. It might have been removed, changed
@@ -24,8 +23,5 @@ export const NotFound = () => {
             </div>
             <p className="text-base"><strong>Error code:</strong> 404</p>
         </div>
-
-    return (
-        <ErrorPage content={content} />
     )
 }

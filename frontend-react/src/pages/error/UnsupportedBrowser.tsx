@@ -1,9 +1,7 @@
 import site from '../../content/site.json'
-import { ErrorPage } from './ErrorPage'
 
 export const UnsupportedBrowser = () => {
-
-    const content =
+    return (
         <div className="rs-unsupported">
             <h1>Sorry! ReportStream does not support your browser</h1>
             <p>Please download and up-to-date browser, like one linked below, and try again.</p>
@@ -16,8 +14,5 @@ export const UnsupportedBrowser = () => {
             <p>Still having issues? Contact ReportStream support at <a
                 href={"mailto:" + site.orgs.RS.email}>{site.orgs.RS.email}</a>.</p>
         </div>
-
-    return (
-        <ErrorPage content={content} />
     )
 }
