@@ -567,8 +567,10 @@ internal class ElementTests {
     fun `test use mapper check`() {
         val elementA = Element("a")
         val elementB = Element("b", mapper = "concat(a,b)", mapperRef = ConcatenateMapper())
-        val elementC = Element("b", mapper = "concat(a,b)", mapperRef = ConcatenateMapper(),
-            mapperOverridesValue = true)
+        val elementC = Element(
+            "b", mapper = "concat(a,b)", mapperRef = ConcatenateMapper(),
+            mapperOverridesValue = true
+        )
 
         assertThat(elementA.useMapper("")).isFalse()
         assertThat(elementA.useMapper("dummyValue")).isFalse()
