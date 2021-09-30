@@ -20,6 +20,8 @@ import { AuthorizedRoute } from "./components/AuthorizedRoute";
 import { PERMISSIONS } from "./resources/PermissionsResource";
 import { permissionCheck, reportReceiver } from "./webreceiver-utils";
 import { Upload } from "./pages/Upload";
+import { Suspense } from "react";
+import Spinner from "./components/Spinner";
 
 const oktaAuth = new OktaAuth(oktaAuthConfig);
 
@@ -59,30 +61,15 @@ const App = () => {
                     <Switch>
                         <Route path="/" exact={true} component={Home} />
                         <Route path="/about" component={About} />
-                        <Route
-                            path="/how-it-works"
-                            component={HowItWorks}
-                        />
-                        <SecureRoute
-                            path="/report-details"
-                            component={Details}
-                        />
-                        <Route
-                            path="/terms-of-service"
-                            component={TermsOfService}
-                        />
-                        <Route
-                            path="/login"
-                            render={() => (
-                                <Login config={oktaSignInConfig} />
-                            )}
-                        />
-                        <Route
-                            path="/login/callback"
-                            component={LoginCallback}
-                        />
+                        <Route path="/how-it-works" component={HowItWorks} />
+                        <Route path="/terms-of-service" component={TermsOfService} />
+                        <Route path="/login" render={() => (<Login config={oktaSignInConfig} />)} />
+                        <Route path="/login/callback" component={LoginCallback} />
                         <AuthorizedRoute path='/daily-data' authorize={PERMISSIONS.RECEIVER} component={Daily} />
                         <AuthorizedRoute path='/upload' authorize={PERMISSIONS.SENDER} component={Upload} />
+                        <Suspense fallback={<Spinner fullPage />}>
+                            <SecureRoute path="/report-details" component={Details} />
+                        </Suspense>
                     </Switch>
                 </div>
                 <footer className="usa-identifier footer">
