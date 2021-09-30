@@ -133,7 +133,7 @@ elements:
       type: TEXT
       csvFields: [{name: Test Code}]
 
-    - name: test_kit_name_id
+    - name: equipment_model_name
       type: TEXT
       default: 99999999
       csvFields: [{name: Device Identifier}]
@@ -227,7 +227,7 @@ elements:
 
 
 #this lookup is in the covid-19 schema, but doesn't appear to be done in practice (?)
-    - name: equipment_model_name
+    - name: equipment_model_name_temp
       table: LIVD-SARS-CoV-2-2021-04-28
       tableColumn: Model
       mapper: livdLookup()
