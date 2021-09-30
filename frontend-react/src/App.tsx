@@ -26,6 +26,7 @@ import Spinner from "./components/Spinner";
 import { useIdleTimer } from "react-idle-timer";
 import { NotFound } from "./pages/error/NotFound";
 import { UnsupportedBrowser } from "./pages/error/UnsupportedBrowser";
+import { CODES, ErrorPage } from "./pages/error/ErrorPage";
 
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
 
@@ -50,7 +51,7 @@ const App = () => {
     }
 
     useIdleTimer({
-        timeout: 1000 * 60 * .25,
+        timeout: 1000 * 60 * 15,
         onIdle: handleIdle,
         debounce: 500
     })
@@ -83,7 +84,13 @@ const App = () => {
                             <SecureRoute path="/report-details" component={Details} />
                         </Suspense>
 
-                        <Route component={NotFound} />
+                        {/* TODO:
+                            This will not work anywhere under the <Suspense /> tags, and MUST be at the bottom
+                            Gotta debug this.
+                            >>> Kevin Haube, September 30, 2021
+                         */}
+                        <Route render={() => (<ErrorPage code={CODES.NOT_FOUND_404} />)} />
+
                     </Switch>
                 </div>
                 <footer className="usa-identifier footer">
