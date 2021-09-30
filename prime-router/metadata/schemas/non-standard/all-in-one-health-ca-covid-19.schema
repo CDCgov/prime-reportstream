@@ -129,17 +129,6 @@ elements:
       documentation: Translate inbound text to outbound SNOMED Codes
       csvFields: [{ name: Specimen Type, format: $display}]
 
-#    - name: specimen_type
-#      type: TEXT
-#      csvFields: [{name: Specimen Type}]
-
-#    - name: specimen_source_site_code
-#      type: CODE
-#      csvFields: [{name: Specimen Type, format: $alt}]
-#      altValues:
-#        - code: "53342003"
-#          display: "445297001"
-
     - name: test_performed_code
       type: TEXT
       csvFields: [{name: Test Code}]
