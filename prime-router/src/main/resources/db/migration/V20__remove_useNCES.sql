@@ -8,7 +8,9 @@
  *
  */
 
--- remove all instances of key 'useNCESFacilityName' from any setting where it exists
+/*
+ * remove all instances of 'useNCESFacilityName' from any setting where it exists
+ */
 UPDATE setting
 SET values = (
     SELECT values #- '{translation,useNCESFacilityName}'
