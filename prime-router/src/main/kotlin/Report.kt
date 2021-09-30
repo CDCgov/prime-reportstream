@@ -33,7 +33,8 @@ typealias DefaultValues = Map<String, String>
 const val SHUFFLE_THRESHOLD = 25
 
 // Basic size limitations on incoming reports
-const val PAYLOAD_MAX_BYTES: Long = (50 * 1000 * 1000).toLong() // Experiments show 10k HL7 Items is ~41Meg. So allow 50Meg
+// Experiments show 10k HL7 Items is ~41Meg. So allow 50Meg
+const val PAYLOAD_MAX_BYTES: Long = (50 * 1000 * 1000).toLong()
 const val REPORT_MAX_ITEMS = 10000
 const val REPORT_MAX_ITEM_COLUMNS = 2000
 const val REPORT_MAX_ERRORS = 100
