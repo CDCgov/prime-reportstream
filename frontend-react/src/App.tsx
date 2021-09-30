@@ -14,6 +14,7 @@ import { Route, useHistory, Switch } from "react-router-dom";
 import { OktaAuth, toRelativeUrl } from "@okta/okta-auth-js";
 import { Security, SecureRoute, LoginCallback } from "@okta/okta-react";
 import { NetworkErrorBoundary } from "rest-hooks";
+import { isIE } from "react-device-detect";
 
 import { About } from "./pages/About";
 import { AuthorizedRoute } from "./components/AuthorizedRoute";
@@ -23,10 +24,13 @@ import { Upload } from "./pages/Upload";
 import { Suspense } from "react";
 import Spinner from "./components/Spinner";
 import { useIdleTimer } from "react-idle-timer";
+import { NotFound } from "./pages/error/NotFound";
+import { UnsupportedBrowser } from "./pages/error/UnsupportedBrowser";
 
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
 
 const App = () => {
+
     const history = useHistory();
     const customAuthHandler = () => {
         history.push("/login");
@@ -46,11 +50,12 @@ const App = () => {
     }
 
     useIdleTimer({
-        timeout: 1000 * 60 * 15,
+        timeout: 1000 * 60 * .25,
         onIdle: handleIdle,
         debounce: 500
     })
 
+    if (isIE) return <UnsupportedBrowser />
     return (
         <Security
             oktaAuth={OKTA_AUTH}
@@ -77,6 +82,8 @@ const App = () => {
                         <Suspense fallback={<Spinner fullPage />}>
                             <SecureRoute path="/report-details" component={Details} />
                         </Suspense>
+
+                        <Route component={NotFound} />
                     </Switch>
                 </div>
                 <footer className="usa-identifier footer">
