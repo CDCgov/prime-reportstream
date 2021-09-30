@@ -80,15 +80,9 @@ const App = () => {
                         <Route path="/login/callback" component={LoginCallback} />
                         <AuthorizedRoute path='/daily-data' authorize={PERMISSIONS.RECEIVER} component={Daily} />
                         <AuthorizedRoute path='/upload' authorize={PERMISSIONS.SENDER} component={Upload} />
-                        <Suspense fallback={<Spinner fullPage />}>
-                            <SecureRoute path="/report-details" component={Details} />
-                        </Suspense>
+                        <SecureRoute path="/report-details" component={Details} />
 
-                        {/* TODO:
-                            This will not work anywhere under the <Suspense /> tags, and MUST be at the bottom
-                            Gotta debug this.
-                            >>> Kevin Haube, September 30, 2021
-                         */}
+                        {/* Handles any undefined route */}
                         <Route render={() => (<ErrorPage code={CODES.NOT_FOUND_404} />)} />
 
                     </Switch>
