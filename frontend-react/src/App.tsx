@@ -56,7 +56,7 @@ const App = () => {
         debounce: 500
     })
 
-    if (isIE) return <UnsupportedBrowser />
+    if (isIE) return <ErrorPage code={CODES.UNSUPPORTED_BROWSER} />
     return (
         <Security
             oktaAuth={OKTA_AUTH}
