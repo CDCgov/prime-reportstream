@@ -128,17 +128,31 @@ This field is ignored.
 
 ---
 
-**Name**: equipment_model_name
+**Name**: Device Identifier
 
-**Type**: TABLE
+**Type**: TEXT
 
 **PII**: No
+
+**Default Value**: 99999999
 
 **Cardinality**: [0..1]
 
 
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
+
+**Table**: LIVD-SARS-CoV-2-2021-08-11
+
+**Table Column**: Model
+
+---
+
+**Name**: equipment_model_name_temp
+
+**PII**: No
+
+**Cardinality**: [0..1]
 
 **Table**: LIVD-SARS-CoV-2-2021-04-28
 
@@ -962,30 +976,6 @@ Code | Display
 **Documentation**:
 
 Translate inbound text to outbound SNOMED Codes
-
----
-
-**Name**: Device Identifier
-
-**Type**: TEXT
-
-**PII**: No
-
-**Default Value**: 99999999
-
-**Cardinality**: [0..1]
-
-
-**Reference URL**:
-[https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
-
-**Table**: LIVD-SARS-CoV-2-2021-08-11
-
-**Table Column**: Testkit Name ID
-
-**Documentation**:
-
-Follows guidence for OBX-17 as defined in the HL7 Confluence page
 
 ---
 
