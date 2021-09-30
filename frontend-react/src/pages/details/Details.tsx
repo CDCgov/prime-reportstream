@@ -4,6 +4,8 @@ import Summary from "./Summary"
 import ReportDetails from './ReportDetails'
 import FacilitiesTable from './FacilitiesTable'
 import HipaaNotice from "../../components/HipaaNotice";
+import { Suspense } from "react";
+import Spinner from "../../components/Spinner";
 
 function useQuery() {
     let query = window.location.search.slice(1);
@@ -18,7 +20,7 @@ function useQuery() {
     return queryMap;
 }
 
-export const Details = () => {
+const DetailsContent = () => {
     let queryMap = useQuery();
     let reportId = queryMap["reportId"];
     let report = useResource(ReportResource.list(), { sortBy: undefined }).find(
@@ -34,3 +36,11 @@ export const Details = () => {
         </>
     );
 };
+
+export const Details = () => {
+    return (
+        <Suspense fallback={<Spinner fullPage />}>
+            <DetailsContent />
+        </Suspense>
+    )
+}
