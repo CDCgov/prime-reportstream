@@ -23,8 +23,8 @@ export const Upload = () => {
     const {authState} = useOktaAuth();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [file, setFile] = useState(null);
-    const [warnings, setWarnings] = useState([]);
-    const [errors, setErrors] = useState([]);
+    const [consolidatedWarnings, setConsolidatedWarnings] = useState([]);
+    const [consolidatedErrors, setConsolidatedErrors] = useState([]);
     const [destinations, setDestinations] = useState('');
     const [reportId, setReportId] = useState(null);
     const [successTimestamp, setSuccessTimestamp] = useState('');
@@ -87,8 +87,8 @@ export const Upload = () => {
         setIsSubmitting(true);
         setReportId(null);
         setSuccessTimestamp('');
-        setWarnings([]);
-        setErrors([]);
+        setConsolidatedWarnings([]);
+        setConsolidatedErrors([]);
         setDestinations('');
 
         if (file) {
@@ -107,13 +107,7 @@ export const Upload = () => {
                     event.target.reset();
                 }
 
-                if (response.warnings && response.warnings.length) {
-                    setWarnings(response.warnings);
-                }
-
                 if (response.errors && response.errors.length) {
-                    setErrors(response.errors);
-
                     // if there is a response status, then there was most likely a server-side error as the json was not parsed
                     if (response.status) {
                         setErrorMessageText('There was a server error. Your file has not been accepted.');
@@ -122,14 +116,20 @@ export const Upload = () => {
                     }
                 }
 
+                if (response.consolidatedWarnings && response.consolidatedWarnings.length) {
+                    setConsolidatedWarnings(response.consolidatedWarnings)
+                }
+
+                if (response.consolidatedErrors && response.consolidatedErrors.length) {
+                    setConsolidatedErrors(response.consolidatedErrors)
+                }
+
                 setHeaderMessage('Your COVID-19 Results');
                 setButtonText('Upload another file');
 
             } catch (error) {
-                if (response && response.errors) {
-                    setErrors(response.errors);
-                } else {
-                    setErrors(error);
+                if (response && response.consolidatedErrors) {
+                    setConsolidatedErrors(response.errors);
                 }
                 setButtonText('Upload another file');
             }
@@ -215,7 +215,33 @@ export const Upload = () => {
                 </div>
             )}
 
-            {warnings.length > 0 && (
+            {consolidatedErrors.length > 0 && (
+                <div>
+                    <div className="usa-alert usa-alert--error" role="alert">
+                        <div className="usa-alert__body">
+                            <h4 className="usa-alert__heading">Error: File not accepted</h4>
+                            <p className="usa-alert__text">
+                                {errorMessageText}
+                            </p>
+                        </div>
+                    </div>
+                    <table className="usa-table usa-table--borderless">
+                        <thead>
+                            <tr>
+                                <th>Requested Edit</th>
+                                <th>Areas Containing the Requested Edit</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {consolidatedErrors.map((e, i) => {
+                                return (<tr key={i}><td>{e['message']}</td><td>{e['rows']}</td></tr>)
+                            })}
+                        </tbody>
+                    </table>
+                </div>
+            )}
+
+            {consolidatedWarnings.length > 0 && (
                 <div>
                     <div className="usa-alert usa-alert--warning">
                         <div className="usa-alert__body">
@@ -227,31 +253,19 @@ export const Upload = () => {
                             </p>
                         </div>
                     </div>
-                    <ul>
-                        {warnings.map((w, i) => {
-                            return (<li key={i}>
-                                {w['id'] && (<span>{w['id']}: </span>)}{w['details']}
-                            </li>);
-                        })}
-                    </ul>
-                </div>
-            )}
-
-            {errors.length > 0 && (
-                <div>
-                    <div className="usa-alert usa-alert--error" role="alert">
-                        <div className="usa-alert__body">
-                            <h4 className="usa-alert__heading">Error: File not accepted</h4>
-                            <p className="usa-alert__text">
-                                {errorMessageText}
-                            </p>
-                        </div>
-                    </div>
-                    <ul>
-                        {errors.map((e, i) => {
-                            return (<li key={i}>{e['details']}</li>);
-                        })}
-                    </ul>
+                    <table className="usa-table usa-table--borderless">
+                        <thead>
+                            <tr>
+                                <th>Requested Edit</th>
+                                <th>Areas Containing the Requested Edit</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {consolidatedWarnings.map((e, i) => {
+                                return (<tr key={i}><td>{e['message']}</td><td>{e['rows']}</td></tr>)
+                            })}
+                        </tbody>
+                    </table>
                 </div>
             )}
 
