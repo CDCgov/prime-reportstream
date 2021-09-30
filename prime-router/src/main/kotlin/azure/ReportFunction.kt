@@ -554,7 +554,57 @@ class ReportFunction : Logging {
             }
             writeDetailsArray("errors", result.errors)
             writeDetailsArray("warnings", result.warnings)
-            it.writeEndObject()
+
+            fun createRowsDescription(rows: MutableList<Int>?): String {
+                // Consolidate row ranges, e.g. 1,2,3,5,7,8,9 -> 1-3,5,7-9
+                if (rows == null || rows.isEmpty()) return ""
+                rows.sort() // should already be sorted, just in case
+                val sb = StringBuilder().append("Rows: ")
+                var isListing = false
+                rows.forEachIndexed { i, row ->
+                    if (i == 0) {
+                        sb.append(row.toString())
+                    } else if (row == rows[i - 1] || row == rows[i - 1] + 1) {
+                        isListing = true
+                    } else if (isListing) {
+                        sb.append("–" + rows[i - 1].toString() + ", " + row.toString())
+                        isListing = false
+                    } else {
+                        sb.append(", " + row.toString())
+                        isListing = false
+                    }
+                    if (i == rows.lastIndex && isListing) {
+                        sb.append("–" + rows[rows.lastIndex].toString())
+                    }
+                }
+                return sb.toString()
+            }
+
+            fun writeConsolidatedArray(field: String, array: List<ResultDetail>) {
+                val rowsByGroupingId = hashMapOf<String, MutableList<Int>>()
+                val messageByGroupingId = hashMapOf<String, String>()
+                array.forEach { resultDetail ->
+                    val groupingId = resultDetail.responseMessage.groupingId()
+                    if (!rowsByGroupingId.containsKey(groupingId)) {
+                        rowsByGroupingId[groupingId] = mutableListOf()
+                        messageByGroupingId[groupingId] = resultDetail.responseMessage.detailMsg()
+                    }
+                    if (resultDetail.row != -1) {
+                        // Add 2 to account for array offset and csv header
+                        rowsByGroupingId[groupingId]?.add(resultDetail.row + 2)
+                    }
+                }
+                it.writeArrayFieldStart(field)
+                rowsByGroupingId.keys.forEach { groupingId ->
+                    it.writeStartObject()
+                    it.writeStringField("message", messageByGroupingId[groupingId])
+                    it.writeStringField("rows", createRowsDescription(rowsByGroupingId[groupingId]))
+                    it.writeEndObject()
+                }
+                it.writeEndArray()
+            }
+            writeConsolidatedArray("consolidatedErrors", result.errors)
+            writeConsolidatedArray("consolidatedWarnings", result.warnings)
         }
         return outStream.toString()
     }
