@@ -37,6 +37,14 @@ const DetailsContent = () => {
     );
 };
 
+/* INFO
+   This has to exist because the Suspense catch was messing with our ability to offer
+   the undefined route option in React Router. The Suspense must be one level above the
+   component loading data (i.e. DetailsContent), but could not exist in App because of
+   the bug it caused with providing the empty Route to redirect to the 404 page.
+   
+   >>> Kevin Haube, Sept 30, 2021
+*/
 export const Details = () => {
     return (
         <Suspense fallback={<Spinner fullPage />}>
