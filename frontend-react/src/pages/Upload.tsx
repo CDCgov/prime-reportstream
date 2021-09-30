@@ -1,3 +1,4 @@
+// @ts-nocheck // TODO: This file is not typesafe. Needs to be refactors and unit tests added.
 import React, {useState} from "react";
 import {
     Button,
