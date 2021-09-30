@@ -2,9 +2,11 @@ package gov.cdc.prime.router
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import assertk.assertions.isFalse
 import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
+import assertk.assertions.isTrue
 import assertk.assertions.startsWith
 import java.time.Instant
 import java.time.LocalDateTime
@@ -559,5 +561,29 @@ internal class ElementTests {
         // Element with raw value and mapperAlwaysRun to true returns mapper value
         finalValue = elements[4].processValue(mappedValues, schema)
         assertThat(finalValue).isEqualTo("${mappedValues[elements[0].name]}, ${mappedValues[elements[4].name]}")
+    }
+
+    @Test
+    fun `test use mapper check`() {
+        val elementA = Element("a")
+        val elementB = Element("b", mapper = "concat(a,b)", mapperRef = ConcatenateMapper())
+        val elementC = Element("b", mapper = "concat(a,b)", mapperRef = ConcatenateMapper(), mapperAlwaysRun = true)
+
+        assertThat(elementA.useMapper("")).isFalse()
+        assertThat(elementA.useMapper("dummyValue")).isFalse()
+
+        assertThat(elementB.useMapper("")).isTrue()
+        assertThat(elementB.useMapper("dummyValue")).isFalse()
+
+        assertThat(elementC.useMapper("")).isTrue()
+        assertThat(elementC.useMapper("dummyValue")).isTrue()
+    }
+
+    @Test
+    fun `test use default check`() {
+        val elementA = Element("a")
+
+        assertThat(elementA.useDefault("")).isTrue()
+        assertThat(elementA.useDefault("dummyValue")).isFalse()
     }
 }

@@ -171,7 +171,7 @@ data class Element(
     val isCodeType get() = this.type == Type.CODE
 
     val isOptional get() = this.cardinality == null ||
-        this.cardinality == Cardinality.ZERO_OR_ONE || canBeBlank
+        this.cardinality == ZERO_OR_ONE || canBeBlank
 
     val canBeBlank
         get() = type == Type.TEXT_OR_BLANK ||
@@ -182,7 +182,7 @@ data class Element(
     /**
      * True if this element has a table lookup.
      */
-    val isTableLookup get() = mapperRef != null && type == Element.Type.TABLE
+    val isTableLookup get() = mapperRef != null && type == Type.TABLE
 
     // Creates a field mapping string showing the external CSV header name(s)
     // and the corresponding internal field name
@@ -766,24 +766,39 @@ data class Element(
     }
 
     /**
+     * Determines if an element needs to use a mapper given the [elementValue].
+     * @return true if a mapper needs to be run
+     */
+    fun useMapper(elementValue: String): Boolean {
+        return mapperRef != null && (mapperAlwaysRun || elementValue.isBlank())
+    }
+
+    /**
+     * Determines if an element needs to use a default given the [elementValue].
+     * @return true if a default needs to be used
+     */
+    fun useDefault(elementValue: String): Boolean {
+        return elementValue.isBlank()
+    }
+
+    /**
      * Determine the value for this element based on the schema configuration.  This function checks if a
      * mapper needs to be run or if a default needs to be applied.
-     * @param rawValue the raw value for this element from the data
      * @param allElementValues the values for all other elements.  Used for the mappers.
      * @param schema the schema
      * @param defaultOverrides element name and value pairs of defaults that override schema defaults
      * @return a mutable set with the processed value or empty string
      */
     fun processValue(
-        allElementValues: MutableMap<String, String>,
+        allElementValues: Map<String, String>,
         schema: Schema,
         defaultOverrides: Map<String, String> = emptyMap()
     ): String {
         var retVal = if (allElementValues[name].isNullOrEmpty()) "" else allElementValues[name]!!
-        if (mapperRef != null && (mapperAlwaysRun || retVal.isBlank())) {
+        if (useMapper(retVal)) {
             // This gets the requiredvalue names, then gets the value from mappedRows that has the data
             val args = mapperArgs ?: emptyList()
-            val valueNames = mapperRef!!.valueNames(this, args)
+            val valueNames = mapperRef?.valueNames(this, args) ?: emptyList()
             val valuesForMapper = valueNames.mapNotNull { elementName ->
                 val valueElement = schema.findElement(elementName)
                 if (valueElement != null && allElementValues.containsKey(elementName) &&
@@ -795,14 +810,14 @@ data class Element(
                 }
             }
             // Only overwrite an existing value if the mapper returns a string
-            val value = mapperRef.apply(this, args, valuesForMapper)
+            val value = mapperRef?.apply(this, args, valuesForMapper)
             if (!value.isNullOrBlank()) {
                 retVal = value
             }
         }
 
         // Finally, add a default value or empty string to elements that still have a null value.
-        if (retVal.isNullOrBlank()) {
+        if (useDefault(retVal)) {
             retVal = if (defaultOverrides.containsKey(name)) {
                 defaultOverrides[name] ?: ""
             } else if (!default.isNullOrBlank()) {
