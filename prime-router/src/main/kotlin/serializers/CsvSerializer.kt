@@ -145,8 +145,8 @@ class CsvSerializer(val metadata: Metadata) {
             var trackingId = if (trackingColumn != null) result.row[trackingColumn] else ""
             if (trackingId.isEmpty())
                 trackingId = "row$index"
-            errors.addAll(result.errors.map { ResultDetail.item(trackingId, it) })
-            warnings.addAll(result.warnings.map { ResultDetail.item(trackingId, it) })
+            errors.addAll(result.errors.map { ResultDetail.item(trackingId, it, index) })
+            warnings.addAll(result.warnings.map { ResultDetail.item(trackingId, it, index) })
             if (result.errors.isEmpty()) {
                 result.row
             } else {
