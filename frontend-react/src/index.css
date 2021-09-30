@@ -186,6 +186,10 @@ h3 img[src*="svg"] {
   margin-top: 0;
 }
 
+main {
+  padding: 4rem 0;
+}
+
 .usa-prose > h1, .usa-prose > h2, .usa-intro {
   font-family: Source Sans Pro Web,Helvetica Neue,Helvetica,Roboto,Arial,sans-serif;
 }

@@ -498,7 +498,7 @@ repositories {
 }
 
 dependencies {
-    jooqGenerator("org.postgresql:postgresql:42.2.23")
+    jooqGenerator("org.postgresql:postgresql:42.2.24")
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-common:$kotlinVersion")
@@ -556,7 +556,7 @@ dependencies {
     implementation("org.flywaydb:flyway-core:7.15.0")
     implementation("com.github.kayr:fuzzy-csv:1.7.0")
     implementation("org.commonmark:commonmark:0.18.0")
-    implementation("com.google.guava:guava:30.1.1-jre")
+    implementation("com.google.guava:guava:31.0.1-jre")
     implementation("com.helger.as2:as2-lib:4.7.1")
     // Prevent mixed versions of these libs based on different versions being included by different packages
     implementation("org.bouncycastle:bcpkix-jdk15on:1.69")
