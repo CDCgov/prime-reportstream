@@ -44,7 +44,10 @@ const senderClient = (authState: AuthState | null) => {
 
         // should end up like "ignore.ignore_waters" from "DHSender_ignore.ignore-waters" from Okta.
         // This is used on the RS side to validate the user claims, so, it need the underscores ("_")
-        return `${organizationName}.${claimsSenderOrganizationArray[1]}`;
+        // The ternary checks if there is anything after the "." in the group name, if not, it leaves it blank
+        // i.e. if the sender name is "DHSender_all-in-one-health-ca", there will be no "."
+        const senderName = claimsSenderOrganizationArray[1] ? `.${claimsSenderOrganizationArray[1]}` : ''
+        return `${organizationName}${senderName}`;
     }
     return '';
 }
