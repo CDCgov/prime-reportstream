@@ -29,7 +29,7 @@ plugins {
     id("org.flywaydb.flyway") version "7.15.0"
     id("nu.studer.jooq") version "6.0.1"
     id("com.github.johnrengelman.shadow") version "7.0.0"
-    id("com.microsoft.azure.azurefunctions") version "1.7.0"
+    id("com.microsoft.azure.azurefunctions") version "1.8.0"
     id("org.jlleitschuh.gradle.ktlint") version "10.2.0"
     id("com.adarshr.test-logger") version "3.0.0"
     id("jacoco")
@@ -556,7 +556,7 @@ dependencies {
     implementation("org.flywaydb:flyway-core:7.15.0")
     implementation("com.github.kayr:fuzzy-csv:1.7.0")
     implementation("org.commonmark:commonmark:0.18.0")
-    implementation("com.google.guava:guava:30.1.1-jre")
+    implementation("com.google.guava:guava:31.0.1-jre")
     implementation("com.helger.as2:as2-lib:4.7.1")
     // Prevent mixed versions of these libs based on different versions being included by different packages
     implementation("org.bouncycastle:bcpkix-jdk15on:1.69")
