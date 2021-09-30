@@ -30,7 +30,7 @@ data class InvalidDateMessage(
     }
 
     override fun groupingId(): String {
-        return fieldMapping
+        return fieldMapping + formattedValue
     }
 
     companion object {
@@ -50,7 +50,7 @@ data class InvalidCodeMessage(
     }
 
     override fun groupingId(): String {
-        return fieldMapping
+        return fieldMapping + formattedValue
     }
 
     companion object {
@@ -70,7 +70,7 @@ data class InvalidPhoneMessage(
     }
 
     override fun groupingId(): String {
-        return fieldMapping
+        return fieldMapping + formattedValue
     }
 
     companion object {
@@ -90,7 +90,7 @@ data class InvalidPostalMessage(
     }
 
     override fun groupingId(): String {
-        return fieldMapping
+        return fieldMapping + formattedValue
     }
 
     companion object {
@@ -110,7 +110,7 @@ data class UnsupportedHDMessage(
     }
 
     override fun groupingId(): String {
-        return fieldMapping
+        return fieldMapping + formattedValue
     }
 
     companion object {
@@ -134,7 +134,7 @@ data class UnsupportedEIMessage(
     }
 
     override fun groupingId(): String {
-        return fieldMapping
+        return fieldMapping + formattedValue
     }
 
     companion object {
