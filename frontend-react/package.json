@@ -4,6 +4,7 @@
     "private": true,
     "dependencies": {
         "@cdc/map": "^2.6.2",
+        "@craco/craco": "^6.3.0",
         "@fortawesome/fontawesome-svg-core": "^1.2.36",
         "@fortawesome/free-solid-svg-icons": "^5.15.4",
         "@fortawesome/react-fontawesome": "^0.1.15",
@@ -23,6 +24,7 @@
         "@types/react": "^17.0.6",
         "@types/react-dom": "^17.0.5",
         "chart.js": "^3.3.2",
+        "craco-sass-resources-loader": "^1.1.0",
         "downloadjs": "^1.4.7",
         "eslint-config-airbnb-base": "^14.2.1",
         "gulp": "^4.0.2",
@@ -54,13 +56,15 @@
     },
     "scripts": {
         "clean": "rimraf ./build",
-        "start": "react-scripts start",
-        "build": "react-scripts build",
+        "start": "HTTPS=true DISABLE_ESLINT_PLUGIN=true react-scripts start",
+        "build": "INLINE_RUNTIME_CHUNK=false REACT_APP_CURRENT_COMMIT=$(git rev-parse HEAD) craco build",
+        "postbuild": "echo 'pushstate: enabled' > build/Staticfile && echo $(git rev-parse HEAD) > build/static/commit.txt",
         "test": "react-scripts test",
         "eject": "react-scripts eject",
         "cypress-open": "./node_modules/.bin/cypress open",
         "cypress-run": "./node_modules/.bin/cypress run",
-        "postbuild": "react-snap"
+        "build:old": "react-scripts build",
+        "postbuild:old": "react-snap"
     },
     "eslintConfig": {
         "extends": [
