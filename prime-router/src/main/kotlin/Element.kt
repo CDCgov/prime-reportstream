@@ -55,7 +55,7 @@ data class Element(
     val maxLength: Int? = null, // used to truncate outgoing formatted String fields.  null == no length limit.
     val default: String? = null,
     val mapper: String? = null,
-    val mapperAlwaysRun: Boolean? = null,
+    val mapperOverridesValue: Boolean? = null,
     val mapperRef: Mapper? = null, // set during fixup
     val mapperArgs: List<String>? = null, // set during fixup
 
@@ -201,7 +201,7 @@ data class Element(
             phi = this.phi ?: baseElement.phi,
             maxLength = this.maxLength ?: baseElement.maxLength,
             mapper = this.mapper ?: baseElement.mapper,
-            mapperAlwaysRun = this.mapperAlwaysRun ?: baseElement.mapperAlwaysRun,
+            mapperOverridesValue = this.mapperOverridesValue ?: baseElement.mapperOverridesValue,
             default = this.default ?: baseElement.default,
             reference = this.reference ?: baseElement.reference,
             referenceUrl = this.referenceUrl ?: baseElement.referenceUrl,
@@ -771,8 +771,8 @@ data class Element(
      * @return true if a mapper needs to be run
      */
     fun useMapper(elementValue: String): Boolean {
-        val alwaysRun = mapperAlwaysRun != null && mapperAlwaysRun
-        return mapperRef != null && (alwaysRun || elementValue.isBlank())
+        val overrideValue = mapperOverridesValue != null && mapperOverridesValue
+        return mapperRef != null && (overrideValue || elementValue.isBlank())
     }
 
     /**

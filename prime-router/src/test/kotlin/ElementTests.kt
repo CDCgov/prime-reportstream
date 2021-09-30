@@ -530,7 +530,7 @@ internal class ElementTests {
             ),
             Element(
                 "e", Element.Type.TEXT, mapper = "concat(a,e)", mapperRef = ConcatenateMapper(),
-                mapperArgs = listOf("a", "e"), mapperAlwaysRun = true, default = "someDefault"
+                mapperArgs = listOf("a", "e"), mapperOverridesValue = true, default = "someDefault"
             )
         )
         val schema = Schema("one", "covid-19", elements)
@@ -567,7 +567,8 @@ internal class ElementTests {
     fun `test use mapper check`() {
         val elementA = Element("a")
         val elementB = Element("b", mapper = "concat(a,b)", mapperRef = ConcatenateMapper())
-        val elementC = Element("b", mapper = "concat(a,b)", mapperRef = ConcatenateMapper(), mapperAlwaysRun = true)
+        val elementC = Element("b", mapper = "concat(a,b)", mapperRef = ConcatenateMapper(),
+            mapperOverridesValue = true)
 
         assertThat(elementA.useMapper("")).isFalse()
         assertThat(elementA.useMapper("dummyValue")).isFalse()
