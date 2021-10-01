@@ -453,7 +453,7 @@ class ProcessData(
         if (warnings.size > 0) {
             echo("Problems occurred during translation to output schema:")
             warnings.forEach {
-                echo("${it.scope} ${it.id}: ${it.details}")
+                echo("${it.scope} ${it.id}: ${it.responseMessage.detailMsg()}")
             }
             echo()
         }

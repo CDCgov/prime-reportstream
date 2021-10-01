@@ -16,6 +16,7 @@ import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.ElementAndValue
 import gov.cdc.prime.router.Hl7Configuration
+import gov.cdc.prime.router.InvalidHL7Message
 import gov.cdc.prime.router.LookupTable
 import gov.cdc.prime.router.Mapper
 import gov.cdc.prime.router.Metadata
@@ -413,8 +414,12 @@ class Hl7Serializer(
         val schema = metadata.findSchema(schemaName) ?: error("Schema name $schemaName not found")
         val mapping = convertBatchMessagesToMap(messageBody, schema)
         val mappedRows = mapping.mappedRows
-        errors.addAll(mapping.errors.map { ResultDetail(ResultDetail.DetailScope.ITEM, "", it) })
-        warnings.addAll(mapping.warnings.map { ResultDetail(ResultDetail.DetailScope.ITEM, "", it) })
+        errors.addAll(mapping.errors.map { ResultDetail(ResultDetail.DetailScope.ITEM, "", InvalidHL7Message.new(it)) })
+        warnings.addAll(
+            mapping.warnings.map {
+                ResultDetail(ResultDetail.DetailScope.ITEM, "", InvalidHL7Message.new(it))
+            }
+        )
         mappedRows.forEach {
             logger.debug("${it.key} -> ${it.value.joinToString()}")
         }

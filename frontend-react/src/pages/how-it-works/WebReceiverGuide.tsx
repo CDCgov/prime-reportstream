@@ -1,7 +1,12 @@
 import site from "../../content/site.json";
+import { Helmet } from "react-helmet";
+
 export const WebReceiverGuide = () => {
     return (
         <>
+            <Helmet>
+                <title>Data download website guide | How it works | {process.env.REACT_APP_TITLE}</title>
+            </Helmet>
             <section id="anchor-top">
                 <h1 className="margin-top-0">Data download website guide</h1>
                 <p className="usa-intro">
