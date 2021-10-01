@@ -529,7 +529,7 @@ dependencies {
     implementation("tech.tablesaw:tablesaw-core:0.38.5")
     implementation("com.github.ajalt.clikt:clikt-jvm:3.2.0")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.12.5")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.12.4")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.12.5")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.12.5")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.12.5")
     implementation("com.github.javafaker:javafaker:1.0.2")
@@ -562,6 +562,7 @@ dependencies {
     implementation("org.bouncycastle:bcpkix-jdk15on:1.69")
     implementation("org.bouncycastle:bcmail-jdk15on:1.69")
     implementation("org.bouncycastle:bcprov-jdk15on:1.69")
+    implementation("commons-net:commons-net:3.8.0")
 
     implementation("com.cronutils:cron-utils:9.1.5")
     implementation("khttp:khttp:1.0.0")
@@ -582,7 +583,7 @@ dependencies {
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
     testImplementation("com.github.KennethWussmann:mock-fuel:1.3.0")
     testImplementation("io.mockk:mockk:1.12.0")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.0")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.1")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.25")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.1")
 }
