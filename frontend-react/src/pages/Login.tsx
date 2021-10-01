@@ -1,13 +1,15 @@
+// @ts-nocheck // TODO: fix types in this file
 import { Link, Redirect } from "react-router-dom";
 import OktaSignInWidget from "../components/OktaSignInWidget";
 import { useOktaAuth } from "@okta/okta-react";
 import { groupToOrg } from "../webreceiver-utils";
 import { SiteAlert } from "@trussworks/react-uswds";
+import { Tokens } from "@okta/okta-auth-js";
 
 export const Login = ({ config }) => {
     const { oktaAuth, authState } = useOktaAuth();
 
-    const onSuccess = (tokens) => {
+    const onSuccess = (tokens: Tokens | undefined) => {
         oktaAuth.handleLoginRedirect(tokens);
         console.log(tokens);
         let organization = tokens?.accessToken?.claims?.organization[0];
@@ -16,7 +18,7 @@ export const Login = ({ config }) => {
         console.log(`g2o = ${groupToOrg(organization)}`);
     };
 
-    const onError = (err) => {
+    const onError = (err: any) => {
         console.log("error logging in", err);
     };
 

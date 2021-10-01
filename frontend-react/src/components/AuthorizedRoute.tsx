@@ -1,3 +1,4 @@
+// @ts-nocheck // TODO: fix types in this file
 import React from 'react';
 import {Redirect} from 'react-router-dom';
 
