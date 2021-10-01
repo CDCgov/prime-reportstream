@@ -1,8 +1,12 @@
 import site from "../content/site.json";
+import { Helmet } from "react-helmet";
 
 export const About = () => {
     return (
         <div className="grid-container">
+            <Helmet>
+                <title>About | {process.env.REACT_APP_TITLE}</title>
+            </Helmet>
             <section id="anchor-top" className="usa-section margin-y-0 tablet:padding-top-2 tablet:padding-bottom-2">
 
                 <h1 className="margin-top-0">About</h1>

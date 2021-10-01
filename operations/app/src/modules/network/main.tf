@@ -25,7 +25,7 @@ module "subnet_addresses" {
     },
     {
       name     = "endpoint"
-      new_bits = 3
+      new_bits = 2
     },
   ]
 }

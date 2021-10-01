@@ -1,7 +1,12 @@
 import site from "../../content/site.json";
+import { Helmet } from "react-helmet";
+
 export const WebReceiverGuide = () => {
     return (
         <>
+            <Helmet>
+                <title>Data download website guide | How it works | {process.env.REACT_APP_TITLE}</title>
+            </Helmet>
             <section id="anchor-top">
                 <h1 className="margin-top-0">Data download website guide</h1>
                 <p className="usa-intro">
@@ -12,12 +17,6 @@ export const WebReceiverGuide = () => {
                     enables a public health department to access data from
                     senders via a secure, online portal.
                 </p>
-                <a
-                    href="/assets/pdf/ReportStream-Web-Receiver-Onboarding-Guide-April-2021.pdf"
-                    className="usa-button usa-button--outline"
-                >
-                    Download this guide
-                </a>
                 <a href={
                     "mailto:" +
                     site.orgs.RS.email +

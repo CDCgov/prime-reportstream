@@ -59,20 +59,11 @@ resource "azurerm_private_endpoint" "endpoint" {
 
   # Automatically register the private endpoint in the private DNS zones
   dynamic "private_dns_zone_group" {
-    for_each = [0] # DNS needed for all zones. For each block retained to keep existing resource paths.
+    for_each = var.create_dns_record ? [0] : []
     content {
       name                 = local.endpoint_name
       private_dns_zone_ids = [for dns_zone in data.azurerm_private_dns_zone.private_dns_cname : dns_zone.id]
     }
-  }
-
-  lifecycle {
-    ignore_changes = [
-      # Added the subnet id to new private endpoints to avoid collisions, but we don't want to rename existing endpoints
-      name,
-      private_service_connection[0].name,
-      private_dns_zone_group[0].name,
-    ]
   }
 }
 
