@@ -567,14 +567,14 @@ class ReportFunction : Logging {
                     } else if (row == rows[i - 1] || row == rows[i - 1] + 1) {
                         isListing = true
                     } else if (isListing) {
-                        sb.append("\u2013" + rows[i - 1].toString() + "\u002c " + row.toString())
+                        sb.append("&#8211;" + rows[i - 1].toString() + ", " + row.toString())
                         isListing = false
                     } else {
-                        sb.append("\u002c " + row.toString())
+                        sb.append(", " + row.toString())
                         isListing = false
                     }
                     if (i == rows.lastIndex && isListing) {
-                        sb.append("\u2013" + rows[rows.lastIndex].toString())
+                        sb.append("&#8211;" + rows[rows.lastIndex].toString())
                     }
                 }
                 return sb.toString()
