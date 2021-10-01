@@ -7,7 +7,7 @@ import { Details } from "./pages/details/Details";
 import { Login } from "./pages/Login";
 import { TermsOfService } from "./pages/TermsOfService";
 import { GovBanner } from "@trussworks/react-uswds";
-import { ReportStreamHeader } from "./components/ReportStreamHeader";
+import { ReportStreamHeader } from "./components/header/ReportStreamHeader";
 
 import { oktaSignInConfig, oktaAuthConfig } from "./oktaConfig";
 import { Route, useHistory, Switch } from "react-router-dom";
@@ -27,7 +27,6 @@ import { CODES, ErrorPage } from "./pages/error/ErrorPage";
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
 
 const App = () => {
-
     const history = useHistory();
     const customAuthHandler = () => {
         history.push("/login");
