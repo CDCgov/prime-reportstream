@@ -11,8 +11,6 @@ export default class AuthResource extends Resource {
     static useFetchInit = (init: RequestInit): RequestInit => {
 
         const { authState } = useOktaAuth();
-
-        // finds the first organization that does not have the word "sender" in it
         const organization = localStorage.getItem(GLOBAL_STORAGE_KEYS.GLOBAL_ORG);
 
         return {

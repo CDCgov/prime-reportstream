@@ -1,26 +1,28 @@
-// import { useOktaAuth } from '@okta/okta-react';
 import { createContext, useContext, useState } from 'react'
 
+/* INFO
+   Please use these rather than hard-coded strings when 
+   referencing localStorage to set, get, or remove items
+   associated with global context */
 export enum GLOBAL_STORAGE_KEYS {
     GLOBAL_BASE = "global-context-",
     GLOBAL_ORG = "global-context-org",
 }
 
-export type State = {
-    organization: string,
-}
-
+/* INFO
+   Updating this default context model will allow us to expand on our
+   global context offerings. We could store all kinds of preferences
+   in here!
+*/
 export const GlobalContext = createContext({
     state: {
         organization: localStorage.getItem(GLOBAL_STORAGE_KEYS.GLOBAL_ORG) || "",
     },
-    updateOrganization: (newOrganization: string) => { console.log("Default") }
+    updateOrganization: (newOrganization: string) => { } // Default placeholder function model
 });
 export function useGlobalContext() { return useContext(GlobalContext) }
 
 function GlobalContextProvider({ children }) {
-
-    // const { oktaAuth, authState } = useOktaAuth();
     const [organization, setOrganization] = useState(localStorage.getItem(GLOBAL_STORAGE_KEYS.GLOBAL_ORG) || "")
 
     const updateOrganization = (newOrganization: string): void => {
@@ -33,6 +35,12 @@ function GlobalContextProvider({ children }) {
             updateOrganization: updateOrganization
         })
     }
+
+    /* INFO
+       This is where we would add more functions like updateOrganiztion()
+       if we wanted to have more update functions for future global context
+       values 
+    */
 
     const [context, setContext] = useState({
         state: {
