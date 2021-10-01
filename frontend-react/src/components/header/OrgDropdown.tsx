@@ -1,17 +1,13 @@
 import { useOktaAuth } from "@okta/okta-react";
 import { Dropdown } from "@trussworks/react-uswds";
-import { CSSProperties, useState } from "react";
+import { CSSProperties, useCallback, useState } from "react";
 import { useResource } from "rest-hooks";
 import OrganizationResource from "../../resources/OrganizationResource";
-import { useGlobalContext } from "../GlobalContextProvider";
+import { GLOBAL_STORAGE_KEYS, useGlobalContext } from "../GlobalContextProvider";
 
 const OrganizationDropdown = () => {
-
-    const [org, setOrg] = useState("md-phd")
+    const [org, setOrg] = useState(localStorage.getItem(GLOBAL_STORAGE_KEYS.GLOBAL_ORG) || "")
     const { updateOrganization } = useGlobalContext();
-
-    // const { authState } = useOktaAuth()
-    // const myOrgName = authState!.accessToken?.claims.organization.find(o => !o.toLowerCase().includes('sender'))
 
     let orgs = useResource(OrganizationResource.list(), {
         sortBy: undefined,

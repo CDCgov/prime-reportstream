@@ -1,6 +1,7 @@
 import { useOktaAuth } from "@okta/okta-react";
 import { Button, Link } from "@trussworks/react-uswds";
 import { useEffect, useState } from "react";
+import { GLOBAL_STORAGE_KEYS } from "../GlobalContextProvider";
 
 const SignInOrUser = () => {
     const { oktaAuth, authState } = useOktaAuth();
@@ -14,6 +15,12 @@ const SignInOrUser = () => {
         }
     });
 
+    const clearGlobalContext = () => {
+        for (let key in localStorage) {
+            if (key.includes(GLOBAL_STORAGE_KEYS.GLOBAL_BASE)) { localStorage.removeItem(key) }
+        }
+    }
+
     return authState && authState.isAuthenticated ? (
         <div className="prime-user-account">
             <span id="emailUser">{user ? user : ""}</span>
@@ -21,7 +28,10 @@ const SignInOrUser = () => {
             <a
                 href="/"
                 id="logout"
-                onClick={() => oktaAuth.signOut()}
+                onClick={() => {
+                    clearGlobalContext()// Clears items stored for GlobalContext
+                    oktaAuth.signOut()
+                }}
                 className="usa-link"
             >
                 Log out
