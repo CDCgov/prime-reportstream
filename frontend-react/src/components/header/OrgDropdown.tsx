@@ -3,22 +3,24 @@ import { Dropdown } from "@trussworks/react-uswds";
 import { CSSProperties, useState } from "react";
 import { useResource } from "rest-hooks";
 import OrganizationResource from "../../resources/OrganizationResource";
+import { useGlobalContext } from "../GlobalContextProvider";
 
 const OrganizationDropdown = () => {
 
     const [org, setOrg] = useState("md-phd")
+    const { updateOrganization } = useGlobalContext();
 
-    const { authState } = useOktaAuth()
-    const myOrgName = authState!.accessToken?.claims.organization.find(o => !o.toLowerCase().includes('sender'))
+    // const { authState } = useOktaAuth()
+    // const myOrgName = authState!.accessToken?.claims.organization.find(o => !o.toLowerCase().includes('sender'))
 
     let orgs = useResource(OrganizationResource.list(), {
         sortBy: undefined,
-    }).sort((a, b) => a.description.localeCompare(b.description));
+    }).sort((a, b) => a.name.localeCompare(b.name));
 
     let setValue = (e: any) => {
         //TODO: change org context for user
         setOrg(e)
-        console.log(e)
+        updateOrganization(e)
     };
     const dropdownStyles: CSSProperties = {
         maxWidth: "200px",
@@ -31,7 +33,7 @@ const OrganizationDropdown = () => {
             name="input-dropdown"
             style={dropdownStyles}
             defaultValue={org}
-            onChange={(e) => setOrg(e.target.value)}
+            onChange={(e) => setValue(e.target.value)}
         >
             {orgs.map((org) => (
                 <option key={org.name} value={org.name}>

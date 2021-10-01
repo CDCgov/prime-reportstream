@@ -8,7 +8,7 @@ import { PERMISSIONS } from '../resources/PermissionsResource'
 
 export const Login = ({ config }) => {
     const { oktaAuth, authState } = useOktaAuth();
-    const { state, updateOrganization } = useGlobalContext();
+    const { updateOrganization } = useGlobalContext();
 
     const onSuccess = (tokens) => {
         oktaAuth.handleLoginRedirect(tokens);
