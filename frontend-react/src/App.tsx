@@ -14,39 +14,48 @@ import { Route, useHistory, Switch } from "react-router-dom";
 import { OktaAuth, toRelativeUrl } from "@okta/okta-auth-js";
 import { Security, SecureRoute, LoginCallback } from "@okta/okta-react";
 import { NetworkErrorBoundary } from "rest-hooks";
+import { isIE } from "react-device-detect";
 
 import { About } from "./pages/About";
 import { AuthorizedRoute } from "./components/AuthorizedRoute";
 import { PERMISSIONS } from "./resources/PermissionsResource";
 import { permissionCheck, reportReceiver } from "./webreceiver-utils";
 import { Upload } from "./pages/Upload";
-import { Suspense } from "react";
-import Spinner from "./components/Spinner";
+import { useIdleTimer } from "react-idle-timer";
+import { CODES, ErrorPage } from "./pages/error/ErrorPage";
 
-const oktaAuth = new OktaAuth(oktaAuthConfig);
+const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
 
 const App = () => {
-    const history = useHistory();
 
+    const history = useHistory();
     const customAuthHandler = () => {
         history.push("/login");
     };
-
     const restoreOriginalUri = async (_oktaAuth, originalUri) => {
         // check if the user would have any data to receive via their organizations from the okta claim
         // direct them to the /upload page if they do not have an organization that receives data
-        const authState = oktaAuth.authStateManager._authState;
+        const authState = OKTA_AUTH.authStateManager._authState;
         if (!reportReceiver(authState) && permissionCheck(PERMISSIONS.SENDER, authState)) {
             history.replace(toRelativeUrl(`${window.location.origin}/upload`, window.location.origin));
             return;
         }
-
         history.replace(toRelativeUrl(originalUri, window.location.origin));
     };
+    const handleIdle = (): void => {
+        if (OKTA_AUTH.authStateManager._authState.isAuthenticated) OKTA_AUTH.signOut();
+    }
 
+    useIdleTimer({
+        timeout: 1000 * 60 * 15,
+        onIdle: handleIdle,
+        debounce: 500
+    })
+
+    if (isIE) return <ErrorPage code={CODES.UNSUPPORTED_BROWSER} />
     return (
         <Security
-            oktaAuth={oktaAuth}
+            oktaAuth={OKTA_AUTH}
             onAuthRequired={customAuthHandler}
             restoreOriginalUri={restoreOriginalUri}
         >
@@ -67,9 +76,11 @@ const App = () => {
                         <Route path="/login/callback" component={LoginCallback} />
                         <AuthorizedRoute path='/daily-data' authorize={PERMISSIONS.RECEIVER} component={Daily} />
                         <AuthorizedRoute path='/upload' authorize={PERMISSIONS.SENDER} component={Upload} />
-                        <Suspense fallback={<Spinner fullPage />}>
-                            <SecureRoute path="/report-details" component={Details} />
-                        </Suspense>
+                        <SecureRoute path="/report-details" component={Details} />
+
+                        {/* Handles any undefined route */}
+                        <Route render={() => (<ErrorPage code={CODES.NOT_FOUND_404} />)} />
+
                     </Switch>
                 </div>
                 <footer className="usa-identifier footer">

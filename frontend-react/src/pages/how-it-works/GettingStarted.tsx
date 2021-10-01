@@ -1,9 +1,13 @@
 import site from "../../content/site.json";
+import { Helmet } from "react-helmet";
 
 /* eslint-disable jsx-a11y/anchor-has-content */
 export const GettingStarted = () => {
     return (
         <>
+            <Helmet>
+                <title>Getting started | How it works | {process.env.REACT_APP_TITLE}</title>
+            </Helmet>
             <section id="anchor-top">
                 <h1 className="margin-top-0">Getting started</h1>
                 <p className="usa-intro">
