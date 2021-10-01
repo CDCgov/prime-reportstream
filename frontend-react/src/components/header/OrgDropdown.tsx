@@ -1,6 +1,5 @@
-import { useOktaAuth } from "@okta/okta-react";
 import { Dropdown } from "@trussworks/react-uswds";
-import { CSSProperties, useCallback, useState } from "react";
+import { CSSProperties, useState } from "react";
 import { useResource } from "rest-hooks";
 import OrganizationResource from "../../resources/OrganizationResource";
 import { GLOBAL_STORAGE_KEYS, useGlobalContext } from "../GlobalContextProvider";
@@ -17,6 +16,7 @@ const OrganizationDropdown = () => {
         //TODO: change org context for user
         setOrg(e)
         updateOrganization(e)
+        window.location.reload()
     };
     const dropdownStyles: CSSProperties = {
         maxWidth: "200px",
