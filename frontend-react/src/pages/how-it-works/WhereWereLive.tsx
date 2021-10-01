@@ -1,10 +1,14 @@
 import live from "../../content/live.json";
 import site from "../../content/site.json";
 import CdcMap from "@cdc/map";
+import { Helmet } from "react-helmet";
 
 export const WhereWereLive = () => {
     return (
         <>
+            <Helmet>
+                <title>Where we're live | How it works | {process.env.REACT_APP_TITLE}</title>
+            </Helmet>
             <section id="anchor-top">
                 <h1 className="margin-top-0">Where we're live</h1>
 
@@ -30,7 +34,7 @@ export const WhereWereLive = () => {
                     {live.data
                         .sort((a, b) => a.state.localeCompare(b.state))
                         .map((data) => (
-                            <li>{data.state}</li>
+                            <li key={`key_${data.state}`}>{data.state}</li>
                         ))}
                 </ul>
                 Companies or testing facilities sending test results may still

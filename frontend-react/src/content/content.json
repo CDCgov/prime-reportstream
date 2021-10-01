@@ -42,7 +42,7 @@
             "type": "deliveryMethods",
             "features": [
                 {
-                    "title": "Data download",
+                    "title": "1. Data download",
                     "method": 1,
                     "summary": "Log in and download test results quickly through our web application",
                     "icon": "file-download",
@@ -60,7 +60,7 @@
                     ]
                 },
                 {
-                    "title": "Electronic lab reporting",
+                    "title": "2. Electronic lab reporting",
                     "method": 2,
                     "summary": "Work with ReportStream to set up a customized ELR connection",
                     "icon": "file-medical",

@@ -111,7 +111,7 @@ Is the patient employed in health care?
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
 
-**Table**: LIVD-SARS-CoV-2-2021-04-28
+**Table**: LIVD-SARS-CoV-2-2021-08-11
 
 **Table Column**: Model
 
@@ -189,7 +189,7 @@ unique id to track the usage of the message
 
 **Name**: Order_test_date
 
-**Type**: DATE
+**Type**: DATETIME
 
 **PII**: No
 
@@ -1722,7 +1722,7 @@ Is the test authorized for unproctored administration by the FDA (Y, N, UNK)
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-04-28
+**Table**: LIVD-SARS-CoV-2-2021-08-11
 
 **Table Column**: Test Performed LOINC Code
 

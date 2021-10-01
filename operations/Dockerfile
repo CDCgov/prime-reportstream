@@ -1,5 +1,8 @@
 FROM centos:centos8.3.2011
 
+# Install Git (required for referencing Terraform modules)
+RUN yum -y install git
+
 ARG AZURE_CLI_VERSION
 
 # Install Azure CLI

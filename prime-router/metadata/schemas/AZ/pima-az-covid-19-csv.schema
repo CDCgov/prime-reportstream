@@ -53,6 +53,10 @@ elements:
         code: "LumiraDx SARS-CoV-2 Ag Test*"
       - display: Antigen
         code: Sofia 2 SARS Antigen FIA
+      - display: Antigen
+        code: Sofia 2 Flu + SARS Antigen FIA*
+      - display: Antigen
+        code: Sienna-Clarity COVID-19 Antigen Rapid Test Cassette*
     csvFields:
     - name: Device_type
       format: $alt

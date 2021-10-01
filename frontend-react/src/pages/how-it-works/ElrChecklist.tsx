@@ -1,10 +1,14 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 /* eslint-disable jsx-a11y/anchor-has-content */
 import site from "../../content/site.json";
+import { Helmet } from "react-helmet";
 
 export const ELRChecklist = () => {
     return (
         <>
+            <Helmet>
+                <title>ELR onboarding checklist | How it works | {process.env.REACT_APP_TITLE}</title>
+            </Helmet>
             <section id="anchor-top">
 
                 <h1 className="margin-top-0">ELR Onboarding Checklist</h1>
@@ -24,13 +28,13 @@ export const ELRChecklist = () => {
                 <p className="margin-top-4"><strong>On this page:</strong></p>
 
                 <ul>
-                    <li><a href="#elr-contact-information">ELR contact information</a></li>
-                    <li><a href="#alternate-contact-information">Program or admin staff contact information</a></li>
-                    <li><a href="#data-requirements-and-preferences">Data requirements and preferences</a></li>
-                    <li><a href="#testing-facility-registration">Testing facility registration</a></li>
-                    <li><a href="#hl7-data-fields">HL7 data fields (Not applicable if using an alternate data format)</a></li>
-                    <li><a href="#sftp-details">SFTP details</a></li>
-                    <li><a href="#document-uploads">Document uploads</a></li>
+                    <li><a href="#elr-contact-information" className="usa-link">ELR contact information</a></li>
+                    <li><a href="#alternate-contact-information" className="usa-link">Program or admin staff contact information</a></li>
+                    <li><a href="#data-requirements-and-preferences" className="usa-link">Data requirements and preferences</a></li>
+                    <li><a href="#testing-facility-registration" className="usa-link">Testing facility registration</a></li>
+                    <li><a href="#hl7-data-fields" className="usa-link">HL7 data fields (Not applicable if using an alternate data format)</a></li>
+                    <li><a href="#sftp-details" className="usa-link">SFTP details</a></li>
+                    <li><a href="#document-uploads" className="usa-link">Document uploads</a></li>
                 </ul>
 
                 <p className="margin-bottom-4">Before gathering information on the checklist or completing the ELR onboarding form, we recommend first reviewing information on our <a href="/how-it-works/getting-started/" className="usa-link">Getting started page</a> and the technical details outlined in <a href="/how-it-works/systems-and-settings/" className="usa-link">Systems & settings</a> with your IT and data specialists.</p>
@@ -41,7 +45,7 @@ export const ELRChecklist = () => {
 
                 <h3 id="elr-contact-information">ELR contact information</h3>
 
-                This is the person who helps set up the ELR connection. It is often an IT person or a third party agency.
+                <p>This is the person who helps set up the ELR connection. It is often an IT person or a third party agency.</p>
 
                 <ul>
                     <li>Name</li>
@@ -79,7 +83,7 @@ export const ELRChecklist = () => {
 
                 <h3 id="testing-facility-registration">Testing facility registration </h3>
 
-                ReportStream collects unique identifiers from testing facilities when they register to send data, including name, <a href="https://www.cdc.gov/clia/about.html">CLIA</a> number, and address. This information is included with data sent to public health departments.
+                <p>ReportStream collects unique identifiers from testing facilities when they register to send data, including name, <a href="https://www.cdc.gov/clia/about.html">CLIA</a> number, and address. This information is included with data sent to public health departments.</p>
 
                 <ul>
                     <li><span className="text-bold">Registration requirements:</span> Do you require testing facilities to register before data is sent to you? </li>
@@ -117,9 +121,9 @@ export const ELRChecklist = () => {
 
                 <h2>Ready for ReportStream?</h2>
 
-                Once you have all the information you need, submit our <a href="https://prime.powerappsportals.us/siw/">ReportStream ELR onboarding form</a>. We’ll get back to you within a week.
+                <p>Once you have all the information you need, submit our <a href="https://prime.powerappsportals.us/siw/">ReportStream ELR onboarding form</a>. We’ll get back to you within a week.</p>
 
-                Have questions or aren’t quite ready for our ELR connection? Send us an email and we’ll help you figure out next steps.
+                <p>Have questions or aren’t quite ready for our ELR connection? Send us an email and we’ll help you figure out next steps.</p>
 
                 <p><a href={
                     "mailto:" +

@@ -12,7 +12,13 @@ resource "azurerm_storage_account" "storage_account_candidate" {
 
   network_rules {
     default_action = "Deny"
-    ip_rules       = []
+    bypass         = ["None"]
+
+    ip_rules = sensitive(concat(
+      split(",", data.azurerm_key_vault_secret.cyberark_ip_ingress.value),
+      [split("/", var.terraform_caller_ip_address)[0]], # Storage accounts only allow CIDR-notation for /[0-30]
+    ))
+
     virtual_network_subnet_ids = [
       data.azurerm_subnet.public.id,
       data.azurerm_subnet.container.id,
@@ -42,6 +48,7 @@ module "storageaccount_candidate_blob_private_endpoint" {
   resource_group     = var.resource_group
   location           = var.location
   endpoint_subnet_id = data.azurerm_subnet.endpoint.id
+  create_dns_record  = true
 }
 
 module "storageaccount_candidate_file_private_endpoint" {
@@ -52,6 +59,7 @@ module "storageaccount_candidate_file_private_endpoint" {
   resource_group     = var.resource_group
   location           = var.location
   endpoint_subnet_id = data.azurerm_subnet.endpoint.id
+  create_dns_record  = true
 }
 
 module "storageaccount_candidate_queue_private_endpoint" {
@@ -62,6 +70,55 @@ module "storageaccount_candidate_queue_private_endpoint" {
   resource_group     = var.resource_group
   location           = var.location
   endpoint_subnet_id = data.azurerm_subnet.endpoint.id
+  create_dns_record  = true
+}
+
+module "storage_candidate_blob_private_endpoint" {
+  source             = "../common/private_endpoint"
+  resource_id        = azurerm_storage_account.storage_account_candidate.id
+  name               = azurerm_storage_account.storage_account_candidate.name
+  type               = "storage_account_blob"
+  resource_group     = var.resource_group
+  location           = var.location
+  endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet.id
+  create_dns_record  = false
+
+  depends_on = [
+    # Prevent unexpected order-of-operations by placing a hard dependency against the current private endpoint
+    module.storageaccount_candidate_blob_private_endpoint
+  ]
+}
+
+module "storage_candidate_file_private_endpoint" {
+  source             = "../common/private_endpoint"
+  resource_id        = azurerm_storage_account.storage_account_candidate.id
+  name               = azurerm_storage_account.storage_account_candidate.name
+  type               = "storage_account_file"
+  resource_group     = var.resource_group
+  location           = var.location
+  endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet.id
+  create_dns_record  = false
+
+  depends_on = [
+    # Prevent unexpected order-of-operations by placing a hard dependency against the current private endpoint
+    module.storageaccount_candidate_file_private_endpoint
+  ]
+}
+
+module "storage_candidate_queue_private_endpoint" {
+  source             = "../common/private_endpoint"
+  resource_id        = azurerm_storage_account.storage_account_candidate.id
+  name               = azurerm_storage_account.storage_account_candidate.name
+  type               = "storage_account_queue"
+  resource_group     = var.resource_group
+  location           = var.location
+  endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet.id
+  create_dns_record  = false
+
+  depends_on = [
+    # Prevent unexpected order-of-operations by placing a hard dependency against the current private endpoint
+    module.storageaccount_candidate_queue_private_endpoint
+  ]
 }
 
 resource "azurerm_storage_management_policy" "retention_policy_candidate" {
@@ -123,10 +180,19 @@ resource "azurerm_storage_account" "storage_partner_candidate" {
 
   network_rules {
     default_action = "Deny"
-    ip_rules       = split(",", data.azurerm_key_vault_secret.hhsprotect_ip_ingress.value)
+    bypass         = ["None"]
+
+    ip_rules = sensitive(concat(
+      split(",", data.azurerm_key_vault_secret.hhsprotect_ip_ingress.value),
+      split(",", data.azurerm_key_vault_secret.cyberark_ip_ingress.value),
+      [split("/", var.terraform_caller_ip_address)[0]], # Storage accounts only allow CIDR-notation for /[0-30]
+    ))
+
     virtual_network_subnet_ids = [
       data.azurerm_subnet.public.id,
-      data.azurerm_subnet.endpoint.id
+      data.azurerm_subnet.endpoint.id,
+      data.azurerm_subnet.public_subnet.id,
+      data.azurerm_subnet.endpoint_subnet.id,
     ]
   }
 
@@ -171,7 +237,24 @@ module "storageaccountcandidatepartner_blob_private_endpoint" {
   resource_group     = var.resource_group
   location           = var.location
   endpoint_subnet_id = data.azurerm_subnet.endpoint.id
+  create_dns_record  = true
 }
+
+//module "storage_candidatepartner_blob_private_endpoint" {
+//  source             = "../common/private_endpoint"
+//  resource_id        = azurerm_storage_account.storage_partner_candidate.id
+//  name               = azurerm_storage_account.storage_partner_candidate.name
+//  type               = "storage_account_blob"
+//  resource_group     = var.resource_group
+//  location           = var.location
+//  endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet.id
+//  create_dns_record  = false
+//
+//  depends_on = [
+//    # Prevent unexpected order-of-operations by placing a hard dependency against the current private endpoint
+//    module.storageaccountcandidatepartner_blob_private_endpoint
+//  ]
+//}
 
 resource "azurerm_storage_container" "storage_candidate_container_hhsprotect" {
   name                 = "hhsprotect"

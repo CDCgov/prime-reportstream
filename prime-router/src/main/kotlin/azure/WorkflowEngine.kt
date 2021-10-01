@@ -310,23 +310,37 @@ class WorkflowEngine(
             )
             val ids = tasks.map { it.reportId }
             val reportFiles = ids
-                .map { db.fetchReportFile(it, org = null, txn = txn) }
+                .mapNotNull {
+                    try {
+                        db.fetchReportFile(it, org = null, txn = txn)
+                    } catch (e: Exception) {
+                        println(e.printStackTrace())
+                        // Call to sanityCheckReports further below will log the problem in better detail.
+                        // note that we are logging but ignoring this error, so that it doesn't poison the entire batch
+                        null // id not found. Can occur if errors in ReportFunction fail to write to REPORT_FILE
+                    }
+                }
                 .map { (it.reportId as ReportId) to it }
                 .toMap()
             val (organization, receiver) = findOrganizationAndReceiver(messageEvent.receiverName, txn)
-            // todo remove this check
+            // This check is needed as long as TASK does not FK to REPORT_FILE.  @todo FK TASK to REPORT_FILE
             ActionHistory.sanityCheckReports(tasks, reportFiles, false)
-            // todo Note that the sanity check means the !! is safe.
-            val headers = tasks.map {
-                createHeader(it, reportFiles[it.reportId]!!, null, organization, receiver)
+            val headers = tasks.mapNotNull {
+                if (reportFiles[it.reportId] != null) {
+                    createHeader(it, reportFiles[it.reportId]!!, null, organization, receiver)
+                } else {
+                    null
+                }
             }
 
             updateBlock(headers, txn)
-
-            headers.forEach {
-                val currentAction = Event.EventAction.parseQueueMessage(it.task.nextAction.literal)
+            // Here we iterate through the original tasks, rather than headers.
+            // So even TASK entries whose report_id is missing from REPORT_FILE are marked as done,
+            // because missing report_id is an unrecoverable error. @todo  See #2185 for better solution.
+            tasks.forEach {
+                val currentAction = Event.EventAction.parseQueueMessage(it.nextAction.literal)
                 updateHeader(
-                    it.task.reportId,
+                    it.reportId,
                     currentAction,
                     Event.EventAction.NONE,
                     nextActionAt = null,
@@ -428,13 +442,14 @@ class WorkflowEngine(
         reportFile: ReportFile,
         itemLineages: List<ItemLineage>?,
         organization: Organization?,
-        receiver: Receiver?
+        receiver: Receiver?,
+        fetchBlobBody: Boolean = true
     ): Header {
         val schema = if (reportFile.schemaName != null)
             metadata.findSchema(reportFile.schemaName)
         else null
 
-        val content = if (reportFile.bodyUrl != null)
+        val content = if (reportFile.bodyUrl != null && fetchBlobBody)
             blob.downloadBlob(reportFile.bodyUrl)
         else null
         return Header(task, reportFile, itemLineages, organization, receiver, schema, content)
@@ -443,6 +458,7 @@ class WorkflowEngine(
     fun fetchHeader(
         reportId: ReportId,
         organization: Organization,
+        fetchBlobBody: Boolean = true
     ): Header {
         val reportFile = db.fetchReportFile(reportId, organization)
         val task = db.fetchTask(reportId)
@@ -453,7 +469,7 @@ class WorkflowEngine(
         // todo remove this sanity check
         ActionHistory.sanityCheckReport(task, reportFile, false)
         val itemLineages = db.fetchItemLineagesForReport(reportId, reportFile.itemCount)
-        return createHeader(task, reportFile, itemLineages, organization, receiver)
+        return createHeader(task, reportFile, itemLineages, organization, receiver, fetchBlobBody)
     }
 
     /**

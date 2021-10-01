@@ -1,22 +1,25 @@
 import site from "../../content/site.json";
+import { Helmet } from "react-helmet";
 
 /* eslint-disable jsx-a11y/anchor-has-content */
 export const GettingStarted = () => {
     return (
         <>
+            <Helmet>
+                <title>Getting started | How it works | {process.env.REACT_APP_TITLE}</title>
+            </Helmet>
             <section id="anchor-top">
                 <h1 className="margin-top-0">Getting started</h1>
                 <p className="usa-intro">
-                    First, we’ll get you connected to our web application, where
-                    you can immediately start downloading reporting data that is
-                    relevant to your jurisdiction.
+                    First, we’ll get you connected to our web application, where you can
+                    immediately start downloading reporting data that is relevant to your
+                    jurisdiction.
                 </p>
                 <p className="usa-intro">
                     Depending on your needs, we can also create a customized
-                    Electronic Lab Reporting (ELR) connection — an online setup
-                    used to send digital lab reports to public health
-                    departments via a secure server. Either way, reach out to us
-                    and we’ll get back to you in about a week.
+                    Electronic Lab Reporting (ELR) connection —  an online setup used to send
+                    digital lab reports to public health departments via a secure server.
+                    Either way, reach out to us and we’ll get back to you in about a week.
                 </p>
                 <a
                     href={
@@ -32,13 +35,13 @@ export const GettingStarted = () => {
                 On this page:
                 <ul>
                     <li>
-                        <a href="#data-download">Data download</a>
+                        <a href="#data-download" className="usa-link">Data download</a>
                     </li>
                     <li>
-                        <a href="#elr-connection">ELR connection</a>
+                        <a href="#elr-connection" className="usa-link">ELR connection</a>
                     </li>
                     <li>
-                        <a href="#connecting-to-testing-facilities">
+                        <a href="#connecting-to-testing-facilities" className="usa-link">
                             Connecting to testing facilities
                         </a>
                     </li>
@@ -48,7 +51,7 @@ export const GettingStarted = () => {
 
             <section>
                 <h2 id="data-download">
-                    <a href="#data-download"></a>Data download
+                    Data download
                 </h2>
                 Our fastest option to get up and running, our web application
                 gives you access to reporting results via manual download from
@@ -65,7 +68,7 @@ export const GettingStarted = () => {
                                     site.orgs.RS.email +
                                     "?subject=Getting started with ReportStream"
                                 }
-                                className="margin-right-1"
+                                className="margin-right-1 usa-link"
                             >
                                 Send us an email
                             </a>
@@ -96,7 +99,6 @@ export const GettingStarted = () => {
                     </li>
                 </ol>
                 <h2 id="elr-connection">
-                    <a href="#elr-connection"></a>
                     ELR connection
                 </h2>
                 If you’ve decided you’ll need an ELR connection for your public
@@ -112,7 +114,7 @@ export const GettingStarted = () => {
                         <p className="margin-top-05">
                             Tell us your data configuration requirements and
                             preferences by submitting our{" "}
-                            <a href={site.forms.intakeElr.url}>
+                            <a href={site.forms.intakeElr.url} className="usa-link">
                                 ReportStream ELR onboarding form
                             </a>
                             . We’ll review your requirements and reach out to
@@ -146,30 +148,36 @@ export const GettingStarted = () => {
                     </li>
                 </ol>
                 <h2 id="connecting-to-testing-facilities">
-                    <a href="#connecting-to-testing-facilities"></a>
                     Connecting to testing facilities
                 </h2>
-                New testing facilities join ReportStream on a regular basis,
-                through our partner SimpleReport, or through other public health
-                data aggregators and apps. After they join, their data will be
-                sent automatically to the correct public health department(s) in
-                their jurisdiction who are part of ReportStream. Data is
-                accessible via our web application or the ELR connection. You
-                can request a weekly email update from ReportStream to notify
-                you when new facilities join in your jurisdiction, and let us
-                know if you have any special requirements for them to complete
-                before they join. ### ELR onboarding checklist Check out our{" "}
-                <a
-                    href="/how-it-works/elr-checklist/"
-                    className="usa-link margin-right-1"
-                >
-                    ELR onboarding checklist
-                </a>
-                to preview the information you’ll need to complete step one: the{" "}
-                <a href={site.forms.intakeElr.url} className="usa-link">
-                    ReportStream ELR onboarding form
-                </a>
-                .
+                <p>
+                    New testing facilities join ReportStream on a regular basis,
+                    through our partner SimpleReport, or through other public health
+                    data aggregators and apps. After they join, their data will be
+                    sent automatically to the correct public health department(s) in
+                    their jurisdiction who are part of ReportStream. Data is
+                    accessible via our web application or the ELR connection.
+                </p>
+                <p>
+                    You can request a weekly email update from ReportStream to notify
+                    you when new facilities join in your jurisdiction, and let us
+                    know if you have any special requirements for them to complete
+                    before they join.
+                </p>
+                <h3>ELR onboarding checklist</h3>
+                <p>Check out our{" "}
+                    <a
+                        href="/how-it-works/elr-checklist/"
+                        className="usa-link margin-right-1 usa-link"
+                    >
+                        ELR onboarding checklist
+                    </a>
+                    to preview the information you’ll need to complete step one: the{" "}
+                    <a href={site.forms.intakeElr.url} className="usa-link">
+                        ReportStream ELR onboarding form
+                    </a>
+                    .
+                </p>
                 <hr className="margin-y-6" />
                 <h2>Get started with ReportStream</h2>
                 Ready to bring ReportStream to your jurisdiction or just have

@@ -187,6 +187,24 @@ class GetReportById :
     }
 }
 
+class GetFacilitiesByReportId :
+    BaseHistoryFunction() {
+    @FunctionName("getFacilitiesByReportId")
+    @StorageAccount("AzureWebJobsStorage")
+    fun run(
+        @HttpTrigger(
+            name = "getFacilitiesByReportId",
+            methods = [HttpMethod.GET],
+            authLevel = AuthorizationLevel.ANONYMOUS,
+            route = "history/report/{reportId}/facilities"
+        ) request: HttpRequestMessage<String?>,
+        @BindingName("reportId") reportId: String,
+        context: ExecutionContext,
+    ): HttpResponseMessage {
+        return getFacilitiesForReportId(request, reportId, context)
+    }
+}
+
 open class BaseHistoryFunction : Logging {
     val DAYS_TO_SHOW = 30L
     val workflowEngine = WorkflowEngine()
@@ -207,8 +225,10 @@ open class BaseHistoryFunction : Logging {
                 organizationName ?: authClaims.organization.name
             )
             @Suppress("NEW_INFERENCE_NO_INFORMATION_FOR_PARAMETER")
-            val reports = headers.sortedByDescending { it.createdAt }.mapNotNull {
-                val facilities = workflowEngine.db.getFacilitiesForDownloadableReport(it.reportId)
+            val reports = headers.sortedByDescending { it.createdAt }.map {
+                // removing the call for facilities for now so we can call a
+                // method directly to just get the facilities and display them then
+                val facilities = listOf<Facility>() // workflowEngine.db.getFacilitiesForDownloadableReport(it.reportId)
                 val actions = arrayListOf<Action>()
                 // get the org passed in
                 val adminOrg = workflowEngine.settings.organizations.firstOrNull { org ->
@@ -216,7 +236,11 @@ open class BaseHistoryFunction : Logging {
                 }
                 val header =
                     try {
-                        workflowEngine.fetchHeader(it.reportId, adminOrg ?: authClaims.organization)
+                        workflowEngine.fetchHeader(
+                            it.reportId,
+                            adminOrg ?: authClaims.organization,
+                            fetchBlobBody = false
+                        )
                     } catch (ex: Exception) {
                         context.logger.severe("Unable to find file for ${it.reportId} ${ex.message}")
                         null
@@ -247,6 +271,7 @@ open class BaseHistoryFunction : Logging {
                     .actions(actions)
                     .receivingOrg(it.receivingOrg)
                     .receivingOrgSvc(externalOrgName ?: it.receivingOrgSvc)
+                    .sendingOrg(it.sendingOrg ?: "")
                     .displayName(if (it.externalName.isNullOrBlank()) it.receivingOrgSvc else it.externalName)
                     .content(content) // don't get the content for now. that can get beefy
                     .fileName(filename)
@@ -326,6 +351,32 @@ open class BaseHistoryFunction : Logging {
         return response
     }
 
+    fun getFacilitiesForReportId(
+        request: HttpRequestMessage<String?>,
+        reportId: String?,
+        context: ExecutionContext
+    ): HttpResponseMessage {
+        // make sure we're auth'd and error out if we're not
+        checkAuthenticated(request, context)
+            ?: return request.createResponseBuilder(HttpStatus.UNAUTHORIZED).build()
+
+        return try {
+            // get the facilities
+            val facilities = workflowEngine.db.getFacilitiesForDownloadableReport(ReportId.fromString(reportId))
+            request
+                .createResponseBuilder(HttpStatus.OK)
+                .header("Content-Type", "application/json")
+                .body(facilities)
+                .build()
+        } catch (ex: Exception) {
+            context.logger.warning("Exception during download of $reportId - file not found")
+            request.createResponseBuilder(HttpStatus.NOT_FOUND)
+                .body("File $reportId not found")
+                .header("Content-Type", "text/html")
+                .build()
+        }
+    }
+
     data class AuthClaims(
         val userName: String,
         val organization: Organization
@@ -360,9 +411,16 @@ open class BaseHistoryFunction : Logging {
                 // get the user name and org
                 userName = jwt.claims["sub"].toString()
                 val orgs = jwt.claims["organization"]
+
+                // a user can now be part of a sender group as well, so find the first "non-sender" group in their claims
                 @Suppress("UNCHECKED_CAST")
-                val org = if (orgs !== null) (orgs as List<String>)[0] else ""
-                orgName = if (org.length > 3) org.substring(2) else ""
+                val org = if (orgs !== null) (orgs as List<String>).find {
+                    org ->
+                    !org.lowercase().contains("sender")
+                } else ""
+                if (org != null) {
+                    orgName = if (org.length > 3) org.substring(2) else ""
+                }
             } catch (ex: Throwable) {
                 context.logger.log(Level.WARNING, "Error in verification of token", ex)
                 return null

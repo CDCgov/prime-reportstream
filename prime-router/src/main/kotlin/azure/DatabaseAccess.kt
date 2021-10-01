@@ -9,7 +9,7 @@ import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.Tables.COVID_RESULT_METADATA
 import gov.cdc.prime.router.azure.db.Tables.EMAIL_SCHEDULE
 import gov.cdc.prime.router.azure.db.Tables.JTI_CACHE
-import gov.cdc.prime.router.azure.db.Tables.REPORT_ANCESTORS
+import gov.cdc.prime.router.azure.db.Tables.REPORT_FACILITIES
 import gov.cdc.prime.router.azure.db.Tables.REPORT_LINEAGE
 import gov.cdc.prime.router.azure.db.Tables.SETTING
 import gov.cdc.prime.router.azure.db.Tables.TASK
@@ -651,6 +651,9 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                         record.patientRaceCode = td.patientRaceCode
                         record.patientState = td.patientState?.take(METADATA_MAX_LENGTH)
                         record.siteOfCare = td.siteOfCare?.take(METADATA_MAX_LENGTH)
+                        record.senderId = td.senderId?.take(METADATA_MAX_LENGTH)
+                        record.testKitNameId = td.testKitNameId?.take(METADATA_MAX_LENGTH)
+                        record.testPerformedLoincCode = td.testPerformedLoincCode?.take(METADATA_MAX_LENGTH)
                     }
                 }
             )
@@ -664,35 +667,22 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
         val ctx = if (txn != null) DSL.using(txn) else create
         val result =
             ctx.select(
-                COVID_RESULT_METADATA.TESTING_LAB_CLIA,
-                COVID_RESULT_METADATA.TESTING_LAB_NAME,
-                count(COVID_RESULT_METADATA.COVID_RESULTS_METADATA_ID)
-                    .`as`("COUNT_RECORDS"),
-                count(COVID_RESULT_METADATA.TEST_RESULT)
-                    .filterWhere(
-                        COVID_RESULT_METADATA.TEST_RESULT.like("Detected%")
-                    )
-                    .`as`("POSITIVE"),
-                COVID_RESULT_METADATA.TESTING_LAB_CITY,
-                COVID_RESULT_METADATA.TESTING_LAB_STATE
+                REPORT_FACILITIES.TESTING_LAB_NAME,
+                REPORT_FACILITIES.TESTING_LAB_CITY,
+                REPORT_FACILITIES.TESTING_LAB_STATE,
+                REPORT_FACILITIES.TESTING_LAB_CLIA,
+                REPORT_FACILITIES.POSITIVE,
+                REPORT_FACILITIES.COUNT_RECORDS
             )
-                .from(COVID_RESULT_METADATA)
-                .join(REPORT_ANCESTORS(reportId))
-                .on(REPORT_ANCESTORS.REPORT_ANCESTORS_.eq(COVID_RESULT_METADATA.REPORT_ID))
-                .groupBy(
-                    COVID_RESULT_METADATA.TESTING_LAB_NAME,
-                    COVID_RESULT_METADATA.TESTING_LAB_CLIA,
-                    COVID_RESULT_METADATA.TESTING_LAB_CITY,
-                    COVID_RESULT_METADATA.TESTING_LAB_STATE
-                )
+                .from(REPORT_FACILITIES(reportId))
                 .fetch()
 
         return result.map {
             Facility.Builder(
                 facility = it.get(COVID_RESULT_METADATA.TESTING_LAB_NAME),
                 CLIA = it.get(COVID_RESULT_METADATA.TESTING_LAB_CLIA),
-                total = it.component3().toLong(),
-                positive = it.component4().toLong(),
+                total = it.get(REPORT_FACILITIES.COUNT_RECORDS),
+                positive = it.get(REPORT_FACILITIES.POSITIVE),
                 location =
                 if (it.get(COVID_RESULT_METADATA.TESTING_LAB_CITY)
                     .isNullOrBlank()
@@ -724,7 +714,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             ) > 0
     }
 
-    /** Fetch the newest CreatedAt timestamp, active or deleted, or return [ifEmptySettings] */
+    /** Fetch the newest CreatedAt timestamp, active or deleted. */
     fun fetchLastModified(txn: DataAccessTransaction? = null): OffsetDateTime? {
         val ctx = if (txn != null) DSL.using(txn) else create
         return ctx.select(DSL.max(SETTING.CREATED_AT))

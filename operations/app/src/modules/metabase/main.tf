@@ -34,7 +34,7 @@ resource "azurerm_app_service" "metabase" {
     "APPINSIGHTS_PROFILERFEATURE_VERSION"             = "1.0.0"
     "APPINSIGHTS_SNAPSHOTFEATURE_VERSION"             = "1.0.0"
     "APPLICATIONINSIGHTS_CONFIGURATION_CONTENT"       = ""
-    "APPLICATIONINSIGHTS_CONNECTION_STRING"           = ""
+    "APPLICATIONINSIGHTS_CONNECTION_STRING"           = var.ai_connection_string
     "ApplicationInsightsAgent_EXTENSION_VERSION"      = "~3"
     "DiagnosticServices_EXTENSION_VERSION"            = "~3"
     "InstrumentationEngine_EXTENSION_VERSION"         = "disabled"
@@ -47,5 +47,5 @@ resource "azurerm_app_service" "metabase" {
 
 resource "azurerm_app_service_virtual_network_swift_connection" "metabase_vnet_integration" {
   app_service_id = azurerm_app_service.metabase.id
-  subnet_id      = data.azurerm_subnet.public.id
+  subnet_id      = var.environment == "dev" ? data.azurerm_subnet.public_subnet.id : data.azurerm_subnet.public.id
 }

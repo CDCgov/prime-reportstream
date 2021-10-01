@@ -1,57 +1,48 @@
+import { Link } from "react-router-dom";
+import { Helmet } from "react-helmet";
+
 export const SecurityPractices = () => {
     return (
         <>
+            <Helmet>
+                <title>Security practices | How it works | {process.env.REACT_APP_TITLE}</title>
+            </Helmet>
             <section id="anchor-top">
                 <h1 className="margin-top-0">
-                    Security practices questions and answers
+                    Security practices
                 </h1>
+                <p className="usa-intro">Get answers to common questions about ReportStream security and data practices.</p>
+
+
             </section>
             <hr className="margin-y-6" />
             <section>
                 <h2>
-                    What Security Audits, Certifications and Attestations does
-                    ReportStream have?
+                    Does ReportStream have security audits and attestations?
                 </h2>
                 <p>
-                    As a project of the US Federal government, PRIME
-                    ReportStream follows the provisions of the Federal
-                    Information System Modernization Act of 2014. FISMA requires
-                    federal agencies to implement information security plans to
-                    protect sensitive data.
+                    As a project of the U.S. federal government, ReportStream complies
+                    with the Federal Information System Modernization Act (FISMA) of 2014.
                 </p>
                 <p>
-                    FISMA and the National Institute of Standards and Technology
-                    (NIST) set the FISMA compliance guidelines. NIST is
-                    responsible for maintaining and updating the compliance
-                    documents as directed by FISMA. More specifically, NIST and
-                    the NIST SP 800-53 guideline:
+                    FISMA sets standards and requires federal agencies to implement information
+                    security plans to protect sensitive data. FISMA and the National Institute of
+                    Standards and Technology (NIST) set the FISMA compliance guidelines.
+                    More specifically, NIST guidelines:
                 </p>
                 <ul>
-                    <li>
-                        Sets minimum requirements for information security plans
-                        and procedures.
-                    </li>
-                    <li>
-                        Recommends types of security (systems, software, etc.)
-                        that agencies must implement and approves vendors.
-                    </li>
-                    <li>
-                        Standardizes risk assessment process and sets varying
-                        standards of information security based on agency risk
-                        assessments.
-                    </li>
+                    <li>Set minimum requirements for information security plans and procedures.</li>
+                    <li>Recommend security systems, software, etc. that agencies must implement and approve.</li>
+                    <li>Standardize the risk assessment process and set varying standards of information security based on agency risk assessments.</li>
                 </ul>
                 <p>
-                    As part of the FISMA process, PRIME ReportStream has a full
-                    authority to operate (ATO). This authority was granted by
-                    CDC’s Chief Information Officer/Authorizing Official after
-                    an extensive review process that includes documenting over
-                    500 security controls, reviews by multiple teams, and
-                    penetration testing by third-parties.
+                    As part of the FISMA process, ReportStream has full authority to operate (ATO).
+                    This authority was granted by CDC’s Chief Information Officer/Authorizing Official
+                    after an extensive review process documenting over 500 security controls,
+                    reviews by multiple teams, and penetration testing by third parties.
                 </p>
                 <p>
-                    The following link contains more information about the FISMA
-                    process and{" "}
+                    TLearn more about the FISMA process and the{" "}
                     <a
                         href="https://csrc.nist.gov/projects/risk-management"
                         className="usa-link"
@@ -71,23 +62,22 @@ export const SecurityPractices = () => {
                     products or services to the Federal government. However, as
                     mentioned above, ReportStream follows the FISMA law and both
                     FISMA and FedRAMP share the same NIST security guidelines
-                    and standards.{" "}
+                    and standards.
                 </p>
 
                 <h2>How is ReportStream hosted?</h2>
                 <p>
-                    The PRIME ReportStream service is hosted in a secured
-                    FedRAMP-accredited environment.{" "}
+                    ReportStream is hosted in a secured FedRAMP accredited environment.
                 </p>
 
-                <h2>Is data encrypted in transit?</h2>
+                <h2>Is ReportStream data encrypted in transit?</h2>
                 <p>
                     All data is encrypted in transit. ReportStream also uses
                     data-in-transit encryption for connections to send test
                     results to states.
                 </p>
 
-                <h2>Is data encrypted at rest? </h2>
+                <h2>Is ReportStream data encrypted at rest? </h2>
                 <p>
                     All data is encrypted when stored using facilities of the
                     secured FedRAMP-accredited environment.
@@ -113,7 +103,7 @@ export const SecurityPractices = () => {
                     access go through Federal government background checks.{" "}
                 </p>
 
-                <h2>What audit trail is kept by ReportStream?</h2>
+                <h2>Does ReportStream keep an audit trail?</h2>
                 <p>
                     For business and security purposes, ReportStream keeps many
                     different logs of activity. In particular, ReportStream
@@ -125,17 +115,17 @@ export const SecurityPractices = () => {
 
                 <h2>How long is data stored?</h2>
                 <p>
-                    ReportStream is a conduit for data, not a store of record.
-                    However, to operate reliably, it is necessary to temporarily
-                    retain data in ReportStream. The current retention period
-                    for test results and other PII & PHI is 30 days.
+                    ReportStream is a data conduit , not a store of record. However,
+                    to operate reliably, it is necessary to temporarily retain data in ReportStream.
+                    The current retention period for test results and other personal identifiable
+                    information (PII) and  protected health information (PHI) is 30 days.
                 </p>
 
-                <h2>Are there terms of service for ReportStream?</h2>
+                <h2>Does ReportStream have terms of service?</h2>
                 <p>
-                    The CDC has a standard terms-of-service agreement for all
-                    organizations that have test results that they wish
-                    ReportStream to send to public health agencies.
+                    All organizations that send and receive test results through ReportStream
+                    to public health agencies are governed under these{" "}
+                    <Link to="/terms-of-service" className="usa-link">terms of service</Link>.
                 </p>
 
                 <p className="margin-top-8">

@@ -16,6 +16,8 @@ import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.ElementAndValue
 import gov.cdc.prime.router.Hl7Configuration
+import gov.cdc.prime.router.InvalidHL7Message
+import gov.cdc.prime.router.LookupTable
 import gov.cdc.prime.router.Mapper
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
@@ -27,7 +29,6 @@ import gov.cdc.prime.router.ValueSet
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.InputStream
 import java.io.OutputStream
-import java.lang.IllegalStateException
 import java.time.Instant
 import java.time.LocalDate
 import java.time.OffsetDateTime
@@ -413,8 +414,12 @@ class Hl7Serializer(
         val schema = metadata.findSchema(schemaName) ?: error("Schema name $schemaName not found")
         val mapping = convertBatchMessagesToMap(messageBody, schema)
         val mappedRows = mapping.mappedRows
-        errors.addAll(mapping.errors.map { ResultDetail(ResultDetail.DetailScope.ITEM, "", it) })
-        warnings.addAll(mapping.warnings.map { ResultDetail(ResultDetail.DetailScope.ITEM, "", it) })
+        errors.addAll(mapping.errors.map { ResultDetail(ResultDetail.DetailScope.ITEM, "", InvalidHL7Message.new(it)) })
+        warnings.addAll(
+            mapping.warnings.map {
+                ResultDetail(ResultDetail.DetailScope.ITEM, "", InvalidHL7Message.new(it))
+            }
+        )
         mappedRows.forEach {
             logger.debug("${it.key} -> ${it.value.joinToString()}")
         }
@@ -447,6 +452,8 @@ class Hl7Serializer(
         val replaceValue = hl7Config?.replaceValue ?: emptyMap()
         val suppressQst = hl7Config?.suppressQstForAoe ?: false
         val suppressAoe = hl7Config?.suppressAoe ?: false
+        val useOrderingFacilityName = hl7Config?.useOrderingFacilityName
+            ?: Hl7Configuration.OrderingFacilityName.STANDARD
 
         // and we have some fields to suppress
         val suppressedFields = hl7Config
@@ -533,6 +540,8 @@ class Hl7Serializer(
                         setAOE(terser, element, aoeSequence++, date, "UNK", report, row, suppressQst = suppressQst)
                     }
                 }
+            } else if (element.hl7Field == "ORC-21-1") {
+                setOrderingFacilityComponent(terser, rawFacilityName = value, useOrderingFacilityName, report, row)
             } else if (element.hl7Field == "NTE-3") {
                 setNote(terser, value)
             } else if (element.hl7Field == "MSH-7") {
@@ -598,11 +607,17 @@ class Hl7Serializer(
         if (!hl7Config?.cliaForOutOfStateTesting.isNullOrEmpty()) {
             val testingStateField = "OBX-24-4"
             val pathSpecTestingState = formPathSpec(testingStateField)
-            val testingState = terser.get(pathSpecTestingState)
+            var originState = terser.get(pathSpecTestingState)
+
+            if (originState.isEmpty()) {
+                val orderingStateField = "ORC-24-4"
+                val pathSpecOrderingState = formPathSpec(orderingStateField)
+                originState = terser.get(pathSpecOrderingState)
+            }
 
             val stateCode = report.destination?.let { settings.findOrganization(it.organizationName)?.stateCode }
 
-            if (!testingState.equals(stateCode)) {
+            if (!originState.equals(stateCode)) {
                 val sendingFacility = "MSH-4-2"
                 val pathSpecSendingFacility = formPathSpec(sendingFacility)
                 terser.set(pathSpecSendingFacility, hl7Config?.cliaForOutOfStateTesting)
@@ -630,6 +645,118 @@ class Hl7Serializer(
                 }
             }
         }
+    }
+
+    /**
+     * Set the [terser]'s ORC-21 in accordance to the [useOrderingFacilityName] value.
+     */
+    internal fun setOrderingFacilityComponent(
+        terser: Terser,
+        rawFacilityName: String,
+        useOrderingFacilityName: Hl7Configuration.OrderingFacilityName,
+        report: Report,
+        row: Int,
+    ) {
+        when (useOrderingFacilityName) {
+            // No overrides
+            Hl7Configuration.OrderingFacilityName.STANDARD -> {
+                setPlainOrderingFacility(terser, rawFacilityName)
+            }
+
+            // Override with NCES ID if available
+            Hl7Configuration.OrderingFacilityName.NCES -> {
+                val ncesId = getSchoolId(report, row, rawFacilityName)
+                if (ncesId == null)
+                    setPlainOrderingFacility(terser, rawFacilityName)
+                else
+                    setNCESOrderingFacility(terser, rawFacilityName, ncesId)
+            }
+
+            // Override with organization name if available
+            Hl7Configuration.OrderingFacilityName.ORGANIZATION_NAME -> {
+                val organizationName = report.getString(row, "organization_name") ?: rawFacilityName
+                setPlainOrderingFacility(terser, organizationName)
+            }
+        }
+    }
+
+    /**
+     * Set the [terser]'s ORC-21-1 with just the [rawFacilityName]
+     */
+    internal fun setPlainOrderingFacility(
+        terser: Terser,
+        rawFacilityName: String,
+    ) {
+        terser.set(formPathSpec("ORC-21-1"), rawFacilityName.trim().take(50))
+    }
+
+    /**
+     * Set the [terser]'s ORC-21 in accordance to APHL guidance using the [rawFacilityName]
+     * and the [ncesId] value.
+     */
+    internal fun setNCESOrderingFacility(
+        terser: Terser,
+        rawFacilityName: String,
+        ncesId: String
+    ) {
+        // Implement APHL guidance for ORC-21 when NCES is known
+        val facilityName = "${rawFacilityName.trim().take(32)}$NCES_EXTENSION$ncesId"
+        terser.set(formPathSpec("ORC-21-1"), facilityName)
+        terser.set(formPathSpec("ORC-21-6-1"), "NCES.IES")
+        terser.set(formPathSpec("ORC-21-6-2"), "2.16.840.1.113883.3.8589.4.1.119")
+        terser.set(formPathSpec("ORC-21-6-3"), "ISO")
+        terser.set(formPathSpec("ORC-21-7"), "XX")
+        terser.set(formPathSpec("ORC-21-10"), ncesId)
+    }
+
+    /**
+     * Lookup the NCES id if the site_type is a k12 school
+     */
+    internal fun getSchoolId(report: Report, row: Int, rawFacilityName: String): String? {
+        // This code only works on the COVID-19 schema or its extensions
+        if (!report.schema.containsElement("ordering_facility_name")) return null
+        // This recommendation only applies to k-12 schools
+        if (report.getString(row, "site_of_care") != "k12") return null
+
+        // NCES lookup is based on school name and zip code
+        val zipCode = report.getString(row, "ordering_facility_zip_code", 5) ?: ""
+        return ncesLookupTable.value.lookupBestMatch(
+            lookupColumn = "NCESID",
+            searchColumn = "SCHNAME",
+            searchValue = rawFacilityName,
+            filterColumn = "LZIP",
+            filterValue = zipCode,
+            canonicalize = { canonicalizeSchoolName(it) },
+            commonWords = listOf("ELEMENTARY", "JUNIOR", "HIGH", "MIDDLE")
+        )
+    }
+
+    /**
+     * Prepare the string for matching by throwing away non-searchable characters and spacing
+     */
+    internal fun canonicalizeSchoolName(schoolName: String): String {
+        val normalizeSchoolType = schoolName
+            .uppercase()
+            .replace("SCHOOL", "")
+            .replace("(H)", "HIGH")
+            .replace("(M)", "MIDDLE")
+            .replace("K-8", "K8")
+            .replace("K-12", "K12")
+            .replace("\\(E\\)|ELEM\\.|EL\\.".toRegex(), "ELEMENTARY")
+            .replace("ELEM\\s|ELEM$".toRegex(), "ELEMENTARY ")
+            .replace("SR HIGH", "SENIOR HIGH")
+            .replace("JR HIGH", "JUNIOR HIGH")
+
+        val possesive = normalizeSchoolType
+            .replace("\'S", "S")
+        val onlyLettersAndSpaces = possesive
+            .replace("[^A-Z0-9\\s]".toRegex(), " ")
+
+        // Throw away single letter words
+        return onlyLettersAndSpaces
+            .split(" ")
+            .filter { it.length > 1 }
+            .joinToString(" ")
     }
 
     private fun setComponentForTable(
@@ -672,8 +799,8 @@ class Hl7Serializer(
             // as an issue, and the HHS spec on confluence supports their configuration, but we need
             // to isolate out this option, so we don't affect other states we're already in production with
             if (mappedValue == "DII" && config?.replaceDiiWithOid == true && hl7Field == "OBX-18-3") {
-                terser.set(formPathSpec("OBX-18-2"), OBX_18_EQUIPMENT_UID_OID)
-                terser.set(formPathSpec("OBX-18-3"), "ISO")
+                terser.set(formPathSpec("OBX-18-3"), OBX_18_EQUIPMENT_UID_OID)
+                terser.set(formPathSpec("OBX-18-4"), "ISO")
             } else {
                 terser.set(pathSpec, mappedValue)
             }
@@ -848,7 +975,23 @@ class Hl7Serializer(
             while (terser.get("/PATIENT_RESULT/PATIENT/PID-13($rep)-2")?.isEmpty() == false) {
                 rep += 1
             }
-            setComponents("/PATIENT_RESULT/PATIENT/PID-13($rep)", "PRN")
+            // if the first component contains an email value, we want to extract the values, and we want to then
+            // put the patient phone number into rep 1 for PID-13. this means that the phone number will always
+            // appear first in the list of repeats in PID-13
+            if (rep > 0 && terser.get("/PATIENT_RESULT/PATIENT/PID-13(0)-2") == "NET") {
+                // get the email back out
+                val email = terser.get("/PATIENT_RESULT/PATIENT/PID-13(0)-4")
+                // clear out the email value now so it's empty for the phone number repeat
+                terser.set("/PATIENT_RESULT/PATIENT/PID-13(0)-4", "")
+                // overwrite the first repeat
+                setComponents("/PATIENT_RESULT/PATIENT/PID-13(0)", "PRN")
+                // now write the second repeat
+                terser.set("/PATIENT_RESULT/PATIENT/PID-13(1)-2", "NET")
+                terser.set("/PATIENT_RESULT/PATIENT/PID-13(1)-3", "Internet")
+                terser.set("/PATIENT_RESULT/PATIENT/PID-13(1)-4", email)
+            } else {
+                setComponents("/PATIENT_RESULT/PATIENT/PID-13($rep)", "PRN")
+            }
         } else {
             setComponents(pathSpec, "WPN")
         }
@@ -1290,6 +1433,7 @@ class Hl7Serializer(
         const val MESSAGE_TRIGGER_EVENT = "R01"
         const val SOFTWARE_VENDOR_ORGANIZATION: String = "Centers for Disease Control and Prevention"
         const val SOFTWARE_PRODUCT_NAME: String = "PRIME ReportStream"
+        const val NCES_EXTENSION = "_NCES_"
         const val OBX_18_EQUIPMENT_UID_OID: String = "2.16.840.1.113883.3.3719"
 
         /*
@@ -1322,5 +1466,10 @@ class Hl7Serializer(
          * List of fields that have a CE type
          */
         val CE_FIELDS = listOf("OBX-15-1")
+
+        // Do a lazy init because this table may never be used and it is large
+        val ncesLookupTable = lazy {
+            LookupTable.read("./metadata/tables/nces_id.csv")
+        }
     }
 }

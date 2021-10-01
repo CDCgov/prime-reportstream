@@ -35,6 +35,8 @@ ID Now|Molecular
 BinaxNOW COVID-19 Ag Card|Antigen
 LumiraDx SARS-CoV-2 Ag Test*|Antigen
 Sofia 2 SARS Antigen FIA|Antigen
+Sofia 2 Flu + SARS Antigen FIA*|Antigen
+Sienna-Clarity COVID-19 Antigen Rapid Test Cassette*|Antigen
 
 **Documentation**:
 
@@ -88,7 +90,7 @@ Is the patient employed in health care?
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
 
-**Table**: LIVD-SARS-CoV-2-2021-04-28
+**Table**: LIVD-SARS-CoV-2-2021-08-11
 
 **Table Column**: Model
 
@@ -134,7 +136,7 @@ Is this the patient's first test for this condition?
 
 **Name**: Order_test_date
 
-**Type**: DATE
+**Type**: DATETIME
 
 **PII**: No
 
@@ -453,6 +455,10 @@ The zip code of the provider
 **Default Value**: 
 
 **Cardinality**: [0..1]
+
+**Documentation**:
+
+The SimpleReport concept of organization. It refers to organization for the ordering & performing facility
 
 ---
 
@@ -898,7 +904,7 @@ Is the patient symptomatic?
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-04-28
+**Table**: LIVD-SARS-CoV-2-2021-08-11
 
 **Table Column**: Test Performed LOINC Long Name
 

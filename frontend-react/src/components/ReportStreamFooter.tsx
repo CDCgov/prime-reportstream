@@ -21,7 +21,7 @@ export const ReportStreamFooter = () => {
                     </IdentifierLogo>
                 </IdentifierLogos>
                 <IdentifierIdentity domain="cdc.gov">
-                    An official website of the
+                    An official website of the{" "}
                     <Link href="https://cdc.gov">
                         Centers for Disease Control and Prevention
                     </Link>
@@ -56,6 +56,11 @@ export const ReportStreamFooter = () => {
                 <IdentifierLinkItem>
                     <IdentifierLink href="https://www.cdc.gov/other/privacy.html">
                         Privacy policy
+                    </IdentifierLink>
+                </IdentifierLinkItem>
+                <IdentifierLinkItem>
+                    <IdentifierLink href="https://www.hhs.gov/vulnerability-disclosure-policy/index.html">
+                        Vulnerability disclosure policy
                     </IdentifierLink>
                 </IdentifierLinkItem>
                 <IdentifierLinkItem>

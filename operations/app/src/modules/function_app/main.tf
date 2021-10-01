@@ -35,7 +35,19 @@ locals {
 
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE" = false
 
-    "APPINSIGHTS_INSTRUMENTATIONKEY" = var.ai_instrumentation_key
+    # App Insights
+    "APPINSIGHTS_INSTRUMENTATIONKEY"                  = var.ai_instrumentation_key
+    "APPINSIGHTS_PROFILERFEATURE_VERSION"             = "1.0.0"
+    "APPINSIGHTS_SNAPSHOTFEATURE_VERSION"             = "1.0.0"
+    "APPLICATIONINSIGHTS_CONFIGURATION_CONTENT"       = ""
+    "APPLICATIONINSIGHTS_CONNECTION_STRING"           = var.ai_connection_string
+    "ApplicationInsightsAgent_EXTENSION_VERSION"      = "~3"
+    "DiagnosticServices_EXTENSION_VERSION"            = "~3"
+    "InstrumentationEngine_EXTENSION_VERSION"         = "disabled"
+    "SnapshotDebugger_EXTENSION_VERSION"              = "disabled"
+    "XDT_MicrosoftApplicationInsights_BaseExtensions" = "disabled"
+    "XDT_MicrosoftApplicationInsights_Mode"           = "recommended"
+    "XDT_MicrosoftApplicationInsights_PreemptSdk"     = "disabled"
 
     "FEATURE_FLAG_SETTINGS_ENABLED" = true
   }
@@ -144,7 +156,7 @@ resource "azurerm_key_vault_access_policy" "functionapp_client_config_access_pol
 
 resource "azurerm_app_service_virtual_network_swift_connection" "function_app_vnet_integration" {
   app_service_id = azurerm_function_app.function_app.id
-  subnet_id      = data.azurerm_subnet.public.id
+  subnet_id      = var.environment == "dev" ? data.azurerm_subnet.public_subnet.id : data.azurerm_subnet.public.id
 }
 
 // Enable sticky slot settings

@@ -386,8 +386,8 @@ data class Element(
     /**
      * Take a formatted value and check to see if can be stored in a report.
      */
-    fun checkForError(formattedValue: String, format: String? = null): String? {
-        if (formattedValue.isBlank() && !isOptional && !canBeBlank) return "Blank value for element $fieldMapping"
+    fun checkForError(formattedValue: String, format: String? = null): ResponseMessage? {
+        if (formattedValue.isBlank() && !isOptional && !canBeBlank) return MissingFieldMessage.new(fieldMapping)
         return when (type) {
             Type.DATE -> {
                 try {
@@ -395,12 +395,20 @@ data class Element(
                     return null
                 } catch (e: DateTimeParseException) {
                 }
-                return try {
+                try {
                     val formatter = DateTimeFormatter.ofPattern(format ?: datePattern, Locale.ENGLISH)
                     LocalDate.parse(formattedValue, formatter)
-                    null
+                    return null
                 } catch (e: DateTimeParseException) {
-                    "Invalid date: '$formattedValue' for element $fieldMapping"
+                }
+                try {
+                    val optionalDateTime = variableDateTimePattern
+                    val df = DateTimeFormatter.ofPattern(optionalDateTime)
+                    val ta = df.parseBest(formattedValue, OffsetDateTime::from, LocalDateTime::from, Instant::from)
+                    LocalDate.from(ta)
+                    return null
+                } catch (e: DateTimeParseException) {
+                    InvalidDateMessage.new(formattedValue, fieldMapping)
                 }
             }
             Type.DATETIME -> {
@@ -425,6 +433,15 @@ data class Element(
                     return null
                 } catch (e: DateTimeParseException) {
                 }
+                try {
+                    // this is a saving throw
+                    val optionalDateTime = variableDateTimePattern
+                    val df = DateTimeFormatter.ofPattern(optionalDateTime)
+                    val ta = df.parseBest(formattedValue, OffsetDateTime::from, LocalDateTime::from, Instant::from)
+                    LocalDateTime.from(ta).atZone(ZoneId.of(USTimeZone.CENTRAL.zoneId)).toOffsetDateTime()
+                    return null
+                } catch (e: DateTimeParseException) {
+                }
                 return try {
                     // Try to parse using a LocalDate pattern, assuming it follows a non-canonical format value.
                     // Example: 'yyyy-mm-dd' - the incoming data is a Date, but not our canonical date format.
@@ -432,28 +449,28 @@ data class Element(
                     LocalDate.parse(formattedValue, formatter)
                     null
                 } catch (e: DateTimeParseException) {
-                    "Invalid date: '$formattedValue' for element $fieldMapping"
+                    InvalidDateMessage.new(formattedValue, fieldMapping)
                 }
             }
             Type.CODE -> {
                 // First, prioritize use of a local $alt format, even if no value set exists.
                 return if (format == altDisplayToken) {
                     if (toAltCode(formattedValue) != null) null else
-                        "Invalid code: '$formattedValue' is not a display value in altValues set for $fieldMapping"
+                        InvalidCodeMessage.new(formattedValue, fieldMapping)
                 } else {
                     if (valueSetRef == null) error("Schema Error: missing value set for $fieldMapping")
                     when (format) {
                         displayToken ->
                             if (valueSetRef.toCodeFromDisplay(formattedValue) != null) null else
-                                "Invalid code: '$formattedValue' not a display value for element $fieldMapping"
+                                InvalidCodeMessage.new(formattedValue, fieldMapping)
                         codeToken -> {
                             val values = altValues ?: valueSetRef.values
                             if (values.find { it.code == formattedValue } != null) null else
-                                "Invalid code: '$formattedValue' is not a code value for element $fieldMapping"
+                                InvalidCodeMessage.new(formattedValue, fieldMapping)
                         }
                         else ->
                             if (valueSetRef.toNormalizedCode(formattedValue) != null) null else
-                                "Invalid code: '$formattedValue' does not match any codes for $fieldMapping"
+                                InvalidCodeMessage.new(formattedValue, fieldMapping)
                     }
                 }
             }
@@ -463,17 +480,17 @@ data class Element(
                     // this then causes a report level failure, not an element level failure
                     val number = phoneNumberUtil.parse(formattedValue, "US")
                     if (!number.hasNationalNumber() || number.nationalNumber > 9999999999L)
-                        "Invalid phone number '$formattedValue' for $fieldMapping"
+                        InvalidPhoneMessage.new(formattedValue, fieldMapping)
                     else
                         null
                 } catch (ex: Exception) {
-                    "Invalid phone number '$formattedValue' for $fieldMapping"
+                    InvalidPhoneMessage.new(formattedValue, fieldMapping)
                 }
             }
             Type.POSTAL_CODE -> {
                 // Let in all formats defined by http://www.dhl.com.tw/content/dam/downloads/tw/express/forms/postcode_formats.pdf
                 return if (!Regex("^[A-Za-z\\d\\- ]{3,12}\$").matches(formattedValue))
-                    "Invalid postal code '$formattedValue' for $fieldMapping"
+                    InvalidPostalMessage.new(formattedValue, fieldMapping)
                 else
                     null
             }
@@ -485,9 +502,9 @@ data class Element(
                     hdSystemToken -> null
                     hdCompleteFormat -> {
                         val parts = formattedValue.split(hdDelimiter)
-                        if (parts.size == 1 || parts.size == 3) null else "Invalid HD format"
+                        if (parts.size == 1 || parts.size == 3) null else UnsupportedHDMessage.new()
                     }
-                    else -> "Unsupported HD format for input: '$format' in $fieldMapping"
+                    else -> UnsupportedHDMessage.new(format, fieldMapping)
                 }
             }
             Type.EI -> {
@@ -498,9 +515,9 @@ data class Element(
                     eiSystemToken -> null
                     eiCompleteFormat -> {
                         val parts = formattedValue.split(eiDelimiter)
-                        if (parts.size == 1 || parts.size == 4) null else "Invalid EI format"
+                        if (parts.size == 1 || parts.size == 4) null else UnsupportedEIMessage.new()
                     }
-                    else -> "Unsupported EI format for input: '$format' in $fieldMapping"
+                    else -> UnsupportedEIMessage.new(format, fieldMapping)
                 }
             }
 
@@ -523,6 +540,13 @@ data class Element(
                 } ?: try {
                     val formatter = DateTimeFormatter.ofPattern(format ?: datePattern, Locale.ENGLISH)
                     LocalDate.parse(formattedValue, formatter)
+                } catch (e: DateTimeParseException) {
+                    null
+                } ?: try {
+                    val optionalDateTime = variableDateTimePattern
+                    val df = DateTimeFormatter.ofPattern(optionalDateTime)
+                    val ta = df.parseBest(formattedValue, OffsetDateTime::from, LocalDateTime::from, Instant::from)
+                    LocalDate.from(ta)
                 } catch (e: DateTimeParseException) {
                     error("Invalid date: '$formattedValue' for element $fieldMapping")
                 }
@@ -554,6 +578,14 @@ data class Element(
                     val date = LocalDate.parse(formattedValue, formatter)
                     val zoneOffset = ZoneId.of(USTimeZone.CENTRAL.zoneId).rules.getOffset(Instant.now())
                     OffsetDateTime.of(date, LocalTime.of(0, 0), zoneOffset)
+                } catch (e: DateTimeParseException) {
+                    null
+                } ?: try {
+                    // this is a saving throw
+                    val optionalDateTime = variableDateTimePattern
+                    val df = DateTimeFormatter.ofPattern(optionalDateTime)
+                    val ta = df.parseBest(formattedValue, OffsetDateTime::from, LocalDateTime::from, Instant::from)
+                    LocalDateTime.from(ta).atZone(ZoneId.of(USTimeZone.CENTRAL.zoneId)).toOffsetDateTime()
                 } catch (e: DateTimeParseException) {
                     error("Invalid date: '$formattedValue' for element $fieldMapping")
                 }
@@ -730,6 +762,7 @@ data class Element(
     companion object {
         const val datePattern = "yyyyMMdd"
         const val datetimePattern = "yyyyMMddHHmmZZZ"
+        const val variableDateTimePattern = "[yyyyMMddHHmmssZ][yyyyMMddHHmmZ][yyyyMMddHHmmss]"
         val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern(datePattern, Locale.ENGLISH)
         val datetimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern(datetimePattern, Locale.ENGLISH)
         const val displayToken = "\$display"

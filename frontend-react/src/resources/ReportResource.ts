@@ -1,4 +1,3 @@
-import FacilityResource  from './FacilityResource'
 import ActionResource from './ActionResource'
 import AuthResource from './AuthResource';
 
@@ -14,7 +13,7 @@ export default class ReportResource extends AuthResource {
     readonly expires: number = 1;
     readonly sendingOrg: string = "sendingOrg";
     readonly receivingOrg: string = "receivingOrg";
-    readonly facilities: FacilityResource[] = [];
+    readonly receivingOrgSvc: string = "elr";
     readonly actions: ActionResource[] = [];
     readonly content: string = ""
     readonly fileName: string = ""
@@ -25,4 +24,5 @@ export default class ReportResource extends AuthResource {
     }
 
     static urlRoot = `${AuthResource.getBaseUrl()}/api/history/report`;
+
 }

@@ -82,6 +82,8 @@ data class Hl7Configuration
     // pass this around as a property now
     val processingModeCode: String? = null,
     val replaceDiiWithOid: Boolean? = null,
+    // Specify how
+    val useOrderingFacilityName: OrderingFacilityName = OrderingFacilityName.STANDARD,
     override val nameFormat: String = "standard",
     override val receivingOrganization: String?,
 ) : TranslatorConfiguration("HL7") {
@@ -103,6 +105,23 @@ data class Hl7Configuration
          * (area)local format in component 1. Backward compatibility to an earlier format.
          */
         AREA_LOCAL_IN_COMPONENT_ONE
+    }
+
+    enum class OrderingFacilityName {
+        /**
+         * Use the value sent by the sender
+         */
+        STANDARD,
+
+        /**
+         * Override with the NCES enrichment
+         */
+        NCES,
+
+        /**
+         * Override with the organization_name field
+         */
+        ORGANIZATION_NAME
     }
 
     @get:JsonIgnore

@@ -1,3 +1,4 @@
+// @ts-nocheck // TODO: This file is not typesafe. Needs to be refactors and unit tests added.
 import React, {useState} from "react";
 import {
     Button,
@@ -10,12 +11,12 @@ import {
 import {useResource} from 'rest-hooks';
 import AuthResource from "../resources/AuthResource";
 import {useOktaAuth} from "@okta/okta-react";
-import {groupToOrg} from "../webreceiver-utils";
-import OrganizationResource from "../resources/OrganizationResource";
+import {senderClient} from "../webreceiver-utils";
 import moment from "moment";
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faSync} from '@fortawesome/free-solid-svg-icons';
+import SenderOrganizationResource from "../resources/SenderOrganizationResource";
 
 library.add(faSync);
 
@@ -23,8 +24,8 @@ export const Upload = () => {
     const {authState} = useOktaAuth();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [file, setFile] = useState(null);
-    const [warnings, setWarnings] = useState([]);
-    const [errors, setErrors] = useState([]);
+    const [consolidatedWarnings, setConsolidatedWarnings] = useState([]);
+    const [consolidatedErrors, setConsolidatedErrors] = useState([]);
     const [destinations, setDestinations] = useState('');
     const [reportId, setReportId] = useState(null);
     const [successTimestamp, setSuccessTimestamp] = useState('');
@@ -34,20 +35,15 @@ export const Upload = () => {
         `Please resolve the errors below and upload your edited file. Your file has not been accepted.`
     );
 
-    const claimsSenderOrganization = authState!.accessToken?.claims.organization.find(o => o.includes("DHSender"))
-    const senderOrganization = claimsSenderOrganization.replace('Sender_', '');
-
-    const client =
-        groupToOrg(senderOrganization);
+    const client = senderClient(authState);
+    const organization = useResource(SenderOrganizationResource.detail(), {
+        name: client
+    });
 
     const userName = {
         firstName: authState!.accessToken?.claims.given_name,
         lastName: authState!.accessToken?.claims.family_name
     }
-
-    const organization = useResource(OrganizationResource.detail(), {
-        name: client
-    });
 
     const uploadReport =
         async function postData(file) {
@@ -69,7 +65,6 @@ export const Upload = () => {
 
                 // if this JSON.parse fails, the body was most likely an error string from the server
                 return JSON.parse(textBody);
-
             } catch (error) {
 
                 return {
@@ -80,7 +75,6 @@ export const Upload = () => {
                     }]
                 };
             }
-
         }
 
     const handleChange = (event) => {
@@ -94,8 +88,8 @@ export const Upload = () => {
         setIsSubmitting(true);
         setReportId(null);
         setSuccessTimestamp('');
-        setWarnings([]);
-        setErrors([]);
+        setConsolidatedWarnings([]);
+        setConsolidatedErrors([]);
         setDestinations('');
 
         if (file) {
@@ -111,19 +105,10 @@ export const Upload = () => {
                 if (response.id) {
                     setReportId(response.id);
                     setSuccessTimestamp(response.timestamp);
-                    setButtonText('Upload another file');
                     event.target.reset();
                 }
 
-                if (response.warnings && response.warnings.length) {
-                    setWarnings(response.warnings);
-                    setButtonText('Upload my edited file');
-                }
-
                 if (response.errors && response.errors.length) {
-                    setErrors(response.errors);
-                    setButtonText('Upload my edited file');
-
                     // if there is a response status, then there was most likely a server-side error as the json was not parsed
                     if (response.status) {
                         setErrorMessageText('There was a server error. Your file has not been accepted.');
@@ -132,15 +117,22 @@ export const Upload = () => {
                     }
                 }
 
+                if (response.consolidatedWarnings && response.consolidatedWarnings.length) {
+                    setConsolidatedWarnings(response.consolidatedWarnings)
+                }
+
+                if (response.consolidatedErrors && response.consolidatedErrors.length) {
+                    setConsolidatedErrors(response.consolidatedErrors)
+                }
+
                 setHeaderMessage('Your COVID-19 Results');
+                setButtonText('Upload another file');
 
             } catch (error) {
-                if (response && response.errors) {
-                    setErrors(response.errors);
-                } else {
-                    setErrors(error);
+                if (response && response.consolidatedErrors) {
+                    setConsolidatedErrors(response.errors);
                 }
-                setButtonText('Upload my edited file');
+                setButtonText('Upload another file');
             }
             setIsSubmitting(false);
         }
@@ -224,29 +216,7 @@ export const Upload = () => {
                 </div>
             )}
 
-            {warnings.length > 0 && (
-                <div>
-                    <div className="usa-alert usa-alert--warning">
-                        <div className="usa-alert__body">
-                            <h4 className="usa-alert__heading">Alert: Additional Edits Requested</h4>
-                            <p className="usa-alert__text">
-                                Your file has been accepted. However, we detected fields that are unusable. These
-                                are crucial for public health action. Please consider editing your file and uploading a
-                                new that addresses these issues.
-                            </p>
-                        </div>
-                    </div>
-                    <ul>
-                        {warnings.map((w, i) => {
-                            return (<li key={i}>
-                                {w['id'] && (<span>{w['id']}: </span>)}{w['details']}
-                            </li>);
-                        })}
-                    </ul>
-                </div>
-            )}
-
-            {errors.length > 0 && (
+            {consolidatedErrors.length > 0 && (
                 <div>
                     <div className="usa-alert usa-alert--error" role="alert">
                         <div className="usa-alert__body">
@@ -256,11 +226,47 @@ export const Upload = () => {
                             </p>
                         </div>
                     </div>
-                    <ul>
-                        {errors.map((e, i) => {
-                            return (<li key={i}>{e['details']}</li>);
-                        })}
-                    </ul>
+                    <table className="usa-table usa-table--borderless">
+                        <thead>
+                            <tr>
+                                <th>Requested Edit</th>
+                                <th>Areas Containing the Requested Edit</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {consolidatedErrors.map((e, i) => {
+                                return (<tr key={i}><td>{e['message']}</td><td>{e['rows']}</td></tr>)
+                            })}
+                        </tbody>
+                    </table>
+                </div>
+            )}
+
+            {consolidatedWarnings.length > 0 && (
+                <div>
+                    <div className="usa-alert usa-alert--warning">
+                        <div className="usa-alert__body">
+                            <h4 className="usa-alert__heading">Alert: Unusable Fields Detected</h4>
+                            <p className="usa-alert__text">
+                                Your file has been accepted with warnings.
+                                There were fields detected that are unusable for public health action.
+                                Enter valid information for future submissions.
+                            </p>
+                        </div>
+                    </div>
+                    <table className="usa-table usa-table--borderless">
+                        <thead>
+                            <tr>
+                                <th>Requested Edit</th>
+                                <th>Areas Containing the Requested Edit</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {consolidatedWarnings.map((e, i) => {
+                                return (<tr key={i}><td>{e['message']}</td><td>{e['rows']}</td></tr>)
+                            })}
+                        </tbody>
+                    </table>
                 </div>
             )}
 
@@ -273,7 +279,7 @@ export const Upload = () => {
                         id="upload-csv-input"
                         name="upload-csv-input"
                         aria-describedby="upload-csv-input-label"
-                        accept="text/csv"
+                        accept=".csv, text/csv"
                         onChange={(e) => handleChange(e)}
                         required
                     />
@@ -282,7 +288,7 @@ export const Upload = () => {
                     {
                         isSubmitting && (
                             <span>
-                                <FontAwesomeIcon icon="sync" spin className="margin-right-05" />
+                                <FontAwesomeIcon icon="sync" spin className="margin-right-05"/>
                                 <span>Processing file...</span>
                             </span>
                         )

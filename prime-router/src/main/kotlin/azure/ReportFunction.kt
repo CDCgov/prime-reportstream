@@ -12,6 +12,8 @@ import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.ClientSource
+import gov.cdc.prime.router.InvalidParamMessage
+import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ResultDetail
@@ -102,24 +104,20 @@ class ReportFunction : Logging {
         context: ExecutionContext,
     ): HttpResponseMessage {
 
-        logger.debug(" request headers: ${request.headers}")
         val workflowEngine = WorkflowEngine()
         val authenticationStrategy = AuthenticationStrategy.authStrategy(
             request.headers["authentication-type"],
             PrincipalLevel.USER,
             workflowEngine
         )
-        val senderName = request.headers[CLIENT_PARAMETER]
-            ?: request.queryParameters.getOrDefault(CLIENT_PARAMETER, "")
-        // todo This code is redundant w/validateRequest. Remove from validateRequest once old endpoint is removed
-        if (senderName.isBlank())
+        val senderName = extractClientHeader(request)
+        if (senderName.isNullOrBlank())
             return HttpUtilities.bad(request, "Expected a '$CLIENT_PARAMETER' query parameter")
         val sender = workflowEngine.settings.findSender(senderName)
             ?: return HttpUtilities.bad(request, "'$CLIENT_PARAMETER:$senderName': unknown sender")
-
         if (authenticationStrategy is OktaAuthentication) {
-            // Okta Auth
-            return authenticationStrategy.checkAccess(request, senderName) {
+            // The report is coming from a sender that is using Okta, so set "oktaSender" to true
+            return authenticationStrategy.checkAccess(request, senderName, true) {
                 return@checkAccess ingestReport(request, context)
             }
         }
@@ -197,7 +195,8 @@ class ReportFunction : Logging {
         actionHistory.trackActionResponse(httpResponseMessage, verboseResponse.toString())
         workflowEngine.recordAction(actionHistory)
         actionHistory.queueMessages(workflowEngine) // Must be done after creating TASK record.
-        // write the data to the table if we're dealing with covid-19. this has to happen
+
+        // Write the data to the table if we're dealing with covid-19. this has to happen
         // here AFTER we've written the report to the DB
         writeCovidResultMetadataForReport(report, context, workflowEngine)
         return httpResponseMessage
@@ -257,7 +256,9 @@ class ReportFunction : Logging {
      * @param request the http request message from the client
      */
     private fun extractClientHeader(request: HttpRequestMessage<String?>): String {
-        return request.headers[CLIENT_PARAMETER] ?: request.queryParameters.getOrDefault(CLIENT_PARAMETER, "")
+        // client can be in the header or in the url parameters:
+        return request.headers[CLIENT_PARAMETER]
+            ?: request.queryParameters.getOrDefault(CLIENT_PARAMETER, "")
     }
 
     private fun validateRequest(engine: WorkflowEngine, request: HttpRequestMessage<String?>): ValidatedRequest {
@@ -265,7 +266,7 @@ class ReportFunction : Logging {
         val warnings = mutableListOf<ResultDetail>()
         val (sizeStatus, errMsg) = HttpUtilities.payloadSizeCheck(request)
         if (sizeStatus != HttpStatus.OK) {
-            errors.add(ResultDetail.report(errMsg))
+            errors.add(ResultDetail.report(InvalidReportMessage.new(errMsg)))
             // If size is too big, we ignore the option.
             return ValidatedRequest(sizeStatus, errors, warnings)
         }
@@ -275,7 +276,7 @@ class ReportFunction : Logging {
             try {
                 Options.valueOf(optionsText)
             } catch (e: IllegalArgumentException) {
-                errors.add(ResultDetail.param(OPTION_PARAMETER, "'$optionsText' is not valid"))
+                errors.add(ResultDetail.param(OPTION_PARAMETER, InvalidParamMessage.new("'$optionsText' is not valid")))
                 Options.None
             }
         } else {
@@ -290,22 +291,33 @@ class ReportFunction : Logging {
         val routeTo = if (receiverNamesText.isNotBlank()) receiverNamesText.split(ROUTE_TO_SEPARATOR) else emptyList()
         val receiverNameErrors = routeTo
             .filter { engine.settings.findReceiver(it) == null }
-            .map { ResultDetail.param(ROUTE_TO_PARAMETER, "Invalid receiver name: $it") }
+            .map { ResultDetail.param(ROUTE_TO_PARAMETER, InvalidParamMessage.new("Invalid receiver name: $it")) }
         errors.addAll(receiverNameErrors)
 
         val clientName = extractClientHeader(request)
         if (clientName.isBlank())
-            errors.add(ResultDetail.param(CLIENT_PARAMETER, "Expected a '$CLIENT_PARAMETER' query parameter"))
+            errors.add(
+                ResultDetail.param(
+                    CLIENT_PARAMETER, InvalidParamMessage.new("Expected a '$CLIENT_PARAMETER' query parameter")
+                )
+            )
 
         val sender = engine.settings.findSender(clientName)
         if (sender == null)
-            errors.add(ResultDetail.param(CLIENT_PARAMETER, "'$CLIENT_PARAMETER:$clientName': unknown sender"))
+            errors.add(
+                ResultDetail.param(
+                    CLIENT_PARAMETER, InvalidParamMessage.new("'$CLIENT_PARAMETER:$clientName': unknown sender")
+                )
+            )
 
         val schema = engine.metadata.findSchema(sender?.schemaName ?: "")
         if (sender != null && schema == null)
             errors.add(
                 ResultDetail.param(
-                    CLIENT_PARAMETER, "'$CLIENT_PARAMETER:$clientName': unknown schema '${sender.schemaName}'"
+                    CLIENT_PARAMETER,
+                    InvalidParamMessage.new(
+                        "'$CLIENT_PARAMETER:$clientName': unknown schema '${sender.schemaName}'"
+                    )
                 )
             )
 
@@ -315,14 +327,18 @@ class ReportFunction : Logging {
 
         val contentType = request.headers.getOrDefault(HttpHeaders.CONTENT_TYPE.lowercase(), "")
         if (contentType.isBlank()) {
-            errors.add(ResultDetail.param(HttpHeaders.CONTENT_TYPE, "missing"))
+            errors.add(ResultDetail.param(HttpHeaders.CONTENT_TYPE, InvalidParamMessage.new("missing")))
         } else if (sender != null && sender.format.mimeType != contentType) {
-            errors.add(ResultDetail.param(HttpHeaders.CONTENT_TYPE, "expecting '${sender.format.mimeType}'"))
+            errors.add(
+                ResultDetail.param(
+                    HttpHeaders.CONTENT_TYPE, InvalidParamMessage.new("expecting '${sender.format.mimeType}'")
+                )
+            )
         }
 
         val content = request.body ?: ""
         if (content.isEmpty()) {
-            errors.add(ResultDetail.param("Content", "expecting a post message with content"))
+            errors.add(ResultDetail.param("Content", InvalidParamMessage.new("expecting a post message with content")))
         }
 
         if (sender == null || schema == null || content.isEmpty() || errors.isNotEmpty()) {
@@ -334,12 +350,14 @@ class ReportFunction : Logging {
             values.mapNotNull {
                 val parts = it.split(DEFAULT_SEPARATOR)
                 if (parts.size != 2) {
-                    errors.add(ResultDetail.report("'$it' is not a valid default"))
+                    errors.add(ResultDetail.report(InvalidReportMessage.new("'$it' is not a valid default")))
                     return@mapNotNull null
                 }
                 val element = schema.findElement(parts[0])
                 if (element == null) {
-                    errors.add(ResultDetail.report("'${parts[0]}' is not a valid element name"))
+                    errors.add(
+                        ResultDetail.report(InvalidReportMessage.new("'${parts[0]}' is not a valid element name"))
+                    )
                     return@mapNotNull null
                 }
                 val error = element.checkForError(parts[1])
@@ -388,7 +406,7 @@ class ReportFunction : Logging {
                     warnings += readResult.warnings
                     readResult.report
                 } catch (e: Exception) {
-                    errors.add(ResultDetail.report(e.message ?: ""))
+                    errors.add(ResultDetail.report(InvalidReportMessage.new(e.message ?: "")))
                     null
                 }
             }
@@ -403,7 +421,7 @@ class ReportFunction : Logging {
                     warnings += readResult.warnings
                     readResult.report
                 } catch (e: Exception) {
-                    errors.add(ResultDetail.report(e.message ?: ""))
+                    errors.add(ResultDetail.report(InvalidReportMessage.new(e.message ?: "")))
                     null
                 }
             }
@@ -529,14 +547,64 @@ class ReportFunction : Logging {
                     it.writeStartObject()
                     it.writeStringField("scope", error.scope.toString())
                     it.writeStringField("id", error.id)
-                    it.writeStringField("details", error.details)
+                    it.writeStringField("details", error.responseMessage.detailMsg())
                     it.writeEndObject()
                 }
                 it.writeEndArray()
             }
             writeDetailsArray("errors", result.errors)
             writeDetailsArray("warnings", result.warnings)
-            it.writeEndObject()
+
+            fun createRowsDescription(rows: MutableList<Int>?): String {
+                // Consolidate row ranges, e.g. 1,2,3,5,7,8,9 -> 1-3,5,7-9
+                if (rows == null || rows.isEmpty()) return ""
+                rows.sort() // should already be sorted, just in case
+                val sb = StringBuilder().append("Rows: ")
+                var isListing = false
+                rows.forEachIndexed { i, row ->
+                    if (i == 0) {
+                        sb.append(row.toString())
+                    } else if (row == rows[i - 1] || row == rows[i - 1] + 1) {
+                        isListing = true
+                    } else if (isListing) {
+                        sb.append("–" + rows[i - 1].toString() + ", " + row.toString())
+                        isListing = false
+                    } else {
+                        sb.append(", " + row.toString())
+                        isListing = false
+                    }
+                    if (i == rows.lastIndex && isListing) {
+                        sb.append("–" + rows[rows.lastIndex].toString())
+                    }
+                }
+                return sb.toString()
+            }
+
+            fun writeConsolidatedArray(field: String, array: List<ResultDetail>) {
+                val rowsByGroupingId = hashMapOf<String, MutableList<Int>>()
+                val messageByGroupingId = hashMapOf<String, String>()
+                array.forEach { resultDetail ->
+                    val groupingId = resultDetail.responseMessage.groupingId()
+                    if (!rowsByGroupingId.containsKey(groupingId)) {
+                        rowsByGroupingId[groupingId] = mutableListOf()
+                        messageByGroupingId[groupingId] = resultDetail.responseMessage.detailMsg()
+                    }
+                    if (resultDetail.row != -1) {
+                        // Add 2 to account for array offset and csv header
+                        rowsByGroupingId[groupingId]?.add(resultDetail.row + 2)
+                    }
+                }
+                it.writeArrayFieldStart(field)
+                rowsByGroupingId.keys.forEach { groupingId ->
+                    it.writeStartObject()
+                    it.writeStringField("message", messageByGroupingId[groupingId])
+                    it.writeStringField("rows", createRowsDescription(rowsByGroupingId[groupingId]))
+                    it.writeEndObject()
+                }
+                it.writeEndArray()
+            }
+            writeConsolidatedArray("consolidatedErrors", result.errors)
+            writeConsolidatedArray("consolidatedWarnings", result.warnings)
         }
         return outStream.toString()
     }

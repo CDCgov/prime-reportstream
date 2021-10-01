@@ -172,6 +172,22 @@ This field is ignored because it does not contain a valid specimen type.  Set th
 
 ---
 
+**Name**: ResultDate
+
+**Type**: DATETIME
+
+**PII**: No
+
+**Format**: M/d/yyyy
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+ResultDate populates multiple fields.  This instance populates date_result_released.
+
+---
+
 **Name**: equipment_model_name
 
 **Type**: TABLE
@@ -301,7 +317,7 @@ iPatientCare is an ambulatory EMR, so this field is defaulted to 'N'.
 
 **Name**: DateColl
 
-**Type**: DATE
+**Type**: DATETIME
 
 **PII**: No
 
@@ -323,7 +339,7 @@ DateColl populates multiple fields.  This instance populates order_test_date.
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-04-28
+**Table**: LIVD-SARS-CoV-2-2021-08-11
 
 **Table Column**: Test Ordered LOINC Long Name
 
@@ -737,6 +753,18 @@ Facility populates multiple fields.  This instance populates patient_id_assigner
 
 ---
 
+**Name**: patient_id_type
+
+**Type**: TEXT
+
+**PII**: No
+
+**Default Value**: PI
+
+**Cardinality**: [0..1]
+
+---
+
 **Name**: Last Name
 
 **Type**: PERSON_NAME
@@ -891,6 +919,25 @@ The patient's street address
 **Documentation**:
 
 The patient's zip code
+
+---
+
+**Name**: Accession_no
+
+**Type**: ID
+
+**PII**: No
+
+**HL7 Fields**
+
+- [OBR-2-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.2.1)
+- [ORC-2-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.2.1)
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The ID number of the lab order from the placer
 
 ---
 
@@ -1111,7 +1158,7 @@ Code | Display
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-04-28
+**Table**: LIVD-SARS-CoV-2-2021-08-11
 
 **Table Column**: Test Performed LOINC Long Name
 

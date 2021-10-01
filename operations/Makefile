@@ -45,7 +45,7 @@ build-tf-cli: ## Build the Terraform docker container
 	@docker-compose build
 
 pull-tf-cli: ## Pull the Terraform docker container
-	@docker-compose pull
+	@docker-compose pull || ${MAKE} build-tf-cli
 
 tf-cli: pull-tf-cli ## Drops into a Docker container configured with the Terraform CLI and Azure
 	@docker-compose run -e ENVIRONMENT=$(TF_ENV) -w /app/src/environments/$(TF_STAGE) tf-cli

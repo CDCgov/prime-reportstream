@@ -4,6 +4,7 @@ const oktaAuthConfig: OktaAuthOptions = {
     issuer: `https://hhs-prime.okta.com/oauth2/default`,
     clientId: "0oa6fm8j4G1xfrthd4h6",
     redirectUri: window.location.origin + "/login/callback",
+    postLogoutRedirectUri: window.localStorage.origin,
     responseMode: "fragment",
     tokenManager: {
         storage: "sessionStorage",
@@ -12,7 +13,7 @@ const oktaAuthConfig: OktaAuthOptions = {
 };
 
 const oktaSignInConfig = {
-    logo: "//logo.clearbit.com/cdc.gov",
+    logo: "https://reportstream.cdc.gov/assets/img/cdc-logo.svg",
     language: "en",
     features: {
         registration: false, // Disable self-service registration flow

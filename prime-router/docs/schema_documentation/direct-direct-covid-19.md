@@ -56,7 +56,7 @@ Barcode or QR code.  Unique within one manufacturer.
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
 
-**Table**: LIVD-SARS-CoV-2-2021-04-28
+**Table**: LIVD-SARS-CoV-2-2021-08-11
 
 **Table Column**: Model
 
@@ -711,7 +711,7 @@ ReportStream copies value from the specimenId if none is provided by the sender.
 
 **Name**: testOrderedDate
 
-**Type**: DATE
+**Type**: DATETIME
 
 **PII**: No
 
@@ -731,7 +731,7 @@ eg, 20210108
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-04-28
+**Table**: LIVD-SARS-CoV-2-2021-08-11
 
 **Table Column**: Test Ordered LOINC Code
 
@@ -749,13 +749,79 @@ eg, 94531-1
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-04-28
+**Table**: LIVD-SARS-CoV-2-2021-08-11
 
 **Table Column**: Test Ordered LOINC Long Name
 
 **Documentation**:
 
 Should be the name that matches to Test Ordered LOINC Long Name, in LIVD table
+
+---
+
+**Name**: orderingFacilityCity
+
+**Type**: CITY
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The city of the facility which the test was ordered from
+
+---
+
+**Name**: orderingFacilityCounty
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Table**: fips-county
+
+**Table Column**: County
+
+---
+
+**Name**: orderingFacilityEmail
+
+**Type**: EMAIL
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: orderingFacilityName
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The name of the facility which the test was ordered from
+
+---
+
+**Name**: orderingFacilityPhone
+
+**Type**: TELEPHONE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The phone number of the facility which the test was ordered from
 
 ---
 
@@ -773,7 +839,49 @@ Should be the name that matches to Test Ordered LOINC Long Name, in LIVD table
 
 **Documentation**:
 
-Note that many states expect this field to be available, or ReportStream is not able rto route data to them.  Please provide if possible in order for us to route to as many states as possible.
+Note that many states expect this field to be available, or ReportStream is not able to route data to them.  Please provide if possible in order for us to route to as many states as possible.
+
+---
+
+**Name**: orderingFacilityStreet
+
+**Type**: STREET
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The address of the facility which the test was ordered from
+
+---
+
+**Name**: orderingFacilityStreet2
+
+**Type**: STREET_OR_BLANK
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The secondary address of the facility which the test was ordered from
+
+---
+
+**Name**: orderingFacilityZip
+
+**Type**: POSTAL_CODE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The zip code of the facility which the test was ordered from
 
 ---
 
@@ -1746,7 +1854,7 @@ Custom.  Eg, "LN"
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
 
-**Table**: LIVD-SARS-CoV-2-2021-04-28
+**Table**: LIVD-SARS-CoV-2-2021-08-11
 
 **Table Column**: Testkit Name ID
 
@@ -1764,7 +1872,7 @@ Must match LIVD column M, "Test Kit Name ID"
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-04-28
+**Table**: LIVD-SARS-CoV-2-2021-08-11
 
 **Table Column**: Test Performed LOINC Code
 
@@ -1868,6 +1976,20 @@ eg, "DETECTED".  Custom.  ReportStream uses testResult code, not this text value
 
 ---
 
+**Name**: performingFacilityCity
+
+**Type**: CITY
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The city of the testing lab
+
+---
+
 **Name**: performingFacility
 
 **Type**: ID_CLIA
@@ -1888,6 +2010,108 @@ eg, "DETECTED".  Custom.  ReportStream uses testResult code, not this text value
 **Documentation**:
 
 Expecting a CLIA number here.  eg, "10D2218834"
+
+---
+
+**Name**: performingFacilityCounty
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Table**: fips-county
+
+**Table Column**: County
+
+**Documentation**:
+
+The text value for the testing lab county. This is used to do the lookup in the FIPS dataset.
+
+---
+
+**Name**: performingFacilityName
+
+**Type**: TEXT
+
+**PII**: No
+
+**HL7 Fields**
+
+- [OBR-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.2.2)
+- [OBR-3-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.3.2)
+- [OBX-15-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.15.2)
+- [OBX-23-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.23.1)
+- [ORC-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.2.2)
+- [ORC-3-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.3.2)
+- [PID-3-4-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4.1)
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The name of the laboratory which performed the test, can be the same as the sending facility name
+
+---
+
+**Name**: performingFacilityPhone
+
+**Type**: TELEPHONE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The phone number of the testing lab
+
+---
+
+**Name**: performingFacilityState
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Table**: fips-county
+
+**Table Column**: State
+
+**Documentation**:
+
+The state for the testing lab
+
+---
+
+**Name**: performingFacilityStreet
+
+**Type**: STREET
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The street address for the testing lab
+
+---
+
+**Name**: performingFacilityStreet2
+
+**Type**: STREET_OR_BLANK
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+Street 2 field for the testing lab
 
 ---
 

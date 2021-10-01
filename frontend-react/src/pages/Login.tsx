@@ -1,7 +1,8 @@
-import { Redirect } from "react-router-dom";
+import { Link, Redirect } from "react-router-dom";
 import OktaSignInWidget from "../components/OktaSignInWidget";
 import { useOktaAuth } from "@okta/okta-react";
 import { groupToOrg } from "../webreceiver-utils";
+import { SiteAlert } from "@trussworks/react-uswds";
 
 export const Login = ({ config }) => {
     const { oktaAuth, authState } = useOktaAuth();
@@ -19,13 +20,24 @@ export const Login = ({ config }) => {
         console.log("error logging in", err);
     };
 
+    const MonitoringAlert = () => {
+        return (
+            <SiteAlert variant="info" heading="This is a U.S. government service" className="margin-bottom-3 tablet:margin-bottom-6" >
+                Your use indicates your consent to monitoring, recording, and no expectation of privacy. Misuse is subject to criminal and civil penalties. By logging in, you are agreeing to our <Link to="/terms-of-service">terms of service.</Link>
+            </SiteAlert>
+        )
+    }
+
     return authState && authState.isAuthenticated ? (
         <Redirect to={{ pathname: "/" }} />
     ) : (
-        <OktaSignInWidget
-            config={config}
-            onSuccess={onSuccess}
-            onError={onError}
-        />
+        <>
+            <MonitoringAlert />
+            <OktaSignInWidget
+                config={config}
+                onSuccess={onSuccess}
+                onError={onError}
+            />
+        </>
     );
 };

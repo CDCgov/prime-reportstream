@@ -68,7 +68,7 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
                 val serviceName = receiver.fullName
                 val nextRetryItems = mutableListOf<String>()
                 if (receiver.transport == null) {
-                    actionHistory.setActionType(TaskAction.send_error)
+                    actionHistory.setActionType(TaskAction.send_warning)
                     actionHistory.trackActionResult("Not sending $inputReportId to $serviceName: No transports defined")
                 } else {
                     val retryItems = retryToken?.items
@@ -132,6 +132,7 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
             if (nextRetryCount >= maxRetryCount) {
                 // Stop retrying and just put the task into an error state
                 val msg = "All retries failed.  Send Error report for: $reportId to $serviceName"
+                actionHistory.setActionType(TaskAction.send_error)
                 actionHistory.trackActionResult(msg)
                 context.logger.info(msg)
                 ReportEvent(Event.EventAction.SEND_ERROR, reportId)
@@ -144,6 +145,7 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
                 val msg = "Send Failed.  Will retry sending report: $reportId to $serviceName}" +
                     " in $waitMinutes minutes and $randomSeconds seconds at $nextRetryTime"
                 context.logger.info(msg)
+                actionHistory.setActionType(TaskAction.send_warning)
                 actionHistory.trackActionResult(msg)
                 ReportEvent(Event.EventAction.SEND, reportId, nextRetryTime, nextRetryToken)
             }

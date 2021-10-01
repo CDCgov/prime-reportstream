@@ -1,5 +1,5 @@
 terraform {
-  required_version = "= 1.0.3" # This version must also be changed in other environments
+  required_version = "= 1.0.5" # This version must also be changed in other environments
 
   required_providers {
     azurerm = {
@@ -32,10 +32,11 @@ module "database" {
 }
 
 module "storage" {
-  source          = "../../modules/storage"
-  environment     = var.environment
-  resource_group  = var.resource_group
-  resource_prefix = var.resource_prefix
-  location        = var.location
-  rsa_key_4096    = var.rsa_key_4096
+  source                      = "../../modules/storage"
+  environment                 = var.environment
+  resource_group              = var.resource_group
+  resource_prefix             = var.resource_prefix
+  location                    = var.location
+  rsa_key_4096                = var.rsa_key_4096
+  terraform_caller_ip_address = var.terraform_caller_ip_address
 }
