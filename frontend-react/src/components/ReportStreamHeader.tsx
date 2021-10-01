@@ -6,6 +6,7 @@ import {
     Link,
     Dropdown,
     NavDropDownButton,
+    NavMenuButton,
     Menu,
 } from "@trussworks/react-uswds";
 import { useOktaAuth } from "@okta/okta-react";
@@ -147,6 +148,8 @@ const DropdownHowItWorks = () => {
 
 export const ReportStreamHeader = () => {
     const { authState } = useOktaAuth();
+    const [expanded, setExpanded] = useState(false)
+    const toggleMobileNav = (): void => setExpanded((prvExpanded) => !prvExpanded)
 
 
     let itemsMenu = [
@@ -189,8 +192,12 @@ export const ReportStreamHeader = () => {
                     <Title>
                         <a href="/">ReportStream</a>
                     </Title>
+                    <NavMenuButton onClick={toggleMobileNav} label="Menu" />
                 </div>
-                <PrimaryNav items={itemsMenu}>
+                <PrimaryNav 
+                    items={itemsMenu} 
+                    onToggleMobileNav={toggleMobileNav}
+                    mobileExpanded={expanded}>
                     <SignInOrUser />
                 </PrimaryNav>
             </div>

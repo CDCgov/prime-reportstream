@@ -233,8 +233,8 @@ class TranslationTests {
                         input,
                         TestSource
                     )
-                    readResult.errors.forEach { result.errors.add(it.details) }
-                    readResult.warnings.forEach { result.warnings.add(it.details) }
+                    readResult.errors.forEach { result.errors.add(it.responseMessage.detailMsg()) }
+                    readResult.warnings.forEach { result.warnings.add(it.responseMessage.detailMsg()) }
                     result.passed = readResult.errors.isEmpty()
                     readResult.report
                 }
@@ -252,8 +252,8 @@ class TranslationTests {
                         input,
                         TestSource
                     )
-                    readResult.errors.forEach { result.errors.add(it.details) }
-                    readResult.warnings.forEach { result.warnings.add(it.details) }
+                    readResult.errors.forEach { result.errors.add(it.responseMessage.detailMsg()) }
+                    readResult.warnings.forEach { result.warnings.add(it.responseMessage.detailMsg()) }
                     result.passed = readResult.errors.isEmpty()
                     readResult.report
                 }

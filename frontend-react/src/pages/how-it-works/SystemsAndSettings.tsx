@@ -1,6 +1,11 @@
+import { Helmet } from "react-helmet";
+
 export const SystemsAndSettings = () => {
     return (
         <>
+            <Helmet>
+                <title>Systems and Settings | How it works | {process.env.REACT_APP_TITLE}</title>
+            </Helmet>
             <section id="anchor-top">
 
                 <h1 className="margin-top-0">Systems and Settings</h1>
