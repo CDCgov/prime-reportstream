@@ -732,7 +732,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
     ) {
         val ctx = if (txn != null) DSL.using(txn) else create
         val initiatedOn = connectionCheck.initiatedOn.atOffset(ZoneOffset.UTC)
-        val completedOn = connectionCheck.initiatedOn.atOffset(ZoneOffset.UTC)
+        val completedOn = connectionCheck.completedAt.atOffset(ZoneOffset.UTC)
         ctx.insertInto(RECEIVER_CONNECTION_CHECK_RESULTS)
             .set(RECEIVER_CONNECTION_CHECK_RESULTS.ORGANIZATION_ID, connectionCheck.organizationId)
             .set(RECEIVER_CONNECTION_CHECK_RESULTS.RECEIVER_ID, connectionCheck.receiverId)

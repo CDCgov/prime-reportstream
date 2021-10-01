@@ -30,6 +30,9 @@ class CheckFunction : Logging {
         val contents: String,
     )
 
+    /**
+     * A class to wrap the connection check event
+     */
     data class RemoteConnectionCheck(
         val organizationId: Int,
         val receiverId: Int,
@@ -48,6 +51,9 @@ class CheckFunction : Logging {
         }
     }
 
+    /**
+     * Checks a single remote connection
+     */
     @FunctionName("check")
     fun run(
         @HttpTrigger(
@@ -122,9 +128,8 @@ class CheckFunction : Logging {
             name = "scheduledRemoteConnectionCheckTrigger",
             schedule = "%REMOTE_CONNECTION_CHECK_SCHEDULE%"
         ) timerInfo: String,
-        context: ExecutionContext
     ) {
-        logger.info("Staring scheduled check of remote receiver connections")
+        logger.info("Staring scheduled check of remote receiver connections. Schedule is set to $timerInfo")
         val settings = WorkflowEngine.settings
         val db = WorkflowEngine.databaseAccess
         settings.receivers.forEach {
@@ -169,8 +174,10 @@ class CheckFunction : Logging {
                     )
                     db.saveRemoteConnectionCheck(txn, connectionCheck)
                 } else {
-                    logger.info("Unable to save connection check for ${it.organizationName}-${it.name}" +
-                        " because organizationId ($organizationId) or receiverId ($receiverId) is null")
+                    logger.info(
+                        "Unable to save connection check for ${it.organizationName}-${it.name}" +
+                            " because organizationId ($organizationId) or receiverId ($receiverId) is null"
+                    )
                 }
             }
         }
