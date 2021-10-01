@@ -3,16 +3,21 @@ import OktaSignInWidget from "../components/OktaSignInWidget";
 import { useOktaAuth } from "@okta/okta-react";
 import { groupToOrg } from "../webreceiver-utils";
 import { SiteAlert } from "@trussworks/react-uswds";
+import { useGlobalContext } from "../components/GlobalContextProvider";
+import { PERMISSIONS } from '../resources/PermissionsResource'
 
 export const Login = ({ config }) => {
     const { oktaAuth, authState } = useOktaAuth();
+    const { state, updateOrganization } = useGlobalContext();
 
     const onSuccess = (tokens) => {
         oktaAuth.handleLoginRedirect(tokens);
-        console.log(tokens);
-        let organization = tokens?.accessToken?.claims?.organization[0];
-        console.log(`organization = ${organization}`);
 
+        console.log(tokens);
+        let organization = groupToOrg(tokens?.accessToken?.claims?.organization[0]);
+        if (organization === PERMISSIONS.PRIME_ADMIN) organization = groupToOrg(tokens?.accessToken?.claims?.organization[1]);
+        updateOrganization(organization)
+        console.log(`organization = ${organization}`);
         console.log(`g2o = ${groupToOrg(organization)}`);
     };
 
