@@ -46,8 +46,7 @@ class BatchFunction {
                 }
                 val inReports = headers.map {
                     val report = workflowEngine.createReport(it)
-                    // todo replace the use of Event.Header.Task with info from ReportFile.
-                    // todo also I think we don't need `sources` any more.
+                    // todo replace the use of task.reportId with info from ReportFile.
                     actionHistory.trackExistingInputReport(it.task.reportId)
                     report
                 }

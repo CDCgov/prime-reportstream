@@ -9,7 +9,7 @@ export default function Section({ section }: { section: SectionProp }) {
         return <LiveMapSection section={section} />;
     else
         return (
-            <div className="tablet:grid-col-10 ">
+            <div className="tablet:grid-col-8">
                 <h2 className="font-sans-lg tablet:font-sans-xl margin-top-0 tablet:margin-bottom-0">
                     {section.title}
                 </h2>
