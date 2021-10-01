@@ -1,3 +1,4 @@
+// @ts-nocheck // TODO: fix types in this file
 import { SectionProp } from "../HomeProps";
 import CdcMap from "@cdc/map";
 import live from "../../../content/live.json";
