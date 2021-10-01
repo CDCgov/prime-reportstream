@@ -35,7 +35,7 @@ CREATE UNIQUE INDEX ON lookup_table_version(table_name, table_version);
 CREATE TABLE lookup_table_row
 (
   lookup_table_row_id BIGSERIAL PRIMARY KEY,
-  lookup_table_version_id BIGSERIAL NOT NULL CHECK (lookup_table_version_id > 0),
+  lookup_table_version_id BIGSERIAL NOT NULL,
   row_num INTEGER NOT NULL CHECK (row_num > 0),
   data JSONB NOT NULL,
   CONSTRAINT fk_lookup_table_version
