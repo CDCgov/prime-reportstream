@@ -1,9 +1,7 @@
 import { useOktaAuth } from '@okta/okta-react';
 import { useState, useEffect, useCallback } from 'react';
-import { useResource } from 'rest-hooks';
 import Spinner from '../../components/Spinner';
 import AuthResource from '../../resources/AuthResource';
-import FacilityResource from '../../resources/FacilityResource';
 import { getOrganization } from '../../webreceiver-utils';
 
 interface Props {
