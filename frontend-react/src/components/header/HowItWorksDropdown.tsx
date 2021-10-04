@@ -1,7 +1,7 @@
 import { Link, Menu, NavDropDownButton } from "@trussworks/react-uswds";
 import { useEffect, useState } from "react";
 
-const HIWDropdown = () => {
+const HowItWorksDropdown = () => {
     const [isOpen, setIsOpen] = useState(false);
 
     /* Used since setIsOpen cannot be directly called in useEffect */
@@ -63,4 +63,4 @@ const HIWDropdown = () => {
     )
 }
 
-export { HIWDropdown }
+export { HowItWorksDropdown }

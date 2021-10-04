@@ -25,18 +25,17 @@ import { Upload } from "./pages/Upload";
 import { useIdleTimer } from "react-idle-timer";
 import { CODES, ErrorPage } from "./pages/error/ErrorPage";
 import GlobalContextProvider from "./components/GlobalContextProvider";
+import { logout } from "./utils/UserUtils";
 
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
 
 const App = () => {
     const history = useHistory();
-
     const customAuthHandler = (): void => {
         history.push("/login");
     };
-
     const handleIdle = (): void => {
-        if (OKTA_AUTH.authStateManager._authState.isAuthenticated) OKTA_AUTH.signOut();
+        logout();
     }
     const restoreOriginalUri = async (_oktaAuth: any, originalUri: string) => {
         // check if the user would have any data to receive via their organizations from the okta claim
@@ -81,10 +80,8 @@ const App = () => {
                             <AuthorizedRoute path='/daily-data' authorize={PERMISSIONS.RECEIVER} component={Daily} />
                             <AuthorizedRoute path='/upload' authorize={PERMISSIONS.SENDER} component={Upload} />
                             <SecureRoute path="/report-details" component={Details} />
-
                             {/* Handles any undefined route */}
                             <Route render={() => (<ErrorPage code={CODES.NOT_FOUND_404} />)} />
-
                         </Switch>
                     </div>
                 </GlobalContextProvider>

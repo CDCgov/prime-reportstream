@@ -1,6 +1,6 @@
 import ReportLink from "../daily/Table/ReportLink";
 import ReportResource from '../../resources/ReportResource'
-import { useOrgName } from "../../controllers/OrganizationController";
+import { useOrgName } from "../../utils/OrganizationUtils";
 
 interface Props {
     /* REQUIRED

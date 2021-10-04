@@ -2,7 +2,7 @@ import { useOktaAuth } from "@okta/okta-react";
 import { Button } from "@trussworks/react-uswds";
 import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
-import { GLOBAL_STORAGE_KEYS } from "../GlobalContextProvider";
+import { logout } from "../../utils/UserUtils";
 
 const SignInOrUser = () => {
     const { oktaAuth, authState } = useOktaAuth();
@@ -16,12 +16,6 @@ const SignInOrUser = () => {
         }
     });
 
-    const clearGlobalContext = () => {
-        for (let key in localStorage) {
-            if (key.includes(GLOBAL_STORAGE_KEYS.GLOBAL_BASE)) localStorage.removeItem(key)
-        }
-    }
-
     return authState?.isAuthenticated ? (
         <div className="prime-user-account">
             <span id="emailUser">{user}</span>
@@ -30,8 +24,7 @@ const SignInOrUser = () => {
                 href="/"
                 id="logout"
                 onClick={() => {
-                    clearGlobalContext()// Clears items stored for GlobalContext
-                    oktaAuth.signOut()
+                    logout()
                 }}
                 className="usa-link"
             >

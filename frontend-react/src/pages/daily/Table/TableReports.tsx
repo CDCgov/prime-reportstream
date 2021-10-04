@@ -1,4 +1,4 @@
-import { getUniqueReceiverSvc } from '../../../controllers/ReportController';
+import { getUniqueReceiverSvc } from '../../../utils/ReportUtils';
 import ReportResource from '../../../resources/ReportResource';
 import TableButtonGroup from './TableButtonGroup';
 import TableReportsData from './TableReportsData';

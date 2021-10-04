@@ -6,7 +6,8 @@ import { PERMISSIONS } from "../../resources/PermissionsResource";
 import { Header, Title, PrimaryNav, Link, NavMenuButton } from "@trussworks/react-uswds";
 import { OrganizationDropdown } from './OrgDropdown'
 import { SignInOrUser } from "./SignInOrUser";
-import { HIWDropdown } from "./HIWDropdown";
+import { HowItWorksDropdown } from "./HowItWorksDropdown";
+import { NavLink } from "react-router-dom";
 
 export const ReportStreamHeader = () => {
     const { authState } = useOktaAuth();
@@ -16,31 +17,33 @@ export const ReportStreamHeader = () => {
         <Link href="/about" id="docs" className="usa-nav__link">
             <span>About</span>
         </Link>,
-        <HIWDropdown />,
+        <HowItWorksDropdown />,
     ];
 
     if (authState !== null && authState.isAuthenticated) {
         if (reportReceiver(authState)) {
             itemsMenu.splice(0, 0,
-                <Link href="/daily-data"
+                <NavLink
+                    to="/daily-data"
                     key="daily"
                     data-attribute="hidden"
                     hidden={true}
                     className="usa-nav__link">
                     <span>Daily data</span>
-                </Link>
+                </NavLink>
             );
         }
 
         if (permissionCheck(PERMISSIONS.SENDER, authState)) {
             itemsMenu.splice(1, 0,
-                <Link href="/upload"
+                <NavLink
+                    to="/upload"
                     key="upload"
                     data-attribute="hidden"
                     hidden={true}
                     className="usa-nav__link">
                     <span>Upload</span>
-                </Link>
+                </NavLink>
             );
         }
     }
