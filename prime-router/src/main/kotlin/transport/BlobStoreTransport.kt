@@ -45,7 +45,7 @@ class BlobStoreTransport(val workflowEngine: WorkflowEngine) : ITransport {
                     "$blobTransportType ($envVar:$storageName)" +
                     ", Exception: ${t.localizedMessage}"
             context.logger.warning(msg)
-            actionHistory.setActionType(TaskAction.send_error)
+            actionHistory.setActionType(TaskAction.send_warning)
             actionHistory.trackActionResult(msg)
             RetryToken.allItems
         }

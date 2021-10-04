@@ -6,7 +6,7 @@ import gov.cdc.prime.router.tokens.JwkSet
 
 /**
  * A `Sender` represents the agent that is sending reports to
- * to the data hub (minus the credentials used by that agent, of course). It
+ * the data hub (minus the credentials used by that agent, of course). It
  * contains information about the specific topic and schema that the sender uses.
  */
 open class Sender(
@@ -14,6 +14,7 @@ open class Sender(
     val organizationName: String,
     val format: Format,
     val topic: String,
+    val customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
     val schemaName: String,
     val keys: List<JwkSet>? = null // used to track server-to-server auths for this Sender via public keys sets
 ) {
@@ -22,6 +23,7 @@ open class Sender(
         copy.organizationName,
         copy.format,
         copy.topic,
+        copy.customerStatus,
         copy.schemaName,
         if (copy.keys != null) ArrayList(copy.keys) else null
     )
@@ -32,6 +34,7 @@ open class Sender(
         copy.organizationName,
         copy.format,
         copy.topic,
+        copy.customerStatus,
         copy.schemaName,
         addJwkSet(copy.keys, newScope, newJwk)
     )

@@ -50,7 +50,7 @@ class SettingFacadeTests {
         1,
         JSONB.valueOf(
             """{"name":"default","organizationName":"test","format":"CSV","topic":"covid-19"""" +
-                ""","schemaName":"primedatainput/pdi-covid-19","meta":null}"""
+                ""","customerStatus":"active","schemaName":"primedatainput/pdi-covid-19","meta":null}"""
         ),
         false,
         true,
@@ -64,7 +64,8 @@ class SettingFacadeTests {
         "elr-test",
         1,
         JSONB.valueOf(
-            """{"name":"elr-test","organizationName":"test","topic":"covid-19","translation":""" +
+            """{"name":"elr-test","organizationName":"test","topic":"covid-19","customerStatus":"active",""" +
+                """"translation":""" +
                 """{"schemaName":"az/az-covid-19","format":"CSV","defaults":{},"type":"CUSTOM"},""" +
                 """"jurisdictionalFilter":["matches(ordering_facility_state,AZ)",""" +
                 """"doesNotMatch(ordering_facility_name,Tucson Mountains,Tucson Foothills,Sierra Vista Canyons)"]""" +

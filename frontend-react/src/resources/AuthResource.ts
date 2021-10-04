@@ -14,7 +14,7 @@ export default class AuthResource extends Resource {
 
         // finds the first organization that does not have the word "sender" in it
         const organization = groupToOrg(
-            authState!.accessToken?.claims.organization.find(o => !o.toLowerCase().includes('sender'))
+            authState!.accessToken?.claims.organization.find((o: string) => !o.toLowerCase().includes('sender'))
         );
 
         return {
