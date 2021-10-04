@@ -12,7 +12,6 @@ export const ReportStreamHeader = () => {
     const { authState } = useOktaAuth();
     const [expanded, setExpanded] = useState(false)
     const toggleMobileNav = (): void => setExpanded((prvExpanded) => !prvExpanded)
-
     let itemsMenu = [
         <Link href="/about" id="docs" className="usa-nav__link">
             <span>About</span>
