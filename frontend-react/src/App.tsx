@@ -1,3 +1,4 @@
+// @ts-nocheck // TODO: fix types in this file
 import "./App.css";
 import { Home } from "./pages/home/Home";
 import { ReportStreamFooter } from "./components/ReportStreamFooter";
@@ -32,7 +33,7 @@ const App = () => {
     const customAuthHandler = () => {
         history.push("/login");
     };
-    const restoreOriginalUri = async (_oktaAuth, originalUri) => {
+    const restoreOriginalUri = async (_oktaAuth: any, originalUri: string) => {
         // check if the user would have any data to receive via their organizations from the okta claim
         // direct them to the /upload page if they do not have an organization that receives data
         const authState = OKTA_AUTH.authStateManager._authState;
