@@ -1,14 +1,16 @@
 import { useOktaAuth } from '@okta/okta-react';
 import { useState, useEffect, useCallback } from 'react';
+import { useResource } from 'rest-hooks';
 import Spinner from '../../components/Spinner';
 import AuthResource from '../../resources/AuthResource';
+import FacilityResource from '../../resources/FacilityResource';
 import { getOrganization } from '../../webreceiver-utils';
 
 interface Props {
     /* REQUIRED
     Passing in a report allows this component to map through the facilities property
     to display a row per facility on the FaclitiesTable. */
-    reportId: string | undefined
+    reportId: string
 }
 
 /* INFO
@@ -33,34 +35,34 @@ function FacilitiesTable(props: Props) {
        configured properly
        >>> Kevin Haube, Sep 24, 2021 */
 
-    // const facilities: FacilityResource[] = useResource(FacilityResource.getFacilities(reportId), {})
+    const facilities: FacilityResource[] = useResource(FacilityResource.getFacilitiesByReportId(), { reportId: reportId })
 
     /* INFO
        This is a temporary fix while I work on learning how to configure custom endpoints
        and calls with the rest-hooks library. 
        >>> Kevin Haube, Sep 24, 2021 */
 
-    const [facilities, setFacilicites] = useState<Facility[]>([]);
-    const { authState } = useOktaAuth();
-    const facilitiesURL = `${AuthResource.getBaseUrl()}/api/history/report/${reportId}/facilities`
+    // const [facilities, setFacilicites] = useState<Facility[]>([]);
+    // const { authState } = useOktaAuth();
+    // const facilitiesURL = `${AuthResource.getBaseUrl()}/api/history/report/${reportId}/facilities`
 
-    const getFacilities = useCallback(async (fetchURL) => {
-        const organization = getOrganization(authState)
-        const headers = new Headers({
-            'Authorization': `Bearer ${authState?.accessToken?.accessToken}`,
-            'Organization': organization!
-        });
-        const response = await fetch(fetchURL, {
-            method: 'GET',
-            headers: headers
-        })
-        const data = await response.json()
-        setFacilicites(data)
-    }, [authState])
+    // const getFacilities = useCallback(async (fetchURL) => {
+    //     const organization = getOrganization(authState)
+    //     const headers = new Headers({
+    //         'Authorization': `Bearer ${authState?.accessToken?.accessToken}`,
+    //         'Organization': organization!
+    //     });
+    //     const response = await fetch(fetchURL, {
+    //         method: 'GET',
+    //         headers: headers
+    //     })
+    //     const data = await response.json()
+    //     setFacilicites(data)
+    // }, [authState])
 
-    useEffect(() => {
-        getFacilities(facilitiesURL)
-    }, [getFacilities, facilitiesURL]);
+    // useEffect(() => {
+    //     getFacilities(facilitiesURL)
+    // }, [getFacilities, facilitiesURL]);
 
     if (facilities.length === 0) {
         return (
