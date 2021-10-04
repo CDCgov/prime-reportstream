@@ -18,8 +18,9 @@ paths:
   # /submissions/{organizationName}
   #
   # FILTERS (OPTIONAL)
-  # ?offset=INT
-  # ?limit=INT
+  # ?page=INT
+  # ?pagesize=INT
+  # ?getLength=BOOLEAN
   # ?dateStart=STRING (YYYY-MM-DD) || INT (NN [days back] | default: 30)
   # ?dateEnd=STRING (YYYY-MM-DD | default: Today)
   # ?year=INT (YYYY | default: ALL)
@@ -27,9 +28,9 @@ paths:
   # ?organizations=INT (default: ALL)
   # ?recipients=ARRAY
   # ?sender=ARRAY
-  # ?warnings=BOOLEAN
-  # ?errors=BOOLEAN
-  # ?receipts=BOOLEAN
+  # ?warnings=STRING
+  # ?errors=STRING
+  # ?receipts=STRING
   #
   #
   #
@@ -59,17 +60,23 @@ paths:
         - ApiKeyAuth: []
       parameters:
         - in: query
-          name: offset
+          name: page
           schema:
             type: integer
           required: false
-          description: The number of items to skip before starting to collect the result set (default 0).
+          description: The current page number. A cleaner way to call `offset`. `page * pageSize = offset`. (default 0).
         - in: query
-          name: limit
+          name: pageSize
           schema:
             type: integer
           required: false
-          description: The numbers of items to return (default `ALL`).
+          description: The number of items to return (default `ALL`).
+        - in: query
+          name: getLength
+          schema:
+            type: boolean
+          required: false
+          description: Return the count of all items. For use with determining the number of `pages`.
         - in: query
           name: dateStart
           schema:
@@ -160,17 +167,23 @@ paths:
         - ApiKeyAuth: []
       parameters:
         - in: query
-          name: offset
+          name: page
           schema:
             type: integer
           required: false
-          description: The number of items to skip before starting to collect the result set (default 0).
+          description: The current page number. A cleaner way to call `offset`. `page * pageSize = offset`. (default 0).
         - in: query
-          name: limit
+          name: pageSize
           schema:
             type: integer
           required: false
-          description: The numbers of items to return (default `ALL`).
+          description: The number of items to return (default `ALL`).
+        - in: query
+          name: getLength
+          schema:
+            type: boolean
+          required: false
+          description: Return the count of all items. For use with determining the number of `pages`.
         - in: query
           name: dateStart
           schema:
@@ -253,18 +266,18 @@ paths:
         '401':
           description: Unauthorized
 
-  /submissions/{reportID}:
+  /submissions/submission/{submissionID}:
     get:
-      description: Return a single receive action, and its received report.
+      description: Return a single receive action, and its received report(s), or an error report.
       security:
         - ApiKeyAuth: []
       parameters:
         - in: path
-          name: reportID
+          name: submissionID
           schema:
             type: string
           required: true
-          description: Return a single specified result.
+          description: The `actionID` for a single receiver action.
       responses:
         '200':
           description: OK
@@ -290,17 +303,23 @@ paths:
           name: organizationName
           description: The name of the organization
         - in: query
-          name: offset
+          name: page
           schema:
             type: integer
           required: false
-          description: The number of items to skip before starting to collect the result set (default 0).
+          description: The current page number. A cleaner way to call `offset`. `page * pageSize = offset`. (default 0).
         - in: query
-          name: limit
+          name: pageSize
           schema:
             type: integer
           required: false
-          description: The numbers of items to return (default `ALL`).
+          description: The number of items to return (default `ALL`).
+        - in: query
+          name: getLength
+          schema:
+            type: boolean
+          required: false
+          description: Return the count of all items. For use with determining the number of `pages`.
         - in: query
           name: dateStart
           schema:
