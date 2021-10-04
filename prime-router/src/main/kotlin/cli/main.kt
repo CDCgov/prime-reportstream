@@ -265,5 +265,6 @@ fun main(args: Array<String>) = RouterCli()
         SenderSettings(),
         ReceiverSettings(),
         MultipleSettings(),
+        LookupTableCommands()
     )
     .main(args)
