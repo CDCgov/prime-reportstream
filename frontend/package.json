@@ -3,7 +3,7 @@
     "version": "0.0.0",
     "dependencies": {
         "@okta/jwt-verifier": "^2.3.0",
-        "axios": "^0.21.4",
+        "axios": "^0.22.0",
         "chart.js": "^3.5",
         "cypress": "^8.3.1",
         "http-proxy-middleware": "^2.0.1",
