@@ -24,7 +24,7 @@ const SignInOrUser = () => {
                 href="/"
                 id="logout"
                 onClick={() => {
-                    logout()
+                    logout(oktaAuth)
                 }}
                 className="usa-link"
             >

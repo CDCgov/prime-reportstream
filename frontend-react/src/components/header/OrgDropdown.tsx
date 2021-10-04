@@ -1,11 +1,13 @@
 import { Dropdown } from "@trussworks/react-uswds";
 import { CSSProperties, useState } from "react";
+import { useHistory } from "react-router";
 import { useResource } from "rest-hooks";
 import OrganizationResource from "../../resources/OrganizationResource";
 import { GLOBAL_STORAGE_KEYS, useGlobalContext } from "../GlobalContextProvider";
 
 const OrganizationDropdown = () => {
-    const [org, setOrg] = useState(localStorage.getItem(GLOBAL_STORAGE_KEYS.GLOBAL_ORG) || "")
+    const [org, setOrg] = useState(localStorage.getItem(GLOBAL_STORAGE_KEYS.GLOBAL_ORG) || "");
+    const history = useHistory();
     const { updateOrganization } = useGlobalContext();
 
     let orgs = useResource(OrganizationResource.list(), {
@@ -15,6 +17,9 @@ const OrganizationDropdown = () => {
     let setValue = (e: any) => {
         setOrg(e)
         updateOrganization(e)
+        if (window.location.pathname.includes('/report-details')) {
+            history.push('/daily-data')
+        }
         window.location.reload()
     };
     const dropdownStyles: CSSProperties = {

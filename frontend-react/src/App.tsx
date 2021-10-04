@@ -35,7 +35,7 @@ const App = () => {
         history.push("/login");
     };
     const handleIdle = (): void => {
-        logout();
+        logout(OKTA_AUTH);
     }
     const restoreOriginalUri = async (_oktaAuth: any, originalUri: string) => {
         // check if the user would have any data to receive via their organizations from the okta claim
