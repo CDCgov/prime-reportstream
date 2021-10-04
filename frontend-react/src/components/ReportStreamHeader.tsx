@@ -176,13 +176,13 @@ export const ReportStreamHeader = () => {
 
         if (permissionCheck(PERMISSIONS.SENDER, authState)) {
             itemsMenu.splice(1, 0,
-                <Link href="/upload"
+                <NavLink to="/upload"
                     key="upload"
                     data-attribute="hidden"
                     hidden={true}
                     className="usa-nav__link">
                     <span>Upload</span>
-                </Link>
+                </NavLink>
             );
         }
     }
