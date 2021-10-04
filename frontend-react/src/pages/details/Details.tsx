@@ -32,7 +32,7 @@ const DetailsContent = () => {
         <>
             <Summary report={report} />
             <ReportDetails report={report} />
-            <FacilitiesTable reportId={report?.reportId} />
+            <FacilitiesTable reportId={report?.reportId || ""} />
             <HipaaNotice />
         </>
     );
