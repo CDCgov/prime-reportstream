@@ -13,7 +13,6 @@ const OrganizationDropdown = () => {
     }).sort((a, b) => a.name.localeCompare(b.name));
 
     let setValue = (e: any) => {
-        //TODO: change org context for user
         setOrg(e)
         updateOrganization(e)
         window.location.reload()
@@ -31,9 +30,9 @@ const OrganizationDropdown = () => {
             defaultValue={org}
             onChange={(e) => setValue(e.target.value)}
         >
-            {orgs.map((org) => (
-                <option key={org.name} value={org.name}>
-                    {org.name}
+            {orgs.map((orgItem) => (
+                <option key={orgItem.name} value={orgItem.name}>
+                    {orgItem.name}
                 </option>
             ))}
         </Dropdown>

@@ -1,6 +1,7 @@
 import { useOktaAuth } from "@okta/okta-react";
-import { Button, Link } from "@trussworks/react-uswds";
+import { Button } from "@trussworks/react-uswds";
 import { useEffect, useState } from "react";
+import { NavLink } from "react-router-dom";
 import { GLOBAL_STORAGE_KEYS } from "../GlobalContextProvider";
 
 const SignInOrUser = () => {
@@ -8,7 +9,7 @@ const SignInOrUser = () => {
     const [user, setUser] = useState("");
 
     useEffect(() => {
-        if (authState && authState.isAuthenticated) {
+        if (authState?.isAuthenticated) {
             oktaAuth
                 .getUser()
                 .then((cl) => setUser(cl.email ? cl.email : "unknown user"));
@@ -17,13 +18,13 @@ const SignInOrUser = () => {
 
     const clearGlobalContext = () => {
         for (let key in localStorage) {
-            if (key.includes(GLOBAL_STORAGE_KEYS.GLOBAL_BASE)) { localStorage.removeItem(key) }
+            if (key.includes(GLOBAL_STORAGE_KEYS.GLOBAL_BASE)) localStorage.removeItem(key)
         }
     }
 
-    return authState && authState.isAuthenticated ? (
+    return authState?.isAuthenticated ? (
         <div className="prime-user-account">
-            <span id="emailUser">{user ? user : ""}</span>
+            <span id="emailUser">{user}</span>
             <br />
             <a
                 href="/"
@@ -38,11 +39,11 @@ const SignInOrUser = () => {
             </a>
         </div>
     ) : (
-        <Link href="/daily-data">
+        <NavLink to="/daily-data">
             <Button type="button" outline>
                 Log in
             </Button>
-        </Link>
+        </NavLink>
     );
 };
 

@@ -18,11 +18,11 @@ export const GlobalContext = createContext({
     state: {
         organization: localStorage.getItem(GLOBAL_STORAGE_KEYS.GLOBAL_ORG) || "",
     },
-    updateOrganization: (newOrganization: string) => { } // Default placeholder function model
+    updateOrganization: (newOrganization: string): void => { /* Default placeholder function model */ }
 });
 export function useGlobalContext() { return useContext(GlobalContext) }
 
-function GlobalContextProvider({ children }) {
+function GlobalContextProvider({ children }: { children: JSX.Element[] }): JSX.Element {
     const [organization, setOrganization] = useState(localStorage.getItem(GLOBAL_STORAGE_KEYS.GLOBAL_ORG) || "")
 
     const updateOrganization = (newOrganization: string): void => {
