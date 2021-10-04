@@ -1,3 +1,4 @@
+// @ts-nocheck // TODO: fix types in this file
 import { useHistory } from 'react-router';
 import { NotFound } from './NotFound'
 import { UnsupportedBrowser } from './UnsupportedBrowser';
