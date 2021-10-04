@@ -11,6 +11,7 @@ import {
 } from "@trussworks/react-uswds";
 import { useOktaAuth } from "@okta/okta-react";
 import { useEffect, useState } from "react";
+import { NavLink } from "react-router-dom";
 import { useResource } from "rest-hooks";
 import OrganizationResource from "../resources/OrganizationResource";
 import { permissionCheck, reportReceiver } from "../webreceiver-utils";
@@ -162,13 +163,14 @@ export const ReportStreamHeader = () => {
     if (authState !== null && authState.isAuthenticated) {
         if (reportReceiver(authState)) {
             itemsMenu.splice(0, 0,
-                <Link href="/daily-data"
+                <NavLink 
+                    to="/daily-data"
                     key="daily"
                     data-attribute="hidden"
                     hidden={true}
                     className="usa-nav__link">
                     <span>Daily data</span>
-                </Link>
+                </NavLink>
             );
         }
 
