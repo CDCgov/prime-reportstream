@@ -86,7 +86,7 @@ class SftpTransport : ITransport, Logging {
                     "$sftpTransportType (orgService = ${header.receiver?.fullName ?: "null"})" +
                     ", Exception: ${t.localizedMessage}"
             context.logger.warning(msg)
-            actionHistory.setActionType(TaskAction.send_error)
+            actionHistory.setActionType(TaskAction.send_warning)
             actionHistory.trackActionResult(msg)
             RetryToken.allItems
         }

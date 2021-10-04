@@ -187,6 +187,24 @@ class GetReportById :
     }
 }
 
+class GetFacilitiesByReportId :
+    BaseHistoryFunction() {
+    @FunctionName("getFacilitiesByReportId")
+    @StorageAccount("AzureWebJobsStorage")
+    fun run(
+        @HttpTrigger(
+            name = "getFacilitiesByReportId",
+            methods = [HttpMethod.GET],
+            authLevel = AuthorizationLevel.ANONYMOUS,
+            route = "history/report/{reportId}/facilities"
+        ) request: HttpRequestMessage<String?>,
+        @BindingName("reportId") reportId: String,
+        context: ExecutionContext,
+    ): HttpResponseMessage {
+        return getFacilitiesForReportId(request, reportId, context)
+    }
+}
+
 open class BaseHistoryFunction : Logging {
     val DAYS_TO_SHOW = 30L
     val workflowEngine = WorkflowEngine()
@@ -331,6 +349,32 @@ open class BaseHistoryFunction : Logging {
                 .build()
         }
         return response
+    }
+
+    fun getFacilitiesForReportId(
+        request: HttpRequestMessage<String?>,
+        reportId: String?,
+        context: ExecutionContext
+    ): HttpResponseMessage {
+        // make sure we're auth'd and error out if we're not
+        checkAuthenticated(request, context)
+            ?: return request.createResponseBuilder(HttpStatus.UNAUTHORIZED).build()
+
+        return try {
+            // get the facilities
+            val facilities = workflowEngine.db.getFacilitiesForDownloadableReport(ReportId.fromString(reportId))
+            request
+                .createResponseBuilder(HttpStatus.OK)
+                .header("Content-Type", "application/json")
+                .body(facilities)
+                .build()
+        } catch (ex: Exception) {
+            context.logger.warning("Exception during download of $reportId - file not found")
+            request.createResponseBuilder(HttpStatus.NOT_FOUND)
+                .body("File $reportId not found")
+                .header("Content-Type", "text/html")
+                .build()
+        }
     }
 
     data class AuthClaims(

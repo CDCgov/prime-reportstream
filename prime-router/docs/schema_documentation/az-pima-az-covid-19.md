@@ -35,6 +35,8 @@ ID Now|Molecular
 BinaxNOW COVID-19 Ag Card|Antigen
 LumiraDx SARS-CoV-2 Ag Test*|Antigen
 Sofia 2 SARS Antigen FIA|Antigen
+Sofia 2 Flu + SARS Antigen FIA*|Antigen
+Sienna-Clarity COVID-19 Antigen Rapid Test Cassette*|Antigen
 
 **Documentation**:
 
@@ -453,6 +455,10 @@ The zip code of the provider
 **Default Value**: 
 
 **Cardinality**: [0..1]
+
+**Documentation**:
+
+The SimpleReport concept of organization. It refers to organization for the ordering & performing facility
 
 ---
 

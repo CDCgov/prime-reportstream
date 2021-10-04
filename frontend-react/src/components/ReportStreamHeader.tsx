@@ -6,10 +6,12 @@ import {
     Link,
     Dropdown,
     NavDropDownButton,
+    NavMenuButton,
     Menu,
 } from "@trussworks/react-uswds";
 import { useOktaAuth } from "@okta/okta-react";
 import { useEffect, useState } from "react";
+import { NavLink } from "react-router-dom";
 import { useResource } from "rest-hooks";
 import OrganizationResource from "../resources/OrganizationResource";
 import { permissionCheck, reportReceiver } from "../webreceiver-utils";
@@ -147,6 +149,8 @@ const DropdownHowItWorks = () => {
 
 export const ReportStreamHeader = () => {
     const { authState } = useOktaAuth();
+    const [expanded, setExpanded] = useState(false)
+    const toggleMobileNav = (): void => setExpanded((prvExpanded) => !prvExpanded)
 
 
     let itemsMenu = [
@@ -159,25 +163,26 @@ export const ReportStreamHeader = () => {
     if (authState !== null && authState.isAuthenticated) {
         if (reportReceiver(authState)) {
             itemsMenu.splice(0, 0,
-                <Link href="/daily-data"
+                <NavLink 
+                    to="/daily-data"
                     key="daily"
                     data-attribute="hidden"
                     hidden={true}
                     className="usa-nav__link">
                     <span>Daily data</span>
-                </Link>
+                </NavLink>
             );
         }
 
         if (permissionCheck(PERMISSIONS.SENDER, authState)) {
             itemsMenu.splice(1, 0,
-                <Link href="/upload"
+                <NavLink to="/upload"
                     key="upload"
                     data-attribute="hidden"
                     hidden={true}
                     className="usa-nav__link">
                     <span>Upload</span>
-                </Link>
+                </NavLink>
             );
         }
     }
@@ -189,8 +194,12 @@ export const ReportStreamHeader = () => {
                     <Title>
                         <a href="/">ReportStream</a>
                     </Title>
+                    <NavMenuButton onClick={toggleMobileNav} label="Menu" />
                 </div>
-                <PrimaryNav items={itemsMenu}>
+                <PrimaryNav 
+                    items={itemsMenu} 
+                    onToggleMobileNav={toggleMobileNav}
+                    mobileExpanded={expanded}>
                     <SignInOrUser />
                 </PrimaryNav>
             </div>

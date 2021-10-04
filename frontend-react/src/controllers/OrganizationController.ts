@@ -8,7 +8,7 @@ export function useOrgName(): string {
     const { authState } = useOktaAuth()
     const org = useResource(OrganizationResource.detail(), {
         name: groupToOrg(
-            authState!.accessToken?.claims.organization.find(o => !o.toLowerCase().includes('sender'))
+            authState!.accessToken?.claims.organization.find((o: string) => !o.toLowerCase().includes('sender'))
         )
     });
     return org?.description || ""

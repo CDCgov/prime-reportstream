@@ -2,6 +2,7 @@
     "name": "react-frontend",
     "version": "0.1.0",
     "private": true,
+    "npmClient": "yarn",
     "dependencies": {
         "@cdc/map": "^2.6.2",
         "@fortawesome/fontawesome-svg-core": "^1.2.36",
@@ -37,7 +38,10 @@
         "node-sass": "^6.0.1",
         "react": "^17.0.2",
         "react-chartjs-2": "^3.0.3",
+        "react-device-detect": "^2.0.0",
         "react-dom": "^17.0.2",
+        "react-helmet": "^6.1.0",
+        "react-idle-timer": "^4.6.4",
         "react-router": "^5.2.0",
         "react-router-dom": "^5.2.0",
         "react-scripts": "4.0.3",
@@ -81,6 +85,7 @@
     },
     "devDependencies": {
         "@testing-library/react": "^12.1.0",
+        "@types/react-helmet": "^6.1.2",
         "@types/react-router-dom": "^5.1.7",
         "@typescript-eslint/eslint-plugin": "^4.23.0",
         "@typescript-eslint/parser": "^4.23.0",
