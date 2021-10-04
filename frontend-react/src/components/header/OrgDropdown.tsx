@@ -15,12 +15,12 @@ const OrganizationDropdown = () => {
     }).sort((a, b) => a.name.localeCompare(b.name));
 
     let setValue = (e: any) => {
-        setOrg(e)
-        updateOrganization(e)
+        setOrg(e);
+        updateOrganization(e);
         if (window.location.pathname.includes('/report-details')) {
             history.push('/daily-data')
-        }
-        window.location.reload()
+        };
+        window.location.reload();
     };
     const dropdownStyles: CSSProperties = {
         maxWidth: "200px",
