@@ -5,7 +5,7 @@ module.exports = {
         {
             plugin: sassResourcesLoader,
             options: {
-                resources: ["./node_modules/uswds/dist/scss/packages/_required.scss"],
+                resources: ["./src/global.scss"]
             },
         },
     ],

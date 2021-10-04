@@ -1,4 +1,4 @@
-import "./App.css";
+
 import { Home } from "./pages/home/Home";
 import { ReportStreamFooter } from "./components/ReportStreamFooter";
 import Daily from "./pages/daily/Daily";
@@ -55,23 +55,25 @@ const App = () => {
                     return <div></div>;
                 }}
             >
-                <div className="content">
-                    <GovBanner aria-label="Official government website" />
-                    <ReportStreamHeader />
-                    <Switch>
-                        <Route path="/" exact={true} component={Home} />
-                        <Route path="/about" component={About} />
-                        <Route path="/how-it-works" component={HowItWorks} />
-                        <Route path="/terms-of-service" component={TermsOfService} />
-                        <Route path="/login" render={() => (<Login config={oktaSignInConfig} />)} />
-                        <Route path="/login/callback" component={LoginCallback} />
-                        <AuthorizedRoute path='/daily-data' authorize={PERMISSIONS.RECEIVER} component={Daily} />
-                        <AuthorizedRoute path='/upload' authorize={PERMISSIONS.SENDER} component={Upload} />
-                        <Suspense fallback={<Spinner fullPage />}>
-                            <SecureRoute path="/report-details" component={Details} />
-                        </Suspense>
-                    </Switch>
-                </div>
+                <GovBanner aria-label="Official government website" />
+                <ReportStreamHeader />
+                <main id='main-content'>
+                    <div className="content">
+                        <Switch>
+                            <Route path="/" exact={true} key={'home'} component={Home}/>
+                            <Route path="/about" component={About} key={'about'}/>
+                            <Route path="/how-it-works" component={HowItWorks} key={'howitworks'}/>
+                            <Route path="/terms-of-service" component={TermsOfService} key={'TermsOfService'} />
+                            <Route path="/login" key={'login'} render={() => (<Login config={oktaSignInConfig} />)} />
+                            <Route path="/login/callback" key={'logincallback'} component={LoginCallback} />
+                            <AuthorizedRoute path='/daily-data' key={'daily-data'} authorize={PERMISSIONS.RECEIVER} component={Daily} />
+                            <AuthorizedRoute path='/upload' key={'upload'} authorize={PERMISSIONS.SENDER} component={Upload} />
+                            <Suspense key={'sinner'} fallback={<Spinner fullPage />}>
+                                <SecureRoute key={'report-details'} path="/report-details" component={Details} />
+                            </Suspense>
+                        </Switch>
+                    </div>
+                </main>
                 <footer className="usa-identifier footer">
                     <ReportStreamFooter />
                 </footer>
