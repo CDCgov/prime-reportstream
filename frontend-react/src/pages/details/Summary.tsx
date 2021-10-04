@@ -1,6 +1,7 @@
 import ReportLink from "../daily/Table/ReportLink";
 import ReportResource from '../../resources/ReportResource'
 import { useOrgName } from "../../utils/OrganizationUtils";
+import { NavLink } from "react-router-dom";
 
 interface Props {
     /* REQUIRED
@@ -21,13 +22,13 @@ function Summary(props: Props) {
             >
                 <ol className="usa-breadcrumb__list">
                     <li className="usa-breadcrumb__list-item">
-                        <a
-                            href="/daily-data"
+                        <NavLink 
+                            to="/daily-data"
+                            key="daily"
                             className="usa-breadcrumb__link"
-                            id="orgName"
-                        >
+                            id="orgName">
                             {orgName}
-                        </a>
+                        </NavLink>
                     </li>
                     <li
                         className="usa-breadcrumb__list-item usa-current"
