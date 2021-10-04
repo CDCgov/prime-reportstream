@@ -2,6 +2,7 @@
     "name": "react-frontend",
     "version": "0.1.0",
     "private": true,
+    "npmClient": "yarn",
     "dependencies": {
         "@cdc/map": "^2.6.2",
         "@craco/craco": "^6.3.0",
@@ -52,7 +53,7 @@
     },
     "scripts": {
         "clean": "rimraf ./build",
-        "start": "HTTPS=false DISABLE_ESLINT_PLUGIN=true react-scripts start",
+        "start": "DISABLE_ESLINT_PLUGIN=true react-scripts start",
         "build": "INLINE_RUNTIME_CHUNK=false DISABLE_ESLINT_PLUGIN=true craco build",
         "test": "react-scripts test",
         "eject": "react-scripts eject",
