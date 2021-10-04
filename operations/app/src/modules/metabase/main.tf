@@ -34,8 +34,14 @@ resource "azurerm_app_service" "metabase" {
   }
 
   app_settings = {
-    "MB_DB_CONNECTION_URI"                = "postgresql://${data.azurerm_postgresql_server.postgres_server.name}.postgres.database.azure.com:5432/metabase?user=${data.azurerm_key_vault_secret.postgres_user.value}@${data.azurerm_postgresql_server.postgres_server.name}&password=${data.azurerm_key_vault_secret.postgres_pass.value}&sslmode=require&ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory"
-    "WEBSITE_VNET_ROUTE_ALL"              = 1
+    "MB_DB_CONNECTION_URI" = "postgresql://${data.azurerm_postgresql_server.postgres_server.name}.postgres.database.azure.com:5432/metabase?user=${data.azurerm_key_vault_secret.postgres_user.value}@${data.azurerm_postgresql_server.postgres_server.name}&password=${data.azurerm_key_vault_secret.postgres_pass.value}&sslmode=require&ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory"
+
+    # Route outbound traffic through the VNET
+    "WEBSITE_VNET_ROUTE_ALL" = 1
+
+    # Use the VNET DNS server (so we receive private endpoint URLs)
+    "WEBSITE_DNS_SERVER" = "168.63.129.16"
+
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE" = false
 
     # App Insights

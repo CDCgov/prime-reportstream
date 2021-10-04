@@ -22,7 +22,7 @@ locals {
     # Route storage account access through the VNET
     "WEBSITE_CONTENTOVERVNET" = 1
 
-    # Use the VNET DNS server (so we receive private endpoint URLs
+    # Use the VNET DNS server (so we receive private endpoint URLs)
     "WEBSITE_DNS_SERVER" = "168.63.129.16"
 
     "DOCKER_REGISTRY_SERVER_URL"      = data.azurerm_container_registry.container_registry.login_server
