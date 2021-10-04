@@ -8,17 +8,8 @@ export default class FacilityResource extends AuthResource {
     readonly positive: string | undefined = '';
     readonly total: string | undefined = '';
 
-    pk(){
+    pk() {
         return this.CLIA;
     }
 
-    static urlRoot = `${AuthResource.getBaseUrl()}/api/history/report/{reportId}/facilities`;
-
-    static getFacilities<FacilityResource>(this: FacilityResource, reportId: string | undefined) {
-        const endpoint = super.list();
-        return endpoint.extend({
-          fetch() { return endpoint(this); },
-          url() { return `/api/history/report/${reportId}/facilities` },
-        });
-    };
 }

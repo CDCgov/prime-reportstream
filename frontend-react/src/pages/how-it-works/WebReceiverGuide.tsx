@@ -1,5 +1,6 @@
 import site from "../../content/site.json";
 import { Helmet } from "react-helmet";
+import { NavLink } from "react-router-dom";
 
 export const WebReceiverGuide = () => {
     return (
@@ -11,9 +12,13 @@ export const WebReceiverGuide = () => {
                 <h1 className="margin-top-0">Data download website guide</h1>
                 <p className="usa-intro">
                     The{" "}
-                    <a href="/login/" className="usa-link">
+                    <NavLink
+                        to="/login/"
+                        key="login"
+                        className="usa-link">
                         data download website
-                    </a>{" "}
+                    </NavLink>
+                    {" "}
                     enables a public health department to access data from
                     senders via a secure, online portal.
                 </p>
@@ -147,17 +152,25 @@ export const WebReceiverGuide = () => {
                 <ul>
                     <li>
                         Visit{" "}
-                        <a href="/login/" className="usa-link">
+                        <NavLink
+                            to="/login/"
+                            key="login"
+                            className="usa-link">
                             reportstream.cdc.gov
-                        </a>{" "}
+                        </NavLink>
+                        {" "}
                         to log in to the application.
                     </li>
                     <li>
                         If you are directed to an internal Okta page and not the
                         data download site, don’t worry! Visit{" "}
-                        <a href="/daily/" className="usa-link">
+                        <NavLink
+                            to="/daily-data/"
+                            key="daily"
+                            className="usa-link">
                             reportstream.cdc.gov/daily-data
-                        </a>{" "}
+                        </NavLink>
+                        {" "}
                         to view your data.
                     </li>
                 </ul>
@@ -177,9 +190,12 @@ export const WebReceiverGuide = () => {
                     <li>
                         If you forgot your password, follow the instructions
                         under "Need help signing in?" on the login page at{" "}
-                        <a href="/login/" className="usa-link">
+                        <NavLink
+                            to="/login/"
+                            key="login"
+                            className="usa-link">
                             reportsream.cdc.gov/login
-                        </a>
+                        </NavLink>
                         .
                     </li>
                     <li>

@@ -8,7 +8,7 @@ interface Props {
     /* REQUIRED
     Passing in a report allows this component to map through the facilities property
     to display a row per facility on the FaclitiesTable. */
-    reportId: string | undefined
+    reportId: string
 }
 
 /* INFO
@@ -27,13 +27,6 @@ type Facility = {
 
 function FacilitiesTable(props: Props) {
     const { reportId } = props;
-
-    /* DEBUG
-       This will be our approach to getting facilities from the API once rest-hooks is 
-       configured properly
-       >>> Kevin Haube, Sep 24, 2021 */
-
-    // const facilities: FacilityResource[] = useResource(FacilityResource.getFacilities(reportId), {})
 
     /* INFO
        This is a temporary fix while I work on learning how to configure custom endpoints
