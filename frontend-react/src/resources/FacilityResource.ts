@@ -1,5 +1,3 @@
-import { Endpoint } from '@rest-hooks/endpoint';
-import { Resource } from '@rest-hooks/rest';
 import AuthResource from './AuthResource';
 
 export default class FacilityResource extends AuthResource {
