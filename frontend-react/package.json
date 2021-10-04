@@ -58,7 +58,8 @@
         "test": "react-scripts test",
         "eject": "react-scripts eject",
         "cypress-open": "./node_modules/.bin/cypress open",
-        "cypress-run": "./node_modules/.bin/cypress run"
+        "cypress-run": "./node_modules/.bin/cypress run",
+        "postbuild": "react-snap"
     },
     "eslintConfig": {
         "extends": [
