@@ -19,6 +19,17 @@ i.e.
 @include u-padding-right('05');
 ----------------------------------------
 */
+html, body {
+  height: 100%;
+}
+
+.content {
+  flex: 1 0 auto;
+  min-height: calc(100vh - 230px)
+}
+.footer {
+  flex-shrink: 0;
+}
 
 body {
   display: flex;
