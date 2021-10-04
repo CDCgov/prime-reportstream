@@ -2,6 +2,7 @@
     "name": "react-frontend",
     "version": "0.1.0",
     "private": true,
+    "npmClient": "yarn",
     "dependencies": {
         "@cdc/map": "^2.6.2",
         "@fortawesome/fontawesome-svg-core": "^1.2.36",

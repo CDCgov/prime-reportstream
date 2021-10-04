@@ -128,6 +128,7 @@ elements:
     mapper: livdLookup()
     natFlatFileField: Instrument_model_name
     hhsGuidanceField:
+    hl7Field: OBX-17-2
 
   - name: equipment_manufacture
     type: TABLE

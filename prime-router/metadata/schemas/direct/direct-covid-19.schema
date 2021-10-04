@@ -327,7 +327,7 @@ elements:
   - name: patient_email
     csvFields: [{ name: patientEmail}]
 
-  - name: reporting_facility
+  - name: reporting_facility_name
     documentation: Expecting an ISO heirarchic designator here. eg, "1265050918" (same value as in ordering_provider_npi).  Note that reporting_facility_text is also available as a field, if a name is needed.
     csvFields: [{ name: reportingFacility}]
 

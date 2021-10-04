@@ -1,3 +1,5 @@
+import { Endpoint } from '@rest-hooks/endpoint';
+import { Resource } from '@rest-hooks/rest';
 import AuthResource from './AuthResource';
 
 export default class FacilityResource extends AuthResource {
@@ -12,13 +14,25 @@ export default class FacilityResource extends AuthResource {
         return this.CLIA;
     }
 
-    static urlRoot = `${AuthResource.getBaseUrl()}/api/history/report/{reportId}/facilities`;
+    static urlRoot = `${AuthResource.getBaseUrl()}/api/history/report`;
 
-    static getFacilities<FacilityResource>(this: FacilityResource, reportId: string | undefined) {
-        const endpoint = super.list();
+    static getFacilitiesByReportId<T extends typeof Resource>(this: T) {
+        const endpoint = this.list()
         return endpoint.extend({
-          fetch() { return endpoint(this); },
-          url() { return `/api/history/report/${reportId}/facilities` },
+            url({ reportId }: { reportId: string }) { return `${AuthResource.getBaseUrl()}/api/history/report/${reportId}/facilities` },
+            fetch({ reportId }: { reportId: string }) { return endpoint.fetch.call(endpoint, { reportId }) },
+            schema: [FacilityResource]
         });
-    };
+    }
+    
 }
+
+// const getFacilitiesByReportId = (reportId: string): Promise<FacilityResource> | string => {
+//     fetch(`${PATH}`).then(res => {
+//             return res.json
+//         }
+//     );
+//     return "Error string"
+// }
+
+// const facilitiesListByReport = new Endpoint(getFacilitiesByReportId)
