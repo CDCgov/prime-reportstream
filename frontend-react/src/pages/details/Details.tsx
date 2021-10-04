@@ -1,3 +1,4 @@
+// @ts-nocheck // TODO: fix types in this file
 import { useResource } from "rest-hooks";
 import ReportResource from "../../resources/ReportResource";
 import Summary from "./Summary"

@@ -80,13 +80,6 @@ elements:
     - name: patient_race
       csvFields: [{name: Race}]
 
-#    - name: patient_race
-#      type: CODE
-#      valueSet: sender-automation/race
-#      documentation: Translate multiple inbound Race values to RS / OMB values
-#      csvFields: [{ name: Race, format: $display}]
-#      default: UNK
-
 
 # Specimen/Order Info
     - name: specimen_collection_date_time
@@ -111,12 +104,6 @@ elements:
       type: TEXT
       csvFields: [{name: Result Code}]
 
-#    - name: test_result
-#      type: CODE
-#      valueSet: sender-automation/test_result
-#      documentation: Translate multiple inbound Test Result values to RS values
-#      csvFields: [{ name: Result Code, format: $display}]
-
     - name: test_result_status
       csvFields: [{name: Test_result_status}]
       default: F
@@ -127,27 +114,26 @@ elements:
     - name: placer_order_id
       csvFields: [{name: Specimen ID}]
 
+    - name: testing_lab_specimen_id
+      csvFields: [{name: Specimen ID}]
+
     - name: specimen_type
-      type: TEXT
-      csvFields: [{name: Specimen Type}]
+      type: CODE
+      valueSet: sender-automation/specimen_type
+      documentation: Translate inbound text to outbound SNOMED Codes
+      csvFields: [{ name: Specimen Type, format: $display}]
 
-#    - name: specimen_type
-#      type: CODE
-#      valueSet: sender-automation/specimen_type
-#      documentation: Translate inbound text to outbound SNOMED Codes
-#      csvFields: [{ name: Specimen Type, format: $display}]
-
-#    - name: specimen_source_site_code
-#      type: CODE
-#      valueSet: sender-automation/specimen_source_site_code
-#      documentation: Translate inbound text to outbound SNOMED Codes
-#      csvFields: [{ name: Specimen Site, format: $display}]
+    - name: specimen_source_site_code
+      type: CODE
+      valueSet: sender-automation/specimen_source_site_code
+      documentation: Translate inbound text to outbound SNOMED Codes
+      csvFields: [{ name: Specimen Type, format: $display}]
 
     - name: test_performed_code
       type: TEXT
       csvFields: [{name: Test Code}]
 
-    - name: test_kit_name_id
+    - name: equipment_model_name
       type: TEXT
       default: 99999999
       csvFields: [{name: Device Identifier}]
@@ -163,14 +149,8 @@ elements:
     - name: ordering_provider_last_name
       csvFields: [{name: Provider Last Name}]
 
-#    - name: ordering_provider_lastfirst_name
-#      mapper: concat(ordering_provider_last_name, ordering_provider_first_name )
-
     - name: ordering_provider_street
       csvFields: [{name: Provider Street Address}]
-
-#    - name: ordering_provider_street2
-#      csvFields: [{name: Ordering_provider_street2}]
 
     - name: ordering_provider_city
       csvFields: [{name: Provider City}]
@@ -240,13 +220,14 @@ elements:
     - name: filler_clia
       csvFields: [{name: Facility CLIA}]
 
+
 # Concatenated fields
     - name: message_id
       mapper: concat(filler_order_id, test_performed_code)
 
 
 #this lookup is in the covid-19 schema, but doesn't appear to be done in practice (?)
-    - name: equipment_model_name
+    - name: equipment_model_name_temp
       table: LIVD-SARS-CoV-2-2021-04-28
       tableColumn: Model
       mapper: livdLookup()
