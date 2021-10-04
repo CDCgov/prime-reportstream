@@ -1,3 +1,4 @@
+// @ts-nocheck // TODO: fix types in this file
 import { Link, Redirect } from "react-router-dom";
 import OktaSignInWidget from "../components/OktaSignInWidget";
 import { useOktaAuth } from "@okta/okta-react";
@@ -5,12 +6,13 @@ import { groupToOrg } from "../webreceiver-utils";
 import { SiteAlert } from "@trussworks/react-uswds";
 import { useGlobalContext } from "../components/GlobalContextProvider";
 import { PERMISSIONS } from '../resources/PermissionsResource'
+import { Tokens } from "@okta/okta-auth-js";
 
 export const Login = ({ config }) => {
     const { oktaAuth, authState } = useOktaAuth();
     const { updateOrganization } = useGlobalContext();
 
-    const onSuccess = (tokens) => {
+    const onSuccess = (tokens: Tokens | undefined) => {
         oktaAuth.handleLoginRedirect(tokens);
 
         console.log(tokens);
@@ -21,13 +23,14 @@ export const Login = ({ config }) => {
         console.log(`g2o = ${groupToOrg(organization)}`);
     };
 
-    const onError = (err) => {
+    const onError = (err: any) => {
         console.log("error logging in", err);
     };
 
     const MonitoringAlert = () => {
+        console.log("react")
         return (
-            <SiteAlert variant="info" heading="This is a U.S. government service" className="margin-bottom-3 tablet:margin-bottom-6" >
+            <SiteAlert variant="info" heading="This is a United States government service" className="margin-bottom-3 tablet:margin-bottom-6" >
                 Your use indicates your consent to monitoring, recording, and no expectation of privacy. Misuse is subject to criminal and civil penalties. By logging in, you are agreeing to our <Link to="/terms-of-service">terms of service.</Link>
             </SiteAlert>
         )

@@ -3,7 +3,7 @@ import ReportResource from '../../../resources/ReportResource';
 import TableButtonGroup from './TableButtonGroup';
 import TableReportsData from './TableReportsData';
 import { useResource } from 'rest-hooks';
-import { useState } from 'react'
+import { SetStateAction, useState } from 'react'
 
 /* 
     This is the main exported component from this file. It provides container styling,
@@ -16,7 +16,7 @@ function TableReports({ sortBy }: { sortBy?: string }) {
     const [chosen, setChosen] = useState(receiverSVCs[0])
 
     /* This syncs the chosen state from <TableButtonGroup> with the chosen state here */
-    const handleCallback = (chosen) => {
+    const handleCallback = (chosen: SetStateAction<string>) => {
         setChosen(chosen)
     }
 
