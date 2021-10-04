@@ -1,7 +1,11 @@
 package gov.cdc.prime.router.transport
 
 import com.microsoft.azure.functions.ExecutionContext
-import gov.cdc.prime.router.*
+import gov.cdc.prime.router.FTPSTransportType
+import gov.cdc.prime.router.FtpsProtocol
+import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.ReportId
+import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
