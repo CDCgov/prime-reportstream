@@ -8,6 +8,7 @@ import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
 import com.microsoft.azure.functions.HttpStatus
 import com.microsoft.azure.functions.HttpStatusType
+import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Sender
@@ -150,6 +151,7 @@ class TokenFunctionTests {
         "simple_report",
         Sender.Format.CSV,
         "covid-19",
+        CustomerStatus.INACTIVE,
         "default"
     )
     var validScope = "simple_report.default.report"
