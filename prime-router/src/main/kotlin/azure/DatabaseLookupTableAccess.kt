@@ -8,7 +8,7 @@ import org.jooq.impl.DSL
 /**
  * Class to access lookup tables stored in the database.
  */
-class DatabaseLookupTableAccess() {
+class DatabaseLookupTableAccess {
     /**
      * Object to access the database.
      */
@@ -91,27 +91,6 @@ class DatabaseLookupTableAccess() {
             ) >= 1
         }
         return retVal
-    }
-
-    /**
-     * Fetch the latest version of a [tableName].
-     * @return the table data or an empty list if no data is found
-     */
-    fun fetchTable(tableName: String): List<LookupTableRow> {
-        var rows = emptyList<LookupTableRow>()
-        db.transact { txn ->
-            rows = DSL.using(txn).select().from(Tables.LOOKUP_TABLE_ROW).join(Tables.LOOKUP_TABLE_VERSION)
-                .on(
-                    Tables.LOOKUP_TABLE_ROW.LOOKUP_TABLE_VERSION_ID
-                        .eq(Tables.LOOKUP_TABLE_VERSION.LOOKUP_TABLE_VERSION_ID)
-                )
-                .where(
-                    Tables.LOOKUP_TABLE_VERSION.TABLE_NAME.eq(tableName)
-                        .and(Tables.LOOKUP_TABLE_VERSION.IS_ACTIVE.eq(true))
-                )
-                .fetchInto(LookupTableRow::class.java)
-        }
-        return rows
     }
 
     /**
@@ -207,5 +186,21 @@ class DatabaseLookupTableAccess() {
                 if (newRow.store() != 1) error("Error creating new table row in database.")
             }
         }
+    }
+
+    /**
+     * Get the version information for a given [tableName] and [version].
+     * @return table version information or null if not found
+     */
+    fun fetchVersionInfo(tableName: String, version: Int): LookupTableVersion? {
+        var retVal: LookupTableVersion? = null
+        db.transact { txn ->
+            retVal = DSL.using(txn).selectFrom(Tables.LOOKUP_TABLE_VERSION)
+                .where(
+                    Tables.LOOKUP_TABLE_VERSION.TABLE_NAME.eq(tableName)
+                        .and(Tables.LOOKUP_TABLE_VERSION.TABLE_VERSION.eq(version))
+                ).fetchOne()?.into(LookupTableVersion::class.java)
+        }
+        return retVal
     }
 }

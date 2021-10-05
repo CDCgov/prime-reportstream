@@ -19,6 +19,7 @@ import de.m3y.kformat.Table
 import de.m3y.kformat.table
 import gov.cdc.prime.router.azure.DatabaseLookupTableAccess
 import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableRow
+import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableVersion
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
@@ -53,7 +54,7 @@ class CreateTable : LoadConfig("Options to create a new lookup table version") {
  */
 class GetTable : LoadConfig("Options to fetch a lookup table version") {
     val outputFile by option("--o", "--output-file", help = "Specify a file to save the table's data as CSV")
-        .file(false, canBeDir = false, mustBeWritable = true)
+        .file(false, canBeDir = false)
 }
 
 /**
@@ -96,9 +97,9 @@ class LookupTableCommands : CliktCommand(
     private val version by option("--v", "--version").int()
 
     /**
-     * Operation options to manipulate lookup tables.
+     * Command options to manipulate lookup tables.
      */
-    private val operation by option("--o", "--operation", help = "").groupChoice(
+    private val cmd by option("--c", "--command", help = "").groupChoice(
         "list" to ListTables(),
         "get" to GetTable(),
         "create" to CreateTable(),
@@ -114,21 +115,21 @@ class LookupTableCommands : CliktCommand(
 
     override fun run() {
         // Check if we need the table name.
-        if (operation !is ListTables && tableName.isNullOrBlank()) {
+        if (cmd !is ListTables && tableName.isNullOrBlank()) {
             error("Table name is required.")
         }
 
         try {
-            when (operation) {
-                is ListTables -> listTables((operation as ListTables).showAll)
-                is GetTable -> getTable(tableName!!, version, (operation as GetTable).outputFile)
-                is CreateTable -> createTable(tableName!!, (operation as CreateTable).inputFile)
+            when (cmd) {
+                is ListTables -> listTables((cmd as ListTables).showAll)
+                is GetTable -> getTable(tableName!!, version, (cmd as GetTable).outputFile)
+                is CreateTable -> createTable(tableName!!, (cmd as CreateTable).inputFile)
                 is ActivateTable -> {
                     when {
                         version == null -> {
                             error("Table version is required.")
                         }
-                        version!! >= 0 -> {
+                        version!! <= 0 -> {
                             error("Table version must be a positive number.")
                         }
                         else -> {
@@ -138,8 +139,8 @@ class LookupTableCommands : CliktCommand(
                 }
                 is DeactivateTable -> deactivate(tableName!!)
                 is DiffTable -> diffTables(
-                    tableName!!, (operation as DiffTable).version1, (operation as DiffTable).version2,
-                    (operation as DiffTable).fullDiff
+                    tableName!!, (cmd as DiffTable).version1, (cmd as DiffTable).version2,
+                    (cmd as DiffTable).fullDiff
                 )
             }
         } catch (e: DataAccessException) {
@@ -155,33 +156,30 @@ class LookupTableCommands : CliktCommand(
      */
     private fun getTable(tableName: String, version: Int?, outputFile: File?) {
         if (tableName.isBlank()) throw IllegalStateException("Table name is required")
-        try {
-            val versionNormalized = version
-                ?: (
-                    tableDbAccess.fetchActiveVersion(tableName)
-                        ?: error("Unable to obtain a version for table $tableName")
-                    )
-            val tableRows = if (version != null) {
-                tableDbAccess.fetchTable(tableName, version)
-            } else {
-                tableDbAccess.fetchTable(tableName)
-            }
 
-            if (tableRows.isNotEmpty()) {
-                if (outputFile == null) {
-                    TermUi.echo("")
-                    TermUi.echo("Table name: $tableName")
-                    TermUi.echo("Version: $versionNormalized")
-                    TermUi.echo(toPrintableTable(tableRows))
-                    TermUi.echo("")
-                } else
-                    saveTable(outputFile, tableRows)
+        val versionNormalized = version
+            ?: (
+                tableDbAccess.fetchLatestVersion(tableName)
+                    ?: error("Lookup table $tableName does not exist.")
+                )
+        val tableRows = tableDbAccess.fetchTable(tableName, versionNormalized)
+
+        if (tableRows.isNotEmpty()) {
+            if (outputFile == null) {
+                TermUi.echo("")
+                TermUi.echo("Table name: $tableName")
+                TermUi.echo("Version: $versionNormalized")
+                TermUi.echo(rowsToPrintableTable(tableRows))
+                TermUi.echo("")
             } else {
-                TermUi.echo("No tables were found.")
+                saveTable(outputFile, tableRows)
+                TermUi.echo(
+                    "Saved ${tableRows.size} rows of table $tableName version $versionNormalized " +
+                        "to ${outputFile.absolutePath} "
+                )
             }
-        } catch (e: DataAccessException) {
-            TermUi.echo("There was an error fetching the list of tables.")
-            e.printStackTrace()
+        } else {
+            TermUi.echo("Table $tableName version $versionNormalized has no rows.")
         }
     }
 
@@ -227,7 +225,7 @@ class LookupTableCommands : CliktCommand(
      * @param addRowNum set to true to add row numbers to the left of the table
      * @return the human readable table
      */
-    private fun toPrintableTable(tableRows: List<LookupTableRow>, addRowNum: Boolean = true): StringBuilder {
+    private fun rowsToPrintableTable(tableRows: List<LookupTableRow>, addRowNum: Boolean = true): StringBuilder {
         return table {
             hints {
                 borderStyle = Table.BorderStyle.SINGLE_LINE
@@ -247,6 +245,27 @@ class LookupTableCommands : CliktCommand(
     }
 
     /**
+     * Converts a [versionList] to a human readable table.
+     * @return the human readable table
+     */
+    private fun infoToPrintableTable(versionList: List<LookupTableVersion>): StringBuilder {
+        Preconditions.checkArgument(versionList.isNotEmpty())
+
+        return table {
+            hints {
+                borderStyle = Table.BorderStyle.SINGLE_LINE
+            }
+            header("Table Name", "Version", "Is Active", "Created By", "Created At")
+            versionList.forEach {
+                row(
+                    it.tableName, it.tableVersion, it.isActive.toString(), it.createdBy,
+                    it.createdAt.toString()
+                )
+            }
+        }.render()
+    }
+
+    /**
      * Save table data in [tableRows] to an [outputFile] in CSV format.
      */
     private fun saveTable(outputFile: File, tableRows: List<LookupTableRow>) {
@@ -257,38 +276,32 @@ class LookupTableCommands : CliktCommand(
             rows.add(extractTableRowFromJson(row.data, colNames))
         }
         csvWriter().writeAll(rows, outputFile.outputStream())
-        TermUi.echo("Wrote ${tableRows.size} rows to ${outputFile.absolutePath}")
     }
 
     /**
      * If [showAll] is true then list all the tables.  If false only list active tables.
      */
     private fun listTables(showAll: Boolean) {
-        try {
-            val tableList = tableDbAccess.fetchTableList()
-            if (tableList.isNotEmpty()) {
-                val table = table {
-                    hints {
-                        borderStyle = Table.BorderStyle.SINGLE_LINE
-                    }
-                    header("Table Name", "Version", "Is Active", "Created By", "Created At")
-                    tableList.forEach {
-                        if (showAll || (!showAll && it.isActive))
-                            row(
-                                it.tableName, it.tableVersion, it.isActive.toString(), it.createdBy,
-                                it.createdAt.toString()
-                            )
-                    }
-                }.render()
-                TermUi.echo("")
-                TermUi.echo(table)
-                TermUi.echo("")
-            } else {
-                TermUi.echo("No tables were found.")
-            }
-        } catch (e: DataAccessException) {
-            TermUi.echo("There was an error fetching the list of tables.")
-            e.printStackTrace()
+        val tableList = tableDbAccess.fetchTableList()
+        // Determine if we will have any rows to display on the table.
+        val emptyDisplayTable = if (showAll)
+            tableList.isEmpty()
+        else
+            tableList.none { it.isActive == true }
+
+        if (showAll)
+            TermUi.echo("Listing all lookup tables including inactive.")
+        else
+            TermUi.echo("Listing only active lookup tables.")
+
+        if (!emptyDisplayTable) {
+            TermUi.echo(infoToPrintableTable(tableList.filter { showAll || (!showAll && it.isActive) }))
+            TermUi.echo("")
+        } else {
+            if (showAll)
+                TermUi.echo("No lookup tables were found.")
+            else
+                TermUi.echo("No active lookup tables were found.")
         }
     }
 
@@ -302,31 +315,32 @@ class LookupTableCommands : CliktCommand(
         if (tableDbAccess.doesTableExist(tableName, version)) {
             val rows = tableDbAccess.fetchTable(tableName, version)
             if (rows.isEmpty()) {
-                TermUi.echo("ERROR: There is no table data for table $tableName and version $version.")
+                TermUi.echo("ERROR: There is no table data for lookup table $tableName and version $version.")
                 return
             } else
-                TermUi.echo("Table $tableName version $version has ${rows.size} rows")
+                TermUi.echo("Lookup table $tableName version $version has ${rows.size} rows")
 
             when (val activeVersion = tableDbAccess.fetchActiveVersion(tableName)) {
                 version -> {
-                    TermUi.echo("Nothing to do. Table $tableName's active version number is already $activeVersion.")
+                    TermUi.echo("Nothing to do. Lookup table $tableName's active version number is already +" +
+                        "$activeVersion.")
                     return
                 }
                 null ->
-                    TermUi.echo("Table $tableName is not currently active")
+                    TermUi.echo("Lookup table $tableName is not currently active")
                 else ->
-                    TermUi.echo("Current table $tableName's active version number is $activeVersion")
+                    TermUi.echo("Current Lookup table $tableName's active version number is $activeVersion")
             }
 
             if (TermUi.confirm("Set $version as active?") == true) {
                 if (tableDbAccess.activateTable(tableName, version))
-                    TermUi.echo("Version $version for table $tableName was set active.")
+                    TermUi.echo("Version $version for lookup table $tableName was set active.")
                 else
-                    error("Unknown error when setting table $tableName Version $version to active.")
+                    error("Unknown error when setting lookup table $tableName Version $version to active.")
             } else
-                TermUi.echo("Aborted operation.")
+                TermUi.echo("Aborted the activation of the lookup table.")
         } else {
-            TermUi.echo("ERROR: Table $tableName with version $version does not exist.")
+            TermUi.echo("ERROR: Lookup table $tableName with version $version does not exist.")
         }
     }
 
@@ -339,18 +353,18 @@ class LookupTableCommands : CliktCommand(
         if (tableDbAccess.doesTableExist(tableName)) {
             val activeVersion = tableDbAccess.fetchActiveVersion(tableName)
             if (activeVersion != null) {
-                TermUi.echo("Current active version for table $tableName is $activeVersion.")
-                if (TermUi.confirm("Disable table $tableName?") == true) {
+                TermUi.echo("Current active version for lookup table $tableName is $activeVersion.")
+                if (TermUi.confirm("Disable lookup table $tableName?") == true) {
                     if (tableDbAccess.deactivateTable(tableName))
-                        TermUi.echo("Table $tableName is now inactive.")
+                        TermUi.echo("Lookup table $tableName is now inactive.")
                     else
-                        error("Unknown error deactivating table $tableName.")
+                        error("Unknown error deactivating lookup table $tableName.")
                 } else
-                    TermUi.echo("Aborted operation.")
+                    TermUi.echo("Aborted the deactivation of the lookup table.")
             } else
-                TermUi.echo("Nothing to do. There are no active versions for table $tableName.")
+                TermUi.echo("Nothing to do. There are no active versions for lookup table $tableName.")
         } else
-            TermUi.echo("ERROR: No table with name $tableName exists.")
+            TermUi.echo("ERROR: No lookup table with name $tableName exists.")
     }
 
     /**
@@ -374,15 +388,18 @@ class LookupTableCommands : CliktCommand(
         }
 
         TermUi.echo("Here is the table data to be created:")
-        TermUi.echo(toPrintableTable(tableData))
+        TermUi.echo(rowsToPrintableTable(tableData))
         TermUi.echo("")
 
-        if (TermUi.confirm("Continue to create $tableName version $nextVersion?") == true) {
+        if (TermUi.confirm("Continue to create $tableName version $nextVersion with ${tableData.size} rows?") == true) {
             tableDbAccess.createTable(tableName, nextVersion, tableData)
             TermUi.echo("")
-            TermUi.echo("Table $tableName version $nextVersion created but inactive.  Don't forget to activate it.")
+            TermUi.echo(
+                "${tableData.size} rows created for lookup table $tableName version $nextVersion. " +
+                    "Table left inactive, so don't forget to activate it."
+            )
         } else
-            error("Unknown error deactivating table $tableName.")
+            TermUi.echo("Aborted the creation of the lookup table.")
     }
 
     /**
@@ -397,27 +414,33 @@ class LookupTableCommands : CliktCommand(
         Preconditions.checkArgument(version2!! > 0)
 
         if (!tableDbAccess.doesTableExist(tableName, version1))
-            error("Table $tableName version $version1 does not exist.")
+            error("Lookup table $tableName version $version1 does not exist.")
         if (!tableDbAccess.doesTableExist(tableName, version2))
-            error("Table $tableName version $version2 does not exist.")
+            error("Lookup table $tableName version $version2 does not exist.")
 
         val version1Table = tableDbAccess.fetchTable(tableName, version1)
+        val version1Info = tableDbAccess.fetchVersionInfo(tableName, version1)
         val version2Table = tableDbAccess.fetchTable(tableName, version2)
+        val version2Info = tableDbAccess.fetchVersionInfo(tableName, version2)
+
+        TermUi.echo("Comparing lookup table $tableName versions $version1 and $version2:")
+        TermUi.echo(infoToPrintableTable(listOf(version1Info!!, version2Info!!)))
+        TermUi.echo("")
 
         val generator = DiffRowGenerator.create()
             .showInlineDiffs(true)
             .mergeOriginalRevised(true)
             .inlineDiffByWord(true)
             .oldTag { start: Boolean? ->
-                if (true == start) "\u001B[9m" else "\u001B[0m"
+                if (true == start) "\u001B[9m" else "\u001B[0m" // Use strikethrough for deleted changes
             }
             .newTag { start: Boolean? ->
-                if (true == start) "\u001B[1m" else "\u001B[0m"
+                if (true == start) "\u001B[1m" else "\u001B[0m" // Use bold for additions
             }
             .build()
         val diff = generator.generateDiffRows(
-            toPrintableTable(version1Table, false).toString().split("\n"),
-            toPrintableTable(version2Table, false).toString().split("\n")
+            rowsToPrintableTable(version1Table, false).toString().split("\n"),
+            rowsToPrintableTable(version2Table, false).toString().split("\n")
         )
 
         if (diff.isNotEmpty()) {
@@ -440,6 +463,6 @@ class LookupTableCommands : CliktCommand(
                 }
             }
         } else
-            TermUi.echo("Table $tableName version $version1 and $version2 are identical.")
+            TermUi.echo("Lookup table $tableName version $version1 and $version2 are identical.")
     }
 }
