@@ -8,9 +8,9 @@ interface Props {
     reportId: string
 }
 
+function FacilitiesTable(props: Props) {
     const { reportId }: Props = props;
     const facilities: FacilityResource[] = useResource(FacilityResource.list(), { reportId: reportId })
-
 
     return (
         <section id="facilities" className="grid-container margin-bottom-5">
