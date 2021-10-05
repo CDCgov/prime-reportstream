@@ -339,7 +339,7 @@ DateColl populates multiple fields.  This instance populates order_test_date.
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-08-11
+**Table**: LIVD-SARS-CoV-2-2021-09-29
 
 **Table Column**: Test Ordered LOINC Long Name
 
@@ -1158,7 +1158,7 @@ Code | Display
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-08-11
+**Table**: LIVD-SARS-CoV-2-2021-09-29
 
 **Table Column**: Test Performed LOINC Long Name
 
