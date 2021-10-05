@@ -1,35 +1,5 @@
 // Was index.css
 
-html, body {
-  height: 100%;
-}
-
-body {
-  display: flex;
-  min-height: 100vh;
-  flex-direction: column;
-}
-
-main {
-  flex: 1;
-  width: 100%;
-  padding: 4rem 0;
-  border-top: 1px solid #dfe1e2;
-}
-
-.content {
-  flex: 1 0 auto;
-  min-height: calc(100vh - 230px)
-}
-
-.footer {
-  flex-shrink: 0;
-}
-
-body {
-  display: flex;
-  flex-direction: column;
-}
 .prime-user-account {
   font-size: .88rem;
   vertical-align: u-text("vertical-align");

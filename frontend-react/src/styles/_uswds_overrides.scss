@@ -41,7 +41,7 @@ main {
   flex: 1;
   width: 100%;
   padding: 4rem 0;
-  border-top: 1px solid #dfe1e2;
+  border-top: 1px solid $theme-color-base-lighter;
 }
 
 .usa-banner__inner, .usa-banner__header--expanded .usa-banner__inner {

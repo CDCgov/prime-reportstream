@@ -28,13 +28,13 @@ $theme-site-margins-width: 4;
 $theme-site-margins-mobile-width: 2;
 
 //Override default USWDS body font
-$theme-font-type-sans: "source-sans-pro";
+$theme-font-type-sans: "public-sans";
 
 // serif
-$theme-font-type-serif: "merriweather";
+$theme-font-type-serif: "public-sans";
 
-$theme-font-role-heading: "serif";
-$theme-font-role-alt: "serif";
+$theme-font-role-heading: "sans";
+$theme-font-role-alt: "sans";
 
 $mobile: 480px;
 $tablet: 1024px;
