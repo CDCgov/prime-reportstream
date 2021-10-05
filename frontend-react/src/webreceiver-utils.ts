@@ -22,11 +22,11 @@ const getOrganization = (authState: AuthState | null) => {
     );
 };
 
-const permissionCheck = (permission: String, authState: AuthState) => {
+const permissionCheck = (permission: string, authState: AuthState) => {
     if (permission === PERMISSIONS.RECEIVER) {
         return reportReceiver(authState);
     }
-    return authState.accessToken?.claims.organization.find((o: String[]) =>
+    return authState.accessToken?.claims.organization.find((o: string) =>
         o.includes(permission)
     );
 };
@@ -41,9 +41,9 @@ const reportReceiver = (authState: AuthState) => {
 const senderClient = (authState: AuthState | null) => {
     if (authState) {
         const claimsSenderOrganization =
-            authState!.accessToken?.claims.organization.find(
+            authState?.accessToken?.claims.organization.find(
                 (o: string | string[]) => o.includes("DHSender")
-            );
+            ) || "";
         const claimsSenderOrganizationArray =
             claimsSenderOrganization.split(".");
 
