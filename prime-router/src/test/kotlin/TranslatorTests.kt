@@ -19,6 +19,7 @@ class TranslatorTests {
             - name: elr
               organizationName: phd1
               topic: test
+              customerStatus: active
               jurisdictionalFilter: [ "matches(a, 1)"]
               translation: 
                 type: CUSTOM
@@ -108,6 +109,7 @@ class TranslatorTests {
             - name: elr
               organizationName: ak-phd
               topic: covid-19
+              customerStatus: active
               jurisdictionalFilter:
                 - orEquals(ordering_facility_state, AK, patient_state, AK)
               translation:
