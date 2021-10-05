@@ -15,11 +15,7 @@ export const Login = ({ config }) => {
 
     const onSuccess = (tokens: Tokens | undefined) => {
         let oktaGroups =
-            tokens?.accessToken?.claims?.organization.map((group) => {
-                if (group !== PERMISSIONS.PRIME_ADMIN) {
-                    return group;
-                }
-            }) || [];
+            tokens?.accessToken?.claims?.organization.filter(group => group !== PERMISSIONS.PRIME_ADMIN) || [];
         updateOrganization(groupToOrg(oktaGroups[0]) || "");
         oktaAuth.handleLoginRedirect(tokens);
     };
