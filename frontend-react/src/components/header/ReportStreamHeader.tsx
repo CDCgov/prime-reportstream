@@ -69,7 +69,7 @@ export const ReportStreamHeader = () => {
                     onToggleMobileNav={toggleMobileNav}
                     mobileExpanded={expanded}>
                     {
-                        authState !== null && authState.isAuthenticated ?
+                        authState?.accessToken?.claims?.organization.includes(PERMISSIONS.PRIME_ADMIN) ?
                             <OrganizationDropdown />
                             :
                             null
