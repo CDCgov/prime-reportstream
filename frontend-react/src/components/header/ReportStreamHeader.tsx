@@ -57,7 +57,7 @@ export const ReportStreamHeader = () => {
             <div className="usa-nav-container">
                 <div className="usa-navbar margin-right-5">
                     <Title>
-                        <a href="/">ReportStream</a>
+                        <NavLink to="/">ReportStream</NavLink>
                     </Title>
                     <NavMenuButton onClick={toggleMobileNav} label="Menu" />
                 </div>
