@@ -1,6 +1,7 @@
 import moment from "moment";
 import ReportResource from "../../../resources/ReportResource";
 import ReportLink from "./ReportLink";
+import { NavLink } from "react-router-dom";
 
 interface Props {
     /* REQUIRED
@@ -19,12 +20,12 @@ function TableReportsData(props: Props) {
             {props.reports.map((report, idx) => (
                 <tr key={idx}>
                     <th scope="row">
-                        <a
-                            href={"/report-details?reportId=" + report.reportId}
-                            className="usa-link"
-                        >
+                        <NavLink 
+                            to={"/report-details?reportId=" + report.reportId}
+                            key="daily"
+                            className="usa-link">
                             {report.reportId}
-                        </a>
+                        </NavLink>
                     </th>
                     <th scope="row">
                         {moment
