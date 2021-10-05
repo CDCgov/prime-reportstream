@@ -54,7 +54,7 @@
     "scripts": {
         "clean": "rimraf ./build",
         "start": "DISABLE_ESLINT_PLUGIN=true react-scripts start",
-        "build": "INLINE_RUNTIME_CHUNK=false DISABLE_ESLINT_PLUGIN=true craco build",
+        "build": "DISABLE_ESLINT_PLUGIN=true craco build",
         "test": "react-scripts test",
         "eject": "react-scripts eject",
         "cypress-open": "./node_modules/.bin/cypress open",
