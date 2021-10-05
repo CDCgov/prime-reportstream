@@ -1,7 +1,6 @@
 import { SectionProp } from "../HomeProps";
 import site from "../../../content/site.json";
 
-
 export default function CtaSection({ section }: { section: SectionProp }) {
     return (
         <div className="tablet:grid-col-8">
@@ -22,4 +21,4 @@ export default function CtaSection({ section }: { section: SectionProp }) {
             </a>
         </div>
     );
-};
+}

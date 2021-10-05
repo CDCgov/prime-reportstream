@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import { useOktaAuth } from "@okta/okta-react";
 import { Resource } from "@rest-hooks/rest";
+
 import { GLOBAL_STORAGE_KEYS } from "../components/GlobalContextProvider";
 
 export default class AuthResource extends Resource {
@@ -9,9 +10,10 @@ export default class AuthResource extends Resource {
     }
 
     static useFetchInit = (init: RequestInit): RequestInit => {
-
         const { authState } = useOktaAuth();
-        const organization = localStorage.getItem(GLOBAL_STORAGE_KEYS.GLOBAL_ORG);
+        const organization = localStorage.getItem(
+            GLOBAL_STORAGE_KEYS.GLOBAL_ORG
+        );
 
         return {
             ...init,
