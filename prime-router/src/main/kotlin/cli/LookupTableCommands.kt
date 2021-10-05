@@ -10,74 +10,137 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.file
 import com.github.ajalt.clikt.parameters.types.int
+import com.github.difflib.text.DiffRow
+import com.github.difflib.text.DiffRowGenerator
+import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
 import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
+import com.google.common.base.Preconditions
 import de.m3y.kformat.Table
 import de.m3y.kformat.table
-import gov.cdc.prime.router.azure.DatabaseAccess
-import gov.cdc.prime.router.azure.db.Tables.LOOKUP_TABLE_ROW
-import gov.cdc.prime.router.azure.db.Tables.LOOKUP_TABLE_VERSION
+import gov.cdc.prime.router.azure.DatabaseLookupTableAccess
 import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableRow
-import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableVersion
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.contentOrNull
 import org.jooq.JSONB
 import org.jooq.exception.DataAccessException
-import org.jooq.impl.DSL
 import java.io.File
 
+/**
+ * Group command configuration.
+ */
 sealed class LoadConfig(name: String) : OptionGroup(name)
-class ListTables : LoadConfig("Options to list all tables") {
+
+/**
+ * Configuration options for the list tables command.
+ */
+class ListTables : LoadConfig("Options to list lookup tables") {
     val showAll by option("--a", "--all", help = "List all active and inactive tables").flag(default = false)
 }
 
-class CreateTable : LoadConfig("Options to create a new table version") {
-    val inputFile by option("--i", "--input-file").file(true, canBeDir = false, mustBeReadable = true).required()
+/**
+ * Configuration options for the create table command.
+ */
+class CreateTable : LoadConfig("Options to create a new lookup table version") {
+    val inputFile by option("--i", "--input-file", help = "Input CSV file with the table data")
+        .file(true, canBeDir = false, mustBeReadable = true).required()
 }
 
-class GetTable : LoadConfig("Fetch a table version and output to a CSV file") {
-    val outputFile by option("--o", "--output-file").file(false, canBeDir = false)
+/**
+ * Configuration options for the get table command.
+ */
+class GetTable : LoadConfig("Options to fetch a lookup table version") {
+    val outputFile by option("--o", "--output-file", help = "Specify a file to save the table's data as CSV")
+        .file(false, canBeDir = false, mustBeWritable = true)
 }
 
-class ActivateTable : LoadConfig("Activate a specific version of a table")
+/**
+ * Configuration options for the diff table command.
+ */
+class DiffTable : LoadConfig("Perform a diff between two table versions") {
+    val version1 by option("--v1", "--version1", help = "original version of the table to compare from")
+        .int().required()
+    val version2 by option("--v2", "--version2", help = "revised version of the table to compare to")
+        .int().required()
+    val fullDiff by option("--f", "--full-diff", help = "Show all diff lines including unchanged lines")
+        .flag(default = false)
+}
 
-class DeactivateTable : LoadConfig("Deactivate a table")
+/**
+ * Configuration options for the activate table command.
+ */
+class ActivateTable : LoadConfig("Options to activate a specific version of a table")
 
+/**
+ * Configuration options for the deactivate table command.
+ */
+class DeactivateTable : LoadConfig("Options to deactivate a table")
+
+/**
+ * Commands to manipulate lookup tables.
+ */
 class LookupTableCommands : CliktCommand(
     name = "lookuptable",
     help = "Create or update lookup tables in the database"
 ) {
-    val tableName by option("--n", "--name", help = "The name of the table to perform the operation on")
-    val version by option("--v", "--version").int()
-    val cmd by option("--c", "--command", help = "").groupChoice(
+    /**
+     * Table name option.
+     */
+    private val tableName by option("--n", "--name", help = "The name of the table to perform the operation on")
+
+    /**
+     * Table version option.
+     */
+    private val version by option("--v", "--version").int()
+
+    /**
+     * Operation options to manipulate lookup tables.
+     */
+    private val operation by option("--o", "--operation", help = "").groupChoice(
         "list" to ListTables(),
         "get" to GetTable(),
         "create" to CreateTable(),
         "activate" to ActivateTable(),
-        "deactivate" to DeactivateTable()
+        "deactivate" to DeactivateTable(),
+        "diff" to DiffTable()
     ).defaultByName("list")
-    val tableDbAccess = DatabaseTableLookupAccess()
+
+    /**
+     * Object to access the database tables.
+     */
+    private val tableDbAccess = DatabaseLookupTableAccess()
 
     override fun run() {
         // Check if we need the table name.
-        if (cmd !is ListTables && tableName.isNullOrBlank()) {
+        if (operation !is ListTables && tableName.isNullOrBlank()) {
             error("Table name is required.")
         }
 
         try {
-            when (cmd) {
-                is ListTables -> listTables((cmd as ListTables).showAll)
-                is GetTable -> getTable(tableName, version, (cmd as GetTable).outputFile)
-                is CreateTable -> println()
+            when (operation) {
+                is ListTables -> listTables((operation as ListTables).showAll)
+                is GetTable -> getTable(tableName!!, version, (operation as GetTable).outputFile)
+                is CreateTable -> createTable(tableName!!, (operation as CreateTable).inputFile)
                 is ActivateTable -> {
-                    if (version == null) {
-                        error("Table version is required.")
-                    } else {
-                        activate(tableName!!, version!!)
+                    when {
+                        version == null -> {
+                            error("Table version is required.")
+                        }
+                        version!! >= 0 -> {
+                            error("Table version must be a positive number.")
+                        }
+                        else -> {
+                            activate(tableName!!, version!!)
+                        }
                     }
                 }
                 is DeactivateTable -> deactivate(tableName!!)
+                is DiffTable -> diffTables(
+                    tableName!!, (operation as DiffTable).version1, (operation as DiffTable).version2,
+                    (operation as DiffTable).fullDiff
+                )
             }
         } catch (e: DataAccessException) {
             TermUi.echo("There was an error getting data from the database.")
@@ -85,25 +148,33 @@ class LookupTableCommands : CliktCommand(
         }
     }
 
-    private fun getTable(tableName: String?, version: Int?, outputFile: File?) {
-        if (tableName.isNullOrBlank()) throw IllegalStateException("Table name is required")
-        var versionNormalized = version
+    /**
+     * Get the data for a [tableName] and [version].  If an [outputFile] is specified
+     * then the data is saved as a CSV file, otherwise the data is output to the screen.
+     * If [version] is null then the latest table is fetched.
+     */
+    private fun getTable(tableName: String, version: Int?, outputFile: File?) {
+        if (tableName.isBlank()) throw IllegalStateException("Table name is required")
         try {
-            var tableRows = if (version != null) {
+            val versionNormalized = version
+                ?: (
+                    tableDbAccess.fetchActiveVersion(tableName)
+                        ?: error("Unable to obtain a version for table $tableName")
+                    )
+            val tableRows = if (version != null) {
                 tableDbAccess.fetchTable(tableName, version)
             } else {
                 tableDbAccess.fetchTable(tableName)
             }
-            versionNormalized = tableDbAccess.fetchActiveVersion(tableName)
-
-            if (versionNormalized == null) {
-                error("Unable to obtain a version for table $tableName")
-            }
 
             if (tableRows.isNotEmpty()) {
-                if (outputFile == null)
-                    printTable(tableName, versionNormalized!!, tableRows)
-                else
+                if (outputFile == null) {
+                    TermUi.echo("")
+                    TermUi.echo("Table name: $tableName")
+                    TermUi.echo("Version: $versionNormalized")
+                    TermUi.echo(toPrintableTable(tableRows))
+                    TermUi.echo("")
+                } else
                     saveTable(outputFile, tableRows)
             } else {
                 TermUi.echo("No tables were found.")
@@ -114,12 +185,20 @@ class LookupTableCommands : CliktCommand(
         }
     }
 
-    private fun getTableHeadersFromJson(row: JSONB): List<String> {
+    /**
+     * Extract table column names from the [row] JSON data.
+     * @return the list of column names
+     */
+    private fun extractTableHeadersFromJson(row: JSONB): List<String> {
         val jsonData = Json.parseToJsonElement(row.data())
         return (jsonData as JsonObject).keys.toList()
     }
 
-    private fun getTableRowFromJson(row: JSONB, colNames: List<String>): List<String> {
+    /**
+     * Extract table data from a JSON [row] given a list of [colNames].
+     * @return a list of data from the row in the same order as the given [colNames]
+     */
+    private fun extractTableRowFromJson(row: JSONB, colNames: List<String>): List<String> {
         val rowData = mutableListOf<String>()
         val jsonData = Json.parseToJsonElement(row.data()) as JsonObject
         colNames.forEach { colName ->
@@ -128,40 +207,65 @@ class LookupTableCommands : CliktCommand(
         return rowData
     }
 
-    private fun printTable(name: String, version: Int, tableRows: List<LookupTableRow>) {
-        val table = table {
+    /**
+     * Sets the JSON for a table [row].
+     * @return the JSON representation of the data
+     */
+    private fun setTableRowToJson(row: Map<String, String>): JSONB {
+        Preconditions.checkArgument(row.isNotEmpty())
+        val colNames = row.keys.toList()
+        val retVal = buildJsonObject {
+            colNames.forEach { col ->
+                put(col, JsonPrimitive(row[col]))
+            }
+        }
+        return JSONB.jsonb(retVal.toString())
+    }
+
+    /**
+     * Converts table data in [tableRows] to a human readable table.
+     * @param addRowNum set to true to add row numbers to the left of the table
+     * @return the human readable table
+     */
+    private fun toPrintableTable(tableRows: List<LookupTableRow>, addRowNum: Boolean = true): StringBuilder {
+        return table {
             hints {
                 borderStyle = Table.BorderStyle.SINGLE_LINE
             }
 
-            val colNames = getTableHeadersFromJson(tableRows[0].data)
-            header(colNames)
-            tableRows.forEach { row ->
+            val colNames = extractTableHeadersFromJson(tableRows[0].data).toMutableList()
+            val headers = colNames.toMutableList()
+            if (addRowNum) headers.add(0, "Row #")
+            header(headers)
+            tableRows.forEachIndexed { index, row ->
+                val data = extractTableRowFromJson(row.data, colNames).toMutableList()
+                if (addRowNum) data.add(0, (index + 1).toString())
                 // Row takes varargs, so we convert the list to varargs
-                row(values = getTableRowFromJson(row.data, colNames).map { it }.toTypedArray())
+                row(values = data.map { it }.toTypedArray())
             }
         }.render()
-        TermUi.echo("")
-        TermUi.echo("Table name: $name")
-        TermUi.echo("Version: $version")
-        TermUi.echo(table)
-        TermUi.echo("")
     }
 
+    /**
+     * Save table data in [tableRows] to an [outputFile] in CSV format.
+     */
     private fun saveTable(outputFile: File, tableRows: List<LookupTableRow>) {
-        val colNames = getTableHeadersFromJson(tableRows[0].data)
+        val colNames = extractTableHeadersFromJson(tableRows[0].data)
         val rows = mutableListOf(colNames)
         tableRows.forEach { row ->
             // Row takes varargs, so we convert the list to varargs
-            rows.add(getTableRowFromJson(row.data, colNames))
+            rows.add(extractTableRowFromJson(row.data, colNames))
         }
         csvWriter().writeAll(rows, outputFile.outputStream())
         TermUi.echo("Wrote ${tableRows.size} rows to ${outputFile.absolutePath}")
     }
 
+    /**
+     * If [showAll] is true then list all the tables.  If false only list active tables.
+     */
     private fun listTables(showAll: Boolean) {
         try {
-            var tableList = tableDbAccess.fetchTableList()
+            val tableList = tableDbAccess.fetchTableList()
             if (tableList.isNotEmpty()) {
                 val table = table {
                     hints {
@@ -188,9 +292,12 @@ class LookupTableCommands : CliktCommand(
         }
     }
 
+    /**
+     * Activate a [tableName] for a given [version].
+     */
     private fun activate(tableName: String, version: Int) {
-        if (tableName.isNullOrBlank()) throw IllegalStateException("Table name is required")
-        if (version == null) throw IllegalStateException("Table version is required")
+        Preconditions.checkNotNull(tableName.isBlank())
+        Preconditions.checkNotNull(version)
 
         if (tableDbAccess.doesTableExist(tableName, version)) {
             val rows = tableDbAccess.fetchTable(tableName, version)
@@ -200,8 +307,7 @@ class LookupTableCommands : CliktCommand(
             } else
                 TermUi.echo("Table $tableName version $version has ${rows.size} rows")
 
-            val activeVersion = tableDbAccess.fetchActiveVersion(tableName)
-            when (activeVersion) {
+            when (val activeVersion = tableDbAccess.fetchActiveVersion(tableName)) {
                 version -> {
                     TermUi.echo("Nothing to do. Table $tableName's active version number is already $activeVersion.")
                     return
@@ -224,8 +330,11 @@ class LookupTableCommands : CliktCommand(
         }
     }
 
+    /**
+     * Deactivate a [tableName].
+     */
     private fun deactivate(tableName: String) {
-        if (tableName.isNullOrBlank()) throw IllegalStateException("Table name is required")
+        Preconditions.checkNotNull(tableName.isBlank())
 
         if (tableDbAccess.doesTableExist(tableName)) {
             val activeVersion = tableDbAccess.fetchActiveVersion(tableName)
@@ -243,110 +352,94 @@ class LookupTableCommands : CliktCommand(
         } else
             TermUi.echo("ERROR: No table with name $tableName exists.")
     }
-}
 
-class DatabaseTableLookupAccess() {
-    private val db = DatabaseAccess()
-    fun fetchActiveVersion(tableName: String): Int? {
-        var version: Int? = null
-        db.transact { txn ->
-            version = DSL.using(txn).select(LOOKUP_TABLE_VERSION.TABLE_VERSION).from(LOOKUP_TABLE_VERSION)
-                .where(LOOKUP_TABLE_VERSION.TABLE_NAME.eq(tableName).and(LOOKUP_TABLE_VERSION.IS_ACTIVE.eq(true)))
-                .fetchOneInto(Int::class.java)
-        }
-        return version
-    }
+    /**
+     * Create a new version of a table named [tableName] from the given CSV [inputFile].
+     */
+    private fun createTable(tableName: String, inputFile: File?) {
+        Preconditions.checkNotNull(tableName.isBlank())
+        Preconditions.checkNotNull(inputFile)
 
-    fun fetchTableList(): List<LookupTableVersion> {
-        var tables = emptyList<LookupTableVersion>()
-        db.transact { txn ->
-            tables = DSL.using(txn)
-                .selectFrom(LOOKUP_TABLE_VERSION)
-                .orderBy(LOOKUP_TABLE_VERSION.TABLE_NAME.asc(), LOOKUP_TABLE_VERSION.TABLE_VERSION.asc())
-                .fetchInto(LookupTableVersion::class.java)
-        }
-        return tables
-    }
+        val inputData = csvReader().readAllWithHeader(inputFile!!)
+        if (inputData.size <= 1)
+            error("Input file ${inputFile.absolutePath} has no data.")
 
-    fun fetchTable(name: String): List<LookupTableRow> {
-        var rows = emptyList<LookupTableRow>()
-        db.transact { txn ->
-            rows = DSL.using(txn).select().from(LOOKUP_TABLE_ROW).join(LOOKUP_TABLE_VERSION)
-                .on(LOOKUP_TABLE_ROW.LOOKUP_TABLE_VERSION_ID.eq(LOOKUP_TABLE_VERSION.LOOKUP_TABLE_VERSION_ID))
-                .where(
-                    LOOKUP_TABLE_VERSION.TABLE_NAME.eq(name)
-                        .and(LOOKUP_TABLE_VERSION.IS_ACTIVE.eq(true))
-                )
-                .fetchInto(LookupTableRow::class.java)
-        }
-        return rows
-    }
+        val latestActiveVersion = tableDbAccess.fetchLatestVersion(tableName) ?: 0
+        val nextVersion = latestActiveVersion + 1
 
-    fun fetchTable(name: String, version: Int): List<LookupTableRow> {
-        var rows = emptyList<LookupTableRow>()
-        db.transact { txn ->
-            rows = DSL.using(txn).select().from(LOOKUP_TABLE_ROW).join(LOOKUP_TABLE_VERSION)
-                .on(LOOKUP_TABLE_ROW.LOOKUP_TABLE_VERSION_ID.eq(LOOKUP_TABLE_VERSION.LOOKUP_TABLE_VERSION_ID))
-                .where(
-                    LOOKUP_TABLE_VERSION.TABLE_NAME.eq(name)
-                        .and(LOOKUP_TABLE_VERSION.TABLE_VERSION.eq(version))
-                )
-                .fetchInto(LookupTableRow::class.java)
-        }
-        return rows
-    }
-
-    fun doesTableExist(name: String, version: Int): Boolean {
-        var retVal = false
-        db.transact { txn ->
-            retVal = DSL.using(txn).fetchCount(
-                LOOKUP_TABLE_VERSION,
-                LOOKUP_TABLE_VERSION.TABLE_NAME.eq(name)
-                    .and(LOOKUP_TABLE_VERSION.TABLE_VERSION.eq(version))
-            ) == 1
-        }
-        return retVal
-    }
-
-    fun doesTableExist(name: String): Boolean {
-        var retVal = false
-        db.transact { txn ->
-            retVal = DSL.using(txn).fetchCount(
-                LOOKUP_TABLE_VERSION,
-                LOOKUP_TABLE_VERSION.TABLE_NAME.eq(name)
-            ) >= 1
-        }
-        return retVal
-    }
-
-    fun deactivateTable(name: String): Boolean {
-        return updateTableState(name, 0, false)
-    }
-
-    fun activateTable(name: String, version: Int): Boolean {
-        return updateTableState(name, version, true)
-    }
-
-    private fun updateTableState(name: String, version: Int, isActive: Boolean): Boolean {
-        var retVal = false
-        var updateCount = 0
-        db.transact { txn ->
-            // First disable all the other tables if any are active.
-            DSL.using(txn).update(LOOKUP_TABLE_VERSION).set(LOOKUP_TABLE_VERSION.IS_ACTIVE, false)
-                .where(LOOKUP_TABLE_VERSION.TABLE_NAME.eq(name).and(LOOKUP_TABLE_VERSION.IS_ACTIVE.eq(true))).execute()
-
-            // Then enable the one table version.
-            if (isActive)
-                updateCount = DSL.using(txn).update(LOOKUP_TABLE_VERSION).set(LOOKUP_TABLE_VERSION.IS_ACTIVE, true)
-                    .where(
-                        LOOKUP_TABLE_VERSION.TABLE_NAME.eq(name)
-                            .and(LOOKUP_TABLE_VERSION.TABLE_VERSION.eq(version))
-                    ).execute()
+        val tableData = inputData.map { row ->
+            val tableRow = LookupTableRow()
+            tableRow.data = setTableRowToJson(row)
+            tableRow
         }
 
-        if ((isActive && updateCount == 1) || !isActive) {
-            retVal = true
-        }
-        return retVal
+        TermUi.echo("Here is the table data to be created:")
+        TermUi.echo(toPrintableTable(tableData))
+        TermUi.echo("")
+
+        if (TermUi.confirm("Continue to create $tableName version $nextVersion?") == true) {
+            tableDbAccess.createTable(tableName, nextVersion, tableData)
+            TermUi.echo("")
+            TermUi.echo("Table $tableName version $nextVersion created but inactive.  Don't forget to activate it.")
+        } else
+            error("Unknown error deactivating table $tableName.")
+    }
+
+    /**
+     * Generate a diff of table [tableName] between [version1] and [version2].  If [showAll] is set to true then
+     * the entire table is printed, otherwise only changed lines are printed.
+     */
+    private fun diffTables(tableName: String, version1: Int?, version2: Int?, showAll: Boolean) {
+        Preconditions.checkNotNull(tableName.isBlank())
+        Preconditions.checkNotNull(version1)
+        Preconditions.checkNotNull(version2)
+        Preconditions.checkArgument(version1!! > 0)
+        Preconditions.checkArgument(version2!! > 0)
+
+        if (!tableDbAccess.doesTableExist(tableName, version1))
+            error("Table $tableName version $version1 does not exist.")
+        if (!tableDbAccess.doesTableExist(tableName, version2))
+            error("Table $tableName version $version2 does not exist.")
+
+        val version1Table = tableDbAccess.fetchTable(tableName, version1)
+        val version2Table = tableDbAccess.fetchTable(tableName, version2)
+
+        val generator = DiffRowGenerator.create()
+            .showInlineDiffs(true)
+            .mergeOriginalRevised(true)
+            .inlineDiffByWord(true)
+            .oldTag { start: Boolean? ->
+                if (true == start) "\u001B[9m" else "\u001B[0m"
+            }
+            .newTag { start: Boolean? ->
+                if (true == start) "\u001B[1m" else "\u001B[0m"
+            }
+            .build()
+        val diff = generator.generateDiffRows(
+            toPrintableTable(version1Table, false).toString().split("\n"),
+            toPrintableTable(version2Table, false).toString().split("\n")
+        )
+
+        if (diff.isNotEmpty()) {
+            if (showAll) {
+                diff.forEach { row ->
+                    TermUi.echo(row.oldLine)
+                }
+            } else {
+                var changed = true
+                diff.forEachIndexed { index, row ->
+                    if (index < 2)
+                        TermUi.echo(row.oldLine)
+                    else if (row.tag == DiffRow.Tag.EQUAL && changed) {
+                        TermUi.echo("...")
+                        changed = false
+                    } else if (row.tag != DiffRow.Tag.EQUAL) {
+                        TermUi.echo(row.oldLine)
+                        changed = true
+                    }
+                }
+            }
+        } else
+            TermUi.echo("Table $tableName version $version1 and $version2 are identical.")
     }
 }

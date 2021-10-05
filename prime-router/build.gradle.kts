@@ -569,6 +569,7 @@ dependencies {
     implementation("khttp:khttp:1.0.0")
     implementation("io.jsonwebtoken:jjwt-api:0.11.2")
     implementation("de.m3y.kformat:kformat:0.8")
+    implementation("io.github.java-diff-utils:java-diff-utils:4.11")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.1")
     runtimeOnly("com.github.kittinunf.fuel:fuel-jackson:2.3.1")
