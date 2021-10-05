@@ -2,8 +2,7 @@ import { useOktaAuth } from "@okta/okta-react";
 import { useState } from "react";
 import { permissionCheck, reportReceiver } from "../../webreceiver-utils";
 import { PERMISSIONS } from "../../resources/PermissionsResource";
-
-import { Header, Title, PrimaryNav, Link, NavMenuButton } from "@trussworks/react-uswds";
+import { Header, Title, PrimaryNav, NavMenuButton } from "@trussworks/react-uswds";
 import { OrganizationDropdown } from './OrgDropdown'
 import { SignInOrUser } from "./SignInOrUser";
 import { HowItWorksDropdown } from "./HowItWorksDropdown";
