@@ -58,7 +58,7 @@ export const ReportStreamHeader = () => {
                     <div className="usa-logo" id="basic-logo">
                         <Title>
                             <em className="usa-logo__text font-sans-md">
-                                <a href="/" title="Home" aria-label="Home">ReportStream</a>
+                                <NavLink to="/" title="Home" aria-label="Home">ReportStream</NavLink>
                             </em>
                         </Title>
                     </div>
