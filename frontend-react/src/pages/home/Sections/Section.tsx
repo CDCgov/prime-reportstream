@@ -1,7 +1,7 @@
-import CtaSection from "./CtaSection";
 import { SectionProp } from "../HomeProps";
-import LiveMapSection from "./LiveMapSection";
 
+import CtaSection from "./CtaSection";
+import LiveMapSection from "./LiveMapSection";
 
 export default function Section({ section }: { section: SectionProp }) {
     if (section.type === "cta") return <CtaSection section={section} />;
