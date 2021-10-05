@@ -8,17 +8,31 @@ export default class FacilityResource extends AuthResource {
     readonly positive: string | undefined = '';
     readonly total: string | undefined = '';
 
-    pk(){
+    pk() {
         return this.CLIA;
     }
 
-    static urlRoot = `${AuthResource.getBaseUrl()}/api/history/report/{reportId}/facilities`;
+    /* INFO
+       since we won't be using urlRoot to build our urls we still need to tell rest hooks 
+       how to uniquely identify this Resource 
+       
+       >>> Kevin Haube, October 4, 2021
+    */
+    static get key() {
+        return 'FacilityResource';
+    }
 
-    static getFacilities<FacilityResource>(this: FacilityResource, reportId: string | undefined) {
-        const endpoint = super.list();
-        return endpoint.extend({
-          fetch() { return endpoint(this); },
-          url() { return `/api/history/report/${reportId}/facilities` },
-        });
-    };
+    /* INFO
+       This method is invoked by calling FacilityResource.list() in a useResource() hook. This
+       replaces the need for a urlRoot variable. 
+       
+       <<< Kevin Haube , October 4, 2021
+    */
+    static listUrl(searchParams: { reportId: string }): string {
+        if (searchParams && Object.keys(searchParams).length) {
+            const { reportId } = searchParams;
+            return `${AuthResource.getBaseUrl()}/api/history/report/${reportId}/facilities`;
+        }
+        throw new Error('Facilities require a reportId to retrieve');
+    }
 }
