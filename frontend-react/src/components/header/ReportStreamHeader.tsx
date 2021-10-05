@@ -13,10 +13,10 @@ export const ReportStreamHeader = () => {
     const [expanded, setExpanded] = useState(false)
     const toggleMobileNav = (): void => setExpanded((prvExpanded) => !prvExpanded)
     let itemsMenu = [
-        <NavLink 
+        <NavLink
             to="/about"
             key="about"
-            id="docs" 
+            id="docs"
             className="usa-nav__link">
             <span>About</span>
         </NavLink>,
@@ -54,10 +54,14 @@ export const ReportStreamHeader = () => {
     return (
         <Header basic={true}>
             <div className="usa-nav-container">
-                <div className="usa-navbar margin-right-5">
-                    <Title>
-                        <NavLink to="/">ReportStream</NavLink>
-                    </Title>
+                <div className="usa-navbar">
+                    <div className="usa-logo" id="basic-logo">
+                        <Title>
+                            <em className="usa-logo__text font-sans-md">
+                                <a href="/" title="Home" aria-label="Home">ReportStream</a>
+                            </em>
+                        </Title>
+                    </div>
                     <NavMenuButton onClick={toggleMobileNav} label="Menu" />
                 </div>
                 <PrimaryNav
