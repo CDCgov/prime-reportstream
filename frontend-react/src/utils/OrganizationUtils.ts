@@ -1,14 +1,13 @@
 import { useOktaAuth } from "@okta/okta-react";
 import { useResource } from "rest-hooks";
+import { GLOBAL_STORAGE_KEYS } from "../components/GlobalContextProvider";
 import OrganizationResource from "../resources/OrganizationResource";
 import { groupToOrg } from "../webreceiver-utils";
-    
-export function useOrgName(): string {
 
-    const { authState } = useOktaAuth()
+export function useOrgName(): string {
     const org = useResource(OrganizationResource.detail(), {
         name: groupToOrg(
-            authState!.accessToken?.claims.organization.find((o: string) => !o.toLowerCase().includes('sender'))
+            localStorage?.getItem(GLOBAL_STORAGE_KEYS.GLOBAL_ORG) || undefined
         )
     });
     return org?.description || ""
