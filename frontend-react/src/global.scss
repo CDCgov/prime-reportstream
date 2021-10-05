@@ -13,7 +13,7 @@
 @import 'styles/uswds_settings';  // _uswds_settings.scss
 
 // Disable showing updates and notifications logs
-$theme-show-notifications: true;
+$theme-show-notifications: false;
 @import "~uswds";
 
 @import "~@trussworks/react-uswds/lib/index.css";
