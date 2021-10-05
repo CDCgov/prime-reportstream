@@ -43,11 +43,11 @@ export const Upload = () => {
     });
 
     const userName = {
-        firstName: authState!.accessToken?.claims.given_name,
-        lastName: authState!.accessToken?.claims.family_name,
+        firstName: authState?.accessToken?.claims.given_name || "",
+        lastName: authState?.accessToken?.claims.family_name || "",
     };
 
-    const uploadReport = async function postData(file) {
+    const uploadReport = async function postData(fileBody) {
         let textBody;
         let response;
         try {
@@ -59,7 +59,7 @@ export const Upload = () => {
                     "authentication-type": "okta",
                     Authorization: `Bearer ${authState?.accessToken?.accessToken}`,
                 },
-                body: file,
+                body: fileBody,
             });
 
             textBody = await response.text();
@@ -158,26 +158,7 @@ export const Upload = () => {
     };
 
     const timeZoneAbbreviated = () => {
-        const x: RegExpMatchArray | null = new Date()
-            .toString()
-            .match(/\((.+)\)/);
-
-        // In Chrome browser, new Date().toString() is
-        // "Thu Aug 06 2020 16:21:38 GMT+0530 (India Standard Time)"
-
-        // In Safari browser, new Date().toString() is
-        // "Thu Aug 06 2020 16:24:03 GMT+0530 (IST)"
-        if (x) {
-            if (x["1"].includes(" ")) {
-                return x["1"]
-                    .split(" ")
-                    .map(([first]) => first)
-                    .join("");
-            } else {
-                return x["1"];
-            }
-        }
-        return "unknown timezone";
+        return Intl.DateTimeFormat().resolvedOptions().timeZone;
     };
 
     return (
@@ -278,7 +259,7 @@ export const Upload = () => {
                         <tbody>
                             {consolidatedErrors.map((e, i) => {
                                 return (
-                                    <tr key={i}>
+                                    <tr key={"error_" + i}>
                                         <td>{e["message"]}</td>
                                         <td>{e["rows"]}</td>
                                     </tr>
@@ -314,7 +295,7 @@ export const Upload = () => {
                         <tbody>
                             {consolidatedWarnings.map((e, i) => {
                                 return (
-                                    <tr key={i}>
+                                    <tr key={"warning_" + i}>
                                         <td>{e["message"]}</td>
                                         <td>{e["rows"]}</td>
                                     </tr>
