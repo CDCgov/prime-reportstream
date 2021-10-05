@@ -1,5 +1,4 @@
 // @ts-nocheck // TODO: fix types in this file
-import "./App.css";
 import { Home } from "./pages/home/Home";
 import { ReportStreamFooter } from "./components/ReportStreamFooter";
 import Daily from "./pages/daily/Daily";
@@ -67,9 +66,10 @@ const App = () => {
                 }}
             >
                 <GlobalContextProvider>
+                    <GovBanner aria-label="Official government website" />
+                    <ReportStreamHeader />
+                    <main id='main-content'>
                     <div className="content">
-                        <GovBanner aria-label="Official government website" />
-                        <ReportStreamHeader />
                         <Switch>
                             <Route path="/" exact={true} component={Home} />
                             <Route path="/about" component={About} />
@@ -84,6 +84,7 @@ const App = () => {
                             <Route render={() => (<ErrorPage code={CODES.NOT_FOUND_404} />)} />
                         </Switch>
                     </div>
+                    </main>
                 </GlobalContextProvider>
                 <footer className="usa-identifier footer">
                     <ReportStreamFooter />
