@@ -3,9 +3,9 @@ import { NetworkErrorBoundary } from "rest-hooks";
 import HipaaNotice from "../../components/HipaaNotice";
 import TableReports from "./Table/TableReports";
 import Spinner from "../../components/Spinner";
-import { useOrgName } from "../../controllers/OrganizationController";
+import { useOrgName } from "../../utils/OrganizationUtils";
 import { Helmet } from "react-helmet";
-import {Alert} from "@trussworks/react-uswds";
+import { Alert } from "@trussworks/react-uswds";
 
 const OrgName = () => {
     const orgName: string = useOrgName();
@@ -21,9 +21,9 @@ function Daily() {
     return (
         <NetworkErrorBoundary
             fallbackComponent={() => {
-              return <section className="grid-container margin-bottom-5"><Alert type="error">
-                Failed to load data because of network error
-              </Alert></section>;
+                return <section className="grid-container margin-bottom-5"><Alert type="error">
+                    Failed to load data because of network error
+                </Alert></section>;
             }}>
             <Helmet>
                 <title>Daily data | {process.env.REACT_APP_TITLE}</title>

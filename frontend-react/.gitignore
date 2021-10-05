@@ -24,3 +24,6 @@ yarn-error.log*
 
 /.env.local
 /.env.*.local
+
+# we are using yarn
+package-lock.json
