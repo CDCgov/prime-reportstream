@@ -13,10 +13,11 @@ export const Login = ({ config }) => {
     const { updateOrganization } = useGlobalContext();
 
     const onSuccess = (tokens: Tokens | undefined) => {
+        let oktaGroups = tokens?.accessToken?.claims?.organization.map((group) => {
+            if (group !== PERMISSIONS.PRIME_ADMIN) { return group }
+        }) || [];
+        updateOrganization(groupToOrg(oktaGroups[0]) || "");
         oktaAuth.handleLoginRedirect(tokens);
-        let organization = groupToOrg(tokens?.accessToken?.claims?.organization[0]);
-        if (organization === PERMISSIONS.PRIME_ADMIN) organization = groupToOrg(tokens?.accessToken?.claims?.organization[1]);
-        updateOrganization(organization)
     };
 
     const onError = (err: any) => {
