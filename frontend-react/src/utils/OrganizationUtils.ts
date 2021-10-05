@@ -1,4 +1,3 @@
-import { useOktaAuth } from "@okta/okta-react";
 import { useResource } from "rest-hooks";
 import { GLOBAL_STORAGE_KEYS } from "../components/GlobalContextProvider";
 import OrganizationResource from "../resources/OrganizationResource";
