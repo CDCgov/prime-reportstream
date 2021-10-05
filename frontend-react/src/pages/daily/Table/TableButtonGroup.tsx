@@ -1,5 +1,5 @@
 import { ButtonGroup, Button } from '@trussworks/react-uswds'
-import { useState } from 'react'
+import { SetStateAction, useState } from 'react'
 
 interface Props {
     /* REQUIRED
@@ -23,7 +23,7 @@ function TableButtonGroup(props: Props) {
     const [chosen, setChosen] = useState(receiverSVCs[0])
 
     /* This sets both the <TableButtonGroup> AND <TableReports> chosen state variable */
-    const handleClick = (id) => {
+    const handleClick = (id: SetStateAction<string>) => {
         setChosen(id)
         props.chosenCallback(id)
     }

@@ -1,3 +1,4 @@
+// @ts-nocheck // TODO: fix types in this file
 import live from "../../content/live.json";
 import site from "../../content/site.json";
 import CdcMap from "@cdc/map";

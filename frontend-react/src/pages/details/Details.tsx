@@ -1,3 +1,4 @@
+// @ts-nocheck // TODO: fix types in this file
 import { useResource } from "rest-hooks";
 import ReportResource from "../../resources/ReportResource";
 import Summary from "./Summary"
@@ -31,7 +32,7 @@ const DetailsContent = () => {
         <>
             <Summary report={report} />
             <ReportDetails report={report} />
-            <FacilitiesTable reportId={report?.reportId} />
+            <FacilitiesTable reportId={report?.reportId || ""} />
             <HipaaNotice />
         </>
     );

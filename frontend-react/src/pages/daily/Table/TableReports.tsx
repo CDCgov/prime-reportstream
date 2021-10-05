@@ -1,9 +1,9 @@
-import { getUniqueReceiverSvc } from '../../../controllers/ReportController';
+import { getUniqueReceiverSvc } from '../../../utils/ReportUtils';
 import ReportResource from '../../../resources/ReportResource';
 import TableButtonGroup from './TableButtonGroup';
 import TableReportsData from './TableReportsData';
 import { useResource } from 'rest-hooks';
-import { useState } from 'react'
+import { SetStateAction, useState } from 'react'
 
 /* 
     This is the main exported component from this file. It provides container styling,
@@ -16,7 +16,7 @@ function TableReports({ sortBy }: { sortBy?: string }) {
     const [chosen, setChosen] = useState(receiverSVCs[0])
 
     /* This syncs the chosen state from <TableButtonGroup> with the chosen state here */
-    const handleCallback = (chosen) => {
+    const handleCallback = (chosen: SetStateAction<string>) => {
         setChosen(chosen)
     }
 
@@ -26,12 +26,6 @@ function TableReports({ sortBy }: { sortBy?: string }) {
                 <h2>Test results</h2>
                 {
                     /* Button group only shows when there is more than a single sender. */
-
-                    /*  
-                        TODO: This may need to be remedied not to show "sendingOrg" as a unique sender
-                        as most data input thus far does not have a proper sendingOrg property.
-                        >> 09/09/2021 (Kevin Haube)
-                    */
                     receiverSVCs.length > 1 ?
                         <TableButtonGroup senders={receiverSVCs} chosenCallback={handleCallback} />
                         :

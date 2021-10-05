@@ -7,6 +7,7 @@ import com.microsoft.azure.functions.annotation.QueueTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.AS2TransportType
 import gov.cdc.prime.router.BlobStoreTransportType
+import gov.cdc.prime.router.FTPSTransportType
 import gov.cdc.prime.router.NullTransportType
 import gov.cdc.prime.router.RedoxTransportType
 import gov.cdc.prime.router.ReportId
@@ -107,6 +108,7 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
             is RedoxTransportType -> workflowEngine.redoxTransport
             is BlobStoreTransportType -> workflowEngine.blobStoreTransport
             is AS2TransportType -> workflowEngine.as2Transport
+            is FTPSTransportType -> workflowEngine.ftpsTransport
             is NullTransportType -> NullTransport()
             else -> null
         }
