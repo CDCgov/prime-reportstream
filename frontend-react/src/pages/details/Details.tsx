@@ -9,6 +9,7 @@ import Spinner from "../../components/Spinner";
 import Summary from "./Summary";
 import ReportDetails from "./ReportDetails";
 import FacilitiesTable from "./FacilitiesTable";
+import ErrorBoundary from "../../components/ErrorBoundary";
 
 function useQuery() {
     let query = window.location.search.slice(1);
@@ -53,7 +54,9 @@ const DetailsContent = () => {
 export const Details = () => {
     return (
         <Suspense fallback={<Spinner fullPage />}>
-            <DetailsContent />
+            <ErrorBoundary>
+                <DetailsContent />
+            </ErrorBoundary>
         </Suspense>
     );
 };

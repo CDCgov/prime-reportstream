@@ -8,6 +8,7 @@ import Spinner from "../../components/Spinner";
 import { useOrgName } from "../../utils/OrganizationUtils";
 
 import TableReports from "./Table/TableReports";
+import ErrorBoundary from "../../components/ErrorBoundary";
 
 const OrgName = () => {
     const orgName: string = useOrgName();
@@ -20,16 +21,14 @@ const OrgName = () => {
 
 function Daily() {
     return (
-        <NetworkErrorBoundary
-            fallbackComponent={() => {
-                return (
-                    <section className="grid-container margin-bottom-5">
-                        <Alert type="error">
-                            Failed to load data because of network error
-                        </Alert>
-                    </section>
-                );
-            }}
+        <ErrorBoundary
+            fallback={
+                <section className="grid-container margin-bottom-5">
+                    <Alert type="error">
+                        Failed to load data because of network error
+                    </Alert>
+                </section>
+            }
         >
             <Helmet>
                 <title>Daily data | {process.env.REACT_APP_TITLE}</title>
@@ -53,7 +52,7 @@ function Daily() {
                 <TableReports />
             </Suspense>
             <HipaaNotice />
-        </NetworkErrorBoundary>
+        </ErrorBoundary>
     );
 }
 

@@ -5,8 +5,8 @@ import { NotFound } from "./NotFound";
 import { UnsupportedBrowser } from "./UnsupportedBrowser";
 
 interface ErrorPageProps {
-    code: string;
-    content?: JSX.Element;
+    code?: string;
+    error?: { error: string, errorInfo: React.ErrorInfo }
 }
 
 /* INFO
@@ -18,25 +18,39 @@ export enum CODES {
     NOT_FOUND_404 = "not-found",
 }
 
-export function ErrorPage(props: ErrorPageProps) {
-    const history = useHistory();
-    /* INFO
-       This is preferable to a switch statmenet due to readability
-     */
-    const codes = {
-        "not-found": <NotFound />,
-        browser: <UnsupportedBrowser />,
-    };
-    let content = codes[props.code];
-    if (content === undefined) {
-        history.push("/");
-    }
-
+function ErrorPageWrapper({ children }: JSX.Element) {
     return (
         <div className="usa-section padding-top-6">
             <div className="grid-container">
-                <div className="grid-row grid-gap">{content}</div>
+                <div className="grid-row grid-gap">
+                    {children}
+                </div>
             </div>
         </div>
-    );
+    )
+}
+
+export function ErrorPage(props: ErrorPageProps) {
+    const history = useHistory();
+    const codes = {
+        "not-found": <NotFound />,
+        "unsupported-browser": <UnsupportedBrowser />,
+    };
+    const content = codes[props.code];
+
+    if (content) {
+        return (
+            <ErrorPageWrapper>
+                {content}
+            </ErrorPageWrapper>
+        );
+    }
+    if (props.error) {
+        return (
+            <ErrorPageWrapper>
+                {`${props.error.error}: ${props.error.errorInfo}`}
+            </ErrorPageWrapper>
+        )
+    }
+    return (<div>Default</div>)
 }
