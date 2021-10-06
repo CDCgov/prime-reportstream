@@ -206,10 +206,14 @@ class TranslationTests {
                         result.warnings.joinToString("\n", "WARNINGS:${System.lineSeparator()}")
                 )
                 // Print the errors and warnings after the test completed successfully.
-                if (result.errors.isNotEmpty()) println(result.errors
-                    .joinToString("\n", "ERRORS:${System.lineSeparator()}"))
-                if (result.warnings.isNotEmpty()) println(result.warnings
-                    .joinToString("\n", "WARNINGS:${System.lineSeparator()}"))
+                if (result.errors.isNotEmpty()) println(
+                    result.errors
+                        .joinToString("\n", "ERRORS:${System.lineSeparator()}")
+                )
+                if (result.warnings.isNotEmpty()) println(
+                    result.warnings
+                        .joinToString("\n", "WARNINGS:${System.lineSeparator()}")
+                )
             } else if (inputStream == null) {
                 fail("The file ${config.inputFile} was not found.")
             } else {
