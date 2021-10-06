@@ -1,17 +1,19 @@
+import { NavLink } from "react-router-dom";
+
 import ReportLink from "../daily/Table/ReportLink";
-import ReportResource from '../../resources/ReportResource'
-import { useOrgName } from "../../controllers/OrganizationController";
+import ReportResource from "../../resources/ReportResource";
+import { useOrgName } from "../../utils/OrganizationUtils";
 
 interface Props {
     /* REQUIRED
     Passing in a report allows this component to extract key properties (id) 
     and display them on the Details page. */
-    report: ReportResource | undefined
+    report: ReportResource | undefined;
 }
 
 function Summary(props: Props) {
-    const { report }: Props = props
-    const orgName: string = useOrgName()
+    const { report }: Props = props;
+    const orgName: string = useOrgName();
 
     return (
         <section className="grid-container">
@@ -21,13 +23,14 @@ function Summary(props: Props) {
             >
                 <ol className="usa-breadcrumb__list">
                     <li className="usa-breadcrumb__list-item">
-                        <a
-                            href="/daily-data"
+                        <NavLink
+                            to="/daily-data"
+                            key="daily"
                             className="usa-breadcrumb__link"
                             id="orgName"
                         >
                             {orgName}
-                        </a>
+                        </NavLink>
                     </li>
                     <li
                         className="usa-breadcrumb__list-item usa-current"
@@ -48,6 +51,6 @@ function Summary(props: Props) {
             </h3>
         </section>
     );
-};
+}
 
-export default Summary
+export default Summary;

@@ -16,6 +16,7 @@ import gov.cdc.prime.router.transport.SftpTransport
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockkClass
+import io.mockk.mockkConstructor
 import io.mockk.verify
 import org.jooq.Configuration
 import org.junit.jupiter.api.BeforeEach
@@ -120,6 +121,8 @@ class SendFunctionTests {
         // Setup
         var nextEvent: ReportEvent? = null
         setupLogger()
+        mockkConstructor(ActionHistory::class)
+        every { anyConstructed<ActionHistory>().setActionType(TaskAction.send_warning) } returns Unit
         every { workflowEngine.handleReportEvent(any(), context, any()) }.answers {
             val block = thirdArg() as
                 (header: WorkflowEngine.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
@@ -138,6 +141,7 @@ class SendFunctionTests {
         assertThat(nextEvent!!.eventAction).isEqualTo(Event.EventAction.SEND)
         assertThat(nextEvent!!.retryToken).isNotNull()
         assertThat(nextEvent!!.retryToken?.retryCount).isEqualTo(1)
+        verify(exactly = 1) { anyConstructed<ActionHistory>().setActionType(TaskAction.send_warning) }
     }
 
     @Test
@@ -145,6 +149,8 @@ class SendFunctionTests {
         // Setup
         var nextEvent: ReportEvent? = null
         setupLogger()
+        mockkConstructor(ActionHistory::class)
+        every { anyConstructed<ActionHistory>().setActionType(TaskAction.send_warning) } returns Unit
         every { workflowEngine.handleReportEvent(any(), context, any()) }.answers {
             val block = thirdArg() as
                 (header: WorkflowEngine.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
@@ -169,6 +175,7 @@ class SendFunctionTests {
         assertThat(nextEvent!!.retryToken?.retryCount).isEqualTo(3)
         assertThat(nextEvent!!.at!!.isAfter(OffsetDateTime.now().plusMinutes(2))).isTrue()
         nextEvent!!.retryToken?.toJSON()?.let { assertThat(it.contains("\"retryCount\":3")).isTrue() }
+        verify(exactly = 1) { anyConstructed<ActionHistory>().setActionType(TaskAction.send_warning) }
     }
 
     @Test
@@ -176,6 +183,8 @@ class SendFunctionTests {
         // Setup
         var nextEvent: ReportEvent? = null
         setupLogger()
+        mockkConstructor(ActionHistory::class)
+        every { anyConstructed<ActionHistory>().setActionType(TaskAction.send_error) } returns Unit
         val reportId = UUID.randomUUID()
         every { workflowEngine.handleReportEvent(any(), context, any()) }.answers {
             val block = thirdArg() as
@@ -198,6 +207,7 @@ class SendFunctionTests {
         assertThat(nextEvent).isNotNull()
         assertThat(nextEvent!!.eventAction).isEqualTo(Event.EventAction.SEND_ERROR)
         assertThat(nextEvent!!.retryToken).isNull()
+        verify { anyConstructed<ActionHistory>().setActionType(TaskAction.send_error) }
     }
 
     @Test

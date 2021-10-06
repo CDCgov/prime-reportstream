@@ -9,6 +9,7 @@
     - name: default
       organizationName: simple_report
       topic: covid-19
+      customerStatus: active
       schemaName: primedatainput/pdi-covid-19
       format: CSV
 
@@ -19,6 +20,7 @@
     - name: default
       organizationName: strac
       topic: covid-19
+      customerStatus: active
       schemaName: strac/strac-covid-19
       format: CSV
 
@@ -30,6 +32,7 @@
     - name: elr-test
       organizationName: az-phd
       topic: covid-19
+      customerStatus: active
       jurisdictionalFilter:
         - matches(ordering_facility_state,AZ)
         - "doesNotMatch(ordering_facility_name,Tucson Mountains,Tucson Foothills,Sierra Vista Canyons)"
@@ -52,6 +55,7 @@
     - name: elr-hl7-test
       organizationName: az-phd
       topic: covid-19
+      customerStatus: active
       jurisdictionalFilter:
         - matches(ordering_facility_state,AZ)
         - "doesNotMatch(ordering_facility_name,Tucson Mountains,Tucson Foothills,Sierra Vista Canyons)"
@@ -78,6 +82,7 @@
     - name: elr-prod
       organizationName: az-phd
       topic: covid-19
+      customerStatus: active
       jurisdictionalFilter:
         - matches(ordering_facility_state,AZ)
         - "matches(ordering_facility_name,Tucson Mountains,Tucson Foothills,Sierra Vista Canyons)"
@@ -107,6 +112,7 @@
       organizationName: pima-az-phd
       description: Electronic Lab Record
       topic: covid-19
+      customerStatus: active
       jurisdictionalFilter: [ "filterByCounty(AZ, Pima)" ]
       deidentify: false
       translation:
@@ -127,6 +133,7 @@
     - name: elr
       organizationName: fl-phd
       topic: covid-19
+      customerStatus: active
       jurisdictionalFilter:
         - orEquals(ordering_facility_state, FL, patient_state, FL)
       deidentify: false
@@ -156,6 +163,7 @@
     - name: elr
       organizationName: nd-doh
       topic: covid-19
+      customerStatus: active
       jurisdictionalFilter:
         - matches(ordering_facility_state, ND)
       deidentify: false
@@ -185,6 +193,7 @@
     - name: elr
       organizationName: la-doh
       topic: covid-19
+      customerStatus: active
       jurisdictionalFilter:
         - matches(ordering_facility_state, LA)
       translation:
@@ -213,6 +222,7 @@
     - name: elr
       organizationName: oh-doh
       topic: covid-19
+      customerStatus: active
       jurisdictionalFilter:
         - matches(ordering_facility_state, OH)
       translation:
@@ -248,6 +258,7 @@
     - name: elr
       organizationName: nm-doh
       topic: covid-19
+      customerStatus: active
       jurisdictionalFilter:
         - matches(ordering_facility_state, NM)
       translation:
@@ -275,6 +286,7 @@
     - name: elr-csv
       organizationName: nm-doh
       topic: covid-19
+      customerStatus: active
       jurisdictionalFilter:
         - matches(ordering_facility_state, NM)
       translation:
@@ -296,6 +308,7 @@
     - name: elr
       organizationName: mt-doh
       topic: covid-19
+      customerStatus: active
       jurisdictionalFilter:
         - orEquals(patient_state, MT, ordering_facility_state, MT)
       translation:
@@ -309,6 +322,7 @@
     - name: elr-csv
       organizationName: mt-doh
       topic: covid-19
+      customerStatus: active
       jurisdictionalFilter:
         - orEquals(patient_state, MT, ordering_facility_state, MT)
       translation:
@@ -329,6 +343,7 @@
     - name: elr
       organizationName: tx-doh
       topic: covid-19
+      customerStatus: active
       jurisdictionalFilter:
         - matches(ordering_facility_state, TX)
       translation:
@@ -356,6 +371,7 @@
     - name: elr
       organizationName: gu-doh
       topic: covid-19
+      customerStatus: active
       jurisdictionalFilter:
         - matches(ordering_facility_state, GU)
       translation:
@@ -382,6 +398,7 @@
     - name: elr
       organizationName: vt-doh
       topic: covid-19
+      customerStatus: active
       jurisdictionalFilter:
         - matches(ordering_facility_state, VT)
       translation:
@@ -411,6 +428,7 @@
     - name: elr
       organizationName: nj-doh
       topic: covid-19
+      customerStatus: active
       jurisdictionalFilter:
         - orEquals(ordering_facility_state, NJ, patient_state, NJ)
         - matches(processing_mode_code, P)
@@ -435,6 +453,7 @@
     - name: elr-test
       organizationName: nj-doh
       topic: covid-19
+      customerStatus: active
       jurisdictionalFilter:
         - orEquals(ordering_facility_state, NJ, patient_state, NJ)
         - matches(processing_mode_code, T)
@@ -465,6 +484,7 @@
     - name: elr
       organizationName: ma-phd
       topic: covid-19
+      customerStatus: active
       jurisdictionalFilter:
         - orEquals(ordering_facility_state, MA, patient_state, MA)
       translation:
@@ -495,6 +515,7 @@
     - name: elr-bucks-prod
       organizationName: pa-phd
       topic: covid-19
+      customerStatus: active
       jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Bucks)" ]
       deidentify: false
       translation:
@@ -514,6 +535,7 @@
     - name: elr-chester-prod
       organizationName: pa-phd
       topic: covid-19
+      customerStatus: active
       jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Chester, Delaware)" ]
       deidentify: false
       translation:
@@ -533,6 +555,7 @@
     - name: elr-montgomery-prod
       organizationName: pa-phd
       topic: covid-19
+      customerStatus: active
       jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Montgomery)" ]
       deidentify: false
       translation:
@@ -552,6 +575,7 @@
     - name: elr-philadelphia-prod
       organizationName: pa-phd
       topic: covid-19
+      customerStatus: active
       jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Philadelphia)" ]
       deidentify: false
       translation:
@@ -577,6 +601,7 @@
     - name: elr-chester-download
       organizationName: pa-chester-phd
       topic: covid-19
+      customerStatus: active
       jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Chester, Delaware)" ]
       deidentify: false
       translation:
@@ -598,6 +623,7 @@
     - name: elr-montgomery-download
       organizationName: pa-montgomery-phd
       topic: covid-19
+      customerStatus: active
       jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Montgomery)" ]
       deidentify: false
       translation:
@@ -619,6 +645,7 @@
     - name: elr-philadelphia-download
       organizationName: pa-philadelphia-phd
       topic: covid-19
+      customerStatus: active
       jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Philadelphia)" ]
       deidentify: false
       translation:

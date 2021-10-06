@@ -9,6 +9,7 @@ import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.int
 import gov.cdc.prime.router.CustomConfiguration
+import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DefaultValues
 import gov.cdc.prime.router.FakeReport
 import gov.cdc.prime.router.FileSettings
@@ -483,6 +484,7 @@ class ProcessData(
                             "emptyReceiver",
                             "emptyOrganization",
                             "covid-19",
+                            CustomerStatus.INACTIVE,
                             hl7Configuration
                         )
                         report.copy(destination, Report.Format.HL7_BATCH)

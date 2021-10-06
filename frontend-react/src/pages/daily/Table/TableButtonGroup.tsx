@@ -1,16 +1,16 @@
-import { ButtonGroup, Button } from '@trussworks/react-uswds'
-import { useState } from 'react'
+import { ButtonGroup, Button } from "@trussworks/react-uswds";
+import { SetStateAction, useState } from "react";
 
 interface Props {
     /* REQUIRED
     A list of senders gathered by calling getListOfSenders() */
-    senders: string[]
+    senders: string[];
 
     /* REQUIRED
     A function passed in by the parent prop to sync chosen state
     This can be seen in-use by <TableReports>. The chosen state in sync'd
     and TableReports filters by the chosen sender */
-    chosenCallback: Function
+    chosenCallback: Function;
 }
 
 /* 
@@ -19,35 +19,36 @@ interface Props {
     list
 */
 function TableButtonGroup(props: Props) {
-    const receiverSVCs: string[] = props.senders
-    const [chosen, setChosen] = useState(receiverSVCs[0])
+    const receiverSVCs: string[] = props.senders;
+    const [chosen, setChosen] = useState(receiverSVCs[0]);
 
     /* This sets both the <TableButtonGroup> AND <TableReports> chosen state variable */
-    const handleClick = (id) => {
-        setChosen(id)
-        props.chosenCallback(id)
-    }
+    const handleClick = (id: SetStateAction<string>) => {
+        setChosen(id);
+        props.chosenCallback(id);
+    };
 
     return (
         <ButtonGroup type="segmented">
-            {
-                receiverSVCs.map((val) => {
-                    return <Button
+            {receiverSVCs.map((val) => {
+                return (
+                    <Button
                         key={val}
                         id={val}
                         onClick={() => handleClick(val)}
                         type="button"
-                        outline={val !== chosen}>
+                        outline={val !== chosen}
+                    >
                         {
                             /* Accounting for the fact we have not been POSTing items with
                             a sendingOrg property yet */
                             val === "" ? "No Receiver SVC" : val
                         }
                     </Button>
-                })
-            }
+                );
+            })}
         </ButtonGroup>
-    )
+    );
 }
 
-export default TableButtonGroup
+export default TableButtonGroup;

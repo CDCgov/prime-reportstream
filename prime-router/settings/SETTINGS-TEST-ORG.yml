@@ -9,6 +9,7 @@
     organizationName: "SETTINGS-TEST-ORG"
     format: "CSV"
     topic: "covid-19"
+    customerStatus: "active"
     schemaName: "strac/strac-covid-19"
   receivers:
   - name: "RECEIVER1"
@@ -41,6 +42,7 @@
   - name: "RECEIVER2"
     organizationName: "SETTINGS-TEST-ORG"
     topic: "covid-19"
+    customerStatus: "active"
     translation: !<CUSTOM>
       schemaName: "pa/pa-covid-19-redox"
       format: "REDOX"
@@ -72,6 +74,7 @@
   - name: "RECEIVER3"
     organizationName: "SETTINGS-TEST-ORG"
     topic: "covid-19"
+    customerStatus: "active"
     translation: !<HL7>
       useTestProcessingMode: false
       useBatchHeaders: true
