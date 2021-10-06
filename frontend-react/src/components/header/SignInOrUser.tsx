@@ -2,6 +2,7 @@ import { useOktaAuth } from "@okta/okta-react";
 import { Button } from "@trussworks/react-uswds";
 import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
+
 import { logout } from "../../utils/UserUtils";
 
 const SignInOrUser = () => {
@@ -24,7 +25,7 @@ const SignInOrUser = () => {
                 href="/"
                 id="logout"
                 onClick={() => {
-                    logout(oktaAuth)
+                    logout(oktaAuth);
                 }}
                 className="usa-link"
             >
@@ -40,4 +41,4 @@ const SignInOrUser = () => {
     );
 };
 
-export { SignInOrUser }
+export { SignInOrUser };

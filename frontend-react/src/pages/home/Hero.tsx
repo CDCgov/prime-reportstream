@@ -1,4 +1,4 @@
-import content from '../../content/content.json'
+import content from "../../content/content.json";
 
 export default function Hero() {
     return (
