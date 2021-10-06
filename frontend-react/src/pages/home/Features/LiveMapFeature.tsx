@@ -9,4 +9,4 @@ export default function LiveMapFeature({ feature }: { feature: FeatureProp }) {
             <p className="usa-prose">{feature.summary}</p>
         </div>
     );
-};
+}

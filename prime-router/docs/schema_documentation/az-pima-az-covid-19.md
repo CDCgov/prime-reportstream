@@ -37,6 +37,7 @@ LumiraDx SARS-CoV-2 Ag Test*|Antigen
 Sofia 2 SARS Antigen FIA|Antigen
 Sofia 2 Flu + SARS Antigen FIA*|Antigen
 Sienna-Clarity COVID-19 Antigen Rapid Test Cassette*|Antigen
+Tide Labs DTPM COVID-19 RT-PCR Test*|Molecular
 
 **Documentation**:
 
