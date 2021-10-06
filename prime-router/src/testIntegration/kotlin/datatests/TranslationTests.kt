@@ -209,10 +209,13 @@ class TranslationTests {
                 if (result.errors.isNotEmpty()) println(
                     result.errors
                         .joinToString("\n", "ERRORS:${System.lineSeparator()}")
+
                 )
                 if (result.warnings.isNotEmpty()) println(
                     result.warnings
-                        .joinToString("\n", "WARNINGS:${System.lineSeparator()}")
+                        .joinToString(
+                            "\n", "WARNINGS:${System.lineSeparator()}"
+                        )
                 )
             } else if (inputStream == null) {
                 fail("The file ${config.inputFile} was not found.")
