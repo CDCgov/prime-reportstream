@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from 'react'
+import { createContext, useContext, useState } from "react";
 
 /* INFO
    Please use these rather than hard-coded strings when 
@@ -16,25 +16,36 @@ export enum GLOBAL_STORAGE_KEYS {
 */
 export const GlobalContext = createContext({
     state: {
-        organization: localStorage.getItem(GLOBAL_STORAGE_KEYS.GLOBAL_ORG) || "",
+        organization:
+            localStorage.getItem(GLOBAL_STORAGE_KEYS.GLOBAL_ORG) || "",
     },
-    updateOrganization: (newOrganization: string): void => { /* Default placeholder function model */ }
+    updateOrganization: (newOrganization: string): void => {
+        /* Default placeholder function model */
+    },
 });
-export function useGlobalContext() { return useContext(GlobalContext) }
+export function useGlobalContext() {
+    return useContext(GlobalContext);
+}
 
-function GlobalContextProvider({ children }: { children: JSX.Element[] }): JSX.Element {
-    const [organization, setOrganization] = useState(localStorage.getItem(GLOBAL_STORAGE_KEYS.GLOBAL_ORG) || "")
+function GlobalContextProvider({
+    children,
+}: {
+    children: JSX.Element[];
+}): JSX.Element {
+    const [organization, setOrganization] = useState(
+        localStorage.getItem(GLOBAL_STORAGE_KEYS.GLOBAL_ORG) || ""
+    );
 
     const updateOrganization = (newOrganization: string): void => {
-        localStorage.setItem(GLOBAL_STORAGE_KEYS.GLOBAL_ORG, newOrganization)
-        setOrganization(newOrganization)
+        localStorage.setItem(GLOBAL_STORAGE_KEYS.GLOBAL_ORG, newOrganization);
+        setOrganization(newOrganization);
         setContext({
             state: {
-                organization: newOrganization
+                organization: newOrganization,
             },
-            updateOrganization: updateOrganization
-        })
-    }
+            updateOrganization: updateOrganization,
+        });
+    };
 
     /* INFO
        This is where we would add more functions like updateOrganiztion()
@@ -44,16 +55,16 @@ function GlobalContextProvider({ children }: { children: JSX.Element[] }): JSX.E
 
     const [context, setContext] = useState({
         state: {
-            organization: organization
+            organization: organization,
         },
-        updateOrganization: updateOrganization
+        updateOrganization: updateOrganization,
     });
 
     return (
         <GlobalContext.Provider value={context}>
             {children}
         </GlobalContext.Provider>
-    )
+    );
 }
 
-export default GlobalContextProvider
+export default GlobalContextProvider;
