@@ -1,13 +1,15 @@
 import moment from "moment";
-import ReportResource from "../../../resources/ReportResource";
-import ReportLink from "./ReportLink";
 import { NavLink } from "react-router-dom";
+
+import ReportResource from "../../../resources/ReportResource";
+
+import ReportLink from "./ReportLink";
 
 interface Props {
     /* REQUIRED
     To populate the <TableReports> component with data, you must pass in an array of
     ReportResource items to be mapped with the TableReportsData (this) component. */
-    reports: ReportResource[]
+    reports: ReportResource[];
 }
 
 /* 
@@ -20,10 +22,11 @@ function TableReportsData(props: Props) {
             {props.reports.map((report, idx) => (
                 <tr key={idx}>
                     <th scope="row">
-                        <NavLink 
+                        <NavLink
                             to={"/report-details?reportId=" + report.reportId}
                             key="daily"
-                            className="usa-link">
+                            className="usa-link"
+                        >
                             {report.reportId}
                         </NavLink>
                     </th>
@@ -49,4 +52,4 @@ function TableReportsData(props: Props) {
     );
 }
 
-export default TableReportsData
+export default TableReportsData;
