@@ -134,8 +134,8 @@ elements:
       csvFields: [{name: Test Code}]
 
     - name: equipment_model_name
+#    - name: test_kit_name_id
       type: TEXT
-      default: 99999999
       csvFields: [{name: Device Identifier}]
 
 
@@ -195,10 +195,10 @@ elements:
       csvFields: [{name: Facility Street Address}]
 
     - name: testing_lab_city
-      csvFields: [{name: Facility State}]
+      csvFields: [{name: Facility City}]
 
     - name: testing_lab_state
-      csvFields: [{name: Facility Zip}]
+      csvFields: [{name: Facility State}]
 
     - name: testing_lab_zip_code
       csvFields: [{name: Facility Zip}]
