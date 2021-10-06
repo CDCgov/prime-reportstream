@@ -866,9 +866,11 @@ class Report : Logging {
         ): String {
             val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
             val nameSuffix = fileFormat?.ext ?: Format.CSV.ext
-            val fileName = when (translationConfig) {
-                null -> "${Schema.formBaseName(schemaName)}-$id-${formatter.format(createdDateTime)}"
-                else -> metadata.fileNameTemplates[nameFormat.lowercase()].run {
+            val fileName = if (fileFormat == Format.INTERNAL || translationConfig == null) {
+                // This filenaming format is used for all INTERNAL files, and whenever there is no custom format.
+                "${Schema.formBaseName(schemaName)}-$id-${formatter.format(createdDateTime)}"
+            } else {
+                metadata.fileNameTemplates[nameFormat.lowercase()].run {
                     this?.getFileName(translationConfig, id)
                         ?: "${Schema.formBaseName(schemaName)}-$id-${formatter.format(createdDateTime)}"
                 }
