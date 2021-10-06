@@ -24,7 +24,6 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.contentOrNull
 import org.jooq.JSONB
 import org.jooq.exception.DataAccessException
 import java.io.File
@@ -184,43 +183,6 @@ class LookupTableCommands : CliktCommand(
     }
 
     /**
-     * Extract table column names from the [row] JSON data.
-     * @return the list of column names
-     */
-    private fun extractTableHeadersFromJson(row: JSONB): List<String> {
-        val jsonData = Json.parseToJsonElement(row.data())
-        return (jsonData as JsonObject).keys.toList()
-    }
-
-    /**
-     * Extract table data from a JSON [row] given a list of [colNames].
-     * @return a list of data from the row in the same order as the given [colNames]
-     */
-    private fun extractTableRowFromJson(row: JSONB, colNames: List<String>): List<String> {
-        val rowData = mutableListOf<String>()
-        val jsonData = Json.parseToJsonElement(row.data()) as JsonObject
-        colNames.forEach { colName ->
-            rowData.add((jsonData[colName] as JsonPrimitive).contentOrNull ?: "")
-        }
-        return rowData
-    }
-
-    /**
-     * Sets the JSON for a table [row].
-     * @return the JSON representation of the data
-     */
-    private fun setTableRowToJson(row: Map<String, String>): JSONB {
-        Preconditions.checkArgument(row.isNotEmpty())
-        val colNames = row.keys.toList()
-        val retVal = buildJsonObject {
-            colNames.forEach { col ->
-                put(col, JsonPrimitive(row[col]))
-            }
-        }
-        return JSONB.jsonb(retVal.toString())
-    }
-
-    /**
      * Converts table data in [tableRows] to a human readable table.
      * @param addRowNum set to true to add row numbers to the left of the table
      * @return the human readable table
@@ -322,8 +284,10 @@ class LookupTableCommands : CliktCommand(
 
             when (val activeVersion = tableDbAccess.fetchActiveVersion(tableName)) {
                 version -> {
-                    TermUi.echo("Nothing to do. Lookup table $tableName's active version number is already +" +
-                        "$activeVersion.")
+                    TermUi.echo(
+                        "Nothing to do. Lookup table $tableName's active version number is already +" +
+                            "$activeVersion."
+                    )
                     return
                 }
                 null ->
@@ -464,5 +428,47 @@ class LookupTableCommands : CliktCommand(
             }
         } else
             TermUi.echo("Lookup table $tableName version $version1 and $version2 are identical.")
+    }
+
+    companion object {
+        /**
+         * Extract table column names from the [row] JSON data.
+         * @return the list of column names
+         */
+        internal fun extractTableHeadersFromJson(row: JSONB): List<String> {
+            val jsonData = Json.parseToJsonElement(row.data())
+            return (jsonData as JsonObject).keys.toList()
+        }
+
+        /**
+         * Extract table data from a JSON [row] given a list of [colNames].
+         * @return a list of data from the row in the same order as the given [colNames]
+         */
+        internal fun extractTableRowFromJson(row: JSONB, colNames: List<String>): List<String> {
+            val rowData = mutableListOf<String>()
+            val jsonData = Json.parseToJsonElement(row.data()) as JsonObject
+            colNames.forEach { colName ->
+                val value = if (jsonData[colName] != null)
+                    (jsonData[colName] as JsonPrimitive).content
+                else
+                    ""
+                rowData.add(value)
+            }
+            return rowData
+        }
+
+        /**
+         * Sets the JSON for a table [row].
+         * @return the JSON representation of the data
+         */
+        internal fun setTableRowToJson(row: Map<String, String>): JSONB {
+            val colNames = row.keys.toList()
+            val retVal = buildJsonObject {
+                colNames.forEach { col ->
+                    put(col, JsonPrimitive(row[col]))
+                }
+            }
+            return JSONB.jsonb(retVal.toString())
+        }
     }
 }
