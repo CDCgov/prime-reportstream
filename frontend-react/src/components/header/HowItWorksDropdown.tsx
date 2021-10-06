@@ -1,4 +1,4 @@
-import { Link, Menu, NavDropDownButton } from "@trussworks/react-uswds";
+import { Menu, NavDropDownButton } from "@trussworks/react-uswds";
 import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 
@@ -19,22 +19,18 @@ const HowItWorksDropdown = () => {
     }, []);
 
     const testMenuItems = [
-        <NavLink to="/how-it-works/getting-started" >
-            Getting started
-        </NavLink>,
-        <NavLink to="/how-it-works/elr-checklist" >
+        <NavLink to="/how-it-works/getting-started">Getting started</NavLink>,
+        <NavLink to="/how-it-works/elr-checklist">
             ELR onboarding checklist
         </NavLink>,
         <NavLink to="/how-it-works/data-download-guide">
             Data download website guide
         </NavLink>,
-        <NavLink to="/how-it-works/where-were-live" >
-            Where we're live
-        </NavLink>,
+        <NavLink to="/how-it-works/where-were-live">Where we're live</NavLink>,
         <NavLink to="/how-it-works/systems-and-settings">
             System and settings
         </NavLink>,
-        <NavLink to="/how-it-works/security-practices" >
+        <NavLink to="/how-it-works/security-practices">
             Security practices
         </NavLink>,
     ];
@@ -57,7 +53,7 @@ const HowItWorksDropdown = () => {
                 onClick={(): void => setIsOpen(false)}
             />
         </>
-    )
-}
+    );
+};
 
-export { HowItWorksDropdown }
+export { HowItWorksDropdown };

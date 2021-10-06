@@ -1,32 +1,37 @@
-import site from "../../content/site.json";
 import { Helmet } from "react-helmet";
 import { NavLink } from "react-router-dom";
+
+import site from "../../content/site.json";
 
 export const WebReceiverGuide = () => {
     return (
         <>
             <Helmet>
-                <title>Data download website guide | How it works | {process.env.REACT_APP_TITLE}</title>
+                <title>
+                    Data download website guide | How it works |{" "}
+                    {process.env.REACT_APP_TITLE}
+                </title>
             </Helmet>
             <section id="anchor-top">
                 <h1 className="margin-top-0">Data download website guide</h1>
                 <p className="usa-intro">
                     The{" "}
-                    <NavLink
-                        to="/login/"
-                        key="login"
-                        className="usa-link">
+                    <NavLink to="/login/" key="login" className="usa-link">
                         data download website
-                    </NavLink>
-                    {" "}
+                    </NavLink>{" "}
                     enables a public health department to access data from
                     senders via a secure, online portal.
                 </p>
-                <a href={
-                    "mailto:" +
-                    site.orgs.RS.email +
-                    "?subject=Getting started with ReportStream"
-                } className="usa-button usa-button--outline">Contact us</a>
+                <a
+                    href={
+                        "mailto:" +
+                        site.orgs.RS.email +
+                        "?subject=Getting started with ReportStream"
+                    }
+                    className="usa-button usa-button--outline"
+                >
+                    Contact us
+                </a>
             </section>
             <hr className="margin-y-6" />
             <section>
@@ -105,7 +110,8 @@ export const WebReceiverGuide = () => {
                     ReportStream is utilizing a{" "}
                     <a href="https://www.hhs.gov/" className="usa-link">
                         Health and Human Services
-                    </a>-owned <a href="https://okta.com">Okta</a> account for
+                    </a>
+                    -owned <a href="https://okta.com">Okta</a> account for
                     managing access to the application. Okta is a U.S. based
                     cloud software provider that specializes in access and
                     identity management.
@@ -152,13 +158,9 @@ export const WebReceiverGuide = () => {
                 <ul>
                     <li>
                         Visit{" "}
-                        <NavLink
-                            to="/login/"
-                            key="login"
-                            className="usa-link">
+                        <NavLink to="/login/" key="login" className="usa-link">
                             reportstream.cdc.gov
-                        </NavLink>
-                        {" "}
+                        </NavLink>{" "}
                         to log in to the application.
                     </li>
                     <li>
@@ -167,10 +169,10 @@ export const WebReceiverGuide = () => {
                         <NavLink
                             to="/daily-data/"
                             key="daily"
-                            className="usa-link">
+                            className="usa-link"
+                        >
                             reportstream.cdc.gov/daily-data
-                        </NavLink>
-                        {" "}
+                        </NavLink>{" "}
                         to view your data.
                     </li>
                 </ul>
@@ -190,10 +192,7 @@ export const WebReceiverGuide = () => {
                     <li>
                         If you forgot your password, follow the instructions
                         under "Need help signing in?" on the login page at{" "}
-                        <NavLink
-                            to="/login/"
-                            key="login"
-                            className="usa-link">
+                        <NavLink to="/login/" key="login" className="usa-link">
                             reportsream.cdc.gov/login
                         </NavLink>
                         .
@@ -207,27 +206,37 @@ export const WebReceiverGuide = () => {
 
                 <h4>Accessing data</h4>
                 <p>
-                    You will be able to download the most recently reported test result data, as well as
-                    up to 30 days of previously reported data. Due to the presence of personally
-                    identifiable information or personal health information,
-                    ReportStream will not be a permanent repository for reported test data.
+                    You will be able to download the most recently reported test
+                    result data, as well as up to 30 days of previously reported
+                    data. Due to the presence of personally identifiable
+                    information or personal health information, ReportStream
+                    will not be a permanent repository for reported test data.
                 </p>
                 <p>
-                    Each report will be held for 30 days, and will be accessible through the application
-                    for the duration of that period. After 30 days has passed for an individual report,
-                    the file will be permanently deleted and will not be recoverable.
+                    Each report will be held for 30 days, and will be accessible
+                    through the application for the duration of that period.
+                    After 30 days has passed for an individual report, the file
+                    will be permanently deleted and will not be recoverable.
                 </p>
-                <p>Please download data and ingest it into your systems as soon as possible.</p>
+                <p>
+                    Please download data and ingest it into your systems as soon
+                    as possible.
+                </p>
 
                 <h4>Support</h4>
                 <p>
                     Do you have questions, problems, or bugs to report? Email
                     the team at
-                    <a href={
-                        "mailto:" +
-                        site.orgs.RS.email +
-                        "?subject=Getting started with ReportStream"
-                    } className="margin-left-1 margin-right-1 usa-link">reportstream@cdc.gov</a>
+                    <a
+                        href={
+                            "mailto:" +
+                            site.orgs.RS.email +
+                            "?subject=Getting started with ReportStream"
+                        }
+                        className="margin-left-1 margin-right-1 usa-link"
+                    >
+                        reportstream@cdc.gov
+                    </a>
                     for help.
                 </p>
 

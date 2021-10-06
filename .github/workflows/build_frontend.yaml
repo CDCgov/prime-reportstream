@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       has_frontend_change: ${{ steps.skip_check.outputs.frontend }}
-      has_react_change: ${{ steps.skip_check.outputs.frontend-react }}
+      has_react_change: ${{ steps.skip_check.outputs.frontend_react }}
     steps:
       - name: "Check out changes"
         uses: actions/checkout@v2
@@ -26,7 +26,7 @@ jobs:
           filters: |
             frontend:
               - 'frontend/**'
-            frontend-react:
+            frontend_react:
               - 'frontend-react/**'
 
   build_frontend:
@@ -63,10 +63,10 @@ jobs:
       - name: "Check out changes"
         uses: actions/checkout@v2
 
-      - name: Use Node.js ${{ matrix.node-version }}
+      - name: Use Node.js ${{ matrix.node-version }} with yarn
         uses: actions/setup-node@v2
         with:
           node-version: '14'
-      - run: npm install      
-      - run: npm run build
+      - run: yarn install
+      - run: yarn run build
 

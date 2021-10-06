@@ -53,10 +53,16 @@
     },
     "scripts": {
         "clean": "rimraf ./build",
-        "start": "DISABLE_ESLINT_PLUGIN=true react-scripts start",
-        "build": "DISABLE_ESLINT_PLUGIN=true craco build",
+        "start": "react-scripts start",
+        "build": "craco build",
         "test": "react-scripts test",
         "eject": "react-scripts eject",
+        "lint": "npm-run-all -p lint:eslint lint:prettier",
+        "lint:write": "npm-run-all -p lint:eslint:write lint:prettier:write",
+        "lint:eslint": "eslint --quiet 'src/**/*.{js,ts,jsx,tsx}'",
+        "lint:eslint:write": "eslint --fix 'src/**/*.{js,ts,jsx,tsx}'",
+        "lint:prettier": "prettier -c 'src/**/*.{js,ts,jsx,tsx}'",
+        "lint:prettier:write": "prettier --write 'src/**/*.{js,ts,jsx,tsx}'",
         "cypress-open": "./node_modules/.bin/cypress open",
         "cypress-run": "./node_modules/.bin/cypress run",
         "postbuild": "react-snap"
@@ -64,7 +70,36 @@
     "eslintConfig": {
         "extends": [
             "react-app",
-            "react-app/jest"
+            "prettier",
+            "plugin:import/errors",
+            "plugin:import/warnings"
+        ],
+        "env": {
+            "browser": true,
+            "node": false,
+            "es6": true
+        },
+        "globals": {
+            "RequestInit": true
+        },
+        "rules": {
+            "import/no-unresolved": 0,
+            "import/first": 1,
+            "import/order": [
+                1,
+                {
+                    "newlines-between": "always"
+                }
+            ],
+            "import/newline-after-import": 1,
+            "import/no-commonjs": 0
+        },
+        "settings": {
+            "import/resolver": {}
+        },
+        "ignorePatterns": [
+            "node_modules/",
+            "build/"
         ]
     },
     "browserslist": {
@@ -88,14 +123,17 @@
         "cypress": "^8.4.0",
         "eslint": "^7.26.0",
         "eslint-config-airbnb": "^18.2.1",
+        "eslint-config-prettier": "^8.3.0",
         "eslint-plugin-import": "^2.23.0",
         "eslint-plugin-jsx-a11y": "^6.4.1",
         "eslint-plugin-react": "^7.23.2",
         "eslint-plugin-react-hooks": "^4.2.0",
-        "prettier": "2.3.2",
+        "npm-run-all": "^4.1.5",
+        "prettier": "^2.4.1",
         "react-dropdown": "^1.9.2",
         "react-snap": "^1.23.0",
         "sass": "^1.42.1",
+        "stylelint": "^13.13.1",
         "yaml-loader": "^0.6.0"
     },
     "reactSnap": {
