@@ -83,6 +83,8 @@ class LookupTableCommands : CliktCommand(
          * @return the human readable table
          */
         fun rowsToPrintableTable(tableRows: List<LookupTableRow>, addRowNum: Boolean = true): StringBuilder {
+            Preconditions.checkArgument(tableRows.isNotEmpty())
+
             return table {
                 hints {
                     borderStyle = Table.BorderStyle.SINGLE_LINE
@@ -365,7 +367,7 @@ class LookupTableDiffCommand : CliktCommand(
 
 class LookupTableActivateCommand : CliktCommand(
     name = "activate",
-    help = "Avtivate a specific version of a lookup table"
+    help = "Activate a specific version of a lookup table"
 ) {
     /**
      * The table name.
