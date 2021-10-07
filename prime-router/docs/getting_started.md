@@ -143,7 +143,7 @@ the baseline (see "[Building in the course of development](#building-in-the-cour
 
 ```bash
 cd ./prime-router
-./gradlew package
+./gradlew clean package
 ./devenv-infrastructure.sh
 ```
 If you see any SSL errors during this step, follow the directions in [Getting Around SSL Errors](#getting-around-ssl-errors).

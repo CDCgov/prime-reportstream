@@ -1,10 +1,12 @@
-import { useHistory } from 'react-router';
-import { NotFound } from './NotFound'
-import { UnsupportedBrowser } from './UnsupportedBrowser';
+// @ts-nocheck // TODO: fix types in this file
+import { useHistory } from "react-router";
+
+import { NotFound } from "./NotFound";
+import { UnsupportedBrowser } from "./UnsupportedBrowser";
 
 interface ErrorPageProps {
     code: string;
-    content?: JSX.Element
+    content?: JSX.Element;
 }
 
 /* INFO
@@ -13,7 +15,7 @@ interface ErrorPageProps {
  */
 export enum CODES {
     UNSUPPORTED_BROWSER = "unsupported-browser",
-    NOT_FOUND_404 = "not-found"
+    NOT_FOUND_404 = "not-found",
 }
 
 export function ErrorPage(props: ErrorPageProps) {
@@ -23,20 +25,18 @@ export function ErrorPage(props: ErrorPageProps) {
      */
     const codes = {
         "not-found": <NotFound />,
-        "browser": <UnsupportedBrowser />
-    }
-    let content = codes[props.code]
+        browser: <UnsupportedBrowser />,
+    };
+    let content = codes[props.code];
     if (content === undefined) {
-        history.push("/")
+        history.push("/");
     }
 
     return (
         <div className="usa-section padding-top-6">
             <div className="grid-container">
-                <div className="grid-row grid-gap">
-                    {content}
-                </div>
+                <div className="grid-row grid-gap">{content}</div>
             </div>
         </div>
-    )
+    );
 }
