@@ -768,6 +768,8 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             // connection are closed
             // after about 10 minutes
             config.maxLifetime = 180000
+            // Release connections after 60 seconds of idle
+            config.idleTimeout = 60000
             val dataSource = HikariDataSource(config)
 
             val flyway = Flyway.configure().dataSource(dataSource).load()
