@@ -69,7 +69,7 @@ const App = () => {
             onAuthRequired={customAuthHandler}
             restoreOriginalUri={restoreOriginalUri}
         >
-            <Suspense fallback={<Spinner />}>
+            <Suspense fallback={<Spinner fullPage />}>
                 <ErrorBoundary fallback={<ErrorPage type="page" />}>
                     <GlobalContextProvider>
                         <GovBanner aria-label="Official government website" />
