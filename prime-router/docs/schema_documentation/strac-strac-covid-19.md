@@ -743,6 +743,28 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 
 ---
 
+**Name**: specimen_id
+
+**Type**: EI
+
+**PII**: No
+
+**HL7 Fields**
+
+- [SPM-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2)
+
+**Cardinality**: [0..1]
+
+
+**Reference URL**:
+[https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2) 
+
+**Documentation**:
+
+A unique code for this specimen
+
+---
+
 **Name**: specimen_received_date_time
 
 **PII**: No
