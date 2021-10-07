@@ -1,14 +1,13 @@
 import { Suspense } from "react";
-import { NetworkErrorBoundary } from "rest-hooks";
 import { Helmet } from "react-helmet";
 import { Alert } from "@trussworks/react-uswds";
 
 import HipaaNotice from "../../components/HipaaNotice";
 import Spinner from "../../components/Spinner";
 import { useOrgName } from "../../utils/OrganizationUtils";
+import ErrorBoundary from "../../components/ErrorBoundary";
 
 import TableReports from "./Table/TableReports";
-import ErrorBoundary from "../../components/ErrorBoundary";
 
 const OrgName = () => {
     const orgName: string = useOrgName();

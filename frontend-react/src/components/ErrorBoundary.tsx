@@ -1,16 +1,20 @@
-import React, { ReactNode } from 'react'
-import { ErrorPage } from '../pages/error/ErrorPage'
+import React, { ReactNode } from "react";
+
+import { ErrorPage } from "../pages/error/ErrorPage";
 
 interface EventBoundaryProps {
-    children: JSX.Element[],
-    fallback?: JSX.Element
+    children: JSX.Element[];
+    fallback?: JSX.Element;
 }
 
 interface EventBoundaryState {
-    hasError: boolean,
+    hasError: boolean;
 }
 
-export class ErrorBoundary extends React.Component<EventBoundaryProps, EventBoundaryState> {
+export class ErrorBoundary extends React.Component<
+    EventBoundaryProps,
+    EventBoundaryState
+> {
     constructor(props: EventBoundaryProps) {
         super(props);
         this.state = { hasError: false };
@@ -23,9 +27,9 @@ export class ErrorBoundary extends React.Component<EventBoundaryProps, EventBoun
            nested children are within the <ErrorBoundary /> 
         */
         if (error) {
-            return { hasError: true }
+            return { hasError: true };
         }
-        return { hasError: false }
+        return { hasError: false };
     }
 
     componentDidCatch(error: any, errorInfo: React.ErrorInfo) {
@@ -38,11 +42,13 @@ export class ErrorBoundary extends React.Component<EventBoundaryProps, EventBoun
 
     render(): ReactNode {
         if (this.state.hasError) {
-            if (this.props.fallback) { return this.props.fallback }
-            return <ErrorPage />
+            if (this.props.fallback) {
+                return this.props.fallback;
+            }
+            return <ErrorPage />;
         }
-        return this.props.children
+        return this.props.children;
     }
 }
 
-export default ErrorBoundary
+export default ErrorBoundary;

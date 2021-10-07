@@ -1,6 +1,6 @@
 // @ts-nocheck // TODO: fix types in this file
-import React from 'react'
-import Helmet from 'react-helmet'
+import React from "react";
+import Helmet from "react-helmet";
 
 import { NotFound } from "./NotFound";
 import { UnsupportedBrowser } from "./UnsupportedBrowser";
@@ -24,12 +24,10 @@ function ErrorPageWrapper({ children }: JSX.Element) {
     return (
         <div className="usa-section padding-top-6">
             <div className="grid-container">
-                <div className="grid-row grid-gap">
-                    {children}
-                </div>
+                <div className="grid-row grid-gap">{children}</div>
             </div>
         </div>
-    )
+    );
 }
 
 function GenericErrorContent(): JSX.Element {
@@ -41,9 +39,10 @@ function GenericErrorContent(): JSX.Element {
             <div className="usa-prose">
                 <h1>An error has occurred</h1>
                 <p>
-                    The application has encountered an unknown error.
-                    It doesn't appear to have affected your data, but our technical staff have been automatically
-                    notified and will be looking into this with the utmost urgency.
+                    The application has encountered an unknown error. It doesn't
+                    appear to have affected your data, but our technical staff
+                    have been automatically notified and will be looking into
+                    this with the utmost urgency.
                 </p>
                 <div className="margin-y-5">
                     <ul className="usa-button-group">
@@ -56,7 +55,7 @@ function GenericErrorContent(): JSX.Element {
                 </div>
             </div>
         </>
-    )
+    );
 }
 
 export function ErrorPage(props: ErrorPageProps) {
@@ -67,11 +66,7 @@ export function ErrorPage(props: ErrorPageProps) {
     const content = codes[props.code];
 
     if (content) {
-        return (
-            <ErrorPageWrapper>
-                {content}
-            </ErrorPageWrapper>
-        );
+        return <ErrorPageWrapper>{content}</ErrorPageWrapper>;
     }
     if (props.error !== undefined && props.error !== undefined) {
         return (
@@ -79,11 +74,11 @@ export function ErrorPage(props: ErrorPageProps) {
                 {/* <GenericErrorContent error={props.error.error} errorInfo={props.error.errorInfo} /> */}
                 <GenericErrorContent />
             </ErrorPageWrapper>
-        )
+        );
     }
     return (
         <ErrorPageWrapper>
             <GenericErrorContent />
         </ErrorPageWrapper>
-    )
+    );
 }

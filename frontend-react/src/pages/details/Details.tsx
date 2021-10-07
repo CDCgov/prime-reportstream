@@ -5,11 +5,11 @@ import { Suspense } from "react";
 import ReportResource from "../../resources/ReportResource";
 import HipaaNotice from "../../components/HipaaNotice";
 import Spinner from "../../components/Spinner";
+import ErrorBoundary from "../../components/ErrorBoundary";
 
 import Summary from "./Summary";
 import ReportDetails from "./ReportDetails";
 import FacilitiesTable from "./FacilitiesTable";
-import ErrorBoundary from "../../components/ErrorBoundary";
 
 function useQuery() {
     let query = window.location.search.slice(1);
