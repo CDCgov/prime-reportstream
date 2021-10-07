@@ -24,6 +24,8 @@ import { Upload } from "./pages/Upload";
 import { CODES, ErrorPage } from "./pages/error/ErrorPage";
 import GlobalContextProvider from "./components/GlobalContextProvider";
 import { logout } from "./utils/UserUtils";
+import { Suspense } from "react";
+import Spinner from "./components/Spinner";
 
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
 
@@ -67,65 +69,67 @@ const App = () => {
             onAuthRequired={customAuthHandler}
             restoreOriginalUri={restoreOriginalUri}
         >
-            <NetworkErrorBoundary
-                fallbackComponent={() => {
-                    return <div></div>;
-                }}
-            >
-                <GlobalContextProvider>
-                    <GovBanner aria-label="Official government website" />
-                    <ReportStreamHeader />
-                    <main id="main-content">
-                        <div className="content">
-                            <Switch>
-                                <Route path="/" exact={true} component={Home} />
-                                <Route path="/about" component={About} />
-                                <Route
-                                    path="/how-it-works"
-                                    component={HowItWorks}
-                                />
-                                <Route
-                                    path="/terms-of-service"
-                                    component={TermsOfService}
-                                />
-                                <Route
-                                    path="/login"
-                                    render={() => (
-                                        <Login config={oktaSignInConfig} />
-                                    )}
-                                />
-                                <Route
-                                    path="/login/callback"
-                                    component={LoginCallback}
-                                />
-                                <AuthorizedRoute
-                                    path="/daily-data"
-                                    authorize={PERMISSIONS.RECEIVER}
-                                    component={Daily}
-                                />
-                                <AuthorizedRoute
-                                    path="/upload"
-                                    authorize={PERMISSIONS.SENDER}
-                                    component={Upload}
-                                />
-                                <SecureRoute
-                                    path="/report-details"
-                                    component={Details}
-                                />
-                                {/* Handles any undefined route */}
-                                <Route
-                                    render={() => (
-                                        <ErrorPage code={CODES.NOT_FOUND_404} />
-                                    )}
-                                />
-                            </Switch>
-                        </div>
-                    </main>
-                </GlobalContextProvider>
-                <footer className="usa-identifier footer">
-                    <ReportStreamFooter />
-                </footer>
-            </NetworkErrorBoundary>
+            <Suspense fallback={<Spinner />}>
+                <NetworkErrorBoundary
+                    fallbackComponent={() => {
+                        return <div></div>;
+                    }}
+                >
+                    <GlobalContextProvider>
+                        <GovBanner aria-label="Official government website" />
+                        <ReportStreamHeader />
+                        <main id="main-content">
+                            <div className="content">
+                                <Switch>
+                                    <Route path="/" exact={true} component={Home} />
+                                    <Route path="/about" component={About} />
+                                    <Route
+                                        path="/how-it-works"
+                                        component={HowItWorks}
+                                    />
+                                    <Route
+                                        path="/terms-of-service"
+                                        component={TermsOfService}
+                                    />
+                                    <Route
+                                        path="/login"
+                                        render={() => (
+                                            <Login config={oktaSignInConfig} />
+                                        )}
+                                    />
+                                    <Route
+                                        path="/login/callback"
+                                        component={LoginCallback}
+                                    />
+                                    <AuthorizedRoute
+                                        path="/daily-data"
+                                        authorize={PERMISSIONS.RECEIVER}
+                                        component={Daily}
+                                    />
+                                    <AuthorizedRoute
+                                        path="/upload"
+                                        authorize={PERMISSIONS.SENDER}
+                                        component={Upload}
+                                    />
+                                    <SecureRoute
+                                        path="/report-details"
+                                        component={Details}
+                                    />
+                                    {/* Handles any undefined route */}
+                                    <Route
+                                        render={() => (
+                                            <ErrorPage code={CODES.NOT_FOUND_404} />
+                                        )}
+                                    />
+                                </Switch>
+                            </div>
+                        </main>
+                    </GlobalContextProvider>
+                    <footer className="usa-identifier footer">
+                        <ReportStreamFooter />
+                    </footer>
+                </NetworkErrorBoundary>
+            </Suspense>
         </Security>
     );
 };

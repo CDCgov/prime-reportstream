@@ -1,12 +1,14 @@
 // @ts-nocheck // TODO: fix types in this file
-import { useHistory } from "react-router";
+import React from 'react'
+import Helmet from 'react-helmet'
 
 import { NotFound } from "./NotFound";
 import { UnsupportedBrowser } from "./UnsupportedBrowser";
 
 interface ErrorPageProps {
     code?: string;
-    error?: { error: string, errorInfo: React.ErrorInfo }
+    error?: string;
+    errorInfo?: React.ErrorInfo;
 }
 
 /* INFO
@@ -30,8 +32,34 @@ function ErrorPageWrapper({ children }: JSX.Element) {
     )
 }
 
+function GenericErrorContent(): JSX.Element {
+    return (
+        <>
+            <Helmet>
+                <title>Error</title>
+            </Helmet>
+            <div className="usa-prose">
+                <h1>An error has occurred</h1>
+                <p>
+                    The application has encountered an unknown error.
+                    It doesn't appear to have affected your data, but our technical staff have been automatically
+                    notified and will be looking into this with the utmost urgency.
+                </p>
+                <div className="margin-y-5">
+                    <ul className="usa-button-group">
+                        <li className="usa-button-group__item">
+                            <a href="./" className="usa-button">
+                                Visit homepage
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </>
+    )
+}
+
 export function ErrorPage(props: ErrorPageProps) {
-    const history = useHistory();
     const codes = {
         "not-found": <NotFound />,
         "unsupported-browser": <UnsupportedBrowser />,
@@ -45,12 +73,17 @@ export function ErrorPage(props: ErrorPageProps) {
             </ErrorPageWrapper>
         );
     }
-    if (props.error) {
+    if (props.error !== undefined && props.error !== undefined) {
         return (
             <ErrorPageWrapper>
-                {`${props.error.error}: ${props.error.errorInfo}`}
+                {/* <GenericErrorContent error={props.error.error} errorInfo={props.error.errorInfo} /> */}
+                <GenericErrorContent />
             </ErrorPageWrapper>
         )
     }
-    return (<div>Default</div>)
+    return (
+        <ErrorPageWrapper>
+            <GenericErrorContent />
+        </ErrorPageWrapper>
+    )
 }
