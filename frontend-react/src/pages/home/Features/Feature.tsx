@@ -1,5 +1,6 @@
-import DeliveryMethodsFeature from "./DeliveryMethodsFeature";
 import { FeatureProp, SectionProp } from "../HomeProps";
+
+import DeliveryMethodsFeature from "./DeliveryMethodsFeature";
 import LiveMapFeature from "./LiveMapFeature";
 
 export default function Feature({
@@ -25,4 +26,4 @@ export default function Feature({
                 ></p>
             </div>
         );
-};
+}

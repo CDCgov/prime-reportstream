@@ -10,7 +10,7 @@ import kotlin.test.fail
 class ReportTests {
     private val metadata: Metadata = Metadata("./metadata")
 
-    val rcvr = Receiver("name", "org", "topic", "schema", Report.Format.CSV)
+    val rcvr = Receiver("name", "org", "topic", CustomerStatus.INACTIVE, "schema", Report.Format.CSV)
 
     @Test
     fun `test merge`() {

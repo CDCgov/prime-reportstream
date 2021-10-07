@@ -6,9 +6,7 @@ import com.github.doyaaaaaken.kotlincsv.util.CSVFieldNumDifferentException
 import com.github.doyaaaaaken.kotlincsv.util.CSVParseFormatException
 import com.github.doyaaaaaken.kotlincsv.util.MalformedCSVException
 import gov.cdc.prime.router.Element
-import gov.cdc.prime.router.ElementAndValue
 import gov.cdc.prime.router.InvalidReportMessage
-import gov.cdc.prime.router.Mapper
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.MissingFieldMessage
 import gov.cdc.prime.router.REPORT_MAX_ERRORS
@@ -38,8 +36,7 @@ import java.io.OutputStream
 class CsvSerializer(val metadata: Metadata) {
     private data class CsvMapping(
         val useCsv: Map<String, List<Element.CsvField>>,
-        val useMapper: Map<String, Pair<Mapper, List<String>>>,
-        val useDefault: Map<String, String>,
+        val defaultOverrides: Map<String, String> = emptyMap(),
         val errors: List<String>,
         val warnings: List<String>,
     )
@@ -64,7 +61,7 @@ class CsvSerializer(val metadata: Metadata) {
         val schema = metadata.findSchema(schemaName) ?: error("Internal Error: invalid schema name '$schemaName'")
         val errors = mutableListOf<ResultDetail>()
         val warnings = mutableListOf<ResultDetail>()
-        var rows = mutableListOf<Map<String, String>>()
+        val rows = mutableListOf<Map<String, String>>()
         csvReader {
             quoteChar = '"'
             delimiter = ','
@@ -261,15 +258,6 @@ class CsvSerializer(val metadata: Metadata) {
             .filter { it.csvFields != null && rowContainsAll(it.csvFields) }
             .map { it.name to it.csvFields!! }
             .toMap()
-        val useMapper = schema
-            .elements
-            .filter { it.mapper?.isNotBlank() == true } // TODO: check for the presence of fields
-            .map { it.name to Pair(it.mapperRef!!, it.mapperArgs!!) }
-            .toMap()
-        val useDefault = schema
-            .elements
-            .map { it.name to it.defaultValue(defaultValues) }
-            .toMap()
 
         // Figure out what is missing or ignored
         val requiredHeaders = schema
@@ -296,7 +284,7 @@ class CsvSerializer(val metadata: Metadata) {
             "Missing ${schema.findElementByCsvName(it)?.fieldMapping} header"
         } + ignoredHeaders.map { "Unexpected '$it' header is ignored" }
 
-        return CsvMapping(useCsv, useMapper, useDefault, errors, warnings)
+        return CsvMapping(useCsv, defaultValues, errors, warnings)
     }
 
     /**
@@ -314,7 +302,6 @@ class CsvSerializer(val metadata: Metadata) {
         val lookupValues = mutableMapOf<String, String>()
         val errors = mutableListOf<ResponseMessage>()
         val warnings = mutableListOf<ResponseMessage>()
-        val placeholderValue = "**%%placeholder**"
         val failureValue = "**^^validationFail**"
 
         fun useCsv(element: Element): String? {
@@ -333,7 +320,6 @@ class CsvSerializer(val metadata: Metadata) {
                         Element.Cardinality.ONE -> errors += error
                         Element.Cardinality.ZERO_OR_ONE -> warnings += error
                         else -> warnings += error
-                        // else -> warnings += "$error - setting value to ''"
                     }
                     return failureValue
                 }
@@ -345,43 +331,21 @@ class CsvSerializer(val metadata: Metadata) {
             }
         }
 
-        fun useMapperPlaceholder(element: Element): String? {
-            return if (csvMapping.useMapper[element.name] != null) placeholderValue else null
-        }
-
-        fun useMapper(element: Element): String? {
-            val (mapper, args) = csvMapping.useMapper[element.name] ?: return null
-            val valueNames = mapper.valueNames(element, args)
-            val valuesForMapper = valueNames.mapNotNull { elementName ->
-                val valueElement = schema.findElement(elementName) ?: return@mapNotNull null
-                val value = lookupValues[elementName] ?: return@mapNotNull null
-                ElementAndValue(valueElement, value)
-            }
-            return mapper.apply(element, args, valuesForMapper)
-        }
-
-        fun useDefault(element: Element): String {
-            return csvMapping.useDefault[element.name] ?: ""
-        }
-
-        // Build up lookup values
+        // Set all the raw data first.
         schema.elements.forEach { element ->
-            val value = useCsv(element) ?: useMapperPlaceholder(element) ?: useDefault(element)
-            lookupValues[element.name] = value
+            lookupValues[element.name] = useCsv(element) ?: ""
+        }
+
+        // Now process the data through mappers and default values
+        schema.elements.forEach { element ->
+            lookupValues[element.name] = element.processValue(lookupValues, schema, csvMapping.defaultOverrides)
         }
 
         // Output with value
         val outputRow = schema.elements.map { element ->
             var value = lookupValues[element.name] ?: error("Internal Error: Second pass should have all values")
-            if (value == placeholderValue) {
-                value = useMapper(element) ?: useDefault(element)
-            }
-            if (value.isBlank() && !element.canBeBlank) {
-                when (element.cardinality) {
-                    Element.Cardinality.ONE -> errors += MissingFieldMessage.new(element.fieldMapping)
-                    Element.Cardinality.ZERO_OR_ONE -> {
-                    }
-                }
+            if (value.isBlank() && !element.isOptional) {
+                errors += MissingFieldMessage.new(element.fieldMapping)
             }
             if (value == failureValue) {
                 value = ""
