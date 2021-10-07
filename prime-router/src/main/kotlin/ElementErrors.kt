@@ -23,10 +23,15 @@ data class MissingFieldMessage(
 data class InvalidDateMessage(
     override val type: ResponseMsgType = ResponseMsgType.INVALID_DATE,
     val formattedValue: String = "",
-    val fieldMapping: String = ""
+    val fieldMapping: String = "",
+    val format: String? = ""
 ) : ResponseMessage {
     override fun detailMsg(): String {
-        return "Invalid date: '$formattedValue' for element $fieldMapping"
+        if (format !== null) {
+            return "Invalid date: '$formattedValue' for element $fieldMapping. Reformat to $format."
+        } else {
+            return "Invalid date: '$formattedValue' for element $fieldMapping."
+        }
     }
 
     override fun groupingId(): String {
@@ -34,8 +39,8 @@ data class InvalidDateMessage(
     }
 
     companion object {
-        fun new(formattedValue: String, fieldMapping: String): InvalidDateMessage {
-            return InvalidDateMessage(ResponseMsgType.INVALID_DATE, formattedValue, fieldMapping)
+        fun new(formattedValue: String, fieldMapping: String, format: String?): InvalidDateMessage {
+            return InvalidDateMessage(ResponseMsgType.INVALID_DATE, formattedValue, fieldMapping, format)
         }
     }
 }
@@ -43,10 +48,16 @@ data class InvalidDateMessage(
 data class InvalidCodeMessage(
     override val type: ResponseMsgType = ResponseMsgType.INVALID_CODE,
     val formattedValue: String = "",
-    val fieldMapping: String = ""
+    val fieldMapping: String = "",
+    val format: String? = ""
 ) : ResponseMessage {
     override fun detailMsg(): String {
-        return "Invalid code: '$formattedValue' is not a display value in altValues set for $fieldMapping"
+        if (format !== null) {
+            return "Invalid code: '$formattedValue' is not a display value in altValues set for $fieldMapping. " +
+                "Reformat to $format."
+        } else {
+            return "Invalid code: '$formattedValue' is not a display value in altValues set for $fieldMapping."
+        }
     }
 
     override fun groupingId(): String {
@@ -54,8 +65,8 @@ data class InvalidCodeMessage(
     }
 
     companion object {
-        fun new(formattedValue: String, fieldMapping: String): InvalidCodeMessage {
-            return InvalidCodeMessage(ResponseMsgType.INVALID_CODE, formattedValue, fieldMapping)
+        fun new(formattedValue: String, fieldMapping: String, format: String?): InvalidCodeMessage {
+            return InvalidCodeMessage(ResponseMsgType.INVALID_CODE, formattedValue, fieldMapping, format)
         }
     }
 }
@@ -66,7 +77,8 @@ data class InvalidPhoneMessage(
     val fieldMapping: String = ""
 ) : ResponseMessage {
     override fun detailMsg(): String {
-        return "Invalid phone number '$formattedValue' for $fieldMapping"
+        return "Invalid phone number '$formattedValue' for $fieldMapping. Reformat to a 10-digit phone number " +
+            "(e.g. (555) - 555-5555)."
     }
 
     override fun groupingId(): String {
@@ -83,10 +95,15 @@ data class InvalidPhoneMessage(
 data class InvalidPostalMessage(
     override val type: ResponseMsgType = ResponseMsgType.INVALID_POSTAL,
     val formattedValue: String = "",
-    val fieldMapping: String = ""
+    val fieldMapping: String = "",
+    val format: String? = ""
 ) : ResponseMessage {
     override fun detailMsg(): String {
-        return "Invalid postal code '$formattedValue' for $fieldMapping"
+        if (format !== null) {
+            return "Invalid postal code '$formattedValue' for $fieldMapping. Reformat to $format."
+        } else {
+            return "Invalid postal code '$formattedValue' for $fieldMapping."
+        }
     }
 
     override fun groupingId(): String {
@@ -94,8 +111,8 @@ data class InvalidPostalMessage(
     }
 
     companion object {
-        fun new(formattedValue: String, fieldMapping: String): InvalidPostalMessage {
-            return InvalidPostalMessage(ResponseMsgType.INVALID_POSTAL, formattedValue, fieldMapping)
+        fun new(formattedValue: String, fieldMapping: String, format: String?): InvalidPostalMessage {
+            return InvalidPostalMessage(ResponseMsgType.INVALID_POSTAL, formattedValue, fieldMapping, format)
         }
     }
 }
