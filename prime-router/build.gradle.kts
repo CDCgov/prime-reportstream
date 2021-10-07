@@ -243,6 +243,8 @@ tasks.register<JavaExec>("primeCLI") {
     description = "Run the Prime CLI tool.  Specify arguments with --args='<args>'"
     mainClass.set(primeMainClass)
     classpath = sourceSets["main"].runtimeClasspath
+    standardInput = System.`in`
+
     // Default arguments is to display the help
     environment["POSTGRES_URL"] = dbUrl
     environment["POSTGRES_USER"] = dbUser

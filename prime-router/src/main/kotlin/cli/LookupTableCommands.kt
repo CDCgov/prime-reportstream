@@ -78,11 +78,15 @@ class LookupTableCommands : CliktCommand(
         }
 
         /**
-         * Converts table data in [tableRows] to a human readable table.
+         * Converts table data in [tableRows] to a human readable table using [colNames].
          * @param addRowNum set to true to add row numbers to the left of the table
          * @return the human readable table
          */
-        fun rowsToPrintableTable(tableRows: List<LookupTableRow>, addRowNum: Boolean = true): StringBuilder {
+        fun rowsToPrintableTable(
+            tableRows: List<LookupTableRow>,
+            colNames: List<String>,
+            addRowNum: Boolean = true
+        ): StringBuilder {
             Preconditions.checkArgument(tableRows.isNotEmpty())
 
             return table {
@@ -90,7 +94,6 @@ class LookupTableCommands : CliktCommand(
                     borderStyle = Table.BorderStyle.SINGLE_LINE
                 }
 
-                val colNames = extractTableHeadersFromJson(tableRows[0].data).toMutableList()
                 val headers = colNames.toMutableList()
                 if (addRowNum) headers.add(0, "Row #")
                 header(headers)
@@ -122,6 +125,60 @@ class LookupTableCommands : CliktCommand(
                     )
                 }
             }.render()
+        }
+
+        /**
+         * Generate a diff between [version1Table] and [version2Table].  If [showAll] is true then unchanged
+         * lines are included in the diff.
+         * @return a string with the text output or an empty string if there are no differences
+         */
+        fun generateDiff(
+            version1Table: List<LookupTableRow>,
+            version2Table: List<LookupTableRow>,
+            showAll: Boolean
+        ): List<String> {
+            val generator = DiffRowGenerator.create()
+                .showInlineDiffs(true)
+                .mergeOriginalRevised(true)
+                .inlineDiffByWord(true)
+                .oldTag { start: Boolean? ->
+                    if (true == start) "\u001B[9m" else "\u001B[0m" // Use strikethrough for deleted changes
+                }
+                .newTag { start: Boolean? ->
+                    if (true == start) "\u001B[1m" else "\u001B[0m" // Use bold for additions
+                }
+                .build()
+
+            // We need to make sure to use the same order of column names
+            val colNames = extractTableHeadersFromJson(version1Table[0].data)
+            val diff = generator.generateDiffRows(
+                rowsToPrintableTable(version1Table, colNames, false).toString().split("\n"),
+                rowsToPrintableTable(version2Table, colNames, false).toString().split("\n")
+            )
+
+            val diffBuffer = mutableListOf<String>()
+            val hasChanges = diff.any { it.tag != DiffRow.Tag.EQUAL }
+            if (hasChanges) {
+                if (showAll) {
+                    diff.forEach { row ->
+                        diffBuffer.add(row.oldLine)
+                    }
+                } else {
+                    var changed = true
+                    diff.forEachIndexed { index, row ->
+                        if (index < 2)
+                            diffBuffer.add(row.oldLine)
+                        else if (row.tag == DiffRow.Tag.EQUAL && changed) {
+                            diffBuffer.add("...")
+                            changed = false
+                        } else if (row.tag != DiffRow.Tag.EQUAL) {
+                            diffBuffer.add(row.oldLine)
+                            changed = true
+                        }
+                    }
+                }
+            } else diffBuffer.clear()
+            return diffBuffer
         }
     }
 }
@@ -164,7 +221,8 @@ class LookupTableGetCommand : CliktCommand(
                 TermUi.echo("")
                 TermUi.echo("Table name: $tableName")
                 TermUi.echo("Version: $versionNormalized")
-                TermUi.echo(LookupTableCommands.rowsToPrintableTable(tableRows))
+                val colNames = LookupTableCommands.extractTableHeadersFromJson(tableRows[0].data)
+                TermUi.echo(LookupTableCommands.rowsToPrintableTable(tableRows, colNames))
                 TermUi.echo("")
             } else {
                 saveTable(outputFile!!, tableRows)
@@ -217,26 +275,47 @@ class LookupTableCreateCommand : CliktCommand(
         if (inputData.size <= 1)
             error("Input file ${inputFile.absolutePath} has no data.")
 
-        val latestActiveVersion = tableDbAccess.fetchLatestVersion(tableName) ?: 0
-        val nextVersion = latestActiveVersion + 1
+        val latestVersion = tableDbAccess.fetchLatestVersion(tableName) ?: 0
+        val nextVersion = latestVersion + 1
 
-        val tableData = inputData.map { row ->
+        val newTableData = inputData.map { row ->
             val tableRow = LookupTableRow()
             tableRow.data = LookupTableCommands.setTableRowToJson(row)
             tableRow
         }
 
         TermUi.echo("Here is the table data to be created:")
-        TermUi.echo(LookupTableCommands.rowsToPrintableTable(tableData))
+        val colNames = LookupTableCommands.extractTableHeadersFromJson(newTableData[0].data)
+        TermUi.echo(LookupTableCommands.rowsToPrintableTable(newTableData, colNames))
         TermUi.echo("")
 
-        if (TermUi.confirm("Continue to create $tableName version $nextVersion with ${tableData.size} rows?") == true) {
-            tableDbAccess.createTable(tableName, nextVersion, tableData)
-            TermUi.echo("")
-            TermUi.echo(
-                "${tableData.size} rows created for lookup table $tableName version $nextVersion. " +
-                    "Table left inactive, so don't forget to activate it."
-            )
+        if (latestVersion > 0) {
+            val latestTable = tableDbAccess.fetchTable(tableName, latestVersion)
+            val diffOutput = LookupTableCommands.generateDiff(latestTable, newTableData, false)
+            if (diffOutput.isNotEmpty()) {
+                TermUi.echo("Here is the diff compared to the latest version $latestVersion:")
+                diffOutput.forEach { TermUi.echo(it) }
+                TermUi.echo("")
+            } else {
+                TermUi.echo(
+                    "Error: The table you are trying to create is identical to the latest version " +
+                        "$latestVersion."
+                )
+                return
+            }
+        }
+
+        if (TermUi.confirm("Continue to create $tableName version $nextVersion with ${newTableData.size} rows?")
+            == true
+        ) {
+            tableDbAccess.createTable(tableName, nextVersion, newTableData)
+            TermUi.echo("${newTableData.size} rows created for lookup table $tableName version $nextVersion. ")
+            // Always have an active version, so if this is the first version then activate it.
+            if (nextVersion == 1) {
+                tableDbAccess.activateTable(tableName, nextVersion)
+                TermUi.echo("Table version $nextVersion is now active.")
+            } else
+                TermUi.echo("Table version $nextVersion left inactive, so don't forget to activate it.")
         } else
             TermUi.echo("Aborted the creation of the lookup table.")
     }
@@ -325,41 +404,10 @@ class LookupTableDiffCommand : CliktCommand(
         TermUi.echo(LookupTableCommands.infoToPrintableTable(listOf(version1Info!!, version2Info!!)))
         TermUi.echo("")
 
-        val generator = DiffRowGenerator.create()
-            .showInlineDiffs(true)
-            .mergeOriginalRevised(true)
-            .inlineDiffByWord(true)
-            .oldTag { start: Boolean? ->
-                if (true == start) "\u001B[9m" else "\u001B[0m" // Use strikethrough for deleted changes
-            }
-            .newTag { start: Boolean? ->
-                if (true == start) "\u001B[1m" else "\u001B[0m" // Use bold for additions
-            }
-            .build()
-        val diff = generator.generateDiffRows(
-            LookupTableCommands.rowsToPrintableTable(version1Table, false).toString().split("\n"),
-            LookupTableCommands.rowsToPrintableTable(version2Table, false).toString().split("\n")
-        )
+        val output = LookupTableCommands.generateDiff(version1Table, version2Table, fullDiff)
 
-        if (diff.isNotEmpty()) {
-            if (fullDiff) {
-                diff.forEach { row ->
-                    TermUi.echo(row.oldLine)
-                }
-            } else {
-                var changed = true
-                diff.forEachIndexed { index, row ->
-                    if (index < 2)
-                        TermUi.echo(row.oldLine)
-                    else if (row.tag == DiffRow.Tag.EQUAL && changed) {
-                        TermUi.echo("...")
-                        changed = false
-                    } else if (row.tag != DiffRow.Tag.EQUAL) {
-                        TermUi.echo(row.oldLine)
-                        changed = true
-                    }
-                }
-            }
+        if (output.isNotEmpty()) {
+            output.forEach { TermUi.echo(it) }
         } else
             TermUi.echo("Lookup table $tableName version $version1 and $version2 are identical.")
     }
