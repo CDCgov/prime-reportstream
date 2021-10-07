@@ -15,81 +15,47 @@
           "description": "The logical id of the resource, as used in the URL for the resource. Once assigned, this value never changes.",
           "$ref": "fhir.schema.json#/definitions/id"
         },
-        "meta": {
-          "description": "The metadata about the resource. This is content that is maintained by the infrastructure. Changes to the content might not always be associated with version changes to the resource.",
-          "$ref": "fhir.schema.json#/definitions/Meta"
-        },
-        "implicitRules": {
-          "description": "A reference to a set of rules that were followed when the resource was constructed, and which must be understood when processing the content. Often, this is a reference to an implementation guide that defines the special rules along with other profiles etc.",
-          "$ref": "fhir.schema.json#/definitions/uri"
-        },
-        "_implicitRules": {
-          "description": "Extensions for implicitRules",
-          "$ref": "fhir.schema.json#/definitions/Element"
-        },
-        "language": {
-          "description": "The base language in which the resource is written.",
-          "$ref": "fhir.schema.json#/definitions/code"
-        },
-        "_language": {
-          "description": "Extensions for language",
-          "$ref": "fhir.schema.json#/definitions/Element"
-        },
-        "identifier": {
-          "description": "A persistent identifier for the bundle that won\u0027t change as a bundle is copied from server to server.",
-          "$ref": "fhir.schema.json#/definitions/Identifier"
-        },
         "type": {
           "description": "Indicates the purpose of this bundle - how it is intended to be used.",
           "const": "collection"
-        },
-        "_type": {
-          "description": "Extensions for type",
-          "$ref": "fhir.schema.json#/definitions/Element"
-        },
-        "timestamp": {
-          "description": "The date/time that the bundle was assembled - i.e. when the resources were placed in the bundle.",
-          "$ref": "fhir.schema.json#/definitions/instant"
-        },
-        "_timestamp": {
-          "description": "Extensions for timestamp",
-          "$ref": "fhir.schema.json#/definitions/Element"
-        },
-        "total": {
-          "description": "If a set of search matches, this is the total number of entries of type \u0027match\u0027 across all pages in the search.  It does not include search.mode \u003d \u0027include\u0027 or \u0027outcome\u0027 entries and it does not provide a count of the number of entries in the Bundle.",
-          "$ref": "fhir.schema.json#/definitions/unsignedInt"
-        },
-        "_total": {
-          "description": "Extensions for total",
-          "$ref": "fhir.schema.json#/definitions/Element"
-        },
-        "link": {
-          "description": "A series of links that provide context to this bundle.",
-          "items": {
-            "$ref": "fhir.schema.json#/definitions/Bundle_Link"
-          },
-          "type": "array"
         },
         "entry": {
           "description": "An entry in a bundle resource - will either contain a resource or information about a resource (transactions and history only).",
           "items": [
             {"$ref": "#/definitions/Observation_Entry"},
-            {"$ref": "#/definitions/Patient_Entry"}
+            {"$ref": "#/definitions/Patient_Entry"},
+            {"$ref": "#/definitions/Practitioner_Entry"},
+            {"$ref": "#/definitions/Organization_Entry"},
+            {"$ref": "#/definitions/Device_Entry"},
+            {"$ref": "#/definitions/DiagnosticReport_Entry"},
+            {"$ref": "#/definitions/Practitioner_Entry"}
           ],
           "type": "array"
-        },
-        "signature": {
-          "description": "Digital Signature - base64 encoded. XML-DSig or a JWT.",
-          "$ref": "fhir.schema.json#/definitions/Signature"
         }
       },
-      "additionalProperties": false,
       "required": [
         "resourceType",
         "type",
         "timestamp",
         "id",
         "entry"
+      ]
+    },
+    "MessageHeader_Entry": {
+      "description": "A container for a MessageHeader Entry (restricts Bundle_Entry).",
+      "properties": {
+        "id": {
+          "description": "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces.",
+          "$ref": "fhir.schema.json#/definitions/string"
+        },
+        "resource": {
+          "description": "The Resource for the entry. The purpose/meaning of the resource is determined by the Bundle.type.",
+          "$ref": "fhir.schema.json#/definitions/MessageHeader"
+        }
+      },
+      "required": [
+        "id",
+        "resource"
       ]
     },
     "Observation_Entry": {
@@ -119,6 +85,74 @@
         "resource": {
           "description": "The Resource for the entry. The purpose/meaning of the resource is determined by the Bundle.type.",
           "$ref": "fhir.schema.json#/definitions/Patient"
+        }
+      },
+      "required": [
+        "id",
+        "resource"
+      ]
+    },
+    "Practitioner_Entry": {
+      "description": "A container for a Practitioner Entry (restricts Bundle_Entry).",
+      "properties": {
+        "id": {
+          "description": "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces.",
+          "$ref": "fhir.schema.json#/definitions/string"
+        },
+        "resource": {
+          "description": "The Resource for the entry. The purpose/meaning of the resource is determined by the Bundle.type.",
+          "$ref": "fhir.schema.json#/definitions/Practitioner"
+        }
+      },
+      "required": [
+        "id",
+        "resource"
+      ]
+    },
+    "Organization_Entry": {
+      "description": "A container for an Organization Entry (restricts Bundle_Entry).",
+      "properties": {
+        "id": {
+          "description": "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces.",
+          "$ref": "fhir.schema.json#/definitions/string"
+        },
+        "resource": {
+          "description": "The Resource for the entry. The purpose/meaning of the resource is determined by the Bundle.type.",
+          "$ref": "fhir.schema.json#/definitions/Organization"
+        }
+      },
+      "required": [
+        "id",
+        "resource"
+      ]
+    },
+    "Device_Entry": {
+      "description": "A container for an Organization Entry (restricts Bundle_Entry).",
+      "properties": {
+        "id": {
+          "description": "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces.",
+          "$ref": "fhir.schema.json#/definitions/string"
+        },
+        "resource": {
+          "description": "The Resource for the entry. The purpose/meaning of the resource is determined by the Bundle.type.",
+          "$ref": "fhir.schema.json#/definitions/Device"
+        }
+      },
+      "required": [
+        "id",
+        "resource"
+      ]
+    },
+    "DiagnosticReport_Entry": {
+      "description": "A container for an Organization Entry (restricts Bundle_Entry).",
+      "properties": {
+        "id": {
+          "description": "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces.",
+          "$ref": "fhir.schema.json#/definitions/string"
+        },
+        "resource": {
+          "description": "The Resource for the entry. The purpose/meaning of the resource is determined by the Bundle.type.",
+          "$ref": "fhir.schema.json#/definitions/DiagnosticReport"
         }
       },
       "required": [
