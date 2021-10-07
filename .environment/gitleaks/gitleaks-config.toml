@@ -211,7 +211,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
             'var tokenSigningSecret = "UVD4QOJ3H295Zi9Ayl3ySuoXNKiE8WYuOsaXOZfug3dwTUVBC1ZIKRPpG5LEyZDZ"',         # Invalidated
             'xox[baprs]-([0-9a-zA-Z]{10,48})',
             'KeyVaults=\(',                                                                 # List of vaults
-            'key=\"upload\"'
+            'key=\"upload\"'                                                                # Navlink in react code, not a secret
         ]
         paths = [
             '.terraform/modules/',
