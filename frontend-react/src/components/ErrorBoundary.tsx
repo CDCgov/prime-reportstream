@@ -3,8 +3,9 @@ import React, { ReactNode } from "react";
 import { ErrorPage } from "../pages/error/ErrorPage";
 
 interface EventBoundaryProps {
-    children: JSX.Element[];
+    children: JSX.Element | JSX.Element[];
     fallback?: JSX.Element;
+    type?: "page" | "message";
 }
 
 interface EventBoundaryState {
@@ -45,7 +46,7 @@ export class ErrorBoundary extends React.Component<
             if (this.props.fallback) {
                 return this.props.fallback;
             }
-            return <ErrorPage />;
+            return <ErrorPage type={this.props.type} />;
         }
         return this.props.children;
     }

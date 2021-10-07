@@ -1,4 +1,5 @@
 // @ts-nocheck // TODO: fix types in this file
+import { Alert } from "@trussworks/react-uswds";
 import React from "react";
 import Helmet from "react-helmet";
 
@@ -9,6 +10,7 @@ interface ErrorPageProps {
     code?: string;
     error?: string;
     errorInfo?: React.ErrorInfo;
+    type?: "page" | "message";
 }
 
 /* INFO
@@ -30,7 +32,19 @@ function ErrorPageWrapper({ children }: JSX.Element) {
     );
 }
 
-function GenericErrorContent(): JSX.Element {
+function ErrorMessageWrapper({ children }: JSX.Element) {
+    return <div className="grid-container">{children}</div>;
+}
+
+function GenericErrorMessage(): JSX.Element {
+    return (
+        <Alert type="error">
+            Our appologies, there was an error loading this content.
+        </Alert>
+    );
+}
+
+function GenericErrorPage(): JSX.Element {
     return (
         <>
             <Helmet>
@@ -68,17 +82,21 @@ export function ErrorPage(props: ErrorPageProps) {
     if (content) {
         return <ErrorPageWrapper>{content}</ErrorPageWrapper>;
     }
-    if (props.error !== undefined && props.error !== undefined) {
+    if (props.type === "message") {
+        return (
+            <ErrorMessageWrapper>
+                <GenericErrorMessage />
+            </ErrorMessageWrapper>
+        );
+    } else {
         return (
             <ErrorPageWrapper>
-                {/* <GenericErrorContent error={props.error.error} errorInfo={props.error.errorInfo} /> */}
-                <GenericErrorContent />
+                <GenericErrorPage />
             </ErrorPageWrapper>
         );
     }
-    return (
-        <ErrorPageWrapper>
-            <GenericErrorContent />
-        </ErrorPageWrapper>
-    );
 }
+
+ErrorPage.defaultProps = {
+    type: "message",
+};

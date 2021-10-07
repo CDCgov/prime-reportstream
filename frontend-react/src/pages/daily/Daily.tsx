@@ -1,11 +1,11 @@
 import { Suspense } from "react";
 import { Helmet } from "react-helmet";
-import { Alert } from "@trussworks/react-uswds";
 
 import HipaaNotice from "../../components/HipaaNotice";
 import Spinner from "../../components/Spinner";
 import { useOrgName } from "../../utils/OrganizationUtils";
 import ErrorBoundary from "../../components/ErrorBoundary";
+import { ErrorPage } from "../error/ErrorPage";
 
 import TableReports from "./Table/TableReports";
 
@@ -20,35 +20,37 @@ const OrgName = () => {
 
 function Daily() {
     return (
-        <ErrorBoundary
-            fallback={
-                <section className="grid-container margin-bottom-5">
-                    <Alert type="error">
-                        Failed to load data because of network error
-                    </Alert>
-                </section>
-            }
-        >
+        <ErrorBoundary fallback={<ErrorPage type="page" />}>
             <Helmet>
                 <title>Daily data | {process.env.REACT_APP_TITLE}</title>
             </Helmet>
             <section className="grid-container margin-bottom-5">
-                <Suspense
-                    fallback={
-                        <span className="text-normal text-base">
-                            Loading Info...
-                        </span>
-                    }
-                >
-                    <h3 className="margin-bottom-0">
-                        <OrgName />
-                    </h3>
-                </Suspense>
+                <h3 className="margin-bottom-0">
+                    <Suspense
+                        fallback={
+                            <span className="text-normal text-base">
+                                Loading Info...
+                            </span>
+                        }
+                    >
+                        <ErrorBoundary
+                            fallback={
+                                <span className="text-normal text-base">
+                                    Error: not found
+                                </span>
+                            }
+                        >
+                            <OrgName />
+                        </ErrorBoundary>
+                    </Suspense>
+                </h3>
                 <h1 className="margin-top-0 margin-bottom-0">COVID-19</h1>
             </section>
             <Suspense fallback={<Spinner />}>
-                <section className="grid-container margin-top-0" />
-                <TableReports />
+                <ErrorBoundary fallback={<ErrorPage type="message" />}>
+                    <section className="grid-container margin-top-0" />
+                    <TableReports />
+                </ErrorBoundary>
             </Suspense>
             <HipaaNotice />
         </ErrorBoundary>

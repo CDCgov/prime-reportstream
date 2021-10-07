@@ -6,6 +6,7 @@ import ReportResource from "../../resources/ReportResource";
 import HipaaNotice from "../../components/HipaaNotice";
 import Spinner from "../../components/Spinner";
 import ErrorBoundary from "../../components/ErrorBoundary";
+import { ErrorPage } from "../error/ErrorPage";
 
 import Summary from "./Summary";
 import ReportDetails from "./ReportDetails";
@@ -35,9 +36,11 @@ const DetailsContent = () => {
         <>
             <Summary report={report} />
             <ReportDetails report={report} />
-            <Suspense fallback={<Spinner />}>
-                <FacilitiesTable reportId={report?.reportId || ""} />
-            </Suspense>
+            <ErrorBoundary fallback={<ErrorPage type="message" />}>
+                <Suspense fallback={<Spinner />}>
+                    <FacilitiesTable reportId={report?.reportId || ""} />
+                </Suspense>
+            </ErrorBoundary>
             <HipaaNotice />
         </>
     );
@@ -54,7 +57,7 @@ const DetailsContent = () => {
 export const Details = () => {
     return (
         <Suspense fallback={<Spinner fullPage />}>
-            <ErrorBoundary>
+            <ErrorBoundary fallback={<ErrorPage type="page" />}>
                 <DetailsContent />
             </ErrorBoundary>
         </Suspense>

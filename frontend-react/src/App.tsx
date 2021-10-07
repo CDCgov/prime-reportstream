@@ -3,7 +3,6 @@ import { GovBanner } from "@trussworks/react-uswds";
 import { Route, useHistory, Switch } from "react-router-dom";
 import { OktaAuth, toRelativeUrl } from "@okta/okta-auth-js";
 import { Security, SecureRoute, LoginCallback } from "@okta/okta-react";
-import { NetworkErrorBoundary } from "rest-hooks";
 import { isIE } from "react-device-detect";
 import { useIdleTimer } from "react-idle-timer";
 import { Suspense } from "react";
@@ -26,6 +25,7 @@ import { CODES, ErrorPage } from "./pages/error/ErrorPage";
 import GlobalContextProvider from "./components/GlobalContextProvider";
 import { logout } from "./utils/UserUtils";
 import Spinner from "./components/Spinner";
+import ErrorBoundary from "./components/ErrorBoundary";
 
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
 
@@ -70,11 +70,7 @@ const App = () => {
             restoreOriginalUri={restoreOriginalUri}
         >
             <Suspense fallback={<Spinner />}>
-                <NetworkErrorBoundary
-                    fallbackComponent={() => {
-                        return <div></div>;
-                    }}
-                >
+                <ErrorBoundary fallback={<ErrorPage type="page" />}>
                     <GlobalContextProvider>
                         <GovBanner aria-label="Official government website" />
                         <ReportStreamHeader />
@@ -134,7 +130,7 @@ const App = () => {
                     <footer className="usa-identifier footer">
                         <ReportStreamFooter />
                     </footer>
-                </NetworkErrorBoundary>
+                </ErrorBoundary>
             </Suspense>
         </Security>
     );
