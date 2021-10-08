@@ -22,7 +22,6 @@
     "types": [
       "hookrouter",
       "jest",
-      "babel"
     ],
     "noImplicitAny": true
   },

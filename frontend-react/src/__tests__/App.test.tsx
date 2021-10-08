@@ -1,6 +1,8 @@
-import { render, screen } from '@testing-library/react'
-import renderer from 'react-test-renderer';
+import { render } from '@testing-library/react'
+import { BrowserRouter } from 'react-router-dom'
 import App from '../App'
+
+jest.mock('../App', () => () => { return <div>Hello</div> })
 
 beforeAll = () => {
   return null
