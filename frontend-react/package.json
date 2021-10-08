@@ -20,7 +20,7 @@
         "@trussworks/react-uswds": "^1.17.0",
         "@types/downloadjs": "^1.4.2",
         "@types/hookrouter": "^2.2.5",
-        "@types/jest": "^26.0.23",
+        "@types/jest": "^27.0.2",
         "@types/node": "^15.3.0",
         "@types/react": "^17.0.6",
         "@types/react-dom": "^17.0.5",
@@ -55,7 +55,8 @@
         "clean": "rimraf ./build",
         "start": "react-scripts start",
         "build": "craco build",
-        "test": "react-scripts test",
+        "test": "jest",
+        "test:watch": "jest --watch",
         "eject": "react-scripts eject",
         "lint": "npm-run-all -p lint:eslint lint:prettier",
         "lint:write": "npm-run-all -p lint:eslint:write lint:prettier:write",
@@ -115,11 +116,15 @@
         ]
     },
     "devDependencies": {
+        "@babel/core": "^7.15.8",
+        "@babel/preset-env": "^7.15.8",
+        "@babel/preset-typescript": "^7.15.0",
         "@testing-library/react": "^12.1.0",
         "@types/react-helmet": "^6.1.2",
         "@types/react-router-dom": "^5.1.7",
         "@typescript-eslint/eslint-plugin": "^4.23.0",
         "@typescript-eslint/parser": "^4.23.0",
+        "babel-jest": "^27.2.4",
         "cypress": "^8.4.0",
         "eslint": "^7.26.0",
         "eslint-config-airbnb": "^18.2.1",
@@ -134,6 +139,7 @@
         "react-snap": "^1.23.0",
         "sass": "^1.42.1",
         "stylelint": "^13.13.1",
+        "ts-jest": "^26.4.2",
         "yaml-loader": "^0.6.0"
     },
     "reactSnap": {
