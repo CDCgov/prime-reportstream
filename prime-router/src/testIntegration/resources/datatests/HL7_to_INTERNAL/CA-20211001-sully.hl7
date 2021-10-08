@@ -1,0 +1,22 @@
+MSH|^~\&|HEALTHCHECK^2.16.840.1.113883.4.945.1^ISO|SAFEPMC^05D2195670^CLIA|WATERS-HHS^2.16.840.1.114222.4.3.2.2.3.600.4^ISO|WATERS-HHS^2.16.840.1.114222.4.1.214104^ISO|20210107133444-0500||ORU^R01^ORU_R01|6bd0e4ab-63e4-4df9-9832-214c5fa84804|T|2.5.1|||||||||PHLabReport-NoAck^^2.16.840.1.113883.9.10^ISO
+SFT|SHS|v2|HealthCheck|v2||20210104
+PID|1||0099000223440^^^DataRobot&2.16.840.1.113883.4.945.1&ISO^PI||Meree^Joseph^Middle^^^^L||19830608|M||2106-3^White^HL70005|30 High Street^Apartment 245^San Pablo^CA^94806^USA^L^^Contra Costa County||^PRN^PH^joe.meree@example.com^^562^5551555|||||||||2135-2^Non Hispanic or Latino^HL70189||||||||N
+ORC|RE|445c148beb2f4a|445c148beb2f4a^SHS^2.16.840.1.113883.4.945.1^ISO|||||||||1659388452^Rakhmilevich^Mark^^^^^^^^^^NPI^^^^^^^^||^^^^^310^5557123|20210108||||||Safe PMC|5455 Wilshire Blvd^Suite 334^Los Angeles^CA^90036^^^^Los Angeles County|^^^^^310^2337123|817 BROADWAY^33nd Floor^New York City^NY^10003^^^^
+OBR|1|445c148beb2f4a|445c148beb2f4a^SHS^2.16.840.1.113883.4.945.1^ISO|94531-1^SARS-CoV-2 (COVID-19) RNA panel^LN^^^^^^|||20210109|||||||||1659388453^Sullenberger^Sully^^^^^^^^^^NPI^^^^^^^^|^^^^^310^2337123^|||||20210110|||F||||
+OBX|1|CWE|94500-6^SARS coronavirus 2 RNA specimen detection^LN||260373001^DETECTED^SCT||DETECTED||||F|||20210111|05D2195670^SAFEPMC^CLIA||Cue012345678910^Cue COVID-19 Test^99ELR~^^^^^^^^|12345-67890-abcd|20210112||||SAFEPMC^^^^^CLIA&2.16.840.1.113883.4.945.1&ISO^XX^^^05D2195670|5455 Wilshire Blvd Suite 1260^^Los Angeles^CA^90036^USA^^^06037
+SPM|1|445c148beb2f4a&SHS&2.16.840.1.113883.4.945.1&ISO^445c148beb2f4a&SHS&2.16.840.1.113883.4.945.1&ISO||258500001^Nasopharyngeal swab^SCT||||45206002^Nasal structure^SCT|||||||||20210113
+OBX|2|CWE|95417-2^First test^LN||N^NO^HL70136|
+OBX|3|CWE|94558-4^Antigen test^LN||260415000^NOT DETECTED^SCT|||||||||20201213
+OBX|3|CWE|94558-4^Antigen test^LN||260415000^NOT DETECTED^SCT|||||||||20201213
+OBX|4|CWE|95418-0^Employed in healthcare^LN||Y^YES^HL70136|
+OBX|5|CWE|223366009^Healthcare Occupation^SCT||6816002^Specialized nurse^SCT|
+OBX|6|CWE|95419-8^Symptomatic^LN||N^NO^HL70136|
+OBX|7|CWE|75325-1^Symptom^LN||44169009^Loss of sense of smell^SCT|||||||||20201219
+OBX|8|CWE|75325-1^Symptom^LN||426000000^Fever greater than 100.4 Fahrenheit^SCT|||||||||20201220
+OBX|9|CWE|77974-4^Patient is or was hospitalized for COVID^LN||Y^YES^HL7 0136||||||F|||20211215
+OBX|11|CWE|86947-9^Reason for hospitalization^LN||840539006 ^Disease caused by 2019 novel coronavirus (disorder)^SCT
+OBX|12|CWE|95420-6^In ICU at the time of testing^LN||N^NO^HL70136|
+OBX|13|CWE|95421-4^Resident of congregate setting^LN||Y^YES^HL70136|
+OBX|12|CWE|75617-1^Residence Type^LN||30629002^Retirement home^SCT
+OBX|14|CWE|82810-3^Pregnant^LN||60001007^NO^HL70136|
+OBX|15|CWE|30525-0^Patient age||34
