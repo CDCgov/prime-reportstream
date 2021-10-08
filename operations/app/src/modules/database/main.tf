@@ -7,7 +7,7 @@ resource "azurerm_postgresql_server" "postgres_server" {
   administrator_login          = data.azurerm_key_vault_secret.postgres_user.value
   administrator_login_password = data.azurerm_key_vault_secret.postgres_pass.value
 
-  sku_name   = "GP_Gen5_4"
+  sku_name   = "GP_Gen5_16"
   version    = "11"
   storage_mb = 5120
 
@@ -80,7 +80,7 @@ resource "azurerm_postgresql_server" "postgres_server_replica" {
   create_mode               = "Replica"
   creation_source_server_id = azurerm_postgresql_server.postgres_server.id
 
-  sku_name   = "GP_Gen5_4"
+  sku_name   = "GP_Gen5_16"
   version    = "11"
   storage_mb = 5120
 
