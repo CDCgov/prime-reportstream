@@ -1,3 +1,3 @@
-const OktaSigninWidgetMock = () => (<div>OktaSigninWidget</div>);
+const OktaSigninWidgetMock = () => <div>OktaSigninWidget</div>;
 
 export default OktaSigninWidgetMock;
