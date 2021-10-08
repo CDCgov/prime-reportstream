@@ -97,11 +97,6 @@ jobs:
 
       - name: Build Prime Router Package
         run: bash ./cleanslate.sh
-        
-      - name: Sleep for 60 seconds before smoke tests
-        uses: jakejarvis/wait-action@master
-        with:
-          time: '60s'
 
       - name: Run Smoke Tests
         run: bash ./build.sh -- gradle testSmoke
