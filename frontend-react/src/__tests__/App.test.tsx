@@ -1,4 +1,6 @@
 import { render, screen } from '@testing-library/react'
+import renderer from 'react-test-renderer';
+import App from '../App'
 
 beforeAll = () => {
   return null
@@ -11,8 +13,8 @@ afterAll = () => {
 describe('Describe 1', () => {
 
   test('Test 1', () => {
-    const sum = (a: number, b: number) => { return a + b }
-    expect(sum(4, 5)).toBe(9)
+    const appComponent = render(<App />)
+    expect(appComponent).not.toBeNull()
   });
 
 });

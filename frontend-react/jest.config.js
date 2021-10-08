@@ -1,5 +1,8 @@
 /** @type {import('ts-jest/dist/types').InitialOptionsTsJest} */
 module.exports = {
+   modulePaths: [
+      "<rootDir>/src"
+   ],
    preset: 'ts-jest',
    roots: ["<rootDir>/src"],
    /* INFO
@@ -8,7 +11,7 @@ module.exports = {
       should contain `test` (i.e. ComponentTest.d.tsx) 
    */
    testEnvironment: "jsdom",
-   testRegex: "(/src/__tests__/.*|(\\.|/)(test|spec))\\.tsx?$",
+   testRegex: "(__tests__/.*|(\\.|/)(test|spec))\\.tsx?$",
    /* INFO
       Jest transformations -- this adds support for TypeScript
       using ts-jest 
@@ -17,7 +20,7 @@ module.exports = {
       "^.+\\.tsx?$": "ts-jest"
    },
    transformIgnorePatterns: [
-      "node_modules/(?!(okta-auth-js)/)"
+      "/node_modules/"
    ],
 
    // Module file extensions for importing

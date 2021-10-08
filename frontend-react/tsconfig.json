@@ -21,7 +21,8 @@
     "jsx": "react-jsx",
     "types": [
       "hookrouter",
-      "jest"
+      "jest",
+      "babel"
     ],
     "noImplicitAny": true
   },

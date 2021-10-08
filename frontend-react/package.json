@@ -137,6 +137,7 @@
         "prettier": "^2.4.1",
         "react-dropdown": "^1.9.2",
         "react-snap": "^1.23.0",
+        "react-test-renderer": "^17.0.2",
         "sass": "^1.42.1",
         "stylelint": "^13.13.1",
         "ts-jest": "^26.4.2",
