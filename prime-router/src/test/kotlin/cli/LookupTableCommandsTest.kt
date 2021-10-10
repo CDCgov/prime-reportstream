@@ -57,13 +57,14 @@ class LookupTableCommandsTest {
     @Test
     fun `test rows to table`() {
         val data = listOf(LookupTableRow())
+        val colNames = listOf("a", "b")
         data[0].data = JSONB.jsonb("{\"a\": \"value1\", \"b\": \"value2\"}")
-        val output = LookupTableCommands.rowsToPrintableTable(data)
+        val output = LookupTableCommands.rowsToPrintableTable(data, colNames)
         assertThat(output.isNotEmpty()).isTrue()
 
         assertFailsWith<IllegalArgumentException>(
             block = {
-                LookupTableCommands.rowsToPrintableTable(emptyList())
+                LookupTableCommands.rowsToPrintableTable(emptyList(), colNames)
             }
         )
     }
