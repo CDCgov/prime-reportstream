@@ -212,7 +212,7 @@ class CsvSerializer(val metadata: Metadata) {
                             element.csvFields.map { field ->
                                 val value = report.getString(row, element.name)
                                     ?: error("Internal Error: table is missing ${element.fieldMapping} column")
-                                element.toFormatted(value, field.format)
+                                element.toFormatted(value, field.format, report.schema)
                             }
                         } else {
                             emptyList()

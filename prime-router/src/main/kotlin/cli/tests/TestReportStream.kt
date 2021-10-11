@@ -1146,29 +1146,33 @@ class Parallel : CoolTest() {
         options: CoolTestOptions
     ): Boolean {
         var passed = true
-        val elapsedMillis = measureTimeMillis {
+        var totalMillisAllSubmissions: Long = 0
+        val elapsedMillisTotal = measureTimeMillis {
             val threads = mutableListOf<Thread>()
             echo("Parallel Test: Starting $numThreads threads, each submitting $numRounds times")
             for (threadNum in 1..numThreads) {
                 val th = thread {
                     for (i in 1..numRounds) {
-                        val (responseCode, json) =
-                            HttpUtilities.postReportFile(
-                                environment,
-                                file,
-                                stracSender,
-                                options.key,
+                        val elapsedMillisOneSubmission = measureTimeMillis {
+                            val (responseCode, json) =
+                                HttpUtilities.postReportFile(
+                                    environment,
+                                    file,
+                                    stracSender,
+                                    options.key,
                                 ReportFunction.Options.SkipSend
-                            )
-                        if (responseCode != HttpURLConnection.HTTP_CREATED) {
-                            echo(json)
-                            passed = bad("$threadNum: ***Parallel Test FAILED***:  response code $responseCode")
-                        } else {
-                            val reportId = getReportIdFromResponse(json)
-                            if (reportId == null) {
-                                passed = bad("$threadNum: ***Parallel Test FAILED***:  No reportId.")
+                                )
+                            if (responseCode != HttpURLConnection.HTTP_CREATED) {
+                                echo(json)
+                                passed = bad("$threadNum: ***Parallel Test FAILED***:  response code $responseCode")
+                            } else {
+                                val reportId = getReportIdFromResponse(json)
+                                if (reportId == null) {
+                                    passed = bad("$threadNum: ***Parallel Test FAILED***:  No reportId.")
+                                }
                             }
                         }
+                        totalMillisAllSubmissions += elapsedMillisOneSubmission // hrm.  Not threadsafe.
                         print(".")
                     }
                 }
@@ -1177,15 +1181,25 @@ class Parallel : CoolTest() {
             threads.forEach { it.join() }
         }
         echo("")
+        val totalSubmissionsCount = numThreads * numRounds
+        val avgSecsPerSubmissionString = String.format(
+            "%.2f",
+            (totalMillisAllSubmissions / 1000.0) / totalSubmissionsCount
+        )
+        val rateString = String.format(
+            "%.2f",
+            totalSubmissionsCount.toDouble() / (elapsedMillisTotal / 1000.0)
+        )
         if (passed) {
             good(
-                "$numThreads X $numRounds  = ${numThreads * numRounds} total submissions" +
-                    " in ${elapsedMillis / 1000} seconds"
+                "$numThreads X $numRounds  = $totalSubmissionsCount total submissions" +
+                    " in ${elapsedMillisTotal / 1000} seconds:\n" +
+                    "$numThreads threads: $rateString items/second, $avgSecsPerSubmissionString seconds/item"
             )
         } else {
             bad(
-                "$numThreads X $numRounds  = ${numThreads * numRounds} total submissions" +
-                    " in ${elapsedMillis / 1000} seconds"
+                "$numThreads X $numRounds  = $totalSubmissionsCount total submissions" +
+                    " in ${elapsedMillisTotal / 1000} seconds"
             )
         }
         return passed

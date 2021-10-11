@@ -170,8 +170,9 @@ data class Element(
 
     val isCodeType get() = this.type == Type.CODE
 
-    val isOptional get() = this.cardinality == null ||
-        this.cardinality == ZERO_OR_ONE || canBeBlank
+    val isOptional
+        get() = this.cardinality == null ||
+            this.cardinality == ZERO_OR_ONE || canBeBlank
 
     val canBeBlank
         get() = type == Type.TEXT_OR_BLANK ||
@@ -237,10 +238,12 @@ data class Element(
     /**
      * A formatted string is the Element's normalized value formatted using the format string passed in
      * The format string's value is specific to the type of the element.
+     * The schema is passed in for logging purposes only.
      */
     fun toFormatted(
-        normalizedValue: String,
-        format: String? = null
+        normalizedValue: kotlin.String,
+        format: kotlin.String? = null,
+        schema: Schema? = null,
     ): String {
         if (normalizedValue.isEmpty()) return ""
         val formattedValue = when (type) {
@@ -268,7 +271,18 @@ data class Element(
                     // TODO Revisit: there may be times that normalizedValue is not an altValue
                     altDisplayToken ->
                         toAltDisplay(normalizedValue)
-                            ?: error("Schema Error: '$normalizedValue' is not in altValues set for $fieldMapping")
+                            ?: "".also {
+                                // Warn in the logs rather than actually throwing an exception.
+                                // This occurs in the Batch step, so no way to error back to the sender.
+                                println(
+                                    "Exception: Outgoing receiver schema ERROR:" +
+                                        " '$normalizedValue' is not in altValues set for $fieldMapping." +
+                                        " Replacing with empty-string in generated data for element $name" +
+                                        " and continuing to process." +
+                                        " Consider fixing by adding $normalizedValue to the " +
+                                        " alt valueset in schema ${schema?.name ?: ""}"
+                                )
+                            }
                     codeToken ->
                         toCode(normalizedValue)
                             ?: error(
