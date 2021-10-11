@@ -66,6 +66,26 @@ Required.  Must match LIVD column B, "Model". eg,  "BD Veritor System for Rapid 
 
 ---
 
+**Name**: filler_order_id
+
+**Type**: ID
+
+**PII**: No
+
+**HL7 Fields**
+
+- [OBR-3-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.3.1)
+- [ORC-3-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.3.1)
+- [SPM-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2)
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+Accension number
+
+---
+
 **Name**: firstTest
 
 **Type**: CODE
@@ -1254,6 +1274,18 @@ the patient ID from the testing lab, the oder placer, the ordering provider, or 
 
 ---
 
+**Name**: patient_id_type
+
+**Type**: TEXT
+
+**PII**: No
+
+**Default Value**: PI
+
+**Cardinality**: [0..1]
+
+---
+
 **Name**: patientNameLast
 
 **Type**: PERSON_NAME
@@ -1408,6 +1440,25 @@ The patient's zip code
 
 ---
 
+**Name**: placer_order_id
+
+**Type**: ID
+
+**PII**: No
+
+**HL7 Fields**
+
+- [OBR-2-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.2.1)
+- [ORC-2-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.2.1)
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The ID number of the lab order from the placer
+
+---
+
 **Name**: pregnant
 
 **Type**: CODE
@@ -1552,6 +1603,40 @@ P, D, or T for Production, Debugging, or Training
 
 **Name**: reportingFacility
 
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+This field is no longer used.  Included here so it does not generate a warning if present.
+
+---
+
+**Name**: performingFacility
+
+**Type**: ID_CLIA
+
+**PII**: No
+
+**HL7 Fields**
+
+- [MSH-4-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/MSH.4.2)
+- [PID-3-4-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4.2)
+- [PID-3-6-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.6.2)
+- [SPM-2-1-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.1.3)
+- [SPM-2-2-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2.3)
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The reporting facility's CLIA
+
+---
+
+**Name**: performingFacilityName
+
 **Type**: TEXT
 
 **PII**: No
@@ -1568,7 +1653,7 @@ P, D, or T for Production, Debugging, or Training
 
 **Documentation**:
 
-Expecting an ISO heirarchic designator here. eg, "1265050918" (same value as in ordering_provider_npi).  Note that reporting_facility_text is also available as a field, if a name is needed.
+The reporting facility's name
 
 ---
 
@@ -1969,6 +2054,47 @@ eg, 20210111
 **Documentation**:
 
 eg, 20210112
+
+---
+
+**Name**: test_result_status
+
+**Type**: CODE
+
+**PII**: No
+
+**Default Value**: F
+
+**HL7 Fields**
+
+- [OBR-25-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.25.1)
+- [OBX-11-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.11.1)
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+A|Some, but not all, results available
+C|Corrected, final
+F|Final results
+I|No results available; specimen received, procedure incomplete
+M|Corrected, not final
+N|Procedure completed, results pending
+O|Order received; specimen not yet received
+P|Preliminary
+R|Results stored; not yet verified
+S|No results available; procedure scheduled, but not done
+X|No results available; Order canceled
+Y|No order on record for this test
+Z|No record of this patient
+
+**Documentation**:
+
+The test result status, which is different from the test result itself. Per the valueset, this indicates if
+the test result is in some intermediate status, is a correction, or is the final result.
+
 
 ---
 
