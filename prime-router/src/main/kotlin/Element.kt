@@ -238,7 +238,7 @@ data class Element(
     /**
      * A formatted string is the Element's normalized value formatted using the format string passed in
      * The format string's value is specific to the type of the element.
-     * The schema is passed in for logging purposes only.
+     * The [schema] is passed in for logging purposes only.
      */
     fun toFormatted(
         normalizedValue: kotlin.String,
