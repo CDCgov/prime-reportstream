@@ -8,14 +8,11 @@ describe('<Hero />', () => {
         render(<Hero />)
     })
 
-    test('Title renders on Hero', () => {
-        const text = screen.getByText(content.title)
-        expect(text).not.toBeNull
-    })
-
-    test('Summary renders on Hero', () => {
-        const text = screen.getByText(content.summary)
-        expect(text).not.toBeNull
+    test('Title and Summary render on Hero', () => {
+        const title = screen.getByText(content.title)
+        const summary = screen.getByText(content.summary)
+        expect(title).not.toBeNull
+        expect(summary).not.toBeNull
     })
 
 })

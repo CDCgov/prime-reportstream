@@ -10,10 +10,10 @@ export default function Section({ section }: { section: SectionProp }) {
     else
         return (
             <div className="tablet:grid-col-8">
-                <h2 className="font-sans-lg tablet:font-sans-xl margin-top-0 tablet:margin-bottom-0">
+                <h2 data-testid="heading" className="font-sans-lg tablet:font-sans-xl margin-top-0 tablet:margin-bottom-0">
                     {section.title}
                 </h2>
-                <p className="usa-intro margin-top-1 text-base">
+                <p data-testid="paragraph" className="usa-intro margin-top-1 text-base">
                     {section.summary}
                 </p>
             </div>
