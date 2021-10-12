@@ -1,5 +1,5 @@
 resource "azurerm_monitor_autoscale_setting" "app_autoscale" {
-  count               = (var.environment == "prod" ? 1 : 0)
+  count               = 1
   name                = "${var.resource_prefix}-appautoscale"
   resource_group_name = var.resource_group
   location            = var.location
