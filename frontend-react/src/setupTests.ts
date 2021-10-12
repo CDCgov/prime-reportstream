@@ -1,4 +1,5 @@
 import 'jest-canvas-mock';
+import '@testing-library/jest-dom'
 import type { Config } from '@jest/types';
 
 // Sync object

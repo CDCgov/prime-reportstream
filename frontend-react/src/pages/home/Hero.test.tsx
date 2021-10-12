@@ -9,10 +9,11 @@ describe('<Hero />', () => {
     })
 
     test('Title and Summary render on Hero', () => {
-        const title = screen.getByText(content.title)
-        const summary = screen.getByText(content.summary)
-        expect(title).not.toBeNull
-        expect(summary).not.toBeNull
+        const title = screen.getByTestId("heading")
+        const summary = screen.getByTestId("summary")
+
+        expect(title.innerHTML).toEqual(content.title)
+        expect(summary.innerHTML).toEqual(content.summary)
     })
 
 })
