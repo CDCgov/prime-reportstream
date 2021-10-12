@@ -9,8 +9,8 @@ resource "azurerm_monitor_autoscale_setting" "app_autoscale" {
     name = "ScaleOnHighLoad"
 
     capacity {
-      default = 1
-      minimum = 1
+      default = 2
+      minimum = 2
       maximum = 20
     }
 
