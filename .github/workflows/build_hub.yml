@@ -80,7 +80,10 @@ jobs:
 
   smoke_tests:
     name: Smoke Tests
-    needs: pre_job
+    needs:
+      - pre_job
+      - build_router
+      - docker_build_test
     if: ${{ needs.pre_job.outputs.has_router_change == 'true' }}
     runs-on: ubuntu-latest
     defaults:
