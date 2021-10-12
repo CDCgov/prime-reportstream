@@ -7,10 +7,16 @@ import live from "../../../content/live.json";
 export default function LiveMapSection({ section }: { section: SectionProp }) {
     return (
         <div>
-            <h2 data-testid="heading" className="font-sans-lg tablet:font-sans-xl margin-top-0 tablet:margin-bottom-0">
+            <h2
+                data-testid="heading"
+                className="font-sans-lg tablet:font-sans-xl margin-top-0 tablet:margin-bottom-0"
+            >
                 {section.title}
             </h2>
-            <p data-testid="summary" className="usa-intro margin-top-1 text-base">
+            <p
+                data-testid="summary"
+                className="usa-intro margin-top-1 text-base"
+            >
                 {section.summary}
             </p>
             <div data-testid="map" className="tablet:grid-col-10">

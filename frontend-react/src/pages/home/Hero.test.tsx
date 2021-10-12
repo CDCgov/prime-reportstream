@@ -1,19 +1,19 @@
-import { render, screen } from "@testing-library/react"
-import content from '../../content/content.json'
-import Hero from "./Hero"
+import { render, screen } from "@testing-library/react";
 
-describe('<Hero />', () => {
+import content from "../../content/content.json";
 
+import Hero from "./Hero";
+
+describe("<Hero />", () => {
     beforeEach(() => {
-        render(<Hero />)
-    })
+        render(<Hero />);
+    });
 
-    test('Title and Summary render on Hero', () => {
-        const title = screen.getByTestId("heading")
-        const summary = screen.getByTestId("summary")
+    test("Title and Summary render on Hero", () => {
+        const title = screen.getByTestId("heading");
+        const summary = screen.getByTestId("summary");
 
-        expect(title.innerHTML).toEqual(content.title)
-        expect(summary.innerHTML).toEqual(content.summary)
-    })
-
-})
+        expect(title.innerHTML).toEqual(content.title);
+        expect(summary.innerHTML).toEqual(content.summary);
+    });
+});
