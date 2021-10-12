@@ -23,7 +23,7 @@ resource "azurerm_monitor_autoscale_setting" "app_autoscale" {
         time_window        = "PT5M"
         time_aggregation   = "Average"
         operator           = "GreaterThan"
-        threshold          = 75
+        threshold          = 70
       }
 
       scale_action {
@@ -63,7 +63,7 @@ resource "azurerm_monitor_autoscale_setting" "app_autoscale" {
         time_window        = "PT5M"
         time_aggregation   = "Average"
         operator           = "GreaterThan"
-        threshold          = 90
+        threshold          = 85
       }
 
       scale_action {
