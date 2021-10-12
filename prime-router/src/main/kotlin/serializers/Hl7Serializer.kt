@@ -1334,7 +1334,11 @@ class Hl7Serializer(
                     }
                     // Date range. For getting a date time, use the start of the range
                     is DR -> {
-                        dtm = value.rangeStartDateTime?.time?.valueAsDate?.toInstant()
+                        if (value.rangeStartDateTime?.time?.gmtOffset == -99) {
+                            val cal = value.rangeStartDateTime?.time?.valueAsCalendar
+                            cal?.let { it.timeZone = TimeZone.getTimeZone("GMT") }
+                            dtm = cal?.toInstant()
+                        } else dtm = value.rangeStartDateTime?.time?.valueAsDate?.toInstant()
                         rawValue = value.toString()
                     }
                     is DT -> {
