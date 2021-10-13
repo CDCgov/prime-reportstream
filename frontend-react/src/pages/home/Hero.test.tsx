@@ -4,7 +4,7 @@ import content from "../../content/content.json";
 
 import Hero from "./Hero";
 
-describe("<Hero />", () => {
+describe("Hero rendering", () => {
     beforeEach(() => {
         render(<Hero />);
     });

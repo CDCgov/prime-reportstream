@@ -1,12 +1,9 @@
 import { render, screen } from "@testing-library/react";
 import Feature from "./Feature";
 
-const baseSection = { type: "xyz" }
-const deliveryMethodSection = { type: "deliveryMethods" }
-const liveMapSection = { type: "liveMap" }
-
 
 describe('Feature rendering', () => {
+    const baseSection = { type: "xyz" }
     const baseFeature = {
         title: "base title",
         summary: "base summary"
@@ -34,6 +31,7 @@ describe('Feature rendering', () => {
 })
 
 describe('DeliveryMethodFeature rendering', () => {
+    const deliveryMethodSection = { type: "deliveryMethods" }
     const deliveryFeature = {
         title: "delivery title",
         img: "test.png",
@@ -67,6 +65,7 @@ describe('DeliveryMethodFeature rendering', () => {
 })
 
 describe('LiveMapFeature rendering', () => {
+    const liveMapSection = { type: "liveMap" }
     const liveMapFeature = {
         img: "test.png",
         imgAlt: "test alt",
