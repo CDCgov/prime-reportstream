@@ -160,6 +160,5 @@ components:
 
   securitySchemes:
     OktaAuth:
-      type: apiKey
-      name: okta
-      in: header
+      type: http
+      scheme: bearer
