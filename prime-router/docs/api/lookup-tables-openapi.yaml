@@ -31,7 +31,7 @@ paths:
         '400':
           description: if there was an error fetching the list of tables
           content:
-            text/plain:
+            application/json:
               schema:
                 $ref: '#/components/schemas/ErrorMsg'
 
@@ -48,13 +48,13 @@ paths:
         '404':
           description: The table name was not found
           content:
-            text/plain:
+            application/json:
               schema:
                 $ref: '#/components/schemas/ErrorMsg'
         '400':
           description: if there was an error fetching the table data
           content:
-            text/plain:
+            application/json:
               schema:
                 $ref: '#/components/schemas/ErrorMsg'
     post:
@@ -76,7 +76,7 @@ paths:
         '400':
           description: if there was an error creating the table
           content:
-            text/plain:
+            application/json:
               schema:
                 $ref: '#/components/schemas/ErrorMsg'
 
@@ -93,13 +93,13 @@ paths:
         '404':
           description: The table name and/or version was not found
           content:
-            text/plain:
+            application/json:
               schema:
                 $ref: '#/components/schemas/ErrorMsg'
         '400':
           description: if there was an error fetching the table data
           content:
-            text/plain:
+            application/json:
               schema:
                 $ref: '#/components/schemas/ErrorMsg'
     post:
@@ -114,13 +114,13 @@ paths:
         '404':
           description: The table name and/or version was not found
           content:
-            text/plain:
+            application/json:
               schema:
                 $ref: '#/components/schemas/ErrorMsg'
         '400':
           description: if there was an error fetching the table data
           content:
-            text/plain:
+            application/json:
               schema:
                 $ref: '#/components/schemas/ErrorMsg'
 
@@ -153,7 +153,10 @@ components:
 
     ErrorMsg:
       description: The error message
-      type: string
+      type: object
+      properties:
+        error:
+          type: string
 
   securitySchemes:
     OktaAuth:
