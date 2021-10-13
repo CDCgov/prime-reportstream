@@ -108,7 +108,7 @@ services:
 
   settings:
     build: settings/.
-    command: "--wait=20 --check-last-modified prime_dev /settings/organizations.yml"
+    command: "--check-last-modified prime_dev /settings/organizations.yml"
     depends_on:
       - prime_dev
     volumes:

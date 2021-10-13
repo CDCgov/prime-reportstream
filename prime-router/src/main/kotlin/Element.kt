@@ -15,6 +15,8 @@ import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 import java.util.Locale
 
+class AltValueNotDefinedException(message: String) : IllegalStateException(message)
+
 /**
  * An element is represents a data element (ie. a single logical value) that is contained in single row
  * of a report. A set of Elements form the main content of a Schema.
@@ -170,8 +172,9 @@ data class Element(
 
     val isCodeType get() = this.type == Type.CODE
 
-    val isOptional get() = this.cardinality == null ||
-        this.cardinality == ZERO_OR_ONE || canBeBlank
+    val isOptional
+        get() = this.cardinality == null ||
+            this.cardinality == ZERO_OR_ONE || canBeBlank
 
     val canBeBlank
         get() = type == Type.TEXT_OR_BLANK ||
@@ -239,8 +242,8 @@ data class Element(
      * The format string's value is specific to the type of the element.
      */
     fun toFormatted(
-        normalizedValue: String,
-        format: String? = null
+        normalizedValue: kotlin.String,
+        format: kotlin.String? = null,
     ): String {
         if (normalizedValue.isEmpty()) return ""
         val formattedValue = when (type) {
@@ -268,7 +271,10 @@ data class Element(
                     // TODO Revisit: there may be times that normalizedValue is not an altValue
                     altDisplayToken ->
                         toAltDisplay(normalizedValue)
-                            ?: error("Schema Error: '$normalizedValue' is not in altValues set for $fieldMapping")
+                            ?: throw AltValueNotDefinedException(
+                                "Outgoing receiver schema problem:" +
+                                    " '$normalizedValue' is not in altValues set for $fieldMapping."
+                            )
                     codeToken ->
                         toCode(normalizedValue)
                             ?: error(
