@@ -98,11 +98,11 @@ data class InvalidPostalMessage(
     val format: String? = ""
 ) : ResponseMessage {
     override fun detailMsg(): String {
+        var msg = "Invalid postal code '$formattedValue' for $fieldMapping."
         if (format !== null) {
-            return "Invalid postal code '$formattedValue' for $fieldMapping. Reformat to $format."
-        } else {
-            return "Invalid postal code '$formattedValue' for $fieldMapping."
+            msg += " Reformat to $format."
         }
+        return msg
     }
 
     override fun groupingId(): String {
