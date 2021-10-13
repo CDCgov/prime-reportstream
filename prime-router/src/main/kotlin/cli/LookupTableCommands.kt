@@ -17,11 +17,6 @@ import de.m3y.kformat.table
 import gov.cdc.prime.router.azure.DatabaseLookupTableAccess
 import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableRow
 import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableVersion
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.JsonPrimitive
-import kotlinx.serialization.json.buildJsonObject
-import org.jooq.JSONB
 import java.io.File
 
 /**
@@ -37,45 +32,6 @@ class LookupTableCommands : CliktCommand(
     }
 
     companion object {
-        /**
-         * Extract table column names from the [row] JSON data.
-         * @return the list of column names
-         */
-        internal fun extractTableHeadersFromJson(row: JSONB): List<String> {
-            val jsonData = Json.parseToJsonElement(row.data())
-            return (jsonData as JsonObject).keys.toList()
-        }
-
-        /**
-         * Extract table data from a JSON [row] given a list of [colNames].
-         * @return a list of data from the row in the same order as the given [colNames]
-         */
-        internal fun extractTableRowFromJson(row: JSONB, colNames: List<String>): List<String> {
-            val rowData = mutableListOf<String>()
-            val jsonData = Json.parseToJsonElement(row.data()) as JsonObject
-            colNames.forEach { colName ->
-                val value = if (jsonData[colName] != null)
-                    (jsonData[colName] as JsonPrimitive).content
-                else
-                    ""
-                rowData.add(value)
-            }
-            return rowData
-        }
-
-        /**
-         * Sets the JSON for a table [row].
-         * @return the JSON representation of the data
-         */
-        internal fun setTableRowToJson(row: Map<String, String>): JSONB {
-            val colNames = row.keys.toList()
-            val retVal = buildJsonObject {
-                colNames.forEach { col ->
-                    put(col, JsonPrimitive(row[col]))
-                }
-            }
-            return JSONB.jsonb(retVal.toString())
-        }
 
         /**
          * Converts table data in [tableRows] to a human readable table using [colNames].
@@ -98,7 +54,7 @@ class LookupTableCommands : CliktCommand(
                 if (addRowNum) headers.add(0, "Row #")
                 header(headers)
                 tableRows.forEachIndexed { index, row ->
-                    val data = extractTableRowFromJson(row.data, colNames).toMutableList()
+                    val data = DatabaseLookupTableAccess.extractTableRowFromJson(row.data, colNames).toMutableList()
                     if (addRowNum) data.add(0, (index + 1).toString())
                     // Row takes varargs, so we convert the list to varargs
                     row(values = data.map { it }.toTypedArray())
@@ -150,7 +106,7 @@ class LookupTableCommands : CliktCommand(
                 .build()
 
             // We need to make sure to use the same order of column names
-            val colNames = extractTableHeadersFromJson(version1Table[0].data)
+            val colNames = DatabaseLookupTableAccess.extractTableHeadersFromJson(version1Table[0].data)
             val diff = generator.generateDiffRows(
                 rowsToPrintableTable(version1Table, colNames, false).toString().split("\n"),
                 rowsToPrintableTable(version2Table, colNames, false).toString().split("\n")
@@ -221,7 +177,7 @@ class LookupTableGetCommand : CliktCommand(
                 TermUi.echo("")
                 TermUi.echo("Table name: $tableName")
                 TermUi.echo("Version: $versionNormalized")
-                val colNames = LookupTableCommands.extractTableHeadersFromJson(tableRows[0].data)
+                val colNames = DatabaseLookupTableAccess.extractTableHeadersFromJson(tableRows[0].data)
                 TermUi.echo(LookupTableCommands.rowsToPrintableTable(tableRows, colNames))
                 TermUi.echo("")
             } else {
@@ -240,11 +196,11 @@ class LookupTableGetCommand : CliktCommand(
      * Save table data in [tableRows] to an [outputFile] in CSV format.
      */
     private fun saveTable(outputFile: File, tableRows: List<LookupTableRow>) {
-        val colNames = LookupTableCommands.extractTableHeadersFromJson(tableRows[0].data)
+        val colNames = DatabaseLookupTableAccess.extractTableHeadersFromJson(tableRows[0].data)
         val rows = mutableListOf(colNames)
         tableRows.forEach { row ->
             // Row takes varargs, so we convert the list to varargs
-            rows.add(LookupTableCommands.extractTableRowFromJson(row.data, colNames))
+            rows.add(DatabaseLookupTableAccess.extractTableRowFromJson(row.data, colNames))
         }
         csvWriter().writeAll(rows, outputFile.outputStream())
     }
@@ -280,12 +236,12 @@ class LookupTableCreateCommand : CliktCommand(
 
         val newTableData = inputData.map { row ->
             val tableRow = LookupTableRow()
-            tableRow.data = LookupTableCommands.setTableRowToJson(row)
+            tableRow.data = DatabaseLookupTableAccess.setTableRowToJson(row)
             tableRow
         }
 
         TermUi.echo("Here is the table data to be created:")
-        val colNames = LookupTableCommands.extractTableHeadersFromJson(newTableData[0].data)
+        val colNames = DatabaseLookupTableAccess.extractTableHeadersFromJson(newTableData[0].data)
         TermUi.echo(LookupTableCommands.rowsToPrintableTable(newTableData, colNames))
         TermUi.echo("")
 
@@ -308,7 +264,7 @@ class LookupTableCreateCommand : CliktCommand(
         if (TermUi.confirm("Continue to create $tableName version $nextVersion with ${newTableData.size} rows?")
             == true
         ) {
-            tableDbAccess.createTable(tableName, nextVersion, newTableData)
+            tableDbAccess.createTable(tableName, nextVersion, newTableData.map { it.data })
             TermUi.echo("${newTableData.size} rows created for lookup table $tableName version $nextVersion. ")
             // Always have an active version, so if this is the first version then activate it.
             if (nextVersion == 1) {

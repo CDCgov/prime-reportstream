@@ -103,6 +103,10 @@ val coverageExcludedClasses = listOf("gov/cdc/prime/router/azure/db/*", "gov/cdc
 tasks.test {
     // Use JUnit 5 for running tests
     useJUnitPlatform()
+
+    // Set the environment to local for the tests
+    environment["PRIME_ENVIRONMENT"] = "local"
+
     // Set max parellel forks as recommended in https://docs.gradle.org/current/userguide/performance.html
     maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
     dependsOn("compileKotlin")

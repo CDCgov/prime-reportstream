@@ -3,6 +3,11 @@ package gov.cdc.prime.router.azure
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableRow
 import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableVersion
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.buildJsonObject
+import org.jooq.JSONB
 import org.jooq.impl.DSL
 
 /**
@@ -168,7 +173,7 @@ class DatabaseLookupTableAccess {
      * Create a new table [version] for a [tableName] using the provided [tableData].
      * This function will throw an exception upon an error and rollback any data inserted into the database.
      */
-    fun createTable(tableName: String, version: Int, tableData: List<LookupTableRow>) {
+    fun createTable(tableName: String, version: Int, tableData: List<JSONB>) {
         db.transact { txn ->
             val newVersion = DSL.using(txn).newRecord(Tables.LOOKUP_TABLE_VERSION)
             newVersion.isActive = false
@@ -180,7 +185,7 @@ class DatabaseLookupTableAccess {
             val versionId = newVersion.lookupTableVersionId
             tableData.forEachIndexed { index, row ->
                 val newRow = DSL.using(txn).newRecord(Tables.LOOKUP_TABLE_ROW)
-                newRow.data = row.data
+                newRow.data = row
                 newRow.rowNum = index + 1
                 newRow.lookupTableVersionId = versionId
                 if (newRow.store() != 1) error("Error creating new table row in database.")
@@ -202,5 +207,47 @@ class DatabaseLookupTableAccess {
                 ).fetchOne()?.into(LookupTableVersion::class.java)
         }
         return retVal
+    }
+
+    companion object {
+        /**
+         * Extract table column names from the [row] JSON data.
+         * @return the list of column names
+         */
+        internal fun extractTableHeadersFromJson(row: JSONB): List<String> {
+            val jsonData = Json.parseToJsonElement(row.data())
+            return (jsonData as JsonObject).keys.toList()
+        }
+
+        /**
+         * Extract table data from a JSON [row] given a list of [colNames].
+         * @return a list of data from the row in the same order as the given [colNames]
+         */
+        internal fun extractTableRowFromJson(row: JSONB, colNames: List<String>): List<String> {
+            val rowData = mutableListOf<String>()
+            val jsonData = Json.parseToJsonElement(row.data()) as JsonObject
+            colNames.forEach { colName ->
+                val value = if (jsonData[colName] != null)
+                    (jsonData[colName] as JsonPrimitive).content
+                else
+                    ""
+                rowData.add(value)
+            }
+            return rowData
+        }
+
+        /**
+         * Sets the JSON for a table [row].
+         * @return the JSON representation of the data
+         */
+        internal fun setTableRowToJson(row: Map<String, String>): JSONB {
+            val colNames = row.keys.toList()
+            val retVal = buildJsonObject {
+                colNames.forEach { col ->
+                    put(col, JsonPrimitive(row[col]))
+                }
+            }
+            return JSONB.jsonb(retVal.toString())
+        }
     }
 }

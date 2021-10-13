@@ -125,11 +125,12 @@ class HttpUtilities {
         }
 
         fun notFoundResponse(
-            request: HttpRequestMessage<String?>
+            request: HttpRequestMessage<String?>,
+            errorMessage: String? = null
         ): HttpResponseMessage {
-            return request
-                .createResponseBuilder(HttpStatus.NOT_FOUND)
-                .build()
+            val response = request.createResponseBuilder(HttpStatus.NOT_FOUND)
+            if (!errorMessage.isNullOrBlank()) response.body("""{"error": "$errorMessage"}""")
+            return response.build()
         }
 
         fun internalErrorResponse(
