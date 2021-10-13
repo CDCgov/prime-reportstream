@@ -6,19 +6,12 @@ import { Alert } from "@trussworks/react-uswds";
 import HipaaNotice from "../../components/HipaaNotice";
 import Spinner from "../../components/Spinner";
 import { useOrgName } from "../../utils/OrganizationUtils";
+import Title from "../../components/Title";
 
 import TableReports from "./Table/TableReports";
 
-const OrgName = () => {
-    const orgName: string = useOrgName();
-    return (
-        <span id="orgName" className="text-normal text-base">
-            {orgName}
-        </span>
-    );
-};
-
 function Daily() {
+    const orgName: string = useOrgName();
     return (
         <NetworkErrorBoundary
             fallbackComponent={() => {
@@ -34,7 +27,7 @@ function Daily() {
             <Helmet>
                 <title>Daily data | {process.env.REACT_APP_TITLE}</title>
             </Helmet>
-            <section className="grid-container margin-bottom-5">
+            <div className="grid-container">
                 <Suspense
                     fallback={
                         <span className="text-normal text-base">
@@ -42,17 +35,14 @@ function Daily() {
                         </span>
                     }
                 >
-                    <h3 className="margin-bottom-0">
-                        <OrgName />
-                    </h3>
+                    <Title title="Covid-19" preTitle={orgName} />
                 </Suspense>
-                <h1 className="margin-top-0 margin-bottom-0">COVID-19</h1>
-            </section>
-            <Suspense fallback={<Spinner />}>
-                <section className="grid-container margin-top-0" />
-                <TableReports />
-            </Suspense>
-            <HipaaNotice />
+                <Suspense fallback={<Spinner />}>
+                    <section className="margin-top-0" />
+                    <TableReports />
+                </Suspense>
+                <HipaaNotice />
+            </div>
         </NetworkErrorBoundary>
     );
 }
