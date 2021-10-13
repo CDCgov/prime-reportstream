@@ -38,8 +38,9 @@ function SigningForm() {
 
             <Form
                 id="tos-agreement"
-                onSubmit={() => {
-                    console.log("Testing");
+                onSubmit={e => {
+                    e.preventDefault();
+                    console.log(e)
                 }}
             >
                 <h3 className="padding-top-7 text-normal">
@@ -102,8 +103,8 @@ function SigningForm() {
                 </p>
                 <Checkbox
                     className="padding-top-3"
-                    id="multi-state"
-                    name="multi-state"
+                    id="agree"
+                    name="agree"
                     label={<AgreementLabel />}
                 />
             </section>
@@ -111,7 +112,7 @@ function SigningForm() {
             <Button
                 form="tos-agreement"
                 className="margin-bottom-10"
-                type="button"
+                type="submit"
             >
                 Submit registration
             </Button>
