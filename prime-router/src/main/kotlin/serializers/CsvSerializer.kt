@@ -5,6 +5,7 @@ import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
 import com.github.doyaaaaaken.kotlincsv.util.CSVFieldNumDifferentException
 import com.github.doyaaaaaken.kotlincsv.util.CSVParseFormatException
 import com.github.doyaaaaaken.kotlincsv.util.MalformedCSVException
+import gov.cdc.prime.router.AltValueNotDefinedException
 import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Metadata
@@ -19,6 +20,7 @@ import gov.cdc.prime.router.ResponseMessage
 import gov.cdc.prime.router.ResultDetail
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Source
+import org.apache.logging.log4j.kotlin.Logging
 import java.io.InputStream
 import java.io.OutputStream
 
@@ -33,7 +35,7 @@ import java.io.OutputStream
  * | FOO_OR_BLANK | 1..1        | mapper -> default -> error           | empty                                | error               | value             |
  *
  */
-class CsvSerializer(val metadata: Metadata) {
+class CsvSerializer(val metadata: Metadata) : Logging {
     private data class CsvMapping(
         val useCsv: Map<String, List<Element.CsvField>>,
         val defaultOverrides: Map<String, String> = emptyMap(),
@@ -212,7 +214,17 @@ class CsvSerializer(val metadata: Metadata) {
                             element.csvFields.map { field ->
                                 val value = report.getString(row, element.name)
                                     ?: error("Internal Error: table is missing ${element.fieldMapping} column")
-                                element.toFormatted(value, field.format)
+                                try {
+                                    element.toFormatted(value, field.format)
+                                } catch (exc: AltValueNotDefinedException) {
+                                    logger.warn(
+                                        exc.toString() + "  Replacing '$value' with empty-string in" +
+                                            " generated data for element ${element.name}, and continuing to process." +
+                                            " Consider fixing by adding $value to the " +
+                                            " alt valueset in schema ${schema.name}"
+                                    )
+                                    ""
+                                }
                             }
                         } else {
                             emptyList()
