@@ -14,7 +14,6 @@ Test Steps:
 ### Testing
 - [ ] Tested locally?
 - [ ] Ran `./prime test` or `./gradlew testSmoke` against local Docker ReportStream container?
-- [ ] Downloaded a file from `http://localhost:7071/api/download`?
 - [ ] Added tests?
 
 ### Process
