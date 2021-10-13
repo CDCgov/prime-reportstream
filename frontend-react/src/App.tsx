@@ -24,6 +24,7 @@ import { Upload } from "./pages/Upload";
 import { CODES, ErrorPage } from "./pages/error/ErrorPage";
 import GlobalContextProvider from "./components/GlobalContextProvider";
 import { logout } from "./utils/UserUtils";
+import SignTermsOfService from "./pages/tos-sign/SignTermsOfService";
 
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
 
@@ -97,6 +98,10 @@ const App = () => {
                                 <Route
                                     path="/login/callback"
                                     component={LoginCallback}
+                                />
+                                <Route
+                                    path="/sign-tos"
+                                    component={SignTermsOfService}
                                 />
                                 <AuthorizedRoute
                                     path="/daily-data"
