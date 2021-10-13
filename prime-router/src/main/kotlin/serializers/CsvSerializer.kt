@@ -5,7 +5,21 @@ import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
 import com.github.doyaaaaaken.kotlincsv.util.CSVFieldNumDifferentException
 import com.github.doyaaaaaken.kotlincsv.util.CSVParseFormatException
 import com.github.doyaaaaaken.kotlincsv.util.MalformedCSVException
-import gov.cdc.prime.router.*
+import gov.cdc.prime.router.AltValueNotDefinedException
+import gov.cdc.prime.router.Element
+import gov.cdc.prime.router.InvalidReportMessage
+import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.MissingFieldMessage
+import gov.cdc.prime.router.REPORT_MAX_ERRORS
+import gov.cdc.prime.router.REPORT_MAX_ITEMS
+import gov.cdc.prime.router.REPORT_MAX_ITEM_COLUMNS
+import gov.cdc.prime.router.Receiver
+import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.ReportId
+import gov.cdc.prime.router.ResponseMessage
+import gov.cdc.prime.router.ResultDetail
+import gov.cdc.prime.router.Schema
+import gov.cdc.prime.router.Source
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.InputStream
 import java.io.OutputStream
@@ -21,7 +35,7 @@ import java.io.OutputStream
  * | FOO_OR_BLANK | 1..1        | mapper -> default -> error           | empty                                | error               | value             |
  *
  */
-class CsvSerializer(val metadata: Metadata): Logging {
+class CsvSerializer(val metadata: Metadata) : Logging {
     private data class CsvMapping(
         val useCsv: Map<String, List<Element.CsvField>>,
         val defaultOverrides: Map<String, String> = emptyMap(),
