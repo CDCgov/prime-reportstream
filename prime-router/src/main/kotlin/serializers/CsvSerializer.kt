@@ -77,7 +77,8 @@ class CsvSerializer(val metadata: Metadata) : Logging {
                         errors.add(
                             ResultDetail.report(
                                 InvalidReportMessage.new(
-                                    "Report rows ${rows.size} exceeds max allowed $REPORT_MAX_ITEMS rows"
+                                    "Your file's row size of ${rows.size} exceeds the maximum of $REPORT_MAX_ITEMS " +
+                                        "rows per file. Reduce the amount of rows in this file."
                                 )
                             )
                         )
@@ -87,7 +88,8 @@ class CsvSerializer(val metadata: Metadata) : Logging {
                         errors.add(
                             ResultDetail.report(
                                 InvalidReportMessage.new(
-                                    "Number of report columns ${row.size} exceeds max allowed $REPORT_MAX_ITEM_COLUMNS"
+                                    "Number of columns in your report exceeds the maximum of $REPORT_MAX_ITEM_COLUMNS" +
+                                        " allowed. Adjust the excess columnar data in your report."
                                 )
                             )
                         )
@@ -104,11 +106,21 @@ class CsvSerializer(val metadata: Metadata) : Logging {
                 )
             } catch (ex: CSVParseFormatException) {
                 errors.add(
-                    ResultDetail.report(InvalidReportMessage.new("General CSV parsing error on row: ${ex.rowNum}"))
+                    ResultDetail.report(
+                        InvalidReportMessage.new(
+                            "There's an issue parsing your file. Contact the " +
+                                "ReportStream team at $REPORSTREAM_SUPPORT_EMAIL."
+                        )
+                    )
                 )
             } catch (ex: MalformedCSVException) {
                 errors.add(
-                    ResultDetail.report(InvalidReportMessage.new("General CSV parsing error: ${ex.message}"))
+                    ResultDetail.report(
+                        InvalidReportMessage.new(
+                            "There's an issue parsing your file. Contact the " +
+                                "ReportStream team at $REPORSTREAM_SUPPORT_EMAIL."
+                        )
+                    )
                 )
             }
         }
@@ -128,7 +140,8 @@ class CsvSerializer(val metadata: Metadata) : Logging {
             errors.add(
                 ResultDetail.report(
                     InvalidReportMessage.new(
-                        "Number of errors (${errors.size}) exceeded $REPORT_MAX_ERRORS.  Stopping further work."
+                        "Report file failed: Number of errors exceeded threshold. Contact the ReportStream team at " +
+                            "$REPORSTREAM_SUPPORT_EMAIL for assistance."
                     )
                 )
             )
@@ -156,7 +169,8 @@ class CsvSerializer(val metadata: Metadata) : Logging {
             errors.add(
                 ResultDetail.report(
                     InvalidReportMessage.new(
-                        "Number of errors (${errors.size}) exceeded $REPORT_MAX_ERRORS.  Stopping."
+                        "Report file failed: Number of errors exceeded threshold. Contact the ReportStream team at " +
+                            "$REPORSTREAM_SUPPORT_EMAIL for assistance."
                     )
                 )
             )
@@ -290,11 +304,11 @@ class CsvSerializer(val metadata: Metadata) : Logging {
         val missingOptionalHeaders = optionalHeaders - actualHeaders
         val ignoredHeaders = actualHeaders - requiredHeaders - optionalHeaders - headersWithDefault
         val errors = missingRequiredHeaders.map {
-            "Missing ${schema.findElementByCsvName(it)?.fieldMapping} header"
+            "Your file is missing ${schema.findElementByCsvName(it)?.fieldMapping} header."
         }
         val warnings = missingOptionalHeaders.map {
             "Missing ${schema.findElementByCsvName(it)?.fieldMapping} header"
-        } + ignoredHeaders.map { "Unexpected '$it' header is ignored" }
+        } + ignoredHeaders.map { "Unexpected column header founder, '$it' will be ignored" }
 
         return CsvMapping(useCsv, defaultValues, errors, warnings)
     }
@@ -365,5 +379,9 @@ class CsvSerializer(val metadata: Metadata) : Logging {
             value
         }
         return RowResult(outputRow, errors, warnings)
+    }
+
+    companion object {
+        const val REPORSTREAM_SUPPORT_EMAIL = "reportstream@cdc.gov"
     }
 }
