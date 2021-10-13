@@ -127,7 +127,7 @@ paths:
 components:
   schemas:
     DynamicTableRows:
-      description: An orderd array with the table rows
+      description: An ordered array with the table rows
       type: array
       items:
         type: object
