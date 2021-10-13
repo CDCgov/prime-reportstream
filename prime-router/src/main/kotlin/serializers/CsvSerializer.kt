@@ -107,7 +107,7 @@ class CsvSerializer(val metadata: Metadata) {
                     ResultDetail.report(
                         InvalidReportMessage.new(
                             "There's an issue parsing your file. Contact the " +
-                                "ReportStream team at reportstream@cdc.gov."
+                                "ReportStream team at $REPORSTREAM_SUPPORT_EMAIL."
                         )
                     )
                 )
@@ -116,7 +116,7 @@ class CsvSerializer(val metadata: Metadata) {
                     ResultDetail.report(
                         InvalidReportMessage.new(
                             "There's an issue parsing your file. Contact the " +
-                                "ReportStream team at reportstream@cdc.gov."
+                                "ReportStream team at $REPORSTREAM_SUPPORT_EMAIL."
                         )
                     )
                 )
@@ -139,7 +139,7 @@ class CsvSerializer(val metadata: Metadata) {
                 ResultDetail.report(
                     InvalidReportMessage.new(
                         "Report file failed: Number of errors exceeded threshold. Contact the ReportStream team at " +
-                            "reportstream@cdc.gov for assistance."
+                            "$REPORSTREAM_SUPPORT_EMAIL for assistance."
                     )
                 )
             )
@@ -168,7 +168,7 @@ class CsvSerializer(val metadata: Metadata) {
                 ResultDetail.report(
                     InvalidReportMessage.new(
                         "Report file failed: Number of errors exceeded threshold. Contact the ReportStream team at " +
-                            "reportstream@cdc.gov for assistance."
+                            "$REPORSTREAM_SUPPORT_EMAIL for assistance."
                     )
                 )
             )
@@ -367,5 +367,9 @@ class CsvSerializer(val metadata: Metadata) {
             value
         }
         return RowResult(outputRow, errors, warnings)
+    }
+
+    companion object {
+        const val REPORSTREAM_SUPPORT_EMAIL = "reportstream@cdc.gov"
     }
 }

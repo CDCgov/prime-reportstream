@@ -27,11 +27,11 @@ data class InvalidDateMessage(
     val format: String? = ""
 ) : ResponseMessage {
     override fun detailMsg(): String {
+        var msg = "Invalid date: '$formattedValue' for element $fieldMapping."
         if (format !== null) {
-            return "Invalid date: '$formattedValue' for element $fieldMapping. Reformat to $format."
-        } else {
-            return "Invalid date: '$formattedValue' for element $fieldMapping."
+            msg += " Reformat to $format."
         }
+        return msg
     }
 
     override fun groupingId(): String {
@@ -52,12 +52,11 @@ data class InvalidCodeMessage(
     val format: String? = ""
 ) : ResponseMessage {
     override fun detailMsg(): String {
+        var msg = "Invalid code: '$formattedValue' is not a display value in altValues set for $fieldMapping."
         if (format !== null) {
-            return "Invalid code: '$formattedValue' is not a display value in altValues set for $fieldMapping. " +
-                "Reformat to $format."
-        } else {
-            return "Invalid code: '$formattedValue' is not a display value in altValues set for $fieldMapping."
+            msg += " Reformat to $format."
         }
+        return msg
     }
 
     override fun groupingId(): String {
