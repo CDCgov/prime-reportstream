@@ -17,10 +17,11 @@ export default function Feature({
     } else
         return (
             <div className="tablet:grid-col-4 margin-bottom-0">
-                <h3 className="font-sans-md tablet:font-sans-lg padding-top-3 border-top-05 border-base-lighter">
+                <h3 data-testid="heading" className="font-sans-md tablet:font-sans-lg padding-top-3 border-top-05 border-base-lighter">
                     {feature.title}
                 </h3>
                 <p
+                    data-testid="summary"
                     className="usa-prose"
                     dangerouslySetInnerHTML={{ __html: feature!.summary! }}
                 ></p>
