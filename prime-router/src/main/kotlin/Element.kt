@@ -15,6 +15,8 @@ import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 import java.util.Locale
 
+class AltValueNotDefinedException(message: String) : IllegalStateException(message)
+
 /**
  * An element is represents a data element (ie. a single logical value) that is contained in single row
  * of a report. A set of Elements form the main content of a Schema.
@@ -238,12 +240,10 @@ data class Element(
     /**
      * A formatted string is the Element's normalized value formatted using the format string passed in
      * The format string's value is specific to the type of the element.
-     * The [schema] is passed in for logging purposes only.
      */
     fun toFormatted(
         normalizedValue: kotlin.String,
         format: kotlin.String? = null,
-        schema: Schema? = null,
     ): String {
         if (normalizedValue.isEmpty()) return ""
         val formattedValue = when (type) {
@@ -271,18 +271,10 @@ data class Element(
                     // TODO Revisit: there may be times that normalizedValue is not an altValue
                     altDisplayToken ->
                         toAltDisplay(normalizedValue)
-                            ?: "".also {
-                                // Warn in the logs rather than actually throwing an exception.
-                                // This occurs in the Batch step, so no way to error back to the sender.
-                                println(
-                                    "Exception: Outgoing receiver schema ERROR:" +
-                                        " '$normalizedValue' is not in altValues set for $fieldMapping." +
-                                        " Replacing with empty-string in generated data for element $name" +
-                                        " and continuing to process." +
-                                        " Consider fixing by adding $normalizedValue to the " +
-                                        " alt valueset in schema ${schema?.name ?: ""}"
-                                )
-                            }
+                            ?: throw AltValueNotDefinedException(
+                                "Outgoing receiver schema problem:" +
+                                    " '$normalizedValue' is not in altValues set for $fieldMapping."
+                            )
                     codeToken ->
                         toCode(normalizedValue)
                             ?: error(
