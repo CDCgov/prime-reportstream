@@ -9,10 +9,11 @@ import time
 import argparse
 import os
 import datetime
+import sys
 from email.utils import parsedate_to_datetime
 
 parser = argparse.ArgumentParser(description='Put org file into a prime service')
-parser.add_argument('--wait', type=int, default=0)
+parser.add_argument('--conn-retries', type=int, default=10)
 parser.add_argument('--check-last-modified', action='store_true', default=False)
 parser.add_argument('host', default='localhost')
 parser.add_argument('org_file', default='organizations.yml')
@@ -66,12 +67,30 @@ def get_last_modified():
     else:
         return datetime.datetime(2000, 1, 1)  # early date to make logic work
 
+# Check and wait for the API to be available for a number of retries
+def waitForApiAvailability():
+    print("Checking if the API is available at " + base_url)
+    url = f'{base_url}/settings/organizations'
+    retryInterval = 5
+    maxRetries = args.conn_retries
+    retryCount = 0
+    connected = False
+    while (connected is False) and (retryCount < maxRetries):
+        try:
+            requests.head(url, headers=headers)
+            connected = True
+            print("API is available.  Continuing...")
+        except Exception as err:
+            print("Unable to connect to the API.  Retrying " + str(maxRetries - retryCount) + " more times...")
+            retryCount += 1
+            time.sleep(retryInterval)
+    if connected is False:
+        print("ERROR: Unable to connect to API after " + str(retryCount) + " retries")
+        sys.exit(1)
 
 def main():
     try:
-        if args.wait > 0:
-            print(f"Waiting for {args.wait} seconds")
-            time.sleep(args.wait)
+        waitForApiAvailability()
 
         if args.check_last_modified:
             settings_modified = get_last_modified()
