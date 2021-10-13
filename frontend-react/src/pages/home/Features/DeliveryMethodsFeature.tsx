@@ -17,11 +17,18 @@ export default function DeliveryMethodsFeature({
                     />
                 </div>
                 <div className="tablet:grid-col-6 ">
-                    <h3 data-testid="heading" className="font-sans-lg margin-top-0 padding-top-3 margin-bottom-1 tablet:border-top-05 tablet:border-base-lighter">
+                    <h3
+                        data-testid="heading"
+                        className="font-sans-lg margin-top-0 padding-top-3 margin-bottom-1 tablet:border-top-05 tablet:border-base-lighter"
+                    >
                         {feature.title}
                     </h3>
-                    <p data-testid="item-1" className="usa-prose">{feature!.items![0]?.summary}</p>
-                    <p data-testid="item-2" className="usa-prose">{feature!.items![1]?.summary}</p>
+                    <p data-testid="item-1" className="usa-prose">
+                        {feature!.items![0]?.summary}
+                    </p>
+                    <p data-testid="item-2" className="usa-prose">
+                        {feature!.items![1]?.summary}
+                    </p>
                 </div>
             </div>
         </div>

@@ -1,37 +1,35 @@
 import { render, screen } from "@testing-library/react";
+
 import Feature from "./Feature";
 
-
-describe('Feature rendering', () => {
-    const baseSection = { type: "xyz" }
+describe("Feature rendering", () => {
+    const baseSection = { type: "xyz" };
     const baseFeature = {
         title: "base title",
-        summary: "base summary"
-    }
+        summary: "base summary",
+    };
 
     beforeEach(() => {
-        render(<Feature section={baseSection} feature={baseFeature} />)
-    })
+        render(<Feature section={baseSection} feature={baseFeature} />);
+    });
 
-
-    test('renders without error', () => {
+    test("renders without error", () => {
         const heading = screen.getByTestId("heading");
         const summary = screen.getByTestId("summary");
         expect(heading).toBeInTheDocument();
         expect(summary).toBeInTheDocument();
-    })
+    });
 
-    test('title and summary are correct', () => {
+    test("title and summary are correct", () => {
         const heading = screen.getByTestId("heading");
         const summary = screen.getByTestId("summary");
-        expect(heading.innerHTML).toEqual(baseFeature.title)
-        expect(summary.innerHTML).toEqual(baseFeature.summary)
+        expect(heading.innerHTML).toEqual(baseFeature.title);
+        expect(summary.innerHTML).toEqual(baseFeature.summary);
+    });
+});
 
-    })
-})
-
-describe('DeliveryMethodFeature rendering', () => {
-    const deliveryMethodSection = { type: "deliveryMethods" }
+describe("DeliveryMethodFeature rendering", () => {
+    const deliveryMethodSection = { type: "deliveryMethods" };
     const deliveryFeature = {
         title: "delivery title",
         img: "test.png",
@@ -39,21 +37,26 @@ describe('DeliveryMethodFeature rendering', () => {
         items: [
             {
                 title: "item 1",
-                summary: "item 1 summary"
+                summary: "item 1 summary",
             },
             {
                 title: "item 2",
-                summary: "item 2 summary"
-            }
-        ]
-    }
+                summary: "item 2 summary",
+            },
+        ],
+    };
 
     beforeEach(() => {
-        render(<Feature section={deliveryMethodSection} feature={deliveryFeature} />)
-    })
+        render(
+            <Feature
+                section={deliveryMethodSection}
+                feature={deliveryFeature}
+            />
+        );
+    });
 
-    test('renders without error', () => {
-        const image = screen.getByTestId("image")
+    test("renders without error", () => {
+        const image = screen.getByTestId("image");
         const heading = screen.getByTestId("heading");
         const item1 = screen.getByTestId("item-1");
         const item2 = screen.getByTestId("item-2");
@@ -61,25 +64,25 @@ describe('DeliveryMethodFeature rendering', () => {
         expect(heading).toBeInTheDocument();
         expect(item1).toBeInTheDocument();
         expect(item2).toBeInTheDocument();
-    })
-})
+    });
+});
 
-describe('LiveMapFeature rendering', () => {
-    const liveMapSection = { type: "liveMap" }
+describe("LiveMapFeature rendering", () => {
+    const liveMapSection = { type: "liveMap" };
     const liveMapFeature = {
         img: "test.png",
         imgAlt: "test alt",
-        linkInternal: "/how-it-works/where-were-live"
-    }
+        linkInternal: "/how-it-works/where-were-live",
+    };
 
     beforeEach(() => {
-        render(<Feature section={liveMapSection} feature={liveMapFeature} />)
-    })
+        render(<Feature section={liveMapSection} feature={liveMapFeature} />);
+    });
 
-    test('renders without error', () => {
-        const heading = screen.getByTestId("heading")
+    test("renders without error", () => {
+        const heading = screen.getByTestId("heading");
         const summary = screen.getByTestId("summary");
         expect(heading).toBeInTheDocument();
         expect(summary).toBeInTheDocument();
-    })
-})
+    });
+});
