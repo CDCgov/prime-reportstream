@@ -6,7 +6,6 @@ import {
     Label,
     TextInput,
 } from "@trussworks/react-uswds";
-import React from "react";
 import { Link } from "react-router-dom";
 
 import Title from "../../components/Title";
@@ -25,20 +24,72 @@ const AgreementLabel = () => {
 };
 
 function SigningForm() {
-    const states = ['Alabama', 'Alaska', 'American Samoa', 'Arizona', 'Arkansas',
-        'California', 'Colorado', 'Connecticut', 'Delaware', 'District of Columbia',
-        'Federated States of Micronesia', 'Florida', 'Georgia', 'Guam', 'Hawaii', 'Idaho',
-        'Illinois', 'Indiana', 'Iowa', 'Kansas', 'Kentucky', 'Louisiana', 'Maine', 'Marshall Islands',
-        'Maryland', 'Massachusetts', 'Michigan', 'Minnesota', 'Mississippi', 'Missouri', 'Montana',
-        'Nebraska', 'Nevada', 'New Hampshire', 'New Jersey', 'New Mexico', 'New York', 'North Carolina',
-        'North Dakota', 'Northern Mariana Islands', 'Ohio', 'Oklahoma', 'Oregon', 'Palau', 'Pennsylvania',
-        'Puerto Rico', 'Rhode Island', 'South Carolina', 'South Dakota', 'Tennessee', 'Texas', 'Utah',
-        'Vermont', 'Virgin Island', 'Virginia', 'Washington', 'West Virginia', 'Wisconsin', 'Wyoming']
+    const states = [
+        "Alabama",
+        "Alaska",
+        "American Samoa",
+        "Arizona",
+        "Arkansas",
+        "California",
+        "Colorado",
+        "Connecticut",
+        "Delaware",
+        "District of Columbia",
+        "Federated States of Micronesia",
+        "Florida",
+        "Georgia",
+        "Guam",
+        "Hawaii",
+        "Idaho",
+        "Illinois",
+        "Indiana",
+        "Iowa",
+        "Kansas",
+        "Kentucky",
+        "Louisiana",
+        "Maine",
+        "Marshall Islands",
+        "Maryland",
+        "Massachusetts",
+        "Michigan",
+        "Minnesota",
+        "Mississippi",
+        "Missouri",
+        "Montana",
+        "Nebraska",
+        "Nevada",
+        "New Hampshire",
+        "New Jersey",
+        "New Mexico",
+        "New York",
+        "North Carolina",
+        "North Dakota",
+        "Northern Mariana Islands",
+        "Ohio",
+        "Oklahoma",
+        "Oregon",
+        "Palau",
+        "Pennsylvania",
+        "Puerto Rico",
+        "Rhode Island",
+        "South Carolina",
+        "South Dakota",
+        "Tennessee",
+        "Texas",
+        "Utah",
+        "Vermont",
+        "Virgin Island",
+        "Virginia",
+        "Washington",
+        "West Virginia",
+        "Wisconsin",
+        "Wyoming",
+    ];
 
     const handleSubmit = (e: any) => {
         e.preventDefault();
         console.log(e);
-    }
+    };
 
     return (
         <div className="width-tablet margin-x-auto">
@@ -51,10 +102,7 @@ function SigningForm() {
                 <span style={{ color: "red" }}>*</span>).
             </p>
 
-            <Form
-                id="tos-agreement"
-                onSubmit={handleSubmit}
-            >
+            <Form id="tos-agreement" onSubmit={handleSubmit}>
                 <h3 className="padding-top-7 text-normal">
                     Name and contact information
                 </h3>
@@ -85,8 +133,15 @@ function SigningForm() {
                     [HQ] State or territory <Required />
                 </Label>
                 <Dropdown id="input-dropdown" name="states-dropdown">
-                    {states.map(state => {
-                        return <option key={state.toLowerCase()} value={state.toLowerCase()}>{state}</option>
+                    {states.map((state) => {
+                        return (
+                            <option
+                                key={state.toLowerCase()}
+                                value={state.toLowerCase()}
+                            >
+                                {state}
+                            </option>
+                        );
                     })}
                 </Dropdown>
                 <Label htmlFor="organization-name">
@@ -101,7 +156,7 @@ function SigningForm() {
                     className="padding-top-3"
                     id="multi-state"
                     name="multi-state"
-                    label="[My org reports to multiple states]"
+                    label="My org reports to multiple states"
                 />
             </Form>
 
