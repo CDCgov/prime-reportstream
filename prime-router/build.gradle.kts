@@ -542,6 +542,7 @@ dependencies {
     implementation("com.github.kittinunf.fuel:fuel:2.3.1") {
         exclude(group = "org.json", module = "json")
     }
+    implementation("com.google.code.gson:gson:2.8.2")
     implementation("com.github.kittinunf.fuel:fuel-json:2.3.1")
     implementation("org.json:json:20210307")
     implementation("com.hierynomus:sshj:0.31.0")
