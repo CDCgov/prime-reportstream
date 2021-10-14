@@ -104,14 +104,14 @@ export const ELRChecklist = () => {
                     the ELR onboarding form, we recommend first reviewing
                     information on our{" "}
                     <a
-                        href="/how-it-works/getting-started/"
+                        href="/how-it-works/getting-started"
                         className="usa-link"
                     >
                         Getting started page
                     </a>{" "}
                     and the technical details outlined in{" "}
                     <a
-                        href="/how-it-works/systems-and-settings/"
+                        href="/how-it-works/systems-and-settings"
                         className="usa-link"
                     >
                         Systems & settings
