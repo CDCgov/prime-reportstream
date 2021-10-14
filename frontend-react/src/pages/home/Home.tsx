@@ -6,7 +6,7 @@ import Section from "./Sections/Section";
 import Feature from "./Features/Feature";
 
 /* INFO
-   to change any of the content rendered by Home.tsx, Ctrl+click (shortcut for VScode) on the content import above 
+   to change any of the content rendered by Home.tsx, Ctrl+click (shortcut for VScode) on the content import above
    to be taken to content.json. There you may make changes within each object held in the section and freeSecure arrays. No
    content is hard-coded in this file. */
 export const Home = () => {
@@ -17,21 +17,23 @@ export const Home = () => {
             {/* INFO
                 this block of code maps through the section array in content.json to render all section
                 and the features held in the feature array of each section. */}
-            <div className="grid-container">
-                {content.sections.map((section) => {
+            <div data-testid="container" className="grid-container">
+                {content.sections.map((section, sectionIndex) => {
                     return (
                         <section
-                            key={section.type}
+                            data-testid="section"
+                            key={`section=${sectionIndex}`}
                             className="usa-section margin-y-0 tablet:padding-top-2 tablet:padding-bottom-2"
                         >
                             <div className="grid-row grid-gap">
                                 <Section section={section} />
                             </div>
                             <div className="grid-row grid-gap margin-bottom-4 ">
-                                {section.features?.map((feature) => {
+                                {section.features?.map((feature, featureIndex) => {
                                     return (
                                         <Feature
-                                            key={feature.title}
+                                            data-testid="feature"
+                                            key={`feature-${sectionIndex}.${featureIndex}`}
                                             section={section}
                                             feature={feature}
                                         />
@@ -50,6 +52,7 @@ export const Home = () => {
                         {content.freeSecure.map((item) => {
                             return (
                                 <div
+                                    data-testid="free-secure"
                                     key={item.title}
                                     className="tablet:grid-col-6"
                                 >
