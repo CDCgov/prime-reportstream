@@ -17,11 +17,12 @@ export const Home = () => {
             {/* INFO
                 this block of code maps through the section array in content.json to render all section
                 and the features held in the feature array of each section. */}
-            <div className="grid-container">
+            <div data-testid="container" className="grid-container">
                 {content.sections.map((section) => {
                     return (
                         <section
-                            key={section.type}
+                            data-testid="section"
+                            key={section.title}
                             className="usa-section margin-y-0 tablet:padding-top-2 tablet:padding-bottom-2"
                         >
                             <div className="grid-row grid-gap">
@@ -31,6 +32,7 @@ export const Home = () => {
                                 {section.features?.map((feature) => {
                                     return (
                                         <Feature
+                                            data-testid="feature"
                                             key={feature.title}
                                             section={section}
                                             feature={feature}
@@ -50,6 +52,7 @@ export const Home = () => {
                         {content.freeSecure.map((item) => {
                             return (
                                 <div
+                                    data-testid="free-secure"
                                     key={item.title}
                                     className="tablet:grid-col-6"
                                 >

@@ -130,11 +130,9 @@ This field is ignored.
 
 **Name**: Device Identifier
 
-**Type**: TEXT
+**Type**: TABLE
 
 **PII**: No
-
-**Default Value**: 99999999
 
 **Cardinality**: [0..1]
 
@@ -143,18 +141,6 @@ This field is ignored.
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
 
 **Table**: LIVD-SARS-CoV-2-2021-09-29
-
-**Table Column**: Model
-
----
-
-**Name**: equipment_model_name_temp
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-**Table**: LIVD-SARS-CoV-2-2021-04-28
 
 **Table Column**: Model
 
@@ -460,7 +446,7 @@ The patient's city
 
 **PII**: No
 
-**Cardinality**: [1..1]
+**Cardinality**: [0..1]
 
 **Table**: zip-code-data
 
@@ -1100,7 +1086,7 @@ the test result is in some intermediate status, is a correction, or is the final
 
 ---
 
-**Name**: Facility State
+**Name**: Facility City
 
 **Type**: CITY
 
@@ -1226,7 +1212,7 @@ be offset, so this field takes the `specimen_collection_date_time` field and off
 
 ---
 
-**Name**: Facility Zip
+**Name**: Facility State
 
 **Type**: TABLE
 
