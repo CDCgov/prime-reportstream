@@ -1,7 +1,8 @@
 import React from "react";
 import { Helmet } from "react-helmet";
 
-import SigningForm from "./SigningForm";
+// import SigningForm from "./SigningForm";
+import SuccessPage from "./SuccessPage";
 
 function SignTermsOfService() {
     return (
@@ -10,7 +11,7 @@ function SignTermsOfService() {
                 <title>Sign the Terms of Service</title>
             </Helmet>
             <div className="grid-container">
-                <SigningForm />
+                <SuccessPage />
             </div>
         </>
     );
