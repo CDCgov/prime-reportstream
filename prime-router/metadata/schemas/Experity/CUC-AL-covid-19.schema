@@ -18,7 +18,6 @@ elements:
 
     - name: test_kit_name_id
       type: CODE
-      default: 99999999
       csvFields: [{name: Ordered_test_description, format: $alt}]
       altValues:
 # Used with the test_performed_code to assign the LOINC: 95209-3 and set the Device ID on the outbound HL7
@@ -27,6 +26,9 @@ elements:
 # Used with the test_performed_code to assign the LOINC: 94534-5 and set the Device ID on the outbound HL7
         - code: 10811877011269
           display: "Abbott-ID NOW COVID-19 (Molecular)"
+# Used with the test_performed_code to assign the LOINC: 94508-9 or 94507-1 for IgM or IgG, and set the Device ID on the outbound HL7
+        - code: "RightSign COVID-19 IgG/IgM Rapid Test Cassette_Hangzhou Biotest Biotech Co., Ltd."
+          display: "RightSign COVID-19 IgG/IgM Rapid Test Cassette"
 # Used with the test_performed_code to assign the LOINC: 94508-9 or 94507-1 for IgM or IgG, and set the Device ID on the outbound HL7
         - code: "COVID-19 IgG/IgM Rapid Test Cassette (Whole Blood/Serum/Plasma)_Healgen Scientific LLC"
           display: "Healgen COVID-19 IgG IgM Rapid Test"
