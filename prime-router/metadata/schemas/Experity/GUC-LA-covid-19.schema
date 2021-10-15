@@ -18,7 +18,6 @@ elements:
 
     - name: test_kit_name_id
       type: CODE
-      default: 99999999
       csvFields: [{name: Ordered_test_description, format: $alt}]
       altValues:
 # This should translate to LOINC: 94558-4

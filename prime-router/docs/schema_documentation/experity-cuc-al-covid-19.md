@@ -1045,7 +1045,7 @@ Translate multiple inbound Y/N/U AOE values to RS values
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
 
-**Table**: LIVD-SARS-CoV-2-2021-04-28
+**Table**: LIVD-SARS-CoV-2-2021-09-29
 
 **Table Column**: Model
 
@@ -2158,8 +2158,6 @@ Translate multiple inbound Y/N/U AOE values to RS values
 
 **Format**: $alt
 
-**Default Value**: 99999999
-
 **Cardinality**: [0..1]
 
 **Alt Value Sets**
@@ -2168,6 +2166,7 @@ Code | Display
 ---- | -------
 Sofia SARS Antigen FIA_Quidel Corporation|Sofia SARS Antigen FIA
 10811877011269|Abbott-ID NOW COVID-19 (Molecular)
+RightSign COVID-19 IgG/IgM Rapid Test Cassette_Hangzhou Biotest Biotech Co., Ltd.|RightSign COVID-19 IgG/IgM Rapid Test Cassette
 COVID-19 IgG/IgM Rapid Test Cassette (Whole Blood/Serum/Plasma)_Healgen Scientific LLC|Healgen COVID-19 IgG IgM Rapid Test
 
 ---
