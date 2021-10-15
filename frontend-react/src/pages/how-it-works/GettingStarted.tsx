@@ -180,7 +180,7 @@ export const GettingStarted = () => {
                 <p>
                     Check out our{" "}
                     <a
-                        href="/how-it-works/elr-checklist/"
+                        href="/how-it-works/elr-checklist"
                         className="usa-link margin-right-1 usa-link"
                     >
                         ELR onboarding checklist
