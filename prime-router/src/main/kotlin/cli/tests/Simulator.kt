@@ -167,7 +167,7 @@ class Simulator : CoolTest() {
             stracSender,
             true
         )
-        val twoThreadsX100 = Simulation( // Meant to simulate a high load from a single-test sender
+        val fiveThreadsX100 = Simulation( // Meant to simulate a high load from a single-test sender
             "twoThreadsX100 : Submit 2X100 = 200 tests as fast as possible, across 2 threads.",
             5,
             50,
@@ -238,8 +238,8 @@ class Simulator : CoolTest() {
         val totalSubmissions = results.map { it.totalSubmissionsCount }.sum()
         val totalItems = results.map { it.totalItemsCount }.sum()
         val totalTime= results.map { it.elapsedMillisForWholeSimulation}.sum()
-        val submissionRateString = String.format("%.2f", totalSubmissions / totalTime / 1000.0)
-        val itemRateString = String.format("%.2f", totalItems / totalTime / 1000.0)
+        val submissionRateString = String.format("%.2f", totalSubmissions.toFloat() / (totalTime / 1000.0))
+        val itemRateString = String.format("%.2f", totalItems.toFloat() / (totalTime / 1000.0))
         val summary = "Simulation Done.   Summary:\n" +
             "Total Submissions submitted in Simulation runs:\t$totalSubmissions\n" +
             "Total Items submitted in Simulation runs:\t$totalItems\n" +
@@ -259,11 +259,11 @@ class Simulator : CoolTest() {
     fun productionSimulation(environment: ReportStreamEnv, options: CoolTestOptions): List<SimulatorResult> {
         ugly("A test that simulates a high daytime load in Production")
         val results = arrayListOf<SimulatorResult>()
-        results += runOneSimulation(twoThreadsX100, environment, options)
+        results += runOneSimulation(fiveThreadsX100, environment, options)
         results += runOneSimulation(simpleReport, environment, options)
-        results += runOneSimulation(twoThreadsX100, environment, options)
+        results += runOneSimulation(fiveThreadsX100, environment, options)
         results += runOneSimulation(spike, environment, options)
-        results += runOneSimulation(twoThreadsX100, environment, options)
+        results += runOneSimulation(fiveThreadsX100, environment, options)
         return results
     }
 
@@ -280,7 +280,11 @@ class Simulator : CoolTest() {
 
     override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
         setup(environment, options)
-        val results = productionSimulation(environment, options)
+        var results = productionSimulation(environment, options)
+        results += productionSimulation(environment, options)
+        results += productionSimulation(environment, options)
+        results += productionSimulation(environment, options)
+        results += productionSimulation(environment, options)
         return teardown(results)
     }
 }
