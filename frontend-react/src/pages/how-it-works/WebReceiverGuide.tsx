@@ -16,7 +16,7 @@ export const WebReceiverGuide = () => {
                 <h1 className="margin-top-0">Data download website guide</h1>
                 <p className="usa-intro">
                     The{" "}
-                    <NavLink to="/login/" key="login" className="usa-link">
+                    <NavLink to="/login" key="login" className="usa-link">
                         data download website
                     </NavLink>{" "}
                     enables a public health department to access data from
@@ -158,7 +158,7 @@ export const WebReceiverGuide = () => {
                 <ul>
                     <li>
                         Visit{" "}
-                        <NavLink to="/login/" key="login" className="usa-link">
+                        <NavLink to="/login" key="login" className="usa-link">
                             reportstream.cdc.gov
                         </NavLink>{" "}
                         to log in to the application.
@@ -192,7 +192,7 @@ export const WebReceiverGuide = () => {
                     <li>
                         If you forgot your password, follow the instructions
                         under "Need help signing in?" on the login page at{" "}
-                        <NavLink to="/login/" key="login" className="usa-link">
+                        <NavLink to="/login" key="login" className="usa-link">
                             reportsream.cdc.gov/login
                         </NavLink>
                         .
