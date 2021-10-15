@@ -1,4 +1,3 @@
-// @ts-nocheck // TODO: This file is not typesafe. Needs to be refactors and unit tests added.
 import React, { useState } from "react";
 import {
     Button,
@@ -47,7 +46,7 @@ export const Upload = () => {
         lastName: authState?.accessToken?.claims.family_name || "",
     };
 
-    const uploadReport = async function postData(fileBody) {
+    const uploadReport = async function postData(fileBody: string) {
         let textBody;
         let response;
         try {
@@ -79,11 +78,13 @@ export const Upload = () => {
         }
     };
 
-    const handleChange = (event) => {
-        setFile(event.target.files[0]);
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        if (event?.target?.files?.length || 0) {
+            setFile(event.target.files[0]);
+        }
     };
 
-    const handleSubmit = async (event) => {
+    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
         // reset the state on subsequent uploads
