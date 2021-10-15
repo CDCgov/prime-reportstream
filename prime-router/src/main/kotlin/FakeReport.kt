@@ -147,7 +147,7 @@ class FakeDataService {
                         else -> TODO("Add this column in a table")
                     }
                 }
-                else -> TODO("Add this table")
+                else -> TODO("Add this table ${element.table}")
             }
         }
 
@@ -179,7 +179,7 @@ class FakeDataService {
             Element.Type.PERSON_NAME -> createFakeName(element)
             Element.Type.TELEPHONE -> createFakePhoneNumber(element)
             Element.Type.EMAIL -> createFakeEmail()
-            null -> error("Invalid element type for ${element.name}")
+            null -> error("Element type is null for ${element.name}")
         }
     }
 

@@ -57,6 +57,8 @@ elements:
         code: Sofia 2 Flu + SARS Antigen FIA*
       - display: Antigen
         code: Sienna-Clarity COVID-19 Antigen Rapid Test Cassette*
+      - display: Molecular
+        code: Tide Labs DTPM COVID-19 RT-PCR Test*
     csvFields:
     - name: Device_type
       format: $alt
