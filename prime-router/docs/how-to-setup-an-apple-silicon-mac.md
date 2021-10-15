@@ -23,7 +23,7 @@ The step that runs the `./devenv-infrastructure.sh` will not work.
 
 ### Step 2 - Run dependencies
 
-ReportStream depends on set of containers to be up before running. Run these now in their Docker containers.
+ReportStream depends on set of containers to be up before running. Run these containers now using `docker-compose`.
 
 ```bash
 docker-compose up sftp redox azurite vault web_receiver --detach
