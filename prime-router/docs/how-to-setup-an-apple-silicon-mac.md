@@ -1,9 +1,12 @@
 # Setup Apple Silicon Macs for Development
 
-## Problem
+## Problems
 
 At the time of writing this note, Microsoft's Azure Function docker container is not compatible with Apple Silicon processors. 
 Microsoft has not announced plans to fix this problem. 
+
+The current `./devenv-infrastructure.sh` runs the Frontend build in a container. 
+This container doesn't run because of the use of ARM64. 
 
 ## Workarounds
 
@@ -23,7 +26,7 @@ The step that runs the `./devenv-infrastructure.sh` will not work.
 ReportStream depends on set of containers to be up before running. Run these now in their Docker containers.
 
 ```bash
-docker-compose up sftp redox azurite vault --detach
+docker-compose up sftp redox azurite vault web_receiver --detach
 ```
 
 ### Step 3 - Run ReportStream
@@ -33,7 +36,18 @@ With the dependent services running, we can run ReportStream locally.
 gradle run
 ```
 
-A `ctrl-c` will kill the running ReportStream process. For now, keep ReportStream running and go to next step.
+A `ctrl-c` will kill the running ReportStream process. 
+For your change, build, debug cycle, you can use the gradle to execute these steps. 
+
+```bash
+# to build the project
+gradle clean package fatjar
+
+# to run the build
+gradle run
+```
+
+For now, keep ReportStream running and go to next step.
 
 ### Step 4 - Setup Settings and Vault
 To run tests, the settings db and the vault need to be configured.
@@ -51,8 +65,26 @@ In a new shell with ReportStream running in the first shell, execute these comma
 You should be able to run tests now to confirm that everything is working. 
 
 ```bash
-gradle testEnd2End
+# Smoke test checks that most of the system is working
+gradle testSmoke
 ```
+
+### Step 6 - Build Frontend
+
+You should be able to build the frontend locally per the [ReadMe](../frontend/readme.md) of the frontend project. 
+
+```bash
+cd ./frontend/
+npm ci
+npm run build
+
+# static site root built in `frontend/dist`
+ls ./dist
+```
+
+### Step 7 - Test Frontend
+
+Navigate to `http://localhost:8090/index.html`. You should be able to login and exercise the UI. 
 
 ## Final Notes
 
