@@ -15,6 +15,8 @@ import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 import java.util.Locale
 
+class AltValueNotDefinedException(message: String) : IllegalStateException(message)
+
 /**
  * An element is represents a data element (ie. a single logical value) that is contained in single row
  * of a report. A set of Elements form the main content of a Schema.
@@ -170,8 +172,9 @@ data class Element(
 
     val isCodeType get() = this.type == Type.CODE
 
-    val isOptional get() = this.cardinality == null ||
-        this.cardinality == ZERO_OR_ONE || canBeBlank
+    val isOptional
+        get() = this.cardinality == null ||
+            this.cardinality == ZERO_OR_ONE || canBeBlank
 
     val canBeBlank
         get() = type == Type.TEXT_OR_BLANK ||
@@ -239,8 +242,8 @@ data class Element(
      * The format string's value is specific to the type of the element.
      */
     fun toFormatted(
-        normalizedValue: String,
-        format: String? = null
+        normalizedValue: kotlin.String,
+        format: kotlin.String? = null,
     ): String {
         if (normalizedValue.isEmpty()) return ""
         val formattedValue = when (type) {
@@ -268,7 +271,10 @@ data class Element(
                     // TODO Revisit: there may be times that normalizedValue is not an altValue
                     altDisplayToken ->
                         toAltDisplay(normalizedValue)
-                            ?: error("Schema Error: '$normalizedValue' is not in altValues set for $fieldMapping")
+                            ?: throw AltValueNotDefinedException(
+                                "Outgoing receiver schema problem:" +
+                                    " '$normalizedValue' is not in altValues set for $fieldMapping."
+                            )
                     codeToken ->
                         toCode(normalizedValue)
                             ?: error(
@@ -415,7 +421,7 @@ data class Element(
                     LocalDate.from(ta)
                     return null
                 } catch (e: DateTimeParseException) {
-                    InvalidDateMessage.new(formattedValue, fieldMapping)
+                    InvalidDateMessage.new(formattedValue, fieldMapping, format)
                 }
             }
             Type.DATETIME -> {
@@ -456,28 +462,28 @@ data class Element(
                     LocalDate.parse(formattedValue, formatter)
                     null
                 } catch (e: DateTimeParseException) {
-                    InvalidDateMessage.new(formattedValue, fieldMapping)
+                    InvalidDateMessage.new(formattedValue, fieldMapping, format)
                 }
             }
             Type.CODE -> {
                 // First, prioritize use of a local $alt format, even if no value set exists.
                 return if (format == altDisplayToken) {
                     if (toAltCode(formattedValue) != null) null else
-                        InvalidCodeMessage.new(formattedValue, fieldMapping)
+                        InvalidCodeMessage.new(formattedValue, fieldMapping, format)
                 } else {
                     if (valueSetRef == null) error("Schema Error: missing value set for $fieldMapping")
                     when (format) {
                         displayToken ->
                             if (valueSetRef.toCodeFromDisplay(formattedValue) != null) null else
-                                InvalidCodeMessage.new(formattedValue, fieldMapping)
+                                InvalidCodeMessage.new(formattedValue, fieldMapping, format)
                         codeToken -> {
                             val values = altValues ?: valueSetRef.values
                             if (values.find { it.code == formattedValue } != null) null else
-                                InvalidCodeMessage.new(formattedValue, fieldMapping)
+                                InvalidCodeMessage.new(formattedValue, fieldMapping, format)
                         }
                         else ->
                             if (valueSetRef.toNormalizedCode(formattedValue) != null) null else
-                                InvalidCodeMessage.new(formattedValue, fieldMapping)
+                                InvalidCodeMessage.new(formattedValue, fieldMapping, format)
                     }
                 }
             }
@@ -497,7 +503,7 @@ data class Element(
             Type.POSTAL_CODE -> {
                 // Let in all formats defined by http://www.dhl.com.tw/content/dam/downloads/tw/express/forms/postcode_formats.pdf
                 return if (!Regex("^[A-Za-z\\d\\- ]{3,12}\$").matches(formattedValue))
-                    InvalidPostalMessage.new(formattedValue, fieldMapping)
+                    InvalidPostalMessage.new(formattedValue, fieldMapping, format)
                 else
                     null
             }
