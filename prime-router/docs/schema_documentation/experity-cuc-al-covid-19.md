@@ -1721,6 +1721,7 @@ Code | Display
 2106-3|White
 2106-3|W
 2106-3|Caucasian
+2106-3|C
 2106-3|2106-3
 1002-5|American Indian or Alaska Native
 1002-5|American Indian
@@ -1741,7 +1742,9 @@ Code | Display
 2131-1|O
 2131-1|Other Race
 2131-1|Other Race White
+2131-1|Other Race,White
 2131-1|Other Race Black
+2131-1|Other Race,Black
 2131-1|2131-1
 2028-9|Asian
 2028-9|Asian Indian
@@ -2194,6 +2197,9 @@ Code | Display
 ---- | -------
 260385009|Negative
 260385009|Neg
+260385009|Negative *** High ***
+260385009|Negative *** Low ***
+260385009|260385009
 260415000|Not detected
 260415000|NDET
 260415000|260415000
@@ -2204,6 +2210,10 @@ Code | Display
 10828004|Pos
 10828004|Positive (Abnormal)
 10828004|Positive (Alpha Abnormal)
+10828004|Positive *** High ***
+10828004|Positive  *** High ***
+10828004|Positive  *** Low ***
+10828004|Positive 
 10828004|10828004
 720735008|Presumptive positive
 720735008|720735008
