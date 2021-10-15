@@ -32,7 +32,7 @@ This document will walk you through the setup instructions to get a functioning 
 - [Resetting your environment](#resetting-your-environment)
     * [Resetting the Database](#resetting-the-database)
 - [Additional tooling](#additional-tooling)
-- [Miscelanious subjects](#miscelanious-subjects)
+- [Miscellaneous subjects](#miscellaneous-subjects)
     * [Using different database credentials than the default](#using-different-database-credentials-than-the-default)
     * [Using local configuration for organizations.yml](#using-local-configuration-for-organizationsyml)
     * [`PRIME_DATA_HUB_INSECURE_SSL` environment variable](#-prime-data-hub-insecure-ssl--environment-variable)
@@ -53,7 +53,7 @@ The following are optional tools that can aid you during development or debuggin
 * [Gradle](getting-started/install-gradle.md)
 * One or more [PostgreSQL Clients](getting-started/psql-clients.md)
 
-# Bulding the Baseline
+# Building the Baseline
 
 ## First Build
 
@@ -162,6 +162,9 @@ cd ./prime-router
 ./devenv-infrastructure.sh
 ```
 If you see any SSL errors during this step, follow the directions in [Getting Around SSL Errors](#getting-around-ssl-errors).
+
+> Note: Docker-Compose and devenv-infrastructure.sh do not work on Apple Silicon processors. 
+> See [How to setup an Apple Silicon Mac](how-to-setup-an-apple-silicon-mac.md) for workarounds. 
 
 ## Restarting After a Code Update
 You must re-package the build and restart the prime_dev container to see any modifications you have made to the files:
@@ -412,7 +415,7 @@ Some useful tools for Kotlin/Java development include:
 * [Java Profiling in ReportStream](./getting-started/java-profiling.md)
 * [Tips for faster development](./getting-started/faster-development.md)
 
-# Miscelanious subjects
+# Miscellaneous subjects
 
 ## Using different database credentials than the default
 
