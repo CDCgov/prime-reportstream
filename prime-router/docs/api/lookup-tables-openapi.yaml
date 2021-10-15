@@ -9,14 +9,14 @@ info:
     email: usds@cdc.gov
 
 security:
-  - OktaAuth: [ ]
+  - OktaAuth: [ SYSTEM_ADMIN ]
 
 paths:
   /api/lookuptables:
     get:
       description: Fetch the list lookup tables
       parameters:
-        - name: showAll
+        - name: showInactive
           in: query
           description: Set to true to include inactive tables
           schema:
