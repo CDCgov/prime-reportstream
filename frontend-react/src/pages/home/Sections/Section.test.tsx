@@ -12,7 +12,7 @@ jest.mock("@cdc/map", () => () => {
     return <div>Map</div>;
 });
 
-describe("Main rendering", () => {
+describe("Section rendering", () => {
     const fakeSection = {
         title: "Mock title",
         type: "Mock type",
@@ -45,7 +45,7 @@ describe("CTA rendering", () => {
         render(<Section section={fakeCtaSection} />);
     });
 
-    test("Renders <CtaSection /> if type === cta", () => {
+    test("Renders <CtaSection /> if type is cta", () => {
         const header = screen.getByTestId("heading");
         const description = screen.getByTestId("description");
         const summary = screen.getByTestId("summary");
@@ -70,7 +70,7 @@ describe("Live Map rendering", () => {
         render(<Section section={fakeLiveMapSection} />);
     });
 
-    test("Renders <LiveMapSection /> if type === liveMap", () => {
+    test("Renders <LiveMapSection /> if type is liveMap", () => {
         const header = screen.getByTestId("heading");
         const summary = screen.getByTestId("summary");
         const map = screen.getByTestId("map");

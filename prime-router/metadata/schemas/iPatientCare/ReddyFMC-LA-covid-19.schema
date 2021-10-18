@@ -88,8 +88,15 @@ elements:
 
 
     - name: specimen_type
-      type: TEXT
-      default: 445297001
-      csvFields: [{name: specimen_type}]
+      type: CODE
+      valueSet: sender-automation/specimen_type
+      documentation: Translate inbound text to outbound SNOMED Codes
+      csvFields: [{ name: Specimen_Type, format: $display}]
+      default: "445297001"
 
-
+    - name: specimen_source_site_code
+      type: CODE
+      valueSet: sender-automation/specimen_source_site_code
+      documentation: Translate inbound text to outbound SNOMED Codes
+      csvFields: [{ name: Specimen_Type, format: $display}]
+      default: "53342003"

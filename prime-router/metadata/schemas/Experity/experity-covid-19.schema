@@ -272,11 +272,8 @@ elements:
       default: N
 
 
-#this lookup is in the covid-19 schema, but doesn't appear to be done in practice (?)
+# Appears this RS field must be set even if it is not being used for the LIVD table lookup
     - name: equipment_model_name
-      table: LIVD-SARS-CoV-2-2021-04-28
-      tableColumn: Model
-      mapper: livdLookup()
 
 
 #unused fields - these are added here to suppress warnings.
