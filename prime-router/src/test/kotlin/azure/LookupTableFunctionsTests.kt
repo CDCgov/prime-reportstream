@@ -73,14 +73,36 @@ class LookupTableFunctionsTests {
         versionList[1].createdBy = "author2"
         versionList[1].createdAt = OffsetDateTime.now()
 
+        // Only shows active
         val lookupTableAccess = mockk<DatabaseLookupTableAccess>()
         every { lookupTableAccess.fetchTableList() } returns versionList
-
         every { mockRequest.httpMethod } returns HttpMethod.GET
         every { mockRequest.queryParameters } returns emptyMap()
         var mockResponseBuilder = createResponseBuilder()
         every { mockRequest.createResponseBuilder(HttpStatus.OK) } returns mockResponseBuilder
+        LookupTableFunctions(lookupTableAccess).getLookupTableList(mockRequest)
+        verify(exactly = 1) {
+            mockResponseBuilder.body(
+                withArg {
+                    // Check that we have JSON data in the response body
+                    assertTrue(it is String)
+                    val json = Json.parseToJsonElement(it)
+                    assertTrue(json is JsonArray)
+                    assertTrue(json.size == 1)
+                    assertTrue(json[0] is JsonObject)
+                    assertTrue((json[0] as JsonObject).containsKey("tableName"))
+                    assertEquals(
+                        ((json[0] as JsonObject)["tableName"]!! as JsonPrimitive).contentOrNull,
+                        versionList[0].tableName
+                    )
+                }
+            )
+        }
 
+        // Show all
+        every { mockRequest.queryParameters } returns mapOf(LookupTableFunctions.showInactiveParamName to "true")
+        mockResponseBuilder = createResponseBuilder()
+        every { mockRequest.createResponseBuilder(HttpStatus.OK) } returns mockResponseBuilder
         LookupTableFunctions(lookupTableAccess).getLookupTableList(mockRequest)
         verify(exactly = 1) {
             mockResponseBuilder.body(
@@ -90,12 +112,6 @@ class LookupTableFunctionsTests {
                     val json = Json.parseToJsonElement(it)
                     assertTrue(json is JsonArray)
                     assertTrue(json.size == 2)
-                    assertTrue(json[0] is JsonObject)
-                    assertTrue((json[0] as JsonObject).containsKey("tableName"))
-                    assertEquals(
-                        ((json[0] as JsonObject)["tableName"]!! as JsonPrimitive).contentOrNull,
-                        versionList[0].tableName
-                    )
                 }
             )
         }

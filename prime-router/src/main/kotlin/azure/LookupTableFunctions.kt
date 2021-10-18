@@ -53,9 +53,10 @@ class LookupTableFunctions(
     ): HttpResponseMessage {
         return oktaAuthentication.checkAccess(request) {
             try {
-                val showAll = request.queryParameters["showAll"]?.equals("true", true) ?: false
+                val showInactive = request.queryParameters[showInactiveParamName]
+                    ?.equals("true", true) ?: false
                 // Return only what's active if showAll is true
-                val list = lookupTableAccess.fetchTableList().filter { (showAll && it.isActive) || !showAll }
+                val list = lookupTableAccess.fetchTableList().filter { (!showInactive && it.isActive) || showInactive }
                 val json = mapper.writeValueAsString(list)
                 HttpUtilities.okResponse(request, json)
             } catch (e: DataAccessException) {
@@ -203,6 +204,11 @@ class LookupTableFunctions(
     }
 
     companion object {
+        /**
+         * Name of the query parameter to show inactive tables.
+         */
+        val showInactiveParamName = "showInactive"
+
         /**
          * Create the JSON representation of an error [message].
          * @return the JSON with the error message
