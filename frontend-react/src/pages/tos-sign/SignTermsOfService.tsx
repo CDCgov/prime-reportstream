@@ -3,8 +3,6 @@ import React, { useState } from "react";
 import { Helmet } from "react-helmet";
 
 import SigningForm from "./SigningForm";
-
-// import SigningForm from "./SigningForm";
 import SuccessPage from "./SuccessPage";
 
 function SignTermsOfService() {

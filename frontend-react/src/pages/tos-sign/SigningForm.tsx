@@ -15,37 +15,39 @@ import Title from "../../components/Title";
 import { STATES } from "../../utils/OrganizationUtils";
 
 interface AgreementBody {
-    title: string,
-    firstName: string,
-    lastName: string,
-    email: string,
-    territory: string,
-    organizationName: string,
-    operatesInMultipleStates: boolean,
-    agreedToTermsOfService: boolean,
+    title: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    territory: string;
+    organizationName: string;
+    operatesInMultipleStates: boolean;
+    agreedToTermsOfService: boolean;
 }
 
 function SigningForm() {
     /* Form field values are stored here */
-    const [title, setTitle] = useState("")
-    const [firstName, setFirstName] = useState("")
-    const [lastName, setLastName] = useState("")
-    const [email, setEmail] = useState("")
-    const [territory, setTerritory] = useState(STATES[0].toLowerCase())
-    const [organizationName, setOrganizationName] = useState("")
-    const [multipleStates, setMultipleStates] = useState(false)
-    const [agree, setAgree] = useState(false)
+    const [title, setTitle] = useState("");
+    const [firstName, setFirstName] = useState("");
+    const [lastName, setLastName] = useState("");
+    const [email, setEmail] = useState("");
+    const [territory, setTerritory] = useState(STATES[0].toLowerCase());
+    const [organizationName, setOrganizationName] = useState("");
+    const [multipleStates, setMultipleStates] = useState(false);
+    const [agree, setAgree] = useState(false);
 
     /* The proper flags are set to true if form is submitted without required fields */
-    const [firstNameErrorFlag, setFirstNameErrorFlag] = useState(false)
-    const [lastNameErrorFlag, setLastNameErrorFlag] = useState(false)
-    const [emailErrorFlag, setemailErrorFlag] = useState(false)
-    const [territoryErrorFlag, setterritoryErrorFlag] = useState(false)
-    const [organizationNameErrorFlag, setorganizationNameErrorFlag] = useState(false)
-    const [agreeErrorFlag, setAgreeErrorFlag] = useState(false)
+    const [firstNameErrorFlag, setFirstNameErrorFlag] = useState(false);
+    const [lastNameErrorFlag, setLastNameErrorFlag] = useState(false);
+    const [emailErrorFlag, setemailErrorFlag] = useState(false);
+    const [territoryErrorFlag, setterritoryErrorFlag] = useState(false);
+    const [organizationNameErrorFlag, setorganizationNameErrorFlag] =
+        useState(false);
+    const [agreeErrorFlag, setAgreeErrorFlag] = useState(false);
 
     const handleSubmit = (e: any) => {
         e.preventDefault();
+        resetAllErrorFlags();
         const body = createBody(
             title,
             firstName,
@@ -55,8 +57,8 @@ function SigningForm() {
             organizationName,
             multipleStates,
             agree
-        )
-        if (body) console.log(body)
+        );
+        if (body) console.log(body);
     };
 
     /* INFO
@@ -70,10 +72,17 @@ function SigningForm() {
         territory: string,
         organizationName: string,
         operatesInMultipleStates: boolean,
-        agreedToTermsOfService: boolean,
+        agreedToTermsOfService: boolean
     ) => {
-        let goodToGo: boolean = true
-        const required: string[] = ["firstName", "lastName", "email", "territory", "organizationName", "agreedToTermsOfService"]
+        let goodToGo: boolean = true;
+        const required: string[] = [
+            "firstName",
+            "lastName",
+            "email",
+            "territory",
+            "organizationName",
+            "agreedToTermsOfService",
+        ];
         const body: AgreementBody = {
             title: title,
             firstName: firstName,
@@ -82,60 +91,65 @@ function SigningForm() {
             territory: territory,
             organizationName: organizationName,
             operatesInMultipleStates: operatesInMultipleStates,
-            agreedToTermsOfService: agreedToTermsOfService
-        }
-        Object.entries(body).forEach(item => {
-            const [key, value]: [string, string | boolean] = item
-            if (required.includes(key) && (String(value).trim() === "" || value === false)) {
-                console.log(`${key} cannot be ${value === "" ? "empty" : "false"}.`)
-                goodToGo = false
-                setErrorFlag(key)
+            agreedToTermsOfService: agreedToTermsOfService,
+        };
+        Object.entries(body).forEach((item) => {
+            const [key, value]: [string, string | boolean] = item;
+            if (
+                required.includes(key) &&
+                (String(value).trim() === "" || value === false)
+            ) {
+                console.log(
+                    `${key} cannot be ${value === "" ? "empty" : "false"}.`
+                );
+                goodToGo = false;
+                setErrorFlag(key);
             }
-        })
-        if (goodToGo) { return body }
-        return null
-    }
+        });
+        if (goodToGo) {
+            return body;
+        }
+        return null;
+    };
 
     /* INFO
        When resubmitting, this will be called to eliminate all the previous flags
        prior to re-flagging the ones still throwing errors. */
     const resetAllErrorFlags = () => {
-        setFirstNameErrorFlag(false)
-        setLastNameErrorFlag(false)
-        setemailErrorFlag(false)
-        setterritoryErrorFlag(false)
-        setorganizationNameErrorFlag(false)
-        setAgreeErrorFlag(false)
-    }
+        setFirstNameErrorFlag(false);
+        setLastNameErrorFlag(false);
+        setemailErrorFlag(false);
+        setterritoryErrorFlag(false);
+        setorganizationNameErrorFlag(false);
+        setAgreeErrorFlag(false);
+    };
 
     /* INFO
-       Here is where we reset all flags and then trigger the proper error flags
-       for the current submission */
+       Here is where we set flags */
     const setErrorFlag = (key: string) => {
-        resetAllErrorFlags()
         switch (key) {
             case "firstName":
-                setFirstNameErrorFlag(true)
+                setFirstNameErrorFlag(true);
                 break;
             case "lastName":
-                setLastNameErrorFlag(true)
+                setLastNameErrorFlag(true);
                 break;
             case "email":
-                setemailErrorFlag(true)
+                setemailErrorFlag(true);
                 break;
             case "territory":
-                setterritoryErrorFlag(true)
+                setterritoryErrorFlag(true);
                 break;
             case "organizationName":
-                setorganizationNameErrorFlag(true)
+                setorganizationNameErrorFlag(true);
                 break;
             case "agreedToTermsOfService":
-                setAgreeErrorFlag(true)
+                setAgreeErrorFlag(true);
                 break;
             default:
                 break;
         }
-    }
+    };
 
     const Required = () => {
         return <span style={{ color: "red" }}>*</span>;
@@ -144,8 +158,9 @@ function SigningForm() {
     const AgreementLabel = () => {
         return (
             <span className="maxw-2">
-                By submitting your information, you're agreeing to the ReportSteam{" "}
-                <Link to="/terms-of-service">terms of service</Link>. <Required />
+                By submitting your information, you're agreeing to the
+                ReportSteam <Link to="/terms-of-service">terms of service</Link>
+                . <Required />
             </span>
         );
     };
@@ -173,7 +188,9 @@ function SigningForm() {
                         type="text"
                         inputSize="small"
                         value={title}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                            setTitle(e.target.value)
+                        }
                     />
                 </FormGroup>
                 <FormGroup error={firstNameErrorFlag}>
@@ -185,7 +202,10 @@ function SigningForm() {
                         name="first-name"
                         type="text"
                         value={firstName}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFirstName(e.target.value)} />
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                            setFirstName(e.target.value)
+                        }
+                    />
                 </FormGroup>
                 <FormGroup error={lastNameErrorFlag}>
                     <Label htmlFor="last-name">
@@ -196,7 +216,10 @@ function SigningForm() {
                         name="last-name"
                         type="text"
                         value={lastName}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLastName(e.target.value)} />
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                            setLastName(e.target.value)
+                        }
+                    />
                 </FormGroup>
                 <FormGroup error={emailErrorFlag}>
                     <Label htmlFor="email">
@@ -207,7 +230,10 @@ function SigningForm() {
                         name="email"
                         type="email"
                         value={email}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)} />
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                            setEmail(e.target.value)
+                        }
+                    />
                 </FormGroup>
 
                 <h3 className="padding-top-5 text-normal">
@@ -221,7 +247,9 @@ function SigningForm() {
                         id="input-dropdown"
                         name="states-dropdown"
                         value={territory}
-                        onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setTerritory(e.target.value)}
+                        onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                            setTerritory(e.target.value)
+                        }
                     >
                         {STATES.map((state) => {
                             return (
@@ -244,7 +272,9 @@ function SigningForm() {
                         name="organization-name"
                         type="text"
                         value={organizationName}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setOrganizationName(e.target.value)}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                            setOrganizationName(e.target.value)
+                        }
                     />
                 </FormGroup>
                 <Checkbox
@@ -252,7 +282,9 @@ function SigningForm() {
                     id="multi-state"
                     name="multi-state"
                     label="My org reports to multiple states"
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setMultipleStates(e.target.checked)}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                        setMultipleStates(e.target.checked)
+                    }
                 />
             </Form>
 
@@ -268,17 +300,25 @@ function SigningForm() {
                         className="padding-top-3"
                         id="agree"
                         name="agree"
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAgree(e.target.checked)}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                            setAgree(e.target.checked)
+                        }
                         label={<AgreementLabel />}
                     />
                     <ErrorMessage>
                         <span
-                            style={{ color: "red", visibility: agreeErrorFlag ? "visible" : "hidden" }}>
-                            You must agree to the Terms of Service before using ReportStream.
+                            style={{
+                                color: "red",
+                                visibility: agreeErrorFlag
+                                    ? "visible"
+                                    : "hidden",
+                            }}
+                        >
+                            You must agree to the Terms of Service before using
+                            ReportStream.
                         </span>
                     </ErrorMessage>
                 </FormGroup>
-
             </section>
 
             <Button

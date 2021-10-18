@@ -22,12 +22,20 @@ import gov.cdc.prime.router.secrets.SecretHelper
 import java.io.IOException
 import java.util.logging.Logger
 
+const val NO_REPLY_EMAIL = "no-reply@cdc.gov"
+const val REGISTER_EMAIL = "reportstream@cdc.gov"
+const val REGISTER_SUBJECT = "Thank you for registering with ReportStream!"
+
 class SenderTosRequest {
     data class SenderTosFormJSON(
-        val toEmail: String,
-        val fromEmail: String,
-        val emailSubject: String,
-        val emailBody: String
+        val title: String,
+        val firstName: String,
+        val lastName: String,
+        val email: String,
+        val territory: String,
+        val organizationName: String,
+        val operatesInMultipleStates: Boolean,
+        val agreedToTermsOfService: Boolean
     )
 }
 
@@ -63,23 +71,27 @@ class EmailSenderFunction {
             requestBody,
             SenderTosRequest.SenderTosFormJSON::class.java
         )
-        val toEmail = body.toEmail
-        val fromEmail = body.fromEmail
-        val emailSubject = body.emailSubject
-        val emailBody = body.emailBody
+        val title = body.title
+        val firstName = body.firstName
+        val lastName = body.lastName
+        val email = body.email
+        val territory = body.territory
+        val organizationName = body.organizationName
+        val operatesInMultipleStates = body.operatesInMultipleStates
+        val agreedToTermsOfService = body.agreedToTermsOfService
 
-        var status: HttpStatus = HttpStatus.NOT_FOUND /*TODO: Figure out what code to use here*/
+        var status: HttpStatus = HttpStatus.NOT_FOUND
         val content: Content = Content()
         content.type = "plain/text"
-        content.value = emailBody
 
         val p: Personalization = Personalization()
-        p.addTo(Email())
+        p.addTo(Email(REGISTER_EMAIL))
+        p.addCc(Email(email))
 
         val mail: Mail = Mail()
         mail.addPersonalization(p)
-        mail.setSubject(emailSubject)
-        mail.setFrom(Email(fromEmail))
+        mail.setSubject(REGISTER_SUBJECT)
+        mail.setFrom(Email(NO_REPLY_EMAIL))
         mail.addContent(content)
 
         var sendgridId: String? = SecretHelper.getSecretService().fetchSecret("SENDGRID_ID")
@@ -99,7 +111,7 @@ class EmailSenderFunction {
                 logger.warning("Can't contact sendgrid")
                 status = HttpStatus.BAD_GATEWAY
             } finally {
-                logger.info("sending to $toEmail - result ${response.statusCode}")
+                logger.info("sending to $email - result ${response.statusCode}")
                 status = HttpStatus.valueOf(response.statusCode)
                 if (!(200..299).contains(response.statusCode)) {
                     logger.severe("error - ${response.body}")
