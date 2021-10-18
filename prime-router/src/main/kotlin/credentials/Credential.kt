@@ -16,7 +16,19 @@ data class UserPassCredential(val user: String, val pass: String) : Credential()
 /**
  * A PPK credential. Can be used for SFTP transports.
  */
-data class UserPpkCredential(val user: String, val key: String, val keyPass: String) : Credential(), SftpCredential
+data class UserPpkCredential(
+    val user: String,
+    val key: String,
+    val keyPass: String,
+    val pass: String? = null,
+) : Credential(), SftpCredential
+
+data class UserPemCredential(
+    val user: String,
+    val key: String,
+    val keyPass: String,
+    val pass: String? = null,
+) : Credential(), SftpCredential
 
 /**
  * A credential that is saved in a Java Key Store (JKS)
@@ -55,6 +67,7 @@ data class UserJksCredential(
 )
 @JsonSubTypes(
     JsonSubTypes.Type(value = UserPassCredential::class, name = "UserPass"),
+    JsonSubTypes.Type(value = UserPemCredential::class, name = "UserPem"),
     JsonSubTypes.Type(value = UserPpkCredential::class, name = "UserPpk"),
     JsonSubTypes.Type(value = UserJksCredential::class, name = "UserJks")
 )

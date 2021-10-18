@@ -1,20 +1,29 @@
 resource "azurerm_storage_account" "storage_account" {
-  resource_group_name = var.resource_group
-  name = "${var.resource_prefix}storageaccount"
-  location = var.location
-  account_tier = "Standard"
-  account_replication_type = "GRS"
-  min_tls_version = "TLS1_2"
-  allow_blob_public_access = false
+  resource_group_name       = var.resource_group
+  name                      = "${var.resource_prefix}storageaccount"
+  location                  = var.location
+  account_tier              = "Standard"
+  account_replication_type  = "GRS"
+  min_tls_version           = "TLS1_2"
+  allow_blob_public_access  = false
   enable_https_traffic_only = true
 
   network_rules {
     default_action = "Deny"
-    ip_rules = []
+    bypass         = ["None"]
+
+    ip_rules = sensitive(concat(
+      split(",", data.azurerm_key_vault_secret.cyberark_ip_ingress.value),
+      [split("/", var.terraform_caller_ip_address)[0]], # Storage accounts only allow CIDR-notation for /[0-30]
+    ))
+
     virtual_network_subnet_ids = [
       data.azurerm_subnet.public.id,
       data.azurerm_subnet.container.id,
-      data.azurerm_subnet.endpoint.id
+      data.azurerm_subnet.endpoint.id,
+      data.azurerm_subnet.public_subnet.id,
+      data.azurerm_subnet.container_subnet.id,
+      data.azurerm_subnet.endpoint_subnet.id,
     ]
   }
 
@@ -26,41 +35,92 @@ resource "azurerm_storage_account" "storage_account" {
   lifecycle {
     prevent_destroy = true
   }
-  
+
   tags = {
     environment = var.environment
   }
 }
 
 module "storageaccount_blob_private_endpoint" {
-  source = "../common/private_endpoint"
-  resource_id = azurerm_storage_account.storage_account.id
-  name = azurerm_storage_account.storage_account.name
-  type = "storage_account_blob"
-  resource_group = var.resource_group
-  location = var.location
+  source             = "../common/private_endpoint"
+  resource_id        = azurerm_storage_account.storage_account.id
+  name               = azurerm_storage_account.storage_account.name
+  type               = "storage_account_blob"
+  resource_group     = var.resource_group
+  location           = var.location
   endpoint_subnet_id = data.azurerm_subnet.endpoint.id
+  create_dns_record  = true
 }
 
 module "storageaccount_file_private_endpoint" {
-  source = "../common/private_endpoint"
-  resource_id = azurerm_storage_account.storage_account.id
-  name = azurerm_storage_account.storage_account.name
-  type = "storage_account_file"
-  resource_group = var.resource_group
-  location = var.location
+  source             = "../common/private_endpoint"
+  resource_id        = azurerm_storage_account.storage_account.id
+  name               = azurerm_storage_account.storage_account.name
+  type               = "storage_account_file"
+  resource_group     = var.resource_group
+  location           = var.location
   endpoint_subnet_id = data.azurerm_subnet.endpoint.id
+  create_dns_record  = true
 }
 
 module "storageaccount_queue_private_endpoint" {
-  source = "../common/private_endpoint"
-  resource_id = azurerm_storage_account.storage_account.id
-  name = azurerm_storage_account.storage_account.name
-  type = "storage_account_queue"
-  resource_group = var.resource_group
-  location = var.location
+  source             = "../common/private_endpoint"
+  resource_id        = azurerm_storage_account.storage_account.id
+  name               = azurerm_storage_account.storage_account.name
+  type               = "storage_account_queue"
+  resource_group     = var.resource_group
+  location           = var.location
   endpoint_subnet_id = data.azurerm_subnet.endpoint.id
+  create_dns_record  = true
 }
+
+//module "storage_blob_private_endpoint" {
+//  source             = "../common/private_endpoint"
+//  resource_id        = azurerm_storage_account.storage_account.id
+//  name               = azurerm_storage_account.storage_account.name
+//  type               = "storage_account_blob"
+//  resource_group     = var.resource_group
+//  location           = var.location
+//  endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet.id
+//  create_dns_record  = false
+//
+//  depends_on = [
+//    # Prevent unexpected order-of-operations by placing a hard dependency against the current private endpoint
+//    module.storageaccount_blob_private_endpoint
+//  ]
+//}
+
+//module "storage_file_private_endpoint" {
+//  source             = "../common/private_endpoint"
+//  resource_id        = azurerm_storage_account.storage_account.id
+//  name               = azurerm_storage_account.storage_account.name
+//  type               = "storage_account_file"
+//  resource_group     = var.resource_group
+//  location           = var.location
+//  endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet.id
+//  create_dns_record  = false
+//
+//  depends_on = [
+//    # Prevent unexpected order-of-operations by placing a hard dependency against the current private endpoint
+//    module.storageaccount_file_private_endpoint
+//  ]
+//}
+
+//module "storage_queue_private_endpoint" {
+//  source             = "../common/private_endpoint"
+//  resource_id        = azurerm_storage_account.storage_account.id
+//  name               = azurerm_storage_account.storage_account.name
+//  type               = "storage_account_queue"
+//  resource_group     = var.resource_group
+//  location           = var.location
+//  endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet.id
+//  create_dns_record  = false
+//
+//  depends_on = [
+//    # Prevent unexpected order-of-operations by placing a hard dependency against the current private endpoint
+//    module.storageaccount_queue_private_endpoint
+//  ]
+//}
 
 # Point-in-time restore, soft delete, versioning, and change feed were
 # enabled in the portal as terraform does not currently support this.
@@ -73,12 +133,12 @@ resource "azurerm_storage_management_policy" "retention_policy" {
   storage_account_id = azurerm_storage_account.storage_account.id
 
   rule {
-    name = "30dayretention"
+    name    = "30dayretention"
     enabled = true
 
     filters {
       prefix_match = ["reports/"]
-      blob_types = ["blockBlob", "appendBlob"]
+      blob_types   = ["blockBlob", "appendBlob"]
     }
 
     actions {
@@ -97,17 +157,17 @@ resource "azurerm_storage_management_policy" "retention_policy" {
 # Grant the storage account Key Vault access, to access encryption keys
 resource "azurerm_key_vault_access_policy" "storage_policy" {
   key_vault_id = data.azurerm_key_vault.application.id
-  tenant_id = data.azurerm_client_config.current.tenant_id
-  object_id = azurerm_storage_account.storage_account.identity.0.principal_id
+  tenant_id    = data.azurerm_client_config.current.tenant_id
+  object_id    = azurerm_storage_account.storage_account.identity.0.principal_id
 
   key_permissions = ["get", "unwrapkey", "wrapkey"]
 }
 
 resource "azurerm_storage_account_customer_managed_key" "storage_key" {
-  count = var.rsa_key_4096 != null && var.rsa_key_4096 != "" ? 1 : 0
-  key_name = var.rsa_key_4096
-  key_vault_id = data.azurerm_key_vault.application.id
-  key_version = null // Null allows automatic key rotation
+  count              = var.rsa_key_4096 != null && var.rsa_key_4096 != "" ? 1 : 0
+  key_name           = var.rsa_key_4096
+  key_vault_id       = data.azurerm_key_vault.application.id
+  key_version        = null // Null allows automatic key rotation
   storage_account_id = azurerm_storage_account.storage_account.id
 
   depends_on = [azurerm_key_vault_access_policy.storage_policy]
@@ -117,18 +177,18 @@ resource "azurerm_storage_account_customer_managed_key" "storage_key" {
 // Static website
 
 resource "azurerm_storage_account" "storage_public" {
-  resource_group_name = var.resource_group
-  name = "${var.resource_prefix}public"
-  location = var.location
-  account_tier = "Standard"
-  account_kind = "StorageV2"
-  account_replication_type = "GRS"
-  min_tls_version = "TLS1_2"
-  allow_blob_public_access = false
+  resource_group_name       = var.resource_group
+  name                      = "${var.resource_prefix}public"
+  location                  = var.location
+  account_tier              = "Standard"
+  account_kind              = "StorageV2"
+  account_replication_type  = "GRS"
+  min_tls_version           = "TLS1_2"
+  allow_blob_public_access  = false
   enable_https_traffic_only = true
 
   static_website {
-    index_document = "index.html"
+    index_document     = "index.html"
     error_404_document = "404.html"
   }
 
@@ -149,23 +209,32 @@ resource "azurerm_storage_account" "storage_public" {
 // Partner
 
 resource "azurerm_storage_account" "storage_partner" {
-  resource_group_name = var.resource_group
-  name = "${var.resource_prefix}partner"
-  location = var.location
-  account_tier = "Standard"
-  account_kind = "StorageV2"
-  is_hns_enabled = true # This enable Data Lake v2 for HHS Protect
-  account_replication_type = "GRS"
-  min_tls_version = "TLS1_2"
-  allow_blob_public_access = false
+  resource_group_name       = var.resource_group
+  name                      = "${var.resource_prefix}partner"
+  location                  = var.location
+  account_tier              = "Standard"
+  account_kind              = "StorageV2"
+  is_hns_enabled            = true # This enable Data Lake v2 for HHS Protect
+  account_replication_type  = "GRS"
+  min_tls_version           = "TLS1_2"
+  allow_blob_public_access  = false
   enable_https_traffic_only = true
 
   network_rules {
     default_action = "Deny"
-    ip_rules = split(",", data.azurerm_key_vault_secret.hhsprotect_ip_ingress.value)
+    bypass         = ["None"]
+
+    ip_rules = sensitive(concat(
+      split(",", data.azurerm_key_vault_secret.hhsprotect_ip_ingress.value),
+      split(",", data.azurerm_key_vault_secret.cyberark_ip_ingress.value),
+      [split("/", var.terraform_caller_ip_address)[0]], # Storage accounts only allow CIDR-notation for /[0-30]
+    ))
+
     virtual_network_subnet_ids = [
       data.azurerm_subnet.public.id,
-      data.azurerm_subnet.endpoint.id
+      data.azurerm_subnet.endpoint.id,
+      data.azurerm_subnet.public_subnet.id,
+      data.azurerm_subnet.endpoint_subnet.id,
     ]
   }
 
@@ -188,34 +257,51 @@ resource "azurerm_storage_account" "storage_partner" {
 # Grant the storage account Key Vault access, to access encryption keys
 resource "azurerm_key_vault_access_policy" "storage_partner_policy" {
   key_vault_id = data.azurerm_key_vault.application.id
-  tenant_id = data.azurerm_client_config.current.tenant_id
-  object_id = azurerm_storage_account.storage_partner.identity.0.principal_id
+  tenant_id    = data.azurerm_client_config.current.tenant_id
+  object_id    = azurerm_storage_account.storage_partner.identity.0.principal_id
 
   key_permissions = ["get", "unwrapkey", "wrapkey"]
 }
 
 resource "azurerm_storage_account_customer_managed_key" "storage_partner_key" {
-  count = var.rsa_key_4096 != null && var.rsa_key_4096 != "" ? 1 : 0
-  key_name = var.rsa_key_4096
-  key_vault_id = data.azurerm_key_vault.application.id
-  key_version = null // Null allows automatic key rotation
+  count              = var.rsa_key_4096 != null && var.rsa_key_4096 != "" ? 1 : 0
+  key_name           = var.rsa_key_4096
+  key_vault_id       = data.azurerm_key_vault.application.id
+  key_version        = null // Null allows automatic key rotation
   storage_account_id = azurerm_storage_account.storage_partner.id
 
   depends_on = [azurerm_key_vault_access_policy.storage_partner_policy]
 }
 
 module "storageaccountpartner_blob_private_endpoint" {
-  source = "../common/private_endpoint"
-  resource_id = azurerm_storage_account.storage_partner.id
-  name = azurerm_storage_account.storage_partner.name
-  type = "storage_account_blob"
-  resource_group = var.resource_group
-  location = var.location
+  source             = "../common/private_endpoint"
+  resource_id        = azurerm_storage_account.storage_partner.id
+  name               = azurerm_storage_account.storage_partner.name
+  type               = "storage_account_blob"
+  resource_group     = var.resource_group
+  location           = var.location
   endpoint_subnet_id = data.azurerm_subnet.endpoint.id
+  create_dns_record  = true
 }
 
+//module "storage_partner_blob_private_endpoint" {
+//  source             = "../common/private_endpoint"
+//  resource_id        = azurerm_storage_account.storage_partner.id
+//  name               = azurerm_storage_account.storage_partner.name
+//  type               = "storage_account_blob"
+//  resource_group     = var.resource_group
+//  location           = var.location
+//  endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet.id
+//  create_dns_record  = false
+//
+//  depends_on = [
+//    # Prevent unexpected order-of-operations by placing a hard dependency against the current private endpoint
+//    module.storageaccountpartner_blob_private_endpoint
+//  ]
+//}
+
 resource "azurerm_storage_container" "storage_container_hhsprotect" {
-  name = "hhsprotect"
+  name                 = "hhsprotect"
   storage_account_name = azurerm_storage_account.storage_partner.name
 }
 
@@ -223,12 +309,12 @@ resource "azurerm_storage_management_policy" "storage_partner_retention_policy" 
   storage_account_id = azurerm_storage_account.storage_partner.id
 
   rule {
-    name = "30dayretention"
+    name    = "30dayretention"
     enabled = true
 
     filters {
       prefix_match = ["hhsprotect/"]
-      blob_types = ["blockBlob", "appendBlob"]
+      blob_types   = ["blockBlob", "appendBlob"]
     }
 
     actions {

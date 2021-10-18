@@ -3,35 +3,39 @@ package gov.cdc.prime.router.cli.tests
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.ajalt.clikt.core.PrintMessage
-import gov.cdc.prime.router.Sender
-import gov.cdc.prime.router.cli.DeleteSenderSetting
-import gov.cdc.prime.router.cli.GetSenderSetting
-import gov.cdc.prime.router.cli.PutSenderSetting
-import gov.cdc.prime.router.cli.SettingCommand
-import gov.cdc.prime.router.tokens.SenderUtils
+import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.ReportStreamEnv
+import gov.cdc.prime.router.azure.WorkflowEngine
+import gov.cdc.prime.router.cli.DeleteSenderSetting
 import gov.cdc.prime.router.cli.FileUtilities
+import gov.cdc.prime.router.cli.GetSenderSetting
 import gov.cdc.prime.router.cli.OktaCommand
+import gov.cdc.prime.router.cli.PutSenderSetting
+import gov.cdc.prime.router.cli.SettingCommand
+import gov.cdc.prime.router.tokens.DatabaseJtiCache
+import gov.cdc.prime.router.tokens.SenderUtils
 import java.io.File
+import java.time.OffsetDateTime
+import java.util.UUID
 
 /**
  *
  */
-class WatersAuth : CoolTest() {
+class WatersAuthTests : CoolTest() {
     override val name = "watersauth"
     override val description = "Test FHIR Auth"
-    override val status = TestStatus.SMOKE
-
+    override val status = TestStatus.DRAFT // Not SMOKE because it requires login to do settings stuff.  Can't automate
     // create sender in 'ignore' organization
     private val accessTokenDummy = "dummy"
     val organization = "ignore"
     val senderName = "temporary_sender_auth_test"
-    private val senderFullName =  "$organization.$senderName"
+    private val senderFullName = "$organization.$senderName"
     val scope = "$senderFullName.report"
 
-    private lateinit var settingAccessTok: String   // Token for this test code to access the Settings APIs
+    private lateinit var settingAccessTok: String // Token for this test code to access the Settings APIs
     private lateinit var savedSender: Sender
     private lateinit var fakeReportFile: File
     private lateinit var settingsEnv: SettingCommand.Environment
@@ -39,7 +43,6 @@ class WatersAuth : CoolTest() {
     fun abort(message: String): Nothing {
         throw PrintMessage(message, error = true)
     }
-
 
     /**
      * Basically this populates the lateinit vars above.
@@ -54,6 +57,7 @@ class WatersAuth : CoolTest() {
             organizationName = organization,
             format = Sender.Format.CSV,
             topic = "covid-19",
+            customerStatus = CustomerStatus.INACTIVE,
             schemaName = "primedatainput/pdi-covid-19"
         )
 
@@ -61,9 +65,11 @@ class WatersAuth : CoolTest() {
         settingsEnv = SettingCommand.getEnvironment(environment.name.lowercase())
 
         settingAccessTok = if (settingsEnv.oktaApp == null) accessTokenDummy else {
-            OktaCommand.fetchAccessToken(settingsEnv.oktaApp!!) ?:
-            abort("Test needs a valid access token for settings API." +
-                " Run ./prime login to fetch/refresh your access token.")
+            OktaCommand.fetchAccessToken(settingsEnv.oktaApp!!)
+                ?: abort(
+                    "Test needs a valid access token for settings API." +
+                        " Run ./prime login to fetch/refresh your access token."
+                )
         }
 
         // save the new sender
@@ -94,6 +100,7 @@ class WatersAuth : CoolTest() {
         // create a fake report
         fakeReportFile = FileUtilities.createFakeFile(
             metadata,
+            settings,
             sender = savedSender,
             count = 1,
             format = Report.Format.CSV,
@@ -153,7 +160,7 @@ class WatersAuth : CoolTest() {
             )
     }
 
-    override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+    override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
         var passed = true
         ugly("Starting $name test of server-server authentication using keypairs:")
 
@@ -205,10 +212,12 @@ class WatersAuth : CoolTest() {
                 )
 
             if (responseCode3 == 401) {
-                good("EC key: Attempt to get a token with tampered token rightly failed.")
+                good("EC key: Attempt to send a report with tampered token rightly failed.")
             } else {
-                bad("EC key: " +
-                "Should get a 401 response to tampered token but instead got $responseCode3  " + json3)
+                bad(
+                    "EC key: " +
+                        "Should get a 401 response to tampered token but instead got $responseCode3  " + json3
+                )
                 passed = false
             }
 
@@ -260,10 +269,12 @@ class WatersAuth : CoolTest() {
                 )
 
             if (responseCode3 == 401) {
-                good("RSA key: Attempt to get a token with tampered token rightly failed.")
+                good("RSA key: Attempt to send a report with a tampered token rightly failed.")
             } else {
-                bad("RSA key: " +
-                "Should get a 401 response to tampered token but instead got $responseCode3  " + json3)
+                bad(
+                    "RSA key: " +
+                        "Should get a 401 response to tampered token but instead got $responseCode3  " + json3
+                )
                 passed = false
             }
 
@@ -280,6 +291,56 @@ class WatersAuth : CoolTest() {
         }
 
         teardown()
+        return passed
+    }
+}
+
+/**
+ * Exercise the database jticache
+ */
+class Jti : CoolTest() {
+    override val name = "jti"
+    override val description = "Test the JTI Cache"
+    override val status = TestStatus.SMOKE
+
+    override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+        ugly("Starting jti Test: $description")
+        val db = WorkflowEngine().db
+        val jtiCache = DatabaseJtiCache(db)
+        var passed = true
+        val uuid1 = UUID.randomUUID().toString()
+        if (!jtiCache.isJTIOk(uuid1, OffsetDateTime.now())) {
+            echo("JTI-1 $uuid1 has never been seen before.   It should have been OK, but was not.")
+            passed = false
+        }
+        val uuid2 = UUID.randomUUID().toString()
+        if (!jtiCache.isJTIOk(uuid2, OffsetDateTime.now().plusMinutes(10))) {
+            echo("JTI-2 $uuid2 has never been seen before.   It should have been OK, but was not.")
+            passed = false
+        }
+        val uuid3 = UUID.randomUUID().toString()
+        if (!jtiCache.isJTIOk(uuid3, OffsetDateTime.now().minusMinutes(10))) {
+            echo("JTI-3 $uuid3 has never been seen before.   It should have been OK, but was not.")
+            passed = false
+        }
+        // Now send them all again.  All should return false
+        if (jtiCache.isJTIOk(uuid1, OffsetDateTime.now())) {
+            echo("JTI-1 $uuid1 has been seen before.   It should have failed, but it passed.")
+            passed = false
+        }
+        if (jtiCache.isJTIOk(uuid2, OffsetDateTime.now())) {
+            echo("JTI-2 $uuid2 has been seen before.   It should have failed, but it passed.")
+            passed = false
+        }
+        if (jtiCache.isJTIOk(uuid3, OffsetDateTime.now())) {
+            echo("JTI-3 $uuid3 has been seen before.   It should have failed, but it passed.")
+            passed = false
+        }
+        if (passed) {
+            good("JTI Database Cache test passed")
+        } else {
+            bad("JTI Database Cache test ****FAILED***")
+        }
         return passed
     }
 }

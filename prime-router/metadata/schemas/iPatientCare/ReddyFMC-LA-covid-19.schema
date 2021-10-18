@@ -11,18 +11,23 @@ extends: ipatientCare/ipatientcare-covid-19
 elements:
 
     - name: processing_mode_code
-      default: T
+      default: P
       
     - name: sender_id
       default: reddyfmc
       
     - name: message_id
-      mapper: concat(patient_id, filler_order_id)
+      csvFields: [{name: Accession_no}]
 
     - name: test_kit_name_id
-      type: TEXT
-      default: 10811877011290
-
+      type: CODE
+      csvFields: [{name: TestName, format: $alt}]
+      altValues:
+        - code: 10811877011290
+          display: "SARS-CoV-2 (COVID-19) Ag"
+        - code: 10811877011290
+          display: "     SARS-CoV-2 (COVID-19) Ag"
+          
 # Ordering provider
     - name: ordering_provider_id
       type: CODE
@@ -33,8 +38,16 @@ elements:
         - code: 1205306602
           display: De Anna Dark FNP-C
         - code: 1770580508
-          display: Nagaratna Reddy MD
-            
+          display: Nagaratna Reddy MD.
+        - code: 1912515651
+          display: Cassandra Hill-Selders NP
+        - code: 1699120493
+          display: Crystal Rivet NP
+        - code: 1821458373
+          display: Darrell Davis NP
+        - code: 1518378009
+          display: Wanda Jefferson Wilson FNP-C
+
     - name: ordering_provider_last_name
       type: CODE
       csvFields: [{name: PhyName, format: $alt}]
@@ -44,7 +57,15 @@ elements:
         - code: Dark FNP-C
           display: De Anna Dark FNP-C
         - code: Reddy MD
-          display: Nagaratna Reddy MD
+          display: Nagaratna Reddy MD.
+        - code: Hill-Selders NP
+          display: Cassandra Hill-Selders NP
+        - code: Rivet NP
+          display: Crystal Rivet NP
+        - code: Davis NP
+          display: Darrell Davis NP
+        - code: Jefferson Wilson FNP-C
+          display: Wanda Jefferson Wilson FNP-C
 
     - name: ordering_provider_first_name
       type: CODE
@@ -55,12 +76,27 @@ elements:
         - code: De Anna
           display: De Anna Dark FNP-C
         - code: Nagaratna
-          display: Nagaratna Reddy MD
+          display: Nagaratna Reddy MD.
+        - code: Cassandra
+          display: Cassandra Hill-Selders NP
+        - code: Crystal
+          display: Crystal Rivet NP
+        - code: Darrell
+          display: Darrell Davis NP
+        - code: Wanda
+          display: Wanda Jefferson Wilson FNP-C
 
 
     - name: specimen_type
-      type: TEXT
-      default: 445297001
-      csvFields: [{name: specimen_type}]
+      type: CODE
+      valueSet: sender-automation/specimen_type
+      documentation: Translate inbound text to outbound SNOMED Codes
+      csvFields: [{ name: Specimen_Type, format: $display}]
+      default: "445297001"
 
-
+    - name: specimen_source_site_code
+      type: CODE
+      valueSet: sender-automation/specimen_source_site_code
+      documentation: Translate inbound text to outbound SNOMED Codes
+      csvFields: [{ name: Specimen_Type, format: $display}]
+      default: "53342003"

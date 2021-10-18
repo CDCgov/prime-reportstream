@@ -837,6 +837,14 @@ components:
           description: The name of the receiving organization in the message
           type: string
           default: null
+        useOrderingFacilityName:
+          description: The value to use for the ORC-21 (ordering facility name) field
+          type: string
+          enum:
+            - STANDARD
+            - NCES
+            - ORGANIZATION_NAME
+          default: STANDARD
         transport:
           oneOf:
             - $ref: '#/components/schemas/SFTPTransport'

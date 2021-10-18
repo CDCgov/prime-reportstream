@@ -5,6 +5,7 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isTrue
 import java.io.ByteArrayInputStream
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class TranslatorTests {
     private val receiversYaml = """
@@ -18,12 +19,14 @@ class TranslatorTests {
             - name: elr
               organizationName: phd1
               topic: test
+              customerStatus: active
               jurisdictionalFilter: [ "matches(a, 1)"]
               translation: 
                 type: CUSTOM
                 schemaName: one
                 format: CSV
     """.trimIndent()
+
     private val one = Schema(name = "one", topic = "test", elements = listOf(Element("a")))
 
     @Test
@@ -32,18 +35,18 @@ class TranslatorTests {
         val metadata = Metadata().loadSchemas(one, two)
         val translator = Translator(metadata, FileSettings())
         translator.buildMapping(fromSchema = one, toSchema = two, defaultValues = emptyMap()).run {
-            assertThat(one).isEqualTo(fromSchema)
-            assertThat(two).isEqualTo(toSchema)
-            assertThat(1).isEqualTo(useDirectly.size)
-            assertThat("a").isEqualTo(useDirectly["a"])
-            assertThat(false).isEqualTo(useDefault.contains("b"))
-            assertThat(0).isEqualTo(missing.size)
+            assertThat(fromSchema).isEqualTo(one)
+            assertThat(toSchema).isEqualTo(two)
+            assertThat(useDirectly.size).isEqualTo(1)
+            assertThat(useDirectly["a"]).isEqualTo("a")
+            assertThat(useDefault.contains("b")).isEqualTo(false)
+            assertThat(missing.size).isEqualTo(0)
         }
         translator.buildMapping(fromSchema = two, toSchema = one, defaultValues = emptyMap()).run {
-            assertThat(1).isEqualTo(useDirectly.size)
-            assertThat("a").isEqualTo(useDirectly["a"])
-            assertThat(0).isEqualTo(useDefault.size)
-            assertThat(0).isEqualTo(missing.size)
+            assertThat(useDirectly.size).isEqualTo(1)
+            assertThat(useDirectly["a"]).isEqualTo("a")
+            assertThat(useDefault.size).isEqualTo(0)
+            assertThat(missing.size).isEqualTo(0)
         }
     }
 
@@ -54,7 +57,7 @@ class TranslatorTests {
         val translator = Translator(metadata, FileSettings())
         translator.buildMapping(fromSchema = one, toSchema = two, defaultValues = mapOf("b" to "foo")).run {
             assertThat(useDefault.contains("b")).isTrue()
-            assertThat("foo").isEqualTo(useDefault["b"])
+            assertThat(useDefault["b"]).isEqualTo("foo")
         }
     }
 
@@ -68,10 +71,10 @@ class TranslatorTests {
         val metadata = Metadata().loadSchemas(one, three)
         val translator = Translator(metadata, FileSettings())
         translator.buildMapping(fromSchema = one, toSchema = three, defaultValues = emptyMap()).run {
-            assertThat(1).isEqualTo(this.useDirectly.size)
-            assertThat("a").isEqualTo(this.useDirectly["a"])
-            assertThat(0).isEqualTo(this.useDefault.size)
-            assertThat(1).isEqualTo(this.missing.size)
+            assertThat(this.useDirectly.size).isEqualTo(1)
+            assertThat(this.useDirectly["a"]).isEqualTo("a")
+            assertThat(this.useDefault.size).isEqualTo(0)
+            assertThat(this.missing.size).isEqualTo(1)
         }
     }
 
@@ -85,11 +88,54 @@ class TranslatorTests {
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val table1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), TestSource)
         translator.filterAndTranslateByReceiver(table1, warnings = mutableListOf()).run {
-            assertThat(1).isEqualTo(this.size)
+            assertThat(this.size).isEqualTo(1)
             val (mappedTable, forReceiver) = this[0]
-            assertThat(table1.schema).isEqualTo(mappedTable.schema)
-            assertThat(1).isEqualTo(mappedTable.itemCount)
-            assertThat(settings.receivers.toTypedArray()[0]).isEqualTo(forReceiver)
+            assertThat(mappedTable.schema).isEqualTo(table1.schema)
+            assertThat(mappedTable.itemCount).isEqualTo(1)
+            assertThat(forReceiver).isEqualTo(settings.receivers.toTypedArray()[0])
         }
+    }
+
+    @Test
+    fun `test mappingWithReplace`() {
+//        val metadata = Metadata()
+        val receiverAKYaml = """
+        ---
+          - name: ak-phd
+            description: Alaska Public Health Department
+            jurisdiction: STATE
+            stateCode: AK
+            receivers:
+            - name: elr
+              organizationName: ak-phd
+              topic: covid-19
+              customerStatus: active
+              jurisdictionalFilter:
+                - orEquals(ordering_facility_state, AK, patient_state, AK)
+              translation:
+                type: HL7
+                useBatchHeaders: true
+                suppressHl7Fields: PID-5-7, ORC-12-1, OBR-16-1
+                replaceValue:
+                  PID-22-3: CDCREC
+                  OBX-2-1: TestVal
+              timing:
+                operation: MERGE
+                numberPerDay: 1440 # Every minute
+                initialTime: 00:00
+                timeZone: EASTERN
+              transport:
+                type: SFTP
+                host: sftp
+                port: 22
+                filePath: ./upload
+                credentialName: DEFAULT-SFTP
+        """.trimIndent()
+        val settings = FileSettings().also {
+            it.loadOrganizations(ByteArrayInputStream(receiverAKYaml.toByteArray()))
+        }
+        val translation = settings.receivers.elementAt(0).translation as? Hl7Configuration?
+        val replaceVal = translation?.replaceValue?.get("OBX-2-1")
+        assertEquals(replaceVal, "TestVal")
     }
 }

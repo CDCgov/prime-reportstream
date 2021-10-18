@@ -228,7 +228,7 @@ elements:
   - name: testing_lab_clia
     csvFields: [{ name: performingFacility}]
 
-  - name: reporting_facility
+  - name: reporting_facility_name
     csvFields: [{ name: reportingFacility}]
 
   - name: testing_lab_zip_code
@@ -262,5 +262,4 @@ elements:
     csvFields: []
 
   - name: processing_mode_code
-    default: T
     csvFields: [{name: processingModeCode}]

@@ -12,12 +12,26 @@ resource "azurerm_network_profile" "sftp_network_profile" {
   }
 }
 
+resource "azurerm_network_profile" "sftp_vnet_network_profile" {
+  name                = "sftp_vnet_network_profile"
+  location            = var.location
+  resource_group_name = var.resource_group
+
+  container_network_interface {
+    name = "sftp_container_vnet_network_interface"
+    ip_configuration {
+      name      = "sftp_container_vnet_ip_configuration"
+      subnet_id = data.azurerm_subnet.container_subnet.id
+    }
+  }
+}
+
 resource "azurerm_container_group" "sftp_container" {
   name                = "${var.resource_prefix}-sftpserver"
   location            = var.location
   resource_group_name = var.resource_group
   ip_address_type     = "Private"
-  network_profile_id  = azurerm_network_profile.sftp_network_profile.id
+  network_profile_id  = var.environment == "dev" ? azurerm_network_profile.sftp_vnet_network_profile.id : azurerm_network_profile.sftp_network_profile.id
   os_type             = "Linux"
   restart_policy      = "Always"
 
@@ -52,8 +66,9 @@ resource "azurerm_container_group" "sftp_container" {
   lifecycle {
     // Workaround. TF thinks this is a new resource after import
     ignore_changes = [
+      container[0].volume[0],
       network_profile_id,
-      container[0].volume[0]]
+    ]
   }
 }
 

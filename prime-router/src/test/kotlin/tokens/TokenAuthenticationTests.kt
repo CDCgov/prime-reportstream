@@ -1,18 +1,9 @@
 package gov.cdc.prime.router.tokens
 
-import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.kittinunf.fuel.util.decodeBase64
-import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Sender
-import gov.cdc.prime.router.azure.HttpUtilities
-import gov.cdc.prime.router.azure.ReportStreamEnv
-import gov.cdc.prime.router.cli.DeleteSenderSetting
-import gov.cdc.prime.router.cli.FileUtilities
-import gov.cdc.prime.router.cli.GetSenderSetting
-import gov.cdc.prime.router.cli.PutSenderSetting
-import gov.cdc.prime.router.cli.SettingCommand
-import gov.cdc.prime.router.cli.tests.CoolTest
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.JwsHeader
 import io.jsonwebtoken.SignatureAlgorithm
@@ -26,7 +17,6 @@ import java.time.OffsetDateTime
 import java.util.Date
 import java.util.UUID
 import javax.crypto.SecretKey
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFails
@@ -78,6 +68,7 @@ class TokenAuthenticationTests {
         "bar",
         Sender.Format.CSV,
         "covid-19",
+        CustomerStatus.INACTIVE,
         "mySchema",
         keys = null
     )

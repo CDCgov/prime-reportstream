@@ -158,17 +158,19 @@ This field is ignored.
 
 ---
 
-**Name**: Specimen_Type
+**Name**: ResultDate
 
-**Type**: TEXT
+**Type**: DATETIME
 
 **PII**: No
+
+**Format**: M/d/yyyy
 
 **Cardinality**: [0..1]
 
 **Documentation**:
 
-This field is ignored because it does not contain a valid specimen type.  Set the specimen_type in the facility-specific schema.
+ResultDate populates multiple fields.  This instance populates date_result_released.
 
 ---
 
@@ -291,47 +293,17 @@ iPatientCare is an ambulatory EMR, so this field is defaulted to 'N'.
 
 ---
 
-**Name**: message_id
+**Name**: Accession_no
 
 **PII**: No
 
 **Cardinality**: [0..1]
-
----
-
-**Name**: order_result_status
-
-**Type**: CODE
-
-**PII**: No
-
-**Default Value**: F
-
-**Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display
----- | -------
-A|Some, but not all, results available
-C|Corrected, final
-F|Final results
-I|No results available; specimen received, procedure incomplete
-M|Corrected, not final
-N|Procedure completed, results pending
-O|Order received; specimen not yet received
-P|Preliminary
-R|Results stored; not yet verified
-S|No results available; procedure scheduled, but not done
-X|No results available; Order canceled
-Y|No order on record for this test
-Z|No record of this patient
 
 ---
 
 **Name**: DateColl
 
-**Type**: DATE
+**Type**: DATETIME
 
 **PII**: No
 
@@ -353,7 +325,7 @@ DateColl populates multiple fields.  This instance populates order_test_date.
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-04-28
+**Table**: LIVD-SARS-CoV-2-2021-09-29
 
 **Table Column**: Test Ordered LOINC Long Name
 
@@ -481,7 +453,11 @@ Code | Display
 ---- | -------
 Holly|Holly Delatte NP
 De Anna|De Anna Dark FNP-C
-Nagaratna|Nagaratna Reddy MD
+Nagaratna|Nagaratna Reddy MD.
+Cassandra|Cassandra Hill-Selders NP
+Crystal|Crystal Rivet NP
+Darrell|Darrell Davis NP
+Wanda|Wanda Jefferson Wilson FNP-C
 
 ---
 
@@ -501,7 +477,11 @@ Code | Display
 ---- | -------
 1275978678|Holly Delatte NP
 1205306602|De Anna Dark FNP-C
-1770580508|Nagaratna Reddy MD
+1770580508|Nagaratna Reddy MD.
+1912515651|Cassandra Hill-Selders NP
+1699120493|Crystal Rivet NP
+1821458373|Darrell Davis NP
+1518378009|Wanda Jefferson Wilson FNP-C
 
 ---
 
@@ -521,7 +501,11 @@ Code | Display
 ---- | -------
 Delatte NP|Holly Delatte NP
 Dark FNP-C|De Anna Dark FNP-C
-Reddy MD|Nagaratna Reddy MD
+Reddy MD|Nagaratna Reddy MD.
+Hill-Selders NP|Cassandra Hill-Selders NP
+Rivet NP|Crystal Rivet NP
+Davis NP|Darrell Davis NP
+Jefferson Wilson FNP-C|Wanda Jefferson Wilson FNP-C
 
 ---
 
@@ -624,7 +608,7 @@ The patient's city
 
 **PII**: Yes
 
-**Format**: M/d/yyyy
+**Format**: M/d/yyyy H:nn
 
 **Cardinality**: [0..1]
 
@@ -643,7 +627,9 @@ Other states may choose to define their own formats.
 
 **PII**: No
 
-**Format**: $alt
+**Format**: $display
+
+**Default Value**: U
 
 **Cardinality**: [0..1]
 
@@ -652,27 +638,27 @@ Other states may choose to define their own formats.
 Code | Display
 ---- | -------
 H|Hispanic or Latino
+H|Hispanic
+H|Latino
+H|Mex. Amer./Hispanic
+H|H
 N|Non Hispanic or Latino
+N|Non Hispanic
+N|Not Hispanic or Latino
+N|Not Hispanic
+N|N
 U|Unknown
-H|Hispanic or Latino
-N|Non Hispanic or Latino
-U|Unknown
-U|Unknown
-U|Unknown
-
-**Alt Value Sets**
-
-Code | Display
----- | -------
-H|Hispanic or Latino
-N|Non Hispanic or Latino
-U|Patient Declines
+U|U
+U|UNK
+U|Black
+U|White
+U|African American
 U|NULL
-U|WHITE
+U|Patient Declines
 
 **Documentation**:
 
-NOTE - awaiting valid ethnicity values from iPatientCare
+Translate multiple inbound ethnicity values to RS / OMB values
 
 ---
 
@@ -696,23 +682,32 @@ The patient's first name
 
 **PII**: No
 
+**Format**: $display
+
+**Default Value**: U
+
 **Cardinality**: [0..1]
 
 **Value Sets**
 
 Code | Display
 ---- | -------
-M|Male
 F|Female
+F|F
+M|Male
+M|M
+U|U
+U|UNK
+U|UNKNOWN
+O|O
 O|Other
+O|OTH
+A|A
 A|Ambiguous
-U|Unknown
-N|Not applicable
 
 **Documentation**:
 
-The patient's gender. There is a valueset defined based on the values in PID-8-1, but downstream consumers are free to define their own accepted values. Please refer to the consumer-specific schema if you have questions.
-
+Translate multiple inbound Gender values to RS values
 
 ---
 
@@ -748,6 +743,18 @@ the patient ID from the testing lab, the oder placer, the ordering provider, or 
 **Documentation**:
 
 Facility populates multiple fields.  This instance populates patient_id_assigner.
+
+---
+
+**Name**: patient_id_type
+
+**Type**: TEXT
+
+**PII**: No
+
+**Default Value**: PI
+
+**Cardinality**: [0..1]
 
 ---
 
@@ -795,7 +802,9 @@ The patient's phone number with area code
 
 **PII**: No
 
-**Format**: $alt
+**Format**: $display
+
+**Default Value**: UNK
 
 **Cardinality**: [0..1]
 
@@ -803,41 +812,47 @@ The patient's phone number with area code
 
 Code | Display
 ---- | -------
+2106-3|White
+2106-3|W
+2106-3|Caucasian
+2106-3|C
+2106-3|2106-3
 1002-5|American Indian or Alaska Native
-2028-9|Asian
+1002-5|American Indian
+1002-5|Native American
 2054-5|Black or African American
-2076-8|Native Hawaiian or Other Pacific Islander
-2106-3|White
-2131-1|Other
-UNK|Unknown
-ASKU|Asked, but unknown
-2106-3|White
-1002-5|American Indian or Alaska Native
-2028-9|Asian
-2054-5|Black or African American
-2076-8|Native Hawaiian or Other Pacific Islander
-2131-1|Other
-UNK|Unknown
-UNK|Unknown
-ASKU|Asked, but unknown
-
-**Alt Value Sets**
-
-Code | Display
----- | -------
-2106-3|White
-1002-5|American Indian or Alaska Native
-2028-9|Asian
+2054-5|African American
+2054-5|African American Alaska Native
+2054-5|African American Black
 2054-5|Black
+2054-5|B
+2054-5|2054-5
 2076-8|Native Hawaiian or Other Pacific Islander
+2076-8|Hawaiian
+2076-8|NH
+2076-8|2076-8
 2131-1|Other
+2131-1|OTH
+2131-1|O
+2131-1|Other Race
+2131-1|Other Race White
+2131-1|Other Race,White
+2131-1|Other Race Black
+2131-1|Other Race,Black
+2131-1|2131-1
+2028-9|Asian
+2028-9|Asian Indian
+2028-9|2028-9
 UNK|Unknown
+UNK|UNK
+UNK|U
+UNK|Patient Declines
 UNK|null
 ASKU|Asked, but unknown
 
 **Documentation**:
 
-NOTE - awaiting valid race values from iPatientCare
+Translate multiple inbound Race values to RS / OMB values
 
 ---
 
@@ -887,13 +902,34 @@ The patient's zip code
 
 ---
 
+**Name**: Accession_no
+
+**Type**: ID
+
+**PII**: No
+
+**HL7 Fields**
+
+- [OBR-2-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.2.1)
+- [ORC-2-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.2.1)
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The ID number of the lab order from the placer
+
+---
+
 **Name**: Pregnant
 
 **Type**: CODE
 
 **PII**: No
 
-**Format**: $alt
+**Format**: $display
+
+**Default Value**: 
 
 **LOINC Code**: 82810-3
 
@@ -904,39 +940,28 @@ The patient's zip code
 Code | Display
 ---- | -------
 77386006|Pregnant
-60001007|Not Pregnant
-261665006|Unknown
-77386006|Pregnant
-77386006|Pregnant
-77386006|Pregnant
-77386006|Pregnant
-60001007|Not Pregnant
-60001007|Not Pregnant
-60001007|Not Pregnant
-60001007|Not Pregnant
-261665006|Unknown
-261665006|Unknown
-261665006|Unknown
-
-**Alt Value Sets**
-
-Code | Display
----- | -------
+77386006|Currently Pregnant
 77386006|Y
 77386006|YES
-77386006|Pregnant
-77386006|Currently Pregnant
-60001007|N
-60001007|NO
+77386006|77386006
 60001007|Not Pregnant
 60001007|Not Currently Pregnant
+60001007|N
+60001007|NO
+60001007|60001007
+261665006|Unknown
 261665006|U
 261665006|UNK
-261665006|Unknown
+261665006|N/A
+261665006|NA
+261665006|NR
+261665006|NP
+261665006|maybe
+261665006|261665006
 
 **Documentation**:
 
-Is the patient pregnant?
+Translate multiple inbound values into the Pregnancy SNOMED Codes
 
 ---
 
@@ -946,7 +971,7 @@ Is the patient pregnant?
 
 **PII**: No
 
-**Default Value**: T
+**Default Value**: P
 
 **Cardinality**: [0..1]
 
@@ -996,6 +1021,9 @@ The reporting facility's CLIA
 
 - [MSH-4-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/MSH.4.1)
 - [PID-3-4-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4.1)
+- [PID-3-6-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.6.1)
+- [SPM-2-1-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.1.2)
+- [SPM-2-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2.2)
 
 **Cardinality**: [0..1]
 
@@ -1056,27 +1084,142 @@ DateColl populates multiple fields.  This instance populates specimen_collection
 
 ---
 
-**Name**: specimen_type
+**Name**: Specimen_Type
 
-**Type**: TEXT
+**Type**: CODE
 
 **PII**: No
+
+**Format**: $display
+
+**Default Value**: 53342003
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+71836000|Nasopharyngeal structure (body structure)
+71836000|Varied
+71836000|Nasal
+71836000|Nasopharyngeal swab
+71836000|258500001
+71836000|71836000
+45206002|Nasal structure (body structure)
+45206002|45206002
+53342003|Internal nose structure (body structure)
+53342003|Swab of internal nose
+53342003|Anterior nares swab
+53342003|Mid-turbinate nasal swab
+53342003|Nasal Swab
+53342003|445297001
+53342003|53342003
+119297000|Serum
+119297000|Serum specimen
+119297000|Plasma
+119297000|Plasma specimen
+119297000|Whole Blood
+119297000|Whole Blood Sample
+119297000|Blood specimen
+119297000|Venous blood specimen
+119297000|258580003
+119297000|119361006
+119297000|119364003
+119297000|119297000
+31389004|Oral
+31389004|Throat Swab
+31389004|Oropharyngeal
+31389004|Oropharyngeal Swab
+31389004|31389004
+
+**Documentation**:
+
+Translate inbound text to outbound SNOMED Codes
+
+---
+
+**Name**: Specimen_Type
+
+**Type**: CODE
+
+**PII**: No
+
+**Format**: $display
 
 **Default Value**: 445297001
 
 **Cardinality**: [0..1]
 
+**Value Sets**
+
+Code | Display
+---- | -------
+445297001|Swab of internal nose
+445297001|Nasal Swab
+445297001|445297001
+258500001|Nasopharyngeal swab
+258500001|Nasal
+258500001|Varied
+258500001|258500001
+871810001|Mid-turbinate nasal swab
+871810001|871810001
+697989009|Anterior nares swab
+697989009|697989009
+258411007|Nasopharyngeal aspirate
+258411007|258411007
+429931000124105|Nasal aspirate
+429931000124105|429931000124105
+258529004|Throat swab
+258529004|Throat
+258529004|Oral
+258529004|Oropharyngeal
+258529004|Oropharyngeal Swab
+258529004|258529004
+119334006|Sputum specimen
+119334006|119334006
+119342007|Saliva specimen
+119342007|119342007
+258607008|Bronchoalveolar lavage fluid sample
+258607008|258607008
+119364003|Serum specimen
+119364003|Serum
+119364003|119364003
+119361006|Plasma specimen
+119361006|Plasma
+119361006|119361006
+440500007|Dried blood spot specimen
+440500007|440500007
+258580003|Whole blood sample
+258580003|Whole blood
+258580003|258580003
+122555007|Venous blood specimen
+122555007|122555007
+119297000|Blood specimen
+119297000|119297000
+
+**Documentation**:
+
+Translate inbound text to outbound SNOMED Codes
+
 ---
 
-**Name**: test_kit_name_id
+**Name**: TestName
 
-**Type**: TEXT
+**Type**: CODE
 
 **PII**: No
 
-**Default Value**: 10811877011290
+**Format**: $alt
 
 **Cardinality**: [0..1]
+
+**Alt Value Sets**
+
+Code | Display
+---- | -------
+10811877011290|SARS-CoV-2 (COVID-19) Ag
+10811877011290|     SARS-CoV-2 (COVID-19) Ag
 
 ---
 
@@ -1088,7 +1231,7 @@ DateColl populates multiple fields.  This instance populates specimen_collection
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-04-28
+**Table**: LIVD-SARS-CoV-2-2021-09-29
 
 **Table Column**: Test Performed LOINC Long Name
 
@@ -1104,7 +1247,7 @@ TestName populates multiple fields.  This instance populates test_performed_name
 
 **PII**: No
 
-**Format**: $alt
+**Format**: $display
 
 **Cardinality**: [0..1]
 
@@ -1112,42 +1255,62 @@ TestName populates multiple fields.  This instance populates test_performed_name
 
 Code | Display
 ---- | -------
-260373001|Detected
-260415000|Not detected
-720735008|Presumptive positive
-10828004|Positive
-42425007|Equivocal
-260385009|Negative
-895231008|Not detected in pooled specimen
-462371000124108|Detected in pooled specimen
-419984006|Inconclusive
-125154007|Specimen unsatisfactory for evaluation
-455371000124106|Invalid result
-840539006|Disease caused by sever acute respiratory syndrome coronavirus 2 (disorder)
-840544004|Suspected disease caused by severe acute respiratory coronavirus 2 (situation)
-840546002|Exposure to severe acute respiratory syndrome coronavirus 2 (event)
-840533007|Severe acute respiratory syndrome coronavirus 2 (organism)
-840536004|Antigen of severe acute respiratory syndrome coronavirus 2 (substance)
-840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
-840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
-373121007|Test not done
-260385009|Negative
-260385009|Negative
-10828004|Positive
-10828004|Positive
-
-**Alt Value Sets**
-
-Code | Display
----- | -------
 260385009|Negative
 260385009|Neg
+260385009|Negative *** High ***
+260385009|Negative *** Low ***
+260385009|260385009
+260415000|Not detected
+260415000|NDET
+260415000|260415000
+260373001|Detected
+260373001|DET
+260373001|260373001
 10828004|Positive
 10828004|Pos
+10828004|Positive (Abnormal)
+10828004|Positive (Alpha Abnormal)
+10828004|Positive *** High ***
+10828004|Positive  *** High ***
+10828004|Positive  *** Low ***
+10828004|Positive 
+10828004|10828004
+720735008|Presumptive positive
+720735008|720735008
+419984006|Inconclusive
+419984006|Inconclusive Result
+419984006|419984006
+42425007|Equivocal
+42425007|42425007
+895231008|Not detected in pooled specimen
+895231008|895231008
+462371000124108|Detected in pooled specimen
+462371000124108|462371000124108
+455371000124106|Invalid result
+455371000124106|Invalid
+455371000124106|455371000124106
+125154007|Specimen unsatisfactory for evaluation
+125154007|125154007
+840539006|Disease caused by sever acute respiratory syndrome coronavirus 2 (disorder)
+840539006|840539006
+840544004|Suspected disease caused by severe acute respiratory coronavirus 2 (situation)
+840544004|840544004
+840546002|Exposure to severe acute respiratory syndrome coronavirus 2 (event)
+840546002|840546002
+840533007|Severe acute respiratory syndrome coronavirus 2 (organism)
+840533007|840533007
+840536004|Antigen of severe acute respiratory syndrome coronavirus 2 (substance)
+840536004|840536004
+840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
+840535000|840535000
+840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
+840534001|840534001
+373121007|Test not done
+373121007|373121007
 
 **Documentation**:
 
-For now, Positive and Negative are the only results
+Translate multiple inbound Test Result values to RS values
 
 ---
 
@@ -1288,6 +1451,7 @@ Typically this will be the same as the `testing_lab_clia`, but potentially could
 
 - [OBR-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.2.2)
 - [OBR-3-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.3.2)
+- [OBX-15-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.15.2)
 - [OBX-23-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.23.1)
 - [ORC-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.2.2)
 - [ORC-3-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.3.2)

@@ -13,6 +13,7 @@ import gov.cdc.prime.router.credentials.CredentialManagement
 import gov.cdc.prime.router.credentials.CredentialRequestReason
 import gov.cdc.prime.router.credentials.UserJksCredential
 import gov.cdc.prime.router.credentials.UserPassCredential
+import gov.cdc.prime.router.credentials.UserPemCredential
 import gov.cdc.prime.router.credentials.UserPpkCredential
 import org.apache.logging.log4j.Level
 import org.apache.logging.log4j.core.config.Configurator
@@ -40,6 +41,7 @@ class CredentialsCli : CredentialManagement, CliktCommand(
     val type by option(help = "Type of credential to create")
         .groupChoice(
             "UserPass" to UserPassCredentialOptions(),
+            "UserPem" to UserPemCredentialOptions(),
             "UserPpk" to UserPpkCredentialOptions(),
             "UserJks" to UserJksCredentialOptions()
         ).required()
@@ -53,7 +55,18 @@ class CredentialsCli : CredentialManagement, CliktCommand(
     override fun run() {
         val credential = when (val it = type) {
             is UserPassCredentialOptions -> UserPassCredential(it.user, it.pass)
-            is UserPpkCredentialOptions -> UserPpkCredential(it.user, it.file.readText(Charsets.UTF_8), it.filePass)
+            is UserPemCredentialOptions -> UserPemCredential(
+                it.user,
+                it.file.readText(Charsets.UTF_8),
+                it.filePass,
+                it.pass
+            )
+            is UserPpkCredentialOptions -> UserPpkCredential(
+                it.user,
+                it.file.readText(Charsets.UTF_8),
+                it.filePass,
+                it.pass
+            )
             is UserJksCredentialOptions -> {
                 val jksEncoded = Base64.getEncoder().encodeToString(it.file.readBytes())
                 UserJksCredential(it.user, jksEncoded, it.filePass, it.privateAlias, it.trustAlias)
@@ -84,10 +97,24 @@ class UserPassCredentialOptions : CredentialConfig("Options for credential type 
     val pass by option(help = "SFTP password").prompt(default = "", requireConfirmation = true)
 }
 
+class UserPemCredentialOptions : CredentialConfig("Options for credential type 'UserPem'") {
+    val user by option("--pem-user", help = "Username to authenticate alongside the PEM").prompt(default = "")
+    val file by option("--pem-file", help = "Path to the PEM file").file(mustExist = true).required()
+    val filePass by option("--pem-file-pass", help = "Password to decrypt the PEM").prompt(default = "")
+    val pass by option(
+        "--pem-user-pass",
+        help = "The password to use to login with the user if the SFTP server is using partial auth"
+    ).prompt(default = "")
+}
+
 class UserPpkCredentialOptions : CredentialConfig("Options for credential type 'UserPpk'") {
     val user by option("--ppk-user", help = "Username to authenticate alongside the PPK").prompt(default = "")
     val file by option("--ppk-file", help = "Path to the PPK file").file(mustExist = true).required()
     val filePass by option("--ppk-file-pass", help = "Password to decrypt the PPK (optional)").prompt(default = "")
+    val pass by option(
+        "--ppk-user-pass",
+        help = "The password to use to login with the user if the SFTP server is using partial auth"
+    ).prompt(default = "")
 }
 
 class UserJksCredentialOptions : CredentialConfig("Options for credential type 'UserJks'") {

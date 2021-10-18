@@ -6,6 +6,7 @@ import gov.cdc.prime.router.FileSource
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import gov.cdc.prime.router.serializers.RedoxSerializer
@@ -16,6 +17,7 @@ class FileUtilities {
     companion object {
         fun createFakeFile(
             metadata: Metadata,
+            settings: SettingsProvider,
             sender: Sender,
             count: Int,
             targetStates: String? = null,
@@ -32,7 +34,7 @@ class FileUtilities {
                 targetCounties,
                 locale
             )
-            return writeReportToFile(report, format, metadata, directory, null)
+            return writeReportToFile(report, format, metadata, directory, null, settings)
         }
 
         fun createFakeReport(
@@ -56,6 +58,7 @@ class FileUtilities {
         fun writeReportsToFile(
             reports: List<Pair<Report, Report.Format>>,
             metadata: Metadata,
+            settings: SettingsProvider,
             outputDir: String?,
             outputFileName: String?,
         ) {
@@ -74,7 +77,7 @@ class FileUtilities {
                         listOf(Pair(report, format))
                     }
                 }.forEach { (report, format) ->
-                    val outputFile = writeReportToFile(report, format, metadata, outputDir, outputFileName)
+                    val outputFile = writeReportToFile(report, format, metadata, outputDir, outputFileName, settings)
                     echo(outputFile.absolutePath)
                 }
         }
@@ -85,6 +88,7 @@ class FileUtilities {
             metadata: Metadata,
             outputDir: String?,
             outputFileName: String?,
+            settings: SettingsProvider
         ): File {
             val outputFile = if (outputFileName != null) {
                 File(outputFileName)
@@ -105,7 +109,7 @@ class FileUtilities {
             }
 
             val csvSerializer = CsvSerializer(metadata)
-            val hl7Serializer = Hl7Serializer(metadata)
+            val hl7Serializer = Hl7Serializer(metadata, settings)
             val redoxSerializer = RedoxSerializer(metadata)
             outputFile.outputStream().use {
                 when (format) {

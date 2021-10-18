@@ -1,10 +1,12 @@
 package gov.cdc.prime.router.serializers
 
 import assertk.assertThat
+import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
+import assertk.assertions.isTrue
 import ca.uhn.hl7v2.DefaultHapiContext
 import ca.uhn.hl7v2.model.Segment
 import ca.uhn.hl7v2.model.v251.datatype.DR
@@ -16,14 +18,17 @@ import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.router.Element
+import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.FileSource
 import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.TestSource
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkClass
 import io.mockk.verify
 import org.junit.jupiter.api.TestInstance
 import java.io.ByteArrayInputStream
@@ -38,8 +43,6 @@ import java.util.Calendar
 import java.util.Date
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
 import kotlin.test.fail
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -48,24 +51,40 @@ class Hl7SerializerTests {
     private val hl7SchemaName = "hl7/hl7-ingest-covid-19"
     private val testReport: Report
     private val context = DefaultHapiContext()
+    private val mcf = CanonicalModelClassFactory("2.5.1")
     private val serializer: Hl7Serializer
     private val csvSerializer: CsvSerializer
     private val covid19Schema: Schema
     private val sampleHl7Message: String
+    private val sampleHl7MessageWithRepeats: String
 
     init {
         val metadata = Metadata("./metadata")
+        val settings = FileSettings("./settings")
         val inputStream = File("./src/test/unit_test_files/fake-pdi-covid-19.csv").inputStream()
         covid19Schema = metadata.findSchema(hl7SchemaName) ?: fail("Could not find target schema")
         csvSerializer = CsvSerializer(metadata)
-        serializer = Hl7Serializer(metadata)
+        serializer = Hl7Serializer(metadata, settings)
         testReport = csvSerializer.readExternal("primedatainput/pdi-covid-19", inputStream, TestSource).report ?: fail()
         sampleHl7Message = """MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|Avante at Ormond Beach^10D0876999^CLIA|||20210210170737||ORU^R01^ORU_R01|371784|P|2.5.1|||NE|NE|USA||||PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
-SFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME Data Hub|0.1-SNAPSHOT||20210210
+SFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME ReportStream|0.1-SNAPSHOT||20210210
 PID|1||2a14112c-ece1-4f82-915c-7b3a8d152eda^^^Avante at Ormond Beach^PI||Buckridge^Kareem^Millie^^^^L||19580810|F||2106-3^White^HL70005^^^^2.5.1|688 Leighann Inlet^^South Rodneychester^TX^67071||^PRN^^roscoe.wilkinson@email.com^1^211^2240784|||||||||U^Unknown^HL70189||||||||N
 ORC|RE|73a6e9bd-aaec-418e-813a-0ad33366ca85|73a6e9bd-aaec-418e-813a-0ad33366ca85|||||||||1629082607^Eddin^Husam^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI||^WPN^^^1^386^6825220|20210209||||||Avante at Ormond Beach|170 North King Road^^Ormond Beach^FL^32174^^^^12127|^WPN^^jbrush@avantecenters.com^1^407^7397506|^^^^32174
 OBR|1|73a6e9bd-aaec-418e-813a-0ad33366ca85||94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN|||202102090000-0600|202102090000-0600||||||||1629082607^Eddin^Husam^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI|^WPN^^^1^386^6825220|||||202102090000-0600|||F
-OBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN||260415000^Not detected^SCT|||N^Normal (applies to non-numeric results)^HL70078|||F|||202102090000-0600|||CareStart COVID-19 Antigen test_Access Bio, Inc._EUA^^99ELR||202102090000-0600||||Avante at Ormond Beach^^^^^CLIA&2.16.840.1.113883.19.4.6&ISO^^^^10D0876999^CLIA|170 North King Road^^Ormond Beach^FL^32174^^^^12127
+OBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN||260415000^Not detected^SCT|||N^Normal (applies to non-numeric results)^HL70078|||F|||202102090000-0600|||CareStart COVID-19 Antigen test_Access Bio, Inc._EUA^^99ELR||202102090000-0600||||Avante at Ormond Beach^^^^^CLIA&2.16.840.1.113883.4.7&ISO^^^^10D0876999^CLIA|170 North King Road^^Ormond Beach^FL^32174^^^^12127
+NTE|1|L|This is a comment|RE
+OBX|2|CWE|95418-0^Whether patient is employed in a healthcare setting^LN^^^^2.69||Y^Yes^HL70136||||||F|||202102090000-0600|||||||||||||||QST
+OBX|3|CWE|95417-2^First test for condition of interest^LN^^^^2.69||Y^Yes^HL70136||||||F|||202102090000-0600|||||||||||||||QST
+OBX|4|CWE|95421-4^Resides in a congregate care setting^LN^^^^2.69||N^No^HL70136||||||F|||202102090000-0600|||||||||||||||QST
+OBX|5|CWE|95419-8^Has symptoms related to condition of interest^LN^^^^2.69||N^No^HL70136||||||F|||202102090000-0600|||||||||||||||QST
+SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (body structure)^SCT^^^^2020-09-01|||||||||202102090000-0600^202102090000-0600
+NTE|1|L|This is a final comment|RE"""
+        sampleHl7MessageWithRepeats = """MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|Avante at Ormond Beach^10D0876999^CLIA|||20210210170737||ORU^R01^ORU_R01|371784|P|2.5.1|||NE|NE|USA||||PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
+SFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME ReportStream|0.1-SNAPSHOT||20210210
+PID|1||2a14112c-ece1-4f82-915c-7b3a8d152eda^^^Avante at Ormond Beach^PI||Buckridge^Kareem^Millie^^^^L||19580810|F||2106-3^White^HL70005^^^^2.5.1|688 Leighann Inlet^^South Rodneychester^TX^67071||^NET^Internet^roscoe.wilkinson@email.com~(211)224-0784^PRN^PH^^1^211^2240784|||||||||U^Unknown^HL70189||||||||N
+ORC|RE|73a6e9bd-aaec-418e-813a-0ad33366ca85|73a6e9bd-aaec-418e-813a-0ad33366ca85|||||||||1629082607^Eddin^Husam^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI||^WPN^^^1^386^6825220|20210209||||||Avante at Ormond Beach|170 North King Road^^Ormond Beach^FL^32174^^^^12127|^WPN^^jbrush@avantecenters.com^1^407^7397506|^^^^32174
+OBR|1|73a6e9bd-aaec-418e-813a-0ad33366ca85||94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN|||202102090000-0600|202102090000-0600||||||||1629082607^Eddin^Husam^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI|^WPN^^^1^386^6825220|||||202102090000-0600|||F
+OBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN||260415000^Not detected^SCT|||N^Normal (applies to non-numeric results)^HL70078|||F|||202102090000-0600|||CareStart COVID-19 Antigen test_Access Bio, Inc._EUA^^99ELR||202102090000-0600||||Avante at Ormond Beach^^^^^CLIA&2.16.840.1.113883.4.7&ISO^^^^10D0876999^CLIA|170 North King Road^^Ormond Beach^FL^32174^^^^12127
 NTE|1|L|This is a comment|RE
 OBX|2|CWE|95418-0^Whether patient is employed in a healthcare setting^LN^^^^2.69||Y^Yes^HL70136||||||F|||202102090000-0600|||||||||||||||QST
 OBX|3|CWE|95417-2^First test for condition of interest^LN^^^^2.69||Y^Yes^HL70136||||||F|||202102090000-0600|||||||||||||||QST
@@ -80,13 +99,47 @@ NTE|1|L|This is a final comment|RE"""
         val outputStream = ByteArrayOutputStream()
         serializer.writeBatch(testReport, outputStream)
         val output = outputStream.toString(StandardCharsets.UTF_8)
-        assertNotNull(output)
+        assertThat(output).isNotNull()
     }
 
     @Test
     fun `test write a message`() {
         val output = serializer.createMessage(testReport, 0)
-        assertNotNull(output)
+        assertThat(output).isNotNull()
+    }
+
+    @Test
+    fun `test write a message with Receiver`() {
+        val inputStream = File("./src/test/unit_test_files/ak_test_file.csv").inputStream()
+        val schema = "primedatainput/pdi-covid-19"
+
+        val hl7Config = mockkClass(Hl7Configuration::class).also {
+            every { it.replaceValue }.returns(mapOf("PID-22-3" to "CDCREC", "OBX-2" to "testVal"))
+            every { it.format }.returns(Report.Format.HL7)
+            every { it.useTestProcessingMode }.returns(false)
+            every { it.suppressQstForAoe }.returns(false)
+            every { it.suppressAoe }.returns(false)
+            every { it.suppressHl7Fields }.returns(null)
+            every { it.useBlankInsteadOfUnknown }.returns(null)
+            every { it.convertTimestampToDateTime }.returns(null)
+            every { it.truncateHDNamespaceIds }.returns(false)
+            every { it.phoneNumberFormatting }.returns(Hl7Configuration.PhoneNumberFormatting.STANDARD)
+            every { it.usePid14ForPatientEmail }.returns(false)
+            every { it.reportingFacilityName }.returns(null)
+            every { it.reportingFacilityId }.returns(null)
+            every { it.reportingFacilityIdType }.returns(null)
+            every { it.cliaForOutOfStateTesting }.returns("1234FAKECLIA")
+            every { it.useOrderingFacilityName }.returns(Hl7Configuration.OrderingFacilityName.STANDARD)
+        }
+        val receiver = mockkClass(Receiver::class).also {
+            every { it.translation }.returns(hl7Config)
+            every { it.format }.returns(Report.Format.HL7)
+            every { it.organizationName }.returns("ca-dph")
+        }
+
+        val testReport = csvSerializer.readExternal(schema, inputStream, listOf(TestSource), receiver).report ?: fail()
+        val output = serializer.createMessage(testReport, 2)
+        assertThat(output).isNotNull()
     }
 
     @Test
@@ -104,19 +157,44 @@ NTE|1|L|This is a final comment|RE"""
         // as well, and let's test that while we're here as well
         val oru = hapiMsg as ORU_R01
         // assert
-        assertEquals(
-            "CDC PRIME - Atlanta, Georgia (Dekalb)",
-            terser.get("/MSH-3-1")
-        )
-        assertEquals(
-            "2.16.840.1.114222.4.1.237821",
-            terser.get("/MSH-3-2")
-        )
-        assertEquals("South Rodneychester", terser.get("/.PID-11-3"))
+        assertThat(terser.get("/MSH-3-1")).isEqualTo("CDC PRIME - Atlanta, Georgia (Dekalb)")
+        assertThat(terser.get("/MSH-3-2")).isEqualTo("2.16.840.1.114222.4.1.237821")
+        assertThat(terser.get("/.PID-11-3")).isEqualTo("South Rodneychester")
         // check the oru cast
-        assertNotNull(oru)
-        assertNotNull(oru.patienT_RESULT.patient)
-        assertNotNull(oru.patienT_RESULT.patient.pid)
+        assertThat(oru).isNotNull()
+        assertThat(oru.patienT_RESULT.patient).isNotNull()
+        assertThat(oru.patienT_RESULT.patient.pid).isNotNull()
+        println(oru.printStructure())
+    }
+
+    @Test
+    fun `test reading pid repeats`() {
+        // arrange
+        context.modelClassFactory = mcf
+        val parser = context.pipeParser
+        // act
+        val reg = "[\r\n]".toRegex()
+        val cleanedMessage = reg.replace(sampleHl7MessageWithRepeats, "\r")
+        val hapiMsg = parser.parse(cleanedMessage)
+        val terser = Terser(hapiMsg)
+        // these messages are of type ORU_R01, so we can cast to that
+        // as well, and let's test that while we're here as well
+        val oru = hapiMsg as ORU_R01
+        // ^NET^Internet^roscoe.wilkinson@email.com~(211)224-0784^PRN^PH^^1^211^2240784
+        // assert
+        assertThat(terser.get("/PATIENT_RESULT/PATIENT/PID-13(0)-2")).isEqualTo("NET")
+        assertThat(terser.get("/PATIENT_RESULT/PATIENT/PID-13(0)-3")).isEqualTo("Internet")
+        assertThat(terser.get("/PATIENT_RESULT/PATIENT/PID-13(1)-1")).isEqualTo("(211)224-0784")
+        assertThat(terser.get("/PATIENT_RESULT/PATIENT/PID-13(1)-2")).isEqualTo("PRN")
+        println(terser.get("/PATIENT_RESULT/PATIENT/PID-13(0)"))
+        println(terser.get("/PATIENT_RESULT/PATIENT/PID-13(1)"))
+        // check the oru cast
+        assertThat(oru).isNotNull()
+        assertThat(oru.patienT_RESULT.patient).isNotNull()
+        assertThat(oru.patienT_RESULT.patient.pid).isNotNull()
+        assertThat(oru.patienT_RESULT.patient.pid.phoneNumberHome).isNotNull()
+        assertThat(oru.patienT_RESULT.patient.pid.phoneNumberHome).hasSize(2)
+        println(oru.patienT_RESULT.patient.pid.phoneNumberHome[0])
         println(oru.printStructure())
     }
 
@@ -128,8 +206,8 @@ NTE|1|L|This is a final comment|RE"""
         mappedValues.forEach {
             println("${it.key}: ${it.value.joinToString()}")
         }
-        assertTrue(mappedValues.containsKey("patient_city"))
-        assertEquals("South Rodneychester", mappedValues["patient_city"]?.get(0))
+        assertThat(mappedValues.containsKey("patient_city")).isTrue()
+        assertThat(mappedValues["patient_city"]?.get(0)).isEqualTo("South Rodneychester")
     }
 
     @Test
@@ -141,8 +219,8 @@ NTE|1|L|This is a final comment|RE"""
         mappedValues.forEach {
             println("${it.key}: ${it.value.joinToString()}")
         }
-        assertTrue(mappedValues.containsKey("patient_city"))
-        assertEquals("South Rodneychester", mappedValues["patient_city"]?.get(0))
+        assertThat(mappedValues.containsKey("patient_city")).isTrue()
+        assertThat(mappedValues["patient_city"]?.get(0)).isEqualTo("South Rodneychester")
     }
 
     @Test
@@ -155,9 +233,9 @@ NTE|1|L|This is a final comment|RE"""
         mappedValues.forEach {
             println("${it.key}: ${it.value.joinToString()}")
         }
-        assertTrue(mappedValues.containsKey("patient_city"))
+        assertThat(mappedValues.containsKey("patient_city")).isTrue()
         val cities = mappedValues["patient_city"]?.toSet()
-        assertEquals(setOf("North Taylor", "South Rodneychester"), cities)
+        assertThat(cities).isEqualTo(setOf("North Taylor", "South Rodneychester"))
         println("Errors:")
         mappedMessage.errors.forEach {
             println(it)
@@ -175,17 +253,18 @@ NTE|1|L|This is a final comment|RE"""
         val source = FileSource(inputFile)
         val readResult = serializer.readExternal(hl7SchemaName, message.inputStream(), source)
         val report = readResult.report ?: fail("Report was null and should not be")
-        assertEquals("South Rodneychester", report.getString(0, "patient_city"))
-        assertEquals("North Taylor", report.getString(1, "patient_city"))
-        assertTrue(report.itemCount == 2)
+        assertThat(report.getString(0, "patient_city")).isEqualTo("South Rodneychester")
+        assertThat(report.getString(1, "patient_city")).isEqualTo("North Taylor")
+        assertThat(report.itemCount == 2).isTrue()
         val hospitalized = (0 until report.itemCount).map { report.getString(it, "hospitalized") }
-        assertEquals(setOf(""), hospitalized.toSet())
+        assertThat(hospitalized.toSet()).isEqualTo(setOf(""))
     }
 
     @Test
     fun `test XTN phone decoding`() {
         val metadata = Metadata("./metadata")
-        val serializer = Hl7Serializer(metadata)
+        val settings = FileSettings("./settings")
+        val serializer = Hl7Serializer(metadata, settings)
         val mockTerser = mockk<Terser>()
         val mockSegment = mockk<Segment>()
         val emptyPhoneField = mockk<XTN>()
@@ -200,17 +279,17 @@ NTE|1|L|This is a final comment|RE"""
             mockTerser, Element("phone", Element.Type.TELEPHONE),
             "PID-BLAH"
         )
-        assertEquals("", phoneNumber)
+        assertThat(phoneNumber).isEqualTo("")
 
         // Segment not found
         phoneNumber = serializer.decodeHl7TelecomData(mockTerser, element, element.hl7Field!!)
-        assertEquals("", phoneNumber)
+        assertThat(phoneNumber).isEqualTo("")
 
         // No phone number due to zero repetitions
         every { mockTerser.getSegment(any()) } returns mockSegment
         every { mockSegment.getField(any()) } returns emptyArray()
         phoneNumber = serializer.decodeHl7TelecomData(mockTerser, element, element.hl7Field!!)
-        assertEquals("", phoneNumber)
+        assertThat(phoneNumber).isEqualTo("")
 
         // No phone number
         every { mockSegment.getField(any()) } returns arrayOf(emptyPhoneField) // This is only to get the number of reps
@@ -219,12 +298,12 @@ NTE|1|L|This is a final comment|RE"""
         every { emptyPhoneField.localNumber.isEmpty } returns true
         every { emptyPhoneField.telephoneNumber.isEmpty } returns true
         phoneNumber = serializer.decodeHl7TelecomData(mockTerser, element, element.hl7Field!!)
-        assertEquals("", phoneNumber)
+        assertThat(phoneNumber).isEqualTo("")
 
         // Multiple repetitions with no phone number
         every { mockSegment.getField(any()) } returns arrayOf(emptyPhoneField, emptyPhoneField, emptyPhoneField)
         phoneNumber = serializer.decodeHl7TelecomData(mockTerser, element, element.hl7Field!!)
-        assertEquals("", phoneNumber)
+        assertThat(phoneNumber).isEqualTo("")
 
         // Phone number in deprecated component
         every { deprecatedPhoneField.areaCityCode.isEmpty } returns true
@@ -233,7 +312,7 @@ NTE|1|L|This is a final comment|RE"""
         every { deprecatedPhoneField.telephoneNumber.valueOrEmpty } returns "(555)555-5555"
         every { mockSegment.getField(any()) } returns arrayOf(deprecatedPhoneField)
         phoneNumber = serializer.decodeHl7TelecomData(mockTerser, element, element.hl7Field!!)
-        assertEquals("5555555555:1:", phoneNumber)
+        assertThat(phoneNumber).isEqualTo("5555555555:1:")
 
         // Phone number in newer components.  Will ignore phone number in deprecated component
         every { mockSegment.getField(any()) } returns arrayOf(phoneField)
@@ -247,19 +326,19 @@ NTE|1|L|This is a final comment|RE"""
         every { phoneField.localNumber.value } returns "7777777"
         every { phoneField.extension.value } returns "9999"
         phoneNumber = serializer.decodeHl7TelecomData(mockTerser, element, element.hl7Field!!)
-        assertEquals("6667777777:1:9999", phoneNumber)
+        assertThat(phoneNumber).isEqualTo("6667777777:1:9999")
 
         // No type assumed to be a phone number
         every { phoneField.telecommunicationEquipmentType.isEmpty } returns true
         every { phoneField.telecommunicationEquipmentType.valueOrEmpty } returns null
         phoneNumber = serializer.decodeHl7TelecomData(mockTerser, element, element.hl7Field!!)
-        assertEquals("6667777777:1:9999", phoneNumber)
+        assertThat(phoneNumber).isEqualTo("6667777777:1:9999")
 
         // A Fax number is not used
         every { phoneField.telecommunicationEquipmentType.isEmpty } returns false
         every { phoneField.telecommunicationEquipmentType.valueOrEmpty } returns "FX"
         phoneNumber = serializer.decodeHl7TelecomData(mockTerser, element, element.hl7Field!!)
-        assertEquals("", phoneNumber)
+        assertThat(phoneNumber).isEqualTo("")
 
         // Test repetitions.  The first repetition for the XTN type can be empty when there is no primary phone number
         every { phoneField.telecommunicationEquipmentType.valueOrEmpty } returns "PH"
@@ -272,13 +351,14 @@ NTE|1|L|This is a final comment|RE"""
         every { emailField.telecommunicationUseCode.valueOrEmpty } returns "NET"
         every { mockSegment.getField(any()) } returns arrayOf(emptyPhoneField, emailField, phoneField)
         phoneNumber = serializer.decodeHl7TelecomData(mockTerser, element, element.hl7Field!!)
-        assertEquals("6667777777:1:9999", phoneNumber)
+        assertThat(phoneNumber).isEqualTo("6667777777:1:9999")
     }
 
     @Test
     fun `test XTN email decoding`() {
         val metadata = Metadata("./metadata")
-        val serializer = Hl7Serializer(metadata)
+        val settings = FileSettings("./settings")
+        val serializer = Hl7Serializer(metadata, settings)
         val mockTerser = mockk<Terser>()
         val mockSegment = mockk<Segment>()
         val emailField = mockk<XTN>()
@@ -291,24 +371,24 @@ NTE|1|L|This is a final comment|RE"""
             mockTerser, Element("email", Element.Type.EMAIL),
             "PID-BLAH"
         )
-        assertEquals("", email)
+        assertThat(email).isEqualTo("")
 
         // Segment not found
         email = serializer.decodeHl7TelecomData(mockTerser, element, element.hl7Field!!)
-        assertEquals("", email)
+        assertThat(email).isEqualTo("")
 
         // No email number due to zero repetitions
         every { mockTerser.getSegment(any()) } returns mockSegment
         every { mockSegment.getField(any()) } returns emptyArray()
         email = serializer.decodeHl7TelecomData(mockTerser, element, element.hl7Field!!)
-        assertEquals("", email)
+        assertThat(email).isEqualTo("")
 
         // No email
         every { mockSegment.getField(any()) } returns arrayOf(phoneField)
         every { phoneField.telecommunicationEquipmentType.isEmpty } returns false
         every { phoneField.telecommunicationEquipmentType.valueOrEmpty } returns "PH"
         email = serializer.decodeHl7TelecomData(mockTerser, element, element.hl7Field!!)
-        assertEquals("", email)
+        assertThat(email).isEqualTo("")
 
         // Test repetitions.
         every { emailField.emailAddress.valueOrEmpty } returns "dummyemail@cdc.local"
@@ -316,13 +396,14 @@ NTE|1|L|This is a final comment|RE"""
         every { emailField.telecommunicationEquipmentType.valueOrEmpty } returns "Internet"
         every { mockSegment.getField(any()) } returns arrayOf(emailField, phoneField)
         email = serializer.decodeHl7TelecomData(mockTerser, element, element.hl7Field!!)
-        assertEquals("dummyemail@cdc.local", email)
+        assertThat(email).isEqualTo("dummyemail@cdc.local")
     }
 
     @Test
     fun `test date time decoding`() {
         val metadata = Metadata("./metadata")
-        val serializer = Hl7Serializer(metadata)
+        val settings = FileSettings("./settings")
+        val serializer = Hl7Serializer(metadata, settings)
         val mockTerser = mockk<Terser>()
         val mockSegment = mockk<Segment>()
         val mockTS = mockk<TS>()
@@ -338,7 +419,7 @@ NTE|1|L|This is a final comment|RE"""
         // Segment not found
         every { mockTerser.getSegment(any()) } returns null
         var dateTime = serializer.decodeHl7DateTime(mockTerser, dateTimeElement, dateTimeElement.hl7Field!!, warnings)
-        assertEquals("", dateTime)
+        assertThat(dateTime).isEqualTo("")
 
         // Bad field value
         every { mockTerser.getSegment(any()) } returns mockSegment
@@ -346,18 +427,18 @@ NTE|1|L|This is a final comment|RE"""
             mockTerser, Element("field", hl7Field = "OBX-Blah"),
             "OBX-Blah", warnings
         )
-        assertEquals("", dateTime)
+        assertThat(dateTime).isEqualTo("")
 
         // No field value
         every { mockSegment.getField(any(), any()) } returns null
         dateTime = serializer.decodeHl7DateTime(mockTerser, dateTimeElement, dateTimeElement.hl7Field!!, warnings)
-        assertEquals("", dateTime)
+        assertThat(dateTime).isEqualTo("")
 
         // Field value is TS, but no time
         every { mockSegment.getField(any(), any()) } returns mockTS
         every { mockTS.time } returns null
         dateTime = serializer.decodeHl7DateTime(mockTerser, dateTimeElement, dateTimeElement.hl7Field!!, warnings)
-        assertEquals("", dateTime)
+        assertThat(dateTime).isEqualTo("")
 
         // Field value is TS has a time
         every { mockTS.time } returns mockDTM
@@ -365,7 +446,7 @@ NTE|1|L|This is a final comment|RE"""
         every { mockTS.time.value } returns dateFormatterWithTimeZone.format(now)
         every { mockTS.time.gmtOffset } returns 0
         dateTime = serializer.decodeHl7DateTime(mockTerser, dateTimeElement, dateTimeElement.hl7Field!!, warnings)
-        assertEquals(dateFormatterWithTimeZone.format(now.withOffsetSameInstant(ZoneOffset.UTC)), dateTime)
+        assertThat(dateTime).isEqualTo(dateFormatterWithTimeZone.format(now.withOffsetSameInstant(ZoneOffset.UTC)))
 
         // Field value is TS has a time, but no GMT offset
         every { mockTS.time } returns mockDTM
@@ -375,27 +456,28 @@ NTE|1|L|This is a final comment|RE"""
         every { mockTS.time.value } returns dateFormatterWithTimeZone.format(now)
         every { mockTS.time.gmtOffset } returns -99
         dateTime = serializer.decodeHl7DateTime(mockTerser, dateTimeElement, dateTimeElement.hl7Field!!, warnings)
-        assertEquals(dateFormatterWithTimeZone.format(now.withOffsetSameInstant(ZoneOffset.UTC)), dateTime)
+        assertThat(dateTime).isEqualTo(dateFormatterWithTimeZone.format(now.withOffsetSameInstant(ZoneOffset.UTC)))
 
         // Field value is DR, but no range
         every { mockSegment.getField(any(), any()) } returns mockDR
         every { mockDR.rangeStartDateTime } returns null
         dateTime = serializer.decodeHl7DateTime(mockTerser, dateTimeElement, dateTimeElement.hl7Field!!, warnings)
-        assertEquals("", dateTime)
+        assertThat(dateTime).isEqualTo("")
 
         // Field value is DR has a range, but with no time
         every { mockDR.rangeStartDateTime } returns mockTS
         every { mockDR.rangeStartDateTime.time } returns null
         dateTime = serializer.decodeHl7DateTime(mockTerser, dateTimeElement, dateTimeElement.hl7Field!!, warnings)
-        assertEquals("", dateTime)
+        assertThat(dateTime).isEqualTo("")
 
         // Field value is DR and has a time
         every { mockDR.rangeStartDateTime } returns mockTS
         every { mockDR.rangeStartDateTime.time } returns mockDTM
         every { mockDR.rangeStartDateTime.time.valueAsDate } returns nowAsDate
-        every { mockDR.rangeStartDateTime.time.value } returns dateFormatterWithTimeZone.format(now)
+        every { mockDR.rangeStartDateTime.time.gmtOffset } returns -99
+        every { mockDR.rangeStartDateTime.time.valueAsCalendar } returns cal
         dateTime = serializer.decodeHl7DateTime(mockTerser, dateTimeElement, dateTimeElement.hl7Field!!, warnings)
-        assertEquals(dateFormatterWithTimeZone.format(now.withOffsetSameInstant(ZoneOffset.UTC)), dateTime)
+        assertThat(dateTime).isEqualTo(dateFormatterWithTimeZone.format(now.withOffsetSameInstant(ZoneOffset.UTC)))
 
         // Generate a warning for not having the timezone offsets
         every { mockDR.rangeStartDateTime } returns mockTS
@@ -404,7 +486,7 @@ NTE|1|L|This is a final comment|RE"""
         every { mockDR.rangeStartDateTime.time.value } returns dateFormatterNoTimeZone.format(now)
         warnings.clear()
         serializer.decodeHl7DateTime(mockTerser, dateTimeElement, dateTimeElement.hl7Field!!, warnings)
-        assertTrue(warnings.size == 1)
+        assertThat(warnings.size == 1).isTrue()
 
         // Test a bit more the regex for the warning
         fun testForTimestampWarning(dateString: String, numExpectedWarnings: Int) {
@@ -414,7 +496,7 @@ NTE|1|L|This is a final comment|RE"""
             every { mockSegment.getField(any(), any()) } returns mockDR
             warnings.clear()
             serializer.decodeHl7DateTime(mockTerser, dateTimeElement, dateTimeElement.hl7Field!!, warnings)
-            assertEquals(warnings.size, numExpectedWarnings)
+            assertThat(warnings.size).isEqualTo(numExpectedWarnings)
         }
 
         testForTimestampWarning("TS[202101011200]", 1)
@@ -445,7 +527,7 @@ NTE|1|L|This is a final comment|RE"""
         every { mockDT.day } returns date.dayOfMonth
         every { mockSegment.getField(any(), any()) } returns mockDT
         val dateTime = serializer.decodeHl7DateTime(mockTerser, dateElement, dateElement.hl7Field!!, warnings)
-        assertEquals(formattedDate, dateTime)
+        assertThat(dateTime).isEqualTo(formattedDate)
 
         // Test a bit more the regex for the warning
         fun testForDateWarning(dateString: String, numExpectedWarnings: Int) {
@@ -456,7 +538,7 @@ NTE|1|L|This is a final comment|RE"""
             every { mockSegment.getField(any(), any()) } returns mockDT
             warnings.clear()
             serializer.decodeHl7DateTime(mockTerser, dateElement, dateElement.hl7Field!!, warnings)
-            assertEquals(warnings.size, numExpectedWarnings)
+            assertThat(warnings.size).isEqualTo(numExpectedWarnings)
         }
 
         testForDateWarning("DT[19950101]", 0)
@@ -476,11 +558,11 @@ NTE|1|L|This is a final comment|RE"""
 
         // Java strings are stored as UTF-16
         val intMessage = """MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|Avante at Ormond Beach^10D0876999^CLIA|||20210210170737||ORU^R01^ORU_R01|371784|P|2.5.1|||NE|NE|USA||||PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
-SFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME Data Hub|0.1-SNAPSHOT||20210210
+SFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME ReportStream|0.1-SNAPSHOT||20210210
 PID|1||2a14112c-ece1-4f82-915c-7b3a8d152eda^^^Avante at Ormond Beach^PI||$greekString^Kareem^Millie^^^^L||19580810|F||2106-3^White^HL70005^^^^2.5.1|688 Leighann Inlet^^South Rodneychester^TX^67071||^PRN^^roscoe.wilkinson@email.com^1^211^2240784|||||||||U^Unknown^HL70189||||||||N
 ORC|RE|73a6e9bd-aaec-418e-813a-0ad33366ca85|73a6e9bd-aaec-418e-813a-0ad33366ca85|||||||||1629082607^Eddin^Husam^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI||^WPN^^^1^386^6825220|20210209||||||Avante at Ormond Beach|170 North King Road^^Ormond Beach^FL^32174^^^^12127|^WPN^^jbrush@avantecenters.com^1^407^7397506|^^^^32174
 OBR|1|73a6e9bd-aaec-418e-813a-0ad33366ca85||94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN|||202102090000-0600|202102090000-0600||||||||1629082607^Eddin^Husam^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI|^WPN^^^1^386^6825220|||||202102090000-0600|||F
-OBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN||260415000^Not detected^SCT|||N^Normal (applies to non-numeric results)^HL70078|||F|||202102090000-0600|||CareStart COVID-19 Antigen test_Access Bio, Inc._EUA^^99ELR||202102090000-0600||||Avante at Ormond Beach^^^^^CLIA&2.16.840.1.113883.19.4.6&ISO^^^^10D0876999^CLIA|170 North King Road^^Ormond Beach^FL^32174^^^^12127
+OBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN||260415000^Not detected^SCT|||N^Normal (applies to non-numeric results)^HL70078|||F|||202102090000-0600|||CareStart COVID-19 Antigen test_Access Bio, Inc._EUA^^99ELR||202102090000-0600||||Avante at Ormond Beach^^^^^CLIA&2.16.840.1.113883.4.7&ISO^^^^10D0876999^CLIA|170 North King Road^^Ormond Beach^FL^32174^^^^12127
 NTE|1|L|This is a comment|RE
 OBX|2|CWE|95418-0^Whether patient is employed in a healthcare setting^LN^^^^2.69||Y^Yes^HL70136||||||F|||202102090000-0600|||||||||||||||QST
 OBX|3|CWE|95417-2^First test for condition of interest^LN^^^^2.69||Y^Yes^HL70136||||||F|||202102090000-0600|||||||||||||||QST
@@ -499,26 +581,25 @@ NTE|1|L|This is a final comment|RE"""
         val hapiMsg = parser.parse(cleanedMessage)
         val terser = Terser(hapiMsg)
         // assert
-        assertEquals(
-            greekString,
-            terser.get("/.PID-5-1")
-        )
+        assertThat(terser.get("/.PID-5-1")).isEqualTo(greekString)
     }
 
     @Test
     fun `test terser spec generator`() {
         val metadata = Metadata("./metadata")
-        val serializer = Hl7Serializer(metadata)
-        assertEquals("/MSH-1-1", serializer.getTerserSpec("MSH-1-1"))
-        assertEquals("/.PID-1", serializer.getTerserSpec("PID-1"))
-        assertEquals("/.", serializer.getTerserSpec(""))
+        val settings = FileSettings("./settings")
+        val serializer = Hl7Serializer(metadata, settings)
+        assertThat(serializer.getTerserSpec("MSH-1-1")).isEqualTo("/MSH-1-1")
+        assertThat(serializer.getTerserSpec("PID-1")).isEqualTo("/.PID-1")
+        assertThat(serializer.getTerserSpec("")).isEqualTo("/.")
     }
 
     @Test
     fun `test setTelephoneComponents for patient`() {
         val metadata = Metadata("./metadata")
+        val settings = FileSettings("./settings")
+        val serializer = Hl7Serializer(metadata, settings)
         val mockTerser = mockk<Terser>()
-        val serializer = Hl7Serializer(metadata)
         every { mockTerser.set(any(), any()) } returns Unit
         every { mockTerser.get("/PATIENT_RESULT/PATIENT/PID-13(0)-2") } returns ""
 
@@ -545,8 +626,9 @@ NTE|1|L|This is a final comment|RE"""
     @Test
     fun `test setTelephoneComponents for facility`() {
         val metadata = Metadata("./metadata")
+        val settings = FileSettings("./settings")
+        val serializer = Hl7Serializer(metadata, settings)
         val mockTerser = mockk<Terser>()
-        val serializer = Hl7Serializer(metadata)
         every { mockTerser.set(any(), any()) } returns Unit
 
         val facilityPathSpec = serializer.formPathSpec("ORC-23")
@@ -577,8 +659,9 @@ NTE|1|L|This is a final comment|RE"""
     @Test
     fun `test setCliaComponents`() {
         val metadata = Metadata("./metadata")
+        val settings = FileSettings("./settings")
+        val serializer = Hl7Serializer(metadata, settings)
         val mockTerser = mockk<Terser>()
-        val serializer = Hl7Serializer(metadata)
         every { mockTerser.set(any(), any()) } returns Unit
 
         serializer.setCliaComponent(
@@ -595,8 +678,9 @@ NTE|1|L|This is a final comment|RE"""
     @Test
     fun `test setCliaComponents in HD`() {
         val metadata = Metadata("./metadata")
+        val settings = FileSettings("./settings")
+        val serializer = Hl7Serializer(metadata, settings)
         val mockTerser = mockk<Terser>()
-        val serializer = Hl7Serializer(metadata)
         every { mockTerser.set(any(), any()) } returns Unit
         val hl7Field = "ORC-3-3"
         val value = "dummy"
@@ -614,13 +698,177 @@ NTE|1|L|This is a final comment|RE"""
     }
 
     @Test
+    fun `test getSchoolId`() {
+        // Get a bunch of k12 rows
+        val testCSV = File("./src/test/unit_test_files/pdi-covid-19-wa-k12.csv").inputStream()
+        val testReport = csvSerializer
+            .readExternal("primedatainput/pdi-covid-19", testCSV, TestSource)
+            .report ?: fail()
+
+        // This row is the happy path
+        val rawValidFacilityName = testReport.getString(0, "ordering_facility_name") ?: fail()
+        val validNCES = serializer.getSchoolId(testReport, 0, rawValidFacilityName)
+        assertThat(validNCES).isEqualTo("530825001381")
+
+        // This row doesn't match on zip code
+        val rawInvalidZip = testReport.getString(8, "ordering_facility_name") ?: fail()
+        val invalidZip = serializer.getSchoolId(testReport, 8, rawInvalidZip)
+        assertThat(invalidZip).isNull()
+
+        // This row does a best match
+        val rawPartialName = testReport.getString(10, "ordering_facility_name") ?: fail()
+        val partialNCES = serializer.getSchoolId(testReport, 10, rawPartialName)
+        assertThat(partialNCES).isEqualTo("530825001381")
+
+        // This row doesn't match on site type
+        val rawInvalidSite = testReport.getString(11, "ordering_facility_name") ?: fail()
+        val invalidSite = serializer.getSchoolId(testReport, 11, rawInvalidSite)
+        assertThat(invalidSite).isNull()
+
+        // There are three schools that have the same first name in this zip-code
+        val rawHighSchool = testReport.getString(12, "ordering_facility_name") ?: fail()
+        val highSchool = serializer.getSchoolId(testReport, 12, rawHighSchool)
+        assertThat(highSchool).isEqualTo("530042000099")
+
+        // There are three schools that have the same first name in this zip-code. This one has a very long name.
+        val rawPartnershipSchool = testReport.getString(13, "ordering_facility_name") ?: fail()
+        val partnershipSchool = serializer.getSchoolId(testReport, 13, rawPartnershipSchool)
+        assertThat(partnershipSchool).isEqualTo("530042003476")
+    }
+
+    @Test
+    fun `test setOrderingFacilityComponent`() {
+        val mockTerser = mockk<Terser>()
+        every { mockTerser.set(any(), any()) } returns Unit
+        val facilityName = "Very Long Facility Name That Should Truncate After Here"
+        // Get a bunch of k12 rows
+        val testCSV = File("./src/test/unit_test_files/pdi-covid-19-wa-k12.csv").inputStream()
+        val testReport = csvSerializer
+            .readExternal("primedatainput/pdi-covid-19", testCSV, TestSource)
+            .report ?: fail()
+
+        // Test with STANDARD
+        serializer.setOrderingFacilityComponent(
+            mockTerser,
+            facilityName,
+            useOrderingFacilityName = Hl7Configuration.OrderingFacilityName.STANDARD,
+            testReport,
+            row = 0
+        )
+
+        verify {
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-21-1", facilityName.take(50))
+        }
+    }
+
+    @Test
+    fun `test setOrderingFacilityComponent with Organization Name`() {
+        val mockTerser = mockk<Terser>()
+        every { mockTerser.set(any(), any()) } returns Unit
+        val facilityName = "Very Long Facility Name That Should Truncate After Here"
+        // Get a bunch of k12 rows
+        val testCSV = File("./src/test/unit_test_files/pdi-covid-19-wa-k12.csv").inputStream()
+        val testReport = csvSerializer
+            .readExternal("primedatainput/pdi-covid-19", testCSV, TestSource)
+            .report ?: fail()
+
+        // Test with STANDARD
+        serializer.setOrderingFacilityComponent(
+            mockTerser,
+            facilityName,
+            useOrderingFacilityName = Hl7Configuration.OrderingFacilityName.ORGANIZATION_NAME,
+            testReport,
+            row = 0
+        )
+
+        verify {
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-21-1", "Spokane School District")
+        }
+    }
+
+    @Test
+    fun `test setPlainOrderingFacility`() {
+        val mockTerser = mockk<Terser>()
+        every { mockTerser.set(any(), any()) } returns Unit
+        val facilityName = "Very Long Facility Name That Should Truncate After Here"
+        serializer.setPlainOrderingFacility(mockTerser, facilityName)
+        verify {
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-21-1", facilityName.take(50))
+        }
+    }
+
+    @Test
+    fun `test setNCESOrderingFacility`() {
+        val mockTerser = mockk<Terser>()
+        every { mockTerser.set(any(), any()) } returns Unit
+        val facilityName = "Very Long Facility Name That Should Truncate After Here"
+        val ncesId = "A00000009"
+        serializer.setNCESOrderingFacility(mockTerser, facilityName, ncesId)
+        verify {
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-21-1", "${facilityName.take(32)}_NCES_$ncesId")
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-21-6-1", "NCES.IES")
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-21-6-2", "2.16.840.1.113883.3.8589.4.1.119")
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-21-6-3", "ISO")
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-21-7", "XX")
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-21-10", ncesId)
+        }
+    }
+
+    @Test
+    fun `test canonicalSchoolName`() {
+        // Use NCES actual table values to test
+        val senior = serializer.canonicalizeSchoolName("SHREWSBURY SR HIGH")
+        assertThat(senior).isEqualTo("SHREWSBURY SENIOR HIGH")
+
+        val stJohns = serializer.canonicalizeSchoolName("ST JOHN'S HIGH SCHOOL")
+        assertThat(stJohns).isEqualTo("ST JOHNS HIGH")
+
+        val sizer = serializer.canonicalizeSchoolName("SIZER SCHOOL: A NORTH CENTRAL CHARTER ESSENTIAL SCHOOL")
+        assertThat(sizer).isEqualTo("SIZER NORTH CENTRAL CHARTER ESSENTIAL")
+
+        val elem = serializer.canonicalizeSchoolName("NORTHERN LINCOLN ELEM.")
+        assertThat(elem).isEqualTo("NORTHERN LINCOLN ELEMENTARY")
+
+        val elem2 = serializer.canonicalizeSchoolName("WAKEFIELD HILLS EL. SCHOOL")
+        assertThat(elem2).isEqualTo("WAKEFIELD HILLS ELEMENTARY")
+
+        val jr1 = serializer.canonicalizeSchoolName("M. L. KING JR. MIDDLE SCHOOL")
+        assertThat(jr1).isEqualTo("KING JR MIDDLE")
+
+        val jr2 = serializer.canonicalizeSchoolName("CHURCHILL JR HIGH SCHOOL")
+        assertThat(jr2).isEqualTo("CHURCHILL JUNIOR HIGH")
+
+        val tahono = serializer.canonicalizeSchoolName("TOHONO O`ODHAM HIGH SCHOOL")
+        assertThat(tahono).isEqualTo("TOHONO ODHAM HIGH")
+
+        val possesive = serializer.canonicalizeSchoolName("ST TIMOTHY'S EPISCOPAL DAY SCHOOL")
+        assertThat(possesive).isEqualTo("ST TIMOTHYS EPISCOPAL DAY")
+
+        val tse = serializer.canonicalizeSchoolName("TSE'II'AHI' COMMUNITY SCHOOL")
+        assertThat(tse).isEqualTo("TSE II AHI COMMUNITY")
+    }
+
+    @Test
+    fun `test setTruncationLimitWithEncoding`() {
+
+        val testValueWithSpecialChars = "Test & Value ~ Text ^ String"
+        val testValueNoSpecialChars = "Test Value Text String"
+        val testLimit = 20
+        val newLimitWithSpecialChars = serializer.getTruncationLimitWithEncoding(testValueWithSpecialChars, testLimit)
+        val newLimitNoSpecialChars = serializer.getTruncationLimitWithEncoding(testValueNoSpecialChars, testLimit)
+
+        assertEquals(newLimitWithSpecialChars, 16)
+        assertEquals(newLimitNoSpecialChars, testLimit)
+    }
+
+    @Test
     fun `test incorrect HL7 content`() {
         val metadata = Metadata("./metadata")
-        val serializer = Hl7Serializer(metadata)
+        val settings = FileSettings("./settings")
+        val serializer = Hl7Serializer(metadata, settings)
 
         val emptyHL7 = ByteArrayInputStream("".toByteArray())
         var result = serializer.readExternal(hl7SchemaName, emptyHL7, TestSource)
-        assertThat(result.warnings).isNotEmpty()
         assertThat(result.report).isNotNull()
         assertThat(result.report!!.itemCount).isEqualTo(0)
 
@@ -638,7 +886,7 @@ NTE|1|L|This is a final comment|RE"""
         val incompleteHL7v2 = ByteArrayInputStream(
             """
             MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|Avante at Ormond Beach^10D0876999^CLIA|||20210210170737||ORU^R01^ORU_R01|371784|P|2.5.1|||NE|NE|USA||||PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
-            SFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME Data Hub|0.1-SNAPSHOT||20210210
+            SFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME ReportStream|0.1-SNAPSHOT||20210210
             PID|1||2a14112c-ece1-4f82-915c-7b3a8d152eda^^^Avante at Ormond Beach^PI||Doe^Kareem^Millie^^^^L||19580810|F||2106-3^White^HL70005^^^^2.5.1|688 Leighann Inlet^^South Rodneychester^TX^67071||^PRN^^roscoe.wilkinson@email.com^1^211^2240784|||||||||U^Unknown^HL70189||||||||N
             """.trimIndent().toByteArray()
         )
@@ -650,11 +898,11 @@ NTE|1|L|This is a final comment|RE"""
         val wrongHL7Version = ByteArrayInputStream(
             """
             MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|Avante at Ormond Beach^10D0876999^CLIA|||20210210170737||ORU^R01^ORU_R01|371784|P|5.0.0|||NE|NE|USA||||PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
-            SFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME Data Hub|0.1-SNAPSHOT||20210210
+            SFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME ReportStream|0.1-SNAPSHOT||20210210
             PID|1||2a14112c-ece1-4f82-915c-7b3a8d152eda^^^Avante at Ormond Beach^PI||Doe^Kareem^Millie^^^^L||19580810|F||2106-3^White^HL70005^^^^2.5.1|688 Leighann Inlet^^South Rodneychester^TX^67071||^PRN^^roscoe.wilkinson@email.com^1^211^2240784|||||||||U^Unknown^HL70189||||||||N
             ORC|RE|73a6e9bd-aaec-418e-813a-0ad33366ca85|73a6e9bd-aaec-418e-813a-0ad33366ca85|||||||||1629082607^Eddin^Husam^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI||^WPN^^^1^386^6825220|20210209||||||Avante at Ormond Beach|170 North King Road^^Ormond Beach^FL^32174^^^^12127|^WPN^^jbrush@avantecenters.com^1^407^7397506|^^^^32174
             OBR|1|73a6e9bd-aaec-418e-813a-0ad33366ca85||94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN|||202102090000-0600|202102090000-0600||||||||1629082607^Eddin^Husam^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI|^WPN^^^1^386^6825220|||||202102090000-0600|||F
-            OBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN||260415000^Not detected^SCT|||N^Normal (applies to non-numeric results)^HL70078|||F|||202102090000-0600|||CareStart COVID-19 Antigen test_Access Bio, Inc._EUA^^99ELR||202102090000-0600||||Avante at Ormond Beach^^^^^CLIA&2.16.840.1.113883.19.4.6&ISO^^^^10D0876999^CLIA|170 North King Road^^Ormond Beach^FL^32174^^^^12127
+            OBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN||260415000^Not detected^SCT|||N^Normal (applies to non-numeric results)^HL70078|||F|||202102090000-0600|||CareStart COVID-19 Antigen test_Access Bio, Inc._EUA^^99ELR||202102090000-0600||||Avante at Ormond Beach^^^^^CLIA&2.16.840.1.113883.4.7&ISO^^^^10D0876999^CLIA|170 North King Road^^Ormond Beach^FL^32174^^^^12127
             """.trimIndent().toByteArray()
         )
         result = serializer.readExternal(hl7SchemaName, wrongHL7Version, TestSource)

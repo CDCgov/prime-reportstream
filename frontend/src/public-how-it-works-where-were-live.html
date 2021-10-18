@@ -1,0 +1,37 @@
+---
+layout: protected.liquid
+pageStyle: sidebarMenu
+templateEngineOverride: liquid, html, md
+title: Where we're live
+permalink: "{{ site.howItWorksPath }}where-were-live/"
+protected: false
+show_navbar: true
+how_it_works: true
+nestedPage: true
+---
+<section id="anchor-top">
+
+  <h1 class="margin-top-0">{{ title }}</h1>
+
+  <p class="usa-intro">ReportStream is currently live or getting set up in jurisdictions across the United States. </p><p class="usa-intro">Don’t see your state or territory? <a href="mailto:{{ site.orgs.RS.email }}" class="usa-link">Get in touch</a>.</p>
+
+</section>
+<section>
+
+  <img src="{{ site.imgPath }}rs-live-stlt.svg" class="margin-y-6" alt="Map of the U.S. showing states and territories where ReportStream is currently live" />
+
+  ReportStream has established connections to send and report public health data for each of the states and territories listed here. 
+
+{% if content.where-were-live %}
+<ul>
+{% for partner in content.where-were-live.partners %}
+{% if partner.production == true %}
+<li>{{ partner.name }}</li>
+{% endif %}
+{% endfor %}
+</ul>
+{% endif %}
+
+Companies or testing facilities sending test results may still need to register directly with the state before sending data to their public health department.
+
+</section>

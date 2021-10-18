@@ -41,11 +41,22 @@ variable "is_metabase_env" {
 }
 
 variable "https_cert_names" {
-  type = list(string)
+  type        = list(string)
   description = "List of SSL certs to associate with the Front Door"
 }
 
 variable "okta_redirect_url" {
-  type = string
+  type        = string
   description = "URL to redirect to after Okta login"
+}
+
+variable "aad_object_keyvault_admin" {
+  type        = string
+  description = "Azure Active Directory ID for a user or group who will be given write access to Key Vaults"
+}
+
+variable "terraform_caller_ip_address" {
+  type        = string
+  description = "The IP address of the Terraform script caller. This IP will have already been whitelisted; it's inclusion is to prevent its removal during terraform apply calls."
+  sensitive   = true
 }

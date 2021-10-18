@@ -41,6 +41,11 @@ class TranslationTests {
     private val metadata = Metadata("./metadata")
 
     /**
+     * The settings
+     */
+    private val settings = FileSettings("./settings")
+
+    /**
      * The translator
      */
     private val translator = Translator(metadata, FileSettings(FileSettings.defaultSettingsDirectory))
@@ -110,7 +115,7 @@ class TranslationTests {
      * @return a list of tests to perform
      */
     private fun readTestConfig(configPathname: String): List<TestConfig> {
-        var config = emptyList<TestConfig>()
+        val config: List<TestConfig>
         // Note we can only use input streams since the file may be in a JAR
         val resourceStream = this::class.java.getResourceAsStream(configPathname)
         if (resourceStream != null) {
@@ -146,6 +151,8 @@ class TranslationTests {
                     fail("One or more config columns in $configPathname are empty.")
                 }
             }
+        } else {
+            fail("Test configuration file $configPathname not found in classpath.")
         }
         return config
     }
@@ -195,12 +202,21 @@ class TranslationTests {
                 if (!config.shouldPass && result.passed) result.errors.add("Test was expected to fail, but passed.")
                 assertEquals(
                     config.shouldPass, result.passed,
-                    "${result.errors.joinToString("\n")}\n" +
-                        result.warnings.joinToString("\n")
+                    result.errors.joinToString("\n", "ERRORS:${System.lineSeparator()}") +
+                        result.warnings.joinToString("\n", "WARNINGS:${System.lineSeparator()}")
                 )
                 // Print the errors and warnings after the test completed successfully.
-                if (result.errors.isNotEmpty()) println(result.errors.joinToString("\n", "ERRORS: "))
-                if (result.warnings.isNotEmpty()) println(result.warnings.joinToString("\n", "WARNINGS: "))
+                if (result.errors.isNotEmpty()) println(
+                    result.errors
+                        .joinToString("\n", "ERRORS:${System.lineSeparator()}")
+
+                )
+                if (result.warnings.isNotEmpty()) println(
+                    result.warnings
+                        .joinToString(
+                            "\n", "WARNINGS:${System.lineSeparator()}"
+                        )
+                )
             } else if (inputStream == null) {
                 fail("The file ${config.inputFile} was not found.")
             } else {
@@ -221,13 +237,13 @@ class TranslationTests {
 
             return when (format) {
                 Report.Format.HL7 -> {
-                    val readResult = Hl7Serializer(metadata).readExternal(
+                    val readResult = Hl7Serializer(metadata, settings).readExternal(
                         schema.name,
                         input,
                         TestSource
                     )
-                    readResult.errors.forEach { result.errors.add(it.details) }
-                    readResult.warnings.forEach { result.warnings.add(it.details) }
+                    readResult.errors.forEach { result.errors.add(it.responseMessage.detailMsg()) }
+                    readResult.warnings.forEach { result.warnings.add(it.responseMessage.detailMsg()) }
                     result.passed = readResult.errors.isEmpty()
                     readResult.report
                 }
@@ -245,8 +261,8 @@ class TranslationTests {
                         input,
                         TestSource
                     )
-                    readResult.errors.forEach { result.errors.add(it.details) }
-                    readResult.warnings.forEach { result.warnings.add(it.details) }
+                    readResult.errors.forEach { result.errors.add(it.responseMessage.detailMsg()) }
+                    readResult.warnings.forEach { result.warnings.add(it.responseMessage.detailMsg()) }
                     result.passed = readResult.errors.isEmpty()
                     readResult.report
                 }
@@ -263,8 +279,8 @@ class TranslationTests {
         ): InputStream {
             val outputStream = ByteArrayOutputStream()
             when (format) {
-                Report.Format.HL7_BATCH -> Hl7Serializer(metadata).writeBatch(report, outputStream)
-                Report.Format.HL7 -> Hl7Serializer(metadata).write(report, outputStream)
+                Report.Format.HL7_BATCH -> Hl7Serializer(metadata, settings).writeBatch(report, outputStream)
+                Report.Format.HL7 -> Hl7Serializer(metadata, settings).write(report, outputStream)
                 Report.Format.INTERNAL -> CsvSerializer(metadata).writeInternal(report, outputStream)
                 else -> CsvSerializer(metadata).write(report, outputStream)
             }

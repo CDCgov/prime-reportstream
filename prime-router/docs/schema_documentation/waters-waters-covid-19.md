@@ -111,7 +111,7 @@ Override the base hl70136 valueset with a custom one, to handle slightly differe
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
 
-**Table**: LIVD-SARS-CoV-2-2021-04-28
+**Table**: LIVD-SARS-CoV-2-2021-09-29
 
 **Table Column**: Model
 
@@ -211,7 +211,7 @@ unique id to track the usage of the message
 
 **Name**: testOrderedDate
 
-**Type**: DATE
+**Type**: DATETIME
 
 **PII**: No
 
@@ -227,7 +227,7 @@ unique id to track the usage of the message
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-04-28
+**Table**: LIVD-SARS-CoV-2-2021-09-29
 
 **Table Column**: Test Ordered LOINC Code
 
@@ -241,7 +241,7 @@ unique id to track the usage of the message
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-04-28
+**Table**: LIVD-SARS-CoV-2-2021-09-29
 
 **Table Column**: Test Ordered LOINC Long Name
 
@@ -1126,7 +1126,7 @@ Is the test authorized for unproctored administration by the FDA (Y, N, UNK)
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
 
-**Table**: LIVD-SARS-CoV-2-2021-04-28
+**Table**: LIVD-SARS-CoV-2-2021-09-29
 
 **Table Column**: Testkit Name ID
 

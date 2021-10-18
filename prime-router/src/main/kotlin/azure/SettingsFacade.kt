@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
@@ -315,15 +316,17 @@ class SenderAPI
     organizationName: String,
     format: Format,
     topic: String,
+    customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
     schemaName: String,
     override var meta: SettingMetadata?,
 ) : Sender(
-        name,
-        organizationName,
-        format,
-        topic,
-        schemaName,
-    ),
+    name,
+    organizationName,
+    format,
+    topic,
+    customerStatus,
+    schemaName,
+),
     SettingAPI
 
 class ReceiverAPI
@@ -331,6 +334,7 @@ class ReceiverAPI
     name: String,
     organizationName: String,
     topic: String,
+    customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
     translation: TranslatorConfiguration,
     jurisdictionalFilter: List<String> = emptyList(),
     qualityFilter: List<String> = emptyList(),
@@ -341,16 +345,17 @@ class ReceiverAPI
     transport: TransportType? = null,
     override var meta: SettingMetadata?,
 ) : Receiver(
-        name,
-        organizationName,
-        topic,
-        translation,
-        jurisdictionalFilter,
-        qualityFilter,
-        reverseTheQualityFilter,
-        deidentify,
-        timing,
-        description,
-        transport
-    ),
+    name,
+    organizationName,
+    topic,
+    customerStatus,
+    translation,
+    jurisdictionalFilter,
+    qualityFilter,
+    reverseTheQualityFilter,
+    deidentify,
+    timing,
+    description,
+    transport
+),
     SettingAPI

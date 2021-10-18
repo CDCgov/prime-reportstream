@@ -1,24 +1,28 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import { Resource } from '@rest-hooks/rest';
-import { useOktaAuth } from '@okta/okta-react';
+import { useOktaAuth } from "@okta/okta-react";
+import { Resource } from "@rest-hooks/rest";
 
+import { GLOBAL_STORAGE_KEYS } from "../components/GlobalContextProvider";
 
 export default class AuthResource extends Resource {
-
     pk(parent?: any, key?: string): string | undefined {
-        throw new Error('Method not implemented.');
+        throw new Error("Method not implemented.");
     }
 
     static useFetchInit = (init: RequestInit): RequestInit => {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { oktaAuth, authState } = useOktaAuth();
-      return {
-          ...init,
-          headers: {
-              ...init.headers,
-              'Authorization': `Bearer ${authState.accessToken?.accessToken}`
-          },
-      };
+        const { authState } = useOktaAuth();
+        const organization = localStorage.getItem(
+            GLOBAL_STORAGE_KEYS.GLOBAL_ORG
+        );
+
+        return {
+            ...init,
+            headers: {
+                ...init.headers,
+                Authorization: `Bearer ${authState?.accessToken?.accessToken}`,
+                Organization: organization!,
+            },
+        };
     };
 
     static getBaseUrl = () => {
@@ -26,7 +30,6 @@ export default class AuthResource extends Resource {
             return "http://localhost:7071";
         else if (window.location.origin.includes("staging"))
             return "https://staging.prime.cdc.gov";
-        else
-            return "https://prime.cdc.gov";
-    }
-  }
+        else return "https://prime.cdc.gov";
+    };
+}

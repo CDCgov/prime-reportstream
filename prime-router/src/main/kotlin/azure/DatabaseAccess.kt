@@ -9,7 +9,7 @@ import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.Tables.COVID_RESULT_METADATA
 import gov.cdc.prime.router.azure.db.Tables.EMAIL_SCHEDULE
 import gov.cdc.prime.router.azure.db.Tables.JTI_CACHE
-import gov.cdc.prime.router.azure.db.Tables.REPORT_ANCESTORS
+import gov.cdc.prime.router.azure.db.Tables.REPORT_FACILITIES
 import gov.cdc.prime.router.azure.db.Tables.REPORT_LINEAGE
 import gov.cdc.prime.router.azure.db.Tables.SETTING
 import gov.cdc.prime.router.azure.db.Tables.TASK
@@ -545,7 +545,10 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
     }
 
     fun deleteExpiredJtis(txn: DataAccessTransaction) {
-        DSL.using(txn).deleteFrom(JTI_CACHE).where(JTI_CACHE.EXPIRES_AT.lt(OffsetDateTime.now())).execute()
+        DSL.using(txn)
+            .deleteFrom(JTI_CACHE)
+            .where(JTI_CACHE.EXPIRES_AT.lt(OffsetDateTime.now()))
+            .execute()
     }
 
     fun fetchJti(jti: String, txn: DataAccessTransaction): JtiCache? {
@@ -593,10 +596,9 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
     }
 
     /**
-     * Saves metadata to database. Since jooq/postgres does not truncate data that
-     * is too long, any columns that can be of varying length are truncated so the
-     * batch transaction is not lost. All of these columns have been normalized to
-     * METADATA_MAX_LENGTH out of convenience.
+     * Saves metadata to database. Since jooq/postgres does not truncate data that is too long, any
+     * columns that can be of varying length are truncated so the batch transaction is not lost. All
+     * of these columns have been normalized to METADATA_MAX_LENGTH out of convenience.
      * @param testData : the report meta data to persist
      * @param txn : the database transaction to use for this insert/update
      */
@@ -608,26 +610,36 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                         record.messageId = td.messageId?.take(METADATA_MAX_LENGTH)
                         record.reportId = td.reportId
                         record.reportIndex = td.reportIndex
-                        record.orderingProviderName = td.orderingProviderName?.take(METADATA_MAX_LENGTH)
-                        record.orderingProviderCounty = td.orderingProviderCounty?.take(METADATA_MAX_LENGTH)
-                        record.orderingProviderId = td.orderingProviderId?.take(METADATA_MAX_LENGTH)
+                        record.orderingProviderName =
+                            td.orderingProviderName?.take(METADATA_MAX_LENGTH)
+                        record.orderingProviderCounty =
+                            td.orderingProviderCounty?.take(METADATA_MAX_LENGTH)
+                        record.orderingProviderId =
+                            td.orderingProviderId?.take(METADATA_MAX_LENGTH)
                         record.orderingProviderPostalCode = td.orderingProviderPostalCode
-                        record.orderingProviderState = td.orderingProviderState?.take(METADATA_MAX_LENGTH)
-                        record.orderingFacilityCity = td.orderingFacilityCity?.take(METADATA_MAX_LENGTH)
-                        record.orderingFacilityCounty = td.orderingFacilityCounty?.take(METADATA_MAX_LENGTH)
-                        record.orderingFacilityName = td.orderingFacilityName?.take(METADATA_MAX_LENGTH)
+                        record.orderingProviderState =
+                            td.orderingProviderState?.take(METADATA_MAX_LENGTH)
+                        record.orderingFacilityCity =
+                            td.orderingFacilityCity?.take(METADATA_MAX_LENGTH)
+                        record.orderingFacilityCounty =
+                            td.orderingFacilityCounty?.take(METADATA_MAX_LENGTH)
+                        record.orderingFacilityName =
+                            td.orderingFacilityName?.take(METADATA_MAX_LENGTH)
                         record.orderingFacilityPostalCode = td.orderingFacilityPostalCode
-                        record.orderingFacilityState = td.orderingFacilityState?.take(METADATA_MAX_LENGTH)
+                        record.orderingFacilityState =
+                            td.orderingFacilityState?.take(METADATA_MAX_LENGTH)
                         record.testResult = td.testResult?.take(METADATA_MAX_LENGTH)
                         record.testResultCode = td.testResultCode
                         record.equipmentModel = td.equipmentModel?.take(METADATA_MAX_LENGTH)
                         record.specimenCollectionDateTime = td.specimenCollectionDateTime
                         record.testingLabCity = td.testingLabCity?.take(METADATA_MAX_LENGTH)
                         record.testingLabClia = td.testingLabClia
-                        record.testingLabCounty = td.testingLabCounty?.take(METADATA_MAX_LENGTH)
+                        record.testingLabCounty =
+                            td.testingLabCounty?.take(METADATA_MAX_LENGTH)
                         record.testingLabName = td.testingLabName?.take(METADATA_MAX_LENGTH)
                         record.testingLabPostalCode = td.testingLabPostalCode
-                        record.testingLabState = td.testingLabState?.take(METADATA_MAX_LENGTH)
+                        record.testingLabState =
+                            td.testingLabState?.take(METADATA_MAX_LENGTH)
                         record.patientAge = td.patientAge
                         record.patientCounty = td.patientCounty?.take(METADATA_MAX_LENGTH)
                         record.patientEthnicity = td.patientEthnicity
@@ -639,33 +651,48 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                         record.patientRaceCode = td.patientRaceCode
                         record.patientState = td.patientState?.take(METADATA_MAX_LENGTH)
                         record.siteOfCare = td.siteOfCare?.take(METADATA_MAX_LENGTH)
+                        record.senderId = td.senderId?.take(METADATA_MAX_LENGTH)
+                        record.testKitNameId = td.testKitNameId?.take(METADATA_MAX_LENGTH)
+                        record.testPerformedLoincCode = td.testPerformedLoincCode?.take(METADATA_MAX_LENGTH)
                     }
                 }
             )
             .execute()
     }
 
-    fun getFacilitiesForDownloadableReport(reportId: ReportId, txn: DataAccessTransaction? = null): List<Facility> {
+    fun getFacilitiesForDownloadableReport(
+        reportId: ReportId,
+        txn: DataAccessTransaction? = null
+    ): List<Facility> {
         val ctx = if (txn != null) DSL.using(txn) else create
-        val result = ctx
-            .select(
-                COVID_RESULT_METADATA.TESTING_LAB_CLIA,
-                COVID_RESULT_METADATA.TESTING_LAB_NAME,
-                count(COVID_RESULT_METADATA.COVID_RESULTS_METADATA_ID).`as`("COUNT_RECORDS")
+        val result =
+            ctx.select(
+                REPORT_FACILITIES.TESTING_LAB_NAME,
+                REPORT_FACILITIES.TESTING_LAB_CITY,
+                REPORT_FACILITIES.TESTING_LAB_STATE,
+                REPORT_FACILITIES.TESTING_LAB_CLIA,
+                REPORT_FACILITIES.POSITIVE,
+                REPORT_FACILITIES.COUNT_RECORDS
             )
-            .from(REPORT_ANCESTORS(reportId))
-            .join(COVID_RESULT_METADATA).on(REPORT_ANCESTORS.REPORT_ANCESTORS_.eq(COVID_RESULT_METADATA.REPORT_ID))
-            .groupBy(
-                COVID_RESULT_METADATA.TESTING_LAB_NAME,
-                COVID_RESULT_METADATA.TESTING_LAB_CLIA
-            ).fetch()
+                .from(REPORT_FACILITIES(reportId))
+                .fetch()
 
         return result.map {
             Facility.Builder(
                 facility = it.get(COVID_RESULT_METADATA.TESTING_LAB_NAME),
                 CLIA = it.get(COVID_RESULT_METADATA.TESTING_LAB_CLIA),
-                total = it.component3().toLong()
-            ).build()
+                total = it.get(REPORT_FACILITIES.COUNT_RECORDS),
+                positive = it.get(REPORT_FACILITIES.POSITIVE),
+                location =
+                if (it.get(COVID_RESULT_METADATA.TESTING_LAB_CITY)
+                    .isNullOrBlank()
+                )
+                    it.get(COVID_RESULT_METADATA.TESTING_LAB_STATE)
+                else
+                    "${it.get(COVID_RESULT_METADATA.TESTING_LAB_CITY)}, " +
+                        it.get(COVID_RESULT_METADATA.TESTING_LAB_STATE)
+            )
+                .build()
         }
     }
 
@@ -687,7 +714,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             ) > 0
     }
 
-    /** Fetch the newest CreatedAt timestamp, active or deleted, or return [ifEmptySettings] */
+    /** Fetch the newest CreatedAt timestamp, active or deleted. */
     fun fetchLastModified(txn: DataAccessTransaction? = null): OffsetDateTime? {
         val ctx = if (txn != null) DSL.using(txn) else create
         return ctx.select(DSL.max(SETTING.CREATED_AT))

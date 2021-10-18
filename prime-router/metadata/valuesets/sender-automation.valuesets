@@ -1,0 +1,560 @@
+# Sender Automation specific valueset to translate inbound values to RS accepted values
+#
+# These ValueSets are associated with covid-19 topic
+# ValueSets are used with CODE data elements and their display equivalents
+#
+# Name conventions
+#
+#  for SNOMED-CT use the standard element name
+#  for hl7 value sets use the HL7 name
+#  for LOINC value sets use TBD
+#  for LOCAL match the standard element
+#
+# sort alphabetically
+#
+---
+
+- name: sender-automation/gender
+  # See M, F, U in the reference URL.
+  reference: This maps multiple values to the ReportStream internal (M, F, U, O - Other, A - Ambiguous)
+  system: LOCAL
+  referenceUrl: https://www.hhs.gov/sites/default/files/non-lab-based-covid19-test-reporting.pdf
+  values:
+    - code: F
+      display: Female
+    - code: F
+      display: F
+    - code: M
+      display: Male
+    - code: M
+      display: M
+    - code: U
+      display: U
+    - code: U
+      display: UNK
+    - code: U
+      display: UNKNOWN
+    - code: O
+      display: O
+    - code: O
+      display: Other
+    - code: O
+      display: OTH
+    - code: A
+      display: A
+    - code: A
+      display: Ambiguous
+
+- name: sender-automation/race
+  system: LOCAL
+  reference: Map multiple values for Race to the OMB Values to hl70005
+  referenceUrl: https://phinvads.cdc.gov/vads/ViewValueSet.action?id=B246B692-6DF8-E111-B875-001A4BE7FA90
+  values:
+    - code: 2106-3
+      display: White
+    - code: 2106-3
+      display: W
+    - code: 2106-3
+      display: Caucasian
+    - code: 2106-3
+      display: C
+    - code: 2106-3
+      display: 2106-3
+    - code: 1002-5
+      display: American Indian or Alaska Native
+    - code: 1002-5
+      display: American Indian
+    - code: 1002-5
+      display: Native American
+    - code: 2054-5
+      display: Black or African American
+    - code: 2054-5
+      display: African American
+    - code: 2054-5
+      display: African American Alaska Native
+    - code: 2054-5
+      display: African American Black
+    - code: 2054-5
+      display: Black
+    - code: 2054-5
+      display: B
+    - code: 2054-5
+      display: 2054-5
+    - code: 2076-8
+      display: Native Hawaiian or Other Pacific Islander
+    - code: 2076-8
+      display: Hawaiian
+    - code: 2076-8
+      display: NH
+    - code: 2076-8
+      display: 2076-8
+    - code: 2131-1
+      display: Other
+    - code: 2131-1
+      display: OTH
+    - code: 2131-1
+      display: O
+    - code: 2131-1
+      display: Other Race
+    - code: 2131-1
+      display: Other Race White
+    - code: 2131-1
+      display: "Other Race,White"
+    - code: 2131-1
+      display: Other Race Black
+    - code: 2131-1
+      display: "Other Race,Black"
+    - code: 2131-1
+      display: 2131-1
+    - code: 2028-9
+      display: Asian
+    - code: 2028-9
+      display: Asian Indian
+    - code: 2028-9
+      display: 2028-9
+    - code: UNK
+      display: Unknown
+    - code: UNK
+      display: UNK
+    - code: UNK
+      display: U
+    - code: UNK
+      display: Patient Declines
+    - code: UNK
+      display: NULL
+    - code: ASKU
+      display: Asked, but unknown
+
+- name: sender-automation/ethnicity
+  system: LOCAL
+  reference: Map multiple ethnicity values to RS internal values
+  referenceUrl: https://www.hl7.org/fhir/v2/0189/index.html
+  values:
+    - code: H
+      display: Hispanic or Latino
+    - code: H
+      display: Hispanic
+    - code: H
+      display: Latino
+    - code: H
+      display: Mex. Amer./Hispanic
+    - code: H
+      display: H
+    - code: N
+      display: Non Hispanic or Latino
+    - code: N
+      display: Non Hispanic
+    - code: N
+      display: Not Hispanic or Latino
+    - code: N
+      display: Not Hispanic
+    - code: N
+      display: N
+    - code: U
+      display: Unknown
+    - code: U
+      display: U
+    - code: U
+      display: UNK
+    - code: U
+      display: Black
+    - code: U
+      display: White
+    - code: U
+      display: African American
+    - code: U
+      display: "NULL"
+    - code: U
+      display: Patient Declines
+
+- name: sender-automation/yesno
+  # See YES, NO, UNK in the reference URL.
+  reference: This maps (YES,NO,UNK) to the ReportStream internal hl70136 (Y,N,UNK)
+  system: LOCAL
+  referenceUrl: https://www.hhs.gov/sites/default/files/non-lab-based-covid19-test-reporting.pdf
+  values:
+    - code: Y
+      display: YES
+    - code: Y
+      display: Y
+    - code: N
+      display: NO
+    - code: N
+      display: N
+    - code: UNK
+      display: Unknown
+    - code: UNK
+      display: U
+    - code: UNK
+      display: UNK
+    - code: UNK
+      display: N/A
+    - code: UNK
+      display: NA
+    - code: UNK
+      display: NR
+    - code: UNK
+      display: NP
+    - code: UNK
+      display: maybe
+
+- name: sender-automation/pregnant
+  reference: Multiple values are mapped to the Pregnancy SNOMED Codes
+  system: SNOMED_CT
+  referenceUrl: https://loinc.org/82810-3/
+  values:
+    - code: 77386006
+      display: Pregnant
+    - code: 77386006
+      display: Currently Pregnant
+    - code: 77386006
+      display: Y
+    - code: 77386006
+      display: YES
+    - code: 77386006
+      display: 77386006
+    - code: 60001007
+      display: Not Pregnant
+    - code: 60001007
+      display: Not Currently Pregnant
+    - code: 60001007
+      display: N
+    - code: 60001007
+      display: NO
+    - code: 60001007
+      display: 60001007
+    - code: 261665006
+      display: Unknown
+    - code: 261665006
+      display: U
+    - code: 261665006
+      display: UNK
+    - code: 261665006
+      display: N/A
+    - code: 261665006
+      display: NA
+    - code: 261665006
+      display: NR
+    - code: 261665006
+      display: NP
+    - code: 261665006
+      display: maybe
+    - code: 261665006
+      display: 261665006
+
+- name: sender-automation/test_result
+  reference: This maps multiple values to the ReportStream internal codes which are SNOMED-CT codes
+  system: SNOMED_CT
+  referenceUrl: https://www.hhs.gov/sites/default/files/hhs-guidance-implementation.pdf
+  # Note: if adding values here, please update the OBX-8 mapper
+  values:
+    - code: 260385009
+      display: Negative
+    - code: 260385009
+      display: Neg
+    - code: 260385009
+      display: Negative *** High ***
+    - code: 260385009
+      display: Negative *** Low ***
+    - code: 260385009
+      display: 260385009
+    - code: 260415000
+      display: Not detected
+    - code: 260415000
+      display: NDET
+    - code: 260415000
+      display: 260415000
+    - code: 260373001
+      display: Detected
+    - code: 260373001
+      display: DET
+    - code: 260373001
+      display: 260373001
+    - code: 10828004
+      display: Positive
+    - code: 10828004
+      display: Pos
+    - code: 10828004
+      display: Positive (Abnormal)
+    - code: 10828004
+      display: Positive (Alpha Abnormal)
+    - code: 10828004
+      display: Positive *** High ***
+    - code: 10828004
+      display: Positive  *** High ***
+    - code: 10828004
+      display: Positive  *** Low ***
+    - code: 10828004
+      display: "Positive "
+    - code: 10828004
+      display: 10828004
+    - code: 720735008
+      display: Presumptive positive
+    - code: 720735008
+      display: 720735008
+    - code: 419984006
+      display: Inconclusive
+    - code: 419984006
+      display: Inconclusive Result
+    - code: 419984006
+      display: 419984006
+    - code: 42425007
+      display: Equivocal
+    - code: 42425007
+      display: 42425007
+    - code: 895231008
+      display: Not detected in pooled specimen
+    - code: 895231008
+      display: 895231008
+    - code: 462371000124108
+      display: Detected in pooled specimen
+    - code: 462371000124108
+      display: 462371000124108
+    - code: 455371000124106
+      display: Invalid result
+    - code: 455371000124106
+      display: Invalid
+    - code: 455371000124106
+      display: 455371000124106
+    - code: 125154007
+      display: Specimen unsatisfactory for evaluation
+    - code: 125154007
+      display: 125154007
+    - code: 840539006
+      display: Disease caused by sever acute respiratory syndrome coronavirus 2 (disorder)
+      version: 20200309
+    - code: 840539006
+      display: 840539006
+      version: 20200309
+    - code: 840544004
+      display: Suspected disease caused by severe acute respiratory coronavirus 2 (situation)
+      version: 20200309
+    - code: 840544004
+      display: 840544004
+      version: 20200309
+    - code: 840546002
+      display: Exposure to severe acute respiratory syndrome coronavirus 2 (event)
+      version: 20200309
+    - code: 840546002
+      display: 840546002
+      version: 20200309
+    - code: 840533007
+      display: Severe acute respiratory syndrome coronavirus 2 (organism)
+      version: 20200309
+    - code: 840533007
+      display: 840533007
+      version: 20200309
+    - code: 840536004
+      display: Antigen of severe acute respiratory syndrome coronavirus 2 (substance)
+      version: 20200309
+    - code: 840536004
+      display: 840536004
+      version: 20200309
+    - code: 840535000
+      display: Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
+      version: 20200309
+    - code: 840535000
+      display: 840535000
+      version: 20200309
+    - code: 840534001
+      display: Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
+      version: 20200309
+    - code: 840534001
+      display: 840534001
+      version: 20200309
+    - code: 373121007
+      display: Test not done
+    - code: 373121007
+      display: 373121007
+
+- name: sender-automation/specimen_source_site_code
+  system: SNOMED_CT
+  reference: Subset of the all body structure codes
+  referenceUrl: https://phinvads.cdc.gov/vads/ViewValueSet.action?id=9A2D4051-3AA6-42EB-AE88-541C9094B0FB
+  values:
+    - code: 71836000
+      display: Nasopharyngeal structure (body structure)
+      version: 2020-09-01
+    - code: 71836000
+      display: Varied
+      version: 2020-09-01
+    - code: 71836000
+      display: Nasal
+      version: 2020-09-01
+    - code: 71836000
+      display: Nasopharyngeal swab
+      version: 2020-09-01
+    - code: 71836000
+      display: 258500001
+      version: 2020-09-01
+    - code: 71836000
+      display: 71836000
+      version: 2020-09-01
+    - code: 45206002
+      display: Nasal structure (body structure)
+      version: 2020-09-01
+    - code: 45206002
+      display: 45206002
+      version: 2020-09-01
+    - code: 53342003
+      display: Internal nose structure (body structure)
+      version: 2020-09-01
+    - code: 53342003
+      display: Swab of internal nose
+      version: 2020-09-01
+    - code: 53342003
+      display: Anterior nares swab
+      version: 2020-09-01
+    - code: 53342003
+      display: Mid-turbinate nasal swab
+      version: 2020-09-01
+    - code: 53342003
+      display: Nasal Swab
+      version: 2020-09-01
+    - code: 53342003
+      display: 445297001
+      version: 2020-09-01
+    - code: 53342003
+      display: 53342003
+      version: 2020-09-01
+    - code: 119297000
+      display: Serum
+      version: 2020-09-01
+    - code: 119297000
+      display: Serum specimen
+      version: 2020-09-01
+    - code: 119297000
+      display: Plasma
+      version: 2020-09-01
+    - code: 119297000
+      display: Plasma specimen
+      version: 2020-09-01
+    - code: 119297000
+      display: Whole Blood
+      version: 2020-09-01
+    - code: 119297000
+      display: Whole Blood Sample
+      version: 2020-09-01
+    - code: 119297000
+      display: Blood specimen
+      version: 2020-09-01
+    - code: 119297000
+      display: Venous blood specimen
+      version: 2020-09-01
+    - code: 119297000
+      display: 258580003
+      version: 2020-09-01
+    - code: 119297000
+      display: 119361006
+      version: 2020-09-01
+    - code: 119297000
+      display: 119364003
+      version: 2020-09-01
+    - code: 119297000
+      display: 119297000
+      version: 2020-09-01
+    - code: 31389004
+      display: Oral
+      version: 2020-09-01
+    - code: 31389004
+      display: Throat Swab
+      version: 2020-09-01
+    - code: 31389004
+      display: Oropharyngeal
+      version: 2020-09-01
+    - code: 31389004
+      display: Oropharyngeal Swab
+      version: 2020-09-01
+    - code: 31389004
+      display: 31389004
+      version: 2020-09-01
+
+- name: sender-automation/specimen_type
+  system: SNOMED_CT
+  version: 2.67
+  referenceUrl: https://www.hhs.gov/sites/default/files/hhs-guidance-implementation.pdf
+  values:
+    - code: 445297001
+      display: Swab of internal nose
+    - code: 445297001
+      display: Nasal Swab
+    - code: 445297001
+      display: 445297001
+    - code: 258500001
+      display: Nasopharyngeal swab
+    - code: 258500001
+      display: Nasal
+    - code: 258500001
+      display: Varied
+    - code: 258500001
+      display: 258500001
+    - code: 871810001
+      display: Mid-turbinate nasal swab 
+    - code: 871810001
+      display: 871810001
+    - code: 697989009
+      display: Anterior nares swab 
+    - code: 697989009
+      display: 697989009
+    - code: 258411007
+      display: Nasopharyngeal aspirate 
+    - code: 258411007
+      display: 258411007 
+    - code: 429931000124105
+      display: Nasal aspirate 
+    - code: 429931000124105
+      display: 429931000124105
+    - code: 258529004
+      display: Throat swab 
+    - code: 258529004
+      display: Throat
+    - code: 258529004
+      display: Oral
+    - code: 258529004
+      display: Oropharyngeal
+    - code: 258529004
+      display: Oropharyngeal Swab
+    - code: 258529004
+      display: 258529004
+    - code: 119334006
+      display: Sputum specimen 
+    - code: 119334006
+      display: 119334006
+    - code: 119342007
+      display: Saliva specimen 
+    - code: 119342007
+      display: 119342007 
+    - code: 258607008
+      display: Bronchoalveolar lavage fluid sample 
+    - code: 258607008
+      display: 258607008
+    - code: 119364003
+      display: Serum specimen 
+    - code: 119364003
+      display: Serum 
+    - code: 119364003
+      display: 119364003 
+    - code: 119361006
+      display: Plasma specimen 
+    - code: 119361006
+      display: Plasma
+    - code: 119361006
+      display: 119361006
+    - code: 440500007
+      display: Dried blood spot specimen 
+    - code: 440500007
+      display: 440500007
+    - code: 258580003
+      display: Whole blood sample 
+    - code: 258580003
+      display: Whole blood 
+    - code: 258580003
+      display: 258580003 
+    - code: 122555007
+      display: Venous blood specimen
+    - code: 122555007
+      display: 122555007
+    - code: 119297000
+      display: Blood specimen
+    - code: 119297000
+      display: 119297000

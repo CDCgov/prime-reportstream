@@ -65,6 +65,7 @@ data class Hl7Configuration
     val receivingFacilityName: String?,
     val receivingFacilityOID: String?,
     val messageProfileId: String?,
+    val replaceValue: Map<String, String>? = emptyMap(),
     val reportingFacilityName: String? = null,
     val reportingFacilityId: String? = null,
     val reportingFacilityIdType: String? = null,
@@ -76,9 +77,13 @@ data class Hl7Configuration
     val truncateHDNamespaceIds: Boolean = false,
     val usePid14ForPatientEmail: Boolean = false,
     val convertTimestampToDateTime: String? = null,
+    val cliaForOutOfStateTesting: String? = null,
     val phoneNumberFormatting: PhoneNumberFormatting = PhoneNumberFormatting.STANDARD,
     // pass this around as a property now
     val processingModeCode: String? = null,
+    val replaceDiiWithOid: Boolean? = null,
+    // Specify how
+    val useOrderingFacilityName: OrderingFacilityName = OrderingFacilityName.STANDARD,
     override val nameFormat: String = "standard",
     override val receivingOrganization: String?,
 ) : TranslatorConfiguration("HL7") {
@@ -100,6 +105,23 @@ data class Hl7Configuration
          * (area)local format in component 1. Backward compatibility to an earlier format.
          */
         AREA_LOCAL_IN_COMPONENT_ONE
+    }
+
+    enum class OrderingFacilityName {
+        /**
+         * Use the value sent by the sender
+         */
+        STANDARD,
+
+        /**
+         * Override with the NCES enrichment
+         */
+        NCES,
+
+        /**
+         * Override with the organization_name field
+         */
+        ORGANIZATION_NAME
     }
 
     @get:JsonIgnore
