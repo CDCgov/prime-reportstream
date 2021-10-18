@@ -1,8 +1,11 @@
 package gov.cdc.prime.router.azure
 
 import assertk.assertThat
+import assertk.assertions.isEqualTo
+import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
+import assertk.assertions.isTrue
 import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
@@ -28,6 +31,7 @@ import org.junit.jupiter.api.TestInstance
 import java.net.URI
 import java.time.OffsetDateTime
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -110,22 +114,21 @@ class LookupTableFunctionsTests {
         val tableVersionNum = 1
         every { mockRequest.httpMethod } returns HttpMethod.GET
 
-        val tableData = listOf(LookupTableRow(), LookupTableRow())
-        tableData[0].data = JSONB.jsonb("""{"a": "11", "b": "21"}""")
-        tableData[1].data = JSONB.jsonb("""{"a": "12", "b": "22"}""")
-
         // Table does not exist
         var mockResponseBuilder = createResponseBuilder()
         val lookupTableAccess = mockk<DatabaseLookupTableAccess>()
-        every { lookupTableAccess.fetchTable(eq(tableName), eq(tableVersionNum)) } returns tableData
         every { lookupTableAccess.doesTableExist(eq(tableName), eq(tableVersionNum)) } returns false
         every { mockRequest.createResponseBuilder(HttpStatus.NOT_FOUND) } returns mockResponseBuilder
         LookupTableFunctions(lookupTableAccess).getLookupTableData(mockRequest, tableName, tableVersionNum)
         verifyError(mockResponseBuilder)
 
         // Create a table
+        val tableData = listOf(LookupTableRow(), LookupTableRow())
+        tableData[0].data = JSONB.jsonb("""{"a": "11", "b": "21"}""")
+        tableData[1].data = JSONB.jsonb("""{"a": "12", "b": "22"}""")
         mockResponseBuilder = createResponseBuilder()
         every { lookupTableAccess.doesTableExist(eq(tableName), eq(tableVersionNum)) } returns true
+        every { lookupTableAccess.fetchTable(eq(tableName), eq(tableVersionNum)) } returns tableData
         every { mockRequest.createResponseBuilder(HttpStatus.OK) } returns mockResponseBuilder
         LookupTableFunctions(lookupTableAccess).getLookupTableData(mockRequest, tableName, tableVersionNum)
         verify(exactly = 1) {
@@ -209,6 +212,169 @@ class LookupTableFunctionsTests {
         requestBody = Json.parseToJsonElement("""[{"a":"1"}]""") // Array with object
         response = LookupTableFunctions.checkCreateRequest(mockRequest, requestBody)
         assertThat(response).isNull()
+    }
+
+    @Test
+    fun `convert table to data to json test`() {
+        val tableData = listOf(LookupTableRow(), LookupTableRow())
+        tableData[0].data = JSONB.jsonb("""{"a": "11", "b": "21"}""")
+        tableData[1].data = JSONB.jsonb("""{"a": "12", "b": "22"}""")
+
+        val lookupTableAccess = mockk<DatabaseLookupTableAccess>()
+        every { lookupTableAccess.fetchTable(any(), any()) } returns tableData
+
+        val data = LookupTableFunctions(lookupTableAccess).convertTableDataToJsonString("dummy", 1)
+        assertThat(data).isNotEmpty()
+        val jsonData = Json.parseToJsonElement(data)
+        assertThat(jsonData is JsonArray).isTrue()
+        assertThat((jsonData as JsonArray)[0] is JsonObject)
+        assertThat(jsonData[1] is JsonObject)
+        assertThat((jsonData[0] as JsonObject).containsKey("a"))
+    }
+
+    @Test
+    fun `create error message test`() {
+        val message = "dummy message"
+        val jsonError = LookupTableFunctions.createErrorMsg(message)
+        assertThat(jsonError).isNotEmpty()
+        assertThat((Json.parseToJsonElement(jsonError) as JsonObject).containsKey("error")).isTrue()
+        assertThat(((Json.parseToJsonElement(jsonError) as JsonObject)["error"] as JsonPrimitive).contentOrNull)
+            .isEqualTo(message)
+    }
+
+    @Test
+    fun `create table test`() {
+        val tableName = "dummy"
+        val latestVersion = 1
+        every { mockRequest.httpMethod } returns HttpMethod.POST
+        val lookupTableAccess = mockk<DatabaseLookupTableAccess>()
+
+        // Empty payload
+        var mockResponseBuilder = createResponseBuilder()
+        every { mockRequest.createResponseBuilder(HttpStatus.BAD_REQUEST) } returns mockResponseBuilder
+        every { mockRequest.body } returns ""
+        every { lookupTableAccess.fetchLatestVersion(tableName) } returns latestVersion
+        LookupTableFunctions(lookupTableAccess).createLookupTable(mockRequest, tableName)
+        verifyError(mockResponseBuilder)
+
+        // Payload is not consistent
+        mockResponseBuilder = createResponseBuilder()
+        every { mockRequest.createResponseBuilder(HttpStatus.BAD_REQUEST) } returns mockResponseBuilder
+        every { mockRequest.body } returns """[{"a": "11", "b": "21"},{"a": "12"}]"""
+        LookupTableFunctions(lookupTableAccess).createLookupTable(mockRequest, tableName)
+        verifyError(mockResponseBuilder)
+
+        // Create a new version of an existing table
+        mockResponseBuilder = createResponseBuilder()
+        every { mockRequest.createResponseBuilder(HttpStatus.OK) } returns mockResponseBuilder
+        every { mockRequest.body } returns """[{"a": "11", "b": "21"},{"a": "12", "b": "22"}]"""
+        val versionInfo = LookupTableVersion()
+        versionInfo.tableName = tableName
+        versionInfo.tableVersion = latestVersion + 1
+        versionInfo.isActive = false
+        versionInfo.createdBy = "author1"
+        versionInfo.createdAt = OffsetDateTime.now()
+        every { lookupTableAccess.createTable(eq(tableName), eq(latestVersion + 1), any()) } returns Unit
+        every { lookupTableAccess.fetchVersionInfo(eq(tableName), eq(latestVersion + 1)) } returns versionInfo
+        LookupTableFunctions(lookupTableAccess).createLookupTable(mockRequest, tableName)
+        verify(exactly = 1) {
+            lookupTableAccess.createTable(
+                any(), any(),
+                withArg {
+                    assertEquals(2, it.size)
+                    val json = Json.parseToJsonElement(it[0].data())
+                    assertTrue(json is JsonObject)
+                    assertEquals("11", (json["a"] as JsonPrimitive).contentOrNull)
+                }
+            )
+            mockResponseBuilder.body(
+                withArg {
+                    assertTrue(it is String)
+                    assertTrue(it.isNotBlank())
+                    val json = Json.parseToJsonElement(it)
+                    assertTrue(json is JsonObject)
+                    assertNotNull(json["tableName"])
+                    assertEquals(tableName, (((json["tableName"]) as JsonPrimitive).contentOrNull))
+                }
+            )
+        }
+
+        // Create a new table
+        mockResponseBuilder = createResponseBuilder()
+        every { mockRequest.createResponseBuilder(HttpStatus.OK) } returns mockResponseBuilder
+        every { lookupTableAccess.fetchLatestVersion(tableName) } returns null
+        every { lookupTableAccess.createTable(eq(tableName), eq(1), any()) } returns Unit
+        every { lookupTableAccess.fetchVersionInfo(eq(tableName), eq(1)) } returns versionInfo
+        LookupTableFunctions(lookupTableAccess).createLookupTable(mockRequest, tableName)
+        verify(exactly = 1) {
+            mockResponseBuilder.body(
+                withArg {
+                    assertTrue(it is String)
+                    assertTrue(it.isNotBlank())
+                    val json = Json.parseToJsonElement(it)
+                    assertTrue(json is JsonObject)
+                    assertNotNull(json["tableVersion"])
+                    assertEquals(
+                        (latestVersion + 1).toString(),
+                        (((json["tableVersion"]) as JsonPrimitive).contentOrNull)
+                    )
+                }
+            )
+        }
+
+        // Database error
+        mockResponseBuilder = createResponseBuilder()
+        every { lookupTableAccess.fetchLatestVersion(tableName) }.throws(DataAccessException("error"))
+        every { mockRequest.createResponseBuilder(HttpStatus.INTERNAL_SERVER_ERROR) } returns mockResponseBuilder
+        LookupTableFunctions(lookupTableAccess).createLookupTable(mockRequest, tableName)
+        verifyError(mockResponseBuilder)
+    }
+
+    @Test
+    fun `activate table test`() {
+        val tableName = "dummyTable"
+        val tableVersionNum = 1
+        every { mockRequest.httpMethod } returns HttpMethod.PUT
+
+        // Table does not exist
+        var mockResponseBuilder = createResponseBuilder()
+        val lookupTableAccess = mockk<DatabaseLookupTableAccess>()
+        every { lookupTableAccess.doesTableExist(eq(tableName), eq(tableVersionNum)) } returns false
+        every { mockRequest.createResponseBuilder(HttpStatus.NOT_FOUND) } returns mockResponseBuilder
+        LookupTableFunctions(lookupTableAccess).activateLookupTable(mockRequest, tableName, tableVersionNum)
+        verifyError(mockResponseBuilder)
+
+        // Activate a table
+        val versionInfo = LookupTableVersion()
+        versionInfo.tableName = tableName
+        versionInfo.tableVersion = tableVersionNum
+        versionInfo.isActive = false
+        versionInfo.createdBy = "author1"
+        versionInfo.createdAt = OffsetDateTime.now()
+        mockResponseBuilder = createResponseBuilder()
+        every { lookupTableAccess.doesTableExist(eq(tableName), eq(tableVersionNum)) } returns true
+        every { lookupTableAccess.activateTable(eq(tableName), eq(tableVersionNum)) } returns true
+        every { lookupTableAccess.fetchVersionInfo(eq(tableName), eq(tableVersionNum)) } returns versionInfo
+        every { mockRequest.createResponseBuilder(HttpStatus.OK) } returns mockResponseBuilder
+        LookupTableFunctions(lookupTableAccess).activateLookupTable(mockRequest, tableName, tableVersionNum)
+        verify(exactly = 1) {
+            mockResponseBuilder.body(
+                withArg {
+                    // Check that we have JSON data in the response body
+                    assertTrue(it is String)
+                    val json = Json.parseToJsonElement(it)
+                    assertTrue(json is JsonObject)
+                    assertEquals(tableName, ((json["tableName"]) as JsonPrimitive).contentOrNull)
+                }
+            )
+        }
+
+        // Database error
+        mockResponseBuilder = createResponseBuilder()
+        every { lookupTableAccess.doesTableExist(any(), any()) }.throws(DataAccessException("error"))
+        every { mockRequest.createResponseBuilder(HttpStatus.INTERNAL_SERVER_ERROR) } returns mockResponseBuilder
+        LookupTableFunctions(lookupTableAccess).getLookupTableData(mockRequest, tableName, tableVersionNum)
+        verifyError(mockResponseBuilder)
     }
 
     /**
