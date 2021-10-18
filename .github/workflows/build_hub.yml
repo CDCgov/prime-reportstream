@@ -82,7 +82,7 @@ jobs:
         id: jacoco
         uses: madrapps/jacoco-report@v1.2
         with:
-          path: ${{ github.workspace }}/build/reports/jacoco/test/jacocoTestReport.xml
+          path: prime-router/build/reports/jacoco/test/jacocoTestReport.xml
           token: ${{ secrets.GITHUB_TOKEN }}
 
   smoke_tests:
