@@ -57,6 +57,8 @@
     - code: 2106-3
       display: Caucasian
     - code: 2106-3
+      display: C
+    - code: 2106-3
       display: 2106-3
     - code: 1002-5
       display: American Indian or Alaska Native
@@ -97,7 +99,11 @@
     - code: 2131-1
       display: Other Race White
     - code: 2131-1
+      display: "Other Race,White"
+    - code: 2131-1
       display: Other Race Black
+    - code: 2131-1
+      display: "Other Race,Black"
     - code: 2131-1
       display: 2131-1
     - code: 2028-9
@@ -246,6 +252,12 @@
       display: Negative
     - code: 260385009
       display: Neg
+    - code: 260385009
+      display: Negative *** High ***
+    - code: 260385009
+      display: Negative *** Low ***
+    - code: 260385009
+      display: 260385009
     - code: 260415000
       display: Not detected
     - code: 260415000
@@ -266,6 +278,14 @@
       display: Positive (Abnormal)
     - code: 10828004
       display: Positive (Alpha Abnormal)
+    - code: 10828004
+      display: Positive *** High ***
+    - code: 10828004
+      display: Positive  *** High ***
+    - code: 10828004
+      display: Positive  *** Low ***
+    - code: 10828004
+      display: "Positive "
     - code: 10828004
       display: 10828004
     - code: 720735008
