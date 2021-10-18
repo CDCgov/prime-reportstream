@@ -8,13 +8,12 @@ info:
     url: https://open.cdc.gov
     email: usds@cdc.gov
 
-security:
-  - OktaAuth: [ SYSTEM_ADMIN ]
-
 paths:
   /api/lookuptables:
     get:
       description: Fetch the list lookup tables
+      security:
+        - OktaAuth: [ ANONYMOUS ]
       parameters:
         - name: showInactive
           in: query
@@ -38,6 +37,8 @@ paths:
   /api/lookuptables/{tableName}:
     get:
       description: Fetch the latest version of a table
+      security:
+        - OktaAuth: [ ANONYMOUS ]
       responses:
         '200':
           description: The table data
@@ -58,7 +59,10 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorMsg'
     post:
-      description: Create a new version of a lookup table
+      description: Create a new version of a lookup table.  First versions of a table
+        are automatically activated.
+      security:
+        - OktaAuth: [ SYSTEM_ADMIN ]
       requestBody:
         description: Optional description in *Markdown*
         required: true
@@ -83,6 +87,8 @@ paths:
   /api/lookuptables/{tableName}/{tableVersion}:
     get:
       description: Fetch a specific version of a table
+      security:
+        - OktaAuth: [ ANONYMOUS ]
       responses:
         '200':
           description: The table data
@@ -102,8 +108,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorMsg'
-    post:
+
+  /api/lookuptables/{tableName}/{tableVersion}/activate:
+    put:
       description: Activate a specific version of a table
+      security:
+        - OktaAuth: [ SYSTEM_ADMIN ]
       responses:
         '200':
           description: The table version information
