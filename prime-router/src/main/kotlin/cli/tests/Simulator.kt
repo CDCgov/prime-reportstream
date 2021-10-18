@@ -237,7 +237,7 @@ class Simulator : CoolTest() {
     fun teardown(results: List<SimulatorResult>): Boolean {
         val totalSubmissions = results.map { it.totalSubmissionsCount }.sum()
         val totalItems = results.map { it.totalItemsCount }.sum()
-        val totalTime= results.map { it.elapsedMillisForWholeSimulation}.sum()
+        val totalTime = results.map { it.elapsedMillisForWholeSimulation }.sum()
         val submissionRateString = String.format("%.2f", totalSubmissions.toFloat() / (totalTime / 1000.0))
         val itemRateString = String.format("%.2f", totalItems.toFloat() / (totalTime / 1000.0))
         val summary = "Simulation Done.   Summary:\n" +
