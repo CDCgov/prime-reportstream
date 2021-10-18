@@ -2233,18 +2233,6 @@ Translate multiple inbound Test Result values to RS values
 
 ---
 
-**Name**: Test_date
-
-**Type**: DATETIME
-
-**PII**: No
-
-**Format**: M/d/yyyy
-
-**Cardinality**: [0..1]
-
----
-
 **Name**: Test_result_status
 
 **Type**: CODE

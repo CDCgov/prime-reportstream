@@ -102,9 +102,6 @@ elements:
     - name: date_result_released
       csvFields: [{name: Date_result_released, format: "M/d/yyyy H:nn"}]
 
-    - name: test_result_report_date
-      csvFields: [{name: Test_date, format: "M/d/yyyy"}]
-
     - name: test_result
       type: CODE
       valueSet: sender-automation/test_result

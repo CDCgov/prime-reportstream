@@ -2900,16 +2900,6 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 
 ---
 
-**Name**: test_result_report_date
-
-**Type**: DATETIME
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
----
-
 **Name**: test_result_status
 
 **Type**: CODE
