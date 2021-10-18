@@ -1,7 +1,11 @@
 package gov.cdc.prime.router.azure
 
 import com.google.gson.Gson
-import com.microsoft.azure.functions.*
+import com.microsoft.azure.functions.ExecutionContext
+import com.microsoft.azure.functions.HttpMethod
+import com.microsoft.azure.functions.HttpRequestMessage
+import com.microsoft.azure.functions.HttpResponseMessage
+import com.microsoft.azure.functions.HttpStatus
 import com.microsoft.azure.functions.annotation.AuthorizationLevel
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
@@ -15,7 +19,6 @@ import com.sendgrid.helpers.mail.objects.Content
 import com.sendgrid.helpers.mail.objects.Email
 import com.sendgrid.helpers.mail.objects.Personalization
 import gov.cdc.prime.router.secrets.SecretHelper
-import org.json.JSONObject
 import java.io.IOException
 import java.util.logging.Logger
 
@@ -47,7 +50,8 @@ class EmailSenderFunction {
 
         if (request.body !== null) {
             logger.info(request.body)
-            ret.status(sendRegistrationConfirmation(request.body!!, logger))
+//            ret.status(sendRegistrationConfirmation(request.body!!, logger))
+            ret.body(request.body)
         }
 
         return ret.build()
@@ -55,7 +59,10 @@ class EmailSenderFunction {
 
     private fun sendRegistrationConfirmation(requestBody: String, logger: Logger): HttpStatus {
         val gson = Gson()
-        val body = gson.fromJson<SenderTosRequest.SenderTosFormJSON>(requestBody, SenderTosRequest.SenderTosFormJSON::class.java)
+        val body = gson.fromJson<SenderTosRequest.SenderTosFormJSON>(
+            requestBody,
+            SenderTosRequest.SenderTosFormJSON::class.java
+        )
         val toEmail = body.toEmail
         val fromEmail = body.fromEmail
         val emailSubject = body.emailSubject

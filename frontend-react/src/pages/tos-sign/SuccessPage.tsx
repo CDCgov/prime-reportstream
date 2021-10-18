@@ -113,6 +113,7 @@ function SuccessPage() {
             {steps.map((step) => {
                 return (
                     <Step
+                        key={step.number}
                         number={step.number}
                         label={step.label}
                         complete={step.complete}
