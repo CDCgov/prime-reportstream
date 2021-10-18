@@ -135,6 +135,7 @@ tasks.test {
 
 tasks.jacocoTestReport {
     dependsOn(tasks.test)
+    reports.xml.required.set(true)
     // Remove the exclusions, so they do not appear in the report
     classDirectories.setFrom(
         files(
