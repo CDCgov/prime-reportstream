@@ -31,6 +31,7 @@ class HttpUtilities {
         const val tokenApi = "/api/token"
         const val organizationApi = "/api/settings/organizations"
         const val errorMsgKeyRequired = "key is required for Test environment"
+        const val headerXfuncKey = "x-functions-key"
 
         fun okResponse(
             request: HttpRequestMessage<String?>,
@@ -258,7 +259,7 @@ class HttpUtilities {
             headers.add("client" to clientStr)
             if (key == null && environment == ReportStreamEnv.TEST) error(errorMsgKeyRequired)
             if (key != null)
-                headers.add("x-functions-key" to key)
+                headers.add(headerXfuncKey to key)
             val url = environment.urlPrefix + oldApi + if (option != null) "?option=$option" else ""
             return postHttp(url, bytes, headers)
         }
@@ -331,7 +332,7 @@ class HttpUtilities {
             if (key == null && environment == ReportStreamEnv.TEST)
                 error(errorMsgKeyRequired)
             if (key != null)
-                headers.add("x-functions-key" to key)
+                headers.add(headerXfuncKey to key)
             val url = environment.urlPrefix + organizationApi + "/" + orgName
             return getHttp(url, headers)
         }
@@ -382,7 +383,7 @@ class HttpUtilities {
             if (key == null && environment == ReportStreamEnv.TEST)
                 error(errorMsgKeyRequired)
             if (key != null)
-                headers.add("x-functions-key" to key)
+                headers.add(headerXfuncKey to key)
             val url = environment.urlPrefix + organizationApi + "/" + orgName
             return putHttp(url, bytes, headers)
         }
@@ -435,7 +436,7 @@ class HttpUtilities {
             if (key == null && environment == ReportStreamEnv.TEST)
                 error(errorMsgKeyRequired)
             if (key != null)
-                headers.add("x-functions-key" to key)
+                headers.add(headerXfuncKey to key)
             val url = environment.urlPrefix + organizationApi + "/" + orgName
             return deleteHttp(url, headers)
         }
