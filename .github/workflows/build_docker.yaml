@@ -12,6 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       has_tfcli_change: ${{ steps.skip_check.outputs.tfcli }}
+      has_dnsmasq_change: ${{ steps.skip_check.outputs.dnsmasq }}
     steps:
       - uses: dorny/paths-filter@v2
         id: skip_check
