@@ -22,7 +22,7 @@ library.add(faSync);
 export const Upload = () => {
     const { authState } = useOktaAuth();
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [file, setFile] = useState(null);
+    const [fileContent, setFileContent] = useState("");
     const [consolidatedWarnings, setConsolidatedWarnings] = useState([]);
     const [consolidatedErrors, setConsolidatedErrors] = useState([]);
     const [destinations, setDestinations] = useState("");
@@ -78,9 +78,24 @@ export const Upload = () => {
         }
     };
 
-    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        if (event?.target?.files?.length || 0) {
-            setFile(event.target.files[0]);
+    const handleChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        try {
+            if (!event?.currentTarget?.files?.length) {
+                // no files selected
+                return;
+            }
+            const file = event.currentTarget.files.item(0);
+            if (!file) {
+                // shouldn't happen but keeps linter happy
+                return;
+            }
+
+            // load the "contents" of the file. Hope it fits in memory!
+            const filecontent = await file.text();
+            setFileContent(filecontent);
+        } catch (err) {
+            // todo: have central error reporting mechanism.
+            console.error(err);
         }
     };
 
@@ -95,15 +110,16 @@ export const Upload = () => {
         setConsolidatedErrors([]);
         setDestinations("");
 
-        if (file) {
+        if (fileContent.length) {
             let response;
             try {
-                response = await uploadReport(file);
+                response = await uploadReport(fileContent);
 
                 if (response.destinations && response.destinations.length) {
+                    // NOTE: `{ readonly [key: string]: string }` means a key:value object
                     setDestinations(
                         response.destinations
-                            .map((d) => d["organization"])
+                            .map((d: { readonly [key: string]: string }) => d["organization"])
                             .join(", ")
                     );
                 }
@@ -111,7 +127,7 @@ export const Upload = () => {
                 if (response.id) {
                     setReportId(response.id);
                     setSuccessTimestamp(response.timestamp);
-                    event.target.reset();
+                    event.currentTarget.reset();
                 }
 
                 if (response.errors && response.errors.length) {
@@ -153,7 +169,7 @@ export const Upload = () => {
         }
     };
 
-    const formattedSuccessDate = (format) => {
+    const formattedSuccessDate = (format:string) => {
         const timestampDate = new Date(successTimestamp);
         return moment(timestampDate).format(format);
     };

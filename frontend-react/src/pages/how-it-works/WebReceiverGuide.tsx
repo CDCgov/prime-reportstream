@@ -167,7 +167,7 @@ export const WebReceiverGuide = () => {
                         If you are directed to an internal Okta page and not the
                         data download site, don’t worry! Visit{" "}
                         <NavLink
-                            to="/daily-data/"
+                            to="/daily-data"
                             key="daily"
                             className="usa-link"
                         >
