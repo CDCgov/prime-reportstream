@@ -35,11 +35,13 @@ private const val ROUTE_TO_PARAMETER = "routeTo"
 private const val ROUTE_TO_SEPARATOR = ","
 private const val VERBOSE_PARAMETER = "verbose"
 private const val VERBOSE_TRUE = "true"
+
 /**
  * Azure Functions with HTTP Trigger.
  * This is basically the "front end" of the Hub. Reports come in here.
  */
 class ReportFunction : Logging {
+
     enum class Options {
         None,
         ValidatePayload,
@@ -98,31 +100,8 @@ class ReportFunction : Logging {
         try {
 
             val validatedRequest = validateRequest(workflowEngine, request)
-            if (!validatedRequest.valid) {
-                val response = HttpUtilities.httpResponse(
-                    request,
-                    createResponseBody(validatedRequest, false),
-                    validatedRequest.httpStatus
-                )
-                actionHistory.trackActionResponse(response, createResponseBody(validatedRequest, false))
-                workflowEngine.recordAction(actionHistory)
-                return response
-            }
-
-            if (validatedRequest.options == Options.CheckConnections) {
-                workflowEngine.checkConnections()
-                val response = HttpUtilities.okResponse(request, createResponseBody(validatedRequest, false))
-                actionHistory.trackActionResponse(response, createResponseBody(validatedRequest, false))
-                workflowEngine.recordAction(actionHistory)
-                return response
-            }
-
-            // is this meant to happen after the creation of a report?
-            if (validatedRequest.options == Options.ValidatePayload) {
-                val response = HttpUtilities.okResponse(request, createResponseBody(validatedRequest, false))
-                actionHistory.trackActionResponse(response, createResponseBody(validatedRequest, false))
-                workflowEngine.recordAction(actionHistory)
-                return response
+            handleValidation(validatedRequest, request, actionHistory, workflowEngine)?.let {
+                return it
             }
 
             var report = createReport(
@@ -130,9 +109,10 @@ class ReportFunction : Logging {
                 sender,
                 validatedRequest.content,
                 validatedRequest.defaults,
-                validatedRequest.errors,
+                validatedRequest.errors, // at this point errors is empty
                 validatedRequest.warnings
             )
+
             // checks for errors from createReport
             if (validatedRequest.options != Options.SkipInvalidItems && validatedRequest.errors.isNotEmpty()) {
                 val response = HttpUtilities.httpResponse(
@@ -140,24 +120,18 @@ class ReportFunction : Logging {
                     createResponseBody(validatedRequest, false),
                     HttpStatus.BAD_REQUEST
                 )
+                actionHistory.trackActionResult(response)
                 actionHistory.trackActionResponse(response, createResponseBody(validatedRequest, false))
                 workflowEngine.recordAction(actionHistory)
                 return response
             }
+
             logger.info("Successfully reported: ${report!!.id}.")
 
-            // this is weird
-            // request.body could be replaced with validatedRequest.content?
-            if (request.body != null && validatedRequest.sender != null) {
-                workflowEngine.recordReceivedReport(
-                    // should make createReport always return a report or error
-                    report, request.body!!.toByteArray(), validatedRequest.sender,
-                    actionHistory, workflowEngine
-                )
-            } else error(
-                // This should never happen after the validation, but we do not want a mystery exception here
-                "Unable to save original report ${report.name} due to null " +
-                    "request body or sender"
+            workflowEngine.recordReceivedReport(
+                // should make createReport always return a report or error
+                report, request.body!!.toByteArray(), validatedRequest.sender!!,
+                actionHistory, workflowEngine
             )
 
             // Write the data to the table if we're dealing with covid-19. this has to happen
@@ -178,6 +152,7 @@ class ReportFunction : Logging {
 
             val responseBody = createResponseBody(validatedRequest, validatedRequest.verbose, actionHistory, report)
             val response = HttpUtilities.createdResponse(request, responseBody)
+            actionHistory.trackActionResult(response)
             actionHistory.trackActionResponse(response, responseBody)
             workflowEngine.recordAction(actionHistory)
             return response
@@ -232,31 +207,8 @@ class ReportFunction : Logging {
         try {
 
             val validatedRequest = validateRequest(workflowEngine, request)
-            if (!validatedRequest.valid) {
-                val response = HttpUtilities.httpResponse(
-                    request,
-                    createResponseBody(validatedRequest, false),
-                    validatedRequest.httpStatus
-                )
-                actionHistory.trackActionResponse(response, createResponseBody(validatedRequest, false))
-                workflowEngine.recordAction(actionHistory)
-                return response
-            }
-
-            if (validatedRequest.options == Options.CheckConnections) {
-                workflowEngine.checkConnections()
-                val response = HttpUtilities.okResponse(request, createResponseBody(validatedRequest, false))
-                actionHistory.trackActionResponse(response, createResponseBody(validatedRequest, false))
-                workflowEngine.recordAction(actionHistory)
-                return response
-            }
-
-            // is this meant to happen after the creation of a report?
-            if (validatedRequest.options == Options.ValidatePayload) {
-                val response = HttpUtilities.okResponse(request, createResponseBody(validatedRequest, false))
-                actionHistory.trackActionResponse(response, createResponseBody(validatedRequest, false))
-                workflowEngine.recordAction(actionHistory)
-                return response
+            handleValidation(validatedRequest, request, actionHistory, workflowEngine)?.let {
+                return it
             }
 
             var report = createReport(
@@ -264,9 +216,10 @@ class ReportFunction : Logging {
                 sender,
                 validatedRequest.content,
                 validatedRequest.defaults,
-                validatedRequest.errors,
+                validatedRequest.errors, // at this point errors is empty
                 validatedRequest.warnings
             )
+
             // checks for errors from createReport
             if (validatedRequest.options != Options.SkipInvalidItems && validatedRequest.errors.isNotEmpty()) {
                 val response = HttpUtilities.httpResponse(
@@ -274,24 +227,18 @@ class ReportFunction : Logging {
                     createResponseBody(validatedRequest, false),
                     HttpStatus.BAD_REQUEST
                 )
+                actionHistory.trackActionResult(response)
                 actionHistory.trackActionResponse(response, createResponseBody(validatedRequest, false))
                 workflowEngine.recordAction(actionHistory)
                 return response
             }
+
             logger.info("Successfully reported: ${report!!.id}.")
 
-            // this is weird
-            // request.body could be replaced with validatedRequest.content?
-            if (request.body != null && validatedRequest.sender != null) {
-                workflowEngine.recordReceivedReport(
-                    // should make createReport always return a report or error
-                    report, request.body!!.toByteArray(), validatedRequest.sender,
-                    actionHistory, workflowEngine
-                )
-            } else error(
-                // This should never happen after the validation, but we do not want a mystery exception here
-                "Unable to save original report ${report.name} due to null " +
-                    "request body or sender"
+            workflowEngine.recordReceivedReport(
+                // should make createReport always return a report or error
+                report, request.body!!.toByteArray(), validatedRequest.sender!!,
+                actionHistory, workflowEngine
             )
 
             // Write the data to the table if we're dealing with covid-19. this has to happen
@@ -312,6 +259,7 @@ class ReportFunction : Logging {
 
             val responseBody = createResponseBody(validatedRequest, validatedRequest.verbose, actionHistory, report)
             val response = HttpUtilities.createdResponse(request, responseBody)
+            actionHistory.trackActionResult(response)
             actionHistory.trackActionResponse(response, responseBody)
             workflowEngine.recordAction(actionHistory)
             return response
@@ -323,78 +271,7 @@ class ReportFunction : Logging {
             return HttpUtilities.internalErrorResponse(request)
         }
     }
-/*
-    private fun ingestReport(request: HttpRequestMessage<String?>, context: ExecutionContext): HttpResponseMessage {
-        val workflowEngine = WorkflowEngine()
-        val actionHistory = ActionHistory(TaskAction.receive, context)
-        var report: Report? = null
-        val verboseResponse = StringBuilder()
-        actionHistory.trackActionParams(request)
-        val httpResponseMessage = try {
-            val validatedRequest = validateRequest(workflowEngine, request)
-            // track the sending organization and client based on the header
-            actionHistory.trackActionSender(extractClientHeader(request))
-            when {
-                validatedRequest.options == Options.CheckConnections -> {
-                    workflowEngine.checkConnections()
-                    verboseResponse.append(createResponseBody(validatedRequest, false))
-                    HttpUtilities.okResponse(request, verboseResponse.toString())
-                }
-                validatedRequest.report == null -> {
-                    verboseResponse.append(createResponseBody(validatedRequest, false))
-                    HttpUtilities.httpResponse(
-                        request,
-                        verboseResponse.toString(),
-                        validatedRequest.httpStatus
-                    )
-                }
-                validatedRequest.options == Options.ValidatePayload -> {
-                    verboseResponse.append(createResponseBody(validatedRequest, false))
-                    HttpUtilities.okResponse(request, verboseResponse.toString())
-                }
-                else -> {
-                    // Regular happy path workflow is here
-                    context.logger.info("Successfully reported: ${validatedRequest.report.id}.")
-                    report = validatedRequest.report
-                    routeReport(context, workflowEngine, validatedRequest, actionHistory)
-                    if (request.body != null && validatedRequest.sender != null) {
-                        workflowEngine.recordReceivedReport(
-                            report, request.body!!.toByteArray(), validatedRequest.sender,
-                            actionHistory, workflowEngine
-                        )
-                    } else error(
-                        // This should never happen after the validation, but we do not want a mystery exception here
-                        "Unable to save original report ${report.name} due to null " +
-                            "request body or sender"
-                    )
-                    val responseBody = createResponseBody(validatedRequest, validatedRequest.verbose, actionHistory)
-                    // if a verbose response was not requested, then generate one for the actionResponse
-                    verboseResponse.append(
-                        if (validatedRequest.verbose)
-                            responseBody
-                        else
-                            createResponseBody(validatedRequest, true, actionHistory)
-                    )
-                    HttpUtilities.createdResponse(request, responseBody)
-                }
-            }
-        } catch (e: Exception) {
-            context.logger.log(Level.SEVERE, e.message, e)
-            actionHistory.trackActionResult("Exception: ${e.message ?: e}")
-            HttpUtilities.internalErrorResponse(request)
-        }
-        actionHistory.trackActionResult(httpResponseMessage)
-        // add the response to the action table as JSONB and record the httpsStatus
-        actionHistory.trackActionResponse(httpResponseMessage, verboseResponse.toString())
-        workflowEngine.recordAction(actionHistory)
-        actionHistory.queueMessages(workflowEngine) // Must be done after creating TASK record.
 
-        // Write the data to the table if we're dealing with covid-19. this has to happen
-        // here AFTER we've written the report to the DB
-        writeCovidResultMetadataForReport(report, context, workflowEngine)
-        return httpResponseMessage
-    }
- */
     /**
      * Given a report object, it collects the non-PII, non-PHI out of it and then saves it to the
      * database in the covid_results_metadata table.
@@ -452,6 +329,40 @@ class ReportFunction : Logging {
         // client can be in the header or in the url parameters:
         return request.headers[CLIENT_PARAMETER]
             ?: request.queryParameters.getOrDefault(CLIENT_PARAMETER, "")
+    }
+
+    private fun handleValidation(
+        validatedRequest: ValidatedRequest,
+        request: HttpRequestMessage<String?>,
+        actionHistory: ActionHistory,
+        workflowEngine: WorkflowEngine
+    ): HttpResponseMessage? {
+        var response: HttpResponseMessage? = when {
+            !validatedRequest.valid -> {
+                HttpUtilities.httpResponse(
+                    request,
+                    createResponseBody(validatedRequest, false),
+                    validatedRequest.httpStatus
+                )
+            }
+            validatedRequest.options == Options.CheckConnections -> {
+                workflowEngine.checkConnections()
+                HttpUtilities.okResponse(request, createResponseBody(validatedRequest, false))
+            }
+            // is this meant to happen after the creation of a report?
+            validatedRequest.options == Options.ValidatePayload -> {
+                HttpUtilities.okResponse(request, createResponseBody(validatedRequest, false))
+            }
+            else -> null
+        }
+
+        if (response != null) {
+            actionHistory.trackActionResult(response)
+            actionHistory.trackActionResponse(response, createResponseBody(validatedRequest, false))
+            workflowEngine.recordAction(actionHistory)
+        }
+
+        return response
     }
 
     private fun validateRequest(engine: WorkflowEngine, request: HttpRequestMessage<String?>): ValidatedRequest {
