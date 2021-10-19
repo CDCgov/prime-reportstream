@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.tokens
 
+import gov.cdc.prime.router.azure.Authenticator
 import gov.cdc.prime.router.azure.PrincipalLevel
 import gov.cdc.prime.router.azure.WorkflowEngine
 import org.apache.logging.log4j.kotlin.Logging
@@ -12,7 +13,7 @@ class AuthenticationStrategy() : Logging {
             authenticationType: String?,
             principalLevel: PrincipalLevel,
             workflowEngine: WorkflowEngine
-        ): Any {
+        ): Authenticator {
 
             // Clients using Okta will send "authentication-type": "okta" in the request header
             if (authenticationType == "okta") {
