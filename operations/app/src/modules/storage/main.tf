@@ -49,7 +49,7 @@ module "storageaccount_blob_private_endpoint" {
   resource_group     = var.resource_group
   location           = var.location
   endpoint_subnet_id = data.azurerm_subnet.endpoint.id
-  create_dns_record  = var.environment == "prod"
+  create_dns_record  = var.environment != "test"
 }
 
 module "storageaccount_file_private_endpoint" {
@@ -60,7 +60,7 @@ module "storageaccount_file_private_endpoint" {
   resource_group     = var.resource_group
   location           = var.location
   endpoint_subnet_id = data.azurerm_subnet.endpoint.id
-  create_dns_record  = var.environment == "prod"
+  create_dns_record  = var.environment != "test"
 }
 
 module "storageaccount_queue_private_endpoint" {
@@ -71,7 +71,7 @@ module "storageaccount_queue_private_endpoint" {
   resource_group     = var.resource_group
   location           = var.location
   endpoint_subnet_id = data.azurerm_subnet.endpoint.id
-  create_dns_record  = var.environment == "prod"
+  create_dns_record  = var.environment != "test"
 }
 
 module "storage_blob_private_endpoint" {
@@ -281,7 +281,7 @@ module "storageaccountpartner_blob_private_endpoint" {
   resource_group     = var.resource_group
   location           = var.location
   endpoint_subnet_id = data.azurerm_subnet.endpoint.id
-  create_dns_record  = var.environment == "prod"
+  create_dns_record  = var.environment != "test"
 }
 
 module "storage_partner_blob_private_endpoint" {

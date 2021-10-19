@@ -114,7 +114,7 @@ module "application_private_endpoint" {
   resource_group     = var.resource_group
   location           = var.location
   endpoint_subnet_id = data.azurerm_subnet.endpoint.id
-  create_dns_record  = var.environment == "prod"
+  create_dns_record  = var.environment != "test"
 }
 
 module "application_vault_private_endpoint" {
@@ -204,7 +204,7 @@ module "app_config_private_endpoint" {
   resource_group     = var.resource_group
   location           = var.location
   endpoint_subnet_id = data.azurerm_subnet.endpoint.id
-  create_dns_record  = var.environment == "prod"
+  create_dns_record  = var.environment != "test"
 }
 
 module "app_config_vault_private_endpoint" {
@@ -285,7 +285,7 @@ module "client_config_private_endpoint" {
   resource_group     = var.resource_group
   location           = var.location
   endpoint_subnet_id = data.azurerm_subnet.endpoint.id
-  create_dns_record  = var.environment == "prod"
+  create_dns_record  = var.environment != "test"
 }
 
 module "client_config_vault_private_endpoint" {
