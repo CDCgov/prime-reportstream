@@ -54,7 +54,8 @@ class Report : Logging {
         CSV("csv", "text/csv"), // A CSV format the follows the csvFields
         HL7("hl7", "application/hl7-v2", true), // HL7 with one result per file
         HL7_BATCH("hl7", "application/hl7-v2"), // HL7 with BHS and FHS headers
-        REDOX("redox", "text/json", true); // Redox format
+        REDOX("redox", "text/json", true), // Redox format
+        JSON("json", "application/json"); // JSON Payload
         // FHIR
 
         companion object {

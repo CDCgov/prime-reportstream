@@ -305,6 +305,7 @@ Examples:
             DbConnections(),
             BadSftp(),
             Garbage(),
+            CrudRestApi(),
         )
     }
 }
@@ -1982,6 +1983,97 @@ class OtcProctored : CoolTest() {
             return true
         } else {
             return bad("Tests FAILED: " + failures)
+        }
+    }
+}
+
+class CrudRestApi : CoolTest() {
+    override val name = "CrudRestApi"
+    override val description = "Testing CRUD REST API"
+    override val status = TestStatus.DRAFT
+
+    val dummyOrgObjString = "{" +
+        "\"name\": \"dummy\"," +
+        "\"description\": \"PRIME's Dummy organization for CRUD API test\"," +
+        "\"jurisdiction\":\"FEDERAL\"," +
+        "\"stateCode\": null," +
+        "\"countyName\": null," +
+        "\"meta\": {" +
+        "\"version\": 0," +
+        "\"createdBy\": \"local@test.com\"," +
+        "\"createdAt\": \"2021-10-16T13:02:22.382422Z\"" +
+        "}" +
+        "}"
+
+    override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+        ugly("Starting CRUD REST API ${environment.urlPrefix}")
+
+        // Make sure dummy-org does not exist.
+        val (getRespCode, getJson) = HttpUtilities.getOrganization(
+            environment,
+            "dummy",
+            simpleRepSender,
+            options.key
+        )
+        echo(getJson)
+
+        // Check if the dummy org existed then clean it up
+        if (getRespCode == HttpURLConnection.HTTP_OK) {
+            val (delRespCode, delJson) = HttpUtilities.deleteOrganization(
+                environment,
+                "dummy",
+                simpleRepSender,
+                options.key
+            )
+            echo(delJson)
+
+            if (delRespCode != HttpURLConnection.HTTP_OK) {
+                bad(
+                    "GRUD API Test FAILED: The dummy org already existed.  " +
+                        "Failed to delete the dummy organization ..."
+                )
+                exitProcess(-1) // other tests won't work.
+            }
+        }
+
+        // CREATE the dummy org
+        val (createRespCode, createJson) = HttpUtilities.createOrganization(
+            environment,
+            dummyOrgObjString.toByteArray(),
+            "dummy",
+            simpleRepSender,
+            options.key
+        )
+
+        // Check if return code is NOT 200, 201 then fail the test
+        if (createRespCode != HttpURLConnection.HTTP_OK && createRespCode != HttpURLConnection.HTTP_CREATED) {
+            bad(
+                "GRUD API Test FAILED:  on CREATE response code $createRespCode"
+            )
+            exitProcess(-1) // other tests won't work.
+        }
+
+        // Verify the dummy org is create by checking the response should contain "local@test.com"
+        if (createJson.contains("local@test.com")) {
+            val (delRespCode, delJson) = HttpUtilities.deleteOrganization(
+                environment,
+                "dummy",
+                simpleRepSender,
+                options.key
+            )
+            echo(delJson)
+
+            if (delRespCode != HttpURLConnection.HTTP_OK) {
+                bad(
+                    "GRUD API Test FAILED: The dummy org already existed.  " +
+                        "Failed to delete the dummy organization ..."
+                )
+                exitProcess(-1) // other tests won't work.
+            }
+            // Clean up - delete the dummy org
+            return good("Test passed: GRUD REST API ")
+        } else {
+            return bad("***GRUD API Test FAILED***")
         }
     }
 }
