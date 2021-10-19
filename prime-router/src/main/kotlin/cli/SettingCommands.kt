@@ -224,11 +224,13 @@ abstract class SettingCommand(
         outStream.write(output.toByteArray())
     }
 
-    private fun handleHttpFailure(settingName: String, response: Response, result: Result<FuelJson, FuelError>): Nothing {
-        abort("Error setting $settingName:\n" +
-            "${result.component2()?.message}\n" +
-            "${response.responseMessage}\n" +
-            "${String(response.data)}"
+    private fun handleHttpFailure(settingName: String, response: Response, result: Result<FuelJson, FuelError>):
+        Nothing {
+        abort(
+            "Error setting $settingName:\n" +
+                "${result.component2()?.message}\n" +
+                "${response.responseMessage}\n" +
+                "${String(response.data)}"
         )
     }
 
