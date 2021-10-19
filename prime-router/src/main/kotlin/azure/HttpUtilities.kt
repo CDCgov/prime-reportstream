@@ -29,6 +29,7 @@ class HttpUtilities {
         const val oldApi = "/api/reports"
         const val watersApi = "/api/waters"
         const val tokenApi = "/api/token"
+        const val organizationApi = "/api/settings/organizations"
 
         fun okResponse(
             request: HttpRequestMessage<String?>,
@@ -302,6 +303,158 @@ class HttpUtilities {
                 } catch (e: IOException) {
                     // HttpUrlStatus treats not-success codes as IOExceptions.
                     // I found that the returned json is secretly still here:
+                    errorStream?.bufferedReader()?.readText()
+                        ?: this.responseMessage
+                }
+                return responseCode to response
+            }
+        }
+
+        /**
+         * A generic function to GET data to a particular Prime ReportStream Environment,
+         * as if from Organization.
+         * Returns Pair(Http response code, json response text)
+         */
+        fun getOrganization(
+            environment: ReportStreamEnv,
+            orgName: String,
+            sendingOrgClient: Sender,
+            key: String?
+        ): Pair<Int, String> {
+            val headers = mutableListOf<Pair<String, String>>()
+            headers.add("Content-Type" to Report.Format.JSON.mimeType)
+            headers.add("Authorization" to "Bearer dummy")
+            val clientStr = sendingOrgClient.organizationName +
+                if (sendingOrgClient.name.isNotBlank()) ".${sendingOrgClient.name}" else ""
+            headers.add("client" to clientStr)
+            if (key == null && environment == ReportStreamEnv.TEST)
+                error("key is required for Test environment")
+            if (key != null)
+                headers.add("x-functions-key" to key)
+            val url = environment.urlPrefix + organizationApi + "/" + orgName
+            return getHttp(url, headers)
+        }
+
+        /**
+         * A generic function that gets data from a URL <address>.
+         * Returns a Pair (HTTP response code, text of the response)
+         */
+        fun getHttp(urlStr: String, headers: List<Pair<String, String>>? = null): Pair<Int, String> {
+            val urlObj = URL(urlStr)
+            with(urlObj.openConnection() as HttpURLConnection) {
+                requestMethod = "GET"
+                doOutput = true
+                doInput = true
+                headers?.forEach {
+                    addRequestProperty(it.first, it.second)
+                }
+                val response = try {
+                    inputStream.bufferedReader().readText()
+                } catch (e: IOException) {
+                    // HttpUrlStatus treats not-success codes as IOExceptions.
+                    // I found that the returned json is secretly still here:
+                    errorStream?.bufferedReader()?.readText()
+                        ?: this.responseMessage
+                }
+                return responseCode to response
+            }
+        }
+
+        /**
+         * A generic function to PUT data to a particular Prime ReportStream Environment,
+         * as if from Organization.
+         * Returns Pair(Http response code, json response text)
+         */
+        fun createOrganization(
+            environment: ReportStreamEnv,
+            bytes: ByteArray,
+            orgName: String,
+            sendingOrgClient: Sender,
+            key: String?,
+        ): Pair<Int, String> {
+            val headers = mutableListOf<Pair<String, String>>()
+            headers.add("Content-Type" to Report.Format.JSON.mimeType)
+            headers.add("Authorization" to "Bearer dummy")
+            val clientStr = sendingOrgClient.organizationName +
+                if (sendingOrgClient.name.isNotBlank()) ".${sendingOrgClient.name}" else ""
+            headers.add("client" to clientStr)
+            if (key == null && environment == ReportStreamEnv.TEST)
+                error("key is required for Test environment")
+            if (key != null)
+                headers.add("x-functions-key" to key)
+            val url = environment.urlPrefix + organizationApi + "/" + orgName
+            return putHttp(url, bytes, headers)
+        }
+
+        /**
+         * A generic function that puts data from a URL <address>.
+         * Returns a Pair (HTTP response code, text of the response)
+         */
+        fun putHttp(urlStr: String, bytes: ByteArray, headers: List<Pair<String, String>>? = null): Pair<Int, String> {
+            val urlObj = URL(urlStr)
+            with(urlObj.openConnection() as HttpURLConnection) {
+                requestMethod = "PUT"
+                doOutput = true
+                doInput = true
+                headers?.forEach {
+                    addRequestProperty(it.first, it.second)
+                }
+                outputStream.use {
+                    it.write(bytes)
+                }
+                val response = try {
+                    inputStream.bufferedReader().readText()
+                } catch (e: IOException) {
+                    // HttpUrlStatus treats not-success codes as IOExceptions.
+                    // I found that the returned json is secretly still here:
+                    errorStream?.bufferedReader()?.readText()
+                        ?: this.responseMessage
+                }
+                return responseCode to response
+            }
+        }
+
+        /**
+         * A generic function to DELETE organization from a particular Prime ReportStream Environment,
+         * as if from Organization.
+         * Returns Pair(Http response code, json response text)
+         */
+        fun deleteOrganization(
+            environment: ReportStreamEnv,
+            orgName: String,
+            sendingOrgClient: Sender,
+            key: String?,
+        ): Pair<Int, String> {
+            val headers = mutableListOf<Pair<String, String>>()
+            headers.add("Content-Type" to Report.Format.JSON.mimeType)
+            headers.add("Authorization" to "Bearer dummy")
+            val clientStr = sendingOrgClient.organizationName +
+                if (sendingOrgClient.name.isNotBlank()) ".${sendingOrgClient.name}" else ""
+            headers.add("client" to clientStr)
+            if (key == null && environment == ReportStreamEnv.TEST)
+                error("key is required for Test environment")
+            if (key != null)
+                headers.add("x-functions-key" to key)
+            val url = environment.urlPrefix + organizationApi + "/" + orgName
+            return deleteHttp(url, headers)
+        }
+
+        /**
+         * A generic function that puts data from a URL <address>.
+         * Returns a Pair (HTTP response code, text of the response)
+         */
+        fun deleteHttp(urlStr: String, headers: List<Pair<String, String>>? = null): Pair<Int, String> {
+            val urlObj = URL(urlStr)
+            with(urlObj.openConnection() as HttpURLConnection) {
+                requestMethod = "DELETE"
+                doOutput = true
+                doInput = true
+                headers?.forEach {
+                    addRequestProperty(it.first, it.second)
+                }
+                val response = try {
+                    inputStream.bufferedReader().readText()
+                } catch (e: IOException) {
                     errorStream?.bufferedReader()?.readText()
                         ?: this.responseMessage
                 }
