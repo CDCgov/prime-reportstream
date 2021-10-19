@@ -553,7 +553,7 @@ class DeleteReceiverSetting : SingleSettingCommand(
  */
 class MultipleSettings : CliktCommand(
     name = "multiple-settings",
-    help = "Fetch and update multiple settings using a 'organizations.yml' file."
+    help = "Fetch and update multiple settings"
 ) {
     init { subcommands(PutMultipleSettings(), GetMultipleSettings()) }
 
