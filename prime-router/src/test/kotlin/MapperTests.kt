@@ -250,6 +250,41 @@ class MapperTests {
     }
 
     @Test
+    fun `test DefaultAccessionMapper`() {
+        val mapper = DefaultAccessionMapper()
+        val args = listOf("a", "b", "c")
+        val elementA = Element("a")
+        val elementB = Element("b")
+        val elementC = Element("c")
+        val values = listOf(
+            ElementAndValue(elementA, "string1"),
+            ElementAndValue(elementB, "string2"),
+            ElementAndValue(elementC, "string3")
+        )
+        assertThat(mapper.apply(elementA, args, values)).isEqualTo("string1-string2-string3")
+    }
+
+    @Test
+    fun `test DefaultAccessionMapper with custom delimiter`() {
+        // arrange
+        val mapper = DefaultAccessionMapper()
+        val args = listOf("a", "b", "c")
+        val elementA = Element("a", delimiter = "^")
+        val elementB = Element("b")
+        val elementC = Element("c")
+        val values = listOf(
+            ElementAndValue(elementA, "string1"),
+            ElementAndValue(elementB, "string2"),
+            ElementAndValue(elementC, "string3")
+        )
+        // act
+        val expected = "string1^string2^string3"
+        val actual = mapper.apply(elementA, args, values)
+        // assert
+        assertThat(actual).isEqualTo(expected)
+    }
+
+    @Test
     fun `test date time offset mapper with seconds`() {
         // arrange
         val mapper = DateTimeOffsetMapper()

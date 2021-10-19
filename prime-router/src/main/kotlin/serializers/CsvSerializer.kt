@@ -23,6 +23,8 @@ import gov.cdc.prime.router.Source
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.InputStream
 import java.io.OutputStream
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 /**
  * The CSV serializer is crafted to handle poor data. The logic depends on the type of the element and it cardinality.
@@ -152,7 +154,7 @@ class CsvSerializer(val metadata: Metadata) : Logging {
         }
 
         val mappedRows = rows.mapIndexedNotNull { index, row ->
-            val result = mapRow(schema, csvMapping, row)
+            val result = mapRow(schema, csvMapping, row, index)
             val trackingColumn = schema.findElementColumn(schema.trackingElement ?: "")
             var trackingId = if (trackingColumn != null) result.row[trackingColumn] else ""
             if (trackingId.isEmpty())
@@ -324,7 +326,7 @@ class CsvSerializer(val metadata: Metadata) : Logging {
      *
      * Also, format values into the normalized format for the type
      */
-    private fun mapRow(schema: Schema, csvMapping: CsvMapping, inputRow: Map<String, String>): RowResult {
+    private fun mapRow(schema: Schema, csvMapping: CsvMapping, inputRow: Map<String, String>, index: Int): RowResult {
         val lookupValues = mutableMapOf<String, String>()
         val errors = mutableListOf<ResponseMessage>()
         val warnings = mutableListOf<ResponseMessage>()
@@ -359,6 +361,10 @@ class CsvSerializer(val metadata: Metadata) : Logging {
 
         // Set all the raw data first.
         schema.elements.forEach { element ->
+            if (element.name == "report_index") {
+                val formatter = DateTimeFormatter.ofPattern("yyyyMMdd")
+                lookupValues[element.name] = "R$index-${LocalDateTime.now().format(formatter)}"
+            }
             lookupValues[element.name] = useCsv(element) ?: ""
         }
 

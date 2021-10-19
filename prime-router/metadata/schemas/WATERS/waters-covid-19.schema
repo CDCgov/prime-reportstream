@@ -6,6 +6,8 @@ trackingElement: message_id
 basedOn: covid-19
 elements:
 
+  - name: report_index
+
   - name: sender_id
     csvFields: [{ name: SubmitterUID }]
 
@@ -14,6 +16,7 @@ elements:
   - name: message_id
     cardinality: ONE
     csvFields: [{ name: testId}]
+    mapper: 'defaultAccession(patient_id, report_index)'
 
   # Waters asked if we can warn if the value is not correct.
   # The concern was that some might send test_performed code by accident.

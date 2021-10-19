@@ -144,6 +144,32 @@ class ConcatenateMapper : Mapper {
 }
 
 /**
+ * This is intended to fill in a default accession number if one does not exist
+ * The mapper concatenates a list of column values together and joins them with a "-".
+ * Call this like this:
+ * default_accession(patient_id, row_index)
+ */
+class DefaultAccessionMapper : Mapper {
+    override val name = "defaultAccession"
+
+    override fun valueNames(element: Element, args: List<String>): List<String> {
+        if (args.size < 2)
+            error(
+                "Schema Error: concat mapper expects to concat two or more column names"
+            )
+        return args
+    }
+
+    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
+        return if (values.isEmpty()) {
+            null
+        } else {
+            values.joinToString(separator = element.delimiter ?: "-") { it.value } // default "-" separator for now.
+        }
+    }
+}
+
+/**
  * The args for the ifPresent mapper are an element name and a value.
  * If the elementName is present, the value is used
  */
