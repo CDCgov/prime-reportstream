@@ -227,10 +227,11 @@ abstract class SettingCommand(
     private fun handleHttpFailure(settingName: String, response: Response, result: Result<FuelJson, FuelError>):
         Nothing {
         abort(
-            "Error setting $settingName:\n" +
-                "${result.component2()?.message}\n" +
-                "${response.responseMessage}\n" +
-                "${String(response.data)}"
+            "Error: \n" +
+                "  Setting Name: $settingName\n" +
+                "  HTTP Result: ${result.component2()?.message}\n" +
+                "  HTTP Response Message: ${response.responseMessage}\n" +
+                "  HTTP Response Data: ${String(response.data)}"
         )
     }
 
