@@ -23,7 +23,7 @@ jobs:
               - 'operations/Dockerfile'
               - '.github/workflows/build_docker.yml'
             dnsmasq:
-              - 'operations/dnsmasq'
+              - 'operations/dnsmasq/**'
 
   build_tfcli:
     name: Build Terraform CLI
