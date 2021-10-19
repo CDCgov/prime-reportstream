@@ -34,6 +34,7 @@ export const Home = () => {
                                         <Feature
                                             data-testid="feature"
                                             key={`feature-${sectionIndex}.${featureIndex}`}
+
                                             section={section}
                                             feature={feature}
                                         />
