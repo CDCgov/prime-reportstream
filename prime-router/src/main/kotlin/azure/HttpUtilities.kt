@@ -32,6 +32,7 @@ class HttpUtilities {
         const val organizationApi = "/api/settings/organizations"
         const val errorMsgKeyRequired = "key is required for Test environment"
         const val headerXfuncKey = "x-functions-key"
+        const val bearerDummy = "Bearer dummy"
 
         fun okResponse(
             request: HttpRequestMessage<String?>,
@@ -325,7 +326,7 @@ class HttpUtilities {
         ): Pair<Int, String> {
             val headers = mutableListOf<Pair<String, String>>()
             headers.add("Content-Type" to Report.Format.JSON.mimeType)
-            headers.add("Authorization" to "Bearer dummy")
+            headers.add("Authorization" to bearerDummy)
             val clientStr = sendingOrgClient.organizationName +
                 if (sendingOrgClient.name.isNotBlank()) ".${sendingOrgClient.name}" else ""
             headers.add("client" to clientStr)
@@ -376,7 +377,7 @@ class HttpUtilities {
         ): Pair<Int, String> {
             val headers = mutableListOf<Pair<String, String>>()
             headers.add("Content-Type" to Report.Format.JSON.mimeType)
-            headers.add("Authorization" to "Bearer dummy")
+            headers.add("Authorization" to bearerDummy)
             val clientStr = sendingOrgClient.organizationName +
                 if (sendingOrgClient.name.isNotBlank()) ".${sendingOrgClient.name}" else ""
             headers.add("client" to clientStr)
@@ -429,7 +430,7 @@ class HttpUtilities {
         ): Pair<Int, String> {
             val headers = mutableListOf<Pair<String, String>>()
             headers.add("Content-Type" to Report.Format.JSON.mimeType)
-            headers.add("Authorization" to "Bearer dummy")
+            headers.add("Authorization" to bearerDummy)
             val clientStr = sendingOrgClient.organizationName +
                 if (sendingOrgClient.name.isNotBlank()) ".${sendingOrgClient.name}" else ""
             headers.add("client" to clientStr)
