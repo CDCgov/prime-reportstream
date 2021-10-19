@@ -81,7 +81,7 @@ module "storage_candidate_blob_private_endpoint" {
   resource_group     = var.resource_group
   location           = var.location
   endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet.id
-  create_dns_record  = var.environment != "prod"
+  create_dns_record  = var.environment == "test"
 
   depends_on = [
     # Prevent unexpected order-of-operations by placing a hard dependency against the current private endpoint
@@ -97,7 +97,7 @@ module "storage_candidate_file_private_endpoint" {
   resource_group     = var.resource_group
   location           = var.location
   endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet.id
-  create_dns_record  = var.environment != "prod"
+  create_dns_record  = var.environment == "test"
 
   depends_on = [
     # Prevent unexpected order-of-operations by placing a hard dependency against the current private endpoint
@@ -113,7 +113,7 @@ module "storage_candidate_queue_private_endpoint" {
   resource_group     = var.resource_group
   location           = var.location
   endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet.id
-  create_dns_record  = var.environment != "prod"
+  create_dns_record  = var.environment == "test"
 
   depends_on = [
     # Prevent unexpected order-of-operations by placing a hard dependency against the current private endpoint
@@ -248,7 +248,7 @@ module "storage_candidatepartner_blob_private_endpoint" {
   resource_group     = var.resource_group
   location           = var.location
   endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet.id
-  create_dns_record  = var.environment != "prod"
+  create_dns_record  = var.environment == "test"
 
   depends_on = [
     # Prevent unexpected order-of-operations by placing a hard dependency against the current private endpoint
