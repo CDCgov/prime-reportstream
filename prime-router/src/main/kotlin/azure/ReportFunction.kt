@@ -26,7 +26,6 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.time.Instant
 import java.time.format.DateTimeFormatter
-import java.util.logging.Level
 
 private const val CLIENT_PARAMETER = "client"
 private const val OPTION_PARAMETER = "option"
@@ -51,13 +50,14 @@ class ReportFunction : Logging {
     }
 
     data class ValidatedRequest(
+        val valid: Boolean,
         val httpStatus: HttpStatus,
         val errors: MutableList<ResultDetail> = mutableListOf(),
         val warnings: MutableList<ResultDetail> = mutableListOf(),
+        val content: String = "",
         val options: Options = Options.None,
         val defaults: Map<String, String> = emptyMap(),
         val routeTo: List<String> = emptyList(),
-        val report: Report? = null,
         val sender: Sender? = null,
         val verbose: Boolean = false,
     )
@@ -83,7 +83,111 @@ class ReportFunction : Logging {
         ) request: HttpRequestMessage<String?>,
         context: ExecutionContext,
     ): HttpResponseMessage {
-        return ingestReport(request, context)
+        val workflowEngine = WorkflowEngine()
+
+        val senderName = extractClientHeader(request)
+        if (senderName.isNullOrBlank())
+            return HttpUtilities.bad(request, "Expected a '$CLIENT_PARAMETER' query parameter")
+
+        // Sender should eventually be obtained directly from who is authenticated
+        val sender = workflowEngine.settings.findSender(senderName)
+            ?: return HttpUtilities.bad(request, "'$CLIENT_PARAMETER:$senderName': unknown sender")
+        val actionHistory = ActionHistory(TaskAction.receive, context)
+        actionHistory.trackActionParams(request)
+
+        try {
+
+            val validatedRequest = validateRequest(workflowEngine, request)
+            if (!validatedRequest.valid) {
+                val response = HttpUtilities.httpResponse(
+                    request,
+                    createResponseBody(validatedRequest, false),
+                    validatedRequest.httpStatus
+                )
+                actionHistory.trackActionResponse(response, createResponseBody(validatedRequest, false))
+                workflowEngine.recordAction(actionHistory)
+                return response
+            }
+
+            if (validatedRequest.options == Options.CheckConnections) {
+                workflowEngine.checkConnections()
+                val response = HttpUtilities.okResponse(request, createResponseBody(validatedRequest, false))
+                actionHistory.trackActionResponse(response, createResponseBody(validatedRequest, false))
+                workflowEngine.recordAction(actionHistory)
+                return response
+            }
+
+            // is this meant to happen after the creation of a report?
+            if (validatedRequest.options == Options.ValidatePayload) {
+                val response = HttpUtilities.okResponse(request, createResponseBody(validatedRequest, false))
+                actionHistory.trackActionResponse(response, createResponseBody(validatedRequest, false))
+                workflowEngine.recordAction(actionHistory)
+                return response
+            }
+
+            var report = createReport(
+                workflowEngine,
+                sender,
+                validatedRequest.content,
+                validatedRequest.defaults,
+                validatedRequest.errors,
+                validatedRequest.warnings
+            )
+            // checks for errors from createReport
+            if (validatedRequest.options != Options.SkipInvalidItems && validatedRequest.errors.isNotEmpty()) {
+                val response = HttpUtilities.httpResponse(
+                    request,
+                    createResponseBody(validatedRequest, false),
+                    HttpStatus.BAD_REQUEST
+                )
+                actionHistory.trackActionResponse(response, createResponseBody(validatedRequest, false))
+                workflowEngine.recordAction(actionHistory)
+                return response
+            }
+            logger.info("Successfully reported: ${report!!.id}.")
+
+            // this is weird
+            // request.body could be replaced with validatedRequest.content?
+            if (request.body != null && validatedRequest.sender != null) {
+                workflowEngine.recordReceivedReport(
+                    // should make createReport always return a report or error
+                    report, request.body!!.toByteArray(), validatedRequest.sender,
+                    actionHistory, workflowEngine
+                )
+            } else error(
+                // This should never happen after the validation, but we do not want a mystery exception here
+                "Unable to save original report ${report.name} due to null " +
+                    "request body or sender"
+            )
+
+            // Write the data to the table if we're dealing with covid-19. this has to happen
+            // here AFTER we've written the report to the DB.... where does it write to the db??
+            writeCovidResultMetadataForReport(report, context, workflowEngine)
+
+            routeReport(
+                context,
+                report,
+                workflowEngine,
+                validatedRequest.options,
+                validatedRequest.defaults,
+                validatedRequest.routeTo,
+                validatedRequest.warnings,
+                actionHistory
+            )
+            actionHistory.queueMessages(workflowEngine) // Must be done after creating TASK record.
+
+            val responseBody = createResponseBody(validatedRequest, validatedRequest.verbose, actionHistory, report)
+            val response = HttpUtilities.createdResponse(request, responseBody)
+            actionHistory.trackActionResponse(response, responseBody)
+            workflowEngine.recordAction(actionHistory)
+            return response
+        } catch (ex: Exception) {
+            if (ex.message != null)
+                logger.error(ex.message!!, ex)
+            else
+                logger.error(ex)
+            return HttpUtilities.internalErrorResponse(request)
+        }
     }
 
     /**
@@ -101,28 +205,116 @@ class ReportFunction : Logging {
         ) request: HttpRequestMessage<String?>,
         context: ExecutionContext,
     ): HttpResponseMessage {
+        val workflowEngine = WorkflowEngine()
+
+        val senderName = extractClientHeader(request)
+        if (senderName.isNullOrBlank())
+            return HttpUtilities.bad(request, "Expected a '$CLIENT_PARAMETER' query parameter")
+
+        // Sender should eventually be obtained directly from who is authenticated
+        val sender = workflowEngine.settings.findSender(senderName)
+            ?: return HttpUtilities.bad(request, "'$CLIENT_PARAMETER:$senderName': unknown sender")
+
+        val authenticationStrategy = AuthenticationStrategy.authStrategy(
+            request.headers["authentication-type"],
+            PrincipalLevel.USER,
+            workflowEngine
+        )
+
+        val (authenticated, status) = authenticationStrategy.checkAccess(request, sender.fullName)
+        if (!authenticated) {
+            return HttpUtilities.unauthorizedResponse(request, status ?: "")
+        }
+
+        val actionHistory = ActionHistory(TaskAction.receive, context)
+        actionHistory.trackActionParams(request)
+
         try {
-            val workflowEngine = WorkflowEngine()
 
-            val senderName = extractClientHeader(request)
-            if (senderName.isNullOrBlank())
-                return HttpUtilities.bad(request, "Expected a '$CLIENT_PARAMETER' query parameter")
+            val validatedRequest = validateRequest(workflowEngine, request)
+            if (!validatedRequest.valid) {
+                val response = HttpUtilities.httpResponse(
+                    request,
+                    createResponseBody(validatedRequest, false),
+                    validatedRequest.httpStatus
+                )
+                actionHistory.trackActionResponse(response, createResponseBody(validatedRequest, false))
+                workflowEngine.recordAction(actionHistory)
+                return response
+            }
 
-            // Sender should eventually be obtained directly from who is authenticated
-            val sender = workflowEngine.settings.findSender(senderName)
-                ?: return HttpUtilities.bad(request, "'$CLIENT_PARAMETER:$senderName': unknown sender")
+            if (validatedRequest.options == Options.CheckConnections) {
+                workflowEngine.checkConnections()
+                val response = HttpUtilities.okResponse(request, createResponseBody(validatedRequest, false))
+                actionHistory.trackActionResponse(response, createResponseBody(validatedRequest, false))
+                workflowEngine.recordAction(actionHistory)
+                return response
+            }
 
-            val authenticationStrategy = AuthenticationStrategy.authStrategy(
-                request.headers["authentication-type"],
-                PrincipalLevel.USER,
-                workflowEngine
+            // is this meant to happen after the creation of a report?
+            if (validatedRequest.options == Options.ValidatePayload) {
+                val response = HttpUtilities.okResponse(request, createResponseBody(validatedRequest, false))
+                actionHistory.trackActionResponse(response, createResponseBody(validatedRequest, false))
+                workflowEngine.recordAction(actionHistory)
+                return response
+            }
+
+            var report = createReport(
+                workflowEngine,
+                sender,
+                validatedRequest.content,
+                validatedRequest.defaults,
+                validatedRequest.errors,
+                validatedRequest.warnings
+            )
+            // checks for errors from createReport
+            if (validatedRequest.options != Options.SkipInvalidItems && validatedRequest.errors.isNotEmpty()) {
+                val response = HttpUtilities.httpResponse(
+                    request,
+                    createResponseBody(validatedRequest, false),
+                    HttpStatus.BAD_REQUEST
+                )
+                actionHistory.trackActionResponse(response, createResponseBody(validatedRequest, false))
+                workflowEngine.recordAction(actionHistory)
+                return response
+            }
+            logger.info("Successfully reported: ${report!!.id}.")
+
+            // this is weird
+            // request.body could be replaced with validatedRequest.content?
+            if (request.body != null && validatedRequest.sender != null) {
+                workflowEngine.recordReceivedReport(
+                    // should make createReport always return a report or error
+                    report, request.body!!.toByteArray(), validatedRequest.sender,
+                    actionHistory, workflowEngine
+                )
+            } else error(
+                // This should never happen after the validation, but we do not want a mystery exception here
+                "Unable to save original report ${report.name} due to null " +
+                    "request body or sender"
             )
 
-            val (authenticated, status) = authenticationStrategy.checkAccess(request, sender.fullName)
-            if (!authenticated) {
-                return HttpUtilities.unauthorizedResponse(request, status ?: "")
-            }
-            return ingestReport(request, context)
+            // Write the data to the table if we're dealing with covid-19. this has to happen
+            // here AFTER we've written the report to the DB.... where does it write to the db??
+            writeCovidResultMetadataForReport(report, context, workflowEngine)
+
+            routeReport(
+                context,
+                report,
+                workflowEngine,
+                validatedRequest.options,
+                validatedRequest.defaults,
+                validatedRequest.routeTo,
+                validatedRequest.warnings,
+                actionHistory
+            )
+            actionHistory.queueMessages(workflowEngine) // Must be done after creating TASK record.
+
+            val responseBody = createResponseBody(validatedRequest, validatedRequest.verbose, actionHistory, report)
+            val response = HttpUtilities.createdResponse(request, responseBody)
+            actionHistory.trackActionResponse(response, responseBody)
+            workflowEngine.recordAction(actionHistory)
+            return response
         } catch (ex: Exception) {
             if (ex.message != null)
                 logger.error(ex.message!!, ex)
@@ -131,7 +323,7 @@ class ReportFunction : Logging {
             return HttpUtilities.internalErrorResponse(request)
         }
     }
-
+/*
     private fun ingestReport(request: HttpRequestMessage<String?>, context: ExecutionContext): HttpResponseMessage {
         val workflowEngine = WorkflowEngine()
         val actionHistory = ActionHistory(TaskAction.receive, context)
@@ -202,7 +394,7 @@ class ReportFunction : Logging {
         writeCovidResultMetadataForReport(report, context, workflowEngine)
         return httpResponseMessage
     }
-
+ */
     /**
      * Given a report object, it collects the non-PII, non-PHI out of it and then saves it to the
      * database in the covid_results_metadata table.
@@ -269,7 +461,7 @@ class ReportFunction : Logging {
         if (sizeStatus != HttpStatus.OK) {
             errors.add(ResultDetail.report(InvalidReportMessage.new(errMsg)))
             // If size is too big, we ignore the option.
-            return ValidatedRequest(sizeStatus, errors, warnings)
+            return ValidatedRequest(false, sizeStatus, errors, warnings)
         }
 
         val optionsText = request.queryParameters.getOrDefault(OPTION_PARAMETER, "")
@@ -285,7 +477,7 @@ class ReportFunction : Logging {
         }
 
         if (options == Options.CheckConnections) {
-            return ValidatedRequest(HttpStatus.OK, errors, warnings, options = options)
+            return ValidatedRequest(false, HttpStatus.OK, errors, warnings, options = options)
         }
 
         val receiverNamesText = request.queryParameters.getOrDefault(ROUTE_TO_PARAMETER, "")
@@ -342,10 +534,6 @@ class ReportFunction : Logging {
             errors.add(ResultDetail.param("Content", InvalidParamMessage.new("expecting a post message with content")))
         }
 
-        if (sender == null || schema == null || content.isEmpty() || errors.isNotEmpty()) {
-            return ValidatedRequest(HttpStatus.BAD_REQUEST, errors, warnings)
-        }
-
         val defaultValues = if (request.queryParameters.containsKey(DEFAULT_PARAMETER)) {
             val values = request.queryParameters.getOrDefault(DEFAULT_PARAMETER, "").split(",")
             values.mapNotNull {
@@ -354,7 +542,7 @@ class ReportFunction : Logging {
                     errors.add(ResultDetail.report(InvalidReportMessage.new("'$it' is not a valid default")))
                     return@mapNotNull null
                 }
-                val element = schema.findElement(parts[0])
+                val element = schema!!.findElement(parts[0])
                 if (element == null) {
                     errors.add(
                         ResultDetail.report(InvalidReportMessage.new("'${parts[0]}' is not a valid element name"))
@@ -372,18 +560,22 @@ class ReportFunction : Logging {
             emptyMap()
         }
 
-        if (content.isEmpty() || errors.isNotEmpty()) {
-            return ValidatedRequest(HttpStatus.BAD_REQUEST, errors, warnings)
+        if (sender == null || schema == null || content.isEmpty() || errors.isNotEmpty()) {
+            return ValidatedRequest(false, HttpStatus.BAD_REQUEST, errors, warnings)
         }
 
-        var report = createReport(engine, sender, content, defaultValues, errors, warnings)
-
-        var status = HttpStatus.OK
-        if (options != Options.SkipInvalidItems && errors.isNotEmpty()) {
-            report = null
-            status = HttpStatus.BAD_REQUEST
-        }
-        return ValidatedRequest(status, errors, warnings, options, defaultValues, routeTo, report, sender, verbose)
+        return ValidatedRequest(
+            true,
+            HttpStatus.OK,
+            errors,
+            warnings,
+            content,
+            options,
+            defaultValues,
+            routeTo,
+            sender,
+            verbose
+        )
     }
 
     private fun createReport(
@@ -445,21 +637,22 @@ class ReportFunction : Logging {
 
     private fun routeReport(
         context: ExecutionContext,
+        report: Report,
         workflowEngine: WorkflowEngine,
-        validatedRequest: ValidatedRequest,
+        options: Options,
+        defaults: Map<String, String>,
+        routeTo: List<String>,
+        warnings: MutableList<ResultDetail>,
         actionHistory: ActionHistory,
     ) {
-        if (validatedRequest.options == Options.ValidatePayload ||
-            validatedRequest.options == Options.CheckConnections
-        ) return
         workflowEngine.db.transact { txn ->
             workflowEngine
                 .translator
                 .filterAndTranslateByReceiver(
-                    validatedRequest.report!!,
-                    validatedRequest.defaults,
-                    validatedRequest.routeTo,
-                    validatedRequest.warnings,
+                    report,
+                    defaults,
+                    routeTo,
+                    warnings,
                 )
                 .forEach { (report, receiver) ->
                     sendToDestination(
@@ -467,7 +660,7 @@ class ReportFunction : Logging {
                         receiver,
                         context,
                         workflowEngine,
-                        validatedRequest,
+                        options,
                         actionHistory,
                         txn
                     )
@@ -480,19 +673,19 @@ class ReportFunction : Logging {
         receiver: Receiver,
         context: ExecutionContext,
         workflowEngine: WorkflowEngine,
-        validatedRequest: ValidatedRequest,
+        options: Options,
         actionHistory: ActionHistory,
         txn: DataAccessTransaction
     ) {
         val loggerMsg: String
         when {
-            validatedRequest.options == Options.SkipSend -> {
+            options == Options.SkipSend -> {
                 // Note that SkipSend should really be called SkipBothTimingAndSend  ;)
                 val event = ReportEvent(Event.EventAction.NONE, report.id)
                 workflowEngine.dispatchReport(event, report, actionHistory, receiver, txn, context)
                 loggerMsg = "Queue: ${event.toQueueMessage()}"
             }
-            receiver.timing != null && validatedRequest.options != Options.SendImmediately -> {
+            receiver.timing != null && options != Options.SendImmediately -> {
                 val time = receiver.timing.nextTime()
                 // Always force a batched report to be saved in our INTERNAL format
                 val batchReport = report.copy(bodyFormat = Report.Format.INTERNAL)
@@ -523,17 +716,18 @@ class ReportFunction : Logging {
         result: ValidatedRequest,
         verbose: Boolean,
         actionHistory: ActionHistory? = null,
+        report: Report? = null
     ): String {
         val factory = JsonFactory()
         val outStream = ByteArrayOutputStream()
         factory.createGenerator(outStream).use {
             it.useDefaultPrettyPrinter()
             it.writeStartObject()
-            if (result.report != null) {
-                it.writeStringField("id", result.report.id.toString())
+            if (report != null) {
+                it.writeStringField("id", report.id.toString())
                 it.writeStringField("timestamp", DateTimeFormatter.ISO_INSTANT.format(Instant.now()))
-                it.writeStringField("topic", result.report.schema.topic)
-                it.writeNumberField("reportItemCount", result.report.itemCount)
+                it.writeStringField("topic", report.schema.topic)
+                it.writeNumberField("reportItemCount", report.itemCount)
             } else
                 it.writeNullField("id")
 
@@ -541,7 +735,7 @@ class ReportFunction : Logging {
             // print the report routing when in verbose mode
             if (verbose) {
                 it.writeArrayFieldStart("routing")
-                createItemRouting(result, actionHistory).forEach { ij ->
+                createItemRouting(report, actionHistory).forEach { ij ->
                     it.writeStartObject()
                     it.writeNumberField("reportIndex", ij.reportIndex)
                     it.writeStringField("trackingId", ij.trackingId)
@@ -628,12 +822,12 @@ class ReportFunction : Logging {
      * Creates a list of [ItemRouting] instances with the report index
      * and trackingId along with the list of the receiver organizations where
      * the report was routed.
-     * @param validatedRequest the instance generated while processing the report
+     * @param report the instance generated while processing the report
      * @param actionHistory the instance generated while processing the report
      * @return the report routing for each item
      */
     private fun createItemRouting(
-        validatedRequest: ValidatedRequest,
+        report: Report?,
         actionHistory: ActionHistory? = null,
     ): List<ItemRouting> {
         // create the item routing from the item lineage
@@ -647,15 +841,15 @@ class ReportFunction : Logging {
             }
         }
         // account for any items that routed no where and were not in the item lineage
-        return validatedRequest.report?.let { report ->
+        return report?.let {
             val items = mutableListOf<ItemRouting>()
             // the report has all the submitted items
-            report.itemIndices.forEach { i ->
+            it.itemIndices.forEach { i ->
                 // if an item was not present, create the routing with empty destinations
                 items.add(
                     routingMap.getOrDefault(
                         i,
-                        ItemRouting(i, report.getString(i, report.schema.trackingElement ?: ""))
+                        ItemRouting(i, it.getString(i, it.schema.trackingElement ?: ""))
                     )
                 )
             }
