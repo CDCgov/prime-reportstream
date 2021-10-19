@@ -18,13 +18,13 @@ import com.sendgrid.helpers.mail.Mail
 import com.sendgrid.helpers.mail.objects.Content
 import com.sendgrid.helpers.mail.objects.Email
 import com.sendgrid.helpers.mail.objects.Personalization
-import gov.cdc.prime.router.secrets.SecretHelper
 import java.io.IOException
 import java.util.logging.Logger
 
 const val NO_REPLY_EMAIL = "no-reply@cdc.gov"
-const val REGISTER_EMAIL = "reportstream@cdc.gov"
-const val REGISTER_SUBJECT = "Thank you for registering with ReportStream!"
+const val REGISTER_EMAIL = "reportstream@cdc.gov" /* TODO: If testing, change this email */
+const val REGISTER_SUBJECT_BASE = "TOS Agreement for "
+const val TEMPLATE_ID = "d-472779cf554f418a9209acb62d2a48da"
 
 class SenderTosRequest {
     data class SenderTosFormJSON(
@@ -58,8 +58,7 @@ class EmailSenderFunction {
 
         if (request.body !== null) {
             logger.info(request.body)
-//            ret.status(sendRegistrationConfirmation(request.body!!, logger))
-            ret.body(request.body)
+            ret.status(sendRegistrationConfirmation(request.body!!, logger))
         }
 
         return ret.build()
@@ -87,14 +86,27 @@ class EmailSenderFunction {
         val p: Personalization = Personalization()
         p.addTo(Email(REGISTER_EMAIL))
         p.addCc(Email(email))
+        p.addDynamicTemplateData(
+            "formData",
+            object {
+                var title = title
+                var firstName = firstName
+                var lastName = lastName
+                var email = email
+                var territory = territory
+                var organizationName = organizationName
+                var operatesInMultipleStates = operatesInMultipleStates
+                var agreedToTermsOfService = agreedToTermsOfService
+            }
+        )
 
         val mail: Mail = Mail()
+        mail.setTemplateId(TEMPLATE_ID)
         mail.addPersonalization(p)
-        mail.setSubject(REGISTER_SUBJECT)
+        mail.setSubject(REGISTER_SUBJECT_BASE + organizationName)
         mail.setFrom(Email(NO_REPLY_EMAIL))
-        mail.addContent(content)
 
-        var sendgridId: String? = SecretHelper.getSecretService().fetchSecret("SENDGRID_ID")
+        var sendgridId: String? = System.getenv("SENDGRID_API_KEY")
         var response: Response = Response()
 
         if (sendgridId !== null) {
@@ -119,6 +131,7 @@ class EmailSenderFunction {
             }
         } else {
             logger.info("Can't find SENDGRID_ID secret")
+            logger.info(mail.build())
         }
 
         return status

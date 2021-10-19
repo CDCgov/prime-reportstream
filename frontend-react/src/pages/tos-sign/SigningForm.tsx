@@ -12,6 +12,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
 import Title from "../../components/Title";
+import AuthResource from "../../resources/AuthResource";
 import { STATES } from "../../utils/OrganizationUtils";
 
 interface AgreementBody {
@@ -25,7 +26,7 @@ interface AgreementBody {
     agreedToTermsOfService: boolean;
 }
 
-function SigningForm() {
+function SigningForm({ signedCallback }: { signedCallback: () => void }) {
     /* Form field values are stored here */
     const [title, setTitle] = useState("");
     const [firstName, setFirstName] = useState("");
@@ -45,7 +46,7 @@ function SigningForm() {
         useState(false);
     const [agreeErrorFlag, setAgreeErrorFlag] = useState(false);
 
-    const handleSubmit = (e: any) => {
+    const handleSubmit = async (e: any) => {
         e.preventDefault();
         resetAllErrorFlags();
         const body = createBody(
@@ -58,7 +59,23 @@ function SigningForm() {
             multipleStates,
             agree
         );
-        if (body) console.log(body);
+        if (body) {
+            const response = await fetch(
+                `${AuthResource.getBaseUrl()}/api/email-registered`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(body),
+                }
+            );
+            if (response.status === 200) {
+                signedCallback();
+            } else {
+                console.log(response);
+            }
+        }
     };
 
     /* INFO
