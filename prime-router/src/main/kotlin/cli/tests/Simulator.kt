@@ -9,18 +9,27 @@ import java.net.HttpURLConnection
 import kotlin.concurrent.thread
 import kotlin.system.measureTimeMillis
 
+/**
+ * Simulator is intended to simulate a wide variety of heavy load situations.
+ *
+ * todo Separate this into a useful Utilities class, so that many different simulation tests can use it.
+ */
 class Simulator : CoolTest() {
     override val name = "simulator"
     override val description = "Simulate a pattern of submissions to RS. "
     override val status = TestStatus.LOAD
 
+    /**
+     * Input parameters to be sent to [runOneSimulation], representing a pattern of input submissions to ReportStream.
+     */
     data class Simulation(
         val name: String,
         val numThreads: Int,
         val numSubmissionsPerThread: Int,
         val numItemsPerSubmission: Int,
         val targetStates: String,
-        val targetReceiverNames: String, // redundant with targetStates.  Fix this.
+        val targetCounties: String, // redundant with targetReceiverNames.
+        val targetReceiverNames: String,
         val millisBetweenSubmissions: Long,
         val sender: Sender,
         val doBatchAndSend: Boolean = true,
@@ -33,6 +42,7 @@ class Simulator : CoolTest() {
                 "Items Per Submission:\t$numItemsPerSubmission\n" +
                 "Total Items Submitted:\t${numItemsPerSubmission * numThreads * numSubmissionsPerThread}\n" +
                 "Target States:\t$targetStates\n" +
+                "Target 'Counties':\t$targetCounties\n" +
                 "Target Receivers:\t$targetReceiverNames\n" +
                 "Delay between Submits:\t$millisBetweenSubmissions millis\n" +
                 "Sending From:\t${sender.fullName}\n" +
@@ -40,6 +50,9 @@ class Simulator : CoolTest() {
         }
     }
 
+    /**
+     * Result of a single run of [runOneSimulation]
+     */
     data class SimulatorResult(
         val simulation: Simulation, // inputs to the simulation
         var passed: Boolean = true,
@@ -59,10 +72,13 @@ class Simulator : CoolTest() {
                 "Total Seconds All Submissions:\t${sumMillisAllSubmissions / 1000} seconds\n" +
                 "Elapsed Seconds for Simulation:\t${elapsedMillisForWholeSimulation / 1000} seconds\n" +
                 "Processing Rate:\t$rateString submissions/second\n" +
-                "Avg Speed per submission:\t$avgSecsPerSubmissionString seconds/item\n"
+                "Avg Speed per submission:\t$avgSecsPerSubmissionString seconds/submission\n"
         }
     }
 
+    /**
+     * This is the main engine of the simulator: doing a single run, using the parametrics in [simulation].
+     */
     fun runOneSimulation(
         simulation: Simulation,
         environment: ReportStreamEnv,
@@ -75,7 +91,7 @@ class Simulator : CoolTest() {
             simulation.sender,
             simulation.numItemsPerSubmission,
             simulation.targetStates,
-            simulation.targetReceiverNames,
+            simulation.targetCounties,
             options.dir,
         )
         echo("Created datafile $file")
@@ -132,12 +148,16 @@ class Simulator : CoolTest() {
         return result
     }
 
+    /**
+     * A library of useful [Simulation]
+     */
     companion object {
         val primeThePump = Simulation(
             "primeThePump : Make sure Azure Functions are running by sending just two submissions",
             1,
             2,
             1,
+            "IG",
             "HL7_NULL",
             "ignore.HL7_NULL",
             0,
@@ -150,6 +170,7 @@ class Simulator : CoolTest() {
             1,
             50,
             1,
+            "IG",
             "EVERY_5_MINS",
             "ignore.EVERY_5_MINS",
             0,
@@ -161,6 +182,7 @@ class Simulator : CoolTest() {
             5,
             50,
             1,
+            "IG",
             "EVERY_5_MINS",
             "ignore.EVERY_5_MINS",
             0,
@@ -168,10 +190,11 @@ class Simulator : CoolTest() {
             true
         )
         val fiveThreadsX100 = Simulation( // Meant to simulate a high load from a single-test sender
-            "twoThreadsX100 : Submit 2X100 = 200 tests as fast as possible, across 2 threads.",
+            "fiveThreadsX100 : Submit 5X100 = 500 tests as fast as possible, across 2 threads.",
             5,
-            50,
+            100,
             1,
+            "IG",
             "EVERY_5_MINS",
             "ignore.EVERY_5_MINS",
             0,
@@ -183,6 +206,7 @@ class Simulator : CoolTest() {
             10,
             50,
             1,
+            "IG",
             "EVERY_5_MINS",
             "ignore.EVERY_5_MINS",
             0,
@@ -194,6 +218,7 @@ class Simulator : CoolTest() {
             20,
             50,
             1,
+            "IG",
             "EVERY_5_MINS",
             "ignore.EVERY_5_MINS",
             0,
@@ -205,6 +230,19 @@ class Simulator : CoolTest() {
             50,
             1,
             1,
+            "IG",
+            "EVERY_5_MINS",
+            "ignore.EVERY_5_MINS",
+            0,
+            stracSender,
+            true
+        )
+        val typicalStracSubmission = Simulation(
+            "typicalStracSubmission: 1 thread submitting 500 items a bunch of times in quick succession.",
+            1,
+            10,
+            500,
+            "IG",
             "EVERY_5_MINS",
             "ignore.EVERY_5_MINS",
             0,
@@ -216,6 +254,7 @@ class Simulator : CoolTest() {
             1,
             1,
             1000,
+            "IG",
             "EVERY_5_MINS",
             "ignore.EVERY_5_MINS",
             0,
@@ -234,18 +273,21 @@ class Simulator : CoolTest() {
         echo("Ready for the real test:")
     }
 
-    fun teardown(results: List<SimulatorResult>): Boolean {
+    fun teardown(results: List<SimulatorResult>, entireTestMillis: Long): Boolean {
         val totalSubmissions = results.map { it.totalSubmissionsCount }.sum()
         val totalItems = results.map { it.totalItemsCount }.sum()
-        val totalTime= results.map { it.elapsedMillisForWholeSimulation}.sum()
+        val totalTime = results.map { it.elapsedMillisForWholeSimulation }.sum()
         val submissionRateString = String.format("%.2f", totalSubmissions.toFloat() / (totalTime / 1000.0))
-        val itemRateString = String.format("%.2f", totalItems.toFloat() / (totalTime / 1000.0))
+        val itemsPerSecond: Double = totalItems.toDouble() / (totalTime / 1000.0)
+        val itemRateString = String.format("%.2f", itemsPerSecond)
         val summary = "Simulation Done.   Summary:\n" +
             "Total Submissions submitted in Simulation runs:\t$totalSubmissions\n" +
             "Total Items submitted in Simulation runs:\t$totalItems\n" +
             "Total Millis for Simulation runs:\t$totalTime\n" +
             "Overall Submission Rate:\t$submissionRateString submissions/second\n" +
-            "Overall Item Rate:\t$itemRateString items/second\n"
+            "Overall Item Rate:\t$itemRateString items/second\n" +
+            "Predicted Items per hour:\t${(itemsPerSecond * 3600.0).toInt()} items/hour\n" +
+            "Total seconds for the entire simulation:\t${entireTestMillis / 1000} "
         val passed = results.map { it.passed }.reduce { acc, passed -> acc and passed } // any single fail = failed test
         if (passed) {
             good(summary)
@@ -255,19 +297,25 @@ class Simulator : CoolTest() {
         return passed
     }
 
-    // Meant to simulate a production load
+    /**
+     * Meant to simulate a production load, minus strac since its just once a day.
+     * Runs in a couple mins.
+     */
     fun productionSimulation(environment: ReportStreamEnv, options: CoolTestOptions): List<SimulatorResult> {
         ugly("A test that simulates a high daytime load in Production")
         val results = arrayListOf<SimulatorResult>()
-        results += runOneSimulation(fiveThreadsX100, environment, options)
-        results += runOneSimulation(simpleReport, environment, options)
-        results += runOneSimulation(fiveThreadsX100, environment, options)
-        results += runOneSimulation(spike, environment, options)
-        results += runOneSimulation(fiveThreadsX100, environment, options)
+        results += runOneSimulation(fiveThreadsX100, environment, options) // cue
+        results += runOneSimulation(simpleReport, environment, options) // simple_report
+        results += runOneSimulation(fiveThreadsX100, environment, options) // more cue
+        results += runOneSimulation(fiveThreadsX100, environment, options) // more cue
+        results += runOneSimulation(spike, environment, options) // a big spike of cue
+        results += runOneSimulation(fiveThreadsX100, environment, options) // more regular cue
         return results
     }
 
-    // this simulation is meant to mimic my old "parallel" test, but going bigger, and skipping some.
+    /**
+     * This set of [Simulation] is meant to mimic the old "parallel" test, but going bigger, and skipping some.
+     */
     fun parallel(environment: ReportStreamEnv, options: CoolTestOptions): List<SimulatorResult> {
         ugly("A test mimics the old 'parallel' test.  Runs 1,5,10,20 threads.")
         val results = arrayListOf<SimulatorResult>()
@@ -280,11 +328,15 @@ class Simulator : CoolTest() {
 
     override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
         setup(environment, options)
-        var results = productionSimulation(environment, options)
-        results += productionSimulation(environment, options)
-        results += productionSimulation(environment, options)
-        results += productionSimulation(environment, options)
-        results += productionSimulation(environment, options)
-        return teardown(results)
+        val results = mutableListOf<SimulatorResult>()
+        var elapsedTime = measureTimeMillis {
+            results += productionSimulation(environment, options)
+            results += productionSimulation(environment, options)
+            results += runOneSimulation(typicalStracSubmission, environment, options) // strac
+            results += productionSimulation(environment, options)
+            results += productionSimulation(environment, options)
+            results += productionSimulation(environment, options)
+        }
+        return teardown(results, elapsedTime)
     }
 }

@@ -15,6 +15,6 @@ translation:
   useBatchHeaders: true
 transport:
   type: SFTP
-  host: 10.0.2.4
+  host: 10.0.2.6
   port: 22
   filePath: ./upload
