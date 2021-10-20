@@ -638,16 +638,9 @@
         useBlankInsteadOfUnknown: patient_race
       timing:
         operation: MERGE
-        numberPerDay: 1440 # Every minute
-        initialTime: 00:00
+        numberPerDay: 1 # Per day
+        initialTime: 00:05
         timeZone: EASTERN
-        # transport should be null in production
-      transport:
-        type: SFTP
-        host: sftp
-        port: 22
-        filePath: ./upload
-        credentialName: DEFAULT-SFTP
 
 - name: nm-doh
   description: New Mexico Department of Health
