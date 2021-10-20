@@ -53,7 +53,7 @@ elements:
 
     - name: patient_county
       type: TABLE
-      cardinality: ZERO_OR_ONE
+#      cardinality: ZERO_OR_ONE
       table: zip-code-data
       tableColumn: county
       mapper: zipCodeToCounty(patient_zip_code)

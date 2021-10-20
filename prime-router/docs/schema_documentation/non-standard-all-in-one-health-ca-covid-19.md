@@ -446,7 +446,7 @@ The patient's city
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Table**: zip-code-data
 
