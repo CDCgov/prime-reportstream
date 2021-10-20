@@ -7,7 +7,8 @@ locals {
     "privatelink.queue.core.windows.net",
     #"privatelink.azurecr.io",
     "privatelink.servicebus.windows.net",
-    "privatelink.azurewebsites.net"
+    "privatelink.azurewebsites.net",
+    "prime.local",
   ]
 
   vnet_primary_name = "${var.resource_prefix}-East-vnet"
