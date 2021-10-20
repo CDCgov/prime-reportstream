@@ -18,11 +18,12 @@ import com.sendgrid.helpers.mail.Mail
 import com.sendgrid.helpers.mail.objects.Content
 import com.sendgrid.helpers.mail.objects.Email
 import com.sendgrid.helpers.mail.objects.Personalization
+import gov.cdc.prime.router.secrets.SecretHelper
 import java.io.IOException
 import java.util.logging.Logger
 
 const val NO_REPLY_EMAIL = "no-reply@cdc.gov"
-const val REGISTER_EMAIL = "reportstream@cdc.gov" /* TODO: If testing, change this email */
+const val REGISTER_EMAIL = "reportstream@cdc.gov"
 const val REGISTER_SUBJECT_BASE = "TOS Agreement for "
 const val TEMPLATE_ID = "d-472779cf554f418a9209acb62d2a48da"
 
@@ -106,7 +107,7 @@ class EmailSenderFunction {
         mail.setSubject(REGISTER_SUBJECT_BASE + organizationName)
         mail.setFrom(Email(NO_REPLY_EMAIL))
 
-        val sendgridId: String? = System.getenv("SENDGRID_API_KEY")
+        var sendgridId: String? = SecretHelper.getSecretService().fetchSecret("SENDGRID_ID")
         var response: Response = Response()
 
         if (sendgridId !== null) {

@@ -1,4 +1,5 @@
 import {
+    Alert,
     Button,
     Checkbox,
     Dropdown,
@@ -45,6 +46,7 @@ function SigningForm({ signedCallback }: { signedCallback: (data: AgreementBody)
     const [organizationNameErrorFlag, setorganizationNameErrorFlag] =
         useState(false);
     const [agreeErrorFlag, setAgreeErrorFlag] = useState(false);
+    const [sendGridErrorFlag, setSendGridErrorFlag] = useState({ isError: false, status: 200 })
 
     const handleSubmit = async (e: any) => {
         e.preventDefault();
@@ -70,11 +72,10 @@ function SigningForm({ signedCallback }: { signedCallback: (data: AgreementBody)
                     body: JSON.stringify(body),
                 }
             );
-            if (response.status === 200) {
+            if (response.status >= 200 && response.status <= 299) {
                 signedCallback(body);
             } else {
-                console.log(response);
-                signedCallback(body);
+                setSendGridErrorFlag({ isError: true, status: response.status });
             }
         }
     };
@@ -346,6 +347,7 @@ function SigningForm({ signedCallback }: { signedCallback: (data: AgreementBody)
             >
                 Submit registration
             </Button>
+            <Alert style={{ visibility: sendGridErrorFlag.isError ? "visible" : "hidden" }} type="error">Oh no! There was an error sending this data. Code: {sendGridErrorFlag.status}</Alert>
         </div>
     );
 }
