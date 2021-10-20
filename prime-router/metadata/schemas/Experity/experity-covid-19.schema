@@ -354,6 +354,11 @@ elements:
       csvFields: [{name: Specimen_received_date_time}]
       documentation: This field is ignored.
 
+    - name: Test_date_Ignore
+      type: TEXT
+      csvFields: [{name: Test_date}]
+      documentation: This field is ignored.
+
     - name: Testing_lab_specimen_ID_Ignore
       type: TEXT
       csvFields: [{name: Testing_lab_specimen_ID}]

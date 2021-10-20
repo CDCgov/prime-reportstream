@@ -676,6 +676,20 @@ This field is ignored.
 
 ---
 
+**Name**: Test_date
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+This field is ignored.
+
+---
+
 **Name**: Test_kit_EUA_ID
 
 **Type**: TEXT
