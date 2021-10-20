@@ -1,10 +1,14 @@
 FROM alpine:latest
 
+# Install dnsmasq
 RUN apk --no-cache add dnsmasq
-EXPOSE 53/tcp 53/udp
 
+# Expose the DNS port
+EXPOSE 53/udp
+
+# Place the environment's config in the config directory
 ARG AZ_ENV
-COPY dnsmasq-*.conf /tmp/
-RUN cp /tmp/dnsmasq-${AZ_ENV}.conf /etc/dnsmasq.conf
+COPY config /tmp/config
+RUN cp -r /tmp/config/${AZ_ENV}/. /etc/dnsmasq.d/
 
-CMD ["dnsmasq", "-k"]
+ENTRYPOINT ["dnsmasq", "-k"]

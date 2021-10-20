@@ -1,0 +1,32 @@
+##############
+# Key Vaults #
+##############
+
+10.0.5.4 pdhprod-appconfig.privatelink.vaultcore.azure.net
+10.0.5.6 pdhprod-clientconfig.privatelink.vaultcore.azure.net
+10.0.5.7 pdhprod-keyvault.privatelink.vaultcore.azure.net
+
+
+#############
+# Databases #
+#############
+
+10.0.5.15 pdhprod-pgsql.privatelink.postgres.database.azure.com
+10.1.5.4 pdhprod-pgsql-replica.privatelink.postgres.database.azure.com
+
+
+####################
+# Storage Accounts #
+####################
+
+10.0.5.8  pdhprodstorageaccount.privatelink.blob.core.windows.net
+10.0.5.9  pdhprodstorageaccount.privatelink.file.core.windows.net
+10.0.5.14 pdhprodstorageaccount.privatelink.queue.core.windows.net
+
+10.0.5.5  pdhprodpartner.privatelink.blob.core.windows.net
+
+10.0.5.11 pdhprodcandidate.privatelink.blob.core.windows.net
+10.0.5.13 pdhprodcandidate.privatelink.file.core.windows.net
+10.0.5.10 pdhprodcandidate.privatelink.queue.core.windows.net
+
+10.0.5.12 pdhprodcandpartner.privatelink.blob.core.windows.net

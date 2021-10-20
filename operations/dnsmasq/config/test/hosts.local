@@ -1,0 +1,32 @@
+##############
+# Key Vaults #
+##############
+
+10.0.5.4 pdhtest-appconfig.privatelink.vaultcore.azure.net
+10.0.5.5 pdhtest-clientconfig.privatelink.vaultcore.azure.net
+10.0.5.6 pdhtest-keyvault.privatelink.vaultcore.azure.net
+
+
+#############
+# Databases #
+#############
+
+10.0.5.7 pdhtest-pgsql.privatelink.postgres.database.azure.com
+10.1.5.4 pdhtest-pgsql-replica.privatelink.postgres.database.azure.com
+
+
+####################
+# Storage Accounts #
+####################
+
+10.0.5.9  pdhteststorageaccount.privatelink.blob.core.windows.net
+10.0.5.10 pdhteststorageaccount.privatelink.file.core.windows.net
+10.0.5.14 pdhteststorageaccount.privatelink.queue.core.windows.net
+
+10.0.5.15 pdhtestpartner.privatelink.blob.core.windows.net
+
+10.0.5.12 pdhtestcandidate.privatelink.blob.core.windows.net
+10.0.5.11 pdhtestcandidate.privatelink.file.core.windows.net
+10.0.5.13 pdhtestcandidate.privatelink.queue.core.windows.net
+
+10.0.5.8  pdhtestcandpartner.privatelink.blob.core.windows.net
