@@ -27,7 +27,11 @@ export interface AgreementBody {
     agreedToTermsOfService: boolean;
 }
 
-function SigningForm({ signedCallback }: { signedCallback: (data: AgreementBody) => void }) {
+function SigningForm({
+    signedCallback,
+}: {
+    signedCallback: (data: AgreementBody) => void;
+}) {
     /* Form field values are stored here */
     const [title, setTitle] = useState("");
     const [firstName, setFirstName] = useState("");
@@ -46,7 +50,10 @@ function SigningForm({ signedCallback }: { signedCallback: (data: AgreementBody)
     const [organizationNameErrorFlag, setorganizationNameErrorFlag] =
         useState(false);
     const [agreeErrorFlag, setAgreeErrorFlag] = useState(false);
-    const [sendGridErrorFlag, setSendGridErrorFlag] = useState({ isError: false, status: 200 })
+    const [sendGridErrorFlag, setSendGridErrorFlag] = useState({
+        isError: false,
+        status: 200,
+    });
 
     const handleSubmit = async (e: any) => {
         e.preventDefault();
@@ -75,7 +82,10 @@ function SigningForm({ signedCallback }: { signedCallback: (data: AgreementBody)
             if (response.status >= 200 && response.status <= 299) {
                 signedCallback(body);
             } else {
-                setSendGridErrorFlag({ isError: true, status: response.status });
+                setSendGridErrorFlag({
+                    isError: true,
+                    status: response.status,
+                });
             }
         }
     };
@@ -347,7 +357,17 @@ function SigningForm({ signedCallback }: { signedCallback: (data: AgreementBody)
             >
                 Submit registration
             </Button>
-            <Alert style={{ visibility: sendGridErrorFlag.isError ? "visible" : "hidden" }} type="error">Oh no! There was an error sending this data. Code: {sendGridErrorFlag.status}</Alert>
+            <Alert
+                style={{
+                    visibility: sendGridErrorFlag.isError
+                        ? "visible"
+                        : "hidden",
+                }}
+                type="error"
+            >
+                Oh no! There was an error sending this data. Code:{" "}
+                {sendGridErrorFlag.status}
+            </Alert>
         </div>
     );
 }

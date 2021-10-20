@@ -1,6 +1,7 @@
 import React from "react";
 
 import Title from "../../components/Title";
+
 import { AgreementBody } from "./SigningForm";
 
 const classNames = "usa-prose margin-bottom-4";

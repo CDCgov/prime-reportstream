@@ -15,11 +15,11 @@ function SignTermsOfService() {
         organizationName: "string",
         operatesInMultipleStates: false,
         agreedToTermsOfService: false,
-    })
+    });
     const signedCallback = (data: AgreementBody) => {
-        setData(data)
+        setData(data);
         setSigned(true);
-        console.log(`From parent: \n${JSON.stringify(data)}`)
+        console.log(`From parent: \n${JSON.stringify(data)}`);
     };
 
     return (
