@@ -104,24 +104,31 @@ class ReportFunction : Logging {
                 return it
             }
 
+            var createReportErrors: MutableList<ResultDetail> = mutableListOf()
             var report = createReport(
                 workflowEngine,
                 sender,
                 validatedRequest.content,
                 validatedRequest.defaults,
-                validatedRequest.errors, // at this point errors is empty
+                createReportErrors,
                 validatedRequest.warnings
             )
 
             // checks for errors from createReport
-            if (validatedRequest.options != Options.SkipInvalidItems && validatedRequest.errors.isNotEmpty()) {
+            if (validatedRequest.options != Options.SkipInvalidItems && createReportErrors.isNotEmpty()) {
+                val responseBody = createResponseBody(
+                    validatedRequest.options,
+                    validatedRequest.warnings,
+                    createReportErrors,
+                    false
+                )
                 val response = HttpUtilities.httpResponse(
                     request,
-                    createResponseBody(validatedRequest, false),
+                    responseBody,
                     HttpStatus.BAD_REQUEST
                 )
                 actionHistory.trackActionResult(response)
-                actionHistory.trackActionResponse(response, createResponseBody(validatedRequest, false))
+                actionHistory.trackActionResponse(response, responseBody)
                 workflowEngine.recordAction(actionHistory)
                 return response
             }
@@ -138,6 +145,7 @@ class ReportFunction : Logging {
             // here AFTER we've written the report to the DB.... where does it write to the db??
             writeCovidResultMetadataForReport(report, context, workflowEngine)
 
+            val routeReportWarnings: MutableList<ResultDetail> = mutableListOf()
             routeReport(
                 context,
                 report,
@@ -145,12 +153,19 @@ class ReportFunction : Logging {
                 validatedRequest.options,
                 validatedRequest.defaults,
                 validatedRequest.routeTo,
-                validatedRequest.warnings,
+                routeReportWarnings,
                 actionHistory
             )
             actionHistory.queueMessages(workflowEngine) // Must be done after creating TASK record.
 
-            val responseBody = createResponseBody(validatedRequest, validatedRequest.verbose, actionHistory, report)
+            val responseBody = createResponseBody(
+                validatedRequest.options,
+                routeReportWarnings + validatedRequest.warnings,
+                createReportErrors,
+                validatedRequest.verbose,
+                actionHistory,
+                report
+            )
             val response = HttpUtilities.createdResponse(request, responseBody)
             actionHistory.trackActionResult(response)
             actionHistory.trackActionResponse(response, responseBody)
@@ -211,24 +226,31 @@ class ReportFunction : Logging {
                 return it
             }
 
+            var createReportErrors: MutableList<ResultDetail> = mutableListOf()
             var report = createReport(
                 workflowEngine,
                 sender,
                 validatedRequest.content,
                 validatedRequest.defaults,
-                validatedRequest.errors, // at this point errors is empty
+                createReportErrors,
                 validatedRequest.warnings
             )
 
             // checks for errors from createReport
-            if (validatedRequest.options != Options.SkipInvalidItems && validatedRequest.errors.isNotEmpty()) {
+            if (validatedRequest.options != Options.SkipInvalidItems && createReportErrors.isNotEmpty()) {
+                val responseBody = createResponseBody(
+                    validatedRequest.options,
+                    validatedRequest.warnings,
+                    createReportErrors,
+                    false
+                )
                 val response = HttpUtilities.httpResponse(
                     request,
-                    createResponseBody(validatedRequest, false),
+                    responseBody,
                     HttpStatus.BAD_REQUEST
                 )
                 actionHistory.trackActionResult(response)
-                actionHistory.trackActionResponse(response, createResponseBody(validatedRequest, false))
+                actionHistory.trackActionResponse(response, responseBody)
                 workflowEngine.recordAction(actionHistory)
                 return response
             }
@@ -245,6 +267,7 @@ class ReportFunction : Logging {
             // here AFTER we've written the report to the DB.... where does it write to the db??
             writeCovidResultMetadataForReport(report, context, workflowEngine)
 
+            val routeReportWarnings: MutableList<ResultDetail> = mutableListOf()
             routeReport(
                 context,
                 report,
@@ -252,12 +275,19 @@ class ReportFunction : Logging {
                 validatedRequest.options,
                 validatedRequest.defaults,
                 validatedRequest.routeTo,
-                validatedRequest.warnings,
+                routeReportWarnings,
                 actionHistory
             )
             actionHistory.queueMessages(workflowEngine) // Must be done after creating TASK record.
 
-            val responseBody = createResponseBody(validatedRequest, validatedRequest.verbose, actionHistory, report)
+            val responseBody = createResponseBody(
+                validatedRequest.options,
+                routeReportWarnings + validatedRequest.warnings,
+                createReportErrors,
+                validatedRequest.verbose,
+                actionHistory,
+                report
+            )
             val response = HttpUtilities.createdResponse(request, responseBody)
             actionHistory.trackActionResult(response)
             actionHistory.trackActionResponse(response, responseBody)
@@ -341,24 +371,53 @@ class ReportFunction : Logging {
             !validatedRequest.valid -> {
                 HttpUtilities.httpResponse(
                     request,
-                    createResponseBody(validatedRequest, false),
+                    createResponseBody(
+                        validatedRequest.options,
+                        validatedRequest.warnings,
+                        validatedRequest.errors,
+                        false
+                    ),
                     validatedRequest.httpStatus
                 )
             }
             validatedRequest.options == Options.CheckConnections -> {
                 workflowEngine.checkConnections()
-                HttpUtilities.okResponse(request, createResponseBody(validatedRequest, false))
+                HttpUtilities.okResponse(
+                    request,
+                    createResponseBody(
+                        validatedRequest.options,
+                        validatedRequest.warnings,
+                        validatedRequest.errors,
+                        false
+                    )
+                )
             }
             // is this meant to happen after the creation of a report?
             validatedRequest.options == Options.ValidatePayload -> {
-                HttpUtilities.okResponse(request, createResponseBody(validatedRequest, false))
+                HttpUtilities.okResponse(
+                    request,
+                    createResponseBody(
+                        validatedRequest.options,
+                        validatedRequest.warnings,
+                        validatedRequest.errors,
+                        false
+                    )
+                )
             }
             else -> null
         }
 
         if (response != null) {
             actionHistory.trackActionResult(response)
-            actionHistory.trackActionResponse(response, createResponseBody(validatedRequest, false))
+            actionHistory.trackActionResponse(
+                response,
+                createResponseBody(
+                    validatedRequest.options,
+                    validatedRequest.warnings,
+                    validatedRequest.errors,
+                    false
+                )
+            )
             workflowEngine.recordAction(actionHistory)
         }
 
@@ -624,7 +683,9 @@ class ReportFunction : Logging {
 
     // todo I think all of this info is now in ActionHistory.  Move to there.   Already did destinations.
     private fun createResponseBody(
-        result: ValidatedRequest,
+        options: Options,
+        warnings: List<ResultDetail>,
+        errors: List<ResultDetail>,
         verbose: Boolean,
         actionHistory: ActionHistory? = null,
         report: Report? = null
@@ -642,7 +703,7 @@ class ReportFunction : Logging {
             } else
                 it.writeNullField("id")
 
-            actionHistory?.prettyPrintDestinationsJson(it, WorkflowEngine.settings, result.options)
+            actionHistory?.prettyPrintDestinationsJson(it, WorkflowEngine.settings, options)
             // print the report routing when in verbose mode
             if (verbose) {
                 it.writeArrayFieldStart("routing")
@@ -658,8 +719,8 @@ class ReportFunction : Logging {
                 it.writeEndArray()
             }
 
-            it.writeNumberField("warningCount", result.warnings.size)
-            it.writeNumberField("errorCount", result.errors.size)
+            it.writeNumberField("warningCount", warnings.size)
+            it.writeNumberField("errorCount", errors.size)
 
             fun writeDetailsArray(field: String, array: List<ResultDetail>) {
                 it.writeArrayFieldStart(field)
@@ -672,8 +733,8 @@ class ReportFunction : Logging {
                 }
                 it.writeEndArray()
             }
-            writeDetailsArray("errors", result.errors)
-            writeDetailsArray("warnings", result.warnings)
+            writeDetailsArray("errors", errors)
+            writeDetailsArray("warnings", warnings)
 
             fun createRowsDescription(rows: MutableList<Int>?): String {
                 // Consolidate row ranges, e.g. 1,2,3,5,7,8,9 -> 1-3,5,7-9
@@ -723,8 +784,8 @@ class ReportFunction : Logging {
                 }
                 it.writeEndArray()
             }
-            writeConsolidatedArray("consolidatedErrors", result.errors)
-            writeConsolidatedArray("consolidatedWarnings", result.warnings)
+            writeConsolidatedArray("consolidatedErrors", errors)
+            writeConsolidatedArray("consolidatedWarnings", warnings)
         }
         return outStream.toString()
     }
