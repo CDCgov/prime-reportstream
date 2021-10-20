@@ -25,6 +25,14 @@ function error() {
     return 1
 }
 
+# Run the docker check first and bail immediately if it fails, as some other
+# checks depend on it.
+${REPO_ROOT}/.environment/docker/check-docker.sh
+DOCKER_RC=$?
+if [[ $DOCKER_RC -ne 0 ]]; then
+  exit 1
+fi
+
 echo "> Running pre-commit hooks"
 
 for item in ${CHECKS_TO_RUN[*]}; do
