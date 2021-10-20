@@ -1,4 +1,4 @@
-# ./prime multiple-settings set --env staging --input ./settings/staging/0047-setup-sbc-ca.yml
+# ./prime multiple-settings set --env prod --input ./settings/prod/0047-setup-sbc-ca.yml
 ---
 - name: ca-sbc-phd
   description: "San Benito County Public Health Services"
@@ -29,8 +29,7 @@
       reverseTheQualityFilter: false
       timing:
         operation: "MERGE"
-        # Speed up the timing for testing purposes
-        numberPerDay: 1440
+        numberPerDay: 1
         initialTime: "09:16"
         timeZone: "EASTERN"
         maxReportCount: 500
