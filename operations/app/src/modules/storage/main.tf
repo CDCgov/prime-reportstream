@@ -49,7 +49,7 @@ module "storageaccount_blob_private_endpoint" {
   resource_group     = var.resource_group
   location           = var.location
   endpoint_subnet_id = data.azurerm_subnet.endpoint.id
-  create_dns_record  = var.environment != "test"
+  create_dns_record  = var.use_cdc_managed_vnet == false
 }
 
 module "storageaccount_file_private_endpoint" {
@@ -60,7 +60,7 @@ module "storageaccount_file_private_endpoint" {
   resource_group     = var.resource_group
   location           = var.location
   endpoint_subnet_id = data.azurerm_subnet.endpoint.id
-  create_dns_record  = var.environment != "test"
+  create_dns_record  = var.use_cdc_managed_vnet == false
 }
 
 module "storageaccount_queue_private_endpoint" {
@@ -71,7 +71,7 @@ module "storageaccount_queue_private_endpoint" {
   resource_group     = var.resource_group
   location           = var.location
   endpoint_subnet_id = data.azurerm_subnet.endpoint.id
-  create_dns_record  = var.environment != "test"
+  create_dns_record  = var.use_cdc_managed_vnet == false
 }
 
 module "storage_blob_private_endpoint" {
@@ -82,7 +82,7 @@ module "storage_blob_private_endpoint" {
   resource_group     = var.resource_group
   location           = var.location
   endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet.id
-  create_dns_record  = var.environment == "test"
+  create_dns_record  = var.use_cdc_managed_vnet == true
 
   depends_on = [
     # Prevent unexpected order-of-operations by placing a hard dependency against the current private endpoint
@@ -98,7 +98,7 @@ module "storage_file_private_endpoint" {
   resource_group     = var.resource_group
   location           = var.location
   endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet.id
-  create_dns_record  = var.environment == "test"
+  create_dns_record  = var.use_cdc_managed_vnet == true
 
   depends_on = [
     # Prevent unexpected order-of-operations by placing a hard dependency against the current private endpoint
@@ -114,7 +114,7 @@ module "storage_queue_private_endpoint" {
   resource_group     = var.resource_group
   location           = var.location
   endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet.id
-  create_dns_record  = var.environment == "test"
+  create_dns_record  = var.use_cdc_managed_vnet == true
 
   depends_on = [
     # Prevent unexpected order-of-operations by placing a hard dependency against the current private endpoint
@@ -281,7 +281,7 @@ module "storageaccountpartner_blob_private_endpoint" {
   resource_group     = var.resource_group
   location           = var.location
   endpoint_subnet_id = data.azurerm_subnet.endpoint.id
-  create_dns_record  = var.environment != "test"
+  create_dns_record  = var.use_cdc_managed_vnet == false
 }
 
 module "storage_partner_blob_private_endpoint" {
@@ -292,7 +292,7 @@ module "storage_partner_blob_private_endpoint" {
   resource_group     = var.resource_group
   location           = var.location
   endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet.id
-  create_dns_record  = var.environment == "test"
+  create_dns_record  = var.use_cdc_managed_vnet == true
 
   depends_on = [
     # Prevent unexpected order-of-operations by placing a hard dependency against the current private endpoint

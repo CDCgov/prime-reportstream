@@ -104,5 +104,5 @@ resource "azurerm_key_vault_access_policy" "slot_candidate_client_config_access_
 resource "azurerm_app_service_slot_virtual_network_swift_connection" "candidate_slot_vnet_integration" {
   slot_name      = azurerm_function_app_slot.candidate.name
   app_service_id = azurerm_function_app.function_app.id
-  subnet_id      = var.environment == "test" ? data.azurerm_subnet.public_subnet.id : data.azurerm_subnet.public.id
+  subnet_id      = var.use_cdc_managed_vnet ? data.azurerm_subnet.public_subnet.id : data.azurerm_subnet.public.id
 }
