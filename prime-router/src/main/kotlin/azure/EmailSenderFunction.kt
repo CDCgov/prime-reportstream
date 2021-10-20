@@ -106,7 +106,7 @@ class EmailSenderFunction {
         mail.setSubject(REGISTER_SUBJECT_BASE + organizationName)
         mail.setFrom(Email(NO_REPLY_EMAIL))
 
-        var sendgridId: String? = System.getenv("SENDGRID_API_KEY")
+        val sendgridId: String? = System.getenv("SENDGRID_API_KEY")
         var response: Response = Response()
 
         if (sendgridId !== null) {

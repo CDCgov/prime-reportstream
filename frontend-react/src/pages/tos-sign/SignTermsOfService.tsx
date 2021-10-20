@@ -1,13 +1,25 @@
 import React, { useState } from "react";
 import { Helmet } from "react-helmet";
 
-import SigningForm from "./SigningForm";
+import SigningForm, { AgreementBody } from "./SigningForm";
 import SuccessPage from "./SuccessPage";
 
 function SignTermsOfService() {
     const [signed, setSigned] = useState(false);
-    const signedCallback = () => {
+    const [data, setData] = useState({
+        title: "string",
+        firstName: "string",
+        lastName: "string",
+        email: "string",
+        territory: "string",
+        organizationName: "string",
+        operatesInMultipleStates: false,
+        agreedToTermsOfService: false,
+    })
+    const signedCallback = (data: AgreementBody) => {
+        setData(data)
         setSigned(true);
+        console.log(`From parent: \n${JSON.stringify(data)}`)
     };
 
     return (
@@ -17,7 +29,7 @@ function SignTermsOfService() {
             </Helmet>
             <div className="grid-container">
                 {signed ? (
-                    <SuccessPage />
+                    <SuccessPage data={data} />
                 ) : (
                     <SigningForm signedCallback={signedCallback} />
                 )}

@@ -15,7 +15,7 @@ import Title from "../../components/Title";
 import AuthResource from "../../resources/AuthResource";
 import { STATES } from "../../utils/OrganizationUtils";
 
-interface AgreementBody {
+export interface AgreementBody {
     title: string;
     firstName: string;
     lastName: string;
@@ -26,7 +26,7 @@ interface AgreementBody {
     agreedToTermsOfService: boolean;
 }
 
-function SigningForm({ signedCallback }: { signedCallback: () => void }) {
+function SigningForm({ signedCallback }: { signedCallback: (data: AgreementBody) => void }) {
     /* Form field values are stored here */
     const [title, setTitle] = useState("");
     const [firstName, setFirstName] = useState("");
@@ -71,9 +71,10 @@ function SigningForm({ signedCallback }: { signedCallback: () => void }) {
                 }
             );
             if (response.status === 200) {
-                signedCallback();
+                signedCallback(body);
             } else {
                 console.log(response);
+                signedCallback(body);
             }
         }
     };

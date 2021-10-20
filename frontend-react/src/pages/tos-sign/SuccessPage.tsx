@@ -1,6 +1,7 @@
 import React from "react";
 
 import Title from "../../components/Title";
+import { AgreementBody } from "./SigningForm";
 
 const classNames = "usa-prose margin-bottom-4";
 
@@ -55,7 +56,7 @@ const Step = ({
     );
 };
 
-function SuccessPage() {
+function SuccessPage({ data }: { data: AgreementBody }) {
     const steps = [
         {
             number: 1,
@@ -82,30 +83,25 @@ function SuccessPage() {
         <div className="width-tablet margin-x-auto margin-bottom-5">
             <Title
                 preTitle="Account registration"
-                title={`You're almost there, ${"Jane"}!`}
+                title={`You're almost there, ${data.firstName}!`}
             />
             <p className={classNames}>
                 Our team will reach out to you within one week with credentials
                 to log into ReportStream.
             </p>
             <p className={classNames}>
-                A copy of this confirmation has been sent to [email@address]. If
+                A copy of this confirmation has been sent to {data.email}. If
                 you don't receive confirmation, check your SPAM folder for an
                 email from reportstream@cdc.gov.
             </p>
             <p className={classNames}>
-                {"Jane"} {"Doe"}
+                Full name: {data.firstName} {data.lastName}
                 <br />
-                {"Email"}
+                Email: {data.email}
                 <br />
-                {"Phone"}
-            </p>
-            <p className={classNames}>
-                {"Jurisdiction 0001"}
+                State or territory: {data.territory.toUpperCase()}
                 <br />
-                {"Organization A"}
-                <br />
-                {"CLIA: ###"}
+                Organization name: {data.organizationName}
             </p>
             <h3 className="padding-top-7 margin-top-7 margin-bottom-7 text-normal border-top-05 border-base-lighter">
                 Next steps
