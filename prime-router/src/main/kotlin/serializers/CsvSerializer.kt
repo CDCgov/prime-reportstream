@@ -23,8 +23,6 @@ import gov.cdc.prime.router.Source
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.InputStream
 import java.io.OutputStream
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 
 /**
  * The CSV serializer is crafted to handle poor data. The logic depends on the type of the element and it cardinality.
@@ -361,15 +359,15 @@ class CsvSerializer(val metadata: Metadata) : Logging {
 
         // Set all the raw data first.
         schema.elements.forEach { element ->
-            if (element.name == "report_index") {
-                val formatter = DateTimeFormatter.ofPattern("yyyyMMdd")
-                lookupValues[element.name] = "R$index-${LocalDateTime.now().format(formatter)}"
-            }
             lookupValues[element.name] = useCsv(element) ?: ""
         }
 
         // Now process the data through mappers and default values
         schema.elements.forEach { element ->
+            // if there's no value for the report_index field, set to a default value using the row index number
+            if (element.name == "report_index" && lookupValues[element.name].isNullOrBlank()) {
+                lookupValues[element.name] = "R$index"
+            }
             lookupValues[element.name] = element.processValue(lookupValues, schema, csvMapping.defaultOverrides)
         }
 

@@ -21,7 +21,6 @@ class Metadata {
         LookupMapper(),
         LIVDLookupMapper(),
         ConcatenateMapper(),
-        DefaultAccessionMapper(),
         Obx17Mapper(),
         Obx17TypeMapper(),
         Obx8Mapper(),
