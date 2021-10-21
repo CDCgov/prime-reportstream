@@ -21,6 +21,7 @@ import com.sendgrid.helpers.mail.objects.Personalization
 import gov.cdc.prime.router.secrets.SecretHelper
 import java.io.IOException
 import java.util.logging.Logger
+import kotlin.reflect.full.memberProperties
 
 const val NO_REPLY_EMAIL = "no-reply@cdc.gov"
 const val REPORT_STREAM_EMAIL = "reportstream@cdc.gov"
@@ -44,9 +45,26 @@ data class TosAgreementForm(
     val agreedToTermsOfService: Boolean?
 ) {
     fun validate(): Boolean {
-        if (this.verifyAgreed() && this.verifyNoNull() && verifyNoExceededLimit()) {
-            return true
+        val funName: String = object {}.javaClass.enclosingMethod.name
+        for (key in TosAgreementForm::class.memberProperties) {
+            val value = key.get(this)
+            if (
+                value is String &&
+                !key.toString().contains("title") /* Title is not required */
+            ) {
+                if (!verifyNotNull(value)) {
+                    println("$funName -- Uh oh, \"$key\" in your request body is Null")
+                    return false
+                }
+                if (!verifyNotExceededLimit(value)) {
+                    println("$funName -- Uh oh, \"$key\" has exceeded the character limit")
+                    return false
+                }
+            }
         }
+        if (verifyAgreed()) return true
+
+        println("$funName -- Uh oh, your agreement to the Terms of Service is marked false")
         return false
     }
 
@@ -54,44 +72,12 @@ data class TosAgreementForm(
         return this.agreedToTermsOfService ?: false
     }
 
-    private fun verifyNoNull(): Boolean {
-        val funName: String = object {}.javaClass.enclosingMethod.name
-        if (
-            this.title.isNullOrBlank() ||
-            this.firstName.isNullOrBlank() ||
-            this.lastName.isNullOrBlank() ||
-            this.email.isNullOrBlank() ||
-            this.territory.isNullOrBlank() ||
-            this.organizationName.isNullOrBlank()
-        ) {
-            println("$funName -- It appears one of your values is Null")
-            return false
-        }
-        println("$funName -- No nulls found! Continuing.")
-        return true
+    private fun verifyNotNull(value: String): Boolean {
+        return value.isNotBlank()
     }
 
-    /*TODO:
-    *  This should check each string value and ensure that no value exceeds
-    *  'x' number of characters (255?) and IF it does, return false (which results
-    *  in a BAD REQUEST response code
-    */
-    private fun verifyNoExceededLimit(): Boolean {
-        val funName: String = object {}.javaClass.enclosingMethod.name
-        val maxLength = 255
-        if (
-            this.title?.length!! > maxLength ||
-            this.firstName?.length!! > maxLength ||
-            this.lastName?.length!! > maxLength ||
-            this.email?.length!! > maxLength ||
-            this.territory?.length!! > maxLength ||
-            this.organizationName?.length!! > maxLength
-        ) {
-            println("$funName -- Uh oh, a value has exceeded the character limit")
-            return false
-        }
-        println("$funName -- No exceeded limits! Continuing.")
-        return true
+    private fun verifyNotExceededLimit(value: String): Boolean {
+        return value.length <= 255
     }
 }
 
