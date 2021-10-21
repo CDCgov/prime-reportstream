@@ -44,14 +44,18 @@ data class TosAgreementForm(
     val agreedToTermsOfService: Boolean?
 ) {
     fun validate(): Boolean {
-        if (this.verifyAgreed() && this.verifyNoNull()) {
+        if (this.verifyAgreed() && this.verifyNoNull() && verifyNoExceededLimit()) {
             return true
         }
         return false
     }
 
+    private fun verifyAgreed(): Boolean {
+        return this.agreedToTermsOfService ?: false
+    }
+
     private fun verifyNoNull(): Boolean {
-        val funName = "verifyNoNull"
+        val funName: String = object {}.javaClass.enclosingMethod.name
         if (
             this.title.isNullOrBlank() ||
             this.firstName.isNullOrBlank() ||
@@ -67,8 +71,27 @@ data class TosAgreementForm(
         return true
     }
 
-    private fun verifyAgreed(): Boolean {
-        return this.agreedToTermsOfService ?: false
+    /*TODO:
+    *  This should check each string value and ensure that no value exceeds
+    *  'x' number of characters (255?) and IF it does, return false (which results
+    *  in a BAD REQUEST response code
+    */
+    private fun verifyNoExceededLimit(): Boolean {
+        val funName: String = object {}.javaClass.enclosingMethod.name
+        val maxLength = 255
+        if (
+            this.title?.length!! > maxLength ||
+            this.firstName?.length!! > maxLength ||
+            this.lastName?.length!! > maxLength ||
+            this.email?.length!! > maxLength ||
+            this.territory?.length!! > maxLength ||
+            this.organizationName?.length!! > maxLength
+        ) {
+            println("$funName -- Uh oh, a value has exceeded the character limit")
+            return false
+        }
+        println("$funName -- No exceeded limits! Continuing.")
+        return true
     }
 }
 
@@ -116,7 +139,7 @@ class EmailSenderFunction {
     }
 
     private fun createMail(requestBody: String): String? {
-        val funName: String = "createMail"
+        val funName: String = object {}.javaClass.enclosingMethod.name
         val mail: Mail = Mail()
         val p: Personalization = Personalization()
         val body: TosAgreementForm
