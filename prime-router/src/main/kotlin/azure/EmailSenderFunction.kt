@@ -24,7 +24,13 @@ import java.util.logging.Logger
 const val NO_REPLY_EMAIL = "no-reply@cdc.gov"
 const val REPORT_STREAM_EMAIL = "reportstream@cdc.gov"
 const val TOS_SUBJECT_BASE = "TOS Agreement for "
-const val TOS_TEMPLATE_ID = "d-472779cf554f418a9209acb62d2a48da"
+
+/*INFO:
+*  a TemplateID can be found by navigating to our SendGrid dashboard,
+*  expanding the Email API nav list on the left and clicking
+*  Dynamic Templates. The list will show templates with IDs
+*/
+const val TOS_AGREEMENT_TEMPLATE_ID = "d-472779cf554f418a9209acb62d2a48da"
 
 class TosAgreement {
     data class TosAgreementFormData(
@@ -58,10 +64,14 @@ class EmailSenderFunction {
 
         if (request.body !== null) {
             logger.info(request.body)
-            ret.status(sendRegistrationConfirmation(request.body!!, logger))
+            ret.status(sendMail(request.body!!, logger))
         }
 
         return ret.build()
+    }
+
+    private fun trimStrings(body: TosAgreement.TosAgreementFormData) {
+        
     }
 
     private fun parseBody(requestBody: String): TosAgreement.TosAgreementFormData? {
@@ -87,7 +97,7 @@ class EmailSenderFunction {
         *  I want to turn this block into something that is dynamically set via some
         *  param we pass in. For now, though, this will handle the TOS mail construction.
         */
-        mail.setTemplateId(TOS_TEMPLATE_ID)
+        mail.setTemplateId(TOS_AGREEMENT_TEMPLATE_ID)
         mail.setFrom(Email(NO_REPLY_EMAIL))
         mail.setSubject(TOS_SUBJECT_BASE + body?.organizationName)
         p.addTo(Email(REPORT_STREAM_EMAIL))
@@ -98,7 +108,7 @@ class EmailSenderFunction {
         return mail.build()
     }
 
-    private fun sendRegistrationConfirmation(requestBody: String, logger: Logger): HttpStatus {
+    private fun sendMail(requestBody: String, logger: Logger): HttpStatus {
         var response: Response = Response()
         var status: HttpStatus = HttpStatus.NOT_FOUND
         val mail = createMail(requestBody)

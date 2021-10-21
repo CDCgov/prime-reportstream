@@ -7,19 +7,19 @@ import SuccessPage from "./SuccessPage";
 function SignTermsOfService() {
     const [signed, setSigned] = useState(false);
     const [data, setData] = useState({
-        title: "string",
-        firstName: "string",
-        lastName: "string",
-        email: "string",
-        territory: "string",
-        organizationName: "string",
+        title: "",
+        firstName: "",
+        lastName: "",
+        email: "",
+        territory: "",
+        organizationName: "",
         operatesInMultipleStates: false,
         agreedToTermsOfService: false,
     });
     const signedCallback = (data: AgreementBody) => {
         setData(data);
         setSigned(true);
-        console.log(`From parent: \n${JSON.stringify(data)}`);
+        console.log(`From parent: \n`, data);
     };
 
     return (

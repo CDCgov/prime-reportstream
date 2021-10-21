@@ -14,7 +14,7 @@ import { Link } from "react-router-dom";
 
 import Title from "../../components/Title";
 import AuthResource from "../../resources/AuthResource";
-import { STATES } from "../../utils/OrganizationUtils";
+import { getStates } from "../../utils/OrganizationUtils";
 
 export interface AgreementBody {
     title: string;
@@ -32,6 +32,7 @@ function SigningForm({
 }: {
     signedCallback: (data: AgreementBody) => void;
 }) {
+    const STATES = getStates()
     /* Form field values are stored here */
     const [title, setTitle] = useState("");
     const [firstName, setFirstName] = useState("");
