@@ -59,4 +59,4 @@ If you answered '_yes_' to any of the questions above, conduct a detailed Review
 	- Do these changes avoid introducing any magic?
 - Do these changes improve separation of concerns? (Does this thing have more than one reason to change?)
 - Do these changes follow Dependency Inversion, at least for 'top level' classes?
-- Do these changes follow patterns already in the codebase? (If not, can / should they?)
+- Do these changes follow patterns already in the codebase?
