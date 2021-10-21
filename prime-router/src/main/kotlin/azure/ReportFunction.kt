@@ -35,6 +35,7 @@ private const val ROUTE_TO_PARAMETER = "routeTo"
 private const val ROUTE_TO_SEPARATOR = ","
 private const val VERBOSE_PARAMETER = "verbose"
 private const val VERBOSE_TRUE = "true"
+private const val PROCESSING_TYPE = "processing"
 
 /**
  * Azure Functions with HTTP Trigger.
@@ -49,6 +50,11 @@ class ReportFunction : Logging {
         SkipSend,
         SkipInvalidItems,
         SendImmediately,
+    }
+
+    enum class ProcessingType {
+        Sync,
+        Async,
     }
 
     data class ValidatedRequest(
@@ -98,79 +104,7 @@ class ReportFunction : Logging {
         actionHistory.trackActionParams(request)
 
         try {
-
-            val validatedRequest = validateRequest(workflowEngine, request)
-            handleValidation(validatedRequest, request, actionHistory, workflowEngine)?.let {
-                return it
-            }
-
-            var createReportErrors: MutableList<ResultDetail> = mutableListOf()
-            var report = createReport(
-                workflowEngine,
-                sender,
-                validatedRequest.content,
-                validatedRequest.defaults,
-                createReportErrors,
-                validatedRequest.warnings
-            )
-
-            // checks for errors from createReport
-            if (validatedRequest.options != Options.SkipInvalidItems && createReportErrors.isNotEmpty()) {
-                val responseBody = createResponseBody(
-                    validatedRequest.options,
-                    validatedRequest.warnings,
-                    createReportErrors,
-                    false
-                )
-                val response = HttpUtilities.httpResponse(
-                    request,
-                    responseBody,
-                    HttpStatus.BAD_REQUEST
-                )
-                actionHistory.trackActionResult(response)
-                actionHistory.trackActionResponse(response, responseBody)
-                workflowEngine.recordAction(actionHistory)
-                return response
-            }
-
-            logger.info("Successfully reported: ${report!!.id}.")
-
-            workflowEngine.recordReceivedReport(
-                // should make createReport always return a report or error
-                report, request.body!!.toByteArray(), validatedRequest.sender!!,
-                actionHistory, workflowEngine
-            )
-
-            // Write the data to the table if we're dealing with covid-19. this has to happen
-            // here AFTER we've written the report to the DB.... where does it write to the db??
-            writeCovidResultMetadataForReport(report, context, workflowEngine)
-
-            val routeReportWarnings: MutableList<ResultDetail> = mutableListOf()
-            routeReport(
-                context,
-                report,
-                workflowEngine,
-                validatedRequest.options,
-                validatedRequest.defaults,
-                validatedRequest.routeTo,
-                routeReportWarnings,
-                actionHistory
-            )
-            actionHistory.queueMessages(workflowEngine) // Must be done after creating TASK record.
-
-            val responseBody = createResponseBody(
-                validatedRequest.options,
-                routeReportWarnings + validatedRequest.warnings,
-                createReportErrors,
-                validatedRequest.verbose,
-                actionHistory,
-                report
-            )
-            val response = HttpUtilities.createdResponse(request, responseBody)
-            actionHistory.trackActionResult(response)
-            actionHistory.trackActionResponse(response, responseBody)
-            workflowEngine.recordAction(actionHistory)
-            return response
+            return processRequest(request, sender, context, workflowEngine, actionHistory)
         } catch (ex: Exception) {
             if (ex.message != null)
                 logger.error(ex.message!!, ex)
@@ -220,79 +154,7 @@ class ReportFunction : Logging {
         actionHistory.trackActionParams(request)
 
         try {
-
-            val validatedRequest = validateRequest(workflowEngine, request)
-            handleValidation(validatedRequest, request, actionHistory, workflowEngine)?.let {
-                return it
-            }
-
-            var createReportErrors: MutableList<ResultDetail> = mutableListOf()
-            var report = createReport(
-                workflowEngine,
-                sender,
-                validatedRequest.content,
-                validatedRequest.defaults,
-                createReportErrors,
-                validatedRequest.warnings
-            )
-
-            // checks for errors from createReport
-            if (validatedRequest.options != Options.SkipInvalidItems && createReportErrors.isNotEmpty()) {
-                val responseBody = createResponseBody(
-                    validatedRequest.options,
-                    validatedRequest.warnings,
-                    createReportErrors,
-                    false
-                )
-                val response = HttpUtilities.httpResponse(
-                    request,
-                    responseBody,
-                    HttpStatus.BAD_REQUEST
-                )
-                actionHistory.trackActionResult(response)
-                actionHistory.trackActionResponse(response, responseBody)
-                workflowEngine.recordAction(actionHistory)
-                return response
-            }
-
-            logger.info("Successfully reported: ${report!!.id}.")
-
-            workflowEngine.recordReceivedReport(
-                // should make createReport always return a report or error
-                report, request.body!!.toByteArray(), validatedRequest.sender!!,
-                actionHistory, workflowEngine
-            )
-
-            // Write the data to the table if we're dealing with covid-19. this has to happen
-            // here AFTER we've written the report to the DB.... where does it write to the db??
-            writeCovidResultMetadataForReport(report, context, workflowEngine)
-
-            val routeReportWarnings: MutableList<ResultDetail> = mutableListOf()
-            routeReport(
-                context,
-                report,
-                workflowEngine,
-                validatedRequest.options,
-                validatedRequest.defaults,
-                validatedRequest.routeTo,
-                routeReportWarnings,
-                actionHistory
-            )
-            actionHistory.queueMessages(workflowEngine) // Must be done after creating TASK record.
-
-            val responseBody = createResponseBody(
-                validatedRequest.options,
-                routeReportWarnings + validatedRequest.warnings,
-                createReportErrors,
-                validatedRequest.verbose,
-                actionHistory,
-                report
-            )
-            val response = HttpUtilities.createdResponse(request, responseBody)
-            actionHistory.trackActionResult(response)
-            actionHistory.trackActionResponse(response, responseBody)
-            workflowEngine.recordAction(actionHistory)
-            return response
+            return processRequest(request, sender, context, workflowEngine, actionHistory)
         } catch (ex: Exception) {
             if (ex.message != null)
                 logger.error(ex.message!!, ex)
@@ -300,6 +162,85 @@ class ReportFunction : Logging {
                 logger.error(ex)
             return HttpUtilities.internalErrorResponse(request)
         }
+    }
+
+    private fun processRequest(request: HttpRequestMessage<String?>, sender: Sender, context: ExecutionContext, workflowEngine: WorkflowEngine, actionHistory: ActionHistory): HttpResponseMessage {
+        val errors: MutableList<ResultDetail> = mutableListOf()
+        val warnings: MutableList<ResultDetail> = mutableListOf()
+        // The following is identical to waters (for arch reasons)
+        val validatedRequest = validateRequest(workflowEngine, request)
+        warnings += validatedRequest.warnings
+        handleValidation(validatedRequest, request, actionHistory, workflowEngine)?.let {
+            return it
+        }
+        
+        var report = createReport(
+            workflowEngine,
+            sender,
+            validatedRequest.content,
+            validatedRequest.defaults,
+            errors,
+            warnings
+        )
+
+        // checks for errors from createReport
+        if (validatedRequest.options != Options.SkipInvalidItems && errors.isNotEmpty()) {
+            val responseBody = createResponseBody(
+                validatedRequest.options,
+                warnings,
+                errors,
+                false
+            )
+            val response = HttpUtilities.httpResponse(
+                request,
+                responseBody,
+                HttpStatus.BAD_REQUEST
+            )
+            actionHistory.trackActionResult(response)
+            actionHistory.trackActionResponse(response, responseBody)
+            workflowEngine.recordAction(actionHistory)
+            return response
+        }
+
+        workflowEngine.recordReceivedReport(
+            // should make createReport always return a report or error
+            report!!, validatedRequest.content.toByteArray(), sender,
+            actionHistory, workflowEngine
+        )
+
+        // Write the data to the table if we're dealing with covid-19. this has to happen
+        // here AFTER we've written the report to the DB.
+        writeCovidResultMetadataForReport(report, context, workflowEngine)
+
+        val processingFunc = extractProessingType(request)
+
+        processingFunc(
+            context,
+            report,
+            workflowEngine,
+            validatedRequest.options,
+            validatedRequest.defaults,
+            validatedRequest.routeTo,
+            warnings,
+            actionHistory
+        )
+
+        actionHistory.queueMessages(workflowEngine)
+
+        val responseBody = createResponseBody(
+            validatedRequest.options,
+            warnings,
+            errors,
+            validatedRequest.verbose,
+            actionHistory,
+            report
+        )
+        val response = HttpUtilities.createdResponse(request, responseBody)
+        actionHistory.trackActionResult(response)
+        actionHistory.trackActionResponse(response, responseBody)
+        workflowEngine.recordAction(actionHistory)
+        return response
+
     }
 
     /**
@@ -359,6 +300,33 @@ class ReportFunction : Logging {
         // client can be in the header or in the url parameters:
         return request.headers[CLIENT_PARAMETER]
             ?: request.queryParameters.getOrDefault(CLIENT_PARAMETER, "")
+    }
+
+    private fun extractProessingType(request: HttpRequestMessage<String?>): (ExecutionContext, Report, WorkflowEngine, Options, Map<String, String>, List<String>, MutableList<ResultDetail>, ActionHistory) -> Unit {
+        val processingTypeString = request.queryParameters.getOrDefault(PROCESSING_TYPE, "Sync")
+        val processingType = try {
+            ProcessingType.valueOf(processingTypeString)
+        } catch (e: IllegalArgumentException) {
+            ProcessingType.Sync
+        }
+
+        return when (processingType) {
+            ProcessingType.Async -> ::processAsync
+            ProcessingType.Sync -> ::routeReport
+        }
+    }
+
+    private fun processAsync(
+        context: ExecutionContext,
+        report: Report,
+        workflowEngine: WorkflowEngine,
+        options: Options,
+        defaults: Map<String, String>,
+        routeTo: List<String>,
+        warnings: MutableList<ResultDetail>,
+        actionHistory: ActionHistory,
+    ) {
+        throw Exception("Not yet implemented")
     }
 
     private fun handleValidation(
@@ -547,7 +515,8 @@ class ReportFunction : Logging {
             verbose
         )
     }
-
+// 1. detect format and get serializer
+// 2. readExternal and return result / errors / warnings
     private fun createReport(
         engine: WorkflowEngine,
         sender: Sender,
@@ -604,7 +573,8 @@ class ReportFunction : Logging {
             }
         }
     }
-
+// 1. filterAndTranslateByReceiver (doesn't need a transaction?)
+// 2. sendToDestination (needs a transaction)
     private fun routeReport(
         context: ExecutionContext,
         report: Report,
@@ -638,6 +608,9 @@ class ReportFunction : Logging {
         }
     }
 
+    // 1. create <event, report> pair or pairs depending on input
+    // 2. dispatchReport
+    // 3. log
     private fun sendToDestination(
         report: Report,
         receiver: Receiver,
