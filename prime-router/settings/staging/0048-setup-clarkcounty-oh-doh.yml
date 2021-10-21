@@ -7,7 +7,7 @@
   countyName: Clark
   receivers:
     - name: elr-download
-      organizationName: oh-clark-doh
+      organizationName: oh-ccchd-doh
       topic: covid-19
       customerStatus: testing
       jurisdictionalFilter:

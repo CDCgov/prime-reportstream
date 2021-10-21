@@ -609,14 +609,14 @@
         filePath: ./upload
         credentialName: DEFAULT-SFTP
 
-- name: oh-clark-doh
+- name: oh-ccchd-doh
   description: Ohio Department of Health - Clark County
   jurisdiction: COUNTY
   stateCode: OH
   countyName: Clark
   receivers:
     - name: elr-download
-      organizationName: oh-clark-doh
+      organizationName: oh-ccchd-doh
       topic: covid-19
       customerStatus: testing
       jurisdictionalFilter:
