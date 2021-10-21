@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.google.common.base.Preconditions
+import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
@@ -26,7 +27,8 @@ import org.jooq.exception.DataAccessException
  * Functions to manage lookup tables.
  */
 class LookupTableFunctions(
-    private val lookupTableAccess: DatabaseLookupTableAccess = DatabaseLookupTableAccess()
+    private val lookupTableAccess: DatabaseLookupTableAccess = DatabaseLookupTableAccess(),
+    private var oktaAuthentication: OktaAuthentication? = null
 ) : Logging {
 
     private val mapper: ObjectMapper = jacksonObjectMapper()
@@ -35,6 +37,15 @@ class LookupTableFunctions(
         // Format OffsetDateTime as an ISO string
         mapper.registerModule(JavaTimeModule())
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+    }
+
+    /**
+     * Get the Okta authenticator based on the [level].  If it was specified via the constructor then use that
+     * as it is useful for unit tests.
+     * @return the Okta authenticator
+     */
+    private fun getOktaAuthenticator(level: PrincipalLevel? = null): OktaAuthentication {
+        return oktaAuthentication ?: if (level != null) OktaAuthentication(level) else OktaAuthentication()
     }
 
     /**
@@ -49,14 +60,14 @@ class LookupTableFunctions(
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "lookuptables"
         ) request: HttpRequestMessage<String?>,
-        oktaAuthentication: OktaAuthentication = OktaAuthentication()
+        context: ExecutionContext
     ): HttpResponseMessage {
-        return oktaAuthentication.checkAccess(request) {
+        return getOktaAuthenticator().checkAccess(request) {
             try {
                 val showInactive = request.queryParameters[showInactiveParamName]
                     ?.equals("true", true) ?: false
                 // Return only what's active if showAll is true
-                val list = lookupTableAccess.fetchTableList().filter { (!showInactive && it.isActive) || showInactive }
+                val list = lookupTableAccess.fetchTableList(showInactive)
                 val json = mapper.writeValueAsString(list)
                 HttpUtilities.okResponse(request, json)
             } catch (e: DataAccessException) {
@@ -79,9 +90,9 @@ class LookupTableFunctions(
         ) request: HttpRequestMessage<String?>,
         @BindingName("tableName") tableName: String,
         @BindingName("tableVersion") tableVersion: Int,
-        oktaAuthentication: OktaAuthentication = OktaAuthentication()
+        context: ExecutionContext
     ): HttpResponseMessage {
-        return oktaAuthentication.checkAccess(request) {
+        return getOktaAuthenticator().checkAccess(request) {
             try {
                 if (!lookupTableAccess.doesTableExist(tableName, tableVersion))
                     HttpUtilities.notFoundResponse(
@@ -109,9 +120,9 @@ class LookupTableFunctions(
             route = "lookuptables/{tableName}"
         ) request: HttpRequestMessage<String?>,
         @BindingName("tableName") tableName: String,
-        oktaAuthentication: OktaAuthentication = OktaAuthentication(PrincipalLevel.SYSTEM_ADMIN)
+        context: ExecutionContext
     ): HttpResponseMessage {
-        return oktaAuthentication.checkAccess(request) {
+        return getOktaAuthenticator(PrincipalLevel.SYSTEM_ADMIN).checkAccess(request) {
             try {
                 val inputData = if (!request.body.isNullOrBlank()) Json.parseToJsonElement(request.body!!)
                 else null
@@ -170,9 +181,9 @@ class LookupTableFunctions(
         ) request: HttpRequestMessage<String?>,
         @BindingName("tableName") tableName: String,
         @BindingName("tableVersion") tableVersion: Int,
-        oktaAuthentication: OktaAuthentication = OktaAuthentication(PrincipalLevel.SYSTEM_ADMIN)
+        context: ExecutionContext
     ): HttpResponseMessage {
-        return oktaAuthentication.checkAccess(request) {
+        return getOktaAuthenticator(PrincipalLevel.SYSTEM_ADMIN).checkAccess(request) {
             try {
                 if (!lookupTableAccess.doesTableExist(tableName, tableVersion))
                     HttpUtilities.notFoundResponse(
