@@ -147,7 +147,7 @@ resource "azurerm_subnet" "endpoint" {
   virtual_network_name                           = azurerm_virtual_network.virtual_network.name
   address_prefixes                               = ["10.0.5.0/24"]
   enforce_private_link_endpoint_network_policies = true
-  service_endpoints                              = ["Microsoft.Storage"]
+  service_endpoints                              = ["Microsoft.Storage", "Microsoft.KeyVault"]
 }
 
 # Associate the DNS zone with our VNET, so the VNET will resolve these addresses

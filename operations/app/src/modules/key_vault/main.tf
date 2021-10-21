@@ -22,7 +22,14 @@ resource "azurerm_key_vault" "application" {
       [var.terraform_caller_ip_address],
     ))
 
-    virtual_network_subnet_ids = []
+    virtual_network_subnet_ids = [
+      data.azurerm_subnet.public.id,
+      data.azurerm_subnet.container.id,
+      data.azurerm_subnet.endpoint.id,
+      data.azurerm_subnet.public_subnet.id,
+      data.azurerm_subnet.container_subnet.id,
+      data.azurerm_subnet.endpoint_subnet.id,
+    ]
   }
 
   lifecycle {
@@ -119,7 +126,7 @@ module "application_private_endpoint" {
     data.azurerm_subnet.endpoint_subnet.id,
   ]
 
-  endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? data.azurerm_subnet.endpoint_subnet.id : data.azurerm_subnet.endpoint.id
+  endpoint_subnet_id_for_dns = data.azurerm_subnet.endpoint.id
 }
 
 resource "azurerm_key_vault" "app_config" {
@@ -143,7 +150,14 @@ resource "azurerm_key_vault" "app_config" {
       [var.terraform_caller_ip_address],
     ))
 
-    virtual_network_subnet_ids = []
+    virtual_network_subnet_ids = [
+      data.azurerm_subnet.public.id,
+      data.azurerm_subnet.container.id,
+      data.azurerm_subnet.endpoint.id,
+      data.azurerm_subnet.public_subnet.id,
+      data.azurerm_subnet.container_subnet.id,
+      data.azurerm_subnet.endpoint_subnet.id,
+    ]
   }
 
   lifecycle {
@@ -198,7 +212,7 @@ module "app_config_private_endpoint" {
     data.azurerm_subnet.endpoint_subnet.id,
   ]
 
-  endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? data.azurerm_subnet.endpoint_subnet.id : data.azurerm_subnet.endpoint.id
+  endpoint_subnet_id_for_dns = data.azurerm_subnet.endpoint.id
 }
 
 
@@ -224,7 +238,14 @@ resource "azurerm_key_vault" "client_config" {
       [var.terraform_caller_ip_address],
     ))
 
-    virtual_network_subnet_ids = []
+    virtual_network_subnet_ids = [
+      data.azurerm_subnet.public.id,
+      data.azurerm_subnet.container.id,
+      data.azurerm_subnet.endpoint.id,
+      data.azurerm_subnet.public_subnet.id,
+      data.azurerm_subnet.container_subnet.id,
+      data.azurerm_subnet.endpoint_subnet.id,
+    ]
   }
 
   lifecycle {
@@ -269,5 +290,5 @@ module "client_config_private_endpoint" {
     data.azurerm_subnet.endpoint_subnet.id,
   ]
 
-  endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? data.azurerm_subnet.endpoint_subnet.id : data.azurerm_subnet.endpoint.id
+  endpoint_subnet_id_for_dns = data.azurerm_subnet.endpoint.id
 }

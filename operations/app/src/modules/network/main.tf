@@ -181,7 +181,8 @@ resource "azurerm_subnet" "endpoint_subnet" {
     module.subnet_addresses[each.key].network_cidr_blocks["endpoint"],
   ]
   service_endpoints = [
-    "Microsoft.Storage"
+    "Microsoft.Storage",
+    "Microsoft.KeyVault",
   ]
 
   enforce_private_link_endpoint_network_policies = true

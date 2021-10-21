@@ -11,6 +11,12 @@ locals {
     "prime.local",
   ]
 
+  # Due to only a single DNS record allowed per resource group, some private endpoints conflicts in with multiple VNETs
+  # By omitting the DNS records, we ensure the Azure backbone is used instead of attempting to reach an unpeered VNET
+  omit_dns_zones_private_in_cdc_vnet = [
+    "privatelink.vaultcore.azure.net",
+  ]
+
   vnet_primary_name = "${var.resource_prefix}-East-vnet"
   vnet_primary      = data.azurerm_virtual_network.vnet[local.vnet_primary_name]
 
