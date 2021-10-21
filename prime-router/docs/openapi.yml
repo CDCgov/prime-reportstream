@@ -13,70 +13,48 @@ paths:
   #
   # END-POINTS
   # /submissions
-  # /submissions/multorg
-  # /submissions/{reportid}
-  # /submissions/{organizationName}
+  # /submissions/submission/{reportid}
+  #
+  # ALT END-POINT OPTIONS
+  # /sender/history/submissions
+  # /sender/history/submissions/submission/{actionid}
+  # /admin/sender/history/submissions
+  # /admin/sender/history/submissions/submission/{actionid}
+  #
+  # FILTERS (REQUIRED)
+  # ?pagesize=INT (default: 100)
   #
   # FILTERS (OPTIONAL)
-  # ?page=INT
-  # ?pagesize=INT
-  # ?getLength=BOOLEAN
   # ?dateStart=STRING (YYYY-MM-DD) || INT (NN [days back] | default: 30)
   # ?dateEnd=STRING (YYYY-MM-DD | default: Today)
   # ?year=INT (YYYY | default: ALL)
   # ?month=INT (MM | default: ALL | requires ?year)
-  # ?organizations=INT (default: ALL)
+  # ?organizations=INT (default: ALL | requires admin priv)
   # ?recipients=ARRAY
   # ?sender=ARRAY
   # ?warnings=STRING
   # ?errors=STRING
   # ?receipts=STRING
   #
-  #
-  #
-  #
-  # 30 days (based on where request orignates)
-  # pagination?
-  # admin filter on org
-  # filter selections (date range, column headers, etc.)
-  # records of what users have done?
-  # PDF exports?
-  # Org admin, multi-org aggregate
-  #
-  # 
-  # /REJECTION:
-  # Submission Date | Filename | Reason(s) of Rejection
-  # 
-  # /Confirmation of Acceptance
-  # 
-  # 
-  # 
-  #
   /submissions:
     get:
-      description: Return a list of all basic info on all receive actions and associated reports. Must have admin access.
+      description: Return a list of all basic info on all receive actions and associated reports.
       security:
         - OAuth2: [ system_admin ]
         - ApiKeyAuth: []
       parameters:
         - in: query
-          name: page
+          name: cursor
           schema:
-            type: integer
+            type: string
           required: false
-          description: The current page number. A cleaner way to call `offset`. `page * pageSize = offset`. (default 0).
+          description: The cursor pointing to the next portion of results. If you don't pass a `cursor` parameter, but **do** pass a `pageSize` parameter, the default value retrieves the first portion of results. Paginated responses include a `response_metadata` object that includes a `next_cursor` *when there are additional results to be retrieved.* On your next call to the same method, set the `cursor` parameter equal to the `next_cursor` value you received on the last request to retrieve the next portion of the collection. An empty, null, or non-existent `next_cursor` in the response indicates no further results.
         - in: query
           name: pageSize
           schema:
             type: integer
-          required: false
-          description: The number of items to return (default `ALL`).
-        - in: query
-          name: getLength
-          schema:
-            type: boolean
-          required: false
-          description: Return the count of all items. For use with determining the number of `pages`.
+          required: true
+          description: The number of items to return (default `100`).
         - in: query
           name: dateStart
           schema:
@@ -84,7 +62,7 @@ paths:
               - type: integer
               - type: string
           required: false
-          description: (`YYYY-MM-DD` || `NNN` - default `30`) The start date or the number of days back from today to collect results from.
+          description: (`YYYY-MM-DD` || `NNN` - default `30`) The start date or the number of days back from `dateEnd` to collect results from.
         - in: query
           name: dateEnd
           schema:
@@ -112,7 +90,7 @@ paths:
               - type: array
               - type: integer
           required: false
-          description: (`{INT, INT, INT}` || `INT` - default `ALL`) Return results from specific Organization or array of Organizations. Admin or member of multiple Organizations required.
+          description: (`{INT, INT, INT}` || `INT` - default `ALL`) Return results from specific Organization or array of Organizations. Must have admin access.
         - in: query
           name: recipients
           schema:
@@ -153,127 +131,20 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Report'
+                $ref: '#/components/schemas/History'
         '400':
           description: Bad Request
         '401':
           description: Unauthorized
 
-
-  /submissions/multiorg:
-    get:
-      description: Return a list of all basic info on all receive actions and associated reports. Must be member of multiple Organizations. Same as Super Admin endpoint but scoped to user who is a member of multiple organizations.
-      security:
-        - ApiKeyAuth: []
-      parameters:
-        - in: query
-          name: page
-          schema:
-            type: integer
-          required: false
-          description: The current page number. A cleaner way to call `offset`. `page * pageSize = offset`. (default 0).
-        - in: query
-          name: pageSize
-          schema:
-            type: integer
-          required: false
-          description: The number of items to return (default `ALL`).
-        - in: query
-          name: getLength
-          schema:
-            type: boolean
-          required: false
-          description: Return the count of all items. For use with determining the number of `pages`.
-        - in: query
-          name: dateStart
-          schema:
-            oneOf:
-              - type: integer
-              - type: string
-          required: false
-          description: (`YYYY-MM-DD` || `NNN` - default `30`) The start date or the number of days back from today to collect results from.
-        - in: query
-          name: dateEnd
-          schema:
-            oneOf:
-              - type: integer
-              - type: string
-          required: false
-          description: (`YYYY-MM-DD` || `NNN` - default `0`) The end date or the number of days back from today to collect results from.
-        - in: query
-          name: year
-          schema:
-            type: integer
-          required: false
-          description: (`YYYY` - default `ALL`) Return results from specific Year.
-        - in: query
-          name: month
-          schema:
-            type: integer
-          required: false
-          description: (`MM` - default `ALL`) Return results from specific Month. Requires `year` being set.
-        - in: query
-          name: organizations
-          schema:
-            oneOf:
-              - type: array
-              - type: integer
-          required: false
-          description: (`{INT, INT, INT}` || `INT` - default `ALL`) Return results from specific Organization or array of Organizations. Admin or member of multiple Organizations required.
-        - in: query
-          name: recipients
-          schema:
-            oneOf:
-              - type: array
-              - type: integer
-          required: false
-          description: (`{INT, INT, INT}` || `INT` - default `ALL`) Return results from specific Recipient or array of Recipients.
-        - in: query
-          name: senders
-          schema:
-            oneOf:
-              - type: array
-              - type: integer
-          required: false
-          description: (`{INT, INT, INT}`  || `INT` - default `ALL`) Return results from specific Sender or array of Senders.
-        - in: query
-          name: warnings
-          schema:
-            type: string
-          required: false
-          description: (`ALL` || `WITH` || `WITHOUT` - default `ALL`) If `WITH` only return results with Warning(s). If `WITHOUT` only results without Warning(s).
-        - in: query
-          name: errors
-          schema:
-            type: string
-          required: false
-          description: (`ALL` || `WITH` || `WITHOUT` - default `ALL`) If `WITH` only return results with Error(s). If `WITHOUT` only results without Error(s).
-        - in: query
-          name: receipts
-          schema:
-            type: string
-          required: false
-          description: (`ALL` || `WITH` || `WITHOUT` - default `ALL`) If `WITH` only return results with Receipt(s). If `WITHOUT` only results without Receipt(s).
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Report'
-        '400':
-          description: Bad Request
-        '401':
-          description: Unauthorized
-
-  /submissions/submission/{submissionID}:
+  /submissions/submission/{actionid}:
     get:
       description: Return a single receive action, and its received report(s), or an error report.
       security:
         - ApiKeyAuth: []
       parameters:
         - in: path
-          name: submissionID
+          name: actionid
           schema:
             type: string
           required: true
@@ -289,118 +160,8 @@ paths:
           description: Bad Request
         '401':
           description: Unauthorized
-
-  /submissions/{organizationName}:
-    get:
-      description: Return a list of basic info on receive actions and associated reports with authorized Organization only.
-      security:
-        - ApiKeyAuth: []
-      parameters:
-        - in: path
-          schema:
-            type: string
-          required: true
-          name: organizationName
-          description: The name of the organization
-        - in: query
-          name: page
-          schema:
-            type: integer
-          required: false
-          description: The current page number. A cleaner way to call `offset`. `page * pageSize = offset`. (default 0).
-        - in: query
-          name: pageSize
-          schema:
-            type: integer
-          required: false
-          description: The number of items to return (default `ALL`).
-        - in: query
-          name: getLength
-          schema:
-            type: boolean
-          required: false
-          description: Return the count of all items. For use with determining the number of `pages`.
-        - in: query
-          name: dateStart
-          schema:
-            oneOf:
-              - type: integer
-              - type: string
-          required: false
-          description: (`YYYY-MM-DD` || `NNN` - default `30`) The start date or the number of days back from today to collect results from.
-        - in: query
-          name: dateEnd
-          schema:
-            oneOf:
-              - type: integer
-              - type: string
-          required: false
-          description: (`YYYY-MM-DD` || `NNN` - default `0`) The end date or the number of days back from today to collect results from.
-        - in: query
-          name: year
-          schema:
-            type: integer
-          required: false
-          description: (`YYYY` - default `ALL`) Return results from specific Year.
-        - in: query
-          name: month
-          schema:
-            type: integer
-          required: false
-          description: (`MM` - default `ALL`) Return results from specific Month. Requires `year` being set.
-        - in: query
-          name: organizations
-          schema:
-            oneOf:
-              - type: array
-              - type: integer
-          required: false
-          description: (`{INT, INT, INT}` || `INT` - default `ALL`) Return results from specific Organization or array of Organizations. Admin or member of multiple Organizations required.
-        - in: query
-          name: recipients
-          schema:
-            oneOf:
-              - type: array
-              - type: integer
-          required: false
-          description: (`{INT, INT, INT}` || `INT` - default `ALL`) Return results from specific Recipient or array of Recipients.
-        - in: query
-          name: senders
-          schema:
-            oneOf:
-              - type: array
-              - type: integer
-          required: false
-          description: (`{INT, INT, INT}`  || `INT` - default `ALL`) Return results from specific Sender or array of Senders.
-        - in: query
-          name: warnings
-          schema:
-            type: string
-          required: false
-          description: (`ALL` || `WITH` || `WITHOUT` - default `ALL`) If `WITH` only return results with Warning(s). If `WITHOUT` only results without Warning(s).
-        - in: query
-          name: errors
-          schema:
-            type: string
-          required: false
-          description: (`ALL` || `WITH` || `WITHOUT` - default `ALL`) If `WITH` only return results with Error(s). If `WITHOUT` only results without Error(s).
-        - in: query
-          name: receipts
-          schema:
-            type: string
-          required: false
-          description: (`ALL` || `WITH` || `WITHOUT` - default `ALL`) If `WITH` only return results with Receipt(s). If `WITHOUT` only results without Receipt(s).
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Report'
-        '400':
-          description: Bad Request
-        '401':
-          description: Unauthorized
+        '500':
+          description: Internal Server Error
 
   # The reports end-point handles the
   #
@@ -946,6 +707,18 @@ components:
           type: integer
           description: The number of reports being sent to this destination
 
+    History:
+      type: object
+      description: JSON response containing a list of paginated Submissions and the metadata required to point the next page of submissions.
+      properties:
+        metadata:
+          description: metadata containing `next_cursor`
+          type: string
+        submissions:
+          type: "array"
+          items: 
+            $ref: '#/components/schemas/Submission'
+
     ItemRouting:
       type: object
       properties:
@@ -1240,6 +1013,23 @@ components:
             - $ref: '#/components/schemas/AS2Transport'
             - $ref: '#/components/schemas/BlobStoreTransport'
             - $ref: '#/components/schemas/NullTransport'
+
+    Submission:
+      description: Individual Action ID result with data being populated from both `public.action` and `public.report_file` tables.
+      type: object
+      properties:
+        created_at:
+          description: Timestamp with timezone coming from the `created_at` row in the `public.action` table.
+          type: string
+        action_id:
+          description: Action ID for the object coming from the `created_at` row in the `public.action` table.
+          type: integer
+        errorCount:
+          description: total errors found during initial validation.  There may be multiple errors per item.
+          type: integer
+        warningCount:
+          description: total warnings found during initial validation.  There may be multiple warnings per item.
+          type: integer
 
     CustomConfiguration:
       description: A custom configuration for a custom schema
