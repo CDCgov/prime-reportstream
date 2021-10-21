@@ -78,7 +78,7 @@ jobs:
       packages: write
     strategy:
       matrix:
-        AZ_ENV: [ test, staging, prod ]
+        AZ_ENV: [ rkh5012, test, staging, prod ]
     steps:
       - name: Check Out Changes
         uses: actions/checkout@v2
