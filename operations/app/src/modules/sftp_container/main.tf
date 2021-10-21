@@ -75,3 +75,15 @@ resource "azurerm_storage_share" "sftp_share" {
   name                 = "${var.resource_prefix}-sftpserver"
   storage_account_name = data.azurerm_storage_account.storage_account.name
 }
+
+resource "azurerm_private_dns_a_record" "sftp_prime_local" {
+  name = "sftp"
+
+  resource_group_name = var.resource_group
+  zone_name           = data.azurerm_private_dns_zone.prime_local.name
+
+  records = [
+    azurerm_container_group.sftp_container.ip_address,
+  ]
+  ttl = 60
+}

@@ -23,12 +23,12 @@ variable "location" {
   description = "Network Location"
 }
 
-variable "endpoint_subnet_id" {
-  type        = string
-  description = "Private Endpoint Subnet ID"
+variable "endpoint_subnet_ids" {
+  type        = list(string)
+  description = "Private Endpoint Subnet ID(s)"
 }
 
-variable "create_dns_record" {
-  type        = bool
-  description = "If the private endpoint should be associated via DNS. For resources with multiple private endpoints, DNS can only be registered against a single VNET. If this is enabled against multiple VNETs, Azure will silently and unpredictably overwrite DNS records."
+variable "endpoint_subnet_id_for_dns" {
+  type        = string
+  description = "The endpoint the DNS record should point to"
 }
