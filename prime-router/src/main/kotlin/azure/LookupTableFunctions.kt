@@ -58,7 +58,7 @@ class LookupTableFunctions(
             name = "getLookupTableList",
             methods = [HttpMethod.GET],
             authLevel = AuthorizationLevel.ANONYMOUS,
-            route = "lookuptables"
+            route = "lookuptables/list"
         ) request: HttpRequestMessage<String?>,
         context: ExecutionContext
     ): HttpResponseMessage {

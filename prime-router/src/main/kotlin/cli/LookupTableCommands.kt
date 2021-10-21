@@ -1,7 +1,6 @@
 package gov.cdc.prime.router.cli
 
 import com.github.ajalt.clikt.core.CliktCommand
-import com.github.ajalt.clikt.core.CliktError
 import com.github.ajalt.clikt.core.PrintMessage
 import com.github.ajalt.clikt.output.TermUi
 import com.github.ajalt.clikt.parameters.options.default
@@ -36,18 +35,227 @@ import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.int
 import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import org.apache.http.HttpStatus
 import org.jooq.JSONB
 import java.io.File
+import java.io.IOException
 import java.time.OffsetDateTime
+
+/**
+ * Utilities to submit and get data from the Lookup Tables API.
+ */
+class LookupTableEndpointUtilities(val environment: Environment) {
+    /**
+     * Fetches the list of tables from the API.
+     * @return if [listInactive] is false then only a list of active tables is returned, otherwise all tables are listed
+     * @throws IOException if there is a server or API error
+     */
+    fun fetchList(listInactive: Boolean = false): List<LookupTableVersion> {
+        val apiUrl = environment.formUrl("$endpointRoot/list")
+        val (_, response, result) = Fuel
+            .get(apiUrl.toString(), listOf(LookupTableFunctions.showInactiveParamName to listInactive.toString()))
+            .authentication()
+            .bearer(environment.accessToken)
+            .responseJson()
+        val jsonArray = getArrayFromResponse(result, response)
+        return jsonArray.map {
+            val row = it as JsonObject
+            val newVersion = LookupTableVersion()
+            newVersion.tableName = (row["tableName"] as JsonPrimitive).content
+            newVersion.tableVersion = (row["tableVersion"] as JsonPrimitive).int
+            newVersion.isActive = (row["tableName"] as JsonPrimitive).content.toBoolean()
+            newVersion.createdBy = (row["createdBy"] as JsonPrimitive).content
+            newVersion.createdAt = OffsetDateTime.parse((row["createdAt"] as JsonPrimitive).content)
+            newVersion
+        }
+    }
+
+    /**
+     * Submits the activation of a table to the API given [tableName] and [version].
+     * @return the table version information for the activated table
+     * @throws TableNotFoundException if the table and/or version is not found
+     * @throws IOException if there is a server or API error
+     */
+    fun activateTable(tableName: String, version: Int):
+        LookupTableVersion {
+        val apiUrl = environment.formUrl("$endpointRoot/$tableName/$version/activate")
+        val (_, response, result) = Fuel
+            .put(apiUrl.toString())
+            .authentication()
+            .bearer(environment.accessToken)
+            .responseJson()
+        return getTableInfoFromResponse(result, response)
+    }
+
+    /**
+     * Fetches the table content from the API given [tableName] and [version].
+     * @return the table content
+     * @throws TableNotFoundException if the table and/or version is not found
+     * @throws IOException if there is a server or API error
+     */
+    fun fetchTableContent(tableName: String, version: Int): List<LookupTableRow> {
+        val apiUrl = environment.formUrl("$endpointRoot/$tableName/$version/content")
+        val (_, response, result) = Fuel
+            .get(apiUrl.toString())
+            .authentication()
+            .bearer(environment.accessToken)
+            .responseJson()
+        val jsonArray = getArrayFromResponse(result, response)
+        return jsonArray.map {
+            val row = LookupTableRow()
+            row.data = JSONB.jsonb(it.toString())
+            row
+        }
+    }
+
+    /**
+     * Fetches the table version information from the API given [tableName] and [version].
+     * @return the table version information
+     * @throws TableNotFoundException if the table and/or version is not found
+     * @throws IOException if there is a server or API error
+     */
+    fun fetchTableInfo(tableName: String, version: Int): LookupTableVersion {
+        val apiUrl = environment.formUrl("$endpointRoot/$tableName/$version/info")
+        val (_, response, result) = Fuel
+            .get(apiUrl.toString())
+            .authentication()
+            .bearer(environment.accessToken)
+            .responseJson()
+        return getTableInfoFromResponse(result, response)
+    }
+
+    /**
+     * Submit to the API a new table version using [tableName] and [tableData].
+     * @return the table version information for the created table
+     * @throws TableNotFoundException if the table and/or version is not found
+     * @throws IOException if there is a server or API error
+     */
+    fun createTable(tableName: String, tableData: List<LookupTableRow>):
+        LookupTableVersion {
+        val apiUrl = environment.formUrl("$endpointRoot/$tableName")
+        val jsonRows = tableData.map {
+            Json.parseToJsonElement(it.data.toString())
+        }
+        val jsonPayload = JsonArray(jsonRows)
+
+        val (_, response, result) = Fuel
+            .put(apiUrl.toString())
+            .header(Headers.CONTENT_TYPE to "application/json")
+            .jsonBody(jsonPayload.toString())
+            .authentication()
+            .bearer(environment.accessToken)
+            .responseJson()
+        return getTableInfoFromResponse(result, response)
+    }
+
+    companion object {
+        /**
+         * The lookup table API endpoint.
+         */
+        const val endpointRoot = "/api/lookuptables"
+
+        /**
+         * Exception thrown with a [message] if a table is not found.
+         */
+        class TableNotFoundException(message: String) : Exception(message)
+
+        /**
+         * Gets a JSON array from a [result] and [response] returned by the API.
+         * @return a JSON array
+         * @throws TableNotFoundException if the table and/or version is not found
+         * @throws IOException if there is a server or API error
+         */
+        private fun getArrayFromResponse(result: Result<FuelJson, FuelError>, response: Response): JsonArray {
+            checkCommonErrorsFromResponse(result, response)
+            when {
+                Json.parseToJsonElement(result.get().content) !is JsonArray ->
+                    throw IOException("Invalid data returned in response is not an array.")
+
+                Json.parseToJsonElement(result.get().content).jsonArray.any { it !is JsonObject } ->
+                    throw IOException("Invalid data returned in response is not an array ob objects.")
+
+                else -> return Json.parseToJsonElement(result.get().content).jsonArray
+            }
+        }
+
+        /**
+         * Gets a table version information object from a [result] and [response] returned by the API.
+         * @return a table version information object
+         * @throws TableNotFoundException if the table and/or version is not found
+         * @throws IOException if there is a server or API error
+         */
+        internal fun getTableInfoFromResponse(
+            result: Result<FuelJson, FuelError>,
+            response: Response
+        ): LookupTableVersion {
+            checkCommonErrorsFromResponse(result, response)
+            when {
+                Json.parseToJsonElement(result.get().content) !is JsonObject ->
+                    throw IOException("Invalid response body")
+
+                else -> {
+                    val newVersion = LookupTableVersion()
+                    val info = Json.parseToJsonElement(result.get().content) as JsonObject
+                    newVersion.tableName = (info["tableName"] as JsonPrimitive).content
+                    newVersion.tableVersion = (info["tableVersion"] as JsonPrimitive).int
+                    newVersion.isActive = (info["tableName"] as JsonPrimitive).content.toBoolean()
+                    newVersion.createdBy = (info["createdBy"] as JsonPrimitive).content
+                    newVersion.createdAt = OffsetDateTime.parse((info["createdAt"] as JsonPrimitive).content)
+                    return newVersion
+                }
+            }
+        }
+
+        /**
+         * Check for an error response from a [result] and [response] from the API.
+         * @throws TableNotFoundException if the table and/or version is not found
+         * @throws IOException if there is a server or API error
+         */
+        private fun checkCommonErrorsFromResponse(result: Result<FuelJson, FuelError>, response: Response) {
+            when {
+                result is Result.Failure && getErrorFromResponse(result, response).isBlank() ->
+                    throw IOException(result.error)
+
+                // Do this second as we could get a NOT FOUND if the endpoint is not running
+                result is Result.Failure && response.statusCode == HttpStatus.SC_NOT_FOUND ->
+                    throw TableNotFoundException(getErrorFromResponse(result, response))
+
+                result is Result.Failure ->
+                    throw IOException(getErrorFromResponse(result, response))
+
+                result.get().content.isBlank() ->
+                    throw IOException("Empty response body")
+            }
+        }
+
+        /**
+         * Get the error message from a [result] and [response] as returned by the API.
+         * @return The error as a string or null if no error is found.
+         */
+        private fun getErrorFromResponse(result: Result<FuelJson, FuelError>, response: Response): String {
+            return when {
+                result !is Result.Failure -> ""
+                response.body().isEmpty() -> result.error.toString()
+                Json.parseToJsonElement(response.body().toString()) !is JsonObject -> result.error.toString()
+                !Json.parseToJsonElement(response.body().toString()).jsonObject.containsKey("error") ->
+                    result.error.toString()
+                else -> Json.parseToJsonElement(response.body().toString())
+                    .jsonObject["error"]?.jsonPrimitive?.contentOrNull ?: ""
+            }
+        }
+    }
+}
 
 /**
  * Commands to manipulate lookup tables.
  */
 class LookupTableCommands : CliktCommand(
-    name = "lookuptable",
+    name = "lookuptables",
     help = "Manage lookup tables"
 ) {
 
@@ -56,8 +264,6 @@ class LookupTableCommands : CliktCommand(
     }
 
     companion object {
-        const val endpointRoot = "/api/lookuptables"
-
         /**
          * Extract table data from a JSON [row] given a list of [colNames].
          * @return a list of data from the row in the same order as the given [colNames]
@@ -192,133 +398,6 @@ class LookupTableCommands : CliktCommand(
             } else diffBuffer.clear()
             return diffBuffer
         }
-
-        private fun getArrayFromResponse(result: Result<FuelJson, FuelError>, response: Response): JsonArray {
-            when {
-                result is Result.Failure ->
-                    throw PrintMessage("Error while fetching lookup tables: ${result.error}.", true)
-
-                response.statusCode != HttpStatus.SC_OK ->
-                    throw PrintMessage(
-                        "Error while fetching lookup tables with response code ${response.statusCode}.",
-                        true
-                    )
-
-                result.get().content.isBlank() ->
-                    throw PrintMessage("Error: No data returned from API call while fetching lists.", true)
-
-                Json.parseToJsonElement(result.get().content) !is JsonArray ->
-                    throw PrintMessage("Error: No data returned from API call while fetching lists.", true)
-
-                Json.parseToJsonElement(result.get().content).jsonArray.any { it !is JsonObject } ->
-                    throw PrintMessage("Error: JSON array does not contain JSON objects .", true)
-
-                else -> return Json.parseToJsonElement(result.get().content).jsonArray
-            }
-        }
-
-        fun getTableRowsFromResponse(result: Result<FuelJson, FuelError>, response: Response): List<LookupTableRow> {
-            val jsonArray = getArrayFromResponse(result, response)
-            return jsonArray.map {
-                val row = LookupTableRow()
-                row.data = JSONB.jsonb(it.toString())
-                row
-            }
-        }
-
-        fun getTableInfoListFromResponse(result: Result<FuelJson, FuelError>, response: Response):
-            List<LookupTableVersion> {
-            val jsonArray = getArrayFromResponse(result, response)
-            return jsonArray.map {
-                val row = it as JsonObject
-                val newVersion = LookupTableVersion()
-                newVersion.tableName = (row["tableName"] as JsonPrimitive).content
-                newVersion.tableVersion = (row["tableVersion"] as JsonPrimitive).int
-                newVersion.isActive = (row["tableName"] as JsonPrimitive).content.toBoolean()
-                newVersion.createdBy = (row["createdBy"] as JsonPrimitive).content
-                newVersion.createdAt = OffsetDateTime.parse((row["createdAt"] as JsonPrimitive).content)
-                newVersion
-            }
-        }
-
-        fun getTableInfoFromResponse(result: Result<FuelJson, FuelError>, response: Response): LookupTableVersion {
-            when {
-                result is Result.Failure ->
-                    throw PrintMessage("Error while creating lookup table: ${result.error}.", true)
-
-                response.statusCode != HttpStatus.SC_OK ->
-                    throw PrintMessage(
-                        "Error while creating lookup table with response code ${response.statusCode}.",
-                        true
-                    )
-
-                result.get().content.isBlank() ->
-                    throw PrintMessage("Error: No data returned from API call while creating table.", true)
-
-                Json.parseToJsonElement(result.get().content) !is JsonObject ->
-                    throw PrintMessage("Error: No data returned from API call while creating table.", true)
-
-                else -> {
-                    val newVersion = LookupTableVersion()
-                    val info = Json.parseToJsonElement(result.get().content) as JsonObject
-                    newVersion.tableName = (info["tableName"] as JsonPrimitive).content
-                    newVersion.tableVersion = (info["tableVersion"] as JsonPrimitive).int
-                    newVersion.isActive = (info["tableName"] as JsonPrimitive).content.toBoolean()
-                    newVersion.createdBy = (info["createdBy"] as JsonPrimitive).content
-                    newVersion.createdAt = OffsetDateTime.parse((info["createdAt"] as JsonPrimitive).content)
-                    return newVersion
-                }
-            }
-        }
-
-        fun fetchList(environment: Environment, listInactive: Boolean = false): List<LookupTableVersion> {
-            val apiUrl = environment.formUrl(endpointRoot)
-            val (_, response, result) = Fuel
-                .get(apiUrl.toString(), listOf(LookupTableFunctions.showInactiveParamName to listInactive.toString()))
-                .authentication()
-                .bearer(environment.accessToken)
-                .responseJson()
-            return getTableInfoListFromResponse(result, response)
-        }
-
-        fun activateTable(environment: Environment, tableName: String, version: Int):
-            LookupTableVersion {
-            val apiUrl = environment.formUrl("$endpointRoot/$tableName/$version/activate")
-            val (_, response, result) = Fuel
-                .put(apiUrl.toString())
-                .authentication()
-                .bearer(environment.accessToken)
-                .responseJson()
-            return getTableInfoFromResponse(result, response)
-        }
-
-        fun fetchTableData(environment: Environment, tableName: String, version: Int): List<LookupTableRow> {
-            val apiUrl = environment.formUrl("$endpointRoot/$tableName/$version/content")
-            val (_, response, result) = Fuel
-                .get(apiUrl.toString())
-                .authentication()
-                .bearer(environment.accessToken)
-                .responseJson()
-            return LookupTableCommands.getTableRowsFromResponse(result, response)
-        }
-
-        fun createTable(environment: Environment, tableName: String, tableData: List<LookupTableRow>):
-            LookupTableVersion {
-            val apiUrl = environment.formUrl("$endpointRoot/$tableName")
-            val jsonRows = tableData.map {
-                Json.parseToJsonElement(it.data.toString())
-            }
-            val jsonPayload = JsonArray(jsonRows)
-
-            val (_, response, result) = Fuel
-                .put(apiUrl.toString())
-                .header(Headers.CONTENT_TYPE to "application/json")
-                .jsonBody(jsonPayload.toString())
-                .authentication()
-                .bearer(environment.accessToken)
-                .responseJson()
-            return LookupTableCommands.getTableInfoFromResponse(result, response)
-        }
     }
 }
 
@@ -338,9 +417,15 @@ abstract class GenericLookupTableCommand(name: String, help: String) : CliktComm
         )
         .default(Environment.LOCAL.envName, "local environment")
 
-    fun getEnvironment(): Environment {
-        return Environment.get(env)
-    }
+    /**
+     * The environment the command needs to run on.
+     */
+    internal val environment get() = Environment.get(env)
+
+    /**
+     * The lookup table utility.
+     */
+    internal val tableUtil get() = LookupTableEndpointUtilities(environment)
 }
 
 /**
@@ -369,26 +454,26 @@ class LookupTableGetCommand : GenericLookupTableCommand(
         .required()
 
     override fun run() {
-        val apiUrl = getEnvironment().formUrl("${LookupTableCommands.endpointRoot}/$tableName/$version/content")
-        val (_, response, result) = Fuel
-            .get(apiUrl.toString())
-            .authentication()
-            .bearer(getEnvironment().accessToken)
-            .responseJson()
-
-        val tableRows = LookupTableCommands.getTableRowsFromResponse(result, response)
-        if (tableRows.isNotEmpty()) {
+        val tableList = try {
+            tableUtil.fetchTableContent(tableName, version)
+        } catch (e: LookupTableEndpointUtilities.Companion.TableNotFoundException) {
+            throw PrintMessage("The table $tableName version $version was not found.", true)
+        } catch (e: IOException) {
+            throw PrintMessage("Error fetching the contents of table $tableName version $version: ${e.message}", true)
+        }
+        if (tableList.isNotEmpty()) {
+            // Output to a file if requested, otherwise output to the screen.
             if (outputFile == null) {
                 TermUi.echo("")
                 TermUi.echo("Table name: $tableName")
                 TermUi.echo("Version: $version")
-                val colNames = DatabaseLookupTableAccess.extractTableHeadersFromJson(tableRows[0].data)
-                TermUi.echo(LookupTableCommands.rowsToPrintableTable(tableRows, colNames))
+                val colNames = DatabaseLookupTableAccess.extractTableHeadersFromJson(tableList[0].data)
+                TermUi.echo(LookupTableCommands.rowsToPrintableTable(tableList, colNames))
                 TermUi.echo("")
             } else {
-                saveTable(outputFile!!, tableRows)
+                saveTable(outputFile!!, tableList)
                 TermUi.echo(
-                    "Saved ${tableRows.size} rows of table $tableName version $version " +
+                    "Saved ${tableList.size} rows of table $tableName version $version " +
                         "to ${outputFile!!.absolutePath} "
                 )
             }
@@ -431,26 +516,33 @@ class LookupTableCreateCommand : GenericLookupTableCommand(
         .required()
 
     override fun run() {
+        // Read the input file.
         val inputData = csvReader().readAllWithHeader(inputFile)
         if (inputData.size <= 1)
             error("Input file ${inputFile.absolutePath} has no data.")
-
-        val tableList = LookupTableCommands.fetchList(getEnvironment())
-        val activeVersion = (tableList.firstOrNull { it.tableName == tableName })?.tableVersion ?: 0
-
         val newTableData = inputData.map { row ->
             val tableRow = LookupTableRow()
             tableRow.data = LookupTableCommands.setTableRowToJson(row)
             tableRow
         }
 
+        // Output the data for review.
         TermUi.echo("Here is the table data to be created:")
         val colNames = DatabaseLookupTableAccess.extractTableHeadersFromJson(newTableData[0].data)
         TermUi.echo(LookupTableCommands.rowsToPrintableTable(newTableData, colNames))
         TermUi.echo("")
 
+        // If there is an existing active version then present a diff.
+        val tableList = try {
+            tableUtil.fetchList()
+        } catch (e: IOException) {
+            throw PrintMessage("Error fetching the list of tables: ${e.message}", true)
+        }
+        val activeVersion = (tableList.firstOrNull { it.tableName == tableName })?.tableVersion ?: 0
         if (activeVersion > 0) {
-            val activeTable = LookupTableCommands.fetchTableData(getEnvironment(), tableName, activeVersion)
+            val activeTable = try { tableUtil.fetchTableContent(tableName, activeVersion) } catch (e: Exception) {
+                throw PrintMessage("Error fetching active table content for table $tableName: ${e.message}", true)
+            }
             val diffOutput = LookupTableCommands.generateDiff(activeTable, newTableData, false)
             if (diffOutput.isNotEmpty()) {
                 TermUi.echo("Here is the diff compared to the active version $activeVersion:")
@@ -465,17 +557,26 @@ class LookupTableCreateCommand : GenericLookupTableCommand(
             }
         }
 
+        // Now we are ready.  Ask if we should proceed.
         if (TermUi.confirm("Continue to create a new version of $tableName with ${newTableData.size} rows?")
             == true
         ) {
-            val newTableInfo = LookupTableCommands.createTable(getEnvironment(), tableName, newTableData)
+            val newTableInfo = try { tableUtil.createTable(tableName, newTableData) } catch (e: IOException) {
+                throw PrintMessage("Error creating new table version for $tableName: ${e.message}", true)
+            }
             TermUi.echo(
                 "${newTableData.size} rows created for lookup table $tableName version " +
                     "${newTableInfo.tableVersion}."
             )
             // Always have an active version, so if this is the first version then activate it.
             if (newTableInfo.tableVersion == 1) {
-                LookupTableCommands.activateTable(getEnvironment(), tableName, newTableInfo.tableVersion)
+                try { tableUtil.activateTable(tableName, newTableInfo.tableVersion) } catch (e: Exception) {
+                    throw PrintMessage(
+                        "Error activating table $tableName version ${newTableInfo.tableVersion}. " +
+                            "Table was created.  Try to activate it. : ${e.message}",
+                        true
+                    )
+                }
                 TermUi.echo("Table version ${newTableInfo.tableVersion} is now active.")
             } else
                 TermUi.echo("Table version ${newTableInfo.tableVersion} left inactive, so don't forget to activate it.")
@@ -495,7 +596,9 @@ class LookupTableListCommand : GenericLookupTableCommand(
         .flag(default = false)
 
     override fun run() {
-        val data = LookupTableCommands.fetchList(getEnvironment(), showInactive)
+        val data = try { tableUtil.fetchList(showInactive) } catch (e: IOException) {
+            throw PrintMessage("Error fetching the list of tables: ${e.message}", true)
+        }
         if (showInactive)
             TermUi.echo("Listing all lookup tables including inactive.")
         else
@@ -545,28 +648,33 @@ class LookupTableDiffCommand : GenericLookupTableCommand(
         .flag(default = false)
 
     override fun run() {
-        var version1Table: List<LookupTableRow>? = null
-        var version1Info: LookupTableVersion? = null
-        var version2Table: List<LookupTableRow>? = null
-        var version2Info: LookupTableVersion? = null
-
-        try {
-            version1Table = LookupTableCommands.fetchTableData(getEnvironment(), tableName, version1)
-            version1Info = LookupTableCommands.fetchList(getEnvironment())
-                .firstOrNull { it.tableName == tableName && it.tableVersion == version1 }
-        } catch (e: CliktError) {
-            throw PrintMessage("Lookup table $tableName version $version1 does not exist.", true)
+        // Get the version information for the tables.  This checks if the tables exist.
+        val version1Info = try {
+            tableUtil.fetchTableInfo(tableName, version1)
+        } catch (e: LookupTableEndpointUtilities.Companion.TableNotFoundException) {
+            throw PrintMessage("The table $tableName version $version1 was not found.", true)
+        } catch (e: IOException) {
+            throw PrintMessage("Error fetching table version for $tableName version $version1: ${e.message}", true)
         }
-        try {
-            version2Table = LookupTableCommands.fetchTableData(getEnvironment(), tableName, version2)
-            version2Info = LookupTableCommands.fetchList(getEnvironment())
-                .firstOrNull { it.tableName == tableName && it.tableVersion == version2 }
-        } catch (e: CliktError) {
-            throw PrintMessage("Lookup table $tableName version $version2 does not exist.", true)
+        val version2Info = try {
+            tableUtil.fetchTableInfo(tableName, version2)
+        } catch (e: LookupTableEndpointUtilities.Companion.TableNotFoundException) {
+            throw PrintMessage("The table $tableName version $version2 was not found.", true)
+        } catch (e: IOException) {
+            throw PrintMessage("Error fetching table version for $tableName version $version2: ${e.message}", true)
         }
 
+        // Now get the content.
+        val version1Table = try { tableUtil.fetchTableContent(tableName, version1) } catch (e: Exception) {
+            throw PrintMessage("Error fetching table content for $tableName version $version1: ${e.message}", true)
+        }
+        val version2Table = try { tableUtil.fetchTableContent(tableName, version2) } catch (e: Exception) {
+            throw PrintMessage("Error fetching table content for $tableName version $version2: ${e.message}", true)
+        }
+
+        // Generate the diff.
         TermUi.echo("Comparing lookup table $tableName versions $version1 and $version2:")
-        TermUi.echo(LookupTableCommands.infoToPrintableTable(listOf(version1Info!!, version2Info!!)))
+        TermUi.echo(LookupTableCommands.infoToPrintableTable(listOf(version1Info, version2Info)))
         TermUi.echo("")
 
         val output = LookupTableCommands.generateDiff(version1Table, version2Table, fullDiff)
@@ -594,20 +702,28 @@ class LookupTableActivateCommand : GenericLookupTableCommand(
     private val version by option("-v", "--version").int().required()
 
     override fun run() {
-        val tableList = LookupTableCommands.fetchList(getEnvironment(), true)
-        val tableToActivate = tableList.firstOrNull { it.tableName == tableName && it.tableVersion == version }
-        val activeInfo = tableList.firstOrNull { it.tableName == tableName && it.isActive }
-        when {
-            tableToActivate == null ->
-                throw PrintMessage("ERROR: Table $tableName with version $version does not exist.")
+        // Verify the table exists
+        try {
+            tableUtil.fetchTableInfo(tableName, version)
+        } catch (e: LookupTableEndpointUtilities.Companion.TableNotFoundException) {
+            throw PrintMessage("The table $tableName version $version was not found.", true)
+        } catch (e: IOException) {
+            throw PrintMessage("Error fetching table version for $tableName version $version: ${e.message}", true)
+        }
 
-            activeInfo != null && activeInfo.tableVersion == version ->
+        // Find the currently active version
+        val tableList = try { tableUtil.fetchList(true) } catch (e: IOException) {
+            throw PrintMessage("Error fetching the list of tables: ${e.message}", true)
+        }
+        val currentlyActiveTable = tableList.firstOrNull { it.tableName == tableName && it.isActive }
+        when {
+            currentlyActiveTable != null && currentlyActiveTable.tableVersion == version ->
                 throw PrintMessage(
                     "Nothing to do. Lookup table $tableName's active version number is already " +
                         "$version."
                 )
 
-            activeInfo == null ->
+            currentlyActiveTable == null ->
                 TermUi.echo("Lookup table $tableName is not currently active")
 
             else ->
@@ -615,7 +731,7 @@ class LookupTableActivateCommand : GenericLookupTableCommand(
         }
 
         if (TermUi.confirm("Set $version as active?") == true) {
-            val activatedStatus = LookupTableCommands.activateTable(getEnvironment(), tableName, version)
+            val activatedStatus = tableUtil.activateTable(tableName, version)
             if (activatedStatus.isActive)
                 TermUi.echo("Version $version for lookup table $tableName was set active.")
             else
