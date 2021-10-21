@@ -53,7 +53,26 @@ If a you need to base your work on someone elses branch, talk to the branch owne
 
 There are a couple engineering overview documents that need to be written. Please read them when they are written.
 
-We want to emphasize some tried and true coding principles. A piece of code is read much more than times than it is written. Hence, we want readable code. Keep code functions short and at a single level of abstractions. Choose meaningful names and labels. Comments are welcomed, but only if the information provided cannot be expressed in code. Consider if refactoring with understandable names would be a better approach. 
+We want to emphasize some tried and true coding principles. **A piece of code is read many more than times than it is written**. Hence, we want readable code. Keep code functions short and at a single level of abstractions. Choose meaningful names and labels. Comments are welcomed, but only if the information provided cannot be expressed in code. Consider if refactoring with understandable names would be a better approach. 
+
+#### **Guiding Questions**
+_For every piece of work_
+- Does this meet/improve code clarity?
+	- Does this introduce any magic?
+- Does this improve separation of concerns? (Does this thing have more than one reason to change?)
+- Does this follow Dependency Inversion?
+- Are there existing patterns this could be following, or does it introduce new ones?
+
+#### **Implementation "Principles"** 
+_To help you get from here to there_
+- Say what you mean, simply and directly.
+    - Write clearly -- don't sacrifice clarity for "efficiency".
+- Don't stop with your first draft.
+- Use the "telephone test" for readability.
+- Keep it simple to make it faster.
+- Don't patch bad code -- rewrite it.
+- Make "bad code" clearly bad if you have to write it.
+- Any _large piece_ should have a design phase.
 
 Our codebase is based on Kotlin because it is a multiplatform language with seamless JVM compatibility. We also like that Kotlin promotes type safety and nullability checks. Accordingly, we try to follow the [Kotlin coding conventions](https://kotlinlang.org/docs/reference/coding-conventions.html). We reformat files to follow the style guide formatting rules as implemented by the `ktlint` tool. We emphasize the preferred [Idioms of Kotlin](https://kotlinlang.org/docs/reference/idioms.html) which are based on the ideas of functional programming with immutable data. 
 
