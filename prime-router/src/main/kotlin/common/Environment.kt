@@ -3,6 +3,9 @@ package gov.cdc.prime.router.cli
 import java.lang.IllegalArgumentException
 import java.net.URL
 
+/**
+ * Environment related information.
+ */
 enum class Environment(
     val envName: String,
     val url: URL,
@@ -22,6 +25,11 @@ enum class Environment(
     STAGING("staging", URL("https://staging.prime.cdc.gov"), oktaApp = OktaCommand.OktaApp.DH_TEST),
     PROD("prod", URL("https://prime.cdc.gov"), oktaApp = OktaCommand.OktaApp.DH_PROD);
 
+    /**
+     * Append a [path] to the URL of an environment to generate a new URL.  The starting / for [path] is optional
+     * and a / will be added as needed.
+     * @return a URL
+     */
     fun formUrl(path: String): URL {
         var urlString = url.toString()
         if (!urlString.endsWith("/") && !path.startsWith("/"))
@@ -29,22 +37,35 @@ enum class Environment(
         return URL(urlString + path)
     }
 
+    /**
+     * The OKTA access token.
+     */
     val accessToken: String get() =
-        if (oktaApp == null) "dummy"
+        if (oktaApp == null) dummyOktaAccessToken
         else OktaCommand.fetchAccessToken(oktaApp)
             ?: SettingCommand.abort("Invalid access token. Run ./prime login to fetch/refresh your access token.")
 
-    val baseUrl: String get() =
-        if ((url.protocol == "http" && url.port != 80) || (url.protocol == "https" && url.port != 443))
-            "${url.host}:${url.port}"
-        else
-            url.host
+    /**
+     * The baseUrl for the environment that contains only the host and port.
+     */
+    val baseUrl: String get() = getBaseUrl(url)
 
     companion object {
+        internal const val dummyOktaAccessToken = "dummy"
+
+        /**
+         * Get the environment based on the given [environment] string.
+         * @return an environment
+         * @throws IllegalArgumentException if the environment cannot be found
+         */
         fun get(environment: String): Environment {
             return valueOf(environment.uppercase())
         }
 
+        /**
+         * Get the environment from the system environment.
+         * @return an environment or LOCAL by default
+         */
         fun get(): Environment {
             val primeEnv = System.getenv("PRIME_ENVIRONMENT") ?: ""
             return try {
@@ -52,6 +73,18 @@ enum class Environment(
             } catch (e: IllegalArgumentException) {
                 LOCAL
             }
+        }
+
+        /**
+         * Get the baseUrl for a URL that contains only the host and port.
+         */
+        internal fun getBaseUrl(inputUrl: URL): String {
+            return if ((inputUrl.protocol == "http" && inputUrl.port != 80) ||
+                (inputUrl.protocol == "https" && inputUrl.port != 443)
+            )
+                "${inputUrl.host}:${inputUrl.port}"
+            else
+                inputUrl.host
         }
     }
 }
