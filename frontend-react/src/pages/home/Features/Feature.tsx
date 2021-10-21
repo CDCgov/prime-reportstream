@@ -1,4 +1,5 @@
 import { FeatureProp, SectionProp } from "../HomeProps";
+import DOMPurify from 'dompurify';
 
 import DeliveryMethodsFeature from "./DeliveryMethodsFeature";
 import LiveMapFeature from "./LiveMapFeature";
@@ -14,7 +15,8 @@ export default function Feature({
         return <DeliveryMethodsFeature feature={feature} />;
     } else if (section.type === "liveMap") {
         return <LiveMapFeature feature={feature} />;
-    } else
+    } else {
+        let cleanSummaryHtml = DOMPurify.sanitize(feature!.summary!);
         return (
             <div className="tablet:grid-col-4 margin-bottom-0">
                 <h3
@@ -26,8 +28,9 @@ export default function Feature({
                 <p
                     data-testid="summary"
                     className="usa-prose"
-                    dangerouslySetInnerHTML={{ __html: feature!.summary! }}
+                    dangerouslySetInnerHTML={{ __html: cleanSummaryHtml }}
                 ></p>
             </div>
         );
+    }
 }

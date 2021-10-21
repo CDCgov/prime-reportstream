@@ -1,10 +1,12 @@
 // @ts-nocheck // TODO: fix types in this file
 import CdcMap from "@cdc/map";
+import DOMPurify from 'dompurify';
 
 import { SectionProp } from "../HomeProps";
 import live from "../../../content/live.json";
 
 export default function LiveMapSection({ section }: { section: SectionProp }) {
+    let cleanDescriptionHtml = DOMPurify.sanitize(section!.description!)
     return (
         <div>
             <h2
@@ -25,7 +27,7 @@ export default function LiveMapSection({ section }: { section: SectionProp }) {
             <p
                 data-testid="description"
                 className="usa-prose margin-top-2"
-                dangerouslySetInnerHTML={{ __html: section!.description! }}
+                dangerouslySetInnerHTML={{ __html: cleanDescriptionHtml }}
             ></p>
         </div>
     );
