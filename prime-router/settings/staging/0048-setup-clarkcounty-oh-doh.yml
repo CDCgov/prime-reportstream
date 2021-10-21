@@ -1,6 +1,6 @@
 # ./prime multiple-settings set --env prod --input ./settings/prod/0048-setup-clarkcounty-oh.yml
 ---
-- name: oh-clark-doh
+- name: oh-ccchd-doh
   description: Ohio Department of Health - Clark County
   jurisdiction: COUNTY
   stateCode: OH
