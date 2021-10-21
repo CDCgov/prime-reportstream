@@ -27,7 +27,7 @@ jobs:
               - 'operations/dnsmasq/**'
 
   build_tfcli:
-    name: Build dnsmasq
+    name: Build Terraform CLI
     needs: pre_job
     if: ${{ needs.pre_job.outputs.has_tfcli_change == 'true' }}
     runs-on: ubuntu-latest
