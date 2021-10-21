@@ -28,7 +28,7 @@ plugins {
     kotlin("jvm") version "1.5.31"
     id("org.flywaydb.flyway") version "7.15.0"
     id("nu.studer.jooq") version "6.0.1"
-    id("com.github.johnrengelman.shadow") version "7.0.0"
+    id("com.github.johnrengelman.shadow") version "7.1.0"
     id("com.microsoft.azure.azurefunctions") version "1.8.0"
     id("org.jlleitschuh.gradle.ktlint") version "10.2.0"
     id("com.adarshr.test-logger") version "3.0.0"
@@ -243,6 +243,8 @@ tasks.register<JavaExec>("primeCLI") {
     description = "Run the Prime CLI tool.  Specify arguments with --args='<args>'"
     mainClass.set(primeMainClass)
     classpath = sourceSets["main"].runtimeClasspath
+    standardInput = System.`in`
+
     // Default arguments is to display the help
     environment["POSTGRES_URL"] = dbUrl
     environment["POSTGRES_USER"] = dbUser
@@ -498,16 +500,17 @@ repositories {
 }
 
 dependencies {
-    jooqGenerator("org.postgresql:postgresql:42.2.24")
+    jooqGenerator("org.postgresql:postgresql:42.3.0")
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-common:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
     implementation("com.microsoft.azure.functions:azure-functions-java-library:1.4.2")
-    implementation("com.azure:azure-core:1.20.0")
-    implementation("com.azure:azure-core-http-netty:1.11.0")
-    implementation("com.azure:azure-storage-blob:12.14.0") {
+    implementation("com.azure:azure-core:1.21.0")
+    implementation("com.azure:azure-core-http-netty:1.11.1")
+    implementation("com.azure:azure-storage-blob:12.14.1") {
         exclude(group = "com.azure", module = "azure-core")
     }
     implementation("com.azure:azure-storage-queue:12.11.0") {
@@ -517,7 +520,7 @@ dependencies {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
-    implementation("com.azure:azure-identity:1.3.6") {
+    implementation("com.azure:azure-identity:1.4.0") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
@@ -551,7 +554,7 @@ dependencies {
     implementation("org.apache.commons:commons-text:1.9")
     implementation("commons-codec:commons-codec:1.15")
     implementation("commons-io:commons-io:2.11.0")
-    implementation("org.postgresql:postgresql:42.2.23")
+    implementation("org.postgresql:postgresql:42.3.0")
     implementation("com.zaxxer:HikariCP:5.0.0")
     implementation("org.flywaydb:flyway-core:7.15.0")
     implementation("com.github.kayr:fuzzy-csv:1.7.0")
@@ -562,11 +565,13 @@ dependencies {
     implementation("org.bouncycastle:bcpkix-jdk15on:1.69")
     implementation("org.bouncycastle:bcmail-jdk15on:1.69")
     implementation("org.bouncycastle:bcprov-jdk15on:1.69")
-    implementation("commons-net:commons-net:3.8.0")
 
+    implementation("commons-net:commons-net:3.8.0")
     implementation("com.cronutils:cron-utils:9.1.5")
     implementation("khttp:khttp:1.0.0")
     implementation("io.jsonwebtoken:jjwt-api:0.11.2")
+    implementation("de.m3y.kformat:kformat:0.8")
+    implementation("io.github.java-diff-utils:java-diff-utils:4.11")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.1")
     runtimeOnly("com.github.kittinunf.fuel:fuel-jackson:2.3.1")
