@@ -52,3 +52,11 @@ If you answered '_yes_' to any of the questions above, conduct a detailed Review
     - **E**levation of Privilege (reduce restrictions that apply or gain privileges one should not have)
 - Have you ensured logging does not contain sensitive data?
 - Have you received any additional approvals needed for this change?
+
+## Guiding questions for Author and Reviewer:
+
+- Do these changes meet/improve code clarity?
+	- Do these changes introduce any magic?
+- Do these changes improve separation of concerns? (Does this thing have more than one reason to change?)
+- Do these changes follow Dependency Inversion?
+- Do these changes follow patterns already in the codebase? (If not, can / should they?)
