@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - master
-      - ronheft/palo-alto-lower-try-2
 
 env:
   REGISTRY: ghcr.io
