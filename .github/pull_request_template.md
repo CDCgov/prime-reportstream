@@ -38,7 +38,7 @@ Test Steps:
 - Does this change introduce new dependencies that need vetting?
 - Does this change require changes to our infrastructure?
 - Does logging contain sensitive data?
-- Are there existing patterns this could be following, or does it introduce new ones?
+- Does this PR include or remove any sensitive information itself?
 
 If you answered '_yes_' to any of the questions above, conduct a detailed Review that addresses at least:
 
