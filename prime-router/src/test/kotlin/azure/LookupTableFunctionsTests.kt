@@ -146,7 +146,7 @@ class LookupTableFunctionsTests {
         LookupTableFunctions(lookupTableAccess).getLookupTableData(mockRequest, tableName, tableVersionNum, mockContext)
         verifyError(mockResponseBuilder)
 
-        // Create a table
+        // Get a table
         val tableData = listOf(LookupTableRow(), LookupTableRow())
         tableData[0].data = JSONB.jsonb("""{"a": "11", "b": "21"}""")
         tableData[1].data = JSONB.jsonb("""{"a": "12", "b": "22"}""")
@@ -166,6 +166,52 @@ class LookupTableFunctionsTests {
                     assertTrue(json[0] is JsonObject)
                     assertTrue((json[0] as JsonObject).containsKey("a"))
                     assertTrue((json[0] as JsonObject).containsKey("b"))
+                }
+            )
+        }
+
+        // Database error
+        mockResponseBuilder = createResponseBuilder()
+        every { lookupTableAccess.doesTableExist(any(), any()) }.throws(DataAccessException("error"))
+        every { mockRequest.createResponseBuilder(HttpStatus.INTERNAL_SERVER_ERROR) } returns mockResponseBuilder
+        LookupTableFunctions(lookupTableAccess).getLookupTableData(mockRequest, tableName, tableVersionNum, mockContext)
+        verifyError(mockResponseBuilder)
+    }
+
+    @Test
+    fun `get lookup table info by name and version test`() {
+        val tableName = "dummyTable"
+        val tableVersionNum = 1
+        every { mockRequest.httpMethod } returns HttpMethod.GET
+
+        // Table does not exist
+        var mockResponseBuilder = createResponseBuilder()
+        val lookupTableAccess = mockk<DatabaseLookupTableAccess>()
+        every { lookupTableAccess.fetchVersionInfo(eq(tableName), eq(tableVersionNum)) } returns null
+        every { mockRequest.createResponseBuilder(HttpStatus.NOT_FOUND) } returns mockResponseBuilder
+        LookupTableFunctions(lookupTableAccess).getLookupTableInfo(mockRequest, tableName, tableVersionNum, mockContext)
+        verifyError(mockResponseBuilder)
+
+        // Get a table info
+        val tableInfo = LookupTableVersion()
+        tableInfo.tableName = tableName
+        tableInfo.tableVersion = tableVersionNum
+        tableInfo.isActive = true
+        tableInfo.createdBy = "dummyUser"
+        tableInfo.createdAt = OffsetDateTime.now()
+        mockResponseBuilder = createResponseBuilder()
+        every { lookupTableAccess.fetchVersionInfo(eq(tableName), eq(tableVersionNum)) } returns tableInfo
+        every { mockRequest.createResponseBuilder(HttpStatus.OK) } returns mockResponseBuilder
+        LookupTableFunctions(lookupTableAccess).getLookupTableInfo(mockRequest, tableName, tableVersionNum, mockContext)
+        verify(exactly = 1) {
+            mockResponseBuilder.body(
+                withArg {
+                    // Check that we have JSON data in the response body
+                    assertTrue(it is String)
+                    val json = Json.parseToJsonElement(it)
+                    assertTrue(json is JsonObject)
+                    assertTrue(json.containsKey("tableName"))
+                    assertEquals(tableName, (json["tableName"] as JsonPrimitive).contentOrNull)
                 }
             )
         }

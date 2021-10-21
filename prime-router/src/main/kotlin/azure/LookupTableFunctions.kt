@@ -109,6 +109,38 @@ class LookupTableFunctions(
     }
 
     /**
+     * Fetch the data for a specific table version.
+     */
+    @FunctionName("getLookupTableInfo")
+    fun getLookupTableInfo(
+        @HttpTrigger(
+            name = "getLookupTableInfo",
+            methods = [HttpMethod.GET],
+            authLevel = AuthorizationLevel.ANONYMOUS,
+            route = "lookuptables/{tableName}/{tableVersion}/info"
+        ) request: HttpRequestMessage<String?>,
+        @BindingName("tableName") tableName: String,
+        @BindingName("tableVersion") tableVersion: Int,
+        context: ExecutionContext
+    ): HttpResponseMessage {
+        return getOktaAuthenticator().checkAccess(request) {
+            try {
+                val tableInfo = lookupTableAccess.fetchVersionInfo(tableName, tableVersion)
+                if (tableInfo == null)
+                    HttpUtilities.notFoundResponse(
+                        request,
+                        "Table $tableName with version $tableVersion does not exist."
+                    )
+                else
+                    HttpUtilities.okResponse(request, mapper.writeValueAsString(tableInfo))
+            } catch (e: DataAccessException) {
+                logger.error("Unable to fetch lookup table with version $tableVersion", e)
+                HttpUtilities.internalErrorResponse(request)
+            }
+        }
+    }
+
+    /**
      * Create a lookup table. The first version of a table is automatically activated.
      */
     @FunctionName("createLookupTable")
