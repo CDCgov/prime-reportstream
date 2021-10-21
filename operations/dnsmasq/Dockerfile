@@ -11,4 +11,7 @@ ARG AZ_ENV
 COPY config /tmp/config
 RUN cp -r /tmp/config/${AZ_ENV}/. /etc/dnsmasq.d/
 
+# Remove the unused configs
+RUN rm -r /tmp/config
+
 ENTRYPOINT ["dnsmasq", "-k"]
