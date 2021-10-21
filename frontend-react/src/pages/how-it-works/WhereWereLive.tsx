@@ -1,6 +1,6 @@
 // @ts-nocheck // TODO: fix types in this file
 import CdcMap from "@cdc/map";
-import DOMPurify from 'dompurify';
+import DOMPurify from "dompurify";
 import { Helmet } from "react-helmet";
 
 import live from "../../content/live.json";

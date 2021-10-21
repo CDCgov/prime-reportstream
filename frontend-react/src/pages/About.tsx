@@ -1,5 +1,5 @@
 import { Helmet } from "react-helmet";
-import DOMPurify from 'dompurify';
+import DOMPurify from "dompurify";
 
 import site from "../content/site.json";
 
@@ -23,7 +23,9 @@ export const About = () => {
                 </p>
 
                 <a
-                    href={DOMPurify.sanitize(site.pdfPath) + "PRIME-1-pager.pdf"}
+                    href={
+                        DOMPurify.sanitize(site.pdfPath) + "PRIME-1-pager.pdf"
+                    }
                     className="usa-button usa-button--outline margin-bottom-2 tablet:margin-bottom-0"
                 >
                     Download PRIME 1-pager
@@ -41,18 +43,27 @@ export const About = () => {
                     <p className="usa-prose">
                         ReportStream (also known as PRIME ReportStream) was
                         created for the public good by the{" "}
-                        <a href={DOMPurify.sanitize(site.orgs.CDC.url)} className="usa-link">
+                        <a
+                            href={DOMPurify.sanitize(site.orgs.CDC.url)}
+                            className="usa-link"
+                        >
                             Centers for Disease Control and Prevention (CDC)
                         </a>
                         , and the{" "}
-                        <a href={DOMPurify.sanitize(site.orgs.USDS.url)} className="usa-link">
+                        <a
+                            href={DOMPurify.sanitize(site.orgs.USDS.url)}
+                            className="usa-link"
+                        >
                             U.S. Digital Service (USDS)
                         </a>
                         .
                     </p>
                     <p>
                         Part of the{" "}
-                        <a href={DOMPurify.sanitize(site.orgs.PRIME.url)} className="usa-link">
+                        <a
+                            href={DOMPurify.sanitize(site.orgs.PRIME.url)}
+                            className="usa-link"
+                        >
                             Pandemic-Ready Interoperability Modernization Effort
                             (PRIME)
                         </a>

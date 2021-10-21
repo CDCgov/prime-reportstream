@@ -1,5 +1,6 @@
+import DOMPurify from "dompurify";
+
 import { SectionProp } from "../HomeProps";
-import DOMPurify from 'dompurify';
 import site from "../../../content/site.json";
 
 export default function CtaSection({ section }: { section: SectionProp }) {

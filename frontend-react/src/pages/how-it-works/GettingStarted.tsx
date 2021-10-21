@@ -1,5 +1,5 @@
 import { Helmet } from "react-helmet";
-import DOMPurify from 'dompurify';
+import DOMPurify from "dompurify";
 
 import site from "../../content/site.json";
 
@@ -124,7 +124,9 @@ export const GettingStarted = () => {
                             Tell us your data configuration requirements and
                             preferences by submitting our{" "}
                             <a
-                                href={DOMPurify.sanitize(site.forms.intakeElr.url)}
+                                href={DOMPurify.sanitize(
+                                    site.forms.intakeElr.url
+                                )}
                                 className="usa-link"
                             >
                                 ReportStream ELR onboarding form
@@ -188,7 +190,10 @@ export const GettingStarted = () => {
                     </a>
                     to preview the information you’ll need to complete step one:
                     the{" "}
-                    <a href={DOMPurify.sanitize(site.forms.intakeElr.url)} className="usa-link">
+                    <a
+                        href={DOMPurify.sanitize(site.forms.intakeElr.url)}
+                        className="usa-link"
+                    >
                         ReportStream ELR onboarding form
                     </a>
                     .

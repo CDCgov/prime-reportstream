@@ -1,6 +1,6 @@
 import { Helmet } from "react-helmet";
 import { NavLink } from "react-router-dom";
-import DOMPurify from 'dompurify';
+import DOMPurify from "dompurify";
 
 import site from "../../content/site.json";
 

@@ -29,16 +29,18 @@ export const Home = () => {
                                 <Section section={section} />
                             </div>
                             <div className="grid-row grid-gap margin-bottom-4 ">
-                                {section.features?.map((feature, featureIndex) => {
-                                    return (
-                                        <Feature
-                                            data-testid="feature"
-                                            key={`feature-${sectionIndex}.${featureIndex}`}
-                                            section={section}
-                                            feature={feature}
-                                        />
-                                    );
-                                })}
+                                {section.features?.map(
+                                    (feature, featureIndex) => {
+                                        return (
+                                            <Feature
+                                                data-testid="feature"
+                                                key={`feature-${sectionIndex}.${featureIndex}`}
+                                                section={section}
+                                                feature={feature}
+                                            />
+                                        );
+                                    }
+                                )}
                             </div>
                         </section>
                     );

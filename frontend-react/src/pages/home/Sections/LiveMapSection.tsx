@@ -1,12 +1,12 @@
 // @ts-nocheck // TODO: fix types in this file
 import CdcMap from "@cdc/map";
-import DOMPurify from 'dompurify';
+import DOMPurify from "dompurify";
 
 import { SectionProp } from "../HomeProps";
 import live from "../../../content/live.json";
 
 export default function LiveMapSection({ section }: { section: SectionProp }) {
-    let cleanDescriptionHtml = DOMPurify.sanitize(section!.description!)
+    let cleanDescriptionHtml = DOMPurify.sanitize(section!.description!);
     return (
         <div>
             <h2

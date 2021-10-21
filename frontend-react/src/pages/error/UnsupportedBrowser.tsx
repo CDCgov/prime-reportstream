@@ -1,5 +1,6 @@
+import DOMPurify from "dompurify";
+
 import site from "../../content/site.json";
-import DOMPurify from 'dompurify';
 
 export const UnsupportedBrowser = () => {
     return (

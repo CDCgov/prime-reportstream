@@ -1,5 +1,6 @@
+import DOMPurify from "dompurify";
+
 import { FeatureProp, SectionProp } from "../HomeProps";
-import DOMPurify from 'dompurify';
 
 import DeliveryMethodsFeature from "./DeliveryMethodsFeature";
 import LiveMapFeature from "./LiveMapFeature";
