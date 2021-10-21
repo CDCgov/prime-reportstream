@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.azure
 
 import com.google.gson.Gson
+import com.google.gson.JsonSyntaxException
 import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
@@ -32,17 +33,43 @@ const val TOS_SUBJECT_BASE = "TOS Agreement for "
 */
 const val TOS_AGREEMENT_TEMPLATE_ID = "d-472779cf554f418a9209acb62d2a48da"
 
-class TosAgreement {
-    data class TosAgreementFormData(
-        val title: String,
-        val firstName: String,
-        val lastName: String,
-        val email: String,
-        val territory: String,
-        val organizationName: String,
-        val operatesInMultipleStates: Boolean,
-        val agreedToTermsOfService: Boolean
-    )
+data class TosAgreementForm(
+    val title: String?,
+    val firstName: String?,
+    val lastName: String?,
+    val email: String?,
+    val territory: String?,
+    val organizationName: String?,
+    val operatesInMultipleStates: Boolean?,
+    val agreedToTermsOfService: Boolean?
+) {
+    fun validate(): Boolean {
+        if (this.verifyAgreed() && this.verifyNoNull()) {
+            return true
+        }
+        return false
+    }
+
+    private fun verifyNoNull(): Boolean {
+        val funName = "verifyNoNull"
+        if (
+            this.title.isNullOrBlank() ||
+            this.firstName.isNullOrBlank() ||
+            this.lastName.isNullOrBlank() ||
+            this.email.isNullOrBlank() ||
+            this.territory.isNullOrBlank() ||
+            this.organizationName.isNullOrBlank()
+        ) {
+            println("$funName -- It appears one of your values is Null")
+            return false
+        }
+        println("$funName -- No nulls found! Continuing.")
+        return true
+    }
+
+    private fun verifyAgreed(): Boolean {
+        return this.agreedToTermsOfService ?: false
+    }
 }
 
 class EmailSenderFunction {
@@ -60,7 +87,7 @@ class EmailSenderFunction {
         context: ExecutionContext,
     ): HttpResponseMessage {
         val logger: Logger = context.logger
-        var ret = request.createResponseBuilder(HttpStatus.BAD_REQUEST)
+        val ret = request.createResponseBuilder(HttpStatus.BAD_REQUEST)
 
         if (request.body !== null) {
             logger.info(request.body)
@@ -70,42 +97,54 @@ class EmailSenderFunction {
         return ret.build()
     }
 
-    private fun trimStrings(body: TosAgreement.TosAgreementFormData) {
-        
-    }
-
-    private fun parseBody(requestBody: String): TosAgreement.TosAgreementFormData? {
+    private fun parseBody(requestBody: String): TosAgreementForm {
         val gson = Gson()
-        val tosAgreement = TosAgreement.TosAgreementFormData::class.java
+        val tosAgreement = TosAgreementForm::class.java
 
-        /*TODO:
-        *  This should turn into something that's returned with a dynamic class (second
-        *  param) to parse many types of request bodies.
-        */
-        return gson.fromJson<TosAgreement.TosAgreementFormData>(
-            requestBody,
-            tosAgreement
-        )
+        try {
+            /*TODO:
+            *  This should turn into something that's returned with a dynamic class (second
+            *  param) to parse many types of request bodies.
+            */
+            return gson.fromJson<TosAgreementForm>(
+                requestBody,
+                tosAgreement
+            )
+        } catch (ex: JsonSyntaxException) {
+            throw ex
+        }
     }
 
     private fun createMail(requestBody: String): String? {
-        val body = parseBody(requestBody)
+        val funName: String = "createMail"
         val mail: Mail = Mail()
         val p: Personalization = Personalization()
+        val body: TosAgreementForm
+
+        try {
+            body = parseBody(requestBody)
+        } catch (e: JsonSyntaxException) {
+            println("$funName -- Uh oh, there was an exception thrown: ${e.message}")
+            return null
+        }
 
         /*TODO:
         *  I want to turn this block into something that is dynamically set via some
         *  param we pass in. For now, though, this will handle the TOS mail construction.
         */
-        mail.setTemplateId(TOS_AGREEMENT_TEMPLATE_ID)
-        mail.setFrom(Email(NO_REPLY_EMAIL))
-        mail.setSubject(TOS_SUBJECT_BASE + body?.organizationName)
-        p.addTo(Email(REPORT_STREAM_EMAIL))
-        p.addCc(Email(body?.email))
-        p.addDynamicTemplateData("formData", body)
-        mail.addPersonalization(p)
+        if (body.validate()) {
+            mail.setTemplateId(TOS_AGREEMENT_TEMPLATE_ID)
+            mail.setFrom(Email(NO_REPLY_EMAIL))
+            mail.setSubject(TOS_SUBJECT_BASE + body.organizationName)
+            p.addTo(Email(REPORT_STREAM_EMAIL))
+            p.addCc(Email(body.email))
+            p.addDynamicTemplateData("formData", body)
+            mail.addPersonalization(p)
 
-        return mail.build()
+            return mail.build()
+        }
+        println("$funName -- Your body was not validated")
+        return null
     }
 
     private fun sendMail(requestBody: String, logger: Logger): HttpStatus {
@@ -114,7 +153,7 @@ class EmailSenderFunction {
         val mail = createMail(requestBody)
         val sendgridId: String? = SecretHelper.getSecretService().fetchSecret("SENDGRID_ID")
 
-        if (sendgridId !== null) {
+        if (sendgridId !== null && mail !== null) {
             val sg: SendGrid = SendGrid(sendgridId)
             val request: Request = Request()
 
@@ -134,7 +173,10 @@ class EmailSenderFunction {
                     logger.severe("error - ${response.body}")
                 }
             }
-        } else {
+        } else if (mail === null) {
+            logger.info("Error in the createMail() function")
+            status = HttpStatus.BAD_REQUEST
+        } else if (sendgridId === null) {
             logger.info("Can't find SENDGRID_ID secret")
             logger.info(mail)
         }
