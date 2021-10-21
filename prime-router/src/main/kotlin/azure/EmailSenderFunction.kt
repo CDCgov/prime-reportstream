@@ -15,7 +15,6 @@ import com.sendgrid.Request
 import com.sendgrid.Response
 import com.sendgrid.SendGrid
 import com.sendgrid.helpers.mail.Mail
-import com.sendgrid.helpers.mail.objects.Content
 import com.sendgrid.helpers.mail.objects.Email
 import com.sendgrid.helpers.mail.objects.Personalization
 import gov.cdc.prime.router.secrets.SecretHelper
@@ -23,12 +22,12 @@ import java.io.IOException
 import java.util.logging.Logger
 
 const val NO_REPLY_EMAIL = "no-reply@cdc.gov"
-const val REGISTER_EMAIL = "reportstream@cdc.gov"
-const val REGISTER_SUBJECT_BASE = "TOS Agreement for "
-const val TEMPLATE_ID = "d-472779cf554f418a9209acb62d2a48da"
+const val REPORT_STREAM_EMAIL = "reportstream@cdc.gov"
+const val TOS_SUBJECT_BASE = "TOS Agreement for "
+const val TOS_TEMPLATE_ID = "d-472779cf554f418a9209acb62d2a48da"
 
-class SenderTosRequest {
-    data class SenderTosFormJSON(
+class TosAgreement {
+    data class TosAgreementFormData(
         val title: String,
         val firstName: String,
         val lastName: String,
@@ -65,66 +64,61 @@ class EmailSenderFunction {
         return ret.build()
     }
 
-    private fun sendRegistrationConfirmation(requestBody: String, logger: Logger): HttpStatus {
+    private fun parseBody(requestBody: String): TosAgreement.TosAgreementFormData? {
         val gson = Gson()
-        val body = gson.fromJson<SenderTosRequest.SenderTosFormJSON>(
+        val tosAgreement = TosAgreement.TosAgreementFormData::class.java
+
+        /*TODO:
+        *  This should turn into something that's returned with a dynamic class (second
+        *  param) to parse many types of request bodies.
+        */
+        return gson.fromJson<TosAgreement.TosAgreementFormData>(
             requestBody,
-            SenderTosRequest.SenderTosFormJSON::class.java
+            tosAgreement
         )
-        val title = body.title
-        val firstName = body.firstName
-        val lastName = body.lastName
-        val email = body.email
-        val territory = body.territory
-        val organizationName = body.organizationName
-        val operatesInMultipleStates = body.operatesInMultipleStates
-        val agreedToTermsOfService = body.agreedToTermsOfService
+    }
 
-        var status: HttpStatus = HttpStatus.NOT_FOUND
-        val content: Content = Content()
-        content.type = "plain/text"
-
-        val p: Personalization = Personalization()
-        p.addTo(Email(REGISTER_EMAIL))
-        p.addCc(Email(email))
-        p.addDynamicTemplateData(
-            "formData",
-            object {
-                var title = title
-                var firstName = firstName
-                var lastName = lastName
-                var email = email
-                var territory = territory
-                var organizationName = organizationName
-                var operatesInMultipleStates = operatesInMultipleStates
-                var agreedToTermsOfService = agreedToTermsOfService
-            }
-        )
-
+    private fun createMail(requestBody: String): String? {
+        val body = parseBody(requestBody)
         val mail: Mail = Mail()
-        mail.setTemplateId(TEMPLATE_ID)
-        mail.addPersonalization(p)
-        mail.setSubject(REGISTER_SUBJECT_BASE + organizationName)
-        mail.setFrom(Email(NO_REPLY_EMAIL))
+        val p: Personalization = Personalization()
 
-        var sendgridId: String? = SecretHelper.getSecretService().fetchSecret("SENDGRID_ID")
+        /*TODO:
+        *  I want to turn this block into something that is dynamically set via some
+        *  param we pass in. For now, though, this will handle the TOS mail construction.
+        */
+        mail.setTemplateId(TOS_TEMPLATE_ID)
+        mail.setFrom(Email(NO_REPLY_EMAIL))
+        mail.setSubject(TOS_SUBJECT_BASE + body?.organizationName)
+        p.addTo(Email(REPORT_STREAM_EMAIL))
+        p.addCc(Email(body?.email))
+        p.addDynamicTemplateData("formData", body)
+        mail.addPersonalization(p)
+
+        return mail.build()
+    }
+
+    private fun sendRegistrationConfirmation(requestBody: String, logger: Logger): HttpStatus {
         var response: Response = Response()
+        var status: HttpStatus = HttpStatus.NOT_FOUND
+        val mail = createMail(requestBody)
+        val sendgridId: String? = SecretHelper.getSecretService().fetchSecret("SENDGRID_ID")
 
         if (sendgridId !== null) {
-
             val sg: SendGrid = SendGrid(sendgridId)
             val request: Request = Request()
 
+            request.method = Method.POST
+            request.endpoint = "mail/send"
+            request.body = mail
+
             try {
-                request.method = Method.POST
-                request.endpoint = "mail/send"
-                request.body = mail.build()
                 response = sg.api(request)
             } catch (ex: IOException) {
                 logger.warning("Can't contact sendgrid")
                 status = HttpStatus.BAD_GATEWAY
             } finally {
-                logger.info("sending to $email - result ${response.statusCode}")
+                logger.info("sending email - result ${response.statusCode}")
                 status = HttpStatus.valueOf(response.statusCode)
                 if (!(200..299).contains(response.statusCode)) {
                     logger.severe("error - ${response.body}")
@@ -132,7 +126,7 @@ class EmailSenderFunction {
             }
         } else {
             logger.info("Can't find SENDGRID_ID secret")
-            logger.info(mail.build())
+            logger.info(mail)
         }
 
         return status
