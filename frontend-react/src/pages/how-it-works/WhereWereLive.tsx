@@ -1,5 +1,6 @@
 // @ts-nocheck // TODO: fix types in this file
 import CdcMap from "@cdc/map";
+import DOMPurify from 'dompurify';
 import { Helmet } from "react-helmet";
 
 import live from "../../content/live.json";
@@ -26,7 +27,7 @@ export const WhereWereLive = () => {
                     <a
                         href={
                             "mailto:" +
-                            site.orgs.RS.email +
+                            DOMPurify.sanitize(site.orgs.RS.email) +
                             "?subject=Getting started with ReportStream"
                         }
                         className="margin-left-1"

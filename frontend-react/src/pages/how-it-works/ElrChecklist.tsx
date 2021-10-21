@@ -1,6 +1,7 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 /* eslint-disable jsx-a11y/anchor-has-content */
 import { Helmet } from "react-helmet";
+import DOMPurify from 'dompurify';
 
 import site from "../../content/site.json";
 
@@ -27,7 +28,7 @@ export const ELRChecklist = () => {
                 </p>
 
                 <a
-                    href={site.forms.intakeElr.url}
+                    href={DOMPurify.sanitize(site.forms.intakeElr.url)}
                     target="_blank"
                     rel="noreferrer"
                     className="usa-button margin-bottom-2 tablet:margin-bottom-0"
@@ -37,7 +38,7 @@ export const ELRChecklist = () => {
                 <a
                     href={
                         "mailto:" +
-                        site.orgs.RS.email +
+                        DOMPurify.sanitize(site.orgs.RS.email) +
                         "?subject=Getting started with ReportStream"
                     }
                     className="usa-button usa-button--outline"
@@ -323,7 +324,7 @@ export const ELRChecklist = () => {
                     <a
                         href={
                             "mailto:" +
-                            site.orgs.RS.email +
+                            DOMPurify.sanitize(site.orgs.RS.email) +
                             "?subject=Getting started with ReportStream"
                         }
                         className="usa-button usa-button--outline"

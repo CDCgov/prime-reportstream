@@ -1,4 +1,5 @@
 import site from "../../content/site.json";
+import DOMPurify from 'dompurify';
 
 export const UnsupportedBrowser = () => {
     return (
@@ -28,7 +29,7 @@ export const UnsupportedBrowser = () => {
             </ul>
             <p>
                 Still having issues? Contact ReportStream support at{" "}
-                <a href={"mailto:" + site.orgs.RS.email}>
+                <a href={"mailto:" + DOMPurify.sanitize(site.orgs.RS.email)}>
                     {site.orgs.RS.email}
                 </a>
                 .
