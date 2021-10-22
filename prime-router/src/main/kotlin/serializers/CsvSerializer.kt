@@ -364,11 +364,7 @@ class CsvSerializer(val metadata: Metadata) : Logging {
 
         // Now process the data through mappers and default values
         schema.elements.forEach { element ->
-            // if there's no value for the report_index field, set to a default value using the row index number
-            if (element.name == "report_index" && lookupValues[element.name].isNullOrBlank()) {
-                lookupValues[element.name] = "R$index"
-            }
-            lookupValues[element.name] = element.processValue(lookupValues, schema, csvMapping.defaultOverrides)
+            lookupValues[element.name] = element.processValue(lookupValues, schema, csvMapping.defaultOverrides, index)
         }
 
         // Output with value

@@ -9,6 +9,7 @@ import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import assertk.assertions.startsWith
 import java.time.Instant
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.time.ZoneId
@@ -588,5 +589,20 @@ internal class ElementTests {
 
         assertThat(elementA.useDefault("")).isTrue()
         assertThat(elementA.useDefault("dummyValue")).isFalse()
+    }
+
+    @Test
+    fun `test tokenized value mapping`() {
+        val elementNameIndex = "\$index"
+        val elementNameCurrentDate = "\$currentDate"
+
+        val mockElement = Element("mock")
+        val elementAndValueIndex = mockElement.tokenizeMapperValue(elementNameIndex, 3)
+        val formatter = DateTimeFormatter.ofPattern("yyyyMMdd")
+        val currentDate = LocalDate.now().format(formatter)
+        val elementAndValueCurrentDate = mockElement.tokenizeMapperValue(elementNameCurrentDate)
+
+        assertThat(elementAndValueIndex?.value).isEqualTo("3")
+        assertThat(elementAndValueCurrentDate?.value).isEqualTo(currentDate)
     }
 }
