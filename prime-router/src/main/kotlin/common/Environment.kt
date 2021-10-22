@@ -1,5 +1,6 @@
-package gov.cdc.prime.router.cli
+package gov.cdc.prime.router.common
 
+import gov.cdc.prime.router.cli.OktaCommand
 import java.lang.IllegalArgumentException
 import java.net.URL
 
@@ -38,21 +39,11 @@ enum class Environment(
     }
 
     /**
-     * The OKTA access token.
-     */
-    val accessToken: String get() =
-        if (oktaApp == null) dummyOktaAccessToken
-        else OktaCommand.fetchAccessToken(oktaApp)
-            ?: SettingCommand.abort("Invalid access token. Run ./prime login to fetch/refresh your access token.")
-
-    /**
      * The baseUrl for the environment that contains only the host and port.
      */
     val baseUrl: String get() = getBaseUrl(url)
 
     companion object {
-        internal const val dummyOktaAccessToken = "dummy"
-
         /**
          * Get the environment based on the given [environment] string.
          * @return an environment
@@ -79,8 +70,11 @@ enum class Environment(
          * Get the baseUrl for a URL that contains only the host and port.
          */
         internal fun getBaseUrl(inputUrl: URL): String {
-            return if ((inputUrl.protocol == "http" && inputUrl.port != 80) ||
-                (inputUrl.protocol == "https" && inputUrl.port != 443)
+            return if (inputUrl.port > 0 &&
+                (
+                    (inputUrl.protocol == "http" && inputUrl.port != 80) ||
+                        (inputUrl.protocol == "https" && inputUrl.port != 443)
+                    )
             )
                 "${inputUrl.host}:${inputUrl.port}"
             else

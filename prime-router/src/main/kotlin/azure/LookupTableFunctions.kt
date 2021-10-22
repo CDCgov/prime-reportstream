@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.google.common.base.Preconditions
-import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
@@ -31,6 +30,9 @@ class LookupTableFunctions(
     private var oktaAuthentication: OktaAuthentication? = null
 ) : Logging {
 
+    /**
+     * Mapper to convert objects to JSON.
+     */
     private val mapper: ObjectMapper = jacksonObjectMapper()
 
     init {
@@ -59,8 +61,7 @@ class LookupTableFunctions(
             methods = [HttpMethod.GET],
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "lookuptables/list"
-        ) request: HttpRequestMessage<String?>,
-        context: ExecutionContext
+        ) request: HttpRequestMessage<String?>
     ): HttpResponseMessage {
         return getOktaAuthenticator().checkAccess(request) {
             try {
@@ -89,8 +90,7 @@ class LookupTableFunctions(
             route = "lookuptables/{tableName}/{tableVersion}/content"
         ) request: HttpRequestMessage<String?>,
         @BindingName("tableName") tableName: String,
-        @BindingName("tableVersion") tableVersion: Int,
-        context: ExecutionContext
+        @BindingName("tableVersion") tableVersion: Int
     ): HttpResponseMessage {
         return getOktaAuthenticator().checkAccess(request) {
             try {
@@ -120,8 +120,7 @@ class LookupTableFunctions(
             route = "lookuptables/{tableName}/{tableVersion}/info"
         ) request: HttpRequestMessage<String?>,
         @BindingName("tableName") tableName: String,
-        @BindingName("tableVersion") tableVersion: Int,
-        context: ExecutionContext
+        @BindingName("tableVersion") tableVersion: Int
     ): HttpResponseMessage {
         return getOktaAuthenticator().checkAccess(request) {
             try {
@@ -151,8 +150,7 @@ class LookupTableFunctions(
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "lookuptables/{tableName}"
         ) request: HttpRequestMessage<String?>,
-        @BindingName("tableName") tableName: String,
-        context: ExecutionContext
+        @BindingName("tableName") tableName: String
     ): HttpResponseMessage {
         return getOktaAuthenticator(PrincipalLevel.SYSTEM_ADMIN).checkAccess(request) {
             try {
@@ -212,8 +210,7 @@ class LookupTableFunctions(
             route = "lookuptables/{tableName}/{tableVersion}/activate"
         ) request: HttpRequestMessage<String?>,
         @BindingName("tableName") tableName: String,
-        @BindingName("tableVersion") tableVersion: Int,
-        context: ExecutionContext
+        @BindingName("tableVersion") tableVersion: Int
     ): HttpResponseMessage {
         return getOktaAuthenticator(PrincipalLevel.SYSTEM_ADMIN).checkAccess(request) {
             try {
@@ -250,7 +247,7 @@ class LookupTableFunctions(
         /**
          * Name of the query parameter to show inactive tables.
          */
-        val showInactiveParamName = "showInactive"
+        const val showInactiveParamName = "showInactive"
 
         /**
          * Create the JSON representation of an error [message].

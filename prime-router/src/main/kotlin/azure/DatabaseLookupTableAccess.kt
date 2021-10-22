@@ -19,7 +19,9 @@ class DatabaseLookupTableAccess(private val db: DatabaseAccess = DatabaseAccess(
     fun fetchActiveVersion(tableName: String): Int? {
         var version: Int? = null
         db.transact { txn ->
-            version = DSL.using(txn).select(Tables.LOOKUP_TABLE_VERSION.TABLE_VERSION).from(Tables.LOOKUP_TABLE_VERSION)
+            version = DSL.using(txn).select(Tables.LOOKUP_TABLE_VERSION.TABLE_VERSION).from(
+                Tables.LOOKUP_TABLE_VERSION
+            )
                 .where(
                     Tables.LOOKUP_TABLE_VERSION.TABLE_NAME.eq(tableName)
                         .and(Tables.LOOKUP_TABLE_VERSION.IS_ACTIVE.eq(true))
@@ -36,7 +38,9 @@ class DatabaseLookupTableAccess(private val db: DatabaseAccess = DatabaseAccess(
     fun fetchLatestVersion(tableName: String): Int? {
         var version: Int? = null
         db.transact { txn ->
-            version = DSL.using(txn).select(Tables.LOOKUP_TABLE_VERSION.TABLE_VERSION).from(Tables.LOOKUP_TABLE_VERSION)
+            version = DSL.using(txn).select(Tables.LOOKUP_TABLE_VERSION.TABLE_VERSION).from(
+                Tables.LOOKUP_TABLE_VERSION
+            )
                 .where(Tables.LOOKUP_TABLE_VERSION.TABLE_NAME.eq(tableName))
                 .orderBy(Tables.LOOKUP_TABLE_VERSION.TABLE_VERSION.desc())
                 .limit(1)
@@ -99,7 +103,9 @@ class DatabaseLookupTableAccess(private val db: DatabaseAccess = DatabaseAccess(
     fun fetchTable(tableName: String, version: Int): List<LookupTableRow> {
         var rows = emptyList<LookupTableRow>()
         db.transact { txn ->
-            rows = DSL.using(txn).select().from(Tables.LOOKUP_TABLE_ROW).join(Tables.LOOKUP_TABLE_VERSION)
+            rows = DSL.using(txn).select().from(Tables.LOOKUP_TABLE_ROW).join(
+                Tables.LOOKUP_TABLE_VERSION
+            )
                 .on(
                     Tables.LOOKUP_TABLE_ROW.LOOKUP_TABLE_VERSION_ID
                         .eq(Tables.LOOKUP_TABLE_VERSION.LOOKUP_TABLE_VERSION_ID)
@@ -114,27 +120,6 @@ class DatabaseLookupTableAccess(private val db: DatabaseAccess = DatabaseAccess(
     }
 
     /**
-     * Deactivate a [tableName].
-     * @return true if the table was deactivated, false if the table was already inactive
-     */
-    fun deactivateTable(tableName: String): Boolean {
-        var retVal = false
-        var updateCount = 0
-        db.transact { txn ->
-            updateCount = DSL.using(txn).update(Tables.LOOKUP_TABLE_VERSION)
-                .set(Tables.LOOKUP_TABLE_VERSION.IS_ACTIVE, false)
-                .where(
-                    Tables.LOOKUP_TABLE_VERSION.TABLE_NAME.eq(tableName)
-                        .and(Tables.LOOKUP_TABLE_VERSION.IS_ACTIVE.eq(true))
-                ).execute()
-        }
-
-        if (updateCount == 1)
-            retVal = true
-        return retVal
-    }
-
-    /**
      * Activate a [tableName].
      * @return true if the table was activated, false if the table was already active
      */
@@ -143,7 +128,9 @@ class DatabaseLookupTableAccess(private val db: DatabaseAccess = DatabaseAccess(
         var updateCount = 0
         db.transact { txn ->
             // First deactivate the table if it is active
-            DSL.using(txn).update(Tables.LOOKUP_TABLE_VERSION).set(Tables.LOOKUP_TABLE_VERSION.IS_ACTIVE, false)
+            DSL.using(txn).update(Tables.LOOKUP_TABLE_VERSION).set(
+                Tables.LOOKUP_TABLE_VERSION.IS_ACTIVE, false
+            )
                 .where(
                     Tables.LOOKUP_TABLE_VERSION.TABLE_NAME.eq(tableName)
                         .and(Tables.LOOKUP_TABLE_VERSION.IS_ACTIVE.eq(true))

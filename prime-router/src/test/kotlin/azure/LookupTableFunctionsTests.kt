@@ -7,7 +7,6 @@ import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import com.google.common.net.HttpHeaders
-import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
@@ -41,11 +40,6 @@ class LookupTableFunctionsTests {
      * The mock request.
      */
     private val mockRequest = mockk<HttpRequestMessage<String?>>()
-
-    /**
-     * The mock execution context.
-     */
-    private val mockContext = mockk<ExecutionContext>()
 
     @BeforeAll
     fun initDependencies() {
@@ -87,7 +81,7 @@ class LookupTableFunctionsTests {
         every { mockRequest.queryParameters } returns emptyMap()
         var mockResponseBuilder = createResponseBuilder()
         every { mockRequest.createResponseBuilder(HttpStatus.OK) } returns mockResponseBuilder
-        LookupTableFunctions(lookupTableAccess).getLookupTableList(mockRequest, mockContext)
+        LookupTableFunctions(lookupTableAccess).getLookupTableList(mockRequest)
         verify(exactly = 1) {
             mockResponseBuilder.body(
                 withArg {
@@ -111,7 +105,7 @@ class LookupTableFunctionsTests {
         every { mockRequest.queryParameters } returns mapOf(LookupTableFunctions.showInactiveParamName to "true")
         mockResponseBuilder = createResponseBuilder()
         every { mockRequest.createResponseBuilder(HttpStatus.OK) } returns mockResponseBuilder
-        LookupTableFunctions(lookupTableAccess).getLookupTableList(mockRequest, mockContext)
+        LookupTableFunctions(lookupTableAccess).getLookupTableList(mockRequest)
         verify(exactly = 1) {
             mockResponseBuilder.body(
                 withArg {
@@ -128,7 +122,7 @@ class LookupTableFunctionsTests {
         every { lookupTableAccess.fetchTableList(any()) }.throws(DataAccessException("error"))
         mockResponseBuilder = createResponseBuilder()
         every { mockRequest.createResponseBuilder(HttpStatus.INTERNAL_SERVER_ERROR) } returns mockResponseBuilder
-        LookupTableFunctions(lookupTableAccess).getLookupTableList(mockRequest, mockContext)
+        LookupTableFunctions(lookupTableAccess).getLookupTableList(mockRequest)
         verifyError(mockResponseBuilder)
     }
 
@@ -143,18 +137,21 @@ class LookupTableFunctionsTests {
         val lookupTableAccess = mockk<DatabaseLookupTableAccess>()
         every { lookupTableAccess.doesTableExist(eq(tableName), eq(tableVersionNum)) } returns false
         every { mockRequest.createResponseBuilder(HttpStatus.NOT_FOUND) } returns mockResponseBuilder
-        LookupTableFunctions(lookupTableAccess).getLookupTableData(mockRequest, tableName, tableVersionNum, mockContext)
+        LookupTableFunctions(lookupTableAccess).getLookupTableData(mockRequest, tableName, tableVersionNum)
         verifyError(mockResponseBuilder)
 
         // Get a table
-        val tableData = listOf(LookupTableRow(), LookupTableRow())
+        val tableData = listOf(
+            LookupTableRow(),
+            LookupTableRow()
+        )
         tableData[0].data = JSONB.jsonb("""{"a": "11", "b": "21"}""")
         tableData[1].data = JSONB.jsonb("""{"a": "12", "b": "22"}""")
         mockResponseBuilder = createResponseBuilder()
         every { lookupTableAccess.doesTableExist(eq(tableName), eq(tableVersionNum)) } returns true
         every { lookupTableAccess.fetchTable(eq(tableName), eq(tableVersionNum)) } returns tableData
         every { mockRequest.createResponseBuilder(HttpStatus.OK) } returns mockResponseBuilder
-        LookupTableFunctions(lookupTableAccess).getLookupTableData(mockRequest, tableName, tableVersionNum, mockContext)
+        LookupTableFunctions(lookupTableAccess).getLookupTableData(mockRequest, tableName, tableVersionNum)
         verify(exactly = 1) {
             mockResponseBuilder.body(
                 withArg {
@@ -174,7 +171,7 @@ class LookupTableFunctionsTests {
         mockResponseBuilder = createResponseBuilder()
         every { lookupTableAccess.doesTableExist(any(), any()) }.throws(DataAccessException("error"))
         every { mockRequest.createResponseBuilder(HttpStatus.INTERNAL_SERVER_ERROR) } returns mockResponseBuilder
-        LookupTableFunctions(lookupTableAccess).getLookupTableData(mockRequest, tableName, tableVersionNum, mockContext)
+        LookupTableFunctions(lookupTableAccess).getLookupTableData(mockRequest, tableName, tableVersionNum)
         verifyError(mockResponseBuilder)
     }
 
@@ -189,7 +186,7 @@ class LookupTableFunctionsTests {
         val lookupTableAccess = mockk<DatabaseLookupTableAccess>()
         every { lookupTableAccess.fetchVersionInfo(eq(tableName), eq(tableVersionNum)) } returns null
         every { mockRequest.createResponseBuilder(HttpStatus.NOT_FOUND) } returns mockResponseBuilder
-        LookupTableFunctions(lookupTableAccess).getLookupTableInfo(mockRequest, tableName, tableVersionNum, mockContext)
+        LookupTableFunctions(lookupTableAccess).getLookupTableInfo(mockRequest, tableName, tableVersionNum)
         verifyError(mockResponseBuilder)
 
         // Get a table info
@@ -202,7 +199,7 @@ class LookupTableFunctionsTests {
         mockResponseBuilder = createResponseBuilder()
         every { lookupTableAccess.fetchVersionInfo(eq(tableName), eq(tableVersionNum)) } returns tableInfo
         every { mockRequest.createResponseBuilder(HttpStatus.OK) } returns mockResponseBuilder
-        LookupTableFunctions(lookupTableAccess).getLookupTableInfo(mockRequest, tableName, tableVersionNum, mockContext)
+        LookupTableFunctions(lookupTableAccess).getLookupTableInfo(mockRequest, tableName, tableVersionNum)
         verify(exactly = 1) {
             mockResponseBuilder.body(
                 withArg {
@@ -220,7 +217,7 @@ class LookupTableFunctionsTests {
         mockResponseBuilder = createResponseBuilder()
         every { lookupTableAccess.doesTableExist(any(), any()) }.throws(DataAccessException("error"))
         every { mockRequest.createResponseBuilder(HttpStatus.INTERNAL_SERVER_ERROR) } returns mockResponseBuilder
-        LookupTableFunctions(lookupTableAccess).getLookupTableData(mockRequest, tableName, tableVersionNum, mockContext)
+        LookupTableFunctions(lookupTableAccess).getLookupTableData(mockRequest, tableName, tableVersionNum)
         verifyError(mockResponseBuilder)
     }
 
@@ -286,7 +283,10 @@ class LookupTableFunctionsTests {
 
     @Test
     fun `convert table to data to json test`() {
-        val tableData = listOf(LookupTableRow(), LookupTableRow())
+        val tableData = listOf(
+            LookupTableRow(),
+            LookupTableRow()
+        )
         tableData[0].data = JSONB.jsonb("""{"a": "11", "b": "21"}""")
         tableData[1].data = JSONB.jsonb("""{"a": "12", "b": "22"}""")
 
@@ -324,14 +324,14 @@ class LookupTableFunctionsTests {
         every { mockRequest.createResponseBuilder(HttpStatus.BAD_REQUEST) } returns mockResponseBuilder
         every { mockRequest.body } returns ""
         every { lookupTableAccess.fetchLatestVersion(tableName) } returns latestVersion
-        LookupTableFunctions(lookupTableAccess).createLookupTable(mockRequest, tableName, mockContext)
+        LookupTableFunctions(lookupTableAccess).createLookupTable(mockRequest, tableName)
         verifyError(mockResponseBuilder)
 
         // Payload is not consistent
         mockResponseBuilder = createResponseBuilder()
         every { mockRequest.createResponseBuilder(HttpStatus.BAD_REQUEST) } returns mockResponseBuilder
         every { mockRequest.body } returns """[{"a": "11", "b": "21"},{"a": "12"}]"""
-        LookupTableFunctions(lookupTableAccess).createLookupTable(mockRequest, tableName, mockContext)
+        LookupTableFunctions(lookupTableAccess).createLookupTable(mockRequest, tableName)
         verifyError(mockResponseBuilder)
 
         // Create a new version of an existing table
@@ -346,7 +346,7 @@ class LookupTableFunctionsTests {
         versionInfo.createdAt = OffsetDateTime.now()
         every { lookupTableAccess.createTable(eq(tableName), eq(latestVersion + 1), any()) } returns Unit
         every { lookupTableAccess.fetchVersionInfo(eq(tableName), eq(latestVersion + 1)) } returns versionInfo
-        LookupTableFunctions(lookupTableAccess).createLookupTable(mockRequest, tableName, mockContext)
+        LookupTableFunctions(lookupTableAccess).createLookupTable(mockRequest, tableName)
         verify(exactly = 1) {
             lookupTableAccess.createTable(
                 any(), any(),
@@ -375,7 +375,7 @@ class LookupTableFunctionsTests {
         every { lookupTableAccess.fetchLatestVersion(tableName) } returns null
         every { lookupTableAccess.createTable(eq(tableName), eq(1), any()) } returns Unit
         every { lookupTableAccess.fetchVersionInfo(eq(tableName), eq(1)) } returns versionInfo
-        LookupTableFunctions(lookupTableAccess).createLookupTable(mockRequest, tableName, mockContext)
+        LookupTableFunctions(lookupTableAccess).createLookupTable(mockRequest, tableName)
         verify(exactly = 1) {
             mockResponseBuilder.body(
                 withArg {
@@ -396,7 +396,7 @@ class LookupTableFunctionsTests {
         mockResponseBuilder = createResponseBuilder()
         every { lookupTableAccess.fetchLatestVersion(tableName) }.throws(DataAccessException("error"))
         every { mockRequest.createResponseBuilder(HttpStatus.INTERNAL_SERVER_ERROR) } returns mockResponseBuilder
-        LookupTableFunctions(lookupTableAccess).createLookupTable(mockRequest, tableName, mockContext)
+        LookupTableFunctions(lookupTableAccess).createLookupTable(mockRequest, tableName)
         verifyError(mockResponseBuilder)
     }
 
@@ -411,10 +411,7 @@ class LookupTableFunctionsTests {
         val lookupTableAccess = mockk<DatabaseLookupTableAccess>()
         every { lookupTableAccess.doesTableExist(eq(tableName), eq(tableVersionNum)) } returns false
         every { mockRequest.createResponseBuilder(HttpStatus.NOT_FOUND) } returns mockResponseBuilder
-        LookupTableFunctions(lookupTableAccess).activateLookupTable(
-            mockRequest, tableName, tableVersionNum,
-            mockContext
-        )
+        LookupTableFunctions(lookupTableAccess).activateLookupTable(mockRequest, tableName, tableVersionNum)
         verifyError(mockResponseBuilder)
 
         // Activate a table
@@ -429,10 +426,7 @@ class LookupTableFunctionsTests {
         every { lookupTableAccess.activateTable(eq(tableName), eq(tableVersionNum)) } returns true
         every { lookupTableAccess.fetchVersionInfo(eq(tableName), eq(tableVersionNum)) } returns versionInfo
         every { mockRequest.createResponseBuilder(HttpStatus.OK) } returns mockResponseBuilder
-        LookupTableFunctions(lookupTableAccess).activateLookupTable(
-            mockRequest, tableName, tableVersionNum,
-            mockContext
-        )
+        LookupTableFunctions(lookupTableAccess).activateLookupTable(mockRequest, tableName, tableVersionNum)
         verify(exactly = 1) {
             mockResponseBuilder.body(
                 withArg {
@@ -449,7 +443,7 @@ class LookupTableFunctionsTests {
         mockResponseBuilder = createResponseBuilder()
         every { lookupTableAccess.doesTableExist(any(), any()) }.throws(DataAccessException("error"))
         every { mockRequest.createResponseBuilder(HttpStatus.INTERNAL_SERVER_ERROR) } returns mockResponseBuilder
-        LookupTableFunctions(lookupTableAccess).getLookupTableData(mockRequest, tableName, tableVersionNum, mockContext)
+        LookupTableFunctions(lookupTableAccess).getLookupTableData(mockRequest, tableName, tableVersionNum)
         verifyError(mockResponseBuilder)
     }
 

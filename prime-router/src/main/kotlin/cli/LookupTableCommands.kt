@@ -27,9 +27,12 @@ import com.google.common.base.Preconditions
 import de.m3y.kformat.Table
 import de.m3y.kformat.table
 import gov.cdc.prime.router.azure.DatabaseLookupTableAccess
+import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.LookupTableFunctions
 import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableRow
 import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableVersion
+import gov.cdc.prime.router.common.Environment
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
@@ -45,11 +48,18 @@ import org.jooq.JSONB
 import java.io.File
 import java.io.IOException
 import java.time.OffsetDateTime
+import java.time.format.DateTimeParseException
 
 /**
  * Utilities to submit and get data from the Lookup Tables API.
  */
 class LookupTableEndpointUtilities(val environment: Environment) {
+    /**
+     * The Okta Access Token.
+     */
+    private val oktaAccessToken = OktaCommand.fetchAccessToken(environment.oktaApp)
+        ?: throw PrintMessage("Invalid access token. Run ./prime login to fetch/refresh your access token.", true)
+
     /**
      * Fetches the list of tables from the API.
      * @return if [listInactive] is false then only a list of active tables is returned, otherwise all tables are listed
@@ -60,18 +70,11 @@ class LookupTableEndpointUtilities(val environment: Environment) {
         val (_, response, result) = Fuel
             .get(apiUrl.toString(), listOf(LookupTableFunctions.showInactiveParamName to listInactive.toString()))
             .authentication()
-            .bearer(environment.accessToken)
+            .bearer(oktaAccessToken)
             .responseJson()
         val jsonArray = getArrayFromResponse(result, response)
         return jsonArray.map {
-            val row = it as JsonObject
-            val newVersion = LookupTableVersion()
-            newVersion.tableName = (row["tableName"] as JsonPrimitive).content
-            newVersion.tableVersion = (row["tableVersion"] as JsonPrimitive).int
-            newVersion.isActive = (row["tableName"] as JsonPrimitive).content.toBoolean()
-            newVersion.createdBy = (row["createdBy"] as JsonPrimitive).content
-            newVersion.createdAt = OffsetDateTime.parse((row["createdAt"] as JsonPrimitive).content)
-            newVersion
+            convertJsonToInfo(it as JsonObject)
         }
     }
 
@@ -87,7 +90,7 @@ class LookupTableEndpointUtilities(val environment: Environment) {
         val (_, response, result) = Fuel
             .put(apiUrl.toString())
             .authentication()
-            .bearer(environment.accessToken)
+            .bearer(oktaAccessToken)
             .responseJson()
         return getTableInfoFromResponse(result, response)
     }
@@ -103,7 +106,7 @@ class LookupTableEndpointUtilities(val environment: Environment) {
         val (_, response, result) = Fuel
             .get(apiUrl.toString())
             .authentication()
-            .bearer(environment.accessToken)
+            .bearer(oktaAccessToken)
             .responseJson()
         val jsonArray = getArrayFromResponse(result, response)
         return jsonArray.map {
@@ -124,7 +127,7 @@ class LookupTableEndpointUtilities(val environment: Environment) {
         val (_, response, result) = Fuel
             .get(apiUrl.toString())
             .authentication()
-            .bearer(environment.accessToken)
+            .bearer(oktaAccessToken)
             .responseJson()
         return getTableInfoFromResponse(result, response)
     }
@@ -145,10 +148,10 @@ class LookupTableEndpointUtilities(val environment: Environment) {
 
         val (_, response, result) = Fuel
             .put(apiUrl.toString())
-            .header(Headers.CONTENT_TYPE to "application/json")
+            .header(Headers.CONTENT_TYPE to HttpUtilities.jsonMediaType)
             .jsonBody(jsonPayload.toString())
             .authentication()
-            .bearer(environment.accessToken)
+            .bearer(oktaAccessToken)
             .responseJson()
         return getTableInfoFromResponse(result, response)
     }
@@ -164,22 +167,43 @@ class LookupTableEndpointUtilities(val environment: Environment) {
          */
         class TableNotFoundException(message: String) : Exception(message)
 
+        internal fun convertJsonToInfo(info: JsonObject): LookupTableVersion {
+            val newVersion = LookupTableVersion()
+            try {
+                newVersion.tableName = (info["tableName"] as JsonPrimitive).content
+                newVersion.tableVersion = (info["tableVersion"] as JsonPrimitive).int
+                newVersion.isActive = (info["tableName"] as JsonPrimitive).content.toBoolean()
+                newVersion.createdBy = (info["createdBy"] as JsonPrimitive).content
+                newVersion.createdAt = OffsetDateTime.parse((info["createdAt"] as JsonPrimitive).content)
+            } catch (e: NullPointerException) {
+                throw IOException("One or more version fields were empty in table version info.")
+            } catch (e: NumberFormatException) {
+                throw IOException("Invalid version number in table version info.")
+            } catch (e: DateTimeParseException) {
+                throw IOException("Invalid created at time in table version info.")
+            }
+            return newVersion
+        }
         /**
          * Gets a JSON array from a [result] and [response] returned by the API.
          * @return a JSON array
          * @throws TableNotFoundException if the table and/or version is not found
          * @throws IOException if there is a server or API error
          */
-        private fun getArrayFromResponse(result: Result<FuelJson, FuelError>, response: Response): JsonArray {
+        internal fun getArrayFromResponse(result: Result<FuelJson, FuelError>, response: Response): JsonArray {
             checkCommonErrorsFromResponse(result, response)
-            when {
-                Json.parseToJsonElement(result.get().content) !is JsonArray ->
-                    throw IOException("Invalid data returned in response is not an array.")
+            try {
+                when {
+                    Json.parseToJsonElement(result.get().content) !is JsonArray ->
+                        throw IOException("Invalid data returned in response is not an array.")
 
-                Json.parseToJsonElement(result.get().content).jsonArray.any { it !is JsonObject } ->
-                    throw IOException("Invalid data returned in response is not an array ob objects.")
+                    Json.parseToJsonElement(result.get().content).jsonArray.any { it !is JsonObject } ->
+                        throw IOException("Invalid data returned in response is not an array ob objects.")
 
-                else -> return Json.parseToJsonElement(result.get().content).jsonArray
+                    else -> return Json.parseToJsonElement(result.get().content).jsonArray
+                }
+            } catch (e: SerializationException) {
+                throw IOException("Invalid JSON response.")
             }
         }
 
@@ -194,20 +218,17 @@ class LookupTableEndpointUtilities(val environment: Environment) {
             response: Response
         ): LookupTableVersion {
             checkCommonErrorsFromResponse(result, response)
-            when {
-                Json.parseToJsonElement(result.get().content) !is JsonObject ->
-                    throw IOException("Invalid response body")
+            try {
+                return when {
+                    Json.parseToJsonElement(result.get().content) !is JsonObject ->
+                        throw IOException("Invalid response body")
 
-                else -> {
-                    val newVersion = LookupTableVersion()
-                    val info = Json.parseToJsonElement(result.get().content) as JsonObject
-                    newVersion.tableName = (info["tableName"] as JsonPrimitive).content
-                    newVersion.tableVersion = (info["tableVersion"] as JsonPrimitive).int
-                    newVersion.isActive = (info["tableName"] as JsonPrimitive).content.toBoolean()
-                    newVersion.createdBy = (info["createdBy"] as JsonPrimitive).content
-                    newVersion.createdAt = OffsetDateTime.parse((info["createdAt"] as JsonPrimitive).content)
-                    return newVersion
+                    else -> {
+                        convertJsonToInfo(Json.parseToJsonElement(result.get().content) as JsonObject)
+                    }
                 }
+            } catch (e: SerializationException) {
+                throw IOException("Invalid JSON response.")
             }
         }
 
@@ -216,17 +237,27 @@ class LookupTableEndpointUtilities(val environment: Environment) {
          * @throws TableNotFoundException if the table and/or version is not found
          * @throws IOException if there is a server or API error
          */
-        private fun checkCommonErrorsFromResponse(result: Result<FuelJson, FuelError>, response: Response) {
+        internal fun checkCommonErrorsFromResponse(result: Result<FuelJson, FuelError>, response: Response) {
             when {
-                result is Result.Failure && getErrorFromResponse(result, response).isBlank() ->
-                    throw IOException(result.error)
-
-                // Do this second as we could get a NOT FOUND if the endpoint is not running
-                result is Result.Failure && response.statusCode == HttpStatus.SC_NOT_FOUND ->
-                    throw TableNotFoundException(getErrorFromResponse(result, response))
+                result is Result.Failure && response.statusCode == HttpStatus.SC_NOT_FOUND -> {
+                    val error = getErrorFromResponse(result)
+                    try {
+                        // If we do get a 404 with a JSON error message then it is because the table was not found
+                        if (Json.parseToJsonElement(result.error.response.body().asString(HttpUtilities.jsonMediaType))
+                            .jsonObject.containsKey("error")
+                        )
+                            throw TableNotFoundException(error)
+                        else
+                        // This is the case where we get a 404, but it is because the server cannot find the endpoint
+                            throw IOException(error)
+                    } catch (e: SerializationException) {
+                        // The error message is not JSON.
+                        throw IOException(error)
+                    }
+                }
 
                 result is Result.Failure ->
-                    throw IOException(getErrorFromResponse(result, response))
+                    throw IOException(getErrorFromResponse(result))
 
                 result.get().content.isBlank() ->
                     throw IOException("Empty response body")
@@ -234,18 +265,31 @@ class LookupTableEndpointUtilities(val environment: Environment) {
         }
 
         /**
-         * Get the error message from a [result] and [response] as returned by the API.
+         * Get the error message from a [result] as returned by the API.
          * @return The error as a string or null if no error is found.
          */
-        private fun getErrorFromResponse(result: Result<FuelJson, FuelError>, response: Response): String {
-            return when {
-                result !is Result.Failure -> ""
-                response.body().isEmpty() -> result.error.toString()
-                Json.parseToJsonElement(response.body().toString()) !is JsonObject -> result.error.toString()
-                !Json.parseToJsonElement(response.body().toString()).jsonObject.containsKey("error") ->
-                    result.error.toString()
-                else -> Json.parseToJsonElement(response.body().toString())
-                    .jsonObject["error"]?.jsonPrimitive?.contentOrNull ?: ""
+        internal fun getErrorFromResponse(result: Result<FuelJson, FuelError>): String {
+            return try {
+                when {
+                    result !is Result.Failure -> ""
+
+                    result.error.response.body().isEmpty() -> result.error.toString()
+
+                    Json.parseToJsonElement(
+                        result.error.response.body()
+                            .asString(HttpUtilities.jsonMediaType)
+                    ) !is JsonObject ->
+                        result.error.toString()
+
+                    !Json.parseToJsonElement(result.error.response.body().asString(HttpUtilities.jsonMediaType))
+                        .jsonObject.containsKey("error") ->
+                        result.error.toString()
+
+                    else -> Json.parseToJsonElement(result.error.response.body().asString(HttpUtilities.jsonMediaType))
+                        .jsonObject["error"]?.jsonPrimitive?.contentOrNull ?: ""
+                }
+            } catch (e: SerializationException) {
+                (result as Result.Failure).error.toString()
             }
         }
     }
