@@ -102,9 +102,6 @@ elements:
     - name: date_result_released
       csvFields: [{name: Date_result_released, format: "M/d/yyyy H:nn"}]
 
-    - name: test_result_report_date
-      csvFields: [{name: Test_date, format: "M/d/yyyy"}]
-
     - name: test_result
       type: CODE
       valueSet: sender-automation/test_result
@@ -355,6 +352,11 @@ elements:
     - name: Specimen_received_date_time_Ignore
       type: TEXT
       csvFields: [{name: Specimen_received_date_time}]
+      documentation: This field is ignored.
+
+    - name: Test_date_Ignore
+      type: TEXT
+      csvFields: [{name: Test_date}]
       documentation: This field is ignored.
 
     - name: Testing_lab_specimen_ID_Ignore
