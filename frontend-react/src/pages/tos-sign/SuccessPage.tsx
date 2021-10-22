@@ -69,7 +69,7 @@ function SuccessPage({ data }: { data: AgreementBody }) {
         }
     ];
     return (
-        <div className="tablet:grid-col-6 margin-x-auto">
+        <div data-testid="success-container" className="tablet:grid-col-6 margin-x-auto">
             <Title
                 preTitle="Account registration"
                 title={`You're almost there, ${data.firstName}!`}
