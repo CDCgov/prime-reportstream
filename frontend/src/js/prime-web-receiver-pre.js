@@ -1,3 +1,20 @@
+const debug = (message) => {
+    // get the URL
+    const params = (new URL(document.location)).searchParams;
+    // if the debug value exists
+    if (params.has("debug")) {
+        // log the message
+        console.log(message);
+    }
+};
+
+const getSpinner = () => {
+    return `
+        <i class="fa fa-cog fa-spin fa-3x fa-fw"></i>
+        <span class="sr-only">Loading...</span>
+    `
+};
+
 /** Convert Org name
  * from DHzz_phd
  * to zz-phd
@@ -5,7 +22,24 @@
  * @returns {*|string}
  */
 function convertOrgName(claimsOrgName) {
-    return claimsOrgName.substring(2).replaceAll("_", "-");
+    return claimsOrgName.indexOf("DH") === 0 ?
+        claimsOrgName.substring(2).replaceAll("_", "-") :
+        claimsOrgName;
+}
+
+/**
+ * gets the base url
+ * @returns {string}
+ */
+function getBaseUrl() {
+    if (window.location.origin.includes("localhost"))
+        return "http://localhost:7071";
+    else if (window.location.origin.includes("staging"))
+        return "https://staging.prime.cdc.gov";
+    else if (window.location.origin.includes("test"))
+        return "https://test.reportstream.cdc.gov";
+    else
+        return "https://prime.cdc.gov";
 }
 
 /** getClaimsOrgValue
@@ -20,26 +54,17 @@ function getClaimsOrgValue() {
  * used for axios headers to call ReportStream api endpoints
  * @returns {{headers: {Authorization: string, Organization: (*|string)}}}
  */
-function apiConfig() {
+function apiConfig(url) {
+    debug(`apiConfig organization = ${getClaimsOrgValue()}`);
+
     return {
+        url: url,
+        baseURL: `${getBaseUrl()}/api/`,
         headers: {
             'Authorization': `Bearer ${window.jwt}`,
             'Organization': getClaimsOrgValue()
         }
     };
-}
-
-/**
- * Fetch all information for the display of the cards
- *
- * @returns Array of card objects for the cardGrid
- */
-async function fetchCards() {
-    const baseURL = getBaseUrl();
-
-    return window.jwt? Promise.all([
-        axios.get(`${baseURL}/api/history/summary/tests`, apiConfig()).then(res => res.data)
-    ]) : [];
 }
 
 /**
@@ -63,12 +88,10 @@ function checkBrowser() {
  * 
  * @returns truthy if logged in; falsy otherwise
  */
-function isLoggedIn(){
+function isLoggedIn() {
     const token = window.sessionStorage.getItem("jwt");
     const claims = token ? JSON.parse(atob(token.split('.')[1])) : null;
-
     return (token && claims && moment().isBefore(moment.unix(claims.exp)))
-
 }
 
 /**
@@ -76,8 +99,8 @@ function isLoggedIn(){
  *  if not valid, redirects to the sign-in page; otherwise sets up the claims
  */
 function checkJWT() {
-    if ( !isLoggedIn() )
-        window.location.replace('/sign-in/?return=/daily-data/');
+    if (!isLoggedIn())
+        window.location.replace('/log-in/?return=/daily-data/');
 }
 
 /**
@@ -86,14 +109,13 @@ function checkJWT() {
  * @returns Promise, eventually a String organization name
  */
 async function fetchOrgName() {
-
     if (!window.org || !window.jwt) return null;
-    const baseURL = getBaseUrl();
-
     const orgName = convertOrgName(window.org);
-
-    return isLocalhost()? "Localhost Public Health Department" : Promise.all([
-        axios.get(`${baseURL}/api/settings/organizations/${window.org.substring(2).replaceAll("_", "-")}`, apiConfig())
+    debug(`getting orgName for ${orgName}: ${window.org}`)
+    const url = `settings/organizations/${orgName}`;
+    debug(url);
+    return Promise.all([
+        axios(apiConfig(url))
             .then(res => res.data)
             .then(org => org.description)
     ]);
@@ -103,15 +125,14 @@ async function fetchOrgName() {
 /**
  *  If the user is logged in, starts an idle timer that when expires
  *      after 15 min, clears session storage and redirects to the
- *      sign-in page
+ *      login page
  */
 function idleTimer() {
-
-    if ( isLoggedIn() ) {
+    if (isLoggedIn()) {
         window.sessionStorage.setItem("idle-timer", "true");
         idleTimeout(() => {
             window.sessionStorage.clear();
-            window.location.replace(`/sign-in/`);
+            window.location.replace(`/log-in/`);
         },
             {
                 element: document,
@@ -130,7 +151,7 @@ function login() {
     const redirectUri = window.location.origin;
 
     const config = {
-        logo: '//logo.clearbit.com/cdc.gov',
+        logo: 'https://reportstream.cdc.gov/assets/img/cdc-logo.svg',
         language: 'en',
         features: {
             registration: false, // Enable self-service registration flow
@@ -146,9 +167,10 @@ function login() {
         }
     };
 
-    new OktaSignIn(config).showSignInToGetTokens({ scopes: ['openid', 'email', 'profile'] })
+    new OktaSignIn(config)
+        .showSignInToGetTokens({ scopes: ['openid', 'email', 'profile'] })
         .then(function (tokens) {
-            var jwt = tokens.accessToken.value;
+            const jwt = tokens.accessToken.value;
             window.sessionStorage.setItem('jwt', jwt);
             window.location.replace(`${window.location.origin}/daily-data/`);
         });
@@ -163,120 +185,170 @@ function logout() {
     window.sessionStorage.removeItem("oldOrg");
     window.location.replace(`${window.location.origin}`);
     const _signIn = document.getElementById("signInButton");
-    if (_signIn){
-        _signIn.removeAttribute( "hidden" );
+    if (_signIn) {
+        _signIn.removeAttribute("hidden");
     }
 }
 
-/**
- *
- */
-async function fetchReports() {
-    const baseURL = getBaseUrl();
-    return isLocalhost()? ReportData : window.jwt? axios.get(`${baseURL}/api/history/report`, apiConfig()).then(res => res.data) : [];
+async function fetchReportFeeds() {
+    let reports = await fetchReports();
+    let receivingOrgSvc = reports ? reports.map(rep => {
+        debug(`display name = ${rep.displayName}`)
+        return rep.receivingOrgSvc
+    }) : []
+    const externalNames = new Set(receivingOrgSvc);
+    return [...externalNames];
 }
 
 /**
  *
  */
-function requestFile(reportId) {
-    let baseURL = getBaseUrl();
-
-    return window.jwt? axios.get(`${baseURL}/api/history/report/${reportId}`, apiConfig())
+async function fetchReports(filter) {
+    let url = `history/report?cache=${new Date().toISOString()}`;
+    debug(`invoking ${url}`);
+    const retValue = window.jwt ? await axios(apiConfig(url))
         .then(res => res.data)
-        .then(csv => download(csv.content, csv.filename, csv.mimetype)) : null;
+        .catch(e => { console.log(e); return [] }) : [];
+    debug(retValue);
+    return filter ? retValue.filter(report => report.receivingOrgSvc === filter) : retValue;
+}
+
+async function fetchAllOrgs() {
+    return window.jwt ? await axios(apiConfig('settings/organizations'))
+        .then(res => res.data) : [];
+}
+
+/**
+ *
+ */
+async function requestFile(reportId) {
+    return window.jwt ? await axios(apiConfig(`history/report/${reportId}`))
+        .then(res => res.data)
+        .then(csv => {
+            debug(csv);
+            // The filename to use for the download should not contain blob folders if present
+            let filename = decodeURIComponent(csv.filename);
+            let filenameStartIndex = filename.lastIndexOf("/");
+            if (filenameStartIndex >= 0 && filename.length > filenameStartIndex + 1)
+                filename = filename.substring(filenameStartIndex + 1);
+            download(csv.content, filename, csv.mimetype)
+        }) : null;
 }
 
 /**
  * Determines if the system is running as localhost
- * 
- * @returns 
+ *
+ * @returns
  */
-function isLocalhost(){
-    return window.location.origin.includes("localhost:8088");    
+function isLocalhost() {
+    return window.location.origin.includes("localhost");
 }
 
 /**
  *
  * @returns
  */
-function getBaseUrl() {
-    if (window.location.origin.includes("localhost"))
-        return "http://localhost:7071";
-    else if (window.location.origin.includes("staging"))
-        return "https://staging.prime.cdc.gov";
-    else
-        return "https://prime.cdc.gov";
-}
-
-
-function changeOrg( event ){
+async function changeOrg(event) {
+    debug(`org = ${event.value}`)
     window.org = event.value;
-    window.sessionStorage.setItem( "oldOrg", window.org );
+    window.sessionStorage.setItem("oldOrg", window.org);
+    window.location.replace(`${window.location.origin}/daily-data/`);
     processOrgName();
-    processReports();
+    const details = document.querySelector("#details");
+    if (details) {
+        details.innerHTML = getSpinner();
+    }
+    let feeds = await processReportFeeds();
+    // reports
+    // I don't think I'm necessary now
+    let promises = feeds.map(async (feed, idx) => {
+        debug(`processing Reports ${feed} ${idx}`);
+        await processReports(feed, idx);
+    });
+    Promise.all(promises).then(_results => debug(_results));
 }
-/**
- *
- * @param {boolean} redirect
- */
-function processJwtToken(){
-    let token = window.sessionStorage.getItem("jwt");
-    let claims = token ? JSON.parse(atob(token.split('.')[1])) : null;
 
-    if (token && claims && moment().isBefore(moment.unix(claims.exp))) {
+function populateOrgDropdown() {
+    // it's possible someone could be a part of more than one sending/receiving org
+    if (window.orgs && window.orgs.length > 0) {
+        const dropDownWrapper = document.querySelector("#orgDropdown");
+        dropDownWrapper.classList.remove("display-none");
+        dropDownWrapper.classList.add("display-block");
+        const _dropdown = document.createElement("div");
+        _dropdown.id = "dropdown";
 
-        const emailUser = document.getElementById("emailUser");
-        if (emailUser) emailUser.innerHTML = claims.sub;
-        const logout = document.getElementById("logout");
-        if (logout) logout.innerHTML = 'Logout';
-
-        const _signIn = document.getElementById("signInButton");
-        if (_signIn) { _signIn.setAttribute( "hidden", "hidden"); }
-
-        const _org = claims.organization.filter(c => c !== "DHPrimeAdmins");
-
-        const oldOrg = window.sessionStorage.getItem( "oldOrg");
-
-        window.org = oldOrg? oldOrg : (_org && _org.length > 0) ? _org[0] : null;
-
-        window.sessionStorage.setItem( "oldOrg", window.org );
-        window.orgs = _org;
-        window.user = claims.sub;
-        window.jwt = token;
-
-        if (claims.organization.includes( "DHPrimeAdmins" ) ) {
-            const dropDownWrapper = document.getElementById("orgDropdown");
-            dropDownWrapper.classList.remove("display-none");
-            dropDownWrapper.classList.add("display-block");
-            const _dropdown = document.createElement("div");
-            _dropdown.id = "dropdown";
-
-            let _orgsOptions = "";
-
-            window.orgs.forEach( org => {
-                _orgsOptions +=
-                    `
-                        <option value="${org}" ${window.org === org ? 'selected="selected"' : ""} >
+        let _orgsOptions = "";
+        window.orgs.sort().forEach(org => {
+            _orgsOptions +=
+                `
+                        <option value="${org}" ${convertOrgName(window.org) === org ? 'selected="selected"' : ""} >
                             ${convertOrgName(org).toUpperCase()}
                         </option>
                     `;
-            });
-            _dropdown.innerHTML =
-                `
+        });
+        _dropdown.innerHTML =
+            `
                     <select aria-label="Select Org" class="usa-select" name="orgs" id="orgs" onchange="changeOrg(this)">
                         ${_orgsOptions}
                     </select>
                 `;
-            dropDownWrapper.prepend(_dropdown);
-        }
+        dropDownWrapper.prepend(_dropdown);
     }
-    else{
-        const navmenu = document.getElementById( "navmenu" );
-        if( navmenu ) navmenu.setAttribute( "hidden", "hidden" );
+}
 
-        const _signIn = document.getElementById( "signInButton" );
-        if( _signIn ) _signIn.removeAttribute( "hidden" );
+function isAnAdmin() {
+    const token = window.sessionStorage.getItem("jwt");
+    const claims = token ? JSON.parse(atob(token.split('.')[1])) : null;
+    return !!(claims && claims.organization && claims.organization.includes("DHPrimeAdmins"));
+}
+
+/**
+ *
+ * @param {boolean} redirect
+ */
+function processJwtToken() {
+    let token = window.sessionStorage.getItem("jwt");
+    let claims = token ? JSON.parse(atob(token.split('.')[1])) : null;
+
+    if (token && claims && moment().isBefore(moment.unix(claims.exp))) {
+        // update the email user link
+        const emailUser = document.querySelector("#emailUser");
+        if (emailUser) emailUser.innerHTML = claims.sub;
+        // refresh the logout link
+        const logout = document.querySelector("#logout");
+        if (logout) logout.innerHTML = 'Logout';
+        // refresh our signin link/remove it
+        const _signIn = document.querySelector("#signInButton");
+        if (_signIn) {
+            _signIn.setAttribute("hidden", "hidden");
+        }
+        // process the org so the dropdown looks correct
+        const _org = claims.organization.filter(c => c !== "DHPrimeAdmins");
+        const oldOrg = window.sessionStorage.getItem("oldOrg");
+        window.org = oldOrg ? oldOrg : (_org && _org.length > 0) ? convertOrgName(_org[0]) : null;
+        window.sessionStorage.setItem("oldOrg", window.org);
+        window.user = claims.sub;
+        // set the token here
+        window.jwt = token;
+
+        if (claims.organization.includes("DHPrimeAdmins")) {
+            fetchAllOrgs().then((data) => {
+                const allOrgs = data.map((org) => {
+                    return org.name;
+                });
+                window.orgs = allOrgs.sort();
+                populateOrgDropdown();
+            });
+        } else {
+            window.orgs = claims.organization.filter(c => c !== "DHPrimeAdmins").sort();
+            populateOrgDropdown();
+        }
+    } else {
+        const navmenu = document.getElementById("navmenu");
+        if (navmenu) navmenu.setAttribute("hidden", "hidden");
+
+        const _signIn = document.getElementById("signInButton");
+        if (_signIn) _signIn.removeAttribute("hidden");
     }
 }
 
@@ -284,11 +356,12 @@ function processJwtToken(){
  *
  * @returns {string} organization name; possibly null
  */
-async function processOrgName(){
+async function processOrgName() {
     let orgName = null;
 
     try {
         orgName = await fetchOrgName();
+
     } catch (error) {
         console.log('fetchOrgName() is failing');
         console.error(error);
@@ -300,57 +373,171 @@ async function processOrgName(){
     return orgName;
 }
 
+function titleCase(str) {
+    str = str.toLowerCase().split(' ');
+    for (let i = 0; i < str.length; i++) {
+        str[i] = str[i].charAt(0).toUpperCase() + str[i].slice(1);
+    }
+    return str.join(' ');
+}
+
+async function processReportFeeds() {
+    // get our DOM elements
+    const tabs = document.querySelector("#tabs");
+    // show a waiting message
+    if (tabs)
+        tabs.innerHTML = getSpinner();
+    // collect our report feeds
+    const feeds = await fetchReportFeeds();
+    debug(feeds);
+    if (tabs) {
+        tabs.innerHTML = `<div id="reportFeeds" class=${feeds.length > 1 ? "tab-wrap" : ""}></div>`;
+    }
+    const reportFeeds = document.querySelector("#reportFeeds");
+    if (reportFeeds) {
+        reportFeeds.innerHTML = "";
+        if (feeds.length === 0) {
+            reportFeeds.innerHTML = `
+                    <div class="${feeds.length > 1 ? "tab__content" : ""}">
+                        <table class="usa-table usa-table--borderless prime-table" summary="Previous results">
+                        <thead>
+                          <tr>
+                            <th scope="col">Report Id</th>
+                            <th scope="col">Date Sent</th>
+                            <th scope="col">Expires</th>
+                            <th scope="col">Total tests</th>
+                            <th scope="col">File</th>
+                          </tr>
+                        </thead>
+                        <tbody id="tBody" class="font-mono-2xs">
+                            <tr>
+                                <th colspan="5">No reports found</th>
+                            </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                `
+            return [];
+        }
+
+        if (feeds.length > 1) {
+            feeds.forEach((feed, idx) => {
+                debug(`building tab${idx}`);
+                reportFeeds.innerHTML += `
+                    <input type="radio" id="tab${idx}" name="tabGroup1" class="tab" ${idx > 0 ? "" : "checked"} data-feed-name="${feed}">
+                    <label for="tab${idx}">${feed.replaceAll("-", " ").toUpperCase()}</label>
+                    `
+            });
+        }
+        // loop the feeds and kick out the tables
+        feeds.forEach((feed, idx) => {
+            reportFeeds.innerHTML += `
+                    <div class="${feeds.length > 1 ? "tab__content" : ""}" data-feed-name="${feed}">
+                        <table class="usa-table usa-table--borderless prime-table" summary="Previous results">
+                        <thead>
+                          <tr>
+                            <th scope="col">Report Id</th>
+                            <th scope="col">Date Sent</th>
+                            <th scope="col">Expires</th>
+                            <th scope="col">Total tests</th>
+                            <th scope="col">File</th>
+                          </tr>
+                        </thead>
+                        <tbody id="tBody${idx ? idx : ''}" class="font-mono-2xs" data-feed-name="${feed}">
+                        </tbody>
+                      </table>
+                    </div>
+                `
+        });
+    }
+
+    return feeds;
+}
+
 /**
  *
  * @returns {Array<Report>} an array of the received reports; possibly empty
  */
-async function processReports(){
+async function processReports(feed, idx) {
     let reports = [];
-    const tBody = document.getElementById("tBody");
+    const tBody = document.querySelector(`tbody[data-feed-name='${feed}']`);
+    debug(tBody);
     // clear the table body because we can get reports from different PHDs
     if (tBody) tBody.innerHTML = "";
     try {
-        reports = await fetchReports();
+        reports = await fetchReports(feed);
     } catch (error) {
         console.log('fetchReports() is failing');
         console.error(error);
     }
-    reports.forEach(_report => {
+    // verify the reports exist
+    if (reports) {
+        // if they do then write them out
+        reports.forEach(_report => {
+            const tBody = document.querySelector(`tBody[data-feed-name='${feed}']`);
+            if (tBody) {
+                tBody.innerHTML +=
+                    `<tr>
+                    <th data-title="reportId" scope="row">
+                        <a href="/report-details/?${_report.reportId}" class="usa-link">${_report.reportId}</a>
+                    </th>
+                    <th data-title="date" scope="row">${moment.utc(_report.sent).local().format('YYYY-MM-DD HH:mm')}</th>
+                    <th date-title="expires" scope="row">${moment.utc(_report.expires).local().format('YYYY-MM-DD HH:mm')}</th>
+                    <th data-title="Total tests" scope="row">${_report.total}</th>
+                    <th data-title="File" scope="row">
+                        <span>
+                            <a href="javascript:requestFile( \'${_report.reportId}\');" class="usa-link">
+                                ${_report.fileType == "HL7_BATCH" ? "HL7(BATCH)" : _report.fileType}
+                            </a>
+                        </span>
+                    </th>
+              </tr>`;
+            }
+        });
+    }
+    if (!reports || reports.length === 0) {
         if (tBody) tBody.innerHTML +=
             `<tr>
-                <th data-title="reportId" scope="row">
-                    <a href="/report-details/?${_report.reportId}" class="usa-link">${_report.reportId}</a>
-                </th>
-                <th data-title="date" scope="row">${moment.utc(_report.sent).local().format('YYYY-MM-DD HH:mm')}</th>
-                <th date-title="expires" scope="row">${moment.utc(_report.expires).local().format('YYYY-MM-DD HH:mm')}</th>
-                <th data-title="Total tests" scope="row">${_report.total}</th>
-                <th data-title="File" scope="row">
-                    <span>
-                        <a href="javascript:requestFile( \'${_report.reportId}\');" class="usa-link">
-                            ${_report.fileType == "HL7_BATCH" ? "HL7(BATCH)" : _report.fileType}
-                        </a>
-                    </span>
-                </th>
-              </tr>`;
-    });
+                <th colspan="5">No reports found</th>
+            </tr>`;
+    }
     return reports;
 }
+
+const sortFacilities = (facilityOne, facilityTwo) => {
+    const fOne = facilityOne.facility.toUpperCase();
+    const fTwo = facilityTwo.facility.toUpperCase();
+
+    if (fOne < fTwo) {
+        return -1;
+    }
+    if (fOne > fTwo) {
+        return 1;
+    }
+    return 0;
+};
 
 /**
  *
  * @param {Array<Report>} reports array
  * @returns {Report} selected report; possibly null
  */
-async function processReport( reports ){
+async function processReport(reports) {
+    const details = document.querySelector("#details");
+    const facilities = document.querySelector("#tBodyFac");
+    const noFac = document.querySelector('#nofacilities');
+    const facTable = document.querySelector('#facilitiestable');
     let report = null;
     if (reports && reports.length > 0) {
-        if (window.location.search == "") report = reports[0];
-        else report = reports.find(report => report.reportId == window.location.search.substring(1));
+        if (window.location.search === "")
+            report = reports[0];
+        else
+            report = reports.find(report => report.reportId === window.location.search.substring(1));
     }
-    if (report != null) {
-        const details = document.getElementById("details");
-        if (details) details.innerHTML +=
-            `<div class="tablet:grid-col-6">
+    if (report) {
+        if (details) {
+            details.innerHTML =
+                `<div class="tablet:grid-col-6">
                             <h4 class="text-base-darker text-normal margin-bottom-0">Report type</h4>
                             <p class="text-bold margin-top-0">${report.type}</p>
                             <h4 class="text-base-darker text-normal margin-bottom-0">Report sent</h4>
@@ -362,10 +549,10 @@ async function processReport( reports ){
                             <h4 class="text-base-darker text-normal margin-bottom-0">Download expires</h4>
                             <p class="text-bold margin-top-0">${moment.utc(report.expires).local().format('dddd, MMM DD, YYYY  HH:mm')}</p>
                     </div>`;
-        const facilities = document.getElementById( "tBodyFac");
-        if( facilities ){
-            report.facilities.forEach( reportFacility => {
-                facilities.innerHTML += 
+        }
+        if (facilities && report.facilities) {
+            report.facilities.sort(sortFacilities).forEach(reportFacility => {
+                facilities.innerHTML +=
                     `
                     <tr>
                         <td>${reportFacility.facility}</td>
@@ -375,103 +562,24 @@ async function processReport( reports ){
                     `;
             });
         }
-       
-        const noFac = document.getElementById( 'nofacilities' );
-        const facTable = document.getElementById( 'facilitiestable');
 
-
-        if( report.facilities.length ){
-            if( noFac ) noFac.setAttribute( "hidden", "hidden" );    
-        }
-        else{
-            if( facTable ) facTable.setAttribute( "hidden", "hidden" );
+        if (report.facilities && report.facilities.length) {
+            if (noFac) noFac.setAttribute("hidden", "hidden");
+        } else {
+            if (facTable) facTable.setAttribute("hidden", "hidden");
         }
 
-        const reportId = document.getElementById("report.id");
+        const reportId = document.querySelector("#report-id");
         if (reportId) reportId.innerHTML = report.reportId;
-        const download = document.getElementById("download");
+        const download = document.querySelector("#download");
         if (download) download.innerHTML +=
-            `<a id="report.fileType"
+            `<a id="report-fileType"
                 class="usa-button usa-button--outline float-right"
                 href="javascript:requestFile( \'${report.reportId}\');"</a>`;
-        const reportFileType = document.getElementById("report.fileType");
-        if (reportFileType) reportFileType.innerHTML = (report.fileType == "HL7" || report.fileType == "HL7_BATCH") ? "HL7" : "CSV";
+        const reportFileType = document.querySelector("#report-fileType");
+        if (reportFileType) reportFileType.innerHTML = (report.fileType === "HL7" || report.fileType === "HL7_BATCH") ? "HL7" : "CSV";
     }
+
     return report;
 }
 
-/**
- *
- */
-async function processCharts(){
-    let cards = [];
-    try{
-        cards = await fetchCards();
-    } catch( error ){
-        console.log( 'fetchCards() is failing' );
-        console.error( error );
-    }
-    cards.forEach(card => {
-        const cards = document.getElementById("cards");
-        if (cards) cards.innerHTML +=
-        `<div class="tablet:grid-col-6">
-            <div class="usa-card__container">
-            <div class="usa-card__body">
-                <h4 class="text-base margin-bottom-0">${card.title}</h4>
-                <h3 class="text-bold margin-top-0">${card.subtitle}</h3>
-                <h4 class="text-base margin-bottom-0">Last 24 hours</h4>
-                <p class="text-bold margin-top-0">${card.daily} &nbsp; &nbsp; &nbsp; <span class="text-heavy ${card.positive ? "text-green" : "text-red"}">
-                    ${card.positive ? "&#8599;" : "&#8600;"} ${card.change.toFixed(2)}
-                </span></p>
-                <h4 class="text-base margin-bottom-0">Last 7 days (average)</h4>
-                <p class="text-bold margin-top-0">${card.last}</p>
-                <canvas id="${card.id}" width="200" height="40"></canvas>
-            </div>
-            </div>
-        </div>`;
-    });
-    var ctx = 'summary-tests';
-    var options = {
-        plugins: {
-            legend: {
-                display: false,
-            }
-        },
-        scales: {
-            y: {
-                ticks: {
-                    beginAtZero: false
-                },
-                display: false,
-            },
-            x: {
-                display: false,
-            }
-        }
-    };
-
-    var labels = [];
-    for (var i = 7; i >= 0; i--) {
-        labels.push(moment().subtract(i, 'days').format("YYYY-MM-DD"))
-    }
-
-    const myLineChartHtml = document.getElementById(ctx);
-    if (myLineChartHtml) {
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-
-                labels: labels,
-                datasets: [{
-                    data: cards[0].data,
-                    borderColor: "#4682B4",
-                    backgroundColor: "#B0C4DE",
-                    fill: 'origin',
-                    borderJoinStyle: "round"
-                }]
-            },
-            options: options
-        });
-    }
-
-}

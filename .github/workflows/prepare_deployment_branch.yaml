@@ -1,0 +1,53 @@
+name: "Prepare Deployment Branch"
+
+on:
+  schedule:
+    # At 16:00 on Monday and Wednesday (https://crontab.guru/#0_16_*_*_1,3)
+    # GitHub actions run in UTC (and EDT is UTC-4)
+    - cron: "0 16 * * 1,3"
+
+jobs:
+  prepare_branch:
+    name: "Prepare the deployment branch and file a PR"
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Check out changes"
+        uses: actions/checkout@v2
+
+      - name: Set Environment Variables
+        # 86400: seconds in a 24h time-window
+        run: |
+          let TOMORROWS_SECONDS_SINCE_EPOCH=$(date +%s)+86400
+          DEPLOYMENT_DATE=$(date --date=@${TOMORROWS_SECONDS_SINCE_EPOCH} +%Y-%m-%d)
+          echo >> ${GITHUB_ENV} DEPLOYMENT_DATE=${DEPLOYMENT_DATE?}
+          echo >> ${GITHUB_ENV} BRANCH_NAME=deployment/${DEPLOYMENT_DATE?}
+
+      - name: Output Branch Name
+        run: |
+          echo "Branch name: \"${BRANCH_NAME}\""
+
+      - name: "Create branch '${{ env.BRANCH_NAME }}' to contain the changes for the deployment on ${{ env.DEPLOYMENT_DATE }}"
+        uses: peterjgrainger/action-create-branch@v2.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          branch: "${{ env.BRANCH_NAME }}"
+
+      - name: "Prepare a Pull Request from ${{ env.BRANCH_NAME }} into production branch"
+        uses: k3rnels-actions/pr-update@v1
+        id: pr
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          pr_title: "Deployment of ${{ env.DEPLOYMENT_DATE }}"
+          pr_source: "${{ env.BRANCH_NAME }}"
+          pr_target: "production"
+          pr_labels: devops,chore,deployment
+          pr_assignees: jimduff-usds,MauriceReeves-usds,RickHawesUSDS,carlosfelix2,ronaldheft-usds
+          pr_body: |
+            ## Deployment of ${{ env.DEPLOYMENT_DATE }}
+            This PR contains the changes that will go into the deployment scheduled for ${{ env.DEPLOYMENT_DATE }}.
+
+      - name: "Produce Pull Request URL"
+        run: |
+          echo "PR URL: https://github.com/CDCgov/prime-reportstream/pull/${{ steps.pr.outputs.pr_nr }}"
+          echo "PR Id:  ${{ steps.pr.outputs.pr_nr }}"

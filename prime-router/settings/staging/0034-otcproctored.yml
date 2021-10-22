@@ -1,0 +1,34 @@
+- name: ignore
+  description: FOR TESTING ONLY
+  jurisdiction: FEDERAL
+  receivers:
+    - name: OTC_PROCTORED_YYY
+      organizationName: ignore
+      topic: covid-19
+      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, OTC_PROCTORED)" ]
+      qualityFilter: [ "matches(test_authorized_for_otc, Y)","matches(test_authorized_for_home, Y)","matches(test_authorized_for_unproctored, Y)" ]
+      translation:
+        type: "CUSTOM"
+        schemaName: "hhsprotect/hhsprotect-covid-19"
+        format: "CSV"
+      deidentify: true
+    - name: OTC_PROCTORED_NYY
+      organizationName: ignore
+      topic: covid-19
+      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, OTC_PROCTORED)" ]
+      qualityFilter: [ "matches(test_authorized_for_otc, N)","matches(test_authorized_for_home, Y)","matches(test_authorized_for_unproctored, Y)" ]
+      translation:
+        type: "CUSTOM"
+        schemaName: "hhsprotect/hhsprotect-covid-19"
+        format: "CSV"
+      deidentify: true
+    - name: OTC_PROCTORED_NUNKUNK
+      organizationName: ignore
+      topic: covid-19
+      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, OTC_PROCTORED)" ]
+      qualityFilter: [ "matches(test_authorized_for_otc, N)","matches(test_authorized_for_home, UNK)","matches(test_authorized_for_unproctored, UNK)" ]
+      translation:
+        type: "CUSTOM"
+        schemaName: "hhsprotect/hhsprotect-covid-19"
+        format: "CSV"
+      deidentify: true

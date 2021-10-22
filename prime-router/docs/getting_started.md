@@ -1,350 +1,474 @@
-# Developers Getting Started
+# Developer Getting Started Guide
 
-- [Developers Getting Started](#developers-getting-started)
-  * [Developer Workstation Setup](#developer-workstation-setup)
-    + [Pre-requisites](#pre-requisites)
-      - [Mac or Linux OS](#mac-or-linux-os)
-      - [Windows OS](#windows-os)
-    + [PostgreSQL](#postgresql)
-      - [Mac or Linux OS](#mac-or-linux-os-1)
-      - [Windows OS](#windows-os-1)
-      - [PostgreSQL via Docker](#postgresql-via-docker)
-  * [Clone the Repository](#clone-the-repository)
-  * [Compiling](#compiling)
-  * [Function Development with Docker Compose](#function-development-with-docker-compose)
-    + [Local SFTP Server](#local-sftp-server)
-    + [Running the Router Locally](#running-the-router-locally)
-  * [Testing](#testing)
-    + [Unit Tests](#unit-tests)
-    + [Local End-to-end Tests](#local-end-to-end-tests)
-  * [Using local configuration for organizations.yml](#using-local-configuration-for-organizationsyml)
-  * [Getting Around SSL Errors](#getting-around-ssl-errors)
-    + [Docker Builds](#docker-builds)
-  * [Managing the local Hashicorp Vault secrets database](#managing-the-local-hashicorp-vault-secrets-database)
-    + [Initialize the Vault](#initialize-the-vault)
-    + [Re-initialize the Vault](#re-initialize-the-vault)
-    + [Using the Vault locally](#using-the-vault-locally)
-  * [Troubleshooting](#troubleshooting)
-    + [prime test Utility](#prime-test-utility)
-      - [Missing env var](#missing-env-var) 
+This document will walk you through the setup instructions to get a functioning development environment.
 
+# Table of contents
+- [Table of contents](#table-of-contents)
+- [Locally installed software prerequisites](#locally-installed-software-prerequisites)
+- [Bulding the Baseline](#bulding-the-baseline)
+    * [First Build](#first-build)
+    * [Build Dependencies](#build-dependencies)
+- [Building the Baseline](#building-the-baseline)
+- [Committing to this repository](#committing-to-this-repository)
+    * [Git Hooks](#git-hooks)
+        + [pre-commit: Gitleaks](#pre-commit--gitleaks)
+    * [Updating schema documentation](#updating-schema-documentation)
+- [Running ReportStream](#running-reportstream)
+    * [Restarting After a Code Update](#restarting-after-a-code-update)
+        + [Inspecting the Logs](#inspecting-the-logs)
+        + [Debugging ReportStream](#debugging-reportstream)
+    * [Finding misconfigurations](#finding-misconfigurations)
+    * [Getting around SSL errors](#getting-around-ssl-errors)
+- [Function development with docker-compose](#function-development-with-docker-compose)
+    * [Running ReportStream locally](#running-reportstream-locally)
+- [Credentials and secrets vault](#credentials-and-secrets-vault)
+    * [Initializing the vault](#initializing-the-vault)
+    * [Re-initializing the vault](#re-initializing-the-vault)
+    * [Using the vault locally](#using-the-vault-locally)
+- [Testing](#testing)
+    * [Running the unit tests](#running-the-unit-tests)
+    * [Data conversion quick test](#data-conversion-quick-test)
+    * [Running the end-to-end tests](#running-the-end-to-end-tests)
+- [Resetting your environment](#resetting-your-environment)
+    * [Resetting the Database](#resetting-the-database)
+- [Additional tooling](#additional-tooling)
+- [Miscelanious subjects](#miscelanious-subjects)
+    * [Using different database credentials than the default](#using-different-database-credentials-than-the-default)
+    * [Using local configuration for organizations.yml](#using-local-configuration-for-organizationsyml)
+    * [`PRIME_DATA_HUB_INSECURE_SSL` environment variable](#-prime-data-hub-insecure-ssl--environment-variable)
 
-## Developer Workstation Setup
+# Locally installed software prerequisites
 
-### Pre-requisites
-#### Mac or Linux OS
+You will need to have at least the following pieces of software installed _locally_ in order to be able to build and/or debug this baseline:
 
-1. Set up Java 11 and Gradle by opening up a Terminal session and
-entering:
-    ```
-    brew install openjdk@11
-    brew install gradle
-    ```
+* [git](getting-started/install-git.md) including git-bash if you're on Windows
+* [Docker or Docker Desktop](getting-started/install-docker.md)
+* [OpenJDK](getting-started/install-openjdk.md) (currently targetting 11 through 15)
+* [Azure Functions Core Tools](getting-started/install-afct.md) (currently targetting 3)
 
-2. Install Azure tools
-    ```
-    brew update && brew install azure-cli
-    brew tap azure/functions
-    brew install azure-functions-core-tools@3
-    ```
+The following are optional tools that can aid you during development or debugging:
 
-3. Install the [Docker Desktop](https://www.docker.com/get-started) or the equivalent.
+* [Azure Storage Explorer](https://docs.microsoft.com/en-us/azure/vs-azure-tools-storage-manage-with-storage-explorer)
+* [AzureCLI](getting-started/install-azurecli.md)
+* [Gradle](getting-started/install-gradle.md)
+* One or more [PostgreSQL Clients](getting-started/psql-clients.md)
 
-#### Windows OS
-Install the following applications in your Windows workstation.  Note that you will require administrator privileges to install them
+# Bulding the Baseline
 
-1. [OpenJDK 11 through OpenJDK 15](https://jdk.java.net/) - the Java virtual machine and development kit (*note* - OpenJDK@16 currently does not work with the application. Do not use it.)
-1. [Git Bash](https://git-scm.com/download/win) - Git command line tools and Linux Bash shell
-1. [Gradle](https://gradle.org/install/) - Tool for building and managing Java based projects.  Make sure to add the Gradle executable (`gradlew`) to the path
-1. [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-windows?tabs=azure-cli) - Azure command line tools
-1. [Azure function core tools v3](https://docs.microsoft.com/en-us/azure/azure-functions/functions-run-local?tabs=windows%2Ccsharp%2Cbash#v2) - Azure core functions tools
-1. [Docker Desktop](https://www.docker.com/get-started) - container management application
+## First Build
 
+1. [Clone the prime-reportstream repository](https://docs.github.com/en/github/creating-cloning-and-archiving-repositories/cloning-a-repository-from-github/cloning-a-repository)
+   to your workstation using git.
 
-### PostgreSQL
-You need a running local PostgreSQL database to **compile** and run the project locally.  Your local database will contain a database called prime_data_hub.  The credentials to access this database by the tests and build tools is set to prime/changeIT!.
+1. If you are using Docker Desktop, verify that it is running prior to building or running ReportStream locally.
 
-#### Mac or Linux OS
-##### PostgreSQL via Brew
-One way is to use [brew](https://brew.sh) again to get this database. (Mac or Linux)
-```
-brew install postgresql@11
-brew install flyway
-brew services start postgresql@11
+1. Initialize your environment and run an initial build by running the following command using a Linux shell.
+   Note you can run `cleanslate.sh` script to reset your environment as well (run `./cleanslate.sh --help` for more
+   information). The `cleanslate.sh` script not only cleans, but also performs a first build and setup of all artifacts
+   needed for the build
 
-Add /usr/local/opt/postgresql@11/bin to your PATH
-
-# Run createuser.  When prompted set the password as changeIT!
-createuser -P prime
-createdb --owner=prime prime_data_hub
+```bash
+cd ./prime-router
+./cleanslate.sh
 ```
 
-If you need Flyway, you can install it via `brew` as above.
+## Build Dependencies
+1. If you are using Docker Desktop, verify that it is running prior to building or running ReportStream locally.
+1. Building and running ReportStream requires a locally accessible PostgreSQL database instance that is initially setup
+   and run by the `cleanslate.sh` script.  This database instance runs as a Docker container defined by the
+   `docker-compose.build.yml` file.  You will need to start this database instance upon a workstation reboot by
+   using the following command:
 
-##### PostgreSQL via `apt` on Ubuntu/Debian
-Installing PostgreSQL and Flyway on Ubuntu
-```
-sudo apt install postgresql
-cd /usr/local/lib
-wget -qO- https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/7.3.0/flyway-commandline-7.3.0-linux-x64.tar.gz | tar xvz && sudo ln -s `pwd`/flyway-7.3.0/flyway /usr/local/bin
-
-# Run createuser - when prompted set the password as changeIT!
-sudo -u postgres createuser -P prime
-sudo -u postgres createdb --owner=prime prime_data_hub
+```bash
+cd ./prime-router
+docker-compose --file "docker-compose.build.yml" up --detach
 ```
 
-If you need Flyway, you can install it via `apt` as above.
+# Building the Baseline
 
-#### Windows OS
-1. Install [PostgreSQL](https://www.enterprisedb.com/downloads/postgres-postgresql-downloads)
-1. Start the SQL command line interface by running the following command at the command prompt and enter the `postgres` user password you set during installation:
-    ```
-    psql -u postgres
-    ```
-1. Enter the following SQL at the SQL prompt to create the necessary user and database:
-    ```
-    CREATE USER prime WITH PASSWORD 'changeIT!';
-    CREATE DATABASE prime_data_hub WITH OWNER = prime;
-    exit
-    ```
+You can invoke `gradlew` from the `./prime-router` directory to build the baseline as follows:
 
-#### PostgreSQL via Docker
-In [`devenv-infrastructure.sh`](../devenv-infrastructure.sh)
-```sh
-docker-compose -f ./docker-infrastructure.yml up --detach
+```bash
+./gradlew clean package
 ```
 
-## Clone the Repository    
-1. Use your favorite Git tool to clone the [PRIME ReportStream repository](https://github.com/CDCgov/prime-data-hub)
-    - On Git Bash, use the command:
-        ```
-        git clone https://github.com/CDCgov/prime-data-hub.git
-        ```
-    - On other tools, you can clone from the URL https://github.com/CDCgov/prime-data-hub.git
-1. Change the working directory to the `prime-router` directory.
-    ```
-    cd <your_path>/prime-router
-    ```
+The most useful gradle tasks are:
+
+* `clean`: deletes the build artifacts
+* `compile`: compiles the code
+* `test`: runs the unit tests
+* `testIntegration`: runs the integration tests
+* `package`: packages the build artifacts for deployment
+* `quickpackage`: re-packages the build artifacts for deployment without running the tests
+* `testSmoke`: runs all the smoke tests; this requires [that you are running ReportStream](#running-reportstream)
+* `testEnd2End`: runs the end-to-end test; this requires [that you are running ReportStream](#running-reportstream)
+* `primeCLI`: run the prime CLI.  Specify arguments with `"--args=<args>"`
+
+# Committing to this repository
+
+* Commits _must_ be signed or will not be mergeable into `master` or `production` without Repository Administrator intervention. You can find detailed instructions on how to set this up in the [Signing Commits](signing-commits.md) document.
+* Make your changes in topic/feature branches and file a [new Pull Request](https://github.com/CDCgov/prime-reportstream/pulls) to merge your changes in to your desired target branch.
+
+## Git Hooks
+
+We make use of git hooks in this repository and rely on them for certain levels of protections against CI/CD failures and other incidents. Install/activate these hooks by invoking either `prime-router/cleanslate.sh` or by directly invoking `.environment/githooks.sh install`. This is a _repository-level_ setting, you _must_ activate the git hooks in every clone on every device you have.
+
+### pre-commit: Docker
+
+The first hook we'll invoke is to ensure Docker is running. If it's not we'll short-circuit the remainder of the hooks and let you know why.
 
 
-## Compiling
+### pre-commit: Gitleaks
 
-Compile the project by running the following command:
+Gitleaks is one of the checks that are run as part of the `pre-commit` hook. It must pass successfully for the commit to proceed (i.e. for the commit to actually happen, failure will prevent the commit from being made and will leave your staged files in staged status). Gitleaks scans files that are marked as "staged" (i.e. `git add`) for known patterns of secrets or keys.
+
+The output of this tool consists of 2 files, both in the root of your repository, which can be inspected for more information about the check:
+* `gitleaks.report.json`: the details about any leaks it finds, serialized as JSON. If no leaks are found, this file contains the literal "`null`"; if leaks are found, then this file will contain an array of found leak candidates.
+* `gitleaks.log`: the simplified logging output of the gitleaks tool
+
+When gitleaks reports leaks/violations, the right course of action is typically to remove the leak and replace it with a value that is collected at run-time. There are limited cases where the leak is a false positive, in which case a _strict and narrow_ exemption may be added to the `.environment/gitleaks/gitleaks-config.toml` configuration file. _If an exemption is added, it must be signed off on by a member of the DevOps team_.
+
+This tool can also be manually invoked through `.environment/gitleaks/run-gitleaks.sh` which may be useful to validate the lack of leaks without the need of risking a commit. Invoke the tool with `--help` to find out more about its different run modes.
+
+See [Allow-listing Gitleaks False Positives](allowlist-gitleaks-false-positives.md) for more details on how to prevent False Positives!
+
+### pre-commit: Terraform formatting
+
+If you've changed any terraform files in your commit we'll run
+`terraform fmt -check` against the directory of files. If any file's format is invalid 
+the pre-commit hook will fail. You may be able to fix the issues with:
 
 ```
+$ .environment/terraform-fmt/run-terraform-fmt.sh --fix
+```
+
+## Updating schema documentation
+You must run the schema document generator after a schema file is updated.  The updated documents are stored in
+`docs/schema-documentation` and must be included with your schema changes. The CI/CD pipeline checks for the need to update
+schema documentation and the build will fail if the schema documentation updates are not included.
+
+```bash
+./gradlew generateDocs
+```
+
+# Running ReportStream
+
+You can bring up the entire ReportStream environment by running the `devenv-infrastructure.sh` script after building
+the baseline (see "[Building in the course of development](#building-in-the-course-of-development)" and/or "[First Build](#first-build)")
+
+```bash
+cd ./prime-router
+./gradlew clean package
+./devenv-infrastructure.sh
+```
+If you see any SSL errors during this step, follow the directions in [Getting Around SSL Errors](#getting-around-ssl-errors).
+
+## Restarting After a Code Update
+You must re-package the build and restart the prime_dev container to see any modifications you have made to the files:
+
+```bash
+cd ./prime-router
 ./gradlew package
+docker-compose restart prime_dev
 ```
 
-Other gradle tasks you can run are:
-- clean - deletes the build artifacts
-- compile - compile the code
-- test - run the unit tests
-- package - package the build artifacts for deployment
-- primeCLI - run the prime CLI.  Specify arguments with --args='<args>'
-- migrate - load the database with the current schema
-- testEnd2End - run the end to end tests.  Requires the Docker container running
+### Inspecting the Logs
 
-If you see any SSL errors during this step, follow the directions in [Getting Around SSL Errors](#getting-around-ssl-errors).
-
-Check out the database if you like:
-```
-psql prime_data_hub
-    select * from task;
-```
-
-If you need to reload the database from scratch then use the following commands.  Note this uses the tool [Flyway](https://flywaydb.org/) to reload the database:
-```
-# drop and recreate the local database
-dropdb prime_data_hub # to trash your local database
-createdb --owner=prime prime_data_hub
-
-# migrate the local database by hand
-flyway -user=prime -password=changeIT! -url=jdbc:postgresql://localhost:5432/prime_data_hub -locations=filesystem:./src/main/resources/db/migration migrate
-```
-
-Use any other tools that you want to develop the code. Be productive. Modify this document if you have a practice that will be useful.
-
-Some useful tools for Kotlin/Java development include:
-- [KTLint](https://ktlint.github.io/) the Kotlin linter that we use to format our KT code
-- [Microsoft VSCode](https://code.visualstudio.com/Download) with the available Kotlin extension
-- [JetBrains IntelliJ](https://www.jetbrains.com/idea/download/#section=mac)
-
-If you are using IntelliJ, you can install the [IntelliJ KLint plugin](https://plugins.jetbrains.com/plugin/15057-ktlint-unofficial-) or configure it to follow standard Kotlin conventions by
-```
-cd prime_router
-brew install ktlint
-ktlint applyToIDEAProject
-```
-
-A useful Azure tool to examine Azurite and Azure storage is (Storage Explorer)[https://azure.microsoft.com/en-us/features/storage-explorer/] from Microsoft.
-
-## Function Development with Docker Compose
-### Running the Router Locally
-The project's [README](../readme.md) file contains some steps to use the PRIME router in a CLI. However, for the POC app and most other users of the PRIME router will the router in the Microsoft Azure cloud. When hosted in Azure, the PRIME router uses Docker containers. The `DockerFile` describes how to build this container.
-
-Developers can also run the router locally with the same Azure runtime and libraries to help develop and debug Azure code. In this case, a developer can use a local Azure storage emulator, called Azurite.
-
-To orchestrate running the Azure function code and Azurite, Docker Compose is a useful tool. After installing or the equivalent, build the project using `Gradle` and then run the project in Docker containers using `docker-compose.`  Note: make sure Docker Desktop or equivalent is running before running the following commands.
-```
-mkdir -p .vault/env
-touch .vault/env/.env.local
-./gradlew package  
-PRIME_ENVIRONMENT=local docker-compose up
-```
-Docker-compose will build a `prime_dev` container with the output of the `./gradlew package` command and launch an Azurite container. The first time you run this command, it builds a whole new image, which may take a while. However, after the first time `docker-compose` is run, `docker-compose` should start up in a few seconds. The output should look like:
-
-![Docker Compose](assets/docker_compose_log.png)
-
-Looking at the log above, you may notice that container has a debug open at port `5005`. This configuration allows you to attach a Java debugger to debug your code.
-
-If you see any SSL errors during this step, follow the directions in [Getting Around SSL Errors](#getting-around-ssl-errors).
-
-## Updating Schema Documentation
-Run the following Gradle command to generate the schema documentation.  The documentation is written to `docs/schema-documentation`
-
-`./gradlew generateDocs`
-
-
-## Testing
-### Unit Tests
-Unit tests are run as part of the build.  To run the unit tests, run the following command:
-```
-./gradlew test
-```
-
-Sometimes you want to force the unit tests to run.   You can do that with the -Pforcetest option, like one of these examples:
-```
-./gradlew test -P forcetest
-./gradlew package -P forcetest
-```
-
-### Data Conversion Quick Test
-The quick test is meant to test the data conversion and generation code.  Use the following command to run all quick tests.  On Windows OS, use Git Bash or similar Linux shell to run this command.
-```
-./quick-test.sh all
-```
-
-### Local End-to-end Tests
-End-to-end tests check if the deployed system is configured correctly.  The test uses an organization called IGNORE for running the tests.  On Windows OS, use Git Bash or similar Linux shell to run these commands.
-1. Perform a one-time setup of the required SFTP credentials for the test organization using the following commands.  Use the username and password assigned to the local SFTP server (default of foo/pass) and change the arguments for the --user and --pass as needed.  Note that running these commands multiple times will not break anything:
-    ```bash
-    export $(cat ./.vault/env/.env.local | xargs)
-    ./gradlew primeCLI --args='create-credential --type=UserPass --persist=IGNORE--CSV --user foo --pass pass'
-    ./gradlew primeCLI --args='create-credential --type=UserPass --persist=IGNORE--HL7 --user foo --pass pass'
-    ./gradlew primeCLI --args='create-credential --type=UserPass --persist=IGNORE--HL7-BATCH --user foo --pass pass'
-    ./gradlew primeCLI --args='create-credential --type=UserPass --persist=DEFAULT-SFTP --user foo --pass pass'
-    ```
-1. Run the Prime Router in the Docker container.
-1. To run the test, run the following commands, replacing the value for Postgres URL, user and/or password as needed:
-    ```bash
-    ./gradlew testEnd2End
-    ```
-1. Verify that all tests are successful.
-
-### Changing the Database Properties
-You can change the default database properties used in the build script by setting the following properties:
-- DB_USER - Postgres database username (defaults to prime)
-- DB_PASSWORD - Postgres database password (defaults to changeIT!)
-- DB_URL - Postgres database URL (defaults to jdbc:postgresql://localhost:5432/prime_data_hub)
-
-In the command line, you can set these properties as follows:
-```bash
-./gradlew testEnd2End -PDB_USER=prime -PDB_PASSWORD=mypassword
-```
-
-Or you can specify these properties via environment variables per the Gradle project properties environment ORG_GRADLE_PROJECT_<property>.  For example:
-```bash
-export ORG_GRADLE_PROJECT_DB_USER=prime
-export ORG_GRADLE_PROJECT_DB_PASSWORD=mypass
-```
-
-## Using local configuration for organizations.yml
-
-By default, the functions will pull their configuration for organizations from the `organizations.yml` file.  You can override this locally or in test by declaring an environment variable `PRIME_ENVIRONMENT`.  If you declare something like, `export PRIME_ENVIRONMENT=mylocal` then the system will look for a configuration file `organizations-mylocal.yml` and will use that, even if the `organizations.yml` file exists.  In this way, you can set up local SFTP routing, etc. without impacting the production (`organizations.yml`) config.  Note that depending on the OS - case matters.
-
-## Getting Around SSL Errors
-
-If your agency's network intercepts SSL requests, you might have to disable SSL verifications to get around invalid certificate errors.
-
-
-### Docker Builds
-
-This can be accomplished by setting an environment variable `PRIME_DATA_HUB_INSECURE_SSL=true`. You can pass this in as a one-off when you build a component, for example:
+The docker containers produce logging output. When dealing with failures or bugs, it can be very useful to inspect this output. You can inspect the output of each container using ('`$`' indicates your prompt):
 
 ```bash
-PRIME_DATA_HUB_INSECURE_SSL=true docker-compose up
+# List PRIME containers:
+$ docker ps --format '{{.Names}}' | grep ^prime-router
+prime-router_web_receiver_1
+prime-router_prime_dev_1
+prime-router_sftp_1
+prime-router_redox_1
+prime-router_azurite_1
+prime-router_vault_1
+prime-router_postgresql_1
+# Show the log of (e.g.) prime-router_postgresql_1 until now
+docker logs prime-router_postgresql_1
+# Show the log output of (e.g.) prime-router-prime_dev_1 and stay on it
+docker logs prime-router_prime_dev_1 --follow
 ```
 
-Or you can add this line in your `~/.bash_profile` to ensure your local builds will always disable SSL verification:
+### Debugging ReportStream
+
+The Docker container running ReportStream exposes local port `5005` for remote Java debugging. Connect your
+debugger to `localhost:5005` while the Docker container is running and set the necessary breakpoints.
+
+## Finding misconfigurations
+
+ReportStream comes packaged with a executable that can help with finding misconfigurations and other problems with the appliciation. Use the following command to launch the tool locally while the ReportStream container is running:
 
 ```bash
-export PRIME_DATA_HUB_INSECURE_SSL=true
-```
-
-## Managing the local Hashicorp Vault secrets database
-
-Our `docker-compose.yml` includes Hashicorp Vault alongside our other containers to enable local secrets storage. Under normal circumstances, developers will not have to interact directly with the Vault configuration, but some helpful guidance is provided below for troubleshooting.
-
-### Initialize the Vault
-
-Run the following commands to initialize vault:
-```bash
-mkdir -p .vault/env
-touch .vault/env/.env.local
-```
-When starting up our containers with `docker-compose up` on first-run, the container will create a new Vault database and store the following files in `.vault/env`:
-
-* `key` - unseal key for decrypting the database
-* `.env.local` - the root token in envfile format for using the Vault api / command line
-
-The database is stored in a docker-compose container `vault` that persists across up and down events. All files are excluded in `.gitignore` and should never be persisted to source control.
-
-### Re-initialize the Vault
-
-If you would like to start with a fresh Vault database, you can clear the Vault database with the following commands:
-
-```bash
-cd prime_router
-docker-compose down -v
-rm -rf .vault/env/{key,.env.local}
-touch .vault/env/.env.local
-```
-
-Note: The `docker-compose down -v` option deletes all volumes associated with our docker-compose file.
-
-### Using the Vault locally
-
-Our `docker-compose.yml` will automatically load the environment variables needed for the Vault. If you need to use the Vault outside Docker, you can find the environment variables you need in:
-
-```
-.vault/env/.env.local
-```
-
-They can automatically be loaded in most IDEs:
-- IntelliJ: https://plugins.jetbrains.com/plugin/7861-envfile
-- VSCode: https://dev.to/andreasbergstrom/placeholder-post-1klo
-
-Alternatively, inject them in your terminal with (useful for using the CLI):
-
-```bash
-export $(cat ./.vault/env/.env.local | xargs)
-```
-
-
-## TroubleShooting
-
-### prime test Utility
-
-The prime-router comes packaged with a executable that can help in finding misconfigurations and other problems with the appliciation.
-
-Use the following command to launch the tool locally: 
-
-```shell
 cd prime-router
+
+# Specify these explicitly as exports or as command-scope variables
 export POSTGRES_PASSWORD='changeIT!'
 export POSTGRES_URL=jdbc:postgresql://localhost:5432/prime_data_hub
 export POSTGRES_USER=prime
 ./prime test
 ```
 
-This can be used while the prime-router application is running on your system.
+Running this test command (pointed at the right database) should "repair" a running ReportStream process and should persist through subsequent runs.
+
+## Getting around SSL errors
+
+If your agency's network intercepts SSL requests, you might have to disable SSL verifications to get around invalid certificate errors.
+
+# Function development with docker-compose
+
+## Running ReportStream locally
+
+The project's [README](../README.md) file contains some steps on how to use the PRIME router in a CLI. However, most uses of the PRIME router will be in the Microsoft Azure cloud. The router runs as a container in Azure. The [`DockerFile`](../Dockerfile) describes what goes in this container.
+
+Developers can also run the router locally with the same Azure runtime and libraries to help develop and debug in an environment that mimics the Azure environment as closely as we can on your local machine. In this case, a developer can use a local Azure storage emulator, called Azurite.
+
+We use docker-compose' to orchestrate running the Azure function(s) code and Azurite. See sections "[Running ReportStream](#running-reportstream)" for more information on building and bringing your environment up.
+
+If you see any SSL errors during this step, follow the directions in [Getting Around SSL Errors](#getting-around-ssl-errors).
+
+# Credentials and secrets vault
+
+Our `docker-compose.yml` includes a Hashicorp Vault instance alongside our other containers to enable local secrets storage. Under normal circumstances, developers will not have to interact directly with the Vault configuration.
+This vault is used locally to provide the SFTP credentials used by the Send function to upload files to the locally running atmoz/sftp SFTP server.
+
+## Initializing the vault
+
+NOTE: the cleanslate.sh script will set this up for you (see also "[First build](#first-build)" and "[Resetting your environment](#resetting-your-environment)").
+
+Run the following commands to initialize vault:
+```bash
+mkdir -p .vault/env
+cat /dev/null > .vault/env/.env.local
+```
+
+When starting up our containers with `docker-compose up` on first-run, the container will create a new Vault database and once initialized (which may take a couple of seconds) store the following files in `.vault/env`:
+
+* `key`: unseal key for decrypting the database
+* `.env.local`: the root token in envfile format for using the Vault api/command line
+
+The database is stored in a docker-compose container `vault` which is persisted across up and down events. All files are excluded in `.gitignore` and should never be persisted to source control.
+
+## Re-initializing the vault
+
+NOTE: the cleanslate.sh script will re-initialize your vault for you (see also "[Resetting your environment](#resetting-your-environment)").
+
+If you would like to start with a fresh Vault database, you can clear the Vault database with one of the following commands sets:
+
+Using `cleanslate.sh`:
+```bash
+cd ./prime-router
+./cleanslate.sh --keep-images --keep-build-artifacts
+```
+
+Manually:
+```bash
+cd prime-router
+# -v removes ALL volumes associated with the environment
+docker-compose down -v
+rm -rf .vault/env/{key,.env.local}
+cat /dev/null > .vault/env/.env.local
+```
+
+## Using the vault locally
+
+Our `docker-compose.yml` will automatically load the environment variables needed for the Vault. If you need to use the Vault outside Docker, you can find the environment variables you need in `.vault/env/.env.local`.
+When your Vault is up and running (exemplified by `.vault/env/.env.local` being populated with two environment variables: `VAULT_TOKEN` and `CREDENTIAL_STORAGE_METHOD`), you can interact with it in a couple of ways:
+
+* Graphical/Web UI: Navigate to [http://localhost:8200](http://localhost:8200) and provide the value of `VAULT_TOKEN` to log into the vault.
+* curl/HTTP API to get JSON back, example:
+
+    ```bash
+    export $(xargs <.vault/env/.env.local)
+    SECRET_NAME=DEFAULT-SFTP
+    URI=http://localhost:8200/v1/secret/${SECRET_NAME?}
+    curl --header "X-Vault-Token: ${VAULT_TOKEN?}" "${URI?}"
+    ```
+
+The values from the .vault/env/.env.local file can also be automatically loaded into most IDEs:
+
+* [IntelliJ](https://plugins.jetbrains.com/plugin/7861-envfile)
+* [VSCode](https://dev.to/andreasbergstrom/placeholder-post-1klo)
+
+Alternatively, you can inject them into your terminal via:
+
+```bash
+export $(xargs <./.vault/env/.env.local)
+```
+
+# Testing
+
+## Running the unit tests
+
+The build will run the unit tests for you when you invoke `./gradlew package`. However, you may sometimes want to invoke them explicitly. Use this command to do run the Unit Tests manually:
+
+```bash
+cd ./prime-router
+./gradlew test
+# Or to force the tests to run
+./gradlew test -Pforcetest
+```
+
+## Data conversion quick test
+
+The quick test is meant to test the data conversion and generation code. Use this following command to run all quick tests, which you should do as part of a Pull Request:
+
+```bash
+./quick-test.sh all
+```
+
+
+## Running the end-to-end tests
+
+End-to-end tests check if the deployed system is configured correctly. The tests use an organization called IGNORE for running the tests. In order to successfully run the end-to-end tests, you will need to:
+
+1. Have built successfully
+2. Export the vault's credentials
+
+    ```bash
+    cd ./prime-router
+    export $(xargs < .vault/env/.env.local)
+    ```
+
+3. Create the SFTP credentials and upload organizations' settings
+
+    ```bash
+    cd ./prime-router
+    ./prime create-credential --type=UserPass \
+            --persist=DEFAULT-SFTP \
+            --user foo \
+            --pass pass
+    ./prime multiple-settings \
+            set --input settings/organizations.yml
+    ```
+
+4. Ensure that your docker containers are running (see also "[Running ReportStream](#running-reportstream)")
+
+    ```bash
+    cd ./prime-router
+    # Specify restart if they are already running and you want
+    # them to pick up new bianries
+    # i.e. ./devenv-infrastructure.sh restart
+    ./devenv-infrastructure.sh
+    ```
+
+5. Run the tests
+
+    ```bash
+    ./gradlew testEnd2End
+    ```
+
+Upon completion, the process should report success.
+
+
+# Resetting your environment
+
+You can run the `./cleanslate.sh` script to recover from an unreliable or messed up environment. Run the script with `--help` to learn about its different levels of 'forcefulness' and 'graciousness' in its cleaning repertoire:
+
+```bash
+cd ./prime-router
+
+# default mode:
+./cleanslate.sh
+
+# most forceful mode
+./cleanslate.sh --prune-volumes
+
+# Show the different modes for 'graciousness'
+./cleanslate.sh --help
+```
+
+When invoked with `--prune-volumes`, this script will also reset your PostgreSQL database. This can be useful to get back to a known and/or empty state.
+
+## Resetting the Database
+1. Stop your ReportStream container if it is running.
+    ```bash
+    docker-compose down
+    ```
+1. Run the following command to delete all ReportStream related tables from the database and recreate them.  This
+is very useful to reset your database to a clean state.  Note that the database will be re-populated the
+next time you run ReportStream.
+    ```bash
+    ./gradlew reloadDB
+    ```
+1. Run ReportStream and run the following command to load the organization settings into the database:
+    ```bash
+    ./gradlew reloadSettings
+    ```
+
+# Additional tooling
+
+Use any other tools that are accessible to you to develop the code. Be productive. Modify this document if you have a practice that will be useful.
+
+Some useful tools for Kotlin/Java development include:
+
+* [Azure Storage Explorer](https://azure.microsoft.com/en-us/features/storage-explorer/)
+* [JetBrains IntelliJ](https://www.jetbrains.com/idea/download/)
+* [KTLint](https://ktlint.github.io/): the Kotlin linter that we use to format our KT code
+    * Install the [IntelliJ KLint plugin](https://plugins.jetbrains.com/plugin/15057-ktlint-unofficial-) or configure it to follow standard Kotlin conventions as follows on a mac: `cd ./prime-router && brew install ktlint && ktlint applyToIDEAProject`
+* [Microsoft VSCode](https://code.visualstudio.com/Download) with the available Kotlin extension
+* [Java Profiling in ReportStream](./getting-started/java-profiling.md)
+* [Tips for faster development](./getting-started/faster-development.md)
+
+# Miscelanious subjects
+
+## Using different database credentials than the default
+
+In cases where you want to change which credentials are used by any of our tooling to connect to the PostgreSQL database, you can do so by specifying some environment variables or specifying project properties to the build. The order of precendence of evaluation is: `Project Property beats Environment Variable beats Default`. You can specify the following variables:
+
+* `DB_USER`: PostgreSQL database username (defaults to `prime`)
+* `DB_PASSWORD`: PostgreSQL database password (defaults to `changeIT!`)
+* `DB_URL`: PostgreSQL database URL (defaults to \
+  `jdbc:postgresql://localhost:5432/prime_data_hub`)
+
+Example:
+
+```bash
+ # exported environment variable DB_URL
+export DB_URL=jdbc:postgresql://postgresql:5432/prime_data_hub
+# Command-level environment variable (DB_PASSWORD)
+# combined with project property (DB_USER)
+DB_PASSWORD=mypassword ./gradlew testEnd2End -PDB_USER=prime
+```
+
+Alternatively, you can specify values for project properties via environment variables per the Gradle project properties environment `ORG_GRADLE_PROJECT_<property>`:
+
+```bash
+export ORG_GRADLE_PROJECT_DB_USER=prime
+export ORG_GRADLE_PROJECT_DB_PASSWORD=mypass
+./gradlew testEnd2End -PDB_URL=...
+```
+
+## Using local configuration for organizations.yml
+
+By default, the functions will pull their configuration for organizations from the `organizations.yml` file. This can be overridden locally or in test by declaring an environment variable `PRIME_ENVIRONMENT` to specify the suffix of the yml file to use. This enables setting up local SFTP routing without impacting the 'production' `organizations.yml` configuration file.
+
+```bash
+# use organizations-mylocal.yml instead
+export PRIME_ENVIRONMENT=mylocal
+
+# use organizations-foo.yml instead
+export PRIME_ENVIRONMENT=foo
+```
+
+## `PRIME_DATA_HUB_INSECURE_SSL` environment variable
+
+When building the ReportStream container, you can set this value to `true` to enable insecure SSL:
+
+```bash
+PRIME_DATA_HUB_INSECURE_SSL=true docker-compose build
+```
+
+# Troubleshooting
+## Local SFTP Issues
+1. SFTP Upload Permission denied - If you get a Permission Denied exception in the logs then it is most likely the atmoz/sftp
+   Docker container has the incorrect permissions for the folder used by the local SFTP server.
+
+`FAILED Sftp upload of inputReportId xxxx to SFTPTransportType(...) (orgService = ignore.HL7), Exception: Permission denied`
+
+Run the following command to change the permissions for the folder:
+```bash
+docker exec -it prime-router_sftp_1 chmod 777 /home/foo/upload
+```

@@ -67,7 +67,7 @@ This field is generated based on the normalcy status of the result. A = abnormal
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
 
-**Table**: LIVD-SARS-CoV-2-2021-04-28
+**Table**: LIVD-SARS-CoV-2-2021-09-29
 
 **Table Column**: Model
 
@@ -121,7 +121,7 @@ unique id to track the usage of the message
 
 **Name**: order_test_date
 
-**Type**: DATE
+**Type**: DATETIME
 
 **PII**: No
 
@@ -137,7 +137,7 @@ unique id to track the usage of the message
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-04-28
+**Table**: LIVD-SARS-CoV-2-2021-09-29
 
 **Table Column**: Test Ordered LOINC Code
 
@@ -151,7 +151,7 @@ unique id to track the usage of the message
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-04-28
+**Table**: LIVD-SARS-CoV-2-2021-09-29
 
 **Table Column**: Test Ordered LOINC Long Name
 
@@ -693,6 +693,9 @@ The reporting facility's CLIA
 
 - [MSH-4-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/MSH.4.1)
 - [PID-3-4-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4.1)
+- [PID-3-6-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.6.1)
+- [SPM-2-1-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.1.2)
+- [SPM-2-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2.2)
 
 **Cardinality**: [0..1]
 
@@ -740,6 +743,28 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 
 ---
 
+**Name**: specimen_id
+
+**Type**: EI
+
+**PII**: No
+
+**HL7 Fields**
+
+- [SPM-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2)
+
+**Cardinality**: [0..1]
+
+
+**Reference URL**:
+[https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2) 
+
+**Documentation**:
+
+A unique code for this specimen
+
+---
+
 **Name**: specimen_received_date_time
 
 **PII**: No
@@ -777,6 +802,7 @@ Code | Display
 440500007|Dried blood spot specimen
 258580003|Whole blood sample
 122555007|Venous blood specimen
+119297000|Blood specimen
 
 **Documentation**:
 
@@ -1034,6 +1060,7 @@ An example of the ID is 03D2159846
 
 - [OBR-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.2.2)
 - [OBR-3-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.3.2)
+- [OBX-15-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.15.2)
 - [OBX-23-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.23.1)
 - [ORC-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.2.2)
 - [ORC-3-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.3.2)

@@ -29,7 +29,7 @@ class FakeDataService {
             return when {
                 element.nameContains("name_of_testing_lab") -> "Any lab USA"
                 element.nameContains("lab_name") -> "Any lab USA"
-                element.nameContains("sender_id") -> "ImageMover"
+                element.nameContains("sender_id") -> "" // Allow the default to fill this in
                 element.nameContains("facility_name") -> "Any facility USA"
                 element.nameContains("name_of_school") -> randomChoice("", context.schoolName)
                 element.nameContains("reference_range") -> randomChoice("", "Normal", "Abnormal", "Negative")
@@ -147,7 +147,7 @@ class FakeDataService {
                         else -> TODO("Add this column in a table")
                     }
                 }
-                else -> TODO("Add this table")
+                else -> TODO("Add this table ${element.table}")
             }
         }
 
@@ -179,7 +179,7 @@ class FakeDataService {
             Element.Type.PERSON_NAME -> createFakeName(element)
             Element.Type.TELEPHONE -> createFakePhoneNumber(element)
             Element.Type.EMAIL -> createFakeEmail()
-            null -> error("Invalid element type for ${element.name}")
+            null -> error("Element type is null for ${element.name}")
         }
     }
 

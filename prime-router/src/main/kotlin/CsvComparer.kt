@@ -70,11 +70,12 @@ data class CsvComparer(val fileOnePath: String, val fileTwoPath: String, val rec
         for (expectedKey in expected.keys) {
             if (!actual.keys.contains(expectedKey)) error("Key $expectedKey missing in actual dataset")
 
-            val actualLines: List<String>? = actual[expectedKey] as? List<String>
-            val expectedLines: List<String>? = expected[expectedKey] as? List<String>
-
-            if (actualLines == null) error("Cast failed for actual values")
-            if (expectedLines == null) error("Cast failed for expected values")
+            @Suppress("UNCHECKED_CAST")
+            val actualLines: List<String> = actual[expectedKey] as? List<String>
+                ?: error("Cast failed for actual values")
+            @Suppress("UNCHECKED_CAST")
+            val expectedLines: List<String> = expected[expectedKey] as? List<String>
+                ?: error("Cast failed for expected values")
 
             val differencesForRecords = mutableListOf<String>()
 

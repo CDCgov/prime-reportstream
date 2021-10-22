@@ -46,6 +46,8 @@
       display: Whole blood sample 
     - code: 122555007
       display: Venous blood specimen
+    - code: 119297000
+      display: Blood specimen
 
 - name: covid-19/test_result
   system: SNOMED_CT

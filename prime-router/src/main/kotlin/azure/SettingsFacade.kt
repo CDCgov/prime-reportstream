@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
@@ -16,7 +17,6 @@ import gov.cdc.prime.router.azure.db.enums.SettingType
 import gov.cdc.prime.router.azure.db.tables.pojos.Setting
 import org.jooq.JSONB
 import java.time.OffsetDateTime
-import java.time.ZoneOffset
 
 /**
  * Settings for Organization, Receivers, and Senders from the Azure Database.
@@ -316,6 +316,7 @@ class SenderAPI
     organizationName: String,
     format: Format,
     topic: String,
+    customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
     schemaName: String,
     override var meta: SettingMetadata?,
 ) : Sender(
@@ -323,6 +324,7 @@ class SenderAPI
     organizationName,
     format,
     topic,
+    customerStatus,
     schemaName,
 ),
     SettingAPI
@@ -332,6 +334,7 @@ class ReceiverAPI
     name: String,
     organizationName: String,
     topic: String,
+    customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
     translation: TranslatorConfiguration,
     jurisdictionalFilter: List<String> = emptyList(),
     qualityFilter: List<String> = emptyList(),
@@ -345,6 +348,7 @@ class ReceiverAPI
     name,
     organizationName,
     topic,
+    customerStatus,
     translation,
     jurisdictionalFilter,
     qualityFilter,

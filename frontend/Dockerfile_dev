@@ -1,0 +1,15 @@
+FROM node:alpine as static_site
+WORKDIR /usr/app
+COPY package.json ./
+ENV NODE_ENV=development
+RUN apk add git
+RUN npm install --save-dev --force
+RUN npm run build
+COPY . ./
+
+
+FROM nginx:latest as nginx_host
+COPY --from=static_site /usr/app/dist/* /usr/share/nginx/html/
+CMD "'nginx' '-g' 'daemon off;'"
+ENTRYPOINT [ "/docker-entrypoint.sh" ]
+

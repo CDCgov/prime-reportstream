@@ -50,7 +50,11 @@ class FileUuid : FileNameElement {
         get() = "uuid"
 
     override fun getElementValue(args: List<String>, translatorConfig: TranslatorConfiguration?): String {
-        return UUID.randomUUID().toString()
+        return if (args.isEmpty()) {
+            UUID.randomUUID().toString()
+        } else {
+            args[0]
+        }
     }
 }
 
@@ -131,7 +135,8 @@ open class FileNameTemplate(
     val name: String? = null
 ) {
     fun getFileName(
-        translatorConfig: TranslatorConfiguration? = null
+        translatorConfig: TranslatorConfiguration? = null,
+        reportId: ReportId
     ): String {
         val fileName = StringBuilder()
         val parsedElements = fixupFileNameElements(elements)
@@ -139,7 +144,13 @@ open class FileNameTemplate(
             when (it.first) {
                 is FileNameElement -> {
                     val e = it.first as FileNameElement
-                    fileName.append(e.getElementValue(it.second, translatorConfig))
+                    // if the file element type is the UUID, combine args
+                    val args = if (e is FileUuid) {
+                        listOf(reportId.toString())
+                    } else {
+                        it.second
+                    }
+                    fileName.append(e.getElementValue(args, translatorConfig))
                 }
                 is String -> {
                     fileName.append(it.first)

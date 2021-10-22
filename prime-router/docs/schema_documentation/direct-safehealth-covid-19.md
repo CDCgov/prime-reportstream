@@ -4,6 +4,20 @@
 
 ---
 
+**Name**: testReportDate
+
+**Type**: DATETIME
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+eg, 20210112
+
+---
+
 **Name**: healthcareEmployee
 
 **Type**: CODE
@@ -56,13 +70,33 @@ Barcode or QR code.  Unique within one manufacturer.
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
 
-**Table**: LIVD-SARS-CoV-2-2021-04-28
+**Table**: LIVD-SARS-CoV-2-2021-09-29
 
 **Table Column**: Model
 
 **Documentation**:
 
 Required.  Must match LIVD column B, "Model". eg,  "BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B"
+
+---
+
+**Name**: filler_order_id
+
+**Type**: ID
+
+**PII**: No
+
+**HL7 Fields**
+
+- [OBR-3-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.3.1)
+- [ORC-3-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.3.1)
+- [SPM-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2)
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+Accension number
 
 ---
 
@@ -711,7 +745,7 @@ ReportStream copies value from the specimenId if none is provided by the sender.
 
 **Name**: testOrderedDate
 
-**Type**: DATE
+**Type**: DATETIME
 
 **PII**: No
 
@@ -731,7 +765,7 @@ eg, 20210108
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-04-28
+**Table**: LIVD-SARS-CoV-2-2021-09-29
 
 **Table Column**: Test Ordered LOINC Code
 
@@ -749,13 +783,79 @@ eg, 94531-1
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-04-28
+**Table**: LIVD-SARS-CoV-2-2021-09-29
 
 **Table Column**: Test Ordered LOINC Long Name
 
 **Documentation**:
 
 Should be the name that matches to Test Ordered LOINC Long Name, in LIVD table
+
+---
+
+**Name**: orderingFacilityCity
+
+**Type**: CITY
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The city of the facility which the test was ordered from
+
+---
+
+**Name**: orderingFacilityCounty
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Table**: fips-county
+
+**Table Column**: County
+
+---
+
+**Name**: orderingFacilityEmail
+
+**Type**: EMAIL
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: orderingFacilityName
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The name of the facility which the test was ordered from
+
+---
+
+**Name**: orderingFacilityPhone
+
+**Type**: TELEPHONE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The phone number of the facility which the test was ordered from
 
 ---
 
@@ -773,7 +873,49 @@ Should be the name that matches to Test Ordered LOINC Long Name, in LIVD table
 
 **Documentation**:
 
-Note that many states expect this field to be available, or ReportStream is not able rto route data to them.  Please provide if possible in order for us to route to as many states as possible.
+Note that many states expect this field to be available, or ReportStream is not able to route data to them.  Please provide if possible in order for us to route to as many states as possible.
+
+---
+
+**Name**: orderingFacilityStreet
+
+**Type**: STREET
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The address of the facility which the test was ordered from
+
+---
+
+**Name**: orderingFacilityStreet2
+
+**Type**: STREET_OR_BLANK
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The secondary address of the facility which the test was ordered from
+
+---
+
+**Name**: orderingFacilityZip
+
+**Type**: POSTAL_CODE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The zip code of the facility which the test was ordered from
 
 ---
 
@@ -1146,6 +1288,18 @@ the patient ID from the testing lab, the oder placer, the ordering provider, or 
 
 ---
 
+**Name**: patient_id_type
+
+**Type**: TEXT
+
+**PII**: No
+
+**Default Value**: PI
+
+**Cardinality**: [0..1]
+
+---
+
 **Name**: patientNameLast
 
 **Type**: PERSON_NAME
@@ -1300,6 +1454,25 @@ The patient's zip code
 
 ---
 
+**Name**: placer_order_id
+
+**Type**: ID
+
+**PII**: No
+
+**HL7 Fields**
+
+- [OBR-2-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.2.1)
+- [ORC-2-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.2.1)
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The ID number of the lab order from the placer
+
+---
+
 **Name**: pregnant
 
 **Type**: CODE
@@ -1335,6 +1508,20 @@ Is the patient pregnant?
 **Documentation**:
 
 Custom.  ReportStream uses the 'pregnant' code, not this text value.
+
+---
+
+**Name**: correctedTestId
+
+**Type**: ID
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+pointer/link to the unique id of a previously submitted result.  Usually blank. Or, if an item modifies/corrects a prior item, this field holds the message_id of the prior item.
 
 ---
 
@@ -1430,15 +1617,57 @@ P, D, or T for Production, Debugging, or Training
 
 **Name**: reportingFacility
 
-**Type**: HD
-
 **PII**: No
 
 **Cardinality**: [0..1]
 
 **Documentation**:
 
-Expecting an ISO heirarchic designator here. eg, "1265050918" (same value as in ordering_provider_npi).  Note that reporting_facility_text is also available as a field, if a name is needed.
+This field is no longer used.  Included here so it does not generate a warning if present.
+
+---
+
+**Name**: performingFacility
+
+**Type**: ID_CLIA
+
+**PII**: No
+
+**HL7 Fields**
+
+- [MSH-4-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/MSH.4.2)
+- [PID-3-4-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4.2)
+- [PID-3-6-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.6.2)
+- [SPM-2-1-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.1.3)
+- [SPM-2-2-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2.3)
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The reporting facility's CLIA
+
+---
+
+**Name**: performingFacilityName
+
+**Type**: TEXT
+
+**PII**: No
+
+**HL7 Fields**
+
+- [MSH-4-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/MSH.4.1)
+- [PID-3-4-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4.1)
+- [PID-3-6-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.6.1)
+- [SPM-2-1-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.1.2)
+- [SPM-2-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2.2)
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The reporting facility's name
 
 ---
 
@@ -1588,6 +1817,7 @@ Code | Display
 440500007|Dried blood spot specimen
 258580003|Whole blood sample
 122555007|Venous blood specimen
+119297000|Blood specimen
 
 **Documentation**:
 
@@ -1733,7 +1963,7 @@ Custom.  Eg, "LN"
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
 
-**Table**: LIVD-SARS-CoV-2-2021-04-28
+**Table**: LIVD-SARS-CoV-2-2021-09-29
 
 **Table Column**: Testkit Name ID
 
@@ -1751,7 +1981,7 @@ Must match LIVD column M, "Test Kit Name ID"
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-04-28
+**Table**: LIVD-SARS-CoV-2-2021-09-29
 
 **Table Column**: Test Performed LOINC Code
 
@@ -1827,17 +2057,44 @@ eg, 20210111
 
 ---
 
-**Name**: testReportDate
+**Name**: test_result_status
 
-**Type**: DATETIME
+**Type**: CODE
 
 **PII**: No
 
+**Default Value**: F
+
+**HL7 Fields**
+
+- [OBR-25-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.25.1)
+- [OBX-11-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.11.1)
+
 **Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+A|Some, but not all, results available
+C|Corrected, final
+F|Final results
+I|No results available; specimen received, procedure incomplete
+M|Corrected, not final
+N|Procedure completed, results pending
+O|Order received; specimen not yet received
+P|Preliminary
+R|Results stored; not yet verified
+S|No results available; procedure scheduled, but not done
+X|No results available; Order canceled
+Y|No order on record for this test
+Z|No record of this patient
 
 **Documentation**:
 
-eg, 20210112
+The test result status, which is different from the test result itself. Per the valueset, this indicates if
+the test result is in some intermediate status, is a correction, or is the final result.
+
 
 ---
 
@@ -1852,6 +2109,20 @@ eg, 20210112
 **Documentation**:
 
 eg, "DETECTED".  Custom.  ReportStream uses testResult code, not this text value.
+
+---
+
+**Name**: performingFacilityCity
+
+**Type**: CITY
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The city of the testing lab
 
 ---
 
@@ -1875,6 +2146,108 @@ eg, "DETECTED".  Custom.  ReportStream uses testResult code, not this text value
 **Documentation**:
 
 Expecting a CLIA number here.  eg, "10D2218834"
+
+---
+
+**Name**: performingFacilityCounty
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Table**: fips-county
+
+**Table Column**: County
+
+**Documentation**:
+
+The text value for the testing lab county. This is used to do the lookup in the FIPS dataset.
+
+---
+
+**Name**: performingFacilityName
+
+**Type**: TEXT
+
+**PII**: No
+
+**HL7 Fields**
+
+- [OBR-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.2.2)
+- [OBR-3-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.3.2)
+- [OBX-15-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.15.2)
+- [OBX-23-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.23.1)
+- [ORC-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.2.2)
+- [ORC-3-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.3.2)
+- [PID-3-4-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4.1)
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The name of the laboratory which performed the test, can be the same as the sending facility name
+
+---
+
+**Name**: performingFacilityPhone
+
+**Type**: TELEPHONE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The phone number of the testing lab
+
+---
+
+**Name**: performingFacilityState
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Table**: fips-county
+
+**Table Column**: State
+
+**Documentation**:
+
+The state for the testing lab
+
+---
+
+**Name**: performingFacilityStreet
+
+**Type**: STREET
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The street address for the testing lab
+
+---
+
+**Name**: performingFacilityStreet2
+
+**Type**: STREET_OR_BLANK
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+Street 2 field for the testing lab
 
 ---
 

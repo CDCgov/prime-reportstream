@@ -1,5 +1,4 @@
 // Use same port as the prime-router server API being mocked out
-//const PRIME_api = process.env.PRIME_api || "http://localhost:7071/api";
 
 // Use different port
 const PRIME_api = process.env.PRIME_api || "http://localhost:7071/api";
@@ -19,7 +18,11 @@ module.exports = function eleventy_config(cfg) {
 
   cfg.addDataExtension("yaml", contents => yaml.load(contents));
 
-  cfg.addPassthroughCopy("src/assets");
+  cfg.addPassthroughCopy("src/assets/fonts");
+  cfg.addPassthroughCopy("src/assets/webfonts");
+  cfg.addPassthroughCopy("src/assets/img");
+  cfg.addPassthroughCopy("src/assets/pdf");
+  cfg.addPassthroughCopy("src/assets/stylesheets");
   cfg.addPassthroughCopy("src/favicon.ico");
   cfg.addPassthroughCopy("src/js");
   _with_live_reloading(cfg);

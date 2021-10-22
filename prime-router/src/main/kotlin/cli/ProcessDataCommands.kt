@@ -9,6 +9,7 @@ import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.int
 import gov.cdc.prime.router.CustomConfiguration
+import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DefaultValues
 import gov.cdc.prime.router.FakeReport
 import gov.cdc.prime.router.FileSettings
@@ -18,6 +19,7 @@ import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ResultDetail
+import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Translator
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
@@ -35,7 +37,14 @@ sealed class InputSource {
     data class ListOfFilesSource(val commaSeparatedList: String) : InputSource() // supports merge.
 }
 
-class ProcessData : CliktCommand(
+/**
+ * Command to process data in a variety of ways. Pass in a [metadataInstance]
+ * and/or [fileSettingsInstance] to reuse this class programatically and make it run faster.
+ */
+class ProcessData(
+    private val metadataInstance: Metadata? = null,
+    private val fileSettingsInstance: FileSettings? = null
+) : CliktCommand(
     name = "data",
     help = """
     process data
@@ -189,14 +198,20 @@ class ProcessData : CliktCommand(
         help = "the receiving facility"
     )
 
+    /**
+     * A list of generated output files.
+     */
+    val outputReportFiles = mutableListOf<String>()
+
     private fun mergeReports(
         metadata: Metadata,
+        settings: SettingsProvider,
         listOfFiles: String
     ): Report {
         if (listOfFiles.isEmpty()) error("No files to merge.")
         val files = listOfFiles.split(",", " ").filter { it.isNotBlank() }
         if (files.isEmpty()) error("No files to merge found in comma separated list.  Need at least one file.")
-        val reports = files.map { readReportFromFile(metadata, it) }
+        val reports = files.map { readReportFromFile(metadata, settings, it) }
         echo("Merging ${reports.size} reports.")
         return Report.merge(reports)
     }
@@ -216,6 +231,7 @@ class ProcessData : CliktCommand(
 
     private fun readReportFromFile(
         metadata: Metadata,
+        settings: SettingsProvider,
         fileName: String
     ): Report {
         val schemaName = inputSchema?.lowercase() ?: ""
@@ -225,7 +241,7 @@ class ProcessData : CliktCommand(
         echo("Opened: ${file.absolutePath}")
         return when (file.extension.lowercase()) {
             "hl7" -> {
-                val hl7Serializer = Hl7Serializer(metadata)
+                val hl7Serializer = Hl7Serializer(metadata, settings)
                 val result = hl7Serializer.readExternal(
                     schemaName,
                     file.inputStream(),
@@ -295,6 +311,7 @@ class ProcessData : CliktCommand(
                     )
                     File(outputDir ?: ".", fileName)
                 }
+                outputReportFiles.add(outputFile.absolutePath)
                 echo(outputFile.absolutePath)
                 if (!outputFile.exists()) {
                     outputFile.createNewFile()
@@ -335,18 +352,18 @@ class ProcessData : CliktCommand(
 
     override fun run() {
         // Load the schema and receivers
-        val metadata = Metadata(Metadata.defaultMetadataDirectory)
-        val fileSettings = FileSettings(FileSettings.defaultSettingsDirectory)
+        val metadata = metadataInstance ?: Metadata(Metadata.defaultMetadataDirectory)
+        val fileSettings = fileSettingsInstance ?: FileSettings(FileSettings.defaultSettingsDirectory)
         val csvSerializer = CsvSerializer(metadata)
-        val hl7Serializer = Hl7Serializer(metadata)
+        val hl7Serializer = Hl7Serializer(metadata, fileSettings)
         val redoxSerializer = RedoxSerializer(metadata)
         echo("Loaded schema and receivers")
         // Gather input source
         var inputReport: Report = when (inputSource) {
             is InputSource.ListOfFilesSource ->
-                mergeReports(metadata, (inputSource as InputSource.ListOfFilesSource).commaSeparatedList)
+                mergeReports(metadata, fileSettings, (inputSource as InputSource.ListOfFilesSource).commaSeparatedList)
             is InputSource.FileSource ->
-                readReportFromFile(metadata, (inputSource as InputSource.FileSource).fileName)
+                readReportFromFile(metadata, fileSettings, (inputSource as InputSource.FileSource).fileName)
             is InputSource.DirSource ->
                 TODO("Dir source is not implemented")
             is InputSource.FakeSource -> {
@@ -436,7 +453,7 @@ class ProcessData : CliktCommand(
         if (warnings.size > 0) {
             echo("Problems occurred during translation to output schema:")
             warnings.forEach {
-                echo("${it.scope} ${it.id}: ${it.details}")
+                echo("${it.scope} ${it.id}: ${it.responseMessage.detailMsg()}")
             }
             echo()
         }
@@ -467,6 +484,7 @@ class ProcessData : CliktCommand(
                             "emptyReceiver",
                             "emptyOrganization",
                             "covid-19",
+                            CustomerStatus.INACTIVE,
                             hl7Configuration
                         )
                         report.copy(destination, Report.Format.HL7_BATCH)

@@ -115,6 +115,7 @@
       display: No
     - code: UNK
       display: Unknown
+      system: NULLFL
 
 - name: patient_age_units
   reference: Per the HHS guidance
@@ -220,7 +221,6 @@
       code: ASKU
       version: 2.5.1
       system: NULLFL
-
 
 - name: specimen_role
   system: FHIR
@@ -399,6 +399,8 @@
         display: Composite ID And Name
       - code: CP
         display: Composite Price
+      - code: CWE
+        display: Coded With Exceptions
       - code: CX
         display: Extended Composite ID With Check Digit
       - code: DT

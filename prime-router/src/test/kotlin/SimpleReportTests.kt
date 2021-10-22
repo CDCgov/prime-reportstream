@@ -17,7 +17,6 @@ import kotlin.test.fail
 // to see if they match expected output files.
 //
 class SimpleReportTests {
-    private val defaultSchema = "test-schema"
     private val inputPath = "./src/test/csv_test_files/input/"
     private val expectedResultsPath = "./src/test/csv_test_files/expected/"
     private val outputPath = "./build/csv_test_files/"
@@ -234,11 +233,12 @@ class SimpleReportTests {
             for (expectedKey in expected.keys) {
                 if (!actual.keys.contains(expectedKey)) fail("Key $expectedKey missing in actual dataset")
 
-                val actualLines: List<String>? = actual[expectedKey] as? List<String>
-                val expectedLines: List<String>? = expected[expectedKey] as? List<String>
-
-                if (actualLines == null) fail("Cast failed for actual values")
-                if (expectedLines == null) fail("Cast failed for expected values")
+                @Suppress("UNCHECKED_CAST")
+                val actualLines: List<String> = actual[expectedKey] as? List<String>
+                    ?: fail("Cast failed for actual values")
+                @Suppress("UNCHECKED_CAST")
+                val expectedLines: List<String> = expected[expectedKey] as? List<String>
+                    ?: fail("Cast failed for expected values")
 
                 for ((i, v) in expectedLines.withIndex()) {
                     if (v != actualLines[i]) {

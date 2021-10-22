@@ -2,7 +2,7 @@
 
 Note:  Click here for the [FHIR Auth Implementation Plan](#initial-implementation-plan)
 
-The PRIME Data Hub[1] aims to work with multiple senders or third-parties clients that send reports to the Data-Hub. Each of these clients will need to authenticate with the Data-Hub API. This paper outlines a proposal on how these clients should provide credentials to the Data-Hub.
+The PRIME ReportStream1] aims to work with multiple senders or third-parties clients that send reports to the Data-Hub. Each of these clients will need to authenticate with the Data-Hub API. This paper outlines a proposal on how these clients should provide credentials to the Data-Hub.
 
 Today, in healthcare and public health, the most common form of authentication between two computers, also known as service to service authentication, is either a shared secret or a form of TLS mutual authentication. An SFTP service authenticated by username and password is an example of the shared secret method. The API secret key is another form of a shared secret. PHIN MS is an example of an authentication mechanism built on TLS mutual authentication.
 
@@ -33,12 +33,12 @@ Note:  an example implementation is the [Data at the Point of Care project](http
 
 ## Initial Implementation Plan
 
-We are working on implementing FHIR-style Authentication for our api/reports endpoint.   Our human users will auth using Okta, so FHIR auth is only needed for server-to-server connections.
+We are working on implementing FHIR-style Authentication for our api/waters endpoint.   Our human users will auth using Okta, so FHIR auth is only needed for server-to-server connections.
 
 ### A little background information:
 
 - In ReportStream, an `Organization` is an external entity that can send and/or receive data to/from ReportStream.  SimpleReport, and the Florida Public Health Department, are examples of `Organization`s.   Each `Organization` has any number of `Sender` and `Receiver` configurations.
-- The submitted unit of work from a `Sender` is a `Report`, which is a set of medical data, eg, covid test results for one or more patients.  We receive it via the content payload of a POST to our `api/reports` endpoint.
+- The submitted unit of work from a `Sender` is a `Report`, which is a set of medical data, eg, covid test results for one or more patients.  We receive it via the content payload of a POST to our `api/waters` endpoint.
 - A `Sender` is a configuration within an `Organization` that sends `Report`s in one specific schema in one specific format.  For example, the SimpleReport `Organization` has a `Sender` called 'default' that sends in the `primedatainput/pdi-covid-19` schema in the `CSV` format.
 - Initially, the FHIR auth project isn't concerned with `Receiver`s, but for completeness:  A `Receiver` is a configuration within an Organization that receives data in a specific schema in a specific format, and with specific timing, transport mechanism, and with specific filters based on jurisdiction.
 
@@ -102,17 +102,17 @@ We will
 
 We will then pull our ReportStream shared secret from our vault, and use it to create and sign a ReportStream token, for use by the Sender.   FHIR calls for a 5 minute end of life.
 
-### Step Three: Actual API Usage :  Sender uses the token to submit data to `api/reports`
+### Step Three: Actual API Usage :  Sender uses the token to submit data to `api/waters`
 
 The current 'FUNCTION' level AuthorizationLevel will be changed to 'ANONYMOUS'. (See https://docs.microsoft.com/en-us/azure/azure-functions/functions-bindings-http-webhook-trigger?tabs=csharp#secure-an-http-endpoint-in-production)
 
-The ReportFunction will check the ReportStream token upon entry to the function code.  That is, we will not implement a 'gateway' function in front or api/reports.   (And, as mentioned earlier, no dependency on Okta).  This check will simply be a validation of the signed JWT.  This will require pulling the ReportStream shared secret from the vault.  TBD whether this is a performance issue, or whether we'll have to make adjustments because of known rare connection failures to the vault.
+The ReportFunction will check the ReportStream token upon entry to the function code.  That is, we will not implement a 'gateway' function in front or api/waters.   (And, as mentioned earlier, no dependency on Okta).  This check will simply be a validation of the signed JWT.  This will require pulling the ReportStream shared secret from the vault.  TBD whether this is a performance issue, or whether we'll have to make adjustments because of known rare connection failures to the vault.
 
 The ReportStream Token will be sent as a standard "Authorization: Bearer <token>" header. 
 
 ReportFunction will then validate the certificate, and allow or deny access.  If the time has expired, access will be denied.  UNAUTHORIZED Http Status will be returned.  Note:  No JSON will be returned in these cases (?)
 
-For our initial release, there is only one scope associated with the token - the only scope is the ability to upload reports into the api/reports endpoint.
+For our initial release, there is only one scope associated with the token - the only scope is the ability to upload reports into the api/waters endpoint.
 
 Note: there are no refresh tokens with servert-to-server auths.   After 5 mins, sender must go back to step 2.
 

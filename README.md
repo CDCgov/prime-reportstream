@@ -36,21 +36,12 @@ submitting a pull request you are agreeing to comply with this waiver of
 copyright interest.
 
 ## License Standard Notice
-The repository utilizes code licensed under the terms of the Apache Software
-License and therefore is licensed under ASL v2 or later.
-
-This source code in this repository is free: you can redistribute it and/or modify it under
-the terms of the Apache Software License version 2, or (at your option) any
-later version.
-
-This source code in this repository is distributed in the hope that it will be useful, but WITHOUT ANY
-WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-PARTICULAR PURPOSE. See the Apache Software License for more details.
-
-You should have received a copy of the Apache Software License along with this
-program. If not, see http://www.apache.org/licenses/LICENSE-2.0.html
-
-The source code forked from other open source projects will inherit its license.
+This project is in the public domain within the United States, and copyright and
+related rights in the work worldwide are waived through the [CC0 1.0 Universal public domain dedication](https://creativecommons.org/publicdomain/zero/1.0/).
+All contributions to this project will be released under the CC0 dedication. By
+submitting a pull request or issue, you are agreeing to comply with this waiver
+of copyright interest and acknowledge that you have no expectation of payment,
+unless pursuant to an existing contract or agreement.
 
 ## Privacy Standard Notice
 This repository contains only non-sensitive, publicly available data and
@@ -84,6 +75,7 @@ published through the [CDC web site](http://www.cdc.gov).
 * [Disclaimer](DISCLAIMER.md)
 * [Contribution Notice](CONTRIBUTING.md)
 * [Code of Conduct](code-of-conduct.md)
+* [Getting Started as a Dev](./prime-router/docs/getting_started.md)
 
 ## Additional Standard Notices
 Please refer to [CDC's Template Repository](https://github.com/CDCgov/template)

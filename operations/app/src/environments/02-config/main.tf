@@ -1,6 +1,5 @@
 terraform {
-  required_version = "= 0.14.5"
-  # This version must also be changed in other environments
+  required_version = "= 1.0.5" # This version must also be changed in other environments
 
   required_providers {
     azurerm = {
@@ -31,17 +30,21 @@ module "app_service_plan" {
 }
 
 module "key_vault" {
-  source          = "../../modules/key_vault"
-  environment     = var.environment
-  resource_group  = var.resource_group
-  resource_prefix = var.resource_prefix
-  location        = var.location
+  source                      = "../../modules/key_vault"
+  environment                 = var.environment
+  resource_group              = var.resource_group
+  resource_prefix             = var.resource_prefix
+  location                    = var.location
+  aad_object_keyvault_admin   = var.aad_object_keyvault_admin
+  terraform_caller_ip_address = var.terraform_caller_ip_address
+  use_cdc_managed_vnet        = var.use_cdc_managed_vnet
 }
 
 module "container_registry" {
-  source          = "../../modules/container_registry"
-  environment     = var.environment
-  resource_group  = var.resource_group
-  resource_prefix = var.resource_prefix
-  location        = var.location
+  source               = "../../modules/container_registry"
+  environment          = var.environment
+  resource_group       = var.resource_group
+  resource_prefix      = var.resource_prefix
+  location             = var.location
+  enable_content_trust = true
 }

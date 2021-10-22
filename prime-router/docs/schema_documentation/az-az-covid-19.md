@@ -151,6 +151,10 @@ The phone number of the provider
 
 **Cardinality**: [0..1]
 
+**Documentation**:
+
+The SimpleReport concept of organization. It refers to organization for the ordering & performing facility
+
 ---
 
 **Name**: Patient_City
@@ -502,6 +506,7 @@ Code | Display
 440500007|Dried blood spot specimen
 258580003|Whole blood sample
 122555007|Venous blood specimen
+119297000|Blood specimen
 
 **Documentation**:
 
@@ -517,7 +522,7 @@ The specimen source, such as Blood or Serum
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-04-28
+**Table**: LIVD-SARS-CoV-2-2021-09-29
 
 **Table Column**: Test Performed LOINC Code
 
@@ -535,7 +540,7 @@ The LOINC code of the test performed. This is a standardized coded value describ
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-04-28
+**Table**: LIVD-SARS-CoV-2-2021-09-29
 
 **Table Column**: Test Performed LOINC Long Name
 

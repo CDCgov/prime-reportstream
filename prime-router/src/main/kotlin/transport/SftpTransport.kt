@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.transport
 
+import com.hierynomus.sshj.userauth.keyprovider.OpenSSHKeyV1KeyFile
 import com.microsoft.azure.functions.ExecutionContext
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
@@ -12,12 +13,16 @@ import gov.cdc.prime.router.credentials.CredentialHelper
 import gov.cdc.prime.router.credentials.CredentialRequestReason
 import gov.cdc.prime.router.credentials.SftpCredential
 import gov.cdc.prime.router.credentials.UserPassCredential
+import gov.cdc.prime.router.credentials.UserPemCredential
 import gov.cdc.prime.router.credentials.UserPpkCredential
 import net.schmizz.sshj.SSHClient
 import net.schmizz.sshj.sftp.RemoteResourceFilter
 import net.schmizz.sshj.sftp.StatefulSFTPClient
 import net.schmizz.sshj.transport.verification.PromiscuousVerifier
 import net.schmizz.sshj.userauth.keyprovider.PuTTYKeyFile
+import net.schmizz.sshj.userauth.method.AuthMethod
+import net.schmizz.sshj.userauth.method.AuthPassword
+import net.schmizz.sshj.userauth.method.AuthPublickey
 import net.schmizz.sshj.userauth.password.PasswordUtils
 import net.schmizz.sshj.xfer.InMemorySourceFile
 import net.schmizz.sshj.xfer.LocalSourceFile
@@ -37,8 +42,16 @@ class SftpTransport : ITransport, Logging {
         actionHistory: ActionHistory,
     ): RetryItems? {
         val sftpTransportType = transportType as SFTPTransportType
-        val host: String = sftpTransportType.host
-        val port: String = sftpTransportType.port
+
+        // Override the SFTP host and port only if provided and in the local environment.
+        val host: String = if ("local" == System.getenv("PRIME_ENVIRONMENT") &&
+            !System.getenv("SFTP_HOST_OVERRIDE").isNullOrBlank()
+        )
+            System.getenv("SFTP_HOST_OVERRIDE") else sftpTransportType.host
+        val port: String = if ("local" == System.getenv("PRIME_ENVIRONMENT") &&
+            !System.getenv("SFTP_PORT_OVERRIDE").isNullOrBlank()
+        )
+            System.getenv("SFTP_PORT_OVERRIDE") else sftpTransportType.port
         return try {
             if (header.content == null)
                 error("No content to sftp for report ${header.reportFile.reportId}")
@@ -73,7 +86,7 @@ class SftpTransport : ITransport, Logging {
                     "$sftpTransportType (orgService = ${header.receiver?.fullName ?: "null"})" +
                     ", Exception: ${t.localizedMessage}"
             context.logger.warning(msg)
-            actionHistory.setActionType(TaskAction.send_error)
+            actionHistory.setActionType(TaskAction.send_warning)
             actionHistory.trackActionResult(msg)
             RetryToken.allItems
         }
@@ -105,6 +118,19 @@ class SftpTransport : ITransport, Logging {
                 sshClient.connect(host, port.toInt())
                 when (credential) {
                     is UserPassCredential -> sshClient.authPassword(credential.user, credential.pass)
+                    is UserPemCredential -> {
+                        val key = OpenSSHKeyV1KeyFile()
+                        val keyContents = StringReader(credential.key)
+                        when (StringUtils.isBlank(credential.keyPass)) {
+                            true -> key.init(keyContents)
+                            false -> key.init(keyContents, PasswordUtils.createOneOff(credential.keyPass.toCharArray()))
+                        }
+                        val authProviders = mutableListOf<AuthMethod>(AuthPublickey(key))
+                        if (StringUtils.isNotBlank(credential.pass) && credential.pass != null) {
+                            authProviders.add(AuthPassword(PasswordUtils.createOneOff(credential.pass.toCharArray())))
+                        }
+                        sshClient.auth(credential.user, authProviders)
+                    }
                     is UserPpkCredential -> {
                         val key = PuTTYKeyFile()
                         val keyContents = StringReader(credential.key)
@@ -112,7 +138,11 @@ class SftpTransport : ITransport, Logging {
                             true -> key.init(keyContents)
                             false -> key.init(keyContents, PasswordUtils.createOneOff(credential.keyPass.toCharArray()))
                         }
-                        sshClient.authPublickey(credential.user, key)
+                        val authProviders = mutableListOf<AuthMethod>(AuthPublickey(key))
+                        if (StringUtils.isNotBlank(credential.pass) && credential.pass != null) {
+                            authProviders.add(AuthPassword(PasswordUtils.createOneOff(credential.pass.toCharArray())))
+                        }
+                        sshClient.auth(credential.user, authProviders)
                     }
                     else -> error("Unknown SftpCredential ${credential::class.simpleName}")
                 }
@@ -163,8 +193,8 @@ class SftpTransport : ITransport, Logging {
             val lsResults = mutableListOf<String>()
             try {
                 try {
-                    sshClient.use { sshClient ->
-                        sshClient.newSFTPClient().use {
+                    sshClient.use { ssh_Client ->
+                        ssh_Client.newSFTPClient().use {
                             it.ls(path, resourceFilter).map { l -> lsResults.add(l.toString()) }
                         }
                     }
@@ -188,8 +218,8 @@ class SftpTransport : ITransport, Logging {
         fun rm(sshClient: SSHClient, path: String, fileName: String) {
             try {
                 try {
-                    sshClient.use { sshClient ->
-                        sshClient.newSFTPClient().use {
+                    sshClient.use { ssh_Client ->
+                        ssh_Client.newSFTPClient().use {
                             it.rm("$path/$fileName")
                         }
                     }
@@ -209,7 +239,7 @@ class SftpTransport : ITransport, Logging {
         }
 
         fun pwd(sshClient: SSHClient): String {
-            var pwd = ""
+            var pwd: String
             try {
                 sshClient.newStatefulSFTPClient().use { client ->
                     val statefulClient = client as StatefulSFTPClient

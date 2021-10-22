@@ -1,0 +1,112 @@
+---
+layout: protected.liquid
+pageStyle: sidebarMenu
+templateEngineOverride: liquid, md
+title: ELR onboarding checklist
+permalink: "{{ site.howItWorksPath }}{{ title | slug }}/"
+protected: false
+show_navbar: true
+how_it_works: true
+nestedPage: true
+mailtoSubject: "?subject=ReportStream ELR onboarding"
+---
+<section id="anchor-top">
+
+  <h1 class="margin-top-0">{{ title }}</h1>
+
+  <p class="usa-intro">If you’re a public health department and want to connect ReportStream through Electronic Lab Reporting (ELR), you’ll need to fill out the ReportStream ELR onboarding form.</p>
+  <p class="usa-intro">Our checklist here provides a preview of what we’ll ask, so you can gather everything you need to complete the form.</p>
+
+  <a href="{{ site.forms.intakeElr.url }}" target="_blank" rel="noopener" class="usa-button margin-bottom-2 tablet:margin-bottom-0">ELR onboarding form</a>
+  <a href="mailto:{{ site.orgs.RS.email }}{{ mailtoSubject}}" class="usa-button usa-button--outline">Contact us</a>
+
+  <hr class="margin-y-6" />
+
+  <p class="margin-top-4"><strong>On this page:</strong></p>
+
+  - <a href="#elr-contact-information" class="usa-link">ELR contact information</a> 
+  - <a href="#alternate-contact-information" class="usa-link">Program or admin staff contact information</a> 
+  - <a href="#data-requirements-and-preferences" class="usa-link">Data requirements and preferences</a>
+  - <a href="#testing-facility-registration" class="usa-link">Testing facility registration</a>
+  - <a href="#hl7-data-fields" class="usa-link">HL7 data fields (Not applicable if using an alternate data format</a>
+  - <a href="#sftp-details" class="usa-link">SFTP details</a>
+  - <a href="#document-uploads" class="usa-link">Document uploads</a>
+
+  <p class="margin-bottom-4">Before gathering information on the checklist or completing the ELR onboarding form, we recommend first reviewing information on our <a href="/how-it-works/getting-started/" class="usa-link">Getting started page</a> and the technical details outlined in <a href="/how-it-works/system-and-settings/" class="usa-link">Systems & settings</a> with your IT and data specialists.</p>
+
+</section>
+<hr class="margin-y-6" />
+<section>
+
+  ### <a name="elr-contact-information"></a>ELR contact information
+
+  This is the person who helps set up the ELR connection. It is often an IT person or a third party agency.  
+  
+  - Name
+  - Email address
+  - Phone number
+
+  ### <a name="alternate-contact-information"></a>Program or admin staff contact information
+
+  - Name
+  - Email address
+  - Phone number
+
+  ### <a name="data-requirements-and-preferences"></a>Data requirements and preferences 
+
+  ReportStream sends data as an [HL7](http://why.hl7.org/) file via Secure File Transfer Protocol (SFTP). We capture Health and Human Services (HHS) required fields, including “Ask on Order Entry” questions.  
+
+  Please note: ReportStream follows industry standards for [data formatting](https://github.com/CDCgov/prime-data-hub/blob/production/prime-router/docs/schema_documentation/primedatainput-pdi-covid-19.md) and reporting. While we can support custom format or sending mechanisms, this will increase the time required to build your connection. 
+
+  Confirm your preferences and provide details for:  
+
+  - **File type:** (HL7 v2.5.1, CSV, or other) 
+  - **Transport method:** (SFTP, VPN, Health Information Exchange, SOAP, PHINMS, or other) 
+  - **Batching:** Do you want HL7 message batching (using [FHS and BHS segments](https://www.lyniate.com/knowledge-hub/hl7-batch-file-protocol/))? 
+  - **Timing:** Do you want real time or daily reports, and at what time of day? 
+  - **“Ask on Order Entry”:** Do you want “Ask on Order Entry” questions as [OBX fields](https://hl7-definition.caristix.com/v2/HL7v2.5/Segments/OBX)? 
+  - **Test data:** Do you require synthetic and/or real patient data before going live? 
+  - **Local public health department reporting:** Explain any local public health department reporting requirements that are different from the state. 
+  - **Third-party information services:** Do you require your data to be routed through a third-party like a Health Information Exchange or a health information integration service? 
+  - **Additional fields:** Any other data or fields you’d like collected? 
+
+  ### T<a name="testing-facility-registration"></a>esting facility registration 
+
+  ReportStream collects unique identifiers from testing facilities when they register to send data, including name, [CLIA](https://www.cdc.gov/clia/about.html) number, and address. This information is included with data sent to public health departments.   
+
+  - **Registration requirements:** Do you require testing facilities to register before data is sent to you? 
+  - **Custom data fields:** Do you require information in addition to standard fields (name, CLIA number and/or address)? 
+  - **Custom registration process:** Do you have a custom testing facility registration process? 
+
+  ### <a name="hl7-data-fields"></a>HL7 data fields (Not applicable if using an alternate data format) 
+
+  - Receiving application name 
+  - Receiving application [OID](https://www.hl7.org/oid/) 
+  - Receiving facility name 
+  - Receiving facility [OID](https://www.hl7.org/oid/) 
+
+  ### <a name="sftp-details"></a>SFTP details 
+
+  - Staging host name (DNS name) 
+  - Staging folder (folder name) 
+  - Prod host name (DNS name) 
+  - Prod host folder (folder name) 
+
+  ### <a name="document-uploads"></a>Document uploads 
+
+  - **Required documentation:** Necessary registration or data use, or legal agreements, etc. that you need ReportStream to complete 
+  - **Sample files:** Sample files of your required data formatting, rules or regulations, etc. that would be helpful to review 
+
+</section>
+<hr class="margin-y-6" />
+<section>
+
+  ## Ready for ReportStream? 
+
+  Once you have all the information you need, submit our [ReportStream ELR onboarding form](https://prime.powerappsportals.us/siw/). We’ll get back to you within a week.  
+
+  Have questions or aren’t quite ready for our ELR connection? Send us an email and we’ll help you figure out next steps. 
+
+  <a href="mailto:{{ site.orgs.RS.email }}{{ mailtoSubject }}" class="usa-button usa-button--outline">Get in touch</a>
+   
+</section>

@@ -1,97 +1,89 @@
 ---
 layout: protected.liquid
+pageStyle: fullWidth
 permalink: "/"
 title: index
 data-index: 'data-index.html'
 protected: false
 show_navbar: true
-show_menu: false
 hide-signin: false
 ---
 
 <section class="rs-hero" role="region">
-  <div class="grid-container usa-section margin-bottom-10">
-    <div class="grid-row grid-gap margin-bottom-0 rs-hero__flex-center">
-      <div class="tablet:grid-col-6">
-        <h1>{{ content.index.title }}</h1>
-        <p class="font-sans-lg line-height-sans-4">{{ content.index.summary }}</p>
-        {% if content.index.bullets %}
-          <ul class="usa-prose">
-            {% for bullet in content.index.bullets %}
-              <li>{{ bullet.content }}</li>
-            {% endfor %}
-          </ul>
-        {% endif %}
-      </div>
-      <div class="tablet:grid-col-6">
-        <img class="shadow-2" src="{{ site.imgPath }}{{ content.index.heroImg }}"
-          alt="{{ content.index.heroImgAlt }}" />
+  <div class="grid-container usa-section padding-y-2 tablet:padding-y-4 tablet:margin-bottom-4">
+    <div class="grid-row grid-gap margin-bottom-0 rs-hero__flex-center ">
+      <div class="tablet:grid-col-10 ">
+        <h1 class="font-sans-xl tablet:font-sans-2xl margin-top-2">{{ content.index.title }}</h1>          
+        <p class="font-sans-lg line-height-sans-4">{{ content.index.summary }}</p>        
       </div>
     </div>
   </div>
 </section>
 
 <div class="grid-container">
-  {% for partner in content.index.partners %}
-    <section class="usa-section margin-y-0 padding-y-0" role="region">
-      <div class="grid-row grid-gap margin-bottom-0">
-        <div class="tablet:grid-col-8">
-          <h2 class="font-sans-xl margin-top-0 tablet:margin-bottom-0">{{ partner.title }}</h2>
-          <p class="font-sans-lg margin-top-1 text-base">{{ partner.summary }}</p>
-        </div>
-      </div>
-      <div class="grid-row grid-gap margin-bottom-8{% if forloop.last == true %} padding-bottom-8 border-bottom-1px border-base-lighter{% endif %}">
-        {% for feature in partner.features %}
-          <div class="tablet:grid-col-4 margin-bottom-0">
-            <h3>
-              <img src="{{ site.imgPath }}{{ feature.icon }}" aria-hidden="true" focusable="false" alt="Icon of {{ feature.iconDescription }}" />
-              {{ feature.title }}
-            </h3>
-            <p class="usa-prose">{{ feature.summary }}</p>
+  
+  {% for section in content.index.sections %}
+    <section class="usa-section margin-y-0 tablet:padding-top-4 tablet:padding-bottom-2" role="region">
+       <div class="grid-row grid-gap">
+        {% if section.type == "cta" %}          
+          <div class="tablet:grid-col-8 tablet:grid-offset-2">
+            <h2 class="font-sans-lg tablet:font-sans-xl margin-top-0 tablet:margin-bottom-0">{{ section.title }}</h2> 
+            <p class="usa-prose">{{ section.description }}</p>
+            <p class="usa-prose">{{ section.summary }}</p>
+            <a class="usa-button margin-top-2" href="mailto:{{ site.orgs.RS.email }}{{ section.buttonUrlSubject }}">{{ section.buttonText }}</a>
           </div>
+        {% elsif section.type == "liveMap" %}
+          <div class="tablet:grid-col-8 tablet:grid-offset-2">
+            <h2 class="font-sans-lg tablet:font-sans-xl margin-top-0 tablet:margin-bottom-0">{{ section.title }}</h2>          
+            <p class="usa-intro margin-top-1 text-base">{{ section.summary }}</p>
+          </div>
+        {% else %}
+          <div class="tablet:grid-col-8 ">
+            <h2 class="font-sans-lg tablet:font-sans-xl margin-top-0 tablet:margin-bottom-0">{{ section.title }}</h2>          
+            <p class="usa-intro margin-top-1 text-base">{{ section.summary }}</p>
+          </div>
+        {% endif %}   
+      </div>
+      <div class="grid-row grid-gap margin-bottom-4 ">
+        {% for feature in section.features %}
+          {% if section.type == "deliveryMethods" %} 
+              <div class="grid-col-12 {% if forloop.first == true %}margin-y-4{% endif %}">
+                <div class="grid-row grid-gap display-flex flex-row flex-align-top">
+                  <div class="tablet:grid-col-6">
+                    <img src="{{ site.imgPath }}{{ feature.img }}" alt="{{ feature.imgAlt }}" /> 
+                  </div>
+                  <div class="tablet:grid-col-6 ">              
+                    <h3 class="font-sans-lg margin-top-0 padding-top-3 margin-bottom-1 tablet:border-top-05 tablet:border-base-lighter">{{ feature.method }}. {{ feature.title }}</h3> 
+                    <p class="usa-prose">{{ feature.summaryOne }}</p>              
+                    <p class="usa-prose">{{ feature.summaryTwo }}</p> 
+                  </div>
+                </div>
+              </div>
+          {% elsif section.type == "liveMap" %}
+            <div class="tablet:grid-col-8 tablet:grid-offset-2">
+              <a href="{{ feature.linkInternal }}"><img src="{{ site.imgPath }}{{ feature.img }}" alt="{{ feature.imgAlt }}" class="text-align-center" /></a>
+            </div>
+            <div class="tablet:grid-col-6 tablet:grid-offset-2">
+              <p class="usa-prose margin-top-2">{{ section.description }}</p>
+            </div>
+          {% else %}
+            <div class="tablet:grid-col-4 margin-bottom-0">
+              <h3 class="font-sans-md tablet:font-sans-lg padding-top-3 border-top-05 border-base-lighter">                
+                {{ feature.title }}
+              </h3>
+              <p class="usa-prose">{{ feature.summary }}</p>
+            </div>
+          {% endif %}
         {% endfor %}
       </div>
     </section>
-  {% endfor %}
-  {% comment %}
-  <section class="usa-section margin-y-0 padding-y-0" role="region">
-    <div class="grid-row grid-gap  margin-bottom-2 padding-top-2">
-      <div class="tablet:grid-col-8">
-        <h2 class="font-sans-xl margin-top-0 tablet:margin-bottom-0">{{ content.index.documentation.title }}</h2>
-        <p class="usa-prose">{{ content.index.documentation.summary }}</p>
-      </div>
-    </div>
-    <ul class="usa-card-group">
-      {% for file in content.index.documentation.files %}
-        <li class="tablet:grid-col-4 usa-card">
-          <div class="usa-card__container">
-            <div class="usa-card__body">
-              <img src="{{ site.imgPath }}file_present.svg" class="usa-icon--size-4 float-left margin-right-3" aria-hidden="true" focusable="false" alt="Icon of an attached document"/>
-              <h3 class="usa-collection__heading">{{file.name}}</h3>
-              <a class="usa-link" aria-label="Download PDF copy of '{{ file.name }}'" href="{{ site.pdfPath }}{{ file.url }}">Download PDF</a>
-            </div>
-          </div>
-        </li>
-      {% endfor %}
-    </ul>
-  </section>
-  {% endcomment %}
-  <section class="usa-section margin-top-0 padding-top-0 padding-bottom-6 border-bottom-1px border-base-lighter" role="region">
-    <div class="grid-row grid-gap  margin-bottom-2 ">
-      <div class="tablet:grid-col-8">
-        <h2 class="font-sans-xl margin-top-0 tablet:margin-bottom-0">{{ content.index.cta.title }}</h2>
-        <p class="font-sans-lg margin-top-1 margin-bottom-6 text-base">{{ content.index.cta.summary }}<p>
-        <a class="usa-button" href="mailto:{{ site.orgs.RS.email }}{{ content.index.cta.buttonUrlSubject }}">{{ content.index.cta.buttonText }} {{ site.orgs.RS.email }}</a>
-        </p>
-      </div>
-    </div>
-  </section>
+  {% endfor %}  
+  
   <section class="usa-section" role="region">
-    <div class="grid-row grid-gap  margin-bottom-2 padding-top-2">
+    <div class="grid-row grid-gap  margin-bottom-4 padding-top-0">
       {% for item in content.index.freeSecure %}
         <div class="tablet:grid-col-6">
-          <img src="{{ site.imgPath }}{{ item.icon }}" focusable="false" alt="Icon of {{ item.iconDescription }}" class="height-7"/>
-          <h3 class="font-sans-lg">{{ item.title }}</h3>
+          <h3 class="font-sans-lg padding-top-3 border-top-05 border-base-lighter">{{ item.title }}</h3>
           <p class="usa-prose">{{ item.summary }}</p>
         </div>
       {% endfor %}

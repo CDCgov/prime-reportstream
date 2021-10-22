@@ -1,11 +1,11 @@
-# This docker compose is intended to setup a developer 
+# This docker compose is intended to setup a developer
 version: "3.3"
 services:
-  # This container runs our Azure function code. 
+  # This container runs our Azure function code.
   prime_dev:
     build:
       context: .
-      dockerfile: Dockerfile_dev
+      dockerfile: Dockerfile.dev
       args:
         INSECURE_SSL: "${PRIME_DATA_HUB_INSECURE_SSL}"
     volumes: # Attach the PWD into the image
@@ -24,30 +24,36 @@ services:
       - PartnerStorage=DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://azurite:10000/devstoreaccount1;QueueEndpoint=http://azurite:10001/devstoreaccount1;
       - POSTGRES_USER=prime
       - POSTGRES_PASSWORD=changeIT!
-      - POSTGRES_URL=jdbc:postgresql://host.docker.internal:5432/prime_data_hub
+      # postgresql comes from the build environment; it is accessible because we are connected to the build network (see "networks")
+      - POSTGRES_URL=jdbc:postgresql://postgresql:5432/prime_data_hub
       - PRIME_ENVIRONMENT=local
-      - REDOX_SECRET=some_secret
-      - VAULT_API_ADDR=http://host.docker.internal:8200
-      - SENDGRID_API_KEY=SnBfxpPsQkmOh0SfU3X_ng
       - OKTA_baseUrl=hhs-prime.okta.com
       - OKTA_clientId=0oa6fm8j4G1xfrthd4h6
       - OKTA_redirect=http://localhost:7071/api/download
-    depends_on: [azurite]
+      - VAULT_API_ADDR=http://vault:8200
+    depends_on:
+      - azurite
+      - vault
     ports:
       - 7071:7071 # default function port
       - 5005:5005 # Java debug port
+      - 9090:9090 # Java JMX port
+    networks:
+      - prime-router_build
 
   # Azurite is the Azure storage emulator for local development
-  azurite: 
-    image: mcr.microsoft.com/azure-storage/azurite:3.12.0
+  azurite:
+    image: mcr.microsoft.com/azure-storage/azurite:3.14.0
     # uncomment the line below to skip x-ms-version checks
     # command: azurite --skipApiVersionCheck --blobHost 0.0.0.0 --queueHost 0.0.0.0
     volumes:
       # map to Azurite data objects to the build directory
       - ./build/azurite:/data
-    ports:  
-      - 10000:10000 
+    ports:
+      - 10000:10000
       - 10001:10001
+    networks:
+      - prime-router_build
 
   #local SFTP server as a receive point
   sftp:
@@ -57,6 +63,34 @@ services:
     volumes:
       - ./build/sftp:/home/foo/upload
     command: foo:pass:1001::upload
+    networks:
+      - prime-router_build
+
+
+  # local FTPS Server
+  ftps:
+    image: stilliard/pure-ftpd
+    ports:
+      - "21000:21"
+      - "30000-30009:30000-30009"
+    volumes:
+      - ./build/ftps:/home/ftpusers
+      - ./build/ftps:/etc/ssl/private
+      - ./build/ftps:/etc/pure-ftpd/passwd/
+      - ./build/ftps:/var/log/pure-ftpd/
+    environment:
+      PUBLICHOST: "ftps"
+      FTP_USER_NAME: ftps
+      FTP_USER_PASS: ftps
+      FTP_USER_HOME: /home/test-user
+      ADDED_FLAGS: "--tls=2 -d"
+      TLS_CN: "localhost"
+      TLS_ORG: "TestOrg"
+      TLS_C: "DE"
+    restart: always
+    networks:
+      - prime-router_build
+
 
   redox:
     image: mockserver/mockserver:mockserver-5.11.1
@@ -69,16 +103,20 @@ services:
       - type: bind
         source: ./src/test/redox
         target: /config
+    networks:
+      - prime-router_build
 
   settings:
     build: settings/.
-    command: "--wait=20 --check-last-modified prime_dev /settings/organizations.yml"
+    command: "--check-last-modified prime_dev /settings/organizations.yml"
     depends_on:
       - prime_dev
     volumes:
       - type: bind
         source: ./settings
         target: /settings
+    networks:
+      - prime-router_build
 
   # Secrets management
   vault:
@@ -98,6 +136,8 @@ services:
       - 8200:8200
     # Override the command with our custom init script
     command: "/vault/config/init.sh"
+    networks:
+      - prime-router_build
 
   web_receiver:
     image: nginx:latest
@@ -105,13 +145,19 @@ services:
       - "8090:80"
     volumes:
       - "../frontend/dist:/usr/share/nginx/html"
-    depends_on: 
+    depends_on:
       - prime_dev
     command: "'nginx' '-g' 'daemon off;'"
     entrypoint: "/docker-entrypoint.sh"
+    networks:
+      - prime-router_build
+    build:
+      context: ../frontend
+      dockerfile: ../frontend/Dockerfile_dev
 
 volumes:
   # For storing a local encrypted secrets database
   vault:
 
-
+networks:
+  prime-router_build:

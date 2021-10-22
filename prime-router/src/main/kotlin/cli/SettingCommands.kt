@@ -81,7 +81,7 @@ abstract class SettingCommand(
     }
 
     fun getEnvironment(): Environment {
-        return environments.find { it.name == env } ?: abort("bad environment")
+        return getEnvironment(env)
     }
 
     fun getAccessToken(environment: Environment): String {
@@ -198,38 +198,6 @@ abstract class SettingCommand(
         }
     }
 
-    private fun formPath(
-        environment: Environment,
-        operation: Operation,
-        settingType: SettingType,
-        settingName: String
-    ): String {
-        val protocol = if (environment.useHttp) "http" else "https"
-        return "$protocol://${environment.baseUrl}$apiPath${settingPath(operation, settingType, settingName)}"
-    }
-
-    fun settingPath(operation: Operation, settingType: SettingType, settingName: String): String {
-        return if (operation == Operation.LIST) {
-            when (settingType) {
-                SettingType.ORG -> "/organizations"
-                SettingType.SENDER -> "/organizations/$settingName/senders"
-                SettingType.RECEIVER -> "/organizations/$settingName/receivers"
-            }
-        } else {
-            when (settingType) {
-                SettingType.ORG -> "/organizations/$settingName"
-                SettingType.SENDER -> {
-                    val (orgName, senderName) = Sender.parseFullName(settingName)
-                    "/organizations/$orgName/senders/$senderName"
-                }
-                SettingType.RECEIVER -> {
-                    val (orgName, receiverName) = Receiver.parseFullName(settingName)
-                    "/organizations/$orgName/receivers/$receiverName"
-                }
-            }
-        }
-    }
-
     fun readInput(): String {
         if (inStream == null) abort("Missing input file")
         val input = String(inStream!!.readAllBytes())
@@ -239,10 +207,6 @@ abstract class SettingCommand(
 
     fun writeOutput(output: String) {
         outStream.write(output.toByteArray())
-    }
-
-    fun abort(message: String): Nothing {
-        throw PrintMessage(message, error = true)
     }
 
     fun fromJson(input: String, settingType: SettingType): Pair<String, String> {
@@ -290,11 +254,66 @@ abstract class SettingCommand(
 
     companion object {
         val environments = listOf(
-            Environment("local", "localhost:7071", useHttp = true),
+            Environment(
+                "local",
+                (
+                    System.getenv("PRIME_RS_API_ENDPOINT_HOST")
+                        ?: "localhost"
+                    ) + ":7071",
+                useHttp = true,
+            ),
             Environment("test", "test.prime.cdc.gov", oktaApp = OktaCommand.OktaApp.DH_TEST),
             Environment("staging", "staging.prime.cdc.gov", oktaApp = OktaCommand.OktaApp.DH_TEST),
             Environment("prod", "prime.cdc.gov", oktaApp = OktaCommand.OktaApp.DH_PROD),
         )
+
+        fun abort(message: String): Nothing {
+            throw PrintMessage(message, error = true)
+        }
+
+        fun getEnvironment(env: String): Environment {
+            return environments.find { it.name == env } ?: abort("bad environment")
+        }
+
+        fun formPath(
+            environment: Environment,
+            operation: Operation,
+            settingType: SettingType,
+            settingName: String
+        ): String {
+            val protocol = if (environment.useHttp) "http" else "https"
+            return "$protocol://${environment.baseUrl}$apiPath${settingPath(operation, settingType, settingName)}"
+        }
+
+        fun formPath(
+            environment: Environment,
+            endPoint: String,
+        ): String {
+            val protocol = if (environment.useHttp) "http" else "https"
+            return "$protocol://${environment.baseUrl}/api/$endPoint"
+        }
+
+        fun settingPath(operation: Operation, settingType: SettingType, settingName: String): String {
+            return if (operation == Operation.LIST) {
+                when (settingType) {
+                    SettingType.ORG -> "/organizations"
+                    SettingType.SENDER -> "/organizations/$settingName/senders"
+                    SettingType.RECEIVER -> "/organizations/$settingName/receivers"
+                }
+            } else {
+                when (settingType) {
+                    SettingType.ORG -> "/organizations/$settingName"
+                    SettingType.SENDER -> {
+                        val (orgName, senderName) = Sender.parseFullName(settingName)
+                        "/organizations/$orgName/senders/$senderName"
+                    }
+                    SettingType.RECEIVER -> {
+                        val (orgName, receiverName) = Receiver.parseFullName(settingName)
+                        "/organizations/$orgName/receivers/$receiverName"
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -309,7 +328,7 @@ abstract class SingleSettingCommandNoSettingName(
 ) : SettingCommand(name = name, help = help) {
     open val settingName: String = ""
 
-    private val useJson by option(
+    val useJson by option(
         "--json",
         help = "Use the JSON format instead of YAML"
     ).flag(default = false)
@@ -431,7 +450,16 @@ class SenderSettings : CliktCommand(
     name = "sender",
     help = "Fetch and update settings for a sender"
 ) {
-    init { subcommands(ListSenderSetting(), GetSenderSetting(), PutSenderSetting(), DeleteSenderSetting()) }
+    init {
+        subcommands(
+            ListSenderSetting(),
+            GetSenderSetting(),
+            PutSenderSetting(),
+            DeleteSenderSetting(),
+            TokenUrl(),
+            AddPublicKey(),
+        )
+    }
 
     override fun run() {}
 }
