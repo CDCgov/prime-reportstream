@@ -76,6 +76,10 @@ The quality filters verify that test results have the minimum fields required by
     
 - Processing Code does not equal T nor D
 
+Only test results that pass all the above requirements will be transferred to the jurisdiction. There are two options for jurisdictions that want all results reported.
+- Use AllowAll() to bypass all quality filters
+- Create a secondary feed with the reverseQualityFilter() set to true. This will only allow results that fail the quality filters listed above.
+
 The mechanism for how each record is translated is laid out in the schema, which is discussed below
 
 ### Set up a new schema
