@@ -147,7 +147,7 @@ class LookupTableEndpointUtilities(val environment: Environment) {
         val jsonPayload = JsonArray(jsonRows)
 
         val (_, response, result) = Fuel
-            .put(apiUrl.toString())
+            .post(apiUrl.toString())
             .header(Headers.CONTENT_TYPE to HttpUtilities.jsonMediaType)
             .jsonBody(jsonPayload.toString())
             .authentication()
@@ -172,7 +172,7 @@ class LookupTableEndpointUtilities(val environment: Environment) {
             try {
                 newVersion.tableName = (info["tableName"] as JsonPrimitive).content
                 newVersion.tableVersion = (info["tableVersion"] as JsonPrimitive).int
-                newVersion.isActive = (info["tableName"] as JsonPrimitive).content.toBoolean()
+                newVersion.isActive = (info["isActive"] as JsonPrimitive).content.toBoolean()
                 newVersion.createdBy = (info["createdBy"] as JsonPrimitive).content
                 newVersion.createdAt = OffsetDateTime.parse((info["createdAt"] as JsonPrimitive).content)
             } catch (e: NullPointerException) {
@@ -242,14 +242,17 @@ class LookupTableEndpointUtilities(val environment: Environment) {
                 result is Result.Failure && response.statusCode == HttpStatus.SC_NOT_FOUND -> {
                     val error = getErrorFromResponse(result)
                     try {
-                        // If we do get a 404 with a JSON error message then it is because the table was not found
-                        if (Json.parseToJsonElement(result.error.response.body().asString(HttpUtilities.jsonMediaType))
-                            .jsonObject.containsKey("error")
-                        )
-                            throw TableNotFoundException(error)
-                        else
-                        // This is the case where we get a 404, but it is because the server cannot find the endpoint
-                            throw IOException(error)
+                        when {
+                            // If we get a 404 with no response body then it is an endpoint not found erro
+                            result.error.response.body().isEmpty() -> throw IOException(error)
+
+                            // If we do get a 404 with a JSON error message then it is because the table was not found
+                            Json.parseToJsonElement(result.error.response.body().asString(HttpUtilities.jsonMediaType))
+                                .jsonObject.containsKey("error") ->
+                                throw TableNotFoundException(error)
+
+                            else -> throw IOException(error)
+                        }
                     } catch (e: SerializationException) {
                         // The error message is not JSON.
                         throw IOException(error)

@@ -241,6 +241,10 @@ class LookupTableCommandsTest {
             ) as JsonObject
         )
         assertThat(info.tableVersion).isEqualTo(1)
+        assertThat(info.isActive).isEqualTo(true)
+        assertThat(info.tableName).isEqualTo("name")
+        assertThat(info.createdBy).isEqualTo("developer")
+        assertThat(info.createdAt.year).isEqualTo(2018)
     }
 
     @Test
