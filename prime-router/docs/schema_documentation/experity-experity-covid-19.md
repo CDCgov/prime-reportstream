@@ -676,6 +676,20 @@ This field is ignored.
 
 ---
 
+**Name**: Test_date
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+This field is ignored.
+
+---
+
 **Name**: Test_kit_EUA_ID
 
 **Type**: TEXT
@@ -2228,18 +2242,6 @@ Translate multiple inbound Test Result values to RS values
 **PII**: No
 
 **Format**: M/d/yyyy H:nn
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: Test_date
-
-**Type**: DATETIME
-
-**PII**: No
-
-**Format**: M/d/yyyy
 
 **Cardinality**: [0..1]
 

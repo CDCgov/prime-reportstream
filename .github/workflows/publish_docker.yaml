@@ -14,6 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       has_tfcli_change: ${{ steps.skip_check.outputs.tfcli }}
+      has_dnsmasq_change: ${{ steps.skip_check.outputs.dnsmasq }}
     steps:
       - name: "Check out changes"
         uses: actions/checkout@v2
@@ -26,6 +27,8 @@ jobs:
               - 'operations/docker-compose.yml'
               - 'operations/Dockerfile'
               - '.github/workflows/build_docker.yml'
+            dnsmasq:
+              - 'operations/dnsmasq/**'
 
   publish_tfcli:
     name: Publish Terraform CLI
@@ -54,6 +57,41 @@ jobs:
       - name: Build Docker Terraform CLI
         run: |
           make build-tf-cli
+
+      - name: Push to the Container Registry
+        run: |
+          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }} --all-tags
+
+  publish_dnsmasq:
+    name: Publish dnsmasq
+    needs: pre_job
+    if: ${{ needs.pre_job.outputs.has_dnsmasq_change == 'true' }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: operations/dnsmasq
+    env:
+      IMAGE_NAME: cdcgov/prime-reportstream_dnsmasq
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      matrix:
+        AZ_ENV: [ rkh5012, test, staging, prod ]
+    steps:
+      - name: Check Out Changes
+        uses: actions/checkout@v2
+
+      - name: Log In to the Container Registry
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build Docker Terraform CLI
+        run: |
+          docker build --build-arg AZ_ENV=${{ matrix.AZ_ENV }} -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ matrix.AZ_ENV }} .
 
       - name: Push to the Container Registry
         run: |
