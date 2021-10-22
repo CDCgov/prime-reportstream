@@ -199,7 +199,7 @@ class LookupTableFunctions(
     }
 
     /**
-     * Activate a lookup that.
+     * Activate a lookup table.
      */
     @FunctionName("activateLookupTable")
     fun activateLookupTable(
