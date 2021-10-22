@@ -42,85 +42,52 @@ resource "azurerm_storage_account" "storage_account" {
 }
 
 module "storageaccount_blob_private_endpoint" {
-  source             = "../common/private_endpoint"
-  resource_id        = azurerm_storage_account.storage_account.id
-  name               = azurerm_storage_account.storage_account.name
-  type               = "storage_account_blob"
-  resource_group     = var.resource_group
-  location           = var.location
-  endpoint_subnet_id = data.azurerm_subnet.endpoint.id
-  create_dns_record  = true
+  source         = "../common/private_endpoint"
+  resource_id    = azurerm_storage_account.storage_account.id
+  name           = azurerm_storage_account.storage_account.name
+  type           = "storage_account_blob"
+  resource_group = var.resource_group
+  location       = var.location
+
+  endpoint_subnet_ids = [
+    data.azurerm_subnet.endpoint.id,
+    data.azurerm_subnet.endpoint_subnet.id,
+  ]
+
+  endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? data.azurerm_subnet.endpoint_subnet.id : data.azurerm_subnet.endpoint.id
 }
 
 module "storageaccount_file_private_endpoint" {
-  source             = "../common/private_endpoint"
-  resource_id        = azurerm_storage_account.storage_account.id
-  name               = azurerm_storage_account.storage_account.name
-  type               = "storage_account_file"
-  resource_group     = var.resource_group
-  location           = var.location
-  endpoint_subnet_id = data.azurerm_subnet.endpoint.id
-  create_dns_record  = true
+  source         = "../common/private_endpoint"
+  resource_id    = azurerm_storage_account.storage_account.id
+  name           = azurerm_storage_account.storage_account.name
+  type           = "storage_account_file"
+  resource_group = var.resource_group
+  location       = var.location
+
+  endpoint_subnet_ids = [
+    data.azurerm_subnet.endpoint.id,
+    data.azurerm_subnet.endpoint_subnet.id,
+  ]
+
+  endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? data.azurerm_subnet.endpoint_subnet.id : data.azurerm_subnet.endpoint.id
 }
 
 module "storageaccount_queue_private_endpoint" {
-  source             = "../common/private_endpoint"
-  resource_id        = azurerm_storage_account.storage_account.id
-  name               = azurerm_storage_account.storage_account.name
-  type               = "storage_account_queue"
-  resource_group     = var.resource_group
-  location           = var.location
-  endpoint_subnet_id = data.azurerm_subnet.endpoint.id
-  create_dns_record  = true
+  source         = "../common/private_endpoint"
+  resource_id    = azurerm_storage_account.storage_account.id
+  name           = azurerm_storage_account.storage_account.name
+  type           = "storage_account_queue"
+  resource_group = var.resource_group
+  location       = var.location
+
+  endpoint_subnet_ids = [
+    data.azurerm_subnet.endpoint.id,
+    data.azurerm_subnet.endpoint_subnet.id,
+  ]
+
+  endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? data.azurerm_subnet.endpoint_subnet.id : data.azurerm_subnet.endpoint.id
 }
-
-//module "storage_blob_private_endpoint" {
-//  source             = "../common/private_endpoint"
-//  resource_id        = azurerm_storage_account.storage_account.id
-//  name               = azurerm_storage_account.storage_account.name
-//  type               = "storage_account_blob"
-//  resource_group     = var.resource_group
-//  location           = var.location
-//  endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet.id
-//  create_dns_record  = false
-//
-//  depends_on = [
-//    # Prevent unexpected order-of-operations by placing a hard dependency against the current private endpoint
-//    module.storageaccount_blob_private_endpoint
-//  ]
-//}
-
-//module "storage_file_private_endpoint" {
-//  source             = "../common/private_endpoint"
-//  resource_id        = azurerm_storage_account.storage_account.id
-//  name               = azurerm_storage_account.storage_account.name
-//  type               = "storage_account_file"
-//  resource_group     = var.resource_group
-//  location           = var.location
-//  endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet.id
-//  create_dns_record  = false
-//
-//  depends_on = [
-//    # Prevent unexpected order-of-operations by placing a hard dependency against the current private endpoint
-//    module.storageaccount_file_private_endpoint
-//  ]
-//}
-
-//module "storage_queue_private_endpoint" {
-//  source             = "../common/private_endpoint"
-//  resource_id        = azurerm_storage_account.storage_account.id
-//  name               = azurerm_storage_account.storage_account.name
-//  type               = "storage_account_queue"
-//  resource_group     = var.resource_group
-//  location           = var.location
-//  endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet.id
-//  create_dns_record  = false
-//
-//  depends_on = [
-//    # Prevent unexpected order-of-operations by placing a hard dependency against the current private endpoint
-//    module.storageaccount_queue_private_endpoint
-//  ]
-//}
 
 # Point-in-time restore, soft delete, versioning, and change feed were
 # enabled in the portal as terraform does not currently support this.
@@ -274,31 +241,20 @@ resource "azurerm_storage_account_customer_managed_key" "storage_partner_key" {
 }
 
 module "storageaccountpartner_blob_private_endpoint" {
-  source             = "../common/private_endpoint"
-  resource_id        = azurerm_storage_account.storage_partner.id
-  name               = azurerm_storage_account.storage_partner.name
-  type               = "storage_account_blob"
-  resource_group     = var.resource_group
-  location           = var.location
-  endpoint_subnet_id = data.azurerm_subnet.endpoint.id
-  create_dns_record  = true
-}
+  source         = "../common/private_endpoint"
+  resource_id    = azurerm_storage_account.storage_partner.id
+  name           = azurerm_storage_account.storage_partner.name
+  type           = "storage_account_blob"
+  resource_group = var.resource_group
+  location       = var.location
 
-//module "storage_partner_blob_private_endpoint" {
-//  source             = "../common/private_endpoint"
-//  resource_id        = azurerm_storage_account.storage_partner.id
-//  name               = azurerm_storage_account.storage_partner.name
-//  type               = "storage_account_blob"
-//  resource_group     = var.resource_group
-//  location           = var.location
-//  endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet.id
-//  create_dns_record  = false
-//
-//  depends_on = [
-//    # Prevent unexpected order-of-operations by placing a hard dependency against the current private endpoint
-//    module.storageaccountpartner_blob_private_endpoint
-//  ]
-//}
+  endpoint_subnet_ids = [
+    data.azurerm_subnet.endpoint.id,
+    data.azurerm_subnet.endpoint_subnet.id,
+  ]
+
+  endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? data.azurerm_subnet.endpoint_subnet.id : data.azurerm_subnet.endpoint.id
+}
 
 resource "azurerm_storage_container" "storage_container_hhsprotect" {
   name                 = "hhsprotect"

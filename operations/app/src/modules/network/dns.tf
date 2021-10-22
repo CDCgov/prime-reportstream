@@ -13,6 +13,6 @@ module "vnet_dns" {
 
   resource_prefix = var.resource_prefix
   resource_group  = var.resource_group
-  dns_zone_names  = local.dns_zones_private
+  dns_zone_names  = setsubtract(local.dns_zones_private, local.omit_dns_zones_private_in_cdc_vnet)
   vnet            = data.azurerm_virtual_network.vnet[each.value]
 }

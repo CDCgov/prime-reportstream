@@ -41,31 +41,20 @@ resource "azurerm_postgresql_server" "postgres_server" {
 }
 
 module "postgres_private_endpoint" {
-  source             = "../common/private_endpoint"
-  resource_id        = azurerm_postgresql_server.postgres_server.id
-  name               = azurerm_postgresql_server.postgres_server.name
-  type               = "postgres_server"
-  resource_group     = var.resource_group
-  location           = var.location
-  endpoint_subnet_id = data.azurerm_subnet.endpoint.id
-  create_dns_record  = true
-}
+  source         = "../common/private_endpoint"
+  resource_id    = azurerm_postgresql_server.postgres_server.id
+  name           = azurerm_postgresql_server.postgres_server.name
+  type           = "postgres_server"
+  resource_group = var.resource_group
+  location       = var.location
 
-//module "postgres_server_private_endpoint" {
-//  source             = "../common/private_endpoint"
-//  resource_id        = azurerm_postgresql_server.postgres_server.id
-//  name               = azurerm_postgresql_server.postgres_server.name
-//  type               = "postgres_server"
-//  resource_group     = var.resource_group
-//  location           = var.location
-//  endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet_east.id
-//  create_dns_record  = false
-//
-//  depends_on = [
-//    # Prevent unexpected order-of-operations by placing a hard dependency against the current private endpoint
-//    module.postgres_private_endpoint
-//  ]
-//}
+  endpoint_subnet_ids = [
+    data.azurerm_subnet.endpoint.id,
+    data.azurerm_subnet.endpoint_subnet_east.id,
+  ]
+
+  endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? data.azurerm_subnet.endpoint_subnet_east.id : data.azurerm_subnet.endpoint.id
+}
 
 
 // Replicate Server
@@ -114,31 +103,20 @@ resource "azurerm_postgresql_server" "postgres_server_replica" {
 }
 
 module "postgres_private_endpoint_replica" {
-  source             = "../common/private_endpoint"
-  resource_id        = azurerm_postgresql_server.postgres_server_replica.id
-  name               = azurerm_postgresql_server.postgres_server_replica.name
-  type               = "postgres_server"
-  resource_group     = var.resource_group
-  location           = azurerm_postgresql_server.postgres_server_replica.location
-  endpoint_subnet_id = data.azurerm_subnet.endpoint_replica.id
-  create_dns_record  = true
-}
+  source         = "../common/private_endpoint"
+  resource_id    = azurerm_postgresql_server.postgres_server_replica.id
+  name           = azurerm_postgresql_server.postgres_server_replica.name
+  type           = "postgres_server"
+  resource_group = var.resource_group
+  location       = azurerm_postgresql_server.postgres_server_replica.location
 
-//module "postgres_server_private_endpoint_replica" {
-//  source             = "../common/private_endpoint"
-//  resource_id        = azurerm_postgresql_server.postgres_server_replica.id
-//  name               = azurerm_postgresql_server.postgres_server_replica.name
-//  type               = "postgres_server"
-//  resource_group     = var.resource_group
-//  location           = azurerm_postgresql_server.postgres_server_replica.location
-//  endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet_west.id
-//  create_dns_record  = false
-//
-//  depends_on = [
-//    # Prevent unexpected order-of-operations by placing a hard dependency against the current private endpoint
-//    module.postgres_private_endpoint_replica
-//  ]
-//}
+  endpoint_subnet_ids = [
+    data.azurerm_subnet.endpoint_replica.id,
+    data.azurerm_subnet.endpoint_subnet_west.id,
+  ]
+
+  endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? data.azurerm_subnet.endpoint_subnet_west.id : data.azurerm_subnet.endpoint_replica.id
+}
 
 
 // User Administration
