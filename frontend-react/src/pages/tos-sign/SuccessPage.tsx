@@ -36,24 +36,20 @@ const NumberCircle = ({
 
 const Step = ({
     number,
+    heading,
     label,
     complete,
 }: {
     number: number;
+    heading: string;
     label: string;
     complete: boolean;
 }) => {
     return (
-        <div className="display-flex margin-top-4">
-            <NumberCircle
-                className="flex-align-self-center"
-                number={number}
-                filled={complete}
-            />
-            <span className="flex-align-self-center margin-left-3">
-                {label}
-            </span>
-        </div>
+        <li className="usa-process-list__item">
+            <h4 className="usa-process-list__heading">{heading}</h4>
+            <p className="margin-top-05">{label}</p>
+        </li>
     );
 };
 
@@ -61,62 +57,55 @@ function SuccessPage({ data }: { data: AgreementBody }) {
     const steps = [
         {
             number: 1,
-            label: "Register to upload",
-            complete: true,
+            heading: "Account creation",
+            label: "The ReportStream team will create and configure your account.",
+            complete: false,
         },
         {
             number: 2,
-            label: "Confirm identity with jurisdiction name",
+            heading: "Log in to your account",
+            label: "The ReportStream team will reach out to you within one week with login credentials.",
             complete: false,
-        },
-        {
-            number: 3,
-            label: "Log in with credentials",
-            complete: false,
-        },
-        {
-            number: 4,
-            label: "Start submitting data",
-            complete: false,
-        },
+        }
     ];
     return (
-        <div className="width-tablet margin-x-auto margin-bottom-5">
+        <div className="tablet:grid-col-6 margin-x-auto">
             <Title
                 preTitle="Account registration"
                 title={`You're almost there, ${data.firstName}!`}
             />
-            <p className={classNames}>
-                Our team will reach out to you within one week with credentials
-                to log into ReportStream.
-            </p>
-            <p className={classNames}>
-                A copy of this confirmation has been sent to {data.email}. If
-                you don't receive confirmation, check your SPAM folder for an
-                email from reportstream@cdc.gov.
-            </p>
-            <p className={classNames}>
-                Full name: {data.firstName} {data.lastName}
-                <br />
-                Email: {data.email}
-                <br />
-                State or territory: {data.territory.toUpperCase()}
-                <br />
-                Organization name: {data.organizationName}
-            </p>
-            <h3 className="padding-top-7 margin-top-7 margin-bottom-7 text-normal border-top-05 border-base-lighter">
+            <div className="usa-alert usa-alert--success">
+                <div className="usa-alert__body">
+                    <h4 className="usa-alert__heading">Registration request submitted</h4>
+                    <p className="usa-alert__text">
+                        <strong>Name:</strong> {data.firstName} {data.lastName}
+                        <br />
+                        <strong>Email:</strong> {data.email}
+                        <br />
+                        <strong>State or territory:</strong> {data.territory.toUpperCase()}
+                        <br />
+                        <strong>Organization name:</strong> {data.organizationName}
+                        <br /><br />
+                        A copy of this confirmation has been sent to {data.email}. If you don't receive confirmation, check your SPAM folder for an email from reportstream@cdc.gov.
+                    </p>
+                </div>
+            </div>
+            <h2 className="margin-top-6">
                 Next steps
-            </h3>
-            {steps.map((step) => {
-                return (
-                    <Step
-                        key={step.number}
-                        number={step.number}
-                        label={step.label}
-                        complete={step.complete}
-                    />
-                );
-            })}
+            </h2>
+            <ol className="usa-process-list">
+                {steps.map((step) => {
+                    return (
+                        <Step
+                            key={step.number}
+                            number={step.number}
+                            heading={step.heading}
+                            label={step.label}
+                            complete={step.complete}
+                        />
+                    );
+                })}
+            </ol>
         </div>
     );
 }

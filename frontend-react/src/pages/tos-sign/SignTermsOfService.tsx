@@ -5,7 +5,7 @@ import SigningForm, { AgreementBody } from "./SigningForm";
 import SuccessPage from "./SuccessPage";
 
 function SignTermsOfService() {
-    const [signed, setSigned] = useState(false);
+    const [signed, setSigned] = useState(true);
     const [data, setData] = useState({
         title: "string",
         firstName: "string",

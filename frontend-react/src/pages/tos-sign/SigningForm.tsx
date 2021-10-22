@@ -187,187 +187,178 @@ function SigningForm({
     const AgreementLabel = () => {
         return (
             <span className="maxw-2">
-                By submitting your information, you're agreeing to the
-                ReportSteam <Link to="/terms-of-service">terms of service</Link>
+                I have read and agree to the ReportSteam <Link to="/terms-of-service" target="_blank" rel="noopener">terms of service</Link>
                 . <Required />
             </span>
         );
     };
 
     return (
-        <div className="width-tablet margin-x-auto">
+        <div className="tablet:grid-col-6 margin-x-auto">
             <Title
                 title="Register your organization with ReportStream"
-                preTitle="Account registration"
+                preTitle="Account registration"                
             />
-            <p className="usa-prose padding-bottom-9 border-bottom-05 border-base-lighter">
-                Required fields are marked with an asterisk (
-                <span style={{ color: "red" }}>*</span>).
+            <p className="padding-bottom-6 margin-bottom-6 border-bottom-1px border-base-lighter">
+                Required fields are marked with an asterisk (<abbr title="required" className="usa-hint usa-hint--required">*</abbr>).
             </p>
-
+            
             <Form id="tos-agreement" onSubmit={handleSubmit}>
-                <h3 className="padding-top-7 text-normal">
-                    Name and contact information
-                </h3>
-                <FormGroup>
-                    <Label htmlFor="title">Title</Label>
-                    <TextInput
-                        id="title"
-                        name="title"
-                        type="text"
-                        inputSize="small"
-                        value={title}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                            setTitle(e.target.value)
-                        }
-                    />
-                </FormGroup>
-                <FormGroup error={firstNameErrorFlag}>
-                    <Label htmlFor="first-name">
-                        First name <Required />
-                    </Label>
-                    <TextInput
-                        id="first-name"
-                        name="first-name"
-                        type="text"
-                        value={firstName}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                            setFirstName(e.target.value)
-                        }
-                    />
-                </FormGroup>
-                <FormGroup error={lastNameErrorFlag}>
-                    <Label htmlFor="last-name">
-                        Last name <Required />
-                    </Label>
-                    <TextInput
-                        id="last-name"
-                        name="last-name"
-                        type="text"
-                        value={lastName}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                            setLastName(e.target.value)
-                        }
-                    />
-                </FormGroup>
-                <FormGroup error={emailErrorFlag}>
-                    <Label htmlFor="email">
-                        Email <Required />
-                    </Label>
-                    <TextInput
-                        id="email"
-                        name="email"
-                        type="email"
-                        value={email}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                            setEmail(e.target.value)
-                        }
-                    />
-                </FormGroup>
-
-                <h3 className="padding-top-5 text-normal">
-                    About your organization
-                </h3>
-                <FormGroup error={territoryErrorFlag}>
-                    <Label htmlFor="states-dropdown">
-                        [HQ] State or territory <Required />
-                    </Label>
-                    <Dropdown
-                        id="input-dropdown"
-                        name="states-dropdown"
-                        value={territory}
-                        onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-                            setTerritory(e.target.value)
-                        }
-                    >
-                        {STATES.map((state) => {
-                            return (
-                                <option
-                                    key={state.toLowerCase()}
-                                    value={state.toLowerCase()}
-                                >
-                                    {state}
-                                </option>
-                            );
-                        })}
-                    </Dropdown>
-                </FormGroup>
-                <FormGroup error={organizationNameErrorFlag}>
-                    <Label htmlFor="organization-name">
-                        Organization name <Required />
-                    </Label>
-                    <TextInput
-                        id="organization-name"
-                        name="organization-name"
-                        type="text"
-                        value={organizationName}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                            setOrganizationName(e.target.value)
-                        }
-                    />
-                </FormGroup>
-                <Checkbox
-                    className="padding-top-3"
-                    id="multi-state"
-                    name="multi-state"
-                    label="My org reports to multiple states"
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                        setMultipleStates(e.target.checked)
-                    }
-                />
-            </Form>
-
-            <section className="usa-section usa-prose font-sans-2xs text-base-darker border-top-05 border-base-lighter margin-top-9">
-                <p>
-                    ReportStream will use the information you’ve provided to
-                    communicate with you for the purpose of setting up a
-                    connection to the ReportStream platform, and to provide
-                    support.
-                </p>
-                <FormGroup error={agreeErrorFlag}>
+                <fieldset className="usa-fieldset margin-bottom-6">                
+                    <legend className="usa-legend font-body-lg text-bold">Name and contact information</legend>
+                    <FormGroup>
+                        <Label htmlFor="title">Title</Label>
+                        <TextInput
+                            id="title"
+                            name="title"
+                            type="text"
+                            inputSize="small"
+                            value={title}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                                setTitle(e.target.value)
+                            }
+                        />
+                    </FormGroup>
+                    <FormGroup error={firstNameErrorFlag}>
+                        <Label htmlFor="first-name">
+                            First name <Required />
+                        </Label>
+                        <TextInput
+                            id="first-name"
+                            name="first-name"
+                            type="text"
+                            value={firstName}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                                setFirstName(e.target.value)
+                            }
+                        />
+                    </FormGroup>
+                    <FormGroup error={lastNameErrorFlag}>
+                        <Label htmlFor="last-name">
+                            Last name <Required />
+                        </Label>
+                        <TextInput
+                            id="last-name"
+                            name="last-name"
+                            type="text"
+                            value={lastName}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                                setLastName(e.target.value)
+                            }
+                        />
+                    </FormGroup>
+                    <FormGroup error={emailErrorFlag}>
+                        <Label htmlFor="email">
+                            Email <Required />
+                        </Label>
+                        <TextInput
+                            id="email"
+                            name="email"
+                            type="email"
+                            value={email}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                                setEmail(e.target.value)
+                            }
+                        />
+                    </FormGroup>
+                </fieldset>
+                <fieldset className="usa-fieldset margin-bottom-6">
+                    <legend className="usa-legend font-body-lg text-bold">About your organization</legend>
+                    
+                    <FormGroup error={organizationNameErrorFlag}>
+                        <Label htmlFor="organization-name">
+                            Organization name <Required />
+                        </Label>
+                        <TextInput
+                            id="organization-name"
+                            name="organization-name"
+                            type="text"
+                            value={organizationName}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                                setOrganizationName(e.target.value)
+                            }
+                        />
+                    </FormGroup>
+                    <FormGroup error={territoryErrorFlag}>
+                        <Label htmlFor="states-dropdown">
+                            State or territory you're based in <Required />
+                        </Label>
+                        <Dropdown
+                            id="input-dropdown"
+                            name="states-dropdown"
+                            value={territory}
+                            onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                                setTerritory(e.target.value)
+                            }
+                        >
+                            {STATES.map((state) => {
+                                return (
+                                    <option
+                                        key={state.toLowerCase()}
+                                        value={state.toLowerCase()}
+                                    >
+                                        {state}
+                                    </option>
+                                );
+                            })}
+                        </Dropdown>
+                    </FormGroup>
                     <Checkbox
                         className="padding-top-3"
-                        id="agree"
-                        name="agree"
+                        id="multi-state"
+                        name="multi-state"
+                        label="My organization operates in multiple states"
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                            setAgree(e.target.checked)
+                            setMultipleStates(e.target.checked)
                         }
-                        label={<AgreementLabel />}
                     />
-                    <ErrorMessage>
-                        <span
-                            style={{
-                                color: "red",
-                                visibility: agreeErrorFlag
-                                    ? "visible"
-                                    : "hidden",
-                            }}
-                        >
-                            You must agree to the Terms of Service before using
-                            ReportStream.
-                        </span>
-                    </ErrorMessage>
-                </FormGroup>
-            </section>
-
-            <Button
-                form="tos-agreement"
-                className="margin-bottom-10"
-                type="submit"
-            >
-                Submit registration
-            </Button>
-            <Alert
-                style={{
-                    visibility: sendGridErrorFlag.isError
-                        ? "visible"
-                        : "hidden",
-                }}
-                type="error"
-            >
-                Oh no! There was an error sending this data. Code:{" "}
-                {sendGridErrorFlag.status}
-            </Alert>
+                </fieldset>
+                <fieldset className="usa-fieldset">
+                    <legend className="usa-legend font-body-lg text-bold">Terms of service</legend>
+                    <FormGroup error={agreeErrorFlag}>
+                        <Checkbox
+                            id="agree"
+                            name="agree"
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                                setAgree(e.target.checked)
+                            }
+                            label={<AgreementLabel />}
+                        />
+                        <ErrorMessage>
+                            <span
+                                style={{
+                                    color: "red",
+                                    visibility: agreeErrorFlag
+                                        ? "visible"
+                                        : "hidden",
+                                }}
+                            >
+                                You must agree to the Terms of Service before using
+                                ReportStream.
+                            </span>
+                        </ErrorMessage>
+                    </FormGroup>
+                </fieldset>
+            </Form>
+            <div className="border-top-1px border-base-lighter margin-top-2 padding-top-6">
+                <Button
+                    form="tos-agreement"
+                    type="submit"
+                >
+                    Submit registration
+                </Button>
+                <Alert
+                    style={{
+                        visibility: sendGridErrorFlag.isError
+                            ? "visible"
+                            : "hidden",
+                    }}
+                    type="error"
+                >
+                    Oh no! There was an error sending this data. Code:{" "}
+                    {sendGridErrorFlag.status}
+                </Alert>
+            </div>
         </div>
     );
 }
