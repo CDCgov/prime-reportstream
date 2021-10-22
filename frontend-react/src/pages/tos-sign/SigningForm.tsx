@@ -179,7 +179,7 @@ function SigningForm({
     };
 
     const Required = () => {
-        return <span style={{ color: "red" }}>*</span>;
+        return <span style={{ color: "#b50909" }}>*</span>;
     };
 
     const AgreementLabel = () => {
@@ -196,7 +196,7 @@ function SigningForm({
             return (
                 <ErrorMessage>
                     <span style={{
-                        color: "red",
+                        color: "#b50909",
                     }}>
                         {message}
                     </span>
@@ -361,7 +361,7 @@ function SigningForm({
                         <ErrorMessage>
                             <span
                                 style={{
-                                    color: "red",
+                                    color: "#b50909",
                                     visibility: agreeErrorFlag
                                         ? "visible"
                                         : "hidden",
