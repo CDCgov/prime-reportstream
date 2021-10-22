@@ -1330,22 +1330,6 @@ ResultDate populates multiple fields.  This instance populates test_result_date.
 
 ---
 
-**Name**: ResultDate
-
-**Type**: DATETIME
-
-**PII**: No
-
-**Format**: M/d/yyyy
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-ResultDate populates multiple fields.  This instance populates test_result_report_date.
-
----
-
 **Name**: test_result_status
 
 **Type**: CODE

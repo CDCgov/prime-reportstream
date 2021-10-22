@@ -61,7 +61,7 @@ elements:
   - name: test_result_date
     csvFields: [{ name: testResultDate, format: yyyyMMdd}]
 
-  - name: test_result_report_date
+  - name: date_result_released
     csvFields: [{ name: testReportDate, format: yyyyMMdd}]
 
   - name: test_kit_name_id
