@@ -31,7 +31,7 @@ resource "azurerm_container_group" "sftp_container" {
   location            = var.location
   resource_group_name = var.resource_group
   ip_address_type     = "Private"
-  network_profile_id  = var.environment == "dev" ? azurerm_network_profile.sftp_vnet_network_profile.id : azurerm_network_profile.sftp_network_profile.id
+  network_profile_id  = var.use_cdc_managed_vnet ? azurerm_network_profile.sftp_vnet_network_profile.id : azurerm_network_profile.sftp_network_profile.id
   os_type             = "Linux"
   restart_policy      = "Always"
 
@@ -67,7 +67,6 @@ resource "azurerm_container_group" "sftp_container" {
     // Workaround. TF thinks this is a new resource after import
     ignore_changes = [
       container[0].volume[0],
-      network_profile_id,
     ]
   }
 }
@@ -75,4 +74,16 @@ resource "azurerm_container_group" "sftp_container" {
 resource "azurerm_storage_share" "sftp_share" {
   name                 = "${var.resource_prefix}-sftpserver"
   storage_account_name = data.azurerm_storage_account.storage_account.name
+}
+
+resource "azurerm_private_dns_a_record" "sftp_prime_local" {
+  name = "sftp"
+
+  resource_group_name = var.resource_group
+  zone_name           = data.azurerm_private_dns_zone.prime_local.name
+
+  records = [
+    azurerm_container_group.sftp_container.ip_address,
+  ]
+  ttl = 60
 }

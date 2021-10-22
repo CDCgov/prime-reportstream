@@ -540,7 +540,7 @@ dependencies {
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
     implementation("com.googlecode.libphonenumber:libphonenumber:8.12.33")
     implementation("org.thymeleaf:thymeleaf:3.0.12.RELEASE")
-    implementation("com.sendgrid:sendgrid-java:4.7.5")
+    implementation("com.sendgrid:sendgrid-java:4.7.6")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.1")
     implementation("com.github.kittinunf.fuel:fuel:2.3.1") {
         exclude(group = "org.json", module = "json")
@@ -557,7 +557,7 @@ dependencies {
     implementation("org.postgresql:postgresql:42.3.0")
     implementation("com.zaxxer:HikariCP:5.0.0")
     implementation("org.flywaydb:flyway-core:7.15.0")
-    implementation("com.github.kayr:fuzzy-csv:1.7.0")
+    implementation("com.github.kayr:fuzzy-csv:1.7.1")
     implementation("org.commonmark:commonmark:0.18.0")
     implementation("com.google.guava:guava:31.0.1-jre")
     implementation("com.helger.as2:as2-lib:4.7.1")
