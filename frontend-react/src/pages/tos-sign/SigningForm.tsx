@@ -192,7 +192,7 @@ function SigningForm({
         );
     };
 
-    const ErrorMessageWithTrigger = ({ message, flag }: { message: string, flag: boolean }) => {
+    const ErrorMessageWithFlag = ({ message, flag }: { message: string, flag: boolean }) => {
         if (flag) {
             return (
                 <ErrorMessage>
@@ -241,6 +241,7 @@ function SigningForm({
                         First name <Required />
                     </Label>
                     <TextInput
+                        alt="First name input"
                         id="first-name"
                         name="first-name"
                         type="text"
@@ -249,7 +250,7 @@ function SigningForm({
                             setFirstName(e.target.value)
                         }
                     />
-                    <ErrorMessageWithTrigger
+                    <ErrorMessageWithFlag
                         flag={firstNameErrorFlag}
                         message="First name is a required field" />
                 </FormGroup>
@@ -258,6 +259,7 @@ function SigningForm({
                         Last name <Required />
                     </Label>
                     <TextInput
+                        alt="Last name input"
                         id="last-name"
                         name="last-name"
                         type="text"
@@ -267,7 +269,7 @@ function SigningForm({
                         }
                     />
 
-                    <ErrorMessageWithTrigger
+                    <ErrorMessageWithFlag
                         flag={lastNameErrorFlag}
                         message="Last name is a required field" />
                 </FormGroup>
@@ -276,6 +278,7 @@ function SigningForm({
                         Email <Required />
                     </Label>
                     <TextInput
+                        alt="Email input"
                         id="email"
                         name="email"
                         type="email"
@@ -285,7 +288,7 @@ function SigningForm({
                         }
                     />
 
-                    <ErrorMessageWithTrigger
+                    <ErrorMessageWithFlag
                         flag={emailErrorFlag}
                         message="Email is a required field" />
                 </FormGroup>
@@ -317,7 +320,7 @@ function SigningForm({
                         })}
                     </Dropdown>
 
-                    <ErrorMessageWithTrigger
+                    <ErrorMessageWithFlag
                         flag={territoryErrorFlag}
                         message="State or Territory is a required field" />
                 </FormGroup>
@@ -326,6 +329,7 @@ function SigningForm({
                         Organization name <Required />
                     </Label>
                     <TextInput
+                        alt="Organization input"
                         id="organization-name"
                         name="organization-name"
                         type="text"
@@ -335,11 +339,12 @@ function SigningForm({
                         }
                     />
 
-                    <ErrorMessageWithTrigger
+                    <ErrorMessageWithFlag
                         flag={organizationNameErrorFlag}
                         message="Organization is a required field" />
                 </FormGroup>
                 <Checkbox
+                    alt="Multiple states checkbox"
                     className="padding-top-3"
                     id="multi-state"
                     name="multi-state"
@@ -359,6 +364,7 @@ function SigningForm({
                 </p>
                 <FormGroup error={agreeErrorFlag}>
                     <Checkbox
+                        alt="Agreed checkbox"
                         className="padding-top-3"
                         id="agree"
                         name="agree"
@@ -368,7 +374,7 @@ function SigningForm({
                         label={<AgreementLabel />}
                     />
 
-                    <ErrorMessageWithTrigger
+                    <ErrorMessageWithFlag
                         flag={agreeErrorFlag}
                         message="You must agree to the Terms of Service before using ReportStream" />
                 </FormGroup>
