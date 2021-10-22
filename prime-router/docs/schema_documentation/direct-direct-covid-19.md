@@ -4,6 +4,20 @@
 
 ---
 
+**Name**: testReportDate
+
+**Type**: DATETIME
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+eg, 20210112
+
+---
+
 **Name**: healthcareEmployee
 
 **Type**: CODE
@@ -2038,20 +2052,6 @@ eg, SCT.   Custom
 **Documentation**:
 
 eg, 20210111
-
----
-
-**Name**: testReportDate
-
-**Type**: DATETIME
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-eg, 20210112
 
 ---
 
