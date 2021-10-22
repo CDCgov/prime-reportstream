@@ -32,3 +32,8 @@ variable "is_metabase_env" {
   type        = bool
   description = "Should Metabase be deployed in this environment"
 }
+
+variable "use_cdc_managed_vnet" {
+  type        = bool
+  description = "If the environment should be deployed to the CDC managed VNET"
+}

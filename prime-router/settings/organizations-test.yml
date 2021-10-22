@@ -59,7 +59,7 @@
         format: CSV
       transport:
         type: SFTP
-        host: 10.0.2.4
+        host: sftp.prime.local
         port: 22
         filePath: ./upload
 
@@ -86,7 +86,7 @@
         timeZone: ARIZONA
       transport:
         type: SFTP
-        host: 10.0.2.4
+        host: sftp.prime.local
         port: 22
         filePath: ./upload
 
@@ -109,7 +109,7 @@
         timeZone: ARIZONA
       transport:
         type: SFTP
-        host: 10.0.2.4
+        host: sftp.prime.local
         port: 22
         filePath: ./upload
 
@@ -185,7 +185,7 @@
         timeZone: EASTERN
       transport:
         type: SFTP
-        host: 10.0.2.4
+        host: sftp.prime.local
         port: 22
         filePath: ./upload
 
@@ -213,7 +213,7 @@
         timeZone: CENTRAL
       transport:
         type: SFTP
-        host: 10.0.2.4
+        host: sftp.prime.local
         port: 22
         filePath: ./upload
 
@@ -242,7 +242,7 @@
         timeZone: CENTRAL
       transport:
         type: SFTP
-        host: 10.0.2.4
+        host: sftp.prime.local
         port: 22
         filePath: ./upload
 
@@ -278,7 +278,7 @@
         timeZone: EASTERN
       transport:
         type: SFTP
-        host: 10.0.2.4
+        host: sftp.prime.local
         port: 22
         filePath: ./upload
 
@@ -312,7 +312,7 @@
         timeZone: MOUNTAIN
       transport:
         type: SFTP
-        host: 10.0.2.4
+        host: sftp.prime.local
         port: 22
         filePath: ./upload
     - name: elr-csv
@@ -332,7 +332,7 @@
         timeZone: MOUNTAIN
       transport:
         type: SFTP
-        host: 10.0.2.4
+        host: sftp.prime.local
         port: 22
         filePath: ./upload
 
@@ -400,7 +400,7 @@
         timeZone: CENTRAL
       transport:
         type: SFTP
-        host: 10.0.2.4
+        host: sftp.prime.local
         port: 22
         filePath: ./upload
 
@@ -422,7 +422,7 @@
         receivingFacilityName: GUDOH
       transport:
         type: SFTP
-        host: 10.0.2.4
+        host: sftp.prime.local
         port: 22
         filePath: ./upload
       timing:
@@ -452,7 +452,7 @@
         suppressHl7Fields: OBX-18
       transport:
         type: SFTP
-        host: 10.0.2.4
+        host: sftp.prime.local
         port: 22
         filePath: ./upload
       timing:
@@ -483,7 +483,7 @@
         truncateHDNamespaceIds: true
       transport:
         type: SFTP
-        host: 10.0.2.4
+        host: sftp.prime.local
         port: 22
         filePath: ./upload
       timing:
@@ -508,7 +508,7 @@
         truncateHDNamespaceIds: true
       transport:
         type: SFTP
-        host: 10.0.2.4
+        host: sftp.prime.local
         port: 22
         filePath: ./upload
       timing:
@@ -537,7 +537,7 @@
         receivingFacilityOID: 2.16.840.1.114222.4.1.3661
       transport:
         type: SFTP
-        host: 10.0.2.4
+        host: sftp.prime.local
         port: 22
         filePath: ./upload
       timing:
@@ -568,7 +568,7 @@
         nameFormat: massachusetts
       transport:
         type: SFTP
-        host: 10.0.2.4
+        host: sftp.prime.local
         port: 22
         filePath: ./upload
       timing:
@@ -732,7 +732,7 @@
         format: CSV
       transport:
         type: SFTP
-        host: 10.0.2.4
+        host: sftp.prime.local
         port: 22
         filePath: ./upload
     - name: HL7
@@ -750,7 +750,7 @@
         format: HL7
       transport:
         type: SFTP
-        host: 10.0.2.4
+        host: sftp.prime.local
         port: 22
         filePath: ./upload
     - name: HL7_BATCH
@@ -768,7 +768,7 @@
         format: HL7_BATCH
       transport:
         type: SFTP
-        host: 10.0.2.4
+        host: sftp.prime.local
         port: 22
         filePath: ./upload
     - name: REDOX     # NOTE:  No Redox transport available in Staging at this time.
