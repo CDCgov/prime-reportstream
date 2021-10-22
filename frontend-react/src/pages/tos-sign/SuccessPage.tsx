@@ -81,7 +81,7 @@ function SuccessPage({ data }: { data: AgreementBody }) {
         },
     ];
     return (
-        <div className="width-tablet margin-x-auto margin-bottom-5">
+        <div data-testid="success-container" className="width-tablet margin-x-auto margin-bottom-5">
             <Title
                 preTitle="Account registration"
                 title={`You're almost there, ${data.firstName}!`}
@@ -96,13 +96,13 @@ function SuccessPage({ data }: { data: AgreementBody }) {
                 email from reportstream@cdc.gov.
             </p>
             <p className={classNames}>
-                Full name: {data.firstName} {data.lastName}
+                <span>Full name: {data.firstName} {data.lastName}</span>
                 <br />
-                Email: {data.email}
+                <span>Email: {data.email}</span>
                 <br />
-                State or territory: {data.territory.toUpperCase()}
+                <span>State or territory: {data.territory.toUpperCase()}</span>
                 <br />
-                Organization name: {data.organizationName}
+                <span>Organization name: {data.organizationName}</span>
             </p>
             <h3 className="padding-top-7 margin-top-7 margin-bottom-7 text-normal border-top-05 border-base-lighter">
                 Next steps

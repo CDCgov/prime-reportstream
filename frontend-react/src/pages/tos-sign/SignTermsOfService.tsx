@@ -27,7 +27,7 @@ function SignTermsOfService() {
             <Helmet>
                 <title>Sign the Terms of Service</title>
             </Helmet>
-            <div className="grid-container">
+            <div data-testid="container" className="grid-container">
                 {signed ? (
                     <SuccessPage data={data} />
                 ) : (

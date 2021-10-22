@@ -129,9 +129,6 @@ function SigningForm({
                 required.includes(key) &&
                 (String(value).trim() === "" || value === false)
             ) {
-                console.log(
-                    `${key} cannot be ${value === "" ? "empty" : "false"}.`
-                );
                 goodToGo = false;
                 setErrorFlag(key);
             }
@@ -195,8 +192,24 @@ function SigningForm({
         );
     };
 
+    const ErrorMessageWithTrigger = ({ message, flag }: { message: string, flag: boolean }) => {
+        if (flag) {
+            return (
+                <ErrorMessage>
+                    <span style={{
+                        color: "red",
+                    }}>
+                        {message}
+                    </span>
+                </ErrorMessage>
+            )
+        } else {
+            return null;
+        }
+    }
+
     return (
-        <div className="width-tablet margin-x-auto">
+        <div data-testid="form-container" className="width-tablet margin-x-auto">
             <Title
                 title="Register your organization with ReportStream"
                 preTitle="Account registration"
@@ -236,6 +249,9 @@ function SigningForm({
                             setFirstName(e.target.value)
                         }
                     />
+                    <ErrorMessageWithTrigger
+                        flag={firstNameErrorFlag}
+                        message="First name is a required field" />
                 </FormGroup>
                 <FormGroup error={lastNameErrorFlag}>
                     <Label htmlFor="last-name">
@@ -250,6 +266,10 @@ function SigningForm({
                             setLastName(e.target.value)
                         }
                     />
+
+                    <ErrorMessageWithTrigger
+                        flag={lastNameErrorFlag}
+                        message="Last name is a required field" />
                 </FormGroup>
                 <FormGroup error={emailErrorFlag}>
                     <Label htmlFor="email">
@@ -264,6 +284,10 @@ function SigningForm({
                             setEmail(e.target.value)
                         }
                     />
+
+                    <ErrorMessageWithTrigger
+                        flag={emailErrorFlag}
+                        message="Email is a required field" />
                 </FormGroup>
 
                 <h3 className="padding-top-5 text-normal">
@@ -292,6 +316,10 @@ function SigningForm({
                             );
                         })}
                     </Dropdown>
+
+                    <ErrorMessageWithTrigger
+                        flag={territoryErrorFlag}
+                        message="State or Territory is a required field" />
                 </FormGroup>
                 <FormGroup error={organizationNameErrorFlag}>
                     <Label htmlFor="organization-name">
@@ -306,6 +334,10 @@ function SigningForm({
                             setOrganizationName(e.target.value)
                         }
                     />
+
+                    <ErrorMessageWithTrigger
+                        flag={organizationNameErrorFlag}
+                        message="Organization is a required field" />
                 </FormGroup>
                 <Checkbox
                     className="padding-top-3"
@@ -335,19 +367,10 @@ function SigningForm({
                         }
                         label={<AgreementLabel />}
                     />
-                    <ErrorMessage>
-                        <span
-                            style={{
-                                color: "red",
-                                visibility: agreeErrorFlag
-                                    ? "visible"
-                                    : "hidden",
-                            }}
-                        >
-                            You must agree to the Terms of Service before using
-                            ReportStream.
-                        </span>
-                    </ErrorMessage>
+
+                    <ErrorMessageWithTrigger
+                        flag={agreeErrorFlag}
+                        message="You must agree to the Terms of Service before using ReportStream" />
                 </FormGroup>
             </section>
 
