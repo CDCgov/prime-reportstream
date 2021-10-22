@@ -278,7 +278,12 @@ export const Upload = () => {
                                 Alert: Unusable Fields Detected
                             </h4>
                             <p className="usa-alert__text">
-                                {consolidatedErrors.length <= 0 && (<span>Your file has been accepted with warnings.</span> )}
+                                {consolidatedErrors.length <= 0 && (
+                                    <span>
+                                        Your file has been accepted with
+                                        warnings.
+                                    </span>
+                                )}
                                 There were fields detected that are unusable for
                                 public health action. Enter valid information
                                 for future submissions.

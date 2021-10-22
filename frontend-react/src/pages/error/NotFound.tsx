@@ -1,4 +1,5 @@
 import { Helmet } from "react-helmet";
+import DOMPurify from "dompurify";
 
 import site from "../../content/site.json";
 
@@ -34,7 +35,10 @@ export const NotFound = () => {
                         <li className="usa-button-group__item">
                             <a
                                 className="usa-button usa-button--outline"
-                                href={"mailto:" + site.orgs.RS.email}
+                                href={
+                                    "mailto:" +
+                                    DOMPurify.sanitize(site.orgs.RS.email)
+                                }
                             >
                                 Contact us
                             </a>
