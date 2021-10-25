@@ -1,11 +1,9 @@
 package gov.cdc.prime.router.azure
 
-import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
 import com.microsoft.azure.functions.annotation.AuthorizationLevel
-import com.microsoft.azure.functions.annotation.BindingName
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import gov.cdc.prime.router.tokens.OktaAuthentication
@@ -18,8 +16,10 @@ import org.apache.logging.log4j.kotlin.Logging
 class GetSubmissions(
     submissionsFacade: SubmissionsFacade = SubmissionsFacade.common,
     oktaAuthentication: OktaAuthentication = OktaAuthentication(PrincipalLevel.SYSTEM_ADMIN)
-) :
-    BaseFunction(submissionsFacade, oktaAuthentication) {
+) {
+    // TODO: for supporting multiple functions for Submissions, probably want to create BaseSubmissionsFunction
+    private val facade = submissionsFacade
+    private val oktaAuthentication = oktaAuthentication
     @FunctionName("getSubmissions")
     fun run(
         @HttpTrigger(
@@ -30,12 +30,23 @@ class GetSubmissions(
         ) request: HttpRequestMessage<String?>,
     ): HttpResponseMessage {
         return when (request.httpMethod) {
-            HttpMethod.GET -> getList(request, SubmissionAPI::class.java)
+            HttpMethod.GET -> getList(oktaAuthentication, facade, request, SubmissionAPI::class.java)
             else -> error("Unsupported method")
         }
     }
-}
 
+    fun <T : SubmissionAPI> getList(
+        oktaAuthentication: OktaAuthentication,
+        facade: SubmissionsFacade,
+        request: HttpRequestMessage<String?>,
+        clazz: Class<T>
+    ): HttpResponseMessage {
+        return oktaAuthentication.checkAccess(request, "") {
+            val submissions = facade.findSubmissionsAsJson(clazz)
+            HttpUtilities.okResponse(request, submissions)
+        }
+    }
+}
 
 /**
  * Common Submission API
@@ -54,8 +65,7 @@ open class BaseSubmissionsFunction(
     ): HttpResponseMessage {
         return oktaAuthentication.checkAccess(request, "") {
             val submissions = facade.findSubmissionsAsJson(clazz)
-            val lastModified = facade.getLastModified()
-            HttpUtilities.okResponse(request, submissions, lastModified)
+            HttpUtilities.okResponse(request, submissions)
         }
     }
 
