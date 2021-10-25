@@ -676,6 +676,20 @@ This field is ignored.
 
 ---
 
+**Name**: Test_date
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+This field is ignored.
+
+---
+
 **Name**: Test_kit_EUA_ID
 
 **Type**: TEXT
@@ -1045,7 +1059,7 @@ Translate multiple inbound Y/N/U AOE values to RS values
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
 
-**Table**: LIVD-SARS-CoV-2-2021-04-28
+**Table**: LIVD-SARS-CoV-2-2021-09-29
 
 **Table Column**: Model
 
@@ -1721,6 +1735,8 @@ Code | Display
 2106-3|White
 2106-3|W
 2106-3|Caucasian
+2106-3|C
+2106-3|2106-3
 1002-5|American Indian or Alaska Native
 1002-5|American Indian
 1002-5|Native American
@@ -1730,16 +1746,23 @@ Code | Display
 2054-5|African American Black
 2054-5|Black
 2054-5|B
+2054-5|2054-5
 2076-8|Native Hawaiian or Other Pacific Islander
 2076-8|Hawaiian
 2076-8|NH
+2076-8|2076-8
 2131-1|Other
 2131-1|OTH
 2131-1|O
 2131-1|Other Race
 2131-1|Other Race White
+2131-1|Other Race,White
 2131-1|Other Race Black
+2131-1|Other Race,Black
+2131-1|2131-1
 2028-9|Asian
+2028-9|Asian Indian
+2028-9|2028-9
 UNK|Unknown
 UNK|UNK
 UNK|U
@@ -1854,10 +1877,12 @@ Code | Display
 77386006|Currently Pregnant
 77386006|Y
 77386006|YES
+77386006|77386006
 60001007|Not Pregnant
 60001007|Not Currently Pregnant
 60001007|N
 60001007|NO
+60001007|60001007
 261665006|Unknown
 261665006|U
 261665006|UNK
@@ -1866,6 +1891,7 @@ Code | Display
 261665006|NR
 261665006|NP
 261665006|maybe
+261665006|261665006
 
 **Documentation**:
 
@@ -2000,15 +2026,35 @@ Code | Display
 71836000|Nasopharyngeal structure (body structure)
 71836000|Varied
 71836000|Nasal
+71836000|Nasopharyngeal swab
+71836000|258500001
+71836000|71836000
 45206002|Nasal structure (body structure)
+45206002|45206002
 53342003|Internal nose structure (body structure)
+53342003|Swab of internal nose
+53342003|Anterior nares swab
+53342003|Mid-turbinate nasal swab
+53342003|Nasal Swab
+53342003|445297001
+53342003|53342003
 119297000|Serum
+119297000|Serum specimen
 119297000|Plasma
+119297000|Plasma specimen
 119297000|Whole Blood
-119297000|Blood specimen (specimen)
+119297000|Whole Blood Sample
+119297000|Blood specimen
+119297000|Venous blood specimen
+119297000|258580003
+119297000|119361006
+119297000|119364003
+119297000|119297000
 31389004|Oral
+31389004|Throat Swab
 31389004|Oropharyngeal
 31389004|Oropharyngeal Swab
+31389004|31389004
 
 **Documentation**:
 
@@ -2033,30 +2079,47 @@ Translate inbound text to outbound SNOMED Codes
 Code | Display
 ---- | -------
 445297001|Swab of internal nose
+445297001|Nasal Swab
+445297001|445297001
 258500001|Nasopharyngeal swab
 258500001|Nasal
 258500001|Varied
+258500001|258500001
 871810001|Mid-turbinate nasal swab
+871810001|871810001
 697989009|Anterior nares swab
+697989009|697989009
 258411007|Nasopharyngeal aspirate
+258411007|258411007
 429931000124105|Nasal aspirate
+429931000124105|429931000124105
 258529004|Throat swab
 258529004|Throat
 258529004|Oral
 258529004|Oropharyngeal
 258529004|Oropharyngeal Swab
+258529004|258529004
 119334006|Sputum specimen
+119334006|119334006
 119342007|Saliva specimen
+119342007|119342007
 258607008|Bronchoalveolar lavage fluid sample
+258607008|258607008
 119364003|Serum specimen
 119364003|Serum
+119364003|119364003
 119361006|Plasma specimen
 119361006|Plasma
+119361006|119361006
 440500007|Dried blood spot specimen
+440500007|440500007
 258580003|Whole blood sample
 258580003|Whole blood
+258580003|258580003
 122555007|Venous blood specimen
+122555007|122555007
 119297000|Blood specimen
+119297000|119297000
 
 **Documentation**:
 
@@ -2109,8 +2172,6 @@ Translate multiple inbound Y/N/U AOE values to RS values
 
 **Format**: $alt
 
-**Default Value**: 99999999
-
 **Cardinality**: [0..1]
 
 **Alt Value Sets**
@@ -2138,31 +2199,56 @@ Code | Display
 ---- | -------
 260385009|Negative
 260385009|Neg
+260385009|Negative *** High ***
+260385009|Negative *** Low ***
+260385009|260385009
 260415000|Not detected
 260415000|NDET
+260415000|260415000
 260373001|Detected
 260373001|DET
+260373001|260373001
 10828004|Positive
 10828004|Pos
 10828004|Positive (Abnormal)
 10828004|Positive (Alpha Abnormal)
+10828004|Positive *** High ***
+10828004|Positive  *** High ***
+10828004|Positive  *** Low ***
+10828004|Positive 
+10828004|10828004
 720735008|Presumptive positive
+720735008|720735008
 419984006|Inconclusive
 419984006|Inconclusive Result
+419984006|419984006
 42425007|Equivocal
+42425007|42425007
 895231008|Not detected in pooled specimen
+895231008|895231008
 462371000124108|Detected in pooled specimen
+462371000124108|462371000124108
 455371000124106|Invalid result
 455371000124106|Invalid
+455371000124106|455371000124106
 125154007|Specimen unsatisfactory for evaluation
+125154007|125154007
 840539006|Disease caused by sever acute respiratory syndrome coronavirus 2 (disorder)
+840539006|840539006
 840544004|Suspected disease caused by severe acute respiratory coronavirus 2 (situation)
+840544004|840544004
 840546002|Exposure to severe acute respiratory syndrome coronavirus 2 (event)
+840546002|840546002
 840533007|Severe acute respiratory syndrome coronavirus 2 (organism)
+840533007|840533007
 840536004|Antigen of severe acute respiratory syndrome coronavirus 2 (substance)
+840536004|840536004
 840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
+840535000|840535000
 840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
+840534001|840534001
 373121007|Test not done
+373121007|373121007
 
 **Documentation**:
 
@@ -2177,18 +2263,6 @@ Translate multiple inbound Test Result values to RS values
 **PII**: No
 
 **Format**: M/d/yyyy H:nn
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: Test_date
-
-**Type**: DATETIME
-
-**PII**: No
-
-**Format**: M/d/yyyy
 
 **Cardinality**: [0..1]
 

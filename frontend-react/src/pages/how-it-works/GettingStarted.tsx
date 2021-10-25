@@ -1,30 +1,36 @@
-import site from "../../content/site.json";
 import { Helmet } from "react-helmet";
+import DOMPurify from "dompurify";
+
+import site from "../../content/site.json";
 
 /* eslint-disable jsx-a11y/anchor-has-content */
 export const GettingStarted = () => {
     return (
         <>
             <Helmet>
-                <title>Getting started | How it works | {process.env.REACT_APP_TITLE}</title>
+                <title>
+                    Getting started | How it works |{" "}
+                    {process.env.REACT_APP_TITLE}
+                </title>
             </Helmet>
             <section id="anchor-top">
                 <h1 className="margin-top-0">Getting started</h1>
                 <p className="usa-intro">
-                    First, we’ll get you connected to our web application, where you can
-                    immediately start downloading reporting data that is relevant to your
-                    jurisdiction.
+                    First, we’ll get you connected to our web application, where
+                    you can immediately start downloading reporting data that is
+                    relevant to your jurisdiction.
                 </p>
                 <p className="usa-intro">
                     Depending on your needs, we can also create a customized
-                    Electronic Lab Reporting (ELR) connection —  an online setup used to send
-                    digital lab reports to public health departments via a secure server.
-                    Either way, reach out to us and we’ll get back to you in about a week.
+                    Electronic Lab Reporting (ELR) connection — an online setup
+                    used to send digital lab reports to public health
+                    departments via a secure server. Either way, reach out to us
+                    and we’ll get back to you in about a week.
                 </p>
                 <a
                     href={
                         "mailto:" +
-                        site.orgs.RS.email +
+                        DOMPurify.sanitize(site.orgs.RS.email) +
                         "?subject=Getting started with ReportStream"
                     }
                     className="usa-button usa-button--outline"
@@ -35,13 +41,20 @@ export const GettingStarted = () => {
                 On this page:
                 <ul>
                     <li>
-                        <a href="#data-download" className="usa-link">Data download</a>
+                        <a href="#data-download" className="usa-link">
+                            Data download
+                        </a>
                     </li>
                     <li>
-                        <a href="#elr-connection" className="usa-link">ELR connection</a>
+                        <a href="#elr-connection" className="usa-link">
+                            ELR connection
+                        </a>
                     </li>
                     <li>
-                        <a href="#connecting-to-testing-facilities" className="usa-link">
+                        <a
+                            href="#connecting-to-testing-facilities"
+                            className="usa-link"
+                        >
                             Connecting to testing facilities
                         </a>
                     </li>
@@ -50,9 +63,7 @@ export const GettingStarted = () => {
             <hr className="margin-y-6" />
 
             <section>
-                <h2 id="data-download">
-                    Data download
-                </h2>
+                <h2 id="data-download">Data download</h2>
                 Our fastest option to get up and running, our web application
                 gives you access to reporting results via manual download from
                 our online portal, in just two steps.
@@ -65,7 +76,7 @@ export const GettingStarted = () => {
                             <a
                                 href={
                                     "mailto:" +
-                                    site.orgs.RS.email +
+                                    DOMPurify.sanitize(site.orgs.RS.email) +
                                     "?subject=Getting started with ReportStream"
                                 }
                                 className="margin-right-1 usa-link"
@@ -98,9 +109,7 @@ export const GettingStarted = () => {
                         </p>
                     </li>
                 </ol>
-                <h2 id="elr-connection">
-                    ELR connection
-                </h2>
+                <h2 id="elr-connection">ELR connection</h2>
                 If you’ve decided you’ll need an ELR connection for your public
                 health data reporting, we’ll get some information from you on
                 your needs and requirements. Connecting with ReportStream is
@@ -114,7 +123,12 @@ export const GettingStarted = () => {
                         <p className="margin-top-05">
                             Tell us your data configuration requirements and
                             preferences by submitting our{" "}
-                            <a href={site.forms.intakeElr.url} className="usa-link">
+                            <a
+                                href={DOMPurify.sanitize(
+                                    site.forms.intakeElr.url
+                                )}
+                                className="usa-link"
+                            >
                                 ReportStream ELR onboarding form
                             </a>
                             . We’ll review your requirements and reach out to
@@ -152,28 +166,34 @@ export const GettingStarted = () => {
                 </h2>
                 <p>
                     New testing facilities join ReportStream on a regular basis,
-                    through our partner SimpleReport, or through other public health
-                    data aggregators and apps. After they join, their data will be
-                    sent automatically to the correct public health department(s) in
-                    their jurisdiction who are part of ReportStream. Data is
-                    accessible via our web application or the ELR connection.
+                    through our partner SimpleReport, or through other public
+                    health data aggregators and apps. After they join, their
+                    data will be sent automatically to the correct public health
+                    department(s) in their jurisdiction who are part of
+                    ReportStream. Data is accessible via our web application or
+                    the ELR connection.
                 </p>
                 <p>
-                    You can request a weekly email update from ReportStream to notify
-                    you when new facilities join in your jurisdiction, and let us
-                    know if you have any special requirements for them to complete
-                    before they join.
+                    You can request a weekly email update from ReportStream to
+                    notify you when new facilities join in your jurisdiction,
+                    and let us know if you have any special requirements for
+                    them to complete before they join.
                 </p>
                 <h3>ELR onboarding checklist</h3>
-                <p>Check out our{" "}
+                <p>
+                    Check out our{" "}
                     <a
-                        href="/how-it-works/elr-checklist/"
+                        href="/how-it-works/elr-checklist"
                         className="usa-link margin-right-1 usa-link"
                     >
                         ELR onboarding checklist
                     </a>
-                    to preview the information you’ll need to complete step one: the{" "}
-                    <a href={site.forms.intakeElr.url} className="usa-link">
+                    to preview the information you’ll need to complete step one:
+                    the{" "}
+                    <a
+                        href={DOMPurify.sanitize(site.forms.intakeElr.url)}
+                        className="usa-link"
+                    >
                         ReportStream ELR onboarding form
                     </a>
                     .
@@ -186,7 +206,7 @@ export const GettingStarted = () => {
                     <a
                         href={
                             "mailto:" +
-                            site.orgs.RS.email +
+                            DOMPurify.sanitize(site.orgs.RS.email) +
                             "?subject=Getting started with ReportStream"
                         }
                         className="usa-button usa-button--outline"

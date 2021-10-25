@@ -9,6 +9,7 @@
     - name: default
       organizationName: simple_report
       topic: covid-19
+      customerStatus: active
       schemaName: primedatainput/pdi-covid-19
       format: CSV
 
@@ -19,6 +20,7 @@
     - name: default
       organizationName: strac
       topic: covid-19
+      customerStatus: active
       schemaName: strac/strac-covid-19
       format: CSV
 
@@ -29,6 +31,7 @@
     - name: default
       organizationName: tpca
       topic: covid-19
+      customerStatus: active
       schemaName: tpca/tpca-covid-19
       format: CSV
 
@@ -40,6 +43,7 @@
     - name: elr-test
       organizationName: az-phd
       topic: covid-19
+      customerStatus: active
       jurisdictionalFilter:
         - matches(ordering_facility_state,AZ)
         - "doesNotMatch(ordering_facility_name,Tucson Mountains,Tucson Foothills,Sierra Vista Canyons)"
@@ -55,13 +59,14 @@
         format: CSV
       transport:
         type: SFTP
-        host: 10.0.2.4
+        host: sftp.prime.local
         port: 22
         filePath: ./upload
 
     - name: elr-hl7-test
       organizationName: az-phd
       topic: covid-19
+      customerStatus: active
       jurisdictionalFilter:
         - matches(ordering_facility_state,AZ)
         - "doesNotMatch(ordering_facility_name,Tucson Mountains,Tucson Foothills,Sierra Vista Canyons)"
@@ -81,13 +86,14 @@
         timeZone: ARIZONA
       transport:
         type: SFTP
-        host: 10.0.2.4
+        host: sftp.prime.local
         port: 22
         filePath: ./upload
 
     - name: elr-prod
       organizationName: az-phd
       topic: covid-19
+      customerStatus: active
       jurisdictionalFilter:
         - matches(ordering_facility_state,AZ)
         - "matches(ordering_facility_name,Tucson Mountains,Tucson Foothills,Sierra Vista Canyons)"
@@ -103,7 +109,7 @@
         timeZone: ARIZONA
       transport:
         type: SFTP
-        host: 10.0.2.4
+        host: sftp.prime.local
         port: 22
         filePath: ./upload
 
@@ -117,6 +123,7 @@
       organizationName: pima-az-phd
       description: Electronic Lab Record
       topic: covid-19
+      customerStatus: active
       jurisdictionalFilter: [ "filterByCounty(AZ, Pima)" ]
       deidentify: false
       translation:
@@ -139,6 +146,7 @@
       organizationName: pentest-pima-az-phd
       description: Electronic Lab Record
       topic: covid-19
+      customerStatus: active
       jurisdictionalFilter: [ "filterByCounty(AZ, Pima)" ]
       deidentify: false
       translation:
@@ -159,6 +167,7 @@
     - name: elr
       organizationName: fl-phd
       topic: covid-19
+      customerStatus: active
       jurisdictionalFilter:
         - matches(ordering_facility_state, FL)
       deidentify: false
@@ -176,7 +185,7 @@
         timeZone: EASTERN
       transport:
         type: SFTP
-        host: 10.0.2.4
+        host: sftp.prime.local
         port: 22
         filePath: ./upload
 
@@ -188,6 +197,7 @@
     - name: elr
       organizationName: nd-doh
       topic: covid-19
+      customerStatus: active
       jurisdictionalFilter: [ "matches(ordering_facility_state, ND)" ]
       translation:
         type: HL7
@@ -203,7 +213,7 @@
         timeZone: CENTRAL
       transport:
         type: SFTP
-        host: 10.0.2.4
+        host: sftp.prime.local
         port: 22
         filePath: ./upload
 
@@ -215,6 +225,7 @@
     - name: elr
       organizationName: la-doh
       topic: covid-19
+      customerStatus: active
       jurisdictionalFilter:
         - matches(ordering_facility_state, LA)
       translation:
@@ -231,7 +242,7 @@
         timeZone: CENTRAL
       transport:
         type: SFTP
-        host: 10.0.2.4
+        host: sftp.prime.local
         port: 22
         filePath: ./upload
 
@@ -243,6 +254,7 @@
     - name: elr
       organizationName: oh-doh
       topic: covid-19
+      customerStatus: active
       jurisdictionalFilter:
         - matches(ordering_facility_state, OH)
       translation:
@@ -266,7 +278,7 @@
         timeZone: EASTERN
       transport:
         type: SFTP
-        host: 10.0.2.4
+        host: sftp.prime.local
         port: 22
         filePath: ./upload
 
@@ -278,6 +290,7 @@
     - name: elr
       organizationName: nm-doh
       topic: covid-19
+      customerStatus: active
       jurisdictionalFilter:
         - matches(ordering_facility_state, NM)
       translation:
@@ -299,12 +312,13 @@
         timeZone: MOUNTAIN
       transport:
         type: SFTP
-        host: 10.0.2.4
+        host: sftp.prime.local
         port: 22
         filePath: ./upload
     - name: elr-csv
       organizationName: nm-doh
       topic: covid-19
+      customerStatus: active
       jurisdictionalFilter:
         - matches(ordering_facility_state, NM)
       translation:
@@ -318,7 +332,7 @@
         timeZone: MOUNTAIN
       transport:
         type: SFTP
-        host: 10.0.2.4
+        host: sftp.prime.local
         port: 22
         filePath: ./upload
 
@@ -330,6 +344,7 @@
     - name: elr
       organizationName: mt-doh
       topic: covid-19
+      customerStatus: active
       jurisdictionalFilter:
         - orEquals(patient_state, MT, ordering_facility_state, MT)
       translation:
@@ -343,6 +358,7 @@
     - name: elr-csv
       organizationName: mt-doh
       topic: covid-19
+      customerStatus: active
       jurisdictionalFilter:
         - orEquals(patient_state, MT, ordering_facility_state, MT)
       translation:
@@ -368,6 +384,7 @@
     - name: elr
       organizationName: tx-doh
       topic: covid-19
+      customerStatus: active
       jurisdictionalFilter:
         - matches(ordering_facility_state, TX)
       translation:
@@ -383,7 +400,7 @@
         timeZone: CENTRAL
       transport:
         type: SFTP
-        host: 10.0.2.4
+        host: sftp.prime.local
         port: 22
         filePath: ./upload
 
@@ -395,6 +412,7 @@
     - name: elr
       organizationName: gu-doh
       topic: covid-19
+      customerStatus: active
       jurisdictionalFilter:
         - matches(ordering_facility_state, GU)
       translation:
@@ -404,7 +422,7 @@
         receivingFacilityName: GUDOH
       transport:
         type: SFTP
-        host: 10.0.2.4
+        host: sftp.prime.local
         port: 22
         filePath: ./upload
       timing:
@@ -421,6 +439,7 @@
     - name: elr
       organizationName: vt-doh
       topic: covid-19
+      customerStatus: active
       jurisdictionalFilter:
         - matches(ordering_facility_state, VT)
       translation:
@@ -433,7 +452,7 @@
         suppressHl7Fields: OBX-18
       transport:
         type: SFTP
-        host: 10.0.2.4
+        host: sftp.prime.local
         port: 22
         filePath: ./upload
       timing:
@@ -450,6 +469,7 @@
     - name: elr
       organizationName: nj-doh
       topic: covid-19
+      customerStatus: active
       jurisdictionalFilter:
         - orEquals(ordering_facility_state, NJ, patient_state, NJ)
         - matches(processing_mode_code, P)
@@ -463,7 +483,7 @@
         truncateHDNamespaceIds: true
       transport:
         type: SFTP
-        host: 10.0.2.4
+        host: sftp.prime.local
         port: 22
         filePath: ./upload
       timing:
@@ -474,6 +494,7 @@
     - name: elr-test
       organizationName: nj-doh
       topic: covid-19
+      customerStatus: active
       jurisdictionalFilter:
         - orEquals(ordering_facility_state, NJ, patient_state, NJ)
         - matches(processing_mode_code, T)
@@ -487,7 +508,7 @@
         truncateHDNamespaceIds: true
       transport:
         type: SFTP
-        host: 10.0.2.4
+        host: sftp.prime.local
         port: 22
         filePath: ./upload
       timing:
@@ -504,6 +525,7 @@
     - name: elr
       organizationName: mn-doh
       topic: covid-19
+      customerStatus: active
       jurisdictionalFilter:
         - matches(ordering_facility_state, MN)
       translation:
@@ -515,7 +537,7 @@
         receivingFacilityOID: 2.16.840.1.114222.4.1.3661
       transport:
         type: SFTP
-        host: 10.0.2.4
+        host: sftp.prime.local
         port: 22
         filePath: ./upload
       timing:
@@ -532,6 +554,7 @@
     - name: elr
       organizationName: ma-phd
       topic: covid-19
+      customerStatus: active
       jurisdictionalFilter:
         - orEquals(ordering_facility_state, MA, patient_state, MA)
       translation:
@@ -545,7 +568,7 @@
         nameFormat: massachusetts
       transport:
         type: SFTP
-        host: 10.0.2.4
+        host: sftp.prime.local
         port: 22
         filePath: ./upload
       timing:
@@ -562,6 +585,7 @@
     - name: elr-redox-staging
       organizationName: co-phd
       topic: covid-19
+      customerStatus: active
       jurisdictionalFilter: [ "matches(ordering_facility_state, CO)" ]
       deidentify: false
       translation:
@@ -580,6 +604,7 @@
     - name: elr-bucks-staging
       organizationName: pa-phd
       topic: covid-19
+      customerStatus: active
       jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Bucks)" ]
       deidentify: false
       translation:
@@ -596,6 +621,7 @@
     - name: elr-chester-staging
       organizationName: pa-phd
       topic: covid-19
+      customerStatus: active
       jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Chester, Delaware)" ]
       deidentify: false
       translation:
@@ -612,6 +638,7 @@
     - name: elr-montgomery-staging
       organizationName: pa-phd
       topic: covid-19
+      customerStatus: active
       jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Montgomery)" ]
       deidentify: false
       translation:
@@ -634,6 +661,7 @@
     - name: elr-chester-download-test
       organizationName: pa-chester-phd
       topic: covid-19
+      customerStatus: active
       jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Chester, Delaware)" ]
       deidentify: false
       translation:
@@ -652,6 +680,7 @@
     - name: elr-montgomery-download-test
       organizationName: pa-montgomery-phd
       topic: covid-19
+      customerStatus: active
       jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Montgomery)" ]
       deidentify: false
       translation:
@@ -672,22 +701,26 @@
     - name: ignore-strac      # Use this to test sending strac data
       organizationName: ignore
       topic: covid-19
+      customerStatus: active
       schemaName: strac/strac-covid-19
       format: CSV
     - name: ignore-simple-report      # Use this to test sending simple_report data
       organizationName: ignore
       topic: covid-19
+      customerStatus: active
       schemaName: primedatainput/pdi-covid-19
       format: CSV
     - name: ignore-empty      # Use this to test sending data from the 'empty' schema
       organizationName: ignore
       topic: covid-19
+      customerStatus: active
       schemaName: empty
       format: CSV
   receivers:
     - name: CSV
       organizationName: ignore
       topic: covid-19
+      customerStatus: active
       jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, CSV)" ]
       timing:
         operation: MERGE
@@ -699,12 +732,13 @@
         format: CSV
       transport:
         type: SFTP
-        host: 10.0.2.4
+        host: sftp.prime.local
         port: 22
         filePath: ./upload
     - name: HL7
       organizationName: ignore
       topic: covid-19
+      customerStatus: active
       jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, HL7)" ]
       timing:
         operation: MERGE
@@ -716,12 +750,13 @@
         format: HL7
       transport:
         type: SFTP
-        host: 10.0.2.4
+        host: sftp.prime.local
         port: 22
         filePath: ./upload
     - name: HL7_BATCH
       organizationName: ignore
       topic: covid-19
+      customerStatus: active
       jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, HL7_BATCH)" ]
       timing:
         operation: MERGE
@@ -733,12 +768,13 @@
         format: HL7_BATCH
       transport:
         type: SFTP
-        host: 10.0.2.4
+        host: sftp.prime.local
         port: 22
         filePath: ./upload
     - name: REDOX     # NOTE:  No Redox transport available in Staging at this time.
       organizationName: ignore
       topic: covid-19
+      customerStatus: active
       jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, REDOX)" ]
       timing:
         operation: MERGE
@@ -757,6 +793,7 @@
     - name: HL7_NULL
       organizationName: ignore
       topic: covid-19
+      customerStatus: active
       jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, HL7_NULL)" ]
       timing:
         operation: MERGE
@@ -771,6 +808,7 @@
     - name: SFTP_FAIL    # If you put "FAIL" in the receiver name, then the happy-path tests in TestReportStream will ignore them.
       organizationName: ignore
       topic: covid-19
+      customerStatus: active
       jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, SFTP_FAIL)" ]
       timing:
         operation: MERGE
@@ -788,6 +826,7 @@
     - name: QUALITY_PASS
       organizationName: ignore
       topic: covid-19
+      customerStatus: active
       jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, QUALITY_PASS)" ]
       qualityFilter: [ "hasValidDataFor(message_id,ordering_facility_county,ordering_facility_state)", "hasAtLeastOneOf(message_id,blankField)" ]
       translation:
@@ -797,6 +836,7 @@
     - name: QUALITY_ALL
       organizationName: ignore
       topic: covid-19
+      customerStatus: active
       jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, QUALITY_ALL)" ]
       qualityFilter: [ "allowAll()" ]
       translation:
@@ -806,6 +846,7 @@
     - name: QUALITY_FAIL
       organizationName: ignore
       topic: covid-19
+      customerStatus: active
       jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, QUALITY_FAIL)" ]
       qualityFilter: [ "hasValidDataFor(blankField)", "hasAtLeastOneOf(message_id,blankField)" ]
       translation:

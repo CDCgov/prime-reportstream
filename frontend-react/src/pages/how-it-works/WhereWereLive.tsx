@@ -1,13 +1,19 @@
+// @ts-nocheck // TODO: fix types in this file
+import CdcMap from "@cdc/map";
+import DOMPurify from "dompurify";
+import { Helmet } from "react-helmet";
+
 import live from "../../content/live.json";
 import site from "../../content/site.json";
-import CdcMap from "@cdc/map";
-import { Helmet } from "react-helmet";
 
 export const WhereWereLive = () => {
     return (
         <>
             <Helmet>
-                <title>Where we're live | How it works | {process.env.REACT_APP_TITLE}</title>
+                <title>
+                    Where we're live | How it works |{" "}
+                    {process.env.REACT_APP_TITLE}
+                </title>
             </Helmet>
             <section id="anchor-top">
                 <h1 className="margin-top-0">Where we're live</h1>
@@ -18,11 +24,17 @@ export const WhereWereLive = () => {
                 </p>
                 <p className="usa-intro">
                     Don’t see your state or territory?{" "}
-                    <a href={
-                        "mailto:" +
-                        site.orgs.RS.email +
-                        "?subject=Getting started with ReportStream"
-                    } className="margin-left-1">Get in touch</a>.
+                    <a
+                        href={
+                            "mailto:" +
+                            DOMPurify.sanitize(site.orgs.RS.email) +
+                            "?subject=Getting started with ReportStream"
+                        }
+                        className="margin-left-1"
+                    >
+                        Get in touch
+                    </a>
+                    .
                 </p>
             </section>
             <section>

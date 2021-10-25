@@ -16,6 +16,7 @@ import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.ElementAndValue
 import gov.cdc.prime.router.Hl7Configuration
+import gov.cdc.prime.router.InvalidHL7Message
 import gov.cdc.prime.router.LookupTable
 import gov.cdc.prime.router.Mapper
 import gov.cdc.prime.router.Metadata
@@ -232,7 +233,7 @@ class Hl7Serializer(
         val errors = mutableListOf<String>()
         val warnings = mutableListOf<String>()
         // key of the map is the column header, list is the values in the column
-        val mappedRows: MutableMap<String, MutableSet<String>> = mutableMapOf()
+        val mappedRows: MutableMap<String, String> = mutableMapOf()
         hapiContext.modelClassFactory = modelClassFactory
         val parser = hapiContext.pipeParser
         val reg = "[\r\n]".toRegex()
@@ -275,8 +276,8 @@ class Hl7Serializer(
             // First, extract any data elements from the HL7 message.
             schema.elements.forEach { element ->
                 // If there is no value for the key, then initialize it.
-                if (!mappedRows.containsKey(element.name) || mappedRows[element.name] == null) {
-                    mappedRows[element.name] = mutableSetOf()
+                if (!mappedRows.containsKey(element.name)) {
+                    mappedRows[element.name] = ""
                 }
 
                 // Make a list of all the HL7 primary and alternate fields to look into.
@@ -337,41 +338,13 @@ class Hl7Serializer(
                 }
 
                 if (value.isNotBlank()) {
-                    mappedRows[element.name]!!.add(value)
+                    mappedRows[element.name] = value
                 }
             }
 
-            // Second, we process the mappers if we have no value from an HL7 field
-            schema.elements.forEach { element ->
-                if (element.mapperRef != null && mappedRows[element.name]!!.isEmpty()) {
-                    // This gets the requiredvalue names, then gets the value from mappedRows that has the data
-                    val args = element.mapperArgs ?: emptyList()
-                    val valueNames = element.mapperRef.valueNames(element, args)
-                    val valuesForMapper = valueNames.mapNotNull { elementName ->
-                        val valueElement = schema.findElement(elementName)
-                        if (valueElement != null && mappedRows.containsKey(elementName) &&
-                            !mappedRows[elementName].isNullOrEmpty()
-                        ) {
-                            ElementAndValue(valueElement, mappedRows[elementName]!!.first())
-                        } else {
-                            null
-                        }
-                    }
-                    // Only overwrite an existing value if the mapper returns a string
-                    val value = element.mapperRef.apply(element, args, valuesForMapper)
-                    if (value != null) {
-                        mappedRows[element.name] = mutableSetOf(value)
-                    }
-                }
-
-                // Finally, add a default value or empty string to elements that still have a null value.
-                if (mappedRows[element.name].isNullOrEmpty()) {
-                    if (!element.default.isNullOrBlank()) {
-                        mappedRows[element.name]!!.add(element.default)
-                    } else {
-                        mappedRows[element.name]?.add("")
-                    }
-                }
+            // Second, we process all the element raw values through mappers and defaults.
+            schema.elements.forEach {
+                mappedRows[it.name] = it.processValue(mappedRows, schema)
             }
         } catch (e: Exception) {
             val msg = "${e.localizedMessage} ${e.stackTraceToString()}"
@@ -381,22 +354,14 @@ class Hl7Serializer(
 
         // Check for required fields now that we are done processing all the fields
         schema.elements.forEach { element ->
-            if (!element.isOptional) {
-                var isValueEmpty = true
-                mappedRows[element.name]?.forEach { elementValues ->
-                    if (elementValues.isNotEmpty()) {
-                        isValueEmpty = false
-                    }
-                }
-                if (isValueEmpty) {
-                    errors.add("The Value for ${element.name} for field ${element.hl7Field} is required")
-                }
+            if (!element.isOptional && mappedRows[element.name]!!.isBlank()) {
+                errors.add("The Value for ${element.name} for field ${element.hl7Field} is required")
             }
         }
 
         // convert sets to lists
         val rows = mappedRows.keys.associateWith {
-            (mappedRows[it]?.toList() ?: emptyList())
+            if (mappedRows[it] != null) listOf(mappedRows[it]!!) else emptyList()
         }
 
         return RowResult(rows, errors, warnings)
@@ -413,8 +378,12 @@ class Hl7Serializer(
         val schema = metadata.findSchema(schemaName) ?: error("Schema name $schemaName not found")
         val mapping = convertBatchMessagesToMap(messageBody, schema)
         val mappedRows = mapping.mappedRows
-        errors.addAll(mapping.errors.map { ResultDetail(ResultDetail.DetailScope.ITEM, "", it) })
-        warnings.addAll(mapping.warnings.map { ResultDetail(ResultDetail.DetailScope.ITEM, "", it) })
+        errors.addAll(mapping.errors.map { ResultDetail(ResultDetail.DetailScope.ITEM, "", InvalidHL7Message.new(it)) })
+        warnings.addAll(
+            mapping.warnings.map {
+                ResultDetail(ResultDetail.DetailScope.ITEM, "", InvalidHL7Message.new(it))
+            }
+        )
         mappedRows.forEach {
             logger.debug("${it.key} -> ${it.value.joinToString()}")
         }
@@ -512,7 +481,7 @@ class Hl7Serializer(
                     } else {
                         value
                     }
-                    if (element.hl7Field != null && element.mapperRef != null && element.type == Element.Type.TABLE) {
+                    if (element.hl7Field != null && element.isTableLookup) {
                         setComponentForTable(terser, element, hl7Field, report, row, hl7Config)
                     } else {
                         setComponent(terser, element, hl7Field, truncatedValue, report)
@@ -543,7 +512,7 @@ class Hl7Serializer(
                 setComponent(terser, element, "MSH-7", formatter.format(report.createdDateTime), report)
             } else if (element.hl7Field == "MSH-11") {
                 setComponent(terser, element, "MSH-11", processingId, report)
-            } else if (element.hl7Field != null && element.mapperRef != null && element.type == Element.Type.TABLE) {
+            } else if (element.hl7Field != null && element.isTableLookup) {
                 setComponentForTable(terser, element, report, row, hl7Config)
             } else if (
                 element.type == Element.Type.TEXT &&
@@ -1365,7 +1334,11 @@ class Hl7Serializer(
                     }
                     // Date range. For getting a date time, use the start of the range
                     is DR -> {
-                        dtm = value.rangeStartDateTime?.time?.valueAsDate?.toInstant()
+                        if (value.rangeStartDateTime?.time?.gmtOffset == -99) {
+                            val cal = value.rangeStartDateTime?.time?.valueAsCalendar
+                            cal?.let { it.timeZone = TimeZone.getTimeZone("GMT") }
+                            dtm = cal?.toInstant()
+                        } else dtm = value.rangeStartDateTime?.time?.valueAsDate?.toInstant()
                         rawValue = value.toString()
                     }
                     is DT -> {

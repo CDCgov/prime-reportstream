@@ -152,6 +152,7 @@ state_fips,state,state_abbr,zipcode,county,city
 1,Alabama,AL,35471,Pickens,Mc shan
 1,Alabama,AL,35473,Pickens,Mc shan
 1,Alabama,AL,35474,Tuscaloosa,Northport
+1,Alabama,AL,35475,Tuscaloosa,Northport
 1,Alabama,AL,35476,Tuscaloosa,Northport
 1,Alabama,AL,35477,Sumter,Panola
 1,Alabama,AL,35478,Tuscaloosa,Peterson
@@ -528,6 +529,7 @@ state_fips,state,state_abbr,zipcode,county,city
 1,Alabama,AL,36574,Baldwin,Seminole
 1,Alabama,AL,36575,Mobile,Semmes
 1,Alabama,AL,36576,Baldwin,Silverhill
+1,Alabama,AL,36577,Baldwin,Spanish Fort
 1,Alabama,AL,36578,Baldwin,Stapleton
 1,Alabama,AL,36579,Baldwin,Stockton
 1,Alabama,AL,36580,Baldwin,Summerdale
@@ -617,6 +619,9 @@ state_fips,state,state_abbr,zipcode,county,city
 1,Alabama,AL,36792,Bibb,Randolph
 1,Alabama,AL,36793,Bibb,Lawley
 1,Alabama,AL,36801,Lee,Opelika
+1,Alabama,AL,36802,Lee,Opelika
+1,Alabama,AL,36803,Lee,Opelika
+1,Alabama,AL,36804,Lee,Opelika
 1,Alabama,AL,36830,Lee,Auburn
 1,Alabama,AL,36832,Lee,Auburn
 1,Alabama,AL,36849,Lee,Auburn
@@ -1046,6 +1051,7 @@ state_fips,state,state_abbr,zipcode,county,city
 4,Arizona,AZ,85375,Maricopa,Sun city west
 4,Arizona,AZ,85381,Maricopa,Peoria
 4,Arizona,AZ,85382,Maricopa,Peoria
+4,Arizona,AZ,85383,Maricopa,Peoria
 4,Arizona,AZ,85390,Maricopa,Wickenburg
 4,Arizona,AZ,85501,Gila,Globe
 4,Arizona,AZ,85530,Graham,Bylas
@@ -2180,6 +2186,7 @@ state_fips,state,state_abbr,zipcode,county,city
 6,California,CA,92054,San Diego,Oceanside
 6,California,CA,92056,San Diego,Oceanside
 6,California,CA,92057,San Diego,Oceanside
+6,California,CA,92058,San Diego,Oceanside
 6,California,CA,92059,San Diego,Pala
 6,California,CA,92060,San Diego,Palomar mountain
 6,California,CA,92061,San Diego,Pauma valley
@@ -2889,6 +2896,7 @@ state_fips,state,state_abbr,zipcode,county,city
 6,California,CA,94971,Marin,Tomales
 6,California,CA,94972,Sonoma,Valley ford
 6,California,CA,94973,Marin,Woodacre
+6,California,CA,94998,Marin,Novato
 6,California,CA,95002,Santa Clara,Alviso
 6,California,CA,95003,Santa Cruz,Aptos
 6,California,CA,95004,Monterey,Aromas
@@ -4314,6 +4322,7 @@ state_fips,state,state_abbr,zipcode,county,city
 12,Florida,FL,32009,Nassau,Bryceville
 12,Florida,FL,32011,Nassau,Callahan
 12,Florida,FL,32013,Lafayette,Day
+12,Florida,FL,32025,Columbia,Lake City
 12,Florida,FL,32033,St Johns,Elkton
 12,Florida,FL,32034,Nassau,Amelia island
 12,Florida,FL,32038,Columbia,Fort white
@@ -5052,8 +5061,10 @@ state_fips,state,state_abbr,zipcode,county,city
 12,Florida,FL,33981,Charlotte,Port charlotte
 12,Florida,FL,33982,Charlotte,Punta gorda
 12,Florida,FL,33983,Charlotte,Punta gorda
-12,Florida,FL,33990,Lee,Cape coral centr
-12,Florida,FL,33991,Lee,Cape coral centr
+12,Florida,FL,33990,Lee,Cape Coral
+12,Florida,FL,33991,Lee,Cape Coral
+12,Florida,FL,33993,Lee,Cape Coral
+12,Florida,FL,33994,Lee,Fort Myers
 12,Florida,FL,34201,Manatee,Braden river
 12,Florida,FL,34202,Manatee,Braden river
 12,Florida,FL,34203,Manatee,Braden river
@@ -5226,6 +5237,12 @@ state_fips,state,state_abbr,zipcode,county,city
 13,Georgia,GA,30036,DeKalb,Decatur
 13,Georgia,GA,30037,DeKalb,Decatur
 13,Georgia,GA,30038,DeKalb,Lithonia
+13,Georgia,GA,30039,Gwinnett,Snellville
+13,Georgia,GA,30040,Forsyth,Cumming
+13,Georgia,GA,30041,Forsyth,Cumming
+13,Georgia,GA,30042,Gwinnett,Lawrenceville
+13,Georgia,GA,30043,Gwinnett,Lawrenceville
+13,Georgia,GA,30044,Gwinnett,Lawrenceville
 13,Georgia,GA,30058,DeKalb,Centerville gwin
 13,Georgia,GA,30060,Cobb,Marietta
 13,Georgia,GA,30061,Cobb,Marietta
@@ -6451,9 +6468,12 @@ state_fips,state,state_abbr,zipcode,county,city
 17,Illinois,IL,60481,Will,Custer park
 17,Illinois,IL,60482,Cook,Worth
 17,Illinois,IL,60501,Cook,Argo
+17,Illinois,IL,60502,DuPage,Aurora
+17,Illinois,IL,60503,Will,Aurora
 17,Illinois,IL,60504,DuPage,Aurora
 17,Illinois,IL,60505,Kane,Aurora
 17,Illinois,IL,60506,Kane,Aurora
+17,Illinois,IL,60507,Kane,Aurora
 17,Illinois,IL,60510,Kane,Batavia
 17,Illinois,IL,60511,Kane,Big rock
 17,Illinois,IL,60512,Kendall,Bristol
@@ -14751,6 +14771,7 @@ state_fips,state,state_abbr,zipcode,county,city
 28,Mississippi,MS,39531,Harrison,Biloxi
 28,Mississippi,MS,39532,Harrison,North bay
 28,Mississippi,MS,39540,Harrison,Diberville
+28,Mississippi,MS,39552,Jackson,Escatawpa
 28,Mississippi,MS,39553,Jackson,Gautier
 28,Mississippi,MS,39555,Jackson,Hurley
 28,Mississippi,MS,39556,Hancock,Kiln
@@ -16797,6 +16818,8 @@ state_fips,state,state_abbr,zipcode,county,city
 32,Nevada,NV,89046,Clark,Cottonwood cove
 32,Nevada,NV,89047,Esmeralda,Silverpeak
 32,Nevada,NV,89049,Nye,Tonopah
+32,Nevada,NV,89070,Clark,Indian Springs
+32,Nevada,NV,89074,Clark,Henderson
 32,Nevada,NV,89101,Clark,Las vegas
 32,Nevada,NV,89102,Clark,Las vegas
 32,Nevada,NV,89103,Clark,Las vegas
@@ -16822,6 +16845,9 @@ state_fips,state,state_abbr,zipcode,county,city
 32,Nevada,NV,89131,Clark,Las vegas
 32,Nevada,NV,89134,Clark,Las vegas
 32,Nevada,NV,89135,Clark,Las vegas
+32,Nevada,NV,89136,Clark,Las vegas
+32,Nevada,NV,89137,Clark,Las vegas
+32,Nevada,NV,89138,Clark,Las vegas
 32,Nevada,NV,89139,Clark,Las vegas
 32,Nevada,NV,89191,Clark,Nellis a f b
 32,Nevada,NV,89301,White Pine,Ely
@@ -18334,6 +18360,8 @@ state_fips,state,state_abbr,zipcode,county,city
 36,New york,NY,11237,Kings,Brooklyn
 36,New york,NY,11238,Kings,Brooklyn
 36,New york,NY,11239,Kings,Brooklyn
+36,New york,NY,11247,Kings,Brooklyn
+36,New york,NY,11249,Kings,Brooklyn
 36,New york,NY,11354,Queens,Flushing
 36,New york,NY,11355,Queens,Flushing
 36,New york,NY,11356,Queens,College point
@@ -24884,6 +24912,9 @@ state_fips,state,state_abbr,zipcode,county,city
 45,South carolina,SC,29113,Orangeburg,Norway
 45,South carolina,SC,29114,Florence,Olanta
 45,South carolina,SC,29115,Orangeburg,Orangeburg
+45,South carolina,SC,29116,Orangeburg,Orangeburg
+45,South carolina,SC,29117,Orangeburg,Orangeburg
+45,South carolina,SC,29118,Orangeburg,Orangeburg
 45,South carolina,SC,29122,Newberry,Peak
 45,South carolina,SC,29123,Lexington,Pelion
 45,South carolina,SC,29124,Aiken,Perry
@@ -25019,6 +25050,7 @@ state_fips,state,state_abbr,zipcode,county,city
 45,South carolina,SC,29482,Charleston,Sullivans island
 45,South carolina,SC,29483,Dorchester,Summerville
 45,South carolina,SC,29485,Dorchester,Summerville
+45,South carolina,SC,29486,Berkeley,Summerville
 45,South carolina,SC,29487,Charleston,Wadmalaw island
 45,South carolina,SC,29488,Colleton,Ritter
 45,South carolina,SC,29492,Berkeley,Wando
@@ -26219,6 +26251,8 @@ state_fips,state,state_abbr,zipcode,county,city
 48,Texas,TX,75025,Collin,Plano
 48,Texas,TX,75028,Denton,Flower mound
 48,Texas,TX,75034,Collin,Frisco
+48,Texas,TX,75035,Collin,Frisco
+48,Texas,TX,75036,Denton,Frisco
 48,Texas,TX,75038,Dallas,Irving
 48,Texas,TX,75039,Dallas,Irving
 48,Texas,TX,75040,Dallas,Garland
@@ -26226,10 +26260,16 @@ state_fips,state,state_abbr,zipcode,county,city
 48,Texas,TX,75042,Dallas,Garland
 48,Texas,TX,75043,Dallas,Garland
 48,Texas,TX,75044,Dallas,Garland
+48,Texas,TX,75045,Dallas,Garland
+48,Texas,TX,75046,Dallas,Garland
+48,Texas,TX,75047,Dallas,Garland
 48,Texas,TX,75048,Dallas,Sachse
+48,Texas,TX,75049,Dallas,Garland
 48,Texas,TX,75050,Dallas,Grand prairie
 48,Texas,TX,75051,Dallas,Grand prairie
 48,Texas,TX,75052,Dallas,Grand prairie
+48,Texas,TX,75053,Dallas,Grand prairie
+48,Texas,TX,75054,Tarrant,Grand prairie
 48,Texas,TX,75056,Denton,The colony
 48,Texas,TX,75057,Denton,Lewisville
 48,Texas,TX,75058,Grayson,Gunter
@@ -26242,6 +26282,7 @@ state_fips,state,state_abbr,zipcode,county,city
 48,Texas,TX,75068,Denton,Lakewood village
 48,Texas,TX,75069,Collin,Mc kinney
 48,Texas,TX,75070,Collin,Mc kinney
+48,Texas,TX,75071,Collin,Mc kinney
 48,Texas,TX,75074,Collin,Plano
 48,Texas,TX,75075,Collin,Plano
 48,Texas,TX,75076,Grayson,Pottsboro
@@ -27099,6 +27140,7 @@ state_fips,state,state_abbr,zipcode,county,city
 48,Texas,TX,77388,Harris,Spring
 48,Texas,TX,77389,Harris,Spring
 48,Texas,TX,77396,Harris,Humble
+48,Texas,TX,77399,Polk,Livingston
 48,Texas,TX,77401,Harris,Bellaire
 48,Texas,TX,77406,Ft Bend,Richmond
 48,Texas,TX,77412,Colorado,Altair

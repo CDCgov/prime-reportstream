@@ -474,7 +474,8 @@ NTE|1|L|This is a final comment|RE"""
         every { mockDR.rangeStartDateTime } returns mockTS
         every { mockDR.rangeStartDateTime.time } returns mockDTM
         every { mockDR.rangeStartDateTime.time.valueAsDate } returns nowAsDate
-        every { mockDR.rangeStartDateTime.time.value } returns dateFormatterWithTimeZone.format(now)
+        every { mockDR.rangeStartDateTime.time.gmtOffset } returns -99
+        every { mockDR.rangeStartDateTime.time.valueAsCalendar } returns cal
         dateTime = serializer.decodeHl7DateTime(mockTerser, dateTimeElement, dateTimeElement.hl7Field!!, warnings)
         assertThat(dateTime).isEqualTo(dateFormatterWithTimeZone.format(now.withOffsetSameInstant(ZoneOffset.UTC)))
 

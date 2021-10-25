@@ -102,9 +102,6 @@ elements:
     - name: date_result_released
       csvFields: [{name: Date_result_released, format: "M/d/yyyy H:nn"}]
 
-    - name: test_result_report_date
-      csvFields: [{name: Test_date, format: "M/d/yyyy"}]
-
     - name: test_result
       type: CODE
       valueSet: sender-automation/test_result
@@ -272,11 +269,8 @@ elements:
       default: N
 
 
-#this lookup is in the covid-19 schema, but doesn't appear to be done in practice (?)
+# Appears this RS field must be set even if it is not being used for the LIVD table lookup
     - name: equipment_model_name
-      table: LIVD-SARS-CoV-2-2021-04-28
-      tableColumn: Model
-      mapper: livdLookup()
 
 
 #unused fields - these are added here to suppress warnings.
@@ -358,6 +352,11 @@ elements:
     - name: Specimen_received_date_time_Ignore
       type: TEXT
       csvFields: [{name: Specimen_received_date_time}]
+      documentation: This field is ignored.
+
+    - name: Test_date_Ignore
+      type: TEXT
+      csvFields: [{name: Test_date}]
       documentation: This field is ignored.
 
     - name: Testing_lab_specimen_ID_Ignore

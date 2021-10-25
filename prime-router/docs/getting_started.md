@@ -113,6 +113,11 @@ The most useful gradle tasks are:
 
 We make use of git hooks in this repository and rely on them for certain levels of protections against CI/CD failures and other incidents. Install/activate these hooks by invoking either `prime-router/cleanslate.sh` or by directly invoking `.environment/githooks.sh install`. This is a _repository-level_ setting, you _must_ activate the git hooks in every clone on every device you have.
 
+### pre-commit: Docker
+
+The first hook we'll invoke is to ensure Docker is running. If it's not we'll short-circuit the remainder of the hooks and let you know why.
+
+
 ### pre-commit: Gitleaks
 
 Gitleaks is one of the checks that are run as part of the `pre-commit` hook. It must pass successfully for the commit to proceed (i.e. for the commit to actually happen, failure will prevent the commit from being made and will leave your staged files in staged status). Gitleaks scans files that are marked as "staged" (i.e. `git add`) for known patterns of secrets or keys.
@@ -126,6 +131,16 @@ When gitleaks reports leaks/violations, the right course of action is typically 
 This tool can also be manually invoked through `.environment/gitleaks/run-gitleaks.sh` which may be useful to validate the lack of leaks without the need of risking a commit. Invoke the tool with `--help` to find out more about its different run modes.
 
 See [Allow-listing Gitleaks False Positives](allowlist-gitleaks-false-positives.md) for more details on how to prevent False Positives!
+
+### pre-commit: Terraform formatting
+
+If you've changed any terraform files in your commit we'll run
+`terraform fmt -check` against the directory of files. If any file's format is invalid 
+the pre-commit hook will fail. You may be able to fix the issues with:
+
+```
+$ .environment/terraform-fmt/run-terraform-fmt.sh --fix
+```
 
 ## Updating schema documentation
 You must run the schema document generator after a schema file is updated.  The updated documents are stored in
@@ -143,7 +158,7 @@ the baseline (see "[Building in the course of development](#building-in-the-cour
 
 ```bash
 cd ./prime-router
-./gradlew package
+./gradlew clean package
 ./devenv-infrastructure.sh
 ```
 If you see any SSL errors during this step, follow the directions in [Getting Around SSL Errors](#getting-around-ssl-errors).
