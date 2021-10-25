@@ -41,7 +41,7 @@ paths:
       security:
         - OktaAuth: [ SYSTEM_ADMIN ]
       requestBody:
-        description: Optional description in *Markdown*
+        description: An array of objects that list the table's rows.
         required: true
         content:
           application/json:
@@ -113,7 +113,7 @@ paths:
 
   /api/lookuptables/{tableName}/{tableVersion}/activate:
     put:
-      description: Activate a specific version of a table
+      description: Activate a specific version of a table.  This endpoint does not take a request body.
       security:
         - OktaAuth: [ SYSTEM_ADMIN ]
       responses:
