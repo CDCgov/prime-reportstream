@@ -94,13 +94,14 @@ class EmailSenderFunction {
     ): HttpResponseMessage {
         val logger: Logger = context.logger
         val ret = request.createResponseBuilder(HttpStatus.BAD_REQUEST)
+        val sendgridId: String? = SecretHelper.getSecretService().fetchSecret("SENDGRID_ID")
 
         if (request.body !== null) {
             logger.info(request.body)
             val body: TosAgreementForm? = parseBody(request.body!!, TosAgreementForm::class.java, logger)
-            val mail: String? = createMail(body, logger)
+            val mail: String? = if (body!!.validate(logger)) createMail(body, logger) else ""
             if (!mail.isNullOrBlank()) {
-                ret.status(sendMail(mail, logger)) /* Status becomes whatever SendGrid returns */
+                ret.status(sendMail(mail, sendgridId, logger)) /* Status becomes whatever SendGrid returns */
             }
         }
 
@@ -131,8 +132,7 @@ class EmailSenderFunction {
         }
     }
 
-    private fun createMail(body: TosAgreementForm?, logger: Logger): String? {
-        if (body === null) return null
+    private fun createMail(body: TosAgreementForm, logger: Logger): String? {
         val mail: Mail = Mail()
         val p: Personalization = Personalization()
 
@@ -140,24 +140,19 @@ class EmailSenderFunction {
         *  To be a generalized function, we'd have to dictate the build sequence based on
         *  the type of body we get. In this case, we're building for TosAgreementForm.
         */
-        if (body.validate(logger)) {
-            mail.setTemplateId(TOS_AGREEMENT_TEMPLATE_ID)
-            mail.setFrom(Email(NO_REPLY_EMAIL))
-            mail.setSubject(TOS_SUBJECT_BASE + body.organizationName)
-            p.addTo(Email(REPORT_STREAM_EMAIL))
-            p.addCc(Email(body.email))
-            p.addDynamicTemplateData("formData", body)
-            mail.addPersonalization(p)
+        mail.setTemplateId(TOS_AGREEMENT_TEMPLATE_ID)
+        mail.setFrom(Email(NO_REPLY_EMAIL))
+        mail.setSubject(TOS_SUBJECT_BASE + body.organizationName)
+        p.addTo(Email(REPORT_STREAM_EMAIL))
+        p.addCc(Email(body.email))
+        p.addDynamicTemplateData("formData", body)
+        mail.addPersonalization(p)
 
-            return mail.build()
-        }
-        logger.info("Your body was not validated")
-        return null
+        return mail.build()
     }
 
-    private fun sendMail(mail: String?, logger: Logger): HttpStatus {
+    private fun sendMail(mail: String?, sendgridId: String?, logger: Logger): HttpStatus {
         var status: HttpStatus = HttpStatus.INTERNAL_SERVER_ERROR
-        val sendgridId: String? = SecretHelper.getSecretService().fetchSecret("SENDGRID_ID")
 
         if (!sendgridId.isNullOrBlank() && !mail.isNullOrBlank()) {
             var response: Response = Response()
