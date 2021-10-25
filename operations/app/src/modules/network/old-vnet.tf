@@ -111,7 +111,7 @@ resource "azurerm_container_group" "dns" {
     }
 
     environment_variables = {
-      VERSION = 1 # This is used to force Azure to update the container
+      VERSION = 2 # This is used to force Azure to update the container
     }
   }
 
