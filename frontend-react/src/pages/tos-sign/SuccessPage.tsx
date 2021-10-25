@@ -4,41 +4,9 @@ import Title from "../../components/Title";
 
 import { AgreementBody } from "./SigningForm";
 
-const classNames = "usa-prose margin-bottom-4";
-
-const NumberCircle = ({
-    number,
-    filled,
-    className,
-}: {
-    number: number;
-    filled?: boolean;
-    className?: string;
-}) => {
-    const cssStyles: React.CSSProperties = {
-        borderRadius: "50%",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        background: filled ? "#122946" : "#fff",
-        color: filled ? "#fff" : "#122946",
-        height: "30px",
-        width: "30px",
-        border: "2px solid #122946",
-    };
-
-    return (
-        <div className={className || ""} style={cssStyles}>
-            {number}
-        </div>
-    );
-};
-
 const Step = ({
-    number,
     heading,
     label,
-    complete,
 }: {
     number: number;
     heading: string;

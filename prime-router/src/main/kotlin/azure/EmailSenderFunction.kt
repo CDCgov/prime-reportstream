@@ -35,48 +35,44 @@ const val TOS_SUBJECT_BASE = "TOS Agreement for "
 const val TOS_AGREEMENT_TEMPLATE_ID = "d-472779cf554f418a9209acb62d2a48da"
 
 data class TosAgreementForm(
-    val title: String?,
-    val firstName: String?,
-    val lastName: String?,
-    val email: String?,
-    val territory: String?,
-    val organizationName: String?,
-    val operatesInMultipleStates: Boolean?,
-    val agreedToTermsOfService: Boolean?
+    val title: String,
+    val firstName: String,
+    val lastName: String,
+    val email: String,
+    val territory: String,
+    val organizationName: String,
+    val operatesInMultipleStates: Boolean,
+    val agreedToTermsOfService: Boolean
 ) {
-    fun validate(): Boolean {
-        val funName: String = object {}.javaClass.enclosingMethod.name
+    fun validate(logger: Logger): Boolean {
         for (key in TosAgreementForm::class.memberProperties) {
-            val value = key.get(this)
+            val value: Any? = key.get(this)
             if (
                 value is String &&
                 !key.toString().contains("title") /* Title is not required */
             ) {
-                if (!verifyNotNull(value)) {
-                    println("$funName -- Uh oh, \"$key\" in your request body is Null")
-                    return false
-                }
-                if (!verifyNotExceededLimit(value)) {
-                    println("$funName -- Uh oh, \"$key\" has exceeded the character limit")
-                    return false
-                }
+                if (!verifyIsNotBlank(key.toString(), value, logger) ||
+                    !verifyNotExceededLimit(key.toString(), value, logger)) return false
+            } else if (value !is String && value !is Boolean) {
+                logger.info("Uh oh, \"$value\" is an invalid value at: \"$key\"")
+                return false
             }
         }
-        if (verifyAgreed()) return true
-
-        println("$funName -- Uh oh, your agreement to the Terms of Service is marked false")
-        return false
+        return verifyAgreed(logger)
     }
 
-    private fun verifyAgreed(): Boolean {
-        return this.agreedToTermsOfService ?: false
+    private fun verifyAgreed(logger: Logger): Boolean {
+        if (!this.agreedToTermsOfService) logger.info("Uh oh, your agreement to the Terms of Service is marked false")
+        return this.agreedToTermsOfService
     }
 
-    private fun verifyNotNull(value: String): Boolean {
+    private fun verifyIsNotBlank(key: String, value: String, logger: Logger): Boolean {
+        if (value.isBlank()) logger.info("Uh oh, \"$key\" in your request body is Null")
         return value.isNotBlank()
     }
 
-    private fun verifyNotExceededLimit(value: String): Boolean {
+    private fun verifyNotExceededLimit(key: String, value: String, logger: Logger): Boolean {
+        if (value.length > 255) logger.info("Uh oh, \"$key\" has exceeded the character limit")
         return value.length <= 255
     }
 }
@@ -100,48 +96,50 @@ class EmailSenderFunction {
 
         if (request.body !== null) {
             logger.info(request.body)
-            ret.status(sendMail(request.body!!, logger))
+            val body: TosAgreementForm? = parseBody(request.body!!, TosAgreementForm::class.java, logger)
+            val mail: String? = createMail(body, logger)
+            if (!mail.isNullOrBlank()) {
+                ret.status(sendMail(mail, logger)) /* Status becomes whatever SendGrid returns */
+            }
         }
 
         return ret.build()
     }
 
-    private fun parseBody(requestBody: String): TosAgreementForm {
+    /*TODO:
+    *  This should turn into something that's returned with a dynamic class (second
+    *  param) to parse many types of request bodies. Currently it only takes a single
+    *  class, TosAgreementForm.
+    */
+    private fun parseBody(requestBody: String, type: Class<TosAgreementForm>, logger: Logger): TosAgreementForm? {
         val gson = Gson()
-        val tosAgreement = TosAgreementForm::class.java
 
-        try {
-            /*TODO:
-            *  This should turn into something that's returned with a dynamic class (second
-            *  param) to parse many types of request bodies.
-            */
-            return gson.fromJson<TosAgreementForm>(
+        return try {
+            gson.fromJson(
                 requestBody,
-                tosAgreement
+                type
             )
         } catch (ex: JsonSyntaxException) {
-            throw ex
+            /*TODO:
+            *  For some reason, malformed requests were not throwing this exception when mapped
+            *  and it lead to a bunch of errors when cleansing everything. This should be debugged
+            *  but until then, returning null and checking against a null type is okay.
+            */
+            logger.info("There was an exception thrown when parsing your JSON")
+            null
         }
     }
 
-    private fun createMail(requestBody: String): String? {
-        val funName: String = object {}.javaClass.enclosingMethod.name
+    private fun createMail(body: TosAgreementForm?, logger: Logger): String? {
+        if (body === null) return null
         val mail: Mail = Mail()
         val p: Personalization = Personalization()
-        val body: TosAgreementForm
-
-        try {
-            body = parseBody(requestBody)
-        } catch (e: JsonSyntaxException) {
-            println("$funName -- Uh oh, there was an exception thrown: ${e.message}")
-            return null
-        }
 
         /*TODO:
-        *  I want to turn this block into something that is dynamically set via some
-        *  param we pass in. For now, though, this will handle the TOS mail construction.
+        *  To be a generalized function, we'd have to dictate the build sequence based on
+        *  the type of body we get. In this case, we're building for TosAgreementForm.
         */
-        if (body.validate()) {
+        if (body.validate(logger)) {
             mail.setTemplateId(TOS_AGREEMENT_TEMPLATE_ID)
             mail.setFrom(Email(NO_REPLY_EMAIL))
             mail.setSubject(TOS_SUBJECT_BASE + body.organizationName)
@@ -152,17 +150,16 @@ class EmailSenderFunction {
 
             return mail.build()
         }
-        println("$funName -- Your body was not validated")
+        logger.info("Your body was not validated")
         return null
     }
 
-    private fun sendMail(requestBody: String, logger: Logger): HttpStatus {
-        var response: Response = Response()
-        var status: HttpStatus = HttpStatus.NOT_FOUND
-        val mail = createMail(requestBody)
+    private fun sendMail(mail: String?, logger: Logger): HttpStatus {
+        var status: HttpStatus = HttpStatus.INTERNAL_SERVER_ERROR
         val sendgridId: String? = SecretHelper.getSecretService().fetchSecret("SENDGRID_ID")
 
-        if (sendgridId !== null && mail !== null) {
+        if (!sendgridId.isNullOrBlank() && !mail.isNullOrBlank()) {
+            var response: Response = Response()
             val sg: SendGrid = SendGrid(sendgridId)
             val request: Request = Request()
 
@@ -182,12 +179,13 @@ class EmailSenderFunction {
                     logger.severe("error - ${response.body}")
                 }
             }
-        } else if (mail === null) {
+        } else if (mail.isNullOrBlank()) {
             logger.info("Error in the createMail() function")
-            status = HttpStatus.BAD_REQUEST
-        } else if (sendgridId === null) {
+            return HttpStatus.BAD_REQUEST
+        } else if (sendgridId.isNullOrBlank()) {
             logger.info("Can't find SENDGRID_ID secret")
             logger.info(mail)
+            return HttpStatus.NOT_FOUND
         }
 
         return status
