@@ -95,10 +95,6 @@ elements:
       csvFields: [{name: ResultDate, format: "M/d/yyyy"}]
       documentation: ResultDate populates multiple fields.  This instance populates test_result_date.
 
-    - name: test_result_report_date
-      csvFields: [{name: ResultDate, format: "M/d/yyyy"}]
-      documentation: ResultDate populates multiple fields.  This instance populates test_result_report_date.
-
     - name: date_result_released
       csvFields: [{name: ResultDate, format: "M/d/yyyy"}]
       documentation: ResultDate populates multiple fields.  This instance populates date_result_released.
