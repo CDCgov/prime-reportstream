@@ -7,6 +7,8 @@ import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.PAYLOAD_MAX_BYTES
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Sender
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.File
 import java.io.IOException
@@ -125,11 +127,13 @@ class HttpUtilities {
         }
 
         fun notFoundResponse(
-            request: HttpRequestMessage<String?>
+            request: HttpRequestMessage<String?>,
+            errorMessage: String? = null
         ): HttpResponseMessage {
-            return request
-                .createResponseBuilder(HttpStatus.NOT_FOUND)
-                .build()
+            val response = request.createResponseBuilder(HttpStatus.NOT_FOUND)
+            if (!errorMessage.isNullOrBlank())
+                response.body(JsonObject(mapOf("error" to JsonPrimitive(errorMessage))).toString())
+            return response.build()
         }
 
         fun internalErrorResponse(
@@ -170,7 +174,7 @@ class HttpUtilities {
             status: HttpStatus = HttpStatus.BAD_REQUEST
         ): HttpResponseMessage {
             logger.error(msg)
-            return HttpUtilities.httpResponse(request, msg, status)
+            return httpResponse(request, msg, status)
         }
 
         /**
