@@ -69,6 +69,7 @@ data class Hl7Configuration
     val reportingFacilityName: String? = null,
     val reportingFacilityId: String? = null,
     val reportingFacilityIdType: String? = null,
+    val setCLIAForSender: Map<String, String>? = emptyMap(),
     val suppressQstForAoe: Boolean = false,
     val suppressHl7Fields: String? = null,
     val suppressAoe: Boolean = false,
