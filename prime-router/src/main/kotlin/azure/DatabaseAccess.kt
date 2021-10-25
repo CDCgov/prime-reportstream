@@ -10,7 +10,6 @@ import gov.cdc.prime.router.azure.db.Tables.COVID_RESULT_METADATA
 import gov.cdc.prime.router.azure.db.Tables.EMAIL_SCHEDULE
 import gov.cdc.prime.router.azure.db.Tables.JTI_CACHE
 import gov.cdc.prime.router.azure.db.Tables.RECEIVER_CONNECTION_CHECK_RESULTS
-import gov.cdc.prime.router.azure.db.Tables.REPORT_ANCESTORS
 import gov.cdc.prime.router.azure.db.Tables.REPORT_FACILITIES
 import gov.cdc.prime.router.azure.db.Tables.REPORT_LINEAGE
 import gov.cdc.prime.router.azure.db.Tables.SETTING
@@ -726,6 +725,9 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             ?.getValue(DSL.max(SETTING.CREATED_AT))
     }
 
+    /**
+     * Saves the connection check result to the db
+     */
     fun saveRemoteConnectionCheck(
         txn: DataAccessTransaction? = null,
         connectionCheck: CheckFunction.RemoteConnectionCheck

@@ -10,7 +10,7 @@
 
 CREATE TABLE receiver_connection_check_results
 (
-  connection_check_result_id BIGSERIAL PRIMARY KEY,
+  receiver_connection_check_result_id BIGSERIAL PRIMARY KEY,
   organization_id INTEGER NOT NULL REFERENCES setting(setting_id) ON DELETE CASCADE,
   receiver_id INTEGER NOT NULL REFERENCES  setting(setting_id) ON DELETE CASCADE,
   connection_check_result TEXT NOT NULL,
