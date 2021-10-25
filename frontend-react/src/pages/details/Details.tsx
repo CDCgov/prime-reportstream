@@ -1,11 +1,14 @@
+// @ts-nocheck // TODO: fix types in this file
 import { useResource } from "rest-hooks";
-import ReportResource from "../../resources/ReportResource";
-import Summary from "./Summary"
-import ReportDetails from './ReportDetails'
-import FacilitiesTable from './FacilitiesTable'
-import HipaaNotice from "../../components/HipaaNotice";
 import { Suspense } from "react";
+
+import ReportResource from "../../resources/ReportResource";
+import HipaaNotice from "../../components/HipaaNotice";
 import Spinner from "../../components/Spinner";
+
+import Summary from "./Summary";
+import ReportDetails from "./ReportDetails";
+import FacilitiesTable from "./FacilitiesTable";
 
 function useQuery() {
     let query = window.location.search.slice(1);
@@ -31,7 +34,7 @@ const DetailsContent = () => {
         <>
             <Summary report={report} />
             <ReportDetails report={report} />
-            <FacilitiesTable reportId={report?.reportId} />
+            <FacilitiesTable reportId={report?.reportId || ""} />
             <HipaaNotice />
         </>
     );
@@ -50,5 +53,5 @@ export const Details = () => {
         <Suspense fallback={<Spinner fullPage />}>
             <DetailsContent />
         </Suspense>
-    )
-}
+    );
+};

@@ -30,6 +30,15 @@ elements:
     documentation:  eg, 260373001
     csvFields: [{ name: testResult }]
 
+  - name: test_result_status
+    default: F
+
+  - name: placer_order_id
+    mapper: use(message_id)
+
+  - name: filler_order_id
+    mapper: use(message_id)
+
   - name: test_result_text
     documentation: eg, "DETECTED".  Custom.  ReportStream uses testResult code, not this text value.
     type: TEXT
@@ -48,7 +57,7 @@ elements:
     documentation: eg, 20210111
     csvFields: [{ name: testResultDate}]
 
-  - name: test_result_report_date
+  - name: date_result_released
     documentation: eg, 20210112
     csvFields: [{ name: testReportDate}]
 
@@ -194,6 +203,9 @@ elements:
   - name: patient_id
     csvFields: [{ name: patientUniqueId}]
 
+  - name: patient_id_type
+    default: PI
+
   - name: patient_id_hash
     # Custom.   Needs to go into covid-19. Mimic waters here.
     type: TEXT
@@ -327,9 +339,11 @@ elements:
   - name: patient_email
     csvFields: [{ name: patientEmail}]
 
-  - name: reporting_facility
-    documentation: Expecting an ISO heirarchic designator here. eg, "1265050918" (same value as in ordering_provider_npi).  Note that reporting_facility_text is also available as a field, if a name is needed.
-    csvFields: [{ name: reportingFacility}]
+  - name: reporting_facility_name
+    csvFields: [{ name: performingFacilityName}]
+
+  - name: reporting_facility_clia
+    csvFields: [{ name: performingFacility}]
 
   - name: ordering_facility_name
     csvFields: [{ name: orderingFacilityName}]
@@ -364,3 +378,9 @@ elements:
   - name: test_authorized_for_otc
   - name: test_authorized_for_home
   - name: test_authorized_for_unproctored
+
+  # Unused fields
+  - name: reportingFacility
+    documentation:  This field is no longer used.  Included here so it does not generate a warning if present.
+    csvFields: [{ name: reportingFacility}]
+  

@@ -6,6 +6,7 @@ on:
       - master
       - production
       - dev-rheft
+      - ronheft/test-investigation
 
 defaults:
   run:
@@ -104,12 +105,12 @@ jobs:
       - name: "Check out changes"
         uses: actions/checkout@v2
 
-      - name: Use Node.js ${{ matrix.node-version }}
+      - name: Use Node.js ${{ matrix.node-version }} yarn
         uses: actions/setup-node@v2
         with:
           node-version: '14'
-      - run: npm install      
-      - run: npm run build
+      - run: yarn install
+      - run: yarn run build
       
       - name: Save Static Website
         uses: actions/upload-artifact@v2
@@ -222,7 +223,7 @@ jobs:
     needs:
       - build_release
       - build_frontend_release
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/ronheft/test-investigation'
     environment: test
     concurrency: test
     runs-on: ubuntu-latest

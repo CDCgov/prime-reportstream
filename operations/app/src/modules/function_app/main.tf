@@ -22,7 +22,7 @@ locals {
     # Route storage account access through the VNET
     "WEBSITE_CONTENTOVERVNET" = 1
 
-    # Use the VNET DNS server (so we receive private endpoint URLs
+    # Use the VNET DNS server (so we receive private endpoint URLs)
     "WEBSITE_DNS_SERVER" = "168.63.129.16"
 
     "DOCKER_REGISTRY_SERVER_URL"      = data.azurerm_container_registry.container_registry.login_server
@@ -84,6 +84,13 @@ resource "azurerm_function_app" "function_app" {
       name                      = "AllowVNetTraffic"
       priority                  = 100
       virtual_network_subnet_id = data.azurerm_subnet.public.id
+    }
+
+    ip_restriction {
+      action                    = "Allow"
+      name                      = "AllowVNetEastTraffic"
+      priority                  = 100
+      virtual_network_subnet_id = data.azurerm_subnet.public_subnet.id
     }
 
     ip_restriction {
@@ -156,7 +163,7 @@ resource "azurerm_key_vault_access_policy" "functionapp_client_config_access_pol
 
 resource "azurerm_app_service_virtual_network_swift_connection" "function_app_vnet_integration" {
   app_service_id = azurerm_function_app.function_app.id
-  subnet_id      = var.environment == "dev" ? data.azurerm_subnet.public_subnet.id : data.azurerm_subnet.public.id
+  subnet_id      = var.use_cdc_managed_vnet ? data.azurerm_subnet.public_subnet.id : data.azurerm_subnet.public.id
 }
 
 // Enable sticky slot settings

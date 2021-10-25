@@ -40,3 +40,8 @@ variable "terraform_caller_ip_address" {
   description = "The IP address of the Terraform script caller. This IP will have already been whitelisted; it's inclusion is to prevent its removal during terraform apply calls."
   sensitive   = true
 }
+
+variable "use_cdc_managed_vnet" {
+  type        = bool
+  description = "If the environment should be deployed to the CDC managed VNET"
+}

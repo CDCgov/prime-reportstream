@@ -208,7 +208,7 @@ elements:
 
   - name: test_result_date
 
-  - name: test_result_report_date
+  - name: date_result_released
 
   - name: test_result_status
 

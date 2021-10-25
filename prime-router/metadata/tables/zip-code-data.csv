@@ -5061,8 +5061,10 @@ state_fips,state,state_abbr,zipcode,county,city
 12,Florida,FL,33981,Charlotte,Port charlotte
 12,Florida,FL,33982,Charlotte,Punta gorda
 12,Florida,FL,33983,Charlotte,Punta gorda
-12,Florida,FL,33990,Lee,Cape coral centr
-12,Florida,FL,33991,Lee,Cape coral centr
+12,Florida,FL,33990,Lee,Cape Coral
+12,Florida,FL,33991,Lee,Cape Coral
+12,Florida,FL,33993,Lee,Cape Coral
+12,Florida,FL,33994,Lee,Fort Myers
 12,Florida,FL,34201,Manatee,Braden river
 12,Florida,FL,34202,Manatee,Braden river
 12,Florida,FL,34203,Manatee,Braden river
@@ -6466,9 +6468,12 @@ state_fips,state,state_abbr,zipcode,county,city
 17,Illinois,IL,60481,Will,Custer park
 17,Illinois,IL,60482,Cook,Worth
 17,Illinois,IL,60501,Cook,Argo
+17,Illinois,IL,60502,DuPage,Aurora
+17,Illinois,IL,60503,Will,Aurora
 17,Illinois,IL,60504,DuPage,Aurora
 17,Illinois,IL,60505,Kane,Aurora
 17,Illinois,IL,60506,Kane,Aurora
+17,Illinois,IL,60507,Kane,Aurora
 17,Illinois,IL,60510,Kane,Batavia
 17,Illinois,IL,60511,Kane,Big rock
 17,Illinois,IL,60512,Kendall,Bristol
@@ -16813,6 +16818,8 @@ state_fips,state,state_abbr,zipcode,county,city
 32,Nevada,NV,89046,Clark,Cottonwood cove
 32,Nevada,NV,89047,Esmeralda,Silverpeak
 32,Nevada,NV,89049,Nye,Tonopah
+32,Nevada,NV,89070,Clark,Indian Springs
+32,Nevada,NV,89074,Clark,Henderson
 32,Nevada,NV,89101,Clark,Las vegas
 32,Nevada,NV,89102,Clark,Las vegas
 32,Nevada,NV,89103,Clark,Las vegas
@@ -26244,6 +26251,8 @@ state_fips,state,state_abbr,zipcode,county,city
 48,Texas,TX,75025,Collin,Plano
 48,Texas,TX,75028,Denton,Flower mound
 48,Texas,TX,75034,Collin,Frisco
+48,Texas,TX,75035,Collin,Frisco
+48,Texas,TX,75036,Denton,Frisco
 48,Texas,TX,75038,Dallas,Irving
 48,Texas,TX,75039,Dallas,Irving
 48,Texas,TX,75040,Dallas,Garland
@@ -26251,10 +26260,16 @@ state_fips,state,state_abbr,zipcode,county,city
 48,Texas,TX,75042,Dallas,Garland
 48,Texas,TX,75043,Dallas,Garland
 48,Texas,TX,75044,Dallas,Garland
+48,Texas,TX,75045,Dallas,Garland
+48,Texas,TX,75046,Dallas,Garland
+48,Texas,TX,75047,Dallas,Garland
 48,Texas,TX,75048,Dallas,Sachse
+48,Texas,TX,75049,Dallas,Garland
 48,Texas,TX,75050,Dallas,Grand prairie
 48,Texas,TX,75051,Dallas,Grand prairie
 48,Texas,TX,75052,Dallas,Grand prairie
+48,Texas,TX,75053,Dallas,Grand prairie
+48,Texas,TX,75054,Tarrant,Grand prairie
 48,Texas,TX,75056,Denton,The colony
 48,Texas,TX,75057,Denton,Lewisville
 48,Texas,TX,75058,Grayson,Gunter
@@ -26267,6 +26282,7 @@ state_fips,state,state_abbr,zipcode,county,city
 48,Texas,TX,75068,Denton,Lakewood village
 48,Texas,TX,75069,Collin,Mc kinney
 48,Texas,TX,75070,Collin,Mc kinney
+48,Texas,TX,75071,Collin,Mc kinney
 48,Texas,TX,75074,Collin,Plano
 48,Texas,TX,75075,Collin,Plano
 48,Texas,TX,75076,Grayson,Pottsboro
