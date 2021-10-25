@@ -1,15 +1,21 @@
 import { Link } from "react-router-dom";
+import { Helmet } from "react-helmet";
 
 export const SecurityPractices = () => {
     return (
         <>
+            <Helmet>
+                <title>
+                    Security practices | How it works |{" "}
+                    {process.env.REACT_APP_TITLE}
+                </title>
+            </Helmet>
             <section id="anchor-top">
-                <h1 className="margin-top-0">
-                    Security practices
-                </h1>
-                <p className="usa-intro">Get answers to common questions about ReportStream security and data practices.</p>
-
-
+                <h1 className="margin-top-0">Security practices</h1>
+                <p className="usa-intro">
+                    Get answers to common questions about ReportStream security
+                    and data practices.
+                </p>
             </section>
             <hr className="margin-y-6" />
             <section>
@@ -17,25 +23,39 @@ export const SecurityPractices = () => {
                     Does ReportStream have security audits and attestations?
                 </h2>
                 <p>
-                    As a project of the U.S. federal government, ReportStream complies
-                    with the Federal Information System Modernization Act (FISMA) of 2014.
+                    As a project of the U.S. federal government, ReportStream
+                    complies with the Federal Information System Modernization
+                    Act (FISMA) of 2014.
                 </p>
                 <p>
-                    FISMA sets standards and requires federal agencies to implement information
-                    security plans to protect sensitive data. FISMA and the National Institute of
-                    Standards and Technology (NIST) set the FISMA compliance guidelines.
-                    More specifically, NIST guidelines:
+                    FISMA sets standards and requires federal agencies to
+                    implement information security plans to protect sensitive
+                    data. FISMA and the National Institute of Standards and
+                    Technology (NIST) set the FISMA compliance guidelines. More
+                    specifically, NIST guidelines:
                 </p>
                 <ul>
-                    <li>Set minimum requirements for information security plans and procedures.</li>
-                    <li>Recommend security systems, software, etc. that agencies must implement and approve.</li>
-                    <li>Standardize the risk assessment process and set varying standards of information security based on agency risk assessments.</li>
+                    <li>
+                        Set minimum requirements for information security plans
+                        and procedures.
+                    </li>
+                    <li>
+                        Recommend security systems, software, etc. that agencies
+                        must implement and approve.
+                    </li>
+                    <li>
+                        Standardize the risk assessment process and set varying
+                        standards of information security based on agency risk
+                        assessments.
+                    </li>
                 </ul>
                 <p>
-                    As part of the FISMA process, ReportStream has full authority to operate (ATO).
-                    This authority was granted by CDC’s Chief Information Officer/Authorizing Official
-                    after an extensive review process documenting over 500 security controls,
-                    reviews by multiple teams, and penetration testing by third parties.
+                    As part of the FISMA process, ReportStream has full
+                    authority to operate (ATO). This authority was granted by
+                    CDC’s Chief Information Officer/Authorizing Official after
+                    an extensive review process documenting over 500 security
+                    controls, reviews by multiple teams, and penetration testing
+                    by third parties.
                 </p>
                 <p>
                     TLearn more about the FISMA process and the{" "}
@@ -63,7 +83,8 @@ export const SecurityPractices = () => {
 
                 <h2>How is ReportStream hosted?</h2>
                 <p>
-                    ReportStream is hosted in a secured FedRAMP accredited environment.
+                    ReportStream is hosted in a secured FedRAMP accredited
+                    environment.
                 </p>
 
                 <h2>Is ReportStream data encrypted in transit?</h2>
@@ -111,17 +132,22 @@ export const SecurityPractices = () => {
 
                 <h2>How long is data stored?</h2>
                 <p>
-                    ReportStream is a data conduit , not a store of record. However,
-                    to operate reliably, it is necessary to temporarily retain data in ReportStream.
-                    The current retention period for test results and other personal identifiable
-                    information (PII) and  protected health information (PHI) is 30 days.
+                    ReportStream is a data conduit , not a store of record.
+                    However, to operate reliably, it is necessary to temporarily
+                    retain data in ReportStream. The current retention period
+                    for test results and other personal identifiable information
+                    (PII) and protected health information (PHI) is 30 days.
                 </p>
 
                 <h2>Does ReportStream have terms of service?</h2>
                 <p>
-                    All organizations that send and receive test results through ReportStream
-                    to public health agencies are governed under these{" "}
-                    <Link to="/terms-of-service" className="usa-link">terms of service</Link>.
+                    All organizations that send and receive test results through
+                    ReportStream to public health agencies are governed under
+                    these{" "}
+                    <Link to="/terms-of-service" className="usa-link">
+                        terms of service
+                    </Link>
+                    .
                 </p>
 
                 <p className="margin-top-8">

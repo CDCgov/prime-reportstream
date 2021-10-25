@@ -12,12 +12,21 @@ resource "azurerm_app_service" "metabase" {
       priority                  = 100
       virtual_network_subnet_id = data.azurerm_subnet.public.id
     }
+
+    ip_restriction {
+      action                    = "Allow"
+      name                      = "AllowVNetEastTraffic"
+      priority                  = 100
+      virtual_network_subnet_id = data.azurerm_subnet.public_subnet.id
+    }
+
     ip_restriction {
       action      = "Allow"
       name        = "AllowFrontDoorTraffic"
       priority    = 110
       service_tag = "AzureFrontDoor.Backend"
     }
+
     scm_use_main_ip_restriction = true
 
     always_on        = true
@@ -25,8 +34,14 @@ resource "azurerm_app_service" "metabase" {
   }
 
   app_settings = {
-    "MB_DB_CONNECTION_URI"                = "postgresql://${data.azurerm_postgresql_server.postgres_server.name}.postgres.database.azure.com:5432/metabase?user=${data.azurerm_key_vault_secret.postgres_user.value}@${data.azurerm_postgresql_server.postgres_server.name}&password=${data.azurerm_key_vault_secret.postgres_pass.value}&sslmode=require&ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory"
-    "WEBSITE_VNET_ROUTE_ALL"              = 1
+    "MB_DB_CONNECTION_URI" = "postgresql://${data.azurerm_postgresql_server.postgres_server.name}.postgres.database.azure.com:5432/metabase?user=${data.azurerm_key_vault_secret.postgres_user.value}@${data.azurerm_postgresql_server.postgres_server.name}&password=${data.azurerm_key_vault_secret.postgres_pass.value}&sslmode=require&ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory"
+
+    # Route outbound traffic through the VNET
+    "WEBSITE_VNET_ROUTE_ALL" = 1
+
+    # Use the VNET DNS server (so we receive private endpoint URLs)
+    "WEBSITE_DNS_SERVER" = "168.63.129.16"
+
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE" = false
 
     # App Insights
@@ -47,5 +62,5 @@ resource "azurerm_app_service" "metabase" {
 
 resource "azurerm_app_service_virtual_network_swift_connection" "metabase_vnet_integration" {
   app_service_id = azurerm_app_service.metabase.id
-  subnet_id      = var.environment != "prod" ? data.azurerm_subnet.public_subnet.id : data.azurerm_subnet.public.id
+  subnet_id      = var.use_cdc_managed_vnet ? data.azurerm_subnet.public_subnet.id : data.azurerm_subnet.public.id
 }

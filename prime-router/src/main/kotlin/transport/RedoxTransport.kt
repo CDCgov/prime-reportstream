@@ -68,8 +68,8 @@ class RedoxTransport() : ITransport, SecretManagement {
                 val itemId = "${header.reportFile.reportId}-$index"
                 val sendResult = when {
                     (retryItems == null) ||
-                        RetryToken.isAllItems(retryItems)
-                        || retryItems.contains(index.toString())
+                        RetryToken.isAllItems(retryItems) ||
+                        retryItems.contains(index.toString())
                     -> {
                         attemptedCount++
                         try {
@@ -100,7 +100,7 @@ class RedoxTransport() : ITransport, SecretManagement {
             if (successCount == 0) {
                 nextRetryItems = (retryItems ?: RetryToken.allItems) as MutableList<String>
                 // If even one redox message got through, we'll call that 'send' rather than send_error
-                actionHistory.setActionType(TaskAction.send_error)
+                actionHistory.setActionType(TaskAction.send_warning)
             }
         } finally {
             val statusStr = when {

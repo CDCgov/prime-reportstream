@@ -3,6 +3,7 @@ package gov.cdc.prime.router.cli.tests
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.ajalt.clikt.core.PrintMessage
+import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.HttpUtilities
@@ -18,7 +19,7 @@ import gov.cdc.prime.router.tokens.DatabaseJtiCache
 import gov.cdc.prime.router.tokens.SenderUtils
 import java.io.File
 import java.time.OffsetDateTime
-import java.util.*
+import java.util.UUID
 
 /**
  *
@@ -56,6 +57,7 @@ class WatersAuthTests : CoolTest() {
             organizationName = organization,
             format = Sender.Format.CSV,
             topic = "covid-19",
+            customerStatus = CustomerStatus.INACTIVE,
             schemaName = "primedatainput/pdi-covid-19"
         )
 

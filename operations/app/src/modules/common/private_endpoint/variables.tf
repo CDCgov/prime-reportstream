@@ -23,7 +23,12 @@ variable "location" {
   description = "Network Location"
 }
 
-variable "endpoint_subnet_id" {
+variable "endpoint_subnet_ids" {
+  type        = list(string)
+  description = "Private Endpoint Subnet ID(s)"
+}
+
+variable "endpoint_subnet_id_for_dns" {
   type        = string
-  description = "Private Endpoint Subnet ID"
+  description = "The endpoint the DNS record should point to"
 }

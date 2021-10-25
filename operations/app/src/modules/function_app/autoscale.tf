@@ -1,5 +1,5 @@
 resource "azurerm_monitor_autoscale_setting" "app_autoscale" {
-  count               = (var.environment == "prod" ? 1 : 0)
+  count               = 1
   name                = "${var.resource_prefix}-appautoscale"
   resource_group_name = var.resource_group
   location            = var.location
@@ -9,8 +9,8 @@ resource "azurerm_monitor_autoscale_setting" "app_autoscale" {
     name = "ScaleOnHighLoad"
 
     capacity {
-      default = 1
-      minimum = 1
+      default = 2
+      minimum = 2
       maximum = 20
     }
 
@@ -23,14 +23,14 @@ resource "azurerm_monitor_autoscale_setting" "app_autoscale" {
         time_window        = "PT5M"
         time_aggregation   = "Average"
         operator           = "GreaterThan"
-        threshold          = 75
+        threshold          = 70
       }
 
       scale_action {
         direction = "Increase"
         type      = "ChangeCount"
         value     = "1"
-        cooldown  = "PT5M"
+        cooldown  = "PT1M"
       }
     }
 
@@ -63,7 +63,7 @@ resource "azurerm_monitor_autoscale_setting" "app_autoscale" {
         time_window        = "PT5M"
         time_aggregation   = "Average"
         operator           = "GreaterThan"
-        threshold          = 90
+        threshold          = 85
       }
 
       scale_action {

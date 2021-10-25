@@ -7,7 +7,7 @@ resource "azurerm_postgresql_server" "postgres_server" {
   administrator_login          = data.azurerm_key_vault_secret.postgres_user.value
   administrator_login_password = data.azurerm_key_vault_secret.postgres_pass.value
 
-  sku_name   = "GP_Gen5_4"
+  sku_name   = "GP_Gen5_16"
   version    = "11"
   storage_mb = 5120
 
@@ -41,23 +41,19 @@ resource "azurerm_postgresql_server" "postgres_server" {
 }
 
 module "postgres_private_endpoint" {
-  source             = "../common/private_endpoint"
-  resource_id        = azurerm_postgresql_server.postgres_server.id
-  name               = azurerm_postgresql_server.postgres_server.name
-  type               = "postgres_server"
-  resource_group     = var.resource_group
-  location           = var.location
-  endpoint_subnet_id = data.azurerm_subnet.endpoint.id
-}
+  source         = "../common/private_endpoint"
+  resource_id    = azurerm_postgresql_server.postgres_server.id
+  name           = azurerm_postgresql_server.postgres_server.name
+  type           = "postgres_server"
+  resource_group = var.resource_group
+  location       = var.location
 
-module "postgres_server_private_endpoint" {
-  source             = "../common/private_endpoint"
-  resource_id        = azurerm_postgresql_server.postgres_server.id
-  name               = azurerm_postgresql_server.postgres_server.name
-  type               = "postgres_server"
-  resource_group     = var.resource_group
-  location           = var.location
-  endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet_east.id
+  endpoint_subnet_ids = [
+    data.azurerm_subnet.endpoint.id,
+    data.azurerm_subnet.endpoint_subnet_east.id,
+  ]
+
+  endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? data.azurerm_subnet.endpoint_subnet_east.id : data.azurerm_subnet.endpoint.id
 }
 
 
@@ -73,7 +69,7 @@ resource "azurerm_postgresql_server" "postgres_server_replica" {
   create_mode               = "Replica"
   creation_source_server_id = azurerm_postgresql_server.postgres_server.id
 
-  sku_name   = "GP_Gen5_4"
+  sku_name   = "GP_Gen5_16"
   version    = "11"
   storage_mb = 5120
 
@@ -107,23 +103,19 @@ resource "azurerm_postgresql_server" "postgres_server_replica" {
 }
 
 module "postgres_private_endpoint_replica" {
-  source             = "../common/private_endpoint"
-  resource_id        = azurerm_postgresql_server.postgres_server_replica.id
-  name               = azurerm_postgresql_server.postgres_server_replica.name
-  type               = "postgres_server"
-  resource_group     = var.resource_group
-  location           = azurerm_postgresql_server.postgres_server_replica.location
-  endpoint_subnet_id = data.azurerm_subnet.endpoint_replica.id
-}
+  source         = "../common/private_endpoint"
+  resource_id    = azurerm_postgresql_server.postgres_server_replica.id
+  name           = azurerm_postgresql_server.postgres_server_replica.name
+  type           = "postgres_server"
+  resource_group = var.resource_group
+  location       = azurerm_postgresql_server.postgres_server_replica.location
 
-module "postgres_server_private_endpoint_replica" {
-  source             = "../common/private_endpoint"
-  resource_id        = azurerm_postgresql_server.postgres_server_replica.id
-  name               = azurerm_postgresql_server.postgres_server_replica.name
-  type               = "postgres_server"
-  resource_group     = var.resource_group
-  location           = azurerm_postgresql_server.postgres_server_replica.location
-  endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet_west.id
+  endpoint_subnet_ids = [
+    data.azurerm_subnet.endpoint_replica.id,
+    data.azurerm_subnet.endpoint_subnet_west.id,
+  ]
+
+  endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? data.azurerm_subnet.endpoint_subnet_west.id : data.azurerm_subnet.endpoint_replica.id
 }
 
 

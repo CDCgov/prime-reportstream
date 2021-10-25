@@ -21,6 +21,7 @@ import gov.cdc.prime.router.serializers.Hl7Serializer
 import gov.cdc.prime.router.serializers.RedoxSerializer
 import gov.cdc.prime.router.transport.AS2Transport
 import gov.cdc.prime.router.transport.BlobStoreTransport
+import gov.cdc.prime.router.transport.FTPSTransport
 import gov.cdc.prime.router.transport.RedoxTransport
 import gov.cdc.prime.router.transport.RetryItems
 import gov.cdc.prime.router.transport.RetryToken
@@ -52,7 +53,8 @@ class WorkflowEngine(
     val queue: QueueAccess = QueueAccess,
     val sftpTransport: SftpTransport = SftpTransport(),
     val redoxTransport: RedoxTransport = RedoxTransport(),
-    val as2Transport: AS2Transport = AS2Transport()
+    val as2Transport: AS2Transport = AS2Transport(),
+    val ftpsTransport: FTPSTransport = FTPSTransport(),
 ) {
     val blobStoreTransport: BlobStoreTransport = BlobStoreTransport(this)
 
@@ -440,13 +442,14 @@ class WorkflowEngine(
         reportFile: ReportFile,
         itemLineages: List<ItemLineage>?,
         organization: Organization?,
-        receiver: Receiver?
+        receiver: Receiver?,
+        fetchBlobBody: Boolean = true
     ): Header {
         val schema = if (reportFile.schemaName != null)
             metadata.findSchema(reportFile.schemaName)
         else null
 
-        val content = if (reportFile.bodyUrl != null)
+        val content = if (reportFile.bodyUrl != null && fetchBlobBody)
             blob.downloadBlob(reportFile.bodyUrl)
         else null
         return Header(task, reportFile, itemLineages, organization, receiver, schema, content)
@@ -455,6 +458,7 @@ class WorkflowEngine(
     fun fetchHeader(
         reportId: ReportId,
         organization: Organization,
+        fetchBlobBody: Boolean = true
     ): Header {
         val reportFile = db.fetchReportFile(reportId, organization)
         val task = db.fetchTask(reportId)
@@ -465,7 +469,7 @@ class WorkflowEngine(
         // todo remove this sanity check
         ActionHistory.sanityCheckReport(task, reportFile, false)
         val itemLineages = db.fetchItemLineagesForReport(reportId, reportFile.itemCount)
-        return createHeader(task, reportFile, itemLineages, organization, receiver)
+        return createHeader(task, reportFile, itemLineages, organization, receiver, fetchBlobBody)
     }
 
     /**

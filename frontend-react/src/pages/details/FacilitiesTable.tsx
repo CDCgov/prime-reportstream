@@ -1,18 +1,24 @@
-import ReportResource from '../../resources/ReportResource';
+import { useResource } from "rest-hooks";
+
+import FacilityResource from "../../resources/FacilityResource";
 
 interface Props {
     /* REQUIRED
     Passing in a report allows this component to map through the facilities property
     to display a row per facility on the FaclitiesTable. */
-    report: ReportResource | undefined
+    reportId: string;
 }
 
 function FacilitiesTable(props: Props) {
-    const { report } = props
+    const { reportId }: Props = props;
+    const facilities: FacilityResource[] = useResource(
+        FacilityResource.list(),
+        { reportId: reportId }
+    );
 
     return (
         <section id="facilities" className="grid-container margin-bottom-5">
-            <h2>Facilities reporting ({report!.facilities.length})</h2>
+            <h2>Facilities reporting ({facilities.length})</h2>
             <table
                 id="facilitiestable"
                 className="usa-table usa-table--borderless prime-table"
@@ -28,7 +34,7 @@ function FacilitiesTable(props: Props) {
                     </tr>
                 </thead>
                 <tbody id="tBodyFac" className="font-mono-2xs">
-                    {report!.facilities.map((facility) => (
+                    {facilities.map((facility) => (
                         <tr key={facility.CLIA}>
                             <td>{facility.facility}</td>
                             <td>
@@ -48,4 +54,4 @@ function FacilitiesTable(props: Props) {
     );
 }
 
-export default FacilitiesTable
+export default FacilitiesTable;

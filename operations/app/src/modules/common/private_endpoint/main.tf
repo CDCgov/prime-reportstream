@@ -39,46 +39,38 @@ locals {
     },
   }
 
-  option        = local.options[var.type] # Make options a little easier to reference
-  endpoint_name = "${var.name}-${var.type}-${substr(sha1(var.endpoint_subnet_id), 0, 8)}"
+  # Set a consistent endpoint name
+  endpoint_names = { for subnet_id in var.endpoint_subnet_ids : subnet_id => "${var.name}-${var.type}-${substr(sha1(subnet_id), 0, 9)}" }
+
+  # Make options a little easier to reference
+  option = local.options[var.type]
 }
 
 resource "azurerm_private_endpoint" "endpoint" {
-  name                = local.endpoint_name
+  for_each = toset(var.endpoint_subnet_ids)
+
+  name                = local.endpoint_names[each.value]
   location            = var.location
   resource_group_name = var.resource_group
-  subnet_id           = var.endpoint_subnet_id
+  subnet_id           = each.value
 
   # Associate the endpoint with the service
   private_service_connection {
-    name                           = local.endpoint_name
+    name                           = local.endpoint_names[each.value]
     private_connection_resource_id = var.resource_id
     is_manual_connection           = false
     subresource_names              = local.option.subresource_names
   }
-
-  # Automatically register the private endpoint in the private DNS zones
-  dynamic "private_dns_zone_group" {
-    for_each = [0] # DNS needed for all zones. For each block retained to keep existing resource paths.
-    content {
-      name                 = local.endpoint_name
-      private_dns_zone_ids = [for dns_zone in data.azurerm_private_dns_zone.private_dns_cname : dns_zone.id]
-    }
-  }
-
-  lifecycle {
-    ignore_changes = [
-      # Added the subnet id to new private endpoints to avoid collisions, but we don't want to rename existing endpoints
-      name,
-      private_service_connection[0].name,
-      private_dns_zone_group[0].name,
-    ]
-  }
 }
 
-# These are Azure's private link CNAMES
-data "azurerm_private_dns_zone" "private_dns_cname" {
-  for_each            = toset(local.option.cnames_private)
-  name                = each.value
+# An A record is used specifically because azurerm_private_endpoint.private_dns_zone_group has an order-of-operations issue with multiple private endpoints
+resource "azurerm_private_dns_a_record" "endpoint_dns" {
+  for_each = toset(local.option.cnames_private)
+
+  name                = var.name
   resource_group_name = var.resource_group
+  zone_name           = each.value
+
+  records = azurerm_private_endpoint.endpoint[var.endpoint_subnet_id_for_dns].custom_dns_configs[0].ip_addresses
+  ttl     = 60
 }

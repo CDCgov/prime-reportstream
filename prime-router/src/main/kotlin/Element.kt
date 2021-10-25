@@ -15,6 +15,8 @@ import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 import java.util.Locale
 
+class AltValueNotDefinedException(message: String) : IllegalStateException(message)
+
 /**
  * An element is represents a data element (ie. a single logical value) that is contained in single row
  * of a report. A set of Elements form the main content of a Schema.
@@ -55,6 +57,7 @@ data class Element(
     val maxLength: Int? = null, // used to truncate outgoing formatted String fields.  null == no length limit.
     val default: String? = null,
     val mapper: String? = null,
+    val mapperOverridesValue: Boolean? = null,
     val mapperRef: Mapper? = null, // set during fixup
     val mapperArgs: List<String>? = null, // set during fixup
 
@@ -169,14 +172,20 @@ data class Element(
 
     val isCodeType get() = this.type == Type.CODE
 
-    val isOptional get() = this.cardinality == null ||
-        this.cardinality == Cardinality.ZERO_OR_ONE || canBeBlank
+    val isOptional
+        get() = this.cardinality == null ||
+            this.cardinality == ZERO_OR_ONE || canBeBlank
 
     val canBeBlank
         get() = type == Type.TEXT_OR_BLANK ||
             type == Type.STREET_OR_BLANK ||
             type == Type.TABLE_OR_BLANK ||
             type == Type.BLANK
+
+    /**
+     * True if this element has a table lookup.
+     */
+    val isTableLookup get() = mapperRef != null && type == Type.TABLE
 
     // Creates a field mapping string showing the external CSV header name(s)
     // and the corresponding internal field name
@@ -195,6 +204,7 @@ data class Element(
             phi = this.phi ?: baseElement.phi,
             maxLength = this.maxLength ?: baseElement.maxLength,
             mapper = this.mapper ?: baseElement.mapper,
+            mapperOverridesValue = this.mapperOverridesValue ?: baseElement.mapperOverridesValue,
             default = this.default ?: baseElement.default,
             reference = this.reference ?: baseElement.reference,
             referenceUrl = this.referenceUrl ?: baseElement.referenceUrl,
@@ -232,8 +242,8 @@ data class Element(
      * The format string's value is specific to the type of the element.
      */
     fun toFormatted(
-        normalizedValue: String,
-        format: String? = null
+        normalizedValue: kotlin.String,
+        format: kotlin.String? = null,
     ): String {
         if (normalizedValue.isEmpty()) return ""
         val formattedValue = when (type) {
@@ -261,7 +271,10 @@ data class Element(
                     // TODO Revisit: there may be times that normalizedValue is not an altValue
                     altDisplayToken ->
                         toAltDisplay(normalizedValue)
-                            ?: error("Schema Error: '$normalizedValue' is not in altValues set for $fieldMapping")
+                            ?: throw AltValueNotDefinedException(
+                                "Outgoing receiver schema problem:" +
+                                    " '$normalizedValue' is not in altValues set for $fieldMapping."
+                            )
                     codeToken ->
                         toCode(normalizedValue)
                             ?: error(
@@ -386,8 +399,8 @@ data class Element(
     /**
      * Take a formatted value and check to see if can be stored in a report.
      */
-    fun checkForError(formattedValue: String, format: String? = null): String? {
-        if (formattedValue.isBlank() && !isOptional && !canBeBlank) return "Blank value for element $fieldMapping"
+    fun checkForError(formattedValue: String, format: String? = null): ResponseMessage? {
+        if (formattedValue.isBlank() && !isOptional && !canBeBlank) return MissingFieldMessage.new(fieldMapping)
         return when (type) {
             Type.DATE -> {
                 try {
@@ -408,7 +421,7 @@ data class Element(
                     LocalDate.from(ta)
                     return null
                 } catch (e: DateTimeParseException) {
-                    "Invalid date: '$formattedValue' for element $fieldMapping"
+                    InvalidDateMessage.new(formattedValue, fieldMapping, format)
                 }
             }
             Type.DATETIME -> {
@@ -449,28 +462,28 @@ data class Element(
                     LocalDate.parse(formattedValue, formatter)
                     null
                 } catch (e: DateTimeParseException) {
-                    "Invalid date time: '$formattedValue' for element $fieldMapping"
+                    InvalidDateMessage.new(formattedValue, fieldMapping, format)
                 }
             }
             Type.CODE -> {
                 // First, prioritize use of a local $alt format, even if no value set exists.
                 return if (format == altDisplayToken) {
                     if (toAltCode(formattedValue) != null) null else
-                        "Invalid code: '$formattedValue' is not a display value in altValues set for $fieldMapping"
+                        InvalidCodeMessage.new(formattedValue, fieldMapping, format)
                 } else {
                     if (valueSetRef == null) error("Schema Error: missing value set for $fieldMapping")
                     when (format) {
                         displayToken ->
                             if (valueSetRef.toCodeFromDisplay(formattedValue) != null) null else
-                                "Invalid code: '$formattedValue' not a display value for element $fieldMapping"
+                                InvalidCodeMessage.new(formattedValue, fieldMapping, format)
                         codeToken -> {
                             val values = altValues ?: valueSetRef.values
                             if (values.find { it.code == formattedValue } != null) null else
-                                "Invalid code: '$formattedValue' is not a code value for element $fieldMapping"
+                                InvalidCodeMessage.new(formattedValue, fieldMapping, format)
                         }
                         else ->
                             if (valueSetRef.toNormalizedCode(formattedValue) != null) null else
-                                "Invalid code: '$formattedValue' does not match any codes for $fieldMapping"
+                                InvalidCodeMessage.new(formattedValue, fieldMapping, format)
                     }
                 }
             }
@@ -480,17 +493,17 @@ data class Element(
                     // this then causes a report level failure, not an element level failure
                     val number = phoneNumberUtil.parse(formattedValue, "US")
                     if (!number.hasNationalNumber() || number.nationalNumber > 9999999999L)
-                        "Invalid phone number '$formattedValue' for $fieldMapping"
+                        InvalidPhoneMessage.new(formattedValue, fieldMapping)
                     else
                         null
                 } catch (ex: Exception) {
-                    "Invalid phone number '$formattedValue' for $fieldMapping"
+                    InvalidPhoneMessage.new(formattedValue, fieldMapping)
                 }
             }
             Type.POSTAL_CODE -> {
                 // Let in all formats defined by http://www.dhl.com.tw/content/dam/downloads/tw/express/forms/postcode_formats.pdf
                 return if (!Regex("^[A-Za-z\\d\\- ]{3,12}\$").matches(formattedValue))
-                    "Invalid postal code '$formattedValue' for $fieldMapping"
+                    InvalidPostalMessage.new(formattedValue, fieldMapping, format)
                 else
                     null
             }
@@ -502,9 +515,9 @@ data class Element(
                     hdSystemToken -> null
                     hdCompleteFormat -> {
                         val parts = formattedValue.split(hdDelimiter)
-                        if (parts.size == 1 || parts.size == 3) null else "Invalid HD format"
+                        if (parts.size == 1 || parts.size == 3) null else UnsupportedHDMessage.new()
                     }
-                    else -> "Unsupported HD format for input: '$format' in $fieldMapping"
+                    else -> UnsupportedHDMessage.new(format, fieldMapping)
                 }
             }
             Type.EI -> {
@@ -515,9 +528,9 @@ data class Element(
                     eiSystemToken -> null
                     eiCompleteFormat -> {
                         val parts = formattedValue.split(eiDelimiter)
-                        if (parts.size == 1 || parts.size == 4) null else "Invalid EI format"
+                        if (parts.size == 1 || parts.size == 4) null else UnsupportedEIMessage.new()
                     }
-                    else -> "Unsupported EI format for input: '$format' in $fieldMapping"
+                    else -> UnsupportedEIMessage.new(format, fieldMapping)
                 }
             }
 
@@ -757,6 +770,72 @@ data class Element(
             code.equals(it.code, ignoreCase = true) || code.equals(it.replaces, ignoreCase = true)
         } ?: values.find { "*" == it.code }
         return codeValue?.code
+    }
+
+    /**
+     * Determines if an element needs to use a mapper given the [elementValue].
+     * @return true if a mapper needs to be run
+     */
+    fun useMapper(elementValue: String): Boolean {
+        val overrideValue = mapperOverridesValue != null && mapperOverridesValue
+        return mapperRef != null && (overrideValue || elementValue.isBlank())
+    }
+
+    /**
+     * Determines if an element needs to use a default given the [elementValue].
+     * @return true if a default needs to be used
+     */
+    fun useDefault(elementValue: String): Boolean {
+        return elementValue.isBlank()
+    }
+
+    /**
+     * Determine the value for this element based on the schema configuration.  This function checks if a
+     * mapper needs to be run or if a default needs to be applied.
+     * @param allElementValues the values for all other elements.  Used for the mappers.
+     * @param schema the schema
+     * @param defaultOverrides element name and value pairs of defaults that override schema defaults
+     * @return a mutable set with the processed value or empty string
+     */
+    fun processValue(
+        allElementValues: Map<String, String>,
+        schema: Schema,
+        defaultOverrides: Map<String, String> = emptyMap()
+    ): String {
+        var retVal = if (allElementValues[name].isNullOrEmpty()) "" else allElementValues[name]!!
+        if (useMapper(retVal)) {
+            // This gets the requiredvalue names, then gets the value from mappedRows that has the data
+            val args = mapperArgs ?: emptyList()
+            val valueNames = mapperRef?.valueNames(this, args) ?: emptyList()
+            val valuesForMapper = valueNames.mapNotNull { elementName ->
+                val valueElement = schema.findElement(elementName)
+                if (valueElement != null && allElementValues.containsKey(elementName) &&
+                    !allElementValues[elementName].isNullOrEmpty()
+                ) {
+                    ElementAndValue(valueElement, allElementValues[elementName]!!)
+                } else {
+                    null
+                }
+            }
+            // Only overwrite an existing value if the mapper returns a string
+            val value = mapperRef?.apply(this, args, valuesForMapper)
+            if (!value.isNullOrBlank()) {
+                retVal = value
+            }
+        }
+
+        // Finally, add a default value or empty string to elements that still have a null value.
+        if (useDefault(retVal)) {
+            retVal = if (defaultOverrides.containsKey(name)) {
+                defaultOverrides[name] ?: ""
+            } else if (!default.isNullOrBlank()) {
+                default
+            } else {
+                ""
+            }
+        }
+
+        return retVal
     }
 
     companion object {

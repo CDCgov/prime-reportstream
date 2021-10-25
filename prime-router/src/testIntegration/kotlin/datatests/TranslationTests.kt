@@ -202,12 +202,21 @@ class TranslationTests {
                 if (!config.shouldPass && result.passed) result.errors.add("Test was expected to fail, but passed.")
                 assertEquals(
                     config.shouldPass, result.passed,
-                    "${result.errors.joinToString("\n")}\n" +
-                        result.warnings.joinToString("\n")
+                    result.errors.joinToString("\n", "ERRORS:${System.lineSeparator()}") +
+                        result.warnings.joinToString("\n", "WARNINGS:${System.lineSeparator()}")
                 )
                 // Print the errors and warnings after the test completed successfully.
-                if (result.errors.isNotEmpty()) println(result.errors.joinToString("\n", "ERRORS: "))
-                if (result.warnings.isNotEmpty()) println(result.warnings.joinToString("\n", "WARNINGS: "))
+                if (result.errors.isNotEmpty()) println(
+                    result.errors
+                        .joinToString("\n", "ERRORS:${System.lineSeparator()}")
+
+                )
+                if (result.warnings.isNotEmpty()) println(
+                    result.warnings
+                        .joinToString(
+                            "\n", "WARNINGS:${System.lineSeparator()}"
+                        )
+                )
             } else if (inputStream == null) {
                 fail("The file ${config.inputFile} was not found.")
             } else {
@@ -233,8 +242,8 @@ class TranslationTests {
                         input,
                         TestSource
                     )
-                    readResult.errors.forEach { result.errors.add(it.details) }
-                    readResult.warnings.forEach { result.warnings.add(it.details) }
+                    readResult.errors.forEach { result.errors.add(it.responseMessage.detailMsg()) }
+                    readResult.warnings.forEach { result.warnings.add(it.responseMessage.detailMsg()) }
                     result.passed = readResult.errors.isEmpty()
                     readResult.report
                 }
@@ -252,8 +261,8 @@ class TranslationTests {
                         input,
                         TestSource
                     )
-                    readResult.errors.forEach { result.errors.add(it.details) }
-                    readResult.warnings.forEach { result.warnings.add(it.details) }
+                    readResult.errors.forEach { result.errors.add(it.responseMessage.detailMsg()) }
+                    readResult.warnings.forEach { result.warnings.add(it.responseMessage.detailMsg()) }
                     result.passed = readResult.errors.isEmpty()
                     readResult.report
                 }

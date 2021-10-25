@@ -22,7 +22,14 @@ resource "azurerm_key_vault" "application" {
       [var.terraform_caller_ip_address],
     ))
 
-    virtual_network_subnet_ids = []
+    virtual_network_subnet_ids = [
+      data.azurerm_subnet.public.id,
+      data.azurerm_subnet.container.id,
+      data.azurerm_subnet.endpoint.id,
+      data.azurerm_subnet.public_subnet.id,
+      data.azurerm_subnet.container_subnet.id,
+      data.azurerm_subnet.endpoint_subnet.id,
+    ]
   }
 
   lifecycle {
@@ -107,23 +114,19 @@ resource "azurerm_key_vault_access_policy" "terraform_access_policy" {
 }
 
 module "application_private_endpoint" {
-  source             = "../common/private_endpoint"
-  resource_id        = azurerm_key_vault.application.id
-  name               = azurerm_key_vault.application.name
-  type               = "key_vault"
-  resource_group     = var.resource_group
-  location           = var.location
-  endpoint_subnet_id = data.azurerm_subnet.endpoint.id
-}
+  source         = "../common/private_endpoint"
+  resource_id    = azurerm_key_vault.application.id
+  name           = azurerm_key_vault.application.name
+  type           = "key_vault"
+  resource_group = var.resource_group
+  location       = var.location
 
-module "application_vault_private_endpoint" {
-  source             = "../common/private_endpoint"
-  resource_id        = azurerm_key_vault.application.id
-  name               = azurerm_key_vault.application.name
-  type               = "key_vault"
-  resource_group     = var.resource_group
-  location           = var.location
-  endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet.id
+  endpoint_subnet_ids = [
+    data.azurerm_subnet.endpoint.id,
+    data.azurerm_subnet.endpoint_subnet.id,
+  ]
+
+  endpoint_subnet_id_for_dns = data.azurerm_subnet.endpoint.id
 }
 
 resource "azurerm_key_vault" "app_config" {
@@ -147,7 +150,14 @@ resource "azurerm_key_vault" "app_config" {
       [var.terraform_caller_ip_address],
     ))
 
-    virtual_network_subnet_ids = []
+    virtual_network_subnet_ids = [
+      data.azurerm_subnet.public.id,
+      data.azurerm_subnet.container.id,
+      data.azurerm_subnet.endpoint.id,
+      data.azurerm_subnet.public_subnet.id,
+      data.azurerm_subnet.container_subnet.id,
+      data.azurerm_subnet.endpoint_subnet.id,
+    ]
   }
 
   lifecycle {
@@ -190,24 +200,21 @@ resource "azurerm_key_vault_access_policy" "terraform_app_config_access_policy" 
 }
 
 module "app_config_private_endpoint" {
-  source             = "../common/private_endpoint"
-  resource_id        = azurerm_key_vault.app_config.id
-  name               = azurerm_key_vault.app_config.name
-  type               = "key_vault"
-  resource_group     = var.resource_group
-  location           = var.location
-  endpoint_subnet_id = data.azurerm_subnet.endpoint.id
+  source         = "../common/private_endpoint"
+  resource_id    = azurerm_key_vault.app_config.id
+  name           = azurerm_key_vault.app_config.name
+  type           = "key_vault"
+  resource_group = var.resource_group
+  location       = var.location
+
+  endpoint_subnet_ids = [
+    data.azurerm_subnet.endpoint.id,
+    data.azurerm_subnet.endpoint_subnet.id,
+  ]
+
+  endpoint_subnet_id_for_dns = data.azurerm_subnet.endpoint.id
 }
 
-module "app_config_vault_private_endpoint" {
-  source             = "../common/private_endpoint"
-  resource_id        = azurerm_key_vault.app_config.id
-  name               = azurerm_key_vault.app_config.name
-  type               = "key_vault"
-  resource_group     = var.resource_group
-  location           = var.location
-  endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet.id
-}
 
 resource "azurerm_key_vault" "client_config" {
   # Does not include "-keyvault" due to char limits (24)
@@ -231,7 +238,14 @@ resource "azurerm_key_vault" "client_config" {
       [var.terraform_caller_ip_address],
     ))
 
-    virtual_network_subnet_ids = []
+    virtual_network_subnet_ids = [
+      data.azurerm_subnet.public.id,
+      data.azurerm_subnet.container.id,
+      data.azurerm_subnet.endpoint.id,
+      data.azurerm_subnet.public_subnet.id,
+      data.azurerm_subnet.container_subnet.id,
+      data.azurerm_subnet.endpoint_subnet.id,
+    ]
   }
 
   lifecycle {
@@ -264,21 +278,17 @@ resource "azurerm_key_vault_access_policy" "dev_client_config_access_policy" {
 }
 
 module "client_config_private_endpoint" {
-  source             = "../common/private_endpoint"
-  resource_id        = azurerm_key_vault.client_config.id
-  name               = azurerm_key_vault.client_config.name
-  type               = "key_vault"
-  resource_group     = var.resource_group
-  location           = var.location
-  endpoint_subnet_id = data.azurerm_subnet.endpoint.id
-}
+  source         = "../common/private_endpoint"
+  resource_id    = azurerm_key_vault.client_config.id
+  name           = azurerm_key_vault.client_config.name
+  type           = "key_vault"
+  resource_group = var.resource_group
+  location       = var.location
 
-module "client_config_vault_private_endpoint" {
-  source             = "../common/private_endpoint"
-  resource_id        = azurerm_key_vault.client_config.id
-  name               = azurerm_key_vault.client_config.name
-  type               = "key_vault"
-  resource_group     = var.resource_group
-  location           = var.location
-  endpoint_subnet_id = data.azurerm_subnet.endpoint_subnet.id
+  endpoint_subnet_ids = [
+    data.azurerm_subnet.endpoint.id,
+    data.azurerm_subnet.endpoint_subnet.id,
+  ]
+
+  endpoint_subnet_id_for_dns = data.azurerm_subnet.endpoint.id
 }
