@@ -589,10 +589,15 @@ class Hl7Serializer(
             }
         }
 
+        // look for CLIA resets
         if (!hl7Config?.setCLIAForSender.isNullOrEmpty()) {
+            // get sender id for the record
             val senderID = report.getString(row, "sender_id")
+
+            // find that sender in the map
             val clia = hl7Config?.setCLIAForSender?.get(senderID)
 
+            // if the sender needs should have a specific CLIA then overwrite the CLIA here
             if (!clia.isNullOrEmpty()) {
                 val sendingFacilityID = "MSH-4-2"
                 val pathSpecSendingFacilityID = formPathSpec(sendingFacilityID)
