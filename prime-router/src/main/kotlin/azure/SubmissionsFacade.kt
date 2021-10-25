@@ -1,31 +1,21 @@
 package gov.cdc.prime.router.azure
 
 import com.fasterxml.jackson.annotation.JsonCreator
-import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Metadata
-import gov.cdc.prime.router.Organization
-import gov.cdc.prime.router.Receiver
-import gov.cdc.prime.router.Sender
-import gov.cdc.prime.router.SettingsProvider
-import gov.cdc.prime.router.TranslatorConfiguration
-import gov.cdc.prime.router.TransportType
-import gov.cdc.prime.router.azure.db.enums.SettingType
-import gov.cdc.prime.router.azure.db.tables.pojos.Setting
-import org.jooq.JSONB
-import java.time.OffsetDateTime
+import gov.cdc.prime.router.Submission
+import gov.cdc.prime.router.SubmissionsProvider
 
 /**
- * Settings for Organization, Receivers, and Senders from the Azure Database.
- * Contains all business logic regarding settings as well as JSON serialization.
+ * Submissions / history API
+ * Contains all business logic regarding submissions and JSON serialization.
  */
 class SubmissionsFacade(
     private val metadata: Metadata,
     private val db: DatabaseSubmissionsAccess = DatabaseSubmissionsAccess()
-) : SettingsProvider {
+) : SubmissionsProvider {
     enum class AccessResult {
         SUCCESS,
         CREATED,
@@ -42,30 +32,24 @@ class SubmissionsFacade(
     }
 
     override val submissions: Collection<Submission>
-        get() = findSubmissions(SubmissionsAPI::class.java)
+        get() = findSubmissions(SubmissionAPI::class.java)
 
-
-    fun getLastModified(): OffsetDateTime? {
-        return db.fetchLastModified()
-    }
-
-    fun <T : SettingAPI> findSubmissionsAsJson(
+    fun <T : SubmissionAPI> findSubmissionsAsJson(
         clazz: Class<T>
-    ): String? {
-        val result = findSubmissions(clazz) ?: return null
+    ): String {
+        val result = findSubmissions(clazz)
         return mapper.writeValueAsString(result)
     }
 
-    private fun <T : SettingAPI> findSubmissions(clazz: Class<T>): List<T> {
-        val submissions = db.transactReturning { txn ->
-            db.fetchSubmissions(txn)
-        }
+    private fun <T : SubmissionAPI> findSubmissions(clazz: Class<T>): List<T> {
+        val submissions = db.fetchSubmissions()
+
+        // TODO: going to need to get this to properly map back to the type you want
         return submissions.map {
-            val result = mapper.readValue(it.values.data(), clazz)
+            val result = mapper.readValue(it.toString(), clazz)
             result
         }
     }
-
 
     companion object {
         val metadata: Metadata by lazy {
@@ -88,13 +72,9 @@ class SubmissionsFacade(
  * Classes for JSON serialization
  */
 
-data class SubmissionMetadata(
-    val version: Int,
-    val createdBy: String,
-    val createdAt: OffsetDateTime
+class SubmissionAPI
+@JsonCreator constructor(
+    actionId: Long
+) : Submission(
+    actionId
 )
-
-interface SubmissionAPI {
-    val actionId: Long
-    fun consistencyErrorMessage(metadata: Metadata): String?
-}
