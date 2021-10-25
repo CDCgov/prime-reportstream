@@ -52,7 +52,8 @@ data class TosAgreementForm(
                 !key.toString().contains("title") /* Title is not required */
             ) {
                 if (!verifyIsNotBlank(key.toString(), value, logger) ||
-                    !verifyNotExceededLimit(key.toString(), value, logger)) return false
+                    !verifyNotExceededLimit(key.toString(), value, logger)
+                ) return false
             } else if (value !is String && value !is Boolean) {
                 logger.info("Uh oh, \"$value\" is an invalid value at: \"$key\"")
                 return false
