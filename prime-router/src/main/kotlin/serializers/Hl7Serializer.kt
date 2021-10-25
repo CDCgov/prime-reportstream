@@ -593,8 +593,8 @@ class Hl7Serializer(
             val senderID = report.getString(row, "sender_id")
             val clia = hl7Config?.setCLIAForSender?.get(senderID)
 
-            if (clia != null) {
-                val sendingFacilityID = "MSH-4-1"
+            if (!clia.isNullOrEmpty()) {
+                val sendingFacilityID = "MSH-4-2"
                 val pathSpecSendingFacilityID = formPathSpec(sendingFacilityID)
                 terser.set(pathSpecSendingFacilityID, clia)
             }
