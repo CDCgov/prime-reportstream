@@ -38,7 +38,7 @@ class FileNameTemplateTests {
         every { it.receivingOrganization }.returns("yoyodyne")
     }
     private val mapper = ObjectMapper(YAMLFactory()).registerModule(KotlinModule())
-    private val metadata = Metadata(Metadata.defaultMetadataDirectory)
+    private val metadata = Metadata.getInstance()
     private val dateFormat = "yyyyMMdd"
     private val formatter = DateTimeFormatter.ofPattern(dateFormat)
     private val reportId = UUID.randomUUID()
@@ -274,7 +274,7 @@ class FileNameTemplateTests {
 
     @Test
     fun `load file name templates from metadata`() {
-        val metadata = Metadata(Metadata.defaultMetadataDirectory)
+        val metadata = Metadata.getInstance()
         assertThat(metadata.fileNameTemplates).isNotEmpty()
         assertThat(metadata.fileNameTemplates).containsKey("standard")
     }

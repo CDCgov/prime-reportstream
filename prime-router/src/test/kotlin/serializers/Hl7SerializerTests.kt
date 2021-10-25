@@ -59,7 +59,7 @@ class Hl7SerializerTests {
     private val sampleHl7MessageWithRepeats: String
 
     init {
-        val metadata = Metadata("./metadata")
+        val metadata = Metadata.getInstance()
         val settings = FileSettings("./settings")
         val inputStream = File("./src/test/unit_test_files/fake-pdi-covid-19.csv").inputStream()
         covid19Schema = metadata.findSchema(hl7SchemaName) ?: fail("Could not find target schema")
@@ -262,7 +262,7 @@ NTE|1|L|This is a final comment|RE"""
 
     @Test
     fun `test XTN phone decoding`() {
-        val metadata = Metadata("./metadata")
+        val metadata = Metadata.getInstance()
         val settings = FileSettings("./settings")
         val serializer = Hl7Serializer(metadata, settings)
         val mockTerser = mockk<Terser>()
@@ -356,7 +356,7 @@ NTE|1|L|This is a final comment|RE"""
 
     @Test
     fun `test XTN email decoding`() {
-        val metadata = Metadata("./metadata")
+        val metadata = Metadata.getInstance()
         val settings = FileSettings("./settings")
         val serializer = Hl7Serializer(metadata, settings)
         val mockTerser = mockk<Terser>()
@@ -401,7 +401,7 @@ NTE|1|L|This is a final comment|RE"""
 
     @Test
     fun `test date time decoding`() {
-        val metadata = Metadata("./metadata")
+        val metadata = Metadata.getInstance()
         val settings = FileSettings("./settings")
         val serializer = Hl7Serializer(metadata, settings)
         val mockTerser = mockk<Terser>()
@@ -586,7 +586,7 @@ NTE|1|L|This is a final comment|RE"""
 
     @Test
     fun `test terser spec generator`() {
-        val metadata = Metadata("./metadata")
+        val metadata = Metadata.getInstance()
         val settings = FileSettings("./settings")
         val serializer = Hl7Serializer(metadata, settings)
         assertThat(serializer.getTerserSpec("MSH-1-1")).isEqualTo("/MSH-1-1")
@@ -596,7 +596,7 @@ NTE|1|L|This is a final comment|RE"""
 
     @Test
     fun `test setTelephoneComponents for patient`() {
-        val metadata = Metadata("./metadata")
+        val metadata = Metadata.getInstance()
         val settings = FileSettings("./settings")
         val serializer = Hl7Serializer(metadata, settings)
         val mockTerser = mockk<Terser>()
@@ -625,7 +625,7 @@ NTE|1|L|This is a final comment|RE"""
 
     @Test
     fun `test setTelephoneComponents for facility`() {
-        val metadata = Metadata("./metadata")
+        val metadata = Metadata.getInstance()
         val settings = FileSettings("./settings")
         val serializer = Hl7Serializer(metadata, settings)
         val mockTerser = mockk<Terser>()
@@ -658,7 +658,7 @@ NTE|1|L|This is a final comment|RE"""
 
     @Test
     fun `test setCliaComponents`() {
-        val metadata = Metadata("./metadata")
+        val metadata = Metadata.getInstance()
         val settings = FileSettings("./settings")
         val serializer = Hl7Serializer(metadata, settings)
         val mockTerser = mockk<Terser>()
@@ -677,7 +677,7 @@ NTE|1|L|This is a final comment|RE"""
 
     @Test
     fun `test setCliaComponents in HD`() {
-        val metadata = Metadata("./metadata")
+        val metadata = Metadata.getInstance()
         val settings = FileSettings("./settings")
         val serializer = Hl7Serializer(metadata, settings)
         val mockTerser = mockk<Terser>()
@@ -863,7 +863,7 @@ NTE|1|L|This is a final comment|RE"""
 
     @Test
     fun `test incorrect HL7 content`() {
-        val metadata = Metadata("./metadata")
+        val metadata = Metadata.getInstance()
         val settings = FileSettings("./settings")
         val serializer = Hl7Serializer(metadata, settings)
 

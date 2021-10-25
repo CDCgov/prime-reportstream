@@ -555,7 +555,7 @@ abstract class CoolTest {
     }
 
     companion object {
-        val metadata = Metadata(Metadata.defaultMetadataDirectory)
+        val metadata = Metadata.getInstance()
         val settings = FileSettings(FileSettings.defaultSettingsDirectory)
 
         // Here is test setup of organization, senders, and receivers.   All static.

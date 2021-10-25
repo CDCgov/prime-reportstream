@@ -3,6 +3,7 @@ package gov.cdc.prime.router
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
+import gov.cdc.prime.router.metadata.LookupTable
 import java.io.ByteArrayInputStream
 import kotlin.test.Test
 import kotlin.test.assertFails

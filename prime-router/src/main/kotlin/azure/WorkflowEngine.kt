@@ -510,10 +510,7 @@ class WorkflowEngine(
          * These are all potentially heavy weight objects that
          * should only be created once.
          */
-        val metadata: Metadata by lazy {
-            val baseDir = System.getenv("AzureWebJobsScriptRoot") ?: "."
-            Metadata("$baseDir/metadata")
-        }
+        val metadata = Metadata.getInstance()
 
         val databaseAccess: DatabaseAccess by lazy {
             DatabaseAccess()

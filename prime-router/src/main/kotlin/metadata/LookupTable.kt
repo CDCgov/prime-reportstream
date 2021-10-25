@@ -1,4 +1,4 @@
-package gov.cdc.prime.router
+package gov.cdc.prime.router.metadata
 
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
 import java.io.File
@@ -8,15 +8,22 @@ import java.io.InputStream
  * Represents a table of metadata that we use to perform lookups on, for example the LIVD table, or FIPS values
  * @constructor creates a new instance from a List of Lists of String.
  */
-class LookupTable(
-    private val table: List<List<String>>
+open class LookupTable(
+    private var table: List<List<String>>
 ) : Iterable<List<String>> {
-    private val headerRow: List<String> = table[0].map { it.lowercase() }
+    private val headerRow: List<String> = if (table.isNotEmpty()) table[0].map { it.lowercase() } else emptyList()
     private val headerIndex: Map<String, Int> = headerRow.mapIndexed { index, header -> header to index }.toMap()
     private val columnIndex: MutableMap<String, Map<String, Int>> = mutableMapOf()
     private val indexDelimiter = "|"
 
     val rowCount: Int get() = table.size - 1
+
+    /**
+     * Set the table's data with [tableData].
+     */
+    fun setTableData(tableData: List<List<String>>) {
+        this.table = tableData
+    }
 
     /**
      * Exposes the iterator for the underlying data structure, so we can then use the extension methods

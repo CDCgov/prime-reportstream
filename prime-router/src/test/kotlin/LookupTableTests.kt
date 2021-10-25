@@ -5,6 +5,7 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
+import gov.cdc.prime.router.metadata.LookupTable
 import java.io.ByteArrayInputStream
 import kotlin.test.Test
 
@@ -107,7 +108,7 @@ class LookupTableTests {
     @Test
     fun `test zip code lookup`() {
         // arrange
-        val metadata = Metadata("./metadata")
+        val metadata = Metadata.getInstance()
         val zipCodeTable = metadata.findLookupTable("zip-code-data")
         val state = "VT"
         val county = "Rutland"
@@ -185,7 +186,7 @@ class LookupTableTests {
             canonicalize,
             listOf("A", "D", "X")
         )
-        assertThat(uncommonResult).equals("2")
+        assertThat(uncommonResult).isEqualTo("2")
     }
 
     @Test

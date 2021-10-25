@@ -19,7 +19,7 @@ import kotlin.test.assertNull
 class MetadataTests {
     @Test
     fun `test loading metadata catalog`() {
-        val metadata = Metadata("./metadata")
+        val metadata = Metadata.getInstance()
         assertThat(metadata).isNotNull()
     }
 
