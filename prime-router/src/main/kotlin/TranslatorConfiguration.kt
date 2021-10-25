@@ -69,7 +69,6 @@ data class Hl7Configuration
     val reportingFacilityName: String? = null,
     val reportingFacilityId: String? = null,
     val reportingFacilityIdType: String? = null,
-    val setCLIAForSender: Map<String, String>? = emptyMap(),
     val suppressQstForAoe: Boolean = false,
     val suppressHl7Fields: String? = null,
     val suppressAoe: Boolean = false,
@@ -79,6 +78,7 @@ data class Hl7Configuration
     val usePid14ForPatientEmail: Boolean = false,
     val convertTimestampToDateTime: String? = null,
     val cliaForOutOfStateTesting: String? = null,
+    val cliaForSender: Map<String, String>? = emptyMap(),
     val phoneNumberFormatting: PhoneNumberFormatting = PhoneNumberFormatting.STANDARD,
     // pass this around as a property now
     val processingModeCode: String? = null,

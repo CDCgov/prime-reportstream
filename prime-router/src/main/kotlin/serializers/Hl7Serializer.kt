@@ -414,7 +414,7 @@ class Hl7Serializer(
         // set up our configuration
         val hl7Config = report.destination?.translation as? Hl7Configuration
         val replaceValue = hl7Config?.replaceValue ?: emptyMap()
-        val setCLIAForSender = hl7Config?.setCLIAForSender ?: emptyMap()
+        val setCLIAForSender = hl7Config?.cliaForSender ?: emptyMap()
         val suppressQst = hl7Config?.suppressQstForAoe ?: false
         val suppressAoe = hl7Config?.suppressAoe ?: false
         val useOrderingFacilityName = hl7Config?.useOrderingFacilityName
@@ -590,12 +590,12 @@ class Hl7Serializer(
         }
 
         // look for CLIA resets
-        if (!hl7Config?.setCLIAForSender.isNullOrEmpty()) {
+        if (!hl7Config?.cliaForSender.isNullOrEmpty()) {
             // get sender id for the record
             val senderID = report.getString(row, "sender_id")
 
             // find that sender in the map
-            val clia = hl7Config?.setCLIAForSender?.get(senderID)
+            val clia = hl7Config?.cliaForSender?.get(senderID)
 
             // if the sender needs should have a specific CLIA then overwrite the CLIA here
             if (!clia.isNullOrEmpty()) {
