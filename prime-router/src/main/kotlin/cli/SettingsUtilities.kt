@@ -6,7 +6,6 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.github.ajalt.clikt.core.PrintMessage
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.Headers.Companion.CONTENT_TYPE
 import com.github.kittinunf.fuel.core.extensions.authentication
@@ -15,15 +14,16 @@ import com.github.kittinunf.fuel.json.responseJson
 import com.github.kittinunf.result.Result
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Sender
-import gov.cdc.prime.router.azure.OrganizationAPI
-import gov.cdc.prime.router.azure.ReceiverAPI
-import gov.cdc.prime.router.azure.SenderAPI
 import org.apache.http.HttpStatus
-import java.io.InputStream
 import java.io.OutputStream
 
 private const val jsonMimeType = "application/json"
 private const val apiPath = "/api/settings"
+
+/**
+ * Setting Utilities class.
+ * This class contains the CRUD REST Client utilitie functions.
+ */
 
 class SettingsUtilities {
 
@@ -49,63 +49,6 @@ class SettingsUtilities {
             jsonMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
             yamlMapper.registerModule(JavaTimeModule())
             yamlMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-        }
-        fun abort(message: String): Nothing {
-            throw PrintMessage(message, error = true)
-        }
-
-        fun readInput(inputStream: InputStream): String {
-            if (inputStream == null) abort("Missing input file")
-            val input = String(inputStream!!.readAllBytes())
-            if (input.isBlank()) abort("Blank input")
-            return input
-        }
-
-        fun writeOutput(output: String) {
-            outStream!!.write(output.toByteArray())
-        }
-
-        fun fromJson(input: String, settingType: SettingType): Pair<String, String> {
-            return readStructure(input, settingType, jsonMapper)
-        }
-
-        fun fromYaml(input: String, settingType: SettingType): Pair<String, String> {
-            return readStructure(input, settingType, yamlMapper)
-        }
-
-        private fun readStructure(input: String, settingType: SettingType, mapper: ObjectMapper): Pair<String, String> {
-            return when (settingType) {
-                SettingType.ORG -> {
-                    val organization = mapper.readValue(input, OrganizationAPI::class.java)
-                    Pair(organization.name, jsonMapper.writeValueAsString(organization))
-                }
-                SettingType.SENDER -> {
-                    val sender = mapper.readValue(input, SenderAPI::class.java)
-                    Pair(sender.fullName, jsonMapper.writeValueAsString(sender))
-                }
-                SettingType.RECEIVER -> {
-                    val receiver = mapper.readValue(input, ReceiverAPI::class.java)
-                    Pair(receiver.fullName, jsonMapper.writeValueAsString(receiver))
-                }
-            }
-        }
-
-        fun toYaml(output: String, settingType: SettingType): String {
-            // DevNote: could be handled by inherited methods, but decided that keeping all these together was maintainable
-            return when (settingType) {
-                SettingType.ORG -> {
-                    val organization = jsonMapper.readValue(output, OrganizationAPI::class.java)
-                    yamlMapper.writeValueAsString(organization)
-                }
-                SettingType.SENDER -> {
-                    val sender = jsonMapper.readValue(output, SenderAPI::class.java)
-                    return yamlMapper.writeValueAsString(sender)
-                }
-                SettingType.RECEIVER -> {
-                    val receiver = jsonMapper.readValue(output, ReceiverAPI::class.java)
-                    return yamlMapper.writeValueAsString(receiver)
-                }
-            }
         }
 
         fun formPath(
