@@ -23,6 +23,7 @@ import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
+import gov.cdc.prime.router.azure.db.tables.records.ItemLineageRecord
 import org.jooq.Configuration
 import org.jooq.DSLContext
 import org.jooq.JSONB
@@ -198,7 +199,8 @@ class ActionHistory {
      */
     fun trackActionResponse(response: HttpResponseMessage, verboseResponse: String) {
         action.httpStatus = response.status.value()
-        action.actionResponse = JSONB.valueOf(verboseResponse)
+        if (!verboseResponse.isNullOrBlank())
+            action.actionResponse = JSONB.valueOf(verboseResponse)
     }
 
     /**
@@ -486,9 +488,20 @@ class ActionHistory {
     }
 
     private fun insertItemLineages(itemLineages: Set<ItemLineage>, txn: Configuration) {
-        itemLineages.forEach {
-            DSL.using(txn).newRecord(ITEM_LINEAGE, it).store()
-        }
+        DSL.using(txn)
+            .batchInsert(
+                itemLineages.map { il ->
+                    ItemLineageRecord().also { record ->
+                        record.parentReportId = il.parentReportId
+                        record.parentIndex = il.parentIndex
+                        record.childReportId = il.childReportId
+                        record.childIndex = il.childIndex
+                        record.trackingId = il.trackingId
+                    }
+                }
+            )
+            .execute()
+
         context?.logger?.info(
             "Inserted ${itemLineages.size} " +
                 "Item lineages into db for action ${action.actionId}: ${action.actionName}"
@@ -633,7 +646,10 @@ class ActionHistory {
                     msg = "reportFiles is null"
                 } else {
                     if (tasks.size != reportFiles.size) {
-                        msg = "Different result count: Got ${tasks.size} headers but ${reportFiles.size} reportFiles"
+                        msg = "Different report_file count: Got ${tasks.size} TASKS," +
+                            " but ${reportFiles.size} reportFiles.  " +
+                            "*** TASK ids: ${tasks.map{ it.reportId}.toSortedSet().joinToString(",")}  " +
+                            "*** REPORT_FILE ids:${reportFiles.map { it.key }.toSortedSet().joinToString(",")}"
                     } else {
                         tasks.forEach {
                             sanityCheckReport(it, reportFiles.get(it.reportId), failOnError)
@@ -645,7 +661,7 @@ class ActionHistory {
                 if (failOnError) {
                     error("*** Sanity check comparing old Headers list to new ReportFile list FAILED:  $msg")
                 } else {
-                    System.out.println(
+                    println(
                         "************ FAILURE: sanity check comparing old Headers " +
                             "list to new ReportFiles list FAILED:  $msg\""
                     )
@@ -676,14 +692,6 @@ class ActionHistory {
                         msg += "header.itemCount = ${task.itemCount}, " +
                             "but reportFile.itemCount= ${reportFile.itemCount}, "
                     }
-                    // Not checking this.   Because Task updates, the nextAction change to 'none' normally.
-                    // if (task.nextAction != reportFile.nextAction) {
-                    //     msg += "header.nextAction = ${task.nextAction}, but reportFile.nextAction= ${reportFile.nextAction}, "
-                    // }
-                    if (task.nextActionAt != reportFile.nextActionAt) {
-                        msg += "(This is NOT an error on retries:  header.nextActionAt = ${task.nextActionAt}," +
-                            " but reportFile.nextActionAt= ${reportFile.nextActionAt}, "
-                    }
                     if (task.receiverName != (reportFile.receivingOrg + "." + reportFile.receivingOrgSvc)) {
                         msg += "header.receiverName = ${task.receiverName}, but reportFile has " +
                             "${reportFile.receivingOrg + "." + reportFile.receivingOrgSvc}"
@@ -702,11 +710,6 @@ class ActionHistory {
                             "old Header info and new ReportFile info FAILED:  $msg\""
                     )
                 }
-            } else {
-                System.out.println(
-                    "Temporary sanity check passed: TASK and REPORT_FILE tables " +
-                        "have the same data for report ${reportFile?.reportId ?: ""}"
-                )
             }
         }
     }

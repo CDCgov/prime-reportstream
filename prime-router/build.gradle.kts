@@ -19,16 +19,18 @@ Properties to control the execution and output using the Gradle -P arguments:
 
 import org.apache.tools.ant.filters.ReplaceTokens
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import java.io.FileInputStream
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.Properties
 
 plugins {
-    kotlin("jvm") version "1.5.21"
-    id("org.flywaydb.flyway") version "7.12.1"
-    id("nu.studer.jooq") version "6.0"
-    id("com.github.johnrengelman.shadow") version "7.0.0"
-    id("com.microsoft.azure.azurefunctions") version "1.6.0"
-    id("org.jlleitschuh.gradle.ktlint") version "10.1.0"
+    kotlin("jvm") version "1.5.31"
+    id("org.flywaydb.flyway") version "8.0.2"
+    id("nu.studer.jooq") version "6.0.1"
+    id("com.github.johnrengelman.shadow") version "7.1.0"
+    id("com.microsoft.azure.azurefunctions") version "1.8.0"
+    id("org.jlleitschuh.gradle.ktlint") version "10.2.0"
     id("com.adarshr.test-logger") version "3.0.0"
     id("jacoco")
 }
@@ -68,14 +70,14 @@ val dbUrl = (
 val reportsApiEndpointHost = (
     System.getenv(KEY_PRIME_RS_API_ENDPOINT_HOST)
         ?: "localhost"
-    ) as String
+    )
 
 val jooqSourceDir = "build/generated-src/jooq/src/main/java"
 val jooqPackageName = "gov.cdc.prime.router.azure.db"
 
 defaultTasks("package")
 
-val kotlinVersion = "1.5.21"
+val kotlinVersion = "1.5.31"
 jacoco.toolVersion = "0.8.7"
 
 // Set the compiler JVM target
@@ -94,6 +96,9 @@ tasks.clean {
     delete("target")
 }
 
+/**
+ * Building tasks
+ */
 val coverageExcludedClasses = listOf("gov/cdc/prime/router/azure/db/*", "gov/cdc/prime/router/cli/*")
 tasks.test {
     // Use JUnit 5 for running tests
@@ -230,11 +235,16 @@ tasks.register("fatJar") {
     dependsOn("shadowJar")
 }
 
+/**
+ * PRIME CLI tasks
+ */
 tasks.register<JavaExec>("primeCLI") {
     group = rootProject.description ?: ""
     description = "Run the Prime CLI tool.  Specify arguments with --args='<args>'"
-    main = primeMainClass
+    mainClass.set(primeMainClass)
     classpath = sourceSets["main"].runtimeClasspath
+    standardInput = System.`in`
+
     // Default arguments is to display the help
     environment["POSTGRES_URL"] = dbUrl
     environment["POSTGRES_USER"] = dbUser
@@ -278,6 +288,16 @@ tasks.register("generateDocs") {
     finalizedBy("primeCLI")
 }
 
+tasks.register("reloadSettings") {
+    group = rootProject.description ?: ""
+    description = "Reload the settings database table"
+    project.extra["cliArgs"] = listOf("multiple-settings", "set", "-i", "./settings/organizations.yml")
+    finalizedBy("primeCLI")
+}
+
+/**
+ * Packaging and running related tasks
+ */
 tasks.azureFunctionsPackage {
     dependsOn("test")
 }
@@ -324,6 +344,78 @@ tasks.register("copyAzureScripts") {
     }
 }
 
+tasks.azureFunctionsPackage {
+    finalizedBy("copyAzureResources")
+    finalizedBy("copyAzureScripts")
+}
+
+tasks.register("package") {
+    group = rootProject.description ?: ""
+    description = "Package the code and necessary files to run the Azure functions"
+    dependsOn("azureFunctionsPackage")
+    dependsOn("fatJar")
+}
+
+tasks.register("quickPackage") {
+    // Quick package for development purposes.  Use with caution.
+    dependsOn("azureFunctionsPackage")
+    dependsOn("copyAzureResources")
+    dependsOn("copyAzureScripts")
+    tasks["test"].enabled = false
+    tasks["jacocoTestReport"].enabled = false
+    tasks["compileTestKotlin"].enabled = false
+    tasks["migrate"].enabled = false
+    tasks["flywayMigrate"].enabled = false
+}
+
+tasks.azureFunctionsRun {
+    // This storage account key is not a secret, just a dummy value.
+    val devAzureConnectString =
+        "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=" +
+            "Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=" +
+            "http://localhost:10000/devstoreaccount1;QueueEndpoint=http://localhost:10001/devstoreaccount1;"
+
+    val env = mutableMapOf(
+        "AzureWebJobsStorage" to devAzureConnectString,
+        "PartnerStorage" to devAzureConnectString,
+        "POSTGRES_USER" to dbUser,
+        "POSTGRES_PASSWORD" to dbPassword,
+        "POSTGRES_URL" to dbUrl,
+        "PRIME_ENVIRONMENT" to "local",
+        "VAULT_API_ADDR" to "http://localhost:8200",
+        "SFTP_HOST_OVERRIDE" to "localhost",
+        "SFTP_PORT_OVERRIDE" to "2222",
+        "REDOX_URL_OVERRIDE" to "http://localhost:1080"
+    )
+
+    // Load the vault variables
+    val file = File(".vault/env/.env.local")
+    val prop = Properties()
+    FileInputStream(file).use { prop.load(it) }
+    prop.forEach { key, value -> env[key.toString()] = value.toString().replace("\"", "") }
+
+    environment(env)
+    azurefunctions.localDebug = "transport=dt_socket,server=y,suspend=n,address=5005"
+}
+
+tasks.register("run") {
+    group = rootProject.description ?: ""
+    description = "Run the Azure functions locally.  Note this needs the required services running as well"
+    dependsOn("azureFunctionsRun")
+}
+
+tasks.register("quickRun") {
+    dependsOn("azureFunctionsRun")
+    tasks["test"].enabled = false
+    tasks["jacocoTestReport"].enabled = false
+    tasks["compileTestKotlin"].enabled = false
+    tasks["migrate"].enabled = false
+    tasks["flywayMigrate"].enabled = false
+}
+
+/**
+ * Database related configuration and tasks
+ */
 // Configuration for Flyway migration tool
 flyway {
     url = dbUrl
@@ -372,8 +464,13 @@ jooq {
 tasks.named<nu.studer.gradle.jooq.JooqGenerate>("generateJooq") {
     dependsOn("migrate")
     allInputsDeclared.set(true)
+    inputs.files(project.fileTree("src/main/resources/db/migration")).withPropertyName("migrations")
+        .withPathSensitivity(PathSensitivity.RELATIVE)
 }
 
+/**
+ * Convinience tasks
+ */
 // Convenience tasks
 tasks.register("compile") {
     group = rootProject.description ?: ""
@@ -394,27 +491,6 @@ tasks.register("reloadDB") {
     dependsOn("flywayMigrate")
 }
 
-tasks.register("package") {
-    group = rootProject.description ?: ""
-    description = "Package the code and necessary files to run the Azure functions"
-    dependsOn("azureFunctionsPackage")
-    dependsOn("copyAzureResources")
-    dependsOn("copyAzureScripts")
-    dependsOn("fatJar")
-}
-
-tasks.register("quickPackage") {
-    // Quick package for development purposes.  Use with caution.
-    dependsOn("azureFunctionsPackage")
-    dependsOn("copyAzureResources")
-    dependsOn("copyAzureScripts")
-    tasks["test"].enabled = false
-    tasks["jacocoTestReport"].enabled = false
-    tasks["compileTestKotlin"].enabled = false
-    tasks["migrate"].enabled = false
-    tasks["flywayMigrate"].enabled = false
-}
-
 repositories {
     mavenCentral()
     jcenter()
@@ -424,75 +500,83 @@ repositories {
 }
 
 dependencies {
-    jooqGenerator("org.postgresql:postgresql:42.2.23")
+    jooqGenerator("org.postgresql:postgresql:42.3.0")
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-common:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
     implementation("com.microsoft.azure.functions:azure-functions-java-library:1.4.2")
-    implementation("com.azure:azure-core:1.19.0")
-    implementation("com.azure:azure-core-http-netty:1.10.2")
-    implementation("com.azure:azure-storage-blob:12.13.0") {
+    implementation("com.azure:azure-core:1.21.0")
+    implementation("com.azure:azure-core-http-netty:1.11.1")
+    implementation("com.azure:azure-storage-blob:12.14.1") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-storage-queue:12.10.0") {
+    implementation("com.azure:azure-storage-queue:12.11.1") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-security-keyvault-secrets:4.3.1") {
+    implementation("com.azure:azure-security-keyvault-secrets:4.3.4") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
-    implementation("com.azure:azure-identity:1.3.4") {
+    implementation("com.azure:azure-identity:1.4.0") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
     implementation("org.apache.logging.log4j:log4j-api:[2.13.2,)")
     implementation("org.apache.logging.log4j:log4j-core:[2.13.2,)")
     implementation("org.apache.logging.log4j:log4j-slf4j-impl:[2.13.2,)")
-    implementation("org.apache.logging.log4j:log4j-api-kotlin:1.0.0")
-    implementation("com.github.doyaaaaaken:kotlin-csv-jvm:0.15.2")
-    implementation("tech.tablesaw:tablesaw-core:0.38.3")
-    implementation("com.github.ajalt.clikt:clikt-jvm:3.2.0")
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.12.4")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.12.4")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.12.4")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.12.4")
+    implementation("org.apache.logging.log4j:log4j-api-kotlin:1.1.0")
+    implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.1.0")
+    implementation("tech.tablesaw:tablesaw-core:0.42.0")
+    implementation("com.github.ajalt.clikt:clikt-jvm:3.3.0")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.0")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.0")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.13.0")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.0")
     implementation("com.github.javafaker:javafaker:1.0.2")
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
-    implementation("com.googlecode.libphonenumber:libphonenumber:8.12.29")
+    implementation("com.googlecode.libphonenumber:libphonenumber:8.12.35")
     implementation("org.thymeleaf:thymeleaf:3.0.12.RELEASE")
-    implementation("com.sendgrid:sendgrid-java:4.7.4")
+    implementation("com.sendgrid:sendgrid-java:4.7.6")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.1")
     implementation("com.github.kittinunf.fuel:fuel:2.3.1") {
         exclude(group = "org.json", module = "json")
     }
     implementation("com.github.kittinunf.fuel:fuel-json:2.3.1")
     implementation("org.json:json:20210307")
-    implementation("com.hierynomus:sshj:0.31.0")
+    implementation("com.hierynomus:sshj:0.32.0")
     implementation("org.bouncycastle:bcprov-jdk15on:1.69")
     implementation("com.jcraft:jsch:0.1.55")
     implementation("org.apache.commons:commons-lang3:3.12.0")
     implementation("org.apache.commons:commons-text:1.9")
     implementation("commons-codec:commons-codec:1.15")
     implementation("commons-io:commons-io:2.11.0")
-    implementation("org.postgresql:postgresql:42.2.23")
+    implementation("org.postgresql:postgresql:42.3.0")
     implementation("com.zaxxer:HikariCP:5.0.0")
-    implementation("org.flywaydb:flyway-core:7.13.0")
-    implementation("com.github.kayr:fuzzy-csv:1.6.48")
+    implementation("org.flywaydb:flyway-core:7.15.0")
+    implementation("com.github.kayr:fuzzy-csv:1.7.1")
     implementation("org.commonmark:commonmark:0.18.0")
-    implementation("com.google.guava:guava:30.1.1-jre")
+    implementation("com.google.guava:guava:31.0.1-jre")
     implementation("com.helger.as2:as2-lib:4.7.1")
     // Prevent mixed versions of these libs based on different versions being included by different packages
     implementation("org.bouncycastle:bcpkix-jdk15on:1.69")
     implementation("org.bouncycastle:bcmail-jdk15on:1.69")
     implementation("org.bouncycastle:bcprov-jdk15on:1.69")
 
+    implementation("commons-net:commons-net:3.8.0")
     implementation("com.cronutils:cron-utils:9.1.5")
     implementation("khttp:khttp:1.0.0")
+    implementation("io.jsonwebtoken:jjwt-api:0.11.2")
+    implementation("de.m3y.kformat:kformat:0.8")
+    implementation("io.github.java-diff-utils:java-diff-utils:4.11")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.1")
     runtimeOnly("com.github.kittinunf.fuel:fuel-jackson:2.3.1")
+    runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.2")
+    runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.2")
 
     testImplementation(kotlin("test-junit5"))
     testImplementation("com.github.KennethWussmann:mock-fuel:1.3.0") {
@@ -501,13 +585,10 @@ dependencies {
         exclude(group = "com.github.kittinunf.fuel", module = "fuel")
     }
     // kotlinx-coroutines-core is needed by mock-fuel
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.1-native-mt")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
     testImplementation("com.github.KennethWussmann:mock-fuel:1.3.0")
     testImplementation("io.mockk:mockk:1.12.0")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.2")
-    testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.24")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.7.2")
-    implementation("io.jsonwebtoken:jjwt-api:0.11.2")
-    runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.2")
-    runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.2")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.1")
+    testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.25")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.1")
 }

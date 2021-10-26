@@ -22,7 +22,7 @@ locals {
     # Route storage account access through the VNET
     "WEBSITE_CONTENTOVERVNET" = 1
 
-    # Use the VNET DNS server (so we receive private endpoint URLs
+    # Use the VNET DNS server (so we receive private endpoint URLs)
     "WEBSITE_DNS_SERVER" = "168.63.129.16"
 
     "DOCKER_REGISTRY_SERVER_URL"      = data.azurerm_container_registry.container_registry.login_server
@@ -35,7 +35,19 @@ locals {
 
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE" = false
 
-    "APPINSIGHTS_INSTRUMENTATIONKEY" = var.ai_instrumentation_key
+    # App Insights
+    "APPINSIGHTS_INSTRUMENTATIONKEY"                  = var.ai_instrumentation_key
+    "APPINSIGHTS_PROFILERFEATURE_VERSION"             = "1.0.0"
+    "APPINSIGHTS_SNAPSHOTFEATURE_VERSION"             = "1.0.0"
+    "APPLICATIONINSIGHTS_CONFIGURATION_CONTENT"       = ""
+    "APPLICATIONINSIGHTS_CONNECTION_STRING"           = var.ai_connection_string
+    "ApplicationInsightsAgent_EXTENSION_VERSION"      = "~3"
+    "DiagnosticServices_EXTENSION_VERSION"            = "~3"
+    "InstrumentationEngine_EXTENSION_VERSION"         = "disabled"
+    "SnapshotDebugger_EXTENSION_VERSION"              = "disabled"
+    "XDT_MicrosoftApplicationInsights_BaseExtensions" = "disabled"
+    "XDT_MicrosoftApplicationInsights_Mode"           = "recommended"
+    "XDT_MicrosoftApplicationInsights_PreemptSdk"     = "disabled"
 
     "FEATURE_FLAG_SETTINGS_ENABLED" = true
   }
@@ -45,11 +57,13 @@ locals {
 
   functionapp_slot_settings_names = distinct(concat(local.functionapp_slot_prod_settings_names, local.functionapp_slot_candidate_settings_names))
 
-  sticky_slot_implicit_settings_names = tolist([
-    "AzureWebJobsStorage"])
   # Any settings provided implicitly by Azure that we don't want to swap
-  sticky_slot_unique_settings_names   = tolist(setsubtract(local.functionapp_slot_settings_names, keys(local.all_app_settings)))
+  sticky_slot_implicit_settings_names = tolist([
+    "AzureWebJobsStorage",
+  ])
+
   # Any setting not in the common list is therefore unique
+  sticky_slot_unique_settings_names = tolist(setsubtract(local.functionapp_slot_settings_names, keys(local.all_app_settings)))
 }
 
 resource "azurerm_function_app" "function_app" {
@@ -70,6 +84,13 @@ resource "azurerm_function_app" "function_app" {
       name                      = "AllowVNetTraffic"
       priority                  = 100
       virtual_network_subnet_id = data.azurerm_subnet.public.id
+    }
+
+    ip_restriction {
+      action                    = "Allow"
+      name                      = "AllowVNetEastTraffic"
+      priority                  = 100
+      virtual_network_subnet_id = data.azurerm_subnet.public_subnet.id
     }
 
     ip_restriction {
@@ -114,8 +135,9 @@ resource "azurerm_function_app" "function_app" {
 
   lifecycle {
     ignore_changes = [
-      site_config[0].linux_fx_version]
-    # Allows Docker versioning via GitHub Actions
+      # Allows Docker versioning via GitHub Actions
+      site_config[0].linux_fx_version,
+    ]
   }
 }
 
@@ -125,7 +147,8 @@ resource "azurerm_key_vault_access_policy" "functionapp_app_config_access_policy
   object_id    = azurerm_function_app.function_app.identity.0.principal_id
 
   secret_permissions = [
-    "Get"]
+    "Get",
+  ]
 }
 
 resource "azurerm_key_vault_access_policy" "functionapp_client_config_access_policy" {
@@ -134,12 +157,13 @@ resource "azurerm_key_vault_access_policy" "functionapp_client_config_access_pol
   object_id    = azurerm_function_app.function_app.identity.0.principal_id
 
   secret_permissions = [
-    "Get"]
+    "Get",
+  ]
 }
 
 resource "azurerm_app_service_virtual_network_swift_connection" "function_app_vnet_integration" {
   app_service_id = azurerm_function_app.function_app.id
-  subnet_id      = data.azurerm_subnet.public.id
+  subnet_id      = var.use_cdc_managed_vnet ? data.azurerm_subnet.public_subnet.id : data.azurerm_subnet.public.id
 }
 
 // Enable sticky slot settings
@@ -185,6 +209,6 @@ DEPLOY
 
   depends_on = [
     azurerm_function_app.function_app,
-    azurerm_function_app_slot.candidate
+    azurerm_function_app_slot.candidate,
   ]
 }

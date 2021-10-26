@@ -6,6 +6,7 @@ on:
       - master
       - production
       - dev-rheft
+      - ronheft/test-investigation
 
 defaults:
   run:
@@ -92,11 +93,38 @@ jobs:
       - name: Validate static website server
         run: bash ci_validate.bash
 
+
+  build_frontend_react_release:
+    name: "Release: Build Frontend React"
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend-react
+
+    steps:
+      - name: "Check out changes"
+        uses: actions/checkout@v2
+
+      - name: Use Node.js ${{ matrix.node-version }} yarn
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+      - run: yarn install
+      - run: yarn run build
+      
+      - name: Save Static Website
+        uses: actions/upload-artifact@v2
+        with:
+          name: static_website_react-${{ github.run_id }}
+          path: frontend-react/build
+          retention-days: 7
+
+
   deploy_release_dev:
     name: "Deploy Release: DEV"
     needs:
       - build_release
-      - build_frontend_release
+      - build_frontend_react_release
     if: github.ref == 'refs/heads/dev-rheft'
     environment: dev
     concurrency: dev
@@ -120,6 +148,12 @@ jobs:
         with:
           name: static_website-${{ github.run_id }}
           path: frontend/dist
+
+      - name: Download Frontend-React Artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: static_website_react-${{ github.run_id }}
+          path: frontend-react/build          
 
       - name: Build Docker Image
         run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:${{ github.sha }}
@@ -178,18 +212,18 @@ jobs:
         run: |
           az functionapp config access-restriction remove -g ${{ env.RESOURCE_GROUP }} -n ${{ env.PREFIX }}-functionapp --slot candidate --rule-name GitHubActionIPV4 > /dev/null 2>&1
 
-      - name: Upload Static Site
+      - name: Upload Static Site React
         uses: azure/CLI@v1
         with:
           inlineScript: |
-            az storage blob upload-batch --account-name ${{ env.PREFIX }}public -d '$web' -s frontend/dist
+            az storage blob upload-batch --account-name ${{ env.PREFIX }}public -d '$web' -s frontend-react/build
 
   deploy_release_test:
     name: "Deploy Release: TEST"
     needs:
       - build_release
       - build_frontend_release
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/ronheft/test-investigation'
     environment: test
     concurrency: test
     runs-on: ubuntu-latest
@@ -281,7 +315,7 @@ jobs:
     name: "Deploy Release: STAGING"
     needs:
       - build_release
-      - build_frontend_release
+      - build_frontend_react_release
     if: github.ref == 'refs/heads/master'
     environment: staging
     concurrency: staging
@@ -300,11 +334,11 @@ jobs:
           name: prime-router-build-${{ github.run_id }}
           path: prime-router/build
 
-      - name: Download Frontend Artifact
+      - name: Download Frontend Artifact (React)
         uses: actions/download-artifact@v2
         with:
-          name: static_website-${{ github.run_id }}
-          path: frontend/dist
+          name: static_website_react-${{ github.run_id }}
+          path: frontend-react/build
 
       - name: Build Docker Image
         run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:${{ github.sha }}
@@ -368,7 +402,7 @@ jobs:
         with:
           inlineScript: |
             az storage blob delete-batch --account-name ${{ env.PREFIX }}public -s '$web'
-            az storage blob upload-batch --account-name ${{ env.PREFIX }}public -d '$web' -s frontend/dist
+            az storage blob upload-batch --account-name ${{ env.PREFIX }}public -d '$web' -s frontend-react/build
 
   deploy_release_prod:
     name: "Deploy Release: PROD"

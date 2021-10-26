@@ -10,8 +10,8 @@ cdn_scripts:
     integrity: "sha384-/ChTOdf7wyPfhB76d9iGkmkHGb8GKebmTKNNXX8BQEjnl9f+WbMdgNjBSg3SJOEp"
   - src: "https://cdnjs.cloudflare.com/ajax/libs/uswds/2.11.1/js/uswds-init.min.js"
     integrity: "sha512-Zy/dqU71uCdMWS6VdSqc/+2RjOxbq/ySinrQyLG3wTVWSXtBQpK6/b2Ky6vT2JHuFsNm8yBZMJ8zeMQ/ji2qMA=="
-  - src: "https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"
-    integrity: "sha384-LQc6P0tjydf0IS2VO/iGZcRhIK1mYatxhr+EGHA361ABtAiPhLj0Y9H6zAqto47a"
+  - src: "https://cdn.jsdelivr.net/npm/axios@0.21.4"
+    integrity: "sha384-YEK3fWV+el8mOLl23uyfnTU92fxC+QY9TX7hjfVjYT2Uw7LiDOLhkMK50KyUqYdR"
   - src: "https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"
     integrity: "sha384-Uz1UHyakAAz121kPY0Nx6ZGzYeUTy9zAtcpdwVmFCEwiTGPA2K6zSGgkKJEQfMhK"
   - src: "https://cdn.jsdelivr.net/npm/downloadjs@1.4.7/download.min.js"
@@ -56,9 +56,14 @@ local_styles:
   {% include navbar %}
 {% endif %}
 
-<main id="main-content" {% if title == "index" %}class="padding-y-0"{% endif %}>
+<main id="main-content" {% if title == "index"%}class="padding-y-0"{% elsif alert %}class="padding-top-0 padding-bottom-6"{% endif %}>
+  {% if alert %}
+      {% include site_alert %}
+  {% endif %}
   {% if pageStyle == "fullWidth" %}
     {{ content }}
+  {% elsif pageStyle == "pageAlert" %}
+    {% include page_alert %}
   {% elsif pageStyle == "sidebarMenu" %}
     {% include page_sidebar_menu %}
   {% else %}

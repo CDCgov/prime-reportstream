@@ -102,7 +102,7 @@ class DataCompareTest : CoolTest() {
         EXPECTED_COUNT("Expected count")
     }
 
-    override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+    override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
         var passed = true
         val configs = readTestConfig("$testDataDir/$testConfigFile")
 
@@ -155,7 +155,7 @@ class DataCompareTest : CoolTest() {
                         waitABit(25, environment)
                         var totalItemCount = 0
                         outputList.forEach { totalItemCount += it.expectedCount }
-                        passed = passed and examineLineageResults(reportId, receivers, totalItemCount)
+                        passed = passed and pollForLineageResults(reportId, receivers, totalItemCount)
 
                         // Compare the data
                         outputList.forEach { output ->

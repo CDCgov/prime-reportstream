@@ -1,0 +1,36 @@
+# ./prime multiple-settings set --env prod --input ./settings/prod/0047-setup-sbc-ca.yml
+---
+- name: ca-sbc-phd
+  description: "San Benito County Public Health Services"
+  jurisdiction: COUNTY
+  stateCode: CA
+  countyName: San Benito
+  receivers:
+    - name: ca-sbc-download
+      organizationName: ca-sbc-phd
+      topic: covid-19
+      customerStatus: testing
+      deidentify: false
+      translation:
+        schemaName: "ca/ca-scc-covid-19"
+        format: "CSV"
+        defaults: {}
+        nameFormat: "STANDARD"
+        receivingOrganization: null
+        type: "CUSTOM"
+      jurisdictionalFilter:
+        - "matches(ordering_facility_state, CA)"
+        - "matches(ordering_facility_county, San Benito)"
+      qualityFilter:
+        - "doesNotMatch(processing_mode_code,T,D)"
+        - "hasAtLeastOneOf(order_test_date,specimen_collection_date_time,test_result_date)"
+        - "hasAtLeastOneOf(patient_street,patient_zip_code,patient_phone_number,patient_email)"
+        - "hasValidDataFor(message_id,equipment_model_name,specimen_type,test_result,patient_last_name,patient_first_name,patient_dob)"
+      reverseTheQualityFilter: false
+      timing:
+        operation: "MERGE"
+        numberPerDay: 1
+        initialTime: "09:16"
+        timeZone: "EASTERN"
+        maxReportCount: 500
+

@@ -35,6 +35,9 @@ ID Now|Molecular
 BinaxNOW COVID-19 Ag Card|Antigen
 LumiraDx SARS-CoV-2 Ag Test*|Antigen
 Sofia 2 SARS Antigen FIA|Antigen
+Sofia 2 Flu + SARS Antigen FIA*|Antigen
+Sienna-Clarity COVID-19 Antigen Rapid Test Cassette*|Antigen
+Tide Labs DTPM COVID-19 RT-PCR Test*|Molecular
 
 **Documentation**:
 
@@ -88,7 +91,7 @@ Is the patient employed in health care?
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
 
-**Table**: LIVD-SARS-CoV-2-2021-04-28
+**Table**: LIVD-SARS-CoV-2-2021-09-29
 
 **Table Column**: Model
 
@@ -134,7 +137,7 @@ Is this the patient's first test for this condition?
 
 **Name**: Order_test_date
 
-**Type**: DATE
+**Type**: DATETIME
 
 **PII**: No
 
@@ -453,6 +456,10 @@ The zip code of the provider
 **Default Value**: 
 
 **Cardinality**: [0..1]
+
+**Documentation**:
+
+The SimpleReport concept of organization. It refers to organization for the ordering & performing facility
 
 ---
 
@@ -898,7 +905,7 @@ Is the patient symptomatic?
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-04-28
+**Table**: LIVD-SARS-CoV-2-2021-09-29
 
 **Table Column**: Test Performed LOINC Long Name
 
@@ -1028,6 +1035,7 @@ The text value for the testing lab county. This is used to do the lookup in the 
 
 - [OBR-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.2.2)
 - [OBR-3-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.3.2)
+- [OBX-15-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.15.2)
 - [OBX-23-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.23.1)
 - [ORC-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.2.2)
 - [ORC-3-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.3.2)

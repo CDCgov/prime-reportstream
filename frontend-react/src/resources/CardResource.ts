@@ -1,4 +1,4 @@
-import AuthResource from './AuthResource';
+import AuthResource from "./AuthResource";
 
 export default class CardResource extends AuthResource {
     readonly id: string = "cardId";
@@ -10,7 +10,7 @@ export default class CardResource extends AuthResource {
     readonly change: number = 0;
     readonly data: number[] = [];
 
-    pk(){
+    pk() {
         return this.id;
     }
 

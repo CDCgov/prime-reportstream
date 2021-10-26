@@ -4,9 +4,17 @@ partners:
     type: state
     abbreviation: AL
     production: true
+  - name: Alaska
+    type: state
+    abbreviation: AK
+    production: true
   - name: Arizona
     type: state
     abbreviation: AZ
+    production: true
+  - name: California
+    type: state
+    abbreviation: CA
     production: true
   - name: Colorado
     type: state
@@ -19,6 +27,10 @@ partners:
   - name: Guam
     type: territory
     abbreviation: GU
+    production: true
+  - name: Illinois
+    type: state
+    abbreviation: IL
     production: true
   - name: Louisiana
     type: state
@@ -36,10 +48,18 @@ partners:
     type: state
     abbreviation: MS
     production: true
+  - name: Minnesota
+    type: state
+    abbreviation: MN
+    production: true
   - name: Montana
     type: state
     abbreviation: MT
-    production: false
+    production: true
+  - name: New Hampshire
+    type: state
+    abbreviation: NH
+    production: true
   - name: New Mexico
     type: state
     abbreviation: NM
@@ -63,4 +83,12 @@ partners:
   - name: Vermont
     type: state
     abbreviation: VT
+    production: true
+  - name: Washington
+    type: state
+    abbreviation: WA
+    production: true
+  - name: Wyoming
+    type: state
+    abbreviation: WY
     production: true

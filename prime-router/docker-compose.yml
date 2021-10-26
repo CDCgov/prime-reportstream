@@ -27,8 +27,6 @@ services:
       # postgresql comes from the build environment; it is accessible because we are connected to the build network (see "networks")
       - POSTGRES_URL=jdbc:postgresql://postgresql:5432/prime_data_hub
       - PRIME_ENVIRONMENT=local
-      - REDOX_SECRET=some_secret
-      # - SENDGRID_API_KEY=
       - OKTA_baseUrl=hhs-prime.okta.com
       - OKTA_clientId=0oa6fm8j4G1xfrthd4h6
       - OKTA_redirect=http://localhost:7071/api/download
@@ -68,6 +66,32 @@ services:
     networks:
       - prime-router_build
 
+
+  # local FTPS Server
+  ftps:
+    image: stilliard/pure-ftpd
+    ports:
+      - "21000:21"
+      - "30000-30009:30000-30009"
+    volumes:
+      - ./build/ftps:/home/ftpusers
+      - ./build/ftps:/etc/ssl/private
+      - ./build/ftps:/etc/pure-ftpd/passwd/
+      - ./build/ftps:/var/log/pure-ftpd/
+    environment:
+      PUBLICHOST: "ftps"
+      FTP_USER_NAME: ftps
+      FTP_USER_PASS: ftps
+      FTP_USER_HOME: /home/test-user
+      ADDED_FLAGS: "--tls=2 -d"
+      TLS_CN: "localhost"
+      TLS_ORG: "TestOrg"
+      TLS_C: "DE"
+    restart: always
+    networks:
+      - prime-router_build
+
+
   redox:
     image: mockserver/mockserver:mockserver-5.11.1
     ports:
@@ -84,7 +108,7 @@ services:
 
   settings:
     build: settings/.
-    command: "--wait=20 --check-last-modified prime_dev /settings/organizations.yml"
+    command: "--check-last-modified prime_dev /settings/organizations.yml"
     depends_on:
       - prime_dev
     volumes:
