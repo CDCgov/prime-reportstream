@@ -7,13 +7,14 @@ Test Steps:
 
 ## Changes
 - *Include a comprehensive list of changes in this PR*
--
+- *(For web UI changes) Include screenshots/video of changes*
 
 ## Checklist
 
 ### Testing
 - [ ] Tested locally?
 - [ ] Ran `./prime test` or `./gradlew testSmoke` against local Docker ReportStream container?
+- [ ] (For Changes to /frontend-react/...) Ran `npm run lint:write`? 
 - [ ] Added tests?
 
 ### Process
