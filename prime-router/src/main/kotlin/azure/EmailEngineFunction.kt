@@ -36,7 +36,7 @@ import java.util.logging.Level
 import java.util.logging.Logger
 import khttp.get as httpGet
 
-const val SCHEDULE = "*/4 * * * *" // every 5 minutes
+const val SCHEDULE = "*/5 * * * *" // every 5 minutes
 const val OKTA_ISSUER = "https://hhs-prime.okta.com/oauth2/default"
 const val OKTA_GROUPS_API = "https://hhs-prime-admin.okta.com/api/v1/groups"
 const val FROM_EMAIL = "reportstream@cdc.gov"
