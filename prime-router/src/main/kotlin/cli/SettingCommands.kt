@@ -20,7 +20,7 @@ import com.github.ajalt.clikt.parameters.types.outputStream
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.Headers.Companion.CONTENT_TYPE
 import com.github.kittinunf.fuel.core.extensions.authentication
-import com.github.kittinunf.fuel.core.extensions.jsonBody
+// import com.github.kittinunf.fuel.core.extensions.jsonBody
 import com.github.kittinunf.fuel.json.responseJson
 import com.github.kittinunf.result.Result
 import gov.cdc.prime.router.DeepOrganization
@@ -30,7 +30,7 @@ import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.OrganizationAPI
 import gov.cdc.prime.router.azure.ReceiverAPI
 import gov.cdc.prime.router.azure.SenderAPI
-import org.apache.http.HttpStatus
+// import org.apache.http.HttpStatus
 import java.io.InputStream
 
 private const val apiPath = "/api/settings"
@@ -98,57 +98,26 @@ abstract class SettingCommand(
         payload: String
     ): String {
         val path = formPath(environment, Operation.PUT, settingType, settingName)
-        val (_, response, result) = Fuel
-            .put(path)
-            .authentication()
-            .bearer(accessToken)
-            .header(CONTENT_TYPE to jsonMimeType)
-            .jsonBody(payload)
-            .responseJson()
-        return when (result) {
-            is Result.Failure -> {
-                abort("Error on put of $settingName: ${response.responseMessage} ${String(response.data)}")
-            }
-            is Result.Success ->
-                when (response.statusCode) {
-                    HttpStatus.SC_OK -> {
-                        val version = result.value.obj().getInt("version")
-                        "Success. Setting $settingName at version $version"
-                    }
-                    HttpStatus.SC_CREATED -> "Success. Created $settingName"
-                    else -> error("Unexpected successful status code")
-                }
-        }
+        val output = SettingsUtilities.put(path, accessToken, settingName, payload)
+        if (output.contains("Error"))
+            abort(output)
+        return output
     }
 
-    fun delete(environment: Environment, accessToken: String, settingType: SettingType, settingName: String) {
+    fun delete(environment: Environment, accessToken: String, settingType: SettingType, settingName: String): String {
         val path = formPath(environment, Operation.DELETE, settingType, settingName)
-        val (_, response, result) = Fuel
-            .delete(path)
-            .authentication()
-            .bearer(accessToken)
-            .header(CONTENT_TYPE to jsonMimeType)
-            .responseString()
-        return when (result) {
-            is Result.Failure ->
-                abort("Error on delete of $settingName: ${response.responseMessage} ${String(response.data)}")
-            is Result.Success -> Unit
-        }
+        val output = SettingsUtilities.delete(path, accessToken, settingName)
+        if (output.contains("Error"))
+            abort(output)
+        return output
     }
 
     fun get(environment: Environment, accessToken: String, settingType: SettingType, settingName: String): String {
         val path = formPath(environment, Operation.GET, settingType, settingName)
-        val (_, response, result) = Fuel
-            .get(path)
-            .authentication()
-            .bearer(accessToken)
-            .header(CONTENT_TYPE to jsonMimeType)
-            .responseString()
-        return when (result) {
-            is Result.Failure ->
-                abort("Error getting $settingName: ${response.responseMessage} ${String(response.data)}")
-            is Result.Success -> result.value
-        }
+        val output = SettingsUtilities.get(path, accessToken, settingName)
+        if (output.contains("Error"))
+            abort(output)
+        return output
     }
 
     fun getMany(environment: Environment, accessToken: String, settingType: SettingType, settingName: String): String {
