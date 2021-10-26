@@ -414,7 +414,7 @@ class Hl7Serializer(
         // set up our configuration
         val hl7Config = report.destination?.translation as? Hl7Configuration
         val replaceValue = hl7Config?.replaceValue ?: emptyMap()
-        val setCLIAForSender = hl7Config?.cliaForSender ?: emptyMap()
+        val cliaForSender = hl7Config?.cliaForSender ?: emptyMap()
         val suppressQst = hl7Config?.suppressQstForAoe ?: false
         val suppressAoe = hl7Config?.suppressAoe ?: false
         val useOrderingFacilityName = hl7Config?.useOrderingFacilityName
@@ -589,19 +589,22 @@ class Hl7Serializer(
             }
         }
 
-        // look for CLIA resets
-        if (!hl7Config?.cliaForSender.isNullOrEmpty()) {
-            // get sender id for the record
-            val senderID = report.getString(row, "sender_id")
+        // loop through CLIA resets
+        cliaForSender.forEach { sender, clia ->
+            try {
+                // get sender id for the record
+                val senderID = report.getDeidentifiedResultMetaData()[row].senderId
 
-            // find that sender in the map
-            val clia = hl7Config?.cliaForSender?.get(senderID)
-
-            // if the sender needs should have a specific CLIA then overwrite the CLIA here
-            if (!clia.isNullOrEmpty()) {
-                val sendingFacilityID = "MSH-4-2"
-                val pathSpecSendingFacilityID = formPathSpec(sendingFacilityID)
-                terser.set(pathSpecSendingFacilityID, clia)
+                // find that sender in the map
+                val clia = hl7Config?.cliaForSender?.get(senderID)
+                // if the sender needs should have a specific CLIA then overwrite the CLIA here
+                if (!clia.isNullOrEmpty()) {
+                    val pathSpecSendingFacilityID = formPathSpec("MSH-4-2")
+                    terser.set(pathSpecSendingFacilityID, clia)
+                }
+            } catch (e: Exception) {
+                val msg = "${e.localizedMessage} ${e.stackTraceToString()}"
+                logger.error(msg)
             }
         }
 
