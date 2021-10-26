@@ -850,8 +850,7 @@ data class Element(
                 ElementAndValue(tokenElement, index.toString())
             }
             "\$currentDate" -> {
-                val formatter = DateTimeFormatter.ofPattern("yyyyMMdd")
-                val currentDate = LocalDate.now().format(formatter)
+                val currentDate = LocalDate.now().format(dateFormatter)
                 ElementAndValue(tokenElement, currentDate)
             }
             else -> {
