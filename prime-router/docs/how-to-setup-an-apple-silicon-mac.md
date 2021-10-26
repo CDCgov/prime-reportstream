@@ -87,7 +87,12 @@ Navigate to `http://localhost:8090/index.html`. You should be able to login and 
 
 ## Final Notes
 
-Building while Azurite is running can cause a problem because `clean` will remove the `build` folder that Azurite
-uses. You can solve this restarting Azurite.
+After a code update, a fast way to build and run the code again is
+```bash
+gradle package
+gradle quickrun
+```
+
+Building while Azurite is running can cause a problem if the `clean` task is used, because the clean task will remove the `build` folder that Azurite uses. You can solve this by restarting Azurite.
 
 VS Code and JetBrain's IntelliJ all have ARM64 versions. Be sure to install those. 
