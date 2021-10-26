@@ -1,0 +1,12 @@
+{
+    "name": "dummy",
+    "description": "PRIME's NEW Dummy Organization for Test CRUD of the Setting API",
+    "jurisdiction": "FEDERAL",
+    "stateCode": null,
+    "countyName": null,
+    "meta": {
+        "version": 0,
+        "createdBy": "local@test.com",
+        "createdAt": "2021-01-01T00:00:00.0Z"
+    }
+}
