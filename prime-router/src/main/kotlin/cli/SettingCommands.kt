@@ -20,7 +20,6 @@ import com.github.ajalt.clikt.parameters.types.outputStream
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.Headers.Companion.CONTENT_TYPE
 import com.github.kittinunf.fuel.core.extensions.authentication
-// import com.github.kittinunf.fuel.core.extensions.jsonBody
 import com.github.kittinunf.fuel.json.responseJson
 import com.github.kittinunf.result.Result
 import gov.cdc.prime.router.DeepOrganization
@@ -30,7 +29,6 @@ import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.OrganizationAPI
 import gov.cdc.prime.router.azure.ReceiverAPI
 import gov.cdc.prime.router.azure.SenderAPI
-// import org.apache.http.HttpStatus
 import java.io.InputStream
 
 private const val apiPath = "/api/settings"
