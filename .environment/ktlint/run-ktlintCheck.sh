@@ -19,7 +19,7 @@ function usage() {
     echo "  $ ${0} --format"
     echo "      Uses ktlint to fix all violations it finds in all kotlin (*.kt) files"
     echo ""
-    echo ""
+    echo " "
 }
 
 function error() {
