@@ -51,8 +51,8 @@ class LookupTableFunctions(
     }
 
     /**
-     * Fetch the list of lookup tables.  If the showAll query parameter is set to true then only active tables
-     * are returned.
+     * Fetch the list of lookup tables.  If the showInactive query parameter is set to true then show
+     * both active and inactive tables
      */
     @FunctionName("getLookupTableList")
     fun getLookupTableList(
@@ -67,7 +67,7 @@ class LookupTableFunctions(
             try {
                 val showInactive = request.queryParameters[showInactiveParamName]
                     ?.equals("true", true) ?: false
-                // Return only what's active if showAll is true
+                // Return everything if showInactive is true
                 val list = lookupTableAccess.fetchTableList(showInactive)
                 val json = mapper.writeValueAsString(list)
                 HttpUtilities.okResponse(request, json)
@@ -109,7 +109,7 @@ class LookupTableFunctions(
     }
 
     /**
-     * Fetch the data for a specific table version.
+     * Fetch the version information for a specific table version.
      */
     @FunctionName("getLookupTableInfo")
     fun getLookupTableInfo(
