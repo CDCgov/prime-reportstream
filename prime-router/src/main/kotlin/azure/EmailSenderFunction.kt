@@ -1,7 +1,7 @@
 package gov.cdc.prime.router.azure
 
-import com.google.gson.Gson
-import com.google.gson.JsonSyntaxException
+import com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
@@ -21,10 +21,11 @@ import com.sendgrid.helpers.mail.objects.Personalization
 import gov.cdc.prime.router.secrets.SecretHelper
 import java.io.IOException
 import java.util.logging.Logger
+import kotlin.reflect.KProperty1
 import kotlin.reflect.full.memberProperties
 
-const val NO_REPLY_EMAIL = "no-reply@cdc.gov"
-const val REPORT_STREAM_EMAIL = "reportstream@cdc.gov"
+var NO_REPLY_EMAIL = System.getenv("EMAIL_NO_REPLY") ?: "default@noemail.com"
+var REPORT_STREAM_EMAIL = System.getenv("EMAIL_REPORT_STREAM") ?: "default@noemail.com"
 const val TOS_SUBJECT_BASE = "TOS Agreement for "
 
 /*INFO:
@@ -46,17 +47,15 @@ data class TosAgreementForm(
 ) {
     fun validate(logger: Logger): Boolean {
         for (key in TosAgreementForm::class.memberProperties) {
-            val value: Any? = key.get(this)
-            if (
-                value is String &&
-                !key.toString().contains("title") /* Title is not required */
-            ) {
-                if (!verifyIsNotBlank(key.toString(), value, logger) ||
-                    !verifyNotExceededLimit(key.toString(), value, logger)
-                ) return false
-            } else if (value !is String && value !is Boolean) {
-                logger.info("Uh oh, \"$value\" is an invalid value at: \"$key\"")
-                return false
+            val value = key.get(this)
+            when (key.name) {
+                "title" -> if (!verifyNotExceededLimit(key, value as String, logger)) return false
+                "firstName" -> if (!verifyBoth(key, value as String, logger)) return false
+                "lastName" -> if (!verifyBoth(key, value as String, logger)) return false
+                "email" -> if (!verifyBoth(key, value as String, logger)) return false
+                "territory" -> if (!verifyBoth(key, value as String, logger)) return false
+                "organizationName" -> if (!verifyBoth(key, value as String, logger)) return false
+                "agreedToTermsOfService" -> if (!verifyAgreed(logger)) return false
             }
         }
         return verifyAgreed(logger)
@@ -67,13 +66,20 @@ data class TosAgreementForm(
         return this.agreedToTermsOfService
     }
 
-    private fun verifyIsNotBlank(key: String, value: String, logger: Logger): Boolean {
-        if (value.isBlank()) logger.info("Uh oh, \"$key\" in your request body is Null")
+    private fun verifyBoth(key: KProperty1<TosAgreementForm, *>, value: String, logger: Logger): Boolean {
+        if (!verifyIsNotBlank(key, value, logger) ||
+            !verifyNotExceededLimit(key, value, logger)
+        ) return false
+        return true
+    }
+
+    private fun verifyIsNotBlank(key: KProperty1<TosAgreementForm, *>, value: String, logger: Logger): Boolean {
+        if (value.isBlank()) logger.info("Uh oh, \"${key.name}\" in your request body is Null")
         return value.isNotBlank()
     }
 
-    private fun verifyNotExceededLimit(key: String, value: String, logger: Logger): Boolean {
-        if (value.length > 255) logger.info("Uh oh, \"$key\" has exceeded the character limit")
+    private fun verifyNotExceededLimit(key: KProperty1<TosAgreementForm, *>, value: String, logger: Logger): Boolean {
+        if (value.length > 255) logger.info("Uh oh, \"${key.name}\" has exceeded the character limit")
         return value.length <= 255
     }
 }
@@ -98,11 +104,10 @@ class EmailSenderFunction {
 
         if (request.body !== null) {
             logger.info(request.body)
-            val body: TosAgreementForm? = parseBody(request.body!!, TosAgreementForm::class.java, logger)
-            val mail: String? = if (body!!.validate(logger)) createMail(body, logger) else ""
-            if (!mail.isNullOrBlank()) {
-                ret.status(sendMail(mail, sendgridId, logger)) /* Status becomes whatever SendGrid returns */
-            }
+            val body: TosAgreementForm = parseBody(request.body!!, logger) ?: return ret.build()
+            if (!body.validate(logger)) return ret.build()
+            val mail: String = createMail(body, logger)
+            ret.status(sendMail(mail, sendgridId, logger)) /* Status becomes whatever SendGrid returns */
         }
 
         return ret.build()
@@ -113,26 +118,16 @@ class EmailSenderFunction {
     *  param) to parse many types of request bodies. Currently it only takes a single
     *  class, TosAgreementForm.
     */
-    private fun parseBody(requestBody: String, type: Class<TosAgreementForm>, logger: Logger): TosAgreementForm? {
-        val gson = Gson()
-
+    private fun parseBody(requestBody: String, logger: Logger): TosAgreementForm? {
         return try {
-            gson.fromJson(
-                requestBody,
-                type
-            )
-        } catch (ex: JsonSyntaxException) {
-            /*TODO:
-            *  For some reason, malformed requests were not throwing this exception when mapped
-            *  and it lead to a bunch of errors when cleansing everything. This should be debugged
-            *  but until then, returning null and checking against a null type is okay.
-            */
+            jacksonObjectMapper().readValue<TosAgreementForm>(requestBody, TosAgreementForm::class.java)
+        } catch (ex: MissingKotlinParameterException) {
             logger.info("There was an exception thrown when parsing your JSON")
             null
         }
     }
 
-    private fun createMail(body: TosAgreementForm, logger: Logger): String? {
+    private fun createMail(body: TosAgreementForm, logger: Logger): String {
         val mail: Mail = Mail()
         val p: Personalization = Personalization()
 
@@ -152,7 +147,7 @@ class EmailSenderFunction {
     }
 
     private fun sendMail(mail: String?, sendgridId: String?, logger: Logger): HttpStatus {
-        var status: HttpStatus = HttpStatus.INTERNAL_SERVER_ERROR
+        var status: HttpStatus = HttpStatus.NOT_FOUND
 
         if (!sendgridId.isNullOrBlank() && !mail.isNullOrBlank()) {
             var response: Response = Response()
@@ -179,7 +174,7 @@ class EmailSenderFunction {
             logger.info("Error in the createMail() function")
             return HttpStatus.BAD_REQUEST
         } else if (sendgridId.isNullOrBlank()) {
-            logger.info("Can't find SENDGRID_ID secret")
+            logger.warning("Can't find SENDGRID_ID secret")
             logger.info(mail)
             return HttpStatus.NOT_FOUND
         }
