@@ -11,10 +11,14 @@
             <AppenderRef ref="Console"/>
         </Logger>
 
-        <Logger name="gov.cdc.prime.router.transport.RedoxTransport" level="info"></Logger>
-        <Logger name="gov.cdc.prime.router.credentials" level="info"></Logger>
+        <Logger name="gov.cdc.prime.router.transport.RedoxTransport" level="info"/>
+        <Logger name="gov.cdc.prime.router.credentials" level="info"/>
         <!-- Setting to debug enables logging queries -->
         <Logger name="org.jooq" level="info" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Logger>
+
+        <Logger name="gov.cdc.prime.router" level="info" additivity="false">
             <AppenderRef ref="Console"/>
         </Logger>
 

@@ -16,7 +16,7 @@ open class LookupTable(
     private val columnIndex: MutableMap<String, Map<String, Int>> = mutableMapOf()
     private val indexDelimiter = "|"
 
-    val rowCount: Int get() = table.size - 1
+    val rowCount: Int get() = if (table.isNotEmpty()) table.size - 1 else 0
 
     /**
      * Set the table's data with [tableData].
@@ -37,7 +37,7 @@ open class LookupTable(
      * A little magic to wrap around the data in the lookup table.
      * Drop the first row which is the header row. Maybe we don't always want that.
      */
-    val dataRows get() = this.drop(1)
+    val dataRows get() = if (table.isNotEmpty()) this.drop(1) else emptyList()
 
     /**
      * Does the underlying table have a column matching the name provided?

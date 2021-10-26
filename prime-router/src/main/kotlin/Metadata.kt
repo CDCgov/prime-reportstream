@@ -6,6 +6,7 @@ import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.google.common.base.Preconditions
 import gov.cdc.prime.router.azure.DatabaseLookupTableAccess
+import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.metadata.DatabaseLookupTable
 import gov.cdc.prime.router.metadata.LookupTable
 import org.apache.logging.log4j.kotlin.Logging
@@ -13,11 +14,12 @@ import org.jooq.exception.DataAccessException
 import java.io.File
 import java.io.FilenameFilter
 import java.io.InputStream
+import java.time.Instant
 
 /**
  * A metadata object contains all the metadata including schemas, tables, valuesets, and organizations.
  */
-class Metadata : Logging {
+class Metadata(private var tableDbAccess: DatabaseLookupTableAccess = DatabaseLookupTableAccess()) : Logging {
     private var schemaStore = mapOf<String, Schema>()
     private var fileNameTemplatesStore = mapOf<String, FileNameTemplate>()
     private var mappers = listOf(
@@ -59,8 +61,9 @@ class Metadata : Logging {
      * Load all parts of the metadata catalog from a directory and its sub-directories
      */
     internal constructor(
-        metadataPath: String
-    ) {
+        metadataPath: String,
+        tableDbAccess: DatabaseLookupTableAccess = DatabaseLookupTableAccess()
+    ) : this(tableDbAccess) {
         val metadataDir = File(metadataPath)
         if (!metadataDir.isDirectory) error("Expected metadata directory")
         loadValueSetCatalog(metadataDir.toPath().resolve(valuesetsSubdirectory).toString())
@@ -78,8 +81,9 @@ class Metadata : Logging {
         schema: Schema? = null,
         valueSet: ValueSet? = null,
         tableName: String? = null,
-        table: LookupTable? = null
-    ) {
+        table: LookupTable? = null,
+        tableDbAccess: DatabaseLookupTableAccess = DatabaseLookupTableAccess()
+    ) : this(tableDbAccess) {
         valueSet?.let { loadValueSets(it) }
         table?.let { loadLookupTable(tableName ?: "", it) }
         schema?.let { loadSchemas(it) }
@@ -105,7 +109,7 @@ class Metadata : Logging {
         return loadSchemaList(schemas.toList())
     }
 
-    fun loadSchemaList(schemas: List<Schema>): Metadata {
+    private fun loadSchemaList(schemas: List<Schema>): Metadata {
         val fixedUpSchemas = mutableMapOf<String, Schema>()
 
         fun fixupSchema(name: String): Schema {
@@ -256,7 +260,7 @@ class Metadata : Logging {
         return loadValueSetList(sets.toList())
     }
 
-    fun loadValueSetList(sets: List<ValueSet>): Metadata {
+    private fun loadValueSetList(sets: List<ValueSet>): Metadata {
         this.valueSets = sets.map { normalizeValueSetName(it.name) to it }.toMap()
         return this
     }
@@ -287,9 +291,11 @@ class Metadata : Logging {
     /*
      * Lookup Tables
      */
-    private var lookupTableStore = mapOf<String, LookupTable>()
+    internal var lookupTableStore = mapOf<String, LookupTable>()
 
-    fun loadLookupTables(filePath: String): Metadata {
+    internal var tablelastCheckedAt = Instant.MIN
+
+    private fun loadLookupTables(filePath: String): Metadata {
         val catalogDir = File(filePath)
         if (!catalogDir.isDirectory) error("Expected ${catalogDir.absolutePath} to be a directory")
         try {
@@ -313,47 +319,54 @@ class Metadata : Logging {
     }
 
     /**
-     * Load the database lookup tables ignoring any that have the same name as a file based table.
+     * Load the database lookup tables.
      */
     internal fun loadDatabaseLookupTables() {
         logger.trace("Loading database lookup tables...")
-        val tableDbAccess = DatabaseLookupTableAccess()
-
-        try {
-            var tableList = tableDbAccess.fetchTableList()
-
-            // Remove any tables from the list that are in files
-            val ignoredTables = tableList.filter { lookupTableStore.containsKey(it.tableName) }
-            tableList = tableList.filter { !lookupTableStore.containsKey(it.tableName) }
-            if (ignoredTables.isNotEmpty())
-                logger.warn(
-                    "Not using database lookup tables " +
-                        "${ignoredTables.map{it.tableName}.joinToString(", ")} as there are file-based counterparts."
-                )
-            if (tableList.isEmpty()) logger.info("No database lookup tables found to load.")
-
-            // Load each table
-            tableList.forEach { tableInfo ->
-                logger.debug("Loading database lookup table ${tableInfo.tableName}")
-                loadLookupTable(
-                    tableInfo.tableName,
-                    DatabaseLookupTable(tableInfo.tableName).loadTable(tableInfo.tableVersion)
-                )
-            }
-        } catch (e: DataAccessException) {
-            logger.error("There was an error loading the database lookup tables.", e)
-            throw e
-        }
+        tablelastCheckedAt = Instant.MIN
+        loadDatabaseLookupTableUpdates()
     }
 
     /**
-     * Check any database lookup tables to see if they need to be updated.
+     * Update the database lookup tables that have changed versions and load any new tables.
      */
-    internal fun checkForDatabaseLookupTableUpdates() {
-        lookupTableStore.values.forEach { table ->
-            if (table is DatabaseLookupTable) {
-                table.checkForUpdate()
+    internal fun loadDatabaseLookupTableUpdates() {
+        // Check for tables at intervals
+        if (tablelastCheckedAt.plusSeconds(tablePollInternalSecs.toLong()).isAfter(Instant.now()))
+            return
+
+        logger.trace("Checking for database lookup table updates.")
+        tablelastCheckedAt = Instant.now()
+        val databaseTables = lookupTableStore.values.mapNotNull { if (it is DatabaseLookupTable) it else null }
+
+        try {
+            val activeTables = tableDbAccess.fetchTableList()
+            // Let's be paranoid and check if the API is not returning what we need.
+            if (activeTables.any { it.isActive == false })
+                error("Database lookup table list returned an inactive table.")
+
+            // Process existing tables
+            databaseTables.forEach { dbTable ->
+                val tableInfo = activeTables.firstOrNull { it.tableName == dbTable.name }
+                if (tableInfo != null && tableInfo.tableVersion != dbTable.version)
+                    dbTable.loadTable(tableInfo.tableVersion)
+                else if (tableInfo == null) {
+                    // This table is no longer active or was removed.
+                    dbTable.setTableData(emptyList())
+                    logger.warn("Database lookup table ${dbTable.name} is no longer active.")
+                }
             }
+
+            // Load new tables
+            val newTables = activeTables.filter { !lookupTableStore.containsKey(it.tableName) }
+            newTables.forEach {
+                loadLookupTable(
+                    it.tableName,
+                    DatabaseLookupTable(it.tableName, tableDbAccess).loadTable(it.tableVersion)
+                )
+            }
+        } catch (e: DataAccessException) {
+            logger.error("Error while trying to check for updates to database lookup tables.", e)
         }
     }
 
@@ -425,8 +438,13 @@ class Metadata : Logging {
                 instance = instance ?: Metadata(defaultMetadataDirectory)
             }
             Preconditions.checkNotNull(instance)
-            instance!!.checkForDatabaseLookupTableUpdates()
+            instance!!.loadDatabaseLookupTableUpdates()
             return instance!!
         }
+
+        /**
+         * The amount of seconds to wait before tables are checked again for updates.
+         */
+        private val tablePollInternalSecs = if (Environment.get() == Environment.PROD) 300 else 30
     }
 }
