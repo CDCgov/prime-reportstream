@@ -132,13 +132,15 @@ elements:
 
 
 # Set fields needed for the LIVDlookup() Mapper to set the LOINC code and OBX.17 - Device Info
+
     - name: equipment_model_name
       csvFields: [{name: Device Identifier}]
-#      mapperOverridesValue: true
+
+    - name: test_performed_code_temp
+      csvFields: [{name: Test Code}]
 
     - name: test_performed_code
-      type: TEXT
-      csvFields: [{name: Test Code}]
+      mapper: trimBlanks(test_performed_code_temp)
 
 #    - name: test_kit_name_id
 #      type: TEXT
