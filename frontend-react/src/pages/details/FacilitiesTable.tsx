@@ -22,7 +22,7 @@ function FacilitiesTable(props: Props) {
             <table
                 id="facilitiestable"
                 className="usa-table usa-table--borderless prime-table"
-                summary="Previous results"
+                aria-label="Facilities included in this report"
             >
                 <thead>
                     <tr>
