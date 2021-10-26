@@ -21,12 +21,6 @@ private const val jsonMimeType = "application/json"
 
 class SettingsUtilities {
 
-    /**
-     * Operation and SettingType Enumes are defined for use in the formPath
-     * function call.
-     */
-    enum class SettingType { ORG, SENDER, RECEIVER }
-
     companion object {
 
         /**
@@ -36,6 +30,7 @@ class SettingsUtilities {
          *		ERROR: 		Error on put of name of organization.
          *		SUCCESS: 	Success. Setting organization's name.
          */
+
         fun put(
             path: String,
             accessToken: String,

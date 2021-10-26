@@ -22,7 +22,6 @@ import com.github.kittinunf.fuel.core.FuelError
 import com.github.kittinunf.fuel.core.Headers.Companion.CONTENT_TYPE
 import com.github.kittinunf.fuel.core.Response
 import com.github.kittinunf.fuel.core.extensions.authentication
-import com.github.kittinunf.fuel.core.extensions.jsonBody
 import com.github.kittinunf.fuel.json.FuelJson
 import com.github.kittinunf.fuel.json.responseJson
 import com.github.kittinunf.result.Result
@@ -117,23 +116,21 @@ abstract class SettingCommand(
                         val version = result.value.obj().getInt("version")
                         "Success. Setting $settingName at version $version"
                     }
-                    HttpStatus.SC_CREATED -> "Success. Created $settingName\n"
+                    HttpStatus.SC_CREATED -> "Success. Created $settingName"
                     else -> error("Unexpected successful status code")
                 }
         }
     }
 
-    fun delete(environment: Environment, accessToken: String, settingType: SettingType, settingName: String): String {
+    fun delete(environment: Environment, accessToken: String, settingType: SettingType, settingName: String) {
         val path = formPath(environment, Operation.DELETE, settingType, settingName)
         if (verbose) {
             echo("DELETE $path")
         }
         val (_, response, result) = SettingsUtilities.delete(path, accessToken)
         return when (result) {
-            is Result.Failure ->
-                abort("Error on delete of $settingName: ${response.responseMessage} ${String(response.data)}")
-            is Result.Success ->
-                "Success $settingName: ${result.value}"
+            is Result.Failure -> handleHttpFailure(settingName, response, result)
+            is Result.Success -> Unit
         }
     }
 
@@ -144,8 +141,7 @@ abstract class SettingCommand(
         }
         val (_, response, result) = SettingsUtilities.get(path, accessToken)
         return when (result) {
-            is Result.Failure ->
-                abort("Error getting $settingName: ${response.responseMessage} ${String(response.data)}")
+            is Result.Failure -> handleHttpFailure(settingName, response, result)
             is Result.Success -> result.value
         }
     }
