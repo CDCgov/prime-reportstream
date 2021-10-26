@@ -8,7 +8,7 @@
         "@craco/craco": "^6.3.0",
         "@fortawesome/fontawesome-svg-core": "^1.2.36",
         "@fortawesome/free-solid-svg-icons": "^5.15.4",
-        "@fortawesome/react-fontawesome": "^0.1.15",
+        "@fortawesome/react-fontawesome": "^0.1.16",
         "@okta/okta-auth-js": "^5.2.3",
         "@okta/okta-react": "^6.1.0",
         "@okta/okta-signin-widget": "^5.9.0",
