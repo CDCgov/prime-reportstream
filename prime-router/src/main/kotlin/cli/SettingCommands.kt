@@ -130,9 +130,6 @@ abstract class SettingCommand(
 
     fun delete(environment: Environment, accessToken: String, settingType: SettingType, settingName: String) {
         val path = formPath(environment, Operation.DELETE, settingType, settingName)
-        if (verbose) {
-            echo("DELETE $path")
-        }
         val (_, response, result) = Fuel
             .delete(path)
             .authentication()
