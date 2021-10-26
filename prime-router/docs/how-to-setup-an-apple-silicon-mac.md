@@ -26,6 +26,7 @@ The step that runs the `./devenv-infrastructure.sh` will not work.
 ReportStream depends on set of containers to be up before running. Run these containers now using `docker-compose`.
 
 ```bash
+docker-compose down
 docker-compose -f docker-compose.build.yml up --detach
 docker-compose up --scale prime_dev=0 --scale settings=0 --scale web_receiver=0 --detach
 ```
@@ -56,7 +57,7 @@ For now, keep ReportStream running and go to next step.
 ### Step 4 - Setup Settings and Vault
 To run tests, the settings db and the vault need to be configured.
 The `cleanslate.sh` script has likely failed to populate the settings and vault, so we do this by hand now.
-This step only need to be done once. 
+This step only needs to be done once. 
 
 In a new shell with ReportStream running in the first shell, execute these commands.
 
