@@ -676,6 +676,20 @@ This field is ignored.
 
 ---
 
+**Name**: Test_date
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+This field is ignored.
+
+---
+
 **Name**: Test_kit_EUA_ID
 
 **Type**: TEXT
@@ -1045,7 +1059,7 @@ Translate multiple inbound Y/N/U AOE values to RS values
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
 
-**Table**: LIVD-SARS-CoV-2-2021-04-28
+**Table**: LIVD-SARS-CoV-2-2021-09-29
 
 **Table Column**: Model
 
@@ -1721,6 +1735,7 @@ Code | Display
 2106-3|White
 2106-3|W
 2106-3|Caucasian
+2106-3|C
 2106-3|2106-3
 1002-5|American Indian or Alaska Native
 1002-5|American Indian
@@ -1741,7 +1756,9 @@ Code | Display
 2131-1|O
 2131-1|Other Race
 2131-1|Other Race White
+2131-1|Other Race,White
 2131-1|Other Race Black
+2131-1|Other Race,Black
 2131-1|2131-1
 2028-9|Asian
 2028-9|Asian Indian
@@ -2155,8 +2172,6 @@ Translate multiple inbound Y/N/U AOE values to RS values
 
 **Format**: $alt
 
-**Default Value**: 99999999
-
 **Cardinality**: [0..1]
 
 **Alt Value Sets**
@@ -2165,6 +2180,7 @@ Code | Display
 ---- | -------
 Sofia SARS Antigen FIA_Quidel Corporation|Sofia SARS Antigen FIA
 10811877011269|Abbott-ID NOW COVID-19 (Molecular)
+RightSign COVID-19 IgG/IgM Rapid Test Cassette_Hangzhou Biotest Biotech Co., Ltd.|RightSign COVID-19 IgG/IgM Rapid Test Cassette
 COVID-19 IgG/IgM Rapid Test Cassette (Whole Blood/Serum/Plasma)_Healgen Scientific LLC|Healgen COVID-19 IgG IgM Rapid Test
 
 ---
@@ -2195,6 +2211,9 @@ Code | Display
 ---- | -------
 260385009|Negative
 260385009|Neg
+260385009|Negative *** High ***
+260385009|Negative *** Low ***
+260385009|260385009
 260415000|Not detected
 260415000|NDET
 260415000|260415000
@@ -2205,6 +2224,10 @@ Code | Display
 10828004|Pos
 10828004|Positive (Abnormal)
 10828004|Positive (Alpha Abnormal)
+10828004|Positive *** High ***
+10828004|Positive  *** High ***
+10828004|Positive  *** Low ***
+10828004|Positive 
 10828004|10828004
 720735008|Presumptive positive
 720735008|720735008
@@ -2252,18 +2275,6 @@ Translate multiple inbound Test Result values to RS values
 **PII**: No
 
 **Format**: M/d/yyyy H:nn
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: Test_date
-
-**Type**: DATETIME
-
-**PII**: No
-
-**Format**: M/d/yyyy
 
 **Cardinality**: [0..1]
 

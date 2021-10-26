@@ -446,7 +446,7 @@ The patient's city
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Table**: zip-code-data
 
@@ -1022,18 +1022,6 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 ---
 
 **Name**: Result Date
-
-**Type**: DATETIME
-
-**PII**: No
-
-**Format**: yyyyMMdd
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: Date Reported
 
 **Type**: DATETIME
 

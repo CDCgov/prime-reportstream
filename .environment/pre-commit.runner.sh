@@ -13,6 +13,7 @@ pushd "${REPO_ROOT?}" 1>/dev/null 2>&1
 # Add your executable script here if you want them part of the pre-commit hook execution
 CHECKS_TO_RUN=(
     ${REPO_ROOT}/.environment/gitleaks/run-gitleaks.sh
+    ${REPO_ROOT}/.environment/ktlint/run-ktlintCheck.sh
     ${REPO_ROOT}/.environment/terraform-fmt/run-terraform-fmt.sh
 )
 
@@ -23,6 +24,14 @@ function error() {
 
     return 1
 }
+
+# Run the docker check first and bail immediately if it fails, as some other
+# checks depend on it.
+${REPO_ROOT}/.environment/docker/check-docker.sh
+DOCKER_RC=$?
+if [[ $DOCKER_RC -ne 0 ]]; then
+  exit 1
+fi
 
 echo "> Running pre-commit hooks"
 

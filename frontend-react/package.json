@@ -8,7 +8,7 @@
         "@craco/craco": "^6.3.0",
         "@fortawesome/fontawesome-svg-core": "^1.2.36",
         "@fortawesome/free-solid-svg-icons": "^5.15.4",
-        "@fortawesome/react-fontawesome": "^0.1.15",
+        "@fortawesome/react-fontawesome": "^0.1.16",
         "@okta/okta-auth-js": "^5.2.3",
         "@okta/okta-react": "^6.1.0",
         "@okta/okta-signin-widget": "^5.9.0",
@@ -23,6 +23,7 @@
         "@types/react-dom": "^17.0.5",
         "chart.js": "^3.3.2",
         "craco-sass-resources-loader": "^1.1.0",
+        "dompurify": "^2.3.3",
         "downloadjs": "^1.4.7",
         "eslint-config-airbnb-base": "^14.2.1",
         "font-awesome": "^4.7.0",
@@ -114,6 +115,7 @@
         "@testing-library/jest-dom": "^5.14.1",
         "@testing-library/react": "^12.1.0",
         "@testing-library/user-event": "^12.8.3",
+        "@types/dompurify": "^2.3.1",
         "@types/jest": "^26.0.23",
         "@types/react-helmet": "^6.1.2",
         "@types/react-router-dom": "^5.1.7",
@@ -134,7 +136,7 @@
         "react-dropdown": "^1.9.2",
         "react-snap": "^1.23.0",
         "sass": "^1.42.1",
-        "stylelint": "^13.13.1",
+        "stylelint": "^14.0.0",
         "yaml-loader": "^0.6.0"
     },
     "reactSnap": {
