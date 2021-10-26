@@ -65,7 +65,7 @@
                     "summary": "Work with ReportStream to set up a customized ELR connection",
                     "icon": "file-medical",
                     "img": "rs-diagram.svg",
-                    "imgAlt": "Example screenshot of the ReportStream web application",
+                    "imgAlt": "Diagram showing simplified point-to-point ELR connections",
                     "items": [
                         {
                             "title": "Centralize your connections",
