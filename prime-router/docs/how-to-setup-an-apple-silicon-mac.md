@@ -26,13 +26,18 @@ The step that runs the `./devenv-infrastructure.sh` will not work.
 ReportStream depends on set of containers to be up before running. Run these containers now using `docker-compose`.
 
 ```bash
+# take down existing containers
 docker-compose down
+
+# make sure the Postgres is running 
 docker-compose -f docker-compose.build.yml up --detach
+
+# Now run the other containers except the function app
 docker-compose up --scale prime_dev=0 --scale settings=0 --scale web_receiver=0 --detach
 ```
 
-> Note: If you get an error running `docker-compose` like *bind source path does not exist: .../build/ftps*.
-> This is likely because a `clean` command has removed the build `build/ftps` directory. You can just `mkdir build/ftps` and the `docker-compose` will run.
+> Note: If you get an error running `docker-compose up` like *bind source path does not exist: .../build/ftps*.
+> This is likely because a `clean` command has removed the build `build/ftps` directory. You can add the directory by hand using `mkdir build/ftps` and the `docker-compose` will run.
 
 ### Step 3 - Run ReportStream
 With the dependent services running, we can run ReportStream locally. 
@@ -41,18 +46,7 @@ With the dependent services running, we can run ReportStream locally.
 gradle run
 ```
 
-A `ctrl-c` will kill the running ReportStream process. 
-For your change, build, debug cycle, you can use the gradle to execute these steps. 
-
-```bash
-# to build the project
-gradle clean package fatjar
-
-# to run the build
-gradle run
-```
-
-For now, keep ReportStream running and go to next step.
+A `ctrl-c` will kill the running ReportStream process. For now, keep ReportStream running and go to next step.
 
 ### Step 4 - Setup Settings and Vault
 To run tests, the settings db and the vault need to be configured.
@@ -92,5 +86,8 @@ ls ./dist
 Navigate to `http://localhost:8090/index.html`. You should be able to login and exercise the UI. 
 
 ## Final Notes
+
+Building while Azurite is running can cause a problem because `clean` will remove the `build` folder that Azurite
+uses. You can solve this restarting Azurite.
 
 VS Code and JetBrain's IntelliJ all have ARM64 versions. Be sure to install those. 
