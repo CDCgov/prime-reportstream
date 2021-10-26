@@ -116,6 +116,16 @@ RE|Remark
 
 ---
 
+**Name**: date_result_released
+
+**Type**: DATETIME
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
 **Name**: device_id
 
 **Type**: TABLE
@@ -2545,16 +2555,6 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 ---
 
 **Name**: test_result_date
-
-**Type**: DATETIME
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: test_result_report_date
 
 **Type**: DATETIME
 

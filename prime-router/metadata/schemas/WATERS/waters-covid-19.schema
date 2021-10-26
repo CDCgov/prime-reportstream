@@ -47,7 +47,7 @@ elements:
   - name: test_result_date
     csvFields: [{ name: testResultDate}]
 
-  - name: test_result_report_date
+  - name: date_result_released
     csvFields: [{ name: testReportDate}]
 
   # Must match LIVD column M, "Test Kit Name ID"

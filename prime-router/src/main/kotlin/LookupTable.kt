@@ -10,7 +10,7 @@ import java.io.InputStream
  */
 class LookupTable(
     private val table: List<List<String>>
-) {
+) : Iterable<List<String>> {
     private val headerRow: List<String> = table[0].map { it.lowercase() }
     private val headerIndex: Map<String, Int> = headerRow.mapIndexed { index, header -> header to index }.toMap()
     private val columnIndex: MutableMap<String, Map<String, Int>> = mutableMapOf()
@@ -18,6 +18,23 @@ class LookupTable(
 
     val rowCount: Int get() = table.size - 1
 
+    /**
+     * Exposes the iterator for the underlying data structure, so we can then use the extension methods
+     * built into Kotlin for the LookupTable
+     */
+    override fun iterator(): Iterator<List<String>> {
+        return table.iterator()
+    }
+
+    /**
+     * A little magic to wrap around the data in the lookup table.
+     * Drop the first row which is the header row. Maybe we don't always want that.
+     */
+    val dataRows get() = this.drop(1)
+
+    /**
+     * Does the underlying table have a column matching the name provided?
+     */
     fun hasColumn(column: String): Boolean {
         return headerIndex.containsKey(column.lowercase())
     }

@@ -37,6 +37,7 @@ module "key_vault" {
   location                    = var.location
   aad_object_keyvault_admin   = var.aad_object_keyvault_admin
   terraform_caller_ip_address = var.terraform_caller_ip_address
+  use_cdc_managed_vnet        = var.use_cdc_managed_vnet
 }
 
 module "container_registry" {

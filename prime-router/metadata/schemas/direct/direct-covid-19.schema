@@ -57,7 +57,7 @@ elements:
     documentation: eg, 20210111
     csvFields: [{ name: testResultDate}]
 
-  - name: test_result_report_date
+  - name: date_result_released
     documentation: eg, 20210112
     csvFields: [{ name: testReportDate}]
 
