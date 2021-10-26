@@ -1965,10 +1965,10 @@
   resolved "https://registry.yarnpkg.com/@tootallnate/once/-/once-1.1.2.tgz#ccb91445360179a04e7fe6aff78c00ffc1eeaf82"
   integrity sha512-RbzJvlNzmRq5c3O09UipeuXno4tA1FE6ikOjxZK0tuxVv3412l64l5t1W5pj4+rJq9vpkm/kwiR07aZXnsKPxw==
 
-"@trussworks/react-uswds@^2.2.0":
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/@trussworks/react-uswds/-/react-uswds-2.2.0.tgz#9efa0556a19332eb8f271c5ca86109898a41406b"
-  integrity sha512-l2lZsey/fTfcjL+Czd1r4lMbkyDBJ5Lkayvf3/RU4CDJ3esQh8Kcqv2vV2ABngAUcdD8cexNgD0nYYmpQ4BmSA==
+"@trussworks/react-uswds@^1.17.0":
+  version "1.17.0"
+  resolved "https://registry.yarnpkg.com/@trussworks/react-uswds/-/react-uswds-1.17.0.tgz#61aa01aff501892fefd2d8d79fbc4ec164efd516"
+  integrity sha512-1LI7IcMEUIG4MwIfm0NlTtUf/1AwQbW/vIk9evuSoWkwiK8CpXHOVZXKwalhVrncyDzjf+CpV9PDmlnf747Vvg==
 
 "@types/aria-query@^4.2.0":
   version "4.2.2"
