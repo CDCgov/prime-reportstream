@@ -93,6 +93,8 @@ export const Upload = () => {
             // load the "contents" of the file. Hope it fits in memory!
             const filecontent = await file.text();
             setFileContent(filecontent);
+            // todo: this is a good place to do basic validation of the upload file. e.g. does it have
+            // all the required columns? Are any rows obviously not correct (empty or obviously wrong type)?
         } catch (err) {
             // todo: have central error reporting mechanism.
             console.error(err);
