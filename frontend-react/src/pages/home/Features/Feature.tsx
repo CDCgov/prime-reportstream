@@ -15,7 +15,7 @@ export default function Feature({
     if (section.type === "deliveryMethods") {
         return <DeliveryMethodsFeature feature={feature} />;
     } else if (section.type === "liveMap") {
-        return <LiveMapFeature feature={feature} />;
+        return "";
     } else {
         let cleanSummaryHtml = DOMPurify.sanitize(feature!.summary!);
         return (
