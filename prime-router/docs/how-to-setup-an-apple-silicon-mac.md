@@ -6,11 +6,11 @@ At the time of writing this note, Microsoft's Azure Function docker container is
 Microsoft has not announced plans to fix this problem. 
 
 The current `./devenv-infrastructure.sh` runs the Frontend build in a container. 
-This container doesn't run because of the use of ARM64. 
+This container doesn't run because of the image is not `arm64`. 
 
 ## Workarounds
 
-Fortunately, most of our tooling works on Apple Silicon, and it is possible to run ReportStream without a Docker container.  
+Fortunately, most of our tooling works on Apple Silicon, and it is possible to run ReportStream without a Docker container as explained in the [Running Faster](getting-started/faster-development.md) document. 
 
 ### Step 1 - Follow the getting started instructions
 
@@ -26,8 +26,12 @@ The step that runs the `./devenv-infrastructure.sh` will not work.
 ReportStream depends on set of containers to be up before running. Run these containers now using `docker-compose`.
 
 ```bash
-docker-compose up sftp redox azurite vault web_receiver --detach
+docker-compose -f docker-compose.build.yml up --detach
+docker-compose up --scale prime_dev=0 --scale settings=0 --scale web_receiver=0 --detach
 ```
+
+> Note: If you get an error running `docker-compose` like *bind source path does not exist: .../build/ftps*.
+> This is likely because a `clean` command has removed the build `build/ftps` directory. You can just `mkdir build/ftps` and the `docker-compose` will run.
 
 ### Step 3 - Run ReportStream
 With the dependent services running, we can run ReportStream locally. 
