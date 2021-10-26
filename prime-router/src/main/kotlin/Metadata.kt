@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.google.common.base.Preconditions
 import gov.cdc.prime.router.azure.DatabaseLookupTableAccess
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.metadata.DatabaseLookupTable
@@ -426,20 +425,22 @@ class Metadata(private var tableDbAccess: DatabaseLookupTableAccess = DatabaseLo
         const val valuesetsSubdirectory = "valuesets"
         const val tableSubdirectory = "tables"
         const val fileNameTemplatesSubdirectory = "./file_name_templates"
-        @Volatile private var instance: Metadata? = null
-        // I am probably threadsafe. If things go bananas verify I'm not the cause
-        // this is instead of doing everything with DI because doing DI right in Azure
-        // with existing DI libraries was extremely complex and beyond the scope
-        // of this work. And probably hard to get right. And honestly not necessary. Probably.
-        // honestly, the case could be made to make Metadata a singleton and then this code
-        // can go away, but that is also beyond the scope of this work right now
+
+        /**
+         * Singleton object
+         */
+        private val singletonInstance: Metadata by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
+            Metadata(defaultMetadataDirectory)
+        }
+
+        /**
+         * Get the singleton instance.
+         */
         fun getInstance(): Metadata {
-            if (instance == null) synchronized(this) {
-                instance = instance ?: Metadata(defaultMetadataDirectory)
-            }
-            Preconditions.checkNotNull(instance)
-            instance!!.loadDatabaseLookupTableUpdates()
-            return instance!!
+            // Load any updates to the database lookup tables.
+            // Due to the use of this function, this will get checked at least on every Azure function call
+            singletonInstance.loadDatabaseLookupTableUpdates()
+            return singletonInstance
         }
 
         /**
