@@ -142,10 +142,6 @@ elements:
     - name: test_performed_code
       mapper: trimBlanks(test_performed_code_temp)
 
-#    - name: test_kit_name_id
-#      type: TEXT
-#      csvFields: [{name: Device Identifier}]
-
 
 # Ordering provider
     - name: ordering_provider_id

@@ -603,7 +603,6 @@ class TrimBlanksMapper : Mapper {
     }
 
     override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
-        if (values.isEmpty()) return null
         val ev = values.firstOrNull()?.value ?: ""
         return ev.trim()
     }
