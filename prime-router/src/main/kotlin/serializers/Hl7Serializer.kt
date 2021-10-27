@@ -589,14 +589,14 @@ class Hl7Serializer(
             }
         }
 
+        // get sender id for the record
+        val senderID = report.getDeidentifiedResultMetaData()[row].senderId
+
         // loop through CLIA resets
         cliaForSender.forEach { sender, clia ->
             try {
-                // get sender id for the record
-                val senderID = report.getDeidentifiedResultMetaData()[row].senderId
-
                 // find that sender in the map
-                if (sender == senderID && !clia.isNullOrEmpty()) {
+                if (sender.equals(senderID.trim(), ignoreCase = true) && !clia.isNullOrEmpty()) {
                     // if the sender needs should have a specific CLIA then overwrite the CLIA here
                     val pathSpecSendingFacilityID = formPathSpec("MSH-4-2")
                     terser.set(pathSpecSendingFacilityID, clia)
