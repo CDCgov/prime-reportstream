@@ -13,10 +13,10 @@ import gov.cdc.prime.router.cli.SettingsUtilities
  *  6. DELETE: Do a 'delete' to remove 'dummy'
  *  7. Re-run step 1, to confirm that it's gone.
  *
- * Returns:
- *  If GOOD:
+ * @returns:
+ *  If SUCCESS:
  *      good("Test passed: Test GRUD REST API ")
- *  If ERROR
+ *  If ERROR:
  *      bad("Test GRUD of Setting API: $output" - Where $output is the specific error message from CRUD API
  *
  */
@@ -26,16 +26,27 @@ class Settings : CoolTest() {
     override val description = "Test CRUD of the Setting API"
     override val status = TestStatus.DRAFT
 
+    /**
+     * Define private local variables for use in the test.
+     */
     private val dummyAccessToken = "dummy"
     private val settingName = "dummy"
     private val settingErrorMessage = "Test GRUD of Setting API: "
 
+    /**
+     * Define private local environment to use for creating the path endpoint
+     * to the dummy organization.
+     */
     private val envlocal = SettingsUtilities.Environment(
         "local",
         (System.getenv("PRIME_RS_API_ENDPOINT_HOST") ?: "localhost") + ":7071",
         useHttp = true,
     )
 
+    /**
+     * Define the new dummy organization to be use for test of setting/create the new
+     * dummy organization.
+     */
     val newDummyOrganization = """
         {
             "name": "dummy",
@@ -50,6 +61,11 @@ class Settings : CoolTest() {
             }
         }
     """
+
+    /**
+     * Define the update dummy organization to be use for test of updating the
+     * dummy organization.
+     */
     val updateDummyOrganization = """
         {
             "name": "dummy",

@@ -27,6 +27,10 @@ private const val apiPath = "/api/settings"
 
 class SettingsUtilities {
 
+    /**
+     * The Environment data class is used to define Environment datatype
+     * for formPath function call.
+     */
     data class Environment(
         val name: String,
         val baseUrl: String,
@@ -34,6 +38,10 @@ class SettingsUtilities {
         val oktaApp: OktaCommand.OktaApp? = null
     )
 
+    /**
+     * Operation and SettingType Enumes are defined for use in the formPath
+     * function call.
+     */
     enum class Operation { LIST, GET, PUT, DELETE }
     enum class SettingType { ORG, SENDER, RECEIVER }
 
@@ -51,6 +59,10 @@ class SettingsUtilities {
             yamlMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
         }
 
+        /**
+         * The formPath function is the utility function to return the path string
+         * for the URL endpoint.
+         */
         fun formPath(
             environment: Environment,
             operation: Operation,
@@ -83,6 +95,13 @@ class SettingsUtilities {
             }
         }
 
+        /**
+         * PUT function is the CRUD utility function that handle http client CREAT and UPDATE
+         * operation.
+         * @return: String
+         *		ERROR: 		Error on put of name of organization.
+         *		SUCCESS: 	Success. Setting organization's name.
+         */
         fun put(
             path: String,
             accessToken: String,
@@ -112,6 +131,13 @@ class SettingsUtilities {
             }
         }
 
+        /**
+         * GET function is the CRUD utility function that handle the http client GET
+         * operation.
+         * @return: String
+         *		ERROR: 		Error getting organization's name.
+         *		SUCCESS: 	JSON payload body.
+         */
         fun get(
             path: String,
             accessToken: String,
@@ -130,6 +156,13 @@ class SettingsUtilities {
             }
         }
 
+        /**
+         * DELETE function is the CRUD utility function that handle the http client DELETE
+         * operation.
+         * @return: String
+         *		ERROR: 		Error on delete organization's name.
+         *		SUCCESS: 	Success organization's name: JSON response body.
+         */
         fun delete(
             path: String,
             accessToken: String,
