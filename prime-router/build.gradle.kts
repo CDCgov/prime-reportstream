@@ -26,7 +26,7 @@ import java.util.Properties
 
 plugins {
     kotlin("jvm") version "1.5.31"
-    id("org.flywaydb.flyway") version "7.15.0"
+    id("org.flywaydb.flyway") version "8.0.2"
     id("nu.studer.jooq") version "6.0.1"
     id("com.github.johnrengelman.shadow") version "7.1.0"
     id("com.microsoft.azure.azurefunctions") version "1.8.0"
@@ -513,10 +513,10 @@ dependencies {
     implementation("com.azure:azure-storage-blob:12.14.1") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-storage-queue:12.11.0") {
+    implementation("com.azure:azure-storage-queue:12.11.1") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-security-keyvault-secrets:4.3.3") {
+    implementation("com.azure:azure-security-keyvault-secrets:4.3.4") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
@@ -529,16 +529,16 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-slf4j-impl:[2.13.2,)")
     implementation("org.apache.logging.log4j:log4j-api-kotlin:1.1.0")
     implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.1.0")
-    implementation("tech.tablesaw:tablesaw-core:0.38.5")
-    implementation("com.github.ajalt.clikt:clikt-jvm:3.2.0")
+    implementation("tech.tablesaw:tablesaw-core:0.42.0")
+    implementation("com.github.ajalt.clikt:clikt-jvm:3.3.0")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.0")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.0")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.12.5")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.13.0")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.0")
     implementation("com.github.javafaker:javafaker:1.0.2")
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
-    implementation("com.googlecode.libphonenumber:libphonenumber:8.12.33")
+    implementation("com.googlecode.libphonenumber:libphonenumber:8.12.35")
     implementation("org.thymeleaf:thymeleaf:3.0.12.RELEASE")
     implementation("com.sendgrid:sendgrid-java:4.7.6")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.1")
@@ -547,7 +547,7 @@ dependencies {
     }
     implementation("com.github.kittinunf.fuel:fuel-json:2.3.1")
     implementation("org.json:json:20210307")
-    implementation("com.hierynomus:sshj:0.31.0")
+    implementation("com.hierynomus:sshj:0.32.0")
     implementation("org.bouncycastle:bcprov-jdk15on:1.69")
     implementation("com.jcraft:jsch:0.1.55")
     implementation("org.apache.commons:commons-lang3:3.12.0")
