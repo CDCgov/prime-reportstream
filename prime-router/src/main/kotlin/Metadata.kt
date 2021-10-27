@@ -320,22 +320,22 @@ class Metadata(private var tableDbAccess: DatabaseLookupTableAccess = DatabaseLo
     /**
      * Load the database lookup tables.
      */
-    internal fun loadDatabaseLookupTables() {
-        logger.trace("Loading database lookup tables...")
-        tablelastCheckedAt = Instant.MIN
-        loadDatabaseLookupTableUpdates()
+    @Synchronized
+    internal fun checkForDatabaseLookupTableUpdates() {
+        // Check for tables at intervals
+        if (tablelastCheckedAt.plusSeconds(tablePollInternalSecs.toLong()).isAfter(Instant.now()))
+            return
+        logger.trace("Checking for database lookup table updates...")
+        loadDatabaseLookupTables()
+        tablelastCheckedAt = Instant.now()
     }
 
     /**
      * Update the database lookup tables that have changed versions and load any new tables.
      */
-    internal fun loadDatabaseLookupTableUpdates() {
-        // Check for tables at intervals
-        if (tablelastCheckedAt.plusSeconds(tablePollInternalSecs.toLong()).isAfter(Instant.now()))
-            return
-
+    @Synchronized
+    internal fun loadDatabaseLookupTables() {
         logger.trace("Checking for database lookup table updates.")
-        tablelastCheckedAt = Instant.now()
         val databaseTables = lookupTableStore.values.mapNotNull { if (it is DatabaseLookupTable) it else null }
 
         try {
@@ -439,7 +439,7 @@ class Metadata(private var tableDbAccess: DatabaseLookupTableAccess = DatabaseLo
         fun getInstance(): Metadata {
             // Load any updates to the database lookup tables.
             // Due to the use of this function, this will get checked at least on every Azure function call
-            singletonInstance.loadDatabaseLookupTableUpdates()
+            singletonInstance.checkForDatabaseLookupTableUpdates()
             return singletonInstance
         }
 
