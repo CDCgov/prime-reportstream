@@ -1,0 +1,14 @@
+---
+name: abbott-covid-19
+description: Abbott
+topic: covid-19
+trackingElement: specimen_id
+basedOn: covid-19
+extends: direct/direct-covid-19
+
+elements:
+  - name: sender_id
+    default: Abbott
+
+  - name: processing_mode_code
+    default: T

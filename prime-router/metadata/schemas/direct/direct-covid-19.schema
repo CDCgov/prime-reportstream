@@ -381,6 +381,7 @@ elements:
 
   # Unused fields
   - name: reportingFacility
+    type: TEXT
     documentation:  This field is no longer used.  Included here so it does not generate a warning if present.
     csvFields: [{ name: reportingFacility}]
   

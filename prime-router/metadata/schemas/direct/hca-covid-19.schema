@@ -1,0 +1,15 @@
+---
+name: hca-covid-19
+description: HCA
+topic: covid-19
+trackingElement: specimen_id
+extends: hl7/hl7-ingest-covid-19
+
+elements:
+  - name: sender_id
+    default: hca
+
+  - name: processing_mode_code
+    default: T
+
+
