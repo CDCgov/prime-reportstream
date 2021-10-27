@@ -388,6 +388,12 @@
       display: 258500001
       version: 2020-09-01
     - code: 71836000
+      display: Nasopharyngeal aspirate
+      version: 2020-09-01
+    - code: 71836000
+      display: 258411007 
+      version: 2020-09-01
+    - code: 71836000
       display: 71836000
       version: 2020-09-01
     - code: 45206002
@@ -415,42 +421,54 @@
       display: 445297001
       version: 2020-09-01
     - code: 53342003
+      display: 697989009
+      version: 2020-09-01
+    - code: 53342003
       display: 53342003
       version: 2020-09-01
-    - code: 119297000
+    - code: 29092000
       display: Serum
       version: 2020-09-01
-    - code: 119297000
+    - code: 29092000
       display: Serum specimen
       version: 2020-09-01
-    - code: 119297000
+    - code: 29092000
       display: Plasma
       version: 2020-09-01
-    - code: 119297000
+    - code: 29092000
       display: Plasma specimen
       version: 2020-09-01
-    - code: 119297000
+    - code: 29092000
       display: Whole Blood
       version: 2020-09-01
-    - code: 119297000
+    - code: 29092000
       display: Whole Blood Sample
       version: 2020-09-01
-    - code: 119297000
+    - code: 29092000
       display: Blood specimen
       version: 2020-09-01
-    - code: 119297000
+    - code: 29092000
       display: Venous blood specimen
       version: 2020-09-01
-    - code: 119297000
+    - code: 29092000
+      display: Capillary blood specimen
+      version: 2020-09-01
+    - code: 29092000
+      display: fingerstick whole blood
+      version: 2020-09-01
+    - code: 29092000
+      display: 122554006
+      version: 2020-09-01
+    - code: 29092000
       display: 258580003
       version: 2020-09-01
-    - code: 119297000
+    - code: 29092000
       display: 119361006
       version: 2020-09-01
-    - code: 119297000
+    - code: 29092000
       display: 119364003
       version: 2020-09-01
-    - code: 119297000
+    - code: 29092000
       display: 119297000
       version: 2020-09-01
     - code: 31389004
@@ -558,3 +576,9 @@
       display: Blood specimen
     - code: 119297000
       display: 119297000
+    - code: 122554006
+      display: Capillary blood specimen
+    - code: 122554006
+      display: fingerstick whole blood
+    - code: 122554006
+      display: 122554006
