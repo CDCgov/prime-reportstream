@@ -1617,6 +1617,8 @@ P, D, or T for Production, Debugging, or Training
 
 **Name**: reportingFacility
 
+**Type**: TEXT
+
 **PII**: No
 
 **Cardinality**: [0..1]
