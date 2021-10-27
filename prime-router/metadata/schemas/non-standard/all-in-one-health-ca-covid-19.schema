@@ -39,9 +39,6 @@ elements:
     - name: patient_street
       csvFields: [{name: Patient Street Address}]
 
-#    - name: patient_street2
-#      csvFields: [{name: Patient_street2}]
-
     - name: patient_city
       csvFields: [{name: Patient City}]
 
@@ -53,7 +50,7 @@ elements:
 
     - name: patient_county
       type: TABLE
-#      cardinality: ZERO_OR_ONE
+      cardinality: ZERO_OR_ONE
       table: zip-code-data
       tableColumn: county
       mapper: zipCodeToCounty(patient_zip_code)
@@ -79,7 +76,11 @@ elements:
       default: U
 
     - name: patient_race
-      csvFields: [{name: Race}]
+      type: CODE
+      valueSet: sender-automation/race
+      documentation: Translate multiple inbound Race values to RS / OMB values
+      csvFields: [{ name: Race, format: $display}]
+      default: UNK
 
 
 # Specimen/Order Info
@@ -99,8 +100,10 @@ elements:
       csvFields: [{name: Date Reported, format: "yyyyMMdd"}]
 
     - name: test_result
-      type: TEXT
-      csvFields: [{name: Result Code}]
+      type: CODE
+      valueSet: sender-automation/test_result
+      documentation: Translate multiple inbound Test Result values to RS values
+      csvFields: [{ name: Result Code, format: $display}]
 
     - name: test_result_status
       csvFields: [{name: Test_result_status}]
@@ -129,17 +132,15 @@ elements:
 
 
 # Set fields needed for the LIVDlookup() Mapper to set the LOINC code and OBX.17 - Device Info
+
     - name: equipment_model_name
       csvFields: [{name: Device Identifier}]
-#      mapperOverridesValue: true
 
-    - name: test_performed_code
-      type: TEXT
+    - name: test_performed_code_temp
       csvFields: [{name: Test Code}]
 
-#    - name: test_kit_name_id
-#      type: TEXT
-#      csvFields: [{name: Device Identifier}]
+    - name: test_performed_code
+      mapper: trimBlanks(test_performed_code_temp)
 
 
 # Ordering provider

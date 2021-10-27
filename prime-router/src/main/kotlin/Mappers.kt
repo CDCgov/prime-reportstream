@@ -595,6 +595,19 @@ class CoalesceMapper : Mapper {
     }
 }
 
+class TrimBlanksMapper : Mapper {
+    override val name = "trimBlanks"
+
+    override fun valueNames(element: Element, args: List<String>): List<String> {
+        return listOf(args[0])
+    }
+
+    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
+        val ev = values.firstOrNull()?.value ?: ""
+        return ev.trim()
+    }
+}
+
 class StripPhoneFormattingMapper : Mapper {
     override val name = "stripPhoneFormatting"
 
