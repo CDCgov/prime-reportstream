@@ -135,7 +135,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
             '(patterns_to_match|key_permissions)\s*=',                                      # Terraform artifacts
             '(prime|changeIT!)',                                                            # Default cred, this is allowed (too broad??)
             '(resource|data) \"azurerm',                                                    # Terraform azure data or resource
-	    '/api/settings',
+            '/api/settings',
             '/api/token',
             '\.containsKey\(',
             '\"user(\d)*\", \"pass(\d)*\"',                                                 # Not real creds
