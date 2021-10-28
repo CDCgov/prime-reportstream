@@ -1,5 +1,4 @@
 import { useResource } from "rest-hooks";
-
 import FacilityResource from "../../resources/FacilityResource";
 
 interface Props {
