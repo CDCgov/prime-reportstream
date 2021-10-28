@@ -2099,47 +2099,6 @@ the test result is in some intermediate status, is a correction, or is the final
 
 ---
 
-**Name**: test_result_status
-
-**Type**: CODE
-
-**PII**: No
-
-**Default Value**: F
-
-**HL7 Fields**
-
-- [OBR-25-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.25.1)
-- [OBX-11-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.11.1)
-
-**Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display
----- | -------
-A|Some, but not all, results available
-C|Corrected, final
-F|Final results
-I|No results available; specimen received, procedure incomplete
-M|Corrected, not final
-N|Procedure completed, results pending
-O|Order received; specimen not yet received
-P|Preliminary
-R|Results stored; not yet verified
-S|No results available; procedure scheduled, but not done
-X|No results available; Order canceled
-Y|No order on record for this test
-Z|No record of this patient
-
-**Documentation**:
-
-The test result status, which is different from the test result itself. Per the valueset, this indicates if
-the test result is in some intermediate status, is a correction, or is the final result.
-
-
----
-
 **Name**: testResultText
 
 **Type**: TEXT
