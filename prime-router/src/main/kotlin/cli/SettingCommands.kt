@@ -116,21 +116,23 @@ abstract class SettingCommand(
                         val version = result.value.obj().getInt("version")
                         "Success. Setting $settingName at version $version"
                     }
-                    HttpStatus.SC_CREATED -> "Success. Created $settingName"
+                    HttpStatus.SC_CREATED -> "Success. Created $settingName\n"
                     else -> error("Unexpected successful status code")
                 }
         }
     }
 
-    fun delete(environment: Environment, accessToken: String, settingType: SettingType, settingName: String) {
+    fun delete(environment: Environment, accessToken: String, settingType: SettingType, settingName: String): String {
         val path = formPath(environment, Operation.DELETE, settingType, settingName)
         if (verbose) {
             echo("DELETE $path")
         }
         val (_, response, result) = SettingsUtilities.delete(path, accessToken)
         return when (result) {
-            is Result.Failure -> handleHttpFailure(settingName, response, result)
-            is Result.Success -> Unit
+            is Result.Failure ->
+                abort("Error on delete of $settingName: ${response.responseMessage} ${String(response.data)}")
+            is Result.Success ->
+                "Success $settingName: ${result.value}"
         }
     }
 
@@ -141,7 +143,8 @@ abstract class SettingCommand(
         }
         val (_, response, result) = SettingsUtilities.get(path, accessToken)
         return when (result) {
-            is Result.Failure -> handleHttpFailure(settingName, response, result)
+            is Result.Failure ->
+                abort("Error getting $settingName: ${response.responseMessage} ${String(response.data)}")
             is Result.Success -> result.value
         }
     }

@@ -13,6 +13,7 @@ import com.github.kittinunf.fuel.json.responseJson
 import com.github.kittinunf.result.Result
 
 private const val jsonMimeType = "application/json"
+private const val apiPath = "/api/settings"
 
 /**
  * Setting Utilities class.
@@ -30,7 +31,6 @@ class SettingsUtilities {
          *		ERROR: 		Error on put of name of organization.
          *		SUCCESS: 	Success. Setting organization's name.
          */
-
         fun put(
             path: String,
             accessToken: String,
