@@ -22,5 +22,15 @@ export default class ReportResource extends AuthResource {
         return this.reportId;
     }
 
-    static urlRoot = `${AuthResource.getBaseUrl()}/api/history/report`;
+    /* INFO
+       since we won't be using urlRoot to build our urls we still need to tell rest hooks 
+       how to uniquely identify this Resource 
+       
+       >>> Kevin Haube, October 4, 2021
+    */
+    static get key() {
+        return "ReportResource";
+    }
+
+    static urlRoot = `${AuthResource.getBaseUrl()}/api/history/report?cache=${new Date().toISOString()}`;
 }
