@@ -107,13 +107,8 @@ abstract class SettingCommand(
         if (verbose) {
             echo("PUT $path :: $payload")
         }
-        val (_, response, result) = Fuel
-            .put(path)
-            .authentication()
-            .bearer(accessToken)
-            .header(CONTENT_TYPE to jsonMimeType)
-            .jsonBody(payload)
-            .responseJson()
+        val output = SettingsUtilities.put(path, accessToken, payload)
+        val (_, response, result) = output
         return when (result) {
             is Result.Failure -> handleHttpFailure(settingName, response, result)
             is Result.Success ->
@@ -122,7 +117,7 @@ abstract class SettingCommand(
                         val version = result.value.obj().getInt("version")
                         "Success. Setting $settingName at version $version"
                     }
-                    HttpStatus.SC_CREATED -> "Success. Created $settingName"
+                    HttpStatus.SC_CREATED -> "Success. Created $settingName\n"
                     else -> error("Unexpected successful status code")
                 }
         }
@@ -133,15 +128,12 @@ abstract class SettingCommand(
         if (verbose) {
             echo("DELETE $path")
         }
-        val (_, response, result) = Fuel
-            .delete(path)
-            .authentication()
-            .bearer(accessToken)
-            .header(CONTENT_TYPE to jsonMimeType)
-            .responseString()
+        val (_, response, result) = SettingsUtilities.delete(path, accessToken)
         return when (result) {
-            is Result.Failure -> handleHttpFailure(settingName, response, result)
-            is Result.Success -> Unit
+            is Result.Failure ->
+                abort("Error on delete of $settingName: ${response.responseMessage} ${String(response.data)}")
+            is Result.Success ->
+                "Success $settingName: ${result.value}"
         }
     }
 
@@ -150,14 +142,10 @@ abstract class SettingCommand(
         if (verbose) {
             echo("GET $path")
         }
-        val (_, response, result) = Fuel
-            .get(path)
-            .authentication()
-            .bearer(accessToken)
-            .header(CONTENT_TYPE to jsonMimeType)
-            .responseString()
+        val (_, response, result) = SettingsUtilities.get(path, accessToken)
         return when (result) {
-            is Result.Failure -> handleHttpFailure(settingName, response, result)
+            is Result.Failure ->
+                abort("Error getting $settingName: ${response.responseMessage} ${String(response.data)}")
             is Result.Success -> result.value
         }
     }
@@ -387,7 +375,7 @@ abstract class SingleSettingCommandNoSettingName(
             }
             Operation.DELETE -> {
                 delete(environment, accessToken, settingType, settingName)
-                writeOutput("Removed $settingName")
+                writeOutput("Success. Removed $settingName\n")
             }
         }
     }
