@@ -6,6 +6,7 @@ on:
       - master
       - production
       - dev-rheft
+      - ronheft/test-investigation
 
 defaults:
   run:
@@ -222,7 +223,7 @@ jobs:
     needs:
       - build_release
       - build_frontend_release
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/ronheft/test-investigation'
     environment: test
     concurrency: test
     runs-on: ubuntu-latest

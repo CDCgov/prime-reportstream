@@ -515,6 +515,7 @@ Code | Display
 71836000|Nasopharyngeal structure (body structure)
 45206002|Nasal structure (body structure)
 53342003|Internal nose structure (body structure)
+29092000|Venous structure (body structure)
 71836000|Nasopharyngeal structure (body structure)
 
 **Alt Value Sets**
@@ -559,6 +560,7 @@ Code | Display
 258580003|Whole blood sample
 122555007|Venous blood specimen
 119297000|Blood specimen
+122554006|Capillary blood specimen
 445297001|Swab of internal nose
 
 **Alt Value Sets**
