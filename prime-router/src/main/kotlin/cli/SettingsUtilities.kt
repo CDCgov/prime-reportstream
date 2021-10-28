@@ -1,5 +1,11 @@
 package gov.cdc.prime.router.cli
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.module.kotlin.KotlinModule
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.FuelError
 import com.github.kittinunf.fuel.core.Headers.Companion.CONTENT_TYPE
@@ -11,8 +17,10 @@ import com.github.kittinunf.fuel.core.extensions.jsonBody
 import com.github.kittinunf.fuel.json.FuelJson
 import com.github.kittinunf.fuel.json.responseJson
 import com.github.kittinunf.result.Result
+import java.io.OutputStream
 
 private const val jsonMimeType = "application/json"
+private const val apiPath = "/api/settings"
 
 /**
  * Setting Utilities class.
@@ -21,13 +29,19 @@ private const val jsonMimeType = "application/json"
 
 class SettingsUtilities {
 
-    /**
-     * Operation and SettingType Enumes are defined for use in the formPath
-     * function call.
-     */
-    enum class SettingType { ORG, SENDER, RECEIVER }
-
     companion object {
+
+        private val outStream: OutputStream? = System.out
+        private val jsonMapper = jacksonObjectMapper()
+        private val yamlMapper: ObjectMapper = ObjectMapper(YAMLFactory()).registerModule(KotlinModule())
+
+        init {
+            // Format OffsetDateTime as an ISO string
+            jsonMapper.registerModule(JavaTimeModule())
+            jsonMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+            yamlMapper.registerModule(JavaTimeModule())
+            yamlMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+        }
 
         /**
          * PUT function is the CRUD utility function that handle http client CREAT and UPDATE
