@@ -29,6 +29,7 @@ import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.OrganizationAPI
 import gov.cdc.prime.router.azure.ReceiverAPI
 import gov.cdc.prime.router.azure.SenderAPI
+import org.apache.http.HttpStatus
 import java.io.InputStream
 
 private const val apiPath = "/api/settings"
@@ -96,26 +97,43 @@ abstract class SettingCommand(
         payload: String
     ): String {
         val path = formPath(environment, Operation.PUT, settingType, settingName)
-        val output = SettingsUtilities.put(path, accessToken, settingName, payload)
-        if (output.contains("Error"))
-            abort(output)
-        return output
+        val output = SettingsUtilities.put(path, accessToken, payload)
+        val (_, response, result) = output
+        return when (result) {
+            is Result.Failure -> {
+                abort("Error on put of $settingName: ${response.responseMessage} ${String(response.data)}")
+            }
+            is Result.Success ->
+                when (response.statusCode) {
+                    HttpStatus.SC_OK -> {
+                        val version = result.value.obj().getInt("version")
+                        "Success. Setting $settingName at version $version"
+                    }
+                    HttpStatus.SC_CREATED -> "Success. Created $settingName"
+                    else -> error("Unexpected successful status code")
+                }
+        }
     }
 
     fun delete(environment: Environment, accessToken: String, settingType: SettingType, settingName: String): String {
         val path = formPath(environment, Operation.DELETE, settingType, settingName)
-        val output = SettingsUtilities.delete(path, accessToken, settingName)
-        if (output.contains("Error"))
-            abort(output)
-        return output
+        val (_, response, result) = SettingsUtilities.delete(path, accessToken)
+        return when (result) {
+            is Result.Failure ->
+                abort("Error on delete of $settingName: ${response.responseMessage} ${String(response.data)}")
+            is Result.Success ->
+                "Success $settingName: ${result.value}"
+        }
     }
 
     fun get(environment: Environment, accessToken: String, settingType: SettingType, settingName: String): String {
         val path = formPath(environment, Operation.GET, settingType, settingName)
-        val output = SettingsUtilities.get(path, accessToken, settingName)
-        if (output.contains("Error"))
-            abort(output)
-        return output
+        val (_, response, result) = SettingsUtilities.get(path, accessToken)
+        return when (result) {
+            is Result.Failure ->
+                abort("Error getting $settingName: ${response.responseMessage} ${String(response.data)}")
+            is Result.Success -> result.value
+        }
     }
 
     fun getMany(environment: Environment, accessToken: String, settingType: SettingType, settingName: String): String {

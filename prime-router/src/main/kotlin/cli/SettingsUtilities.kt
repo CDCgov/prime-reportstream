@@ -7,14 +7,18 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.kittinunf.fuel.Fuel
+import com.github.kittinunf.fuel.core.FuelError
 import com.github.kittinunf.fuel.core.Headers.Companion.CONTENT_TYPE
+import com.github.kittinunf.fuel.core.Request
+import com.github.kittinunf.fuel.core.Response
+import com.github.kittinunf.fuel.core.ResponseResultOf
 import com.github.kittinunf.fuel.core.extensions.authentication
 import com.github.kittinunf.fuel.core.extensions.jsonBody
+import com.github.kittinunf.fuel.json.FuelJson
 import com.github.kittinunf.fuel.json.responseJson
 import com.github.kittinunf.result.Result
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Sender
-import org.apache.http.HttpStatus
 import java.io.OutputStream
 
 private const val jsonMimeType = "application/json"
@@ -105,30 +109,15 @@ class SettingsUtilities {
         fun put(
             path: String,
             accessToken: String,
-            settingName: String,
             payload: String
-        ): String {
-            val (_, response, result) = Fuel
+        ): ResponseResultOf<FuelJson> {
+            return Fuel
                 .put(path)
                 .authentication()
                 .bearer(accessToken)
                 .header(CONTENT_TYPE to jsonMimeType)
                 .jsonBody(payload)
                 .responseJson()
-            return when (result) {
-                is Result.Failure -> {
-                    "Error on put of $settingName: ${response.responseMessage} ${String(response.data)}"
-                }
-                is Result.Success ->
-                    when (response.statusCode) {
-                        HttpStatus.SC_OK -> {
-                            val version = result.value.obj().getInt("version")
-                            "Success. Setting $settingName at version $version"
-                        }
-                        HttpStatus.SC_CREATED -> "Success. Created $settingName"
-                        else -> error("Unexpected successful status code")
-                    }
-            }
         }
 
         /**
@@ -141,19 +130,13 @@ class SettingsUtilities {
         fun get(
             path: String,
             accessToken: String,
-            settingName: String
-        ): String {
-            val (_, response, result) = Fuel
+        ): Triple<Request, Response, Result<String, FuelError>> {
+            return Fuel
                 .get(path)
                 .authentication()
                 .bearer(accessToken)
                 .header(CONTENT_TYPE to jsonMimeType)
                 .responseString()
-            return when (result) {
-                is Result.Failure ->
-                    "Error getting $settingName: ${response.responseMessage} ${String(response.data)}"
-                is Result.Success -> result.value
-            }
         }
 
         /**
@@ -166,20 +149,13 @@ class SettingsUtilities {
         fun delete(
             path: String,
             accessToken: String,
-            settingName: String
-        ): String {
-            val (_, response, result) = Fuel
+        ): Triple<Request, Response, Result<String, FuelError>> {
+            return Fuel
                 .delete(path)
                 .authentication()
                 .bearer(accessToken)
                 .header(CONTENT_TYPE to jsonMimeType)
                 .responseString()
-            return when (result) {
-                is Result.Failure ->
-                    "Error on delete of $settingName: ${response.responseMessage} ${String(response.data)}"
-                is Result.Success ->
-                    "Success $settingName: ${result.value}"
-            }
         }
     }
 }

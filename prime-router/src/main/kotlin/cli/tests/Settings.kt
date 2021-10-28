@@ -93,61 +93,64 @@ class Settings : CoolTest() {
 
         // VERIFY the dummy organization existed or not
         echo("VERIFY the dummy organization existed or not...")
-        var output = SettingsUtilities.get(path, dummyAccessToken, settingName)
-        if (!output.contains("Error")) {
-            output = SettingsUtilities.delete(path, dummyAccessToken, settingName)
-            if (output.contains("Error")) {
-                return bad(settingErrorMessage + output)
-            }
+
+        val (_, _, result) = SettingsUtilities.get(path, dummyAccessToken)
+        val (_, error) = result
+        if (error?.response?.statusCode != 404) {
+            val (_, _, result) = SettingsUtilities.delete(path, dummyAccessToken)
+            if (result == null)
+                return bad(settingErrorMessage)
         }
 
         // CREATE the dummy organization
         echo("CREATE the new dummy organization...")
-        output = SettingsUtilities.put(path, dummyAccessToken, settingName, newDummyOrganization)
-        if (output.contains("Error")) {
+        var output = SettingsUtilities.put(path, dummyAccessToken, newDummyOrganization)
+        if (output == null) {
             return bad(settingErrorMessage + output)
         }
 
         // VERIFY the created dummy organization
         echo("VERITY the new dummy organization was created...")
-        output = SettingsUtilities.get(path, dummyAccessToken, settingName)
-        if (output.contains("Error")) {
-            return bad(settingErrorMessage + output)
+        var (_, _, resultNewDummy) = SettingsUtilities.get(path, dummyAccessToken)
+        var (payloadNewDummy, errorNewDummy) = resultNewDummy
+        if (errorNewDummy != null) {
+            return bad(settingErrorMessage)
         }
 
-        if (!output.contains("NEWDUMMYORG")) {
+        if (!payloadNewDummy?.contains("NEWDUMMYORG")!!) {
             return bad(settingErrorMessage + "It is not the created dummy organization.")
         }
 
         // UPDATE the dummy organization
-        echo("UPDATE the dummy organization...")
-        output = SettingsUtilities.put(path, dummyAccessToken, settingName, updateDummyOrganization)
-        if (output.contains("Error")) {
-            return bad(settingErrorMessage + output)
+        output = SettingsUtilities.put(path, dummyAccessToken, updateDummyOrganization)
+        if (output == null) {
+            return bad(settingErrorMessage + "can't update the organization")
         }
 
         // VERIFY the updated dummy organization
         echo("VERIFY it is the new dummy organization is updated...")
-        output = SettingsUtilities.get(path, dummyAccessToken, settingName)
-        if (output.contains("Error")) {
-            return bad(settingErrorMessage + output)
+        val (_, _, resultUpdateOrg) = SettingsUtilities.get(path, dummyAccessToken)
+        val (payload, errorUpdateDummy) = resultUpdateOrg
+        if (errorUpdateDummy != null) {
+            return bad(settingErrorMessage + "can't get the updated organization")
         }
 
-        if (!output.contains("UPDATEDUMMYORG")) {
+        if (!payload?.contains("UPDATEDUMMYORG")!!) {
             return bad(settingErrorMessage + "It is not the updated dummy organization.")
         }
 
         // DELETE the updated dummy organization
         echo("DELETE the updated dummy organization...")
-        output = SettingsUtilities.delete(path, dummyAccessToken, settingName)
-        if (output.contains("Error")) {
-            return bad(settingErrorMessage + output)
+        val (_, _, resultDel) = SettingsUtilities.delete(path, dummyAccessToken)
+        if (resultDel == null) {
+            return bad(settingErrorMessage + "can't delete organization.")
         }
 
         // VERIFY the dummy organization deleted
         echo("VERIFY it is the new dummy organization is deleted...")
-        output = SettingsUtilities.get(path, dummyAccessToken, settingName)
-        if (!output.contains("Error")) {
+        val (_, _, resultDummy) = SettingsUtilities.get(path, dummyAccessToken)
+        val (_, errorDummy) = resultDummy
+        if (errorDummy == null) {
             return bad(settingErrorMessage + "The updated dummy organization not deleted.")
         }
 
