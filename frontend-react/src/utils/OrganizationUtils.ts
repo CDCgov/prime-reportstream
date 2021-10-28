@@ -66,7 +66,7 @@ export const getStates = () => {
         "Wisconsin",
         "Wyoming",
     ].sort();
-}
+};
 
 export function useOrgName(): string {
     const org = useResource(OrganizationResource.detail(), {
