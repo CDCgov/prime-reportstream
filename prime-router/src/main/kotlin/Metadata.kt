@@ -18,7 +18,7 @@ import java.time.Instant
 /**
  * A metadata object contains all the metadata including schemas, tables, valuesets, and organizations.
  */
-class Metadata(private var tableDbAccess: DatabaseLookupTableAccess = DatabaseLookupTableAccess()) : Logging {
+class Metadata private constructor() : Logging {
     private var schemaStore = mapOf<String, Schema>()
     private var fileNameTemplatesStore = mapOf<String, FileNameTemplate>()
     private var mappers = listOf(
@@ -57,32 +57,47 @@ class Metadata(private var tableDbAccess: DatabaseLookupTableAccess = DatabaseLo
     private val mapper = ObjectMapper(YAMLFactory()).registerModule(KotlinModule())
 
     /**
-     * Load all parts of the metadata catalog from a directory and its sub-directories
+     * The database lookup table access.
+     */
+    private var tableDbAccess: DatabaseLookupTableAccess = DatabaseLookupTableAccess()
+
+    /**
+     * Load all parts of the metadata catalog located at the default catalog folder.
+     * @param tableDbAccess database lookup table access for dependency injection purposes
+     */
+    internal constructor(tableDbAccess: DatabaseLookupTableAccess? = null) :
+        this(defaultMetadataDirectory, tableDbAccess)
+
+    /**
+     * Load all parts of the metadata catalog located at [metadataPath] from a directory and its sub-directories.
+     * @param tableDbAccess database lookup table access for dependency injection purposes
      */
     internal constructor(
         metadataPath: String,
-        tableDbAccess: DatabaseLookupTableAccess = DatabaseLookupTableAccess()
-    ) : this(tableDbAccess) {
+        tableDbAccess: DatabaseLookupTableAccess? = null
+    ) : this() {
+        if (tableDbAccess != null) this.tableDbAccess = tableDbAccess
         val metadataDir = File(metadataPath)
         if (!metadataDir.isDirectory) error("Expected metadata directory")
         loadValueSetCatalog(metadataDir.toPath().resolve(valuesetsSubdirectory).toString())
         loadLookupTables(metadataDir.toPath().resolve(tableSubdirectory).toString())
-        // We want to load database tables second
-        loadDatabaseLookupTables()
         loadSchemaCatalog(metadataDir.toPath().resolve(schemasSubdirectory).toString())
         loadFileNameTemplates(metadataDir.toPath().resolve(fileNameTemplatesSubdirectory).toString())
+        logger.trace("Metadata initialized.")
     }
 
     /**
      * Useful for test versions of the metadata catalog
+     * @param tableDbAccess database lookup table access for dependency injection purposes
      */
     constructor(
         schema: Schema? = null,
         valueSet: ValueSet? = null,
         tableName: String? = null,
         table: LookupTable? = null,
-        tableDbAccess: DatabaseLookupTableAccess = DatabaseLookupTableAccess()
-    ) : this(tableDbAccess) {
+        tableDbAccess: DatabaseLookupTableAccess? = null
+    ) : this() {
+        if (tableDbAccess != null) this.tableDbAccess = tableDbAccess
         valueSet?.let { loadValueSets(it) }
         table?.let { loadLookupTable(tableName ?: "", it) }
         schema?.let { loadSchemas(it) }
@@ -325,7 +340,6 @@ class Metadata(private var tableDbAccess: DatabaseLookupTableAccess = DatabaseLo
         // Check for tables at intervals
         if (tablelastCheckedAt.plusSeconds(tablePollInternalSecs.toLong()).isAfter(Instant.now()))
             return
-        logger.trace("Checking for database lookup table updates...")
         loadDatabaseLookupTables()
         tablelastCheckedAt = Instant.now()
     }
@@ -335,7 +349,7 @@ class Metadata(private var tableDbAccess: DatabaseLookupTableAccess = DatabaseLo
      */
     @Synchronized
     internal fun loadDatabaseLookupTables() {
-        logger.trace("Checking for database lookup table updates.")
+        logger.trace("Checking for database lookup table updates...")
         val databaseTables = lookupTableStore.values.mapNotNull { if (it is DatabaseLookupTable) it else null }
 
         try {
