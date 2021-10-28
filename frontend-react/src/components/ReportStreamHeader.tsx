@@ -26,7 +26,7 @@ const OrganizationDropDown = () => {
         sortBy: undefined,
     }).sort((a, b) => a.description.localeCompare(b.description));
 
-    let setValue = (e: any) => { };
+    let setValue = (e: any) => {};
 
     return (
         <Dropdown
@@ -101,28 +101,18 @@ const DropdownHowItWorks = () => {
     }, []);
 
     const testMenuItems = [
-        <Link href="/how-it-works/getting-started" >
-            Getting started
-        </Link>,
-        <Link href="/how-it-works/elr-checklist" >
+        <Link href="/how-it-works/getting-started">Getting started</Link>,
+        <Link href="/how-it-works/elr-checklist">
             ELR onboarding checklist
         </Link>,
-        <Link
-            href="/how-it-works/data-download-guide"
-        >
+        <Link href="/how-it-works/data-download-guide">
             Data download website guide
         </Link>,
-        <Link href="/how-it-works/where-were-live" >
-            Where we're live
-        </Link>,
-        <Link
-            href="/how-it-works/systems-and-settings"
-        >
+        <Link href="/how-it-works/where-were-live">Where we're live</Link>,
+        <Link href="/how-it-works/systems-and-settings">
             System and settings
         </Link>,
-        <Link href="/how-it-works/security-practices" >
-            Security practices
-        </Link>,
+        <Link href="/how-it-works/security-practices">Security practices</Link>,
     ];
 
     return (
@@ -143,14 +133,14 @@ const DropdownHowItWorks = () => {
                 onClick={(): void => setIsOpen(false)}
             />
         </>
-    )
-}
+    );
+};
 
 export const ReportStreamHeader = () => {
     const { authState } = useOktaAuth();
-    const [expanded, setExpanded] = useState(false)
-    const toggleMobileNav = (): void => setExpanded((prvExpanded) => !prvExpanded)
-
+    const [expanded, setExpanded] = useState(false);
+    const toggleMobileNav = (): void =>
+        setExpanded((prvExpanded) => !prvExpanded);
 
     let itemsMenu = [
         <Link href="/about" id="docs" className="usa-nav__link">
@@ -161,24 +151,32 @@ export const ReportStreamHeader = () => {
 
     if (authState !== null && authState.isAuthenticated) {
         if (reportReceiver(authState)) {
-            itemsMenu.splice(0, 0,
-                <Link href="/daily-data"
+            itemsMenu.splice(
+                0,
+                0,
+                <Link
+                    href="/daily-data"
                     key="daily"
                     data-attribute="hidden"
                     hidden={true}
-                    className="usa-nav__link">
+                    className="usa-nav__link"
+                >
                     <span>Daily data</span>
                 </Link>
             );
         }
 
         if (permissionCheck(PERMISSIONS.SENDER, authState)) {
-            itemsMenu.splice(1, 0,
-                <Link href="/upload"
+            itemsMenu.splice(
+                1,
+                0,
+                <Link
+                    href="/upload"
                     key="upload"
                     data-attribute="hidden"
                     hidden={true}
-                    className="usa-nav__link">
+                    className="usa-nav__link"
+                >
                     <span>Upload</span>
                 </Link>
             );
@@ -194,10 +192,11 @@ export const ReportStreamHeader = () => {
                     </Title>
                     <NavMenuButton onClick={toggleMobileNav} label="Menu" />
                 </div>
-                <PrimaryNav 
-                    items={itemsMenu} 
+                <PrimaryNav
+                    items={itemsMenu}
                     onToggleMobileNav={toggleMobileNav}
-                    mobileExpanded={expanded}>
+                    mobileExpanded={expanded}
+                >
                     <SignInOrUser />
                 </PrimaryNav>
             </div>

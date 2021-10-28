@@ -14,14 +14,13 @@ interface Props {
    back to using useResource() for that call
    >>> Kevin Haube, Sept 27, 2021 */
 type Facility = {
-    organization: string | undefined
-    facility: string | undefined
-    location: string | undefined
-    CLIA: string | undefined
-    positive: string | undefined
-    total: string | undefined
-}
-
+    organization: string | undefined;
+    facility: string | undefined;
+    location: string | undefined;
+    CLIA: string | undefined;
+    positive: string | undefined;
+    total: string | undefined;
+};
 
 function FacilitiesTable(props: Props) {
     const { reportId }: Props = props;
@@ -63,8 +62,8 @@ function FacilitiesTable(props: Props) {
                         </tr>
                     ))}
                 </tbody>
-            </table >
-        </section >
+            </table>
+        </section>
     );
 }
 

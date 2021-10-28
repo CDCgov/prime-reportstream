@@ -1,170 +1,170 @@
 {
-  "general": {
-    "territoriesLabel": "Territories:  ",
-    "type": "data",
-    "geoType": "us",
-    "headerColor": "theme-blue",
-    "showSidebar": false,
-    "showTitle": false,
-    "geoBorderColor": "sameAsBackground",
-    "showDownloadButton": false,
-    "expandDataTable": false,
-    "showDownloadMediaButton": false,
-    "displayAsHex": false,
-    "displayStateLabels": true,
-    "language": "en",
-    "hasRegions": false,
-    "fullBorder": false
-  },
-  "type": "map",
-  "color": "greenbluereverse",
-  "columns": {
-    "geo": {
-      "name": "state",
-      "label": "Location",
-      "tooltip": false,
-      "dataTable": false
+    "general": {
+        "territoriesLabel": "Territories:  ",
+        "type": "data",
+        "geoType": "us",
+        "headerColor": "theme-blue",
+        "showSidebar": false,
+        "showTitle": false,
+        "geoBorderColor": "sameAsBackground",
+        "showDownloadButton": false,
+        "expandDataTable": false,
+        "showDownloadMediaButton": false,
+        "displayAsHex": false,
+        "displayStateLabels": true,
+        "language": "en",
+        "hasRegions": false,
+        "fullBorder": false
     },
-    "primary": {
-      "name": "status",
-      "label": "Data Label",
-      "dataTable": false,
-      "tooltip": false,
-      "prefix": "",
-      "suffix": ""
+    "type": "map",
+    "color": "greenbluereverse",
+    "columns": {
+        "geo": {
+            "name": "state",
+            "label": "Location",
+            "tooltip": false,
+            "dataTable": false
+        },
+        "primary": {
+            "name": "status",
+            "label": "Data Label",
+            "dataTable": false,
+            "tooltip": false,
+            "prefix": "",
+            "suffix": ""
+        },
+        "navigate": {
+            "name": ""
+        },
+        "additionalColumn1": {
+            "label": "New Column",
+            "dataTable": false,
+            "tooltips": false,
+            "prefix": "",
+            "suffix": ""
+        }
     },
-    "navigate": {
-      "name": ""
+    "legend": {
+        "descriptions": {},
+        "specialClasses": [],
+        "unified": false,
+        "singleColumn": true,
+        "dynamicDescription": false,
+        "type": "category",
+        "position": "side",
+        "title": "ReportStream Connections",
+        "numberOfItems": 3
     },
-    "additionalColumn1": {
-      "label": "New Column",
-      "dataTable": false,
-      "tooltips": false,
-      "prefix": "",
-      "suffix": ""
-    }
-  },
-  "legend": {
-    "descriptions": {},
-    "specialClasses": [],
-    "unified": false,
-    "singleColumn": true,
-    "dynamicDescription": false,
-    "type": "category",
-    "position": "side",
-    "title": "ReportStream Connections",
-    "numberOfItems": 3
-  },
-  "filters": [],
-  "dataTable": {
-    "forceDisplay": false,
-    "title": "Data Table"
-  },
-  "tooltips": {
-    "appearanceType": "hover",
-    "linkLabel": "Learn More",
-    "capitalizeLabels": true
-  },
-  "data": [
-    {
-      "status": "Live",
-      "state": "Alabama"
+    "filters": [],
+    "dataTable": {
+        "forceDisplay": false,
+        "title": "Data Table"
     },
-    {
-      "status": "Live",
-      "state": "Arkansas"
+    "tooltips": {
+        "appearanceType": "hover",
+        "linkLabel": "Learn More",
+        "capitalizeLabels": true
     },
-    {
-      "status": "Live",
-      "state": "Alaska"
-    },
-    {
-      "status": "Live",
-      "state": "Arizona"
-    },
-    {
-      "status": "Live",
-      "state": "California"
-    },
-    {
-      "status": "Live",
-      "state": "Colorado"
-    },
-    {
-      "status": "Live",
-      "state": "Florida"
-    },
-    {
-      "status": "Live",
-      "state": "Guam"
-    },
-    {
-      "status": "Live",
-      "state": "Illinois"
-    },
-    {
-      "status": "Live",
-      "state": "Louisiana"
-    },
-    {
-      "status": "Live",
-      "state": "Maryland"
-    },
-    {
-      "status": "Live",
-      "state": "Massachusetts"
-    },
-    {
-      "status": "Live",
-      "state": "Minnesota"
-    },
-    {
-      "status": "Live",
-      "state": "Mississippi"
-    },
-    {
-      "status": "Live",
-      "state": "Montana"
-    },
-    {
-      "status": "Live",
-      "state": "New Jersey"
-    },
-    {
-      "status": "Live",
-      "state": "New Hampshire"
-    },
-    {
-      "status": "Live",
-      "state": "New Mexico"
-    },
-    {
-      "status": "Live",
-      "state": "North Dakota"
-    },
-    {
-      "status": "Live",
-      "state": "Ohio"
-    },
-    {
-      "status": "Live",
-      "state": "Pennsylvania"
-    },
-    {
-      "status": "Live",
-      "state": "Texas"
-    },
-    {
-      "status": "Live",
-      "state": "Vermont"
-    },
-    {
-      "status": "Live",
-      "state": "Washington"
-    },
-    {
-      "status": "Live",
-      "state": "Wyoming"
-    }
-  ]
+    "data": [
+        {
+            "status": "Live",
+            "state": "Alabama"
+        },
+        {
+            "status": "Live",
+            "state": "Arkansas"
+        },
+        {
+            "status": "Live",
+            "state": "Alaska"
+        },
+        {
+            "status": "Live",
+            "state": "Arizona"
+        },
+        {
+            "status": "Live",
+            "state": "California"
+        },
+        {
+            "status": "Live",
+            "state": "Colorado"
+        },
+        {
+            "status": "Live",
+            "state": "Florida"
+        },
+        {
+            "status": "Live",
+            "state": "Guam"
+        },
+        {
+            "status": "Live",
+            "state": "Illinois"
+        },
+        {
+            "status": "Live",
+            "state": "Louisiana"
+        },
+        {
+            "status": "Live",
+            "state": "Maryland"
+        },
+        {
+            "status": "Live",
+            "state": "Massachusetts"
+        },
+        {
+            "status": "Live",
+            "state": "Minnesota"
+        },
+        {
+            "status": "Live",
+            "state": "Mississippi"
+        },
+        {
+            "status": "Live",
+            "state": "Montana"
+        },
+        {
+            "status": "Live",
+            "state": "New Jersey"
+        },
+        {
+            "status": "Live",
+            "state": "New Hampshire"
+        },
+        {
+            "status": "Live",
+            "state": "New Mexico"
+        },
+        {
+            "status": "Live",
+            "state": "North Dakota"
+        },
+        {
+            "status": "Live",
+            "state": "Ohio"
+        },
+        {
+            "status": "Live",
+            "state": "Pennsylvania"
+        },
+        {
+            "status": "Live",
+            "state": "Texas"
+        },
+        {
+            "status": "Live",
+            "state": "Vermont"
+        },
+        {
+            "status": "Live",
+            "state": "Washington"
+        },
+        {
+            "status": "Live",
+            "state": "Wyoming"
+        }
+    ]
 }
