@@ -63,16 +63,7 @@ function TermsOfServiceForm() {
         e.preventDefault();
         setSubmitting(true);
         resetAllErrorFlags();
-        const body = createBody(
-            title,
-            firstName,
-            lastName,
-            email,
-            territory,
-            organizationName,
-            multipleStates,
-            agree
-        );
+        const body = createBody();
         if (body === null) {
             setSubmitting(false);
             return;
@@ -101,16 +92,7 @@ function TermsOfServiceForm() {
     /* INFO
        handles the front-end not-null validation and builds the body object of type AgreementBody
        then returns it if no required values are absent. Otherwise, it returns null. */
-    function createBody(
-        title: string,
-        firstName: string,
-        lastName: string,
-        email: string,
-        territory: string,
-        organizationName: string,
-        operatesInMultipleStates: boolean,
-        agreedToTermsOfService: boolean
-    ) {
+    function createBody() {
         let bodyHasNoErrors: boolean = true;
         const required: string[] = [
             "firstName",
@@ -127,8 +109,8 @@ function TermsOfServiceForm() {
             email: email,
             territory: territory,
             organizationName: organizationName,
-            operatesInMultipleStates: operatesInMultipleStates,
-            agreedToTermsOfService: agreedToTermsOfService,
+            operatesInMultipleStates: multipleStates,
+            agreedToTermsOfService: agree,
         };
         Object.entries(body).forEach((item) => {
             const [key, value]: [string, string | boolean] = item;
@@ -225,18 +207,7 @@ function TermsOfServiceForm() {
     };
 
     return success ? (
-        <SuccessPage
-            data={createBody(
-                title,
-                firstName,
-                lastName,
-                email,
-                territory,
-                organizationName,
-                multipleStates,
-                agree
-            )}
-        />
+        <SuccessPage data={createBody()} />
     ) : (
         <>
             <Helmet>
