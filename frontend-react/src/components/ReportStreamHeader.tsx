@@ -12,6 +12,7 @@ import {
 import { useOktaAuth } from "@okta/okta-react";
 import { useEffect, useState } from "react";
 import { useResource } from "rest-hooks";
+
 import OrganizationResource from "../resources/OrganizationResource";
 import { permissionCheck, reportReceiver } from "../webreceiver-utils";
 import { PERMISSIONS } from "../resources/PermissionsResource";
