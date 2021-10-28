@@ -121,6 +121,7 @@ NTE|1|L|This is a final comment|RE"""
             every { it.suppressAoe }.returns(false)
             every { it.suppressHl7Fields }.returns(null)
             every { it.useBlankInsteadOfUnknown }.returns(null)
+            every { it.useSpecimentIdForFillerOrderNumber }.returns(false)
             every { it.convertTimestampToDateTime }.returns(null)
             every { it.truncateHDNamespaceIds }.returns(false)
             every { it.phoneNumberFormatting }.returns(Hl7Configuration.PhoneNumberFormatting.STANDARD)

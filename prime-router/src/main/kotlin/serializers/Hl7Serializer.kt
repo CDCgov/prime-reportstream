@@ -540,6 +540,10 @@ class Hl7Serializer(
             val pathSpec = formPathSpec(it)
             terser.set(pathSpec, "")
         }
+        if (hl7Config?.useSpecimentIdForFillerOrderNumber == true && terser.get("ORC-3-1").isNullOrEmpty()) {
+            val specimenId = terser.get("SPM-2-1")
+            terser.set("ORC-3-1", specimenId)
+        }
         convertTimestampToDateTimeFields.forEach {
             val pathSpec = formPathSpec(it)
             val tsValue = terser.get(pathSpec)
