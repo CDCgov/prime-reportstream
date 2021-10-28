@@ -9,6 +9,20 @@ interface Props {
     reportId: string;
 }
 
+/* INFO
+   This type exists as a part of the tempoarary fix and can be removed after we switch
+   back to using useResource() for that call
+   >>> Kevin Haube, Sept 27, 2021 */
+type Facility = {
+    organization: string | undefined
+    facility: string | undefined
+    location: string | undefined
+    CLIA: string | undefined
+    positive: string | undefined
+    total: string | undefined
+}
+
+
 function FacilitiesTable(props: Props) {
     const { reportId }: Props = props;
     const facilities: FacilityResource[] = useResource(
@@ -49,8 +63,8 @@ function FacilitiesTable(props: Props) {
                         </tr>
                     ))}
                 </tbody>
-            </table>
-        </section>
+            </table >
+        </section >
     );
 }
 

@@ -67,6 +67,7 @@ resource "azurerm_container_group" "sftp_container" {
     // Workaround. TF thinks this is a new resource after import
     ignore_changes = [
       container[0].volume[0],
+      network_profile_id,
     ]
   }
 }

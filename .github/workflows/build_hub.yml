@@ -100,7 +100,7 @@ jobs:
 
       - name: Run Smoke Tests
         run: bash ./build.sh -- gradle testSmoke
-      
+
       - name: Dump docker logs on failure
         if: failure()
         uses: jwalton/gh-docker-logs@v2.0.2

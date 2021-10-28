@@ -2,6 +2,7 @@ import { Helmet } from "react-helmet";
 import DOMPurify from "dompurify";
 
 import site from "../../content/site.json";
+import { Helmet } from "react-helmet";
 
 /* eslint-disable jsx-a11y/anchor-has-content */
 export const GettingStarted = () => {

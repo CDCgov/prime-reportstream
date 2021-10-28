@@ -501,7 +501,6 @@ repositories {
 
 dependencies {
     jooqGenerator("org.postgresql:postgresql:42.3.0")
-
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-common:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")

@@ -215,7 +215,6 @@ module "app_config_private_endpoint" {
   endpoint_subnet_id_for_dns = data.azurerm_subnet.endpoint.id
 }
 
-
 resource "azurerm_key_vault" "client_config" {
   # Does not include "-keyvault" due to char limits (24)
   name = "${var.resource_prefix}-clientconfig"

@@ -83,6 +83,7 @@ elements:
       default: UNK
 
 
+
 # Specimen/Order Info
     - name: specimen_collection_date_time
       csvFields: [{name: Specimen Collection Date, format: "yyyyMMdd"}]
@@ -141,7 +142,6 @@ elements:
 
     - name: test_performed_code
       mapper: trimBlanks(test_performed_code_temp)
-
 
 # Ordering provider
     - name: ordering_provider_id
@@ -224,11 +224,9 @@ elements:
     - name: filler_clia
       csvFields: [{name: Facility CLIA}]
 
-
 # Concatenated fields
     - name: message_id
       mapper: concat(filler_order_id, test_performed_code)
-
 
 #unused fields - these are added here to suppress warnings.
     - name: Patient_County_Ignore

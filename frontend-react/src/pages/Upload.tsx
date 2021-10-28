@@ -125,7 +125,6 @@ export const Upload = () => {
                         );
                     }
                 }
-
                 if (
                     response.consolidatedWarnings &&
                     response.consolidatedWarnings.length
