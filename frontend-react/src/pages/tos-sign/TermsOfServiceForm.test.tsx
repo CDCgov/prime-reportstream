@@ -1,12 +1,12 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
-import SigningForm from "./SigningForm";
+import TermsOfServiceForm from "./TermsOfServiceForm";
 import site from '../../content/site.json'
 
 describe('Basic rendering', () => {
     const mockCallback = jest.fn();
     beforeEach(() => {
-        render(<BrowserRouter><SigningForm signedCallback={mockCallback} /></BrowserRouter>)
+        render(<BrowserRouter><TermsOfServiceForm /></BrowserRouter>)
     })
 
     test('Title renders', () => {

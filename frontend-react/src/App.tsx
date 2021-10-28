@@ -25,6 +25,7 @@ import { CODES, ErrorPage } from "./pages/error/ErrorPage";
 import GlobalContextProvider from "./components/GlobalContextProvider";
 import { logout } from "./utils/UserUtils";
 import SignTermsOfService from "./pages/tos-sign/SignTermsOfService";
+import TermsOfServiceForm from "./pages/tos-sign/TermsOfServiceForm";
 
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
 
@@ -102,7 +103,7 @@ const App = () => {
                                 <AuthorizedRoute
                                     path="/sign-tos"
                                     authorize={PERMISSIONS.PRIME_ADMIN}
-                                    component={SignTermsOfService}
+                                    component={TermsOfServiceForm}
                                 />
                                 <AuthorizedRoute
                                     path="/daily-data"
