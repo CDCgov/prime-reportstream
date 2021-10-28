@@ -90,6 +90,10 @@ class Report : Logging {
      */
     val destination: Receiver?
 
+    // record the message and the filter that produced it
+    // ideally it should be reproducable.. so what? the args, filter, and response?
+    var filteredItems: List<String> = emptyList()
+
     /**
      * The time when the report was created
      */
@@ -276,6 +280,7 @@ class Report : Logging {
             bodyFormat ?: this.bodyFormat,
         )
         copy.itemLineages = createOneToOneItemLineages(this, copy)
+        copy.filteredItems = this.filteredItems
         return copy
     }
 
@@ -330,6 +335,7 @@ class Report : Logging {
         isQualityFilter: Boolean,
         reverseTheFilter: Boolean = false
     ): Report {
+        val filteredRows = mutableListOf<String>()
         // First, only do detailed logging on qualityFilters.
         // But, **don't** do detailed logging if reverseTheFilter is true.
         // This is a hack, but its because the logging is nonsensical if the filter is reversed.
@@ -338,6 +344,15 @@ class Report : Logging {
         val combinedSelection = Selection.withRange(0, table.rowCount())
         filterFunctions.forEach { (filterFn, fnArgs) ->
             val filterFnSelection = filterFn.getSelection(fnArgs, table, receiver, doDetailedFilterLogging)
+            if (doDetailedFilterLogging) {
+                if (filterFnSelection.size() < table.rowCount()) {
+                    val before = Selection.withRange(0, table.rowCount())
+                    filteredRows.add("For ${receiver.fullName}, qualityFilter ${filterFn.name}, ${fnArgs}" +
+                        " filtered out Rows ${before.andNot(filterFnSelection).joinToString(",")}" +
+                        " reducing the Item count from ${table.rowCount()} to ${filterFnSelection.size()}."
+                    )
+                }
+            }
             combinedSelection.and(filterFnSelection)
         }
         val finalCombinedSelection = if (reverseTheFilter)
@@ -350,6 +365,7 @@ class Report : Logging {
             filteredTable,
             fromThisReport("filter: $filterFunctions")
         )
+        filteredReport.filteredItems = filteredRows
         filteredReport.itemLineages = createItemLineages(finalCombinedSelection, this, filteredReport)
         return filteredReport
     }

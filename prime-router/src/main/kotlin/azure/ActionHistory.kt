@@ -71,6 +71,8 @@ class ActionHistory {
      */
     val reportsOut = mutableMapOf<ReportId, ReportFile>()
 
+    val filteredReportRows = mutableMapOf<ReportId, List<String>>()
+
     /**
      * Messages to be queued in an azure queue as part of the result of this action.
      */
@@ -266,7 +268,7 @@ class ActionHistory {
         event: Event,
         report: Report,
         receiver: Receiver,
-        blobInfo: BlobAccess.BlobInfo,
+        blobInfo: BlobAccess.BlobInfo? = null,
     ) {
         if (isReportAlreadyTracked(report.id)) {
             error("Bug:  attempt to track history of a report ($report.id) we've already associated with this action")
@@ -280,11 +282,17 @@ class ActionHistory {
         reportFile.receivingOrgSvc = receiver.name
         reportFile.schemaName = report.schema.name
         reportFile.schemaTopic = report.schema.topic
-        reportFile.bodyUrl = blobInfo.blobUrl
-        reportFile.bodyFormat = blobInfo.format.toString()
-        reportFile.blobDigest = blobInfo.digest
+        if (blobInfo != null) {
+            reportFile.bodyUrl = blobInfo.blobUrl
+            reportFile.bodyFormat = blobInfo.format.toString()
+            reportFile.blobDigest = blobInfo.digest
+        }
         reportFile.itemCount = report.itemCount
         reportsOut[reportFile.reportId] = reportFile
+        filteredReportRows[reportFile.reportId] = report.filteredItems
+        if (report.itemCount < 1) {
+            return
+        }
         trackItemLineages(report)
         trackEvent(event) // to be sent to queue later.
     }
@@ -416,7 +424,9 @@ class ActionHistory {
             insertReportFile(it, txn)
         }
         reportsOut.values.forEach {
-            insertReportFile(it, txn)
+            if (it.itemCount > 0) {
+                insertReportFile(it, txn)
+            }
         }
     }
 
@@ -547,7 +557,7 @@ class ActionHistory {
                     if (previous != null) previous.count++
                 } else {
                     prettyPrintDestinationJson(
-                        jsonGen, orgReceiver, organization, reportFile.nextActionAt, reportFile.itemCount, reportOptions
+                        jsonGen, orgReceiver, organization, reportFile.nextActionAt, reportFile.itemCount, reportOptions, reportFile.reportId 
                     )
                     destinationCounter++
                 }
@@ -574,13 +584,24 @@ class ActionHistory {
         organization: Organization,
         sendingAt: OffsetDateTime?,
         countToPrint: Int,
-        reportOptions: ReportFunction.Options
+        reportOptions: ReportFunction.Options,
+        reportId: ReportId? = null
     ) {
         jsonGen.writeStartObject()
         // jsonGen.writeStringField("id", reportFile.reportId.toString())   // TMI?
         jsonGen.writeStringField("organization", organization.description)
         jsonGen.writeStringField("organization_id", orgReceiver.organizationName)
         jsonGen.writeStringField("service", orgReceiver.name)
+
+        reportId?.let{
+            if (filteredReportRows.contains(it)) {
+                jsonGen.writeArrayFieldStart("filteredReportRows")
+                filteredReportRows.getValue(it).forEach {
+                    jsonGen.writeString(it)
+                }
+                jsonGen.writeEndArray()
+            }
+        }
 
         jsonGen.writeStringField(
             "sending_at",

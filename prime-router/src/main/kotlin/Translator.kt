@@ -27,9 +27,14 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
      * Translate this report by the list of services in metadata. One report for every service, reports
      * may be empty.
      */
-    // TODO DG: this is never used.
+    // TODO DG: this is never used. except for tests
     fun translateByReceiver(input: Report, defaultValues: DefaultValues = emptyMap()): List<Report> {
-        return settings.receivers.map { receiver -> translateByReceiver(input, receiver, defaultValues) }
+        return settings.receivers.map { receiver -> 
+
+            val jurisFilteredReport = filterByJurisdiction(input, receiver)
+            if (jurisFilteredReport == null) return@map buildEmptyReport(receiver, input)
+            translateByReceiver(jurisFilteredReport , receiver, defaultValues)
+        }
     }
 
     /**
@@ -48,8 +53,9 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
         }.mapNotNull { receiver ->
             try {
                 val jurisFilteredReport = filterByJurisdiction(input, receiver)
-                if (jurisFilteredReport.itemCount == 0) return@mapNotNull null
+                if (jurisFilteredReport == null) return@mapNotNull null
                 val mappedReport = translateByReceiver(jurisFilteredReport, receiver, defaultValues)
+                if (mappedReport.isEmpty() && mappedReport.filteredItems.isEmpty()) return@mapNotNull null
                 Pair(mappedReport, receiver)
             } catch (e: IllegalStateException) {
                 // catching individual translation exceptions enables overall work to continue
@@ -67,7 +73,7 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
         }
     }
 
-    private fun filterByJurisdiction(input: Report, receiver: Receiver): Report {
+    private fun filterByJurisdiction(input: Report, receiver: Receiver): Report? {
         // Filter according to this receiver's desired JurisdictionalFilter patterns
         val jurisFilterAndArgs = receiver.jurisdictionalFilter.map { filterSpec ->
             val (fnName, fnArgs) = JurisdictionalFilters.parseJurisdictionalFilter(filterSpec)
@@ -78,7 +84,7 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
         val jurisFilteredReport = input.filter(jurisFilterAndArgs, receiver, isQualityFilter = false)
 
         // Always succeed in translating an empty report after filtering (even if the mapping process would fail)
-        if (jurisFilteredReport.isEmpty()) return buildEmptyReport(receiver, input)
+        if (jurisFilteredReport.isEmpty()) return null
         return jurisFilteredReport
     }
 
@@ -146,7 +152,10 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
         var transformed = toReport
         if (receiver.deidentify)
             transformed = transformed.deidentify()
-        return transformed.copy(destination = receiver, bodyFormat = receiver.format)
+        var copy = transformed.copy(destination = receiver, bodyFormat = receiver.format)
+        copy.filteredItems = qualityFilteredReport.filteredItems
+        return copy
+
     }
 
     fun buildEmptyReport(receiver: Receiver, from: Report): Report {
