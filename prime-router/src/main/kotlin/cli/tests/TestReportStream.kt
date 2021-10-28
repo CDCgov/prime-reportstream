@@ -306,7 +306,7 @@ Examples:
             DbConnections(),
             BadSftp(),
             Garbage(),
-            Settings(),
+            SettingsTest(),
         )
     }
 }
