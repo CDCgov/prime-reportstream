@@ -1639,6 +1639,7 @@ Code | Display
 258580003|Whole blood sample
 122555007|Venous blood specimen
 119297000|Blood specimen
+122554006|Capillary blood specimen
 
 **Documentation**:
 
