@@ -458,7 +458,7 @@ class ActionHistory {
         var parentReports2 = mutableSetOf<ReportId>()
         parentReports2.addAll(reportsReceived.keys)
         parentReports2.addAll(reportsIn.keys)
-        val childReports2 = reportsOut.keys
+        val childReports2 = reportsOut.filterValues { it.itemCount > 0 }.keys
         if (!parentReports.equals(parentReports2)) {
             error(
                 "parent reports from items (${parentReports.joinToString(",")}) != from reports" +
