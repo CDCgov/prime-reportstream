@@ -73,33 +73,35 @@ function TermsOfServiceForm() {
             multipleStates,
             agree
         );
-        if (body !== null) {
-            const response = await fetch(
-                `${AuthResource.getBaseUrl()}/api/email-registered`,
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(body),
-                }
-            );
-            if (response.status >= 200 && response.status <= 299) {
-                setSuccess(true);
-            } else {
-                setSubmitting(false);
-                setSendGridErrorFlag({
-                    isError: true,
-                    status: response.status,
-                });
-            }
+        if (body === null) {
+            setSubmitting(false);
+            return;
         }
+        const response = await fetch(
+            `${AuthResource.getBaseUrl()}/api/email-registered`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(body),
+            }
+        );
+        if (response.status < 200 || response.status > 299) {
+            setSubmitting(false);
+            setSendGridErrorFlag({
+                isError: true,
+                status: response.status,
+            });
+            return;
+        }
+        setSuccess(true);
     };
 
     /* INFO
        handles the front-end not-null validation and builds the body object of type AgreementBody
        then returns it if no required values are absent. Otherwise, it returns null. */
-    const createBody = (
+    function createBody(
         title: string,
         firstName: string,
         lastName: string,
@@ -108,7 +110,7 @@ function TermsOfServiceForm() {
         organizationName: string,
         operatesInMultipleStates: boolean,
         agreedToTermsOfService: boolean
-    ) => {
+    ) {
         let bodyHasNoErrors: boolean = true;
         const required: string[] = [
             "firstName",
@@ -141,7 +143,7 @@ function TermsOfServiceForm() {
         });
 
         return bodyHasNoErrors ? body : null;
-    };
+    }
 
     /* INFO
        When resubmitting, this will be called to eliminate all the previous flags

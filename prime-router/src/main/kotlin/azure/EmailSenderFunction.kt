@@ -106,7 +106,7 @@ class EmailSenderFunction {
             logger.info(request.body)
             val body: TosAgreementForm = parseBody(request.body!!, logger) ?: return ret.build()
             if (!body.validate(logger)) return ret.build()
-            val mail: String = createMail(body, logger)
+            val mail: String = createMail(body)
             ret.status(sendMail(mail, sendgridId, logger)) /* Status becomes whatever SendGrid returns */
         }
 
@@ -127,7 +127,7 @@ class EmailSenderFunction {
         }
     }
 
-    private fun createMail(body: TosAgreementForm, logger: Logger): String {
+    private fun createMail(body: TosAgreementForm): String {
         val mail: Mail = Mail()
         val p: Personalization = Personalization()
 

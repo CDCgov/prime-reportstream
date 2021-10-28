@@ -6,7 +6,6 @@ import site from "../../content/site.json";
 import TermsOfServiceForm from "./TermsOfServiceForm";
 
 describe("Basic rendering", () => {
-    const mockCallback = jest.fn();
     beforeEach(() => {
         render(
             <BrowserRouter>
