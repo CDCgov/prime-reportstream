@@ -189,7 +189,7 @@ jobs:
     name: "Deploy Release: TEST"
     needs:
       - build_release
-      - build_frontend_release
+      - build_frontend_react_release
     if: github.ref == 'refs/heads/ronheft/test-investigation'
     environment: test
     concurrency: test
@@ -372,7 +372,7 @@ jobs:
     name: "Deploy Release: PROD"
     needs:
       - build_release
-      - build_frontend_release
+      - build_frontend_react_release
     if: github.ref == 'refs/heads/production'
     environment: prod
     concurrency: prod
