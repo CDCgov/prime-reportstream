@@ -1105,6 +1105,8 @@ Code | Display
 71836000|Nasal
 71836000|Nasopharyngeal swab
 71836000|258500001
+71836000|Nasopharyngeal aspirate
+71836000|258411007
 71836000|71836000
 45206002|Nasal structure (body structure)
 45206002|45206002
@@ -1114,19 +1116,23 @@ Code | Display
 53342003|Mid-turbinate nasal swab
 53342003|Nasal Swab
 53342003|445297001
+53342003|697989009
 53342003|53342003
-119297000|Serum
-119297000|Serum specimen
-119297000|Plasma
-119297000|Plasma specimen
-119297000|Whole Blood
-119297000|Whole Blood Sample
-119297000|Blood specimen
-119297000|Venous blood specimen
-119297000|258580003
-119297000|119361006
-119297000|119364003
-119297000|119297000
+29092000|Serum
+29092000|Serum specimen
+29092000|Plasma
+29092000|Plasma specimen
+29092000|Whole Blood
+29092000|Whole Blood Sample
+29092000|Blood specimen
+29092000|Venous blood specimen
+29092000|Capillary blood specimen
+29092000|fingerstick whole blood
+29092000|122554006
+29092000|258580003
+29092000|119361006
+29092000|119364003
+29092000|119297000
 31389004|Oral
 31389004|Throat Swab
 31389004|Oropharyngeal
@@ -1197,6 +1203,9 @@ Code | Display
 122555007|122555007
 119297000|Blood specimen
 119297000|119297000
+122554006|Capillary blood specimen
+122554006|fingerstick whole blood
+122554006|122554006
 
 **Documentation**:
 
@@ -1327,22 +1336,6 @@ Translate multiple inbound Test Result values to RS values
 **Documentation**:
 
 ResultDate populates multiple fields.  This instance populates test_result_date.
-
----
-
-**Name**: ResultDate
-
-**Type**: DATETIME
-
-**PII**: No
-
-**Format**: M/d/yyyy
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-ResultDate populates multiple fields.  This instance populates test_result_report_date.
 
 ---
 

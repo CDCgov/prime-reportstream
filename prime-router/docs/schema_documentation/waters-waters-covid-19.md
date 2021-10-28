@@ -63,6 +63,16 @@ This field is generated based on the normalcy status of the result. A = abnormal
 
 ---
 
+**Name**: testReportDate
+
+**Type**: DATETIME
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
 **Name**: healthcareEmployee
 
 **Type**: CODE
@@ -999,6 +1009,7 @@ Code | Display
 258580003|Whole blood sample
 122555007|Venous blood specimen
 119297000|Blood specimen
+122554006|Capillary blood specimen
 
 **Documentation**:
 
@@ -1175,16 +1186,6 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 ---
 
 **Name**: testResultDate
-
-**Type**: DATETIME
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: testReportDate
 
 **Type**: DATETIME
 
