@@ -414,6 +414,7 @@ class Hl7Serializer(
         // set up our configuration
         val hl7Config = report.destination?.translation as? Hl7Configuration
         val replaceValue = hl7Config?.replaceValue ?: emptyMap()
+        val cliaForSender = hl7Config?.cliaForSender ?: emptyMap()
         val suppressQst = hl7Config?.suppressQstForAoe ?: false
         val suppressAoe = hl7Config?.suppressAoe ?: false
         val useOrderingFacilityName = hl7Config?.useOrderingFacilityName
@@ -589,6 +590,24 @@ class Hl7Serializer(
                 val sendingFacility = "MSH-4-2"
                 val pathSpecSendingFacility = formPathSpec(sendingFacility)
                 terser.set(pathSpecSendingFacility, hl7Config?.cliaForOutOfStateTesting)
+            }
+        }
+
+        // get sender id for the record
+        val senderID = report.getDeidentifiedResultMetaData()[row].senderId
+
+        // loop through CLIA resets
+        cliaForSender.forEach { sender, clia ->
+            try {
+                // find that sender in the map
+                if (sender.equals(senderID.trim(), ignoreCase = true) && !clia.isNullOrEmpty()) {
+                    // if the sender needs should have a specific CLIA then overwrite the CLIA here
+                    val pathSpecSendingFacilityID = formPathSpec("MSH-4-2")
+                    terser.set(pathSpecSendingFacilityID, clia)
+                }
+            } catch (e: Exception) {
+                val msg = "${e.localizedMessage} ${e.stackTraceToString()}"
+                logger.error(msg)
             }
         }
 

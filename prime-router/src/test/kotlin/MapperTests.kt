@@ -496,4 +496,10 @@ class MapperTests {
         // column has empty data
         assertThat(mapper.apply(elementA, arg, listOf(ElementAndValue(elementA, "")))).isNull()
     }
+
+    @Test
+    fun `test parseMapperField validation - allow mapper tokens to be parsed`() {
+        val vals = Mappers.parseMapperField("concat(patient_id, \$index)")
+        assertThat(vals.second[1]).isEqualTo("\$index")
+    }
 }

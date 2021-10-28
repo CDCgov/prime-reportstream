@@ -26,6 +26,7 @@ class Metadata {
         Obx8Mapper(),
         DateTimeOffsetMapper(),
         CoalesceMapper(),
+        TrimBlanksMapper(),
         StripPhoneFormattingMapper(),
         StripNonNumericDataMapper(),
         StripNumericDataMapper(),

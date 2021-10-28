@@ -78,6 +78,7 @@ data class Hl7Configuration
     val usePid14ForPatientEmail: Boolean = false,
     val convertTimestampToDateTime: String? = null,
     val cliaForOutOfStateTesting: String? = null,
+    val cliaForSender: Map<String, String>? = emptyMap(),
     val phoneNumberFormatting: PhoneNumberFormatting = PhoneNumberFormatting.STANDARD,
     // pass this around as a property now
     val processingModeCode: String? = null,
