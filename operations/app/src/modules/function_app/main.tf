@@ -35,6 +35,10 @@ locals {
 
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE" = false
 
+    # Cron-like schedule for running the function app that reaches out to remote
+    # sites and verifies they're up
+    "REMOTE_CONNECTION_CHECK_SCHEDULE" = "*/5 * * * *"
+
     # App Insights
     "APPINSIGHTS_INSTRUMENTATIONKEY"                  = var.ai_instrumentation_key
     "APPINSIGHTS_PROFILERFEATURE_VERSION"             = "1.0.0"
