@@ -12,7 +12,6 @@ import com.github.kittinunf.fuel.core.Response
 import com.github.kittinunf.fuel.json.FuelJson
 import com.github.kittinunf.result.Result
 import gov.cdc.prime.router.azure.HttpUtilities
-import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableRow
 import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableVersion
 import io.mockk.every
 import io.mockk.mockk
@@ -31,10 +30,9 @@ class LookupTableCommandsTest {
 
     @Test
     fun `test rows to table`() {
-        val data = listOf(LookupTableRow())
         val colNames = listOf("a", "b")
-        data[0].data = JSONB.jsonb("""{"a": "value1", "b": "value2"}""")
-        val output = LookupTableCommands.rowsToPrintableTable(data, colNames)
+        val data = mapOf(colNames[0] to "value1", colNames[1] to "value2")
+        val output = LookupTableCommands.rowsToPrintableTable(listOf(data), colNames)
         assertThat(output.isNotEmpty()).isTrue()
 
         assertFailsWith<IllegalArgumentException>(
