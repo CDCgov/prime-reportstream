@@ -23,6 +23,13 @@ class DatabaseLookupTableAccessTests {
         assertFailsWith<IllegalArgumentException>(
             block = {
                 DatabaseLookupTableAccess
+                    .extractTableHeadersFromJson(JSONB.jsonb("[]"))
+            }
+        )
+
+        assertFailsWith<IllegalArgumentException>(
+            block = {
+                DatabaseLookupTableAccess
                     .extractTableHeadersFromJson(JSONB.jsonb(""))
             }
         )
