@@ -90,7 +90,7 @@ class CsvFileTests {
         // listOf("AZ-test-receiver-", "federal-test-receiver-")
         // Write transformed objs to files, and check they are correct
         outputReports
-            .map { (report, receiver) -> report }
+            .map { (report, _) -> report }
             .zip(expected)
             .forEach { (report, prefix) ->
                 val outputFile = File(outputPath, report.name)
