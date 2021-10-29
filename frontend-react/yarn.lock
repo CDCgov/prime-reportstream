@@ -11014,13 +11014,6 @@ react-snap@^1.23.0:
     serve-static "1.13.2"
     sourcemapped-stacktrace-node "2.1.8"
 
-react-usa-map@^1.5.0:
-  version "1.5.0"
-  resolved "https://registry.yarnpkg.com/react-usa-map/-/react-usa-map-1.5.0.tgz#b290860a066520631ff9b9b14ecb93f6c3b1c298"
-  integrity sha512-Czs74kGMi3vWr4/alTQc34I5+PdCTIzmbfKJyxPE1eW9VfdC5jfkgr1LpCEHhtFxO03e3Z9+P7s6BT/ps4UNIA==
-  dependencies:
-    babel-runtime "^6.26.0"
-
 react@^17.0.2:
   version "17.0.2"
   resolved "https://registry.yarnpkg.com/react/-/react-17.0.2.tgz#d0b5cc516d29eb3eee383f75b62864cfb6800037"
