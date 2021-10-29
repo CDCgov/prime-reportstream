@@ -6,6 +6,7 @@ import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
 import gov.cdc.prime.router.ClientSource
+import gov.cdc.prime.router.FilterResult
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
@@ -73,7 +74,7 @@ class ActionHistory {
 
     val filteredOutReports = mutableMapOf<ReportId, ReportFile>()
 
-    val filteredReportRows = mutableMapOf<ReportId, List<String>>()
+    val filteredReportRows = mutableMapOf<ReportId, List<FilterResult>>()
 
     /**
      * Messages to be queued in an azure queue as part of the result of this action.
@@ -631,7 +632,7 @@ class ActionHistory {
             if (filteredReportRows.contains(it)) {
                 jsonGen.writeArrayFieldStart("filteredReportRows")
                 filteredReportRows.getValue(it).forEach {
-                    jsonGen.writeString(it)
+                    jsonGen.writeString(it.toString())
                 }
                 jsonGen.writeEndArray()
             }

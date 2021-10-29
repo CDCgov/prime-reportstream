@@ -39,6 +39,21 @@ const val REPORT_MAX_ITEMS = 10000
 const val REPORT_MAX_ITEM_COLUMNS = 2000
 const val REPORT_MAX_ERRORS = 100
 
+data class FilterResult(
+    val receiverName: String,
+    val filterName: String,
+    val filterArgs: List<String>,
+    val origionalCount: Int,
+    val count: Int,
+    val filteredRows: IntArray
+) {
+    override fun toString(): String {
+        return "For $receiverName, qualityFilter $filterName, $filterArgs" +
+            " filtered out Rows ${filteredRows.joinToString(",")}" +
+            " reducing the Item count from $origionalCount to $count."
+    }
+}
+
 /**
  * The report represents the report from one agent-organization, and which is
  * translated and sent to another agent-organization. Each report has a schema,
@@ -92,7 +107,7 @@ class Report : Logging {
 
     // record the message and the filter that produced it
     // ideally it should be reproducable.. so what? the args, filter, and response?
-    val filteredItems: MutableList<String> = mutableListOf()
+    val filteredItems: MutableList<FilterResult> = mutableListOf()
 
     /**
      * The time when the report was created
@@ -335,7 +350,7 @@ class Report : Logging {
         isQualityFilter: Boolean,
         reverseTheFilter: Boolean = false
     ): Report {
-        val filteredRows = mutableListOf<String>()
+        val filteredRows = mutableListOf<FilterResult>()
         // First, only do detailed logging on qualityFilters.
         // But, **don't** do detailed logging if reverseTheFilter is true.
         // This is a hack, but its because the logging is nonsensical if the filter is reversed.
@@ -348,9 +363,14 @@ class Report : Logging {
                 if (filterFnSelection.size() < table.rowCount()) {
                     val before = Selection.withRange(0, table.rowCount())
                     filteredRows.add(
-                        "For ${receiver.fullName}, qualityFilter ${filterFn.name}, $fnArgs" +
-                            " filtered out Rows ${before.andNot(filterFnSelection).joinToString(",")}" +
-                            " reducing the Item count from ${table.rowCount()} to ${filterFnSelection.size()}."
+                        FilterResult(
+                            receiver.fullName,
+                            filterFn.name,
+                            fnArgs,
+                            table.rowCount(),
+                            filterFnSelection.size(),
+                            before.andNot(filterFnSelection).toArray()
+                        )
                     )
                 }
             }
