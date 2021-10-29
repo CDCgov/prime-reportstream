@@ -4,6 +4,22 @@
 
 ---
 
+**Name**: testReportDate
+
+**Type**: DATETIME
+
+**PII**: No
+
+**Format**: yyyyMMdd
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+eg, 20210112
+
+---
+
 **Name**: healthcareEmployee
 
 **Type**: CODE
@@ -1806,6 +1822,7 @@ Code | Display
 258580003|Whole blood sample
 122555007|Venous blood specimen
 119297000|Blood specimen
+122554006|Capillary blood specimen
 
 **Documentation**:
 
@@ -2044,22 +2061,6 @@ eg, SCT.   Custom
 **Documentation**:
 
 eg, 20210111
-
----
-
-**Name**: testReportDate
-
-**Type**: DATETIME
-
-**PII**: No
-
-**Format**: yyyyMMdd
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-eg, 20210112
 
 ---
 

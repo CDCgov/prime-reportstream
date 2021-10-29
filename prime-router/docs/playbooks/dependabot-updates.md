@@ -52,5 +52,10 @@ paying attention this can cause you to have a merge conflict. If you want to reb
 after you've merged in some updates you can leave a comment on the PR that looks like this: `@dependabot rebase`
 and it will rebase its PR against master.
 
+Another issue that you can encounter is that occasionally the Azure storage libraries will bump in version, and
+the underlying `azurite` image in Docker is out of sync. You will begin to get errors about `x-ms-version` but no
+other details about how to fix it. If you bump the Azure storage libraries and get an `x-ms-version` error, 
+look at updating our version of `azurite` in Docker locally and testing again. More details are here: https://github.com/CDCgov/prime-reportstream/discussions/1830
+
 If in doubt, ask!
 
