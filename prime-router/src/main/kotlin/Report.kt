@@ -359,20 +359,18 @@ class Report : Logging {
         val combinedSelection = Selection.withRange(0, table.rowCount())
         filterFunctions.forEach { (filterFn, fnArgs) ->
             val filterFnSelection = filterFn.getSelection(fnArgs, table, receiver, doDetailedFilterLogging)
-            if (doDetailedFilterLogging) {
-                if (filterFnSelection.size() < table.rowCount()) {
-                    val before = Selection.withRange(0, table.rowCount())
-                    filteredRows.add(
-                        FilterResult(
-                            receiver.fullName,
-                            filterFn.name,
-                            fnArgs,
-                            table.rowCount(),
-                            filterFnSelection.size(),
-                            before.andNot(filterFnSelection).toArray()
-                        )
+            if (doDetailedFilterLogging && filterFnSelection.size() < table.rowCount()) {
+                val before = Selection.withRange(0, table.rowCount())
+                filteredRows.add(
+                    FilterResult(
+                        receiver.fullName,
+                        filterFn.name,
+                        fnArgs,
+                        table.rowCount(),
+                        filterFnSelection.size(),
+                        before.andNot(filterFnSelection).toArray()
                     )
-                }
+                )
             }
             combinedSelection.and(filterFnSelection)
         }

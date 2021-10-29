@@ -24,20 +24,6 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
     )
 
     /**
-     * Translate this report by the list of services in metadata. One report for every service, reports
-     * may be empty.
-     */
-    // TODO DG: this is never used. except for tests
-    fun translateByReceiver(input: Report, defaultValues: DefaultValues = emptyMap()): List<Report> {
-        return settings.receivers.map { receiver ->
-
-            val jurisFilteredReport = filterByJurisdiction(input, receiver)
-            if (jurisFilteredReport == null) return@map buildEmptyReport(receiver, input)
-            translateByReceiver(jurisFilteredReport, receiver, defaultValues)
-        }
-    }
-
-    /**
      * Translate and filter by the list of receiver in metadata. Only return reports that have items.
      */
     fun filterAndTranslateByReceiver(
@@ -55,7 +41,7 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
                 val jurisFilteredReport = filterByJurisdiction(input, receiver)
                 if (jurisFilteredReport.isEmpty()) return@mapNotNull null
                 val mappedReport = translateByReceiver(jurisFilteredReport, receiver, defaultValues)
-                if (mappedReport.isEmpty() && mappedReport.filteredItems.isEmpty()) return@mapNotNull null
+                // if (mappedReport.isEmpty() && mappedReport.filteredItems.isEmpty()) return@mapNotNull null
                 Pair(mappedReport, receiver)
             } catch (e: IllegalStateException) {
                 // catching individual translation exceptions enables overall work to continue
@@ -121,10 +107,6 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
             )
         }
 
-        // Always succeed in translating an empty report after filtering (even if the mapping process would fail)
-        // NOTE DG: is this really doing anything? if we let the rest of the function run wouldn't the output be the same?
-        // if (qualityFilteredReport.isEmpty()) return buildEmptyReport(receiver, input)
-
         // Apply mapping to change schema
         val toReport: Report = if (receiver.schemaName != qualityFilteredReport.schema.name) {
             val toSchema = metadata.findSchema(receiver.schemaName)
@@ -153,12 +135,6 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
         var copy = transformed.copy(destination = receiver, bodyFormat = receiver.format)
         copy.filteredItems.addAll(qualityFilteredReport.filteredItems)
         return copy
-    }
-
-    fun buildEmptyReport(receiver: Receiver, from: Report): Report {
-        val toSchema = metadata.findSchema(receiver.schemaName)
-            ?: error("${receiver.schemaName} schema is missing from catalog")
-        return Report(toSchema, emptyList(), listOf(ReportSource(from.id, "mapping")), metadata = metadata)
     }
 
     /**
