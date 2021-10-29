@@ -419,6 +419,7 @@ class ProcessData(
             route ->
                 translator
                     .filterAndTranslateByReceiver(inputReport, getDefaultValues(), emptyList(), warnings)
+                    .filter { it.first.itemCount > 0 }
                     .map { it.first to getOutputFormat(it.second.format) }
             routeTo != null -> {
                 val pair = translator.translate(
