@@ -570,3 +570,5 @@
           code: 285141008
       -   display: Homeless
           code: 32911000
+      -   display: Unknown
+          code: 261665006
