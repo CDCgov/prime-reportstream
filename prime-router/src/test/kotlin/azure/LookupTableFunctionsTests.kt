@@ -1,11 +1,11 @@
 package gov.cdc.prime.router.azure
 
 import assertk.assertThat
-import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEmpty
-import assertk.assertions.isNotNull
-import assertk.assertions.isNull
-import assertk.assertions.isTrue
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
+import com.fasterxml.jackson.module.kotlin.readValue
 import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
@@ -17,12 +17,6 @@ import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonArray
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.JsonPrimitive
-import kotlinx.serialization.json.contentOrNull
 import org.jooq.JSONB
 import org.jooq.exception.DataAccessException
 import org.junit.jupiter.api.BeforeAll
@@ -31,7 +25,6 @@ import org.junit.jupiter.api.TestInstance
 import java.net.URI
 import java.time.OffsetDateTime
 import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -40,6 +33,11 @@ class LookupTableFunctionsTests {
      * The mock request.
      */
     private val mockRequest = mockk<HttpRequestMessage<String?>>()
+
+    /**
+     * Mapper to convert objects to JSON.
+     */
+    private val mapper: ObjectMapper = jacksonMapperBuilder().addModule(JavaTimeModule()).build()
 
     @BeforeAll
     fun initDependencies() {
@@ -87,15 +85,9 @@ class LookupTableFunctionsTests {
                 withArg {
                     // Check that we have JSON data in the response body
                     assertTrue(it is String)
-                    val json = Json.parseToJsonElement(it)
-                    assertTrue(json is JsonArray)
-                    assertTrue(json.size == 1)
-                    assertTrue(json[0] is JsonObject)
-                    assertTrue((json[0] as JsonObject).containsKey("tableName"))
-                    assertEquals(
-                        ((json[0] as JsonObject)["tableName"]!! as JsonPrimitive).contentOrNull,
-                        version1.tableName
-                    )
+                    val versions = mapper.readValue<List<LookupTableVersion>>(it)
+                    assertTrue(versions.size == 1)
+                    assertEquals(versions[0].tableName, version1.tableName)
                 }
             )
         }
@@ -111,9 +103,8 @@ class LookupTableFunctionsTests {
                 withArg {
                     // Check that we have JSON data in the response body
                     assertTrue(it is String)
-                    val json = Json.parseToJsonElement(it)
-                    assertTrue(json is JsonArray)
-                    assertTrue(json.size == 2)
+                    val versions = mapper.readValue<List<LookupTableVersion>>(it)
+                    assertTrue(versions.size == 2)
                 }
             )
         }
@@ -157,12 +148,10 @@ class LookupTableFunctionsTests {
                 withArg {
                     // Check that we have JSON data in the response body
                     assertTrue(it is String)
-                    val json = Json.parseToJsonElement(it)
-                    assertTrue(json is JsonArray)
-                    assertTrue(json.size == 2)
-                    assertTrue(json[0] is JsonObject)
-                    assertTrue((json[0] as JsonObject).containsKey("a"))
-                    assertTrue((json[0] as JsonObject).containsKey("b"))
+                    val rows = mapper.readValue<List<Map<String, String>>>(it)
+                    assertTrue(rows.size == 2)
+                    assertTrue(rows[0].containsKey("a"))
+                    assertTrue(rows[0].containsKey("b"))
                 }
             )
         }
@@ -205,10 +194,8 @@ class LookupTableFunctionsTests {
                 withArg {
                     // Check that we have JSON data in the response body
                     assertTrue(it is String)
-                    val json = Json.parseToJsonElement(it)
-                    assertTrue(json is JsonObject)
-                    assertTrue(json.containsKey("tableName"))
-                    assertEquals(tableName, (json["tableName"] as JsonPrimitive).contentOrNull)
+                    val version = mapper.readValue<LookupTableVersion>(it)
+                    assertEquals(tableName, version.tableName)
                 }
             )
         }
@@ -222,66 +209,6 @@ class LookupTableFunctionsTests {
     }
 
     @Test
-    fun `check create request test`() {
-        // Null body
-        var mockResponseBuilder = createResponseBuilder()
-        every { mockRequest.createResponseBuilder(HttpStatus.BAD_REQUEST) } returns mockResponseBuilder
-        var requestBody: JsonElement? = null
-        every { mockRequest.body } returns null
-        var response = LookupTableFunctions.checkCreateRequest(mockRequest, requestBody)
-        assertThat(response).isNotNull()
-        verifyError(mockResponseBuilder)
-
-        // Empty body
-        mockResponseBuilder = createResponseBuilder()
-        every { mockRequest.createResponseBuilder(HttpStatus.BAD_REQUEST) } returns mockResponseBuilder
-        every { mockRequest.body } returns ""
-        response = LookupTableFunctions.checkCreateRequest(mockRequest, requestBody)
-        assertThat(response).isNotNull()
-        verifyError(mockResponseBuilder)
-
-        // Not an array
-        every { mockRequest.body } returns "dummy body" // Anything here works for the rest of the checks
-        mockResponseBuilder = createResponseBuilder()
-        every { mockRequest.createResponseBuilder(HttpStatus.BAD_REQUEST) } returns mockResponseBuilder
-        requestBody = Json.parseToJsonElement("""{}""") // Not an array
-        response = LookupTableFunctions.checkCreateRequest(mockRequest, requestBody)
-        assertThat(response).isNotNull()
-        verifyError(mockResponseBuilder)
-
-        // An empty array
-        mockResponseBuilder = createResponseBuilder()
-        every { mockRequest.createResponseBuilder(HttpStatus.BAD_REQUEST) } returns mockResponseBuilder
-        requestBody = Json.parseToJsonElement("""[]""") // Empty array
-        response = LookupTableFunctions.checkCreateRequest(mockRequest, requestBody)
-        assertThat(response).isNotNull()
-        verifyError(mockResponseBuilder)
-
-        // Not an array of objects
-        mockResponseBuilder = createResponseBuilder()
-        every { mockRequest.createResponseBuilder(HttpStatus.BAD_REQUEST) } returns mockResponseBuilder
-        requestBody = Json.parseToJsonElement("""["a","b"]""") // Array of primitives
-        response = LookupTableFunctions.checkCreateRequest(mockRequest, requestBody)
-        assertThat(response).isNotNull()
-        verifyError(mockResponseBuilder)
-
-        // Array of objects, but with no data
-        mockResponseBuilder = createResponseBuilder()
-        every { mockRequest.createResponseBuilder(HttpStatus.BAD_REQUEST) } returns mockResponseBuilder
-        requestBody = Json.parseToJsonElement("""[{}]""") // Array with empty object
-        response = LookupTableFunctions.checkCreateRequest(mockRequest, requestBody)
-        assertThat(response).isNotNull()
-        verifyError(mockResponseBuilder)
-
-        // A good row
-        mockResponseBuilder = createResponseBuilder()
-        every { mockRequest.createResponseBuilder(HttpStatus.BAD_REQUEST) } returns mockResponseBuilder
-        requestBody = Json.parseToJsonElement("""[{"a":"1"}]""") // Array with object
-        response = LookupTableFunctions.checkCreateRequest(mockRequest, requestBody)
-        assertThat(response).isNull()
-    }
-
-    @Test
     fun `convert table to data to json test`() {
         val tableData = listOf(
             LookupTableRow(),
@@ -291,25 +218,11 @@ class LookupTableFunctionsTests {
         tableData[1].data = JSONB.jsonb("""{"a": "12", "b": "22"}""")
 
         val lookupTableAccess = mockk<DatabaseLookupTableAccess>()
-        every { lookupTableAccess.fetchTable(any(), any()) } returns tableData
-
-        val data = LookupTableFunctions(lookupTableAccess).convertTableDataToJsonString("dummy", 1)
+        val data = LookupTableFunctions(lookupTableAccess).convertTableDataToJsonString(tableData)
         assertThat(data).isNotEmpty()
-        val jsonData = Json.parseToJsonElement(data)
-        assertThat(jsonData is JsonArray).isTrue()
-        assertThat((jsonData as JsonArray)[0] is JsonObject)
-        assertThat(jsonData[1] is JsonObject)
-        assertThat((jsonData[0] as JsonObject).containsKey("a"))
-    }
-
-    @Test
-    fun `create error message test`() {
-        val message = "dummy message"
-        val jsonError = LookupTableFunctions.createErrorMsg(message)
-        assertThat(jsonError).isNotEmpty()
-        assertThat((Json.parseToJsonElement(jsonError) as JsonObject).containsKey("error")).isTrue()
-        assertThat(((Json.parseToJsonElement(jsonError) as JsonObject)["error"] as JsonPrimitive).contentOrNull)
-            .isEqualTo(message)
+        val rows = mapper.readValue<List<Map<String, String>>>(data)
+        assertTrue(rows.size == 2)
+        assertThat(rows[0].containsKey("a"))
     }
 
     @Test
@@ -334,6 +247,12 @@ class LookupTableFunctionsTests {
         LookupTableFunctions(lookupTableAccess).createLookupTable(mockRequest, tableName)
         verifyError(mockResponseBuilder)
 
+        mockResponseBuilder = createResponseBuilder()
+        every { mockRequest.createResponseBuilder(HttpStatus.BAD_REQUEST) } returns mockResponseBuilder
+        every { mockRequest.body } returns """[{"a": "11", "b": "21"},{"a": "12", "b": "22", "c": "32"}]"""
+        LookupTableFunctions(lookupTableAccess).createLookupTable(mockRequest, tableName)
+        verifyError(mockResponseBuilder)
+
         // Create a new version of an existing table
         mockResponseBuilder = createResponseBuilder()
         every { mockRequest.createResponseBuilder(HttpStatus.OK) } returns mockResponseBuilder
@@ -344,7 +263,7 @@ class LookupTableFunctionsTests {
         versionInfo.isActive = false
         versionInfo.createdBy = "author1"
         versionInfo.createdAt = OffsetDateTime.now()
-        every { lookupTableAccess.createTable(eq(tableName), eq(latestVersion + 1), any()) } returns Unit
+        every { lookupTableAccess.createTable(eq(tableName), eq(latestVersion + 1), any(), any()) } returns Unit
         every { lookupTableAccess.fetchVersionInfo(eq(tableName), eq(latestVersion + 1)) } returns versionInfo
         LookupTableFunctions(lookupTableAccess).createLookupTable(mockRequest, tableName)
         verify(exactly = 1) {
@@ -352,19 +271,17 @@ class LookupTableFunctionsTests {
                 any(), any(),
                 withArg {
                     assertEquals(2, it.size)
-                    val json = Json.parseToJsonElement(it[0].data())
-                    assertTrue(json is JsonObject)
-                    assertEquals("11", (json["a"] as JsonPrimitive).contentOrNull)
-                }
+                    val row = mapper.readValue<Map<String, String>>(it[0].data())
+                    assertEquals("11", row["a"])
+                },
+                any()
             )
             mockResponseBuilder.body(
                 withArg {
                     assertTrue(it is String)
                     assertTrue(it.isNotBlank())
-                    val json = Json.parseToJsonElement(it)
-                    assertTrue(json is JsonObject)
-                    assertNotNull(json["tableName"])
-                    assertEquals(tableName, (((json["tableName"]) as JsonPrimitive).contentOrNull))
+                    val version = mapper.readValue<LookupTableVersion>(it)
+                    assertEquals(tableName, version.tableName)
                 }
             )
         }
@@ -373,7 +290,7 @@ class LookupTableFunctionsTests {
         mockResponseBuilder = createResponseBuilder()
         every { mockRequest.createResponseBuilder(HttpStatus.OK) } returns mockResponseBuilder
         every { lookupTableAccess.fetchLatestVersion(tableName) } returns null
-        every { lookupTableAccess.createTable(eq(tableName), eq(1), any()) } returns Unit
+        every { lookupTableAccess.createTable(eq(tableName), eq(1), any(), any()) } returns Unit
         every { lookupTableAccess.fetchVersionInfo(eq(tableName), eq(1)) } returns versionInfo
         LookupTableFunctions(lookupTableAccess).createLookupTable(mockRequest, tableName)
         verify(exactly = 1) {
@@ -381,13 +298,9 @@ class LookupTableFunctionsTests {
                 withArg {
                     assertTrue(it is String)
                     assertTrue(it.isNotBlank())
-                    val json = Json.parseToJsonElement(it)
-                    assertTrue(json is JsonObject)
-                    assertNotNull(json["tableVersion"])
-                    assertEquals(
-                        (latestVersion + 1).toString(),
-                        (((json["tableVersion"]) as JsonPrimitive).contentOrNull)
-                    )
+                    val version = mapper.readValue<LookupTableVersion>(it)
+                    assertEquals(tableName, version.tableName)
+                    assertEquals((latestVersion + 1).toString(), version.tableVersion.toString())
                 }
             )
         }
@@ -432,9 +345,8 @@ class LookupTableFunctionsTests {
                 withArg {
                     // Check that we have JSON data in the response body
                     assertTrue(it is String)
-                    val json = Json.parseToJsonElement(it)
-                    assertTrue(json is JsonObject)
-                    assertEquals(tableName, ((json["tableName"]) as JsonPrimitive).contentOrNull)
+                    val version = mapper.readValue<LookupTableVersion>(it)
+                    assertEquals(tableName, version.tableName)
                 }
             )
         }
@@ -456,9 +368,8 @@ class LookupTableFunctionsTests {
                 withArg {
                     // Check that we have JSON data in the response body
                     assertTrue(it is String)
-                    val json = Json.parseToJsonElement(it)
-                    assertTrue(json is JsonObject)
-                    assertTrue(json.containsKey("error"))
+                    val errorMsg = mapper.readValue<Map<String, String>>(it)
+                    assertTrue(errorMsg.containsKey("error"))
                 }
             )
         }

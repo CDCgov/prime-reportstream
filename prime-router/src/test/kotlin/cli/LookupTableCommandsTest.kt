@@ -3,6 +3,10 @@ package gov.cdc.prime.router.cli
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isTrue
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
+import com.fasterxml.jackson.module.kotlin.readValue
 import com.github.kittinunf.fuel.core.FuelError
 import com.github.kittinunf.fuel.core.Response
 import com.github.kittinunf.fuel.json.FuelJson
@@ -12,10 +16,6 @@ import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableRow
 import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableVersion
 import io.mockk.every
 import io.mockk.mockk
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.JsonPrimitive
-import kotlinx.serialization.json.contentOrNull
 import org.apache.http.HttpStatus
 import org.jooq.JSONB
 import java.io.IOException
@@ -24,6 +24,11 @@ import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
 class LookupTableCommandsTest {
+    /**
+     * Mapper to convert objects to JSON.
+     */
+    private val mapper: ObjectMapper = jacksonMapperBuilder().addModule(JavaTimeModule()).build()
+
     @Test
     fun `test rows to table`() {
         val data = listOf(LookupTableRow())
@@ -60,27 +65,27 @@ class LookupTableCommandsTest {
     @Test
     fun `test extract row data from json`() {
         val colNames = listOf("a", "b")
-        var data = LookupTableCommands
+        var data = LookupTableEndpointUtilities
             .extractTableRowFromJson(JSONB.jsonb("""{"a": "value1", "b": "value2"}"""), colNames)
         assertThat(data).isEqualTo(listOf("value1", "value2"))
 
-        data = LookupTableCommands.extractTableRowFromJson(JSONB.jsonb("""{"a": "value1"}"""), colNames)
+        data = LookupTableEndpointUtilities.extractTableRowFromJson(JSONB.jsonb("""{"a": "value1"}"""), colNames)
         assertThat(data).isEqualTo(listOf("value1", ""))
 
-        data = LookupTableCommands.extractTableRowFromJson(JSONB.jsonb("{}"), colNames)
+        data = LookupTableEndpointUtilities.extractTableRowFromJson(JSONB.jsonb("{}"), colNames)
         assertThat(data).isEqualTo(listOf("", ""))
     }
 
     @Test
     fun `test set table row to json`() {
-        var json = LookupTableCommands.setTableRowToJson(mapOf("a" to "value1", "b" to "value2"))
-        var jsonObject = Json.parseToJsonElement(json.data()) as JsonObject
-        assertThat((jsonObject["a"] as JsonPrimitive).contentOrNull).isEqualTo("value1")
-        assertThat((jsonObject["b"] as JsonPrimitive).contentOrNull).isEqualTo("value2")
+        var json = LookupTableEndpointUtilities.setTableRowToJson(mapOf("a" to "value1", "b" to "value2"))
+        var row = mapper.readValue<Map<String, String>>(json.data())
+        assertThat(row["a"]).isEqualTo("value1")
+        assertThat(row["b"]).isEqualTo("value2")
 
-        json = LookupTableCommands.setTableRowToJson(emptyMap())
-        jsonObject = Json.parseToJsonElement(json.data()) as JsonObject
-        assertThat(jsonObject.keys.isEmpty()).isTrue()
+        json = LookupTableEndpointUtilities.setTableRowToJson(emptyMap())
+        row = mapper.readValue(json.data())
+        assertThat(row.isEmpty()).isTrue()
     }
 
     @Test
@@ -168,83 +173,6 @@ class LookupTableCommandsTest {
                 LookupTableEndpointUtilities.checkCommonErrorsFromResponse(mockResultFailure, mockResponse)
             }
         )
-    }
-
-    @Test
-    fun `get array from response test`() {
-        val mockResult = mockk<Result<FuelJson, FuelError>>()
-        val mockResponse = mockk<Response>()
-
-        // Empty content
-        every { mockResponse.statusCode } returns HttpStatus.SC_OK
-        every { mockResult.get().content } returns ""
-
-        // Not a JSON array
-        every { mockResult.get().content } returns """{}"""
-        assertFailsWith<IOException>(
-            block = {
-                LookupTableEndpointUtilities.getArrayFromResponse(mockResult, mockResponse)
-            }
-        )
-
-        // Not an array of JSON objects
-        every { mockResult.get().content } returns """["dummy": "dummy"]"""
-        assertFailsWith<IOException>(
-            block = {
-                LookupTableEndpointUtilities.getArrayFromResponse(mockResult, mockResponse)
-            }
-        )
-
-        // Good data
-        every { mockResult.get().content } returns """[{"dummy": "dummy"}]"""
-        val array = LookupTableEndpointUtilities.getArrayFromResponse(mockResult, mockResponse)
-        assertThat(array.size == 1).isTrue()
-    }
-
-    @Test
-    fun `convert json to table version test`() {
-        // Bad object
-        assertFailsWith<IOException>(
-            block = {
-                LookupTableEndpointUtilities.convertJsonToInfo(Json.parseToJsonElement("""{}""") as JsonObject)
-            }
-        )
-
-        // Missing properties
-        assertFailsWith<IOException>(
-            block = {
-                LookupTableEndpointUtilities.convertJsonToInfo(
-                    Json.parseToJsonElement(
-                        """{"tableName": "name", "tableVersion": "notNum"}"""
-                    ) as JsonObject
-                )
-            }
-        )
-
-        // Bad time
-        assertFailsWith<IOException>(
-            block = {
-                LookupTableEndpointUtilities.convertJsonToInfo(
-                    Json.parseToJsonElement(
-                        """{"tableName": "name", "tableVersion": 1, "isActive": true, 
-                        "createdBy": "developer", "createdAt": "some bad time"}""".trimMargin()
-                    ) as JsonObject
-                )
-            }
-        )
-
-        // Good data
-        val info = LookupTableEndpointUtilities.convertJsonToInfo(
-            Json.parseToJsonElement(
-                """{"tableName": "name", "tableVersion": 1, "isActive": true, 
-                        "createdBy": "developer", "createdAt": "2018-12-30T06:00:00Z"}""".trimMargin()
-            ) as JsonObject
-        )
-        assertThat(info.tableVersion).isEqualTo(1)
-        assertThat(info.isActive).isEqualTo(true)
-        assertThat(info.tableName).isEqualTo("name")
-        assertThat(info.createdBy).isEqualTo("developer")
-        assertThat(info.createdAt.year).isEqualTo(2018)
     }
 
     @Test
