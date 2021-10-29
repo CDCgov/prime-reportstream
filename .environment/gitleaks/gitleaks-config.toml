@@ -173,6 +173,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
             'key.((starts|ends)With|substr)\(',
             'key(\s)*=(=)?(\s)*"(daily|docs|noModifier|noValue|receiver|security|user)"',
             'key=(value|\{i\})',
+            'Key\(',
             'KeyVaultSecret\(\"',                                                           # You are doing the right hting
             'let key of \[',
             'localAuth [=!]= ',

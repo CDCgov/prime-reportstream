@@ -14,6 +14,7 @@ import com.github.kittinunf.fuel.core.extensions.authentication
 import com.github.kittinunf.fuel.json.responseJson
 import com.github.kittinunf.result.Result
 import com.sun.net.httpserver.HttpServer
+import gov.cdc.prime.router.common.Environment
 import org.apache.commons.codec.binary.Base64
 import org.json.JSONObject
 import java.awt.Desktop
@@ -192,6 +193,11 @@ abstract class OktaCommand(name: String, help: String) : CliktCommand(name = nam
     }
 
     companion object {
+        /**
+         * Dummy access token for when use with development.
+         */
+        internal const val dummyOktaAccessToken = "dummy"
+
         internal val clientIds = mapOf(
             OktaApp.DH_TEST to "0oa6fm8j4G1xfrthd4h6",
             OktaApp.DH_PROD to "0oa6kt4j3tOFz5SH84h6"
@@ -203,13 +209,17 @@ abstract class OktaCommand(name: String, help: String) : CliktCommand(name = nam
         }
 
         /**
-         * Returns the access token saved from the last login if valid
+         * Returns the access token saved from the last login if valid given [app].
+         * @return the Okta access token, a dummy token if [app] is null. or null if there is no valid token
          */
-        fun fetchAccessToken(app: OktaApp): String? {
-            val accessTokenFile = readAccessTokenFile()
-            return if (accessTokenFile != null && isValidToken(app, accessTokenFile))
-                accessTokenFile.token
-            else null
+        fun fetchAccessToken(app: OktaApp?): String? {
+            return if (app == null) dummyOktaAccessToken
+            else {
+                val accessTokenFile = readAccessTokenFile()
+                if (accessTokenFile != null && isValidToken(app, accessTokenFile))
+                    accessTokenFile.token
+                else null
+            }
         }
 
         fun readAccessTokenFile(): AccessTokenFile? {
