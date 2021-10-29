@@ -37,7 +37,7 @@ locals {
 
     # Cron-like schedule for running the function app that reaches out to remote
     # sites and verifies they're up
-    "REMOTE_CONNECTION_CHECK_SCHEDULE" = "*/5 * * * *"
+    "REMOTE_CONNECTION_CHECK_SCHEDULE" = "15 */2 * * *"
 
     # App Insights
     "APPINSIGHTS_INSTRUMENTATIONKEY"                  = var.ai_instrumentation_key
