@@ -98,10 +98,6 @@ class WorkflowEngine(
         txn: Configuration? = null,
         context: ExecutionContext? = null
     ) {
-        if (report.itemCount < 1) {
-            actionHistory.trackCreatedReport(nextAction, report, receiver)
-            return
-        }
         val receiverName = "${receiver.organizationName}.${receiver.name}"
         val blobInfo = try {
             // formatting errors can occur down in here.

@@ -92,7 +92,7 @@ class Report : Logging {
 
     // record the message and the filter that produced it
     // ideally it should be reproducable.. so what? the args, filter, and response?
-    var filteredItems: List<String> = emptyList()
+    val filteredItems: MutableList<String> = mutableListOf()
 
     /**
      * The time when the report was created
@@ -280,7 +280,7 @@ class Report : Logging {
             bodyFormat ?: this.bodyFormat,
         )
         copy.itemLineages = createOneToOneItemLineages(this, copy)
-        copy.filteredItems = this.filteredItems
+        copy.filteredItems.addAll(this.filteredItems)
         return copy
     }
 
@@ -347,9 +347,10 @@ class Report : Logging {
             if (doDetailedFilterLogging) {
                 if (filterFnSelection.size() < table.rowCount()) {
                     val before = Selection.withRange(0, table.rowCount())
-                    filteredRows.add("For ${receiver.fullName}, qualityFilter ${filterFn.name}, ${fnArgs}" +
-                        " filtered out Rows ${before.andNot(filterFnSelection).joinToString(",")}" +
-                        " reducing the Item count from ${table.rowCount()} to ${filterFnSelection.size()}."
+                    filteredRows.add(
+                        "For ${receiver.fullName}, qualityFilter ${filterFn.name}, $fnArgs" +
+                            " filtered out Rows ${before.andNot(filterFnSelection).joinToString(",")}" +
+                            " reducing the Item count from ${table.rowCount()} to ${filterFnSelection.size()}."
                     )
                 }
             }
@@ -365,7 +366,7 @@ class Report : Logging {
             filteredTable,
             fromThisReport("filter: $filterFunctions")
         )
-        filteredReport.filteredItems = filteredRows
+        filteredReport.filteredItems.addAll(filteredRows)
         filteredReport.itemLineages = createItemLineages(finalCombinedSelection, this, filteredReport)
         return filteredReport
     }

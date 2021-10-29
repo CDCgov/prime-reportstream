@@ -460,6 +460,13 @@ class ReportFunction : Logging {
                     validatedRequest.routeTo,
                     validatedRequest.warnings,
                 )
+                .filter { (report, receiver) ->
+                    if (report.itemCount > 0) {
+                        return@filter true
+                    }
+                    actionHistory.trackFilteredReport(report, receiver)
+                    return@filter false
+                }
                 .forEach { (report, receiver) ->
                     sendToDestination(
                         report,

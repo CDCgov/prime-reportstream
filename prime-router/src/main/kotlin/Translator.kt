@@ -29,11 +29,11 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
      */
     // TODO DG: this is never used. except for tests
     fun translateByReceiver(input: Report, defaultValues: DefaultValues = emptyMap()): List<Report> {
-        return settings.receivers.map { receiver -> 
+        return settings.receivers.map { receiver ->
 
             val jurisFilteredReport = filterByJurisdiction(input, receiver)
             if (jurisFilteredReport == null) return@map buildEmptyReport(receiver, input)
-            translateByReceiver(jurisFilteredReport , receiver, defaultValues)
+            translateByReceiver(jurisFilteredReport, receiver, defaultValues)
         }
     }
 
@@ -153,9 +153,8 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
         if (receiver.deidentify)
             transformed = transformed.deidentify()
         var copy = transformed.copy(destination = receiver, bodyFormat = receiver.format)
-        copy.filteredItems = qualityFilteredReport.filteredItems
+        copy.filteredItems.addAll(qualityFilteredReport.filteredItems)
         return copy
-
     }
 
     fun buildEmptyReport(receiver: Receiver, from: Report): Report {

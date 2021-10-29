@@ -71,6 +71,8 @@ class ActionHistory {
      */
     val reportsOut = mutableMapOf<ReportId, ReportFile>()
 
+    val filteredOutReports = mutableMapOf<ReportId, ReportFile>()
+
     val filteredReportRows = mutableMapOf<ReportId, List<String>>()
 
     /**
@@ -260,6 +262,21 @@ class ActionHistory {
             error("For report ${report.id}:  Externally submitted reports should never have item lineagee.")
     }
 
+    fun trackFilteredReport(
+        report: Report,
+        receiver: Receiver,
+    ) {
+        val reportFile = ReportFile()
+        reportFile.reportId = report.id
+        reportFile.receivingOrg = receiver.organizationName
+        reportFile.receivingOrgSvc = receiver.name
+        reportFile.schemaName = report.schema.name
+        reportFile.schemaTopic = report.schema.topic
+        reportFile.itemCount = report.itemCount
+        filteredOutReports[reportFile.reportId] = reportFile
+        filteredReportRows[reportFile.reportId] = report.filteredItems
+    }
+
     /**
      * Use this to record history info about an internally created report.
      * This also tracks the event to be queued later, as an azure message.
@@ -268,7 +285,7 @@ class ActionHistory {
         event: Event,
         report: Report,
         receiver: Receiver,
-        blobInfo: BlobAccess.BlobInfo? = null,
+        blobInfo: BlobAccess.BlobInfo,
     ) {
         if (isReportAlreadyTracked(report.id)) {
             error("Bug:  attempt to track history of a report ($report.id) we've already associated with this action")
@@ -282,17 +299,12 @@ class ActionHistory {
         reportFile.receivingOrgSvc = receiver.name
         reportFile.schemaName = report.schema.name
         reportFile.schemaTopic = report.schema.topic
-        if (blobInfo != null) {
-            reportFile.bodyUrl = blobInfo.blobUrl
-            reportFile.bodyFormat = blobInfo.format.toString()
-            reportFile.blobDigest = blobInfo.digest
-        }
+        reportFile.bodyUrl = blobInfo.blobUrl
+        reportFile.bodyFormat = blobInfo.format.toString()
+        reportFile.blobDigest = blobInfo.digest
         reportFile.itemCount = report.itemCount
         reportsOut[reportFile.reportId] = reportFile
         filteredReportRows[reportFile.reportId] = report.filteredItems
-        if (report.itemCount < 1) {
-            return
-        }
         trackItemLineages(report)
         trackEvent(event) // to be sent to queue later.
     }
@@ -543,6 +555,22 @@ class ActionHistory {
     ) {
         var destinationCounter = 0
         jsonGen.writeArrayFieldStart("destinations")
+        if (filteredOutReports.isNotEmpty()) {
+            filteredOutReports.forEach { (_, reportFile) ->
+                val fullname = reportFile.receivingOrg + "." + reportFile.receivingOrgSvc
+                val (organization, orgReceiver) = settings.findOrganizationAndReceiver(fullname) ?: return@forEach
+                prettyPrintDestinationJson(
+                    jsonGen,
+                    orgReceiver,
+                    organization,
+                    reportFile.nextActionAt,
+                    reportFile.itemCount,
+                    reportOptions,
+                    reportFile.reportId
+                )
+                destinationCounter++
+            }
+        }
         if (reportsOut.isNotEmpty()) {
             // Avoid clutter.  Combine reports with one Item, and print combined count.
             var singles = mutableMapOf<String, DestinationData>()
@@ -557,7 +585,13 @@ class ActionHistory {
                     if (previous != null) previous.count++
                 } else {
                     prettyPrintDestinationJson(
-                        jsonGen, orgReceiver, organization, reportFile.nextActionAt, reportFile.itemCount, reportOptions, reportFile.reportId 
+                        jsonGen,
+                        orgReceiver,
+                        organization,
+                        reportFile.nextActionAt,
+                        reportFile.itemCount,
+                        reportOptions,
+                        reportFile.reportId
                     )
                     destinationCounter++
                 }
@@ -593,7 +627,7 @@ class ActionHistory {
         jsonGen.writeStringField("organization_id", orgReceiver.organizationName)
         jsonGen.writeStringField("service", orgReceiver.name)
 
-        reportId?.let{
+        reportId?.let {
             if (filteredReportRows.contains(it)) {
                 jsonGen.writeArrayFieldStart("filteredReportRows")
                 filteredReportRows.getValue(it).forEach {
@@ -608,6 +642,9 @@ class ActionHistory {
             when {
                 reportOptions == ReportFunction.Options.SkipSend -> {
                     "never - skipSend specified"
+                }
+                countToPrint == 0 -> {
+                    "never - all items filtered out"
                 }
                 sendingAt == null -> {
                     "immediately"
