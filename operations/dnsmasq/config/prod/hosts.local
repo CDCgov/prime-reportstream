@@ -25,10 +25,10 @@
 10.0.5.14 pdhprodstorageaccount.file.core.windows.net pdhprodstorageaccount.privatelink.file.core.windows.net
 10.0.5.13 pdhprodstorageaccount.queue.core.windows.net pdhprodstorageaccount.privatelink.queue.core.windows.net
 
-10.0.5.11 pdhprodpartner.blob.core.windows.net pdhprodpartner.privatelink.blob.core.windows.net
+10.0.5.12 pdhprodpartner.blob.core.windows.net pdhprodpartner.privatelink.blob.core.windows.net
 
 10.0.5.10 pdhprodcandidate.blob.core.windows.net pdhprodcandidate.privatelink.blob.core.windows.net
 10.0.5.9  pdhprodcandidate.file.core.windows.net pdhprodcandidate.privatelink.file.core.windows.net
 10.0.5.8  pdhprodcandidate.queue.core.windows.net pdhprodcandidate.privatelink.queue.core.windows.net
 
-10.0.5.17 pdhprodcandpartner.blob.core.windows.net pdhprodcandpartner.privatelink.blob.core.windows.net
+10.0.5.11 pdhprodcandpartner.blob.core.windows.net pdhprodcandpartner.privatelink.blob.core.windows.net
