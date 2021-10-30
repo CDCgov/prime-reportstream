@@ -1,8 +1,8 @@
 package gov.cdc.prime.router.cli.tests
 
+import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.HttpUtilities
-import gov.cdc.prime.router.azure.ReportFunction
 import gov.cdc.prime.router.azure.ReportStreamEnv
 import gov.cdc.prime.router.cli.FileUtilities
 import java.net.HttpURLConnection
@@ -108,7 +108,7 @@ class Simulator : CoolTest() {
                                     file,
                                     simulation.sender,
                                     options.key,
-                                    (if (simulation.doBatchAndSend) null else ReportFunction.Options.SkipSend)
+                                    (if (simulation.doBatchAndSend) null else Options.SkipSend)
                                 )
                             if (responseCode != HttpURLConnection.HTTP_CREATED) {
                                 echo(json)

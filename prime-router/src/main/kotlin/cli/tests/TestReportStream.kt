@@ -1161,7 +1161,7 @@ class Parallel : CoolTest() {
                                     file,
                                     stracSender,
                                     options.key,
-                                    ReportFunction.Options.SkipSend
+                                    Options.SkipSend
                                 )
                             if (responseCode != HttpURLConnection.HTTP_CREATED) {
                                 echo(json)
