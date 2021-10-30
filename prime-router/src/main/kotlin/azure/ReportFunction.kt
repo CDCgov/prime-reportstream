@@ -1,6 +1,5 @@
 package gov.cdc.prime.router.azure
 
-import com.fasterxml.jackson.core.JsonFactory
 import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.HttpMethod
@@ -12,9 +11,11 @@ import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.ClientSource
+import gov.cdc.prime.router.DEFAULT_SEPARATOR
 import gov.cdc.prime.router.InvalidParamMessage
 import gov.cdc.prime.router.InvalidReportMessage
-import gov.cdc.prime.router.Receiver
+import gov.cdc.prime.router.Options
+import gov.cdc.prime.router.ROUTE_TO_SEPARATOR
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ResultDetail
 import gov.cdc.prime.router.Sender
@@ -22,17 +23,11 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.tokens.AuthenticationStrategy
 import org.apache.logging.log4j.kotlin.Logging
 import org.postgresql.util.PSQLException
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
-import java.time.Instant
-import java.time.format.DateTimeFormatter
 
 private const val CLIENT_PARAMETER = "client"
 private const val OPTION_PARAMETER = "option"
 private const val DEFAULT_PARAMETER = "default"
-private const val DEFAULT_SEPARATOR = ":"
 private const val ROUTE_TO_PARAMETER = "routeTo"
-private const val ROUTE_TO_SEPARATOR = ","
 private const val VERBOSE_PARAMETER = "verbose"
 private const val VERBOSE_TRUE = "true"
 private const val PROCESSING_TYPE = "processing"
@@ -42,15 +37,6 @@ private const val PROCESSING_TYPE = "processing"
  * This is basically the "front end" of the Hub. Reports come in here.
  */
 class ReportFunction : Logging {
-
-    enum class Options {
-        None,
-        ValidatePayload,
-        CheckConnections,
-        SkipSend,
-        SkipInvalidItems,
-        SendImmediately,
-    }
 
     enum class ProcessingType {
         Sync,
@@ -68,12 +54,6 @@ class ReportFunction : Logging {
         val routeTo: List<String> = emptyList(),
         val sender: Sender? = null,
         val verbose: Boolean = false,
-    )
-
-    data class ItemRouting(
-        val reportIndex: Int,
-        val trackingId: String?,
-        val destinations: MutableList<String> = mutableListOf(),
     )
 
     /**
@@ -164,7 +144,15 @@ class ReportFunction : Logging {
         }
     }
 
-    private fun processRequest(request: HttpRequestMessage<String?>, sender: Sender, context: ExecutionContext, workflowEngine: WorkflowEngine, actionHistory: ActionHistory): HttpResponseMessage {
+    private fun processRequest(
+        request: HttpRequestMessage<String?>,
+        sender: Sender,
+        context: ExecutionContext,
+        workflowEngine: WorkflowEngine,
+        actionHistory: ActionHistory
+    ): HttpResponseMessage {
+        // determine if we should be following the sync or async workflow
+        val isAsync = processingType(request) == ProcessingType.Async
         val errors: MutableList<ResultDetail> = mutableListOf()
         val warnings: MutableList<ResultDetail> = mutableListOf()
         // The following is identical to waters (for arch reasons)
@@ -173,9 +161,8 @@ class ReportFunction : Logging {
         handleValidation(validatedRequest, request, actionHistory, workflowEngine)?.let {
             return it
         }
-        
-        var report = createReport(
-            workflowEngine,
+
+        var report = workflowEngine.createReport(
             sender,
             validatedRequest.content,
             validatedRequest.defaults,
@@ -183,9 +170,14 @@ class ReportFunction : Logging {
             warnings
         )
 
+        // if we are processing a message asynchronously, the report's next action will be 'process'
+        if (isAsync && report != null) {
+            report.nextAction = TaskAction.process
+        }
+
         // checks for errors from createReport
         if (validatedRequest.options != Options.SkipInvalidItems && errors.isNotEmpty()) {
-            val responseBody = createResponseBody(
+            val responseBody = actionHistory.createResponseBody(
                 validatedRequest.options,
                 warnings,
                 errors,
@@ -208,26 +200,33 @@ class ReportFunction : Logging {
             actionHistory, workflowEngine
         )
 
+        // this function call checks internally to verify that this is a covid-19 topic
         // Write the data to the table if we're dealing with covid-19. this has to happen
         // here AFTER we've written the report to the DB.
         writeCovidResultMetadataForReport(report, context, workflowEngine)
 
-        val processingFunc = extractProessingType(request)
-
-        processingFunc(
-            context,
-            report,
-            workflowEngine,
-            validatedRequest.options,
-            validatedRequest.defaults,
-            validatedRequest.routeTo,
-            warnings,
-            actionHistory
-        )
-
-        actionHistory.queueMessages(workflowEngine)
-
-        val responseBody = createResponseBody(
+        // call the correct processing function based on processing type
+        if (isAsync) {
+            processAsync(
+                report,
+                workflowEngine,
+                validatedRequest.options,
+                validatedRequest.defaults,
+                validatedRequest.routeTo,
+                actionHistory
+            )
+        } else {
+            workflowEngine.routeReport(
+                context,
+                report,
+                validatedRequest.options,
+                validatedRequest.defaults,
+                validatedRequest.routeTo,
+                warnings,
+                actionHistory
+            )
+        }
+        val responseBody = actionHistory.createResponseBody(
             validatedRequest.options,
             warnings,
             errors,
@@ -239,8 +238,11 @@ class ReportFunction : Logging {
         actionHistory.trackActionResult(response)
         actionHistory.trackActionResponse(response, responseBody)
         workflowEngine.recordAction(actionHistory)
-        return response
 
+        // queue messages here after all task / action records are in
+        actionHistory.queueMessages(workflowEngine)
+
+        return response
     }
 
     /**
@@ -302,31 +304,34 @@ class ReportFunction : Logging {
             ?: request.queryParameters.getOrDefault(CLIENT_PARAMETER, "")
     }
 
-    private fun extractProessingType(request: HttpRequestMessage<String?>): (ExecutionContext, Report, WorkflowEngine, Options, Map<String, String>, List<String>, MutableList<ResultDetail>, ActionHistory) -> Unit {
+    // TODO: Make this so that we check sender's configuration if there is no param type, this is blocked by
+    //  adding the 'processingType' attribute to a sender
+    private fun processingType(request: HttpRequestMessage<String?>): ProcessingType {
+        // uppercase first char, so it matches enum when 'async' is passed in
         val processingTypeString = request.queryParameters.getOrDefault(PROCESSING_TYPE, "Sync")
+            .replaceFirstChar { it.uppercase() }
         val processingType = try {
             ProcessingType.valueOf(processingTypeString)
         } catch (e: IllegalArgumentException) {
             ProcessingType.Sync
         }
-
-        return when (processingType) {
-            ProcessingType.Async -> ::processAsync
-            ProcessingType.Sync -> ::routeReport
-        }
+        return processingType
     }
 
     private fun processAsync(
-        context: ExecutionContext,
         report: Report,
         workflowEngine: WorkflowEngine,
         options: Options,
         defaults: Map<String, String>,
         routeTo: List<String>,
-        warnings: MutableList<ResultDetail>,
-        actionHistory: ActionHistory,
+        actionHistory: ActionHistory
     ) {
-        throw Exception("Not yet implemented")
+        // add 'Process' queue event to the actionHistory
+        val processEvent = ProcessEvent(Event.EventAction.PROCESS, report.id, options, defaults, routeTo)
+        actionHistory.trackEvent(processEvent)
+
+        // add task to task table
+        workflowEngine.insertProcessTask(report, report.bodyFormat.toString(), report.bodyURL, processEvent)
     }
 
     private fun handleValidation(
@@ -339,7 +344,7 @@ class ReportFunction : Logging {
             !validatedRequest.valid -> {
                 HttpUtilities.httpResponse(
                     request,
-                    createResponseBody(
+                    actionHistory.createResponseBody(
                         validatedRequest.options,
                         validatedRequest.warnings,
                         validatedRequest.errors,
@@ -352,7 +357,7 @@ class ReportFunction : Logging {
                 workflowEngine.checkConnections()
                 HttpUtilities.okResponse(
                     request,
-                    createResponseBody(
+                    actionHistory.createResponseBody(
                         validatedRequest.options,
                         validatedRequest.warnings,
                         validatedRequest.errors,
@@ -364,7 +369,7 @@ class ReportFunction : Logging {
             validatedRequest.options == Options.ValidatePayload -> {
                 HttpUtilities.okResponse(
                     request,
-                    createResponseBody(
+                    actionHistory.createResponseBody(
                         validatedRequest.options,
                         validatedRequest.warnings,
                         validatedRequest.errors,
@@ -379,7 +384,7 @@ class ReportFunction : Logging {
             actionHistory.trackActionResult(response)
             actionHistory.trackActionResponse(
                 response,
-                createResponseBody(
+                actionHistory.createResponseBody(
                     validatedRequest.options,
                     validatedRequest.warnings,
                     validatedRequest.errors,
@@ -514,294 +519,5 @@ class ReportFunction : Logging {
             sender,
             verbose
         )
-    }
-// 1. detect format and get serializer
-// 2. readExternal and return result / errors / warnings
-    private fun createReport(
-        engine: WorkflowEngine,
-        sender: Sender,
-        content: String,
-        defaults: Map<String, String>,
-        errors: MutableList<ResultDetail>,
-        warnings: MutableList<ResultDetail>
-    ): Report? {
-        return when (sender.format) {
-            Sender.Format.CSV -> {
-                try {
-                    val readResult = engine.csvSerializer.readExternal(
-                        schemaName = sender.schemaName,
-                        input = ByteArrayInputStream(content.toByteArray()),
-                        sources = listOf(ClientSource(organization = sender.organizationName, client = sender.name)),
-                        defaultValues = defaults
-                    )
-                    errors += readResult.errors
-                    warnings += readResult.warnings
-                    readResult.report
-                } catch (e: Exception) {
-                    errors.add(
-                        ResultDetail.report(
-                            InvalidReportMessage.new(
-                                "An unexpected error occurred requiring additional help. Contact the ReportStream " +
-                                    "team at reportstream@cdc.gov."
-                            )
-                        )
-                    )
-                    null
-                }
-            }
-            Sender.Format.HL7 -> {
-                try {
-                    val readResult = engine.hl7Serializer.readExternal(
-                        schemaName = sender.schemaName,
-                        input = ByteArrayInputStream(content.toByteArray()),
-                        ClientSource(organization = sender.organizationName, client = sender.name)
-                    )
-                    errors += readResult.errors
-                    warnings += readResult.warnings
-                    readResult.report
-                } catch (e: Exception) {
-                    errors.add(
-                        ResultDetail.report(
-                            InvalidReportMessage.new(
-                                "An unexpected error occurred requiring " +
-                                    "additional help. Contact the ReportStream team at reportstream@cdc.gov."
-                            )
-                        )
-                    )
-                    null
-                }
-            }
-        }
-    }
-// 1. filterAndTranslateByReceiver (doesn't need a transaction?)
-// 2. sendToDestination (needs a transaction)
-    private fun routeReport(
-        context: ExecutionContext,
-        report: Report,
-        workflowEngine: WorkflowEngine,
-        options: Options,
-        defaults: Map<String, String>,
-        routeTo: List<String>,
-        warnings: MutableList<ResultDetail>,
-        actionHistory: ActionHistory,
-    ) {
-        workflowEngine.db.transact { txn ->
-            workflowEngine
-                .translator
-                .filterAndTranslateByReceiver(
-                    report,
-                    defaults,
-                    routeTo,
-                    warnings,
-                )
-                .forEach { (report, receiver) ->
-                    sendToDestination(
-                        report,
-                        receiver,
-                        context,
-                        workflowEngine,
-                        options,
-                        actionHistory,
-                        txn
-                    )
-                }
-        }
-    }
-
-    // 1. create <event, report> pair or pairs depending on input
-    // 2. dispatchReport
-    // 3. log
-    private fun sendToDestination(
-        report: Report,
-        receiver: Receiver,
-        context: ExecutionContext,
-        workflowEngine: WorkflowEngine,
-        options: Options,
-        actionHistory: ActionHistory,
-        txn: DataAccessTransaction
-    ) {
-        val loggerMsg: String
-        when {
-            options == Options.SkipSend -> {
-                // Note that SkipSend should really be called SkipBothTimingAndSend  ;)
-                val event = ReportEvent(Event.EventAction.NONE, report.id)
-                workflowEngine.dispatchReport(event, report, actionHistory, receiver, txn, context)
-                loggerMsg = "Queue: ${event.toQueueMessage()}"
-            }
-            receiver.timing != null && options != Options.SendImmediately -> {
-                val time = receiver.timing.nextTime()
-                // Always force a batched report to be saved in our INTERNAL format
-                val batchReport = report.copy(bodyFormat = Report.Format.INTERNAL)
-                val event = ReceiverEvent(Event.EventAction.BATCH, receiver.fullName, time)
-                workflowEngine.dispatchReport(event, batchReport, actionHistory, receiver, txn, context)
-                loggerMsg = "Queue: ${event.toQueueMessage()}"
-            }
-            receiver.format == Report.Format.HL7 -> {
-                report
-                    .split()
-                    .forEach {
-                        val event = ReportEvent(Event.EventAction.SEND, it.id)
-                        workflowEngine.dispatchReport(event, it, actionHistory, receiver, txn, context)
-                    }
-                loggerMsg = "Queued to send immediately: HL7 split into ${report.itemCount} individual reports"
-            }
-            else -> {
-                val event = ReportEvent(Event.EventAction.SEND, report.id)
-                workflowEngine.dispatchReport(event, report, actionHistory, receiver, txn, context)
-                loggerMsg = "Queued to send immediately: ${event.toQueueMessage()}"
-            }
-        }
-        context.logger.info(loggerMsg)
-    }
-
-    // todo I think all of this info is now in ActionHistory.  Move to there.   Already did destinations.
-    private fun createResponseBody(
-        options: Options,
-        warnings: List<ResultDetail>,
-        errors: List<ResultDetail>,
-        verbose: Boolean,
-        actionHistory: ActionHistory? = null,
-        report: Report? = null
-    ): String {
-        val factory = JsonFactory()
-        val outStream = ByteArrayOutputStream()
-        factory.createGenerator(outStream).use {
-            it.useDefaultPrettyPrinter()
-            it.writeStartObject()
-            if (report != null) {
-                it.writeStringField("id", report.id.toString())
-                it.writeStringField("timestamp", DateTimeFormatter.ISO_INSTANT.format(Instant.now()))
-                it.writeStringField("topic", report.schema.topic)
-                it.writeNumberField("reportItemCount", report.itemCount)
-            } else
-                it.writeNullField("id")
-
-            actionHistory?.prettyPrintDestinationsJson(it, WorkflowEngine.settings, options)
-            // print the report routing when in verbose mode
-            if (verbose) {
-                it.writeArrayFieldStart("routing")
-                createItemRouting(report, actionHistory).forEach { ij ->
-                    it.writeStartObject()
-                    it.writeNumberField("reportIndex", ij.reportIndex)
-                    it.writeStringField("trackingId", ij.trackingId)
-                    it.writeArrayFieldStart("destinations")
-                    ij.destinations.sorted().forEach { d -> it.writeString(d) }
-                    it.writeEndArray()
-                    it.writeEndObject()
-                }
-                it.writeEndArray()
-            }
-
-            it.writeNumberField("warningCount", warnings.size)
-            it.writeNumberField("errorCount", errors.size)
-
-            fun writeDetailsArray(field: String, array: List<ResultDetail>) {
-                it.writeArrayFieldStart(field)
-                array.forEach { error ->
-                    it.writeStartObject()
-                    it.writeStringField("scope", error.scope.toString())
-                    it.writeStringField("id", error.id)
-                    it.writeStringField("details", error.responseMessage.detailMsg())
-                    it.writeEndObject()
-                }
-                it.writeEndArray()
-            }
-            writeDetailsArray("errors", errors)
-            writeDetailsArray("warnings", warnings)
-
-            fun createRowsDescription(rows: MutableList<Int>?): String {
-                // Consolidate row ranges, e.g. 1,2,3,5,7,8,9 -> 1-3,5,7-9
-                if (rows == null || rows.isEmpty()) return ""
-                rows.sort() // should already be sorted, just in case
-                val sb = StringBuilder().append("Rows: ")
-                var isListing = false
-                rows.forEachIndexed { i, row ->
-                    if (i == 0) {
-                        sb.append(row.toString())
-                    } else if (row == rows[i - 1] || row == rows[i - 1] + 1) {
-                        isListing = true
-                    } else if (isListing) {
-                        sb.append(" to " + rows[i - 1].toString() + ", " + row.toString())
-                        isListing = false
-                    } else {
-                        sb.append(", " + row.toString())
-                        isListing = false
-                    }
-                    if (i == rows.lastIndex && isListing) {
-                        sb.append(" to " + rows[rows.lastIndex].toString())
-                    }
-                }
-                return sb.toString()
-            }
-
-            fun writeConsolidatedArray(field: String, array: List<ResultDetail>) {
-                val rowsByGroupingId = hashMapOf<String, MutableList<Int>>()
-                val messageByGroupingId = hashMapOf<String, String>()
-                array.forEach { resultDetail ->
-                    val groupingId = resultDetail.responseMessage.groupingId()
-                    if (!rowsByGroupingId.containsKey(groupingId)) {
-                        rowsByGroupingId[groupingId] = mutableListOf()
-                        messageByGroupingId[groupingId] = resultDetail.responseMessage.detailMsg()
-                    }
-                    if (resultDetail.row != -1) {
-                        // Add 2 to account for array offset and csv header
-                        rowsByGroupingId[groupingId]?.add(resultDetail.row + 2)
-                    }
-                }
-                it.writeArrayFieldStart(field)
-                rowsByGroupingId.keys.forEach { groupingId ->
-                    it.writeStartObject()
-                    it.writeStringField("message", messageByGroupingId[groupingId])
-                    it.writeStringField("rows", createRowsDescription(rowsByGroupingId[groupingId]))
-                    it.writeEndObject()
-                }
-                it.writeEndArray()
-            }
-            writeConsolidatedArray("consolidatedErrors", errors)
-            writeConsolidatedArray("consolidatedWarnings", warnings)
-        }
-        return outStream.toString()
-    }
-
-    /**
-     * Creates a list of [ItemRouting] instances with the report index
-     * and trackingId along with the list of the receiver organizations where
-     * the report was routed.
-     * @param report the instance generated while processing the report
-     * @param actionHistory the instance generated while processing the report
-     * @return the report routing for each item
-     */
-    private fun createItemRouting(
-        report: Report?,
-        actionHistory: ActionHistory? = null,
-    ): List<ItemRouting> {
-        // create the item routing from the item lineage
-        val routingMap = mutableMapOf<Int, ItemRouting>()
-        actionHistory?.let { ah ->
-            ah.itemLineages.forEach { il ->
-                val item = routingMap.getOrPut(il.parentIndex) { ItemRouting(il.parentIndex, il.trackingId) }
-                ah.reportsOut[il.childReportId]?.let { rf ->
-                    item.destinations.add("${rf.receivingOrg}.${rf.receivingOrgSvc}")
-                }
-            }
-        }
-        // account for any items that routed no where and were not in the item lineage
-        return report?.let {
-            val items = mutableListOf<ItemRouting>()
-            // the report has all the submitted items
-            it.itemIndices.forEach { i ->
-                // if an item was not present, create the routing with empty destinations
-                items.add(
-                    routingMap.getOrDefault(
-                        i,
-                        ItemRouting(i, it.getString(i, it.schema.trackingElement ?: ""))
-                    )
-                )
-            }
-            items
-        } ?: run {
-            // unlikely, but in case the report is null...
-            routingMap.toSortedMap().values.map { it }
-        }
     }
 }

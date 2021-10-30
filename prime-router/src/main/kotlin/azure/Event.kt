@@ -1,5 +1,8 @@
 package gov.cdc.prime.router.azure
 
+import gov.cdc.prime.router.DEFAULT_SEPARATOR
+import gov.cdc.prime.router.Options
+import gov.cdc.prime.router.ROUTE_TO_SEPARATOR
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.transport.RetryToken
 import java.time.OffsetDateTime
@@ -16,6 +19,7 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
     abstract fun toQueueMessage(): String
 
     enum class EventAction {
+        PROCESS, // for when a message goes into a queue to be processed
         RECEIVE,
         TRANSLATE, // Deprecated
         BATCH,
@@ -30,6 +34,7 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
 
         fun toTaskAction(): TaskAction {
             return when (this) {
+                PROCESS -> TaskAction.process
                 RECEIVE -> TaskAction.receive
                 TRANSLATE -> TaskAction.translate
                 BATCH -> TaskAction.batch
@@ -46,6 +51,7 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
 
         fun toQueueName(): String? {
             return when (this) {
+                PROCESS,
                 TRANSLATE,
                 BATCH,
                 SEND,
@@ -57,6 +63,7 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
         companion object {
             fun parseQueueMessage(action: String): EventAction {
                 return when (action.lowercase()) {
+                    "process" -> PROCESS
                     "receive" -> RECEIVE
                     "translate" -> TRANSLATE
                     "batch" -> BATCH
@@ -75,20 +82,87 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
     companion object {
         fun parseQueueMessage(event: String): Event {
             val parts = event.split(messageDelimiter)
-            if (parts.size < 3 || parts.size > 4) error("Internal Error: bad event format")
+            if (parts.size < 3 || parts.size > 7) error("Internal Error: bad event format")
             val action = EventAction.parseQueueMessage(parts[1])
-            val after = parts.getOrNull(3)?.let { OffsetDateTime.parse(it) }
             return when (parts[0]) {
                 ReportEvent.eventType -> {
+                    val after = parts.getOrNull(3)?.let { OffsetDateTime.parse(it) }
                     val reportId = UUID.fromString(parts[2])
                     ReportEvent(action, reportId, after)
                 }
                 ReceiverEvent.eventType -> {
+                    val after = parts.getOrNull(3)?.let { OffsetDateTime.parse(it) }
                     ReceiverEvent(action, parts[2], after)
+                }
+                ProcessEvent.eventType -> {
+                    val after = parts.getOrNull(6)?.let { OffsetDateTime.parse(it) }
+                    val reportId = UUID.fromString(parts[2])
+                    val options = Options.valueOf(parts[3])
+
+                    // convert incoming serialized routeTo string into List<String>
+                    val routeTo = parts.getOrNull(5)?.let {
+                        it.split(ROUTE_TO_SEPARATOR)
+                    } ?: emptyList()
+
+                    // convert incoming defaults serialized string to Map<String,String>
+                    val defaults = parts.getOrNull(4)?.let {
+                        it.split(',').associate { pair ->
+                            val defaultParts = pair.split(DEFAULT_SEPARATOR)
+                            Pair(defaultParts[0], defaultParts[1])
+                        }
+                    } ?: emptyMap()
+
+                    ProcessEvent(action, reportId, options, defaults, routeTo, after)
                 }
                 else -> error("Internal Error: invalid event type: $event")
             }
         }
+    }
+}
+
+/**
+ * An event that goes on and is read off of the 'process' queue.
+ * @param reportId The report ID to be processed
+ * @param options Options passed in on the initial call
+ * @param defaults Defaults passed in on the initial call
+ * @param routeTo Route to overrides passed in on the initial call
+ * @param at Allows future scheduling of the queue message
+ * @param retryToken For retrying a process queue message
+ */
+class ProcessEvent(
+    eventAction: EventAction,
+    val reportId: UUID,
+    val options: Options,
+    val defaults: Map<String, String>,
+    val routeTo: List<String>,
+    at: OffsetDateTime? = null,
+    val retryToken: RetryToken? = null
+) : Event(eventAction, at) {
+    override fun toQueueMessage(): String {
+        // turn the defaults and route to into strings that can go on the process queue
+        val routeToQueueParam = routeTo.let { it.joinToString(",") }
+        val defaultsQueueParam = defaults.let { it.map { pair -> "${pair.key}:${pair.value}" }.joinToString(",") }
+
+        // determine if these parts of the queue message are present
+        val afterClause = if (at == null) "" else "$messageDelimiter${DateTimeFormatter.ISO_DATE_TIME.format(at)}"
+        val defaultClause = if (defaultsQueueParam.isEmpty()) "" else "$messageDelimiter$defaultsQueueParam"
+        val routeToClause = if (routeToQueueParam.isEmpty()) "" else "$messageDelimiter$routeToQueueParam"
+
+        // generate the process queue message
+        return "$eventType$messageDelimiter$eventAction$messageDelimiter$reportId$messageDelimiter$options" +
+            "$defaultClause$routeToClause$afterClause"
+    }
+
+    override fun equals(other: Any?): Boolean {
+        return other is ReportEvent &&
+            eventAction == other.eventAction &&
+            reportId == other.reportId &&
+            at == other.at &&
+            retryToken == other.retryToken
+    }
+
+    companion object {
+        const val eventType = "process"
     }
 }
 

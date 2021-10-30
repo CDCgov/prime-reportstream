@@ -2,6 +2,7 @@ package gov.cdc.prime.router
 
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.WorkflowEngine
+import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.CovidResultMetadata
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import org.apache.logging.log4j.kotlin.Logging
@@ -39,6 +40,20 @@ const val REPORT_MAX_ITEMS = 10000
 const val REPORT_MAX_ITEM_COLUMNS = 2000
 const val REPORT_MAX_ERRORS = 100
 
+// constants used for parsing and processing a report message
+const val ROUTE_TO_SEPARATOR = ","
+const val DEFAULT_SEPARATOR = ":"
+
+// options are used to process and route the report
+enum class Options {
+    None,
+    ValidatePayload,
+    CheckConnections,
+    SkipSend,
+    SkipInvalidItems,
+    SendImmediately,
+}
+
 /**
  * The report represents the report from one agent-organization, and which is
  * translated and sent to another agent-organization. Each report has a schema,
@@ -72,7 +87,11 @@ class Report : Logging {
     /**
      * the UUID for the report
      */
-    val id: ReportId
+    // TODO: Made this var instead of val so we can update the report ID after creation in the async process
+    //  functionality. There is a way to do it as a passed in variable, but the way we create reports via parsing
+    //  contentBody does not lend itself to that way of doing it. Once we are on FHIR internal spec, this could be
+    //  changed back to val - CD
+    var id: ReportId
 
     /**
      * The schema of the data in the report
@@ -136,6 +155,11 @@ class Report : Logging {
      * A pointer to where the Report is stored.
      */
     var bodyURL: String = ""
+
+    /**
+     * A nullable indicator of what the nextAction on a report is
+     */
+    var nextAction: TaskAction? = null
 
     // The use of a TableSaw is an implementation detail hidden by this class
     // The TableSaw table is mutable, while this class is has immutable semantics

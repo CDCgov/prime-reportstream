@@ -1,12 +1,16 @@
 package gov.cdc.prime.router.azure
 
 import com.microsoft.azure.functions.ExecutionContext
+import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.FileSettings
+import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
+import gov.cdc.prime.router.ResultDetail
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
@@ -84,7 +88,19 @@ class WorkflowEngine(
             senderReportFormat, rawBody,
             blobFilename, sender.fullName, Event.EventAction.RECEIVE
         )
+
+        // set the location of the report so it can be used in the async pipeline for 'process'
+        report.bodyURL = blobInfo.blobUrl
         actionHistory.trackExternalInputReport(report, blobInfo)
+    }
+
+    fun insertProcessTask(
+        report: Report,
+        reportFormat: String,
+        reportUrl: String,
+        nextAction: Event
+    ) {
+        db.insertTask(report, reportFormat, reportUrl, nextAction, null)
     }
 
     /**
@@ -288,6 +304,161 @@ class WorkflowEngine(
         return itemsDispositionMap
     }
 
+    // routeReport does all filtering and translating per receiver, generating one file per receiver to then be batched
+    fun routeReport(
+        context: ExecutionContext,
+        report: Report,
+        options: Options,
+        defaults: Map<String, String>,
+        routeTo: List<String>,
+        warnings: MutableList<ResultDetail>,
+        actionHistory: ActionHistory,
+    ) {
+        this.db.transact { txn ->
+            this
+                .translator
+                .filterAndTranslateByReceiver(
+                    report,
+                    defaults,
+                    routeTo,
+                    warnings,
+                )
+                .forEach { (report, receiver) ->
+                    sendToDestination(
+                        report,
+                        receiver,
+                        context,
+                        options,
+                        actionHistory,
+                        txn
+                    )
+                }
+        }
+    }
+
+    // 1. create <event, report> pair or pairs depending on input
+    // 2. dispatchReport
+    // 3. log
+    private fun sendToDestination(
+        report: Report,
+        receiver: Receiver,
+        context: ExecutionContext,
+        options: Options,
+        actionHistory: ActionHistory,
+        txn: DataAccessTransaction
+    ) {
+        val loggerMsg: String
+        when {
+            options == Options.SkipSend -> {
+                // Note that SkipSend should really be called SkipBothTimingAndSend  ;)
+                val event = ReportEvent(Event.EventAction.NONE, report.id)
+                this.dispatchReport(event, report, actionHistory, receiver, txn, context)
+                loggerMsg = "Queue: ${event.toQueueMessage()}"
+            }
+            receiver.timing != null && options != Options.SendImmediately -> {
+                val time = receiver.timing.nextTime()
+                // Always force a batched report to be saved in our INTERNAL format
+                val batchReport = report.copy(bodyFormat = Report.Format.INTERNAL)
+                val event = ReceiverEvent(Event.EventAction.BATCH, receiver.fullName, time)
+                this.dispatchReport(event, batchReport, actionHistory, receiver, txn, context)
+                loggerMsg = "Queue: ${event.toQueueMessage()}"
+            }
+            receiver.format == Report.Format.HL7 -> {
+                report
+                    .split()
+                    .forEach {
+                        val event = ReportEvent(Event.EventAction.SEND, it.id)
+                        this.dispatchReport(event, it, actionHistory, receiver, txn, context)
+                    }
+                loggerMsg = "Queued to send immediately: HL7 split into ${report.itemCount} individual reports"
+            }
+            else -> {
+                val event = ReportEvent(Event.EventAction.SEND, report.id)
+                this.dispatchReport(event, report, actionHistory, receiver, txn, context)
+                loggerMsg = "Queued to send immediately: ${event.toQueueMessage()}"
+            }
+        }
+        context.logger.info(loggerMsg)
+    }
+
+    /**
+     * Handle a receiver specific event. Fetch all pending tasks for the specified receiver and nextAction
+     *
+     * @param messageEvent that was received
+     * @param context execution context
+     * @param actionHistory action history being passed through for this message process
+     */
+
+    fun handleProcessEvent(
+        messageEvent: ProcessEvent,
+        context: ExecutionContext,
+        actionHistory: ActionHistory
+    ) {
+        val errors: MutableList<ResultDetail> = mutableListOf()
+        val warnings: MutableList<ResultDetail> = mutableListOf()
+
+        db.transact { txn ->
+            val task = db.fetchAndLockTask(messageEvent.reportId, txn)
+            val id = task.reportId
+            val reportFile = db.fetchReportFile(id, org = null, txn)
+            val header = createHeader(task, reportFile, null, null, null)
+            val currentAction = Event.EventAction.parseQueueMessage(task.nextAction.literal)
+
+            // get sender record
+            val sender = settings.findSender(reportFile.sendingOrg + "." + reportFile.sendingOrgClient)
+
+            //  create report
+            val report = createReport(
+                sender!!,
+                header.content!!.decodeToString(),
+                messageEvent.defaults,
+                errors,
+                warnings
+            )
+
+            // Tech Debt - update this when we are moving to internal FHIR format
+            //  set the id in the generated report to the correct UUID for this report.
+            report!!.id = messageEvent.reportId
+
+            //  send to routeReport
+            routeReport(
+                context,
+                report,
+                messageEvent.options,
+                messageEvent.defaults,
+                messageEvent.routeTo,
+                warnings,
+                actionHistory
+            )
+
+            // track response body
+            val responseBody = actionHistory.createResponseBody(
+                messageEvent.options,
+                warnings,
+                errors,
+                true,
+                actionHistory,
+                report
+            )
+            actionHistory.trackActionResponse(responseBody)
+
+            // record action history records
+            recordAction(actionHistory)
+
+            // queue messages here after all task / action records are in
+            actionHistory.queueMessages(this)
+
+            updateHeader(
+                id,
+                currentAction,
+                Event.EventAction.NONE,
+                nextActionAt = null,
+                retryToken = null,
+                txn
+            )
+        }
+    }
+
     /**
      * Handle a receiver specific event. Fetch all pending tasks for the specified receiver and nextAction
      *
@@ -301,7 +472,7 @@ class WorkflowEngine(
         updateBlock: (headers: List<Header>, txn: Configuration?) -> Unit,
     ) {
         db.transact { txn ->
-            val tasks = db.fetchAndLockTasks(
+            val tasks = db.fetchAndLockTasksForOneReceiver(
                 messageEvent.eventAction.toTaskAction(),
                 messageEvent.at,
                 messageEvent.receiverName,
@@ -486,6 +657,7 @@ class WorkflowEngine(
         fun finishedField(currentEventAction: Event.EventAction): Field<OffsetDateTime> {
             return when (currentEventAction) {
                 Event.EventAction.RECEIVE -> Tables.TASK.TRANSLATED_AT
+                Event.EventAction.PROCESS -> Tables.TASK.PROCESSED_AT
                 Event.EventAction.TRANSLATE -> Tables.TASK.TRANSLATED_AT
                 Event.EventAction.REBATCH -> Tables.TASK.TRANSLATED_AT // overwrites prior date
                 Event.EventAction.BATCH -> Tables.TASK.BATCHED_AT
@@ -541,6 +713,67 @@ class WorkflowEngine(
 
         val redoxSerializer: RedoxSerializer by lazy {
             RedoxSerializer(metadata)
+        }
+    }
+
+    // 1. detect format and get serializer
+    // 2. readExternal and return result / errors / warnings
+    // TODO: This could be moved to a utility/reports.kt or something like that, as it is not really part of workflow
+    fun createReport(
+        sender: Sender,
+        content: String,
+        defaults: Map<String, String>,
+        // TODO: Tech debt, should not be getting errors and warnings as side effect work, should be returning something
+        //  and building these in the response object from the top layer function
+        errors: MutableList<ResultDetail>,
+        warnings: MutableList<ResultDetail>
+    ): Report? {
+        return when (sender.format) {
+            Sender.Format.CSV -> {
+                try {
+                    val readResult = this.csvSerializer.readExternal(
+                        schemaName = sender.schemaName,
+                        input = ByteArrayInputStream(content.toByteArray()),
+                        sources = listOf(ClientSource(organization = sender.organizationName, client = sender.name)),
+                        defaultValues = defaults
+                    )
+                    errors += readResult.errors
+                    warnings += readResult.warnings
+                    readResult.report
+                } catch (e: Exception) {
+                    errors.add(
+                        ResultDetail.report(
+                            InvalidReportMessage.new(
+                                "An unexpected error occurred requiring additional help. Contact the ReportStream " +
+                                    "team at reportstream@cdc.gov."
+                            )
+                        )
+                    )
+                    null
+                }
+            }
+            Sender.Format.HL7 -> {
+                try {
+                    val readResult = this.hl7Serializer.readExternal(
+                        schemaName = sender.schemaName,
+                        input = ByteArrayInputStream(content.toByteArray()),
+                        ClientSource(organization = sender.organizationName, client = sender.name)
+                    )
+                    errors += readResult.errors
+                    warnings += readResult.warnings
+                    readResult.report
+                } catch (e: Exception) {
+                    errors.add(
+                        ResultDetail.report(
+                            InvalidReportMessage.new(
+                                "An unexpected error occurred requiring " +
+                                    "additional help. Contact the ReportStream team at reportstream@cdc.gov."
+                            )
+                        )
+                    )
+                    null
+                }
+            }
         }
     }
 }

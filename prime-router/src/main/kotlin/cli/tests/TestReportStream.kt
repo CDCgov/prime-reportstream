@@ -15,6 +15,7 @@ import com.github.ajalt.clikt.parameters.types.int
 import com.google.common.base.CharMatcher
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.REPORT_MAX_ITEMS
 import gov.cdc.prime.router.REPORT_MAX_ITEM_COLUMNS
 import gov.cdc.prime.router.Receiver
@@ -24,7 +25,6 @@ import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.DataAccessTransaction
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.HttpUtilities
-import gov.cdc.prime.router.azure.ReportFunction
 import gov.cdc.prime.router.azure.ReportStreamEnv
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.Tables.ACTION
@@ -718,7 +718,7 @@ class Ping : CoolTest() {
             "x".toByteArray(),
             simpleRepSender,
             options.key,
-            ReportFunction.Options.CheckConnections
+            Options.CheckConnections
         )
         echo("Response to POST: $responseCode")
         echo(json)
@@ -1222,10 +1222,10 @@ class Parallel : CoolTest() {
         echo("Created datafile $file")
         echo("Priming the pump by submitting twice:")
         val (r1, _) =
-            HttpUtilities.postReportFile(environment, file, stracSender, options.key, ReportFunction.Options.SkipSend)
+            HttpUtilities.postReportFile(environment, file, stracSender, options.key, Options.SkipSend)
         echo("First response to POST: $r1")
         val (r2, _) =
-            HttpUtilities.postReportFile(environment, file, stracSender, options.key, ReportFunction.Options.SkipSend)
+            HttpUtilities.postReportFile(environment, file, stracSender, options.key, Options.SkipSend)
         echo("Second response to POST: $r2.  Ready for the real test:")
         var passed = runTheParallelTest(file, 1, n, environment, options)
         passed = passed and runTheParallelTest(file, 2, n, environment, options)

@@ -93,7 +93,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
     }
 
     /** Fetch multiple task records and lock them so other connections can not grab them */
-    fun fetchAndLockTasks(
+    fun fetchAndLockTasksForOneReceiver(
         nextAction: TaskAction,
         at: OffsetDateTime?,
         receiverFullName: String,
@@ -802,6 +802,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                 null,
                 null,
                 null,
+                null,
                 null
             )
         }
@@ -828,6 +829,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                 null,
                 null,
                 null,
+                null
             )
         }
     }

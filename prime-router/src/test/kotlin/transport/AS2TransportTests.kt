@@ -49,6 +49,7 @@ class AS2TransportTests {
         null,
         null,
         null,
+        null,
         null
     )
     private val reportFile = ReportFile(

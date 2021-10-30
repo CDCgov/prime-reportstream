@@ -6,10 +6,12 @@ import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
 import gov.cdc.prime.router.ClientSource
+import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
+import gov.cdc.prime.router.ResultDetail
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.azure.db.Tables
@@ -29,7 +31,9 @@ import org.jooq.DSLContext
 import org.jooq.JSONB
 import org.jooq.impl.DSL
 import java.io.ByteArrayOutputStream
+import java.time.Instant
 import java.time.OffsetDateTime
+import java.time.format.DateTimeFormatter
 
 /**
  * This is a container class that holds information to be stored, about a single action,
@@ -42,6 +46,12 @@ import java.time.OffsetDateTime
  *
  */
 class ActionHistory {
+    data class ItemRouting(
+        val reportIndex: Int,
+        val trackingId: String?,
+        val destinations: MutableList<String> = mutableListOf(),
+    )
+
     // todo change to Logger
     private var context: ExecutionContext?
 
@@ -204,6 +214,14 @@ class ActionHistory {
     }
 
     /**
+     * Set the action response. This is primarily used by backend functions that do not have an associated HttpRequest
+     * @param jsonResponse the generated stringified json representing the response
+     */
+    fun trackActionResponse(jsonResponse: String) {
+        action.actionResponse = JSONB.valueOf(jsonResponse)
+    }
+
+    /**
      * Sanity check: No report can be tracked twice, either as an input or output.
      * Prevents at least tight loops, and other shenanigans.
      */
@@ -245,6 +263,7 @@ class ActionHistory {
             )
         }
         val source = (report.sources[0] as ClientSource)
+        reportFile.nextAction = report.nextAction
         reportFile.sendingOrg = source.organization
         reportFile.sendingOrgClient = source.client
         reportFile.schemaName = report.schema.name
@@ -529,7 +548,7 @@ class ActionHistory {
     fun prettyPrintDestinationsJson(
         jsonGen: JsonGenerator,
         settings: SettingsProvider,
-        reportOptions: ReportFunction.Options
+        reportOptions: Options
     ) {
         var destinationCounter = 0
         jsonGen.writeArrayFieldStart("destinations")
@@ -574,7 +593,7 @@ class ActionHistory {
         organization: Organization,
         sendingAt: OffsetDateTime?,
         countToPrint: Int,
-        reportOptions: ReportFunction.Options
+        reportOptions: Options
     ) {
         jsonGen.writeStartObject()
         // jsonGen.writeStringField("id", reportFile.reportId.toString())   // TMI?
@@ -585,7 +604,7 @@ class ActionHistory {
         jsonGen.writeStringField(
             "sending_at",
             when {
-                reportOptions == ReportFunction.Options.SkipSend -> {
+                reportOptions == Options.SkipSend -> {
                     "never - skipSend specified"
                 }
                 sendingAt == null -> {
@@ -711,6 +730,159 @@ class ActionHistory {
                     )
                 }
             }
+        }
+    }
+
+    fun createResponseBody(
+        options: Options,
+        warnings: List<ResultDetail>,
+        errors: List<ResultDetail>,
+        verbose: Boolean,
+        actionHistory: ActionHistory? = null,
+        report: Report? = null
+    ): String {
+        val factory = JsonFactory()
+        val outStream = ByteArrayOutputStream()
+        factory.createGenerator(outStream).use {
+            it.useDefaultPrettyPrinter()
+            it.writeStartObject()
+            if (report != null) {
+                it.writeStringField("id", report.id.toString())
+                it.writeStringField("timestamp", DateTimeFormatter.ISO_INSTANT.format(Instant.now()))
+                it.writeStringField("topic", report.schema.topic)
+                it.writeNumberField("reportItemCount", report.itemCount)
+                // TODO: need to get the correct path and set the ENDPOINT_BASE correctly, blocked by waiting for
+                //  the historyApi to be ready.
+                // it.writeStringField("location", "[base path]/${report.id}")
+            } else
+                it.writeNullField("id")
+
+            actionHistory?.prettyPrintDestinationsJson(it, WorkflowEngine.settings, options)
+            // print the report routing when in verbose mode
+            if (verbose) {
+                it.writeArrayFieldStart("routing")
+                createItemRouting(report, actionHistory).forEach { ij ->
+                    it.writeStartObject()
+                    it.writeNumberField("reportIndex", ij.reportIndex)
+                    it.writeStringField("trackingId", ij.trackingId)
+                    it.writeArrayFieldStart("destinations")
+                    ij.destinations.sorted().forEach { d -> it.writeString(d) }
+                    it.writeEndArray()
+                    it.writeEndObject()
+                }
+                it.writeEndArray()
+            }
+
+            it.writeNumberField("warningCount", warnings.size)
+            it.writeNumberField("errorCount", errors.size)
+
+            fun writeDetailsArray(field: String, array: List<ResultDetail>) {
+                it.writeArrayFieldStart(field)
+                array.forEach { error ->
+                    it.writeStartObject()
+                    it.writeStringField("scope", error.scope.toString())
+                    it.writeStringField("id", error.id)
+                    it.writeStringField("details", error.responseMessage.detailMsg())
+                    it.writeEndObject()
+                }
+                it.writeEndArray()
+            }
+            writeDetailsArray("errors", errors)
+            writeDetailsArray("warnings", warnings)
+
+            fun createRowsDescription(rows: MutableList<Int>?): String {
+                // Consolidate row ranges, e.g. 1,2,3,5,7,8,9 -> 1-3,5,7-9
+                if (rows == null || rows.isEmpty()) return ""
+                rows.sort() // should already be sorted, just in case
+                val sb = StringBuilder().append("Rows: ")
+                var isListing = false
+                rows.forEachIndexed { i, row ->
+                    if (i == 0) {
+                        sb.append(row.toString())
+                    } else if (row == rows[i - 1] || row == rows[i - 1] + 1) {
+                        isListing = true
+                    } else if (isListing) {
+                        sb.append(" to " + rows[i - 1].toString() + ", " + row.toString())
+                        isListing = false
+                    } else {
+                        sb.append(", " + row.toString())
+                        isListing = false
+                    }
+                    if (i == rows.lastIndex && isListing) {
+                        sb.append(" to " + rows[rows.lastIndex].toString())
+                    }
+                }
+                return sb.toString()
+            }
+
+            fun writeConsolidatedArray(field: String, array: List<ResultDetail>) {
+                val rowsByGroupingId = hashMapOf<String, MutableList<Int>>()
+                val messageByGroupingId = hashMapOf<String, String>()
+                array.forEach { resultDetail ->
+                    val groupingId = resultDetail.responseMessage.groupingId()
+                    if (!rowsByGroupingId.containsKey(groupingId)) {
+                        rowsByGroupingId[groupingId] = mutableListOf()
+                        messageByGroupingId[groupingId] = resultDetail.responseMessage.detailMsg()
+                    }
+                    if (resultDetail.row != -1) {
+                        // Add 2 to account for array offset and csv header
+                        rowsByGroupingId[groupingId]?.add(resultDetail.row + 2)
+                    }
+                }
+                it.writeArrayFieldStart(field)
+                rowsByGroupingId.keys.forEach { groupingId ->
+                    it.writeStartObject()
+                    it.writeStringField("message", messageByGroupingId[groupingId])
+                    it.writeStringField("rows", createRowsDescription(rowsByGroupingId[groupingId]))
+                    it.writeEndObject()
+                }
+                it.writeEndArray()
+            }
+            writeConsolidatedArray("consolidatedErrors", errors)
+            writeConsolidatedArray("consolidatedWarnings", warnings)
+        }
+        return outStream.toString()
+    }
+
+    /**
+     * Creates a list of [ItemRouting] instances with the report index
+     * and trackingId along with the list of the receiver organizations where
+     * the report was routed.
+     * @param report the instance generated while processing the report
+     * @param actionHistory the instance generated while processing the report
+     * @return the report routing for each item
+     */
+    private fun createItemRouting(
+        report: Report?,
+        actionHistory: ActionHistory? = null,
+    ): List<ItemRouting> {
+        // create the item routing from the item lineage
+        val routingMap = mutableMapOf<Int, ItemRouting>()
+        actionHistory?.let { ah ->
+            ah.itemLineages.forEach { il ->
+                val item = routingMap.getOrPut(il.parentIndex) { ItemRouting(il.parentIndex, il.trackingId) }
+                ah.reportsOut[il.childReportId]?.let { rf ->
+                    item.destinations.add("${rf.receivingOrg}.${rf.receivingOrgSvc}")
+                }
+            }
+        }
+        // account for any items that routed no where and were not in the item lineage
+        return report?.let {
+            val items = mutableListOf<ItemRouting>()
+            // the report has all the submitted items
+            it.itemIndices.forEach { i ->
+                // if an item was not present, create the routing with empty destinations
+                items.add(
+                    routingMap.getOrDefault(
+                        i,
+                        ItemRouting(i, it.getString(i, it.schema.trackingElement ?: ""))
+                    )
+                )
+            }
+            items
+        } ?: run {
+            // unlikely, but in case the report is null...
+            routingMap.toSortedMap().values.map { it }
         }
     }
 }
