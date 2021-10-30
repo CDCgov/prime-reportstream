@@ -126,11 +126,13 @@ class HttpUtilities {
         }
 
         fun notFoundResponse(
-            request: HttpRequestMessage<String?>
+            request: HttpRequestMessage<String?>,
+            errorMessage: String? = null
         ): HttpResponseMessage {
-            return request
-                .createResponseBuilder(HttpStatus.NOT_FOUND)
-                .build()
+            val response = request.createResponseBuilder(HttpStatus.NOT_FOUND)
+            if (!errorMessage.isNullOrBlank())
+                response.body(errorJson(errorMessage))
+            return response.build()
         }
 
         fun internalErrorResponse(
@@ -171,7 +173,7 @@ class HttpUtilities {
             status: HttpStatus = HttpStatus.BAD_REQUEST
         ): HttpResponseMessage {
             logger.error(msg)
-            return HttpUtilities.httpResponse(request, msg, status)
+            return httpResponse(request, msg, status)
         }
 
         /**

@@ -89,7 +89,7 @@ class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLev
 
     fun checkAccess(
         request: HttpRequestMessage<String?>,
-        organizationName: String,
+        organizationName: String = "",
         oktaSender: Boolean = false,
         block: (AuthenticatedClaims) -> HttpResponseMessage
     ): HttpResponseMessage {

@@ -1,5 +1,6 @@
 import { Helmet } from "react-helmet";
 import { NavLink } from "react-router-dom";
+import DOMPurify from "dompurify";
 
 import site from "../../content/site.json";
 
@@ -25,7 +26,7 @@ export const WebReceiverGuide = () => {
                 <a
                     href={
                         "mailto:" +
-                        site.orgs.RS.email +
+                        DOMPurify.sanitize(site.orgs.RS.email) +
                         "?subject=Getting started with ReportStream"
                     }
                     className="usa-button usa-button--outline"
@@ -167,7 +168,7 @@ export const WebReceiverGuide = () => {
                         If you are directed to an internal Okta page and not the
                         data download site, don’t worry! Visit{" "}
                         <NavLink
-                            to="/daily-data/"
+                            to="/daily-data"
                             key="daily"
                             className="usa-link"
                         >
@@ -230,7 +231,7 @@ export const WebReceiverGuide = () => {
                     <a
                         href={
                             "mailto:" +
-                            site.orgs.RS.email +
+                            DOMPurify.sanitize(site.orgs.RS.email) +
                             "?subject=Getting started with ReportStream"
                         }
                         className="margin-left-1 margin-right-1 usa-link"

@@ -1,0 +1,34 @@
+# TODO: This file must be updated after deploying to staging, so the VPN resolves the correct IPs
+
+##############
+# Key Vaults #
+##############
+
+10.0.5.6 pdhstaging-appconfig.vaultcore.azure.net pdhstaging-appconfig.privatelink.vaultcore.azure.net
+10.0.5.5 pdhstaging-clientconfig.vaultcore.azure.net pdhstaging-clientconfig.privatelink.vaultcore.azure.net
+10.0.5.4 pdhstaging-keyvault.vaultcore.azure.net pdhstaging-keyvault.privatelink.vaultcore.azure.net
+
+
+#############
+# Databases #
+#############
+
+10.0.5.17 pdhstaging-pgsql.postgres.database.azure.com pdhstaging-pgsql.privatelink.postgres.database.azure.com
+10.1.5.5  pdhstaging-pgsql-replica.postgres.database.azure.com pdhstaging-pgsql-replica.privatelink.postgres.database.azure.com
+
+
+####################
+# Storage Accounts #
+####################
+
+10.0.5.18 pdhstagingstorageaccount.blob.core.windows.net pdhstagingstorageaccount.privatelink.blob.core.windows.net
+10.0.5.8  pdhstagingstorageaccount.file.core.windows.net pdhstagingstorageaccount.privatelink.file.core.windows.net
+10.0.5.9  pdhstagingstorageaccount.queue.core.windows.net pdhstagingstorageaccount.privatelink.queue.core.windows.net
+
+10.0.5.16 pdhstagingpartner.blob.core.windows.net pdhstagingpartner.privatelink.blob.core.windows.net
+
+10.0.5.7  pdhstagingcandidate.blob.core.windows.net pdhstagingcandidate.privatelink.blob.core.windows.net
+10.0.5.12 pdhstagingcandidate.file.core.windows.net pdhstagingcandidate.privatelink.file.core.windows.net
+10.0.5.11 pdhstagingcandidate.queue.core.windows.net pdhstagingcandidate.privatelink.queue.core.windows.net
+
+10.0.5.10 pdhstagingcandpartner.blob.core.windows.net pdhstagingcandpartner.privatelink.blob.core.windows.net

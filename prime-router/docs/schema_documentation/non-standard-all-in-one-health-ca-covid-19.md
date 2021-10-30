@@ -654,25 +654,57 @@ The patient's phone number with area code
 
 **PII**: No
 
+**Format**: $display
+
+**Default Value**: UNK
+
 **Cardinality**: [0..1]
 
 **Value Sets**
 
 Code | Display
 ---- | -------
-1002-5|American Indian or Alaska Native
-2028-9|Asian
-2054-5|Black or African American
-2076-8|Native Hawaiian or Other Pacific Islander
 2106-3|White
+2106-3|W
+2106-3|Caucasian
+2106-3|C
+2106-3|2106-3
+1002-5|American Indian or Alaska Native
+1002-5|American Indian
+1002-5|Native American
+2054-5|Black or African American
+2054-5|African American
+2054-5|African American Alaska Native
+2054-5|African American Black
+2054-5|Black
+2054-5|B
+2054-5|2054-5
+2076-8|Native Hawaiian or Other Pacific Islander
+2076-8|Hawaiian
+2076-8|NH
+2076-8|2076-8
 2131-1|Other
+2131-1|OTH
+2131-1|O
+2131-1|Other Race
+2131-1|Other Race White
+2131-1|Other Race,White
+2131-1|Other Race Black
+2131-1|Other Race,Black
+2131-1|2131-1
+2028-9|Asian
+2028-9|Asian Indian
+2028-9|2028-9
 UNK|Unknown
+UNK|UNK
+UNK|U
+UNK|Patient Declines
+UNK|null
 ASKU|Asked, but unknown
 
 **Documentation**:
 
-The patient's race. There is a common valueset defined for race values, but some states may choose to define different code/value combinations.
-
+Translate multiple inbound Race values to RS / OMB values
 
 ---
 
@@ -868,6 +900,8 @@ Code | Display
 71836000|Nasal
 71836000|Nasopharyngeal swab
 71836000|258500001
+71836000|Nasopharyngeal aspirate
+71836000|258411007
 71836000|71836000
 45206002|Nasal structure (body structure)
 45206002|45206002
@@ -877,19 +911,23 @@ Code | Display
 53342003|Mid-turbinate nasal swab
 53342003|Nasal Swab
 53342003|445297001
+53342003|697989009
 53342003|53342003
-119297000|Serum
-119297000|Serum specimen
-119297000|Plasma
-119297000|Plasma specimen
-119297000|Whole Blood
-119297000|Whole Blood Sample
-119297000|Blood specimen
-119297000|Venous blood specimen
-119297000|258580003
-119297000|119361006
-119297000|119364003
-119297000|119297000
+29092000|Serum
+29092000|Serum specimen
+29092000|Plasma
+29092000|Plasma specimen
+29092000|Whole Blood
+29092000|Whole Blood Sample
+29092000|Blood specimen
+29092000|Venous blood specimen
+29092000|Capillary blood specimen
+29092000|fingerstick whole blood
+29092000|122554006
+29092000|258580003
+29092000|119361006
+29092000|119364003
+29092000|119297000
 31389004|Oral
 31389004|Throat Swab
 31389004|Oropharyngeal
@@ -958,6 +996,9 @@ Code | Display
 122555007|122555007
 119297000|Blood specimen
 119297000|119297000
+122554006|Capillary blood specimen
+122554006|fingerstick whole blood
+122554006|122554006
 
 **Documentation**:
 
@@ -965,9 +1006,9 @@ Translate inbound text to outbound SNOMED Codes
 
 ---
 
-**Name**: Test Code
+**Name**: test_performed_code
 
-**Type**: TEXT
+**Type**: TABLE
 
 **PII**: No
 
@@ -983,11 +1024,21 @@ The LOINC code of the test performed. This is a standardized coded value describ
 
 ---
 
-**Name**: Result Code
-
-**Type**: TEXT
+**Name**: Test Code
 
 **PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: Result Code
+
+**Type**: CODE
+
+**PII**: No
+
+**Format**: $display
 
 **Cardinality**: [0..1]
 
@@ -995,45 +1046,66 @@ The LOINC code of the test performed. This is a standardized coded value describ
 
 Code | Display
 ---- | -------
-260373001|Detected
-260415000|Not detected
-720735008|Presumptive positive
-10828004|Positive
-42425007|Equivocal
 260385009|Negative
-895231008|Not detected in pooled specimen
-462371000124108|Detected in pooled specimen
+260385009|Neg
+260385009|Negative *** High ***
+260385009|Negative *** Low ***
+260385009|260385009
+260415000|Not detected
+260415000|NDET
+260415000|260415000
+260373001|Detected
+260373001|DET
+260373001|260373001
+10828004|Positive
+10828004|Pos
+10828004|Positive (Abnormal)
+10828004|Positive (Alpha Abnormal)
+10828004|Positive *** High ***
+10828004|Positive  *** High ***
+10828004|Positive  *** Low ***
+10828004|Positive 
+10828004|10828004
+720735008|Presumptive positive
+720735008|720735008
 419984006|Inconclusive
-125154007|Specimen unsatisfactory for evaluation
+419984006|Inconclusive Result
+419984006|419984006
+42425007|Equivocal
+42425007|42425007
+895231008|Not detected in pooled specimen
+895231008|895231008
+462371000124108|Detected in pooled specimen
+462371000124108|462371000124108
 455371000124106|Invalid result
+455371000124106|Invalid
+455371000124106|455371000124106
+125154007|Specimen unsatisfactory for evaluation
+125154007|125154007
 840539006|Disease caused by sever acute respiratory syndrome coronavirus 2 (disorder)
+840539006|840539006
 840544004|Suspected disease caused by severe acute respiratory coronavirus 2 (situation)
+840544004|840544004
 840546002|Exposure to severe acute respiratory syndrome coronavirus 2 (event)
+840546002|840546002
 840533007|Severe acute respiratory syndrome coronavirus 2 (organism)
+840533007|840533007
 840536004|Antigen of severe acute respiratory syndrome coronavirus 2 (substance)
+840536004|840536004
 840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
+840535000|840535000
 840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
+840534001|840534001
 373121007|Test not done
+373121007|373121007
 
 **Documentation**:
 
-The result of the test performed. For IgG, IgM and CT results that give a numeric value put that here.
+Translate multiple inbound Test Result values to RS values
 
 ---
 
 **Name**: Result Date
-
-**Type**: DATETIME
-
-**PII**: No
-
-**Format**: yyyyMMdd
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: Date Reported
 
 **Type**: DATETIME
 
