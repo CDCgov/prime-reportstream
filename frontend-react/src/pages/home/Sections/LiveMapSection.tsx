@@ -1,9 +1,7 @@
 // @ts-nocheck // TODO: fix types in this file
-import CdcMap from "@cdc/map";
 import DOMPurify from "dompurify";
 
 import { SectionProp } from "../HomeProps";
-import live from "../../../content/live.json";
 
 export default function LiveMapSection({ section }: { section: SectionProp }) {
     let cleanDescriptionHtml = DOMPurify.sanitize(section!.description!);
@@ -22,7 +20,7 @@ export default function LiveMapSection({ section }: { section: SectionProp }) {
                 {section.summary}
             </p>
             <div data-testid="map" className="tablet:grid-col-10">
-                <CdcMap config={live} />
+                <img src="/assets/usa_w_territories.svg" alt="Map of states using ReportStream" />
             </div>
             <p
                 data-testid="description"

@@ -4,7 +4,6 @@
     "private": true,
     "npmClient": "yarn",
     "dependencies": {
-        "@cdc/map": "^2.6.2",
         "@craco/craco": "^6.3.0",
         "@fortawesome/fontawesome-svg-core": "^1.2.36",
         "@fortawesome/free-solid-svg-icons": "^5.15.4",
