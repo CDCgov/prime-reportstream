@@ -3,7 +3,7 @@ import DOMPurify from "dompurify";
 
 import { SectionProp } from "../HomeProps";
 // @ts-ignore
-import usamapsvg from "../../../content/usa_w_territories.svg"; // Note: file in content to get unique filename per build
+import usamapsvg from "../../../content/usa_w_territories.svg"; // in /content dir to get unique filename per build
 
 
 export default function LiveMapSection({ section }: { section: SectionProp }) {
