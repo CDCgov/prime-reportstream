@@ -20,7 +20,10 @@ export default function LiveMapSection({ section }: { section: SectionProp }) {
                 {section.summary}
             </p>
             <div data-testid="map" className="tablet:grid-col-10">
-                <img src="/assets/usa_w_territories.svg" alt="Map of states using ReportStream" />
+                <img
+                    src="/assets/usa_w_territories.svg"
+                    alt="Map of states using ReportStream"
+                />
             </div>
             <p
                 data-testid="description"
