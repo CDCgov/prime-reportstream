@@ -5,6 +5,8 @@ import { Helmet } from "react-helmet";
 import site from "../../content/site.json";
 // NOTE: update live.json and open usa_w_territories.svg with TEXT EDITOR and uncomment state styles
 import live from "../../content/live.json";
+// @ts-ignore
+import usamapsvg from "../../content/usa_w_territories.svg"; // Note: file in content to get unique filename per build
 
 export const WhereWereLive = () => {
     return (
@@ -39,7 +41,7 @@ export const WhereWereLive = () => {
             </section>
             <section>
                 <img
-                    src="/assets/usa_w_territories.svg"
+                    src={usamapsvg}
                     alt="Map of states using ReportStream"
                 />
                 ReportStream has established connections to send and report

@@ -2,6 +2,9 @@
 import DOMPurify from "dompurify";
 
 import { SectionProp } from "../HomeProps";
+// @ts-ignore
+import usamapsvg from "../../../content/usa_w_territories.svg"; // Note: file in content to get unique filename per build
+
 
 export default function LiveMapSection({ section }: { section: SectionProp }) {
     let cleanDescriptionHtml = DOMPurify.sanitize(section!.description!);
@@ -21,7 +24,7 @@ export default function LiveMapSection({ section }: { section: SectionProp }) {
             </p>
             <div data-testid="map" className="tablet:grid-col-10">
                 <img
-                    src="/assets/usa_w_territories.svg"
+                    src={usamapsvg}
                     alt="Map of states using ReportStream"
                 />
             </div>
