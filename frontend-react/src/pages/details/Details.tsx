@@ -34,7 +34,9 @@ const DetailsContent = () => {
         <>
             <Summary report={report} />
             <ReportDetails report={report} />
-            <FacilitiesTable reportId={report?.reportId || ""} />
+            <Suspense fallback={<Spinner />}>
+                <FacilitiesTable reportId={report?.reportId || ""} />
+            </Suspense>
             <HipaaNotice />
         </>
     );
