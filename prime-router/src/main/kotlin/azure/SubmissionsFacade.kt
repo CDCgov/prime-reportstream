@@ -50,9 +50,8 @@ class SubmissionsFacade(
 
         // TODO: going to need to get this to properly map back to the type you want
         return submissions.map {
-            val actionresponse = mapper.readValue(it.actionResponse.toString(), ActionResponseAPI::class.java)
-            actionresponse
-            val result = SubmissionAPI(it.actionId, it.createdAt, it.sendingOrg, it.httpStatus)
+            val actionResponse = mapper.readValue(it.actionResponse.toString(), ActionResponseAPI::class.java)
+            val result = SubmissionAPI(it.actionId, it.createdAt, it.sendingOrg, it.httpStatus, actionResponse)
             result
         }
     }
@@ -87,11 +86,18 @@ class SubmissionAPI
     createdAt: OffsetDateTime,
     sendingOrg: String,
     httpStatus: Int,
+    actionResponse: ActionResponseAPI
 ) : Submission(
     actionId,
     createdAt,
     sendingOrg,
     httpStatus,
+    actionResponse.id,
+    actionResponse.topic,
+    actionResponse.reportItemCount,
+    actionResponse.warningCount,
+    actionResponse.errorCount,
+
 )
 
 class ActionResponseAPI
