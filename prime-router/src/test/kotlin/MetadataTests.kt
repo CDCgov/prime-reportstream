@@ -23,8 +23,6 @@ import gov.cdc.prime.router.metadata.DatabaseLookupTable
 import gov.cdc.prime.router.metadata.LookupTable
 import io.mockk.every
 import io.mockk.mockk
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.JsonPrimitive
 import org.jooq.JSONB
 import org.jooq.exception.DataAccessException
 import java.time.Instant
@@ -304,14 +302,7 @@ class MetadataTests {
         table2.tableVersion = 3
         table2.isActive = true
         val tableData = listOf(LookupTableRow())
-        tableData[0].data = JSONB.jsonb(
-            JsonObject(
-                mapOf(
-                    "colA" to JsonPrimitive("valueA"),
-                    "colb" to JsonPrimitive("valueB")
-                )
-            ).toString()
-        )
+        tableData[0].data = JSONB.jsonb("""{"colA": "valueA", "colb": "valueB"}""")
 
         // Database exception
         every { mockDbTableAccess.fetchTableList() } throws DataAccessException("error")

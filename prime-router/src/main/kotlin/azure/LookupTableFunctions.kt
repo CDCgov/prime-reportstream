@@ -1,10 +1,10 @@
 package gov.cdc.prime.router.azure
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.databind.exc.MismatchedInputException
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.google.common.base.Preconditions
+import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
+import com.fasterxml.jackson.module.kotlin.readValue
 import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
@@ -12,15 +12,10 @@ import com.microsoft.azure.functions.annotation.AuthorizationLevel
 import com.microsoft.azure.functions.annotation.BindingName
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
+import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableRow
 import gov.cdc.prime.router.tokens.OktaAuthentication
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonArray
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.JsonPrimitive
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.JSONB
-import org.jooq.exception.DataAccessException
 
 /**
  * Functions to manage lookup tables.
@@ -29,17 +24,10 @@ class LookupTableFunctions(
     private val lookupTableAccess: DatabaseLookupTableAccess = DatabaseLookupTableAccess(),
     private var oktaAuthentication: OktaAuthentication? = null
 ) : Logging {
-
     /**
      * Mapper to convert objects to JSON.
      */
-    private val mapper: ObjectMapper = jacksonObjectMapper()
-
-    init {
-        // Format OffsetDateTime as an ISO string
-        mapper.registerModule(JavaTimeModule())
-        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-    }
+    private val mapper: ObjectMapper = jacksonMapperBuilder().addModule(JavaTimeModule()).build()
 
     /**
      * Get the Okta authenticator based on the [level].  If it was specified via the constructor then use that
@@ -51,8 +39,8 @@ class LookupTableFunctions(
     }
 
     /**
-     * Fetch the list of lookup tables.  If the showAll query parameter is set to true then only active tables
-     * are returned.
+     * Fetch the list of lookup tables.  If the showInactive query parameter is set to true then show
+     * both active and inactive tables
      */
     @FunctionName("getLookupTableList")
     fun getLookupTableList(
@@ -67,11 +55,11 @@ class LookupTableFunctions(
             try {
                 val showInactive = request.queryParameters[showInactiveParamName]
                     ?.equals("true", true) ?: false
-                // Return only what's active if showAll is true
+                // Return everything if showInactive is true
                 val list = lookupTableAccess.fetchTableList(showInactive)
                 val json = mapper.writeValueAsString(list)
                 HttpUtilities.okResponse(request, json)
-            } catch (e: DataAccessException) {
+            } catch (e: Exception) {
                 logger.error("Unable to fetch lookup table list", e)
                 HttpUtilities.internalErrorResponse(request)
             }
@@ -99,9 +87,11 @@ class LookupTableFunctions(
                         request,
                         "Table $tableName with version $tableVersion does not exist."
                     )
-                else
-                    HttpUtilities.okResponse(request, convertTableDataToJsonString(tableName, tableVersion))
-            } catch (e: DataAccessException) {
+                else {
+                    val rows = lookupTableAccess.fetchTable(tableName, tableVersion)
+                    HttpUtilities.okResponse(request, convertTableDataToJsonString(rows))
+                }
+            } catch (e: Exception) {
                 logger.error("Unable to fetch lookup table with version $tableVersion", e)
                 HttpUtilities.internalErrorResponse(request)
             }
@@ -109,7 +99,7 @@ class LookupTableFunctions(
     }
 
     /**
-     * Fetch the data for a specific table version.
+     * Fetch the version information for a specific table version.
      */
     @FunctionName("getLookupTableInfo")
     fun getLookupTableInfo(
@@ -132,7 +122,7 @@ class LookupTableFunctions(
                     )
                 else
                     HttpUtilities.okResponse(request, mapper.writeValueAsString(tableInfo))
-            } catch (e: DataAccessException) {
+            } catch (e: Exception) {
                 logger.error("Unable to fetch lookup table with version $tableVersion", e)
                 HttpUtilities.internalErrorResponse(request)
             }
@@ -152,38 +142,38 @@ class LookupTableFunctions(
         ) request: HttpRequestMessage<String?>,
         @BindingName("tableName") tableName: String
     ): HttpResponseMessage {
-        return getOktaAuthenticator(PrincipalLevel.SYSTEM_ADMIN).checkAccess(request) {
+        return getOktaAuthenticator(PrincipalLevel.SYSTEM_ADMIN).checkAccess(request) { oktaAuthenticatedClaim ->
+            val inputData: List<Map<String, String>>
             try {
-                val inputData = if (!request.body.isNullOrBlank()) Json.parseToJsonElement(request.body!!)
-                else null
-                val errorResponse = checkCreateRequest(request, inputData)
-                if (errorResponse != null)
-                    errorResponse
+                inputData = mapper.readValue(request.body!!.toString())
+                if (inputData.isEmpty())
+                    HttpUtilities.badRequestResponse(
+                        request,
+                        HttpUtilities.errorJson("Request body cannot be empty.")
+                    )
                 else {
-                    Preconditions.checkNotNull(inputData) // A sanity check
-                    val checkedData = inputData!! as JsonArray
-                    val colNames = DatabaseLookupTableAccess
-                        .extractTableHeadersFromJson(JSONB.jsonb(checkedData[0].toString()))
-
-                    // Test all the rows to make sure they all have the same columns.
-                    if (checkedData.any { row ->
-                        colNames.any { colName ->
-                            !(row as JsonObject).containsKey(colName)
-                        }
+                    val colNames = inputData[0].keys
+                    // Test all the rows to make sure they all have the same columns and that we do not have extra
+                    // columns.
+                    if (inputData.any { row ->
+                        row.keys.size != colNames.size ||
+                            colNames.any { colName ->
+                                !row.containsKey(colName)
+                            }
                     }
                     )
                         HttpUtilities.badRequestResponse(
                             request,
-                            createErrorMsg("All rows in the provided array must contain the same column names")
+                            HttpUtilities.errorJson("All rows in the provided array must contain the same column names")
                         )
                     else {
                         // Ok, now we are good to go with the data.
-                        val tableRows = checkedData.map { row ->
-                            JSONB.jsonb(row.toString())
+                        val tableRows = inputData.map { row ->
+                            JSONB.jsonb(mapper.writeValueAsString(row))
                         }
                         val latestVersion = lookupTableAccess.fetchLatestVersion(tableName) ?: 0
                         val newVersion = latestVersion + 1
-                        lookupTableAccess.createTable(tableName, newVersion, tableRows)
+                        lookupTableAccess.createTable(tableName, newVersion, tableRows, oktaAuthenticatedClaim.userName)
 
                         // Return the table version info
                         val json = mapper
@@ -191,7 +181,12 @@ class LookupTableFunctions(
                         HttpUtilities.okResponse(request, json)
                     }
                 }
-            } catch (e: DataAccessException) {
+            } catch (e: MismatchedInputException) {
+                HttpUtilities.badRequestResponse(
+                    request,
+                    HttpUtilities.errorJson("Invalid request body.  Must be an array of objects")
+                )
+            } catch (e: Exception) {
                 logger.error("Unable to create lookup table $tableName", e)
                 HttpUtilities.internalErrorResponse(request)
             }
@@ -225,22 +220,22 @@ class LookupTableFunctions(
                         .writeValueAsString(lookupTableAccess.fetchVersionInfo(tableName, tableVersion))
                     HttpUtilities.okResponse(request, json)
                 }
-            } catch (e: DataAccessException) {
+            } catch (e: Exception) {
+                logger.error("Unable to activate lookup table $tableName", e)
                 HttpUtilities.internalErrorResponse(request)
             }
         }
     }
 
     /**
-     * Gets the rows for a [tableName] and [tableVersion] and converts it to a JSON string.
+     * Converts [rows] into a JSON string.
      * @return a JSON string with the table rows
      */
-    internal fun convertTableDataToJsonString(tableName: String, tableVersion: Int): String {
-        val rows = lookupTableAccess.fetchTable(tableName, tableVersion)
-        val jsonRows = rows.map { row ->
-            Json.parseToJsonElement(row.data.data())
+    internal fun convertTableDataToJsonString(rows: List<LookupTableRow>): String {
+        val convertedRows = rows.map { row ->
+            mapper.readValue<Map<String, String>>(row.data.data())
         }
-        return JsonArray(jsonRows).toString()
+        return mapper.writeValueAsString(convertedRows)
     }
 
     companion object {
@@ -248,54 +243,5 @@ class LookupTableFunctions(
          * Name of the query parameter to show inactive tables.
          */
         const val showInactiveParamName = "showInactive"
-
-        /**
-         * Create the JSON representation of an error [message].
-         * @return the JSON with the error message
-         */
-        internal fun createErrorMsg(message: String): String {
-            return JsonObject(mapOf("error" to JsonPrimitive(message))).toString()
-        }
-
-        /**
-         * Check the create post [request] and [bodyAsJson] for errors.
-         * @return an HTTP response with an error, or null if no error
-         */
-        internal fun checkCreateRequest(request: HttpRequestMessage<String?>, bodyAsJson: JsonElement?):
-            HttpResponseMessage? {
-            return when {
-                request.body.isNullOrBlank() ->
-                    HttpUtilities.badRequestResponse(
-                        request,
-                        createErrorMsg("The request is missing a body with the table contents")
-                    )
-
-                bodyAsJson == null || bodyAsJson !is JsonArray ->
-                    HttpUtilities.badRequestResponse(
-                        request,
-                        createErrorMsg("The request body must be a JSON Array")
-                    )
-
-                bodyAsJson.isEmpty() ->
-                    HttpUtilities.badRequestResponse(
-                        request,
-                        createErrorMsg("The request body must be a non-empty JSON Array")
-                    )
-
-                bodyAsJson.any { it !is JsonObject } ->
-                    HttpUtilities.badRequestResponse(
-                        request,
-                        createErrorMsg("All rows in the provided array must be a JSON object")
-                    )
-
-                bodyAsJson.any { it is JsonObject && it.keys.isEmpty() } ->
-                    HttpUtilities.badRequestResponse(
-                        request,
-                        createErrorMsg("All rows in the provided array must not be empty JSON objects")
-                    )
-
-                else -> null
-            }
-        }
     }
 }

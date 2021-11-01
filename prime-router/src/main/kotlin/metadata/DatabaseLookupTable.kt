@@ -1,11 +1,11 @@
 package gov.cdc.prime.router.metadata
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
+import com.fasterxml.jackson.module.kotlin.readValue
 import com.google.common.base.Preconditions
 import gov.cdc.prime.router.azure.DatabaseLookupTableAccess
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonPrimitive
-import kotlinx.serialization.json.contentOrNull
-import kotlinx.serialization.json.jsonObject
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.exception.DataAccessException
 
@@ -24,6 +24,11 @@ class DatabaseLookupTable(
     var version: Int = 0
 
     /**
+     * Mapper to convert objects to JSON.
+     */
+    private val mapper: ObjectMapper = jacksonMapperBuilder().addModule(JavaTimeModule()).build()
+
+    /**
      * Load the table [version] from the database.
      */
     fun loadTable(version: Int): DatabaseLookupTable {
@@ -35,12 +40,8 @@ class DatabaseLookupTable(
             val lookupTableData = mutableListOf<List<String>>()
             lookupTableData.add(colNames)
             dbTableData.forEach { row ->
-                val rowData = Json.parseToJsonElement(row.data.toString()).jsonObject
-                val newTableRow = mutableListOf<String>()
-                colNames.forEach { colName ->
-                    newTableRow.add((rowData[colName] as JsonPrimitive).contentOrNull ?: "")
-                }
-                lookupTableData.add(newTableRow)
+                val rowData = mapper.readValue<Map<String, String>>(row.data.data())
+                lookupTableData.add(colNames.map { rowData[it] ?: "" })
             }
             setTableData(lookupTableData)
             this.version = version

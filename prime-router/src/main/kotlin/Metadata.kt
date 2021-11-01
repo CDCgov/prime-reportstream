@@ -33,6 +33,7 @@ class Metadata private constructor() : Logging {
         Obx8Mapper(),
         DateTimeOffsetMapper(),
         CoalesceMapper(),
+        TrimBlanksMapper(),
         StripPhoneFormattingMapper(),
         StripNonNumericDataMapper(),
         StripNumericDataMapper(),

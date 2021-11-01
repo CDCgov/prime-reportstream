@@ -7,8 +7,6 @@ import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.PAYLOAD_MAX_BYTES
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Sender
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.JsonPrimitive
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.File
 import java.io.IOException
@@ -132,7 +130,7 @@ class HttpUtilities {
         ): HttpResponseMessage {
             val response = request.createResponseBuilder(HttpStatus.NOT_FOUND)
             if (!errorMessage.isNullOrBlank())
-                response.body(JsonObject(mapOf("error" to JsonPrimitive(errorMessage))).toString())
+                response.body(errorJson(errorMessage))
             return response.build()
         }
 

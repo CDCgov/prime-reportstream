@@ -1,5 +1,10 @@
 package gov.cdc.prime.router.cli
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.exc.MismatchedInputException
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
+import com.fasterxml.jackson.module.kotlin.readValue
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.PrintMessage
 import com.github.ajalt.clikt.output.TermUi
@@ -26,29 +31,14 @@ import com.github.kittinunf.result.Result
 import com.google.common.base.Preconditions
 import de.m3y.kformat.Table
 import de.m3y.kformat.table
-import gov.cdc.prime.router.azure.DatabaseLookupTableAccess
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.LookupTableFunctions
-import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableRow
 import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableVersion
 import gov.cdc.prime.router.common.Environment
-import kotlinx.serialization.SerializationException
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonArray
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.JsonPrimitive
-import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.contentOrNull
-import kotlinx.serialization.json.int
-import kotlinx.serialization.json.jsonArray
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
 import org.apache.http.HttpStatus
 import org.jooq.JSONB
 import java.io.File
 import java.io.IOException
-import java.time.OffsetDateTime
-import java.time.format.DateTimeParseException
 
 /**
  * Utilities to submit and get data from the Lookup Tables API.
@@ -72,9 +62,11 @@ class LookupTableEndpointUtilities(val environment: Environment) {
             .authentication()
             .bearer(oktaAccessToken)
             .responseJson()
-        val jsonArray = getArrayFromResponse(result, response)
-        return jsonArray.map {
-            convertJsonToInfo(it as JsonObject)
+        checkCommonErrorsFromResponse(result, response)
+        try {
+            return mapper.readValue(result.get().content)
+        } catch (e: MismatchedInputException) {
+            throw IOException("Invalid response body found.")
         }
     }
 
@@ -101,18 +93,18 @@ class LookupTableEndpointUtilities(val environment: Environment) {
      * @throws TableNotFoundException if the table and/or version is not found
      * @throws IOException if there is a server or API error
      */
-    fun fetchTableContent(tableName: String, version: Int): List<LookupTableRow> {
+    fun fetchTableContent(tableName: String, version: Int): List<Map<String, String>> {
         val apiUrl = environment.formUrl("$endpointRoot/$tableName/$version/content")
         val (_, response, result) = Fuel
             .get(apiUrl.toString())
             .authentication()
             .bearer(oktaAccessToken)
             .responseJson()
-        val jsonArray = getArrayFromResponse(result, response)
-        return jsonArray.map {
-            val row = LookupTableRow()
-            row.data = JSONB.jsonb(it.toString())
-            row
+        checkCommonErrorsFromResponse(result, response)
+        try {
+            return mapper.readValue(result.get().content)
+        } catch (e: MismatchedInputException) {
+            throw IOException("Invalid response body found.")
         }
     }
 
@@ -138,13 +130,10 @@ class LookupTableEndpointUtilities(val environment: Environment) {
      * @throws TableNotFoundException if the table and/or version is not found
      * @throws IOException if there is a server or API error
      */
-    fun createTable(tableName: String, tableData: List<LookupTableRow>):
+    fun createTable(tableName: String, tableData: List<Map<String, String>>):
         LookupTableVersion {
         val apiUrl = environment.formUrl("$endpointRoot/$tableName")
-        val jsonRows = tableData.map {
-            Json.parseToJsonElement(it.data.toString())
-        }
-        val jsonPayload = JsonArray(jsonRows)
+        val jsonPayload = mapper.writeValueAsString(tableData)
 
         val (_, response, result) = Fuel
             .post(apiUrl.toString())
@@ -163,49 +152,14 @@ class LookupTableEndpointUtilities(val environment: Environment) {
         const val endpointRoot = "/api/lookuptables"
 
         /**
+         * Mapper to convert objects to JSON.
+         */
+        private val mapper: ObjectMapper = jacksonMapperBuilder().addModule(JavaTimeModule()).build()
+
+        /**
          * Exception thrown with a [message] if a table is not found.
          */
         class TableNotFoundException(message: String) : Exception(message)
-
-        internal fun convertJsonToInfo(info: JsonObject): LookupTableVersion {
-            val newVersion = LookupTableVersion()
-            try {
-                newVersion.tableName = (info["tableName"] as JsonPrimitive).content
-                newVersion.tableVersion = (info["tableVersion"] as JsonPrimitive).int
-                newVersion.isActive = (info["isActive"] as JsonPrimitive).content.toBoolean()
-                newVersion.createdBy = (info["createdBy"] as JsonPrimitive).content
-                newVersion.createdAt = OffsetDateTime.parse((info["createdAt"] as JsonPrimitive).content)
-            } catch (e: NullPointerException) {
-                throw IOException("One or more version fields were empty in table version info.")
-            } catch (e: NumberFormatException) {
-                throw IOException("Invalid version number in table version info.")
-            } catch (e: DateTimeParseException) {
-                throw IOException("Invalid created at time in table version info.")
-            }
-            return newVersion
-        }
-        /**
-         * Gets a JSON array from a [result] and [response] returned by the API.
-         * @return a JSON array
-         * @throws TableNotFoundException if the table and/or version is not found
-         * @throws IOException if there is a server or API error
-         */
-        internal fun getArrayFromResponse(result: Result<FuelJson, FuelError>, response: Response): JsonArray {
-            checkCommonErrorsFromResponse(result, response)
-            try {
-                when {
-                    Json.parseToJsonElement(result.get().content) !is JsonArray ->
-                        throw IOException("Invalid data returned in response is not an array.")
-
-                    Json.parseToJsonElement(result.get().content).jsonArray.any { it !is JsonObject } ->
-                        throw IOException("Invalid data returned in response is not an array ob objects.")
-
-                    else -> return Json.parseToJsonElement(result.get().content).jsonArray
-                }
-            } catch (e: SerializationException) {
-                throw IOException("Invalid JSON response.")
-            }
-        }
 
         /**
          * Gets a table version information object from a [result] and [response] returned by the API.
@@ -219,15 +173,12 @@ class LookupTableEndpointUtilities(val environment: Environment) {
         ): LookupTableVersion {
             checkCommonErrorsFromResponse(result, response)
             try {
-                return when {
-                    Json.parseToJsonElement(result.get().content) !is JsonObject ->
-                        throw IOException("Invalid response body")
-
-                    else -> {
-                        convertJsonToInfo(Json.parseToJsonElement(result.get().content) as JsonObject)
-                    }
-                }
-            } catch (e: SerializationException) {
+                val info = mapper.readValue<LookupTableVersion>(result.get().content)
+                if (info.tableName.isNullOrBlank() || info.tableVersion < 1 || info.createdBy.isNullOrBlank() ||
+                    info.createdBy.isNullOrBlank()
+                ) throw IOException("Invalid version information in the response.")
+                else return info
+            } catch (e: MismatchedInputException) {
                 throw IOException("Invalid JSON response.")
             }
         }
@@ -243,18 +194,20 @@ class LookupTableEndpointUtilities(val environment: Environment) {
                     val error = getErrorFromResponse(result)
                     try {
                         when {
-                            // If we get a 404 with no response body then it is an endpoint not found erro
+                            // If we get a 404 with no response body then it is an endpoint not found error
                             result.error.response.body().isEmpty() -> throw IOException(error)
 
                             // If we do get a 404 with a JSON error message then it is because the table was not found
-                            Json.parseToJsonElement(result.error.response.body().asString(HttpUtilities.jsonMediaType))
-                                .jsonObject.containsKey("error") ->
+                            mapper.readValue<Map<String, String>>(
+                                result.error.response.body()
+                                    .asString(HttpUtilities.jsonMediaType)
+                            ).containsKey("error") ->
                                 throw TableNotFoundException(error)
 
                             else -> throw IOException(error)
                         }
-                    } catch (e: SerializationException) {
-                        // The error message is not JSON.
+                    } catch (e: MismatchedInputException) {
+                        // The error message is not valid JSON.
                         throw IOException(error)
                     }
                 }
@@ -278,22 +231,35 @@ class LookupTableEndpointUtilities(val environment: Environment) {
 
                     result.error.response.body().isEmpty() -> result.error.toString()
 
-                    Json.parseToJsonElement(
-                        result.error.response.body()
-                            .asString(HttpUtilities.jsonMediaType)
-                    ) !is JsonObject ->
-                        result.error.toString()
-
-                    !Json.parseToJsonElement(result.error.response.body().asString(HttpUtilities.jsonMediaType))
-                        .jsonObject.containsKey("error") ->
-                        result.error.toString()
-
-                    else -> Json.parseToJsonElement(result.error.response.body().asString(HttpUtilities.jsonMediaType))
-                        .jsonObject["error"]?.jsonPrimitive?.contentOrNull ?: ""
+                    else ->
+                        mapper.readValue<Map<String, String>>(
+                            result.error.response.body()
+                                .asString(HttpUtilities.jsonMediaType)
+                        )["error"]
+                            ?: result.error.toString()
                 }
-            } catch (e: SerializationException) {
+            } catch (e: Exception) {
                 (result as Result.Failure).error.toString()
             }
+        }
+
+        /**
+         * Extract table data from a JSON [row] given a list of [colNames].
+         * @return a list of data from the row in the same order as the given [colNames]
+         */
+        internal fun extractTableRowFromJson(row: JSONB, colNames: List<String>): List<String> {
+            val decodedRow = mapper.readValue<Map<String, String>>(row.data())
+            return colNames.map { colName ->
+                decodedRow[colName] ?: ""
+            }
+        }
+
+        /**
+         * Sets the JSON for a table [row].
+         * @return the JSON representation of the data
+         */
+        internal fun setTableRowToJson(row: Map<String, String>): JSONB {
+            return JSONB.jsonb(mapper.writeValueAsString(row))
         }
     }
 }
@@ -312,43 +278,12 @@ class LookupTableCommands : CliktCommand(
 
     companion object {
         /**
-         * Extract table data from a JSON [row] given a list of [colNames].
-         * @return a list of data from the row in the same order as the given [colNames]
-         */
-        internal fun extractTableRowFromJson(row: JSONB, colNames: List<String>): List<String> {
-            val rowData = mutableListOf<String>()
-            val jsonData = Json.parseToJsonElement(row.data()) as JsonObject
-            colNames.forEach { colName ->
-                val value = if (jsonData[colName] != null)
-                    (jsonData[colName] as JsonPrimitive).content
-                else
-                    ""
-                rowData.add(value)
-            }
-            return rowData
-        }
-
-        /**
-         * Sets the JSON for a table [row].
-         * @return the JSON representation of the data
-         */
-        internal fun setTableRowToJson(row: Map<String, String>): JSONB {
-            val colNames = row.keys.toList()
-            val retVal = buildJsonObject {
-                colNames.forEach { col ->
-                    put(col, JsonPrimitive(row[col]))
-                }
-            }
-            return JSONB.jsonb(retVal.toString())
-        }
-
-        /**
          * Converts table data in [tableRows] to a human readable table using [colNames].
          * @param addRowNum set to true to add row numbers to the left of the table
          * @return the human readable table
          */
         fun rowsToPrintableTable(
-            tableRows: List<LookupTableRow>,
+            tableRows: List<Map<String, String>>,
             colNames: List<String>,
             addRowNum: Boolean = true
         ): StringBuilder {
@@ -363,7 +298,9 @@ class LookupTableCommands : CliktCommand(
                 if (addRowNum) headers.add(0, "Row #")
                 header(headers)
                 tableRows.forEachIndexed { index, row ->
-                    val data = extractTableRowFromJson(row.data, colNames).toMutableList()
+                    val data = colNames.map {
+                        row[it] ?: ""
+                    }.toMutableList()
                     if (addRowNum) data.add(0, (index + 1).toString())
                     // Row takes varargs, so we convert the list to varargs
                     row(values = data.map { it }.toTypedArray())
@@ -398,8 +335,8 @@ class LookupTableCommands : CliktCommand(
          * @return a string with the text output or an empty string if there are no differences
          */
         fun generateDiff(
-            version1Table: List<LookupTableRow>,
-            version2Table: List<LookupTableRow>,
+            version1Table: List<Map<String, String>>,
+            version2Table: List<Map<String, String>>,
             showAll: Boolean
         ): List<String> {
             val generator = DiffRowGenerator.create()
@@ -415,7 +352,7 @@ class LookupTableCommands : CliktCommand(
                 .build()
 
             // We need to make sure to use the same order of column names
-            val colNames = DatabaseLookupTableAccess.extractTableHeadersFromJson(version1Table[0].data)
+            val colNames = version1Table[0].keys.toList()
             val diff = generator.generateDiffRows(
                 rowsToPrintableTable(version1Table, colNames, false).toString().split("\n"),
                 rowsToPrintableTable(version2Table, colNames, false).toString().split("\n")
@@ -514,7 +451,7 @@ class LookupTableGetCommand : GenericLookupTableCommand(
                 TermUi.echo("")
                 TermUi.echo("Table name: $tableName")
                 TermUi.echo("Version: $version")
-                val colNames = DatabaseLookupTableAccess.extractTableHeadersFromJson(tableList[0].data)
+                val colNames = tableList[0].keys.toList()
                 TermUi.echo(LookupTableCommands.rowsToPrintableTable(tableList, colNames))
                 TermUi.echo("")
             } else {
@@ -532,12 +469,15 @@ class LookupTableGetCommand : GenericLookupTableCommand(
     /**
      * Save table data in [tableRows] to an [outputFile] in CSV format.
      */
-    private fun saveTable(outputFile: File, tableRows: List<LookupTableRow>) {
-        val colNames = DatabaseLookupTableAccess.extractTableHeadersFromJson(tableRows[0].data)
+    private fun saveTable(outputFile: File, tableRows: List<Map<String, String>>) {
+        val colNames = tableRows[0].keys.toList()
         val rows = mutableListOf(colNames)
         tableRows.forEach { row ->
-            // Row takes varargs, so we convert the list to varargs
-            rows.add(LookupTableCommands.extractTableRowFromJson(row.data, colNames))
+            rows.add(
+                colNames.map { colName ->
+                    row[colName] ?: ""
+                }
+            )
         }
         csvWriter().writeAll(rows, outputFile.outputStream())
     }
@@ -567,16 +507,11 @@ class LookupTableCreateCommand : GenericLookupTableCommand(
         val inputData = csvReader().readAllWithHeader(inputFile)
         if (inputData.size <= 1)
             error("Input file ${inputFile.absolutePath} has no data.")
-        val newTableData = inputData.map { row ->
-            val tableRow = LookupTableRow()
-            tableRow.data = LookupTableCommands.setTableRowToJson(row)
-            tableRow
-        }
 
         // Output the data for review.
         TermUi.echo("Here is the table data to be created:")
-        val colNames = DatabaseLookupTableAccess.extractTableHeadersFromJson(newTableData[0].data)
-        TermUi.echo(LookupTableCommands.rowsToPrintableTable(newTableData, colNames))
+        val colNames = inputData[0].keys.toList()
+        TermUi.echo(LookupTableCommands.rowsToPrintableTable(inputData, colNames))
         TermUi.echo("")
 
         // If there is an existing active version then present a diff.
@@ -590,7 +525,7 @@ class LookupTableCreateCommand : GenericLookupTableCommand(
             val activeTable = try { tableUtil.fetchTableContent(tableName, activeVersion) } catch (e: Exception) {
                 throw PrintMessage("Error fetching active table content for table $tableName: ${e.message}", true)
             }
-            val diffOutput = LookupTableCommands.generateDiff(activeTable, newTableData, false)
+            val diffOutput = LookupTableCommands.generateDiff(activeTable, inputData, false)
             if (diffOutput.isNotEmpty()) {
                 TermUi.echo("Here is the diff compared to the active version $activeVersion:")
                 diffOutput.forEach { TermUi.echo(it) }
@@ -605,14 +540,14 @@ class LookupTableCreateCommand : GenericLookupTableCommand(
         }
 
         // Now we are ready.  Ask if we should proceed.
-        if (TermUi.confirm("Continue to create a new version of $tableName with ${newTableData.size} rows?")
+        if (TermUi.confirm("Continue to create a new version of $tableName with ${inputData.size} rows?")
             == true
         ) {
-            val newTableInfo = try { tableUtil.createTable(tableName, newTableData) } catch (e: IOException) {
+            val newTableInfo = try { tableUtil.createTable(tableName, inputData) } catch (e: IOException) {
                 throw PrintMessage("Error creating new table version for $tableName: ${e.message}", true)
             }
             TermUi.echo(
-                "${newTableData.size} rows created for lookup table $tableName version " +
+                "${inputData.size} rows created for lookup table $tableName version " +
                     "${newTableInfo.tableVersion}."
             )
             // Always have an active version, so if this is the first version then activate it.

@@ -1,12 +1,15 @@
 package gov.cdc.prime.router.azure
 
+import com.fasterxml.jackson.databind.exc.MismatchedInputException
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
+import com.google.common.base.Preconditions
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableRow
 import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableVersion
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonObject
 import org.jooq.JSONB
 import org.jooq.impl.DSL
+import java.lang.IllegalArgumentException
 
 /**
  * Class to access lookup tables stored in the database.
@@ -124,7 +127,6 @@ class DatabaseLookupTableAccess(private val db: DatabaseAccess = DatabaseAccess(
      * @return true if the table was activated, false if the table was already active
      */
     fun activateTable(tableName: String, version: Int): Boolean {
-        var retVal = false
         var updateCount = 0
         db.transact { txn ->
             // First deactivate the table if it is active
@@ -145,20 +147,18 @@ class DatabaseLookupTableAccess(private val db: DatabaseAccess = DatabaseAccess(
                 ).execute()
         }
 
-        if (updateCount == 1)
-            retVal = true
-        return retVal
+        return updateCount == 1
     }
 
     /**
      * Create a new table [version] for a [tableName] using the provided [tableData].
      * This function will throw an exception upon an error and rollback any data inserted into the database.
      */
-    fun createTable(tableName: String, version: Int, tableData: List<JSONB>) {
+    fun createTable(tableName: String, version: Int, tableData: List<JSONB>, username: String) {
         db.transact { txn ->
             val newVersion = DSL.using(txn).newRecord(Tables.LOOKUP_TABLE_VERSION)
             newVersion.isActive = false
-            newVersion.createdBy = System.getProperty("user.name")
+            newVersion.createdBy = username
             newVersion.tableName = tableName
             newVersion.tableVersion = version
             if (newVersion.store() != 1) error("Error creating new version in database.")
@@ -196,8 +196,13 @@ class DatabaseLookupTableAccess(private val db: DatabaseAccess = DatabaseAccess(
          * @return the list of column names
          */
         internal fun extractTableHeadersFromJson(row: JSONB): List<String> {
-            val jsonData = Json.parseToJsonElement(row.data())
-            return (jsonData as JsonObject).keys.toList()
+            try {
+                val rows = jacksonObjectMapper().readValue<Map<String, String>>(row.data())
+                Preconditions.checkArgument(rows.isNotEmpty())
+                return rows.keys.toList()
+            } catch (e: MismatchedInputException) {
+                throw IllegalArgumentException(e)
+            }
         }
     }
 }
