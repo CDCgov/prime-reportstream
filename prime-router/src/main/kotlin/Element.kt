@@ -800,7 +800,8 @@ data class Element(
     fun processValue(
         allElementValues: Map<String, String>,
         schema: Schema,
-        defaultOverrides: Map<String, String> = emptyMap()
+        defaultOverrides: Map<String, String> = emptyMap(),
+        index: Int = 0
     ): String {
         var retVal = if (allElementValues[name].isNullOrEmpty()) "" else allElementValues[name]!!
         if (useMapper(retVal)) {
@@ -808,13 +809,17 @@ data class Element(
             val args = mapperArgs ?: emptyList()
             val valueNames = mapperRef?.valueNames(this, args) ?: emptyList()
             val valuesForMapper = valueNames.mapNotNull { elementName ->
-                val valueElement = schema.findElement(elementName)
-                if (valueElement != null && allElementValues.containsKey(elementName) &&
-                    !allElementValues[elementName].isNullOrEmpty()
-                ) {
-                    ElementAndValue(valueElement, allElementValues[elementName]!!)
+                if (elementName.contains("$")) {
+                    tokenizeMapperValue(elementName, index)
                 } else {
-                    null
+                    val valueElement = schema.findElement(elementName)
+                    if (valueElement != null && allElementValues.containsKey(elementName) &&
+                        !allElementValues[elementName].isNullOrEmpty()
+                    ) {
+                        ElementAndValue(valueElement, allElementValues[elementName]!!)
+                    } else {
+                        null
+                    }
                 }
             }
             // Only overwrite an existing value if the mapper returns a string
@@ -836,6 +841,22 @@ data class Element(
         }
 
         return retVal
+    }
+
+    fun tokenizeMapperValue(elementName: String, index: Int = 0): ElementAndValue? {
+        val tokenElement = Element(elementName)
+        return when (elementName) {
+            "\$index" -> {
+                ElementAndValue(tokenElement, index.toString())
+            }
+            "\$currentDate" -> {
+                val currentDate = LocalDate.now().format(dateFormatter)
+                ElementAndValue(tokenElement, currentDate)
+            }
+            else -> {
+                null
+            }
+        }
     }
 
     companion object {
