@@ -303,11 +303,14 @@ class Metadata private constructor() : Logging {
         return name.lowercase()
     }
 
-    /*
+    /**
      * Lookup Tables
      */
     internal var lookupTableStore = mapOf<String, LookupTable>()
 
+    /**
+     * Last time the database lookup tables were checked.
+     */
     internal var tablelastCheckedAt = Instant.MIN
 
     private fun loadLookupTables(filePath: String): Metadata {

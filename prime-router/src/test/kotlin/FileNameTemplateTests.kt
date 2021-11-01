@@ -274,7 +274,6 @@ class FileNameTemplateTests {
 
     @Test
     fun `load file name templates from metadata`() {
-        val metadata = Metadata.getInstance()
         assertThat(metadata.fileNameTemplates).isNotEmpty()
         assertThat(metadata.fileNameTemplates).containsKey("standard")
     }

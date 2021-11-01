@@ -11,8 +11,8 @@ import java.io.InputStream
 open class LookupTable(
     private var table: List<List<String>>
 ) : Iterable<List<String>> {
-    private val headerRow: List<String> = if (table.isNotEmpty()) table[0].map { it.lowercase() } else emptyList()
-    private val headerIndex: Map<String, Int> = headerRow.mapIndexed { index, header -> header to index }.toMap()
+    private var headerRow: List<String> = if (table.isNotEmpty()) table[0].map { it.lowercase() } else emptyList()
+    private var headerIndex: Map<String, Int> = headerRow.mapIndexed { index, header -> header to index }.toMap()
     private val columnIndex: MutableMap<String, Map<String, Int>> = mutableMapOf()
     private val indexDelimiter = "|"
 
@@ -22,7 +22,9 @@ open class LookupTable(
      * Set the table's data with [tableData].
      */
     fun setTableData(tableData: List<List<String>>) {
-        this.table = tableData
+        table = tableData
+        headerRow = if (table.isNotEmpty()) table[0].map { it.lowercase() } else emptyList()
+        headerIndex = headerRow.mapIndexed { index, header -> header to index }.toMap()
     }
 
     /**
