@@ -4,6 +4,7 @@ import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
 import com.microsoft.azure.functions.annotation.AuthorizationLevel
+import com.microsoft.azure.functions.annotation.BindingName
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import gov.cdc.prime.router.tokens.OktaAuthentication
@@ -26,23 +27,23 @@ class GetSubmissions(
             name = "getSubmissions",
             methods = [HttpMethod.GET],
             authLevel = AuthorizationLevel.ANONYMOUS,
-            route = "submissions"
+            route = "submissions/{organizationName}"
         ) request: HttpRequestMessage<String?>,
+        @BindingName("organizationName") organizationName: String,
     ): HttpResponseMessage {
         return when (request.httpMethod) {
-            HttpMethod.GET -> getList(oktaAuthentication, facade, request, SubmissionAPI::class.java)
+            HttpMethod.GET -> getList(request, organizationName)
             else -> error("Unsupported method")
         }
     }
 
-    fun <T : SubmissionAPI> getList(
-        oktaAuthentication: OktaAuthentication,
-        facade: SubmissionsFacade,
+    fun getList(
         request: HttpRequestMessage<String?>,
-        clazz: Class<T>
+        organizationName: String,
     ): HttpResponseMessage {
+        // TODO DO NOT CHECK IN
         return oktaAuthentication.checkAccess(request, "") {
-            val submissions = facade.findSubmissionsAsJson(clazz)
+            val submissions = facade.findSubmissionsAsJson(organizationName)
             HttpUtilities.okResponse(request, submissions)
         }
     }
@@ -61,10 +62,11 @@ open class BaseSubmissionsFunction(
 
     fun <T : SubmissionAPI> getList(
         request: HttpRequestMessage<String?>,
+        organizationName: String,
         clazz: Class<T>
     ): HttpResponseMessage {
         return oktaAuthentication.checkAccess(request, "") {
-            val submissions = facade.findSubmissionsAsJson(clazz)
+            val submissions = facade.findSubmissionsAsJson(organizationName)
             HttpUtilities.okResponse(request, submissions)
         }
     }
