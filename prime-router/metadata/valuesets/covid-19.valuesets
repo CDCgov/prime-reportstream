@@ -48,6 +48,8 @@
       display: Venous blood specimen
     - code: 119297000
       display: Blood specimen
+    - code: 122554006
+      display: Capillary blood specimen
 
 - name: covid-19/test_result
   system: SNOMED_CT
@@ -194,6 +196,9 @@
       version: 2020-09-01
     - code: 53342003
       display: Internal nose structure (body structure)
+      version: 2020-09-01
+    - code: 29092000
+      display: Venous structure (body structure)
       version: 2020-09-01
 
 - name: covid-19/yesno

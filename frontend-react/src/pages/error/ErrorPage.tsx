@@ -1,12 +1,16 @@
 // @ts-nocheck // TODO: fix types in this file
-import { useHistory } from "react-router";
+import { Alert } from "@trussworks/react-uswds";
+import React from "react";
+import Helmet from "react-helmet";
 
 import { NotFound } from "./NotFound";
 import { UnsupportedBrowser } from "./UnsupportedBrowser";
 
 interface ErrorPageProps {
-    code: string;
-    content?: JSX.Element;
+    code?: string;
+    error?: string;
+    errorInfo?: React.ErrorInfo;
+    type?: "page" | "message";
 }
 
 /* INFO
@@ -18,25 +22,81 @@ export enum CODES {
     NOT_FOUND_404 = "not-found",
 }
 
-export function ErrorPage(props: ErrorPageProps) {
-    const history = useHistory();
-    /* INFO
-       This is preferable to a switch statmenet due to readability
-     */
-    const codes = {
-        "not-found": <NotFound />,
-        browser: <UnsupportedBrowser />,
-    };
-    let content = codes[props.code];
-    if (content === undefined) {
-        history.push("/");
-    }
-
+function ErrorPageWrapper({ children }: JSX.Element) {
     return (
         <div className="usa-section padding-top-6">
             <div className="grid-container">
-                <div className="grid-row grid-gap">{content}</div>
+                <div className="grid-row grid-gap">{children}</div>
             </div>
         </div>
     );
 }
+
+function ErrorMessageWrapper({ children }: JSX.Element) {
+    return <div className="grid-container">{children}</div>;
+}
+
+function GenericErrorMessage(): JSX.Element {
+    return (
+        <Alert type="error">
+            Our appologies, there was an error loading this content.
+        </Alert>
+    );
+}
+
+function GenericErrorPage(): JSX.Element {
+    return (
+        <>
+            <Helmet>
+                <title>Error | {process.env.REACT_APP_TITLE}</title>
+            </Helmet>
+            <div className="usa-prose">
+                <h1>An error has occurred</h1>
+                <p>
+                    The application has encountered an unknown error. It doesn't
+                    appear to have affected your data, but our technical staff
+                    have been automatically notified and will be looking into
+                    this with the utmost urgency.
+                </p>
+                <div className="margin-y-5">
+                    <ul className="usa-button-group">
+                        <li className="usa-button-group__item">
+                            <a href="./" className="usa-button">
+                                Visit homepage
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </>
+    );
+}
+
+export function ErrorPage(props: ErrorPageProps) {
+    const codes = {
+        "not-found": <NotFound />,
+        "unsupported-browser": <UnsupportedBrowser />,
+    };
+    const content = codes[props.code];
+
+    if (content) {
+        return <ErrorPageWrapper>{content}</ErrorPageWrapper>;
+    }
+    if (props.type === "message") {
+        return (
+            <ErrorMessageWrapper>
+                <GenericErrorMessage />
+            </ErrorMessageWrapper>
+        );
+    } else {
+        return (
+            <ErrorPageWrapper>
+                <GenericErrorPage />
+            </ErrorPageWrapper>
+        );
+    }
+}
+
+ErrorPage.defaultProps = {
+    type: "message",
+};
