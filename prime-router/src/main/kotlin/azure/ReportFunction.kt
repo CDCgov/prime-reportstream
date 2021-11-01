@@ -452,32 +452,30 @@ class ReportFunction : Logging {
             validatedRequest.options == Options.CheckConnections
         ) return
         workflowEngine.db.transact { txn ->
-            workflowEngine
+            val (emptyReports, preparedReports) = workflowEngine
                 .translator
                 .filterAndTranslateByReceiver(
                     validatedRequest.report!!,
                     validatedRequest.defaults,
                     validatedRequest.routeTo,
                     validatedRequest.warnings,
+                ).partition { (report, _) -> report.isEmpty() }
+
+            emptyReports.forEach { (report, receiver) ->
+                actionHistory.trackFilteredReport(report, receiver)
+            }
+
+            preparedReports.forEach { (report, receiver) ->
+                sendToDestination(
+                    report,
+                    receiver,
+                    context,
+                    workflowEngine,
+                    validatedRequest,
+                    actionHistory,
+                    txn
                 )
-                .filter { (report, receiver) ->
-                    if (report.itemCount > 0) {
-                        return@filter true
-                    }
-                    actionHistory.trackFilteredReport(report, receiver)
-                    return@filter false
-                }
-                .forEach { (report, receiver) ->
-                    sendToDestination(
-                        report,
-                        receiver,
-                        context,
-                        workflowEngine,
-                        validatedRequest,
-                        actionHistory,
-                        txn
-                    )
-                }
+            }
         }
     }
 
