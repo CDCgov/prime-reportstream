@@ -8,7 +8,6 @@ import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonObject
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.exception.DataAccessException
-import java.time.Instant
 
 /**
  * Database based lookup table.
@@ -20,11 +19,6 @@ class DatabaseLookupTable(
     private val tableDbAccess: DatabaseLookupTableAccess = DatabaseLookupTableAccess()
 ) : LookupTable(emptyList()), Logging {
     /**
-     * The last time this table was checked for updates.
-     */
-    private var lastChecked = Instant.MIN
-
-    /**
      * The current version of this table.
      */
     var version: Int = 0
@@ -32,8 +26,7 @@ class DatabaseLookupTable(
     /**
      * Load the table [version] from the database.
      */
-    fun loadTable(version: Int):
-        DatabaseLookupTable {
+    fun loadTable(version: Int): DatabaseLookupTable {
         Preconditions.checkArgument(version > 0)
         logger.trace("Loading database lookup table $name version $version...")
         try {
@@ -51,7 +44,6 @@ class DatabaseLookupTable(
             }
             setTableData(lookupTableData)
             this.version = version
-            lastChecked = Instant.now()
             logger.info("Loaded database lookup table $name with ${dbTableData.size} rows.")
         } catch (e: DataAccessException) {
             logger.error("There was an error loading the database lookup tables.", e)

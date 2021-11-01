@@ -1,11 +1,11 @@
-package gov.cdc.prime.router
+package gov.cdc.prime.router.metadata
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
-import gov.cdc.prime.router.metadata.LookupTable
+import gov.cdc.prime.router.Metadata
 import java.io.ByteArrayInputStream
 import kotlin.test.Test
 
