@@ -1,4 +1,3 @@
-// @ts-nocheck // TODO: This file is not typesafe. Needs to be refactors and unit tests added.
 import React, { useState } from "react";
 import {
     Button,
@@ -23,7 +22,7 @@ library.add(faSync);
 export const Upload = () => {
     const { authState } = useOktaAuth();
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [file, setFile] = useState(null);
+    const [fileContent, setFileContent] = useState("");
     const [consolidatedWarnings, setConsolidatedWarnings] = useState([]);
     const [consolidatedErrors, setConsolidatedErrors] = useState([]);
     const [destinations, setDestinations] = useState("");
@@ -47,7 +46,7 @@ export const Upload = () => {
         lastName: authState?.accessToken?.claims.family_name || "",
     };
 
-    const uploadReport = async function postData(fileBody) {
+    const uploadReport = async function postData(fileBody: string) {
         let textBody;
         let response;
         try {
@@ -79,11 +78,30 @@ export const Upload = () => {
         }
     };
 
-    const handleChange = (event) => {
-        setFile(event.target.files[0]);
+    const handleChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        try {
+            if (!event?.currentTarget?.files?.length) {
+                // no files selected
+                return;
+            }
+            const file = event.currentTarget.files.item(0);
+            if (!file) {
+                // shouldn't happen but keeps linter happy
+                return;
+            }
+
+            // load the "contents" of the file. Hope it fits in memory!
+            const filecontent = await file.text();
+            setFileContent(filecontent);
+            // todo: this is a good place to do basic validation of the upload file. e.g. does it have
+            // all the required columns? Are any rows obviously not correct (empty or obviously wrong type)?
+        } catch (err) {
+            // todo: have central error reporting mechanism.
+            console.error(err);
+        }
     };
 
-    const handleSubmit = async (event) => {
+    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
         // reset the state on subsequent uploads
@@ -94,65 +112,60 @@ export const Upload = () => {
         setConsolidatedErrors([]);
         setDestinations("");
 
-        if (file) {
-            let response;
-            try {
-                response = await uploadReport(file);
-
-                if (response.destinations && response.destinations.length) {
-                    setDestinations(
-                        response.destinations
-                            .map((d) => d["organization"])
-                            .join(", ")
-                    );
-                }
-
-                if (response.id) {
-                    setReportId(response.id);
-                    setSuccessTimestamp(response.timestamp);
-                    event.target.reset();
-                }
-
-                if (response.errors && response.errors.length) {
-                    // if there is a response status, then there was most likely a server-side error as the json was not parsed
-                    if (response.status) {
-                        setErrorMessageText(
-                            "There was a server error. Your file has not been accepted."
-                        );
-                    } else {
-                        setErrorMessageText(
-                            "Please resolve the errors below and upload your edited file. Your file has not been accepted."
-                        );
-                    }
-                }
-
-                if (
-                    response.consolidatedWarnings &&
-                    response.consolidatedWarnings.length
-                ) {
-                    setConsolidatedWarnings(response.consolidatedWarnings);
-                }
-
-                if (
-                    response.consolidatedErrors &&
-                    response.consolidatedErrors.length
-                ) {
-                    setConsolidatedErrors(response.consolidatedErrors);
-                }
-
-                setHeaderMessage("Your COVID-19 Results");
-                setButtonText("Upload another file");
-            } catch (error) {
-                if (response && response.consolidatedErrors) {
-                    setConsolidatedErrors(response.errors);
-                }
-                setButtonText("Upload another file");
-            }
-            setIsSubmitting(false);
+        if (fileContent.length === 0) {
+            return;
         }
+
+        let response;
+        try {
+            response = await uploadReport(fileContent);
+            debugger;
+            if (response?.destinations?.length) {
+                // NOTE: `{ readonly [key: string]: string }` means a key:value object
+                setDestinations(
+                    response.destinations
+                        .map(
+                            (d: { readonly [key: string]: string }) =>
+                                d["organization"]
+                        )
+                        .join(", ")
+                );
+            }
+
+            if (response?.id) {
+                setReportId(response.id);
+                setSuccessTimestamp(response.timestamp);
+                event.currentTarget.reset();
+            }
+
+            if (response?.errors?.length) {
+                // if there is a response status, then there was most likely a server-side error as the json was not parsed
+                setErrorMessageText(
+                    response?.status
+                        ? "There was a server error. Your file has not been accepted."
+                        : "Please resolve the errors below and upload your edited file. Your file has not been accepted."
+                );
+            }
+
+            if (response?.consolidatedWarnings?.length) {
+                setConsolidatedWarnings(response.consolidatedWarnings);
+            }
+
+            if (response?.consolidatedErrors?.length) {
+                setConsolidatedErrors(response.consolidatedErrors);
+            }
+
+            setHeaderMessage("Your COVID-19 Results");
+        } catch (error) {
+            if (response?.consolidatedErrors) {
+                setConsolidatedErrors(response.errors);
+            }
+        }
+        setButtonText("Upload another file");
+        setIsSubmitting(false);
     };
 
-    const formattedSuccessDate = (format) => {
+    const formattedSuccessDate = (format: string) => {
         const timestampDate = new Date(successTimestamp);
         return moment(timestampDate).format(format);
     };
