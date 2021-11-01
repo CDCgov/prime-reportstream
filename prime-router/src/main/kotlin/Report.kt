@@ -39,18 +39,17 @@ const val REPORT_MAX_ITEMS = 10000
 const val REPORT_MAX_ITEM_COLUMNS = 2000
 const val REPORT_MAX_ERRORS = 100
 
-data class FilterResult(
+data class QualityFilterResult(
     val receiverName: String,
+    val originalCount: Int,
     val filterName: String,
     val filterArgs: List<String>,
-    val origionalCount: Int,
-    val count: Int,
     val filteredRows: IntArray
 ) {
     override fun toString(): String {
         return "For $receiverName, qualityFilter $filterName, $filterArgs" +
             " filtered out Rows ${filteredRows.joinToString(",")}" +
-            " reducing the Item count from $origionalCount to $count."
+            " reducing the Item count from $originalCount to ${originalCount - filteredRows.size}."
     }
 }
 
@@ -107,7 +106,7 @@ class Report : Logging {
 
     // record the message and the filter that produced it
     // ideally it should be reproducable.. so what? the args, filter, and response?
-    val filteredItems: MutableList<FilterResult> = mutableListOf()
+    val filteredItems: MutableList<QualityFilterResult> = mutableListOf()
 
     /**
      * The time when the report was created
@@ -350,7 +349,7 @@ class Report : Logging {
         isQualityFilter: Boolean,
         reverseTheFilter: Boolean = false
     ): Report {
-        val filteredRows = mutableListOf<FilterResult>()
+        val filteredRows = mutableListOf<QualityFilterResult>()
         // First, only do detailed logging on qualityFilters.
         // But, **don't** do detailed logging if reverseTheFilter is true.
         // This is a hack, but its because the logging is nonsensical if the filter is reversed.
@@ -362,12 +361,11 @@ class Report : Logging {
             if (doDetailedFilterLogging && filterFnSelection.size() < table.rowCount()) {
                 val before = Selection.withRange(0, table.rowCount())
                 filteredRows.add(
-                    FilterResult(
+                    QualityFilterResult(
                         receiver.fullName,
+                        table.rowCount(),
                         filterFn.name,
                         fnArgs,
-                        table.rowCount(),
-                        filterFnSelection.size(),
                         before.andNot(filterFnSelection).toArray()
                     )
                 )
