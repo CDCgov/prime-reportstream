@@ -33,7 +33,9 @@ const DetailsContent = () => {
         <>
             <Summary report={report} />
             <ReportDetails report={report} />
-            <NetworkErrorBoundary fallbackComponent={() => <ErrorPage type="message" />}>
+            <NetworkErrorBoundary
+                fallbackComponent={() => <ErrorPage type="message" />}
+            >
                 <Suspense fallback={<Spinner />}>
                     <FacilitiesTable reportId={report?.reportId || ""} />
                 </Suspense>
@@ -54,7 +56,9 @@ const DetailsContent = () => {
 export const Details = () => {
     return (
         <Suspense fallback={<Spinner fullPage />}>
-            <NetworkErrorBoundary fallbackComponent={() => <ErrorPage type="page" />}>
+            <NetworkErrorBoundary
+                fallbackComponent={() => <ErrorPage type="page" />}
+            >
                 <DetailsContent />
             </NetworkErrorBoundary>
         </Suspense>

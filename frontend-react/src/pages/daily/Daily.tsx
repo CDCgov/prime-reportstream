@@ -20,7 +20,9 @@ const OrgName = () => {
 
 function Daily() {
     return (
-        <NetworkErrorBoundary fallbackComponent={() => <ErrorPage type="page" />}>
+        <NetworkErrorBoundary
+            fallbackComponent={() => <ErrorPage type="page" />}
+        >
             <Helmet>
                 <title>Daily data | {process.env.REACT_APP_TITLE}</title>
             </Helmet>
@@ -38,7 +40,9 @@ function Daily() {
                 </h3>
                 <h1 className="margin-top-0 margin-bottom-0">COVID-19</h1>
             </section>
-            <NetworkErrorBoundary fallbackComponent={() => <ErrorPage type="message" />}>
+            <NetworkErrorBoundary
+                fallbackComponent={() => <ErrorPage type="message" />}
+            >
                 <Suspense fallback={<Spinner />}>
                     <section className="grid-container margin-top-0" />
                     <TableReports />
