@@ -107,9 +107,9 @@ class Simulator : CoolTest() {
                                     environment,
                                     file,
                                     simulation.sender,
+                                    options.asyncHeader,
                                     options.key,
-                                    (if (simulation.doBatchAndSend) null else Options.SkipSend),
-                                    options.asyncHeader
+                                    (if (simulation.doBatchAndSend) null else Options.SkipSend)
                                 )
                             if (responseCode != HttpURLConnection.HTTP_CREATED) {
                                 echo(json)

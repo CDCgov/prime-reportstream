@@ -216,9 +216,9 @@ class HttpUtilities {
             environment: ReportStreamEnv,
             file: File,
             sendingOrgClient: Sender,
+            asyncHeader: Boolean = false,
             key: String? = null,
             option: Options? = null,
-            asyncHeader: Boolean = false,
         ): Pair<Int, String> {
             if (!file.exists()) error("Unable to find file ${file.absolutePath}")
             return postReportBytes(environment, file.readBytes(), sendingOrgClient, key, option, asyncHeader)

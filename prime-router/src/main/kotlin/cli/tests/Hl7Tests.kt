@@ -38,7 +38,7 @@ class Hl7Ingest : CoolTest() {
 
         // Now send it to ReportStream.
         val (responseCode, json) =
-            HttpUtilities.postReportFile(environment, file, sender, options.key)
+            HttpUtilities.postReportFile(environment, file, sender, options.asyncHeader, options.key)
         if (responseCode != HttpURLConnection.HTTP_CREATED) {
             bad("***$name Test FAILED***:  response code $responseCode")
             passed = false
