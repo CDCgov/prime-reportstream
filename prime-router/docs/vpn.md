@@ -98,8 +98,8 @@ If you are using OpenVPN Connect, uninstall it and install the [OpenVPN Client](
    * `caCert.pem`
    * `caKey.pem`
    * `prime-data-hub-prod.ovpn`
-   * `prime-data-hub-prod.ovpn`
-   * `prime-data-hub-prod.ovpn`
+   * `prime-data-hub-staging.ovpn`
+   * `prime-data-hub-test.ovpn`
    * `createKey.sh`
 1. Run `createKey.sh` and follow the prompts
 1. The user's VPN profile with be outputted in a folder with their name
