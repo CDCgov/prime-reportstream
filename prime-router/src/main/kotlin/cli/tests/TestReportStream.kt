@@ -163,6 +163,11 @@ Examples:
         help = "Run tests one at a time."
     ).flag(default = false)
 
+    private val includeAsyncHeader by option(
+        "--async",
+        help = "Includes processing=async header."
+    ).flag(default = false)
+
     // Avoid accidentally connecting to the wrong database.
     private fun envSanityCheck() {
         val dbEnv = System.getenv("POSTGRES_URL") ?: error("Missing database env var. For help:  ./prime --help")
@@ -228,7 +233,7 @@ Examples:
         val failures = mutableListOf<CoolTest>()
         val options = CoolTestOptions(
             items, submits, key, dir, sftpDir = sftpDir, env = env, sender = sender,
-            runSequential = runSequential
+            runSequential = runSequential, asyncHeader = includeAsyncHeader
         )
 
         /**
@@ -319,7 +324,8 @@ data class CoolTestOptions(
     val sftpDir: String,
     val env: String,
     val sender: String? = null,
-    val runSequential: Boolean = false
+    val runSequential: Boolean = false,
+    val asyncHeader: Boolean = false // if true, pass 'processing=async' on all tests
 )
 
 abstract class CoolTest {
@@ -1151,6 +1157,7 @@ class Parallel : CoolTest() {
         val elapsedMillisTotal = measureTimeMillis {
             val threads = mutableListOf<Thread>()
             echo("Parallel Test: Starting $numThreads threads, each submitting $numRounds times")
+            echo("Options: $options")
             for (threadNum in 1..numThreads) {
                 val th = thread {
                     for (i in 1..numRounds) {
@@ -1161,7 +1168,8 @@ class Parallel : CoolTest() {
                                     file,
                                     stracSender,
                                     options.key,
-                                    Options.SkipSend
+                                    Options.SkipSend,
+                                    options.asyncHeader
                                 )
                             if (responseCode != HttpURLConnection.HTTP_CREATED) {
                                 echo(json)

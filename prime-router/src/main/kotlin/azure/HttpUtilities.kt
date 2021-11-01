@@ -217,10 +217,11 @@ class HttpUtilities {
             file: File,
             sendingOrgClient: Sender,
             key: String? = null,
-            option: Options? = null
+            option: Options? = null,
+            asyncHeader: Boolean = false,
         ): Pair<Int, String> {
             if (!file.exists()) error("Unable to find file ${file.absolutePath}")
-            return postReportBytes(environment, file.readBytes(), sendingOrgClient, key, option)
+            return postReportBytes(environment, file.readBytes(), sendingOrgClient, key, option, asyncHeader)
         }
 
         /**
@@ -247,7 +248,8 @@ class HttpUtilities {
             bytes: ByteArray,
             sendingOrgClient: Sender,
             key: String?,
-            option: Options? = null
+            option: Options? = null,
+            asyncHeader: Boolean? = false,
         ): Pair<Int, String> {
             val headers = mutableListOf<Pair<String, String>>()
             when (sendingOrgClient.format) {
@@ -260,6 +262,9 @@ class HttpUtilities {
             if (key == null && environment == ReportStreamEnv.TEST) error("key is required for Test environment")
             if (key != null)
                 headers.add("x-functions-key" to key)
+            // if we have this value and it is true, add the 'processing=async' header
+            if (asyncHeader != null && asyncHeader)
+                headers.add("processing" to "async")
             val url = environment.urlPrefix + oldApi + if (option != null) "?option=$option" else ""
             return postHttp(url, bytes, headers)
         }
