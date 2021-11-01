@@ -1,5 +1,6 @@
 package gov.cdc.prime.router
 
+import gov.cdc.prime.router.azure.ActionResponseAPI
 import org.jooq.JSONB
 import java.time.OffsetDateTime
 
@@ -34,12 +35,23 @@ open class Submission(
     val createdAt: OffsetDateTime,
     val sendingOrg: String,
     val httpStatus: Int,
+    val id: String?,
+    val topic: String?,
+    val reportItemCount: Int?,
+    val warningCount: Int?,
+    val errorCount: Int?,
 ) {
     constructor(copy: Submission) : this(
         copy.taskId,
         copy.createdAt,
         copy.sendingOrg,
         copy.httpStatus,
+        copy.id,
+        copy.topic,
+        copy.reportItemCount,
+        copy.warningCount,
+        copy.errorCount,
+
     )
 }
 open class ActionResponse(
