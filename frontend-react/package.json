@@ -60,8 +60,7 @@
         "lint:prettier": "prettier -c 'src/**/*.{js,ts,jsx,tsx}'",
         "lint:prettier:write": "prettier --write 'src/**/*.{js,ts,jsx,tsx}'",
         "cypress-open": "./node_modules/.bin/cypress open",
-        "cypress-run": "./node_modules/.bin/cypress run",
-        "postbuild": "react-snap"
+        "cypress-run": "./node_modules/.bin/cypress run"
     },
     "eslintConfig": {
         "extends": [
@@ -133,12 +132,8 @@
         "npm-run-all": "^4.1.5",
         "prettier": "^2.4.1",
         "react-dropdown": "^1.9.2",
-        "react-snap": "^1.23.0",
         "sass": "^1.42.1",
         "stylelint": "^14.0.0",
         "yaml-loader": "^0.6.0"
-    },
-    "reactSnap": {
-        "inlineCss": false
     }
 }
