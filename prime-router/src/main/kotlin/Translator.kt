@@ -41,7 +41,6 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
                 val jurisFilteredReport = filterByJurisdiction(input, receiver)
                 if (jurisFilteredReport.isEmpty()) return@mapNotNull null
                 val mappedReport = translateByReceiver(jurisFilteredReport, receiver, defaultValues)
-                // if (mappedReport.isEmpty() && mappedReport.filteredItems.isEmpty()) return@mapNotNull null
                 Pair(mappedReport, receiver)
             } catch (e: IllegalStateException) {
                 // catching individual translation exceptions enables overall work to continue
@@ -106,6 +105,8 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
                     "${qualityFilteredReport.itemCount} rows after qualityFilter."
             )
         }
+
+        if (qualityFilteredReport.isEmpty()) return qualityFilteredReport
 
         // Apply mapping to change schema
         val toReport: Report = if (receiver.schemaName != qualityFilteredReport.schema.name) {
