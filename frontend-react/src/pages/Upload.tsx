@@ -119,7 +119,6 @@ export const Upload = () => {
         let response;
         try {
             response = await uploadReport(fileContent);
-            debugger;
             if (response?.destinations?.length) {
                 // NOTE: `{ readonly [key: string]: string }` means a key:value object
                 setDestinations(
