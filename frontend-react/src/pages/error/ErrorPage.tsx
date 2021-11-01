@@ -48,7 +48,7 @@ function GenericErrorPage(): JSX.Element {
     return (
         <>
             <Helmet>
-                <title>Error</title>
+                <title>Error | {process.env.REACT_APP_TITLE}</title>
             </Helmet>
             <div className="usa-prose">
                 <h1>An error has occurred</h1>

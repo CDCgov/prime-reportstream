@@ -1,10 +1,10 @@
 import { Suspense } from "react";
 import { Helmet } from "react-helmet";
+import { NetworkErrorBoundary } from "rest-hooks";
 
 import HipaaNotice from "../../components/HipaaNotice";
 import Spinner from "../../components/Spinner";
 import { useOrgName } from "../../utils/OrganizationUtils";
-import ErrorBoundary from "../../components/ErrorBoundary";
 import { ErrorPage } from "../error/ErrorPage";
 
 import TableReports from "./Table/TableReports";
@@ -20,7 +20,7 @@ const OrgName = () => {
 
 function Daily() {
     return (
-        <ErrorBoundary fallback={<ErrorPage type="page" />}>
+        <NetworkErrorBoundary fallbackComponent={() => <ErrorPage type="page" />}>
             <Helmet>
                 <title>Daily data | {process.env.REACT_APP_TITLE}</title>
             </Helmet>
@@ -33,27 +33,19 @@ function Daily() {
                             </span>
                         }
                     >
-                        <ErrorBoundary
-                            fallback={
-                                <span className="text-normal text-base">
-                                    Error: not found
-                                </span>
-                            }
-                        >
-                            <OrgName />
-                        </ErrorBoundary>
+                        <OrgName />
                     </Suspense>
                 </h3>
                 <h1 className="margin-top-0 margin-bottom-0">COVID-19</h1>
             </section>
-            <Suspense fallback={<Spinner />}>
-                <ErrorBoundary fallback={<ErrorPage type="message" />}>
+            <NetworkErrorBoundary fallbackComponent={() => <ErrorPage type="message" />}>
+                <Suspense fallback={<Spinner />}>
                     <section className="grid-container margin-top-0" />
                     <TableReports />
-                </ErrorBoundary>
-            </Suspense>
+                </Suspense>
+            </NetworkErrorBoundary>
             <HipaaNotice />
-        </ErrorBoundary>
+        </NetworkErrorBoundary>
     );
 }
 

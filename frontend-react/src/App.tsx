@@ -25,7 +25,7 @@ import { CODES, ErrorPage } from "./pages/error/ErrorPage";
 import GlobalContextProvider from "./components/GlobalContextProvider";
 import { logout } from "./utils/UserUtils";
 import Spinner from "./components/Spinner";
-import ErrorBoundary from "./components/ErrorBoundary";
+import { NetworkErrorBoundary } from "rest-hooks";
 
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
 
@@ -70,7 +70,7 @@ const App = () => {
             restoreOriginalUri={restoreOriginalUri}
         >
             <Suspense fallback={<Spinner fullPage />}>
-                <ErrorBoundary fallback={<ErrorPage type="page" />}>
+                <NetworkErrorBoundary fallback={<ErrorPage type="page" />}>
                     <GlobalContextProvider>
                         <GovBanner aria-label="Official government website" />
                         <ReportStreamHeader />
@@ -130,7 +130,7 @@ const App = () => {
                     <footer className="usa-identifier footer">
                         <ReportStreamFooter />
                     </footer>
-                </ErrorBoundary>
+                </NetworkErrorBoundary>
             </Suspense>
         </Security>
     );
