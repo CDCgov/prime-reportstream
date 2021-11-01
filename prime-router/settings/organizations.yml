@@ -861,6 +861,7 @@
         reportingFacilityName: CDC PRIME
         reportingFacilityId: 11D2030855
         useSpecimenIdForFillerOrderNumber: true
+        suppressHl7Fields: ORC-2-1, ORC-2-2, ORC-2-3, ORC-2-4
       transport:
         type: SFTP
         host: sftp
@@ -888,6 +889,7 @@
         receivingFacilityOID: 2.16.840.1.113883.3.1299
         truncateHDNamespaceIds: true
         useSpecimenIdForFillerOrderNumber: true
+        suppressHl7Fields: ORC-2-1, ORC-2-2, ORC-2-3, ORC-2-4
       transport:
         type: SFTP
         host: sftp
