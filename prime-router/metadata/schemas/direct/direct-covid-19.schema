@@ -340,10 +340,10 @@ elements:
     csvFields: [{ name: patientEmail}]
 
   - name: reporting_facility_name
-    csvFields: [{ name: performingFacilityName}]
+    mapper: use(testing_lab_name)
 
   - name: reporting_facility_clia
-    csvFields: [{ name: performingFacility}]
+    mapper: use(testing_lab_clia)
 
   - name: ordering_facility_name
     csvFields: [{ name: orderingFacilityName}]
