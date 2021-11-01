@@ -72,8 +72,14 @@ class ActionHistory {
      */
     val reportsOut = mutableMapOf<ReportId, ReportFile>()
 
+    /**
+     * List of reports that have been completely filtered out based on quality.
+     */
     val filteredOutReports = mutableMapOf<ReportId, ReportFile>()
 
+    /**
+     * List of rows per report that have been filtered out based on quality.
+     */
     val filteredReportRows = mutableMapOf<ReportId, List<QualityFilterResult>>()
 
     /**
@@ -263,6 +269,9 @@ class ActionHistory {
             error("For report ${report.id}:  Externally submitted reports should never have item lineagee.")
     }
 
+    /**
+     * Track a report that was fully filtered out based on qualty
+     */
     fun trackFilteredReport(
         report: Report,
         receiver: Receiver,

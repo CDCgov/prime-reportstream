@@ -39,6 +39,16 @@ const val REPORT_MAX_ITEMS = 10000
 const val REPORT_MAX_ITEM_COLUMNS = 2000
 const val REPORT_MAX_ERRORS = 100
 
+/**
+ * QualityFilterResult records the rows filtered out by a quality filter.
+ * As well as the function name and arguments that did the filtering.
+ *
+ * @property receiverName Then intended reciever for the report
+ * @property originalCount The original number of items in the report
+ * @property filterName The name of the filter function that removed the rows
+ * @property filterArgs The arguments used in the filter function
+ * @property filteredRows The row's that were removed from the report, 0 indexed
+ */
 data class QualityFilterResult(
     val receiverName: String,
     val originalCount: Int,
@@ -104,8 +114,9 @@ class Report : Logging {
      */
     val destination: Receiver?
 
-    // record the message and the filter that produced it
-    // ideally it should be reproducable.. so what? the args, filter, and response?
+    /**
+     * The list of results from quality filters run against the initial report data.
+     */
     val filteredItems: MutableList<QualityFilterResult> = mutableListOf()
 
     /**
@@ -283,6 +294,7 @@ class Report : Logging {
 
     /**
      * Does a shallow copy of this report. Will have a new id and create date.
+     * Copies the itemLineages and filteredItems as well.
      */
     fun copy(destination: Receiver? = null, bodyFormat: Format? = null): Report {
         // Dev Note: table is immutable, so no need to duplicate it

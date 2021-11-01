@@ -58,6 +58,10 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
         }
     }
 
+    /**
+     * Determine if a report should be sent to the reciever based on that receiver's
+     * jurisdiction filter.
+     */
     private fun filterByJurisdiction(input: Report, receiver: Receiver): Report {
         // Filter according to this receiver's desired JurisdictionalFilter patterns
         val jurisFilterAndArgs = receiver.jurisdictionalFilter.map { filterSpec ->
@@ -72,7 +76,8 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
     }
 
     /**
-     * This does both the filtering by jurisdiction, by qualityFilter, and also the translation.
+     * Filter a report for a reciever by that receiver's qualityFilter
+     * then translate the filtered report based on the receiver's schema.
      */
     private fun translateByReceiver(input: Report, receiver: Receiver, defaultValues: DefaultValues): Report {
 
