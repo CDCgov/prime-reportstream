@@ -1,6 +1,6 @@
 ---
 #
-# Local means a configuration that works on a Docker Compose cluster
+# This file runs in environments (ie. your desktop) where the 'localhost' host name resolves
 #
 - name: simple_report
   description: PRIME's POC testing app
