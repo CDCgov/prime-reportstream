@@ -22,5 +22,5 @@ export default class ReportResource extends AuthResource {
         return this.reportId;
     }
 
-    static urlRoot = `${AuthResource.getBaseUrl()}/api/history/report`;
+    static urlRoot = `${AuthResource.getBaseUrl()}/api/history/report?cache=${new Date().toISOString()}`;
 }
