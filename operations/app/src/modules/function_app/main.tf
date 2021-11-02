@@ -68,6 +68,19 @@ locals {
 
   # Any setting not in the common list is therefore unique
   sticky_slot_unique_settings_names = tolist(setsubtract(local.functionapp_slot_settings_names, keys(local.all_app_settings)))
+
+  # Origin records
+  cors_all = [
+    "https://hhs-prime.okta.com",
+  ]
+  cors_prod = [
+    "https://prime.cdc.gov",
+    "https://reportstream.cdc.gov",
+  ]
+  cors_lower = [
+    "https://${var.environment}.reportstream.cdc.gov",
+    "https://${var.environment}.prime.cdc.gov",
+  ]
 }
 
 resource "azurerm_function_app" "function_app" {
@@ -112,13 +125,7 @@ resource "azurerm_function_app" "function_app" {
     linux_fx_version          = "DOCKER|${data.azurerm_container_registry.container_registry.login_server}/${var.resource_prefix}:latest"
 
     cors {
-      allowed_origins = [
-        "https://${var.resource_prefix}public.z13.web.core.windows.net",
-        "https://prime.cdc.gov",
-        "https://${var.environment}.prime.cdc.gov",
-        "https://reportstream.cdc.gov",
-        "https://${var.environment}.reportstream.cdc.gov",
-      ]
+      allowed_origins = concat(local.cors_all, var.environment == "prod" ? local.cors_prod : local.cors_lower)
     }
   }
 
