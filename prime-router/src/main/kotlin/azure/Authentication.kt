@@ -20,7 +20,8 @@ enum class PrincipalLevel {
 data class AuthenticatedClaims(
     val userName: String,
     val principalLevel: PrincipalLevel,
-    val organizationName: String?
+    val organizationName: String?,
+    val jwtClaims: Map<String, Any>,
 )
 
 interface AuthenticationVerifier {
@@ -53,7 +54,8 @@ class TestAuthenticationVerifier : AuthenticationVerifier {
         organizationName: String?,
         oktaSender: Boolean
     ): AuthenticatedClaims {
-        return AuthenticatedClaims("local@test.com", minimumLevel, organizationName)
+        val claims: Map<String, Any> = mapOf("organization" to "simple_report")
+        return AuthenticatedClaims("local@test.com", minimumLevel, organizationName, claims)
     }
 }
 
@@ -78,7 +80,7 @@ class OktaAuthenticationVerifier : AuthenticationVerifier {
         val memberships = jwt.claims[oktaMembershipClaim] as? Collection<String> ?: return null
 
         if (!checkMembership(memberships, minimumLevel, organizationName, oktaSender)) return null
-        return AuthenticatedClaims(userName, minimumLevel, organizationName)
+        return AuthenticatedClaims(userName, minimumLevel, organizationName, jwt.getClaims())
     }
 
     internal fun checkMembership(

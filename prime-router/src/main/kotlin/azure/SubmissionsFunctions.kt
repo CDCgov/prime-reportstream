@@ -4,11 +4,11 @@ import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
 import com.microsoft.azure.functions.annotation.AuthorizationLevel
-import com.microsoft.azure.functions.annotation.BindingName
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import gov.cdc.prime.router.tokens.OktaAuthentication
 import org.apache.logging.log4j.kotlin.Logging
+import org.apache.logging.log4j.kotlin.logger
 
 /*
  * Submissions API
@@ -27,24 +27,27 @@ class GetSubmissions(
             name = "getSubmissions",
             methods = [HttpMethod.GET],
             authLevel = AuthorizationLevel.ANONYMOUS,
-            route = "submissions/{organizationName}"
+            route = "submissions"
         ) request: HttpRequestMessage<String?>,
-        @BindingName("organizationName") organizationName: String,
     ): HttpResponseMessage {
         return when (request.httpMethod) {
-            HttpMethod.GET -> getList(request, organizationName)
+            HttpMethod.GET -> getList(request)
             else -> error("Unsupported method")
         }
     }
 
     fun getList(
         request: HttpRequestMessage<String?>,
-        organizationName: String,
     ): HttpResponseMessage {
-        // TODO DO NOT CHECK IN
         return oktaAuthentication.checkAccess(request, "") {
-            val submissions = facade.findSubmissionsAsJson(organizationName)
-            HttpUtilities.okResponse(request, submissions)
+            try {
+                val organizationName = it.jwtClaims["organization"] as String
+                val submissions = facade.findSubmissionsAsJson(organizationName)
+                HttpUtilities.okResponse(request, submissions)
+            } catch (e: Exception) {
+                logger().error("Unauthorized.", e)
+                HttpUtilities.internalErrorResponse(request)
+            }
         }
     }
 }
