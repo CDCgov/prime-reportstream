@@ -152,7 +152,7 @@ class CsvSerializer(val metadata: Metadata) : Logging {
         }
 
         val mappedRows = rows.mapIndexedNotNull { index, row ->
-            val result = mapRow(schema, csvMapping, row)
+            val result = mapRow(schema, csvMapping, row, index)
             val trackingColumn = schema.findElementColumn(schema.trackingElement ?: "")
             var trackingId = if (trackingColumn != null) result.row[trackingColumn] else ""
             if (trackingId.isEmpty())
@@ -324,7 +324,7 @@ class CsvSerializer(val metadata: Metadata) : Logging {
      *
      * Also, format values into the normalized format for the type
      */
-    private fun mapRow(schema: Schema, csvMapping: CsvMapping, inputRow: Map<String, String>): RowResult {
+    private fun mapRow(schema: Schema, csvMapping: CsvMapping, inputRow: Map<String, String>, index: Int): RowResult {
         val lookupValues = mutableMapOf<String, String>()
         val errors = mutableListOf<ResponseMessage>()
         val warnings = mutableListOf<ResponseMessage>()
@@ -364,7 +364,7 @@ class CsvSerializer(val metadata: Metadata) : Logging {
 
         // Now process the data through mappers and default values
         schema.elements.forEach { element ->
-            lookupValues[element.name] = element.processValue(lookupValues, schema, csvMapping.defaultOverrides)
+            lookupValues[element.name] = element.processValue(lookupValues, schema, csvMapping.defaultOverrides, index)
         }
 
         // Output with value
