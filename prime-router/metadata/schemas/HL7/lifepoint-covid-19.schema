@@ -28,3 +28,8 @@ elements:
   
   - name: patient_last_name
     cardinality: ZERO_OR_ONE
+    
+  - name: device_id
+    altValues:
+      - code: Ellume COVID-19 Home Test_Ellume Limited
+        display: Ellume COVID-19 Home Test
