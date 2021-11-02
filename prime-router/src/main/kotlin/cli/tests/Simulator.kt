@@ -107,7 +107,7 @@ class Simulator : CoolTest() {
                                     environment,
                                     file,
                                     simulation.sender,
-                                    options.asyncHeader,
+                                    options.asyncProcessMode,
                                     options.key,
                                     (if (simulation.doBatchAndSend) null else Options.SkipSend)
                                 )

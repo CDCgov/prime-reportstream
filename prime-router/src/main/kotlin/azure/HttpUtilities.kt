@@ -216,12 +216,12 @@ class HttpUtilities {
             environment: ReportStreamEnv,
             file: File,
             sendingOrgClient: Sender,
-            asyncHeader: Boolean = false,
+            asyncProcessMode: Boolean = false,
             key: String? = null,
             option: Options? = null,
         ): Pair<Int, String> {
             if (!file.exists()) error("Unable to find file ${file.absolutePath}")
-            return postReportBytes(environment, file.readBytes(), sendingOrgClient, key, option, asyncHeader)
+            return postReportBytes(environment, file.readBytes(), sendingOrgClient, key, option, asyncProcessMode)
         }
 
         /**
@@ -249,7 +249,7 @@ class HttpUtilities {
             sendingOrgClient: Sender,
             key: String?,
             option: Options? = null,
-            asyncHeader: Boolean? = false,
+            asyncProcessMode: Boolean = false,
         ): Pair<Int, String> {
             val headers = mutableListOf<Pair<String, String>>()
             when (sendingOrgClient.format) {
@@ -262,11 +262,15 @@ class HttpUtilities {
             if (key == null && environment == ReportStreamEnv.TEST) error("key is required for Test environment")
             if (key != null)
                 headers.add("x-functions-key" to key)
-            // if we have this value and it is true, add the 'processing=async' header
-            if (asyncHeader != null && asyncHeader)
-                headers.add("processing" to "async")
-            val url = environment.urlPrefix + oldApi + if (option != null) "?option=$option" else ""
-            return postHttp(url, bytes, headers)
+
+            // if we have this value and it is true, add the 'processing=async' query param
+            val urlBuilder = UrlBuilder(environment.urlPrefix + oldApi)
+            if (option != null)
+                urlBuilder.addParam("option", option.toString())
+            if (asyncProcessMode)
+                urlBuilder.addParam("processing", "async")
+
+            return postHttp(urlBuilder.toUrl(), bytes, headers)
         }
 
         fun postReportBytesToWatersAPI(
@@ -315,6 +319,21 @@ class HttpUtilities {
                 }
                 return responseCode to response
             }
+        }
+    }
+
+    class UrlBuilder(var baseUrl: String) {
+        var queryParams: MutableMap<String, String> = mutableMapOf()
+
+        fun addParam(key: String, value: String) {
+            queryParams[key] = value
+        }
+
+        fun toUrl(): String {
+            val paramString = queryParams.let {
+                it.map { pair -> "${pair.key}=${pair.value}" }.joinToString("&")
+            }
+            return this.baseUrl + "?" + paramString
         }
     }
 }
