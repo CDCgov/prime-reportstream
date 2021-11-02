@@ -40,7 +40,7 @@
         "rest-hooks": "^5.3.4",
         "rimraf": "^3.0.2",
         "sass-loader": "^12.1.0",
-        "spinners-react": "^1.0.4",
+        "spinners-react": "^1.0.6",
         "tslint": "^6.1.3",
         "typescript": "^4.2.4",
         "uswds": "^2.12.1",
