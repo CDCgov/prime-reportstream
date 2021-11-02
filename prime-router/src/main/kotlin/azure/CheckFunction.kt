@@ -206,7 +206,7 @@ class CheckFunction : Logging {
     /**
      * Returns true on success, false on fail.
      */
-    fun testTransport(receiver: Receiver, sftpFile: SftpFile?, responseBody: MutableList<String>): Boolean {
+    private fun testTransport(receiver: Receiver, sftpFile: SftpFile?, responseBody: MutableList<String>): Boolean {
         if (receiver.transport == null) {
             responseBody.add("**** ${receiver.fullName}:  no transport defined.")
             return false
@@ -239,19 +239,16 @@ class CheckFunction : Logging {
     /**
      * Any normal return is success.  Any exception thrown is failure.
      */
-    fun testSftp(
+    private fun testSftp(
         sftpTransportType: SFTPTransportType,
         receiver: Receiver,
         sftpFile: SftpFile?,
         responseBody: MutableList<String>
     ) {
-        val host = sftpTransportType.host
-        val port = sftpTransportType.port
         val path = sftpTransportType.filePath
         logger.info("SFTP Transport $sftpTransportType")
         responseBody.add("${receiver.fullName}: SFTP Transport: $sftpTransportType")
-        val credential = SftpTransport.lookupCredentials(sftpTransportType.credentialName ?: receiver.fullName)
-        var sshClient = SftpTransport.connect(host, port, credential)
+        var sshClient = SftpTransport.connect(receiver)
         responseBody.add("${receiver.fullName}: Able to Connect to sftp site")
         sftpFile?. let {
             logger.info("Attempting to upload ${it.name} to $sftpTransportType")
@@ -259,10 +256,10 @@ class CheckFunction : Logging {
                 throw Exception("File ${sftpFile.name} already exists on SFTP server. Aborting upload.")
             }
             // the client connection is closed in the SftpTransport methods
-            sshClient = SftpTransport.connect(host, port, credential)
+            sshClient = SftpTransport.connect(receiver)
             SftpTransport.uploadFile(sshClient, path, it.name, it.contents.toByteArray())
             responseBody.add("${receiver.fullName}: Uploaded file '${sftpFile.name}' to SFTP transport")
-            sshClient = SftpTransport.connect(host, port, credential)
+            sshClient = SftpTransport.connect(receiver)
         }
         logger.info("Now trying an `ls` on $path")
         val lsList: List<String> = SftpTransport.ls(sshClient, path)
@@ -274,7 +271,7 @@ class CheckFunction : Logging {
         responseBody.add(msg)
         sftpFile?. let {
             logger.info("Checking for uploaded file on SFTP Transport")
-            sshClient = SftpTransport.connect(host, port, credential)
+            sshClient = SftpTransport.connect(receiver)
             msg = if (SftpTransport.ls(sshClient, path, TestFileFilter(it.name)).isEmpty()) {
                 "${receiver.fullName}: Couldn't find file '${sftpFile.name}' on SFTP Transport"
             } else {
@@ -285,7 +282,7 @@ class CheckFunction : Logging {
             msg = "${receiver.fullName}: Removing '${sftpFile.name}' from SFTP transport"
             logger.info(msg)
             responseBody.add(msg)
-            SftpTransport.rm(SftpTransport.connect(host, port, credential), path, sftpFile.name)
+            SftpTransport.rm(SftpTransport.connect(receiver), path, sftpFile.name)
             msg = "${receiver.fullName}: Success: removed '${sftpFile.name}' from SFTP Transport"
             logger.info(msg)
             responseBody.add(msg)
