@@ -28,6 +28,7 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.time.Instant
 import java.time.format.DateTimeFormatter
+import java.util.HashMap
 import java.util.logging.Level
 
 private const val CLIENT_PARAMETER = "client"
@@ -555,20 +556,6 @@ class ReportFunction : Logging {
             it.writeNumberField("warningCount", result.warnings.size)
             it.writeNumberField("errorCount", result.errors.size)
 
-            fun writeDetailsArray(field: String, array: List<ResultDetail>) {
-                it.writeArrayFieldStart(field)
-                array.forEach { error ->
-                    it.writeStartObject()
-                    it.writeStringField("scope", error.scope.toString())
-                    it.writeStringField("id", error.id)
-                    it.writeStringField("details", error.responseMessage.detailMsg())
-                    it.writeEndObject()
-                }
-                it.writeEndArray()
-            }
-            writeDetailsArray("errors", result.errors)
-            writeDetailsArray("warnings", result.warnings)
-
             fun createRowsDescription(rows: MutableList<Int>?): String {
                 // Consolidate row ranges, e.g. 1,2,3,5,7,8,9 -> 1-3,5,7-9
                 if (rows == null || rows.isEmpty()) return ""
@@ -594,31 +581,69 @@ class ReportFunction : Logging {
                 return sb.toString()
             }
 
-            fun writeConsolidatedArray(field: String, array: List<ResultDetail>) {
-                val rowsByGroupingId = hashMapOf<String, MutableList<Int>>()
+            fun createPropertiesByGroupingId(array: List<ResultDetail>): List<HashMap<String, out Any>> {
+                val itemsByGroupingId = hashMapOf<String, MutableList<Int>>()
                 val messageByGroupingId = hashMapOf<String, String>()
+                val scopesByGroupingId = hashMapOf<String, String>()
+                val itemDetailsWithGroupingId = hashMapOf<String, String>()
                 array.forEach { resultDetail ->
                     val groupingId = resultDetail.responseMessage.groupingId()
-                    if (!rowsByGroupingId.containsKey(groupingId)) {
-                        rowsByGroupingId[groupingId] = mutableListOf()
+                    if (!itemsByGroupingId.containsKey(groupingId)) {
+                        itemsByGroupingId[groupingId] = mutableListOf()
                         messageByGroupingId[groupingId] = resultDetail.responseMessage.detailMsg()
+                        scopesByGroupingId[groupingId] = resultDetail.scope.toString()
                     }
                     if (resultDetail.row != -1) {
                         // Add 2 to account for array offset and csv header
-                        rowsByGroupingId[groupingId]?.add(resultDetail.row + 2)
+                        itemsByGroupingId[groupingId]?.add(resultDetail.row + 2)
+                        itemDetailsWithGroupingId[(resultDetail.row + 2).toString()] =
+                            resultDetail.responseMessage.groupingId()
                     }
                 }
+                return listOf<HashMap<String, out Any>>(
+                    itemsByGroupingId,
+                    messageByGroupingId,
+                    scopesByGroupingId,
+                    itemDetailsWithGroupingId
+                )
+            }
+
+            fun writeConsolidatedArray(field: String, array: List<ResultDetail>) {
+                val (
+                    itemsByGroupingId,
+                    messageByGroupingId,
+                    scopesByGroupId,
+                    itemDetailsWithGroupingId
+                ) = createPropertiesByGroupingId(array)
                 it.writeArrayFieldStart(field)
-                rowsByGroupingId.keys.forEach { groupingId ->
+                itemsByGroupingId.keys.forEach { groupingId ->
                     it.writeStartObject()
-                    it.writeStringField("message", messageByGroupingId[groupingId])
-                    it.writeStringField("rows", createRowsDescription(rowsByGroupingId[groupingId]))
+                    it.writeStringField("scope", scopesByGroupId[groupingId] as String)
+                    it.writeStringField("message", messageByGroupingId[groupingId] as String?)
+                    if (scopesByGroupId[groupingId] as String === "ITEM") {
+                        it.writeStringField(
+                            "itemNums",
+                            createRowsDescription(itemsByGroupingId[groupingId] as MutableList<Int>?)
+                        )
+                        it.writeArrayFieldStart("itemDetails")
+                        if (verbose) {
+                            val filtered = itemDetailsWithGroupingId.filter { item -> item.value !== groupingId }
+                            filtered.forEach { itemGroupingId ->
+                                /* TODO: write itemDetails */
+                                it.writeStartObject()
+                                it.writeStringField("itemNum", itemGroupingId.key)
+                                it.writeStringField("groupingId", itemGroupingId.value as String)
+                                it.writeEndObject()
+                            }
+                        }
+                        it.writeEndArray()
+                    }
                     it.writeEndObject()
                 }
                 it.writeEndArray()
             }
-            writeConsolidatedArray("consolidatedErrors", result.errors)
-            writeConsolidatedArray("consolidatedWarnings", result.warnings)
+            writeConsolidatedArray("errors", result.errors)
+            writeConsolidatedArray("warnings", result.warnings)
         }
         return outStream.toString()
     }
