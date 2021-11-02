@@ -1,7 +1,10 @@
 import download from "downloadjs";
 import { Button } from "@trussworks/react-uswds";
+import { useOktaAuth } from "@okta/okta-react";
 
+import AuthResource from "../../../resources/AuthResource";
 import ReportResource from "../../../resources/ReportResource";
+import { GLOBAL_STORAGE_KEYS } from "../../../components/GlobalContextProvider";
 
 interface Props {
     /* REQURIED
@@ -25,14 +28,35 @@ const formatFileType = (fileType: string) => {
     details page
 */
 function ReportLink(props: Props) {
+    const { authState } = useOktaAuth();
+    const organization = localStorage.getItem(GLOBAL_STORAGE_KEYS.GLOBAL_ORG);
+
     const handleClick = (e: any) => {
         e.preventDefault();
-        if (props.report !== undefined) {
-            download(
-                props.report.content,
-                props.report.fileName,
-                props.report.mimeType
-            );
+        if (props.report !== undefined && props.report.reportId !== undefined) {
+            let reportId = props.report.reportId;
+            fetch(
+                `${AuthResource.getBaseUrl()}/api/history/report/${reportId}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${authState?.accessToken?.accessToken}`,
+                        Organization: organization!,
+                    },
+                }
+            )
+                .then((res) => res.json())
+                .then((report) => {
+                    // The filename to use for the download should not contain blob folders if present
+                    let filename = decodeURIComponent(report.filename);
+                    let filenameStartIndex = filename.lastIndexOf("/");
+                    if (
+                        filenameStartIndex >= 0 &&
+                        filename.length > filenameStartIndex + 1
+                    )
+                        filename = filename.substring(filenameStartIndex + 1);
+                    download(report.content, filename, report.mimetype);
+                })
+                .catch((error) => console.log(error));
         }
     };
 

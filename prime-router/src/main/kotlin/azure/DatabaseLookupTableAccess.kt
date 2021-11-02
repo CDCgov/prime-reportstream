@@ -1,19 +1,20 @@
 package gov.cdc.prime.router.azure
 
+import com.fasterxml.jackson.databind.exc.MismatchedInputException
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
+import com.google.common.base.Preconditions
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableRow
 import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableVersion
+import org.jooq.JSONB
 import org.jooq.impl.DSL
+import java.lang.IllegalArgumentException
 
 /**
  * Class to access lookup tables stored in the database.
  */
-class DatabaseLookupTableAccess {
-    /**
-     * Object to access the database.
-     */
-    private val db = DatabaseAccess()
-
+class DatabaseLookupTableAccess(private val db: DatabaseAccess = DatabaseAccess()) {
     /**
      * Get the active version of a [tableName] if action.
      * @return the active version or null if no version is active
@@ -21,7 +22,9 @@ class DatabaseLookupTableAccess {
     fun fetchActiveVersion(tableName: String): Int? {
         var version: Int? = null
         db.transact { txn ->
-            version = DSL.using(txn).select(Tables.LOOKUP_TABLE_VERSION.TABLE_VERSION).from(Tables.LOOKUP_TABLE_VERSION)
+            version = DSL.using(txn).select(Tables.LOOKUP_TABLE_VERSION.TABLE_VERSION).from(
+                Tables.LOOKUP_TABLE_VERSION
+            )
                 .where(
                     Tables.LOOKUP_TABLE_VERSION.TABLE_NAME.eq(tableName)
                         .and(Tables.LOOKUP_TABLE_VERSION.IS_ACTIVE.eq(true))
@@ -38,7 +41,9 @@ class DatabaseLookupTableAccess {
     fun fetchLatestVersion(tableName: String): Int? {
         var version: Int? = null
         db.transact { txn ->
-            version = DSL.using(txn).select(Tables.LOOKUP_TABLE_VERSION.TABLE_VERSION).from(Tables.LOOKUP_TABLE_VERSION)
+            version = DSL.using(txn).select(Tables.LOOKUP_TABLE_VERSION.TABLE_VERSION).from(
+                Tables.LOOKUP_TABLE_VERSION
+            )
                 .where(Tables.LOOKUP_TABLE_VERSION.TABLE_NAME.eq(tableName))
                 .orderBy(Tables.LOOKUP_TABLE_VERSION.TABLE_VERSION.desc())
                 .limit(1)
@@ -51,11 +56,12 @@ class DatabaseLookupTableAccess {
      * Get the list of tables.
      * @return the list of tables or an empty list if no tables are present
      */
-    fun fetchTableList(): List<LookupTableVersion> {
+    fun fetchTableList(fetchInactive: Boolean = false): List<LookupTableVersion> {
         var tables = emptyList<LookupTableVersion>()
         db.transact { txn ->
-            tables = DSL.using(txn)
-                .selectFrom(Tables.LOOKUP_TABLE_VERSION)
+            val dsl = DSL.using(txn).selectFrom(Tables.LOOKUP_TABLE_VERSION)
+            if (!fetchInactive) dsl.where(Tables.LOOKUP_TABLE_VERSION.IS_ACTIVE.eq(true))
+            tables = dsl
                 .orderBy(Tables.LOOKUP_TABLE_VERSION.TABLE_NAME.asc(), Tables.LOOKUP_TABLE_VERSION.TABLE_VERSION.asc())
                 .fetchInto(LookupTableVersion::class.java)
         }
@@ -100,7 +106,9 @@ class DatabaseLookupTableAccess {
     fun fetchTable(tableName: String, version: Int): List<LookupTableRow> {
         var rows = emptyList<LookupTableRow>()
         db.transact { txn ->
-            rows = DSL.using(txn).select().from(Tables.LOOKUP_TABLE_ROW).join(Tables.LOOKUP_TABLE_VERSION)
+            rows = DSL.using(txn).select().from(Tables.LOOKUP_TABLE_ROW).join(
+                Tables.LOOKUP_TABLE_VERSION
+            )
                 .on(
                     Tables.LOOKUP_TABLE_ROW.LOOKUP_TABLE_VERSION_ID
                         .eq(Tables.LOOKUP_TABLE_VERSION.LOOKUP_TABLE_VERSION_ID)
@@ -115,36 +123,16 @@ class DatabaseLookupTableAccess {
     }
 
     /**
-     * Deactivate a [tableName].
-     * @return true if the table was deactivated, false if the table was already inactive
-     */
-    fun deactivateTable(tableName: String): Boolean {
-        var retVal = false
-        var updateCount = 0
-        db.transact { txn ->
-            updateCount = DSL.using(txn).update(Tables.LOOKUP_TABLE_VERSION)
-                .set(Tables.LOOKUP_TABLE_VERSION.IS_ACTIVE, false)
-                .where(
-                    Tables.LOOKUP_TABLE_VERSION.TABLE_NAME.eq(tableName)
-                        .and(Tables.LOOKUP_TABLE_VERSION.IS_ACTIVE.eq(true))
-                ).execute()
-        }
-
-        if (updateCount == 1)
-            retVal = true
-        return retVal
-    }
-
-    /**
      * Activate a [tableName].
      * @return true if the table was activated, false if the table was already active
      */
     fun activateTable(tableName: String, version: Int): Boolean {
-        var retVal = false
         var updateCount = 0
         db.transact { txn ->
             // First deactivate the table if it is active
-            DSL.using(txn).update(Tables.LOOKUP_TABLE_VERSION).set(Tables.LOOKUP_TABLE_VERSION.IS_ACTIVE, false)
+            DSL.using(txn).update(Tables.LOOKUP_TABLE_VERSION).set(
+                Tables.LOOKUP_TABLE_VERSION.IS_ACTIVE, false
+            )
                 .where(
                     Tables.LOOKUP_TABLE_VERSION.TABLE_NAME.eq(tableName)
                         .and(Tables.LOOKUP_TABLE_VERSION.IS_ACTIVE.eq(true))
@@ -159,20 +147,18 @@ class DatabaseLookupTableAccess {
                 ).execute()
         }
 
-        if (updateCount == 1)
-            retVal = true
-        return retVal
+        return updateCount == 1
     }
 
     /**
      * Create a new table [version] for a [tableName] using the provided [tableData].
      * This function will throw an exception upon an error and rollback any data inserted into the database.
      */
-    fun createTable(tableName: String, version: Int, tableData: List<LookupTableRow>) {
+    fun createTable(tableName: String, version: Int, tableData: List<JSONB>, username: String) {
         db.transact { txn ->
             val newVersion = DSL.using(txn).newRecord(Tables.LOOKUP_TABLE_VERSION)
             newVersion.isActive = false
-            newVersion.createdBy = System.getProperty("user.name")
+            newVersion.createdBy = username
             newVersion.tableName = tableName
             newVersion.tableVersion = version
             if (newVersion.store() != 1) error("Error creating new version in database.")
@@ -180,7 +166,7 @@ class DatabaseLookupTableAccess {
             val versionId = newVersion.lookupTableVersionId
             tableData.forEachIndexed { index, row ->
                 val newRow = DSL.using(txn).newRecord(Tables.LOOKUP_TABLE_ROW)
-                newRow.data = row.data
+                newRow.data = row
                 newRow.rowNum = index + 1
                 newRow.lookupTableVersionId = versionId
                 if (newRow.store() != 1) error("Error creating new table row in database.")
@@ -202,5 +188,21 @@ class DatabaseLookupTableAccess {
                 ).fetchOne()?.into(LookupTableVersion::class.java)
         }
         return retVal
+    }
+
+    companion object {
+        /**
+         * Extract table column names from the [row] JSON data.
+         * @return the list of column names
+         */
+        internal fun extractTableHeadersFromJson(row: JSONB): List<String> {
+            try {
+                val rows = jacksonObjectMapper().readValue<Map<String, String>>(row.data())
+                Preconditions.checkArgument(rows.isNotEmpty())
+                return rows.keys.toList()
+            } catch (e: MismatchedInputException) {
+                throw IllegalArgumentException(e)
+            }
+        }
     }
 }
