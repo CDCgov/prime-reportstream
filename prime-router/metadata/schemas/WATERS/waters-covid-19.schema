@@ -46,6 +46,7 @@ elements:
 
   - name: test_result_date
     csvFields: [{ name: testResultDate}]
+    mapper: nullDateValidator($dateFormat:yyyyMMdd, test_result_date)
 
   - name: date_result_released
     csvFields: [{ name: testReportDate}]

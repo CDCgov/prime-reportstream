@@ -843,20 +843,24 @@ data class Element(
         return retVal
     }
 
-    fun tokenizeMapperValue(elementName: String, index: Int = 0): ElementAndValue? {
+    fun tokenizeMapperValue(elementName: String, index: Int = 0): ElementAndValue {
         val tokenElement = Element(elementName)
-        return when (elementName) {
+        var retVal = ElementAndValue(tokenElement, "")
+        when (elementName) {
             "\$index" -> {
-                ElementAndValue(tokenElement, index.toString())
+                retVal = ElementAndValue(tokenElement, index.toString())
             }
             "\$currentDate" -> {
                 val currentDate = LocalDate.now().format(dateFormatter)
-                ElementAndValue(tokenElement, currentDate)
-            }
-            else -> {
-                null
+                retVal = ElementAndValue(tokenElement, currentDate)
             }
         }
+
+        if (elementName.contains(":")) {
+            retVal = ElementAndValue(tokenElement, elementName.split(":")[1])
+        }
+
+        return retVal
     }
 
     companion object {

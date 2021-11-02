@@ -756,9 +756,44 @@ class NullMapper : Mapper {
     }
 }
 
+/**
+ * This mapper checks if a date is in the valid, expected format, and returns it,
+ * and if the date is not in the valid, expected format, it returns an empty string.
+ * Use this if a date is more annoying when it is wrong rather than simply having a value, such as an illness onset date
+ * refer to
+ * https://app.zenhub.com/workspaces/prime-reportstream-5ff4833beb3e08001a4cacae/issues/cdcgov/prime-reportstream/2246
+ * Arguments: dateFormat (ex. yyyyMMdd)
+ * Returns: string (date) or an empty string
+ * ex: mapper: nullDateValidator($dateFormat:yyyyMMdd, test_result_date)
+ */
+class NullDateValidator : Mapper {
+    override val name = "nullDateValidator"
+
+    override fun valueNames(element: Element, args: List<String>) = args
+
+    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String {
+
+        if (values.isEmpty()) return ""
+
+        val dateFormat = values.firstOrNull()?.value ?: return ""
+        var dateString = values[1].value
+        val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern(dateFormat, Locale.ENGLISH)
+
+        try {
+            // if the dateString parses, return the original date string at the end
+            dateFormatter.parse(dateString).toString()
+        } catch (ex: Exception) {
+            // if the dateString does not parse, for instance, if it says "a week ago", return an empty string
+            dateString = ""
+        }
+
+        return dateString
+    }
+}
+
 object Mappers {
     fun parseMapperField(field: String): Pair<String, List<String>> {
-        val match = Regex("([a-zA-Z0-9]+)\\x28([a-z, \\x2E_\\x2DA-Z0-9?&$^]*)\\x29").find(field)
+        val match = Regex("([a-zA-Z0-9]+)\\x28([a-z, \\x2E_\\x2DA-Z0-9?&$:^]*)\\x29").find(field)
             ?: error("Mapper field $field does not parse")
         val args = if (match.groupValues[2].isEmpty())
             emptyList()

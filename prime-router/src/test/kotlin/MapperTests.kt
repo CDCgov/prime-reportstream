@@ -502,4 +502,21 @@ class MapperTests {
         val vals = Mappers.parseMapperField("concat(patient_id, \$index)")
         assertThat(vals.second[1]).isEqualTo("\$index")
     }
+
+    @Test
+    fun `test NullDateValidator`() {
+        val mapper = NullDateValidator()
+        val elementA = Element("a")
+        val elementB = Element("b")
+
+        // $dateFormat:yyyyMMdd, a (element name)
+        val args = listOf("yyyyMMdd", "a")
+        var value = listOf(ElementAndValue(elementA, "yyyyMMdd"), ElementAndValue(elementB, "20211028"))
+        assertThat(mapper.apply(elementA, args, value))
+            .isEqualTo("20211028")
+
+        value = listOf(ElementAndValue(elementA, "yyyyMMdd"), ElementAndValue(elementB, "a week ago"))
+        assertThat(mapper.apply(elementA, args, value))
+            .isEqualTo("")
+    }
 }
