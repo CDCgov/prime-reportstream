@@ -733,6 +733,16 @@ class ActionHistory {
         }
     }
 
+    /**
+     * Creates a string that will be used to populate the action_response column of an action
+     * after that action has been completed
+     * @param options Message options passed in
+     * @param warnings Store of warnings generated during the pipeline
+     * @param errors Store of errors generated during the pipeline
+     * @param verbose If true, all item routing details will be included in the response
+     * @param actionHistory The ongoing action history instance being used
+     * @param report The report this response body is for
+     */
     fun createResponseBody(
         options: Options,
         warnings: List<ResultDetail>,
