@@ -248,7 +248,8 @@ class CheckFunction : Logging {
         val path = sftpTransportType.filePath
         logger.info("SFTP Transport $sftpTransportType")
         responseBody.add("${receiver.fullName}: SFTP Transport: $sftpTransportType")
-        var sshClient = SftpTransport.connect(receiver)
+        val credential = SftpTransport.lookupCredentials(receiver)
+        var sshClient = SftpTransport.connect(receiver, credential)
         responseBody.add("${receiver.fullName}: Able to Connect to sftp site")
         sftpFile?. let {
             logger.info("Attempting to upload ${it.name} to $sftpTransportType")
@@ -256,10 +257,10 @@ class CheckFunction : Logging {
                 throw Exception("File ${sftpFile.name} already exists on SFTP server. Aborting upload.")
             }
             // the client connection is closed in the SftpTransport methods
-            sshClient = SftpTransport.connect(receiver)
+            sshClient = SftpTransport.connect(receiver, credential)
             SftpTransport.uploadFile(sshClient, path, it.name, it.contents.toByteArray())
             responseBody.add("${receiver.fullName}: Uploaded file '${sftpFile.name}' to SFTP transport")
-            sshClient = SftpTransport.connect(receiver)
+            sshClient = SftpTransport.connect(receiver, credential)
         }
         logger.info("Now trying an `ls` on $path")
         val lsList: List<String> = SftpTransport.ls(sshClient, path)
@@ -271,7 +272,7 @@ class CheckFunction : Logging {
         responseBody.add(msg)
         sftpFile?. let {
             logger.info("Checking for uploaded file on SFTP Transport")
-            sshClient = SftpTransport.connect(receiver)
+            sshClient = SftpTransport.connect(receiver, credential)
             msg = if (SftpTransport.ls(sshClient, path, TestFileFilter(it.name)).isEmpty()) {
                 "${receiver.fullName}: Couldn't find file '${sftpFile.name}' on SFTP Transport"
             } else {
@@ -282,7 +283,7 @@ class CheckFunction : Logging {
             msg = "${receiver.fullName}: Removing '${sftpFile.name}' from SFTP transport"
             logger.info(msg)
             responseBody.add(msg)
-            SftpTransport.rm(SftpTransport.connect(receiver), path, sftpFile.name)
+            SftpTransport.rm(SftpTransport.connect(receiver, credential), path, sftpFile.name)
             msg = "${receiver.fullName}: Success: removed '${sftpFile.name}' from SFTP Transport"
             logger.info(msg)
             responseBody.add(msg)
