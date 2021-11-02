@@ -82,6 +82,7 @@ class Metadata private constructor() : Logging {
         if (!metadataDir.isDirectory) error("Expected metadata directory")
         loadValueSetCatalog(metadataDir.toPath().resolve(valuesetsSubdirectory).toString())
         loadLookupTables(metadataDir.toPath().resolve(tableSubdirectory).toString())
+        loadDatabaseLookupTables()
         loadSchemaCatalog(metadataDir.toPath().resolve(schemasSubdirectory).toString())
         loadFileNameTemplates(metadataDir.toPath().resolve(fileNameTemplatesSubdirectory).toString())
         logger.trace("Metadata initialized.")
@@ -311,7 +312,7 @@ class Metadata private constructor() : Logging {
     /**
      * Last time the database lookup tables were checked.
      */
-    internal var tablelastCheckedAt = Instant.MIN
+    internal var tablelastCheckedAt = Instant.now()
 
     private fun loadLookupTables(filePath: String): Metadata {
         val catalogDir = File(filePath)

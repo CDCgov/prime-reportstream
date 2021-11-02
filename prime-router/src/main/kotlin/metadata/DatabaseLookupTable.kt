@@ -45,7 +45,7 @@ class DatabaseLookupTable(
             }
             setTableData(lookupTableData)
             this.version = version
-            logger.info("Loaded database lookup table $name with ${dbTableData.size} rows.")
+            logger.info("Loaded database lookup table $name version $version with ${dbTableData.size} rows.")
         } catch (e: DataAccessException) {
             logger.error("There was an error loading the database lookup tables.", e)
             throw e
