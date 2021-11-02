@@ -308,7 +308,7 @@ class CsvSerializer(val metadata: Metadata) : Logging {
         }
         val warnings = missingOptionalHeaders.map {
             "Missing ${schema.findElementByCsvName(it)?.fieldMapping} header"
-        } + ignoredHeaders.map { "Unexpected column header founder, '$it' will be ignored" }
+        } + ignoredHeaders.map { "Unexpected column header found, '$it' will be ignored" }
 
         return CsvMapping(useCsv, defaultValues, errors, warnings)
     }
