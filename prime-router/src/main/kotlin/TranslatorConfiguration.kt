@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
+import com.google.common.collect.ArrayTable
 
 // Schemas used
 const val HL7_SCHEMA = "covid-19"
@@ -66,6 +67,7 @@ data class Hl7Configuration
     val receivingFacilityOID: String?,
     val messageProfileId: String?,
     val replaceValue: Map<String, String>? = emptyMap(),
+    val replaceHL7Fields: a,
     val reportingFacilityName: String? = null,
     val reportingFacilityId: String? = null,
     val reportingFacilityIdType: String? = null,

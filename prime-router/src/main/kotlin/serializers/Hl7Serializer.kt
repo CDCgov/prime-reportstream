@@ -414,6 +414,7 @@ class Hl7Serializer(
         // set up our configuration
         val hl7Config = report.destination?.translation as? Hl7Configuration
         val replaceValue = hl7Config?.replaceValue ?: emptyMap()
+        val replaceHL7Fields = hl7Config?.replaceHL7Fields ?: emptyMap()
         val cliaForSender = hl7Config?.cliaForSender ?: emptyMap()
         val suppressQst = hl7Config?.suppressQstForAoe ?: false
         val suppressAoe = hl7Config?.suppressAoe ?: false
@@ -607,9 +608,24 @@ class Hl7Serializer(
             }
         }
 
+        replaceHL7Fields.forEach { element ->
+
+            val valueList = element.value.split(",")?.map { it.lowercase().trim() } ?: emptyList()
+
+            var value = ""
+
+            valueList.forEach { field ->
+                val pathSpec = formPathSpec(element.key)
+                val valueInMessage = terser.get(pathSpec) ?: ""
+                value.plus(valueInMessage)
+            }
+
+        }
+
         // after all values have been set or blanked, check for values that need replacement
         // isNotEmpty returns true only when a value exists. Whitespace only is considered a value
         replaceValue.forEach { element ->
+
             if (element.key.substring(0, 3) == "OBX") {
                 val observationReps = message.patienT_RESULT.ordeR_OBSERVATION.observationReps
 
