@@ -1,10 +1,11 @@
 // @ts-nocheck // TODO: fix types in this file
-import { useResource } from "rest-hooks";
+import { NetworkErrorBoundary, useResource } from "rest-hooks";
 import { Suspense } from "react";
 
 import ReportResource from "../../resources/ReportResource";
 import HipaaNotice from "../../components/HipaaNotice";
 import Spinner from "../../components/Spinner";
+import { ErrorPage } from "../error/ErrorPage";
 
 import Summary from "./Summary";
 import ReportDetails from "./ReportDetails";
@@ -26,17 +27,19 @@ function useQuery() {
 const DetailsContent = () => {
     let queryMap = useQuery();
     let reportId = queryMap["reportId"];
-    let report = useResource(ReportResource.list(), { sortBy: undefined }).find(
-        (r) => r.reportId === reportId
-    );
+    let report = useResource(ReportResource.detail(), { reportId: reportId });
 
     return (
         <>
             <Summary report={report} />
             <ReportDetails report={report} />
-            <Suspense fallback={<Spinner />}>
-                <FacilitiesTable reportId={report?.reportId || ""} />
-            </Suspense>
+            <NetworkErrorBoundary
+                fallbackComponent={() => <ErrorPage type="message" />}
+            >
+                <Suspense fallback={<Spinner />}>
+                    <FacilitiesTable reportId={report?.reportId || ""} />
+                </Suspense>
+            </NetworkErrorBoundary>
             <HipaaNotice />
         </>
     );
@@ -53,7 +56,11 @@ const DetailsContent = () => {
 export const Details = () => {
     return (
         <Suspense fallback={<Spinner fullPage />}>
-            <DetailsContent />
+            <NetworkErrorBoundary
+                fallbackComponent={() => <ErrorPage type="page" />}
+            >
+                <DetailsContent />
+            </NetworkErrorBoundary>
         </Suspense>
     );
 };

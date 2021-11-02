@@ -4,7 +4,6 @@
     "private": true,
     "npmClient": "yarn",
     "dependencies": {
-        "@cdc/map": "^2.6.2",
         "@craco/craco": "^6.4.0",
         "@fortawesome/fontawesome-svg-core": "^1.2.36",
         "@fortawesome/free-solid-svg-icons": "^5.15.4",
@@ -15,7 +14,7 @@
         "@rest-hooks/hooks": "^2.0.0",
         "@rest-hooks/rest": "^2.2.0",
         "@rest-hooks/test": "^7.1.0",
-        "@trussworks/react-uswds": "^1.17.0",
+        "@trussworks/react-uswds": "^2.3.0",
         "@types/downloadjs": "^1.4.2",
         "@types/hookrouter": "^2.2.5",
         "@types/node": "^15.3.0",
@@ -61,8 +60,7 @@
         "lint:prettier": "prettier -c 'src/**/*.{js,ts,jsx,tsx}'",
         "lint:prettier:write": "prettier --write 'src/**/*.{js,ts,jsx,tsx}'",
         "cypress-open": "./node_modules/.bin/cypress open",
-        "cypress-run": "./node_modules/.bin/cypress run",
-        "postbuild": "react-snap"
+        "cypress-run": "./node_modules/.bin/cypress run"
     },
     "eslintConfig": {
         "extends": [
@@ -134,12 +132,8 @@
         "npm-run-all": "^4.1.5",
         "prettier": "^2.4.1",
         "react-dropdown": "^1.9.2",
-        "react-snap": "^1.23.0",
         "sass": "^1.42.1",
         "stylelint": "^14.0.0",
         "yaml-loader": "^0.6.0"
-    },
-    "reactSnap": {
-        "inlineCss": false
     }
 }
