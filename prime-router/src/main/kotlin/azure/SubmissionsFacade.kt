@@ -9,8 +9,6 @@ import gov.cdc.prime.router.ActionResponse
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Submission
 import gov.cdc.prime.router.SubmissionsProvider
-import org.apache.http.HttpStatus
-import org.jooq.JSONB
 import java.time.OffsetDateTime
 
 /**
@@ -45,10 +43,9 @@ class SubmissionsFacade(
     }
 
     private fun findSubmissions(organizationName: String): List<SubmissionAPI> {
-        // TODO: sendingOrg should be populated from the claim, not a hardcoded value
+        // TODO: VERIFY sendingOrg is being populated from the claim
         val submissions = db.fetchSubmissions(organizationName)
 
-        // TODO: going to need to get this to properly map back to the type you want
         return submissions.map {
             val actionResponse = mapper.readValue(it.actionResponse.toString(), ActionResponseAPI::class.java)
             val result = SubmissionAPI(it.actionId, it.createdAt, it.sendingOrg, it.httpStatus, actionResponse)
