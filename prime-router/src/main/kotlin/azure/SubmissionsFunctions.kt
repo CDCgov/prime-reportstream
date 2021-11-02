@@ -30,19 +30,22 @@ class GetSubmissions(
             route = "submissions"
         ) request: HttpRequestMessage<String?>,
     ): HttpResponseMessage {
+        val limit = request.getQueryParameters().getOrDefault("limit", "10")
+
         return when (request.httpMethod) {
-            HttpMethod.GET -> getList(request)
+            HttpMethod.GET -> getList(request, limit)
             else -> error("Unsupported method")
         }
     }
 
     fun getList(
         request: HttpRequestMessage<String?>,
+        limit: String
     ): HttpResponseMessage {
         return oktaAuthentication.checkAccess(request, "") {
             try {
                 val organizationName = it.jwtClaims["organization"] as String
-                val submissions = facade.findSubmissionsAsJson(organizationName)
+                val submissions = facade.findSubmissionsAsJson(organizationName, limit)
                 HttpUtilities.okResponse(request, submissions)
             } catch (e: Exception) {
                 logger().error("Unauthorized.", e)
@@ -66,10 +69,11 @@ open class BaseSubmissionsFunction(
     fun <T : SubmissionAPI> getList(
         request: HttpRequestMessage<String?>,
         organizationName: String,
+        limit: String,
         clazz: Class<T>
     ): HttpResponseMessage {
         return oktaAuthentication.checkAccess(request, "") {
-            val submissions = facade.findSubmissionsAsJson(organizationName)
+            val submissions = facade.findSubmissionsAsJson(organizationName, limit)
             HttpUtilities.okResponse(request, submissions)
         }
     }

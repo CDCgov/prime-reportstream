@@ -15,6 +15,10 @@ import java.time.OffsetDateTime
  * Submissions / history API
  * Contains all business logic regarding submissions and JSON serialization.
  */
+
+/**
+ * TODO: Add test/SubmissionsFacadeTests
+ */
 class SubmissionsFacade(
     private val metadata: Metadata,
     private val db: DatabaseSubmissionsAccess = DatabaseSubmissionsAccess()
@@ -37,14 +41,15 @@ class SubmissionsFacade(
 
     override fun findSubmissionsAsJson(
         organizationName: String,
+        limit: String
     ): String {
-        val result = findSubmissions(organizationName)
+        val result = findSubmissions(organizationName, limit)
         return mapper.writeValueAsString(result)
     }
 
-    private fun findSubmissions(organizationName: String): List<SubmissionAPI> {
+    private fun findSubmissions(organizationName: String, limit: String): List<SubmissionAPI> {
         // TODO: VERIFY sendingOrg is being populated from the claim
-        val submissions = db.fetchSubmissions(organizationName)
+        val submissions = db.fetchSubmissions(organizationName, limit)
 
         return submissions.map {
             val actionResponse = mapper.readValue(it.actionResponse.toString(), ActionResponseAPI::class.java)
