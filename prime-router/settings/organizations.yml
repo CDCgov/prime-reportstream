@@ -214,7 +214,7 @@
       organizationName: lifepoint
       topic: covid-19
       customerStatus: active
-      schemaName: HL7/lifepoint-covid-19
+      schemaName: hl7/lifepoint-covid-19
       format: HL7
 
 - name: primary
