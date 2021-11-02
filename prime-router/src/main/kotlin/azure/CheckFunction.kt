@@ -250,7 +250,7 @@ class CheckFunction : Logging {
         val path = sftpTransportType.filePath
         logger.info("SFTP Transport $sftpTransportType")
         responseBody.add("${receiver.fullName}: SFTP Transport: $sftpTransportType")
-        val credential = SftpTransport.lookupCredentials(receiver.fullName)
+        val credential = SftpTransport.lookupCredentials(sftpTransportType.credentialName ?: receiver.fullName)
         var sshClient = SftpTransport.connect(host, port, credential)
         responseBody.add("${receiver.fullName}: Able to Connect to sftp site")
         sftpFile?. let {
