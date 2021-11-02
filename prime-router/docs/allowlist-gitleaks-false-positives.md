@@ -28,7 +28,7 @@ The process for adding a suppression is the same, regardless of whether or not t
 * Code containing Gitleaks violations is committed in branch "`culprit`", this may or may not already have been pushed up.
 * Check out a new branch off of the "`master`" branch (let's call this one "`gitleaks-culprit`").
 * In "`gitleaks-culprit`", modify the `gitleaks-config.toml` file to have the correct suppressions.
-* Push up the "`gitleaks-culprit`" branch and open a Pull Request, include at least one member of the DevOps team (e.g. @ronaldheft-usds or @td-usds). The Pull Request _must_ contain an explanation of:
+* Push up the "`gitleaks-culprit`" branch and open a Pull Request, include at least one member of the DevOps team (e.g. @CDCgov/prime-reportstream-devops). The Pull Request _must_ contain an explanation of:
     * What you are suppressing and why it's ok: the specific patterns/values/commits; example:
         * "Gitleaks correctly flagged the Private Key pattern, but this is a test key so it's not sensitive."
     * How you ensured the smallest possible scope for the suppression, you may be asked to narrow the scope; example:
