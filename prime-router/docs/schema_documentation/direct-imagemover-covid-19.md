@@ -80,7 +80,7 @@ Required.  Must match LIVD column B, "Model". eg,  "BD Veritor System for Rapid 
 
 ---
 
-**Name**: filler_order_id
+**Name**: specimenId
 
 **Type**: ID
 
@@ -1454,7 +1454,7 @@ The patient's zip code
 
 ---
 
-**Name**: placer_order_id
+**Name**: specimenId
 
 **Type**: ID
 
