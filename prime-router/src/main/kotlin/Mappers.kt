@@ -165,6 +165,45 @@ class IfPresentMapper : Mapper {
 }
 
 /**
+ * The args for the ifNotPresent mapper are an element name and a value.
+ * If the elementName is NOT present, the value is used
+ */
+class IfNotPresentMapper : Mapper {
+    override val name = "ifNotPresent"
+
+    override fun valueNames(element: Element, args: List<String>): List<String> {
+        if (args.size != 2) error("Schema Error: ifNotPresent expects dependency and value parameters")
+        return args.subList(0, 1) // The element name
+    }
+
+    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
+        var notAllBlanks = true
+        val mode = args[0] // i.e. "literal" or "lookup"
+        val modeOperator = args[1] // i.e. "** no address given ***" or field_x
+        val conditionList = args.subList(2, args.size - 1)
+        conditionList.forEach {
+            val valuesElement = values.find { v -> v.element.name == it }
+            if (valuesElement != null && valuesElement.value.isNotBlank()) {
+                notAllBlanks = false
+            }
+        }
+        if (!notAllBlanks) {
+            when (mode) {
+                "literal" -> {
+                    return modeOperator
+                }
+                "lookup" -> {
+                    val lookupValue = values.find { v -> v.element.name == modeOperator }
+                    return lookupValue?.toString()
+                }
+            }
+        }
+
+        return null
+    }
+}
+
+/**
  * The LookupMapper is used to lookup values from a lookup table
  * The args for the lookup mapper is the name of the element with the index value
  * The table involved is the element.table field
@@ -758,7 +797,7 @@ class NullMapper : Mapper {
 
 object Mappers {
     fun parseMapperField(field: String): Pair<String, List<String>> {
-        val match = Regex("([a-zA-Z0-9]+)\\x28([a-z, \\x2E_\\x2DA-Z0-9?&$^]*)\\x29").find(field)
+        val match = Regex("([a-zA-Z0-9]+)\\x28([a-z, \\x2E_\\x2DA-Z0-9?&$*:^]*)\\x29").find(field)
             ?: error("Mapper field $field does not parse")
         val args = if (match.groupValues[2].isEmpty())
             emptyList()

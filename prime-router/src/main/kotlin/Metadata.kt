@@ -18,6 +18,7 @@ class Metadata {
         MiddleInitialMapper(),
         UseMapper(),
         IfPresentMapper(),
+        IfNotPresentMapper(),
         LookupMapper(),
         LIVDLookupMapper(),
         ConcatenateMapper(),
