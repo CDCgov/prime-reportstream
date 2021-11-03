@@ -6,16 +6,17 @@ import com.microsoft.azure.functions.annotation.QueueTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
 import java.util.logging.Level
 
-const val process = "process"
+const val azureQueueName = "process"
+const val azureFunctionName = "process"
 
 /**
  * Process will work through all the reports waiting in the 'process' queue
  */
 class ProcessFunction {
-    @FunctionName(process)
+    @FunctionName(azureFunctionName)
     @StorageAccount("AzureWebJobsStorage")
     fun run(
-        @QueueTrigger(name = "message", queueName = process)
+        @QueueTrigger(name = "message", queueName = azureQueueName)
         message: String,
         context: ExecutionContext,
     ) {
