@@ -115,7 +115,7 @@ NTE|1|L|This is a final comment|RE"""
         val schema = "primedatainput/pdi-covid-19"
 
         val hl7Config = mockkClass(Hl7Configuration::class).also {
-            every { it.replaceValue }.returns(mapOf("PID-22-3" to "CDCREC", "OBX-2" to "testVal"))
+            every { it.replaceValue }.returns(mapOf("PID-22-3" to "CDCREC,-,testCDCREC", "MSH-9" to "MSH-10"))
             every { it.format }.returns(Report.Format.HL7)
             every { it.useTestProcessingMode }.returns(false)
             every { it.suppressQstForAoe }.returns(false)

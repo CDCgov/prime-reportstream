@@ -414,7 +414,7 @@ class Hl7Serializer(
         // set up our configuration
         val hl7Config = report.destination?.translation as? Hl7Configuration
         val replaceValue = hl7Config?.replaceValue ?: emptyMap()
-        val replaceHL7Fields = hl7Config?.replaceHL7Fields ?: emptyMap()
+//        val replaceHL7Fields = hl7Config?.replaceHL7Fields ?: emptyMap()
         val cliaForSender = hl7Config?.cliaForSender ?: emptyMap()
         val suppressQst = hl7Config?.suppressQstForAoe ?: false
         val suppressAoe = hl7Config?.suppressAoe ?: false
@@ -608,23 +608,38 @@ class Hl7Serializer(
             }
         }
 
-        replaceHL7Fields.forEach { element ->
-
-            val valueList = element.value.split(",")?.map { it.lowercase().trim() } ?: emptyList()
-
-            var value = ""
-
-            valueList.forEach { field ->
-                val pathSpec = formPathSpec(element.key)
-                val valueInMessage = terser.get(pathSpec) ?: ""
-                value.plus(valueInMessage)
-            }
-
-        }
+//        replaceHL7Fields.forEach { element ->
+//
+//            val valueList = element.value.split(",")?.map { it.lowercase().trim() } ?: emptyList()
+//
+//            var value = ""
+//
+//            valueList.forEach { field ->
+//                val pathSpec = formPathSpec(field)
+//                val valueInMessage = terser.get(pathSpec) ?: ""
+//                value.plus(valueInMessage)
+//            }
+//        }
 
         // after all values have been set or blanked, check for values that need replacement
         // isNotEmpty returns true only when a value exists. Whitespace only is considered a value
         replaceValue.forEach { element ->
+
+            val valueList = element.value.split(",").map { it.trim() }
+            var value = ""
+
+            valueList.forEach { field ->
+
+                var valueInMessage = ""
+
+                valueInMessage = try {
+                    val pathSpec = formPathSpec(field)
+                    terser.get(pathSpec)
+                } catch (e: Exception) {
+                    field
+                }
+                value = value.plus(valueInMessage)
+            }
 
             if (element.key.substring(0, 3) == "OBX") {
                 val observationReps = message.patienT_RESULT.ordeR_OBSERVATION.observationReps
@@ -633,14 +648,14 @@ class Hl7Serializer(
                     val pathSpec = formPathSpec(element.key, i)
                     val valueInMessage = terser.get(pathSpec) ?: ""
                     if (valueInMessage.isNotEmpty()) {
-                        terser.set(pathSpec, element.value)
+                        terser.set(pathSpec, value)
                     }
                 }
             } else {
                 val pathSpec = formPathSpec(element.key)
                 val valueInMessage = terser.get(pathSpec) ?: ""
                 if (valueInMessage.isNotEmpty()) {
-                    terser.set(pathSpec, element.value)
+                    terser.set(pathSpec, value)
                 }
             }
         }

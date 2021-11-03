@@ -67,7 +67,7 @@ data class Hl7Configuration
     val receivingFacilityOID: String?,
     val messageProfileId: String?,
     val replaceValue: Map<String, String>? = emptyMap(),
-    val replaceHL7Fields: a,
+//    val replaceHL7Fields: Map<String, String>? = emptyMap(),
     val reportingFacilityName: String? = null,
     val reportingFacilityId: String? = null,
     val reportingFacilityIdType: String? = null,
