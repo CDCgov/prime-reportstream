@@ -1324,6 +1324,29 @@
   jurisdiction: STATE
   stateCode: PA
   receivers:
+    - name: elr-chester-hl7
+      organizationName: pa-phd
+      topic: covid-19
+      customerStatus: active
+      jurisdictionalFilter:
+        - matches(ordering_facility_state, PA)
+        - matches(ordering_facility_county, Chester)
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        receivingApplicationName: PA-ELR
+        receivingFacilityName: PADOH
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+      timing:
+        operation: MERGE
+        numberPerDay: 1440
+        initialTime: 00:00
+        timeZone: EASTERN
     - name: elr-bucks-local
       organizationName: pa-phd
       topic: covid-19
