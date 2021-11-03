@@ -276,8 +276,11 @@ class MetadataTests {
     @Test
     fun `check for database lookup table updates test`() {
         val mockDbTableAccess = mockk<DatabaseLookupTableAccess>()
-        val metadata = Metadata(mockDbTableAccess)
         val now = Instant.now()
+
+        // Initialization
+        every { mockDbTableAccess.fetchTableList(any()) } returns emptyList()
+        val metadata = Metadata(mockDbTableAccess)
 
         metadata.tablelastCheckedAt = now.plusSeconds(3600)
         metadata.checkForDatabaseLookupTableUpdates()
@@ -292,7 +295,6 @@ class MetadataTests {
     @Test
     fun `load database lookup table updates test`() {
         val mockDbTableAccess = mockk<DatabaseLookupTableAccess>()
-        val metadata = Metadata(mockDbTableAccess)
         val table1 = LookupTableVersion()
         table1.tableName = "table1"
         table1.tableVersion = 1
@@ -303,6 +305,10 @@ class MetadataTests {
         table2.isActive = true
         val tableData = listOf(LookupTableRow())
         tableData[0].data = JSONB.jsonb("""{"colA": "valueA", "colb": "valueB"}""")
+
+        // Initialization
+        every { mockDbTableAccess.fetchTableList(any()) } returns emptyList()
+        val metadata = Metadata(mockDbTableAccess)
 
         // Database exception
         every { mockDbTableAccess.fetchTableList() } throws DataAccessException("error")
