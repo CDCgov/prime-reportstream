@@ -38,6 +38,13 @@ elements:
     cardinality: ZERO_OR_ONE
     csvFields: [{ name: ordering_facility_county}]
 
+  # - name: address
+    # type: TEXT
+    # csvFields: [{ name: patientHomeAddress_pii}]
+    # mapper: ifNotPresent($literal:string, ** No Address Given ***)
+    #    mapper: ifPresent(pregnant, field)
+
+
   - name: test_result
     csvFields: [{ name: testResult }]
 
@@ -91,6 +98,7 @@ elements:
 
   - name: patient_zip_code 
     csvFields: [{ name: PatZip}]
+#    mapper: ifNotPresent($string:lookup, ordering_provider_zip)
 
   # Custom waters field.
   # Use this if patientState is empty.
@@ -109,9 +117,11 @@ elements:
   - name: patient_state
     cardinality: ZERO_OR_ONE
     csvFields: [{ name: patientState}]
+#    mapper: ifNotPresent($string:lookup, ordering_provider_state)
 
   - name: patient_city
     csvFields: [{ name: patientCity_pii}]
+#    mapper: ifNotPresent($string:lookup, ordering_provider_city)
 
   - name: patient_dob
     csvFields: [{ name: patientDob_pii}]
@@ -121,6 +131,7 @@ elements:
 
   - name: patient_street
     csvFields: [{ name: patientHomeAddress_pii}]
+    mapper: ifNotPresent($mode:literal, $string:*** No Address Given ***, patient_zip_code, patient_state)
 
   - name: patient_street2
     csvFields: [{ name: patientHomeAddress2_pii}]

@@ -34,7 +34,7 @@ data class Element(
     // - A name of form [A-Za-z0-9_]+ is a new element
     // - A name of form [A-Za-z0-9_]+.[A-Za-z0-9_]+ is an element based on an previously defined element
     //
-    val name: String,
+    var name: String,
 
     /**
      * Type of the element
@@ -843,20 +843,25 @@ data class Element(
         return retVal
     }
 
-    fun tokenizeMapperValue(elementName: String, index: Int = 0): ElementAndValue? {
-        val tokenElement = Element(elementName)
-        return when (elementName) {
+    fun tokenizeMapperValue(elementName: String, index: Int = 0): ElementAndValue {
+        var tokenElement = Element(elementName)
+        var retVal = ElementAndValue(tokenElement, "")
+        when (elementName) {
             "\$index" -> {
-                ElementAndValue(tokenElement, index.toString())
+                retVal = ElementAndValue(tokenElement, index.toString())
             }
             "\$currentDate" -> {
                 val currentDate = LocalDate.now().format(dateFormatter)
-                ElementAndValue(tokenElement, currentDate)
-            }
-            else -> {
-                null
+                retVal = ElementAndValue(tokenElement, currentDate)
             }
         }
+
+        if (elementName.contains(":")) {
+//            tokenElement.name = elementName.split(":")[0].substring(1)
+            retVal = ElementAndValue(tokenElement, elementName.split(":")[1])
+        }
+
+        return retVal
     }
 
     companion object {

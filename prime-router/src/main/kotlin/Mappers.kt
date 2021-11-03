@@ -172,15 +172,15 @@ class IfNotPresentMapper : Mapper {
     override val name = "ifNotPresent"
 
     override fun valueNames(element: Element, args: List<String>): List<String> {
-        if (args.size != 2) error("Schema Error: ifNotPresent expects dependency and value parameters")
-        return args.subList(0, 1) // The element name
+        if (args.isEmpty()) error("Schema Error: ifNotPresent expects dependency and value parameters")
+        return args
     }
 
     override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
         var notAllBlanks = true
         val mode = args[0] // i.e. "literal" or "lookup"
         val modeOperator = args[1] // i.e. "** no address given ***" or field_x
-        val conditionList = args.subList(2, args.size - 1)
+        val conditionList = args.subList(2, args.size)
         conditionList.forEach {
             val valuesElement = values.find { v -> v.element.name == it }
             if (valuesElement != null && valuesElement.value.isNotBlank()) {
