@@ -128,6 +128,7 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
  * @param routeTo Route to overrides passed in on the initial call
  * @param at Allows future scheduling of the queue message
  * @param retryToken For retrying a process queue message
+ * @return Returns the event representing the 'process' queue message
  */
 class ProcessEvent(
     eventAction: EventAction,

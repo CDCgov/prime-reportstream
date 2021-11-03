@@ -46,6 +46,9 @@ import java.time.format.DateTimeFormatter
  *
  */
 class ActionHistory {
+    /**
+     * Tracks the routing of a report, showing which destinations it has been routed to for lineage purposes
+     */
     data class ItemRouting(
         val reportIndex: Int,
         val trackingId: String?,
@@ -742,6 +745,7 @@ class ActionHistory {
      * @param verbose If true, all item routing details will be included in the response
      * @param actionHistory The ongoing action history instance being used
      * @param report The report this response body is for
+     * @return A json representation of the result of whatever action called this
      */
     fun createResponseBody(
         options: Options,
@@ -762,7 +766,7 @@ class ActionHistory {
                 it.writeStringField("topic", report.schema.topic)
                 it.writeNumberField("reportItemCount", report.itemCount)
                 // TODO: need to get the correct path and set the ENDPOINT_BASE correctly, blocked by waiting for
-                //  the historyApi to be ready.
+                //  the historyApi to be ready. Once this is known, uncomment line below and ensure path is correct
                 // it.writeStringField("location", "[base path]/${report.id}")
             } else
                 it.writeNullField("id")

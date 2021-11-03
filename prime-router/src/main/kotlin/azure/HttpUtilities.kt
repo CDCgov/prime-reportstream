@@ -8,6 +8,7 @@ import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.PAYLOAD_MAX_BYTES
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Sender
+import org.apache.http.client.utils.URIBuilder
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.File
 import java.io.IOException
@@ -263,14 +264,15 @@ class HttpUtilities {
             if (key != null)
                 headers.add("x-functions-key" to key)
 
-            // if we have this value and it is true, add the 'processing=async' query param
-            val urlBuilder = UrlBuilder(environment.urlPrefix + oldApi)
+            val urlBuilder = URIBuilder(environment.urlPrefix + oldApi)
             if (option != null)
-                urlBuilder.addParam("option", option.toString())
-            if (asyncProcessMode)
-                urlBuilder.addParam("processing", "async")
+                urlBuilder.setParameter("option", option.toString())
 
-            return postHttp(urlBuilder.toUrl(), bytes, headers)
+            // if asyncProcessMode is present and true, add the 'processing=async' query param
+            if (asyncProcessMode)
+                urlBuilder.setParameter("processing", "async")
+
+            return postHttp(urlBuilder.toString(), bytes, headers)
         }
 
         fun postReportBytesToWatersAPI(
@@ -319,19 +321,6 @@ class HttpUtilities {
                 }
                 return responseCode to response
             }
-        }
-    }
-
-    class UrlBuilder(var baseUrl: String) {
-        var queryParams: MutableMap<String, String> = mutableMapOf()
-
-        fun addParam(key: String, value: String) {
-            queryParams[key] = value
-        }
-
-        fun toUrl(): String {
-            val paramString = queryParams.map { pair -> "${pair.key}=${pair.value}" }.joinToString("&")
-            return this.baseUrl + "?" + paramString
         }
     }
 }
