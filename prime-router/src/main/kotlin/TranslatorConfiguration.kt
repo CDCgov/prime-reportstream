@@ -83,7 +83,6 @@ data class Hl7Configuration
     // pass this around as a property now
     val processingModeCode: String? = null,
     val replaceDiiWithOid: Boolean? = null,
-    val useSpecimenIdForFillerOrderNumber: Boolean = false,
     // Specify how
     val useOrderingFacilityName: OrderingFacilityName = OrderingFacilityName.STANDARD,
     override val nameFormat: String = "standard",
