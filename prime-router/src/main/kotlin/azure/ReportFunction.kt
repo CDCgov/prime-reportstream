@@ -625,18 +625,17 @@ class ReportFunction : Logging {
                             "itemNums",
                             createRowsDescription(itemsByGroupingId[groupingId] as MutableList<Int>?)
                         )
-                        it.writeArrayFieldStart("itemDetails")
                         if (verbose) {
                             val filtered = itemDetailsWithGroupingId.filter { item -> item.value !== groupingId }
+                            it.writeArrayFieldStart("itemDetails")
                             filtered.forEach { itemGroupingId ->
-                                /* TODO: write itemDetails */
                                 it.writeStartObject()
                                 it.writeStringField("itemNum", itemGroupingId.key)
                                 it.writeStringField("groupingId", itemGroupingId.value as String)
                                 it.writeEndObject()
                             }
+                            it.writeEndArray()
                         }
-                        it.writeEndArray()
                     }
                     it.writeEndObject()
                 }
