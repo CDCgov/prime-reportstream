@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo
 // Schemas used
 const val HL7_SCHEMA = "covid-19"
 const val REDOX_SCHEMA = "covid-19-redox"
+const val GAEN_SCHEMA = "covid-19-gaen"
 
 /**
  * The Translator properties are common properties used to
@@ -48,6 +49,7 @@ interface TranslatorProperties {
 @JsonSubTypes(
     JsonSubTypes.Type(Hl7Configuration::class, name = "HL7"),
     JsonSubTypes.Type(RedoxConfiguration::class, name = "REDOX"),
+    JsonSubTypes.Type(GAENConfiguration::class, name = "GAEN"),
     JsonSubTypes.Type(CustomConfiguration::class, name = "CUSTOM"),
 )
 abstract class TranslatorConfiguration(val type: String) : TranslatorProperties
@@ -192,6 +194,31 @@ data class RedoxConfiguration
             "redox_source_id" to sourceId,
             "redox_source_name" to sourceName,
         )
+    }
+
+    @get:JsonIgnore
+    override val nameFormat: String = "standard"
+
+    @get:JsonIgnore
+    override val receivingOrganization: String? = null
+}
+
+/**
+ * A translation for a Google/Apple Exposure Notification. This translation does not have any parameters.
+ */
+data class GAENConfiguration
+@JsonCreator constructor(
+    val dummy: String? = null
+) : TranslatorConfiguration("GAEN") {
+    @get:JsonIgnore
+    override val format: Report.Format get() = Report.Format.CSV
+
+    @get:JsonIgnore
+    override val schemaName: String get() = GAEN_SCHEMA
+
+    @get:JsonIgnore
+    override val defaults: Map<String, String> get() {
+        return emptyMap()
     }
 
     @get:JsonIgnore

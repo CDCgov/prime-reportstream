@@ -1,0 +1,10 @@
+- name: elation_health
+  description: Elation Health Corporate Account
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: elation_health
+      topic: covid-19
+      customerStatus: testing
+      schemaName: direct/direct-covid-19
+      format: CSV

@@ -3,6 +3,7 @@ package gov.cdc.prime.router.credentials
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.KotlinFeature
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 
 // All credential classes must exist in this file to inherit from a sealed class
@@ -60,6 +61,20 @@ data class UserJksCredential(
     val trustAlias: String
 ) : Credential()
 
+/**
+ * An API Key credential along with the user who stored it
+ */
+data class UserApiKeyCredential(
+    /**
+     * [user] is the name of the person who writes this credential.
+     */
+    val user: String,
+    /**
+     * [apiKey] is the api key
+     */
+    val apiKey: String,
+) : Credential()
+
 @JsonTypeInfo(
     use = JsonTypeInfo.Id.NAME,
     include = JsonTypeInfo.As.PROPERTY,
@@ -69,14 +84,23 @@ data class UserJksCredential(
     JsonSubTypes.Type(value = UserPassCredential::class, name = "UserPass"),
     JsonSubTypes.Type(value = UserPemCredential::class, name = "UserPem"),
     JsonSubTypes.Type(value = UserPpkCredential::class, name = "UserPpk"),
-    JsonSubTypes.Type(value = UserJksCredential::class, name = "UserJks")
+    JsonSubTypes.Type(value = UserJksCredential::class, name = "UserJks"),
+    JsonSubTypes.Type(value = UserApiKeyCredential::class, name = "UserApiKey")
 )
 sealed class Credential {
 
     fun toJSON(): String = mapper.writeValueAsString(this)
 
     companion object {
-        private val mapper = ObjectMapper().registerModule(KotlinModule())
+        private val mapper = ObjectMapper().registerModule(
+            KotlinModule.Builder()
+                .withReflectionCacheSize(512)
+                .configure(KotlinFeature.NullToEmptyCollection, false)
+                .configure(KotlinFeature.NullToEmptyMap, false)
+                .configure(KotlinFeature.NullIsSameAsDefault, false)
+                .configure(KotlinFeature.StrictNullChecks, false)
+                .build()
+        )
 
         fun fromJSON(json: String?): Credential? {
             if (json == null || json.isBlank()) return null

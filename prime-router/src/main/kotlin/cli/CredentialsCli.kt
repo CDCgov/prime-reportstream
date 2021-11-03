@@ -11,6 +11,7 @@ import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.file
 import gov.cdc.prime.router.credentials.CredentialManagement
 import gov.cdc.prime.router.credentials.CredentialRequestReason
+import gov.cdc.prime.router.credentials.UserApiKeyCredential
 import gov.cdc.prime.router.credentials.UserJksCredential
 import gov.cdc.prime.router.credentials.UserPassCredential
 import gov.cdc.prime.router.credentials.UserPemCredential
@@ -43,9 +44,10 @@ class CredentialsCli : CredentialManagement, CliktCommand(
             "UserPass" to UserPassCredentialOptions(),
             "UserPem" to UserPemCredentialOptions(),
             "UserPpk" to UserPpkCredentialOptions(),
-            "UserJks" to UserJksCredentialOptions()
+            "UserJks" to UserJksCredentialOptions(),
+            "UserApiKey" to UserApiKeyCredentialOptions(),
         ).required()
-    val persist by option(help = "credentialId to persist the secret under")
+    private val persist by option(help = "credentialId to persist the secret under")
 
     init {
         // Ensure we are logging credentials service calls
@@ -71,6 +73,10 @@ class CredentialsCli : CredentialManagement, CliktCommand(
                 val jksEncoded = Base64.getEncoder().encodeToString(it.file.readBytes())
                 UserJksCredential(it.user, jksEncoded, it.filePass, it.privateAlias, it.trustAlias)
             }
+            is UserApiKeyCredentialOptions -> UserApiKeyCredential(
+                it.user,
+                it.apikey
+            )
             else -> error("--type option is unknown")
         }
 
@@ -128,4 +134,11 @@ class UserJksCredentialOptions : CredentialConfig("Options for credential type '
         .default("cdcprime")
     val trustAlias by option("--jks-trust-alias", help = "the JKS alias that points to a trust certificate")
         .default("as2ohp")
+}
+
+class UserApiKeyCredentialOptions : CredentialConfig("Options for credential type 'UserApiKeyCredential'") {
+    val user by option("--apikey-user", help = "Username to authenticate alongside the API key")
+        .prompt(default = "")
+    val apikey by option("--apikey", help = "the API key")
+        .required()
 }
