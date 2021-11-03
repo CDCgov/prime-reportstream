@@ -140,8 +140,8 @@ class ProcessEvent(
 ) : Event(eventAction, at) {
     override fun toQueueMessage(): String {
         // turn the defaults and route to into strings that can go on the process queue
-        val routeToQueueParam = routeTo.let { it.joinToString(",") }
-        val defaultsQueueParam = defaults.let { it.map { pair -> "${pair.key}:${pair.value}" }.joinToString(",") }
+        val routeToQueueParam = routeTo.joinToString(",")
+        val defaultsQueueParam = defaults.map { pair -> "${pair.key}:${pair.value}" }.joinToString(",")
 
         // determine if these parts of the queue message are present
         val afterClause = if (at == null) "" else "$messageDelimiter${DateTimeFormatter.ISO_DATE_TIME.format(at)}"

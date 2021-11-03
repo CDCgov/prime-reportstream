@@ -800,26 +800,25 @@ class ActionHistory {
             writeDetailsArray("errors", errors)
             writeDetailsArray("warnings", warnings)
 
-            fun createRowsDescription(rows: MutableList<Int>?): String {
+            fun createRowsDescription(rows: List<Int>?): String {
                 // Consolidate row ranges, e.g. 1,2,3,5,7,8,9 -> 1-3,5,7-9
                 if (rows == null || rows.isEmpty()) return ""
-                rows.sort() // should already be sorted, just in case
                 val sb = StringBuilder().append("Rows: ")
                 var isListing = false
-                rows.forEachIndexed { i, row ->
+                rows.sorted().forEachIndexed { i, row ->
                     if (i == 0) {
                         sb.append(row.toString())
                     } else if (row == rows[i - 1] || row == rows[i - 1] + 1) {
                         isListing = true
                     } else if (isListing) {
-                        sb.append(" to " + rows[i - 1].toString() + ", " + row.toString())
+                        sb.append(" to ${rows[i - 1]}, $row")
                         isListing = false
                     } else {
-                        sb.append(", " + row.toString())
+                        sb.append(", $row")
                         isListing = false
                     }
                     if (i == rows.lastIndex && isListing) {
-                        sb.append(" to " + rows[rows.lastIndex].toString())
+                        sb.append(" to ${rows[rows.lastIndex]}")
                     }
                 }
                 return sb.toString()

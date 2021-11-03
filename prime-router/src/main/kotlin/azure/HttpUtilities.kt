@@ -330,9 +330,7 @@ class HttpUtilities {
         }
 
         fun toUrl(): String {
-            val paramString = queryParams.let {
-                it.map { pair -> "${pair.key}=${pair.value}" }.joinToString("&")
-            }
+            val paramString = queryParams.map { pair -> "${pair.key}=${pair.value}" }.joinToString("&")
             return this.baseUrl + "?" + paramString
         }
     }

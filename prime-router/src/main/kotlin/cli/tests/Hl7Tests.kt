@@ -48,7 +48,7 @@ class Hl7Ingest : CoolTest() {
 
         // Check the response from the endpoint
         echo(json)
-        passed = passed and examineResponse(json)
+        passed = passed and examinePostResponse(json)
 
         // Now check the lineage data
         val reportId = getReportIdFromResponse(json)
