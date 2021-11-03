@@ -451,15 +451,14 @@ abstract class CoolTest {
                 timeElapsedSecs += pollSleepSecs
                 queryResults = queryForProcessResults(reportId)
                 if (queryResults != null)
-                    break;
+                    break
             }
         }
         echo("Polling for PROCESS record finished in ${actualTimeElapsedMillis / 1000 } seconds")
 
         // if we didn't get a process step or it doesn't pass examination, test fails
-        return if (queryResults != null) {
+        return if (queryResults != null)
             passed && examineProcessResponse(queryResults!!)
-        }
         else
             false
     }
