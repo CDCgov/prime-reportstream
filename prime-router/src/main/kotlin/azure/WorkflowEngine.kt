@@ -16,6 +16,7 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
+import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import gov.cdc.prime.router.serializers.RedoxSerializer
@@ -521,12 +522,11 @@ class WorkflowEngine(
 
         val settings: SettingsProvider by lazy {
             val baseDir = System.getenv("AzureWebJobsScriptRoot") ?: "."
-            val primeEnv = System.getenv("PRIME_ENVIRONMENT")
             val settingsEnabled: String? = System.getenv("FEATURE_FLAG_SETTINGS_ENABLED")
             if (settingsEnabled == null || settingsEnabled.equals("true", ignoreCase = true)) {
                 SettingsFacade(metadata, databaseAccess)
             } else {
-                val ext = primeEnv?.let { "-$it" } ?: ""
+                val ext = "-${Environment.get().toString().lowercase()}"
                 FileSettings("$baseDir/settings", orgExt = ext)
             }
         }

@@ -7,7 +7,6 @@ import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.HttpUtilities
-import gov.cdc.prime.router.azure.ReportStreamEnv
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.cli.DeleteSenderSetting
 import gov.cdc.prime.router.cli.FileUtilities
@@ -15,6 +14,7 @@ import gov.cdc.prime.router.cli.GetSenderSetting
 import gov.cdc.prime.router.cli.OktaCommand
 import gov.cdc.prime.router.cli.PutSenderSetting
 import gov.cdc.prime.router.cli.SettingCommand
+import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.tokens.DatabaseJtiCache
 import gov.cdc.prime.router.tokens.SenderUtils
 import java.io.File
@@ -38,7 +38,7 @@ class WatersAuthTests : CoolTest() {
     private lateinit var settingAccessTok: String // Token for this test code to access the Settings APIs
     private lateinit var savedSender: Sender
     private lateinit var fakeReportFile: File
-    private lateinit var settingsEnv: SettingCommand.Environment
+    private lateinit var settingsEnv: Environment
 
     fun abort(message: String): Nothing {
         throw PrintMessage(message, error = true)
@@ -51,7 +51,7 @@ class WatersAuthTests : CoolTest() {
      * 2. Pull it back out again to confirm it worked, and prepare to attach keys to it later.
      * 3. Create a fake report.
      */
-    fun setup(environment: ReportStreamEnv) {
+    fun setup(environment: Environment) {
         val newSender = Sender(
             name = senderName,
             organizationName = organization,
@@ -62,7 +62,7 @@ class WatersAuthTests : CoolTest() {
         )
 
         // Convert from ReportStreamEnv to Settings.Environment.  todo consolidate these!
-        settingsEnv = SettingCommand.getEnvironment(environment.name.lowercase())
+        settingsEnv = environment
 
         settingAccessTok = if (settingsEnv.oktaApp == null) accessTokenDummy else {
             OktaCommand.fetchAccessToken(settingsEnv.oktaApp!!)
@@ -136,11 +136,11 @@ class WatersAuthTests : CoolTest() {
      * Given a private key and the kid tries to retrieve an access token
      */
     private fun getWatersAccessTok(
-        environment: ReportStreamEnv,
+        environment: Environment,
         privateKeyStr: String,
         kid: String
     ): Pair<Int, String> {
-        val baseUrl = environment.urlPrefix + HttpUtilities.tokenApi
+        val baseUrl = environment.url.toString() + HttpUtilities.tokenApi
         val privateKey = SenderUtils.readPrivateKeyPem(privateKeyStr)
         val senderSignedJWT = SenderUtils.generateSenderToken(savedSender, baseUrl, privateKey, kid)
         val senderTokenUrl =
@@ -160,7 +160,7 @@ class WatersAuthTests : CoolTest() {
             )
     }
 
-    override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+    override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         var passed = true
         ugly("Starting $name test of server-server authentication using keypairs:")
 
@@ -303,7 +303,7 @@ class Jti : CoolTest() {
     override val description = "Test the JTI Cache"
     override val status = TestStatus.SMOKE
 
-    override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+    override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         ugly("Starting jti Test: $description")
         val db = WorkflowEngine().db
         val jtiCache = DatabaseJtiCache(db)
