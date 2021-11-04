@@ -414,7 +414,6 @@ class Hl7Serializer(
         // set up our configuration
         val hl7Config = report.destination?.translation as? Hl7Configuration
         val replaceValue = hl7Config?.replaceValue ?: emptyMap()
-//        val replaceHL7Fields = hl7Config?.replaceHL7Fields ?: emptyMap()
         val cliaForSender = hl7Config?.cliaForSender ?: emptyMap()
         val suppressQst = hl7Config?.suppressQstForAoe ?: false
         val suppressAoe = hl7Config?.suppressAoe ?: false
@@ -608,23 +607,11 @@ class Hl7Serializer(
             }
         }
 
-//        replaceHL7Fields.forEach { element ->
-//
-//            val valueList = element.value.split(",")?.map { it.lowercase().trim() } ?: emptyList()
-//
-//            var value = ""
-//
-//            valueList.forEach { field ->
-//                val pathSpec = formPathSpec(field)
-//                val valueInMessage = terser.get(pathSpec) ?: ""
-//                value.plus(valueInMessage)
-//            }
-//        }
-
         // after all values have been set or blanked, check for values that need replacement
         // isNotEmpty returns true only when a value exists. Whitespace only is considered a value
         replaceValue.forEach { element ->
 
+            // value can be set as a comma separated list. First split the list .
             val valueList = element.value.split(",").map { it.trim() }
             var value = ""
 
@@ -632,6 +619,8 @@ class Hl7Serializer(
 
                 var valueInMessage = ""
 
+                // value could be a literal or a reference to a different HL7 field. When the terser.get fails
+                // the assumption is to add the string as a literal
                 valueInMessage = try {
                     val pathSpec = formPathSpec(field)
                     terser.get(pathSpec)
@@ -641,10 +630,60 @@ class Hl7Serializer(
                 value = value.plus(valueInMessage)
             }
 
-            if (element.key.substring(0, 3) == "OBX") {
+            // OBX segment can repeat. All repeats need to be looped
+            if (element.key.substring(0, 3).equals("OBX")) {
                 val observationReps = message.patienT_RESULT.ordeR_OBSERVATION.observationReps
 
                 for (i in 0..observationReps.minus(1)) {
+                    val pathSpec = formPathSpec(element.key, i)
+                    val valueInMessage = terser.get(pathSpec) ?: ""
+                    if (valueInMessage.isNotEmpty()) {
+                        terser.set(pathSpec, value)
+                    }
+                }
+            } else {
+                val pathSpec = formPathSpec(element.key)
+                val valueInMessage = terser.get(pathSpec) ?: ""
+                if (valueInMessage.isNotEmpty()) {
+                    terser.set(pathSpec, value)
+                }
+            }
+        }
+    }
+
+    internal fun replaceValue(
+        replaceValueMap: Map<String, String>,
+        terser: Terser,
+        observationRepeats: Int
+    ) {
+
+        // after all values have been set or blanked, check for values that need replacement
+        // isNotEmpty returns true only when a value exists. Whitespace only is considered a value
+        replaceValueMap.forEach { element ->
+
+            // value can be set as a comma separated list. First split the list .
+            val valueList = element.value.split(",").map { it.trim() }
+            var value = ""
+
+            valueList.forEach { field ->
+
+                var valueInMessage = ""
+
+                // value could be a literal or a reference to a different HL7 field. When the terser.get fails
+                // the assumption is to add the string as a literal
+                valueInMessage = try {
+                    val pathSpec = formPathSpec(field)
+                    terser.get(pathSpec)
+                } catch (e: Exception) {
+                    field
+                }
+                value = value.plus(valueInMessage)
+            }
+
+            // OBX segment can repeat. All repeats need to be looped
+            if (element.key.substring(0, 3) == "OBX") {
+
+                for (i in 0..observationRepeats.minus(1)) {
                     val pathSpec = formPathSpec(element.key, i)
                     val valueInMessage = terser.get(pathSpec) ?: ""
                     if (valueInMessage.isNotEmpty()) {
