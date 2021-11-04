@@ -3,7 +3,6 @@ package gov.cdc.prime.router
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
-import gov.cdc.prime.router.transport.GAENTransport
 
 enum class FtpsProtocol {
     SSL,
@@ -23,7 +22,7 @@ enum class FtpsProtocol {
     JsonSubTypes.Type(NullTransportType::class, name = "NULL"),
     JsonSubTypes.Type(AS2TransportType::class, name = "AS2"),
     JsonSubTypes.Type(FTPSTransportType::class, name = "FTPS"),
-    JsonSubTypes.Type(GAENTransport::class, name = "GAEN")
+    JsonSubTypes.Type(GAENTransportType::class, name = "GAEN")
 )
 abstract class TransportType(val type: String)
 

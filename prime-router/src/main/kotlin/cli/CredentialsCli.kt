@@ -136,7 +136,7 @@ class UserJksCredentialOptions : CredentialConfig("Options for credential type '
         .default("as2ohp")
 }
 
-class UserApiKeyCredentialOptions : CredentialConfig("Options for credential type 'UserApiKeyCredential'") {
+class UserApiKeyCredentialOptions : CredentialConfig("Options for credential type 'UserApiKey'") {
     val user by option("--apikey-user", help = "Username to authenticate alongside the API key")
         .prompt(default = "")
     val apikey by option("--apikey", help = "the API key")

@@ -316,7 +316,7 @@ class GAENTransport : ITransport, Logging {
             "GAENTransport",
             CredentialRequestReason.GAEN_NOTIFICATION
         ) as? UserApiKeyCredential?
-            ?: error("Unable to find GAEN credentials for $receiverFullName connectionId($credentialLabel)")
+            ?: error("Unable to find GAEN credentials for $receiverFullName using $credentialLabel")
     }
 
     companion object {

@@ -72,7 +72,7 @@ data class UserApiKeyCredential(
     /**
      * [apiKey] is the api key
      */
-    val apiKey: String,
+    val apiKey: String
 ) : Credential()
 
 @JsonTypeInfo(
