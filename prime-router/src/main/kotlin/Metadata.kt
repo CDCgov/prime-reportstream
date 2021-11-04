@@ -5,7 +5,6 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import gov.cdc.prime.router.azure.DatabaseLookupTableAccess
-import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.metadata.DatabaseLookupTable
 import gov.cdc.prime.router.metadata.LookupTable
 import org.apache.logging.log4j.kotlin.Logging
@@ -18,7 +17,7 @@ import java.time.Instant
 /**
  * A metadata object contains all the metadata including schemas, tables, valuesets, and organizations.
  */
-class Metadata private constructor() : Logging {
+class Metadata : Logging {
     private var schemaStore = mapOf<String, Schema>()
     private var fileNameTemplatesStore = mapOf<String, FileNameTemplate>()
     private var mappers = listOf(
@@ -60,7 +59,7 @@ class Metadata private constructor() : Logging {
     /**
      * The database lookup table access.
      */
-    private var tableDbAccess: DatabaseLookupTableAccess = DatabaseLookupTableAccess()
+    private var tableDbAccess: DatabaseLookupTableAccess
 
     /**
      * Load all parts of the metadata catalog located at the default catalog folder.
@@ -76,8 +75,8 @@ class Metadata private constructor() : Logging {
     internal constructor(
         metadataPath: String,
         tableDbAccess: DatabaseLookupTableAccess? = null
-    ) : this() {
-        if (tableDbAccess != null) this.tableDbAccess = tableDbAccess
+    ) {
+        this.tableDbAccess = tableDbAccess ?: DatabaseLookupTableAccess()
         val metadataDir = File(metadataPath)
         if (!metadataDir.isDirectory) error("Expected metadata directory")
         loadValueSetCatalog(metadataDir.toPath().resolve(valuesetsSubdirectory).toString())
@@ -343,7 +342,7 @@ class Metadata private constructor() : Logging {
     @Synchronized
     internal fun checkForDatabaseLookupTableUpdates() {
         // Check for tables at intervals
-        if (tablelastCheckedAt.plusSeconds(tablePollInternalSecs.toLong()).isAfter(Instant.now()))
+        if (tablelastCheckedAt.plusSeconds(tablePollInternalSecs).isAfter(Instant.now()))
             return
         loadDatabaseLookupTables()
         tablelastCheckedAt = Instant.now()
@@ -370,6 +369,7 @@ class Metadata private constructor() : Logging {
                     dbTable.loadTable(tableInfo.tableVersion)
                 else if (tableInfo == null) {
                     // This table is no longer active or was removed.
+                    // Note that we cannot remove the table as the schema would break with the existing code.
                     dbTable.setTableData(emptyList())
                     logger.warn("Database lookup table ${dbTable.name} is no longer active.")
                 }
@@ -466,6 +466,11 @@ class Metadata private constructor() : Logging {
         /**
          * The amount of seconds to wait before tables are checked again for updates.
          */
-        private val tablePollInternalSecs = if (Environment.get() == Environment.PROD) 300 else 30
+        private val tablePollInternalSecs =
+            try {
+                System.getenv("PRIME_METADATA_POLL_INTERVAL")?.let { it.toLong() }
+            } catch (e: NumberFormatException) {
+                null
+            } ?: 30L
     }
 }
