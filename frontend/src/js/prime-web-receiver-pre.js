@@ -147,7 +147,7 @@ function idleTimer() {
  *  logged in, directs to /daily-data page
  */
 function login() {
-    const OKTA_clientId = '0oa6fm8j4G1xfrthd4h6';
+    const OKTA_clientId = process.env.OKTA_clientId || '0oa6kt4j3tOFz5SH84h6';
     const redirectUri = window.location.origin;
 
     const config = {
