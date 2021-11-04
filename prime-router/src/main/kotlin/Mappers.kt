@@ -759,7 +759,7 @@ class NullMapper : Mapper {
 /**
  * This mapper checks if a date is in the valid, expected format, and returns it,
  * and if the date is not in the valid, expected format, it returns an empty string.
- * Use this if a date is more annoying when it is wrong rather than simply having a value, such as an illness onset date
+ * Use this if a date is optional, such as an illness onset date
  * refer to
  * https://app.zenhub.com/workspaces/prime-reportstream-5ff4833beb3e08001a4cacae/issues/cdcgov/prime-reportstream/2246
  * Arguments: dateFormat (ex. yyyyMMdd)
@@ -774,8 +774,12 @@ class NullDateValidator : Mapper {
     override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String {
 
         if (values.isEmpty()) return ""
+        if (args.isEmpty()) return ""
 
+        // the first value is the dateFormat
         val dateFormat = values.firstOrNull()?.value ?: return ""
+
+        // the second value is the value of the element with the date that needs to be checked
         var dateString = values[1].value
         val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern(dateFormat, Locale.ENGLISH)
 

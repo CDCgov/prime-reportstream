@@ -846,21 +846,30 @@ data class Element(
     fun tokenizeMapperValue(elementName: String, index: Int = 0): ElementAndValue {
         val tokenElement = Element(elementName)
         var retVal = ElementAndValue(tokenElement, "")
-        when (elementName) {
-            "\$index" -> {
+        when {
+            elementName == "\$index" -> {
                 retVal = ElementAndValue(tokenElement, index.toString())
             }
-            "\$currentDate" -> {
+            elementName == "\$currentDate" -> {
                 val currentDate = LocalDate.now().format(dateFormatter)
                 retVal = ElementAndValue(tokenElement, currentDate)
             }
-        }
-
-        if (elementName.contains(":")) {
-            retVal = ElementAndValue(tokenElement, elementName.split(":")[1])
+            elementName.contains("\$dateFormat:") -> {
+                retVal = ElementAndValue(tokenElement, extractStringValue(elementName))
+            }
+            elementName.contains("\$mode:") -> {
+                retVal = ElementAndValue(tokenElement, extractStringValue(elementName))
+            }
+            elementName.contains("\$string:") -> {
+                retVal = ElementAndValue(tokenElement, extractStringValue(elementName))
+            }
         }
 
         return retVal
+    }
+
+    private fun extractStringValue(token: String): String {
+        return token.split(":")[1]
     }
 
     companion object {
