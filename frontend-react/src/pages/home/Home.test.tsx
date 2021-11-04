@@ -4,10 +4,6 @@ import content from "../../content/content.json";
 
 import Home from "./Home";
 
-jest.mock("@cdc/map", () => () => {
-    return <div>Map</div>;
-});
-
 describe("Home rendering", () => {
     beforeEach(() => {
         render(<Home />);

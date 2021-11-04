@@ -1,6 +1,6 @@
 ---
 #
-# Local means a configuration that works on a Docker Compose cluster
+# This file runs in environments (ie. your desktop) where the 'localhost' host name resolves
 #
 - name: simple_report
   description: PRIME's POC testing app
@@ -182,6 +182,39 @@
       topic: covid-19
       customerStatus: active
       schemaName: direct/careevolution-covid-19
+      format: HL7
+
+- name: hca
+  description: HCA
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: hca
+      topic: covid-19
+      customerStatus: active
+      schemaName: direct/hca-covid-19
+      format: HL7
+
+- name: abbott
+  description: Abbott
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: abbott
+      topic: covid-19
+      customerStatus: active
+      schemaName: direct/abbott-covid-19
+      format: CSV
+
+- name: lifepoint
+  description: LifePoint (Ellume data)
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: lifepoint
+      topic: covid-19
+      customerStatus: active
+      schemaName: hl7/lifepoint-covid-19
       format: HL7
 
 - name: primary
@@ -1501,7 +1534,7 @@
       organizationName: "hhsprotect"
       topic: "covid-19"
       customerStatus: active
-      jurisdictionalFilter: [ "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*,Strac,InBios,reddyfmc)" ]
+      jurisdictionalFilter: [ "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*,Strac,InBios,reddyfmc,abbott,lifepoint,hca)" ]
       qualityFilter: [ "allowAll()" ]
       translation:
         type: "CUSTOM"
