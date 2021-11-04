@@ -633,5 +633,21 @@ internal class ElementTests {
         val elementNameDateFormat = "\$dateFormat:MM/dd/yyyy"
         val elementAndValueDateFormat = mockElement.tokenizeMapperValue(elementNameDateFormat)
         assertThat(elementAndValueDateFormat.value).isEqualTo("MM/dd/yyyy")
+
+        // sending in a "mode:literal" should return just the mode, which in this case is "literal"
+        val elementNameMode = "\$mode:literal"
+        val elementAndValueMode = mockElement.tokenizeMapperValue(elementNameMode)
+        assertThat(elementAndValueMode.value).isEqualTo("literal")
+
+        // sending in a "string:someDefaultString" should return just the string that needs to be the default value,
+        // which in this case is "someDefaultString"
+        val elementNameString = "\$string:someDefaultString"
+        val elementAndValueString = mockElement.tokenizeMapperValue(elementNameString)
+        assertThat(elementAndValueString.value).isEqualTo("someDefaultString")
+
+        // if nothing "parsable" comes through, the token value will be an empty string
+        val elementNameNonValidToken = "\$nonValidToken:not valid"
+        val elementAndValueNotValidToken = mockElement.tokenizeMapperValue(elementNameNonValidToken)
+        assertThat(elementAndValueNotValidToken.value).isEqualTo("")
     }
 }
