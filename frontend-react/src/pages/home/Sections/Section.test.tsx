@@ -5,12 +5,9 @@ import Section from "./Section";
 /* REFACTOR
    Is there a better way to handle mocking components when they cause
    issues running simple unit tests?
-   
+
    >>> Kevin Haube, Oct 12, 2021
 */
-jest.mock("@cdc/map", () => () => {
-    return <div>Map</div>;
-});
 
 describe("Section rendering", () => {
     const fakeSection = {
