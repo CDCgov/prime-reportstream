@@ -518,10 +518,10 @@ class ReportFunction : Logging {
     }
 
     data class GroupedProperties(
-        val itemsByGroupingId: HashMap<String, MutableList<Int>>,
-        val messageByGroupingId: HashMap<String, String>,
-        val scopesByGroupingId: HashMap<String, String>,
-        val itemDetailsWithGroupingId: HashMap<String, String>
+        val itemsByGroupingId: MutableMap<String, MutableList<Int>>,
+        val messageByGroupingId: MutableMap<String, String>,
+        val scopesByGroupingId: MutableMap<String, String>,
+        val itemDetailsWithGroupingId: MutableMap<String, MutableList<Int>>
     )
 
     // todo I think all of this info is now in ActionHistory.  Move to there.   Already did destinations.
@@ -588,27 +588,30 @@ class ReportFunction : Logging {
             }
 
             fun createPropertiesByGroupingId(array: List<ResultDetail>): GroupedProperties {
-                val groupedProperties = GroupedProperties(
-                    itemsByGroupingId = hashMapOf<String, MutableList<Int>>(),
-                    messageByGroupingId = hashMapOf<String, String>(),
-                    scopesByGroupingId = hashMapOf<String, String>(),
-                    itemDetailsWithGroupingId = hashMapOf<String, String>()
-                )
+                val itemsByGroupingId = mutableMapOf<String, MutableList<Int>>()
+                val messageByGroupingId = mutableMapOf<String, String>()
+                val scopesByGroupingId = mutableMapOf<String, String>()
+                val itemDetailsWithGroupingId = mutableMapOf<String, MutableList<Int>>()
                 array.forEach { resultDetail ->
                     val groupingId = resultDetail.responseMessage.groupingId()
-                    if (!groupedProperties.itemsByGroupingId.containsKey(groupingId)) {
-                        groupedProperties.itemsByGroupingId[groupingId] = mutableListOf()
-                        groupedProperties.messageByGroupingId[groupingId] = resultDetail.responseMessage.detailMsg()
-                        groupedProperties.scopesByGroupingId[groupingId] = resultDetail.scope.toString()
+                    if (!itemsByGroupingId.containsKey(groupingId)) {
+                        itemsByGroupingId[groupingId] = mutableListOf()
+                        messageByGroupingId[groupingId] = resultDetail.responseMessage.detailMsg()
+                        scopesByGroupingId[groupingId] = resultDetail.scope.toString()
+                        itemDetailsWithGroupingId[groupingId] = mutableListOf()
                     }
                     if (resultDetail.row != -1) {
                         // Add 2 to account for array offset and csv header
-                        groupedProperties.itemsByGroupingId[groupingId]?.add(resultDetail.row + 2)
-                        groupedProperties.itemDetailsWithGroupingId[(resultDetail.row + 2).toString()] =
-                            resultDetail.responseMessage.groupingId()
+                        itemsByGroupingId[groupingId]?.add(resultDetail.row + 2)
+                        itemDetailsWithGroupingId[groupingId]?.add(resultDetail.row + 2)
                     }
                 }
-                return groupedProperties
+                return GroupedProperties(
+                    itemsByGroupingId,
+                    messageByGroupingId,
+                    scopesByGroupingId,
+                    itemDetailsWithGroupingId
+                )
             }
 
             fun writeConsolidatedArray(field: String, array: List<ResultDetail>) {
@@ -628,17 +631,19 @@ class ReportFunction : Logging {
                             "itemNums",
                             createRowsDescription(itemsByGroupingId[groupingId] as MutableList<Int>?)
                         )
-                        if (verbose) {
-                            val filtered = itemDetailsWithGroupingId.filter { item -> item.value !== groupingId }
+//                        if (verbose) {
+                            val filtered = itemDetailsWithGroupingId.filter { item -> item.key === groupingId }
                             it.writeArrayFieldStart("itemDetails")
                             filtered.forEach { itemGroupingId ->
-                                it.writeStartObject()
-                                it.writeStringField("itemNum", itemGroupingId.key)
-                                it.writeStringField("groupingId", itemGroupingId.value as String)
-                                it.writeEndObject()
+                                itemGroupingId.value.forEach { itemNum ->
+                                    it.writeStartObject()
+                                    it.writeStringField("itemNum", itemNum.toString())
+                                    it.writeStringField("groupingId", itemGroupingId.key)
+                                    it.writeEndObject()
+                                }
                             }
                             it.writeEndArray()
-                        }
+//                        }
                     }
                     it.writeEndObject()
                 }
