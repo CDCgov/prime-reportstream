@@ -412,7 +412,7 @@ Some useful tools for Kotlin/Java development include:
 * [Java Profiling in ReportStream](./getting-started/java-profiling.md)
 * [Tips for faster development](./getting-started/faster-development.md)
 
-# Miscelanious subjects
+# Miscellaneous subjects
 
 ## Using different database credentials than the default
 

@@ -593,10 +593,10 @@ class Hl7Serializer(
         val senderID = report.getDeidentifiedResultMetaData()[row].senderId
 
         // loop through CLIA resets
-        cliaForSender.forEach { sender, clia ->
+        cliaForSender.forEach { (sender, clia) ->
             try {
                 // find that sender in the map
-                if (sender.equals(senderID.trim(), ignoreCase = true) && !clia.isNullOrEmpty()) {
+                if (sender.equals(senderID.trim(), ignoreCase = true) && !clia.isEmpty()) {
                     // if the sender needs should have a specific CLIA then overwrite the CLIA here
                     val pathSpecSendingFacilityID = formPathSpec("MSH-4-2")
                     terser.set(pathSpecSendingFacilityID, clia)
@@ -671,6 +671,8 @@ class Hl7Serializer(
         rawFacilityName: String,
     ) {
         terser.set(formPathSpec("ORC-21-1"), rawFacilityName.trim().take(50))
+        // setting a default value for ORC-21-2 per PA's request.
+        terser.set(formPathSpec("ORC-21-2"), DEFAULT_ORGANIZATION_NAME_TYPE_CODE)
     }
 
     /**
@@ -1414,6 +1416,7 @@ class Hl7Serializer(
     }
 
     companion object {
+        /** the length to truncate HD values to. Defaults to 20 */
         const val HD_TRUNCATION_LIMIT = 20
         const val HL7_SPEC_VERSION: String = "2.5.1"
         const val MESSAGE_CODE = "ORU"
@@ -1422,6 +1425,8 @@ class Hl7Serializer(
         const val SOFTWARE_PRODUCT_NAME: String = "PRIME ReportStream"
         const val NCES_EXTENSION = "_NCES_"
         const val OBX_18_EQUIPMENT_UID_OID: String = "2.16.840.1.113883.3.3719"
+        /** the default org name type code. defaults to "L" */
+        const val DEFAULT_ORGANIZATION_NAME_TYPE_CODE: String = "L"
 
         /*
         From the HL7 2.5.1 Ch 2A spec...
@@ -1452,7 +1457,7 @@ class Hl7Serializer(
         /**
          * List of fields that have a CE type
          */
-        val CE_FIELDS = listOf("OBX-15-1")
+        val CE_FIELDS = listOf("OBX-15-1", "OBX-15-2")
 
         // Do a lazy init because this table may never be used and it is large
         val ncesLookupTable = lazy {
