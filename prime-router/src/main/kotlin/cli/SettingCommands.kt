@@ -266,7 +266,7 @@ abstract class SettingCommand(
             settingType: SettingType,
             settingName: String
         ): String {
-            return "${environment.url}$apiPath${settingPath(operation, settingType, settingName)}"
+            return environment.formUrl("$apiPath${settingPath(operation, settingType, settingName)}").toString()
         }
 
         fun settingPath(operation: Operation, settingType: SettingType, settingName: String): String {
