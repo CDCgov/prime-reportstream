@@ -30,6 +30,7 @@ class DatabaseLookupTable(
 
     /**
      * Load the table [version] from the database.
+     * @return a reference to the lookup table
      */
     fun loadTable(version: Int): DatabaseLookupTable {
         Preconditions.checkArgument(version > 0)

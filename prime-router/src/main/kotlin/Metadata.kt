@@ -89,7 +89,7 @@ class Metadata private constructor() : Logging {
     }
 
     /**
-     * Useful for test versions of the metadata catalog
+     * FOR UNIT TESTING ONLY.  Useful for test versions of the metadata catalog
      * @param tableDbAccess database lookup table access for dependency injection purposes
      */
     constructor(
@@ -454,6 +454,7 @@ class Metadata private constructor() : Logging {
 
         /**
          * Get the singleton instance.
+         * @return the metadata instance
          */
         fun getInstance(): Metadata {
             // Load any updates to the database lookup tables.
