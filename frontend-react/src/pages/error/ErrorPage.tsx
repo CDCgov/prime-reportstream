@@ -1,17 +1,9 @@
-// @ts-nocheck // TODO: fix types in this file
 import { Alert } from "@trussworks/react-uswds";
 import React from "react";
 import Helmet from "react-helmet";
 
 import { NotFound } from "./NotFound";
 import { UnsupportedBrowser } from "./UnsupportedBrowser";
-
-interface ErrorPageProps {
-    code?: string;
-    error?: string;
-    errorInfo?: React.ErrorInfo;
-    type?: "page" | "message";
-}
 
 /* INFO
    For consistency, when passing the code prop, please use these values
@@ -20,31 +12,41 @@ interface ErrorPageProps {
 export enum CODES {
     UNSUPPORTED_BROWSER = "unsupported-browser",
     NOT_FOUND_404 = "not-found",
+    UNKNOWN = "unknown-error",
 }
 
-function ErrorPageWrapper({ children }: JSX.Element) {
+interface ErrorPageProps {
+    code?: CODES.UNSUPPORTED_BROWSER | CODES.NOT_FOUND_404 | CODES.UNKNOWN;
+    error?: string;
+    errorInfo?: React.ErrorInfo;
+    type?: "page" | "message";
+}
+
+const ErrorPageWrapper = (props: React.PropsWithChildren<ErrorPageProps>) => {
     return (
         <div className="usa-section padding-top-6">
             <div className="grid-container">
-                <div className="grid-row grid-gap">{children}</div>
+                <div className="grid-row grid-gap">{props.children}</div>
             </div>
         </div>
     );
-}
+};
 
-function ErrorMessageWrapper({ children }: JSX.Element) {
-    return <div className="grid-container">{children}</div>;
-}
+const ErrorMessageWrapper = (
+    props: React.PropsWithChildren<ErrorPageProps>
+) => {
+    return <div className="grid-container">{props.children}</div>;
+};
 
-function GenericErrorMessage(): JSX.Element {
+const GenericErrorMessage = () => {
     return (
         <Alert type="error">
-            Our appologies, there was an error loading this content.
+            Our apologies, there was an error loading this content.
         </Alert>
     );
-}
+};
 
-function GenericErrorPage(): JSX.Element {
+const GenericErrorPage = () => {
     return (
         <>
             <Helmet>
@@ -70,17 +72,19 @@ function GenericErrorPage(): JSX.Element {
             </div>
         </>
     );
-}
+};
 
-export function ErrorPage(props: ErrorPageProps) {
-    const codes = {
-        "not-found": <NotFound />,
-        "unsupported-browser": <UnsupportedBrowser />,
+export const ErrorPage = (props: React.PropsWithChildren<ErrorPageProps>) => {
+    const CODES_MAP = {
+        [CODES.UNSUPPORTED_BROWSER]: <UnsupportedBrowser />,
+        [CODES.NOT_FOUND_404]: <NotFound />,
+        [CODES.UNKNOWN]: <GenericErrorPage />, // Only used for default to keep ts happy. expand?
     };
-    const content = codes[props.code];
 
-    if (content) {
-        return <ErrorPageWrapper>{content}</ErrorPageWrapper>;
+    const code = props.code || CODES.UNKNOWN;
+
+    if (Object.keys(CODES_MAP).includes(code)) {
+        return <ErrorPageWrapper>{CODES_MAP[code] || ""}</ErrorPageWrapper>;
     }
     if (props.type === "message") {
         return (
@@ -95,7 +99,7 @@ export function ErrorPage(props: ErrorPageProps) {
             </ErrorPageWrapper>
         );
     }
-}
+};
 
 ErrorPage.defaultProps = {
     type: "message",
