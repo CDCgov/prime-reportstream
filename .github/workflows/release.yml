@@ -111,7 +111,7 @@ jobs:
           node-version: '14'
       - run: yarn install
       - run: yarn run build
-      
+
       - name: Save Static Website
         uses: actions/upload-artifact@v2
         with:
@@ -213,10 +213,8 @@ jobs:
           az functionapp config access-restriction remove -g ${{ env.RESOURCE_GROUP }} -n ${{ env.PREFIX }}-functionapp --slot candidate --rule-name GitHubActionIPV4 > /dev/null 2>&1
 
       - name: Upload Static Site React
-        uses: azure/CLI@v1
-        with:
-          inlineScript: |
-            az storage blob upload-batch --account-name ${{ env.PREFIX }}public -d '$web' -s frontend-react/build
+        run: |
+          az storage blob upload-batch --account-name ${{ env.PREFIX }}public -d '$web' -s frontend-react/build
 
   deploy_release_test:
     name: "Deploy Release: TEST"
@@ -305,11 +303,9 @@ jobs:
           az functionapp config access-restriction remove -g ${{ env.RESOURCE_GROUP }} -n ${{ env.PREFIX }}-functionapp --slot candidate --rule-name GitHubActionIPV4 > /dev/null 2>&1
 
       - name: Upload Static Site
-        uses: azure/CLI@v1
-        with:
-          inlineScript: |
-            az storage blob delete-batch --account-name ${{ env.PREFIX }}public -s '$web'
-            az storage blob upload-batch --account-name ${{ env.PREFIX }}public -d '$web' -s frontend/dist
+        run: |
+          az storage blob delete-batch --account-name ${{ env.PREFIX }}public -s '$web'
+          az storage blob upload-batch --account-name ${{ env.PREFIX }}public -d '$web' -s frontend/dist
 
   deploy_release_staging:
     name: "Deploy Release: STAGING"
@@ -398,11 +394,10 @@ jobs:
           az functionapp config access-restriction remove -g ${{ env.RESOURCE_GROUP }} -n ${{ env.PREFIX }}-functionapp --slot candidate --rule-name GitHubActionIPV4 > /dev/null 2>&1
 
       - name: Upload Static Site
-        uses: azure/CLI@v1
-        with:
-          inlineScript: |
-            az storage blob delete-batch --account-name ${{ env.PREFIX }}public -s '$web'
-            az storage blob upload-batch --account-name ${{ env.PREFIX }}public -d '$web' -s frontend-react/build
+        run: ls -R frontend-react/build
+      # 2021-11-04 CW - Disabling to enable other production deploys to happen
+      #     az storage blob delete-batch --account-name ${{ env.PREFIX }}public -s '$web'
+      #     az storage blob upload-batch --account-name ${{ env.PREFIX }}public -s frontend-react/build -d '$web' --debug
 
   deploy_release_prod:
     name: "Deploy Release: PROD"
@@ -490,9 +485,8 @@ jobs:
         run: |
           az functionapp config access-restriction remove -g ${{ env.RESOURCE_GROUP }} -n ${{ env.PREFIX }}-functionapp --slot candidate --rule-name GitHubActionIPV4 > /dev/null 2>&1
 
-      - name: Upload Static Site
-        uses: azure/CLI@v1
-        with:
-          inlineScript: |
-            az storage blob delete-batch --account-name ${{ env.PREFIX }}public -s '$web'
-            az storage blob upload-batch --account-name ${{ env.PREFIX }}public -d '$web' -s frontend/dist
+      # 2021-11-04 CW - Disabling to enable other production deploys to happen
+      # - name: Upload Static Site
+      #   run: |
+      #     az storage blob delete-batch --account-name ${{ env.PREFIX }}public -s '$web'
+      #     az storage blob upload-batch --account-name ${{ env.PREFIX }}public -s frontend/dist -d '$web'
