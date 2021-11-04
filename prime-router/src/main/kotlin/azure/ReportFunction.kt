@@ -28,7 +28,6 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.time.Instant
 import java.time.format.DateTimeFormatter
-import java.util.HashMap
 import java.util.logging.Level
 
 private const val CLIENT_PARAMETER = "client"
@@ -518,6 +517,13 @@ class ReportFunction : Logging {
         context.logger.info(loggerMsg)
     }
 
+    data class GroupedProperties(
+        val itemsByGroupingId: HashMap<String, MutableList<Int>>,
+        val messageByGroupingId: HashMap<String, String>,
+        val scopesByGroupingId: HashMap<String, String>,
+        val itemDetailsWithGroupingId: HashMap<String, String>
+    )
+
     // todo I think all of this info is now in ActionHistory.  Move to there.   Already did destinations.
     private fun createResponseBody(
         result: ValidatedRequest,
@@ -581,31 +587,28 @@ class ReportFunction : Logging {
                 return sb.toString()
             }
 
-            fun createPropertiesByGroupingId(array: List<ResultDetail>): List<HashMap<String, out Any>> {
-                val itemsByGroupingId = hashMapOf<String, MutableList<Int>>()
-                val messageByGroupingId = hashMapOf<String, String>()
-                val scopesByGroupingId = hashMapOf<String, String>()
-                val itemDetailsWithGroupingId = hashMapOf<String, String>()
+            fun createPropertiesByGroupingId(array: List<ResultDetail>): GroupedProperties {
+                val groupedProperties = GroupedProperties(
+                    itemsByGroupingId = hashMapOf<String, MutableList<Int>>(),
+                    messageByGroupingId = hashMapOf<String, String>(),
+                    scopesByGroupingId = hashMapOf<String, String>(),
+                    itemDetailsWithGroupingId = hashMapOf<String, String>()
+                )
                 array.forEach { resultDetail ->
                     val groupingId = resultDetail.responseMessage.groupingId()
-                    if (!itemsByGroupingId.containsKey(groupingId)) {
-                        itemsByGroupingId[groupingId] = mutableListOf()
-                        messageByGroupingId[groupingId] = resultDetail.responseMessage.detailMsg()
-                        scopesByGroupingId[groupingId] = resultDetail.scope.toString()
+                    if (!groupedProperties.itemsByGroupingId.containsKey(groupingId)) {
+                        groupedProperties.itemsByGroupingId[groupingId] = mutableListOf()
+                        groupedProperties.messageByGroupingId[groupingId] = resultDetail.responseMessage.detailMsg()
+                        groupedProperties.scopesByGroupingId[groupingId] = resultDetail.scope.toString()
                     }
                     if (resultDetail.row != -1) {
                         // Add 2 to account for array offset and csv header
-                        itemsByGroupingId[groupingId]?.add(resultDetail.row + 2)
-                        itemDetailsWithGroupingId[(resultDetail.row + 2).toString()] =
+                        groupedProperties.itemsByGroupingId[groupingId]?.add(resultDetail.row + 2)
+                        groupedProperties.itemDetailsWithGroupingId[(resultDetail.row + 2).toString()] =
                             resultDetail.responseMessage.groupingId()
                     }
                 }
-                return listOf<HashMap<String, out Any>>(
-                    itemsByGroupingId,
-                    messageByGroupingId,
-                    scopesByGroupingId,
-                    itemDetailsWithGroupingId
-                )
+                return groupedProperties
             }
 
             fun writeConsolidatedArray(field: String, array: List<ResultDetail>) {
