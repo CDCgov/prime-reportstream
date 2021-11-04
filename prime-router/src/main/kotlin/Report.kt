@@ -558,7 +558,9 @@ class Report : Logging {
                     it.patientAge = row.getStringOrNull("patient_dob").let { dob ->
                         try {
                             val d = LocalDate.parse(dob, Element.dateFormatter)
-                            if (d != null && it.specimenCollectionDateTime != null) {
+                            if (d != null && it.specimenCollectionDateTime != null &&
+                                (d.isBefore(it.specimenCollectionDateTime))
+                            ) {
                                 Period.between(d, it.specimenCollectionDateTime).years.toString()
                             } else {
                                 null
