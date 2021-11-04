@@ -365,13 +365,17 @@ class Metadata : Logging {
             // Process existing tables
             databaseTables.forEach { dbTable ->
                 val tableInfo = activeTables.firstOrNull { it.tableName == dbTable.name }
-                if (tableInfo != null && tableInfo.tableVersion != dbTable.version)
-                    dbTable.loadTable(tableInfo.tableVersion)
-                else if (tableInfo == null) {
-                    // This table is no longer active or was removed.
-                    // Note that we cannot remove the table as the schema would break with the existing code.
-                    dbTable.setTableData(emptyList())
-                    logger.warn("Database lookup table ${dbTable.name} is no longer active.")
+                when {
+                    // The table was removed
+                    tableInfo == null -> {
+                        // Note that we cannot remove the table as the schema would break with the existing code.
+                        dbTable.setTableData(emptyList())
+                        logger.warn("Database lookup table ${dbTable.name} is no longer active.")
+                    }
+
+                    // The table version has changed
+                    tableInfo.tableVersion != dbTable.version ->
+                        dbTable.loadTable(tableInfo.tableVersion)
                 }
             }
 
@@ -468,7 +472,7 @@ class Metadata : Logging {
          */
         private val tablePollInternalSecs =
             try {
-                System.getenv("PRIME_METADATA_POLL_INTERVAL")?.let { it.toLong() }
+                System.getenv("PRIME_METADATA_POLL_INTERVAL")?.toLong()
             } catch (e: NumberFormatException) {
                 null
             } ?: 30L
