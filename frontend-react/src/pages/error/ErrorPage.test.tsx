@@ -1,9 +1,10 @@
 /* eslint-disable no-restricted-globals */
-import { render } from "@testing-library/react";
+import { ReactElement } from "react";
 import { NetworkErrorBoundary } from "rest-hooks";
+import { render } from "@testing-library/react";
 
 import { CODES, ErrorPage } from "./ErrorPage";
-import { ReactElement } from "react";
+
 
 describe("testing ErrorPage", () => {
     // types of errors we can throw
@@ -52,7 +53,7 @@ describe("testing ErrorPage", () => {
         expect(queryByText(/child component/i)).toBe(null);
     });
 
-    it("check UNSUPPORTED_BROWSER", () => {
+    it("check NOT_FOUND_404", () => {
         const { getByText, queryByText } = render(
             <ErrorPage code={CODES.NOT_FOUND_404}>
                 <div>child component</div>

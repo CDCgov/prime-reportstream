@@ -11,7 +11,7 @@ import ReportDetails from "./ReportDetails";
 import FacilitiesTable from "./FacilitiesTable";
 
 function useQuery(): { readonly [key: string]: string } {
-    let query = window.location.search.slice(1);
+    const query = window.location.search.slice(1);
     const queryMap = {};
     Object.assign(
         queryMap,
@@ -24,9 +24,9 @@ function useQuery(): { readonly [key: string]: string } {
 }
 
 const DetailsContent = () => {
-    let queryMap = useQuery();
-    let reportId = queryMap ? ["reportId"] : "";
-    let report = useResource(ReportResource.detail(), { reportId: reportId });
+    const queryMap = useQuery();
+    const reportId = queryMap?.["reportId"] || "";
+    const report = useResource(ReportResource.detail(), { reportId: reportId });
 
     return (
         <>

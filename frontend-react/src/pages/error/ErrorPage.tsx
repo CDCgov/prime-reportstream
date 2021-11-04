@@ -16,7 +16,7 @@ export enum CODES {
 }
 
 interface ErrorPageProps {
-    code?: CODES.UNSUPPORTED_BROWSER | CODES.NOT_FOUND_404 | CODES.UNKNOWN;
+    code?: CODES;
     error?: string;
     errorInfo?: React.ErrorInfo;
     type?: "page" | "message";
