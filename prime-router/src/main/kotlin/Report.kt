@@ -58,7 +58,7 @@ data class QualityFilterResult(
 ) {
     override fun toString(): String {
         return "For $receiverName, qualityFilter $filterName, $filterArgs" +
-            " filtered out Rows ${filteredRows.joinToString(",")}" +
+            " filtered out Rows ${filteredRows.map{ it + 1 }.joinToString(",")}" +
             " reducing the Item count from $originalCount to ${originalCount - filteredRows.size}."
     }
 }

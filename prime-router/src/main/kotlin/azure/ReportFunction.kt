@@ -567,6 +567,9 @@ class ReportFunction : Logging {
                     it.writeStringField("scope", error.scope.toString())
                     it.writeStringField("id", error.id)
                     it.writeStringField("details", error.responseMessage.detailMsg())
+                    if (error.rowNumber > 0) {
+                        it.writeStringField("row", error.rowNumber.toString())
+                    }
                     it.writeEndObject()
                 }
                 it.writeEndArray()
@@ -610,7 +613,7 @@ class ReportFunction : Logging {
                     }
                     if (resultDetail.row != -1) {
                         // Add 2 to account for array offset and csv header
-                        rowsByGroupingId[groupingId]?.add(resultDetail.row + 2)
+                        rowsByGroupingId[groupingId]?.add(resultDetail.rowNumber)
                     }
                 }
                 it.writeArrayFieldStart(field)
