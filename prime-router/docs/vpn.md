@@ -91,7 +91,21 @@ If you are using OpenVPN Connect, uninstall it and install the [OpenVPN Client](
  
 
 # For VPN Administrators
-## Generate a VPN Profile
+
+## Generate a VPN Profile (Automatic)
+
+1. Download the following files from our Keybase team `prime_dev_ops`: [keybase://team/prime_dev_ops/vpn](keybase://team/prime_dev_ops/vpn)
+   * `caCert.pem`
+   * `caKey.pem`
+   * `prime-data-hub-prod.ovpn`
+   * `prime-data-hub-staging.ovpn`
+   * `prime-data-hub-test.ovpn`
+   * `createKey.sh`
+1. Run `createKey.sh` and follow the prompts
+1. The user's VPN profile with be outputted in a folder with their name
+1. Securely transmit the VPN profile to the recipient
+
+## Generate a VPN Profile (Manual)
 
 To generate keys for a VPN profile, follow the below steps. These steps [are derived from this Azure document](https://docs.microsoft.com/en-us/azure/vpn-gateway/vpn-gateway-certificates-point-to-site-linux).
 
