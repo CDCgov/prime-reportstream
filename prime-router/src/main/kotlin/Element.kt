@@ -3,6 +3,7 @@ package gov.cdc.prime.router
 import com.google.i18n.phonenumbers.PhoneNumberUtil
 import gov.cdc.prime.router.Element.Cardinality.ONE
 import gov.cdc.prime.router.Element.Cardinality.ZERO_OR_ONE
+import gov.cdc.prime.router.metadata.LookupTable
 import java.lang.Exception
 import java.text.DecimalFormat
 import java.time.Instant
@@ -242,8 +243,8 @@ data class Element(
      * The format string's value is specific to the type of the element.
      */
     fun toFormatted(
-        normalizedValue: kotlin.String,
-        format: kotlin.String? = null,
+        normalizedValue: String,
+        format: String? = null,
     ): String {
         if (normalizedValue.isEmpty()) return ""
         val formattedValue = when (type) {
