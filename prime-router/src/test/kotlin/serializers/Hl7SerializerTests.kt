@@ -1019,7 +1019,16 @@ NTE|1|L|This is a final comment|RE"""
         val schema = "direct/direct-covid-19"
 
         val hl7Config = mockkClass(Hl7Configuration::class).also {
-            every { it.replaceValue }.returns(mapOf("fake1" to "ABCTEXT123", "fake" to "10D1234567"))
+            every { it.replaceValue }.returns(
+                mapOf(
+                    "" to "ABCTEXT123",
+                    "fake1" to "ABCTEXT123",
+                    "MSH-4-1" to "success",
+                    "MSH-4-2" to "correctText,-,YES!",
+                    "MSH-4-3" to "MSH-4-2",
+                    "MSH-10" to "yeah,/,MSH-4-1"
+                )
+            )
             every { it.format }.returns(Report.Format.HL7)
             every { it.useTestProcessingMode }.returns(false)
             every { it.suppressQstForAoe }.returns(false)
@@ -1035,7 +1044,7 @@ NTE|1|L|This is a final comment|RE"""
             every { it.reportingFacilityIdType }.returns(null)
             every { it.cliaForOutOfStateTesting }.returns(null)
             every { it.useOrderingFacilityName }.returns(Hl7Configuration.OrderingFacilityName.STANDARD)
-            every { it.cliaForSender }.returns(mapOf())
+            every { it.cliaForSender }.returns(mapOf("fake1" to "ABCTEXT123", "fake" to "10D1234567"))
             every { it.defaultAoeToUnknown }.returns(false)
         }
         val receiver = mockkClass(Receiver::class).also {
@@ -1050,8 +1059,14 @@ NTE|1|L|This is a final comment|RE"""
         val cleanedMessage = reg.replace(output, "\r")
         val hapiMsg = parser.parse(cleanedMessage)
         val terser = Terser(hapiMsg)
-        val cliaTersed = terser.get("/MSH-4-2")
+        val msh41 = terser.get("/MSH-4-1")
+        val msh42 = terser.get("/MSH-4-2")
+        val msh43 = terser.get("/MSH-4-3")
+        val msh10 = terser.get("/MSH-10")
 
-        assertThat(cliaTersed).equals("10D1234567")
+        assertThat(msh41).equals("success")
+        assertThat(msh42).equals("correctText-YES!")
+        assertThat(msh43).equals("correctText-YES!")
+        assertThat(msh10).equals("yeah/success")
     }
 }

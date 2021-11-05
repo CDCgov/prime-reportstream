@@ -607,51 +607,10 @@ class Hl7Serializer(
             }
         }
 
-        // after all values have been set or blanked, check for values that need replacement
-        // isNotEmpty returns true only when a value exists. Whitespace only is considered a value
-        replaceValue.forEach { element ->
-
-            // value can be set as a comma separated list. First split the list .
-            val valueList = element.value.split(",").map { it.trim() }
-            var value = ""
-
-            valueList.forEach { field ->
-
-                var valueInMessage = ""
-
-                // value could be a literal or a reference to a different HL7 field. When the terser.get fails
-                // the assumption is to add the string as a literal
-                valueInMessage = try {
-                    val pathSpec = formPathSpec(field)
-                    terser.get(pathSpec)
-                } catch (e: Exception) {
-                    field
-                }
-                value = value.plus(valueInMessage)
-            }
-
-            // OBX segment can repeat. All repeats need to be looped
-            if (element.key.substring(0, 3).equals("OBX")) {
-                val observationReps = message.patienT_RESULT.ordeR_OBSERVATION.observationReps
-
-                for (i in 0..observationReps.minus(1)) {
-                    val pathSpec = formPathSpec(element.key, i)
-                    val valueInMessage = terser.get(pathSpec) ?: ""
-                    if (valueInMessage.isNotEmpty()) {
-                        terser.set(pathSpec, value)
-                    }
-                }
-            } else {
-                val pathSpec = formPathSpec(element.key)
-                val valueInMessage = terser.get(pathSpec) ?: ""
-                if (valueInMessage.isNotEmpty()) {
-                    terser.set(pathSpec, value)
-                }
-            }
-        }
+        replaceValue(replaceValue, terser, message.patienT_RESULT.ordeR_OBSERVATION.observationReps)
     }
 
-    internal fun replaceValue(
+    private fun replaceValue(
         replaceValueMap: Map<String, String>,
         terser: Terser,
         observationRepeats: Int
@@ -667,11 +626,9 @@ class Hl7Serializer(
 
             valueList.forEach { field ->
 
-                var valueInMessage = ""
-
                 // value could be a literal or a reference to a different HL7 field. When the terser.get fails
                 // the assumption is to add the string as a literal
-                valueInMessage = try {
+                val valueInMessage = try {
                     val pathSpec = formPathSpec(field)
                     terser.get(pathSpec)
                 } catch (e: Exception) {
@@ -681,7 +638,7 @@ class Hl7Serializer(
             }
 
             // OBX segment can repeat. All repeats need to be looped
-            if (element.key.substring(0, 3) == "OBX") {
+            if (element.key.length >= 3 && element.key.substring(0, 3) == "OBX") {
 
                 for (i in 0..observationRepeats.minus(1)) {
                     val pathSpec = formPathSpec(element.key, i)
@@ -691,10 +648,13 @@ class Hl7Serializer(
                     }
                 }
             } else {
-                val pathSpec = formPathSpec(element.key)
-                val valueInMessage = terser.get(pathSpec) ?: ""
-                if (valueInMessage.isNotEmpty()) {
-                    terser.set(pathSpec, value)
+                try {
+                    val pathSpec = formPathSpec(element.key)
+                    val valueInMessage = terser.get(pathSpec)
+                    if (valueInMessage.isNotEmpty()) {
+                        terser.set(pathSpec, value)
+                    }
+                } catch (e: Exception) {
                 }
             }
         }
