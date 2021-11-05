@@ -2,6 +2,8 @@ package gov.cdc.prime.router
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import assertk.assertions.isNull
+import assertk.assertions.isNotNull
 import assertk.assertions.isNotEqualTo
 import kotlin.test.Ignore
 import kotlin.test.Test
@@ -151,7 +153,7 @@ class ReportTests {
     }
 
     @Test
-    fun `test PatientAge Validation`() {
+    fun `test patient age validation`() {
 
         /**
          * Create table's header
@@ -160,24 +162,29 @@ class ReportTests {
             Element("message_id"), Element("specimen_collection_date_time"), Element("patient_dob")))
 
         /**
-         * Load known values to the table's row
+         * Add Rows values to the table
          */
         val oneReport = Report(schema = one, values = listOf(
-            listOf("0", "202110300809-0500", "20190101"),   // Yield patient_age = 2
-            listOf("1", "202110300809-0500", "30300101"),   // Invalid DOB, in future, gives patient_age = null
-            listOf("2", "202110300809", "30300101"),        // Invalid collection datetime  gives patient_age = null
-            listOf("3", "202110300809-0500", "20111029"),   // Yield patient_age = 10
-            listOf("4", "xyz", "20190101")),                // Invalid collection datetime gives patient_age = null
+            listOf("0", "202110300809", "30300102"),        // Invalid collection datetime, bad DOB -> patient_age=null
+            listOf("1", "202110300809-0501", "30300101"),   // Good collection datetime, Invalid DOB -> patient_age=null
+            listOf("2", "202110300809", "20190101"),        // Invalid collection datetime -> patient_age = null
+            listOf("3", "adfadf", "!@!*@(7"),               // Garbage -> patient_age = null
+            listOf("4", "202110300809-0500", "20190101"),   // Both dates are good -> patient_age = 2
+            listOf("5", "202110300809-0502", "20111029"),   // Yield patient_age = 10
+            listOf("6", "asajh", "20190101")),              // Invalid collection datetime gives patient_age = null
             TestSource)
 
         val covidResultMetadata = oneReport.getDeidentifiedResultMetaData();
         assertThat(covidResultMetadata).isNotNull()
-        assertThat(covidResultMetadata.get(0).patientAge).isEqualTo("2")
+        assertThat(covidResultMetadata.get(0).patientAge).isNull()
         assertThat(covidResultMetadata.get(1).patientAge).isNull()
         assertThat(covidResultMetadata.get(2).patientAge).isNull()
-        assertThat(covidResultMetadata.get(3).patientAge).isEqualTo("10")
-        assertThat(covidResultMetadata.get(4).patientAge).isNull()
+        assertThat(covidResultMetadata.get(3).patientAge).isNull()
+        assertThat(covidResultMetadata.get(4).patientAge).isEqualTo("2")
+        assertThat(covidResultMetadata.get(5).patientAge).isEqualTo("10")
+        assertThat(covidResultMetadata.get(6).patientAge).isNull()
     }
+
 
     // Tests for Item lineage
     @Test
