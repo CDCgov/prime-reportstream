@@ -1,4 +1,3 @@
-// @ts-nocheck // TODO: fix types in this file
 import { GovBanner } from "@trussworks/react-uswds";
 import { Route, useHistory, Switch } from "react-router-dom";
 import { OktaAuth, toRelativeUrl } from "@okta/okta-auth-js";

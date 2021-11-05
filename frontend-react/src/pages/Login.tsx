@@ -1,4 +1,4 @@
-// @ts-nocheck // TODO: fix types in this file
+import React from "react";
 import { Link, Redirect } from "react-router-dom";
 import { useOktaAuth } from "@okta/okta-react";
 import { SiteAlert } from "@trussworks/react-uswds";
@@ -9,14 +9,19 @@ import { groupToOrg } from "../webreceiver-utils";
 import { useGlobalContext } from "../components/GlobalContextProvider";
 import { PERMISSIONS } from "../resources/PermissionsResource";
 
-export const Login = ({ config }) => {
+
+interface LoginProps {
+    config: any; // OktaWidget doesn't have a typescript declr yet.
+}
+
+export const Login = (props: LoginProps) => {
     const { oktaAuth, authState } = useOktaAuth();
     const { updateOrganization } = useGlobalContext();
 
     const onSuccess = (tokens: Tokens | undefined) => {
         let oktaGroups =
             tokens?.accessToken?.claims?.organization.filter(
-                (group) => group !== PERMISSIONS.PRIME_ADMIN
+                (group: string) => group !== PERMISSIONS.PRIME_ADMIN
             ) || [];
         updateOrganization(groupToOrg(oktaGroups[0]) || "");
         oktaAuth.handleLoginRedirect(tokens);
@@ -47,7 +52,7 @@ export const Login = ({ config }) => {
         <>
             <MonitoringAlert />
             <OktaSignInWidget
-                config={config}
+                config={props.config}
                 onSuccess={onSuccess}
                 onError={onError}
             />
