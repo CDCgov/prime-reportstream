@@ -378,7 +378,7 @@ With your VPN running, do the following:
 export POSTGRES_PASSWORD=<postgres-password>
 export POSTGRES_USER= <postgres-user>@pdhstaging-pgsql                                                                                                          
 export POSTGRES_URL=jdbc:postgresql://pdhstaging-pgsql.postgres.database.azure.com:5432/prime_data_hub
-./prime test --run ping --env staging --key <reports-endpoint-function-key> 
+./prime test --run end2end --env staging --key <reports-endpoint-function-key> 
 ```    
 
 To run the entire smoke test suite on Staging use this:
