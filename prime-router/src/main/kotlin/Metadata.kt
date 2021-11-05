@@ -380,7 +380,7 @@ class Metadata : Logging {
             }
 
             // Load new tables
-            val newTables = activeTables.filter { !lookupTableStore.containsKey(it.tableName) }
+            val newTables = activeTables.filter { !lookupTableStore.containsKey(it.tableName.lowercase()) }
             newTables.forEach {
                 loadLookupTable(
                     it.tableName,
