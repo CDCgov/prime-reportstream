@@ -394,8 +394,10 @@ jobs:
           path: frontend-react/build
 
       - name: Upload Static Site
+        working-directory: .
         run: |
           ls -al
+          ls -al ..
           find . -type f
       # 2021-11-04 CW - Disabling to enable other production deploys to happen
       #     az storage blob delete-batch --account-name ${{ env.PREFIX }}public -s '$web'
