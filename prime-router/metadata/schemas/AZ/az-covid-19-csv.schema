@@ -16,12 +16,7 @@ elements:
   - name: organization_name
     maxLength:  50
     type: TEXT
-    csvFields:
-    - name: organization_name
-
-  - name: testing_lab_name
-    maxLength: 50
-    type: TEXT
+    mapper: use(testing_lab_name)
     csvFields:
     - name: Lab_Name
 
