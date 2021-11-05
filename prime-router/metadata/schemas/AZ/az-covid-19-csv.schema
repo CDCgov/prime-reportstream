@@ -17,6 +17,12 @@ elements:
     maxLength:  50
     type: TEXT
     csvFields:
+    - name: organization_name
+
+  - name: testing_lab_name
+    maxLength: 50
+    type: TEXT
+    csvFields:
     - name: Lab_Name
 
   - name: testing_lab_clia
