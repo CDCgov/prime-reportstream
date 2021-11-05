@@ -394,7 +394,7 @@ jobs:
           az functionapp config access-restriction remove -g ${{ env.RESOURCE_GROUP }} -n ${{ env.PREFIX }}-functionapp --slot candidate --rule-name GitHubActionIPV4 > /dev/null 2>&1
 
       - name: Upload Static Site
-        run: ls -R frontend-react/build
+        run: find . -type f
       # 2021-11-04 CW - Disabling to enable other production deploys to happen
       #     az storage blob delete-batch --account-name ${{ env.PREFIX }}public -s '$web'
       #     az storage blob upload-batch --account-name ${{ env.PREFIX }}public -s frontend-react/build -d '$web' --debug
