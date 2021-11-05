@@ -5,8 +5,6 @@ import com.microsoft.azure.functions.HttpRequestMessage
 import com.nimbusds.jose.Algorithm
 import com.nimbusds.jose.jwk.KeyType
 import gov.cdc.prime.router.azure.ActionHistory
-import gov.cdc.prime.router.azure.AuthenticationResult
-import gov.cdc.prime.router.azure.Authenticator
 import gov.cdc.prime.router.azure.WorkflowEngine
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.JwsHeader
@@ -32,7 +30,7 @@ import java.util.UUID
  *
  *
  */
-class TokenAuthentication(val jtiCache: JtiCache) : Authenticator, Logging {
+class TokenAuthentication(val jtiCache: JtiCache) : Logging {
     private val MAX_CLOCK_SKEW_SECONDS: Long = 60
     private val EXPIRATION_SECONDS = 300
 
@@ -108,10 +106,6 @@ class TokenAuthentication(val jtiCache: JtiCache) : Authenticator, Logging {
         actionHistory?.trackActionResult(msg)
         logger.info(msg)
         return AccessToken(subject, token, "bearer", expiresInSeconds, expiresAtSeconds, scopeAuthorized)
-    }
-
-    override fun checkAccess(request: HttpRequestMessage<String?>, sender: String): AuthenticationResult {
-        return AuthenticationResult(checkAccessToken(request, "$sender.report") != null, null)
     }
 
     fun checkAccessToken(request: HttpRequestMessage<String?>, desiredScope: String): Claims? {
