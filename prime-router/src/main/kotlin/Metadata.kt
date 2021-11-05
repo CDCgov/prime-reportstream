@@ -340,7 +340,7 @@ class Metadata : Logging {
      * Load the database lookup tables.
      */
     @Synchronized
-    internal fun checkForDatabaseLookupTableUpdates() {
+    fun checkForDatabaseLookupTableUpdates() {
         // Check for tables at intervals
         if (tablelastCheckedAt.plusSeconds(tablePollInternalSecs).isAfter(Instant.now()))
             return
@@ -461,9 +461,6 @@ class Metadata : Logging {
          * @return the metadata instance
          */
         fun getInstance(): Metadata {
-            // Load any updates to the database lookup tables.
-            // Due to the use of this function, this will get checked at least on every Azure function call
-            singletonInstance.checkForDatabaseLookupTableUpdates()
             return singletonInstance
         }
 
