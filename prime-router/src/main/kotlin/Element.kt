@@ -843,6 +843,11 @@ data class Element(
         return retVal
     }
 
+    /**
+     * Populates the value of a specialized mapper token, indicated by a $ prefix
+     * @param elementName the token name
+     * @param index optional int value used with the $index token
+     */
     fun tokenizeMapperValue(elementName: String, index: Int = 0): ElementAndValue {
         val tokenElement = Element(elementName)
         var retVal = ElementAndValue(tokenElement, "")
@@ -862,6 +867,11 @@ data class Element(
         return retVal
     }
 
+    /**
+     * Retrieves the value of a generalized token as string (i.e. "$mode:literal" returns "literal")
+     * @param token the token
+     * @return the string value of a token
+     */
     private fun extractStringValue(token: String): String {
         return token.split(":")[1]
     }
