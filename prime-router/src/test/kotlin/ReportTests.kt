@@ -153,38 +153,60 @@ class ReportTests {
     }
 
     @Test
-    fun `test getDeidentifiedResultMetaData for patient age validation`() {
+    fun `test patient age validation`() {
 
         /**
          * Create table's header
          */
-        val one = Schema(name = "one", topic = "test", elements = listOf(
-            Element("message_id"), Element("specimen_collection_date_time"), Element("patient_dob")))
+        val oneWithAge = Schema(name = "one", topic = "test", elements = listOf(
+            Element("message_id"), Element("patient_age"),
+            Element("specimen_collection_date_time"), Element("patient_dob")))
 
         /**
          * Add Rows values to the table
          */
-        val oneReport = Report(schema = one, values = listOf(
-            listOf("0", "202110300809", "30300102"),        // Invalid collection datetime, bad DOB -> patient_age=null
-            listOf("1", "202110300809-0501", "30300101"),   // Good collection datetime, Invalid DOB -> patient_age=null
-            listOf("2", "202110300809", "20190101"),        // Invalid collection datetime -> patient_age = null
-            listOf("3", "adfadf", "!@!*@(7"),               // Garbage -> patient_age = null
-            listOf("4", "202110300809-0500", "20190101"),   // Both dates are good -> patient_age = 2
-            listOf("5", "202110300809-0502", "20111029"),   // Yield patient_age = 10
-            listOf("6", "asajh", "20190101")),              // Invalid collection datetime gives patient_age = null
+        val oneReport = Report(schema = oneWithAge, values = listOf(
+            listOf("0", "100", "202110300809", "30300102"),      // Good age, ... don't care -> patient_age=100
+            listOf("1", ")@*", "202110300809-0501", "30300101"), // Bad age, good collect date, BAD DOB -> patient_age=null
+            listOf("2", "_", "202110300809", "20190101"),        // Bad age, bad collect date, good dob -> patient_age=null
+            listOf("3", "20", "adfadf", "!@!*@(7"),              // Good age, bad collect date, bad dob -> patient_age=20
+            listOf("4", "0", "202110300809-0500", "20190101"),   // Bad age, good collect date, good dob -> patient_age=2
+            listOf("5", "-5", "202110300809-0502", "20111029"),  // Bad age, good collect data, good dob -> patient_age=10
+            listOf("6", "40", "asajh", "20190101")),             // Good age, ... don't care -> patient_age = 40
             TestSource)
 
         val covidResultMetadata = oneReport.getDeidentifiedResultMetaData();
         assertThat(covidResultMetadata).isNotNull()
-        assertThat(covidResultMetadata.get(0).patientAge).isNull()
+        assertThat(covidResultMetadata.get(0).patientAge).isEqualTo("100")
         assertThat(covidResultMetadata.get(1).patientAge).isNull()
         assertThat(covidResultMetadata.get(2).patientAge).isNull()
-        assertThat(covidResultMetadata.get(3).patientAge).isNull()
+        assertThat(covidResultMetadata.get(3).patientAge).isEqualTo("20")
         assertThat(covidResultMetadata.get(4).patientAge).isEqualTo("2")
         assertThat(covidResultMetadata.get(5).patientAge).isEqualTo("10")
-        assertThat(covidResultMetadata.get(6).patientAge).isNull()
-    }
+        assertThat(covidResultMetadata.get(6).patientAge).isEqualTo("40")
 
+        /**
+         * Test table with out patient_age
+         */
+        val twoWithoutAge = Schema(name = "one", topic = "test", elements = listOf(
+            Element("message_id"), Element("specimen_collection_date_time"),
+            Element("patient_dob")))
+
+        /**
+         * Add Rows values to the table
+         */
+        val twoReport = Report(schema = twoWithoutAge, values = listOf(
+            listOf("0", "202110300809", "30300102"),        // Bad speciment collection date -> patient_age=null
+            listOf("1", "202110300809-0501", "30300101"),   // good collect date, BAD DOB -> patient_age=null
+            listOf("2", "202110300809-0500", "20190101")),  // Bad age, good collect date, good dob -> patient_age=2
+            TestSource)
+
+        val covidResultMetadata2 = twoReport.getDeidentifiedResultMetaData();
+        assertThat(covidResultMetadata2).isNotNull()
+        assertThat(covidResultMetadata2.get(0).patientAge).isNull()
+        assertThat(covidResultMetadata2.get(1).patientAge).isNull()
+        assertThat(covidResultMetadata2.get(2).patientAge).isEqualTo("2")
+    }
 
     // Tests for Item lineage
     @Test
