@@ -38,7 +38,7 @@ class TranslationTests {
     /**
      * The metadata
      */
-    private val metadata = Metadata("./metadata")
+    private val metadata = Metadata.getInstance()
 
     /**
      * The settings
