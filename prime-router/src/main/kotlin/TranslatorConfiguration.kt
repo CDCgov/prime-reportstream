@@ -204,22 +204,20 @@ data class RedoxConfiguration
 }
 
 /**
- * A translation for a Google/Apple Exposure Notification. This translation does not have any parameters.
+ * A translation for a Google/Apple Exposure Notification. This translation does not have any options.
  */
 data class GAENConfiguration
 @JsonCreator constructor(
     val dummy: String? = null
 ) : TranslatorConfiguration("GAEN") {
     @get:JsonIgnore
-    override val format: Report.Format get() = Report.Format.CSV
+    override val format: Report.Format get() = Report.Format.CSV_SINGLE // Single item CSV
 
     @get:JsonIgnore
     override val schemaName: String get() = GAEN_SCHEMA
 
     @get:JsonIgnore
-    override val defaults: Map<String, String> get() {
-        return emptyMap()
-    }
+    override val defaults: Map<String, String> = emptyMap()
 
     @get:JsonIgnore
     override val nameFormat: String = "standard"

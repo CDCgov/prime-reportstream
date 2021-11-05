@@ -499,14 +499,14 @@ class ReportFunction : Logging {
                 workflowEngine.dispatchReport(event, batchReport, actionHistory, receiver, txn, context)
                 loggerMsg = "Queue: ${event.toQueueMessage()}"
             }
-            receiver.format == Report.Format.HL7 -> {
+            receiver.format.isSingleItemFormat -> {
                 report
                     .split()
                     .forEach {
                         val event = ReportEvent(Event.EventAction.SEND, it.id)
                         workflowEngine.dispatchReport(event, it, actionHistory, receiver, txn, context)
                     }
-                loggerMsg = "Queued to send immediately: HL7 split into ${report.itemCount} individual reports"
+                loggerMsg = "Queued to send immediately: Split into ${report.itemCount} individual reports"
             }
             else -> {
                 val event = ReportEvent(Event.EventAction.SEND, report.id)

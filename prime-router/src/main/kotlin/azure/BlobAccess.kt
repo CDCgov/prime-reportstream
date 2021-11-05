@@ -103,7 +103,7 @@ class BlobAccess(
             // HL7 needs some additional configuration we set on the translation in organization
             Report.Format.HL7 -> hl7Serializer.write(report, outputStream)
             Report.Format.HL7_BATCH -> hl7Serializer.writeBatch(report, outputStream)
-            Report.Format.CSV -> csvSerializer.write(report, outputStream)
+            Report.Format.CSV, Report.Format.CSV_SINGLE -> csvSerializer.write(report, outputStream)
             Report.Format.REDOX -> redoxSerializer.write(report, outputStream)
         }
         val contentBytes = outputStream.toByteArray()

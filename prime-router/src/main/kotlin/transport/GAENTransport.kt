@@ -4,8 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinFeature
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.github.kittinunf.fuel.Fuel
+import com.github.kittinunf.fuel.core.Headers
 import com.github.kittinunf.fuel.core.extensions.jsonBody
-import com.github.kittinunf.fuel.json.responseJson
 import com.github.kittinunf.result.Result
 import com.microsoft.azure.functions.ExecutionContext
 import gov.cdc.prime.router.GAENTransportType
@@ -20,10 +20,10 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.credentials.CredentialHelper
 import gov.cdc.prime.router.credentials.CredentialRequestReason
 import gov.cdc.prime.router.credentials.UserApiKeyCredential
+import khttp.post
 import org.apache.commons.lang3.RandomStringUtils
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.ByteArrayInputStream
-import java.util.UUID
 
 /**
  * The GAEN (Google/Apple Exposure Notification) transport was built for issuing notification to the
@@ -60,8 +60,10 @@ class GAENTransport : ITransport, Logging {
 
     /**
      * Send a Report defined by [header] and [sentReportId]. [header] will pass in the
-     * receiver to look up the API key in the key vault. Record a log in [actionHistory].
-     * Retries are tracked on an individual item basis.
+     * receiver to look up the API key in the key vault. Record the actions taken in [actionHistory].
+     * If this report has partially or completely failed in the past, [retryItems] are
+     * passed in. If this attempt has any items that should be retried, a retryItem list
+     * is generated.
      */
     override fun send(
         transportType: TransportType,
@@ -74,12 +76,10 @@ class GAENTransport : ITransport, Logging {
         val gaenTransportInfo = transportType as GAENTransportType
         val reportId = header.reportFile.reportId
         return try {
+            // Create a big bag of parameters to pass around
             if (header.content == null) error("No content to send for report $reportId")
             val receiver = header.receiver ?: error("No receiver defined for report $reportId")
-            val itemCount = header.reportFile.itemCount
             val credential = lookupCredentials(receiver.fullName)
-
-            // Creat a big bag of parameters to pass around
             val params = SendParams(
                 gaenTransportInfo,
                 credential,
@@ -92,32 +92,24 @@ class GAENTransport : ITransport, Logging {
                 actionHistory
             )
 
-            // Log the useful correlations of ids
+            // Log the useful correlations of ids before the work
             context.logger.info("${receiver.fullName}: Ready to notify on ${params.comboId}")
 
             // Do the work
-            val (futureRetries, sentCount) = processReport(params)
+            val postResult = processReport(params)
 
-            // Record the history of this transaction
-            val retryCount = futureRetries?.size ?: 0
-            when {
-                sentCount == itemCount -> recordFullSuccess(params)
-                sentCount + retryCount == itemCount -> recordSuccessWithRetries(params, sentCount)
-                sentCount + retryCount < itemCount -> recordPartialFailure(params, retryCount, sentCount)
-                sentCount == 0 -> recordFailure(params)
-                else -> error("Logic error in: sentCount=$sentCount retryCount=$retryCount itemCount=$itemCount")
+            // Record the work in history and logs
+            when (postResult) {
+                PostResult.SUCCESS -> recordFullSuccess(params)
+                PostResult.RETRY -> recordFailureWithRetry(params)
+                PostResult.FAIL -> recordFailure(params)
             }
 
-            futureRetries
+            // Return a retry token if we need to retry
+            if (postResult == PostResult.RETRY) RetryToken.allItems else null
         } catch (t: Throwable) {
             val receiverFullName = header.receiver?.fullName ?: ""
-            val msg = "FAILED GAEN notification of inputReportId $reportId to $gaenTransportInfo " +
-                "(receiver = $receiverFullName);" +
-                "No retry; Exception: ${t.javaClass.canonicalName} ${t.localizedMessage}"
-            // Dev note: Expecting severe level to trigger monitoring alerts
-            context.logger.severe(msg)
-            actionHistory.setActionType(TaskAction.send_error)
-            actionHistory.trackActionResult(msg)
+            recordFailureWithException(t, context, actionHistory, receiverFullName, reportId, gaenTransportInfo)
             null
         }
     }
@@ -125,7 +117,7 @@ class GAENTransport : ITransport, Logging {
     /**
      * Record in [ActionHistory] the full success of this notification. Log an info message as well.
      */
-    fun recordFullSuccess(params: SendParams) {
+    private fun recordFullSuccess(params: SendParams) {
         val msg = "${params.receiver.fullName}: Successful exposure notifications of ${params.comboId}"
         val history = params.actionHistory
         params.context.logger.info(msg)
@@ -142,53 +134,43 @@ class GAENTransport : ITransport, Logging {
     }
 
     /**
-     * Record in [ActionHistory] the partial success of this action with retries. Log an info message as well.
+     * Record failure into logs and [ActionHistory]
      */
-    private fun recordSuccessWithRetries(params: SendParams, sentCount: Int) {
-        val msg = "${params.receiver.fullName}: Partial send of $sentCount item of the ${params.comboId} report. " +
-            "Retries queued for ${params.itemCount - sentCount} items"
-        val history = params.actionHistory
-        params.context.logger.info(msg)
-        history.trackActionResult(msg)
-        history.trackSentReport(
-            params.receiver,
-            params.sentReportId,
-            null,
-            params.gaenTransportInfo.toString(),
-            msg,
-            sentCount
-        )
-        history.trackItemLineages(Report.createItemLineagesFromDb(params.header, params.sentReportId))
+    private fun recordFailure(params: SendParams) {
+        val msg = "${params.receiver.fullName}: Failed to send ${params.comboId} report. Will not retry."
+        params.context.logger.severe(msg)
+        params.actionHistory.setActionType(TaskAction.send_error)
+        params.actionHistory.trackActionResult(msg)
     }
 
     /**
-     * Record in [ActionHistory] the partial success of this notification. Log a warning message.
+     * Record failure into logs and [ActionHistory] with retry. Not logged as an error.
      */
-    private fun recordPartialFailure(params: SendParams, retryCount: Int, sentCount: Int) {
-        val msg = "${params.receiver.fullName}: Partial send of $sentCount item of the ${params.comboId} report. " +
-            "Retries queued for $retryCount items. " +
-            "Errors for ${params.itemCount - sentCount - retryCount} items."
-        val history = params.actionHistory
+    private fun recordFailureWithRetry(params: SendParams) {
+        val msg = "${params.receiver.fullName}: Failed to send ${params.comboId} report. Will retry."
         params.context.logger.warning(msg)
-        history.trackActionResult(msg)
-        history.trackSentReport(
-            params.receiver,
-            params.sentReportId,
-            null,
-            params.gaenTransportInfo.toString(),
-            msg,
-            sentCount
-        )
-        history.trackItemLineages(Report.createItemLineagesFromDb(params.header, params.sentReportId))
+        params.actionHistory.setActionType(TaskAction.send_warning)
+        params.actionHistory.trackActionResult(msg)
     }
 
-    fun recordFailure(params: SendParams) {
-        val msg = "${params.receiver.fullName}: Failed to send all items in ${params.comboId} report. " +
-            "Errors for ${params.itemCount} items."
-        val history = params.actionHistory
-        params.context.logger.severe(msg)
-        history.setActionType(TaskAction.send_error)
-        history.trackActionResult(msg)
+    /**
+     * Record failure into logs and [ActionHistory]. No retries.
+     */
+    private fun recordFailureWithException(
+        ex: Throwable,
+        context: ExecutionContext,
+        actionHistory: ActionHistory,
+        receiverFullName: String,
+        reportId: ReportId,
+        gaenTransportInfo: GAENTransportType
+    ) {
+        val msg = "FAILED GAEN notification of inputReportId $reportId to $gaenTransportInfo " +
+            "(receiver = $receiverFullName);" +
+            "No retry; Exception: ${ex.javaClass.canonicalName} ${ex.localizedMessage}"
+        // Dev note: Expecting severe level to trigger monitoring alerts
+        context.logger.severe(msg)
+        actionHistory.setActionType(TaskAction.send_error)
+        actionHistory.trackActionResult(msg)
     }
 
     /**
@@ -196,7 +178,7 @@ class GAENTransport : ITransport, Logging {
      * The structure is defined in
      * https://github.com/google/exposure-notifications-verification-server/blob/main/docs/api.md#apiissue
      */
-    class Notification(report: Report, row: Int, transmitId: UUID) {
+    internal class Notification(report: Report) {
         val symptomDate: String
         val testDate: String
         val testType: String = "confirmed"
@@ -207,21 +189,24 @@ class GAENTransport : ITransport, Logging {
         val externalIssuerID: String = "cdcprime"
 
         init {
-            symptomDate = report.getString(row, "patient_symptom_onset")
-                ?: error("Internal Error: expected patient_symptom_onset")
-            testDate = report.getString(row, "date_result_released")
-                ?: error("Internal Error: expected date_result_released")
-            phone = report.getString(row, "patient_phone_numer")
-                ?: error("Internal Error: expecte patient_phone_number")
-            padding = RandomStringUtils.random(10)
-            uuid = "${report.id}($transmitId)-$row"
+            testDate = report.getString(0, "date_result_released") ?: ""
+            symptomDate = report.getString(0, "illness_onset_date") ?: testDate
+            phone = report.getString(0, "patient_phone_number") ?: ""
+            padding = RandomStringUtils.randomAlphanumeric(16)
+            uuid = "${report.id}"
         }
     }
 
+    enum class PostResult { SUCCESS, FAIL, RETRY }
+
     /**
-     * Do the work of sending a notification for each result in the report
+     * Do the work of sending a notification for each item in the report.
+     * Return a list of retry items and the number of items sent.
      */
-    internal fun processReport(params: SendParams): Pair<RetryItems?, Int> {
+    internal fun processReport(params: SendParams): PostResult {
+        //
+        if (params.gaenTransportInfo.apiUrl.isBlank()) return PostResult.SUCCESS
+
         // Get the report
         val report = WorkflowEngine.csvSerializer.readInternal(
             GAEN_SCHEMA,
@@ -231,86 +216,50 @@ class GAENTransport : ITransport, Logging {
             params.header.reportFile.reportId
         )
 
-        // For each message create a notification
-        val notifications = report.itemIndices.map { Notification(report, it, params.sentReportId) }
+        // Create a notification
+        if (report.itemCount != 1) error("Internal Error: Expected a single item report")
+        val notification = Notification(report)
 
-        // Post each notification that needs to be retried
-        return handleIndexedRetryItems(notifications, params.pastRetryItems) { notification ->
-            postNotification(notification, params)
-        }
-    }
-
-    enum class BlockResult { SUCCESS, FAIL, RETRY }
-
-    /**
-     * Handler for retry and retryItems. Takes a [pastRetryItems] and generates a future RetryItems list.
-     * The [block] is called to preform the operation.
-     */
-    internal fun <T> handleIndexedRetryItems(
-        items: List<T>,
-        pastRetryItems: RetryItems?, /* = kotlin.collections.List<kotlin.String>? */
-        block: (item: T) -> BlockResult
-    ): Pair<RetryItems?, Int> {
-        val futureRetryItems = mutableListOf<String>()
-        var sentCount = 0
-        items.forEachIndexed { index, item ->
-            // Only send items in that are in the retry list
-            if ((pastRetryItems != null) &&
-                !RetryToken.isAllItems(pastRetryItems) &&
-                !pastRetryItems.contains(index.toString())
-            ) return@forEachIndexed
-
-            // Send
-            val result = block(item)
-
-            // Add to retry list
-            when (result) {
-                BlockResult.SUCCESS -> sentCount += 1
-                BlockResult.RETRY -> futureRetryItems += index.toString()
-                BlockResult.FAIL -> {}
-            }
-        }
-        return Pair(futureRetryItems.ifEmpty { null }, sentCount)
-    }
-
-    /**
-     * Post the [notification] payload to the server.
-     */
-    internal fun postNotification(notification: Notification, params: SendParams): BlockResult {
+        // Send the notification
         val payload = mapper.writeValueAsString(notification)
         val (_, response, result) = Fuel
             .post(params.gaenTransportInfo.apiUrl)
             .header(API_KEY, params.credential.apiKey)
+            .header(Headers.ACCEPT, "application/json")
             .timeout(GAEN_TIMEOUT)
             .jsonBody(payload)
-            .responseJson()
+            .responseString()
+
         return when (result) {
-            // Only retry if there is a server error
-            is Result.Failure -> {
-                return when (response.statusCode) {
-                    in 500..509 -> BlockResult.RETRY // retry
-                    else -> {
-                        // Record something about the failure
-                        BlockResult.FAIL
-                    }
-                }
-            }
             is Result.Success -> {
-                BlockResult.SUCCESS
+                PostResult.SUCCESS
+            }
+            is Result.Failure -> {
+                // The following retry/fail table is taken from the API's documentation
+                val blockResult = when (response.statusCode) {
+                    400 -> PostResult.FAIL // Bad parameters
+                    409 -> PostResult.SUCCESS // UUID already present (consider this a success)
+                    412 -> PostResult.FAIL // Unsupported test type
+                    429 -> PostResult.RETRY // Maintanence mode or quota limit
+                    in 500..599 -> PostResult.RETRY // Server error
+                    else -> PostResult.FAIL // Unexpected error code
+                }
+                if (blockResult != PostResult.SUCCESS) {
+                    val warning = "${params.receiver.fullName}: Error from GAEN server for ${notification.uuid}:" +
+                        " ${response.statusCode} ${response.responseMessage}"
+                    params.context.logger.warning(warning)
+                    params.actionHistory.trackActionResult(warning)
+                }
+                blockResult
             }
         }
     }
 
     /**
-     * From the credential service get a JKS for [receiverFullName].
+     * From the credential service get an API Key for [receiverFullName].
      */
     internal fun lookupCredentials(receiverFullName: String): UserApiKeyCredential {
-        // Covert to the upper case naming convention of the Client KeyVault
-        val credentialLabel = receiverFullName
-            .replace(".", "--")
-            .replace("_", "-")
-            .uppercase()
-
+        val credentialLabel = CredentialHelper.formCredentialLabel(fromReceiverName = receiverFullName)
         return CredentialHelper.getCredentialService().fetchCredential(
             credentialLabel,
             "GAENTransport",
