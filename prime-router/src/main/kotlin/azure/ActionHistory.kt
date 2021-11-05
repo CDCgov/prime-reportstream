@@ -544,14 +544,6 @@ class ActionHistory {
         DSL.using(txn).newRecord(ITEM_LINEAGE, itemLineage).store()
     }
 
-    // Used as temp storage by the json generator, below.
-    private data class DestinationData(
-        val orgReceiver: Receiver,
-        val organization: Organization,
-        var count: Int,
-        val sendingAt: OffsetDateTime? = null,
-    )
-
     /**
      * Generate nice json describing the destinations, suitable for returning to a Hub client.
      * Most of the ugliness here is the attempt to not print every 1-entry report, but combine and summarize them.
@@ -566,7 +558,7 @@ class ActionHistory {
         var destinationCounter = 0
         jsonGen.writeArrayFieldStart("destinations")
         if (filteredOutReports.isNotEmpty()) {
-            filteredOutReports.forEach { (_, reportFile) ->
+            filteredOutReports.forEach { (reportId, reportFile) ->
                 val fullname = reportFile.receivingOrg + "." + reportFile.receivingOrgSvc
                 val (organization, orgReceiver) = settings.findOrganizationAndReceiver(fullname) ?: return@forEach
                 prettyPrintDestinationJson(
@@ -576,44 +568,23 @@ class ActionHistory {
                     reportFile.nextActionAt,
                     reportFile.itemCount,
                     reportOptions,
-                    reportFile.reportId
+                    reportId
                 )
                 destinationCounter++
             }
         }
         if (reportsOut.isNotEmpty()) {
-            // Avoid clutter.  Combine reports with one Item, and print combined count.
-            var singles = mutableMapOf<String, DestinationData>()
-            reportsOut.forEach { (_, reportFile) ->
+            reportsOut.forEach { (reportId, reportFile) ->
                 val fullname = reportFile.receivingOrg + "." + reportFile.receivingOrgSvc
                 val (organization, orgReceiver) = settings.findOrganizationAndReceiver(fullname) ?: return@forEach
-                if (reportFile.itemCount == 1) {
-                    var previous =
-                        singles.putIfAbsent(
-                            fullname, DestinationData(orgReceiver, organization, 1, reportFile.nextActionAt)
-                        )
-                    if (previous != null) previous.count++
-                } else {
-                    prettyPrintDestinationJson(
-                        jsonGen,
-                        orgReceiver,
-                        organization,
-                        reportFile.nextActionAt,
-                        reportFile.itemCount,
-                        reportOptions,
-                        reportFile.reportId
-                    )
-                    destinationCounter++
-                }
-            }
-            singles.forEach { (_, destData) ->
                 prettyPrintDestinationJson(
                     jsonGen,
-                    destData.orgReceiver,
-                    destData.organization,
-                    destData.sendingAt,
-                    destData.count,
-                    reportOptions
+                    orgReceiver,
+                    organization,
+                    reportFile.nextActionAt,
+                    reportFile.itemCount,
+                    reportOptions,
+                    reportId
                 )
                 destinationCounter++
             }
@@ -638,7 +609,7 @@ class ActionHistory {
         jsonGen.writeStringField("service", orgReceiver.name)
 
         reportId?.let {
-            if (filteredReportRows.contains(it)) {
+            if (!filteredReportRows.getOrDefault(it, emptyList()).isEmpty()) {
                 jsonGen.writeArrayFieldStart("filteredReportRows")
                 filteredReportRows.getValue(it).forEach {
                     jsonGen.writeString(it.toString())

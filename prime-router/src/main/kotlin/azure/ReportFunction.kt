@@ -462,7 +462,9 @@ class ReportFunction : Logging {
                 ).partition { (report, _) -> report.isEmpty() }
 
             emptyReports.forEach { (report, receiver) ->
-                actionHistory.trackFilteredReport(report, receiver)
+                if (!report.filteredItems.isEmpty()) {
+                    actionHistory.trackFilteredReport(report, receiver)
+                }
             }
 
             preparedReports.forEach { (report, receiver) ->
