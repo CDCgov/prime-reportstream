@@ -545,5 +545,15 @@ class MapperTests {
         value = listOf(ElementAndValue(elementA, "yyyyMMdd"), ElementAndValue(elementB, "a week ago"))
         assertThat(mapper.apply(elementA, listOf(), value))
             .isEqualTo("")
+
+        // invalid formatting
+        // should return an empty string
+        value = listOf(ElementAndValue(elementA, "iNvAlId"), ElementAndValue(elementB, "10/28/2021"))
+        assertThat(mapper.apply(elementA, args, value))
+            .isEqualTo("")
+
+        value = listOf(ElementAndValue(elementA, ""), ElementAndValue(elementB, "10/28/2021"))
+        assertThat(mapper.apply(elementA, args, value))
+            .isEqualTo("")
     }
 }

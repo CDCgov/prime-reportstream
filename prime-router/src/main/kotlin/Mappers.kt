@@ -774,12 +774,17 @@ class NullDateValidator : Mapper {
         if (values.isEmpty()) return ""
         if (args.isEmpty()) return ""
 
-        // the first value is the dateFormat
+        // the first value is the dateFormat. If blank or invalid, return empty string
         val dateFormat = values.firstOrNull()?.value ?: return ""
+        if (dateFormat.isBlank()) return ""
+        val dateFormatter: DateTimeFormatter = try {
+            DateTimeFormatter.ofPattern(dateFormat, Locale.ENGLISH)
+        } catch (ex: IllegalArgumentException) {
+            null
+        } ?: return ""
 
         // the second value is the value of the element with the date that needs to be checked
         var dateString = values[1].value
-        val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern(dateFormat, Locale.ENGLISH)
 
         try {
             // if the dateString parses, return the original date string at the end
