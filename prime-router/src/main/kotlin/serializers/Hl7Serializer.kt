@@ -610,6 +610,11 @@ class Hl7Serializer(
         replaceValue(replaceValue, terser, message.patienT_RESULT.ordeR_OBSERVATION.observationReps)
     }
 
+    /**
+     * Loop through all [replaceValueMap] key value pairs to fill all non-empty
+     * values in the [terser] message. Loop through the number OBX segments sent in
+     * [observationRepeats]. Other segments should not repeat.
+     */
     private fun replaceValue(
         replaceValueMap: Map<String, String>,
         terser: Terser,
