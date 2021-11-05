@@ -153,7 +153,7 @@ class ReportTests {
     }
 
     @Test
-    fun `test patient age`() {
+    fun `test getDeidentifiedResultMetaData for patient age validation`() {
 
         /**
          * Create table's header
