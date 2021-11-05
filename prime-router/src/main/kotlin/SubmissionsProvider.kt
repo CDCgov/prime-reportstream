@@ -6,6 +6,6 @@ package gov.cdc.prime.router
 interface SubmissionsProvider {
     fun findSubmissionsAsJson(
         organizationName: String,
-        limit: String,
+        limit: Int,
     ): String
 }

@@ -7,20 +7,20 @@ import com.microsoft.azure.functions.annotation.AuthorizationLevel
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import gov.cdc.prime.router.tokens.OktaAuthentication
-import org.apache.logging.log4j.kotlin.Logging
 import org.apache.logging.log4j.kotlin.logger
 
-/*
+/**
  * Submissions API
+ * Returns a list of Actions from `public.action`.
  */
 
 class GetSubmissions(
     submissionsFacade: SubmissionsFacade = SubmissionsFacade.common,
     oktaAuthentication: OktaAuthentication = OktaAuthentication(PrincipalLevel.SYSTEM_ADMIN)
 ) {
-    // TODO: for supporting multiple functions for Submissions, probably want to create BaseSubmissionsFunction
     private val facade = submissionsFacade
     private val oktaAuthentication = oktaAuthentication
+
     @FunctionName("getSubmissions")
     fun run(
         @HttpTrigger(
@@ -30,7 +30,15 @@ class GetSubmissions(
             route = "submissions"
         ) request: HttpRequestMessage<String?>,
     ): HttpResponseMessage {
-        val limit = request.getQueryParameters().getOrDefault("limit", "10")
+        val qLimit = request.queryParameters["limit"]
+
+        var limit = 10
+        if (!qLimit.isNullOrEmpty()) {
+            if (isNumber(qLimit))
+                limit = qLimit.toInt()
+            else
+                return HttpUtilities.bad(request, "Limit must be an integer.")
+        }
 
         return when (request.httpMethod) {
             HttpMethod.GET -> getList(request, limit)
@@ -38,9 +46,17 @@ class GetSubmissions(
         }
     }
 
-    fun getList(
+    // Move to Utility Class at some point
+    private fun isNumber(s: String): Boolean {
+        return if (s.isNullOrEmpty()) false else s.all { Character.isDigit(it) }
+    }
+
+    /**
+     * Request data after Okta Authentication
+     */
+    private fun getList(
         request: HttpRequestMessage<String?>,
-        limit: String
+        limit: Int
     ): HttpResponseMessage {
         return oktaAuthentication.checkAccess(request, "") {
             try {
@@ -53,30 +69,4 @@ class GetSubmissions(
             }
         }
     }
-}
-
-/**
- * Common Submission API
- */
-
-open class BaseSubmissionsFunction(
-    private val facade: SubmissionsFacade,
-    private val oktaAuthentication: OktaAuthentication
-) : Logging {
-    private val missingAuthorizationHeader = HttpUtilities.errorJson("Missing Authorization Header")
-    private val invalidClaim = HttpUtilities.errorJson("Invalid Authorization Header")
-
-    fun <T : SubmissionAPI> getList(
-        request: HttpRequestMessage<String?>,
-        organizationName: String,
-        limit: String,
-        clazz: Class<T>
-    ): HttpResponseMessage {
-        return oktaAuthentication.checkAccess(request, "") {
-            val submissions = facade.findSubmissionsAsJson(organizationName, limit)
-            HttpUtilities.okResponse(request, submissions)
-        }
-    }
-
-    private fun errorJson(message: String): String = HttpUtilities.errorJson(message)
 }

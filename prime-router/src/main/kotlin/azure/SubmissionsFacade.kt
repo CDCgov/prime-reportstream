@@ -16,21 +16,12 @@ import java.time.OffsetDateTime
  * Contains all business logic regarding submissions and JSON serialization.
  */
 
-/**
- * TODO: Add test/SubmissionsFacadeTests
- */
+// TODO: Add test/SubmissionsFacadeTests
 class SubmissionsFacade(
-    private val metadata: Metadata,
     private val db: DatabaseSubmissionsAccess = DatabaseSubmissionsAccess()
 ) : SubmissionsProvider {
-    enum class AccessResult {
-        SUCCESS,
-        CREATED,
-        NOT_FOUND,
-        BAD_REQUEST
-    }
 
-    // Ignoring unknown props because we don't need them all. -DK
+    // Ignoring unknown properties because we don't require them. -DK
     private val mapper = jacksonObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
     init {
@@ -41,14 +32,14 @@ class SubmissionsFacade(
 
     override fun findSubmissionsAsJson(
         organizationName: String,
-        limit: String
+        limit: Int
     ): String {
         val result = findSubmissions(organizationName, limit)
         return mapper.writeValueAsString(result)
     }
 
-    private fun findSubmissions(organizationName: String, limit: String): List<SubmissionAPI> {
-        // TODO: VERIFY sendingOrg is being populated from the claim
+    private fun findSubmissions(organizationName: String, limit: Int): List<SubmissionAPI> {
+        // TODO: VERIFY sendingOrg is being populated from the claim on Staging
         val submissions = db.fetchSubmissions(organizationName, limit)
 
         return submissions.map {
@@ -59,6 +50,7 @@ class SubmissionsFacade(
     }
 
     companion object {
+        // TODO: Update to new Metadata singleton introduced by Carlos
         val metadata: Metadata by lazy {
             val baseDir = System.getenv("AzureWebJobsScriptRoot")
             Metadata("$baseDir/metadata")
@@ -66,22 +58,16 @@ class SubmissionsFacade(
 
         // The SubmissionFacade is heavy-weight object (because it contains a Jackson Mapper) so reuse it when possible
         val common: SubmissionsFacade by lazy {
-            SubmissionsFacade(metadata, DatabaseSubmissionsAccess())
-        }
-
-        private fun errorJson(message: String): String {
-            return """{"error": "$message"}"""
+            SubmissionsFacade(DatabaseSubmissionsAccess())
         }
     }
 }
 
-/**
+/*
  * Classes for JSON serialization
  */
 
-/**
- * TODO: see Github Issues #2314 for expected filename field
- */
+// TODO: see Github Issues #2314 for expected filename field
 class SubmissionAPI
 @JsonCreator constructor(
     actionId: Long,

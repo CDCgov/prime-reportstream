@@ -13,14 +13,13 @@ class DatabaseSubmissionsAccess {
      */
     private val db = DatabaseAccess()
 
-    fun fetchSubmissions(sendingOrg: String, limit: String): List<Action> {
+    fun fetchSubmissions(sendingOrg: String, limit: Int): List<Action> {
         var submissions = emptyList<Action>()
         db.transact { txn ->
             submissions = DSL.using(txn)
                 .selectFrom(ACTION)
                 .where(ACTION.ACTION_NAME.eq(TaskAction.receive).and(ACTION.SENDING_ORG.eq(sendingOrg)))
-                // TODO: String to Int conversion should happen higher up the stream
-                .limit(limit.toInt())
+                .limit(limit)
                 .fetchInto(Action::class.java)
         }
         return submissions
