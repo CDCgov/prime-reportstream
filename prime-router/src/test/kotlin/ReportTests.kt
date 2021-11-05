@@ -153,7 +153,7 @@ class ReportTests {
     }
 
     @Test
-    fun `test patient age validation`() {
+    fun `test patient age`() {
 
         /**
          * Create table's header
