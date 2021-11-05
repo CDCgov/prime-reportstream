@@ -320,7 +320,7 @@ The quick test is meant to test the data conversion and generation code. Use thi
 ```
 
 
-## Running the end-to-end tests
+## Running the end-to-end tests locally
 
 End-to-end tests check if the deployed system is configured correctly. The tests use an organization called IGNORE for running the tests. In order to successfully run the end-to-end tests, you will need to:
 
@@ -340,8 +340,6 @@ End-to-end tests check if the deployed system is configured correctly. The tests
             --persist=DEFAULT-SFTP \
             --user foo \
             --pass pass
-    ./prime multiple-settings \
-            set --input settings/organizations.yml
     ```
 
 4. Ensure that your docker containers are running (see also "[Running ReportStream](#running-reportstream)")
@@ -359,10 +357,35 @@ End-to-end tests check if the deployed system is configured correctly. The tests
     ```bash
     ./gradlew testEnd2End
     ```
+    or 
+    ```bash
+    ./prime test --run end2end
+    ```
+    Or to run the entire smoke test suite locally:
+    ```
+    ./prime test
+    ```
 
 Upon completion, the process should report success.
 
+## Running the end2end test on Staging
 
+To run the end2end test on Staging you'll need a `<postgres-user>` and `<postgres-password>`, VPN tunnel access, and a `<reports-endpoint-function-key>` 
+
+With your VPN running, do the following:
+    
+```    
+export POSTGRES_PASSWORD=<postgres-password>
+export POSTGRES_USER= <postgres-user>@pdhstaging-pgsql                                                                                                          
+export POSTGRES_URL=jdbc:postgresql://pdhstaging-pgsql.postgres.database.azure.com:5432/prime_data_hub
+./prime test --run ping --env staging --key <reports-endpoint-function-key> 
+```    
+
+To run the entire smoke test suite on Staging use this:
+
+```
+    ./prime test -env staging --key <reports-endpoint-function-key>
+```
 # Resetting your environment
 
 You can run the `./cleanslate.sh` script to recover from an unreliable or messed up environment. Run the script with `--help` to learn about its different levels of 'forcefulness' and 'graciousness' in its cleaning repertoire:
