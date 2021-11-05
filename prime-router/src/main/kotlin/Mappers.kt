@@ -760,8 +760,6 @@ class NullMapper : Mapper {
  * This mapper checks if a date is in the valid, expected format, and returns it,
  * and if the date is not in the valid, expected format, it returns an empty string.
  * Use this if a date is optional, such as an illness onset date
- * refer to
- * https://app.zenhub.com/workspaces/prime-reportstream-5ff4833beb3e08001a4cacae/issues/cdcgov/prime-reportstream/2246
  * Arguments: dateFormat (ex. yyyyMMdd)
  * Returns: string (date) or an empty string
  * ex: mapper: nullDateValidator($dateFormat:yyyyMMdd, test_result_date)
