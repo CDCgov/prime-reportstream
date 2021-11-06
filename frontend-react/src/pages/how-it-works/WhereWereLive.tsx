@@ -3,9 +3,7 @@ import { Helmet } from "react-helmet";
 
 import site from "../../content/site.json";
 // NOTE: update live.json and open usa_w_territories.svg with TEXT EDITOR and uncomment state styles
-// @ts-ignore
 import live from "../../content/live.json";
-// @ts-ignore
 import usamapsvg from "../../content/usa_w_territories.svg"; // in /content dir to get unique filename per build
 
 export const WhereWereLive = () => {
