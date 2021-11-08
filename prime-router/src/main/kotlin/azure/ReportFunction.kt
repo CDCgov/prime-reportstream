@@ -10,7 +10,6 @@ import com.microsoft.azure.functions.annotation.AuthorizationLevel
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
-import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.DEFAULT_SEPARATOR
 import gov.cdc.prime.router.InvalidParamMessage
 import gov.cdc.prime.router.InvalidReportMessage
@@ -24,7 +23,6 @@ import gov.cdc.prime.router.tokens.AuthenticationStrategy
 import gov.cdc.prime.router.tokens.OktaAuthentication
 import gov.cdc.prime.router.tokens.TokenAuthentication
 import org.apache.logging.log4j.kotlin.Logging
-import org.postgresql.util.PSQLException
 
 private const val CLIENT_PARAMETER = "client"
 private const val OPTION_PARAMETER = "option"
@@ -231,11 +229,6 @@ class ReportFunction : Logging {
                     actionHistory, workflowEngine
                 )
 
-                // this function call checks internally to verify that this is a covid-19 topic
-                // Write the data to the table if we're dealing with covid-19. this has to happen
-                // here AFTER we've written the report to the DB.
-                writeCovidResultMetadataForReport(report, context, workflowEngine)
-
                 // call the correct processing function based on processing type
                 if (isAsync) {
                     processAsync(
@@ -273,57 +266,7 @@ class ReportFunction : Logging {
             // queue messages here after all task / action records are in
             actionHistory.queueMessages(workflowEngine)
         }
-
         return response
-    }
-
-    /**
-     * Given a report object, it collects the non-PII, non-PHI out of it and then saves it to the
-     * database in the covid_results_metadata table.
-     */
-    private fun writeCovidResultMetadataForReport(
-        report: Report?,
-        context: ExecutionContext,
-        workflowEngine: WorkflowEngine
-    ) {
-        if (report != null && report.schema.topic.lowercase() == "covid-19") {
-            // next check that we're dealing with an external file
-            val clientSource = report.sources.firstOrNull { it is ClientSource }
-            if (clientSource != null) {
-                context.logger.info("Writing deidentified report data to the DB")
-                // wrap the insert into an exception handler
-                try {
-                    workflowEngine.db.transact { txn ->
-                        // verify the file exists in report_file before continuing
-                        if (workflowEngine.db.checkReportExists(report.id, txn)) {
-                            val deidentifiedData = report.getDeidentifiedResultMetaData()
-                            workflowEngine.db.saveTestData(deidentifiedData, txn)
-                            context.logger.info("Wrote ${deidentifiedData.count()} rows to test data table")
-                        } else {
-                            // warn if it does not exist
-                            context.logger.warning(
-                                "Skipping write to metadata table because " +
-                                    "reportId ${report.id} does not exist in report_file."
-                            )
-                        }
-                    }
-                } catch (pse: PSQLException) {
-                    // report this but move on
-                    context.logger.severe(
-                        "Exception writing COVID test metadata " +
-                            "for ${report.id}: ${pse.localizedMessage}.\n" +
-                            pse.stackTraceToString()
-                    )
-                } catch (e: Exception) {
-                    // catch all as we have seen jooq Exceptions thrown
-                    context.logger.severe(
-                        "Exception writing COVID test metadata " +
-                            "for ${report.id}: ${e.localizedMessage}.\n" +
-                            e.stackTraceToString()
-                    )
-                }
-            }
-        }
     }
 
     /**
