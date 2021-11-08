@@ -27,7 +27,7 @@ import java.util.logging.Logger
 
 class AS2TransportTests {
     val context = mockkClass(ExecutionContext::class)
-    val metadata = Metadata(Metadata.defaultMetadataDirectory)
+    val metadata = Metadata.getInstance()
     val settings = FileSettings(FileSettings.defaultSettingsDirectory)
     val logger = mockkClass(Logger::class)
     val reportId = UUID.randomUUID()
