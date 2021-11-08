@@ -35,7 +35,7 @@ data class Element(
     // - A name of form [A-Za-z0-9_]+ is a new element
     // - A name of form [A-Za-z0-9_]+.[A-Za-z0-9_]+ is an element based on an previously defined element
     //
-    var name: String,
+    val name: String,
 
     /**
      * Type of the element
@@ -844,25 +844,37 @@ data class Element(
         return retVal
     }
 
+    /**
+     * Populates the value of a specialized mapper token, indicated by a $ prefix
+     * @param elementName the token name
+     * @param index optional int value used with the $index token
+     */
     fun tokenizeMapperValue(elementName: String, index: Int = 0): ElementAndValue {
-        var tokenElement = Element(elementName)
+        val tokenElement = Element(elementName)
         var retVal = ElementAndValue(tokenElement, "")
-        when (elementName) {
-            "\$index" -> {
+        when {
+            elementName == "\$index" -> {
                 retVal = ElementAndValue(tokenElement, index.toString())
             }
-            "\$currentDate" -> {
+            elementName == "\$currentDate" -> {
                 val currentDate = LocalDate.now().format(dateFormatter)
                 retVal = ElementAndValue(tokenElement, currentDate)
             }
-        }
-
-        if (elementName.contains(":")) {
-//            tokenElement.name = elementName.split(":")[0].substring(1)
-            retVal = ElementAndValue(tokenElement, elementName.split(":")[1])
+            elementName.contains("\$dateFormat:") -> {
+                retVal = ElementAndValue(tokenElement, extractStringValue(elementName))
+            }
         }
 
         return retVal
+    }
+
+    /**
+     * Retrieves the value of a generalized token as string (i.e. "$mode:literal" returns "literal")
+     * @param token the token
+     * @return the string value of a token
+     */
+    private fun extractStringValue(token: String): String {
+        return token.split(":")[1]
     }
 
     companion object {
