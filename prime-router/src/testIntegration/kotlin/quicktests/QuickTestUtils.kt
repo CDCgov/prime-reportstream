@@ -17,7 +17,7 @@ object QuickTestUtils {
     /**
      * Metadata instance.  This is used to speed the test as ProcessData recreates this every time by default.
      */
-    val metadata = Metadata(Metadata.defaultMetadataDirectory)
+    val metadata = Metadata.getInstance()
 
     /**
      * File settings instance. This is used to speed the test as ProcessData recreates this every time by default.

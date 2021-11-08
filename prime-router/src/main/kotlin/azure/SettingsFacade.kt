@@ -254,10 +254,7 @@ class SettingsFacade(
     }
 
     companion object {
-        val metadata: Metadata by lazy {
-            val baseDir = System.getenv("AzureWebJobsScriptRoot")
-            Metadata("$baseDir/metadata")
-        }
+        val metadata = Metadata.getInstance()
 
         // The SettingAccess is heavy-weight object (because it contains a Jackson Mapper) so reuse it when possible
         val common: SettingsFacade by lazy {
