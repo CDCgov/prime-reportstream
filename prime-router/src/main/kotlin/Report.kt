@@ -590,27 +590,29 @@ class Report : Logging {
      *  @param specimenCollectionDate - input date of when speciment was collected.
      *  @return age - result of patient's age.
      */
-    private fun getAge(patient_age: String?, patien_dob: String?, specimenCollectionDate: LocalDate?): String? {
-        var age = patient_age
-        if ((patient_age == null) || !patient_age.all { Character.isDigit(it) } || (patient_age?.toInt()!! <= 0)) {
+    private fun getAge(patient_age: String?, patient_dob: String?, specimenCollectionDate: LocalDate?): String? {
+
+        return if ((patient_age != null) && patient_age.all { Character.isDigit(it) } && (patient_age.toInt() > 0)) {
+            patient_age
+        } else {
             /**
              * Here, we got invalid or blank patient_age given to us.  Therefore, we will use patient date
              * of birth and date of speciment collected to calculate the patient's age.
              */
             try {
-                val d = LocalDate.parse(patien_dob, Element.dateFormatter)
+                val d = LocalDate.parse(patient_dob, Element.dateFormatter)
                 if (d != null && specimenCollectionDate != null &&
                     (d.isBefore(specimenCollectionDate))
                 ) {
-                    age = Period.between(d, specimenCollectionDate).years.toString()
+                    Period.between(d, specimenCollectionDate).years.toString()
                 } else {
-                    age =  null
+                    null
                 }
             } catch (_: Exception) {
-                age = null
+                null
             }
+
         }
-        return age
     }
 
     private fun buildColumnPass1(mapping: Translator.Mapping, toElement: Element): StringColumn? {
