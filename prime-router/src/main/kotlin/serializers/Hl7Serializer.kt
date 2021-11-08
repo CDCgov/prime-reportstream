@@ -893,9 +893,12 @@ class Hl7Serializer(
         terser.set(pathSpec, value)
 
         when (hl7Field) {
-            in HD_FIELDS_UNIVERSAL,
-            in CE_FIELDS -> {
+            in HD_FIELDS_UNIVERSAL -> {
                 val nextComponent = nextComponent(pathSpec)
+                terser.set(nextComponent, "CLIA")
+            }
+            in CE_FIELDS -> {
+                val nextComponent = nextComponent(pathSpec, 2)
                 terser.set(nextComponent, "CLIA")
             }
         }
