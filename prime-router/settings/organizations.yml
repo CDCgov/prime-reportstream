@@ -543,6 +543,18 @@
         receivingFacilityName: VDH
         receivingFacilityOID: 2.16.840.1.114222.4.1.185
 
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+        timeZone: CENTRAL
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+
 - name: nd-doh
   description: North Dakota Department of Health
   jurisdiction: STATE
@@ -858,7 +870,7 @@
         receivingFacilityOID: 2.16.840.1.114222.4.1.185
         truncateHDNamespaceIds: true
         usePid14ForPatientEmail: true
-        suppressHl7Fields: OBX-18
+        suppressHl7Fields: OBX-18-1, OBX-18-2, OBX-18-3, OBX-18-4
       transport:
         type: SFTP
         host: sftp
