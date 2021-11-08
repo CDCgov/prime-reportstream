@@ -3,23 +3,38 @@ package gov.cdc.prime.router
 import assertk.Assert
 import assertk.all
 import assertk.assertThat
+import assertk.assertions.isEmpty
+import assertk.assertions.isEqualTo
+import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNotSameAs
 import assertk.assertions.isNull
 import assertk.assertions.isNullOrEmpty
 import assertk.assertions.isSameAs
+import assertk.assertions.isTrue
 import assertk.assertions.prop
 import assertk.assertions.support.appendName
 import assertk.assertions.support.expected
 import assertk.assertions.support.show
+import gov.cdc.prime.router.azure.DatabaseLookupTableAccess
+import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableRow
+import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableVersion
+import gov.cdc.prime.router.metadata.DatabaseLookupTable
+import gov.cdc.prime.router.metadata.LookupTable
+import io.mockk.every
+import io.mockk.mockk
+import org.jooq.JSONB
+import org.jooq.exception.DataAccessException
+import java.time.Instant
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
 
 class MetadataTests {
     @Test
     fun `test loading metadata catalog`() {
-        val metadata = Metadata("./metadata")
+        val metadata = Metadata.getInstance()
         assertThat(metadata).isNotNull()
     }
 
@@ -256,5 +271,110 @@ class MetadataTests {
             if (actual?.csvFields?.size == expected) return@given
             expected("csvFields size:${show(expected)} but was ${show(actual?.csvFields?.size ?: "null")}")
         }
+    }
+
+    @Test
+    fun `check for database lookup table updates test`() {
+        val mockDbTableAccess = mockk<DatabaseLookupTableAccess>()
+        val now = Instant.now()
+
+        // Initialization
+        every { mockDbTableAccess.fetchTableList(any()) } returns emptyList()
+        val metadata = Metadata(mockDbTableAccess)
+
+        metadata.tablelastCheckedAt = now.plusSeconds(3600)
+        metadata.checkForDatabaseLookupTableUpdates()
+        assertThat(metadata.tablelastCheckedAt).isEqualTo(now.plusSeconds(3600))
+
+        metadata.tablelastCheckedAt = now.minusSeconds(3600)
+        every { mockDbTableAccess.fetchTableList() } returns emptyList()
+        metadata.checkForDatabaseLookupTableUpdates()
+        assertThat(metadata.tablelastCheckedAt).isNotEqualTo(now.minusSeconds(3600))
+    }
+
+    @Test
+    fun `load database lookup table updates test`() {
+        val mockDbTableAccess = mockk<DatabaseLookupTableAccess>()
+        val table1 = LookupTableVersion()
+        table1.tableName = "table1"
+        table1.tableVersion = 1
+        table1.isActive = true
+        val table2 = LookupTableVersion()
+        table2.tableName = "table2"
+        table2.tableVersion = 3
+        table2.isActive = true
+        val tableData = listOf(LookupTableRow())
+        tableData[0].data = JSONB.jsonb("""{"colA": "valueA", "colb": "valueB"}""")
+
+        // Initialization
+        every { mockDbTableAccess.fetchTableList(any()) } returns emptyList()
+        val metadata = Metadata(mockDbTableAccess)
+
+        // Database exception
+        every { mockDbTableAccess.fetchTableList() } throws DataAccessException("error")
+        metadata.loadDatabaseLookupTables() // No error or other calls done
+
+        // Any inactive table in the list from the API returns an exception
+        val inactiveTable = LookupTableVersion()
+        inactiveTable.tableName = "some table"
+        inactiveTable.isActive = false
+        every { mockDbTableAccess.fetchTableList() } returns listOf(inactiveTable)
+        assertFailsWith<IllegalStateException>(
+            block = {
+                metadata.loadDatabaseLookupTables()
+            }
+        )
+
+        // No tables, nothing to do
+        metadata.lookupTableStore = emptyMap()
+        every { mockDbTableAccess.fetchTableList() } returns emptyList()
+        metadata.loadDatabaseLookupTables()
+
+        // Test good tables, no conflicting file tables
+        metadata.lookupTableStore = emptyMap()
+        every { mockDbTableAccess.fetchTableList() } returns listOf(table1, table2)
+        every { mockDbTableAccess.fetchTable(any(), any()) } returns tableData
+        metadata.loadDatabaseLookupTables()
+        assertThat(metadata.lookupTableStore.size).isEqualTo(2)
+        assertThat(metadata.lookupTableStore.containsKey(table1.tableName))
+        assertThat(metadata.lookupTableStore.containsKey(table2.tableName))
+        assertThat(metadata.lookupTableStore[table1.tableName]!! is DatabaseLookupTable).isTrue()
+        assertThat(metadata.lookupTableStore[table2.tableName]!! is DatabaseLookupTable).isTrue()
+        assertThat(metadata.lookupTableStore[table1.tableName]!!.rowCount).isEqualTo(1)
+        assertThat(metadata.lookupTableStore[table2.tableName]!!.dataRows.size).isEqualTo(1)
+
+        // Test two good tables with one conflicting file table
+        metadata.lookupTableStore = emptyMap()
+        metadata.lookupTableStore = mapOf(table2.tableName to LookupTable(emptyList()))
+        every { mockDbTableAccess.fetchTableList() } returns listOf(table1, table2)
+        every { mockDbTableAccess.fetchTable(any(), any()) } returns tableData
+        metadata.loadDatabaseLookupTables()
+        assertThat(metadata.lookupTableStore.size).isEqualTo(2)
+        assertThat(metadata.lookupTableStore.containsKey(table1.tableName))
+        assertThat(metadata.lookupTableStore.containsKey(table2.tableName))
+        assertThat(metadata.lookupTableStore[table1.tableName]!! is DatabaseLookupTable).isTrue()
+        assertThat(metadata.lookupTableStore[table2.tableName]!! !is DatabaseLookupTable).isTrue()
+
+        // Add a new table - Note this uses the results from the test above.
+        val table3 = LookupTableVersion()
+        table3.tableName = "table3"
+        table3.tableVersion = 1
+        table3.isActive = true
+        every { mockDbTableAccess.fetchTableList() } returns listOf(table1, table2, table3)
+        every { mockDbTableAccess.fetchTable(any(), any()) } returns tableData
+        metadata.loadDatabaseLookupTables()
+        assertThat(metadata.lookupTableStore.size).isEqualTo(3)
+        assertThat(metadata.lookupTableStore.containsKey(table1.tableName))
+        assertThat(metadata.lookupTableStore.containsKey(table2.tableName))
+        assertThat(metadata.lookupTableStore.containsKey(table3.tableName))
+        assertThat(metadata.lookupTableStore[table3.tableName]!! is DatabaseLookupTable).isTrue()
+
+        // Now a table was deleted or deactivated - Note this uses the results from the test above.
+        every { mockDbTableAccess.fetchTableList() } returns listOf(table1, table2)
+        metadata.loadDatabaseLookupTables()
+        assertThat(metadata.lookupTableStore.size).isEqualTo(3)
+        assertThat(metadata.lookupTableStore.containsKey(table3.tableName))
+        assertThat(metadata.lookupTableStore[table3.tableName]!!.rowCount).isEqualTo(0)
+        assertThat(metadata.lookupTableStore[table3.tableName]!!.dataRows).isEmpty()
     }
 }

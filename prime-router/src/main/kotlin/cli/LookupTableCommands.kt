@@ -709,7 +709,10 @@ class LookupTableActivateCommand : GenericLookupTableCommand(
                 TermUi.echo("Lookup table $tableName is not currently active")
 
             else ->
-                TermUi.echo("Current Lookup table $tableName's active version number is $version")
+                TermUi.echo(
+                    "Current Lookup table $tableName's active version number is " +
+                        "${currentlyActiveTable.tableVersion}"
+                )
         }
 
         if (TermUi.confirm("Set $version as active?") == true) {
