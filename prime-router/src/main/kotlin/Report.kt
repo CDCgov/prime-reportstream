@@ -227,7 +227,7 @@ class Report : Logging {
         this.itemLineages = itemLineage
         this.createdDateTime = OffsetDateTime.now()
         this.table = createTable(schema, values)
-        this.metadata = metadata ?: Metadata.provideMetadata()
+        this.metadata = metadata ?: Metadata.getInstance()
     }
 
     constructor(
@@ -266,7 +266,7 @@ class Report : Logging {
         this.bodyFormat = bodyFormat ?: destination?.format ?: Format.INTERNAL
         this.itemLineages = itemLineage
         this.createdDateTime = OffsetDateTime.now()
-        this.metadata = Metadata.provideMetadata()
+        this.metadata = Metadata.getInstance()
     }
 
     @Suppress("Destructure")
@@ -941,7 +941,7 @@ class Report : Logging {
                     header.reportFile.schemaName,
                     header.receiver?.format ?: error("Internal Error: ${header.receiver?.name} does not have a format"),
                     header.reportFile.createdAt,
-                    metadata = Metadata.provideMetadata()
+                    metadata = Metadata.getInstance()
                 )
             }
         }
@@ -964,7 +964,7 @@ class Report : Logging {
                     schemaName,
                     format,
                     createdAt,
-                    metadata = Metadata.provideMetadata()
+                    metadata = Metadata.getInstance()
                 )
             }
         }

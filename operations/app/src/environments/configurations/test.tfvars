@@ -10,3 +10,4 @@ https_cert_names = [
 ]
 okta_redirect_url         = "https://test.prime.cdc.gov/download"
 aad_object_keyvault_admin = "3c17896c-ff94-4298-a719-aaac248aa2c8" # CT-PRIMEDATAHUBTST-DMZ-AZ-Contributor
+use_cdc_managed_vnet      = false

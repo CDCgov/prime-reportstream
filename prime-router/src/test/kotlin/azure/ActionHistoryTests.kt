@@ -176,7 +176,7 @@ class ActionHistoryTests {
 
     @Test
     fun `test trackDownloadedReport`() {
-        val metadata = Metadata("./metadata")
+        val metadata = Metadata.getInstance()
         val workflowEngine = mockkClass(WorkflowEngine::class)
         every { workflowEngine.metadata }.returns(metadata)
         val uuid = UUID.randomUUID()

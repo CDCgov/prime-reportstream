@@ -16,6 +16,7 @@ elements:
   - name: organization_name
     maxLength:  50
     type: TEXT
+    mapper: use(testing_lab_name)
     csvFields:
     - name: Lab_Name
 
@@ -149,8 +150,7 @@ elements:
     csvFields:
     - name: Provider_Phone_Number
 
-  - name: testing_lab_specimen_id
-    mapper: use(placer_order_id)
+  - name: specimen_id
     csvFields:
     - name: Specimen_ID
 

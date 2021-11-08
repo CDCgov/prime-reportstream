@@ -109,18 +109,6 @@ class FileSettingsTests {
     }
 
     @Test
-    fun `test loading test settings`() {
-        val settings = FileSettings(FileSettings.defaultSettingsDirectory, "-test")
-        assertThat(settings).isNotNull()
-    }
-
-    @Test
-    fun `test loading prod settings`() {
-        val settings = FileSettings(FileSettings.defaultSettingsDirectory, "-prod")
-        assertThat(settings).isNotNull()
-    }
-
-    @Test
     fun `test nextBatchTime`() {
         val timing = Receiver.Timing(
             Receiver.BatchOperation.NONE,

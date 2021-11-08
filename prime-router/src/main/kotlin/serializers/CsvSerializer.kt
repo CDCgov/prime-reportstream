@@ -108,8 +108,8 @@ class CsvSerializer(val metadata: Metadata) : Logging {
                 errors.add(
                     ResultDetail.report(
                         InvalidReportMessage.new(
-                            "There's an issue parsing your file. Contact the " +
-                                "ReportStream team at $REPORSTREAM_SUPPORT_EMAIL."
+                            "There's an issue parsing your file on row: ${ex.rowNum}. " +
+                                "For additional help, contact the ReportStream team at $REPORSTREAM_SUPPORT_EMAIL."
                         )
                     )
                 )
@@ -117,8 +117,8 @@ class CsvSerializer(val metadata: Metadata) : Logging {
                 errors.add(
                     ResultDetail.report(
                         InvalidReportMessage.new(
-                            "There's an issue parsing your file. Contact the " +
-                                "ReportStream team at $REPORSTREAM_SUPPORT_EMAIL."
+                            "There's an issue parsing your file (Error: ${ex.message}) " +
+                                "For additional help, contact the ReportStream team at $REPORSTREAM_SUPPORT_EMAIL."
                         )
                     )
                 )
@@ -308,7 +308,7 @@ class CsvSerializer(val metadata: Metadata) : Logging {
         }
         val warnings = missingOptionalHeaders.map {
             "Missing ${schema.findElementByCsvName(it)?.fieldMapping} header"
-        } + ignoredHeaders.map { "Unexpected column header founder, '$it' will be ignored" }
+        } + ignoredHeaders.map { "Unexpected column header found, '$it' will be ignored" }
 
         return CsvMapping(useCsv, defaultValues, errors, warnings)
     }

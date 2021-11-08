@@ -613,8 +613,7 @@ class ReportFunction : Logging {
                         rowsByGroupingId[groupingId] = mutableListOf()
                         messageByGroupingId[groupingId] = resultDetail.responseMessage.detailMsg()
                     }
-                    if (resultDetail.row != -1) {
-                        // Add 2 to account for array offset and csv header
+                    if (resultDetail.rowNumber > 0) {
                         rowsByGroupingId[groupingId]?.add(resultDetail.rowNumber)
                     }
                 }
