@@ -29,7 +29,7 @@ import java.util.logging.Logger
 
 class GAENTransportTests {
     private val context = mockkClass(ExecutionContext::class)
-    private val metadata = Metadata(Metadata.defaultMetadataDirectory)
+    private val metadata = Metadata.getInstance()
     private val settings = FileSettings(FileSettings.defaultSettingsDirectory)
     private val logger = mockkClass(Logger::class)
     private val gaenTransport = spyk<GAENTransport>()

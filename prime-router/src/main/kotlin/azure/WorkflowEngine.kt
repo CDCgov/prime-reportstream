@@ -369,7 +369,7 @@ class WorkflowEngine(
         val bytes = blob.downloadBlob(header.task.bodyUrl)
         return when (header.task.bodyFormat) {
             // TODO after the CSV internal format is flushed from the system, this code will be safe to remove
-            "CSV" -> {
+            "CSV", "CSV_SINGLE" -> {
                 val result = csvSerializer.readExternal(
                     schema.name,
                     ByteArrayInputStream(bytes),

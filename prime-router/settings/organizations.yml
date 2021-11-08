@@ -2762,7 +2762,7 @@
         type: GAEN
       transport:
         type: GAEN
-        apiUrl: "http://localhost"
+        apiUrl: ""
 
 - name: wv-phd
   description: West Virginia Public Health Department

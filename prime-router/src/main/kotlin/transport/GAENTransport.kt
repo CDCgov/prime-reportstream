@@ -3,13 +3,13 @@ package gov.cdc.prime.router.transport
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinFeature
 import com.fasterxml.jackson.module.kotlin.KotlinModule
+import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.Headers
 import com.github.kittinunf.fuel.core.extensions.jsonBody
 import com.github.kittinunf.result.Result
 import com.microsoft.azure.functions.ExecutionContext
 import gov.cdc.prime.router.GAENTransportType
-import gov.cdc.prime.router.GAEN_SCHEMA
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
@@ -178,7 +178,7 @@ class GAENTransport : ITransport, Logging {
      * The structure is defined in
      * https://github.com/google/exposure-notifications-verification-server/blob/main/docs/api.md#apiissue
      */
-    internal class Notification(report: Report) {
+    internal class Notification(table: List<Map<String, String>>, reportId: ReportId /* = java.util.UUID */) {
         val symptomDate: String
         val testDate: String
         val testType: String = "confirmed"
@@ -189,11 +189,13 @@ class GAENTransport : ITransport, Logging {
         val externalIssuerID: String = "cdcprime"
 
         init {
-            testDate = report.getString(0, "date_result_released") ?: ""
-            symptomDate = report.getString(0, "illness_onset_date") ?: testDate
-            phone = report.getString(0, "patient_phone_number") ?: ""
+            if (table.size != 1) error("Internal Error: Expected a single item GAEN report")
+            testDate = table[0]["date_result_released"] ?: ""
+            // As a backup for missing symptomDate, use the testDate per conversation with WA-PHD
+            symptomDate = table[0][ "illness_onset_date"] ?: testDate
+            phone = table[0]["patient_phone_number"] ?: ""
             padding = RandomStringUtils.randomAlphanumeric(16)
-            uuid = "${report.id}"
+            uuid = "$reportId"
         }
     }
 
@@ -207,20 +209,12 @@ class GAENTransport : ITransport, Logging {
         //
         if (params.gaenTransportInfo.apiUrl.isBlank()) return PostResult.SUCCESS
 
-        // Get the report
-        val report = WorkflowEngine.csvSerializer.readInternal(
-            GAEN_SCHEMA,
-            ByteArrayInputStream(params.header.content),
-            emptyList(),
-            params.receiver,
-            params.header.reportFile.reportId
-        )
-
-        // Create a notification
-        if (report.itemCount != 1) error("Internal Error: Expected a single item report")
-        val notification = Notification(report)
+        // Read the CSV table
+        val reportStream = ByteArrayInputStream(params.header.content)
+        val table = csvReader().readAllWithHeader(reportStream)
 
         // Send the notification
+        val notification = Notification(table, params.reportId)
         val payload = mapper.writeValueAsString(notification)
         val (_, response, result) = Fuel
             .post(params.gaenTransportInfo.apiUrl)
