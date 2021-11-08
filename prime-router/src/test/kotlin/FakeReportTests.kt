@@ -5,6 +5,7 @@ import assertk.assertions.contains
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isTrue
+import gov.cdc.prime.router.metadata.LookupTable
 import java.io.ByteArrayInputStream
 import kotlin.test.Test
 import kotlin.test.fail
@@ -198,7 +199,7 @@ class FakeReportTests {
     @Test
     fun `test row context getting expected zip code results`() {
         // arrange
-        val metadata = Metadata("./metadata")
+        val metadata = Metadata.getInstance()
         assertThat(metadata).isNotNull()
         val zipCodeTable = metadata.findLookupTable("zip-code-data")
         assertThat(zipCodeTable).isNotNull()
