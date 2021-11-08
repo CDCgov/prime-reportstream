@@ -1,4 +1,3 @@
-// @ts-nocheck // TODO: fix types in this file
 import DOMPurify from "dompurify";
 
 import { SectionProp } from "../HomeProps";

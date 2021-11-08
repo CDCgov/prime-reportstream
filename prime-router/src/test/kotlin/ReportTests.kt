@@ -8,7 +8,7 @@ import kotlin.test.Test
 import kotlin.test.fail
 
 class ReportTests {
-    private val metadata: Metadata = Metadata("./metadata")
+    private val metadata = Metadata.getInstance()
 
     val rcvr = Receiver("name", "org", "topic", CustomerStatus.INACTIVE, "schema", Report.Format.CSV)
 
