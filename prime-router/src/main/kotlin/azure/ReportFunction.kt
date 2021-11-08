@@ -21,6 +21,8 @@ import gov.cdc.prime.router.ResultDetail
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.tokens.AuthenticationStrategy
+import gov.cdc.prime.router.tokens.OktaAuthentication
+import gov.cdc.prime.router.tokens.TokenAuthentication
 import org.apache.logging.log4j.kotlin.Logging
 import org.postgresql.util.PSQLException
 
@@ -130,16 +132,23 @@ class ReportFunction : Logging {
             workflowEngine
         )
 
-        val (authenticated, status) = authenticationStrategy.checkAccess(request, sender.fullName)
-        if (!authenticated) {
-            return HttpUtilities.unauthorizedResponse(request, status ?: "")
-        }
-
-        val actionHistory = ActionHistory(TaskAction.receive, context)
-        actionHistory.trackActionParams(request)
-
         try {
-            return processRequest(request, sender, context, workflowEngine, actionHistory)
+            val actionHistory = ActionHistory(TaskAction.receive, context)
+            actionHistory.trackActionParams(request)
+
+            if (authenticationStrategy is OktaAuthentication) {
+                // The report is coming from a sender that is using Okta, so set "oktaSender" to true
+                return authenticationStrategy.checkAccess(request, senderName, true) {
+                    return@checkAccess processRequest(request, sender, context, workflowEngine, actionHistory)
+                }
+            }
+
+            if (authenticationStrategy is TokenAuthentication) {
+                val claims = authenticationStrategy.checkAccessToken(request, "${sender.fullName}.report")
+                    ?: return HttpUtilities.unauthorizedResponse(request)
+                logger.info("Claims for ${claims["sub"]} validated.  Beginning ingestReport.")
+                return processRequest(request, sender, context, workflowEngine, actionHistory)
+            }
         } catch (ex: Exception) {
             if (ex.message != null)
                 logger.error(ex.message!!, ex)
@@ -147,6 +156,7 @@ class ReportFunction : Logging {
                 logger.error(ex)
             return HttpUtilities.internalErrorResponse(request)
         }
+        return HttpUtilities.bad(request, "Failed authorization")
     }
 
     /**

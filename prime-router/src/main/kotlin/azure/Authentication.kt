@@ -1,6 +1,5 @@
 package gov.cdc.prime.router.azure
 
-import com.microsoft.azure.functions.HttpRequestMessage
 import com.okta.jwt.JwtVerifiers
 
 // These constants match how PRIME Okta subscription is configured
@@ -18,27 +17,10 @@ enum class PrincipalLevel {
     USER
 }
 
-/**
- * Data class generated during auth check, indicating if the user is authenticated and their status.
- */
-data class AuthenticationResult(
-    val authenticated: Boolean,
-    val status: String?
-)
-
-interface Authenticator {
-    fun checkAccess(request: HttpRequestMessage<String?>, sender: String): AuthenticationResult
-}
-
 data class AuthenticatedClaims(
     val userName: String,
     val principalLevel: PrincipalLevel,
     val organizationName: String?
-)
-
-data class AuthenticatedClaimsResult(
-    val claims: AuthenticatedClaims?,
-    val status: String?
 )
 
 interface AuthenticationVerifier {
