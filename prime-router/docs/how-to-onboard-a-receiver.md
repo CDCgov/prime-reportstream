@@ -48,6 +48,38 @@ In addition, there is the translation section, which specifies the output format
 - HL7 - Each record is converted to HL7 before being sent to the receiver
 - CSV - The records are converted to CSV before being sent to the receiver
 
+The quality filters verify that test results have the minimum fields required by most public health jurisdictions. Those fields are made adjustable to be customized per jurisdictional specifications. The default filter includes these requirements:
+
+- The following fields all have an alpha-numeric value:
+     - Patient First Name
+     - Patient Last Name
+     - Patient DOB
+     - Test Result
+     - Specimen Type
+     - Specimen ID/Accession Number
+     - Device Identifier
+    
+- At least one of the following fields has an alpha-numeric value:
+     - Patient Street Address
+     - Patient Zip Code
+     - Patient Phone
+     - Patient Email
+    
+- At least one of the following date fields has a valid date:
+     - Test Ordered Date
+     - Specimen Collection Date
+     - Test Result Date
+    
+- The following fields are 10 characters in length:
+     - Testing Lab CLIA
+     - Ordering Facility CLIA
+    
+- Processing Code does not equal T nor D
+
+Only test results that pass all the above requirements will be transferred to the jurisdiction. There are two options for jurisdictions that want all results reported.
+- Use AllowAll() to bypass all quality filters
+- Create a secondary feed with the reverseQualityFilter() set to true. This will only allow results that fail the quality filters listed above.
+
 The mechanism for how each record is translated is laid out in the schema, which is discussed below
 
 ### Set up a new schema
