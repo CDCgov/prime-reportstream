@@ -2804,3 +2804,23 @@
         port: 22
         filePath: ./upload
         credentialName: DEFAULT-SFTP
+- name: fl-hillsborough-phd
+  description: Florida Department of Health – Hillsborough County
+  jurisdiction: COUNTY
+  stateCode: FL
+  countyName: Hillsborough
+  receivers:
+    - name: elr-download
+      organizationName: fl-hillsborough-phd
+      topic: covid-19
+      customerStatus: testing
+      jurisdictionalFilter: [ "matches(ordering_facility_state, FL)", "matches(ordering_facility_county, Hillsborough)" ]
+      translation:
+        type: CUSTOM
+        schemaName: fl/fl-hillsborough-covid-19-csv
+        format: CSV
+      timing:
+        operation: MERGE
+        numberPerDay: 1
+        initialTime: 09:15 # A little after the 12am EASTERN reports from simple report
+        timeZone: EASTERN
