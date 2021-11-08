@@ -31,7 +31,7 @@ class AltValueNotDefinedException(message: String) : IllegalStateException(messa
  * To describe the intent of a element there are references to the national standards.
  */
 data class Element(
-    // A element can either be a new element or one based on previously defined element
+    // An element can either be a new element or one based on previously defined element
     // - A name of form [A-Za-z0-9_]+ is a new element
     // - A name of form [A-Za-z0-9_]+.[A-Za-z0-9_]+ is an element based on an previously defined element
     //
