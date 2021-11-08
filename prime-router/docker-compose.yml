@@ -62,7 +62,9 @@ services:
         - "2222:22"
     volumes:
       - ./build/sftp:/home/foo/upload
-    command: foo:pass:1001::upload
+      - ../.environment/sftp-conf/users.conf:/etc/sftp/users.conf:ro
+      - ../.environment/sftp-conf/ssh_host_ed25519_key:/etc/ssh/ssh_host_ed25519_key
+      - ../.environment/sftp-conf/ssh_host_rsa_key:/etc/ssh/ssh_host_rsa_key
     networks:
       - prime-router_build
 

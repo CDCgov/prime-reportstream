@@ -12,6 +12,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
         'yarn\.lock$',
     ]
     paths = [
+        '.environment/sftp-conf',
         '.idea/',
         '.terraform/providers/',
         'frontend/dist',
