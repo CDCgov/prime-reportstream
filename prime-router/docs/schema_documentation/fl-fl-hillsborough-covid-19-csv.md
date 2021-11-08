@@ -1,30 +1,26 @@
 
-### Schema:         direct/abbott-covid-19
-#### Description:   Abbott
+### Schema:         fl/fl-hillsborough-covid-19-csv
+#### Description:   FL HILLSBOROUGH COVID-19 flat file
 
 ---
 
-**Name**: testReportDate
+**Name**: Date_result_released
 
 **Type**: DATETIME
 
 **PII**: No
 
+**Format**: yyyyMMdd
+
 **Cardinality**: [0..1]
-
-**Documentation**:
-
-eg, 20210112
 
 ---
 
-**Name**: healthcareEmployee
+**Name**: Employed_in_healthcare
 
 **Type**: CODE
 
 **PII**: No
-
-**Format**: $display
 
 **LOINC Code**: 95418-0
 
@@ -34,23 +30,33 @@ eg, 20210112
 
 Code | Display
 ---- | -------
-Y|YES
-N|NO
-UNK|UNK
+Y|Yes
+N|No
+UNK|Unknown
 
 **Documentation**:
 
-Override the base hl70136 valueset with a custom one, to handle slightly different syntax
+Is the patient employed in health care?
 
 ---
 
-**Name**: deviceName
+**Name**: Instrument_ID
+
+**Type**: ID
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: Device_ID
 
 **Type**: TABLE
 
 **PII**: No
 
-**Cardinality**: [1..1]
+**Cardinality**: [0..1]
 
 
 **Reference URL**:
@@ -60,13 +66,9 @@ Override the base hl70136 valueset with a custom one, to handle slightly differe
 
 **Table Column**: Model
 
-**Documentation**:
-
-Required.  Must match LIVD column B, "Model". eg,  "BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B"
-
 ---
 
-**Name**: filler_order_id
+**Name**: Filler_order_ID
 
 **Type**: ID
 
@@ -86,13 +88,11 @@ Accension number
 
 ---
 
-**Name**: firstTest
+**Name**: First_test
 
 **Type**: CODE
 
 **PII**: No
-
-**Format**: $display
 
 **LOINC Code**: 95417-2
 
@@ -102,69 +102,29 @@ Accension number
 
 Code | Display
 ---- | -------
-Y|YES
-N|NO
-UNK|UNK
+Y|Yes
+N|No
+UNK|Unknown
 
 **Documentation**:
 
-Override the base hl70136 valueset with a custom one, to handle slightly different syntax
+Is this the patient's first test for this condition?
 
 ---
 
-**Name**: hospitalized
+**Name**: Illness_onset_date
 
-**Type**: CODE
+**Type**: DATE
 
 **PII**: No
 
-**Format**: $display
-
-**LOINC Code**: 77974-4
+**LOINC Code**: 65222-2
 
 **Cardinality**: [0..1]
 
-**Value Sets**
-
-Code | Display
----- | -------
-Y|YES
-N|NO
-UNK|UNK
-
-**Documentation**:
-
-Override the base hl70136 valueset with a custom one, to handle slightly different syntax
-
 ---
 
-**Name**: symptomsIcu
-
-**Type**: CODE
-
-**PII**: No
-
-**Format**: $display
-
-**LOINC Code**: 95420-6
-
-**Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display
----- | -------
-Y|YES
-N|NO
-UNK|UNK
-
-**Documentation**:
-
-Override the base hl70136 valueset with a custom one, to handle slightly different syntax
-
----
-
-**Name**: testId
+**Name**: Result_ID
 
 **Type**: ID
 
@@ -174,11 +134,35 @@ Override the base hl70136 valueset with a custom one, to handle slightly differe
 
 **Documentation**:
 
-ReportStream copies value from the specimenId if none is provided by the sender.
+unique id to track the usage of the message
 
 ---
 
-**Name**: testOrdered
+**Name**: Order_test_date
+
+**Type**: DATETIME
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: Ordering_facility_city
+
+**Type**: CITY
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The city of the facility which the test was ordered from
+
+---
+
+**Name**: Ordering_facility_county
 
 **Type**: TABLE
 
@@ -186,17 +170,125 @@ ReportStream copies value from the specimenId if none is provided by the sender.
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-09-29
+**Table**: fips-county
 
-**Table Column**: Test Ordered LOINC Code
-
-**Documentation**:
-
-eg, 94531-1
+**Table Column**: County
 
 ---
 
-**Name**: testName
+**Name**: Ordering_facility_email
+
+**Type**: EMAIL
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: Ordering_facility_name
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The name of the facility which the test was ordered from
+
+---
+
+**Name**: Ordering_facility_phone_number
+
+**Type**: TELEPHONE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The phone number of the facility which the test was ordered from
+
+---
+
+**Name**: Ordering_facility_state
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [1..1]
+
+**Table**: fips-county
+
+**Table Column**: State
+
+**Documentation**:
+
+The state of the facility which the test was ordered from
+
+---
+
+**Name**: Ordering_facility_street
+
+**Type**: STREET
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The address of the facility which the test was ordered from
+
+---
+
+**Name**: Ordering_facility_street_2
+
+**Type**: STREET_OR_BLANK
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The secondary address of the facility which the test was ordered from
+
+---
+
+**Name**: Ordering_facility_zip_code
+
+**Type**: POSTAL_CODE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The zip code of the facility which the test was ordered from
+
+---
+
+**Name**: Ordering_provider_city
+
+**Type**: CITY
+
+**PII**: Yes
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The city of the provider
+
+---
+
+**Name**: Ordering_provider_county
 
 **Type**: TABLE
 
@@ -204,17 +296,13 @@ eg, 94531-1
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-09-29
+**Table**: fips-county
 
-**Table Column**: Test Ordered LOINC Long Name
-
-**Documentation**:
-
-Should be the name that matches to Test Ordered LOINC Long Name, in LIVD table
+**Table Column**: County
 
 ---
 
-**Name**: orderingProviderFname
+**Name**: Ordering_provider_first_name
 
 **Type**: PERSON_NAME
 
@@ -233,7 +321,7 @@ The first name of the provider who ordered the test
 
 ---
 
-**Name**: orderingProviderNpi
+**Name**: Ordering_provider_ID
 
 **Type**: ID_NPI
 
@@ -248,11 +336,11 @@ The first name of the provider who ordered the test
 
 **Documentation**:
 
-eg, "1265050918"
+The ordering provider’s National Provider Identifier
 
 ---
 
-**Name**: orderingProviderLname
+**Name**: Ordering_provider_last_name
 
 **Type**: PERSON_NAME
 
@@ -271,7 +359,72 @@ The last name of provider who ordered the test
 
 ---
 
-**Name**: orderingProviderZip
+**Name**: Ordering_provider_phone_number
+
+**Type**: TELEPHONE
+
+**PII**: Yes
+
+**HL7 Fields**
+
+- [OBR-17](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.17)
+- [ORC-14](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.14)
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The phone number of the provider
+
+---
+
+**Name**: Ordering_provider_state
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Table**: fips-county
+
+**Table Column**: State
+
+**Documentation**:
+
+The state of the provider
+
+---
+
+**Name**: Ordering_provider_street
+
+**Type**: STREET
+
+**PII**: Yes
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The street address of the provider
+
+---
+
+**Name**: Ordering_provider_street_2
+
+**Type**: STREET_OR_BLANK
+
+**PII**: Yes
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The street second address of the provider
+
+---
+
+**Name**: Ordering_provider_zip_code
 
 **Type**: POSTAL_CODE
 
@@ -285,19 +438,37 @@ The zip code of the provider
 
 ---
 
-**Name**: patientAge
+**Name**: Organization_name
 
-**Type**: NUMBER
+**Type**: TEXT
 
 **PII**: No
 
-**LOINC Code**: 30525-0
+**Default Value**: 
 
 **Cardinality**: [0..1]
 
+**Documentation**:
+
+The SimpleReport concept of organization. It refers to organization for the ordering & performing facility
+
 ---
 
-**Name**: patientCounty
+**Name**: Patient_city
+
+**Type**: CITY
+
+**PII**: Yes
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The patient's city
+
+---
+
+**Name**: Patient_county
 
 **Type**: TABLE_OR_BLANK
 
@@ -311,13 +482,40 @@ The zip code of the provider
 
 ---
 
-**Name**: patientEthnicity
+**Name**: Patient_DOB
+
+**Type**: DATE
+
+**PII**: Yes
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The patient's date of birth. Default format is yyyyMMdd.
+
+Other states may choose to define their own formats.
+
+
+---
+
+**Name**: Patient_email
+
+**Type**: EMAIL
+
+**PII**: Yes
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: Patient_ethnicity
 
 **Type**: CODE
 
 **PII**: No
 
-**Format**: $alt
+**Format**: $display
 
 **Cardinality**: [0..1]
 
@@ -328,27 +526,30 @@ Code | Display
 H|Hispanic or Latino
 N|Non Hispanic or Latino
 U|Unknown
-H|Hispanic or Latino
-N|Non Hispanic or Latino
-U|Unknown
-U|Unknown
-
-**Alt Value Sets**
-
-Code | Display
----- | -------
-H|2135-2
-N|2186-5
-U|UNK
-U|ASKU
 
 **Documentation**:
 
-Internally, ReportStream uses hl70189 (H,N,U), but should use HHS values. (2135-2, 2186-5, UNK, ASKU). A mapping is done here, but better is to switch all of RS to HHS standard.
+The patient's ethnicity. There is a valueset defined based on the values in PID-22, but downstream
+consumers are free to define their own values. Please refer to the consumer-specific schema if you have questions.
+
 
 ---
 
-**Name**: patientSex
+**Name**: Patient_first_name
+
+**Type**: PERSON_NAME
+
+**PII**: Yes
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The patient's first name
+
+---
+
+**Name**: Patient_gender
 
 **Type**: CODE
 
@@ -374,7 +575,7 @@ The patient's gender. There is a valueset defined based on the values in PID-8-1
 
 ---
 
-**Name**: patientUniqueId
+**Name**: Patient_ID
 
 **Type**: TEXT
 
@@ -390,7 +591,7 @@ the patient ID from the testing lab, the oder placer, the ordering provider, or 
 
 ---
 
-**Name**: patientUniqueIdHash
+**Name**: Patient_Id_type
 
 **Type**: TEXT
 
@@ -400,23 +601,51 @@ the patient ID from the testing lab, the oder placer, the ordering provider, or 
 
 ---
 
-**Name**: patient_id_type
+**Name**: Patient_last_name
 
-**Type**: TEXT
+**Type**: PERSON_NAME
 
-**PII**: No
+**PII**: Yes
 
-**Default Value**: PI
+**Cardinality**: [1..1]
+
+**Documentation**:
+
+The patient's last name
+
+---
+
+**Name**: Patient_middle_name
+
+**Type**: PERSON_NAME
+
+**PII**: Yes
 
 **Cardinality**: [0..1]
 
 ---
 
-**Name**: patientRace
+**Name**: Patient_phone_number
+
+**Type**: TELEPHONE
+
+**PII**: Yes
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The patient's phone number with area code
+
+---
+
+**Name**: Patient_race
 
 **Type**: CODE
 
 **PII**: No
+
+**Format**: $display
 
 **Cardinality**: [0..1]
 
@@ -440,13 +669,23 @@ The patient's race. There is a common valueset defined for race values, but some
 
 ---
 
-**Name**: patientState
+**Name**: Patient_role
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: Patient_state
 
 **Type**: TABLE
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Table**: fips-county
 
@@ -454,11 +693,53 @@ The patient's race. There is a common valueset defined for race values, but some
 
 **Documentation**:
 
-not required since this is only going to HHSProtect
+The patient's state
 
 ---
 
-**Name**: patientZip
+**Name**: Patient_street
+
+**Type**: STREET
+
+**PII**: Yes
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The patient's street address
+
+---
+
+**Name**: Patient_street_2
+
+**Type**: STREET_OR_BLANK
+
+**PII**: Yes
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The patient's second address line
+
+---
+
+**Name**: Patient_suffix
+
+**Type**: PERSON_NAME
+
+**PII**: Yes
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The suffix for the patient's name, (i.e. Jr, Sr, etc)
+
+---
+
+**Name**: Patient_zip_code
 
 **Type**: POSTAL_CODE
 
@@ -472,7 +753,7 @@ The patient's zip code
 
 ---
 
-**Name**: placer_order_id
+**Name**: Placer_order_ID
 
 **Type**: ID
 
@@ -491,71 +772,9 @@ The ID number of the lab order from the placer
 
 ---
 
-**Name**: pregnant
+**Name**: Corrected_result_ID
 
-**Type**: CODE
-
-**PII**: No
-
-**LOINC Code**: 82810-3
-
-**Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display
----- | -------
-77386006|Pregnant
-60001007|Not Pregnant
-261665006|Unknown
-
-**Documentation**:
-
-Is the patient pregnant?
-
----
-
-**Name**: previousTestResult
-
-**Type**: CODE
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display
----- | -------
-260373001|Detected
-260415000|Not detected
-720735008|Presumptive positive
-10828004|Positive
-42425007|Equivocal
-260385009|Negative
-895231008|Not detected in pooled specimen
-462371000124108|Detected in pooled specimen
-419984006|Inconclusive
-125154007|Specimen unsatisfactory for evaluation
-455371000124106|Invalid result
-840539006|Disease caused by sever acute respiratory syndrome coronavirus 2 (disorder)
-840544004|Suspected disease caused by severe acute respiratory coronavirus 2 (situation)
-840546002|Exposure to severe acute respiratory syndrome coronavirus 2 (event)
-840533007|Severe acute respiratory syndrome coronavirus 2 (organism)
-840536004|Antigen of severe acute respiratory syndrome coronavirus 2 (substance)
-840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
-840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
-373121007|Test not done
-
-**Documentation**:
-
-Custom field.  Example - 260415000
-
----
-
-**Name**: previousTestType
-
-**Type**: TEXT
+**Type**: ID
 
 **PII**: No
 
@@ -563,17 +782,17 @@ Custom field.  Example - 260415000
 
 **Documentation**:
 
-Custom field. Note, value matched LIVD column "F", "Test Performed LOINC Code"
+pointer/link to the unique id of a previously submitted result.  Usually blank. Or, if an item modifies/corrects a prior item, this field holds the message_id of the prior item.
 
 ---
 
-**Name**: processingModeCode
+**Name**: Processing_mode_code
 
 **Type**: CODE
 
 **PII**: No
 
-**Default Value**: T
+**Default Value**: P
 
 **Cardinality**: [0..1]
 
@@ -635,13 +854,11 @@ The reporting facility's name
 
 ---
 
-**Name**: congregateResident
+**Name**: Resident_congregate_setting
 
 **Type**: CODE
 
 **PII**: No
-
-**Format**: $display
 
 **LOINC Code**: 95421-4
 
@@ -651,37 +868,45 @@ The reporting facility's name
 
 Code | Display
 ---- | -------
-Y|YES
-N|NO
-UNK|UNK
+Y|Yes
+N|No
+UNK|Unknown
 
 **Documentation**:
 
-Override the base hl70136 valueset with a custom one, to handle slightly different syntax
+Does the patient reside in a congregate care setting?
 
 ---
 
-**Name**: senderId
+**Name**: Specimen_collection_date_time
 
-**Type**: TEXT
+**Type**: DATETIME
 
 **PII**: No
 
-**Default Value**: abbott
+**HL7 Fields**
 
-**Cardinality**: [1..1]
+- [OBR-7](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.7)
+- [OBR-8](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.8)
+- [OBX-14](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.14)
+- [SPM-17-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.17.1)
+
+**Cardinality**: [0..1]
 
 **Documentation**:
 
-ID name of org that is sending this data to ReportStream.  Suitable for provenance or chain of custody tracking.  Not to be confused with sending_application, in which ReportStream acts as the 'sender' to the downstream jurisdiction.
+The date which the specimen was collected. The default format is yyyyMMddHHmmsszz
+
 
 ---
 
-**Name**: congregateResidentType
+**Name**: Specimen_source_site_code
 
 **Type**: CODE
 
 **PII**: No
+
+**Format**: $code
 
 **Cardinality**: [0..1]
 
@@ -689,59 +914,25 @@ ID name of org that is sending this data to ReportStream.  Suitable for provenan
 
 Code | Display
 ---- | -------
-22232009|Hospital
-2081004|Hospital ship
-32074000|Long Term Care Hospital
-224929004|Secure Hospital
-42665001|Nursing Home
-30629002|Retirement Home
-74056004|Orphanage
-722173008|Prison-based care site
-20078004|Substance Abuse Treatment Center
-257573002|Boarding House
-224683003|Military Accommodation
-284546000|Hospice
-257628001|Hostel
-310207003|Sheltered Housing
-57656006|Penal Institution
-285113009|Religious institutional residence
-285141008|Work (environment)
-32911000|Homeless
-261665006|Unknown
+119297000|Blood specimen (specimen)
+71836000|Nasopharyngeal structure (body structure)
+45206002|Nasal structure (body structure)
+53342003|Internal nose structure (body structure)
+29092000|Venous structure (body structure)
 
 **Documentation**:
 
-Custom field
+Refers back to the specimen source site, which is then encoded into the SPM-8 segment
 
 ---
 
-**Name**: specimenId
-
-**Type**: EI
-
-**PII**: No
-
-**HL7 Fields**
-
-- [SPM-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2)
-
-**Cardinality**: [0..1]
-
-
-**Reference URL**:
-[https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2) 
-
-**Documentation**:
-
-A unique id, such as a UUID. Note - Need to override the mapper in covid-19.schema file.
-
----
-
-**Name**: specimenSource
+**Name**: Specimen_type_code
 
 **Type**: CODE
 
 **PII**: No
+
+**Format**: $code
 
 **Cardinality**: [0..1]
 
@@ -773,13 +964,11 @@ The specimen source, such as Blood or Serum
 
 ---
 
-**Name**: symptomatic
+**Name**: Symptomatic_for_disease
 
 **Type**: CODE
 
 **PII**: No
-
-**Format**: $display
 
 **LOINC Code**: 95419-8
 
@@ -789,125 +978,17 @@ The specimen source, such as Blood or Serum
 
 Code | Display
 ---- | -------
-Y|YES
-N|NO
-UNK|UNK
+Y|Yes
+N|No
+UNK|Unknown
 
 **Documentation**:
 
-Override the base hl70136 valueset with a custom one, to handle slightly different syntax
+Is the patient symptomatic?
 
 ---
 
-**Name**: symptomsList
-
-**Type**: TEXT
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-Custom.  Just a simple text string for now. Format is symptomCode1^date1;symptomCode2^date2; ...
-
----
-
-**Name**: test_authorized_for_home
-
-**Type**: TABLE
-
-**PII**: No
-
-**Default Value**: N
-
-**Cardinality**: [0..1]
-
-
-**Reference URL**:
-[https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
-
-**Table**: LIVD-Supplemental-2021-06-07
-
-**Table Column**: is_home
-
-**Documentation**:
-
-Is the test authorized for home use by the FDA (Y, N, UNK)
-
----
-
-**Name**: test_authorized_for_otc
-
-**Type**: TABLE
-
-**PII**: No
-
-**Default Value**: N
-
-**Cardinality**: [0..1]
-
-
-**Reference URL**:
-[https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
-
-**Table**: LIVD-Supplemental-2021-06-07
-
-**Table Column**: is_otc
-
-**Documentation**:
-
-Is the test authorized for over-the-counter purchase by the FDA (Y, N, UNK)
-
----
-
-**Name**: test_authorized_for_unproctored
-
-**Type**: TABLE
-
-**PII**: No
-
-**Default Value**: N
-
-**Cardinality**: [0..1]
-
-
-**Reference URL**:
-[https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
-
-**Table**: LIVD-Supplemental-2021-06-07
-
-**Table Column**: is_unproctored
-
-**Documentation**:
-
-Is the test authorized for unproctored administration by the FDA (Y, N, UNK)
-
----
-
-**Name**: deviceIdentifier
-
-**Type**: TABLE
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-
-**Reference URL**:
-[https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
-
-**Table**: LIVD-SARS-CoV-2-2021-09-29
-
-**Table Column**: Testkit Name ID
-
-**Documentation**:
-
-Must match LIVD column M, "Test Kit Name ID"
-
----
-
-**Name**: testPerformed
+**Name**: Ordered_test_code
 
 **Type**: TABLE
 
@@ -921,15 +1002,35 @@ Must match LIVD column M, "Test Kit Name ID"
 
 **Documentation**:
 
-eg, 94558-4
+The LOINC code of the test performed. This is a standardized coded value describing the test
 
 ---
 
-**Name**: testResult
+**Name**: Ordered_test_name
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Table**: LIVD-SARS-CoV-2-2021-09-29
+
+**Table Column**: Test Performed LOINC Long Name
+
+**Documentation**:
+
+The LOINC description of the test performed as related to the LOINC code.
+
+---
+
+**Name**: Test_result_code
 
 **Type**: CODE
 
 **PII**: No
+
+**Format**: $display
 
 **Cardinality**: [0..1]
 
@@ -959,31 +1060,27 @@ Code | Display
 
 **Documentation**:
 
-eg, 260373001
+The result of the test performed. For IgG, IgM and CT results that give a numeric value put that here.
 
 ---
 
-**Name**: testResultDate
+**Name**: Test_date
 
 **Type**: DATETIME
 
 **PII**: No
 
+**Format**: yyyyMMdd
+
 **Cardinality**: [0..1]
-
-**Documentation**:
-
-eg, 20210111
 
 ---
 
-**Name**: test_result_status
+**Name**: Test_result_status
 
 **Type**: CODE
 
 **PII**: No
-
-**Default Value**: F
 
 **HL7 Fields**
 
@@ -1018,7 +1115,21 @@ the test result is in some intermediate status, is a correction, or is the final
 
 ---
 
-**Name**: performingFacility
+**Name**: Testing_lab_city
+
+**Type**: CITY
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The city of the testing lab
+
+---
+
+**Name**: Testing_lab_CLIA
 
 **Type**: ID_CLIA
 
@@ -1037,11 +1148,32 @@ the test result is in some intermediate status, is a correction, or is the final
 
 **Documentation**:
 
-Expecting a CLIA number here.  eg, "10D2218834"
+CLIA Number from the laboratory that sends the message to DOH
+
+An example of the ID is 03D2159846
+
 
 ---
 
-**Name**: performingFacilityName
+**Name**: Testing_lab_county
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Table**: fips-county
+
+**Table Column**: County
+
+**Documentation**:
+
+The text value for the testing lab county. This is used to do the lookup in the FIPS dataset.
+
+---
+
+**Name**: Testing_lab_name
 
 **Type**: TEXT
 
@@ -1065,7 +1197,21 @@ The name of the laboratory which performed the test, can be the same as the send
 
 ---
 
-**Name**: performingFacilityState
+**Name**: Testing_lab_phone_number
+
+**Type**: TELEPHONE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The phone number of the testing lab
+
+---
+
+**Name**: Testing_lab_state
 
 **Type**: TABLE
 
@@ -1083,7 +1229,35 @@ The state for the testing lab
 
 ---
 
-**Name**: performingFacilityZip
+**Name**: Testing_lab_street
+
+**Type**: STREET
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The street address for the testing lab
+
+---
+
+**Name**: Testing_lab_street_2
+
+**Type**: STREET_OR_BLANK
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+Street 2 field for the testing lab
+
+---
+
+**Name**: Testing_lab_zip_code
 
 **Type**: POSTAL_CODE
 

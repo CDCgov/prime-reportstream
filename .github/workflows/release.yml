@@ -396,12 +396,8 @@ jobs:
       - name: Upload Static Site
         working-directory: .
         run: |
-          ls -al
-          ls -al ..
-          find . -type f
-      # 2021-11-04 CW - Disabling to enable other production deploys to happen
-      #     az storage blob delete-batch --account-name ${{ env.PREFIX }}public -s '$web'
-      #     az storage blob upload-batch --account-name ${{ env.PREFIX }}public -s frontend-react/build -d '$web' --debug
+          az storage blob delete-batch --account-name ${{ env.PREFIX }}public -s '$web'
+          az storage blob upload-batch --account-name ${{ env.PREFIX }}public -s frontend-react/build -d '$web'
 
   deploy_release_prod:
     name: "Deploy Release: PROD"
@@ -489,8 +485,8 @@ jobs:
         run: |
           az functionapp config access-restriction remove -g ${{ env.RESOURCE_GROUP }} -n ${{ env.PREFIX }}-functionapp --slot candidate --rule-name GitHubActionIPV4 > /dev/null 2>&1
 
-      # 2021-11-04 CW - Disabling to enable other production deploys to happen
-      # - name: Upload Static Site
-      #   run: |
-      #     az storage blob delete-batch --account-name ${{ env.PREFIX }}public -s '$web'
-      #     az storage blob upload-batch --account-name ${{ env.PREFIX }}public -s frontend/dist -d '$web'
+      - name: Upload Static Site
+        working-directory: .
+        run: |
+          az storage blob delete-batch --account-name ${{ env.PREFIX }}public -s '$web'
+          az storage blob upload-batch --account-name ${{ env.PREFIX }}public -s frontend/dist -d '$web'
