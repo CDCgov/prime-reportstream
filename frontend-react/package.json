@@ -50,6 +50,7 @@
         "clean": "rimraf ./build",
         "start": "react-scripts start",
         "build": "craco build",
+        "postbuild": "cp build/index.html build/404.html",
         "test": "react-scripts test",
         "eject": "react-scripts eject",
         "lint": "npm-run-all -p lint:eslint lint:prettier",
