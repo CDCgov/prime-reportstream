@@ -13,3 +13,8 @@ elements:
   - name: processing_mode_code
     default: P
 
+  - name: testing_lab_clia
+    cardinality: ZERO_OR_ONE
+    documentation: Expecting a CLIA number (eg, "10D2218834"), or empty string.
+    csvFields: [{ name: performingFacility}]
+

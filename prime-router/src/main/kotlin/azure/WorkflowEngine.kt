@@ -58,6 +58,12 @@ class WorkflowEngine(
     val ftpsTransport: FTPSTransport = FTPSTransport(),
     val gaenTransport: GAENTransport = GAENTransport()
 ) {
+    init {
+        // Load any updates to the database lookup tables.
+        // This check will run at the start of every function as they create a new instance of this class
+        metadata.checkForDatabaseLookupTableUpdates()
+    }
+
     val blobStoreTransport: BlobStoreTransport = BlobStoreTransport(this)
 
     /**
@@ -512,10 +518,7 @@ class WorkflowEngine(
          * These are all potentially heavy weight objects that
          * should only be created once.
          */
-        val metadata: Metadata by lazy {
-            val baseDir = System.getenv("AzureWebJobsScriptRoot") ?: "."
-            Metadata("$baseDir/metadata")
-        }
+        private val metadata = Metadata.getInstance()
 
         val databaseAccess: DatabaseAccess by lazy {
             DatabaseAccess()
@@ -533,15 +536,15 @@ class WorkflowEngine(
             }
         }
 
-        val csvSerializer: CsvSerializer by lazy {
+        private val csvSerializer: CsvSerializer by lazy {
             CsvSerializer(metadata)
         }
 
-        val hl7Serializer: Hl7Serializer by lazy {
+        private val hl7Serializer: Hl7Serializer by lazy {
             Hl7Serializer(metadata, settings)
         }
 
-        val redoxSerializer: RedoxSerializer by lazy {
+        private val redoxSerializer: RedoxSerializer by lazy {
             RedoxSerializer(metadata)
         }
     }

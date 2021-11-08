@@ -352,7 +352,7 @@ class ProcessData(
 
     override fun run() {
         // Load the schema and receivers
-        val metadata = metadataInstance ?: Metadata(Metadata.defaultMetadataDirectory)
+        val metadata = metadataInstance ?: Metadata.getInstance()
         val fileSettings = fileSettingsInstance ?: FileSettings(FileSettings.defaultSettingsDirectory)
         val csvSerializer = CsvSerializer(metadata)
         val hl7Serializer = Hl7Serializer(metadata, fileSettings)

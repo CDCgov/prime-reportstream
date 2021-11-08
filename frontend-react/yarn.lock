@@ -1972,10 +1972,10 @@
   resolved "https://registry.yarnpkg.com/@tootallnate/once/-/once-1.1.2.tgz#ccb91445360179a04e7fe6aff78c00ffc1eeaf82"
   integrity sha512-RbzJvlNzmRq5c3O09UipeuXno4tA1FE6ikOjxZK0tuxVv3412l64l5t1W5pj4+rJq9vpkm/kwiR07aZXnsKPxw==
 
-"@trussworks/react-uswds@^1.17.0":
-  version "1.17.0"
-  resolved "https://registry.yarnpkg.com/@trussworks/react-uswds/-/react-uswds-1.17.0.tgz#61aa01aff501892fefd2d8d79fbc4ec164efd516"
-  integrity sha512-1LI7IcMEUIG4MwIfm0NlTtUf/1AwQbW/vIk9evuSoWkwiK8CpXHOVZXKwalhVrncyDzjf+CpV9PDmlnf747Vvg==
+"@trussworks/react-uswds@^2.3.0":
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/@trussworks/react-uswds/-/react-uswds-2.3.0.tgz#8e502a25bf9b15748c0709b74e7a17a5e4f67277"
+  integrity sha512-uT54mDqWKqS1+UJi8p0iaeZjS8auiPLl3PW6LD0CR2sAPgiXMV7uMA+zWcjKwS5MGJ0L9Fv4ZbsQlLQg8Yhojw==
 
 "@types/aria-query@^4.2.0":
   version "4.2.2"
@@ -2185,10 +2185,10 @@
   dependencies:
     "@types/react" "*"
 
-"@types/react-helmet@^6.1.2":
-  version "6.1.3"
-  resolved "https://registry.yarnpkg.com/@types/react-helmet/-/react-helmet-6.1.3.tgz#1a58b26a79e464c59d3f9cdd5b7ece485335937b"
-  integrity sha512-U4onVxaZxAp78KpXsfmyCIhLjsvJJ3goG3CYFOo+xW0cPYAz9oe5cBAUSAcN7l35OTbrFvu9TuE0YkcZMKGr4A==
+"@types/react-helmet@^6.1.4":
+  version "6.1.4"
+  resolved "https://registry.yarnpkg.com/@types/react-helmet/-/react-helmet-6.1.4.tgz#3e54a3eb37ba7fb34ffafc64f425be4e68df03b9"
+  integrity sha512-jyx50RNZXVaTGHY3MsoRPNpeiVk8b0XTPgD/O6KHF6COTDnG/+lRjPYvTK5nfWtR3xDOux0w6bHLAsaHo2ZLTA==
   dependencies:
     "@types/react" "*"
 
@@ -3712,11 +3712,6 @@ char-regex@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/char-regex/-/char-regex-1.0.2.tgz#d744358226217f981ed58f479b1d6bcc29545dcf"
   integrity sha512-kWWXztvZ5SBQV+eRgKFeh8q5sLuZY2+8WUIzlxWVTg+oGwY14qylx1KbKzHd8P6ZYkAg0xyIDU9JMHhyJMZ1jw==
-
-chart.js@^3.3.2:
-  version "3.5.1"
-  resolved "https://registry.yarnpkg.com/chart.js/-/chart.js-3.5.1.tgz#73e24d23a4134a70ccdb5e79a917f156b6f3644a"
-  integrity sha512-m5kzt72I1WQ9LILwQC4syla/LD/N413RYv2Dx2nnTkRS9iv/ey1xLTt0DnPc/eWV4zI+BgEgDYBIzbQhZHc/PQ==
 
 check-more-types@^2.24.0:
   version "2.24.0"
@@ -11592,10 +11587,10 @@ specificity@^0.4.1:
   resolved "https://registry.yarnpkg.com/specificity/-/specificity-0.4.1.tgz#aab5e645012db08ba182e151165738d00887b019"
   integrity sha512-1klA3Gi5PD1Wv9Q0wUoOQN1IWAuPu0D1U03ThXTr0cJ20+/iq2tHSDnK7Kk/0LXJ1ztUB2/1Os0wKmfyNgUQfg==
 
-spinners-react@^1.0.4:
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/spinners-react/-/spinners-react-1.0.4.tgz#728444f1e96b3ce7470709ecbfb0f9681819ed0b"
-  integrity sha512-8I6vGcsGTtv0raS3T4zT+XzgHi2y4uBb9TlgpAKia+gZ9BIt9/+za5mOtQOz8yM8wv9lap75UMc57ys17cO1ag==
+spinners-react@^1.0.6:
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/spinners-react/-/spinners-react-1.0.6.tgz#b7e43d6097fa30107718df718108f3586d50088f"
+  integrity sha512-5J3sPZ9xogVA3CbLjFD3vTWhcuHb+mKFSBBEm5c8+8JSdPGweLQ6sPU+SD51FwZ2lqHks8DpiLk/lyLUa70oJA==
 
 split-string@^3.0.1, split-string@^3.0.2:
   version "3.1.0"
