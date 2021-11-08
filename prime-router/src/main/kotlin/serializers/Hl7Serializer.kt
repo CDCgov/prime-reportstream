@@ -898,6 +898,9 @@ class Hl7Serializer(
                 terser.set(nextComponent, "CLIA")
             }
             in CE_FIELDS -> {
+                // HD and CE don't have the same format. for the CE field, we have
+                // something that sits in the middle between the CLIA and the field
+                // that identifies this as a CLIA
                 val nextComponent = nextComponent(pathSpec, 2)
                 terser.set(nextComponent, "CLIA")
             }
@@ -1458,9 +1461,11 @@ class Hl7Serializer(
         )
 
         /**
-         * List of fields that have a CE type
+         * List of fields that have a CE type. Note: this is only really used in places
+         * where we need to put a CLIA marker in the field as well and there are a
+         * lot of CE fields that are *NOT* CLIA fields, so use this correctly.
          */
-        val CE_FIELDS = listOf("OBX-15-1", "OBX-15-2")
+        val CE_FIELDS = listOf("OBX-15-1")
 
         // Do a lazy init because this table may never be used and it is large
         val ncesLookupTable = lazy {
