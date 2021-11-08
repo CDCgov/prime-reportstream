@@ -70,7 +70,9 @@ const App = () => {
             restoreOriginalUri={restoreOriginalUri}
         >
             <Suspense fallback={<Spinner fullPage />}>
-                <NetworkErrorBoundary fallback={<ErrorPage type="page" />}>
+                <NetworkErrorBoundary
+                    fallbackComponent={() => <ErrorPage type="page" />}
+                >
                     <GlobalContextProvider>
                         <GovBanner aria-label="Official government website" />
                         <ReportStreamHeader />
