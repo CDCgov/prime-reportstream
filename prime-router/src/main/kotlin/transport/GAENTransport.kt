@@ -182,7 +182,6 @@ class GAENTransport : ITransport, Logging {
         val symptomDate: String
         val testDate: String
         val testType: String = "confirmed"
-        val tzOffset: Int = 0
         val phone: String
         val padding: String
         val uuid: String
