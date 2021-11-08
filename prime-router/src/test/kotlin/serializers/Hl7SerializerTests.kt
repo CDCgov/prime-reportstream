@@ -58,9 +58,9 @@ class Hl7SerializerTests {
     private val covid19Schema: Schema
     private val sampleHl7Message: String
     private val sampleHl7MessageWithRepeats: String
+    private val metadata = Metadata.getInstance()
 
     init {
-        val metadata = Metadata("./metadata")
         val settings = FileSettings("./settings")
         val inputStream = File("./src/test/unit_test_files/fake-pdi-covid-19.csv").inputStream()
         covid19Schema = metadata.findSchema(hl7SchemaName) ?: fail("Could not find target schema")
@@ -264,7 +264,6 @@ NTE|1|L|This is a final comment|RE"""
 
     @Test
     fun `test XTN phone decoding`() {
-        val metadata = Metadata("./metadata")
         val settings = FileSettings("./settings")
         val serializer = Hl7Serializer(metadata, settings)
         val mockTerser = mockk<Terser>()
@@ -358,7 +357,6 @@ NTE|1|L|This is a final comment|RE"""
 
     @Test
     fun `test XTN email decoding`() {
-        val metadata = Metadata("./metadata")
         val settings = FileSettings("./settings")
         val serializer = Hl7Serializer(metadata, settings)
         val mockTerser = mockk<Terser>()
@@ -403,7 +401,6 @@ NTE|1|L|This is a final comment|RE"""
 
     @Test
     fun `test date time decoding`() {
-        val metadata = Metadata("./metadata")
         val settings = FileSettings("./settings")
         val serializer = Hl7Serializer(metadata, settings)
         val mockTerser = mockk<Terser>()
@@ -588,7 +585,6 @@ NTE|1|L|This is a final comment|RE"""
 
     @Test
     fun `test terser spec generator`() {
-        val metadata = Metadata("./metadata")
         val settings = FileSettings("./settings")
         val serializer = Hl7Serializer(metadata, settings)
         assertThat(serializer.getTerserSpec("MSH-1-1")).isEqualTo("/MSH-1-1")
@@ -598,7 +594,6 @@ NTE|1|L|This is a final comment|RE"""
 
     @Test
     fun `test setTelephoneComponents for patient`() {
-        val metadata = Metadata("./metadata")
         val settings = FileSettings("./settings")
         val serializer = Hl7Serializer(metadata, settings)
         val mockTerser = mockk<Terser>()
@@ -627,7 +622,6 @@ NTE|1|L|This is a final comment|RE"""
 
     @Test
     fun `test setTelephoneComponents for facility`() {
-        val metadata = Metadata("./metadata")
         val settings = FileSettings("./settings")
         val serializer = Hl7Serializer(metadata, settings)
         val mockTerser = mockk<Terser>()
@@ -660,7 +654,6 @@ NTE|1|L|This is a final comment|RE"""
 
     @Test
     fun `test setCliaComponents`() {
-        val metadata = Metadata("./metadata")
         val settings = FileSettings("./settings")
         val serializer = Hl7Serializer(metadata, settings)
         val mockTerser = mockk<Terser>()
@@ -679,7 +672,6 @@ NTE|1|L|This is a final comment|RE"""
 
     @Test
     fun `test setCliaComponents in HD`() {
-        val metadata = Metadata("./metadata")
         val settings = FileSettings("./settings")
         val serializer = Hl7Serializer(metadata, settings)
         val mockTerser = mockk<Terser>()
@@ -865,7 +857,6 @@ NTE|1|L|This is a final comment|RE"""
 
     @Test
     fun `test incorrect HL7 content`() {
-        val metadata = Metadata("./metadata")
         val settings = FileSettings("./settings")
         val serializer = Hl7Serializer(metadata, settings)
 
@@ -960,7 +951,7 @@ NTE|1|L|This is a final comment|RE"""
         val terser = Terser(hapiMsg)
         val cliaTersed = terser.get("/MSH-4-2")
 
-        assertThat(cliaTersed).equals("10D1234567")
+        assertThat(cliaTersed).isEqualTo("10D1234567")
 
         // Test when sender is not found or blank
         val csvContentSenderNotFound = ByteArrayInputStream("senderId,testOrdered,testName,testCodingSystem,testResult,testResultText,testPerformed,testResultCodingSystem,testResultDate,testReportDate,testOrderedDate,specimenCollectedDate,deviceIdentifier,deviceName,specimenId,serialNumber,patientAge,patientAgeUnits,patientDob,patientRace,patientRaceText,patientEthnicity,patientEthnicityText,patientSex,patientZip,patientCounty,orderingProviderNpi,orderingProviderLname,orderingProviderFname,orderingProviderZip,performingFacility,performingFacilityName,performingFacilityStreet,performingFacilityStreet2,performingFacilityCity,performingFacilityState,performingFacilityZip,performingFacilityCounty,performingFacilityPhone,orderingFacilityName,orderingFacilityStreet,orderingFacilityStreet2,orderingFacilityCity,orderingFacilityState,orderingFacilityZip,orderingFacilityCounty,orderingFacilityPhone,specimenSource,patientNameLast,patientNameFirst,patientNameMiddle,patientUniqueId,patientHomeAddress,patientHomeAddress2,patientCity,patientState,patientPhone,patientPhoneArea,orderingProviderAddress,orderingProviderAddress2,orderingProviderCity,orderingProviderState,orderingProviderPhone,orderingProviderPhoneArea,firstTest,previousTestType,previousTestDate,previousTestResult,correctedTestId,healthcareEmployee,healthcareEmployeeType,symptomatic,symptomsList,hospitalized,hospitalizedCode,symptomsIcu,congregateResident,congregateResidentType,pregnant,pregnantText,patientEmail,reportingFacility\nfake,94531-1,SARS coronavirus 2 RNA panel - Respiratory specimen by NAA with probe detection,LN,260415000,Not Detected,94558-4,SCT,202110062022-0400,202110062022-0400,20211007,20211007,00382902560821,BD Veritor System for Rapid Detection of SARS-CoV-2*,4efd9df8-9424-4e50-b168-f3aa894bfa42,4efd9df8-9424-4e50-b168-f3aa894bfa42,45,yr,1975-10-10,2106-3,White,2135-2,Hispanic or Latino,M,93307,Kern County,1760085880,,,93312,05D2191150,Inovia Pharmacy,9902 Brimhall rd ste 100,,Bakersfield,CA,93312,Kern County,+16618297861,Inovia Pharmacy,9902 Brimhall rd ste 100,,Bakersfield,CA,93312,Kern County,+16618297861,445297001,Tapia,Jose,,e553c462-6bad-4e42-ab1e-0879b797aa31,1211 Dawn st,,Bakersfield,CA,+16614933107,661,9902 BRIMHALL RD STE 100,,BAKERSFIELD,CA,+16618297861,661,UNK,,,,,,,UNK,,NO,,NO,NO,,261665006,UNK,,1760085880".toByteArray()) // ktlint-disable max-line-length
