@@ -35,15 +35,24 @@ import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.LookupTableFunctions
 import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableVersion
 import gov.cdc.prime.router.common.Environment
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
+import org.apache.commons.io.FileUtils
 import org.apache.http.HttpStatus
 import org.jooq.JSONB
 import java.io.File
 import java.io.IOException
+import java.nio.file.NoSuchFileException
 
 /**
  * Utilities to submit and get data from the Lookup Tables API.
  */
 class LookupTableEndpointUtilities(val environment: Environment) {
+    /**
+     * Timeout in case of a super-duper long table.
+     */
+    private val requestTimeoutMilis = 45000
+
     /**
      * The Okta Access Token.
      */
@@ -99,6 +108,7 @@ class LookupTableEndpointUtilities(val environment: Environment) {
             .get(apiUrl.toString())
             .authentication()
             .bearer(oktaAccessToken)
+            .timeoutRead(requestTimeoutMilis)
             .responseJson()
         checkCommonErrorsFromResponse(result, response)
         try {
@@ -141,8 +151,38 @@ class LookupTableEndpointUtilities(val environment: Environment) {
             .jsonBody(jsonPayload.toString())
             .authentication()
             .bearer(oktaAccessToken)
+            .timeoutRead(requestTimeoutMilis)
             .responseJson()
         return getTableInfoFromResponse(result, response)
+    }
+
+    /**
+     * Check if we can connect to the enpoint.
+     * @return true if we can connect, false otherwise
+     */
+    private fun canConnect(): Boolean {
+        return try {
+            fetchList()
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    /**
+     * Waits for the endpoint to become available after a number of [retries] while waiting [pollIntervalSecs]
+     * between checks.
+     * @throws IOException if a connection was not made
+     */
+    fun waitForEndPoint(retries: Int, pollIntervalSecs: Long = 10L) {
+        var retryCount = 0
+        while (!canConnect()) {
+            retryCount++
+            if (retryCount > retries) throw IOException("Unable to connect to lookup tables endpoint")
+            runBlocking {
+                delay(pollIntervalSecs * 1000)
+            }
+        }
     }
 
     companion object {
@@ -385,6 +425,9 @@ class LookupTableCommands : CliktCommand(
     }
 }
 
+/**
+ * Generic lookup table command.
+ */
 abstract class GenericLookupTableCommand(name: String, help: String) : CliktCommand(name = name, help = help) {
     /**
      * The environment to connect to.
@@ -497,6 +540,16 @@ class LookupTableCreateCommand : GenericLookupTableCommand(
         .file(true, canBeDir = false, mustBeReadable = true).required()
 
     /**
+     * Silent running.  No table contents or diff output or confirmation if true.
+     */
+    private val silent by option("-s", "--silent", help = "Do not generate diff or ask confirmation").flag()
+
+    /**
+     * Activate a created table in one shot.
+     */
+    private val activate by option("-a", "--activate", help = "Activate the table upon creation").flag()
+
+    /**
      * The table name.
      */
     private val tableName by option("-n", "--name", help = "The name of the table to perform the operation on")
@@ -509,10 +562,12 @@ class LookupTableCreateCommand : GenericLookupTableCommand(
             error("Input file ${inputFile.absolutePath} has no data.")
 
         // Output the data for review.
-        TermUi.echo("Here is the table data to be created:")
-        val colNames = inputData[0].keys.toList()
-        TermUi.echo(LookupTableCommands.rowsToPrintableTable(inputData, colNames))
-        TermUi.echo("")
+        if (!silent) {
+            TermUi.echo("Here is the table data to be created:")
+            val colNames = inputData[0].keys.toList()
+            TermUi.echo(LookupTableCommands.rowsToPrintableTable(inputData, colNames))
+            TermUi.echo("")
+        }
 
         // If there is an existing active version then present a diff.
         val tableList = try {
@@ -521,7 +576,7 @@ class LookupTableCreateCommand : GenericLookupTableCommand(
             throw PrintMessage("Error fetching the list of tables: ${e.message}", true)
         }
         val activeVersion = (tableList.firstOrNull { it.tableName == tableName })?.tableVersion ?: 0
-        if (activeVersion > 0) {
+        if (!silent && activeVersion > 0) {
             val activeTable = try { tableUtil.fetchTableContent(tableName, activeVersion) } catch (e: Exception) {
                 throw PrintMessage("Error fetching active table content for table $tableName: ${e.message}", true)
             }
@@ -540,8 +595,10 @@ class LookupTableCreateCommand : GenericLookupTableCommand(
         }
 
         // Now we are ready.  Ask if we should proceed.
-        if (TermUi.confirm("Continue to create a new version of $tableName with ${inputData.size} rows?")
-            == true
+        if ((
+            !silent && TermUi.confirm("Continue to create a new version of $tableName with ${inputData.size} rows?")
+                == true
+            ) || silent
         ) {
             val newTableInfo = try { tableUtil.createTable(tableName, inputData) } catch (e: IOException) {
                 throw PrintMessage("Error creating new table version for $tableName: ${e.message}", true)
@@ -551,7 +608,7 @@ class LookupTableCreateCommand : GenericLookupTableCommand(
                     "${newTableInfo.tableVersion}."
             )
             // Always have an active version, so if this is the first version then activate it.
-            if (newTableInfo.tableVersion == 1) {
+            if (activate || newTableInfo.tableVersion == 1) {
                 try { tableUtil.activateTable(tableName, newTableInfo.tableVersion) } catch (e: Exception) {
                     throw PrintMessage(
                         "Error activating table $tableName version ${newTableInfo.tableVersion}. " +
@@ -567,6 +624,9 @@ class LookupTableCreateCommand : GenericLookupTableCommand(
     }
 }
 
+/**
+ * List the available lookup tables.
+ */
 class LookupTableListCommand : GenericLookupTableCommand(
     name = "list",
     help = "List the lookup tables"
@@ -601,6 +661,9 @@ class LookupTableListCommand : GenericLookupTableCommand(
     }
 }
 
+/**
+ * Show a diff between two lookup tables.
+ */
 class LookupTableDiffCommand : GenericLookupTableCommand(
     name = "diff",
     help = "Generate a difference between two versions of a lookup table"
@@ -668,6 +731,9 @@ class LookupTableDiffCommand : GenericLookupTableCommand(
     }
 }
 
+/**
+ * Activate a lookup table.
+ */
 class LookupTableActivateCommand : GenericLookupTableCommand(
     name = "activate",
     help = "Activate a specific version of a lookup table"
@@ -723,5 +789,69 @@ class LookupTableActivateCommand : GenericLookupTableCommand(
                 error("Unknown error when setting lookup table $tableName Version $version to active.")
         } else
             TermUi.echo("Aborted the activation of the lookup table.")
+    }
+}
+
+/**
+ * Load lookup tables from a directory.
+ */
+class LookupTableLoadAllCommand : GenericLookupTableCommand(
+    name = "loadall",
+    help = "Load all the tables stored as CSV in the specified directory"
+) {
+    /**
+     * Default directory for tables.
+     */
+    private val defaultDir = "./src/test/resources/metadata/tables"
+
+    /**
+     * The table name.
+     */
+    private val dir by option(
+        "-d", "--directory",
+        help = "The path to the directory with the table CSV files.  Defaults to $defaultDir"
+    )
+        .file(mustExist = true, canBeFile = false, canBeDir = true, mustBeReadable = true)
+        .default(File(defaultDir))
+
+    /**
+     * Number of connection retries.
+     */
+    private val connRetries by option("-r", "--retries", help = "Connection retries when checking the endpoint")
+        .int().default(10)
+
+    /**
+     * The reference to the table creator command.
+     */
+    private val tableCreator = LookupTableCreateCommand()
+
+    override fun run() {
+        // First wait for the endpoint to come online
+        TermUi.echo("Waiting for endpoint at ${environment.url} to be available...")
+        try {
+            LookupTableEndpointUtilities(environment).waitForEndPoint(connRetries)
+        } catch (e: IOException) {
+            error("Unable to connect to lookup table endpoint for environment in ${environment.url}")
+        }
+
+        // Loop through all the files
+        val files = try {
+            FileUtils.listFiles(dir, arrayOf("csv"), false)
+        } catch (e: NoSuchFileException) {
+            error("Directory ${dir.absolutePath} does not exist")
+        }
+        TermUi.echo("Loading ${files.size} tables from ${dir.absolutePath}...")
+
+        if (files.isEmpty()) error("No table files found in ${dir.absolutePath}")
+        files.forEach {
+            val tableName = it.nameWithoutExtension
+            TermUi.echo("Creating table $tableName...")
+            val args = mutableListOf(
+                "-e", environment.toString().lowercase(), "-n", tableName,
+                "-i", it.absolutePath, "-s", "-a"
+            )
+            tableCreator.main(args)
+        }
+        TermUi.echo("Done.")
     }
 }
