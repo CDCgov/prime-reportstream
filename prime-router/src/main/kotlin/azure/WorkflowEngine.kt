@@ -33,6 +33,7 @@ import gov.cdc.prime.router.transport.SftpTransport
 import org.jooq.Configuration
 import org.jooq.Field
 import java.io.ByteArrayInputStream
+import java.lang.IllegalStateException
 import java.time.OffsetDateTime
 
 /**
@@ -72,7 +73,7 @@ class WorkflowEngine(
 
     /**
      * Record a received [report] from a [sender] into the action history and save the original [rawBody]
-     * of the received message.
+     * of the received message. Return the blobUrl string to the calling function to save as part of the report
      */
     fun recordReceivedReport(
         report: Report,
@@ -80,7 +81,7 @@ class WorkflowEngine(
         sender: Sender,
         actionHistory: ActionHistory,
         workflowEngine: WorkflowEngine
-    ) {
+    ): String {
         // Save a copy of the original report
         val senderReportFormat = Report.Format.safeValueOf(sender.format.toString())
         val blobFilename = report.name.replace(report.bodyFormat.ext, senderReportFormat.ext)
@@ -89,9 +90,8 @@ class WorkflowEngine(
             blobFilename, sender.fullName, Event.EventAction.RECEIVE
         )
 
-        // set the location of the report so it can be used in the async pipeline for 'process'
-        report.bodyURL = blobInfo.blobUrl
         actionHistory.trackExternalInputReport(report, blobInfo)
+        return blobInfo.blobUrl
     }
 
     fun insertProcessTask(
@@ -383,12 +383,10 @@ class WorkflowEngine(
 
     /**
      * Handle a receiver specific event. Fetch all pending tasks for the specified receiver and nextAction
-     *
      * @param messageEvent that was received
      * @param context execution context
      * @param actionHistory action history being passed through for this message process
      */
-
     fun handleProcessEvent(
         messageEvent: ProcessEvent,
         context: ExecutionContext,
@@ -397,28 +395,37 @@ class WorkflowEngine(
         val errors: MutableList<ResultDetail> = mutableListOf()
         val warnings: MutableList<ResultDetail> = mutableListOf()
 
+        val reportFile = db.fetchReportFile(messageEvent.reportId)
+
         db.transact { txn ->
             val task = db.fetchAndLockTask(messageEvent.reportId, txn)
-            val id = task.reportId
-            val reportFile = db.fetchReportFile(id, org = null, txn)
-            val header = createHeader(task, reportFile, null, null, null)
+
+            val blobContent = blob.downloadBlob(reportFile.bodyUrl)
             val currentAction = Event.EventAction.parseQueueMessage(task.nextAction.literal)
 
-            // get sender record
+            // Get sender record, throw error if it is null. It should not be possible to be null, since the sender
+            //  was not null during the receive
             val sender = settings.findSender(reportFile.sendingOrg + "." + reportFile.sendingOrgClient)
+                ?: throw IllegalStateException(
+                    "Sender is null for report ${messageEvent.reportId} in the process step and it was not null " +
+                        "during receive. This should not be possible."
+                )
 
-            //  create report
+            // Create report. At this point in the process this will never return a null report, it has already
+            //  been created as part of recieve.
             val report = createReport(
-                sender!!,
-                header.content!!.decodeToString(),
+                sender,
+                blobContent.decodeToString(),
                 messageEvent.defaults,
                 errors,
                 warnings
-            )
+            )!!
 
-            // Tech Debt - update this when we are moving to internal FHIR format
-            //  set the id in the generated report to the correct UUID for this report.
-            report!!.id = messageEvent.reportId
+            // TODO: Tech Debt - update this when we are moving to storing internally-formatted report as part of
+            //  initial ingest.
+            // Set the id in the newly generated report to the correct UUID for the report coming out of the process
+            //  queue
+            report.id = messageEvent.reportId
 
             //  send to routeReport
             routeReport(
@@ -437,7 +444,6 @@ class WorkflowEngine(
                 warnings,
                 errors,
                 true,
-                actionHistory,
                 report
             )
             actionHistory.trackActionResponse(responseBody)
@@ -449,7 +455,7 @@ class WorkflowEngine(
             actionHistory.queueMessages(this)
 
             updateHeader(
-                id,
+                messageEvent.reportId,
                 currentAction,
                 Event.EventAction.NONE,
                 nextActionAt = null,
@@ -719,6 +725,15 @@ class WorkflowEngine(
     // 1. detect format and get serializer
     // 2. readExternal and return result / errors / warnings
     // TODO: This could be moved to a utility/reports.kt or something like that, as it is not really part of workflow
+    /**
+     * Reads in a received message of HL7 or CSV format, generates an in-memory report instance
+     * @param sender Sender information, pulled from database based on sender name
+     * @param content Content of incoming message
+     * @param defaults Default values that can be passed in as part of the request
+     * @param errors Transactional store of errors produced while processing this message
+     * @param warnings Transaction store of warnings produced while processing this message
+     * @return Returns a generated report object, or null
+     */
     fun createReport(
         sender: Sender,
         content: String,

@@ -87,10 +87,10 @@ class Report : Logging {
     /**
      * the UUID for the report
      */
-    // TODO: Made this var instead of val so we can update the report ID after creation in the async process
+    // TODO: Tech Debt - Made this var instead of val so we can update the report ID after creation in the async process
     //  functionality. There is a way to do it as a passed in variable, but the way we create reports via parsing
-    //  contentBody does not lend itself to that way of doing it. Once we are on FHIR internal spec, this could be
-    //  changed back to val - CD
+    //  contentBody does not lend itself to that way of doing it. Once we are storing a report in internal format
+    //  as part of initial ingest, this should be changed back to val - CD 11/08/2021
     var id: ReportId
 
     /**

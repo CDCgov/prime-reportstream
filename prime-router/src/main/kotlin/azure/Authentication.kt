@@ -18,6 +18,9 @@ enum class PrincipalLevel {
     USER
 }
 
+/**
+ * Data class generated during auth check, indicating if the user is authenticated and their status.
+ */
 data class AuthenticationResult(
     val authenticated: Boolean,
     val status: String?

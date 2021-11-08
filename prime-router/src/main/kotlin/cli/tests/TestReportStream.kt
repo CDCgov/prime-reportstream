@@ -887,6 +887,9 @@ class End2End : CoolTest() {
         return forceSync(environment, options) && forceAsync(environment, options)
     }
 
+    /**
+     * Forces synchronous end2end test
+     */
     private suspend fun forceSync(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
         ugly("Running end2end synchronously -- with no query param")
         var passed = true
@@ -927,6 +930,9 @@ class End2End : CoolTest() {
         return passed
     }
 
+    /**
+     * Forces asynchronous end2end test
+     */
     private suspend fun forceAsync(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
         ugly("Running end2end asynchronously -- with query param")
         var passed = true

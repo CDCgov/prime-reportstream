@@ -30,7 +30,7 @@ private const val DEFAULT_PARAMETER = "default"
 private const val ROUTE_TO_PARAMETER = "routeTo"
 private const val VERBOSE_PARAMETER = "verbose"
 private const val VERBOSE_TRUE = "true"
-private const val PROCESSING_TYPE = "processing"
+private const val PROCESSING_TYPE_PARAMETER = "processing"
 
 /**
  * Azure Functions with HTTP Trigger.
@@ -38,6 +38,11 @@ private const val PROCESSING_TYPE = "processing"
  */
 class ReportFunction : Logging {
 
+    /**
+     * Enumeration representing whether a submission will be processed follow the synchronous or asynchronous
+     * message pipeline. Within the code this defaults to Sync unless the PROCESSING_TYPE_PARAMETER query
+     * string value is 'async'
+     */
     enum class ProcessingType {
         Sync,
         Async,
@@ -144,6 +149,17 @@ class ReportFunction : Logging {
         }
     }
 
+    /**
+     * Handles an incoming request after it has been authenticated by either /reports or /waters endpoint.
+     * Does basic validation and either pushes it into the sync or async pipeline, based on the value
+     * of the incoming PROCESSING_TYPE_PARAMETER query string value
+     * @param request The incoming request
+     * @param sender The sender record, pulled from the database based on sender name on the request
+     * @param context Execution context
+     * @param workflowEngine WorkflowEngine instance used through the entire
+     * @param actionHistory ActionHistory instance to track messages and lineages\
+     * @return Returns an HttpResponseMessage indicating the result of the operation and any resulting information
+     */
     private fun processRequest(
         request: HttpRequestMessage<String?>,
         sender: Sender,
@@ -175,15 +191,19 @@ class ReportFunction : Logging {
             report.nextAction = TaskAction.process
         }
 
+        var response: HttpResponseMessage
+
+        // default response body, will be overwritten if message is successfully processed
+        var responseBody = actionHistory.createResponseBody(
+            validatedRequest.options,
+            warnings,
+            errors,
+            false
+        )
+
         // checks for errors from createReport
         if (validatedRequest.options != Options.SkipInvalidItems && errors.isNotEmpty()) {
-            val responseBody = actionHistory.createResponseBody(
-                validatedRequest.options,
-                warnings,
-                errors,
-                false
-            )
-            val response = HttpUtilities.httpResponse(
+            response = HttpUtilities.httpResponse(
                 request,
                 responseBody,
                 HttpStatus.BAD_REQUEST
@@ -191,56 +211,58 @@ class ReportFunction : Logging {
             actionHistory.trackActionResult(response)
             actionHistory.trackActionResponse(response, responseBody)
             workflowEngine.recordAction(actionHistory)
-            return response
         }
+        // if no errors resulting in a bad request, move forward with processing
+        else {
+            if (report != null) {
+                report.bodyURL = workflowEngine.recordReceivedReport(
+                    // should make createReport always return a report or error
+                    report, validatedRequest.content.toByteArray(), sender,
+                    actionHistory, workflowEngine
+                )
 
-        workflowEngine.recordReceivedReport(
-            // should make createReport always return a report or error
-            report!!, validatedRequest.content.toByteArray(), sender,
-            actionHistory, workflowEngine
-        )
+                // this function call checks internally to verify that this is a covid-19 topic
+                // Write the data to the table if we're dealing with covid-19. this has to happen
+                // here AFTER we've written the report to the DB.
+                writeCovidResultMetadataForReport(report, context, workflowEngine)
 
-        // this function call checks internally to verify that this is a covid-19 topic
-        // Write the data to the table if we're dealing with covid-19. this has to happen
-        // here AFTER we've written the report to the DB.
-        writeCovidResultMetadataForReport(report, context, workflowEngine)
+                // call the correct processing function based on processing type
+                if (isAsync) {
+                    processAsync(
+                        report,
+                        workflowEngine,
+                        validatedRequest.options,
+                        validatedRequest.defaults,
+                        validatedRequest.routeTo,
+                        actionHistory
+                    )
+                } else {
+                    workflowEngine.routeReport(
+                        context,
+                        report,
+                        validatedRequest.options,
+                        validatedRequest.defaults,
+                        validatedRequest.routeTo,
+                        warnings,
+                        actionHistory
+                    )
+                }
+                responseBody = actionHistory.createResponseBody(
+                    validatedRequest.options,
+                    warnings,
+                    errors,
+                    validatedRequest.verbose,
+                    report
+                )
+            }
+            response = HttpUtilities.createdResponse(request, responseBody)
+            actionHistory.trackActionResult(response)
+            actionHistory.trackActionResponse(response, responseBody)
+            workflowEngine.recordAction(actionHistory)
 
-        // call the correct processing function based on processing type
-        if (isAsync) {
-            processAsync(
-                report,
-                workflowEngine,
-                validatedRequest.options,
-                validatedRequest.defaults,
-                validatedRequest.routeTo,
-                actionHistory
-            )
-        } else {
-            workflowEngine.routeReport(
-                context,
-                report,
-                validatedRequest.options,
-                validatedRequest.defaults,
-                validatedRequest.routeTo,
-                warnings,
-                actionHistory
-            )
+            // queue messages here after all task / action records are in
+            actionHistory.queueMessages(workflowEngine)
         }
-        val responseBody = actionHistory.createResponseBody(
-            validatedRequest.options,
-            warnings,
-            errors,
-            validatedRequest.verbose,
-            actionHistory,
-            report
-        )
-        val response = HttpUtilities.createdResponse(request, responseBody)
-        actionHistory.trackActionResult(response)
-        actionHistory.trackActionResponse(response, responseBody)
-        workflowEngine.recordAction(actionHistory)
-
-        // queue messages here after all task / action records are in
-        actionHistory.queueMessages(workflowEngine)
 
         return response
     }
@@ -308,7 +330,7 @@ class ReportFunction : Logging {
     //  adding the 'processingType' attribute to a sender
     private fun processingType(request: HttpRequestMessage<String?>): ProcessingType {
         // uppercase first char, so it matches enum when 'async' is passed in
-        val processingTypeString = request.queryParameters.getOrDefault(PROCESSING_TYPE, "Sync")
+        val processingTypeString = request.queryParameters.getOrDefault(PROCESSING_TYPE_PARAMETER, "Sync")
             .replaceFirstChar { it.uppercase() }
         val processingType = try {
             ProcessingType.valueOf(processingTypeString)

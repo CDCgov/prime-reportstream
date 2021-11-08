@@ -81,8 +81,10 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
 
     companion object {
         fun parseQueueMessage(event: String): Event {
-            val parts = event.split(messageDelimiter)
-            if (parts.size < 3 || parts.size > 7) error("Internal Error: bad event format")
+            // validate incoming queue message is in the expected format. This will error out with an
+            //  IllegalStateException and message if it is not valid
+            val parts = parseAndValidateEvent(event)
+
             val action = EventAction.parseQueueMessage(parts[1])
             return when (parts[0]) {
                 ReportEvent.eventType -> {
@@ -117,6 +119,35 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
                 else -> error("Internal Error: invalid event type: $event")
             }
         }
+
+        /**
+         * Receives incoming [event] string from the queue, breaks it into segments, verifies the correct number
+         * of segments are present based on event type, and returns the list of parts.
+         */
+        private fun parseAndValidateEvent(event: String): List<String> {
+            val parts = event.split(messageDelimiter)
+            // verify the action has at least event type, action, and report id
+            if (parts.size < 3) error("Internal Error: Queue events require eventType, action, and reportId.")
+            when (parts[0]) {
+                // Report event requires 'event type', 'action', and 'report id'. 'at' is optional
+                ReportEvent.eventType -> {
+                    if (parts.size > 4) error("Internal Error: Report events can have no more than 4 parts.")
+                }
+                // Receiver event requires 'event type', 'action', 'receiver name'. 'at' is optional
+                ReceiverEvent.eventType -> {
+                    if (parts.size > 4) error("Internal Error: Receiver events can have no more than 4 parts.")
+                }
+                // Process event requires 'event type', 'action', 'report id', and 'options'.
+                //  'route to', 'default' and 'at are optional.
+                ProcessEvent.eventType -> {
+                    if (parts.size < 4 || parts.size > 7) error(
+                        "Internal Error: Process event requires between 4 and 7 parts."
+                    )
+                }
+                else -> error("Internal Error: invalid event type: $event")
+            }
+            return parts
+        }
     }
 }
 
@@ -145,17 +176,17 @@ class ProcessEvent(
         val defaultsQueueParam = defaults.map { pair -> "${pair.key}:${pair.value}" }.joinToString(",")
 
         // determine if these parts of the queue message are present
-        val afterClause = if (at == null) "" else "$messageDelimiter${DateTimeFormatter.ISO_DATE_TIME.format(at)}"
+        val atClause = if (at == null) "" else "$messageDelimiter${DateTimeFormatter.ISO_DATE_TIME.format(at)}"
         val defaultClause = if (defaultsQueueParam.isEmpty()) "" else "$messageDelimiter$defaultsQueueParam"
         val routeToClause = if (routeToQueueParam.isEmpty()) "" else "$messageDelimiter$routeToQueueParam"
 
         // generate the process queue message
         return "$eventType$messageDelimiter$eventAction$messageDelimiter$reportId$messageDelimiter$options" +
-            "$defaultClause$routeToClause$afterClause"
+            "$defaultClause$routeToClause$atClause"
     }
 
     override fun equals(other: Any?): Boolean {
-        return other is ReportEvent &&
+        return other is ProcessEvent &&
             eventAction == other.eventAction &&
             reportId == other.reportId &&
             at == other.at &&

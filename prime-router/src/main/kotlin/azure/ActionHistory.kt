@@ -213,7 +213,7 @@ class ActionHistory {
     fun trackActionResponse(response: HttpResponseMessage, verboseResponse: String) {
         action.httpStatus = response.status.value()
         if (!verboseResponse.isNullOrBlank())
-            action.actionResponse = JSONB.valueOf(verboseResponse)
+            this.trackActionResponse(verboseResponse)
     }
 
     /**
@@ -743,7 +743,6 @@ class ActionHistory {
      * @param warnings Store of warnings generated during the pipeline
      * @param errors Store of errors generated during the pipeline
      * @param verbose If true, all item routing details will be included in the response
-     * @param actionHistory The ongoing action history instance being used
      * @param report The report this response body is for
      * @return A json representation of the result of whatever action called this
      */
@@ -752,7 +751,6 @@ class ActionHistory {
         warnings: List<ResultDetail>,
         errors: List<ResultDetail>,
         verbose: Boolean,
-        actionHistory: ActionHistory? = null,
         report: Report? = null
     ): String {
         val factory = JsonFactory()
@@ -771,11 +769,11 @@ class ActionHistory {
             } else
                 it.writeNullField("id")
 
-            actionHistory?.prettyPrintDestinationsJson(it, WorkflowEngine.settings, options)
+            this.prettyPrintDestinationsJson(it, WorkflowEngine.settings, options)
             // print the report routing when in verbose mode
             if (verbose) {
                 it.writeArrayFieldStart("routing")
-                createItemRouting(report, actionHistory).forEach { ij ->
+                createItemRouting(report).forEach { ij ->
                     it.writeStartObject()
                     it.writeNumberField("reportIndex", ij.reportIndex)
                     it.writeStringField("trackingId", ij.trackingId)
@@ -858,7 +856,7 @@ class ActionHistory {
     }
 
     /**
-     * Creates a list of [ItemRouting] instances with the report index
+     * Creates a list of ItemRouting instances with the report index
      * and trackingId along with the list of the receiver organizations where
      * the report was routed.
      * @param report the instance generated while processing the report
@@ -867,16 +865,13 @@ class ActionHistory {
      */
     private fun createItemRouting(
         report: Report?,
-        actionHistory: ActionHistory? = null,
     ): List<ItemRouting> {
         // create the item routing from the item lineage
         val routingMap = mutableMapOf<Int, ItemRouting>()
-        actionHistory?.let { ah ->
-            ah.itemLineages.forEach { il ->
-                val item = routingMap.getOrPut(il.parentIndex) { ItemRouting(il.parentIndex, il.trackingId) }
-                ah.reportsOut[il.childReportId]?.let { rf ->
-                    item.destinations.add("${rf.receivingOrg}.${rf.receivingOrgSvc}")
-                }
+        this.itemLineages.forEach { il ->
+            val item = routingMap.getOrPut(il.parentIndex) { ItemRouting(il.parentIndex, il.trackingId) }
+            this.reportsOut[il.childReportId]?.let { rf ->
+                item.destinations.add("${rf.receivingOrg}.${rf.receivingOrgSvc}")
             }
         }
         // account for any items that routed no where and were not in the item lineage
