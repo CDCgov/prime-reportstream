@@ -3,9 +3,10 @@ import { GovBanner } from "@trussworks/react-uswds";
 import { Route, useHistory, Switch } from "react-router-dom";
 import { OktaAuth, toRelativeUrl } from "@okta/okta-auth-js";
 import { Security, SecureRoute, LoginCallback } from "@okta/okta-react";
-import { NetworkErrorBoundary } from "rest-hooks";
 import { isIE } from "react-device-detect";
 import { useIdleTimer } from "react-idle-timer";
+import { Suspense } from "react";
+import { NetworkErrorBoundary } from "rest-hooks";
 
 import { Home } from "./pages/home/Home";
 import { ReportStreamFooter } from "./components/ReportStreamFooter";
@@ -25,6 +26,7 @@ import { CODES, ErrorPage } from "./pages/error/ErrorPage";
 import GlobalContextProvider from "./components/GlobalContextProvider";
 import { logout } from "./utils/UserUtils";
 import TermsOfServiceForm from "./pages/tos-sign/TermsOfServiceForm";
+import Spinner from "./components/Spinner";
 
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
 

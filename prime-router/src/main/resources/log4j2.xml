@@ -6,17 +6,19 @@
         </Console>
     </Appenders>
     <Loggers>
-        <!-- This disables logging the jooq logo -->
-        <Logger name="org.jooq.Constants" level="warn" additivity="false">
-            <AppenderRef ref="Console"/>
-        </Logger>
-
-        <Logger name="gov.cdc.prime.router.transport.RedoxTransport" level="info"></Logger>
-        <Logger name="gov.cdc.prime.router.credentials" level="info"></Logger>
         <!-- Setting to debug enables logging queries -->
-        <Logger name="org.jooq" level="info" additivity="false">
-            <AppenderRef ref="Console"/>
-        </Logger>
+        <Logger name="org.jooq" level="info" additivity="false"/>
+
+        <!-- This disables logging the jooq logo -->
+        <Logger name="org.jooq.Constants" level="warn" additivity="false"/>
+
+        <!-- Disable some unneeded info logs -->
+        <Logger name="ca.uhn.hl7v2" level="warn"/>
+
+        <!-- ReportStream logs -->
+        <Logger name="gov.cdc.prime.router" level="info"/>
+        <Logger name="gov.cdc.prime.router.transport.RedoxTransport"/>
+        <Logger name="gov.cdc.prime.router.credentials" level="info"/>
 
         <!-- Example to turn on debugging in your favorite package
         <Logger name="gov.cdc.prime.router.azure.DatabaseAccess" level="debug" additivity="false">

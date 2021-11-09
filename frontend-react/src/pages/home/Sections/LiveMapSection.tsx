@@ -1,10 +1,11 @@
-// @ts-nocheck // TODO: fix types in this file
-import CdcMap from "@cdc/map";
+import DOMPurify from "dompurify";
 
 import { SectionProp } from "../HomeProps";
-import live from "../../../content/live.json";
+// @ts-ignore
+import usamapsvg from "../../../content/usa_w_territories.svg"; // in /content dir to get unique filename per build
 
 export default function LiveMapSection({ section }: { section: SectionProp }) {
+    let cleanDescriptionHtml = DOMPurify.sanitize(section!.description!);
     return (
         <div>
             <h2
@@ -20,12 +21,12 @@ export default function LiveMapSection({ section }: { section: SectionProp }) {
                 {section.summary}
             </p>
             <div data-testid="map" className="tablet:grid-col-10">
-                <CdcMap config={live} />
+                <img src={usamapsvg} alt="Map of states using ReportStream" />
             </div>
             <p
                 data-testid="description"
                 className="usa-prose margin-top-2"
-                dangerouslySetInnerHTML={{ __html: section!.description! }}
+                dangerouslySetInnerHTML={{ __html: cleanDescriptionHtml }}
             ></p>
         </div>
     );

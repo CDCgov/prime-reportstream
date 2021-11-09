@@ -87,14 +87,12 @@ jobs:
 
       - name: Upload Terraform Plan to Storage Account
         if: ${{ always() }} # We want to upload whatever part of the plan we have
-        uses: azure/CLI@v1
-        with:
-          inlineScript: |
-            az storage blob upload-batch --account-name pdhstagingterraform \
-              --destination terraformplan \
-              --destination-path "${{ github.run_id }}-${{ github.sha }}" \
-              --source operations/app/plan \
-              --pattern 'staging-*'
+        run: |
+          az storage blob upload-batch --account-name pdhstagingterraform \
+            --destination terraformplan \
+            --destination-path "${{ github.run_id }}-${{ github.sha }}" \
+            --source operations/app/plan \
+            --pattern 'staging-*'
 
       - name: Directions for Downloading Plan
         if: ${{ always() }}

@@ -30,6 +30,8 @@ export default class AuthResource extends Resource {
             return "http://localhost:7071";
         else if (window.location.origin.includes("staging"))
             return "https://staging.prime.cdc.gov";
+        else if (window.location.origin.includes("test"))
+            return "https://test.reportstream.cdc.gov";
         else return "https://prime.cdc.gov";
     };
 }

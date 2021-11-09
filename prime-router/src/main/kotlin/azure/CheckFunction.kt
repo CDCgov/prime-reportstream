@@ -7,12 +7,15 @@ import com.microsoft.azure.functions.HttpStatus
 import com.microsoft.azure.functions.annotation.AuthorizationLevel
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
+import com.microsoft.azure.functions.annotation.TimerTrigger
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.SFTPTransportType
+import gov.cdc.prime.router.azure.db.enums.SettingType
 import gov.cdc.prime.router.transport.SftpTransport
 import net.schmizz.sshj.sftp.RemoteResourceFilter
 import net.schmizz.sshj.sftp.RemoteResourceInfo
 import org.apache.logging.log4j.kotlin.Logging
+import java.time.Instant
 import java.util.UUID
 
 /*
@@ -26,6 +29,18 @@ class CheckFunction : Logging {
         val contents: String,
     )
 
+    /**
+     * A class to wrap the connection check event
+     */
+    data class RemoteConnectionCheck(
+        val organizationId: Int,
+        val receiverId: Int,
+        val checkSuccessful: Boolean,
+        val initiatedOn: Instant,
+        val completedAt: Instant,
+        val checkResult: String
+    )
+
     class TestFileFilter(val fileName: String) : RemoteResourceFilter {
         override fun accept(resource: RemoteResourceInfo?): Boolean {
             resource?. let {
@@ -35,6 +50,9 @@ class CheckFunction : Logging {
         }
     }
 
+    /**
+     * Checks a single remote connection
+     */
     @FunctionName("check")
     fun run(
         @HttpTrigger(
@@ -99,6 +117,74 @@ class CheckFunction : Logging {
     }
 
     /**
+     * Runs a check of all remote connections for all receivers and stores the results in a table.
+     * This is set up to run as a cron job in Azure.
+     * The current cron set up is 0 0 *12 * * * which means to run every two hours
+     */
+    @FunctionName("scheduled-remote-connection-check")
+    fun scheduledRun(
+        @TimerTrigger(
+            name = "scheduledRemoteConnectionCheckTrigger",
+            schedule = "%REMOTE_CONNECTION_CHECK_SCHEDULE%"
+        ) timerInfo: String,
+    ) {
+        logger.info("Staring scheduled check of remote receiver connections. Schedule is set to $timerInfo")
+        val settings = WorkflowEngine.settings
+        val db = WorkflowEngine.databaseAccess
+        settings.receivers.forEach {
+            logger.info("Checking connection for ${it.organizationName}-${it.name}")
+            // create the response body
+            val responseBody: MutableList<String> = mutableListOf()
+            // test the transport
+            val initiatedAt = Instant.now()
+            val successful = try {
+                testTransport(it, null, responseBody)
+            } catch (ex: Throwable) {
+                responseBody.add(ex.localizedMessage)
+                responseBody.add(ex.stackTraceToString())
+                false
+            }
+
+            val completedOn = Instant.now()
+            db.transact { txn ->
+                // get the id for the organization
+                val organizationId = db.fetchSetting(
+                    SettingType.ORGANIZATION,
+                    it.organizationName,
+                    null,
+                    txn
+                ).let { setting ->
+                    setting?.settingId
+                }
+                // get the id for the receiver
+                val receiverId = db.fetchSetting(SettingType.RECEIVER, it.name, organizationId, txn).let { receiver ->
+                    receiver?.settingId
+                }
+                // save the record
+                if (organizationId != null && receiverId != null) {
+                    // update and move on
+                    val connectionCheck = RemoteConnectionCheck(
+                        organizationId,
+                        receiverId,
+                        successful,
+                        initiatedAt,
+                        completedOn,
+                        responseBody.joinToString("\n"),
+                    )
+                    db.saveRemoteConnectionCheck(txn, connectionCheck)
+                } else {
+                    logger.info(
+                        "Unable to save connection check for ${it.organizationName}-${it.name}" +
+                            " because organizationId ($organizationId) or receiverId ($receiverId) is null"
+                    )
+                }
+            }
+        }
+        logger.info("Done checking remote receiver connections")
+        return
+    }
+
+    /**
      * Return true if even one sftp worked; return false if all failed.
      */
     private fun testAllTransports(
@@ -120,7 +206,7 @@ class CheckFunction : Logging {
     /**
      * Returns true on success, false on fail.
      */
-    fun testTransport(receiver: Receiver, sftpFile: SftpFile?, responseBody: MutableList<String>): Boolean {
+    private fun testTransport(receiver: Receiver, sftpFile: SftpFile?, responseBody: MutableList<String>): Boolean {
         if (receiver.transport == null) {
             responseBody.add("**** ${receiver.fullName}:  no transport defined.")
             return false
@@ -153,19 +239,17 @@ class CheckFunction : Logging {
     /**
      * Any normal return is success.  Any exception thrown is failure.
      */
-    fun testSftp(
+    private fun testSftp(
         sftpTransportType: SFTPTransportType,
         receiver: Receiver,
         sftpFile: SftpFile?,
         responseBody: MutableList<String>
     ) {
-        val host = sftpTransportType.host
-        val port = sftpTransportType.port
         val path = sftpTransportType.filePath
         logger.info("SFTP Transport $sftpTransportType")
         responseBody.add("${receiver.fullName}: SFTP Transport: $sftpTransportType")
-        val credential = SftpTransport.lookupCredentials(receiver.fullName)
-        var sshClient = SftpTransport.connect(host, port, credential)
+        val credential = SftpTransport.lookupCredentials(receiver)
+        var sshClient = SftpTransport.connect(receiver, credential)
         responseBody.add("${receiver.fullName}: Able to Connect to sftp site")
         sftpFile?. let {
             logger.info("Attempting to upload ${it.name} to $sftpTransportType")
@@ -173,10 +257,10 @@ class CheckFunction : Logging {
                 throw Exception("File ${sftpFile.name} already exists on SFTP server. Aborting upload.")
             }
             // the client connection is closed in the SftpTransport methods
-            sshClient = SftpTransport.connect(host, port, credential)
+            sshClient = SftpTransport.connect(receiver, credential)
             SftpTransport.uploadFile(sshClient, path, it.name, it.contents.toByteArray())
             responseBody.add("${receiver.fullName}: Uploaded file '${sftpFile.name}' to SFTP transport")
-            sshClient = SftpTransport.connect(host, port, credential)
+            sshClient = SftpTransport.connect(receiver, credential)
         }
         logger.info("Now trying an `ls` on $path")
         val lsList: List<String> = SftpTransport.ls(sshClient, path)
@@ -188,7 +272,7 @@ class CheckFunction : Logging {
         responseBody.add(msg)
         sftpFile?. let {
             logger.info("Checking for uploaded file on SFTP Transport")
-            sshClient = SftpTransport.connect(host, port, credential)
+            sshClient = SftpTransport.connect(receiver, credential)
             msg = if (SftpTransport.ls(sshClient, path, TestFileFilter(it.name)).isEmpty()) {
                 "${receiver.fullName}: Couldn't find file '${sftpFile.name}' on SFTP Transport"
             } else {
@@ -199,7 +283,7 @@ class CheckFunction : Logging {
             msg = "${receiver.fullName}: Removing '${sftpFile.name}' from SFTP transport"
             logger.info(msg)
             responseBody.add(msg)
-            SftpTransport.rm(SftpTransport.connect(host, port, credential), path, sftpFile.name)
+            SftpTransport.rm(SftpTransport.connect(receiver, credential), path, sftpFile.name)
             msg = "${receiver.fullName}: Success: removed '${sftpFile.name}' from SFTP Transport"
             logger.info(msg)
             responseBody.add(msg)

@@ -9,6 +9,7 @@ import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.Tables.COVID_RESULT_METADATA
 import gov.cdc.prime.router.azure.db.Tables.EMAIL_SCHEDULE
 import gov.cdc.prime.router.azure.db.Tables.JTI_CACHE
+import gov.cdc.prime.router.azure.db.Tables.RECEIVER_CONNECTION_CHECK_RESULTS
 import gov.cdc.prime.router.azure.db.Tables.REPORT_FACILITIES
 import gov.cdc.prime.router.azure.db.Tables.REPORT_LINEAGE
 import gov.cdc.prime.router.azure.db.Tables.SETTING
@@ -32,12 +33,12 @@ import org.jooq.Field
 import org.jooq.JSON
 import org.jooq.SQLDialect
 import org.jooq.impl.DSL
-import org.jooq.impl.DSL.count
 import org.jooq.impl.DSL.inline
 import org.postgresql.Driver
 import java.sql.Connection
 import java.sql.DriverManager
 import java.time.OffsetDateTime
+import java.time.ZoneOffset
 import java.util.UUID
 import javax.sql.DataSource
 
@@ -721,6 +722,26 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             .from(SETTING)
             .fetchOne()
             ?.getValue(DSL.max(SETTING.CREATED_AT))
+    }
+
+    /**
+     * Saves the connection check result to the db
+     */
+    fun saveRemoteConnectionCheck(
+        txn: DataAccessTransaction? = null,
+        connectionCheck: CheckFunction.RemoteConnectionCheck
+    ) {
+        val ctx = if (txn != null) DSL.using(txn) else create
+        val initiatedOn = connectionCheck.initiatedOn.atOffset(ZoneOffset.UTC)
+        val completedOn = connectionCheck.completedAt.atOffset(ZoneOffset.UTC)
+        ctx.insertInto(RECEIVER_CONNECTION_CHECK_RESULTS)
+            .set(RECEIVER_CONNECTION_CHECK_RESULTS.ORGANIZATION_ID, connectionCheck.organizationId)
+            .set(RECEIVER_CONNECTION_CHECK_RESULTS.RECEIVER_ID, connectionCheck.receiverId)
+            .set(RECEIVER_CONNECTION_CHECK_RESULTS.CONNECTION_CHECK_RESULT, connectionCheck.checkResult)
+            .set(RECEIVER_CONNECTION_CHECK_RESULTS.CONNECTION_CHECK_SUCCESSFUL, connectionCheck.checkSuccessful)
+            .set(RECEIVER_CONNECTION_CHECK_RESULTS.CONNECTION_CHECK_STARTED_AT, initiatedOn)
+            .set(RECEIVER_CONNECTION_CHECK_RESULTS.CONNECTION_CHECK_COMPLETED_AT, completedOn)
+            .execute()
     }
 
     /** Common companion object */

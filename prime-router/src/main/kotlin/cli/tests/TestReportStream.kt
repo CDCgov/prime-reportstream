@@ -296,6 +296,7 @@ Examples:
             Huge(),
             TooBig(),
             Parallel(),
+            Simulator(),
             HammerTime(),
             StracPack(),
             RepeatWaters(),
@@ -305,6 +306,7 @@ Examples:
             DbConnections(),
             BadSftp(),
             Garbage(),
+            SettingsTest(),
         )
     }
 }
@@ -554,7 +556,7 @@ abstract class CoolTest {
     }
 
     companion object {
-        val metadata = Metadata(Metadata.defaultMetadataDirectory)
+        val metadata by lazy { Metadata.getInstance() }
         val settings = FileSettings(FileSettings.defaultSettingsDirectory)
 
         // Here is test setup of organization, senders, and receivers.   All static.
@@ -1160,7 +1162,7 @@ class Parallel : CoolTest() {
                                     file,
                                     stracSender,
                                     options.key,
-                                    // ReportFunction.Options.SkipSend
+                                    ReportFunction.Options.SkipSend
                                 )
                             if (responseCode != HttpURLConnection.HTTP_CREATED) {
                                 echo(json)

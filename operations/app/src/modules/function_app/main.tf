@@ -22,8 +22,10 @@ locals {
     # Route storage account access through the VNET
     "WEBSITE_CONTENTOVERVNET" = 1
 
-    # Use the VNET DNS server (so we receive private endpoint URLs
-    "WEBSITE_DNS_SERVER" = "168.63.129.16"
+    # Use the CDC DNS for everything; they have mappings for all our internal
+    # resources, so if we add a new resource we'll have to contact them (see
+    # prime-router/docs/dns.md)
+    "WEBSITE_DNS_SERVER" = "172.17.0.135"
 
     "DOCKER_REGISTRY_SERVER_URL"      = data.azurerm_container_registry.container_registry.login_server
     "DOCKER_REGISTRY_SERVER_USERNAME" = data.azurerm_container_registry.container_registry.admin_username
@@ -34,6 +36,10 @@ locals {
     # "DOCKER_CONTENT_TRUST" = 1
 
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE" = false
+
+    # Cron-like schedule for running the function app that reaches out to remote
+    # sites and verifies they're up
+    "REMOTE_CONNECTION_CHECK_SCHEDULE" = "15 */2 * * *"
 
     # App Insights
     "APPINSIGHTS_INSTRUMENTATIONKEY"                  = var.ai_instrumentation_key
@@ -64,6 +70,19 @@ locals {
 
   # Any setting not in the common list is therefore unique
   sticky_slot_unique_settings_names = tolist(setsubtract(local.functionapp_slot_settings_names, keys(local.all_app_settings)))
+
+  # Origin records
+  cors_all = [
+    "https://hhs-prime.okta.com",
+  ]
+  cors_prod = [
+    "https://prime.cdc.gov",
+    "https://reportstream.cdc.gov",
+  ]
+  cors_lower = [
+    "https://${var.environment}.reportstream.cdc.gov",
+    "https://${var.environment}.prime.cdc.gov",
+  ]
 }
 
 resource "azurerm_function_app" "function_app" {
@@ -87,6 +106,13 @@ resource "azurerm_function_app" "function_app" {
     }
 
     ip_restriction {
+      action                    = "Allow"
+      name                      = "AllowVNetEastTraffic"
+      priority                  = 100
+      virtual_network_subnet_id = data.azurerm_subnet.public_subnet.id
+    }
+
+    ip_restriction {
       action      = "Allow"
       name        = "AllowFrontDoorTraffic"
       priority    = 110
@@ -101,13 +127,7 @@ resource "azurerm_function_app" "function_app" {
     linux_fx_version          = "DOCKER|${data.azurerm_container_registry.container_registry.login_server}/${var.resource_prefix}:latest"
 
     cors {
-      allowed_origins = [
-        "https://${var.resource_prefix}public.z13.web.core.windows.net",
-        "https://prime.cdc.gov",
-        "https://${var.environment}.prime.cdc.gov",
-        "https://reportstream.cdc.gov",
-        "https://${var.environment}.reportstream.cdc.gov",
-      ]
+      allowed_origins = concat(local.cors_all, var.environment == "prod" ? local.cors_prod : local.cors_lower)
     }
   }
 
@@ -156,7 +176,7 @@ resource "azurerm_key_vault_access_policy" "functionapp_client_config_access_pol
 
 resource "azurerm_app_service_virtual_network_swift_connection" "function_app_vnet_integration" {
   app_service_id = azurerm_function_app.function_app.id
-  subnet_id      = var.environment == "dev" ? data.azurerm_subnet.public_subnet.id : data.azurerm_subnet.public.id
+  subnet_id      = var.use_cdc_managed_vnet ? data.azurerm_subnet.public_subnet.id : data.azurerm_subnet.public.id
 }
 
 // Enable sticky slot settings

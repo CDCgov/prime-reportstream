@@ -101,13 +101,17 @@ resource "azurerm_container_group" "dns" {
 
   container {
     name   = "dnsmasq"
-    image  = "andyshinn/dnsmasq:2.83"
+    image  = "ghcr.io/cdcgov/prime-reportstream_dnsmasq:${var.environment == "dev" ? var.resource_prefix : var.environment}"
     cpu    = "0.5"
     memory = "1.0"
 
     ports {
       port     = 53
       protocol = "UDP" # Both TCP and UDP can not be configured at the same time
+    }
+
+    environment_variables = {
+      VERSION = 2 # This is used to force Azure to update the container
     }
   }
 
@@ -143,7 +147,7 @@ resource "azurerm_subnet" "endpoint" {
   virtual_network_name                           = azurerm_virtual_network.virtual_network.name
   address_prefixes                               = ["10.0.5.0/24"]
   enforce_private_link_endpoint_network_policies = true
-  service_endpoints                              = ["Microsoft.Storage"]
+  service_endpoints                              = ["Microsoft.Storage", "Microsoft.KeyVault"]
 }
 
 # Associate the DNS zone with our VNET, so the VNET will resolve these addresses

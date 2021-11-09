@@ -18,9 +18,11 @@ import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.inputStream
 import com.github.ajalt.clikt.parameters.types.outputStream
 import com.github.kittinunf.fuel.Fuel
+import com.github.kittinunf.fuel.core.FuelError
 import com.github.kittinunf.fuel.core.Headers.Companion.CONTENT_TYPE
+import com.github.kittinunf.fuel.core.Response
 import com.github.kittinunf.fuel.core.extensions.authentication
-import com.github.kittinunf.fuel.core.extensions.jsonBody
+import com.github.kittinunf.fuel.json.FuelJson
 import com.github.kittinunf.fuel.json.responseJson
 import com.github.kittinunf.result.Result
 import gov.cdc.prime.router.DeepOrganization
@@ -56,6 +58,9 @@ abstract class SettingCommand(
     private val outStream by option("-o", "--output", help = "Output to file", metavar = "<file>")
         .outputStream(createIfNotExist = true, truncateExisting = true)
         .default(System.out)
+
+    private val verbose by option("-v", "--verbose", help = "Verbose logging of each HTTP operation to console")
+        .flag(default = false)
 
     open val inStream: InputStream? = null
 
@@ -98,52 +103,45 @@ abstract class SettingCommand(
         payload: String
     ): String {
         val path = formPath(environment, Operation.PUT, settingType, settingName)
-        val (_, response, result) = Fuel
-            .put(path)
-            .authentication()
-            .bearer(accessToken)
-            .header(CONTENT_TYPE to jsonMimeType)
-            .jsonBody(payload)
-            .responseJson()
+        if (verbose) {
+            echo("PUT $path :: $payload")
+        }
+        val output = SettingsUtilities.put(path, accessToken, payload)
+        val (_, response, result) = output
         return when (result) {
-            is Result.Failure -> {
-                abort("Error on put of $settingName: ${response.responseMessage} ${String(response.data)}")
-            }
+            is Result.Failure -> handleHttpFailure(settingName, response, result)
             is Result.Success ->
                 when (response.statusCode) {
                     HttpStatus.SC_OK -> {
                         val version = result.value.obj().getInt("version")
                         "Success. Setting $settingName at version $version"
                     }
-                    HttpStatus.SC_CREATED -> "Success. Created $settingName"
+                    HttpStatus.SC_CREATED -> "Success. Created $settingName\n"
                     else -> error("Unexpected successful status code")
                 }
         }
     }
 
-    fun delete(environment: Environment, accessToken: String, settingType: SettingType, settingName: String) {
+    fun delete(environment: Environment, accessToken: String, settingType: SettingType, settingName: String): String {
         val path = formPath(environment, Operation.DELETE, settingType, settingName)
-        val (_, response, result) = Fuel
-            .delete(path)
-            .authentication()
-            .bearer(accessToken)
-            .header(CONTENT_TYPE to jsonMimeType)
-            .responseString()
+        if (verbose) {
+            echo("DELETE $path")
+        }
+        val (_, response, result) = SettingsUtilities.delete(path, accessToken)
         return when (result) {
             is Result.Failure ->
                 abort("Error on delete of $settingName: ${response.responseMessage} ${String(response.data)}")
-            is Result.Success -> Unit
+            is Result.Success ->
+                "Success $settingName: ${result.value}"
         }
     }
 
     fun get(environment: Environment, accessToken: String, settingType: SettingType, settingName: String): String {
         val path = formPath(environment, Operation.GET, settingType, settingName)
-        val (_, response, result) = Fuel
-            .get(path)
-            .authentication()
-            .bearer(accessToken)
-            .header(CONTENT_TYPE to jsonMimeType)
-            .responseString()
+        if (verbose) {
+            echo("GET $path")
+        }
+        val (_, response, result) = SettingsUtilities.get(path, accessToken)
         return when (result) {
             is Result.Failure ->
                 abort("Error getting $settingName: ${response.responseMessage} ${String(response.data)}")
@@ -153,6 +151,9 @@ abstract class SettingCommand(
 
     fun getMany(environment: Environment, accessToken: String, settingType: SettingType, settingName: String): String {
         val path = formPath(environment, Operation.LIST, settingType, settingName)
+        if (verbose) {
+            echo("GET $path")
+        }
         val (_, response, result) = Fuel
             .get(path)
             .authentication()
@@ -160,8 +161,7 @@ abstract class SettingCommand(
             .header(CONTENT_TYPE to jsonMimeType)
             .responseJson()
         return when (result) {
-            is Result.Failure ->
-                abort("Error listing $settingName: ${response.responseMessage} ${String(response.data)}")
+            is Result.Failure -> handleHttpFailure(settingName, response, result)
             is Result.Success -> "[${result.value.array().join(",\n")}]"
         }
     }
@@ -173,6 +173,9 @@ abstract class SettingCommand(
         settingName: String
     ): List<String> {
         val path = formPath(environment, Operation.LIST, settingType, settingName)
+        if (verbose) {
+            echo("GET $path")
+        }
         val (_, response, result) = Fuel
             .get(path)
             .authentication()
@@ -180,8 +183,7 @@ abstract class SettingCommand(
             .header(CONTENT_TYPE to jsonMimeType)
             .responseJson()
         return when (result) {
-            is Result.Failure ->
-                abort("Error listing $settingName: ${response.responseMessage} ${String(response.data)}")
+            is Result.Failure -> handleHttpFailure(settingName, response, result)
             is Result.Success -> {
                 val resultObjs = result.value.array()
                 val names = if (settingType == SettingType.ORG) {
@@ -207,6 +209,17 @@ abstract class SettingCommand(
 
     fun writeOutput(output: String) {
         outStream.write(output.toByteArray())
+    }
+
+    private fun handleHttpFailure(settingName: String, response: Response, result: Result<FuelJson, FuelError>):
+        Nothing {
+        abort(
+            "Error: \n" +
+                "  Setting Name: $settingName\n" +
+                "  HTTP Result: ${result.component2()?.message}\n" +
+                "  HTTP Response Message: ${response.responseMessage}\n" +
+                "  HTTP Response Data: ${String(response.data)}"
+        )
     }
 
     fun fromJson(input: String, settingType: SettingType): Pair<String, String> {
@@ -333,11 +346,6 @@ abstract class SingleSettingCommandNoSettingName(
         help = "Use the JSON format instead of YAML"
     ).flag(default = false)
 
-    private val verbose by option(
-        "--verbose",
-        help = "Verbose output"
-    ).flag(default = false)
-
     override fun run() {
         // Authenticate
         val environment = getEnvironment()
@@ -362,15 +370,11 @@ abstract class SingleSettingCommandNoSettingName(
                     fromYaml(readInput(), settingType)
                 val output = put(environment, accessToken, settingType, name, payload)
 
-                if (verbose) {
-                    println("put ${settingType.toString().lowercase()} :: $payload")
-                }
-
                 writeOutput(output)
             }
             Operation.DELETE -> {
                 delete(environment, accessToken, settingType, settingName)
-                writeOutput("Removed $settingName")
+                writeOutput("Success. Removed $settingName\n")
             }
         }
     }
@@ -537,7 +541,7 @@ class DeleteReceiverSetting : SingleSettingCommand(
  */
 class MultipleSettings : CliktCommand(
     name = "multiple-settings",
-    help = "Retrieve and alter multiple settings using a 'organizations.yml' file."
+    help = "Fetch and update multiple settings"
 ) {
     init { subcommands(PutMultipleSettings(), GetMultipleSettings()) }
 
@@ -551,11 +555,6 @@ class PutMultipleSettings : SettingCommand(
 
     override val inStream by option("-i", "--input", help = "Input from file", metavar = "<file>")
         .inputStream()
-
-    private val verbose by option(
-        "--verbose",
-        help = "Verbose output"
-    ).flag(default = false)
 
     override fun run() {
         val environment = getEnvironment()
@@ -572,31 +571,16 @@ class PutMultipleSettings : SettingCommand(
         deepOrgs.forEach { deepOrg ->
             val org = Organization(deepOrg)
             val payload = jsonMapper.writeValueAsString(org)
-
-            if (verbose) {
-                println("""Organization :: $payload""")
-            }
-
             results += put(environment, accessToken, SettingType.ORG, deepOrg.name, payload)
         }
         // Put senders
         deepOrgs.flatMap { it.senders }.forEach { sender ->
             val payload = jsonMapper.writeValueAsString(sender)
-
-            if (verbose) {
-                println("""Sender :: $payload""")
-            }
-
             results += put(environment, accessToken, SettingType.SENDER, sender.fullName, payload)
         }
         // Put receivers
         deepOrgs.flatMap { it.receivers }.forEach { receiver ->
             val payload = jsonMapper.writeValueAsString(receiver)
-
-            if (verbose) {
-                println("""Receiver :: $payload""")
-            }
-
             results += put(environment, accessToken, SettingType.RECEIVER, receiver.fullName, payload)
         }
         return results

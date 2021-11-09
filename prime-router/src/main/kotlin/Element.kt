@@ -3,6 +3,7 @@ package gov.cdc.prime.router
 import com.google.i18n.phonenumbers.PhoneNumberUtil
 import gov.cdc.prime.router.Element.Cardinality.ONE
 import gov.cdc.prime.router.Element.Cardinality.ZERO_OR_ONE
+import gov.cdc.prime.router.metadata.LookupTable
 import java.lang.Exception
 import java.text.DecimalFormat
 import java.time.Instant
@@ -10,7 +11,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.OffsetDateTime
-import java.time.ZoneId
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 import java.util.Locale
@@ -242,8 +243,8 @@ data class Element(
      * The format string's value is specific to the type of the element.
      */
     fun toFormatted(
-        normalizedValue: kotlin.String,
-        format: kotlin.String? = null,
+        normalizedValue: String,
+        format: String? = null,
     ): String {
         if (normalizedValue.isEmpty()) return ""
         val formattedValue = when (type) {
@@ -441,7 +442,7 @@ data class Element(
                 try {
                     // Try to parse using a LocalDate pattern assuming it is in our canonical dateFormatter. Central timezone.
                     val date = LocalDate.parse(formattedValue, dateFormatter)
-                    val zoneOffset = ZoneId.of(USTimeZone.CENTRAL.zoneId).rules.getOffset(Instant.now())
+                    val zoneOffset = ZoneOffset.UTC.rules.getOffset(Instant.now())
                     OffsetDateTime.of(date, LocalTime.of(0, 0), zoneOffset)
                     return null
                 } catch (e: DateTimeParseException) {
@@ -451,7 +452,7 @@ data class Element(
                     val optionalDateTime = variableDateTimePattern
                     val df = DateTimeFormatter.ofPattern(optionalDateTime)
                     val ta = df.parseBest(formattedValue, OffsetDateTime::from, LocalDateTime::from, Instant::from)
-                    LocalDateTime.from(ta).atZone(ZoneId.of(USTimeZone.CENTRAL.zoneId)).toOffsetDateTime()
+                    LocalDateTime.from(ta).atZone(ZoneOffset.UTC).toOffsetDateTime()
                     return null
                 } catch (e: DateTimeParseException) {
                 }
@@ -580,7 +581,7 @@ data class Element(
                 } ?: try {
                     // Try to parse using a LocalDate pattern assuming it is in our canonical dateFormatter. Central timezone.
                     val date = LocalDate.parse(formattedValue, dateFormatter)
-                    val zoneOffset = ZoneId.of(USTimeZone.CENTRAL.zoneId).rules.getOffset(Instant.now())
+                    val zoneOffset = ZoneOffset.UTC.rules.getOffset(Instant.now())
                     OffsetDateTime.of(date, LocalTime.of(0, 0), zoneOffset)
                 } catch (e: DateTimeParseException) {
                     null
@@ -589,7 +590,7 @@ data class Element(
                     // Example: 'yyyy-mm-dd' - the incoming data is a Date, but not our canonical date format.
                     val formatter = DateTimeFormatter.ofPattern(format ?: datetimePattern, Locale.ENGLISH)
                     val date = LocalDate.parse(formattedValue, formatter)
-                    val zoneOffset = ZoneId.of(USTimeZone.CENTRAL.zoneId).rules.getOffset(Instant.now())
+                    val zoneOffset = ZoneOffset.UTC.rules.getOffset(Instant.now())
                     OffsetDateTime.of(date, LocalTime.of(0, 0), zoneOffset)
                 } catch (e: DateTimeParseException) {
                     null
@@ -598,7 +599,7 @@ data class Element(
                     val optionalDateTime = variableDateTimePattern
                     val df = DateTimeFormatter.ofPattern(optionalDateTime)
                     val ta = df.parseBest(formattedValue, OffsetDateTime::from, LocalDateTime::from, Instant::from)
-                    LocalDateTime.from(ta).atZone(ZoneId.of(USTimeZone.CENTRAL.zoneId)).toOffsetDateTime()
+                    LocalDateTime.from(ta).atZone(ZoneOffset.UTC).toOffsetDateTime()
                 } catch (e: DateTimeParseException) {
                     error("Invalid date: '$formattedValue' for element $fieldMapping")
                 }
@@ -800,7 +801,8 @@ data class Element(
     fun processValue(
         allElementValues: Map<String, String>,
         schema: Schema,
-        defaultOverrides: Map<String, String> = emptyMap()
+        defaultOverrides: Map<String, String> = emptyMap(),
+        index: Int = 0
     ): String {
         var retVal = if (allElementValues[name].isNullOrEmpty()) "" else allElementValues[name]!!
         if (useMapper(retVal)) {
@@ -808,13 +810,17 @@ data class Element(
             val args = mapperArgs ?: emptyList()
             val valueNames = mapperRef?.valueNames(this, args) ?: emptyList()
             val valuesForMapper = valueNames.mapNotNull { elementName ->
-                val valueElement = schema.findElement(elementName)
-                if (valueElement != null && allElementValues.containsKey(elementName) &&
-                    !allElementValues[elementName].isNullOrEmpty()
-                ) {
-                    ElementAndValue(valueElement, allElementValues[elementName]!!)
+                if (elementName.contains("$")) {
+                    tokenizeMapperValue(elementName, index)
                 } else {
-                    null
+                    val valueElement = schema.findElement(elementName)
+                    if (valueElement != null && allElementValues.containsKey(elementName) &&
+                        !allElementValues[elementName].isNullOrEmpty()
+                    ) {
+                        ElementAndValue(valueElement, allElementValues[elementName]!!)
+                    } else {
+                        null
+                    }
                 }
             }
             // Only overwrite an existing value if the mapper returns a string
@@ -836,6 +842,22 @@ data class Element(
         }
 
         return retVal
+    }
+
+    fun tokenizeMapperValue(elementName: String, index: Int = 0): ElementAndValue? {
+        val tokenElement = Element(elementName)
+        return when (elementName) {
+            "\$index" -> {
+                ElementAndValue(tokenElement, index.toString())
+            }
+            "\$currentDate" -> {
+                val currentDate = LocalDate.now().format(dateFormatter)
+                ElementAndValue(tokenElement, currentDate)
+            }
+            else -> {
+                null
+            }
+        }
     }
 
     companion object {

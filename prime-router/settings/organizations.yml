@@ -1,6 +1,6 @@
 ---
 #
-# Local means a configuration that works on a Docker Compose cluster
+# This file runs in environments (ie. your desktop) where the 'localhost' host name resolves
 #
 - name: simple_report
   description: PRIME's POC testing app
@@ -182,6 +182,39 @@
       topic: covid-19
       customerStatus: active
       schemaName: direct/careevolution-covid-19
+      format: HL7
+
+- name: hca
+  description: HCA
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: hca
+      topic: covid-19
+      customerStatus: active
+      schemaName: direct/hca-covid-19
+      format: HL7
+
+- name: abbott
+  description: Abbott
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: abbott
+      topic: covid-19
+      customerStatus: active
+      schemaName: direct/abbott-covid-19
+      format: CSV
+
+- name: lifepoint
+  description: LifePoint (Ellume data)
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: lifepoint
+      topic: covid-19
+      customerStatus: active
+      schemaName: hl7/lifepoint-covid-19
       format: HL7
 
 - name: primary
@@ -510,6 +543,18 @@
         receivingFacilityName: VDH
         receivingFacilityOID: 2.16.840.1.114222.4.1.185
 
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+        timeZone: CENTRAL
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+
 - name: nd-doh
   description: North Dakota Department of Health
   jurisdiction: STATE
@@ -608,6 +653,39 @@
         port: 22
         filePath: ./upload
         credentialName: DEFAULT-SFTP
+
+- name: oh-ccchd-doh
+  description: Ohio Department of Health - Clark County
+  jurisdiction: COUNTY
+  stateCode: OH
+  countyName: Clark
+  receivers:
+    - name: elr-download
+      organizationName: oh-ccchd-doh
+      topic: covid-19
+      customerStatus: testing
+      jurisdictionalFilter:
+        - matches(ordering_facility_state, OH)
+        - matches(ordering_facility_county, Clark)
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        suppressQstForAoe: true
+        receivingApplicationName: OHDOH
+        receivingApplicationOID: 2.16.840.1.114222.4.1.3674
+        receivingFacilityName: OHDOH
+        receivingFacilityOID: 2.16.840.1.114222.4.1.3674
+        reportingFacilityName: CDC PRIME
+        reportingFacilityId: 36DSMP9999
+        nameFormat: ohio
+        suppressHl7Fields: OBX-23-11
+        # turn off UNK and ASKU for this field
+        useBlankInsteadOfUnknown: patient_race
+      timing:
+        operation: MERGE
+        numberPerDay: 1 # Per day
+        initialTime: 00:05
+        timeZone: EASTERN
 
 - name: nm-doh
   description: New Mexico Department of Health
@@ -792,7 +870,7 @@
         receivingFacilityOID: 2.16.840.1.114222.4.1.185
         truncateHDNamespaceIds: true
         usePid14ForPatientEmail: true
-        suppressHl7Fields: OBX-18
+        suppressHl7Fields: OBX-18-1, OBX-18-2, OBX-18-3, OBX-18-4
       transport:
         type: SFTP
         host: sftp
@@ -1468,7 +1546,7 @@
       organizationName: "hhsprotect"
       topic: "covid-19"
       customerStatus: active
-      jurisdictionalFilter: [ "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*,Strac,InBios,reddyfmc)" ]
+      jurisdictionalFilter: [ "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*,Strac,InBios,reddyfmc,abbott,lifepoint,hca)" ]
       qualityFilter: [ "allowAll()" ]
       translation:
         type: "CUSTOM"
@@ -1486,8 +1564,8 @@
         containerName: hhsprotect
 
 # 'ignore' is a test organization, designed to be safely usable across all our environments.
-# It has four receivers, each named _exactly_ the same as the format of data.
-# Each also has a fake "county", also named _exactly_ the same as the format of the data.
+# It has a bunch of receivers, each given a useful fake name, eg, named after the format of the data, in some cases.
+# Please try to always make the reciever name identical to the county jurisdictionalFilter name.
 # This is to aid in readability.
 - name: ignore
   description: FOR TESTING ONLY
@@ -1748,6 +1826,48 @@
         schemaName: "hhsprotect/hhsprotect-covid-19"
         format: "CSV"
       deidentify: true
+    - name: EVERY_5_MINS
+      externalName: Batches and Sends every 5 minutes.  For Load testing.
+      organizationName: ignore
+      topic: covid-19
+      customerStatus: active
+      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, EVERY_5_MINS)" ]
+      timing:
+        operation: MERGE
+        numberPerDay: 288 # Every 5 minutes
+        initialTime: 00:00
+      translation:
+        type: HL7
+        useBatchHeaders: true
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+    - name: EVERY_15_MINS
+      externalName: Batches and Sends every 15 minutes.  For Load testing.
+      organizationName: ignore
+      topic: covid-19
+      customerStatus: active
+      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, EVERY_15_MINS)" ]
+      timing:
+        operation: MERGE
+        numberPerDay: 96 # Every 15 minutes
+        initialTime: 00:00
+      translation:
+        type: HL7
+        useBatchHeaders: true
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+
+
+
+
 
 # all the rest
 - name: ak-phd
@@ -2684,3 +2804,23 @@
         port: 22
         filePath: ./upload
         credentialName: DEFAULT-SFTP
+- name: fl-hillsborough-phd
+  description: Florida Department of Health – Hillsborough County
+  jurisdiction: COUNTY
+  stateCode: FL
+  countyName: Hillsborough
+  receivers:
+    - name: elr-download
+      organizationName: fl-hillsborough-phd
+      topic: covid-19
+      customerStatus: testing
+      jurisdictionalFilter: [ "matches(ordering_facility_state, FL)", "matches(ordering_facility_county, Hillsborough)" ]
+      translation:
+        type: CUSTOM
+        schemaName: fl/fl-hillsborough-covid-19-csv
+        format: CSV
+      timing:
+        operation: MERGE
+        numberPerDay: 1
+        initialTime: 09:15 # A little after the 12am EASTERN reports from simple report
+        timeZone: EASTERN
