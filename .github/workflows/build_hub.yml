@@ -5,9 +5,15 @@ on:
     branches:
       - master
       - production
+    paths:
+      - 'prime-router/**'
+      - '.github/workflows/build_hub.yml'
   push:
     branches:
       - master
+    paths:
+      - 'prime-router/**'
+      - '.github/workflows/build_hub.yml'
 
 env:
   # These are for CI and not credentials of any system
@@ -15,27 +21,9 @@ env:
   DB_PASSWORD: changeIT!
 
 jobs:
-  pre_job:
-    name: Pre Job
-    runs-on: ubuntu-latest
-    outputs:
-      has_router_change: ${{ steps.skip_check.outputs.router }}
-    steps:
-      - name: "Check out changes"
-        uses: actions/checkout@v2
-      - uses: dorny/paths-filter@v2
-        id: skip_check
-        with:
-          list-files: csv
-          filters: |
-            router:
-              - 'prime-router/**'
-              - '.github/workflows/build_hub.yml'
 
   build_router:
     name: Build Router
-    needs: pre_job
-    if: ${{ needs.pre_job.outputs.has_router_change == 'true' }}
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -80,8 +68,6 @@ jobs:
 
   smoke_tests:
     name: Smoke Tests
-    needs: pre_job
-    if: ${{ needs.pre_job.outputs.has_router_change == 'true' }}
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -110,8 +96,6 @@ jobs:
 
   docker_build_test:
     name: Testing Docker Build
-    needs: pre_job
-    if: ${{ needs.pre_job.outputs.has_router_change == 'true' }}
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -133,8 +117,6 @@ jobs:
           
   linting:
     name: Check Linting
-    needs: pre_job
-    if: ${{ needs.pre_job.outputs.has_router_change == 'true' }}
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -149,8 +131,6 @@ jobs:
 
   docs:
     name: Check Docs
-    needs: pre_job
-    if: ${{ needs.pre_job.outputs.has_router_change == 'true' }}
     runs-on: ubuntu-latest
     defaults:
       run:
