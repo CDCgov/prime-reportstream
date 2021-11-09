@@ -420,7 +420,7 @@ abstract class CoolTest {
         totalItems: Int,
         filterOrgName: Boolean = false,
         silent: Boolean = false,
-        maxPollSecs: Int = 180,
+        maxPollSecs: Int = 360,
         pollSleepSecs: Int = 20, // I had this as every 5 secs, but was getting failures.  The queries run unfastly.
     ): Boolean {
         var timeElapsedSecs = 0
@@ -836,7 +836,7 @@ class Merge : CoolTest() {
         receivers: List<Receiver>,
         itemsPerReport: Int,
         silent: Boolean = false,
-        maxPollSecs: Int = 180,
+        maxPollSecs: Int = 360,
         pollSleepSecs: Int = 20,
     ): Boolean {
         var timeElapsedSecs = 0
