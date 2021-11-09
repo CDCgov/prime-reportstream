@@ -841,8 +841,6 @@ class LookupTableLoadAllCommand : GenericLookupTableCommand(
             error("Directory ${dir.absolutePath} does not exist")
         }
         TermUi.echo("Loading ${files.size} tables from ${dir.absolutePath}...")
-
-        if (files.isEmpty()) error("No table files found in ${dir.absolutePath}")
         files.forEach {
             val tableName = it.nameWithoutExtension
             TermUi.echo("Creating table $tableName...")

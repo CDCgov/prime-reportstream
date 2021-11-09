@@ -310,6 +310,13 @@ tasks.register("reloadSettings") {
     finalizedBy("primeCLI")
 }
 
+tasks.register("reloadTables") {
+    group = rootProject.description ?: ""
+    description = "Load the latest test lookup tables to the database"
+    project.extra["cliArgs"] = listOf("lookuptables", "loadall")
+    finalizedBy("primeCLI")
+}
+
 /**
  * Packaging and running related tasks
  */
@@ -499,7 +506,7 @@ tasks.register("migrate") {
     dependsOn("flywayMigrate")
 }
 
-tasks.register("reloadDB") {
+tasks.register("resetDB") {
     group = rootProject.description ?: ""
     description = "Delete all tables in the database and recreate from the latest schema"
     dependsOn("flywayClean")
