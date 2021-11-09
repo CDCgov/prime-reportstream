@@ -32,6 +32,8 @@ jobs:
           POSTGRES_DB: "prime_data_hub"
           POSTGRES_PASSWORD: $DB_PASSWORD
           POSTGRES_USER: $DB_USER
+        ports:
+          - 5432:5432
     defaults:
       run:
         working-directory: prime-router
@@ -81,6 +83,7 @@ jobs:
 
   smoke_tests:
     name: Smoke Tests
+    needs: build_router
     runs-on: ubuntu-latest
     defaults:
       run:
