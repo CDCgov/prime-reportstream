@@ -204,7 +204,7 @@ class GAENTransport : ITransport, Logging {
      * Return a list of retry items and the number of items sent.
      */
     internal fun processReport(params: SendParams): PostResult {
-        //
+        // For unit tests, we do nothing when the apiURL is blank
         if (params.gaenTransportInfo.apiUrl.isBlank()) return PostResult.SUCCESS
 
         // Read the CSV table
@@ -222,14 +222,16 @@ class GAENTransport : ITransport, Logging {
             .jsonBody(payload)
             .responseString()
 
+        // Handle the result
         return if (result is Result.Success) {
             PostResult.SUCCESS
         } else {
+            // The follow error table is based on ENCV server docs.
             val postResult = when (response.statusCode) {
                 400 -> PostResult.FAIL // Bad parameters
                 409 -> PostResult.SUCCESS // UUID already present (consider this a success)
                 412 -> PostResult.FAIL // Unsupported test type
-                429 -> PostResult.RETRY // Maintanence mode or quota limit
+                429 -> PostResult.RETRY // Maintenance mode or quota limit
                 in 500..599 -> PostResult.RETRY // Server error
                 else -> PostResult.FAIL // Unexpected error code
             }
