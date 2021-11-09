@@ -70,72 +70,74 @@ const App = () => {
             onAuthRequired={customAuthHandler}
             restoreOriginalUri={restoreOriginalUri}
         >
-            <NetworkErrorBoundary
-                fallbackComponent={() => {
-                    return <div></div>;
-                }}
-            >
-                <GlobalContextProvider>
-                    <GovBanner aria-label="Official government website" />
-                    <ReportStreamHeader />
-                    {/* Changed from main to div to fix weird padding issue at the top 
-                    caused by USWDS styling */}
-                    <div id="main-content">
-                        <div className="content">
-                            <Switch>
-                                <Route path="/" exact={true} component={Home} />
-                                <Route path="/about" component={About} />
-                                <Route
-                                    path="/how-it-works"
-                                    component={HowItWorks}
-                                />
-                                <Route
-                                    path="/terms-of-service"
-                                    component={TermsOfService}
-                                />
-                                <Route
-                                    path="/login"
-                                    render={() => (
-                                        <Login config={oktaSignInConfig} />
-                                    )}
-                                />
-                                <Route
-                                    path="/login/callback"
-                                    component={LoginCallback}
-                                />
-                                <AuthorizedRoute
-                                    path="/sign-tos"
-                                    authorize={PERMISSIONS.PRIME_ADMIN}
-                                    component={TermsOfServiceForm}
-                                />
-                                <AuthorizedRoute
-                                    path="/daily-data"
-                                    authorize={PERMISSIONS.RECEIVER}
-                                    component={Daily}
-                                />
-                                <AuthorizedRoute
-                                    path="/upload"
-                                    authorize={PERMISSIONS.SENDER}
-                                    component={Upload}
-                                />
-                                <SecureRoute
-                                    path="/report-details"
-                                    component={Details}
-                                />
-                                {/* Handles any undefined route */}
-                                <Route
-                                    render={() => (
-                                        <ErrorPage code={CODES.NOT_FOUND_404} />
-                                    )}
-                                />
-                            </Switch>
+            <Suspense fallback={<Spinner fullPage />}>
+                <NetworkErrorBoundary
+                    fallbackComponent={() => {
+                        return <div></div>;
+                    }}
+                >
+                    <GlobalContextProvider>
+                        <GovBanner aria-label="Official government website" />
+                        <ReportStreamHeader />
+                        {/* Changed from main to div to fix weird padding issue at the top 
+                        caused by USWDS styling */}
+                        <div id="main-content">
+                            <div className="content">
+                                <Switch>
+                                    <Route path="/" exact={true} component={Home} />
+                                    <Route path="/about" component={About} />
+                                    <Route
+                                        path="/how-it-works"
+                                        component={HowItWorks}
+                                    />
+                                    <Route
+                                        path="/terms-of-service"
+                                        component={TermsOfService}
+                                    />
+                                    <Route
+                                        path="/login"
+                                        render={() => (
+                                            <Login config={oktaSignInConfig} />
+                                        )}
+                                    />
+                                    <Route
+                                        path="/login/callback"
+                                        component={LoginCallback}
+                                    />
+                                    <AuthorizedRoute
+                                        path="/sign-tos"
+                                        authorize={PERMISSIONS.PRIME_ADMIN}
+                                        component={TermsOfServiceForm}
+                                    />
+                                    <AuthorizedRoute
+                                        path="/daily-data"
+                                        authorize={PERMISSIONS.RECEIVER}
+                                        component={Daily}
+                                    />
+                                    <AuthorizedRoute
+                                        path="/upload"
+                                        authorize={PERMISSIONS.SENDER}
+                                        component={Upload}
+                                    />
+                                    <SecureRoute
+                                        path="/report-details"
+                                        component={Details}
+                                    />
+                                    {/* Handles any undefined route */}
+                                    <Route
+                                        render={() => (
+                                            <ErrorPage code={CODES.NOT_FOUND_404} />
+                                        )}
+                                    />
+                                </Switch>
+                            </div>
                         </div>
-                    </div>
-                </GlobalContextProvider>
-                <footer className="usa-identifier footer">
-                    <ReportStreamFooter />
-                </footer>
-            </NetworkErrorBoundary>
+                    </GlobalContextProvider>
+                    <footer className="usa-identifier footer">
+                        <ReportStreamFooter />
+                    </footer>
+                </NetworkErrorBoundary>
+            </Suspense>
         </Security>
     );
 };

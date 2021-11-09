@@ -5,13 +5,20 @@ import { NetworkErrorBoundary } from "rest-hooks";
 import HipaaNotice from "../../components/HipaaNotice";
 import Spinner from "../../components/Spinner";
 import { useOrgName } from "../../utils/OrganizationUtils";
-import Title from "../../components/Title";
 import { ErrorPage } from "../error/ErrorPage";
 
 import TableReports from "./Table/TableReports";
 
-function Daily() {
+const OrgName = () => {
     const orgName: string = useOrgName();
+    return (
+        <span id="orgName" className="text-normal text-base">
+            {orgName}
+        </span>
+    );
+};
+
+function Daily() {
     return (
         <NetworkErrorBoundary
             fallbackComponent={() => <ErrorPage type="page" />}
