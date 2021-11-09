@@ -10,11 +10,11 @@ This container doesn't run because of the image is not `arm64`.
 
 ## Workarounds
 
-Fortunately, most of our tooling works on Apple Silicon, and it is possible to run ReportStream without a Docker container as explained in the [Running Faster](getting-started/faster-development.md) document. 
+Fortunately, most of our tooling works on Apple Silicon, and it is possible to run ReportStream without a Docker container as explained in the [Running Faster](faster-development.md) document. 
 
 ### Step 1 - Follow the getting started instructions
 
-Follow most of the [Getting Started](getting_started.md) instructions, including:
+Follow most of the [Getting Started](../getting_started.md) instructions, including:
 
 1. Installing the recommend tools 
 2. Run `./cleanslate.sh`
