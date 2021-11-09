@@ -2,6 +2,7 @@ package gov.cdc.prime.router
 
 import com.github.javafaker.Faker
 import com.github.javafaker.Name
+import gov.cdc.prime.router.metadata.LookupTable
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.Random

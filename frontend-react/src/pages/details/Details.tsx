@@ -1,17 +1,17 @@
-// @ts-nocheck // TODO: fix types in this file
-import { useResource } from "rest-hooks";
+import { NetworkErrorBoundary, useResource } from "rest-hooks";
 import { Suspense } from "react";
 
 import ReportResource from "../../resources/ReportResource";
 import HipaaNotice from "../../components/HipaaNotice";
 import Spinner from "../../components/Spinner";
+import { ErrorPage } from "../error/ErrorPage";
 
 import Summary from "./Summary";
 import ReportDetails from "./ReportDetails";
 import FacilitiesTable from "./FacilitiesTable";
 
-function useQuery() {
-    let query = window.location.search.slice(1);
+function useQuery(): { readonly [key: string]: string } {
+    const query = window.location.search.slice(1);
     const queryMap = {};
     Object.assign(
         queryMap,
@@ -24,17 +24,21 @@ function useQuery() {
 }
 
 const DetailsContent = () => {
-    let queryMap = useQuery();
-    let reportId = queryMap["reportId"];
-    let report = useResource(ReportResource.list(), { sortBy: undefined }).find(
-        (r) => r.reportId === reportId
-    );
+    const queryMap = useQuery();
+    const reportId = queryMap?.["reportId"] || "";
+    const report = useResource(ReportResource.detail(), { reportId: reportId });
 
     return (
         <>
             <Summary report={report} />
             <ReportDetails report={report} />
-            <FacilitiesTable reportId={report?.reportId || ""} />
+            <NetworkErrorBoundary
+                fallbackComponent={() => <ErrorPage type="message" />}
+            >
+                <Suspense fallback={<Spinner />}>
+                    <FacilitiesTable reportId={report?.reportId || ""} />
+                </Suspense>
+            </NetworkErrorBoundary>
             <HipaaNotice />
         </>
     );
@@ -45,13 +49,17 @@ const DetailsContent = () => {
    the undefined route option in React Router. The Suspense must be one level above the
    component loading data (i.e. DetailsContent), but could not exist in App because of
    the bug it caused with providing the empty Route to redirect to the 404 page.
-   
+
    >>> Kevin Haube, Sept 30, 2021
 */
 export const Details = () => {
     return (
         <Suspense fallback={<Spinner fullPage />}>
-            <DetailsContent />
+            <NetworkErrorBoundary
+                fallbackComponent={() => <ErrorPage type="page" />}
+            >
+                <DetailsContent />
+            </NetworkErrorBoundary>
         </Suspense>
     );
 };

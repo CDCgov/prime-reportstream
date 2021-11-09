@@ -9,9 +9,10 @@ import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import assertk.assertions.startsWith
 import java.time.Instant
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
-import java.time.ZoneId
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import kotlin.test.Test
 import kotlin.test.assertFails
@@ -99,7 +100,7 @@ internal class ElementTests {
             "a",
             type = Element.Type.DATETIME,
         )
-        val o = ZoneId.of(USTimeZone.CENTRAL.zoneId).rules.getOffset(Instant.now()).toString()
+        val o = ZoneOffset.UTC.rules.getOffset(Instant.now()).toString()
         val offset = if (o == "Z") {
             "+0000"
         } else {
@@ -531,15 +532,28 @@ internal class ElementTests {
             Element(
                 "e", Element.Type.TEXT, mapper = "concat(a,e)", mapperRef = ConcatenateMapper(),
                 mapperArgs = listOf("a", "e"), mapperOverridesValue = true, default = "someDefault"
+            ),
+            Element(
+                "f", Element.Type.TEXT, mapper = "concat(a,e,\$index)", mapperRef = ConcatenateMapper(),
+                mapperArgs = listOf("a", "e", "\$index"), mapperOverridesValue = true, default = "someDefault",
+                delimiter = "-"
+            ),
+            Element(
+                "g", Element.Type.TEXT, mapper = "concat(a,e,\$currentDate)", mapperRef = ConcatenateMapper(),
+                mapperArgs = listOf("a", "e", "\$currentDate"), mapperOverridesValue = true, default = "someDefault",
+                delimiter = "-"
             )
         )
         val schema = Schema("one", "covid-19", elements)
+        val currentDate = LocalDate.now().format(Element.dateFormatter)
         val mappedValues = mutableMapOf(
             elements[0].name to "TEST",
             elements[1].name to "",
             elements[2].name to "",
             elements[3].name to "TEST3",
-            elements[4].name to "TEST4"
+            elements[4].name to "TEST4",
+            elements[5].name to "TEST-TEST4-1",
+            elements[6].name to "TEST-TEST4-$currentDate"
         )
 
         // Element has value and mapperAlwaysRun is false, so we get the raw value
@@ -561,6 +575,14 @@ internal class ElementTests {
         // Element with raw value and mapperAlwaysRun to true returns mapper value
         finalValue = elements[4].processValue(mappedValues, schema)
         assertThat(finalValue).isEqualTo("${mappedValues[elements[0].name]}, ${mappedValues[elements[4].name]}")
+
+        // Element with $index
+        finalValue = elements[5].processValue(mappedValues, schema, emptyMap(), 1)
+        assertThat(finalValue).isEqualTo("${mappedValues[elements[5].name]}")
+
+        // Element with $currentDate
+        finalValue = elements[6].processValue(mappedValues, schema)
+        assertThat(finalValue).isEqualTo("${mappedValues[elements[6].name]}")
     }
 
     @Test
@@ -588,5 +610,20 @@ internal class ElementTests {
 
         assertThat(elementA.useDefault("")).isTrue()
         assertThat(elementA.useDefault("dummyValue")).isFalse()
+    }
+
+    @Test
+    fun `test tokenized value mapping`() {
+        val elementNameIndex = "\$index"
+        val elementNameCurrentDate = "\$currentDate"
+
+        val mockElement = Element("mock")
+        val elementAndValueIndex = mockElement.tokenizeMapperValue(elementNameIndex, 3)
+        val formatter = DateTimeFormatter.ofPattern("yyyyMMdd")
+        val currentDate = LocalDate.now().format(formatter)
+        val elementAndValueCurrentDate = mockElement.tokenizeMapperValue(elementNameCurrentDate)
+
+        assertThat(elementAndValueIndex?.value).isEqualTo("3")
+        assertThat(elementAndValueCurrentDate?.value).isEqualTo(currentDate)
     }
 }

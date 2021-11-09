@@ -12,6 +12,7 @@ import gov.cdc.prime.router.azure.OktaAuthenticationVerifier
 import gov.cdc.prime.router.azure.PrincipalLevel
 import gov.cdc.prime.router.azure.TestAuthenticationVerifier
 import gov.cdc.prime.router.azure.WorkflowEngine
+import gov.cdc.prime.router.common.Environment
 import org.apache.logging.log4j.kotlin.Logging
 
 class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLevel.USER) : Logging {
@@ -34,10 +35,9 @@ class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLev
         fun authenticationVerifier(): AuthenticationVerifier {
             // If we are running this locally, use the TestAuthenticationVerifier
             // To test locally _with_ auth, add a 'localauth=true' header to your POST.
-            val primeEnv = System.getenv("PRIME_ENVIRONMENT")
             val localAuth = httpRequestMessage?.headers?.get("localauth")
 
-            return if (primeEnv != "local") {
+            return if (!Environment.isLocal()) {
                 OktaAuthenticationVerifier()
             } else if (localAuth != null && localAuth == "true") {
                 OktaAuthenticationVerifier()
@@ -50,7 +50,7 @@ class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLev
 
     fun checkAccess(
         request: HttpRequestMessage<String?>,
-        organizationName: String,
+        organizationName: String = "",
         oktaSender: Boolean = false,
         block: (AuthenticatedClaims) -> HttpResponseMessage
     ): HttpResponseMessage {

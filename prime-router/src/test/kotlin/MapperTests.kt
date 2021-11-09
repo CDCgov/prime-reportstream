@@ -3,6 +3,7 @@ package gov.cdc.prime.router
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
+import gov.cdc.prime.router.metadata.LookupTable
 import java.io.ByteArrayInputStream
 import kotlin.test.Test
 import kotlin.test.assertFails
@@ -495,5 +496,11 @@ class MapperTests {
         assertThat(mapper.apply(elementA, arg, listOf())).isNull() // column not found in the data.
         // column has empty data
         assertThat(mapper.apply(elementA, arg, listOf(ElementAndValue(elementA, "")))).isNull()
+    }
+
+    @Test
+    fun `test parseMapperField validation - allow mapper tokens to be parsed`() {
+        val vals = Mappers.parseMapperField("concat(patient_id, \$index)")
+        assertThat(vals.second[1]).isEqualTo("\$index")
     }
 }
