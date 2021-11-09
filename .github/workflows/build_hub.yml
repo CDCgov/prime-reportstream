@@ -45,7 +45,7 @@ jobs:
       - uses: gradle/wrapper-validation-action@v1
 
       - name: Spin up build containers
-        run: docker-compose -f docker-compose.build.yml up -d postgres
+        run: docker-compose -f docker-compose.build.yml up -d postgresql
 
       - name: Build Prime Router Package
         run: ./gradlew clean package -x fatjar -Pshowtests
