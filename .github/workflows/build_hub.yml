@@ -94,6 +94,9 @@ jobs:
 
       - name: Create credentials
         run: ./prime create-credential --type=UserPass --persist=DEFAULT-SFTP --user foo --pass pass
+      
+      - name: Correct sftp perms
+        run: docker exec -it prime-router-sftp-1 chmod 777 /home/foo/upload
 
       - name: Smoke tests
         run: |
