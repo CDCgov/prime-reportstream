@@ -25,6 +25,13 @@ jobs:
   build_router:
     name: Build Router
     runs-on: ubuntu-latest
+    services:
+      postgresql:
+        image: postgres:11
+        env:
+          POSTGRES_DB: "prime_data_hub"
+          POSTGRES_PASSWORD: $DB_PASSWORD
+          POSTGRES_USER: $DB_USER
     defaults:
       run:
         working-directory: prime-router
@@ -36,9 +43,15 @@ jobs:
       # Appears not to be needed on GitHub (but needed when running act [https://github.com/nektos/act] locally)
       # - name: Install docker-compose
       #   run: apt-get update && apt-get --yes install docker-compose
+      - name: Set up JDK 11
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'
+          distribution: 'adopt'
+      - uses: gradle/wrapper-validation-action@v1
 
       - name: Build Prime Router Package
-        run: bash ./build.sh -- gradle clean package -x fatjar -Pshowtests
+        run: ./gradlew clean package -x fatjar -Pshowtests
         
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@v1
@@ -52,7 +65,7 @@ jobs:
           files: prime-router/build/test-results/test/**/*.xml
 
       - name: Run Integration Tests
-        run: bash ./build.sh -- gradle testIntegration -Pshowtests
+        run: ./gradlew testIntegration -Pshowtests
 
       - name: Publish Integration Test Results
         uses: EnricoMi/publish-unit-test-result-action@v1
