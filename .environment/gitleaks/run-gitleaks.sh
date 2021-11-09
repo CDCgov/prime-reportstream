@@ -53,17 +53,15 @@ LOGFILE="gitleaks.log"
 
 REPO_CONFIG_PATH=".environment/gitleaks/gitleaks-config.toml"
 
-if command -v gitleaks &> /dev/null
-then
-    echo "running gitleaks locally"
+# Run gitleaks locally if installed
+LOCAL_GITLEAKS=0
+if command -v gitleaks &> /dev/null; then
     LOCAL_GITLEAKS=1
-else
-    echo "running gitleaks in docker"
 fi
 
 function base_command() {
-    # Run gitleaks locally if installed
-    if [[ ${LOCAL_GITLEAKS?} != 0 ]]; then
+    if [[ ${LOCAL_GITLEAKS?} == 1 ]]; then
+        echo "running gitleaks locally"
         gitleaks \
             --path="${REPO_ROOT?}" \
             --repo-config-path="${REPO_CONFIG_PATH?}" \
@@ -72,16 +70,17 @@ function base_command() {
             $1 \
             2>"${LOGFILE?}"
     else
-    docker run \
-        -v "${REPO_ROOT?}:${CONTAINER_SOURCE_LOCATION?}" \
-        --rm \
-        "${GITLEAKS_IMG_NAME?}" \
-        --path="${CONTAINER_LOCATION?}" \
-        --repo-config-path="${REPO_CONFIG_PATH?}" \
-        --report="${CONTAINER_LOCATION?}/${REPORT_JSON?}" \
-        $(if [[ ${VERBOSE?} != 0 ]]; then echo "--verbose"; else echo ""; fi) \
+        echo "running gitleaks in docker"
+        docker run \
+            -v "${REPO_ROOT?}:${CONTAINER_SOURCE_LOCATION?}" \
+            --rm \
+            "${GITLEAKS_IMG_NAME?}" \
+            --path="${CONTAINER_LOCATION?}" \
+            --repo-config-path="${REPO_CONFIG_PATH?}" \
+            --report="${CONTAINER_LOCATION?}/${REPORT_JSON?}" \
+            $(if [[ ${VERBOSE?} != 0 ]]; then echo "--verbose"; else echo ""; fi) \
             $1 \
-        2>"${LOGFILE?}"
+            2>"${LOGFILE?}"
     fi
     RC=$?
 
@@ -113,7 +112,7 @@ function scan_x_last_commits() {
     DEPTH=${1}
     note "Scanning the last ${DEPTH?} commits."
 
-    base_command "--depth"
+    base_command "--depth ${DEPTH?}"
 
     RC=$?
 
@@ -124,7 +123,7 @@ function scan_since() {
     SINCE=${1}
     note "Scanning all commits since ${SINCE?}."
 
-    base_command "--commit-since"
+    base_command "--commit-since \"${SINCE?}\""
 
     RC=$?
 
