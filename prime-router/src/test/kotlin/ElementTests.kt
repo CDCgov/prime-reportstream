@@ -12,7 +12,7 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
-import java.time.ZoneId
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import kotlin.test.Test
 import kotlin.test.assertFails
@@ -100,7 +100,7 @@ internal class ElementTests {
             "a",
             type = Element.Type.DATETIME,
         )
-        val o = ZoneId.of(USTimeZone.CENTRAL.zoneId).rules.getOffset(Instant.now()).toString()
+        val o = ZoneOffset.UTC.rules.getOffset(Instant.now()).toString()
         val offset = if (o == "Z") {
             "+0000"
         } else {
