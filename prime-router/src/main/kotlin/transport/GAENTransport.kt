@@ -20,7 +20,6 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.credentials.CredentialHelper
 import gov.cdc.prime.router.credentials.CredentialRequestReason
 import gov.cdc.prime.router.credentials.UserApiKeyCredential
-import khttp.post
 import org.apache.commons.lang3.RandomStringUtils
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.ByteArrayInputStream
@@ -223,28 +222,24 @@ class GAENTransport : ITransport, Logging {
             .jsonBody(payload)
             .responseString()
 
-        return when (result) {
-            is Result.Success -> {
-                PostResult.SUCCESS
+        return if (result is Result.Success) {
+            PostResult.SUCCESS
+        } else {
+            val postResult = when (response.statusCode) {
+                400 -> PostResult.FAIL // Bad parameters
+                409 -> PostResult.SUCCESS // UUID already present (consider this a success)
+                412 -> PostResult.FAIL // Unsupported test type
+                429 -> PostResult.RETRY // Maintanence mode or quota limit
+                in 500..599 -> PostResult.RETRY // Server error
+                else -> PostResult.FAIL // Unexpected error code
             }
-            is Result.Failure -> {
-                // The following retry/fail table is taken from the API's documentation
-                val blockResult = when (response.statusCode) {
-                    400 -> PostResult.FAIL // Bad parameters
-                    409 -> PostResult.SUCCESS // UUID already present (consider this a success)
-                    412 -> PostResult.FAIL // Unsupported test type
-                    429 -> PostResult.RETRY // Maintanence mode or quota limit
-                    in 500..599 -> PostResult.RETRY // Server error
-                    else -> PostResult.FAIL // Unexpected error code
-                }
-                if (blockResult != PostResult.SUCCESS) {
-                    val warning = "${params.receiver.fullName}: Error from GAEN server for ${notification.uuid}:" +
-                        " ${response.statusCode} ${response.responseMessage}"
-                    params.context.logger.warning(warning)
-                    params.actionHistory.trackActionResult(warning)
-                }
-                blockResult
+            if (postResult != PostResult.SUCCESS) {
+                val warning = "${params.receiver.fullName}: Error from GAEN server for ${notification.uuid}:" +
+                    " ${response.statusCode} ${response.responseMessage}"
+                params.context.logger.warning(warning)
+                params.actionHistory.trackActionResult(warning)
             }
+            postResult
         }
     }
 
