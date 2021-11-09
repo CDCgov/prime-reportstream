@@ -100,7 +100,7 @@ internal class ElementTests {
             "a",
             type = Element.Type.DATETIME,
         )
-        val o = ZoneId.of(USTimeZone.CENTRAL.zoneId).rules.getOffset(Instant.now()).toString()
+        val o = ZoneId.of("GMT").rules.getOffset(Instant.now()).toString()
         val offset = if (o == "Z") {
             "+0000"
         } else {
