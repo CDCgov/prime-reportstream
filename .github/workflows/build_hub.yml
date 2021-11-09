@@ -87,23 +87,31 @@ jobs:
           touch .vault/env/.env.local
           docker-compose -f docker-compose.yml up -d vault
           while [ ! -s .vault/env/.env.local ]; do sleep 1; done
+
       - name: Make ftps dir
         run: mkdir build/ftps
+
       - name: Spin up containers
         run: |
-          docker-compose -f docker-compose.yml up -d vault redox ftps sftp azurite
+          docker-compose -f docker-compose.yml up -d redox ftps sftp azurite
 
       - name: Run prime
-        run: ./gradlew run &
+        run: |
+          export $(xargs < .vault/env/.env.local)
+          ./gradlew run &
 
       - name: Create credentials
         run: ./prime create-credential --type=UserPass --persist=DEFAULT-SFTP --user foo --pass pass
 
       - name: Load settings
-        run: ./prime multiple-settings set --input settings/organizations.yml
+        run: |
+          export $(xargs < .vault/env/.env.local)
+          ./prime multiple-settings set --input settings/organizations.yml
 
       - name: Smoke tests
-        run: ./gradlew testSmoke
+        run: |
+          export $(xargs < .vault/env/.env.local)
+          ./gradlew testSmoke
 
       - name: Cleanup Gradle Cache
         # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.
