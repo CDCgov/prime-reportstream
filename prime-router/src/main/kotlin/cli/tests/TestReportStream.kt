@@ -130,9 +130,8 @@ Examples:
 
     private val env by option(
         "--env",
-        help = "Specify local, test, staging, or prod.  'local' will connect to ${Environment.LOCAL.url}," +
-            " and 'test' will connect to ${Environment.TEST.url}"
-    ).choice("test", "local", "staging", "prod").default("local").validate {
+        help = "Specify the environment to connect to"
+    ).choice("test", "local", "staging").default("local").validate {
         envSanityCheck()
         when (it) {
             "test" -> require(!key.isNullOrBlank()) { "Must specify --key <secret> to submit reports to --env test" }
