@@ -8,6 +8,8 @@ services:
       POSTGRES_DB: "prime_data_hub"
       POSTGRES_PASSWORD: "changeIT!"
       POSTGRES_USER: "prime"
+    ports:
+      - 5432:5432
     networks:
       - prime-router_build
 networks:
