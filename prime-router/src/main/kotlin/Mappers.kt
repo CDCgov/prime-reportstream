@@ -177,17 +177,17 @@ class IfNotPresentMapper : Mapper {
     }
 
     override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
-        var notAllBlanks = true
-        val mode = args[0] // i.e. "literal" or "lookup"
-        val modeOperator = args[1] // i.e. "** no address given ***" or field_x
+        var allBlanks = true
+        val mode = args[0].split(":")[1] // i.e. "$literal" or "$lookup"
+        val modeOperator = args[1].split(":")[1] // i.e. "** no address given ***" or field_x
         val conditionList = args.subList(2, args.size)
         conditionList.forEach {
             val valuesElement = values.find { v -> v.element.name == it }
             if (valuesElement != null && valuesElement.value.isNotBlank()) {
-                notAllBlanks = false
+                allBlanks = false
             }
         }
-        if (!notAllBlanks) {
+        if (allBlanks) {
             when (mode) {
                 "literal" -> {
                     return modeOperator
@@ -839,7 +839,7 @@ class NullDateValidator : Mapper {
 
 object Mappers {
     fun parseMapperField(field: String): Pair<String, List<String>> {
-        val match = Regex("([a-zA-Z0-9]+)\\x28([a-z, \\x2E_\\x2DA-Z0-9?&$:^]*)\\x29").find(field)
+        val match = Regex("([a-zA-Z0-9]+)\\x28([a-z, \\x2E_\\x2DA-Z0-9?&$*:^]*)\\x29").find(field)
             ?: error("Mapper field $field does not parse")
         val args = if (match.groupValues[2].isEmpty())
             emptyList()
