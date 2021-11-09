@@ -775,15 +775,12 @@ abstract class CoolTest {
          */
         fun processActionResultQuery(txn: DataAccessTransaction, reportId: ReportId): String {
             val ctx = DSL.using(txn)
-            val sql = """select action_response 
-                FROM action a
-                INNER JOIN report_file rf on a.action_id = rf.action_id
-                WHERE rf.report_id = '4628a8e1-404b-4b17-bf1d-543e194c452a'
-                AND action_name = 'process'
-            """
-            val resp = ctx.fetchOne(sql, reportId)
+            val ret = ctx.selectFrom(ACTION)
+                .where(ACTION.ACTION_PARAMS.like("%$reportId%"))
+                .and(ACTION.ACTION_NAME.eq(TaskAction.process))
+                .fetchOne(ACTION.ACTION_RESPONSE)
 
-            return resp!![0].toString()
+            return ret!!.toString()
         }
 
         fun itemLineageCountQuery(
@@ -960,6 +957,8 @@ class End2End : CoolTest() {
         }
         echo(json)
         passed = passed and examinePostResponse(json, false)
+        if (!passed)
+            bad("***async end2end FAILED***: Error in post response")
         val reportId = getReportIdFromResponse(json)
         if (reportId != null) {
             passed = passed and pollForProcessResult(reportId)
