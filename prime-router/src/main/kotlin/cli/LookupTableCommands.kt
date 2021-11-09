@@ -49,9 +49,9 @@ import java.nio.file.NoSuchFileException
  */
 class LookupTableEndpointUtilities(val environment: Environment) {
     /**
-     * Timeout in case of a super-duper long table.
+     * Increase from the default read timeout in case of a super-duper long table.
      */
-    private val requestTimeoutMilis = 45000
+    private val requestTimeoutMillis = 45000
 
     /**
      * The Okta Access Token.
@@ -108,7 +108,7 @@ class LookupTableEndpointUtilities(val environment: Environment) {
             .get(apiUrl.toString())
             .authentication()
             .bearer(oktaAccessToken)
-            .timeoutRead(requestTimeoutMilis)
+            .timeoutRead(requestTimeoutMillis)
             .responseJson()
         checkCommonErrorsFromResponse(result, response)
         try {
@@ -151,7 +151,7 @@ class LookupTableEndpointUtilities(val environment: Environment) {
             .jsonBody(jsonPayload.toString())
             .authentication()
             .bearer(oktaAccessToken)
-            .timeoutRead(requestTimeoutMilis)
+            .timeoutRead(requestTimeoutMillis)
             .responseJson()
         return getTableInfoFromResponse(result, response)
     }
@@ -826,6 +826,8 @@ class LookupTableLoadAllCommand : GenericLookupTableCommand(
     private val tableCreator = LookupTableCreateCommand()
 
     override fun run() {
+        if (environment == Environment.PROD) error("This command is not allowed for the production environment.")
+
         // First wait for the endpoint to come online
         TermUi.echo("Waiting for endpoint at ${environment.url} to be available...")
         try {
