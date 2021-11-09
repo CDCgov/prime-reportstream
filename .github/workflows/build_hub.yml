@@ -81,6 +81,7 @@ jobs:
           touch .vault/env/.env.local
           docker-compose -f docker-compose.yml up -d vault
           while [ ! -s .vault/env/.env.local ]; do sleep 1; done
+          echo "loaded env vars"
 
       - name: Make ftps dir
         run: mkdir build/ftps
@@ -92,15 +93,13 @@ jobs:
       - name: Load settings
         run: docker-compose -f docker-compose.yml up settings
 
-      - name: Create credentials
-        run: ./prime create-credential --type=UserPass --persist=DEFAULT-SFTP --user foo --pass pass
-      
       - name: Correct sftp perms
         run: docker-compose exec -T sftp chmod 777 /home/foo/upload
 
       - name: Smoke tests
         run: |
           export $(xargs < .vault/env/.env.local)
+          ./prime create-credential --type=UserPass --persist=DEFAULT-SFTP --user foo --pass pass
           ./gradlew testSmoke
 
       - name: Cleanup Gradle Cache
