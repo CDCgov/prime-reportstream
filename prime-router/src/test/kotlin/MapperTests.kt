@@ -200,8 +200,10 @@ class MapperTests {
             tableRef = lookupTable,
             tableColumn = "Test Ordered LOINC Code"
         )
-        val testModel = "Cue COVID-19 Test"
-        val expectedTestOrderedLoinc = "95409-9"
+
+        // Cue COVID-19 Test does not have an * in the table
+        var testModel = "Cue COVID-19 Test"
+        var expectedTestOrderedLoinc = "95409-9"
         assertThat(LIVDLookupMapper.lookupByEquipmentModelName(element, testModel, emptyMap()))
             .isEqualTo(expectedTestOrderedLoinc)
 
@@ -212,6 +214,16 @@ class MapperTests {
         // Add some other character to fail the lookup
         assertThat(LIVDLookupMapper.lookupByEquipmentModelName(element, "$testModel^", emptyMap()))
             .isNull()
+
+        // Accula SARS-Cov-2 Test does have an * in the table
+        testModel = "Accula SARS-Cov-2 Test"
+        expectedTestOrderedLoinc = "95409-9"
+        assertThat(LIVDLookupMapper.lookupByEquipmentModelName(element, testModel, emptyMap()))
+            .isEqualTo(expectedTestOrderedLoinc)
+
+        // Add an * to the end of the model name
+        assertThat(LIVDLookupMapper.lookupByEquipmentModelName(element, "$testModel*", emptyMap()))
+            .isEqualTo(expectedTestOrderedLoinc)
     }
 
     @Test
