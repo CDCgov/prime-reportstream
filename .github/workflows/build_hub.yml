@@ -97,7 +97,7 @@ jobs:
         run: ./gradlew run &
 
       - name: Create credentials
-        run: ./prime create-credential --type=UserPass --persist=DEFAULT-SFTP --user foo -pass pass
+        run: ./prime create-credential --type=UserPass --persist=DEFAULT-SFTP --user foo --pass pass
 
       - name: Load settings
         run: ./prime multiple-settings set --input settings/organizations.yml
