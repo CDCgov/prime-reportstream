@@ -25,15 +25,6 @@ jobs:
   build_router:
     name: Build Router
     runs-on: ubuntu-latest
-    services:
-      postgresql:
-        image: postgres:11
-        env:
-          POSTGRES_DB: "prime_data_hub"
-          POSTGRES_PASSWORD: changeIT!
-          POSTGRES_USER: prime
-        ports:
-          - 5432:5432
     defaults:
       run:
         working-directory: prime-router
@@ -52,6 +43,9 @@ jobs:
           distribution: 'adopt'
           cache: 'gradle'
       - uses: gradle/wrapper-validation-action@v1
+
+      - name: Spin up build containers
+        run: docker-compose -f docker-compose.build.yml up -d postgres
 
       - name: Build Prime Router Package
         run: ./gradlew clean package -x fatjar -Pshowtests
@@ -93,20 +87,13 @@ jobs:
 
       - name: Spin up containers
         run: |
-          docker-compose -f docker-compose.yml up -d redox ftps sftp azurite
+          docker-compose -f docker-compose.yml up -d prime_dev redox ftps sftp azurite
 
-      - name: Run prime
-        run: |
-          export $(xargs < .vault/env/.env.local)
-          ./gradlew run &
+      - name: Load settings
+        run: docker-compose -f docker-compose.yml up settings
 
       - name: Create credentials
         run: ./prime create-credential --type=UserPass --persist=DEFAULT-SFTP --user foo --pass pass
-
-      - name: Load settings
-        run: |
-          export $(xargs < .vault/env/.env.local)
-          ./prime multiple-settings set --input settings/organizations.yml
 
       - name: Smoke tests
         run: |
