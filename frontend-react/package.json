@@ -36,7 +36,6 @@
         "react-router": "^5.2.0",
         "react-router-dom": "^5.2.0",
         "react-scripts": "4.0.3",
-        "react-snap": "^1.23.0",
         "rest-hooks": "^5.3.4",
         "rimraf": "^3.0.2",
         "sass-loader": "^12.1.0",
@@ -133,6 +132,7 @@
         "npm-run-all": "^4.1.5",
         "prettier": "^2.4.1",
         "react-dropdown": "^1.9.2",
+        "react-snap": "^1.23.0",
         "sass": "^1.42.1",
         "stylelint": "^14.0.0",
         "yaml-loader": "^0.6.0"
