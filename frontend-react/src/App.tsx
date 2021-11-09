@@ -76,7 +76,9 @@ const App = () => {
                 <GlobalContextProvider>
                     <GovBanner aria-label="Official government website" />
                     <ReportStreamHeader />
-                    <main id="main-content">
+                    {/* Changed from main to div to fix weird padding issue at the top 
+                    caused by USWDS styling */}
+                    <div id="main-content">
                         <div className="content">
                             <Switch>
                                 <Route path="/" exact={true} component={Home} />
@@ -126,7 +128,7 @@ const App = () => {
                                 />
                             </Switch>
                         </div>
-                    </main>
+                    </div>
                 </GlobalContextProvider>
                 <footer className="usa-identifier footer">
                     <ReportStreamFooter />

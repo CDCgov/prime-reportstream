@@ -19,7 +19,11 @@ import com.sendgrid.helpers.mail.Mail
 import com.sendgrid.helpers.mail.objects.Email
 import com.sendgrid.helpers.mail.objects.Personalization
 import gov.cdc.prime.router.secrets.SecretHelper
+import io.jsonwebtoken.Jwts
+import io.jsonwebtoken.SignatureAlgorithm
+import io.jsonwebtoken.security.Keys
 import java.io.IOException
+import java.security.Key
 import java.util.logging.Logger
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.memberProperties
@@ -99,18 +103,39 @@ class EmailSenderFunction {
         context: ExecutionContext,
     ): HttpResponseMessage {
         val logger: Logger = context.logger
-        val ret = request.createResponseBuilder(HttpStatus.BAD_REQUEST)
-        val sendgridId: String? = SecretHelper.getSecretService().fetchSecret("SENDGRID_ID")
+        val ret = request.createResponseBuilder(HttpStatus.UNAUTHORIZED)
+        val jwsToken = request.headers["authorization"] ?: ""
+        /* TODO: Debug JWS/JWT/JW-whatever stuff */
+        val authBody = Jwts.parserBuilder()
+            .setSigningKey("L78wIGpvMQnb7l3N5aplwaptSLHBJ1jb8ytKkNRx5zk=")
+            .build().parseClaimsJws(jwsToken)
+        if (authBody.body.contains("https://reportstream.gov/")) {
+            /* Body existence check */
+            if (request.body === null) return ret.status(HttpStatus.BAD_REQUEST).build()
 
-        if (request.body !== null) {
+            /* Body shape check */
+            val body: TosAgreementForm = parseBody(request.body!!, logger)
+                ?: return ret.status(HttpStatus.BAD_REQUEST).build()
+            if (!body.validate(logger)) return ret.status(HttpStatus.BAD_REQUEST).build()
+
             logger.info(request.body)
-            val body: TosAgreementForm = parseBody(request.body!!, logger) ?: return ret.build()
-            if (!body.validate(logger)) return ret.build()
+
+            /* Body exists and has all required properties; sendMail's response decides the outcome of this */
+            val sendgridId: String? = SecretHelper.getSecretService().fetchSecret("SENDGRID_ID")
             val mail: String = createMail(body)
             ret.status(sendMail(mail, sendgridId, logger)) /* Status becomes whatever SendGrid returns */
+        } else {
+            logger.info("Your JWT was invalid")
+            logger.info(authBody.toString())
         }
-
         return ret.build()
+    }
+
+    private fun verifyFromSource(jwt: String): Boolean {
+        /*TODO:
+        *  If jwt && jwt contains source: ReportStream, return true
+        */
+        return false
     }
 
     /*TODO:

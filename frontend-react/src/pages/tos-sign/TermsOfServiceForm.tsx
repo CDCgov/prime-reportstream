@@ -18,6 +18,7 @@ import AuthResource from "../../resources/AuthResource";
 import { getStates } from "../../utils/OrganizationUtils";
 
 import SuccessPage from "./SuccessPage";
+import { Jwt, JwtPayload, sign, SignOptions } from "jsonwebtoken";
 
 export interface AgreementBody {
     title: string;
@@ -68,12 +69,15 @@ function TermsOfServiceForm() {
             setSubmitting(false);
             return;
         }
+        const auth = createAuth()
+        console.log(auth)
         const response = await fetch(
             `${AuthResource.getBaseUrl()}/api/email-registered`,
             {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
+                    "Authorization": auth
                 },
                 body: JSON.stringify(body),
             }
@@ -88,6 +92,14 @@ function TermsOfServiceForm() {
         }
         setSuccess(true);
     };
+
+    const createAuth = (): string => {
+        
+        let payload: object = {
+            sub: window.location.origin
+        }
+        return sign(payload, 'L78wIGpvMQnb7l3N5aplwaptSLHBJ1jb8ytKkNRx5zk=')
+    }
 
     /* INFO
        handles the front-end not-null validation and builds the body object of type AgreementBody
