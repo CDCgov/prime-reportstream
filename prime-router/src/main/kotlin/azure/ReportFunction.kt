@@ -452,6 +452,10 @@ class ReportFunction : Logging {
             errors.add(ResultDetail.param("Content", InvalidParamMessage.new("expecting a post message with content")))
         }
 
+        if (sender == null || schema == null || content.isEmpty() || errors.isNotEmpty()) {
+            return ValidatedRequest(false, HttpStatus.BAD_REQUEST, errors, warnings)
+        }
+
         val defaultValues = if (request.queryParameters.containsKey(DEFAULT_PARAMETER)) {
             val values = request.queryParameters.getOrDefault(DEFAULT_PARAMETER, "").split(",")
             values.mapNotNull {
@@ -460,7 +464,7 @@ class ReportFunction : Logging {
                     errors.add(ResultDetail.report(InvalidReportMessage.new("'$it' is not a valid default")))
                     return@mapNotNull null
                 }
-                val element = schema!!.findElement(parts[0])
+                val element = schema.findElement(parts[0])
                 if (element == null) {
                     errors.add(
                         ResultDetail.report(InvalidReportMessage.new("'${parts[0]}' is not a valid element name"))
@@ -478,7 +482,7 @@ class ReportFunction : Logging {
             emptyMap()
         }
 
-        if (sender == null || schema == null || content.isEmpty() || errors.isNotEmpty()) {
+        if (content.isEmpty() || errors.isNotEmpty()) {
             return ValidatedRequest(false, HttpStatus.BAD_REQUEST, errors, warnings)
         }
 

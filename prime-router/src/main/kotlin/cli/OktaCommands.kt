@@ -62,8 +62,7 @@ class LoginCommand : OktaCommand(
         .default("local", "local")
 
     override fun run() {
-        val environment = getEnvironment()
-        val oktaApp = environment.oktaApp ?: abort("No need to login in this environment")
+        val oktaApp = Environment.get().oktaApp ?: abort("No need to login in this environment")
         val accessTokenFile = readAccessTokenFile()
         if (accessTokenFile != null && isValidToken(oktaApp, accessTokenFile)) {
             echo("Has a valid token until ${accessTokenFile.expiresAt}")
@@ -73,10 +72,6 @@ class LoginCommand : OktaCommand(
             val newAccessTokenFile = writeAccessTokenFile(oktaApp, accessTokenJson)
             echo("Login valid until ${newAccessTokenFile.expiresAt}")
         }
-    }
-
-    private fun getEnvironment(): SettingCommand.Environment {
-        return SettingCommand.environments.find { it.name == env } ?: abort("bad environment")
     }
 
     private fun launchSignIn(app: OktaApp): JSONObject {

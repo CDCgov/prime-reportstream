@@ -25,12 +25,12 @@ import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.DataAccessTransaction
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.HttpUtilities
-import gov.cdc.prime.router.azure.ReportStreamEnv
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.Tables.ACTION
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.cli.FileUtilities
+import gov.cdc.prime.router.common.Environment
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -130,9 +130,8 @@ Examples:
 
     private val env by option(
         "--env",
-        help = "Specify local, test, staging, or prod.  'local' will connect to ${ReportStreamEnv.LOCAL.urlPrefix}," +
-            " and 'test' will connect to ${ReportStreamEnv.TEST.urlPrefix}"
-    ).choice("test", "local", "staging", "prod").default("local").validate {
+        help = "Specify the environment to connect to"
+    ).choice("test", "local", "staging").default("local").validate {
         envSanityCheck()
         when (it) {
             "test" -> require(!key.isNullOrBlank()) { "Must specify --key <secret> to submit reports to --env test" }
@@ -196,7 +195,7 @@ Examples:
             printTestList(coolTestList)
             exitProcess(0)
         }
-        val environment = ReportStreamEnv.valueOf(env.uppercase())
+        val environment = Environment.get(env)
 
         val tests = if (run != null) {
             run.toString().split(",").mapNotNull { test ->
@@ -213,7 +212,7 @@ Examples:
         }
         if (tests.isNotEmpty()) {
             TermUi.echo(
-                CoolTest.uglyMsgFormat("Running the following tests, POSTing to ${environment.urlPrefix}:")
+                CoolTest.uglyMsgFormat("Running the following tests, POSTing to ${environment.url}:")
             )
             printTestList(tests)
             runTests(tests, environment)
@@ -229,7 +228,7 @@ Examples:
         }
     }
 
-    private fun runTests(tests: List<CoolTest>, environment: ReportStreamEnv) {
+    private fun runTests(tests: List<CoolTest>, environment: Environment) {
         val failures = mutableListOf<CoolTest>()
         val options = CoolTestOptions(
             items, submits, key, dir, sftpDir = sftpDir, env = env, sender = sender,
@@ -341,7 +340,7 @@ abstract class CoolTest {
     private val outputMsgs = mutableListOf<String>()
 
     abstract suspend fun run(
-        environment: ReportStreamEnv,
+        environment: Environment,
         options: CoolTestOptions
     ): Boolean
 
@@ -396,12 +395,12 @@ abstract class CoolTest {
         storeMsg(msg)
     }
 
-    suspend fun waitABit(plusSecs: Int, env: ReportStreamEnv) {
+    suspend fun waitABit(plusSecs: Int, env: Environment) {
         // seconds elapsed so far in this minute
         val secsElapsed = OffsetDateTime.now().second % 60
         // Wait until the top of the next minute, and pluSecs more, for 'batch', and 'send' to finish.
         var waitSecs = 60 - secsElapsed + plusSecs
-        if (env != ReportStreamEnv.LOCAL) {
+        if (env != Environment.LOCAL) {
             // We are in Test or Staging, which don't execute on the top of the minute. Hack:
             waitSecs += 130
         } else if (secsElapsed > (60 - plusSecs)) {
@@ -628,7 +627,7 @@ abstract class CoolTest {
      * and report any errors
      * @param jsonResponse The json that was returned from the API
      * @param shouldHaveDestination When posting async, the destination will not yet be calculated
-     * @return true if there are no errors in the reponse, false otherwise
+     * @return true if there are no errors in the response, false otherwise
      */
     fun examinePostResponse(jsonResponse: String, shouldHaveDestination: Boolean = true): Boolean {
 
@@ -670,7 +669,7 @@ abstract class CoolTest {
     }
 
     companion object {
-        val metadata = Metadata(Metadata.defaultMetadataDirectory)
+        val metadata by lazy { Metadata.getInstance() }
         val settings = FileSettings(FileSettings.defaultSettingsDirectory)
 
         // Here is test setup of organization, senders, and receivers.   All static.
@@ -708,9 +707,9 @@ abstract class CoolTest {
         lateinit var allGoodReceivers: MutableList<Receiver>
         lateinit var allGoodCounties: String
 
-        fun initListOfGoodReceiversAndCounties(env: ReportStreamEnv) {
+        fun initListOfGoodReceiversAndCounties(env: Environment) {
             allGoodReceivers = mutableListOf(csvReceiver, hl7Receiver, hl7BatchReceiver, hl7NullReceiver)
-            if (env == ReportStreamEnv.LOCAL) {
+            if (env == Environment.LOCAL) {
                 allGoodReceivers.add(redoxReceiver)
             }
 
@@ -843,8 +842,8 @@ class Ping : CoolTest() {
     override val description = "CheckConnections: Is the reports endpoint alive and listening?"
     override val status = TestStatus.SMOKE
 
-    override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
-        ugly("Starting ping Test: run CheckConnections of ${environment.urlPrefix}")
+    override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
+        ugly("Starting ping Test: run CheckConnections of ${environment.url}")
         val (responseCode, json) = HttpUtilities.postReportBytes(
             environment,
             "x".toByteArray(),
@@ -876,7 +875,7 @@ class End2End : CoolTest() {
     override val description = "Create Fake data, submit, wait, confirm sent via database lineage data"
     override val status = TestStatus.SMOKE
 
-    override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+    override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         initListOfGoodReceiversAndCounties(environment)
         ugly("Starting $name Test: send ${simpleRepSender.fullName} data to $allGoodCounties")
 
@@ -887,7 +886,7 @@ class End2End : CoolTest() {
     /**
      * Forces synchronous end2end test
      */
-    private suspend fun forceSync(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+    private suspend fun forceSync(environment: Environment, options: CoolTestOptions): Boolean {
         ugly("Running end2end synchronously -- with no query param")
         var passed = true
         val fakeItemCount = allGoodReceivers.size * options.items
@@ -930,7 +929,7 @@ class End2End : CoolTest() {
     /**
      * Forces asynchronous end2end test
      */
-    private suspend fun forceAsync(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+    private suspend fun forceAsync(environment: Environment, options: CoolTestOptions): Boolean {
         ugly("Running end2end asynchronously -- with query param")
         var passed = true
         val fakeItemCount = allGoodReceivers.size * options.items
@@ -1063,7 +1062,7 @@ class Merge : CoolTest() {
         return ! queryResults.map { it.first }.contains(false) // no falses == it passed!
     }
 
-    override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+    override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         var passed: Boolean
         val mergingReceivers = listOf<Receiver>(csvReceiver, hl7BatchReceiver)
         val mergingCounties = mergingReceivers.map { it.name }.joinToString(",")
@@ -1114,7 +1113,7 @@ class Hl7Null : CoolTest() {
     override val description = "The NULL transport does db work, but no transport.  Uses HL7 format"
     override val status = TestStatus.SMOKE
 
-    override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+    override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         val fakeItemCount = 100
         ugly("Starting hl7null Test: test of many threads all doing database interactions, but no sends. ")
         val file = FileUtilities.createFakeFile(
@@ -1156,7 +1155,7 @@ class TooManyCols : CoolTest() {
     override val description = "Submit a file with more than $REPORT_MAX_ITEM_COLUMNS columns, which should error"
     override val status = TestStatus.SMOKE
 
-    override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+    override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         ugly("Starting toomanycols Test: submitting a file with too many columns.")
         val file = File("./src/test/csv_test_files/input/too-many-columns.csv")
         if (!file.exists()) {
@@ -1184,7 +1183,7 @@ class BadCsv : CoolTest() {
     override val name = "badcsv"
     override val description = "Submit badly formatted csv files - should get errors"
     override val status = TestStatus.SMOKE
-    override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+    override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         val filenames = listOf("not-a-csv-file.csv", /* "column-headers-only.csv", */ "completely-empty-file.csv")
         var passed = true
         filenames.forEachIndexed { i, filename ->
@@ -1234,7 +1233,7 @@ class Strac : CoolTest() {
     override val description = "Submit data in strac schema, send to all formats and variety of schemas"
     override val status = TestStatus.SMOKE
 
-    override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+    override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         initListOfGoodReceiversAndCounties(environment)
         ugly("Starting bigly strac Test: sending Strac data to all of these receivers: $allGoodCounties!")
         var passed = true
@@ -1289,7 +1288,7 @@ class StracPack : CoolTest() {
         "  Same as hammertime, no delays between thread starts, so all threads start at once."
     override val status = TestStatus.LOAD
 
-    override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+    override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         ugly(
             "Starting stracpack Test: Starting ${options.submits} simultaneous threads, each submitting" +
                 " ${options.items} items of Strac data to the ${redoxReceiver.name} receiver only."
@@ -1352,7 +1351,7 @@ class Parallel : CoolTest() {
         file: File,
         numThreads: Int,
         numRounds: Int,
-        environment: ReportStreamEnv,
+        environment: Environment,
         options: CoolTestOptions
     ): Boolean {
         var passed = true
@@ -1417,7 +1416,7 @@ class Parallel : CoolTest() {
         return passed
     }
 
-    override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+    override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         ugly(
             "Starting parallel Test: Increasing numbers of threads submitting in parallel," +
                 " as fast as they can for $n rounds.  hl7null ${options.items} items per submission."
@@ -1472,7 +1471,7 @@ class Waters : CoolTest() {
     override val description = "Submit data in waters schema, send to BLOBSTORE only"
     override val status = TestStatus.SMOKE
 
-    override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+    override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         ugly("Starting Waters: sending ${options.items} Waters items to ${blobstoreReceiver.name} receiver")
         val file = FileUtilities.createFakeFile(
             metadata,
@@ -1510,7 +1509,7 @@ class RepeatWaters : CoolTest() {
         "  Can vary the sleeptime to determine what is a sustainable pace of submissions."
     override val status = TestStatus.LOAD
 
-    override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+    override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         val sleepBetweenSubmitMillis = 1000
         val variationMillis = 360
         ugly(
@@ -1604,7 +1603,7 @@ class HammerTime : CoolTest() {
         "  Unlike repeatwaters, no delays between thread starts, so all threads start at once."
     override val status = TestStatus.LOAD
 
-    override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+    override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         ugly(
             "Starting hammertime test: Starting ${options.submits} simultaneous threads, each submitting" +
                 " ${options.items} items of SimpleRep data to ${receiverToTest.name}"
@@ -1665,7 +1664,7 @@ class Garbage : CoolTest() {
     override val description = "Garbage in - Nice error message out"
     override val status = TestStatus.FAILS // new quality checks now prevent any data from flowing to other checks
 
-    override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+    override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         initListOfGoodReceiversAndCounties(environment)
         ugly("Starting $name Test: send ${emptySender.fullName} data to $allGoodCounties")
         var passed = true
@@ -1746,7 +1745,7 @@ class QualityFilter : CoolTest() {
         }
     }
 
-    override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+    override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         ugly("Starting $name Test")
         // ALLOW ALL
         ugly("\nTest the allowAll QualityFilter")
@@ -1830,7 +1829,7 @@ class Huge : CoolTest() {
     override val description = "Submit $REPORT_MAX_ITEMS line csv file, wait, confirm via db.  Slow."
     override val status = TestStatus.LOAD
 
-    override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+    override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         val fakeItemCount = REPORT_MAX_ITEMS
         ugly("Starting huge Test: Attempting to send a report with $fakeItemCount items. This is terrapin slow.")
         val file = FileUtilities.createFakeFile(
@@ -1871,7 +1870,7 @@ class TooBig : CoolTest() {
     override val description = "Submit ${REPORT_MAX_ITEMS + 1} lines, which should be an error.  Slower ;)"
     override val status = TestStatus.LOAD
 
-    override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+    override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         val fakeItemCount = REPORT_MAX_ITEMS + 1
         ugly("Starting toobig test: Attempting to send a report with $fakeItemCount items. This is slllooooowww.")
         val file = FileUtilities.createFakeFile(
@@ -1915,7 +1914,7 @@ class DbConnections : CoolTest() {
     override val description = "Test issue wherein many 'sends' caused db connection failures"
     override val status = TestStatus.DRAFT
 
-    override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+    override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         ugly("Starting dbconnections Test: test of many threads attempting to sftp ${options.items} HL7s.")
         val file = FileUtilities.createFakeFile(
             metadata,
@@ -1969,7 +1968,7 @@ class BadSftp : CoolTest() {
     override val description = "Test ReportStream's response to sftp connection failures. Tests RETRY too!"
     override val status = TestStatus.DRAFT
 
-    override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+    override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         ugly("Starting badsftp Test: test that our code handles sftp connectivity problems")
         val file = FileUtilities.createFakeFile(
             metadata,
@@ -2014,7 +2013,7 @@ class InternationalContent : CoolTest() {
         "submit, wait, confirm sent via database lineage data"
     override val status = TestStatus.DRAFT // Because this can only be run local to get access to the SFTP folder
 
-    override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+    override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         if (options.env != "local") {
             return bad(
                 "***intcontent Test FAILED***: This test can only be run locally " +
@@ -2090,7 +2089,7 @@ class SantaClaus : CoolTest() {
     override val description = "Creates fake data as if from a sender and tries to send it to every state and territory"
     override val status = TestStatus.DRAFT
 
-    override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+    override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         var passed = true
         if (options.env !in listOf("local", "staging")) {
             return createBad("This test can only be run locally or on staging")
@@ -2204,7 +2203,7 @@ class OtcProctored : CoolTest() {
     override val status = TestStatus.SMOKE
     val failures = mutableListOf<String>()
 
-    override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+    override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         val otcPairs = listOf(
             Pair("BinaxNOW COVID-19 Antigen Self Test_Abbott Diagnostics Scarborough, Inc.", "OTC_PROCTORED_YYY"),
             Pair("QuickVue At-Home COVID-19 Test_Quidel Corporation", "OTC_PROCTORED_NYY"),

@@ -20,6 +20,7 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
+import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import gov.cdc.prime.router.serializers.RedoxSerializer
@@ -61,6 +62,12 @@ class WorkflowEngine(
     val as2Transport: AS2Transport = AS2Transport(),
     val ftpsTransport: FTPSTransport = FTPSTransport(),
 ) {
+    init {
+        // Load any updates to the database lookup tables.
+        // This check will run at the start of every function as they create a new instance of this class
+        metadata.checkForDatabaseLookupTableUpdates()
+    }
+
     val blobStoreTransport: BlobStoreTransport = BlobStoreTransport(this)
 
     /**
@@ -688,10 +695,7 @@ class WorkflowEngine(
          * These are all potentially heavy weight objects that
          * should only be created once.
          */
-        val metadata: Metadata by lazy {
-            val baseDir = System.getenv("AzureWebJobsScriptRoot") ?: "."
-            Metadata("$baseDir/metadata")
-        }
+        private val metadata = Metadata.getInstance()
 
         val databaseAccess: DatabaseAccess by lazy {
             DatabaseAccess()
@@ -699,25 +703,24 @@ class WorkflowEngine(
 
         val settings: SettingsProvider by lazy {
             val baseDir = System.getenv("AzureWebJobsScriptRoot") ?: "."
-            val primeEnv = System.getenv("PRIME_ENVIRONMENT")
             val settingsEnabled: String? = System.getenv("FEATURE_FLAG_SETTINGS_ENABLED")
             if (settingsEnabled == null || settingsEnabled.equals("true", ignoreCase = true)) {
                 SettingsFacade(metadata, databaseAccess)
             } else {
-                val ext = primeEnv?.let { "-$it" } ?: ""
+                val ext = "-${Environment.get().toString().lowercase()}"
                 FileSettings("$baseDir/settings", orgExt = ext)
             }
         }
 
-        val csvSerializer: CsvSerializer by lazy {
+        private val csvSerializer: CsvSerializer by lazy {
             CsvSerializer(metadata)
         }
 
-        val hl7Serializer: Hl7Serializer by lazy {
+        private val hl7Serializer: Hl7Serializer by lazy {
             Hl7Serializer(metadata, settings)
         }
 
-        val redoxSerializer: RedoxSerializer by lazy {
+        private val redoxSerializer: RedoxSerializer by lazy {
             RedoxSerializer(metadata)
         }
     }

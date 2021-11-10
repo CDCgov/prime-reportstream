@@ -8,6 +8,7 @@ import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.PAYLOAD_MAX_BYTES
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.common.Environment
 import org.apache.http.client.utils.URIBuilder
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.File
@@ -17,13 +18,6 @@ import java.net.URL
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
-
-enum class ReportStreamEnv(val urlPrefix: String) {
-    TEST("https://pdhtest-functionapp.azurewebsites.net"),
-    LOCAL("http://" + (System.getenv("PRIME_RS_API_ENDPOINT_HOST") ?: "localhost") + ":7071"),
-    STAGING("https://staging.prime.cdc.gov"),
-    PROD("not implemented"),
-}
 
 class HttpUtilities {
     companion object : Logging {
@@ -214,7 +208,7 @@ class HttpUtilities {
          * Returns Pair(Http response code, json response text)
          */
         fun postReportFile(
-            environment: ReportStreamEnv,
+            environment: Environment,
             file: File,
             sendingOrgClient: Sender,
             asyncProcessMode: Boolean = false,
@@ -230,7 +224,7 @@ class HttpUtilities {
          * endpoint and sending the bearer token header
          */
         fun postReportFileFhir(
-            environment: ReportStreamEnv,
+            environment: Environment,
             file: File,
             sendingOrgClient: Sender,
             token: String? = null
@@ -245,7 +239,7 @@ class HttpUtilities {
          * Returns Pair(Http response code, json response text)
          */
         fun postReportBytes(
-            environment: ReportStreamEnv,
+            environment: Environment,
             bytes: ByteArray,
             sendingOrgClient: Sender,
             key: String?,
@@ -260,11 +254,11 @@ class HttpUtilities {
             val clientStr = sendingOrgClient.organizationName +
                 if (sendingOrgClient.name.isNotBlank()) ".${sendingOrgClient.name}" else ""
             headers.add("client" to clientStr)
-            if (key == null && environment == ReportStreamEnv.TEST) error("key is required for Test environment")
+            if (key == null && environment == Environment.TEST) error("key is required for Test environment")
             if (key != null)
                 headers.add("x-functions-key" to key)
 
-            val urlBuilder = URIBuilder(environment.urlPrefix + oldApi)
+            val urlBuilder = URIBuilder(environment.url.toString() + oldApi)
             if (option != null)
                 urlBuilder.setParameter("option", option.toString())
 
@@ -276,7 +270,7 @@ class HttpUtilities {
         }
 
         fun postReportBytesToWatersAPI(
-            environment: ReportStreamEnv,
+            environment: Environment,
             bytes: ByteArray,
             sendingOrgClient: Sender,
             token: String? = null,
@@ -291,7 +285,7 @@ class HttpUtilities {
                 if (sendingOrgClient.name.isNotBlank()) ".${sendingOrgClient.name}" else ""
             headers.add("client" to clientStr)
             token?.let { headers.add("authorization" to "Bearer $token") }
-            val url = environment.urlPrefix + watersApi + if (option != null) "?option=$option" else ""
+            val url = environment.url.toString() + watersApi + if (option != null) "?option=$option" else ""
             return postHttp(url, bytes, headers)
         }
 

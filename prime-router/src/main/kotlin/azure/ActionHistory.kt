@@ -858,7 +858,7 @@ class ActionHistory {
                     }
                     if (resultDetail.row != -1) {
                         // Add 2 to account for array offset and csv header
-                        rowsByGroupingId[groupingId]?.add(resultDetail.row + 2)
+                        rowsByGroupingId[groupingId]?.add(resultDetail.row + 1)
                     }
                 }
                 it.writeArrayFieldStart(field)

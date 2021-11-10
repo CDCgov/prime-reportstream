@@ -33,7 +33,6 @@ import org.jooq.Field
 import org.jooq.JSON
 import org.jooq.SQLDialect
 import org.jooq.impl.DSL
-import org.jooq.impl.DSL.count
 import org.jooq.impl.DSL.inline
 import org.postgresql.Driver
 import java.sql.Connection
