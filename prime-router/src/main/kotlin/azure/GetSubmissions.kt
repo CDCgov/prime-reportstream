@@ -39,7 +39,7 @@ class GetSubmissions(
     ): HttpResponseMessage {
         val qLimit = request.queryParameters.getOrDefault("limit", "10")
 
-        if (isNumber(qLimit)) {
+        if (isPositiveInteger(qLimit)) {
             val limit = qLimit.toInt()
             return getList(request, limit)
         }
@@ -53,7 +53,7 @@ class GetSubmissions(
      *
      * @return `true` if a String is not empty and the characters are digits. Otherwise, return `false`.
      */
-    private fun isNumber(s: String): Boolean {
+    private fun isPositiveInteger(s: String): Boolean {
         return if (s.isNullOrEmpty()) false else s.all { Character.isDigit(it) }
     }
 
