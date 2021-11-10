@@ -33,6 +33,18 @@
                     "summary": "ReportStream works directly with COVID-19 test manufacturers, labs, and apps like <a href='https://simplereport.gov' className='usa-link'>SimpleReport</a> to deliver more results to public health departments across the U.S.",
                     "icon": "network-wired",
                     "iconDescription": "multiple documents"
+                },
+                {
+                    "title": "Safe and secure",
+                    "summary": "Test results and patient data are securely stored and protected by two-factor authentication, database encryption, and HTTPS.",
+                    "icon": "shield.svg",
+                    "iconDescription": "Icon of a shield"
+                },
+                {
+                    "title": "Free and created by the CDC",
+                    "summary": "Developed for COVID-19 test data and public health departments, ReportStream is 100% free.",
+                    "icon": "cdc-logo.svg",
+                    "iconDescription": "CDC logo"
                 }
             ]
         },
@@ -78,7 +90,10 @@
                     ]
                 }
             ]
-        },
+        }
+    ],
+
+    "liveMapContact": [
         {
             "title": "Where is ReportStream live?",
             "type": "liveMap",
@@ -90,7 +105,7 @@
                     "imgAlt": "Map of the U.S. showing states and territories where ReportStream is currently live",
                     "linkInternal": "/how-it-works/where-were-live"
                 }
-            ]
+            ] 
         },
         {
             "title": "Interested in learning more about ReportStream?",
