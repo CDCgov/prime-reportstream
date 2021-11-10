@@ -77,42 +77,6 @@ jobs:
           files: prime-router/build/test-results/testIntegration/**/*.xml
           check_name: "Integration Test Results"
 
-      - name: Cleanup Gradle Cache
-        # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.
-        # Restoring these files from a GitHub Actions cache might cause problems for future builds.
-        run: |
-          rm -f .gradle/caches/modules-2/modules-2.lock
-          rm -f .gradle/caches/modules-2/gc.properties
-
-  smoke_tests:
-    name: Smoke Tests
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: prime-router
-
-    steps:
-      - name: "Check out changes"
-        uses: actions/checkout@v2
-
-      # Appears not to be needed on GitHub (but needed when running act [https://github.com/nektos/act] locally)
-      # - name: Install docker-compose
-      #   run: apt-get update && apt-get --yes install docker-compose
-      - name: Set up JDK 11
-        uses: actions/setup-java@v2
-        with:
-          java-version: '11'
-          distribution: 'adopt'
-          cache: 'gradle'
-
-      - uses: gradle/wrapper-validation-action@v1
-
-      - name: Spin up build containers
-        run: docker-compose -f docker-compose.postgres.yml up -d
-
-      - name: Build Prime Router Package
-        run: ./gradlew package -x fatjar -x test
-        
       - name: Spin up vault
         run: |
           mkdir .vault/env
@@ -129,7 +93,7 @@ jobs:
           docker-compose -f docker-compose.yml up -d prime_dev redox ftps sftp azurite
 
       - name: Load settings
-        run: ./prime multiple-settings set --input settings/organizations.yml
+        run: docker-compose -f docker-compose.yml up settings
 
       - name: Correct sftp perms
         run: docker-compose exec -T sftp chmod 777 /home/foo/upload
