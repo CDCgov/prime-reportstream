@@ -58,7 +58,7 @@ class AddPublicKey : SingleSettingCommand(
     ).flag(default = false)
 
     override fun run() {
-        val environment = Environment.get()
+        val environment = Environment.get(env)
         val accessToken = getAccessToken(environment)
         val publicKeyFile = File(publicKeyFilename)
         if (! publicKeyFile.exists()) {
@@ -130,7 +130,7 @@ class TokenUrl : SingleSettingCommand(
     ).required()
 
     override fun run() {
-        val environment = Environment.get()
+        val environment = Environment.get(env)
         val privateKeyFile = File(privateKeyFilename)
         if (! privateKeyFile.exists()) {
             echo("Unable to fine pem file " + privateKeyFile.absolutePath)
