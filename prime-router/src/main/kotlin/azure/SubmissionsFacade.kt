@@ -7,7 +7,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import gov.cdc.prime.router.ActionResponse
 import gov.cdc.prime.router.Metadata
-import gov.cdc.prime.router.Submission
+import gov.cdc.prime.router.SubmissionHistory
 import gov.cdc.prime.router.SubmissionsProvider
 import java.time.OffsetDateTime
 
@@ -38,13 +38,13 @@ class SubmissionsFacade(
         return mapper.writeValueAsString(result)
     }
 
-    private fun findSubmissions(organizationName: String, limit: Int): List<SubmissionAPI> {
+    private fun findSubmissions(organizationName: String, limit: Int): List<SubmissionHistoryAPI> {
         // TODO: VERIFY sendingOrg is being populated from the claim on Staging
         val submissions = db.fetchSubmissions(organizationName, limit)
 
         return submissions.map {
-            val actionResponse = mapper.readValue(it.actionResponse.toString(), ActionResponseAPI::class.java)
-            val result = SubmissionAPI(it.actionId, it.createdAt, it.sendingOrg, it.httpStatus, actionResponse)
+            val actionResponse = mapper.readValue(it.actionResponse.toString(), ActionResponseColumnAPI::class.java)
+            val result = SubmissionHistoryAPI(it.actionId, it.createdAt, it.sendingOrg, it.httpStatus, actionResponse)
             result
         }
     }
@@ -61,44 +61,43 @@ class SubmissionsFacade(
             SubmissionsFacade(DatabaseSubmissionsAccess())
         }
     }
+
+    /*
+     * Classes for JSON serialization
+     */
+
+    // TODO: see Github Issues #2314 for expected filename field
+    private class SubmissionHistoryAPI
+    @JsonCreator constructor(
+        actionId: Long,
+        createdAt: OffsetDateTime,
+        sendingOrg: String,
+        httpStatus: Int,
+        actionResponse: ActionResponseColumnAPI
+    ) : SubmissionHistory(
+        actionId,
+        createdAt,
+        sendingOrg,
+        httpStatus,
+        actionResponse.id,
+        actionResponse.topic,
+        actionResponse.reportItemCount,
+        actionResponse.warningCount,
+        actionResponse.errorCount,
+    )
+
+    private class ActionResponseColumnAPI
+    @JsonCreator constructor(
+        id: String?,
+        topic: String?,
+        reportItemCount: Int?,
+        warningCount: Int?,
+        errorCount: Int?,
+    ) : ActionResponse(
+        id,
+        topic,
+        reportItemCount,
+        warningCount,
+        errorCount,
+    )
 }
-
-/*
- * Classes for JSON serialization
- */
-
-// TODO: see Github Issues #2314 for expected filename field
-class SubmissionAPI
-@JsonCreator constructor(
-    actionId: Long,
-    createdAt: OffsetDateTime,
-    sendingOrg: String,
-    httpStatus: Int,
-    actionResponse: ActionResponseAPI
-) : Submission(
-    actionId,
-    createdAt,
-    sendingOrg,
-    httpStatus,
-    actionResponse.id,
-    actionResponse.topic,
-    actionResponse.reportItemCount,
-    actionResponse.warningCount,
-    actionResponse.errorCount,
-
-)
-
-class ActionResponseAPI
-@JsonCreator constructor(
-    id: String?,
-    topic: String?,
-    reportItemCount: Int?,
-    warningCount: Int?,
-    errorCount: Int?,
-) : ActionResponse(
-    id,
-    topic,
-    reportItemCount,
-    warningCount,
-    errorCount,
-)

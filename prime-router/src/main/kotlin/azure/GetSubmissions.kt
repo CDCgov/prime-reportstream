@@ -21,6 +21,13 @@ class GetSubmissions(
     private val facade = submissionsFacade
     private val oktaAuthentication = oktaAuthentication
 
+    /**
+     * An Azure Function that is triggered at the `/api/submissions/` endpoint
+     *
+     * @param qLimit a user supplied page size limit overwriting the default value.
+     * @param limit a default value for the number of results to display per page.
+     * @return a list of submission history results.
+     */
     @FunctionName("getSubmissions")
     fun run(
         @HttpTrigger(
@@ -40,19 +47,23 @@ class GetSubmissions(
                 return HttpUtilities.bad(request, "Limit must be an integer.")
         }
 
-        return when (request.httpMethod) {
-            HttpMethod.GET -> getList(request, limit)
-            else -> error("Unsupported method")
-        }
+        return getList(request, limit)
     }
 
-    // Move to Utility Class at some point
+    /**
+     * Utility function for checking if a `String` is numeric.
+     * Should be moved to a separate Utility Class.
+     *
+     * @return `true` if a String is not empty and the characters are digits. Otherwise, return `false`.
+     */
     private fun isNumber(s: String): Boolean {
         return if (s.isNullOrEmpty()) false else s.all { Character.isDigit(it) }
     }
 
     /**
-     * Request data after Okta Authentication
+     * @param request the body content from an HTTP Request to pass into Okta for authentication.
+     * @param limit is an Integer used for setting the number of results per page.
+     * @return data after Okta Authentication
      */
     private fun getList(
         request: HttpRequestMessage<String?>,

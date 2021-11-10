@@ -20,7 +20,7 @@ import java.time.OffsetDateTime
  * TODO: see Github Issues #2314 for expected filename field
  */
 
-open class Submission(
+open class SubmissionHistory(
     val taskId: Long,
     val createdAt: OffsetDateTime,
     val sendingOrg: String,
@@ -31,7 +31,7 @@ open class Submission(
     val warningCount: Int?,
     val errorCount: Int?,
 ) {
-    constructor(copy: Submission) : this(
+    constructor(copy: SubmissionHistory) : this(
         copy.taskId,
         copy.createdAt,
         copy.sendingOrg,

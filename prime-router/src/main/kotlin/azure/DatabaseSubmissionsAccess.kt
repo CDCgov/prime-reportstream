@@ -13,6 +13,11 @@ class DatabaseSubmissionsAccess {
      */
     private val db = DatabaseAccess()
 
+    /**
+     * @param sendingOrg is the Organization Name returned from the Okta JWT Claim.
+     * @param limit is an Integer used for setting the number of results per page.
+     * @return a list of results matching the SQL Query.
+     */
     fun fetchSubmissions(sendingOrg: String, limit: Int): List<Action> {
         var submissions = emptyList<Action>()
         db.transact { txn ->
