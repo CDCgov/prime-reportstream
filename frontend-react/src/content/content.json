@@ -59,7 +59,7 @@
                     "summary": "Log in and download test results quickly through our web application",
                     "icon": "file-download",
                     "img": "report-stream-application.png",
-                    "imgAlt": "Example screenshot of the ReportStream web application",
+                    "imgAlt": "Diagram showing simplified point-to-point ELR connections",
                     "items": [
                         {
                             "title": "Set up made simple",
