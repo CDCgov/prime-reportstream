@@ -33,14 +33,14 @@ Installing the recommend tools including these for this note.
 * [Azure Functions Core Tools](getting-started/install-afct.md) Install the v3 of Azure Functions.
 * [Gradle](getting-started/install-gradle.md) Install Gradle using Brew. 
 
-An editor of your choice. VS Code and JetBrain's IntelliJ have ARM64 versions. 
+An IDE of your choice. Both VS Code and JetBrain's IntelliJ have ARM64 versions. 
 
 ### Step 3 - Run `cleanslate.sh`
 
 The `cleanslate.sh` script does the base work needed to start developing for ReportStream. 
 It only needs to be run once.  
-On Intel processors, this script does a few more steps than it is able to do on Apple Silicon processors. 
-We will need to do these steps by hand. 
+This script runs on Apple processors, but it skips a few steps.  
+We will need to do these missing steps by hand. 
 
 ```bash
 # build the project
@@ -81,16 +81,17 @@ For now, leave these services running and open up a new terminal session.
 
 ### Step 5 - Run ReportStream locally
 With the dependent services running and a freshly built JAR created by `cleanslate.sh`, we can run ReportStream locally. 
-We use Gradle to launch ReportStream, because the Gradle will set up the environment variables that ReportStream needs. 
+We use Gradle to launch ReportStream, because Gradle will set up the environment variables that ReportStream needs. 
 
 ```bash
 gradle quickrun
 ```
 
-ReportStream should continue to run after launching. A `ctrl-c` will kill the running ReportStream instance. For now, keep ReportStream running, open a new terminal session.
+ReportStream should continue to run after launching. A `ctrl-c` will kill the running ReportStream instance. 
+For now, keep ReportStream running, open a new terminal session.
 
 ### Step 6 - Seed the Postgres DB and Vault
-To run tests, the Postgres DB and the crendential vault need to be seeded with values. 
+To run tests, the Postgres DB and the credential vault need to be seeded with values. 
 We will need to have ReportStream running for these steps to work (see previous steps). 
 Again, we will use a Gradle task to do these steps.
 
@@ -114,6 +115,7 @@ gradle testIntegration
 ### Step 6 - Build Frontend
 
 You should be able to build the frontend locally per the [ReadMe](../frontend/readme.md) of the frontend project. 
+Be sure to the have the ReportStream function running per previous steps. 
 
 ```bash
 cd ./frontend/
@@ -126,11 +128,12 @@ ls ./dist
 
 ### Step 7 - Test Frontend
 
-Navigate to `http://localhost:8090/index.html`. You should be able to login and exercise the UI. 
+Navigate to `http://localhost:8090/index.html`. 
+You should be able to login and exercise the UI. 
 
 ## Next Steps
 
-Here are a few pointers to common recipes that developers use. 
+Now that you have builds and tests running, here are a few pointers to common recipes that developers use. 
 
 ### Build and run the ReportStream functions
 
@@ -175,6 +178,29 @@ To reformat your new code to be in compliance:
 gradle ktlintFormat 
 ```
 
+### Add environment variables to your shell profile
+
+Both the ReportStream Azure Functions and ReportStream CLI use environment variables extensively. 
+This note uses `gradle` tasks to set up these environment variables for you. 
+You can, however, set up these variables directly in your shell profile script. 
+In this way, you can run the './prime' CLI and functions directly.  
+Here's a list of environment variables that are used at the time of writing this note. 
+
+```bash
+CREDENTIAL_STORAGE_METHOD=HASHICORP_VAULT
+VAULT_TOKEN=<get from .vault/env/env.local>
+VAULT_API_ADDR=http://localhost:8200
+AzureWebJobsStorage="DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=<find online>;BlobEndpoint=http://localhost:10000/devstoreaccount1;QueueEndpoint=http://localhost:10001/devstoreaccount1;"
+PartnerStorage="DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=<find online>;BlobEndpoint=http://localhost:10000/devstoreaccount1;QueueEndpoint=http://localhost:10001/devstoreaccount1;"
+POSTGRES_USER=prime
+POSTGRES_PASSWORD=changeIT!
+POSTGRES_URL=jdbc:postgresql://localhost:5432/prime_data_hub
+PRIME_ENVIRONMENT=local
+OKTA_baseUrl=hhs-prime.okta.com
+OKTA_clientId=0oa6fm8j4G1xfrthd4h6
+OKTA_redirect=http://localhost:7071/api/download
+JAVA_HOME=$(/usr/libexec/java_home)
+```
 
 ## Things That Might Go Wrong
 
