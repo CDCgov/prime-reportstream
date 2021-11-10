@@ -39,17 +39,17 @@ jobs:
       - name: Set up JDK 11
         uses: actions/setup-java@v2
         with:
-          working-directory: prime-router
           java-version: '11'
           distribution: 'adopt'
           cache: 'gradle'
+
       - uses: gradle/wrapper-validation-action@v1
 
       - name: Spin up build containers
         run: docker-compose -f docker-compose.postgres.yml up -d
 
       - name: Build Prime Router Package
-        run: ./gradlew clean package -x fatjar -Pshowtests
+        run: ./gradlew package -x fatjar -Pshowtests
         
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@v1
@@ -62,20 +62,21 @@ jobs:
           # This path is from the root of the repo as needed by the plugin
           files: prime-router/build/test-results/test/**/*.xml
 
-      #- name: Run Integration Tests
-      #run: ./gradlew testIntegration -Pshowtests
+      - name: Run Integration Tests
+        run: ./gradlew testIntegration -Pshowtests
 
-      #- name: Publish Integration Test Results
-      #  uses: EnricoMi/publish-unit-test-result-action@v1
-      #  # Per https://github.com/EnricoMi/publish-unit-test-result-action#support-fork-repositories-and-dependabot-branches
-      #  if: >
-      #    always() &&
-      #    github.event.sender.login != 'dependabot[bot]' &&
-      #    ( github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository )
-      #  with:
-      #    # This path is from the root of the repo as needed by the plugin
-      #    files: prime-router/build/test-results/testIntegration/**/*.xml
-      #    check_name: "Integration Test Results"
+      - name: Publish Integration Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v1
+        # Per https://github.com/EnricoMi/publish-unit-test-result-action#support-fork-repositories-and-dependabot-branches
+        if: >
+          always() &&
+          github.event.sender.login != 'dependabot[bot]' &&
+          ( github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository )
+        with:
+          # This path is from the root of the repo as needed by the plugin
+          files: prime-router/build/test-results/testIntegration/**/*.xml
+          check_name: "Integration Test Results"
+
       - name: Spin up vault
         run: |
           mkdir .vault/env
@@ -124,7 +125,6 @@ jobs:
       - name: Set up JDK 11
         uses: actions/setup-java@v2
         with:
-          working-directory: prime-router
           java-version: '11'
           distribution: 'adopt'
           cache: 'gradle'
@@ -150,6 +150,9 @@ jobs:
     steps:
       - name: "Check out changes"
         uses: actions/checkout@v2
+
+      - name: Spin up build containers
+        run: docker-compose -f docker-compose.postgres.yml up -d
 
       - name: Run Linting Check
         run: ./gradlew ktlintCheck
