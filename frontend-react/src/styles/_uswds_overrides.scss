@@ -41,7 +41,7 @@ main {
   flex: 1;
   width: 100%;
   padding: 4rem 0;
-  border-top: 1px solid $theme-color-base-lighter;
+  border-top: 1px solid #dfe1e2;
 }
 
 .usa-banner__inner, .usa-banner__header--expanded .usa-banner__inner {
@@ -193,6 +193,7 @@ main {
 @media (max-width: 63.99em) {
   main {
     padding: 2rem 0;
+    border-top: 1px solid #dfe1e2;
   }
   .usa-logo {
     margin-left: 1rem;
