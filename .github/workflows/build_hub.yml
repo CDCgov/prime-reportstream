@@ -129,7 +129,7 @@ jobs:
           docker-compose -f docker-compose.yml up -d prime_dev redox ftps sftp azurite
 
       - name: Load settings
-        run: docker-compose -f docker-compose.yml up settings
+        run: ./prime multiple-settings set --input settings/organizations.yml
 
       - name: Correct sftp perms
         run: docker-compose exec -T sftp chmod 777 /home/foo/upload
