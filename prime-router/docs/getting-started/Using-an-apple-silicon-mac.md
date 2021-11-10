@@ -89,10 +89,10 @@ gradle quickrun
 
 ReportStream should continue to run after launching. A `ctrl-c` will kill the running ReportStream instance. For now, keep ReportStream running, open a new terminal session.
 
-### Step 6 - Seed the DB and Vault
-To run tests, the Postgres DB and the vault need to be seeded with values. 
+### Step 6 - Seed the Postgres DB and Vault
+To run tests, the Postgres DB and the crendential vault need to be seeded with values. 
 We will need to have ReportStream running for these steps to work (see previous steps). 
-Again, we will use a Gradle task to do this step.
+Again, we will use a Gradle task to do these steps.
 
 ```bash
 gradle primeCLI --args "create-credential --type=UserPass --persist=DEFAULT-SFTP --user foo --pass pass"
@@ -105,6 +105,10 @@ You should be able to run tests now to confirm that everything is working.
 ```bash
 # Smoke test checks that most of the system is working
 gradle testSmoke
+```
+Another test that is run is the integration test. 
+```bash
+gradle testIntegration
 ```
 
 ### Step 6 - Build Frontend
@@ -135,6 +139,11 @@ After a code update, a fast way to build and run the code again is
 gradle package fatjar
 gradle quickrun
 ```
+
+### Debugging
+`gradle quickrun` will open a debug port on your locally running ReportStream instance. 
+Connect your debugger remotely to port 5005. 
+For profiling use the JMX port 9090.
 
 ### Start and stop dependent services
 

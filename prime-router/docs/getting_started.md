@@ -164,7 +164,7 @@ cd ./prime-router
 If you see any SSL errors during this step, follow the directions in [Getting Around SSL Errors](#getting-around-ssl-errors).
 
 > Note: Docker-Compose and devenv-infrastructure.sh do not work on Apple Silicon processors. 
-> See [How to setup an Apple Silicon Mac](getting-started/how-to-setup-an-apple-silicon-mac.md) for workarounds. 
+> See [How to setup an Apple Silicon Mac](getting-started/Using-an-apple-silicon-mac.md) for workarounds. 
 
 ## Restarting After a Code Update
 You must re-package the build and restart the prime_dev container to see any modifications you have made to the files:
