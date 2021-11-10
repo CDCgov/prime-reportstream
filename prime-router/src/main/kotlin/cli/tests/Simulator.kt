@@ -3,8 +3,8 @@ package gov.cdc.prime.router.cli.tests
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.ReportFunction
-import gov.cdc.prime.router.azure.ReportStreamEnv
 import gov.cdc.prime.router.cli.FileUtilities
+import gov.cdc.prime.router.common.Environment
 import java.net.HttpURLConnection
 import kotlin.concurrent.thread
 import kotlin.system.measureTimeMillis
@@ -81,7 +81,7 @@ class Simulator : CoolTest() {
      */
     fun runOneSimulation(
         simulation: Simulation,
-        environment: ReportStreamEnv,
+        environment: Environment,
         options: CoolTestOptions
     ): SimulatorResult {
         var result = SimulatorResult(simulation)
@@ -263,7 +263,7 @@ class Simulator : CoolTest() {
         )
     }
 
-    fun setup(environment: ReportStreamEnv, options: CoolTestOptions) {
+    fun setup(environment: Environment, options: CoolTestOptions) {
         ugly("Starting $name test.")
         val result = runOneSimulation(primeThePump, environment, options)
         if (!result.passed) {
@@ -301,7 +301,7 @@ class Simulator : CoolTest() {
      * Meant to simulate a production load, minus strac since its just once a day.
      * Runs in a couple mins.
      */
-    fun productionSimulation(environment: ReportStreamEnv, options: CoolTestOptions): List<SimulatorResult> {
+    fun productionSimulation(environment: Environment, options: CoolTestOptions): List<SimulatorResult> {
         ugly("A test that simulates a high daytime load in Production")
         val results = arrayListOf<SimulatorResult>()
         results += runOneSimulation(fiveThreadsX100, environment, options) // cue
@@ -316,7 +316,7 @@ class Simulator : CoolTest() {
     /**
      * This set of [Simulation] is meant to mimic the old "parallel" test, but going bigger, and skipping some.
      */
-    fun parallel(environment: ReportStreamEnv, options: CoolTestOptions): List<SimulatorResult> {
+    fun parallel(environment: Environment, options: CoolTestOptions): List<SimulatorResult> {
         ugly("A test mimics the old 'parallel' test.  Runs 1,5,10,20 threads.")
         val results = arrayListOf<SimulatorResult>()
         results += runOneSimulation(oneThreadX50, environment, options)
@@ -326,7 +326,7 @@ class Simulator : CoolTest() {
         return results
     }
 
-    override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+    override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         setup(environment, options)
         val results = mutableListOf<SimulatorResult>()
         var elapsedTime = measureTimeMillis {
