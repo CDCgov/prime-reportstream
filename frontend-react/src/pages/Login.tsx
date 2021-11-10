@@ -30,8 +30,8 @@ export const Login = ({ config }) => {
         return (
             <SiteAlert
                 variant="info"
-                heading="This is a United States government service"
-                className="margin-bottom-3 tablet:margin-bottom-6"
+                heading="This is a U.S. government service"
+                className="margin-top-neg-4 desktop:margin-top-neg-8 margin-bottom-3 tablet:margin-bottom-6"
             >
                 Your use indicates your consent to monitoring, recording, and no
                 expectation of privacy. Misuse is subject to criminal and civil
