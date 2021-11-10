@@ -18,15 +18,15 @@ class DatabaseSubmissionsAccess {
      * @param limit is an Integer used for setting the number of results per page.
      * @return a list of results matching the SQL Query.
      */
-    fun fetchSubmissions(sendingOrg: String, limit: Int): List<Action> {
-        var submissions = emptyList<Action>()
+    fun fetchActions(sendingOrg: String, limit: Int): List<Action> {
+        var actions = emptyList<Action>()
         db.transact { txn ->
-            submissions = DSL.using(txn)
+            actions = DSL.using(txn)
                 .selectFrom(ACTION)
                 .where(ACTION.ACTION_NAME.eq(TaskAction.receive).and(ACTION.SENDING_ORG.eq(sendingOrg)))
                 .limit(limit)
                 .fetchInto(Action::class.java)
         }
-        return submissions
+        return actions
     }
 }

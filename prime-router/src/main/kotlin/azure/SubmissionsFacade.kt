@@ -8,7 +8,6 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import gov.cdc.prime.router.ActionResponse
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.SubmissionHistory
-import gov.cdc.prime.router.SubmissionsProvider
 import java.time.OffsetDateTime
 
 /**
@@ -19,7 +18,7 @@ import java.time.OffsetDateTime
 // TODO: Add test/SubmissionsFacadeTests
 class SubmissionsFacade(
     private val db: DatabaseSubmissionsAccess = DatabaseSubmissionsAccess()
-) : SubmissionsProvider {
+) {
 
     // Ignoring unknown properties because we don't require them. -DK
     private val mapper = jacksonObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
@@ -30,7 +29,7 @@ class SubmissionsFacade(
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
     }
 
-    override fun findSubmissionsAsJson(
+    fun findSubmissionsAsJson(
         organizationName: String,
         limit: Int
     ): String {
@@ -38,13 +37,22 @@ class SubmissionsFacade(
         return mapper.writeValueAsString(result)
     }
 
-    private fun findSubmissions(organizationName: String, limit: Int): List<SubmissionHistoryAPI> {
+    private fun findSubmissions(organizationName: String, limit: Int): List<SubmissionHistorySerializer> {
         // TODO: VERIFY sendingOrg is being populated from the claim on Staging
-        val submissions = db.fetchSubmissions(organizationName, limit)
+        val actions = db.fetchActions(organizationName, limit)
 
-        return submissions.map {
-            val actionResponse = mapper.readValue(it.actionResponse.toString(), ActionResponseColumnAPI::class.java)
-            val result = SubmissionHistoryAPI(it.actionId, it.createdAt, it.sendingOrg, it.httpStatus, actionResponse)
+        return actions.map {
+            val actionResponse = mapper.readValue(
+                it.actionResponse.toString(),
+                ActionResponseColumnSerializer::class.java
+            )
+            val result = SubmissionHistorySerializer(
+                it.actionId,
+                it.createdAt,
+                it.sendingOrg,
+                it.httpStatus,
+                actionResponse
+            )
             result
         }
     }
@@ -67,13 +75,13 @@ class SubmissionsFacade(
      */
 
     // TODO: see Github Issues #2314 for expected filename field
-    private class SubmissionHistoryAPI
+    private class SubmissionHistorySerializer
     @JsonCreator constructor(
         actionId: Long,
         createdAt: OffsetDateTime,
         sendingOrg: String,
         httpStatus: Int,
-        actionResponse: ActionResponseColumnAPI
+        actionResponse: ActionResponseColumnSerializer
     ) : SubmissionHistory(
         actionId,
         createdAt,
@@ -86,7 +94,7 @@ class SubmissionsFacade(
         actionResponse.errorCount,
     )
 
-    private class ActionResponseColumnAPI
+    private class ActionResponseColumnSerializer
     @JsonCreator constructor(
         id: String?,
         topic: String?,

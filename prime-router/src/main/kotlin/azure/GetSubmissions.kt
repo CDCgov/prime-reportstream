@@ -37,17 +37,14 @@ class GetSubmissions(
             route = "submissions"
         ) request: HttpRequestMessage<String?>,
     ): HttpResponseMessage {
-        val qLimit = request.queryParameters["limit"]
+        val qLimit = request.queryParameters.getOrDefault("limit", "10")
 
-        var limit = 10
-        if (!qLimit.isNullOrEmpty()) {
-            if (isNumber(qLimit))
-                limit = qLimit.toInt()
-            else
-                return HttpUtilities.bad(request, "Limit must be an integer.")
+        if (isNumber(qLimit)) {
+            val limit = qLimit.toInt()
+            return getList(request, limit)
         }
 
-        return getList(request, limit)
+        return HttpUtilities.bad(request, "Limit must be an integer.")
     }
 
     /**
