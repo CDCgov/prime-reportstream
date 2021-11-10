@@ -1,7 +1,6 @@
 package gov.cdc.prime.router.transport
 
 import com.google.common.base.Preconditions
-import com.hierynomus.sshj.userauth.keyprovider.OpenSSHKeyV1KeyFile
 import com.microsoft.azure.functions.ExecutionContext
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
@@ -18,10 +17,12 @@ import gov.cdc.prime.router.credentials.SftpCredential
 import gov.cdc.prime.router.credentials.UserPassCredential
 import gov.cdc.prime.router.credentials.UserPemCredential
 import gov.cdc.prime.router.credentials.UserPpkCredential
+import net.schmizz.sshj.DefaultConfig
 import net.schmizz.sshj.SSHClient
 import net.schmizz.sshj.sftp.RemoteResourceFilter
 import net.schmizz.sshj.sftp.StatefulSFTPClient
 import net.schmizz.sshj.transport.verification.PromiscuousVerifier
+import net.schmizz.sshj.userauth.keyprovider.OpenSSHKeyFile
 import net.schmizz.sshj.userauth.keyprovider.PuTTYKeyFile
 import net.schmizz.sshj.userauth.method.AuthMethod
 import net.schmizz.sshj.userauth.method.AuthPassword
@@ -134,15 +135,16 @@ class SftpTransport : ITransport, Logging {
             port: String,
             credential: SftpCredential,
         ): SSHClient {
+            val sshConfig = DefaultConfig()
             // create our client
-            val sshClient = SSHClient()
+            val sshClient = SSHClient(sshConfig)
             try {
                 sshClient.addHostKeyVerifier(PromiscuousVerifier())
                 sshClient.connect(host, port.toInt())
                 when (credential) {
                     is UserPassCredential -> sshClient.authPassword(credential.user, credential.pass)
                     is UserPemCredential -> {
-                        val key = OpenSSHKeyV1KeyFile()
+                        val key = OpenSSHKeyFile()
                         val keyContents = StringReader(credential.key)
                         when (StringUtils.isBlank(credential.keyPass)) {
                             true -> key.init(keyContents)

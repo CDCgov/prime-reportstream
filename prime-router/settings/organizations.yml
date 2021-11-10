@@ -1079,8 +1079,8 @@
         type: SFTP
         host: sftp-east.inductivehealth.com
         port: 22
-        filePath: ./upload
-        credentialName: DEFAULT-SFTP
+        filePath: ./
+        credentialName: null
       timing:
         operation: MERGE
         numberPerDay: 1440
@@ -1227,10 +1227,10 @@
         nameFormat: massachusetts
       transport:
         type: SFTP
-        host: sftp
+        host: sftp-dph.ehs.mass.gov
         port: 22
-        filePath: ./upload
-        credentialName: DEFAULT-SFTP
+        filePath: ./
+        credentialName: null
       timing:
         operation: MERGE
         numberPerDay: 1440
