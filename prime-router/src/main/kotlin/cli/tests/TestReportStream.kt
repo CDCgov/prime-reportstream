@@ -463,6 +463,27 @@ abstract class CoolTest {
     }
 
     /**
+     * Looks for at least one row in the covidResultMetadata table for [reportId]
+     */
+    fun queryForCovidResults(
+        reportId: ReportId
+    ): Boolean {
+        var passed = false
+        db = WorkflowEngine().db
+        db.transact { txn ->
+            val ctx = DSL.using(txn)
+            val sql = """select cr.covid_results_metadata_id
+                from covid_result_metadata as cr
+                where cr.report_id = ?"""
+            val ret = ctx.fetch(sql, reportId)?.into(Int::class.java)
+            passed = ret?.size > 0
+        }
+        if (passed)
+            good("Covid result metadata found.")
+        return passed
+    }
+
+    /**
      * Get the json produced by a 'process' action
      * @param reportId The reportId to find the 'process' step for
      * @return jsonb string that is the action_response of the 'process' step for the reportId
@@ -915,6 +936,14 @@ class End2End : CoolTest() {
         passed = passed and examinePostResponse(json, false)
         val reportId = getReportIdFromResponse(json)
         if (reportId != null) {
+            // check for covid result metadata - the examinePostResponse function above has already
+            //  verified that the topic is covid-19. This will need to be updated once we are supporting
+            //  non-covid record types
+            passed = passed and queryForCovidResults(reportId)
+            if (!passed)
+                bad("***sync end2end FAILED***: Covid metadata record not found")
+
+            // check that lineages were generated properly
             passed = passed and pollForLineageResults(
                 reportId,
                 allGoodReceivers,
@@ -963,6 +992,15 @@ class End2End : CoolTest() {
             passed = passed and pollForProcessResult(reportId)
             if (!passed)
                 bad("***async end2end FAILED***: Process record not found")
+
+            // check for covid result metadata - the examinePostResponse function above has already
+            //  verified that the topic is covid-19. This will need to be updated once we are supporting
+            //  non-covid record types
+            passed = passed and queryForCovidResults(reportId)
+            if (!passed)
+                bad("***async end2end FAILED***: Covid metadata record not found")
+
+            // check that lineages were generated properly
             passed = passed and pollForLineageResults(
                 reportId, allGoodReceivers,
                 fakeItemCount,
