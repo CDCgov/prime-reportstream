@@ -8,6 +8,7 @@ import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.SenderAPI
+import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.tokens.Scope
 import gov.cdc.prime.router.tokens.SenderUtils
 import java.io.File
@@ -57,7 +58,7 @@ class AddPublicKey : SingleSettingCommand(
     ).flag(default = false)
 
     override fun run() {
-        val environment = getEnvironment()
+        val environment = Environment.get()
         val accessToken = getAccessToken(environment)
         val publicKeyFile = File(publicKeyFilename)
         if (! publicKeyFile.exists()) {
@@ -129,7 +130,7 @@ class TokenUrl : SingleSettingCommand(
     ).required()
 
     override fun run() {
-        val environment = getEnvironment()
+        val environment = Environment.get()
         val privateKeyFile = File(privateKeyFilename)
         if (! privateKeyFile.exists()) {
             echo("Unable to fine pem file " + privateKeyFile.absolutePath)

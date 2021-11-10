@@ -106,6 +106,9 @@ tasks.test {
 
     // Set the environment to local for the tests
     environment["PRIME_ENVIRONMENT"] = "local"
+    environment["POSTGRES_URL"] = dbUrl
+    environment["POSTGRES_USER"] = dbUser
+    environment["POSTGRES_PASSWORD"] = dbPassword
 
     // Set max parellel forks as recommended in https://docs.gradle.org/current/userguide/performance.html
     maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
@@ -180,6 +183,13 @@ tasks.register<Test>("testIntegration") {
     dependsOn("compileTestIntegrationKotlin")
     dependsOn("compileTestIntegrationJava")
     shouldRunAfter("test")
+
+    // Set the environment to local for the tests
+    environment["PRIME_ENVIRONMENT"] = "local"
+    environment["POSTGRES_URL"] = dbUrl
+    environment["POSTGRES_USER"] = dbUser
+    environment["POSTGRES_PASSWORD"] = dbPassword
+
     testClassesDirs = sourceSets["testIntegration"].output.classesDirs
     classpath = sourceSets["testIntegration"].runtimeClasspath
     // Run the test task if specified configuration files are changed
@@ -551,7 +561,8 @@ dependencies {
     }
     implementation("com.github.kittinunf.fuel:fuel-json:2.3.1")
     implementation("org.json:json:20210307")
-    implementation("com.hierynomus:sshj:0.32.0")
+    // DO NOT INCREMENT SSHJ to a newer version without first thoroughly testing it locally.
+    implementation("com.hierynomus:sshj:0.31.0")
     implementation("org.bouncycastle:bcprov-jdk15on:1.69")
     implementation("com.jcraft:jsch:0.1.55")
     implementation("org.apache.commons:commons-lang3:3.12.0")

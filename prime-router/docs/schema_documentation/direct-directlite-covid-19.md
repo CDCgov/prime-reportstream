@@ -1,6 +1,6 @@
 
-### Schema:         direct/abbott-covid-19
-#### Description:   Abbott
+### Schema:         direct/directlite-covid-19
+#### Description:   Direct Submission to ReportStream COVID-19 flat file, Lite edition (tm)
 
 ---
 
@@ -446,7 +446,7 @@ The patient's race. There is a common valueset defined for race values, but some
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Table**: fips-county
 
@@ -454,7 +454,7 @@ The patient's race. There is a common valueset defined for race values, but some
 
 **Documentation**:
 
-not required since this is only going to HHSProtect
+Extremely important field for routing data to states.
 
 ---
 
@@ -573,7 +573,7 @@ Custom field. Note, value matched LIVD column "F", "Test Performed LOINC Code"
 
 **PII**: No
 
-**Default Value**: T
+**Default Value**: P
 
 **Cardinality**: [0..1]
 
@@ -666,8 +666,6 @@ Override the base hl70136 valueset with a custom one, to handle slightly differe
 **Type**: TEXT
 
 **PII**: No
-
-**Default Value**: abbott
 
 **Cardinality**: [1..1]
 
