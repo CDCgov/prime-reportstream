@@ -106,6 +106,9 @@ tasks.test {
 
     // Set the environment to local for the tests
     environment["PRIME_ENVIRONMENT"] = "local"
+    environment["POSTGRES_URL"] = dbUrl
+    environment["POSTGRES_USER"] = dbUser
+    environment["POSTGRES_PASSWORD"] = dbPassword
 
     // Set max parellel forks as recommended in https://docs.gradle.org/current/userguide/performance.html
     maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
@@ -180,6 +183,13 @@ tasks.register<Test>("testIntegration") {
     dependsOn("compileTestIntegrationKotlin")
     dependsOn("compileTestIntegrationJava")
     shouldRunAfter("test")
+
+    // Set the environment to local for the tests
+    environment["PRIME_ENVIRONMENT"] = "local"
+    environment["POSTGRES_URL"] = dbUrl
+    environment["POSTGRES_USER"] = dbUser
+    environment["POSTGRES_PASSWORD"] = dbPassword
+
     testClassesDirs = sourceSets["testIntegration"].output.classesDirs
     classpath = sourceSets["testIntegration"].runtimeClasspath
     // Run the test task if specified configuration files are changed
