@@ -844,20 +844,37 @@ data class Element(
         return retVal
     }
 
-    fun tokenizeMapperValue(elementName: String, index: Int = 0): ElementAndValue? {
+    /**
+     * Populates the value of a specialized mapper token, indicated by a $ prefix
+     * @param elementName the token name
+     * @param index optional int value used with the $index token
+     */
+    fun tokenizeMapperValue(elementName: String, index: Int = 0): ElementAndValue {
         val tokenElement = Element(elementName)
-        return when (elementName) {
-            "\$index" -> {
-                ElementAndValue(tokenElement, index.toString())
+        var retVal = ElementAndValue(tokenElement, "")
+        when {
+            elementName == "\$index" -> {
+                retVal = ElementAndValue(tokenElement, index.toString())
             }
-            "\$currentDate" -> {
+            elementName == "\$currentDate" -> {
                 val currentDate = LocalDate.now().format(dateFormatter)
-                ElementAndValue(tokenElement, currentDate)
+                retVal = ElementAndValue(tokenElement, currentDate)
             }
-            else -> {
-                null
+            elementName.contains("\$dateFormat:") -> {
+                retVal = ElementAndValue(tokenElement, extractStringValue(elementName))
             }
         }
+
+        return retVal
+    }
+
+    /**
+     * Retrieves the value of a generalized token as string (i.e. "$mode:literal" returns "literal")
+     * @param token the token
+     * @return the string value of a token
+     */
+    private fun extractStringValue(token: String): String {
+        return token.split(":")[1]
     }
 
     companion object {
