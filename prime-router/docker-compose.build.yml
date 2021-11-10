@@ -20,6 +20,8 @@ services:
     working_dir: /src
     networks:
       - prime-router_build
+    profiles:
+      - amd64
 
   # NOTE: this is part of this docker-compose file and not the
   # "development infrastructure" docker-compose file because we want to just
@@ -41,6 +43,10 @@ services:
       - vol_postgresql_data:/var/lib/postgresql/data
     networks:
       - prime-router_build
+    profiles:
+      - amd64
+      - apple_silicon
+      - arm64
 
 networks:
   prime-router_build:

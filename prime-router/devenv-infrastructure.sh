@@ -12,6 +12,10 @@ if [ "${STATE}" = "up" ] || [ "${STATE}" = "stay" ]; then
   STATE=up
   DETACH=--detach
 fi
+PROFILE=amd64
+if [ "$(uname -m)" = "arm64" ] && [[ $(uname -av) == *"Darwin"* ]]; then
+  PROFILE=apple_silicon
+fi
 
 ORPHAN_CONTAINER_WARNING_MSG="Found orphan containers ("
 REMAINING_NETWORK_WARNING_MSG="error while removing network: network prime-router_prime-router_build"
@@ -21,11 +25,15 @@ REMAINING_NETWORK_WARNING_MSG="error while removing network: network prime-route
 docker-compose -f ./docker-compose.build.yml ${STATE?} ${DETACH?} 2>&1 |
   grep -v "${ORPHAN_CONTAINER_WARNING_MSG?}"
 
-docker-compose -f "./docker-compose.yml" build
-docker-compose -f ./docker-compose.yml ${STATE?} ${DETACH} 2>&1 |
+docker-compose -f "./docker-compose.yml" --profile=$PROFILE build
+docker-compose -f ./docker-compose.yml --profile=$PROFILE ${STATE?} ${DETACH} 2>&1 |
   grep -v "${ORPHAN_CONTAINER_WARNING_MSG?}" |
   grep -v "${REMAINING_NETWORK_WARNING_MSG?}"
 
 if [ "${1}" = "stay" ]; then
-  ./build.sh -- bash
+  if [ "${PROFILE}" = "amd64" ]; then
+    ./build.sh -- bash
+  else
+    echo "Cannot build in a container. See the 'Using Apple Silicon for Development' document for details."
+  fi
 fi

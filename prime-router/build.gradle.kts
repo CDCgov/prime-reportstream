@@ -75,6 +75,13 @@ val reportsApiEndpointHost = (
 val jooqSourceDir = "build/generated-src/jooq/src/main/java"
 val jooqPackageName = "gov.cdc.prime.router.azure.db"
 
+fun addVaultValuesToEnv(env: MutableMap<String, Any>) {
+    val file = File(".vault/env/.env.local")
+    val prop = Properties()
+    FileInputStream(file).use { prop.load(it) }
+    prop.forEach { key, value -> env[key.toString()] = value.toString().replace("\"", "") }
+}
+
 defaultTasks("package")
 
 val kotlinVersion = "1.5.31"
@@ -265,6 +272,7 @@ tasks.register<JavaExec>("primeCLI") {
     environment["POSTGRES_USER"] = dbUser
     environment["POSTGRES_PASSWORD"] = dbPassword
     environment[KEY_PRIME_RS_API_ENDPOINT_HOST] = reportsApiEndpointHost
+    addVaultValuesToEnv(environment)
 
     // Use arguments passed by another task in the project.extra["cliArgs"] property.
     doFirst {
@@ -390,7 +398,7 @@ tasks.azureFunctionsRun {
             "Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=" +
             "http://localhost:10000/devstoreaccount1;QueueEndpoint=http://localhost:10001/devstoreaccount1;"
 
-    val env = mutableMapOf(
+    val env = mutableMapOf<String, Any>(
         "AzureWebJobsStorage" to devAzureConnectString,
         "PartnerStorage" to devAzureConnectString,
         "POSTGRES_USER" to dbUser,
@@ -404,10 +412,7 @@ tasks.azureFunctionsRun {
     )
 
     // Load the vault variables
-    val file = File(".vault/env/.env.local")
-    val prop = Properties()
-    FileInputStream(file).use { prop.load(it) }
-    prop.forEach { key, value -> env[key.toString()] = value.toString().replace("\"", "") }
+    addVaultValuesToEnv(env)
 
     environment(env)
     azurefunctions.localDebug = "transport=dt_socket,server=y,suspend=n,address=5005"

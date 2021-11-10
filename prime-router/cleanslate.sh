@@ -15,6 +15,11 @@ KEEP_ALL=0
 PRUNE_VOLUMES=0
 TAKE_OWNERSHIP=0
 
+PROFILE=amd64
+if [ "$(uname -m)" = "arm64" ] && [[ $(uname -av) == *"Darwin"* ]]; then
+  PROFILE=apple_silicon
+fi
+
 function usage() {
   cat <<EOF
 
@@ -256,7 +261,8 @@ function refresh_docker_images() {
 
 function ensure_build_dependencies() {
   info "Bringing up the minimum build dependencies"
-  docker-compose --file "docker-compose.build.yml" up --detach 1>>"${LOG?}" 2>&1
+  verbose "Starting a PostgreSQL container"
+  docker-compose --file "docker-compose.build.yml" --profile=$PROFILE up --detach 1>>"${LOG?}" 2>&1
   if [[ ${?} != 0 ]]; then
     error "The docker-compose.build.yml environment could not be brought up"
   fi
@@ -271,6 +277,7 @@ function ensure_binaries() {
     ensure_build_dependencies
 
     # Filter out some less valuable lines
+    verbose "Building and packaging the source"
     ./gradlew clean package 2>&1 |
       sed '/org.jooq.tools.JooqLogger info/d' |
       sed '/^@@@@@@@/d' |
@@ -283,7 +290,7 @@ function ensure_binaries() {
 
 function activate_containers() {
   info "Bringing up your development containers"
-  docker-compose --file "docker-compose.build.yml" up --detach postgresql 1>>"${LOG?}" 2>&1
+  docker-compose --file "docker-compose.build.yml" --profile=$PROFILE up --detach postgresql 1>>"${LOG?}" 2>&1
 
   # The very first time you run this, we are in a bit of pickle: you're loading the credentials
   # to the vault into the prime_dev container from an env-file .vault/env/.env.local but if you've never
@@ -293,13 +300,13 @@ function activate_containers() {
   # We spin up the vault and wait for it to populate your vault credentials
   wait_for_vault_creds
   # Then we make sure we have nothing running
-  docker-compose --file "docker-compose.yml" up --detach 1>>"${LOG?}" 2>&1
+  docker-compose --file "docker-compose.yml" --profile=$PROFILE up --detach 1>>"${LOG?}" 2>&1
 
   # On mac, the prime_dev service sometimes crashes so we'll wait for a little while and then forcibly restart it
   if [[ "${OSTYPE?}" == "darwin"* ]]; then
     info "Making sure the prime_dev container is actually running (circumvention of provider-is-null-bug)"
     sleep 5
-    docker-compose --file "docker-compose.yml" restart prime_dev 1>>"${LOG?}" 2>&1
+    docker-compose --file "docker-compose.yml" --profile=$PROFILE restart prime_dev 1>>"${LOG?}" 2>&1
   fi
 
   info "prime_dev service environment variables"
@@ -333,8 +340,10 @@ function initialize() {
   info "> Initializing your environment..."
   refresh_docker_images
   ensure_binaries
-  activate_containers
-  populate_vault
+  if [ $PROFILE = "amd64" ]; then
+      activate_containers
+      populate_vault
+  fi
   take_directory_ownership ${TAKE_OWNERSHIP?}
   return 0
 }
