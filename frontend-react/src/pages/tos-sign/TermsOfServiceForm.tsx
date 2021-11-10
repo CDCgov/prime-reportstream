@@ -18,7 +18,7 @@ import AuthResource from "../../resources/AuthResource";
 import { getStates } from "../../utils/OrganizationUtils";
 
 import SuccessPage from "./SuccessPage";
-import { Jwt, JwtPayload, sign, SignOptions } from "jsonwebtoken";
+import { Jwt, JwtHeader, JwtPayload, sign } from "jsonwebtoken";
 
 export interface AgreementBody {
     title: string;
@@ -94,11 +94,11 @@ function TermsOfServiceForm() {
     };
 
     const createAuth = (): string => {
-        
-        let payload: object = {
-            sub: window.location.origin
-        }
-        return sign(payload, 'L78wIGpvMQnb7l3N5aplwaptSLHBJ1jb8ytKkNRx5zk=')
+        return sign(
+            { iss: "reportstream" },
+            /* TODO: Refactor as ENV variable */
+            "fake_secret_test"
+        )
     }
 
     /* INFO

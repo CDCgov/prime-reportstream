@@ -1,5 +1,9 @@
 package gov.cdc.prime.router.azure
 
+import com.auth0.jwt.JWT
+import com.auth0.jwt.algorithms.Algorithm
+import com.auth0.jwt.interfaces.DecodedJWT
+import com.auth0.jwt.interfaces.JWTVerifier
 import com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.microsoft.azure.functions.ExecutionContext
@@ -19,11 +23,7 @@ import com.sendgrid.helpers.mail.Mail
 import com.sendgrid.helpers.mail.objects.Email
 import com.sendgrid.helpers.mail.objects.Personalization
 import gov.cdc.prime.router.secrets.SecretHelper
-import io.jsonwebtoken.Jwts
-import io.jsonwebtoken.SignatureAlgorithm
-import io.jsonwebtoken.security.Keys
 import java.io.IOException
-import java.security.Key
 import java.util.logging.Logger
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.memberProperties
@@ -33,7 +33,7 @@ var REPORT_STREAM_EMAIL = System.getenv("EMAIL_REPORT_STREAM") ?: "default@noema
 const val TOS_SUBJECT_BASE = "TOS Agreement for "
 
 /*INFO:
-*  a TemplateID can be found by navigating to our SendGrid dashboard,
+*  A TemplateID can be found by navigating to our SendGrid dashboard,
 *  expanding the Email API nav list on the left and clicking
 *  Dynamic Templates. The list will show templates with IDs
 */
@@ -104,12 +104,9 @@ class EmailSenderFunction {
     ): HttpResponseMessage {
         val logger: Logger = context.logger
         val ret = request.createResponseBuilder(HttpStatus.UNAUTHORIZED)
-        val jwsToken = request.headers["authorization"] ?: ""
-        /* TODO: Debug JWS/JWT/JW-whatever stuff */
-        val authBody = Jwts.parserBuilder()
-            .setSigningKey("L78wIGpvMQnb7l3N5aplwaptSLHBJ1jb8ytKkNRx5zk=")
-            .build().parseClaimsJws(jwsToken)
-        if (authBody.body.contains("https://reportstream.gov/")) {
+        val jwtToken: String = request.headers["authorization"] ?: ""
+        /* Jwt authorization check */
+        if (verifyFromSource(jwtToken, logger) !== null) {
             /* Body existence check */
             if (request.body === null) return ret.status(HttpStatus.BAD_REQUEST).build()
 
@@ -125,17 +122,26 @@ class EmailSenderFunction {
             val mail: String = createMail(body)
             ret.status(sendMail(mail, sendgridId, logger)) /* Status becomes whatever SendGrid returns */
         } else {
-            logger.info("Your JWT was invalid")
-            logger.info(authBody.toString())
+            logger.info("You are unauthorized to call this endpoint")
+//            logger.info(authBody.toString())
         }
         return ret.build()
     }
 
-    private fun verifyFromSource(jwt: String): Boolean {
-        /*TODO:
-        *  If jwt && jwt contains source: ReportStream, return true
-        */
-        return false
+    /*INFO:
+    *  This function is returning a DecodedJWT from com.auth0.jwt.interfaces rather than
+    *  a boolean, despite its singular implementation right now, so the DecodedJWT can
+    *  be used in future places that this is called, such as to get claims.
+    */
+    private fun verifyFromSource(jwt: String, logger: Logger): DecodedJWT? {
+        return try {
+            val algorithm: Algorithm = Algorithm.HMAC256(System.getenv("TokenSigningSecret"))
+            val verifier: JWTVerifier = JWT.require(algorithm).withIssuer("reportstream").build()
+            return verifier.verify(jwt)
+        } catch (ex: Throwable) {
+            logger.warning("There was an error while verifying your JWT: ${ex.message}")
+            null
+        }
     }
 
     /*TODO:
