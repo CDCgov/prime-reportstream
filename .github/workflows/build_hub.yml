@@ -45,6 +45,12 @@ jobs:
 
       - uses: gradle/wrapper-validation-action@v1
 
+      - name: Cache Docker layers
+        uses: actions/cache@v2
+        with:
+          path: /var/lib/docker/containers
+          key: ${{ runner.os }}-containers-${{ hashFiles('**/Dockerfile*') }}-${{ hashFiles('**/docker-compose*') }}
+
       - name: Spin up build containers
         run: docker-compose -f docker-compose.postgres.yml up -d
 
