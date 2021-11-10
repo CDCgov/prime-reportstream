@@ -24,6 +24,9 @@ If you think you have found a bug in the ReportStream, search our [issues list](
 
 It is very helpful if you can prepare a reproduction of the bug. In other words, provide a small test case which we can run to confirm your bug. It makes it easier to find the problem and to fix it. 
 
+
+
+
 ## Feature requests
 
 If you find yourself wishing for a feature that exists in the PRIME ReportStream, you are probably not alone. 
