@@ -5,6 +5,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import gov.cdc.prime.router.DeepOrganization
+import gov.cdc.prime.router.cli.OktaCommand
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.cli.SettingCommand
 import gov.cdc.prime.router.cli.SettingsUtilities
@@ -19,13 +20,6 @@ import java.io.File
  *  This test needs to be able to run in staging and local, but not production.
  *  When the smoke tests are running in sequential mode then have this new test
  *  run after 'ping' and before 'end2end'.
- *
- * @returns:
- *  If SUCCESS:
- *      good("Test passed: SFTP")
- *  If ERROR:
- *      bad("Test SFTP receiver connections: Failed"
- *
  */
 
 class SftpcheckTest : CoolTest() {
@@ -42,22 +36,20 @@ class SftpcheckTest : CoolTest() {
     private val sftpcheckMessage = "Test SFTP receiver connections: "
     var testResult = true
     val yamlMapper: ObjectMapper = ObjectMapper(YAMLFactory()).registerModule(KotlinModule())
-    val allowEnvironment = arrayListOf(Environment.LOCAL, Environment.STAGING)
 
     override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
-
-        /**
-         * Check for allowable environment to run the test.
-         */
-        if (!allowEnvironment.contains(environment))
-            return true
-
         ugly("Starting SFTPCHECK Receciver Connections test ${environment.url}")
 
         /**
-         * Get ignore organizations.
+         * Get ignore organizations with transport.host=sftp
+         * and receiver.name != SFTP_FAIL
          */
         val ignoreReceivers = getAllIgnoreRecivers()
+
+        /**
+         * Get accessToken per environment.
+         */
+        val accessToken = getAccessToken(environment)
 
         /**
          * Start check the connection for each organization
@@ -66,14 +58,14 @@ class SftpcheckTest : CoolTest() {
             /**
              * Obtain the URL/path endpoint per environment (localhost or staging)
              */
-            val path = environment.url.toString() + sftpcheckUri + receiver
+            val path = environment.formUrl(sftpcheckUri + receiver).toString()
 
             /**
              * Check the organization ignore receiver connections
              */
             echo("SFTPCHECK Organizatin: ${receiver}...")
 
-            val (_, response, result) = SettingsUtilities.get(path, dummyAccessToken)
+            val (_, response, result) = SettingsUtilities.get(path, accessToken)
             val (_, error) = result
             if (response?.statusCode == HttpStatus.SC_OK) {
                 good("----> " + sftpcheckMessage + "PASSED with response code: " +
@@ -100,10 +92,10 @@ class SftpcheckTest : CoolTest() {
 
         /**
          * Get all organizations from organizations.yml to the list
+         * TODO: We may need to get organization from the database setting table.
          */
-        val file = File(receiverOrganizationPath)
-        val input = String(file.readBytes())
-        if (input.isBlank()) SettingCommand.abort("Blank input")
+        val input = String(File(receiverOrganizationPath).readBytes())
+        if (input.isBlank()) return emptyList()
         val deepOrgs: List<DeepOrganization> = yamlMapper.readValue(input)
         val sftpcheckReceivers = mutableListOf<String>()
 
@@ -111,10 +103,21 @@ class SftpcheckTest : CoolTest() {
          * Extract ignore receivers from the list
          */
         deepOrgs.flatMap { it.receivers }.forEach { receiver ->
-            if (receiver.organizationName.equals("ignore")) {
-                sftpcheckReceivers += receiver.organizationName + "." + receiver.name
+            val transport = receiver.transport.toString();
+            if (receiver.organizationName.equals("ignore") && !receiver.name.equals("SFTP_FAIL") &&
+                transport.contains("host=sftp")) {
+                    sftpcheckReceivers += receiver.organizationName + "." + receiver.name
             }
         }
         return sftpcheckReceivers
+    }
+
+    /**
+     * Get accessToken from Okta if available.
+     */
+    fun getAccessToken(environment: Environment): String {
+        if (environment.oktaApp == null) return dummyAccessToken
+        return OktaCommand.fetchAccessToken(environment.oktaApp)
+            ?: SettingCommand.abort("Invalid access token. Run ./prime login to fetch/refresh your access token.")
     }
 }
