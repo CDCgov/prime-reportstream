@@ -47,7 +47,7 @@ abstract class SettingCommand(
     name: String,
     help: String,
 ) : CliktCommand(name = name, help = help) {
-    private val env by option(
+    internal val env by option(
         "-e", "--env",
         metavar = "<name>",
         envvar = "PRIME_ENVIRONMENT",
@@ -311,7 +311,7 @@ abstract class SingleSettingCommandNoSettingName(
 
     override fun run() {
         // Authenticate
-        val environment = Environment.get()
+        val environment = Environment.get(env)
         val accessToken = getAccessToken(environment)
 
         // Operations
@@ -520,7 +520,7 @@ class PutMultipleSettings : SettingCommand(
         .inputStream()
 
     override fun run() {
-        val environment = Environment.get()
+        val environment = Environment.get(env)
         val accessToken = getAccessToken(environment)
         val results = putAll(environment, accessToken)
         val output = "${results.joinToString("\n")}\n"
@@ -566,7 +566,7 @@ class GetMultipleSettings : SettingCommand(
     )
 
     override fun run() {
-        val environment = Environment.get()
+        val environment = Environment.get(env)
         val accessToken = getAccessToken(environment)
         val output = getAll(environment, accessToken)
         writeOutput(output)

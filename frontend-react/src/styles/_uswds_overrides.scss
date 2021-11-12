@@ -41,7 +41,7 @@ main {
   flex: 1;
   width: 100%;
   padding: 4rem 0;
-  border-top: 1px solid $theme-color-base-lighter;
+  border-top: 1px solid #dfe1e2;
 }
 
 .usa-banner__inner, .usa-banner__header--expanded .usa-banner__inner {
@@ -80,12 +80,28 @@ main {
 
 // TYPOGRAPHY
 
+.usa-prose {
+
+    h1 {
+      line-height: lh('sans', 2);
+    }
+}
+
 .usa-intro {
   line-height: units(4);
 }
 
 .usa-process-list__heading {
   @include u-font('sans', 'md');
+}
+
+// ALERT
+
+.usa-site-alert {
+  
+  .usa-alert__heading {
+    font-size: size('body', 'md');
+  }
 }
 
 // MEDIA: DESKTOP
@@ -177,6 +193,7 @@ main {
 @media (max-width: 63.99em) {
   main {
     padding: 2rem 0;
+    border-top: 1px solid #dfe1e2;
   }
   .usa-logo {
     margin-left: 1rem;
