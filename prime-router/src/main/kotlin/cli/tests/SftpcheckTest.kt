@@ -92,7 +92,9 @@ class SftpcheckTest : CoolTest() {
 
         /**
          * Get all organizations from organizations.yml to the list. However,
-         * We may need to get organization from the database setting table.
+         * We may need to get organization from the database setting table
+         * since the organization.yml is uploaded to the database at
+         * initial configuratio time.
          */
         val input = String(File(receiverOrganizationPath).readBytes())
         if (input.isBlank()) return emptyList()
