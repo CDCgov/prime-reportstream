@@ -100,6 +100,9 @@ elements:
   - name: test_result_date
     csvFields: [{name: patient_results}]
 
+  - name: date_result_released
+    mapper: use(test_result_date)
+
   - name: patient_gender
     csvFields: [{name: patient_sex}]
 

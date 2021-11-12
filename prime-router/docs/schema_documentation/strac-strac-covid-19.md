@@ -53,6 +53,16 @@ This field is generated based on the normalcy status of the result. A = abnormal
 
 ---
 
+**Name**: date_result_released
+
+**Type**: DATETIME
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
 **Name**: equipment_model_name
 
 **Type**: TABLE

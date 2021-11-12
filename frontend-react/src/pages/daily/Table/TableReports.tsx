@@ -39,7 +39,7 @@ function TableReports({ sortBy }: { sortBy?: string }) {
                 }
                 <table
                     className="usa-table usa-table--borderless prime-table"
-                    summary="Previous results"
+                    aria-label="Test results reported in the last 30 days"
                 >
                     <thead>
                         <tr>
