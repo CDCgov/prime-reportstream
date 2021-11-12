@@ -63,16 +63,20 @@ class SftpcheckTest : CoolTest() {
             /**
              * Check the organization ignore receiver connections
              */
-            echo("SFTPCHECK Organizatin: ${receiver}...")
+            echo("SFTPCHECK Organizatin: $receiver...")
 
             val (_, response, result) = SettingsUtilities.get(path, accessToken)
             val (_, error) = result
-            if (response?.statusCode == HttpStatus.SC_OK) {
-                good("----> " + sftpcheckMessage + "PASSED with response code: " +
-                    " ${response?.statusCode} ")
+            if (response.statusCode == HttpStatus.SC_OK) {
+                good(
+                    "----> " + sftpcheckMessage + "PASSED with response code: " +
+                    " ${response.statusCode} "
+                )
             } else {
-                testResult = bad("----> " + sftpcheckMessage + "FAILED with error code: : " +
-                    "${response.statusCode} - ${error?.response?.responseMessage}...")
+                testResult = bad(
+                    "----> " + sftpcheckMessage + "FAILED with error code: : " +
+                    "${response.statusCode} - ${error?.response?.responseMessage}..."
+                )
             }
         }
 
@@ -105,10 +109,11 @@ class SftpcheckTest : CoolTest() {
          * Extract ignore receivers from the list
          */
         deepOrgs.flatMap { it.receivers }.forEach { receiver ->
-            val transport = receiver.transport.toString();
+            val transport = receiver.transport.toString()
             if (receiver.organizationName.equals("ignore") && !receiver.name.equals("SFTP_FAIL") &&
-                transport.contains("host=sftp")) {
-                    sftpcheckReceivers += receiver.organizationName + "." + receiver.name
+                transport.contains("host=sftp")
+            ) {
+                sftpcheckReceivers += receiver.organizationName + "." + receiver.name
             }
         }
         return sftpcheckReceivers
