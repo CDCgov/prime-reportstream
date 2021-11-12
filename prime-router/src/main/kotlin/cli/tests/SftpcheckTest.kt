@@ -91,8 +91,8 @@ class SftpcheckTest : CoolTest() {
     fun getAllIgnoreRecivers(): List<String> {
 
         /**
-         * Get all organizations from organizations.yml to the list
-         * TODO: We may need to get organization from the database setting table.
+         * Get all organizations from organizations.yml to the list. However,
+         * We may need to get organization from the database setting table.
          */
         val input = String(File(receiverOrganizationPath).readBytes())
         if (input.isBlank()) return emptyList()
