@@ -12,7 +12,6 @@ import gov.cdc.prime.router.DeepOrganization
 import java.io.File
 import org.apache.http.HttpStatus
 
-
 /**
  * Test SFTP receiver connections.  It checks the ignore.XYZ organization for the connection:
  *  For each sftp receiver listed in the ignore organization, call the sftpcheck API
