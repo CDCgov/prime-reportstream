@@ -4,13 +4,14 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
-import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.cli.OktaCommand
-import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.cli.SettingCommand
 import gov.cdc.prime.router.cli.SettingsUtilities
-import org.apache.http.HttpStatus
+import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.DeepOrganization
 import java.io.File
+import org.apache.http.HttpStatus
+
 
 /**
  * Test SFTP receiver connections.  It checks the ignore.XYZ organization for the connection:
@@ -70,12 +71,12 @@ class SftpcheckTest : CoolTest() {
             if (response.statusCode == HttpStatus.SC_OK) {
                 good(
                     "----> " + sftpcheckMessage + "PASSED with response code: " +
-                    " ${response.statusCode} "
+                        " ${response.statusCode} "
                 )
             } else {
                 testResult = bad(
                     "----> " + sftpcheckMessage + "FAILED with error code: : " +
-                    "${response.statusCode} - ${error?.response?.responseMessage}..."
+                        "${response.statusCode} - ${error?.response?.responseMessage}..."
                 )
             }
         }
