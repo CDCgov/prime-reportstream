@@ -165,8 +165,13 @@ class IfPresentMapper : Mapper {
 }
 
 /**
- * The args for the ifNotPresent mapper are an element name and a value.
- * If the elementName is NOT present, the value is used
+ * This mapper checks if one or more elements are blank or not present on a row,
+ * and if so, will replace an element's value with either some literal string value
+ * or the value from a different field on a row
+ * ex. ifNotPresent($mode:literal, $string:NO ADDRESS, patient_zip_code, patient_state)
+ *      - if patient_zip_code and patient_state are missing or blank, then replace element's value with "NO ADDRESS"
+ *     ifNotPresent($mode:lookup, ordering_provider_city, patient_zip_code)
+ *      - if patient_zip_code is missing or blank, then replace element's value with that of the ordering_provider_city
  */
 class IfNotPresentMapper : Mapper {
     override val name = "ifNotPresent"
@@ -177,25 +182,22 @@ class IfNotPresentMapper : Mapper {
     }
 
     override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
-        var allBlanks = true
-        val mode = args[0].split(":")[1] // i.e. "$literal" or "$lookup"
-        val modeOperator = args[1].split(":")[1] // i.e. "** no address given ***" or field_x
+        val mode = args[0].split(":")[1]
+        val modeOperator = if (args[1].contains(":")) args[1].split(":")[1] else args[1]
         val conditionList = args.subList(2, args.size)
         conditionList.forEach {
             val valuesElement = values.find { v -> v.element.name == it }
             if (valuesElement != null && valuesElement.value.isNotBlank()) {
-                allBlanks = false
+                return null
             }
         }
-        if (allBlanks) {
-            when (mode) {
-                "literal" -> {
-                    return modeOperator
-                }
-                "lookup" -> {
-                    val lookupValue = values.find { v -> v.element.name == modeOperator }
-                    return lookupValue?.toString()
-                }
+        when (mode) {
+            "literal" -> {
+                return modeOperator
+            }
+            "lookup" -> {
+                val lookupValue = values.find { v -> v.element.name == modeOperator }
+                return lookupValue?.value.toString()
             }
         }
 
