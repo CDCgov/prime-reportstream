@@ -558,7 +558,8 @@ class Report : Logging {
                     it.patientAge = getAge(
                         row.getStringOrNull("patient_age"),
                         row.getStringOrNull("patient_dob"),
-                        it.specimenCollectionDateTime)
+                        it.specimenCollectionDateTime
+                    )
                     it.siteOfCare = row.getStringOrNull("site_of_care").trimToNull()
                     it.reportId = this.id
                     it.reportIndex = idx
@@ -611,7 +612,6 @@ class Report : Logging {
             } catch (_: Exception) {
                 null
             }
-
         }
     }
 
