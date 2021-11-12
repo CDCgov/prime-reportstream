@@ -12,23 +12,37 @@ import {
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet";
+import { sign } from "jsonwebtoken";
 
 import Title from "../../components/Title";
 import AuthResource from "../../resources/AuthResource";
 import { getStates } from "../../utils/OrganizationUtils";
 
 import SuccessPage from "./SuccessPage";
-import { Jwt, JwtHeader, JwtPayload, sign } from "jsonwebtoken";
+
+enum Fields {
+    title = "title",
+    operatesInMultipleStates = "operatesInMultipleStates",
+}
+
+enum RequiredFields {
+    firstName = "firstName",
+    lastName = "lastName",
+    email = "email",
+    territory = "territory",
+    organizationName = "organizationName",
+    agreedToTermsOfService = "agreedToTermsOfService",
+}
 
 export interface AgreementBody {
-    title: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-    territory: string;
-    organizationName: string;
-    operatesInMultipleStates: boolean;
-    agreedToTermsOfService: boolean;
+    [Fields.title]: string;
+    [RequiredFields.firstName]: string;
+    [RequiredFields.lastName]: string;
+    [RequiredFields.email]: string;
+    [RequiredFields.territory]: string;
+    [RequiredFields.organizationName]: string;
+    [Fields.operatesInMultipleStates]: boolean;
+    [RequiredFields.agreedToTermsOfService]: boolean;
 }
 
 function TermsOfServiceForm() {
@@ -67,7 +81,7 @@ function TermsOfServiceForm() {
         resetAllErrorFlags();
 
         const body = createBody();
-        const auth = createAuth()
+        const auth = createAuth();
         if (!body || !auth) {
             setSubmitting(false);
             return;
@@ -79,7 +93,7 @@ function TermsOfServiceForm() {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": auth
+                    Authorization: auth,
                 },
                 body: JSON.stringify(body),
             }
@@ -97,46 +111,34 @@ function TermsOfServiceForm() {
     };
 
     const createAuth = (): string | null => {
-        const secret = process.env.REACT_APP_SECRET || null
+        const secret = process.env.REACT_APP_SECRET || null;
         if (secret) {
-            return sign(
-                { iss: "reportstream" },
-                /* TODO: Refactor as ENV variable */
-                secret
-            )
+            return sign({ iss: "reportstream" }, secret);
         } else {
-            setSubmitting(false)
-            return null
+            setSubmitting(false);
+            return null;
         }
-    }
+    };
 
     /* INFO
        handles the front-end not-null validation and builds the body object of type AgreementBody
        then returns it if no required values are absent. Otherwise, it returns null. */
     function createBody() {
         let bodyHasNoErrors: boolean = true;
-        const required: string[] = [
-            "firstName",
-            "lastName",
-            "email",
-            "territory",
-            "organizationName",
-            "agreedToTermsOfService",
-        ];
         const body: AgreementBody = {
-            title: title,
-            firstName: firstName,
-            lastName: lastName,
-            email: email,
-            territory: territory,
-            organizationName: organizationName,
-            operatesInMultipleStates: multipleStates,
-            agreedToTermsOfService: agree,
+            [Fields.title]: title,
+            [RequiredFields.firstName]: firstName,
+            [RequiredFields.lastName]: lastName,
+            [RequiredFields.email]: email,
+            [RequiredFields.territory]: territory,
+            [RequiredFields.organizationName]: organizationName,
+            [Fields.operatesInMultipleStates]: multipleStates,
+            [RequiredFields.agreedToTermsOfService]: agree,
         };
         Object.entries(body).forEach((item) => {
             const [key, value]: [string, string | boolean] = item;
             if (
-                required.includes(key) &&
+                Object.keys(RequiredFields).includes(key) &&
                 (String(value).trim() === "" || value === false)
             ) {
                 bodyHasNoErrors = false;

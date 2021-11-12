@@ -84,7 +84,11 @@ const App = () => {
                         <main id="main-content">
                             <div className="content">
                                 <Switch>
-                                    <Route path="/" exact={true} component={Home} />
+                                    <Route
+                                        path="/"
+                                        exact={true}
+                                        component={Home}
+                                    />
                                     <Route path="/about" component={About} />
                                     <Route
                                         path="/how-it-works"
@@ -126,7 +130,9 @@ const App = () => {
                                     {/* Handles any undefined route */}
                                     <Route
                                         render={() => (
-                                            <ErrorPage code={CODES.NOT_FOUND_404} />
+                                            <ErrorPage
+                                                code={CODES.NOT_FOUND_404}
+                                            />
                                         )}
                                     />
                                 </Switch>

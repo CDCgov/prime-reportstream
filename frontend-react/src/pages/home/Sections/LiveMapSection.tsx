@@ -21,7 +21,12 @@ export default function LiveMapSection({ section }: { section: SectionProp }) {
                 {section.summary}
             </p>
             <div data-testid="map">
-                <a href="/how-it-works/where-were-live"><img src={usamapsvg} alt="Map of states using ReportStream" /></a>
+                <a href="/how-it-works/where-were-live">
+                    <img
+                        src={usamapsvg}
+                        alt="Map of states using ReportStream"
+                    />
+                </a>
             </div>
             <p
                 data-testid="description"
