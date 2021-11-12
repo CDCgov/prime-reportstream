@@ -31,7 +31,7 @@ class SimpleReportTests {
         val expectedDir = File(expectedResultsPath)
         assertThat(expectedDir).exists()
 
-        metadata = Metadata(Metadata.defaultMetadataDirectory)
+        metadata = Metadata.getInstance()
         settings = FileSettings(FileSettings.defaultSettingsDirectory)
         csvSerializer = CsvSerializer(metadata)
     }
