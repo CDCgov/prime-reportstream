@@ -1,0 +1,27 @@
+name: Run Gitleaks on the PRIME ReportStream code-base
+
+on: 
+  push:
+    branches:
+      - acoushawk/add-gitleaks-to-pr
+
+jobs:
+  prgitleaks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          # Fetch the full history
+          fetch-depth: 0
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ github.event.pull_request.commits_url }}
+        run: echo "$GITHUB_CONTEXT"
+      - run: curl -o out.json ${{ github.event.pull_request.commits_url }}
+
+      - name: "Run Gitleaks on commits in this PR"
+        run: .environment/gitleaks/run-gitleaks.sh --depth 1
+
+      - name: "Output non-sensitive log"
+        if: always()
+        run: cat "gitleaks.log"
