@@ -1,6 +1,9 @@
 name: Run Gitleaks on the PRIME ReportStream code-base
 
-on: [push]
+on:
+  push:
+    branches:
+      - acoushawk/add-gitleaks-to-pr
 
 jobs:
   gitleaks:
