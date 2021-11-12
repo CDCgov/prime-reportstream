@@ -596,8 +596,6 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             .execute()
     }
 
-
-
     fun getFacilitiesForDownloadableReport(
         reportId: ReportId,
         txn: DataAccessTransaction? = null

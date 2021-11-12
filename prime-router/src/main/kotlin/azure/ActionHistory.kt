@@ -16,7 +16,6 @@ import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.Tables.ACTION
-import gov.cdc.prime.router.azure.db.Tables.COVID_RESULT_METADATA
 import gov.cdc.prime.router.azure.db.Tables.ITEM_LINEAGE
 import gov.cdc.prime.router.azure.db.Tables.REPORT_FILE
 import gov.cdc.prime.router.azure.db.Tables.REPORT_LINEAGE
@@ -32,7 +31,6 @@ import org.jooq.Configuration
 import org.jooq.DSLContext
 import org.jooq.JSONB
 import org.jooq.impl.DSL
-import org.postgresql.util.PSQLException
 import java.io.ByteArrayOutputStream
 import java.time.Instant
 import java.time.OffsetDateTime
