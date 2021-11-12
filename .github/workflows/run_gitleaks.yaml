@@ -1,9 +1,6 @@
 name: Run Gitleaks on the PRIME ReportStream code-base
 
-on:
-  push:
-    branches:
-      - master
+on: [push]
 
 jobs:
   gitleaks:
