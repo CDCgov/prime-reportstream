@@ -157,9 +157,9 @@ class Report : Logging {
     var bodyURL: String = ""
 
     /**
-     * A nullable indicator of what the nextAction on a report is
+     * A indicator of what the nextAction on a report is, defaults to 'none'
      */
-    var nextAction: TaskAction? = null
+    var nextAction: TaskAction = TaskAction.none
 
     // The use of a TableSaw is an implementation detail hidden by this class
     // The TableSaw table is mutable, while this class is has immutable semantics

@@ -265,7 +265,6 @@ class ActionHistory {
 
         val reportFile = ReportFile()
         reportFile.reportId = report.id
-        reportFile.nextAction = TaskAction.none
         // todo Is there a better way to get the sendingOrg and sendingOrgClient?
         if (report.sources.size != 1) {
             error(
@@ -434,7 +433,7 @@ class ActionHistory {
         reportsReceived.values.forEach { it.actionId = action.actionId }
         reportsOut.values.forEach { it.actionId = action.actionId }
         insertReports(txn)
-        insertCovidMetadata(txn)
+        DatabaseAccess.saveTestData(covidMetaDataRecords, txn)
         generateReportLineages(action.actionId)
         insertReportLineages(txn)
         insertItemLineages(itemLineages, txn)
@@ -881,7 +880,6 @@ class ActionHistory {
      * and trackingId along with the list of the receiver organizations where
      * the report was routed.
      * @param report the instance generated while processing the report
-     * @param actionHistory the instance generated while processing the report
      * @return the report routing for each item
      */
     private fun createItemRouting(
@@ -912,38 +910,6 @@ class ActionHistory {
         } ?: run {
             // unlikely, but in case the report is null...
             routingMap.toSortedMap().values.map { it }
-        }
-    }
-
-    /**
-     * Saves covid result metadata to the database
-     */
-    private fun insertCovidMetadata(
-        txn: Configuration
-    ) {
-        covidMetaDataRecords.forEach {
-            context?.logger?.info("Writing deidentified report data to the DB")
-            // wrap the insert into an exception handler
-            try {
-                DSL.using(txn).newRecord(COVID_RESULT_METADATA, it).store()
-                context?.logger?.info(
-                    "Saved to COVID_RESULT_METADATA: ${it.reportId}"
-                )
-            } catch (pse: PSQLException) {
-                // report this but move on
-                context?.logger?.severe(
-                    "Exception writing COVID test metadata " +
-                        "for ${it.reportId}: ${pse.localizedMessage}.\n" +
-                        pse.stackTraceToString()
-                )
-            } catch (e: Exception) {
-                // catch all as we have seen jooq Exceptions thrown
-                context?.logger?.severe(
-                    "Exception writing COVID test metadata " +
-                        "for ${it.reportId}: ${e.localizedMessage}.\n" +
-                        e.stackTraceToString()
-                )
-            }
         }
     }
 }

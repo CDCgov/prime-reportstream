@@ -194,11 +194,6 @@ class ReportFunction : Logging {
             warnings
         )
 
-        // if we are processing a message asynchronously, the report's next action will be 'process'
-        if (isAsync && report != null) {
-            report.nextAction = TaskAction.process
-        }
-
         var response: HttpResponseMessage
 
         // default response body, will be overwritten if message is successfully processed
@@ -223,6 +218,12 @@ class ReportFunction : Logging {
         // if no errors resulting in a bad request, move forward with processing
         else {
             if (report != null) {
+                // if we are processing a message asynchronously, the report's next action will be 'process'
+                // this is used in the 'recordReceivedReport' function when entering the Task record
+                if (isAsync) {
+                    report.nextAction = TaskAction.process
+                }
+
                 report.bodyURL = workflowEngine.recordReceivedReport(
                     // should make createReport always return a report or error
                     report, validatedRequest.content.toByteArray(), sender,
