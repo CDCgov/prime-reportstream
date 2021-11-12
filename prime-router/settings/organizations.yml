@@ -961,6 +961,7 @@
         receivingApplicationOID: 2.16.840.1.114222.4.3.3.6.2.1
         receivingFacilityName: MN DOH
         receivingFacilityOID: 2.16.840.1.114222.4.1.3661
+        suppressHl7Fields: SPM-2-1
       transport:
         type: SFTP
         host: sftp
