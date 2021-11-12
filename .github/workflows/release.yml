@@ -69,33 +69,8 @@ jobs:
           path: prime-router/build
           retention-days: 7
 
-  build_frontend_release:
-    name: "Release: Build Frontend"
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: frontend
-
-    steps:
-      - name: "Check out changes"
-        uses: actions/checkout@v2
-
-      - name: Run Build Script
-        run: bash ci_build.bash
-
-      - name: Save Static Website
-        uses: actions/upload-artifact@v2
-        with:
-          name: static_website-${{ github.run_id }}
-          path: frontend/dist
-          retention-days: 7
-
-      - name: Validate static website server
-        run: bash ci_validate.bash
-
-
   build_frontend_react_release:
-    name: "Release: Build Frontend React"
+    name: "Release: Build Frontend (React)"
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -111,7 +86,7 @@ jobs:
           node-version: '14'
       - run: yarn install
       - run: yarn run build
-      
+
       - name: Save Static Website
         uses: actions/upload-artifact@v2
         with:
@@ -142,18 +117,6 @@ jobs:
         with:
           name: prime-router-build-${{ github.run_id }}
           path: prime-router/build
-
-      - name: Download Frontend Artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: static_website-${{ github.run_id }}
-          path: frontend/dist
-
-      - name: Download Frontend-React Artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: static_website_react-${{ github.run_id }}
-          path: frontend-react/build          
 
       - name: Build Docker Image
         run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:${{ github.sha }}
@@ -212,17 +175,22 @@ jobs:
         run: |
           az functionapp config access-restriction remove -g ${{ env.RESOURCE_GROUP }} -n ${{ env.PREFIX }}-functionapp --slot candidate --rule-name GitHubActionIPV4 > /dev/null 2>&1
 
-      - name: Upload Static Site React
-        uses: azure/CLI@v1
+      - name: Download Frontend Artifact (React)
+        uses: actions/download-artifact@v2
         with:
-          inlineScript: |
-            az storage blob upload-batch --account-name ${{ env.PREFIX }}public -d '$web' -s frontend-react/build
+          name: static_website_react-${{ github.run_id }}
+          path: frontend-react/build
+
+      - name: Upload Static Site (React)
+        working-directory: .
+        run: |
+          az storage blob upload-batch --account-name ${{ env.PREFIX }}public -s frontend-react/build -d '$web'
 
   deploy_release_test:
     name: "Deploy Release: TEST"
     needs:
       - build_release
-      - build_frontend_release
+      - build_frontend_react_release
     if: github.ref == 'refs/heads/ronheft/test-investigation'
     environment: test
     concurrency: test
@@ -240,12 +208,6 @@ jobs:
         with:
           name: prime-router-build-${{ github.run_id }}
           path: prime-router/build
-
-      - name: Download Frontend Artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: static_website-${{ github.run_id }}
-          path: frontend/dist
 
       - name: Build Docker Image
         run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:${{ github.sha }}
@@ -304,12 +266,17 @@ jobs:
         run: |
           az functionapp config access-restriction remove -g ${{ env.RESOURCE_GROUP }} -n ${{ env.PREFIX }}-functionapp --slot candidate --rule-name GitHubActionIPV4 > /dev/null 2>&1
 
-      - name: Upload Static Site
-        uses: azure/CLI@v1
+      - name: Download Frontend Artifact (React)
+        uses: actions/download-artifact@v2
         with:
-          inlineScript: |
-            az storage blob delete-batch --account-name ${{ env.PREFIX }}public -s '$web'
-            az storage blob upload-batch --account-name ${{ env.PREFIX }}public -d '$web' -s frontend/dist
+          name: static_website_react-${{ github.run_id }}
+          path: frontend-react/build
+
+      - name: Upload Static Site (React)
+        working-directory: .
+        run: |
+          az storage blob delete-batch --account-name ${{ env.PREFIX }}public -s '$web'
+          az storage blob upload-batch --account-name ${{ env.PREFIX }}public -s frontend-react/build -d '$web'
 
   deploy_release_staging:
     name: "Deploy Release: STAGING"
@@ -333,12 +300,6 @@ jobs:
         with:
           name: prime-router-build-${{ github.run_id }}
           path: prime-router/build
-
-      - name: Download Frontend Artifact (React)
-        uses: actions/download-artifact@v2
-        with:
-          name: static_website_react-${{ github.run_id }}
-          path: frontend-react/build
 
       - name: Build Docker Image
         run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:${{ github.sha }}
@@ -397,18 +358,23 @@ jobs:
         run: |
           az functionapp config access-restriction remove -g ${{ env.RESOURCE_GROUP }} -n ${{ env.PREFIX }}-functionapp --slot candidate --rule-name GitHubActionIPV4 > /dev/null 2>&1
 
-      - name: Upload Static Site
-        uses: azure/CLI@v1
+      - name: Download Frontend Artifact (React)
+        uses: actions/download-artifact@v2
         with:
-          inlineScript: |
-            az storage blob delete-batch --account-name ${{ env.PREFIX }}public -s '$web'
-            az storage blob upload-batch --account-name ${{ env.PREFIX }}public -d '$web' -s frontend-react/build
+          name: static_website_react-${{ github.run_id }}
+          path: frontend-react/build
+
+      - name: Upload Static Site (React)
+        working-directory: .
+        run: |
+          az storage blob delete-batch --account-name ${{ env.PREFIX }}public -s '$web'
+          az storage blob upload-batch --account-name ${{ env.PREFIX }}public -s frontend-react/build -d '$web'
 
   deploy_release_prod:
     name: "Deploy Release: PROD"
     needs:
       - build_release
-      - build_frontend_release
+      - build_frontend_react_release
     if: github.ref == 'refs/heads/production'
     environment: prod
     concurrency: prod
@@ -426,12 +392,6 @@ jobs:
         with:
           name: prime-router-build-${{ github.run_id }}
           path: prime-router/build
-
-      - name: Download Frontend Artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: static_website-${{ github.run_id }}
-          path: frontend/dist
 
       - name: Build Docker Image
         run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:${{ github.sha }}
@@ -490,9 +450,14 @@ jobs:
         run: |
           az functionapp config access-restriction remove -g ${{ env.RESOURCE_GROUP }} -n ${{ env.PREFIX }}-functionapp --slot candidate --rule-name GitHubActionIPV4 > /dev/null 2>&1
 
-      - name: Upload Static Site
-        uses: azure/CLI@v1
+      - name: Download Frontend Artifact (React)
+        uses: actions/download-artifact@v2
         with:
-          inlineScript: |
-            az storage blob delete-batch --account-name ${{ env.PREFIX }}public -s '$web'
-            az storage blob upload-batch --account-name ${{ env.PREFIX }}public -d '$web' -s frontend/dist
+          name: static_website_react-${{ github.run_id }}
+          path: frontend-react/build
+
+      - name: Upload Static Site (React)
+        working-directory: .
+        run: |
+          az storage blob delete-batch --account-name ${{ env.PREFIX }}public -s '$web'
+          az storage blob upload-batch --account-name ${{ env.PREFIX }}public -s frontend-react/build -d '$web'

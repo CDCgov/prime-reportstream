@@ -32,7 +32,8 @@ const val maxRetryCount = 4
 const val maxDurationValue = 120L
 
 // index is retryCount, value is in minutes
-val retryDuration = mapOf(1 to 1L, 2 to 5L, 3 to 30L, 4 to 60L, 5 to 120L)
+// We often send every 2 hours.   Idea here is that the 4th retry occurs *before* the next round of sends, in 111 mins.
+val retryDuration = mapOf(1 to 1L, 2 to 5L, 3 to 30L, 4 to 75L, 5 to 120L)
 // Use this for testing retries:
 // val retryDuration = mapOf(1 to 1L, 2 to 1L, 3 to 1L, 4 to 1L, 5 to 1L)
 
@@ -129,7 +130,7 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
             ReportEvent(Event.EventAction.NONE, reportId)
         } else {
             val nextRetryCount = (retryToken?.retryCount ?: 0) + 1
-            if (nextRetryCount >= maxRetryCount) {
+            if (nextRetryCount > maxRetryCount) {
                 // Stop retrying and just put the task into an error state
                 val msg = "All retries failed.  Send Error report for: $reportId to $serviceName"
                 actionHistory.setActionType(TaskAction.send_error)
