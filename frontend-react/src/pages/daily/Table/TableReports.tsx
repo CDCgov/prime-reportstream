@@ -25,7 +25,7 @@ function TableReports({ sortBy }: { sortBy?: string }) {
     };
 
     return (
-        <section className="margin-top-5">
+        <section className="grid-container margin-top-5">
             <div className="grid-col-12">
                 <h2>Test results</h2>
                 {

@@ -81,7 +81,7 @@ const App = () => {
                         <ReportStreamHeader />
                         {/* Changed from main to div to fix weird padding issue at the top 
                         caused by USWDS styling */}
-                        <div id="main-content">
+                        <main id="main-content">
                             <div className="content">
                                 <Switch>
                                     <Route path="/" exact={true} component={Home} />
@@ -131,7 +131,7 @@ const App = () => {
                                     />
                                 </Switch>
                             </div>
-                        </div>
+                        </main>
                     </GlobalContextProvider>
                     <footer className="usa-identifier footer">
                         <ReportStreamFooter />

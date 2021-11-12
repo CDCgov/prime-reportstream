@@ -62,15 +62,17 @@ function TermsOfServiceForm() {
 
     const handleSubmit = async (e: any) => {
         e.preventDefault();
+
         setSubmitting(true);
         resetAllErrorFlags();
+
         const body = createBody();
-        if (body === null) {
+        const auth = createAuth()
+        if (!body || !auth) {
             setSubmitting(false);
             return;
         }
-        const auth = createAuth()
-        console.log(auth)
+
         const response = await fetch(
             `${AuthResource.getBaseUrl()}/api/email-registered`,
             {
@@ -90,15 +92,22 @@ function TermsOfServiceForm() {
             });
             return;
         }
+
         setSuccess(true);
     };
 
-    const createAuth = (): string => {
-        return sign(
-            { iss: "reportstream" },
-            /* TODO: Refactor as ENV variable */
-            "fake_secret_test"
-        )
+    const createAuth = (): string | null => {
+        const secret = process.env.REACT_APP_SECRET || null
+        if (secret) {
+            return sign(
+                { iss: "reportstream" },
+                /* TODO: Refactor as ENV variable */
+                secret
+            )
+        } else {
+            setSubmitting(false)
+            return null
+        }
     }
 
     /* INFO
