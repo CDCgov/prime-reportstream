@@ -4,11 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
+import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.cli.OktaCommand
 import gov.cdc.prime.router.cli.SettingCommand
 import gov.cdc.prime.router.cli.SettingsUtilities
 import gov.cdc.prime.router.common.Environment
-import gov.cdc.prime.router.DeepOrganization
 import java.io.File
 import org.apache.http.HttpStatus
 
@@ -98,7 +98,7 @@ class SftpcheckTest : CoolTest() {
          * Get all organizations from organizations.yml to the list. However,
          * We may need to get organization from the database setting table
          * since the organization.yml is uploaded to the database at
-         * initial configuratio time.
+         * initial configuration time.
          */
         val input = String(File(receiverOrganizationPath).readBytes())
         if (input.isBlank()) return emptyList()
