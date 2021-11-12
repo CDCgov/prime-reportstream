@@ -614,9 +614,6 @@ internal class ElementTests {
 
     @Test
     fun `test tokenized value mapping`() {
-        val elementNameIndex = "\$index"
-        val elementNameCurrentDate = "\$currentDate"
-
         val mockElement = Element("mock")
 
         // sending in "$index" should return the index of the row being processed
