@@ -200,16 +200,6 @@ class MapperTests {
         assertThat(mapper.apply(element, args, emptyList())).isNull()
     }
 
-//    @Test
-//    fun `test ifNotPresent`() {
-//        val element = Element("address")
-//        val mapper = IfNotPresentMapper()
-//        val args = listOf("a", "const")
-//        assertThat(mapper.valueNames(element, args)).isEqualTo(listOf("a"))
-//        assertThat(mapper.apply(element, args, listOf(ElementAndValue(element, "3")))).isEqualTo("const")
-//        assertThat(mapper.apply(element, args, emptyList())).isNull()
-//    }
-
     @Test
     fun `test use`() {
         val elementA = Element("a")

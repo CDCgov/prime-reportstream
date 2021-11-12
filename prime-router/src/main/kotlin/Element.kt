@@ -11,7 +11,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.OffsetDateTime
-import java.time.ZoneId
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 import java.util.Locale
@@ -442,7 +442,7 @@ data class Element(
                 try {
                     // Try to parse using a LocalDate pattern assuming it is in our canonical dateFormatter. Central timezone.
                     val date = LocalDate.parse(formattedValue, dateFormatter)
-                    val zoneOffset = ZoneId.of(USTimeZone.CENTRAL.zoneId).rules.getOffset(Instant.now())
+                    val zoneOffset = ZoneOffset.UTC.rules.getOffset(Instant.now())
                     OffsetDateTime.of(date, LocalTime.of(0, 0), zoneOffset)
                     return null
                 } catch (e: DateTimeParseException) {
@@ -452,7 +452,7 @@ data class Element(
                     val optionalDateTime = variableDateTimePattern
                     val df = DateTimeFormatter.ofPattern(optionalDateTime)
                     val ta = df.parseBest(formattedValue, OffsetDateTime::from, LocalDateTime::from, Instant::from)
-                    LocalDateTime.from(ta).atZone(ZoneId.of(USTimeZone.CENTRAL.zoneId)).toOffsetDateTime()
+                    LocalDateTime.from(ta).atZone(ZoneOffset.UTC).toOffsetDateTime()
                     return null
                 } catch (e: DateTimeParseException) {
                 }
@@ -581,7 +581,7 @@ data class Element(
                 } ?: try {
                     // Try to parse using a LocalDate pattern assuming it is in our canonical dateFormatter. Central timezone.
                     val date = LocalDate.parse(formattedValue, dateFormatter)
-                    val zoneOffset = ZoneId.of(USTimeZone.CENTRAL.zoneId).rules.getOffset(Instant.now())
+                    val zoneOffset = ZoneOffset.UTC.rules.getOffset(Instant.now())
                     OffsetDateTime.of(date, LocalTime.of(0, 0), zoneOffset)
                 } catch (e: DateTimeParseException) {
                     null
@@ -590,7 +590,7 @@ data class Element(
                     // Example: 'yyyy-mm-dd' - the incoming data is a Date, but not our canonical date format.
                     val formatter = DateTimeFormatter.ofPattern(format ?: datetimePattern, Locale.ENGLISH)
                     val date = LocalDate.parse(formattedValue, formatter)
-                    val zoneOffset = ZoneId.of(USTimeZone.CENTRAL.zoneId).rules.getOffset(Instant.now())
+                    val zoneOffset = ZoneOffset.UTC.rules.getOffset(Instant.now())
                     OffsetDateTime.of(date, LocalTime.of(0, 0), zoneOffset)
                 } catch (e: DateTimeParseException) {
                     null
@@ -599,7 +599,7 @@ data class Element(
                     val optionalDateTime = variableDateTimePattern
                     val df = DateTimeFormatter.ofPattern(optionalDateTime)
                     val ta = df.parseBest(formattedValue, OffsetDateTime::from, LocalDateTime::from, Instant::from)
-                    LocalDateTime.from(ta).atZone(ZoneId.of(USTimeZone.CENTRAL.zoneId)).toOffsetDateTime()
+                    LocalDateTime.from(ta).atZone(ZoneOffset.UTC).toOffsetDateTime()
                 } catch (e: DateTimeParseException) {
                     error("Invalid date: '$formattedValue' for element $fieldMapping")
                 }
