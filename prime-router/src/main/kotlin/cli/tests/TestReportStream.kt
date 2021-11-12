@@ -490,8 +490,8 @@ abstract class CoolTest {
      */
     private fun queryForProcessResults(
         reportId: ReportId,
-    ): String {
-        var queryResults = ""
+    ): String? {
+        var queryResults: String? = ""
         db = WorkflowEngine().db
         db.transact { txn ->
             queryResults = processActionResultQuery(txn, reportId)
@@ -793,14 +793,14 @@ abstract class CoolTest {
          * @param reportId Report ID to look for
          * @return String representing the jsonb value of action_result for the process action for this report
          */
-        fun processActionResultQuery(txn: DataAccessTransaction, reportId: ReportId): String {
+        fun processActionResultQuery(txn: DataAccessTransaction, reportId: ReportId): String? {
             val ctx = DSL.using(txn)
             val ret = ctx.selectFrom(ACTION)
                 .where(ACTION.ACTION_PARAMS.like("%$reportId%"))
                 .and(ACTION.ACTION_NAME.eq(TaskAction.process))
                 .fetchOne(ACTION.ACTION_RESPONSE)
 
-            return ret!!.toString()
+            return ret?.toString()
         }
 
         fun itemLineageCountQuery(

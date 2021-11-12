@@ -97,22 +97,25 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
                     ReceiverEvent(action, parts[2], after)
                 }
                 ProcessEvent.eventType -> {
-                    val after = parts.getOrNull(6)?.let { OffsetDateTime.parse(it) }
+                    // since process event type has multiple optional parameters, they will be either populated
+                    //  or a blank string
+                    val after = if (parts[6].isNotEmpty()) OffsetDateTime.parse(parts[6]) else null
                     val reportId = UUID.fromString(parts[2])
                     val options = Options.valueOf(parts[3])
 
                     // convert incoming serialized routeTo string into List<String>
-                    val routeTo = parts.getOrNull(5)?.let {
-                        it.split(ROUTE_TO_SEPARATOR)
-                    } ?: emptyList()
+                    val routeTo = if (parts[5].isNotEmpty())
+                        parts[5].split(ROUTE_TO_SEPARATOR)
+                    else
+                        emptyList()
 
                     // convert incoming defaults serialized string to Map<String,String>
-                    val defaults = parts.getOrNull(4)?.let {
-                        it.split(',').associate { pair ->
+                    val defaults = if (parts[4].isNotEmpty())
+                        parts[4].split(',').associate { pair ->
                             val defaultParts = pair.split(DEFAULT_SEPARATOR)
                             Pair(defaultParts[0], defaultParts[1])
                         }
-                    } ?: emptyMap()
+                    else emptyMap()
 
                     ProcessEvent(action, reportId, options, defaults, routeTo, after)
                 }
@@ -138,10 +141,10 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
                     if (parts.size > 4) error("Internal Error: Receiver events can have no more than 4 parts.")
                 }
                 // Process event requires 'event type', 'action', 'report id', and 'options'.
-                //  'route to', 'default' and 'at are optional.
+                //  'route to', 'default' and 'at are optional but must be present (even if a blank string).
                 ProcessEvent.eventType -> {
-                    if (parts.size < 4 || parts.size > 7) error(
-                        "Internal Error: Process event requires between 4 and 7 parts."
+                    if (parts.size != 7) error(
+                        "Internal Error: Process event requires 7 parts."
                     )
                 }
                 else -> error("Internal Error: invalid event type: $event")
