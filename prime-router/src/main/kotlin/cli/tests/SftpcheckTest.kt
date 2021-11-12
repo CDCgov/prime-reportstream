@@ -9,8 +9,8 @@ import gov.cdc.prime.router.cli.OktaCommand
 import gov.cdc.prime.router.cli.SettingCommand
 import gov.cdc.prime.router.cli.SettingsUtilities
 import gov.cdc.prime.router.common.Environment
-import java.io.File
 import org.apache.http.HttpStatus
+import java.io.File
 
 /**
  * Test SFTP receiver connections.  It checks the ignore.XYZ organization for the connection:
