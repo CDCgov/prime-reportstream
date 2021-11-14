@@ -30,12 +30,9 @@ class SftpcheckTest : CoolTest() {
     override val description = "Test SFTP receiver connections"
     override val status = TestStatus.DRAFT
 
-    enum class SettingType { ORG, SENDER, RECEIVER }
-
     /**
      * Define private local variables for use in the test.
      */
-    private val dummyAccessToken = "dummy"
     private val sftpcheckUri = "/api/check?sftpcheck="
     private val ignoreReceiverNamesURI = "/api/settings/organizations/ignore/receivers"
     private val sftpcheckMessage = "Test SFTP receiver connections: "
@@ -49,11 +46,7 @@ class SftpcheckTest : CoolTest() {
          */
         val accessToken = getAccessToken(environment) // Get accessToken per environment.
         val ignoreReceiverNamePath = environment.formUrl(ignoreReceiverNamesURI).toString()
-        val ignoreReceiversNameList = listReceiverNames(
-            ignoreReceiverNamePath,
-            SettingType.RECEIVER,
-            accessToken
-        )
+        val ignoreReceiversNameList = listReceiverNames(ignoreReceiverNamePath, accessToken)
 
         /**
          * If the Ignore receiver list is empty, prompt error message and skip the test.
@@ -107,7 +100,6 @@ class SftpcheckTest : CoolTest() {
      */
     fun listReceiverNames(
         path: String,
-        settingType: SettingType,
         accessToken: String
     ): List<String> {
         val (_, _, result) = Fuel
@@ -119,24 +111,17 @@ class SftpcheckTest : CoolTest() {
         return when (result) {
             is Result.Failure -> emptyList()
             is Result.Success -> {
-                val resultObjs = result.value.array()
-                val receiverNames = if (settingType == SettingType.ORG) {
-                    (0 until resultObjs.length())
-                        .map { resultObjs.getJSONObject(it) }
-                        .map { it.getString("name") }
-                } else {
-                    (0 until resultObjs.length())
-                        .map { resultObjs.getJSONObject(it) }
-                        .filter {
-                            (
-                                !it.isNull("transport") &&
-                                    !it.getJSONObject("transport").isNull("host") &&
-                                    it.getJSONObject("transport").getString("host").equals("sftp")
-                                )
-                        }
-                        .map { "${it.getString("organizationName")}.${it.getString("name")}" }
-                }
-                receiverNames.sorted()
+                val receiverJsonArray = result.value.array()
+                (0 until receiverJsonArray.length())
+                    .map { receiverJsonArray.getJSONObject(it) }
+                    .filter {
+                        (
+                            !it.isNull("transport") &&
+                                !it.getJSONObject("transport").isNull("host") &&
+                                it.getJSONObject("transport").getString("host").equals("sftp")
+                            )
+                    }
+                    .map { "${it.getString("organizationName")}.${it.getString("name")}" }
             }
         }
     }
@@ -163,7 +148,7 @@ class SftpcheckTest : CoolTest() {
      * Get accessToken from Okta if available.
      */
     fun getAccessToken(environment: Environment): String {
-        if (environment.oktaApp == null) return dummyAccessToken
+        if (environment.oktaApp == null) return "dummy"
         return OktaCommand.fetchAccessToken(environment.oktaApp)
             ?: SettingCommand.abort("Invalid access token. Run ./prime login to fetch/refresh your access token.")
     }
