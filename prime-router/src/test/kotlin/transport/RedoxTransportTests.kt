@@ -50,6 +50,7 @@ class RedoxTransportTests {
         null,
         null,
         null,
+        null,
         null
     )
     private val reportFile = ReportFile(
