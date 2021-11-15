@@ -137,7 +137,8 @@ function take_directory_ownership() {
 __SHOWN_VAULT_INFO=0
 function wait_for_vault_creds() {
   # Make sure the vault is brought up and that the credentials are present
-  docker-compose up --detach vault 1>/dev/null 2>/dev/null
+  docker-compose up --detach vault
+  #1>/dev/null 2>/dev/null
   if [[ ${?} != 0 ]]; then
     error "The vault could not be brought up"
   fi
