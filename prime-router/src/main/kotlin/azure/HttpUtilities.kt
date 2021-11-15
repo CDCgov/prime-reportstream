@@ -4,10 +4,12 @@ import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
 import com.microsoft.azure.functions.HttpStatus
+import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.PAYLOAD_MAX_BYTES
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.common.Environment
+import org.apache.http.client.utils.URIBuilder
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.File
 import java.io.IOException
@@ -209,11 +211,12 @@ class HttpUtilities {
             environment: Environment,
             file: File,
             sendingOrgClient: Sender,
+            asyncProcessMode: Boolean = false,
             key: String? = null,
-            option: ReportFunction.Options ? = null
+            option: Options? = null,
         ): Pair<Int, String> {
             if (!file.exists()) error("Unable to find file ${file.absolutePath}")
-            return postReportBytes(environment, file.readBytes(), sendingOrgClient, key, option)
+            return postReportBytes(environment, file.readBytes(), sendingOrgClient, key, option, asyncProcessMode)
         }
 
         /**
@@ -240,7 +243,8 @@ class HttpUtilities {
             bytes: ByteArray,
             sendingOrgClient: Sender,
             key: String?,
-            option: ReportFunction.Options? = null
+            option: Options? = null,
+            asyncProcessMode: Boolean = false,
         ): Pair<Int, String> {
             val headers = mutableListOf<Pair<String, String>>()
             when (sendingOrgClient.format) {
@@ -253,8 +257,16 @@ class HttpUtilities {
             if (key == null && environment == Environment.TEST) error("key is required for Test environment")
             if (key != null)
                 headers.add("x-functions-key" to key)
-            val url = environment.url.toString() + oldApi + if (option != null) "?option=$option" else ""
-            return postHttp(url, bytes, headers)
+
+            val urlBuilder = URIBuilder(environment.url.toString() + oldApi)
+            if (option != null)
+                urlBuilder.setParameter("option", option.toString())
+
+            // if asyncProcessMode is present and true, add the 'processing=async' query param
+            if (asyncProcessMode)
+                urlBuilder.setParameter("processing", "async")
+
+            return postHttp(urlBuilder.toString(), bytes, headers)
         }
 
         fun postReportBytesToWatersAPI(
@@ -262,7 +274,7 @@ class HttpUtilities {
             bytes: ByteArray,
             sendingOrgClient: Sender,
             token: String? = null,
-            option: ReportFunction.Options? = null
+            option: Options? = null
         ): Pair<Int, String> {
             val headers = mutableListOf<Pair<String, String>>()
             when (sendingOrgClient.format) {
