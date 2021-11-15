@@ -59,7 +59,7 @@ export const HowItWorks = () => {
     return (
         <section className="grid-container margin-bottom-5">
             <div className="grid-row grid-gap">
-                <div className="tablet:grid-col-4">
+                <div className="tablet:grid-col-4 margin-bottom-6">
                     <SideNav items={itemsMenu} />
                 </div>
                 <div className="tablet:grid-col-8 usa-prose rs-documentation">

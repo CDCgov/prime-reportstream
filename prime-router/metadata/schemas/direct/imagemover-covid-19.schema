@@ -13,4 +13,9 @@ elements:
   - name: processing_mode_code
     default: P
 
+  - name: filler_order_id
+    csvFields: [ { name: specimenId } ]
+
+  - name: placer_order_id
+    csvFields: [ { name: specimenId } ]
 

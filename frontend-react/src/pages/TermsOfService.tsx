@@ -3,13 +3,14 @@ import { Alert } from "@trussworks/react-uswds";
 export const TermsOfService = () => {
     return (
         <>
-            <section className="grid-container margin-top-5" id="anchor-top">
+            <section className="usa-site-alert usa-site-alert--info margin-top-neg-4 desktop:margin-top-neg-8 margin-bottom-3 tablet:margin-bottom-6" id="anchor-top">
                 <Alert
                     type="info"
                     heading="This is a U.S. government service"
                     className="margin-bottom-5"
                 >
-                    <p className="">
+                    <div className="measure-">
+                    <p>
                         You are accessing a US Government information system,
                         which includes (1) this computer, (2) this computer
                         network, (3) all computers connected to this network,
@@ -44,8 +45,12 @@ export const TermsOfService = () => {
                             any lawful Government purpose.
                         </li>
                     </ul>
+                    </div>
                 </Alert>
-
+            </section>
+            <div className="grid-container ">
+                <div className="grid-row usa-prose measure-5">
+            <section className="">
                 <h1 className="margin-top-0">
                     Terms of service – PRIME ReportStream
                 </h1>
@@ -466,6 +471,7 @@ export const TermsOfService = () => {
                     </a>
                 </p>
             </section>
+            </div></div>
         </>
     );
 };
