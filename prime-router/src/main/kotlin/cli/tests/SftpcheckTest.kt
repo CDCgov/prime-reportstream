@@ -13,17 +13,18 @@ import gov.cdc.prime.router.cli.SettingCommand
 import gov.cdc.prime.router.common.Environment
 import org.apache.http.HttpStatus
 
+private const val jsonMimeType = "application/json"
+
 /**
  * Test SFTP receiver connections.  It checks the ignore.XYZ organization for the connection:
- *  For each sftp receiver listed in the ignore organization, call the sftpcheck API
- *  endpoint and verify you get back an OK response that we are able to connect to
- *  the SFTP server.
- *  This test needs to be able to run in staging and local, but not production.
- *  When the smoke tests are running in sequential mode then have this new test
- *  run after 'ping' and before 'end2end'.
+ * For each sftp receiver listed in the ignore organization, call the sftpcheck API
+ * endpoint and verify you get back an OK response that we are able to connect to
+ * the SFTP server.
+ *
+ * This test needs to be able to run in staging and local, but not production.
+ * When the smoke tests are running in sequential mode then have this new test
+ * run after 'ping' and before 'end2end'.
  */
-
-private const val jsonMimeType = "application/json"
 
 class SftpcheckTest : CoolTest() {
     override val name = "sftpcheck"
@@ -35,7 +36,7 @@ class SftpcheckTest : CoolTest() {
      */
     private val sftpcheckUri = "/api/check?sftpcheck="
     private val ignoreReceiverNamesURI = "/api/settings/organizations/ignore/receivers"
-    private val sftpcheckMessage = "Test SFTP receiver connections: "
+    private val sftpcheckMessage = "----> Test SFTP receiver connections: "
     var sftpcheckTestResult = true
 
     override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
@@ -52,7 +53,7 @@ class SftpcheckTest : CoolTest() {
          * If the Ignore receiver list is empty, prompt error message and skip the test.
          */
         if (ignoreReceiversNameList.isEmpty()) {
-            return bad("----> " + sftpcheckMessage + "FAILED: Ignore receiver list is empty.")
+            return bad(sftpcheckMessage + "FAILED: Ignore receiver list is empty.")
         }
 
         /**
@@ -73,12 +74,12 @@ class SftpcheckTest : CoolTest() {
             val (_, error) = result
             if (response.statusCode == HttpStatus.SC_OK) {
                 good(
-                    "----> " + sftpcheckMessage + "PASSED with response code: " +
+                    sftpcheckMessage + "PASSED with response code: " +
                         " ${response.statusCode} "
                 )
             } else {
                 sftpcheckTestResult = bad(
-                    "----> " + sftpcheckMessage + "FAILED with error code: : " +
+                    sftpcheckMessage + "FAILED with error code: : " +
                         "${response.statusCode} - ${error?.response?.responseMessage}..."
                 )
             }
@@ -146,6 +147,9 @@ class SftpcheckTest : CoolTest() {
 
     /**
      * Get accessToken from Okta if available.
+     * @param: environment is the environment of test is running.
+     * @return: it returns accessTokenFile.token if oktaApp environment
+     *     is set otherwise, it returns "dummy" string.
      */
     fun getAccessToken(environment: Environment): String {
         if (environment.oktaApp == null) return "dummy"
