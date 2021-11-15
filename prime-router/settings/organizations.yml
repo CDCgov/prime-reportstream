@@ -184,6 +184,39 @@
       schemaName: direct/careevolution-covid-19
       format: HL7
 
+- name: hca
+  description: HCA
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: hca
+      topic: covid-19
+      customerStatus: active
+      schemaName: direct/hca-covid-19
+      format: HL7
+
+- name: abbott
+  description: Abbott
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: abbott
+      topic: covid-19
+      customerStatus: active
+      schemaName: direct/abbott-covid-19
+      format: CSV
+
+- name: lifepoint
+  description: LifePoint (Ellume data)
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: lifepoint
+      topic: covid-19
+      customerStatus: active
+      schemaName: hl7/lifepoint-covid-19
+      format: HL7
+
 - name: primary
   description: Primary Diagnostics, Inc. (primary.health)
   jurisdiction: FEDERAL
@@ -510,6 +543,18 @@
         receivingFacilityName: VDH
         receivingFacilityOID: 2.16.840.1.114222.4.1.185
 
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+        timeZone: CENTRAL
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+
 - name: nd-doh
   description: North Dakota Department of Health
   jurisdiction: STATE
@@ -825,7 +870,7 @@
         receivingFacilityOID: 2.16.840.1.114222.4.1.185
         truncateHDNamespaceIds: true
         usePid14ForPatientEmail: true
-        suppressHl7Fields: OBX-18
+        suppressHl7Fields: OBX-18-1, OBX-18-2, OBX-18-3, OBX-18-4
       transport:
         type: SFTP
         host: sftp
@@ -916,6 +961,7 @@
         receivingApplicationOID: 2.16.840.1.114222.4.3.3.6.2.1
         receivingFacilityName: MN DOH
         receivingFacilityOID: 2.16.840.1.114222.4.1.3661
+        suppressHl7Fields: SPM-2-1
       transport:
         type: SFTP
         host: sftp
@@ -1501,7 +1547,7 @@
       organizationName: "hhsprotect"
       topic: "covid-19"
       customerStatus: active
-      jurisdictionalFilter: [ "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*,Strac,InBios,reddyfmc)" ]
+      jurisdictionalFilter: [ "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*,Strac,InBios,reddyfmc,abbott,lifepoint,hca)" ]
       qualityFilter: [ "allowAll()" ]
       translation:
         type: "CUSTOM"
@@ -2759,3 +2805,23 @@
         port: 22
         filePath: ./upload
         credentialName: DEFAULT-SFTP
+- name: fl-hillsborough-phd
+  description: Florida Department of Health – Hillsborough County
+  jurisdiction: COUNTY
+  stateCode: FL
+  countyName: Hillsborough
+  receivers:
+    - name: elr-download
+      organizationName: fl-hillsborough-phd
+      topic: covid-19
+      customerStatus: testing
+      jurisdictionalFilter: [ "matches(ordering_facility_state, FL)", "matches(ordering_facility_county, Hillsborough)" ]
+      translation:
+        type: CUSTOM
+        schemaName: fl/fl-hillsborough-covid-19-csv
+        format: CSV
+      timing:
+        operation: MERGE
+        numberPerDay: 1
+        initialTime: 09:15 # A little after the 12am EASTERN reports from simple report
+        timeZone: EASTERN

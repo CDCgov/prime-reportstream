@@ -15,6 +15,7 @@ import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
@@ -176,7 +177,7 @@ class ActionHistoryTests {
 
     @Test
     fun `test trackDownloadedReport`() {
-        val metadata = Metadata("./metadata")
+        val metadata = Metadata.getInstance()
         val workflowEngine = mockkClass(WorkflowEngine::class)
         every { workflowEngine.metadata }.returns(metadata)
         val uuid = UUID.randomUUID()
@@ -291,7 +292,7 @@ class ActionHistoryTests {
         factory.createGenerator(outStream).use {
             it.writeStartObject()
             // Finally, we're ready to run the test:
-            actionHistory.prettyPrintDestinationsJson(it, settings, ReportFunction.Options.None)
+            actionHistory.prettyPrintDestinationsJson(it, settings, Options.None)
             it.writeEndObject()
         }
 
@@ -327,7 +328,7 @@ class ActionHistoryTests {
         outStream = ByteArrayOutputStream()
         factory.createGenerator(outStream).use {
             it.writeStartObject()
-            actionHistory.prettyPrintDestinationsJson(it, settings, ReportFunction.Options.None)
+            actionHistory.prettyPrintDestinationsJson(it, settings, Options.None)
             it.writeEndObject()
         }
         val json2 = outStream.toString()
@@ -343,7 +344,7 @@ class ActionHistoryTests {
         outStream = ByteArrayOutputStream()
         factory.createGenerator(outStream).use {
             it.writeStartObject()
-            actionHistory.prettyPrintDestinationsJson(it, settings, ReportFunction.Options.SkipSend)
+            actionHistory.prettyPrintDestinationsJson(it, settings, Options.SkipSend)
             it.writeEndObject()
         }
         val json3 = outStream.toString()

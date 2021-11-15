@@ -536,6 +536,8 @@
   values:
       -   display: Hospital
           code: 22232009
+      -   display: Hospital ship
+          code: 2081004
       -   display: Long Term Care Hospital
           code: 32074000
       -   display: Secure Hospital
@@ -562,5 +564,11 @@
           code: 310207003
       -   display: Penal Institution
           code: 57656006
+      -   display: Religious institutional residence
+          code: 285113009
+      -   display: Work (environment)
+          code: 285141008
       -   display: Homeless
           code: 32911000
+      -   display: Unknown
+          code: 261665006
