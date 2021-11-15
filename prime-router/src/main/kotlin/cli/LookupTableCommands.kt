@@ -43,6 +43,7 @@ import org.jooq.JSONB
 import java.io.File
 import java.io.IOException
 import java.nio.file.NoSuchFileException
+import java.time.Instant
 
 /**
  * Utilities to submit and get data from the Lookup Tables API.
@@ -826,7 +827,7 @@ class LookupTableLoadAllCommand : GenericLookupTableCommand(
     private val tableCreator = LookupTableCreateCommand()
 
     override fun run() {
-        if (environment == Environment.PROD) error("This command is not allowed for the production environment.")
+        if (environment != Environment.LOCAL) error("This command is only allowed in the local environment.")
 
         // First wait for the endpoint to come online
         TermUi.echo("Waiting for endpoint at ${environment.url} to be available...")
@@ -835,6 +836,11 @@ class LookupTableLoadAllCommand : GenericLookupTableCommand(
         } catch (e: IOException) {
             error("Unable to connect to lookup table endpoint for environment in ${environment.url}")
         }
+
+        // Get the list of current tables to only update or create new ones.
+        val tableUpdateTimes = LookupTableEndpointUtilities(environment).fetchList().map {
+            it.tableName to it.createdAt
+        }.toMap()
 
         // Loop through all the files
         val files = try {
@@ -845,12 +851,25 @@ class LookupTableLoadAllCommand : GenericLookupTableCommand(
         TermUi.echo("Loading ${files.size} tables from ${dir.absolutePath}...")
         files.forEach {
             val tableName = it.nameWithoutExtension
-            TermUi.echo("Creating table $tableName...")
-            val args = mutableListOf(
-                "-e", environment.toString().lowercase(), "-n", tableName,
-                "-i", it.absolutePath, "-s", "-a"
-            )
-            tableCreator.main(args)
+            var needToLoad = true
+            // If we have a table in the database then only update it if the last modified time of the file is 
+            // greater than the created time in the database.
+            if (tableUpdateTimes.contains(tableName) && tableUpdateTimes[tableName] != null) {
+                val fileUpdatedTime = Instant.ofEpochMilli(it.lastModified())
+                if (!fileUpdatedTime.isAfter(tableUpdateTimes[tableName]!!.toInstant())) {
+                    needToLoad = false
+                    TermUi.echo("Skipping $tableName since it has not been updated.")
+                }
+            }
+
+            if (needToLoad) {
+                TermUi.echo("Creating table $tableName...")
+                val args = mutableListOf(
+                    "-e", environment.toString().lowercase(), "-n", tableName,
+                    "-i", it.absolutePath, "-s", "-a"
+                )
+                tableCreator.main(args)
+            }
         }
         TermUi.echo("Done.")
     }
