@@ -38,7 +38,7 @@ class Hl7Ingest : CoolTest() {
 
         // Now send it to ReportStream.
         val (responseCode, json) =
-            HttpUtilities.postReportFile(environment, file, sender, options.key)
+            HttpUtilities.postReportFile(environment, file, sender, options.asyncProcessMode, options.key)
         if (responseCode != HttpURLConnection.HTTP_CREATED) {
             bad("***$name Test FAILED***:  response code $responseCode")
             passed = false
@@ -48,7 +48,7 @@ class Hl7Ingest : CoolTest() {
 
         // Check the response from the endpoint
         echo(json)
-        passed = passed and examineResponse(json)
+        passed = passed and examinePostResponse(json)
 
         // Now check the lineage data
         val reportId = getReportIdFromResponse(json)
