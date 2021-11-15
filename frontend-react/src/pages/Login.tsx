@@ -8,13 +8,9 @@ import OktaSignInWidget from "../components/OktaSignInWidget";
 import { groupToOrg } from "../webreceiver-utils";
 import { useGlobalContext } from "../components/GlobalContextProvider";
 import { PERMISSIONS } from "../resources/PermissionsResource";
+import { oktaSignInConfig } from "../oktaConfig";
 
-
-interface LoginProps {
-    config: any; // OktaWidget doesn't have a typescript declr yet.
-}
-
-export const Login = (props: LoginProps) => {
+export const Login = () => {
     const { oktaAuth, authState } = useOktaAuth();
     const { updateOrganization } = useGlobalContext();
 
@@ -52,7 +48,7 @@ export const Login = (props: LoginProps) => {
         <>
             <MonitoringAlert />
             <OktaSignInWidget
-                config={props.config}
+                config={oktaSignInConfig}
                 onSuccess={onSuccess}
                 onError={onError}
             />

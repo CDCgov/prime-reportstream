@@ -15,7 +15,7 @@ import { Details } from "./pages/details/Details";
 import { Login } from "./pages/Login";
 import { TermsOfService } from "./pages/TermsOfService";
 import { ReportStreamHeader } from "./components/header/ReportStreamHeader";
-import { oktaSignInConfig, oktaAuthConfig } from "./oktaConfig";
+import { oktaAuthConfig } from "./oktaConfig";
 import { About } from "./pages/About";
 import { AuthorizedRoute } from "./components/AuthorizedRoute";
 import { PERMISSIONS } from "./resources/PermissionsResource";
@@ -40,7 +40,7 @@ const App = () => {
         // check if the user would have any data to receive via their organizations from the okta claim
         // direct them to the /upload page if they do not have an organization that receives data
         const authState = OKTA_AUTH.authStateManager._authState;
-        if (
+        if ( authState &&
             !reportReceiver(authState) &&
             permissionCheck(PERMISSIONS.SENDER, authState)
         ) {
@@ -95,7 +95,7 @@ const App = () => {
                                     <Route
                                         path="/login"
                                         render={() => (
-                                            <Login config={oktaSignInConfig} />
+                                            <Login />
                                         )}
                                     />
                                     <Route
