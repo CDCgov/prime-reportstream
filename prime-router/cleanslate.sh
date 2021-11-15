@@ -143,7 +143,12 @@ function wait_for_vault_creds() {
   fi
 
   # Wait for the vault to fully spin up and populate the vault file
+  waitCounter=60
   while [[ $(wc -c "${VAULT_ENV_LOCAL_FILE?}" | cut -d " " -f 1) == 0 ]]; do
+    if [[ $waitCounter == 0 ]]; then
+      error "Timeout waiting for ${VAULT_ENV_LOCAL_FILE?} to be populated."
+    fi
+    let waitCounter=waitCounter-1
     echo "Waiting for ${VAULT_ENV_LOCAL_FILE?} to be populated..."
     sleep 2
   done
