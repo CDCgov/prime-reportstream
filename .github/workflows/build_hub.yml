@@ -105,7 +105,7 @@ jobs:
         if: failure()
         uses: jwalton/gh-docker-logs@v2.0.2
         with:
-          images: 'prime-router_settings,prime-router_prime_dev'
+          images: 'prime-router_settings,prime-router_prime_dev,prime-router_vault'
 
 
   docker_build_test:
