@@ -78,6 +78,7 @@ jobs:
           check_name: "Integration Test Results"
 
       - name: Spin up vault
+        timeout-minutes: 1
         run: |
           mkdir .vault/env
           touch .vault/env/.env.local
