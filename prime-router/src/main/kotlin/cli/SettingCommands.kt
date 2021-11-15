@@ -32,6 +32,7 @@ import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.OrganizationAPI
 import gov.cdc.prime.router.azure.ReceiverAPI
 import gov.cdc.prime.router.azure.SenderAPI
+import gov.cdc.prime.router.common.Environment
 import org.apache.http.HttpStatus
 import java.io.InputStream
 
@@ -46,7 +47,7 @@ abstract class SettingCommand(
     name: String,
     help: String,
 ) : CliktCommand(name = name, help = help) {
-    private val env by option(
+    internal val env by option(
         "-e", "--env",
         metavar = "<name>",
         envvar = "PRIME_ENVIRONMENT",
@@ -64,13 +65,6 @@ abstract class SettingCommand(
 
     open val inStream: InputStream? = null
 
-    data class Environment(
-        val name: String,
-        val baseUrl: String,
-        val useHttp: Boolean = false,
-        val oktaApp: OktaCommand.OktaApp? = null
-    )
-
     enum class Operation { LIST, GET, PUT, DELETE }
     enum class SettingType { ORG, SENDER, RECEIVER }
 
@@ -83,10 +77,6 @@ abstract class SettingCommand(
         jsonMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
         yamlMapper.registerModule(JavaTimeModule())
         yamlMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-    }
-
-    fun getEnvironment(): Environment {
-        return getEnvironment(env)
     }
 
     fun getAccessToken(environment: Environment): String {
@@ -266,26 +256,8 @@ abstract class SettingCommand(
     }
 
     companion object {
-        val environments = listOf(
-            Environment(
-                "local",
-                (
-                    System.getenv("PRIME_RS_API_ENDPOINT_HOST")
-                        ?: "localhost"
-                    ) + ":7071",
-                useHttp = true,
-            ),
-            Environment("test", "test.prime.cdc.gov", oktaApp = OktaCommand.OktaApp.DH_TEST),
-            Environment("staging", "staging.prime.cdc.gov", oktaApp = OktaCommand.OktaApp.DH_TEST),
-            Environment("prod", "prime.cdc.gov", oktaApp = OktaCommand.OktaApp.DH_PROD),
-        )
-
         fun abort(message: String): Nothing {
             throw PrintMessage(message, error = true)
-        }
-
-        fun getEnvironment(env: String): Environment {
-            return environments.find { it.name == env } ?: abort("bad environment")
         }
 
         fun formPath(
@@ -294,16 +266,7 @@ abstract class SettingCommand(
             settingType: SettingType,
             settingName: String
         ): String {
-            val protocol = if (environment.useHttp) "http" else "https"
-            return "$protocol://${environment.baseUrl}$apiPath${settingPath(operation, settingType, settingName)}"
-        }
-
-        fun formPath(
-            environment: Environment,
-            endPoint: String,
-        ): String {
-            val protocol = if (environment.useHttp) "http" else "https"
-            return "$protocol://${environment.baseUrl}/api/$endPoint"
+            return environment.formUrl("$apiPath${settingPath(operation, settingType, settingName)}").toString()
         }
 
         fun settingPath(operation: Operation, settingType: SettingType, settingName: String): String {
@@ -348,7 +311,7 @@ abstract class SingleSettingCommandNoSettingName(
 
     override fun run() {
         // Authenticate
-        val environment = getEnvironment()
+        val environment = Environment.get(env)
         val accessToken = getAccessToken(environment)
 
         // Operations
@@ -557,7 +520,7 @@ class PutMultipleSettings : SettingCommand(
         .inputStream()
 
     override fun run() {
-        val environment = getEnvironment()
+        val environment = Environment.get(env)
         val accessToken = getAccessToken(environment)
         val results = putAll(environment, accessToken)
         val output = "${results.joinToString("\n")}\n"
@@ -603,7 +566,7 @@ class GetMultipleSettings : SettingCommand(
     )
 
     override fun run() {
-        val environment = getEnvironment()
+        val environment = Environment.get(env)
         val accessToken = getAccessToken(environment)
         val output = getAll(environment, accessToken)
         writeOutput(output)

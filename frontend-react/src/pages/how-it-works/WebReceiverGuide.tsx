@@ -227,18 +227,18 @@ export const WebReceiverGuide = () => {
                 <h4>Support</h4>
                 <p>
                     Do you have questions, problems, or bugs to report? Email
-                    the team at
+                    the team at&nbsp;
                     <a
                         href={
                             "mailto:" +
                             DOMPurify.sanitize(site.orgs.RS.email) +
                             "?subject=Getting started with ReportStream"
                         }
-                        className="margin-left-1 margin-right-1 usa-link"
+                        className="usa-link"
                     >
                         reportstream@cdc.gov
                     </a>
-                    for help.
+                    &nbsp;for help.
                 </p>
 
                 <p className="margin-top-8">
