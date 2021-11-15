@@ -16,7 +16,7 @@ import { Details } from "./pages/details/Details";
 import { Login } from "./pages/Login";
 import { TermsOfService } from "./pages/TermsOfService";
 import { ReportStreamHeader } from "./components/header/ReportStreamHeader";
-import { oktaSignInConfig, oktaAuthConfig } from "./oktaConfig";
+import { oktaAuthConfig } from "./oktaConfig";
 import { About } from "./pages/About";
 import { AuthorizedRoute } from "./components/AuthorizedRoute";
 import { PERMISSIONS } from "./resources/PermissionsResource";
@@ -96,7 +96,7 @@ const App = () => {
                                     <Route
                                         path="/login"
                                         render={() => (
-                                            <Login config={oktaSignInConfig} />
+                                            <Login />
                                         )}
                                     />
                                     <Route
