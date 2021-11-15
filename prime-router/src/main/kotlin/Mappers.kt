@@ -358,7 +358,8 @@ class LIVDLookupMapper : Mapper {
             if (value.isBlank()) return null
 
             val result = lookup(element, value, LIVD_MODEL, filters)
-            // If we did not get a result then try the value variation.
+            // There is an issue with senders setting equipment model names with or without * across all their reports
+            // which result in incorrect data sent to receivers.  Check for a model name with or without * just in case.
             return if (result.isNullOrBlank())
                 lookup(element, getValueVariation(value, "*"), LIVD_MODEL, filters)
             else result
