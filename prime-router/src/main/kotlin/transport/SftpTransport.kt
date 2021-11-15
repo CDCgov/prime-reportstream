@@ -1,7 +1,6 @@
 package gov.cdc.prime.router.transport
 
 import com.google.common.base.Preconditions
-import com.hierynomus.sshj.userauth.keyprovider.OpenSSHKeyV1KeyFile
 import com.microsoft.azure.functions.ExecutionContext
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
@@ -22,6 +21,7 @@ import net.schmizz.sshj.SSHClient
 import net.schmizz.sshj.sftp.RemoteResourceFilter
 import net.schmizz.sshj.sftp.StatefulSFTPClient
 import net.schmizz.sshj.transport.verification.PromiscuousVerifier
+import net.schmizz.sshj.userauth.keyprovider.OpenSSHKeyFile
 import net.schmizz.sshj.userauth.keyprovider.PuTTYKeyFile
 import net.schmizz.sshj.userauth.method.AuthMethod
 import net.schmizz.sshj.userauth.method.AuthPassword
@@ -93,11 +93,11 @@ class SftpTransport : ITransport, Logging {
             val sftpTransportInfo = receiver.transport as SFTPTransportType
 
             // Override the SFTP host and port only if provided and in the local environment.
-            val host: String = if (Environment.get() == Environment.LOCAL &&
+            val host: String = if (Environment.isLocal() &&
                 !System.getenv("SFTP_HOST_OVERRIDE").isNullOrBlank()
             )
                 System.getenv("SFTP_HOST_OVERRIDE") else sftpTransportInfo.host
-            val port: String = if (Environment.get() == Environment.LOCAL &&
+            val port: String = if (Environment.isLocal() &&
                 !System.getenv("SFTP_PORT_OVERRIDE").isNullOrBlank()
             )
                 System.getenv("SFTP_PORT_OVERRIDE") else sftpTransportInfo.port
@@ -139,7 +139,7 @@ class SftpTransport : ITransport, Logging {
                 when (credential) {
                     is UserPassCredential -> sshClient.authPassword(credential.user, credential.pass)
                     is UserPemCredential -> {
-                        val key = OpenSSHKeyV1KeyFile()
+                        val key = OpenSSHKeyFile()
                         val keyContents = StringReader(credential.key)
                         when (StringUtils.isBlank(credential.keyPass)) {
                             true -> key.init(keyContents)
