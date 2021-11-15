@@ -101,7 +101,7 @@ tasks.clean {
 /**
  * Building tasks
  */
-val coverageExcludedClasses = listOf("gov/cdc/prime/router/azure/db/*", "gov/cdc/prime/router/cli/*")
+val coverageExcludedClasses = listOf("gov/cdc/prime/router/azure/db/*", "gov/cdc/prime/router/cli/tests/*")
 tasks.test {
     // Use JUnit 5 for running tests
     useJUnitPlatform()
@@ -147,7 +147,7 @@ tasks.jacocoTestReport {
     doFirst {
         FileUtils.listFiles(sourcesDir, arrayOf("kt", "java"), true).forEach { sourceFile ->
             // Find the line in the code that has the package name and convert that to a folder then copy the file.
-            FileUtils.readLines(sourceFile, "UTF8").firstOrNull() { it.contains("package") }?.let {
+            FileUtils.readLines(sourceFile, "UTF8").firstOrNull { it.contains("package") }?.let {
                 val packageDir = it.split(" ").last().replace(".", "/")
                 FileUtils.copyFile(
                     sourceFile,
