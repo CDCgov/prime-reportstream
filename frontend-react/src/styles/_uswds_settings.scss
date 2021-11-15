@@ -14,28 +14,34 @@ $theme-show-notifications: false;
 $theme-font-role-heading: "sans";
 
 // Override defaultUSWDS maximum width settings
-$theme-header-max-width: 'desktop-lg';
+$theme-header-max-width: 'desktop';
 // $theme-header-min-width: 'desktop-lg';
 
-$theme-grid-container-max-width: 'desktop-lg';
-$theme-site-margins-breakpoint: 'desktop-lg';
-$theme-site-alert-max-width: 'desktop-lg';
+$theme-grid-container-max-width: 'desktop';
+$theme-site-margins-breakpoint: 'desktop';
+$theme-site-alert-max-width: 'desktop';
 // $theme-identifier-max-width: 'desktop-lg';
 
-$theme-footer-max-width: 'desktop-lg';
+$theme-footer-max-width: 'desktop';
 
 $theme-site-margins-width: 4;
 $theme-site-margins-mobile-width: 2;
 
-//Override default USWDS body font
-$theme-font-type-sans: "public-sans";
+//Typography
+$theme-font-type-cond:   false;
+$theme-font-type-icon:   false;
+$theme-font-type-lang:   false;
+$theme-font-type-mono:   "roboto-mono";
+$theme-font-type-sans:   "public-sans";
+$theme-font-type-serif:   false;
 
-// serif
-$theme-font-type-serif: "public-sans";
-
+$theme-font-role-ui:      "sans";
 $theme-font-role-heading: "sans";
-$theme-font-role-alt: "sans";
+$theme-font-role-body:    "sans";
+$theme-font-role-code:    "mono";
+$theme-font-role-alt:     "mono";
 
+// Breakpoints
 $mobile: 480px;
 $tablet: 1024px;
 $desktop: 1200px;

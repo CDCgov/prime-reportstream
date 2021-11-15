@@ -1,6 +1,6 @@
 
-### Schema:         hl7/lifepoint-covid-19
-#### Description:   LifePoint (Ellume data)
+### Schema:         hl7/prescryptive-covid-19
+#### Description:   Prescryptive Health
 
 ---
 
@@ -130,12 +130,6 @@ RE|Remark
 
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
-
-**Alt Value Sets**
-
-Code | Display
----- | -------
-Ellume COVID-19 Home Test_Ellume Limited|Ellume COVID-19 Home Test
 
 **Table**: LIVD-SARS-CoV-2-2021-09-29
 
@@ -706,7 +700,7 @@ The phone number of the facility which the test was ordered from
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Table**: fips-county
 
@@ -1217,19 +1211,6 @@ Code | Display
 H|Hispanic or Latino
 N|Non Hispanic or Latino
 U|Unknown
-H|Hispanic or Latino
-N|Non Hispanic or Latino
-U|Unknown
-U|Unknown
-
-**Alt Value Sets**
-
-Code | Display
----- | -------
-H|2135-2
-N|2186-5
-U|UNK
-U|ASKU
 
 **Documentation**:
 
@@ -1330,7 +1311,7 @@ The name of the assigner of the patient_id field. Typically we use the name of t
 
 **PII**: Yes
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -1418,7 +1399,7 @@ The patient's race. There is a common valueset defined for race values, but some
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Table**: fips-county
 
@@ -2204,7 +2185,7 @@ pointer/link to the unique id of a previously submitted result.  Usually blank. 
 
 **PII**: No
 
-**Default Value**: P
+**Default Value**: T
 
 **Cardinality**: [0..1]
 
@@ -2376,7 +2357,7 @@ Does the patient reside in a congregate care setting?
 
 **PII**: No
 
-**Default Value**: lifepoint
+**Default Value**: prescryptive
 
 **Cardinality**: [0..1]
 
