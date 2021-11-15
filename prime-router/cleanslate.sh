@@ -95,6 +95,7 @@ function warn() {
 # Helper function to output errors
 function error() {
   echo "ERROR: ${*}" | tee -a "${LOG?}"
+  exit 1
 }
 
 # Takes ownership of some directories that are potentially shared with container instances
@@ -357,7 +358,6 @@ function setup_githooks() {
   if [[ $? != 0 || -z "${REPO_ROOT?}" ]]; then
     # This really ought not to happen since we call this from a place where we _are_ inside a repository
     error "This script must be invoked from inside a repository."
-    exit 1
   fi
 
   pushd "${REPO_ROOT?}" 2>&1 1>/dev/null
@@ -403,7 +403,6 @@ while [[ -n ${1} ]]; do
   *)
     usage
     error "Unknown command line switch '${1}'."
-    exit
     ;;
   esac
 
