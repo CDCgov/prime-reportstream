@@ -2,7 +2,7 @@ import { OktaAuthOptions } from "@okta/okta-auth-js";
 
 const oktaAuthConfig: OktaAuthOptions = {
     issuer: `https://hhs-prime.okta.com/oauth2/default`,
-    clientId: "0oa6fm8j4G1xfrthd4h6",
+    clientId: process.env.REACT_APP_OKTA_CLIENTID as string,
     redirectUri: window.location.origin + "/login/callback",
     postLogoutRedirectUri: window.localStorage.origin,
     responseMode: "fragment",
@@ -21,7 +21,7 @@ const oktaSignInConfig = {
         router: true, // Leave this set to true for the API demo
     },
     baseUrl: `https://hhs-prime.okta.com`,
-    clientId: "0oa6fm8j4G1xfrthd4h6",
+    clientId: process.env.REACT_APP_OKTA_CLIENTID as string,
     redirectUri: `${window.location.origin}/login/callback`,
     authParams: {
         issuer: "https://hhs-prime.okta.com/oauth2/default",
