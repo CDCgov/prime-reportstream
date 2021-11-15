@@ -900,19 +900,19 @@ class ActionHistory {
                             "itemNums",
                             createRowsDescription(itemsByGroupingId[groupingId])
                         )
-//                        if (verbose) {
-                        val filtered = itemsByGroupingId.filter { item -> item.key === groupingId }
-                        it.writeArrayFieldStart("itemDetails")
-                        filtered.forEach { itemGroupingId ->
-                            itemGroupingId.value.forEach { itemNum ->
-                                it.writeStartObject()
-                                it.writeStringField("itemNum", itemNum.toString())
-                                it.writeStringField("groupingId", itemGroupingId.key)
-                                it.writeEndObject()
+                        if (verbose) {
+                            val filtered = itemsByGroupingId.filter { item -> item.key === groupingId }
+                            it.writeArrayFieldStart("itemDetails")
+                            filtered.forEach { itemGroupingId ->
+                                itemGroupingId.value.forEach { itemNum ->
+                                    it.writeStartObject()
+                                    it.writeStringField("itemNum", itemNum.toString())
+                                    it.writeStringField("groupingId", itemGroupingId.key)
+                                    it.writeEndObject()
+                                }
                             }
+                            it.writeEndArray()
                         }
-                        it.writeEndArray()
-//                        }
                     }
                     it.writeEndObject()
                 }
