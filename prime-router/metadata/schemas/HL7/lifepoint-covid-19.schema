@@ -10,7 +10,7 @@ elements:
     default: lifepoint
 
   - name: processing_mode_code
-    default: T
+    default: P
 
   - name: patient_ethnicity
     altValues:
@@ -27,6 +27,9 @@ elements:
     cardinality: ZERO_OR_ONE
   
   - name: patient_last_name
+    cardinality: ZERO_OR_ONE
+
+  - name: patient_state
     cardinality: ZERO_OR_ONE
     
   - name: device_id
