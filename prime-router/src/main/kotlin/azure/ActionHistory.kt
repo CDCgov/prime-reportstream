@@ -754,11 +754,21 @@ class ActionHistory {
         }
     }
 
+    /**
+     * This class houses items, messages, and scope information
+     * for the consolidated warning/error messaging.
+     *
+     * @param itemsByGroupingId MutableMap<String, MutableList<Int>> where the key is the groupingId
+     *     and the value is a mutable list row numbers integers
+     * @param messageByGroupingId stores messages in a MutableMap<String, String>
+     *     where the key is the groupingId and the value is a message as type String
+     * @param scopesByGroupingId stores items in a MutableMap<String, String>
+     *     where the key is the groupingId and the value is a Scope as type String
+     */
     data class GroupedProperties(
         val itemsByGroupingId: MutableMap<String, MutableList<Int>>,
         val messageByGroupingId: MutableMap<String, String>,
-        val scopesByGroupingId: MutableMap<String, String>,
-        val itemDetailsWithGroupingId: MutableMap<String, MutableList<Int>>
+        val scopesByGroupingId: MutableMap<String, String>
     )
 
     /**
@@ -837,63 +847,72 @@ class ActionHistory {
                 return sb.toString()
             }
 
-            fun createPropertiesByGroupingId(array: List<ResultDetail>): GroupedProperties {
+            /**
+             * This function parses a list of ResultDetail items to group them by
+             * groupingId and returns them as a GroupedProperties data class instance
+             *
+             * @param details List of ResultDetail items to be parsed
+             * @return GroupedProperties() containing items, messages, and scopes
+             *     grouped by groupingId
+             */
+            fun createPropertiesByGroupingId(details: List<ResultDetail>): GroupedProperties {
                 val itemsByGroupingId = mutableMapOf<String, MutableList<Int>>()
                 val messageByGroupingId = mutableMapOf<String, String>()
                 val scopesByGroupingId = mutableMapOf<String, String>()
-                val itemDetailsWithGroupingId = mutableMapOf<String, MutableList<Int>>()
-                array.forEach { resultDetail ->
+                details.forEach { resultDetail ->
                     val groupingId = resultDetail.responseMessage.groupingId()
                     if (!itemsByGroupingId.containsKey(groupingId)) {
                         itemsByGroupingId[groupingId] = mutableListOf()
                         messageByGroupingId[groupingId] = resultDetail.responseMessage.detailMsg()
                         scopesByGroupingId[groupingId] = resultDetail.scope.toString()
-                        itemDetailsWithGroupingId[groupingId] = mutableListOf()
                     }
                     if (resultDetail.row != -1) {
-                        // Add 2 to account for array offset and csv header
-                        itemsByGroupingId[groupingId]?.add(resultDetail.row + 2)
-                        itemDetailsWithGroupingId[groupingId]?.add(resultDetail.row + 2)
+                        itemsByGroupingId[groupingId]?.add(resultDetail.row + 1)
                     }
                 }
                 return GroupedProperties(
                     itemsByGroupingId,
                     messageByGroupingId,
-                    scopesByGroupingId,
-                    itemDetailsWithGroupingId
+                    scopesByGroupingId
                 )
             }
 
-            fun writeConsolidatedArray(field: String, array: List<ResultDetail>) {
+            /**
+             * This function parses a list of ResultDetail items to group them by
+             * groupingId and returns them as a GroupedProperties data class instance
+             *
+             * @param field defines the name of the array in the JSON result
+             * @param resultDetailList the list of items to write to the JSON
+             */
+            fun writeConsolidatedArray(field: String, resultDetailList: List<ResultDetail>) {
                 val (
                     itemsByGroupingId,
                     messageByGroupingId,
-                    scopesByGroupId,
-                    itemDetailsWithGroupingId
-                ) = createPropertiesByGroupingId(array)
+                    scopesByGroupId
+                ) = createPropertiesByGroupingId(resultDetailList)
                 it.writeArrayFieldStart(field)
                 itemsByGroupingId.keys.forEach { groupingId ->
                     it.writeStartObject()
                     it.writeStringField("scope", scopesByGroupId[groupingId] as String)
-                    it.writeStringField("message", messageByGroupingId[groupingId] as String?)
+                    it.writeStringField("message", messageByGroupingId[groupingId])
                     if (scopesByGroupId[groupingId] as String === "ITEM") {
                         it.writeStringField(
                             "itemNums",
-                            createRowsDescription(itemsByGroupingId[groupingId] as MutableList<Int>?)
+                            createRowsDescription(itemsByGroupingId[groupingId])
                         )
-                        if (verbose) {
-                            val filtered = itemDetailsWithGroupingId.filter { item -> item.key === groupingId }
-                            it.writeArrayFieldStart("itemDetails")
-                            filtered.forEach { itemGroupingId ->
-                                itemGroupingId.value.forEach { itemNum ->
-                                    it.writeStartObject()
-                                    it.writeStringField("itemNum", itemNum.toString())
-                                    it.writeStringField("groupingId", itemGroupingId.key)
-                                    it.writeEndObject()
-                                }
+//                        if (verbose) {
+                        val filtered = itemsByGroupingId.filter { item -> item.key === groupingId }
+                        it.writeArrayFieldStart("itemDetails")
+                        filtered.forEach { itemGroupingId ->
+                            itemGroupingId.value.forEach { itemNum ->
+                                it.writeStartObject()
+                                it.writeStringField("itemNum", itemNum.toString())
+                                it.writeStringField("groupingId", itemGroupingId.key)
+                                it.writeEndObject()
                             }
-                            it.writeEndArray()
                         }
+                        it.writeEndArray()
+//                        }
                     }
                     it.writeEndObject()
                 }
