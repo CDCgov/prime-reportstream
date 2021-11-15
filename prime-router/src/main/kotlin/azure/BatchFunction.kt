@@ -51,7 +51,7 @@ class BatchFunction {
                     report
                 }
                 val mergedReports = when {
-                    receiver.format == Report.Format.HL7 -> inReports // don't merge, when we are about to split
+                    receiver.format.isSingleItemFormat -> inReports // don't merge, when we are about to split
                     receiver.timing?.operation == Receiver.BatchOperation.MERGE -> listOf(Report.merge(inReports))
                     else -> inReports
                 }
