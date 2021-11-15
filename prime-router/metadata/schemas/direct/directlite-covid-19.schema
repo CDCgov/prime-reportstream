@@ -51,8 +51,7 @@ elements:
     csvFields: [{ name: deviceIdentifier}]
 
   - name: equipment_model_name
-    documentation: Required.  Must match LIVD column B, "Model". eg,  "BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B"
-    cardinality: ONE
+    documentation: If present, match LIVD column B, "Model". eg,  "BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B"
     csvFields: [{ name: deviceName}]
 
   - name: specimen_id
@@ -108,6 +107,7 @@ elements:
 
   - name: testing_lab_clia
     documentation: Expecting a CLIA number here.  eg, "10D2218834"
+    cardinality: ZERO_OR_ONE
     csvFields: [{ name: performingFacility}]
 
   - name: testing_lab_name
@@ -135,7 +135,7 @@ elements:
     csvFields: [{ name: patientUniqueIdHash}]
 
   - name: patient_state
-    documentation: Extremely important field for routing data to states.
+    cardinality: ZERO_OR_ONE
     csvFields: [{ name: patientState}]
 
   - name: first_test
