@@ -438,8 +438,34 @@ class Hl7Serializer(
         var aoeSequence = 1
         val terser = Terser(message)
         setLiterals(terser)
+        // we are going to set up overrides for the elements in the collection if the valueset
+        // needs to be overriden
+        val reportElements = if (hl7Config?.valueSetOverrides.isNullOrEmpty()) {
+            // there are no value set overrides, so we are going to just pass back out the
+            // existing collection of schema elements
+            report.schema.elements
+        } else {
+            // we do have valueset overrides, so we need to replace any elements in place
+            report.schema.elements.map { elem ->
+                // if we're dealing with a code type (which uses a valueset), check if we need to replace
+                if (elem.isCodeType) {
+                    // is there a replacement valueset in our collection?
+                    val replacementValueSet = hl7Config?.valueSetOverrides?.get(elem.valueSet)
+                    if (replacementValueSet != null) {
+                        // inherit from the base element
+                        val newElement = Element(elem.name, valueSet = elem.valueSet, valueSetRef = replacementValueSet)
+                        newElement.inheritFrom(elem)
+                    } else {
+                        elem
+                    }
+                } else {
+                    // this is not a code type, so return the base element
+                    elem
+                }
+            }
+        }
         // serialize the rest of the elements
-        report.schema.elements.forEach { element ->
+        reportElements.forEach { element ->
             val value = report.getString(row, element.name).let {
                 if (it.isNullOrEmpty()) {
                     element.default ?: ""

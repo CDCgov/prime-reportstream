@@ -86,7 +86,6 @@ data class Hl7Configuration
     // Specify how
     val useOrderingFacilityName: OrderingFacilityName = OrderingFacilityName.STANDARD,
     // we will now play that funky music that will drive us til the dawn
-    // let's go let's boogaloo til we puke
     //
     // is this hidden magic? I don't think so. I've moved the ability to override a valueset
     // to the translation config, and therefore we can say that for a specific receiver, use
