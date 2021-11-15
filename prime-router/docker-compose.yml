@@ -140,20 +140,18 @@ services:
       - prime-router_build
 
   web_receiver:
-    image: nginx:latest
     ports:
-      - "8090:80"
-    volumes:
-      - "../frontend/dist:/usr/share/nginx/html"
+      - "8090:3000"
     depends_on:
       - prime_dev
-    command: "'nginx' '-g' 'daemon off;'"
-    entrypoint: "/docker-entrypoint.sh"
+    entrypoint: "npm start"
+    env_file:
+      - ../frontend-react/.env.development
     networks:
       - prime-router_build
     build:
-      context: ../frontend
-      dockerfile: ../frontend/Dockerfile_dev
+      context: ../frontend-react
+      dockerfile: ../frontend-react/Dockerfile_dev
 
 volumes:
   # For storing a local encrypted secrets database
