@@ -40,8 +40,6 @@ services:
       - 9090:9090 # Java JMX port
     networks:
       - prime-router_build
-    profiles:
-      - amd64
 
   # Azurite is the Azure storage emulator for local development
   azurite:
@@ -56,9 +54,6 @@ services:
       - 10001:10001
     networks:
       - prime-router_build
-    profiles:
-      - amd64
-      - apple_silicon
 
   #local SFTP server as a receive point
   sftp:
@@ -70,9 +65,6 @@ services:
     command: foo:pass:1001::upload
     networks:
       - prime-router_build
-    profiles:
-      - amd64
-      - apple_silicon
 
   # local FTPS Server
   ftps:
@@ -97,9 +89,6 @@ services:
     restart: always
     networks:
       - prime-router_build
-    profiles:
-      - amd64
-      - apple_silicon
 
   redox:
     image: mockserver/mockserver:mockserver-5.11.1
@@ -114,9 +103,6 @@ services:
         target: /config
     networks:
       - prime-router_build
-    profiles:
-      - amd64
-      - apple_silicon
 
   settings:
     build: settings/.
@@ -129,8 +115,6 @@ services:
         target: /settings
     networks:
       - prime-router_build
-    profiles:
-      - amd64
 
   # Secrets management
   vault:
@@ -152,10 +136,6 @@ services:
     command: "/vault/config/init.sh"
     networks:
       - prime-router_build
-    profiles:
-      - amd64
-      - arm64
-      - apple_silicon
 
   web_receiver:
     image: nginx:latest
@@ -172,8 +152,6 @@ services:
     build:
       context: ../frontend
       dockerfile: ../frontend/Dockerfile_dev
-    profiles:
-      - amd64
 
 volumes:
   # For storing a local encrypted secrets database
