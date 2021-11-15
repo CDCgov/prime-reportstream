@@ -1,4 +1,3 @@
-// @ts-nocheck // TODO: fix types in this file
 import { GovBanner } from "@trussworks/react-uswds";
 import { Route, useHistory, Switch } from "react-router-dom";
 import { OktaAuth, toRelativeUrl } from "@okta/okta-auth-js";
@@ -41,7 +40,7 @@ const App = () => {
         // check if the user would have any data to receive via their organizations from the okta claim
         // direct them to the /upload page if they do not have an organization that receives data
         const authState = OKTA_AUTH.authStateManager._authState;
-        if (
+        if (authState &&
             !reportReceiver(authState) &&
             permissionCheck(PERMISSIONS.SENDER, authState)
         ) {
