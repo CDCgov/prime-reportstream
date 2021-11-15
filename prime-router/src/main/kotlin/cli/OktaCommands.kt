@@ -62,7 +62,7 @@ class LoginCommand : OktaCommand(
         .default("local", "local")
 
     override fun run() {
-        val oktaApp = Environment.get().oktaApp ?: abort("No need to login in this environment")
+        val oktaApp = Environment.get(env).oktaApp ?: abort("No need to login in this environment")
         val accessTokenFile = readAccessTokenFile()
         if (accessTokenFile != null && isValidToken(oktaApp, accessTokenFile)) {
             echo("Has a valid token until ${accessTokenFile.expiresAt}")

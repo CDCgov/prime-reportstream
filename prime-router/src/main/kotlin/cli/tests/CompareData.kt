@@ -146,7 +146,7 @@ class DataCompareTest : CoolTest() {
 
                     // Check the response from the endpoint
                     TermUi.echo(json)
-                    passed = passed and examineResponse(json)
+                    passed = passed and examinePostResponse(json)
 
                     // Compare the data
                     val reportId = getReportIdFromResponse(json)
