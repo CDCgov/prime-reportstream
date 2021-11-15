@@ -65,18 +65,17 @@ ReportStream depends on set of services to be up before running main Azure servi
 You can run these services using the `docker-compose` tool. 
 
 ```bash
-docker-compose --profile apple_silicon up 
+docker-compose up sftp redox azurite ftps vault 
 ```
-The `apple_silicon` profile will only launch services that work with your Apple Silicon processor. 
 
 Look over the log in your terminal session and check for any errors. 
 If you find any, read the [Things that might go wrong](#things-that-might-go-wrong) section. 
 
-You can take down these services using a "ctrl-c" keyboard combination or the `docker-compose --profile apple_silicon down` command. 
+You can take down these services using a "ctrl-c" keyboard combination or the `docker-compose down` command. 
 For now, leave these services running and open up a new terminal session. 
 
 > Note: If you do not want to devote a whole terminal session the logs of these services. 
-> You can run them in detached mode `docker-compose --profile apple_silicon up --detach` and then
+> You can run them in detached mode `docker-compose up --detach sftp redox azurite ftps vault` and then
 > attach to the containers when you want to examine the logs. 
 
 ### Step 5 - Run ReportStream locally
@@ -148,9 +147,12 @@ gradle quickrun
 Connect your debugger remotely to port 5005. 
 For profiling use the JMX port 9090.
 
+### Using gradle
+`gradle tasks` will list all the tasks that Gradle can do for you. 
+
 ### Start and stop dependent services
 
-Instead of using a `docker-compose --profile apple_silicon up` to bring up dependent services, you can use a script.
+Instead of using a `docker-compose up sftp redox azurite ftps vault` to bring up dependent services, you can use a script.
 ```bash
 ./devenv-infrastructure.sh up
 ```
@@ -208,7 +210,7 @@ You may run into problems. Here are few of the common ones.
 
 ### FTPS container
 
-If you get an error running `docker-compose --profile apple_silicon up` like *bind source path does not exist: .../build/ftps*.
+If you get an error running `docker-compose up sftp redox azurite ftps vault` like *bind source path does not exist: .../build/ftps*.
 This is likely because a `clean` command has removed the build `build/ftps` directory. You can add the directory by hand using `mkdir build/ftps` and the `docker-compose` will run.
 
 ### Azurite
