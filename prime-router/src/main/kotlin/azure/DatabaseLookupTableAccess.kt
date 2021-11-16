@@ -155,6 +155,7 @@ class DatabaseLookupTableAccess(private val db: DatabaseAccess = DatabaseAccess(
      * This function will throw an exception upon an error and rollback any data inserted into the database.
      */
     fun createTable(tableName: String, version: Int, tableData: List<JSONB>, username: String) {
+        val batchSize = 5000
         db.transact { txn ->
             val newVersion = DSL.using(txn).newRecord(Tables.LOOKUP_TABLE_VERSION)
             newVersion.isActive = false
@@ -164,13 +165,24 @@ class DatabaseLookupTableAccess(private val db: DatabaseAccess = DatabaseAccess(
             if (newVersion.store() != 1) error("Error creating new version in database.")
 
             val versionId = newVersion.lookupTableVersionId
-            tableData.forEachIndexed { index, row ->
-                val newRow = DSL.using(txn).newRecord(Tables.LOOKUP_TABLE_ROW)
-                newRow.data = row
-                newRow.rowNum = index + 1
-                newRow.lookupTableVersionId = versionId
-                if (newRow.store() != 1) error("Error creating new table row in database.")
-            }
+
+            // Use batching to make this faster
+            var batchNumber = 1
+            do {
+                val dataBatch = getDataBatch(tableData, batchNumber, batchSize)
+                if (dataBatch != null) {
+                    val newRecords = dataBatch.mapIndexed { index, row ->
+                        val newRow = DSL.using(txn).newRecord(Tables.LOOKUP_TABLE_ROW)
+                        newRow.data = row
+                        newRow.rowNum = ((batchNumber - 1) * batchSize) + index + 1 // Row numbers start at 1
+                        newRow.lookupTableVersionId = versionId
+                        newRow
+                    }
+                    if (DSL.using(txn).batchInsert(newRecords).execute().any { it < 0 })
+                        error("Error batch creating rows for table $tableName version $version")
+                    batchNumber++
+                }
+            } while (dataBatch != null)
         }
     }
 
@@ -202,6 +214,21 @@ class DatabaseLookupTableAccess(private val db: DatabaseAccess = DatabaseAccess(
                 return rows.keys.toList()
             } catch (e: MismatchedInputException) {
                 throw IllegalArgumentException(e)
+            }
+        }
+
+        /**
+         * Split the [inputData] into a data batch of max of [batchSize] and return the batch for [batchNumber].
+         * @return a list of data or null of no data is left
+         */
+        internal fun getDataBatch(inputData: List<JSONB>, batchNumber: Int, batchSize: Int): List<JSONB>? {
+            Preconditions.checkArgument(batchNumber > 0)
+            Preconditions.checkArgument(batchSize > 0)
+            val start = (batchNumber - 1) * batchSize
+            return if (start > inputData.size || inputData.isEmpty()) null
+            else {
+                val end = if ((start + batchSize) < inputData.size) start + batchSize else inputData.size
+                inputData.subList(start, end)
             }
         }
     }
