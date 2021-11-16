@@ -5,6 +5,7 @@ import com.zaxxer.hikari.HikariDataSource
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
+import gov.cdc.prime.router.azure.db.Routines
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.Tables.COVID_RESULT_METADATA
 import gov.cdc.prime.router.azure.db.Tables.EMAIL_SCHEDULE
@@ -289,6 +290,27 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             .fetch()
             .into(ReportId::class.java)
             .toList()
+    }
+
+    fun fetchResultMetadata(
+        descendantReportID: UUID,
+        messageID: String,
+        txn: DataAccessTransaction? = null,
+    ): CovidResultMetadata {
+        val ctx = if (txn != null) DSL.using(txn) else create
+        val ancestorReportID = ctx.selectFrom(Routines.reportAncestors(descendantReportID))
+            .fetch()
+            .into(ReportId::class.java)
+            .toList()
+
+        return ctx.selectFrom(COVID_RESULT_METADATA)
+            .where(
+                COVID_RESULT_METADATA.REPORT_ID.`in`(ancestorReportID),
+                COVID_RESULT_METADATA.MESSAGE_ID.eq(messageID)
+            )
+            .fetchOne()
+            ?.into(CovidResultMetadata::class.java)
+            ?: CovidResultMetadata()
     }
 
     /** Settings queries */

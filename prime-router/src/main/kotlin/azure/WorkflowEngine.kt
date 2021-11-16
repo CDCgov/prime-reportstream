@@ -31,6 +31,7 @@ import org.jooq.Configuration
 import org.jooq.Field
 import java.io.ByteArrayInputStream
 import java.time.OffsetDateTime
+import java.util.UUID
 
 /**
  * A top-level object that contains all the helpers and accessors to power the workflow.
@@ -429,6 +430,13 @@ class WorkflowEngine(
         organizationName: String,
     ): List<ReportFile> {
         return db.fetchDownloadableReportFiles(since, organizationName)
+    }
+
+    fun fetchSenderID(
+        reportID: UUID,
+        messageID: String
+    ): String {
+        return db.fetchResultMetadata(reportID, messageID).senderId
     }
 
     /**

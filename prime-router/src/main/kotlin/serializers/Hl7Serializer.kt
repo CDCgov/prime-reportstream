@@ -25,6 +25,7 @@ import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Source
 import gov.cdc.prime.router.ValueSet
+import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.metadata.LookupTable
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.InputStream
@@ -409,7 +410,7 @@ class Hl7Serializer(
         message: ORU_R01,
         report: Report,
         row: Int,
-        processingId: String = "T",
+        processingId: String = "T"
     ) {
         // set up our configuration
         val hl7Config = report.destination?.translation as? Hl7Configuration
@@ -589,25 +590,42 @@ class Hl7Serializer(
             }
         }
 
-        // get sender id for the record
-        val senderID = report.getDeidentifiedResultMetaData()[row].senderId
-
-        // loop through CLIA resets
-        cliaForSender.forEach { sender, clia ->
-            try {
-                // find that sender in the map
-                if (sender.equals(senderID.trim(), ignoreCase = true) && !clia.isNullOrEmpty()) {
-                    // if the sender needs should have a specific CLIA then overwrite the CLIA here
-                    val pathSpecSendingFacilityID = formPathSpec("MSH-4-2")
-                    terser.set(pathSpecSendingFacilityID, clia)
-                }
-            } catch (e: Exception) {
-                val msg = "${e.localizedMessage} ${e.stackTraceToString()}"
-                logger.error(msg)
-            }
-        }
+        cliaForSender(cliaForSender, report, row, terser, WorkflowEngine())
 
         replaceValue(replaceValue, terser, message.patienT_RESULT.ordeR_OBSERVATION.observationReps)
+    }
+
+    fun cliaForSender(
+        cliaForSender: Map<String, String>,
+        report: Report,
+        row: Int,
+        terser: Terser,
+        workflowEngine: WorkflowEngine
+    ) {
+        if (cliaForSender.isNotEmpty()) {
+            // get sender id for the record
+            // val senderID = report.getDeidentifiedResultMetaData()[row].senderId
+            val messageID = report.getStringByHl7Field(row, "MSH-10") ?: ""
+
+            if (messageID.isNotEmpty()) {
+                val senderID = workflowEngine.fetchSenderID(report.id, messageID)
+
+                // loop through CLIA resets
+                cliaForSender.forEach { sender, clia ->
+                    try {
+                        // find that sender in the map
+                        if (sender.equals(senderID.trim(), ignoreCase = true) && !clia.isNullOrEmpty()) {
+                            // if the sender needs should have a specific CLIA then overwrite the CLIA here
+                            val pathSpecSendingFacilityID = formPathSpec("MSH-4-2")
+                            terser.set(pathSpecSendingFacilityID, clia)
+                        }
+                    } catch (e: Exception) {
+                        val msg = "${e.localizedMessage} ${e.stackTraceToString()}"
+                        logger.error(msg)
+                    }
+                }
+            }
+        }
     }
 
     /**
