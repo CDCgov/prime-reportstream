@@ -1418,7 +1418,7 @@ The patient's race. There is a common valueset defined for race values, but some
 
 **PII**: No
 
-**Cardinality**: [1..1]
+**Cardinality**: [0..1]
 
 **Table**: fips-county
 
@@ -2204,7 +2204,7 @@ pointer/link to the unique id of a previously submitted result.  Usually blank. 
 
 **PII**: No
 
-**Default Value**: T
+**Default Value**: P
 
 **Cardinality**: [0..1]
 
