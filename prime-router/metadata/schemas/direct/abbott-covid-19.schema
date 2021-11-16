@@ -11,8 +11,4 @@ elements:
     default: abbott
 
   - name: processing_mode_code
-    default: T
-
-  - name: patient_state
-    documentation:  not required since this is only going to HHSProtect
-    cardinality: ZERO_OR_ONE
+    default: P
