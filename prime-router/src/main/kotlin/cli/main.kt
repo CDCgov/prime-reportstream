@@ -267,7 +267,7 @@ fun main(args: Array<String>) = RouterCli()
         MultipleSettings(),
         LookupTableCommands().subcommands(
             LookupTableListCommand(), LookupTableGetCommand(), LookupTableCreateCommand(),
-            LookupTableActivateCommand(), LookupTableDiffCommand()
+            LookupTableActivateCommand(), LookupTableDiffCommand(), LookupTableLoadAllCommand()
         )
     )
     .main(args)
