@@ -7,7 +7,7 @@ export default function DeliveryMethodsFeature({
     feature: FeatureProp;
 }) {
     return (
-        <div className="grid-col-12 margin-bottom-3">
+        <div className="grid-col-12 margin-top-4 margin-bottom-2">
             <div className="grid-row grid-gap display-flex flex-row flex-align-top">
                 <div className="tablet:grid-col-6">
                     <img

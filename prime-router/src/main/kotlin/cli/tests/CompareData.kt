@@ -14,8 +14,8 @@ import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.azure.HttpUtilities
-import gov.cdc.prime.router.azure.ReportStreamEnv
 import gov.cdc.prime.router.azure.WorkflowEngine
+import gov.cdc.prime.router.common.Environment
 import java.io.File
 import java.io.InputStream
 import java.net.HttpURLConnection
@@ -102,7 +102,7 @@ class DataCompareTest : CoolTest() {
         EXPECTED_COUNT("Expected count")
     }
 
-    override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+    override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         var passed = true
         val configs = readTestConfig("$testDataDir/$testConfigFile")
 
@@ -146,7 +146,7 @@ class DataCompareTest : CoolTest() {
 
                     // Check the response from the endpoint
                     TermUi.echo(json)
-                    passed = passed and examineResponse(json)
+                    passed = passed and examinePostResponse(json)
 
                     // Compare the data
                     val reportId = getReportIdFromResponse(json)
