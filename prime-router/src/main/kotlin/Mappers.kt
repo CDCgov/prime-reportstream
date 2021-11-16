@@ -1,5 +1,6 @@
 package gov.cdc.prime.router
 
+import com.google.common.base.Preconditions
 import java.security.MessageDigest
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
@@ -349,13 +350,31 @@ class LIVDLookupMapper : Mapper {
          * @param filters an optional list of additional filters to limit our search by
          * @return a possible String? value based on the lookup
          */
-        private fun lookupByEquipmentModelName(
+        internal fun lookupByEquipmentModelName(
             element: Element,
             value: String,
             filters: Map<String, String>
         ): String? {
             if (value.isBlank()) return null
-            return lookup(element, value, LIVD_MODEL, filters)
+
+            val result = lookup(element, value, LIVD_MODEL, filters)
+            // There is an issue with senders setting equipment model names with or without * across all their reports
+            // which result in incorrect data sent to receivers.  Check for a model name with or without * just in case.
+            return if (result.isNullOrBlank())
+                lookup(element, getValueVariation(value, "*"), LIVD_MODEL, filters)
+            else result
+        }
+
+        /**
+         * Gets a variation of a string [value] based on the [suffix].  If the suffix is present in the value
+         * then the variation is the value without the suffix, otherwise the variation is the value WITH the suffix.
+         * @param ignoreCase set to true to ignore case, false otherwise
+         * @return the string variation.
+         */
+        internal fun getValueVariation(value: String, suffix: String, ignoreCase: Boolean = true): String {
+            Preconditions.checkArgument(value.isNotEmpty())
+            Preconditions.checkArgument(suffix.isNotEmpty())
+            return if (value.endsWith(suffix, ignoreCase)) value.dropLast(suffix.length) else value + suffix
         }
 
         /**
