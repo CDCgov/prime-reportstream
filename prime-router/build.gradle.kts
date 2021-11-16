@@ -17,6 +17,8 @@ Properties to control the execution and output using the Gradle -P arguments:
   E.g. ./gradlew clean package -Ppg.user=myuser -Dpg.password=mypassword -Pforcetest
  */
 
+import org.apache.commons.io.FileUtils
+import org.apache.commons.io.FilenameUtils
 import org.apache.tools.ant.filters.ReplaceTokens
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.io.FileInputStream
@@ -109,7 +111,7 @@ tasks.clean {
 /**
  * Building tasks
  */
-val coverageExcludedClasses = listOf("gov/cdc/prime/router/azure/db/*", "gov/cdc/prime/router/cli/*")
+val coverageExcludedClasses = listOf("gov/cdc/prime/router/azure/db/*", "gov/cdc/prime/router/cli/tests/*")
 tasks.test {
     // Use JUnit 5 for running tests
     useJUnitPlatform()
@@ -148,6 +150,23 @@ tasks.test {
 
 tasks.jacocoTestReport {
     dependsOn(tasks.test)
+    // Jacoco wants the source file directory structure to match the package name like in Java, so 
+    // move the source files to a temp location with that structure.
+    val sourcesDir = File(project.projectDir, "/src/main/kotlin")
+    val jacocoSourcesDir = File(project.buildDir, "/jacoco/sources")
+    doFirst {
+        FileUtils.listFiles(sourcesDir, arrayOf("kt", "java"), true).forEach { sourceFile ->
+            // Find the line in the code that has the package name and convert that to a folder then copy the file.
+            FileUtils.readLines(sourceFile, "UTF8").firstOrNull { it.contains("package") }?.let {
+                val packageDir = it.split(" ").last().replace(".", "/")
+                FileUtils.copyFile(
+                    sourceFile,
+                    File(jacocoSourcesDir, "$packageDir/${FilenameUtils.getName(sourceFile.absolutePath)}")
+                )
+            }
+        }
+    }
+    additionalSourceDirs(jacocoSourcesDir)
     reports.xml.required.set(true)
     // Remove the exclusions, so they do not appear in the report
     classDirectories.setFrom(
