@@ -181,6 +181,8 @@ class ReportFunction : Logging {
         val warnings: MutableList<ResultDetail> = mutableListOf()
         // The following is identical to waters (for arch reasons)
         val validatedRequest = validateRequest(workflowEngine, request)
+        // track the sending organization and client based on the header
+        actionHistory.trackActionSender(extractClientHeader(request))
         warnings += validatedRequest.warnings
         handleValidation(validatedRequest, request, actionHistory, workflowEngine)?.let {
             return it
