@@ -139,22 +139,6 @@ services:
     networks:
       - prime-router_build
 
-  web_receiver:
-    image: nginx:latest
-    ports:
-      - "8090:80"
-    volumes:
-      - "../frontend/dist:/usr/share/nginx/html"
-    depends_on:
-      - prime_dev
-    command: "'nginx' '-g' 'daemon off;'"
-    entrypoint: "/docker-entrypoint.sh"
-    networks:
-      - prime-router_build
-    build:
-      context: ../frontend
-      dockerfile: ../frontend/Dockerfile_dev
-
 volumes:
   # For storing a local encrypted secrets database
   vault:
