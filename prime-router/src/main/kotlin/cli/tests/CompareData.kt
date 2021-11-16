@@ -146,16 +146,28 @@ class DataCompareTest : CoolTest() {
 
                     // Check the response from the endpoint
                     TermUi.echo(json)
-                    passed = passed and examinePostResponse(json)
+                    passed = passed and examinePostResponse(json, !options.asyncProcessMode)
 
                     // Compare the data
                     val reportId = getReportIdFromResponse(json)
                     if (reportId != null) {
+                        // if testing async, verify process result
+                        if (options.asyncProcessMode) {
+                            val processResult = pollForProcessResult(reportId)
+                            if (!examineProcessResponse(processResult))
+                                bad("***async $name FAILED***: Process record not found")
+                        }
+
                         // Look at the lineage results
                         waitABit(25, environment)
                         var totalItemCount = 0
                         outputList.forEach { totalItemCount += it.expectedCount }
-                        passed = passed and pollForLineageResults(reportId, receivers, totalItemCount)
+                        passed = passed and pollForLineageResults(
+                            reportId,
+                            receivers,
+                            totalItemCount,
+                            asyncProcessMode = options.asyncProcessMode
+                        )
 
                         // Compare the data
                         outputList.forEach { output ->
