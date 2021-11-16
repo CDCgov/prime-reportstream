@@ -78,10 +78,11 @@ val jooqSourceDir = "build/generated-src/jooq/src/main/java"
 val jooqPackageName = "gov.cdc.prime.router.azure.db"
 
 /**
- * Add tokens used by the local vault which are kept in "./vault/env/.env.local" to the [env] map
+ * Add the `VAULT_TOKEN` in the local vault to the [env] map
  */
 fun addVaultValuesToEnv(env: MutableMap<String, Any>) {
     val file = File(".vault/env/.env.local")
+    if (!file.exists()) return
     val prop = Properties()
     FileInputStream(file).use { prop.load(it) }
     prop.forEach { key, value -> env[key.toString()] = value.toString().replace("\"", "") }
