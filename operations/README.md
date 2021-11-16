@@ -186,7 +186,9 @@ Any resource that is not ephemeral is marked with a `lifecycle { prevent_destroy
 
 # Known issues
 
-A few `terraform import` commands for azurerm have known to fail unless the resource path is quoted.
+1. A few `terraform import` commands for azurerm have known to fail unless the resource path is quoted.
 Since `./tf.sh -c ""` expects input within double quotes, use single quotes instead: `./tf -e ${ENV_NAME} -c "import a 'b'"` (note `'b'`).
 
-Shown in [Terraform docs](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_diagnostic_setting#import) to address the reported [issue](https://github.com/hashicorp/terraform-provider-azurerm/issues/9347).
+   * Shown in [Terraform docs](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_diagnostic_setting#import) to address the reported [issue](https://github.com/hashicorp/terraform-provider-azurerm/issues/9347).
+
+2.  If `tf plan` or `tf plan-file` fail with an IP or `404` error *(found in `*.tfplan.stderr`)*, then Azure likely failed to respond and re-running should resolve the issue.
