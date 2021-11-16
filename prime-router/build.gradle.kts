@@ -28,7 +28,7 @@ import java.util.Properties
 
 plugins {
     kotlin("jvm") version "1.5.31"
-    id("org.flywaydb.flyway") version "8.0.3"
+    id("org.flywaydb.flyway") version "8.0.4"
     id("nu.studer.jooq") version "6.0.1"
     id("com.github.johnrengelman.shadow") version "7.1.0"
     id("com.microsoft.azure.azurefunctions") version "1.8.1"
@@ -559,7 +559,7 @@ dependencies {
     implementation("com.microsoft.azure.functions:azure-functions-java-library:1.4.2")
     implementation("com.azure:azure-core:1.22.0")
     implementation("com.azure:azure-core-http-netty:1.11.2")
-    implementation("com.azure:azure-storage-blob:12.14.1") {
+    implementation("com.azure:azure-storage-blob:12.14.2") {
         exclude(group = "com.azure", module = "azure-core")
     }
     implementation("com.azure:azure-storage-queue:12.11.1") {
@@ -587,7 +587,7 @@ dependencies {
     implementation("com.github.javafaker:javafaker:1.0.2")
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
-    implementation("com.googlecode.libphonenumber:libphonenumber:8.12.36")
+    implementation("com.googlecode.libphonenumber:libphonenumber:8.12.37")
     implementation("org.thymeleaf:thymeleaf:3.0.12.RELEASE")
     implementation("com.sendgrid:sendgrid-java:4.8.0")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.1")
