@@ -17,6 +17,8 @@ Properties to control the execution and output using the Gradle -P arguments:
   E.g. ./gradlew clean package -Ppg.user=myuser -Dpg.password=mypassword -Pforcetest
  */
 
+import org.apache.commons.io.FileUtils
+import org.apache.commons.io.FilenameUtils
 import org.apache.tools.ant.filters.ReplaceTokens
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.io.FileInputStream
@@ -99,7 +101,7 @@ tasks.clean {
 /**
  * Building tasks
  */
-val coverageExcludedClasses = listOf("gov/cdc/prime/router/azure/db/*", "gov/cdc/prime/router/cli/*")
+val coverageExcludedClasses = listOf("gov/cdc/prime/router/azure/db/*", "gov/cdc/prime/router/cli/tests/*")
 tasks.test {
     // Use JUnit 5 for running tests
     useJUnitPlatform()
@@ -138,6 +140,23 @@ tasks.test {
 
 tasks.jacocoTestReport {
     dependsOn(tasks.test)
+    // Jacoco wants the source file directory structure to match the package name like in Java, so 
+    // move the source files to a temp location with that structure.
+    val sourcesDir = File(project.projectDir, "/src/main/kotlin")
+    val jacocoSourcesDir = File(project.buildDir, "/jacoco/sources")
+    doFirst {
+        FileUtils.listFiles(sourcesDir, arrayOf("kt", "java"), true).forEach { sourceFile ->
+            // Find the line in the code that has the package name and convert that to a folder then copy the file.
+            FileUtils.readLines(sourceFile, "UTF8").firstOrNull { it.contains("package") }?.let {
+                val packageDir = it.split(" ").last().replace(".", "/")
+                FileUtils.copyFile(
+                    sourceFile,
+                    File(jacocoSourcesDir, "$packageDir/${FilenameUtils.getName(sourceFile.absolutePath)}")
+                )
+            }
+        }
+    }
+    additionalSourceDirs(jacocoSourcesDir)
     reports.xml.required.set(true)
     // Remove the exclusions, so they do not appear in the report
     classDirectories.setFrom(
@@ -307,6 +326,13 @@ tasks.register("reloadSettings") {
     group = rootProject.description ?: ""
     description = "Reload the settings database table"
     project.extra["cliArgs"] = listOf("multiple-settings", "set", "-i", "./settings/organizations.yml")
+    finalizedBy("primeCLI")
+}
+
+tasks.register("reloadTables") {
+    group = rootProject.description ?: ""
+    description = "Load the latest test lookup tables to the database"
+    project.extra["cliArgs"] = listOf("lookuptables", "loadall")
     finalizedBy("primeCLI")
 }
 
@@ -499,7 +525,7 @@ tasks.register("migrate") {
     dependsOn("flywayMigrate")
 }
 
-tasks.register("reloadDB") {
+tasks.register("resetDB") {
     group = rootProject.description ?: ""
     description = "Delete all tables in the database and recreate from the latest schema"
     dependsOn("flywayClean")
@@ -522,8 +548,8 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
     implementation("com.microsoft.azure.functions:azure-functions-java-library:1.4.2")
-    implementation("com.azure:azure-core:1.21.0")
-    implementation("com.azure:azure-core-http-netty:1.11.1")
+    implementation("com.azure:azure-core:1.22.0")
+    implementation("com.azure:azure-core-http-netty:1.11.2")
     implementation("com.azure:azure-storage-blob:12.14.1") {
         exclude(group = "com.azure", module = "azure-core")
     }
@@ -542,7 +568,7 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-core:[2.13.2,)")
     implementation("org.apache.logging.log4j:log4j-slf4j-impl:[2.13.2,)")
     implementation("org.apache.logging.log4j:log4j-api-kotlin:1.1.0")
-    implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.1.0")
+    implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.2.0")
     implementation("tech.tablesaw:tablesaw-core:0.42.0")
     implementation("com.github.ajalt.clikt:clikt-jvm:3.3.0")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.0")
@@ -554,7 +580,7 @@ dependencies {
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
     implementation("com.googlecode.libphonenumber:libphonenumber:8.12.36")
     implementation("org.thymeleaf:thymeleaf:3.0.12.RELEASE")
-    implementation("com.sendgrid:sendgrid-java:4.7.6")
+    implementation("com.sendgrid:sendgrid-java:4.8.0")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.1")
     implementation("com.github.kittinunf.fuel:fuel:2.3.1") {
         exclude(group = "org.json", module = "json")
