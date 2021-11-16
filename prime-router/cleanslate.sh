@@ -16,8 +16,8 @@ PRUNE_VOLUMES=0
 TAKE_OWNERSHIP=0
 
 PROFILE=amd64
-SERVICES="" # All services
-BUILD_SERVICES=""
+SERVICES=() # empty list means all services for docker-compose
+BUILD_SERVICES=()
 if [ "$(uname -m)" = "arm64" ] && [[ $(uname -av) == *"Darwin"* ]]; then
   PROFILE=apple_silicon
   SERVICES=(sftp redox azurite ftps vault) # Only these services are M1 compatible
@@ -270,7 +270,6 @@ function ensure_build_dependencies() {
   if [[ ${?} != 0 ]]; then
     error "The docker-compose.build.yml environment could not be brought up"
   fi
-
   sleep 2
 }
 
