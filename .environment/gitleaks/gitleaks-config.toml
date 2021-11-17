@@ -9,6 +9,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
         '^\.?gitleaks.report.json$',
         '^package-lock\.json$',
         'cleanslate.sh.log',
+        'detekt-baseline.xml',
         'yarn\.lock$',
     ]
     paths = [
