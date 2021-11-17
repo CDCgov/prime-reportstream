@@ -220,9 +220,6 @@ elements:
   - name: testing_lab_clia
     mapper: use(reporting_facility_clia)
 
-  - name: date_result_released
-    mapper: use(test_result_date)
-
   # these fields are calculated, but not outputted, for filtering purposes
   - name: test_authorized_for_otc
   - name: test_authorized_for_home

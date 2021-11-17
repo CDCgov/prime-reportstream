@@ -1040,6 +1040,7 @@ NTE|1|L|This is a final comment|RE"""
             every { it.useOrderingFacilityName }.returns(Hl7Configuration.OrderingFacilityName.STANDARD)
             every { it.cliaForSender }.returns(mapOf("fake1" to "ABCTEXT123", "fake" to "10D1234567"))
             every { it.defaultAoeToUnknown }.returns(false)
+            every { it.valueSetOverrides }.returns(null)
         }
         val receiver = mockkClass(Receiver::class).also {
             every { it.translation }.returns(hl7Config)
