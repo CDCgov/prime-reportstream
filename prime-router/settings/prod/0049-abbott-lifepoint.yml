@@ -1,4 +1,4 @@
-# Run this:  ./prime multiple-settings set --input ./settings/staging/0050-abbott-lifepoint.yml --env staging
+# Run this:  ./prime multiple-settings set --input ./settings/prod/0049-abbott-lifepoint.yml --env prod
 ---
 - name: abbott
   description: Abbott
@@ -32,6 +32,7 @@
   - name: "elr"
     organizationName: "hhsprotect"
     topic: "covid-19"
+    customerStatus: "active"
     translation: !<CUSTOM>
       schemaName: "hhsprotect/hhsprotect-covid-19"
       format: "CSV"
@@ -48,10 +49,10 @@
     deidentify: true
     timing:
       operation: "MERGE"
-      numberPerDay: 12
-      initialTime: "01:25"
+      numberPerDay: 24
+      initialTime: "00:25"
       timeZone: "EASTERN"
-      maxReportCount: 500
+      maxReportCount: 1000
     description: ""
     transport: !<BLOBSTORE>
       storageName: "PartnerStorage"
