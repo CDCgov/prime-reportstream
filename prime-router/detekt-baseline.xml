@@ -121,10 +121,9 @@
     <ID>LongMethod:TestReportStream.kt$QualityFilter$override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean</ID>
     <ID>LongMethod:TestReportStream.kt$RepeatWaters$override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean</ID>
     <ID>LongMethod:TestReportStream.kt$SantaClaus$override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean</ID>
-    <ID>LongMethod:Translator.kt$Translator$ private fun translateByReceiver(input: Report, receiver: Receiver, defaultValues: DefaultValues): Report</ID>
     <ID>LongMethod:WatersAuthTests.kt$WatersAuthTests$override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean</ID>
     <ID>LongMethod:WorkflowEngine.kt$WorkflowEngine$ fun resendEvent( reportId: ReportId, receiver: Receiver, sendFailedOnly: Boolean, isTest: Boolean, msgs: MutableList&lt;String>, )</ID>
-    <ID>LongParameterList:ActionHistory.kt$ActionHistory$( jsonGen: JsonGenerator, orgReceiver: Receiver, organization: Organization, sendingAt: OffsetDateTime?, countToPrint: Int, reportOptions: Options )</ID>
+    <ID>LongParameterList:ActionHistory.kt$ActionHistory$( jsonGen: JsonGenerator, orgReceiver: Receiver, organization: Organization, sendingAt: OffsetDateTime?, countToPrint: Int, reportOptions: Options, reportId: ReportId )</ID>
     <ID>LongParameterList:ActionHistory.kt$ActionHistory$( receiver: Receiver, sentReportId: ReportId, fileName: String?, params: String, result: String, itemCount: Int )</ID>
     <ID>LongParameterList:CompareData.kt$CompareCsvData$( actualRow: List&lt;String>, expectedRow: List&lt;String>, expectedHeaders: List&lt;String>, schema: Schema, actualRowNum: Int, result: CompareData.Result )</ID>
     <ID>LongParameterList:CompareData.kt$CompareHl7Data$( actualFieldValue: String, expectedFieldValue: String, recordNum: Int, fieldSpec: String, fieldName: String, result: CompareData.Result )</ID>
@@ -322,7 +321,6 @@
     <ID>MaxLineLength:TokenAuthenticationTests.kt$TokenAuthenticationTests$ </ID>
     <ID>MayBeConst:TokenAuthenticationTests.kt$// corresponding public key to above. val exampleKeyId = "11209921-860e-4b6d-8d7e-adc8778e1c6c"</ID>
     <ID>NestedBlockDepth:ActionHistory.kt$ActionHistory$ fun createResponseBody( options: Options, warnings: List&lt;ResultDetail>, errors: List&lt;ResultDetail>, verbose: Boolean, report: Report? = null ): String</ID>
-    <ID>NestedBlockDepth:ActionHistory.kt$ActionHistory$ fun prettyPrintDestinationsJson( jsonGen: JsonGenerator, settings: SettingsProvider, reportOptions: Options )</ID>
     <ID>NestedBlockDepth:ActionHistory.kt$ActionHistory.Companion$ fun sanityCheckReports( tasks: List&lt;Task>?, reportFiles: Map&lt;ReportId, ReportFile>?, failOnError: Boolean = false )</ID>
     <ID>NestedBlockDepth:CompareData.kt$CompareCsvData$ fun compare( expected: InputStream, actual: InputStream, schema: Schema, result: CompareData.Result = CompareData.Result() ): CompareData.Result</ID>
     <ID>NestedBlockDepth:CompareData.kt$CompareCsvData$ fun compareCsvRow( actualRow: List&lt;String>, expectedRow: List&lt;String>, expectedHeaders: List&lt;String>, schema: Schema, actualRowNum: Int, result: CompareData.Result ): Boolean</ID>
@@ -542,7 +540,6 @@
     <ID>ReturnCount:TokenAuthentication.kt$TokenAuthentication$fun checkAccessToken(request: HttpRequestMessage&lt;String?>, desiredScope: String): Claims?</ID>
     <ID>ReturnCount:TokenFunction.kt$TokenFunction$ @FunctionName("token") @StorageAccount("AzureWebJobsStorage") fun report( @HttpTrigger( name = "token", methods = [HttpMethod.POST], authLevel = AuthorizationLevel.ANONYMOUS ) request: HttpRequestMessage&lt;String?>, context: ExecutionContext, ): HttpResponseMessage</ID>
     <ID>ReturnCount:TokenFunctionTests.kt$MockSettings$override fun findOrganizationAndReceiver(fullName: String): Pair&lt;Organization, Receiver>?</ID>
-    <ID>ReturnCount:Translator.kt$Translator$ private fun translateByReceiver(input: Report, receiver: Receiver, defaultValues: DefaultValues): Report</ID>
     <ID>ReturnCount:Translator.kt$Translator$fun translate( input: Report, toReceiver: String, defaultValues: DefaultValues = emptyMap() ): Pair&lt;Report, Receiver>?</ID>
     <ID>SpreadOperator:FakeReport.kt$FakeDataService$(*possibleValues)</ID>
     <ID>SpreadOperator:JurisdictionalFilters.kt$HasValidDataFor$(*selection.toArray())</ID>
@@ -886,7 +883,7 @@
     <ID>UndocumentedPublicClass:main.kt$GenerateDocs : CliktCommand</ID>
     <ID>UndocumentedPublicClass:main.kt$ListSchemas : CliktCommand</ID>
     <ID>UndocumentedPublicClass:main.kt$RouterCli : CliktCommand</ID>
-    <ID>UndocumentedPublicFunction:ActionHistory.kt$ActionHistory$fun prettyPrintDestinationJson( jsonGen: JsonGenerator, orgReceiver: Receiver, organization: Organization, sendingAt: OffsetDateTime?, countToPrint: Int, reportOptions: Options )</ID>
+    <ID>UndocumentedPublicFunction:ActionHistory.kt$ActionHistory$fun prettyPrintDestinationJson( jsonGen: JsonGenerator, orgReceiver: Receiver, organization: Organization, sendingAt: OffsetDateTime?, countToPrint: Int, reportOptions: Options, reportId: ReportId )</ID>
     <ID>UndocumentedPublicFunction:ActionHistory.kt$ActionHistory$fun queueMessages(workflowEngine: WorkflowEngine)</ID>
     <ID>UndocumentedPublicFunction:ActionHistory.kt$ActionHistory$fun setActionType(taskAction: TaskAction)</ID>
     <ID>UndocumentedPublicFunction:ActionHistory.kt$ActionHistory$fun trackActionParams(request: HttpRequestMessage&lt;String?>)</ID>
@@ -1194,7 +1191,6 @@
     <ID>UndocumentedPublicFunction:TokenAuthentication.kt$TokenAuthentication$fun checkAccessToken(request: HttpRequestMessage&lt;String?>, desiredScope: String): Claims?</ID>
     <ID>UndocumentedPublicFunction:TokenAuthentication.kt$TokenAuthentication$fun createAccessToken( scopeAuthorized: String, lookup: ReportStreamSecretFinder, actionHistory: ActionHistory? = null, ): AccessToken</ID>
     <ID>UndocumentedPublicFunction:TokenAuthentication.kt$TokenAuthentication.Companion$fun isExpiredToken(exp: Date): Boolean</ID>
-    <ID>UndocumentedPublicFunction:Translator.kt$Translator$fun buildEmptyReport(receiver: Receiver, from: Report): Report</ID>
     <ID>UndocumentedPublicFunction:Translator.kt$Translator$fun translate( input: Report, toReceiver: String, defaultValues: DefaultValues = emptyMap() ): Pair&lt;Report, Receiver>?</ID>
     <ID>UndocumentedPublicFunction:ValueSet.kt$ValueSet$// set a version on the whole value set if you want, but you can still use // the value-specific version if you're adding something from a different version fun toVersionFromCode(code: String): String?</ID>
     <ID>UndocumentedPublicFunction:ValueSet.kt$ValueSet$fun mergeAltValues(altValues: List&lt;Value>?): ValueSet</ID>
@@ -1633,6 +1629,7 @@
     <ID>UndocumentedPublicProperty:ReportStreamSecretFinder.kt$ReportStreamSecretFinder.Companion$const val TOKEN_SIGNING_SECRET_NAME = "TokenSigningSecret"</ID>
     <ID>UndocumentedPublicProperty:ResponseMessage.kt$ResponseMessage$val type: ResponseMsgType</ID>
     <ID>UndocumentedPublicProperty:ResultDetail.kt$ResultDetail$val responseMessage: ResponseMessage</ID>
+    <ID>UndocumentedPublicProperty:ResultDetail.kt$ResultDetail$val rowNumber: Int get() = row + 1</ID>
     <ID>UndocumentedPublicProperty:RetryToken.kt$RetryToken$val items: List&lt;String></ID>
     <ID>UndocumentedPublicProperty:RetryToken.kt$RetryToken$var retryCount: Int</ID>
     <ID>UndocumentedPublicProperty:RetryToken.kt$RetryToken.Companion$val allItems: RetryItems = listOf("*")</ID>
