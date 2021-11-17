@@ -11,7 +11,7 @@ function clearGlobalContext(): void {
 }
 
 function logout(oktaAuth: OktaAuth): void {
-    if (oktaAuth.authStateManager._authState.isAuthenticated) {
+    if (oktaAuth?.authStateManager?._authState?.isAuthenticated) {
         clearGlobalContext();
         oktaAuth.signOut();
     }
