@@ -10,4 +10,4 @@ elements:
     default: primary
 
   - name: processing_mode_code
-    default: T
+    default: P
