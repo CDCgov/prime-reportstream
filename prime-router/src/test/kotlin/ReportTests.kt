@@ -172,7 +172,7 @@ class ReportTests {
         val oneReport = Report(
             schema = oneWithAge,
             values = listOf(
-                listOf("0", "100", "202110300809", "30300102"), // Good age, ... don't care -> patient_age=100
+                listOf("0", "100", "202110300809", "30300102"),  // Good age, ... don't care -> patient_age=100
                 // Bad age, good collect date, BAD DOB -> patient_age=null
                 listOf("1", ")@*", "202110300809-0501", "30300101"),
                 // Bad age, bad collect date, good dob -> patient_age=null
@@ -184,7 +184,9 @@ class ReportTests {
                 // Bad age, good collect data, good dob -> patient_age=10
                 listOf("5", "-5", "202110300809-0502", "20111029"),
                 // Good age, ... don't care -> patient_age = 40
-                listOf("6", "40", "asajh", "20190101")
+                listOf("6", "40", "asajh", "20190101"),
+                // Good age is blank, -> patient_age=null
+                listOf("7", "", "asajh", "20190101"),
             ),
             TestSource
         )
@@ -198,6 +200,7 @@ class ReportTests {
         assertThat(covidResultMetadata.get(4).patientAge).isEqualTo("2")
         assertThat(covidResultMetadata.get(5).patientAge).isEqualTo("10")
         assertThat(covidResultMetadata.get(6).patientAge).isEqualTo("40")
+        assertThat(covidResultMetadata.get(7).patientAge).isNull()
 
         /**
          * Test table with out patient_age

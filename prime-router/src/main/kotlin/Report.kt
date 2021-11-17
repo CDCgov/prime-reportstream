@@ -617,7 +617,9 @@ class Report : Logging {
      */
     private fun getAge(patient_age: String?, patient_dob: String?, specimenCollectionDate: LocalDate?): String? {
 
-        return if ((patient_age != null) && patient_age.all { Character.isDigit(it) } && (patient_age.toInt() > 0)) {
+        return if ((!patient_age.isNullOrBlank()) && patient_age.all { Character.isDigit(it) } &&
+            (patient_age.toInt() > 0)
+        ) {
             patient_age
         } else {
             //
