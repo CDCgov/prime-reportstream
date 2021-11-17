@@ -16,8 +16,15 @@ export const ReportStreamFooter = () => {
         <Identifier>
             <IdentifierMasthead aria-label="Agency identifier">
                 <IdentifierLogos>
-                    <IdentifierLogo href="https://cdc.gov" target="_blank" rel="noopener">
-                        <img src="/assets/cdc-logo.svg" alt="CDC logo, links to main CDC website" />
+                    <IdentifierLogo
+                        href="https://cdc.gov"
+                        target="_blank"
+                        rel="noopener"
+                    >
+                        <img
+                            src="/assets/cdc-logo.svg"
+                            alt="CDC logo, links to main CDC website"
+                        />
                     </IdentifierLogo>
                 </IdentifierLogos>
                 <IdentifierIdentity domain="cdc.gov">

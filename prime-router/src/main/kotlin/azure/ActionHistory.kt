@@ -8,6 +8,7 @@ import com.microsoft.azure.functions.HttpResponseMessage
 import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Organization
+import gov.cdc.prime.router.QualityFilterResult
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
@@ -89,6 +90,16 @@ class ActionHistory {
      * For this action, we insert these into report_file, and as children into report_lineage.
      */
     val reportsOut = mutableMapOf<ReportId, ReportFile>()
+
+    /**
+     * List of reports that have been completely filtered out based on quality.
+     */
+    val filteredOutReports = mutableMapOf<ReportId, ReportFile>()
+
+    /**
+     * List of rows per report that have been filtered out based on quality.
+     */
+    val filteredReportRows = mutableMapOf<ReportId, List<QualityFilterResult>>()
 
     /**
      * Messages to be queued in an azure queue as part of the result of this action.
@@ -295,6 +306,24 @@ class ActionHistory {
     }
 
     /**
+     * Track a report that was fully filtered out based on qualty
+     */
+    fun trackFilteredReport(
+        report: Report,
+        receiver: Receiver,
+    ) {
+        val reportFile = ReportFile()
+        reportFile.reportId = report.id
+        reportFile.receivingOrg = receiver.organizationName
+        reportFile.receivingOrgSvc = receiver.name
+        reportFile.schemaName = report.schema.name
+        reportFile.schemaTopic = report.schema.topic
+        reportFile.itemCount = report.itemCount
+        filteredOutReports[reportFile.reportId] = reportFile
+        filteredReportRows[reportFile.reportId] = report.filteredItems
+    }
+
+    /**
      * Use this to record history info about an internally created report.
      * This also tracks the event to be queued later, as an azure message.
      */
@@ -321,6 +350,7 @@ class ActionHistory {
         reportFile.blobDigest = blobInfo.digest
         reportFile.itemCount = report.itemCount
         reportsOut[reportFile.reportId] = reportFile
+        filteredReportRows[reportFile.reportId] = report.filteredItems
         trackItemLineages(report)
         trackEvent(event) // to be sent to queue later.
     }
@@ -552,14 +582,6 @@ class ActionHistory {
         DSL.using(txn).newRecord(ITEM_LINEAGE, itemLineage).store()
     }
 
-    // Used as temp storage by the json generator, below.
-    private data class DestinationData(
-        val orgReceiver: Receiver,
-        val organization: Organization,
-        var count: Int,
-        val sendingAt: OffsetDateTime? = null,
-    )
-
     /**
      * Generate nice json describing the destinations, suitable for returning to a Hub client.
      * Most of the ugliness here is the attempt to not print every 1-entry report, but combine and summarize them.
@@ -573,33 +595,34 @@ class ActionHistory {
     ) {
         var destinationCounter = 0
         jsonGen.writeArrayFieldStart("destinations")
-        if (reportsOut.isNotEmpty()) {
-            // Avoid clutter.  Combine reports with one Item, and print combined count.
-            var singles = mutableMapOf<String, DestinationData>()
-            reportsOut.forEach { (_, reportFile) ->
+        if (filteredOutReports.isNotEmpty()) {
+            filteredOutReports.forEach { (reportId, reportFile) ->
                 val fullname = reportFile.receivingOrg + "." + reportFile.receivingOrgSvc
                 val (organization, orgReceiver) = settings.findOrganizationAndReceiver(fullname) ?: return@forEach
-                if (reportFile.itemCount == 1) {
-                    var previous =
-                        singles.putIfAbsent(
-                            fullname, DestinationData(orgReceiver, organization, 1, reportFile.nextActionAt)
-                        )
-                    if (previous != null) previous.count++
-                } else {
-                    prettyPrintDestinationJson(
-                        jsonGen, orgReceiver, organization, reportFile.nextActionAt, reportFile.itemCount, reportOptions
-                    )
-                    destinationCounter++
-                }
-            }
-            singles.forEach { (_, destData) ->
                 prettyPrintDestinationJson(
                     jsonGen,
-                    destData.orgReceiver,
-                    destData.organization,
-                    destData.sendingAt,
-                    destData.count,
-                    reportOptions
+                    orgReceiver,
+                    organization,
+                    reportFile.nextActionAt,
+                    reportFile.itemCount,
+                    reportOptions,
+                    reportId
+                )
+                destinationCounter++
+            }
+        }
+        if (reportsOut.isNotEmpty()) {
+            reportsOut.forEach { (reportId, reportFile) ->
+                val fullname = reportFile.receivingOrg + "." + reportFile.receivingOrgSvc
+                val (organization, orgReceiver) = settings.findOrganizationAndReceiver(fullname) ?: return@forEach
+                prettyPrintDestinationJson(
+                    jsonGen,
+                    orgReceiver,
+                    organization,
+                    reportFile.nextActionAt,
+                    reportFile.itemCount,
+                    reportOptions,
+                    reportId
                 )
                 destinationCounter++
             }
@@ -614,7 +637,8 @@ class ActionHistory {
         organization: Organization,
         sendingAt: OffsetDateTime?,
         countToPrint: Int,
-        reportOptions: Options
+        reportOptions: Options,
+        reportId: ReportId
     ) {
         jsonGen.writeStartObject()
         // jsonGen.writeStringField("id", reportFile.reportId.toString())   // TMI?
@@ -622,11 +646,22 @@ class ActionHistory {
         jsonGen.writeStringField("organization_id", orgReceiver.organizationName)
         jsonGen.writeStringField("service", orgReceiver.name)
 
+        if (!filteredReportRows.getOrDefault(reportId, emptyList()).isEmpty()) {
+            jsonGen.writeArrayFieldStart("filteredReportRows")
+            filteredReportRows.getValue(reportId).forEach {
+                jsonGen.writeString(it.toString())
+            }
+            jsonGen.writeEndArray()
+        }
+
         jsonGen.writeStringField(
             "sending_at",
             when {
                 reportOptions == Options.SkipSend -> {
                     "never - skipSend specified"
+                }
+                countToPrint == 0 -> {
+                    "never - all items filtered out"
                 }
                 sendingAt == null -> {
                     "immediately"
@@ -813,6 +848,9 @@ class ActionHistory {
                     it.writeStringField("scope", error.scope.toString())
                     it.writeStringField("id", error.id)
                     it.writeStringField("details", error.responseMessage.detailMsg())
+                    if (error.rowNumber > 0) {
+                        it.writeStringField("row", error.rowNumber.toString())
+                    }
                     it.writeEndObject()
                 }
                 it.writeEndArray()
@@ -853,9 +891,8 @@ class ActionHistory {
                         rowsByGroupingId[groupingId] = mutableListOf()
                         messageByGroupingId[groupingId] = resultDetail.responseMessage.detailMsg()
                     }
-                    if (resultDetail.row != -1) {
-                        // Add 2 to account for array offset and csv header
-                        rowsByGroupingId[groupingId]?.add(resultDetail.row + 1)
+                    if (resultDetail.rowNumber > 0) {
+                        rowsByGroupingId[groupingId]?.add(resultDetail.rowNumber)
                     }
                 }
                 it.writeArrayFieldStart(field)
