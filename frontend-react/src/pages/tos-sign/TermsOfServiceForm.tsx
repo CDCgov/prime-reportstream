@@ -75,6 +75,7 @@ function TermsOfServiceForm() {
     const [submitting, setSubmitting] = useState(false);
 
     const handleSubmit = async (e: any) => {
+        debugger;
         e.preventDefault();
 
         setSubmitting(true);
@@ -115,6 +116,7 @@ function TermsOfServiceForm() {
         if (secret) {
             return sign({ iss: "reportstream" }, secret);
         } else {
+            console.error("Oops...no secrets here!");
             setSubmitting(false);
             return null;
         }
@@ -257,7 +259,7 @@ function TermsOfServiceForm() {
                     ).
                 </p>
 
-                <Form id="tos-agreement" onSubmit={handleSubmit}>
+                <Form id="tos-agreement" onSubmit={(e) => handleSubmit(e)}>
                     <fieldset className="usa-fieldset margin-bottom-6">
                         <legend className="usa-legend font-body-lg text-bold">
                             Name and contact information
