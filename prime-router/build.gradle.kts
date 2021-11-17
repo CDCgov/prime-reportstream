@@ -270,8 +270,10 @@ tasks.register("fatJar") {
 }
 
 tasks.ktlintCheck {
-    // generateJooq is not needed by ktlint, but gradle adds it by automatic configuration
+    // DB tasks are not needed by ktlint, but gradle adds them by automatic configuration
     tasks["generateJooq"].enabled = false
+    tasks["migrate"].enabled = false
+    tasks["flywayMigrate"].enabled = false
 }
 
 /**
