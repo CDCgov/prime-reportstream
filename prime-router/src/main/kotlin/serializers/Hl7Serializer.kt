@@ -440,12 +440,16 @@ class Hl7Serializer(
         setLiterals(terser)
         // serialize the rest of the elements
         report.schema.elements.forEach { element ->
-            val value = report.getString(row, element.name).let {
+            var value = report.getString(row, element.name).let {
                 if (it.isNullOrEmpty()) {
                     element.default ?: ""
                 } else {
                     it
                 }
+            }
+
+            if (element.hl7Field in ST_FIELDS_UNIVERSAL_CHAR_LIMIT_50) {
+                value = value.trim()?.take(ST_TRUNCATION_OF_FIFTY)
             }
 
             if (suppressedFields.contains(element.hl7Field) && element.hl7OutputFields.isNullOrEmpty())
@@ -527,13 +531,13 @@ class Hl7Serializer(
                     value.length > HD_TRUNCATION_LIMIT &&
                     hl7Config?.truncateHDNamespaceIds == true
                 ) {
-                    value.substring(0, getTruncationLimitWithEncoding(value, HD_TRUNCATION_LIMIT))
+                    value.substring(0, getTruncationLimitWithEncoding(value.trim(), HD_TRUNCATION_LIMIT))
                 } else {
                     value
                 }
-                setComponent(terser, element, element.hl7Field, truncatedValue, report)
+                setComponent(terser, element, element.hl7Field, truncatedValue.trim(), report)
             } else if (!element.hl7Field.isNullOrEmpty()) {
-                setComponent(terser, element, element.hl7Field, value, report)
+                setComponent(terser, element, element.hl7Field, value.trim(), report)
             }
         }
         // make sure all fields we're suppressing are empty
@@ -557,7 +561,7 @@ class Hl7Serializer(
         // check for reporting facility overrides
         if (!hl7Config?.reportingFacilityName.isNullOrEmpty()) {
             val pathSpec = formPathSpec("MSH-4-1")
-            terser.set(pathSpec, hl7Config?.reportingFacilityName)
+            terser.set(pathSpec, hl7Config?.reportingFacilityName?.trim())
         }
         if (!hl7Config?.reportingFacilityId.isNullOrEmpty()) {
             var pathSpec = formPathSpec("MSH-4-2")
@@ -1066,6 +1070,8 @@ class Hl7Serializer(
             Element.Type.CODE -> "CWE"
             else -> "ST"
         }
+        var trimedAndLimitFiftyValue: String?
+
         terser.set(formPathSpec("OBX-1", aoeRep), (aoeRep + 1).toString())
         terser.set(formPathSpec("OBX-2", aoeRep), valueType)
         val aoeQuestion = element.hl7AOEQuestion
@@ -1091,8 +1097,10 @@ class Hl7Serializer(
         // many states can't accept the QST datapoint out at the end because it is nonstandard
         // we need to pass this in via the translation configuration
         if (!suppressQst) terser.set(formPathSpec("OBX-29", aoeRep), "QST")
+        trimedAndLimitFiftyValue = report.getStringByHl7Field(row, "OBX-23-1")?.trim()
+            ?.take(ST_TRUNCATION_OF_FIFTY)
         // all of these values must be set on the OBX AOE's for validation
-        terser.set(formPathSpec("OBX-23-1", aoeRep), report.getStringByHl7Field(row, "OBX-23-1"))
+        terser.set(formPathSpec("OBX-23-1", aoeRep), trimedAndLimitFiftyValue)
         // set to a default value, but look below
         // terser.set(formPathSpec("OBX-23-6", aoeRep), report.getStringByHl7Field(row, "OBX-23-6"))
         terser.set(formPathSpec("OBX-23-10", aoeRep), report.getString(row, "testing_lab_clia"))
@@ -1453,6 +1461,7 @@ class Hl7Serializer(
         const val HL7_SPEC_VERSION: String = "2.5.1"
         const val MESSAGE_CODE = "ORU"
         const val MESSAGE_TRIGGER_EVENT = "R01"
+        const val ST_TRUNCATION_OF_FIFTY = 50
         const val SOFTWARE_VENDOR_ORGANIZATION: String = "Centers for Disease Control and Prevention"
         const val SOFTWARE_PRODUCT_NAME: String = "PRIME ReportStream"
         const val NCES_EXTENSION = "_NCES_"
@@ -1488,6 +1497,13 @@ class Hl7Serializer(
          * List of fields that have a CE type
          */
         val CE_FIELDS = listOf("OBX-15-1")
+
+        /**
+         * list of fields that have a ST type with s 50 character limit
+         */
+        val ST_FIELDS_UNIVERSAL_CHAR_LIMIT_50 = listOf(
+            "OBX-23-1", "OBX-15-2"
+        )
 
         // Do a lazy init because this table may never be used and it is large
         val ncesLookupTable = lazy {
