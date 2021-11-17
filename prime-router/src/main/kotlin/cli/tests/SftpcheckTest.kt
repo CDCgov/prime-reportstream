@@ -42,36 +42,26 @@ class SftpcheckTest : CoolTest() {
     override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         ugly("Starting SFTPCHECK Receciver Connections test ${environment.url}")
 
-        /**
-         * Get receiver ignore organizations with transport.host=sftp
-         */
+        // Get receiver ignore organizations with transport.host=sftp
         val accessToken = getAccessToken(environment) // Get accessToken per environment.
         val ignoreReceiverNamePath = environment.formUrl(ignoreReceiverNamesURI).toString()
         val ignoreReceiversNameList = listReceiverNames(ignoreReceiverNamePath, accessToken)
 
-        /**
-         * If the Ignore receiver list is empty, prompt error message and skip the test.
-         */
+        // If the Ignore receiver list is empty, prompt error message and skip the test.
         if (ignoreReceiversNameList.isEmpty()) {
             return bad(sftpcheckMessage + "FAILED: Ignore receiver list is empty.")
         }
 
-        /**
-         * Start check the connection for each organization
-         */
+        // Start check the connection for each organization
         ignoreReceiversNameList.forEach { receiver ->
-            /**
-             * Obtain the URL/path endpoint per environment (localhost or staging)
-             */
+
+            // Obtain the URL/path endpoint per environment (localhost or staging)
             val path = environment.formUrl(sftpcheckUri + receiver).toString()
 
-            /**
-             * Check the organization ignore receiver connections
-             */
+            // Check the organization ignore receiver connections
             echo("SFTPCHECK Organizatin: $receiver...")
 
-            val (_, response, result) = sftpReceiverIgnoreOrganizationCheck(path, accessToken)
-            val (_, error) = result
+            val (_, response, _) = sftpReceiverIgnoreOrganizationCheck(path, accessToken)
             if (response.statusCode == HttpStatus.SC_OK) {
                 good(
                     sftpcheckMessage + "PASSED with response code: " +
@@ -80,14 +70,14 @@ class SftpcheckTest : CoolTest() {
             } else {
                 sftpcheckTestResult = bad(
                     sftpcheckMessage + "FAILED with error code: : " +
-                        "${response.statusCode} - ${error?.response?.responseMessage}..."
+                        "${response.statusCode} - ${response?.responseMessage}..."
                 )
             }
         }
 
         return when (sftpcheckTestResult) {
             true -> good("Test passed: SFTPCHECK ")
-            false -> bad(sftpcheckMessage + "Failed")
+            false -> bad("Test SFTP receiver connections: Failed")
         }
     }
 
@@ -119,7 +109,7 @@ class SftpcheckTest : CoolTest() {
                         (
                             !it.isNull("transport") &&
                                 !it.getJSONObject("transport").isNull("host") &&
-                                it.getJSONObject("transport").getString("host").equals("sftp")
+                                it.getJSONObject("transport").getString("host") == "sftp"
                             )
                     }
                     .map { "${it.getString("organizationName")}.${it.getString("name")}" }
@@ -133,7 +123,7 @@ class SftpcheckTest : CoolTest() {
      *		ERROR: 		Error getting organization's name.
      *		SUCCESS: 	JSON payload body.
      */
-    fun sftpReceiverIgnoreOrganizationCheck(
+    private fun sftpReceiverIgnoreOrganizationCheck(
         path: String,
         accessToken: String,
     ): Triple<Request, Response, Result<String, FuelError>> {
@@ -151,7 +141,7 @@ class SftpcheckTest : CoolTest() {
      * @return: it returns accessTokenFile.token if oktaApp environment
      *     is set otherwise, it returns "dummy" string.
      */
-    fun getAccessToken(environment: Environment): String {
+    private fun getAccessToken(environment: Environment): String {
         if (environment.oktaApp == null) return "dummy"
         return OktaCommand.fetchAccessToken(environment.oktaApp)
             ?: SettingCommand.abort("Invalid access token. Run ./prime login to fetch/refresh your access token.")
