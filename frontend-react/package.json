@@ -56,7 +56,7 @@
         "lint:write": "npm-run-all -p lint:eslint:write lint:prettier:write",
         "lint:eslint": "eslint 'src/**/*.{js,ts,jsx,tsx}'",
         "lint:eslint:write": "eslint --fix 'src/**/*.{js,ts,jsx,tsx}'",
-        "lint:prettier": "prettier -c 'src/**/*.{js,ts,jsx,tsx}'",
+        "lint:prettier": "prettier --check 'src/**/*.{js,ts,jsx,tsx}'",
         "lint:prettier:write": "prettier --write 'src/**/*.{js,ts,jsx,tsx}'",
         "cypress-open": "./node_modules/.bin/cypress open",
         "cypress-run": "./node_modules/.bin/cypress run"
