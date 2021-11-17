@@ -5,9 +5,15 @@ on:
     branches:
       - master
       - production
+    paths:
+      - 'prime-router/**'
+      - '.github/workflows/build_hub.yml'
   push:
     branches:
       - master
+    paths:
+      - 'prime-router/**'
+      - '.github/workflows/build_hub.yml'
 
 env:
   # These are for CI and not credentials of any system
@@ -15,27 +21,9 @@ env:
   DB_PASSWORD: changeIT!
 
 jobs:
-  pre_job:
-    name: Pre Job
-    runs-on: ubuntu-latest
-    outputs:
-      has_router_change: ${{ steps.skip_check.outputs.router }}
-    steps:
-      - name: "Check out changes"
-        uses: actions/checkout@v2
-      - uses: dorny/paths-filter@v2
-        id: skip_check
-        with:
-          list-files: csv
-          filters: |
-            router:
-              - 'prime-router/**'
-              - '.github/workflows/build_hub.yml'
 
   build_router:
     name: Build Router
-    needs: pre_job
-    if: ${{ needs.pre_job.outputs.has_router_change == 'true' }}
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -48,9 +36,20 @@ jobs:
       # Appears not to be needed on GitHub (but needed when running act [https://github.com/nektos/act] locally)
       # - name: Install docker-compose
       #   run: apt-get update && apt-get --yes install docker-compose
+      - name: Set up JDK 11
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'
+          distribution: 'adopt'
+          cache: 'gradle'
+
+      - uses: gradle/wrapper-validation-action@v1
+
+      - name: Spin up build containers
+        run: docker-compose -f docker-compose.postgres.yml up -d
 
       - name: Build Prime Router Package
-        run: bash ./build.sh -- gradle clean package -x fatjar -Pshowtests
+        run: ./gradlew package -x fatjar -Pshowtests
         
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@v1
@@ -64,7 +63,7 @@ jobs:
           files: prime-router/build/test-results/test/**/*.xml
 
       - name: Run Integration Tests
-        run: bash ./build.sh -- gradle testIntegration -Pshowtests
+        run: ./gradlew testIntegration -Pshowtests
 
       - name: Publish Integration Test Results
         uses: EnricoMi/publish-unit-test-result-action@v1
@@ -78,40 +77,43 @@ jobs:
           files: prime-router/build/test-results/testIntegration/**/*.xml
           check_name: "Integration Test Results"
 
-  smoke_tests:
-    name: Smoke Tests
-    needs: pre_job
-    if: ${{ needs.pre_job.outputs.has_router_change == 'true' }}
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: prime-router
+      - name: Spin up vault
+        timeout-minutes: 1
+        run: |
+          mkdir .vault/env
+          touch .vault/env/.env.local
+          docker-compose -f docker-compose.yml up -d vault
+          while [ ! -s .vault/env/.env.local ]; do sleep 1; done
+          echo "loaded env vars"
 
-    steps:
-      - name: "Check out changes"
-        uses: actions/checkout@v2
+      - name: Make ftps dir
+        run: mkdir build/ftps
 
-      # Appears not to be needed on GitHub (but needed when running act [https://github.com/nektos/act] locally)
-      # - name: Install docker-compose
-      #   run: apt-get update && apt-get --yes install docker-compose
+      - name: Spin up containers
+        run: |
+          docker-compose -f docker-compose.yml up -d prime_dev redox ftps sftp azurite
 
-      - name: Build Prime Router Package
-        run: bash ./cleanslate.sh
+      - name: Load settings
+        run: docker-compose -f docker-compose.yml up settings
 
-      - name: Run Smoke Tests
-        run: bash ./build.sh -- gradle testSmoke
-      
-      - name: Dump docker logs on failure
-        if: failure()
-        uses: jwalton/gh-docker-logs@v2.0.2
-        with:
-          images: 'prime-router_settings,prime-router_prime_dev'
+      - name: Correct sftp perms
+        run: docker-compose exec -T sftp chmod 777 /home/foo/upload
 
+      - name: Smoke tests
+        run: |
+          export $(xargs < .vault/env/.env.local)
+          ./prime create-credential --type=UserPass --persist=DEFAULT-SFTP --user foo --pass pass
+          ./gradlew testSmoke
+
+      - name: Cleanup Gradle Cache
+        # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.
+        # Restoring these files from a GitHub Actions cache might cause problems for future builds.
+        run: |
+          rm -f .gradle/caches/modules-2/modules-2.lock
+          rm -f .gradle/caches/modules-2/gc.properties
 
   docker_build_test:
     name: Testing Docker Build
-    needs: pre_job
-    if: ${{ needs.pre_job.outputs.has_router_change == 'true' }}
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -121,20 +123,26 @@ jobs:
       - name: "Check out changes"
         uses: actions/checkout@v2
 
-      # Appears not to be needed on GitHub (but needed when running act [https://github.com/nektos/act] locally)
-      # - name: Install docker-compose
-      #   run: apt-get update && apt-get --yes install docker-compose
+      - name: Set up JDK 11
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'
+          distribution: 'adopt'
+          cache: 'gradle'
+
+      - uses: gradle/wrapper-validation-action@v1
+
+      - name: Spin up build containers
+        run: docker-compose -f docker-compose.postgres.yml up -d
 
       - name: Build Prime Router Package
-        run: bash ./build.sh -- gradle clean package -x fatjar
+        run: ./gradlew package -x fatjar -x test
 
       - name: Build Docker Image
         run: docker build . --file Dockerfile --tag cdcgov/reportstream:latest
           
   linting:
     name: Check Linting
-    needs: pre_job
-    if: ${{ needs.pre_job.outputs.has_router_change == 'true' }}
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -144,16 +152,17 @@ jobs:
       - name: "Check out changes"
         uses: actions/checkout@v2
 
+      - name: Spin up build containers
+        run: docker-compose -f docker-compose.postgres.yml up -d
+
       - name: Run Linting Check
-        run: bash ./build.sh -- gradle ktlintCheck
+        run: ./gradlew ktlintCheck
       
       - name: Run Detekt Check
         run: ./gradlew detekt
 
   docs:
     name: Check Docs
-    needs: pre_job
-    if: ${{ needs.pre_job.outputs.has_router_change == 'true' }}
     runs-on: ubuntu-latest
     defaults:
       run:
