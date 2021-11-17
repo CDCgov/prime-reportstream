@@ -3,9 +3,12 @@ package gov.cdc.prime.router
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
+import gov.cdc.prime.router.metadata.LookupTable
 import java.io.ByteArrayInputStream
+import java.lang.IllegalArgumentException
 import kotlin.test.Test
 import kotlin.test.assertFails
+import kotlin.test.assertFailsWith
 import kotlin.test.fail
 
 class MapperTests {
@@ -187,6 +190,62 @@ class MapperTests {
         // Test with another
         val ev1a = ElementAndValue(deviceElement, "BinaxNOW COVID-19 Ag Card 2 Home Test")
         assertThat(mapper.apply(codeElement, emptyList(), listOf(ev1a))).isEqualTo("Y")
+    }
+
+    @Test
+    fun `test livdLookup model variation lookup`() {
+        val lookupTable = LookupTable.read("./metadata/tables/LIVD-SARS-CoV-2-2021-09-29.csv")
+        val element = Element(
+            "ordered_test_code",
+            tableRef = lookupTable,
+            tableColumn = "Test Ordered LOINC Code"
+        )
+
+        // Cue COVID-19 Test does not have an * in the table
+        var testModel = "Cue COVID-19 Test"
+        var expectedTestOrderedLoinc = "95409-9"
+        assertThat(LIVDLookupMapper.lookupByEquipmentModelName(element, testModel, emptyMap()))
+            .isEqualTo(expectedTestOrderedLoinc)
+
+        // Add an * to the end of the model name
+        assertThat(LIVDLookupMapper.lookupByEquipmentModelName(element, "$testModel*", emptyMap()))
+            .isEqualTo(expectedTestOrderedLoinc)
+
+        // Add some other character to fail the lookup
+        assertThat(LIVDLookupMapper.lookupByEquipmentModelName(element, "$testModel^", emptyMap()))
+            .isNull()
+
+        // Accula SARS-Cov-2 Test does have an * in the table
+        testModel = "Accula SARS-Cov-2 Test"
+        expectedTestOrderedLoinc = "95409-9"
+        assertThat(LIVDLookupMapper.lookupByEquipmentModelName(element, testModel, emptyMap()))
+            .isEqualTo(expectedTestOrderedLoinc)
+
+        // Add an * to the end of the model name
+        assertThat(LIVDLookupMapper.lookupByEquipmentModelName(element, "$testModel*", emptyMap()))
+            .isEqualTo(expectedTestOrderedLoinc)
+    }
+
+    @Test
+    fun `test value variation`() {
+        assertThat(LIVDLookupMapper.getValueVariation("dummy", "*")).isEqualTo("dummy*")
+        assertThat(LIVDLookupMapper.getValueVariation("dummy*", "*")).isEqualTo("dummy")
+        assertThat(LIVDLookupMapper.getValueVariation("dummy????", "???")).isEqualTo("dummy?")
+
+        assertThat(LIVDLookupMapper.getValueVariation("dummyCaSe", "CASE")).isEqualTo("dummy")
+        assertThat(LIVDLookupMapper.getValueVariation("dummyCaSe", "CASE", false)).isEqualTo("dummyCaSeCASE")
+
+        assertFailsWith<IllegalArgumentException>(
+            block = {
+                LIVDLookupMapper.getValueVariation("dummy", "")
+            }
+        )
+
+        assertFailsWith<IllegalArgumentException>(
+            block = {
+                LIVDLookupMapper.getValueVariation("", "*")
+            }
+        )
     }
 
     @Test
@@ -499,7 +558,61 @@ class MapperTests {
 
     @Test
     fun `test parseMapperField validation - allow mapper tokens to be parsed`() {
-        val vals = Mappers.parseMapperField("concat(patient_id, \$index)")
+        // it should allow mapper tokens to be parsed: i.e. "$index"
+        var vals = Mappers.parseMapperField("concat(patient_id, \$index)")
         assertThat(vals.second[1]).isEqualTo("\$index")
+
+        // it should allow mapper tokens to be parsed with semi-colon literal values: i.e. "$dateFormat:some-valid-date-format"
+        vals = Mappers.parseMapperField("nullDateValidator(\$dateFormat:some-valid-date-format, test_result_date)")
+        assertThat(vals.second[0]).isEqualTo("\$dateFormat:some-valid-date-format")
+    }
+
+    @Test
+    fun `test NullDateValidator`() {
+        val mapper = NullDateValidator()
+        val elementA = Element("a")
+        val elementB = Element("b")
+
+        // $dateFormat:yyyyMMdd, a (element name)
+        // should return the original element's value
+        val args = listOf("yyyyMMdd", "a")
+        var value = listOf(ElementAndValue(elementA, "yyyyMMdd"), ElementAndValue(elementB, "20211028"))
+        assertThat(mapper.apply(elementA, args, value))
+            .isEqualTo("20211028")
+
+        // $dateFormat:MM/dd/yyyy, a (element name)
+        // should return the original element's value
+        val args2 = listOf("MM/dd/yyyy", "a")
+        value = listOf(ElementAndValue(elementA, "MM/dd/yyyy"), ElementAndValue(elementB, "10/28/2021"))
+        assertThat(mapper.apply(elementA, args2, value))
+            .isEqualTo("10/28/2021")
+
+        // mismatched formatting
+        // should return an empty string
+        value = listOf(ElementAndValue(elementA, "yyyyMMdd"), ElementAndValue(elementB, "a week ago"))
+        assertThat(mapper.apply(elementA, args, value))
+            .isEqualTo("")
+
+        // empty values
+        // should return an empty string
+        value = listOf()
+        assertThat(mapper.apply(elementA, args, value))
+            .isEqualTo("")
+
+        // empty args
+        // should return an empty string
+        value = listOf(ElementAndValue(elementA, "yyyyMMdd"), ElementAndValue(elementB, "a week ago"))
+        assertThat(mapper.apply(elementA, listOf(), value))
+            .isEqualTo("")
+
+        // invalid formatting
+        // should return an empty string
+        value = listOf(ElementAndValue(elementA, "iNvAlId"), ElementAndValue(elementB, "10/28/2021"))
+        assertThat(mapper.apply(elementA, args, value))
+            .isEqualTo("")
+
+        value = listOf(ElementAndValue(elementA, ""), ElementAndValue(elementB, "10/28/2021"))
+        assertThat(mapper.apply(elementA, args, value))
+            .isEqualTo("")
     }
 }

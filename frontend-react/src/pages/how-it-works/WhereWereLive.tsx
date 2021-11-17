@@ -1,12 +1,9 @@
-// @ts-nocheck // TODO: fix types in this file
 import DOMPurify from "dompurify";
 import { Helmet } from "react-helmet";
 
 import site from "../../content/site.json";
 // NOTE: update live.json and open usa_w_territories.svg with TEXT EDITOR and uncomment state styles
-// @ts-ignore
 import live from "../../content/live.json";
-// @ts-ignore
 import usamapsvg from "../../content/usa_w_territories.svg"; // in /content dir to get unique filename per build
 
 export const WhereWereLive = () => {
@@ -41,10 +38,7 @@ export const WhereWereLive = () => {
                 </p>
             </section>
             <section>
-                <img
-                    src={usamapsvg}
-                    alt="Map of states using ReportStream"
-                />
+                <img src={usamapsvg} alt="Map of states using ReportStream" />
                 ReportStream has established connections to send and report
                 public health data for each of the states and territories listed
                 here.

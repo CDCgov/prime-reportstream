@@ -73,7 +73,7 @@ class ListSchemas : CliktCommand(
     }
 
     override fun run() {
-        val metadata = Metadata(Metadata.defaultMetadataDirectory)
+        val metadata = Metadata.getInstance()
         val settings = FileSettings(FileSettings.defaultSettingsDirectory)
         println()
         listSchemas(metadata)
@@ -165,7 +165,7 @@ class GenerateDocs : CliktCommand(
     }
 
     override fun run() {
-        val metadata = Metadata(Metadata.defaultMetadataDirectory)
+        val metadata = Metadata.getInstance()
         generateSchemaDocumentation(metadata)
     }
 
@@ -176,7 +176,7 @@ class GenerateDocs : CliktCommand(
      * output data dictionary for the input schema. The schema is sorted by HL7 segment.
      */
     private fun buildMappedHl7Schema(fromSchema: Schema): Schema {
-        val metadata = Metadata(Metadata.defaultMetadataDirectory)
+        val metadata = Metadata.getInstance()
         val fileSettings = FileSettings(FileSettings.defaultSettingsDirectory)
         val translator = Translator(metadata, fileSettings)
         val mappedDefaults = mapOf(
@@ -267,7 +267,7 @@ fun main(args: Array<String>) = RouterCli()
         MultipleSettings(),
         LookupTableCommands().subcommands(
             LookupTableListCommand(), LookupTableGetCommand(), LookupTableCreateCommand(),
-            LookupTableActivateCommand(), LookupTableDiffCommand()
+            LookupTableActivateCommand(), LookupTableDiffCommand(), LookupTableLoadAllCommand()
         )
     )
     .main(args)

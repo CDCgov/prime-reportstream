@@ -696,6 +696,7 @@ Code | Display
 840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
 840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
 373121007|Test not done
+82334004|Indeterminate
 
 **Documentation**:
 
@@ -1570,6 +1571,7 @@ Code | Display
 840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
 840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
 373121007|Test not done
+82334004|Indeterminate
 
 **Documentation**:
 
@@ -2029,6 +2031,7 @@ Code | Display
 840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
 840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
 373121007|Test not done
+82334004|Indeterminate
 
 **Documentation**:
 
@@ -2148,11 +2151,11 @@ The city of the testing lab
 - [ORC-2-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.2.3)
 - [ORC-3-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.3.3)
 
-**Cardinality**: [1..1]
+**Cardinality**: [0..1]
 
 **Documentation**:
 
-Expecting a CLIA number here.  eg, "10D2218834"
+Expecting a CLIA number (eg, "10D2218834"), or empty string.
 
 ---
 

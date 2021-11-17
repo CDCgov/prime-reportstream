@@ -17,7 +17,6 @@ import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.ElementAndValue
 import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.InvalidHL7Message
-import gov.cdc.prime.router.LookupTable
 import gov.cdc.prime.router.Mapper
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
@@ -26,6 +25,7 @@ import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Source
 import gov.cdc.prime.router.ValueSet
+import gov.cdc.prime.router.metadata.LookupTable
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.InputStream
 import java.io.OutputStream
@@ -633,24 +633,59 @@ class Hl7Serializer(
             }
         }
 
+        replaceValue(replaceValue, terser, message.patienT_RESULT.ordeR_OBSERVATION.observationReps)
+    }
+
+    /**
+     * Loop through all [replaceValueMap] key value pairs to fill all non-empty
+     * values in the [terser] message. Loop through the number OBX segments sent in
+     * [observationRepeats]. Other segments should not repeat.
+     */
+    private fun replaceValue(
+        replaceValueMap: Map<String, String>,
+        terser: Terser,
+        observationRepeats: Int
+    ) {
+
         // after all values have been set or blanked, check for values that need replacement
         // isNotEmpty returns true only when a value exists. Whitespace only is considered a value
-        replaceValue.forEach { element ->
-            if (element.key.substring(0, 3) == "OBX") {
-                val observationReps = message.patienT_RESULT.ordeR_OBSERVATION.observationReps
+        replaceValueMap.forEach { element ->
 
-                for (i in 0..observationReps.minus(1)) {
+            // value can be set as a comma separated list. First split the list .
+            val valueList = element.value.split(",").map { it.trim() }
+            var value = ""
+
+            valueList.forEach { field ->
+
+                // value could be a literal or a reference to a different HL7 field. When the terser.get fails
+                // the assumption is to add the string as a literal
+                val valueInMessage = try {
+                    val pathSpec = formPathSpec(field)
+                    terser.get(pathSpec)
+                } catch (e: Exception) {
+                    field
+                }
+                value = value.plus(valueInMessage)
+            }
+
+            // OBX segment can repeat. All repeats need to be looped
+            if (element.key.length >= 3 && element.key.substring(0, 3) == "OBX") {
+
+                for (i in 0..observationRepeats.minus(1)) {
                     val pathSpec = formPathSpec(element.key, i)
                     val valueInMessage = terser.get(pathSpec) ?: ""
                     if (valueInMessage.isNotEmpty()) {
-                        terser.set(pathSpec, element.value)
+                        terser.set(pathSpec, value)
                     }
                 }
             } else {
-                val pathSpec = formPathSpec(element.key)
-                val valueInMessage = terser.get(pathSpec) ?: ""
-                if (valueInMessage.isNotEmpty()) {
-                    terser.set(pathSpec, element.value)
+                try {
+                    val pathSpec = formPathSpec(element.key)
+                    val valueInMessage = terser.get(pathSpec)
+                    if (valueInMessage.isNotEmpty()) {
+                        terser.set(pathSpec, value)
+                    }
+                } catch (e: Exception) {
                 }
             }
         }

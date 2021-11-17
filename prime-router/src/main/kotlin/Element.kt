@@ -3,6 +3,7 @@ package gov.cdc.prime.router
 import com.google.i18n.phonenumbers.PhoneNumberUtil
 import gov.cdc.prime.router.Element.Cardinality.ONE
 import gov.cdc.prime.router.Element.Cardinality.ZERO_OR_ONE
+import gov.cdc.prime.router.metadata.LookupTable
 import java.lang.Exception
 import java.text.DecimalFormat
 import java.time.DateTimeException
@@ -12,6 +13,7 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.OffsetDateTime
 import java.time.ZoneId
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 import java.util.Locale
@@ -243,8 +245,8 @@ data class Element(
      * The format string's value is specific to the type of the element.
      */
     fun toFormatted(
-        normalizedValue: kotlin.String,
-        format: kotlin.String? = null,
+        normalizedValue: String,
+        format: String? = null,
     ): String {
         if (normalizedValue.isEmpty()) return ""
         val formattedValue = when (type) {
@@ -448,7 +450,7 @@ data class Element(
                 try {
                     // Try to parse using a LocalDate pattern assuming it is in our canonical dateFormatter. Central timezone.
                     val date = LocalDate.parse(formattedValue, dateFormatter)
-                    val zoneOffset = ZoneId.of(USTimeZone.CENTRAL.zoneId).rules.getOffset(Instant.now())
+                    val zoneOffset = ZoneOffset.UTC.rules.getOffset(Instant.now())
                     OffsetDateTime.of(date, LocalTime.of(0, 0), zoneOffset)
                     return null
                 } catch (e: DateTimeParseException) {
@@ -609,7 +611,7 @@ data class Element(
                 } ?: try {
                     // Try to parse using a LocalDate pattern assuming it is in our canonical dateFormatter. Central timezone.
                     val date = LocalDate.parse(formattedValue, dateFormatter)
-                    val zoneOffset = ZoneId.of(USTimeZone.CENTRAL.zoneId).rules.getOffset(Instant.now())
+                    val zoneOffset = ZoneOffset.UTC.rules.getOffset(Instant.now())
                     OffsetDateTime.of(date, LocalTime.of(0, 0), zoneOffset)
                 } catch (e: DateTimeParseException) {
                     null
@@ -618,7 +620,7 @@ data class Element(
                     // Example: 'yyyy-mm-dd' - the incoming data is a Date, but not our canonical date format.
                     val formatter = DateTimeFormatter.ofPattern(format ?: datetimePattern, Locale.ENGLISH)
                     val date = LocalDate.parse(formattedValue, formatter)
-                    val zoneOffset = ZoneId.of(USTimeZone.CENTRAL.zoneId).rules.getOffset(Instant.now())
+                    val zoneOffset = ZoneOffset.UTC.rules.getOffset(Instant.now())
                     OffsetDateTime.of(date, LocalTime.of(0, 0), zoneOffset)
                 } catch (e: DateTimeParseException) {
                     null
@@ -893,20 +895,37 @@ data class Element(
         return retVal
     }
 
-    fun tokenizeMapperValue(elementName: String, index: Int = 0): ElementAndValue? {
+    /**
+     * Populates the value of a specialized mapper token, indicated by a $ prefix
+     * @param elementName the token name
+     * @param index optional int value used with the $index token
+     */
+    fun tokenizeMapperValue(elementName: String, index: Int = 0): ElementAndValue {
         val tokenElement = Element(elementName)
-        return when (elementName) {
-            "\$index" -> {
-                ElementAndValue(tokenElement, index.toString())
+        var retVal = ElementAndValue(tokenElement, "")
+        when {
+            elementName == "\$index" -> {
+                retVal = ElementAndValue(tokenElement, index.toString())
             }
-            "\$currentDate" -> {
+            elementName == "\$currentDate" -> {
                 val currentDate = LocalDate.now().format(dateFormatter)
-                ElementAndValue(tokenElement, currentDate)
+                retVal = ElementAndValue(tokenElement, currentDate)
             }
-            else -> {
-                null
+            elementName.contains("\$dateFormat:") -> {
+                retVal = ElementAndValue(tokenElement, extractStringValue(elementName))
             }
         }
+
+        return retVal
+    }
+
+    /**
+     * Retrieves the value of a generalized token as string (i.e. "$mode:literal" returns "literal")
+     * @param token the token
+     * @return the string value of a token
+     */
+    private fun extractStringValue(token: String): String {
+        return token.split(":")[1]
     }
 
     companion object {

@@ -15,7 +15,7 @@ data class MissingFieldMessage(
 
     companion object {
         fun new(fieldMapping: String): MissingFieldMessage {
-            return MissingFieldMessage(ResponseMsgType.MISSING, fieldMapping)
+            return MissingFieldMessage(ResponseMsgType.MISSING, "", fieldMapping)
         }
     }
 }
