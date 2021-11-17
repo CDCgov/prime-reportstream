@@ -49,7 +49,7 @@
     deidentify: true
     timing:
       operation: "MERGE"
-      numberPerDay: 24
+      numberPerDay: 48
       initialTime: "00:25"
       timeZone: "EASTERN"
       maxReportCount: 1000
