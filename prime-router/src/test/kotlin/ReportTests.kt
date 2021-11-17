@@ -172,7 +172,7 @@ class ReportTests {
         val oneReport = Report(
             schema = oneWithAge,
             values = listOf(
-                listOf("0", "100", "202110300809", "30300102"),  // Good age, ... don't care -> patient_age=100
+                listOf("0", "100", "202110300809", "30300102"), // Good age, ... don't care -> patient_age=100
                 // Bad age, good collect date, BAD DOB -> patient_age=null
                 listOf("1", ")@*", "202110300809-0501", "30300101"),
                 // Bad age, bad collect date, good dob -> patient_age=null
