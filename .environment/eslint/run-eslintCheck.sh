@@ -11,7 +11,7 @@ function js_fmt_check() {
     if [ ${MODIFIED_TSX_FILES_COUNT?} != 0 ] || [ ${MODIFIED_JS_FILES_COUNT?} != 0 ]; then
         cd frontend-react
         yarn install
-        npm run lint
+        yarn run lint
         cd ..
     else
         note "Skipping this check, you made no changes to JavaScript or TypeScript files..."
