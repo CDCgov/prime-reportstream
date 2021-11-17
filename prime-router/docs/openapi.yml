@@ -9,17 +9,13 @@ info:
   version: 0.2.0-oas3
 paths:
 
-  # The sender end-point handles receive actions.
+  # The submissions end-point handles receive actions.
   #
   # END-POINTS
   # /submissions
-  # /submissions/submission/{reportid}
+  # /submissions/submission/{actionid}
   #
-  # ALT END-POINT OPTIONS
-  # /sender/history/submissions
-  # /sender/history/submissions/submission/{actionid}
-  # /admin/sender/history/submissions
-  # /admin/sender/history/submissions/submission/{actionid}
+  # See Github issue #2722 (Design API endpoint for full history lineage) for expanded API design.
   #
   # FILTERS (REQUIRED)
   # ?pagesize=INT (default: 100)
@@ -155,7 +151,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Report'
+                $ref: '#/components/schemas/Submission'
         '400':
           description: Bad Request
         '401':
