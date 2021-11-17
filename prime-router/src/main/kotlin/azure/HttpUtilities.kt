@@ -304,5 +304,75 @@ class HttpUtilities {
                 return responseCode to response
             }
         }
+
+        /**
+         * A generic function to GET Prime ReportStream submissions from a particular Prime Data Hub Environment,
+         * as if from sendingOrgName.sendingOrgClientName.
+         * Returns Pair(Http response code, json response text)
+         */
+        fun getSubmissions(
+            environment: Environment,
+            sendingOrgClient: String,
+            token: String? = null
+        ): Pair<Int, String> {
+            return getListFromSubmissionAPI(environment, sendingOrgClient, token)
+        }
+
+        /**
+         * A generic function to GET data from a particular Prime ReportStream Environment,
+         * as if from sendingOrgName.sendingOrgClientName.
+         * Returns Pair(Http response code, json response text)
+         */
+        fun getListFromSubmissionAPI(
+            environment: Environment,
+            sendingOrgClient: String,
+            token: String? = null,
+            option: ReportFunction.Options? = null
+        ): Pair<Int, String> {
+            val parameters = mutableListOf<Pair<String, String>>()
+            val headers = mutableListOf<Pair<String, String>>()
+            when (sendingOrgClient.format) {
+                Sender.Format.HL7 -> headers.add("Content-Type" to Report.Format.HL7.mimeType)
+                else -> headers.add("Content-Type" to Report.Format.CSV.mimeType)
+            }
+            val clientStr = sendingOrgClient.organizationName +
+                if (sendingOrgClient.name.isNotBlank()) ".${sendingOrgClient.name}" else ""
+            headers.add("client" to clientStr)
+            token?.let { headers.add("authorization" to "Bearer $token") }
+            val url = environment.url.toString() + watersApi + if (option != null) "?option=$option" else ""
+            return getHttp(url, headers, parameters)
+        }
+
+        /**
+         * A generic function that gets data from a URL <address>.
+         * Returns a Pair (HTTP response code, text of the response)
+         */
+        fun getHttp(
+            urlStr: String,
+            headers: List<Pair<String, String>>? = null,
+            parameters: List<Pair<String, String>>? = null
+        ): Pair<Int, String> {
+            val urlObj = URL(urlStr)
+            with(urlObj.openConnection() as HttpURLConnection) {
+                requestMethod = "GET"
+                doOutput = false
+                doInput = true
+                headers?.forEach {
+                    addRequestProperty(it.first, it.second)
+                }
+                parameters?.forEach {
+                    addRequestProperty(it.first, it.second)
+                }
+                val response = try {
+                    inputStream.bufferedReader().readText()
+                } catch (e: IOException) {
+                    // HttpUrlStatus treats not-success codes as IOExceptions.
+                    // I found that the returned json is secretly still here:
+                    errorStream?.bufferedReader()?.readText()
+                        ?: this.responseMessage
+                }
+                return responseCode to response
+            }
+        }
     }
 }

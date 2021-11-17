@@ -7,11 +7,7 @@ import org.jooq.impl.DSL
 /**
  * Class to access lookup tables stored in the database.
  */
-class DatabaseSubmissionsAccess {
-    /**
-     * Object to access the database.
-     */
-    private val db = DatabaseAccess()
+class DatabaseSubmissionsAccess(private val db: DatabaseAccess = DatabaseAccess()) {
 
     /**
      * @param sendingOrg is the Organization Name returned from the Okta JWT Claim.

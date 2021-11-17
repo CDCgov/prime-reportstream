@@ -44,17 +44,15 @@ class GetSubmissions(
             return getList(request, limit)
         }
 
-        return HttpUtilities.bad(request, "Limit must be an integer.")
+        return HttpUtilities.bad(request, "Limit must be a positive integer.")
     }
 
     /**
-     * Utility function for checking if a `String` is numeric.
-     * Should be moved to a separate Utility Class.
-     *
-     * @return `true` if a String is not empty and the characters are digits. Otherwise, return `false`.
+     * Return true if [s] is a positive integer.
+     * TODO: move to a utility class
      */
     private fun isPositiveInteger(s: String): Boolean {
-        return if (s.isNullOrEmpty()) false else s.all { Character.isDigit(it) }
+        return s.isNullOrEmpty() && s.all { Character.isDigit(it) } && s.toInt() > 0
     }
 
     /**

@@ -42,10 +42,12 @@ class SubmissionsFacade(
         val actions = db.fetchActions(organizationName, limit)
 
         return actions.map {
-            val actionResponse = mapper.readValue(
-                it.actionResponse.toString(),
-                ActionResponseColumnSerializer::class.java
-            )
+            val actionResponse = it.actionResponse?.let { ar ->
+                mapper.readValue(
+                    ar.toString(),
+                    ActionResponseColumnSerializer::class.java
+                )
+            }
             val result = SubmissionHistorySerializer(
                 it.actionId,
                 it.createdAt,
@@ -81,17 +83,17 @@ class SubmissionsFacade(
         createdAt: OffsetDateTime,
         sendingOrg: String,
         httpStatus: Int,
-        actionResponse: ActionResponseColumnSerializer
+        actionResponse: ActionResponseColumnSerializer?
     ) : SubmissionHistory(
         actionId,
         createdAt,
         sendingOrg,
         httpStatus,
-        actionResponse.id,
-        actionResponse.topic,
-        actionResponse.reportItemCount,
-        actionResponse.warningCount,
-        actionResponse.errorCount,
+        actionResponse?.id,
+        actionResponse?.topic,
+        actionResponse?.reportItemCount,
+        actionResponse?.warningCount,
+        actionResponse?.errorCount,
     )
 
     private class ActionResponseColumnSerializer

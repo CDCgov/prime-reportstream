@@ -306,6 +306,7 @@ Examples:
             BadSftp(),
             Garbage(),
             SettingsTest(),
+            TestSubmissionsAPI(),
         )
     }
 }
