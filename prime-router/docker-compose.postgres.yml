@@ -1,0 +1,16 @@
+# Build environment
+version: "3.3"
+services:
+  postgresql:
+    image: postgres:11
+    restart: always
+    environment:
+      POSTGRES_DB: "prime_data_hub"
+      POSTGRES_PASSWORD: "changeIT!"
+      POSTGRES_USER: "prime"
+    ports:
+      - 5432:5432
+    networks:
+      - prime-router_build
+networks:
+  prime-router_build:

@@ -236,7 +236,7 @@
       organizationName: primary
       topic: covid-19
       customerStatus: active
-      schemaName: direct/primary-covid-19
+      schemaName: hl7/primary-covid-19
       format: HL7
 
 - name: "johns_hopkins"
