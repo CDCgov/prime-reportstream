@@ -7,7 +7,6 @@ title = "PRIME ReportStream Gitleaks Configuration"
         '(.*?)(bin|doc|gif|iml|jar|jp(e)?g|pdf|png|xlsx)$',
         '^\.?gitleaks-config.toml$',
         '^\.?gitleaks.report.json$',
-        '^\.?detekt-baseline.xml$',
         '^package-lock\.json$',
         'cleanslate.sh.log',
         'yarn\.lock$',

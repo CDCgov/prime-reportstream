@@ -158,9 +158,6 @@ jobs:
       - name: Run Linting Check
         run: ./gradlew ktlintCheck
 
-      - name: Run Detekt Check
-        run: ./gradlew detekt
-
   docs:
     name: Check Docs
     runs-on: ubuntu-latest
