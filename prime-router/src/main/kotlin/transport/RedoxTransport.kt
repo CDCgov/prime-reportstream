@@ -13,6 +13,7 @@ import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.secrets.SecretManagement
 import java.util.logging.Level
 
@@ -151,7 +152,7 @@ class RedoxTransport() : ITransport, SecretManagement {
     }
 
     private fun getBaseUrl(redox: RedoxTransportType): String {
-        return if ("local" == System.getenv("PRIME_ENVIRONMENT") &&
+        return if (Environment.isLocal() &&
             !System.getenv("REDOX_URL_OVERRIDE").isNullOrBlank()
         ) System.getenv("REDOX_URL_OVERRIDE") else redox.baseUrl ?: redoxBaseUrl
     }
@@ -160,7 +161,7 @@ class RedoxTransport() : ITransport, SecretManagement {
         // Dev Note: The Redox API key doesn't change, while the secret can
         // If there is no secret set in the environment then set a dummy one for the local environment.
         val secret = secretService.fetchSecret(secretEnvName)
-            ?: if ("local" == System.getenv("PRIME_ENVIRONMENT")) "some_secret" else ""
+            ?: if (Environment.isLocal()) "some_secret" else ""
         if (secret.isBlank()) error("Unable to find $secretEnvName")
         return Pair(redox.apiKey, secret)
     }

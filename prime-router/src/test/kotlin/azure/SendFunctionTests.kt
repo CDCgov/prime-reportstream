@@ -28,7 +28,7 @@ import kotlin.test.Test
 
 class SendFunctionTests {
     val context = mockkClass(ExecutionContext::class)
-    val metadata = Metadata(Metadata.defaultMetadataDirectory)
+    val metadata = Metadata.getInstance()
     val settings = FileSettings(FileSettings.defaultSettingsDirectory)
     val logger = mockkClass(Logger::class)
     val workflowEngine = mockkClass(WorkflowEngine::class)
@@ -43,6 +43,7 @@ class SendFunctionTests {
         0,
         "",
         "",
+        null,
         null,
         null,
         null,

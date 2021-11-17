@@ -17,6 +17,8 @@ Properties to control the execution and output using the Gradle -P arguments:
   E.g. ./gradlew clean package -Ppg.user=myuser -Dpg.password=mypassword -Pforcetest
  */
 
+import org.apache.commons.io.FileUtils
+import org.apache.commons.io.FilenameUtils
 import org.apache.tools.ant.filters.ReplaceTokens
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.io.FileInputStream
@@ -25,11 +27,11 @@ import java.time.format.DateTimeFormatter
 import java.util.Properties
 
 plugins {
-    kotlin("jvm") version "1.5.31"
-    id("org.flywaydb.flyway") version "8.0.2"
+    kotlin("jvm") version "1.6.0"
+    id("org.flywaydb.flyway") version "8.0.4"
     id("nu.studer.jooq") version "6.0.1"
     id("com.github.johnrengelman.shadow") version "7.1.0"
-    id("com.microsoft.azure.azurefunctions") version "1.8.0"
+    id("com.microsoft.azure.azurefunctions") version "1.8.1"
     id("org.jlleitschuh.gradle.ktlint") version "10.2.0"
     id("com.adarshr.test-logger") version "3.0.0"
     id("jacoco")
@@ -99,13 +101,16 @@ tasks.clean {
 /**
  * Building tasks
  */
-val coverageExcludedClasses = listOf("gov/cdc/prime/router/azure/db/*", "gov/cdc/prime/router/cli/*")
+val coverageExcludedClasses = listOf("gov/cdc/prime/router/azure/db/*", "gov/cdc/prime/router/cli/tests/*")
 tasks.test {
     // Use JUnit 5 for running tests
     useJUnitPlatform()
 
     // Set the environment to local for the tests
     environment["PRIME_ENVIRONMENT"] = "local"
+    environment["POSTGRES_URL"] = dbUrl
+    environment["POSTGRES_USER"] = dbUser
+    environment["POSTGRES_PASSWORD"] = dbPassword
 
     // Set max parellel forks as recommended in https://docs.gradle.org/current/userguide/performance.html
     maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
@@ -135,6 +140,23 @@ tasks.test {
 
 tasks.jacocoTestReport {
     dependsOn(tasks.test)
+    // Jacoco wants the source file directory structure to match the package name like in Java, so 
+    // move the source files to a temp location with that structure.
+    val sourcesDir = File(project.projectDir, "/src/main/kotlin")
+    val jacocoSourcesDir = File(project.buildDir, "/jacoco/sources")
+    doFirst {
+        FileUtils.listFiles(sourcesDir, arrayOf("kt", "java"), true).forEach { sourceFile ->
+            // Find the line in the code that has the package name and convert that to a folder then copy the file.
+            FileUtils.readLines(sourceFile, "UTF8").firstOrNull { it.contains("package") }?.let {
+                val packageDir = it.split(" ").last().replace(".", "/")
+                FileUtils.copyFile(
+                    sourceFile,
+                    File(jacocoSourcesDir, "$packageDir/${FilenameUtils.getName(sourceFile.absolutePath)}")
+                )
+            }
+        }
+    }
+    additionalSourceDirs(jacocoSourcesDir)
     reports.xml.required.set(true)
     // Remove the exclusions, so they do not appear in the report
     classDirectories.setFrom(
@@ -180,6 +202,13 @@ tasks.register<Test>("testIntegration") {
     dependsOn("compileTestIntegrationKotlin")
     dependsOn("compileTestIntegrationJava")
     shouldRunAfter("test")
+
+    // Set the environment to local for the tests
+    environment["PRIME_ENVIRONMENT"] = "local"
+    environment["POSTGRES_URL"] = dbUrl
+    environment["POSTGRES_USER"] = dbUser
+    environment["POSTGRES_PASSWORD"] = dbPassword
+
     testClassesDirs = sourceSets["testIntegration"].output.classesDirs
     classpath = sourceSets["testIntegration"].runtimeClasspath
     // Run the test task if specified configuration files are changed
@@ -297,6 +326,13 @@ tasks.register("reloadSettings") {
     group = rootProject.description ?: ""
     description = "Reload the settings database table"
     project.extra["cliArgs"] = listOf("multiple-settings", "set", "-i", "./settings/organizations.yml")
+    finalizedBy("primeCLI")
+}
+
+tasks.register("reloadTables") {
+    group = rootProject.description ?: ""
+    description = "Load the latest test lookup tables to the database"
+    project.extra["cliArgs"] = listOf("lookuptables", "loadall")
     finalizedBy("primeCLI")
 }
 
@@ -489,7 +525,7 @@ tasks.register("migrate") {
     dependsOn("flywayMigrate")
 }
 
-tasks.register("reloadDB") {
+tasks.register("resetDB") {
     group = rootProject.description ?: ""
     description = "Delete all tables in the database and recreate from the latest schema"
     dependsOn("flywayClean")
@@ -505,16 +541,16 @@ repositories {
 }
 
 dependencies {
-    jooqGenerator("org.postgresql:postgresql:42.3.0")
+    jooqGenerator("org.postgresql:postgresql:42.3.1")
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-common:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
     implementation("com.microsoft.azure.functions:azure-functions-java-library:1.4.2")
-    implementation("com.azure:azure-core:1.21.0")
-    implementation("com.azure:azure-core-http-netty:1.11.1")
-    implementation("com.azure:azure-storage-blob:12.14.1") {
+    implementation("com.azure:azure-core:1.22.0")
+    implementation("com.azure:azure-core-http-netty:1.11.2")
+    implementation("com.azure:azure-storage-blob:12.14.2") {
         exclude(group = "com.azure", module = "azure-core")
     }
     implementation("com.azure:azure-storage-queue:12.11.1") {
@@ -532,7 +568,7 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-core:[2.13.2,)")
     implementation("org.apache.logging.log4j:log4j-slf4j-impl:[2.13.2,)")
     implementation("org.apache.logging.log4j:log4j-api-kotlin:1.1.0")
-    implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.1.0")
+    implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.2.0")
     implementation("tech.tablesaw:tablesaw-core:0.42.0")
     implementation("com.github.ajalt.clikt:clikt-jvm:3.3.0")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.0")
@@ -542,16 +578,17 @@ dependencies {
     implementation("com.github.javafaker:javafaker:1.0.2")
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
-    implementation("com.googlecode.libphonenumber:libphonenumber:8.12.35")
+    implementation("com.googlecode.libphonenumber:libphonenumber:8.12.37")
     implementation("org.thymeleaf:thymeleaf:3.0.12.RELEASE")
-    implementation("com.sendgrid:sendgrid-java:4.7.6")
+    implementation("com.sendgrid:sendgrid-java:4.8.0")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.1")
     implementation("com.github.kittinunf.fuel:fuel:2.3.1") {
         exclude(group = "org.json", module = "json")
     }
     implementation("com.github.kittinunf.fuel:fuel-json:2.3.1")
     implementation("org.json:json:20210307")
-    implementation("com.hierynomus:sshj:0.32.0")
+    // DO NOT INCREMENT SSHJ to a newer version without first thoroughly testing it locally.
+    implementation("com.hierynomus:sshj:0.31.0")
     implementation("org.bouncycastle:bcprov-jdk15on:1.69")
     implementation("com.jcraft:jsch:0.1.55")
     implementation("org.apache.commons:commons-lang3:3.12.0")
@@ -560,8 +597,8 @@ dependencies {
     implementation("commons-io:commons-io:2.11.0")
     implementation("org.postgresql:postgresql:42.3.0")
     implementation("com.zaxxer:HikariCP:5.0.0")
-    implementation("org.flywaydb:flyway-core:7.15.0")
-    implementation("com.github.kayr:fuzzy-csv:1.7.1")
+    implementation("org.flywaydb:flyway-core:8.0.4")
+    implementation("com.github.kayr:fuzzy-csv:1.7.2")
     implementation("org.commonmark:commonmark:0.18.0")
     implementation("com.google.guava:guava:31.0.1-jre")
     implementation("com.helger.as2:as2-lib:4.7.1")
@@ -571,7 +608,7 @@ dependencies {
     implementation("org.bouncycastle:bcprov-jdk15on:1.69")
 
     implementation("commons-net:commons-net:3.8.0")
-    implementation("com.cronutils:cron-utils:9.1.5")
+    implementation("com.cronutils:cron-utils:9.1.6")
     implementation("khttp:khttp:1.0.0")
     implementation("io.jsonwebtoken:jjwt-api:0.11.2")
     implementation("de.m3y.kformat:kformat:0.8")

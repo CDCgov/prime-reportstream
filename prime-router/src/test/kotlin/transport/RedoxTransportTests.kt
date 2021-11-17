@@ -27,7 +27,7 @@ import kotlin.test.Test
 
 class RedoxTransportTests {
     val context = mockkClass(ExecutionContext::class)
-    val metadata = Metadata(Metadata.defaultMetadataDirectory)
+    val metadata = Metadata.getInstance()
     val settings = FileSettings(FileSettings.defaultSettingsDirectory)
     val logger = mockkClass(Logger::class)
     val reportId = UUID.randomUUID()
@@ -44,6 +44,7 @@ class RedoxTransportTests {
         4,
         "",
         "",
+        null,
         null,
         null,
         null,

@@ -352,7 +352,7 @@ class ProcessData(
 
     override fun run() {
         // Load the schema and receivers
-        val metadata = metadataInstance ?: Metadata(Metadata.defaultMetadataDirectory)
+        val metadata = metadataInstance ?: Metadata.getInstance()
         val fileSettings = fileSettingsInstance ?: FileSettings(FileSettings.defaultSettingsDirectory)
         val csvSerializer = CsvSerializer(metadata)
         val hl7Serializer = Hl7Serializer(metadata, fileSettings)
@@ -419,6 +419,7 @@ class ProcessData(
             route ->
                 translator
                     .filterAndTranslateByReceiver(inputReport, getDefaultValues(), emptyList(), warnings)
+                    .filter { it.first.itemCount > 0 }
                     .map { it.first to getOutputFormat(it.second.format) }
             routeTo != null -> {
                 val pair = translator.translate(

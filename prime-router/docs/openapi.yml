@@ -696,6 +696,11 @@ components:
         service:
           type: string
           description: The service used for delivering the report
+        filteredReportRows:
+          type: array
+          description: "Information about the rows filtered from the report due to quality."
+          items:
+            type: string
         sending_at:
           type: time-date
           description: The time at which the report will be sent

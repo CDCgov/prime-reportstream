@@ -696,6 +696,7 @@ Code | Display
 840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
 840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
 373121007|Test not done
+82334004|Indeterminate
 
 **Documentation**:
 
@@ -1570,6 +1571,7 @@ Code | Display
 840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
 840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
 373121007|Test not done
+82334004|Indeterminate
 
 **Documentation**:
 
@@ -1617,6 +1619,8 @@ P, D, or T for Production, Debugging, or Training
 
 **Name**: reportingFacility
 
+**Type**: TEXT
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1627,7 +1631,7 @@ This field is no longer used.  Included here so it does not generate a warning i
 
 ---
 
-**Name**: performingFacility
+**Name**: reporting_facility_clia
 
 **Type**: ID_CLIA
 
@@ -1649,7 +1653,7 @@ The reporting facility's CLIA
 
 ---
 
-**Name**: performingFacilityName
+**Name**: reporting_facility_name
 
 **Type**: TEXT
 
@@ -1724,6 +1728,7 @@ ID name of org that is sending this data to ReportStream.  Suitable for provenan
 Code | Display
 ---- | -------
 22232009|Hospital
+2081004|Hospital ship
 32074000|Long Term Care Hospital
 224929004|Secure Hospital
 42665001|Nursing Home
@@ -1737,7 +1742,10 @@ Code | Display
 257628001|Hostel
 310207003|Sheltered Housing
 57656006|Penal Institution
+285113009|Religious institutional residence
+285141008|Work (environment)
 32911000|Homeless
+261665006|Unknown
 
 **Documentation**:
 
@@ -2021,6 +2029,7 @@ Code | Display
 840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
 840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
 373121007|Test not done
+82334004|Indeterminate
 
 **Documentation**:
 
