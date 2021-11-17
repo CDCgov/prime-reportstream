@@ -1,5 +1,5 @@
 
-### Schema:         direct/primary-covid-19
+### Schema:         hl7/primary-covid-19
 #### Description:   Primary Diagnostics, Inc, schema
 
 ---
@@ -2185,7 +2185,7 @@ pointer/link to the unique id of a previously submitted result.  Usually blank. 
 
 **PII**: No
 
-**Default Value**: T
+**Default Value**: P
 
 **Cardinality**: [0..1]
 
@@ -2885,6 +2885,7 @@ Code | Display
 840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
 840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
 373121007|Test not done
+82334004|Indeterminate
 
 **Documentation**:
 
