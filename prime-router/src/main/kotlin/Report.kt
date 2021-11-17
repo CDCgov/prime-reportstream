@@ -620,10 +620,10 @@ class Report : Logging {
         return if ((patient_age != null) && patient_age.all { Character.isDigit(it) } && (patient_age.toInt() > 0)) {
             patient_age
         } else {
-            /**
-             * Here, we got invalid or blank patient_age given to us.  Therefore, we will use patient date
-             * of birth and date of speciment collected to calculate the patient's age.
-             */
+            //
+            // Here, we got invalid or blank patient_age given to us.  Therefore, we will use patient date
+            // of birth and date of speciment collected to calculate the patient's age.
+            //
             try {
                 val d = LocalDate.parse(patient_dob, Element.dateFormatter)
                 if (d != null && specimenCollectionDate != null &&
