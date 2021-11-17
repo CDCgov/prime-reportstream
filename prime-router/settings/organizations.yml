@@ -1365,11 +1365,13 @@
           hl70189:
             name: hl70189
             system: HL7
+            version: 2.9
             reference: HL7 guidance for ethnicity, modified for PA standards
             values:
               - code: H
                 display: Hispanic or Latino
               - code: NH
+                replaces: N
                 display: Non Hispanic or Latino
               - code: U
                 display: Unknown

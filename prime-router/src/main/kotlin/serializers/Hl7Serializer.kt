@@ -894,7 +894,7 @@ class Hl7Serializer(
                     }
                 }
             }
-            Element.Type.CODE -> setCodeComponent(terser, value, pathSpec, element.valueSet)
+            Element.Type.CODE -> setCodeComponent(terser, value, pathSpec, element.valueSet, element.valueSetRef)
             Element.Type.TELEPHONE -> {
                 if (value.isNotEmpty()) {
                     val phoneNumberFormatting = hl7Config?.phoneNumberFormatting
@@ -912,9 +912,19 @@ class Hl7Serializer(
         }
     }
 
-    private fun setCodeComponent(terser: Terser, value: String, pathSpec: String, valueSetName: String?) {
+    /**
+     * Given the pathspec and the value, it will map that back to a valueset, or look up the valueset
+     * based on the valueSetName, and fill in the field with the code
+     */
+    private fun setCodeComponent(
+        terser: Terser,
+        value: String,
+        pathSpec: String,
+        valueSetName: String?,
+        elementValueSet: ValueSet? = null
+    ) {
         if (valueSetName == null) error("Schema Error: Missing valueSet for '$pathSpec'")
-        val valueSet = metadata.findValueSet(valueSetName)
+        val valueSet = elementValueSet ?: metadata.findValueSet(valueSetName)
             ?: error("Schema Error: Cannot find '$valueSetName'")
         when (valueSet.system) {
             ValueSet.SetSystem.HL7,
@@ -924,10 +934,16 @@ class Hl7Serializer(
                 // if it is a component spec then set all sub-components
                 if (isField(pathSpec)) {
                     if (value.isNotEmpty()) {
-                        terser.set("$pathSpec-1", value)
-                        terser.set("$pathSpec-2", valueSet.toDisplayFromCode(value))
-                        terser.set("$pathSpec-3", valueSet.toSystemFromCode(value))
-                        valueSet.toVersionFromCode(value)?.let {
+                        // if a value in the valueset replaces something in the standard valueset
+                        // we should default to that first, and then we will do all the other
+                        // lookups based on that
+                        val displayValue = valueSet.values.firstOrNull { v ->
+                            v.replaces?.equals(value, true) == true
+                        }?.code ?: value
+                        terser.set("$pathSpec-1", displayValue)
+                        terser.set("$pathSpec-2", valueSet.toDisplayFromCode(displayValue))
+                        terser.set("$pathSpec-3", valueSet.toSystemFromCode(displayValue))
+                        valueSet.toVersionFromCode(displayValue)?.let {
                             terser.set("$pathSpec-7", it)
                         }
                     }

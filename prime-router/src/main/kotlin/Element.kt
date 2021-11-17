@@ -199,6 +199,7 @@ data class Element(
             name = this.name,
             type = this.type ?: baseElement.type,
             valueSet = this.valueSet ?: baseElement.valueSet,
+            valueSetRef = this.valueSetRef ?: baseElement.valueSetRef,
             altValues = this.altValues ?: baseElement.altValues,
             table = this.table ?: baseElement.table,
             tableColumn = this.tableColumn ?: baseElement.tableColumn,
