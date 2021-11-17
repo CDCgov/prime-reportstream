@@ -12,7 +12,13 @@
 
 ### Results from the receiver quality filters in the response.
 
-`filteredReportRows` entry added to `destination` in the response when rows have been filtered out by a receivers configured quality filters. Eacy entry lists the filter used, the arguments for it, and the rows that were filtered by it. This key is present only if at least one row has been filtered out, and is never present for secondary destinations.
+A new `filteredReportRows` entry has now been added to `destination` in the json response.
+
+ Each jurisdiction that receives data from ReportStream can configure 'quality filters' that filter out data that does not meet that receiver's needs.   With this release we are now returning information back to submitters on why certain rows were filtered from going to a particular jurisdiction.  
+ 
+Each entry lists the filter applied and the rows that were filtered by it.  `filteredReportRows` is present only if at least one row has been filtered.
+
+Many receivers have a 'secondary' feed, often designed to catch data that was filtered from that receiver's primary feed.   In those cases, if the submitted data shows as filtered from the primary feed, it may still have been sent to that jurisdiction's secondary feed.
 
 **Examples**
 
