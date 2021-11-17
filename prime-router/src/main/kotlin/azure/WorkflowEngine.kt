@@ -324,24 +324,31 @@ class WorkflowEngine(
         actionHistory: ActionHistory,
     ) {
         this.db.transact { txn ->
-            this
+            val (emptyReports, preparedReports) = this
                 .translator
                 .filterAndTranslateByReceiver(
                     report,
                     defaults,
                     routeTo,
                     warnings,
-                )
-                .forEach { (report, receiver) ->
-                    sendToDestination(
-                        report,
-                        receiver,
-                        context,
-                        options,
-                        actionHistory,
-                        txn
-                    )
+                ).partition { (report, _) -> report.isEmpty() }
+
+            emptyReports.forEach { (report, receiver) ->
+                if (!report.filteredItems.isEmpty()) {
+                    actionHistory.trackFilteredReport(report, receiver)
                 }
+            }
+
+            preparedReports.forEach { (report, receiver) ->
+                sendToDestination(
+                    report,
+                    receiver,
+                    context,
+                    options,
+                    actionHistory,
+                    txn
+                )
+            }
         }
     }
 
