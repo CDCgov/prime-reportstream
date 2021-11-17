@@ -1499,7 +1499,7 @@ class Hl7Serializer(
         val CE_FIELDS = listOf("OBX-15-1")
 
         /**
-         * list of fields that have a ST type with s 50 character limit
+         * list of fields that have a ST type with a 50 character limit
          */
         val ST_FIELDS_UNIVERSAL_CHAR_LIMIT_50 = listOf(
             "OBX-23-1", "OBX-15-2"
