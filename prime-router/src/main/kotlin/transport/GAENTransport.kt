@@ -120,6 +120,7 @@ class GAENTransport : ITransport, Logging {
         val msg = "${params.receiver.fullName}: Successful exposure notifications of ${params.comboId}"
         val history = params.actionHistory
         params.context.logger.info(msg)
+        history.setActionType(TaskAction.send)
         history.trackActionResult(msg)
         history.trackSentReport(
             params.receiver,
