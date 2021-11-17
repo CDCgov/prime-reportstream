@@ -23,6 +23,10 @@ Many receivers have a 'secondary' feed, often designed to catch data that was fi
 **Examples**
 
 All Items filtered out:
+
+ReportStream applies a number of quality filters on behalf of the California Dept of Public Health.  One of these filters requires a number of fields to have valid values.  (See `hasValidDataFor` and the list of values, in the example below).   In this example, it turns out that all three of the data items destined for CA failed this test, so all are being filtered.
+
+However, as you can see in the destinations list, all those data items are being sent to CA's secondary feed.
 ```
 {
     "id": "8049440b-f95a-43e9-bdb7-a7cdfbf261af",
