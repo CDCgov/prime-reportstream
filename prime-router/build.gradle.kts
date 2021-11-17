@@ -27,7 +27,7 @@ import java.time.format.DateTimeFormatter
 import java.util.Properties
 
 plugins {
-    kotlin("jvm") version "1.5.31"
+    kotlin("jvm") version "1.6.0"
     id("org.flywaydb.flyway") version "8.0.4"
     id("nu.studer.jooq") version "6.0.1"
     id("com.github.johnrengelman.shadow") version "7.1.0"
@@ -597,7 +597,7 @@ dependencies {
     implementation("commons-io:commons-io:2.11.0")
     implementation("org.postgresql:postgresql:42.3.0")
     implementation("com.zaxxer:HikariCP:5.0.0")
-    implementation("org.flywaydb:flyway-core:8.0.3")
+    implementation("org.flywaydb:flyway-core:8.0.4")
     implementation("com.github.kayr:fuzzy-csv:1.7.2")
     implementation("org.commonmark:commonmark:0.18.0")
     implementation("com.google.guava:guava:31.0.1-jre")
@@ -608,7 +608,7 @@ dependencies {
     implementation("org.bouncycastle:bcprov-jdk15on:1.69")
 
     implementation("commons-net:commons-net:3.8.0")
-    implementation("com.cronutils:cron-utils:9.1.5")
+    implementation("com.cronutils:cron-utils:9.1.6")
     implementation("khttp:khttp:1.0.0")
     implementation("io.jsonwebtoken:jjwt-api:0.11.2")
     implementation("de.m3y.kformat:kformat:0.8")
