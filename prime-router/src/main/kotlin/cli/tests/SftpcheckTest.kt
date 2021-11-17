@@ -89,7 +89,7 @@ class SftpcheckTest : CoolTest() {
      *  receiverNames - contains all receiver ignore organizations
      *  emptyList - if there is any problem with getting ignore organization.
      */
-    fun listReceiverNames(
+    private fun listReceiverNames(
         path: String,
         accessToken: String
     ): List<String> {
