@@ -62,7 +62,17 @@ However, as you can see in the destinations list, all those data items are being
 }
 ```
 
-Multiple Items filtered out
+Some but not all items filtered out:
+
+In this example one of the items passed CA DPH's filter criteria, but two items failed.
+
+A note on the item numbering:  ReportStream can accept data in CSV and HL7 batch formats.
+
+For a CSV submission, an 'item' is just a row of data in the CSV, and item 1 is the first row of actual data _after_ the header row, item 2 is the second row of actual data, and so on.
+
+For an HL7 batch submission an 'item' is a single HL7 message in the batch, and item 1 is the first message in the batch, item 2 is the second message, and so on.
+
+
 ```
 {
     "id": "5fd89dcc-4767-40be-b72b-9ebfbe0db8e5",
