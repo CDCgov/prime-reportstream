@@ -75,7 +75,6 @@ function TermsOfServiceForm() {
     const [submitting, setSubmitting] = useState(false);
 
     const handleSubmit = async (e: any) => {
-        debugger;
         e.preventDefault();
 
         setSubmitting(true);
