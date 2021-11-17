@@ -146,6 +146,9 @@ jobs:
 
       - name: Run Linting Check
         run: bash ./build.sh -- gradle ktlintCheck
+      
+      - name: Run Detekt Check
+        run: ./gradlew detekt
 
   docs:
     name: Check Docs
