@@ -138,6 +138,7 @@ class ActionHistory {
             request.headers
                 .filter { !it.key.contains("key") }
                 .filter { !it.key.contains("cookie") }
+                .filter { !it.key.contains("auth") }
                 .forEach { (key, value) ->
                     it.writeStringField(key, value)
                 }
