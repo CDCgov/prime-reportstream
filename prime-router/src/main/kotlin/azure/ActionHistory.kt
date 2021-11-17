@@ -486,9 +486,7 @@ class ActionHistory {
             insertReportFile(it, txn)
         }
         reportsOut.values.forEach {
-            if (it.itemCount > 0) {
-                insertReportFile(it, txn)
-            }
+            insertReportFile(it, txn)
         }
     }
 
@@ -530,7 +528,7 @@ class ActionHistory {
         var parentReports2 = mutableSetOf<ReportId>()
         parentReports2.addAll(reportsReceived.keys)
         parentReports2.addAll(reportsIn.keys)
-        val childReports2 = reportsOut.filterValues { it.itemCount > 0 }.keys
+        val childReports2 = reportsOut.keys
         if (!parentReports.equals(parentReports2)) {
             error(
                 "parent reports from items (${parentReports.joinToString(",")}) != from reports" +
@@ -640,7 +638,7 @@ class ActionHistory {
         sendingAt: OffsetDateTime?,
         countToPrint: Int,
         reportOptions: Options,
-        reportId: ReportId? = null
+        reportId: ReportId
     ) {
         jsonGen.writeStartObject()
         // jsonGen.writeStringField("id", reportFile.reportId.toString())   // TMI?
@@ -648,14 +646,12 @@ class ActionHistory {
         jsonGen.writeStringField("organization_id", orgReceiver.organizationName)
         jsonGen.writeStringField("service", orgReceiver.name)
 
-        reportId?.let {
-            if (!filteredReportRows.getOrDefault(it, emptyList()).isEmpty()) {
-                jsonGen.writeArrayFieldStart("filteredReportRows")
-                filteredReportRows.getValue(it).forEach {
-                    jsonGen.writeString(it.toString())
-                }
-                jsonGen.writeEndArray()
+        if (!filteredReportRows.getOrDefault(reportId, emptyList()).isEmpty()) {
+            jsonGen.writeArrayFieldStart("filteredReportRows")
+            filteredReportRows.getValue(reportId).forEach {
+                jsonGen.writeString(it.toString())
             }
+            jsonGen.writeEndArray()
         }
 
         jsonGen.writeStringField(
