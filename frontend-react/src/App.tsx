@@ -1,4 +1,3 @@
-// @ts-nocheck // TODO: fix types in this file
 import { GovBanner } from "@trussworks/react-uswds";
 import { Route, useHistory, Switch } from "react-router-dom";
 import { OktaAuth, toRelativeUrl } from "@okta/okta-auth-js";
@@ -16,7 +15,7 @@ import { Details } from "./pages/details/Details";
 import { Login } from "./pages/Login";
 import { TermsOfService } from "./pages/TermsOfService";
 import { ReportStreamHeader } from "./components/header/ReportStreamHeader";
-import { oktaSignInConfig, oktaAuthConfig } from "./oktaConfig";
+import { oktaAuthConfig } from "./oktaConfig";
 import { About } from "./pages/About";
 import { AuthorizedRoute } from "./components/AuthorizedRoute";
 import { PERMISSIONS } from "./resources/PermissionsResource";
@@ -42,6 +41,7 @@ const App = () => {
         // direct them to the /upload page if they do not have an organization that receives data
         const authState = OKTA_AUTH.authStateManager._authState;
         if (
+            authState &&
             !reportReceiver(authState) &&
             permissionCheck(PERMISSIONS.SENDER, authState)
         ) {
@@ -95,9 +95,7 @@ const App = () => {
                                     />
                                     <Route
                                         path="/login"
-                                        render={() => (
-                                            <Login config={oktaSignInConfig} />
-                                        )}
+                                        render={() => <Login />}
                                     />
                                     <Route
                                         path="/login/callback"

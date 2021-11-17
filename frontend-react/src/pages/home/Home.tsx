@@ -1,4 +1,3 @@
-// @ts-nocheck // TODO: fix types in this file
 import content from "../../content/content.json";
 
 import Hero from "./Hero";
@@ -48,7 +47,7 @@ export const Home = () => {
 
                 {/* INFO
                     this block of code, similar to the one above, maps through the liveMapContact array in content.json to
-                    render out all its contents. */}                
+                    render out all its contents. */}
                 {content.liveMapContact.map((section, sectionIndex) => {
                     return (
                         <section

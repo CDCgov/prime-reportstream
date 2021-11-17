@@ -23,4 +23,10 @@ fi
 
 cd $function_folder
 
+# Use the prime CLI to load configuration in the background
+# The fatjar is two levels up in the libs folder
+top_dir=$function_folder/../..
+fatjar=$top_dir/libs/prime-router-0.1-SNAPSHOT-all.jar
+java -jar $fatjar lookuptables loadall -d $top_dir/resources/test/metadata/tables -r 10 | awk '{print "[LOAD TABLES] " $0}' &
+
 func host start --cors http://localhost:8090,http://localhost:3000 --language-worker -- "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
