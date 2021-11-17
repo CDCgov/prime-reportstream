@@ -53,19 +53,46 @@ LOGFILE="gitleaks.log"
 
 REPO_CONFIG_PATH=".environment/gitleaks/gitleaks-config.toml"
 
+# Run gitleaks locally if installed
+LOCAL_GITLEAKS=0
+if command -v gitleaks &> /dev/null; then
+    LOCAL_GITLEAKS=1
+fi
+
+function base_command() {
+    if [[ ${LOCAL_GITLEAKS?} == 1 ]]; then
+        echo "running gitleaks locally"
+        gitleaks \
+            --path="${REPO_ROOT?}" \
+            --repo-config-path="${REPO_CONFIG_PATH?}" \
+            --report="${REPO_ROOT?}/${REPORT_JSON?}" \
+            $(if [[ ${VERBOSE?} != 0 ]]; then echo "--verbose"; else echo ""; fi) \
+            $1 \
+            2>"${LOGFILE?}"
+    else
+        echo "running gitleaks in docker"
+        docker run \
+            -v "${REPO_ROOT?}:${CONTAINER_SOURCE_LOCATION?}" \
+            --rm \
+            "${GITLEAKS_IMG_NAME?}" \
+            --path="${CONTAINER_LOCATION?}" \
+            --repo-config-path="${REPO_CONFIG_PATH?}" \
+            --report="${CONTAINER_LOCATION?}/${REPORT_JSON?}" \
+            $(if [[ ${VERBOSE?} != 0 ]]; then echo "--verbose"; else echo ""; fi) \
+            $1 \
+            2>"${LOGFILE?}"
+    fi
+    RC=$?
+
+    return ${RC?}
+}
+
 function scan_uncommitted() {
     note "Scanning your suggested changes."
     # NOTE: ironically, the switch to scan your staged (i.e. to be committed) changes is to use the --unstaged switch
-    docker run \
-        -v "${REPO_ROOT?}:${CONTAINER_SOURCE_LOCATION?}" \
-        --rm \
-        "${GITLEAKS_IMG_NAME?}" \
-        --path="${CONTAINER_LOCATION?}" \
-        --repo-config-path="${REPO_CONFIG_PATH?}" \
-        --report="${CONTAINER_LOCATION?}/${REPORT_JSON?}" \
-        $(if [[ ${VERBOSE?} != 0 ]]; then echo "--verbose"; else echo ""; fi) \
-        --unstaged \
-        2>"${LOGFILE?}"
+
+    base_command "--unstaged"
+
     RC=$?
 
     return ${RC?}
@@ -73,16 +100,8 @@ function scan_uncommitted() {
 
 function scan_no_git() {
     note "Scanning the current state of the repository."
-    docker run \
-        -v "${REPO_ROOT?}:${CONTAINER_SOURCE_LOCATION?}" \
-        --rm \
-        "${GITLEAKS_IMG_NAME?}" \
-        --path="${CONTAINER_LOCATION?}" \
-        --config-path="${CONTAINER_LOCATION?}/${REPO_CONFIG_PATH?}" \
-        --report="${CONTAINER_LOCATION?}/${REPORT_JSON?}" \
-        $(if [[ ${VERBOSE?} != 0 ]]; then echo "--verbose"; else echo ""; fi) \
-        --no-git \
-        2>"${LOGFILE?}"
+
+    base_command "--no-git"
 
     RC=$?
 
@@ -93,16 +112,7 @@ function scan_x_last_commits() {
     DEPTH=${1}
     note "Scanning the last ${DEPTH?} commits."
 
-    docker run \
-        -v "${REPO_ROOT?}:${CONTAINER_SOURCE_LOCATION?}" \
-        --rm \
-        "${GITLEAKS_IMG_NAME?}" \
-        --path="${CONTAINER_LOCATION?}" \
-        --repo-config-path="${REPO_CONFIG_PATH?}" \
-        --report="${CONTAINER_LOCATION?}/${REPORT_JSON?}" \
-        $(if [[ ${VERBOSE?} != 0 ]]; then echo "--verbose"; else echo ""; fi) \
-        --depth ${DEPTH?} \
-        2>"${LOGFILE?}"
+    base_command "--depth ${DEPTH?}"
 
     RC=$?
 
@@ -113,16 +123,7 @@ function scan_since() {
     SINCE=${1}
     note "Scanning all commits since ${SINCE?}."
 
-    docker run \
-        -v "${REPO_ROOT?}:${CONTAINER_SOURCE_LOCATION?}" \
-        --rm \
-        "${GITLEAKS_IMG_NAME?}" \
-        --path="${CONTAINER_LOCATION?}" \
-        --repo-config-path="${REPO_CONFIG_PATH?}" \
-        --report="${CONTAINER_LOCATION?}/${REPORT_JSON?}" \
-        $(if [[ ${VERBOSE?} != 0 ]]; then echo "--verbose"; else echo ""; fi) \
-        --commit-since "${SINCE?}" \
-        2>"${LOGFILE?}"
+    base_command "--commit-since \"${SINCE?}\""
 
     RC=$?
 

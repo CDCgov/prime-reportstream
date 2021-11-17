@@ -50,7 +50,7 @@ Override the base hl70136 valueset with a custom one, to handle slightly differe
 
 **PII**: No
 
-**Cardinality**: [1..1]
+**Cardinality**: [0..1]
 
 
 **Reference URL**:
@@ -62,7 +62,7 @@ Override the base hl70136 valueset with a custom one, to handle slightly differe
 
 **Documentation**:
 
-Required.  Must match LIVD column B, "Model". eg,  "BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B"
+If present, match LIVD column B, "Model". eg,  "BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B"
 
 ---
 
@@ -446,7 +446,7 @@ The patient's race. There is a common valueset defined for race values, but some
 
 **PII**: No
 
-**Cardinality**: [1..1]
+**Cardinality**: [0..1]
 
 **Table**: fips-county
 
@@ -454,7 +454,7 @@ The patient's race. There is a common valueset defined for race values, but some
 
 **Documentation**:
 
-Extremely important field for routing data to states.
+The patient's state
 
 ---
 
@@ -1031,7 +1031,7 @@ the test result is in some intermediate status, is a correction, or is the final
 - [ORC-2-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.2.3)
 - [ORC-3-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.3.3)
 
-**Cardinality**: [1..1]
+**Cardinality**: [0..1]
 
 **Documentation**:
 

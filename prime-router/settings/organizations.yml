@@ -217,6 +217,17 @@
       schemaName: hl7/lifepoint-covid-19
       format: HL7
 
+- name: prescryptive
+  description: Prescryptive Health
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: prescryptive
+      topic: covid-19
+      customerStatus: active
+      schemaName: hl7/prescryptive-covid-19
+      format: HL7
+
 - name: primary
   description: Primary Diagnostics, Inc. (primary.health)
   jurisdiction: FEDERAL
@@ -1547,7 +1558,7 @@
       organizationName: "hhsprotect"
       topic: "covid-19"
       customerStatus: active
-      jurisdictionalFilter: [ "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*,Strac,InBios,reddyfmc,abbott,lifepoint,hca)" ]
+      jurisdictionalFilter: [ "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*,Strac,InBios,reddyfmc,abbott,lifepoint,hca,prescryptive)" ]
       qualityFilter: [ "allowAll()" ]
       translation:
         type: "CUSTOM"
