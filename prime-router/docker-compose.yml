@@ -139,19 +139,6 @@ services:
     networks:
       - prime-router_build
 
-  web_receiver:
-    image: node:14-alpine
-    volumes:
-      - ../frontend-react:/app
-    working_dir: /app
-    command: sh -c "npm install && npm start"
-    ports:
-      - "8090:3000"
-    depends_on:
-      - prime_dev
-    networks:
-      - prime-router_build
-
 volumes:
   # For storing a local encrypted secrets database
   vault:

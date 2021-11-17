@@ -183,7 +183,7 @@ class ActionHistory {
     }
 
     fun trackActionResult(httpResponseMessage: HttpResponseMessage) {
-        trackActionResult(httpResponseMessage.status.toString() + ":\n" + httpResponseMessage.body.toString())
+        trackActionResult(httpResponseMessage.status.toString())
     }
 
     fun trackActionRequestResponse(request: HttpRequestMessage<String?>, response: HttpResponseMessage) {
