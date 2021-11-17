@@ -183,13 +183,16 @@ class ActionHistory {
         action.actionResult = tmp.chunked(size = max)[0]
     }
 
-    fun trackActionResult(httpResponseMessage: HttpResponseMessage) {
-        trackActionResult(httpResponseMessage.status.toString())
+    fun trackActionResult(httpResponseMessage: HttpResponseMessage, showBody: Boolean = true) {
+        trackActionResult(
+            httpResponseMessage.status.toString() +
+                if (showBody) ": " + httpResponseMessage.body.toString() else ""
+        )
     }
 
     fun trackActionRequestResponse(request: HttpRequestMessage<String?>, response: HttpResponseMessage) {
         trackActionParams(request)
-        trackActionResult(response)
+        trackActionResult(response, false)
     }
 
     /**
