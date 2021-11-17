@@ -90,7 +90,7 @@ fun addVaultValuesToEnv(env: MutableMap<String, Any>) {
 
 defaultTasks("package")
 
-val kotlinVersion = "1.5.31"
+val kotlinVersion = "1.6.0"
 jacoco.toolVersion = "0.8.7"
 
 // Set the compiler JVM target
@@ -569,7 +569,7 @@ dependencies {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
-    implementation("com.azure:azure-identity:1.4.0") {
+    implementation("com.azure:azure-identity:1.4.1") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
