@@ -12,7 +12,7 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
-import java.time.ZoneId
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import kotlin.test.Test
 import kotlin.test.assertFails
@@ -100,7 +100,7 @@ internal class ElementTests {
             "a",
             type = Element.Type.DATETIME,
         )
-        val o = ZoneId.of(USTimeZone.CENTRAL.zoneId).rules.getOffset(Instant.now()).toString()
+        val o = ZoneOffset.UTC.rules.getOffset(Instant.now()).toString()
         val offset = if (o == "Z") {
             "+0000"
         } else {
@@ -614,16 +614,40 @@ internal class ElementTests {
 
     @Test
     fun `test tokenized value mapping`() {
-        val elementNameIndex = "\$index"
-        val elementNameCurrentDate = "\$currentDate"
-
         val mockElement = Element("mock")
+
+        // sending in "$index" should return the index of the row being processed
+        val elementNameIndex = "\$index"
         val elementAndValueIndex = mockElement.tokenizeMapperValue(elementNameIndex, 3)
+        assertThat(elementAndValueIndex.value).isEqualTo("3")
+
+        // sending in "$currentDate" should return the current date of when the function was ran
+        val elementNameCurrentDate = "\$currentDate"
         val formatter = DateTimeFormatter.ofPattern("yyyyMMdd")
         val currentDate = LocalDate.now().format(formatter)
         val elementAndValueCurrentDate = mockElement.tokenizeMapperValue(elementNameCurrentDate)
+        assertThat(elementAndValueCurrentDate.value).isEqualTo(currentDate)
 
-        assertThat(elementAndValueIndex?.value).isEqualTo("3")
-        assertThat(elementAndValueCurrentDate?.value).isEqualTo(currentDate)
+        // sending in a "$dateFormat:valid-date-format" should return just the date format which is located
+        // after the semi-colon in the token
+        val elementNameDateFormat = "\$dateFormat:MM/dd/yyyy"
+        val elementAndValueDateFormat = mockElement.tokenizeMapperValue(elementNameDateFormat)
+        assertThat(elementAndValueDateFormat.value).isEqualTo("MM/dd/yyyy")
+
+        // if nothing "parsable" comes through, the token value will be an empty string
+        val elementNameNonValidToken = "\$nonValidToken:not valid"
+        val elementAndValueNotValidToken = mockElement.tokenizeMapperValue(elementNameNonValidToken)
+        assertThat(elementAndValueNotValidToken.value).isEqualTo("")
+
+        // sending in a "mode:literal" should return just the mode, which in this case is "literal"
+        val elementNameMode = "\$mode:literal"
+        val elementAndValueMode = mockElement.tokenizeMapperValue(elementNameMode)
+        assertThat(elementAndValueMode.value).isEqualTo("literal")
+
+        // sending in a "string:someDefaultString" should return just the string that needs to be the default value,
+        // which in this case is "someDefaultString"
+        val elementNameString = "\$string:someDefaultString"
+        val elementAndValueString = mockElement.tokenizeMapperValue(elementNameString)
+        assertThat(elementAndValueString.value).isEqualTo("someDefaultString")
     }
 }

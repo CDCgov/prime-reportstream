@@ -1,5 +1,6 @@
 package gov.cdc.prime.router
 
+import com.google.common.base.Preconditions
 import java.security.MessageDigest
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
@@ -161,6 +162,47 @@ class IfPresentMapper : Mapper {
         } else {
             null
         }
+    }
+}
+
+/**
+ * This mapper checks if one or more elements are blank or not present on a row,
+ * and if so, will replace an element's value with either some literal string value
+ * or the value from a different field on a row
+ * ex. ifNotPresent($mode:literal, $string:NO ADDRESS, patient_zip_code, patient_state)
+ *      - if patient_zip_code and patient_state are missing or blank, then replace element's value with "NO ADDRESS"
+ *     ifNotPresent($mode:lookup, ordering_provider_city, patient_zip_code)
+ *      - if patient_zip_code is missing or blank, then replace element's value with that of the ordering_provider_city
+ */
+class IfNotPresentMapper : Mapper {
+    override val name = "ifNotPresent"
+
+    override fun valueNames(element: Element, args: List<String>): List<String> {
+        if (args.isEmpty()) error("Schema Error: ifNotPresent expects dependency and value parameters")
+        return args
+    }
+
+    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
+        val mode = args[0].split(":")[1]
+        val modeOperator = if (args[1].contains(":")) args[1].split(":")[1] else args[1]
+        val conditionList = args.subList(2, args.size)
+        conditionList.forEach {
+            val valuesElement = values.find { v -> v.element.name == it }
+            if (valuesElement != null && valuesElement.value.isNotBlank()) {
+                return null
+            }
+        }
+        when (mode) {
+            "literal" -> {
+                return modeOperator
+            }
+            "lookup" -> {
+                val lookupValue = values.find { v -> v.element.name == modeOperator }
+                return lookupValue?.value.toString()
+            }
+        }
+
+        return null
     }
 }
 
@@ -349,13 +391,31 @@ class LIVDLookupMapper : Mapper {
          * @param filters an optional list of additional filters to limit our search by
          * @return a possible String? value based on the lookup
          */
-        private fun lookupByEquipmentModelName(
+        internal fun lookupByEquipmentModelName(
             element: Element,
             value: String,
             filters: Map<String, String>
         ): String? {
             if (value.isBlank()) return null
-            return lookup(element, value, LIVD_MODEL, filters)
+
+            val result = lookup(element, value, LIVD_MODEL, filters)
+            // There is an issue with senders setting equipment model names with or without * across all their reports
+            // which result in incorrect data sent to receivers.  Check for a model name with or without * just in case.
+            return if (result.isNullOrBlank())
+                lookup(element, getValueVariation(value, "*"), LIVD_MODEL, filters)
+            else result
+        }
+
+        /**
+         * Gets a variation of a string [value] based on the [suffix].  If the suffix is present in the value
+         * then the variation is the value without the suffix, otherwise the variation is the value WITH the suffix.
+         * @param ignoreCase set to true to ignore case, false otherwise
+         * @return the string variation.
+         */
+        internal fun getValueVariation(value: String, suffix: String, ignoreCase: Boolean = true): String {
+            Preconditions.checkArgument(value.isNotEmpty())
+            Preconditions.checkArgument(suffix.isNotEmpty())
+            return if (value.endsWith(suffix, ignoreCase)) value.dropLast(suffix.length) else value + suffix
         }
 
         /**
@@ -501,6 +561,7 @@ class Obx8Mapper : Mapper {
                 "840535000" -> "A" // Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
                 "840534001" -> "A" // Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
                 "373121007" -> "N" // Test not done
+                "82334004" -> "N" // Indeterminate
                 else -> null
             }
         }
@@ -756,9 +817,51 @@ class NullMapper : Mapper {
     }
 }
 
+/**
+ * This mapper checks if a date is in the valid, expected format, and returns it,
+ * and if the date is not in the valid, expected format, it returns an empty string.
+ * Use this if a date is optional, such as an illness onset date
+ * Arguments: dateFormat (ex. yyyyMMdd)
+ * Returns: string (date) or an empty string
+ * ex: mapper: nullDateValidator($dateFormat:yyyyMMdd, test_result_date)
+ */
+class NullDateValidator : Mapper {
+    override val name = "nullDateValidator"
+
+    override fun valueNames(element: Element, args: List<String>) = args
+
+    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String {
+
+        if (values.isEmpty()) return ""
+        if (args.isEmpty()) return ""
+
+        // the first value is the dateFormat. If blank or invalid, return empty string
+        val dateFormat = values.firstOrNull()?.value ?: return ""
+        if (dateFormat.isBlank()) return ""
+        val dateFormatter: DateTimeFormatter = try {
+            DateTimeFormatter.ofPattern(dateFormat, Locale.ENGLISH)
+        } catch (ex: IllegalArgumentException) {
+            null
+        } ?: return ""
+
+        // the second value is the value of the element with the date that needs to be checked
+        var dateString = values[1].value
+
+        try {
+            // if the dateString parses, return the original date string at the end
+            dateFormatter.parse(dateString).toString()
+        } catch (ex: Exception) {
+            // if the dateString does not parse, for instance, if it says "a week ago", return an empty string
+            dateString = ""
+        }
+
+        return dateString
+    }
+}
+
 object Mappers {
     fun parseMapperField(field: String): Pair<String, List<String>> {
-        val match = Regex("([a-zA-Z0-9]+)\\x28([a-z, \\x2E_\\x2DA-Z0-9?&$^]*)\\x29").find(field)
+        val match = Regex("([a-zA-Z0-9]+)\\x28([a-z, \\x2E_\\x2DA-Z0-9?&$*:^]*)\\x29").find(field)
             ?: error("Mapper field $field does not parse")
         val args = if (match.groupValues[2].isEmpty())
             emptyList()

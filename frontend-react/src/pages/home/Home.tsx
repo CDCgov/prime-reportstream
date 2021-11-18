@@ -1,4 +1,3 @@
-// @ts-nocheck // TODO: fix types in this file
 import content from "../../content/content.json";
 
 import Hero from "./Hero";
@@ -23,7 +22,7 @@ export const Home = () => {
                         <section
                             data-testid="section"
                             key={`section=${sectionIndex}`}
-                            className="usa-section margin-y-0 tablet:padding-top-2 tablet:padding-bottom-2"
+                            className="usa-section margin-y-0 tablet:padding-top-6 tablet:padding-bottom-3"
                         >
                             <div className="grid-row grid-gap">
                                 <Section section={section} />
@@ -47,26 +46,23 @@ export const Home = () => {
                 })}
 
                 {/* INFO
-                    this block of code, similar to the one above, maps through the freeSecure array in content.json to
+                    this block of code, similar to the one above, maps through the liveMapContact array in content.json to
                     render out all its contents. */}
-                <section className="usa-section">
-                    <div className="grid-row grid-gap  margin-bottom-4 padding-top-0">
-                        {content.freeSecure.map((item) => {
-                            return (
-                                <div
-                                    data-testid="free-secure"
-                                    key={item.title}
-                                    className="tablet:grid-col-6"
-                                >
-                                    <h3 className="font-sans-lg padding-top-3 border-top-05 border-base-lighter">
-                                        {item.title}
-                                    </h3>
-                                    <p className="usa-prose">{item.summary}</p>
+                {content.liveMapContact.map((section, sectionIndex) => {
+                    return (
+                        <section
+                            data-testid="section"
+                            key={`section=${sectionIndex}`}
+                            className="usa-section margin-y-0 tablet:padding-top-2 tablet:padding-bottom-2"
+                        >
+                            <div className="grid-row grid-gap">
+                                <div className="tablet:grid-col-8 tablet:grid-offset-2">
+                                    <Section section={section} />
                                 </div>
-                            );
-                        })}
-                    </div>
-                </section>
+                            </div>
+                        </section>
+                    );
+                })}
             </div>
         </>
     );

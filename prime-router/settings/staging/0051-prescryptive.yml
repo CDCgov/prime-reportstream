@@ -1,0 +1,46 @@
+# Run this:  ./prime multiple-settings set --input ./settings/staging/0051-prescryptive.yml --env staging
+---
+- name: prescryptive
+  description: Prescryptive Health
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: prescryptive
+      topic: covid-19
+      customerStatus: active
+      schemaName: hl7/prescryptive-covid-19
+      format: HL7
+    
+- name: "hhsprotect"
+  description: "HHSProtect"
+  jurisdiction: "FEDERAL"
+  receivers:
+  - name: "elr"
+    organizationName: "hhsprotect"
+    topic: "covid-19"
+    customerStatus: "active"
+    translation: !<CUSTOM>
+      schemaName: "hhsprotect/hhsprotect-covid-19"
+      format: "CSV"
+      defaults: {}
+      nameFormat: "STANDARD"
+      receivingOrganization: null
+      type: "CUSTOM"
+    jurisdictionalFilter:
+    - "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*,InBios,Strac,AnavasiDx,careevolution,reddyfmc,primary,abbott,lifepoint,hca,prescryptive)"
+    qualityFilter:
+    - "allowAll()"
+    reverseTheQualityFilter: false
+    deidentify: true
+    timing:
+      operation: "MERGE"
+      numberPerDay: 96          # every 15 minutes
+      initialTime: "00:00"
+      timeZone: "EASTERN"
+      maxReportCount: 500
+    description: ""
+    transport: !<BLOBSTORE>
+      storageName: "PartnerStorage"
+      containerName: "hhsprotect"
+      type: "BLOBSTORE"
+  

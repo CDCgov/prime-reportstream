@@ -4,20 +4,27 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
+import gov.cdc.prime.router.azure.DatabaseLookupTableAccess
+import gov.cdc.prime.router.metadata.DatabaseLookupTable
+import gov.cdc.prime.router.metadata.LookupTable
+import org.apache.logging.log4j.kotlin.Logging
+import org.jooq.exception.DataAccessException
 import java.io.File
 import java.io.FilenameFilter
 import java.io.InputStream
+import java.time.Instant
 
 /**
  * A metadata object contains all the metadata including schemas, tables, valuesets, and organizations.
  */
-class Metadata {
+class Metadata : Logging {
     private var schemaStore = mapOf<String, Schema>()
     private var fileNameTemplatesStore = mapOf<String, FileNameTemplate>()
     private var mappers = listOf(
         MiddleInitialMapper(),
         UseMapper(),
         IfPresentMapper(),
+        IfNotPresentMapper(),
         LookupMapper(),
         LIVDLookupMapper(),
         ConcatenateMapper(),
@@ -36,6 +43,7 @@ class Metadata {
         TimestampMapper(),
         HashMapper(),
         NullMapper(),
+        NullDateValidator()
     )
     private var jurisdictionalFilters = listOf(
         FilterByCounty(),
@@ -51,28 +59,48 @@ class Metadata {
     private val mapper = ObjectMapper(YAMLFactory()).registerModule(KotlinModule())
 
     /**
-     * Load all parts of the metadata catalog from a directory and its sub-directories
+     * The database lookup table access.
      */
-    constructor(
-        metadataPath: String
+    private var tableDbAccess: DatabaseLookupTableAccess
+
+    /**
+     * Load all parts of the metadata catalog located at the default catalog folder.
+     * @param tableDbAccess database lookup table access for dependency injection purposes
+     */
+    internal constructor(tableDbAccess: DatabaseLookupTableAccess? = null) :
+        this(defaultMetadataDirectory, tableDbAccess)
+
+    /**
+     * Load all parts of the metadata catalog located at [metadataPath] from a directory and its sub-directories.
+     * @param tableDbAccess database lookup table access for dependency injection purposes
+     */
+    internal constructor(
+        metadataPath: String,
+        tableDbAccess: DatabaseLookupTableAccess? = null
     ) {
+        this.tableDbAccess = tableDbAccess ?: DatabaseLookupTableAccess()
         val metadataDir = File(metadataPath)
         if (!metadataDir.isDirectory) error("Expected metadata directory")
         loadValueSetCatalog(metadataDir.toPath().resolve(valuesetsSubdirectory).toString())
         loadLookupTables(metadataDir.toPath().resolve(tableSubdirectory).toString())
+        loadDatabaseLookupTables()
         loadSchemaCatalog(metadataDir.toPath().resolve(schemasSubdirectory).toString())
         loadFileNameTemplates(metadataDir.toPath().resolve(fileNameTemplatesSubdirectory).toString())
+        logger.trace("Metadata initialized.")
     }
 
     /**
-     * Useful for test versions of the metadata catalog
+     * FOR UNIT TESTING ONLY.  Useful for test versions of the metadata catalog
+     * @param tableDbAccess database lookup table access for dependency injection purposes
      */
     constructor(
         schema: Schema? = null,
         valueSet: ValueSet? = null,
         tableName: String? = null,
-        table: LookupTable? = null
-    ) {
+        table: LookupTable? = null,
+        tableDbAccess: DatabaseLookupTableAccess? = null
+    ) : this() {
+        if (tableDbAccess != null) this.tableDbAccess = tableDbAccess
         valueSet?.let { loadValueSets(it) }
         table?.let { loadLookupTable(tableName ?: "", it) }
         schema?.let { loadSchemas(it) }
@@ -98,7 +126,7 @@ class Metadata {
         return loadSchemaList(schemas.toList())
     }
 
-    fun loadSchemaList(schemas: List<Schema>): Metadata {
+    private fun loadSchemaList(schemas: List<Schema>): Metadata {
         val fixedUpSchemas = mutableMapOf<String, Schema>()
 
         fun fixupSchema(name: String): Schema {
@@ -249,7 +277,7 @@ class Metadata {
         return loadValueSetList(sets.toList())
     }
 
-    fun loadValueSetList(sets: List<ValueSet>): Metadata {
+    private fun loadValueSetList(sets: List<ValueSet>): Metadata {
         this.valueSets = sets.map { normalizeValueSetName(it.name) to it }.toMap()
         return this
     }
@@ -277,13 +305,17 @@ class Metadata {
         return name.lowercase()
     }
 
-    /*
+    /**
      * Lookup Tables
      */
-    var lookupTableStore = mapOf<String, LookupTable>()
-    val lookupTables get() = lookupTableStore
+    internal var lookupTableStore = mapOf<String, LookupTable>()
 
-    fun loadLookupTables(filePath: String): Metadata {
+    /**
+     * Last time the database lookup tables were checked.
+     */
+    internal var tablelastCheckedAt = Instant.now()
+
+    private fun loadLookupTables(filePath: String): Metadata {
         val catalogDir = File(filePath)
         if (!catalogDir.isDirectory) error("Expected ${catalogDir.absolutePath} to be a directory")
         try {
@@ -304,6 +336,62 @@ class Metadata {
     fun loadLookupTable(name: String, tableStream: InputStream): Metadata {
         val table = LookupTable.read(tableStream)
         return loadLookupTable(name, table)
+    }
+
+    /**
+     * Load the database lookup tables.
+     */
+    @Synchronized
+    fun checkForDatabaseLookupTableUpdates() {
+        // Check for tables at intervals
+        if (tablelastCheckedAt.plusSeconds(tablePollInternalSecs).isAfter(Instant.now()))
+            return
+        loadDatabaseLookupTables()
+        tablelastCheckedAt = Instant.now()
+    }
+
+    /**
+     * Update the database lookup tables that have changed versions and load any new tables.
+     */
+    @Synchronized
+    internal fun loadDatabaseLookupTables() {
+        logger.trace("Checking for database lookup table updates...")
+        val databaseTables = lookupTableStore.values.mapNotNull { if (it is DatabaseLookupTable) it else null }
+
+        try {
+            val activeTables = tableDbAccess.fetchTableList()
+            // Let's be paranoid and check if the API is not returning what we need.
+            if (activeTables.any { it.isActive == false })
+                error("Database lookup table list returned an inactive table.")
+
+            // Process existing tables
+            databaseTables.forEach { dbTable ->
+                val tableInfo = activeTables.firstOrNull { it.tableName == dbTable.name }
+                when {
+                    // The table was removed
+                    tableInfo == null -> {
+                        // Note that we cannot remove the table as the schema would break with the existing code.
+                        dbTable.setTableData(emptyList())
+                        logger.warn("Database lookup table ${dbTable.name} is no longer active.")
+                    }
+
+                    // The table version has changed
+                    tableInfo.tableVersion != dbTable.version ->
+                        dbTable.loadTable(tableInfo.tableVersion)
+                }
+            }
+
+            // Load new tables
+            val newTables = activeTables.filter { !lookupTableStore.containsKey(it.tableName.lowercase()) }
+            newTables.forEach {
+                loadLookupTable(
+                    it.tableName,
+                    DatabaseLookupTable(it.tableName, tableDbAccess).loadTable(it.tableVersion)
+                )
+            }
+        } catch (e: DataAccessException) {
+            logger.error("Error while trying to check for updates to database lookup tables.", e)
+        }
     }
 
     fun findLookupTable(name: String): LookupTable? {
@@ -357,23 +445,35 @@ class Metadata {
         const val schemaExtension = ".schema"
         const val valueSetExtension = ".valuesets"
         const val tableExtension = ".csv"
-        const val defaultMetadataDirectory = "./metadata"
+        private const val defaultMetadataDirectory = "./metadata"
         const val schemasSubdirectory = "schemas"
         const val valuesetsSubdirectory = "valuesets"
         const val tableSubdirectory = "tables"
         const val fileNameTemplatesSubdirectory = "./file_name_templates"
-        @Volatile private var defaultMetadata: Metadata? = null
-        // I am probably threadsafe. If things go bananas verify I'm not the cause
-        // this is instead of doing everything with DI because doing DI right in Azure
-        // with existing DI libraries was extremely complex and beyond the scope
-        // of this work. And probably hard to get right. And honestly not necessary. Probably.
-        // honestly, the case could be made to make Metadata a singleton and then this code
-        // can go away, but that is also beyond the scope of this work right now
-        fun provideMetadata(): Metadata {
-            return defaultMetadata ?: synchronized(this) {
-                val newInstance = defaultMetadata ?: Metadata(defaultMetadataDirectory).also { defaultMetadata = it }
-                newInstance
-            }
+
+        /**
+         * Singleton object
+         */
+        private val singletonInstance: Metadata by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
+            Metadata(defaultMetadataDirectory)
         }
+
+        /**
+         * Get the singleton instance.
+         * @return the metadata instance
+         */
+        fun getInstance(): Metadata {
+            return singletonInstance
+        }
+
+        /**
+         * The amount of seconds to wait before tables are checked again for updates.
+         */
+        private val tablePollInternalSecs =
+            try {
+                System.getenv("PRIME_METADATA_POLL_INTERVAL")?.toLong()
+            } catch (e: NumberFormatException) {
+                null
+            } ?: 30L
     }
 }
