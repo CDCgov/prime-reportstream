@@ -52,7 +52,7 @@ class GetSubmissions(
      * TODO: move to a utility class
      */
     private fun isPositiveInteger(s: String): Boolean {
-        return s.isNullOrEmpty() && s.all { Character.isDigit(it) } && s.toInt() > 0
+        return !s.isNullOrEmpty() && s.all { Character.isDigit(it) } && s.toInt() > 0
     }
 
     /**
