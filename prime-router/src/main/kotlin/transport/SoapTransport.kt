@@ -25,8 +25,10 @@ class SoapTransport : ITransport {
         val soapTransportType = transportType as? SoapTransportType
             ?: error("Transport type passed in not of SOAPTransportType")
 
-        context.logger.info("Preparing to sending ${header.reportFile.reportId} " +
-            "to ${soapTransportType.soapAction} at ${soapTransportType.endpoint}")
+        context.logger.info(
+            "Preparing to sending ${header.reportFile.reportId} " +
+                "to ${soapTransportType.soapAction} at ${soapTransportType.endpoint}"
+        )
 
         return try {
             null
