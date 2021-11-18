@@ -21,7 +21,8 @@ enum class FtpsProtocol {
     JsonSubTypes.Type(BlobStoreTransportType::class, name = "BLOBSTORE"),
     JsonSubTypes.Type(NullTransportType::class, name = "NULL"),
     JsonSubTypes.Type(AS2TransportType::class, name = "AS2"),
-    JsonSubTypes.Type(FTPSTransportType::class, name = "FTPS")
+    JsonSubTypes.Type(FTPSTransportType::class, name = "FTPS"),
+    JsonSubTypes.Type(SoapTransportType::class, name = "SOAP")
 )
 abstract class TransportType(val type: String)
 
@@ -97,3 +98,11 @@ data class NullTransportType
 @JsonCreator constructor(
     val dummy: String? = null,
 ) : TransportType("NULL")
+
+data class SoapTransportType
+@JsonCreator constructor(
+    val endpoint: String,
+    val soapAction: String,
+) : TransportType("SOAP") {
+    override fun toString(): String = "endpoint=$endpoint, soapAction=$soapAction"
+}
