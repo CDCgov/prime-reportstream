@@ -12,6 +12,8 @@ data class ResultDetail(
     val responseMessage: ResponseMessage,
     val row: Int = -1
 ) {
+    val rowNumber: Int
+        get() = row + 1
     /**
      * @property REPORT scope for the detail
      * @property ITEM scope for the detail

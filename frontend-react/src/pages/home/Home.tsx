@@ -1,4 +1,3 @@
-// @ts-nocheck // TODO: fix types in this file
 import content from "../../content/content.json";
 
 import Hero from "./Hero";

@@ -1,6 +1,6 @@
 
-### Schema:         direct/primary-covid-19
-#### Description:   Primary Diagnostics, Inc, schema
+### Schema:         hl7/prescryptive-covid-19
+#### Description:   Prescryptive Health
 
 ---
 
@@ -2357,7 +2357,7 @@ Does the patient reside in a congregate care setting?
 
 **PII**: No
 
-**Default Value**: primary
+**Default Value**: prescryptive
 
 **Cardinality**: [0..1]
 
@@ -2885,6 +2885,7 @@ Code | Display
 840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
 840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
 373121007|Test not done
+82334004|Indeterminate
 
 **Documentation**:
 
