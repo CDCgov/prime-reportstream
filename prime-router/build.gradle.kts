@@ -280,6 +280,13 @@ tasks.register("fatJar") {
     dependsOn("shadowJar")
 }
 
+tasks.ktlintCheck {
+    // DB tasks are not needed by ktlint, but gradle adds them by automatic configuration
+    tasks["generateJooq"].enabled = false
+    tasks["migrate"].enabled = false
+    tasks["flywayMigrate"].enabled = false
+}
+
 /**
  * PRIME CLI tasks
  */
@@ -519,7 +526,7 @@ tasks.named<nu.studer.gradle.jooq.JooqGenerate>("generateJooq") {
 }
 
 /**
- * Convinience tasks
+ * Convenience tasks
  */
 // Convenience tasks
 tasks.register("compile") {
