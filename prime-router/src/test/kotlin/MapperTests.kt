@@ -5,8 +5,10 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
 import gov.cdc.prime.router.metadata.LookupTable
 import java.io.ByteArrayInputStream
+import java.lang.IllegalArgumentException
 import kotlin.test.Test
 import kotlin.test.assertFails
+import kotlin.test.assertFailsWith
 import kotlin.test.fail
 
 class MapperTests {
@@ -188,6 +190,62 @@ class MapperTests {
         // Test with another
         val ev1a = ElementAndValue(deviceElement, "BinaxNOW COVID-19 Ag Card 2 Home Test")
         assertThat(mapper.apply(codeElement, emptyList(), listOf(ev1a))).isEqualTo("Y")
+    }
+
+    @Test
+    fun `test livdLookup model variation lookup`() {
+        val lookupTable = LookupTable.read("./metadata/tables/LIVD-SARS-CoV-2-2021-09-29.csv")
+        val element = Element(
+            "ordered_test_code",
+            tableRef = lookupTable,
+            tableColumn = "Test Ordered LOINC Code"
+        )
+
+        // Cue COVID-19 Test does not have an * in the table
+        var testModel = "Cue COVID-19 Test"
+        var expectedTestOrderedLoinc = "95409-9"
+        assertThat(LIVDLookupMapper.lookupByEquipmentModelName(element, testModel, emptyMap()))
+            .isEqualTo(expectedTestOrderedLoinc)
+
+        // Add an * to the end of the model name
+        assertThat(LIVDLookupMapper.lookupByEquipmentModelName(element, "$testModel*", emptyMap()))
+            .isEqualTo(expectedTestOrderedLoinc)
+
+        // Add some other character to fail the lookup
+        assertThat(LIVDLookupMapper.lookupByEquipmentModelName(element, "$testModel^", emptyMap()))
+            .isNull()
+
+        // Accula SARS-Cov-2 Test does have an * in the table
+        testModel = "Accula SARS-Cov-2 Test"
+        expectedTestOrderedLoinc = "95409-9"
+        assertThat(LIVDLookupMapper.lookupByEquipmentModelName(element, testModel, emptyMap()))
+            .isEqualTo(expectedTestOrderedLoinc)
+
+        // Add an * to the end of the model name
+        assertThat(LIVDLookupMapper.lookupByEquipmentModelName(element, "$testModel*", emptyMap()))
+            .isEqualTo(expectedTestOrderedLoinc)
+    }
+
+    @Test
+    fun `test value variation`() {
+        assertThat(LIVDLookupMapper.getValueVariation("dummy", "*")).isEqualTo("dummy*")
+        assertThat(LIVDLookupMapper.getValueVariation("dummy*", "*")).isEqualTo("dummy")
+        assertThat(LIVDLookupMapper.getValueVariation("dummy????", "???")).isEqualTo("dummy?")
+
+        assertThat(LIVDLookupMapper.getValueVariation("dummyCaSe", "CASE")).isEqualTo("dummy")
+        assertThat(LIVDLookupMapper.getValueVariation("dummyCaSe", "CASE", false)).isEqualTo("dummyCaSeCASE")
+
+        assertFailsWith<IllegalArgumentException>(
+            block = {
+                LIVDLookupMapper.getValueVariation("dummy", "")
+            }
+        )
+
+        assertFailsWith<IllegalArgumentException>(
+            block = {
+                LIVDLookupMapper.getValueVariation("", "*")
+            }
+        )
     }
 
     @Test
@@ -556,5 +614,76 @@ class MapperTests {
         value = listOf(ElementAndValue(elementA, ""), ElementAndValue(elementB, "10/28/2021"))
         assertThat(mapper.apply(elementA, args, value))
             .isEqualTo("")
+    }
+
+    @Test
+    fun `test IfNotPresent mapper`() {
+        val mapper = IfNotPresentMapper()
+        val elementA = Element("a")
+        val elementB = Element("lookup_field")
+        val elementC1 = Element("condition_field_1")
+        val elementC2 = Element("condition_field_2")
+
+        // $mode:"literal" tests
+
+        // conditional fields are blank: should return the "$string" value
+        var args = listOf(
+            "\$mode:literal", "\$string:*** No Address Given ***", "condition_field_1", "condition_field_2"
+        )
+        var values = listOf(ElementAndValue(elementC1, ""), ElementAndValue(elementC2, ""))
+        assertThat(mapper.apply(elementA, args, values))
+            .isEqualTo("*** No Address Given ***")
+
+        // any conditional field is non-blank: should return null
+        args = listOf("\$mode:literal", "\$string:*** No Address Given ***", "condition_field_1", "condition_field_2")
+        values = listOf(ElementAndValue(elementC1, ""), ElementAndValue(elementC2, "nonBlank"))
+        assertThat(mapper.apply(elementA, args, values))
+            .isEqualTo(null)
+
+        // conditional fields not present: should return the "$string" value
+        args = listOf("\$mode:literal", "\$string:*** No Address Given ***", "condition_field_1", "condition_field_2")
+        values = listOf(ElementAndValue(elementA, ""))
+        assertThat(mapper.apply(elementA, args, values))
+            .isEqualTo("*** No Address Given ***")
+
+        // $mode:"lookup" tests
+
+        // conditional fields are blank: should return the value of lookup_field (Element B)
+        args = listOf("\$mode:lookup", "lookup_field", "condition_field_1", "condition_field_2")
+        values = listOf(
+            ElementAndValue(elementB, "value of B"),
+            ElementAndValue(elementC1, ""),
+            ElementAndValue(elementC2, "")
+        )
+        assertThat(mapper.apply(elementA, args, values))
+            .isEqualTo("value of B")
+
+        // any conditional field is non-blank: should return null
+        args = listOf("\$mode:lookup", "lookup_field", "condition_field_1", "condition_field_2")
+        values = listOf(
+            ElementAndValue(elementB, "value of B"),
+            ElementAndValue(elementC1, ""),
+            ElementAndValue(elementC2, "nonBlank")
+        )
+        assertThat(mapper.apply(elementA, args, values))
+            .isEqualTo(null)
+
+        // conditional fields not present: should return the value of lookup_field (Element B)
+        args = listOf("\$mode:lookup", "lookup_field", "condition_field_1", "condition_field_2")
+        values = listOf(ElementAndValue(elementA, ""), ElementAndValue(elementB, "value of B"))
+        assertThat(mapper.apply(elementA, args, values))
+            .isEqualTo("value of B")
+
+        // single non-blank condition: should return null
+        args = listOf("\$mode:lookup", "lookup_field", "condition_field_1")
+        values = listOf(ElementAndValue(elementB, "value of B"), ElementAndValue(elementC1, "nonBlank"))
+        assertThat(mapper.apply(elementA, args, values))
+            .isEqualTo(null)
+
+        // invalid $mode should return null
+        args = listOf("\$mode:iNvAlId", "lookup_field", "condition_field_1", "condition_field_2")
+        values = listOf(ElementAndValue(elementA, ""), ElementAndValue(elementB, "value of B"))
+        assertThat(mapper.apply(elementA, args, values))
+            .isEqualTo(null)
     }
 }
