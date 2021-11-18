@@ -1,0 +1,95 @@
+package gov.cdc.prime.router.serializers
+
+import com.ctc.wstx.stax.WstxOutputFactory
+import com.fasterxml.jackson.core.JsonGenerator
+import com.fasterxml.jackson.databind.SerializerProvider
+import com.fasterxml.jackson.databind.annotation.JsonSerialize
+import com.fasterxml.jackson.databind.ser.std.StdSerializer
+import com.fasterxml.jackson.dataformat.xml.XmlFactory
+import com.fasterxml.jackson.dataformat.xml.XmlMapper
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement
+import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator
+import javax.xml.stream.XMLOutputFactory
+import kotlin.reflect.full.findAnnotation
+
+/**
+ * our base XML interface
+ */
+interface XmlObject {
+    /**
+     * Takes the XML object and writes it out as a string using the Jackson Mapper annotations
+     * that are on the class.
+     */
+    fun toXml(): String = mapper
+        .writerWithDefaultPrettyPrinter()
+        .writeValueAsString(this)
+
+    companion object {
+        private val oFactory: XMLOutputFactory = WstxOutputFactory()
+        private val xmlFactory: XmlFactory = XmlFactory.builder().xmlOutputFactory(oFactory).build()
+        private val mapper: XmlMapper = XmlMapper(xmlFactory).also {
+            it.configure(ToXmlGenerator.Feature.WRITE_XML_DECLARATION, true)
+        }
+    }
+}
+
+/**
+ * A generic SOAP envelope to wrap our objects in
+ */
+@JsonSerialize(using = SoapSerializer::class)
+@JacksonXmlRootElement(localName = "soapenv:Envelope")
+class SoapEnvelope(
+    val payload: Any,
+    val namespaces: Map<String, String>
+) : XmlObject
+
+class SoapSerializer(private val envelope: Class<SoapEnvelope>?) : StdSerializer<SoapEnvelope>(envelope) {
+    // Jackson Mapper requires this even if we don't use it in our code
+    constructor() : this(null)
+
+    /**
+     * takes the SoapEnvelope, and it's payload, and writes the data out as an XML object
+     */
+    override fun serialize(value: SoapEnvelope?, gen: JsonGenerator?, provider: SerializerProvider?) {
+        if (value?.payload == null) {
+            error("Cannot deserialize a null packet")
+        }
+        val xmlGen = gen as? ToXmlGenerator
+        // unfortunately it's very hard to get the payload's root element automatically, given
+        // the way that Jackson Mapper works, so I have just cheated here and pulled the
+        // root element by force, so I can use it down below
+        val payloadName = value.payload::class.findAnnotation() as? JacksonXmlRootElement
+
+        if (xmlGen != null) {
+            xmlGen.writeStartObject()
+            xmlGen.setNextIsAttribute(true)
+            // write out the SOAP namespace into the header
+            xmlGen.writeFieldName("xmlns:$soapNamespaceAlias")
+            // and the namespace as well
+            xmlGen.writeString(soapNamespace)
+            // write out all the other namespaces we have
+            value.namespaces.forEach {
+                xmlGen.setNextIsAttribute(true)
+                xmlGen.writeFieldName(it.key)
+                xmlGen.writeString(it.value)
+            }
+            xmlGen.setNextIsAttribute(false)
+            // write out a null header
+            xmlGen.writeNullField("$soapNamespaceAlias:Header")
+            // write out the body of the envelope
+            xmlGen.writeObjectFieldStart("$soapNamespaceAlias:Body")
+            // write out the payload itself
+            xmlGen.writePOJOField(payloadName?.localName ?: defaultPayloadName, value.payload)
+            xmlGen.writeEndObject()
+        }
+    }
+
+    companion object {
+        /** our default SOAP namespace */
+        private const val soapNamespace = "http://schemas.xmlsoap.org/soap/envelope/"
+        /** our default alias */
+        private const val soapNamespaceAlias = "soapenv"
+        /** if we don't get a value for the payload via an annotation we use this */
+        private const val defaultPayloadName = "payload"
+    }
+}
