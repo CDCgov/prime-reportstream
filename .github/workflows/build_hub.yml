@@ -168,9 +168,6 @@ jobs:
       - name: "Check out changes"
         uses: actions/checkout@v2
 
-      - name: Spin up build containers
-        run: docker-compose -f docker-compose.postgres.yml up -d
-
       - name: Run Linting Check
         run: ./gradlew ktlintCheck
 
