@@ -37,7 +37,7 @@
         "react-idle-timer": "^4.6.4",
         "react-router": "^5.2.0",
         "react-router-dom": "^5.2.0",
-        "rest-hooks": "^5.3.4",
+        "rest-hooks": "^6.1.7",
         "rimraf": "^3.0.2",
         "sass-loader": "^12.1.0",
         "spinners-react": "^1.0.6",
