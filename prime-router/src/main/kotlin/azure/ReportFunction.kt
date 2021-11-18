@@ -308,8 +308,14 @@ class ReportFunction : Logging {
         val processEvent = ProcessEvent(Event.EventAction.PROCESS, report.id, options, defaults, routeTo)
         actionHistory.trackEvent(processEvent)
 
+        if (report.bodyFormat != Report.Format.INTERNAL) {
+            error("Processing a non internal report async.")
+        }
+
+        val blobInfo = workflowEngine.blob.uploadBody(report, "processing", processEvent.eventAction)
+
         // add task to task table
-        workflowEngine.insertProcessTask(report, report.bodyFormat.toString(), report.bodyURL, processEvent)
+        workflowEngine.insertProcessTask(report, report.bodyFormat.toString(), blobInfo.blobUrl, processEvent)
     }
 
     private fun handleValidation(

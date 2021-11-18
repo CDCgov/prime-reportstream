@@ -34,7 +34,6 @@ import gov.cdc.prime.router.transport.SftpTransport
 import org.jooq.Configuration
 import org.jooq.Field
 import java.io.ByteArrayInputStream
-import java.lang.IllegalStateException
 import java.time.OffsetDateTime
 
 /**
@@ -409,37 +408,18 @@ class WorkflowEngine(
         val errors: MutableList<ResultDetail> = mutableListOf()
         val warnings: MutableList<ResultDetail> = mutableListOf()
 
-        val reportFile = db.fetchReportFile(messageEvent.reportId)
-
         db.transact { txn ->
             val task = db.fetchAndLockTask(messageEvent.reportId, txn)
 
-            val blobContent = blob.downloadBlob(reportFile.bodyUrl)
+            val blobContent = blob.downloadBlob(task.bodyUrl)
             val currentAction = Event.EventAction.parseQueueMessage(task.nextAction.literal)
 
-            // Get sender record, throw error if it is null. It should not be possible to be null, since the sender
-            //  was not null during the receive
-            val sender = settings.findSender(reportFile.sendingOrg + "." + reportFile.sendingOrgClient)
-                ?: throw IllegalStateException(
-                    "Sender is null for report ${messageEvent.reportId} in the process step and it was not null " +
-                        "during receive. This should not be possible."
-                )
-
-            // Create report. At this point in the process this will never return a null report, it has already
-            //  been created as part of recieve.
-            val report = createReport(
-                sender,
-                blobContent.decodeToString(),
-                messageEvent.defaults,
-                errors,
-                warnings
-            )!!
-
-            // TODO: Tech Debt - update this when we are moving to storing internally-formatted report as part of
-            //  initial ingest.
-            // Set the id in the newly generated report to the correct UUID for the report coming out of the process
-            //  queue
-            report.id = messageEvent.reportId
+            val report = csvSerializer.readInternal(
+                task.schemaName,
+                ByteArrayInputStream(blobContent),
+                emptyList(),
+                blobReportId = messageEvent.reportId
+            )
 
             //  send to routeReport
             routeReport(
