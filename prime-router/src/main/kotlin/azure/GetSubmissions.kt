@@ -8,6 +8,7 @@ import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import gov.cdc.prime.router.tokens.OktaAuthentication
 import org.apache.logging.log4j.kotlin.logger
+import java.time.OffsetDateTime
 
 /**
  * Submissions API
@@ -37,11 +38,15 @@ class GetSubmissions(
             route = "submissions"
         ) request: HttpRequestMessage<String?>,
     ): HttpResponseMessage {
+        val qOrder = request.queryParameters.getOrDefault("order", "DESC")
+        val qCursor = request.queryParameters.getOrDefault("cursor", "${OffsetDateTime.now()}")
         val qLimit = request.queryParameters.getOrDefault("limit", "10")
 
         if (isPositiveInteger(qLimit)) {
+            val order = qOrder
+            val cursor = OffsetDateTime.parse(qCursor)
             val limit = qLimit.toInt()
-            return getList(request, limit)
+            return getList(request, order, cursor, limit)
         }
 
         return HttpUtilities.bad(request, "Limit must be a positive integer.")
@@ -62,12 +67,14 @@ class GetSubmissions(
      */
     private fun getList(
         request: HttpRequestMessage<String?>,
+        order: String,
+        cursor: OffsetDateTime,
         limit: Int
     ): HttpResponseMessage {
         return oktaAuthentication.checkAccess(request, "") {
             try {
                 val organizationName = it.jwtClaims["organization"] as String
-                val submissions = facade.findSubmissionsAsJson(organizationName, limit)
+                val submissions = facade.findSubmissionsAsJson(organizationName, order, cursor, limit)
                 HttpUtilities.okResponse(request, submissions)
             } catch (e: Exception) {
                 logger().error("Unauthorized.", e)

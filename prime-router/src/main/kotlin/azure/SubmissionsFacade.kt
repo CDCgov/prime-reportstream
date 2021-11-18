@@ -31,15 +31,22 @@ class SubmissionsFacade(
 
     fun findSubmissionsAsJson(
         organizationName: String,
+        order: String,
+        cursor: OffsetDateTime,
         limit: Int
     ): String {
-        val result = findSubmissions(organizationName, limit)
+        val result = findSubmissions(organizationName, order, cursor, limit)
         return mapper.writeValueAsString(result)
     }
 
-    private fun findSubmissions(organizationName: String, limit: Int): List<SubmissionHistorySerializer> {
+    private fun findSubmissions(
+        organizationName: String,
+        order: String,
+        cursor: OffsetDateTime,
+        limit: Int,
+    ): List<SubmissionHistorySerializer> {
         // TODO: VERIFY sendingOrg is being populated from the claim on Staging
-        val actions = db.fetchActions(organizationName, limit)
+        val actions = db.fetchActions(organizationName, order, cursor, limit)
 
         return actions.map {
             val actionResponse = it.actionResponse?.let { ar ->
