@@ -8,7 +8,6 @@ import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import gov.cdc.prime.router.tokens.OktaAuthentication
 import org.apache.logging.log4j.kotlin.logger
-import java.time.OffsetDateTime
 
 /**
  * Submissions API
@@ -25,8 +24,9 @@ class GetSubmissions(
     /**
      * An Azure Function that is triggered at the `/api/submissions/` endpoint
      *
+     * @param qSortOrder a user supplied sort order overwriting the default value.
+     * @param qResultsAfterDate a user supplied `OffsetDateTime` overwriting the default value.
      * @param qLimit a user supplied page size limit overwriting the default value.
-     * @param limit a default value for the number of results to display per page.
      * @return a list of submission history results.
      */
     @FunctionName("getSubmissions")
@@ -38,18 +38,22 @@ class GetSubmissions(
             route = "submissions"
         ) request: HttpRequestMessage<String?>,
     ): HttpResponseMessage {
-        val qOrder = request.queryParameters.getOrDefault("order", "DESC")
-        val qCursor = request.queryParameters.getOrDefault("cursor", "${OffsetDateTime.now()}")
-        val qLimit = request.queryParameters.getOrDefault("limit", "10")
+        return oktaAuthentication.checkAccess(request, "") {
 
-        if (isPositiveInteger(qLimit)) {
-            val order = qOrder
-            val cursor = OffsetDateTime.parse(qCursor)
-            val limit = qLimit.toInt()
-            return getList(request, order, cursor, limit)
+            val organizationName = it.jwtClaims["organization"] as String
+
+            // URL Query Parameters
+            val qSortOrder = request.queryParameters.getOrDefault("sort", "DESC")
+            var qResultsAfterDate = request.queryParameters.getOrDefault("after", "")
+            val qPageSize = request.queryParameters.getOrDefault("pagesize", "10")
+
+            if (isPositiveInteger(qPageSize)) {
+                val pageSize = qPageSize.toInt()
+                getList(organizationName, request, qSortOrder, qResultsAfterDate, pageSize)
+            } else {
+                HttpUtilities.bad(request, "Limit must be a positive integer.")
+            }
         }
-
-        return HttpUtilities.bad(request, "Limit must be a positive integer.")
     }
 
     /**
@@ -61,25 +65,26 @@ class GetSubmissions(
     }
 
     /**
-     * @param request the body content from an HTTP Request to pass into Okta for authentication.
-     * @param limit is an Integer used for setting the number of results per page.
-     * @return data after Okta Authentication
+     * @param organizationName name of Sending Org set in the JWT Claim.
+     * @param request the body content from an authenticated HTTP Request.
+     * @param sortOrder sort the results in ASCending or DESCending order.
+     * @param resultsAfterDate the `createdAt` value is used to skip DB rows.
+     * @param pageSize is an Integer used for setting the number of results per page.
+     * @return serialized JSON if okay HTTP response.
      */
     private fun getList(
+        organizationName: String,
         request: HttpRequestMessage<String?>,
-        order: String,
-        cursor: OffsetDateTime,
-        limit: Int
+        sortOrder: String,
+        resultsAfterDate: String,
+        pageSize: Int
     ): HttpResponseMessage {
-        return oktaAuthentication.checkAccess(request, "") {
-            try {
-                val organizationName = it.jwtClaims["organization"] as String
-                val submissions = facade.findSubmissionsAsJson(organizationName, order, cursor, limit)
-                HttpUtilities.okResponse(request, submissions)
-            } catch (e: Exception) {
-                logger().error("Unauthorized.", e)
-                HttpUtilities.internalErrorResponse(request)
-            }
+        try {
+            val submissions = facade.findSubmissionsAsJson(organizationName, sortOrder, resultsAfterDate, pageSize)
+            return HttpUtilities.okResponse(request, submissions)
+        } catch (e: Exception) {
+            logger().error("Unauthorized.", e)
+            return HttpUtilities.internalErrorResponse(request)
         }
     }
 }

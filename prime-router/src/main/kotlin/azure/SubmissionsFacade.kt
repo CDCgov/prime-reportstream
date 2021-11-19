@@ -14,8 +14,6 @@ import java.time.OffsetDateTime
  * Submissions / history API
  * Contains all business logic regarding submissions and JSON serialization.
  */
-
-// TODO: Add test/SubmissionsFacadeTests
 class SubmissionsFacade(
     private val db: DatabaseSubmissionsAccess = DatabaseSubmissionsAccess()
 ) {
@@ -29,24 +27,43 @@ class SubmissionsFacade(
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
     }
 
+    /**
+     * Serializes a list of Actions into a String.
+     *
+     * @param organizationName from JWT Claim.
+     * @param sortOrder sort the table by date in ASC or DESC order.
+     * @param resultsAfterDate String representation of an OffsetDateTime used for paginating results.
+     * @param pageSize Int of items to return per page.
+     *
+     * @return a String representation of an array of actions.
+     */
+    // Leaving separate from FindSubmissions to encapsulate json serialization
     fun findSubmissionsAsJson(
         organizationName: String,
-        order: String,
-        cursor: OffsetDateTime,
-        limit: Int
+        sortOrder: String,
+        resultsAfterDate: String,
+        pageSize: Int
     ): String {
-        val result = findSubmissions(organizationName, order, cursor, limit)
+        val result = findSubmissions(organizationName, sortOrder, resultsAfterDate, pageSize)
         return mapper.writeValueAsString(result)
     }
 
+    /**
+     * @param organizationName from JWT Claim.
+     * @param sortOrder sort the table by date in ASC or DESC order.
+     * @param resultsAfterDate String representation of an OffsetDateTime used for paginating results.
+     * @param pageSize Int of items to return per page.
+     *
+     * @return a List of Actions
+     */
     private fun findSubmissions(
         organizationName: String,
-        order: String,
-        cursor: OffsetDateTime,
-        limit: Int,
+        sortOrder: String,
+        resultsAfterDate: String,
+        pageSize: Int,
     ): List<SubmissionHistorySerializer> {
         // TODO: VERIFY sendingOrg is being populated from the claim on Staging
-        val actions = db.fetchActions(organizationName, order, cursor, limit)
+        val actions = db.fetchActions(organizationName, sortOrder, resultsAfterDate, pageSize)
 
         return actions.map {
             val actionResponse = it.actionResponse?.let { ar ->
@@ -83,7 +100,7 @@ class SubmissionsFacade(
      * Classes for JSON serialization
      */
 
-    // TODO: see Github Issues #2314 for expected filename field
+    // TODO: see Github Issue #2314 for expected filename field
     private class SubmissionHistorySerializer
     @JsonCreator constructor(
         actionId: Long,
