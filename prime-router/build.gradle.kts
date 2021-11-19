@@ -533,6 +533,11 @@ tasks.register("resetDB") {
     dependsOn("flywayMigrate")
 }
 
+detekt {
+    config = files(".detekt/config.yml")
+    baseline = file(".detekt/baseline.xml")
+}
+
 repositories {
     mavenCentral()
     jcenter()

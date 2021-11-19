@@ -9,7 +9,6 @@ title = "PRIME ReportStream Gitleaks Configuration"
         '^\.?gitleaks.report.json$',
         '^package-lock\.json$',
         'cleanslate.sh.log',
-        'detekt-baseline.xml',
         'yarn\.lock$',
     ]
     paths = [
@@ -23,6 +22,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
         'frontend-react/src/components/ReportStreamHeader.tsx',
         'prime-router/.gradle/',
         'prime-router/.vault/env/',
+        'prime-router/.detekt/baseline.xml',
         'prime-router/build/',
         'prime-router/build.gradle.kts',
         'prime-router/docs/dependency-graph-full/dependency-graph-full.txt',
