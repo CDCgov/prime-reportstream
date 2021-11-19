@@ -1528,7 +1528,7 @@ Does the patient reside in a congregate care setting?
 
 **PII**: No
 
-**Default Value**: SimpleReport
+**Default Value**: simple_report.default
 
 **Cardinality**: [1..1]
 
