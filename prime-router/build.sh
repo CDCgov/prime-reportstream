@@ -59,6 +59,13 @@ function ensure_build_dir() {
   done
 }
 
+function ensure_intel() {
+  if [ "$(uname -m)" = "arm64" ] && [[ $(uname -av) == *"Darwin"* ]]; then
+    echo "This script does not work on Apple Silicon processors. See the 'Using Apple Silicon for Development' document for details."
+    exit 1
+  fi
+}
+
 # Defaults
 ACTION=${ACTION:-builder}
 REFRESH_BUILDER=${REFRESH_BUILDER:-0}
@@ -98,6 +105,8 @@ while [[ -n "${1}" && "${1:0:1}" == "-" ]]; do
 
   shift
 done
+
+ensure_intel
 
 pushd "${HERE?}" 2>&1 1>/dev/null
 
