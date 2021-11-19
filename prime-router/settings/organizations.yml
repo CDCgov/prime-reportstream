@@ -217,6 +217,17 @@
       schemaName: hl7/lifepoint-covid-19
       format: HL7
 
+- name: prescryptive
+  description: Prescryptive Health
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: prescryptive
+      topic: covid-19
+      customerStatus: active
+      schemaName: hl7/prescryptive-covid-19
+      format: HL7
+
 - name: primary
   description: Primary Diagnostics, Inc. (primary.health)
   jurisdiction: FEDERAL
@@ -225,7 +236,7 @@
       organizationName: primary
       topic: covid-19
       customerStatus: active
-      schemaName: direct/primary-covid-19
+      schemaName: hl7/primary-covid-19
       format: HL7
 
 - name: "johns_hopkins"
@@ -961,6 +972,7 @@
         receivingApplicationOID: 2.16.840.1.114222.4.3.3.6.2.1
         receivingFacilityName: MN DOH
         receivingFacilityOID: 2.16.840.1.114222.4.1.3661
+        suppressHl7Fields: SPM-2-1
       transport:
         type: SFTP
         host: sftp
@@ -1546,7 +1558,7 @@
       organizationName: "hhsprotect"
       topic: "covid-19"
       customerStatus: active
-      jurisdictionalFilter: [ "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*,Strac,InBios,reddyfmc,abbott,lifepoint,hca)" ]
+      jurisdictionalFilter: [ "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*,Strac,InBios,reddyfmc,abbott,lifepoint,hca,prescryptive)" ]
       qualityFilter: [ "allowAll()" ]
       translation:
         type: "CUSTOM"

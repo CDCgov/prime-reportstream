@@ -10,5 +10,6 @@ npm start
 ### Auto change
 ```bash
 cd ./frontend-react
-npm run lint:write
+yarn install
+yarn run lint:write
 ```

@@ -5,7 +5,6 @@ import { render } from "@testing-library/react";
 
 import { CODES, ErrorPage } from "./ErrorPage";
 
-
 describe("testing ErrorPage", () => {
     // types of errors we can throw
     function Throw500(): ReactElement {
