@@ -440,7 +440,7 @@ class Hl7Serializer(
         setLiterals(terser)
         // serialize the rest of the elements
         report.schema.elements.forEach { element ->
-            var value = report.getString(row, element.name).let {
+            val value = report.getString(row, element.name).let {
                 if (it.isNullOrEmpty()) {
                     element.default ?: ""
                 } else {
@@ -448,9 +448,27 @@ class Hl7Serializer(
                 }
             }
 
-            if (element.hl7Field in ST_FIELDS_UNIVERSAL_CHAR_LIMIT_50) {
-                value = value.trim()?.take(ST_TRUNCATION_OF_FIFTY)
-            }
+            println(element.hl7Field + " Outside")
+            if (element.hl7Field in ST_FIELDS_UNIVERSAL_CHAR_LIMIT_50 &&
+                !value.isNullOrEmpty()
+            ) {
+                println(element.hl7Field + " inside")
+                val valueB = if (value.length > 50) {
+                    // value.subSequence(0, 51).trimStart().trimEnd()
+                    element.hl7Field?.let { report.getStringByHl7Field(row, it)?.take(50)?.trim() }
+                } // value?.take(ST_TRUNCATION_OF_FIFTY)?.trim()
+                else {
+                    // value.trimStart().trimEnd()
+                    element.hl7Field?.let { report.getStringByHl7Field(row, it)?.take(50)?.trim() }
+                }
+                println("Inside Value length: " + valueB?.length)
+                if (element.hl7OutputFields.isNullOrEmpty()) {
+                    terser.set(element.hl7Field?.let { formPathSpec(it) }, valueB as String?)
+                    return@forEach
+                } else {
+                    terser.set(element.hl7Field?.let { formPathSpec(it) }, valueB as String?)
+                }
+            } // takes leading space
 
             if (suppressedFields.contains(element.hl7Field) && element.hl7OutputFields.isNullOrEmpty())
                 return@forEach
@@ -482,9 +500,9 @@ class Hl7Serializer(
                         hl7Field in HD_FIELDS_LOCAL &&
                         hl7Config?.truncateHDNamespaceIds == true
                     ) {
-                        value.substring(0, getTruncationLimitWithEncoding(value, HD_TRUNCATION_LIMIT))
+                        value.substring(0, getTruncationLimitWithEncoding(value, HD_TRUNCATION_LIMIT)).trim()
                     } else {
-                        value
+                        value.trim()
                     }
                     if (element.hl7Field != null && element.isTableLookup) {
                         setComponentForTable(terser, element, hl7Field, report, row, hl7Config)
@@ -537,6 +555,7 @@ class Hl7Serializer(
                 }
                 setComponent(terser, element, element.hl7Field, truncatedValue.trim(), report)
             } else if (!element.hl7Field.isNullOrEmpty()) {
+
                 setComponent(terser, element, element.hl7Field, value.trim(), report)
             }
         }
@@ -561,7 +580,13 @@ class Hl7Serializer(
         // check for reporting facility overrides
         if (!hl7Config?.reportingFacilityName.isNullOrEmpty()) {
             val pathSpec = formPathSpec("MSH-4-1")
-            terser.set(pathSpec, hl7Config?.reportingFacilityName?.trim())
+            var truncatedValue = hl7Config?.reportingFacilityName
+            if (hl7Config?.truncateHDNamespaceIds == true) {
+
+                terser.set(pathSpec, truncatedValue?.take(HD_TRUNCATION_LIMIT)?.trim())
+            } else {
+                terser.set(pathSpec, truncatedValue?.trim())
+            }
         }
         if (!hl7Config?.reportingFacilityId.isNullOrEmpty()) {
             var pathSpec = formPathSpec("MSH-4-2")
@@ -1097,8 +1122,8 @@ class Hl7Serializer(
         // many states can't accept the QST datapoint out at the end because it is nonstandard
         // we need to pass this in via the translation configuration
         if (!suppressQst) terser.set(formPathSpec("OBX-29", aoeRep), "QST")
-        trimedAndLimitFiftyValue = report.getStringByHl7Field(row, "OBX-23-1")?.trim()
-            ?.take(ST_TRUNCATION_OF_FIFTY)
+        trimedAndLimitFiftyValue = report.getStringByHl7Field(row, "OBX-23-1")
+            ?.take(ST_TRUNCATION_OF_FIFTY)?.trim()
         // all of these values must be set on the OBX AOE's for validation
         terser.set(formPathSpec("OBX-23-1", aoeRep), trimedAndLimitFiftyValue)
         // set to a default value, but look below
