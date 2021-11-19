@@ -896,6 +896,8 @@ Override the base hl70136 valueset with a custom one, to handle slightly differe
 
 **PII**: No
 
+**Default Value**: waters
+
 **Cardinality**: [1..1]
 
 **Documentation**:
