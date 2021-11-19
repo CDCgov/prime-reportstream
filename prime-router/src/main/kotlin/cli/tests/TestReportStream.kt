@@ -477,7 +477,8 @@ abstract class CoolTest {
                 from covid_result_metadata as cr
                 where cr.report_id = ?"""
             val ret = ctx.fetch(sql, reportId)?.into(Int::class.java)
-            passed = ret?.size > 0
+            val sz = ret?.size
+            passed = sz != null && sz > 0
         }
         if (passed)
             good("Covid result metadata found.")
