@@ -1207,7 +1207,7 @@ class TooManyCols : CoolTest() {
         try {
             val tree = jacksonObjectMapper().readTree(json)
             val firstError = (tree["errors"][0]) as ObjectNode
-            if (firstError["details"].textValue().contains("columns")) {
+            if (firstError["message"].textValue().contains("columns")) {
                 return good("toomanycols Test passed.")
             } else {
                 return bad("***toomanycols Test FAILED***:  did not find the error.")
