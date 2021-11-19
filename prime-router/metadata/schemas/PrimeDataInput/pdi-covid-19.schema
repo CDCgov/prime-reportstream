@@ -235,7 +235,7 @@ elements:
     csvFields: [{name: Site_of_care}]
 
   - name: sender_id
-    default: SimpleReport
+    default: simple_report.default
 
   # Fields that are calculated
 
