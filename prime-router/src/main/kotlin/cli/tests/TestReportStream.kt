@@ -598,7 +598,6 @@ abstract class CoolTest {
         db = WorkflowEngine().db
         db.transact { txn ->
             receivers.forEach { receiver ->
-                // if we are processing asynchronously, look for the 'process' tasks, not 'receive
                 val actionsList = mutableListOf(TaskAction.receive)
                 // Bug:  this is looking at local cli data, but might be querying staging or prod.
                 // The hope is that the 'ignore' org is same in local, staging, prod.
@@ -609,6 +608,7 @@ abstract class CoolTest {
                     val count = itemLineageCountQuery(
                         txn = txn,
                         reportId = reportId,
+                        // if we are processing asynchronously the receive step doesn't have any receivers yet
                         receivingOrgSvc = if (action == TaskAction.receive && asyncProcessMode) null else receiver.name,
                         receivingOrg = if (filterOrgName) receiver.organizationName else null,
                         action = action
@@ -831,12 +831,12 @@ abstract class CoolTest {
               and IL.item_lineage_id in
               (select item_descendants(?)) """
 
-            if (receivingOrg != null && receivingOrgSvc != null) {
-                return ctx.fetchOne(sql, receivingOrgSvc, receivingOrg, action, reportId)?.into(Int::class.java)
+            return if (receivingOrg != null && receivingOrgSvc != null) {
+                ctx.fetchOne(sql, receivingOrgSvc, receivingOrg, action, reportId)?.into(Int::class.java)
             } else if (receivingOrgSvc != null) {
-                return ctx.fetchOne(sql, receivingOrgSvc, action, reportId)?.into(Int::class.java)
+                ctx.fetchOne(sql, receivingOrgSvc, action, reportId)?.into(Int::class.java)
             } else {
-                return ctx.fetchOne(sql, action, reportId)?.into(Int::class.java)
+                ctx.fetchOne(sql, action, reportId)?.into(Int::class.java)
             }
         }
 
