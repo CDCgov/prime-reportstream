@@ -355,6 +355,31 @@ class ActionHistory {
         trackEvent(event) // to be sent to queue later.
     }
 
+    fun trackCreatedReport(
+        event: Event,
+        report: Report,
+        blobInfo: BlobAccess.BlobInfo
+    ) {
+        if (isReportAlreadyTracked(report.id)) {
+            error("Bug:  attempt to track history of a report ($report.id) we've already associated with this action")
+        }
+
+        val reportFile = ReportFile()
+        reportFile.reportId = report.id
+        reportFile.nextAction = event.eventAction.toTaskAction()
+        reportFile.nextActionAt = event.at
+        reportFile.schemaName = report.schema.name
+        reportFile.schemaTopic = report.schema.topic
+        reportFile.bodyUrl = blobInfo.blobUrl
+        reportFile.bodyFormat = blobInfo.format.toString()
+        reportFile.blobDigest = blobInfo.digest
+        reportFile.itemCount = report.itemCount
+        reportsOut[reportFile.reportId] = reportFile
+        filteredReportRows[reportFile.reportId] = report.filteredItems
+        trackItemLineages(report)
+        trackEvent(event) // to be sent to queue later.
+    }
+
     fun trackSentReport(
         receiver: Receiver,
         sentReportId: ReportId,
