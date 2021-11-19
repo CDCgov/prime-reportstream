@@ -870,6 +870,12 @@ data class Element(
             elementName.contains("\$dateFormat:") -> {
                 retVal = ElementAndValue(tokenElement, extractStringValue(elementName))
             }
+            elementName.contains("\$mode:") -> {
+                retVal = ElementAndValue(tokenElement, extractStringValue(elementName))
+            }
+            elementName.contains("\$string:") -> {
+                retVal = ElementAndValue(tokenElement, extractStringValue(elementName))
+            }
         }
 
         return retVal

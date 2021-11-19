@@ -656,5 +656,16 @@ internal class ElementTests {
         val elementNameNonValidToken = "\$nonValidToken:not valid"
         val elementAndValueNotValidToken = mockElement.tokenizeMapperValue(elementNameNonValidToken)
         assertThat(elementAndValueNotValidToken.value).isEqualTo("")
+
+        // sending in a "mode:literal" should return just the mode, which in this case is "literal"
+        val elementNameMode = "\$mode:literal"
+        val elementAndValueMode = mockElement.tokenizeMapperValue(elementNameMode)
+        assertThat(elementAndValueMode.value).isEqualTo("literal")
+
+        // sending in a "string:someDefaultString" should return just the string that needs to be the default value,
+        // which in this case is "someDefaultString"
+        val elementNameString = "\$string:someDefaultString"
+        val elementAndValueString = mockElement.tokenizeMapperValue(elementNameString)
+        assertThat(elementAndValueString.value).isEqualTo("someDefaultString")
     }
 }
