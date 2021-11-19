@@ -800,6 +800,8 @@ class HashMapper : Mapper {
 
 /**
  * This mapper performs no operation and is meant to override mappers set on parent schemas, so no mapper runs.
+ * It does not change any values.
+ * If you want to 'blank out' a value, use 'defaultOverridesValue: true', along with an empty 'default:'
  * Arguments: None
  * Returns: null
  */
