@@ -25,6 +25,10 @@ function useQuery(): { readonly [key: string]: string } {
 
 const DetailsContent = () => {
     const queryMap = useQuery();
+    /* TODO:
+        Ensure there is a persisted reportId in localStorage to default
+        to if it cannot be found as a query param
+    */
     const reportId = queryMap?.["reportId"] || "";
     const report = useResource(ReportResource.detail(), { reportId: reportId });
 
@@ -36,7 +40,7 @@ const DetailsContent = () => {
                 fallbackComponent={() => <ErrorPage type="message" />}
             >
                 <Suspense fallback={<Spinner />}>
-                    <FacilitiesTable reportId={report?.reportId || ""} />
+                    <FacilitiesTable reportId={reportId} />
                 </Suspense>
             </NetworkErrorBoundary>
             <HipaaNotice />
