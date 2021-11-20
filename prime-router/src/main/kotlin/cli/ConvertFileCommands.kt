@@ -10,7 +10,6 @@ import de.m3y.kformat.table
 import gov.cdc.prime.router.FileSource
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.serializers.CsvSerializer
-import java.io.File
 import kotlin.io.path.inputStream
 import kotlin.io.path.nameWithoutExtension
 
