@@ -7,15 +7,18 @@ import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
 import io.ktor.client.HttpClient
-import io.ktor.client.call.*
+import io.ktor.client.call.receive
 import io.ktor.client.engine.apache.Apache
-import io.ktor.client.features.logging.*
+import io.ktor.client.features.logging.LogLevel
+import io.ktor.client.features.logging.Logger.Companion
+import io.ktor.client.features.logging.Logging
+import io.ktor.client.features.logging.SIMPLE
 import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.statement.HttpResponse
-import io.ktor.http.*
+import io.ktor.http.ContentType
 import io.ktor.http.content.TextContent
-import io.ktor.utils.io.charsets.*
+import io.ktor.http.withCharset
 import java.io.StringReader
 import java.io.StringWriter
 import javax.xml.transform.OutputKeys
@@ -52,7 +55,7 @@ class SoapTransport : ITransport {
         context.logger.info("Invoking with:\n$message")
         HttpClient(Apache) {
             install(Logging) {
-                logger = io.ktor.client.features.logging.Logger.Companion.SIMPLE
+                logger = Companion.SIMPLE
                 level = LogLevel.ALL
             }
             engine {
