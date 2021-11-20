@@ -43,6 +43,10 @@ class SoapEnvelope(
     val namespaces: Map<String, String>
 ) : XmlObject
 
+/**
+ * The SOAP serializer that takes our [SoapEnvelope] and turns it into a proper SOAP object that can be sent
+ * to our endpoint
+ */
 class SoapSerializer(private val envelope: Class<SoapEnvelope>?) : StdSerializer<SoapEnvelope>(envelope) {
     // Jackson Mapper requires this even if we don't use it in our code
     constructor() : this(null)

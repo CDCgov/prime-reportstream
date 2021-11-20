@@ -80,6 +80,7 @@ val jooqPackageName = "gov.cdc.prime.router.azure.db"
 defaultTasks("package")
 
 val kotlinVersion = "1.5.31"
+val ktorVersion = "1.6.4"
 jacoco.toolVersion = "0.8.7"
 
 // Set the compiler JVM target
@@ -613,6 +614,10 @@ dependencies {
     implementation("io.jsonwebtoken:jjwt-api:0.11.2")
     implementation("de.m3y.kformat:kformat:0.8")
     implementation("io.github.java-diff-utils:java-diff-utils:4.11")
+    implementation("io.ktor:ktor-client-core:$ktorVersion")
+    implementation("io.ktor:ktor-client-cio:$ktorVersion")
+    implementation("io.ktor:ktor-client-apache:$ktorVersion")
+    implementation("io.ktor:ktor-client-logging:$ktorVersion")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.1")
     runtimeOnly("com.github.kittinunf.fuel:fuel-jackson:2.3.1")

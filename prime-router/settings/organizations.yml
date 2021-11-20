@@ -1356,6 +1356,163 @@
       translation:
         type: HL7
         useBatchHeaders: true
+        nameFormat: chester_hl7
+        receivingApplicationName: PA-ELR
+        receivingFacilityName: PADOH
+        suppressHl7Fields: PID-13-1,ORC-23-1,OBR-16
+        replaceValue:
+          ORC-21-2: L
+        valueSetOverrides:
+          hl70189:
+            name: hl70189
+            system: HL7
+            version: 2.9
+            reference: HL7 guidance for ethnicity, modified for PA standards
+            values:
+              - code: H
+                display: Hispanic or Latino
+              - code: NH
+                replaces: N
+                display: Non Hispanic or Latino
+              - code: U
+                display: Unknown
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+      timing:
+        operation: MERGE
+        numberPerDay: 1440
+        initialTime: 00:00
+        timeZone: EASTERN
+    - name: elr-montgomery-hl7
+      organizationName: pa-phd
+      topic: covid-19
+      customerStatus: active
+      jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Montgomery)" ]
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        nameFormat: montgomery_hl7
+        receivingApplicationName: PA-ELR
+        receivingFacilityName: PADOH
+        suppressHl7Fields: PID-13-1,ORC-23-1,OBR-16
+        replaceValue:
+          ORC-21-2: L
+        valueSetOverrides:
+          hl70189:
+            name: hl70189
+            system: HL7
+            version: 2.9
+            reference: HL7 guidance for ethnicity, modified for PA standards
+            values:
+              - code: H
+                display: Hispanic or Latino
+              - code: NH
+                replaces: N
+                display: Non Hispanic or Latino
+              - code: U
+                display: Unknown
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+      timing:
+        operation: MERGE
+        numberPerDay: 1440
+        initialTime: 00:00
+        timeZone: EASTERN
+    - name: elr-philadelphia-hl7
+      organizationName: pa-phd
+      topic: covid-19
+      customerStatus: active
+      jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Philadelphia)" ]
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        nameFormat: philadelphia_hl7
+        receivingApplicationName: PA-ELR
+        receivingFacilityName: PADOH
+        suppressHl7Fields: PID-13-1,ORC-23-1,OBR-16
+        replaceValue:
+          ORC-21-2: L
+        valueSetOverrides:
+          hl70189:
+            name: hl70189
+            system: HL7
+            version: 2.9
+            reference: HL7 guidance for ethnicity, modified for PA standards
+            values:
+              - code: H
+                display: Hispanic or Latino
+              - code: NH
+                replaces: N
+                display: Non Hispanic or Latino
+              - code: U
+                display: Unknown
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+      timing:
+        operation: MERGE
+        numberPerDay: 1440
+        initialTime: 00:00
+        timeZone: EASTERN
+    - name: elr-bucks-hl7
+      organizationName: pa-phd
+      topic: covid-19
+      customerStatus: active
+      jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Bucks)" ]
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        nameFormat: bucks_hl7
+        receivingApplicationName: PA-ELR
+        receivingFacilityName: PADOH
+        suppressHl7Fields: PID-13-1,ORC-23-1,OBR-16
+        replaceValue:
+          ORC-21-2: L
+        valueSetOverrides:
+          hl70189:
+            name: hl70189
+            system: HL7
+            version: 2.9
+            reference: HL7 guidance for ethnicity, modified for PA standards
+            values:
+              - code: H
+                display: Hispanic or Latino
+              - code: NH
+                replaces: N
+                display: Non Hispanic or Latino
+              - code: U
+                display: Unknown
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+      timing:
+        operation: MERGE
+        numberPerDay: 1440
+        initialTime: 00:00
+        timeZone: EASTERN
+    - name: elr-allegheny-hl7
+      organizationName: pa-phd
+      topic: covid-19
+      customerStatus: active
+      jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Allegheny)" ]
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        nameFormat: allegheny_hl7
         receivingApplicationName: PA-ELR
         receivingFacilityName: PADOH
         suppressHl7Fields: PID-13-1,ORC-23-1,OBR-16
