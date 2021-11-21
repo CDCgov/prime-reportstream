@@ -11,7 +11,7 @@ import com.fasterxml.jackson.module.kotlin.KotlinModule
 /**
  * A simple user & password credential. Can be used for SFTP transports.
  */
-data class UserPassCredential(val user: String, val pass: String) : Credential(), SftpCredential
+data class UserPassCredential(val user: String, val pass: String) : Credential(), SftpCredential, SoapCredential
 
 /**
  * A PPK credential. Can be used for SFTP transports.
@@ -23,6 +23,9 @@ data class UserPpkCredential(
     val pass: String? = null,
 ) : Credential(), SftpCredential
 
+/**
+ * A PEM credential. Can be used for SFTP transports.
+ */
 data class UserPemCredential(
     val user: String,
     val key: String,
@@ -60,6 +63,9 @@ data class UserJksCredential(
     val trustAlias: String
 ) : Credential()
 
+/**
+ * The credential base class for all other credentials to inherit from
+ */
 @JsonTypeInfo(
     use = JsonTypeInfo.Id.NAME,
     include = JsonTypeInfo.As.PROPERTY,
@@ -72,12 +78,13 @@ data class UserJksCredential(
     JsonSubTypes.Type(value = UserJksCredential::class, name = "UserJks")
 )
 sealed class Credential {
-
+    /** Converts the [Credential] class to JSON */
     fun toJSON(): String = mapper.writeValueAsString(this)
 
     companion object {
         private val mapper = ObjectMapper().registerModule(KotlinModule())
 
+        /** Turns a JSON object into a [Credential] object */
         fun fromJSON(json: String?): Credential? {
             if (json == null || json.isBlank()) return null
             return mapper.readValue(json, Credential::class.java)
@@ -85,4 +92,8 @@ sealed class Credential {
     }
 }
 
+/** Wraps any credentials that can be used by an SFTP connection */
 interface SftpCredential
+
+/** Wraps any credentials that can be used by a SOAP connection */
+interface SoapCredential

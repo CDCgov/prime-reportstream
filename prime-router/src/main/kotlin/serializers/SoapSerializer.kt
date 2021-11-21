@@ -9,6 +9,16 @@ import com.fasterxml.jackson.dataformat.xml.XmlFactory
 import com.fasterxml.jackson.dataformat.xml.XmlMapper
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement
 import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator
+import com.microsoft.azure.functions.ExecutionContext
+import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.SoapTransportType
+import gov.cdc.prime.router.azure.WorkflowEngine
+import gov.cdc.prime.router.credentials.SoapCredential
+import gov.cdc.prime.router.credentials.UserPassCredential
+import gov.cdc.prime.router.serializers.soapimpl.Credentials
+import gov.cdc.prime.router.serializers.soapimpl.LabFile
+import gov.cdc.prime.router.serializers.soapimpl.UploadFiles
+import java.util.Base64
 import javax.xml.stream.XMLOutputFactory
 import kotlin.reflect.full.findAnnotation
 
@@ -95,5 +105,41 @@ class SoapSerializer(private val envelope: Class<SoapEnvelope>?) : StdSerializer
         private const val soapNamespaceAlias = "soapenv"
         /** if we don't get a value for the payload via an annotation we use this */
         private const val defaultPayloadName = "payload"
+    }
+}
+
+/** Based on what the SOAP action is, we create the payload and put it into the SOAP envelope */
+object SoapObjectService {
+    /**
+     *
+     */
+    fun getXmlObjectForAction(
+        soapTransportType: SoapTransportType,
+        header: WorkflowEngine.Header,
+        context: ExecutionContext,
+        credential: SoapCredential
+    ): XmlObject? {
+        context.logger.info("Creating object for ${soapTransportType.soapAction}")
+        val userPassCredential = credential as? UserPassCredential
+            ?: error("Unable to cast credential for ${header.receiver?.name} to UserPassCredential")
+        return when (soapTransportType.soapAction) {
+            // I detest magic strings, I need to think on this more
+            "http://nedss.state.pa.us/2012/B01/elrwcf/IUploadFile/UploadFiles" -> {
+                // PA object - this is very specific to PA
+                // add credential object
+                val credentials = Credentials(
+                    password = userPassCredential.pass,
+                    timestamp = "",
+                    userName = userPassCredential.user
+                )
+                val labFile = LabFile(
+                    fileName = Report.formExternalFilename(header),
+                    index = 1,
+                    fileContents = Base64.getEncoder().encodeToString(header.content!!)
+                )
+                UploadFiles(credentials, arrayOf(labFile))
+            }
+            else -> null
+        }
     }
 }

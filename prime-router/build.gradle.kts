@@ -97,6 +97,13 @@ compileTestKotlin.kotlinOptions.jvmTarget = "11"
 tasks.clean {
     // Delete the old Maven build folder
     delete("target")
+    // clean up all the old event files in the SOAP set up
+    doLast {
+        val eventsDir = File("../.environment/soap_service/soap/event/v1/")
+        FileUtils.listFiles(eventsDir, arrayOf("event"), true).forEach {
+            it.delete()
+        }
+    }
 }
 
 /**

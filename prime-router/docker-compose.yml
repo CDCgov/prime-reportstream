@@ -75,6 +75,8 @@ services:
     volumes:
       - ../.environment/soap_service:/root/.castlemock
       - ../.environment/soap_service:/castlemock/castlemock
+    networks:
+      - prime-router_build
 
 
   # local FTPS Server
