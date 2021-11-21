@@ -18,6 +18,8 @@ import gov.cdc.prime.router.credentials.UserPassCredential
 import gov.cdc.prime.router.serializers.soapimpl.Credentials
 import gov.cdc.prime.router.serializers.soapimpl.LabFile
 import gov.cdc.prime.router.serializers.soapimpl.UploadFiles
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.Base64
 import javax.xml.stream.XMLOutputFactory
 import kotlin.reflect.full.findAnnotation
@@ -127,9 +129,10 @@ object SoapObjectService {
             "http://nedss.state.pa.us/2012/B01/elrwcf/IUploadFile/UploadFiles" -> {
                 // PA object - this is very specific to PA
                 // add credential object
+                val timestamp = DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(LocalDateTime.now())
                 val credentials = Credentials(
                     password = userPassCredential.pass,
-                    timestamp = "",
+                    timestamp = timestamp,
                     userName = userPassCredential.user
                 )
                 val labFile = LabFile(

@@ -1378,8 +1378,9 @@
                 display: Unknown
       transport:
         type: SOAP
-        endpoint: "http://172.18.0.3:8080/castlemock/mock/soap/project/eUAvaN/BasicHttpBinding_IUploadFile"
+        endpoint: "http://prime-router-soap-webservice-1:8080/castlemock/mock/soap/project/eUAvaN/BasicHttpBinding_IUploadFile"
         soapAction: "http://nedss.state.pa.us/2012/B01/elrwcf/IUploadFile/UploadFiles"
+        credentialName: DEFAULT-SOAP
         namespaces:
           "xmlns:elr": "http://nedss.state.pa.us/2012/B01/elrwcf"
       timing:

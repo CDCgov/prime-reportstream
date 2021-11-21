@@ -68,7 +68,7 @@ services:
 
 
   # a SOAP endpoint to test against
-  soap_webservice:
+  soap-webservice:
     image: castlemock/castlemock
     ports:
       - "8087:8080"
