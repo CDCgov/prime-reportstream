@@ -52,7 +52,8 @@ class ActionHistoryTests {
         assertThat(actionHistory1.action.actionResult).isEqualTo("foobar")
         val giantStr = "x".repeat(3000)
         actionHistory1.trackActionResult(giantStr)
-        assertThat(actionHistory1.action.actionResult.length == 2048).isTrue()
+        // now with bigger strings! since we append, it should be at least 3000 chars
+        assertThat(actionHistory1.action.actionResult.length >= 3000).isTrue()
     }
 
     @Test

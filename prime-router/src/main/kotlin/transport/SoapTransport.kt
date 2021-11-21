@@ -18,7 +18,6 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.receive
 import io.ktor.client.engine.apache.Apache
 import io.ktor.client.features.logging.LogLevel
-import io.ktor.client.features.logging.Logger.Companion
 import io.ktor.client.features.logging.Logging
 import io.ktor.client.features.logging.SIMPLE
 import io.ktor.client.request.header
@@ -41,7 +40,7 @@ import javax.xml.transform.stream.StreamSource
  */
 class SoapTransport : ITransport {
     /**
-     * Writes out the xml in a pretty way
+     * Writes out the xml in a pretty way. This is primarily for our log files.
      */
     private fun prettyPrintXmlResponse(value: String): String {
         val transformerFactory = TransformerFactory.newDefaultInstance()
@@ -54,7 +53,19 @@ class SoapTransport : ITransport {
     }
 
     /**
-     * Make a SOAP connection
+     * Make a SOAP connection. We're using the KTOR library here to make a direct HTTP call.
+     * I defaulted to using the [Apache] engine to do our connections. There are a bunch of
+     * different libraries you could use for this, but the Apache one is fairly vanilla and
+     * straightforward for our purposes.
+     *
+     * This is a suspend function, meaning it can get called as an async method, though we call it
+     * a blocking way.
+     *
+     * @param message The contents of the file we want to send, after it's been wrapped in the [SoapEnvelope]
+     * object and converted to XML
+     * @param soapEndpoint The URL to post to when sending the message
+     * @param soapAction The command to invoke on the remote server
+     * @param context Really just here to get logging injected
      */
     private suspend fun connectToSoapService(
         message: String,
@@ -62,32 +73,44 @@ class SoapTransport : ITransport {
         soapAction: String,
         context: ExecutionContext
     ): String {
-        context.logger.info("Invoking with:\n$message")
         HttpClient(Apache) {
+            // installs logging into the call to post to the server
             install(Logging) {
-                logger = Companion.SIMPLE
-                level = LogLevel.ALL
+                logger = io.ktor.client.features.logging.Logger.Companion.SIMPLE
+                level = LogLevel.INFO
             }
+            // configures the Apache client with our specified timeouts
             engine {
                 followRedirects = true
-                socketTimeout = 10_000
-                connectTimeout = 10_000
-                connectionRequestTimeout = 20_000
+                socketTimeout = TIMEOUT
+                connectTimeout = TIMEOUT
+                connectionRequestTimeout = TIMEOUT
                 customizeClient {
                 }
             }
         }.use { client ->
             context.logger.info("Connecting to $soapEndpoint")
+            // once we've created te client, we will use it to call post on the endpoint
             val response: HttpResponse = client.post(soapEndpoint) {
+                // adds the SOAPAction header
                 header("SOAPAction", soapAction)
+                // we want to pass text in the body of our request. You need to do it this
+                // way because the TextContent object sets other values like the charset, etc
+                // Ktor will balk if you try to set it some other way
                 body = TextContent(
                     message,
+                    // force the encoding to be UTF-8. PA had issues understanding the message
+                    // unless it was explicitly set to UTF-8. Plus it's good to be explicit about
+                    // these things
                     contentType = ContentType.Text.Xml.withCharset(Charsets.UTF_8)
                 )
             }
-            context.logger.info(response.toString())
+            // get the response object
             val body: String = response.receive()
+            context.logger.info(response.toString())
+            // log the response body
             context.logger.info(prettyPrintXmlResponse(body))
+            // return just the body of the message
             return body
         }
     }
@@ -103,9 +126,14 @@ class SoapTransport : ITransport {
         context: ExecutionContext,
         actionHistory: ActionHistory
     ): RetryItems? {
+        // verify that we have a SOAP transport type for our parameters. I think if we ever fell
+        // into this scenario with different parameters there's something seriously wrong in the system,
+        // but it is good to check.
         val soapTransportType = transportType as? SoapTransportType
             ?: error("Transport type passed in not of SOAPTransportType")
+        // verify we have a receiver
         val receiver = header.receiver ?: error("No receiver defined for report ${header.reportFile.reportId}")
+        // get the external file name to send to the client, if we need it
         val fileName = header.reportFile.externalName
         context.logger.info(
             "Preparing to sending ${header.reportFile.reportId} " +
@@ -114,34 +142,43 @@ class SoapTransport : ITransport {
         // based on who we are sending this report to, we need to get the credentials, and we also need
         // to create the actual implementation object based on who we're sending to
         val credential = lookupCredentials(receiver)
+        // calling the SOAP serializer in an attempt to be somewhat abstract here. this is based on the
+        // namespaces provided to the SOAP transport info. It's kind of BS magical string garbage, but the
+        // reality is that each client could have different objects we have to create for them, and these
+        // objects might nest, and/or have different constructors, and it's really hard to be really generic
+        // about this kind of stuff. So this is some semi-tight coupling we will just have to manage.
+        // And honestly, if a client changes their SOAP endpoint, we'd (probably) need to do some coding
+        // on our end, so incurring the maintenance cost here is (probably) okay.
         val xmlObject = SoapObjectService.getXmlObjectForAction(soapTransportType, header, context, credential)
             ?: error("Unable to find a SOAP object for the namespaces provided")
+        // wrap the object in the generic envelope. At least this gets to be generic
         val soapEnvelope = SoapEnvelope(xmlObject, soapTransportType.namespaces ?: emptyMap())
 
         return try {
+            // run our call to the endpoint in a blocking fashion
             runBlocking {
                 launch {
-                    connectToSoapService(
+                    val responseBody = connectToSoapService(
                         soapEnvelope.toXml(),
                         soapTransportType.endpoint,
                         soapTransportType.soapAction,
                         context
                     )
+                    // update the action history
+                    val msg = "Success: SOAP transport of $fileName to $soapTransportType: $responseBody"
+                    context.logger.info("Message successfully sent!")
+                    actionHistory.trackActionResult(msg)
+                    actionHistory.trackSentReport(
+                        receiver,
+                        sentReportId,
+                        fileName,
+                        soapTransportType.toString(),
+                        msg,
+                        header.reportFile.itemCount
+                    )
+                    actionHistory.trackItemLineages(Report.createItemLineagesFromDb(header, sentReportId))
                 }
             }
-            // update the action history
-            val msg = "Success: SOAP transport of $fileName to $soapTransportType"
-            context.logger.info("Message successfully sent!")
-            actionHistory.trackActionResult(msg)
-            actionHistory.trackSentReport(
-                receiver,
-                sentReportId,
-                fileName,
-                soapTransportType.toString(),
-                msg,
-                header.reportFile.itemCount
-            )
-            actionHistory.trackItemLineages(Report.createItemLineagesFromDb(header, sentReportId))
             // return null
             null
         } catch (t: Throwable) {
@@ -174,5 +211,9 @@ class SoapTransport : ITransport {
             credentialLabel, "SoapTransport", CredentialRequestReason.SOAP_UPLOAD
         ) as? SoapCredential?
             ?: error("Unable to find SOAP credentials for $credentialName connectionId($credentialLabel)")
+    }
+
+    companion object {
+        private const val TIMEOUT = 50_000
     }
 }

@@ -6,7 +6,9 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement
 import gov.cdc.prime.router.serializers.XmlObject
 
 /**
- * Our credentials object
+ * Our credentials object for PA. ORDER MATTERS HERE.
+ * If you change the order to something else you could break PA's
+ * ability to process the credentials.
  */
 @JacksonXmlRootElement(localName = "elr:cred")
 data class Credentials(
@@ -19,20 +21,27 @@ data class Credentials(
 ) : XmlObject
 
 /**
- * Our lab file object. Each of these gets put into a list
+ * Our lab file object. Each of these gets put into a list.
+ * This represents a file that has been sent in to PA.
  */
 @JacksonXmlRootElement(localName = "elr:LabFile")
 data class LabFile(
+    /** The external name for the file */
     @field:JacksonXmlProperty(localName = "elr:FileName")
     val fileName: String,
+    /** The index for the file that we're sending in. Starts at 1 */
     @field:JacksonXmlProperty(localName = "elr:Index")
     val index: Int,
+    /** The contents of the file after it's been encoded into HL7. It is also Base64 encoded. */
     @field:JacksonXmlProperty(localName = "elr:bytLabFile")
     val fileContents: String,
+    /** A default value that PA expects. This should never change */
     @field:JacksonXmlProperty(localName = "elr:bytSignatureToStore")
     val signature: String = "W1Bd",
+    /** The type of file we're sending. This won't change any time soon either */
     @field:JacksonXmlProperty(localName = "elr:purpose")
     val purpose: String = "HL7251",
+    /** The extension of the file we're sending in */
     @field:JacksonXmlProperty(localName = "elr:strFileExtension")
     val fileExtension: String = ".HL7"
 ) : XmlObject

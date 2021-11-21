@@ -1417,11 +1417,12 @@
               - code: U
                 display: Unknown
       transport:
-        type: SFTP
-        host: sftp
-        port: 22
-        filePath: ./upload
-        credentialName: DEFAULT-SFTP
+        type: SOAP
+        endpoint: "http://prime-router-soap-webservice-1:8080/castlemock/mock/soap/project/eUAvaN/BasicHttpBinding_IUploadFile"
+        soapAction: "http://nedss.state.pa.us/2012/B01/elrwcf/IUploadFile/UploadFiles"
+        credentialName: null
+        namespaces:
+          "xmlns:elr": "http://nedss.state.pa.us/2012/B01/elrwcf"
       timing:
         operation: MERGE
         numberPerDay: 1440
@@ -1456,11 +1457,12 @@
               - code: U
                 display: Unknown
       transport:
-        type: SFTP
-        host: sftp
-        port: 22
-        filePath: ./upload
-        credentialName: DEFAULT-SFTP
+        type: SOAP
+        endpoint: "http://prime-router-soap-webservice-1:8080/castlemock/mock/soap/project/eUAvaN/BasicHttpBinding_IUploadFile"
+        soapAction: "http://nedss.state.pa.us/2012/B01/elrwcf/IUploadFile/UploadFiles"
+        credentialName: null
+        namespaces:
+          "xmlns:elr": "http://nedss.state.pa.us/2012/B01/elrwcf"
       timing:
         operation: MERGE
         numberPerDay: 1440
@@ -1495,11 +1497,12 @@
               - code: U
                 display: Unknown
       transport:
-        type: SFTP
-        host: sftp
-        port: 22
-        filePath: ./upload
-        credentialName: DEFAULT-SFTP
+        type: SOAP
+        endpoint: "http://prime-router-soap-webservice-1:8080/castlemock/mock/soap/project/eUAvaN/BasicHttpBinding_IUploadFile"
+        soapAction: "http://nedss.state.pa.us/2012/B01/elrwcf/IUploadFile/UploadFiles"
+        credentialName: null
+        namespaces:
+          "xmlns:elr": "http://nedss.state.pa.us/2012/B01/elrwcf"
       timing:
         operation: MERGE
         numberPerDay: 1440
@@ -1534,16 +1537,18 @@
               - code: U
                 display: Unknown
       transport:
-        type: SFTP
-        host: sftp
-        port: 22
-        filePath: ./upload
-        credentialName: DEFAULT-SFTP
+        type: SOAP
+        endpoint: "http://prime-router-soap-webservice-1:8080/castlemock/mock/soap/project/eUAvaN/BasicHttpBinding_IUploadFile"
+        soapAction: "http://nedss.state.pa.us/2012/B01/elrwcf/IUploadFile/UploadFiles"
+        credentialName: null
+        namespaces:
+          "xmlns:elr": "http://nedss.state.pa.us/2012/B01/elrwcf"
       timing:
         operation: MERGE
         numberPerDay: 1440
         initialTime: 00:00
         timeZone: EASTERN
+
     - name: elr-bucks-local
       organizationName: pa-phd
       topic: covid-19
