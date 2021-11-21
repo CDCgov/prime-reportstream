@@ -1,4 +1,4 @@
-# This docker compose is intended to setup a developer
+# This docker-compose file is intended to set up a developer environment
 version: "3.3"
 services:
   # This container runs our Azure function code.
@@ -7,7 +7,7 @@ services:
       context: .
       dockerfile: Dockerfile.dev
       args:
-        INSECURE_SSL: "${PRIME_DATA_HUB_INSECURE_SSL}"
+        INSECURE_SSL: "${PRIME_DATA_HUB_INSECURE_SSL:-true}"
     volumes: # Attach the PWD into the image
       - type: bind
         source: ./build
@@ -66,7 +66,6 @@ services:
     networks:
       - prime-router_build
 
-
   # a SOAP endpoint to test against
   soap-webservice:
     image: castlemock/castlemock
@@ -77,7 +76,6 @@ services:
       - ../.environment/soap_service:/castlemock/castlemock
     networks:
       - prime-router_build
-
 
   # local FTPS Server
   ftps:
@@ -102,7 +100,6 @@ services:
     restart: always
     networks:
       - prime-router_build
-
 
   redox:
     image: mockserver/mockserver:mockserver-5.11.1

@@ -380,6 +380,19 @@ class WorkflowEngine(
                 loggerMsg = "Queue: ${event.toQueueMessage()}"
             }
             receiver.format == Report.Format.HL7 -> {
+                report.filteredItems.forEach {
+                    val emptyReport = Report(
+                        report.schema,
+                        emptyList(),
+                        emptyList(),
+                        destination = report.destination,
+                        bodyFormat = report.bodyFormat,
+                        metadata = Metadata.getInstance()
+                    )
+                    emptyReport.filteredItems.add(it)
+                    actionHistory.trackFilteredReport(emptyReport, receiver)
+                }
+
                 report
                     .split()
                     .forEach {
