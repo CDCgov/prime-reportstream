@@ -30,7 +30,8 @@ import kotlin.reflect.full.findAnnotation
 interface XmlObject {
     /**
      * Takes the XML object and writes it out as a string using the Jackson Mapper annotations
-     * that are on the class.
+     * that are on the class. This is not necessary for serialization to XML. This is used primarily
+     * for logging, but also by the [SoapEnvelope] class before it is sent to an endpoint
      */
     fun toXml(): String = mapper
         .writerWithDefaultPrettyPrinter()
@@ -51,7 +52,9 @@ interface XmlObject {
 @JsonSerialize(using = SoapSerializer::class)
 @JacksonXmlRootElement(localName = "soapenv:Envelope")
 class SoapEnvelope(
+    /** The payload gets wrapped in the SOAP envelope */
     val payload: Any,
+    /** A map of namespaces that get injected into the XML header */
     val namespaces: Map<String, String>
 ) : XmlObject
 
@@ -113,7 +116,10 @@ class SoapSerializer(private val envelope: Class<SoapEnvelope>?) : StdSerializer
 /** Based on what the SOAP action is, we create the payload and put it into the SOAP envelope */
 object SoapObjectService {
     /**
-     *
+     * Given a [SoapTransportType], a [WorkflowEngine.Header], [ExecutionContext], and [SoapCredential]
+     * we create the requisite object based on the [SoapTransportType.soapAction] we will submit to.
+     * This is where we tightly couple a SOAP action to a type that gets returned. This is the most
+     * common sense way to map things as an action requires a specific parameter
      */
     fun getXmlObjectForAction(
         soapTransportType: SoapTransportType,
@@ -128,20 +134,24 @@ object SoapObjectService {
             // I detest magic strings, I need to think on this more
             "http://nedss.state.pa.us/2012/B01/elrwcf/IUploadFile/UploadFiles" -> {
                 // PA object - this is very specific to PA
-                // add credential object
+                // get the timestamp for the credential object
                 val timestamp = DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(LocalDateTime.now())
+                // create the credential object
                 val credentials = Credentials(
                     password = userPassCredential.pass,
                     timestamp = timestamp,
                     userName = userPassCredential.user
                 )
+                // create the lab file object
                 val labFile = LabFile(
                     fileName = Report.formExternalFilename(header),
                     index = 1,
                     fileContents = Base64.getEncoder().encodeToString(header.content!!)
                 )
+                // return the composite object for PA
                 UploadFiles(credentials, arrayOf(labFile))
             }
+            // right now PA is our only SOAP client
             else -> null
         }
     }

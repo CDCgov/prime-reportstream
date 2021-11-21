@@ -9,6 +9,7 @@ import gov.cdc.prime.router.SoapTransportType
 import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
+import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.credentials.CredentialHelper
 import gov.cdc.prime.router.credentials.CredentialRequestReason
 import gov.cdc.prime.router.credentials.SoapCredential
@@ -38,7 +39,7 @@ import javax.xml.transform.stream.StreamSource
 /**
  * A SOAP transport that will connect to the endpoint and send a message in a serialized SOAP envelope
  */
-class SoapTransport : ITransport {
+class SoapTransport(private val httpClient: HttpClient? = null) : ITransport {
     /**
      * Writes out the xml in a pretty way. This is primarily for our log files.
      */
@@ -71,24 +72,10 @@ class SoapTransport : ITransport {
         message: String,
         soapEndpoint: String,
         soapAction: String,
-        context: ExecutionContext
+        context: ExecutionContext,
+        httpClient: HttpClient
     ): String {
-        HttpClient(Apache) {
-            // installs logging into the call to post to the server
-            install(Logging) {
-                logger = io.ktor.client.features.logging.Logger.Companion.SIMPLE
-                level = LogLevel.INFO
-            }
-            // configures the Apache client with our specified timeouts
-            engine {
-                followRedirects = true
-                socketTimeout = TIMEOUT
-                connectTimeout = TIMEOUT
-                connectionRequestTimeout = TIMEOUT
-                customizeClient {
-                }
-            }
-        }.use { client ->
+        httpClient.use { client ->
             context.logger.info("Connecting to $soapEndpoint")
             // once we've created te client, we will use it to call post on the endpoint
             val response: HttpResponse = client.post(soapEndpoint) {
@@ -162,10 +149,11 @@ class SoapTransport : ITransport {
                         soapEnvelope.toXml(),
                         soapTransportType.endpoint,
                         soapTransportType.soapAction,
-                        context
+                        context,
+                        httpClient ?: createDefaultHttpClient()
                     )
                     // update the action history
-                    val msg = "Success: SOAP transport of $fileName to $soapTransportType: $responseBody"
+                    val msg = "Success: SOAP transport of $fileName to $soapTransportType:\n$responseBody"
                     context.logger.info("Message successfully sent!")
                     actionHistory.trackActionResult(msg)
                     actionHistory.trackSentReport(
@@ -182,17 +170,26 @@ class SoapTransport : ITransport {
             // return null
             null
         } catch (t: Throwable) {
-            context.logger.severe(t.localizedMessage)
+            // If Ktor fails to connect, or the server returns an error code, it is thrown
+            // as an exception higher up, which we catch and then track here. We do not need
+            // to worry about capturing and parsing out the return value from the response
+            // because Ktor treats errors as exceptions
+            val msg = "FAILED SOAP of inputReportId ${header.reportFile.reportId} to " +
+                "$soapTransportType (orgService = ${header.receiver.fullName})" +
+                ", Exception: ${t.localizedMessage}"
+            context.logger.severe(msg)
             context.logger.severe(t.stackTraceToString())
+            actionHistory.setActionType(TaskAction.send_warning)
+            actionHistory.trackActionResult(msg)
             RetryToken.allItems
         }
     }
 
     /**
-     * Fetch the credentials for a give [receiver].
+     * Fetch the [SoapCredential] for a given [Receiver].
      * @return the SOAP credential
      */
-    fun lookupCredentials(receiver: Receiver): SoapCredential {
+    internal fun lookupCredentials(receiver: Receiver): SoapCredential {
         Preconditions.checkNotNull(receiver.transport)
         Preconditions.checkArgument(receiver.transport is SoapTransportType)
         val soapTransportInfo = receiver.transport as SoapTransportType
@@ -214,6 +211,27 @@ class SoapTransport : ITransport {
     }
 
     companion object {
+        /** A default value for the timeouts to connect and send messages */
         private const val TIMEOUT = 50_000
+
+        /** Our default Http Client */
+        private fun createDefaultHttpClient(): HttpClient {
+            return HttpClient(Apache) {
+                // installs logging into the call to post to the server
+                install(Logging) {
+                    logger = io.ktor.client.features.logging.Logger.Companion.SIMPLE
+                    level = LogLevel.INFO
+                }
+                // configures the Apache client with our specified timeouts
+                engine {
+                    followRedirects = true
+                    socketTimeout = TIMEOUT
+                    connectTimeout = TIMEOUT
+                    connectionRequestTimeout = TIMEOUT
+                    customizeClient {
+                    }
+                }
+            }
+        }
     }
 }
