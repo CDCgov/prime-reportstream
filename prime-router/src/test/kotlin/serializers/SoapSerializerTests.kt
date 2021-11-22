@@ -69,6 +69,10 @@ class SoapSerializerTests {
               </soapenv:Body>
             </soapenv:Envelope>
         """.trimIndent()
-        assertThat(actual.trim()).isEqualTo(expected.trim())
+        assertThat(
+            actual.trim().replace("\r|\n".toRegex(), "")
+        ).isEqualTo(
+            expected.trim().replace("\r|\n".toRegex(), "")
+        )
     }
 }
