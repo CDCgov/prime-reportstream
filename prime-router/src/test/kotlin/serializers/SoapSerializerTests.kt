@@ -41,7 +41,11 @@ class SoapSerializerTests {
               <elr:Timestamp>$timestamp</elr:Timestamp>
             </elr:TestPayload>
         """.trimIndent()
-        assertThat(actual.trim()).isEqualTo(expected.trim())
+        assertThat(
+            actual.trim().replace("\r|\n".toRegex(), "")
+        ).isEqualTo(
+            expected.trim().replace("\r|\n".toRegex(), "")
+        )
     }
 
     @Test
