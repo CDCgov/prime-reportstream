@@ -448,17 +448,13 @@ class Hl7Serializer(
                 }
             }
 
-            println(element.hl7Field + " Outside")
             if (element.hl7Field in ST_FIELDS_UNIVERSAL_CHAR_LIMIT_50 &&
                 !value.isNullOrEmpty()
             ) {
-                println(element.hl7Field + " inside")
                 val truncatedValue: String
                 truncatedValue = if (value.length > 50) {
-                    println("Truncation of 50!")
                     truncateValue(value, ST_TRUNCATION_OF_FIFTY)
                 } else {
-                    println("No Truncation of 50!!!")
                     value.trim()
                 }
                 println("Inside Value length: " + truncatedValue?.length)
@@ -503,14 +499,11 @@ class Hl7Serializer(
                         println("Truncation of 20!")
                         value.substring(0, getTruncationLimitWithEncoding(value, HD_TRUNCATION_LIMIT)).trim()
                     } else {
-                        println("No Truncation of 20!!!")
                         value.trim()
                     }
                     if (element.hl7Field != null && element.isTableLookup) {
                         setComponentForTable(terser, element, hl7Field, report, row, hl7Config)
                     } else {
-                        println("Inside If, hl7Field: " + hl7Field)
-                        println("Inside If, value: " + truncatedValue)
                         setComponent(terser, element, hl7Field, truncatedValue, report)
                     }
                 }
