@@ -24,7 +24,7 @@
         "craco-sass-resources-loader": "^1.1.0",
         "dompurify": "^2.3.3",
         "downloadjs": "^1.4.7",
-        "eslint-config-airbnb-base": "^14.2.1",
+        "eslint-config-airbnb-base": "^15.0.0",
         "font-awesome": "^4.7.0",
         "hookrouter": "^1.2.5",
         "jsonwebtoken": "^8.5.1",
