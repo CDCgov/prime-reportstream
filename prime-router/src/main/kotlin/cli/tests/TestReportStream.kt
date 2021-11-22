@@ -27,6 +27,7 @@ import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.Tables.ACTION
+import gov.cdc.prime.router.azure.db.Tables.REPORT_LINEAGE
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.cli.FileUtilities
@@ -597,22 +598,25 @@ abstract class CoolTest {
         var queryResults = mutableListOf<Pair<Boolean, String>>()
         db = WorkflowEngine().db
         db.transact { txn ->
-            val expected = totalItems / receivers.size
             receivers.forEach { receiver ->
-                // if we are processing asynchronously, look for the 'process' tasks, not 'receive
-                val actionsList = mutableListOf(if (asyncProcessMode) TaskAction.process else TaskAction.receive)
+                val actionsList = mutableListOf(TaskAction.receive)
                 // Bug:  this is looking at local cli data, but might be querying staging or prod.
                 // The hope is that the 'ignore' org is same in local, staging, prod.
+                if (asyncProcessMode) actionsList.add(TaskAction.process)
                 if (receiver.timing != null) actionsList.add(TaskAction.batch)
                 if (receiver.transport != null) actionsList.add(TaskAction.send)
                 actionsList.forEach { action ->
                     val count = itemLineageCountQuery(
                         txn = txn,
                         reportId = reportId,
-                        receivingOrgSvc = receiver.name,
+                        // if we are processing asynchronously the receive step doesn't have any receivers yet
+                        receivingOrgSvc = if (action == TaskAction.receive && asyncProcessMode) null else receiver.name,
                         receivingOrg = if (filterOrgName) receiver.organizationName else null,
                         action = action
                     )
+                    val expected = if (action == TaskAction.receive && asyncProcessMode) {
+                        totalItems
+                    } else totalItems / receivers.size
                     if (count == null || expected != count) {
                         queryResults += Pair(
                             false,
@@ -797,8 +801,12 @@ abstract class CoolTest {
          */
         fun processActionResultQuery(txn: DataAccessTransaction, reportId: ReportId): String? {
             val ctx = DSL.using(txn)
+            val processingID = ctx.selectFrom(REPORT_LINEAGE)
+                .where(REPORT_LINEAGE.PARENT_REPORT_ID.eq(reportId))
+                .fetchOne(REPORT_LINEAGE.CHILD_REPORT_ID)
+
             val ret = ctx.selectFrom(ACTION)
-                .where(ACTION.ACTION_PARAMS.like("%$reportId%"))
+                .where(ACTION.ACTION_PARAMS.like("%${processingID?.toString()}%"))
                 .and(ACTION.ACTION_NAME.eq(TaskAction.process))
                 .fetchOne(ACTION.ACTION_RESPONSE)
 
@@ -808,7 +816,7 @@ abstract class CoolTest {
         fun itemLineageCountQuery(
             txn: DataAccessTransaction,
             reportId: ReportId,
-            receivingOrgSvc: String,
+            receivingOrgSvc: String? = null,
             receivingOrg: String? = null,
             action: TaskAction,
         ): Int? {
@@ -817,16 +825,19 @@ abstract class CoolTest {
               from item_lineage as IL
               join report_file as RF on IL.child_report_id = RF.report_id
               join action as A on A.action_id = RF.action_id
-              where RF.receiving_org_svc = ?
-              ${if (receivingOrg != null) "and RF.receiving_org = ?" else ""}
-              and A.action_name = ?
+              where
+              ${if (receivingOrgSvc != null) "RF.receiving_org_svc = ? and" else ""}
+              ${if (receivingOrg != null) "and RF.receiving_org = ? and" else ""}
+              A.action_name = ?
               and IL.item_lineage_id in
               (select item_descendants(?)) """
 
-            if (receivingOrg != null) {
-                return ctx.fetchOne(sql, receivingOrgSvc, receivingOrg, action, reportId)?.into(Int::class.java)
+            return if (receivingOrg != null && receivingOrgSvc != null) {
+                ctx.fetchOne(sql, receivingOrgSvc, receivingOrg, action, reportId)?.into(Int::class.java)
+            } else if (receivingOrgSvc != null) {
+                ctx.fetchOne(sql, receivingOrgSvc, action, reportId)?.into(Int::class.java)
             } else {
-                return ctx.fetchOne(sql, receivingOrgSvc, action, reportId)?.into(Int::class.java)
+                ctx.fetchOne(sql, action, reportId)?.into(Int::class.java)
             }
         }
 
@@ -1208,7 +1219,7 @@ class TooManyCols : CoolTest() {
         try {
             val tree = jacksonObjectMapper().readTree(json)
             val firstError = (tree["errors"][0]) as ObjectNode
-            if (firstError["details"].textValue().contains("columns")) {
+            if (firstError["message"].textValue().contains("columns")) {
                 return good("toomanycols Test passed.")
             } else {
                 return bad("***toomanycols Test FAILED***:  did not find the error.")
