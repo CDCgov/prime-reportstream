@@ -487,10 +487,17 @@ class Hl7Serializer(
                     if (suppressedFields.contains(hl7Field))
                         return@outputFields
 
+                    var truncatedValue: String
+                    if (hl7Field in ST_FIELDS_UNIVERSAL_CHAR_LIMIT_50) {
+                        truncatedValue = truncateValue(value, ST_TRUNCATION_OF_FIFTY)
+                    } else {
+                        truncatedValue = value
+                    }
+
                     // some of our schema elements are actually subcomponents of the HL7 fields, and are individually
                     // text, but need to be truncated because they're the first part of an HD field. For example,
                     // ORC-2-2 and ORC-3-2, so we are manually pulling them aside to truncate them
-                    val truncatedValue = if (
+                    truncatedValue = if (
                         value.length > HD_TRUNCATION_LIMIT &&
                         element.type == Element.Type.TEXT &&
                         hl7Field in HD_FIELDS_LOCAL &&
