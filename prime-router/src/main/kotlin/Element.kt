@@ -57,6 +57,7 @@ data class Element(
     val phi: Boolean? = null,
     val maxLength: Int? = null, // used to truncate outgoing formatted String fields.  null == no length limit.
     val default: String? = null,
+    val defaultOverridesValue: Boolean? = null,
     val mapper: String? = null,
     val mapperOverridesValue: Boolean? = null,
     val mapperRef: Mapper? = null, // set during fixup
@@ -207,6 +208,7 @@ data class Element(
             mapper = this.mapper ?: baseElement.mapper,
             mapperOverridesValue = this.mapperOverridesValue ?: baseElement.mapperOverridesValue,
             default = this.default ?: baseElement.default,
+            defaultOverridesValue = this.defaultOverridesValue ?: baseElement.defaultOverridesValue,
             reference = this.reference ?: baseElement.reference,
             referenceUrl = this.referenceUrl ?: baseElement.referenceUrl,
             hhsGuidanceField = this.hhsGuidanceField ?: baseElement.hhsGuidanceField,
@@ -787,7 +789,8 @@ data class Element(
      * @return true if a default needs to be used
      */
     fun useDefault(elementValue: String): Boolean {
-        return elementValue.isBlank()
+        val overrideValue = defaultOverridesValue != null && defaultOverridesValue
+        return overrideValue || elementValue.isBlank()
     }
 
     /**
@@ -831,13 +834,17 @@ data class Element(
         }
 
         // Finally, add a default value or empty string to elements that still have a null value.
+        // Confusing: default values can be provided in the URL ("defaultOverrides"), or in the schema, or both.
+        // Normally, default values are only apply if the value is blank at this point in the code.
+        // However, if the Element has defaultOverridesValue=true set, that forces this code to run.
+        // todo get rid of defaultOverrides in the URL.  I think its always an empty map!
         if (useDefault(retVal)) {
-            retVal = if (defaultOverrides.containsKey(name)) {
+            retVal = if (defaultOverrides.containsKey(name)) { // First the URL default is used if it exists.
                 defaultOverrides[name] ?: ""
-            } else if (!default.isNullOrBlank()) {
+            } else if (!default.isNullOrBlank()) { // otherwise, use the default in the schema
                 default
             } else {
-                ""
+                "" // Otherwise force the value to be empty/blank.
             }
         }
 
@@ -861,6 +868,12 @@ data class Element(
                 retVal = ElementAndValue(tokenElement, currentDate)
             }
             elementName.contains("\$dateFormat:") -> {
+                retVal = ElementAndValue(tokenElement, extractStringValue(elementName))
+            }
+            elementName.contains("\$mode:") -> {
+                retVal = ElementAndValue(tokenElement, extractStringValue(elementName))
+            }
+            elementName.contains("\$string:") -> {
                 retVal = ElementAndValue(tokenElement, extractStringValue(elementName))
             }
         }
