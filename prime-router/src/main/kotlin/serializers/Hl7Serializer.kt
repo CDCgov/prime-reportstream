@@ -503,7 +503,6 @@ class Hl7Serializer(
                         hl7Field in HD_FIELDS_LOCAL &&
                         hl7Config?.truncateHDNamespaceIds == true
                     ) {
-                        println("Truncation of 20!")
                         value.substring(0, getTruncationLimitWithEncoding(value, HD_TRUNCATION_LIMIT)).trim()
                     } else {
                         value.trim()
