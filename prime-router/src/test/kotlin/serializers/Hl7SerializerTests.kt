@@ -147,15 +147,16 @@ NTE|1|L|This is a final comment|RE"""
 
     @Test
     fun `test write a message with Receiver for VT with HD truncation and OBX-23-1 with 50 chars`() {
-        val inputStream = File("./src/test/unit_test_files/vt_test_file.csv").inputStream()
+        val inputStream = File("./src/test/unit_test_files/vt_test_file2.csv").inputStream()
         val schema = "primedatainput/pdi-covid-19"
 
         val hl7Config = mockkClass(Hl7Configuration::class).also {
-            every { it.replaceValue }.returns(mapOf("PID-22-3" to "CDCREC,-,testCDCREC", "MSH-9" to "MSH-10"))
+            every { it.replaceValue }.returns(mapOf())
             every { it.format }.returns(Report.Format.HL7)
             every { it.useTestProcessingMode }.returns(false)
             every { it.suppressQstForAoe }.returns(false)
             every { it.suppressAoe }.returns(false)
+            every { it.defaultAoeToUnknown }.returns(false)
             every { it.suppressHl7Fields }.returns(null)
             every { it.useBlankInsteadOfUnknown }.returns(null)
             every { it.convertTimestampToDateTime }.returns(null)
@@ -165,7 +166,7 @@ NTE|1|L|This is a final comment|RE"""
             every { it.reportingFacilityName }.returns(null)
             every { it.reportingFacilityId }.returns(null)
             every { it.reportingFacilityIdType }.returns(null)
-            every { it.cliaForOutOfStateTesting }.returns("1234FAKECLIA")
+            every { it.cliaForOutOfStateTesting }.returns(null)
             every { it.useOrderingFacilityName }.returns(Hl7Configuration.OrderingFacilityName.STANDARD)
             every { it.cliaForSender }.returns(mapOf())
         }
@@ -185,11 +186,9 @@ NTE|1|L|This is a final comment|RE"""
         val cleanedMessage = reg.replace(output, "\r")
         val hapiMsg = parser.parse(cleanedMessage)
         val terser = Terser(hapiMsg)
-        // these messages are of type ORU_R01, so we can cast to that
-        // as well, and let's test that while we're here as well
-        val oru = hapiMsg as ORU_R01
+
         // assert
-        assertThat(terser.get("/MSH-4-1")).isEqualTo("I have everything b")
+        assertThat(terser.get("/MSH-4-1")).isEqualTo("North Country Union")
         assertThat(terser.get("/MSH-4-1").length).isLessThanOrEqualTo(20)
         assertThat(
             terser.get(
@@ -200,7 +199,7 @@ NTE|1|L|This is a final comment|RE"""
             terser.get(
                 "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-23-1"
             )
-        ).isEqualTo("I have everything bad and that’s not ok you know?")
+        ).isEqualTo("North Country Union High School")
         assertThat(output).isNotNull()
     }
 
