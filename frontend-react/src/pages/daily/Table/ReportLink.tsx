@@ -47,7 +47,7 @@ function ReportLink(props: Props) {
                 .then((res) => res.json())
                 .then((report) => {
                     // The filename to use for the download should not contain blob folders if present
-                    let filename = decodeURIComponent(report.filename);
+                    let filename = decodeURIComponent(report.fileName);
                     let filenameStartIndex = filename.lastIndexOf("/");
                     if (
                         filenameStartIndex >= 0 &&

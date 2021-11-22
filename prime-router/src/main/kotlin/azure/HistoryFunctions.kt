@@ -317,12 +317,30 @@ open class BaseHistoryFunction : Logging {
             else {
                 val filename = Report.formExternalFilename(header)
                 val mimeType = Report.Format.safeValueOf(header.reportFile.bodyFormat).mimeType
+                val report = ReportView.Builder()
+                    .reportId(header.reportFile.reportId.toString())
+                    .sent(header.reportFile.createdAt.toEpochSecond() * 1000)
+                    .via(header.reportFile.bodyFormat)
+                    .total(header.reportFile.itemCount.toLong())
+                    .fileType(header.reportFile.bodyFormat)
+                    .type("ELR")
+                    .expires(header.reportFile.createdAt.plusDays(DAYS_TO_SHOW).toEpochSecond() * 1000)
+                    .receivingOrg(header.reportFile.receivingOrg)
+                    .receivingOrgSvc(header.reportFile.receivingOrgSvc)
+                    .sendingOrg(header.reportFile.sendingOrg ?: "")
+                    .displayName(
+                        if (header.reportFile.externalName.isNullOrBlank()) header.reportFile.receivingOrgSvc
+                        else header.reportFile.externalName
+                    )
+                    .content(String(header.content))
+                    .fileName(filename)
+                    .mimeType(mimeType)
+                    .build()
 
-                val fileReturn = FileReturn(String(header.content), filename, mimeType)
                 response = request
                     .createResponseBuilder(HttpStatus.OK)
                     .header("Content-Type", "application/json")
-                    .body(fileReturn)
+                    .body(report)
                     .build()
 
                 val actionHistory = ActionHistory(TaskAction.download, context)
