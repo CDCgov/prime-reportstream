@@ -1,7 +1,6 @@
 import DOMPurify from "dompurify";
 
 import { SectionProp } from "../HomeProps";
-// @ts-ignore
 import usamapsvg from "../../../content/usa_w_territories.svg"; // in /content dir to get unique filename per build
 
 export default function LiveMapSection({ section }: { section: SectionProp }) {
@@ -21,7 +20,12 @@ export default function LiveMapSection({ section }: { section: SectionProp }) {
                 {section.summary}
             </p>
             <div data-testid="map">
-                <a href="/how-it-works/where-were-live"><img src={usamapsvg} alt="Map of states using ReportStream" /></a>
+                <a href="/how-it-works/where-were-live">
+                    <img
+                        src={usamapsvg}
+                        alt="Map of states using ReportStream"
+                    />
+                </a>
             </div>
             <p
                 data-testid="description"

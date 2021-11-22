@@ -8,6 +8,50 @@ NORMAL="\e[0m"
 WHITE="\e[1;97m"
 GRAY="\e[1;37m"
 
+#
+# Parse the arguments
+#
+while [[ ! -z "${1}" ]]; do
+    case "${1}" in
+    "--cmd" | "-c")
+        if [[ ! -z "${2}" ]]; then
+            TFCMD="${2}"
+        else
+            echo -e "${RED?}ERROR:${NORMAL?} --cmd does not have a value."
+            usage
+            exit 1
+        fi
+        shift
+        ;;
+    "--env" | "-e")
+        if [[ ! -z "${2}" ]]; then
+            ENVIRONMENT="${2}"
+        else
+            echo -e "${RED?}ERROR:${NORMAL?} --env does not have a value."
+            usage
+            exit 1
+        fi
+        shift
+        ;;
+    "--help" | "-h")
+        usage
+        exit 0
+        ;;
+    "--verbose")
+        VERBOSE=1
+        ;;
+    "--")
+        shift
+        break
+        ;;
+    *)
+        echo -e "${YELLOW?}WARNING:${NORMAL?} Ignoring unrecognized option: \"${1}\""
+        ;;
+    esac
+
+    shift
+done
+
 # HERE = the leaf directory we are running from (without any slashes)
 HERE=${PWD##*/}
 
@@ -63,50 +107,6 @@ function stat_file() {
 
     return ${RESULT?}
 }
-
-#
-# Parse the arguments
-#
-while [[ ! -z "${1}" ]]; do
-    case "${1}" in
-    "--cmd" | "-c")
-        if [[ ! -z "${2}" ]]; then
-            TFCMD="${2}"
-        else
-            echo -e "${RED?}ERROR:${NORMAL?} --cmd does not have a value."
-            usage
-            exit 1
-        fi
-        shift
-        ;;
-    "--env" | "-e")
-        if [[ ! -z "${2}" ]]; then
-            ENVIRONMENT="${2}"
-        else
-            echo -e "${RED?}ERROR:${NORMAL?} --env does not have a value."
-            usage
-            exit 1
-        fi
-        shift
-        ;;
-    "--help" | "-h")
-        usage
-        exit 0
-        ;;
-    "--verbose")
-        VERBOSE=1
-        ;;
-    "--")
-        shift
-        break
-        ;;
-    *)
-        echo -e "${YELLOW?}WARNING:${NORMAL?} Ignoring unrecognized option: \"${1}\""
-        ;;
-    esac
-
-    shift
-done
 
 #
 # Do real work

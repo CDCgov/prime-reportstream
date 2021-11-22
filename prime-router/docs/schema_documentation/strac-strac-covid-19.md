@@ -53,6 +53,16 @@ This field is generated based on the normalcy status of the result. A = abnormal
 
 ---
 
+**Name**: date_result_released
+
+**Type**: DATETIME
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
 **Name**: equipment_model_name
 
 **Type**: TABLE
@@ -926,6 +936,7 @@ Code | Display
 840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
 840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
 373121007|Test not done
+82334004|Indeterminate
 260373001|Detected
 260415000|Not detected
 455371000124106|Invalid result
