@@ -87,4 +87,6 @@ data class UploadFiles(
         result = 31 * result + labFiles.contentHashCode()
         return result
     }
+
+    override fun toString(): String = "${credentials.toXml()} - ${labFiles.joinToString { it.toXml() }}"
 }
