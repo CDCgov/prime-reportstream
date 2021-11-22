@@ -14,7 +14,7 @@ elements:
       default: all-in-one-health-ca
 
     - name: processing_mode_code
-      default: P
+      default: T
 
 
 #demographics
