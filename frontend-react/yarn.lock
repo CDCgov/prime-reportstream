@@ -1655,10 +1655,10 @@
   dependencies:
     "@babel/runtime" "^7.11.2"
 
-"@okta/okta-signin-widget@^5.9.0":
-  version "5.13.0"
-  resolved "https://registry.yarnpkg.com/@okta/okta-signin-widget/-/okta-signin-widget-5.13.0.tgz#85cac56f5e9beeb3eecaf529acd0de202e339c0d"
-  integrity sha512-yyUF2z1qZEgRw0Q2qoLxocm/CC/gLuQt/utecTcxzOlaiGqu91tUwNVfFJ6W+C3dNOR9qxhvTEOEPkJrFpekgg==
+"@okta/okta-signin-widget@^5.13.1":
+  version "5.13.1"
+  resolved "https://registry.yarnpkg.com/@okta/okta-signin-widget/-/okta-signin-widget-5.13.1.tgz#8dd91f3dc526db558299b6ba0981303c2d9cf285"
+  integrity sha512-lN+pc0mVke6oK0e8/Q57yC7uoVofDN51gn+9/aLOlJpizozeKmVDYyk1EpEyfTxO8im0vTfwWR0//7cM6m6tkw==
   dependencies:
     "@babel/polyfill" "^7.10.1"
     "@babel/runtime" "^7.10.3"
@@ -2105,10 +2105,10 @@
   dependencies:
     "@types/istanbul-lib-report" "*"
 
-"@types/jest@*", "@types/jest@^27.0.2":
-  version "27.0.2"
-  resolved "https://registry.yarnpkg.com/@types/jest/-/jest-27.0.2.tgz#ac383c4d4aaddd29bbf2b916d8d105c304a5fcd7"
-  integrity sha512-4dRxkS/AFX0c5XW6IPMNOydLn2tEhNhJV7DnYK+0bjoJZ+QTmfucBlihX7aoEsh/ocYtkLC73UbnBXBXIxsULA==
+"@types/jest@*", "@types/jest@^27.0.3":
+  version "27.0.3"
+  resolved "https://registry.yarnpkg.com/@types/jest/-/jest-27.0.3.tgz#0cf9dfe9009e467f70a342f0f94ead19842a783a"
+  integrity sha512-cmmwv9t7gBYt7hNKH5Spu7Kuu/DotGa+Ff+JGRKZ4db5eh8PnKS4LuebJ3YLUoyOyIHraTGyULn23YtEAm0VSg==
   dependencies:
     jest-diff "^27.0.0"
     pretty-format "^27.0.0"
