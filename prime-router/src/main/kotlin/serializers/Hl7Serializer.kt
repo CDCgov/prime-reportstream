@@ -453,20 +453,27 @@ class Hl7Serializer(
                 !value.isNullOrEmpty()
             ) {
                 println(element.hl7Field + " inside")
-                val valueB = if (value.length > 50) {
-                    // value.subSequence(0, 51).trimStart().trimEnd()
-                    element.hl7Field?.let { report.getStringByHl7Field(row, it)?.take(50)?.trim() }
-                } // value?.take(ST_TRUNCATION_OF_FIFTY)?.trim()
-                else {
-                    // value.trimStart().trimEnd()
-                    element.hl7Field?.let { report.getStringByHl7Field(row, it)?.take(50)?.trim() }
+//                val valueB = if (value.length > 50) {
+//                    // value.subSequence(0, 51).trimStart().trimEnd()
+//                    //element.hl7Field?.let { report.getStringByHl7Field(row, it)?.take(50)?.trim() }
+//                    val truncated = truncateValue("Hi", 50)
+//                } // value?.take(ST_TRUNCATION_OF_FIFTY)?.trim()
+//                else {
+//                    // value.trimStart().trimEnd()
+//                    element.hl7Field?.let { report.getStringByHl7Field(row, it)?.take(50)?.trim() }
+//                }
+                val truncatedValue: String
+                truncatedValue = if (value.length > 50) {
+                    truncateValue(value, ST_TRUNCATION_OF_FIFTY)
+                } else {
+                    value.trim()
                 }
-                println("Inside Value length: " + valueB?.length)
+                println("Inside Value length: " + truncatedValue?.length)
                 if (element.hl7OutputFields.isNullOrEmpty()) {
-                    terser.set(element.hl7Field?.let { formPathSpec(it) }, valueB as String?)
+                    terser.set(element.hl7Field?.let { formPathSpec(it) }, truncatedValue as String?)
                     return@forEach
                 } else {
-                    terser.set(element.hl7Field?.let { formPathSpec(it) }, valueB as String?)
+                    terser.set(element.hl7Field?.let { formPathSpec(it) }, truncatedValue as String?)
                 }
             } // takes leading space
 
@@ -507,6 +514,8 @@ class Hl7Serializer(
                     if (element.hl7Field != null && element.isTableLookup) {
                         setComponentForTable(terser, element, hl7Field, report, row, hl7Config)
                     } else {
+                        println("Inside If, hl7Field: " + hl7Field)
+                        println("Inside If, value: " + truncatedValue)
                         setComponent(terser, element, hl7Field, truncatedValue, report)
                     }
                 }
@@ -549,9 +558,9 @@ class Hl7Serializer(
                     value.length > HD_TRUNCATION_LIMIT &&
                     hl7Config?.truncateHDNamespaceIds == true
                 ) {
-                    value.substring(0, getTruncationLimitWithEncoding(value.trim(), HD_TRUNCATION_LIMIT))
+                    value.substring(0, getTruncationLimitWithEncoding(value, HD_TRUNCATION_LIMIT)).trim()
                 } else {
-                    value
+                    value.trim()
                 }
                 setComponent(terser, element, element.hl7Field, truncatedValue.trim(), report)
             } else if (!element.hl7Field.isNullOrEmpty()) {
@@ -1200,6 +1209,10 @@ class Hl7Serializer(
         } else {
             truncationLimit
         }
+    }
+    fun truncateValue(value: String, limit: Int): String {
+        var truncatedValue = value
+        return if (value.length > limit) truncatedValue.take(limit).trim() else truncatedValue.trim()
     }
 
     private fun createHeaders(report: Report): String {
