@@ -28,7 +28,7 @@ import java.util.Properties
 
 plugins {
     kotlin("jvm") version "1.6.0"
-    id("org.flywaydb.flyway") version "8.0.4"
+    id("org.flywaydb.flyway") version "8.0.5"
     id("nu.studer.jooq") version "6.0.1"
     id("com.github.johnrengelman.shadow") version "7.1.0"
     id("com.microsoft.azure.azurefunctions") version "1.8.1"
@@ -569,7 +569,7 @@ dependencies {
     implementation("com.azure:azure-storage-blob:12.14.1") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-storage-queue:12.11.1") {
+    implementation("com.azure:azure-storage-queue:12.11.2") {
         exclude(group = "com.azure", module = "azure-core")
     }
     implementation("com.azure:azure-security-keyvault-secrets:4.3.4") {
