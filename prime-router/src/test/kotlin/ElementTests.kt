@@ -350,6 +350,69 @@ internal class ElementTests {
             "20201220"
         )
 
+        // normalize M/d/yyyy
+        assertThat(
+            date.toFormatted(date.toNormalized("12/20/2020"))
+        ).isEqualTo(
+            "20201220"
+        )
+
+        // normalize MMddyyyy
+        assertThat(
+            date.toFormatted(date.toNormalized("12202020"))
+        ).isEqualTo(
+            "20201220"
+        )
+
+        // normalize yyyy/M/d
+        assertThat(
+            date.toFormatted(date.toNormalized("2020/12/20"))
+        ).isEqualTo(
+            "20201220"
+        )
+
+        // normalize M/d/yyyy HH:mm
+        assertThat(
+            date.toFormatted(date.toNormalized("12/20/2020 12:15"))
+        ).isEqualTo(
+            "20201220"
+        )
+
+        // normalize yyyy/M/d HH:mm
+        assertThat(
+            date.toFormatted(date.toNormalized("2020/12/20 12:15"))
+        ).isEqualTo(
+            "20201220"
+        )
+
+        val nullifyDateElement = Element(
+            "a",
+            type = Element.Type.DATE,
+            csvFields = Element.csvFields("date"),
+            nullifyValue = true
+        )
+
+        // normalize and nullify an invalid date
+        assertThat(
+            nullifyDateElement.toFormatted(nullifyDateElement.toNormalized("a week ago"))
+        ).isEqualTo(
+            ""
+        )
+
+        val nullifyDateTimeElement = Element(
+            "a",
+            type = Element.Type.DATETIME,
+            csvFields = Element.csvFields("datetime"),
+            nullifyValue = true
+        )
+
+        // normalize and nullify an invalid datetime
+        assertThat(
+            nullifyDateTimeElement.toFormatted(nullifyDateTimeElement.toNormalized("a week ago"))
+        ).isEqualTo(
+            ""
+        )
+
         val datetime = Element(
             "a",
             type = Element.Type.DATETIME,
@@ -627,12 +690,6 @@ internal class ElementTests {
         val currentDate = LocalDate.now().format(formatter)
         val elementAndValueCurrentDate = mockElement.tokenizeMapperValue(elementNameCurrentDate)
         assertThat(elementAndValueCurrentDate.value).isEqualTo(currentDate)
-
-        // sending in a "$dateFormat:valid-date-format" should return just the date format which is located
-        // after the semi-colon in the token
-        val elementNameDateFormat = "\$dateFormat:MM/dd/yyyy"
-        val elementAndValueDateFormat = mockElement.tokenizeMapperValue(elementNameDateFormat)
-        assertThat(elementAndValueDateFormat.value).isEqualTo("MM/dd/yyyy")
 
         // if nothing "parsable" comes through, the token value will be an empty string
         val elementNameNonValidToken = "\$nonValidToken:not valid"

@@ -41,8 +41,7 @@ class Metadata : Logging {
         SplitByCommaMapper(),
         TimestampMapper(),
         HashMapper(),
-        NullMapper(),
-        NullDateValidator()
+        NullMapper()
     )
     private var jurisdictionalFilters = listOf(
         FilterByCounty(),
