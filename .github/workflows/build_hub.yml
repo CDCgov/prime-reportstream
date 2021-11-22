@@ -5,15 +5,9 @@ on:
     branches:
       - master
       - production
-    paths:
-      - 'prime-router/**'
-      - '.github/workflows/build_hub.yml'
   push:
     branches:
       - master
-    paths:
-      - 'prime-router/**'
-      - '.github/workflows/build_hub.yml'
 
 env:
   # These are for CI and not credentials of any system
@@ -21,10 +15,28 @@ env:
   DB_PASSWORD: changeIT!
 
 jobs:
+  pre_job:
+    name: Pre Job
+    runs-on: ubuntu-latest
+    outputs:
+      has_router_change: ${{ steps.skip_check.outputs.router }}
+    steps:
+      - name: "Check out changes"
+        uses: actions/checkout@v2
+      - uses: dorny/paths-filter@v2
+        id: skip_check
+        with:
+          list-files: csv
+          filters: |
+            router:
+              - 'prime-router/**'
+              - '.github/workflows/build_hub.yml'
 
   build_router:
     name: Build Router
     runs-on: ubuntu-latest
+    needs: pre_job
+    if: ${{ needs.pre_job.outputs.has_router_change == 'true' }}
     defaults:
       run:
         working-directory: prime-router
@@ -115,6 +127,8 @@ jobs:
   docker_build_test:
     name: Testing Docker Build
     runs-on: ubuntu-latest
+    needs: pre_job
+    if: ${{ needs.pre_job.outputs.has_router_change == 'true' }}
     defaults:
       run:
         working-directory: prime-router
@@ -144,6 +158,8 @@ jobs:
   linting:
     name: Check Linting
     runs-on: ubuntu-latest
+    needs: pre_job
+    if: ${{ needs.pre_job.outputs.has_router_change == 'true' }}
     defaults:
       run:
         working-directory: prime-router
@@ -152,15 +168,14 @@ jobs:
       - name: "Check out changes"
         uses: actions/checkout@v2
 
-      - name: Spin up build containers
-        run: docker-compose -f docker-compose.postgres.yml up -d
-
       - name: Run Linting Check
         run: ./gradlew ktlintCheck
 
   docs:
     name: Check Docs
     runs-on: ubuntu-latest
+    needs: pre_job
+    if: ${{ needs.pre_job.outputs.has_router_change == 'true' }}
     defaults:
       run:
         working-directory: prime-router

@@ -24,6 +24,7 @@ class Metadata : Logging {
         MiddleInitialMapper(),
         UseMapper(),
         IfPresentMapper(),
+        IfNotPresentMapper(),
         LookupMapper(),
         LIVDLookupMapper(),
         ConcatenateMapper(),

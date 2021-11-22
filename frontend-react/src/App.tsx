@@ -24,6 +24,7 @@ import { Upload } from "./pages/Upload";
 import { CODES, ErrorPage } from "./pages/error/ErrorPage";
 import GlobalContextProvider from "./components/GlobalContextProvider";
 import { logout } from "./utils/UserUtils";
+import TermsOfServiceForm from "./pages/tos-sign/TermsOfServiceForm";
 import Spinner from "./components/Spinner";
 
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
@@ -71,11 +72,15 @@ const App = () => {
         >
             <Suspense fallback={<Spinner fullPage />}>
                 <NetworkErrorBoundary
-                    fallbackComponent={() => <ErrorPage type="page" />}
+                    fallbackComponent={() => {
+                        return <div></div>;
+                    }}
                 >
                     <GlobalContextProvider>
                         <GovBanner aria-label="Official government website" />
                         <ReportStreamHeader />
+                        {/* Changed from main to div to fix weird padding issue at the top 
+                        caused by USWDS styling */}
                         <main id="main-content">
                             <div className="content">
                                 <Switch>
@@ -100,6 +105,11 @@ const App = () => {
                                     <Route
                                         path="/login/callback"
                                         component={LoginCallback}
+                                    />
+                                    <AuthorizedRoute
+                                        path="/sign-tos"
+                                        authorize={PERMISSIONS.PRIME_ADMIN}
+                                        component={TermsOfServiceForm}
                                     />
                                     <AuthorizedRoute
                                         path="/daily-data"
