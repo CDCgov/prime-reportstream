@@ -147,7 +147,7 @@ NTE|1|L|This is a final comment|RE"""
 
     @Test
     fun `test write a message with Receiver for VT with HD truncation and OBX-23-1 with 50 chars`() {
-        val inputStream = File("./src/test/unit_test_files/vt_test_file2.csv").inputStream()
+        val inputStream = File("./src/test/unit_test_files/vt_test_file.csv").inputStream()
         val schema = "primedatainput/pdi-covid-19"
 
         val hl7Config = mockkClass(Hl7Configuration::class).also {
@@ -188,7 +188,7 @@ NTE|1|L|This is a final comment|RE"""
         val terser = Terser(hapiMsg)
 
         // assert
-        assertThat(terser.get("/MSH-4-1")).isEqualTo("North Country Union")
+        assertThat(terser.get("/MSH-4-1")).isEqualTo("I have everything b")
         assertThat(terser.get("/MSH-4-1").length).isLessThanOrEqualTo(20)
         assertThat(
             terser.get(
@@ -199,7 +199,7 @@ NTE|1|L|This is a final comment|RE"""
             terser.get(
                 "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-23-1"
             )
-        ).isEqualTo("North Country Union High School")
+        ).isEqualTo("I have everything bad and that's not ok you know?")
         assertThat(output).isNotNull()
     }
 

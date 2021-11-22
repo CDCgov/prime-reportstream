@@ -538,6 +538,18 @@
         receivingApplicationOID: 2.16.840.1.114222.4.1.185.1
         receivingFacilityName: VDH
         receivingFacilityOID: 2.16.840.1.114222.4.1.185
+        truncateHDNamespaceIds: true
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+        timeZone: CENTRAL
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
     - name: elr-secondary
       organizationName: vt-doh
       topic: covid-19
@@ -553,7 +565,7 @@
         receivingApplicationOID: 2.16.840.1.114222.4.1.185.1
         receivingFacilityName: VDH
         receivingFacilityOID: 2.16.840.1.114222.4.1.185
-
+        truncateHDNamespaceIds: true
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
@@ -860,65 +872,6 @@
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
         timeZone: CHAMORRO
-
-- name: vt-doh
-  description: Vermont Department of Health
-  jurisdiction: STATE
-  stateCode: VT
-  receivers:
-    - name: elr
-      organizationName: vt-doh
-      topic: covid-19
-      customerStatus: active
-      jurisdictionalFilter:
-        - orEquals(ordering_facility_state, VT, patient_state, VT)
-      translation:
-        type: HL7
-        useTestProcessingMode: false
-        useBatchHeaders: true
-        receivingApplicationName: NBS
-        receivingApplicationOID: 2.16.840.1.114222.4.1.185.1
-        receivingFacilityName: VDH
-        receivingFacilityOID: 2.16.840.1.114222.4.1.185
-        messageProfileId: null
-        replaceValue: { }
-        reportingFacilityName: null
-        reportingFacilityId: null
-        reportingFacilityIdType: null
-        suppressQstForAoe: false
-        suppressHl7Fields: OBX-18-1, OBX-18-2, OBX-18-3, OBX-18-4
-        suppressAoe: false
-        truncateHDNamespaceIds: true
-        defaultAoeToUnknown: false
-        usePid14ForPatientEmail: true
-        convertTimestampToDateTime: null
-        cliaForOutOfStateTesting: null
-        cliaForSender: { }
-        phoneNumberFormatting: "STANDARD"
-        processingModeCode: null
-        replaceDiiWithOid: null
-        useOrderingFacilityName: "STANDARD"
-        nameFormat: "STANDARD"
-        receivingOrganization: null
-      transport:
-        type: SFTP
-        host: sftp
-        port: 22
-        filePath: ./upload
-        credentialName: DEFAULT-SFTP
-      qualityFilter:
-      - "hasValidDataFor(message_id,equipment_model_name,specimen_type,test_result,patient_last_name,patient_first_name,patient_dob)"
-      - "hasAtLeastOneOf(patient_street,patient_zip_code,patient_phone_number,patient_email)"
-      - "hasAtLeastOneOf(order_test_date,specimen_collection_date_time,test_result_date)"
-      - "isValidCLIA(testing_lab_clia,reporting_facility_clia)"
-      - "doesNotMatch(processing_mode_code,T,D)"
-      reverseTheQualityFilter: false
-      deidentify: false
-      timing:
-        operation: MERGE
-        numberPerDay: 1440 # Every minute
-        initialTime: 00:00
-        timeZone: EASTERN
 
 - name: nj-doh
   description: New Jersey Department of Health
