@@ -1655,10 +1655,10 @@
   dependencies:
     "@babel/runtime" "^7.11.2"
 
-"@okta/okta-signin-widget@^5.9.0":
-  version "5.13.0"
-  resolved "https://registry.yarnpkg.com/@okta/okta-signin-widget/-/okta-signin-widget-5.13.0.tgz#85cac56f5e9beeb3eecaf529acd0de202e339c0d"
-  integrity sha512-yyUF2z1qZEgRw0Q2qoLxocm/CC/gLuQt/utecTcxzOlaiGqu91tUwNVfFJ6W+C3dNOR9qxhvTEOEPkJrFpekgg==
+"@okta/okta-signin-widget@^5.13.1":
+  version "5.13.1"
+  resolved "https://registry.yarnpkg.com/@okta/okta-signin-widget/-/okta-signin-widget-5.13.1.tgz#8dd91f3dc526db558299b6ba0981303c2d9cf285"
+  integrity sha512-lN+pc0mVke6oK0e8/Q57yC7uoVofDN51gn+9/aLOlJpizozeKmVDYyk1EpEyfTxO8im0vTfwWR0//7cM6m6tkw==
   dependencies:
     "@babel/polyfill" "^7.10.1"
     "@babel/runtime" "^7.10.3"
