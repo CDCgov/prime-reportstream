@@ -779,7 +779,7 @@ The ID number of the lab order from the placer
 
 **PII**: No
 
-**Default Value**: P
+**Default Value**: T
 
 **Cardinality**: [0..1]
 
