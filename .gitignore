@@ -109,4 +109,4 @@ gitleaks.log
 terraform-fmt.log
 
 # CastleMock event files
-.environment/soap_service/soap/event/**
+.environment/soap_service/soap/event/v1/**
