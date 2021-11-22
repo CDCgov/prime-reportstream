@@ -166,6 +166,47 @@ class IfPresentMapper : Mapper {
 }
 
 /**
+ * This mapper checks if one or more elements are blank or not present on a row,
+ * and if so, will replace an element's value with either some literal string value
+ * or the value from a different field on a row
+ * ex. ifNotPresent($mode:literal, $string:NO ADDRESS, patient_zip_code, patient_state)
+ *      - if patient_zip_code and patient_state are missing or blank, then replace element's value with "NO ADDRESS"
+ *     ifNotPresent($mode:lookup, ordering_provider_city, patient_zip_code)
+ *      - if patient_zip_code is missing or blank, then replace element's value with that of the ordering_provider_city
+ */
+class IfNotPresentMapper : Mapper {
+    override val name = "ifNotPresent"
+
+    override fun valueNames(element: Element, args: List<String>): List<String> {
+        if (args.isEmpty()) error("Schema Error: ifNotPresent expects dependency and value parameters")
+        return args
+    }
+
+    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
+        val mode = args[0].split(":")[1]
+        val modeOperator = if (args[1].contains(":")) args[1].split(":")[1] else args[1]
+        val conditionList = args.subList(2, args.size)
+        conditionList.forEach {
+            val valuesElement = values.find { v -> v.element.name == it }
+            if (valuesElement != null && valuesElement.value.isNotBlank()) {
+                return null
+            }
+        }
+        when (mode) {
+            "literal" -> {
+                return modeOperator
+            }
+            "lookup" -> {
+                val lookupValue = values.find { v -> v.element.name == modeOperator }
+                return lookupValue?.value.toString()
+            }
+        }
+
+        return null
+    }
+}
+
+/**
  * The LookupMapper is used to lookup values from a lookup table
  * The args for the lookup mapper is the name of the element with the index value
  * The table involved is the element.table field
@@ -759,6 +800,8 @@ class HashMapper : Mapper {
 
 /**
  * This mapper performs no operation and is meant to override mappers set on parent schemas, so no mapper runs.
+ * It does not change any values.
+ * If you want to 'blank out' a value, use 'defaultOverridesValue: true', along with an empty 'default:'
  * Arguments: None
  * Returns: null
  */
@@ -820,7 +863,7 @@ class NullDateValidator : Mapper {
 
 object Mappers {
     fun parseMapperField(field: String): Pair<String, List<String>> {
-        val match = Regex("([a-zA-Z0-9]+)\\x28([a-z, \\x2E_\\x2DA-Z0-9?&$:^]*)\\x29").find(field)
+        val match = Regex("([a-zA-Z0-9]+)\\x28([a-z, \\x2E_\\x2DA-Z0-9?&$*:^]*)\\x29").find(field)
             ?: error("Mapper field $field does not parse")
         val args = if (match.groupValues[2].isEmpty())
             emptyList()

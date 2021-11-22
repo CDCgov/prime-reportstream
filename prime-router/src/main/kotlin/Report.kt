@@ -624,18 +624,11 @@ class Report : Logging {
                             null
                         }
                     }
-                    it.patientAge = row.getStringOrNull("patient_dob").let { dob ->
-                        try {
-                            val d = LocalDate.parse(dob, Element.dateFormatter)
-                            if (d != null && it.specimenCollectionDateTime != null) {
-                                Period.between(d, it.specimenCollectionDateTime).years.toString()
-                            } else {
-                                null
-                            }
-                        } catch (_: Exception) {
-                            null
-                        }
-                    }
+                    it.patientAge = getAge(
+                        row.getStringOrNull("patient_age"),
+                        row.getStringOrNull("patient_dob"),
+                        it.specimenCollectionDateTime
+                    )
                     it.siteOfCare = row.getStringOrNull("site_of_care").trimToNull()
                     it.reportId = this.id
                     it.reportIndex = idx
@@ -652,6 +645,44 @@ class Report : Logging {
         } catch (e: Exception) {
             logger.error(e)
             emptyList()
+        }
+    }
+
+    /**
+     * getAge - calculate the age of the patient according to the criteria below:
+     *      if patient_age is given then
+     *          - validate it is not null, it is valid digit number, and not lesser than zero
+     *      else
+     *          - the patient will be calculated using period.between patient date of birth and
+     *          the speciment collection date.
+     *  @param patient_age - input patient's age.
+     *  @param patient_dob - imput patient date of birth.
+     *  @param specimenCollectionDate - input date of when speciment was collected.
+     *  @return age - result of patient's age.
+     */
+    private fun getAge(patient_age: String?, patient_dob: String?, specimenCollectionDate: LocalDate?): String? {
+
+        return if ((!patient_age.isNullOrBlank()) && patient_age.all { Character.isDigit(it) } &&
+            (patient_age.toInt() > 0)
+        ) {
+            patient_age
+        } else {
+            //
+            // Here, we got invalid or blank patient_age given to us.  Therefore, we will use patient date
+            // of birth and date of speciment collected to calculate the patient's age.
+            //
+            try {
+                val d = LocalDate.parse(patient_dob, Element.dateFormatter)
+                if (d != null && specimenCollectionDate != null &&
+                    (d.isBefore(specimenCollectionDate))
+                ) {
+                    Period.between(d, specimenCollectionDate).years.toString()
+                } else {
+                    null
+                }
+            } catch (_: Exception) {
+                null
+            }
         }
     }
 

@@ -90,7 +90,7 @@ fun addVaultValuesToEnv(env: MutableMap<String, Any>) {
 
 defaultTasks("package")
 
-val kotlinVersion = "1.5.31"
+val kotlinVersion = "1.6.0"
 jacoco.toolVersion = "0.8.7"
 
 // Set the compiler JVM target
@@ -278,6 +278,13 @@ tasks.register("fatJar") {
     group = rootProject.description ?: ""
     description = "Generate the fat jar used to run the prime tool"
     dependsOn("shadowJar")
+}
+
+tasks.ktlintCheck {
+    // DB tasks are not needed by ktlint, but gradle adds them by automatic configuration
+    tasks["generateJooq"].enabled = false
+    tasks["migrate"].enabled = false
+    tasks["flywayMigrate"].enabled = false
 }
 
 /**
@@ -519,7 +526,7 @@ tasks.named<nu.studer.gradle.jooq.JooqGenerate>("generateJooq") {
 }
 
 /**
- * Convinience tasks
+ * Convenience tasks
  */
 // Convenience tasks
 tasks.register("compile") {
@@ -610,7 +617,7 @@ dependencies {
     implementation("com.github.kayr:fuzzy-csv:1.7.2")
     implementation("org.commonmark:commonmark:0.18.0")
     implementation("com.google.guava:guava:31.0.1-jre")
-    implementation("com.helger.as2:as2-lib:4.7.1")
+    implementation("com.helger.as2:as2-lib:4.8.0")
     // Prevent mixed versions of these libs based on different versions being included by different packages
     implementation("org.bouncycastle:bcpkix-jdk15on:1.69")
     implementation("org.bouncycastle:bcmail-jdk15on:1.69")
@@ -619,6 +626,7 @@ dependencies {
     implementation("commons-net:commons-net:3.8.0")
     implementation("com.cronutils:cron-utils:9.1.5")
     implementation("khttp:khttp:1.0.0")
+    implementation("com.auth0:java-jwt:3.18.2")
     implementation("io.jsonwebtoken:jjwt-api:0.11.2")
     implementation("de.m3y.kformat:kformat:0.8")
     implementation("io.github.java-diff-utils:java-diff-utils:4.11")
