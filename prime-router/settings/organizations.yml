@@ -2077,6 +2077,25 @@
         port: 22
         filePath: ./upload
         credentialName: DEFAULT-SFTP
+    - name: EVERY_60_MINS
+      externalName: Batches and Sends every 60 minutes.  For Load testing.
+      organizationName: ignore
+      topic: covid-19
+      customerStatus: active
+      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, EVERY_60_MINS)" ]
+      timing:
+        operation: MERGE
+        numberPerDay: 24 # Every 60 minutes
+        initialTime: 00:00
+      translation:
+        type: HL7
+        useBatchHeaders: true
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
 
 
 
