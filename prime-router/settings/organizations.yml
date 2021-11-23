@@ -1357,6 +1357,7 @@
         type: HL7
         useBatchHeaders: true
         nameFormat: chester_hl7
+        reportingFacilityName: Chester County Health Department
         receivingApplicationName: PA-ELR
         receivingFacilityName: PADOH
         suppressHl7Fields: PID-13-1,ORC-23-1,OBR-16
@@ -1397,6 +1398,7 @@
         type: HL7
         useBatchHeaders: true
         nameFormat: montgomery_hl7
+        reportingFacilityName: Montgomery County Office of Public Health
         receivingApplicationName: PA-ELR
         receivingFacilityName: PADOH
         suppressHl7Fields: PID-13-1,ORC-23-1,OBR-16
@@ -1437,6 +1439,7 @@
         type: HL7
         useBatchHeaders: true
         nameFormat: philadelphia_hl7
+        reportingFacilityName: Philadelphia Public Health Laboratory
         receivingApplicationName: PA-ELR
         receivingFacilityName: PADOH
         suppressHl7Fields: PID-13-1,ORC-23-1,OBR-16
