@@ -123,7 +123,7 @@ class SoapTransport(private val httpClient: HttpClient? = null) : ITransport {
         // get the external file name to send to the client, if we need it
         val fileName = header.reportFile.externalName
         context.logger.info(
-            "Preparing to sending ${header.reportFile.reportId} " +
+            "Preparing to send ${header.reportFile.reportId} " +
                 "to ${soapTransportType.soapAction} at ${soapTransportType.endpoint}"
         )
         // based on who we are sending this report to, we need to get the credentials, and we also need
