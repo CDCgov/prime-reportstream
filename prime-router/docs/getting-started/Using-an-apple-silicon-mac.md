@@ -127,7 +127,9 @@ npm -v # v6.X.X
 npm install --global yarn
 ```
 
-Now you have the tools necessary to run the front-end application. Navigate into the `frontend-react` folder
+#### Serving
+
+Now you have the tools necessary to run the frontend application. Navigate into the `frontend-react` folder
 and use `yarn` to serve it on `localhost:3000`
 
 ```bash
@@ -136,11 +138,16 @@ yarn
 yarn start
 ```
 
+#### Refreshing
+
+The frontend application will run until you `Ctrl + C` to end the process in your terminal. Updates to the frontend
+render when a file's changes are saved, eliminating the need to rebuild and serve the project!
+
 ### Step 7 - Test Frontend
 
 If the window hasn't automatically opened, navigate to `http://localhost:3000`.
-You should be able to login and exercise the UI. To ensure the frontend is talking to the `prime-router` application,
-log in and access `localhost:3000/daily-data`. Observe your network calls through your browser's webtool, checking
+You should be able to login and utilize the interface. To ensure the frontend is talking to the `prime-router` application,
+log in and access `localhost:3000/daily-data`. Observe your network calls through your browser's dev tools, checking
 for any error status codes.
 
 ## Next Steps
