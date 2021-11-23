@@ -44,7 +44,7 @@ class GetSubmissions(
 
             // URL Query Parameters
             val qSortOrder = request.queryParameters.getOrDefault("sort", "DESC")
-            var qResultsAfterDate = request.queryParameters.getOrDefault("after", "")
+            var qResultsAfterDate = request.queryParameters.getOrDefault("cursor", "")
             val qPageSize = request.queryParameters.getOrDefault("pagesize", "10")
 
             if (isPositiveInteger(qPageSize)) {

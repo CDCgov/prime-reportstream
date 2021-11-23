@@ -34,7 +34,7 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = DatabaseAccess(
                     .selectFrom(ACTION)
                     .where(ACTION.ACTION_NAME.eq(TaskAction.receive).and(ACTION.SENDING_ORG.eq(sendingOrg)))
                     .orderBy(sorted)
-                    .seek( OffsetDateTime.parse(resultsAfterDate) )
+                    .seek(OffsetDateTime.parse(resultsAfterDate))
                     .limit(limit)
                     .fetchInto(Action::class.java)
             }
