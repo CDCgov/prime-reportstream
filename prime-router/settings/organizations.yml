@@ -93,9 +93,6 @@
       type: "BLOBSTORE"
     externalName: null
 
-
-
-
 - name: safehealth
   description: SAFE - Safe Health Systems
   jurisdiction: FEDERAL
@@ -2783,6 +2780,20 @@
         receiverUrl: http://host.docker.internal:8000/pyas2/as2receive
         receiverId: p1as2
         senderId: CDCPRIMETEST
+    - name: gaen
+      description: Google/Apple Exposure Notification
+      organizationName: wa-phd
+      topic: covid-19
+      customerStatus: testing
+      jurisdictionalFilter:
+        - matches(abnormal_flag, A)
+        - orEquals(ordering_facility_state, WA, patient_state, WA)
+      timing: null
+      translation:
+        type: GAEN
+      transport:
+        type: GAEN
+        apiUrl: ""
 
 - name: wv-phd
   description: West Virginia Public Health Department
