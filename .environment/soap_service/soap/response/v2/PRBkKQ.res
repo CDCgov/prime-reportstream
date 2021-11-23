@@ -5,8 +5,8 @@
    &lt;soapenv:Body&gt;
       &lt;web:UploadFilesResponse&gt;
           &lt;UserName&gt;${BODY_XPATH(expression="//Envelope/Body/UploadFiles/cred/UserName")}&lt;/UserName&gt;
-          &lt;Password&gt;${BODY_XPATH(expression="//Envelope/Body/UploadFiles/cred/Password")}&lt;/Password&gt;
           &lt;TimeStamp&gt;${BODY_XPATH(expression="//Envelope/Body/UploadFiles/cred/TimeStamp")}&lt;/TimeStamp&gt;
+          &lt;Message&gt;Successful submission! Thank you for your business.&lt;/Message&gt;
       &lt;/web:UploadFilesResponse&gt;
    &lt;/soapenv:Body&gt;
 &lt;/soapenv:Envelope&gt;</body>
