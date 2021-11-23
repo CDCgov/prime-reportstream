@@ -539,6 +539,7 @@
         receivingFacilityName: VDH
         receivingFacilityOID: 2.16.840.1.114222.4.1.185
         truncateHDNamespaceIds: true
+        suppressHl7Fields: OBX-18-1, OBX-18-2, OBX-18-3, OBX-18-4
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
@@ -566,6 +567,7 @@
         receivingFacilityName: VDH
         receivingFacilityOID: 2.16.840.1.114222.4.1.185
         truncateHDNamespaceIds: true
+        suppressHl7Fields: OBX-18-1, OBX-18-2, OBX-18-3, OBX-18-4
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
