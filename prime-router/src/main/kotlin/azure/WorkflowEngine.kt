@@ -379,7 +379,7 @@ class WorkflowEngine(
                 this.dispatchReport(event, batchReport, actionHistory, receiver, txn, context)
                 loggerMsg = "Queue: ${event.toQueueMessage()}"
             }
-            receiver.format.isSingleItemFormat -> {
+            receiver.format == Report.Format.HL7 -> {
                 report
                     .split()
                     .forEach {
