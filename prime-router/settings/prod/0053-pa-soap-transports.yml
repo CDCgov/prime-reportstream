@@ -201,5 +201,5 @@
       timing:
         operation: MERGE
         numberPerDay: 24
-        initialTime: 00:35
+        initialTime: 00:39
         timeZone: EASTERN
