@@ -30,7 +30,7 @@ class FakeDataService {
             return when {
                 element.nameContains("name_of_testing_lab") -> "Any lab USA"
                 element.nameContains("lab_name") -> "Any lab USA"
-                element.nameContains("sender_id") -> "" // Allow the default to fill this in
+                element.nameContains("sender_id") -> "${element.default}" // Allow the default to fill this in
                 element.nameContains("facility_name") -> "Any facility USA"
                 element.nameContains("name_of_school") -> randomChoice("", context.schoolName)
                 element.nameContains("reference_range") -> randomChoice("", "Normal", "Abnormal", "Negative")
@@ -138,13 +138,25 @@ class FakeDataService {
                         )
                 }
                 element.table?.startsWith("LIVD-Supplemental") == true -> {
-                    if (element.tableColumn == null) return ""
+                    if (element.tableColumn == null)
+                        return ""
                     element.default ?: ""
                 }
                 element.table == "fips-county" -> {
                     when {
                         element.nameContains("state") -> context.state
                         element.nameContains("county") -> context.county
+                        (element.default == null) -> "${element.default}"
+                        else -> TODO("Add this column in a table")
+                    }
+                }
+                element.table == "zip-code-data" -> {
+                    when {
+                        element.nameContains("state") -> context.state
+                        element.nameContains("county") -> context.county
+                        element.nameContains("zip") -> context.zipCode
+                        element.nameContains("city") -> context.city
+                        (element.default == null) -> "${element.default}"
                         else -> TODO("Add this column in a table")
                     }
                 }

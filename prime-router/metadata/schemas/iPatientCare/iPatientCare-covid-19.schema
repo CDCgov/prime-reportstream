@@ -16,6 +16,8 @@ elements:
     - name: processing_mode_code
       csvFields: [{name: processing_mode_code}]
 
+    - name: message_id
+      csvFields: [{name: Accession_no}]
 
 #demographics
     - name: patient_id
@@ -55,7 +57,7 @@ elements:
       csvFields: [{name: Patient phone}]
 
     - name: patient_dob
-      csvFields: [{name: Birth Date, format: "M/d/yyyy H:nn"}]
+      csvFields: [{name: Birth Date, format: "M/d/yyyy"}]
 
     - name: patient_gender
       type: CODE
