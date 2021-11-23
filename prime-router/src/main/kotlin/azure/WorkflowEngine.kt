@@ -378,7 +378,7 @@ class WorkflowEngine(
                 this.dispatchReport(event, batchReport, actionHistory, receiver, txn, context)
                 loggerMsg = "Queue: ${event.toQueueMessage()}"
             }
-            receiver.format == Report.Format.HL7 -> {
+            receiver.format.isSingleItemFormat -> {
                 report.filteredItems.forEach {
                     val emptyReport = Report(
                         report.schema,
