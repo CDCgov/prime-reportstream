@@ -76,7 +76,12 @@ class SubmissionFacadeTests {
 
     private fun setupSubmissionActionDatabaseAccess() {
         every {
-            accessSpy.fetchActions("simple_report", any())
+            accessSpy.fetchActions(
+                "simple_report",
+                "",
+                "",
+                10
+            )
         }.returns(actions)
     }
 
@@ -84,7 +89,12 @@ class SubmissionFacadeTests {
     fun `test findSubmissionsAsJson`() {
         setupSubmissionActionDatabaseAccess()
         val submissionsFacade = SubmissionsFacade(accessSpy)
-        val ret1 = submissionsFacade.findSubmissionsAsJson("simple_report", 10)
+        val ret1 = submissionsFacade.findSubmissionsAsJson(
+            "simple_report",
+            "",
+            "",
+            10
+        )
         assertThat(ret1.length).isGreaterThan(2)
     }
 }
