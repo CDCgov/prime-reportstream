@@ -1,3 +1,4 @@
+---
 - name: pa-phd
   description: Pennsylvania Department of Health
   jurisdiction: STATE
@@ -33,7 +34,7 @@
                 display: Unknown
       transport:
         type: SOAP
-        endpoint: "http://prime-router-soap-webservice-1:8080/castlemock/mock/soap/project/eUAvaN/BasicHttpBinding_IUploadFile"
+        endpoint: "http://soap-webservice:8080/castlemock/mock/soap/project/eUAvaN/BasicHttpBinding_IUploadFile"
         soapAction: "http://nedss.state.pa.us/2012/B01/elrwcf/IUploadFile/UploadFiles"
         credentialName: DEFAULT-SOAP
         namespaces:
@@ -73,7 +74,7 @@
                 display: Unknown
       transport:
         type: SOAP
-        endpoint: "http://prime-router-soap-webservice-1:8080/castlemock/mock/soap/project/eUAvaN/BasicHttpBinding_IUploadFile"
+        endpoint: "http://soap-webservice:8080/castlemock/mock/soap/project/eUAvaN/BasicHttpBinding_IUploadFile"
         soapAction: "http://nedss.state.pa.us/2012/B01/elrwcf/IUploadFile/UploadFiles"
         credentialName: null
         namespaces:
@@ -113,7 +114,7 @@
                 display: Unknown
       transport:
         type: SOAP
-        endpoint: "http://prime-router-soap-webservice-1:8080/castlemock/mock/soap/project/eUAvaN/BasicHttpBinding_IUploadFile"
+        endpoint: "http://soap-webservice:8080/castlemock/mock/soap/project/eUAvaN/BasicHttpBinding_IUploadFile"
         soapAction: "http://nedss.state.pa.us/2012/B01/elrwcf/IUploadFile/UploadFiles"
         credentialName: null
         namespaces:
@@ -153,7 +154,7 @@
                 display: Unknown
       transport:
         type: SOAP
-        endpoint: "http://prime-router-soap-webservice-1:8080/castlemock/mock/soap/project/eUAvaN/BasicHttpBinding_IUploadFile"
+        endpoint: "http://soap-webservice:8080/castlemock/mock/soap/project/eUAvaN/BasicHttpBinding_IUploadFile"
         soapAction: "http://nedss.state.pa.us/2012/B01/elrwcf/IUploadFile/UploadFiles"
         credentialName: null
         namespaces:
@@ -193,7 +194,7 @@
                 display: Unknown
       transport:
         type: SOAP
-        endpoint: "http://prime-router-soap-webservice-1:8080/castlemock/mock/soap/project/eUAvaN/BasicHttpBinding_IUploadFile"
+        endpoint: "http://soap-webservice:8080/castlemock/mock/soap/project/eUAvaN/BasicHttpBinding_IUploadFile"
         soapAction: "http://nedss.state.pa.us/2012/B01/elrwcf/IUploadFile/UploadFiles"
         credentialName: null
         namespaces:

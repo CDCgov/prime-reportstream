@@ -67,7 +67,7 @@ class SoapSerializer(private val envelope: Class<SoapEnvelope>?) : StdSerializer
     constructor() : this(null)
 
     /**
-     * takes the SoapEnvelope, and it's payload, and writes the data out as an XML object
+     * takes the SoapEnvelope, and its payload, and writes the data out as an XML object
      */
     override fun serialize(value: SoapEnvelope?, gen: JsonGenerator?, provider: SerializerProvider?) {
         if (value?.payload == null) {
