@@ -2357,7 +2357,7 @@ Does the patient reside in a congregate care setting?
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
