@@ -2378,7 +2378,7 @@ Does the patient reside in a congregate care setting?
 
 **Default Value**: lifepoint
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 

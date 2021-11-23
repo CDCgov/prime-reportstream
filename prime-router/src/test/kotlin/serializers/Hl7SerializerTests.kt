@@ -49,7 +49,7 @@ import kotlin.test.fail
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class Hl7SerializerTests {
     private val hl7TestFileDir = "./src/test/hl7_test_files/"
-    private val hl7SchemaName = "hl7/hl7-ingest-covid-19"
+    private val hl7SchemaName = "hl7/test-covid-19"
     private val testReport: Report
     private val context = DefaultHapiContext()
     private val mcf = CanonicalModelClassFactory("2.5.1")
