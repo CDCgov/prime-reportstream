@@ -188,7 +188,7 @@ NTE|1|L|This is a final comment|RE"""
         val terser = Terser(hapiMsg)
 
         // assert
-        assertThat(terser.get("/MSH-4-1")).isEqualTo("I have everything b")
+        assertThat(terser.get("/MSH-4-1")).isEqualTo("High Meadow")
         assertThat(terser.get("/MSH-4-1").length).isLessThanOrEqualTo(20)
         assertThat(
             terser.get(
@@ -199,7 +199,7 @@ NTE|1|L|This is a final comment|RE"""
             terser.get(
                 "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-23-1"
             )
-        ).isEqualTo("I have everything bad and that's not ok you know?")
+        ).isEqualTo("High Meadow")
         assertThat(output).isNotNull()
     }
 

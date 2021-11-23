@@ -457,7 +457,7 @@ class Hl7Serializer(
                 } else {
                     value.trim()
                 }
-                println("Inside Value length: " + truncatedValue?.length)
+                println("Inside Value length: " + truncatedValue.length)
                 if (element.hl7OutputFields.isNullOrEmpty()) {
                     terser.set(element.hl7Field?.let { formPathSpec(it) }, truncatedValue as String?)
                     return@forEach
@@ -488,10 +488,10 @@ class Hl7Serializer(
                         return@outputFields
 
                     var truncatedValue: String
-                    if (hl7Field in ST_FIELDS_UNIVERSAL_CHAR_LIMIT_50) {
-                        truncatedValue = truncateValue(value, ST_TRUNCATION_OF_FIFTY)
+                    truncatedValue = if (hl7Field in ST_FIELDS_UNIVERSAL_CHAR_LIMIT_50) {
+                        truncateValue(value, ST_TRUNCATION_OF_FIFTY)
                     } else {
-                        truncatedValue = value
+                        value
                     }
 
                     // some of our schema elements are actually subcomponents of the HL7 fields, and are individually
