@@ -504,7 +504,7 @@ class Hl7Serializer(
                     ) {
                         value.substring(0, getTruncationLimitWithEncoding(value, HD_TRUNCATION_LIMIT)).trim()
                     } else {
-                        value.trim()
+                        truncatedValue
                     }
                     if (element.hl7Field != null && element.isTableLookup) {
                         setComponentForTable(terser, element, hl7Field, report, row, hl7Config)
