@@ -379,6 +379,7 @@ class WorkflowEngine(
                 loggerMsg = "Queue: ${event.toQueueMessage()}"
             }
             receiver.format.isSingleItemFormat -> {
+
                 report.filteredItems.forEach {
                     val emptyReport = Report(
                         report.schema,
