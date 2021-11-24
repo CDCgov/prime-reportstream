@@ -65,7 +65,8 @@ class ActionHistoryTests {
         )
         val actionHistory1 = ActionHistory(TaskAction.receive)
         val blobInfo1 = BlobAccess.BlobInfo(Report.Format.CSV, "myUrl", byteArrayOf(0x11, 0x22))
-        actionHistory1.trackExternalInputReport(report1, blobInfo1)
+        val payloadName = "quux"
+        actionHistory1.trackExternalInputReport(report1, blobInfo1, payloadName)
         assertNotNull(actionHistory1.reportsReceived[report1.id])
         val reportFile = actionHistory1.reportsReceived[report1.id] !!
         assertThat(reportFile.schemaName).isEqualTo("one")
@@ -75,6 +76,8 @@ class ActionHistoryTests {
         assertThat(reportFile.bodyUrl).isEqualTo("myUrl")
         assertThat(reportFile.blobDigest[1]).isEqualTo(34)
         assertThat(reportFile.receivingOrg).isNull()
+        assertThat(reportFile.externalName).isEqualTo(payloadName)
+        assertThat(actionHistory1.action.externalName).isEqualTo(payloadName)
 
         // not allowed to track the same report twice.
         assertThat { actionHistory1.trackExternalInputReport(report1, blobInfo1) }.isFailure()
@@ -167,6 +170,7 @@ class ActionHistoryTests {
         assertThat(reportFile.bodyUrl).isNull()
         assertThat(reportFile.blobDigest).isNull()
         assertThat(reportFile.itemCount).isEqualTo(15)
+        assertThat(actionHistory1.action.externalName).isEqualTo("filename1")
         // not allowed to track the same report twice.
         assertThat {
             actionHistory1.trackSentReport(
@@ -214,6 +218,7 @@ class ActionHistoryTests {
         assertThat(reportFile2.sendingOrg).isNull()
         assertThat(reportFile2.bodyUrl).isNull()
         assertThat(reportFile2.blobDigest).isNull()
+        assertThat(actionHistory1.action.externalName).isEqualTo("filename1")
         // not allowed to track the same report twice.
         assertThat {
             actionHistory1.trackDownloadedReport(

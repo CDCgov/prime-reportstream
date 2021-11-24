@@ -137,6 +137,12 @@ class ActionHistory {
         messages.add(event)
     }
 
+    fun trackUsername(userName: String?) {
+        if (action.username == null) {
+            action.username = userName
+        }
+    }
+
     fun trackActionParams(request: HttpRequestMessage<String?>) {
         val factory = JsonFactory()
         val outStream = ByteArrayOutputStream()
@@ -210,8 +216,9 @@ class ActionHistory {
      * Parses the client parameter and sets the sending organization
      * and client in the action table.
      * @param clientParam the client header submitted with the report
+     * @param payloadName an optional user-supplied name for the data submitted.  Eg, a filename.
      */
-    fun trackActionSender(clientParam: String) {
+    fun trackActionSenderInfo(clientParam: String, payloadName: String? = null) {
         // only set the action properties if not null
         if (clientParam.isNotBlank()) {
             try {
@@ -223,6 +230,9 @@ class ActionHistory {
                     "Exception tracking sender: ${e.localizedMessage} ${e.stackTraceToString()}"
                 )
             }
+        }
+        if (action.externalName == null) {
+            action.externalName = payloadName
         }
     }
 
@@ -271,7 +281,7 @@ class ActionHistory {
     /**
      * Use this to record history info about a new externally submitted report.
      */
-    fun trackExternalInputReport(report: Report, blobInfo: BlobAccess.BlobInfo) {
+    fun trackExternalInputReport(report: Report, blobInfo: BlobAccess.BlobInfo, payloadName: String? = null) {
         if (isReportAlreadyTracked(report.id)) {
             error("Bug:  attempt to track history of a report ($report.id) we've already associated with this action")
         }
@@ -294,6 +304,10 @@ class ActionHistory {
         reportFile.bodyUrl = blobInfo.blobUrl
         reportFile.bodyFormat = blobInfo.format.toString()
         reportFile.blobDigest = blobInfo.digest
+        reportFile.externalName = payloadName
+        if (action.externalName == null) {
+            action.externalName = payloadName
+        }
         reportFile.itemCount = report.itemCount
         reportsReceived[reportFile.reportId] = reportFile
 
@@ -387,7 +401,7 @@ class ActionHistory {
     fun trackSentReport(
         receiver: Receiver,
         sentReportId: ReportId,
-        fileName: String?,
+        filename: String?,
         params: String,
         result: String,
         itemCount: Int
@@ -404,7 +418,10 @@ class ActionHistory {
         reportFile.receivingOrgSvc = receiver.name
         reportFile.schemaName = receiver.schemaName
         reportFile.schemaTopic = receiver.topic
-        reportFile.externalName = fileName
+        reportFile.externalName = filename
+        if (action.externalName == null) {
+            action.externalName = filename
+        }
         reportFile.transportParams = params
         reportFile.transportResult = result
         reportFile.bodyUrl = null
@@ -440,6 +457,9 @@ class ActionHistory {
         reportFile.schemaName = parentReportFile.schemaName
         reportFile.schemaTopic = parentReportFile.schemaTopic
         reportFile.externalName = filename
+        if (action.externalName == null) {
+            action.externalName = filename
+        }
         reportFile.transportParams = "{ \"reportRequested\": \"${parentReportFile.reportId}\"}"
         reportFile.transportResult = "{ \"downloadedBy\": \"$downloadedBy\"}"
         reportFile.bodyUrl = null // this entry represents an external file, not a blob.
@@ -448,6 +468,8 @@ class ActionHistory {
         reportFile.itemCount = parentReportFile.itemCount
         reportFile.downloadedBy = downloadedBy
         reportsOut[reportFile.reportId] = reportFile
+
+        trackUsername(downloadedBy)
     }
 
     private fun trackItemLineages(report: Report) {
@@ -857,6 +879,8 @@ class ActionHistory {
                 it.writeStringField("timestamp", DateTimeFormatter.ISO_INSTANT.format(Instant.now()))
                 it.writeStringField("topic", report.schema.topic)
                 it.writeNumberField("reportItemCount", report.itemCount)
+                if (action.externalName != null)
+                    it.writeStringField("externalName", action.externalName)
                 // TODO: need to get the correct path and set the ENDPOINT_BASE correctly, blocked by waiting for
                 //  the historyApi to be ready. Once this is known, uncomment line below and ensure path is correct
                 // it.writeStringField("location", "[base path]/${report.id}")
