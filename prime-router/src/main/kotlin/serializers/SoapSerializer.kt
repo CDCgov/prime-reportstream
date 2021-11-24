@@ -39,7 +39,9 @@ interface XmlObject {
 
     companion object {
         private val oFactory: XMLOutputFactory = WstxOutputFactory()
-        private val xmlFactory: XmlFactory = XmlFactory.builder().xmlOutputFactory(oFactory).build()
+        private val xmlFactory: XmlFactory = XmlFactory.builder()
+            .xmlOutputFactory(oFactory)
+            .build()
         private val mapper: XmlMapper = XmlMapper(xmlFactory).also {
             it.configure(ToXmlGenerator.Feature.WRITE_XML_DECLARATION, true)
         }
