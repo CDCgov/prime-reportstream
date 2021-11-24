@@ -879,6 +879,10 @@ class ActionHistory {
                 it.writeStringField("timestamp", DateTimeFormatter.ISO_INSTANT.format(Instant.now()))
                 it.writeStringField("topic", report.schema.topic)
                 it.writeNumberField("reportItemCount", report.itemCount)
+                if (action.sendingOrg != null && action.sendingOrgClient != null)
+                    it.writeStringField("sender", "${action.sendingOrg}.${action.sendingOrgClient}")
+                if (action.httpStatus != null)
+                    it.writeStringField("httpStatus", action.httpStatus?.toString() ?: "")
                 if (action.externalName != null)
                     it.writeStringField("externalName", action.externalName)
                 // TODO: need to get the correct path and set the ENDPOINT_BASE correctly, blocked by waiting for
