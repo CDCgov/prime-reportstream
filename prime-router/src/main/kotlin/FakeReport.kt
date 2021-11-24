@@ -18,13 +18,15 @@ import java.util.concurrent.TimeUnit
     synthetic data, which is data that originates from outside of
     prime and is then shuffled and/or faked
 */
+
+private const val zipCodeData = "zip-code-data"
+
 class FakeDataService {
     fun getFakeValueForElement(
         element: Element,
         context: FakeReport.RowContext,
     ): String {
         val faker = context.faker
-
         // creates fake text data
         fun createFakeText(element: Element): String {
             return when {
@@ -150,7 +152,7 @@ class FakeDataService {
                         else -> TODO("Add this column in a table")
                     }
                 }
-                element.table == "zip-code-data" -> {
+                element.table == zipCodeData -> {
                     when {
                         element.nameContains("state") -> context.state
                         element.nameContains("county") -> context.county
@@ -233,7 +235,7 @@ class FakeReport(val metadata: Metadata, val locale: Locale? = null) {
             }
         } ?: "Prime"
         // find our zipcode
-        val zipCode: String = findLookupTable("zip-code-data")?.let {
+        val zipCode: String = findLookupTable(zipCodeData)?.let {
             randomChoice(
                 it.filter(
                     "zipcode",
@@ -244,7 +246,7 @@ class FakeReport(val metadata: Metadata, val locale: Locale? = null) {
                 )
             )
         } ?: faker.address().zipCode().toString()
-        val city: String = findLookupTable("zip-code-data")?.let {
+        val city: String = findLookupTable(zipCodeData)?.let {
             randomChoice(
                 it.filter(
                     "city",
