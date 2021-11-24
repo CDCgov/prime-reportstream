@@ -463,7 +463,7 @@ class ProcessData(
         writeReportsToFile(outputReports, metadata) { report, format, stream ->
             when (format) {
                 Report.Format.INTERNAL -> csvSerializer.writeInternal(report, stream)
-                Report.Format.CSV -> csvSerializer.write(report, stream)
+                Report.Format.CSV, Report.Format.CSV_SINGLE -> csvSerializer.write(report, stream)
                 Report.Format.HL7 -> {
                     // create a default hl7 config
                     val hl7Configuration = Hl7Configuration(

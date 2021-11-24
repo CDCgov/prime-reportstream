@@ -1973,7 +1973,7 @@ The reporting facility's name
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 

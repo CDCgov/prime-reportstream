@@ -91,9 +91,10 @@ class Report : Logging {
     ) {
         INTERNAL("internal.csv", "text/csv"), // A format that serializes all elements of a Report.kt (in CSV)
         CSV("csv", "text/csv"), // A CSV format the follows the csvFields
+        CSV_SINGLE("csv", "text/csv", true),
         HL7("hl7", "application/hl7-v2", true), // HL7 with one result per file
         HL7_BATCH("hl7", "application/hl7-v2"), // HL7 with BHS and FHS headers
-        REDOX("redox", "text/json", true); // Redox format
+        REDOX("redox", "text/json", false); // Redox format contains multiple results (NDJSON)
         // FHIR
 
         companion object {
