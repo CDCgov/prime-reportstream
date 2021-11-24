@@ -457,7 +457,6 @@ class Hl7Serializer(
                 } else {
                     value.trim()
                 }
-                println("Inside Value length: " + truncatedValue.length)
                 if (element.hl7OutputFields.isNullOrEmpty()) {
                     terser.set(element.hl7Field?.let { formPathSpec(it) }, truncatedValue as String?)
                     return@forEach
