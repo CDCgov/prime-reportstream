@@ -9,7 +9,6 @@ import com.github.javafaker.Faker
 class NPIUtilities {
     companion object {
         // NPIs are always 10 digits and starting with a 1 or 2
-        private const val MAIN_REGEX = """(1|2)\d{8}"""
         private const val MAIN_PLUS_CHECK_REGEX = """^(1|2)\d{9}$"""
         private val npiRegex = Regex(MAIN_PLUS_CHECK_REGEX)
 
@@ -31,7 +30,7 @@ class NPIUtilities {
          * Optionally, use the passed in [faker] to avoid creating another instance of this heavy-weight object.
          */
         fun generateRandomNPI(faker: Faker = Faker()): String {
-            val main = faker.regexify(MAIN_REGEX)
+            val main = faker.numerify("1########")
             return main + calcCheckDigit(main)
         }
 
