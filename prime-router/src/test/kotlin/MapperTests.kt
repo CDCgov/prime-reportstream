@@ -3,6 +3,7 @@ package gov.cdc.prime.router
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
+import gov.cdc.prime.router.common.NPIUtilities
 import gov.cdc.prime.router.metadata.LookupTable
 import java.io.ByteArrayInputStream
 import java.lang.IllegalArgumentException
@@ -685,5 +686,23 @@ class MapperTests {
         values = listOf(ElementAndValue(elementA, ""), ElementAndValue(elementB, "value of B"))
         assertThat(mapper.apply(elementA, args, values))
             .isEqualTo(null)
+    }
+
+    @Test
+    fun `test ifNPI with valid NPI`() {
+        val mapper = IfNPIMapper()
+        val elementA = Element("a")
+        val args = listOf("a", "NPI", "U")
+        val values = listOf(ElementAndValue(elementA, NPIUtilities.VALID_NPI))
+        assertThat(mapper.apply(elementA, args, values)).isEqualTo("NPI")
+    }
+
+    @Test
+    fun `test ifNPI with invalid NPI`() {
+        val mapper = IfNPIMapper()
+        val elementA = Element("a")
+        val args = listOf("a", "NPI", "U")
+        val values = listOf(ElementAndValue(elementA, "xyz"))
+        assertThat(mapper.apply(elementA, args, values)).isEqualTo("U")
     }
 }

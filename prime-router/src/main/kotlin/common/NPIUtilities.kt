@@ -8,6 +8,11 @@ import com.github.javafaker.Faker
  */
 class NPIUtilities {
     companion object {
+        /**
+         * Valid NPI from the NPIcheckdigit.pdf document.
+         */
+        const val VALID_NPI = "1234567893"
+
         // NPIs are always 10 digits and starting with a 1 or 2
         private const val MAIN_PLUS_CHECK_REGEX = """^(1|2)\d{9}$"""
         private val npiRegex = Regex(MAIN_PLUS_CHECK_REGEX)

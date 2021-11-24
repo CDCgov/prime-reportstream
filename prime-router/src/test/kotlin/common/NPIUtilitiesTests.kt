@@ -8,8 +8,7 @@ import org.junit.jupiter.api.Test
 class NPIUtilitiesTests {
     @Test
     fun `test with known valid NPIs`() {
-        // From https://www.cms.gov/Regulations-and-Guidance/Administrative-Simplification/NationalProvIdentStand/Downloads/NPIcheckdigit.pdf
-        assertThat(NPIUtilities.isValidNPI("1234567893")).isTrue()
+        assertThat(NPIUtilities.isValidNPI(NPIUtilities.VALID_NPI)).isTrue()
         // From NPPES
         assertThat(NPIUtilities.isValidNPI("1841374824")).isTrue()
         assertThat(NPIUtilities.isValidNPI(" 1457368953")).isTrue()
