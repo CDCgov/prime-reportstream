@@ -254,7 +254,9 @@ data class Element(
             Type.BLANK -> ""
             Type.DATE -> {
                 if (format != null) {
-                    val formatter = DateTimeFormatter.ofPattern(format)
+                    // extract Y/M/D only (Strip out the HH:mm:ss if any)
+                    val dateFormat = format.split(" ")[0]
+                    val formatter = DateTimeFormatter.ofPattern(dateFormat)
                     LocalDate.parse(normalizedValue, dateFormatter).format(formatter)
                 } else {
                     normalizedValue

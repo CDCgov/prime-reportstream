@@ -153,6 +153,26 @@ internal class ElementTests {
     }
 
     @Test
+    fun `test toFormatted date`() {
+        val two = Element(
+            "a",
+            type = Element.Type.DATE,
+        )
+        // Check correct formats should work too, including sans the time.
+        two.toFormatted("20201209", "yyyy-MM-dd").run {
+            assertThat(this).isEqualTo("2020-12-09")
+        }
+        // Check another correct format and expect to return only date.
+        two.toFormatted("20201209", "M/d/yyyy").run {
+            assertThat(this).isEqualTo("12/9/2020")
+        }
+        // Given datetime format and expect to return only date.
+        two.toFormatted("20201209", "yyyy-MM-dd HH:mm:ss").run {
+            assertThat(this).isEqualTo("2020-12-09")
+        }
+    }
+
+    @Test
     fun `test toNormalized zip`() {
         val one = Element(
             "a",
