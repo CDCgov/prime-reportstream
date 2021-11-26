@@ -465,6 +465,7 @@ class Hl7Serializer(
                 }
             }
 
+            println("testing")
             if (suppressedFields.contains(element.hl7Field) && element.hl7OutputFields.isNullOrEmpty())
                 return@forEach
 
