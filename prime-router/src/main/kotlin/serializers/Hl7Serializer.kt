@@ -489,6 +489,7 @@ class Hl7Serializer(
                     if (hl7Field in ZIP_CODE_FIELDS_UNIVERSAL) {
                         val withLeadingZero = addLeadingZero(value)
                         setComponent(terser, element, hl7Field, withLeadingZero, report)
+                        return@forEach
                     }
 
                     // some of our schema elements are actually subcomponents of the HL7 fields, and are individually
