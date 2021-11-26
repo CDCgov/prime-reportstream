@@ -464,10 +464,32 @@ class Hl7Serializer(
                 return@forEach
             }
 
+            if (element.hl7Field in ZIP_CODE_FIELDS_UNIVERSAL) {
+                val leadingZero = if (
+                    value.length == 4 &&
+                    element.hl7Field in ZIP_CODE_FIELDS_UNIVERSAL
+                ) {
+                    addLeadingZero(value)
+                } else {
+                    value
+                }
+                if (element.hl7OutputFields.isNullOrEmpty()) {
+                    terser.set(element.hl7Field?.let { formPathSpec(it) }, leadingZero as String?)
+                    return@forEach
+                } else {
+                    terser.set(element.hl7Field?.let { formPathSpec(it) }, leadingZero as String?)
+                }
+            }
+
             if (element.hl7OutputFields != null) {
                 element.hl7OutputFields.forEach outputFields@{ hl7Field ->
                     if (suppressedFields.contains(hl7Field))
                         return@outputFields
+
+                    if (hl7Field in ZIP_CODE_FIELDS_UNIVERSAL) {
+                        val withLeadingZero = addLeadingZero(value)
+                        setComponent(terser, element, hl7Field, withLeadingZero, report)
+                    }
 
                     // some of our schema elements are actually subcomponents of the HL7 fields, and are individually
                     // text, but need to be truncated because they're the first part of an HD field. For example,
@@ -1221,6 +1243,11 @@ class Hl7Serializer(
             hl7SegmentDelimiter
     }
 
+    fun addLeadingZero(value: String): String {
+        var withLeadingZero = "0" + value
+        return if (value.length == 4) withLeadingZero else value
+    }
+
     private fun createFooters(report: Report): String {
         return "BTS|${report.itemCount}$hl7SegmentDelimiter" +
             "FTS|1$hl7SegmentDelimiter"
@@ -1482,6 +1509,16 @@ class Hl7Serializer(
         val HD_FIELDS_UNIVERSAL = listOf(
             "MSH-4-2", "OBR-3-3", "OBR-2-3", "ORC-3-3", "ORC-2-3", "ORC-4-3",
             "PID-3-4-2", "PID-3-6-2", "SPM-2-1-3", "SPM-2-2-3"
+        )
+
+        /**
+         * List of fields that display zip code
+         * PID-11-5 is excluded as it seems to come with a 10 digit format,
+         * further research is needed to see if it needs to be added to this list as this list
+         * is mainly used to add a leading zero to zip codes with length of 4 digits.
+         */
+        val ZIP_CODE_FIELDS_UNIVERSAL = listOf(
+            "ORC-22-5", "ORC-24-5", "OBX-24-5"
         )
 
         /**
