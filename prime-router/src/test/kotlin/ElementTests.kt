@@ -159,16 +159,16 @@ internal class ElementTests {
             type = Element.Type.DATE,
         )
         // Check correct formats should work too, including sans the time.
-        two.toFormatted("20201209", "yyyy-MM-dd").run {
-            assertThat(this).isEqualTo("2020-12-09")
+        two.toFormatted("20201201", "yyyy-MM-dd").run {
+            assertThat(this).isEqualTo("2020-12-01")
         }
         // Check another correct format and expect to return only date.
-        two.toFormatted("20201209", "M/d/yyyy").run {
-            assertThat(this).isEqualTo("12/9/2020")
+        two.toFormatted("20201202", "M/d/yyyy").run {
+            assertThat(this).isEqualTo("12/2/2020")
         }
         // Given datetime format and expect to return only date.
-        two.toFormatted("20201209", "yyyy-MM-dd HH:mm:ss").run {
-            assertThat(this).isEqualTo("2020-12-09")
+        two.toFormatted("20201203", "yyyy-MM-dd HH:mm:ss").run {
+            assertThat(this).isEqualTo("2020-12-03")
         }
     }
 
