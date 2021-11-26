@@ -705,4 +705,13 @@ class MapperTests {
         val values = listOf(ElementAndValue(elementA, "xyz"))
         assertThat(mapper.apply(elementA, args, values)).isEqualTo("U")
     }
+
+    @Test
+    fun `test ifNPI with invalid NPI and 2 args`() {
+        val mapper = IfNPIMapper()
+        val elementA = Element("a")
+        val args = listOf("a", "NPI")
+        val values = listOf(ElementAndValue(elementA, "xyz"))
+        assertThat(mapper.apply(elementA, args, values)).isNull()
+    }
 }

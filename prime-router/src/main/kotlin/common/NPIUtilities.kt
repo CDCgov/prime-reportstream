@@ -9,7 +9,7 @@ import com.github.javafaker.Faker
 class NPIUtilities {
     companion object {
         /**
-         * Valid NPI from the NPIcheckdigit.pdf document.
+         * A valid NPI from the NPIcheckdigit.pdf document.
          */
         const val VALID_NPI = "1234567893"
 
