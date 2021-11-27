@@ -44,6 +44,7 @@ class NPIUtilities {
          * https://www.cms.gov/Regulations-and-Guidance/Administrative-Simplification/NationalProvIdentStand/Downloads/NPIcheckdigit.pdf
          */
         internal fun calcCheckDigit(id: String): String {
+            if (id.length != 9) error("$id is not a valid NPI main part")
             val inputDigits = id.map { it.digitToInt() }
             val evenDigitsDoubled = inputDigits.flatMapIndexed { index: Int, digit: Int ->
                 if (index % 2 == 0) {

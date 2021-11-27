@@ -3,9 +3,16 @@ package gov.cdc.prime.router.serializers
 import ca.uhn.hl7v2.DefaultHapiContext
 import ca.uhn.hl7v2.HL7Exception
 import ca.uhn.hl7v2.model.Type
+import ca.uhn.hl7v2.model.v251.datatype.CWE
 import ca.uhn.hl7v2.model.v251.datatype.DR
 import ca.uhn.hl7v2.model.v251.datatype.DT
+import ca.uhn.hl7v2.model.v251.datatype.DTM
+import ca.uhn.hl7v2.model.v251.datatype.EI
+import ca.uhn.hl7v2.model.v251.datatype.EIP
+import ca.uhn.hl7v2.model.v251.datatype.HD
 import ca.uhn.hl7v2.model.v251.datatype.TS
+import ca.uhn.hl7v2.model.v251.datatype.XAD
+import ca.uhn.hl7v2.model.v251.datatype.XCN
 import ca.uhn.hl7v2.model.v251.datatype.XTN
 import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
@@ -60,12 +67,6 @@ class Hl7Serializer(
     private val buildVersion: String
     private val buildDate: String
     private val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss.SSSSZZZ")
-    private var hl7Config: Hl7Configuration? = null
-    private val hdFieldMaximumLength: Int? get() = if (hl7Config?.truncateHDNamespaceIds == true) {
-        HD_TRUNCATION_LIMIT
-    } else {
-        null
-    }
 
     init {
         val buildProperties = Properties()
@@ -461,7 +462,7 @@ class Hl7Serializer(
                 element.hl7Field != null &&
                 (value.equals("ASKU", true) || value.equals("UNK", true))
             ) {
-                setComponent(terser, element, element.hl7Field, "", report)
+                setComponent(terser, element, element.hl7Field, repeat = null, value = "", report)
                 return@forEach
             }
 
@@ -472,7 +473,7 @@ class Hl7Serializer(
                     if (element.hl7Field != null && element.isTableLookup) {
                         setComponentForTable(terser, element, hl7Field, report, row, hl7Config)
                     } else {
-                        setComponent(terser, element, hl7Field, value, report)
+                        setComponent(terser, element, hl7Field, repeat = null, value, report)
                     }
                 }
             } else if (element.hl7Field == "AOE" && element.type == Element.Type.NUMBER && !suppressAoe) {
@@ -497,19 +498,20 @@ class Hl7Serializer(
             } else if (element.hl7Field == "NTE-3") {
                 setNote(terser, value)
             } else if (element.hl7Field == "MSH-7") {
-                setComponent(terser, element, "MSH-7", formatter.format(report.createdDateTime), report)
+                setComponent(
+                    terser,
+                    element,
+                    "MSH-7",
+                    repeat = null,
+                    value = formatter.format(report.createdDateTime),
+                    report
+                )
             } else if (element.hl7Field == "MSH-11") {
-                setComponent(terser, element, "MSH-11", processingId, report)
+                setComponent(terser, element, "MSH-11", repeat = null, processingId, report)
             } else if (element.hl7Field != null && element.isTableLookup) {
                 setComponentForTable(terser, element, report, row, hl7Config)
-            } else if (
-                element.type == Element.Type.TEXT &&
-                !element.hl7Field.isNullOrEmpty() &&
-                element.hl7Field in HD_FIELDS_LOCAL
-            ) {
-                setComponent(terser, element, element.hl7Field, value, report)
             } else if (!element.hl7Field.isNullOrEmpty()) {
-                setComponent(terser, element, element.hl7Field, value, report)
+                setComponent(terser, element, element.hl7Field, repeat = null, value, report)
             }
         }
         // make sure all fields we're suppressing are empty
@@ -789,7 +791,7 @@ class Hl7Serializer(
             terser.set(pathSpec, "")
         } else {
             val mappedValue = mapper.apply(element, args, valuesForMapper) ?: ""
-            val truncatedValue = truncateValue(mappedValue, hl7Field, config)
+            val truncatedValue = truncateValue(mappedValue, hl7Field, config, terser)
             // there are instances where we need to replace the DII value that comes from the LIVD
             // table with an OID that reflects that this is an equipment UID instead. NH raised this
             // as an issue, and the HHS spec on confluence supports their configuration, but we need
@@ -803,16 +805,22 @@ class Hl7Serializer(
         }
     }
 
+    /**
+     * Set the component to [value] in the [terser] for the passed [hl7Field].
+     * [hl7Field] must match the internal [Element] formatting.
+     * Set [repeat] for the multiple segment case
+     */
     private fun setComponent(
         terser: Terser,
         element: Element,
         hl7Field: String,
+        repeat: Int?,
         value: String,
         report: Report
     ) {
         val hl7Config = report.destination?.translation as? Hl7Configuration?
-        val pathSpec = formPathSpec(hl7Field)
-        val truncatedValue = truncateValue(value, hl7Field, hl7Config)
+        val pathSpec = formPathSpec(hl7Field, repeat)
+        val truncatedValue = truncateValue(value, hl7Field, hl7Config, terser)
         when (element.type) {
             Element.Type.ID_CLIA -> setCliaComponent(terser, value, hl7Field)
             Element.Type.HD -> {
@@ -864,26 +872,72 @@ class Hl7Serializer(
     }
 
     /**
-     * Truncate the value to length specified by the HL7 specification. [hl7Field] gives context to the [value].
-     * [hl7Config] determines special truncation rules.
+     * Truncate [value] to maximum length allowed by HL7 specification for a component.
+     * [hl7Field] determines the HL7 component. [hl7Config] enables special truncation rules.
      */
     internal fun truncateValue(
         value: String,
         hl7Field: String,
-        hl7Config: Hl7Configuration?
+        hl7Config: Hl7Configuration?,
+        terser: Terser
     ): String {
-        return when {
-            value.length > HD_TRUNCATION_LIMIT &&
-                hl7Field in HD_FIELDS_LOCAL &&
-                hl7Config?.truncateHDNamespaceIds == true -> {
-                val maxLength = getTruncationLimitWithEncoding(value, HD_TRUNCATION_LIMIT)
-                value.take(maxLength)
+        val maxLength = if (value.length > HD_TRUNCATION_LIMIT &&
+            hl7Field in HD_FIELDS_LOCAL &&
+            hl7Config?.truncateHDNamespaceIds == true
+        ) {
+            // This special case takes into account special rules needed by jurisdiction
+            getTruncationLimitWithEncoding(value, HD_TRUNCATION_LIMIT)
+        } else {
+            // This is the general case based on the HL7 spec
+            getComponentMaxLength(hl7Field, terser)
+        }
+        return if (maxLength != null && value.length > maxLength) value.take(maxLength) else value
+    }
+
+    /**
+     * Given the internal field/component specification [hl7Field], return the maximum length
+     * of the component specified.
+     */
+    internal fun getComponentMaxLength(hl7Field: String, terser: Terser): Int? {
+        // Dev Note: This function is work in progress.
+        // It is meant to be a general function, but only has support for limited number of cases.
+        // TODO: build out the the support for other cases.
+        fun getMaxLengthForCompositeType(type: Type, component: Int): Int? {
+            val table = when (type) {
+                is XCN -> XCN_MAX_LENGTH_TABLE
+                is XAD -> XAD_MAX_LENGTH_TABLE
+                is HD -> HD_MAX_LENGTH_TABLE
+                is EIP -> EIP_MAX_LENGTH_TABLE
+                is EI -> EI_MAX_LENGTH_TABLE
+                is CWE -> CWE_MAX_LENGTH_TABLE
+                else -> return null
             }
-            hl7Field in COMPONENT_MAX_LENGTH_TABLE -> {
-                val maxLength = COMPONENT_MAX_LENGTH_TABLE[hl7Field]!!
-                if (value.length > maxLength) value.take(maxLength) else value
+            return if (component < table.size) table[component - 1] else null
+        }
+
+        fun getMaxLengthForPrimitiveType(type: Type): Int? {
+            // Some types like ST and ID depend on which field and component they are in
+            return when (type) {
+                is DT -> 8
+                is DTM -> 24
+                is TS -> 26
+                else -> null
             }
-            else -> value
+        }
+
+        val segmentName = hl7Field.substring(0, 3)
+        val segmentSpec = formSegSpec(segmentName)
+        val segment = terser.getSegment(segmentSpec)
+        val parts = hl7Field.substring(4).split("-").map { it.toInt() }
+        val field = segment.getField(parts[0], 0)
+        return when (parts.size) {
+            1 -> {
+                getMaxLengthForPrimitiveType(field)
+            }
+            2 -> {
+                getMaxLengthForCompositeType(field, parts[1])
+            }
+            else -> null
         }
     }
 
@@ -1080,10 +1134,10 @@ class Hl7Serializer(
             Element.Type.NUMBER -> {
                 if (element.name != "patient_age") TODO("support other types of AOE numbers")
                 if (units == null) error("Schema Error: expected age units")
-                setComponent(terser, element, formPathSpec("OBX-5", aoeRep), value, report)
+                setComponent(terser, element, "OBX-5", aoeRep, value, report)
                 setCodeComponent(terser, units, formPathSpec("OBX-6", aoeRep), "patient_age_units")
             }
-            else -> setComponent(terser, element, formPathSpec("OBX-5", aoeRep), value, report)
+            else -> setComponent(terser, element, "OBX-5", aoeRep, value, report)
         }
 
         terser.set(formPathSpec("OBX-11", aoeRep), "F")
@@ -1262,15 +1316,20 @@ class Hl7Serializer(
     internal fun formPathSpec(spec: String, rep: Int? = null): String {
         val segment = spec.substring(0, 3)
         val components = spec.substring(3)
+        val segmentSpec = formSegSpec(segment, rep)
+        return "$segmentSpec$components"
+    }
+
+    internal fun formSegSpec(segment: String, rep: Int? = null): String {
         val repSpec = rep?.let { "($rep)" } ?: ""
         return when (segment) {
-            "OBR" -> "/PATIENT_RESULT/ORDER_OBSERVATION/OBR$components"
-            "ORC" -> "/PATIENT_RESULT/ORDER_OBSERVATION/ORC$components"
-            "SPM" -> "/PATIENT_RESULT/ORDER_OBSERVATION/SPECIMEN/SPM$components"
-            "PID" -> "/PATIENT_RESULT/PATIENT/PID$components"
-            "OBX" -> "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION$repSpec/OBX$components"
-            "NTE" -> "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/NTE$components"
-            else -> spec
+            "OBR" -> "/PATIENT_RESULT/ORDER_OBSERVATION/OBR"
+            "ORC" -> "/PATIENT_RESULT/ORDER_OBSERVATION/ORC"
+            "SPM" -> "/PATIENT_RESULT/ORDER_OBSERVATION/SPECIMEN/SPM"
+            "PID" -> "/PATIENT_RESULT/PATIENT/PID"
+            "OBX" -> "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION$repSpec/OBX"
+            "NTE" -> "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/NTE"
+            else -> segment
         }
     }
 
@@ -1493,11 +1552,45 @@ class Hl7Serializer(
         val CE_FIELDS = listOf("OBX-15-1")
 
         /**
-         * Component max length table
+         * XCN table taken from HL7 Chapter 2A - 86
          */
-        val COMPONENT_MAX_LENGTH_TABLE = mapOf(
-            "ORC-12-1" to 15,
-            "OBR-16-1" to 15,
+        val XCN_MAX_LENGTH_TABLE = arrayOf(
+            15, 194, 30, 30, 20, 20, 5, 4, 227, 1, 1, 3, 5, 227, 1, 483, 53, 1, 26, 26, 199, 705, 705
+        )
+
+        /**
+         * XAD table taken from HL7 Chapter 2A - 85
+         */
+        val XAD_MAX_LENGTH_TABLE = arrayOf(
+            184, 120, 50, 50, 12, 3, 3, 50, 20, 20, 1, 53, 26, 26
+        )
+
+        /**
+         * XAD table taken from HL7 Chapter 2A - 33
+         */
+        val HD_MAX_LENGTH_TABLE = arrayOf(
+            20, 199, 6
+        )
+
+        /**
+         * EIP table taken from HL7 Chapter 2A - 26
+         */
+        val EIP_MAX_LENGTH_TABLE = arrayOf(
+            427, 427
+        )
+
+        /**
+         * EI table taken from HL7 Chapter 2A - 25
+         */
+        val EI_MAX_LENGTH_TABLE = arrayOf(
+            199, 20, 199, 6
+        )
+
+        /**
+         * CWE table taken from HL7 Chapter 2A - 13
+         */
+        val CWE_MAX_LENGTH_TABLE = arrayOf(
+            20, 199, 20, 20, 199, 20, 10, 10, 199
         )
 
         /**
