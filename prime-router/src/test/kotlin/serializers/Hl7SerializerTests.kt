@@ -114,25 +114,16 @@ NTE|1|L|This is a final comment|RE"""
         val inputStream = File("./src/test/unit_test_files/ak_test_file.csv").inputStream()
         val schema = "primedatainput/pdi-covid-19"
 
-        val hl7Config = mockkClass(Hl7Configuration::class).also {
-            every { it.replaceValue }.returns(mapOf("PID-22-3" to "CDCREC,-,testCDCREC", "MSH-9" to "MSH-10"))
-            every { it.format }.returns(Report.Format.HL7)
-            every { it.useTestProcessingMode }.returns(false)
-            every { it.suppressQstForAoe }.returns(false)
-            every { it.suppressAoe }.returns(false)
-            every { it.suppressHl7Fields }.returns(null)
-            every { it.useBlankInsteadOfUnknown }.returns(null)
-            every { it.convertTimestampToDateTime }.returns(null)
-            every { it.truncateHDNamespaceIds }.returns(false)
-            every { it.phoneNumberFormatting }.returns(Hl7Configuration.PhoneNumberFormatting.STANDARD)
-            every { it.usePid14ForPatientEmail }.returns(false)
-            every { it.reportingFacilityName }.returns(null)
-            every { it.reportingFacilityId }.returns(null)
-            every { it.reportingFacilityIdType }.returns(null)
-            every { it.cliaForOutOfStateTesting }.returns("1234FAKECLIA")
-            every { it.useOrderingFacilityName }.returns(Hl7Configuration.OrderingFacilityName.STANDARD)
-            every { it.cliaForSender }.returns(mapOf())
-        }
+        val hl7Config = Hl7Configuration(
+            messageProfileId = "",
+            receivingApplicationOID = "",
+            receivingApplicationName = "",
+            receivingFacilityName = "",
+            receivingFacilityOID = "",
+            receivingOrganization = "",
+            replaceValue = mapOf("PID-22-3" to "CDCREC,-,testCDCREC", "MSH-9" to "MSH-10"),
+            cliaForOutOfStateTesting = "1234FAKECLIA"
+        )
         val receiver = mockkClass(Receiver::class).also {
             every { it.translation }.returns(hl7Config)
             every { it.format }.returns(Report.Format.HL7)
@@ -856,6 +847,70 @@ NTE|1|L|This is a final comment|RE"""
     }
 
     @Test
+    fun `test truncateValue with trunacated HD`() {
+        val hl7Config = Hl7Configuration(
+            messageProfileId = "",
+            receivingApplicationOID = "",
+            receivingApplicationName = "",
+            receivingFacilityName = "",
+            receivingFacilityOID = "",
+            receivingOrganization = "",
+            truncateHDNamespaceIds = true,
+        )
+        val inputAndExpected = mapOf(
+            "short" to "short",
+            "Test & Value ~ Text ^ String" to "Test & Value ~ T",
+            "Test Value Text String" to "Test Value Text Stri"
+        )
+        for ((input, expected) in inputAndExpected) {
+            val actual = serializer.truncateValue(input, "MSH-4-1", hl7Config)
+            assertThat(actual).isEqualTo(expected)
+        }
+    }
+
+    @Test
+    fun `test truncateValue with HD`() {
+        val hl7Config = Hl7Configuration(
+            messageProfileId = "",
+            receivingApplicationOID = "",
+            receivingApplicationName = "",
+            receivingFacilityName = "",
+            receivingFacilityOID = "",
+            receivingOrganization = "",
+            truncateHDNamespaceIds = false,
+        )
+        val inputAndExpected = mapOf(
+            "short" to "short",
+            "Test & Value ~ Text ^ String" to "Test & Value ~ Text ^ String",
+        )
+        for ((input, expected) in inputAndExpected) {
+            val actual = serializer.truncateValue(input, "MSH-4-1", hl7Config)
+            assertThat(actual).isEqualTo(expected)
+        }
+    }
+
+    @Test
+    fun `test truncateValue with NPI`() {
+        val hl7Config = Hl7Configuration(
+            messageProfileId = "",
+            receivingApplicationOID = "",
+            receivingApplicationName = "",
+            receivingFacilityName = "",
+            receivingFacilityOID = "",
+            receivingOrganization = "",
+            truncateHDNamespaceIds = true,
+        )
+        val inputAndExpected = mapOf(
+            "1234567890" to "1234567890",
+            "12345678901234567890" to "123456789012345",
+        )
+        for ((input, expected) in inputAndExpected) {
+            val actual = serializer.truncateValue(input, "ORC-12-1", hl7Config)
+            assertThat(actual).isEqualTo(expected)
+        }
+    }
+
+    @Test
     fun `test incorrect HL7 content`() {
         val settings = FileSettings("./settings")
         val serializer = Hl7Serializer(metadata, settings)
@@ -936,6 +991,7 @@ NTE|1|L|This is a final comment|RE"""
             every { it.useOrderingFacilityName }.returns(Hl7Configuration.OrderingFacilityName.STANDARD)
             every { it.cliaForSender }.returns(mapOf("fake1" to "ABCTEXT123", "fake" to "10D1234567"))
             every { it.defaultAoeToUnknown }.returns(false)
+            every { it.suppressNonNPI }.returns(false)
         }
         val receiver = mockkClass(Receiver::class).also {
             every { it.translation }.returns(hl7Config)
@@ -975,6 +1031,7 @@ NTE|1|L|This is a final comment|RE"""
             every { it.useOrderingFacilityName }.returns(Hl7Configuration.OrderingFacilityName.STANDARD)
             every { it.cliaForSender }.returns(mapOf("NotFound" to "ABCTEXT123", "" to "FAKETXT123"))
             every { it.defaultAoeToUnknown }.returns(false)
+            every { it.suppressNonNPI }.returns(false)
         }
 
         val receiverSenderNotFound = mockkClass(Receiver::class).also {
@@ -1037,6 +1094,7 @@ NTE|1|L|This is a final comment|RE"""
             every { it.useOrderingFacilityName }.returns(Hl7Configuration.OrderingFacilityName.STANDARD)
             every { it.cliaForSender }.returns(mapOf("fake1" to "ABCTEXT123", "fake" to "10D1234567"))
             every { it.defaultAoeToUnknown }.returns(false)
+            every { it.suppressNonNPI }.returns(false)
         }
         val receiver = mockkClass(Receiver::class).also {
             every { it.translation }.returns(hl7Config)
