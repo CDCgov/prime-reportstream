@@ -466,7 +466,7 @@ class Hl7Serializer(
 
             if (element.hl7Field in ZIP_CODE_FIELDS_UNIVERSAL) {
                 val leadingZero = if (
-                    value.length == 4 &&
+                    value.length < 5 &&
                     element.hl7Field in ZIP_CODE_FIELDS_UNIVERSAL
                 ) {
                     addLeadingZero(value)
@@ -486,7 +486,7 @@ class Hl7Serializer(
                     if (suppressedFields.contains(hl7Field))
                         return@outputFields
 
-                    if (hl7Field in ZIP_CODE_FIELDS_UNIVERSAL) {
+                    if (hl7Field in ZIP_CODE_FIELDS_UNIVERSAL && value.length < 5) {
                         val withLeadingZero = addLeadingZero(value)
                         setComponent(terser, element, hl7Field, withLeadingZero, report)
                         return@forEach
@@ -556,6 +556,9 @@ class Hl7Serializer(
                 }
                 setComponent(terser, element, element.hl7Field, truncatedValue, report)
             } else if (!element.hl7Field.isNullOrEmpty()) {
+                if (element.hl7Field in ZIP_CODE_FIELDS_UNIVERSAL) {
+                    return@forEach
+                }
                 setComponent(terser, element, element.hl7Field, value, report)
             }
         }
@@ -1245,8 +1248,13 @@ class Hl7Serializer(
     }
 
     fun addLeadingZero(value: String): String {
-        var withLeadingZero = "0" + value
-        return if (value.length == 4) withLeadingZero else value
+        var withLeadingZero: String
+        when (value.length) {
+            3 -> withLeadingZero = "00" + value
+            4 -> withLeadingZero = "0" + value
+            else -> withLeadingZero = value
+        }
+        return withLeadingZero
     }
 
     private fun createFooters(report: Report): String {
