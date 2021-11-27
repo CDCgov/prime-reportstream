@@ -1524,7 +1524,8 @@ class Hl7Serializer(
          * List of fields that display zip code
          * PID-11-5 is excluded as it seems to come with a 10 digit format,
          * further research is needed to see if it needs to be added to this list as this list
-         * is mainly used to add a leading zero to zip codes with length of 4 digits.
+         * is mainly used to add a leading zero to zip codes with length of 4 digits or two zeros
+         * with zip codes of length 3.
          */
         val ZIP_CODE_FIELDS_UNIVERSAL = listOf(
             "ORC-22-5", "ORC-24-5", "OBX-24-5"
