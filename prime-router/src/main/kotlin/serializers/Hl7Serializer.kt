@@ -393,32 +393,31 @@ class Hl7Serializer(
     }
 
     internal fun createMessage(report: Report, row: Int): String {
-        val message = ORU_R01()
+
         val hl7Config = report.destination?.translation as? Hl7Configuration?
         val processingId = if (hl7Config?.useTestProcessingMode == true) {
             "T"
         } else {
             "P"
         }
-        message.initQuickstart(MESSAGE_CODE, MESSAGE_TRIGGER_EVENT, processingId)
-        buildMessage(message, report, row, processingId)
+        val message = buildMessage(report, row, processingId)
         hapiContext.modelClassFactory = modelClassFactory
         return hapiContext.pipeParser.encode(message)
     }
 
-    private fun buildMessage(
-        message: ORU_R01,
+    internal fun buildMessage(
         report: Report,
         row: Int,
         processingId: String = "T",
-    ) {
+    ): ORU_R01 {
+        val message = ORU_R01()
+        message.initQuickstart(MESSAGE_CODE, MESSAGE_TRIGGER_EVENT, processingId)
         // set up our configuration
         val hl7Config = report.destination?.translation as? Hl7Configuration
         val replaceValue = hl7Config?.replaceValue ?: emptyMap()
         val cliaForSender = hl7Config?.cliaForSender ?: emptyMap()
         val suppressQst = hl7Config?.suppressQstForAoe ?: false
         val suppressAoe = hl7Config?.suppressAoe ?: false
-        val suppressNonNPI = hl7Config?.suppressNonNPI ?: false
         val useOrderingFacilityName = hl7Config?.useOrderingFacilityName
             ?: Hl7Configuration.OrderingFacilityName.STANDARD
 
@@ -520,6 +519,15 @@ class Hl7Serializer(
             terser.set(pathSpec, "")
         }
 
+        if (hl7Config?.suppressNonNPI == true &&
+            report.getString(row, "ordering_provider_id_authority_type") != "NPI"
+        ) {
+            // Suppress the ordering_provider_id if not an NPI
+            for (hl7Field in listOf("ORC-12-1", "OBR-16-1", "ORC-12-9", "OBR-16-9", "ORC-12-13", "OBR-16-13")) {
+                terser.set(formPathSpec(hl7Field), "")
+            }
+        }
+
         convertTimestampToDateTimeFields.forEach {
             val pathSpec = formPathSpec(it)
             val tsValue = terser.get(pathSpec)
@@ -587,6 +595,7 @@ class Hl7Serializer(
         }
 
         replaceValue(replaceValue, terser, message.patienT_RESULT.ordeR_OBSERVATION.observationReps)
+        return message
     }
 
     /**

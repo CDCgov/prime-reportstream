@@ -27,9 +27,9 @@ import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.TestSource
+import gov.cdc.prime.router.Translator
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockkClass
 import io.mockk.verify
 import org.junit.jupiter.api.TestInstance
 import java.io.ByteArrayInputStream
@@ -60,6 +60,7 @@ class Hl7SerializerTests {
     private val sampleHl7MessageWithRepeats: String
     private val metadata = Metadata.getInstance()
     private val emptyTerser = Terser(ORU_R01())
+    private val translator = Translator(metadata, FileSettings())
 
     init {
         val settings = FileSettings("./settings")
@@ -114,7 +115,6 @@ NTE|1|L|This is a final comment|RE"""
     fun `test write a message with Receiver`() {
         val inputStream = File("./src/test/unit_test_files/ak_test_file.csv").inputStream()
         val schema = "primedatainput/pdi-covid-19"
-
         val hl7Config = Hl7Configuration(
             messageProfileId = "",
             receivingApplicationOID = "",
@@ -125,15 +125,56 @@ NTE|1|L|This is a final comment|RE"""
             replaceValue = mapOf("PID-22-3" to "CDCREC,-,testCDCREC", "MSH-9" to "MSH-10"),
             cliaForOutOfStateTesting = "1234FAKECLIA"
         )
-        val receiver = mockkClass(Receiver::class).also {
-            every { it.translation }.returns(hl7Config)
-            every { it.format }.returns(Report.Format.HL7)
-            every { it.organizationName }.returns("ca-dph")
-        }
-
-        val testReport = csvSerializer.readExternal(schema, inputStream, listOf(TestSource), receiver).report ?: fail()
+        val receiver = Receiver("mock", "ca-phd", "covid-19", translation = hl7Config)
+        val pdiInput = csvSerializer.readExternal(schema, inputStream, listOf(TestSource), receiver).report ?: fail()
+        val testReport = translator.translateByReceiver(pdiInput, receiver)
         val output = serializer.createMessage(testReport, 2)
         assertThat(output).isNotNull()
+    }
+
+    @Test
+    fun `test message with bad NPI`() {
+        val inputStream = File("./src/test/unit_test_files/fake-pdi-covid-19.csv").inputStream()
+        val schema = "primedatainput/pdi-covid-19"
+        val hl7Config = Hl7Configuration(
+            messageProfileId = "",
+            receivingApplicationOID = "",
+            receivingApplicationName = "",
+            receivingFacilityName = "",
+            receivingFacilityOID = "",
+            receivingOrganization = "",
+            suppressNonNPI = false,
+        )
+        val receiver = Receiver("mock", "ca-phd", "covid-19", translation = hl7Config)
+        val pdiInput = csvSerializer.readExternal(schema, inputStream, listOf(TestSource), receiver).report ?: fail()
+        val testReport = translator.translateByReceiver(pdiInput, receiver)
+        val output = serializer.buildMessage(testReport, 2)
+        val orderingProvider = output.patienT_RESULT.ordeR_OBSERVATION.orc.getOrderingProvider(0)
+        assertThat(orderingProvider.assigningAuthority.isEmpty).isTrue()
+        assertThat(orderingProvider.identifierTypeCode.value).isEqualTo("U")
+    }
+
+    @Test
+    fun `test message with bad NPI and suppressed`() {
+        val inputStream = File("./src/test/unit_test_files/fake-pdi-covid-19.csv").inputStream()
+        val schema = "primedatainput/pdi-covid-19"
+        val hl7Config = Hl7Configuration(
+            messageProfileId = "",
+            receivingApplicationOID = "",
+            receivingApplicationName = "",
+            receivingFacilityName = "",
+            receivingFacilityOID = "",
+            receivingOrganization = "",
+            suppressNonNPI = true,
+        )
+        val receiver = Receiver("mock", "ca-phd", "covid-19", translation = hl7Config)
+        val pdiInput = csvSerializer.readExternal(schema, inputStream, listOf(TestSource), receiver).report ?: fail()
+        val testReport = translator.translateByReceiver(pdiInput, receiver)
+        val output = serializer.buildMessage(testReport, 2)
+        val orderingProvider = output.patienT_RESULT.ordeR_OBSERVATION.orc.getOrderingProvider(0)
+        assertThat(orderingProvider.idNumber.isEmpty).isTrue()
+        assertThat(orderingProvider.assigningAuthority.isEmpty).isTrue()
+        assertThat(orderingProvider.identifierTypeCode.isEmpty).isTrue()
     }
 
     @Test
@@ -995,11 +1036,7 @@ NTE|1|L|This is a final comment|RE"""
             receivingOrganization = "",
             cliaForSender = mapOf("fake1" to "ABCTEXT123", "fake" to "10D1234567")
         )
-        val receiver = mockkClass(Receiver::class).also {
-            every { it.translation }.returns(hl7Config)
-            every { it.format }.returns(Report.Format.HL7)
-            every { it.organizationName }.returns("ca-dph")
-        }
+        val receiver = Receiver("test", "ca-dph", "covid-19", translation = hl7Config)
 
         val testReport = csvSerializer.readExternal(schema, csvContent, listOf(TestSource), receiver).report ?: fail()
         val output = serializer.createMessage(testReport, 0)
@@ -1023,12 +1060,7 @@ NTE|1|L|This is a final comment|RE"""
             receivingOrganization = "",
             cliaForSender = mapOf("fake1" to "ABCTEXT123", "fake" to "10D1234567")
         )
-
-        val receiverSenderNotFound = mockkClass(Receiver::class).also {
-            every { it.translation }.returns(hl7ConfigSenderNotFound)
-            every { it.format }.returns(Report.Format.HL7)
-            every { it.organizationName }.returns("ca-dph")
-        }
+        val receiverSenderNotFound = Receiver("test", "ca-dph", "covid-19", translation = hl7ConfigSenderNotFound)
 
         val testRptSenderNotFound = csvSerializer.readExternal(schema, csvContentSenderNotFound, listOf(TestSource), receiverSenderNotFound).report ?: fail() // ktlint-disable max-line-length
         val outputSenderNotFound = serializer.createMessage(testRptSenderNotFound, 0)
@@ -1072,11 +1104,7 @@ NTE|1|L|This is a final comment|RE"""
             receivingFacilityOID = "",
             receivingOrganization = "",
         )
-        val receiver = mockkClass(Receiver::class).also {
-            every { it.translation }.returns(hl7Config)
-            every { it.format }.returns(Report.Format.HL7)
-            every { it.organizationName }.returns("ca-dph")
-        }
+        val receiver = Receiver("mock", "ca-dph", "covid-19", translation = hl7Config)
 
         val testReport = csvSerializer.readExternal(schema, csvContent, listOf(TestSource), receiver).report ?: fail()
         val output = serializer.createMessage(testReport, 0)

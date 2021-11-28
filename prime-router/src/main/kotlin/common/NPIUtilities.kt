@@ -56,7 +56,10 @@ class NPIUtilities {
             }
             // Add a constant of 24 because... read the paper.
             val sum = (listOf(24) + evenDigitsDoubled).sum()
-            return (10 - (sum % 10)).toString()
+            // Subtract the total obtained in step 2 from the next higher number ending in zero, this is the check digit.
+            // If the number obtained in step 2 ends in zero, the check digit is zero.
+            val lastDigit = sum % 10
+            return if (lastDigit == 0) "0" else (10 - lastDigit).toString()
         }
     }
 }
