@@ -3,15 +3,11 @@ package gov.cdc.prime.router.serializers
 import ca.uhn.hl7v2.DefaultHapiContext
 import ca.uhn.hl7v2.HL7Exception
 import ca.uhn.hl7v2.model.Type
-import ca.uhn.hl7v2.model.v251.datatype.CWE
 import ca.uhn.hl7v2.model.v251.datatype.DR
 import ca.uhn.hl7v2.model.v251.datatype.DT
 import ca.uhn.hl7v2.model.v251.datatype.EI
-import ca.uhn.hl7v2.model.v251.datatype.EIP
 import ca.uhn.hl7v2.model.v251.datatype.HD
 import ca.uhn.hl7v2.model.v251.datatype.TS
-import ca.uhn.hl7v2.model.v251.datatype.XAD
-import ca.uhn.hl7v2.model.v251.datatype.XCN
 import ca.uhn.hl7v2.model.v251.datatype.XTN
 import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
@@ -909,22 +905,14 @@ class Hl7Serializer(
      */
     internal fun getHl7MaxLength(hl7Field: String, terser: Terser): Int? {
         fun getMaxLengthForCompositeType(type: Type, component: Int): Int? {
-            val table = when (type) {
-                is XCN -> XCN_MAX_LENGTH_TABLE
-                is XAD -> XAD_MAX_LENGTH_TABLE
-                is HD -> HD_MAX_LENGTH_TABLE
-                is EIP -> EIP_MAX_LENGTH_TABLE
-                is EI -> EI_MAX_LENGTH_TABLE
-                is CWE -> CWE_MAX_LENGTH_TABLE
-                // add more cases here in the future
-                else -> return null
-            }
+            val typeName = type.name
+            val table = HL7_COMPONENT_MAX_LENGTH[typeName] ?: return null
             return if (component < table.size) table[component - 1] else null
         }
 
         // Dev Note: this function is work in progress.
         // It is meant to be a general function for all fields and components,
-        // but only has support for a limited number of cases.
+        // but only has support for the cases of current COVID-19 schema.
         val segmentName = hl7Field.substring(0, 3)
         val segmentSpec = formSegSpec(segmentName)
         val segment = terser.getSegment(segmentSpec)
@@ -935,7 +923,7 @@ class Hl7Serializer(
             1 -> segment.getLength(parts[0])
             // use our max-length tables when field and component is specified
             2 -> getMaxLengthForCompositeType(field, parts[1])
-            // Add more cases here in the future
+            // Add cases for sub-components here
             else -> null
         }
     }
@@ -1551,45 +1539,18 @@ class Hl7Serializer(
         val CE_FIELDS = listOf("OBX-15-1")
 
         /**
-         * XCN table taken from HL7 Chapter 2A - 86
+         * Component length table taken from HL7 Chapter 2A.
          */
-        val XCN_MAX_LENGTH_TABLE = arrayOf(
-            15, 194, 30, 30, 20, 20, 5, 4, 227, 1, 1, 3, 5, 227, 1, 483, 53, 1, 26, 26, 199, 705, 705
-        )
-
-        /**
-         * XAD table taken from HL7 Chapter 2A - 85
-         */
-        val XAD_MAX_LENGTH_TABLE = arrayOf(
-            184, 120, 50, 50, 12, 3, 3, 50, 20, 20, 1, 53, 26, 26
-        )
-
-        /**
-         * XAD table taken from HL7 Chapter 2A - 33
-         */
-        val HD_MAX_LENGTH_TABLE = arrayOf(
-            20, 199, 6
-        )
-
-        /**
-         * EIP table taken from HL7 Chapter 2A - 26
-         */
-        val EIP_MAX_LENGTH_TABLE = arrayOf(
-            427, 427
-        )
-
-        /**
-         * EI table taken from HL7 Chapter 2A - 25
-         */
-        val EI_MAX_LENGTH_TABLE = arrayOf(
-            199, 20, 199, 6
-        )
-
-        /**
-         * CWE table taken from HL7 Chapter 2A - 13
-         */
-        val CWE_MAX_LENGTH_TABLE = arrayOf(
-            20, 199, 20, 20, 199, 20, 10, 10, 199
+        val HL7_COMPONENT_MAX_LENGTH = mapOf(
+            "XCN" to arrayOf(15, 194, 30, 30, 20, 20, 5, 4, 227, 1, 1, 3, 5, 227, 1, 483, 53, 1, 26, 26, 199, 705, 705),
+            "XAD" to arrayOf(184, 120, 50, 50, 12, 3, 3, 50, 20, 20, 1, 53, 26, 26),
+            "HD" to arrayOf(20, 199, 6),
+            "EIP" to arrayOf(427, 427),
+            "EI" to arrayOf(199, 20, 199, 6),
+            "CWE" to arrayOf(20, 199, 20, 20, 199, 20, 10, 10, 199),
+            "XPN" to arrayOf(194, 30, 30, 20, 20, 6, 1, 1, 483, 53, 1, 26, 26, 199),
+            "XTN" to arrayOf(199, 3, 8, 199, 3, 5, 9, 5, 199, 4, 6, 199),
+            // Extend further here
         )
 
         /**
