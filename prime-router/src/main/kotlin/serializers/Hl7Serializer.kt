@@ -893,7 +893,7 @@ class Hl7Serializer(
         val maxLength = when {
             // This special case takes into account special rules needed by jurisdiction
             hl7Config?.truncateHDNamespaceIds == true && hl7Field in HD_FIELDS_LOCAL
-                -> getTruncationLimitWithEncoding(value, HD_TRUNCATION_LIMIT)
+            -> getTruncationLimitWithEncoding(value, HD_TRUNCATION_LIMIT)
             // OBX-2 contains a value from HL7 Table 125. Originally, this table only had 2 character values,
             // but by 2.6 it has 3 characters values including CWE which is used by Ask On Order Entry OBXs.
             hl7Field == "OBX-2" -> 3
