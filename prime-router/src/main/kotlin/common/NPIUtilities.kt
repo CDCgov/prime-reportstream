@@ -9,11 +9,11 @@ import com.github.javafaker.Faker
 class NPIUtilities {
     companion object {
         /**
-         * A valid NPI from the NPIcheckdigit.pdf document.
+         * A valid test NPI from the NPIcheckdigit.pdf document.
          */
         const val VALID_NPI = "1234567893"
 
-        // NPIs are always 10 digits and starting with a 1 or 2
+        // NPIs are always 10 digits and start with a 1 or 2
         private const val MAIN_PLUS_CHECK_REGEX = """^(1|2)\d{9}$"""
         private val npiRegex = Regex(MAIN_PLUS_CHECK_REGEX)
 
@@ -25,7 +25,7 @@ class NPIUtilities {
             val trimmedId = id.trim()
             if (!npiRegex.containsMatchIn(trimmedId)) return false
             val main = trimmedId.substring(0..8)
-            val expectedCheck = calcCheckDigit(main)
+            val expectedCheck = calculateCheckDigit(main)
             val actualCheck = trimmedId.substring(9)
             return expectedCheck == actualCheck
         }
@@ -36,29 +36,30 @@ class NPIUtilities {
          */
         fun generateRandomNPI(faker: Faker = Faker()): String {
             val main = faker.numerify("1########")
-            return main + calcCheckDigit(main)
+            return main + calculateCheckDigit(main)
         }
 
         /**
          * Calculate a check digit for an NPI per the CMS spec.
          * https://www.cms.gov/Regulations-and-Guidance/Administrative-Simplification/NationalProvIdentStand/Downloads/NPIcheckdigit.pdf
          */
-        internal fun calcCheckDigit(id: String): String {
+        internal fun calculateCheckDigit(id: String): String {
             if (id.length != 9) error("$id is not a valid NPI main part")
             val inputDigits = id.map { it.digitToInt() }
+            // double the even digits and then add the result back into odd digits
             val evenDigitsDoubled = inputDigits.flatMapIndexed { index: Int, digit: Int ->
                 if (index % 2 == 0) {
-                    // double the even digits and then split the result back into digits
                     (digit * 2).toString().map { it.digitToInt() }
                 } else {
                     listOf(digit)
                 }
             }
             // Add a constant of 24 because... read the paper.
-            val sum = (listOf(24) + evenDigitsDoubled).sum()
+            val step2 = (listOf(24) + evenDigitsDoubled).sum()
+            // From the paper...
             // Subtract the total obtained in step 2 from the next higher number ending in zero, this is the check digit.
             // If the number obtained in step 2 ends in zero, the check digit is zero.
-            val lastDigit = sum % 10
+            val lastDigit = step2 % 10
             return if (lastDigit == 0) "0" else (10 - lastDigit).toString()
         }
     }

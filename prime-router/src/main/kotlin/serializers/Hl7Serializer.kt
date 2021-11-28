@@ -6,7 +6,6 @@ import ca.uhn.hl7v2.model.Type
 import ca.uhn.hl7v2.model.v251.datatype.CWE
 import ca.uhn.hl7v2.model.v251.datatype.DR
 import ca.uhn.hl7v2.model.v251.datatype.DT
-import ca.uhn.hl7v2.model.v251.datatype.DTM
 import ca.uhn.hl7v2.model.v251.datatype.EI
 import ca.uhn.hl7v2.model.v251.datatype.EIP
 import ca.uhn.hl7v2.model.v251.datatype.HD
@@ -890,27 +889,25 @@ class Hl7Serializer(
         hl7Config: Hl7Configuration?,
         terser: Terser
     ): String {
-        val maxLength = if (value.length > HD_TRUNCATION_LIMIT &&
-            hl7Field in HD_FIELDS_LOCAL &&
-            hl7Config?.truncateHDNamespaceIds == true
-        ) {
+        // In general, use the HAPI and HL7 spec values, except when there is a special case
+        val maxLength = when {
             // This special case takes into account special rules needed by jurisdiction
-            getTruncationLimitWithEncoding(value, HD_TRUNCATION_LIMIT)
-        } else {
+            hl7Config?.truncateHDNamespaceIds == true && hl7Field in HD_FIELDS_LOCAL
+                -> getTruncationLimitWithEncoding(value, HD_TRUNCATION_LIMIT)
+            // OBX-2 contains a value from HL7 Table 125. Originally, this table only had 2 character values,
+            // but by 2.6 it has 3 characters values including CWE which is used by Ask On Order Entry OBXs.
+            hl7Field == "OBX-2" -> 3
             // This is the general case based on the HL7 spec
-            getComponentMaxLength(hl7Field, terser)
+            else -> getHl7MaxLength(hl7Field, terser)
         }
         return if (maxLength != null && value.length > maxLength) value.take(maxLength) else value
     }
 
     /**
      * Given the internal field/component specification [hl7Field], return the maximum length
-     * of the component specified.
+     * of the component or field specified according to the HL7 specification
      */
-    internal fun getComponentMaxLength(hl7Field: String, terser: Terser): Int? {
-        // Dev Note: This function is work in progress.
-        // It is meant to be a general function, but only has support for limited number of cases.
-        // TODO: build out the the support for other cases.
+    internal fun getHl7MaxLength(hl7Field: String, terser: Terser): Int? {
         fun getMaxLengthForCompositeType(type: Type, component: Int): Int? {
             val table = when (type) {
                 is XCN -> XCN_MAX_LENGTH_TABLE
@@ -919,33 +916,26 @@ class Hl7Serializer(
                 is EIP -> EIP_MAX_LENGTH_TABLE
                 is EI -> EI_MAX_LENGTH_TABLE
                 is CWE -> CWE_MAX_LENGTH_TABLE
+                // add more cases here in the future
                 else -> return null
             }
             return if (component < table.size) table[component - 1] else null
         }
 
-        fun getMaxLengthForPrimitiveType(type: Type): Int? {
-            // Some types like ST and ID depend on which field and component they are in
-            return when (type) {
-                is DT -> 8
-                is DTM -> 24
-                is TS -> 26
-                else -> null
-            }
-        }
-
+        // Dev Note: getComponentMaxLength is work in progress.
+        // It is meant to be a general function for all fields and components,
+        // but only has support for a limited number of cases.
         val segmentName = hl7Field.substring(0, 3)
         val segmentSpec = formSegSpec(segmentName)
         val segment = terser.getSegment(segmentSpec)
         val parts = hl7Field.substring(4).split("-").map { it.toInt() }
         val field = segment.getField(parts[0], 0)
         return when (parts.size) {
-            1 -> {
-                getMaxLengthForPrimitiveType(field)
-            }
-            2 -> {
-                getMaxLengthForCompositeType(field, parts[1])
-            }
+            // In general, use the values found in the HAPI library for fields
+            1 -> segment.getLength(parts[0])
+            // use our max-length tables when field and component is specified
+            2 -> getMaxLengthForCompositeType(field, parts[1])
+            // Add more cases here in the future
             else -> null
         }
     }

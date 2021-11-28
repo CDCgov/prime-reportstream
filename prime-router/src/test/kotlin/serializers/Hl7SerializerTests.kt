@@ -953,17 +953,26 @@ NTE|1|L|This is a final comment|RE"""
     }
 
     @Test
-    fun `test getMaxComponentLength`() {
+    fun `test getHl7MaxLength`() {
         // Test the ordering provider id has the right length
-        assertThat(serializer.getComponentMaxLength("ORC-12-1", emptyTerser)).isEqualTo(15)
-        assertThat(serializer.getComponentMaxLength("OBR-16-1", emptyTerser)).isEqualTo(15)
+        assertThat(serializer.getHl7MaxLength("ORC-12-1", emptyTerser)).isEqualTo(15)
+        assertThat(serializer.getHl7MaxLength("OBR-16-1", emptyTerser)).isEqualTo(15)
         // Test that MSH returns reasonable values
-        assertThat(serializer.getComponentMaxLength("MSH-7", emptyTerser)).isEqualTo(26)
-        assertThat(serializer.getComponentMaxLength("MSH-4-1", emptyTerser)).isEqualTo(20)
-        assertThat(serializer.getComponentMaxLength("MSH-4-2", emptyTerser)).isEqualTo(199)
-        assertThat(serializer.getComponentMaxLength("MSH-1", emptyTerser)).isNull()
+        assertThat(serializer.getHl7MaxLength("MSH-7", emptyTerser)).isEqualTo(26)
+        assertThat(serializer.getHl7MaxLength("MSH-4-1", emptyTerser)).isEqualTo(20)
+        assertThat(serializer.getHl7MaxLength("MSH-4-2", emptyTerser)).isEqualTo(199)
+        assertThat(serializer.getHl7MaxLength("MSH-1", emptyTerser)).isEqualTo(1)
+        // Test that OBX returns reasonable values
+        assertThat(serializer.getHl7MaxLength("OBX-2", emptyTerser)).isEqualTo(2)
+        assertThat(serializer.getHl7MaxLength("OBX-5", emptyTerser)).isEqualTo(99999)
+        assertThat(serializer.getHl7MaxLength("OBX-11", emptyTerser)).isEqualTo(1)
+        // This component limit is smaller than the enclosing field. This inconsistency was fixed by v2.9
+        assertThat(serializer.getHl7MaxLength("OBX-18", emptyTerser)).isEqualTo(22)
+        assertThat(serializer.getHl7MaxLength("OBX-18-1", emptyTerser)).isEqualTo(199)
+        assertThat(serializer.getHl7MaxLength("OBX-19", emptyTerser)).isEqualTo(26)
+
         // Test that a subcomponent returns null
-        assertThat(serializer.getComponentMaxLength("OBR-16-1-2", emptyTerser)).isNull()
+        assertThat(serializer.getHl7MaxLength("OBR-16-1-2", emptyTerser)).isNull()
     }
 
     @Test
