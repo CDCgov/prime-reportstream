@@ -812,7 +812,7 @@ class Hl7Serializer(
     /**
      * Set the component to [value] in the [terser] for the passed [hl7Field].
      * [hl7Field] must match the internal [Element] formatting.
-     * Set [repeat] for the multiple segment case
+     * Set [repeat] for the repeated segment case.
      */
     private fun setComponent(
         terser: Terser,
@@ -876,8 +876,9 @@ class Hl7Serializer(
     }
 
     /**
-     * Truncate [value] to maximum length allowed by HL7 specification for a component.
-     * [hl7Field] determines the HL7 component. [hl7Config] enables special truncation rules.
+     * Truncate [value] to maximum length allowed by HL7 specification for a component or field.
+     * [hl7Field] determines the HL7 component using the notation found in [Element].
+     * [hl7Config] enables special truncation rules.
      */
     internal fun truncateValue(
         value: String,
@@ -900,8 +901,8 @@ class Hl7Serializer(
     }
 
     /**
-     * Given the internal field/component specification [hl7Field], return the maximum length
-     * of the component or field specified according to the HL7 specification
+     * Given the internal field or component specified in [hl7Field], return the maximum string length
+     * according to the HL7 specification.
      */
     internal fun getHl7MaxLength(hl7Field: String, terser: Terser): Int? {
         fun getMaxLengthForCompositeType(type: Type, component: Int): Int? {
