@@ -922,7 +922,7 @@ class Hl7Serializer(
             return if (component < table.size) table[component - 1] else null
         }
 
-        // Dev Note: getComponentMaxLength is work in progress.
+        // Dev Note: this function is work in progress.
         // It is meant to be a general function for all fields and components,
         // but only has support for a limited number of cases.
         val segmentName = hl7Field.substring(0, 3)
