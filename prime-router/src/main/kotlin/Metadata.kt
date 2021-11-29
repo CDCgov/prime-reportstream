@@ -255,7 +255,7 @@ class Metadata : Logging {
     * JurisdictionalFilters
     */
 
-    fun findJurisdictionalFilter(name: String): JurisdictionalFilter? {
+    fun findJurisdictionalFilter(name: String): ReportStreamFilter? {
         return jurisdictionalFilters.find { it.name.equals(name, ignoreCase = true) }
     }
 

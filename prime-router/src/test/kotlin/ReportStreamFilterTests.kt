@@ -11,7 +11,7 @@ import tech.tablesaw.api.StringColumn
 import tech.tablesaw.api.Table
 import kotlin.test.Test
 
-class JurisdictionalFilterTests {
+class ReportStreamFilterTests {
 
     private val rcvr = Receiver("name", "org", "topic", CustomerStatus.INACTIVE, "schema", Report.Format.CSV)
 

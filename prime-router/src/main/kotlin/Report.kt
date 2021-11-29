@@ -377,7 +377,7 @@ class Report : Logging {
     }
 
     fun filter(
-        filterFunctions: List<Pair<JurisdictionalFilter, List<String>>>,
+        filterFunctions: List<Pair<ReportStreamFilter, List<String>>>,
         receiver: Receiver,
         isQualityFilter: Boolean,
         reverseTheFilter: Boolean = false
