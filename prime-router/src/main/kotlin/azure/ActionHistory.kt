@@ -632,14 +632,16 @@ class ActionHistory {
 
             destinations.forEach { (destination, reportFiles) ->
                 val (organization, orgReceiver) = settings.findOrganizationAndReceiver(destination) ?: return@forEach
-                prettyPrintDestinationJson(
+                val countSent = prettyPrintDestinationJson(
                     jsonGen,
                     orgReceiver,
                     organization,
                     reportFiles,
                     reportOptions,
                 )
-                destinationCounter++
+                if (countSent > 0) {
+                    destinationCounter++
+                }
             }
         }
         jsonGen.writeEndArray()
@@ -652,7 +654,7 @@ class ActionHistory {
         organization: Organization,
         reportFiles: List<ReportFile>,
         reportOptions: Options,
-    ) {
+    ): Int {
         jsonGen.writeStartObject()
         // jsonGen.writeStringField("id", reportFile.reportId.toString())   // TMI?
         jsonGen.writeStringField("organization", organization.description)
@@ -698,6 +700,7 @@ class ActionHistory {
 
         jsonGen.writeNumberField("itemCount", countToPrint)
         jsonGen.writeEndObject()
+        return countToPrint
     }
 
     companion object {
