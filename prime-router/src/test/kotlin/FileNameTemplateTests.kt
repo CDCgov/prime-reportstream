@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
+import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.every
 import io.mockk.mockkClass
 import java.time.OffsetDateTime
@@ -38,7 +39,7 @@ class FileNameTemplateTests {
         every { it.receivingOrganization }.returns("yoyodyne")
     }
     private val mapper = ObjectMapper(YAMLFactory()).registerModule(KotlinModule())
-    private val metadata = Metadata.getInstance()
+    private val metadata = UnitTestUtils.testMetadata
     private val dateFormat = "yyyyMMdd"
     private val formatter = DateTimeFormatter.ofPattern(dateFormat)
     private val reportId = UUID.randomUUID()

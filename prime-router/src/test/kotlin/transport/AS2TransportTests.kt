@@ -7,13 +7,13 @@ import com.helger.as2lib.exception.WrappedAS2Exception
 import com.microsoft.azure.functions.ExecutionContext
 import gov.cdc.prime.router.AS2TransportType
 import gov.cdc.prime.router.FileSettings
-import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
 import gov.cdc.prime.router.credentials.UserJksCredential
+import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockkClass
@@ -27,11 +27,11 @@ import java.util.logging.Logger
 
 class AS2TransportTests {
     val context = mockkClass(ExecutionContext::class)
-    val metadata = Metadata.getInstance()
+    val metadata = UnitTestUtils.testMetadata
     val settings = FileSettings(FileSettings.defaultSettingsDirectory)
     val logger = mockkClass(Logger::class)
     val reportId = UUID.randomUUID()
-    val as2Transport = spyk<AS2Transport>()
+    val as2Transport = spyk(AS2Transport(metadata))
     val actionHistory = ActionHistory(TaskAction.send, context)
     val transportType = AS2TransportType("", "id1", "id2", "a@cdc.gov")
     val task = Task(

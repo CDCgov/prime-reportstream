@@ -280,7 +280,8 @@ class Report : Logging {
         sources: List<Source>,
         destination: Receiver? = null,
         bodyFormat: Format? = null,
-        itemLineage: List<ItemLineage>? = null
+        itemLineage: List<ItemLineage>? = null,
+        metadata: Metadata? = null
     ) {
         this.id = UUID.randomUUID()
         this.schema = schema
@@ -290,7 +291,7 @@ class Report : Logging {
         this.bodyFormat = bodyFormat ?: destination?.format ?: Format.INTERNAL
         this.itemLineages = itemLineage
         this.createdDateTime = OffsetDateTime.now()
-        this.metadata = Metadata.getInstance()
+        this.metadata = metadata ?: Metadata.getInstance()
     }
 
     @Suppress("Destructure")
@@ -328,6 +329,7 @@ class Report : Logging {
             fromThisReport("copy"),
             destination ?: this.destination,
             bodyFormat ?: this.bodyFormat,
+            metadata = this.metadata
         )
         copy.itemLineages = createOneToOneItemLineages(this, copy)
         copy.filteredItems.addAll(this.filteredItems)
@@ -416,7 +418,8 @@ class Report : Logging {
         val filteredReport = Report(
             this.schema,
             filteredTable,
-            fromThisReport("filter: $filterFunctions")
+            fromThisReport("filter: $filterFunctions"),
+            metadata = this.metadata
         )
         filteredReport.filteredItems.addAll(filteredRows)
         filteredReport.itemLineages = createItemLineages(finalCombinedSelection, this, filteredReport)
@@ -435,7 +438,8 @@ class Report : Logging {
             schema,
             Table.create(columns),
             fromThisReport("deidentify"),
-            itemLineage = this.itemLineages
+            itemLineage = this.itemLineages,
+            metadata = this.metadata
         )
     }
 
@@ -528,7 +532,7 @@ class Report : Logging {
             safeSetStringInRow(it, "patient_zip_code", context.zipCode)
         }
         // return the new copy of the report here
-        return Report(schema, table, fromThisReport("synthesizeData"))
+        return Report(schema, table, fromThisReport("synthesizeData"), metadata = this.metadata)
     }
 
     /**
@@ -555,7 +559,10 @@ class Report : Logging {
         val pass1Columns = mapping.toSchema.elements.map { element -> buildColumnPass1(mapping, element) }
         val pass2Columns = mapping.toSchema.elements.map { element -> buildColumnPass2(mapping, element, pass1Columns) }
         val newTable = Table.create(pass2Columns)
-        return Report(mapping.toSchema, newTable, fromThisReport("mapping"), itemLineage = itemLineages)
+        return Report(
+            mapping.toSchema, newTable, fromThisReport("mapping"), itemLineage = itemLineages,
+            metadata = this.metadata
+        )
     }
 
     /**
@@ -799,7 +806,10 @@ class Report : Logging {
             // Build sources
             val sources = inputs.map { ReportSource(it.id, "merge") }
             val mergedReport =
-                Report(schema, newTable, sources, destination = head.destination, bodyFormat = head.bodyFormat)
+                Report(
+                    schema, newTable, sources, destination = head.destination, bodyFormat = head.bodyFormat,
+                    metadata = head.metadata
+                )
             mergedReport.itemLineages = createItemLineages(inputs, mergedReport)
             return mergedReport
         }
@@ -979,10 +989,14 @@ class Report : Logging {
         }
 
         /**
-         * Try to extract an existing filename from report metadata.  If it does not exist or is malformed,
+         * Try to extract an existing filename from report metadata [header].  If it does not exist or is malformed,
          * create a new filename.
+         * @param metadata optional metadata instance used for dependency injection
          */
-        fun formExternalFilename(header: WorkflowEngine.Header): String {
+        fun formExternalFilename(
+            header: WorkflowEngine.Header,
+            metadata: Metadata? = null
+        ): String {
             // extract the filename from the blob url.
             val filename = if (header.reportFile.bodyUrl != null)
                 BlobAccess.BlobInfo.getBlobFilename(header.reportFile.bodyUrl)
@@ -996,17 +1010,22 @@ class Report : Logging {
                     header.reportFile.schemaName,
                     header.receiver?.format ?: error("Internal Error: ${header.receiver?.name} does not have a format"),
                     header.reportFile.createdAt,
-                    metadata = Metadata.getInstance()
+                    metadata = metadata ?: Metadata.getInstance()
                 )
             }
         }
 
+        /**
+         * Form external filename for a given [bodyUrl], [reportId], [schemaName], [format] and [createdAt].
+         * @param metadata optional metadata instance used for dependency injection
+         */
         fun formExternalFilename(
             bodyUrl: String?,
             reportId: ReportId,
             schemaName: String,
             format: Format,
-            createdAt: OffsetDateTime
+            createdAt: OffsetDateTime,
+            metadata: Metadata? = null
         ): String {
             // extract the filename from the blob url.
             val filename = if (bodyUrl != null)
@@ -1019,7 +1038,7 @@ class Report : Logging {
                     schemaName,
                     format,
                     createdAt,
-                    metadata = Metadata.getInstance()
+                    metadata = metadata ?: Metadata.getInstance()
                 )
             }
         }

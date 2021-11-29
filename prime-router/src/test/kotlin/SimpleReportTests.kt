@@ -5,6 +5,7 @@ import assertk.assertions.exists
 import assertk.assertions.isEmpty
 import assertk.assertions.isTrue
 import gov.cdc.prime.router.serializers.CsvSerializer
+import gov.cdc.prime.router.unittest.UnitTestUtils
 import org.apache.commons.io.FileUtils
 import java.io.File
 import kotlin.test.Test
@@ -31,7 +32,7 @@ class SimpleReportTests {
         val expectedDir = File(expectedResultsPath)
         assertThat(expectedDir).exists()
 
-        metadata = Metadata.getInstance()
+        metadata = UnitTestUtils.testMetadata
         settings = FileSettings(FileSettings.defaultSettingsDirectory)
         csvSerializer = CsvSerializer(metadata)
     }

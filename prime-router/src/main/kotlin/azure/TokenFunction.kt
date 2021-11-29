@@ -10,6 +10,7 @@ import com.microsoft.azure.functions.annotation.AuthorizationLevel
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
+import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.tokens.DatabaseJtiCache
 import gov.cdc.prime.router.tokens.FindReportStreamSecretInVault
@@ -18,7 +19,11 @@ import gov.cdc.prime.router.tokens.Scope
 import gov.cdc.prime.router.tokens.TokenAuthentication
 import org.apache.logging.log4j.kotlin.Logging
 
-class TokenFunction : Logging {
+/**
+ * Token functions.
+ * @param metadata optional metadata instance used for dependency injection
+ */
+class TokenFunction(val metadata: Metadata? = null) : Logging {
     /**
      * Handle requests for server-to-server auth tokens.
      */
@@ -44,10 +49,10 @@ class TokenFunction : Logging {
             ?: return HttpUtilities.bad(request, "Missing scope parameter", HttpStatus.UNAUTHORIZED)
         if (!Scope.isWellFormedScope(scope))
             return HttpUtilities.bad(request, "Incorrect scope format: $scope", HttpStatus.UNAUTHORIZED)
-        val workflowEngine = WorkflowEngine()
+        val workflowEngine = WorkflowEngine(metadata)
         val actionHistory = ActionHistory(TaskAction.token_auth, context)
         actionHistory.trackActionParams(request)
-        val senderKeyFinder = FindSenderKeyInSettings(scope)
+        val senderKeyFinder = FindSenderKeyInSettings(scope, metadata)
         val tokenAuthentication = TokenAuthentication(DatabaseJtiCache(workflowEngine.db))
         if (tokenAuthentication.checkSenderToken(clientAssertion, senderKeyFinder, actionHistory)) {
             val token = tokenAuthentication.createAccessToken(scope, FindReportStreamSecretInVault(), actionHistory)

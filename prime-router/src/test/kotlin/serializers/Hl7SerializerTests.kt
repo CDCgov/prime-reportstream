@@ -22,11 +22,11 @@ import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.FileSource
 import gov.cdc.prime.router.Hl7Configuration
-import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.TestSource
+import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkClass
@@ -58,7 +58,7 @@ class Hl7SerializerTests {
     private val covid19Schema: Schema
     private val sampleHl7Message: String
     private val sampleHl7MessageWithRepeats: String
-    private val metadata = Metadata.getInstance()
+    private val metadata = UnitTestUtils.testMetadata
 
     init {
         val settings = FileSettings("./settings")

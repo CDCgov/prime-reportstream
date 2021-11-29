@@ -45,27 +45,55 @@ import java.time.OffsetDateTime
  * @see QueueAccess
  * @see DatabaseAccess.Header
  */
-class WorkflowEngine(
-    // Immutable objects can be shared between every function call
-    val metadata: Metadata = WorkflowEngine.metadata,
-    val settings: SettingsProvider = WorkflowEngine.settings,
-    val hl7Serializer: Hl7Serializer = WorkflowEngine.hl7Serializer,
-    val csvSerializer: CsvSerializer = WorkflowEngine.csvSerializer,
-    val redoxSerializer: RedoxSerializer = WorkflowEngine.redoxSerializer,
-    val translator: Translator = Translator(metadata, settings),
-    // New connection for every function
-    val db: DatabaseAccess = databaseAccess,
-    val blob: BlobAccess = BlobAccess(csvSerializer, hl7Serializer, redoxSerializer),
-    val queue: QueueAccess = QueueAccess,
-    val sftpTransport: SftpTransport = SftpTransport(),
-    val redoxTransport: RedoxTransport = RedoxTransport(),
-    val as2Transport: AS2Transport = AS2Transport(),
-    val ftpsTransport: FTPSTransport = FTPSTransport(),
-) {
-    init {
-        // Load any updates to the database lookup tables.
-        // This check will run at the start of every function as they create a new instance of this class
-        metadata.checkForDatabaseLookupTableUpdates()
+class WorkflowEngine {
+    var metadata: Metadata
+    var settings: SettingsProvider
+    var hl7Serializer: Hl7Serializer
+    var csvSerializer: CsvSerializer
+    var redoxSerializer: RedoxSerializer
+    var translator: Translator
+    var db: DatabaseAccess
+    var blob: BlobAccess
+    var queue: QueueAccess
+    val sftpTransport: SftpTransport = SftpTransport()
+    val redoxTransport: RedoxTransport = RedoxTransport()
+    val as2Transport: AS2Transport = AS2Transport()
+    val ftpsTransport: FTPSTransport = FTPSTransport()
+
+    /**
+     * Instantiate a workflow engine instance with optional [metadata], [settings], [db], [blob] and [queue]
+     * instances used for dependency injection.
+     */
+    constructor(
+        metadata: Metadata? = null,
+        settings: SettingsProvider? = null,
+        db: DatabaseAccess? = null,
+        blob: BlobAccess? = null,
+        queue: QueueAccess? = null
+    ) {
+        if (metadata == null) {
+            // Use immutable objects that can be shared between every function call
+            this.metadata = Metadata.getInstance()
+            // Load any updates to the database lookup tables.
+            // This check will run at the start of every function as they create a new instance of this class
+            this.metadata.checkForDatabaseLookupTableUpdates()
+            this.settings = settings ?: WorkflowEngine.settings
+            this.hl7Serializer = WorkflowEngine.hl7Serializer
+            this.csvSerializer = WorkflowEngine.csvSerializer
+            this.redoxSerializer = WorkflowEngine.redoxSerializer
+        } else {
+            // Use a provided metadata instance, like for unit testing.
+            this.metadata = metadata
+            this.settings = settings ?: getSettingsProvider(this.metadata)
+            this.hl7Serializer = Hl7Serializer(this.metadata, this.settings)
+            this.csvSerializer = CsvSerializer(this.metadata)
+            this.redoxSerializer = RedoxSerializer(this.metadata)
+        }
+
+        this.db = db ?: databaseAccess
+        this.blob = blob ?: BlobAccess(csvSerializer, hl7Serializer, redoxSerializer)
+        this.queue = queue ?: QueueAccess
+        this.translator = Translator(this.metadata, this.settings)
     }
 
     val blobStoreTransport: BlobStoreTransport = BlobStoreTransport(this)
@@ -598,7 +626,7 @@ class WorkflowEngine(
         txn: DataAccessTransaction? = null
     ): Pair<Organization, Receiver> {
         return if (settings is SettingsFacade) {
-            val (organization, receiver) = settings.findOrganizationAndReceiver(fullName, txn)
+            val (organization, receiver) = (settings as SettingsFacade).findOrganizationAndReceiver(fullName, txn)
                 ?: error("Receiver not found in database: $fullName")
             Pair(organization, receiver)
         } else {
@@ -702,21 +730,14 @@ class WorkflowEngine(
          * These are all potentially heavy weight objects that
          * should only be created once.
          */
-        private val metadata = Metadata.getInstance()
+        private val metadata by lazy { Metadata.getInstance() }
 
         val databaseAccess: DatabaseAccess by lazy {
             DatabaseAccess()
         }
 
         val settings: SettingsProvider by lazy {
-            val baseDir = System.getenv("AzureWebJobsScriptRoot") ?: "."
-            val settingsEnabled: String? = System.getenv("FEATURE_FLAG_SETTINGS_ENABLED")
-            if (settingsEnabled == null || settingsEnabled.equals("true", ignoreCase = true)) {
-                SettingsFacade(metadata, databaseAccess)
-            } else {
-                val ext = "-${Environment.get().toString().lowercase()}"
-                FileSettings("$baseDir/settings", orgExt = ext)
-            }
+            getSettingsProvider(metadata)
         }
 
         private val csvSerializer: CsvSerializer by lazy {
@@ -729,6 +750,17 @@ class WorkflowEngine(
 
         private val redoxSerializer: RedoxSerializer by lazy {
             RedoxSerializer(metadata)
+        }
+
+        private fun getSettingsProvider(metadata: Metadata): SettingsProvider {
+            val baseDir = System.getenv("AzureWebJobsScriptRoot") ?: "."
+            val settingsEnabled: String? = System.getenv("FEATURE_FLAG_SETTINGS_ENABLED")
+            return if (settingsEnabled == null || settingsEnabled.equals("true", ignoreCase = true)) {
+                SettingsFacade(metadata, databaseAccess)
+            } else {
+                val ext = "-${Environment.get().toString().lowercase()}"
+                FileSettings("$baseDir/settings", orgExt = ext)
+            }
         }
     }
 

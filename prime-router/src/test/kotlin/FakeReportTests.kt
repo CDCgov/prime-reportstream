@@ -6,6 +6,7 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isTrue
 import gov.cdc.prime.router.metadata.LookupTable
+import gov.cdc.prime.router.unittest.UnitTestUtils
 import java.io.ByteArrayInputStream
 import kotlin.test.Test
 import kotlin.test.fail
@@ -14,6 +15,7 @@ class FakeReportTests {
     private val schemaName = "test"
     private val rowContext = FakeReport.RowContext(schemaName = schemaName)
     private val metadata = Metadata(
+        schema = UnitTestUtils.simpleSchema,
         valueSet = ValueSet("fake", ValueSet.SetSystem.LOCAL, values = listOf(ValueSet.Value(code = "AZ"))),
     ).loadSchemas(
         Schema(
@@ -199,7 +201,7 @@ class FakeReportTests {
     @Test
     fun `test row context getting expected zip code results`() {
         // arrange
-        val metadata = Metadata.getInstance()
+        val metadata = UnitTestUtils.testMetadata
         assertThat(metadata).isNotNull()
         val zipCodeTable = metadata.findLookupTable("zip-code-data")
         assertThat(zipCodeTable).isNotNull()
