@@ -16,6 +16,7 @@ elements:
     - name: processing_mode_code
       default: P
 
+
     - name: test_kit_name_id
       type: CODE
       csvFields: [{name: Ordered_test_description, format: $alt}]
@@ -32,7 +33,7 @@ elements:
 # Used with the test_performed_code to assign the LOINC: 94508-9 or 94507-1 for IgM or IgG, and set the Device ID on the outbound HL7
         - code: "COVID-19 IgG/IgM Rapid Test Cassette (Whole Blood/Serum/Plasma)_Healgen Scientific LLC"
           display: "Healgen COVID-19 IgG IgM Rapid Test"
-# Used with the test_performed_code to assign the LOINC: 94508-9 or 94507-1 for IgM or IgG, and set the Device ID on the outbound HL7
+# Used with the test_performed_code to assign the LOINC: 97097-0 for the Antigen result from this COVID Flu A&B Panel, and set the Device ID on the outbound HL7
         - code: "BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)"
           display: "BD Veritor Rapid SARS-CoV-2 nucleocapsid antigen"
 
@@ -41,4 +42,3 @@ elements:
     - name: test_performed_code
       type: TEXT
       csvFields: [{name: Test_performed_number}]
-
