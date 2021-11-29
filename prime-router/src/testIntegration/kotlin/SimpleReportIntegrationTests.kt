@@ -1,11 +1,17 @@
-package gov.cdc.prime.router
-
 import assertk.assertThat
 import assertk.assertions.exists
 import assertk.assertions.isEmpty
 import assertk.assertions.isTrue
+import gov.cdc.prime.router.FakeReport
+import gov.cdc.prime.router.FileSettings
+import gov.cdc.prime.router.FileSource
+import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.Receiver
+import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.ResultDetail
+import gov.cdc.prime.router.SettingsProvider
+import gov.cdc.prime.router.Translator
 import gov.cdc.prime.router.serializers.CsvSerializer
-import gov.cdc.prime.router.unittest.UnitTestUtils
 import org.apache.commons.io.FileUtils
 import java.io.File
 import kotlin.test.Test
@@ -17,7 +23,7 @@ import kotlin.test.fail
 // creating transformed objects, writing them to output csv files, then doing a simple 'diff'
 // to see if they match expected output files.
 //
-class SimpleReportTests {
+class SimpleReportIntegrationTests {
     private val inputPath = "./src/test/csv_test_files/input/"
     private val expectedResultsPath = "./src/test/csv_test_files/expected/"
     private val outputPath = "./build/csv_test_files/"
@@ -32,7 +38,7 @@ class SimpleReportTests {
         val expectedDir = File(expectedResultsPath)
         assertThat(expectedDir).exists()
 
-        metadata = UnitTestUtils.testMetadata
+        metadata = Metadata.getInstance()
         settings = FileSettings(FileSettings.defaultSettingsDirectory)
         csvSerializer = CsvSerializer(metadata)
     }

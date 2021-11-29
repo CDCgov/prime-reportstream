@@ -752,6 +752,10 @@ class WorkflowEngine {
             RedoxSerializer(metadata)
         }
 
+        /**
+         * Get a settings provider for a given [metadata] instance.
+         * @return a settings provider
+         */
         private fun getSettingsProvider(metadata: Metadata): SettingsProvider {
             val baseDir = System.getenv("AzureWebJobsScriptRoot") ?: "."
             val settingsEnabled: String? = System.getenv("FEATURE_FLAG_SETTINGS_ENABLED")
