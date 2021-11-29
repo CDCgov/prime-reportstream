@@ -21,7 +21,8 @@ enum class FtpsProtocol {
     JsonSubTypes.Type(BlobStoreTransportType::class, name = "BLOBSTORE"),
     JsonSubTypes.Type(NullTransportType::class, name = "NULL"),
     JsonSubTypes.Type(AS2TransportType::class, name = "AS2"),
-    JsonSubTypes.Type(FTPSTransportType::class, name = "FTPS")
+    JsonSubTypes.Type(FTPSTransportType::class, name = "FTPS"),
+    JsonSubTypes.Type(GAENTransportType::class, name = "GAEN")
 )
 abstract class TransportType(val type: String)
 
@@ -91,6 +92,16 @@ data class FTPSTransportType
      */
     override fun toString(): String =
         "host=$host, port=$port, username=$username, protocol=$protocol, binaryTransfer=$binaryTransfer"
+}
+
+data class GAENTransportType
+@JsonCreator constructor(
+    /**
+     * [apiUrl] is API URL to post to. Typically, something like https://adminapi.encv.org/api/issue.
+     */
+    val apiUrl: String,
+) : TransportType("GAEN") {
+    override fun toString(): String = "url=$apiUrl"
 }
 
 data class NullTransportType
