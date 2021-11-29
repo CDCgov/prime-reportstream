@@ -5,7 +5,7 @@ import tech.tablesaw.api.Table
 import tech.tablesaw.selection.Selection
 
 /**
- * A *ReportStreamFilter* can be used in the filters property in an Organization
+ * A call to a *ReportStreamFilterDef* can be used in the filters property in an Organization
  * It allowed you to create arbitrarily complex filters on data.
  * Each filter in the list does an "and" boolean operation with the other filters in the list.
  *
@@ -15,20 +15,19 @@ import tech.tablesaw.selection.Selection
  *  jurisdictionalFilter: { FilterByPatientOrFacilityLoc(AZ, Pima) }
  * ```
  *
- * The name `filterByPatientOrFacility` then maps via pseudo-reflection to an implementation of a ReportStreamFilter
- * here.
+ * The name `filterByPatientOrFacility` then maps via pseudo-reflection to an implementation of a
+ * ReportStreamFilterDef here.
  *
  * If you add an implementation here, you have to add it to the list of reportStreamFilters in Metadata.kt.
  *
- * A ReportStreamFilter is stateless.   It has a name property, which should be used in the filter definition -
- * basically a simple way of implementing Reflection.
- *
- * Currently ReportStreamFilter implements its filtering by just re-using the very rich `Selection` functionality already in tablesaw.
+ * A ReportStreamFilterDef is stateless.   It has a name property, which should be used in the filter definition -
+ * basically a simple way of implementing Reflection. Currently ReportStreamFilterDef implements its filtering
+ * by just re-using the very rich `Selection` functionality already in tablesaw.
  *
  * Hoping we implement some geospatial searches someday.
  *
  */
-interface ReportStreamFilter : Logging {
+interface ReportStreamFilterDef : Logging {
     /**
      * Name of the filter function
      */
@@ -97,7 +96,7 @@ interface ReportStreamFilter : Logging {
  * If the column name does not exist, nothing passes thru the filter.
  * matches(columnName, regex, regex, regex)
  */
-class Matches : ReportStreamFilter {
+class Matches : ReportStreamFilterDef {
     override val name = "matches"
 
     override fun getSelection(
@@ -132,7 +131,7 @@ class Matches : ReportStreamFilter {
  *
  * A row of data is "allowed" if it does not match any of the values, or if the column does not exist
  */
-class DoesNotMatch : ReportStreamFilter {
+class DoesNotMatch : ReportStreamFilterDef {
     override val name = "doesNotMatch"
 
     override fun getSelection(
@@ -158,7 +157,7 @@ class DoesNotMatch : ReportStreamFilter {
             Selection.withRange(0, table.rowCount())
         }
         if (selection.size() < table.rowCount()) {
-            ReportStreamFilter.logFiltering(
+            ReportStreamFilterDef.logFiltering(
                 Selection.withRange(0, table.rowCount()), selection,
                 "$name(${args.joinToString(",")})",
                 receiver,
@@ -172,7 +171,7 @@ class DoesNotMatch : ReportStreamFilter {
 /**
  * This may or may not be a unicorn.
  */
-class FilterByCounty : ReportStreamFilter {
+class FilterByCounty : ReportStreamFilterDef {
     override val name = "filterByCounty"
 
     override fun getSelection(
@@ -224,7 +223,7 @@ class FilterByCounty : ReportStreamFilter {
  * Example:
  * jurisdictionalFilter:  orEquals(ordering_facility_state, PA, patient_state, PA)
  */
-class OrEquals : ReportStreamFilter {
+class OrEquals : ReportStreamFilterDef {
     override val name = "orEquals"
 
     override fun getSelection(
@@ -255,9 +254,9 @@ class OrEquals : ReportStreamFilter {
 }
 
 /**
- * A filter that filter nothing -- allows all data through
+ * A filter that filter nothing -- allows all data through.  Useful for overriding more strict defaults.
  */
-class AllowAll : ReportStreamFilter {
+class AllowAll : ReportStreamFilterDef {
     override val name = "allowAll"
 
     override fun getSelection(
@@ -277,12 +276,33 @@ class AllowAll : ReportStreamFilter {
 }
 
 /**
+ * A filter that filter everything -- allows no data through.  Useful as a default to be overridden.
+ */
+class AllowNone : ReportStreamFilterDef {
+    override val name = "allowNone"
+
+    override fun getSelection(
+        args: List<String>,
+        table: Table,
+        receiver: Receiver,
+        doAuditing: Boolean
+    ): Selection {
+        // See note on allowAll above on regex weirdness.
+        if (args.size > 1) error(
+            "For rcvr ${receiver.fullName} Expecting no args for filter $name." +
+                " Got ${args.joinToString(",")}"
+        )
+        return Selection.withRange(0, 0)
+    }
+}
+
+/**
  * Implements a quality check match.  If a row has valid data for all the columns, the row is selected.
  * If any column name does not exist, nothing passes thru the filter.
  * hasValidDataFor(columnName1, columnName2, columnName3, ...)
  * If no columns are passed, all rows are selected.  So, any number of args is acceptable.
  */
-class HasValidDataFor : ReportStreamFilter {
+class HasValidDataFor : ReportStreamFilterDef {
     override val name = "hasValidDataFor"
 
     override fun getSelection(
@@ -299,9 +319,9 @@ class HasValidDataFor : ReportStreamFilter {
                 val before = Selection.with(*selection.toArray()) // hack way to copy to a new Selection obj
                 selection = selection.andNot(table.stringColumn(colName).isEmptyString)
 
-                ReportStreamFilter.logFiltering(before, selection, "$name($colName)", receiver, doAuditing)
+                ReportStreamFilterDef.logFiltering(before, selection, "$name($colName)", receiver, doAuditing)
             } else {
-                ReportStreamFilter.logAllEliminated(
+                ReportStreamFilterDef.logAllEliminated(
                     table.rowCount(),
                     "$name($colName): column not found",
                     receiver,
@@ -325,7 +345,7 @@ class HasValidDataFor : ReportStreamFilter {
  * find no official documentation confirming that, so that is not enforced)
  *
  */
-class IsValidCLIA : ReportStreamFilter {
+class IsValidCLIA : ReportStreamFilterDef {
     override val name = "isValidCLIA"
 
     override fun getSelection(
@@ -347,7 +367,7 @@ class IsValidCLIA : ReportStreamFilter {
             }
         }
         if (!atLeastOneColumnFound) {
-            ReportStreamFilter.logAllEliminated(
+            ReportStreamFilterDef.logAllEliminated(
                 table.rowCount(),
                 "$name(${args.joinToString(",")}): none of these columns found.",
                 receiver,
@@ -355,7 +375,7 @@ class IsValidCLIA : ReportStreamFilter {
             )
         } else {
             if (selection.size() < table.rowCount()) {
-                ReportStreamFilter.logFiltering(
+                ReportStreamFilterDef.logFiltering(
                     Selection.withRange(0, table.rowCount()), selection,
                     "$name(${args.joinToString(",")})", receiver, doAuditing
                 )
@@ -369,7 +389,7 @@ class IsValidCLIA : ReportStreamFilter {
  * hasAtLeastOneOf(columnName1, columnName2, columnName3, ...)
  * Implements a quality check match.  If a row has valid data for any of the columns, the row is selected.
  */
-class HasAtLeastOneOf : ReportStreamFilter {
+class HasAtLeastOneOf : ReportStreamFilterDef {
     override val name = "hasAtLeastOneOf"
 
     override fun getSelection(
@@ -389,13 +409,13 @@ class HasAtLeastOneOf : ReportStreamFilter {
             }
         }
         if (!atLeastOneColumnFound) {
-            ReportStreamFilter.logAllEliminated(
+            ReportStreamFilterDef.logAllEliminated(
                 table.rowCount(),
                 "$name(${args.joinToString(",")}): none of these columns found.", receiver, doAuditing
             )
         } else {
             if (selection.size() < table.rowCount()) {
-                ReportStreamFilter.logFiltering(
+                ReportStreamFilterDef.logFiltering(
                     Selection.withRange(0, table.rowCount()), selection,
                     "$name(${args.joinToString(",")})", receiver, doAuditing
                 )

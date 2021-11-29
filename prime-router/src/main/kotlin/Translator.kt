@@ -65,7 +65,7 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
     private fun filterByJurisdiction(input: Report, receiver: Receiver): Report {
         // Filter according to this receiver's desired JurisdictionalFilter patterns
         val jurisFilterAndArgs = receiver.jurisdictionalFilter.map { filterSpec ->
-            val (fnName, fnArgs) = ReportStreamFilter.parseReportStreamFilter(filterSpec)
+            val (fnName, fnArgs) = ReportStreamFilterDef.parseReportStreamFilter(filterSpec)
             val filterFn = metadata.findJurisdictionalFilter(fnName)
                 ?: error("JurisdictionalFilter $fnName is not found")
             Pair(filterFn, fnArgs)
@@ -84,8 +84,8 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
         // Now filter according to this receiver's desired qualityFilter, or default filter if none found.
         val qualityFilter = when {
             receiver.qualityFilter.isNotEmpty() -> receiver.qualityFilter
-            FilterType.defaultQualityFilters[receiver.topic] != null ->
-                FilterType.defaultQualityFilters[receiver.topic]?.defaultFilter
+            Filters.defaultFiltersByTopic[receiver.topic] != null ->
+                Filters.defaultFiltersByTopic[receiver.topic]?.qualityFilter
                     ?: error("cannot find a filter for topic ${receiver.topic}")
             else -> {
                 logger.info("No default qualityFilter found for topic ${receiver.topic}. Not doing qual filtering")
@@ -93,7 +93,7 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
             }
         }
         val qualityFilterAndArgs = qualityFilter.map { filterSpec ->
-            val (fnName, fnArgs) = ReportStreamFilter.parseReportStreamFilter(filterSpec)
+            val (fnName, fnArgs) = ReportStreamFilterDef.parseReportStreamFilter(filterSpec)
             val filterFn = metadata.findJurisdictionalFilter(fnName)
                 ?: error("qualityFilter $fnName is not found in list of JurisdictionalFilters")
             Pair(filterFn, fnArgs)
