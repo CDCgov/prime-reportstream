@@ -106,9 +106,8 @@ const App = () => {
                                         path="/login/callback"
                                         component={LoginCallback}
                                     />
-                                    <AuthorizedRoute
+                                    <Route
                                         path="/sign-tos"
-                                        authorize={PERMISSIONS.PRIME_ADMIN}
                                         component={TermsOfServiceForm}
                                     />
                                     <AuthorizedRoute
