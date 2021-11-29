@@ -5,8 +5,6 @@ import ca.uhn.hl7v2.HL7Exception
 import ca.uhn.hl7v2.model.Type
 import ca.uhn.hl7v2.model.v251.datatype.DR
 import ca.uhn.hl7v2.model.v251.datatype.DT
-import ca.uhn.hl7v2.model.v251.datatype.EI
-import ca.uhn.hl7v2.model.v251.datatype.HD
 import ca.uhn.hl7v2.model.v251.datatype.TS
 import ca.uhn.hl7v2.model.v251.datatype.XTN
 import ca.uhn.hl7v2.model.v251.message.ORU_R01
@@ -876,7 +874,7 @@ class Hl7Serializer(
     }
 
     /**
-     * Truncate [value] to maximum length allowed by HL7 specification for a component or field.
+     * Truncate and trim [value] to maximum length allowed by HL7 specification for a component or field.
      * [hl7Field] determines the HL7 component using the notation found in [Element].
      * [hl7Config] enables special truncation rules.
      */
@@ -886,6 +884,7 @@ class Hl7Serializer(
         hl7Config: Hl7Configuration?,
         terser: Terser
     ): String {
+        val trimmedValue = value.trim()
         // In general, use the HAPI and HL7 spec values, except when there is a special case
         val maxLength = when {
             // This special case takes into account special rules needed by jurisdiction
@@ -897,7 +896,7 @@ class Hl7Serializer(
             // This is the general case based on the HL7 spec
             else -> getHl7MaxLength(hl7Field, terser)
         }
-        return if (maxLength != null && value.length > maxLength) value.take(maxLength) else value
+        return if (maxLength != null && trimmedValue.length > maxLength) trimmedValue.take(maxLength) else trimmedValue
     }
 
     /**
@@ -1540,15 +1539,16 @@ class Hl7Serializer(
         val CE_FIELDS = listOf("OBX-15-1")
 
         /**
-         * Component length table taken from HL7 Chapter 2A.
+         * Component length table for composite HL7 types taken from HL7 Chapter 2A.
          */
         val HL7_COMPONENT_MAX_LENGTH = mapOf(
-            "XCN" to arrayOf(15, 194, 30, 30, 20, 20, 5, 4, 227, 1, 1, 3, 5, 227, 1, 483, 53, 1, 26, 26, 199, 705, 705),
-            "XAD" to arrayOf(184, 120, 50, 50, 12, 3, 3, 50, 20, 20, 1, 53, 26, 26),
-            "HD" to arrayOf(20, 199, 6),
-            "EIP" to arrayOf(427, 427),
-            "EI" to arrayOf(199, 20, 199, 6),
             "CWE" to arrayOf(20, 199, 20, 20, 199, 20, 10, 10, 199),
+            "EI" to arrayOf(199, 20, 199, 6),
+            "EIP" to arrayOf(427, 427),
+            "HD" to arrayOf(20, 199, 6),
+            "XAD" to arrayOf(184, 120, 50, 50, 12, 3, 3, 50, 20, 20, 1, 53, 26, 26),
+            "XCN" to arrayOf(15, 194, 30, 30, 20, 20, 5, 4, 227, 1, 1, 3, 5, 227, 1, 483, 53, 1, 26, 26, 199, 705, 705),
+            "XON" to arrayOf(50, 20, 4, 1, 3, 227, 5, 227, 1, 20),
             "XPN" to arrayOf(194, 30, 30, 20, 20, 6, 1, 1, 483, 53, 1, 26, 26, 199),
             "XTN" to arrayOf(199, 3, 8, 199, 3, 5, 9, 5, 199, 4, 6, 199),
             // Extend further here
