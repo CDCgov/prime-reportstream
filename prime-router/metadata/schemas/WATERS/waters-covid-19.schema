@@ -8,6 +8,7 @@ elements:
 
   - name: sender_id
     csvFields: [{ name: SubmitterUID }]
+    default: waters
 
   # This is waters unique id for each row.
   #  Like a transaction code - allows Waters and their sender to have a shared unique id.

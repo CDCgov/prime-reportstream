@@ -1053,7 +1053,7 @@ Facility populates multiple fields.  This instance populates reporting_facility_
 
 **Default Value**: reddyfmc
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 

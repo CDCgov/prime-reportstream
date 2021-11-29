@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 # Usage:
 #   ./devenv-infrastructure.sh [up|down|stay]
 #
