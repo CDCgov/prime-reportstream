@@ -1,7 +1,3 @@
-terraform {
-  required_version = ">= 0.14"
-}
-
 resource "azurerm_public_ip" "nat_gateway_ip" {
   name                = "${var.resource_prefix}-publicip"
   location            = var.location
@@ -10,7 +6,7 @@ resource "azurerm_public_ip" "nat_gateway_ip" {
   sku                 = "Standard"
 
   lifecycle {
-    prevent_destroy = true
+    prevent_destroy = false #true
   }
 
   tags = {

@@ -17,3 +17,6 @@ variable "location" {
   type        = string
   description = "Function App Location"
 }
+
+variable "app_size" {}
+variable "app_tier" {}

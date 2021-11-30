@@ -33,3 +33,12 @@ variable "use_cdc_managed_vnet" {
   type        = bool
   description = "If the environment should be deployed to the CDC managed VNET"
 }
+
+
+variable "public_subnet" {}
+
+variable "container_subnet" {}
+
+variable "endpoint_subnet" {}
+
+variable "cyberark_ip_ingress" {}
