@@ -586,7 +586,7 @@ dependencies {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
-    implementation("com.azure:azure-identity:1.4.0") {
+    implementation("com.azure:azure-identity:1.4.2") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
@@ -623,7 +623,7 @@ dependencies {
     implementation("commons-io:commons-io:2.11.0")
     implementation("org.postgresql:postgresql:42.3.0")
     implementation("com.zaxxer:HikariCP:5.0.0")
-    implementation("org.flywaydb:flyway-core:8.0.4")
+    implementation("org.flywaydb:flyway-core:8.2.0")
     implementation("com.github.kayr:fuzzy-csv:1.7.2")
     implementation("org.commonmark:commonmark:0.18.0")
     implementation("com.google.guava:guava:31.0.1-jre")
@@ -659,7 +659,7 @@ dependencies {
     // kotlinx-coroutines-core is needed by mock-fuel
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
     testImplementation("com.github.KennethWussmann:mock-fuel:1.3.0")
-    testImplementation("io.mockk:mockk:1.12.0")
+    testImplementation("io.mockk:mockk:1.12.1")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.1")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.25")
     testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
