@@ -576,7 +576,7 @@ dependencies {
     implementation("com.microsoft.azure.functions:azure-functions-java-library:1.4.2")
     implementation("com.azure:azure-core:1.22.0")
     implementation("com.azure:azure-core-http-netty:1.11.2")
-    implementation("com.azure:azure-storage-blob:12.14.1") {
+    implementation("com.azure:azure-storage-blob:12.14.2") {
         exclude(group = "com.azure", module = "azure-core")
     }
     implementation("com.azure:azure-storage-queue:12.11.2") {
@@ -604,7 +604,7 @@ dependencies {
     implementation("com.github.javafaker:javafaker:1.0.2")
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
-    implementation("com.googlecode.libphonenumber:libphonenumber:8.12.36")
+    implementation("com.googlecode.libphonenumber:libphonenumber:8.12.37")
     implementation("org.thymeleaf:thymeleaf:3.0.12.RELEASE")
     implementation("com.sendgrid:sendgrid-java:4.8.0")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.1")
@@ -634,7 +634,7 @@ dependencies {
     implementation("org.bouncycastle:bcprov-jdk15on:1.69")
 
     implementation("commons-net:commons-net:3.8.0")
-    implementation("com.cronutils:cron-utils:9.1.5")
+    implementation("com.cronutils:cron-utils:9.1.6")
     implementation("khttp:khttp:1.0.0")
     implementation("com.auth0:java-jwt:3.18.2")
     implementation("io.jsonwebtoken:jjwt-api:0.11.2")
