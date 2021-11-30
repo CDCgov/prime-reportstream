@@ -32,6 +32,7 @@ import org.jooq.Configuration
 import org.jooq.DSLContext
 import org.jooq.JSONB
 import org.jooq.impl.DSL
+import org.jooq.impl.SQLDataType
 import java.io.ByteArrayOutputStream
 import java.time.Instant
 import java.time.OffsetDateTime
@@ -191,7 +192,13 @@ class ActionHistory {
     fun trackActionResult(actionResult: String) {
         val tmp = if (action.actionResult.isNullOrBlank()) actionResult else "${action.actionResult}, $actionResult"
         val max = ACTION.ACTION_RESULT.dataType.length()
-        action.actionResult = tmp.chunked(size = max)[0]
+        // max is 0 for the CLOB type. we're using CLOB for the action_result now because we want
+        // bigly strings, not just small sad 2048 strings
+        action.actionResult = if (ACTION.ACTION_RESULT.dataType == SQLDataType.CLOB && max == 0) {
+            tmp
+        } else {
+            tmp.chunked(size = max)[0]
+        }
     }
 
     fun trackActionResult(httpResponseMessage: HttpResponseMessage, showBody: Boolean = true) {
@@ -347,6 +354,31 @@ class ActionHistory {
         reportFile.nextActionAt = event.at
         reportFile.receivingOrg = receiver.organizationName
         reportFile.receivingOrgSvc = receiver.name
+        reportFile.schemaName = report.schema.name
+        reportFile.schemaTopic = report.schema.topic
+        reportFile.bodyUrl = blobInfo.blobUrl
+        reportFile.bodyFormat = blobInfo.format.toString()
+        reportFile.blobDigest = blobInfo.digest
+        reportFile.itemCount = report.itemCount
+        reportsOut[reportFile.reportId] = reportFile
+        filteredReportRows[reportFile.reportId] = report.filteredItems
+        trackItemLineages(report)
+        trackEvent(event) // to be sent to queue later.
+    }
+
+    fun trackCreatedReport(
+        event: Event,
+        report: Report,
+        blobInfo: BlobAccess.BlobInfo
+    ) {
+        if (isReportAlreadyTracked(report.id)) {
+            error("Bug:  attempt to track history of a report ($report.id) we've already associated with this action")
+        }
+
+        val reportFile = ReportFile()
+        reportFile.reportId = report.id
+        reportFile.nextAction = event.eventAction.toTaskAction()
+        reportFile.nextActionAt = event.at
         reportFile.schemaName = report.schema.name
         reportFile.schemaTopic = report.schema.topic
         reportFile.bodyUrl = blobInfo.blobUrl

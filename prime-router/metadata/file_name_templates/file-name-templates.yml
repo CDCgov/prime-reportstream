@@ -72,3 +72,33 @@
   elements:
     - "prime-"
     - createdDate()
+
+- name: chester_hl7
+  lowerCase: true
+  elements:
+    - cdcprime_chester_
+    - createdDate()
+
+- name: bucks_hl7
+  lowerCase: true
+  elements:
+    - cdc_prime_bucks_
+    - createdDate()
+
+- name: allegheny_hl7
+  lowerCase: true
+  elements:
+    - cdc_prime_allegheny_
+    - createdDate()
+
+- name: montgomery_hl7
+  lowerCase: true
+  elements:
+    - cdc_prime_montco_
+    - createdDate()
+
+- name: philadelphia_hl7
+  lowerCase: true
+  elements:
+    - cdc_prime_phila_
+    - createdDate()
