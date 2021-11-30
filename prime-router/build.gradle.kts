@@ -33,7 +33,7 @@ plugins {
     id("com.github.johnrengelman.shadow") version "7.1.0"
     id("com.microsoft.azure.azurefunctions") version "1.8.1"
     id("org.jlleitschuh.gradle.ktlint") version "10.2.0"
-    id("com.adarshr.test-logger") version "3.0.0"
+    id("com.adarshr.test-logger") version "3.1.0"
     id("jacoco")
 }
 
@@ -90,6 +90,7 @@ fun addVaultValuesToEnv(env: MutableMap<String, Any>) {
 
 defaultTasks("package")
 
+val ktorVersion = "1.6.4"
 val kotlinVersion = "1.6.0"
 jacoco.toolVersion = "0.8.7"
 
@@ -107,6 +108,15 @@ compileTestKotlin.kotlinOptions.jvmTarget = "11"
 tasks.clean {
     // Delete the old Maven build folder
     delete("target")
+    // clean up all the old event files in the SOAP set up
+    doLast {
+        val eventsDir = File("../.environment/soap_service/soap/event/v1/")
+        if (eventsDir.exists()) {
+            FileUtils.listFiles(eventsDir, arrayOf("event"), true).forEach {
+                it.delete()
+            }
+        }
+    }
 }
 
 /**
@@ -572,7 +582,7 @@ dependencies {
     implementation("com.azure:azure-storage-queue:12.11.2") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-security-keyvault-secrets:4.3.4") {
+    implementation("com.azure:azure-security-keyvault-secrets:4.3.5") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
@@ -630,6 +640,10 @@ dependencies {
     implementation("io.jsonwebtoken:jjwt-api:0.11.2")
     implementation("de.m3y.kformat:kformat:0.8")
     implementation("io.github.java-diff-utils:java-diff-utils:4.11")
+    implementation("io.ktor:ktor-client-core:$ktorVersion")
+    implementation("io.ktor:ktor-client-cio:$ktorVersion")
+    implementation("io.ktor:ktor-client-apache:$ktorVersion")
+    implementation("io.ktor:ktor-client-logging:$ktorVersion")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.1")
     runtimeOnly("com.github.kittinunf.fuel:fuel-jackson:2.3.1")
@@ -645,8 +659,9 @@ dependencies {
     // kotlinx-coroutines-core is needed by mock-fuel
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
     testImplementation("com.github.KennethWussmann:mock-fuel:1.3.0")
-    testImplementation("io.mockk:mockk:1.12.0")
+    testImplementation("io.mockk:mockk:1.12.1")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.1")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.25")
+    testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.1")
 }

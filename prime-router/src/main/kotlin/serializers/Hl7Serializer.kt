@@ -438,8 +438,34 @@ class Hl7Serializer(
         var aoeSequence = 1
         val terser = Terser(message)
         setLiterals(terser)
+        // we are going to set up overrides for the elements in the collection if the valueset
+        // needs to be overriden
+        val reportElements = if (hl7Config?.valueSetOverrides.isNullOrEmpty()) {
+            // there are no value set overrides, so we are going to just pass back out the
+            // existing collection of schema elements
+            report.schema.elements
+        } else {
+            // we do have valueset overrides, so we need to replace any elements in place
+            report.schema.elements.map { elem ->
+                // if we're dealing with a code type (which uses a valueset), check if we need to replace
+                if (elem.isCodeType) {
+                    // is there a replacement valueset in our collection?
+                    val replacementValueSet = hl7Config?.valueSetOverrides?.get(elem.valueSet)
+                    if (replacementValueSet != null) {
+                        // inherit from the base element
+                        val newElement = Element(elem.name, valueSet = elem.valueSet, valueSetRef = replacementValueSet)
+                        newElement.inheritFrom(elem)
+                    } else {
+                        elem
+                    }
+                } else {
+                    // this is not a code type, so return the base element
+                    elem
+                }
+            }
+        }
         // serialize the rest of the elements
-        report.schema.elements.forEach { element ->
+        reportElements.forEach { element ->
             val value = report.getString(row, element.name).let {
                 if (it.isNullOrEmpty()) {
                     element.default ?: ""
@@ -590,13 +616,13 @@ class Hl7Serializer(
         }
 
         // get sender id for the record
-        val senderID = report.getDeidentifiedResultMetaData()[row].senderId
+        val senderID = report.getString(row, "sender_id") ?: ""
 
         // loop through CLIA resets
-        cliaForSender.forEach { sender, clia ->
+        cliaForSender.forEach { (sender, clia) ->
             try {
                 // find that sender in the map
-                if (sender.equals(senderID.trim(), ignoreCase = true) && !clia.isNullOrEmpty()) {
+                if (sender.equals(senderID.trim(), ignoreCase = true) && !clia.isEmpty()) {
                     // if the sender needs should have a specific CLIA then overwrite the CLIA here
                     val pathSpecSendingFacilityID = formPathSpec("MSH-4-2")
                     terser.set(pathSpecSendingFacilityID, clia)
@@ -706,6 +732,8 @@ class Hl7Serializer(
         rawFacilityName: String,
     ) {
         terser.set(formPathSpec("ORC-21-1"), rawFacilityName.trim().take(50))
+        // setting a default value for ORC-21-2 per PA's request.
+        terser.set(formPathSpec("ORC-21-2"), DEFAULT_ORGANIZATION_NAME_TYPE_CODE)
     }
 
     /**
@@ -866,7 +894,7 @@ class Hl7Serializer(
                     }
                 }
             }
-            Element.Type.CODE -> setCodeComponent(terser, value, pathSpec, element.valueSet)
+            Element.Type.CODE -> setCodeComponent(terser, value, pathSpec, element.valueSet, element.valueSetRef)
             Element.Type.TELEPHONE -> {
                 if (value.isNotEmpty()) {
                     val phoneNumberFormatting = hl7Config?.phoneNumberFormatting
@@ -884,9 +912,19 @@ class Hl7Serializer(
         }
     }
 
-    private fun setCodeComponent(terser: Terser, value: String, pathSpec: String, valueSetName: String?) {
+    /**
+     * Given the pathspec and the value, it will map that back to a valueset, or look up the valueset
+     * based on the valueSetName, and fill in the field with the code
+     */
+    private fun setCodeComponent(
+        terser: Terser,
+        value: String,
+        pathSpec: String,
+        valueSetName: String?,
+        elementValueSet: ValueSet? = null
+    ) {
         if (valueSetName == null) error("Schema Error: Missing valueSet for '$pathSpec'")
-        val valueSet = metadata.findValueSet(valueSetName)
+        val valueSet = elementValueSet ?: metadata.findValueSet(valueSetName)
             ?: error("Schema Error: Cannot find '$valueSetName'")
         when (valueSet.system) {
             ValueSet.SetSystem.HL7,
@@ -896,10 +934,16 @@ class Hl7Serializer(
                 // if it is a component spec then set all sub-components
                 if (isField(pathSpec)) {
                     if (value.isNotEmpty()) {
-                        terser.set("$pathSpec-1", value)
-                        terser.set("$pathSpec-2", valueSet.toDisplayFromCode(value))
-                        terser.set("$pathSpec-3", valueSet.toSystemFromCode(value))
-                        valueSet.toVersionFromCode(value)?.let {
+                        // if a value in the valueset replaces something in the standard valueset
+                        // we should default to that first, and then we will do all the other
+                        // lookups based on that
+                        val displayValue = valueSet.values.firstOrNull { v ->
+                            v.replaces?.equals(value, true) == true
+                        }?.code ?: value
+                        terser.set("$pathSpec-1", displayValue)
+                        terser.set("$pathSpec-2", valueSet.toDisplayFromCode(displayValue))
+                        terser.set("$pathSpec-3", valueSet.toSystemFromCode(displayValue))
+                        valueSet.toVersionFromCode(displayValue)?.let {
                             terser.set("$pathSpec-7", it)
                         }
                     }
@@ -926,9 +970,15 @@ class Hl7Serializer(
         terser.set(pathSpec, value)
 
         when (hl7Field) {
-            in HD_FIELDS_UNIVERSAL,
-            in CE_FIELDS -> {
+            in HD_FIELDS_UNIVERSAL -> {
                 val nextComponent = nextComponent(pathSpec)
+                terser.set(nextComponent, "CLIA")
+            }
+            in CE_FIELDS -> {
+                // HD and CE don't have the same format. for the CE field, we have
+                // something that sits in the middle between the CLIA and the field
+                // that identifies this as a CLIA
+                val nextComponent = nextComponent(pathSpec, 2)
                 terser.set(nextComponent, "CLIA")
             }
         }
@@ -1449,6 +1499,7 @@ class Hl7Serializer(
     }
 
     companion object {
+        /** the length to truncate HD values to. Defaults to 20 */
         const val HD_TRUNCATION_LIMIT = 20
         const val HL7_SPEC_VERSION: String = "2.5.1"
         const val MESSAGE_CODE = "ORU"
@@ -1457,6 +1508,8 @@ class Hl7Serializer(
         const val SOFTWARE_PRODUCT_NAME: String = "PRIME ReportStream"
         const val NCES_EXTENSION = "_NCES_"
         const val OBX_18_EQUIPMENT_UID_OID: String = "2.16.840.1.113883.3.3719"
+        /** the default org name type code. defaults to "L" */
+        const val DEFAULT_ORGANIZATION_NAME_TYPE_CODE: String = "L"
 
         /*
         From the HL7 2.5.1 Ch 2A spec...
@@ -1485,7 +1538,9 @@ class Hl7Serializer(
         )
 
         /**
-         * List of fields that have a CE type
+         * List of fields that have a CE type. Note: this is only really used in places
+         * where we need to put a CLIA marker in the field as well and there are a
+         * lot of CE fields that are *NOT* CLIA fields, so use this correctly.
          */
         val CE_FIELDS = listOf("OBX-15-1")
 
