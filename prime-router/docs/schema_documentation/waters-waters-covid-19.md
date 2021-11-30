@@ -812,6 +812,7 @@ Code | Display
 840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
 840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
 373121007|Test not done
+82334004|Indeterminate
 
 ---
 
@@ -895,7 +896,9 @@ Override the base hl70136 valueset with a custom one, to handle slightly differe
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Default Value**: waters
+
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -1182,6 +1185,7 @@ Code | Display
 840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
 840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
 373121007|Test not done
+82334004|Indeterminate
 
 **Documentation**:
 

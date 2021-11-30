@@ -1,6 +1,6 @@
 
-### Schema:         direct/primary-covid-19
-#### Description:   Primary Diagnostics, Inc, schema
+### Schema:         hl7/test-covid-19
+#### Description:   Test schema
 
 ---
 
@@ -2034,7 +2034,7 @@ Code | Display
 
 **Documentation**:
 
-If the patient is a citizen of a tribal entity, we can track which entity here
+The tribal citizenship of the patient using the TribalEntityUS (OID 2.16.840.1.113883.5.140) table
 
 ---
 
@@ -2357,9 +2357,9 @@ Does the patient reside in a congregate care setting?
 
 **PII**: No
 
-**Default Value**: primary
+**Default Value**: TEST
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -2885,6 +2885,7 @@ Code | Display
 840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
 840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
 373121007|Test not done
+82334004|Indeterminate
 
 **Documentation**:
 

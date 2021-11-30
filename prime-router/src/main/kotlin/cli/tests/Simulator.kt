@@ -166,6 +166,20 @@ class Simulator : CoolTest() {
             false
         )
 
+        val twentyThreadX50_1000items = Simulation(
+            "tenThreadX50_1000items : Submit 10X50 = 500 tests with 1000 items each" +
+                " as fast as possible, on 10 threads.",
+            20,
+            50,
+            1000,
+            "IG",
+            "EVERY_60_MINS",
+            "ignore.EVERY_60_MINS",
+            0,
+            stracSender,
+            true
+        )
+
         val oneThreadX50 = Simulation(
             "oneThreadX50 : Submit 1X50 = 50 tests as fast as possible, on 1 thread.",
             1,
@@ -327,17 +341,34 @@ class Simulator : CoolTest() {
         return results
     }
 
+    /**
+     * Runs a large batch test to see what throughput is like when we have multiple batches of 1000
+     */
+    private fun bigBatchTest(environment: Environment, options: CoolTestOptions): List<SimulatorResult> {
+        ugly("Sends in a batch of 500 with 1000 items each. batch time is set to 60 minutes.")
+        val results = arrayListOf<SimulatorResult>()
+        results += runOneSimulation(twentyThreadX50_1000items, environment, options)
+        return results
+    }
+
     override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         setup(environment, options)
+
         val results = mutableListOf<SimulatorResult>()
         var elapsedTime = measureTimeMillis {
-            results += productionSimulation(environment, options)
-            results += productionSimulation(environment, options)
-            results += runOneSimulation(typicalStracSubmission, environment, options) // strac
-            results += productionSimulation(environment, options)
-            results += productionSimulation(environment, options)
-            results += productionSimulation(environment, options)
+            results += bigBatchTest(environment, options)
         }
+
+        // dev tests only. uncomment what you need to use when testing
+//        val results = mutableListOf<SimulatorResult>()
+//        var elapsedTime = measureTimeMillis {
+//            results += productionSimulation(environment, options)
+//            results += productionSimulation(environment, options)
+//            results += runOneSimulation(typicalStracSubmission, environment, options) // strac
+//            results += productionSimulation(environment, options)
+//            results += productionSimulation(environment, options)
+//            results += productionSimulation(environment, options)
+//        }
         return teardown(results, elapsedTime)
     }
 }

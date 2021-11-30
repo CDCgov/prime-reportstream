@@ -15,6 +15,15 @@ KEEP_ALL=0
 PRUNE_VOLUMES=0
 TAKE_OWNERSHIP=0
 
+PROFILE=amd64
+SERVICES=() # empty list means all services for docker-compose
+BUILD_SERVICES=()
+if [ "$(uname -m)" = "arm64" ] && [[ $(uname -av) == *"Darwin"* ]]; then
+  PROFILE=apple_silicon
+  SERVICES=(sftp redox azurite ftps vault) # Only these services are M1 compatible
+  BUILD_SERVICES=(postgresql)
+fi
+
 function usage() {
   cat <<EOF
 
@@ -256,11 +265,11 @@ function refresh_docker_images() {
 
 function ensure_build_dependencies() {
   info "Bringing up the minimum build dependencies"
-  docker-compose --file "docker-compose.build.yml" up --detach 1>>"${LOG?}" 2>&1
+  verbose "Starting a PostgreSQL container"
+  docker-compose --file "docker-compose.build.yml" up --detach "${BUILD_SERVICES[@]}" 1>>"${LOG?}" 2>&1
   if [[ ${?} != 0 ]]; then
     error "The docker-compose.build.yml environment could not be brought up"
   fi
-
   sleep 2
 }
 
@@ -271,6 +280,7 @@ function ensure_binaries() {
     ensure_build_dependencies
 
     # Filter out some less valuable lines
+    verbose "Building and packaging the source"
     ./gradlew clean package 2>&1 |
       sed '/org.jooq.tools.JooqLogger info/d' |
       sed '/^@@@@@@@/d' |
@@ -293,20 +303,22 @@ function activate_containers() {
   # We spin up the vault and wait for it to populate your vault credentials
   wait_for_vault_creds
   # Then we make sure we have nothing running
-  docker-compose --file "docker-compose.yml" up --detach 1>>"${LOG?}" 2>&1
+  docker-compose --file "docker-compose.yml" up --detach "${SERVICES[@]}" 1>>"${LOG?}" 2>&1
 
   # On mac, the prime_dev service sometimes crashes so we'll wait for a little while and then forcibly restart it
-  if [[ "${OSTYPE?}" == "darwin"* ]]; then
+  if [[ "${OSTYPE?}" == "darwin"* ]] && [ $PROFILE = "amd64" ]; then
     info "Making sure the prime_dev container is actually running (circumvention of provider-is-null-bug)"
     sleep 5
     docker-compose --file "docker-compose.yml" restart prime_dev 1>>"${LOG?}" 2>&1
   fi
 
-  info "prime_dev service environment variables"
-  # BUG: this assumes you're not running multiple of this; don't do that!
-  docker exec -it prime-router_prime_dev_1 bash -c "export" |
-    sed "s/^declare -x /    /g" |
-    tee -a "${LOG}"
+  if [ $PROFILE = "amd64" ]; then
+      info "prime_dev service environment variables"
+      # BUG: this assumes you're not running multiple of this; don't do that!
+      docker exec -it prime-router_prime_dev_1 bash -c "export" |
+        sed "s/^declare -x /    /g" |
+        tee -a "${LOG}"
+  fi
 }
 
 function populate_vault() {
@@ -333,21 +345,29 @@ function initialize() {
   info "> Initializing your environment..."
   refresh_docker_images
   ensure_binaries
-  activate_containers
-  populate_vault
+  if [ $PROFILE = "amd64" ]; then
+      activate_containers
+      populate_vault
+  fi
   take_directory_ownership ${TAKE_OWNERSHIP?}
   return 0
 }
 
 function post_run_instructions() {
-  echo "Please run the following command to load your credentials and run the End-to-End tests:"
-  echo ""
-  echo "    \$ export \$(xargs < "${VAULT_ENV_LOCAL_FILE?}")"
-  if [[ "${OSTYPE?}" == "darwin"* ]]; then
-    echo "    \$ docker-compose down"
-    echo "    \$ docker-compose up --detach"
+  if [ $PROFILE = "amd64" ]; then
+      echo "Please run the following command to load your credentials and run the End-to-End tests:"
+      echo ""
+      echo "    \$ export \$(xargs < "${VAULT_ENV_LOCAL_FILE?}")"
+      if [[ "${OSTYPE?}" == "darwin"* ]]; then
+        echo "    \$ docker-compose down"
+        echo "    \$ docker-compose up --detach"
+      fi
+      echo "    \$ ./gradlew testEnd2End"
   fi
-  echo "    \$ ./gradlew testEnd2End"
+  if [ $PROFILE = "apple_silicon" ]; then
+      echo "Please follow the instructions on in the developer note"
+      echo "for specific instructions on developing on Apple Silicon processors."
+  fi
 }
 
 function setup_githooks() {

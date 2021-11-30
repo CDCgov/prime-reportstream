@@ -27,14 +27,15 @@ import gov.cdc.prime.router.serializers.RedoxSerializer
 import gov.cdc.prime.router.transport.AS2Transport
 import gov.cdc.prime.router.transport.BlobStoreTransport
 import gov.cdc.prime.router.transport.FTPSTransport
+import gov.cdc.prime.router.transport.GAENTransport
 import gov.cdc.prime.router.transport.RedoxTransport
 import gov.cdc.prime.router.transport.RetryItems
 import gov.cdc.prime.router.transport.RetryToken
 import gov.cdc.prime.router.transport.SftpTransport
+import gov.cdc.prime.router.transport.SoapTransport
 import org.jooq.Configuration
 import org.jooq.Field
 import java.io.ByteArrayInputStream
-import java.lang.IllegalStateException
 import java.time.OffsetDateTime
 
 /**
@@ -61,6 +62,8 @@ class WorkflowEngine(
     val redoxTransport: RedoxTransport = RedoxTransport(),
     val as2Transport: AS2Transport = AS2Transport(),
     val ftpsTransport: FTPSTransport = FTPSTransport(),
+    val soapTransport: SoapTransport = SoapTransport(),
+    val gaenTransport: GAENTransport = GAENTransport()
 ) {
     init {
         // Load any updates to the database lookup tables.
@@ -322,24 +325,31 @@ class WorkflowEngine(
         actionHistory: ActionHistory,
     ) {
         this.db.transact { txn ->
-            this
+            val (emptyReports, preparedReports) = this
                 .translator
                 .filterAndTranslateByReceiver(
                     report,
                     defaults,
                     routeTo,
                     warnings,
-                )
-                .forEach { (report, receiver) ->
-                    sendToDestination(
-                        report,
-                        receiver,
-                        context,
-                        options,
-                        actionHistory,
-                        txn
-                    )
+                ).partition { (report, _) -> report.isEmpty() }
+
+            emptyReports.forEach { (report, receiver) ->
+                if (!report.filteredItems.isEmpty()) {
+                    actionHistory.trackFilteredReport(report, receiver)
                 }
+            }
+
+            preparedReports.forEach { (report, receiver) ->
+                sendToDestination(
+                    report,
+                    receiver,
+                    context,
+                    options,
+                    actionHistory,
+                    txn
+                )
+            }
         }
     }
 
@@ -370,7 +380,20 @@ class WorkflowEngine(
                 this.dispatchReport(event, batchReport, actionHistory, receiver, txn, context)
                 loggerMsg = "Queue: ${event.toQueueMessage()}"
             }
-            receiver.format == Report.Format.HL7 -> {
+            receiver.format.isSingleItemFormat -> {
+                report.filteredItems.forEach {
+                    val emptyReport = Report(
+                        report.schema,
+                        emptyList(),
+                        emptyList(),
+                        destination = report.destination,
+                        bodyFormat = report.bodyFormat,
+                        metadata = Metadata.getInstance()
+                    )
+                    emptyReport.filteredItems.add(it)
+                    actionHistory.trackFilteredReport(emptyReport, receiver)
+                }
+
                 report
                     .split()
                     .forEach {
@@ -402,37 +425,18 @@ class WorkflowEngine(
         val errors: MutableList<ResultDetail> = mutableListOf()
         val warnings: MutableList<ResultDetail> = mutableListOf()
 
-        val reportFile = db.fetchReportFile(messageEvent.reportId)
-
         db.transact { txn ->
             val task = db.fetchAndLockTask(messageEvent.reportId, txn)
 
-            val blobContent = blob.downloadBlob(reportFile.bodyUrl)
+            val blobContent = blob.downloadBlob(task.bodyUrl)
             val currentAction = Event.EventAction.parseQueueMessage(task.nextAction.literal)
 
-            // Get sender record, throw error if it is null. It should not be possible to be null, since the sender
-            //  was not null during the receive
-            val sender = settings.findSender(reportFile.sendingOrg + "." + reportFile.sendingOrgClient)
-                ?: throw IllegalStateException(
-                    "Sender is null for report ${messageEvent.reportId} in the process step and it was not null " +
-                        "during receive. This should not be possible."
-                )
-
-            // Create report. At this point in the process this will never return a null report, it has already
-            //  been created as part of recieve.
-            val report = createReport(
-                sender,
-                blobContent.decodeToString(),
-                messageEvent.defaults,
-                errors,
-                warnings
-            )!!
-
-            // TODO: Tech Debt - update this when we are moving to storing internally-formatted report as part of
-            //  initial ingest.
-            // Set the id in the newly generated report to the correct UUID for the report coming out of the process
-            //  queue
-            report.id = messageEvent.reportId
+            val report = csvSerializer.readInternal(
+                task.schemaName,
+                ByteArrayInputStream(blobContent),
+                emptyList(),
+                blobReportId = messageEvent.reportId
+            )
 
             //  send to routeReport
             routeReport(
@@ -545,7 +549,7 @@ class WorkflowEngine(
         val bytes = blob.downloadBlob(header.task.bodyUrl)
         return when (header.task.bodyFormat) {
             // TODO after the CSV internal format is flushed from the system, this code will be safe to remove
-            "CSV" -> {
+            "CSV", "CSV_SINGLE" -> {
                 val result = csvSerializer.readExternal(
                     schema.name,
                     ByteArrayInputStream(bytes),

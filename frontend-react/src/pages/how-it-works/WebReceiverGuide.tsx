@@ -36,7 +36,7 @@ export const WebReceiverGuide = () => {
             </section>
             <hr className="margin-y-6" />
             <section>
-                <h2>Benefits of the Web Receiver Experience</h2>
+                <h2>Benefits of the data download site</h2>
                 <ul className="padding-bottom-1">
                     <li>
                         <h3>Receive data from SimpleReport</h3>
@@ -64,7 +64,7 @@ export const WebReceiverGuide = () => {
             </section>
             <hr className="margin-top-3 margin-bottom-6" />
             <section>
-                <h2>Using the Web Receiver</h2>
+                <h2>Using the site</h2>
                 <h3>Recommended browser</h3>
 
                 <p>
@@ -73,6 +73,7 @@ export const WebReceiverGuide = () => {
                         href="https://www.google.com/chrome/"
                         target="_blank"
                         rel="noreferrer"
+                        className="usa-link"
                     >
                         Chrome
                     </a>
@@ -81,6 +82,7 @@ export const WebReceiverGuide = () => {
                         href="https://www.mozilla.org/en-US/firefox/new/"
                         target="_blank"
                         rel="noreferrer"
+                        className="usa-link"
                     >
                         Firefox
                     </a>
@@ -89,6 +91,7 @@ export const WebReceiverGuide = () => {
                         href="https://www.apple.com/safari/"
                         target="_blank"
                         rel="noreferrer"
+                        className="usa-link"
                     >
                         Safari
                     </a>
@@ -97,11 +100,15 @@ export const WebReceiverGuide = () => {
                         href="https://www.microsoft.com/en-us/edge"
                         target="_blank"
                         rel="noreferrer"
+                        className="usa-link"
                     >
                         Edge
                     </a>
-                    ) to access the Web Receiver site. Please note: the
-                    application does not support Internet Explorer 11 or below.
+                    ) to access the site.
+                </p>
+                <p>
+                    <em>Please note: the
+                    application does not support Internet Explorer 11 or below.</em>
                 </p>
 
                 <h3>General usage</h3>

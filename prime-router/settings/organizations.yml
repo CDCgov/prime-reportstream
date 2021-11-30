@@ -16,7 +16,7 @@
       organizationName: simple_report
       topic: covid-19
       customerStatus: active
-      schemaName: hl7/hl7-ingest-covid-19
+      schemaName: hl7/test-covid-19
       format: HL7
 
 - name: waters
@@ -92,9 +92,6 @@
       containerName: "hhsprotect"
       type: "BLOBSTORE"
     externalName: null
-
-
-
 
 - name: safehealth
   description: SAFE - Safe Health Systems
@@ -236,7 +233,7 @@
       organizationName: primary
       topic: covid-19
       customerStatus: active
-      schemaName: direct/primary-covid-19
+      schemaName: hl7/primary-covid-19
       format: HL7
 
 - name: "johns_hopkins"
@@ -1348,6 +1345,210 @@
   jurisdiction: STATE
   stateCode: PA
   receivers:
+    - name: elr-chester-hl7
+      organizationName: pa-phd
+      topic: covid-19
+      customerStatus: active
+      jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Chester, Delaware)" ]
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        nameFormat: chester_hl7
+        reportingFacilityName: Chester County Health Department
+        receivingApplicationName: PA-ELR
+        receivingFacilityName: PADOH
+        suppressHl7Fields: PID-13-1,ORC-23-1,OBR-16
+        replaceValue:
+          ORC-21-2: L
+        valueSetOverrides:
+          hl70189:
+            name: hl70189
+            system: HL7
+            version: 2.9
+            reference: HL7 guidance for ethnicity, modified for PA standards
+            values:
+              - code: H
+                display: Hispanic or Latino
+              - code: NH
+                replaces: N
+                display: Non Hispanic or Latino
+              - code: U
+                display: Unknown
+      transport:
+        type: SOAP
+        endpoint: "http://soap-webservice:8080/castlemock/mock/soap/project/eUAvaN/BasicHttpBinding_IUploadFile"
+        soapAction: "http://nedss.state.pa.us/2012/B01/elrwcf/IUploadFile/UploadFiles"
+        credentialName: DEFAULT-SOAP
+        namespaces:
+          "xmlns:elr": "http://nedss.state.pa.us/2012/B01/elrwcf"
+      timing:
+        operation: MERGE
+        numberPerDay: 1440
+        initialTime: 00:00
+        timeZone: EASTERN
+    - name: elr-montgomery-hl7
+      organizationName: pa-phd
+      topic: covid-19
+      customerStatus: active
+      jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Montgomery)" ]
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        nameFormat: montgomery_hl7
+        reportingFacilityName: Montgomery County Office of Public Health
+        receivingApplicationName: PA-ELR
+        receivingFacilityName: PADOH
+        suppressHl7Fields: PID-13-1,ORC-23-1,OBR-16
+        replaceValue:
+          ORC-21-2: L
+        valueSetOverrides:
+          hl70189:
+            name: hl70189
+            system: HL7
+            version: 2.9
+            reference: HL7 guidance for ethnicity, modified for PA standards
+            values:
+              - code: H
+                display: Hispanic or Latino
+              - code: NH
+                replaces: N
+                display: Non Hispanic or Latino
+              - code: U
+                display: Unknown
+      transport:
+        type: SOAP
+        endpoint: "http://soap-webservice:8080/castlemock/mock/soap/project/eUAvaN/BasicHttpBinding_IUploadFile"
+        soapAction: "http://nedss.state.pa.us/2012/B01/elrwcf/IUploadFile/UploadFiles"
+        credentialName: null
+        namespaces:
+          "xmlns:elr": "http://nedss.state.pa.us/2012/B01/elrwcf"
+      timing:
+        operation: MERGE
+        numberPerDay: 1440
+        initialTime: 00:00
+        timeZone: EASTERN
+    - name: elr-philadelphia-hl7
+      organizationName: pa-phd
+      topic: covid-19
+      customerStatus: active
+      jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Philadelphia)" ]
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        nameFormat: philadelphia_hl7
+        reportingFacilityName: Philadelphia Public Health Laboratory
+        receivingApplicationName: PA-ELR
+        receivingFacilityName: PADOH
+        suppressHl7Fields: PID-13-1,ORC-23-1,OBR-16
+        replaceValue:
+          ORC-21-2: L
+        valueSetOverrides:
+          hl70189:
+            name: hl70189
+            system: HL7
+            version: 2.9
+            reference: HL7 guidance for ethnicity, modified for PA standards
+            values:
+              - code: H
+                display: Hispanic or Latino
+              - code: NH
+                replaces: N
+                display: Non Hispanic or Latino
+              - code: U
+                display: Unknown
+      transport:
+        type: SOAP
+        endpoint: "http://soap-webservice:8080/castlemock/mock/soap/project/eUAvaN/BasicHttpBinding_IUploadFile"
+        soapAction: "http://nedss.state.pa.us/2012/B01/elrwcf/IUploadFile/UploadFiles"
+        credentialName: null
+        namespaces:
+          "xmlns:elr": "http://nedss.state.pa.us/2012/B01/elrwcf"
+      timing:
+        operation: MERGE
+        numberPerDay: 1440
+        initialTime: 00:00
+        timeZone: EASTERN
+    - name: elr-bucks-hl7
+      organizationName: pa-phd
+      topic: covid-19
+      customerStatus: active
+      jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Bucks)" ]
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        nameFormat: bucks_hl7
+        receivingApplicationName: PA-ELR
+        receivingFacilityName: PADOH
+        suppressHl7Fields: PID-13-1,ORC-23-1,OBR-16
+        replaceValue:
+          ORC-21-2: L
+        valueSetOverrides:
+          hl70189:
+            name: hl70189
+            system: HL7
+            version: 2.9
+            reference: HL7 guidance for ethnicity, modified for PA standards
+            values:
+              - code: H
+                display: Hispanic or Latino
+              - code: NH
+                replaces: N
+                display: Non Hispanic or Latino
+              - code: U
+                display: Unknown
+      transport:
+        type: SOAP
+        endpoint: "http://soap-webservice:8080/castlemock/mock/soap/project/eUAvaN/BasicHttpBinding_IUploadFile"
+        soapAction: "http://nedss.state.pa.us/2012/B01/elrwcf/IUploadFile/UploadFiles"
+        credentialName: null
+        namespaces:
+          "xmlns:elr": "http://nedss.state.pa.us/2012/B01/elrwcf"
+      timing:
+        operation: MERGE
+        numberPerDay: 1440
+        initialTime: 00:00
+        timeZone: EASTERN
+    - name: elr-allegheny-hl7
+      organizationName: pa-phd
+      topic: covid-19
+      customerStatus: active
+      jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Allegheny)" ]
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        nameFormat: allegheny_hl7
+        receivingApplicationName: PA-ELR
+        receivingFacilityName: PADOH
+        suppressHl7Fields: PID-13-1,ORC-23-1,OBR-16
+        replaceValue:
+          ORC-21-2: L
+        valueSetOverrides:
+          hl70189:
+            name: hl70189
+            system: HL7
+            version: 2.9
+            reference: HL7 guidance for ethnicity, modified for PA standards
+            values:
+              - code: H
+                display: Hispanic or Latino
+              - code: NH
+                replaces: N
+                display: Non Hispanic or Latino
+              - code: U
+                display: Unknown
+      transport:
+        type: SOAP
+        endpoint: "http://soap-webservice:8080/castlemock/mock/soap/project/eUAvaN/BasicHttpBinding_IUploadFile"
+        soapAction: "http://nedss.state.pa.us/2012/B01/elrwcf/IUploadFile/UploadFiles"
+        credentialName: null
+        namespaces:
+          "xmlns:elr": "http://nedss.state.pa.us/2012/B01/elrwcf"
+      timing:
+        operation: MERGE
+        numberPerDay: 1440
+        initialTime: 00:00
+        timeZone: EASTERN
+
     - name: elr-bucks-local
       organizationName: pa-phd
       topic: covid-19
@@ -1611,7 +1812,7 @@
       organizationName: ignore
       topic: covid-19
       customerStatus: inactive
-      schemaName: hl7/hl7-ingest-covid-19
+      schemaName: hl7/test-covid-19
       format: HL7
   receivers:
     - name: CSV
@@ -1866,6 +2067,25 @@
       timing:
         operation: MERGE
         numberPerDay: 96 # Every 15 minutes
+        initialTime: 00:00
+      translation:
+        type: HL7
+        useBatchHeaders: true
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+    - name: EVERY_60_MINS
+      externalName: Batches and Sends every 60 minutes.  For Load testing.
+      organizationName: ignore
+      topic: covid-19
+      customerStatus: active
+      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, EVERY_60_MINS)" ]
+      timing:
+        operation: MERGE
+        numberPerDay: 24 # Every 60 minutes
         initialTime: 00:00
       translation:
         type: HL7
@@ -2764,6 +2984,20 @@
         receiverUrl: http://host.docker.internal:8000/pyas2/as2receive
         receiverId: p1as2
         senderId: CDCPRIMETEST
+    - name: gaen
+      description: Google/Apple Exposure Notification
+      organizationName: wa-phd
+      topic: covid-19
+      customerStatus: testing
+      jurisdictionalFilter:
+        - matches(abnormal_flag, A)
+        - orEquals(ordering_facility_state, WA, patient_state, WA)
+      timing: null
+      translation:
+        type: GAEN
+      transport:
+        type: GAEN
+        apiUrl: ""
 
 - name: wv-phd
   description: West Virginia Public Health Department
