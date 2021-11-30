@@ -22,6 +22,7 @@ enum class FtpsProtocol {
     JsonSubTypes.Type(NullTransportType::class, name = "NULL"),
     JsonSubTypes.Type(AS2TransportType::class, name = "AS2"),
     JsonSubTypes.Type(FTPSTransportType::class, name = "FTPS"),
+    JsonSubTypes.Type(SoapTransportType::class, name = "SOAP"),
     JsonSubTypes.Type(GAENTransportType::class, name = "GAEN")
 )
 abstract class TransportType(val type: String)
@@ -108,3 +109,20 @@ data class NullTransportType
 @JsonCreator constructor(
     val dummy: String? = null,
 ) : TransportType("NULL")
+
+/**
+ * Holds the [gov.cdc.prime.router.transport.SoapTransport] parameters
+ */
+data class SoapTransportType
+@JsonCreator constructor(
+    /** The URL endpoint to connect to */
+    val endpoint: String,
+    /** The SOAP action to invoke */
+    val soapAction: String,
+    /** The credential name */
+    val credentialName: String? = null,
+    /** The namespaces used in the creation of the object */
+    val namespaces: Map<String, String>? = null
+) : TransportType("SOAP") {
+    override fun toString(): String = "endpoint=$endpoint, soapAction=$soapAction"
+}
