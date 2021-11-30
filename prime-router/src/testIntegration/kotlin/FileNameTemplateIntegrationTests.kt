@@ -1,3 +1,5 @@
+package gov.cdc.prime.router
+
 import assertk.Assert
 import assertk.assertThat
 import assertk.assertions.isEqualTo
@@ -11,16 +13,6 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
-import gov.cdc.prime.router.CreatedDate
-import gov.cdc.prime.router.FileNameTemplate
-import gov.cdc.prime.router.Hl7Configuration
-import gov.cdc.prime.router.Literal
-import gov.cdc.prime.router.Metadata
-import gov.cdc.prime.router.ProcessingModeCode
-import gov.cdc.prime.router.ReceivingOrganization
-import gov.cdc.prime.router.RegexReplace
-import gov.cdc.prime.router.SchemaBaseName
-import gov.cdc.prime.router.TranslatorConfiguration
 import io.mockk.every
 import io.mockk.mockkClass
 import java.time.OffsetDateTime

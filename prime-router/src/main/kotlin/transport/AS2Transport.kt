@@ -102,7 +102,7 @@ class AS2Transport(val metadata: Metadata? = null) : ITransport, Logging {
     /**
      * Do the work of sending a report over the AS2 transport.
      */
-    internal fun sendViaAS2(
+    fun sendViaAS2(
         as2Info: AS2TransportType,
         credential: UserJksCredential,
         externalFileName: String,
@@ -146,7 +146,7 @@ class AS2Transport(val metadata: Metadata? = null) : ITransport, Logging {
     /**
      * From the credential service get a JKS for [receiverFullName].
      */
-    internal fun lookupCredentials(receiverFullName: String): UserJksCredential {
+    fun lookupCredentials(receiverFullName: String): UserJksCredential {
         val credentialLabel = CredentialHelper.formCredentialLabel(fromReceiverName = receiverFullName)
         return CredentialHelper.getCredentialService().fetchCredential(
             credentialLabel, "AS2Transport", CredentialRequestReason.AS2_UPLOAD

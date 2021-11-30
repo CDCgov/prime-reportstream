@@ -1,16 +1,9 @@
+package gov.cdc.prime.router
+
 import assertk.assertThat
 import assertk.assertions.exists
 import assertk.assertions.isEmpty
 import assertk.assertions.isTrue
-import gov.cdc.prime.router.FakeReport
-import gov.cdc.prime.router.FileSettings
-import gov.cdc.prime.router.FileSource
-import gov.cdc.prime.router.Metadata
-import gov.cdc.prime.router.Receiver
-import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.ResultDetail
-import gov.cdc.prime.router.SettingsProvider
-import gov.cdc.prime.router.Translator
 import gov.cdc.prime.router.serializers.CsvSerializer
 import org.apache.commons.io.FileUtils
 import java.io.File

@@ -20,11 +20,5 @@ class UnitTestUtils {
         val simpleMetadata by lazy {
             Metadata(simpleSchema)
         }
-
-        @Deprecated(
-            "Unit tests should use minimal self-contained metadata instance.",
-            ReplaceWith("simpleSchema"), DeprecationLevel.WARNING
-        )
-        val testMetadata by lazy { Metadata("./src/test/resources/metadata") }
     }
 }
