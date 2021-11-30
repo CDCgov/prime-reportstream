@@ -2388,7 +2388,7 @@ class OtcProctored : CoolTest() {
                         val processResults = pollForProcessResult(internalReportId)
                         // verify each result is valid
                         for (result in processResults.values)
-                            if(!examineProcessResponse(result))
+                            if (!examineProcessResponse(result))
                                 bad("***async end2end FAILED***: Process result invalid")
                     }
                 }
