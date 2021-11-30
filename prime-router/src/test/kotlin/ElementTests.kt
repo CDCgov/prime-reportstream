@@ -350,40 +350,16 @@ internal class ElementTests {
             "20201220"
         )
 
-        // normalize M/d/yyyy
-        assertThat(
-            date.toFormatted(date.toNormalized("12/20/2020"))
-        ).isEqualTo(
-            "20201220"
-        )
-
-        // normalize MMddyyyy
-        assertThat(
-            date.toFormatted(date.toNormalized("12202020"))
-        ).isEqualTo(
-            "20201220"
-        )
-
-        // normalize yyyy/M/d
-        assertThat(
-            date.toFormatted(date.toNormalized("2020/12/20"))
-        ).isEqualTo(
-            "20201220"
-        )
-
-        // normalize M/d/yyyy HH:mm
-        assertThat(
-            date.toFormatted(date.toNormalized("12/20/2020 12:15"))
-        ).isEqualTo(
-            "20201220"
-        )
-
-        // normalize yyyy/M/d HH:mm
-        assertThat(
-            date.toFormatted(date.toNormalized("2020/12/20 12:15"))
-        ).isEqualTo(
-            "20201220"
-        )
+        // normalize manually entered date use cases
+        // "M/d/yyyy", "MMddyyyy", "yyyy/M/d", "M/d/yyyy HH:mm", "yyyy/M/d HH:mm"
+        val dateStrings = arrayOf("12/20/2020", "12202020", "2020/12/20", "12/20/2020 12:15", "2020/12/20 12:15")
+        dateStrings.forEach { dateString ->
+            assertThat(
+                date.toFormatted(date.toNormalized(dateString))
+            ).isEqualTo(
+                "20201220"
+            )
+        }
 
         val nullifyDateElement = Element(
             "a",

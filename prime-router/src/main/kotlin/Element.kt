@@ -418,12 +418,14 @@ data class Element(
                     LocalDate.parse(formattedValue)
                     return null
                 } catch (e: DateTimeParseException) {
+                    // continue to the next try
                 }
                 try {
                     val formatter = DateTimeFormatter.ofPattern(format ?: datePattern, Locale.ENGLISH)
                     LocalDate.parse(formattedValue, formatter)
                     return null
                 } catch (e: DateTimeParseException) {
+                    // continue to the next try
                 }
                 try {
                     // check for yyyyMMdd
@@ -431,41 +433,22 @@ data class Element(
                     LocalDate.parse(formattedValue, formatter)
                     return null
                 } catch (e: DateTimeParseException) {
+                    // continue to the next try
                 }
 
                 // Cleanup the Date in variable values
                 val cleanedDate = formattedValue.replace("-", "/")
                 // the next five date validation patterns are valid date patterns that we have seen be
                 // manually entered into EMR systems, but are not consistent, so we cannot use the "format" param
-                try {
-                    val formatter = DateTimeFormatter.ofPattern("M/d/yyyy", Locale.ENGLISH)
-                    LocalDate.parse(cleanedDate, formatter)
-                    return null
-                } catch (e: DateTimeParseException) {
-                }
-                try {
-                    val formatter = DateTimeFormatter.ofPattern("MMddyyyy", Locale.ENGLISH)
-                    LocalDate.parse(cleanedDate, formatter)
-                    return null
-                } catch (e: DateTimeParseException) {
-                }
-                try {
-                    val formatter = DateTimeFormatter.ofPattern("yyyy/M/d", Locale.ENGLISH)
-                    LocalDate.parse(cleanedDate, formatter)
-                    return null
-                } catch (e: DateTimeParseException) {
-                }
-                try {
-                    val formatter = DateTimeFormatter.ofPattern("M/d/yyyy HH:mm", Locale.ENGLISH)
-                    LocalDate.parse(cleanedDate, formatter)
-                    return null
-                } catch (e: DateTimeParseException) {
-                }
-                try {
-                    val formatter = DateTimeFormatter.ofPattern("yyyy/M/d HH:mm", Locale.ENGLISH)
-                    LocalDate.parse(cleanedDate, formatter)
-                    return null
-                } catch (e: DateTimeParseException) {
+                val dateFormats = arrayOf("M/d/yyyy", "MMddyyyy", "yyyy/M/d", "M/d/yyyy HH:mm", "yyyy/M/d HH:mm")
+                dateFormats.forEach { dateFormat ->
+                    try {
+                        val formatter = DateTimeFormatter.ofPattern(dateFormat, Locale.ENGLISH)
+                        LocalDate.parse(cleanedDate, formatter)
+                        return null
+                    } catch (e: DateTimeParseException) {
+                        // continue to the next try
+                    }
                 }
                 try {
                     val optionalDateTime = variableDateTimePattern
@@ -492,6 +475,7 @@ data class Element(
                     OffsetDateTime.parse(formattedValue)
                     return null
                 } catch (e: DateTimeParseException) {
+                    // continue to the next try
                 }
                 try {
                     // Try a HL7 pattern
@@ -499,6 +483,7 @@ data class Element(
                     OffsetDateTime.parse(formattedValue, formatter)
                     return null
                 } catch (e: DateTimeParseException) {
+                    // continue to the next try
                 }
                 try {
                     // Try to parse using a LocalDate pattern assuming it is in our canonical dateFormatter. Central timezone.
@@ -507,6 +492,7 @@ data class Element(
                     OffsetDateTime.of(date, LocalTime.of(0, 0), zoneOffset)
                     return null
                 } catch (e: DateTimeParseException) {
+                    // continue to the next try
                 }
                 try {
                     // this is a saving throw
@@ -526,6 +512,7 @@ data class Element(
                     }
                     return null
                 } catch (e: DateTimeParseException) {
+                    // continue to the next try
                 } catch (e: DateTimeException) {
                     // this could also happen
                 }
@@ -536,7 +523,7 @@ data class Element(
                     LocalDate.parse(formattedValue, formatter)
                     null
                 } catch (e: DateTimeParseException) {
-                    if (nullifyValue!!) {
+                    if (nullifyValue) {
                         return null
                     }
                     InvalidDateMessage.new(formattedValue, fieldMapping, format)
