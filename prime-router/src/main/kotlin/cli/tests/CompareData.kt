@@ -157,8 +157,13 @@ class DataCompareTest : CoolTest() {
                             val internalReportId = getSingleChildReportId(reportId)
 
                             val processResult = pollForProcessResult(internalReportId)
-                            if (!examineProcessResponse(processResult))
-                                bad("***async $name FAILED***: Process record null or invalid")
+
+                            val processResults = pollForProcessResult(internalReportId)
+                            // verify each result is valid
+                            for (result in processResults.values)
+                                passed = passed && examineProcessResponse(result)
+                            if (!passed)
+                                bad("***async end2end FAILED***: Process result invalid")
                         }
 
                         // Look at the lineage results

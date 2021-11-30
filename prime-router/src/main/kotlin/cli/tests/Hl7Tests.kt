@@ -58,9 +58,12 @@ class Hl7Ingest : CoolTest() {
                 // gets back the id of the internal report
                 val internalReportId = getSingleChildReportId(reportId)
 
-                val processResult = pollForProcessResult(internalReportId)
-                if (!examineProcessResponse(processResult))
-                    bad("***async $name  FAILED***: Process record null or invalid")
+                val processResults = pollForProcessResult(internalReportId)
+                // verify each result is valid
+                for (result in processResults.values)
+                    passed = passed && examineProcessResponse(result)
+                if (!passed)
+                    bad("***async end2end FAILED***: Process result invalid")
             }
 
             passed = passed and pollForLineageResults(
