@@ -168,6 +168,7 @@ NTE|1|L|This is a final comment|RE"""
             every { it.reportingFacilityId }.returns(null)
             every { it.reportingFacilityIdType }.returns(null)
             every { it.cliaForOutOfStateTesting }.returns(null)
+            every { it.valueSetOverrides }.returns((mapOf()))
             every { it.useOrderingFacilityName }.returns(Hl7Configuration.OrderingFacilityName.STANDARD)
             every { it.cliaForSender }.returns(mapOf())
         }
