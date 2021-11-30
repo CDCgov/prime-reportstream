@@ -12,6 +12,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
         'yarn\.lock$',
     ]
     paths = [
+        '.environment/soap_service/',
         '.idea/',
         '.terraform/providers/',
         'frontend/dist',
@@ -54,6 +55,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
             '(?i)cbrown@cdc.gov',
             '(?i)cglodosky@cdc.gov',
             '(?i)data@cdc.gov',
+            '(?i)default@noemail.com',
             '(?i)e.ripley@weyland(-)?yutani.com',
             '(?i)giang.hoang@datarobot.com',
             '(?i)hello@cypress.io',
@@ -62,6 +64,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
             '(?i)joe.jones@az.pima.gov',
             '(?i)local@test.com',
             '(?i)noreply@cdc.gov',
+            '(?i)no-reply@cdc.gov',
             '(?i)prime@cdc.gov',
             '(?i)qom6@cdc.gov',
             '(?i)qop5@cdc.gov',
@@ -100,6 +103,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
             'FAILED Sftp upload of inputReportId xxxx to SFTPTransportType\(host=sftp', # Not a secret, part of the docs
             'gpgkey=https:\/\/packages\.microsoft\.com\/keys\/microsoft\.asc\" \| tee \/etc\/yum\.repos\.d\/azure-cli\.repo',
             'HOST=localhost',                                   # Default cred, this is allowed (too broad??)
+            'host=sftp',                                        # Default dev env sftp. not real
             'pdhstaging-pgsql\.postgres\.database\.azure\.com', # Not a secret
         ]
         commits = [

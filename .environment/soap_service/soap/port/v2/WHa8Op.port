@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<soapPort>
+    <id>WHa8Op</id>
+    <name>BasicHttpBinding_IUploadFile1</name>
+    <projectId>eUAvaN</projectId>
+    <uri>BasicHttpBinding_IUploadFile1</uri>
+</soapPort>
