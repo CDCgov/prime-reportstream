@@ -111,9 +111,9 @@ Another test that is run is the integration test.
 gradle testIntegration
 ```
 
-### Step 6 - Build Frontend
+### Step 6 - Build Front-end
 
-Our new React frontend is easy to get up and running on your machine. First, ensure the following dependencies
+Our new React front-end is easy to get up and running on your machine. First, ensure the following dependencies
 installed:
 - `node` (version 14.x)
 - `yarn` package manager
@@ -129,26 +129,30 @@ npm install --global yarn
 
 #### Serving
 
-Now you have the tools necessary to run the frontend application. Navigate into the `frontend-react` folder
+Now you have the tools necessary to run the front-end application. Navigate into the `frontend-react` folder
 and use `yarn` to serve it on `localhost:3000`
 
 ```bash
-cd ../frontend-react
+cd ../front-end-react
 yarn
 yarn start
 ```
 
 #### Refreshing
 
-The frontend application will run until you `Ctrl + C` to end the process in your terminal. Updates to the frontend
+The front-end application will run until you `Ctrl + C` to end the process in your terminal. Updates to the front-end
 render when a file's changes are saved, eliminating the need to rebuild and serve the project!
 
-### Step 7 - Test Frontend
+### Step 7 - Test Front-end
 
 If the window hasn't automatically opened, navigate to `http://localhost:3000`.
-You should be able to login and utilize the interface. To ensure the frontend is talking to the `prime-router` application,
+You should be able to login and utilize the interface. To ensure the front-end is talking to the `prime-router` application,
 log in and access `localhost:3000/daily-data`. Observe your network calls through your browser's dev tools, checking
 for any error status codes.
+
+### More Info
+
+For more information on the front-end React app, head to the front-end [README](../../../frontend-react/README.md)
 
 ## Next Steps
 
