@@ -181,6 +181,8 @@ class ReportFunction : Logging {
         val warnings: MutableList<ResultDetail> = mutableListOf()
         // The following is identical to waters (for arch reasons)
         val validatedRequest = validateRequest(workflowEngine, request)
+        // track the sending organization and client based on the header
+        actionHistory.trackActionSender(extractClientHeader(request))
         warnings += validatedRequest.warnings
         handleValidation(validatedRequest, request, actionHistory, workflowEngine)?.let {
             return it
@@ -218,11 +220,6 @@ class ReportFunction : Logging {
         // if no errors resulting in a bad request, move forward with processing
         else {
             if (report != null) {
-                // if we are processing a message asynchronously, the report's next action will be 'process'
-                // this is used in the 'recordReceivedReport' function when entering the Task record
-                if (isAsync) {
-                    report.nextAction = TaskAction.process
-                }
 
                 report.bodyURL = workflowEngine.recordReceivedReport(
                     // should make createReport always return a report or error
@@ -295,19 +292,27 @@ class ReportFunction : Logging {
     }
 
     private fun processAsync(
-        report: Report,
+        parsedReport: Report,
         workflowEngine: WorkflowEngine,
         options: Options,
         defaults: Map<String, String>,
         routeTo: List<String>,
         actionHistory: ActionHistory
     ) {
-        // add 'Process' queue event to the actionHistory
-        val processEvent = ProcessEvent(Event.EventAction.PROCESS, report.id, options, defaults, routeTo)
-        actionHistory.trackEvent(processEvent)
 
+        val report = parsedReport.copy()
+
+        if (report.bodyFormat != Report.Format.INTERNAL) {
+            error("Processing a non internal report async.")
+        }
+
+        val processEvent = ProcessEvent(Event.EventAction.PROCESS, report.id, options, defaults, routeTo)
+
+        val blobInfo = workflowEngine.blob.uploadBody(report, action = processEvent.eventAction)
+
+        actionHistory.trackCreatedReport(processEvent, report, blobInfo)
         // add task to task table
-        workflowEngine.insertProcessTask(report, report.bodyFormat.toString(), report.bodyURL, processEvent)
+        workflowEngine.insertProcessTask(report, report.bodyFormat.toString(), blobInfo.blobUrl, processEvent)
     }
 
     private fun handleValidation(

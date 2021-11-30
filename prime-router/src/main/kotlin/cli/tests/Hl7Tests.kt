@@ -55,11 +55,12 @@ class Hl7Ingest : CoolTest() {
         if (reportId != null) {
             // if testing async, verify the process result was generated
             if (options.asyncProcessMode) {
-                if (reportId != null) {
-                    val processResult = pollForProcessResult(reportId)
-                    if (!examineProcessResponse(processResult))
-                        bad("***async $name  FAILED***: Process record not found")
-                }
+                // gets back the id of the internal report
+                val internalReportId = getSingleChildReportId(reportId)
+
+                val processResult = pollForProcessResult(internalReportId)
+                if (!examineProcessResponse(processResult))
+                    bad("***async $name  FAILED***: Process record null or invalid")
             }
 
             passed = passed and pollForLineageResults(

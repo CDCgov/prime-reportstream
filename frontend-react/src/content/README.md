@@ -4,9 +4,7 @@ Files in this directory should be imported by react. The result is that the file
 generates a unique filename for each "compile".
 
 ```javacript
-// @ts-ignore
 import live from "../../content/live.json";
-// @ts-ignore
 import usamapsvg from "../../../content/usa_w_territories.svg";
 ```
 

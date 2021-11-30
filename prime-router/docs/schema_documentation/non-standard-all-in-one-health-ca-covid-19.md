@@ -779,7 +779,7 @@ The ID number of the lab order from the placer
 
 **PII**: No
 
-**Default Value**: P
+**Default Value**: T
 
 **Cardinality**: [0..1]
 
@@ -849,7 +849,7 @@ The reporting facility's name
 
 **Default Value**: all-in-one-health-ca
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 

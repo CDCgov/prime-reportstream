@@ -153,9 +153,12 @@ class DataCompareTest : CoolTest() {
                     if (reportId != null) {
                         // if testing async, verify process result
                         if (options.asyncProcessMode) {
-                            val processResult = pollForProcessResult(reportId)
+                            // gets back the id of the internal report
+                            val internalReportId = getSingleChildReportId(reportId)
+
+                            val processResult = pollForProcessResult(internalReportId)
                             if (!examineProcessResponse(processResult))
-                                bad("***async $name FAILED***: Process record not found")
+                                bad("***async $name FAILED***: Process record null or invalid")
                         }
 
                         // Look at the lineage results

@@ -542,7 +542,10 @@ internal class ElementTests {
                 "g", Element.Type.TEXT, mapper = "concat(a,e,\$currentDate)", mapperRef = ConcatenateMapper(),
                 mapperArgs = listOf("a", "e", "\$currentDate"), mapperOverridesValue = true, default = "someDefault",
                 delimiter = "-"
-            )
+            ),
+            Element("h", Element.Type.TEXT, default = "someDefault", defaultOverridesValue = false), // 7
+            Element("i", Element.Type.TEXT, default = "someDefault", defaultOverridesValue = true), // 8
+            Element("j", Element.Type.TEXT, defaultOverridesValue = true), // 9   (null default)
         )
         val schema = Schema("one", "covid-19", elements)
         val currentDate = LocalDate.now().format(Element.dateFormatter)
@@ -553,7 +556,10 @@ internal class ElementTests {
             elements[3].name to "TEST3",
             elements[4].name to "TEST4",
             elements[5].name to "TEST-TEST4-1",
-            elements[6].name to "TEST-TEST4-$currentDate"
+            elements[6].name to "TEST-TEST4-$currentDate",
+            elements[7].name to "value",
+            elements[8].name to "value",
+            elements[9].name to "value",
         )
 
         // Element has value and mapperAlwaysRun is false, so we get the raw value
@@ -583,6 +589,18 @@ internal class ElementTests {
         // Element with $currentDate
         finalValue = elements[6].processValue(mappedValues, schema)
         assertThat(finalValue).isEqualTo("${mappedValues[elements[6].name]}")
+
+        // Default does not override
+        finalValue = elements[7].processValue(mappedValues, schema)
+        assertThat(finalValue).isEqualTo("${mappedValues[elements[7].name]}")
+
+        // Default forces override
+        finalValue = elements[8].processValue(mappedValues, schema)
+        assertThat(finalValue).isEqualTo("someDefault")
+
+        // Default forces override, and the default is null.
+        finalValue = elements[9].processValue(mappedValues, schema)
+        assertThat(finalValue).isEqualTo("")
     }
 
     @Test
@@ -638,5 +656,16 @@ internal class ElementTests {
         val elementNameNonValidToken = "\$nonValidToken:not valid"
         val elementAndValueNotValidToken = mockElement.tokenizeMapperValue(elementNameNonValidToken)
         assertThat(elementAndValueNotValidToken.value).isEqualTo("")
+
+        // sending in a "mode:literal" should return just the mode, which in this case is "literal"
+        val elementNameMode = "\$mode:literal"
+        val elementAndValueMode = mockElement.tokenizeMapperValue(elementNameMode)
+        assertThat(elementAndValueMode.value).isEqualTo("literal")
+
+        // sending in a "string:someDefaultString" should return just the string that needs to be the default value,
+        // which in this case is "someDefaultString"
+        val elementNameString = "\$string:someDefaultString"
+        val elementAndValueString = mockElement.tokenizeMapperValue(elementNameString)
+        assertThat(elementAndValueString.value).isEqualTo("someDefaultString")
     }
 }
