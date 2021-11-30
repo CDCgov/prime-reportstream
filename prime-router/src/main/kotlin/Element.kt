@@ -610,8 +610,6 @@ data class Element(
         return when (type) {
             Type.BLANK -> ""
             Type.DATE -> {
-                // Cleanup the Date in variable values
-                val cleanedDate = formattedValue.replace("-", "/")
 
                 val normalDate = try {
                     LocalDate.parse(formattedValue)
@@ -631,31 +629,25 @@ data class Element(
                     // the next five date validation patterns are valid date patterns that we have seen be
                     // manually entered into EMR systems, but are not consistent, so we cannot use the "format" param
                     ?: try {
-                        val formatter = DateTimeFormatter.ofPattern("M/d/yyyy", Locale.ENGLISH)
-                        LocalDate.parse(cleanedDate, formatter)
+                        // Cleanup the Date in variable values
+                        val cleanedDate = formattedValue.replace("-", "/")
+                        var formattedDate: LocalDate? = null
+                        val dateFormats =
+                            arrayOf("M/d/yyyy", "MMddyyyy", "yyyy/M/d", "M/d/yyyy HH:mm", "yyyy/M/d HH:mm")
+                        dateFormats.forEach { dateFormat ->
+                            try {
+                                val formatter = DateTimeFormatter.ofPattern(dateFormat, Locale.ENGLISH)
+                                formattedDate = LocalDate.parse(cleanedDate, formatter)
+                                // break out of the loop!
+                                return@forEach
+                            } catch (e: DateTimeParseException) {
+                                // continue to  the next try
+                            }
+                        }
+                        formattedDate
                     } catch (e: DateTimeParseException) {
                         null
                     } ?: try {
-                    val formatter = DateTimeFormatter.ofPattern("MMddyyyy", Locale.ENGLISH)
-                    LocalDate.parse(cleanedDate, formatter)
-                } catch (e: DateTimeParseException) {
-                    null
-                } ?: try {
-                    val formatter = DateTimeFormatter.ofPattern("yyyy/M/d", Locale.ENGLISH)
-                    LocalDate.parse(cleanedDate, formatter)
-                } catch (e: DateTimeParseException) {
-                    null
-                } ?: try {
-                    val formatter = DateTimeFormatter.ofPattern("M/d/yyyy HH:mm", Locale.ENGLISH)
-                    LocalDate.parse(cleanedDate, formatter)
-                } catch (e: DateTimeParseException) {
-                    null
-                } ?: try {
-                    val formatter = DateTimeFormatter.ofPattern("yyyy/M/d HH:mm", Locale.ENGLISH)
-                    LocalDate.parse(cleanedDate, formatter)
-                } catch (e: DateTimeParseException) {
-                    null
-                } ?: try {
                     val optionalDateTime = variableDateTimePattern
                     val df = DateTimeFormatter.ofPattern(optionalDateTime)
                     val ta = df.parseBest(
@@ -667,8 +659,8 @@ data class Element(
                     )
                     LocalDate.from(ta)
                 } catch (e: DateTimeParseException) {
-                    // if this value can be nullified because it is badly formatted, simply return a blank string
-                    if (nullifyValue!!) {
+                    // if this value can be nullified because it is badly formatted and optional, simply return a blank string
+                    if (nullifyValue) {
                         return ""
                     }
                     error("Invalid date: '$formattedValue' for element $fieldMapping")
