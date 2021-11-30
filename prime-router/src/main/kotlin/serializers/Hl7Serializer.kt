@@ -616,7 +616,7 @@ class Hl7Serializer(
         }
 
         // get sender id for the record
-        val senderID = report.getDeidentifiedResultMetaData()[row].senderId
+        val senderID = report.getString(row, "sender_id") ?: ""
 
         // loop through CLIA resets
         cliaForSender.forEach { (sender, clia) ->

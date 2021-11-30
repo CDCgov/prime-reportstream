@@ -8,6 +8,7 @@ import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.AS2TransportType
 import gov.cdc.prime.router.BlobStoreTransportType
 import gov.cdc.prime.router.FTPSTransportType
+import gov.cdc.prime.router.GAENTransportType
 import gov.cdc.prime.router.NullTransportType
 import gov.cdc.prime.router.RedoxTransportType
 import gov.cdc.prime.router.ReportId
@@ -112,6 +113,7 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
             is AS2TransportType -> workflowEngine.as2Transport
             is FTPSTransportType -> workflowEngine.ftpsTransport
             is SoapTransportType -> workflowEngine.soapTransport
+            is GAENTransportType -> workflowEngine.gaenTransport
             is NullTransportType -> NullTransport()
             else -> null
         }
@@ -128,7 +130,6 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
         return if (nextRetryItems.isEmpty()) {
             // All OK
             context.logger.info("Successfully sent report: $reportId to $serviceName")
-            // TODO: Next action should be WIPE when implemented
             ReportEvent(Event.EventAction.NONE, reportId)
         } else {
             val nextRetryCount = (retryToken?.retryCount ?: 0) + 1

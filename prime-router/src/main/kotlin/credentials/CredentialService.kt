@@ -40,4 +40,5 @@ enum class CredentialRequestReason {
     PERSIST_VERIFY,
     FTPS_UPLOAD,
     SOAP_UPLOAD,
+    GAEN_NOTIFICATION,
 }
