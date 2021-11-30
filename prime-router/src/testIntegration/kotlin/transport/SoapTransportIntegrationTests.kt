@@ -29,7 +29,7 @@ import java.util.logging.Logger
 import kotlin.test.Test
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class SoapTransportTests {
+class SoapTransportIntegrationTests {
     private val context = mockkClass(ExecutionContext::class)
     private val metadata = Metadata.getInstance()
     private val settings = FileSettings(FileSettings.defaultSettingsDirectory)
