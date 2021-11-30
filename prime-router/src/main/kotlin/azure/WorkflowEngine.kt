@@ -27,10 +27,12 @@ import gov.cdc.prime.router.serializers.RedoxSerializer
 import gov.cdc.prime.router.transport.AS2Transport
 import gov.cdc.prime.router.transport.BlobStoreTransport
 import gov.cdc.prime.router.transport.FTPSTransport
+import gov.cdc.prime.router.transport.GAENTransport
 import gov.cdc.prime.router.transport.RedoxTransport
 import gov.cdc.prime.router.transport.RetryItems
 import gov.cdc.prime.router.transport.RetryToken
 import gov.cdc.prime.router.transport.SftpTransport
+import gov.cdc.prime.router.transport.SoapTransport
 import org.jooq.Configuration
 import org.jooq.Field
 import java.io.ByteArrayInputStream
@@ -60,6 +62,8 @@ class WorkflowEngine(
     val redoxTransport: RedoxTransport = RedoxTransport(),
     val as2Transport: AS2Transport = AS2Transport(),
     val ftpsTransport: FTPSTransport = FTPSTransport(),
+    val soapTransport: SoapTransport = SoapTransport(),
+    val gaenTransport: GAENTransport = GAENTransport()
 ) {
     init {
         // Load any updates to the database lookup tables.
@@ -376,7 +380,7 @@ class WorkflowEngine(
                 this.dispatchReport(event, batchReport, actionHistory, receiver, txn, context)
                 loggerMsg = "Queue: ${event.toQueueMessage()}"
             }
-            receiver.format == Report.Format.HL7 -> {
+            receiver.format.isSingleItemFormat -> {
                 report.filteredItems.forEach {
                     val emptyReport = Report(
                         report.schema,
@@ -545,7 +549,7 @@ class WorkflowEngine(
         val bytes = blob.downloadBlob(header.task.bodyUrl)
         return when (header.task.bodyFormat) {
             // TODO after the CSV internal format is flushed from the system, this code will be safe to remove
-            "CSV" -> {
+            "CSV", "CSV_SINGLE" -> {
                 val result = csvSerializer.readExternal(
                     schema.name,
                     ByteArrayInputStream(bytes),
