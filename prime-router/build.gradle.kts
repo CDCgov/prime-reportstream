@@ -33,7 +33,7 @@ plugins {
     id("com.github.johnrengelman.shadow") version "7.1.0"
     id("com.microsoft.azure.azurefunctions") version "1.8.1"
     id("org.jlleitschuh.gradle.ktlint") version "10.2.0"
-    id("com.adarshr.test-logger") version "3.0.0"
+    id("com.adarshr.test-logger") version "3.1.0"
     id("jacoco")
 }
 
@@ -623,7 +623,7 @@ dependencies {
     implementation("commons-io:commons-io:2.11.0")
     implementation("org.postgresql:postgresql:42.3.0")
     implementation("com.zaxxer:HikariCP:5.0.0")
-    implementation("org.flywaydb:flyway-core:8.0.4")
+    implementation("org.flywaydb:flyway-core:8.2.0")
     implementation("com.github.kayr:fuzzy-csv:1.7.2")
     implementation("org.commonmark:commonmark:0.18.0")
     implementation("com.google.guava:guava:31.0.1-jre")
