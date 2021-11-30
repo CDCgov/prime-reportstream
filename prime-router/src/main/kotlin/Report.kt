@@ -91,9 +91,10 @@ class Report : Logging {
     ) {
         INTERNAL("internal.csv", "text/csv"), // A format that serializes all elements of a Report.kt (in CSV)
         CSV("csv", "text/csv"), // A CSV format the follows the csvFields
+        CSV_SINGLE("csv", "text/csv", true),
         HL7("hl7", "application/hl7-v2", true), // HL7 with one result per file
         HL7_BATCH("hl7", "application/hl7-v2"), // HL7 with BHS and FHS headers
-        REDOX("redox", "text/json", true); // Redox format
+        REDOX("redox", "text/json", false); // Redox format contains multiple results (NDJSON)
         // FHIR
 
         companion object {
@@ -111,11 +112,7 @@ class Report : Logging {
     /**
      * the UUID for the report
      */
-    // TODO: Tech Debt - Made this var instead of val so we can update the report ID after creation in the async process
-    //  functionality. There is a way to do it as a passed in variable, but the way we create reports via parsing
-    //  contentBody does not lend itself to that way of doing it. Once we are storing a report in internal format
-    //  as part of initial ingest, this should be changed back to val - CD 11/08/2021
-    var id: ReportId
+    val id: ReportId
 
     /**
      * The schema of the data in the report

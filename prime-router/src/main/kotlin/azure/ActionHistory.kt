@@ -359,6 +359,31 @@ class ActionHistory {
         trackEvent(event) // to be sent to queue later.
     }
 
+    fun trackCreatedReport(
+        event: Event,
+        report: Report,
+        blobInfo: BlobAccess.BlobInfo
+    ) {
+        if (isReportAlreadyTracked(report.id)) {
+            error("Bug:  attempt to track history of a report ($report.id) we've already associated with this action")
+        }
+
+        val reportFile = ReportFile()
+        reportFile.reportId = report.id
+        reportFile.nextAction = event.eventAction.toTaskAction()
+        reportFile.nextActionAt = event.at
+        reportFile.schemaName = report.schema.name
+        reportFile.schemaTopic = report.schema.topic
+        reportFile.bodyUrl = blobInfo.blobUrl
+        reportFile.bodyFormat = blobInfo.format.toString()
+        reportFile.blobDigest = blobInfo.digest
+        reportFile.itemCount = report.itemCount
+        reportsOut[reportFile.reportId] = reportFile
+        filteredReportRows[reportFile.reportId] = report.filteredItems
+        trackItemLineages(report)
+        trackEvent(event) // to be sent to queue later.
+    }
+
     fun trackSentReport(
         receiver: Receiver,
         sentReportId: ReportId,
@@ -599,34 +624,20 @@ class ActionHistory {
     ) {
         var destinationCounter = 0
         jsonGen.writeArrayFieldStart("destinations")
-        if (filteredOutReports.isNotEmpty()) {
-            filteredOutReports.forEach { (reportId, reportFile) ->
-                val fullname = reportFile.receivingOrg + "." + reportFile.receivingOrgSvc
-                val (organization, orgReceiver) = settings.findOrganizationAndReceiver(fullname) ?: return@forEach
+        val reports = reportsOut + filteredOutReports
+        if (reports.isNotEmpty()) {
+            val destinations = reports.map { (_, reportFile) ->
+                reportFile
+            }.groupBy({ it.receivingOrg + "." + it.receivingOrgSvc }, { it })
+
+            destinations.forEach { (destination, reportFiles) ->
+                val (organization, orgReceiver) = settings.findOrganizationAndReceiver(destination) ?: return@forEach
                 prettyPrintDestinationJson(
                     jsonGen,
                     orgReceiver,
                     organization,
-                    reportFile.nextActionAt,
-                    reportFile.itemCount,
+                    reportFiles,
                     reportOptions,
-                    reportId
-                )
-                destinationCounter++
-            }
-        }
-        if (reportsOut.isNotEmpty()) {
-            reportsOut.forEach { (reportId, reportFile) ->
-                val fullname = reportFile.receivingOrg + "." + reportFile.receivingOrgSvc
-                val (organization, orgReceiver) = settings.findOrganizationAndReceiver(fullname) ?: return@forEach
-                prettyPrintDestinationJson(
-                    jsonGen,
-                    orgReceiver,
-                    organization,
-                    reportFile.nextActionAt,
-                    reportFile.itemCount,
-                    reportOptions,
-                    reportId
                 )
                 destinationCounter++
             }
@@ -639,10 +650,8 @@ class ActionHistory {
         jsonGen: JsonGenerator,
         orgReceiver: Receiver,
         organization: Organization,
-        sendingAt: OffsetDateTime?,
-        countToPrint: Int,
+        reportFiles: List<ReportFile>,
         reportOptions: Options,
-        reportId: ReportId
     ) {
         jsonGen.writeStartObject()
         // jsonGen.writeStringField("id", reportFile.reportId.toString())   // TMI?
@@ -650,28 +659,39 @@ class ActionHistory {
         jsonGen.writeStringField("organization_id", orgReceiver.organizationName)
         jsonGen.writeStringField("service", orgReceiver.name)
 
-        if (!filteredReportRows.getOrDefault(reportId, emptyList()).isEmpty()) {
-            jsonGen.writeArrayFieldStart("filteredReportRows")
-            filteredReportRows.getValue(reportId).forEach {
-                jsonGen.writeString(it.toString())
-            }
-            jsonGen.writeEndArray()
-        }
+        var sendingAt = "immediately"
+        var countToPrint = 0
+        reportFiles.forEach { reportFile ->
 
-        jsonGen.writeStringField(
-            "sending_at",
-            when {
+            if (!filteredReportRows.getOrDefault(reportFile.reportId, emptyList()).isEmpty()) {
+                jsonGen.writeArrayFieldStart("filteredReportRows")
+                filteredReportRows.getValue(reportFile.reportId).forEach {
+                    jsonGen.writeString(it.toString())
+                }
+                jsonGen.writeEndArray()
+            }
+
+            sendingAt = when {
                 reportOptions == Options.SkipSend -> {
                     "never - skipSend specified"
                 }
+                reportFile.nextActionAt != null -> {
+                    "${reportFile.nextActionAt}"
+                }
+                else -> {
+                    sendingAt
+                }
+            }
+            countToPrint += reportFile.itemCount
+        }
+        jsonGen.writeStringField(
+            "sending_at",
+            when {
                 countToPrint == 0 -> {
                     "never - all items filtered out"
                 }
-                sendingAt == null -> {
-                    "immediately"
-                }
                 else -> {
-                    "$sendingAt"
+                    sendingAt
                 }
             }
         )

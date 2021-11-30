@@ -147,12 +147,7 @@ class AS2Transport(val metadata: Metadata? = null) : ITransport, Logging {
      * From the credential service get a JKS for [receiverFullName].
      */
     internal fun lookupCredentials(receiverFullName: String): UserJksCredential {
-        // Covert to the upper case naming convention of the Client KeyVault
-        val credentialLabel = receiverFullName
-            .replace(".", "--")
-            .replace("_", "-")
-            .uppercase()
-
+        val credentialLabel = CredentialHelper.formCredentialLabel(fromReceiverName = receiverFullName)
         return CredentialHelper.getCredentialService().fetchCredential(
             credentialLabel, "AS2Transport", CredentialRequestReason.AS2_UPLOAD
         ) as? UserJksCredential?

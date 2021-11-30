@@ -971,7 +971,7 @@ Facility populates multiple fields.  This instance populates reporting_facility_
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 

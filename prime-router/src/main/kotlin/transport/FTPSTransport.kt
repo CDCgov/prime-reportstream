@@ -56,11 +56,10 @@ class FTPSTransport : ITransport, Logging {
             )
 
             context.logger.info("Successfully connected to $ftpsTransportType, ready to upload $fileName")
-            var msg: String
-            if (uploadFile(ftpsClient, fileName, header.content)) {
-                msg = "Success: FTPS upload of $fileName to $ftpsTransportType"
+            val msg = if (uploadFile(ftpsClient, fileName, header.content)) {
+                "Success: FTPS upload of $fileName to $ftpsTransportType"
             } else {
-                msg = "Failure: FTPS upload of $fileName to $ftpsTransportType failed"
+                "Failure: FTPS upload of $fileName to $ftpsTransportType failed"
             }
             context.logger.info(msg)
             actionHistory.trackActionResult(msg)
@@ -90,14 +89,11 @@ class FTPSTransport : ITransport, Logging {
     companion object {
         // TODO - this needs an FTPSCredential once its known what that entails
         fun lookupCredentials(receiverFullName: String): SftpCredential {
-            val credentialLabel = receiverFullName
-                .replace(".", "--")
-                .replace("_", "-")
-                .uppercase()
+            val credentialLabel = CredentialHelper.formCredentialLabel(fromReceiverName = receiverFullName)
 
             // Assumes credential will be cast as SftpCredential, if not return null, and thus the error case
             return CredentialHelper.getCredentialService().fetchCredential(
-                credentialLabel, "FtpsTrasnport", CredentialRequestReason.FTPS_UPLOAD
+                credentialLabel, "FtpsTransport", CredentialRequestReason.FTPS_UPLOAD
             ) as? SftpCredential?
                 ?: error("Unable to find FTPS credentials for $receiverFullName connectionId($credentialLabel)")
         }

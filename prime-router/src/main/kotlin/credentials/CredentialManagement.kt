@@ -6,6 +6,13 @@ class CredentialHelper() {
         fun getCredentialService(): CredentialService {
             return credentialServiceForStorageMethod()
         }
+
+        fun formCredentialLabel(fromReceiverName: String): String {
+            return fromReceiverName
+                .replace(".", "--")
+                .replace("_", "-")
+                .uppercase()
+        }
     }
 }
 
