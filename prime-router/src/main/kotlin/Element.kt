@@ -656,6 +656,10 @@ data class Element(
                     parsedValue
                 } catch (e: DateTimeParseException) {
                     error("Invalid date: '$formattedValue' for element $fieldMapping")
+                } catch (e: DateTimeException) {
+                    // this shouldn't ever really happen because we can always extract local date from a date time
+                    // but it's better to be more secure and transparent
+                    error("Unable to parse '$formattedValue' for element $fieldMapping because it was the wrong type.")
                 }
                 normalDateTime.format(datetimeFormatter)
             }

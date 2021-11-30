@@ -97,11 +97,8 @@ class SoapTransport(private val httpClient: HttpClient? = null) : ITransport {
             }
             // get the response object
             val body: String = response.receive()
-            context.logger.info(response.toString())
-            // log the response body
-            context.logger.info(prettyPrintXmlResponse(body))
             // return just the body of the message
-            return body
+            return prettyPrintXmlResponse(body)
         }
     }
 
