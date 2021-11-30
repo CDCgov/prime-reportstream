@@ -1,11 +1,9 @@
 package gov.cdc.prime.router.azure
 
-import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import gov.cdc.prime.router.ActionResponse
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.SubmissionHistory
 import java.time.OffsetDateTime
@@ -41,10 +39,10 @@ class SubmissionsFacade(
     fun findSubmissionsAsJson(
         organizationName: String,
         sortOrder: String,
-        resultsAfterDate: String,
+        offset: OffsetDateTime?,
         pageSize: Int
     ): String {
-        val result = findSubmissions(organizationName, sortOrder, resultsAfterDate, pageSize)
+        val result = findSubmissions(organizationName, sortOrder, offset, pageSize)
         return mapper.writeValueAsString(result)
     }
 
@@ -59,28 +57,24 @@ class SubmissionsFacade(
     private fun findSubmissions(
         organizationName: String,
         sortOrder: String,
-        resultsAfterDate: String,
+        offset: OffsetDateTime?,
         pageSize: Int,
-    ): List<SubmissionHistorySerializer> {
-        // TODO: VERIFY sendingOrg is being populated from the claim on Staging
-        val actions = db.fetchActions(organizationName, sortOrder, resultsAfterDate, pageSize)
-
-        return actions.map {
-            val actionResponse = it.actionResponse?.let { ar ->
-                mapper.readValue(
-                    ar.toString(),
-                    ActionResponseColumnSerializer::class.java
-                )
-            }
-            val result = SubmissionHistorySerializer(
-                it.actionId,
-                it.createdAt,
-                it.sendingOrg,
-                it.httpStatus,
-                actionResponse
-            )
-            result
+    ): List<SubmissionHistory> {
+        require(!organizationName.isNullOrBlank()) {
+            "Invalid organization."
         }
+        require(pageSize > 0) {
+            "pageSize must be a positive integer."
+        }
+        // TODO: VERIFY sendingOrg is being populated from the claim on Staging
+        val submissions = db.fetchActions(
+            organizationName,
+            sortOrder == "ASC",
+            offset,
+            pageSize,
+            SubmissionHistory::class.java
+        )
+        return submissions
     }
 
     companion object {
@@ -95,43 +89,4 @@ class SubmissionsFacade(
             SubmissionsFacade(DatabaseSubmissionsAccess())
         }
     }
-
-    /*
-     * Classes for JSON serialization
-     */
-
-    // TODO: see Github Issue #2314 for expected filename field
-    private class SubmissionHistorySerializer
-    @JsonCreator constructor(
-        actionId: Long,
-        createdAt: OffsetDateTime,
-        sendingOrg: String,
-        httpStatus: Int,
-        actionResponse: ActionResponseColumnSerializer?
-    ) : SubmissionHistory(
-        actionId,
-        createdAt,
-        sendingOrg,
-        httpStatus,
-        actionResponse?.id,
-        actionResponse?.topic,
-        actionResponse?.reportItemCount,
-        actionResponse?.warningCount,
-        actionResponse?.errorCount,
-    )
-
-    private class ActionResponseColumnSerializer
-    @JsonCreator constructor(
-        id: String?,
-        topic: String?,
-        reportItemCount: Int?,
-        warningCount: Int?,
-        errorCount: Int?,
-    ) : ActionResponse(
-        id,
-        topic,
-        reportItemCount,
-        warningCount,
-        errorCount,
-    )
 }

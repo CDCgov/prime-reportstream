@@ -2,7 +2,6 @@ package gov.cdc.prime.router.azure
 
 import gov.cdc.prime.router.azure.db.Tables.ACTION
 import gov.cdc.prime.router.azure.db.enums.TaskAction
-import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import org.jooq.impl.DSL
 import java.time.OffsetDateTime
 
@@ -18,37 +17,29 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = DatabaseAccess(
      * @param limit is an Integer used for setting the number of results per page.
      * @return a list of results matching the SQL Query.
      */
-    fun fetchActions(
+    fun <T> fetchActions(
         sendingOrg: String,
-        sortOrder: String,
-        resultsAfterDate: String,
-        limit: Int,
-    ): List<Action> {
-        var actions = emptyList<Action>()
+        orderAscending: Boolean = false,
+        resultsAfterDate: OffsetDateTime? = null,
+        limit: Int = 10,
+        klass: Class<T>
+    ): List<T> {
+        var results: List<T> = emptyList()
 
-        val sorted = if (sortOrder == "ASC") ACTION.CREATED_AT.asc() else ACTION.CREATED_AT.desc()
+        val sorted = if (orderAscending) ACTION.CREATED_AT.asc() else ACTION.CREATED_AT.desc()
 
-        if (!resultsAfterDate.isNullOrEmpty()) {
-            db.transact { txn ->
-                actions = DSL.using(txn)
-                    .selectFrom(ACTION)
-                    .where(ACTION.ACTION_NAME.eq(TaskAction.receive).and(ACTION.SENDING_ORG.eq(sendingOrg)))
-                    .orderBy(sorted)
-                    .seek(OffsetDateTime.parse(resultsAfterDate))
-                    .limit(limit)
-                    .fetchInto(Action::class.java)
+        db.transact { txn ->
+            val query = DSL.using(txn)
+                .selectFrom(ACTION)
+                .where(ACTION.ACTION_NAME.eq(TaskAction.receive).and(ACTION.SENDING_ORG.eq(sendingOrg)))
+                .orderBy(sorted)
+            if (resultsAfterDate != null) {
+                query.seek(resultsAfterDate)
             }
-        } else {
-            db.transact { txn ->
-                actions = DSL.using(txn)
-                    .selectFrom(ACTION)
-                    .where(ACTION.ACTION_NAME.eq(TaskAction.receive).and(ACTION.SENDING_ORG.eq(sendingOrg)))
-                    .orderBy(sorted)
-                    .limit(limit)
-                    .fetchInto(Action::class.java)
-            }
+            results = query.limit(limit)
+                .fetchInto(klass)
         }
 
-        return actions
+        return results
     }
 }

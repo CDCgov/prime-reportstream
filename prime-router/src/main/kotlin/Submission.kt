@@ -1,5 +1,10 @@
 package gov.cdc.prime.router
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.annotation.JsonUnwrapped
+import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import java.time.OffsetDateTime
 
 /**
@@ -20,30 +25,19 @@ import java.time.OffsetDateTime
  * TODO: see Github Issues #2314 for expected filename field
  */
 
-open class SubmissionHistory(
-    val taskId: Long,
+// Ignoring unknown properties because we don't require them. -DK
+val mapper = jacksonObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class SubmissionHistory(
+    @JsonProperty("taskId")
+    val actionId: Long,
     val createdAt: OffsetDateTime,
     val sendingOrg: String,
     val httpStatus: Int,
-    val id: String?,
-    val topic: String?,
-    val reportItemCount: Int?,
-    val warningCount: Int?,
-    val errorCount: Int?,
-) {
-    constructor(copy: SubmissionHistory) : this(
-        copy.taskId,
-        copy.createdAt,
-        copy.sendingOrg,
-        copy.httpStatus,
-        copy.id,
-        copy.topic,
-        copy.reportItemCount,
-        copy.warningCount,
-        copy.errorCount,
-
-    )
-}
+    @JsonUnwrapped
+    val actionResponse: ActionResponse,
+)
 
 /**
  * An `ActionResponse` represents the required information from the `action.action_reponse` column for one submission of a message from a sender.
@@ -55,18 +49,11 @@ open class SubmissionHistory(
  * @param errorCount of the Submission is `action_response.errorCount` from the table `public.action`
  */
 
-open class ActionResponse(
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class ActionResponse(
     val id: String?,
     val topic: String?,
     val reportItemCount: Int?,
     val warningCount: Int?,
     val errorCount: Int?,
-) {
-    constructor(copy: ActionResponse) : this(
-        copy.id,
-        copy.topic,
-        copy.reportItemCount,
-        copy.warningCount,
-        copy.errorCount,
-    )
-}
+)

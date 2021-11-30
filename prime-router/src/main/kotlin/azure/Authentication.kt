@@ -54,7 +54,7 @@ class TestAuthenticationVerifier : AuthenticationVerifier {
         organizationName: String?,
         oktaSender: Boolean
     ): AuthenticatedClaims {
-        val claims: Map<String, Any> = mapOf("organization" to "simple_report")
+        val claims: Map<String, Any> = mapOf("organization" to listOf("${oktaSenderGroupPrefix}simple_report"))
         return AuthenticatedClaims("local@test.com", minimumLevel, organizationName, claims)
     }
 }
