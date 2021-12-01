@@ -175,6 +175,11 @@ jobs:
         if: ${{ steps.check_changes.outcome == 'failure' }}
         run: |
           false
+          
+      - name: Dump docker logs
+        uses: jwalton/gh-docker-logs@v1
+        with:
+          images: 'prime_dev,settings,vault'
 
   docker_build_test:
     name: Testing Docker Build
