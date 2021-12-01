@@ -178,7 +178,7 @@ jobs:
           false
           
       - name: Dump docker logs
-        if: ${{ steps.spin_containers.outcome == 'success' }}
+        if: always()
         uses: jwalton/gh-docker-logs@v1
         with:
           images: 'prime_dev,settings,vault'
