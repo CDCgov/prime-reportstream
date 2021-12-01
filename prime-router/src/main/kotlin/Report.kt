@@ -410,7 +410,8 @@ class Report : Logging {
             filteredTable,
             fromThisReport("filter: $filterFunctions")
         )
-        filteredReport.filteredItems.addAll(filteredRows)
+        filteredReport.filteredItems.addAll(this.filteredItems) // copy any ReportStreamFilterResults from prev filters
+        filteredReport.filteredItems.addAll(filteredRows) // and add any new ReportStreamFilterResults just created.
         filteredReport.itemLineages = createItemLineages(finalCombinedSelection, this, filteredReport)
         return filteredReport
     }
