@@ -63,7 +63,8 @@
         "lint:prettier": "prettier --check 'src/**/*.{js,ts,jsx,tsx}'",
         "lint:prettier:write": "prettier --write 'src/**/*.{js,ts,jsx,tsx}'",
         "cypress-open": "./node_modules/.bin/cypress open",
-        "cypress-run": "./node_modules/.bin/cypress run"
+        "cypress-run": "./node_modules/.bin/cypress run",
+        "yarn:show-outdated-packages": "yarn outdated"
     },
     "eslintConfig": {
         "extends": [
