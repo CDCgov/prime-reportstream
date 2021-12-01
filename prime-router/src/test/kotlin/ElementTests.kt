@@ -17,7 +17,7 @@ import java.time.format.DateTimeFormatter
 import kotlin.test.Test
 import kotlin.test.assertFails
 
-private const val yyyyMMddStrg = "yyyy-MM-dd"
+private const val dateFormat = "yyyy-MM-dd"
 
 internal class ElementTests {
 
@@ -115,7 +115,7 @@ internal class ElementTests {
             "a",
             type = Element.Type.DATETIME,
         )
-        three.toNormalized("2020-12-09", yyyyMMddStrg).run {
+        three.toNormalized("2020-12-09", dateFormat).run {
             assertThat(this).isEqualTo("202012090000$offset")
         }
         mapOf(
@@ -149,7 +149,7 @@ internal class ElementTests {
             type = Element.Type.DATETIME,
         )
         // Other formats should work too, including sans the time.
-        two.toFormatted("202012090000+0000", yyyyMMddStrg).run {
+        two.toFormatted("202012090000+0000", dateFormat).run {
             assertThat(this).isEqualTo("2020-12-09")
         }
     }
@@ -161,7 +161,7 @@ internal class ElementTests {
             type = Element.Type.DATE,
         )
         // Check correct formats should work too, including sans the time.
-        two.toFormatted("20201201", yyyyMMddStrg).run {
+        two.toFormatted("20201201", dateFormat).run {
             assertThat(this).isEqualTo("2020-12-01")
         }
         // Check another correct format and expect to return only date.
@@ -169,7 +169,7 @@ internal class ElementTests {
             assertThat(this).isEqualTo("12/2/2020")
         }
         // Given datetime format and expect to return only date.
-        two.toFormatted("20201203", "$yyyyMMddStrg HH:mm:ss").run {
+        two.toFormatted("20201203", "$dateFormat HH:mm:ss").run {
             assertThat(this).isEqualTo("2020-12-03")
         }
     }
