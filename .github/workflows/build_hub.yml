@@ -89,11 +89,13 @@ jobs:
       - name: Spin up containers
         run: |
           docker-compose -f docker-compose.yml up -d prime_dev redox ftps sftp azurite settings
-        
-      - name: Load Lookup Tables
-        run: ./gradlew reloadTables
+          
+      - name: Let the containers start
+        uses: juliangruber/sleep-action@v1
+        with:
+          time: 10s
 
-        # Integrations tests requires the metadata catalog to be available
+        # Integrations tests require the metadata catalog
       - name: Run Integration Tests
         run: ./gradlew testIntegration -Pshowtests
 
@@ -231,7 +233,7 @@ jobs:
         working-directory: prime-router
         
     steps:
-    - name: Deprecated step always succeeds
+      - name: Deprecated step always succeeds
         run: |
           true
 

@@ -204,7 +204,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
             'USER" to dbUser,',
             'user\)\.isEqualTo\("user"',
             'userAgent',
-			'UserApiKeyCredential\("rick"',
+            'UserApiKeyCredential\("rick"',
             'val (user|password)Variable = \"POSTGRES_(USER|PASSWORD)\"$',                  # Literal value
             'val exampleKeyId = "',
             'val key = \"(ohio|aphl(_light)?|as2ohp)\"',                                    # not really secrets
