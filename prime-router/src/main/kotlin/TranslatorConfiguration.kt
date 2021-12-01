@@ -87,6 +87,12 @@ data class Hl7Configuration
     val replaceDiiWithOid: Boolean? = null,
     // Specify how
     val useOrderingFacilityName: OrderingFacilityName = OrderingFacilityName.STANDARD,
+    // we will now play that funky music that will drive us til the dawn
+    //
+    // is this hidden magic? I don't think so. I've moved the ability to override a valueset
+    // to the translation config, and therefore we can say that for a specific receiver, use
+    // the following alternate values instead of the regular ones
+    val valueSetOverrides: Map<String, ValueSet>? = emptyMap(),
     override val nameFormat: String = "standard",
     override val receivingOrganization: String?,
 ) : TranslatorConfiguration("HL7") {
