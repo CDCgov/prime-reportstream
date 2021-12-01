@@ -3,6 +3,7 @@
     "version": "0.1.0",
     "private": true,
     "npmClient": "yarn",
+    "proxy": "http://localhost:7071",
     "dependencies": {
         "@craco/craco": "^6.4.2",
         "@fortawesome/fontawesome-svg-core": "^1.2.36",

@@ -111,24 +111,48 @@ Another test that is run is the integration test.
 gradle testIntegration
 ```
 
-### Step 6 - Build Frontend
+### Step 6 - Build Front-end
 
-You should be able to build the frontend locally per the [ReadMe](../frontend/readme.md) of the frontend project. 
-Be sure to the have the ReportStream function running per previous steps. 
-
+Our new React front-end is easy to get up and running on your machine. First, ensure the following dependencies
+installed:
+- `node` (version 14.x)
+- `yarn` package manager
 ```bash
-cd ./frontend/
-npm ci
-npm run build
+brew install node@14
+# Follow the instructions at the end of the brew installation process
+# and use the following command to ensure node is working.
+node -v # v14.X.X
+npm -v # v6.X.X
 
-# static site root built in `frontend/dist`
-ls ./dist
+npm install --global yarn
 ```
 
-### Step 7 - Test Frontend
+#### Serving
 
-Navigate to `http://localhost:8090/index.html`. 
-You should be able to login and exercise the UI. 
+Now you have the tools necessary to run the front-end application. Navigate into the `frontend-react` folder
+and use `yarn` to serve it on `localhost:3000`
+
+```bash
+cd ../front-end-react
+yarn
+yarn start
+```
+
+#### Refreshing
+
+The front-end application will run until you `Ctrl + C` to end the process in your terminal. Updates to the front-end
+render when a file's changes are saved, eliminating the need to rebuild and serve the project!
+
+### Step 7 - Test Front-end
+
+If the window hasn't automatically opened, navigate to `http://localhost:3000`.
+You should be able to login and utilize the interface. To ensure the front-end is talking to the `prime-router` application,
+log in and access `localhost:3000/daily-data`. Observe your network calls through your browser's dev tools, checking
+for any error status codes.
+
+### More Info
+
+For more information on the front-end React app, head to the front-end [README](../../../frontend-react/README.md)
 
 ## Next Steps
 
@@ -232,5 +256,16 @@ A warning that is common is an orphan container warning.
 WARNING: Found orphan containers (prime-router_postgresql_1) for this project.
 ```
 This is a benign warning caused by running Postgres in different `docker-compose` script. 
+
+### IntelliJ IDEA can't find Node in $PATH
+
+If you're using `brew` to install `node` and using IntelliJ products, you may see an error when attempting to
+auto-detect `node` in your PATH variable. Open Preferences and navigate to Node.js and NPM under Languages & Frameworks.
+Point the Node interpreter to your Homebrew installation path
+
+ex: `/opt/homebrew/opt/node@14/bin/node`
+
+This should simultaneously solve the Node interpreter and Package manager errors and display proper version numbers for
+`npm` and `yarn` on the list of package managers.
 
 
