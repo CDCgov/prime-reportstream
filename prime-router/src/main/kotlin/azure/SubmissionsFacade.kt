@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.SubmissionHistory
 import java.time.OffsetDateTime
 
@@ -13,7 +12,7 @@ import java.time.OffsetDateTime
  * Contains all business logic regarding submissions and JSON serialization.
  */
 class SubmissionsFacade(
-    private val db: DatabaseSubmissionsAccess = DatabaseSubmissionsAccess()
+    private val db: SubmissionAccess = DatabaseSubmissionsAccess()
 ) {
 
     // Ignoring unknown properties because we don't require them. -DK
@@ -66,7 +65,7 @@ class SubmissionsFacade(
         require(pageSize > 0) {
             "pageSize must be a positive integer."
         }
-        // TODO: VERIFY sendingOrg is being populated from the claim on Staging
+
         val submissions = db.fetchActions(
             organizationName,
             sortOrder == "ASC",
@@ -78,11 +77,6 @@ class SubmissionsFacade(
     }
 
     companion object {
-        // TODO: Update to new Metadata singleton introduced by Carlos
-        val metadata: Metadata by lazy {
-            val baseDir = System.getenv("AzureWebJobsScriptRoot")
-            Metadata("$baseDir/metadata")
-        }
 
         // The SubmissionFacade is heavy-weight object (because it contains a Jackson Mapper) so reuse it when possible
         val common: SubmissionsFacade by lazy {

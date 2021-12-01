@@ -3,8 +3,6 @@ package gov.cdc.prime.router
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonUnwrapped
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import java.time.OffsetDateTime
 
 /**
@@ -25,19 +23,18 @@ import java.time.OffsetDateTime
  * TODO: see Github Issues #2314 for expected filename field
  */
 
-// Ignoring unknown properties because we don't require them. -DK
-val mapper = jacksonObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class SubmissionHistory(
+class SubmissionHistory(
     @JsonProperty("taskId")
     val actionId: Long,
     val createdAt: OffsetDateTime,
     val sendingOrg: String,
     val httpStatus: Int,
+    actionResponse: ActionResponse,
+) {
     @JsonUnwrapped
-    val actionResponse: ActionResponse,
-)
+    val actionReponse = actionResponse
+}
 
 /**
  * An `ActionResponse` represents the required information from the `action.action_reponse` column for one submission of a message from a sender.

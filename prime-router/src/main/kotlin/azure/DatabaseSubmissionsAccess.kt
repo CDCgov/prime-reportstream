@@ -5,10 +5,19 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import org.jooq.impl.DSL
 import java.time.OffsetDateTime
 
+interface SubmissionAccess {
+    fun <T> fetchActions(
+        sendingOrg: String,
+        orderAscending: Boolean = false,
+        resultsAfterDate: OffsetDateTime? = null,
+        limit: Int = 10,
+        klass: Class<T>
+    ): List<T>
+}
 /**
  * Class to access lookup tables stored in the database.
  */
-class DatabaseSubmissionsAccess(private val db: DatabaseAccess = DatabaseAccess()) {
+class DatabaseSubmissionsAccess(private val db: DatabaseAccess = DatabaseAccess()) : SubmissionAccess {
 
     /**
      * @param sendingOrg is the Organization Name returned from the Okta JWT Claim.
@@ -17,11 +26,11 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = DatabaseAccess(
      * @param limit is an Integer used for setting the number of results per page.
      * @return a list of results matching the SQL Query.
      */
-    fun <T> fetchActions(
+    override fun <T> fetchActions(
         sendingOrg: String,
-        orderAscending: Boolean = false,
-        resultsAfterDate: OffsetDateTime? = null,
-        limit: Int = 10,
+        orderAscending: Boolean,
+        resultsAfterDate: OffsetDateTime?,
+        limit: Int,
         klass: Class<T>
     ): List<T> {
         var results: List<T> = emptyList()
