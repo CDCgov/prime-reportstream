@@ -30,6 +30,7 @@ import gov.cdc.prime.router.TestSource
 import gov.cdc.prime.router.Translator
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.spyk
 import io.mockk.verify
 import org.junit.jupiter.api.TestInstance
 import java.io.ByteArrayInputStream
@@ -688,17 +689,37 @@ NTE|1|L|This is a final comment|RE"""
     fun `test setCliaComponents`() {
         val settings = FileSettings("./settings")
         val serializer = Hl7Serializer(metadata, settings)
-        val mockTerser = mockk<Terser>()
-        every { mockTerser.set(any(), any()) } returns Unit
+        val terser = spyk(emptyTerser)
+        every { terser.set(any(), any()) } returns Unit
 
         serializer.setCliaComponent(
-            mockTerser,
+            terser,
             "XYZ",
             "OBX-23-10"
         )
 
         verify {
-            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-23-10", "XYZ")
+            terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-23-10", "XYZ")
+        }
+    }
+
+    @Test
+    fun `test setCliaComponents truncation`() {
+        val settings = FileSettings("./settings")
+        val serializer = Hl7Serializer(metadata, settings)
+
+        val terser = spyk(emptyTerser)
+        every { terser.set(any(), any()) } returns Unit
+
+        // The OBX-23-10 length is 20
+        serializer.setCliaComponent(
+            terser,
+            "012345678901234567890123456789",
+            "OBX-23-10"
+        )
+
+        verify {
+            terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-23-10", "01234567890123456789")
         }
     }
 
@@ -706,20 +727,20 @@ NTE|1|L|This is a final comment|RE"""
     fun `test setCliaComponents in HD`() {
         val settings = FileSettings("./settings")
         val serializer = Hl7Serializer(metadata, settings)
-        val mockTerser = mockk<Terser>()
-        every { mockTerser.set(any(), any()) } returns Unit
+        val terser = spyk(emptyTerser)
+        every { terser.set(any(), any()) } returns Unit
         val hl7Field = "ORC-3-3"
         val value = "dummy"
 
         serializer.setCliaComponent(
-            mockTerser,
+            terser,
             value,
             hl7Field
         )
 
         verify {
-            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-3-3", value)
-            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-3-4", "CLIA")
+            terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-3-3", value)
+            terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-3-4", "CLIA")
         }
     }
 

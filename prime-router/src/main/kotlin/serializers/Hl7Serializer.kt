@@ -848,56 +848,66 @@ class Hl7Serializer(
         value: String,
         report: Report
     ) {
+        // Break down the configuration structure
         val hl7Config = report.destination?.translation as? Hl7Configuration?
+        val phoneNumberFormatting = hl7Config?.phoneNumberFormatting
+            ?: Hl7Configuration.PhoneNumberFormatting.STANDARD
+        val useEncodingTruncationLimit = hl7Config?.truncateHDNamespaceIds == true
         val pathSpec = formPathSpec(hl7Field, repeat)
-        val truncatedValue = truncateValue(value, hl7Field, hl7Config, terser)
+
+        // All components should be trimmed and not blank. Truncation occurs at the sub-component level
+        val trimmedValue = value.trim()
+        if (trimmedValue.isBlank()) return
+
         when (element.type) {
             Element.Type.ID_CLIA -> setCliaComponent(terser, value, hl7Field)
-            Element.Type.HD -> {
-                if (truncatedValue.isNotEmpty()) {
-                    val hdFieldMaximumLength = if (hl7Config?.truncateHDNamespaceIds == true) {
-                        getTruncationLimitWithEncoding(value, HD_TRUNCATION_LIMIT)
-                    } else {
-                        null
-                    }
-                    val hd = Element.parseHD(truncatedValue, hdFieldMaximumLength)
-                    if (hd.universalId != null && hd.universalIdSystem != null) {
-                        terser.set("$pathSpec-1", hd.name)
-                        terser.set("$pathSpec-2", hd.universalId)
-                        terser.set("$pathSpec-3", hd.universalIdSystem)
-                    } else {
-                        terser.set(pathSpec, hd.name)
-                    }
-                }
-            }
-            Element.Type.EI -> {
-                if (truncatedValue.isNotEmpty()) {
-                    val ei = Element.parseEI(truncatedValue)
-                    if (ei.universalId != null && ei.universalIdSystem != null) {
-                        terser.set("$pathSpec-1", ei.name)
-                        terser.set("$pathSpec-2", ei.namespace)
-                        terser.set("$pathSpec-3", ei.universalId)
-                        terser.set("$pathSpec-4", ei.universalIdSystem)
-                    } else {
-                        terser.set(pathSpec, ei.name)
-                    }
-                }
-            }
+            Element.Type.HD -> setHDComponent(terser, value, pathSpec, useEncodingTruncationLimit)
+            Element.Type.EI -> setEIComponent(terser, value, pathSpec)
             Element.Type.CODE -> setCodeComponent(terser, value, pathSpec, element.valueSet, element.valueSetRef)
-            Element.Type.TELEPHONE -> {
-                if (truncatedValue.isNotEmpty()) {
-                    val phoneNumberFormatting = hl7Config?.phoneNumberFormatting
-                        ?: Hl7Configuration.PhoneNumberFormatting.STANDARD
-                    setTelephoneComponent(terser, truncatedValue, pathSpec, element, phoneNumberFormatting)
-                }
+            Element.Type.TELEPHONE -> setTelephoneComponent(terser, value, pathSpec, element, phoneNumberFormatting)
+            Element.Type.EMAIL -> setEmailComponent(terser, value, element, hl7Config)
+            Element.Type.POSTAL_CODE -> setPostalComponent(terser, value, pathSpec, element)
+            else -> {
+                val truncatedValue = truncateValue(trimmedValue, hl7Field, hl7Config, terser)
+                terser.set(pathSpec, truncatedValue)
             }
-            Element.Type.EMAIL -> {
-                if (truncatedValue.isNotEmpty()) {
-                    setEmailComponent(terser, truncatedValue, element, hl7Config)
-                }
-            }
-            Element.Type.POSTAL_CODE -> setPostalComponent(terser, truncatedValue, pathSpec, element)
-            else -> terser.set(pathSpec, truncatedValue)
+        }
+    }
+
+    /**
+     * set the HD component specified by [pathSpec] in [terser] with [value].
+     * Truncate appropriately according to [useEncodingTruncationLimit].
+     */
+    internal fun setHDComponent(terser: Terser, value: String, pathSpec: String, useEncodingTruncationLimit: Boolean) {
+        val hdFieldMaximumLength = when {
+            useEncodingTruncationLimit -> getTruncationLimitWithEncoding(value, HD_TRUNCATION_LIMIT)
+            // TODO: Remove if we decide to send a within limit MSH-3 instead of the useless 'Atlanta ....' stuff
+            pathSpec == "MSH-3" -> null
+            else -> HD_TRUNCATION_LIMIT
+        }
+        val hd = Element.parseHD(value, hdFieldMaximumLength)
+        if (hd.universalId != null && hd.universalIdSystem != null) {
+            terser.set("$pathSpec-1", hd.name) // already truncated
+            terser.set("$pathSpec-2", hd.universalId.take(HD_MAX_LENGTHS[1]))
+            terser.set("$pathSpec-3", hd.universalIdSystem.take(HD_MAX_LENGTHS[2]))
+        } else {
+            terser.set(pathSpec, hd.name)
+        }
+    }
+
+    /**
+     * set the EI component specified by [pathSpec] in [terser] with [value].
+     * Truncate appropriately.
+     */
+    internal fun setEIComponent(terser: Terser, value: String, pathSpec: String) {
+        val ei = Element.parseEI(value)
+        if (ei.universalId != null && ei.universalIdSystem != null) {
+            terser.set("$pathSpec-1", ei.name.take(EI_MAX_LENGTHS[0]))
+            terser.set("$pathSpec-2", ei.namespace?.take(EI_MAX_LENGTHS[1]))
+            terser.set("$pathSpec-3", ei.universalId.take(EI_MAX_LENGTHS[2]))
+            terser.set("$pathSpec-4", ei.universalIdSystem.take(EI_MAX_LENGTHS[3]))
+        } else {
+            terser.set(pathSpec, ei.name.take(EI_MAX_LENGTHS[0]))
         }
     }
 
@@ -935,7 +945,7 @@ class Hl7Serializer(
         fun getMaxLengthForCompositeType(type: Type, component: Int): Int? {
             val typeName = type.name
             val table = HL7_COMPONENT_MAX_LENGTH[typeName] ?: return null
-            return if (component < table.size) table[component - 1] else null
+            return if (component <= table.size) table[component - 1] else null
         }
 
         // Dev Note: this function is work in progress.
@@ -1011,7 +1021,8 @@ class Hl7Serializer(
         if (value.isEmpty()) return
 
         val pathSpec = formPathSpec(hl7Field)
-        terser.set(pathSpec, value)
+        val truncatedValue = truncateValue(value, hl7Field, hl7Config = null, terser)
+        terser.set(pathSpec, truncatedValue)
 
         when (hl7Field) {
             in HD_FIELDS_UNIVERSAL -> {
@@ -1120,7 +1131,7 @@ class Hl7Serializer(
                 terser.set("/PATIENT_RESULT/PATIENT/PID-14-2", "NET")
                 // specifies it's an internet telecommunications type
                 terser.set("/PATIENT_RESULT/PATIENT/PID-14-3", "Internet")
-                terser.set("/PATIENT_RESULT/PATIENT/PID-14-4", value)
+                terser.set("/PATIENT_RESULT/PATIENT/PID-14-4", value.take(XTN_MAX_LENGTHS[3]))
             } else {
                 // PID-13 is repeatable, which means we could have more than one phone #
                 // or email etc, so we need to increment until we get empty for PID-13-2
@@ -1132,7 +1143,7 @@ class Hl7Serializer(
                 terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-2", "NET")
                 // specifies it's an internet telecommunications type
                 terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-3", "Internet")
-                terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-4", value)
+                terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-4", value.take(XTN_MAX_LENGTHS[3]))
             }
         }
     }
@@ -1593,19 +1604,25 @@ class Hl7Serializer(
          */
         val CE_FIELDS = listOf("OBX-15-1")
 
+        // Component specific sub-component length from HL7 specification Chapter 2A
+        private val CWE_MAX_LENGTHS = arrayOf(20, 199, 20, 20, 199, 20, 10, 10, 199)
+        private val EI_MAX_LENGTHS = arrayOf(199, 20, 199, 6)
+        private val HD_MAX_LENGTHS = arrayOf(20, 199, 6)
+        private val XTN_MAX_LENGTHS = arrayOf(199, 3, 8, 199, 3, 5, 9, 5, 199, 4, 6, 199)
+
         /**
-         * Component length table for composite HL7 types taken from HL7 Chapter 2A.
+         * Component length table for composite HL7 types taken from HL7 specification Chapter 2A.
          */
         val HL7_COMPONENT_MAX_LENGTH = mapOf(
-            "CWE" to arrayOf(20, 199, 20, 20, 199, 20, 10, 10, 199),
-            "EI" to arrayOf(199, 20, 199, 6),
+            "CWE" to CWE_MAX_LENGTHS,
+            "EI" to EI_MAX_LENGTHS,
             "EIP" to arrayOf(427, 427),
-            "HD" to arrayOf(20, 199, 6),
+            "HD" to HD_MAX_LENGTHS,
             "XAD" to arrayOf(184, 120, 50, 50, 12, 3, 3, 50, 20, 20, 1, 53, 26, 26),
             "XCN" to arrayOf(15, 194, 30, 30, 20, 20, 5, 4, 227, 1, 1, 3, 5, 227, 1, 483, 53, 1, 26, 26, 199, 705, 705),
             "XON" to arrayOf(50, 20, 4, 1, 3, 227, 5, 227, 1, 20),
             "XPN" to arrayOf(194, 30, 30, 20, 20, 6, 1, 1, 483, 53, 1, 26, 26, 199),
-            "XTN" to arrayOf(199, 3, 8, 199, 3, 5, 9, 5, 199, 4, 6, 199),
+            "XTN" to XTN_MAX_LENGTHS,
             // Extend further here
         )
 
