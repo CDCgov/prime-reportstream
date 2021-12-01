@@ -87,6 +87,7 @@ jobs:
         run: mkdir build/ftps
 
       - name: Spin up containers
+        id: spin_containers
         run: |
           docker-compose -f docker-compose.yml up -d prime_dev redox ftps sftp azurite settings
           
@@ -177,6 +178,7 @@ jobs:
           false
           
       - name: Dump docker logs
+        if: ${{ steps.spin_containers.outcome == 'success' }}
         uses: jwalton/gh-docker-logs@v1
         with:
           images: 'prime_dev,settings,vault'
