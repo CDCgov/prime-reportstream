@@ -89,6 +89,11 @@ jobs:
       - name: Spin up containers
         run: |
           docker-compose -f docker-compose.yml up -d prime_dev redox ftps sftp azurite
+          
+      - name: Wait for docker continer to start
+        uses: juliangruber/sleep-action@v1
+        with:
+          time: 20s
 
       - name: Load settings
         run: ./gradlew reloadSettings
