@@ -16,6 +16,12 @@ class TranslatorTests {
             description: Arizona PHD
             jurisdiction: STATE
             stateCode: AZ
+            filters:
+            # override the default set for any of the filters, to get a clean test
+            - topic: test
+              jurisdictionalFilter: [ "allowAll()" ]
+              qualityFilter: [ "allowAll()" ]
+              routingFilter: [ "allowAll()" ]
             receivers: 
             - name: elr
               organizationName: phd1
@@ -28,7 +34,13 @@ class TranslatorTests {
                 format: CSV
     """.trimIndent()
 
-    private val genericFilterTestYaml = """
+    /**
+     * This covers several test cases:
+     * jurisdictionalFilter :   default is missing, but both org and receiver level filters are applied.
+     * qualityFilter:  has a default, and only org level filter is applied (no receiver level filtering)
+     * routingFilter: has a default, and only receiver level filter is applied (no org level filtering)
+     */
+    private val genericFilterTest = """
         ---
           - name: phd
             description: Piled Higher and Deeper 
@@ -53,6 +65,30 @@ class TranslatorTests {
                 format: CSV
     """.trimIndent()
 
+    /**
+     * This covers several more test cases:
+     * jurisdictionalFilter :   all are missing: default, org, receiver
+     * qualityFilter:  has a default, but org and receiver filters are both missing. AND its reversed!
+     * routingFilter:  has a default, but org and receiver filters are both missing.
+     */
+    private val genericFilterTestNoFilters = """
+        ---
+          - name: xyzzy
+            description: A maze of twisty passages, all alike
+            jurisdiction: STATE
+            stateCode: IG
+            receivers: 
+            - name: elr
+              organizationName: xyzzy
+              topic: test
+              customerStatus: active
+              reverseTheQualityFilter: true
+              translation: 
+                type: CUSTOM
+                schemaName: two
+                format: CSV
+    """.trimIndent()
+
     private val one = Schema(name = "one", topic = "test", elements = listOf(Element("a")))
 
     @Test
@@ -62,17 +98,17 @@ class TranslatorTests {
         )
         val metadata = Metadata().loadSchemas(mySchema)
         val settings = FileSettings().also {
-            it.loadOrganizations(ByteArrayInputStream(genericFilterTestYaml.toByteArray()))
+            it.loadOrganizations(ByteArrayInputStream(genericFilterTest.toByteArray()))
         }
         val translator = Translator(metadata, settings)
-        // Table has 4 rows and 2 columns. Column "a" has yes,no,yes,no   column b has true,true,false,false
+        // Table has 4 rows and 2 columns.
         val table1 = Report(
             mySchema,
             listOf(
-                listOf("yes", "true"),
+                listOf("yes", "true"), // row 0
                 listOf("no", "true"),
                 listOf("yes", "false"),
-                listOf("no", "false"),
+                listOf("no", "false"), // row 3
             ),
             TestSource
         )
@@ -81,26 +117,99 @@ class TranslatorTests {
         val org = settings.findOrganization("phd")
         assertThat(org).isNotNull()
         // Juris filter: No default exists, both org and receiver exist.
-        translator.genericFilter(table1, rcvr!!, org!!, ReportStreamFilterType.JURISDICTIONAL_FILTER, true).run {
+        translator.filterByOneFilterType(
+            table1, rcvr!!, org!!, ReportStreamFilterType.JURISDICTIONAL_FILTER, true
+        ).run {
             assertThat(this.itemCount).isEqualTo(1)
-            assertThat(this.getRow(0)[0]).isEqualTo("yes")
-            assertThat(this.getRow(0)[1]).isEqualTo("true")
+            assertThat(this.getRow(0)[0]).isEqualTo("yes") // row 0
+            assertThat(this.getRow(0)[1]).isEqualTo("true") // row 0
+            assertThat(this.filteredItems.size).isEqualTo(2) // two rows eliminated, and two filter messages.
+            assertThat(this.filteredItems[0].filteredRows.size).isEqualTo(2) // rows 2 and 3 eliminated (zero based)
+            assertThat(this.filteredItems[0].filteredRows[0]).isEqualTo(2)
+            assertThat(this.filteredItems[0].filteredRows[1]).isEqualTo(3)
+            assertThat(this.filteredItems[1].filteredRows.size).isEqualTo(2) // rows 1 and 3 eliminated (zero based)
+            assertThat(this.filteredItems[1].filteredRows[0]).isEqualTo(1)
+            assertThat(this.filteredItems[1].filteredRows[1]).isEqualTo(3)
         }
         // Quality filter: Override the default; org filter exists.  No receiver filter.
-        translator.genericFilter(table1, rcvr, org, ReportStreamFilterType.QUALITY_FILTER, true).run {
+        translator.filterByOneFilterType(table1, rcvr, org, ReportStreamFilterType.QUALITY_FILTER, true).run {
             assertThat(this.itemCount).isEqualTo(2)
             assertThat(this.getRow(0)[0]).isEqualTo("yes")
             assertThat(this.getRow(0)[1]).isEqualTo("true")
             assertThat(this.getRow(1)[0]).isEqualTo("no")
             assertThat(this.getRow(1)[1]).isEqualTo("true")
+            assertThat(this.filteredItems.size).isEqualTo(1) // two rows eliminated, but one filter message.
+            assertThat(this.filteredItems[0].filteredRows.size).isEqualTo(2)
         }
-        // Routing filter: Override the default; No org filter. Rceiver filter exists.
-        translator.genericFilter(table1, rcvr, org, ReportStreamFilterType.ROUTING_FILTER, true).run {
+        // Routing filter: Override the default; No org filter. Receiver filter exists.
+        translator.filterByOneFilterType(table1, rcvr, org, ReportStreamFilterType.ROUTING_FILTER, true).run {
             assertThat(this.itemCount).isEqualTo(2)
             assertThat(this.getRow(0)[0]).isEqualTo("yes")
             assertThat(this.getRow(0)[1]).isEqualTo("true")
             assertThat(this.getRow(1)[0]).isEqualTo("yes")
             assertThat(this.getRow(1)[1]).isEqualTo("false")
+            assertThat(this.filteredItems.size).isEqualTo(1) // two rows eliminated, but one filter message.
+            assertThat(this.filteredItems[0].filteredRows.size).isEqualTo(2)
+        }
+    }
+
+    @Test
+    fun `test genericFilter Defaults`() {
+        val mySchema = Schema(
+            name = "two", topic = "test", elements = listOf(Element("a"), Element("b"))
+        )
+        val metadata = Metadata().loadSchemas(mySchema)
+        val settings = FileSettings().also {
+            it.loadOrganizations(ByteArrayInputStream(genericFilterTestNoFilters.toByteArray()))
+        }
+        val translator = Translator(metadata, settings)
+        // Table has 4 rows and 2 columns.
+        val table1 = Report(
+            mySchema,
+            listOf(
+                listOf("yes", "true"), // row 0
+                listOf("no", "true"),
+                listOf("yes", "false"),
+                listOf("no", "false"), // row 3
+            ),
+            TestSource
+        )
+        val rcvr = settings.findReceiver("xyzzy.elr")
+        assertThat(rcvr).isNotNull()
+        val org = settings.findOrganization("xyzzy")
+        assertThat(org).isNotNull()
+        // Juris filter: No default, org, or receiver filters exist.  No filtering done.
+        translator.filterByOneFilterType(
+            table1, rcvr!!, org!!, ReportStreamFilterType.JURISDICTIONAL_FILTER, true
+        ).run {
+            assertThat(this.itemCount).isEqualTo(4)
+            // just confirm the first and last rows
+            assertThat(this.getRow(0)[0]).isEqualTo("yes")
+            assertThat(this.getRow(0)[1]).isEqualTo("true")
+            assertThat(this.getRow(3)[0]).isEqualTo("no")
+            assertThat(this.getRow(3)[1]).isEqualTo("false")
+            assertThat(this.filteredItems.size).isEqualTo(0) // logging turned on, but no rows eliminated.
+        }
+        // Quality filter: Default rules apply only.  No org or receiver level filters.  And its reversed!
+        translator.filterByOneFilterType(table1, rcvr, org, ReportStreamFilterType.QUALITY_FILTER, false).run {
+            assertThat(this.itemCount).isEqualTo(2)
+            assertThat(this.getRow(0)[0]).isEqualTo("yes")
+            assertThat(this.getRow(0)[1]).isEqualTo("true")
+            assertThat(this.getRow(1)[0]).isEqualTo("yes")
+            assertThat(this.getRow(1)[1]).isEqualTo("false")
+            assertThat(this.filteredItems.size).isEqualTo(0) // no logging done.
+        }
+        // Routing filter: Default rules apply only.  No org or receiver level filters. No weird reversing.
+        translator.filterByOneFilterType(table1, rcvr, org, ReportStreamFilterType.ROUTING_FILTER, true).run {
+            assertThat(this.itemCount).isEqualTo(2)
+            assertThat(this.getRow(0)[0]).isEqualTo("yes")
+            assertThat(this.getRow(0)[1]).isEqualTo("false")
+            assertThat(this.getRow(1)[0]).isEqualTo("no")
+            assertThat(this.getRow(1)[1]).isEqualTo("false")
+            assertThat(this.filteredItems.size).isEqualTo(1) // two rows eliminated, by one rule.
+            assertThat(this.filteredItems[0].filteredRows.size).isEqualTo(2) // rows 0 and 1 eliminated (zero based)
+            assertThat(this.filteredItems[0].filteredRows[0]).isEqualTo(0)
+            assertThat(this.filteredItems[0].filteredRows[1]).isEqualTo(1)
         }
     }
 
@@ -164,7 +273,14 @@ class TranslatorTests {
         }
         val translator = Translator(metadata, settings)
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
-        val table1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), TestSource)
+        val table1 = Report(
+            one,
+            listOf(
+                listOf("1", "2"), // first row of data
+                listOf("3", "4"), // second row of data
+            ),
+            TestSource
+        )
         translator.filterAndTranslateByReceiver(table1, warnings = mutableListOf()).run {
             assertThat(this.size).isEqualTo(1)
             val (mappedTable, forReceiver) = this[0]
