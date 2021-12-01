@@ -79,4 +79,35 @@ $documentation
         val actual = DocumentationFactory.getElementDocumentation(elemWithDocumentation)
         assertThat(actual).isEqualTo(expected)
     }
+
+    @Test
+    fun `test documentation for element with type CODE and valueSet table with special char`() {
+
+        val valueSetA = ValueSet(
+            "a",
+            ValueSet.SetSystem.HL7,
+            values = listOf(ValueSet.Value("&#62;", "Above absolute high-off instrument scale"))
+        )
+
+        val elemWithTypeCode = Element(name = "a", type = Element.Type.CODE, valueSetRef = valueSetA)
+        val expected = """
+**Name**: a
+
+**Type**: CODE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+&#62;|Above absolute high-off instrument scale
+
+---
+"""
+        val actual = DocumentationFactory.getElementDocumentation(elemWithTypeCode)
+        assertThat(actual).isEqualTo(expected)
+    }
 }
