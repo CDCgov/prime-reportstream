@@ -4,7 +4,7 @@
     "private": true,
     "npmClient": "yarn",
     "dependencies": {
-        "@craco/craco": "^6.4.0",
+        "@craco/craco": "^6.4.2",
         "@fortawesome/fontawesome-svg-core": "^1.2.36",
         "@fortawesome/free-solid-svg-icons": "^5.15.4",
         "@fortawesome/react-fontawesome": "^0.1.16",
