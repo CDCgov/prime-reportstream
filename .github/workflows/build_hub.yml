@@ -88,15 +88,7 @@ jobs:
 
       - name: Spin up containers
         run: |
-          docker-compose -f docker-compose.yml up -d prime_dev redox ftps sftp azurite
-          
-      - name: Wait for docker continer to start
-        uses: juliangruber/sleep-action@v1
-        with:
-          time: 20s
-
-      - name: Load settings
-        run: ./gradlew reloadSettings
+          docker-compose -f docker-compose.yml up -d prime_dev redox ftps sftp azurite settings
         
       - name: Load Lookup Tables
         run: ./gradlew reloadTables
@@ -132,6 +124,55 @@ jobs:
         run: |
           rm -f .gradle/caches/modules-2/modules-2.lock
           rm -f .gradle/caches/modules-2/gc.properties
+
+      - name: Generate New Docs
+        run: |
+          # Clean the docs before regenerating
+          rm -rf docs/schema_documentation/*
+          ./gradlew generatedocs
+
+      - name: Check for Uncommited Docs
+        id: check_changes
+        continue-on-error: true
+        run: |
+          CHANGED_FILES=$(git status --short docs)
+          if [[ -n "$CHANGED_FILES" ]]; then
+            echo "Updated documentation:"
+            git diff docs
+
+            # Escape line breaks so they can be used in step output.
+            # See: https://github.community/t/set-output-truncates-multiline-strings/16852
+            FILES_ESCAPED="$CHANGED_FILES"
+            FILES_ESCAPED="${FILES_ESCAPED//'%'/'%25'}"
+            FILES_ESCAPED="${FILES_ESCAPED//$'\n'/'%0A'}"
+            FILES_ESCAPED="${FILES_ESCAPED//$'\r'/'%0D'}"
+            echo "::set-output name=files::$FILES_ESCAPED"
+
+            # End with an error
+            false
+          fi
+
+      - name: Add diff as PR comment
+        if: ${{ steps.check_changes.outcome == 'failure' }}
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          issue-number: ${{ github.event.number }}
+          body: |
+            The changes you’ve made modify the documentation, but you haven’t included new generated documentation in your commits!
+
+            Please run `./gradlew generatedocs` to generate updated documentation, then commit the results.
+
+            Expected changes in files:
+
+            ```sh
+            ${{ steps.check_changes.outputs.files }}
+            ```
+
+      - name: Fail if there were changes
+        if: ${{ steps.check_changes.outcome == 'failure' }}
+        run: |
+          false
 
   docker_build_test:
     name: Testing Docker Build
@@ -179,7 +220,7 @@ jobs:
 
       - name: Run Linting Check
         run: ./gradlew ktlintCheck
-
+        
   docs:
     name: Check Docs
     runs-on: ubuntu-latest
@@ -188,56 +229,9 @@ jobs:
     defaults:
       run:
         working-directory: prime-router
-
+        
     steps:
-      - name: "Check out changes"
-        uses: actions/checkout@v2
-
-      - name: Generate New Docs
+    - name: Deprecated step always succeeds
         run: |
-          # Clean the docs before regenerating
-          rm -rf docs/schema_documentation/*
-          bash ./build.sh -- gradle generatedocs
+          true
 
-      - name: Check for Uncommited Docs
-        id: check_changes
-        continue-on-error: true
-        run: |
-          CHANGED_FILES=$(git status --short docs)
-          if [[ -n "$CHANGED_FILES" ]]; then
-            echo "Updated documentation:"
-            git diff docs
-
-            # Escape line breaks so they can be used in step output.
-            # See: https://github.community/t/set-output-truncates-multiline-strings/16852
-            FILES_ESCAPED="$CHANGED_FILES"
-            FILES_ESCAPED="${FILES_ESCAPED//'%'/'%25'}"
-            FILES_ESCAPED="${FILES_ESCAPED//$'\n'/'%0A'}"
-            FILES_ESCAPED="${FILES_ESCAPED//$'\r'/'%0D'}"
-            echo "::set-output name=files::$FILES_ESCAPED"
-
-            # End with an error
-            false
-          fi
-
-      - name: Add diff as PR comment
-        if: ${{ steps.check_changes.outcome == 'failure' }}
-        uses: peter-evans/create-or-update-comment@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          issue-number: ${{ github.event.number }}
-          body: |
-            The changes you’ve made modify the documentation, but you haven’t included new generated documentation in your commits!
-
-            Please run `./gradlew generatedocs` to generate updated documentation, then commit the results.
-
-            Expected changes in files:
-
-            ```sh
-            ${{ steps.check_changes.outputs.files }}
-            ```
-
-      - name: Fail if there were changes
-        if: ${{ steps.check_changes.outcome == 'failure' }}
-        run: |
-          false
