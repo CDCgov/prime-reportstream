@@ -40,7 +40,7 @@ class TranslatorTests {
      * qualityFilter:  has a default, and only org level filter is applied (no receiver level filtering)
      * routingFilter: has a default, and only receiver level filter is applied (no org level filtering)
      */
-    private val genericFilterTest = """
+    private val filterTestYaml = """
         ---
           - name: phd
             description: Piled Higher and Deeper 
@@ -71,7 +71,7 @@ class TranslatorTests {
      * qualityFilter:  has a default, but org and receiver filters are both missing. AND its reversed!
      * routingFilter:  has a default, but org and receiver filters are both missing.
      */
-    private val genericFilterTestNoFilters = """
+    private val onlyDefaultFiltersYaml = """
         ---
           - name: xyzzy
             description: A maze of twisty passages, all alike
@@ -92,13 +92,13 @@ class TranslatorTests {
     private val one = Schema(name = "one", topic = "test", elements = listOf(Element("a")))
 
     @Test
-    fun `test genericFilter`() {
+    fun `test filterByOneFilterType`() {
         val mySchema = Schema(
             name = "two", topic = "test", elements = listOf(Element("a"), Element("b"))
         )
         val metadata = Metadata().loadSchemas(mySchema)
         val settings = FileSettings().also {
-            it.loadOrganizations(ByteArrayInputStream(genericFilterTest.toByteArray()))
+            it.loadOrganizations(ByteArrayInputStream(filterTestYaml.toByteArray()))
         }
         val translator = Translator(metadata, settings)
         // Table has 4 rows and 2 columns.
@@ -154,13 +154,13 @@ class TranslatorTests {
     }
 
     @Test
-    fun `test genericFilter Defaults`() {
+    fun `test filterByOneFilterType Defaults`() {
         val mySchema = Schema(
             name = "two", topic = "test", elements = listOf(Element("a"), Element("b"))
         )
         val metadata = Metadata().loadSchemas(mySchema)
         val settings = FileSettings().also {
-            it.loadOrganizations(ByteArrayInputStream(genericFilterTestNoFilters.toByteArray()))
+            it.loadOrganizations(ByteArrayInputStream(onlyDefaultFiltersYaml.toByteArray()))
         }
         val translator = Translator(metadata, settings)
         // Table has 4 rows and 2 columns.
@@ -210,6 +210,64 @@ class TranslatorTests {
             assertThat(this.filteredItems[0].filteredRows.size).isEqualTo(2) // rows 0 and 1 eliminated (zero based)
             assertThat(this.filteredItems[0].filteredRows[0]).isEqualTo(0)
             assertThat(this.filteredItems[0].filteredRows[1]).isEqualTo(1)
+        }
+    }
+
+    @Test
+    fun `test filterByAllFilterTypes`() {
+        val mySchema = Schema(
+            name = "two", topic = "test", elements = listOf(Element("a"), Element("b"))
+        )
+        val metadata = Metadata().loadSchemas(mySchema)
+        val settings = FileSettings().also {
+            it.loadOrganizations(ByteArrayInputStream(filterTestYaml.toByteArray()))
+        }
+        val translator = Translator(metadata, settings)
+        // Table has 4 rows and 2 columns.
+        val table1 = Report(
+            mySchema,
+            listOf(
+                listOf("yes", "true"), // row 0
+                listOf("no", "true"), // row 1
+                listOf("yes", "false"), // row 2
+                listOf("no", "false"), // row 3
+            ),
+            TestSource
+        )
+        val rcvr = settings.findReceiver("phd.elr")
+        assertThat(rcvr).isNotNull()
+        // Juris filter eliminates rows 1,2,3 (zero based), but does not create filteredItem entries.
+        translator.filterByAllFilterTypes(settings, table1, rcvr!!).run {
+            assertThat(this).isNotNull()
+            assertThat(this!!.itemCount).isEqualTo(1)
+            assertThat(this.getRow(0)[0]).isEqualTo("yes") // row 0
+            assertThat(this.getRow(0)[1]).isEqualTo("true") // row 0
+            assertThat(this.filteredItems.size).isEqualTo(0) // three rows eliminated, but nothing logged.
+        }
+
+        val settings2 = FileSettings().also {
+            it.loadOrganizations(ByteArrayInputStream(onlyDefaultFiltersYaml.toByteArray()))
+        }
+        val rcvr2 = settings2.findReceiver("xyzzy.elr")
+        assertThat(rcvr2).isNotNull()
+        // No juris filtering done.
+        // Default matches a = "no" in qualityFilter, but its reversed.  So original rows 1,3 eliminated, rows 0,2 kept
+        // But: no logging because its reversed!
+        // Not done yet!  Then match on b = "false" in routingFilter.  At this point rows are numbered 0,1.
+        // So new row 1 is kept ("yes", "false")
+        translator.filterByAllFilterTypes(settings2, table1, rcvr2!!).run {
+            assertThat(this).isNotNull()
+            assertThat(this!!.itemCount).isEqualTo(1)
+            assertThat(this.getRow(0)[0]).isEqualTo("yes") // row 3
+            assertThat(this.getRow(0)[1]).isEqualTo("false") // row 3
+            assertThat(this.filteredItems.size).isEqualTo(1) // three rows eliminated, only routingFilter message.
+//            // rows 1 and 3 of the original four rows are eliminated by the qualityFilter:
+//            assertThat(this.filteredItems[0].filteredRows.size).isEqualTo(2) // rows 1 and 3 eliminated (zero based)
+//            assertThat(this.filteredItems[0].filteredRows[0]).isEqualTo(2)
+//            assertThat(this.filteredItems[0].filteredRows[1]).isEqualTo(3)
+            // so the routing filter only sees original rows 0 and 2, now called 0 and 1.  Sigh.
+            assertThat(this.filteredItems[0].filteredRows.size).isEqualTo(1) // rows 0 eliminated
+            assertThat(this.filteredItems[0].filteredRows[0]).isEqualTo(0)
         }
     }
 

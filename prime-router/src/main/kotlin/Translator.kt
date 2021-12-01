@@ -38,42 +38,12 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
                 (limitReceiversTo.isEmpty() || limitReceiversTo.contains(receiver.fullName))
         }.mapNotNull { receiver ->
             try {
-                val organization = settings.findOrganization(receiver.organizationName)
-                    ?: error("No org for ${receiver.fullName}")
+                // Filter the report
+                val filteredReport = filterByAllFilterTypes(settings, input, receiver) ?: return@mapNotNull null
+                if (filteredReport.isEmpty()) return@mapNotNull Pair(filteredReport, receiver)
 
-                // Do jurisdictionalFiltering on the input
-                val jurisFilteredReport = filterByOneFilterType(
-                    input,
-                    receiver,
-                    organization,
-                    ReportStreamFilterType.JURISDICTIONAL_FILTER,
-                    doLogging = false,
-                )
-                // vast majority of receivers will return here, which speeds subsequent filters
-                if (jurisFilteredReport.isEmpty()) return@mapNotNull null
-
-                // Do qualityFiltering on the jurisFilteredReport
-                val qualityFilteredReport = filterByOneFilterType(
-                    jurisFilteredReport,
-                    receiver,
-                    organization,
-                    ReportStreamFilterType.QUALITY_FILTER,
-                    doLogging = !receiver.reverseTheQualityFilter
-                )
-                if (qualityFilteredReport.isEmpty()) return@mapNotNull null
-
-                // Do routingFiltering on the qualityFilteredReport
-                val routingFilteredReport = filterByOneFilterType(
-                    qualityFilteredReport,
-                    receiver,
-                    organization,
-                    ReportStreamFilterType.ROUTING_FILTER,
-                    doLogging = true // quality and routing info will go together into the report's filteredItems
-                )
-                if (routingFilteredReport.isEmpty()) return@mapNotNull null
-
-                // Translate the routingFilteredReport
-                val translatedReport = translateByReceiver(routingFilteredReport, receiver, defaultValues)
+                // Translate the filteredReport
+                val translatedReport = translateByReceiver(filteredReport, receiver, defaultValues)
                 Pair(translatedReport, receiver)
             } catch (e: IllegalStateException) {
                 // catching individual translation exceptions enables overall work to continue
@@ -92,21 +62,52 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
     }
 
     /**
-     * Determine if a report should be sent to the reciever based on that receiver's
-     * jurisdiction filter.
+     * Determine which data in [input] should be sent to the [receiver] based on that receiver's set of filters.
+     * Apply all the different filter types (at this writing, jurisdictionalFilter, qualityFilter, routingFilter).
+     *
+     * @return the filtered Report. Returns null if jurisdictionalFilter had no matches, which is quite common,
+     * since most geographic locations don't match, and we don't need to log this.   Returns empty report if any
+     * of the later filters removed everything, but even when empty, this report has useful [ReportStreamFilterResult]
+     * to be logged.
      */
-//    private fun filterByJurisdiction(input: Report, receiver: Receiver): Report {
-//        // Filter according to this receiver's desired JurisdictionalFilter patterns
-//        val jurisFilterAndArgs = receiver.jurisdictionalFilter.map { filterSpec ->
-//            val (fnName, fnArgs) = ReportStreamFilterDef.parseReportStreamFilter(filterSpec)
-//            val filterFn = metadata.findJurisdictionalFilter(fnName)
-//                ?: error("JurisdictionalFilter $fnName is not found")
-//            Pair(filterFn, fnArgs)
-//        }
-//        val jurisFilteredReport = input.filter(jurisFilterAndArgs, receiver, doLogging = false)
-//
-//        return jurisFilteredReport
-//    }
+    fun filterByAllFilterTypes(settings: SettingsProvider, input: Report, receiver: Receiver): Report? {
+        val organization = settings.findOrganization(receiver.organizationName)
+            ?: error("No org for ${receiver.fullName}")
+
+        // Do jurisdictionalFiltering on the input
+        val jurisFilteredReport = filterByOneFilterType(
+            input,
+            receiver,
+            organization,
+            ReportStreamFilterType.JURISDICTIONAL_FILTER,
+            doLogging = false,
+        )
+        // vast majority of receivers will return here, which speeds subsequent filters.
+        // ok to just return null, we don't need any info about what was eliminated.
+        if (jurisFilteredReport.isEmpty()) return null
+
+        // Do qualityFiltering on the jurisFilteredReport
+        val qualityFilteredReport = filterByOneFilterType(
+            jurisFilteredReport,
+            receiver,
+            organization,
+            ReportStreamFilterType.QUALITY_FILTER,
+            doLogging = !receiver.reverseTheQualityFilter
+        )
+        if (qualityFilteredReport.isEmpty()) return qualityFilteredReport
+
+        // Do routingFiltering on the qualityFilteredReport
+        val routingFilteredReport = filterByOneFilterType(
+            qualityFilteredReport,
+            receiver,
+            organization,
+            ReportStreamFilterType.ROUTING_FILTER,
+            doLogging = true // quality and routing info will go together into the report's filteredItems
+        )
+        if (routingFilteredReport.isEmpty()) return routingFilteredReport
+
+        return routingFilteredReport
+    }
 
     /**
      * Apply a set of ReportStreamFilters associated with a [filterType] to report [input]. eg, Apply one of:
