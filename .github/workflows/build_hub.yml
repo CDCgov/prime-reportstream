@@ -61,7 +61,7 @@ jobs:
         run: docker-compose -f docker-compose.postgres.yml up -d
 
       - name: Build Prime Router Package
-        run: ./gradlew package -x fatjar -Pshowtests
+        run: ./gradlew package -Pshowtests
         
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@v1
@@ -122,8 +122,10 @@ jobs:
           ./gradlew testSmoke
           
       - name: Dump docker logs
-        if: always()
+        if: always() 
         uses: jwalton/gh-docker-logs@v1
+        with:
+          images: 'prime-router_settings,prime-router_prime_dev,vault'
 
       - name: Cleanup Gradle Cache
         # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.
