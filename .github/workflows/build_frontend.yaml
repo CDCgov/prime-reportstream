@@ -44,25 +44,21 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: '14'
-      - run: yarn install
+
+      - run: |
+          yarn install
 
       - name: Build release (conditional check)
         if: github.ref == 'refs/heads/production'
-        uses: actions/setup-node@v2
-        with:
-          node-version: '14'
-      - run: yarn build:release
+        run: |
+          yarn build:release
 
       - name: Build staging (conditional check)
         if: github.ref == 'refs/heads/master'
-        uses: actions/setup-node@v2
-        with:
-          node-version: '14'
-      - run: yarn build:staging
+        run: |
+          yarn build:staging
 
-      - name: Build fallthrough (conditional check - other branch)
+      - name: Build fallthrough to staging (conditional check)
         if: (!(github.ref == 'refs/heads/master' || github.ref == 'refs/heads/production'))
-        uses: actions/setup-node@v2
-        with:
-          node-version: '14'
-      - run: yarn build:staging
+        run: |
+          yarn build:staging
