@@ -1607,8 +1607,14 @@ class Hl7Serializer(
         // Component specific sub-component length from HL7 specification Chapter 2A
         private val CWE_MAX_LENGTHS = arrayOf(20, 199, 20, 20, 199, 20, 10, 10, 199)
         private val EI_MAX_LENGTHS = arrayOf(199, 20, 199, 6)
+        private val EIP_MAX_LENGTHS = arrayOf(427, 427)
         private val HD_MAX_LENGTHS = arrayOf(20, 199, 6)
         private val XTN_MAX_LENGTHS = arrayOf(199, 3, 8, 199, 3, 5, 9, 5, 199, 4, 6, 199)
+        private val XAD_MAX_LENGTHS = arrayOf(184, 120, 50, 50, 12, 3, 3, 50, 20, 20, 1, 53, 26, 26)
+        private val XCN_MAX_LENGTHS =
+            arrayOf(15, 194, 30, 30, 20, 20, 5, 4, 227, 1, 1, 3, 5, 227, 1, 483, 53, 1, 26, 26, 199, 705, 705)
+        private val XON_MAX_LENGTHS = arrayOf(50, 20, 4, 1, 3, 227, 5, 227, 1, 20)
+        private val XPN_MAX_LENGTHS = arrayOf(194, 30, 30, 20, 20, 6, 1, 1, 483, 53, 1, 26, 26, 199)
 
         /**
          * Component length table for composite HL7 types taken from HL7 specification Chapter 2A.
@@ -1616,12 +1622,12 @@ class Hl7Serializer(
         val HL7_COMPONENT_MAX_LENGTH = mapOf(
             "CWE" to CWE_MAX_LENGTHS,
             "EI" to EI_MAX_LENGTHS,
-            "EIP" to arrayOf(427, 427),
+            "EIP" to EIP_MAX_LENGTHS,
             "HD" to HD_MAX_LENGTHS,
-            "XAD" to arrayOf(184, 120, 50, 50, 12, 3, 3, 50, 20, 20, 1, 53, 26, 26),
-            "XCN" to arrayOf(15, 194, 30, 30, 20, 20, 5, 4, 227, 1, 1, 3, 5, 227, 1, 483, 53, 1, 26, 26, 199, 705, 705),
-            "XON" to arrayOf(50, 20, 4, 1, 3, 227, 5, 227, 1, 20),
-            "XPN" to arrayOf(194, 30, 30, 20, 20, 6, 1, 1, 483, 53, 1, 26, 26, 199),
+            "XAD" to XAD_MAX_LENGTHS,
+            "XCN" to XCN_MAX_LENGTHS,
+            "XON" to XON_MAX_LENGTHS,
+            "XPN" to XPN_MAX_LENGTHS,
             "XTN" to XTN_MAX_LENGTHS,
             // Extend further here
         )
