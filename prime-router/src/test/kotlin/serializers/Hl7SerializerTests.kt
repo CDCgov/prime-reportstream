@@ -3,6 +3,7 @@ package gov.cdc.prime.router.serializers
 import assertk.assertThat
 import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
+import assertk.assertions.isLessThanOrEqualTo
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNotNull
@@ -175,6 +176,48 @@ NTE|1|L|This is a final comment|RE"""
         assertThat(orderingProvider.idNumber.isEmpty).isTrue()
         assertThat(orderingProvider.assigningAuthority.isEmpty).isTrue()
         assertThat(orderingProvider.identifierTypeCode.isEmpty).isTrue()
+    }
+
+    @Test
+    fun `test write a message with Receiver for VT with HD truncation and OBX-23-1 with 50 chars`() {
+        val inputStream = File("./src/test/unit_test_files/vt_test_file.csv").inputStream()
+        val schema = "primedatainput/pdi-covid-19"
+
+        val hl7Config = Hl7Configuration(
+            messageProfileId = "",
+            receivingApplicationOID = "",
+            receivingApplicationName = "",
+            receivingFacilityName = "",
+            receivingFacilityOID = "",
+            receivingOrganization = "",
+        )
+        val receiver = Receiver("test", "vt-phd", "covid-19", translation = hl7Config)
+
+        val testReport = csvSerializer.readExternal(schema, inputStream, listOf(TestSource), receiver).report ?: fail()
+        val output = serializer.createMessage(testReport, 0)
+        val mcf = CanonicalModelClassFactory("2.5.1")
+        context.modelClassFactory = mcf
+        val parser = context.pipeParser
+        // act
+        val reg = "[\r\n]".toRegex()
+        val cleanedMessage = reg.replace(output, "\r")
+        val hapiMsg = parser.parse(cleanedMessage)
+        val terser = Terser(hapiMsg)
+
+        // assert
+        assertThat(terser.get("/MSH-4-1")).isEqualTo("High Meadow")
+        assertThat(terser.get("/MSH-4-1").length).isLessThanOrEqualTo(20)
+        assertThat(
+            terser.get(
+                "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-23-1"
+            ).length
+        ).isLessThanOrEqualTo(50)
+        assertThat(
+            terser.get(
+                "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-23-1"
+            )
+        ).isEqualTo("High Meadow")
+        assertThat(output).isNotNull()
     }
 
     @Test
