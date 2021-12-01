@@ -178,10 +178,8 @@ jobs:
           false
           
       - name: Dump docker logs
-        if: always()
+        if: always() && ${{ steps.spin_containers.outcome == 'success' }}
         uses: jwalton/gh-docker-logs@v1
-        with:
-          images: 'prime_dev,settings,vault'
 
   docker_build_test:
     name: Testing Docker Build
