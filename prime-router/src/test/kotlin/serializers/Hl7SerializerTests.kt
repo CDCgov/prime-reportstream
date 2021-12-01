@@ -126,8 +126,7 @@ NTE|1|L|This is a final comment|RE"""
             cliaForOutOfStateTesting = "1234FAKECLIA"
         )
         val receiver = Receiver("mock", "ca-phd", "covid-19", translation = hl7Config)
-        val pdiInput = csvSerializer.readExternal(schema, inputStream, listOf(TestSource), receiver).report ?: fail()
-        val testReport = translator.translateByReceiver(pdiInput, receiver)
+        val testReport = csvSerializer.readExternal(schema, inputStream, listOf(TestSource), receiver).report ?: fail()
         val output = serializer.createMessage(testReport, 2)
         assertThat(output).isNotNull()
     }
