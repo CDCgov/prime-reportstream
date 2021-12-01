@@ -30,6 +30,9 @@ import Spinner from "./components/Spinner";
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
 
 const App = () => {
+    // This is for sanity checking and can be removed
+    console.log(`process.env.REACT_APP_CLIENT_ENV='${process.env?.REACT_APP_CLIENT_ENV || "missing"}'`);
+
     const history = useHistory();
     const customAuthHandler = (): void => {
         history.push("/login");
@@ -79,7 +82,7 @@ const App = () => {
                     <GlobalContextProvider>
                         <GovBanner aria-label="Official government website" />
                         <ReportStreamHeader />
-                        {/* Changed from main to div to fix weird padding issue at the top 
+                        {/* Changed from main to div to fix weird padding issue at the top
                         caused by USWDS styling */}
                         <main id="main-content">
                             <div className="content">

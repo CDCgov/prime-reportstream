@@ -45,5 +45,18 @@ jobs:
         with:
           node-version: '14'
       - run: yarn install
-      - run: yarn run build
+
+      - name: Build release (conditional check)
+        if: github.ref == 'refs/heads/production'
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+      - run: yarn build:release
+
+      - name: Build staging (conditional check)
+        if: github.ref == 'refs/heads/master'
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+      - run: yarn build:staging
 
