@@ -48,17 +48,17 @@ jobs:
       - run: |
           yarn install
 
-      - name: Build release (conditional check)
+      - name: Build release for production branch (conditional check)
         if: github.ref == 'refs/heads/production'
         run: |
           yarn build:release
 
-      - name: Build staging (conditional check)
-        if: github.ref == 'refs/heads/master'
+      - name: Build staging main/master branch (conditional check)
+        if: (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main')
         run: |
           yarn build:staging
 
-      - name: Build fallthrough to staging (conditional check)
-        if: (!(github.ref == 'refs/heads/master' || github.ref == 'refs/heads/production'))
+      - name: Build fallthrough to staging for PR branch (conditional check)
+        if: (!(github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/production'))
         run: |
           yarn build:staging
