@@ -68,7 +68,7 @@ data class ReportStreamFilters(
             topic = "covid-19",
             jurisdictionalFilter = listOf("allowNone()"), // Receiver *must* override this to get data!
             qualityFilter = defaultCovid19QualityFilter,
-            routingFilter = listOf("allowAll()"), // Default is no routing restrictions.
+            routingFilter = listOf("doesNotMatch(processing_mode_code, T, D)"), // Default is no Training/Debug data
         )
 
         private val defaultCsvFileTestFilters = ReportStreamFilters(

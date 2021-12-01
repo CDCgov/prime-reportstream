@@ -64,7 +64,7 @@ enum class Options {
  * @property filterArgs The arguments used in the filter function
  * @property filteredRows The row's that were removed from the report, 0 indexed
  */
-data class QualityFilterResult(
+data class ReportStreamFilterResult(
     val receiverName: String,
     val originalCount: Int,
     val filterName: String,
@@ -133,7 +133,7 @@ class Report : Logging {
     /**
      * The list of results from quality filters run against the initial report data.
      */
-    val filteredItems: MutableList<QualityFilterResult> = mutableListOf()
+    val filteredItems: MutableList<ReportStreamFilterResult> = mutableListOf()
 
     /**
      * The time when the report was created
@@ -377,19 +377,19 @@ class Report : Logging {
     }
 
     fun filter(
-        filterFunctions: List<Pair<ReportStreamFilterDef, List<String>>>,
+        filterFunctions: List<Pair<ReportStreamFilterDefinition, List<String>>>,
         receiver: Receiver,
         doLogging: Boolean,
         reverseTheFilter: Boolean = false
     ): Report {
-        val filteredRows = mutableListOf<QualityFilterResult>()
+        val filteredRows = mutableListOf<ReportStreamFilterResult>()
         val combinedSelection = Selection.withRange(0, table.rowCount())
         filterFunctions.forEach { (filterFn, fnArgs) ->
             val filterFnSelection = filterFn.getSelection(fnArgs, table, receiver, doLogging)
             if (doLogging && filterFnSelection.size() < table.rowCount()) {
                 val before = Selection.withRange(0, table.rowCount())
                 filteredRows.add(
-                    QualityFilterResult(
+                    ReportStreamFilterResult(
                         receiver.fullName,
                         table.rowCount(),
                         filterFn.name,

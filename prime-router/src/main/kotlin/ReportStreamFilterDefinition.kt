@@ -8,13 +8,12 @@ import tech.tablesaw.selection.Selection
  * This is a library or toolkit of useful filter definitions.  Filters remove "rows" of data.
  * (as opposed to Mappers, which manipulate columns of data)
  *
- * A call to a *ReportStreamFilterDef* can be used in the filters property in an Organization
+ * A call to a [ReportStreamFilterDefinition] can be used in the filters property in an Organization
  * It allowed you to create arbitrarily complex filters on data.
  * Each filter in the list does an "and" boolean operation with the other filters in the list.
  *
  * Here is an example use:
  * ```
- * filters:
  *  jurisdictionalFilter: { filterByPatientOrFacilityLoc(AZ, Pima) }
  * ```
  *
@@ -30,7 +29,7 @@ import tech.tablesaw.selection.Selection
  * Hoping we implement some geospatial searches someday.
  *
  */
-interface ReportStreamFilterDef : Logging {
+interface ReportStreamFilterDefinition : Logging {
     /**
      * Name of the filter function
      */
@@ -99,7 +98,7 @@ interface ReportStreamFilterDef : Logging {
  * If the column name does not exist, nothing passes thru the filter.
  * matches(columnName, regex, regex, regex)
  */
-class Matches : ReportStreamFilterDef {
+class Matches : ReportStreamFilterDefinition {
     override val name = "matches"
 
     override fun getSelection(
@@ -134,7 +133,7 @@ class Matches : ReportStreamFilterDef {
  *
  * A row of data is "allowed" if it does not match any of the values, or if the column does not exist
  */
-class DoesNotMatch : ReportStreamFilterDef {
+class DoesNotMatch : ReportStreamFilterDefinition {
     override val name = "doesNotMatch"
 
     override fun getSelection(
@@ -160,7 +159,7 @@ class DoesNotMatch : ReportStreamFilterDef {
             Selection.withRange(0, table.rowCount())
         }
         if (selection.size() < table.rowCount()) {
-            ReportStreamFilterDef.logFiltering(
+            ReportStreamFilterDefinition.logFiltering(
                 Selection.withRange(0, table.rowCount()), selection,
                 "$name(${args.joinToString(",")})",
                 receiver,
@@ -174,7 +173,7 @@ class DoesNotMatch : ReportStreamFilterDef {
 /**
  * This may or may not be a unicorn.
  */
-class FilterByCounty : ReportStreamFilterDef {
+class FilterByCounty : ReportStreamFilterDefinition {
     override val name = "filterByCounty"
 
     override fun getSelection(
@@ -226,7 +225,7 @@ class FilterByCounty : ReportStreamFilterDef {
  * Example:
  * jurisdictionalFilter:  orEquals(ordering_facility_state, PA, patient_state, PA)
  */
-class OrEquals : ReportStreamFilterDef {
+class OrEquals : ReportStreamFilterDefinition {
     override val name = "orEquals"
 
     override fun getSelection(
@@ -259,7 +258,7 @@ class OrEquals : ReportStreamFilterDef {
 /**
  * A filter that filter nothing -- allows all data through.  Useful for overriding more strict defaults.
  */
-class AllowAll : ReportStreamFilterDef {
+class AllowAll : ReportStreamFilterDefinition {
     override val name = "allowAll"
 
     override fun getSelection(
@@ -281,7 +280,7 @@ class AllowAll : ReportStreamFilterDef {
 /**
  * A filter that filter everything -- allows no data through.  Useful as a default to be overridden.
  */
-class AllowNone : ReportStreamFilterDef {
+class AllowNone : ReportStreamFilterDefinition {
     override val name = "allowNone"
 
     override fun getSelection(
@@ -305,7 +304,7 @@ class AllowNone : ReportStreamFilterDef {
  * hasValidDataFor(columnName1, columnName2, columnName3, ...)
  * If no columns are passed, all rows are selected.  So, any number of args is acceptable.
  */
-class HasValidDataFor : ReportStreamFilterDef {
+class HasValidDataFor : ReportStreamFilterDefinition {
     override val name = "hasValidDataFor"
 
     override fun getSelection(
@@ -322,9 +321,11 @@ class HasValidDataFor : ReportStreamFilterDef {
                 val before = Selection.with(*selection.toArray()) // hack way to copy to a new Selection obj
                 selection = selection.andNot(table.stringColumn(colName).isEmptyString)
 
-                ReportStreamFilterDef.logFiltering(before, selection, "$name($colName)", receiver, doAuditing)
+                ReportStreamFilterDefinition.logFiltering(
+                    before, selection, "$name($colName)", receiver, doAuditing
+                )
             } else {
-                ReportStreamFilterDef.logAllEliminated(
+                ReportStreamFilterDefinition.logAllEliminated(
                     table.rowCount(),
                     "$name($colName): column not found",
                     receiver,
@@ -348,7 +349,7 @@ class HasValidDataFor : ReportStreamFilterDef {
  * find no official documentation confirming that, so that is not enforced)
  *
  */
-class IsValidCLIA : ReportStreamFilterDef {
+class IsValidCLIA : ReportStreamFilterDefinition {
     override val name = "isValidCLIA"
 
     override fun getSelection(
@@ -370,7 +371,7 @@ class IsValidCLIA : ReportStreamFilterDef {
             }
         }
         if (!atLeastOneColumnFound) {
-            ReportStreamFilterDef.logAllEliminated(
+            ReportStreamFilterDefinition.logAllEliminated(
                 table.rowCount(),
                 "$name(${args.joinToString(",")}): none of these columns found.",
                 receiver,
@@ -378,7 +379,7 @@ class IsValidCLIA : ReportStreamFilterDef {
             )
         } else {
             if (selection.size() < table.rowCount()) {
-                ReportStreamFilterDef.logFiltering(
+                ReportStreamFilterDefinition.logFiltering(
                     Selection.withRange(0, table.rowCount()), selection,
                     "$name(${args.joinToString(",")})", receiver, doAuditing
                 )
@@ -392,7 +393,7 @@ class IsValidCLIA : ReportStreamFilterDef {
  * hasAtLeastOneOf(columnName1, columnName2, columnName3, ...)
  * Implements a quality check match.  If a row has valid data for any of the columns, the row is selected.
  */
-class HasAtLeastOneOf : ReportStreamFilterDef {
+class HasAtLeastOneOf : ReportStreamFilterDefinition {
     override val name = "hasAtLeastOneOf"
 
     override fun getSelection(
@@ -412,13 +413,13 @@ class HasAtLeastOneOf : ReportStreamFilterDef {
             }
         }
         if (!atLeastOneColumnFound) {
-            ReportStreamFilterDef.logAllEliminated(
+            ReportStreamFilterDefinition.logAllEliminated(
                 table.rowCount(),
                 "$name(${args.joinToString(",")}): none of these columns found.", receiver, doAuditing
             )
         } else {
             if (selection.size() < table.rowCount()) {
-                ReportStreamFilterDef.logFiltering(
+                ReportStreamFilterDefinition.logFiltering(
                     Selection.withRange(0, table.rowCount()), selection,
                     "$name(${args.joinToString(",")})", receiver, doAuditing
                 )
