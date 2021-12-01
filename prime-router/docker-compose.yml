@@ -35,9 +35,9 @@ services:
       - azurite
       - vault
     ports:
-      - 7071:7071 # default function port
-      - 5005:5005 # Java debug port
-      - 9090:9090 # Java JMX port
+      - "7071:7071" # default function port
+      - "5005:5005" # Java debug port
+      - "9090:9090" # Java JMX port
     networks:
       - prime-router_build
 
@@ -50,12 +50,12 @@ services:
       # map to Azurite data objects to the build directory
       - ./build/azurite:/data
     ports:
-      - 10000:10000
-      - 10001:10001
+      - "10000:10000"
+      - "10001:10001"
     networks:
       - prime-router_build
 
-  #local SFTP server as a receive point
+  # local SFTP server as a receive point
   sftp:
     image: atmoz/sftp
     ports:
@@ -63,6 +63,17 @@ services:
     volumes:
       - ./build/sftp:/home/foo/upload
     command: foo:pass:1001::upload
+    networks:
+      - prime-router_build
+
+  # a SOAP endpoint to test against
+  soap-webservice:
+    image: castlemock/castlemock
+    ports:
+      - "8087:8080"
+    volumes:
+      - ../.environment/soap_service:/root/.castlemock
+      - ../.environment/soap_service:/castlemock/castlemock
     networks:
       - prime-router_build
 
