@@ -115,11 +115,11 @@ jobs:
         if: steps.tagged.outputs.tagged == 1
         uses: mikepenz/release-changelog-builder-action@v2
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Create release
         uses: ncipollo/release-action@v1
         with:
-          token: ${{ secrets.GH_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ needs.wf_vars.outputs.version }}
           artifacts: "archives/*.tar.gz,LICENSE"
           generateReleaseNotes: true
@@ -130,4 +130,4 @@ jobs:
           delete_tags: true
           delete_tag_pattern: 'v-20'
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
