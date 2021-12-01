@@ -120,6 +120,10 @@ jobs:
           export $(xargs < .vault/env/.env.local)
           ./prime create-credential --type=UserPass --persist=DEFAULT-SFTP --user foo --pass pass
           ./gradlew testSmoke
+          
+      - name: Dump docker logs
+        if: always()
+        uses: jwalton/gh-docker-logs@v1
 
       - name: Cleanup Gradle Cache
         # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.
@@ -176,10 +180,6 @@ jobs:
         if: ${{ steps.check_changes.outcome == 'failure' }}
         run: |
           false
-          
-      - name: Dump docker logs
-        if: always() && ${{ steps.spin_containers.outcome == 'success' }}
-        uses: jwalton/gh-docker-logs@v1
 
   docker_build_test:
     name: Testing Docker Build
