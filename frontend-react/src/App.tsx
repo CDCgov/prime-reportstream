@@ -31,7 +31,11 @@ const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
 
 const App = () => {
     // This is for sanity checking and can be removed
-    console.log(`process.env.REACT_APP_CLIENT_ENV='${process.env?.REACT_APP_CLIENT_ENV || "missing"}'`);
+    console.log(
+        `process.env.REACT_APP_CLIENT_ENV='${
+            process.env?.REACT_APP_CLIENT_ENV || "missing"
+        }'`
+    );
 
     const history = useHistory();
     const customAuthHandler = (): void => {

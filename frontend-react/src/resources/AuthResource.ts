@@ -29,24 +29,31 @@ export default class AuthResource extends Resource {
         // temporary sanity checking code, while we're working things out
         {
             if (window.location.origin.includes("localhost")) {
-                if (process.env.REACT_APP_BASE_URL !== "http://localhost:3000") {
+                if (
+                    process.env.REACT_APP_BASE_URL !== "http://localhost:3000"
+                ) {
                     console.error(`process.env.REACT_APP_BASE_URL is NOT correct for "localhost" 
                     '${process.env.REACT_APP_BASE_URL}'`);
                 }
-            }
-            else if (window.location.origin.includes("staging")) {
-                if (process.env.REACT_APP_BASE_URL !== "https://staging.prime.cdc.gov") {
+            } else if (window.location.origin.includes("staging")) {
+                if (
+                    process.env.REACT_APP_BASE_URL !==
+                    "https://staging.prime.cdc.gov"
+                ) {
                     console.error(`process.env.REACT_APP_BASE_URL is NOT correct for "staging" 
                     '${process.env.REACT_APP_BASE_URL}'`);
                 }
-            }
-            else if (window.location.origin.includes("test")) {
-                if (process.env.REACT_APP_BASE_URL !== "https://test.reportstream.cdc.gov") {
-                console.error(`process.env.REACT_APP_BASE_URL is NOT correct for "test" 
+            } else if (window.location.origin.includes("test")) {
+                if (
+                    process.env.REACT_APP_BASE_URL !==
+                    "https://test.reportstream.cdc.gov"
+                ) {
+                    console.error(`process.env.REACT_APP_BASE_URL is NOT correct for "test" 
                     '${process.env.REACT_APP_BASE_URL}'`);
                 }
-            }
-            else if (process.env.REACT_APP_BASE_URL !== "https://prime.cdc.gov") {
+            } else if (
+                process.env.REACT_APP_BASE_URL !== "https://prime.cdc.gov"
+            ) {
                 console.error(`process.env.REACT_APP_BASE_URL is NOT correct for "production" 
                     '${process.env.REACT_APP_BASE_URL}'`);
             }
