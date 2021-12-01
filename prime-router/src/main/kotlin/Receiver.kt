@@ -15,8 +15,10 @@ import java.time.ZoneId
  * @param topic defines the set of schemas that can translate to each other
  * @param customerStatus defines if the receiver is fully onboarded
  * @param translation configuration to translate
- * @param jurisdictionalFilter defines the set of elements and regexes that filter the data for this receiver
- * @param qualityFilter defines the set of elements and regexes that do qualiyty filtering on the data for this receiver
+ * @param jurisdictionalFilter defines the geographic region filters for this receiver
+ * @param qualityFilter defines the filters that remove data, based on quality criteria
+ * @param routingFilter defines the filters that remove data the receiver does not want, based on who sent it.
+ * @param reverseTheQualityFilter If this is true, then do the NOT of 'qualityFilter'.  Like a 'grep -v'
  * @param deidentify transform
  * @param timing defines how to delay reports to the org. If null, then send immediately
  * @param description of the receiver
@@ -29,9 +31,9 @@ open class Receiver(
     val topic: String,
     val customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
     val translation: TranslatorConfiguration,
-    val jurisdictionalFilter: List<String> = emptyList(),
-    val qualityFilter: List<String> = emptyList(),
-    // If this is true, then do the NOT of 'qualityFilter'.  Like a 'grep -v'
+    val jurisdictionalFilter: ReportStreamFilter = emptyList(),
+    val qualityFilter: ReportStreamFilter = emptyList(),
+    val routingFilter: ReportStreamFilter = emptyList(),
     val reverseTheQualityFilter: Boolean = false,
     val deidentify: Boolean = false,
     val timing: Timing? = null,
@@ -60,6 +62,7 @@ open class Receiver(
         copy.translation,
         copy.jurisdictionalFilter,
         copy.qualityFilter,
+        copy.routingFilter,
         copy.reverseTheQualityFilter,
         copy.deidentify,
         copy.timing,

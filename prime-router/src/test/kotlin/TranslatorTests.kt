@@ -2,6 +2,7 @@ package gov.cdc.prime.router
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import assertk.assertions.isNotNull
 import assertk.assertions.isTrue
 import java.io.ByteArrayInputStream
 import kotlin.test.Test
@@ -27,7 +28,81 @@ class TranslatorTests {
                 format: CSV
     """.trimIndent()
 
+    private val genericFilterTestYaml = """
+        ---
+          - name: phd
+            description: Piled Higher and Deeper 
+            jurisdiction: STATE
+            filters:
+            - topic: test
+              jurisdictionalFilter: [ "matches(b,true)" ]
+              qualityFilter: [ "matches(b,true)" ]
+              # Missing routingFilter
+            stateCode: IG
+            receivers: 
+            - name: elr
+              organizationName: phd
+              topic: test
+              customerStatus: active
+              jurisdictionalFilter: [ "matches(a,yes)"]
+              # Missing qualityFilter
+              routingFilter: [ "matches(a,yes)"]
+              translation: 
+                type: CUSTOM
+                schemaName: two
+                format: CSV
+    """.trimIndent()
+
     private val one = Schema(name = "one", topic = "test", elements = listOf(Element("a")))
+
+    @Test
+    fun `test genericFilter`() {
+        val mySchema = Schema(
+            name = "two", topic = "test", elements = listOf(Element("a"), Element("b"))
+        )
+        val metadata = Metadata().loadSchemas(mySchema)
+        val settings = FileSettings().also {
+            it.loadOrganizations(ByteArrayInputStream(genericFilterTestYaml.toByteArray()))
+        }
+        val translator = Translator(metadata, settings)
+        // Table has 4 rows and 2 columns. Column "a" has yes,no,yes,no   column b has true,true,false,false
+        val table1 = Report(
+            mySchema,
+            listOf(
+                listOf("yes", "true"),
+                listOf("no", "true"),
+                listOf("yes", "false"),
+                listOf("no", "false"),
+            ),
+            TestSource
+        )
+        val rcvr = settings.findReceiver("phd.elr")
+        assertThat(rcvr).isNotNull()
+        val org = settings.findOrganization("phd")
+        assertThat(org).isNotNull()
+        // Juris filter: No default exists, both org and receiver exist.
+        translator.genericFilter(table1, rcvr!!, org!!, ReportStreamFilterType.JURISDICTIONAL_FILTER, true).run {
+            assertThat(this.itemCount).isEqualTo(1)
+            assertThat(this.getRow(0)[0]).isEqualTo("yes")
+            assertThat(this.getRow(0)[1]).isEqualTo("true")
+        }
+        // Quality filter: Override the default; org filter exists.  No receiver filter.
+        translator.genericFilter(table1, rcvr, org, ReportStreamFilterType.QUALITY_FILTER, true).run {
+            assertThat(this.itemCount).isEqualTo(2)
+            assertThat(this.getRow(0)[0]).isEqualTo("yes")
+            assertThat(this.getRow(0)[1]).isEqualTo("true")
+            assertThat(this.getRow(1)[0]).isEqualTo("no")
+            assertThat(this.getRow(1)[1]).isEqualTo("true")
+        }
+        // Routing filter: Override the default; No org filter. Rceiver filter exists.
+        translator.genericFilter(table1, rcvr, org, ReportStreamFilterType.ROUTING_FILTER, true).run {
+            assertThat(this.itemCount).isEqualTo(2)
+            assertThat(this.getRow(0)[0]).isEqualTo("yes")
+            assertThat(this.getRow(0)[1]).isEqualTo("true")
+            assertThat(this.getRow(1)[0]).isEqualTo("yes")
+            assertThat(this.getRow(1)[1]).isEqualTo("false")
+        }
+    }
 
     @Test
     fun `test buildMapping`() {
@@ -52,10 +127,13 @@ class TranslatorTests {
 
     @Test
     fun `test buildMapping with default`() {
-        val two = Schema(name = "two", topic = "test", elements = listOf(Element("a"), Element("b", default = "x")))
-        val metadata = Metadata().loadSchemas(one, two)
+        val twoWithDefault = Schema(
+            name = "two", topic = "test",
+            elements = listOf(Element("a"), Element("b", default = "x")),
+        )
+        val metadata = Metadata().loadSchemas(one, twoWithDefault)
         val translator = Translator(metadata, FileSettings())
-        translator.buildMapping(fromSchema = one, toSchema = two, defaultValues = mapOf("b" to "foo")).run {
+        translator.buildMapping(fromSchema = one, toSchema = twoWithDefault, defaultValues = mapOf("b" to "foo")).run {
             assertThat(useDefault.contains("b")).isTrue()
             assertThat(useDefault["b"]).isEqualTo("foo")
         }

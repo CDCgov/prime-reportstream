@@ -5,6 +5,9 @@ import tech.tablesaw.api.Table
 import tech.tablesaw.selection.Selection
 
 /**
+ * This is a library or toolkit of useful filter definitions.  Filters remove "rows" of data.
+ * (as opposed to Mappers, which manipulate columns of data)
+ *
  * A call to a *ReportStreamFilterDef* can be used in the filters property in an Organization
  * It allowed you to create arbitrarily complex filters on data.
  * Each filter in the list does an "and" boolean operation with the other filters in the list.
@@ -12,7 +15,7 @@ import tech.tablesaw.selection.Selection
  * Here is an example use:
  * ```
  * filters:
- *  jurisdictionalFilter: { FilterByPatientOrFacilityLoc(AZ, Pima) }
+ *  jurisdictionalFilter: { filterByPatientOrFacilityLoc(AZ, Pima) }
  * ```
  *
  * The name `filterByPatientOrFacility` then maps via pseudo-reflection to an implementation of a

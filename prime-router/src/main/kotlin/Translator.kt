@@ -70,22 +70,97 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
                 ?: error("JurisdictionalFilter $fnName is not found")
             Pair(filterFn, fnArgs)
         }
-        val jurisFilteredReport = input.filter(jurisFilterAndArgs, receiver, isQualityFilter = false)
+        val jurisFilteredReport = input.filter(jurisFilterAndArgs, receiver, doLogging = false)
 
         return jurisFilteredReport
     }
 
     /**
-     * Filter a report for a reciever by that receiver's qualityFilter
+     * Apply a set of ReportStreamFilters to report [input].  Works for any of our [filterType], eg, for
+     * jurisdictionalFilters, qualityFilters, and routingFilters.
+     *
+     * Filter usage can be defined at three different levels:  default, organization-level, and receiver-level.
+     * The [receiver] has only one topic (eg, 'covid-19'), but an [organization] can handle many topics, so
+     * we must look up default- and organization-level filters per topic.
+     * Any/all of the three levels are allowed to be null.  If all are null, we do no filtering for this filterType.
+     *
+     * @return the filtered report.   Might be empty.  Might be unchanged if no filtering was done.
+     */
+    fun genericFilter(
+        input: Report,
+        receiver: Receiver,
+        organization: Organization,
+        filterType: ReportStreamFilterType,
+        doLogging: Boolean,
+    ): Report {
+        // First, retrieve the default filter for this topic and filterType
+        val defaultFilters = ReportStreamFilters.defaultFiltersByTopic[receiver.topic]
+        val defaultFilter = if (defaultFilters != null)
+            filterType.filterProperty.get(defaultFilters)
+        else
+            null
+
+        // Next, retrieve the organization-level filter for this topic and filterType
+        val orgFilters = organization.filters?.find { it.topic == receiver.topic }
+        val orgFilter = if (orgFilters != null)
+            filterType.filterProperty.get(orgFilters)
+        else
+            null
+
+        // Last, retrieve the receiver-level filter for this filter type.
+        var receiverFilter: ReportStreamFilter? = filterType.receiverFilterProperty.get(receiver) as ReportStreamFilter
+        if (receiverFilter.isNullOrEmpty()) receiverFilter = null // force null to be consistent with org and default.
+
+        // Use the "and" of the  org filter and receiver filter if either or both exists - and override the default.
+        // Otherwise use the default.
+        val filterToApply: ReportStreamFilter = when {
+            (orgFilter != null && receiverFilter != null) -> orgFilter + receiverFilter
+            (orgFilter == null && receiverFilter != null) -> receiverFilter
+            (orgFilter != null && receiverFilter == null) -> orgFilter
+            (defaultFilter != null) -> defaultFilter
+            else -> {
+                // Probably an error if there's no defaultFilter
+                logger.error("NOT ${filterType.name} filtering for topic ${receiver.topic}. No filters found.")
+                emptyList()
+            }
+        }
+
+        // This weird obj is of type List<Pair<ReportStreamFilterDef, List<String>>>
+        val filterAndArgs = filterToApply.map { filterSpec ->
+            val (fnName, fnArgs) = ReportStreamFilterDef.parseReportStreamFilter(filterSpec)
+            val filterFn = metadata.findJurisdictionalFilter(fnName)
+                ?: error("Cannot find ReportStreamFilter Definition for $fnName")
+            Pair(filterFn, fnArgs)
+        }
+
+        val filteredReport = input.filter(
+            filterAndArgs,
+            receiver,
+            doLogging,
+            // the reversing flag only applies for qualityFilters
+            if (filterType == ReportStreamFilterType.QUALITY_FILTER) receiver.reverseTheQualityFilter else false
+        )
+        if (doLogging && filteredReport.itemCount != input.itemCount) {
+            logger.warn(
+                "Filtering occurred in report ${input.id}, receiver ${receiver.fullName}: " +
+                    "There were ${input.itemCount} rows prior to ${filterType.name}, and " +
+                    "${filteredReport.itemCount} rows after ${filterType.name}."
+            )
+        }
+        return filteredReport
+    }
+
+    /**
+     * Filter a report for a receiver by that receiver's qualityFilter
      * then translate the filtered report based on the receiver's schema.
      */
     private fun translateByReceiver(input: Report, receiver: Receiver, defaultValues: DefaultValues): Report {
 
         // Now filter according to this receiver's desired qualityFilter, or default filter if none found.
-        val qualityFilter = when {
+/*        val qualityFilter = when {
             receiver.qualityFilter.isNotEmpty() -> receiver.qualityFilter
-            Filters.defaultFiltersByTopic[receiver.topic] != null ->
-                Filters.defaultFiltersByTopic[receiver.topic]?.qualityFilter
+            ReportStreamFilters.defaultFiltersByTopic[receiver.topic] != null ->
+                ReportStreamFilters.defaultFiltersByTopic[receiver.topic]?.qualityFilter
                     ?: error("cannot find a filter for topic ${receiver.topic}")
             else -> {
                 logger.info("No default qualityFilter found for topic ${receiver.topic}. Not doing qual filtering")
@@ -101,7 +176,7 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
         val qualityFilteredReport = input.filter(
             qualityFilterAndArgs,
             receiver,
-            isQualityFilter = true,
+            doLogging = true,
             receiver.reverseTheQualityFilter
         )
         if (qualityFilteredReport.itemCount != input.itemCount) {
@@ -111,8 +186,29 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
                     "${qualityFilteredReport.itemCount} rows after qualityFilter."
             )
         }
+*/
+        val organization = settings.findOrganization(receiver.organizationName)
+            ?: error("No org for ${receiver.fullName}")
 
+        // Do Quality Filtering
+        val qualityFilteredReport = genericFilter(
+            input,
+            receiver,
+            organization,
+            ReportStreamFilterType.QUALITY_FILTER,
+            doLogging = !receiver.reverseTheQualityFilter
+        )
         if (qualityFilteredReport.isEmpty()) return qualityFilteredReport
+
+        // Do Routing Filtering
+        val routingFilteredReport = genericFilter(
+            qualityFilteredReport,
+            receiver,
+            organization,
+            ReportStreamFilterType.ROUTING_FILTER,
+            doLogging = true
+        )
+        if (routingFilteredReport.isEmpty()) return routingFilteredReport
 
         // Apply mapping to change schema
         val toReport: Report = if (receiver.schemaName != qualityFilteredReport.schema.name) {

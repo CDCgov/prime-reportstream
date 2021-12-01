@@ -379,19 +379,14 @@ class Report : Logging {
     fun filter(
         filterFunctions: List<Pair<ReportStreamFilterDef, List<String>>>,
         receiver: Receiver,
-        isQualityFilter: Boolean,
+        doLogging: Boolean,
         reverseTheFilter: Boolean = false
     ): Report {
         val filteredRows = mutableListOf<QualityFilterResult>()
-        // First, only do detailed logging on qualityFilters.
-        // But, **don't** do detailed logging if reverseTheFilter is true.
-        // This is a hack, but its because the logging is nonsensical if the filter is reversed.
-        // (Its nontrivial to fix the detailed logging of a reversed filter, per deMorgan's law)
-        val doDetailedFilterLogging = isQualityFilter && !reverseTheFilter
         val combinedSelection = Selection.withRange(0, table.rowCount())
         filterFunctions.forEach { (filterFn, fnArgs) ->
-            val filterFnSelection = filterFn.getSelection(fnArgs, table, receiver, doDetailedFilterLogging)
-            if (doDetailedFilterLogging && filterFnSelection.size() < table.rowCount()) {
+            val filterFnSelection = filterFn.getSelection(fnArgs, table, receiver, doLogging)
+            if (doLogging && filterFnSelection.size() < table.rowCount()) {
                 val before = Selection.withRange(0, table.rowCount())
                 filteredRows.add(
                     QualityFilterResult(
