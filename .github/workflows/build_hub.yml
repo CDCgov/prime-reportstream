@@ -122,7 +122,7 @@ jobs:
           ./gradlew testSmoke
           
       - name: Dump docker logs
-        if: steps.spin_containers.outcome == 'success'
+        if: always()
         uses: jwalton/gh-docker-logs@v1
         with:
           images: 'prime-router_settings,prime-router_prime_dev,vault'
