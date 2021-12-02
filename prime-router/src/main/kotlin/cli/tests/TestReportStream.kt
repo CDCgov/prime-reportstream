@@ -166,7 +166,7 @@ Examples:
 
     private val asyncProcessMode by option(
         "--async",
-        help = "Includes processing=async query param."
+        help = "Use async processing when sending data"
     ).flag(default = false)
 
     // Avoid accidentally connecting to the wrong database.
