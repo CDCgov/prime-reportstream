@@ -321,24 +321,47 @@ class Simulator : CoolTest() {
             bad(summary)
         }
 
+        val receivingOrg = results.first().simulation.targetReceiverNames.split('.')[0]
+        val receivingOrgSvc = results.first().simulation.targetReceiverNames.split('.')[1]
+        println("")
         println("Simulator run complete. Verifying data - this could take up to 7 minutes.")
 
         echo("==== Verifying data from simulator. ====")
         // if we are running in async mode, verify the correct number of 'process' records have been generated
         if (isAsyncProcessMode) {
             val expectedResults = results.sumOf { it.totalItemsCount }
-            passed = passed && checkTimedResults(expectedResults, startTime, TaskAction.process)
+            passed = passed && checkTimedResults(
+                expectedResults,
+                startTime,
+                TaskAction.process,
+                receivingOrg,
+                receivingOrgSvc
+            )
         }
 
         // poll for batch results - wait for up to 7 minutes
         // TODO: Will this always be 1 batch? Should it determine results count based on what tests were run?
         // TODO: Should this dynamically determine how long to wait in case of 60_MIN receiver?
-        passed = passed && checkTimedResults(1, startTime, TaskAction.batch, maxPollSecs = 420)
+        passed = passed && checkTimedResults(
+            1,
+            startTime,
+            TaskAction.batch,
+            receivingOrg,
+            receivingOrgSvc,
+            maxPollSecs = 420
+        )
 
         // poll for send results - wait for up to 7 minutes
         // TODO: Will this always be 1 batch? Should it determine results count based on what tests were run?
         // TODO: Should this dynamically determine how long to wait in case of 60_MIN receiver?
-        passed = passed && checkTimedResults(1, startTime, TaskAction.send, maxPollSecs = 420)
+        passed = passed && checkTimedResults(
+            1,
+            startTime,
+            TaskAction.send,
+            receivingOrg,
+            receivingOrgSvc,
+            maxPollSecs = 420
+        )
 
         return passed
     }
@@ -417,13 +440,15 @@ class Simulator : CoolTest() {
         expectedResults: Int,
         afterDateTime: OffsetDateTime,
         taskToCheck: TaskAction,
+        receivingOrg: String,
+        receivingOrgService: String,
         maxPollSecs: Int = 180,
-        pollSleepSecs: Int = 5
+        pollSleepSecs: Int = 10
     ): Boolean {
         var resultsFound = 0
 
         var timeElapsedSecs = 0
-        echo("Polling $taskToCheck records.  (Max poll time $maxPollSecs seconds)")
+        println("Polling for $expectedResults $taskToCheck record(s).  (Max poll time $maxPollSecs seconds)")
         val actualTimeElapsedMillis = measureTimeMillis {
             while (timeElapsedSecs <= maxPollSecs) {
                 if (outputToConsole) {
@@ -438,10 +463,13 @@ class Simulator : CoolTest() {
                 }
                 timeElapsedSecs += pollSleepSecs
 
-                resultsFound = checkResultsQuery(afterDateTime, taskToCheck)
+                resultsFound = checkResultsQuery(afterDateTime, taskToCheck, receivingOrg, receivingOrgService)
 
-                if (resultsFound >= expectedResults)
+                if (resultsFound >= expectedResults) {
+                    println("Found $resultsFound $taskToCheck record(s), finished looking.")
                     break
+                } else
+                    println("Found $resultsFound $taskToCheck record(s), checking again in $pollSleepSecs seconds")
             }
         }
         echo("Polling for $taskToCheck records finished in ${actualTimeElapsedMillis / 1000 } seconds")
@@ -450,25 +478,34 @@ class Simulator : CoolTest() {
         val passed = resultsFound >= expectedResults
 
         if (passed) {
-            good("Found at least $expectedResults $taskToCheck records.")
+            good("Found at least $expectedResults $taskToCheck record(s).")
         } else {
-            bad("Did not find at least $expectedResults $taskToCheck records.")
+            bad("Did not find at least $expectedResults $taskToCheck record(s).")
         }
 
         return passed
     }
 
-    private fun checkResultsQuery(afterDateTime: OffsetDateTime, actionType: TaskAction): Int {
-        var processActionsFound = 0
+    private fun checkResultsQuery(
+        afterDateTime: OffsetDateTime,
+        actionType: TaskAction,
+        receivingOrg: String,
+        receivingOrgService: String
+    ): Int {
+        var actionsFound = 0
         db = WorkflowEngine().db
         db.transact { txn ->
             val ctx = DSL.using(txn)
-            // find out how many process 'action' records were created after the start date
-            processActionsFound = ctx.selectFrom(Tables.ACTION)
+            actionsFound = ctx.select(Tables.ACTION.ACTION_ID)
+                .from(Tables.ACTION)
+                .join(Tables.REPORT_FILE)
+                .on(Tables.ACTION.ACTION_ID.eq(Tables.REPORT_FILE.ACTION_ID))
                 .where(Tables.ACTION.ACTION_NAME.eq(actionType))
                 .and(Tables.ACTION.CREATED_AT.greaterOrEqual(afterDateTime))
+                .and(Tables.REPORT_FILE.RECEIVING_ORG.eq(receivingOrg))
+                .and(Tables.REPORT_FILE.RECEIVING_ORG_SVC.eq(receivingOrgService))
                 .count()
         }
-        return processActionsFound
+        return actionsFound
     }
 }
