@@ -24,8 +24,4 @@ export default class AuthResource extends Resource {
             },
         };
     };
-
-    static getBaseUrl = () => {
-        return process.env.REACT_APP_BASE_URL;
-    };
 }
