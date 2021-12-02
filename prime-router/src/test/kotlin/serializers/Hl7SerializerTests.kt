@@ -99,6 +99,30 @@ SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (
 NTE|1|L|This is a final comment|RE"""
     }
 
+    fun createConfig(
+        replaceValue: Map<String, String> = emptyMap(),
+        cliaForSender: Map<String, String> = emptyMap(),
+        cliaForOutOfStateTesting: String? = null,
+        truncateHl7Fields: String? = null,
+        suppressNonNPI: Boolean = false,
+        truncateHDNamespaceIds: Boolean = false,
+    ): Hl7Configuration {
+        return Hl7Configuration(
+            messageProfileId = "",
+            receivingApplicationOID = "",
+            receivingApplicationName = "",
+            receivingFacilityName = "",
+            receivingFacilityOID = "",
+            receivingOrganization = "",
+            cliaForOutOfStateTesting = cliaForOutOfStateTesting,
+            cliaForSender = cliaForSender,
+            replaceValue = replaceValue,
+            truncateHl7Fields = truncateHl7Fields,
+            suppressNonNPI = suppressNonNPI,
+            truncateHDNamespaceIds = truncateHDNamespaceIds
+        )
+    }
+
     @Test
     fun `Test write batch`() {
         val outputStream = ByteArrayOutputStream()
@@ -117,13 +141,7 @@ NTE|1|L|This is a final comment|RE"""
     fun `test write a message with Receiver`() {
         val inputStream = File("./src/test/unit_test_files/ak_test_file.csv").inputStream()
         val schema = "primedatainput/pdi-covid-19"
-        val hl7Config = Hl7Configuration(
-            messageProfileId = "",
-            receivingApplicationOID = "",
-            receivingApplicationName = "",
-            receivingFacilityName = "",
-            receivingFacilityOID = "",
-            receivingOrganization = "",
+        val hl7Config = createConfig(
             replaceValue = mapOf("PID-22-3" to "CDCREC,-,testCDCREC", "MSH-9" to "MSH-10"),
             cliaForOutOfStateTesting = "1234FAKECLIA"
         )
@@ -137,15 +155,7 @@ NTE|1|L|This is a final comment|RE"""
     fun `test message with bad NPI`() {
         val inputStream = File("./src/test/unit_test_files/fake-pdi-covid-19.csv").inputStream()
         val schema = "primedatainput/pdi-covid-19"
-        val hl7Config = Hl7Configuration(
-            messageProfileId = "",
-            receivingApplicationOID = "",
-            receivingApplicationName = "",
-            receivingFacilityName = "",
-            receivingFacilityOID = "",
-            receivingOrganization = "",
-            suppressNonNPI = false,
-        )
+        val hl7Config = createConfig(suppressNonNPI = false)
         val receiver = Receiver("mock", "ca-phd", "covid-19", translation = hl7Config)
         val pdiInput = csvSerializer.readExternal(schema, inputStream, listOf(TestSource), receiver).report ?: fail()
         val testReport = translator.translateByReceiver(pdiInput, receiver)
@@ -159,15 +169,7 @@ NTE|1|L|This is a final comment|RE"""
     fun `test message with bad NPI and suppressed`() {
         val inputStream = File("./src/test/unit_test_files/fake-pdi-covid-19.csv").inputStream()
         val schema = "primedatainput/pdi-covid-19"
-        val hl7Config = Hl7Configuration(
-            messageProfileId = "",
-            receivingApplicationOID = "",
-            receivingApplicationName = "",
-            receivingFacilityName = "",
-            receivingFacilityOID = "",
-            receivingOrganization = "",
-            suppressNonNPI = true,
-        )
+        val hl7Config = createConfig(suppressNonNPI = true)
         val receiver = Receiver("mock", "ca-phd", "covid-19", translation = hl7Config)
         val pdiInput = csvSerializer.readExternal(schema, inputStream, listOf(TestSource), receiver).report ?: fail()
         val testReport = translator.translateByReceiver(pdiInput, receiver)
@@ -183,15 +185,7 @@ NTE|1|L|This is a final comment|RE"""
         val inputStream = File("./src/test/unit_test_files/vt_test_file.csv").inputStream()
         val schema = "primedatainput/pdi-covid-19"
 
-        val hl7Config = Hl7Configuration(
-            messageProfileId = "",
-            receivingApplicationOID = "",
-            receivingApplicationName = "",
-            receivingFacilityName = "",
-            receivingFacilityOID = "",
-            receivingOrganization = "",
-            truncateHl7Fields = "OBX-23-1, MSH-4-1",
-        )
+        val hl7Config = createConfig(truncateHl7Fields = "OBX-23-1, MSH-4-1")
         val receiver = Receiver("test", "vt-phd", "covid-19", translation = hl7Config)
 
         val testReport = csvSerializer.readExternal(schema, inputStream, listOf(TestSource), receiver).report ?: fail()
@@ -754,13 +748,7 @@ NTE|1|L|This is a final comment|RE"""
 
         val terser = spyk(emptyTerser)
         every { terser.set(any(), any()) } returns Unit
-        val configuration = Hl7Configuration(
-            messageProfileId = "",
-            receivingApplicationOID = "",
-            receivingApplicationName = "",
-            receivingFacilityName = "",
-            receivingFacilityOID = "",
-            receivingOrganization = "",
+        val configuration = createConfig(
             truncateHDNamespaceIds = false,
             truncateHl7Fields = "OBX-23-10, MSH-3-1" // Enables truncation on these fields
         )
@@ -965,15 +953,7 @@ NTE|1|L|This is a final comment|RE"""
 
     @Test
     fun `test truncateValue with truncated HD`() {
-        val hl7Config = Hl7Configuration(
-            messageProfileId = "",
-            receivingApplicationOID = "",
-            receivingApplicationName = "",
-            receivingFacilityName = "",
-            receivingFacilityOID = "",
-            receivingOrganization = "",
-            truncateHDNamespaceIds = true,
-        )
+        val hl7Config = createConfig(truncateHDNamespaceIds = true)
         val inputAndExpected = mapOf(
             "short" to "short",
             "Test & Value ~ Text ^ String" to "Test & Value ~ T",
@@ -987,13 +967,7 @@ NTE|1|L|This is a final comment|RE"""
 
     @Test
     fun `test truncateValue with HD`() {
-        val hl7Config = Hl7Configuration(
-            messageProfileId = "",
-            receivingApplicationOID = "",
-            receivingApplicationName = "",
-            receivingFacilityName = "",
-            receivingFacilityOID = "",
-            receivingOrganization = "",
+        val hl7Config = createConfig(
             truncateHDNamespaceIds = false,
             truncateHl7Fields = "MSH-4-1, MSH-3-1" // Enables truncation on these fields
         )
@@ -1009,13 +983,7 @@ NTE|1|L|This is a final comment|RE"""
 
     @Test
     fun `test trimAndTruncate with NPI`() {
-        val hl7Config = Hl7Configuration(
-            messageProfileId = "",
-            receivingApplicationOID = "",
-            receivingApplicationName = "",
-            receivingFacilityName = "",
-            receivingFacilityOID = "",
-            receivingOrganization = "",
+        val hl7Config = createConfig(
             truncateHDNamespaceIds = false,
             truncateHl7Fields = "ORC-12-1" // Enables truncation on this field
         )
@@ -1113,15 +1081,7 @@ NTE|1|L|This is a final comment|RE"""
         val csvContent = ByteArrayInputStream("senderId,testOrdered,testName,testCodingSystem,testResult,testResultText,testPerformed,testResultCodingSystem,testResultDate,testReportDate,testOrderedDate,specimenCollectedDate,deviceIdentifier,deviceName,specimenId,serialNumber,patientAge,patientAgeUnits,patientDob,patientRace,patientRaceText,patientEthnicity,patientEthnicityText,patientSex,patientZip,patientCounty,orderingProviderNpi,orderingProviderLname,orderingProviderFname,orderingProviderZip,performingFacility,performingFacilityName,performingFacilityStreet,performingFacilityStreet2,performingFacilityCity,performingFacilityState,performingFacilityZip,performingFacilityCounty,performingFacilityPhone,orderingFacilityName,orderingFacilityStreet,orderingFacilityStreet2,orderingFacilityCity,orderingFacilityState,orderingFacilityZip,orderingFacilityCounty,orderingFacilityPhone,specimenSource,patientNameLast,patientNameFirst,patientNameMiddle,patientUniqueId,patientHomeAddress,patientHomeAddress2,patientCity,patientState,patientPhone,patientPhoneArea,orderingProviderAddress,orderingProviderAddress2,orderingProviderCity,orderingProviderState,orderingProviderPhone,orderingProviderPhoneArea,firstTest,previousTestType,previousTestDate,previousTestResult,correctedTestId,healthcareEmployee,healthcareEmployeeType,symptomatic,symptomsList,hospitalized,hospitalizedCode,symptomsIcu,congregateResident,congregateResidentType,pregnant,pregnantText,patientEmail,reportingFacility\nfake,94531-1,SARS coronavirus 2 RNA panel - Respiratory specimen by NAA with probe detection,LN,260415000,Not Detected,94558-4,SCT,202110062022-0400,202110062022-0400,20211007,20211007,00382902560821,BD Veritor System for Rapid Detection of SARS-CoV-2*,4efd9df8-9424-4e50-b168-f3aa894bfa42,4efd9df8-9424-4e50-b168-f3aa894bfa42,45,yr,1975-10-10,2106-3,White,2135-2,Hispanic or Latino,M,93307,Kern County,1760085880,,,93312,05D2191150,Inovia Pharmacy,9902 Brimhall rd ste 100,,Bakersfield,CA,93312,Kern County,+16618297861,Inovia Pharmacy,9902 Brimhall rd ste 100,,Bakersfield,CA,93312,Kern County,+16618297861,445297001,Tapia,Jose,,e553c462-6bad-4e42-ab1e-0879b797aa31,1211 Dawn st,,Bakersfield,CA,+16614933107,661,9902 BRIMHALL RD STE 100,,BAKERSFIELD,CA,+16618297861,661,UNK,,,,,,,UNK,,NO,,NO,NO,,261665006,UNK,,1760085880".toByteArray()) // ktlint-disable max-line-length
         val schema = "direct/direct-covid-19"
 
-        val hl7Config = Hl7Configuration(
-            messageProfileId = "",
-            receivingApplicationOID = "",
-            receivingApplicationName = "",
-            receivingFacilityName = "",
-            receivingFacilityOID = "",
-            receivingOrganization = "",
-            cliaForSender = mapOf("fake1" to "ABCTEXT123", "fake" to "10D1234567")
-        )
+        val hl7Config = createConfig(cliaForSender = mapOf("fake1" to "ABCTEXT123", "fake" to "10D1234567"))
         val receiver = Receiver("test", "ca-dph", "covid-19", translation = hl7Config)
 
         val testReport = csvSerializer.readExternal(schema, csvContent, listOf(TestSource), receiver).report ?: fail()
@@ -1164,7 +1124,7 @@ NTE|1|L|This is a final comment|RE"""
         val csvContent = ByteArrayInputStream("senderId,testOrdered,testName,testCodingSystem,testResult,testResultText,testPerformed,testResultCodingSystem,testResultDate,testReportDate,testOrderedDate,specimenCollectedDate,deviceIdentifier,deviceName,specimenId,serialNumber,patientAge,patientAgeUnits,patientDob,patientRace,patientRaceText,patientEthnicity,patientEthnicityText,patientSex,patientZip,patientCounty,orderingProviderNpi,orderingProviderLname,orderingProviderFname,orderingProviderZip,performingFacility,performingFacilityName,performingFacilityStreet,performingFacilityStreet2,performingFacilityCity,performingFacilityState,performingFacilityZip,performingFacilityCounty,performingFacilityPhone,orderingFacilityName,orderingFacilityStreet,orderingFacilityStreet2,orderingFacilityCity,orderingFacilityState,orderingFacilityZip,orderingFacilityCounty,orderingFacilityPhone,specimenSource,patientNameLast,patientNameFirst,patientNameMiddle,patientUniqueId,patientHomeAddress,patientHomeAddress2,patientCity,patientState,patientPhone,patientPhoneArea,orderingProviderAddress,orderingProviderAddress2,orderingProviderCity,orderingProviderState,orderingProviderPhone,orderingProviderPhoneArea,firstTest,previousTestType,previousTestDate,previousTestResult,correctedTestId,healthcareEmployee,healthcareEmployeeType,symptomatic,symptomsList,hospitalized,hospitalizedCode,symptomsIcu,congregateResident,congregateResidentType,pregnant,pregnantText,patientEmail,reportingFacility\nfake,94531-1,SARS coronavirus 2 RNA panel - Respiratory specimen by NAA with probe detection,LN,260415000,Not Detected,94558-4,SCT,202110062022-0400,202110062022-0400,20211007,20211007,00382902560821,BD Veritor System for Rapid Detection of SARS-CoV-2*,4efd9df8-9424-4e50-b168-f3aa894bfa42,4efd9df8-9424-4e50-b168-f3aa894bfa42,45,yr,1975-10-10,2106-3,White,2135-2,Hispanic or Latino,M,93307,Kern County,1760085880,,,93312,05D2191150,Inovia Pharmacy,9902 Brimhall rd ste 100,,Bakersfield,CA,93312,Kern County,+16618297861,Inovia Pharmacy,9902 Brimhall rd ste 100,,Bakersfield,CA,93312,Kern County,+16618297861,445297001,Tapia,Jose,,e553c462-6bad-4e42-ab1e-0879b797aa31,1211 Dawn st,,Bakersfield,CA,+16614933107,661,9902 BRIMHALL RD STE 100,,BAKERSFIELD,CA,+16618297861,661,UNK,,,,,,,UNK,,NO,,NO,NO,,261665006,UNK,,1760085880".toByteArray()) // ktlint-disable max-line-length
         val schema = "direct/direct-covid-19"
 
-        val hl7Config = Hl7Configuration(
+        val hl7Config = createConfig(
             replaceValue = mapOf(
                 "" to "ABCTEXT123",
                 "fake1" to "ABCTEXT123",
@@ -1172,13 +1132,7 @@ NTE|1|L|This is a final comment|RE"""
                 "MSH-4-2" to "correctText,-,YES!",
                 "MSH-4-3" to "MSH-4-2",
                 "MSH-10" to "yeah,/,MSH-4-1"
-            ),
-            messageProfileId = "",
-            receivingApplicationOID = "",
-            receivingApplicationName = "",
-            receivingFacilityName = "",
-            receivingFacilityOID = "",
-            receivingOrganization = "",
+            )
         )
         val receiver = Receiver("mock", "ca-dph", "covid-19", translation = hl7Config)
 
