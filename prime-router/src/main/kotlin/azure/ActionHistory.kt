@@ -32,6 +32,7 @@ import org.jooq.Configuration
 import org.jooq.DSLContext
 import org.jooq.JSONB
 import org.jooq.impl.DSL
+import org.jooq.impl.SQLDataType
 import java.io.ByteArrayOutputStream
 import java.time.Instant
 import java.time.OffsetDateTime
@@ -191,7 +192,13 @@ class ActionHistory {
     fun trackActionResult(actionResult: String) {
         val tmp = if (action.actionResult.isNullOrBlank()) actionResult else "${action.actionResult}, $actionResult"
         val max = ACTION.ACTION_RESULT.dataType.length()
-        action.actionResult = tmp.chunked(size = max)[0]
+        // max is 0 for the CLOB type. we're using CLOB for the action_result now because we want
+        // bigly strings, not just small sad 2048 strings
+        action.actionResult = if (ACTION.ACTION_RESULT.dataType == SQLDataType.CLOB && max == 0) {
+            tmp
+        } else {
+            tmp.chunked(size = max)[0]
+        }
     }
 
     fun trackActionResult(httpResponseMessage: HttpResponseMessage, showBody: Boolean = true) {
