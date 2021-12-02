@@ -247,6 +247,8 @@ Accension number
 
 **PII**: No
 
+**Format**: use value found in the Code column
+
 **Default Value**: N
 
 **LOINC Code**: 77974-4
@@ -272,6 +274,8 @@ iPatientCare is an ambulatory EMR, so this field is defaulted to 'N'.
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Default Value**: N
 
@@ -547,7 +551,7 @@ Other states may choose to define their own formats.
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **Default Value**: U
 
@@ -602,7 +606,7 @@ The patient's first name
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **Default Value**: U
 
@@ -722,7 +726,7 @@ The patient's phone number with area code
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **Default Value**: UNK
 
@@ -847,7 +851,7 @@ The ID number of the lab order from the placer
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **Default Value**: 
 
@@ -890,6 +894,8 @@ Translate multiple inbound values into the Pregnancy SNOMED Codes
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Default Value**: P
 
@@ -1026,7 +1032,7 @@ TestName populates multiple fields.  This instance populates test_performed_name
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **Cardinality**: [0..1]
 
@@ -1114,6 +1120,8 @@ ResultDate populates multiple fields.  This instance populates test_result_date.
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Default Value**: F
 
