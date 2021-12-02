@@ -89,17 +89,14 @@ jobs:
       - name: Spin up containers
         id: spin_containers
         run: |
-          docker-compose -f docker-compose.yml up -d prime_dev redox ftps sftp azurite settings
+          docker-compose -f docker-compose.yml up -d prime_dev redox ftps sftp azurite
           
-        # Wait for the API to be ready
-      - name: Wainting for the API to be available
-        uses: cygnetdigital/wait_for_response@v2.0.0
-        with:
-          url: http://localhost:7071/api/settings/organizations
-          responseCode: '200,201'
-          timeout: 45000
-          interval: 5000
+      - name: Load the lookup tables
+        run: ./gradlew reloadTables
 
+      - name: Load the settings
+        run: ./gradlew reloadSettings
+        
         # Integrations tests require the metadata catalog
       - name: Run Integration Tests
         run: ./gradlew testIntegration -Pshowtests
@@ -129,7 +126,7 @@ jobs:
         if: always()
         uses: jwalton/gh-docker-logs@v1
         with:
-          images: 'prime-router_prime_dev,vault,prime-router-settings'
+          images: 'prime-router_prime_dev,vault'
 
       - name: Cleanup Gradle Cache
         # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.
