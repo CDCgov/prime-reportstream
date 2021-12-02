@@ -1,9 +1,9 @@
 #
 # Many display lines are truncated as they are in the source material
 ---
-- name: tribal_citizenship
-  system: FHIR
-  referenceUrl: https://terminology.hl7.org/1.0.0/CodeSystem-v3-TribalEntityUS.html
+- name: hl70171
+  system: HL7
+  referenceUrl: https://terminology.hl7.org/1.0.0/ValueSet-v3-TribalEntityUS.html
   values:
     - code: 338
       display: Village of Afognak
