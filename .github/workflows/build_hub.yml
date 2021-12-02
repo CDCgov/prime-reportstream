@@ -89,12 +89,19 @@ jobs:
       - name: Spin up containers
         id: spin_containers
         run: |
-          docker-compose -f docker-compose.yml up -d prime_dev redox ftps sftp azurite settings
+          docker-compose -f docker-compose.yml up -d prime_dev redox ftps sftp azurite
           
+        # Wait for the API to be ready
       - name: Let the containers start
-        uses: juliangruber/sleep-action@v1
+        uses: cygnetdigital/wait_for_response@v2.0.0
         with:
-          time: 25s
+          url: http://localhost:7071/api/settings/organizations
+          responseCode: '200,500,401'
+          timeout: 45000
+          interval: 5000
+          
+      - name: Load settings
+        run: ./gradlew reloadSettings
 
         # Integrations tests require the metadata catalog
       - name: Run Integration Tests
