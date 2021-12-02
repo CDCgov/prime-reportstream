@@ -92,7 +92,7 @@ jobs:
           docker-compose -f docker-compose.yml up -d prime_dev redox ftps sftp azurite
           
         # Wait for the API to be ready
-      - name: Let the containers start
+      - name: Wainting for the API to be available
         uses: cygnetdigital/wait_for_response@v2.0.0
         with:
           url: http://localhost:7071/api/settings/organizations
@@ -132,7 +132,7 @@ jobs:
         if: always()
         uses: jwalton/gh-docker-logs@v1
         with:
-          images: 'prime-router_settings,prime-router_prime_dev,vault'
+          images: 'prime-router_prime_dev,vault'
 
       - name: Cleanup Gradle Cache
         # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.
@@ -226,5 +226,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Deprecated step always succeeds
+        run: true
+        
+  docs:
+    # Deprecated job.  Check schema docs was moved to build_router job
+    name: Check Docs
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Deprecated step"
         run: true
 
