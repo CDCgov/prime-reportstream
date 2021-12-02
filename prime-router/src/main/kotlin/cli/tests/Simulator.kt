@@ -294,7 +294,12 @@ class Simulator : CoolTest() {
         echo("Ready for the real test:")
     }
 
-    private suspend fun teardown(results: List<SimulatorResult>, entireTestMillis: Long, startTime: OffsetDateTime, isAsyncProcessMode: Boolean): Boolean {
+    private suspend fun teardown(
+        results: List<SimulatorResult>,
+        entireTestMillis: Long,
+        startTime: OffsetDateTime,
+        isAsyncProcessMode: Boolean
+    ): Boolean {
         val totalSubmissions = results.map { it.totalSubmissionsCount }.sum()
         val totalItems = results.map { it.totalItemsCount }.sum()
         val totalTime = results.map { it.elapsedMillisForWholeSimulation }.sum()
@@ -334,7 +339,6 @@ class Simulator : CoolTest() {
         // TODO: Will this always be 1 batch? Should it determine results count based on what tests were run?
         // TODO: Should this dynamically determine how long to wait in case of 60_MIN receiver?
         passed = passed && checkTimedResults(1, startTime, TaskAction.send, maxPollSecs = 420)
-
 
         return passed
     }
@@ -378,7 +382,6 @@ class Simulator : CoolTest() {
         return results
     }
 
-
     override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         setup(environment, options)
 
@@ -420,7 +423,7 @@ class Simulator : CoolTest() {
         var resultsFound = 0
 
         var timeElapsedSecs = 0
-        echo("Polling ${taskToCheck.toString()} records.  (Max poll time $maxPollSecs seconds)")
+        echo("Polling $taskToCheck records.  (Max poll time $maxPollSecs seconds)")
         val actualTimeElapsedMillis = measureTimeMillis {
             while (timeElapsedSecs <= maxPollSecs) {
                 if (outputToConsole) {
@@ -435,22 +438,21 @@ class Simulator : CoolTest() {
                 }
                 timeElapsedSecs += pollSleepSecs
 
-
                 resultsFound = checkResultsQuery(afterDateTime, taskToCheck)
 
                 if (resultsFound >= expectedResults)
                     break
             }
         }
-        echo("Polling for ${taskToCheck.toString()} records finished in ${actualTimeElapsedMillis / 1000 } seconds")
+        echo("Polling for $taskToCheck records finished in ${actualTimeElapsedMillis / 1000 } seconds")
 
         // verify results found count is greater than or equal to expected number
         val passed = resultsFound >= expectedResults
 
         if (passed) {
-            good("Found at least $expectedResults ${taskToCheck.toString()} records.")
+            good("Found at least $expectedResults $taskToCheck records.")
         } else {
-            bad("Did not find at least $expectedResults ${taskToCheck.toString()} records.")
+            bad("Did not find at least $expectedResults $taskToCheck records.")
         }
 
         return passed
