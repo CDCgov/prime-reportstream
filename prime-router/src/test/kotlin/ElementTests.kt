@@ -286,6 +286,44 @@ internal class ElementTests {
     }
 
     @Test
+    fun `test checkForError DATE`() {
+        val checkForErrorDateElementNullify = Element(
+            "a",
+            type = Element.Type.DATE,
+            csvFields = Element.csvFields("date"),
+            nullifyValue = true
+        )
+
+        // nullify an invalid date if nullifyValue is true
+        assertThat(
+            checkForErrorDateElementNullify.checkForError("a week ago")
+        ).isEqualTo(
+            null
+        )
+
+        val checkForErrorDateElement = Element(
+            "a",
+            type = Element.Type.DATE,
+            csvFields = Element.csvFields("date")
+        )
+
+        // passing through a valid date of known manual formats does not throw an error
+        val dateStrings = arrayOf("12/20/2020", "12202020", "2020/12/20", "12/20/2020 12:15", "2020/12/20 12:15")
+        dateStrings.forEach { dateString ->
+            assertThat(
+                checkForErrorDateElement.checkForError(dateString)
+            ).isEqualTo(
+                null
+            )
+        }
+
+        // return an InvalidDateMessage
+        val expected = InvalidDateMessage.new("a week ago", "'date' ('a')", null)
+        val actual = checkForErrorDateElement.checkForError("a week ago", null)
+        assertThat(actual?.detailMsg()).isEqualTo(expected.detailMsg())
+    }
+
+    @Test
     fun `test normalize and formatted round-trips`() {
         val postal = Element(
             "a",
