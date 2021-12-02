@@ -190,6 +190,7 @@ NTE|1|L|This is a final comment|RE"""
             receivingFacilityName = "",
             receivingFacilityOID = "",
             receivingOrganization = "",
+            truncateHl7Fields = "OBX-23-1, MSH-4-1",
         )
         val receiver = Receiver("test", "vt-phd", "covid-19", translation = hl7Config)
 
@@ -753,12 +754,23 @@ NTE|1|L|This is a final comment|RE"""
 
         val terser = spyk(emptyTerser)
         every { terser.set(any(), any()) } returns Unit
+        val configuration = Hl7Configuration(
+            messageProfileId = "",
+            receivingApplicationOID = "",
+            receivingApplicationName = "",
+            receivingFacilityName = "",
+            receivingFacilityOID = "",
+            receivingOrganization = "",
+            truncateHDNamespaceIds = false,
+            truncateHl7Fields = "OBX-23-10, MSH-3-1" // Enables truncation on these fields
+        )
 
         // The OBX-23-10 length is 20
         serializer.setCliaComponent(
             terser,
             "012345678901234567890123456789",
-            "OBX-23-10"
+            "OBX-23-10",
+            configuration
         )
 
         verify {
@@ -968,7 +980,7 @@ NTE|1|L|This is a final comment|RE"""
             "Test Value Text String" to "Test Value Text Stri"
         )
         for ((input, expected) in inputAndExpected) {
-            val actual = serializer.truncateValue(input, "MSH-4-1", hl7Config, emptyTerser)
+            val actual = serializer.trimAndTruncateValue(input, "MSH-4-1", hl7Config, emptyTerser)
             assertThat(actual).isEqualTo(expected)
         }
     }
@@ -983,19 +995,20 @@ NTE|1|L|This is a final comment|RE"""
             receivingFacilityOID = "",
             receivingOrganization = "",
             truncateHDNamespaceIds = false,
+            truncateHl7Fields = "MSH-4-1, MSH-3-1" // Enables truncation on these fields
         )
         val inputAndExpected = mapOf(
             "short" to "short",
-            "Test & Value ~ Text ^ String" to "Test & Value ~ Text ",
+            "Test & Value ~ Text ^ String" to "Test & Value ~ Text",
         )
         for ((input, expected) in inputAndExpected) {
-            val actual = serializer.truncateValue(input, "MSH-4-1", hl7Config, emptyTerser)
+            val actual = serializer.trimAndTruncateValue(input, "MSH-4-1", hl7Config, emptyTerser)
             assertThat(actual).isEqualTo(expected)
         }
     }
 
     @Test
-    fun `test truncateValue with NPI`() {
+    fun `test trimAndTruncate with NPI`() {
         val hl7Config = Hl7Configuration(
             messageProfileId = "",
             receivingApplicationOID = "",
@@ -1003,14 +1016,15 @@ NTE|1|L|This is a final comment|RE"""
             receivingFacilityName = "",
             receivingFacilityOID = "",
             receivingOrganization = "",
-            truncateHDNamespaceIds = true,
+            truncateHDNamespaceIds = false,
+            truncateHl7Fields = "ORC-12-1" // Enables truncation on this field
         )
         val inputAndExpected = mapOf(
             "1234567890" to "1234567890",
             "12345678901234567890" to "123456789012345",
         )
         for ((input, expected) in inputAndExpected) {
-            val actual = serializer.truncateValue(input, "ORC-12-1", hl7Config, emptyTerser)
+            val actual = serializer.trimAndTruncateValue(input, "ORC-12-1", hl7Config, emptyTerser)
             assertThat(actual).isEqualTo(expected)
         }
     }

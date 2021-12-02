@@ -77,6 +77,8 @@ data class Hl7Configuration
     val defaultAoeToUnknown: Boolean = false,
     val useBlankInsteadOfUnknown: String? = null,
     val truncateHDNamespaceIds: Boolean = false,
+    // Specify a list of HL7 fields that will be truncated at their HL7 max lengths
+    val truncateHl7Fields: String? = null,
     val usePid14ForPatientEmail: Boolean = false,
     val convertTimestampToDateTime: String? = null,
     val cliaForOutOfStateTesting: String? = null,
