@@ -52,7 +52,7 @@
         "clean": "rimraf ./build",
         "start:localdev": "env-cmd -f .env.development craco start",
         "build:staging": "env-cmd -f .env.staging craco build",
-        "build:release": "env-cmd -f .env.production craco build",
+        "build:production": "env-cmd -f .env.production craco build",
         "postbuild": "cp build/index.html build/404.html",
         "test": "react-scripts test",
         "eject": "react-scripts eject",

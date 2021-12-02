@@ -51,7 +51,7 @@ jobs:
       - name: Build release for production branch (conditional check)
         if: github.ref == 'refs/heads/production'
         run: |
-          yarn build:release
+          yarn build:production
 
       - name: Build staging main/master branch (conditional check)
         if: (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main')
