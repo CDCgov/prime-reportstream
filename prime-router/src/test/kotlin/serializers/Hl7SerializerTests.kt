@@ -985,7 +985,8 @@ NTE|1|L|This is a final comment|RE"""
     fun `test trimAndTruncate with NPI`() {
         val hl7Config = createConfig(
             truncateHDNamespaceIds = false,
-            truncateHl7Fields = "ORC-12-1" // Enables truncation on this field
+            suppressNonNPI = false,
+            truncateHl7Fields = "ORC-12-1, OBR-16-1" // Enables truncation on this field
         )
         val inputAndExpected = mapOf(
             "1234567890" to "1234567890",
@@ -994,6 +995,8 @@ NTE|1|L|This is a final comment|RE"""
         for ((input, expected) in inputAndExpected) {
             val actual = serializer.trimAndTruncateValue(input, "ORC-12-1", hl7Config, emptyTerser)
             assertThat(actual).isEqualTo(expected)
+            val actual2 = serializer.trimAndTruncateValue(input, "OBR-16-1", hl7Config, emptyTerser)
+            assertThat(actual2).isEqualTo(expected)
         }
     }
 
@@ -1112,7 +1115,6 @@ NTE|1|L|This is a final comment|RE"""
 
     @Test
     fun `test replaceValue`() {
-
         // arrange
         val mcf = CanonicalModelClassFactory("2.5.1")
         context.modelClassFactory = mcf
