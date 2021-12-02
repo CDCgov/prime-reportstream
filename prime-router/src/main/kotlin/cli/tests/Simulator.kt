@@ -3,9 +3,15 @@ package gov.cdc.prime.router.cli.tests
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.HttpUtilities
+import gov.cdc.prime.router.azure.WorkflowEngine
+import gov.cdc.prime.router.azure.db.Tables
+import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.cli.FileUtilities
 import gov.cdc.prime.router.common.Environment
+import kotlinx.coroutines.delay
+import org.jooq.impl.DSL
 import java.net.HttpURLConnection
+import java.time.OffsetDateTime
 import kotlin.concurrent.thread
 import kotlin.system.measureTimeMillis
 
@@ -288,7 +294,7 @@ class Simulator : CoolTest() {
         echo("Ready for the real test:")
     }
 
-    fun teardown(results: List<SimulatorResult>, entireTestMillis: Long): Boolean {
+    private suspend fun teardown(results: List<SimulatorResult>, entireTestMillis: Long, startTime: OffsetDateTime, isAsyncProcessMode: Boolean): Boolean {
         val totalSubmissions = results.map { it.totalSubmissionsCount }.sum()
         val totalItems = results.map { it.totalItemsCount }.sum()
         val totalTime = results.map { it.elapsedMillisForWholeSimulation }.sum()
@@ -303,12 +309,33 @@ class Simulator : CoolTest() {
             "Overall Item Rate:\t$itemRateString items/second\n" +
             "Predicted Items per hour:\t${(itemsPerSecond * 3600.0).toInt()} items/hour\n" +
             "Total seconds for the entire simulation:\t${entireTestMillis / 1000} "
-        val passed = results.map { it.passed }.reduce { acc, passed -> acc and passed } // any single fail = failed test
+        var passed = results.map { it.passed }.reduce { acc, passed -> acc and passed } // any single fail = failed test
         if (passed) {
             good(summary)
         } else {
             bad(summary)
         }
+
+        println("Simulator run complete. Verifying data - this could take up to 7 minutes.")
+
+        echo("==== Verifying data from simulator. ====")
+        // if we are running in async mode, verify the correct number of 'process' records have been generated
+        if (isAsyncProcessMode) {
+            val expectedResults = results.sumOf { it.totalItemsCount }
+            passed = passed && checkTimedResults(expectedResults, startTime, TaskAction.process)
+        }
+
+        // poll for batch results - wait for up to 7 minutes
+        // TODO: Will this always be 1 batch? Should it determine results count based on what tests were run?
+        // TODO: Should this dynamically determine how long to wait in case of 60_MIN receiver?
+        passed = passed && checkTimedResults(1, startTime, TaskAction.batch, maxPollSecs = 420)
+
+        // poll for send results - wait for up to 7 minutes
+        // TODO: Will this always be 1 batch? Should it determine results count based on what tests were run?
+        // TODO: Should this dynamically determine how long to wait in case of 60_MIN receiver?
+        passed = passed && checkTimedResults(1, startTime, TaskAction.send, maxPollSecs = 420)
+
+
         return passed
     }
 
@@ -351,13 +378,20 @@ class Simulator : CoolTest() {
         return results
     }
 
+
     override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         setup(environment, options)
 
         val results = mutableListOf<SimulatorResult>()
+
+        val startTime = OffsetDateTime.now()
         var elapsedTime = measureTimeMillis {
-            results += bigBatchTest(environment, options)
+            results += runOneSimulation(oneThreadX50, environment, options)
         }
+
+//        var elapsedTime = measureTimeMillis {
+//            results += bigBatchTest(environment, options)
+//        }
 
         // dev tests only. uncomment what you need to use when testing
 //        val results = mutableListOf<SimulatorResult>()
@@ -369,6 +403,70 @@ class Simulator : CoolTest() {
 //            results += productionSimulation(environment, options)
 //            results += productionSimulation(environment, options)
 //        }
-        return teardown(results, elapsedTime)
+        return teardown(results, elapsedTime, startTime, options.asyncProcessMode)
+    }
+
+    /**
+     * Checks that at least the correct number of process records are in the Action table after running simulator.
+     * There may be more than expected if other tests occur at the same time, but there should not be fewer.
+     */
+    private suspend fun checkTimedResults(
+        expectedResults: Int,
+        afterDateTime: OffsetDateTime,
+        taskToCheck: TaskAction,
+        maxPollSecs: Int = 180,
+        pollSleepSecs: Int = 5
+    ): Boolean {
+        var resultsFound = 0
+
+        var timeElapsedSecs = 0
+        echo("Polling ${taskToCheck.toString()} records.  (Max poll time $maxPollSecs seconds)")
+        val actualTimeElapsedMillis = measureTimeMillis {
+            while (timeElapsedSecs <= maxPollSecs) {
+                if (outputToConsole) {
+                    for (i in 1..pollSleepSecs) {
+                        delay(1000)
+                        // Print out some contemplative dots to show we are waiting.
+                        print(".")
+                    }
+                    echo()
+                } else {
+                    delay(pollSleepSecs.toLong() * 1000)
+                }
+                timeElapsedSecs += pollSleepSecs
+
+
+                resultsFound = checkResultsQuery(afterDateTime, taskToCheck)
+
+                if (resultsFound >= expectedResults)
+                    break
+            }
+        }
+        echo("Polling for ${taskToCheck.toString()} records finished in ${actualTimeElapsedMillis / 1000 } seconds")
+
+        // verify results found count is greater than or equal to expected number
+        val passed = resultsFound >= expectedResults
+
+        if (passed) {
+            good("Found at least $expectedResults ${taskToCheck.toString()} records.")
+        } else {
+            bad("Did not find at least $expectedResults ${taskToCheck.toString()} records.")
+        }
+
+        return passed
+    }
+
+    private fun checkResultsQuery(afterDateTime: OffsetDateTime, actionType: TaskAction): Int {
+        var processActionsFound = 0
+        db = WorkflowEngine().db
+        db.transact { txn ->
+            val ctx = DSL.using(txn)
+            // find out how many process 'action' records were created after the start date
+            processActionsFound = ctx.selectFrom(Tables.ACTION)
+                .where(Tables.ACTION.ACTION_NAME.eq(actionType))
+                .and(Tables.ACTION.CREATED_AT.greaterOrEqual(afterDateTime))
+                .count()
+        }
+        return processActionsFound
     }
 }
