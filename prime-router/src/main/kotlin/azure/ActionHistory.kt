@@ -331,7 +331,7 @@ class ActionHistory {
         reportFile.schemaTopic = report.schema.topic
         reportFile.itemCount = report.itemCount
         filteredOutReports[reportFile.reportId] = reportFile
-        filteredReportRows[reportFile.reportId] = report.filteredItems
+        filteredReportRows[reportFile.reportId] = report.filteringResults
     }
 
     /**
@@ -361,7 +361,7 @@ class ActionHistory {
         reportFile.blobDigest = blobInfo.digest
         reportFile.itemCount = report.itemCount
         reportsOut[reportFile.reportId] = reportFile
-        filteredReportRows[reportFile.reportId] = report.filteredItems
+        filteredReportRows[reportFile.reportId] = report.filteringResults
         trackItemLineages(report)
         trackEvent(event) // to be sent to queue later.
     }
@@ -386,7 +386,7 @@ class ActionHistory {
         reportFile.blobDigest = blobInfo.digest
         reportFile.itemCount = report.itemCount
         reportsOut[reportFile.reportId] = reportFile
-        filteredReportRows[reportFile.reportId] = report.filteredItems
+        filteredReportRows[reportFile.reportId] = report.filteringResults
         trackItemLineages(report)
         trackEvent(event) // to be sent to queue later.
     }

@@ -74,12 +74,17 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
         val organization = settings.findOrganization(receiver.organizationName)
             ?: error("No org for ${receiver.fullName}")
 
+        val schema = metadata.findSchema(receiver.schemaName)
+            ?: error("Cannot find schema ${receiver.schemaName}")
+        val trackingElement = schema.trackingElement // might be null
+
         // Do jurisdictionalFiltering on the input
         val jurisFilteredReport = filterByOneFilterType(
             input,
             receiver,
             organization,
             ReportStreamFilterType.JURISDICTIONAL_FILTER,
+            trackingElement,
             doLogging = false,
         )
         // vast majority of receivers will return here, which speeds subsequent filters.
@@ -92,6 +97,7 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
             receiver,
             organization,
             ReportStreamFilterType.QUALITY_FILTER,
+            trackingElement,
             doLogging = !receiver.reverseTheQualityFilter
         )
         if (qualityFilteredReport.isEmpty()) return qualityFilteredReport
@@ -102,6 +108,7 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
             receiver,
             organization,
             ReportStreamFilterType.ROUTING_FILTER,
+            trackingElement,
             doLogging = true // quality and routing info will go together into the report's filteredItems
         )
         if (routingFilteredReport.isEmpty()) return routingFilteredReport
@@ -125,6 +132,7 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
         receiver: Receiver,
         organization: Organization,
         filterType: ReportStreamFilterType,
+        trackingElement: String?,
         doLogging: Boolean,
     ): Report {
         // First, retrieve the default filter for this topic and filterType
@@ -172,6 +180,7 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
             filterAndArgs,
             receiver,
             doLogging,
+            trackingElement,
             // the reverseTheQualityFilter flag only applies for qualityFilters
             if (filterType == ReportStreamFilterType.QUALITY_FILTER) receiver.reverseTheQualityFilter else false
         )
@@ -249,7 +258,7 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
         if (receiver.deidentify)
             transformed = transformed.deidentify()
         var copy = transformed.copy(destination = receiver, bodyFormat = receiver.format)
-        copy.filteredItems.addAll(input.filteredItems)
+        copy.filteringResults.addAll(input.filteringResults)
         return copy
     }
 

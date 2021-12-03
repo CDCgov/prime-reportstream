@@ -94,7 +94,8 @@ class TranslatorTests {
     @Test
     fun `test filterByOneFilterType`() {
         val mySchema = Schema(
-            name = "two", topic = "test", elements = listOf(Element("a"), Element("b"))
+            name = "two", topic = "test", trackingElement = "id",
+            elements = listOf(Element("id"), Element("a"), Element("b"))
         )
         val metadata = Metadata().loadSchemas(mySchema)
         val settings = FileSettings().also {
@@ -105,10 +106,10 @@ class TranslatorTests {
         val table1 = Report(
             mySchema,
             listOf(
-                listOf("yes", "true"), // row 0
-                listOf("no", "true"),
-                listOf("yes", "false"),
-                listOf("no", "false"), // row 3
+                listOf("0", "yes", "true"), // row 0
+                listOf("1", "no", "true"),
+                listOf("2", "yes", "false"),
+                listOf("3", "no", "false"), // row 3
             ),
             TestSource
         )
@@ -118,45 +119,49 @@ class TranslatorTests {
         assertThat(org).isNotNull()
         // Juris filter: No default exists, both org and receiver exist.
         translator.filterByOneFilterType(
-            table1, rcvr!!, org!!, ReportStreamFilterType.JURISDICTIONAL_FILTER, true
+            table1, rcvr!!, org!!, ReportStreamFilterType.JURISDICTIONAL_FILTER, mySchema.trackingElement, true
         ).run {
             assertThat(this.itemCount).isEqualTo(1)
-            assertThat(this.getRow(0)[0]).isEqualTo("yes") // row 0
-            assertThat(this.getRow(0)[1]).isEqualTo("true") // row 0
-            assertThat(this.filteredItems.size).isEqualTo(2) // two rows eliminated, and two filter messages.
-            assertThat(this.filteredItems[0].filteredRows.size).isEqualTo(2) // rows 2 and 3 eliminated (zero based)
-            assertThat(this.filteredItems[0].filteredRows[0]).isEqualTo(2)
-            assertThat(this.filteredItems[0].filteredRows[1]).isEqualTo(3)
-            assertThat(this.filteredItems[1].filteredRows.size).isEqualTo(2) // rows 1 and 3 eliminated (zero based)
-            assertThat(this.filteredItems[1].filteredRows[0]).isEqualTo(1)
-            assertThat(this.filteredItems[1].filteredRows[1]).isEqualTo(3)
+            assertThat(this.getRow(0)[0]).isEqualTo("0") // row 0 is only one left.
+            assertThat(this.filteringResults.size).isEqualTo(2) // two rows eliminated, and two filter messages.
+            assertThat(this.filteringResults[0].filteredCount).isEqualTo(2) // rows 2 and 3 eliminated (zero based)
+            assertThat(this.filteringResults[0].filteredTrackingElements[0]).isEqualTo("2")
+            assertThat(this.filteringResults[0].filteredTrackingElements[1]).isEqualTo("3")
+            assertThat(this.filteringResults[1].filteredCount).isEqualTo(2) // rows 1 and 3 eliminated (zero based)
+            assertThat(this.filteringResults[1].filteredTrackingElements[0]).isEqualTo("1")
+            assertThat(this.filteringResults[1].filteredTrackingElements[1]).isEqualTo("3")
         }
         // Quality filter: Override the default; org filter exists.  No receiver filter.
-        translator.filterByOneFilterType(table1, rcvr, org, ReportStreamFilterType.QUALITY_FILTER, true).run {
+        translator.filterByOneFilterType(
+            table1, rcvr, org, ReportStreamFilterType.QUALITY_FILTER, mySchema.trackingElement, true
+        ).run {
             assertThat(this.itemCount).isEqualTo(2)
-            assertThat(this.getRow(0)[0]).isEqualTo("yes")
-            assertThat(this.getRow(0)[1]).isEqualTo("true")
-            assertThat(this.getRow(1)[0]).isEqualTo("no")
-            assertThat(this.getRow(1)[1]).isEqualTo("true")
-            assertThat(this.filteredItems.size).isEqualTo(1) // two rows eliminated, but one filter message.
-            assertThat(this.filteredItems[0].filteredRows.size).isEqualTo(2)
+            assertThat(this.getRow(0)[0]).isEqualTo("0")
+            assertThat(this.getRow(1)[0]).isEqualTo("1")
+            assertThat(this.filteringResults.size).isEqualTo(1) // two rows eliminated, but one filter message.
+            assertThat(this.filteringResults[0].filteredCount).isEqualTo(2)
+            assertThat(this.filteringResults[0].filteredTrackingElements[0]).isEqualTo("2")
+            assertThat(this.filteringResults[0].filteredTrackingElements[1]).isEqualTo("3")
         }
         // Routing filter: Override the default; No org filter. Receiver filter exists.
-        translator.filterByOneFilterType(table1, rcvr, org, ReportStreamFilterType.ROUTING_FILTER, true).run {
+        translator.filterByOneFilterType(
+            table1, rcvr, org, ReportStreamFilterType.ROUTING_FILTER, mySchema.trackingElement, true
+        ).run {
             assertThat(this.itemCount).isEqualTo(2)
-            assertThat(this.getRow(0)[0]).isEqualTo("yes")
-            assertThat(this.getRow(0)[1]).isEqualTo("true")
-            assertThat(this.getRow(1)[0]).isEqualTo("yes")
-            assertThat(this.getRow(1)[1]).isEqualTo("false")
-            assertThat(this.filteredItems.size).isEqualTo(1) // two rows eliminated, but one filter message.
-            assertThat(this.filteredItems[0].filteredRows.size).isEqualTo(2)
+            assertThat(this.getRow(0)[0]).isEqualTo("0")
+            assertThat(this.getRow(1)[0]).isEqualTo("2")
+            assertThat(this.filteringResults.size).isEqualTo(1) // two rows eliminated, but one filter message.
+            assertThat(this.filteringResults[0].filteredCount).isEqualTo(2)
+            assertThat(this.filteringResults[0].filteredTrackingElements[0]).isEqualTo("1")
+            assertThat(this.filteringResults[0].filteredTrackingElements[1]).isEqualTo("3")
         }
     }
 
     @Test
     fun `test filterByOneFilterType Defaults`() {
         val mySchema = Schema(
-            name = "two", topic = "test", elements = listOf(Element("a"), Element("b"))
+            name = "two", topic = "test", trackingElement = "id",
+            elements = listOf(Element("id"), Element("a"), Element("b"))
         )
         val metadata = Metadata().loadSchemas(mySchema)
         val settings = FileSettings().also {
@@ -167,10 +172,10 @@ class TranslatorTests {
         val table1 = Report(
             mySchema,
             listOf(
-                listOf("yes", "true"), // row 0
-                listOf("no", "true"),
-                listOf("yes", "false"),
-                listOf("no", "false"), // row 3
+                listOf("0", "yes", "true"), // row 0
+                listOf("1", "no", "true"),
+                listOf("2", "yes", "false"),
+                listOf("3", "no", "false"), // row 3
             ),
             TestSource
         )
@@ -180,43 +185,44 @@ class TranslatorTests {
         assertThat(org).isNotNull()
         // Juris filter: No default, org, or receiver filters exist.  No filtering done.
         translator.filterByOneFilterType(
-            table1, rcvr!!, org!!, ReportStreamFilterType.JURISDICTIONAL_FILTER, true
+            table1, rcvr!!, org!!, ReportStreamFilterType.JURISDICTIONAL_FILTER, mySchema.trackingElement, true
         ).run {
             assertThat(this.itemCount).isEqualTo(4)
             // just confirm the first and last rows
-            assertThat(this.getRow(0)[0]).isEqualTo("yes")
-            assertThat(this.getRow(0)[1]).isEqualTo("true")
-            assertThat(this.getRow(3)[0]).isEqualTo("no")
-            assertThat(this.getRow(3)[1]).isEqualTo("false")
-            assertThat(this.filteredItems.size).isEqualTo(0) // logging turned on, but no rows eliminated.
+            assertThat(this.getRow(0)[0]).isEqualTo("0")
+            assertThat(this.getRow(1)[0]).isEqualTo("1")
+            assertThat(this.getRow(2)[0]).isEqualTo("2")
+            assertThat(this.getRow(3)[0]).isEqualTo("3")
+            assertThat(this.filteringResults.size).isEqualTo(0) // logging turned on, but no rows eliminated.
         }
         // Quality filter: Default rules apply only.  No org or receiver level filters.  And its reversed!
-        translator.filterByOneFilterType(table1, rcvr, org, ReportStreamFilterType.QUALITY_FILTER, false).run {
+        translator.filterByOneFilterType(
+            table1, rcvr, org, ReportStreamFilterType.QUALITY_FILTER, mySchema.trackingElement, false
+        ).run {
             assertThat(this.itemCount).isEqualTo(2)
-            assertThat(this.getRow(0)[0]).isEqualTo("yes")
-            assertThat(this.getRow(0)[1]).isEqualTo("true")
-            assertThat(this.getRow(1)[0]).isEqualTo("yes")
-            assertThat(this.getRow(1)[1]).isEqualTo("false")
-            assertThat(this.filteredItems.size).isEqualTo(0) // no logging done.
+            assertThat(this.getRow(0)[0]).isEqualTo("0")
+            assertThat(this.getRow(1)[0]).isEqualTo("2")
+            assertThat(this.filteringResults.size).isEqualTo(0) // no logging done.
         }
         // Routing filter: Default rules apply only.  No org or receiver level filters. No weird reversing.
-        translator.filterByOneFilterType(table1, rcvr, org, ReportStreamFilterType.ROUTING_FILTER, true).run {
+        translator.filterByOneFilterType(
+            table1, rcvr, org, ReportStreamFilterType.ROUTING_FILTER, mySchema.trackingElement, true
+        ).run {
             assertThat(this.itemCount).isEqualTo(2)
-            assertThat(this.getRow(0)[0]).isEqualTo("yes")
-            assertThat(this.getRow(0)[1]).isEqualTo("false")
-            assertThat(this.getRow(1)[0]).isEqualTo("no")
-            assertThat(this.getRow(1)[1]).isEqualTo("false")
-            assertThat(this.filteredItems.size).isEqualTo(1) // two rows eliminated, by one rule.
-            assertThat(this.filteredItems[0].filteredRows.size).isEqualTo(2) // rows 0 and 1 eliminated (zero based)
-            assertThat(this.filteredItems[0].filteredRows[0]).isEqualTo(0)
-            assertThat(this.filteredItems[0].filteredRows[1]).isEqualTo(1)
+            assertThat(this.getRow(0)[0]).isEqualTo("2")
+            assertThat(this.getRow(1)[0]).isEqualTo("3")
+            assertThat(this.filteringResults.size).isEqualTo(1) // two rows eliminated, by one rule.
+            assertThat(this.filteringResults[0].filteredCount).isEqualTo(2) // rows 0 and 1 eliminated (zero based)
+            assertThat(this.filteringResults[0].filteredTrackingElements[0]).isEqualTo("0")
+            assertThat(this.filteringResults[0].filteredTrackingElements[1]).isEqualTo("1")
         }
     }
 
     @Test
     fun `test filterByAllFilterTypes`() {
         val mySchema = Schema(
-            name = "two", topic = "test", elements = listOf(Element("a"), Element("b"))
+            name = "two", topic = "test", trackingElement = "id",
+            elements = listOf(Element("id"), Element("a"), Element("b"))
         )
         val metadata = Metadata().loadSchemas(mySchema)
         val settings = FileSettings().also {
@@ -227,10 +233,10 @@ class TranslatorTests {
         val table1 = Report(
             mySchema,
             listOf(
-                listOf("yes", "true"), // row 0
-                listOf("no", "true"), // row 1
-                listOf("yes", "false"), // row 2
-                listOf("no", "false"), // row 3
+                listOf("0", "yes", "true"), // row 0
+                listOf("1", "no", "true"),
+                listOf("2", "yes", "false"),
+                listOf("3", "no", "false"), // row 3
             ),
             TestSource
         )
@@ -240,9 +246,8 @@ class TranslatorTests {
         translator.filterByAllFilterTypes(settings, table1, rcvr!!).run {
             assertThat(this).isNotNull()
             assertThat(this!!.itemCount).isEqualTo(1)
-            assertThat(this.getRow(0)[0]).isEqualTo("yes") // row 0
-            assertThat(this.getRow(0)[1]).isEqualTo("true") // row 0
-            assertThat(this.filteredItems.size).isEqualTo(0) // three rows eliminated, but nothing logged.
+            assertThat(this.getRow(0)[0]).isEqualTo("0") // row 0
+            assertThat(this.filteringResults.size).isEqualTo(0) // three rows eliminated, but nothing logged.
         }
 
         val settings2 = FileSettings().also {
@@ -253,21 +258,58 @@ class TranslatorTests {
         // No juris filtering done.
         // Default matches a = "no" in qualityFilter, but its reversed.  So original rows 1,3 eliminated, rows 0,2 kept
         // But: no logging because its reversed!
-        // Not done yet!  Then match on b = "false" in routingFilter.  At this point rows are numbered 0,1.
-        // So new row 1 is kept ("yes", "false")
+        // Not done yet!  Then keep b = "false" in routingFilter.
+        // So row 2 is kept ("yes", "false")
         translator.filterByAllFilterTypes(settings2, table1, rcvr2!!).run {
             assertThat(this).isNotNull()
             assertThat(this!!.itemCount).isEqualTo(1)
-            assertThat(this.getRow(0)[0]).isEqualTo("yes") // row 3
-            assertThat(this.getRow(0)[1]).isEqualTo("false") // row 3
-            assertThat(this.filteredItems.size).isEqualTo(1) // three rows eliminated, only routingFilter message.
-//            // rows 1 and 3 of the original four rows are eliminated by the qualityFilter:
-//            assertThat(this.filteredItems[0].filteredRows.size).isEqualTo(2) // rows 1 and 3 eliminated (zero based)
-//            assertThat(this.filteredItems[0].filteredRows[0]).isEqualTo(2)
-//            assertThat(this.filteredItems[0].filteredRows[1]).isEqualTo(3)
-            // so the routing filter only sees original rows 0 and 2, now called 0 and 1.  Sigh.
-            assertThat(this.filteredItems[0].filteredRows.size).isEqualTo(1) // rows 0 eliminated
-            assertThat(this.filteredItems[0].filteredRows[0]).isEqualTo(0)
+            assertThat(this.getRow(0)[0]).isEqualTo("2")
+            assertThat(this.filteringResults.size).isEqualTo(1) // three rows eliminated, only routingFilter message.
+            assertThat(this.filteringResults[0].filteredCount).isEqualTo(1) // rows 0 eliminated
+            assertThat(this.filteringResults[0].filteredTrackingElements[0]).isEqualTo("0")
+        }
+    }
+
+    @Test
+    fun `test filter with missing tracking element value`() {
+        val mySchema = Schema(
+            name = "one", topic = "test", trackingElement = "id",
+            elements = listOf(Element("id"), Element("a"))
+        )
+        val metadata = Metadata().loadSchemas(mySchema)
+        val settings = FileSettings().also {
+            it.loadOrganizations(ByteArrayInputStream(receiversYaml.toByteArray()))
+        }
+        val org = settings.findOrganization("phd1")
+        val translator = Translator(metadata, settings)
+        // Table has 4 rows and 2 columns.
+        val table1 = Report(
+            mySchema,
+            listOf(
+                listOf("x", "1"),
+                listOf("", "1"), // missing trackingElement value
+                listOf("y", "2"),
+                listOf("", "2"), // missing trackingElement value
+            ),
+            TestSource
+        )
+        val rcvr = settings.findReceiver("phd1.elr")
+        assertThat(rcvr).isNotNull()
+        assertThat(org).isNotNull()
+        // Juris filter keeps data where on a == 1.  Run with logging on, to force creation of [filteringResults].
+        translator.filterByOneFilterType(
+            table1, rcvr!!, org!!, ReportStreamFilterType.JURISDICTIONAL_FILTER, mySchema.trackingElement, true
+        ).run {
+            assertThat(this).isNotNull()
+            assertThat(this!!.itemCount).isEqualTo(2)
+            assertThat(this.getRow(0)[0]).isEqualTo("x") // row 0
+            assertThat(this.getRow(1)[0]).isEqualTo("") // row 0
+            assertThat(this.filteringResults.size).isEqualTo(1) // two rows eliminated by one filter
+            assertThat(this.filteringResults[0].filteredCount).isEqualTo(2)
+            assertThat(this.filteringResults[0].filteredTrackingElements[0]).isEqualTo("y")
+            assertThat(this.filteringResults[0].filteredTrackingElements[1]).isEqualTo(
+                ReportStreamFilterResult.DEFAULT_TRACKING_VALUE
+            )
         }
     }
 
@@ -324,15 +366,16 @@ class TranslatorTests {
     }
 
     @Test
-    fun `test filterAndMapByReceiver`() {
-        val metadata = Metadata()
+    fun `test filterAndTranslateByReceiver`() {
+        // confusing:  there's already a schema above called 'one'
+        val theSchema = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val metadata = Metadata().loadSchemas(theSchema)
         val settings = FileSettings().also {
             it.loadOrganizations(ByteArrayInputStream(receiversYaml.toByteArray()))
         }
         val translator = Translator(metadata, settings)
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val table1 = Report(
-            one,
+            theSchema,
             listOf(
                 listOf("1", "2"), // first row of data
                 listOf("3", "4"), // second row of data

@@ -335,7 +335,7 @@ class WorkflowEngine(
                 ).partition { (report, _) -> report.isEmpty() }
 
             emptyReports.forEach { (report, receiver) ->
-                if (!report.filteredItems.isEmpty()) {
+                if (!report.filteringResults.isEmpty()) {
                     actionHistory.trackFilteredReport(report, receiver)
                 }
             }
@@ -381,7 +381,7 @@ class WorkflowEngine(
                 loggerMsg = "Queue: ${event.toQueueMessage()}"
             }
             receiver.format.isSingleItemFormat -> {
-                report.filteredItems.forEach {
+                report.filteringResults.forEach {
                     val emptyReport = Report(
                         report.schema,
                         emptyList(),
@@ -390,7 +390,7 @@ class WorkflowEngine(
                         bodyFormat = report.bodyFormat,
                         metadata = Metadata.getInstance()
                     )
-                    emptyReport.filteredItems.add(it)
+                    emptyReport.filteringResults.add(it)
                     actionHistory.trackFilteredReport(emptyReport, receiver)
                 }
 
