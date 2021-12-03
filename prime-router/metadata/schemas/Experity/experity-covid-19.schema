@@ -12,9 +12,13 @@ elements:
 
     - name: sender_id
       csvFields: [{name: sender_id}]
+      type: TABLE
+      table: test-mapper
+      tableColumn: sender_id
 
     - name: processing_mode_code
       csvFields: [{name: processing_mode_code}]
+      default: P
 
     - name: message_id
       csvFields: [{name: Testing_lab_accession_number}]
@@ -87,6 +91,20 @@ elements:
       default: UNK
 
 # Specimen/Order Info
+
+    - name: test_kit_name_id
+      csvFields: [{name: Any_column}]
+      type: TABLE
+      table: test-mapper
+      tableColumn: exact_test_performed
+      mapper: lookup(sender_id, input_test_kit_id)
+
+    - name: input_test_kit_name_id
+      csvFields: [{name: Ordered_test_description}]
+      type: TABLE
+      table: test-mapper
+      tableColumn: generic_test_performed
+
     - name: specimen_collection_date_time
       csvFields: [{name: Specimen_collection_date_time, format: "M/d/yyyy H:nn"}]
 
@@ -119,18 +137,22 @@ elements:
       csvFields: [{name: Testing_lab_accession_number}]
 
     - name: specimen_type
-      type: CODE
-      valueSet: sender-automation/specimen_type
-      documentation: Translate inbound text to outbound SNOMED Codes
       csvFields: [{ name: Specimen_type_description, format: $display}]
       default: "258500001"
+      type: TABLE
+      table: test_performed_lookup
+      tableColumn: exact_specimen_type
+      mapper: lookup(sender_id, test_kit_name_id)
+
 
     - name: specimen_source_site_code
-      type: CODE
-      valueSet: sender-automation/specimen_source_site_code
       documentation: Translate inbound text to outbound SNOMED Codes
       csvFields: [{ name: Specimen_type_description, format: $display}]
       default: "71836000"
+      type: TABLE
+      table: test_performed_lookup
+      tableColumn: exact_specimen_type_source_site
+      mapper: lookup(sender_id, test_kit_name_id)
 
 
 # Ordering provider
