@@ -27,11 +27,11 @@ needed to work in ReportStream. This document may have new information not found
 
 Installing the recommend tools including these for this note.
 
-* [git](getting-started/install-git.md) 
-* [Docker Desktop](getting-started/install-docker.md) Install Docker Desktop directly. 
-* [OpenJDK](getting-started/install-openjdk.md) Install OpenJDK 11 using Brew. 
-* [Azure Functions Core Tools](getting-started/install-afct.md) Install the v3 of Azure Functions.
-* [Gradle](getting-started/install-gradle.md) Install Gradle using Brew. 
+* [git](./install-git.md) 
+* [Docker Desktop](./install-docker.md) Install Docker Desktop directly. 
+* [OpenJDK](./install-openjdk.md) Install OpenJDK 11 using Brew. 
+* [Azure Functions Core Tools](./install-afct.md) Install the v3 of Azure Functions.
+* [Gradle](./install-gradle.md) Install Gradle using Brew. 
 
 An IDE of your choice. Both VS Code and JetBrain's IntelliJ have ARM64 versions. 
 

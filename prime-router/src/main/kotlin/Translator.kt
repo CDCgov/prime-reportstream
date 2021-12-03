@@ -195,11 +195,14 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
     }
 
     /**
-     * Filter a report for a receiver by that receiver's qualityFilter
+     * Filter a [input] report for a [receiver] by that receiver's qualityFilter and
      * then translate the filtered report based on the receiver's schema.
      */
-    private fun translateByReceiver(input: Report, receiver: Receiver, defaultValues: DefaultValues): Report {
-
+    public fun translateByReceiver(
+        input: Report,
+        receiver: Receiver,
+        defaultValues: DefaultValues = emptyMap()
+    ): Report {
         // Now filter according to this receiver's desired qualityFilter, or default filter if none found.
 /*        val qualityFilter = when {
             receiver.qualityFilter.isNotEmpty() -> receiver.qualityFilter
@@ -264,11 +267,12 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
 
     /**
      * Translate one report to another schema. Translate all items.
+     * @todo get rid of this - not used?
      */
-//    fun translate(input: Report, toSchema: Schema, defaultValues: DefaultValues): Report {
-//        val mapping = buildMapping(toSchema = toSchema, fromSchema = input.schema, defaultValues)
-//        return input.applyMapping(mapping = mapping)
-//    }
+    fun translate(input: Report, toSchema: Schema, defaultValues: DefaultValues = emptyMap()): Report {
+        val mapping = buildMapping(toSchema = toSchema, fromSchema = input.schema, defaultValues)
+        return input.applyMapping(mapping = mapping)
+    }
 
     fun translate(
         input: Report,
