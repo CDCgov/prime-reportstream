@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.serializers
 
 import assertk.assertThat
+import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
 import assertk.assertions.isLessThanOrEqualTo
 import assertk.assertions.isNotEmpty
@@ -9,6 +10,7 @@ import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import ca.uhn.hl7v2.DefaultHapiContext
+import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.router.FileSettings
@@ -42,6 +44,7 @@ class Hl7SerializerIntegrationTests {
     private val translator = Translator(metadata, FileSettings())
     private val sampleHl7Message: String
     private val sampleHl7MessageWithRepeats: String
+    private val mcf = CanonicalModelClassFactory("2.5.1")
 
     init {
         val settings = FileSettings("./settings")
@@ -192,6 +195,62 @@ NTE|1|L|This is a final comment|RE"""
             )
         ).isEqualTo("High Meadow")
         assertThat(output).isNotNull()
+    }
+
+    @Test
+    fun `test reading message from serializer`() {
+        // arrange
+        val mcf = CanonicalModelClassFactory("2.5.1")
+        context.modelClassFactory = mcf
+        val parser = context.pipeParser
+        // act
+        val reg = "[\r\n]".toRegex()
+        val cleanedMessage = reg.replace(sampleHl7Message, "\r")
+        val hapiMsg = parser.parse(cleanedMessage)
+        val terser = Terser(hapiMsg)
+        // these messages are of type ORU_R01, so we can cast to that
+        // as well, and let's test that while we're here as well
+        val oru = hapiMsg as ORU_R01
+        // assert
+        assertThat(terser.get("/MSH-3-1")).isEqualTo("CDC PRIME - Atlanta, Georgia (Dekalb)")
+        assertThat(terser.get("/MSH-3-2")).isEqualTo("2.16.840.1.114222.4.1.237821")
+        assertThat(terser.get("/.PID-11-3")).isEqualTo("South Rodneychester")
+        // check the oru cast
+        assertThat(oru).isNotNull()
+        assertThat(oru.patienT_RESULT.patient).isNotNull()
+        assertThat(oru.patienT_RESULT.patient.pid).isNotNull()
+        println(oru.printStructure())
+    }
+
+    @Test
+    fun `test reading pid repeats`() {
+        // arrange
+        context.modelClassFactory = mcf
+        val parser = context.pipeParser
+        // act
+        val reg = "[\r\n]".toRegex()
+        val cleanedMessage = reg.replace(sampleHl7MessageWithRepeats, "\r")
+        val hapiMsg = parser.parse(cleanedMessage)
+        val terser = Terser(hapiMsg)
+        // these messages are of type ORU_R01, so we can cast to that
+        // as well, and let's test that while we're here as well
+        val oru = hapiMsg as ORU_R01
+        // ^NET^Internet^roscoe.wilkinson@email.com~(211)224-0784^PRN^PH^^1^211^2240784
+        // assert
+        assertThat(terser.get("/PATIENT_RESULT/PATIENT/PID-13(0)-2")).isEqualTo("NET")
+        assertThat(terser.get("/PATIENT_RESULT/PATIENT/PID-13(0)-3")).isEqualTo("Internet")
+        assertThat(terser.get("/PATIENT_RESULT/PATIENT/PID-13(1)-1")).isEqualTo("(211)224-0784")
+        assertThat(terser.get("/PATIENT_RESULT/PATIENT/PID-13(1)-2")).isEqualTo("PRN")
+        println(terser.get("/PATIENT_RESULT/PATIENT/PID-13(0)"))
+        println(terser.get("/PATIENT_RESULT/PATIENT/PID-13(1)"))
+        // check the oru cast
+        assertThat(oru).isNotNull()
+        assertThat(oru.patienT_RESULT.patient).isNotNull()
+        assertThat(oru.patienT_RESULT.patient.pid).isNotNull()
+        assertThat(oru.patienT_RESULT.patient.pid.phoneNumberHome).isNotNull()
+        assertThat(oru.patienT_RESULT.patient.pid.phoneNumberHome).hasSize(2)
+        println(oru.patienT_RESULT.patient.pid.phoneNumberHome[0])
+        println(oru.printStructure())
     }
 
     @Test
