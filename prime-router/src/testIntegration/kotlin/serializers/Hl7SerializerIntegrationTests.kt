@@ -76,6 +76,40 @@ SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (
 NTE|1|L|This is a final comment|RE"""
     }
 
+    /**
+     * Create a mock Hl7 COnfiguration object.
+     * @returns mock object
+     */
+    private fun getMockHl7Configuration(): Hl7Configuration {
+        return mockkClass(Hl7Configuration::class).also {
+            every { it.format }.returns(Report.Format.HL7)
+            every { it.useTestProcessingMode }.returns(false)
+            every { it.suppressQstForAoe }.returns(false)
+            every { it.suppressAoe }.returns(false)
+            every { it.suppressHl7Fields }.returns(null)
+            every { it.useBlankInsteadOfUnknown }.returns(null)
+            every { it.convertTimestampToDateTime }.returns(null)
+            every { it.truncateHDNamespaceIds }.returns(false)
+            every { it.phoneNumberFormatting }.returns(Hl7Configuration.PhoneNumberFormatting.STANDARD)
+            every { it.usePid14ForPatientEmail }.returns(false)
+            every { it.reportingFacilityName }.returns(null)
+            every { it.reportingFacilityId }.returns(null)
+            every { it.reportingFacilityIdType }.returns(null)
+        }
+    }
+
+    /**
+     * Create a mock receiver.
+     * @return mock object
+     */
+    private fun getMockReceiver(hl7Config: Hl7Configuration): Receiver {
+        return mockkClass(Receiver::class).also {
+            every { it.translation }.returns(hl7Config)
+            every { it.format }.returns(Report.Format.HL7)
+            every { it.organizationName }.returns("ca-dph")
+        }
+    }
+
     @Test
     fun `Test write batch`() {
         val outputStream = ByteArrayOutputStream()
@@ -95,31 +129,14 @@ NTE|1|L|This is a final comment|RE"""
         val inputStream = File("./src/test/unit_test_files/ak_test_file.csv").inputStream()
         val schema = "primedatainput/pdi-covid-19"
 
-        val hl7Config = mockkClass(Hl7Configuration::class).also {
+        val hl7Config = getMockHl7Configuration().also {
             every { it.replaceValue }.returns(mapOf("PID-22-3" to "CDCREC,-,testCDCREC", "MSH-9" to "MSH-10"))
-            every { it.format }.returns(Report.Format.HL7)
-            every { it.useTestProcessingMode }.returns(false)
-            every { it.suppressQstForAoe }.returns(false)
-            every { it.suppressAoe }.returns(false)
-            every { it.suppressHl7Fields }.returns(null)
-            every { it.useBlankInsteadOfUnknown }.returns(null)
-            every { it.convertTimestampToDateTime }.returns(null)
-            every { it.truncateHDNamespaceIds }.returns(false)
-            every { it.phoneNumberFormatting }.returns(Hl7Configuration.PhoneNumberFormatting.STANDARD)
-            every { it.usePid14ForPatientEmail }.returns(false)
-            every { it.reportingFacilityName }.returns(null)
-            every { it.reportingFacilityId }.returns(null)
-            every { it.reportingFacilityIdType }.returns(null)
             every { it.cliaForOutOfStateTesting }.returns("1234FAKECLIA")
             every { it.useOrderingFacilityName }.returns(Hl7Configuration.OrderingFacilityName.STANDARD)
             every { it.cliaForSender }.returns(mapOf())
             every { it.valueSetOverrides }.returns(mapOf())
         }
-        val receiver = mockkClass(Receiver::class).also {
-            every { it.translation }.returns(hl7Config)
-            every { it.format }.returns(Report.Format.HL7)
-            every { it.organizationName }.returns("ca-dph")
-        }
+        val receiver = getMockReceiver(hl7Config)
 
         val testReport = csvSerializer.readExternal(schema, inputStream, listOf(TestSource), receiver).report ?: fail()
         val output = serializer.createMessage(testReport, 2)
@@ -339,32 +356,15 @@ NTE|1|L|This is a final comment|RE"""
         val csvContent = ByteArrayInputStream("senderId,testOrdered,testName,testCodingSystem,testResult,testResultText,testPerformed,testResultCodingSystem,testResultDate,testReportDate,testOrderedDate,specimenCollectedDate,deviceIdentifier,deviceName,specimenId,serialNumber,patientAge,patientAgeUnits,patientDob,patientRace,patientRaceText,patientEthnicity,patientEthnicityText,patientSex,patientZip,patientCounty,orderingProviderNpi,orderingProviderLname,orderingProviderFname,orderingProviderZip,performingFacility,performingFacilityName,performingFacilityStreet,performingFacilityStreet2,performingFacilityCity,performingFacilityState,performingFacilityZip,performingFacilityCounty,performingFacilityPhone,orderingFacilityName,orderingFacilityStreet,orderingFacilityStreet2,orderingFacilityCity,orderingFacilityState,orderingFacilityZip,orderingFacilityCounty,orderingFacilityPhone,specimenSource,patientNameLast,patientNameFirst,patientNameMiddle,patientUniqueId,patientHomeAddress,patientHomeAddress2,patientCity,patientState,patientPhone,patientPhoneArea,orderingProviderAddress,orderingProviderAddress2,orderingProviderCity,orderingProviderState,orderingProviderPhone,orderingProviderPhoneArea,firstTest,previousTestType,previousTestDate,previousTestResult,correctedTestId,healthcareEmployee,healthcareEmployeeType,symptomatic,symptomsList,hospitalized,hospitalizedCode,symptomsIcu,congregateResident,congregateResidentType,pregnant,pregnantText,patientEmail,reportingFacility\nfake,94531-1,SARS coronavirus 2 RNA panel - Respiratory specimen by NAA with probe detection,LN,260415000,Not Detected,94558-4,SCT,202110062022-0400,202110062022-0400,20211007,20211007,00382902560821,BD Veritor System for Rapid Detection of SARS-CoV-2*,4efd9df8-9424-4e50-b168-f3aa894bfa42,4efd9df8-9424-4e50-b168-f3aa894bfa42,45,yr,1975-10-10,2106-3,White,2135-2,Hispanic or Latino,M,93307,Kern County,1760085880,,,93312,05D2191150,Inovia Pharmacy,9902 Brimhall rd ste 100,,Bakersfield,CA,93312,Kern County,+16618297861,Inovia Pharmacy,9902 Brimhall rd ste 100,,Bakersfield,CA,93312,Kern County,+16618297861,445297001,Tapia,Jose,,e553c462-6bad-4e42-ab1e-0879b797aa31,1211 Dawn st,,Bakersfield,CA,+16614933107,661,9902 BRIMHALL RD STE 100,,BAKERSFIELD,CA,+16618297861,661,UNK,,,,,,,UNK,,NO,,NO,NO,,261665006,UNK,,1760085880".toByteArray()) // ktlint-disable max-line-length
         val schema = "direct/direct-covid-19"
 
-        val hl7Config = mockkClass(Hl7Configuration::class).also {
+        val hl7Config = getMockHl7Configuration().also {
             every { it.replaceValue }.returns(mapOf())
-            every { it.format }.returns(Report.Format.HL7)
-            every { it.useTestProcessingMode }.returns(false)
-            every { it.suppressQstForAoe }.returns(false)
-            every { it.suppressAoe }.returns(false)
-            every { it.suppressHl7Fields }.returns(null)
-            every { it.useBlankInsteadOfUnknown }.returns(null)
-            every { it.convertTimestampToDateTime }.returns(null)
-            every { it.truncateHDNamespaceIds }.returns(false)
-            every { it.phoneNumberFormatting }.returns(Hl7Configuration.PhoneNumberFormatting.STANDARD)
-            every { it.usePid14ForPatientEmail }.returns(false)
-            every { it.reportingFacilityName }.returns(null)
-            every { it.reportingFacilityId }.returns(null)
-            every { it.reportingFacilityIdType }.returns(null)
             every { it.cliaForOutOfStateTesting }.returns(null)
             every { it.useOrderingFacilityName }.returns(Hl7Configuration.OrderingFacilityName.STANDARD)
             every { it.cliaForSender }.returns(mapOf("fake1" to "ABCTEXT123", "fake" to "10D1234567"))
             every { it.defaultAoeToUnknown }.returns(false)
             every { it.valueSetOverrides }.returns(mapOf())
         }
-        val receiver = mockkClass(Receiver::class).also {
-            every { it.translation }.returns(hl7Config)
-            every { it.format }.returns(Report.Format.HL7)
-            every { it.organizationName }.returns("ca-dph")
-        }
+        val receiver = getMockReceiver(hl7Config)
 
         val testReport = csvSerializer.readExternal(schema, csvContent, listOf(TestSource), receiver).report ?: fail()
         val output = serializer.createMessage(testReport, 0)
@@ -379,21 +379,8 @@ NTE|1|L|This is a final comment|RE"""
         // Test when sender is not found or blank
         val csvContentSenderNotFound = ByteArrayInputStream("senderId,testOrdered,testName,testCodingSystem,testResult,testResultText,testPerformed,testResultCodingSystem,testResultDate,testReportDate,testOrderedDate,specimenCollectedDate,deviceIdentifier,deviceName,specimenId,serialNumber,patientAge,patientAgeUnits,patientDob,patientRace,patientRaceText,patientEthnicity,patientEthnicityText,patientSex,patientZip,patientCounty,orderingProviderNpi,orderingProviderLname,orderingProviderFname,orderingProviderZip,performingFacility,performingFacilityName,performingFacilityStreet,performingFacilityStreet2,performingFacilityCity,performingFacilityState,performingFacilityZip,performingFacilityCounty,performingFacilityPhone,orderingFacilityName,orderingFacilityStreet,orderingFacilityStreet2,orderingFacilityCity,orderingFacilityState,orderingFacilityZip,orderingFacilityCounty,orderingFacilityPhone,specimenSource,patientNameLast,patientNameFirst,patientNameMiddle,patientUniqueId,patientHomeAddress,patientHomeAddress2,patientCity,patientState,patientPhone,patientPhoneArea,orderingProviderAddress,orderingProviderAddress2,orderingProviderCity,orderingProviderState,orderingProviderPhone,orderingProviderPhoneArea,firstTest,previousTestType,previousTestDate,previousTestResult,correctedTestId,healthcareEmployee,healthcareEmployeeType,symptomatic,symptomsList,hospitalized,hospitalizedCode,symptomsIcu,congregateResident,congregateResidentType,pregnant,pregnantText,patientEmail,reportingFacility\nfake,94531-1,SARS coronavirus 2 RNA panel - Respiratory specimen by NAA with probe detection,LN,260415000,Not Detected,94558-4,SCT,202110062022-0400,202110062022-0400,20211007,20211007,00382902560821,BD Veritor System for Rapid Detection of SARS-CoV-2*,4efd9df8-9424-4e50-b168-f3aa894bfa42,4efd9df8-9424-4e50-b168-f3aa894bfa42,45,yr,1975-10-10,2106-3,White,2135-2,Hispanic or Latino,M,93307,Kern County,1760085880,,,93312,05D2191150,Inovia Pharmacy,9902 Brimhall rd ste 100,,Bakersfield,CA,93312,Kern County,+16618297861,Inovia Pharmacy,9902 Brimhall rd ste 100,,Bakersfield,CA,93312,Kern County,+16618297861,445297001,Tapia,Jose,,e553c462-6bad-4e42-ab1e-0879b797aa31,1211 Dawn st,,Bakersfield,CA,+16614933107,661,9902 BRIMHALL RD STE 100,,BAKERSFIELD,CA,+16618297861,661,UNK,,,,,,,UNK,,NO,,NO,NO,,261665006,UNK,,1760085880".toByteArray()) // ktlint-disable max-line-length
 
-        val hl7ConfigSenderNotFound = mockkClass(Hl7Configuration::class).also {
+        val hl7ConfigSenderNotFound = getMockHl7Configuration().also {
             every { it.replaceValue }.returns(mapOf())
-            every { it.format }.returns(Report.Format.HL7)
-            every { it.useTestProcessingMode }.returns(false)
-            every { it.suppressQstForAoe }.returns(false)
-            every { it.suppressAoe }.returns(false)
-            every { it.suppressHl7Fields }.returns(null)
-            every { it.useBlankInsteadOfUnknown }.returns(null)
-            every { it.convertTimestampToDateTime }.returns(null)
-            every { it.truncateHDNamespaceIds }.returns(false)
-            every { it.phoneNumberFormatting }.returns(Hl7Configuration.PhoneNumberFormatting.STANDARD)
-            every { it.usePid14ForPatientEmail }.returns(false)
-            every { it.reportingFacilityName }.returns(null)
-            every { it.reportingFacilityId }.returns(null)
-            every { it.reportingFacilityIdType }.returns(null)
             every { it.cliaForOutOfStateTesting }.returns(null)
             every { it.useOrderingFacilityName }.returns(Hl7Configuration.OrderingFacilityName.STANDARD)
             every { it.cliaForSender }.returns(mapOf("NotFound" to "ABCTEXT123", "" to "FAKETXT123"))
@@ -401,11 +388,7 @@ NTE|1|L|This is a final comment|RE"""
             every { it.valueSetOverrides }.returns(mapOf())
         }
 
-        val receiverSenderNotFound = mockkClass(Receiver::class).also {
-            every { it.translation }.returns(hl7ConfigSenderNotFound)
-            every { it.format }.returns(Report.Format.HL7)
-            every { it.organizationName }.returns("ca-dph")
-        }
+        val receiverSenderNotFound = getMockReceiver(hl7ConfigSenderNotFound)
 
         val testRptSenderNotFound = csvSerializer.readExternal(schema, csvContentSenderNotFound, listOf(TestSource), receiverSenderNotFound).report ?: fail() // ktlint-disable max-line-length
         val outputSenderNotFound = serializer.createMessage(testRptSenderNotFound, 0)
@@ -433,7 +416,7 @@ NTE|1|L|This is a final comment|RE"""
         val csvContent = ByteArrayInputStream("senderId,testOrdered,testName,testCodingSystem,testResult,testResultText,testPerformed,testResultCodingSystem,testResultDate,testReportDate,testOrderedDate,specimenCollectedDate,deviceIdentifier,deviceName,specimenId,serialNumber,patientAge,patientAgeUnits,patientDob,patientRace,patientRaceText,patientEthnicity,patientEthnicityText,patientSex,patientZip,patientCounty,orderingProviderNpi,orderingProviderLname,orderingProviderFname,orderingProviderZip,performingFacility,performingFacilityName,performingFacilityStreet,performingFacilityStreet2,performingFacilityCity,performingFacilityState,performingFacilityZip,performingFacilityCounty,performingFacilityPhone,orderingFacilityName,orderingFacilityStreet,orderingFacilityStreet2,orderingFacilityCity,orderingFacilityState,orderingFacilityZip,orderingFacilityCounty,orderingFacilityPhone,specimenSource,patientNameLast,patientNameFirst,patientNameMiddle,patientUniqueId,patientHomeAddress,patientHomeAddress2,patientCity,patientState,patientPhone,patientPhoneArea,orderingProviderAddress,orderingProviderAddress2,orderingProviderCity,orderingProviderState,orderingProviderPhone,orderingProviderPhoneArea,firstTest,previousTestType,previousTestDate,previousTestResult,correctedTestId,healthcareEmployee,healthcareEmployeeType,symptomatic,symptomsList,hospitalized,hospitalizedCode,symptomsIcu,congregateResident,congregateResidentType,pregnant,pregnantText,patientEmail,reportingFacility\nfake,94531-1,SARS coronavirus 2 RNA panel - Respiratory specimen by NAA with probe detection,LN,260415000,Not Detected,94558-4,SCT,202110062022-0400,202110062022-0400,20211007,20211007,00382902560821,BD Veritor System for Rapid Detection of SARS-CoV-2*,4efd9df8-9424-4e50-b168-f3aa894bfa42,4efd9df8-9424-4e50-b168-f3aa894bfa42,45,yr,1975-10-10,2106-3,White,2135-2,Hispanic or Latino,M,93307,Kern County,1760085880,,,93312,05D2191150,Inovia Pharmacy,9902 Brimhall rd ste 100,,Bakersfield,CA,93312,Kern County,+16618297861,Inovia Pharmacy,9902 Brimhall rd ste 100,,Bakersfield,CA,93312,Kern County,+16618297861,445297001,Tapia,Jose,,e553c462-6bad-4e42-ab1e-0879b797aa31,1211 Dawn st,,Bakersfield,CA,+16614933107,661,9902 BRIMHALL RD STE 100,,BAKERSFIELD,CA,+16618297861,661,UNK,,,,,,,UNK,,NO,,NO,NO,,261665006,UNK,,1760085880".toByteArray()) // ktlint-disable max-line-length
         val schema = "direct/direct-covid-19"
 
-        val hl7Config = mockkClass(Hl7Configuration::class).also {
+        val hl7Config = getMockHl7Configuration().also {
             every { it.replaceValue }.returns(
                 mapOf(
                     "" to "ABCTEXT123",
@@ -444,30 +427,13 @@ NTE|1|L|This is a final comment|RE"""
                     "MSH-10" to "yeah,/,MSH-4-1"
                 )
             )
-            every { it.format }.returns(Report.Format.HL7)
-            every { it.useTestProcessingMode }.returns(false)
-            every { it.suppressQstForAoe }.returns(false)
-            every { it.suppressAoe }.returns(false)
-            every { it.suppressHl7Fields }.returns(null)
-            every { it.useBlankInsteadOfUnknown }.returns(null)
-            every { it.convertTimestampToDateTime }.returns(null)
-            every { it.truncateHDNamespaceIds }.returns(false)
-            every { it.phoneNumberFormatting }.returns(Hl7Configuration.PhoneNumberFormatting.STANDARD)
-            every { it.usePid14ForPatientEmail }.returns(false)
-            every { it.reportingFacilityName }.returns(null)
-            every { it.reportingFacilityId }.returns(null)
-            every { it.reportingFacilityIdType }.returns(null)
             every { it.cliaForOutOfStateTesting }.returns(null)
             every { it.useOrderingFacilityName }.returns(Hl7Configuration.OrderingFacilityName.STANDARD)
             every { it.cliaForSender }.returns(mapOf("fake1" to "ABCTEXT123", "fake" to "10D1234567"))
             every { it.defaultAoeToUnknown }.returns(false)
             every { it.valueSetOverrides }.returns(null)
         }
-        val receiver = mockkClass(Receiver::class).also {
-            every { it.translation }.returns(hl7Config)
-            every { it.format }.returns(Report.Format.HL7)
-            every { it.organizationName }.returns("ca-dph")
-        }
+        val receiver = getMockReceiver(hl7Config)
 
         val testReport = csvSerializer.readExternal(schema, csvContent, listOf(TestSource), receiver).report ?: fail()
         val output = serializer.createMessage(testReport, 0)
@@ -480,9 +446,9 @@ NTE|1|L|This is a final comment|RE"""
         val msh43 = terser.get("/MSH-4-3")
         val msh10 = terser.get("/MSH-10")
 
-        assertThat(msh41).equals("success")
-        assertThat(msh42).equals("correctText-YES!")
-        assertThat(msh43).equals("correctText-YES!")
-        assertThat(msh10).equals("yeah/success")
+        assertThat(msh41).isEqualTo("success")
+        assertThat(msh42).isEqualTo("correctText-YES!")
+        assertThat(msh43).isEqualTo("correctText-YES!")
+        assertThat(msh10).isEqualTo("yeah/success")
     }
 }
