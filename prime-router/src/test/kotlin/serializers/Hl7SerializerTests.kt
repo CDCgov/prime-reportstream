@@ -4,6 +4,7 @@ import assertk.assertThat
 import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
+import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import ca.uhn.hl7v2.DefaultHapiContext
 import ca.uhn.hl7v2.model.Segment
@@ -21,6 +22,7 @@ import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.spyk
 import io.mockk.verify
 import org.junit.jupiter.api.TestInstance
 import java.time.LocalDate
@@ -34,11 +36,11 @@ import kotlin.test.assertEquals
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class Hl7SerializerTests {
-
     private val context = DefaultHapiContext()
     private val mcf = CanonicalModelClassFactory("2.5.1")
     private val sampleHl7Message: String
     private val sampleHl7MessageWithRepeats: String
+    private val emptyTerser = Terser(ORU_R01())
 
     init {
         sampleHl7Message = """MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|Avante at Ormond Beach^10D0876999^CLIA|||20210210170737||ORU^R01^ORU_R01|371784|P|2.5.1|||NE|NE|USA||||PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
@@ -67,6 +69,30 @@ OBX|4|CWE|95421-4^Resides in a congregate care setting^LN^^^^2.69||N^No^HL70136|
 OBX|5|CWE|95419-8^Has symptoms related to condition of interest^LN^^^^2.69||N^No^HL70136||||||F|||202102090000-0600|||||||||||||||QST
 SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (body structure)^SCT^^^^2020-09-01|||||||||202102090000-0600^202102090000-0600
 NTE|1|L|This is a final comment|RE"""
+    }
+
+    private fun createConfig(
+        replaceValue: Map<String, String> = emptyMap(),
+        cliaForSender: Map<String, String> = emptyMap(),
+        cliaForOutOfStateTesting: String? = null,
+        truncateHl7Fields: String? = null,
+        suppressNonNPI: Boolean = false,
+        truncateHDNamespaceIds: Boolean = false,
+    ): Hl7Configuration {
+        return Hl7Configuration(
+            messageProfileId = "",
+            receivingApplicationOID = "",
+            receivingApplicationName = "",
+            receivingFacilityName = "",
+            receivingFacilityOID = "",
+            receivingOrganization = "",
+            cliaForOutOfStateTesting = cliaForOutOfStateTesting,
+            cliaForSender = cliaForSender,
+            replaceValue = replaceValue,
+            truncateHl7Fields = truncateHl7Fields,
+            suppressNonNPI = suppressNonNPI,
+            truncateHDNamespaceIds = truncateHDNamespaceIds
+        )
     }
 
     @Test
@@ -521,17 +547,42 @@ NTE|1|L|This is a final comment|RE"""
     fun `test setCliaComponents`() {
         val settings = FileSettings("./settings")
         val serializer = Hl7Serializer(UnitTestUtils.simpleMetadata, settings)
-        val mockTerser = mockk<Terser>()
-        every { mockTerser.set(any(), any()) } returns Unit
+        val terser = spyk(emptyTerser)
+        every { terser.set(any(), any()) } returns Unit
 
         serializer.setCliaComponent(
-            mockTerser,
+            terser,
             "XYZ",
             "OBX-23-10"
         )
 
         verify {
-            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-23-10", "XYZ")
+            terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-23-10", "XYZ")
+        }
+    }
+
+    @Test
+    fun `test setCliaComponents truncation`() {
+        val settings = FileSettings("./settings")
+        val serializer = Hl7Serializer(UnitTestUtils.simpleMetadata, settings)
+
+        val terser = spyk(emptyTerser)
+        every { terser.set(any(), any()) } returns Unit
+        val configuration = createConfig(
+            truncateHDNamespaceIds = false,
+            truncateHl7Fields = "OBX-23-10, MSH-3-1" // Enables truncation on these fields
+        )
+
+        // The OBX-23-10 length is 20
+        serializer.setCliaComponent(
+            terser,
+            "012345678901234567890123456789",
+            "OBX-23-10",
+            configuration
+        )
+
+        verify {
+            terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-23-10", "01234567890123456789")
         }
     }
 
@@ -539,20 +590,20 @@ NTE|1|L|This is a final comment|RE"""
     fun `test setCliaComponents in HD`() {
         val settings = FileSettings("./settings")
         val serializer = Hl7Serializer(UnitTestUtils.simpleMetadata, settings)
-        val mockTerser = mockk<Terser>()
-        every { mockTerser.set(any(), any()) } returns Unit
+        val terser = spyk(emptyTerser)
+        every { terser.set(any(), any()) } returns Unit
         val hl7Field = "ORC-3-3"
         val value = "dummy"
 
         serializer.setCliaComponent(
-            mockTerser,
+            terser,
             value,
             hl7Field
         )
 
         verify {
-            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-3-3", value)
-            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-3-4", "CLIA")
+            terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-3-3", value)
+            terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-3-4", "CLIA")
         }
     }
 
@@ -637,5 +688,85 @@ NTE|1|L|This is a final comment|RE"""
 
         assertEquals(newLimitWithSpecialChars, 16)
         assertEquals(newLimitNoSpecialChars, testLimit)
+    }
+
+    @Test
+    fun `test truncateValue with truncated HD`() {
+        val settings = FileSettings("./settings")
+        val serializer = Hl7Serializer(UnitTestUtils.simpleMetadata, settings)
+        val hl7Config = createConfig(truncateHDNamespaceIds = true)
+        val inputAndExpected = mapOf(
+            "short" to "short",
+            "Test & Value ~ Text ^ String" to "Test & Value ~ T",
+            "Test Value Text String" to "Test Value Text Stri"
+        )
+        for ((input, expected) in inputAndExpected) {
+            val actual = serializer.trimAndTruncateValue(input, "MSH-4-1", hl7Config, emptyTerser)
+            assertThat(actual).isEqualTo(expected)
+        }
+    }
+
+    @Test
+    fun `test truncateValue with HD`() {
+        val settings = FileSettings("./settings")
+        val serializer = Hl7Serializer(UnitTestUtils.simpleMetadata, settings)
+        val hl7Config = createConfig(
+            truncateHDNamespaceIds = false,
+            truncateHl7Fields = "MSH-4-1, MSH-3-1" // Enables truncation on these fields
+        )
+        val inputAndExpected = mapOf(
+            "short" to "short",
+            "Test & Value ~ Text ^ String" to "Test & Value ~ Text",
+        )
+        for ((input, expected) in inputAndExpected) {
+            val actual = serializer.trimAndTruncateValue(input, "MSH-4-1", hl7Config, emptyTerser)
+            assertThat(actual).isEqualTo(expected)
+        }
+    }
+
+    @Test
+    fun `test trimAndTruncate with NPI`() {
+        val settings = FileSettings("./settings")
+        val serializer = Hl7Serializer(UnitTestUtils.simpleMetadata, settings)
+        val hl7Config = createConfig(
+            truncateHDNamespaceIds = false,
+            suppressNonNPI = false,
+            truncateHl7Fields = "ORC-12-1, OBR-16-1" // Enables truncation on this field
+        )
+        val inputAndExpected = mapOf(
+            "1234567890" to "1234567890",
+            "12345678901234567890" to "123456789012345",
+        )
+        for ((input, expected) in inputAndExpected) {
+            val actual = serializer.trimAndTruncateValue(input, "ORC-12-1", hl7Config, emptyTerser)
+            assertThat(actual).isEqualTo(expected)
+            val actual2 = serializer.trimAndTruncateValue(input, "OBR-16-1", hl7Config, emptyTerser)
+            assertThat(actual2).isEqualTo(expected)
+        }
+    }
+
+    @Test
+    fun `test getHl7MaxLength`() {
+        val settings = FileSettings("./settings")
+        val serializer = Hl7Serializer(UnitTestUtils.simpleMetadata, settings)
+        // Test the ordering provider id has the right length
+        assertThat(serializer.getHl7MaxLength("ORC-12-1", emptyTerser)).isEqualTo(15)
+        assertThat(serializer.getHl7MaxLength("OBR-16-1", emptyTerser)).isEqualTo(15)
+        // Test that MSH returns reasonable values
+        assertThat(serializer.getHl7MaxLength("MSH-7", emptyTerser)).isEqualTo(26)
+        assertThat(serializer.getHl7MaxLength("MSH-4-1", emptyTerser)).isEqualTo(20)
+        assertThat(serializer.getHl7MaxLength("MSH-4-2", emptyTerser)).isEqualTo(199)
+        assertThat(serializer.getHl7MaxLength("MSH-1", emptyTerser)).isEqualTo(1)
+        // Test that OBX returns reasonable values
+        assertThat(serializer.getHl7MaxLength("OBX-2", emptyTerser)).isEqualTo(2)
+        assertThat(serializer.getHl7MaxLength("OBX-5", emptyTerser)).isEqualTo(99999)
+        assertThat(serializer.getHl7MaxLength("OBX-11", emptyTerser)).isEqualTo(1)
+        // This component limit is smaller than the enclosing field. This inconsistency was fixed by v2.9
+        assertThat(serializer.getHl7MaxLength("OBX-18", emptyTerser)).isEqualTo(22)
+        assertThat(serializer.getHl7MaxLength("OBX-18-1", emptyTerser)).isEqualTo(199)
+        assertThat(serializer.getHl7MaxLength("OBX-19", emptyTerser)).isEqualTo(26)
+
+        // Test that a subcomponent returns null
+        assertThat(serializer.getHl7MaxLength("OBR-16-1-2", emptyTerser)).isNull()
     }
 }
