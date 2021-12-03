@@ -96,7 +96,7 @@ jobs:
         with:
           url: 'http://localhost:7071/api/lookuptables/list'
           responseCode: '200,201,401,500'
-          timeout: 45000
+          timeout: 90000
           interval: 5000
 
       - name: Load the settings
