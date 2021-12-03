@@ -68,8 +68,7 @@ def get_last_modified():
             lastModified = parsedate_to_datetime(r.headers['Last-Modified'])
     except:
         print("Warning: Unable to obtain last modified date from API.")
-    finally:
-        return lastModified
+    return lastModified
 
 # Check and wait for the API to be available for a number of retries
 def waitForApiAvailability():
