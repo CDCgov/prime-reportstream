@@ -91,13 +91,10 @@ jobs:
         run: |
           docker-compose -f docker-compose.yml up -d prime_dev redox ftps sftp azurite
           
-      - name: Wait for the API to become available
-        uses: cygnetdigital/wait_for_response@v2.0.0
+      - name: Give time for the API to start
+        uses: juliangruber/sleep-action@v1
         with:
-          url: 'http://localhost:7071/api/lookuptables/list'
-          responseCode: '200,201,401,500'
-          timeout: 90000
-          interval: 5000
+          time: 20s
 
       - name: Load the settings
         run: ./gradlew reloadSettings
