@@ -171,7 +171,7 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
         // This weird obj is of type List<Pair<ReportStreamFilterDef, List<String>>>
         val filterAndArgs = filterToApply.map { filterSpec ->
             val (fnName, fnArgs) = ReportStreamFilterDefinition.parseReportStreamFilter(filterSpec)
-            val filterFn = metadata.findJurisdictionalFilter(fnName)
+            val filterFn = metadata.findReportStreamFilterDefinitions(fnName)
                 ?: error("Cannot find ReportStreamFilter Definition for $fnName")
             Pair(filterFn, fnArgs)
         }

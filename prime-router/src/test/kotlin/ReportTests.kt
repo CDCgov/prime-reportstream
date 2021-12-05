@@ -31,7 +31,7 @@ class ReportTests {
     fun `test filter`() {
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
-        val jurisdictionalFilter = metadata.findJurisdictionalFilter("matches") ?: fail("cannot find filter")
+        val jurisdictionalFilter = metadata.findReportStreamFilterDefinitions("matches") ?: fail("cannot find filter")
         val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource)
         assertThat(report1.itemCount).isEqualTo(2)
         val filteredReport = report1.filter(
@@ -47,7 +47,7 @@ class ReportTests {
     fun `test multiarg matches filter`() {
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
-        val jurisdictionalFilter = metadata.findJurisdictionalFilter("matches") ?: fail("cannot find filter")
+        val jurisdictionalFilter = metadata.findReportStreamFilterDefinitions("matches") ?: fail("cannot find filter")
         // each sublist is a row.
         val report1 = Report(one, listOf(listOf("row1_a", "row1_b"), listOf("row2_a", "row2_b")), source = TestSource)
         assertThat(2).isEqualTo(report1.itemCount)
@@ -294,7 +294,7 @@ class ReportTests {
     fun `test item lineage after jurisdictional filter`() {
         val schema = Schema(name = "one", topic = "test", elements = listOf(Element("a")), trackingElement = "a")
         val metadata = Metadata(schema = schema)
-        val jurisdictionalFilter = metadata.findJurisdictionalFilter("matches") ?: fail("cannot find filter")
+        val jurisdictionalFilter = metadata.findReportStreamFilterDefinitions("matches") ?: fail("cannot find filter")
         // each sublist is a row.
         val report1 = Report(schema, listOf(listOf("rep1_row1_a"), listOf("rep1_row2_a")), source = TestSource)
 
@@ -346,7 +346,7 @@ class ReportTests {
         // each sublist is a row.
         val report1 = Report(schema, listOf(listOf("bbb"), listOf("aaa"), listOf("aaa")), source = TestSource)
         val metadata = Metadata(schema = schema)
-        val jurisdictionalFilter = metadata.findJurisdictionalFilter("matches") ?: fail("cannot find filter")
+        val jurisdictionalFilter = metadata.findReportStreamFilterDefinitions("matches") ?: fail("cannot find filter")
 
         // split, merge, split, merge, copy, copy, then filter.
         val reports1 = report1.split()
