@@ -203,38 +203,6 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
         receiver: Receiver,
         defaultValues: DefaultValues = emptyMap()
     ): Report {
-        // Now filter according to this receiver's desired qualityFilter, or default filter if none found.
-/*        val qualityFilter = when {
-            receiver.qualityFilter.isNotEmpty() -> receiver.qualityFilter
-            ReportStreamFilters.defaultFiltersByTopic[receiver.topic] != null ->
-                ReportStreamFilters.defaultFiltersByTopic[receiver.topic]?.qualityFilter
-                    ?: error("cannot find a filter for topic ${receiver.topic}")
-            else -> {
-                logger.info("No default qualityFilter found for topic ${receiver.topic}. Not doing qual filtering")
-                emptyList<String>()
-            }
-        }
-        val qualityFilterAndArgs = qualityFilter.map { filterSpec ->
-            val (fnName, fnArgs) = ReportStreamFilterDef.parseReportStreamFilter(filterSpec)
-            val filterFn = metadata.findJurisdictionalFilter(fnName)
-                ?: error("qualityFilter $fnName is not found in list of JurisdictionalFilters")
-            Pair(filterFn, fnArgs)
-        }
-        val qualityFilteredReport = input.filter(
-            qualityFilterAndArgs,
-            receiver,
-            doLogging = true,
-            receiver.reverseTheQualityFilter
-        )
-        if (qualityFilteredReport.itemCount != input.itemCount) {
-            logger.warn(
-                "Data quality problem in report ${input.id}, receiver ${receiver.fullName}: " +
-                    "There were ${input.itemCount} rows prior to qualityFilter, and " +
-                    "${qualityFilteredReport.itemCount} rows after qualityFilter."
-            )
-        }
-*/
-
         // Apply mapping to change schema
         val toReport: Report = if (receiver.schemaName != input.schema.name) {
             val toSchema = metadata.findSchema(receiver.schemaName)
