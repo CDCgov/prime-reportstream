@@ -1783,6 +1783,9 @@
 - name: ignore
   description: FOR TESTING ONLY
   jurisdiction: FEDERAL
+  filters:
+    - topic: covid-19
+      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)" ]
   senders:
     - name: ignore-strac      # Use this to test sending strac data
       organizationName: ignore
@@ -1820,7 +1823,7 @@
       organizationName: ignore
       topic: covid-19
       customerStatus: inactive
-      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, CSV)" ]
+      jurisdictionalFilter: [ "matches(ordering_facility_county, CSV)" ]
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
@@ -1840,7 +1843,7 @@
       organizationName: ignore
       topic: covid-19
       customerStatus: inactive
-      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, HL7)" ]
+      jurisdictionalFilter: [ "matches(ordering_facility_county, HL7)" ]
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
