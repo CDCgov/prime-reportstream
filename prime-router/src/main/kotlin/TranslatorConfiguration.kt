@@ -77,16 +77,25 @@ data class Hl7Configuration
     val defaultAoeToUnknown: Boolean = false,
     val useBlankInsteadOfUnknown: String? = null,
     val truncateHDNamespaceIds: Boolean = false,
+    // Specify a list of HL7 fields that will be truncated at their HL7 max lengths
+    val truncateHl7Fields: String? = null,
     val usePid14ForPatientEmail: Boolean = false,
     val convertTimestampToDateTime: String? = null,
     val cliaForOutOfStateTesting: String? = null,
     val cliaForSender: Map<String, String>? = emptyMap(),
     val phoneNumberFormatting: PhoneNumberFormatting = PhoneNumberFormatting.STANDARD,
+    val suppressNonNPI: Boolean = false,
     // pass this around as a property now
     val processingModeCode: String? = null,
     val replaceDiiWithOid: Boolean? = null,
     // Specify how
     val useOrderingFacilityName: OrderingFacilityName = OrderingFacilityName.STANDARD,
+    // we will now play that funky music that will drive us til the dawn
+    //
+    // is this hidden magic? I don't think so. I've moved the ability to override a valueset
+    // to the translation config, and therefore we can say that for a specific receiver, use
+    // the following alternate values instead of the regular ones
+    val valueSetOverrides: Map<String, ValueSet>? = emptyMap(),
     override val nameFormat: String = "standard",
     override val receivingOrganization: String?,
 ) : TranslatorConfiguration("HL7") {
@@ -110,6 +119,9 @@ data class Hl7Configuration
         AREA_LOCAL_IN_COMPONENT_ONE
     }
 
+    /**
+     * Ordering facility name formatting
+     */
     enum class OrderingFacilityName {
         /**
          * Use the value sent by the sender
