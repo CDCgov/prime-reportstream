@@ -1863,7 +1863,7 @@
       organizationName: ignore
       topic: covid-19
       customerStatus: inactive
-      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, HL7_BATCH)" ]
+      jurisdictionalFilter: [ "matches(ordering_facility_county, HL7_BATCH)" ]
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
@@ -1882,7 +1882,7 @@
       organizationName: ignore
       topic: covid-19
       customerStatus: inactive
-      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, REDOX)" ]
+      jurisdictionalFilter: [ "matches(ordering_facility_county, REDOX)" ]
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
@@ -1905,7 +1905,7 @@
       organizationName: ignore
       topic: covid-19
       customerStatus: inactive
-      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, AS2)" ]
+      jurisdictionalFilter: [ "matches(ordering_facility_county, AS2)" ]
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
@@ -1917,7 +1917,7 @@
       organizationName: ignore
       topic: covid-19
       customerStatus: inactive
-      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, HL7_NULL)" ]
+      jurisdictionalFilter: [ "matches(ordering_facility_county, HL7_NULL)" ]
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
@@ -1930,7 +1930,7 @@
       organizationName: ignore
       topic: covid-19
       customerStatus: inactive
-      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, BLOBSTORE)" ]
+      jurisdictionalFilter: [ "matches(ordering_facility_county, BLOBSTORE)" ]
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
@@ -1947,7 +1947,7 @@
       organizationName: ignore
       topic: covid-19
       customerStatus: inactive
-      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, SFTP_FAIL)" ]
+      jurisdictionalFilter: [ "matches(ordering_facility_county, SFTP_FAIL)" ]
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
@@ -1965,7 +1965,7 @@
       organizationName: ignore
       topic: covid-19
       customerStatus: inactive
-      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, QUALITY_PASS, removed)" ]
+      jurisdictionalFilter: [ "matches(ordering_facility_county, QUALITY_PASS, removed)" ]
       qualityFilter:
         - hasValidDataFor(message_id,ordering_facility_county,ordering_facility_state)
         - hasAtLeastOneOf(message_id,blankField)
@@ -1978,7 +1978,7 @@
       organizationName: ignore
       topic: covid-19
       customerStatus: inactive
-      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, QUALITY_REVERSED, kept)" ]
+      jurisdictionalFilter: [ "matches(ordering_facility_county, QUALITY_REVERSED, kept)" ]
       qualityFilter:
         - hasValidDataFor(message_id,ordering_facility_county,ordering_facility_state)
         - hasAtLeastOneOf(message_id,blankField)
@@ -1993,7 +1993,7 @@
       organizationName: ignore
       topic: covid-19
       customerStatus: inactive
-      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, QUALITY_ALL)" ]
+      jurisdictionalFilter: [ "matches(ordering_facility_county, QUALITY_ALL)" ]
       qualityFilter: [ "allowAll()" ]
       translation:
         type: CUSTOM
@@ -2003,7 +2003,7 @@
       organizationName: ignore
       topic: covid-19
       customerStatus: inactive
-      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, QUALITY_FAIL)" ]
+      jurisdictionalFilter: [ "matches(ordering_facility_county, QUALITY_FAIL)" ]
       qualityFilter: [ "hasValidDataFor(blankField)", "hasAtLeastOneOf(message_id,blankField)" ]
       translation:
         type: CUSTOM
@@ -2013,7 +2013,7 @@
       organizationName: ignore
       topic: covid-19
       customerStatus: inactive
-      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, OTC_PROCTORED)" ]
+      jurisdictionalFilter: [ "matches(ordering_facility_county, OTC_PROCTORED)" ]
       qualityFilter: [ "matches(test_authorized_for_otc, Y)","matches(test_authorized_for_home, Y)","matches(test_authorized_for_unproctored, Y)" ]
       translation:
         type: "CUSTOM"
@@ -2024,7 +2024,7 @@
       organizationName: ignore
       topic: covid-19
       customerStatus: inactive
-      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, OTC_PROCTORED)" ]
+      jurisdictionalFilter: [ "matches(ordering_facility_county, OTC_PROCTORED)" ]
       qualityFilter: [ "matches(test_authorized_for_otc, N)","matches(test_authorized_for_home, Y)","matches(test_authorized_for_unproctored, Y)" ]
       translation:
         type: "CUSTOM"
@@ -2035,7 +2035,7 @@
       organizationName: ignore
       topic: covid-19
       customerStatus: inactive
-      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, OTC_PROCTORED)" ]
+      jurisdictionalFilter: [ "matches(ordering_facility_county, OTC_PROCTORED)" ]
       qualityFilter: [ "matches(test_authorized_for_otc, N)","matches(test_authorized_for_home, UNK)","matches(test_authorized_for_unproctored, UNK)" ]
       translation:
         type: "CUSTOM"
@@ -2047,7 +2047,7 @@
       organizationName: ignore
       topic: covid-19
       customerStatus: active
-      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, EVERY_5_MINS)" ]
+      jurisdictionalFilter: [ "matches(ordering_facility_county, EVERY_5_MINS)" ]
       timing:
         operation: MERGE
         numberPerDay: 288 # Every 5 minutes
@@ -2066,7 +2066,7 @@
       organizationName: ignore
       topic: covid-19
       customerStatus: active
-      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, EVERY_15_MINS)" ]
+      jurisdictionalFilter: [ "matches(ordering_facility_county, EVERY_15_MINS)" ]
       timing:
         operation: MERGE
         numberPerDay: 96 # Every 15 minutes
@@ -2085,7 +2085,7 @@
       organizationName: ignore
       topic: covid-19
       customerStatus: active
-      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, EVERY_60_MINS)" ]
+      jurisdictionalFilter: [ "matches(ordering_facility_county, EVERY_60_MINS)" ]
       timing:
         operation: MERGE
         numberPerDay: 24 # Every 60 minutes
