@@ -1606,10 +1606,10 @@
     mkdirp "^1.0.4"
     rimraf "^3.0.2"
 
-"@okta/okta-auth-js@^5.8.0":
-  version "5.8.0"
-  resolved "https://registry.yarnpkg.com/@okta/okta-auth-js/-/okta-auth-js-5.8.0.tgz#e80a550e7850f3bc89ea3d6bcd6a66a95f8702f5"
-  integrity sha512-gkQ3/IOlG10FsE7h3GCN38BJGv7QZqr8clh5dpmjmZ4L1xtFwoDuk1VP0iaHtxr3UhsOG/wxNx17tnFAuSjeoQ==
+"@okta/okta-auth-js@^5.9.0":
+  version "5.9.0"
+  resolved "https://registry.yarnpkg.com/@okta/okta-auth-js/-/okta-auth-js-5.9.0.tgz#ffd9049116fb1bc0af654992a6779d9d81377946"
+  integrity sha512-q3OA2E0ir0kYg70CibnpLNschgE8LeMXS5MgClGdQuJ2h/FiNskcM4ZsQeKvqu44IfWhKLj2Mf9DquU2oKFRbg==
   dependencies:
     "@babel/runtime" "^7.12.5"
     "@okta/okta-idx-js" "0.22.0"
@@ -7862,7 +7862,7 @@ jsonwebtoken@^8.5.1:
     ms "^2.1.1"
     semver "^5.6.0"
 
-jsprim@^1.2.2, jsprim@^1.4.2:
+jsprim@^1.2.2:
   version "1.4.2"
   resolved "https://registry.yarnpkg.com/jsprim/-/jsprim-1.4.2.tgz#712c65533a15c878ba59e9ed5f0e26d5b77c5feb"
   integrity sha512-P2bSOMAc/ciLz6DzgjVlGJP9+BrJWu5UDGK70C2iweC5QBIeFf0ZXRvGjEj2uYgrY2MkAAhsSWHDWlFtEroZWw==
