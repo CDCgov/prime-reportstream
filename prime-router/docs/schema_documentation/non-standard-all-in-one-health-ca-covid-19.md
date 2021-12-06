@@ -32,7 +32,7 @@ This field is ignored.
 
 ---
 
-**Name**: Ok To Contact Patient
+**Name**: Ok to Contact Patient
 
 **Type**: TEXT
 
@@ -440,7 +440,21 @@ The patient's city
 
 ---
 
-**Name**: patient_county
+**Name**: Patient County
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [1..1]
+
+**Table**: fips-county
+
+**Table Column**: County
+
+---
+
+**Name**: patient_county_code
 
 **Type**: TABLE
 
@@ -448,9 +462,13 @@ The patient's city
 
 **Cardinality**: [0..1]
 
-**Table**: zip-code-data
+**Table**: fips-county
 
-**Table Column**: county
+**Table Column**: FIPS
+
+**Documentation**:
+
+The FIPS code for the patient's county
 
 ---
 
@@ -849,7 +867,7 @@ The reporting facility's name
 
 **Default Value**: all-in-one-health-ca
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
