@@ -25,6 +25,7 @@
         "craco-sass-resources-loader": "^1.1.0",
         "dompurify": "^2.3.3",
         "downloadjs": "^1.4.7",
+        "env-cmd": "^10.1.0",
         "eslint-config-airbnb-base": "^15.0.0",
         "font-awesome": "^4.7.0",
         "hookrouter": "^1.2.5",
@@ -49,8 +50,9 @@
     },
     "scripts": {
         "clean": "rimraf ./build",
-        "start": "react-scripts start",
-        "build": "INLINE_RUNTIME_CHUNK=false craco build",
+        "start:localdev": "env-cmd -f .env.development craco start",
+        "build:staging": "env-cmd -f .env.staging craco build",
+        "build:production": "env-cmd -f .env.production craco build",
         "postbuild": "cp build/index.html build/404.html",
         "test": "react-scripts test",
         "eject": "react-scripts eject",
@@ -61,7 +63,8 @@
         "lint:prettier": "prettier --check 'src/**/*.{js,ts,jsx,tsx}'",
         "lint:prettier:write": "prettier --write 'src/**/*.{js,ts,jsx,tsx}'",
         "cypress-open": "./node_modules/.bin/cypress open",
-        "cypress-run": "./node_modules/.bin/cypress run"
+        "cypress-run": "./node_modules/.bin/cypress run",
+        "yarn:show-outdated-packages": "yarn outdated"
     },
     "eslintConfig": {
         "extends": [
