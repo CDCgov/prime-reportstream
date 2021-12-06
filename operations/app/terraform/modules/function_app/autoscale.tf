@@ -3,7 +3,7 @@ resource "azurerm_monitor_autoscale_setting" "app_autoscale" {
   name                = "${var.resource_prefix}-appautoscale"
   resource_group_name = var.resource_group
   location            = var.location
-  target_resource_id  = data.azurerm_app_service_plan.service_plan.id
+  target_resource_id  = var.app_service_plan
 
   profile {
     name = "ScaleOnHighLoad"
@@ -17,7 +17,7 @@ resource "azurerm_monitor_autoscale_setting" "app_autoscale" {
     rule {
       metric_trigger {
         metric_name        = "CpuPercentage"
-        metric_resource_id = data.azurerm_app_service_plan.service_plan.id
+        metric_resource_id = var.app_service_plan
         time_grain         = "PT1M"
         statistic          = "Average"
         time_window        = "PT5M"
@@ -37,7 +37,7 @@ resource "azurerm_monitor_autoscale_setting" "app_autoscale" {
     rule {
       metric_trigger {
         metric_name        = "CpuPercentage"
-        metric_resource_id = data.azurerm_app_service_plan.service_plan.id
+        metric_resource_id = var.app_service_plan
         time_grain         = "PT1M"
         statistic          = "Average"
         time_window        = "PT5M"
@@ -57,7 +57,7 @@ resource "azurerm_monitor_autoscale_setting" "app_autoscale" {
     rule {
       metric_trigger {
         metric_name        = "MemoryPercentage"
-        metric_resource_id = data.azurerm_app_service_plan.service_plan.id
+        metric_resource_id = var.app_service_plan
         time_grain         = "PT1M"
         statistic          = "Average"
         time_window        = "PT5M"
@@ -77,7 +77,7 @@ resource "azurerm_monitor_autoscale_setting" "app_autoscale" {
     rule {
       metric_trigger {
         metric_name        = "MemoryPercentage"
-        metric_resource_id = data.azurerm_app_service_plan.service_plan.id
+        metric_resource_id = var.app_service_plan
         time_grain         = "PT1M"
         statistic          = "Average"
         time_window        = "PT5M"
@@ -97,7 +97,7 @@ resource "azurerm_monitor_autoscale_setting" "app_autoscale" {
 
   notification {
     webhook {
-      service_uri = data.azurerm_key_vault_secret.pagerduty_url.value
+      service_uri = var.pagerduty_url
     }
   }
 }

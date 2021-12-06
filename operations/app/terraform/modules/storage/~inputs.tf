@@ -33,3 +33,10 @@ variable "use_cdc_managed_vnet" {
   type        = bool
   description = "If the environment should be deployed to the CDC managed VNET"
 }
+
+variable "endpoint_subnet" {}
+variable "public_subnet" {}
+variable "container_subnet" {}
+variable "application_key_vault_id" {
+  
+}

@@ -22,3 +22,7 @@ variable "is_metabase_env" {
   type        = bool
   description = "Should Metabase be deployed in this environment"
 }
+
+variable "pagerduty_url" {}
+variable "postgres_server_id" {}
+variable "service_plan_id" {}

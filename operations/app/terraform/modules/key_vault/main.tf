@@ -4,7 +4,7 @@ resource "azurerm_key_vault" "application" {
   name                            = "${var.resource_prefix}-keyvault"
   location                        = var.location
   resource_group_name             = var.resource_group
-  sku_name                        = "premium"
+  sku_name                        = "standard"
   tenant_id                       = data.azurerm_client_config.current.tenant_id
   enabled_for_deployment          = true
   enabled_for_disk_encryption     = true
@@ -93,7 +93,7 @@ resource "azurerm_key_vault_access_policy" "dev_access_policy" {
 resource "azurerm_key_vault_access_policy" "terraform_access_policy" {
   key_vault_id = azurerm_key_vault.application.id
   tenant_id    = data.azurerm_client_config.current.tenant_id
-  object_id    = local.terraform_object_id
+  object_id    = data.azurerm_client_config.current.object_id
 
   secret_permissions = [
     "Get",
@@ -103,182 +103,153 @@ resource "azurerm_key_vault_access_policy" "terraform_access_policy" {
   ]
 }
 
-# module "application_private_endpoint" {
-#   source         = "../common/private_endpoint"
-#   resource_id    = azurerm_key_vault.application.id
-#   name           = azurerm_key_vault.application.name
-#   type           = "key_vault"
-#   resource_group = var.resource_group
-#   location       = var.location
+module "application_private_endpoint" {
+  source         = "../common/private_endpoint"
+  resource_id    = azurerm_key_vault.application.id
+  name           = azurerm_key_vault.application.name
+  type           = "key_vault"
+  resource_group = var.resource_group
+  location       = var.location
 
-#   endpoint_subnet_ids = [
-#     data.azurerm_subnet.endpoint.id,
-#     data.azurerm_subnet.endpoint_subnet.id,
-#   ]
+  endpoint_subnet_ids = var.endpoint_subnet
 
-#   endpoint_subnet_id_for_dns = data.azurerm_subnet.endpoint.id
-# }
+  endpoint_subnet_id_for_dns = var.endpoint_subnet[0]
+}
 
-# resource "azurerm_key_vault" "app_config" {
-#   name = "${var.resource_prefix}-appconfig"
-#   # Does not include "-keyvault" due to char limits (24)
-#   location                        = var.location
-#   resource_group_name             = var.resource_group
-#   sku_name                        = "premium"
-#   tenant_id                       = data.azurerm_client_config.current.tenant_id
-#   enabled_for_deployment          = true
-#   enabled_for_disk_encryption     = true
-#   enabled_for_template_deployment = true
-#   purge_protection_enabled        = true
+resource "azurerm_key_vault" "app_config" {
+  name = "${var.resource_prefix}-appconfig"
+  # Does not include "-keyvault" due to char limits (24)
+  location                        = var.location
+  resource_group_name             = var.resource_group
+  sku_name                        = "standard"
+  tenant_id                       = data.azurerm_client_config.current.tenant_id
+  enabled_for_deployment          = true
+  enabled_for_disk_encryption     = true
+  enabled_for_template_deployment = true
+  purge_protection_enabled        = true
 
-#   network_acls {
-#     bypass         = "AzureServices"
-#     default_action = "Deny"
+  network_acls {
+    bypass         = "AzureServices"
+    default_action = "Deny"
 
-#     ip_rules = sensitive(concat(
-#       split(",", data.azurerm_key_vault_secret.cyberark_ip_ingress.value),
-#       [var.terraform_caller_ip_address],
-#     ))
+    ip_rules = [var.terraform_caller_ip_address]
 
-#     virtual_network_subnet_ids = [
-#       data.azurerm_subnet.public.id,
-#       data.azurerm_subnet.container.id,
-#       data.azurerm_subnet.endpoint.id,
-#       data.azurerm_subnet.public_subnet.id,
-#       data.azurerm_subnet.container_subnet.id,
-#       data.azurerm_subnet.endpoint_subnet.id,
-#     ]
-#   }
+    virtual_network_subnet_ids = concat(var.public_subnet, var.container_subnet, var.endpoint_subnet)
+  }
 
-#   lifecycle {
-#     prevent_destroy = true
-#   }
+  lifecycle {
+    prevent_destroy = false
+  }
 
-#   tags = {
-#     "environment" = var.environment
-#   }
-# }
+  tags = {
+    "environment" = var.environment
+  }
+}
 
-# resource "azurerm_key_vault_access_policy" "dev_app_config_access_policy" {
-#   key_vault_id = azurerm_key_vault.app_config.id
-#   tenant_id    = data.azurerm_client_config.current.tenant_id
-#   object_id    = var.aad_object_keyvault_admin
+resource "azurerm_key_vault_access_policy" "dev_app_config_access_policy" {
+  key_vault_id = azurerm_key_vault.app_config.id
+  tenant_id    = data.azurerm_client_config.current.tenant_id
+  object_id    = var.aad_object_keyvault_admin
 
-#   key_permissions = []
+  key_permissions = []
 
-#   secret_permissions = [
-#     "Get",
-#     "List",
-#     "Set",
-#     "Delete",
-#     "Recover",
-#     "Backup",
-#     "Restore",
-#   ]
+  secret_permissions = [
+    "Get",
+    "List",
+    "Set",
+    "Delete",
+    "Recover",
+    "Backup",
+    "Restore",
+  ]
 
-#   certificate_permissions = []
-# }
+  certificate_permissions = []
+}
 
-# resource "azurerm_key_vault_access_policy" "terraform_app_config_access_policy" {
-#   key_vault_id = azurerm_key_vault.app_config.id
-#   tenant_id    = data.azurerm_client_config.current.tenant_id
-#   object_id    = local.terraform_object_id
+resource "azurerm_key_vault_access_policy" "terraform_app_config_access_policy" {
+  key_vault_id = azurerm_key_vault.app_config.id
+  tenant_id    = data.azurerm_client_config.current.tenant_id
+  object_id    = var.aad_object_keyvault_admin
 
-#   secret_permissions = [
-#     "Get",
-#   ]
-# }
+  secret_permissions = [
+    "Get",
+  ]
+}
 
-# module "app_config_private_endpoint" {
-#   source         = "../common/private_endpoint"
-#   resource_id    = azurerm_key_vault.app_config.id
-#   name           = azurerm_key_vault.app_config.name
-#   type           = "key_vault"
-#   resource_group = var.resource_group
-#   location       = var.location
+module "app_config_private_endpoint" {
+  source         = "../common/private_endpoint"
+  resource_id    = azurerm_key_vault.app_config.id
+  name           = azurerm_key_vault.app_config.name
+  type           = "key_vault"
+  resource_group = var.resource_group
+  location       = var.location
 
-#   endpoint_subnet_ids = [
-#     data.azurerm_subnet.endpoint.id,
-#     data.azurerm_subnet.endpoint_subnet.id,
-#   ]
+  endpoint_subnet_ids = var.endpoint_subnet
 
-#   endpoint_subnet_id_for_dns = data.azurerm_subnet.endpoint.id
-# }
+  endpoint_subnet_id_for_dns = var.endpoint_subnet[0]
+}
 
 
-# resource "azurerm_key_vault" "client_config" {
-#   # Does not include "-keyvault" due to char limits (24)
-#   name = "${var.resource_prefix}-clientconfig"
+resource "azurerm_key_vault" "client_config" {
+  # Does not include "-keyvault" due to char limits (24)
+  name = "${var.resource_prefix}-clientconfig"
 
-#   location                        = var.location
-#   resource_group_name             = var.resource_group
-#   sku_name                        = "premium"
-#   tenant_id                       = data.azurerm_client_config.current.tenant_id
-#   enabled_for_deployment          = true
-#   enabled_for_disk_encryption     = true
-#   enabled_for_template_deployment = true
-#   purge_protection_enabled        = true
+  location                        = var.location
+  resource_group_name             = var.resource_group
+  sku_name                        = "standard"
+  tenant_id                       = data.azurerm_client_config.current.tenant_id
+  enabled_for_deployment          = true
+  enabled_for_disk_encryption     = true
+  enabled_for_template_deployment = true
+  purge_protection_enabled        = true
 
-#   network_acls {
-#     bypass         = "AzureServices"
-#     default_action = "Deny"
+  network_acls {
+    bypass         = "AzureServices"
+    default_action = "Deny"
 
-#     ip_rules = sensitive(concat(
-#       split(",", data.azurerm_key_vault_secret.cyberark_ip_ingress.value),
-#       [var.terraform_caller_ip_address],
-#     ))
+    ip_rules = [var.terraform_caller_ip_address]
 
-#     virtual_network_subnet_ids = [
-#       data.azurerm_subnet.public.id,
-#       data.azurerm_subnet.container.id,
-#       data.azurerm_subnet.endpoint.id,
-#       data.azurerm_subnet.public_subnet.id,
-#       data.azurerm_subnet.container_subnet.id,
-#       data.azurerm_subnet.endpoint_subnet.id,
-#     ]
-#   }
+    virtual_network_subnet_ids = concat(var.public_subnet, var.container_subnet, var.endpoint_subnet)
+  }
 
-#   lifecycle {
-#     prevent_destroy = true
-#   }
+  lifecycle {
+    prevent_destroy = false
+  }
 
-#   tags = {
-#     "environment" = var.environment
-#   }
-# }
+  tags = {
+    "environment" = var.environment
+  }
+}
 
-# resource "azurerm_key_vault_access_policy" "dev_client_config_access_policy" {
-#   key_vault_id = azurerm_key_vault.client_config.id
-#   tenant_id    = data.azurerm_client_config.current.tenant_id
-#   object_id    = var.aad_object_keyvault_admin
+resource "azurerm_key_vault_access_policy" "dev_client_config_access_policy" {
+  key_vault_id = azurerm_key_vault.client_config.id
+  tenant_id    = data.azurerm_client_config.current.tenant_id
+  object_id    = var.aad_object_keyvault_admin
 
-#   key_permissions = []
+  key_permissions = []
 
-#   secret_permissions = [
-#     "Get",
-#     "List",
-#     "Set",
-#     "Delete",
-#     "Recover",
-#     "Backup",
-#     "Restore",
-#   ]
+  secret_permissions = [
+    "Get",
+    "List",
+    "Set",
+    "Delete",
+    "Recover",
+    "Backup",
+    "Restore",
+  ]
 
-#   certificate_permissions = []
-# }
+  certificate_permissions = []
+}
 
-# module "client_config_private_endpoint" {
-#   source         = "../common/private_endpoint"
-#   resource_id    = azurerm_key_vault.client_config.id
-#   name           = azurerm_key_vault.client_config.name
-#   type           = "key_vault"
-#   resource_group = var.resource_group
-#   location       = var.location
+module "client_config_private_endpoint" {
+  source         = "../common/private_endpoint"
+  resource_id    = azurerm_key_vault.client_config.id
+  name           = azurerm_key_vault.client_config.name
+  type           = "key_vault"
+  resource_group = var.resource_group
+  location       = var.location
 
-#   endpoint_subnet_ids = [
-#     data.azurerm_subnet.endpoint.id,
-#     data.azurerm_subnet.endpoint_subnet.id,
-#   ]
+  endpoint_subnet_ids = var.endpoint_subnet
 
-#   endpoint_subnet_id_for_dns = data.azurerm_subnet.endpoint.id
-# }
+  endpoint_subnet_id_for_dns = var.endpoint_subnet[0]
+}

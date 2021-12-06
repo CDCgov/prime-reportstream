@@ -14,16 +14,14 @@ resource "azurerm_storage_account" "storage_account_candidate" {
     default_action = "Deny"
     bypass         = ["None"]
 
-    ip_rules = sensitive(concat(
-      split(",", data.azurerm_key_vault_secret.cyberark_ip_ingress.value),
-      [split("/", var.terraform_caller_ip_address)[0]], # Storage accounts only allow CIDR-notation for /[0-30]
-    ))
+    # ip_rules = sensitive(concat(
+    #   split(",", data.azurerm_key_vault_secret.cyberark_ip_ingress.value),
+    #   [split("/", var.terraform_caller_ip_address)[0]], # Storage accounts only allow CIDR-notation for /[0-30]
+    # ))
 
-    virtual_network_subnet_ids = [
-      data.azurerm_subnet.public.id,
-      data.azurerm_subnet.container.id,
-      data.azurerm_subnet.endpoint.id
-    ]
+    ip_rules = [var.terraform_caller_ip_address]
+
+    virtual_network_subnet_ids = concat(var.public_subnet, var.container_subnet, var.endpoint_subnet)
   }
 
   # Required for customer-managed encryption
@@ -32,7 +30,7 @@ resource "azurerm_storage_account" "storage_account_candidate" {
   }
 
   lifecycle {
-    prevent_destroy = true
+    prevent_destroy = false
   }
 
   tags = {
@@ -48,12 +46,9 @@ module "storageaccount_candidate_blob_private_endpoint" {
   resource_group = var.resource_group
   location       = var.location
 
-  endpoint_subnet_ids = [
-    data.azurerm_subnet.endpoint.id,
-    data.azurerm_subnet.endpoint_subnet.id,
-  ]
+  endpoint_subnet_ids = var.endpoint_subnet
 
-  endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? data.azurerm_subnet.endpoint_subnet.id : data.azurerm_subnet.endpoint.id
+  endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? "" : var.endpoint_subnet[0]
 }
 
 module "storageaccount_candidate_file_private_endpoint" {
@@ -64,12 +59,9 @@ module "storageaccount_candidate_file_private_endpoint" {
   resource_group = var.resource_group
   location       = var.location
 
-  endpoint_subnet_ids = [
-    data.azurerm_subnet.endpoint.id,
-    data.azurerm_subnet.endpoint_subnet.id,
-  ]
+  endpoint_subnet_ids = var.endpoint_subnet
 
-  endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? data.azurerm_subnet.endpoint_subnet.id : data.azurerm_subnet.endpoint.id
+  endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? "" : var.endpoint_subnet[0]
 }
 
 module "storageaccount_candidate_queue_private_endpoint" {
@@ -80,12 +72,9 @@ module "storageaccount_candidate_queue_private_endpoint" {
   resource_group = var.resource_group
   location       = var.location
 
-  endpoint_subnet_ids = [
-    data.azurerm_subnet.endpoint.id,
-    data.azurerm_subnet.endpoint_subnet.id,
-  ]
+  endpoint_subnet_ids = var.endpoint_subnet
 
-  endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? data.azurerm_subnet.endpoint_subnet.id : data.azurerm_subnet.endpoint.id
+  endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? "" : var.endpoint_subnet[0]
 }
 
 resource "azurerm_storage_management_policy" "retention_policy_candidate" {
@@ -113,7 +102,7 @@ resource "azurerm_storage_management_policy" "retention_policy_candidate" {
 
 # Grant the storage account Key Vault access, to access encryption keys
 resource "azurerm_key_vault_access_policy" "storage_policy_candidate" {
-  key_vault_id = data.azurerm_key_vault.application.id
+  key_vault_id = var.application_key_vault_id
   tenant_id    = data.azurerm_client_config.current.tenant_id
   object_id    = azurerm_storage_account.storage_account_candidate.identity.0.principal_id
 
@@ -123,7 +112,7 @@ resource "azurerm_key_vault_access_policy" "storage_policy_candidate" {
 resource "azurerm_storage_account_customer_managed_key" "storage_key_candidate" {
   count              = var.rsa_key_4096 != null && var.rsa_key_4096 != "" ? 1 : 0
   key_name           = var.rsa_key_4096
-  key_vault_id       = data.azurerm_key_vault.application.id
+  key_vault_id       = var.application_key_vault_id
   key_version        = null // Null allows automatic key rotation
   storage_account_id = azurerm_storage_account.storage_account_candidate.id
 
@@ -131,7 +120,7 @@ resource "azurerm_storage_account_customer_managed_key" "storage_key_candidate" 
 }
 
 
-// Partner
+# // Partner
 
 resource "azurerm_storage_account" "storage_partner_candidate" {
   resource_group_name       = var.resource_group
@@ -149,18 +138,15 @@ resource "azurerm_storage_account" "storage_partner_candidate" {
     default_action = "Deny"
     bypass         = ["None"]
 
-    ip_rules = sensitive(concat(
-      split(",", data.azurerm_key_vault_secret.hhsprotect_ip_ingress.value),
-      split(",", data.azurerm_key_vault_secret.cyberark_ip_ingress.value),
-      [split("/", var.terraform_caller_ip_address)[0]], # Storage accounts only allow CIDR-notation for /[0-30]
-    ))
+    # ip_rules = sensitive(concat(
+    #   split(",", data.azurerm_key_vault_secret.hhsprotect_ip_ingress.value),
+    #   split(",", data.azurerm_key_vault_secret.cyberark_ip_ingress.value),
+    #   [split("/", var.terraform_caller_ip_address)[0]], # Storage accounts only allow CIDR-notation for /[0-30]
+    # ))
 
-    virtual_network_subnet_ids = [
-      data.azurerm_subnet.public.id,
-      data.azurerm_subnet.endpoint.id,
-      data.azurerm_subnet.public_subnet.id,
-      data.azurerm_subnet.endpoint_subnet.id,
-    ]
+    ip_rules = [var.terraform_caller_ip_address]
+
+    virtual_network_subnet_ids = concat(var.public_subnet, var.endpoint_subnet)
   }
 
   # Required for customer-managed encryption
@@ -169,7 +155,7 @@ resource "azurerm_storage_account" "storage_partner_candidate" {
   }
 
   lifecycle {
-    prevent_destroy = true
+    prevent_destroy = false
   }
 
   tags = {
@@ -179,7 +165,7 @@ resource "azurerm_storage_account" "storage_partner_candidate" {
 
 # Grant the storage account Key Vault access, to access encryption keys
 resource "azurerm_key_vault_access_policy" "storage_candidate_partner_policy" {
-  key_vault_id = data.azurerm_key_vault.application.id
+  key_vault_id = var.application_key_vault_id
   tenant_id    = data.azurerm_client_config.current.tenant_id
   object_id    = azurerm_storage_account.storage_partner_candidate.identity.0.principal_id
 
@@ -189,7 +175,7 @@ resource "azurerm_key_vault_access_policy" "storage_candidate_partner_policy" {
 resource "azurerm_storage_account_customer_managed_key" "storage_candidate_partner_key" {
   count              = var.rsa_key_4096 != null && var.rsa_key_4096 != "" ? 1 : 0
   key_name           = var.rsa_key_4096
-  key_vault_id       = data.azurerm_key_vault.application.id
+  key_vault_id       = var.application_key_vault_id
   key_version        = null // Null allows automatic key rotation
   storage_account_id = azurerm_storage_account.storage_partner_candidate.id
 
@@ -204,12 +190,9 @@ module "storageaccountcandidatepartner_blob_private_endpoint" {
   resource_group = var.resource_group
   location       = var.location
 
-  endpoint_subnet_ids = [
-    data.azurerm_subnet.endpoint.id,
-    data.azurerm_subnet.endpoint_subnet.id,
-  ]
+  endpoint_subnet_ids = var.endpoint_subnet
 
-  endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? data.azurerm_subnet.endpoint_subnet.id : data.azurerm_subnet.endpoint.id
+  endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? "" : var.endpoint_subnet[0]
 }
 
 resource "azurerm_storage_container" "storage_candidate_container_hhsprotect" {

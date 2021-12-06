@@ -22,7 +22,7 @@ resource "azurerm_monitor_action_group" "action_group" {
 
   webhook_receiver {
     name                    = "PagerDuty"
-    service_uri             = data.azurerm_key_vault_secret.pagerduty_url.value
+    service_uri             = var.pagerduty_url
     use_common_alert_schema = true
   }
 

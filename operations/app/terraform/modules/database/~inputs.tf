@@ -37,3 +37,16 @@ variable "use_cdc_managed_vnet" {
   type        = bool
   description = "If the environment should be deployed to the CDC managed VNET"
 }
+
+variable "postgres_user" {}
+variable "postgres_pass" {}
+variable "db_sku_name" {}
+variable "db_version" {}
+variable "db_storage_mb" {}
+variable "db_auto_grow" {}
+variable "db_prevent_destroy" {}
+
+variable "db_threat_detection" {}
+variable "endpoint_subnet" {}
+variable "db_replica" {}
+variable "application_key_vault_id" {}

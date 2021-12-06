@@ -45,3 +45,15 @@ variable "use_cdc_managed_vnet" {
   type        = bool
   description = "If the environment should be deployed to the CDC managed VNET"
 }
+
+variable "public_subnet" {}
+variable "pagerduty_url" {}
+variable "app_service_plan" {}
+variable "primary_access_key" {}
+variable "container_registry_login_server" {}
+variable "container_registry_admin_username" {}
+variable "container_registry_admin_password" {}
+variable "primary_connection_string" {}
+variable "postgres_user" {}
+variable "postgres_pass" {}
+variable "application_key_vault_id" {}

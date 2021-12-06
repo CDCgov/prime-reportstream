@@ -1,4 +1,8 @@
 ## Set basic variables
+variable "tf_secrets_vault" {
+  default = "mla-tf-secrets"
+}
+
 variable "environment"{
     default = "dev"
 }
@@ -53,4 +57,43 @@ variable "use_cdc_managed_vnet" {
 
 variable "terraform_caller_ip_address" {
   default = "162.224.209.174"
+}
+
+#############################
+
+
+
+variable "aad_group_postgres_admin" {
+  type        = string
+  description = "Azure Active Directory group id containing postgres db admins"
+  default     = "f94409a9-12b1-4820-a1b6-e3e0a4fa282d"
+}
+
+
+##########
+## DB Vars
+##########
+
+variable "db_sku_name" {
+  default = "B_Gen5_1"
+}
+variable "db_version" {
+  default = "11"
+}
+variable "db_storage_mb" {
+  default = 5120
+}
+variable "db_auto_grow" {
+  default = false
+}
+variable "db_prevent_destroy" {
+  default = false
+}
+
+variable "db_threat_detection" {
+  default = false
+}
+
+variable "db_replica" {
+  default = false
 }

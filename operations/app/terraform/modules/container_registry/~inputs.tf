@@ -22,3 +22,5 @@ variable "enable_content_trust" {
   type        = bool
   description = "Boolean value indicating enabledness of Content Trust"
 }
+
+variable "public_subnets" {}

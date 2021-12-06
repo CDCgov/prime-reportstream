@@ -1,18 +1,18 @@
-locals {
-  slots = {
-    active : azurerm_function_app.function_app
-    candidate : azurerm_function_app_slot.candidate
-  }
-}
+# locals {
+#   slots = {
+#     active : azurerm_function_app.function_app
+#     candidate : azurerm_function_app_slot.candidate
+#   }
+# }
 
 resource "azurerm_function_app_slot" "candidate" {
   function_app_name          = azurerm_function_app.function_app.name
   name                       = "candidate"
   location                   = var.location
   resource_group_name        = var.resource_group
-  app_service_plan_id        = data.azurerm_app_service_plan.service_plan.id
-  storage_account_name       = data.azurerm_storage_account.storage_account_candidate.name
-  storage_account_access_key = data.azurerm_storage_account.storage_account_candidate.primary_access_key
+  app_service_plan_id        = var.app_service_plan
+  storage_account_name       = "${var.resource_prefix}storageaccount"
+  storage_account_access_key = var.primary_access_key
   https_only                 = true
   os_type                    = "linux"
   version                    = "~3"
@@ -23,14 +23,14 @@ resource "azurerm_function_app_slot" "candidate" {
       action                    = "Allow"
       name                      = "AllowVNetTraffic"
       priority                  = 100
-      virtual_network_subnet_id = data.azurerm_subnet.public.id
+      virtual_network_subnet_id = var.public_subnet[0]
     }
 
     ip_restriction {
       action                    = "Allow"
       name                      = "AllowVNetEastTraffic"
       priority                  = 100
-      virtual_network_subnet_id = data.azurerm_subnet.public_subnet.id
+      virtual_network_subnet_id = var.public_subnet[0]
     }
 
     ip_restriction {
@@ -45,7 +45,7 @@ resource "azurerm_function_app_slot" "candidate" {
     http2_enabled             = true
     always_on                 = true
     use_32_bit_worker_process = false
-    linux_fx_version          = "DOCKER|${data.azurerm_container_registry.container_registry.login_server}/${var.resource_prefix}:latest"
+    linux_fx_version          = "DOCKER|${var.container_registry_login_server}/${var.resource_prefix}:latest"
 
     cors {
       allowed_origins = [
@@ -59,10 +59,10 @@ resource "azurerm_function_app_slot" "candidate" {
   }
 
   app_settings = merge(local.all_app_settings, {
-    "POSTGRES_URL" = "jdbc:postgresql://${data.azurerm_postgresql_server.postgres_server.name}.postgres.database.azure.com:5432/prime_data_hub_candidate?sslmode=require"
+    "POSTGRES_URL" = "jdbc:postgresql://${var.resource_prefix}-pgsql.postgres.database.azure.com:5432/prime_data_hub?sslmode=require"
 
     # HHS Protect Storage Account
-    "PartnerStorage" = data.azurerm_storage_account.storage_partner_candidate.primary_connection_string
+    "PartnerStorage" = var.primary_connection_string
   })
 
   identity {
@@ -82,7 +82,7 @@ resource "azurerm_function_app_slot" "candidate" {
 }
 
 resource "azurerm_key_vault_access_policy" "slot_candidate_app_config_access_policy" {
-  key_vault_id = data.azurerm_key_vault.app_config.id
+  key_vault_id = var.application_key_vault_id
   tenant_id    = azurerm_function_app_slot.candidate.identity.0.tenant_id
   object_id    = azurerm_function_app_slot.candidate.identity.0.principal_id
 
@@ -92,7 +92,7 @@ resource "azurerm_key_vault_access_policy" "slot_candidate_app_config_access_pol
 }
 
 resource "azurerm_key_vault_access_policy" "slot_candidate_client_config_access_policy" {
-  key_vault_id = data.azurerm_key_vault.client_config.id
+  key_vault_id = var.application_key_vault_id
   tenant_id    = azurerm_function_app_slot.candidate.identity.0.tenant_id
   object_id    = azurerm_function_app_slot.candidate.identity.0.principal_id
 
@@ -104,5 +104,5 @@ resource "azurerm_key_vault_access_policy" "slot_candidate_client_config_access_
 resource "azurerm_app_service_slot_virtual_network_swift_connection" "candidate_slot_vnet_integration" {
   slot_name      = azurerm_function_app_slot.candidate.name
   app_service_id = azurerm_function_app.function_app.id
-  subnet_id      = var.use_cdc_managed_vnet ? data.azurerm_subnet.public_subnet.id : data.azurerm_subnet.public.id
+  subnet_id      = var.use_cdc_managed_vnet ? "" : var.public_subnet[0]
 }
