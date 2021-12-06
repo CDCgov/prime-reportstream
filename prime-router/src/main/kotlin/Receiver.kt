@@ -18,6 +18,7 @@ import java.time.ZoneId
  * @param jurisdictionalFilter defines the geographic region filters for this receiver
  * @param qualityFilter defines the filters that remove data, based on quality criteria
  * @param routingFilter defines the filters that remove data the receiver does not want, based on who sent it.
+ * @param processingModeFilter defines the filters that is normally set to remove test and debug data.
  * @param reverseTheQualityFilter If this is true, then do the NOT of 'qualityFilter'.  Like a 'grep -v'
  * @param deidentify transform
  * @param timing defines how to delay reports to the org. If null, then send immediately
@@ -34,6 +35,7 @@ open class Receiver(
     val jurisdictionalFilter: ReportStreamFilter = emptyList(),
     val qualityFilter: ReportStreamFilter = emptyList(),
     val routingFilter: ReportStreamFilter = emptyList(),
+    val processingModeFilter: ReportStreamFilter = emptyList(),
     val reverseTheQualityFilter: Boolean = false,
     val deidentify: Boolean = false,
     val timing: Timing? = null,
@@ -63,6 +65,7 @@ open class Receiver(
         copy.jurisdictionalFilter,
         copy.qualityFilter,
         copy.routingFilter,
+        copy.processingModeFilter,
         copy.reverseTheQualityFilter,
         copy.deidentify,
         copy.timing,

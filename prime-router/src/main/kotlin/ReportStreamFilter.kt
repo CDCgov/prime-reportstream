@@ -14,7 +14,8 @@ typealias ReportStreamFilter = List<String>
 enum class ReportStreamFilterType(val field: String) {
     JURISDICTIONAL_FILTER("jurisdictionalFilter"),
     QUALITY_FILTER("qualityFilter"),
-    ROUTING_FILTER("routingFilter");
+    ROUTING_FILTER("routingFilter"),
+    PROCESSING_MODE_FILTER("processingModeFilter");
 
     // Reflection, so that we can write a single routine to handle all types of filters.
     val filterProperty = ReportStreamFilters::class.memberProperties.first { it.name == this.field }
@@ -31,6 +32,7 @@ enum class ReportStreamFilterType(val field: String) {
  *  @param jurisdictionalFilter - used to limit the data received or sent by geographical region
  *  @param qualityFilter - used to limit the data received or sent, by quality
  *  @param routingFilter - used to limit the data received or sent, by who sent it.
+ *  @param processingModeFilter - used to limit the data received to be either "Training", "Debug", or "Production"
  * We allow a different set of filters per [topic]
  */
 data class ReportStreamFilters(
@@ -38,6 +40,7 @@ data class ReportStreamFilters(
     val jurisdictionalFilter: ReportStreamFilter?,
     val qualityFilter: ReportStreamFilter?,
     val routingFilter: ReportStreamFilter?,
+    val processingModeFilter: ReportStreamFilter?,
 ) {
 
     companion object {
@@ -61,28 +64,29 @@ data class ReportStreamFilters(
             "hasAtLeastOneOf(order_test_date,specimen_collection_date_time,test_result_date)",
             // has at least one valid CLIA
             "isValidCLIA(testing_lab_clia,reporting_facility_clia)",
-            // never send T (Training/Test) or D (Debug) data to the states.
-            "doesNotMatch(processing_mode_code,T,D)",
         )
         private val defaultCovid19Filters = ReportStreamFilters(
             topic = "covid-19",
             jurisdictionalFilter = listOf("allowNone()"), // Receiver *must* override this to get data!
             qualityFilter = defaultCovid19QualityFilter,
-            routingFilter = listOf("doesNotMatch(processing_mode_code, T, D)"), // Default is no Training/Debug data
+            routingFilter = listOf("allowAll()"),
+            processingModeFilter = listOf("doesNotMatch(processing_mode_code, T, D)"), // No Training/Debug data
         )
 
         private val defaultCsvFileTestFilters = ReportStreamFilters(
             topic = "CsvFileTests-topic",
             jurisdictionalFilter = listOf("allowAll()"),
             qualityFilter = listOf("hasValidDataFor(lab,state,test_time,specimen_id,observation)"),
-            routingFilter = listOf("allowAll()")
+            routingFilter = listOf("allowAll()"),
+            processingModeFilter = listOf("allowAll()")
         )
 
         private val defaultTestFilters = ReportStreamFilters(
             topic = "test",
             jurisdictionalFilter = null,
             qualityFilter = listOf("matches(a, no)"),
-            routingFilter = listOf("matches(b, false)")
+            routingFilter = listOf("matches(b, false)"),
+            processingModeFilter = listOf("allowAll()")
         )
 
         /**

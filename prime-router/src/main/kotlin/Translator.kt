@@ -113,7 +113,18 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
         )
         if (routingFilteredReport.isEmpty()) return routingFilteredReport
 
-        return routingFilteredReport
+        // Do processingModeFiltering on the routingFilteredReport
+        val processingModeFilteredReport = filterByOneFilterType(
+            routingFilteredReport,
+            receiver,
+            organization,
+            ReportStreamFilterType.PROCESSING_MODE_FILTER,
+            trackingElement,
+            doLogging = true
+        )
+        if (processingModeFilteredReport.isEmpty()) return processingModeFilteredReport
+
+        return processingModeFilteredReport
     }
 
     /**
