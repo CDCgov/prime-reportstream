@@ -60,12 +60,6 @@ class Hl7Serializer(
     private val buildVersion: String
     private val buildDate: String
     private val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss.SSSSZZZ")
-    private var hl7Config: Hl7Configuration? = null
-    private val hdFieldMaximumLength: Int? get() = if (hl7Config?.truncateHDNamespaceIds == true) {
-        HD_TRUNCATION_LIMIT
-    } else {
-        null
-    }
 
     init {
         val buildProperties = Properties()
@@ -392,25 +386,25 @@ class Hl7Serializer(
     }
 
     internal fun createMessage(report: Report, row: Int): String {
-        val message = ORU_R01()
+
         val hl7Config = report.destination?.translation as? Hl7Configuration?
         val processingId = if (hl7Config?.useTestProcessingMode == true) {
             "T"
         } else {
             "P"
         }
-        message.initQuickstart(MESSAGE_CODE, MESSAGE_TRIGGER_EVENT, processingId)
-        buildMessage(message, report, row, processingId)
+        val message = buildMessage(report, row, processingId)
         hapiContext.modelClassFactory = modelClassFactory
         return hapiContext.pipeParser.encode(message)
     }
 
-    private fun buildMessage(
-        message: ORU_R01,
+    internal fun buildMessage(
         report: Report,
         row: Int,
         processingId: String = "T",
-    ) {
+    ): ORU_R01 {
+        val message = ORU_R01()
+        message.initQuickstart(MESSAGE_CODE, MESSAGE_TRIGGER_EVENT, processingId)
         // set up our configuration
         val hl7Config = report.destination?.translation as? Hl7Configuration
         val replaceValue = hl7Config?.replaceValue ?: emptyMap()
@@ -438,8 +432,34 @@ class Hl7Serializer(
         var aoeSequence = 1
         val terser = Terser(message)
         setLiterals(terser)
+        // we are going to set up overrides for the elements in the collection if the valueset
+        // needs to be overriden
+        val reportElements = if (hl7Config?.valueSetOverrides.isNullOrEmpty()) {
+            // there are no value set overrides, so we are going to just pass back out the
+            // existing collection of schema elements
+            report.schema.elements
+        } else {
+            // we do have valueset overrides, so we need to replace any elements in place
+            report.schema.elements.map { elem ->
+                // if we're dealing with a code type (which uses a valueset), check if we need to replace
+                if (elem.isCodeType) {
+                    // is there a replacement valueset in our collection?
+                    val replacementValueSet = hl7Config?.valueSetOverrides?.get(elem.valueSet)
+                    if (replacementValueSet != null) {
+                        // inherit from the base element
+                        val newElement = Element(elem.name, valueSet = elem.valueSet, valueSetRef = replacementValueSet)
+                        newElement.inheritFrom(elem)
+                    } else {
+                        elem
+                    }
+                } else {
+                    // this is not a code type, so return the base element
+                    elem
+                }
+            }
+        }
         // serialize the rest of the elements
-        report.schema.elements.forEach { element ->
+        reportElements.forEach { element ->
             val value = report.getString(row, element.name).let {
                 if (it.isNullOrEmpty()) {
                     element.default ?: ""
@@ -460,7 +480,7 @@ class Hl7Serializer(
                 element.hl7Field != null &&
                 (value.equals("ASKU", true) || value.equals("UNK", true))
             ) {
-                setComponent(terser, element, element.hl7Field, "", report)
+                setComponent(terser, element, element.hl7Field, repeat = null, value = "", report)
                 return@forEach
             }
 
@@ -468,24 +488,10 @@ class Hl7Serializer(
                 element.hl7OutputFields.forEach outputFields@{ hl7Field ->
                     if (suppressedFields.contains(hl7Field))
                         return@outputFields
-
-                    // some of our schema elements are actually subcomponents of the HL7 fields, and are individually
-                    // text, but need to be truncated because they're the first part of an HD field. For example,
-                    // ORC-2-2 and ORC-3-2, so we are manually pulling them aside to truncate them
-                    val truncatedValue = if (
-                        value.length > HD_TRUNCATION_LIMIT &&
-                        element.type == Element.Type.TEXT &&
-                        hl7Field in HD_FIELDS_LOCAL &&
-                        hl7Config?.truncateHDNamespaceIds == true
-                    ) {
-                        value.substring(0, getTruncationLimitWithEncoding(value, HD_TRUNCATION_LIMIT))
-                    } else {
-                        value
-                    }
                     if (element.hl7Field != null && element.isTableLookup) {
                         setComponentForTable(terser, element, hl7Field, report, row, hl7Config)
                     } else {
-                        setComponent(terser, element, hl7Field, truncatedValue, report)
+                        setComponent(terser, element, hl7Field, repeat = null, value, report)
                     }
                 }
             } else if (element.hl7Field == "AOE" && element.type == Element.Type.NUMBER && !suppressAoe) {
@@ -510,30 +516,20 @@ class Hl7Serializer(
             } else if (element.hl7Field == "NTE-3") {
                 setNote(terser, value)
             } else if (element.hl7Field == "MSH-7") {
-                setComponent(terser, element, "MSH-7", formatter.format(report.createdDateTime), report)
+                setComponent(
+                    terser,
+                    element,
+                    "MSH-7",
+                    repeat = null,
+                    value = formatter.format(report.createdDateTime),
+                    report
+                )
             } else if (element.hl7Field == "MSH-11") {
-                setComponent(terser, element, "MSH-11", processingId, report)
+                setComponent(terser, element, "MSH-11", repeat = null, processingId, report)
             } else if (element.hl7Field != null && element.isTableLookup) {
                 setComponentForTable(terser, element, report, row, hl7Config)
-            } else if (
-                element.type == Element.Type.TEXT &&
-                !element.hl7Field.isNullOrEmpty() &&
-                element.hl7Field in HD_FIELDS_LOCAL
-            ) {
-                // some of our schema elements are actually subcomponents of the HL7 fields, and are individually
-                // text, but need to be truncated because they're the first part of an HD field. For example,
-                // ORC-2-2 and ORC-3-2, so we are manually pulling them aside to truncate them
-                val truncatedValue = if (
-                    value.length > HD_TRUNCATION_LIMIT &&
-                    hl7Config?.truncateHDNamespaceIds == true
-                ) {
-                    value.substring(0, getTruncationLimitWithEncoding(value, HD_TRUNCATION_LIMIT))
-                } else {
-                    value
-                }
-                setComponent(terser, element, element.hl7Field, truncatedValue, report)
             } else if (!element.hl7Field.isNullOrEmpty()) {
-                setComponent(terser, element, element.hl7Field, value, report)
+                setComponent(terser, element, element.hl7Field, repeat = null, value, report)
             }
         }
         // make sure all fields we're suppressing are empty
@@ -541,6 +537,16 @@ class Hl7Serializer(
             val pathSpec = formPathSpec(it)
             terser.set(pathSpec, "")
         }
+
+        if (hl7Config?.suppressNonNPI == true &&
+            report.getString(row, "ordering_provider_id_authority_type") != "NPI"
+        ) {
+            // Suppress the ordering_provider_id if not an NPI
+            for (hl7Field in listOf("ORC-12-1", "OBR-16-1", "ORC-12-9", "OBR-16-9", "ORC-12-13", "OBR-16-13")) {
+                terser.set(formPathSpec(hl7Field), "")
+            }
+        }
+
         convertTimestampToDateTimeFields.forEach {
             val pathSpec = formPathSpec(it)
             val tsValue = terser.get(pathSpec)
@@ -593,10 +599,10 @@ class Hl7Serializer(
         val senderID = report.getString(row, "sender_id") ?: ""
 
         // loop through CLIA resets
-        cliaForSender.forEach { sender, clia ->
+        cliaForSender.forEach { (sender, clia) ->
             try {
                 // find that sender in the map
-                if (sender.equals(senderID.trim(), ignoreCase = true) && !clia.isNullOrEmpty()) {
+                if (sender.equals(senderID.trim(), ignoreCase = true) && !clia.isEmpty()) {
                     // if the sender needs should have a specific CLIA then overwrite the CLIA here
                     val pathSpecSendingFacilityID = formPathSpec("MSH-4-2")
                     terser.set(pathSpecSendingFacilityID, clia)
@@ -608,6 +614,7 @@ class Hl7Serializer(
         }
 
         replaceValue(replaceValue, terser, message.patienT_RESULT.ordeR_OBSERVATION.observationReps)
+        return message
     }
 
     /**
@@ -706,6 +713,8 @@ class Hl7Serializer(
         rawFacilityName: String,
     ) {
         terser.set(formPathSpec("ORC-21-1"), rawFacilityName.trim().take(50))
+        // setting a default value for ORC-21-2 per PA's request.
+        terser.set(formPathSpec("ORC-21-2"), DEFAULT_ORGANIZATION_NAME_TYPE_CODE)
     }
 
     /**
@@ -812,81 +821,116 @@ class Hl7Serializer(
             terser.set(pathSpec, "")
         } else {
             val mappedValue = mapper.apply(element, args, valuesForMapper) ?: ""
+            val truncatedValue = trimAndTruncateValue(mappedValue, hl7Field, config, terser)
             // there are instances where we need to replace the DII value that comes from the LIVD
             // table with an OID that reflects that this is an equipment UID instead. NH raised this
             // as an issue, and the HHS spec on confluence supports their configuration, but we need
             // to isolate out this option, so we don't affect other states we're already in production with
-            if (mappedValue == "DII" && config?.replaceDiiWithOid == true && hl7Field == "OBX-18-3") {
+            if (truncatedValue == "DII" && config?.replaceDiiWithOid == true && hl7Field == "OBX-18-3") {
                 terser.set(formPathSpec("OBX-18-3"), OBX_18_EQUIPMENT_UID_OID)
                 terser.set(formPathSpec("OBX-18-4"), "ISO")
             } else {
-                terser.set(pathSpec, mappedValue)
+                terser.set(pathSpec, truncatedValue)
             }
         }
     }
 
+    /**
+     * Set the component to [value] in the [terser] for the passed [hl7Field].
+     * [hl7Field] must match the internal [Element] formatting.
+     * Set [repeat] for the repeated segment case.
+     */
     private fun setComponent(
         terser: Terser,
         element: Element,
         hl7Field: String,
+        repeat: Int?,
         value: String,
         report: Report
     ) {
+        // Break down the configuration structure
         val hl7Config = report.destination?.translation as? Hl7Configuration?
-        val hdFieldMaximumLength = if (hl7Config?.truncateHDNamespaceIds == true) {
-            getTruncationLimitWithEncoding(value, HD_TRUNCATION_LIMIT)
-        } else {
-            null
-        }
-        val pathSpec = formPathSpec(hl7Field)
+        val phoneNumberFormatting = hl7Config?.phoneNumberFormatting
+            ?: Hl7Configuration.PhoneNumberFormatting.STANDARD
+        val pathSpec = formPathSpec(hl7Field, repeat)
+
+        // All components should be trimmed and not blank.
+        val trimmedValue = value.trim()
+        if (trimmedValue.isBlank()) return
+
         when (element.type) {
-            Element.Type.ID_CLIA -> setCliaComponent(terser, value, hl7Field)
-            Element.Type.HD -> {
-                if (value.isNotEmpty()) {
-                    val hd = Element.parseHD(value, hdFieldMaximumLength)
-                    if (hd.universalId != null && hd.universalIdSystem != null) {
-                        terser.set("$pathSpec-1", hd.name)
-                        terser.set("$pathSpec-2", hd.universalId)
-                        terser.set("$pathSpec-3", hd.universalIdSystem)
-                    } else {
-                        terser.set(pathSpec, hd.name)
-                    }
-                }
-            }
-            Element.Type.EI -> {
-                if (value.isNotEmpty()) {
-                    val ei = Element.parseEI(value)
-                    if (ei.universalId != null && ei.universalIdSystem != null) {
-                        terser.set("$pathSpec-1", ei.name)
-                        terser.set("$pathSpec-2", ei.namespace)
-                        terser.set("$pathSpec-3", ei.universalId)
-                        terser.set("$pathSpec-4", ei.universalIdSystem)
-                    } else {
-                        terser.set(pathSpec, ei.name)
-                    }
-                }
-            }
-            Element.Type.CODE -> setCodeComponent(terser, value, pathSpec, element.valueSet)
-            Element.Type.TELEPHONE -> {
-                if (value.isNotEmpty()) {
-                    val phoneNumberFormatting = hl7Config?.phoneNumberFormatting
-                        ?: Hl7Configuration.PhoneNumberFormatting.STANDARD
-                    setTelephoneComponent(terser, value, pathSpec, element, phoneNumberFormatting)
-                }
-            }
-            Element.Type.EMAIL -> {
-                if (value.isNotEmpty()) {
-                    setEmailComponent(terser, value, element, hl7Config)
-                }
-            }
+            Element.Type.ID_CLIA -> setCliaComponent(terser, value, hl7Field, hl7Config)
+            Element.Type.HD -> setHDComponent(terser, value, pathSpec, hl7Field, hl7Config)
+            Element.Type.EI -> setEIComponent(terser, value, pathSpec, hl7Field, hl7Config)
+            Element.Type.CODE -> setCodeComponent(terser, value, pathSpec, element.valueSet, element.valueSetRef)
+            Element.Type.TELEPHONE -> setTelephoneComponent(terser, value, pathSpec, element, phoneNumberFormatting)
+            Element.Type.EMAIL -> setEmailComponent(terser, value, element, hl7Config)
             Element.Type.POSTAL_CODE -> setPostalComponent(terser, value, pathSpec, element)
-            else -> terser.set(pathSpec, value)
+            else -> {
+                val truncatedValue = trimAndTruncateValue(value, hl7Field, hl7Config, terser)
+                terser.set(pathSpec, truncatedValue)
+            }
         }
     }
 
-    private fun setCodeComponent(terser: Terser, value: String, pathSpec: String, valueSetName: String?) {
+    /**
+     * Set the HD component specified by [hl7Field] in [terser] with [value].
+     * Truncate appropriately according to [hl7Field] and [hl7Config]
+     */
+    internal fun setHDComponent(
+        terser: Terser,
+        value: String,
+        pathSpec: String,
+        hl7Field: String,
+        hl7Config: Hl7Configuration?
+    ) {
+        val maxLength = getMaxLength(hl7Field, value, hl7Config, terser)
+        val hd = Element.parseHD(value, maxLength)
+        if (hd.universalId != null && hd.universalIdSystem != null) {
+            terser.set("$pathSpec-1", hd.name) // already truncated
+            terser.set("$pathSpec-2", hd.universalId)
+            terser.set("$pathSpec-3", hd.universalIdSystem)
+        } else {
+            terser.set(pathSpec, hd.name)
+        }
+    }
+
+    /**
+     * Set the EI component specified by [pathSpec] in [terser] with [value].
+     * Truncate appropriately according to [hl7Field] and [hl7Config]
+     */
+    internal fun setEIComponent(
+        terser: Terser,
+        value: String,
+        pathSpec: String,
+        hl7Field: String,
+        hl7Config: Hl7Configuration?
+    ) {
+        val maxLength = getMaxLength(hl7Field, value, hl7Config, terser)
+        val ei = Element.parseEI(value)
+        if (ei.universalId != null && ei.universalIdSystem != null) {
+            terser.set("$pathSpec-1", ei.name.trimAndTruncate(maxLength))
+            terser.set("$pathSpec-2", ei.namespace)
+            terser.set("$pathSpec-3", ei.universalId)
+            terser.set("$pathSpec-4", ei.universalIdSystem)
+        } else {
+            terser.set(pathSpec, ei.name.trimAndTruncate(maxLength))
+        }
+    }
+
+    /**
+     * Given the pathspec and the value, it will map that back to a valueset, or look up the valueset
+     * based on the valueSetName, and fill in the field with the code
+     */
+    private fun setCodeComponent(
+        terser: Terser,
+        value: String,
+        pathSpec: String,
+        valueSetName: String?,
+        elementValueSet: ValueSet? = null
+    ) {
         if (valueSetName == null) error("Schema Error: Missing valueSet for '$pathSpec'")
-        val valueSet = metadata.findValueSet(valueSetName)
+        val valueSet = elementValueSet ?: metadata.findValueSet(valueSetName)
             ?: error("Schema Error: Cannot find '$valueSetName'")
         when (valueSet.system) {
             ValueSet.SetSystem.HL7,
@@ -896,10 +940,16 @@ class Hl7Serializer(
                 // if it is a component spec then set all sub-components
                 if (isField(pathSpec)) {
                     if (value.isNotEmpty()) {
-                        terser.set("$pathSpec-1", value)
-                        terser.set("$pathSpec-2", valueSet.toDisplayFromCode(value))
-                        terser.set("$pathSpec-3", valueSet.toSystemFromCode(value))
-                        valueSet.toVersionFromCode(value)?.let {
+                        // if a value in the valueset replaces something in the standard valueset
+                        // we should default to that first, and then we will do all the other
+                        // lookups based on that
+                        val displayValue = valueSet.values.firstOrNull { v ->
+                            v.replaces?.equals(value, true) == true
+                        }?.code ?: value
+                        terser.set("$pathSpec-1", displayValue)
+                        terser.set("$pathSpec-2", valueSet.toDisplayFromCode(displayValue))
+                        terser.set("$pathSpec-3", valueSet.toSystemFromCode(displayValue))
+                        valueSet.toVersionFromCode(displayValue)?.let {
                             terser.set("$pathSpec-7", it)
                         }
                     }
@@ -919,16 +969,27 @@ class Hl7Serializer(
      * and set 'CLIA' as the Universal ID Type.
      * If [hl7Field] points to CE field, set [value] as the Identifier and 'CLIA' as the Text.
      */
-    internal fun setCliaComponent(terser: Terser, value: String, hl7Field: String) {
+    internal fun setCliaComponent(
+        terser: Terser,
+        value: String,
+        hl7Field: String,
+        hl7Config: Hl7Configuration? = null
+    ) {
         if (value.isEmpty()) return
-
         val pathSpec = formPathSpec(hl7Field)
-        terser.set(pathSpec, value)
+        val maxLength = getMaxLength(hl7Field, value, hl7Config, terser)
+        terser.set(pathSpec, value.trimAndTruncate(maxLength))
 
         when (hl7Field) {
-            in HD_FIELDS_UNIVERSAL,
-            in CE_FIELDS -> {
+            in HD_FIELDS_UNIVERSAL -> {
                 val nextComponent = nextComponent(pathSpec)
+                terser.set(nextComponent, "CLIA")
+            }
+            in CE_FIELDS -> {
+                // HD and CE don't have the same format. for the CE field, we have
+                // something that sits in the middle between the CLIA and the field
+                // that identifies this as a CLIA
+                val nextComponent = nextComponent(pathSpec, 2)
                 terser.set(nextComponent, "CLIA")
             }
         }
@@ -1021,12 +1082,13 @@ class Hl7Serializer(
             // for some state systems, they cannot handle repetition in the PID-13 field, despite what
             // the HL7 specification calls for. In that case, the patient email is not imported. A common
             // workaround is to shove the patient_email into PID-14 which is the business phone
+            val truncatedValue = value.trimAndTruncate(XTN_MAX_LENGTHS[3])
             if (hl7Config?.usePid14ForPatientEmail == true) {
                 // this is an email address
                 terser.set("/PATIENT_RESULT/PATIENT/PID-14-2", "NET")
                 // specifies it's an internet telecommunications type
                 terser.set("/PATIENT_RESULT/PATIENT/PID-14-3", "Internet")
-                terser.set("/PATIENT_RESULT/PATIENT/PID-14-4", value)
+                terser.set("/PATIENT_RESULT/PATIENT/PID-14-4", truncatedValue)
             } else {
                 // PID-13 is repeatable, which means we could have more than one phone #
                 // or email etc, so we need to increment until we get empty for PID-13-2
@@ -1038,7 +1100,7 @@ class Hl7Serializer(
                 terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-2", "NET")
                 // specifies it's an internet telecommunications type
                 terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-3", "Internet")
-                terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-4", value)
+                terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-4", truncatedValue)
             }
         }
     }
@@ -1077,10 +1139,10 @@ class Hl7Serializer(
             Element.Type.NUMBER -> {
                 if (element.name != "patient_age") TODO("support other types of AOE numbers")
                 if (units == null) error("Schema Error: expected age units")
-                setComponent(terser, element, formPathSpec("OBX-5", aoeRep), value, report)
+                setComponent(terser, element, "OBX-5", aoeRep, value, report)
                 setCodeComponent(terser, units, formPathSpec("OBX-6", aoeRep), "patient_age_units")
             }
-            else -> setComponent(terser, element, formPathSpec("OBX-5", aoeRep), value, report)
+            else -> setComponent(terser, element, "OBX-5", aoeRep, value, report)
         }
 
         terser.set(formPathSpec("OBX-11", aoeRep), "F")
@@ -1166,6 +1228,72 @@ class Hl7Serializer(
             truncationLimit.minus(matchCount.times(2))
         } else {
             truncationLimit
+        }
+    }
+
+    /**
+     * Trim and truncate the [value] according to the rules in [hl7Config] for [hl7Field].
+     * [terser] provides hl7 standards
+     */
+    internal fun trimAndTruncateValue(
+        value: String,
+        hl7Field: String,
+        hl7Config: Hl7Configuration?,
+        terser: Terser
+    ): String {
+        val maxLength = getMaxLength(hl7Field, value, hl7Config, terser)
+        return value.trimAndTruncate(maxLength)
+    }
+
+    /**
+     * Calculate for [hl7Field] and [value] the length to truncate the value according to the
+     * truncation rules in [hl7Config]. The [terser] is used to determine the HL7 specification length.
+     */
+    internal fun getMaxLength(hl7Field: String, value: String, hl7Config: Hl7Configuration?, terser: Terser): Int? {
+        return when {
+            // This special case takes into account special rules needed by jurisdiction
+            hl7Config?.truncateHDNamespaceIds == true && hl7Field in HD_FIELDS_LOCAL -> {
+                getTruncationLimitWithEncoding(value, HD_TRUNCATION_LIMIT)
+            }
+            // For the fields listed here use the hl7 max length
+            hl7Config?.truncateHl7Fields?.contains(hl7Field) == true -> {
+                getHl7MaxLength(hl7Field, terser)
+            }
+            // In general, don't truncate. The thinking is that
+            // 1. the max length of the specification is "normative" not system specific.
+            // 2. ReportStream is a conduit and truncation is a loss of information
+            // 3. Much of the current HHS guidance implies lengths longer than the 2.5.1 minimums
+            // 4. Later hl7 specifications, relax the minimum length requirements
+            else -> null
+        }
+    }
+
+    /**
+     * Given the internal field or component specified in [hl7Field], return the maximum string length
+     * according to the HL7 specification. The [terser] provides the HL7 specifications
+     */
+    internal fun getHl7MaxLength(hl7Field: String, terser: Terser): Int? {
+        fun getMaxLengthForCompositeType(type: Type, component: Int): Int? {
+            val typeName = type.name
+            val table = HL7_COMPONENT_MAX_LENGTH[typeName] ?: return null
+            return if (component <= table.size) table[component - 1] else null
+        }
+
+        // Dev Note: this function is work in progress.
+        // It is meant to be a general function for all fields and components,
+        // but only has support for the cases of current COVID-19 schema.
+        val segmentName = hl7Field.substring(0, 3)
+        val segmentSpec = formSegSpec(segmentName)
+        val segment = terser.getSegment(segmentSpec)
+        val parts = hl7Field.substring(4).split("-").map { it.toInt() }
+        val field = segment.getField(parts[0], 0)
+        return when (parts.size) {
+            // In general, use the values found in the HAPI library for fields
+            1 -> segment.getLength(parts[0])
+            // use our max-length tables when field and component is specified
+            2 -> getMaxLengthForCompositeType(field, parts[1])
+            // Add cases for sub-components here
+            else -> null
         }
     }
 
@@ -1259,15 +1387,20 @@ class Hl7Serializer(
     internal fun formPathSpec(spec: String, rep: Int? = null): String {
         val segment = spec.substring(0, 3)
         val components = spec.substring(3)
+        val segmentSpec = formSegSpec(segment, rep)
+        return "$segmentSpec$components"
+    }
+
+    internal fun formSegSpec(segment: String, rep: Int? = null): String {
         val repSpec = rep?.let { "($rep)" } ?: ""
         return when (segment) {
-            "OBR" -> "/PATIENT_RESULT/ORDER_OBSERVATION/OBR$components"
-            "ORC" -> "/PATIENT_RESULT/ORDER_OBSERVATION/ORC$components"
-            "SPM" -> "/PATIENT_RESULT/ORDER_OBSERVATION/SPECIMEN/SPM$components"
-            "PID" -> "/PATIENT_RESULT/PATIENT/PID$components"
-            "OBX" -> "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION$repSpec/OBX$components"
-            "NTE" -> "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/NTE$components"
-            else -> spec
+            "OBR" -> "/PATIENT_RESULT/ORDER_OBSERVATION/OBR"
+            "ORC" -> "/PATIENT_RESULT/ORDER_OBSERVATION/ORC"
+            "SPM" -> "/PATIENT_RESULT/ORDER_OBSERVATION/SPECIMEN/SPM"
+            "PID" -> "/PATIENT_RESULT/PATIENT/PID"
+            "OBX" -> "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION$repSpec/OBX"
+            "NTE" -> "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/NTE"
+            else -> segment
         }
     }
 
@@ -1449,6 +1582,7 @@ class Hl7Serializer(
     }
 
     companion object {
+        /** the length to truncate HD values to. Defaults to 20 */
         const val HD_TRUNCATION_LIMIT = 20
         const val HL7_SPEC_VERSION: String = "2.5.1"
         const val MESSAGE_CODE = "ORU"
@@ -1457,6 +1591,8 @@ class Hl7Serializer(
         const val SOFTWARE_PRODUCT_NAME: String = "PRIME ReportStream"
         const val NCES_EXTENSION = "_NCES_"
         const val OBX_18_EQUIPMENT_UID_OID: String = "2.16.840.1.113883.3.3719"
+        /** the default org name type code. defaults to "L" */
+        const val DEFAULT_ORGANIZATION_NAME_TYPE_CODE: String = "L"
 
         /*
         From the HL7 2.5.1 Ch 2A spec...
@@ -1485,13 +1621,60 @@ class Hl7Serializer(
         )
 
         /**
-         * List of fields that have a CE type
+         * List of fields that have a CE type. Note: this is only really used in places
+         * where we need to put a CLIA marker in the field as well and there are a
+         * lot of CE fields that are *NOT* CLIA fields, so use this correctly.
          */
         val CE_FIELDS = listOf("OBX-15-1")
+
+        // Component specific sub-component length from HL7 specification Chapter 2A
+        private val CWE_MAX_LENGTHS = arrayOf(20, 199, 20, 20, 199, 20, 10, 10, 199)
+        private val EI_MAX_LENGTHS = arrayOf(199, 20, 199, 6)
+        private val EIP_MAX_LENGTHS = arrayOf(427, 427)
+        private val HD_MAX_LENGTHS = arrayOf(20, 199, 6)
+        private val XTN_MAX_LENGTHS = arrayOf(199, 3, 8, 199, 3, 5, 9, 5, 199, 4, 6, 199)
+        private val XAD_MAX_LENGTHS = arrayOf(184, 120, 50, 50, 12, 3, 3, 50, 20, 20, 1, 53, 26, 26)
+        private val XCN_MAX_LENGTHS =
+            arrayOf(15, 194, 30, 30, 20, 20, 5, 4, 227, 1, 1, 3, 5, 227, 1, 483, 53, 1, 26, 26, 199, 705, 705)
+        private val XON_MAX_LENGTHS = arrayOf(50, 20, 4, 1, 3, 227, 5, 227, 1, 20)
+        private val XPN_MAX_LENGTHS = arrayOf(194, 30, 30, 20, 20, 6, 1, 1, 483, 53, 1, 26, 26, 199)
+
+        /**
+         * Component length table for composite HL7 types taken from HL7 specification Chapter 2A.
+         */
+        val HL7_COMPONENT_MAX_LENGTH = mapOf(
+            "CWE" to CWE_MAX_LENGTHS,
+            "EI" to EI_MAX_LENGTHS,
+            "EIP" to EIP_MAX_LENGTHS,
+            "HD" to HD_MAX_LENGTHS,
+            "XAD" to XAD_MAX_LENGTHS,
+            "XCN" to XCN_MAX_LENGTHS,
+            "XON" to XON_MAX_LENGTHS,
+            "XPN" to XPN_MAX_LENGTHS,
+            "XTN" to XTN_MAX_LENGTHS,
+            // Extend further here
+        )
+
+        /**
+         * List of ordering provider id fields
+         */
+        val ORDERING_PROVIDER_ID_FIELDS = listOf("ORC-12", "OBR-16")
 
         // Do a lazy init because this table may never be used and it is large
         val ncesLookupTable = lazy {
             LookupTable.read("./metadata/tables/nces_id.csv")
         }
     }
+}
+
+/**
+ * Trim and truncate the string to the [maxLength] preserving as much of the non-whitespace as possible
+ */
+fun String.trimAndTruncate(maxLength: Int?): String {
+    val startTrimmed = this.trimStart()
+    val truncated = if (maxLength != null && startTrimmed.length > maxLength)
+        startTrimmed.take(maxLength)
+    else
+        startTrimmed
+    return truncated.trimEnd()
 }
