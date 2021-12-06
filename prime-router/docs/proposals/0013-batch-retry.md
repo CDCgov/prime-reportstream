@@ -30,7 +30,7 @@ is one for this receiver and batch them.
 ### Nifty Warehouse Metaphor
 Right now we have a front desk person who is getting paper reports - people are dropping by and sticking them in the
 inbox at any time. The front desk person is copying incoming reports as needed, adding a few stamps, and for each 
-report is calling the mail room to say 'hey, got a report for <receiver>>, come get it ready to ship at 
+report is calling the mail room to say 'hey, got a report for Receiver X, come get it ready to ship at 
 noon' and then sticking it in the internal folder for that receiver. At noon the mail room sends one person per call 
 they got to get files ready to send to the receiver. Each of these people takes the time to get up from their desk and 
 walk over - the first person to get there for each receiver grabs them all out of the folder, puts them in an
@@ -39,7 +39,7 @@ and go back to their desk.
 
 In the proposed changes the front desk person still gets the reports and puts them in a folder, but instead of calling
 the mail room each time they get a report there is a front desk assistant that keeps track of schedules and receivers.
-At noon, they call over to the mail room to say 'got some reports for <receiver>, please send someone over'. One person
+At noon, they call over to the mail room to say 'got some reports for Receiver X, please send someone over'. One person
 walks over, packages up the reports, and gets to them to appropriate outbox. If for some reason they are unable to 
 do that (tripped on their shoelaces or something) the assistant can call back to the mail room to ask them to send
 someone else.
@@ -54,11 +54,13 @@ To implement these changes, we would need to
 * look into the 'at' parameter in batchFunction to determine if it is still needed
 * we would need to look into a setting change for receiver to indicate 'sendIfEmptyBatch' and generate empty batch
 files if set to true
+* Since the batchFunction locks the task rows that it is processing, it doesn't matter if runs for the same receiver
+overlap (this is not ideal, but still a far cry better than what we have today)
 
 ### Benefits Gained / Problems Addressed
 - Scalability - one queue message per receiver per batch bucket
 - Recoverabilty/Retry - if a batch fails, the queue message can be re-added to the queue and re-processed
-- Remove Race Condition - the race condition of pulling <x> Task records is one of the most hit queries in RS
+- Remove Race Condition - the race condition of pulling #n Task records is one of the most hit queries in RS
 - Queue Visibility - removing the 'nextActionAt' part of messages from the queue gives visibility
-- Easier 'Empty Batch' - for recievers that want an empty batch file each batch period if there are no records to send
+- Easier 'Empty Batch' - for receivers that want an empty batch file each batch period if there are no records to send
 - Batch Cancellation - ability to add a flag to stop batching for receivers in real time if needed
