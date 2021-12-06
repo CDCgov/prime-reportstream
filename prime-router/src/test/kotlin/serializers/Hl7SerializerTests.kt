@@ -3,6 +3,7 @@ package gov.cdc.prime.router.serializers
 import assertk.assertThat
 import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
+import assertk.assertions.isLessThanOrEqualTo
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNotNull
@@ -27,9 +28,10 @@ import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.TestSource
+import gov.cdc.prime.router.Translator
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockkClass
+import io.mockk.spyk
 import io.mockk.verify
 import org.junit.jupiter.api.TestInstance
 import java.io.ByteArrayInputStream
@@ -49,7 +51,7 @@ import kotlin.test.fail
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class Hl7SerializerTests {
     private val hl7TestFileDir = "./src/test/hl7_test_files/"
-    private val hl7SchemaName = "hl7/hl7-ingest-covid-19"
+    private val hl7SchemaName = "hl7/test-covid-19"
     private val testReport: Report
     private val context = DefaultHapiContext()
     private val mcf = CanonicalModelClassFactory("2.5.1")
@@ -59,6 +61,8 @@ class Hl7SerializerTests {
     private val sampleHl7Message: String
     private val sampleHl7MessageWithRepeats: String
     private val metadata = Metadata.getInstance()
+    private val emptyTerser = Terser(ORU_R01())
+    private val translator = Translator(metadata, FileSettings())
 
     init {
         val settings = FileSettings("./settings")
@@ -95,6 +99,30 @@ SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (
 NTE|1|L|This is a final comment|RE"""
     }
 
+    fun createConfig(
+        replaceValue: Map<String, String> = emptyMap(),
+        cliaForSender: Map<String, String> = emptyMap(),
+        cliaForOutOfStateTesting: String? = null,
+        truncateHl7Fields: String? = null,
+        suppressNonNPI: Boolean = false,
+        truncateHDNamespaceIds: Boolean = false,
+    ): Hl7Configuration {
+        return Hl7Configuration(
+            messageProfileId = "",
+            receivingApplicationOID = "",
+            receivingApplicationName = "",
+            receivingFacilityName = "",
+            receivingFacilityOID = "",
+            receivingOrganization = "",
+            cliaForOutOfStateTesting = cliaForOutOfStateTesting,
+            cliaForSender = cliaForSender,
+            replaceValue = replaceValue,
+            truncateHl7Fields = truncateHl7Fields,
+            suppressNonNPI = suppressNonNPI,
+            truncateHDNamespaceIds = truncateHDNamespaceIds
+        )
+    }
+
     @Test
     fun `Test write batch`() {
         val outputStream = ByteArrayOutputStream()
@@ -113,34 +141,77 @@ NTE|1|L|This is a final comment|RE"""
     fun `test write a message with Receiver`() {
         val inputStream = File("./src/test/unit_test_files/ak_test_file.csv").inputStream()
         val schema = "primedatainput/pdi-covid-19"
-
-        val hl7Config = mockkClass(Hl7Configuration::class).also {
-            every { it.replaceValue }.returns(mapOf("PID-22-3" to "CDCREC,-,testCDCREC", "MSH-9" to "MSH-10"))
-            every { it.format }.returns(Report.Format.HL7)
-            every { it.useTestProcessingMode }.returns(false)
-            every { it.suppressQstForAoe }.returns(false)
-            every { it.suppressAoe }.returns(false)
-            every { it.suppressHl7Fields }.returns(null)
-            every { it.useBlankInsteadOfUnknown }.returns(null)
-            every { it.convertTimestampToDateTime }.returns(null)
-            every { it.truncateHDNamespaceIds }.returns(false)
-            every { it.phoneNumberFormatting }.returns(Hl7Configuration.PhoneNumberFormatting.STANDARD)
-            every { it.usePid14ForPatientEmail }.returns(false)
-            every { it.reportingFacilityName }.returns(null)
-            every { it.reportingFacilityId }.returns(null)
-            every { it.reportingFacilityIdType }.returns(null)
-            every { it.cliaForOutOfStateTesting }.returns("1234FAKECLIA")
-            every { it.useOrderingFacilityName }.returns(Hl7Configuration.OrderingFacilityName.STANDARD)
-            every { it.cliaForSender }.returns(mapOf())
-        }
-        val receiver = mockkClass(Receiver::class).also {
-            every { it.translation }.returns(hl7Config)
-            every { it.format }.returns(Report.Format.HL7)
-            every { it.organizationName }.returns("ca-dph")
-        }
-
+        val hl7Config = createConfig(
+            replaceValue = mapOf("PID-22-3" to "CDCREC,-,testCDCREC", "MSH-9" to "MSH-10"),
+            cliaForOutOfStateTesting = "1234FAKECLIA"
+        )
+        val receiver = Receiver("mock", "ca-phd", "covid-19", translation = hl7Config)
         val testReport = csvSerializer.readExternal(schema, inputStream, listOf(TestSource), receiver).report ?: fail()
         val output = serializer.createMessage(testReport, 2)
+        assertThat(output).isNotNull()
+    }
+
+    @Test
+    fun `test message with bad NPI`() {
+        val inputStream = File("./src/test/unit_test_files/fake-pdi-covid-19.csv").inputStream()
+        val schema = "primedatainput/pdi-covid-19"
+        val hl7Config = createConfig(suppressNonNPI = false)
+        val receiver = Receiver("mock", "ca-phd", "covid-19", translation = hl7Config)
+        val pdiInput = csvSerializer.readExternal(schema, inputStream, listOf(TestSource), receiver).report ?: fail()
+        val testReport = translator.translateByReceiver(pdiInput, receiver)
+        val output = serializer.buildMessage(testReport, 2)
+        val orderingProvider = output.patienT_RESULT.ordeR_OBSERVATION.orc.getOrderingProvider(0)
+        assertThat(orderingProvider.assigningAuthority.isEmpty).isTrue()
+        assertThat(orderingProvider.identifierTypeCode.value).isEqualTo("U")
+    }
+
+    @Test
+    fun `test message with bad NPI and suppressed`() {
+        val inputStream = File("./src/test/unit_test_files/fake-pdi-covid-19.csv").inputStream()
+        val schema = "primedatainput/pdi-covid-19"
+        val hl7Config = createConfig(suppressNonNPI = true)
+        val receiver = Receiver("mock", "ca-phd", "covid-19", translation = hl7Config)
+        val pdiInput = csvSerializer.readExternal(schema, inputStream, listOf(TestSource), receiver).report ?: fail()
+        val testReport = translator.translateByReceiver(pdiInput, receiver)
+        val output = serializer.buildMessage(testReport, 2)
+        val orderingProvider = output.patienT_RESULT.ordeR_OBSERVATION.orc.getOrderingProvider(0)
+        assertThat(orderingProvider.idNumber.isEmpty).isTrue()
+        assertThat(orderingProvider.assigningAuthority.isEmpty).isTrue()
+        assertThat(orderingProvider.identifierTypeCode.isEmpty).isTrue()
+    }
+
+    @Test
+    fun `test write a message with Receiver for VT with HD truncation and OBX-23-1 with 50 chars`() {
+        val inputStream = File("./src/test/unit_test_files/vt_test_file.csv").inputStream()
+        val schema = "primedatainput/pdi-covid-19"
+
+        val hl7Config = createConfig(truncateHl7Fields = "OBX-23-1, MSH-4-1")
+        val receiver = Receiver("test", "vt-phd", "covid-19", translation = hl7Config)
+
+        val testReport = csvSerializer.readExternal(schema, inputStream, listOf(TestSource), receiver).report ?: fail()
+        val output = serializer.createMessage(testReport, 0)
+        val mcf = CanonicalModelClassFactory("2.5.1")
+        context.modelClassFactory = mcf
+        val parser = context.pipeParser
+        // act
+        val reg = "[\r\n]".toRegex()
+        val cleanedMessage = reg.replace(output, "\r")
+        val hapiMsg = parser.parse(cleanedMessage)
+        val terser = Terser(hapiMsg)
+
+        // assert
+        assertThat(terser.get("/MSH-4-1")).isEqualTo("High Meadow")
+        assertThat(terser.get("/MSH-4-1").length).isLessThanOrEqualTo(20)
+        assertThat(
+            terser.get(
+                "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-23-1"
+            ).length
+        ).isLessThanOrEqualTo(50)
+        assertThat(
+            terser.get(
+                "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-23-1"
+            )
+        ).isEqualTo("High Meadow")
         assertThat(output).isNotNull()
     }
 
@@ -656,17 +727,42 @@ NTE|1|L|This is a final comment|RE"""
     fun `test setCliaComponents`() {
         val settings = FileSettings("./settings")
         val serializer = Hl7Serializer(metadata, settings)
-        val mockTerser = mockk<Terser>()
-        every { mockTerser.set(any(), any()) } returns Unit
+        val terser = spyk(emptyTerser)
+        every { terser.set(any(), any()) } returns Unit
 
         serializer.setCliaComponent(
-            mockTerser,
+            terser,
             "XYZ",
             "OBX-23-10"
         )
 
         verify {
-            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-23-10", "XYZ")
+            terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-23-10", "XYZ")
+        }
+    }
+
+    @Test
+    fun `test setCliaComponents truncation`() {
+        val settings = FileSettings("./settings")
+        val serializer = Hl7Serializer(metadata, settings)
+
+        val terser = spyk(emptyTerser)
+        every { terser.set(any(), any()) } returns Unit
+        val configuration = createConfig(
+            truncateHDNamespaceIds = false,
+            truncateHl7Fields = "OBX-23-10, MSH-3-1" // Enables truncation on these fields
+        )
+
+        // The OBX-23-10 length is 20
+        serializer.setCliaComponent(
+            terser,
+            "012345678901234567890123456789",
+            "OBX-23-10",
+            configuration
+        )
+
+        verify {
+            terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-23-10", "01234567890123456789")
         }
     }
 
@@ -674,20 +770,20 @@ NTE|1|L|This is a final comment|RE"""
     fun `test setCliaComponents in HD`() {
         val settings = FileSettings("./settings")
         val serializer = Hl7Serializer(metadata, settings)
-        val mockTerser = mockk<Terser>()
-        every { mockTerser.set(any(), any()) } returns Unit
+        val terser = spyk(emptyTerser)
+        every { terser.set(any(), any()) } returns Unit
         val hl7Field = "ORC-3-3"
         val value = "dummy"
 
         serializer.setCliaComponent(
-            mockTerser,
+            terser,
             value,
             hl7Field
         )
 
         verify {
-            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-3-3", value)
-            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-3-4", "CLIA")
+            terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-3-3", value)
+            terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-3-4", "CLIA")
         }
     }
 
@@ -856,6 +952,78 @@ NTE|1|L|This is a final comment|RE"""
     }
 
     @Test
+    fun `test truncateValue with truncated HD`() {
+        val hl7Config = createConfig(truncateHDNamespaceIds = true)
+        val inputAndExpected = mapOf(
+            "short" to "short",
+            "Test & Value ~ Text ^ String" to "Test & Value ~ T",
+            "Test Value Text String" to "Test Value Text Stri"
+        )
+        for ((input, expected) in inputAndExpected) {
+            val actual = serializer.trimAndTruncateValue(input, "MSH-4-1", hl7Config, emptyTerser)
+            assertThat(actual).isEqualTo(expected)
+        }
+    }
+
+    @Test
+    fun `test truncateValue with HD`() {
+        val hl7Config = createConfig(
+            truncateHDNamespaceIds = false,
+            truncateHl7Fields = "MSH-4-1, MSH-3-1" // Enables truncation on these fields
+        )
+        val inputAndExpected = mapOf(
+            "short" to "short",
+            "Test & Value ~ Text ^ String" to "Test & Value ~ Text",
+        )
+        for ((input, expected) in inputAndExpected) {
+            val actual = serializer.trimAndTruncateValue(input, "MSH-4-1", hl7Config, emptyTerser)
+            assertThat(actual).isEqualTo(expected)
+        }
+    }
+
+    @Test
+    fun `test trimAndTruncate with NPI`() {
+        val hl7Config = createConfig(
+            truncateHDNamespaceIds = false,
+            suppressNonNPI = false,
+            truncateHl7Fields = "ORC-12-1, OBR-16-1" // Enables truncation on this field
+        )
+        val inputAndExpected = mapOf(
+            "1234567890" to "1234567890",
+            "12345678901234567890" to "123456789012345",
+        )
+        for ((input, expected) in inputAndExpected) {
+            val actual = serializer.trimAndTruncateValue(input, "ORC-12-1", hl7Config, emptyTerser)
+            assertThat(actual).isEqualTo(expected)
+            val actual2 = serializer.trimAndTruncateValue(input, "OBR-16-1", hl7Config, emptyTerser)
+            assertThat(actual2).isEqualTo(expected)
+        }
+    }
+
+    @Test
+    fun `test getHl7MaxLength`() {
+        // Test the ordering provider id has the right length
+        assertThat(serializer.getHl7MaxLength("ORC-12-1", emptyTerser)).isEqualTo(15)
+        assertThat(serializer.getHl7MaxLength("OBR-16-1", emptyTerser)).isEqualTo(15)
+        // Test that MSH returns reasonable values
+        assertThat(serializer.getHl7MaxLength("MSH-7", emptyTerser)).isEqualTo(26)
+        assertThat(serializer.getHl7MaxLength("MSH-4-1", emptyTerser)).isEqualTo(20)
+        assertThat(serializer.getHl7MaxLength("MSH-4-2", emptyTerser)).isEqualTo(199)
+        assertThat(serializer.getHl7MaxLength("MSH-1", emptyTerser)).isEqualTo(1)
+        // Test that OBX returns reasonable values
+        assertThat(serializer.getHl7MaxLength("OBX-2", emptyTerser)).isEqualTo(2)
+        assertThat(serializer.getHl7MaxLength("OBX-5", emptyTerser)).isEqualTo(99999)
+        assertThat(serializer.getHl7MaxLength("OBX-11", emptyTerser)).isEqualTo(1)
+        // This component limit is smaller than the enclosing field. This inconsistency was fixed by v2.9
+        assertThat(serializer.getHl7MaxLength("OBX-18", emptyTerser)).isEqualTo(22)
+        assertThat(serializer.getHl7MaxLength("OBX-18-1", emptyTerser)).isEqualTo(199)
+        assertThat(serializer.getHl7MaxLength("OBX-19", emptyTerser)).isEqualTo(26)
+
+        // Test that a subcomponent returns null
+        assertThat(serializer.getHl7MaxLength("OBR-16-1-2", emptyTerser)).isNull()
+    }
+
+    @Test
     fun `test incorrect HL7 content`() {
         val settings = FileSettings("./settings")
         val serializer = Hl7Serializer(metadata, settings)
@@ -905,7 +1073,6 @@ NTE|1|L|This is a final comment|RE"""
 
     @Test
     fun `test cliaForSender`() {
-
         // arrange
         val mcf = CanonicalModelClassFactory("2.5.1")
         context.modelClassFactory = mcf
@@ -917,31 +1084,8 @@ NTE|1|L|This is a final comment|RE"""
         val csvContent = ByteArrayInputStream("senderId,testOrdered,testName,testCodingSystem,testResult,testResultText,testPerformed,testResultCodingSystem,testResultDate,testReportDate,testOrderedDate,specimenCollectedDate,deviceIdentifier,deviceName,specimenId,serialNumber,patientAge,patientAgeUnits,patientDob,patientRace,patientRaceText,patientEthnicity,patientEthnicityText,patientSex,patientZip,patientCounty,orderingProviderNpi,orderingProviderLname,orderingProviderFname,orderingProviderZip,performingFacility,performingFacilityName,performingFacilityStreet,performingFacilityStreet2,performingFacilityCity,performingFacilityState,performingFacilityZip,performingFacilityCounty,performingFacilityPhone,orderingFacilityName,orderingFacilityStreet,orderingFacilityStreet2,orderingFacilityCity,orderingFacilityState,orderingFacilityZip,orderingFacilityCounty,orderingFacilityPhone,specimenSource,patientNameLast,patientNameFirst,patientNameMiddle,patientUniqueId,patientHomeAddress,patientHomeAddress2,patientCity,patientState,patientPhone,patientPhoneArea,orderingProviderAddress,orderingProviderAddress2,orderingProviderCity,orderingProviderState,orderingProviderPhone,orderingProviderPhoneArea,firstTest,previousTestType,previousTestDate,previousTestResult,correctedTestId,healthcareEmployee,healthcareEmployeeType,symptomatic,symptomsList,hospitalized,hospitalizedCode,symptomsIcu,congregateResident,congregateResidentType,pregnant,pregnantText,patientEmail,reportingFacility\nfake,94531-1,SARS coronavirus 2 RNA panel - Respiratory specimen by NAA with probe detection,LN,260415000,Not Detected,94558-4,SCT,202110062022-0400,202110062022-0400,20211007,20211007,00382902560821,BD Veritor System for Rapid Detection of SARS-CoV-2*,4efd9df8-9424-4e50-b168-f3aa894bfa42,4efd9df8-9424-4e50-b168-f3aa894bfa42,45,yr,1975-10-10,2106-3,White,2135-2,Hispanic or Latino,M,93307,Kern County,1760085880,,,93312,05D2191150,Inovia Pharmacy,9902 Brimhall rd ste 100,,Bakersfield,CA,93312,Kern County,+16618297861,Inovia Pharmacy,9902 Brimhall rd ste 100,,Bakersfield,CA,93312,Kern County,+16618297861,445297001,Tapia,Jose,,e553c462-6bad-4e42-ab1e-0879b797aa31,1211 Dawn st,,Bakersfield,CA,+16614933107,661,9902 BRIMHALL RD STE 100,,BAKERSFIELD,CA,+16618297861,661,UNK,,,,,,,UNK,,NO,,NO,NO,,261665006,UNK,,1760085880".toByteArray()) // ktlint-disable max-line-length
         val schema = "direct/direct-covid-19"
 
-        val hl7Config = mockkClass(Hl7Configuration::class).also {
-            every { it.replaceValue }.returns(mapOf())
-            every { it.format }.returns(Report.Format.HL7)
-            every { it.useTestProcessingMode }.returns(false)
-            every { it.suppressQstForAoe }.returns(false)
-            every { it.suppressAoe }.returns(false)
-            every { it.suppressHl7Fields }.returns(null)
-            every { it.useBlankInsteadOfUnknown }.returns(null)
-            every { it.convertTimestampToDateTime }.returns(null)
-            every { it.truncateHDNamespaceIds }.returns(false)
-            every { it.phoneNumberFormatting }.returns(Hl7Configuration.PhoneNumberFormatting.STANDARD)
-            every { it.usePid14ForPatientEmail }.returns(false)
-            every { it.reportingFacilityName }.returns(null)
-            every { it.reportingFacilityId }.returns(null)
-            every { it.reportingFacilityIdType }.returns(null)
-            every { it.cliaForOutOfStateTesting }.returns(null)
-            every { it.useOrderingFacilityName }.returns(Hl7Configuration.OrderingFacilityName.STANDARD)
-            every { it.cliaForSender }.returns(mapOf("fake1" to "ABCTEXT123", "fake" to "10D1234567"))
-            every { it.defaultAoeToUnknown }.returns(false)
-        }
-        val receiver = mockkClass(Receiver::class).also {
-            every { it.translation }.returns(hl7Config)
-            every { it.format }.returns(Report.Format.HL7)
-            every { it.organizationName }.returns("ca-dph")
-        }
+        val hl7Config = createConfig(cliaForSender = mapOf("fake1" to "ABCTEXT123", "fake" to "10D1234567"))
+        val receiver = Receiver("test", "ca-dph", "covid-19", translation = hl7Config)
 
         val testReport = csvSerializer.readExternal(schema, csvContent, listOf(TestSource), receiver).report ?: fail()
         val output = serializer.createMessage(testReport, 0)
@@ -955,33 +1099,7 @@ NTE|1|L|This is a final comment|RE"""
 
         // Test when sender is not found or blank
         val csvContentSenderNotFound = ByteArrayInputStream("senderId,testOrdered,testName,testCodingSystem,testResult,testResultText,testPerformed,testResultCodingSystem,testResultDate,testReportDate,testOrderedDate,specimenCollectedDate,deviceIdentifier,deviceName,specimenId,serialNumber,patientAge,patientAgeUnits,patientDob,patientRace,patientRaceText,patientEthnicity,patientEthnicityText,patientSex,patientZip,patientCounty,orderingProviderNpi,orderingProviderLname,orderingProviderFname,orderingProviderZip,performingFacility,performingFacilityName,performingFacilityStreet,performingFacilityStreet2,performingFacilityCity,performingFacilityState,performingFacilityZip,performingFacilityCounty,performingFacilityPhone,orderingFacilityName,orderingFacilityStreet,orderingFacilityStreet2,orderingFacilityCity,orderingFacilityState,orderingFacilityZip,orderingFacilityCounty,orderingFacilityPhone,specimenSource,patientNameLast,patientNameFirst,patientNameMiddle,patientUniqueId,patientHomeAddress,patientHomeAddress2,patientCity,patientState,patientPhone,patientPhoneArea,orderingProviderAddress,orderingProviderAddress2,orderingProviderCity,orderingProviderState,orderingProviderPhone,orderingProviderPhoneArea,firstTest,previousTestType,previousTestDate,previousTestResult,correctedTestId,healthcareEmployee,healthcareEmployeeType,symptomatic,symptomsList,hospitalized,hospitalizedCode,symptomsIcu,congregateResident,congregateResidentType,pregnant,pregnantText,patientEmail,reportingFacility\nfake,94531-1,SARS coronavirus 2 RNA panel - Respiratory specimen by NAA with probe detection,LN,260415000,Not Detected,94558-4,SCT,202110062022-0400,202110062022-0400,20211007,20211007,00382902560821,BD Veritor System for Rapid Detection of SARS-CoV-2*,4efd9df8-9424-4e50-b168-f3aa894bfa42,4efd9df8-9424-4e50-b168-f3aa894bfa42,45,yr,1975-10-10,2106-3,White,2135-2,Hispanic or Latino,M,93307,Kern County,1760085880,,,93312,05D2191150,Inovia Pharmacy,9902 Brimhall rd ste 100,,Bakersfield,CA,93312,Kern County,+16618297861,Inovia Pharmacy,9902 Brimhall rd ste 100,,Bakersfield,CA,93312,Kern County,+16618297861,445297001,Tapia,Jose,,e553c462-6bad-4e42-ab1e-0879b797aa31,1211 Dawn st,,Bakersfield,CA,+16614933107,661,9902 BRIMHALL RD STE 100,,BAKERSFIELD,CA,+16618297861,661,UNK,,,,,,,UNK,,NO,,NO,NO,,261665006,UNK,,1760085880".toByteArray()) // ktlint-disable max-line-length
-
-        val hl7ConfigSenderNotFound = mockkClass(Hl7Configuration::class).also {
-            every { it.replaceValue }.returns(mapOf())
-            every { it.format }.returns(Report.Format.HL7)
-            every { it.useTestProcessingMode }.returns(false)
-            every { it.suppressQstForAoe }.returns(false)
-            every { it.suppressAoe }.returns(false)
-            every { it.suppressHl7Fields }.returns(null)
-            every { it.useBlankInsteadOfUnknown }.returns(null)
-            every { it.convertTimestampToDateTime }.returns(null)
-            every { it.truncateHDNamespaceIds }.returns(false)
-            every { it.phoneNumberFormatting }.returns(Hl7Configuration.PhoneNumberFormatting.STANDARD)
-            every { it.usePid14ForPatientEmail }.returns(false)
-            every { it.reportingFacilityName }.returns(null)
-            every { it.reportingFacilityId }.returns(null)
-            every { it.reportingFacilityIdType }.returns(null)
-            every { it.cliaForOutOfStateTesting }.returns(null)
-            every { it.useOrderingFacilityName }.returns(Hl7Configuration.OrderingFacilityName.STANDARD)
-            every { it.cliaForSender }.returns(mapOf("NotFound" to "ABCTEXT123", "" to "FAKETXT123"))
-            every { it.defaultAoeToUnknown }.returns(false)
-        }
-
-        val receiverSenderNotFound = mockkClass(Receiver::class).also {
-            every { it.translation }.returns(hl7ConfigSenderNotFound)
-            every { it.format }.returns(Report.Format.HL7)
-            every { it.organizationName }.returns("ca-dph")
-        }
+        val receiverSenderNotFound = Receiver("test", "ca-dph", "covid-19", translation = hl7Config)
 
         val testRptSenderNotFound = csvSerializer.readExternal(schema, csvContentSenderNotFound, listOf(TestSource), receiverSenderNotFound).report ?: fail() // ktlint-disable max-line-length
         val outputSenderNotFound = serializer.createMessage(testRptSenderNotFound, 0)
@@ -997,7 +1115,6 @@ NTE|1|L|This is a final comment|RE"""
 
     @Test
     fun `test replaceValue`() {
-
         // arrange
         val mcf = CanonicalModelClassFactory("2.5.1")
         context.modelClassFactory = mcf
@@ -1009,40 +1126,17 @@ NTE|1|L|This is a final comment|RE"""
         val csvContent = ByteArrayInputStream("senderId,testOrdered,testName,testCodingSystem,testResult,testResultText,testPerformed,testResultCodingSystem,testResultDate,testReportDate,testOrderedDate,specimenCollectedDate,deviceIdentifier,deviceName,specimenId,serialNumber,patientAge,patientAgeUnits,patientDob,patientRace,patientRaceText,patientEthnicity,patientEthnicityText,patientSex,patientZip,patientCounty,orderingProviderNpi,orderingProviderLname,orderingProviderFname,orderingProviderZip,performingFacility,performingFacilityName,performingFacilityStreet,performingFacilityStreet2,performingFacilityCity,performingFacilityState,performingFacilityZip,performingFacilityCounty,performingFacilityPhone,orderingFacilityName,orderingFacilityStreet,orderingFacilityStreet2,orderingFacilityCity,orderingFacilityState,orderingFacilityZip,orderingFacilityCounty,orderingFacilityPhone,specimenSource,patientNameLast,patientNameFirst,patientNameMiddle,patientUniqueId,patientHomeAddress,patientHomeAddress2,patientCity,patientState,patientPhone,patientPhoneArea,orderingProviderAddress,orderingProviderAddress2,orderingProviderCity,orderingProviderState,orderingProviderPhone,orderingProviderPhoneArea,firstTest,previousTestType,previousTestDate,previousTestResult,correctedTestId,healthcareEmployee,healthcareEmployeeType,symptomatic,symptomsList,hospitalized,hospitalizedCode,symptomsIcu,congregateResident,congregateResidentType,pregnant,pregnantText,patientEmail,reportingFacility\nfake,94531-1,SARS coronavirus 2 RNA panel - Respiratory specimen by NAA with probe detection,LN,260415000,Not Detected,94558-4,SCT,202110062022-0400,202110062022-0400,20211007,20211007,00382902560821,BD Veritor System for Rapid Detection of SARS-CoV-2*,4efd9df8-9424-4e50-b168-f3aa894bfa42,4efd9df8-9424-4e50-b168-f3aa894bfa42,45,yr,1975-10-10,2106-3,White,2135-2,Hispanic or Latino,M,93307,Kern County,1760085880,,,93312,05D2191150,Inovia Pharmacy,9902 Brimhall rd ste 100,,Bakersfield,CA,93312,Kern County,+16618297861,Inovia Pharmacy,9902 Brimhall rd ste 100,,Bakersfield,CA,93312,Kern County,+16618297861,445297001,Tapia,Jose,,e553c462-6bad-4e42-ab1e-0879b797aa31,1211 Dawn st,,Bakersfield,CA,+16614933107,661,9902 BRIMHALL RD STE 100,,BAKERSFIELD,CA,+16618297861,661,UNK,,,,,,,UNK,,NO,,NO,NO,,261665006,UNK,,1760085880".toByteArray()) // ktlint-disable max-line-length
         val schema = "direct/direct-covid-19"
 
-        val hl7Config = mockkClass(Hl7Configuration::class).also {
-            every { it.replaceValue }.returns(
-                mapOf(
-                    "" to "ABCTEXT123",
-                    "fake1" to "ABCTEXT123",
-                    "MSH-4-1" to "success",
-                    "MSH-4-2" to "correctText,-,YES!",
-                    "MSH-4-3" to "MSH-4-2",
-                    "MSH-10" to "yeah,/,MSH-4-1"
-                )
+        val hl7Config = createConfig(
+            replaceValue = mapOf(
+                "" to "ABCTEXT123",
+                "fake1" to "ABCTEXT123",
+                "MSH-4-1" to "success",
+                "MSH-4-2" to "correctText,-,YES!",
+                "MSH-4-3" to "MSH-4-2",
+                "MSH-10" to "yeah,/,MSH-4-1"
             )
-            every { it.format }.returns(Report.Format.HL7)
-            every { it.useTestProcessingMode }.returns(false)
-            every { it.suppressQstForAoe }.returns(false)
-            every { it.suppressAoe }.returns(false)
-            every { it.suppressHl7Fields }.returns(null)
-            every { it.useBlankInsteadOfUnknown }.returns(null)
-            every { it.convertTimestampToDateTime }.returns(null)
-            every { it.truncateHDNamespaceIds }.returns(false)
-            every { it.phoneNumberFormatting }.returns(Hl7Configuration.PhoneNumberFormatting.STANDARD)
-            every { it.usePid14ForPatientEmail }.returns(false)
-            every { it.reportingFacilityName }.returns(null)
-            every { it.reportingFacilityId }.returns(null)
-            every { it.reportingFacilityIdType }.returns(null)
-            every { it.cliaForOutOfStateTesting }.returns(null)
-            every { it.useOrderingFacilityName }.returns(Hl7Configuration.OrderingFacilityName.STANDARD)
-            every { it.cliaForSender }.returns(mapOf("fake1" to "ABCTEXT123", "fake" to "10D1234567"))
-            every { it.defaultAoeToUnknown }.returns(false)
-        }
-        val receiver = mockkClass(Receiver::class).also {
-            every { it.translation }.returns(hl7Config)
-            every { it.format }.returns(Report.Format.HL7)
-            every { it.organizationName }.returns("ca-dph")
-        }
+        )
+        val receiver = Receiver("mock", "ca-dph", "covid-19", translation = hl7Config)
 
         val testReport = csvSerializer.readExternal(schema, csvContent, listOf(TestSource), receiver).report ?: fail()
         val output = serializer.createMessage(testReport, 0)
@@ -1055,9 +1149,9 @@ NTE|1|L|This is a final comment|RE"""
         val msh43 = terser.get("/MSH-4-3")
         val msh10 = terser.get("/MSH-10")
 
-        assertThat(msh41).equals("success")
-        assertThat(msh42).equals("correctText-YES!")
-        assertThat(msh43).equals("correctText-YES!")
-        assertThat(msh10).equals("yeah/success")
+        assertThat(msh41).isEqualTo("success")
+        assertThat(msh42).isEqualTo("correctText-YES!")
+        assertThat(msh43).isEqualTo("correctText-YES!")
+        assertThat(msh10).isEqualTo("yeah/success")
     }
 }

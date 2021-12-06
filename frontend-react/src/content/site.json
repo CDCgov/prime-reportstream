@@ -5,7 +5,8 @@
     "orgs": {
         "CDC": {
             "name": "Centers for Disease Control and Prevention",
-            "url": "https://cdc.gov"
+            "url": "https://cdc.gov",
+            "email": "no-reply@cdc.gov"
         },
         "PRIME": {
             "name": "Pandemic Ready Interoperability Modernization Effort",

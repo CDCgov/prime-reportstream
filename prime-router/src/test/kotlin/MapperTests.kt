@@ -3,6 +3,7 @@ package gov.cdc.prime.router
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
+import gov.cdc.prime.router.common.NPIUtilities
 import gov.cdc.prime.router.metadata.LookupTable
 import java.io.ByteArrayInputStream
 import java.lang.IllegalArgumentException
@@ -614,5 +615,103 @@ class MapperTests {
         value = listOf(ElementAndValue(elementA, ""), ElementAndValue(elementB, "10/28/2021"))
         assertThat(mapper.apply(elementA, args, value))
             .isEqualTo("")
+    }
+
+    @Test
+    fun `test IfNotPresent mapper`() {
+        val mapper = IfNotPresentMapper()
+        val elementA = Element("a")
+        val elementB = Element("lookup_field")
+        val elementC1 = Element("condition_field_1")
+        val elementC2 = Element("condition_field_2")
+
+        // $mode:"literal" tests
+
+        // conditional fields are blank: should return the "$string" value
+        var args = listOf(
+            "\$mode:literal", "\$string:*** No Address Given ***", "condition_field_1", "condition_field_2"
+        )
+        var values = listOf(ElementAndValue(elementC1, ""), ElementAndValue(elementC2, ""))
+        assertThat(mapper.apply(elementA, args, values))
+            .isEqualTo("*** No Address Given ***")
+
+        // any conditional field is non-blank: should return null
+        args = listOf("\$mode:literal", "\$string:*** No Address Given ***", "condition_field_1", "condition_field_2")
+        values = listOf(ElementAndValue(elementC1, ""), ElementAndValue(elementC2, "nonBlank"))
+        assertThat(mapper.apply(elementA, args, values))
+            .isEqualTo(null)
+
+        // conditional fields not present: should return the "$string" value
+        args = listOf("\$mode:literal", "\$string:*** No Address Given ***", "condition_field_1", "condition_field_2")
+        values = listOf(ElementAndValue(elementA, ""))
+        assertThat(mapper.apply(elementA, args, values))
+            .isEqualTo("*** No Address Given ***")
+
+        // $mode:"lookup" tests
+
+        // conditional fields are blank: should return the value of lookup_field (Element B)
+        args = listOf("\$mode:lookup", "lookup_field", "condition_field_1", "condition_field_2")
+        values = listOf(
+            ElementAndValue(elementB, "value of B"),
+            ElementAndValue(elementC1, ""),
+            ElementAndValue(elementC2, "")
+        )
+        assertThat(mapper.apply(elementA, args, values))
+            .isEqualTo("value of B")
+
+        // any conditional field is non-blank: should return null
+        args = listOf("\$mode:lookup", "lookup_field", "condition_field_1", "condition_field_2")
+        values = listOf(
+            ElementAndValue(elementB, "value of B"),
+            ElementAndValue(elementC1, ""),
+            ElementAndValue(elementC2, "nonBlank")
+        )
+        assertThat(mapper.apply(elementA, args, values))
+            .isEqualTo(null)
+
+        // conditional fields not present: should return the value of lookup_field (Element B)
+        args = listOf("\$mode:lookup", "lookup_field", "condition_field_1", "condition_field_2")
+        values = listOf(ElementAndValue(elementA, ""), ElementAndValue(elementB, "value of B"))
+        assertThat(mapper.apply(elementA, args, values))
+            .isEqualTo("value of B")
+
+        // single non-blank condition: should return null
+        args = listOf("\$mode:lookup", "lookup_field", "condition_field_1")
+        values = listOf(ElementAndValue(elementB, "value of B"), ElementAndValue(elementC1, "nonBlank"))
+        assertThat(mapper.apply(elementA, args, values))
+            .isEqualTo(null)
+
+        // invalid $mode should return null
+        args = listOf("\$mode:iNvAlId", "lookup_field", "condition_field_1", "condition_field_2")
+        values = listOf(ElementAndValue(elementA, ""), ElementAndValue(elementB, "value of B"))
+        assertThat(mapper.apply(elementA, args, values))
+            .isEqualTo(null)
+    }
+
+    @Test
+    fun `test ifNPI with valid NPI`() {
+        val mapper = IfNPIMapper()
+        val elementA = Element("a")
+        val args = listOf("a", "NPI", "U")
+        val values = listOf(ElementAndValue(elementA, NPIUtilities.VALID_NPI))
+        assertThat(mapper.apply(elementA, args, values)).isEqualTo("NPI")
+    }
+
+    @Test
+    fun `test ifNPI with invalid NPI`() {
+        val mapper = IfNPIMapper()
+        val elementA = Element("a")
+        val args = listOf("a", "NPI", "U")
+        val values = listOf(ElementAndValue(elementA, "xyz"))
+        assertThat(mapper.apply(elementA, args, values)).isEqualTo("U")
+    }
+
+    @Test
+    fun `test ifNPI with invalid NPI and 2 args`() {
+        val mapper = IfNPIMapper()
+        val elementA = Element("a")
+        val args = listOf("a", "NPI")
+        val values = listOf(ElementAndValue(elementA, "xyz"))
+        assertThat(mapper.apply(elementA, args, values)).isNull()
     }
 }

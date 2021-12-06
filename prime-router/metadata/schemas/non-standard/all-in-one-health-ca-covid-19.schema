@@ -14,7 +14,7 @@ elements:
       default: all-in-one-health-ca
 
     - name: processing_mode_code
-      default: P
+      default: T
 
 
 #demographics
@@ -48,12 +48,24 @@ elements:
     - name: patient_zip_code
       csvFields: [{name: Patient Zip}]
 
+#----- If the lookup based on State & County fails too much, we'll change back to the mapper: zipCodeToCounty 
+#    - name: patient_county
+#      type: TABLE
+#      cardinality: ZERO_OR_ONE
+#      table: zip-code-data
+#      tableColumn: county
+#      mapper: zipCodeToCounty(patient_zip_code)
+
     - name: patient_county
+      type: TEXT
+      csvFields: [{name: Patient County}]
+
+    - name: patient_county_code
       type: TABLE
       cardinality: ZERO_OR_ONE
-      table: zip-code-data
-      tableColumn: county
-      mapper: zipCodeToCounty(patient_zip_code)
+      table: fips-county
+      tableColumn: FIPS
+      mapper: lookup(patient_state, patient_county)
 
     - name: patient_phone_number
       csvFields: [{name: Patient Phone Number}]
@@ -228,6 +240,7 @@ elements:
 # Concatenated fields
     - name: message_id
       mapper: concat(filler_order_id, test_performed_code)
+      delimiter: "-"
 
 
 #unused fields - these are added here to suppress warnings.
@@ -243,7 +256,7 @@ elements:
 
     - name: Ok To Contact Patient_Ignore
       type: TEXT
-      csvFields: [{name: Ok To Contact Patient}]
+      csvFields: [{name: Ok to Contact Patient}]
       documentation: This field is ignored.
 
     - name: ProviderFacilityName_Ignore

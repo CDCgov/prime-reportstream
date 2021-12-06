@@ -48,12 +48,30 @@ class Hl7Ingest : CoolTest() {
 
         // Check the response from the endpoint
         echo(json)
-        passed = passed and examinePostResponse(json)
+        passed = passed and examinePostResponse(json, !options.asyncProcessMode)
 
         // Now check the lineage data
         val reportId = getReportIdFromResponse(json)
         if (reportId != null) {
-            passed = passed and pollForLineageResults(reportId, receivers, itemCount)
+            // if testing async, verify the process result was generated
+            if (options.asyncProcessMode) {
+                // gets back the id of the internal report
+                val internalReportId = getSingleChildReportId(reportId)
+
+                val processResults = pollForProcessResult(internalReportId)
+                // verify each result is valid
+                for (result in processResults.values)
+                    passed = passed && examineProcessResponse(result)
+                if (!passed)
+                    bad("***async end2end FAILED***: Process result invalid")
+            }
+
+            passed = passed and pollForLineageResults(
+                reportId,
+                receivers,
+                itemCount,
+                asyncProcessMode = options.asyncProcessMode
+            )
         }
 
         return passed
