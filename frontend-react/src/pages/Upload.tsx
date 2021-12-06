@@ -14,7 +14,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSync } from "@fortawesome/free-solid-svg-icons";
 
 import { senderClient } from "../webreceiver-utils";
-import AuthResource from "../resources/AuthResource";
 import SenderOrganizationResource from "../resources/SenderOrganizationResource";
 
 library.add(faSync);
@@ -50,16 +49,19 @@ export const Upload = () => {
         let textBody;
         let response;
         try {
-            response = await fetch(`${AuthResource.getBaseUrl()}/api/waters`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "text/csv",
-                    client: client,
-                    "authentication-type": "okta",
-                    Authorization: `Bearer ${authState?.accessToken?.accessToken}`,
-                },
-                body: fileBody,
-            });
+            response = await fetch(
+                `${process.env.REACT_APP_BACKEND_URL}/api/waters`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "text/csv",
+                        client: client,
+                        "authentication-type": "okta",
+                        Authorization: `Bearer ${authState?.accessToken?.accessToken}`,
+                    },
+                    body: fileBody,
+                }
+            );
 
             textBody = await response.text();
 
