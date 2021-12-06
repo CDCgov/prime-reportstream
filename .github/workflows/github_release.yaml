@@ -7,21 +7,21 @@ on:
 
 jobs:
   wf_vars:
-    name: "Set Workflow Variables"
+    name: Set workflow variables
     runs-on: ubuntu-latest
     outputs:
       version: ${{ env.VERSION }}
     steps:
-      - name: "Check out changes"
+      - name: Check out changes
         uses: actions/checkout@v2
         with:
           fetch-depth: 2
-      - name: Set Base Environment Variables
+      - name: Set base environment variables
         run: |
           echo >> $GITHUB_ENV VERSION="v-$(date +%Y.%m.%d-%H%M%S)"
 
   build_router_gh_release:
-    name: "GitHub Release: Build Router"
+    name: Build router
     needs:
       - wf_vars
     runs-on: ubuntu-latest
@@ -33,18 +33,18 @@ jobs:
       POSTGRES_USER: prime
       POSTGRES_PASSWORD: changeIT!
     steps:
-      - name: "Check out changes"
+      - name: Check out changes
         uses: actions/checkout@v2
-      - name: Set Environment Variables
+      - name: Set environment variables
         run: |
           echo >> $GITHUB_ENV DB_USER=${POSTGRES_USER}
           echo >> $GITHUB_ENV DB_PASSWORD=${POSTGRES_PASSWORD}
-      - name: Build Router Package
-        run: bash ./build.sh -- gradle clean package
+      - name: Build router package
+        run: ./gradlew clean package
         # Archive artifact
-      - name: 'Tar router files'
+      - name: Tar router files
         run: tar -czvf prime-router-build.tar.gz build
-      - name: Upload Router Artifact
+      - name: Upload router artifact
         uses: actions/upload-artifact@v2
         with:
           name: prime-router-build-${{ needs.wf_vars.outputs.version }}
@@ -52,7 +52,7 @@ jobs:
           retention-days: 1
 
   build_frontend_react_gh_release:
-    name: "GitHub Release: Build Frontend"
+    name: Build frontend
     needs:
       - wf_vars
     runs-on: ubuntu-latest
@@ -60,19 +60,19 @@ jobs:
       run:
         working-directory: frontend-react
     steps:
-      - name: "Check out changes"
+      - name: Check out changes
         uses: actions/checkout@v2
       - name: Use Node.js ${{ matrix.node-version }} yarn
         uses: actions/setup-node@v2
         with:
           node-version: '14'
       - run: yarn install
-      - name: Build Frontend
+      - name: Build frontend
         run: yarn run build
         # Archive artifact
-      - name: 'Tar frontend files'
+      - name: Tar frontend files
         run: tar -czvf static-website-react.tar.gz build
-      - name: Upload Frontend Artifact
+      - name: Upload frontend artifact
         uses: actions/upload-artifact@v2
         with:
           name: static-website-react-${{ needs.wf_vars.outputs.version }}
@@ -80,28 +80,28 @@ jobs:
           retention-days: 1
 
   publish_github_release:
-    name: "Publish to Github"
+    name: Publish to Github
     needs:
       - wf_vars
       - build_router_gh_release
       - build_frontend_react_gh_release
     runs-on: ubuntu-latest
     steps:
-      - name: "Check out changes"
+      - name: Check out changes
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
-      - name: Download Router Artifact
+      - name: Download router artifact
         uses: actions/download-artifact@v2
         with:
           name: prime-router-build-${{ needs.wf_vars.outputs.version }}
           path: archives/
-      - name: Download Frontend Artifact
+      - name: Download frontend artifact
         uses: actions/download-artifact@v2
         with:
           name: static-website-react-${{ needs.wf_vars.outputs.version }}
           path: archives/
-      - name: 'Check if tags exist'
+      - name: Check if tags exist
         id: tagged
         shell: bash
         run: |
@@ -123,11 +123,11 @@ jobs:
           tag: ${{ needs.wf_vars.outputs.version }}
           artifacts: "archives/*.tar.gz,LICENSE"
           generateReleaseNotes: true
-      - name: Delete Older Releases
+      - name: Delete older releases
         uses: dev-drprasad/delete-older-releases@v0.2.0
         with:
           keep_latest: 5
-          delete_tags: true
+          delete_tags: false
           delete_tag_pattern: 'v-20'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
