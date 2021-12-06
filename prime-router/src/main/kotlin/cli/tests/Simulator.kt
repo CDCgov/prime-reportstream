@@ -4,14 +4,13 @@ import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.WorkflowEngine
-import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.cli.FileUtilities
 import gov.cdc.prime.router.common.Environment
 import kotlinx.coroutines.delay
 import org.jooq.impl.DSL
+import java.io.File
 import java.net.HttpURLConnection
-import java.time.OffsetDateTime
 import kotlin.concurrent.thread
 import kotlin.system.measureTimeMillis
 
@@ -108,23 +107,33 @@ class Simulator : CoolTest() {
                 val th = thread {
                     for (i in 1..simulation.numSubmissionsPerThread) {
                         val elapsedMillisOneSubmission = measureTimeMillis {
-                            val (responseCode, json) =
-                                HttpUtilities.postReportFile(
-                                    environment,
-                                    file,
-                                    simulation.sender,
-                                    options.asyncProcessMode,
-                                    options.key,
-                                    (if (simulation.doBatchAndSend) null else Options.SkipSend)
-                                )
+                            var tryCount = 1
+                            var responseCode: Int? = null
+                            var json = ""
+
+                            // try to send up to 3 times. Sometimes the azure environment rejects incoming records
+                            //  (especially in staging)
+                            while (tryCount <= 3) {
+                                val (rCode, rJson) = sendReport(environment, file, simulation, options)
+                                responseCode = rCode
+                                json = rJson
+                                if (responseCode == HttpURLConnection.HTTP_CREATED) {
+                                    break
+                                } else {
+                                    tryCount++
+                                    println("Report submission failed, retry $tryCount")
+                                }
+                            }
+
+                            // the message has either succeeded or we have tried 3 times and received failure
                             if (responseCode != HttpURLConnection.HTTP_CREATED) {
                                 echo(json)
                                 result.passed =
-                                    bad("$threadNum: ***Parallel Test FAILED***:  response code $responseCode")
+                                    bad("$threadNum: ***Test FAILED***:  response code $responseCode")
                             } else {
                                 val reportId = getReportIdFromResponse(json)
                                 if (reportId == null) {
-                                    result.passed = bad("$threadNum: ***Parallel Test FAILED***:  No reportId.")
+                                    result.passed = bad("$threadNum: ***Test FAILED***:  No reportId.")
                                 }
                             }
                         }
@@ -156,6 +165,25 @@ class Simulator : CoolTest() {
     }
 
     /**
+     * Send a report
+     */
+    private fun sendReport(
+        environment: Environment,
+        file: File,
+        simulation: Simulation,
+        options: CoolTestOptions
+    ): Pair<Int, String> {
+        return HttpUtilities.postReportFile(
+            environment,
+            file,
+            simulation.sender,
+            options.asyncProcessMode,
+            options.key,
+            (if (simulation.doBatchAndSend) null else Options.SkipSend)
+        )
+    }
+
+    /**
      * A library of useful [Simulation]
      */
     companion object {
@@ -172,15 +200,14 @@ class Simulator : CoolTest() {
             false
         )
 
-        val twentyThreadX50_1000items = Simulation(
-            "tenThreadX50_1000items : Submit 10X50 = 500 tests with 1000 items each" +
-                " as fast as possible, on 10 threads.",
+        val twentyThread_bigBatch = Simulation(
+            "twentyThread_bigBatch: to be used by load testing.",
             20,
-            50,
-            1000,
+            5000,
+            1,
             "IG",
-            "EVERY_60_MINS",
-            "ignore.EVERY_60_MINS",
+            "EVERY_5_MINS",
+            "ignore.EVERY_5_MINS",
             0,
             stracSender,
             true
@@ -297,7 +324,7 @@ class Simulator : CoolTest() {
     private suspend fun teardown(
         results: List<SimulatorResult>,
         entireTestMillis: Long,
-        startTime: OffsetDateTime,
+        afterActionId: Int,
         isAsyncProcessMode: Boolean
     ): Boolean {
         val totalSubmissions = results.map { it.totalSubmissionsCount }.sum()
@@ -324,18 +351,26 @@ class Simulator : CoolTest() {
         val receivingOrg = results.first().simulation.targetReceiverNames.split('.')[0]
         val receivingOrgSvc = results.first().simulation.targetReceiverNames.split('.')[1]
         println("")
-        println("Simulator run complete. Verifying data - this could take up to 7 minutes.")
+        println("Simulator run complete. Verifying data - this could take up to 30 minutes.")
 
         echo("==== Verifying data from simulator. ====")
+        // calculate expected number of items we should be looking for. More than this may be found if there is test
+        //  overlap or more than one person is running this test against the same environment simultaneously
+        val expectedResults = results.sumOf {
+            it.simulation.numItemsPerSubmission *
+                it.simulation.numSubmissionsPerThread *
+                it.simulation.numThreads
+        }
+        println("Expecting $expectedResults total items. More than this may be found if other test")
         // if we are running in async mode, verify the correct number of 'process' records have been generated
         if (isAsyncProcessMode) {
-            val expectedResults = results.sumOf { it.totalItemsCount }
             passed = passed && checkTimedResults(
                 expectedResults,
-                startTime,
+                afterActionId,
                 TaskAction.process,
                 receivingOrg,
-                receivingOrgSvc
+                receivingOrgSvc,
+                maxPollSecs = 600
             )
         }
 
@@ -343,24 +378,24 @@ class Simulator : CoolTest() {
         // TODO: Will this always be 1 batch? Should it determine results count based on what tests were run?
         // TODO: Should this dynamically determine how long to wait in case of 60_MIN receiver?
         passed = passed && checkTimedResults(
-            1,
-            startTime,
+            expectedResults,
+            afterActionId,
             TaskAction.batch,
             receivingOrg,
             receivingOrgSvc,
-            maxPollSecs = 420
+            maxPollSecs = 600
         )
 
         // poll for send results - wait for up to 7 minutes
         // TODO: Will this always be 1 batch? Should it determine results count based on what tests were run?
         // TODO: Should this dynamically determine how long to wait in case of 60_MIN receiver?
         passed = passed && checkTimedResults(
-            1,
-            startTime,
+            expectedResults,
+            afterActionId,
             TaskAction.send,
             receivingOrg,
             receivingOrgSvc,
-            maxPollSecs = 420
+            maxPollSecs = 600
         )
 
         return passed
@@ -399,37 +434,40 @@ class Simulator : CoolTest() {
      * Runs a large batch test to see what throughput is like when we have multiple batches of 1000
      */
     private fun bigBatchTest(environment: Environment, options: CoolTestOptions): List<SimulatorResult> {
-        ugly("Sends in a batch of 500 with 1000 items each. batch time is set to 60 minutes.")
+        ugly("Sends a large batch batch time is set to 60 minutes.")
         val results = arrayListOf<SimulatorResult>()
-        results += runOneSimulation(twentyThreadX50_1000items, environment, options)
+        results += runOneSimulation(twentyThread_bigBatch, environment, options)
+//        results += runOneSimulation(twentyThread_bigBatch, environment, options)
+//        results += runOneSimulation(twentyThread_bigBatch, environment, options)
+//        results += runOneSimulation(twentyThread_bigBatch, environment, options)
+//        results += runOneSimulation(twentyThread_bigBatch, environment, options)
+//        results += runOneSimulation(twentyThread_bigBatch, environment, options)
         return results
     }
 
     override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         setup(environment, options)
+        val afterActionId = getMostRecentActionId()
+        println("Max action id: $afterActionId")
 
-        val results = mutableListOf<SimulatorResult>()
-
-        val startTime = OffsetDateTime.now()
-        var elapsedTime = measureTimeMillis {
-            results += runOneSimulation(oneThreadX50, environment, options)
-        }
-
+//        val results = mutableListOf<SimulatorResult>()
+//
 //        var elapsedTime = measureTimeMillis {
+//            results += runOneSimulation(oneThreadX50, environment, options)
 //            results += bigBatchTest(environment, options)
 //        }
 
         // dev tests only. uncomment what you need to use when testing
-//        val results = mutableListOf<SimulatorResult>()
-//        var elapsedTime = measureTimeMillis {
-//            results += productionSimulation(environment, options)
-//            results += productionSimulation(environment, options)
-//            results += runOneSimulation(typicalStracSubmission, environment, options) // strac
-//            results += productionSimulation(environment, options)
-//            results += productionSimulation(environment, options)
-//            results += productionSimulation(environment, options)
-//        }
-        return teardown(results, elapsedTime, startTime, options.asyncProcessMode)
+        val results = mutableListOf<SimulatorResult>()
+        var elapsedTime = measureTimeMillis {
+            results += productionSimulation(environment, options)
+            results += productionSimulation(environment, options)
+            results += runOneSimulation(typicalStracSubmission, environment, options) // strac
+            results += productionSimulation(environment, options)
+            results += productionSimulation(environment, options)
+            results += productionSimulation(environment, options)
+        }
+        return teardown(results, elapsedTime, afterActionId, options.asyncProcessMode)
     }
 
     /**
@@ -438,7 +476,7 @@ class Simulator : CoolTest() {
      */
     private suspend fun checkTimedResults(
         expectedResults: Int,
-        afterDateTime: OffsetDateTime,
+        afterActionId: Int,
         taskToCheck: TaskAction,
         receivingOrg: String,
         receivingOrgService: String,
@@ -448,7 +486,7 @@ class Simulator : CoolTest() {
         var resultsFound = 0
 
         var timeElapsedSecs = 0
-        println("Polling for $expectedResults $taskToCheck record(s).  (Max poll time $maxPollSecs seconds)")
+        println("Polling for $expectedResults $taskToCheck items.  (Max poll time $maxPollSecs seconds)")
         val actualTimeElapsedMillis = measureTimeMillis {
             while (timeElapsedSecs <= maxPollSecs) {
                 if (outputToConsole) {
@@ -463,13 +501,13 @@ class Simulator : CoolTest() {
                 }
                 timeElapsedSecs += pollSleepSecs
 
-                resultsFound = checkResultsQuery(afterDateTime, taskToCheck, receivingOrg, receivingOrgService)
+                resultsFound = checkResultsQuery(afterActionId, taskToCheck, receivingOrg, receivingOrgService)
 
                 if (resultsFound >= expectedResults) {
-                    println("Found $resultsFound $taskToCheck record(s), finished looking.")
+                    println("Found $resultsFound $taskToCheck items, finished looking.")
                     break
                 } else
-                    println("Found $resultsFound $taskToCheck record(s), checking again in $pollSleepSecs seconds")
+                    println("Found $resultsFound $taskToCheck items, checking again in $pollSleepSecs seconds")
             }
         }
         echo("Polling for $taskToCheck records finished in ${actualTimeElapsedMillis / 1000 } seconds")
@@ -478,34 +516,59 @@ class Simulator : CoolTest() {
         val passed = resultsFound >= expectedResults
 
         if (passed) {
-            good("Found at least $expectedResults $taskToCheck record(s).")
+            good("Found at $resultsFound $taskToCheck items.")
         } else {
-            bad("Did not find at least $expectedResults $taskToCheck record(s).")
+            bad("Did not find at least $expectedResults $taskToCheck items.")
         }
 
         return passed
     }
 
+    private fun getMostRecentActionId(): Int {
+        var actionId = 0
+        db = WorkflowEngine().db
+        db.transact { txn ->
+            val ctx = DSL.using(txn)
+
+            val sql = """select max(action_id)
+                from action
+              """
+
+            actionId = ctx.fetchOne(
+                sql
+            )!!.into(Int::class.java)
+        }
+        return actionId
+    }
+
     private fun checkResultsQuery(
-        afterDateTime: OffsetDateTime,
+        afterActionId: Int,
         actionType: TaskAction,
         receivingOrg: String,
         receivingOrgService: String
     ): Int {
-        var actionsFound = 0
+        var itemsFound = 0
         db = WorkflowEngine().db
         db.transact { txn ->
             val ctx = DSL.using(txn)
-            actionsFound = ctx.select(Tables.ACTION.ACTION_ID)
-                .from(Tables.ACTION)
-                .join(Tables.REPORT_FILE)
-                .on(Tables.ACTION.ACTION_ID.eq(Tables.REPORT_FILE.ACTION_ID))
-                .where(Tables.ACTION.ACTION_NAME.eq(actionType))
-                .and(Tables.ACTION.CREATED_AT.greaterOrEqual(afterDateTime))
-                .and(Tables.REPORT_FILE.RECEIVING_ORG.eq(receivingOrg))
-                .and(Tables.REPORT_FILE.RECEIVING_ORG_SVC.eq(receivingOrgService))
-                .count()
+
+            val sql = """select sum(rf.item_count)
+              from  report_file as RF
+              join action as A on A.action_id = RF.action_id
+              where A.action_name = ?
+              and a.action_id >= ?
+              and rf.receiving_org = ?
+              and rf.receiving_org_svc = ?
+              """
+
+            itemsFound = ctx.fetchOne(
+                sql,
+                actionType,
+                afterActionId,
+                receivingOrg,
+                receivingOrgService
+            )!!.into(Int::class.java)
         }
-        return actionsFound
+        return itemsFound
     }
 }
