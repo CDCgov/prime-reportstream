@@ -355,6 +355,36 @@ class ReportStreamFilterDefinitionTests {
     }
 
     @Test
+    fun `test allowNone`() {
+        val filter = AllowNone()
+        val table = Table.create(
+            StringColumn.create("colA", listOf("A1", "A2", "", "A4")),
+            StringColumn.create("colB", listOf("B1", "B2", "B3", "B4")),
+            StringColumn.create("colC", listOf("C1", "C2", "C3", null))
+        )
+
+        // AllowNone takes no args, so passing args is an exception
+        val colName = listOf("colA", "colB")
+        assertThat { filter.getSelection(colName, table, rcvr) }.isFailure()
+
+        val emptyArgs = listOf<String>()
+        val selection = filter.getSelection(emptyArgs, table, rcvr)
+        val filteredTable = table.where(selection)
+        // And Then There Were None
+        assertThat(filteredTable).hasRowCount(0)
+
+        val emptyChairsAndEmptyTables = Table.create(
+            StringColumn.create("colA"),
+            StringColumn.create("colB"),
+            StringColumn.create("colC")
+        )
+        val selection2 = filter.getSelection(emptyArgs, emptyChairsAndEmptyTables, rcvr)
+        val filteredTable2 = table.where(selection2)
+        // Nothing will come of nothing
+        assertThat(filteredTable2).hasRowCount(0)
+    }
+
+    @Test
     fun `test IsValidCLIA`() {
         val filter = IsValidCLIA()
         val table = Table.create(
