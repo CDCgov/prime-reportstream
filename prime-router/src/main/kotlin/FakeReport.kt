@@ -2,6 +2,7 @@ package gov.cdc.prime.router
 
 import com.github.javafaker.Faker
 import com.github.javafaker.Name
+import gov.cdc.prime.router.common.NPIUtilities
 import gov.cdc.prime.router.metadata.LookupTable
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -188,7 +189,7 @@ class FakeDataService {
             Element.Type.ID_CLIA -> faker.numerify("##D#######") // Ex, 03D1021379
             Element.Type.ID_DLN -> faker.idNumber().valid()
             Element.Type.ID_SSN -> faker.idNumber().validSvSeSsn()
-            Element.Type.ID_NPI -> faker.numerify("##########")
+            Element.Type.ID_NPI -> NPIUtilities.generateRandomNPI(faker)
             Element.Type.STREET -> faker.address().streetAddress()
             Element.Type.STREET_OR_BLANK -> ""
             Element.Type.PERSON_NAME -> createFakeName(element)
