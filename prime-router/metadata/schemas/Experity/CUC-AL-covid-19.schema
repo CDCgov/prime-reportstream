@@ -16,7 +16,7 @@ elements:
     - name: processing_mode_code
       default: P
 
-    - name: test_kit_name_id
+    - name: input_test_kit_name_id
       csvFields: [{name: Ordered_test_description}]
 
 # The passed in LOINC Code along with the test_kit_name_id set in the Child Schema will force the appropriate LOINC & Device ID coding

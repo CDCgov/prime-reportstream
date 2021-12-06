@@ -16,13 +16,6 @@ elements:
     - name: processing_mode_code
       default: P
 
-    - name: test_kit_name_id
+    - name: input_test_kit_name_id
       type: CODE
       csvFields: [{name: Ordered_test_description, format: $alt}]
-      altValues:
-# This should translate to LOINC: 94558-4
-        - code: "CareStart COVID-19 Antigen test_Access Bio, Inc."
-          display: "Coronavirus Antigen IA Rapid Test"
-# Should translate to LOINC: 94534-5
-        - code: 10811877011269
-          display: "Abbott-ID NOW COVID-19 (Molecular)"
