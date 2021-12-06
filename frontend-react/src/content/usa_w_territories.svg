@@ -50,13 +50,13 @@
     /* .ny, New York */
     .oh, /* Ohio */
     /* .ok, Oklahoma */
-    /* .or, Oregon */
+    .or, /* Oregon */
     .pa, /* Pennsylvania */
     /* .pr, Puerto Rico */
     /* .ri, Rhode Island */
     /* .sc, South Carolina */
     /* .sd, South Dakota */
-    /* .tn, Tennessee */
+    .tn, /* Tennessee */
     /* .tt, Trust Territories */
     .tx, /* Texas */
     /* .ut, Utah */
