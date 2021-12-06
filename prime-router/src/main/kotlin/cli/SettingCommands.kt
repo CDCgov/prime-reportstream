@@ -223,7 +223,6 @@ abstract class SettingCommand(
     private fun readStructure(input: String, settingType: SettingType, mapper: ObjectMapper): Pair<String, String> {
         return when (settingType) {
             SettingType.ORG -> {
-                System.out.println("The input is $input")
                 val organization = mapper.readValue(input, OrganizationAPI::class.java)
                 Pair(organization.name, jsonMapper.writeValueAsString(organization))
             }
@@ -332,7 +331,6 @@ abstract class SingleSettingCommandNoSettingName(
                     fromJson(readInput(), settingType)
                 else
                     fromYaml(readInput(), settingType)
-                System.out.println("The payload is $payload")
                 val output = put(environment, accessToken, settingType, name, payload)
 
                 writeOutput(output)
