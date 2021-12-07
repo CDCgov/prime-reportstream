@@ -24,7 +24,7 @@
         reportingFacilityId: null
         reportingFacilityIdType: null
         suppressQstForAoe: false
-        suppressHl7Fields: null
+        suppressHl7Fields: OBX-18-1, OBX-18-2, OBX-18-3, OBX-18-4
         suppressAoe: false
         defaultAoeToUnknown: false
         useBlankInsteadOfUnknown: null
