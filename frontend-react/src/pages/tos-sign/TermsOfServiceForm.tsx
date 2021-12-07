@@ -15,7 +15,6 @@ import { Helmet } from "react-helmet";
 import { sign } from "jsonwebtoken";
 
 import Title from "../../components/Title";
-import AuthResource from "../../resources/AuthResource";
 import { getStates } from "../../utils/OrganizationUtils";
 
 import SuccessPage from "./SuccessPage";
@@ -88,7 +87,7 @@ function TermsOfServiceForm() {
         }
 
         const response = await fetch(
-            `${AuthResource.getBaseUrl()}/api/email-registered`,
+            `${process.env.REACT_APP_BACKEND_URL}/api/email-registered`,
             {
                 method: "POST",
                 headers: {

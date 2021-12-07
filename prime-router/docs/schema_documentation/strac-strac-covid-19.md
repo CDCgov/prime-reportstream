@@ -283,6 +283,20 @@ The zip code of the facility which the test was ordered from
 
 ---
 
+**Name**: ordering_provider_city
+
+**Type**: CITY
+
+**PII**: Yes
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The city of the provider
+
+---
+
 **Name**: Ordering_Provider_State
 
 **Type**: TABLE

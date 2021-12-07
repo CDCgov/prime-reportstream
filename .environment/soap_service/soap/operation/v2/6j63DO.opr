@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<soapOperation>
+    <currentResponseSequenceIndex>0</currentResponseSequenceIndex>
+    <defaultBody>&lt;soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:web="http://nedss.state.pa.us/2012/B01/elrwcf"&gt;
+   &lt;soapenv:Header/&gt;
+   &lt;soapenv:Body&gt;
+      &lt;web:UploadFilesResponse&gt;?&lt;/web:UploadFilesResponse&gt;
+   &lt;/soapenv:Body&gt;
+&lt;/soapenv:Envelope&gt;</defaultBody>
+    <forwardedEndpoint>https://www.erstest.health.pa.gov/ELRWCF/ELRService.svc/Test</forwardedEndpoint>
+    <httpMethod>POST</httpMethod>
+    <id>6j63DO</id>
+    <identifyStrategy>ELEMENT_NAMESPACE</identifyStrategy>
+    <mockOnFailure>false</mockOnFailure>
+    <name>UploadFiles</name>
+    <networkDelay>0</networkDelay>
+    <operationIdentifier>
+        <name>UploadFiles</name>
+        <namespace>http://nedss.state.pa.us/2012/B01/elrwcf</namespace>
+    </operationIdentifier>
+    <originalEndpoint>https://www.erstest.health.pa.gov/ELRWCF/ELRService.svc/Test</originalEndpoint>
+    <portId>WHa8Op</portId>
+    <responseStrategy>RANDOM</responseStrategy>
+    <simulateNetworkDelay>false</simulateNetworkDelay>
+    <soapVersion>SOAP11</soapVersion>
+    <status>MOCKED</status>
+</soapOperation>

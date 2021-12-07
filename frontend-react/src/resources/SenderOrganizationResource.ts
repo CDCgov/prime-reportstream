@@ -11,5 +11,5 @@ export default class SenderOrganizationResource extends SenderAuthResource {
         return this.name;
     }
 
-    static urlRoot = `${SenderAuthResource.getBaseUrl()}/api/settings/organizations`;
+    static urlRoot = `${process.env.REACT_APP_BACKEND_URL}/api/settings/organizations`;
 }
