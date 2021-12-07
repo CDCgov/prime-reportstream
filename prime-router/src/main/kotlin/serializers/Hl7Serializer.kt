@@ -1662,7 +1662,7 @@ class Hl7Serializer(
 
         // Do a lazy init because this table may never be used and it is large
         val ncesLookupTable = lazy {
-            LookupTable.read("./metadata/tables/nces_id.csv")
+            LookupTable.read("./metadata/tables/nces_id_2021_6_28.csv")
         }
     }
 }
