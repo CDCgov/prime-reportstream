@@ -21,9 +21,9 @@ import org.apache.logging.log4j.kotlin.Logging
 
 /**
  * Token functions.
- * @param metadata optional metadata instance used for dependency injection
+ * @param metadata metadata instance
  */
-class TokenFunction(val metadata: Metadata? = null) : Logging {
+class TokenFunction(val metadata: Metadata) : Logging {
     /**
      * Handle requests for server-to-server auth tokens.
      */
@@ -49,7 +49,7 @@ class TokenFunction(val metadata: Metadata? = null) : Logging {
             ?: return HttpUtilities.bad(request, "Missing scope parameter", HttpStatus.UNAUTHORIZED)
         if (!Scope.isWellFormedScope(scope))
             return HttpUtilities.bad(request, "Incorrect scope format: $scope", HttpStatus.UNAUTHORIZED)
-        val workflowEngine = WorkflowEngine.Builder().apply { metadata?.let { metadata(it) } }.build()
+        val workflowEngine = WorkflowEngine.Builder().metadata(metadata).build()
         val actionHistory = ActionHistory(TaskAction.token_auth, context)
         actionHistory.trackActionParams(request)
         val senderKeyFinder = FindSenderKeyInSettings(scope, metadata)

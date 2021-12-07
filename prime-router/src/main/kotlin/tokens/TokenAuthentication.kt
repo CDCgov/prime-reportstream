@@ -206,10 +206,10 @@ data class AccessToken(
  *
  * Implementation of a callback function used to find the public key for
  * a given Sender, kid, and alg.   Lookup in the Settings table.
- * @param metadata optional metadata instance used for dependency injection
+ * @param metadata metadata instance
  *  todo:  the FHIR spec calls for allowing a set of keys. However, this callback only allows for one.
  */
-class FindSenderKeyInSettings(val scope: String, val metadata: Metadata? = null) :
+class FindSenderKeyInSettings(val scope: String, val metadata: Metadata) :
     SigningKeyResolverAdapter(), Logging {
     var errorMsg: String? = null
 
@@ -226,7 +226,7 @@ class FindSenderKeyInSettings(val scope: String, val metadata: Metadata? = null)
         val kid = jwsHeader.keyId
         val alg = jwsHeader.algorithm
         val kty = KeyType.forAlgorithm(Algorithm.parse(alg))
-        val workflowEngine = WorkflowEngine.Builder().apply { metadata?.let { metadata(it) } }.build()
+        val workflowEngine = WorkflowEngine.Builder().metadata(metadata).build()
         val sender = workflowEngine.settings.findSender(issuer)
             ?: return err("No such sender fullName $issuer")
         if (sender.keys == null) return err("No auth keys associated with sender $issuer")
