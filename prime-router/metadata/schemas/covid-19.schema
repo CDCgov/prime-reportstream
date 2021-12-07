@@ -1089,12 +1089,6 @@ elements:
     hhsGuidanceField: Test result date
     hl7Field: OBX-19
 
-  - name: test_result_report_date
-    type: DATETIME
-    natFlatFileField:
-    hhsGuidanceField: Test report date
-    hl7Field: OBX-22
-
   - name: test_result_status
     type: CODE
     cardinality: ZERO_OR_ONE
