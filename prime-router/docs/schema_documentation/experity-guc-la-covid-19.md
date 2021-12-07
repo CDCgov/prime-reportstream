@@ -1975,7 +1975,7 @@ The reporting facility's name
 
 **Default Value**: guc-la
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 

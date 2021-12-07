@@ -55,6 +55,30 @@ enum class Options {
 }
 
 /**
+ * QualityFilterResult records the rows filtered out by a quality filter.
+ * As well as the function name and arguments that did the filtering.
+ *
+ * @property receiverName Then intended reciever for the report
+ * @property originalCount The original number of items in the report
+ * @property filterName The name of the filter function that removed the rows
+ * @property filterArgs The arguments used in the filter function
+ * @property filteredRows The row's that were removed from the report, 0 indexed
+ */
+data class QualityFilterResult(
+    val receiverName: String,
+    val originalCount: Int,
+    val filterName: String,
+    val filterArgs: List<String>,
+    val filteredRows: IntArray
+) {
+    override fun toString(): String {
+        return "For $receiverName, qualityFilter $filterName, $filterArgs" +
+            " filtered out Rows ${filteredRows.map{ it + 1 }.joinToString(",")}" +
+            " reducing the Item count from $originalCount to ${originalCount - filteredRows.size}."
+    }
+}
+
+/**
  * The report represents the report from one agent-organization, and which is
  * translated and sent to another agent-organization. Each report has a schema,
  * unique id and name as well as list of sources for the creation of the report.
@@ -67,9 +91,10 @@ class Report : Logging {
     ) {
         INTERNAL("internal.csv", "text/csv"), // A format that serializes all elements of a Report.kt (in CSV)
         CSV("csv", "text/csv"), // A CSV format the follows the csvFields
+        CSV_SINGLE("csv", "text/csv", true),
         HL7("hl7", "application/hl7-v2", true), // HL7 with one result per file
         HL7_BATCH("hl7", "application/hl7-v2"), // HL7 with BHS and FHS headers
-        REDOX("redox", "text/json", true); // Redox format
+        REDOX("redox", "text/json", false); // Redox format contains multiple results (NDJSON)
         // FHIR
 
         companion object {
@@ -87,11 +112,7 @@ class Report : Logging {
     /**
      * the UUID for the report
      */
-    // TODO: Tech Debt - Made this var instead of val so we can update the report ID after creation in the async process
-    //  functionality. There is a way to do it as a passed in variable, but the way we create reports via parsing
-    //  contentBody does not lend itself to that way of doing it. Once we are storing a report in internal format
-    //  as part of initial ingest, this should be changed back to val - CD 11/08/2021
-    var id: ReportId
+    val id: ReportId
 
     /**
      * The schema of the data in the report
@@ -108,6 +129,11 @@ class Report : Logging {
      * The intended destination service for this report
      */
     val destination: Receiver?
+
+    /**
+     * The list of results from quality filters run against the initial report data.
+     */
+    val filteredItems: MutableList<QualityFilterResult> = mutableListOf()
 
     /**
      * The time when the report was created
@@ -289,6 +315,7 @@ class Report : Logging {
 
     /**
      * Does a shallow copy of this report. Will have a new id and create date.
+     * Copies the itemLineages and filteredItems as well.
      */
     fun copy(destination: Receiver? = null, bodyFormat: Format? = null): Report {
         // Dev Note: table is immutable, so no need to duplicate it
@@ -300,6 +327,7 @@ class Report : Logging {
             bodyFormat ?: this.bodyFormat,
         )
         copy.itemLineages = createOneToOneItemLineages(this, copy)
+        copy.filteredItems.addAll(this.filteredItems)
         return copy
     }
 
@@ -354,6 +382,7 @@ class Report : Logging {
         isQualityFilter: Boolean,
         reverseTheFilter: Boolean = false
     ): Report {
+        val filteredRows = mutableListOf<QualityFilterResult>()
         // First, only do detailed logging on qualityFilters.
         // But, **don't** do detailed logging if reverseTheFilter is true.
         // This is a hack, but its because the logging is nonsensical if the filter is reversed.
@@ -362,6 +391,18 @@ class Report : Logging {
         val combinedSelection = Selection.withRange(0, table.rowCount())
         filterFunctions.forEach { (filterFn, fnArgs) ->
             val filterFnSelection = filterFn.getSelection(fnArgs, table, receiver, doDetailedFilterLogging)
+            if (doDetailedFilterLogging && filterFnSelection.size() < table.rowCount()) {
+                val before = Selection.withRange(0, table.rowCount())
+                filteredRows.add(
+                    QualityFilterResult(
+                        receiver.fullName,
+                        table.rowCount(),
+                        filterFn.name,
+                        fnArgs,
+                        before.andNot(filterFnSelection).toArray()
+                    )
+                )
+            }
             combinedSelection.and(filterFnSelection)
         }
         val finalCombinedSelection = if (reverseTheFilter)
@@ -374,6 +415,7 @@ class Report : Logging {
             filteredTable,
             fromThisReport("filter: $filterFunctions")
         )
+        filteredReport.filteredItems.addAll(filteredRows)
         filteredReport.itemLineages = createItemLineages(finalCombinedSelection, this, filteredReport)
         return filteredReport
     }
@@ -579,18 +621,11 @@ class Report : Logging {
                             null
                         }
                     }
-                    it.patientAge = row.getStringOrNull("patient_dob").let { dob ->
-                        try {
-                            val d = LocalDate.parse(dob, Element.dateFormatter)
-                            if (d != null && it.specimenCollectionDateTime != null) {
-                                Period.between(d, it.specimenCollectionDateTime).years.toString()
-                            } else {
-                                null
-                            }
-                        } catch (_: Exception) {
-                            null
-                        }
-                    }
+                    it.patientAge = getAge(
+                        row.getStringOrNull("patient_age"),
+                        row.getStringOrNull("patient_dob"),
+                        it.specimenCollectionDateTime
+                    )
                     it.siteOfCare = row.getStringOrNull("site_of_care").trimToNull()
                     it.reportId = this.id
                     it.reportIndex = idx
@@ -607,6 +642,44 @@ class Report : Logging {
         } catch (e: Exception) {
             logger.error(e)
             emptyList()
+        }
+    }
+
+    /**
+     * getAge - calculate the age of the patient according to the criteria below:
+     *      if patient_age is given then
+     *          - validate it is not null, it is valid digit number, and not lesser than zero
+     *      else
+     *          - the patient will be calculated using period.between patient date of birth and
+     *          the speciment collection date.
+     *  @param patient_age - input patient's age.
+     *  @param patient_dob - imput patient date of birth.
+     *  @param specimenCollectionDate - input date of when speciment was collected.
+     *  @return age - result of patient's age.
+     */
+    private fun getAge(patient_age: String?, patient_dob: String?, specimenCollectionDate: LocalDate?): String? {
+
+        return if ((!patient_age.isNullOrBlank()) && patient_age.all { Character.isDigit(it) } &&
+            (patient_age.toInt() > 0)
+        ) {
+            patient_age
+        } else {
+            //
+            // Here, we got invalid or blank patient_age given to us.  Therefore, we will use patient date
+            // of birth and date of speciment collected to calculate the patient's age.
+            //
+            try {
+                val d = LocalDate.parse(patient_dob, Element.dateFormatter)
+                if (d != null && specimenCollectionDate != null &&
+                    (d.isBefore(specimenCollectionDate))
+                ) {
+                    Period.between(d, specimenCollectionDate).years.toString()
+                } else {
+                    null
+                }
+            } catch (_: Exception) {
+                null
+            }
         }
     }
 

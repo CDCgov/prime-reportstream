@@ -286,6 +286,44 @@ internal class ElementTests {
     }
 
     @Test
+    fun `test checkForError DATE`() {
+        val checkForErrorDateElementNullify = Element(
+            "a",
+            type = Element.Type.DATE,
+            csvFields = Element.csvFields("date"),
+            nullifyValue = true
+        )
+
+        // nullify an invalid date if nullifyValue is true
+        assertThat(
+            checkForErrorDateElementNullify.checkForError("a week ago")
+        ).isEqualTo(
+            null
+        )
+
+        val checkForErrorDateElement = Element(
+            "a",
+            type = Element.Type.DATE,
+            csvFields = Element.csvFields("date")
+        )
+
+        // passing through a valid date of known manual formats does not throw an error
+        val dateStrings = arrayOf("12/20/2020", "12202020", "2020/12/20", "12/20/2020 12:15", "2020/12/20 12:15")
+        dateStrings.forEach { dateString ->
+            assertThat(
+                checkForErrorDateElement.checkForError(dateString)
+            ).isEqualTo(
+                null
+            )
+        }
+
+        // return an InvalidDateMessage
+        val expected = InvalidDateMessage.new("a week ago", "'date' ('a')", null)
+        val actual = checkForErrorDateElement.checkForError("a week ago", null)
+        assertThat(actual?.detailMsg()).isEqualTo(expected.detailMsg())
+    }
+
+    @Test
     fun `test normalize and formatted round-trips`() {
         val postal = Element(
             "a",
@@ -348,6 +386,45 @@ internal class ElementTests {
             date.toFormatted(date.toNormalized("2020-12-20"))
         ).isEqualTo(
             "20201220"
+        )
+
+        // normalize manually entered date use cases
+        // "M/d/yyyy", "MMddyyyy", "yyyy/M/d", "M/d/yyyy HH:mm", "yyyy/M/d HH:mm"
+        val dateStrings = arrayOf("12/20/2020", "12202020", "2020/12/20", "12/20/2020 12:15", "2020/12/20 12:15")
+        dateStrings.forEach { dateString ->
+            assertThat(
+                date.toFormatted(date.toNormalized(dateString))
+            ).isEqualTo(
+                "20201220"
+            )
+        }
+
+        val nullifyDateElement = Element(
+            "a",
+            type = Element.Type.DATE,
+            csvFields = Element.csvFields("date"),
+            nullifyValue = true
+        )
+
+        // normalize and nullify an invalid date
+        assertThat(
+            nullifyDateElement.toFormatted(nullifyDateElement.toNormalized("a week ago"))
+        ).isEqualTo(
+            ""
+        )
+
+        val nullifyDateTimeElement = Element(
+            "a",
+            type = Element.Type.DATETIME,
+            csvFields = Element.csvFields("datetime"),
+            nullifyValue = true
+        )
+
+        // normalize and nullify an invalid datetime
+        assertThat(
+            nullifyDateTimeElement.toFormatted(nullifyDateTimeElement.toNormalized("a week ago"))
+        ).isEqualTo(
+            ""
         )
 
         val datetime = Element(
@@ -542,7 +619,10 @@ internal class ElementTests {
                 "g", Element.Type.TEXT, mapper = "concat(a,e,\$currentDate)", mapperRef = ConcatenateMapper(),
                 mapperArgs = listOf("a", "e", "\$currentDate"), mapperOverridesValue = true, default = "someDefault",
                 delimiter = "-"
-            )
+            ),
+            Element("h", Element.Type.TEXT, default = "someDefault", defaultOverridesValue = false), // 7
+            Element("i", Element.Type.TEXT, default = "someDefault", defaultOverridesValue = true), // 8
+            Element("j", Element.Type.TEXT, defaultOverridesValue = true), // 9   (null default)
         )
         val schema = Schema("one", "covid-19", elements)
         val currentDate = LocalDate.now().format(Element.dateFormatter)
@@ -553,7 +633,10 @@ internal class ElementTests {
             elements[3].name to "TEST3",
             elements[4].name to "TEST4",
             elements[5].name to "TEST-TEST4-1",
-            elements[6].name to "TEST-TEST4-$currentDate"
+            elements[6].name to "TEST-TEST4-$currentDate",
+            elements[7].name to "value",
+            elements[8].name to "value",
+            elements[9].name to "value",
         )
 
         // Element has value and mapperAlwaysRun is false, so we get the raw value
@@ -583,6 +666,18 @@ internal class ElementTests {
         // Element with $currentDate
         finalValue = elements[6].processValue(mappedValues, schema)
         assertThat(finalValue).isEqualTo("${mappedValues[elements[6].name]}")
+
+        // Default does not override
+        finalValue = elements[7].processValue(mappedValues, schema)
+        assertThat(finalValue).isEqualTo("${mappedValues[elements[7].name]}")
+
+        // Default forces override
+        finalValue = elements[8].processValue(mappedValues, schema)
+        assertThat(finalValue).isEqualTo("someDefault")
+
+        // Default forces override, and the default is null.
+        finalValue = elements[9].processValue(mappedValues, schema)
+        assertThat(finalValue).isEqualTo("")
     }
 
     @Test
@@ -628,15 +723,20 @@ internal class ElementTests {
         val elementAndValueCurrentDate = mockElement.tokenizeMapperValue(elementNameCurrentDate)
         assertThat(elementAndValueCurrentDate.value).isEqualTo(currentDate)
 
-        // sending in a "$dateFormat:valid-date-format" should return just the date format which is located
-        // after the semi-colon in the token
-        val elementNameDateFormat = "\$dateFormat:MM/dd/yyyy"
-        val elementAndValueDateFormat = mockElement.tokenizeMapperValue(elementNameDateFormat)
-        assertThat(elementAndValueDateFormat.value).isEqualTo("MM/dd/yyyy")
-
         // if nothing "parsable" comes through, the token value will be an empty string
         val elementNameNonValidToken = "\$nonValidToken:not valid"
         val elementAndValueNotValidToken = mockElement.tokenizeMapperValue(elementNameNonValidToken)
         assertThat(elementAndValueNotValidToken.value).isEqualTo("")
+
+        // sending in a "mode:literal" should return just the mode, which in this case is "literal"
+        val elementNameMode = "\$mode:literal"
+        val elementAndValueMode = mockElement.tokenizeMapperValue(elementNameMode)
+        assertThat(elementAndValueMode.value).isEqualTo("literal")
+
+        // sending in a "string:someDefaultString" should return just the string that needs to be the default value,
+        // which in this case is "someDefaultString"
+        val elementNameString = "\$string:someDefaultString"
+        val elementAndValueString = mockElement.tokenizeMapperValue(elementNameString)
+        assertThat(elementAndValueString.value).isEqualTo("someDefaultString")
     }
 }

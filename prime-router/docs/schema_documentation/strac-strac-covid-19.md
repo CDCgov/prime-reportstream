@@ -283,6 +283,20 @@ The zip code of the facility which the test was ordered from
 
 ---
 
+**Name**: ordering_provider_city
+
+**Type**: CITY
+
+**PII**: Yes
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The city of the provider
+
+---
+
 **Name**: Ordering_Provider_State
 
 **Type**: TABLE
@@ -936,6 +950,7 @@ Code | Display
 840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
 840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
 373121007|Test not done
+82334004|Indeterminate
 260373001|Detected
 260415000|Not detected
 455371000124106|Invalid result

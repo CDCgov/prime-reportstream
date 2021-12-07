@@ -110,18 +110,26 @@ state_fips,state,state_abbr,zipcode,county,city
 1,Alabama,AL,35216,Jefferson,Vestavia hills
 1,Alabama,AL,35217,Jefferson,Birmingham
 1,Alabama,AL,35218,Jefferson,Birmingham
+1,Alabama,AL,35219,Jefferson,Birmingham
 1,Alabama,AL,35221,Jefferson,Birmingham
 1,Alabama,AL,35222,Jefferson,Birmingham
 1,Alabama,AL,35223,Jefferson,Mountain brook
 1,Alabama,AL,35224,Jefferson,Birmingham
 1,Alabama,AL,35226,Jefferson,Birmingham
 1,Alabama,AL,35228,Jefferson,Midfield
+1,Alabama,AL,35229,Jefferson,Birmingham
+1,Alabama,AL,35231,Jefferson,Birmingham
+1,Alabama,AL,35232,Jefferson,Birmingham
 1,Alabama,AL,35233,Jefferson,Birmingham
 1,Alabama,AL,35234,Jefferson,Birmingham
 1,Alabama,AL,35235,Jefferson,Center point
+1,Alabama,AL,35236,Jefferson,Birmingham
+1,Alabama,AL,35237,Jefferson,Birmingham
+1,Alabama,AL,35238,Jefferson,Birmingham
 1,Alabama,AL,35242,Shelby,Shoal creek
 1,Alabama,AL,35243,Jefferson,Cahaba heights
 1,Alabama,AL,35244,Jefferson,Hoover
+1,Alabama,AL,35246,Jefferson,Birmingham
 1,Alabama,AL,35401,Tuscaloosa,Tuscaloosa
 1,Alabama,AL,35402,Tuscaloosa,Tuscaloosa
 1,Alabama,AL,35403,Tuscaloosa,Tuscaloosa
@@ -466,6 +474,7 @@ state_fips,state,state_abbr,zipcode,county,city
 1,Alabama,AL,36455,Covington,Lockhart
 1,Alabama,AL,36456,Butler,Mc kenzie
 1,Alabama,AL,36460,Monroe,Monroeville
+1,Alabama,AL,36461,Monroe,Monroeville
 1,Alabama,AL,36467,Covington,Opp
 1,Alabama,AL,36470,Monroe,Perdue hill
 1,Alabama,AL,36471,Monroe,Peterman
@@ -1848,7 +1857,6 @@ state_fips,state,state_abbr,zipcode,county,city
 5,Arkansas,AR,72956,Crawford,Van buren
 5,Arkansas,AR,72958,Scott,Waldron
 5,Arkansas,AR,72959,Washington,Winslow
-6,California,CA,89439,Sierra,
 6,California,CA,90001,Los Angeles,Los angeles
 6,California,CA,90002,Los Angeles,Los angeles
 6,California,CA,90003,Los Angeles,Los angeles
@@ -1911,6 +1919,7 @@ state_fips,state,state_abbr,zipcode,county,city
 6,California,CA,90069,Los Angeles,West hollywood
 6,California,CA,90071,Los Angeles,Los angeles
 6,California,CA,90077,Los Angeles,Los angeles
+6,California,CA,90094,Los Angeles,Playa Vista
 6,California,CA,90201,Los Angeles,Bell gardens
 6,California,CA,90210,Los Angeles,Beverly hills
 6,California,CA,90211,Los Angeles,Beverly hills
@@ -2382,13 +2391,30 @@ state_fips,state,state_abbr,zipcode,county,city
 6,California,CA,92592,Riverside,Temecula
 6,California,CA,92595,Riverside,Wildomar
 6,California,CA,92596,Riverside,Winchester
+6,California,CA,92602,Orange,Irvine
+6,California,CA,92603,Orange,Irvine
+6,California,CA,92604,Orange,Irvine
+6,California,CA,92605,Orange,Huntington Beach
+6,California,CA,92606,Orange,Huntington Beach
+6,California,CA,92607,Orange,Laguna Niguel
+6,California,CA,92609,Orange,El Toro
 6,California,CA,92610,Orange,Foothill ranch
+6,California,CA,92612,Orange,Irvine
+6,California,CA,92614,Orange,Irvine
+6,California,CA,92615,Orange,Huntington Beach
+6,California,CA,92616,Orange,Irvine
+6,California,CA,92617,Orange,Irvine
+6,California,CA,92618,Orange,Irvine
+6,California,CA,92619,Orange,Irvine
+6,California,CA,92620,Orange,Irvine
+6,California,CA,92623,Orange,Irvine
 6,California,CA,92624,Orange,Capistrano beach
 6,California,CA,92625,Orange,Corona del mar
 6,California,CA,92626,Orange,Costa mesa
 6,California,CA,92627,Orange,Costa mesa
 6,California,CA,92629,Orange,Monarch bay
 6,California,CA,92630,Orange,Lake forest
+6,California,CA,92637,Orange,Laguna Woods
 6,California,CA,92646,Orange,Huntington beach
 6,California,CA,92647,Orange,Huntington beach
 6,California,CA,92648,Orange,Huntington beach
@@ -2413,12 +2439,15 @@ state_fips,state,state_abbr,zipcode,county,city
 6,California,CA,92691,Orange,Mission viejo
 6,California,CA,92692,Orange,Mission viejo
 6,California,CA,92701,Orange,Santa ana
+6,California,CA,92702,Orange,Santa ana
 6,California,CA,92703,Orange,Santa ana
 6,California,CA,92704,Orange,Santa ana
 6,California,CA,92705,Orange,Cowan heights
 6,California,CA,92706,Orange,Santa ana
 6,California,CA,92707,Orange,Santa ana height
 6,California,CA,92708,Orange,Fountain valley
+6,California,CA,92711,Orange,Santa ana
+6,California,CA,92712,Orange,Santa ana
 6,California,CA,92801,Orange,Anaheim
 6,California,CA,92802,Orange,Anaheim
 6,California,CA,92804,Orange,Anaheim
@@ -31700,3 +31729,4 @@ state_fips,state,state_abbr,zipcode,county,city
 ,AE,AE,09366,AE,AE
 ,AP,AP,96319,AP,AP
 ,AP,AP,96251,AP,AP
+,AP,AP,96349,AP,AP

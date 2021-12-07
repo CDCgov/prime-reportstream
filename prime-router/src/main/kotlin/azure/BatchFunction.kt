@@ -51,14 +51,14 @@ class BatchFunction {
                     report
                 }
                 val mergedReports = when {
-                    receiver.format == Report.Format.HL7 -> inReports // don't merge, when we are about to split
+                    receiver.format.isSingleItemFormat -> inReports // don't merge, when we are about to split
                     receiver.timing?.operation == Receiver.BatchOperation.MERGE -> listOf(Report.merge(inReports))
                     else -> inReports
                 }
-                val outReports = when (receiver.format) {
-                    Report.Format.HL7 -> mergedReports.flatMap { it.split() }
-                    else -> mergedReports
-                }
+                val outReports = if (receiver.format.isSingleItemFormat)
+                    mergedReports.flatMap { it.split() }
+                else
+                    mergedReports
                 outReports.forEach {
                     val outReport = it.copy(destination = receiver, bodyFormat = receiver.format)
                     val outEvent = ReportEvent(Event.EventAction.SEND, outReport.id)

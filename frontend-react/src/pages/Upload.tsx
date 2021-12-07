@@ -14,7 +14,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSync } from "@fortawesome/free-solid-svg-icons";
 
 import { senderClient } from "../webreceiver-utils";
-import AuthResource from "../resources/AuthResource";
 import SenderOrganizationResource from "../resources/SenderOrganizationResource";
 
 library.add(faSync);
@@ -23,8 +22,8 @@ export const Upload = () => {
     const { authState } = useOktaAuth();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [fileContent, setFileContent] = useState("");
-    const [consolidatedWarnings, setConsolidatedWarnings] = useState([]);
-    const [consolidatedErrors, setConsolidatedErrors] = useState([]);
+    const [warnings, setWarnings] = useState([]);
+    const [errors, setErrors] = useState([]);
     const [destinations, setDestinations] = useState("");
     const [reportId, setReportId] = useState(null);
     const [successTimestamp, setSuccessTimestamp] = useState("");
@@ -50,16 +49,19 @@ export const Upload = () => {
         let textBody;
         let response;
         try {
-            response = await fetch(`${AuthResource.getBaseUrl()}/api/waters`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "text/csv",
-                    client: client,
-                    "authentication-type": "okta",
-                    Authorization: `Bearer ${authState?.accessToken?.accessToken}`,
-                },
-                body: fileBody,
-            });
+            response = await fetch(
+                `${process.env.REACT_APP_BACKEND_URL}/api/waters`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "text/csv",
+                        client: client,
+                        "authentication-type": "okta",
+                        Authorization: `Bearer ${authState?.accessToken?.accessToken}`,
+                    },
+                    body: fileBody,
+                }
+            );
 
             textBody = await response.text();
 
@@ -108,8 +110,8 @@ export const Upload = () => {
         setIsSubmitting(true);
         setReportId(null);
         setSuccessTimestamp("");
-        setConsolidatedWarnings([]);
-        setConsolidatedErrors([]);
+        setWarnings([]);
+        setErrors([]);
         setDestinations("");
 
         if (fileContent.length === 0) {
@@ -146,18 +148,18 @@ export const Upload = () => {
                 );
             }
 
-            if (response?.consolidatedWarnings?.length) {
-                setConsolidatedWarnings(response.consolidatedWarnings);
+            if (response?.errorCount > 0) {
+                setWarnings(response.errors);
             }
 
-            if (response?.consolidatedErrors?.length) {
-                setConsolidatedErrors(response.consolidatedErrors);
+            if (response?.warningCount > 0) {
+                setErrors(response.warnings);
             }
 
             setHeaderMessage("Your COVID-19 Results");
         } catch (error) {
-            if (response?.consolidatedErrors) {
-                setConsolidatedErrors(response.errors);
+            if (response?.errors) {
+                setErrors(response.errors);
             }
         }
         setButtonText("Upload another file");
@@ -249,7 +251,7 @@ export const Upload = () => {
                 </div>
             )}
 
-            {consolidatedErrors.length > 0 && (
+            {errors.length > 0 && (
                 <div>
                     <div className="usa-alert usa-alert--error" role="alert">
                         <div className="usa-alert__body">
@@ -269,7 +271,7 @@ export const Upload = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {consolidatedErrors.map((e, i) => {
+                            {errors.map((e, i) => {
                                 return (
                                     <tr key={"error_" + i}>
                                         <td>{e["message"]}</td>
@@ -282,7 +284,7 @@ export const Upload = () => {
                 </div>
             )}
 
-            {consolidatedWarnings.length > 0 && (
+            {warnings.length > 0 && (
                 <div>
                     <div className="usa-alert usa-alert--warning">
                         <div className="usa-alert__body">
@@ -290,7 +292,7 @@ export const Upload = () => {
                                 Alert: Unusable Fields Detected
                             </h4>
                             <p className="usa-alert__text">
-                                {consolidatedErrors.length <= 0 && (
+                                {errors.length <= 0 && (
                                     <span>
                                         Your file has been accepted with
                                         warnings.
@@ -310,7 +312,7 @@ export const Upload = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {consolidatedWarnings.map((e, i) => {
+                            {warnings.map((e, i) => {
                                 return (
                                     <tr key={"warning_" + i}>
                                         <td>{e["message"]}</td>

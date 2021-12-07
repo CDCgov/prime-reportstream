@@ -24,14 +24,6 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
     )
 
     /**
-     * Translate this report by the list of services in metadata. One report for every service, reports
-     * may be empty.
-     */
-    fun translateByReceiver(input: Report, defaultValues: DefaultValues = emptyMap()): List<Report> {
-        return settings.receivers.map { receiver -> translateByReceiver(input, receiver, defaultValues) }
-    }
-
-    /**
      * Translate and filter by the list of receiver in metadata. Only return reports that have items.
      */
     fun filterAndTranslateByReceiver(
@@ -46,8 +38,9 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
                 (limitReceiversTo.isEmpty() || limitReceiversTo.contains(receiver.fullName))
         }.mapNotNull { receiver ->
             try {
-                val mappedReport = translateByReceiver(input, receiver, defaultValues)
-                if (mappedReport.itemCount == 0) return@mapNotNull null
+                val jurisFilteredReport = filterByJurisdiction(input, receiver)
+                if (jurisFilteredReport.isEmpty()) return@mapNotNull null
+                val mappedReport = translateByReceiver(jurisFilteredReport, receiver, defaultValues)
                 Pair(mappedReport, receiver)
             } catch (e: IllegalStateException) {
                 // catching individual translation exceptions enables overall work to continue
@@ -66,9 +59,10 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
     }
 
     /**
-     * This does both the filtering by jurisdiction, by qualityFilter, and also the translation.
+     * Determine if a report should be sent to the reciever based on that receiver's
+     * jurisdiction filter.
      */
-    private fun translateByReceiver(input: Report, receiver: Receiver, defaultValues: DefaultValues): Report {
+    private fun filterByJurisdiction(input: Report, receiver: Receiver): Report {
         // Filter according to this receiver's desired JurisdictionalFilter patterns
         val jurisFilterAndArgs = receiver.jurisdictionalFilter.map { filterSpec ->
             val (fnName, fnArgs) = JurisdictionalFilters.parseJurisdictionalFilter(filterSpec)
@@ -78,9 +72,18 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
         }
         val jurisFilteredReport = input.filter(jurisFilterAndArgs, receiver, isQualityFilter = false)
 
-        // Always succeed in translating an empty report after filtering (even if the mapping process would fail)
-        if (jurisFilteredReport.isEmpty()) return buildEmptyReport(receiver, input)
+        return jurisFilteredReport
+    }
 
+    /**
+     * Filter a [input] report for a [receiver] by that receiver's qualityFilter and
+     * then translate the filtered report based on the receiver's schema.
+     */
+    public fun translateByReceiver(
+        input: Report,
+        receiver: Receiver,
+        defaultValues: DefaultValues = emptyMap()
+    ): Report {
         // Now filter according to this receiver's desired qualityFilter, or default filter if none found.
         val qualityFilter = when {
             receiver.qualityFilter.isNotEmpty() -> receiver.qualityFilter
@@ -97,22 +100,21 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
                 ?: error("qualityFilter $fnName is not found in list of JurisdictionalFilters")
             Pair(filterFn, fnArgs)
         }
-        val qualityFilteredReport = jurisFilteredReport.filter(
+        val qualityFilteredReport = input.filter(
             qualityFilterAndArgs,
             receiver,
             isQualityFilter = true,
             receiver.reverseTheQualityFilter
         )
-        if (qualityFilteredReport.itemCount != jurisFilteredReport.itemCount) {
+        if (qualityFilteredReport.itemCount != input.itemCount) {
             logger.warn(
                 "Data quality problem in report ${input.id}, receiver ${receiver.fullName}: " +
-                    "There were ${jurisFilteredReport.itemCount} rows prior to qualityFilter, and " +
+                    "There were ${input.itemCount} rows prior to qualityFilter, and " +
                     "${qualityFilteredReport.itemCount} rows after qualityFilter."
             )
         }
 
-        // Always succeed in translating an empty report after filtering (even if the mapping process would fail)
-        if (qualityFilteredReport.isEmpty()) return buildEmptyReport(receiver, input)
+        if (qualityFilteredReport.isEmpty()) return qualityFilteredReport
 
         // Apply mapping to change schema
         val toReport: Report = if (receiver.schemaName != qualityFilteredReport.schema.name) {
@@ -139,19 +141,15 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
         var transformed = toReport
         if (receiver.deidentify)
             transformed = transformed.deidentify()
-        return transformed.copy(destination = receiver, bodyFormat = receiver.format)
-    }
-
-    fun buildEmptyReport(receiver: Receiver, from: Report): Report {
-        val toSchema = metadata.findSchema(receiver.schemaName)
-            ?: error("${receiver.schemaName} schema is missing from catalog")
-        return Report(toSchema, emptyList(), listOf(ReportSource(from.id, "mapping")), metadata = metadata)
+        var copy = transformed.copy(destination = receiver, bodyFormat = receiver.format)
+        copy.filteredItems.addAll(qualityFilteredReport.filteredItems)
+        return copy
     }
 
     /**
      * Translate one report to another schema. Translate all items.
      */
-    fun translate(input: Report, toSchema: Schema, defaultValues: DefaultValues): Report {
+    fun translate(input: Report, toSchema: Schema, defaultValues: DefaultValues = emptyMap()): Report {
         val mapping = buildMapping(toSchema = toSchema, fromSchema = input.schema, defaultValues)
         return input.applyMapping(mapping = mapping)
     }

@@ -32,7 +32,7 @@ This document will walk you through the setup instructions to get a functioning 
 - [Resetting your environment](#resetting-your-environment)
     * [Resetting the Database](#resetting-the-database)
 - [Additional tooling](#additional-tooling)
-- [Miscelanious subjects](#miscelanious-subjects)
+- [Miscellaneous subjects](#micellaneous-subjects)
     * [Using different database credentials than the default](#using-different-database-credentials-than-the-default)
     * [Using local configuration for organizations.yml](#using-local-configuration-for-organizationsyml)
     * [`PRIME_DATA_HUB_INSECURE_SSL` environment variable](#-prime-data-hub-insecure-ssl--environment-variable)
@@ -71,6 +71,9 @@ The following are optional tools that can aid you during development or debuggin
 cd ./prime-router
 ./cleanslate.sh
 ```
+
+> Note: If you are working on an Apple Silicon Mac, stop here at this step and 
+> continue on with the instructions in [Using an Apple Silicon Mac](getting-started/Using-an-apple-silicon-mac.md).
 
 ## Build Dependencies
 1. If you are using Docker Desktop, verify that it is running prior to building or running ReportStream locally.
@@ -414,7 +417,7 @@ When invoked with `--prune-volumes`, this script will also reset your PostgreSQL
 is very useful to reset your database to a clean state.  Note that the database will be re-populated the
 next time you run ReportStream.
     ```bash
-    ./gradlew reloadDB
+    ./gradlew resetDB
     ```
 1. Run ReportStream and run the following command to load the organization settings into the database:
     ```bash
@@ -435,7 +438,7 @@ Some useful tools for Kotlin/Java development include:
 * [Java Profiling in ReportStream](./getting-started/java-profiling.md)
 * [Tips for faster development](./getting-started/faster-development.md)
 
-# Miscelanious subjects
+# Miscellaneous subjects
 
 ## Using different database credentials than the default
 

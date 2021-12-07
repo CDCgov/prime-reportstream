@@ -17,6 +17,8 @@ Properties to control the execution and output using the Gradle -P arguments:
   E.g. ./gradlew clean package -Ppg.user=myuser -Dpg.password=mypassword -Pforcetest
  */
 
+import org.apache.commons.io.FileUtils
+import org.apache.commons.io.FilenameUtils
 import org.apache.tools.ant.filters.ReplaceTokens
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.io.FileInputStream
@@ -25,13 +27,13 @@ import java.time.format.DateTimeFormatter
 import java.util.Properties
 
 plugins {
-    kotlin("jvm") version "1.5.31"
-    id("org.flywaydb.flyway") version "8.0.3"
+    kotlin("jvm") version "1.6.0"
+    id("org.flywaydb.flyway") version "8.0.4"
     id("nu.studer.jooq") version "6.0.1"
     id("com.github.johnrengelman.shadow") version "7.1.0"
     id("com.microsoft.azure.azurefunctions") version "1.8.1"
     id("org.jlleitschuh.gradle.ktlint") version "10.2.0"
-    id("com.adarshr.test-logger") version "3.0.0"
+    id("com.adarshr.test-logger") version "3.1.0"
     id("jacoco")
 }
 
@@ -75,9 +77,21 @@ val reportsApiEndpointHost = (
 val jooqSourceDir = "build/generated-src/jooq/src/main/java"
 val jooqPackageName = "gov.cdc.prime.router.azure.db"
 
+/**
+ * Add the `VAULT_TOKEN` in the local vault to the [env] map
+ */
+fun addVaultValuesToEnv(env: MutableMap<String, Any>) {
+    val file = File(".vault/env/.env.local")
+    if (!file.exists()) return
+    val prop = Properties()
+    FileInputStream(file).use { prop.load(it) }
+    prop.forEach { key, value -> env[key.toString()] = value.toString().replace("\"", "") }
+}
+
 defaultTasks("package")
 
-val kotlinVersion = "1.5.31"
+val ktorVersion = "1.6.4"
+val kotlinVersion = "1.6.0"
 jacoco.toolVersion = "0.8.7"
 
 // Set the compiler JVM target
@@ -94,12 +108,21 @@ compileTestKotlin.kotlinOptions.jvmTarget = "11"
 tasks.clean {
     // Delete the old Maven build folder
     delete("target")
+    // clean up all the old event files in the SOAP set up
+    doLast {
+        val eventsDir = File("../.environment/soap_service/soap/event/v1/")
+        if (eventsDir.exists()) {
+            FileUtils.listFiles(eventsDir, arrayOf("event"), true).forEach {
+                it.delete()
+            }
+        }
+    }
 }
 
 /**
  * Building tasks
  */
-val coverageExcludedClasses = listOf("gov/cdc/prime/router/azure/db/*", "gov/cdc/prime/router/cli/*")
+val coverageExcludedClasses = listOf("gov/cdc/prime/router/azure/db/*", "gov/cdc/prime/router/cli/tests/*")
 tasks.test {
     // Use JUnit 5 for running tests
     useJUnitPlatform()
@@ -138,6 +161,23 @@ tasks.test {
 
 tasks.jacocoTestReport {
     dependsOn(tasks.test)
+    // Jacoco wants the source file directory structure to match the package name like in Java, so 
+    // move the source files to a temp location with that structure.
+    val sourcesDir = File(project.projectDir, "/src/main/kotlin")
+    val jacocoSourcesDir = File(project.buildDir, "/jacoco/sources")
+    doFirst {
+        FileUtils.listFiles(sourcesDir, arrayOf("kt", "java"), true).forEach { sourceFile ->
+            // Find the line in the code that has the package name and convert that to a folder then copy the file.
+            FileUtils.readLines(sourceFile, "UTF8").firstOrNull { it.contains("package") }?.let {
+                val packageDir = it.split(" ").last().replace(".", "/")
+                FileUtils.copyFile(
+                    sourceFile,
+                    File(jacocoSourcesDir, "$packageDir/${FilenameUtils.getName(sourceFile.absolutePath)}")
+                )
+            }
+        }
+    }
+    additionalSourceDirs(jacocoSourcesDir)
     reports.xml.required.set(true)
     // Remove the exclusions, so they do not appear in the report
     classDirectories.setFrom(
@@ -250,6 +290,13 @@ tasks.register("fatJar") {
     dependsOn("shadowJar")
 }
 
+tasks.ktlintCheck {
+    // DB tasks are not needed by ktlint, but gradle adds them by automatic configuration
+    tasks["generateJooq"].enabled = false
+    tasks["migrate"].enabled = false
+    tasks["flywayMigrate"].enabled = false
+}
+
 /**
  * PRIME CLI tasks
  */
@@ -265,6 +312,7 @@ tasks.register<JavaExec>("primeCLI") {
     environment["POSTGRES_USER"] = dbUser
     environment["POSTGRES_PASSWORD"] = dbPassword
     environment[KEY_PRIME_RS_API_ENDPOINT_HOST] = reportsApiEndpointHost
+    addVaultValuesToEnv(environment)
 
     // Use arguments passed by another task in the project.extra["cliArgs"] property.
     doFirst {
@@ -307,6 +355,13 @@ tasks.register("reloadSettings") {
     group = rootProject.description ?: ""
     description = "Reload the settings database table"
     project.extra["cliArgs"] = listOf("multiple-settings", "set", "-i", "./settings/organizations.yml")
+    finalizedBy("primeCLI")
+}
+
+tasks.register("reloadTables") {
+    group = rootProject.description ?: ""
+    description = "Load the latest test lookup tables to the database"
+    project.extra["cliArgs"] = listOf("lookuptables", "loadall")
     finalizedBy("primeCLI")
 }
 
@@ -390,7 +445,7 @@ tasks.azureFunctionsRun {
             "Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=" +
             "http://localhost:10000/devstoreaccount1;QueueEndpoint=http://localhost:10001/devstoreaccount1;"
 
-    val env = mutableMapOf(
+    val env = mutableMapOf<String, Any>(
         "AzureWebJobsStorage" to devAzureConnectString,
         "PartnerStorage" to devAzureConnectString,
         "POSTGRES_USER" to dbUser,
@@ -404,10 +459,7 @@ tasks.azureFunctionsRun {
     )
 
     // Load the vault variables
-    val file = File(".vault/env/.env.local")
-    val prop = Properties()
-    FileInputStream(file).use { prop.load(it) }
-    prop.forEach { key, value -> env[key.toString()] = value.toString().replace("\"", "") }
+    addVaultValuesToEnv(env)
 
     environment(env)
     azurefunctions.localDebug = "transport=dt_socket,server=y,suspend=n,address=5005"
@@ -484,7 +536,7 @@ tasks.named<nu.studer.gradle.jooq.JooqGenerate>("generateJooq") {
 }
 
 /**
- * Convinience tasks
+ * Convenience tasks
  */
 // Convenience tasks
 tasks.register("compile") {
@@ -499,7 +551,7 @@ tasks.register("migrate") {
     dependsOn("flywayMigrate")
 }
 
-tasks.register("reloadDB") {
+tasks.register("resetDB") {
     group = rootProject.description ?: ""
     description = "Delete all tables in the database and recreate from the latest schema"
     dependsOn("flywayClean")
@@ -527,14 +579,14 @@ dependencies {
     implementation("com.azure:azure-storage-blob:12.14.1") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-storage-queue:12.11.1") {
+    implementation("com.azure:azure-storage-queue:12.11.2") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-security-keyvault-secrets:4.3.4") {
+    implementation("com.azure:azure-security-keyvault-secrets:4.3.5") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
-    implementation("com.azure:azure-identity:1.4.0") {
+    implementation("com.azure:azure-identity:1.4.2") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
@@ -552,7 +604,7 @@ dependencies {
     implementation("com.github.javafaker:javafaker:1.0.2")
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
-    implementation("com.googlecode.libphonenumber:libphonenumber:8.12.36")
+    implementation("com.googlecode.libphonenumber:libphonenumber:8.12.38")
     implementation("org.thymeleaf:thymeleaf:3.0.12.RELEASE")
     implementation("com.sendgrid:sendgrid-java:4.8.0")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.1")
@@ -571,11 +623,11 @@ dependencies {
     implementation("commons-io:commons-io:2.11.0")
     implementation("org.postgresql:postgresql:42.3.0")
     implementation("com.zaxxer:HikariCP:5.0.0")
-    implementation("org.flywaydb:flyway-core:8.0.3")
+    implementation("org.flywaydb:flyway-core:8.2.0")
     implementation("com.github.kayr:fuzzy-csv:1.7.2")
     implementation("org.commonmark:commonmark:0.18.0")
     implementation("com.google.guava:guava:31.0.1-jre")
-    implementation("com.helger.as2:as2-lib:4.7.1")
+    implementation("com.helger.as2:as2-lib:4.8.0")
     // Prevent mixed versions of these libs based on different versions being included by different packages
     implementation("org.bouncycastle:bcpkix-jdk15on:1.69")
     implementation("org.bouncycastle:bcmail-jdk15on:1.69")
@@ -584,9 +636,14 @@ dependencies {
     implementation("commons-net:commons-net:3.8.0")
     implementation("com.cronutils:cron-utils:9.1.5")
     implementation("khttp:khttp:1.0.0")
+    implementation("com.auth0:java-jwt:3.18.2")
     implementation("io.jsonwebtoken:jjwt-api:0.11.2")
     implementation("de.m3y.kformat:kformat:0.8")
     implementation("io.github.java-diff-utils:java-diff-utils:4.11")
+    implementation("io.ktor:ktor-client-core:$ktorVersion")
+    implementation("io.ktor:ktor-client-cio:$ktorVersion")
+    implementation("io.ktor:ktor-client-apache:$ktorVersion")
+    implementation("io.ktor:ktor-client-logging:$ktorVersion")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.1")
     runtimeOnly("com.github.kittinunf.fuel:fuel-jackson:2.3.1")
@@ -602,8 +659,9 @@ dependencies {
     // kotlinx-coroutines-core is needed by mock-fuel
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
     testImplementation("com.github.KennethWussmann:mock-fuel:1.3.0")
-    testImplementation("io.mockk:mockk:1.12.0")
+    testImplementation("io.mockk:mockk:1.12.1")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.1")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.25")
+    testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.1")
 }
