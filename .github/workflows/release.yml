@@ -33,8 +33,11 @@ jobs:
       # - name: Install docker-compose
       #   run: apt-get update && apt-get --yes install docker-compose
 
+      - name: Spin up build containers
+        run: docker-compose -f docker-compose.postgres.yml up -d
+
       - name: Build Prime Router Package
-        run: ./gradlew package -x fatjar
+        run: ./gradlew package -x fatjar -Pshowtests
 
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@v1
