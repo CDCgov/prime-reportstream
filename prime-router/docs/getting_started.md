@@ -417,7 +417,7 @@ When invoked with `--prune-volumes`, this script will also reset your PostgreSQL
 is very useful to reset your database to a clean state.  Note that the database will be re-populated the
 next time you run ReportStream.
     ```bash
-    ./gradlew reloadDB
+    ./gradlew resetDB
     ```
 1. Run ReportStream and run the following command to load the organization settings into the database:
     ```bash
