@@ -535,6 +535,18 @@
         receivingApplicationOID: 2.16.840.1.114222.4.1.185.1
         receivingFacilityName: VDH
         receivingFacilityOID: 2.16.840.1.114222.4.1.185
+        suppressHl7Fields: OBX-18-1, OBX-18-2, OBX-18-3, OBX-18-4, OBX-15-3
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+        timeZone: CENTRAL
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
     - name: elr-secondary
       organizationName: vt-doh
       topic: covid-19
@@ -550,7 +562,7 @@
         receivingApplicationOID: 2.16.840.1.114222.4.1.185.1
         receivingFacilityName: VDH
         receivingFacilityOID: 2.16.840.1.114222.4.1.185
-
+        suppressHl7Fields: OBX-18-1, OBX-18-2, OBX-18-3, OBX-18-4, OBX-15-3
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
@@ -857,39 +869,6 @@
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
         timeZone: CHAMORRO
-
-- name: vt-doh
-  description: Vermont Department of Health
-  jurisdiction: STATE
-  stateCode: VT
-  receivers:
-    - name: elr
-      organizationName: vt-doh
-      topic: covid-19
-      customerStatus: active
-      jurisdictionalFilter:
-        - orEquals(ordering_facility_state, VT, patient_state, VT)
-      translation:
-        type: HL7
-        useBatchHeaders: true
-        receivingApplicationName: NBS
-        receivingApplicationOID: 2.16.840.1.114222.4.1.185.1
-        receivingFacilityName: VDH
-        receivingFacilityOID: 2.16.840.1.114222.4.1.185
-        truncateHDNamespaceIds: true
-        usePid14ForPatientEmail: true
-        suppressHl7Fields: OBX-18-1, OBX-18-2, OBX-18-3, OBX-18-4
-      transport:
-        type: SFTP
-        host: sftp
-        port: 22
-        filePath: ./upload
-        credentialName: DEFAULT-SFTP
-      timing:
-        operation: MERGE
-        numberPerDay: 1440 # Every minute
-        initialTime: 00:00
-        timeZone: EASTERN
 
 - name: nj-doh
   description: New Jersey Department of Health
