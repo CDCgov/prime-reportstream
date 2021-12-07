@@ -45,6 +45,20 @@ class SubmissionsFacade(
         return mapper.writeValueAsString(result)
     }
 
+    private fun findSubmissions(
+        organizationName: String,
+        sortOrder: String,
+        offset: OffsetDateTime?,
+        pageSize: Int,
+    ): List<SubmissionHistory> {
+        val order = try {
+            SubmissionAccess.SortOrder.valueOf(sortOrder)
+        } catch (e: IllegalArgumentException) {
+            SubmissionAccess.SortOrder.DESC
+        }
+        return findSubmissions(organizationName, order, offset, pageSize)
+    }
+
     /**
      * @param organizationName from JWT Claim.
      * @param sortOrder sort the table by date in ASC or DESC order.
@@ -55,7 +69,7 @@ class SubmissionsFacade(
      */
     private fun findSubmissions(
         organizationName: String,
-        sortOrder: String,
+        sortOrder: SubmissionAccess.SortOrder,
         offset: OffsetDateTime?,
         pageSize: Int,
     ): List<SubmissionHistory> {
@@ -68,7 +82,7 @@ class SubmissionsFacade(
 
         val submissions = db.fetchActions(
             organizationName,
-            sortOrder == "ASC",
+            sortOrder,
             offset,
             pageSize,
             SubmissionHistory::class.java

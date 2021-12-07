@@ -29,7 +29,7 @@ class SubmissionFunctionTests {
 
         override fun <T> fetchActions(
             sendingOrg: String,
-            orderAscending: Boolean,
+            order: SubmissionAccess.SortOrder,
             resultsAfterDate: OffsetDateTime?,
             limit: Int,
             klass: Class<T>

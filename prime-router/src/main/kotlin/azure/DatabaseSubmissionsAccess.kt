@@ -6,9 +6,14 @@ import org.jooq.impl.DSL
 import java.time.OffsetDateTime
 
 interface SubmissionAccess {
+    enum class SortOrder {
+        DESC,
+        ASC,
+    }
+
     fun <T> fetchActions(
         sendingOrg: String,
-        orderAscending: Boolean = false,
+        order: SortOrder,
         resultsAfterDate: OffsetDateTime? = null,
         limit: Int = 10,
         klass: Class<T>
@@ -28,14 +33,16 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = DatabaseAccess(
      */
     override fun <T> fetchActions(
         sendingOrg: String,
-        orderAscending: Boolean,
+        order: SubmissionAccess.SortOrder,
         resultsAfterDate: OffsetDateTime?,
         limit: Int,
         klass: Class<T>
     ): List<T> {
         var results: List<T> = emptyList()
 
-        val sorted = if (orderAscending) ACTION.CREATED_AT.asc() else ACTION.CREATED_AT.desc()
+        val sorted = if (order == SubmissionAccess.SortOrder.ASC) {
+            ACTION.CREATED_AT.asc()
+        } else ACTION.CREATED_AT.desc()
 
         db.transact { txn ->
             val query = DSL.using(txn)
