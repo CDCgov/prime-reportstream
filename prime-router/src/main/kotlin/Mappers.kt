@@ -1,6 +1,7 @@
 package gov.cdc.prime.router
 
 import com.google.common.base.Preconditions
+import gov.cdc.prime.router.common.NPIUtilities
 import java.security.MessageDigest
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
@@ -203,6 +204,35 @@ class IfNotPresentMapper : Mapper {
         }
 
         return null
+    }
+}
+
+/**
+ * The args for the [IfNPIMapper] mapper are an element name, true value and false value.
+ *
+ * Example Usage:
+ * ```
+ * ifNPI(ordering_provider_id, NPI, U)
+ * ```
+ *
+ * Test if the value is a valid NPI according to CMS. Return the second parameter if test is true.
+ * Return third parameter if the test is false and the parameter is present
+ */
+class IfNPIMapper : Mapper {
+    override val name = "ifNPI"
+
+    override fun valueNames(element: Element, args: List<String>): List<String> {
+        if (args.size !in 2..3) error("Schema Error: ifPresent expects dependency and value parameters")
+        return args.subList(0, 1) // The element name
+    }
+
+    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
+        if (values.size != 1) return null
+        return if (NPIUtilities.isValidNPI(values[0].value)) {
+            args[1]
+        } else {
+            if (args.size == 3) args[2] else null
+        }
     }
 }
 
