@@ -135,7 +135,7 @@ and use `yarn` to serve it on `localhost:3000`
 ```bash
 cd ../front-end-react
 yarn
-yarn start
+yarn start:localdev
 ```
 
 #### Refreshing
