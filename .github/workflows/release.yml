@@ -34,7 +34,7 @@ jobs:
       #   run: apt-get update && apt-get --yes install docker-compose
 
       - name: Build Prime Router Package
-        run: ./gradlew package -x fatjar -Pshowtests
+        run: ./gradlew package -x fatjar
 
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@v1
