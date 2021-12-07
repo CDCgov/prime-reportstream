@@ -43,13 +43,8 @@ class WorkflowEngineTests {
     )
 
     private fun makeEngine(metadata: Metadata, settings: SettingsProvider): WorkflowEngine {
-        return WorkflowEngine(
-            metadata,
-            settings,
-            db = accessSpy,
-            blob = blobMock,
-            queue = queueMock
-        )
+        return WorkflowEngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy)
+            .blobAccess(blobMock).queueAccess(queueMock).build()
     }
 
     @BeforeEach

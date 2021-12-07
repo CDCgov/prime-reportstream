@@ -226,7 +226,8 @@ class FindSenderKeyInSettings(val scope: String, val metadata: Metadata? = null)
         val kid = jwsHeader.keyId
         val alg = jwsHeader.algorithm
         val kty = KeyType.forAlgorithm(Algorithm.parse(alg))
-        val sender = WorkflowEngine(metadata).settings.findSender(issuer)
+        val workflowEngine = WorkflowEngine.Builder().apply { metadata?.let { metadata(it) } }.build()
+        val sender = workflowEngine.settings.findSender(issuer)
             ?: return err("No such sender fullName $issuer")
         if (sender.keys == null) return err("No auth keys associated with sender $issuer")
         if (!Scope.isValidScope(scope, sender)) return err("Invalid scope for this sender: $scope")

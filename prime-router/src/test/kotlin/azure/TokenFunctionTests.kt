@@ -178,7 +178,7 @@ class TokenFunctionTests {
         val dataProvider = MockDataProvider { arrayOf<MockResult>(MockResult(0, null)) }
         val connection = MockConnection(dataProvider)
         mockkObject(WorkflowEngine.Companion)
-        every { WorkflowEngine.Companion.databaseAccess } returns DatabaseAccess(connection)
+        every { WorkflowEngine.Companion.databaseAccessSingleton } returns DatabaseAccess(connection)
 
         mockkConstructor(DatabaseJtiCache::class)
         every { anyConstructed<DatabaseJtiCache>().isJTIOk(any(), any()) } returns true

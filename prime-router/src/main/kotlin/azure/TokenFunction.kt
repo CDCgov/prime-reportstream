@@ -49,7 +49,7 @@ class TokenFunction(val metadata: Metadata? = null) : Logging {
             ?: return HttpUtilities.bad(request, "Missing scope parameter", HttpStatus.UNAUTHORIZED)
         if (!Scope.isWellFormedScope(scope))
             return HttpUtilities.bad(request, "Incorrect scope format: $scope", HttpStatus.UNAUTHORIZED)
-        val workflowEngine = WorkflowEngine(metadata)
+        val workflowEngine = WorkflowEngine.Builder().apply { metadata?.let { metadata(it) } }.build()
         val actionHistory = ActionHistory(TaskAction.token_auth, context)
         actionHistory.trackActionParams(request)
         val senderKeyFinder = FindSenderKeyInSettings(scope, metadata)

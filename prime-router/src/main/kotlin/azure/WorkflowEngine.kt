@@ -46,57 +46,113 @@ import java.time.OffsetDateTime
  * @see QueueAccess
  * @see DatabaseAccess.Header
  */
-class WorkflowEngine {
-    var metadata: Metadata
-    var settings: SettingsProvider
-    var hl7Serializer: Hl7Serializer
-    var csvSerializer: CsvSerializer
-    var redoxSerializer: RedoxSerializer
-    var translator: Translator
-    var db: DatabaseAccess
-    var blob: BlobAccess
-    var queue: QueueAccess
-    val sftpTransport: SftpTransport = SftpTransport()
-    val redoxTransport: RedoxTransport = RedoxTransport()
-    val as2Transport: AS2Transport = AS2Transport()
-    val ftpsTransport: FTPSTransport = FTPSTransport()
-    val soapTransport: SoapTransport = SoapTransport()
+class WorkflowEngine(
+    val metadata: Metadata = Metadata.getInstance(),
+    val settings: SettingsProvider = settingsProviderSingleton,
+    val hl7Serializer: Hl7Serializer = hl7SerializerSingleton,
+    val csvSerializer: CsvSerializer = csvSerializerSingleton,
+    val redoxSerializer: RedoxSerializer = redoxSerializerSingleton,
+    val db: DatabaseAccess = databaseAccessSingleton,
+    val blob: BlobAccess = BlobAccess(csvSerializer, hl7Serializer, redoxSerializer),
+    val queue: QueueAccess = QueueAccess,
+    val translator: Translator = Translator(metadata, settings),
+    val sftpTransport: SftpTransport = SftpTransport(),
+    val redoxTransport: RedoxTransport = RedoxTransport(),
+    val as2Transport: AS2Transport = AS2Transport(),
+    val ftpsTransport: FTPSTransport = FTPSTransport(),
+    val soapTransport: SoapTransport = SoapTransport(),
     val gaenTransport: GAENTransport = GAENTransport()
+) {
 
     /**
-     * Instantiate a workflow engine instance with optional [metadata], [settings], [db], [blob] and [queue]
-     * instances used for dependency injection.
+     * Custom builder for Workflow engine
      */
-    constructor(
-        metadata: Metadata? = null,
-        settings: SettingsProvider? = null,
-        db: DatabaseAccess? = null,
-        blob: BlobAccess? = null,
-        queue: QueueAccess? = null
+    data class Builder(
+        var metadata: Metadata? = null,
+        var settingsProvider: SettingsProvider? = null,
+        var databaseAccess: DatabaseAccess? = null,
+        var blobAccess: BlobAccess? = null,
+        var queueAccess: QueueAccess? = null,
+        var hl7Serializer: Hl7Serializer? = null,
+        var csvSerializer: CsvSerializer? = null,
+        var redoxSerializer: RedoxSerializer? = null
     ) {
-        if (metadata == null) {
-            // Use immutable objects that can be shared between every function call
-            this.metadata = Metadata.getInstance()
-            // Load any updates to the database lookup tables.
-            // This check will run at the start of every function as they create a new instance of this class
-            this.metadata.checkForDatabaseLookupTableUpdates()
-            this.settings = settings ?: WorkflowEngine.settings
-            this.hl7Serializer = WorkflowEngine.hl7Serializer
-            this.csvSerializer = WorkflowEngine.csvSerializer
-            this.redoxSerializer = WorkflowEngine.redoxSerializer
-        } else {
-            // Use a provided metadata instance, like for unit testing.
-            this.metadata = metadata
-            this.settings = settings ?: getSettingsProvider(this.metadata)
-            this.hl7Serializer = Hl7Serializer(this.metadata, this.settings)
-            this.csvSerializer = CsvSerializer(this.metadata)
-            this.redoxSerializer = RedoxSerializer(this.metadata)
-        }
+        /**
+         * Set the metadata instance.
+         * @return the modified workflow engine
+         */
+        fun metadata(metadata: Metadata) = apply { this.metadata = metadata }
 
-        this.db = db ?: databaseAccess
-        this.blob = blob ?: BlobAccess(csvSerializer, hl7Serializer, redoxSerializer)
-        this.queue = queue ?: QueueAccess
-        this.translator = Translator(this.metadata, this.settings)
+        /**
+         * Set the settings provider instance.
+         * @return the modified workflow engine
+         */
+        fun settingsProvider(settingsProvider: SettingsProvider) = apply { this.settingsProvider = settingsProvider }
+
+        /**
+         * Set the database access instance.
+         * @return the modified workflow engine
+         */
+        fun databaseAccess(databaseAccess: DatabaseAccess) = apply { this.databaseAccess = databaseAccess }
+
+        /**
+         * Set the blob access instance.
+         * @return the modified workflow engine
+         */
+        fun blobAccess(blobAccess: BlobAccess) = apply { this.blobAccess = blobAccess }
+
+        /**
+         * Set the queue access instance.
+         * @return the modified workflow engine
+         */
+        fun queueAccess(queueAccess: QueueAccess) = apply { this.queueAccess = queueAccess }
+
+        /**
+         * Set the HL7 serializer instance.
+         * @return the modified workflow engine
+         */
+        fun hl7Serializer(hl7Serializer: Hl7Serializer) = apply { this.hl7Serializer = hl7Serializer }
+
+        /**
+         * Set the CSV serializer instance.
+         * @return the modified workflow engine
+         */
+        fun csvSerializer(csvSerializer: CsvSerializer) = apply { this.csvSerializer = csvSerializer }
+
+        /**
+         * Set the Redox serializer instance.
+         * @return the modified workflow engine
+         */
+        fun redoxSerializer(redoxSerializer: RedoxSerializer) = apply { this.redoxSerializer = redoxSerializer }
+
+        /**
+         * Build the workflow engine instance.
+         * @return the workflow engine instance
+         */
+        fun build(): WorkflowEngine {
+            if (metadata != null) {
+                settingsProvider = settingsProvider ?: getSettingsProvider(metadata!!)
+                hl7Serializer = hl7Serializer ?: Hl7Serializer(metadata!!, settingsProvider!!)
+                csvSerializer = csvSerializer ?: CsvSerializer(metadata!!)
+                redoxSerializer = redoxSerializer ?: RedoxSerializer(metadata!!)
+            } else {
+                settingsProvider = settingsProvider ?: settingsProviderSingleton
+                hl7Serializer = hl7Serializer ?: hl7SerializerSingleton
+                csvSerializer = csvSerializer ?: csvSerializerSingleton
+                redoxSerializer = redoxSerializer ?: redoxSerializerSingleton
+            }
+
+            return WorkflowEngine(
+                metadata ?: Metadata.getInstance(),
+                settingsProvider!!,
+                hl7Serializer!!,
+                csvSerializer!!,
+                redoxSerializer!!,
+                databaseAccess ?: databaseAccessSingleton,
+                blobAccess ?: BlobAccess(csvSerializer!!, hl7Serializer!!, redoxSerializer!!),
+                queueAccess ?: QueueAccess
+            )
+        }
     }
 
     val blobStoreTransport: BlobStoreTransport = BlobStoreTransport(this)
@@ -727,26 +783,24 @@ class WorkflowEngine {
          * These are all potentially heavy weight objects that
          * should only be created once.
          */
-        private val metadata by lazy { Metadata.getInstance() }
-
-        val databaseAccess: DatabaseAccess by lazy {
+        val databaseAccessSingleton: DatabaseAccess by lazy {
             DatabaseAccess()
         }
 
-        val settings: SettingsProvider by lazy {
-            getSettingsProvider(metadata)
+        val settingsProviderSingleton: SettingsProvider by lazy {
+            getSettingsProvider(Metadata.getInstance())
         }
 
-        private val csvSerializer: CsvSerializer by lazy {
-            CsvSerializer(metadata)
+        private val csvSerializerSingleton: CsvSerializer by lazy {
+            CsvSerializer(Metadata.getInstance())
         }
 
-        private val hl7Serializer: Hl7Serializer by lazy {
-            Hl7Serializer(metadata, settings)
+        private val hl7SerializerSingleton: Hl7Serializer by lazy {
+            Hl7Serializer(Metadata.getInstance(), settingsProviderSingleton)
         }
 
-        private val redoxSerializer: RedoxSerializer by lazy {
-            RedoxSerializer(metadata)
+        private val redoxSerializerSingleton: RedoxSerializer by lazy {
+            RedoxSerializer(Metadata.getInstance())
         }
 
         /**
@@ -757,7 +811,7 @@ class WorkflowEngine {
             val baseDir = System.getenv("AzureWebJobsScriptRoot") ?: "."
             val settingsEnabled: String? = System.getenv("FEATURE_FLAG_SETTINGS_ENABLED")
             return if (settingsEnabled == null || settingsEnabled.equals("true", ignoreCase = true)) {
-                SettingsFacade(metadata, databaseAccess)
+                SettingsFacade(metadata, databaseAccessSingleton)
             } else {
                 val ext = "-${Environment.get().toString().lowercase()}"
                 FileSettings("$baseDir/settings", orgExt = ext)
