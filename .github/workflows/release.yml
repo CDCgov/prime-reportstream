@@ -33,6 +33,9 @@ jobs:
       # - name: Install docker-compose
       #   run: apt-get update && apt-get --yes install docker-compose
 
+      - name: Spin up build containers
+        run: docker-compose -f docker-compose.postgres.yml up -d
+
       - name: Build Prime Router Package
         run: ./gradlew package -x fatjar -Pshowtests
 

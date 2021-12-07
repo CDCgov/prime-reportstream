@@ -342,6 +342,14 @@ The ordering provider’s National Provider Identifier
 
 ---
 
+**Name**: Provider ID/ NPI
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
 **Name**: Provider Last Name
 
 **Type**: PERSON_NAME
