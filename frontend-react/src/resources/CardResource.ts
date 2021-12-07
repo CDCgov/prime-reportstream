@@ -14,5 +14,5 @@ export default class CardResource extends AuthResource {
         return this.id;
     }
 
-    static urlRoot = `${AuthResource.getBaseUrl()}/api/history/summary/tests`;
+    static urlRoot = `${process.env.REACT_APP_BACKEND_URL}/api/history/summary/tests`;
 }
