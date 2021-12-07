@@ -23,7 +23,7 @@ and use `yarn` to serve it on `localhost:3000`
 ```bash
 cd ../frontend-react
 yarn
-yarn start
+yarn start:localdev
 ```
 
 ### Refreshing & stopping
@@ -43,11 +43,31 @@ for any error status codes.
 ```bash
 yarn # Will install all dependencies in package.json
 
-yarn start # Runs the React app
-yarn test # Runs the React app test suite
-yarn build # Builds the React app
+yarn start:localdev # Runs the React app
+yarn build:staging # Builds the React app for staging
+yarn build:production # Builds the React app for production
 
 yarn lint # Runs the front-end linter
 yarn lint:write # Runs the front-end linter and fixes style errors
 ```
 
+## Static build info
+This react app uses a static build approach and can be served from a static webserver (e.g. a storage bucket or CDN).
+This means there are no environment variables to load because there's no local environment. These variables must be "baked" into
+the html/javascript.
+
+This is achieved using `env-cmd` to pass the appropriate .env file into the `craco build` command.
+
+```json
+"build:staging": "env-cmd -f .env.staging craco build",
+"build:production": "env-cmd -f .env.production craco build",
+```
+
+The build can then use variables like `%REACT_APP_TITLE%` in the index.html template and `process.env.REACT_APP_TITLE` in the React code.
+
+One caveat, there is only a **single** .env file used per build type. Typically, multiple .env files are loaded (`.env`, `.env.develop` and `.env.local`), but with this approach only the relevant file is used. 
+- local dev: `env.development`
+- staging: `.env.staging`
+- production: `env.production`
+
+`.env` and `.env.local` are not currently used.
