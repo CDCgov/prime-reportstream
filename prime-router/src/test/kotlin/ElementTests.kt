@@ -286,6 +286,44 @@ internal class ElementTests {
     }
 
     @Test
+    fun `test checkForError DATE`() {
+        val checkForErrorDateElementNullify = Element(
+            "a",
+            type = Element.Type.DATE,
+            csvFields = Element.csvFields("date"),
+            nullifyValue = true
+        )
+
+        // nullify an invalid date if nullifyValue is true
+        assertThat(
+            checkForErrorDateElementNullify.checkForError("a week ago")
+        ).isEqualTo(
+            null
+        )
+
+        val checkForErrorDateElement = Element(
+            "a",
+            type = Element.Type.DATE,
+            csvFields = Element.csvFields("date")
+        )
+
+        // passing through a valid date of known manual formats does not throw an error
+        val dateStrings = arrayOf("12/20/2020", "12202020", "2020/12/20", "12/20/2020 12:15", "2020/12/20 12:15")
+        dateStrings.forEach { dateString ->
+            assertThat(
+                checkForErrorDateElement.checkForError(dateString)
+            ).isEqualTo(
+                null
+            )
+        }
+
+        // return an InvalidDateMessage
+        val expected = InvalidDateMessage.new("a week ago", "'date' ('a')", null)
+        val actual = checkForErrorDateElement.checkForError("a week ago", null)
+        assertThat(actual?.detailMsg()).isEqualTo(expected.detailMsg())
+    }
+
+    @Test
     fun `test normalize and formatted round-trips`() {
         val postal = Element(
             "a",
@@ -348,6 +386,45 @@ internal class ElementTests {
             date.toFormatted(date.toNormalized("2020-12-20"))
         ).isEqualTo(
             "20201220"
+        )
+
+        // normalize manually entered date use cases
+        // "M/d/yyyy", "MMddyyyy", "yyyy/M/d", "M/d/yyyy HH:mm", "yyyy/M/d HH:mm"
+        val dateStrings = arrayOf("12/20/2020", "12202020", "2020/12/20", "12/20/2020 12:15", "2020/12/20 12:15")
+        dateStrings.forEach { dateString ->
+            assertThat(
+                date.toFormatted(date.toNormalized(dateString))
+            ).isEqualTo(
+                "20201220"
+            )
+        }
+
+        val nullifyDateElement = Element(
+            "a",
+            type = Element.Type.DATE,
+            csvFields = Element.csvFields("date"),
+            nullifyValue = true
+        )
+
+        // normalize and nullify an invalid date
+        assertThat(
+            nullifyDateElement.toFormatted(nullifyDateElement.toNormalized("a week ago"))
+        ).isEqualTo(
+            ""
+        )
+
+        val nullifyDateTimeElement = Element(
+            "a",
+            type = Element.Type.DATETIME,
+            csvFields = Element.csvFields("datetime"),
+            nullifyValue = true
+        )
+
+        // normalize and nullify an invalid datetime
+        assertThat(
+            nullifyDateTimeElement.toFormatted(nullifyDateTimeElement.toNormalized("a week ago"))
+        ).isEqualTo(
+            ""
         )
 
         val datetime = Element(
@@ -645,12 +722,6 @@ internal class ElementTests {
         val currentDate = LocalDate.now().format(formatter)
         val elementAndValueCurrentDate = mockElement.tokenizeMapperValue(elementNameCurrentDate)
         assertThat(elementAndValueCurrentDate.value).isEqualTo(currentDate)
-
-        // sending in a "$dateFormat:valid-date-format" should return just the date format which is located
-        // after the semi-colon in the token
-        val elementNameDateFormat = "\$dateFormat:MM/dd/yyyy"
-        val elementAndValueDateFormat = mockElement.tokenizeMapperValue(elementNameDateFormat)
-        assertThat(elementAndValueDateFormat.value).isEqualTo("MM/dd/yyyy")
 
         // if nothing "parsable" comes through, the token value will be an empty string
         val elementNameNonValidToken = "\$nonValidToken:not valid"
