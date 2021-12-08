@@ -28,6 +28,7 @@ export const Upload = () => {
     const [destinations, setDestinations] = useState("");
     const [reportId, setReportId] = useState(null);
     const [successTimestamp, setSuccessTimestamp] = useState("");
+    const [buttonText, setButtonText] = useState("Upload");
     const [headerMessage, setHeaderMessage] = useState(
         "Upload your COVID-19 results"
     );
@@ -80,7 +81,9 @@ export const Upload = () => {
         }
     };
 
-    const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileChange = async (
+        event: React.ChangeEvent<HTMLInputElement>
+    ) => {
         try {
             if (!event?.currentTarget?.files?.length) {
                 // no files selected
@@ -162,9 +165,9 @@ export const Upload = () => {
                 setErrors(response.errors);
             }
         }
-        console.log("handleClearFiles7");
+        setButtonText("Upload another file");
         // Changing the key to force the FileInput to reset. Otherwise it won't recognize changes to the file's content unless the file name changes
-        setFileInputResetValue(fileInputResetValue + 1)
+        setFileInputResetValue(fileInputResetValue + 1);
         setIsSubmitting(false);
     };
 
@@ -357,7 +360,7 @@ export const Upload = () => {
                         </span>
                     )}
 
-                    {!isSubmitting && <span>Upload</span>}
+                    {!isSubmitting && <span>{buttonText}</span>}
                 </Button>
             </Form>
         </div>
