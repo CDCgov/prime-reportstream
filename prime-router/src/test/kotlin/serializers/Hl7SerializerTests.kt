@@ -38,8 +38,8 @@ import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Date
 import kotlin.test.Test
-import kotlin.test.fail
 import kotlin.test.assertEquals
+import kotlin.test.fail
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class Hl7SerializerTests {
