@@ -94,7 +94,7 @@ jobs:
       - name: Wait for the API to become available
         uses: cygnetdigital/wait_for_response@v2.0.0
         with:
-          url: 'http://localhost:7071/api/settings/organizations'
+          url: 'http://localhost:7071/api/lookuptables/list'
           responseCode: '200,201,401'
           timeout: 60000
           interval: 5000

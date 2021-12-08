@@ -15,9 +15,9 @@ import java.net.URL
 class CommandUtilities {
     companion object {
         /**
-         * The API endpoint to check for that supports the HEAD operation.
+         * The API endpoint to check for.  This needs to be a simple operation.
          */
-        private const val waitForApiEndpointPath = "/api/settings/organizations"
+        private const val waitForApiEndpointPath = "api/lookuptables/list"
 
         /**
          * Waits for the endpoint at [environment] to become available. This function will retry [retries] number of
