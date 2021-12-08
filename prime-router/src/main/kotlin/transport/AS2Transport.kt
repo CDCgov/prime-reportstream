@@ -11,6 +11,7 @@ import com.helger.security.keystore.EKeyStoreType
 import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.AS2TransportType
+import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.TransportType
@@ -30,11 +31,12 @@ const val TIMEOUT = 10_000
 /**
  * The AS2 transport was built for communicating to the WA OneHealthNetwork. It is however a general transport protocol
  * that is used in other contexts and perhaps could be used elsewhere by other PHD in the US.
+ * @param metadata optional metadata instance used for dependency injection
  *
  * See [Wikapedia AS2](https://en.wikipedia.org/wiki/AS2) for details on AS2.
  * See [PHAX as2-lib](https://github.com/phax/as2-lib) for the details on the library we use.
  */
-class AS2Transport : ITransport, Logging {
+class AS2Transport(val metadata: Metadata? = null) : ITransport, Logging {
     /**
      * The send a report or return [RetryItems]
      */
@@ -54,7 +56,7 @@ class AS2Transport : ITransport, Logging {
             if (header.content == null) error("No content to send for report $reportId")
             val receiver = header.receiver ?: error("No receiver defined for report $reportId")
             val credential = lookupCredentials(receiver.fullName)
-            val externalFileName = Report.formExternalFilename(header)
+            val externalFileName = Report.formExternalFilename(header, metadata)
 
             // Log the useful correlations of ids
             context.logger.info("${receiver.fullName}: Ready to send $reportId($sentReportId) to $externalFileName")
@@ -100,7 +102,7 @@ class AS2Transport : ITransport, Logging {
     /**
      * Do the work of sending a report over the AS2 transport.
      */
-    internal fun sendViaAS2(
+    fun sendViaAS2(
         as2Info: AS2TransportType,
         credential: UserJksCredential,
         externalFileName: String,
@@ -144,7 +146,7 @@ class AS2Transport : ITransport, Logging {
     /**
      * From the credential service get a JKS for [receiverFullName].
      */
-    internal fun lookupCredentials(receiverFullName: String): UserJksCredential {
+    fun lookupCredentials(receiverFullName: String): UserJksCredential {
         val credentialLabel = CredentialHelper.formCredentialLabel(fromReceiverName = receiverFullName)
         return CredentialHelper.getCredentialService().fetchCredential(
             credentialLabel, "AS2Transport", CredentialRequestReason.AS2_UPLOAD
