@@ -165,12 +165,12 @@ internal class ElementTests {
             assertThat(this).isEqualTo("2020-12-01")
         }
         // Check another correct format and expect to return only date.
-        two.toFormatted("20201202", "M/d/yyyy").run {
-            assertThat(this).isEqualTo("12/2/2020")
+        two.toFormatted("20201202", "M/d/yyyy HH:nn").run {
+            assertThat(this).isEqualTo("12/2/2020 00:00")
         }
         // Given datetime format and expect to return only date.
         two.toFormatted("20201203", "$dateFormat HH:mm:ss").run {
-            assertThat(this).isEqualTo("2020-12-03")
+            assertThat(this).isEqualTo("2020-12-03 00:00:00")
         }
     }
 
