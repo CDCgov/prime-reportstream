@@ -1,4 +1,4 @@
-# ./prime multiple-settings set --env prod --input ./settings/staging/0050-update-mn-doh.yml
+# ./prime multiple-settings set --env staging --input ./settings/staging/0050-update-mn-doh.yml
 ---
 
 - name: "mn-doh"

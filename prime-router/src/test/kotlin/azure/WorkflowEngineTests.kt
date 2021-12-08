@@ -13,9 +13,6 @@ import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.TestSource
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
-import gov.cdc.prime.router.serializers.CsvSerializer
-import gov.cdc.prime.router.serializers.Hl7Serializer
-import gov.cdc.prime.router.serializers.RedoxSerializer
 import io.mockk.clearAllMocks
 import io.mockk.confirmVerified
 import io.mockk.every
@@ -46,16 +43,8 @@ class WorkflowEngineTests {
     )
 
     private fun makeEngine(metadata: Metadata, settings: SettingsProvider): WorkflowEngine {
-        return WorkflowEngine(
-            metadata,
-            settings,
-            csvSerializer = CsvSerializer(metadata),
-            hl7Serializer = Hl7Serializer(metadata, settings),
-            redoxSerializer = RedoxSerializer(metadata),
-            db = accessSpy,
-            blob = blobMock,
-            queue = queueMock
-        )
+        return WorkflowEngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy)
+            .blobAccess(blobMock).queueAccess(queueMock).build()
     }
 
     @BeforeEach
@@ -68,7 +57,7 @@ class WorkflowEngineTests {
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource)
+        val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource, metadata = metadata)
         val event = ReportEvent(Event.EventAction.NONE, UUID.randomUUID())
         val bodyFormat = Report.Format.CSV
         val bodyUrl = "http://anyblob.com"
@@ -102,7 +91,7 @@ class WorkflowEngineTests {
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource)
+        val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource, metadata = metadata)
         val event = ReportEvent(Event.EventAction.NONE, report1.id)
         val bodyFormat = Report.Format.CSV
         val bodyUrl = "http://anyblob.com"
@@ -140,7 +129,7 @@ class WorkflowEngineTests {
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val settings = FileSettings()
-        val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource)
+        val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource, metadata = metadata)
         val actionHistory = mockk<ActionHistory>()
         val sender = Sender("senderName", "org", Sender.Format.CSV, "covid-19", CustomerStatus.INACTIVE, one.name)
 
@@ -165,7 +154,7 @@ class WorkflowEngineTests {
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val report1 = Report(
             one, listOf(listOf("1", "2"), listOf("3", "4")),
-            source = TestSource, destination = oneOrganization.receivers[0]
+            source = TestSource, destination = oneOrganization.receivers[0], metadata = metadata
         )
         val bodyFormat = "CSV"
         val bodyUrl = "http://anyblob.com"

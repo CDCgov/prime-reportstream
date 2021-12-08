@@ -82,7 +82,15 @@
     },
     {
       "status": "Live",
+      "state": "Oregon"
+    },
+    {
+      "status": "Live",
       "state": "Pennsylvania"
+    },
+    {
+      "status": "Live",
+      "state": "Tennessee"
     },
     {
       "status": "Live",
