@@ -21,6 +21,7 @@ library.add(faSync);
 export const Upload = () => {
     const { authState } = useOktaAuth();
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [fileInputResetValue, setFileInputResetValue] = useState(0);
     const [fileContent, setFileContent] = useState("");
     const [warnings, setWarnings] = useState([]);
     const [errors, setErrors] = useState([]);
@@ -80,7 +81,9 @@ export const Upload = () => {
         }
     };
 
-    const handleChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileChange = async (
+        event: React.ChangeEvent<HTMLInputElement>
+    ) => {
         try {
             if (!event?.currentTarget?.files?.length) {
                 // no files selected
@@ -163,6 +166,8 @@ export const Upload = () => {
             }
         }
         setButtonText("Upload another file");
+        // Changing the key to force the FileInput to reset. Otherwise it won't recognize changes to the file's content unless the file name changes
+        setFileInputResetValue(fileInputResetValue + 1);
         setIsSubmitting(false);
     };
 
@@ -324,7 +329,6 @@ export const Upload = () => {
                     </table>
                 </div>
             )}
-
             <Form onSubmit={(e) => handleSubmit(e)}>
                 <FormGroup className="margin-bottom-3">
                     <Label
@@ -335,11 +339,12 @@ export const Upload = () => {
                         Upload your COVID-19 lab results as a .CSV.
                     </Label>
                     <FileInput
+                        key={fileInputResetValue}
                         id="upload-csv-input"
                         name="upload-csv-input"
                         aria-describedby="upload-csv-input-label"
                         accept=".csv, text/csv"
-                        onChange={(e) => handleChange(e)}
+                        onChange={(e) => handleFileChange(e)}
                         required
                     />
                 </FormGroup>
