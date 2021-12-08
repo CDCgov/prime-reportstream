@@ -1,11 +1,10 @@
-import React, { useState, useRef, Ref } from "react";
+import React, { useState } from "react";
 import {
     Button,
     Form,
     FormGroup,
     Label,
     FileInput,
-    FileInputRef,
 } from "@trussworks/react-uswds";
 import { useResource } from "rest-hooks";
 import { useOktaAuth } from "@okta/okta-react";
@@ -22,14 +21,13 @@ library.add(faSync);
 export const Upload = () => {
     const { authState } = useOktaAuth();
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [fileInputResetValue, setFileInputResetValue] = useState(0);
     const [fileContent, setFileContent] = useState("");
     const [warnings, setWarnings] = useState([]);
     const [errors, setErrors] = useState([]);
     const [destinations, setDestinations] = useState("");
     const [reportId, setReportId] = useState(null);
     const [successTimestamp, setSuccessTimestamp] = useState("");
-    const [buttonText, setButtonText] = useState("Upload");
-    const fileInputRef = useRef<FileInputRef>()
     const [headerMessage, setHeaderMessage] = useState(
         "Upload your COVID-19 results"
     );
@@ -80,11 +78,6 @@ export const Upload = () => {
                 ],
             };
         }
-    };
-
-    const handleClearFiles = (): void => {
-        fileInputRef.current?.clearFiles()
-        setFileContent("");
     };
 
     const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -169,8 +162,9 @@ export const Upload = () => {
                 setErrors(response.errors);
             }
         }
-        console.log("handleClearFiles2");
-        handleClearFiles();
+        console.log("handleClearFiles7");
+        // Changing the key to force the FileInput to reset. Otherwise it won't recognize changes to the file's content unless the file name changes
+        setFileInputResetValue(fileInputResetValue + 1)
         setIsSubmitting(false);
     };
 
@@ -332,7 +326,6 @@ export const Upload = () => {
                     </table>
                 </div>
             )}
-
             <Form onSubmit={(e) => handleSubmit(e)}>
                 <FormGroup className="margin-bottom-3">
                     <Label
@@ -343,12 +336,12 @@ export const Upload = () => {
                         Upload your COVID-19 lab results as a .CSV.
                     </Label>
                     <FileInput
+                        key={fileInputResetValue}
                         id="upload-csv-input"
                         name="upload-csv-input"
                         aria-describedby="upload-csv-input-label"
                         accept=".csv, text/csv"
                         onChange={(e) => handleFileChange(e)}
-                        ref={fileInputRef as Ref<FileInputRef>}
                         required
                     />
                 </FormGroup>
@@ -364,7 +357,7 @@ export const Upload = () => {
                         </span>
                     )}
 
-                    {!isSubmitting && <span>{buttonText}</span>}
+                    {!isSubmitting && <span>Upload</span>}
                 </Button>
             </Form>
         </div>
