@@ -60,12 +60,15 @@ def put_receiver(receiver):
 
 def get_last_modified():
     url = f'{base_url}/settings/organizations'
-    r = requests.head(url, headers=headers)
-    r.raise_for_status()
-    if 'Last-Modified' in r.headers:
-        return parsedate_to_datetime(r.headers['Last-Modified'])
-    else:
-        return datetime.datetime(2000, 1, 1)  # early date to make logic work
+    lastModified = datetime.datetime(2000, 1, 1)  # early date to make logic work
+    try:
+        r = requests.head(url, headers=headers)
+        r.raise_for_status()
+        if 'Last-Modified' in r.headers:
+            lastModified = parsedate_to_datetime(r.headers['Last-Modified'])
+    except:
+        print("Warning: Unable to obtain last modified date from API.")
+    return lastModified
 
 # Check and wait for the API to be available for a number of retries
 def waitForApiAvailability():

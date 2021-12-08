@@ -3,14 +3,12 @@ package gov.cdc.prime.router.transport
 import assertk.assertThat
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
-import com.microsoft.azure.functions.ExecutionContext
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.SoapTransportType
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
-import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
 import gov.cdc.prime.router.credentials.UserPassCredential
 import io.ktor.client.HttpClient
@@ -20,21 +18,15 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import io.ktor.utils.io.ByteReadChannel
 import io.mockk.every
-import io.mockk.mockkClass
 import io.mockk.spyk
 import org.junit.jupiter.api.TestInstance
-import java.time.OffsetDateTime
 import java.util.UUID
-import java.util.logging.Logger
 import kotlin.test.Test
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class SoapTransportTests {
-    private val context = mockkClass(ExecutionContext::class)
+class SoapTransportIntegrationTests : TransportIntegrationTests() {
     private val metadata = Metadata.getInstance()
     private val settings = FileSettings(FileSettings.defaultSettingsDirectory)
-    private val logger = mockkClass(Logger::class)
-    private val reportId = UUID.randomUUID()
     private val responseHeaders = headersOf("Content-Type" to listOf("text/xml"))
     private val mockClientOk = HttpClient(MockEngine) {
         engine {
@@ -83,27 +75,6 @@ class SoapTransportTests {
         null,
         null
     )
-    private val reportFile = ReportFile(
-        reportId,
-        null,
-        TaskAction.send,
-        null,
-        null,
-        null,
-        "az-phd",
-        "elr-test",
-        null, null, "standard.standard-covid-19", null, null, null, null, null,
-        4, // pretend we have 4 items to send.
-        null, OffsetDateTime.now(), null
-    )
-
-    private fun setupLogger() {
-        every { context.logger }.returns(logger)
-        every { logger.log(any(), any(), any<Throwable>()) }.returns(Unit)
-        every { logger.warning(any<String>()) }.returns(Unit)
-        every { logger.severe(any<String>()) }.returns(Unit)
-        every { logger.info(any<String>()) }.returns(Unit)
-    }
 
     private fun makeHeader(): WorkflowEngine.Header {
         val content = "HL7|Stuff"
@@ -120,7 +91,6 @@ class SoapTransportTests {
     @Test
     fun `test connecting to mock service happy path`() {
         val header = makeHeader()
-        setupLogger()
         val mockSoapTransport = spyk(SoapTransport(mockClientOk))
         every { mockSoapTransport.lookupCredentials(any()) }.returns(
             UserPassCredential(UUID.randomUUID().toString(), UUID.randomUUID().toString())
@@ -132,7 +102,6 @@ class SoapTransportTests {
     @Test
     fun `test connecting to mock service unhappy path`() {
         val header = makeHeader()
-        setupLogger()
         val mockSoapTransport = spyk(SoapTransport(mockClientError))
         every { mockSoapTransport.lookupCredentials(any()) }.returns(
             UserPassCredential(UUID.randomUUID().toString(), UUID.randomUUID().toString())

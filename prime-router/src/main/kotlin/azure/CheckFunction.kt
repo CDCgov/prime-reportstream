@@ -91,7 +91,7 @@ class CheckFunction : Logging {
                     return HttpUtilities.badRequestResponse(request, "Test upload file exceeds 100K size limit")
                 }
             }
-            val settings = WorkflowEngine.settings
+            val settings = WorkflowEngine.settingsProviderSingleton
             if (receiverFullName == "all") {
                 if (!testAllTransports(settings.receivers, sftpFile, responseBody)) {
                     httpStatus = HttpStatus.INTERNAL_SERVER_ERROR // everything bombed.
@@ -129,8 +129,8 @@ class CheckFunction : Logging {
         ) timerInfo: String,
     ) {
         logger.info("Staring scheduled check of remote receiver connections. Schedule is set to $timerInfo")
-        val settings = WorkflowEngine.settings
-        val db = WorkflowEngine.databaseAccess
+        val settings = WorkflowEngine.settingsProviderSingleton
+        val db = WorkflowEngine.databaseAccessSingleton
         settings.receivers.forEach {
             logger.info("Checking connection for ${it.organizationName}-${it.name}")
             // create the response body

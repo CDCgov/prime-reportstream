@@ -11,6 +11,7 @@ import gov.cdc.prime.router.tokens.DatabaseJtiCache
 import gov.cdc.prime.router.tokens.Jwk
 import gov.cdc.prime.router.tokens.Scope
 import gov.cdc.prime.router.tokens.TokenAuthentication
+import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.security.Keys
@@ -71,7 +72,7 @@ class TokenFunctionTests {
         val dataProvider = MockDataProvider { arrayOf<MockResult>(MockResult(0, null)) }
         val connection = MockConnection(dataProvider)
         mockkObject(WorkflowEngine.Companion)
-        every { WorkflowEngine.Companion.databaseAccess } returns DatabaseAccess(connection)
+        every { WorkflowEngine.Companion.databaseAccessSingleton } returns DatabaseAccess(connection)
 
         mockkConstructor(DatabaseJtiCache::class)
         every { anyConstructed<DatabaseJtiCache>().isJTIOk(any(), any()) } returns true
@@ -103,7 +104,7 @@ class TokenFunctionTests {
 
         var httpRequestMessage = MockHttpRequestMessage()
         // Invoke
-        var response = TokenFunction().report(httpRequestMessage, context)
+        var response = TokenFunction(UnitTestUtils.simpleMetadata).report(httpRequestMessage, context)
         // Verify
         assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
         assertThat(response.getBody()).isEqualTo("Missing client_assertion parameter")
@@ -116,7 +117,7 @@ class TokenFunctionTests {
         var httpRequestMessage = MockHttpRequestMessage()
         httpRequestMessage.parameters.put("client_assertion", token)
         // Invoke
-        var response = TokenFunction().report(httpRequestMessage, context)
+        var response = TokenFunction(UnitTestUtils.simpleMetadata).report(httpRequestMessage, context)
         // Verify
         assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
         assertThat(response.getBody()).isEqualTo("Missing scope parameter")
@@ -133,7 +134,7 @@ class TokenFunctionTests {
             httpRequestMessage.parameters.put("client_assertion", token)
             httpRequestMessage.parameters.put("scope", it)
             // Invoke
-            var response = TokenFunction().report(httpRequestMessage, context)
+            var response = TokenFunction(UnitTestUtils.simpleMetadata).report(httpRequestMessage, context)
             // Verify
             assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
             assertThat(response.getBody()).isEqualTo("Incorrect scope format: $it")
@@ -147,7 +148,7 @@ class TokenFunctionTests {
         httpRequestMessage.parameters.put("client_assertion", "verylong.signed.jwtstring")
         httpRequestMessage.parameters.put("scope", validScope)
         // Invoke
-        var response = TokenFunction().report(httpRequestMessage, context)
+        var response = TokenFunction(UnitTestUtils.simpleMetadata).report(httpRequestMessage, context)
         // Verify
         assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
         assertThat(response.getBody()).isEqualTo(null)
@@ -174,7 +175,7 @@ class TokenFunctionTests {
         httpRequestMessage.parameters.put("client_assertion", token)
         httpRequestMessage.parameters.put("scope", validScope)
         // Invoke
-        var tokenFunction = TokenFunction()
+        var tokenFunction = TokenFunction(UnitTestUtils.simpleMetadata)
         var response = tokenFunction.report(httpRequestMessage, context)
         // Verify
         assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
@@ -200,7 +201,7 @@ class TokenFunctionTests {
         httpRequestMessage.parameters.put("client_assertion", token)
         httpRequestMessage.parameters.put("scope", validScope)
         // Invoke
-        var response = TokenFunction().report(httpRequestMessage, context)
+        var response = TokenFunction(UnitTestUtils.simpleMetadata).report(httpRequestMessage, context)
         // Verify
         assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
     }
@@ -215,7 +216,7 @@ class TokenFunctionTests {
         httpRequestMessage.parameters.put("client_assertion", token)
         httpRequestMessage.parameters.put("scope", validScope)
         // Invoke
-        var response = TokenFunction().report(httpRequestMessage, context)
+        var response = TokenFunction(UnitTestUtils.simpleMetadata).report(httpRequestMessage, context)
         // Verify
         assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
         verify {
@@ -256,7 +257,7 @@ class TokenFunctionTests {
             httpRequestMessage.parameters.put("client_assertion", token)
             httpRequestMessage.parameters.put("scope", it[0])
             // Invoke
-            var response = TokenFunction().report(httpRequestMessage, context)
+            var response = TokenFunction(UnitTestUtils.simpleMetadata).report(httpRequestMessage, context)
             // Verify
             assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
             verify { anyConstructed<ActionHistory>().trackActionResult(it[1]) }
@@ -273,7 +274,7 @@ class TokenFunctionTests {
         httpRequestMessage.parameters.put("client_assertion", token)
         httpRequestMessage.parameters.put("scope", validScope)
         // Invoke
-        var response = TokenFunction().report(httpRequestMessage, context)
+        var response = TokenFunction(UnitTestUtils.simpleMetadata).report(httpRequestMessage, context)
         // Verify
         assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
         verify {
@@ -304,7 +305,7 @@ class TokenFunctionTests {
         httpRequestMessage.parameters.put("client_assertion", token)
         httpRequestMessage.parameters.put("scope", validScope)
         // Invoke
-        var response = TokenFunction().report(httpRequestMessage, context)
+        var response = TokenFunction(UnitTestUtils.simpleMetadata).report(httpRequestMessage, context)
         // Verify
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK)
     }
