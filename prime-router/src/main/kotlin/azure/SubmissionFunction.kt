@@ -23,6 +23,42 @@ class SubmissionFunction(
     private val facade = submissionsFacade
     private val oktaAuthentication = oktaAuthentication
 
+    data class Parameters(
+        val sort: String,
+        val cursor: OffsetDateTime?,
+        val pageSize: Int,
+    ) {
+        constructor(query: Map<String, String>) : this(
+            extractSort(query),
+            extractCursor(query),
+            extractPageSize(query),
+        )
+
+        companion object {
+            fun extractSort(query: Map<String, String>): String {
+                val qSortOrder = query.getOrDefault("sort", "DESC")
+                return qSortOrder
+            }
+
+            fun extractCursor(query: Map<String, String>): OffsetDateTime? {
+                val qResultsAfterDate = query.get("cursor")
+                return if (qResultsAfterDate != null) {
+                    try {
+                        OffsetDateTime.parse(qResultsAfterDate)
+                    } catch (e: DateTimeParseException) {
+                        throw IllegalArgumentException("cursor must be a valid datetime")
+                    }
+                } else null
+            }
+
+            fun extractPageSize(query: Map<String, String>): Int {
+                val size = query.getOrDefault("pagesize", "10").toIntOrNull()
+                require(size != null) { "pageSize must be a positive integer" }
+                return size
+            }
+        }
+    }
+
     @FunctionName("getOrgSubmissions")
     fun organizationSubmissions(
         @HttpTrigger(
@@ -35,20 +71,7 @@ class SubmissionFunction(
     ): HttpResponseMessage {
         return oktaAuthentication.checkAccess(request, organization, true) {
             try {
-                // URL Query Parameters
-                val qSortOrder = request.queryParameters.getOrDefault("sort", "DESC")
-
-                val qResultsAfterDate = request.queryParameters.get("cursor")
-                val resultsAfterDate = if (qResultsAfterDate != null) {
-                    try {
-                        OffsetDateTime.parse(qResultsAfterDate)
-                    } catch (e: DateTimeParseException) {
-                        throw IllegalArgumentException("cursor must be a valid datetime")
-                    }
-                } else null
-
-                val pageSize = request.queryParameters.getOrDefault("pagesize", "10").toIntOrNull()
-                require(pageSize != null) { "pageSize must be a positive integer" }
+                val (qSortOrder, resultsAfterDate, pageSize) = Parameters(request.queryParameters)
 
                 val submissions = facade.findSubmissionsAsJson(organization, qSortOrder, resultsAfterDate, pageSize)
                 HttpUtilities.okResponse(request, submissions)
@@ -95,20 +118,7 @@ class SubmissionFunction(
 
                 org = org.removePrefix(oktaSenderGroupPrefix)
 
-                // URL Query Parameters
-                val qSortOrder = request.queryParameters.getOrDefault("sort", "DESC")
-
-                val qResultsAfterDate = request.queryParameters.get("cursor")
-                val resultsAfterDate = if (qResultsAfterDate != null) {
-                    try {
-                        OffsetDateTime.parse(qResultsAfterDate)
-                    } catch (e: DateTimeParseException) {
-                        throw IllegalArgumentException("cursor must be a valid datetime")
-                    }
-                } else null
-
-                val pageSize = request.queryParameters.getOrDefault("pagesize", "10").toIntOrNull()
-                require(pageSize != null) { "pageSize must be a positive integer" }
+                val (qSortOrder, resultsAfterDate, pageSize) = Parameters(request.queryParameters)
 
                 val submissions = facade.findSubmissionsAsJson(org, qSortOrder, resultsAfterDate, pageSize)
                 HttpUtilities.okResponse(request, submissions)
