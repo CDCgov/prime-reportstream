@@ -1065,6 +1065,20 @@ Translate multiple inbound Y/N/U AOE values to RS values
 
 ---
 
+**Name**: Ordered_exact_test_description
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Table**: test_performed_lookup
+
+**Table Column**: exact_test_performed
+
+---
+
 **Name**: Testing_lab_ID
 
 **Type**: ID_CLIA
@@ -1211,6 +1225,20 @@ Is the patient in the ICU?
 **LOINC Code**: 65222-2
 
 **Cardinality**: [0..1]
+
+---
+
+**Name**: Ordered_test_description
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Table**: test_performed_lookup
+
+**Table Column**: generic_test_performed
 
 ---
 
@@ -1969,11 +1997,15 @@ The reporting facility's name
 
 **Name**: sender_id
 
-**Type**: TEXT
+**Type**: TABLE
 
 **PII**: No
 
 **Cardinality**: [1..1]
+
+**Table**: test_performed_lookup
+
+**Table Column**: sender_id
 
 **Documentation**:
 
@@ -2007,7 +2039,7 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 
 **Name**: Specimen_type_description
 
-**Type**: CODE
+**Type**: TABLE
 
 **PII**: No
 
@@ -2021,44 +2053,15 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 
 Code | Display
 ---- | -------
+119297000|Blood specimen (specimen)
 71836000|Nasopharyngeal structure (body structure)
-71836000|Varied
-71836000|Nasal
-71836000|Nasopharyngeal swab
-71836000|258500001
-71836000|Nasopharyngeal aspirate
-71836000|258411007
-71836000|71836000
 45206002|Nasal structure (body structure)
-45206002|45206002
 53342003|Internal nose structure (body structure)
-53342003|Swab of internal nose
-53342003|Anterior nares swab
-53342003|Mid-turbinate nasal swab
-53342003|Nasal Swab
-53342003|445297001
-53342003|697989009
-53342003|53342003
-29092000|Serum
-29092000|Serum specimen
-29092000|Plasma
-29092000|Plasma specimen
-29092000|Whole Blood
-29092000|Whole Blood Sample
-29092000|Blood specimen
-29092000|Venous blood specimen
-29092000|Capillary blood specimen
-29092000|fingerstick whole blood
-29092000|122554006
-29092000|258580003
-29092000|119361006
-29092000|119364003
-29092000|119297000
-31389004|Oral
-31389004|Throat Swab
-31389004|Oropharyngeal
-31389004|Oropharyngeal Swab
-31389004|31389004
+29092000|Venous structure (body structure)
+
+**Table**: test_performed_lookup
+
+**Table Column**: exact_specimen_type_source_site
 
 **Documentation**:
 
@@ -2068,7 +2071,7 @@ Translate inbound text to outbound SNOMED Codes
 
 **Name**: Specimen_type_description
 
-**Type**: CODE
+**Type**: TABLE
 
 **PII**: No
 
@@ -2083,54 +2086,30 @@ Translate inbound text to outbound SNOMED Codes
 Code | Display
 ---- | -------
 445297001|Swab of internal nose
-445297001|Nasal Swab
-445297001|445297001
 258500001|Nasopharyngeal swab
-258500001|Nasal
-258500001|Varied
-258500001|258500001
 871810001|Mid-turbinate nasal swab
-871810001|871810001
 697989009|Anterior nares swab
-697989009|697989009
 258411007|Nasopharyngeal aspirate
-258411007|258411007
 429931000124105|Nasal aspirate
-429931000124105|429931000124105
 258529004|Throat swab
-258529004|Throat
-258529004|Oral
-258529004|Oropharyngeal
-258529004|Oropharyngeal Swab
-258529004|258529004
 119334006|Sputum specimen
-119334006|119334006
 119342007|Saliva specimen
-119342007|119342007
 258607008|Bronchoalveolar lavage fluid sample
-258607008|258607008
 119364003|Serum specimen
-119364003|Serum
-119364003|119364003
 119361006|Plasma specimen
-119361006|Plasma
-119361006|119361006
 440500007|Dried blood spot specimen
-440500007|440500007
 258580003|Whole blood sample
-258580003|Whole blood
-258580003|258580003
 122555007|Venous blood specimen
-122555007|122555007
 119297000|Blood specimen
-119297000|119297000
 122554006|Capillary blood specimen
-122554006|fingerstick whole blood
-122554006|122554006
+
+**Table**: test_performed_lookup
+
+**Table Column**: exact_specimen_type
 
 **Documentation**:
 
-Translate inbound text to outbound SNOMED Codes
+The specimen source, such as Blood or Serum
 
 ---
 
