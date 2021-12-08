@@ -201,7 +201,7 @@ class SubmissionFunctionTests {
                 SubmissionsFacade(
                     TestSubmissionAccess(testData, mapper)
                 )
-            ).run(httpRequestMessage)
+            ).submissions(httpRequestMessage)
             // Verify
             assertThat(response.getStatus()).isEqualTo(it.expectedResponse.status)
         }
