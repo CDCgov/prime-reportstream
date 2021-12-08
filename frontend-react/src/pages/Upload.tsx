@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useRef, Ref } from "react";
 import {
     Button,
     Form,
     FormGroup,
     Label,
     FileInput,
+    FileInputRef,
 } from "@trussworks/react-uswds";
 import { useResource } from "rest-hooks";
 import { useOktaAuth } from "@okta/okta-react";
@@ -28,6 +29,7 @@ export const Upload = () => {
     const [reportId, setReportId] = useState(null);
     const [successTimestamp, setSuccessTimestamp] = useState("");
     const [buttonText, setButtonText] = useState("Upload");
+    const fileInputRef = useRef<FileInputRef>()
     const [headerMessage, setHeaderMessage] = useState(
         "Upload your COVID-19 results"
     );
@@ -80,7 +82,12 @@ export const Upload = () => {
         }
     };
 
-    const handleChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleClearFiles = (): void => {
+        fileInputRef.current?.clearFiles()
+        setFileContent("");
+    };
+
+    const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
         try {
             if (!event?.currentTarget?.files?.length) {
                 // no files selected
@@ -162,7 +169,8 @@ export const Upload = () => {
                 setErrors(response.errors);
             }
         }
-        setButtonText("Upload another file");
+        console.log("handleClearFiles2");
+        handleClearFiles();
         setIsSubmitting(false);
     };
 
@@ -339,7 +347,8 @@ export const Upload = () => {
                         name="upload-csv-input"
                         aria-describedby="upload-csv-input-label"
                         accept=".csv, text/csv"
-                        onChange={(e) => handleChange(e)}
+                        onChange={(e) => handleFileChange(e)}
+                        ref={fileInputRef as Ref<FileInputRef>}
                         required
                     />
                 </FormGroup>
