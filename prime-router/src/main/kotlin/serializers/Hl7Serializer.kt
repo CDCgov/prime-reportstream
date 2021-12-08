@@ -1608,7 +1608,7 @@ class Hl7Serializer(
          * List of fields that have the local HD type.
          */
         val HD_FIELDS_LOCAL = listOf(
-            "MSH-4-1", "OBR-3-2", "OBR-2-2", "ORC-3-2", "ORC-2-2", "ORC-4-2",
+            "MSH-4-1", "MSH-3-1", "OBR-3-2", "OBR-2-2", "ORC-3-2", "ORC-2-2", "ORC-4-2",
             "PID-3-4-1", "PID-3-6-1", "SPM-2-1-2", "SPM-2-2-2"
         )
 
