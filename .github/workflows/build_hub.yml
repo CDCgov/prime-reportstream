@@ -96,7 +96,7 @@ jobs:
         with:
           url: 'http://localhost:7071/api/settings/organizations'
           responseCode: '200,201,401'
-          timeout: 45000
+          timeout: 60000
           interval: 5000
         
         # Integrations tests require the metadata catalog
