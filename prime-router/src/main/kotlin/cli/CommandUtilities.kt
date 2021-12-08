@@ -37,6 +37,14 @@ class CommandUtilities {
                     delay(pollIntervalSecs * 1000)
                 }
             }
+
+            // if we were waiting for the API to come online then wait a little longer once it is detected, 
+            // so it reaches a steady state
+            if (retryCount > 0) {
+                runBlocking {
+                    delay(5000)
+                }
+            }
         }
 
         /**
