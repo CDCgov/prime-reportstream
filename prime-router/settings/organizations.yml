@@ -538,6 +538,8 @@
         truncateHDNamespaceIds: true
         usePid14ForPatientEmail: true
         suppressHl7Fields: OBX-18-1, OBX-18-2, OBX-18-3, OBX-18-4, OBX-15-3
+        replaceValue:
+          MSH-3-1: CDC PRIME - Atlanta,
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
@@ -567,6 +569,8 @@
         truncateHDNamespaceIds: true
         usePid14ForPatientEmail: true
         suppressHl7Fields: OBX-18-1, OBX-18-2, OBX-18-3, OBX-18-4, OBx-15-3
+        replaceValue:
+          MSH-3-1: CDC PRIME - Atlanta,
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
