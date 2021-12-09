@@ -14,6 +14,7 @@ import assertk.assertions.support.expected
 import assertk.assertions.support.show
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.ReadResult
+import gov.cdc.prime.router.unittest.UnitTestUtils
 import org.junit.jupiter.api.TestInstance
 import java.io.File
 import kotlin.test.Test
@@ -41,7 +42,7 @@ class CsvFileTests {
         outputDirectory.mkdirs()
         val expectedDir = File(expectedResultsPath)
         assertThat(expectedDir).exists()
-        metadata = Metadata()
+        metadata = UnitTestUtils.simpleMetadata
         loadTestSchemas(metadata)
         settings = FileSettings()
         loadTestOrganizations(settings)
