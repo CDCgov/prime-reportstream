@@ -99,7 +99,8 @@ class TranslatorTests {
             name = "two", topic = "test", trackingElement = "id",
             elements = listOf(Element("id"), Element("a"), Element("b"))
         )
-        val metadata = Metadata().loadSchemas(mySchema)
+//        val metadata = Metadata().loadSchemas(mySchema)
+        val metadata = UnitTestUtils.simpleMetadata.loadSchemas(mySchema)
         val settings = FileSettings().also {
             it.loadOrganizations(ByteArrayInputStream(filterTestYaml.toByteArray()))
         }
