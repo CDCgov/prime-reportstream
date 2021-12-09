@@ -535,6 +535,7 @@
         receivingApplicationOID: 2.16.840.1.114222.4.1.185.1
         receivingFacilityName: VDH
         receivingFacilityOID: 2.16.840.1.114222.4.1.185
+        truncateHl7Fiedls: OBX-23-1
         truncateHDNamespaceIds: true
         usePid14ForPatientEmail: true
         suppressHl7Fields: OBX-18-1, OBX-18-2, OBX-18-3, OBX-18-4, OBX-15-3
@@ -566,6 +567,7 @@
         receivingApplicationOID: 2.16.840.1.114222.4.1.185.1
         receivingFacilityName: VDH
         receivingFacilityOID: 2.16.840.1.114222.4.1.185
+        truncateHl7Fiedls: OBX-23-1
         truncateHDNamespaceIds: true
         usePid14ForPatientEmail: true
         suppressHl7Fields: OBX-18-1, OBX-18-2, OBX-18-3, OBX-18-4, OBx-15-3
@@ -898,6 +900,7 @@
         receivingFacilityName: NJDOH
         receivingFacilityOID: 2.16.840.1.113883.3.1299
         truncateHDNamespaceIds: true
+        truncateHl7Fiedls: OBX-23-1
         reportingFacilityName: CDC PRIME
         reportingFacilityId: 11D2030855
       transport:
@@ -926,6 +929,7 @@
         receivingFacilityName: NJDOH
         receivingFacilityOID: 2.16.840.1.113883.3.1299
         truncateHDNamespaceIds: true
+        truncateHl7Fiedls: OBX-23-1
       transport:
         type: SFTP
         host: sftp
