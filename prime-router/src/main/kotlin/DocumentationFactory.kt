@@ -36,8 +36,7 @@ object DocumentationFactory {
 
         if (element.type?.name == "CODE") {
             when (csvField?.format) {
-                "\$display" ->
-                    appendLabelAndData(sb, "Format", "use value found in the Display column")
+                "\$display",
                 "\$alt" ->
                     appendLabelAndData(sb, "Format", "use value found in the Display column")
                 else ->
