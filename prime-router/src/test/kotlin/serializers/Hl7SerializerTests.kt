@@ -691,7 +691,7 @@ NTE|1|L|This is a final comment|RE"""
         assertThat(serializer.getHl7MaxLength("OBR-16-1-2", emptyTerser)).isNull()
     }
 
-    @Ignore
+    @Ignore // Test case works locally but not in github. Build issue seems to be the one affecting it in remote branch.
     @Test
     fun `test write a message with Receiver for VT with HD truncation and OBX-23-1 with 50 chars`() {
         val inputStream = File("./src/test/unit_test_files/vt_test_file.csv").inputStream()
@@ -745,7 +745,7 @@ NTE|1|L|This is a final comment|RE"""
         assertThat(terser.get("/MSH-4-1")).isEqualTo("High Meadow")
         assertThat(terser.get("/MSH-4-1").length).isLessThanOrEqualTo(20)
         println("Value of MSH-3-1: " + terser.get("/MSH-3-1"))
-        // assertThat(terser.get("/MSH-3-1").length).isLessThanOrEqualTo(20)
+        assertThat(terser.get("/MSH-3-1").length).isLessThanOrEqualTo(20)
         assertThat(
             terser.get(
                 "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-23-1"
