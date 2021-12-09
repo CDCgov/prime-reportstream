@@ -151,12 +151,12 @@ export const Upload = () => {
                 );
             }
 
-            if (response?.errorCount > 0) {
-                setWarnings(response.errors);
+            if (response?.errors?.length > 0) {
+                setErrors(response.errors);
             }
 
-            if (response?.warningCount > 0) {
-                setErrors(response.warnings);
+            if (response?.warnings?.length > 0) {
+                setWarnings(response.warnings);
             }
 
             setHeaderMessage("Your COVID-19 Results");
