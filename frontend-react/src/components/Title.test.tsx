@@ -3,8 +3,8 @@ import { render, screen } from "@testing-library/react";
 import Title from "./Title";
 
 describe("Title component", () => {
-    const UNIQUE_TITLE = `Title for unit test #${Math.random()}`;
-    const UNIQUE_PRETITLE = `Unique PreTitle for unit test #${Math.random()}`;
+    const UNIQUE_TITLE = `Title for test`;
+    const UNIQUE_PRETITLE = `Unique PreTitle for unit test`;
     beforeEach(() => {
         render(<Title title={UNIQUE_TITLE} preTitle={UNIQUE_PRETITLE} />);
     });
