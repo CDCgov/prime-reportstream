@@ -1,5 +1,13 @@
 import { SideNav } from "@trussworks/react-uswds";
-import {NavLink, Redirect, Route, Switch, useRouteMatch} from "react-router-dom";
+import {
+    NavLink,
+    Redirect,
+    Route,
+    Switch,
+    useRouteMatch,
+} from "react-router-dom";
+
+import { CODES, ErrorPage } from "../error/ErrorPage";
 
 import { SecurityPractices } from "./SecurityPractices";
 import { ELRChecklist } from "./ElrChecklist";
@@ -7,7 +15,6 @@ import { GettingStarted } from "./GettingStarted";
 import { WhereWereLive } from "./WhereWereLive";
 import { WebReceiverGuide } from "./WebReceiverGuide";
 import { SystemsAndSettings } from "./SystemsAndSettings";
-import {CODES, ErrorPage} from "../error/ErrorPage";
 
 export const HowItWorks = () => {
     let { path, url } = useRouteMatch();
@@ -96,9 +103,7 @@ export const HowItWorks = () => {
                         {/* Handles any undefined route */}
                         <Route
                             render={() => (
-                                <ErrorPage
-                                    code={CODES.NOT_FOUND_404}
-                                />
+                                <ErrorPage code={CODES.NOT_FOUND_404} />
                             )}
                         />
                     </Switch>
