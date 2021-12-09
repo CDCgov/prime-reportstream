@@ -46,7 +46,7 @@ class LookupTableFunctions(
     fun getLookupTableList(
         @HttpTrigger(
             name = "getLookupTableList",
-            methods = [HttpMethod.GET],
+            methods = [HttpMethod.GET, HttpMethod.HEAD],
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "lookuptables/list"
         ) request: HttpRequestMessage<String?>
@@ -57,8 +57,16 @@ class LookupTableFunctions(
                     ?.equals("true", true) ?: false
                 // Return everything if showInactive is true
                 val list = lookupTableAccess.fetchTableList(showInactive)
-                val json = mapper.writeValueAsString(list)
-                HttpUtilities.okResponse(request, json)
+                when (request.httpMethod) {
+                    HttpMethod.HEAD -> {
+                        // Get the latest date of all the tables
+                        val lastModified = list.maxWithOrNull(compareBy { it.createdAt })?.createdAt
+                        HttpUtilities.okResponse(request, lastModified)
+                    }
+                    else -> {
+                        HttpUtilities.okResponse(request, mapper.writeValueAsString(list))
+                    }
+                }
             } catch (e: Exception) {
                 logger.error("Unable to fetch lookup table list", e)
                 HttpUtilities.internalErrorResponse(request)

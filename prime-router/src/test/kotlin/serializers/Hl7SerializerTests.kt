@@ -2,6 +2,8 @@ package gov.cdc.prime.router.serializers
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import assertk.assertions.isLessThanOrEqualTo
+import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import ca.uhn.hl7v2.DefaultHapiContext
@@ -17,20 +19,28 @@ import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Hl7Configuration
+import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.Receiver
+import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.TestSource
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkClass
 import io.mockk.spyk
 import io.mockk.verify
 import org.junit.jupiter.api.TestInstance
+import java.io.File
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Date
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.fail
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class Hl7SerializerTests {
@@ -665,6 +675,7 @@ NTE|1|L|This is a final comment|RE"""
         // Test that MSH returns reasonable values
         assertThat(serializer.getHl7MaxLength("MSH-7", emptyTerser)).isEqualTo(26)
         assertThat(serializer.getHl7MaxLength("MSH-4-1", emptyTerser)).isEqualTo(20)
+        assertThat(serializer.getHl7MaxLength("MSH-3-1", emptyTerser)).isEqualTo(20)
         assertThat(serializer.getHl7MaxLength("MSH-4-2", emptyTerser)).isEqualTo(199)
         assertThat(serializer.getHl7MaxLength("MSH-1", emptyTerser)).isEqualTo(1)
         // Test that OBX returns reasonable values
@@ -678,5 +689,73 @@ NTE|1|L|This is a final comment|RE"""
 
         // Test that a subcomponent returns null
         assertThat(serializer.getHl7MaxLength("OBR-16-1-2", emptyTerser)).isNull()
+    }
+
+    @Ignore // Test case works locally but not in github. Build issue seems to be the one affecting it in remote branch.
+    @Test
+    fun `test write a message with Receiver for VT with HD truncation and OBX-23-1 with 50 chars`() {
+        val inputStream = File("./src/test/unit_test_files/vt_test_file.csv").inputStream()
+        val settings = FileSettings("./settings")
+        val schema = "primedatainput/pdi-covid-19"
+        val metadata = Metadata.getInstance()
+        val serializer = Hl7Serializer(metadata, settings)
+        val csvSerializer = CsvSerializer(metadata)
+
+        val hl7Config = mockkClass(Hl7Configuration::class).also {
+            every { it.replaceValue }.returns(mapOf("MSH-3-1" to "CDC PRIME - Atlanta,"))
+            every { it.format }.returns(Report.Format.HL7)
+            every { it.useTestProcessingMode }.returns(false)
+            every { it.suppressQstForAoe }.returns(false)
+            every { it.suppressAoe }.returns(false)
+            every { it.defaultAoeToUnknown }.returns(false)
+            every { it.suppressHl7Fields }.returns(null)
+            every { it.useBlankInsteadOfUnknown }.returns(null)
+            every { it.convertTimestampToDateTime }.returns(null)
+            every { it.truncateHDNamespaceIds }.returns(true)
+            every { it.truncateHl7Fields }.returns(null)
+            every { it.suppressNonNPI }.returns(false)
+            every { it.phoneNumberFormatting }.returns(Hl7Configuration.PhoneNumberFormatting.STANDARD)
+            every { it.usePid14ForPatientEmail }.returns(false)
+            every { it.reportingFacilityName }.returns(null)
+            every { it.reportingFacilityId }.returns(null)
+            every { it.reportingFacilityIdType }.returns(null)
+            every { it.cliaForOutOfStateTesting }.returns(null)
+            every { it.valueSetOverrides }.returns((mapOf()))
+            every { it.useOrderingFacilityName }.returns(Hl7Configuration.OrderingFacilityName.STANDARD)
+            every { it.cliaForSender }.returns(mapOf())
+        }
+        val receiver = mockkClass(Receiver::class).also {
+            every { it.translation }.returns(hl7Config)
+            every { it.format }.returns(Report.Format.HL7)
+            every { it.organizationName }.returns("vt-dph")
+        }
+
+        val testReport = csvSerializer.readExternal(schema, inputStream, listOf(TestSource), receiver).report ?: fail()
+        val output = serializer.createMessage(testReport, 0)
+        val mcf = CanonicalModelClassFactory("2.5.1")
+        context.modelClassFactory = mcf
+        val parser = context.pipeParser
+        // act
+        val reg = "[\r\n]".toRegex()
+        val cleanedMessage = reg.replace(output, "\r")
+        val hapiMsg = parser.parse(cleanedMessage)
+        val terser = Terser(hapiMsg)
+
+        // assert
+        assertThat(terser.get("/MSH-4-1")).isEqualTo("High Meadow")
+        assertThat(terser.get("/MSH-4-1").length).isLessThanOrEqualTo(20)
+        println("Value of MSH-3-1: " + terser.get("/MSH-3-1"))
+        assertThat(terser.get("/MSH-3-1").length).isLessThanOrEqualTo(20)
+        assertThat(
+            terser.get(
+                "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-23-1"
+            ).length
+        ).isLessThanOrEqualTo(50)
+        assertThat(
+            terser.get(
+                "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-23-1"
+            )
+        ).isEqualTo("High Meadow")
+        assertThat(output).isNotNull()
     }
 }
