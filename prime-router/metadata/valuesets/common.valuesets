@@ -19,7 +19,7 @@
   values:
   - code: A
     display: Abnormal (applies to non-numeric results)
-  - code: "&#62;"
+  - code: ">"
     display: Above absolute high-off instrument scale
   - code: H
     display: Above high normal

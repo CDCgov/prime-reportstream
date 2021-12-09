@@ -86,7 +86,7 @@ $documentation
         val valueSetA = ValueSet(
             "a",
             ValueSet.SetSystem.HL7,
-            values = listOf(ValueSet.Value("&#62;", "Above absolute high-off instrument scale"))
+            values = listOf(ValueSet.Value(">", "Above absolute high-off instrument scale"))
         )
 
         val elemWithTypeCode = Element(name = "a", type = Element.Type.CODE, valueSetRef = valueSetA)
