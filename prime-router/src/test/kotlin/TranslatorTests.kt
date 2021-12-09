@@ -113,7 +113,8 @@ class TranslatorTests {
                 listOf("2", "yes", "false"),
                 listOf("3", "no", "false"), // row 3
             ),
-            TestSource
+            TestSource,
+            metadata = metadata
         )
         val rcvr = settings.findReceiver("phd.elr")
         assertThat(rcvr).isNotNull()
@@ -179,7 +180,8 @@ class TranslatorTests {
                 listOf("2", "yes", "false"),
                 listOf("3", "no", "false"), // row 3
             ),
-            TestSource
+            TestSource,
+            metadata = metadata
         )
         val rcvr = settings.findReceiver("xyzzy.elr")
         assertThat(rcvr).isNotNull()
@@ -240,7 +242,8 @@ class TranslatorTests {
                 listOf("2", "yes", "false"),
                 listOf("3", "no", "false"), // row 3
             ),
-            TestSource
+            TestSource,
+            metadata = metadata
         )
         val rcvr = settings.findReceiver("phd.elr")
         assertThat(rcvr).isNotNull()
@@ -293,7 +296,8 @@ class TranslatorTests {
                 listOf("y", "2"),
                 listOf("", "2"), // missing trackingElement value
             ),
-            TestSource
+            TestSource,
+            metadata = metadata
         )
         val rcvr = settings.findReceiver("phd1.elr")
         assertThat(rcvr).isNotNull()
