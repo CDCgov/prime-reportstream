@@ -17,7 +17,8 @@ import java.time.ZoneId
  * @param translation configuration to translate
  * @param jurisdictionalFilter defines the geographic region filters for this receiver
  * @param qualityFilter defines the filters that remove data, based on quality criteria
- * @param routingFilter defines the filters that remove data the receiver does not want, based on who sent it.
+ * @param routingFilter The original use case was for filters that remove data the
+ * receiver does not want, based on who sent it.  However, its available for any general purpose use.
  * @param processingModeFilter defines the filters that is normally set to remove test and debug data.
  * @param reverseTheQualityFilter If this is true, then do the NOT of 'qualityFilter'.  Like a 'grep -v'
  * @param deidentify transform
