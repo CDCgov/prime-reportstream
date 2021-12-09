@@ -4,6 +4,7 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isTrue
+import gov.cdc.prime.router.unittest.UnitTestUtils
 import java.io.ByteArrayInputStream
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -22,6 +23,7 @@ class TranslatorTests {
               jurisdictionalFilter: [ "allowAll()" ]
               qualityFilter: [ "allowAll()" ]
               routingFilter: [ "allowAll()" ]
+              processingModeFilter: [ "allowAll()" ]
             receivers: 
             - name: elr
               organizationName: phd1
@@ -301,7 +303,7 @@ class TranslatorTests {
             table1, rcvr!!, org!!, ReportStreamFilterType.JURISDICTIONAL_FILTER, mySchema.trackingElement, true
         ).run {
             assertThat(this).isNotNull()
-            assertThat(this!!.itemCount).isEqualTo(2)
+            assertThat(this.itemCount).isEqualTo(2)
             assertThat(this.getRow(0)[0]).isEqualTo("x") // row 0
             assertThat(this.getRow(1)[0]).isEqualTo("") // row 0
             assertThat(this.filteringResults.size).isEqualTo(1) // two rows eliminated by one filter
@@ -316,7 +318,7 @@ class TranslatorTests {
     @Test
     fun `test buildMapping`() {
         val two = Schema(name = "two", topic = "test", elements = listOf(Element("a"), Element("b")))
-        val metadata = Metadata().loadSchemas(one, two)
+        val metadata = UnitTestUtils.simpleMetadata.loadSchemas(one, two)
         val translator = Translator(metadata, FileSettings())
         translator.buildMapping(fromSchema = one, toSchema = two, defaultValues = emptyMap()).run {
             assertThat(fromSchema).isEqualTo(one)
@@ -337,10 +339,9 @@ class TranslatorTests {
     @Test
     fun `test buildMapping with default`() {
         val twoWithDefault = Schema(
-            name = "two", topic = "test",
-            elements = listOf(Element("a"), Element("b", default = "x")),
+            name = "two", topic = "test", elements = listOf(Element("a"), Element("b", default = "x"))
         )
-        val metadata = Metadata().loadSchemas(one, twoWithDefault)
+        val metadata = UnitTestUtils.simpleMetadata.loadSchemas(one, twoWithDefault)
         val translator = Translator(metadata, FileSettings())
         translator.buildMapping(fromSchema = one, toSchema = twoWithDefault, defaultValues = mapOf("b" to "foo")).run {
             assertThat(useDefault.contains("b")).isTrue()
@@ -355,7 +356,7 @@ class TranslatorTests {
             topic = "test",
             elements = listOf(Element("a"), Element("c", cardinality = Element.Cardinality.ONE))
         )
-        val metadata = Metadata().loadSchemas(one, three)
+        val metadata = UnitTestUtils.simpleMetadata.loadSchemas(one, three)
         val translator = Translator(metadata, FileSettings())
         translator.buildMapping(fromSchema = one, toSchema = three, defaultValues = emptyMap()).run {
             assertThat(this.useDirectly.size).isEqualTo(1)
@@ -367,9 +368,8 @@ class TranslatorTests {
 
     @Test
     fun `test filterAndTranslateByReceiver`() {
-        // confusing:  there's already a schema above called 'one'
         val theSchema = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
-        val metadata = Metadata().loadSchemas(theSchema)
+        val metadata = UnitTestUtils.simpleMetadata.loadSchemas(theSchema)
         val settings = FileSettings().also {
             it.loadOrganizations(ByteArrayInputStream(receiversYaml.toByteArray()))
         }
@@ -380,7 +380,8 @@ class TranslatorTests {
                 listOf("1", "2"), // first row of data
                 listOf("3", "4"), // second row of data
             ),
-            TestSource
+            TestSource,
+            metadata = metadata
         )
         translator.filterAndTranslateByReceiver(table1, warnings = mutableListOf()).run {
             assertThat(this.size).isEqualTo(1)
@@ -393,7 +394,6 @@ class TranslatorTests {
 
     @Test
     fun `test mappingWithReplace`() {
-//        val metadata = Metadata()
         val receiverAKYaml = """
         ---
           - name: ak-phd

@@ -256,11 +256,9 @@ class SettingsFacade(
     }
 
     companion object {
-        val metadata = Metadata.getInstance()
-
         // The SettingAccess is heavy-weight object (because it contains a Jackson Mapper) so reuse it when possible
         val common: SettingsFacade by lazy {
-            SettingsFacade(metadata, DatabaseAccess())
+            SettingsFacade(Metadata.getInstance(), DatabaseAccess())
         }
 
         private fun settingTypeFromClass(className: String): SettingType {

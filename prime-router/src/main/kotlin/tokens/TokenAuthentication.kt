@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.nimbusds.jose.Algorithm
 import com.nimbusds.jose.jwk.KeyType
+import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
 import io.jsonwebtoken.Claims
@@ -205,9 +206,11 @@ data class AccessToken(
  *
  * Implementation of a callback function used to find the public key for
  * a given Sender, kid, and alg.   Lookup in the Settings table.
+ * @param metadata metadata instance
  *  todo:  the FHIR spec calls for allowing a set of keys. However, this callback only allows for one.
  */
-class FindSenderKeyInSettings(val scope: String) : SigningKeyResolverAdapter(), Logging {
+class FindSenderKeyInSettings(val scope: String, val metadata: Metadata) :
+    SigningKeyResolverAdapter(), Logging {
     var errorMsg: String? = null
 
     fun err(shortMsg: String): Key? {
@@ -223,7 +226,9 @@ class FindSenderKeyInSettings(val scope: String) : SigningKeyResolverAdapter(), 
         val kid = jwsHeader.keyId
         val alg = jwsHeader.algorithm
         val kty = KeyType.forAlgorithm(Algorithm.parse(alg))
-        val sender = WorkflowEngine().settings.findSender(issuer) ?: return err("No such sender fullName $issuer")
+        val workflowEngine = WorkflowEngine.Builder().metadata(metadata).build()
+        val sender = workflowEngine.settings.findSender(issuer)
+            ?: return err("No such sender fullName $issuer")
         if (sender.keys == null) return err("No auth keys associated with sender $issuer")
         if (!Scope.isValidScope(scope, sender)) return err("Invalid scope for this sender: $scope")
         sender.keys.forEach { jwkSet ->

@@ -5,7 +5,6 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
-import gov.cdc.prime.router.Metadata
 import java.io.ByteArrayInputStream
 import kotlin.test.Test
 
@@ -103,28 +102,6 @@ class LookupTableTests {
         val table = LookupTable.read(ByteArrayInputStream(csv.toByteArray()))
         val value = table.lookupValue("c", "c", "a", false)
         assertThat(value.isNullOrEmpty()).isTrue()
-    }
-
-    @Test
-    fun `test zip code lookup`() {
-        // arrange
-        val metadata = Metadata.getInstance()
-        val zipCodeTable = metadata.findLookupTable("zip-code-data")
-        val state = "VT"
-        val county = "Rutland"
-        val zipCode = "05701"
-        // act
-        val matchingRows = zipCodeTable?.filter(
-            "city",
-            mapOf(
-                "state_abbr" to state,
-                "county" to county,
-                "zipcode" to zipCode
-            )
-        )
-        // assert
-        assertThat(matchingRows?.isNotEmpty() == true).isTrue()
-        assertThat(matchingRows?.getOrElse(0) { null } == "Rutland").isTrue()
     }
 
     @Test

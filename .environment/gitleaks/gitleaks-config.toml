@@ -120,6 +120,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
     ]
     [rules.allowlist]
         regexes = [
+            'api/lookuptables/list',
             ' \* \(The older version of this API is "/api/reports"\)',
             ' \* since this auth (has|uses) a ',
             ' by option\(\"',
@@ -156,7 +157,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
             'API_ENDPOINT_HOST\"\) \?: \"localhost\"',
             'api_url:',
             'apiKey: \"some_key\"',
-            'apiKey: \"some_key\"',
+            'API_KEY = "x-api-key"',
             'apiVersion',
             'authentication-type',
             'authenticationType == "',
@@ -204,6 +205,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
             'USER" to dbUser,',
             'user\)\.isEqualTo\("user"',
             'userAgent',
+            'UserApiKeyCredential\("rick"',
             'val (user|password)Variable = \"POSTGRES_(USER|PASSWORD)\"$',                  # Literal value
             'val exampleKeyId = "',
             'val key = \"(ohio|aphl(_light)?|as2ohp)\"',                                    # not really secrets

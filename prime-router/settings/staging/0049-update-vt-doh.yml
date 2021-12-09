@@ -1,4 +1,4 @@
-# ./prime multiple-settings set --env prod --input ./settings/staging/0049-update-vt-doh.yml
+# ./prime multiple-settings set --env staging --input ./settings/staging/0049-update-vt-doh.yml
 ---
 - name: "vt-doh"
   description: "Vermont Department of Health"
@@ -81,7 +81,7 @@
         reportingFacilityId: null
         reportingFacilityIdType: null
         suppressQstForAoe: false
-        suppressHl7Fields: null
+        suppressHl7Fields: OBX-18-1, OBX-18-2, OBX-18-3, OBX-18-4
         suppressAoe: false
         defaultAoeToUnknown: false
         useBlankInsteadOfUnknown: null

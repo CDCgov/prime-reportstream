@@ -3,21 +3,15 @@ package gov.cdc.prime.router.azure
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.microsoft.azure.functions.ExecutionContext
-import com.microsoft.azure.functions.HttpMethod
-import com.microsoft.azure.functions.HttpRequestMessage
-import com.microsoft.azure.functions.HttpResponseMessage
 import com.microsoft.azure.functions.HttpStatus
-import com.microsoft.azure.functions.HttpStatusType
 import gov.cdc.prime.router.CustomerStatus
-import gov.cdc.prime.router.Organization
-import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Sender
-import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.tokens.AccessToken
 import gov.cdc.prime.router.tokens.DatabaseJtiCache
 import gov.cdc.prime.router.tokens.Jwk
 import gov.cdc.prime.router.tokens.Scope
 import gov.cdc.prime.router.tokens.TokenAuthentication
+import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.security.Keys
@@ -33,110 +27,11 @@ import org.jooq.tools.jdbc.MockDataProvider
 import org.jooq.tools.jdbc.MockResult
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
-import java.net.URI
 import java.security.interfaces.RSAPublicKey
 import java.util.Base64
 import java.util.Date
 import java.util.UUID
-import kotlin.collections.Map
 import kotlin.test.Test
-
-class MockHttpResponseMessage : HttpResponseMessage.Builder, HttpResponseMessage {
-    var httpStatus: HttpStatusType = HttpStatus.OK
-    var content: Any? = null
-
-    override fun getStatus(): HttpStatusType {
-        return this.httpStatus
-    }
-
-    override fun getHeader(var1: String): String {
-        return "world"
-    }
-
-    override fun getBody(): Any? {
-        return this.content
-    }
-
-    override fun status(status: HttpStatusType): HttpResponseMessage.Builder {
-        this.httpStatus = status
-        return this
-    }
-
-    override fun header(key: String, value: String): HttpResponseMessage.Builder {
-        return this
-    }
-
-    override fun body(body: Any?): HttpResponseMessage.Builder {
-        this.content = body
-        return this
-    }
-
-    override fun build(): HttpResponseMessage {
-        return this
-    }
-}
-
-class MockHttpRequestMessage : HttpRequestMessage<String?> {
-    val httpHeaders = mutableMapOf<String, String>()
-    val parameters = mutableMapOf<String, String>()
-
-    override fun getUri(): URI {
-        return URI.create("http://foo.com/")
-    }
-
-    override fun getHttpMethod(): HttpMethod {
-        return HttpMethod.GET
-    }
-
-    override fun getHeaders(): Map<String, String> {
-        return this.httpHeaders
-    }
-
-    override fun getQueryParameters(): Map<String, String> {
-        return this.parameters
-    }
-
-    override fun getBody(): String? {
-        return null
-    }
-
-    override fun createResponseBuilder(var1: HttpStatus): HttpResponseMessage.Builder {
-        return MockHttpResponseMessage().status(var1)
-    }
-
-    override fun createResponseBuilder(var1: HttpStatusType): HttpResponseMessage.Builder {
-        return MockHttpResponseMessage().status(var1)
-    }
-}
-
-class MockSettings : SettingsProvider {
-    var organizationStore: MutableMap<String, Organization> = mutableMapOf()
-    var receiverStore: MutableMap<String, Receiver> = mutableMapOf()
-    var senderStore: MutableMap<String, Sender> = mutableMapOf()
-
-    override val organizations get() = this.organizationStore.values
-    override val senders get() = this.senderStore.values
-    override val receivers get() = this.receiverStore.values
-
-    override fun findOrganization(name: String): Organization? {
-        return organizationStore[name]
-    }
-
-    override fun findReceiver(fullName: String): Receiver? {
-        return receiverStore[fullName]
-    }
-
-    override fun findSender(fullName: String): Sender? {
-        return senderStore[Sender.canonicalizeFullName(fullName)]
-    }
-
-    override fun findOrganizationAndReceiver(fullName: String): Pair<Organization, Receiver>? {
-        val (organizationName, _) = Receiver.parseFullName(fullName)
-        val organization = organizationStore[organizationName] ?: return null
-        val receiver = receiverStore[fullName] ?: return null
-        return Pair(organization, receiver)
-    }
-}
 
 class TokenFunctionTests {
     val context = mockkClass(ExecutionContext::class)
@@ -177,7 +72,7 @@ class TokenFunctionTests {
         val dataProvider = MockDataProvider { arrayOf<MockResult>(MockResult(0, null)) }
         val connection = MockConnection(dataProvider)
         mockkObject(WorkflowEngine.Companion)
-        every { WorkflowEngine.Companion.databaseAccess } returns DatabaseAccess(connection)
+        every { WorkflowEngine.Companion.databaseAccessSingleton } returns DatabaseAccess(connection)
 
         mockkConstructor(DatabaseJtiCache::class)
         every { anyConstructed<DatabaseJtiCache>().isJTIOk(any(), any()) } returns true
@@ -209,7 +104,7 @@ class TokenFunctionTests {
 
         var httpRequestMessage = MockHttpRequestMessage()
         // Invoke
-        var response = TokenFunction().report(httpRequestMessage, context)
+        var response = TokenFunction(UnitTestUtils.simpleMetadata).report(httpRequestMessage, context)
         // Verify
         assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
         assertThat(response.getBody()).isEqualTo("Missing client_assertion parameter")
@@ -222,7 +117,7 @@ class TokenFunctionTests {
         var httpRequestMessage = MockHttpRequestMessage()
         httpRequestMessage.parameters.put("client_assertion", token)
         // Invoke
-        var response = TokenFunction().report(httpRequestMessage, context)
+        var response = TokenFunction(UnitTestUtils.simpleMetadata).report(httpRequestMessage, context)
         // Verify
         assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
         assertThat(response.getBody()).isEqualTo("Missing scope parameter")
@@ -239,7 +134,7 @@ class TokenFunctionTests {
             httpRequestMessage.parameters.put("client_assertion", token)
             httpRequestMessage.parameters.put("scope", it)
             // Invoke
-            var response = TokenFunction().report(httpRequestMessage, context)
+            var response = TokenFunction(UnitTestUtils.simpleMetadata).report(httpRequestMessage, context)
             // Verify
             assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
             assertThat(response.getBody()).isEqualTo("Incorrect scope format: $it")
@@ -253,7 +148,7 @@ class TokenFunctionTests {
         httpRequestMessage.parameters.put("client_assertion", "verylong.signed.jwtstring")
         httpRequestMessage.parameters.put("scope", validScope)
         // Invoke
-        var response = TokenFunction().report(httpRequestMessage, context)
+        var response = TokenFunction(UnitTestUtils.simpleMetadata).report(httpRequestMessage, context)
         // Verify
         assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
         assertThat(response.getBody()).isEqualTo(null)
@@ -280,7 +175,7 @@ class TokenFunctionTests {
         httpRequestMessage.parameters.put("client_assertion", token)
         httpRequestMessage.parameters.put("scope", validScope)
         // Invoke
-        var tokenFunction = TokenFunction()
+        var tokenFunction = TokenFunction(UnitTestUtils.simpleMetadata)
         var response = tokenFunction.report(httpRequestMessage, context)
         // Verify
         assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
@@ -306,7 +201,7 @@ class TokenFunctionTests {
         httpRequestMessage.parameters.put("client_assertion", token)
         httpRequestMessage.parameters.put("scope", validScope)
         // Invoke
-        var response = TokenFunction().report(httpRequestMessage, context)
+        var response = TokenFunction(UnitTestUtils.simpleMetadata).report(httpRequestMessage, context)
         // Verify
         assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
     }
@@ -321,7 +216,7 @@ class TokenFunctionTests {
         httpRequestMessage.parameters.put("client_assertion", token)
         httpRequestMessage.parameters.put("scope", validScope)
         // Invoke
-        var response = TokenFunction().report(httpRequestMessage, context)
+        var response = TokenFunction(UnitTestUtils.simpleMetadata).report(httpRequestMessage, context)
         // Verify
         assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
         verify {
@@ -362,7 +257,7 @@ class TokenFunctionTests {
             httpRequestMessage.parameters.put("client_assertion", token)
             httpRequestMessage.parameters.put("scope", it[0])
             // Invoke
-            var response = TokenFunction().report(httpRequestMessage, context)
+            var response = TokenFunction(UnitTestUtils.simpleMetadata).report(httpRequestMessage, context)
             // Verify
             assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
             verify { anyConstructed<ActionHistory>().trackActionResult(it[1]) }
@@ -379,7 +274,7 @@ class TokenFunctionTests {
         httpRequestMessage.parameters.put("client_assertion", token)
         httpRequestMessage.parameters.put("scope", validScope)
         // Invoke
-        var response = TokenFunction().report(httpRequestMessage, context)
+        var response = TokenFunction(UnitTestUtils.simpleMetadata).report(httpRequestMessage, context)
         // Verify
         assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
         verify {
@@ -410,7 +305,7 @@ class TokenFunctionTests {
         httpRequestMessage.parameters.put("client_assertion", token)
         httpRequestMessage.parameters.put("scope", validScope)
         // Invoke
-        var response = TokenFunction().report(httpRequestMessage, context)
+        var response = TokenFunction(UnitTestUtils.simpleMetadata).report(httpRequestMessage, context)
         // Verify
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK)
     }

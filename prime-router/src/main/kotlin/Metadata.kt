@@ -43,8 +43,7 @@ class Metadata : Logging {
         SplitByCommaMapper(),
         TimestampMapper(),
         HashMapper(),
-        NullMapper(),
-        NullDateValidator()
+        NullMapper()
     )
     private var reportStreamFilterDefinitions = listOf(
         FilterByCounty(),
@@ -100,8 +99,8 @@ class Metadata : Logging {
         tableName: String? = null,
         table: LookupTable? = null,
         tableDbAccess: DatabaseLookupTableAccess? = null
-    ) : this() {
-        if (tableDbAccess != null) this.tableDbAccess = tableDbAccess
+    ) {
+        this.tableDbAccess = tableDbAccess ?: DatabaseLookupTableAccess()
         valueSet?.let { loadValueSets(it) }
         table?.let { loadLookupTable(tableName ?: "", it) }
         schema?.let { loadSchemas(it) }

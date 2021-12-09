@@ -57,39 +57,6 @@ interface ReportStreamFilterDefinition : Logging {
                 ?: error("ReportStreamFilter field $filterFunction does not parse")
             return match.groupValues[1] to match.groupValues[2].split(',').map { it.trim() }
         }
-
-        fun logAllEliminated(beforeSize: Int, filterDescription: String, receiver: Receiver, doAuditing: Boolean) {
-            if (!doAuditing) return
-            logger.warn(
-                "For ${receiver.fullName}, qualityFilter $filterDescription" +
-                    " reduced the Items from $beforeSize to 0.  All rows eliminated"
-            )
-        }
-
-        fun logFiltering(
-            before: Selection,
-            after: Selection,
-            filterDescription: String,
-            receiver: Receiver,
-            doAuditing: Boolean
-        ) {
-            if (!doAuditing) return
-
-            if (after.size() < before.size()) {
-                if (after.size() == 0) {
-                    logAllEliminated(before.size(), filterDescription, receiver, true)
-                } else {
-                    // Note:  the expression 'before.andNot(after)' actually changes the 'before' obj!
-                    val beforeSize = before.size()
-                    val eliminatedRows = before.andNot(after)
-                    logger.warn(
-                        "For ${receiver.fullName}, qualityFilter $filterDescription" +
-                            " reduced the Item count from $beforeSize to ${after.size()}.  " +
-                            "Row numbers eliminated: ${eliminatedRows.joinToString(",")}"
-                    )
-                }
-            }
-        }
     }
 }
 
@@ -157,14 +124,6 @@ class DoesNotMatch : ReportStreamFilterDefinition {
             colSelection
         } else {
             Selection.withRange(0, table.rowCount())
-        }
-        if (selection.size() < table.rowCount()) {
-            ReportStreamFilterDefinition.logFiltering(
-                Selection.withRange(0, table.rowCount()), selection,
-                "$name(${args.joinToString(",")})",
-                receiver,
-                doAuditing
-            )
         }
         return selection
     }
@@ -320,17 +279,7 @@ class HasValidDataFor : ReportStreamFilterDefinition {
             if (columnNames.contains(colName)) {
                 val before = Selection.with(*selection.toArray()) // hack way to copy to a new Selection obj
                 selection = selection.andNot(table.stringColumn(colName).isEmptyString)
-
-                ReportStreamFilterDefinition.logFiltering(
-                    before, selection, "$name($colName)", receiver, doAuditing
-                )
             } else {
-                ReportStreamFilterDefinition.logAllEliminated(
-                    table.rowCount(),
-                    "$name($colName): column not found",
-                    receiver,
-                    doAuditing
-                )
                 return Selection.withRange(0, 0)
             }
         }
@@ -361,27 +310,10 @@ class IsValidCLIA : ReportStreamFilterDefinition {
         if (args.isEmpty()) error("Expecting at least one arg for filter $name.  Got none.")
         var selection = Selection.withRange(0, 0)
         val columnNames = table.columnNames()
-        var atLeastOneColumnFound = false
         args.forEach { colName ->
             if (columnNames.contains(colName)) {
                 selection = selection.or(
                     table.stringColumn(colName).lengthEquals(10).and(table.stringColumn(colName).isAlphaNumeric)
-                )
-                atLeastOneColumnFound = true
-            }
-        }
-        if (!atLeastOneColumnFound) {
-            ReportStreamFilterDefinition.logAllEliminated(
-                table.rowCount(),
-                "$name(${args.joinToString(",")}): none of these columns found.",
-                receiver,
-                doAuditing
-            )
-        } else {
-            if (selection.size() < table.rowCount()) {
-                ReportStreamFilterDefinition.logFiltering(
-                    Selection.withRange(0, table.rowCount()), selection,
-                    "$name(${args.joinToString(",")})", receiver, doAuditing
                 )
             }
         }
@@ -405,24 +337,9 @@ class HasAtLeastOneOf : ReportStreamFilterDefinition {
         if (args.isEmpty()) error("Expecting at least one arg for filter $name.  Got none.")
         var selection = Selection.withRange(0, 0)
         val columnNames = table.columnNames()
-        var atLeastOneColumnFound = false
         args.forEach { colName ->
             if (columnNames.contains(colName)) {
                 selection = selection.or(table.stringColumn(colName).isNotMissing)
-                atLeastOneColumnFound = true
-            }
-        }
-        if (!atLeastOneColumnFound) {
-            ReportStreamFilterDefinition.logAllEliminated(
-                table.rowCount(),
-                "$name(${args.joinToString(",")}): none of these columns found.", receiver, doAuditing
-            )
-        } else {
-            if (selection.size() < table.rowCount()) {
-                ReportStreamFilterDefinition.logFiltering(
-                    Selection.withRange(0, table.rowCount()), selection,
-                    "$name(${args.joinToString(",")})", receiver, doAuditing
-                )
             }
         }
         return selection
