@@ -81,7 +81,7 @@ data class ReportStreamFilterResult(
     }
 
     override fun toString(): String {
-        return "For $receiverName, qualityFilter $filterName, $filterArgs" +
+        return "For $receiverName, filter $filterName$filterArgs" +
             " reduced the item count from $originalCount to ${originalCount - filteredCount}." +
             if (filteredTrackingElements.isNullOrEmpty()) {
                 ""
