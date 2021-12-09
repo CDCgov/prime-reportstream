@@ -74,9 +74,13 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
         val organization = settings.findOrganization(receiver.organizationName)
             ?: error("No org for ${receiver.fullName}")
 
-        val schema = metadata.findSchema(receiver.schemaName)
-            ?: error("Cannot find schema ${receiver.schemaName}")
-        val trackingElement = schema.trackingElement // might be null
+        // This has to be the trackingElement of the incoming data, not the outgoing receiver.
+        var trackingElement = input.schema.trackingElement // might be null
+        if (!trackingElement.isNullOrBlank() && !input.schema.containsElement(trackingElement)) {
+            // I've seen cases where the trackingElement is not in the schema(!!) (see az/az-covid-19-csv)
+            // Nulling this out to avoid exceptions later.
+            trackingElement = null
+        }
 
         // Do jurisdictionalFiltering on the input
         val jurisFilteredReport = filterByOneFilterType(
