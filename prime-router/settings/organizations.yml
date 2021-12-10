@@ -535,6 +535,8 @@
         receivingApplicationOID: 2.16.840.1.114222.4.1.185.1
         receivingFacilityName: VDH
         receivingFacilityOID: 2.16.840.1.114222.4.1.185
+        truncateHDNamespaceIds: true
+        usePid14ForPatientEmail: true
         suppressHl7Fields: OBX-18-1, OBX-18-2, OBX-18-3, OBX-18-4, OBX-15-3
       timing:
         operation: MERGE
@@ -562,6 +564,8 @@
         receivingApplicationOID: 2.16.840.1.114222.4.1.185.1
         receivingFacilityName: VDH
         receivingFacilityOID: 2.16.840.1.114222.4.1.185
+        truncateHDNamespaceIds: true
+        usePid14ForPatientEmail: true
         suppressHl7Fields: OBX-18-1, OBX-18-2, OBX-18-3, OBX-18-4, OBX-15-3
       timing:
         operation: MERGE
