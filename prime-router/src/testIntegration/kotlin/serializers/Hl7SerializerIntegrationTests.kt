@@ -465,31 +465,28 @@ NTE|1|L|This is a final comment|RE"""
         val hl7Config = createConfig(cliaForOutOfStateTesting = "10DfakeCL")
         val receiver = Receiver("test", "ca-dph", "covid-19", translation = hl7Config)
         val schema = "direct/direct-covid-19"
-        val csvHeader = StringBuilder()
-        csvHeader.append("senderId,testOrdered,testName,testCodingSystem,testResult,testResultText,testPerformed,")
-            .append("testResultCodingSystem,testResultDate,testReportDate,testOrderedDate,specimenCollectedDate,deviceIdentifier,")
-            .append("deviceName,specimenId,serialNumber,patientAge,patientAgeUnits,patientDob,patientRace,patientRaceText,")
-            .append("patientEthnicity,patientEthnicityText,patientSex,patientZip,patientCounty,orderingProviderNpi,")
-            .append("orderingProviderLname,orderingProviderFname,orderingProviderZip,performingFacility,performingFacilityName,")
-            .append("performingFacilityStreet,performingFacilityStreet2,performingFacilityCity,performingFacilityState,")
-            .append("performingFacilityZip,performingFacilityCounty,performingFacilityPhone,orderingFacilityName,")
-            .append("orderingFacilityStreet,orderingFacilityStreet2,orderingFacilityCity,orderingFacilityState,orderingFacilityZip,")
-            .append("orderingFacilityCounty,orderingFacilityPhone,specimenSource,patientNameLast,patientNameFirst,")
-            .append("patientNameMiddle,patientUniqueId,patientHomeAddress,patientHomeAddress2,patientCity,patientState,")
-            .append("patientPhone,patientPhoneArea,orderingProviderAddress,orderingProviderAddress2,orderingProviderCity,")
-            .append("orderingProviderState,orderingProviderPhone,orderingProviderPhoneArea,firstTest,previousTestType,previousTestDate,")
-            .append("previousTestResult,correctedTestId,healthcareEmployee,healthcareEmployeeType,symptomatic,symptomsList,hospitalized,")
-            .append("hospitalizedCode,symptomsIcu,congregateResident,congregateResidentType,pregnant,pregnantText,patientEmail,reportingFacility\n")
+        val csvHeader = """senderId,testOrdered,testName,testCodingSystem,testResult,testResultText,testPerformed,
+            testResultCodingSystem,testResultDate,testReportDate,testOrderedDate,specimenCollectedDate,deviceIdentifier,
+            deviceName,specimenId,serialNumber,patientAge,patientAgeUnits,patientDob,patientRace,patientRaceText,
+            patientEthnicity,patientEthnicityText,patientSex,patientZip,patientCounty,orderingProviderNpi,
+            orderingProviderLname,orderingProviderFname,orderingProviderZip,performingFacility,performingFacilityName,
+            performingFacilityStreet,performingFacilityStreet2,performingFacilityCity,performingFacilityState,
+            performingFacilityZip,performingFacilityCounty,performingFacilityPhone,orderingFacilityName,
+            orderingFacilityStreet,orderingFacilityStreet2,orderingFacilityCity,orderingFacilityState,orderingFacilityZip,
+            orderingFacilityCounty,orderingFacilityPhone,specimenSource,patientNameLast,patientNameFirst,
+            patientNameMiddle,patientUniqueId,patientHomeAddress,patientHomeAddress2,patientCity,patientState,
+            patientPhone,patientPhoneArea,orderingProviderAddress,orderingProviderAddress2,orderingProviderCity,
+            orderingProviderState,orderingProviderPhone,orderingProviderPhoneArea,firstTest,previousTestType,previousTestDate,
+            previousTestResult,correctedTestId,healthcareEmployee,healthcareEmployeeType,symptomatic,symptomsList,hospitalized,
+            hospitalizedCode,symptomsIcu,congregateResident,congregateResidentType,pregnant,pregnantText,patientEmail,reportingFacility\n"""
 
-        val csvBlankState = StringBuilder()
-        csvBlankState.append(csvHeader)
-            .append("fake,94531-1,SARS coronavirus 2 RNA panel - Respiratory specimen by NAA with probe detection,LN,260415000,")
-            .append("Detected,94558-4,SCT,202110062022-0400,202110062022-0400,20211007,20211007,00382902560821,")
-            .append("BD Veritor System for Rapid Detection of SARS-CoV-2*,4efd9df8-9424-4e50-b168-f3aa894bfa42,4efd9df8-9424-4e50-b168-f3aa894bfa42,")
-            .append("45,yr,1975-10-10,2106-3,White,2135-2,Hispanic or Latino,M,93307,Kern County,1760085880,,,93312,05D2191150,Inovia Pharmacy,")
-            .append("9902 Brimhall rd ste 100,,Bakersfield,,93312,Kern County,+16618297861,Inovia Pharmacy,9902 Brimhall rd ste 100,,Bakersfield,,")
-            .append("93312,Kern County,+16618297861,445297001,Tapia,Jose,,e553c462-6bad-4e42-ab1e-0879b797aa31,1211 Dawn st,,Bakersfield,CA,+16614933107,")
-            .append(",9902 BRIMHALL RD STE 100,,BAKERSFIELD,,+16618297861,661,UNK,,,,,,,UNK,,NO,,NO,NO,,261665006,UNK,,1760085880")
+        val csvBlankState = csvHeader + """fake,94531-1,SARS coronavirus 2 RNA panel - Respiratory specimen by NAA with probe detection,LN,260415000,
+            Detected,94558-4,SCT,202110062022-0400,202110062022-0400,20211007,20211007,00382902560821,
+            BD Veritor System for Rapid Detection of SARS-CoV-2*,4efd9df8-9424-4e50-b168-f3aa894bfa42,4efd9df8-9424-4e50-b168-f3aa894bfa42,
+            45,yr,1975-10-10,2106-3,White,2135-2,Hispanic or Latino,M,93307,Kern County,1760085880,,,93312,05D2191150,Inovia Pharmacy,
+            9902 Brimhall rd ste 100,,Bakersfield,,93312,Kern County,+16618297861,Inovia Pharmacy,9902 Brimhall rd ste 100,,Bakersfield,,
+            93312,Kern County,+16618297861,445297001,Tapia,Jose,,e553c462-6bad-4e42-ab1e-0879b797aa31,1211 Dawn st,,Bakersfield,CA,+16614933107,
+            ,9902 BRIMHALL RD STE 100,,BAKERSFIELD,,+16618297861,661,UNK,,,,,,,UNK,,NO,,NO,NO,,261665006,UNK,,1760085880"""
 
         // SenderID is set to "fake" in this CSV
         val csvContentBlankState = ByteArrayInputStream(csvBlankState.toString().toByteArray())
@@ -506,15 +503,13 @@ NTE|1|L|This is a final comment|RE"""
 
         assertThat(cliaTersedBlankState).isNotEqualTo("10DfakeCL")
 
-        val csvCompleteProviderState = StringBuilder()
-        csvCompleteProviderState.append(csvHeader)
-            .append("fake,94531-1,SARS coronavirus 2 RNA panel - Respiratory specimen by NAA with probe detection,LN,260415000,")
-            .append("Not Detected,94558-4,SCT,202110062022-0400,202110062022-0400,20211007,20211007,00382902560821,")
-            .append("BD Veritor System for Rapid Detection of SARS-CoV-2*,4efd9df8-9424-4e50-b168-f3aa894bfa42,4efd9df8-9424-4e50-b168-f3aa894bfa42,45,")
-            .append("yr,1975-10-10,2106-3,White,2135-2,Hispanic or Latino,M,93307,Kern County,1760085880,,,93312,05D2191150,Inovia Pharmacy,")
-            .append("9902 Brimhall rd ste 100,,Bakersfield,TX,93312,Kern County,+16618297861,Inovia Pharmacy,9902 Brimhall rd ste 100,,Bakersfield,,")
-            .append("93312,Kern County,+16618297861,445297001,Tapia,Jose,,e553c462-6bad-4e42-ab1e-0879b797aa31,1211 Dawn st,,Bakersfield,CA,+16614933107,")
-            .append(",9902 BRIMHALL RD STE 100,,BAKERSFIELD,CA,+16618297861,661,UNK,,,,,,,UNK,,NO,,NO,NO,,261665006,UNK,,1760085880")
+        val csvCompleteProviderState = csvHeader + """fake,94531-1,SARS coronavirus 2 RNA panel - Respiratory specimen by NAA with probe detection,LN,260415000,
+            Not Detected,94558-4,SCT,202110062022-0400,202110062022-0400,20211007,20211007,00382902560821,
+            BD Veritor System for Rapid Detection of SARS-CoV-2*,4efd9df8-9424-4e50-b168-f3aa894bfa42,4efd9df8-9424-4e50-b168-f3aa894bfa42,45,
+            yr,1975-10-10,2106-3,White,2135-2,Hispanic or Latino,M,93307,Kern County,1760085880,,,93312,05D2191150,Inovia Pharmacy,
+            9902 Brimhall rd ste 100,,Bakersfield,TX,93312,Kern County,+16618297861,Inovia Pharmacy,9902 Brimhall rd ste 100,,Bakersfield,,
+            93312,Kern County,+16618297861,445297001,Tapia,Jose,,e553c462-6bad-4e42-ab1e-0879b797aa31,1211 Dawn st,,Bakersfield,CA,+16614933107,
+            ,9902 BRIMHALL RD STE 100,,BAKERSFIELD,CA,+16618297861,661,UNK,,,,,,,UNK,,NO,,NO,NO,,261665006,UNK,,1760085880"""
 
         // SenderID is set to "fake" in this CSV
         val csvContentProviderState = ByteArrayInputStream(csvCompleteProviderState.toString().toByteArray())
@@ -532,15 +527,13 @@ NTE|1|L|This is a final comment|RE"""
 
         assertThat(cliaTersedProviderState).isEqualTo("10DfakeCL")
 
-        val csvCompleteFacilityState = StringBuilder()
-        csvCompleteFacilityState.append(csvHeader)
-            .append("fake,94531-1,SARS coronavirus 2 RNA panel - Respiratory specimen by NAA with probe detection,LN,260415000,")
-            .append("Not Detected,94558-4,SCT,202110062022-0400,202110062022-0400,20211007,20211007,00382902560821,")
-            .append("BD Veritor System for Rapid Detection of SARS-CoV-2*,4efd9df8-9424-4e50-b168-f3aa894bfa42,4efd9df8-9424-4e50-b168-f3aa894bfa42,45,")
-            .append("yr,1975-10-10,2106-3,White,2135-2,Hispanic or Latino,M,93307,Kern County,1760085880,,,93312,05D2191150,Inovia Pharmacy,")
-            .append("9902 Brimhall rd ste 100,,Bakersfield,,93312,Kern County,+16618297861,Inovia Pharmacy,9902 Brimhall rd ste 100,,Bakersfield,TX,93312,")
-            .append("Kern County,+16618297861,445297001,Tapia,Jose,,e553c462-6bad-4e42-ab1e-0879b797aa31,1211 Dawn st,,Bakersfield,CA,+16614933107,661,")
-            .append("9902 BRIMHALL RD STE 100,,BAKERSFIELD,TX,+16618297861,661,UNK,,,,,,,UNK,,NO,,NO,NO,,261665006,UNK,,1760085880")
+        val csvCompleteFacilityState = csvHeader + """fake,94531-1,SARS coronavirus 2 RNA panel - Respiratory specimen by NAA with probe detection,LN,260415000,
+            Not Detected,94558-4,SCT,202110062022-0400,202110062022-0400,20211007,20211007,00382902560821,
+            BD Veritor System for Rapid Detection of SARS-CoV-2*,4efd9df8-9424-4e50-b168-f3aa894bfa42,4efd9df8-9424-4e50-b168-f3aa894bfa42,45,
+            yr,1975-10-10,2106-3,White,2135-2,Hispanic or Latino,M,93307,Kern County,1760085880,,,93312,05D2191150,Inovia Pharmacy,
+            9902 Brimhall rd ste 100,,Bakersfield,,93312,Kern County,+16618297861,Inovia Pharmacy,9902 Brimhall rd ste 100,,Bakersfield,TX,93312,
+            Kern County,+16618297861,445297001,Tapia,Jose,,e553c462-6bad-4e42-ab1e-0879b797aa31,1211 Dawn st,,Bakersfield,CA,+16614933107,661,
+            9902 BRIMHALL RD STE 100,,BAKERSFIELD,TX,+16618297861,661,UNK,,,,,,,UNK,,NO,,NO,NO,,261665006,UNK,,1760085880"""
 
         // SenderID is set to "fake" in this CSV
         val csvContentFacilityState = ByteArrayInputStream(csvCompleteFacilityState.toString().toByteArray())
