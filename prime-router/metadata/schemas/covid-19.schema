@@ -385,7 +385,7 @@ elements:
     pii: false
     natFlatFileField:
     hhsGuidanceField:
-    mapper: ifPresent(ordering_provider_id, NPI^2.16.840.1.113883.4.6^ISO)
+    mapper: ifNPI(ordering_provider_id, NPI^2.16.840.1.113883.4.6^ISO)
     hl7Field: ORC-12-9
     hl7OutputFields: [ORC-12-9, OBR-16-9]
     documentation: Usually the OID for CMS
@@ -395,7 +395,8 @@ elements:
     pii: false
     natFlatFileField:
     hhsGuidanceField:
-    mapper: ifPresent(ordering_provider_id, NPI)
+    # U is the table 203 unspecified value
+    mapper: ifNPI(ordering_provider_id, NPI, U)
     hl7Field: ORC-12-13
     hl7OutputFields: [ORC-12-13, OBR-16-13]
     documentation: Usually NPI
@@ -1087,12 +1088,6 @@ elements:
     natFlatFileField: Test_date
     hhsGuidanceField: Test result date
     hl7Field: OBX-19
-
-  - name: test_result_report_date
-    type: DATETIME
-    natFlatFileField:
-    hhsGuidanceField: Test report date
-    hl7Field: OBX-22
 
   - name: test_result_status
     type: CODE
