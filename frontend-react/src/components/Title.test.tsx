@@ -10,7 +10,7 @@ describe("Title component", () => {
     });
 
     it("verify title shows", async () => {
-        expect(await screen.findByText(UNIQUE_TITLE)).not.toBeInTheDocument(); // temp break to test ci/cd check
+        expect(await screen.findByText(UNIQUE_TITLE)).toBeInTheDocument();
         expect(await screen.findByText(UNIQUE_PRETITLE)).toBeInTheDocument();
     });
 });
