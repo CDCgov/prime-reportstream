@@ -139,9 +139,7 @@ class ActionHistory {
     }
 
     fun trackUsername(userName: String?) {
-        if (action.username == null) {
-            action.username = userName
-        }
+        action.username = userName
     }
 
     fun trackActionParams(request: HttpRequestMessage<String?>) {
@@ -238,9 +236,7 @@ class ActionHistory {
                 )
             }
         }
-        if (action.externalName == null) {
-            action.externalName = payloadName
-        }
+        action.externalName = payloadName
     }
 
     /**
@@ -312,9 +308,7 @@ class ActionHistory {
         reportFile.bodyFormat = blobInfo.format.toString()
         reportFile.blobDigest = blobInfo.digest
         reportFile.externalName = payloadName
-        if (action.externalName == null) {
-            action.externalName = payloadName
-        }
+        action.externalName = payloadName
         reportFile.itemCount = report.itemCount
         reportsReceived[reportFile.reportId] = reportFile
 
@@ -426,9 +420,7 @@ class ActionHistory {
         reportFile.schemaName = receiver.schemaName
         reportFile.schemaTopic = receiver.topic
         reportFile.externalName = filename
-        if (action.externalName == null) {
-            action.externalName = filename
-        }
+        action.externalName = filename
         reportFile.transportParams = params
         reportFile.transportResult = result
         reportFile.bodyUrl = null
@@ -464,9 +456,7 @@ class ActionHistory {
         reportFile.schemaName = parentReportFile.schemaName
         reportFile.schemaTopic = parentReportFile.schemaTopic
         reportFile.externalName = filename
-        if (action.externalName == null) {
-            action.externalName = filename
-        }
+        action.externalName = filename
         reportFile.transportParams = "{ \"reportRequested\": \"${parentReportFile.reportId}\"}"
         reportFile.transportResult = "{ \"downloadedBy\": \"$downloadedBy\"}"
         reportFile.bodyUrl = null // this entry represents an external file, not a blob.

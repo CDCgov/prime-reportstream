@@ -17,9 +17,10 @@
  * user.  Leave null for server-to-server automated actions.
  */
 ALTER TABLE action
-ADD COLUMN external_name varchar(2048),  -- payloadName parameter, or any other externally visible filename created or downloaded by this action.
-ADD COLUMN username varchar(63)
+ADD COLUMN external_name text,  -- payloadName parameter, or any other externally visible filename created or downloaded by this action.
+ADD COLUMN username text
 ;
 
-CREATE INDEX action_external_name_idx ON action(external_name);
-
+-- We may eventually want to add an index on (sending_organization, external_name), 
+-- however it would only be useful for exact string matches and startsWith() matches,
+-- so we're leaving it out pending feedback from the frontend team.
