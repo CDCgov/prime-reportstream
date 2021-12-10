@@ -14,7 +14,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSync } from "@fortawesome/free-solid-svg-icons";
 
 import { senderClient } from "../webreceiver-utils";
-import AuthResource from "../resources/AuthResource";
 import SenderOrganizationResource from "../resources/SenderOrganizationResource";
 
 library.add(faSync);
@@ -22,6 +21,7 @@ library.add(faSync);
 export const Upload = () => {
     const { authState } = useOktaAuth();
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [fileInputResetValue, setFileInputResetValue] = useState(0);
     const [fileContent, setFileContent] = useState("");
     const [warnings, setWarnings] = useState([]);
     const [errors, setErrors] = useState([]);
@@ -50,16 +50,19 @@ export const Upload = () => {
         let textBody;
         let response;
         try {
-            response = await fetch(`${AuthResource.getBaseUrl()}/api/waters`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "text/csv",
-                    client: client,
-                    "authentication-type": "okta",
-                    Authorization: `Bearer ${authState?.accessToken?.accessToken}`,
-                },
-                body: fileBody,
-            });
+            response = await fetch(
+                `${process.env.REACT_APP_BACKEND_URL}/api/waters`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "text/csv",
+                        client: client,
+                        "authentication-type": "okta",
+                        Authorization: `Bearer ${authState?.accessToken?.accessToken}`,
+                    },
+                    body: fileBody,
+                }
+            );
 
             textBody = await response.text();
 
@@ -78,7 +81,9 @@ export const Upload = () => {
         }
     };
 
-    const handleChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileChange = async (
+        event: React.ChangeEvent<HTMLInputElement>
+    ) => {
         try {
             if (!event?.currentTarget?.files?.length) {
                 // no files selected
@@ -146,12 +151,12 @@ export const Upload = () => {
                 );
             }
 
-            if (response?.errorCount > 0) {
-                setWarnings(response.errors);
+            if (response?.errors?.length > 0) {
+                setErrors(response.errors);
             }
 
-            if (response?.warningCount > 0) {
-                setErrors(response.warnings);
+            if (response?.warnings?.length > 0) {
+                setWarnings(response.warnings);
             }
 
             setHeaderMessage("Your COVID-19 Results");
@@ -161,6 +166,8 @@ export const Upload = () => {
             }
         }
         setButtonText("Upload another file");
+        // Changing the key to force the FileInput to reset. Otherwise it won't recognize changes to the file's content unless the file name changes
+        setFileInputResetValue(fileInputResetValue + 1);
         setIsSubmitting(false);
     };
 
@@ -322,7 +329,6 @@ export const Upload = () => {
                     </table>
                 </div>
             )}
-
             <Form onSubmit={(e) => handleSubmit(e)}>
                 <FormGroup className="margin-bottom-3">
                     <Label
@@ -333,11 +339,12 @@ export const Upload = () => {
                         Upload your COVID-19 lab results as a .CSV.
                     </Label>
                     <FileInput
+                        key={fileInputResetValue}
                         id="upload-csv-input"
                         name="upload-csv-input"
                         aria-describedby="upload-csv-input-label"
                         accept=".csv, text/csv"
-                        onChange={(e) => handleChange(e)}
+                        onChange={(e) => handleFileChange(e)}
                         required
                     />
                 </FormGroup>

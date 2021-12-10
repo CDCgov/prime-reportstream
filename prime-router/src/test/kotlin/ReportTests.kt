@@ -5,20 +5,27 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
+import gov.cdc.prime.router.unittest.UnitTestUtils
 import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.fail
 
 class ReportTests {
-    private val metadata = Metadata.getInstance()
+    private val metadata = UnitTestUtils.simpleMetadata
 
     val rcvr = Receiver("name", "org", "topic", CustomerStatus.INACTIVE, "schema", Report.Format.CSV)
 
     @Test
     fun `test merge`() {
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
-        val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource)
-        val report2 = Report(one, listOf(listOf("5", "6"), listOf("7", "8")), source = TestSource)
+        val report1 = Report(
+            one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource,
+            metadata = metadata
+        )
+        val report2 = Report(
+            one, listOf(listOf("5", "6"), listOf("7", "8")), source = TestSource,
+            metadata = metadata
+        )
         val mergedReport = Report.merge(listOf(report1, report2))
         assertThat(mergedReport.itemCount).isEqualTo(4)
         assertThat(report1.itemCount).isEqualTo(2)
@@ -32,7 +39,7 @@ class ReportTests {
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val jurisdictionalFilter = metadata.findJurisdictionalFilter("matches") ?: fail("cannot find filter")
-        val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource)
+        val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource, metadata = metadata)
         assertThat(report1.itemCount).isEqualTo(2)
         val filteredReport = report1.filter(listOf(Pair(jurisdictionalFilter, listOf("a", "1"))), rcvr, false)
         assertThat(filteredReport.schema).isEqualTo(one)
@@ -47,7 +54,10 @@ class ReportTests {
         val metadata = Metadata(schema = one)
         val jurisdictionalFilter = metadata.findJurisdictionalFilter("matches") ?: fail("cannot find filter")
         // each sublist is a row.
-        val report1 = Report(one, listOf(listOf("row1_a", "row1_b"), listOf("row2_a", "row2_b")), source = TestSource)
+        val report1 = Report(
+            one, listOf(listOf("row1_a", "row1_b"), listOf("row2_a", "row2_b")), source = TestSource,
+            metadata = metadata
+        )
         assertThat(2).isEqualTo(report1.itemCount)
         val filteredReportA = report1.filter(
             listOf(Pair(jurisdictionalFilter, listOf("a", "row1.*", "row2_a"))), rcvr, false
@@ -78,16 +88,16 @@ class ReportTests {
     @Test
     fun `test isEmpty`() {
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
-        val emptyReport = Report(one, emptyList(), source = TestSource)
+        val emptyReport = Report(one, emptyList(), source = TestSource, metadata = metadata)
         assertThat(emptyReport.isEmpty()).isEqualTo(true)
-        val report1 = Report(one, listOf(listOf("1", "2")), source = TestSource)
+        val report1 = Report(one, listOf(listOf("1", "2")), source = TestSource, metadata = metadata)
         assertThat(report1.isEmpty()).isEqualTo(false)
     }
 
     @Test
     fun `test create with list`() {
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
-        val report1 = Report(one, listOf(listOf("1", "2")), TestSource)
+        val report1 = Report(one, listOf(listOf("1", "2")), TestSource, metadata = metadata)
         assertThat(report1.schema).isEqualTo(one)
         assertThat(report1.itemCount).isEqualTo(1)
         assertThat(TestSource).isEqualTo(report1.sources[0] as TestSource)
@@ -97,10 +107,13 @@ class ReportTests {
     fun `test applyMapping`() {
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val two = Schema(name = "two", topic = "test", elements = listOf(Element("b")))
-        val metadata = Metadata()
+        val metadata = UnitTestUtils.simpleMetadata
         metadata.loadSchemas(one, two)
 
-        val oneReport = Report(schema = one, values = listOf(listOf("a1", "b1"), listOf("a2", "b2")), TestSource)
+        val oneReport = Report(
+            schema = one, values = listOf(listOf("a1", "b1"), listOf("a2", "b2")), TestSource,
+            metadata = metadata
+        )
         assertThat(oneReport.itemCount).isEqualTo(2)
         val mappingOneToTwo = Translator(metadata, FileSettings())
             .buildMapping(fromSchema = one, toSchema = two, defaultValues = emptyMap())
@@ -118,10 +131,13 @@ class ReportTests {
             elements = listOf(Element("a", default = "~"), Element("b"))
         )
         val two = Schema(name = "two", topic = "test", elements = listOf(Element("b")))
-        val metadata = Metadata()
+        val metadata = UnitTestUtils.simpleMetadata
         metadata.loadSchemas(one, two)
 
-        val twoReport = Report(schema = two, values = listOf(listOf("b1"), listOf("b2")), source = TestSource)
+        val twoReport = Report(
+            schema = two, values = listOf(listOf("b1"), listOf("b2")), source = TestSource,
+            metadata = metadata
+        )
         assertThat(twoReport.itemCount).isEqualTo(2)
         val mappingTwoToOne = Translator(metadata, FileSettings())
             .buildMapping(fromSchema = two, toSchema = one, defaultValues = emptyMap())
@@ -143,7 +159,8 @@ class ReportTests {
         val oneReport = Report(
             schema = one,
             values = listOf(listOf("a1", "b1"), listOf("a2", "b2")),
-            source = TestSource
+            source = TestSource,
+            metadata = metadata
         )
 
         val oneDeidentified = oneReport.deidentify()
@@ -188,7 +205,8 @@ class ReportTests {
                 // Good age is blank, -> patient_age=null
                 listOf("7", "", "asajh", "20190101"),
             ),
-            TestSource
+            TestSource,
+            metadata = metadata
         )
 
         val covidResultMetadata = oneReport.getDeidentifiedResultMetaData()
@@ -223,7 +241,8 @@ class ReportTests {
                 listOf("1", "202110300809-0501", "30300101"), // good collect date, BAD DOB -> patient_age=null
                 listOf("2", "202110300809-0500", "20190101")
             ), // Bad age, good collect date, good dob -> patient_age=2
-            TestSource
+            TestSource,
+            metadata = metadata
         )
 
         val covidResultMetadata2 = twoReport.getDeidentifiedResultMetaData()
@@ -238,8 +257,14 @@ class ReportTests {
     fun `test merge item lineage`() {
         val schema = Schema(name = "one", topic = "test", elements = listOf(Element("a")), trackingElement = "a")
         // each sublist is a row.
-        val report1 = Report(schema, listOf(listOf("rep1_row1_a"), listOf("rep1_row2_a")), source = TestSource)
-        val report2 = Report(schema, listOf(listOf("rep2_row1_a"), listOf("rep2_row2_a")), source = TestSource)
+        val report1 = Report(
+            schema, listOf(listOf("rep1_row1_a"), listOf("rep1_row2_a")), source = TestSource,
+            metadata = metadata
+        )
+        val report2 = Report(
+            schema, listOf(listOf("rep2_row1_a"), listOf("rep2_row2_a")), source = TestSource,
+            metadata = metadata
+        )
 
         val merged = Report.merge(listOf(report1, report2))
 
@@ -263,7 +288,10 @@ class ReportTests {
     fun `test split item lineage`() {
         val schema = Schema(name = "one", topic = "test", elements = listOf(Element("a")), trackingElement = "a")
         // each sublist is a row.
-        val report1 = Report(schema, listOf(listOf("rep1_row1_a"), listOf("rep1_row2_a")), source = TestSource)
+        val report1 = Report(
+            schema, listOf(listOf("rep1_row1_a"), listOf("rep1_row2_a")), source = TestSource,
+            metadata = metadata
+        )
 
         val reports = report1.split()
 
@@ -292,7 +320,10 @@ class ReportTests {
         val metadata = Metadata(schema = schema)
         val jurisdictionalFilter = metadata.findJurisdictionalFilter("matches") ?: fail("cannot find filter")
         // each sublist is a row.
-        val report1 = Report(schema, listOf(listOf("rep1_row1_a"), listOf("rep1_row2_a")), source = TestSource)
+        val report1 = Report(
+            schema, listOf(listOf("rep1_row1_a"), listOf("rep1_row2_a")), source = TestSource,
+            metadata = metadata
+        )
 
         val filteredReport = report1.filter(listOf(Pair(jurisdictionalFilter, listOf("a", "rep1_row2_a"))), rcvr, false)
 
@@ -309,8 +340,14 @@ class ReportTests {
     fun `test merge then split`() {
         val schema = Schema(name = "one", topic = "test", elements = listOf(Element("a")), trackingElement = "a")
         // each sublist is a row.
-        val report1 = Report(schema, listOf(listOf("rep1_row1_a"), listOf("rep1_row2_a")), source = TestSource)
-        val report2 = Report(schema, listOf(listOf("rep2_row1_a"), listOf("rep2_row2_a")), source = TestSource)
+        val report1 = Report(
+            schema, listOf(listOf("rep1_row1_a"), listOf("rep1_row2_a")), source = TestSource,
+            metadata = metadata
+        )
+        val report2 = Report(
+            schema, listOf(listOf("rep2_row1_a"), listOf("rep2_row2_a")), source = TestSource,
+            metadata = metadata
+        )
 
         val merged = Report.merge(listOf(report1, report2))
         val reports = merged.split()
@@ -338,7 +375,10 @@ class ReportTests {
     fun `test lineage insanity`() {
         val schema = Schema(name = "one", topic = "test", elements = listOf(Element("a")), trackingElement = "a")
         // each sublist is a row.
-        val report1 = Report(schema, listOf(listOf("bbb"), listOf("aaa"), listOf("aaa")), source = TestSource)
+        val report1 = Report(
+            schema, listOf(listOf("bbb"), listOf("aaa"), listOf("aaa")), source = TestSource,
+            metadata = metadata
+        )
         val metadata = Metadata(schema = schema)
         val jurisdictionalFilter = metadata.findJurisdictionalFilter("matches") ?: fail("cannot find filter")
 
@@ -380,7 +420,8 @@ class ReportTests {
         val report = Report(
             schema = schema,
             values = listOf(listOf("smith", "sarah"), listOf("jones", "mary"), listOf("white", "roberta")),
-            source = TestSource
+            source = TestSource,
+            metadata = metadata
         )
         // act
         val synthesizedReport = report.synthesizeData(metadata = metadata)
@@ -407,7 +448,8 @@ class ReportTests {
         val report = Report(
             schema = schema,
             values = listOf(listOf("smith", "sarah"), listOf("jones", "mary"), listOf("white", "roberta")),
-            source = TestSource
+            source = TestSource,
+            metadata = metadata
         )
         val strategies = mapOf(
             "last_name" to Report.SynthesizeStrategy.PASSTHROUGH,
@@ -442,7 +484,8 @@ class ReportTests {
                 listOf("jones", "mary", "000000000"),
                 listOf("white", "roberta", "000000000"),
             ),
-            source = TestSource
+            source = TestSource,
+            metadata = metadata
         )
         val strategies = mapOf(
             "last_name" to Report.SynthesizeStrategy.PASSTHROUGH,

@@ -107,8 +107,10 @@ export const WebReceiverGuide = () => {
                     ) to access the site.
                 </p>
                 <p>
-                    <em>Please note: the
-                    application does not support Internet Explorer 11 or below.</em>
+                    <em>
+                        Please note: the application does not support Internet
+                        Explorer 11 or below.
+                    </em>
                 </p>
 
                 <h3>General usage</h3>
