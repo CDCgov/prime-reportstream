@@ -107,6 +107,15 @@ Examples:
         help = "Indicates the sender to use for the 'santaclaus' test."
     )
 
+    private val targetStates: String? by
+    option(
+        "--target-states",
+        metavar = "<abbrev>",
+        help = "For the 'santaclaus' test, create data only for these states. " +
+            "States should be two letters, comma-separated, e.g. 'FL,PA'. " +
+            "  Default is all states and territories."
+    )
+
     private val run by option(
         "--run",
         metavar = "test1,test2",
@@ -233,7 +242,7 @@ Examples:
     private fun runTests(tests: List<CoolTest>, environment: Environment) {
         val failures = mutableListOf<CoolTest>()
         val options = CoolTestOptions(
-            items, submits, key, dir, sftpDir = sftpDir, env = env, sender = sender,
+            items, submits, key, dir, sftpDir = sftpDir, env = env, sender = sender, targetStates = targetStates,
             runSequential = runSequential, asyncProcessMode = asyncProcessMode
         )
 
@@ -327,7 +336,8 @@ data class CoolTestOptions(
     var muted: Boolean = false, // if true, print out less stuff,
     val sftpDir: String,
     val env: String,
-    val sender: String? = null,
+    val sender: String? = null, // who is santa sending from?
+    val targetStates: String? = null, // who is santa sending to?
     val runSequential: Boolean = false,
     val asyncProcessMode: Boolean = false // if true, pass 'processing=async' on all tests
 )
@@ -852,7 +862,7 @@ abstract class CoolTest {
               join action as A on A.action_id = RF.action_id
               where
               ${if (receivingOrgSvc != null) "RF.receiving_org_svc = ? and" else ""}
-              ${if (receivingOrg != null) "and RF.receiving_org = ? and" else ""}
+              ${if (receivingOrg != null) "RF.receiving_org = ? and" else ""}
               A.action_name = ?
               and IL.item_lineage_id in
               (select item_descendants(?)) """
@@ -2353,7 +2363,15 @@ class SantaClaus : CoolTest() {
             // with the indicated by parameter
             sendersToTestWith = listOf(sender)
         }
-        val states = metadata.findLookupTable("fips-county")?.getDistinctValuesInColumn("State")?.toList() ?: listOf()
+
+        val states = if (options.targetStates.isNullOrEmpty()) {
+            metadata.findLookupTable("fips-county")?.getDistinctValuesInColumn("State")
+                ?.toList() ?: error("Santa is unable to find any states in the fips-county table")
+        } else {
+            options.targetStates.split(",")
+        }
+        ugly("Santa is sending data to these nice states: $states")
+
         sendersToTestWith.forEach { sender ->
             ugly("Starting $name Test: send with ${sender.fullName}")
             val file = FileUtilities.createFakeFile(
@@ -2363,7 +2381,7 @@ class SantaClaus : CoolTest() {
                 count = states.size,
                 format = if (sender.format == Sender.Format.CSV) Report.Format.CSV else Report.Format.HL7_BATCH,
                 directory = System.getProperty("java.io.tmpdir"),
-                targetStates = null,
+                targetStates = states.joinToString(","),
                 targetCounties = null
             )
             echo("Created datafile $file")
