@@ -21,11 +21,13 @@ included records.
 ### Proposed New Functionality
 We can improve this situation and add retry/scalability by adding a cron job and altering the way we use the batch
 queue. Instead of adding each message-per-receiver-per-bucket to the queue at ingestion a cron job could run at
-the minimum granularity for batching, determine which receivers need to be batched at that time, and put a message
-on the queue to be handled immediately by the batchFunction. This is a minimal-change approach that leaves the
+the minimum granularity for batching (1 minute), determine which receivers need to be batched at that time, and put a 
+message on the queue to be handled immediately by the batchFunction. This is a minimal-change approach that leaves the
 Task table management as it is but severely reduces our performance bottlenecks and race conditions. Once done, the
-single run of the batch function for that receiver will pull either all outstanding records (or up to <limit> if there)
-is one for this receiver and batch them.
+single run of the batch function for that receiver will pull all outstanding records up to [receiver limit] and batch 
+them. If there are more records than [receiver limit] it will continue to follow the batching process until all records
+have been batched.  We will need to take a snapshot of the id of the 'last record' at start of batch time or this could
+be an infinite batching process if records continue to trickle in.
 
 ### Nifty Warehouse Metaphor
 Right now we have a front desk person who is getting paper reports - people are dropping by and sticking them in the
@@ -48,7 +50,8 @@ someone else.
 To implement these changes, we would need to
 * determine minimal batching granularity
 * create a cron job that runs at that granularity
-* either cache or dynamically build a directory of which receivers get batches at which time
+* either cache or dynamically build a directory of which receivers get batches at which time (this can be a future
+phase of this task)
 * when the cron job triggers, add a 'batch' queue message with the name of the receiver
 * rename 'ReceiverEvent' to 'BatchEvent' for clarity (in the codebase - Event.kt)
 * look into the 'at' parameter in batchFunction to determine if it is still needed
@@ -59,7 +62,9 @@ overlap (this is not ideal, but still a far cry better than what we have today)
 
 ### Benefits Gained / Problems Addressed
 - Scalability - one queue message per receiver per batch bucket
-- Recoverabilty/Retry - if a batch fails, the queue message can be re-added to the queue and re-processed
+- Recoverabilty/Retry - if a batch fails, the queue message can be re-added to the queue and re-processed to ensure
+that all outstanding messages have been processed. This will need to look at 'batch time' and get all messages that
+were created before that batch time and have not yet been batched.
 - Remove Race Condition - the race condition of pulling #n Task records is one of the most hit queries in RS
 - Queue Visibility - removing the 'nextActionAt' part of messages from the queue gives visibility
 - Easier 'Empty Batch' - for receivers that want an empty batch file each batch period if there are no records to send
