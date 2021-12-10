@@ -26,6 +26,11 @@ class HttpUtilities {
         const val watersApi = "/api/waters"
         const val tokenApi = "/api/token"
 
+        /**
+         * Last modified time header value formatter.
+         */
+        val lastModifiedFormatter: DateTimeFormatter = DateTimeFormatter.RFC_1123_DATE_TIME
+
         fun okResponse(
             request: HttpRequestMessage<String?>,
             responseBody: String,
@@ -151,10 +156,10 @@ class HttpUtilities {
         ) {
             if (lastModified == null) return
             // https://datatracker.ietf.org/doc/html/rfc7232#section-2.2 defines this header format
-            val lastModifiedFormatter = DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss")
-            // Convert to GMT timezone
+
+            // Convert to UTC timezone
             val lastModifiedGMT = OffsetDateTime.ofInstant(lastModified.toInstant(), ZoneOffset.UTC)
-            val lastModifiedFormatted = "${lastModifiedGMT.format(lastModifiedFormatter)} GMT"
+            val lastModifiedFormatted = lastModifiedGMT.format(lastModifiedFormatter)
             builder.header(HttpHeaders.LAST_MODIFIED, lastModifiedFormatted)
         }
 
