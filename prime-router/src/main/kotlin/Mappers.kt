@@ -669,6 +669,19 @@ class DateTimeOffsetMapper : Mapper {
     }
 }
 
+//class NpiMapper : Mapper  {
+//    override val name: String = "npi"
+//
+//    override fun valueNames(element: Element, args: List<String>): List<String> {
+//        if (args.isEmpty()) error("You must pass in ")
+//        return args
+//    }
+//
+//    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
+//        TODO("Not yet implemented")
+//    }
+//}
+
 // todo: add the option for a default value
 class CoalesceMapper : Mapper {
     override val name = "coalesce"

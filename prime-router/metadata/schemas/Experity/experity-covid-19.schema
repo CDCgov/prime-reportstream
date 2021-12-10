@@ -136,12 +136,25 @@ elements:
 # Ordering provider
     - name: ordering_provider_id
       csvFields: [{name: Ordering_provider_ID}]
+      type: TABLE
+      table: npi_lookup_by_name
+      tableColumn: npi
 
     - name: ordering_provider_first_name
       csvFields: [{name: Ordering_provider_first_name}]
+      type: TABLE
+      table: npi_lookup_by_name
+      tableColumn: first_name
+      mapper: lookup(npi)
+      mapperOverridesValue: true
 
     - name: ordering_provider_last_name
       csvFields: [{name: Ordering_provider_last_name}]
+      type: TABLE
+      table: npi_lookup_by_name
+      tableColumn: last_name
+      mapper: lookup(npi)
+      mapperOverridesValue: true
 
     - name: ordering_provider_lastfirst_name
       mapper: concat(ordering_provider_last_name, ordering_provider_first_name )
