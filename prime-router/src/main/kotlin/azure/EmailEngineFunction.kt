@@ -77,7 +77,7 @@ class EmailScheduleEngine {
         var ret = request.createResponseBuilder(HttpStatus.UNAUTHORIZED)
 
         if (!user.isNullOrEmpty()) {
-            val id = WorkflowEngine.databaseAccess.insertEmailSchedule(request.body, user)
+            val id = WorkflowEngine.databaseAccessSingleton.insertEmailSchedule(request.body, user)
             ret.status(HttpStatus.CREATED)
             ret.body("$id")
         }
@@ -102,7 +102,7 @@ class EmailScheduleEngine {
         var ret = request.createResponseBuilder(HttpStatus.UNAUTHORIZED)
 
         if (!user.isNullOrEmpty()) {
-            val id = WorkflowEngine.databaseAccess.deleteEmailSchedule(scheduleId)
+            val id = WorkflowEngine.databaseAccessSingleton.deleteEmailSchedule(scheduleId)
             ret.status(HttpStatus.OK)
             ret.body("$id")
         }
@@ -123,7 +123,7 @@ class EmailScheduleEngine {
 
         // get the schedules to fire
         val schedulesToFire: Iterable<EmailSchedule> =
-            WorkflowEngine.databaseAccess
+            WorkflowEngine.databaseAccessSingleton
                 .fetchEmailSchedules()
                 .map { mapper.readValue<EmailSchedule>(it) }
                 .filter { shouldFire(it) }
