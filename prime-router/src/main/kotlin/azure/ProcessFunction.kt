@@ -36,6 +36,8 @@ class ProcessFunction {
             workflowEngine.handleProcessEvent(event, context, actionHistory)
         } catch (e: Exception) {
             context.logger.log(Level.SEVERE, "Process function exception for event: $message", e)
+            // we want to throw - it re-adds the process message to the queue and it will get re-processed by this func
+            throw e
         }
     }
 }
