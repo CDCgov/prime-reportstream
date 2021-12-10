@@ -518,9 +518,9 @@ NTE|1|L|This is a final comment|RE"""
 
         // SenderID is set to "fake" in this CSV
         val csvContentProviderState = ByteArrayInputStream(
-            csvHeader.replace("\n", "").trimIndent()
+            csvHeader.replace("\n            ", "")
                 .plus("\n")
-                .plus(csvCompleteProviderState.replace("\n", "").trimIndent())
+                .plus(csvCompleteProviderState.replace("\n            ", ""))
                 .toByteArray()
         )
 
