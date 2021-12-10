@@ -385,7 +385,7 @@ class Hl7Serializer(
         return ReadResult(report, errors, warnings)
     }
 
-    internal fun createMessage(report: Report, row: Int): String {
+    fun createMessage(report: Report, row: Int): String {
 
         val hl7Config = report.destination?.translation as? Hl7Configuration?
         val processingId = if (hl7Config?.useTestProcessingMode == true) {
@@ -398,7 +398,7 @@ class Hl7Serializer(
         return hapiContext.pipeParser.encode(message)
     }
 
-    internal fun buildMessage(
+    fun buildMessage(
         report: Report,
         row: Int,
         processingId: String = "T",
@@ -675,7 +675,7 @@ class Hl7Serializer(
     /**
      * Set the [terser]'s ORC-21 in accordance to the [useOrderingFacilityName] value.
      */
-    internal fun setOrderingFacilityComponent(
+    fun setOrderingFacilityComponent(
         terser: Terser,
         rawFacilityName: String,
         useOrderingFacilityName: Hl7Configuration.OrderingFacilityName,
@@ -739,7 +739,7 @@ class Hl7Serializer(
     /**
      * Lookup the NCES id if the site_type is a k12 school
      */
-    internal fun getSchoolId(report: Report, row: Int, rawFacilityName: String): String? {
+    fun getSchoolId(report: Report, row: Int, rawFacilityName: String): String? {
         // This code only works on the COVID-19 schema or its extensions
         if (!report.schema.containsElement("ordering_facility_name")) return null
         // This recommendation only applies to k-12 schools
@@ -1662,7 +1662,7 @@ class Hl7Serializer(
 
         // Do a lazy init because this table may never be used and it is large
         val ncesLookupTable = lazy {
-            LookupTable.read("./metadata/tables/nces_id.csv")
+            LookupTable.read("./metadata/tables/nces_id_2021_6_28.csv")
         }
     }
 }
