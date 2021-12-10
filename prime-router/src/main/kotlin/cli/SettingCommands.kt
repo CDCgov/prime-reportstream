@@ -562,7 +562,7 @@ class PutMultipleSettings : SettingCommand(
         TermUi.echo("Waiting for the API at ${environment.url} to be available...")
         CommandUtilities.waitForApi(environment, connRetries)
 
-        if (!checkLastModified || (checkLastModified && isUpdated(environment))) {
+        if (!checkLastModified || (checkLastModified && isFileUpdated(environment))) {
             val results = putAll(environment, accessToken)
             val output = "${results.joinToString("\n")}\n"
             writeOutput(output)
@@ -576,7 +576,7 @@ class PutMultipleSettings : SettingCommand(
      * given [environment].
      * @return true if the file settings are newer or there is nothing in the database, false otherwise
      */
-    private fun isUpdated(environment: Environment): Boolean {
+    private fun isFileUpdated(environment: Environment): Boolean {
         val url = formPath(environment, Operation.LIST, SettingType.ORG, "")
         val (_, response, result) = Fuel.head(url).authentication()
             .bearer(getAccessToken(environment)).response()
