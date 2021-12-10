@@ -156,14 +156,22 @@ elements:
 
 
 # Ordering provider
+    - name: ordering_provider_id_temp
+      csvFields: [{name: Provider ID/ NPI}]
+
     - name: ordering_provider_id
       csvFields: [{name: Provider ID/ NPI}]
+      mapper: ifNotPresent($mode:literal, $string:1033282827, ordering_provider_id_temp)
 
     - name: ordering_provider_first_name
       csvFields: [{name: Provider First Name}]
+      mapperOverridesValue: true
+      mapper: ifNotPresent($mode:literal, $string:Bharat, ordering_provider_id_temp)
 
     - name: ordering_provider_last_name
       csvFields: [{name: Provider Last Name}]
+      mapperOverridesValue: true
+      mapper: ifNotPresent($mode:literal, $string:Patel MD, ordering_provider_id_temp)
 
     - name: ordering_provider_street
       csvFields: [{name: Provider Street Address}]

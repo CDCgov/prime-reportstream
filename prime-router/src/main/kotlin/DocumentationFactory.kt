@@ -197,7 +197,8 @@ ${element.documentation}
             appendable.appendLine("---- | -------")
 
             values.forEach { vs ->
-                appendable.appendLine("${vs.code}|${vs.display}")
+                val code = if (vs.code == ">") "&#62;" else vs.code // This to solve the markdown blockquote '>'
+                appendable.appendLine("$code|${vs.display}")
             }
             appendable.appendLine("")
         }

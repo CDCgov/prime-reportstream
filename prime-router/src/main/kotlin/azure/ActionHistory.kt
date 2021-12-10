@@ -901,7 +901,7 @@ class ActionHistory {
             } else
                 it.writeNullField("id")
 
-            this.prettyPrintDestinationsJson(it, WorkflowEngine.settings, options)
+            this.prettyPrintDestinationsJson(it, WorkflowEngine.settingsProviderSingleton, options)
             // print the report routing when in verbose mode
             if (verbose) {
                 it.writeArrayFieldStart("routing")
