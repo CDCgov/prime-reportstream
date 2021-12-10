@@ -791,6 +791,15 @@ class LookupTableLoadAllCommand : GenericLookupTableCommand(
         .int().default(30)
 
     /**
+     * Number of connection retries.
+     */
+    private val checkLastModified by option(
+        "--check-last-modified",
+        help = "Update settings only if input file is newer"
+    )
+        .flag(default = false)
+
+    /**
      * The reference to the table creator command.
      */
     private val tableCreator = LookupTableCreateCommand()
@@ -803,9 +812,11 @@ class LookupTableLoadAllCommand : GenericLookupTableCommand(
         CommandUtilities.waitForApi(environment, connRetries)
 
         // Get the list of current tables to only update or create new ones.
-        val tableUpdateTimes = LookupTableEndpointUtilities(environment).fetchList().map {
-            it.tableName to it.createdAt
-        }.toMap()
+        val tableUpdateTimes = if (checkLastModified)
+            LookupTableEndpointUtilities(environment).fetchList().map {
+                it.tableName to it.createdAt
+            }.toMap()
+        else emptyMap()
 
         // Loop through all the files
         val files = try {
@@ -819,7 +830,7 @@ class LookupTableLoadAllCommand : GenericLookupTableCommand(
             var needToLoad = true
             // If we have a table in the database then only update it if the last modified time of the file is 
             // greater than the created time in the database.
-            if (tableUpdateTimes.contains(tableName) && tableUpdateTimes[tableName] != null) {
+            if (checkLastModified && tableUpdateTimes.contains(tableName) && tableUpdateTimes[tableName] != null) {
                 val fileUpdatedTime = Instant.ofEpochMilli(it.lastModified())
                 if (!fileUpdatedTime.isAfter(tableUpdateTimes[tableName]!!.toInstant())) {
                     needToLoad = false
