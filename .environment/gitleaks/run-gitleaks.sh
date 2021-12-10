@@ -91,7 +91,6 @@ function base_command() {
 
 function scan_uncommitted() {
     note "Scanning your suggested changes."
-    # NOTE: ironically, the switch to scan your staged (i.e. to be committed) changes is to use the --unstaged switch
 
     base_command "--staged"
 
