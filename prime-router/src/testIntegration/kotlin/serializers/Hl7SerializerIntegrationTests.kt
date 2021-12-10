@@ -453,6 +453,121 @@ NTE|1|L|This is a final comment|RE"""
     }
 
     @Test
+    fun `test cliaForOutOfStateTesting`() {
+        // arrange
+        val mcf = CanonicalModelClassFactory("2.5.1")
+        context.modelClassFactory = mcf
+        val parser = context.pipeParser
+        // act
+        val reg = "[\r\n]".toRegex()
+
+        val hl7Config = createConfig(cliaForOutOfStateTesting = "10DfakeCL")
+        val receiver = Receiver("test", "ca-dph", "covid-19", translation = hl7Config)
+        val schema = "direct/direct-covid-19"
+        val csvHeader = """senderId,testOrdered,testName,testCodingSystem,testResult,testResultText,testPerformed,
+            testResultCodingSystem,testResultDate,testReportDate,testOrderedDate,specimenCollectedDate,deviceIdentifier,
+            deviceName,specimenId,serialNumber,patientAge,patientAgeUnits,patientDob,patientRace,patientRaceText,
+            patientEthnicity,patientEthnicityText,patientSex,patientZip,patientCounty,orderingProviderNpi,
+            orderingProviderLname,orderingProviderFname,orderingProviderZip,performingFacility,performingFacilityName,
+            performingFacilityStreet,performingFacilityStreet2,performingFacilityCity,performingFacilityState,
+            performingFacilityZip,performingFacilityCounty,performingFacilityPhone,orderingFacilityName,
+            orderingFacilityStreet,orderingFacilityStreet2,orderingFacilityCity,orderingFacilityState,orderingFacilityZip,
+            orderingFacilityCounty,orderingFacilityPhone,specimenSource,patientNameLast,patientNameFirst,
+            patientNameMiddle,patientUniqueId,patientHomeAddress,patientHomeAddress2,patientCity,patientState,
+            patientPhone,patientPhoneArea,orderingProviderAddress,orderingProviderAddress2,orderingProviderCity,
+            orderingProviderState,orderingProviderPhone,orderingProviderPhoneArea,firstTest,previousTestType,previousTestDate,
+            previousTestResult,correctedTestId,healthcareEmployee,healthcareEmployeeType,symptomatic,symptomsList,hospitalized,
+            hospitalizedCode,symptomsIcu,congregateResident,congregateResidentType,pregnant,pregnantText,patientEmail,reportingFacility"""
+
+        val csvBlankState = """fake,94531-1,SARS coronavirus 2 RNA panel - Respiratory specimen by NAA with probe detection,LN,260415000,
+            Detected,94558-4,SCT,202110062022-0400,202110062022-0400,20211007,20211007,00382902560821,
+            BD Veritor System for Rapid Detection of SARS-CoV-2*,4efd9df8-9424-4e50-b168-f3aa894bfa42,4efd9df8-9424-4e50-b168-f3aa894bfa42,
+            45,yr,1975-10-10,2106-3,White,2135-2,Hispanic or Latino,M,93307,Kern County,1760085880,,,93312,05D2191150,Inovia Pharmacy,
+            9902 Brimhall rd ste 100,,Bakersfield,,93312,Kern County,+16618297861,Inovia Pharmacy,9902 Brimhall rd ste 100,,Bakersfield,,
+            93312,Kern County,+16618297861,445297001,Tapia,Jose,,e553c462-6bad-4e42-ab1e-0879b797aa31,1211 Dawn st,,Bakersfield,CA,+16614933107,
+            ,9902 BRIMHALL RD STE 100,,BAKERSFIELD,,+16618297861,661,
+            UNK,,,,,,,UNK,,NO,,NO,NO,,261665006,UNK,,1760085880"""
+
+        val csvContentBlankState = ByteArrayInputStream(
+            csvHeader.replace("\n            ", "")
+                .plus("\n")
+                .plus(csvBlankState.replace("\n            ", ""))
+                .toByteArray()
+        )
+
+        val testReportBlankState = csvSerializer
+            .readExternal(schema, csvContentBlankState, listOf(TestSource), receiver)
+            .report ?: fail()
+
+        val outputBlankState = serializer.createMessage(testReportBlankState, 0)
+
+        val cleanedMessageBlankState = reg.replace(outputBlankState, "\r")
+        val hapiMsgBlankState = parser.parse(cleanedMessageBlankState)
+        val terserBlankState = Terser(hapiMsgBlankState)
+        val cliaTersedBlankState = terserBlankState.get("/MSH-4-2")
+
+        assertThat(cliaTersedBlankState).isNotEqualTo("10DfakeCL")
+
+        val csvCompleteProviderState = """fake,94531-1,SARS coronavirus 2 RNA panel - Respiratory specimen by NAA with probe detection,LN,260415000,
+            Not Detected,94558-4,SCT,202110062022-0400,202110062022-0400,20211007,20211007,00382902560821,
+            BD Veritor System for Rapid Detection of SARS-CoV-2*,4efd9df8-9424-4e50-b168-f3aa894bfa42,4efd9df8-9424-4e50-b168-f3aa894bfa42,45,
+            yr,1975-10-10,2106-3,White,2135-2,Hispanic or Latino,M,93307,Kern County,1760085880,,,93312,05D2191150,Inovia Pharmacy,
+            9902 Brimhall rd ste 100,,Bakersfield,TX,93312,Kern County,+16618297861,Inovia Pharmacy,9902 Brimhall rd ste 100,,Bakersfield,,
+            93312,Kern County,+16618297861,445297001,Tapia,Jose,,e553c462-6bad-4e42-ab1e-0879b797aa31,1211 Dawn st,,Bakersfield,CA,+16614933107,
+            ,9902 BRIMHALL RD STE 100,,BAKERSFIELD,CA,+16618297861,661,UNK,,,,,,,UNK,,NO,,NO,NO,,261665006,UNK,,1760085880"""
+
+        // SenderID is set to "fake" in this CSV
+        val csvContentProviderState = ByteArrayInputStream(
+            csvHeader.replace("\n            ", "")
+                .plus("\n")
+                .plus(csvCompleteProviderState.replace("\n            ", ""))
+                .toByteArray()
+        )
+
+        val testReportProviderState = csvSerializer
+            .readExternal(schema, csvContentProviderState, listOf(TestSource), receiver)
+            .report ?: fail()
+
+        val outputProviderState = serializer.createMessage(testReportProviderState, 0)
+
+        val cleanedMessageProviderState = reg.replace(outputProviderState, "\r")
+        val hapiMsgProviderState = parser.parse(cleanedMessageProviderState)
+        val terserProviderState = Terser(hapiMsgProviderState)
+        val cliaTersedProviderState = terserProviderState.get("/MSH-4-2")
+
+        assertThat(cliaTersedProviderState).isEqualTo("10DfakeCL")
+
+        val csvCompleteFacilityState = """fake,94531-1,SARS coronavirus 2 RNA panel - Respiratory specimen by NAA with probe detection,LN,260415000,
+            Not Detected,94558-4,SCT,202110062022-0400,202110062022-0400,20211007,20211007,00382902560821,
+            BD Veritor System for Rapid Detection of SARS-CoV-2*,4efd9df8-9424-4e50-b168-f3aa894bfa42,4efd9df8-9424-4e50-b168-f3aa894bfa42,45,
+            yr,1975-10-10,2106-3,White,2135-2,Hispanic or Latino,M,93307,Kern County,1760085880,,,93312,05D2191150,Inovia Pharmacy,
+            9902 Brimhall rd ste 100,,Bakersfield,,93312,Kern County,+16618297861,Inovia Pharmacy,9902 Brimhall rd ste 100,,Bakersfield,TX,93312,
+            Kern County,+16618297861,445297001,Tapia,Jose,,e553c462-6bad-4e42-ab1e-0879b797aa31,1211 Dawn st,,Bakersfield,CA,+16614933107,661,
+            9902 BRIMHALL RD STE 100,,BAKERSFIELD,TX,+16618297861,661,UNK,,,,,,,UNK,,NO,,NO,NO,,261665006,UNK,,1760085880"""
+
+        // SenderID is set to "fake" in this CSV
+        val csvContentFacilityState = ByteArrayInputStream(
+            csvHeader.replace("\n            ", "")
+                .plus("\n")
+                .plus(csvCompleteFacilityState.replace("\n            ", ""))
+                .toByteArray()
+        )
+
+        val testReportFacilityState = csvSerializer
+            .readExternal(schema, csvContentFacilityState, listOf(TestSource), receiver)
+            .report ?: fail()
+
+        val outputFacilityState = serializer.createMessage(testReportFacilityState, 0)
+
+        val cleanedMessageFacilityState = reg.replace(outputFacilityState, "\r")
+        val hapiMsgFacilityState = parser.parse(cleanedMessageFacilityState)
+        val terserFacilityState = Terser(hapiMsgFacilityState)
+        val cliaTersedFacilityState = terserFacilityState.get("/MSH-4-2")
+
+        assertThat(cliaTersedFacilityState).isEqualTo("10DfakeCL")
+    }
+
+    @Test
     fun `test cliaForSender`() {
         // arrange
         val mcf = CanonicalModelClassFactory("2.5.1")

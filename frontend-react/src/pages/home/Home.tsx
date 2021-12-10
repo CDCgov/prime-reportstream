@@ -21,7 +21,7 @@ export const Home = () => {
                     return (
                         <section
                             data-testid="section"
-                            key={`section=${sectionIndex}`}
+                            key={`home-${sectionIndex}`}
                             className="usa-section margin-y-0 tablet:padding-top-6 tablet:padding-bottom-3"
                         >
                             <div className="grid-row grid-gap">
@@ -52,7 +52,7 @@ export const Home = () => {
                     return (
                         <section
                             data-testid="section"
-                            key={`section=${sectionIndex}`}
+                            key={`livemap-${sectionIndex}`}
                             className="usa-section margin-y-0 tablet:padding-top-2 tablet:padding-bottom-2"
                         >
                             <div className="grid-row grid-gap">
