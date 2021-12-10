@@ -488,11 +488,13 @@ NTE|1|L|This is a final comment|RE"""
             ,9902 BRIMHALL RD STE 100,,BAKERSFIELD,,+16618297861,661,
             UNK,,,,,,,UNK,,NO,,NO,NO,,261665006,UNK,,1760085880"""
 
-        val test = csvHeader.replace("\n            ", "")
-            .plus("\n")
-            .plus(csvBlankState.replace("\n            ", ""))
+        val csvContentBlankState = ByteArrayInputStream(
+            csvHeader.replace("\n            ", "")
+                .plus("\n")
+                .plus(csvBlankState.replace("\n            ", ""))
+                .toByteArray()
+        )
 
-        val csvContentBlankState = ByteArrayInputStream(test.toByteArray())
         val testReportBlankState = csvSerializer
             .readExternal(schema, csvContentBlankState, listOf(TestSource), receiver)
             .report ?: fail()
@@ -516,9 +518,9 @@ NTE|1|L|This is a final comment|RE"""
 
         // SenderID is set to "fake" in this CSV
         val csvContentProviderState = ByteArrayInputStream(
-            csvHeader.replace("\n            ", "")
+            csvHeader.replace("\n", "").trimIndent()
                 .plus("\n")
-                .plus(csvCompleteProviderState.replace("\n            ", ""))
+                .plus(csvCompleteProviderState.replace("\n", "").trimIndent())
                 .toByteArray()
         )
 
