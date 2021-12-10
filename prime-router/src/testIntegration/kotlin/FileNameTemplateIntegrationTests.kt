@@ -21,7 +21,7 @@ import java.util.UUID
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-class FileNameTemplateTests {
+class FileNameTemplateIntegrationTests {
     private val literal = """
         ---
         elements:
