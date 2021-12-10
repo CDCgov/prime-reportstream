@@ -3,6 +3,7 @@ package gov.cdc.prime.router
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isTrue
+import gov.cdc.prime.router.unittest.UnitTestUtils
 import java.io.ByteArrayInputStream
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -32,7 +33,7 @@ class TranslatorTests {
     @Test
     fun `test buildMapping`() {
         val two = Schema(name = "two", topic = "test", elements = listOf(Element("a"), Element("b")))
-        val metadata = Metadata().loadSchemas(one, two)
+        val metadata = UnitTestUtils.simpleMetadata.loadSchemas(one, two)
         val translator = Translator(metadata, FileSettings())
         translator.buildMapping(fromSchema = one, toSchema = two, defaultValues = emptyMap()).run {
             assertThat(fromSchema).isEqualTo(one)
@@ -53,7 +54,7 @@ class TranslatorTests {
     @Test
     fun `test buildMapping with default`() {
         val two = Schema(name = "two", topic = "test", elements = listOf(Element("a"), Element("b", default = "x")))
-        val metadata = Metadata().loadSchemas(one, two)
+        val metadata = UnitTestUtils.simpleMetadata.loadSchemas(one, two)
         val translator = Translator(metadata, FileSettings())
         translator.buildMapping(fromSchema = one, toSchema = two, defaultValues = mapOf("b" to "foo")).run {
             assertThat(useDefault.contains("b")).isTrue()
@@ -68,7 +69,7 @@ class TranslatorTests {
             topic = "test",
             elements = listOf(Element("a"), Element("c", cardinality = Element.Cardinality.ONE))
         )
-        val metadata = Metadata().loadSchemas(one, three)
+        val metadata = UnitTestUtils.simpleMetadata.loadSchemas(one, three)
         val translator = Translator(metadata, FileSettings())
         translator.buildMapping(fromSchema = one, toSchema = three, defaultValues = emptyMap()).run {
             assertThat(this.useDirectly.size).isEqualTo(1)
@@ -80,13 +81,13 @@ class TranslatorTests {
 
     @Test
     fun `test filterAndMapByReceiver`() {
-        val metadata = Metadata()
+        val metadata = UnitTestUtils.simpleMetadata
         val settings = FileSettings().also {
             it.loadOrganizations(ByteArrayInputStream(receiversYaml.toByteArray()))
         }
         val translator = Translator(metadata, settings)
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
-        val table1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), TestSource)
+        val table1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), TestSource, metadata = metadata)
         translator.filterAndTranslateByReceiver(table1, warnings = mutableListOf()).run {
             assertThat(this.size).isEqualTo(1)
             val (mappedTable, forReceiver) = this[0]
@@ -98,7 +99,6 @@ class TranslatorTests {
 
     @Test
     fun `test mappingWithReplace`() {
-//        val metadata = Metadata()
         val receiverAKYaml = """
         ---
           - name: ak-phd
