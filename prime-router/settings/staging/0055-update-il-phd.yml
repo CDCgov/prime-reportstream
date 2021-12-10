@@ -29,7 +29,7 @@
       defaultAoeToUnknown: false
       useBlankInsteadOfUnknown: null
       truncateHDNamespaceIds: true
-      truncateHl7Fields: "ORC-12-1, OBR-16-1, OBX-23-1"
+      truncateHl7Fields: "OBX-23-1"
       usePid14ForPatientEmail: false
       convertTimestampToDateTime: null
       cliaForOutOfStateTesting: null
@@ -79,7 +79,7 @@
       defaultAoeToUnknown: false
       useBlankInsteadOfUnknown: null
       truncateHDNamespaceIds: true
-      truncateHl7Fields: "ORC-12-1, OBR-16-1, OBX-23-1"
+      truncateHl7Fields: "OBX-23-1"
       usePid14ForPatientEmail: false
       convertTimestampToDateTime: null
       cliaForOutOfStateTesting: null
