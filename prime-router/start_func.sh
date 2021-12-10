@@ -31,7 +31,7 @@ function load_config() {
   test_config_dir=$top_dir/resources/test
   fatjar=$top_dir/libs/prime-router-0.1-SNAPSHOT-all.jar
   echo "Loading lookup tables..."
-  java -jar $fatjar lookuptables loadall -d $test_config_dir/metadata/tables -r 60
+  java -jar $fatjar lookuptables loadall -d $test_config_dir/metadata/tables -r 60 --check-last-modified
   # Note the settings require the full metadata catalog to be in place, so run last
   echo "Loading organization settings..."
   java -jar $fatjar multiple-settings set -i $function_folder/settings/organizations.yml -r 60 --check-last-modified

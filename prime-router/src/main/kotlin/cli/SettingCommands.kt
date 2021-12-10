@@ -536,6 +536,9 @@ class PutMultipleSettings : SettingCommand(
     help = "set all settings from a 'organizations.yml' file"
 ) {
 
+    /**
+     * Input file with the settings.
+     */
     private val inputFile by option("-i", "--input", help = "Input from file", metavar = "<file>")
         .file(true, mustBeReadable = true).required()
 
@@ -563,6 +566,7 @@ class PutMultipleSettings : SettingCommand(
         CommandUtilities.waitForApi(environment, connRetries)
 
         if (!checkLastModified || (checkLastModified && isFileUpdated(environment))) {
+            TermUi.echo("Loading settings from ${inputFile.absolutePath}...")
             val results = putAll(environment, accessToken)
             val output = "${results.joinToString("\n")}\n"
             writeOutput(output)
@@ -590,9 +594,9 @@ class PutMultipleSettings : SettingCommand(
                         )
                         apiModifiedTime.toInstant().toEpochMilli() < inputFile.lastModified()
                     } catch (e: DateTimeParseException) {
-                        false
+                        error("Unable to decode last modified data from API call. $e")
                     }
-                } else false
+                } else true // We have no last modified time, which means the DB is empty
             }
             else -> error("Unable to fetch settings last update time from API.  $result")
         }
