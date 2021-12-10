@@ -10,12 +10,14 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.PrintMessage
 import com.github.ajalt.clikt.core.subcommands
+import com.github.ajalt.clikt.output.TermUi
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.inputStream
+import com.github.ajalt.clikt.parameters.types.int
 import com.github.ajalt.clikt.parameters.types.outputStream
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.FuelError
@@ -269,7 +271,7 @@ abstract class SettingCommand(
             return environment.formUrl("$apiPath${settingPath(operation, settingType, settingName)}").toString()
         }
 
-        fun settingPath(operation: Operation, settingType: SettingType, settingName: String): String {
+        private fun settingPath(operation: Operation, settingType: SettingType, settingName: String): String {
             return if (operation == Operation.LIST) {
                 when (settingType) {
                     SettingType.ORG -> "/organizations"
@@ -519,15 +521,26 @@ class PutMultipleSettings : SettingCommand(
     override val inStream by option("-i", "--input", help = "Input from file", metavar = "<file>")
         .inputStream()
 
+    /**
+     * Number of connection retries.
+     */
+    private val connRetries by option("-r", "--retries", help = "Number of seconds to retry waiting for the API")
+        .int().default(30)
+
     override fun run() {
         val environment = Environment.get(env)
         val accessToken = getAccessToken(environment)
+
+        // First wait for the API to come online
+        TermUi.echo("Waiting for the API at ${environment.url} to be available...")
+        CommandUtilities.waitForApi(environment, connRetries)
+
         val results = putAll(environment, accessToken)
         val output = "${results.joinToString("\n")}\n"
         writeOutput(output)
     }
 
-    fun putAll(environment: Environment, accessToken: String): List<String> {
+    private fun putAll(environment: Environment, accessToken: String): List<String> {
         val deepOrgs = readYaml()
         val results = mutableListOf<String>()
         // Put orgs
@@ -549,7 +562,7 @@ class PutMultipleSettings : SettingCommand(
         return results
     }
 
-    fun readYaml(): List<DeepOrganization> {
+    private fun readYaml(): List<DeepOrganization> {
         val input = readInput()
         return yamlMapper.readValue(input)
     }
@@ -572,7 +585,7 @@ class GetMultipleSettings : SettingCommand(
         writeOutput(output)
     }
 
-    fun getAll(environment: Environment, accessToken: String): String {
+    private fun getAll(environment: Environment, accessToken: String): String {
         // get orgs
         val orgsJson = getMany(environment, accessToken, SettingType.ORG, settingName = "")
         var orgs = jsonMapper.readValue(orgsJson, Array<OrganizationAPI>::class.java)
