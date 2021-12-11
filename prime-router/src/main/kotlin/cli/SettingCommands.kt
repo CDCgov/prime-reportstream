@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.module.kotlin.KotlinFeature
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
@@ -27,6 +28,9 @@ import com.github.kittinunf.fuel.core.extensions.authentication
 import com.github.kittinunf.fuel.json.FuelJson
 import com.github.kittinunf.fuel.json.responseJson
 import com.github.kittinunf.result.Result
+import com.google.common.base.Preconditions
+import de.m3y.kformat.Table
+import de.m3y.kformat.table
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
@@ -71,7 +75,15 @@ abstract class SettingCommand(
     enum class SettingType { ORG, SENDER, RECEIVER }
 
     val jsonMapper = jacksonObjectMapper()
-    val yamlMapper: ObjectMapper = ObjectMapper(YAMLFactory()).registerModule(KotlinModule())
+    val yamlMapper: ObjectMapper = ObjectMapper(YAMLFactory()).registerModule(
+        KotlinModule.Builder()
+            .withReflectionCacheSize(512)
+            .configure(KotlinFeature.NullToEmptyCollection, false)
+            .configure(KotlinFeature.NullToEmptyMap, false)
+            .configure(KotlinFeature.NullIsSameAsDefault, false)
+            .configure(KotlinFeature.StrictNullChecks, false)
+            .build()
+    )
 
     init {
         // Format OffsetDateTime as an ISO string
@@ -292,6 +304,20 @@ abstract class SettingCommand(
                 }
             }
         }
+
+        fun rowsToPrintableTable(
+            tableRows: List<Map<String, String>>,
+            colNames: List<String>,
+            addRowNum: Boolean = true
+        ): StringBuilder {
+            Preconditions.checkArgument(tableRows.isNotEmpty())
+
+            return table {
+                hints {
+                    borderStyle = Table.BorderStyle.SINGLE_LINE
+                }
+            }.render()
+        }
     }
 }
 
@@ -377,7 +403,10 @@ class OrganizationSettings : CliktCommand(
 ) {
     init {
         subcommands(
-            ListOrganizationSetting(), GetOrganizationSetting(), PutOrganizationSetting(), DeleteOrganizationSetting()
+            ListOrganizationSetting(),
+            GetOrganizationSetting(),
+            PutOrganizationSetting(),
+            DeleteOrganizationSetting()
         )
     }
 
