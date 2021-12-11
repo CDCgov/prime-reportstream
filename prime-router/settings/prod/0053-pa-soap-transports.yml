@@ -35,9 +35,9 @@
                 display: Unknown
       transport:
         type: SOAP
-        endpoint: "https://www.erstest.health.pa.gov/ELRWCF/ELRService.svc/ELR"
+        endpoint: "https://www.ers.health.pa.gov/ELRWCF/ELRService.svc/ELR"
         soapAction: "http://nedss.state.pa.us/2012/B01/elrwcf/IUploadFile/UploadFiles"
-        credentialName: DEFAULT-SOAP
+        credentialName: null
         namespaces:
           "xmlns:elr": "http://nedss.state.pa.us/2012/B01/elrwcf"
       timing:
@@ -76,7 +76,7 @@
                 display: Unknown
       transport:
         type: SOAP
-        endpoint: "https://www.erstest.health.pa.gov/ELRWCF/ELRService.svc/ELR"
+        endpoint: "https://www.ers.health.pa.gov/ELRWCF/ELRService.svc/ELR"
         soapAction: "http://nedss.state.pa.us/2012/B01/elrwcf/IUploadFile/UploadFiles"
         credentialName: null
         namespaces:
@@ -117,7 +117,7 @@
                 display: Unknown
       transport:
         type: SOAP
-        endpoint: "https://www.erstest.health.pa.gov/ELRWCF/ELRService.svc/ELR"
+        endpoint: "https://www.ers.health.pa.gov/ELRWCF/ELRService.svc/ELR"
         soapAction: "http://nedss.state.pa.us/2012/B01/elrwcf/IUploadFile/UploadFiles"
         credentialName: null
         namespaces:
@@ -157,7 +157,7 @@
                 display: Unknown
       transport:
         type: SOAP
-        endpoint: "https://www.erstest.health.pa.gov/ELRWCF/ELRService.svc/ELR"
+        endpoint: "https://www.ers.health.pa.gov/ELRWCF/ELRService.svc/ELR"
         soapAction: "http://nedss.state.pa.us/2012/B01/elrwcf/IUploadFile/UploadFiles"
         credentialName: null
         namespaces:
@@ -197,7 +197,7 @@
                 display: Unknown
       transport:
         type: SOAP
-        endpoint: "https://www.erstest.health.pa.gov/ELRWCF/ELRService.svc/ELR"
+        endpoint: "https://www.ers.health.pa.gov/ELRWCF/ELRService.svc/ELR"
         soapAction: "http://nedss.state.pa.us/2012/B01/elrwcf/IUploadFile/UploadFiles"
         credentialName: null
         namespaces:
