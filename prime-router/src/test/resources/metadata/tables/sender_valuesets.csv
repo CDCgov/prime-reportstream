@@ -1,0 +1,24 @@
+sender_id,element_name,free_text_substring,result
+all,pregnant,y,YES
+all,pregnant,YES,YES
+all,pregnant,NO,NO
+all,pregnant,not pregnant,NO
+all,pregnant,currently pregnant,YES
+all,patient_gender,Female,F
+all,patient_gender,F,F
+all,patient_gender,Male,M
+all,patient_gender,M,M
+all,patient_gender,U,U
+all,patient_gender,UNK,U
+all,patient_gender,Unknown,U
+all,patient_gender,O,O
+all,patient_gender,Other,O
+all,patient_gender,OTH,O
+all,patient_gender,A,A
+all,patient_gender,Ambiguous,A
+all,patient_race,White,2106-3
+all,patient_race,W,2106-3
+all,patient_race,Caucasian,2106-3
+all,patient_race,C,2106-3
+all,patient_race,2106-3,2106-3
+,,,

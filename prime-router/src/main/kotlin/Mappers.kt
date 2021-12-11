@@ -270,6 +270,47 @@ class LookupMapper : Mapper {
 }
 
 /**
+ * The LookupSenderValuesetsMapper is used to lookup values from the "sender_valuesets" table/csv
+ * The args for the mapper are:
+ *      args[0] --> lookupColumn = the primary lookup field (usually "sender_id")
+ *      args[1] --> questionColumn = the secondary lookup field, expected to be the element name (i.e. patient_gender)
+ * The mapper uses the above arguments + the question's answer to retrieve a row from the table
+ */
+class LookupSenderValuesetsMapper : Mapper {
+    override val name = "lookupSenderValuesets"
+
+    override fun valueNames(element: Element, args: List<String>): List<String> {
+        return args
+    }
+
+    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
+        return if (values.size != args.size) {
+            null
+        } else {
+            val lookupTable = element.tableRef
+                ?: error("Schema Error: could not find table ${element.table}")
+
+            val lookupColumn = args[0]
+            val lookupValue = values.find { it.element.name == lookupColumn }?.value
+            val questionColumn = args[1]
+            val answer = values.find { it.element.name == questionColumn }?.value
+            val filterMap = mapOf<String, String>(
+                "$lookupColumn" to "$lookupValue",
+                "element_name" to element.name,
+                "free_text_substring" to "$answer"
+            )
+            val results = lookupTable.filter("result", filterMap)
+
+            if (results.size > 1) {
+                error("Lookup Error: query returned more than one match. FilterMap: $filterMap")
+            }
+
+            results.firstOrNull()
+        }
+    }
+}
+
+/**
  * This is a lookup mapper specialized for the LIVD table. The LIVD table has multiple columns
  * which could be used for lookup. Different senders send different information, so this mapper
  * incorporates business logic to do this lookup based on the available information.

@@ -43,7 +43,8 @@ class Metadata : Logging {
         SplitByCommaMapper(),
         TimestampMapper(),
         HashMapper(),
-        NullMapper()
+        NullMapper(),
+        LookupSenderValuesetsMapper()
     )
     private var jurisdictionalFilters = listOf(
         FilterByCounty(),
@@ -99,8 +100,8 @@ class Metadata : Logging {
         tableName: String? = null,
         table: LookupTable? = null,
         tableDbAccess: DatabaseLookupTableAccess? = null
-    ) {
-        this.tableDbAccess = tableDbAccess ?: DatabaseLookupTableAccess()
+    ) : this() {
+        if (tableDbAccess != null) this.tableDbAccess = tableDbAccess
         valueSet?.let { loadValueSets(it) }
         table?.let { loadLookupTable(tableName ?: "", it) }
         schema?.let { loadSchemas(it) }

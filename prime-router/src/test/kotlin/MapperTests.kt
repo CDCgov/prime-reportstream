@@ -661,4 +661,32 @@ class MapperTests {
         val values = listOf(ElementAndValue(elementA, "xyz"))
         assertThat(mapper.apply(elementA, args, values)).isNull()
     }
+
+    @Test
+    fun `test LookupSenderValuesetsMapper`() {
+        val table = LookupTable.read("./src/test/resources/metadata/tables/sender_valuesets.csv")
+        val schema = Schema(
+            "test", topic = "test",
+            elements = listOf(
+                Element(
+                    "pregnant", type = Element.Type.TABLE, table = "sender_valuesets", tableColumn = "result",
+                    mapperOverridesValue = true
+                )
+            )
+        )
+        val metadata = Metadata(schema = schema, table = table, tableName = "test")
+        val indexElement = Element("sender_id")
+        val lookupElement = metadata.findSchema("test")?.findElement("pregnant") ?: fail("")
+        val mapper = LookupSenderValuesetsMapper()
+        val args = listOf("sender_id", "pregnant")
+        val elementAndValues = listOf(ElementAndValue(indexElement, "all"), ElementAndValue(lookupElement, "y"))
+        assertThat(mapper.valueNames(lookupElement, args)).isEqualTo(listOf("sender_id", "pregnant"))
+        assertThat(mapper.apply(lookupElement, args, elementAndValues)).isEqualTo("YES")
+
+        val elementAndValuesUNK = listOf(
+            ElementAndValue(indexElement, "all"),
+            ElementAndValue(lookupElement, "yas queen")
+        )
+        assertThat(mapper.apply(lookupElement, args, elementAndValuesUNK)).isNull()
+    }
 }
