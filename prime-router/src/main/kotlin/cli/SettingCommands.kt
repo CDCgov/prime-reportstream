@@ -60,18 +60,18 @@ abstract class SettingCommand(
         .choice("local", "test", "staging", "prod")
         .default("local", "local environment")
 
-    private val outStream by option(
+    protected val outStream by option(
         "-o", "--output",
         help = "Output to file",
         metavar = "<file>"
     ).outputStream(createIfNotExist = true, truncateExisting = true).default(System.out)
 
-    private val verbose by option(
+    protected val verbose by option(
         "-v", "--verbose",
         help = "Verbose logging of each HTTP operation to console"
     ).flag(default = false)
 
-    private val silent by option(
+    protected val silent by option(
         "-s", "--silent",
         help = "Do not echo progress or prompt for confirmation"
     ).flag(default = false)
@@ -347,6 +347,12 @@ abstract class SettingCommand(
             throw PrintMessage(message, error = true)
     }
 
+    fun confirm(message: String, abortMessage: String = "") {
+        if (!silent && TermUi.confirm(message) == false) {
+            abort(abortMessage)
+        }
+    }
+
     companion object {
         fun formPath(
             environment: Environment,
@@ -448,8 +454,16 @@ abstract class PutSettingCommand(
             fromJson(readInput(), settingType)
         else
             fromYaml(readInput(), settingType)
-        val output = put(cliEnvironment, cliAccessToken, settingType, name, payload)
-        writeOutput(output)
+        if (silent) {
+            put(cliEnvironment, cliAccessToken, settingType, name, payload)
+        } else {
+            val isDifferent = diff(cliEnvironment, cliAccessToken, settingType, name, payload)
+            if (isDifferent) {
+                confirm("Make the above changes", "no change applied")
+                val output = put(cliEnvironment, cliAccessToken, settingType, name, payload)
+                writeOutput(output)
+            }
+        }
     }
 }
 
