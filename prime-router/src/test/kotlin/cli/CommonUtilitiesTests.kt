@@ -47,11 +47,11 @@ class CommonUtilitiesTests {
         val compare4 = """
             {
                 "a": "1",
-                "b": 100
+                "b": false
             }
         """.trimIndent()
         val diff4 = diffJson(base, compare4)
-        assertThat(diff4).isEqualTo(listOf(DiffRow("b", "\"2\"", "100")))
+        assertThat(diff4).isEqualTo(listOf(DiffRow("b", "\"2\"", "false")))
     }
 
     @Test
@@ -61,7 +61,7 @@ class CommonUtilitiesTests {
                 "a": ["1", "2"],
                 "b": {
                     "x": 1,
-                    "y": 2
+                    "y": true
                 }
             }
         """.trimIndent()
@@ -77,7 +77,7 @@ class CommonUtilitiesTests {
             listOf(
                 DiffRow("b", "", "null"),
                 DiffRow("b.x", "1", ""),
-                DiffRow("b.y", "2", "")
+                DiffRow("b.y", "true", "")
             )
         )
 
@@ -86,7 +86,7 @@ class CommonUtilitiesTests {
                 "a": ["1", "2", "3"],
                 "b": {
                     "x": 1,
-                    "y": 2
+                    "y": true
                 }
             }
         """.trimIndent()

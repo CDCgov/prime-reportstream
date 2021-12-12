@@ -2,9 +2,12 @@ package gov.cdc.prime.router.cli
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.github.ajalt.clikt.core.PrintMessage
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.extensions.authentication
 import com.github.kittinunf.result.Result
+import de.m3y.kformat.Table
+import de.m3y.kformat.table
 import gov.cdc.prime.router.common.Environment
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
@@ -72,6 +75,7 @@ class CommandUtilities {
                 when {
                     node.isNull -> visitor(path, "null")
                     node.isTextual -> visitor(path, "\"${node.textValue()}\"")
+                    node.isBoolean -> visitor(path, node.asText())
                     node.isNumber -> visitor(path, node.asText())
                     node.isArray -> {
                         node.iterator().asSequence().forEachIndexed { index, element ->
@@ -119,6 +123,29 @@ class CommandUtilities {
             val compareToMap = createMaps(compareTo)
             val mergedRows = mergeMaps(baseMap, compareToMap)
             return mergedRows.filter { it.baseValue != it.toValue }.sortedBy { it.name }
+        }
+
+        /**
+         * Render the list of output from [diffJson] in [diffList as a table.
+         */
+        fun renderDiffTable(diffList: List<DiffRow>): String {
+            if (diffList.isEmpty()) return ""
+            return table {
+                hints {
+                    borderStyle = Table.BorderStyle.SINGLE_LINE
+                }
+                header("name", "from", "to")
+                diffList.forEach {
+                    row(it.name, it.baseValue, it.toValue)
+                }
+            }.render().toString()
+        }
+
+        /**
+         * Nice way to abort a command
+         */
+        fun abort(message: String): Nothing {
+            throw PrintMessage(message, error = true)
         }
     }
 }

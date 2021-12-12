@@ -10,6 +10,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.PrintMessage
+import com.github.ajalt.clikt.core.ProgramResult
 import com.github.ajalt.clikt.core.subcommands
 import com.github.ajalt.clikt.output.TermUi
 import com.github.ajalt.clikt.parameters.options.default
@@ -28,9 +29,6 @@ import com.github.kittinunf.fuel.core.extensions.authentication
 import com.github.kittinunf.fuel.json.FuelJson
 import com.github.kittinunf.fuel.json.responseJson
 import com.github.kittinunf.result.Result
-import com.google.common.base.Preconditions
-import de.m3y.kformat.Table
-import de.m3y.kformat.table
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
@@ -62,12 +60,38 @@ abstract class SettingCommand(
         .choice("local", "test", "staging", "prod")
         .default("local", "local environment")
 
-    private val outStream by option("-o", "--output", help = "Output to file", metavar = "<file>")
-        .outputStream(createIfNotExist = true, truncateExisting = true)
-        .default(System.out)
+    private val outStream by option(
+        "-o", "--output",
+        help = "Output to file",
+        metavar = "<file>"
+    ).outputStream(createIfNotExist = true, truncateExisting = true).default(System.out)
 
-    private val verbose by option("-v", "--verbose", help = "Verbose logging of each HTTP operation to console")
-        .flag(default = false)
+    private val verbose by option(
+        "-v", "--verbose",
+        help = "Verbose logging of each HTTP operation to console"
+    ).flag(default = false)
+
+    private val silent by option(
+        "-s", "--silent",
+        help = "Do not echo progress or prompt for confirmation"
+    ).flag(default = false)
+
+    protected val inStreamOption = option(
+        "-i", "--input",
+        help = "Input from file",
+        metavar = "<file>"
+    ).inputStream()
+
+    protected val nameOption = option(
+        "-n", "--name",
+        metavar = "<name>",
+        help = "The full name of the setting"
+    ).required()
+
+    protected val jsonOption = option(
+        "--json",
+        help = "Use the JSON format instead of YAML"
+    ).flag(default = false)
 
     open val inStream: InputStream? = null
 
@@ -107,9 +131,7 @@ abstract class SettingCommand(
         payload: String
     ): String {
         val path = formPath(environment, Operation.PUT, settingType, settingName)
-        if (verbose) {
-            echo("PUT $path :: $payload")
-        }
+        verbose("PUT $path :: $payload")
         val output = SettingsUtilities.put(path, accessToken, payload)
         val (_, response, result) = output
         return when (result) {
@@ -128,9 +150,7 @@ abstract class SettingCommand(
 
     fun delete(environment: Environment, accessToken: String, settingType: SettingType, settingName: String): String {
         val path = formPath(environment, Operation.DELETE, settingType, settingName)
-        if (verbose) {
-            echo("DELETE $path")
-        }
+        verbose("DELETE $path")
         val (_, response, result) = SettingsUtilities.delete(path, accessToken)
         return when (result) {
             is Result.Failure ->
@@ -142,9 +162,7 @@ abstract class SettingCommand(
 
     fun get(environment: Environment, accessToken: String, settingType: SettingType, settingName: String): String {
         val path = formPath(environment, Operation.GET, settingType, settingName)
-        if (verbose) {
-            echo("GET $path")
-        }
+        verbose("GET $path")
         val (_, response, result) = SettingsUtilities.get(path, accessToken)
         return when (result) {
             is Result.Failure ->
@@ -155,9 +173,7 @@ abstract class SettingCommand(
 
     fun getMany(environment: Environment, accessToken: String, settingType: SettingType, settingName: String): String {
         val path = formPath(environment, Operation.LIST, settingType, settingName)
-        if (verbose) {
-            echo("GET $path")
-        }
+        verbose("GET $path")
         val (_, response, result) = Fuel
             .get(path)
             .authentication()
@@ -177,9 +193,7 @@ abstract class SettingCommand(
         settingName: String
     ): List<String> {
         val path = formPath(environment, Operation.LIST, settingType, settingName)
-        if (verbose) {
-            echo("GET $path")
-        }
+        verbose("GET $path")
         val (_, response, result) = Fuel
             .get(path)
             .authentication()
@@ -202,6 +216,24 @@ abstract class SettingCommand(
                 names.sorted()
             }
         }
+    }
+
+    fun diff(
+        environment: Environment,
+        accessToken: String,
+        settingType: SettingType,
+        settingName: String,
+        payload: String
+    ): Boolean {
+        val base = get(environment, accessToken, settingType, settingName)
+        val diffList = CommandUtilities.diffJson(base, payload)
+            .filter { !it.name.startsWith("meta") } // Remove the meta differences
+        val isDifferent = diffList.isNotEmpty()
+        if (isDifferent) {
+            val diffTable = CommandUtilities.renderDiffTable(diffList)
+            echo(diffTable)
+        }
+        return isDifferent
     }
 
     fun readInput(): String {
@@ -269,11 +301,22 @@ abstract class SettingCommand(
         }
     }
 
-    companion object {
-        fun abort(message: String): Nothing {
-            throw PrintMessage(message, error = true)
-        }
+    fun echo(message: String) {
+        if (!silent) TermUi.echo(message)
+    }
 
+    fun verbose(message: String) {
+        if (verbose) TermUi.echo(message)
+    }
+
+    fun abort(message: String): Nothing {
+        if (silent)
+            throw ProgramResult(statusCode = 1)
+        else
+            throw PrintMessage(message, error = true)
+    }
+
+    companion object {
         fun formPath(
             environment: Environment,
             operation: Operation,
@@ -304,94 +347,109 @@ abstract class SettingCommand(
                 }
             }
         }
-
-        fun rowsToPrintableTable(
-            tableRows: List<Map<String, String>>,
-            colNames: List<String>,
-            addRowNum: Boolean = true
-        ): StringBuilder {
-            Preconditions.checkArgument(tableRows.isNotEmpty())
-
-            return table {
-                hints {
-                    borderStyle = Table.BorderStyle.SINGLE_LINE
-                }
-            }.render()
-        }
     }
 }
 
 /**
- * Handle a setting for a single entity. Includes the run method.
+ * List a single object entity
  */
-abstract class SingleSettingCommandNoSettingName(
-    val name: String,
-    val help: String,
+abstract class ListSettingCommand(
+    name: String,
+    help: String,
     val settingType: SettingType,
-    val operation: Operation
-) : SettingCommand(name = name, help = help) {
-    open val settingName: String = ""
-
-    val useJson by option(
-        "--json",
-        help = "Use the JSON format instead of YAML"
-    ).flag(default = false)
+) : SettingCommand(name, help) {
+    private val settingName: String by nameOption
 
     override fun run() {
-        // Authenticate
         val environment = Environment.get(env)
         val accessToken = getAccessToken(environment)
-
-        // Operations
-        when (operation) {
-            Operation.LIST -> {
-                if (settingType != SettingType.ORG && settingName.isBlank())
-                    abort("Missing organization name argument")
-                val output = listNames(environment, accessToken, settingType, settingName)
-                writeOutput(output.joinToString("\n"))
-            }
-            Operation.GET -> {
-                val output = get(environment, accessToken, settingType, settingName)
-                if (useJson) writeOutput(output) else writeOutput(toYaml(output, settingType))
-            }
-            Operation.PUT -> {
-                val (name, payload) = if (useJson)
-                    fromJson(readInput(), settingType)
-                else
-                    fromYaml(readInput(), settingType)
-                val output = put(environment, accessToken, settingType, name, payload)
-
-                writeOutput(output)
-            }
-            Operation.DELETE -> {
-                delete(environment, accessToken, settingType, settingName)
-                writeOutput("Success. Removed $settingName\n")
-            }
-        }
+        if (settingType != SettingType.ORG && settingName.isBlank())
+            abort("Missing organization name argument")
+        val output = listNames(environment, accessToken, settingType, settingName)
+        writeOutput(output.joinToString("\n"))
     }
 }
 
-abstract class SingleSettingCommand(
+/**
+ * Get a single object entity
+ */
+abstract class GetSettingCommand(
     name: String,
     help: String,
-    settingType: SettingType,
-    operation: Operation
-) : SingleSettingCommandNoSettingName(name, help, settingType, operation) {
-    override val settingName: String by option(
-        "-n", "--name",
-        metavar = "<name>",
-        help = "The full name of the setting"
-    ).required()
+    val settingType: SettingType
+) : SettingCommand(name, help) {
+    private val settingName: String by nameOption
+    private val useJson: Boolean by jsonOption
+
+    override fun run() {
+        val environment = Environment.get(env)
+        val accessToken = getAccessToken(environment)
+        val output = get(environment, accessToken, settingType, settingName)
+        if (useJson) writeOutput(output) else writeOutput(toYaml(output, settingType))
+    }
 }
 
-abstract class SingleSettingWithInputCommand(
+/**
+ * Remove a single entity
+ */
+abstract class DeleteSettingCommand(
     name: String,
     help: String,
-    settingType: SettingType,
-    operation: Operation
-) : SingleSettingCommandNoSettingName(name, help, settingType, operation) {
-    override val inStream by option("-i", "--input", help = "Input from file", metavar = "<file>")
-        .inputStream()
+    val settingType: SettingType
+) : SettingCommand(name, help) {
+    private val settingName: String by nameOption
+
+    override fun run() {
+        val environment = Environment.get(env)
+        val accessToken = getAccessToken(environment)
+        delete(environment, accessToken, settingType, settingName)
+        writeOutput("Success. Removed $settingName\n")
+    }
+}
+
+/**
+ * Put an entity command with an input file
+ */
+abstract class PutSettingCommand(
+    name: String,
+    help: String,
+    val settingType: SettingType
+) : SettingCommand(name, help) {
+    override val inStream by inStreamOption
+    private val useJson: Boolean by jsonOption
+
+    override fun run() {
+        val environment = Environment.get(env)
+        val accessToken = getAccessToken(environment)
+        val (name, payload) = if (useJson)
+            fromJson(readInput(), settingType)
+        else
+            fromYaml(readInput(), settingType)
+        val output = put(environment, accessToken, settingType, name, payload)
+        writeOutput(output)
+    }
+}
+
+/**
+ * Diff an entity command with an input file
+ */
+abstract class DiffSettingCommand(
+    name: String,
+    help: String,
+    val settingType: SettingType
+) : SettingCommand(name, help) {
+    override val inStream by inStreamOption
+    private val useJson: Boolean by jsonOption
+
+    override fun run() {
+        val environment = Environment.get(env)
+        val accessToken = getAccessToken(environment)
+        val (name, payload) = if (useJson)
+            fromJson(readInput(), settingType)
+        else
+            fromYaml(readInput(), settingType)
+        diff(environment, accessToken, settingType, name, payload)
+    }
 }
 
 /**
@@ -406,39 +464,50 @@ class OrganizationSettings : CliktCommand(
             ListOrganizationSetting(),
             GetOrganizationSetting(),
             PutOrganizationSetting(),
-            DeleteOrganizationSetting()
+            DeleteOrganizationSetting(),
+            DiffOrganizationSetting(),
         )
     }
 
-    override fun run() {}
+    override fun run() {
+        // Does not run at this level
+    }
 }
 
-class ListOrganizationSetting : SingleSettingCommandNoSettingName(
+class ListOrganizationSetting : SettingCommand(
     name = "list",
-    help = "List the names of all organizations",
-    settingType = SettingType.ORG,
-    operation = Operation.LIST
-)
+    help = "List the names of all organizations"
+) {
+    override fun run() {
+        val environment = Environment.get(env)
+        val accessToken = getAccessToken(environment)
+        val output = listNames(environment, accessToken, SettingType.ORG, "")
+        writeOutput(output.joinToString("\n"))
+    }
+}
 
-class GetOrganizationSetting : SingleSettingCommand(
+class GetOrganizationSetting : GetSettingCommand(
     name = "get",
     help = "Fetch a organization",
     settingType = SettingType.ORG,
-    operation = Operation.GET
 )
 
-class PutOrganizationSetting : SingleSettingWithInputCommand(
+class PutOrganizationSetting : PutSettingCommand(
     name = "set",
     help = "Update a organization",
-    settingType = SettingType.ORG,
-    operation = Operation.PUT
+    settingType = SettingType.ORG
 )
 
-class DeleteOrganizationSetting : SingleSettingCommand(
+class DeleteOrganizationSetting : DeleteSettingCommand(
     name = "remove",
     help = "Remove a organization",
     settingType = SettingType.ORG,
-    operation = Operation.DELETE
+)
+
+class DiffOrganizationSetting : DiffSettingCommand(
+    name = "diff",
+    help = "Compare to the current organization",
+    settingType = SettingType.ORG
 )
 
 /**
@@ -454,40 +523,45 @@ class SenderSettings : CliktCommand(
             GetSenderSetting(),
             PutSenderSetting(),
             DeleteSenderSetting(),
+            DiffSenderSetting(),
             TokenUrl(),
             AddPublicKey(),
         )
     }
 
-    override fun run() {}
+    override fun run() {
+        // Does not run at this level
+    }
 }
 
-class ListSenderSetting : SingleSettingCommand(
+class ListSenderSetting : ListSettingCommand(
     name = "list",
     help = "List all sender names for an organization",
     settingType = SettingType.SENDER,
-    operation = Operation.LIST
 )
 
-class GetSenderSetting : SingleSettingCommand(
+class GetSenderSetting : GetSettingCommand(
     name = "get",
     help = "Fetch a sender",
     settingType = SettingType.SENDER,
-    operation = Operation.GET
 )
 
-class PutSenderSetting : SingleSettingWithInputCommand(
+class PutSenderSetting : PutSettingCommand(
     name = "set",
     help = "Update a sender",
     settingType = SettingType.SENDER,
-    operation = Operation.PUT
 )
 
-class DeleteSenderSetting : SingleSettingCommand(
+class DeleteSenderSetting : DeleteSettingCommand(
     name = "remove",
     help = "Remove a sender",
     settingType = SettingType.SENDER,
-    operation = Operation.DELETE
+)
+
+class DiffSenderSetting : DiffSettingCommand(
+    name = "diff",
+    help = "Compare to the current sender",
+    settingType = SettingType.SENDER,
 )
 
 /**
@@ -497,37 +571,49 @@ class ReceiverSettings : CliktCommand(
     name = "receiver",
     help = "Fetch and update settings for a receiver"
 ) {
-    init { subcommands(ListReceiverSetting(), GetReceiverSetting(), PutReceiverSetting(), DeleteReceiverSetting()) }
+    init {
+        subcommands(
+            ListReceiverSetting(),
+            GetReceiverSetting(),
+            PutReceiverSetting(),
+            DeleteReceiverSetting(),
+            DiffReceiverSetting(),
+        )
+    }
 
-    override fun run() {}
+    override fun run() {
+        // Does not run at this level
+    }
 }
 
-class ListReceiverSetting : SingleSettingCommand(
+class ListReceiverSetting : ListSettingCommand(
     name = "list",
     help = "Fetch receiver names for an organization",
     settingType = SettingType.RECEIVER,
-    operation = Operation.LIST
 )
 
-class GetReceiverSetting : SingleSettingCommand(
+class GetReceiverSetting : GetSettingCommand(
     name = "get",
     help = "Fetch a receiver",
     settingType = SettingType.RECEIVER,
-    operation = Operation.GET
 )
 
-class PutReceiverSetting : SingleSettingWithInputCommand(
+class PutReceiverSetting : PutSettingCommand(
     name = "set",
     help = "Update a receiver",
     settingType = SettingType.RECEIVER,
-    operation = Operation.PUT
 )
 
-class DeleteReceiverSetting : SingleSettingCommand(
+class DeleteReceiverSetting : DeleteSettingCommand(
     name = "remove",
     help = "Remove a receiver",
     settingType = SettingType.RECEIVER,
-    operation = Operation.DELETE
+)
+
+class DiffReceiverSetting : DiffSettingCommand(
+    name = "diff",
+    help = "Compare to the current receiver",
+    settingType = SettingType.RECEIVER,
 )
 
 /**
@@ -539,7 +625,9 @@ class MultipleSettings : CliktCommand(
 ) {
     init { subcommands(PutMultipleSettings(), GetMultipleSettings()) }
 
-    override fun run() {}
+    override fun run() {
+        // Does not run at this level
+    }
 }
 
 class PutMultipleSettings : SettingCommand(
@@ -547,8 +635,7 @@ class PutMultipleSettings : SettingCommand(
     help = "set all settings from a 'organizations.yml' file"
 ) {
 
-    override val inStream by option("-i", "--input", help = "Input from file", metavar = "<file>")
-        .inputStream()
+    override val inStream by inStreamOption
 
     /**
      * Number of connection retries.
