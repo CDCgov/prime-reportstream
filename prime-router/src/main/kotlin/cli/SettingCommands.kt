@@ -117,12 +117,28 @@ abstract class SettingCommand(
         yamlMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
     }
 
-    fun getAccessToken(environment: Environment): String {
-        if (environment.oktaApp == null) return dummyAccessToken
-        return OktaCommand.fetchAccessToken(environment.oktaApp)
-            ?: abort("Invalid access token. Run ./prime login to fetch/refresh your access token.")
+    /**
+     * The environment specified by the command line parameters
+     */
+    val cliEnvironment: Environment by lazy {
+        Environment.get(env)
     }
 
+    /**
+     * The accessToken left by a previous login command as specified by the command line parameters
+     */
+    val cliAccessToken: String by lazy {
+        if (cliEnvironment.oktaApp == null) {
+            dummyAccessToken
+        } else {
+            OktaCommand.fetchAccessToken(cliEnvironment.oktaApp)
+                ?: abort("Invalid access token. Run ./prime login to fetch/refresh your access token.")
+        }
+    }
+
+    /**
+     * Put entity for [settingName]. [settingType] is needed for serialization
+     */
     fun put(
         environment: Environment,
         accessToken: String,
@@ -148,6 +164,9 @@ abstract class SettingCommand(
         }
     }
 
+    /**
+     * Delete entity for [settingName]. [settingType] is needed for serialization
+     */
     fun delete(environment: Environment, accessToken: String, settingType: SettingType, settingName: String): String {
         val path = formPath(environment, Operation.DELETE, settingType, settingName)
         verbose("DELETE $path")
@@ -160,6 +179,9 @@ abstract class SettingCommand(
         }
     }
 
+    /**
+     * Get entity for [settingName]. [settingType] is needed for serialization
+     */
     fun get(environment: Environment, accessToken: String, settingType: SettingType, settingName: String): String {
         val path = formPath(environment, Operation.GET, settingType, settingName)
         verbose("GET $path")
@@ -171,6 +193,9 @@ abstract class SettingCommand(
         }
     }
 
+    /**
+     * Get entities for [settingName]. [settingType] is needed for serialization
+     */
     fun getMany(environment: Environment, accessToken: String, settingType: SettingType, settingName: String): String {
         val path = formPath(environment, Operation.LIST, settingType, settingName)
         verbose("GET $path")
@@ -186,6 +211,9 @@ abstract class SettingCommand(
         }
     }
 
+    /**
+     * List entities for [settingName]. [settingType] is needed for serialization
+     */
     fun listNames(
         environment: Environment,
         accessToken: String,
@@ -218,6 +246,9 @@ abstract class SettingCommand(
         }
     }
 
+    /**
+     * Echo a difference table for [settingName] to [payload]. [settingType] is needed for serialization
+     */
     fun diff(
         environment: Environment,
         accessToken: String,
@@ -361,11 +392,9 @@ abstract class ListSettingCommand(
     private val settingName: String by nameOption
 
     override fun run() {
-        val environment = Environment.get(env)
-        val accessToken = getAccessToken(environment)
         if (settingType != SettingType.ORG && settingName.isBlank())
             abort("Missing organization name argument")
-        val output = listNames(environment, accessToken, settingType, settingName)
+        val output = listNames(cliEnvironment, cliAccessToken, settingType, settingName)
         writeOutput(output.joinToString("\n"))
     }
 }
@@ -382,9 +411,7 @@ abstract class GetSettingCommand(
     private val useJson: Boolean by jsonOption
 
     override fun run() {
-        val environment = Environment.get(env)
-        val accessToken = getAccessToken(environment)
-        val output = get(environment, accessToken, settingType, settingName)
+        val output = get(cliEnvironment, cliAccessToken, settingType, settingName)
         if (useJson) writeOutput(output) else writeOutput(toYaml(output, settingType))
     }
 }
@@ -400,9 +427,7 @@ abstract class DeleteSettingCommand(
     private val settingName: String by nameOption
 
     override fun run() {
-        val environment = Environment.get(env)
-        val accessToken = getAccessToken(environment)
-        delete(environment, accessToken, settingType, settingName)
+        delete(cliEnvironment, cliAccessToken, settingType, settingName)
         writeOutput("Success. Removed $settingName\n")
     }
 }
@@ -419,13 +444,11 @@ abstract class PutSettingCommand(
     private val useJson: Boolean by jsonOption
 
     override fun run() {
-        val environment = Environment.get(env)
-        val accessToken = getAccessToken(environment)
         val (name, payload) = if (useJson)
             fromJson(readInput(), settingType)
         else
             fromYaml(readInput(), settingType)
-        val output = put(environment, accessToken, settingType, name, payload)
+        val output = put(cliEnvironment, cliAccessToken, settingType, name, payload)
         writeOutput(output)
     }
 }
@@ -442,13 +465,11 @@ abstract class DiffSettingCommand(
     private val useJson: Boolean by jsonOption
 
     override fun run() {
-        val environment = Environment.get(env)
-        val accessToken = getAccessToken(environment)
         val (name, payload) = if (useJson)
             fromJson(readInput(), settingType)
         else
             fromYaml(readInput(), settingType)
-        diff(environment, accessToken, settingType, name, payload)
+        diff(cliEnvironment, cliAccessToken, settingType, name, payload)
     }
 }
 
@@ -479,9 +500,7 @@ class ListOrganizationSetting : SettingCommand(
     help = "List the names of all organizations"
 ) {
     override fun run() {
-        val environment = Environment.get(env)
-        val accessToken = getAccessToken(environment)
-        val output = listNames(environment, accessToken, SettingType.ORG, "")
+        val output = listNames(cliEnvironment, cliAccessToken, SettingType.ORG, "")
         writeOutput(output.joinToString("\n"))
     }
 }
@@ -644,36 +663,33 @@ class PutMultipleSettings : SettingCommand(
         .int().default(30)
 
     override fun run() {
-        val environment = Environment.get(env)
-        val accessToken = getAccessToken(environment)
-
         // First wait for the API to come online
-        TermUi.echo("Waiting for the API at ${environment.url} to be available...")
-        CommandUtilities.waitForApi(environment, connRetries)
+        echo("Waiting for the API at ${cliEnvironment.url} to be available...")
+        CommandUtilities.waitForApi(cliEnvironment, connRetries)
 
-        val results = putAll(environment, accessToken)
+        val results = putAll()
         val output = "${results.joinToString("\n")}\n"
         writeOutput(output)
     }
 
-    private fun putAll(environment: Environment, accessToken: String): List<String> {
-        val deepOrgs = readYaml()
+    private fun putAll(): List<String> {
+        val deepOrganizations = readYaml()
         val results = mutableListOf<String>()
-        // Put orgs
-        deepOrgs.forEach { deepOrg ->
+        // Put organizations
+        deepOrganizations.forEach { deepOrg ->
             val org = Organization(deepOrg)
             val payload = jsonMapper.writeValueAsString(org)
-            results += put(environment, accessToken, SettingType.ORG, deepOrg.name, payload)
+            results += put(cliEnvironment, cliAccessToken, SettingType.ORG, deepOrg.name, payload)
         }
         // Put senders
-        deepOrgs.flatMap { it.senders }.forEach { sender ->
+        deepOrganizations.flatMap { it.senders }.forEach { sender ->
             val payload = jsonMapper.writeValueAsString(sender)
-            results += put(environment, accessToken, SettingType.SENDER, sender.fullName, payload)
+            results += put(cliEnvironment, cliAccessToken, SettingType.SENDER, sender.fullName, payload)
         }
         // Put receivers
-        deepOrgs.flatMap { it.receivers }.forEach { receiver ->
+        deepOrganizations.flatMap { it.receivers }.forEach { receiver ->
             val payload = jsonMapper.writeValueAsString(receiver)
-            results += put(environment, accessToken, SettingType.RECEIVER, receiver.fullName, payload)
+            results += put(cliEnvironment, cliAccessToken, SettingType.RECEIVER, receiver.fullName, payload)
         }
         return results
     }
@@ -695,28 +711,26 @@ class GetMultipleSettings : SettingCommand(
     )
 
     override fun run() {
-        val environment = Environment.get(env)
-        val accessToken = getAccessToken(environment)
-        val output = getAll(environment, accessToken)
+        val output = getAll(cliEnvironment, cliAccessToken)
         writeOutput(output)
     }
 
     private fun getAll(environment: Environment, accessToken: String): String {
-        // get orgs
-        val orgsJson = getMany(environment, accessToken, SettingType.ORG, settingName = "")
-        var orgs = jsonMapper.readValue(orgsJson, Array<OrganizationAPI>::class.java)
+        // get organizations
+        val organizationJson = getMany(environment, accessToken, SettingType.ORG, settingName = "")
+        var organizations = jsonMapper.readValue(organizationJson, Array<OrganizationAPI>::class.java)
         if (filter != null) {
-            orgs = orgs.filter { it.name.startsWith(filter!!, ignoreCase = true) }.toTypedArray()
+            organizations = organizations.filter { it.name.startsWith(filter!!, ignoreCase = true) }.toTypedArray()
         }
 
         // get senders and receivers per org
-        val deepOrgs = orgs.map { org ->
+        val deepOrganizations = organizations.map { org ->
             val sendersJson = getMany(environment, accessToken, SettingType.SENDER, org.name)
             val orgSenders = jsonMapper.readValue(sendersJson, Array<SenderAPI>::class.java).map { Sender(it) }
             val receiversJson = getMany(environment, accessToken, SettingType.RECEIVER, org.name)
             val orgReceivers = jsonMapper.readValue(receiversJson, Array<ReceiverAPI>::class.java).map { Receiver(it) }
             DeepOrganization(org, orgSenders, orgReceivers)
         }
-        return yamlMapper.writeValueAsString(deepOrgs)
+        return yamlMapper.writeValueAsString(deepOrganizations)
     }
 }

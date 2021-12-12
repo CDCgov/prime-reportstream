@@ -58,8 +58,6 @@ class AddPublicKey : SettingCommand(
     ).flag(default = false)
 
     override fun run() {
-        val environment = Environment.get(env)
-        val accessToken = getAccessToken(environment)
         val publicKeyFile = File(publicKeyFilename)
         if (! publicKeyFile.exists()) {
             echo("Unable to fine pem file " + publicKeyFile.absolutePath)
@@ -72,7 +70,7 @@ class AddPublicKey : SettingCommand(
         val jwk = SenderUtils.readPublicKeyPemFile(publicKeyFile)
         jwk.kid = if (kid.isNullOrEmpty()) settingName else kid
 
-        val origSenderJson = get(environment, accessToken, SettingType.SENDER, settingName)
+        val origSenderJson = get(cliEnvironment, cliAccessToken, SettingType.SENDER, settingName)
         val origSender = Sender(jsonMapper.readValue(origSenderJson, SenderAPI::class.java))
 
         if (!Scope.isValidScope(scope, origSender)) {
@@ -99,7 +97,7 @@ class AddPublicKey : SettingCommand(
             )
             return
         }
-        val response = put(environment, accessToken, SettingType.SENDER, settingName, newSenderJson)
+        val response = put(cliEnvironment, cliAccessToken, SettingType.SENDER, settingName, newSenderJson)
         echo()
         echo(response)
         echo()
