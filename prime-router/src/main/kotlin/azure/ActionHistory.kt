@@ -8,10 +8,10 @@ import com.microsoft.azure.functions.HttpResponseMessage
 import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Organization
-import gov.cdc.prime.router.QualityFilterResult
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
+import gov.cdc.prime.router.ReportStreamFilterResult
 import gov.cdc.prime.router.ResultDetail
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
@@ -100,7 +100,7 @@ class ActionHistory {
     /**
      * List of rows per report that have been filtered out based on quality.
      */
-    val filteredReportRows = mutableMapOf<ReportId, List<QualityFilterResult>>()
+    val filteredReportRows = mutableMapOf<ReportId, List<ReportStreamFilterResult>>()
 
     /**
      * Messages to be queued in an azure queue as part of the result of this action.
@@ -339,7 +339,7 @@ class ActionHistory {
         reportFile.schemaTopic = report.schema.topic
         reportFile.itemCount = report.itemCount
         filteredOutReports[reportFile.reportId] = reportFile
-        filteredReportRows[reportFile.reportId] = report.filteredItems
+        filteredReportRows[reportFile.reportId] = report.filteringResults
     }
 
     /**
@@ -369,7 +369,7 @@ class ActionHistory {
         reportFile.blobDigest = blobInfo.digest
         reportFile.itemCount = report.itemCount
         reportsOut[reportFile.reportId] = reportFile
-        filteredReportRows[reportFile.reportId] = report.filteredItems
+        filteredReportRows[reportFile.reportId] = report.filteringResults
         trackItemLineages(report)
         trackEvent(event) // to be sent to queue later.
     }
@@ -394,7 +394,7 @@ class ActionHistory {
         reportFile.blobDigest = blobInfo.digest
         reportFile.itemCount = report.itemCount
         reportsOut[reportFile.reportId] = reportFile
-        filteredReportRows[reportFile.reportId] = report.filteredItems
+        filteredReportRows[reportFile.reportId] = report.filteringResults
         trackItemLineages(report)
         trackEvent(event) // to be sent to queue later.
     }

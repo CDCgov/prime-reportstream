@@ -120,6 +120,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
     ]
     [rules.allowlist]
         regexes = [
+            'api/lookuptables/list',
             ' \* \(The older version of this API is "/api/reports"\)',
             ' \* since this auth (has|uses) a ',
             ' by option\(\"',
