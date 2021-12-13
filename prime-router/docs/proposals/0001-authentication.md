@@ -1,6 +1,6 @@
 ## Background
 
-Note:  Click here for the [FHIR Auth Implementation Plan](#initial-implementation-plan)
+Note:  Please click here for the [FHIR Auth Implementation Plan](#initial-implementation-plan)
 
 The PRIME ReportStream1] aims to work with multiple senders or third-parties clients that send reports to the Data-Hub. Each of these clients will need to authenticate with the Data-Hub API. This paper outlines a proposal on how these clients should provide credentials to the Data-Hub.
 
