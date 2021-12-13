@@ -4,6 +4,7 @@ import com.github.javafaker.Faker
 import com.github.javafaker.Name
 import gov.cdc.prime.router.common.NPIUtilities
 import gov.cdc.prime.router.metadata.LookupTable
+import org.apache.logging.log4j.kotlin.Logging
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.Random
@@ -22,7 +23,7 @@ import java.util.concurrent.TimeUnit
 
 private const val zipCodeData = "zip-code-data"
 
-class FakeDataService {
+class FakeDataService : Logging {
     fun getFakeValueForElement(
         element: Element,
         context: FakeReport.RowContext,
@@ -150,7 +151,10 @@ class FakeDataService {
                         element.nameContains("state") -> context.state
                         element.nameContains("county") -> context.county
                         (element.default == null) -> ""
-                        else -> TODO("Add this column in a table")
+                        else -> {
+                            logger.warn("Add this column to the ${element.table} table")
+                            ""
+                        }
                     }
                 }
                 element.table == zipCodeData -> {
@@ -160,7 +164,10 @@ class FakeDataService {
                         element.nameContains("zip") -> context.zipCode
                         element.nameContains("city") -> context.city
                         (element.default == null) -> ""
-                        else -> TODO("Add this column in a table")
+                        else -> {
+                            logger.warn("Add this column to the ${element.table} table")
+                            ""
+                        }
                     }
                 }
                 else -> TODO("Add this table ${element.table}")

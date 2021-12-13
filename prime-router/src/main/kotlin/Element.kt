@@ -408,6 +408,11 @@ data class Element(
             temporalAccessor is LocalDateTime ->
                 LocalDateTime.from(temporalAccessor)
                     .format(outputFormatter)
+            temporalAccessor is OffsetDateTime ->
+                OffsetDateTime.from(temporalAccessor)
+                    .format(outputFormatter)
+            temporalAccessor is Instant ->
+                Instant.from(temporalAccessor).toString()
             else -> error("Unsupported format!")
         }
 

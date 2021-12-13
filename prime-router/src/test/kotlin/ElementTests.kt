@@ -175,6 +175,38 @@ internal class ElementTests {
     }
 
     @Test
+    fun `test getDate output format`() {
+        val two = Element(
+            "a",
+            type = Element.Type.DATE,
+        )
+
+        // Check LocalDate output formate
+        val localDate = LocalDate.parse("2020-12-01")
+        two.getDate(localDate, dateFormat).run {
+            assertThat(this).isEqualTo("2020-12-01")
+        }
+
+        // Check LocalDateTime output format.
+        val localDateTime = LocalDateTime.parse("2018-12-12T13:30:30")
+        two.getDate(localDateTime, "M/d/yyyy HH:nn").run {
+            assertThat(this).isEqualTo("12/12/2018 13:00")
+        }
+
+        // Check OffsetDateTime output format.
+        val offsetDateTime = OffsetDateTime.parse("2018-12-12T13:30:30+05:00")
+        two.getDate(offsetDateTime, "$dateFormat HH:mm:ss").run {
+            assertThat(this).isEqualTo("2018-12-12 13:30:30")
+        }
+
+        // Check OffsetDateTime output format.
+        val instant = Instant.parse("2020-12-03T13:30:30.000Z")
+        two.getDate(instant, dateFormat).run {
+            assertThat(this).isEqualTo("2020-12-03T13:30:30Z")
+        }
+    }
+
+    @Test
     fun `test toNormalized zip`() {
         val one = Element(
             "a",
