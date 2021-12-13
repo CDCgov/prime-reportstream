@@ -60,5 +60,9 @@ jobs:
 
       - name: Build staging fallthrough for PR branch (conditional check)
         if: (!(github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/production'))
+        working-directory: ./frontend-react
         run: |
+          yarn lint:prettier
+          yarn lint:eslint
+          yarn test:ci
           yarn build:staging

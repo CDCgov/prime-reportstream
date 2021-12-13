@@ -33,20 +33,18 @@ describe("Basic rendering", () => {
 
     test("Data is displayed", () => {
         const name = screen.getByText(
-            `Full name: ${mockData.firstName} ${mockData.lastName}`,
+            `${mockData.firstName} ${mockData.lastName}`,
             { exact: false }
         );
-        const email = screen.getByText(`Email: ${mockData.email}`, {
+        const email = screen.getByText(mockData.email, {
             exact: false,
         });
-        const territory = screen.getByText(
-            `State or territory: ${mockData.territory}`,
-            { exact: false }
-        );
-        const organizationName = screen.getByText(
-            `Organization name: ${mockData.organizationName}`,
-            { exact: false }
-        );
+        const territory = screen.getByText(mockData.territory, {
+            exact: false,
+        });
+        const organizationName = screen.getByText(mockData.organizationName, {
+            exact: false,
+        });
 
         expect(name).toBeInTheDocument();
         expect(email).toBeInTheDocument();
