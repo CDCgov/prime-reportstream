@@ -248,6 +248,10 @@ title = "PRIME ReportStream Gitleaks Configuration"
     [[rules.Entropies]]
         Min = "4.3"
         Max = "7.0"
+    [rules.allowlist]
+        paths = [
+            '.',                                         # Ignore entropy until false negative resolved
+        ]
 
 [[rules]]
     description = "IPv4 addresses"
