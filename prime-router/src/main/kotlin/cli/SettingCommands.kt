@@ -18,7 +18,7 @@ import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.choice
-import com.github.ajalt.clikt.parameters.types.inputStream
+import com.github.ajalt.clikt.parameters.types.file
 import com.github.ajalt.clikt.parameters.types.int
 import com.github.ajalt.clikt.parameters.types.outputStream
 import com.github.kittinunf.fuel.Fuel
@@ -38,7 +38,7 @@ import gov.cdc.prime.router.azure.ReceiverAPI
 import gov.cdc.prime.router.azure.SenderAPI
 import gov.cdc.prime.router.common.Environment
 import org.apache.http.HttpStatus
-import java.io.InputStream
+import java.io.File
 
 private const val apiPath = "/api/settings"
 private const val dummyAccessToken = "dummy"
@@ -76,11 +76,11 @@ abstract class SettingCommand(
         help = "Do not echo progress or prompt for confirmation"
     ).flag(default = false)
 
-    protected val inStreamOption = option(
+    protected val inputOption = option(
         "-i", "--input",
         help = "Input from file",
         metavar = "<file>"
-    ).inputStream()
+    ).file(mustBeReadable = true).required()
 
     protected val nameOption = option(
         "-n", "--name",
@@ -92,8 +92,6 @@ abstract class SettingCommand(
         "--json",
         help = "Use the JSON format instead of YAML"
     ).flag(default = false)
-
-    open val inStream: InputStream? = null
 
     enum class Operation { LIST, GET, PUT, DELETE }
     enum class SettingType { ORG, SENDER, RECEIVER }
@@ -267,9 +265,8 @@ abstract class SettingCommand(
         return isDifferent
     }
 
-    fun readInput(): String {
-        if (inStream == null) abort("Missing input file")
-        val input = String(inStream!!.readAllBytes())
+    fun readInput(inputFile: File): String {
+        val input = String(inputFile.readBytes())
         if (input.isBlank()) abort("Blank input")
         return input
     }
@@ -446,14 +443,14 @@ abstract class PutSettingCommand(
     help: String,
     val settingType: SettingType
 ) : SettingCommand(name, help) {
-    override val inStream by inStreamOption
+    private val inputFile by inputOption
     private val useJson: Boolean by jsonOption
 
     override fun run() {
         val (name, payload) = if (useJson)
-            fromJson(readInput(), settingType)
+            fromJson(readInput(inputFile), settingType)
         else
-            fromYaml(readInput(), settingType)
+            fromYaml(readInput(inputFile), settingType)
         if (silent) {
             put(cliEnvironment, cliAccessToken, settingType, name, payload)
         } else {
@@ -475,14 +472,14 @@ abstract class DiffSettingCommand(
     help: String,
     val settingType: SettingType
 ) : SettingCommand(name, help) {
-    override val inStream by inStreamOption
+    private val inputFile by inputOption
     private val useJson: Boolean by jsonOption
 
     override fun run() {
         val (name, payload) = if (useJson)
-            fromJson(readInput(), settingType)
+            fromJson(readInput(inputFile), settingType)
         else
-            fromYaml(readInput(), settingType)
+            fromYaml(readInput(inputFile), settingType)
         diff(cliEnvironment, cliAccessToken, settingType, name, payload)
     }
 }
@@ -667,8 +664,7 @@ class PutMultipleSettings : SettingCommand(
     name = "set",
     help = "set all settings from a 'organizations.yml' file"
 ) {
-
-    override val inStream by inStreamOption
+    private val inputFile by inputOption
 
     /**
      * Number of connection retries.
@@ -709,7 +705,7 @@ class PutMultipleSettings : SettingCommand(
     }
 
     private fun readYaml(): List<DeepOrganization> {
-        val input = readInput()
+        val input = readInput(inputFile)
         return yamlMapper.readValue(input)
     }
 }
