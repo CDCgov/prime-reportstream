@@ -137,23 +137,25 @@ elements:
     - name: ordering_provider_id
       csvFields: [{name: Ordering_provider_ID}]
       type: TABLE
-      table: npi_lookup_by_name
-      tableColumn: npi
+      table: npi-lookup
+      tableColumn: ordering_provider_id
+      mapper: npiLookup(ordering_provider_id, ordering_facility_name_temp, sender_id)
+      mapperOverridesValue: true
 
     - name: ordering_provider_first_name
       csvFields: [{name: Ordering_provider_first_name}]
       type: TABLE
-      table: npi_lookup_by_name
+      table: npi-lookup
       tableColumn: first_name
-      mapper: lookup(npi)
+      mapper: npiLookup(ordering_provider_id, ordering_facility_name_temp, sender_id)
       mapperOverridesValue: true
 
     - name: ordering_provider_last_name
       csvFields: [{name: Ordering_provider_last_name}]
       type: TABLE
-      table: npi_lookup_by_name
+      table: npi-lookup
       tableColumn: last_name
-      mapper: lookup(npi)
+      mapper: npiLookup(ordering_provider_id, ordering_facility_name_temp, sender_id)
       mapperOverridesValue: true
 
     - name: ordering_provider_lastfirst_name
@@ -182,6 +184,9 @@ elements:
       csvFields: [{name: Testing_lab_name}]
 
     - name: ordering_facility_name_temp
+      type: TABLE
+      table: npi-lookup
+      tableColumn: ordering_facility_name
       csvFields: [{name: Ordering_facility_name}]
 
     - name: reporting_facility_name
