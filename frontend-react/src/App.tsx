@@ -21,6 +21,7 @@ import { AuthorizedRoute } from "./components/AuthorizedRoute";
 import { PERMISSIONS } from "./resources/PermissionsResource";
 import { permissionCheck, reportReceiver } from "./webreceiver-utils";
 import { Upload } from "./pages/Upload";
+import { Submissions } from "./pages/Submissions";
 import { CODES, ErrorPage } from "./pages/error/ErrorPage";
 import GlobalContextProvider from "./components/GlobalContextProvider";
 import { logout } from "./utils/UserUtils";
@@ -127,6 +128,11 @@ const App = () => {
                                         path="/upload"
                                         authorize={PERMISSIONS.SENDER}
                                         component={Upload}
+                                    />
+                                    <AuthorizedRoute
+                                        path="/submissions"
+                                        authorize={PERMISSIONS.PRIME_ADMIN}
+                                        component={Submissions}
                                     />
                                     <SecureRoute
                                         path="/report-details"
