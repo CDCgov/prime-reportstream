@@ -29,7 +29,7 @@ module "nat_gateway" {
   resource_group   = var.resource_group
   resource_prefix  = var.resource_prefix
   location         = var.location
-  public_subnet_id = module.network.public_subnet_ids[1]
+  public_subnet_id = module.network.public_subnet_ids[0]
 }
 
 
@@ -118,9 +118,9 @@ module "storage" {
 
 
 
-##########
-## 04-App
-##########
+# ##########
+# ## 04-App
+# ##########
 
 
 module "application_insights" {
@@ -160,19 +160,21 @@ module "function_app" {
 }
 
 # module "front_door" {
-#   source           = "../../modules/front_door"
+#   source           = "../modules/front_door"
 #   environment      = var.environment
 #   resource_group   = var.resource_group
 #   resource_prefix  = var.resource_prefix
 #   location         = var.location
 #   https_cert_names = var.https_cert_names
 #   is_metabase_env  = var.is_metabase_env
+#   public_primary_web_endpoint = module.storage.sa_public_primary_web_endpoint
+#   application_key_vault_id = module.key_vault.application_key_vault_id
 # }
 
 # module "sftp_container" {
 #   count = var.environment != "prod" ? 1 : 0
 
-#   source               = "../../modules/sftp_container"
+#   source               = "../modules/sftp_container"
 #   environment          = var.environment
 #   resource_group       = var.resource_group
 #   resource_prefix      = var.resource_prefix
@@ -183,7 +185,7 @@ module "function_app" {
 # module "metabase" {
 #   count = var.is_metabase_env ? 1 : 0
 
-#   source                 = "../../modules/metabase"
+#   source                 = "../modules/metabase"
 #   environment            = var.environment
 #   resource_group         = var.resource_group
 #   resource_prefix        = var.resource_prefix

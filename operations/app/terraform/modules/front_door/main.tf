@@ -4,7 +4,7 @@ locals {
 
   functionapp_address = "${var.resource_prefix}-functionapp.azurewebsites.net"
   metabase_address    = var.is_metabase_env ? "${var.resource_prefix}-metabase.azurewebsites.net" : null
-  static_address      = trimprefix(trimsuffix(data.azurerm_storage_account.storage_public.primary_web_endpoint, "/"), "https://")
+  static_address      = trimprefix(trimsuffix(var.public_primary_web_endpoint, "/"), "https://")
 
   function_certs     = [for cert in var.https_cert_names : cert if length(regexall("^[[:alnum:]]*?-?prime.*$", cert)) > 0]
   frontend_endpoints = (length(local.function_certs) > 0) ? concat(["DefaultFrontendEndpoint"], local.function_certs) : ["DefaultFrontendEndpoint"]
@@ -281,6 +281,6 @@ resource "azurerm_frontdoor_custom_https_configuration" "frontend_custom_https" 
   custom_https_configuration {
     certificate_source                      = "AzureKeyVault"
     azure_key_vault_certificate_secret_name = each.value
-    azure_key_vault_certificate_vault_id    = data.azurerm_key_vault.application.id
+    azure_key_vault_certificate_vault_id    = var.application_key_vault_id
   }
 }

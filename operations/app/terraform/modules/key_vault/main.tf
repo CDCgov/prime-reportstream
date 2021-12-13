@@ -4,7 +4,7 @@ resource "azurerm_key_vault" "application" {
   name                            = "${var.resource_prefix}-keyvault"
   location                        = var.location
   resource_group_name             = var.resource_group
-  sku_name                        = "standard"
+  sku_name                        = "premium"
   tenant_id                       = data.azurerm_client_config.current.tenant_id
   enabled_for_deployment          = true
   enabled_for_disk_encryption     = true
@@ -111,7 +111,7 @@ module "application_private_endpoint" {
   resource_group = var.resource_group
   location       = var.location
 
-  endpoint_subnet_ids = var.endpoint_subnet
+  endpoint_subnet_ids = [var.endpoint_subnet[0]]
 
   endpoint_subnet_id_for_dns = var.endpoint_subnet[0]
 }
@@ -121,7 +121,7 @@ resource "azurerm_key_vault" "app_config" {
   # Does not include "-keyvault" due to char limits (24)
   location                        = var.location
   resource_group_name             = var.resource_group
-  sku_name                        = "standard"
+  sku_name                        = "premium"
   tenant_id                       = data.azurerm_client_config.current.tenant_id
   enabled_for_deployment          = true
   enabled_for_disk_encryption     = true
@@ -196,7 +196,7 @@ resource "azurerm_key_vault" "client_config" {
 
   location                        = var.location
   resource_group_name             = var.resource_group
-  sku_name                        = "standard"
+  sku_name                        = "premium"
   tenant_id                       = data.azurerm_client_config.current.tenant_id
   enabled_for_deployment          = true
   enabled_for_disk_encryption     = true

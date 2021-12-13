@@ -40,11 +40,11 @@ variable "aad_object_keyvault_admin"{
 ##################
 
 variable "app_tier" {
-  default = "Free"
+  default = "Standard"
 }
 
 variable "app_size" {
-  default = "F1"
+  default = "S1"
 }
 
 ##################
@@ -75,7 +75,7 @@ variable "aad_group_postgres_admin" {
 ##########
 
 variable "db_sku_name" {
-  default = "B_Gen5_1"
+  default = "GP_Gen5_2"
 }
 variable "db_version" {
   default = "11"

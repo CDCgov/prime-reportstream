@@ -2,7 +2,7 @@ data "azurerm_client_config" "current" {}
 
 resource "azurerm_storage_account" "storage_account" {
   resource_group_name       = var.resource_group
-  name                      = "${var.resource_prefix}storageaccount"
+  name                      = "${var.resource_prefix}sasb"
   location                  = var.location
   account_tier              = "Standard"
   account_replication_type  = "GRS"

@@ -27,3 +27,6 @@ variable "is_metabase_env" {
   type        = bool
   description = "Should Metabase be deployed in this environment"
 }
+
+variable "public_primary_web_endpoint" {}
+variable "application_key_vault_id" {}
