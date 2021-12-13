@@ -1248,17 +1248,24 @@ class Hl7Serializer(
     }
 
     /**
-     * Calculate for [hl7Field] and [value] the length to truncate the value according to the
+     * Calculate for [hl7Field] and [value] the length to truncate the value according to theld.
      * truncation rules in [hl7Config]. The [terser] is used to determine the HL7 specification length.
      */
     internal fun getMaxLength(hl7Field: String, value: String, hl7Config: Hl7Configuration?, terser: Terser): Int? {
+        // get the fields to truncate
+        val hl7TruncationFields = hl7Config
+            ?.truncateHl7Fields
+            ?.uppercase()
+            ?.split(",")
+            ?.map { it.trim() }
+            ?: emptyList()
         return when {
             // This special case takes into account special rules needed by jurisdiction
             hl7Config?.truncateHDNamespaceIds == true && hl7Field in HD_FIELDS_LOCAL -> {
                 getTruncationLimitWithEncoding(value, HD_TRUNCATION_LIMIT)
             }
             // For the fields listed here use the hl7 max length
-            hl7Config?.truncateHl7Fields?.contains(hl7Field) == true -> {
+            hl7Field in hl7TruncationFields -> {
                 getHl7MaxLength(hl7Field, terser)
             }
             // In general, don't truncate. The thinking is that
