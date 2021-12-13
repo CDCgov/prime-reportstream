@@ -99,6 +99,7 @@ elements:
       type: TABLE
       table: test_performed_lookup
       tableColumn: generic_test_performed
+      delimiter: +
       mapper: concat(input_test_kit_name_id, Test_performed_description_Ignore)
 
     - name: exact_test_kit_name_id
