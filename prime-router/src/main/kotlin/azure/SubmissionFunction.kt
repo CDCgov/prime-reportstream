@@ -4,6 +4,7 @@ import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
 import com.microsoft.azure.functions.annotation.AuthorizationLevel
+import com.microsoft.azure.functions.annotation.BindingName
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import gov.cdc.prime.router.tokens.OktaAuthentication
@@ -22,6 +23,64 @@ class SubmissionFunction(
     private val facade = submissionsFacade
     private val oktaAuthentication = oktaAuthentication
 
+    data class Parameters(
+        val sort: String,
+        val cursor: OffsetDateTime?,
+        val pageSize: Int,
+    ) {
+        constructor(query: Map<String, String>) : this(
+            extractSort(query),
+            extractCursor(query),
+            extractPageSize(query),
+        )
+
+        companion object {
+            fun extractSort(query: Map<String, String>): String {
+                val qSortOrder = query.getOrDefault("sort", "DESC")
+                return qSortOrder
+            }
+
+            fun extractCursor(query: Map<String, String>): OffsetDateTime? {
+                val qResultsAfterDate = query.get("cursor")
+                return if (qResultsAfterDate != null) {
+                    try {
+                        OffsetDateTime.parse(qResultsAfterDate)
+                    } catch (e: DateTimeParseException) {
+                        throw IllegalArgumentException("cursor must be a valid datetime")
+                    }
+                } else null
+            }
+
+            fun extractPageSize(query: Map<String, String>): Int {
+                val size = query.getOrDefault("pagesize", "10").toIntOrNull()
+                require(size != null) { "pageSize must be a positive integer" }
+                return size
+            }
+        }
+    }
+
+    @FunctionName("getOrgSubmissions")
+    fun organizationSubmissions(
+        @HttpTrigger(
+            name = "getOrgSubmissions",
+            methods = [HttpMethod.GET],
+            authLevel = AuthorizationLevel.ANONYMOUS,
+            route = "history/{organization}/submissions"
+        ) request: HttpRequestMessage<String?>,
+        @BindingName("organization") organization: String,
+    ): HttpResponseMessage {
+        return oktaAuthentication.checkAccess(request, organization, true) {
+            try {
+                val (qSortOrder, resultsAfterDate, pageSize) = Parameters(request.queryParameters)
+
+                val submissions = facade.findSubmissionsAsJson(organization, qSortOrder, resultsAfterDate, pageSize)
+                HttpUtilities.okResponse(request, submissions)
+            } catch (e: IllegalArgumentException) {
+                HttpUtilities.badRequestResponse(request, e.message ?: "Invalid Request")
+            }
+        }
+    }
+
     /**
      * An Azure Function that is triggered at the `/api/submissions/` endpoint
      *
@@ -31,12 +90,12 @@ class SubmissionFunction(
      * @return a list of submission history results.
      */
     @FunctionName("getSubmissions")
-    fun run(
+    fun submissions(
         @HttpTrigger(
             name = "getSubmissions",
             methods = [HttpMethod.GET],
             authLevel = AuthorizationLevel.ANONYMOUS,
-            route = "submissions"
+            route = "history/submissions"
         ) request: HttpRequestMessage<String?>,
     ): HttpResponseMessage {
         return oktaAuthentication.checkAccess(request, "") {
@@ -59,20 +118,7 @@ class SubmissionFunction(
 
                 org = org.removePrefix(oktaSenderGroupPrefix)
 
-                // URL Query Parameters
-                val qSortOrder = request.queryParameters.getOrDefault("sort", "DESC")
-
-                val qResultsAfterDate = request.queryParameters.get("cursor")
-                val resultsAfterDate = if (qResultsAfterDate != null) {
-                    try {
-                        OffsetDateTime.parse(qResultsAfterDate)
-                    } catch (e: DateTimeParseException) {
-                        throw IllegalArgumentException("cursor must be a valid datetime")
-                    }
-                } else null
-
-                val pageSize = request.queryParameters.getOrDefault("pagesize", "10").toIntOrNull()
-                require(pageSize != null) { "pageSize must be a positive integer" }
+                val (qSortOrder, resultsAfterDate, pageSize) = Parameters(request.queryParameters)
 
                 val submissions = facade.findSubmissionsAsJson(org, qSortOrder, resultsAfterDate, pageSize)
                 HttpUtilities.okResponse(request, submissions)

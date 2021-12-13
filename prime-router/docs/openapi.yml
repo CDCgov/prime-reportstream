@@ -167,7 +167,7 @@ paths:
         '500':
           description: Internal Server Error
 
-  # The reports end-point handles the
+  # The reports end-point handles data payload submissions to ReportStream.
   #
   /reports:
     post:
@@ -220,10 +220,15 @@ paths:
           description: 'sync' or 'async'. defaults to 'sync'. Determines if the incoming message will follow the sync or async process
           required: false
           schema:
-            type: array
-            items:
               type: string
           example: async
+        - in: query
+          name: payloadName
+          description: Optional string name for the data payload submitted.   Typically a filename or other name useful to the sender's record-keeping.  Tracked, but not used, by ReportStream.  Must never include PII/PHI.
+          required: false
+          schema:
+            type: string
+          example: C:/foo/bar/baz/quux/myfile.hl7
       requestBody:
         description: The public health information being routed
         required: true
