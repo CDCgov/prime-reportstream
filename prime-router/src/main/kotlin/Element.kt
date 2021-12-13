@@ -344,7 +344,7 @@ data class Element(
                         // If this is US zip, return the first 5 digits
                         val matchResult = Regex(usZipFormat).matchEntire(normalizedValue)
                         matchResult?.groupValues?.get(1)
-                            ?: normalizedValue
+                            ?: normalizedValue.padStart(5, '0')
                     }
                     zipFivePlusFourToken -> {
                         // If this a US zip, either 5 or 9 digits depending on the value
@@ -354,10 +354,10 @@ data class Element(
                         } else if (matchResult != null && matchResult.groups[2] != null) {
                             "${matchResult.groups[1]?.value}-${matchResult.groups[2]?.value}"
                         } else {
-                            normalizedValue
+                            normalizedValue.padStart(5, '0')
                         }
                     }
-                    else -> normalizedValue
+                    else -> normalizedValue.padStart(5, '0')
                 }
             }
             Type.HD -> {

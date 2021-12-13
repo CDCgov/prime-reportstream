@@ -263,6 +263,30 @@ internal class ElementTests {
         one.toFormatted("XZ5555", "\$zipFivePlusFour").run {
             assertThat(this).isEqualTo("XZ5555")
         }
+        // check for padding
+        one.toFormatted("9999").run {
+            assertThat(this).isEqualTo("09999")
+        }
+        // check for padding again
+        one.toFormatted("999").run {
+            assertThat(this).isEqualTo("00999")
+        }
+        // check for padding one last time
+        one.toFormatted("9").run {
+            assertThat(this).isEqualTo("00009")
+        }
+        // check for padding with alt format
+        one.toFormatted("9999", "\$zipFive").run {
+            assertThat(this).isEqualTo("09999")
+        }
+        // check for padding again
+        one.toFormatted("999", "\$zipFive").run {
+            assertThat(this).isEqualTo("00999")
+        }
+        // check for padding one last time
+        one.toFormatted("9", "\$zipFive").run {
+            assertThat(this).isEqualTo("00009")
+        }
     }
 
     @Test
