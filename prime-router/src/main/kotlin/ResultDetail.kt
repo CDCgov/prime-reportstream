@@ -42,3 +42,7 @@ data class ResultDetail(
         }
     }
 }
+
+class ResultError(message: String?, val detail: ResultDetail) : Error(message)
+
+class ResultErrors(val details: List<ResultDetail>) : Error()

@@ -5,11 +5,11 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isFailure
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
-import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.ResultErrors
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.TestSource
 import gov.cdc.prime.router.unittest.UnitTestUtils
@@ -17,6 +17,7 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.nio.charset.StandardCharsets
 import kotlin.test.Test
+import kotlin.test.assertFailsWith
 
 class CsvSerializerTests {
     @Test
@@ -245,11 +246,9 @@ class CsvSerializerTests {
         """.trimIndent()
         val csvConverter = CsvSerializer(Metadata(schema = one))
         // Run it
-        val result = csvConverter.readExternal("one", ByteArrayInputStream(csv.toByteArray()), TestSource)
-        // Expect the converter to catch the error. Our serializer will error on malformed CSVs.
-        assertThat(result.errors.size).isEqualTo(1)
-        assertThat(result.warnings.size).isEqualTo(0)
-        assertThat(result.report).isNull()
+        assertFailsWith<ResultErrors> {
+            val result = csvConverter.readExternal("one", ByteArrayInputStream(csv.toByteArray()), TestSource)
+        }
     }
 
     @Test
@@ -270,11 +269,10 @@ class CsvSerializerTests {
         """.trimIndent()
         val csvConverter = CsvSerializer(Metadata(schema = one))
         // Run it
-        val result = csvConverter.readExternal("one", ByteArrayInputStream(csv.toByteArray()), TestSource)
-        // Expect the converter to catch the error. Our serializer will error on malformed CSVs.
-        assertThat(result.errors.size).isEqualTo(1)
-        assertThat(result.warnings.size).isEqualTo(0)
-        assertThat(result.report).isNull()
+        val err = assertFailsWith<ResultErrors> {
+            val result = csvConverter.readExternal("one", ByteArrayInputStream(csv.toByteArray()), TestSource)
+        }
+        assertThat(err.details.size).isEqualTo(1)
     }
 
     @Test
@@ -366,10 +364,10 @@ class CsvSerializerTests {
             a
             1
         """.trimIndent()
-        val result2 = csvConverter.readExternal("one", ByteArrayInputStream(csv2.toByteArray()), TestSource)
-        assertThat(result2.warnings.size).isEqualTo(1) // Missing d header
-        assertThat(result2.errors.size).isEqualTo(1) // missing b header
-        assertThat(result2.report).isNull()
+        val err = assertFailsWith<ResultErrors> {
+            val result2 = csvConverter.readExternal("one", ByteArrayInputStream(csv2.toByteArray()), TestSource)
+        }
+        assertThat(err.details.size).isEqualTo(2)
 
         // Happy path
         val csv3 = """
@@ -544,8 +542,9 @@ class CsvSerializerTests {
             OBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN||260415000^Not detected^SCT|||N^Normal (applies to non-numeric results)^HL70078|||F|||202102090000-0600|||CareStart COVID-19 Antigen test_Access Bio, Inc._EUA^^99ELR||202102090000-0600||||Avante at Ormond Beach^^^^^CLIA&2.16.840.1.113883.4.7&ISO^^^^10D0876999^CLIA|170 North King Road^^Ormond Beach^FL^32174^^^^12127
             """.trimIndent().toByteArray()
         )
-        result = serializer.readExternal(schema.name, hl7Data, TestSource)
-        assertThat(result.errors).isNotEmpty()
-        assertThat(result.report).isNull()
+        val err = assertFailsWith<ResultErrors> {
+            result = serializer.readExternal(schema.name, hl7Data, TestSource)
+        }
+        assertThat(err.details).isNotEmpty()
     }
 }

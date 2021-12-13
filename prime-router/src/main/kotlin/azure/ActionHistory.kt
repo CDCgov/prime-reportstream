@@ -2,6 +2,7 @@ package gov.cdc.prime.router.azure
 
 import com.fasterxml.jackson.core.JsonFactory
 import com.fasterxml.jackson.core.JsonGenerator
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
@@ -101,6 +102,8 @@ class ActionHistory {
      * List of rows per report that have been filtered out based on quality.
      */
     val filteredReportRows = mutableMapOf<ReportId, List<QualityFilterResult>>()
+
+    val details = mutableListOf<ResultDetail>()
 
     /**
      * Messages to be queued in an azure queue as part of the result of this action.
@@ -248,8 +251,9 @@ class ActionHistory {
      * Set the action response. This is primarily used by backend functions that do not have an associated HttpRequest
      * @param jsonResponse the generated stringified json representing the response
      */
-    fun trackActionResponse(jsonResponse: String) {
-        action.actionResponse = JSONB.valueOf(jsonResponse)
+    fun trackActionResponse(response: String) {
+        val jsonResponse = runCatching { jacksonObjectMapper().readTree(response) }.getOrNull()
+        action.actionResponse = JSONB.jsonbOrNull(jsonResponse?.toString())
     }
 
     /**
@@ -681,7 +685,8 @@ class ActionHistory {
             }
 
             sendingAt = when {
-                reportOptions == Options.SkipSend -> {
+                reportFile.nextAction == null ||
+                    reportFile.nextAction == Event.EventAction.NONE.toTaskAction() -> {
                     "never - skipSend specified"
                 }
                 reportFile.nextActionAt != null -> {
@@ -855,6 +860,7 @@ class ActionHistory {
         warnings: List<ResultDetail>,
         errors: List<ResultDetail>,
         verbose: Boolean,
+        // TODO DG: This doesn't make sense to accept an arbitrary report and then use tracked reports for other info
         report: Report? = null
     ): String {
         val factory = JsonFactory()
@@ -863,6 +869,13 @@ class ActionHistory {
             it.useDefaultPrettyPrinter()
             it.writeStartObject()
             if (report != null) {
+                val inboundReports = reportsReceived + reportsIn
+                checkNotNull(inboundReports[report.id]) {
+                    "Should only create a response body for reports that have beeen recorded."
+                }
+                check(inboundReports.size == 1) {
+                    "Only able to record one report at a time."
+                }
                 it.writeStringField("id", report.id.toString())
                 it.writeStringField("timestamp", DateTimeFormatter.ISO_INSTANT.format(Instant.now()))
                 it.writeStringField("topic", report.schema.topic)

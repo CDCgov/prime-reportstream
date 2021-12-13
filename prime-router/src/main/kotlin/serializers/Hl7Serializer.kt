@@ -21,6 +21,7 @@ import gov.cdc.prime.router.Mapper
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ResultDetail
+import gov.cdc.prime.router.ResultErrors
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Source
@@ -381,7 +382,10 @@ class Hl7Serializer(
         mappedRows.forEach {
             logger.debug("${it.key} -> ${it.value.joinToString()}")
         }
-        val report = if (errors.size > 0) null else Report(schema, mappedRows, source, metadata = metadata)
+        if (errors.size > 0) {
+            throw ResultErrors(errors)
+        }
+        val report = Report(schema, mappedRows, source, metadata = metadata)
         return ReadResult(report, errors, warnings)
     }
 

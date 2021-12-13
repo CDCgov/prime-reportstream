@@ -278,6 +278,7 @@ class ActionHistoryTests {
         r0.reportId = UUID.randomUUID()
         r0.receivingOrg = org0.name
         r0.receivingOrgSvc = org0.receivers[0].name
+        r0.nextAction = TaskAction.send
         r0.itemCount = 17
         actionHistory.reportsOut[r0.reportId] = r0
         val r1 = ReportFile()
@@ -351,7 +352,7 @@ class ActionHistoryTests {
         val json3 = outStream.toString()
         val tree3: JsonNode? = jacksonObjectMapper().readTree(json3)
         val arr3 = tree3?.get("destinations") as ArrayNode?
-        assertThat(arr3?.get(0)?.get("sending_at")?.textValue() ?: "").isEqualTo(
+        assertThat(arr3?.get(1)?.get("sending_at")?.textValue() ?: "").isEqualTo(
             "never - skipSend specified"
         )
     }

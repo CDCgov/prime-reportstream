@@ -180,31 +180,36 @@ class HttpUtilities {
          * Do a variety of checks on payload size.
          * Returns a Pair (http error code, human readable error message)
          */
-        fun payloadSizeCheck(request: HttpRequestMessage<String?>): Pair<HttpStatus, String> {
+        fun payloadSizeCheck(request: HttpRequestMessage<String?>) {
             val contentLengthStr = request.headers["content-length"]
-                ?: return HttpStatus.LENGTH_REQUIRED to "ERROR: No content-length header found.  Refusing this request."
+                ?: throw HttpException(
+                    "ERROR: No content-length header found.  Refusing this request.", HttpStatus.LENGTH_REQUIRED
+                )
             val contentLength = try {
                 contentLengthStr.toLong()
             } catch (e: NumberFormatException) {
-                return HttpStatus.LENGTH_REQUIRED to "ERROR: content-length header is not a number"
+                throw HttpException("ERROR: content-length header is not a number", HttpStatus.LENGTH_REQUIRED)
             }
             when {
                 contentLength < 0 -> {
-                    return HttpStatus.LENGTH_REQUIRED to "ERROR: negative content-length $contentLength"
+                    throw HttpException("ERROR: negative content-length $contentLength", HttpStatus.LENGTH_REQUIRED)
                 }
                 contentLength > PAYLOAD_MAX_BYTES -> {
-                    return HttpStatus.PAYLOAD_TOO_LARGE to
-                        "ERROR: content-length $contentLength is larger than max $PAYLOAD_MAX_BYTES"
+                    throw HttpException(
+                        "ERROR: content-length $contentLength is larger than max $PAYLOAD_MAX_BYTES",
+                        HttpStatus.PAYLOAD_TOO_LARGE
+                    )
                 }
             }
             // content-length header is ok.  Now check size of actual body as well
             val content = request.body
             if (content != null && content.length > PAYLOAD_MAX_BYTES) {
-                return HttpStatus.PAYLOAD_TOO_LARGE to
+                throw HttpException(
                     "ERROR: body size ${content.length} is larger than max $PAYLOAD_MAX_BYTES " +
-                    "(content-length header = $contentLength"
+                        "(content-length header = $contentLength",
+                    HttpStatus.PAYLOAD_TOO_LARGE,
+                )
             }
-            return HttpStatus.OK to ""
         }
 
         /**
@@ -323,3 +328,5 @@ class HttpUtilities {
         }
     }
 }
+
+class HttpException(message: String, val code: HttpStatus) : Error(message)

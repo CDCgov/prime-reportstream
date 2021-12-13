@@ -17,6 +17,8 @@ import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.ROUTE_TO_SEPARATOR
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ResultDetail
+import gov.cdc.prime.router.ResultError
+import gov.cdc.prime.router.ResultErrors
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.tokens.AuthenticationStrategy
@@ -49,16 +51,10 @@ class ReportFunction : Logging {
     }
 
     data class ValidatedRequest(
-        val valid: Boolean,
-        val httpStatus: HttpStatus,
-        val errors: MutableList<ResultDetail> = mutableListOf(),
-        val warnings: MutableList<ResultDetail> = mutableListOf(),
         val content: String = "",
-        val options: Options = Options.None,
         val defaults: Map<String, String> = emptyMap(),
         val routeTo: List<String> = emptyList(),
-        val sender: Sender? = null,
-        val verbose: Boolean = false,
+        val sender: Sender,
     )
 
     /**
@@ -179,91 +175,119 @@ class ReportFunction : Logging {
         val isAsync = processingType(request) == ProcessingType.Async
         val errors: MutableList<ResultDetail> = mutableListOf()
         val warnings: MutableList<ResultDetail> = mutableListOf()
-        // The following is identical to waters (for arch reasons)
-        val validatedRequest = validateRequest(workflowEngine, request)
-        // track the sending organization and client based on the header
-        actionHistory.trackActionSender(extractClientHeader(request))
-        warnings += validatedRequest.warnings
-        handleValidation(validatedRequest, request, actionHistory, workflowEngine)?.let {
-            return it
-        }
+        val responseBuilder = request.createResponseBuilder(HttpStatus.BAD_REQUEST)
+            .header(HttpHeaders.CONTENT_TYPE, "application/json")
+        try {
+            val optionsText = request.queryParameters.getOrDefault(OPTION_PARAMETER, "None")
+            val options = Options.valueOf(optionsText)
 
-        var report = workflowEngine.createReport(
-            sender,
-            validatedRequest.content,
-            validatedRequest.defaults,
-            errors,
-            warnings
-        )
+            // extract the verbose param and default to empty if not present
+            val verboseParam = request.queryParameters.getOrDefault(VERBOSE_PARAMETER, "")
+            val verbose = verboseParam.equals(VERBOSE_TRUE, true)
+            // track the sending organization and client based on the header
+            try {
+                val validatedRequest = validateRequest(workflowEngine, request)
+                actionHistory.trackActionSender(validatedRequest.sender.fullName)
+                when (options) {
+                    Options.CheckConnections, Options.ValidatePayload -> {
+                        responseBuilder.body(
+                            actionHistory.createResponseBody(
+                                options,
+                                emptyList(),
+                                emptyList(),
+                                false,
+                            )
+                        ).status(HttpStatus.OK)
+                    }
+                    else -> {
+                        val (report, readErrors, readWarnings) = workflowEngine.createReport(
+                            sender,
+                            validatedRequest.content,
+                            validatedRequest.defaults,
+                        )
 
-        var response: HttpResponseMessage
+                        // checks for errors from createReport
+                        if (options != Options.SkipInvalidItems && readErrors.isNotEmpty()) {
+                            throw ResultErrors(readErrors)
+                        }
 
-        // default response body, will be overwritten if message is successfully processed
-        var responseBody = actionHistory.createResponseBody(
-            validatedRequest.options,
-            warnings,
-            errors,
-            false
-        )
+                        report.bodyURL = workflowEngine.recordReceivedReport(
+                            // should make createReport always return a report or error
+                            report, validatedRequest.content.toByteArray(), sender,
+                            actionHistory, workflowEngine
+                        )
 
-        // checks for errors from createReport
-        if (validatedRequest.options != Options.SkipInvalidItems && errors.isNotEmpty()) {
-            response = HttpUtilities.httpResponse(
-                request,
-                responseBody,
-                HttpStatus.BAD_REQUEST
-            )
-            actionHistory.trackActionResult(response)
-            actionHistory.trackActionResponse(response, responseBody)
-            workflowEngine.recordAction(actionHistory)
-        }
-        // if no errors resulting in a bad request, move forward with processing
-        else {
-            if (report != null) {
+                        // call the correct processing function based on processing type
+                        if (isAsync) {
+                            processAsync(
+                                report,
+                                workflowEngine,
+                                options,
+                                validatedRequest.defaults,
+                                validatedRequest.routeTo,
+                                actionHistory
+                            )
+                        } else {
+                            workflowEngine.routeReport(
+                                context,
+                                report,
+                                options,
+                                validatedRequest.defaults,
+                                validatedRequest.routeTo,
+                                warnings,
+                                actionHistory
+                            )
+                        }
 
-                report.bodyURL = workflowEngine.recordReceivedReport(
-                    // should make createReport always return a report or error
-                    report, validatedRequest.content.toByteArray(), sender,
-                    actionHistory, workflowEngine
-                )
-
-                // call the correct processing function based on processing type
-                if (isAsync) {
-                    processAsync(
-                        report,
-                        workflowEngine,
-                        validatedRequest.options,
-                        validatedRequest.defaults,
-                        validatedRequest.routeTo,
-                        actionHistory
-                    )
-                } else {
-                    workflowEngine.routeReport(
-                        context,
-                        report,
-                        validatedRequest.options,
-                        validatedRequest.defaults,
-                        validatedRequest.routeTo,
-                        warnings,
-                        actionHistory
-                    )
+                        // TODO DG: continue reducing this passing of mutable lists
+                        errors += readErrors
+                        warnings += readWarnings
+                        responseBuilder.body(
+                            actionHistory.createResponseBody(
+                                // TODO DG: get rid of the need for options, only used to handle "skip send" case
+                                // to tell them that it's never sent.
+                                options,
+                                warnings,
+                                errors,
+                                verbose,
+                                report
+                            )
+                        )
+                        responseBuilder.status(HttpStatus.CREATED)
+                    }
                 }
-                responseBody = actionHistory.createResponseBody(
-                    validatedRequest.options,
-                    warnings,
-                    errors,
-                    validatedRequest.verbose,
-                    report
+            } catch (e: ResultError) {
+                responseBuilder.body(
+                    actionHistory.createResponseBody(
+                        options,
+                        warnings,
+                        listOf(e.detail),
+                        verbose,
+                    )
+                )
+            } catch (e: ResultErrors) {
+                responseBuilder.body(
+                    actionHistory.createResponseBody(
+                        options,
+                        warnings,
+                        e.details,
+                        verbose,
+                    )
                 )
             }
-            response = HttpUtilities.createdResponse(request, responseBody)
-            actionHistory.trackActionResult(response)
-            actionHistory.trackActionResponse(response, responseBody)
-            workflowEngine.recordAction(actionHistory)
-
-            // queue messages here after all task / action records are in
-            actionHistory.queueMessages(workflowEngine)
+        } catch (e: IllegalArgumentException) {
+            responseBuilder.body(e.message ?: "Invalid request.")
+        } catch (e: IllegalStateException) {
+            responseBuilder.body(e.message ?: "Invalid request.")
         }
+
+        val response = responseBuilder.build()
+        actionHistory.trackActionResult(response)
+        actionHistory.trackActionResponse(response, response.body.toString())
+        workflowEngine.recordAction(actionHistory)
+
+        // queue messages here after all task / action records are in
+        actionHistory.queueMessages(workflowEngine)
         return response
     }
 
@@ -315,94 +339,9 @@ class ReportFunction : Logging {
         workflowEngine.insertProcessTask(report, report.bodyFormat.toString(), blobInfo.blobUrl, processEvent)
     }
 
-    private fun handleValidation(
-        validatedRequest: ValidatedRequest,
-        request: HttpRequestMessage<String?>,
-        actionHistory: ActionHistory,
-        workflowEngine: WorkflowEngine
-    ): HttpResponseMessage? {
-        var response: HttpResponseMessage? = when {
-            !validatedRequest.valid -> {
-                HttpUtilities.httpResponse(
-                    request,
-                    actionHistory.createResponseBody(
-                        validatedRequest.options,
-                        validatedRequest.warnings,
-                        validatedRequest.errors,
-                        false
-                    ),
-                    validatedRequest.httpStatus
-                )
-            }
-            validatedRequest.options == Options.CheckConnections -> {
-                workflowEngine.checkConnections()
-                HttpUtilities.okResponse(
-                    request,
-                    actionHistory.createResponseBody(
-                        validatedRequest.options,
-                        validatedRequest.warnings,
-                        validatedRequest.errors,
-                        false
-                    )
-                )
-            }
-            // is this meant to happen after the creation of a report?
-            validatedRequest.options == Options.ValidatePayload -> {
-                HttpUtilities.okResponse(
-                    request,
-                    actionHistory.createResponseBody(
-                        validatedRequest.options,
-                        validatedRequest.warnings,
-                        validatedRequest.errors,
-                        false
-                    )
-                )
-            }
-            else -> null
-        }
-
-        if (response != null) {
-            actionHistory.trackActionResult(response)
-            actionHistory.trackActionResponse(
-                response,
-                actionHistory.createResponseBody(
-                    validatedRequest.options,
-                    validatedRequest.warnings,
-                    validatedRequest.errors,
-                    false
-                )
-            )
-            workflowEngine.recordAction(actionHistory)
-        }
-
-        return response
-    }
-
     private fun validateRequest(engine: WorkflowEngine, request: HttpRequestMessage<String?>): ValidatedRequest {
         val errors = mutableListOf<ResultDetail>()
-        val warnings = mutableListOf<ResultDetail>()
-        val (sizeStatus, errMsg) = HttpUtilities.payloadSizeCheck(request)
-        if (sizeStatus != HttpStatus.OK) {
-            errors.add(ResultDetail.report(InvalidReportMessage.new(errMsg)))
-            // If size is too big, we ignore the option.
-            return ValidatedRequest(false, sizeStatus, errors, warnings)
-        }
-
-        val optionsText = request.queryParameters.getOrDefault(OPTION_PARAMETER, "")
-        val options = if (optionsText.isNotBlank()) {
-            try {
-                Options.valueOf(optionsText)
-            } catch (e: IllegalArgumentException) {
-                errors.add(ResultDetail.param(OPTION_PARAMETER, InvalidParamMessage.new("'$optionsText' is not valid")))
-                Options.None
-            }
-        } else {
-            Options.None
-        }
-
-        if (options == Options.CheckConnections) {
-            return ValidatedRequest(false, HttpStatus.OK, errors, warnings, options = options)
-        }
+        HttpUtilities.payloadSizeCheck(request)
 
         val receiverNamesText = request.queryParameters.getOrDefault(ROUTE_TO_PARAMETER, "")
         val routeTo = if (receiverNamesText.isNotBlank()) receiverNamesText.split(ROUTE_TO_SEPARATOR) else emptyList()
@@ -438,10 +377,6 @@ class ReportFunction : Logging {
                 )
             )
 
-        // extract the verbose param and default to empty if not present
-        val verboseParam = request.queryParameters.getOrDefault(VERBOSE_PARAMETER, "")
-        val verbose = verboseParam.equals(VERBOSE_TRUE, true)
-
         val contentType = request.headers.getOrDefault(HttpHeaders.CONTENT_TYPE.lowercase(), "")
         if (contentType.isBlank()) {
             errors.add(ResultDetail.param(HttpHeaders.CONTENT_TYPE, InvalidParamMessage.new("missing")))
@@ -459,7 +394,7 @@ class ReportFunction : Logging {
         }
 
         if (sender == null || schema == null || content.isEmpty() || errors.isNotEmpty()) {
-            return ValidatedRequest(false, HttpStatus.BAD_REQUEST, errors, warnings)
+            throw ResultErrors(errors)
         }
 
         val defaultValues = if (request.queryParameters.containsKey(DEFAULT_PARAMETER)) {
@@ -489,20 +424,14 @@ class ReportFunction : Logging {
         }
 
         if (content.isEmpty() || errors.isNotEmpty()) {
-            return ValidatedRequest(false, HttpStatus.BAD_REQUEST, errors, warnings)
+            throw ResultErrors(errors)
         }
 
         return ValidatedRequest(
-            true,
-            HttpStatus.OK,
-            errors,
-            warnings,
             content,
-            options,
             defaultValues,
             routeTo,
             sender,
-            verbose
         )
     }
 }

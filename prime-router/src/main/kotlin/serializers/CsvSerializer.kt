@@ -18,6 +18,7 @@ import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.ResponseMessage
 import gov.cdc.prime.router.ResultDetail
+import gov.cdc.prime.router.ResultErrors
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Source
 import org.apache.logging.log4j.kotlin.Logging
@@ -125,7 +126,8 @@ class CsvSerializer(val metadata: Metadata) : Logging {
             }
         }
         if (errors.size > 0) {
-            return ReadResult(null, errors, warnings)
+            // warnings is empty at this point
+            throw ResultErrors(errors)
         }
 
         if (rows.isEmpty()) {
@@ -145,10 +147,12 @@ class CsvSerializer(val metadata: Metadata) : Logging {
                     )
                 )
             )
-            return ReadResult(null, errors, warnings)
+            // TODO DG: this needs result detail to have a level (warning, error, etc.)
+            throw ResultErrors(errors + warnings)
         }
+        // at this point there are no branches that can return a non null report and errors > 0
         if (csvMapping.errors.isNotEmpty()) {
-            return ReadResult(null, errors, warnings)
+            throw ResultErrors(errors + warnings)
         }
 
         val mappedRows = rows.mapIndexedNotNull { index, row ->
@@ -174,7 +178,7 @@ class CsvSerializer(val metadata: Metadata) : Logging {
                     )
                 )
             )
-            return ReadResult(null, errors, warnings)
+            throw ResultErrors(errors + warnings)
         }
         return ReadResult(Report(schema, mappedRows, sources, destination, metadata = metadata), errors, warnings)
     }

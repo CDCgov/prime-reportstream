@@ -11,6 +11,7 @@ import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.ResultDetail
+import gov.cdc.prime.router.ResultError
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
@@ -23,6 +24,7 @@ import gov.cdc.prime.router.azure.db.tables.pojos.Task
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
+import gov.cdc.prime.router.serializers.ReadResult
 import gov.cdc.prime.router.serializers.RedoxSerializer
 import gov.cdc.prime.router.transport.AS2Transport
 import gov.cdc.prime.router.transport.BlobStoreTransport
@@ -835,25 +837,19 @@ class WorkflowEngine(
         sender: Sender,
         content: String,
         defaults: Map<String, String>,
-        // TODO: Tech debt, should not be getting errors and warnings as side effect work, should be returning something
-        //  and building these in the response object from the top layer function
-        errors: MutableList<ResultDetail>,
-        warnings: MutableList<ResultDetail>
-    ): Report? {
+    ): ReadResult {
         return when (sender.format) {
             Sender.Format.CSV -> {
                 try {
-                    val readResult = this.csvSerializer.readExternal(
+                    this.csvSerializer.readExternal(
                         schemaName = sender.schemaName,
                         input = ByteArrayInputStream(content.toByteArray()),
                         sources = listOf(ClientSource(organization = sender.organizationName, client = sender.name)),
                         defaultValues = defaults
                     )
-                    errors += readResult.errors
-                    warnings += readResult.warnings
-                    readResult.report
                 } catch (e: Exception) {
-                    errors.add(
+                    throw ResultError(
+                        e.message,
                         ResultDetail.report(
                             InvalidReportMessage.new(
                                 "An unexpected error occurred requiring additional help. Contact the ReportStream " +
@@ -861,29 +857,25 @@ class WorkflowEngine(
                             )
                         )
                     )
-                    null
                 }
             }
             Sender.Format.HL7 -> {
                 try {
-                    val readResult = this.hl7Serializer.readExternal(
+                    this.hl7Serializer.readExternal(
                         schemaName = sender.schemaName,
                         input = ByteArrayInputStream(content.toByteArray()),
                         ClientSource(organization = sender.organizationName, client = sender.name)
                     )
-                    errors += readResult.errors
-                    warnings += readResult.warnings
-                    readResult.report
                 } catch (e: Exception) {
-                    errors.add(
+                    throw ResultError(
+                        e.message,
                         ResultDetail.report(
                             InvalidReportMessage.new(
-                                "An unexpected error occurred requiring " +
-                                    "additional help. Contact the ReportStream team at reportstream@cdc.gov."
+                                "An unexpected error occurred requiring additional help. Contact the ReportStream " +
+                                    "team at reportstream@cdc.gov."
                             )
                         )
                     )
-                    null
                 }
             }
         }
