@@ -174,7 +174,8 @@ class WorkflowEngine(
         rawBody: ByteArray,
         sender: Sender,
         actionHistory: ActionHistory,
-        workflowEngine: WorkflowEngine
+        workflowEngine: WorkflowEngine,
+        payloadName: String? = null,
     ): String {
         // Save a copy of the original report
         val senderReportFormat = Report.Format.safeValueOf(sender.format.toString())
@@ -184,7 +185,7 @@ class WorkflowEngine(
             blobFilename, sender.fullName, Event.EventAction.RECEIVE
         )
 
-        actionHistory.trackExternalInputReport(report, blobInfo)
+        actionHistory.trackExternalInputReport(report, blobInfo, payloadName)
         return blobInfo.blobUrl
     }
 
