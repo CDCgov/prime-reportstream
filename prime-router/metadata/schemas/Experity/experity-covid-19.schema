@@ -93,17 +93,20 @@ elements:
 # Specimen/Order Info
 
     - name: input_test_kit_name_id
+      csvFields: [{name: Ordered_test_description}]
+
+    - name: concat_test_kit_name
       type: TABLE
       table: test_performed_lookup
       tableColumn: generic_test_performed
-      csvFields: [{name: Ordered_test_description}]
+      mapper: concat(input_test_kit_name_id, Test_performed_description_Ignore)
 
     - name: exact_test_kit_name_id
       csvFields: [{name: Ordered_exact_test_description}]
       type: TABLE
       table: test_performed_lookup
       tableColumn: exact_test_performed
-      mapper: lookup(sender_id, input_test_kit_name_id)
+      mapper: lookup(sender_id, concat_test_kit_name)
 
     - name: specimen_collection_date_time
       csvFields: [{name: Specimen_collection_date_time, format: "M/d/yyyy H:nn"}]
@@ -142,7 +145,7 @@ elements:
       type: TABLE
       table: test_performed_lookup
       tableColumn: exact_specimen_type
-      mapper: lookup(sender_id, input_test_kit_name_id)
+      mapper: lookup(sender_id, concat_test_kit_name)
       mapperOverridesValue: true
 
 
@@ -153,7 +156,7 @@ elements:
       type: TABLE
       table: test_performed_lookup
       tableColumn: exact_specimen_type_source_site
-      mapper: lookup(sender_id, input_test_kit_name_id)
+      mapper: lookup(sender_id, concat_test_kit_name)
       mapperOverridesValue: true
 
 
