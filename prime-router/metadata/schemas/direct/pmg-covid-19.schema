@@ -1,6 +1,6 @@
 ---
 name: pmg-covid-19
-description: PMG
+description: Premier Medical Group USA
 topic: covid-19
 trackingElement: specimen_id
 basedOn: covid-19
