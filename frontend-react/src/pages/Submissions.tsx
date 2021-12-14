@@ -1,4 +1,4 @@
-import { Suspense } from "react";
+import { useState, Suspense } from "react";
 import { Helmet } from "react-helmet";
 import { NetworkErrorBoundary } from "rest-hooks";
 import { useOktaAuth } from "@okta/okta-react";
@@ -21,8 +21,8 @@ const OrgName = () => {
 function Submissions() {
     const { authState } = useOktaAuth();
     const organization = localStorage.getItem(GLOBAL_STORAGE_KEYS.GLOBAL_ORG);
+    const [submissions, setSubmissions] = useState([]);
 
-    let submissions: [] = [];
     fetch(
         `${process.env.REACT_APP_BACKEND_URL}/api/history/${organization}/submissions`,
         {
@@ -32,8 +32,8 @@ function Submissions() {
         }
     )
         .then((res) => res.json())
-        .then((submissionsJson) => {
-            submissions = submissionsJson;
+        .then((submissionJson) => {
+            setSubmissions(JSON.parse(submissionJson));
         });
 
     return (
