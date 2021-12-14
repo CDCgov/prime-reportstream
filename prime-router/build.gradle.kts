@@ -110,8 +110,9 @@ tasks.clean {
     delete("target")
     // clean up all the old event files in the SOAP set up
     doLast {
-        val eventsDir = File("../.environment/soap_service/soap/event/v1/")
-        if (eventsDir.exists()) {
+        val eventsDir = File("../.environment/soap_service/soap/event/v1")
+        if (eventsDir.exists() && eventsDir.isDirectory && eventsDir.listFiles().isNotEmpty()) {
+            // Note FileUtils does not like when the folder is empty.
             FileUtils.listFiles(eventsDir, arrayOf("event"), true).forEach {
                 it.delete()
             }
@@ -575,7 +576,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
     implementation("com.microsoft.azure.functions:azure-functions-java-library:1.4.2")
     implementation("com.azure:azure-core:1.23.1")
-    implementation("com.azure:azure-core-http-netty:1.11.2")
+    implementation("com.azure:azure-core-http-netty:1.11.4")
     implementation("com.azure:azure-storage-blob:12.14.1") {
         exclude(group = "com.azure", module = "azure-core")
     }
@@ -590,9 +591,9 @@ dependencies {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
-    implementation("org.apache.logging.log4j:log4j-api:[2.13.2,)")
-    implementation("org.apache.logging.log4j:log4j-core:[2.13.2,)")
-    implementation("org.apache.logging.log4j:log4j-slf4j-impl:[2.13.2,)")
+    implementation("org.apache.logging.log4j:log4j-api:[2.15.0,)")
+    implementation("org.apache.logging.log4j:log4j-core:[2.15.0,)")
+    implementation("org.apache.logging.log4j:log4j-slf4j-impl:[2.15.0,)")
     implementation("org.apache.logging.log4j:log4j-api-kotlin:1.1.0")
     implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.2.0")
     implementation("tech.tablesaw:tablesaw-core:0.42.0")
@@ -624,12 +625,12 @@ dependencies {
     implementation("org.postgresql:postgresql:42.3.0")
     implementation("com.zaxxer:HikariCP:5.0.0")
     implementation("org.flywaydb:flyway-core:8.2.0")
-    implementation("com.github.kayr:fuzzy-csv:1.7.2")
+    implementation("com.github.kayr:fuzzy-csv:1.7.3")
     implementation("org.commonmark:commonmark:0.18.0")
     implementation("com.google.guava:guava:31.0.1-jre")
     implementation("com.helger.as2:as2-lib:4.8.0")
     // Prevent mixed versions of these libs based on different versions being included by different packages
-    implementation("org.bouncycastle:bcpkix-jdk15on:1.69")
+    implementation("org.bouncycastle:bcpkix-jdk15on:1.70")
     implementation("org.bouncycastle:bcmail-jdk15on:1.69")
     implementation("org.bouncycastle:bcprov-jdk15on:1.69")
 

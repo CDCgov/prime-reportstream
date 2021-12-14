@@ -9,6 +9,7 @@ open class Organization(
     val jurisdiction: Jurisdiction,
     val stateCode: String?,
     val countyName: String?,
+    val filters: List<ReportStreamFilters>? = emptyList(), // one ReportStreamFilters obj per topic. 
 ) {
     constructor(org: Organization) : this(org.name, org.description, org.jurisdiction, org.stateCode, org.countyName)
 
@@ -53,9 +54,13 @@ class DeepOrganization(
     jurisdiction: Jurisdiction,
     stateCode: String? = null,
     countyName: String? = null,
+    filters: List<ReportStreamFilters>? = emptyList(),
     val senders: List<Sender> = emptyList(),
     val receivers: List<Receiver> = emptyList(),
-) : Organization(name, description, jurisdiction, stateCode, countyName) {
+) : Organization(name, description, jurisdiction, stateCode, countyName, filters) {
     constructor(org: Organization, senders: List<Sender>, receivers: List<Receiver>) :
-        this(org.name, org.description, org.jurisdiction, org.stateCode, org.countyName, senders, receivers)
+        this(
+            org.name, org.description, org.jurisdiction, org.stateCode, org.countyName, org.filters,
+            senders, receivers
+        )
 }

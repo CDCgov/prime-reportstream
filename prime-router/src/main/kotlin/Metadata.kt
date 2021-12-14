@@ -45,7 +45,7 @@ class Metadata : Logging {
         HashMapper(),
         NullMapper()
     )
-    private var jurisdictionalFilters = listOf(
+    private var reportStreamFilterDefinitions = listOf(
         FilterByCounty(),
         Matches(),
         DoesNotMatch(),
@@ -252,11 +252,11 @@ class Metadata : Logging {
     }
 
     /*
-    * JurisdictionalFilters
+    * ReportStreamFilterDefinitions
     */
 
-    fun findJurisdictionalFilter(name: String): JurisdictionalFilter? {
-        return jurisdictionalFilters.find { it.name.equals(name, ignoreCase = true) }
+    fun findReportStreamFilterDefinitions(name: String): ReportStreamFilterDefinition? {
+        return reportStreamFilterDefinitions.find { it.name.equals(name, ignoreCase = true) }
     }
 
     /*
