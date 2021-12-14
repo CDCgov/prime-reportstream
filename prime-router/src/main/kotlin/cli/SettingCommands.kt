@@ -16,6 +16,7 @@ import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.choice
+import com.github.ajalt.clikt.parameters.types.file
 import com.github.ajalt.clikt.parameters.types.inputStream
 import com.github.ajalt.clikt.parameters.types.int
 import com.github.ajalt.clikt.parameters.types.outputStream
@@ -27,16 +28,21 @@ import com.github.kittinunf.fuel.core.extensions.authentication
 import com.github.kittinunf.fuel.json.FuelJson
 import com.github.kittinunf.fuel.json.responseJson
 import com.github.kittinunf.result.Result
+import com.google.common.net.HttpHeaders
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.OrganizationAPI
 import gov.cdc.prime.router.azure.ReceiverAPI
 import gov.cdc.prime.router.azure.SenderAPI
 import gov.cdc.prime.router.common.Environment
 import org.apache.http.HttpStatus
+import java.io.File
 import java.io.InputStream
+import java.time.OffsetDateTime
+import java.time.format.DateTimeParseException
 
 private const val apiPath = "/api/settings"
 private const val dummyAccessToken = "dummy"
@@ -192,11 +198,23 @@ abstract class SettingCommand(
         }
     }
 
-    fun readInput(): String {
-        if (inStream == null) abort("Missing input file")
-        val input = String(inStream!!.readAllBytes())
+    /**
+     * Read the contents of an [inputStream].
+     * @return the file contents
+     */
+    fun readInput(inputStream: InputStream? = inStream): String {
+        if (inputStream == null) abort("Missing input file")
+        val input = String(inputStream.readAllBytes())
         if (input.isBlank()) abort("Blank input")
         return input
+    }
+
+    /**
+     * Read the contents [file].
+     * @return the file contents
+     */
+    fun readInput(file: File): String {
+        return readInput(file.inputStream())
     }
 
     fun writeOutput(output: String) {
@@ -518,14 +536,26 @@ class PutMultipleSettings : SettingCommand(
     help = "set all settings from a 'organizations.yml' file"
 ) {
 
-    override val inStream by option("-i", "--input", help = "Input from file", metavar = "<file>")
-        .inputStream()
+    /**
+     * Input file with the settings.
+     */
+    private val inputFile by option("-i", "--input", help = "Input from file", metavar = "<file>")
+        .file(true, mustBeReadable = true).required()
 
     /**
      * Number of connection retries.
      */
     private val connRetries by option("-r", "--retries", help = "Number of seconds to retry waiting for the API")
         .int().default(30)
+
+    /**
+     * Number of connection retries.
+     */
+    private val checkLastModified by option(
+        "--check-last-modified",
+        help = "Update settings only if input file is newer"
+    )
+        .flag(default = false)
 
     override fun run() {
         val environment = Environment.get(env)
@@ -535,13 +565,45 @@ class PutMultipleSettings : SettingCommand(
         TermUi.echo("Waiting for the API at ${environment.url} to be available...")
         CommandUtilities.waitForApi(environment, connRetries)
 
-        val results = putAll(environment, accessToken)
-        val output = "${results.joinToString("\n")}\n"
-        writeOutput(output)
+        if (!checkLastModified || (checkLastModified && isFileUpdated(environment))) {
+            TermUi.echo("Loading settings from ${inputFile.absolutePath}...")
+            val results = putAll(environment, accessToken)
+            val output = "${results.joinToString("\n")}\n"
+            writeOutput(output)
+        } else {
+            TermUi.echo("No new updates found for settings.")
+        }
+    }
+
+    /**
+     * Check if the settings from a file are newer than the data stored in the database for the
+     * given [environment].
+     * @return true if the file settings are newer or there is nothing in the database, false otherwise
+     */
+    private fun isFileUpdated(environment: Environment): Boolean {
+        val url = formPath(environment, Operation.LIST, SettingType.ORG, "")
+        val (_, response, result) = Fuel.head(url).authentication()
+            .bearer(getAccessToken(environment)).response()
+        return when (result) {
+            is Result.Success -> {
+                if (response[HttpHeaders.LAST_MODIFIED].isNotEmpty()) {
+                    try {
+                        val apiModifiedTime = OffsetDateTime.parse(
+                            response[HttpHeaders.LAST_MODIFIED].first(),
+                            HttpUtilities.lastModifiedFormatter
+                        )
+                        apiModifiedTime.toInstant().toEpochMilli() < inputFile.lastModified()
+                    } catch (e: DateTimeParseException) {
+                        error("Unable to decode last modified data from API call. $e")
+                    }
+                } else true // We have no last modified time, which means the DB is empty
+            }
+            else -> error("Unable to fetch settings last update time from API.  $result")
+        }
     }
 
     private fun putAll(environment: Environment, accessToken: String): List<String> {
-        val deepOrgs = readYaml()
+        val deepOrgs = readYaml(inputFile)
         val results = mutableListOf<String>()
         // Put orgs
         deepOrgs.forEach { deepOrg ->
@@ -562,8 +624,12 @@ class PutMultipleSettings : SettingCommand(
         return results
     }
 
-    private fun readYaml(): List<DeepOrganization> {
-        val input = readInput()
+    /**
+     * Read the settings from a YAML file.
+     * @return the settings
+     */
+    private fun readYaml(file: File): List<DeepOrganization> {
+        val input = readInput(file.inputStream())
         return yamlMapper.readValue(input)
     }
 }

@@ -105,7 +105,7 @@
                     "imgAlt": "Map of the U.S. showing states and territories where ReportStream is currently live",
                     "linkInternal": "/how-it-works/where-were-live"
                 }
-            ] 
+            ]
         },
         {
             "title": "Interested in learning more about ReportStream?",
@@ -114,21 +114,6 @@
             "description": "ReportStream works with public health departments looking to get better quality COVID-19 data from jurisdictions. We also collaborate with testing facilities, data aggregators, manufacturers, and more to send test results to health departments.",
             "buttonText": "Get in touch",
             "buttonUrlSubject": "?subject=I'm interested in learning more about ReportStream"
-        }
-    ],
-
-    "freeSecure": [
-        {
-            "title": "Free and created by the CDC",
-            "summary": "Developed for COVID-19 test data and public health departments, ReportStream is 100% free.",
-            "icon": "cdc-logo.svg",
-            "iconDescription": "CDC logo"
-        },
-        {
-            "title": "Safe and secure",
-            "summary": "Test results and patient data are securely stored and protected by two-factor authentication, database encryption, and HTTPS.",
-            "icon": "shield.svg",
-            "iconDescription": "Icon of a shield"
         }
     ]
 }

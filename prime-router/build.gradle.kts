@@ -110,8 +110,9 @@ tasks.clean {
     delete("target")
     // clean up all the old event files in the SOAP set up
     doLast {
-        val eventsDir = File("../.environment/soap_service/soap/event/v1/")
-        if (eventsDir.exists()) {
+        val eventsDir = File("../.environment/soap_service/soap/event/v1")
+        if (eventsDir.exists() && eventsDir.isDirectory && eventsDir.listFiles().isNotEmpty()) {
+            // Note FileUtils does not like when the folder is empty.
             FileUtils.listFiles(eventsDir, arrayOf("event"), true).forEach {
                 it.delete()
             }
@@ -574,8 +575,8 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
     implementation("com.microsoft.azure.functions:azure-functions-java-library:1.4.2")
-    implementation("com.azure:azure-core:1.22.0")
-    implementation("com.azure:azure-core-http-netty:1.11.2")
+    implementation("com.azure:azure-core:1.23.1")
+    implementation("com.azure:azure-core-http-netty:1.11.4")
     implementation("com.azure:azure-storage-blob:12.14.1") {
         exclude(group = "com.azure", module = "azure-core")
     }
@@ -590,9 +591,9 @@ dependencies {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
-    implementation("org.apache.logging.log4j:log4j-api:[2.13.2,)")
-    implementation("org.apache.logging.log4j:log4j-core:[2.13.2,)")
-    implementation("org.apache.logging.log4j:log4j-slf4j-impl:[2.13.2,)")
+    implementation("org.apache.logging.log4j:log4j-api:[2.15.0,)")
+    implementation("org.apache.logging.log4j:log4j-core:[2.15.0,)")
+    implementation("org.apache.logging.log4j:log4j-slf4j-impl:[2.15.0,)")
     implementation("org.apache.logging.log4j:log4j-api-kotlin:1.1.0")
     implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.2.0")
     implementation("tech.tablesaw:tablesaw-core:0.42.0")
@@ -605,7 +606,7 @@ dependencies {
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
     implementation("com.googlecode.libphonenumber:libphonenumber:8.12.38")
-    implementation("org.thymeleaf:thymeleaf:3.0.12.RELEASE")
+    implementation("org.thymeleaf:thymeleaf:3.0.14.RELEASE")
     implementation("com.sendgrid:sendgrid-java:4.8.0")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.1")
     implementation("com.github.kittinunf.fuel:fuel:2.3.1") {
@@ -660,7 +661,7 @@ dependencies {
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
     testImplementation("com.github.KennethWussmann:mock-fuel:1.3.0")
     testImplementation("io.mockk:mockk:1.12.1")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.1")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.2")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.25")
     testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.2")
