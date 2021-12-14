@@ -239,17 +239,6 @@ title = "PRIME ReportStream Gitleaks Configuration"
     ]
 
 [[rules]]
-    description = "High Entropy"
-    regex = '[0-9a-zA-Z-_!{}/=]{4,120}'
-    file = '''(?i)(dump.sql|high-entropy-misc.txt)$'''
-    tags = [
-        "entropy",
-    ]
-    [[rules.Entropies]]
-        Min = "4.3"
-        Max = "7.0"
-
-[[rules]]
     description = "IPv4 addresses"
     regex = '\b((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.|$)){4}\b'
     tags = [

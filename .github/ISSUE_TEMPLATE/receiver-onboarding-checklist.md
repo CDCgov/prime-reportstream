@@ -29,3 +29,4 @@ The following items, generally in order, must be completed to successfully onboa
 * [ ] Has the receiver confirmed receipt of the data?
 * [ ] Have the files processed successfully?
 * [ ] Are we in production?
+* [ ] Update customerStatus flag in production settings to active
