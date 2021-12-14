@@ -328,8 +328,9 @@ class NpiLookupMapper : Mapper {
         }
 
         return when (filteredList.size) {
+            0 -> error("No ${element.name} was found with your filters.")
             1 -> filteredList[0]
-            else -> error("More than one result found, could not successfully lookup")
+            else -> error("More than one ${element.name} was found with your filters.")
         }
     }
 }
