@@ -22,7 +22,11 @@ included records.
 We can improve this situation and add retry/scalability by adding a cron job and altering the way we use the batch
 queue. Instead of adding each message-per-receiver-per-bucket to the queue at ingestion a cron job could run at
 the minimum granularity for batching (1 minute), determine which receivers need to be batched at that time, and put a 
-message on the queue to be handled immediately by the batchFunction. This is a minimal-change approach that leaves the
+message on the queue to be handled immediately by the batchFunction. 
+
+The Batch function will be changed to grab all Tasks whose next_action_at is in the past, thereby creating a natural retry mechanism.  (Currently Batch requires an exact match of dates). 
+
+This is a minimal-change approach that leaves the
 Task table management as it is but severely reduces our performance bottlenecks and race conditions. Once done, the
 single run of the batch function for that receiver will pull all outstanding records up to [receiver limit] and batch 
 them. 
