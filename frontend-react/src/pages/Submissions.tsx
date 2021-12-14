@@ -32,9 +32,7 @@ function Submissions() {
         }
     )
         .then((res) => res.json())
-        .then((submissionJson) => {
-            setSubmissions(JSON.parse(submissionJson));
-        });
+        .then((submissions) => setSubmissions(submissions));
 
     return (
         <NetworkErrorBoundary
