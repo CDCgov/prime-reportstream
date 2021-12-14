@@ -25,9 +25,13 @@ the minimum granularity for batching (1 minute), determine which receivers need 
 message on the queue to be handled immediately by the batchFunction. This is a minimal-change approach that leaves the
 Task table management as it is but severely reduces our performance bottlenecks and race conditions. Once done, the
 single run of the batch function for that receiver will pull all outstanding records up to [receiver limit] and batch 
-them. If there are more records than [receiver limit] it will continue to follow the batching process until all records
-have been batched.  We will need to take a snapshot of the id of the 'last record' at start of batch time or this could
-be an infinite batching process if records continue to trickle in.
+them. 
+
+If there are more records than [receiver-limit] it will place
+ `(count(reports-past-due-for-batching-for-one-receiver) / [receiver-limit] )`
+ messages on the queue for that receiver, and depend on Azure to scale to meet that demand, as well as on Azure's queue throttling settings (in `host.json`) to avoid swamping the system.
+
+This will cover situations where, for example, Batch has been down for some time and Batch work is horrendously backed up.
 
 ### Nifty Warehouse Metaphor
 Right now we have a front desk person who is getting paper reports - people are dropping by and sticking them in the
