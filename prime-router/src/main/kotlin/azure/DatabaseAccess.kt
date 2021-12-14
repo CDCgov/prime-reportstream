@@ -668,7 +668,12 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
         return ctx
             .select(inline(1))
             .from(ACTION)
-            .where(ACTION.ACTION_PARAMS.eq(queueMessage))
+            .where(
+                ACTION.ACTION_NAME.eq(TaskAction.process)
+                    .or(ACTION.ACTION_NAME.eq(TaskAction.process_warning))
+                    .or(ACTION.ACTION_NAME.eq(TaskAction.process_error))
+            )
+            .and(ACTION.ACTION_PARAMS.eq(queueMessage))
             .count()
     }
 
