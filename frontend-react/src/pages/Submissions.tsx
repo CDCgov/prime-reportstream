@@ -1,12 +1,13 @@
-
 import { Suspense } from "react";
 import { Helmet } from "react-helmet";
 import { NetworkErrorBoundary } from "rest-hooks";
-import { ErrorPage } from "./error/ErrorPage";
 import { useOktaAuth } from "@okta/okta-react";
+import moment from "moment";
+
 import { useOrgName } from "../utils/OrganizationUtils";
 import { GLOBAL_STORAGE_KEYS } from "../components/GlobalContextProvider";
-import moment from "moment";
+
+import { ErrorPage } from "./error/ErrorPage";
 
 const OrgName = () => {
     const orgName: string = useOrgName();
@@ -21,7 +22,7 @@ function Submissions() {
     const { authState } = useOktaAuth();
     const organization = localStorage.getItem(GLOBAL_STORAGE_KEYS.GLOBAL_ORG);
 
-    let submissions:[] = [];
+    let submissions: [] = [];
     fetch(
         `${process.env.REACT_APP_BACKEND_URL}/api/history/${organization}/submissions`,
         {
@@ -30,10 +31,10 @@ function Submissions() {
             },
         }
     )
-    .then(res => res.json())
-    .then(submissionsJson => {
-        submissions = submissionsJson;
-    })
+        .then((res) => res.json())
+        .then((submissionsJson) => {
+            submissions = submissionsJson;
+        });
 
     return (
         <NetworkErrorBoundary
@@ -59,7 +60,10 @@ function Submissions() {
             <div className="grid-container usa-section margin-bottom-10">
                 <div className="grid-col-12">
                     <h2>Test results</h2>
-                    <table className="usa-table usa-table--borderless prime-table" aria-label="Submission history from the last 30 days">
+                    <table
+                        className="usa-table usa-table--borderless prime-table"
+                        aria-label="Submission history from the last 30 days"
+                    >
                         <thead>
                             <tr>
                                 <th scope="col">Date/time submitted</th>
@@ -73,16 +77,18 @@ function Submissions() {
                             {submissions.map((s, i) => {
                                 return (
                                     <tr key={"submission_" + i}>
-                                        <td scope="row">
+                                        <th scope="row">
                                             {moment
                                                 .utc(s["createdAt"])
                                                 .local()
                                                 .format("YYYY-MM-DD HH:mm")}
-                                        </td>
-                                        <td scope="row"></td> {/* File name */}
-                                        <td scope="row">{s["reportItemCount"]}</td>
-                                        <td scope="row">{s["id"]}</td>
-                                        <td scope="row">{s["warningCount"]}</td>
+                                        </th>
+                                        <th scope="row"></th> {/* File name */}
+                                        <th scope="row">
+                                            {s["reportItemCount"]}
+                                        </th>
+                                        <th scope="row">{s["id"]}</th>
+                                        <th scope="row">{s["warningCount"]}</th>
                                     </tr>
                                 );
                             })}
