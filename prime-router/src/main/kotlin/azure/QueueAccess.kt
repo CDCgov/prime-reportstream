@@ -1,5 +1,7 @@
 package gov.cdc.prime.router.azure
 
+import com.azure.storage.common.policy.RequestRetryOptions
+import com.azure.storage.common.policy.RetryPolicyType
 import com.azure.storage.queue.QueueClient
 import com.azure.storage.queue.QueueServiceClientBuilder
 import java.time.Duration

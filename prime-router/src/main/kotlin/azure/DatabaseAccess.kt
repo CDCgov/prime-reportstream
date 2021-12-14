@@ -6,6 +6,7 @@ import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.db.Tables
+import gov.cdc.prime.router.azure.db.Tables.ACTION
 import gov.cdc.prime.router.azure.db.Tables.COVID_RESULT_METADATA
 import gov.cdc.prime.router.azure.db.Tables.EMAIL_SCHEDULE
 import gov.cdc.prime.router.azure.db.Tables.JTI_CACHE
@@ -658,6 +659,19 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             .fetchOne()
             ?.getValue(DSL.max(SETTING.CREATED_AT))
     }
+
+    /**
+     * Get the number of action records with action_params = [queueMessage]
+     */
+    fun getActionCountForReport(queueMessage: String): Int {
+        val ctx = create
+        return ctx
+            .select(inline(1))
+            .from(ACTION)
+            .where(ACTION.ACTION_PARAMS.eq(queueMessage))
+            .count()
+    }
+
 
     /**
      * Saves the connection check result to the db
