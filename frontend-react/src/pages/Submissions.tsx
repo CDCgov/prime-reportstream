@@ -59,7 +59,7 @@ function Submissions() {
             </section>
             <div className="grid-container usa-section margin-bottom-10">
                 <div className="grid-col-12">
-                    <h2>Test results</h2>
+                    <h2>Submissions</h2>
                     <table
                         className="usa-table usa-table--borderless prime-table"
                         aria-label="Submission history from the last 30 days"
