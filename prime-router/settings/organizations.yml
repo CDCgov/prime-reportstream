@@ -291,6 +291,17 @@
       schemaName: non-standard/all-in-one-health-ca-covid-19
       format: CSV
 
+- name: pmg
+  description: Premier Medical Group USA
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: pmg
+      topic: covid-19
+      customerStatus: active
+      schemaName: direct/pmg-covid-19
+      format: CSV
+
 - name: az-phd
   description: Arizona PHD
   jurisdiction: STATE
