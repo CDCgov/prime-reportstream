@@ -1,4 +1,4 @@
-import { useState, Suspense } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { Helmet } from "react-helmet";
 import { NetworkErrorBoundary } from "rest-hooks";
 import { useOktaAuth } from "@okta/okta-react";
@@ -23,16 +23,18 @@ function Submissions() {
     const organization = localStorage.getItem(GLOBAL_STORAGE_KEYS.GLOBAL_ORG);
     const [submissions, setSubmissions] = useState([]);
 
-    fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/api/history/${organization}/submissions`,
-        {
-            headers: {
-                Authorization: `Bearer ${authState?.accessToken?.accessToken}`,
-            },
-        }
-    )
-        .then((res) => res.json())
-        .then((submissions) => setSubmissions(submissions));
+    useEffect(() => {
+        fetch(
+            `${process.env.REACT_APP_BACKEND_URL}/api/history/${organization}/submissions`,
+            {
+                headers: {
+                    Authorization: `Bearer ${authState?.accessToken?.accessToken}`,
+                },
+            }
+        )
+            .then((res) => res.json())
+            .then((submissions) => setSubmissions(submissions));
+    }, [authState, organization]);
 
     return (
         <NetworkErrorBoundary
