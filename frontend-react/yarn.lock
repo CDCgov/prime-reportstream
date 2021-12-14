@@ -1618,10 +1618,10 @@
     mkdirp "^1.0.4"
     rimraf "^3.0.2"
 
-"@okta/okta-auth-js@^5.9.0":
-  version "5.9.0"
-  resolved "https://registry.yarnpkg.com/@okta/okta-auth-js/-/okta-auth-js-5.9.0.tgz#ffd9049116fb1bc0af654992a6779d9d81377946"
-  integrity sha512-q3OA2E0ir0kYg70CibnpLNschgE8LeMXS5MgClGdQuJ2h/FiNskcM4ZsQeKvqu44IfWhKLj2Mf9DquU2oKFRbg==
+"@okta/okta-auth-js@^5.9.1":
+  version "5.9.1"
+  resolved "https://registry.yarnpkg.com/@okta/okta-auth-js/-/okta-auth-js-5.9.1.tgz#308b972cf07cd46a73dcf9b5e5b403ec5e2d7208"
+  integrity sha512-SIbPbVn8M0t9Gw49LXrKgMltNfdsoQtDc2N7opgmL68mvWT34DKUzUIFnufzRf4E9ZwaamvTvS1C9dXa4S6c1w==
   dependencies:
     "@babel/runtime" "^7.12.5"
     "@okta/okta-idx-js" "0.22.0"
@@ -12504,10 +12504,10 @@ typedarray@^0.0.6:
   resolved "https://registry.yarnpkg.com/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
   integrity sha1-hnrHTjhkGHsdPUfZlqeOxciDB3c=
 
-typescript@^4.5.2:
-  version "4.5.2"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.5.2.tgz#8ac1fba9f52256fdb06fb89e4122fa6a346c2998"
-  integrity sha512-5BlMof9H1yGt0P8/WF+wPNw6GfctgGjXp5hkblpyT+8rkASSmkUKMXrxR0Xg8ThVCi/JnHQiKXeBaEwCeQwMFw==
+typescript@^4.5.3:
+  version "4.5.3"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.5.3.tgz#afaa858e68c7103317d89eb90c5d8906268d353c"
+  integrity sha512-eVYaEHALSt+s9LbvgEv4Ef+Tdq7hBiIZgii12xXJnukryt3pMgJf6aKhoCZ3FWQsu6sydEnkg11fYXLzhLBjeQ==
 
 u2f-api-polyfill@0.4.3:
   version "0.4.3"
