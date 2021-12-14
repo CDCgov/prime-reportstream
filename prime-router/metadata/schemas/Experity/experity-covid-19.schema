@@ -13,7 +13,7 @@ elements:
     - name: sender_id
       csvFields: [{name: sender_id}]
       type: TABLE
-      table: test_performed_lookup
+      table: test-mapper
       tableColumn: sender_id
 
     - name: processing_mode_code
@@ -96,7 +96,11 @@ elements:
       csvFields: [{name: Any_column}]
       type: TABLE
 <<<<<<< HEAD
+<<<<<<< HEAD
       table: test_performed_lookup
+=======
+      table: test-mapper
+>>>>>>> parent of 81de07b5 (Updates to use better table name)
       tableColumn: generic_test_performed
       csvFields: [{name: Ordered_test_description}]
 =======
@@ -109,7 +113,11 @@ elements:
       csvFields: [{name: Ordered_test_description}]
       type: TABLE
 <<<<<<< HEAD
+<<<<<<< HEAD
       table: test_performed_lookup
+=======
+      table: test-mapper
+>>>>>>> parent of 81de07b5 (Updates to use better table name)
       tableColumn: exact_test_performed
       mapper: lookup(sender_id, input_test_kit_name_id)
 =======
@@ -152,7 +160,7 @@ elements:
       csvFields: [{ name: Specimen_type_description, format: $display}]
       default: "258500001"
       type: TABLE
-      table: test_performed_lookup
+      table: test-mapper
       tableColumn: exact_specimen_type
       mapper: lookup(sender_id, test_kit_name_id)
 
@@ -162,7 +170,7 @@ elements:
       csvFields: [{ name: Specimen_type_description, format: $display}]
       default: "71836000"
       type: TABLE
-      table: test_performed_lookup
+      table: test-mapper
       tableColumn: exact_specimen_type_source_site
       mapper: lookup(sender_id, test_kit_name_id)
 
