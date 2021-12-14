@@ -50,6 +50,7 @@ runs:
       shell: bash
 
     - uses: golfzaptw/action-connect-ovpn@2.0.1
+      if: env.VPN_ENV
       id: connect_vpn
       with:
         FILE_OVPN: .github/vpn/${{ env.VPN_ENV }}.ovpn

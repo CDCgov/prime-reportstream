@@ -33,6 +33,7 @@ runs:
         path: frontend-react/build
 
     - name: Upload Static Site (React)
+      if: env.IMAGE_REPO
       shell: bash
       working-directory: .
       run: |
