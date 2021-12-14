@@ -5,26 +5,31 @@ import tech.tablesaw.api.Table
 import tech.tablesaw.selection.Selection
 
 /**
- * A *JurisdictionalFilter* can be used in the jurisdictionalFilter property in an OrganizationService.
+ * This is a library or toolkit of useful filter definitions.  Filters remove "rows" of data.
+ * (as opposed to Mappers, which manipulate columns of data)
+ *
+ * A call to a [ReportStreamFilterDefinition] can be used in the filters property in an Organization
  * It allowed you to create arbitrarily complex filters on data.
- * Each filter in the list does a "and" boolean operation with the other filters in the list.
+ * Each filter in the list does an "and" boolean operation with the other filters in the list.
+ *
  * Here is an example use:
- *  `jurisdictionalFilter: { FilterByPatientOrFacilityLoc(AZ, Pima) }`
+ * ```
+ *  jurisdictionalFilter: { filterByPatientOrFacilityLoc(AZ, Pima) }
+ * ```
  *
- * The name `filterByPatientOrFacility` then maps via pseudo-reflection to an implementation of JurisdictionalFilter
- * here.
+ * The name `filterByPatientOrFacility` then maps via pseudo-reflection to an implementation of a
+ * ReportStreamFilterDef here.
  *
- * If you add a implementation here, you have to add it to the list of jurisdictionalFilters in Metadata.kt.
+ * If you add an implementation here, you have to add it to the list of reportStreamFilters in Metadata.kt.
  *
- * A JurisdictionFilter is stateless.   It has a name property, which should be used in the filter definition -
- * basically a simple way of implementing Reflection.
- *
- * Currently JurisdictionFilter implements its filtering by just re-using the very rich `Selection` functionality already in tablesaw.
+ * A ReportStreamFilterDef is stateless.   It has a name property, which should be used in the filter definition -
+ * basically a simple way of implementing Reflection. Currently ReportStreamFilterDef implements its filtering
+ * by just re-using the very rich `Selection` functionality already in tablesaw.
  *
  * Hoping we implement some geospatial searches someday.
  *
  */
-interface JurisdictionalFilter : Logging {
+interface ReportStreamFilterDefinition : Logging {
     /**
      * Name of the filter function
      */
@@ -40,6 +45,19 @@ interface JurisdictionalFilter : Logging {
      * tablesaw table.
      */
     fun getSelection(args: List<String>, table: Table, receiver: Receiver, doAuditing: Boolean = true): Selection
+
+    companion object : Logging {
+        /**
+         * filterFunction must be of form "funName(arg1, arg2, etc)"
+         */
+        fun parseReportStreamFilter(filterFunction: String): Pair<String, List<String>> {
+            // Using a permissive match in the (arg1, arg2) section, to allow most regexs to be passed as args.
+            // Somehow this works with "(?i).*Pima.*", I guess because the \\x29 matches rightmost ')' char
+            val match = Regex("([a-zA-Z0-9]+)\\x28(.*)\\x29").find(filterFunction)
+                ?: error("ReportStreamFilter field $filterFunction does not parse")
+            return match.groupValues[1] to match.groupValues[2].split(',').map { it.trim() }
+        }
+    }
 }
 
 /**
@@ -47,7 +65,7 @@ interface JurisdictionalFilter : Logging {
  * If the column name does not exist, nothing passes thru the filter.
  * matches(columnName, regex, regex, regex)
  */
-class Matches : JurisdictionalFilter {
+class Matches : ReportStreamFilterDefinition {
     override val name = "matches"
 
     override fun getSelection(
@@ -82,7 +100,7 @@ class Matches : JurisdictionalFilter {
  *
  * A row of data is "allowed" if it does not match any of the values, or if the column does not exist
  */
-class DoesNotMatch : JurisdictionalFilter {
+class DoesNotMatch : ReportStreamFilterDefinition {
     override val name = "doesNotMatch"
 
     override fun getSelection(
@@ -107,14 +125,6 @@ class DoesNotMatch : JurisdictionalFilter {
         } else {
             Selection.withRange(0, table.rowCount())
         }
-        if (selection.size() < table.rowCount()) {
-            JurisdictionalFilters.logFiltering(
-                Selection.withRange(0, table.rowCount()), selection,
-                "$name(${args.joinToString(",")})",
-                receiver,
-                doAuditing
-            )
-        }
         return selection
     }
 }
@@ -122,7 +132,7 @@ class DoesNotMatch : JurisdictionalFilter {
 /**
  * This may or may not be a unicorn.
  */
-class FilterByCounty : JurisdictionalFilter {
+class FilterByCounty : ReportStreamFilterDefinition {
     override val name = "filterByCounty"
 
     override fun getSelection(
@@ -174,7 +184,7 @@ class FilterByCounty : JurisdictionalFilter {
  * Example:
  * jurisdictionalFilter:  orEquals(ordering_facility_state, PA, patient_state, PA)
  */
-class OrEquals : JurisdictionalFilter {
+class OrEquals : ReportStreamFilterDefinition {
     override val name = "orEquals"
 
     override fun getSelection(
@@ -205,9 +215,9 @@ class OrEquals : JurisdictionalFilter {
 }
 
 /**
- * A filter that filter nothing -- allows all data through
+ * A filter that filter nothing -- allows all data through.  Useful for overriding more strict defaults.
  */
-class AllowAll : JurisdictionalFilter {
+class AllowAll : ReportStreamFilterDefinition {
     override val name = "allowAll"
 
     override fun getSelection(
@@ -227,12 +237,33 @@ class AllowAll : JurisdictionalFilter {
 }
 
 /**
+ * A filter that filter everything -- allows no data through.  Useful as a default to be overridden.
+ */
+class AllowNone : ReportStreamFilterDefinition {
+    override val name = "allowNone"
+
+    override fun getSelection(
+        args: List<String>,
+        table: Table,
+        receiver: Receiver,
+        doAuditing: Boolean
+    ): Selection {
+        // See note on allowAll above on regex weirdness.
+        if (args.size > 1) error(
+            "For rcvr ${receiver.fullName} Expecting no args for filter $name." +
+                " Got ${args.joinToString(",")}"
+        )
+        return Selection.withRange(0, 0)
+    }
+}
+
+/**
  * Implements a quality check match.  If a row has valid data for all the columns, the row is selected.
  * If any column name does not exist, nothing passes thru the filter.
  * hasValidDataFor(columnName1, columnName2, columnName3, ...)
  * If no columns are passed, all rows are selected.  So, any number of args is acceptable.
  */
-class HasValidDataFor : JurisdictionalFilter {
+class HasValidDataFor : ReportStreamFilterDefinition {
     override val name = "hasValidDataFor"
 
     override fun getSelection(
@@ -248,15 +279,7 @@ class HasValidDataFor : JurisdictionalFilter {
             if (columnNames.contains(colName)) {
                 val before = Selection.with(*selection.toArray()) // hack way to copy to a new Selection obj
                 selection = selection.andNot(table.stringColumn(colName).isEmptyString)
-
-                JurisdictionalFilters.logFiltering(before, selection, "$name($colName)", receiver, doAuditing)
             } else {
-                JurisdictionalFilters.logAllEliminated(
-                    table.rowCount(),
-                    "$name($colName): column not found",
-                    receiver,
-                    doAuditing
-                )
                 return Selection.withRange(0, 0)
             }
         }
@@ -275,7 +298,7 @@ class HasValidDataFor : JurisdictionalFilter {
  * find no official documentation confirming that, so that is not enforced)
  *
  */
-class IsValidCLIA : JurisdictionalFilter {
+class IsValidCLIA : ReportStreamFilterDefinition {
     override val name = "isValidCLIA"
 
     override fun getSelection(
@@ -287,27 +310,10 @@ class IsValidCLIA : JurisdictionalFilter {
         if (args.isEmpty()) error("Expecting at least one arg for filter $name.  Got none.")
         var selection = Selection.withRange(0, 0)
         val columnNames = table.columnNames()
-        var atLeastOneColumnFound = false
         args.forEach { colName ->
             if (columnNames.contains(colName)) {
                 selection = selection.or(
                     table.stringColumn(colName).lengthEquals(10).and(table.stringColumn(colName).isAlphaNumeric)
-                )
-                atLeastOneColumnFound = true
-            }
-        }
-        if (!atLeastOneColumnFound) {
-            JurisdictionalFilters.logAllEliminated(
-                table.rowCount(),
-                "$name(${args.joinToString(",")}): none of these columns found.",
-                receiver,
-                doAuditing
-            )
-        } else {
-            if (selection.size() < table.rowCount()) {
-                JurisdictionalFilters.logFiltering(
-                    Selection.withRange(0, table.rowCount()), selection,
-                    "$name(${args.joinToString(",")})", receiver, doAuditing
                 )
             }
         }
@@ -319,7 +325,7 @@ class IsValidCLIA : JurisdictionalFilter {
  * hasAtLeastOneOf(columnName1, columnName2, columnName3, ...)
  * Implements a quality check match.  If a row has valid data for any of the columns, the row is selected.
  */
-class HasAtLeastOneOf : JurisdictionalFilter {
+class HasAtLeastOneOf : ReportStreamFilterDefinition {
     override val name = "hasAtLeastOneOf"
 
     override fun getSelection(
@@ -331,104 +337,11 @@ class HasAtLeastOneOf : JurisdictionalFilter {
         if (args.isEmpty()) error("Expecting at least one arg for filter $name.  Got none.")
         var selection = Selection.withRange(0, 0)
         val columnNames = table.columnNames()
-        var atLeastOneColumnFound = false
         args.forEach { colName ->
             if (columnNames.contains(colName)) {
                 selection = selection.or(table.stringColumn(colName).isNotMissing)
-                atLeastOneColumnFound = true
-            }
-        }
-        if (!atLeastOneColumnFound) {
-            JurisdictionalFilters.logAllEliminated(
-                table.rowCount(),
-                "$name(${args.joinToString(",")}): none of these columns found.", receiver, doAuditing
-            )
-        } else {
-            if (selection.size() < table.rowCount()) {
-                JurisdictionalFilters.logFiltering(
-                    Selection.withRange(0, table.rowCount()), selection,
-                    "$name(${args.joinToString(",")})", receiver, doAuditing
-                )
             }
         }
         return selection
-    }
-}
-
-object JurisdictionalFilters : Logging {
-    // covid-19 default quality check consists of these filters
-    // todo move this to a GLOBAL Setting in the settings table
-    val defaultCovid19QualityCheck = listOf(
-        // valid human and valid test
-        "hasValidDataFor(" +
-            "message_id," +
-            "equipment_model_name," +
-            "specimen_type," +
-            "test_result," +
-            "patient_last_name," +
-            "patient_first_name," +
-            "patient_dob" +
-            ")",
-        // has minimal valid location or other contact info (for contact tracing)
-        "hasAtLeastOneOf(patient_street,patient_zip_code,patient_phone_number,patient_email)",
-        // has valid date (for relevance/urgency)
-        "hasAtLeastOneOf(order_test_date,specimen_collection_date_time,test_result_date)",
-        // has at least one valid CLIA
-        "isValidCLIA(testing_lab_clia,reporting_facility_clia)",
-        // never send T (Training/Test) or D (Debug) data to the states.
-        "doesNotMatch(processing_mode_code,T,D)",
-    )
-
-    /**
-     * Map from topic-name to a list of filter-function-strings
-     */
-    val defaultQualityFilters: Map<String, List<String>> = mapOf(
-        "covid-19" to defaultCovid19QualityCheck,
-        "CsvFileTests-topic" to listOf("hasValidDataFor(lab,state,test_time,specimen_id,observation)"),
-    )
-
-    /**
-     * filterFunction must be of form "funName(arg1, arg2, etc)"
-     */
-    fun parseJurisdictionalFilter(filterFunction: String): Pair<String, List<String>> {
-// REMOVE        val match = Regex("([a-zA-Z0-9]+)\\x28([a-z, \\x2E_\\x2DA-Z0-9]*)\\x29").find(filterFunction)
-        // Using a permissive match in the (arg1, arg2) section, to allow most regexs to be passed as args.
-        // Somehow this works with "(?i).*Pima.*", I guess because the \\x29 matches rightmost ')' char
-        val match = Regex("([a-zA-Z0-9]+)\\x28(.*)\\x29").find(filterFunction)
-            ?: error("JurisdictionalFilter field $filterFunction does not parse")
-        return match.groupValues[1] to match.groupValues[2].split(',').map { it.trim() }
-    }
-
-    fun logAllEliminated(beforeSize: Int, filterDescription: String, receiver: Receiver, doAuditing: Boolean) {
-        if (!doAuditing) return
-        logger.warn(
-            "For ${receiver.fullName}, qualityFilter $filterDescription" +
-                " reduced the Items from $beforeSize to 0.  All rows eliminated"
-        )
-    }
-
-    fun logFiltering(
-        before: Selection,
-        after: Selection,
-        filterDescription: String,
-        receiver: Receiver,
-        doAuditing: Boolean
-    ) {
-        if (!doAuditing) return
-
-        if (after.size() < before.size()) {
-            if (after.size() == 0) {
-                logAllEliminated(before.size(), filterDescription, receiver, true)
-            } else {
-                // Note:  the expression 'before.andNot(after)' actually changes the 'before' obj!
-                val beforeSize = before.size()
-                val eliminatedRows = before.andNot(after)
-                logger.warn(
-                    "For ${receiver.fullName}, qualityFilter $filterDescription" +
-                        " reduced the Item count from $beforeSize to ${after.size()}.  " +
-                        "Row numbers eliminated: ${eliminatedRows.joinToString(",")}"
-                )
-            }
-        }
     }
 }
