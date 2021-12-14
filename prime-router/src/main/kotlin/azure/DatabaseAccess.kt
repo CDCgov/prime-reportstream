@@ -3,9 +3,11 @@ package gov.cdc.prime.router.azure
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import gov.cdc.prime.router.Organization
+import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.db.Tables
+import gov.cdc.prime.router.azure.db.Tables.ACTION
 import gov.cdc.prime.router.azure.db.Tables.COVID_RESULT_METADATA
 import gov.cdc.prime.router.azure.db.Tables.EMAIL_SCHEDULE
 import gov.cdc.prime.router.azure.db.Tables.JTI_CACHE
@@ -658,6 +660,24 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             .fetchOne()
             ?.getValue(DSL.max(SETTING.CREATED_AT))
     }
+
+    /** fetch newest ActionId to use as a snapshot endpoint for batching*/
+    fun fetchHighestActionId(txn: DataAccessTransaction? = null): Long? {
+        val ctx = if (txn != null) DSL.using(txn) else create
+        return ctx.select(DSL.max(ACTION.ACTION_ID))
+            .from(ACTION)
+            .fetchOne()
+            ?.getValue(DSL.max(ACTION.ACTION_ID))
+    }
+
+//    fun determineCurrentReceivers(txn: DataAccessTransaction? = null): MutableList<Receiver> {
+//        val ctx = if (txn != null) DSL.using(txn) else create
+//        // TODO: calculate which receivers should be added to the batch queue
+//        return ctx.select(DSL.max(ACTION.ACTION_ID))
+//            .from(ACTION)
+//            .fetchOne()
+//            ?.getValue(DSL.max(ACTION.ACTION_ID))
+//    }
 
     /**
      * Saves the connection check result to the db
