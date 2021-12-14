@@ -31,7 +31,7 @@ plugins {
     id("org.flywaydb.flyway") version "8.2.0"
     id("nu.studer.jooq") version "6.0.1"
     id("com.github.johnrengelman.shadow") version "7.1.0"
-    id("com.microsoft.azure.azurefunctions") version "1.8.1"
+    id("com.microsoft.azure.azurefunctions") version "1.8.2"
     id("org.jlleitschuh.gradle.ktlint") version "10.2.0"
     id("com.adarshr.test-logger") version "3.1.0"
     id("jacoco")
