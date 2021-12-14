@@ -92,18 +92,30 @@ elements:
 
 # Specimen/Order Info
 
-    - name: input_test_kit_name_id
+    - name: test_kit_name_id
+      csvFields: [{name: Any_column}]
       type: TABLE
+<<<<<<< HEAD
       table: test_performed_lookup
       tableColumn: generic_test_performed
       csvFields: [{name: Ordered_test_description}]
+=======
+      table: test-mapper
+      tableColumn: exact_test_performed
+      mapper: lookup(sender_id, input_test_kit_id)
+>>>>>>> parent of 05ba0d76 (Experity users now have specimen site, type, and test kit name mapped)
 
-    - name: exact_test_kit_name_id
-      csvFields: [{name: Ordered_exact_test_description}]
+    - name: input_test_kit_name_id
+      csvFields: [{name: Ordered_test_description}]
       type: TABLE
+<<<<<<< HEAD
       table: test_performed_lookup
       tableColumn: exact_test_performed
       mapper: lookup(sender_id, input_test_kit_name_id)
+=======
+      table: test-mapper
+      tableColumn: generic_test_performed
+>>>>>>> parent of 05ba0d76 (Experity users now have specimen site, type, and test kit name mapped)
 
     - name: specimen_collection_date_time
       csvFields: [{name: Specimen_collection_date_time, format: "M/d/yyyy H:nn"}]
@@ -142,8 +154,7 @@ elements:
       type: TABLE
       table: test_performed_lookup
       tableColumn: exact_specimen_type
-      mapper: lookup(sender_id, input_test_kit_name_id)
-      mapperOverridesValue: true
+      mapper: lookup(sender_id, test_kit_name_id)
 
 
     - name: specimen_source_site_code
@@ -153,8 +164,7 @@ elements:
       type: TABLE
       table: test_performed_lookup
       tableColumn: exact_specimen_type_source_site
-      mapper: lookup(sender_id, input_test_kit_name_id)
-      mapperOverridesValue: true
+      mapper: lookup(sender_id, test_kit_name_id)
 
 
 # Ordering provider
