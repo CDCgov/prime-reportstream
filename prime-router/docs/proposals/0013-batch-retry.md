@@ -22,12 +22,20 @@ included records.
 We can improve this situation and add retry/scalability by adding a cron job and altering the way we use the batch
 queue. Instead of adding each message-per-receiver-per-bucket to the queue at ingestion a cron job could run at
 the minimum granularity for batching (1 minute), determine which receivers need to be batched at that time, and put a 
-message on the queue to be handled immediately by the batchFunction. This is a minimal-change approach that leaves the
+message on the queue to be handled immediately by the batchFunction. 
+
+The BatchDecider function will iterate over each Receiver and determine if the receiver should have been batched
+within the last minute. If so, the decider will get the maximum batch size for the receiver and the total number
+of outstanding records to batch (total number of Actions for this receiver with next_action of BATCH).
+
+The decider will determine the number of queue message to add based on [total number]/[batch size] and rounding up 
+to the nearest integer.
+
+This is a minimal-change approach that leaves the
 Task table management as it is but severely reduces our performance bottlenecks and race conditions. Once done, the
-single run of the batch function for that receiver will pull all outstanding records up to [receiver limit] and batch 
-them. If there are more records than [receiver limit] it will continue to follow the batching process until all records
-have been batched.  We will need to take a snapshot of the id of the 'last record' at start of batch time or this could
-be an infinite batching process if records continue to trickle in.
+single run of the batch function for that receiver and batch them.
+
+This will cover situations where, for example, Batch has been down for some time and Batch work is horrendously backed up.
 
 ### Nifty Warehouse Metaphor
 Right now we have a front desk person who is getting paper reports - people are dropping by and sticking them in the
