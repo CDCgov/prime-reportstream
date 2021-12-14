@@ -306,10 +306,11 @@ class NpiLookupMapper : Mapper {
         var filteredList: List<String>
 
         if (npiSent.isBlank()) {
-            /* Returns the lookupColumn value based on Facility_ID and Sender_ID */
+            /* Returns the lookupColumn value based on Facility_ID and Sender_ID where Default is true */
             val filtersList = mapOf(
                 Pair(facilityIdColumn, facilityIdSent),
-                Pair(senderIdColumn, senderIdSent)
+                Pair(senderIdColumn, senderIdSent),
+                Pair("default", "true")
             )
             /* Use of filter() doesn't care about an element's schema configuration.
             *  Sender_id is configured for another table and used for a lookup, so

@@ -1,9 +1,9 @@
-first_name,last_name,ordering_provider_id,ordering_facility_name_temp,sender_id,default
+first_name,last_name,ordering_provider_id,testing_lab_clia,sender_id,default
 Paul,Fineburg,1023040318,AIRPORT,cuc-al,true
-Richard,Oyler,1013012657,,,true
-Stanley,Clayton,1174049449,,,false
-Crystal,Morgan,1295219632,,,false
-Mark,Minton,1376788521,,,false
-Nikki,Quinley,1467610550,,,false
-Carl,Parks,1538116132,,,false
-Jonathan,Parker,1568710499,,,false
+Richard,Oyler,1013012657,AIRPORT,cuc-al,false
+Stanley,Clayton,1174049449,AIRPORT,cuc-al,false
+Crystal,Morgan,1295219632,AIRPORT,cuc-al,false
+Mark,Minton,1376788521,AIRPORT,cuc-al,false
+Nikki,Quinley,1467610550,AIRPORT,cuc-al,false
+Carl,Parks,1538116132,AIRPORT,cuc-al,false
+Jonathan,Parker,1568710499,AIRPORT,cuc-al,false
