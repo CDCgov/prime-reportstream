@@ -24,16 +24,16 @@ queue. Instead of adding each message-per-receiver-per-bucket to the queue at in
 the minimum granularity for batching (1 minute), determine which receivers need to be batched at that time, and put a 
 message on the queue to be handled immediately by the batchFunction. 
 
-The Batch function will be changed to grab all Tasks whose next_action_at is in the past, thereby creating a natural retry mechanism.  (Currently Batch requires an exact match of dates). 
+The BatchDecider function will iterate over each Receiver and determine if the receiver should have been batched
+within the last minute. If so, the decider will get the maximum batch size for the receiver and the total number
+of outstanding records to batch (total number of Actions for this receiver with next_action of BATCH).
+
+The decider will determine the number of queue message to add based on [total number]/[batch size] and rounding up 
+to the nearest integer.
 
 This is a minimal-change approach that leaves the
 Task table management as it is but severely reduces our performance bottlenecks and race conditions. Once done, the
-single run of the batch function for that receiver will pull all outstanding records up to [receiver limit] and batch 
-them. 
-
-If there are more records than [receiver-limit] it will place
- `(count(reports-past-due-for-batching-for-one-receiver) / [receiver-limit] )`
- messages on the queue for that receiver, and depend on Azure to scale to meet that demand, as well as on Azure's queue throttling settings (in `host.json`) to avoid swamping the system.
+single run of the batch function for that receiver and batch them.
 
 This will cover situations where, for example, Batch has been down for some time and Batch work is horrendously backed up.
 
