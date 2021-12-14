@@ -625,7 +625,7 @@ dependencies {
     implementation("org.postgresql:postgresql:42.3.0")
     implementation("com.zaxxer:HikariCP:5.0.0")
     implementation("org.flywaydb:flyway-core:8.2.0")
-    implementation("com.github.kayr:fuzzy-csv:1.7.2")
+    implementation("com.github.kayr:fuzzy-csv:1.7.3")
     implementation("org.commonmark:commonmark:0.18.0")
     implementation("com.google.guava:guava:31.0.1-jre")
     implementation("com.helger.as2:as2-lib:4.8.0")
