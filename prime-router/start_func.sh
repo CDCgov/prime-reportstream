@@ -23,10 +23,22 @@ fi
 
 cd $function_folder
 
-# Use the prime CLI to load configuration in the background
-# The fatjar is two levels up in the libs folder
-top_dir=$function_folder/../..
-fatjar=$top_dir/libs/prime-router-0.1-SNAPSHOT-all.jar
-java -jar $fatjar lookuptables loadall -d $top_dir/resources/test/metadata/tables -r 10 | awk '{print "[LOAD TABLES] " $0}' &
+# Load the configuration to the database.  Note the CLI will wait for the API to be available.
+function load_config() {
+  # Use the prime CLI to load configuration in the background
+  # The fatjar is two levels up in the libs folder
+  top_dir=$function_folder/../..
+  test_config_dir=$top_dir/resources/test
+  fatjar=$top_dir/libs/prime-router-0.1-SNAPSHOT-all.jar
+  echo "Loading lookup tables..."
+  java -jar $fatjar lookuptables loadall -d $test_config_dir/metadata/tables -r 60 --check-last-modified
+  # Note the settings require the full metadata catalog to be in place, so run last
+  echo "Loading organization settings..."
+  java -jar $fatjar multiple-settings set -i $function_folder/settings/organizations.yml -r 60 --check-last-modified
+}
 
+# Load the configuration in the background.  It will wait for the API to start the loading.
+load_config | awk '{print "[LOAD CONFIG] " $0}' &
+
+# Run the functions
 func host start --cors http://localhost:8090,http://localhost:3000 --language-worker -- "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"

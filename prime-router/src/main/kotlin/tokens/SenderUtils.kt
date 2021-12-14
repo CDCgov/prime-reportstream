@@ -49,7 +49,7 @@ class SenderUtils {
 
         fun generateSenderUrl(environment: Environment, senderToken: String, scope: String): URL {
             return URL(
-                environment.formUrl("token").toString() + "?" +
+                environment.formUrl("api/token").toString() + "?" +
                     generateSenderUrlParameters(senderToken, scope)
                         .map { "${it.key}=${it.value}" }.joinToString("&")
             )
