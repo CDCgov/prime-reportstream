@@ -27,7 +27,7 @@ import java.time.format.DateTimeFormatter
 import java.util.Properties
 
 plugins {
-    kotlin("jvm") version "1.6.0"
+    kotlin("jvm") version "1.6.10"
     id("org.flywaydb.flyway") version "8.2.0"
     id("nu.studer.jooq") version "6.0.1"
     id("com.github.johnrengelman.shadow") version "7.1.0"
@@ -576,7 +576,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
     implementation("com.microsoft.azure.functions:azure-functions-java-library:1.4.2")
     implementation("com.azure:azure-core:1.23.1")
-    implementation("com.azure:azure-core-http-netty:1.11.2")
+    implementation("com.azure:azure-core-http-netty:1.11.4")
     implementation("com.azure:azure-storage-blob:12.14.1") {
         exclude(group = "com.azure", module = "azure-core")
     }
