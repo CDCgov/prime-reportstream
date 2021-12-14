@@ -270,6 +270,73 @@ class LookupMapper : Mapper {
 }
 
 /**
+ * The NpiLookupMapper is a specific implementation of the lookupMapper adn
+ * thus no output values are present in this function. This function requires
+ * the same lookup table configuration as lookupMapper.
+ *
+ * In-schema usage:
+ * ```
+ * type: TABLE
+ * table: my-table
+ * tableColumn: my-column
+ * mapper: npiLookup(provider_id, facility_id, sender_id)
+ * ```
+ */
+class NpiLookupMapper : Mapper {
+    override val name = "npiLookup"
+
+    override fun valueNames(element: Element, args: List<String>): List<String> {
+        if (args.isEmpty())
+            error("Schema Error: lookup mapper expected one or more args")
+        return args
+    }
+
+    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
+        /* Because of the specificity here, we need args = provider_id (npi), facility_id, sender_id */
+        val lookupTable = element.tableRef
+            ?: error("Schema Error: could not find table ${element.table}")
+        val lookupColumn = element.tableColumn
+            ?: error("Schema Error: no tableColumn for element ${element.name}")
+        val npiColumn = args[0] /* Allowed to be null */
+        val facilityIdColumn = args[1]
+        val senderIdColumn = args[2]
+        val npiSent = values.find { it.element.name == npiColumn }?.value ?: ""
+        val facilityIdSent = values.find { it.element.name == facilityIdColumn }?.value ?: ""
+        val senderIdSent = values.find { it.element.name == senderIdColumn }?.value ?: ""
+        var filteredList: List<String>
+
+        if (npiSent.isBlank()) {
+            /* Returns the lookupColumn value based on Facility_ID and Sender_ID where Default is true */
+            val filtersList = mapOf(
+                Pair(facilityIdColumn, facilityIdSent),
+                Pair(senderIdColumn, senderIdSent),
+                Pair("default", "true")
+            )
+            /* Use of filter() doesn't care about an element's schema configuration.
+            *  Sender_id is configured for another table and used for a lookup, so
+            *  until a single element can exist in multiple tables and be configured as
+            *  such, this is the best I got! */
+            filteredList = lookupTable.filter(lookupColumn, filtersList)
+        } else {
+            /* Uses NPI to lookup value */
+            filteredList = lookupTable.filter(npiColumn, npiSent, lookupColumn)
+            if (filteredList.isEmpty()) {
+                /* Returns the lookupColumn value after mapping local -> exact NPI */
+                val localToExact = mapOf<String, String>(/* key: local NPI; value: exact NPI */)
+                val exactNpi = localToExact[npiSent] ?: ""
+                filteredList = lookupTable.filter(npiColumn, exactNpi, lookupColumn)
+            }
+        }
+
+        return when (filteredList.size) {
+            0 -> error("No ${element.name} was found with your filters.")
+            1 -> filteredList[0]
+            else -> error("More than one ${element.name} was found with your filters.")
+        }
+    }
+}
+
+/**
  * This is a lookup mapper specialized for the LIVD table. The LIVD table has multiple columns
  * which could be used for lookup. Different senders send different information, so this mapper
  * incorporates business logic to do this lookup based on the available information.
