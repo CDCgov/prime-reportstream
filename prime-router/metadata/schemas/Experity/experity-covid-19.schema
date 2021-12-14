@@ -87,43 +87,10 @@ elements:
       default: UNK
 
 # Specimen/Order Info
-<<<<<<< HEAD
 
     - name: test_kit_name_id
-      csvFields: [{name: Any_column}]
-      type: TABLE
-<<<<<<< HEAD
-<<<<<<< HEAD
-      table: test_performed_lookup
-=======
-      table: test-mapper
->>>>>>> parent of 81de07b5 (Updates to use better table name)
-      tableColumn: generic_test_performed
       csvFields: [{name: Ordered_test_description}]
-=======
-      table: test-mapper
-      tableColumn: exact_test_performed
-      mapper: lookup(sender_id, input_test_kit_id)
->>>>>>> parent of 05ba0d76 (Experity users now have specimen site, type, and test kit name mapped)
 
-    - name: input_test_kit_name_id
-      csvFields: [{name: Ordered_test_description}]
-      type: TABLE
-<<<<<<< HEAD
-<<<<<<< HEAD
-      table: test_performed_lookup
-=======
-      table: test-mapper
->>>>>>> parent of 81de07b5 (Updates to use better table name)
-      tableColumn: exact_test_performed
-      mapper: lookup(sender_id, input_test_kit_name_id)
-=======
-      table: test-mapper
-      tableColumn: generic_test_performed
->>>>>>> parent of 05ba0d76 (Experity users now have specimen site, type, and test kit name mapped)
-
-=======
->>>>>>> parent of c001185c (BUG: test_kit_name_id field does not run mapper without override)
     - name: specimen_collection_date_time
       csvFields: [{name: Specimen_collection_date_time, format: "M/d/yyyy H:nn"}]
 
@@ -161,14 +128,6 @@ elements:
       documentation: Translate inbound text to outbound SNOMED Codes
       csvFields: [{ name: Specimen_type_description, format: $display}]
       default: "258500001"
-<<<<<<< HEAD
-      type: TABLE
-      table: test-mapper
-      tableColumn: exact_specimen_type
-      mapper: lookup(sender_id, test_kit_name_id)
-
-=======
->>>>>>> parent of c001185c (BUG: test_kit_name_id field does not run mapper without override)
 
     - name: specimen_source_site_code
       type: CODE
@@ -176,14 +135,6 @@ elements:
       documentation: Translate inbound text to outbound SNOMED Codes
       csvFields: [{ name: Specimen_type_description, format: $display}]
       default: "71836000"
-<<<<<<< HEAD
-      type: TABLE
-      table: test-mapper
-      tableColumn: exact_specimen_type_source_site
-      mapper: lookup(sender_id, test_kit_name_id)
-=======
->>>>>>> parent of c001185c (BUG: test_kit_name_id field does not run mapper without override)
-
 
 # Ordering provider
     - name: ordering_provider_id
