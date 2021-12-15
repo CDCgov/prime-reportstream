@@ -12,7 +12,6 @@ import {
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet";
-import { sign } from "jsonwebtoken";
 
 import Title from "../../components/Title";
 import { getStates } from "../../utils/OrganizationUtils";
@@ -80,8 +79,7 @@ function TermsOfServiceForm() {
         resetAllErrorFlags();
 
         const body = createBody();
-        const auth = createAuth();
-        if (!body || !auth) {
+        if (body === null) {
             setSubmitting(false);
             return;
         }
@@ -92,7 +90,6 @@ function TermsOfServiceForm() {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: auth,
                 },
                 body: JSON.stringify(body),
             }
@@ -109,21 +106,10 @@ function TermsOfServiceForm() {
         setSuccess(true);
     };
 
-    const createAuth = (): string | null => {
-        const secret = process.env.REACT_APP_SECRET || null;
-        if (secret) {
-            return sign({ iss: "reportstream" }, secret);
-        } else {
-            console.error("Oops...no secrets here!");
-            setSubmitting(false);
-            return null;
-        }
-    };
-
     /* INFO
        handles the front-end not-null validation and builds the body object of type AgreementBody
        then returns it if no required values are absent. Otherwise, it returns null. */
-    function createBody() {
+    function createBody(): AgreementBody | null {
         let bodyHasNoErrors: boolean = true;
         const body: AgreementBody = {
             [Fields.title]: title,
