@@ -17,7 +17,7 @@
 Code | Display
 ---- | -------
 A|Abnormal (applies to non-numeric results)
->|Above absolute high-off instrument scale
+&#62;|Above absolute high-off instrument scale
 H|Above high normal
 HH|Above upper panic limits
 AC|Anti-complementary substances present
@@ -280,6 +280,20 @@ The address of the facility which the test was ordered from
 **Documentation**:
 
 The zip code of the facility which the test was ordered from
+
+---
+
+**Name**: ordering_provider_city
+
+**Type**: CITY
+
+**PII**: Yes
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The city of the provider
 
 ---
 

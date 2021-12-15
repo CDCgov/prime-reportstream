@@ -32,7 +32,7 @@ This field is ignored.
 
 ---
 
-**Name**: Ok To Contact Patient
+**Name**: Ok to Contact Patient
 
 **Type**: TEXT
 
@@ -342,6 +342,14 @@ The ordering provider’s National Provider Identifier
 
 ---
 
+**Name**: Provider ID/ NPI
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
 **Name**: Provider Last Name
 
 **Type**: PERSON_NAME
@@ -440,7 +448,21 @@ The patient's city
 
 ---
 
-**Name**: patient_county
+**Name**: Patient County
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [1..1]
+
+**Table**: fips-county
+
+**Table Column**: County
+
+---
+
+**Name**: patient_county_code
 
 **Type**: TABLE
 
@@ -448,9 +470,13 @@ The patient's city
 
 **Cardinality**: [0..1]
 
-**Table**: zip-code-data
+**Table**: fips-county
 
-**Table Column**: county
+**Table Column**: FIPS
+
+**Documentation**:
+
+The FIPS code for the patient's county
 
 ---
 

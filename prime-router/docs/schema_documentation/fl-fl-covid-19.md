@@ -17,7 +17,7 @@
 Code | Display
 ---- | -------
 A|Abnormal (applies to non-numeric results)
->|Above absolute high-off instrument scale
+&#62;|Above absolute high-off instrument scale
 H|Above high normal
 HH|Above upper panic limits
 AC|Anti-complementary substances present
@@ -1892,7 +1892,7 @@ Code | Display
 
 **Documentation**:
 
-If the patient is a citizen of a tribal entity, we can track which entity here
+The tribal citizenship of the patient using the TribalEntityUS (OID 2.16.840.1.113883.5.140) table
 
 ---
 
