@@ -118,6 +118,11 @@ jobs:
       - name: Build changelog if tags exist
         if: steps.tagged.outputs.tagged == 1
         uses: mikepenz/release-changelog-builder-action@v2
+        with:
+          configuration: '.github/changelog_config.json'
+          # Allow changelog tests in forks
+          owner: 'CDCgov'
+          repo: 'prime-reportstream'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Create release
