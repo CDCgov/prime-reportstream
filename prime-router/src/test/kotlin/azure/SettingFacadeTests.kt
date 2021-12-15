@@ -6,10 +6,10 @@ import assertk.assertions.isNull
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.db.enums.SettingType
 import gov.cdc.prime.router.azure.db.tables.pojos.Setting
+import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.spyk
@@ -132,9 +132,7 @@ class SettingFacadeTests {
     }
 
     private fun testMetadata(): Metadata {
-        return Metadata(
-            schema = Schema("primedatainput/pdi-covid-19", "covid-19")
-        )
+        return UnitTestUtils.simpleMetadata
     }
 
     @BeforeEach

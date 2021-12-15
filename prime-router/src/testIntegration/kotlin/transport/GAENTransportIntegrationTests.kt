@@ -6,34 +6,24 @@ import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import com.github.kittinunf.fuel.core.Client
 import com.github.kittinunf.fuel.core.FuelManager
-import com.microsoft.azure.functions.ExecutionContext
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.GAENTransportType
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
-import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
 import gov.cdc.prime.router.credentials.UserApiKeyCredential
-import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockkClass
 import io.mockk.spyk
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import java.time.OffsetDateTime
 import java.util.UUID
-import java.util.logging.Logger
 
-class GAENTransportTests {
-    private val context = mockkClass(ExecutionContext::class)
+class GAENTransportIntegrationTests : TransportIntegrationTests() {
     private val metadata = Metadata.getInstance()
     private val settings = FileSettings(FileSettings.defaultSettingsDirectory)
-    private val logger = mockkClass(Logger::class)
     private val gaenTransport = spyk<GAENTransport>()
-    private val reportId = UUID.randomUUID()
     private val transportType = GAENTransportType("http://localhost:3000")
     private val successJson = """
         {"padding":"-",
@@ -75,28 +65,6 @@ class GAENTransportTests {
         null
     )
 
-    private val reportFile = ReportFile(
-        reportId,
-        null,
-        TaskAction.send,
-        null,
-        null,
-        null,
-        "wa-phd",
-        "gaen",
-        null, null, "covid-19-gaen", null, null, null, null, null,
-        4, // pretend we have 4 items to send.
-        null, OffsetDateTime.now(), null
-    )
-
-    private fun setupLogger() {
-        every { context.logger }.returns(logger)
-        every { logger.log(any(), any(), any<Throwable>()) }.returns(Unit)
-        every { logger.warning(any<String>()) }.returns(Unit)
-        every { logger.severe(any<String>()) }.returns(Unit)
-        every { logger.info(any<String>()) }.returns(Unit)
-    }
-
     private fun makeHeader(): WorkflowEngine.Header {
         val content = """
             abnormal_flag,message_id,illness_onset,date_result_released,patient_phone_number
@@ -113,23 +81,14 @@ class GAENTransportTests {
         )
     }
 
-    private fun setupAPIWith200Return() {
-    }
-
     private fun setupTransport() {
         every { gaenTransport.lookupCredentials(any()) }
             .returns(UserApiKeyCredential("rick", "xzy"))
     }
 
-    @BeforeEach
-    fun reset() {
-        clearAllMocks()
-    }
-
     @Test
     fun `test send happy path`() {
         val header = makeHeader()
-        setupLogger()
         setupTransport()
 
         // Set up a OK ENVC API response
@@ -149,7 +108,6 @@ class GAENTransportTests {
     @Test
     fun `test send and retry`() {
         val header = makeHeader()
-        setupLogger()
         setupTransport()
 
         // Set up a OK ENVC API response
@@ -169,7 +127,6 @@ class GAENTransportTests {
     @Test
     fun `test send and error`() {
         val header = makeHeader()
-        setupLogger()
         setupTransport()
 
         // Set up a OK ENVC API response

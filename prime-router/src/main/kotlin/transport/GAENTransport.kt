@@ -249,7 +249,7 @@ class GAENTransport : ITransport, Logging {
     /**
      * From the credential service get an API Key for [receiverFullName].
      */
-    internal fun lookupCredentials(receiverFullName: String): UserApiKeyCredential {
+    fun lookupCredentials(receiverFullName: String): UserApiKeyCredential {
         val credentialLabel = CredentialHelper.formCredentialLabel(fromReceiverName = receiverFullName)
         return CredentialHelper.getCredentialService().fetchCredential(
             credentialLabel,

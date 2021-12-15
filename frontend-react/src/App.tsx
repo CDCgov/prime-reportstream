@@ -26,6 +26,7 @@ import GlobalContextProvider from "./components/GlobalContextProvider";
 import { logout } from "./utils/UserUtils";
 import TermsOfServiceForm from "./pages/tos-sign/TermsOfServiceForm";
 import Spinner from "./components/Spinner";
+import Submissions from "./pages/Submissions";
 
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
 
@@ -127,6 +128,11 @@ const App = () => {
                                         path="/upload"
                                         authorize={PERMISSIONS.SENDER}
                                         component={Upload}
+                                    />
+                                    <AuthorizedRoute
+                                        path="/submissions"
+                                        authorize={PERMISSIONS.PRIME_ADMIN}
+                                        component={Submissions}
                                     />
                                     <SecureRoute
                                         path="/report-details"
