@@ -68,10 +68,9 @@ elements:
 
   # REMOVED  - name: ordered_test_name
 
-  - name: test_coding_system
-    default: LN
-    documentation: User does not need to include this column.  We'll set it to LN
-    csvFields: [{ name: testCodingSystem}]
+  # REMOVED.  CUSTOM.  - name: test_coding_system
+  #  default: LN
+  #  csvFields: [{ name: testCodingSystem}]
 
   - name: test_result
     cardinality: ONE
