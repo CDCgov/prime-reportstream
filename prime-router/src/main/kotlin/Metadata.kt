@@ -53,6 +53,7 @@ class Metadata : Logging {
         HasValidDataFor(),
         HasAtLeastOneOf(),
         AllowAll(),
+        AllowNone(),
         IsValidCLIA(),
     )
     private var valueSets = mapOf<String, ValueSet>()
