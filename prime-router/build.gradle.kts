@@ -607,7 +607,7 @@ dependencies {
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
     implementation("com.googlecode.libphonenumber:libphonenumber:8.12.39")
     implementation("org.thymeleaf:thymeleaf:3.0.14.RELEASE")
-    implementation("com.sendgrid:sendgrid-java:4.8.0")
+    implementation("com.sendgrid:sendgrid-java:4.8.1")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.1")
     implementation("com.github.kittinunf.fuel:fuel:2.3.1") {
         exclude(group = "org.json", module = "json")
@@ -628,7 +628,7 @@ dependencies {
     implementation("com.github.kayr:fuzzy-csv:1.7.3")
     implementation("org.commonmark:commonmark:0.18.1")
     implementation("com.google.guava:guava:31.0.1-jre")
-    implementation("com.helger.as2:as2-lib:4.8.0")
+    implementation("com.helger.as2:as2-lib:4.9.0")
     // Prevent mixed versions of these libs based on different versions being included by different packages
     implementation("org.bouncycastle:bcpkix-jdk15on:1.70")
     implementation("org.bouncycastle:bcmail-jdk15on:1.70")
