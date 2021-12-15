@@ -12,7 +12,7 @@ elements:
     csvFields: [ { name: senderId } ]
 
   - name: processing_mode_code
-    documentation:  User can leave this field out if its production data, and we'll default to 'P'
+    documentation:  User does not need to include this column, and we'll default to 'P'
     cardinality: ONE
     default: P
     csvFields: [ { name: processingModeCode } ]
@@ -26,22 +26,24 @@ elements:
   #  csvFields: [ { name: testId } ]
 
   - name: placer_order_id
+    documentation:  User does not need to include this column; we'll populate it.
     mapper: use(message_id)
 
   - name: filler_order_id
+    documentation:  User does not need to include this column; we'll populate it.
     mapper: use(message_id)
 
   # Above was mostly from Imagemover.  Below, I copied the direct-covid-19.schema and modified
 
   - name: message_id
-    documentation: This is a crucial required field. A unique id for this submission of data.  Do not re-use when correcting previous results.  Rather, submit a new testId, and use the correctedTestId to refer to the testId of the old submission.   
+    documentation: Required. A unique id for this submission of data.  Do not re-use when correcting previous results.  Rather, submit a new testId, and use the correctedTestId to refer to the testId of the old submission.   
     csvFields: [{ name: testId}]
 
   - name: previous_message_id
     csvFields: [{name: correctedTestId}]
 
   - name: specimen_id
-    documentation: User does not need to specify this.  We'll copy the value from the testId if none is provided here.
+    documentation: User does not need to include this column.  We'll copy the value from the testId if none is provided here.
     csvFields: [{ name: specimenId}]
 
   ### LIVD Related fields.
@@ -56,7 +58,7 @@ elements:
     csvFields: [{ name: deviceIdentifier}]
 
   - name: test_performed_code
-    documentation: User does not need to specify this.  It'll get filled in automatically.
+    documentation: User does not need to include this column.  It'll get filled in automatically.
     csvFields: [{ name: testPerformed }]
 
   - name: ordered_test_code
@@ -68,7 +70,7 @@ elements:
 
   - name: test_coding_system
     default: LN
-    documentation: User does not need to specify this.   We'll set it to LN
+    documentation: User does not need to include this column.  We'll set it to LN
     csvFields: [{ name: testCodingSystem}]
 
   - name: test_result
@@ -79,10 +81,8 @@ elements:
   - name: test_result_status
     # F == final.
     default: F
-    documentation:  User does not need to specify this.  It'll get filled in automatically
+    documentation:  User does not need to include this column.  It'll get filled in automatically
     csvFields: [{ name: testResultStatus }]
-
-  # REMOVED - name: test_result_text
 
   # REMOVED (or should we default to SCT??) - name: test_result_coding_system
   #  documentation: eg, SCT.   Custom
@@ -106,7 +106,7 @@ elements:
     csvFields: [{ name: specimenCollectedDate}]
 
   - name: testing_lab_specimen_received_datetime
-    documentation: Optional. User does not need to specify this.  We'll fill it in from the specimenCollectedDate
+    documentation: Optional. User does not need to include this column - We'll fill it in from the specimenCollectedDate
     csvFields: [{ name: specimenReceivedDate}]
 
   - name: test_result_date
@@ -139,7 +139,7 @@ elements:
     csvFields: [{ name: patientUniqueId}]
 
   - name: patient_id_type
-    documentation:  User does not need to fill this in.
+    documentation:  User does not need to include this column.
     default: PI
 
   # Could we get rid of this and just calculate?
@@ -151,7 +151,7 @@ elements:
   - name: patient_age_units
     type: CODE
     pii: false
-    documentation:  User does not need to specify this.  Default to 'yr' if not specified.
+    documentation:  User does not need to fill this in.  Default to 'yr' if not specified.
     cardinality: ZERO_OR_ONE
     default: yr
     valueSet: hhs_age_units
@@ -165,11 +165,6 @@ elements:
   - name: patient_race
     csvFields: [{ name: patientRace}]
 
-  # REMOVED - name: patient_race_text
-  #  documentation: Custom.    ReportStream uses patientRace code, not this text value.
-  #  type: TEXT
-  #  csvFields: [{ name: patientRaceText}]
-
   - name: patient_ethnicity
     documentation:  Use the required HHS values. (2135-2, 2186-5, UNK, ASKU)
     altValues:
@@ -182,11 +177,6 @@ elements:
       - code: U
         display: ASKU
     csvFields: [{ name: patientEthnicity, format: $alt}]
-
-  # REMOVED - name: patient_ethnicity_text
-  #  documentation:  Custom. ReportStream uses the patientEthnicity code, not this text value.
-  #  type: TEXT
-  #  csvFields: [{ name: patientEthnicityText}]
 
   - name: patient_gender
     csvFields: [{ name: patientSex}]
@@ -328,6 +318,7 @@ elements:
   - name: first_test
     type: CODE
     valueSet: hl70136
+    documentation:  AOE - Is this the patient's first test for COVID-19
     csvFields: [{ name: firstTest }]
 
   # REMOVED - name: previous_test_type
@@ -335,72 +326,77 @@ elements:
   #  type: TEXT
   #  csvFields: [{ name: previousTestType}]
 
-  - name: previous_test_date
-    documentation: Custom field
-    type: DATE
-    csvFields: [{ name: previousTestDate}]
+  # REMOVED - name: previous_test_date
+  #  documentation: Custom field
+  #  type: DATE
+  #  csvFields: [{ name: previousTestDate}]
 
-  - name: previous_test_result
-    documentation: Custom field.  Example - 260415000
-    type: CODE
-    valueSet: covid-19/test_result
-    csvFields: [{ name: previousTestResult}]
+  #REMOVED- name: previous_test_result
+  #  documentation: Custom field.  Example - 260415000
+  #  type: CODE
+  #  valueSet: covid-19/test_result
+  #  csvFields: [{ name: previousTestResult}]
 
   - name: employed_in_healthcare
     type: CODE
     valueSet: hl70136
+    documentation:  AOE - Is the patient employed in a healthcare setting?
     csvFields: [{ name: healthcareEmployee }]
 
-  - name: healthcare_employee_type
-    documentation: Custom.  eg, 6816002
-    type: CODE
-    valueSet: occupations
-    csvFields: [{ name: healthcareEmployeeType}]
+  # REMOVED - name: healthcare_employee_type
+  #  documentation: Custom.  eg, 6816002
+  #  type: CODE
+  #  valueSet: occupations
+  #  csvFields: [{ name: healthcareEmployeeType}]
 
   - name: symptomatic_for_disease
     type: CODE
     valueSet: hl70136
+    documentation: AOE - Does the patient have symptoms related to COVID-19?
     csvFields: [{ name: symptomatic }]
 
-  - name: symptoms_list
-    documentation:  Custom.  Just a simple text string for now. Format is symptomCode1^date1;symptomCode2^date2; ...
-    type: TEXT
-    csvFields: [{ name: symptomsList}]
+  - name: illness_onset_date
+    documentation: AOE - Date of symptom onset
+    csvFields: [{ name: symptomOnsetDate }]
+
+  #REMOVED- name: symptoms_list
+  #  documentation:  Custom.  Just a simple text string for now. Format is symptomCode1^date1;symptomCode2^date2; ...
+  #  type: TEXT
+  #  csvFields: [{ name: symptomsList}]
 
   - name: hospitalized
     type: CODE
     valueSet: hl70136
+    documentation: AOE - Was the patient hospitalized because of COVID-19?
     csvFields: [{ name: hospitalized }]
 
-  - name: hospitalized_code
-    documentation:  Custom.  eg, 840539006, same valueset as testResult
-    csvFields: [{ name: hospitalizedCode}]
-    type: CODE
-    valueSet: covid-19/test_result
+  # REMOVED - name: hospitalized_code
+  #  documentation:  Custom.  eg, 840539006, same valueset as testResult
+  #  csvFields: [{ name: hospitalizedCode}]
+  #  type: CODE
+  #  valueSet: covid-19/test_result
 
   - name: icu
     type: CODE
     valueSet: hl70136
-    csvFields: [{ name: symptomsIcu }]
+    documentation: AOE - Was the patient admitted to the intensive care unit for COVID-19?
+    csvFields: [{ name: admittedToIcu }]
 
   - name: resident_congregate_setting
     type: CODE
     valueSet: hl70136
+    documentation:  AOE - Does the patient reside in a congregate care setting?
     csvFields: [{ name: congregateResident }]
 
-  - name: site_of_care
-    documentation: Custom field
-    type: CODE
-    valueSet: site_of_care
-    csvFields: [{ name: congregateResidentType}]
-
   - name: pregnant
+    documentation: AOE - Is the patient pregnant?
     csvFields: [{ name: pregnant}]
 
-  # REMOVED - name: pregnant_text
-  #  documentation: Custom.  ReportStream uses the 'pregnant' code, not this text value.
-  #  type: TEXT
-  #  csvFields: [{ name: pregnantText}]
+  #REMOVED.  NOT USED IN HL7.  WE DO SEND THIS TO HHSProtect - name: site_of_care
+  #  documentation: Custom field
+  #  type: CODE
+  #  valueSet: site_of_care
+  #  csvFields: [{ name: congregateResidentType}]
 
   ### Other
 
