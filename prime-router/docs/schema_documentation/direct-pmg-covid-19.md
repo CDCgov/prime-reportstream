@@ -1,6 +1,6 @@
 
 ### Schema:         direct/pmg-covid-19
-#### Description:   PMG
+#### Description:   Premier Medical Group USA
 
 ---
 
