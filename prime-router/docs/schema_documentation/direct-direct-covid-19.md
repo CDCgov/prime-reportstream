@@ -24,7 +24,7 @@ eg, 20210112
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **LOINC Code**: 95418-0
 
@@ -106,7 +106,7 @@ Accension number
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **LOINC Code**: 95417-2
 
@@ -131,6 +131,8 @@ Override the base hl70136 valueset with a custom one, to handle slightly differe
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
@@ -645,7 +647,7 @@ Custom.  eg, 6816002
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **LOINC Code**: 77974-4
 
@@ -670,6 +672,8 @@ Override the base hl70136 valueset with a custom one, to handle slightly differe
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
@@ -710,7 +714,7 @@ Custom.  eg, 840539006, same valueset as testResult
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **LOINC Code**: 95420-6
 
@@ -1102,6 +1106,8 @@ The zip code of the provider
 
 **PII**: No
 
+**Format**: use value found in the Code column
+
 **Cardinality**: [0..1]
 
 **Value Sets**
@@ -1178,7 +1184,7 @@ Other states may choose to define their own formats.
 
 **PII**: No
 
-**Format**: $alt
+**Format**: use value found in the Display column
 
 **Cardinality**: [0..1]
 
@@ -1242,6 +1248,8 @@ The patient's first name
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
@@ -1358,6 +1366,8 @@ Custom. Not currently used. ReportStream assumes area code is in patientPhone
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
@@ -1480,6 +1490,8 @@ The ID number of the lab order from the placer
 
 **PII**: No
 
+**Format**: use value found in the Code column
+
 **LOINC Code**: 82810-3
 
 **Cardinality**: [0..1]
@@ -1546,6 +1558,8 @@ Custom field
 
 **PII**: No
 
+**Format**: use value found in the Code column
+
 **Cardinality**: [0..1]
 
 **Value Sets**
@@ -1598,6 +1612,8 @@ Custom field. Note, value matched LIVD column "F", "Test Performed LOINC Code"
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Default Value**: P
 
@@ -1681,7 +1697,7 @@ The reporting facility's name
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **LOINC Code**: 95421-4
 
@@ -1720,6 +1736,8 @@ ID name of org that is sending this data to ReportStream.  Suitable for provenan
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
@@ -1802,6 +1820,8 @@ A unique id, such as a UUID. Note - Need to override the mapper in covid-19.sche
 
 **PII**: No
 
+**Format**: use value found in the Code column
+
 **Cardinality**: [0..1]
 
 **Value Sets**
@@ -1838,7 +1858,7 @@ The specimen source, such as Blood or Serum
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **LOINC Code**: 95419-8
 
@@ -2004,6 +2024,8 @@ eg, 94558-4
 
 **PII**: No
 
+**Format**: use value found in the Code column
+
 **Cardinality**: [0..1]
 
 **Value Sets**
@@ -2070,6 +2092,8 @@ eg, 20210111
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Default Value**: F
 
