@@ -110,18 +110,26 @@ state_fips,state,state_abbr,zipcode,county,city
 1,Alabama,AL,35216,Jefferson,Vestavia hills
 1,Alabama,AL,35217,Jefferson,Birmingham
 1,Alabama,AL,35218,Jefferson,Birmingham
+1,Alabama,AL,35219,Jefferson,Birmingham
 1,Alabama,AL,35221,Jefferson,Birmingham
 1,Alabama,AL,35222,Jefferson,Birmingham
 1,Alabama,AL,35223,Jefferson,Mountain brook
 1,Alabama,AL,35224,Jefferson,Birmingham
 1,Alabama,AL,35226,Jefferson,Birmingham
 1,Alabama,AL,35228,Jefferson,Midfield
+1,Alabama,AL,35229,Jefferson,Birmingham
+1,Alabama,AL,35231,Jefferson,Birmingham
+1,Alabama,AL,35232,Jefferson,Birmingham
 1,Alabama,AL,35233,Jefferson,Birmingham
 1,Alabama,AL,35234,Jefferson,Birmingham
 1,Alabama,AL,35235,Jefferson,Center point
+1,Alabama,AL,35236,Jefferson,Birmingham
+1,Alabama,AL,35237,Jefferson,Birmingham
+1,Alabama,AL,35238,Jefferson,Birmingham
 1,Alabama,AL,35242,Shelby,Shoal creek
 1,Alabama,AL,35243,Jefferson,Cahaba heights
 1,Alabama,AL,35244,Jefferson,Hoover
+1,Alabama,AL,35246,Jefferson,Birmingham
 1,Alabama,AL,35401,Tuscaloosa,Tuscaloosa
 1,Alabama,AL,35402,Tuscaloosa,Tuscaloosa
 1,Alabama,AL,35403,Tuscaloosa,Tuscaloosa
@@ -466,6 +474,7 @@ state_fips,state,state_abbr,zipcode,county,city
 1,Alabama,AL,36455,Covington,Lockhart
 1,Alabama,AL,36456,Butler,Mc kenzie
 1,Alabama,AL,36460,Monroe,Monroeville
+1,Alabama,AL,36461,Monroe,Monroeville
 1,Alabama,AL,36467,Covington,Opp
 1,Alabama,AL,36470,Monroe,Perdue hill
 1,Alabama,AL,36471,Monroe,Peterman
@@ -19847,22 +19856,35 @@ state_fips,state,state_abbr,zipcode,county,city
 37,North carolina,NC,27509,Granville,Butner
 37,North carolina,NC,27510,Orange,Carrboro
 37,North carolina,NC,27511,Wake,Cary
+37,North carolina,NC,27512,Wake,Cary
 37,North carolina,NC,27513,Wake,Cary
 37,North carolina,NC,27514,Orange,Chapel hill
+37,North carolina,NC,27515,Orange,Chapel hill
 37,North carolina,NC,27516,Orange,Chapel hill
+37,North carolina,NC,27517,Chatham,Chapel hill
+37,North carolina,NC,27518,Wake,Cary
+37,North carolina,NC,27519,Wake,Cary
 37,North carolina,NC,27520,Johnston,Clayton
 37,North carolina,NC,27521,Harnett,Coats
 37,North carolina,NC,27522,Granville,Creedmoor
+37,North carolina,NC,27523,Chatham,Apex
 37,North carolina,NC,27524,Johnston,Four oaks
 37,North carolina,NC,27525,Franklin,Franklinton
 37,North carolina,NC,27526,Wake,Fuquay varina
+37,North carolina,NC,27527,Johnston,Clayton
 37,North carolina,NC,27529,Wake,Garner
 37,North carolina,NC,27530,Wayne,Grantham
+37,North carolina,NC,27531,Wayne,Goldsboro
+37,North carolina,NC,27532,Wayne,Goldsboro
+37,North carolina,NC,27533,Wayne,Goldsboro
 37,North carolina,NC,27534,Wayne,Goldsboro
 37,North carolina,NC,27536,Vance,Henderson
+37,North carolina,NC,27537,Vance,Henderson
+37,North carolina,NC,27539,Wake,Apex
 37,North carolina,NC,27540,Wake,Holly springs
 37,North carolina,NC,27541,Person,Hurdle mills
 37,North carolina,NC,27542,Johnston,Kenly
+37,North carolina,NC,27543,Harnett,Kipling
 37,North carolina,NC,27544,Vance,Kittrell
 37,North carolina,NC,27545,Wake,Knightdale
 37,North carolina,NC,27546,Harnett,Lillington
@@ -27701,8 +27723,19 @@ state_fips,state,state_abbr,zipcode,county,city
 48,Texas,TX,78703,Travis,Austin
 48,Texas,TX,78704,Travis,Austin
 48,Texas,TX,78705,Travis,Austin
+48,Texas,TX,78708,Travis,Austin
+48,Texas,TX,78709,Travis,Austin
+48,Texas,TX,78710,Travis,Austin
+48,Texas,TX,78711,Travis,Austin
+48,Texas,TX,78712,Travis,Austin
+48,Texas,TX,78713,Travis,Austin
+48,Texas,TX,78714,Travis,Austin
+48,Texas,TX,78715,Travis,Austin
+48,Texas,TX,78716,Travis,Austin
 48,Texas,TX,78717,Williamson,Austin
+48,Texas,TX,78718,Travis,Austin
 48,Texas,TX,78719,Travis,Austin
+48,Texas,TX,78720,Travis,Austin
 48,Texas,TX,78721,Travis,Austin
 48,Texas,TX,78722,Travis,Austin
 48,Texas,TX,78723,Travis,Austin
@@ -27739,7 +27772,25 @@ state_fips,state,state_abbr,zipcode,county,city
 48,Texas,TX,78757,Travis,Austin
 48,Texas,TX,78758,Travis,Austin
 48,Texas,TX,78759,Travis,Austin
+48,Texas,TX,78760,Travis,Austin
+48,Texas,TX,78761,Travis,Austin
+48,Texas,TX,78762,Travis,Austin
+48,Texas,TX,78763,Travis,Austin
+48,Texas,TX,78764,Travis,Austin
+48,Texas,TX,78765,Travis,Austin
+48,Texas,TX,78766,Travis,Austin
+48,Texas,TX,78767,Travis,Austin
+48,Texas,TX,78768,Travis,Austin
+48,Texas,TX,78769,Travis,Austin
+48,Texas,TX,78772,Travis,Austin
+48,Texas,TX,78773,Travis,Austin
+48,Texas,TX,78774,Travis,Austin
+48,Texas,TX,78778,Travis,Austin
+48,Texas,TX,78779,Travis,Austin
+48,Texas,TX,78783,Travis,Austin
+48,Texas,TX,78799,Travis,Austin
 48,Texas,TX,78801,Uvalde,Uvalde
+48,Texas,TX,78802,Uvalde,Uvalde
 48,Texas,TX,78827,Dimmit,Asherton
 48,Texas,TX,78828,Edwards,Barksdale
 48,Texas,TX,78829,Zavala,Batesville
@@ -31720,3 +31771,4 @@ state_fips,state,state_abbr,zipcode,county,city
 ,AE,AE,09366,AE,AE
 ,AP,AP,96319,AP,AP
 ,AP,AP,96251,AP,AP
+,AP,AP,96349,AP,AP

@@ -53,10 +53,10 @@ import kotlin.system.exitProcess
 import kotlin.system.measureTimeMillis
 
 enum class TestStatus(val description: String) {
-    DRAFT("Experimental"), // Tests that are experimental
-    FAILS("Always fails"), // For tests that just always fail, and we haven't fixed the issue yet.
+    DRAFT("Experimental Test"), // Tests that are experimental
+    FAILS("(Always fails)"), // For tests that just always fail, and we haven't fixed the issue yet.
     LOAD("Load Test"),
-    SMOKE("Part of Smoke test"), // Only Smoke the Good Stuff.
+    SMOKE("Smoke Test"), // Only Smoke the Good Stuff.
 }
 
 class TestReportStream : CliktCommand(
@@ -105,6 +105,15 @@ Examples:
     private val sender by option(
         "--sender",
         help = "Indicates the sender to use for the 'santaclaus' test."
+    )
+
+    private val targetStates: String? by
+    option(
+        "--target-states",
+        metavar = "<abbrev>",
+        help = "For the 'santaclaus' test, create data only for these states. " +
+            "States should be two letters, comma-separated, e.g. 'FL,PA'. " +
+            "  Default is all states and territories."
     )
 
     private val run by option(
@@ -233,7 +242,7 @@ Examples:
     private fun runTests(tests: List<CoolTest>, environment: Environment) {
         val failures = mutableListOf<CoolTest>()
         val options = CoolTestOptions(
-            items, submits, key, dir, sftpDir = sftpDir, env = env, sender = sender,
+            items, submits, key, dir, sftpDir = sftpDir, env = env, sender = sender, targetStates = targetStates,
             runSequential = runSequential, asyncProcessMode = asyncProcessMode
         )
 
@@ -314,6 +323,7 @@ Examples:
             BadSftp(),
             Garbage(),
             SettingsTest(),
+            TestSubmissionsAPI(),
         )
     }
 }
@@ -326,7 +336,8 @@ data class CoolTestOptions(
     var muted: Boolean = false, // if true, print out less stuff,
     val sftpDir: String,
     val env: String,
-    val sender: String? = null,
+    val sender: String? = null, // who is santa sending from?
+    val targetStates: String? = null, // who is santa sending to?
     val runSequential: Boolean = false,
     val asyncProcessMode: Boolean = false // if true, pass 'processing=async' on all tests
 )
@@ -851,7 +862,7 @@ abstract class CoolTest {
               join action as A on A.action_id = RF.action_id
               where
               ${if (receivingOrgSvc != null) "RF.receiving_org_svc = ? and" else ""}
-              ${if (receivingOrg != null) "and RF.receiving_org = ? and" else ""}
+              ${if (receivingOrg != null) "RF.receiving_org = ? and" else ""}
               A.action_name = ?
               and IL.item_lineage_id in
               (select item_descendants(?)) """
@@ -907,7 +918,8 @@ class Ping : CoolTest() {
             "x".toByteArray(),
             simpleRepSender,
             options.key,
-            Options.CheckConnections
+            Options.CheckConnections,
+            payloadName = "$name ${status.description}",
         )
         echo("Response to POST: $responseCode")
         echo(json)
@@ -962,7 +974,10 @@ class End2End : CoolTest() {
         // Now send it to ReportStream.
         val (responseCode, json) =
             // force sync processing
-            HttpUtilities.postReportFile(environment, file, simpleRepSender, false, options.key)
+            HttpUtilities.postReportFile(
+                environment, file, simpleRepSender, false, options.key,
+                payloadName = "$name ${status.description} with async = false",
+            )
         if (responseCode != HttpURLConnection.HTTP_CREATED) {
             bad("***end2end Test FAILED***:  response code $responseCode")
             passed = false
@@ -1013,7 +1028,10 @@ class End2End : CoolTest() {
         // Now send it to ReportStream.
         val (responseCode, json) =
             // force async processing
-            HttpUtilities.postReportFile(environment, file, simpleRepSender, true, options.key)
+            HttpUtilities.postReportFile(
+                environment, file, simpleRepSender, true, options.key,
+                payloadName = "$name ${status.description} with async = true",
+            )
         if (responseCode != HttpURLConnection.HTTP_CREATED) {
             bad("***end2end Test FAILED***:  response code $responseCode")
             passed = false
@@ -1170,7 +1188,8 @@ class Merge : CoolTest() {
                         file,
                         simpleRepSender,
                         options.asyncProcessMode,
-                        options.key
+                        options.key,
+                        payloadName = "$name ${status.description}",
                     )
                 echo("Response to POST: $responseCode")
                 if (responseCode != HttpURLConnection.HTTP_CREATED) {
@@ -1213,7 +1232,10 @@ class Hl7Null : CoolTest() {
         val numResends = 1
         val reportIds = (1..numResends).map {
             val (responseCode, json) =
-                HttpUtilities.postReportFile(environment, file, simpleRepSender, options.asyncProcessMode, options.key)
+                HttpUtilities.postReportFile(
+                    environment, file, simpleRepSender, options.asyncProcessMode, options.key,
+                    payloadName = "$name ${status.description}",
+                )
             echo("Response to POST: $responseCode")
             echo(json)
             if (responseCode != HttpURLConnection.HTTP_CREATED) {
@@ -1245,7 +1267,10 @@ class TooManyCols : CoolTest() {
             error("Unable to find file ${file.absolutePath} to do toomanycols test")
         }
         val (responseCode, json) =
-            HttpUtilities.postReportFile(environment, file, simpleRepSender, options.asyncProcessMode, options.key)
+            HttpUtilities.postReportFile(
+                environment, file, simpleRepSender, options.asyncProcessMode, options.key,
+                payloadName = "$name ${status.description}",
+            )
         echo("Response to POST: $responseCode")
         echo(json)
         try {
@@ -1281,6 +1306,7 @@ class BadCsv : CoolTest() {
                 simpleRepSender,
                 options.asyncProcessMode,
                 options.key,
+                payloadName = "$name ${status.description}",
             )
             echo("Response to POST: $responseCode")
             if (responseCode >= 400) {
@@ -1333,7 +1359,14 @@ class Strac : CoolTest() {
         echo("Created datafile $file")
         // Now send it to ReportStream.
         val (responseCode, json) =
-            HttpUtilities.postReportFile(environment, file, stracSender, options.asyncProcessMode, options.key)
+            HttpUtilities.postReportFile(
+                environment,
+                file,
+                stracSender,
+                options.asyncProcessMode,
+                options.key,
+                payloadName = "$name ${status.description}",
+            )
         echo("Response to POST: $responseCode")
         echo(json)
         if (responseCode != HttpURLConnection.HTTP_CREATED) {
@@ -1393,7 +1426,14 @@ class StracPack : CoolTest() {
         for (i in 1..options.submits) {
             thread {
                 val (responseCode, json) =
-                    HttpUtilities.postReportFile(environment, file, stracSender, options.asyncProcessMode, options.key)
+                    HttpUtilities.postReportFile(
+                        environment,
+                        file,
+                        stracSender,
+                        options.asyncProcessMode,
+                        options.key,
+                        payloadName = "$name ${status.description}",
+                    )
                 echo("$i: Response to POST: $responseCode")
                 if (responseCode != HttpURLConnection.HTTP_CREATED) {
                     echo(json)
@@ -1455,6 +1495,7 @@ class Parallel : CoolTest() {
                                     options.asyncProcessMode,
                                     options.key,
                                     Options.SkipSend,
+                                    payloadName = "$name ${status.description}",
                                 )
                             if (responseCode != HttpURLConnection.HTTP_CREATED) {
                                 echo(json)
@@ -1522,7 +1563,8 @@ class Parallel : CoolTest() {
                 stracSender,
                 options.asyncProcessMode,
                 options.key,
-                Options.SkipSend
+                Options.SkipSend,
+                payloadName = "$name ${status.description}",
             )
         echo("First response to POST: $r1")
         val (r2, _) =
@@ -1532,7 +1574,8 @@ class Parallel : CoolTest() {
                 stracSender,
                 options.asyncProcessMode,
                 options.key,
-                Options.SkipSend
+                Options.SkipSend,
+                payloadName = "$name ${status.description}",
             )
         echo("Second response to POST: $r2.  Ready for the real test:")
         var passed = runTheParallelTest(file, 1, n, environment, options)
@@ -1567,7 +1610,14 @@ class Waters : CoolTest() {
         )
         echo("Created datafile $file")
         val (responseCode, json) =
-            HttpUtilities.postReportFile(environment, file, watersSender, options.asyncProcessMode, options.key)
+            HttpUtilities.postReportFile(
+                environment,
+                file,
+                watersSender,
+                options.asyncProcessMode,
+                options.key,
+                payloadName = "$name ${status.description}",
+            )
         echo("Response to POST: $responseCode")
         if (!options.muted) echo(json)
         if (responseCode != HttpURLConnection.HTTP_CREATED) {
@@ -1627,7 +1677,8 @@ class RepeatWaters : CoolTest() {
                                 file,
                                 watersSender,
                                 options.asyncProcessMode,
-                                options.key
+                                options.key,
+                                payloadName = "$name ${status.description}",
                             )
                         echo("Response to POST: $responseCode")
                         if (!options.muted) echo(json)
@@ -1712,7 +1763,8 @@ class HammerTime : CoolTest() {
                         file,
                         simpleRepSender,
                         options.asyncProcessMode,
-                        options.key
+                        options.key,
+                        payloadName = "$name ${status.description}",
                     )
                 echo("Response to POST: $responseCode")
                 if (responseCode != HttpURLConnection.HTTP_CREATED) {
@@ -1764,7 +1816,14 @@ class Garbage : CoolTest() {
         echo("Created datafile $file")
         // Now send it to ReportStream.
         val (responseCode, json) =
-            HttpUtilities.postReportFile(environment, file, emptySender, options.asyncProcessMode, options.key)
+            HttpUtilities.postReportFile(
+                environment,
+                file,
+                emptySender,
+                options.asyncProcessMode,
+                options.key,
+                payloadName = "$name ${status.description}",
+            )
         echo("Response to POST: $responseCode")
         echo(json)
         try {
@@ -1845,7 +1904,14 @@ class QualityFilter : CoolTest() {
         echo("Created datafile $file")
         // Now send it to ReportStream.
         val (responseCode, json) =
-            HttpUtilities.postReportFile(environment, file, emptySender, options.asyncProcessMode, options.key)
+            HttpUtilities.postReportFile(
+                environment,
+                file,
+                emptySender,
+                options.asyncProcessMode,
+                options.key,
+                payloadName = "$name ${status.description}"
+            )
         echo("Response to POST: $responseCode")
 
         var passed = true
@@ -1880,7 +1946,14 @@ class QualityFilter : CoolTest() {
         echo("Created datafile $file2")
         // Now send it to ReportStream.
         val (responseCode2, json2) =
-            HttpUtilities.postReportFile(environment, file2, emptySender, options.asyncProcessMode, options.key)
+            HttpUtilities.postReportFile(
+                environment,
+                file2,
+                emptySender,
+                options.asyncProcessMode,
+                options.key,
+                payloadName = "$name ${status.description}"
+            )
         echo("Response to POST: $responseCode2")
         // if running in async mode, the initial response will not have destinations - the 'process' action result will
         if (options.asyncProcessMode) {
@@ -1913,7 +1986,14 @@ class QualityFilter : CoolTest() {
         echo("Created datafile $file3")
         // Now send it to ReportStream.
         val (responseCode3, json3) =
-            HttpUtilities.postReportFile(environment, file3, emptySender, options.asyncProcessMode, options.key)
+            HttpUtilities.postReportFile(
+                environment,
+                file3,
+                emptySender,
+                options.asyncProcessMode,
+                options.key,
+                payloadName = "$name ${status.description}",
+            )
         echo("Response to POST: $responseCode3")
         // if running in async mode, the initial response will not have destinations - the 'process' action result will
         if (options.asyncProcessMode) {
@@ -1946,7 +2026,14 @@ class QualityFilter : CoolTest() {
         echo("Created datafile $file4")
         // Now send it to ReportStream.
         val (responseCode4, json4) =
-            HttpUtilities.postReportFile(environment, file4, emptySender, options.asyncProcessMode, options.key)
+            HttpUtilities.postReportFile(
+                environment,
+                file4,
+                emptySender,
+                options.asyncProcessMode,
+                options.key,
+                payloadName = "$name ${status.description}",
+            )
         echo("Response to POST: $responseCode4")
         // if running in async mode, the initial response will not have destinations - the 'process' action result will
         if (options.asyncProcessMode) {
@@ -1990,7 +2077,14 @@ class Huge : CoolTest() {
         echo("Created datafile $file")
         // Now send it to ReportStream.
         val (responseCode, json) =
-            HttpUtilities.postReportFile(environment, file, simpleRepSender, options.asyncProcessMode, options.key)
+            HttpUtilities.postReportFile(
+                environment,
+                file,
+                simpleRepSender,
+                options.asyncProcessMode,
+                options.key,
+                payloadName = "$name ${status.description}",
+            )
         echo("Response to POST: $responseCode")
         echo(json)
         if (responseCode != HttpURLConnection.HTTP_CREATED) {
@@ -2031,7 +2125,14 @@ class TooBig : CoolTest() {
         echo("Created datafile $file")
         // Now send it to ReportStream.
         val (responseCode, json) =
-            HttpUtilities.postReportFile(environment, file, simpleRepSender, options.asyncProcessMode, options.key)
+            HttpUtilities.postReportFile(
+                environment,
+                file,
+                simpleRepSender,
+                options.asyncProcessMode,
+                options.key,
+                payloadName = "$name ${status.description}",
+            )
         echo("Response to POST: $responseCode")
         echo(json)
         try {
@@ -2074,7 +2175,14 @@ class DbConnections : CoolTest() {
         // Now send it to ReportStream.   Make numResends > 1 to create merges.
         val reportIds = (1..options.submits).map {
             val (responseCode, json) =
-                HttpUtilities.postReportFile(environment, file, simpleRepSender, options.asyncProcessMode, options.key)
+                HttpUtilities.postReportFile(
+                    environment,
+                    file,
+                    simpleRepSender,
+                    options.asyncProcessMode,
+                    options.key,
+                    payloadName = "$name ${status.description}",
+                )
             echo("Response to POST: $responseCode")
             echo(json)
             if (responseCode != HttpURLConnection.HTTP_CREATED) {
@@ -2126,7 +2234,10 @@ class BadSftp : CoolTest() {
         )
         echo("Created datafile $file")
         val (responseCode, json) =
-            HttpUtilities.postReportFile(environment, file, simpleRepSender, options.asyncProcessMode, options.key)
+            HttpUtilities.postReportFile(
+                environment, file, simpleRepSender, options.asyncProcessMode, options.key,
+                payloadName = "$name ${status.description}",
+            )
         echo("Response to POST: $responseCode")
         echo(json)
         if (responseCode != HttpURLConnection.HTTP_CREATED) {
@@ -2187,7 +2298,10 @@ class InternationalContent : CoolTest() {
         echo("Created datafile $file")
         // Now send it to ReportStream.
         val (responseCode, json) =
-            HttpUtilities.postReportFile(environment, file, simpleRepSender, options.asyncProcessMode, options.key)
+            HttpUtilities.postReportFile(
+                environment, file, simpleRepSender, options.asyncProcessMode, options.key,
+                payloadName = "$name ${status.description}",
+            )
         echo("Response to POST: $responseCode")
         echo(json)
         if (responseCode != HttpURLConnection.HTTP_CREATED) {
@@ -2249,7 +2363,15 @@ class SantaClaus : CoolTest() {
             // with the indicated by parameter
             sendersToTestWith = listOf(sender)
         }
-        val states = metadata.findLookupTable("fips-county")?.getDistinctValuesInColumn("State")?.toList() ?: listOf()
+
+        val states = if (options.targetStates.isNullOrEmpty()) {
+            metadata.findLookupTable("fips-county")?.getDistinctValuesInColumn("State")
+                ?.toList() ?: error("Santa is unable to find any states in the fips-county table")
+        } else {
+            options.targetStates.split(",")
+        }
+        ugly("Santa is sending data to these nice states: $states")
+
         sendersToTestWith.forEach { sender ->
             ugly("Starting $name Test: send with ${sender.fullName}")
             val file = FileUtilities.createFakeFile(
@@ -2259,13 +2381,16 @@ class SantaClaus : CoolTest() {
                 count = states.size,
                 format = if (sender.format == Sender.Format.CSV) Report.Format.CSV else Report.Format.HL7_BATCH,
                 directory = System.getProperty("java.io.tmpdir"),
-                targetStates = null,
+                targetStates = states.joinToString(","),
                 targetCounties = null
             )
             echo("Created datafile $file")
             // Now send it to ReportStream.
             val (responseCode, json) =
-                HttpUtilities.postReportFile(environment, file, sender, options.asyncProcessMode, null)
+                HttpUtilities.postReportFile(
+                    environment, file, sender, options.asyncProcessMode, options.key,
+                    payloadName = "$name ${status.description}",
+                )
             if (responseCode != HttpURLConnection.HTTP_CREATED) {
                 return bad("***$name Test FAILED***:  response code $responseCode")
             } else {

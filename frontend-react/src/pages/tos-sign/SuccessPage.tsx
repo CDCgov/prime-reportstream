@@ -58,8 +58,8 @@ function SuccessPage({ data }: { data: AgreementBody | null }) {
                             Registration request submitted
                         </h4>
                         <p className="usa-alert__text">
-                            <strong>Name:</strong> {data.firstName}{" "}
-                            {data.lastName}
+                            <strong>Name:</strong>{" "}
+                            {`${data.firstName} ${data.lastName}`}
                             <br />
                             <strong>Email:</strong> {data.email}
                             <br />

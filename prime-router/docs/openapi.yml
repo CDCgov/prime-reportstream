@@ -18,11 +18,11 @@ paths:
   # See Github issue #2722 (Design API endpoint for full history lineage) for expanded API design.
   #
   # FILTERS (REQUIRED)
-  # ?limit=INT (default: 10)
-  # ?cursor=OFFSETDATETIME
   #
   # FILTERS (OPTIONAL)
-  # ?order=STRING ('ASC' | 'DESC' : default 'DESC')
+  # ?pagesize=INT (default: 10)
+  # ?cursor=OFFSETDATETIME
+  # ?sort=STRING ('ASC' | 'DESC' : default 'DESC')
   # ?dateStart=STRING (YYYY-MM-DD)
   # ?dateEnd=STRING (YYYY-MM-DD)
   # ?year=INT (YYYY | default: ALL)
@@ -48,13 +48,13 @@ paths:
           required: false
           description: The cursor pointing to the next portion of results. If you don't pass a `cursor` parameter, but **do** pass a `limit` parameter, the default value retrieves the first portion of results. Paginated responses include a `response_metadata` object that includes a `next_cursor` *when there are additional results to be retrieved.* On your next call to the same method, set the `cursor` parameter equal to the `next_cursor` value you received on the last request to retrieve the next portion of the collection. An empty, null, or non-existent `next_cursor` in the response indicates no further results.
         - in: query
-          name: limit
+          name: pagesize
           schema:
             type: integer
           required: true
           description: The number of items to return (default `10`).
         - in: query
-          name: order
+          name: sort
           schema:
             type: string
           required: true
@@ -167,7 +167,7 @@ paths:
         '500':
           description: Internal Server Error
 
-  # The reports end-point handles the
+  # The reports end-point handles data payload submissions to ReportStream.
   #
   /reports:
     post:
@@ -220,10 +220,15 @@ paths:
           description: 'sync' or 'async'. defaults to 'sync'. Determines if the incoming message will follow the sync or async process
           required: false
           schema:
-            type: array
-            items:
               type: string
           example: async
+        - in: query
+          name: payloadName
+          description: Optional string name for the data payload submitted.   Typically a filename or other name useful to the sender's record-keeping.  Tracked, but not used, by ReportStream.  Must never include PII/PHI.
+          required: false
+          schema:
+            type: string
+          example: C:/foo/bar/baz/quux/myfile.hl7
       requestBody:
         description: The public health information being routed
         required: true

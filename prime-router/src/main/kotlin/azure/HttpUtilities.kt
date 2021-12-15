@@ -26,6 +26,11 @@ class HttpUtilities {
         const val watersApi = "/api/waters"
         const val tokenApi = "/api/token"
 
+        /**
+         * Last modified time header value formatter.
+         */
+        val lastModifiedFormatter: DateTimeFormatter = DateTimeFormatter.RFC_1123_DATE_TIME
+
         fun okResponse(
             request: HttpRequestMessage<String?>,
             responseBody: String,
@@ -151,10 +156,10 @@ class HttpUtilities {
         ) {
             if (lastModified == null) return
             // https://datatracker.ietf.org/doc/html/rfc7232#section-2.2 defines this header format
-            val lastModifiedFormatter = DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss")
-            // Convert to GMT timezone
+
+            // Convert to UTC timezone
             val lastModifiedGMT = OffsetDateTime.ofInstant(lastModified.toInstant(), ZoneOffset.UTC)
-            val lastModifiedFormatted = "${lastModifiedGMT.format(lastModifiedFormatter)} GMT"
+            val lastModifiedFormatted = lastModifiedGMT.format(lastModifiedFormatter)
             builder.header(HttpHeaders.LAST_MODIFIED, lastModifiedFormatted)
         }
 
@@ -214,9 +219,12 @@ class HttpUtilities {
             asyncProcessMode: Boolean = false,
             key: String? = null,
             option: Options? = null,
+            payloadName: String? = null
         ): Pair<Int, String> {
             if (!file.exists()) error("Unable to find file ${file.absolutePath}")
-            return postReportBytes(environment, file.readBytes(), sendingOrgClient, key, option, asyncProcessMode)
+            return postReportBytes(
+                environment, file.readBytes(), sendingOrgClient, key, option, asyncProcessMode, payloadName
+            )
         }
 
         /**
@@ -245,6 +253,7 @@ class HttpUtilities {
             key: String?,
             option: Options? = null,
             asyncProcessMode: Boolean = false,
+            payloadName: String? = null,
         ): Pair<Int, String> {
             val headers = mutableListOf<Pair<String, String>>()
             when (sendingOrgClient.format) {
@@ -261,6 +270,8 @@ class HttpUtilities {
             val urlBuilder = URIBuilder(environment.url.toString() + oldApi)
             if (option != null)
                 urlBuilder.setParameter("option", option.toString())
+            if (payloadName != null)
+                urlBuilder.setParameter("payloadName", payloadName)
 
             // if asyncProcessMode is present and true, add the 'processing=async' query param
             if (asyncProcessMode)

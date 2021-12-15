@@ -7,12 +7,12 @@ import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import com.microsoft.azure.functions.ExecutionContext
 import gov.cdc.prime.router.FileSettings
-import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
 import gov.cdc.prime.router.transport.RetryToken
 import gov.cdc.prime.router.transport.SftpTransport
+import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockkClass
@@ -28,7 +28,7 @@ import kotlin.test.Test
 
 class SendFunctionTests {
     val context = mockkClass(ExecutionContext::class)
-    val metadata = Metadata.getInstance()
+    val metadata = UnitTestUtils.simpleMetadata
     val settings = FileSettings(FileSettings.defaultSettingsDirectory)
     val logger = mockkClass(Logger::class)
     val workflowEngine = mockkClass(WorkflowEngine::class)
