@@ -132,7 +132,7 @@ class FakeDataService {
             return when {
                 element.table?.startsWith("LIVD-SARS-CoV-2") == true -> {
                     if (element.tableColumn == null) return ""
-                    lookupTable.lookupValue("Model", context.equipmentModel, element.tableColumn)
+                    lookupTable.lookupValue(element.tableColumn, mapOf("Model" to context.equipmentModel))
                         ?: error(
                             "Schema Error: Could not lookup ${context.equipmentModel} " +
                                 "to ${element.tableColumn}"
@@ -218,13 +218,13 @@ class FakeReport(val metadata: Metadata, val locale: Locale? = null) {
             when (state) {
                 "AZ" -> randomChoice("Pima", "Yuma")
                 "PA" -> randomChoice("Bucks", "Chester", "Montgomery")
-                else -> randomChoice(it.filter("State", state, "County"))
+                else -> randomChoice(it.lookupValues("State", mapOf(state to "County")))
             }
         } ?: "Prime"
         // find our zipcode
         val zipCode: String = findLookupTable("zip-code-data")?.let {
             randomChoice(
-                it.filter(
+                it.lookupValues(
                     "zipcode",
                     mapOf(
                         "state_abbr" to state,
@@ -235,7 +235,7 @@ class FakeReport(val metadata: Metadata, val locale: Locale? = null) {
         } ?: faker.address().zipCode().toString()
         val city: String = findLookupTable("zip-code-data")?.let {
             randomChoice(
-                it.filter(
+                it.lookupValues(
                     "city",
                     mapOf(
                         "state_abbr" to state,

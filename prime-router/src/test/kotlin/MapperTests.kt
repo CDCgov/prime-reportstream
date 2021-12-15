@@ -32,7 +32,7 @@ class MapperTests {
             3,4,y
             5,6,z
         """.trimIndent()
-        val table = LookupTable.read(ByteArrayInputStream(csv.toByteArray()))
+        val table = LookupTable.read(inputStream = ByteArrayInputStream(csv.toByteArray()))
         val schema = Schema(
             "test", topic = "test",
             elements = listOf(
@@ -57,7 +57,7 @@ class MapperTests {
             3,4,y
             5,6,z
         """.trimIndent()
-        val table = LookupTable.read(ByteArrayInputStream(csv.toByteArray()))
+        val table = LookupTable.read(inputStream = ByteArrayInputStream(csv.toByteArray()))
         val schema = Schema(
             "test", topic = "test",
             elements = listOf(
@@ -512,7 +512,7 @@ class MapperTests {
             zipcode,county
             32303,Leon
         """.trimIndent()
-        val table = LookupTable.read(ByteArrayInputStream(csv.toByteArray()))
+        val table = LookupTable.read(inputStream = ByteArrayInputStream(csv.toByteArray()))
         val schema = Schema(
             "test", topic = "test",
             elements = listOf(
@@ -560,7 +560,7 @@ class MapperTests {
     @Test
     fun `test parseMapperField validation - allow mapper tokens to be parsed`() {
         // it should allow mapper tokens to be parsed: i.e. "$index"
-        var vals = Mappers.parseMapperField("concat(patient_id, \$index)")
+        val vals = Mappers.parseMapperField("concat(patient_id, \$index)")
         assertThat(vals.second[1]).isEqualTo("\$index")
     }
 

@@ -15,14 +15,14 @@ class FakeReportIntegrationTests {
         assertThat(zipCodeTable).isNotNull()
         val state = "VT"
         val county = "Rutland"
-        val matchingCityRows = zipCodeTable!!.filter(
+        val matchingCityRows = zipCodeTable!!.lookupValues(
             "city",
             mapOf(
                 "state_abbr" to state,
                 "county" to county
             )
         )
-        val matchingZipRows = zipCodeTable.filter(
+        val matchingZipRows = zipCodeTable.lookupValues(
             "zipcode",
             mapOf(
                 "state_abbr" to state,
