@@ -1,6 +1,10 @@
 # action.yml
 name: 'Push to ACR'
 description: 'Build and push to Azure Container Registry. Deploy to function app.'
+inputs:
+  dct-pass:
+    description: "Docker Content Trust pass"
+    required: false
 
 runs:
   using: "composite"
@@ -29,7 +33,7 @@ runs:
         echo "FUNCTION_APP=pdhtest-functionapp" >> $GITHUB_ENV
 
     - name: Set environment variables - staging
-      if: github.ref == 'refs/heads/master'
+      if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/josiahsiegel/#1674-docker-content-trust'
       shell: bash
       run: |
         echo "RESOURCE_GROUP=prime-data-hub-staging" >> $GITHUB_ENV
@@ -37,6 +41,8 @@ runs:
         echo "ACR_NAME=pdhstagingcontainerregistry.azurecr.io" >> $GITHUB_ENV
         echo "IMAGE_REPO=pdhstaging" >> $GITHUB_ENV
         echo "TAG=${{ github.sha }}" >> $GITHUB_ENV
+        echo "KEY_VAULT=pdhstaging-keyvault" >> $GITHUB_ENV
+        echo "KEY_NAME=pdhstaging-code-sign" >> $GITHUB_ENV
         echo "FUNCTION_APP=pdhstaging-functionapp" >> $GITHUB_ENV
 
     - name: Set environment variables - production
@@ -65,6 +71,60 @@ runs:
       run: az acr login --name ${{ env.ACR_NAME }}
       shell: bash
 
+    - uses: Azure/get-keyvault-secrets@v1
+      if: inputs.dct-pass
+      with:
+        keyvault: ${{ env.KEY_VAULT }}
+        secrets: ${{ env.KEY_NAME }}  # comma separated list of secret keys that need to be fetched from the Key Vault 
+      id: key-vault
+
+    - name: Create ssl key file
+      if: inputs.dct-pass
+      working-directory: prime-router
+      run: |
+        # Set key vault secret as private key file
+        echo "$SSL_KEY" > private.pem
+        chmod 600 private.pem
+        # Public key from private key
+        openssl rsa -in "private.pem" -pubout > "public.pem"
+      shell: bash
+      env:
+        SSL_KEY: ${{ steps.key-vault.outputs[env.KEY_NAME] }}
+
+    #
+    #/!\ Be sure to save in a safe place your root key
+    #
+    #/!\ Do not use the repository or root key here, use a created delegated key
+    # https://github.com/marketplace/actions/docker-sign
+    
+    - name: Confirm if runner is a signer
+      if: inputs.dct-pass
+      working-directory: prime-router
+      shell: bash
+      run: |
+        echo "DOCKER_CONTENT_TRUST_ROOT_PASSPHRASE=${{ inputs.dct-pass }}" >> $GITHUB_ENV
+        echo "DOCKER_CONTENT_TRUST_REPOSITORY_PASSPHRASE=${{ inputs.dct-pass }}" >> $GITHUB_ENV
+        docker trust inspect --pretty "${{ env.ACR_NAME }}/${{ env.IMAGE_REPO }}"
+        SIGNERS=$(docker trust inspect "${{ env.ACR_NAME }}/${{ env.IMAGE_REPO }}" | jq '.[].Signers')
+        if [[ "$SIGNERS" != *${{ env.IMAGE_REPO }}* ]]; then
+          echo "NEEDS_SIGNER=true" >> $GITHUB_ENV
+        fi
+
+    - name: Add signer
+      if: env.NEEDS_SIGNER == 'true'
+      working-directory: prime-router
+      shell: bash
+      run: |
+        # Delegate signing using the public key
+        # Runs once if signer does not exist
+        docker trust signer add --key "public.pem" "${{ env.IMAGE_REPO }}" "${{ env.ACR_NAME }}/${{ env.IMAGE_REPO }}"
+
+    - name: Load the private key onto Docker trust store
+      if: inputs.dct-pass
+      working-directory: prime-router
+      run: docker trust key load --name "codesign" "private.pem"
+      shell: bash
+
     - name: Build Docker image
       working-directory: prime-router
       run: |
@@ -74,7 +134,16 @@ runs:
           --tag ${{ env.ACR_NAME }}/${{ env.IMAGE_REPO }}:${{ env.TAG }}
       shell: bash
 
-    - name: Push Docker image
+    - name: Push Docker image with DCT
+      if: inputs.dct-pass
+      run: |
+        echo "DOCKER_CONTENT_TRUST=1" >> $GITHUB_ENV
+        docker push ${{ env.ACR_NAME }}/${{ env.IMAGE_REPO }}:latest --disable-content-trust=false
+        docker push ${{ env.ACR_NAME }}/${{ env.IMAGE_REPO }}:${{ env.TAG }} --disable-content-trust=false
+      shell: bash
+
+    - name: Push Docker image without DCT
+      if: env.DOCKER_CONTENT_TRUST != 1
       run: docker push ${{ env.ACR_NAME }}/${{ env.IMAGE_REPO }} --all-tags
       shell: bash
 

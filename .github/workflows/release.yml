@@ -7,6 +7,7 @@ on:
       - production
       - dev-rheft
       - ronheft/test-investigation
+      - josiahsiegel/#1674-docker-content-trust
 
 defaults:
   run:
@@ -131,7 +132,7 @@ jobs:
     needs:
       - build_release
       - build_frontend_react_release
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/josiahsiegel/#1674-docker-content-trust'
     environment: staging
     concurrency: staging
     runs-on: ubuntu-latest
@@ -150,6 +151,8 @@ jobs:
 
       - name: Deploy backend
         uses: ./.github/actions/deploy-backend
+        with:
+          dct-pass: ${{ secrets.USER_KEY }}
 
       - name: Deploy frontend
         uses: ./.github/actions/deploy-frontend

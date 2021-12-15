@@ -33,7 +33,7 @@ runs:
       run: echo "VPN_ENV=test" >> $GITHUB_ENV
 
     - name: Set environment variables - staging
-      if: github.ref == 'refs/heads/master'
+      if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/josiahsiegel/#1674-docker-content-trust'
       shell: bash
       run: echo "VPN_ENV=staging" >> $GITHUB_ENV
 
