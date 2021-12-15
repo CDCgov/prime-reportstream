@@ -26,7 +26,7 @@ class BatchFunction {
         try {
             context.logger.info("Batch message: $message")
             val workflowEngine = WorkflowEngine()
-            val event = Event.parseQueueMessage(message) as ReceiverEvent
+            val event = Event.parseQueueMessage(message) as BatchEvent
             if (event.eventAction != Event.EventAction.BATCH) {
                 context.logger.warning("Batch function received a $message")
                 return
@@ -37,10 +37,10 @@ class BatchFunction {
             val actionHistory = ActionHistory(event.eventAction.toTaskAction(), context)
             actionHistory.trackActionParams(message)
 
-            workflowEngine.handleReceiverEvent(event, maxBatchSize) { headers, txn ->
+            workflowEngine.handleBatchEvent(event, maxBatchSize) { headers, txn ->
                 if (headers.isEmpty()) {
                     context.logger.info("Batch: empty batch")
-                    return@handleReceiverEvent
+                    return@handleBatchEvent
                 } else {
                     context.logger.info("Batch contains ${headers.size} reports")
                 }

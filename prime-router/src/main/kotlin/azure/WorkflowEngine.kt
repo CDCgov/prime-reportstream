@@ -461,7 +461,7 @@ class WorkflowEngine(
                 val time = receiver.timing.nextTime()
                 // Always force a batched report to be saved in our INTERNAL format
                 val batchReport = report.copy(bodyFormat = Report.Format.INTERNAL)
-                val event = ReceiverEvent(Event.EventAction.BATCH, receiver.fullName, time)
+                val event = BatchEvent(Event.EventAction.BATCH, receiver.fullName, time)
                 this.dispatchReport(event, batchReport, actionHistory, receiver, txn, context)
                 loggerMsg = "Queue: ${event.toQueueMessage()}"
             }
@@ -562,14 +562,14 @@ class WorkflowEngine(
     }
 
     /**
-     * Handle a receiver specific event. Fetch all pending tasks for the specified receiver and nextAction
+     * Handle a batch event for a receiver. Fetch all pending tasks for the specified receiver and nextAction
      *
      * @param messageEvent that was received
      * @param maxCount of headers to process
      * @param updateBlock called with headers to process
      */
-    fun handleReceiverEvent(
-        messageEvent: ReceiverEvent,
+    fun handleBatchEvent(
+        messageEvent: BatchEvent,
         maxCount: Int,
         updateBlock: (headers: List<Header>, txn: Configuration?) -> Unit,
     ) {

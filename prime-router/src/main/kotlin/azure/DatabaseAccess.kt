@@ -652,6 +652,23 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             ) > 0
     }
 
+    /**
+     * Get the number of outstanding actions to batch for a specific receiver
+     */
+    fun fetchNumberOutstandingBatchRecords(
+        receivingOrg: String,
+        receivingOrgSvc: String,
+        txn: DataAccessTransaction): Int {
+        return DSL.using(txn)
+                .select(TASK.asterisk())
+                .from(TASK)
+                .join(REPORT_FILE).on(TASK.REPORT_ID.eq(REPORT_FILE.REPORT_ID))
+                .where(TASK.NEXT_ACTION.eq(TaskAction.batch))
+                .and(REPORT_FILE.RECEIVING_ORG.eq(receivingOrg))
+                .and(REPORT_FILE.RECEIVING_ORG_SVC.eq(receivingOrgSvc))
+                .count()
+    }
+
     /** Fetch the newest CreatedAt timestamp, active or deleted. */
     fun fetchLastModified(txn: DataAccessTransaction? = null): OffsetDateTime? {
         val ctx = if (txn != null) DSL.using(txn) else create
@@ -660,24 +677,6 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             .fetchOne()
             ?.getValue(DSL.max(SETTING.CREATED_AT))
     }
-
-    /** fetch newest ActionId to use as a snapshot endpoint for batching*/
-    fun fetchHighestActionId(txn: DataAccessTransaction? = null): Long? {
-        val ctx = if (txn != null) DSL.using(txn) else create
-        return ctx.select(DSL.max(ACTION.ACTION_ID))
-            .from(ACTION)
-            .fetchOne()
-            ?.getValue(DSL.max(ACTION.ACTION_ID))
-    }
-
-//    fun determineCurrentReceivers(txn: DataAccessTransaction? = null): MutableList<Receiver> {
-//        val ctx = if (txn != null) DSL.using(txn) else create
-//        // TODO: calculate which receivers should be added to the batch queue
-//        return ctx.select(DSL.max(ACTION.ACTION_ID))
-//            .from(ACTION)
-//            .fetchOne()
-//            ?.getValue(DSL.max(ACTION.ACTION_ID))
-//    }
 
     /**
      * Saves the connection check result to the db
