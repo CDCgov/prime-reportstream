@@ -407,25 +407,24 @@ class WorkflowEngine(
         options: Options,
         defaults: Map<String, String>,
         routeTo: List<String>,
-        warnings: MutableList<ResultDetail>,
         actionHistory: ActionHistory,
-    ) {
-        this.db.transact { txn ->
-            val (emptyReports, preparedReports) = this
-                .translator
-                .filterAndTranslateByReceiver(
-                    report,
-                    defaults,
-                    routeTo,
-                    warnings,
-                ).partition { (report, _) -> report.isEmpty() }
+    ): List<ResultDetail> {
+        val (routedReports, warnings) = this.translator
+            .filterAndTranslateByReceiver(
+                report,
+                defaults,
+                routeTo,
+            )
 
-            emptyReports.forEach { (report, receiver) ->
-                if (!report.filteredItems.isEmpty()) {
-                    actionHistory.trackFilteredReport(report, receiver)
-                }
+        val (emptyReports, preparedReports) = routedReports.partition { (report, _) -> report.isEmpty() }
+
+        emptyReports.forEach { (report, receiver) ->
+            if (!report.filteredItems.isEmpty()) {
+                actionHistory.trackFilteredReport(report, receiver)
             }
+        }
 
+        this.db.transact { txn ->
             preparedReports.forEach { (report, receiver) ->
                 sendToDestination(
                     report,
@@ -437,6 +436,7 @@ class WorkflowEngine(
                 )
             }
         }
+        return warnings
     }
 
     // 1. create <event, report> pair or pairs depending on input
@@ -525,16 +525,16 @@ class WorkflowEngine(
             )
 
             //  send to routeReport
-            routeReport(
+            val warnings = routeReport(
                 context,
                 report,
                 messageEvent.options,
                 messageEvent.defaults,
                 messageEvent.routeTo,
-                warnings,
                 actionHistory
             )
 
+            actionHistory.trackDetails(warnings)
             // track response body
             val responseBody = actionHistory.createResponseBody(
                 messageEvent.options,

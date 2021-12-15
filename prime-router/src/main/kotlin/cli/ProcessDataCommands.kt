@@ -416,11 +416,13 @@ class ProcessData(
         val translator = Translator(metadata, fileSettings)
         val warnings = mutableListOf<ResultDetail>()
         val outputReports: List<Pair<Report, Report.Format>> = when {
-            route ->
-                translator
-                    .filterAndTranslateByReceiver(inputReport, getDefaultValues(), emptyList(), warnings)
-                    .filter { it.first.itemCount > 0 }
+            route -> {
+                val (reports, byReceiverWarnings) = translator
+                    .filterAndTranslateByReceiver(inputReport, getDefaultValues(), emptyList())
+                warnings += byReceiverWarnings
+                reports.filter { it.first.itemCount > 0 }
                     .map { it.first to getOutputFormat(it.second.format) }
+            }
             routeTo != null -> {
                 val pair = translator.translate(
                     input = inputReport,
@@ -454,7 +456,7 @@ class ProcessData(
         if (warnings.size > 0) {
             echo("Problems occurred during translation to output schema:")
             warnings.forEach {
-                echo("${it.scope} ${it.id}: ${it.responseMessage.detailMsg()}")
+                echo("${it.scope} ${it.trackingId}: ${it.responseMessage.detailMsg()}")
             }
             echo()
         }

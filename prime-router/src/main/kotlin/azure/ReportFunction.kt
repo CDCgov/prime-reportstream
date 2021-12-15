@@ -173,8 +173,6 @@ class ReportFunction : Logging {
     ): HttpResponseMessage {
         // determine if we should be following the sync or async workflow
         val isAsync = processingType(request) == ProcessingType.Async
-        val errors: MutableList<ResultDetail> = mutableListOf()
-        val warnings: MutableList<ResultDetail> = mutableListOf()
         val responseBuilder = request.createResponseBuilder(HttpStatus.BAD_REQUEST)
             .header(HttpHeaders.CONTENT_TYPE, "application/json")
         try {
@@ -200,15 +198,15 @@ class ReportFunction : Logging {
                         ).status(HttpStatus.OK)
                     }
                     else -> {
-                        val (report, readErrors, readWarnings) = workflowEngine.createReport(
+                        val (report, errors, warnings) = workflowEngine.createReport(
                             sender,
                             validatedRequest.content,
                             validatedRequest.defaults,
                         )
 
                         // checks for errors from createReport
-                        if (options != Options.SkipInvalidItems && readErrors.isNotEmpty()) {
-                            throw ResultErrors(readErrors)
+                        if (options != Options.SkipInvalidItems && errors.isNotEmpty()) {
+                            throw ResultErrors(errors)
                         }
 
                         report.bodyURL = workflowEngine.recordReceivedReport(
@@ -228,20 +226,20 @@ class ReportFunction : Logging {
                                 actionHistory
                             )
                         } else {
-                            workflowEngine.routeReport(
+                            val routingWarnings = workflowEngine.routeReport(
                                 context,
                                 report,
                                 options,
                                 validatedRequest.defaults,
                                 validatedRequest.routeTo,
-                                warnings,
                                 actionHistory
                             )
+                            actionHistory.trackDetails(routingWarnings)
                         }
 
+                        actionHistory.trackDetails(errors)
+                        actionHistory.trackDetails(warnings)
                         // TODO DG: continue reducing this passing of mutable lists
-                        errors += readErrors
-                        warnings += readWarnings
                         responseBuilder.body(
                             actionHistory.createResponseBody(
                                 // TODO DG: get rid of the need for options, only used to handle "skip send" case
@@ -257,19 +255,21 @@ class ReportFunction : Logging {
                     }
                 }
             } catch (e: ResultError) {
+                actionHistory.trackDetails(e.detail)
                 responseBuilder.body(
                     actionHistory.createResponseBody(
                         options,
-                        warnings,
+                        emptyList(),
                         listOf(e.detail),
                         verbose,
                     )
                 )
             } catch (e: ResultErrors) {
+                actionHistory.trackDetails(e.details)
                 responseBuilder.body(
                     actionHistory.createResponseBody(
                         options,
-                        warnings,
+                        emptyList(),
                         e.details,
                         verbose,
                     )

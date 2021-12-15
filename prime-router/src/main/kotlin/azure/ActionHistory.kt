@@ -18,6 +18,7 @@ import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.Tables.ACTION
+import gov.cdc.prime.router.azure.db.Tables.ACTION_DETAIL
 import gov.cdc.prime.router.azure.db.Tables.ITEM_LINEAGE
 import gov.cdc.prime.router.azure.db.Tables.REPORT_FILE
 import gov.cdc.prime.router.azure.db.Tables.REPORT_LINEAGE
@@ -139,6 +140,17 @@ class ActionHistory {
 
     fun trackEvent(event: Event) {
         messages.add(event)
+    }
+
+    fun trackDetails(d: List<ResultDetail>) {
+        d.forEach {
+            trackDetails(it)
+        }
+    }
+
+    fun trackDetails(d: ResultDetail) {
+        d.action = action
+        details.add(d)
     }
 
     fun trackActionParams(request: HttpRequestMessage<String?>) {
@@ -505,6 +517,11 @@ class ActionHistory {
         generateReportLineages(action.actionId)
         insertReportLineages(txn)
         insertItemLineages(itemLineages, txn)
+
+        details.forEach {
+            val detailRecord = DSL.using(txn).newRecord(ACTION_DETAIL, it)
+            detailRecord.store()
+        }
     }
 
     /**

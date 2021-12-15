@@ -1,4 +1,7 @@
 package gov.cdc.prime.router
+import gov.cdc.prime.router.azure.db.tables.pojos.Action
+import java.util.UUID
+// import javax.persistence.Column
 
 /**
  * @property scope of the result detail
@@ -8,20 +11,29 @@ package gov.cdc.prime.router
  */
 data class ResultDetail(
     val scope: DetailScope,
-    val id: String,
+    val trackingId: String,
     val responseMessage: ResponseMessage,
-    val row: Int = -1
+    val row: Int = -1,
+    val reportId: UUID? = null,
+    var action: Action? = null,
 ) {
     val rowNumber: Int
         get() = row + 1
+
+    // @Column(name="action_id")
+    fun getActionId(): Long {
+        return action!!.actionId
+    }
     /**
      * @property REPORT scope for the detail
      * @property ITEM scope for the detail
      */
     enum class DetailScope { PARAMETER, REPORT, ITEM, TRANSLATION }
+    enum class Type { INFO, TRANSFORMATION, WARNING, ERROR }
 
     override fun toString(): String {
-        return "${scope.toString().lowercase()}${if (id.isBlank()) "" else " $id"}: ${responseMessage.detailMsg()}"
+        val tracking = if (trackingId.isBlank()) "" else " $trackingId"
+        return "${scope.toString().lowercase()}$tracking: ${responseMessage.detailMsg()}"
     }
 
     companion object {
@@ -29,16 +41,16 @@ data class ResultDetail(
             return ResultDetail(DetailScope.REPORT, "", message, -1)
         }
 
-        fun item(id: String, message: ResponseMessage, row: Int): ResultDetail {
-            return ResultDetail(DetailScope.ITEM, id, message, row)
+        fun item(trackingId: String, message: ResponseMessage, row: Int): ResultDetail {
+            return ResultDetail(DetailScope.ITEM, trackingId, message, row)
         }
 
-        fun param(id: String, message: ResponseMessage): ResultDetail {
-            return ResultDetail(DetailScope.PARAMETER, id, message, -1)
+        fun param(trackingId: String, message: ResponseMessage): ResultDetail {
+            return ResultDetail(DetailScope.PARAMETER, trackingId, message, -1)
         }
 
-        fun translation(id: String, message: ResponseMessage): ResultDetail {
-            return ResultDetail(DetailScope.TRANSLATION, id, message, -1)
+        fun translation(trackingId: String, message: ResponseMessage): ResultDetail {
+            return ResultDetail(DetailScope.TRANSLATION, trackingId, message, -1)
         }
     }
 }

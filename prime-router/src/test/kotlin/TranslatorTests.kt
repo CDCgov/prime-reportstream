@@ -88,9 +88,9 @@ class TranslatorTests {
         val translator = Translator(metadata, settings)
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val table1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), TestSource, metadata = metadata)
-        translator.filterAndTranslateByReceiver(table1, warnings = mutableListOf()).run {
-            assertThat(this.size).isEqualTo(1)
-            val (mappedTable, forReceiver) = this[0]
+        translator.filterAndTranslateByReceiver(table1).run {
+            assertThat(this.first.size).isEqualTo(1)
+            val (mappedTable, forReceiver) = this.first[0]
             assertThat(mappedTable.schema).isEqualTo(table1.schema)
             assertThat(mappedTable.itemCount).isEqualTo(1)
             assertThat(forReceiver).isEqualTo(settings.receivers.toTypedArray()[0])

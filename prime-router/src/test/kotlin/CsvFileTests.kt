@@ -86,7 +86,7 @@ class CsvFileTests {
     }
 
     private fun translateReport(inputReport: Report, baseName: String, expected: List<String>) {
-        val outputReports = Translator(metadata, settings).filterAndTranslateByReceiver(inputReport)
+        val (outputReports, _) = Translator(metadata, settings).filterAndTranslateByReceiver(inputReport)
         assertThat(outputReports).hasSize(expected.size)
 
         // Write transformed objs to files, and check they are correct

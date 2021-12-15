@@ -30,10 +30,10 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
         input: Report,
         defaultValues: DefaultValues = emptyMap(),
         limitReceiversTo: List<String> = emptyList(),
-        warnings: MutableList<ResultDetail>? = null,
-    ): List<Pair<Report, Receiver>> {
-        if (input.isEmpty()) return emptyList()
-        return settings.receivers.filter { receiver ->
+    ): Pair<List<Pair<Report, Receiver>>, List<ResultDetail>> {
+        val warnings = mutableListOf<ResultDetail>()
+        if (input.isEmpty()) return Pair(emptyList(), warnings)
+        val routedReports = settings.receivers.filter { receiver ->
             receiver.topic == input.schema.topic &&
                 (limitReceiversTo.isEmpty() || limitReceiversTo.contains(receiver.fullName))
         }.mapNotNull { receiver ->
@@ -49,13 +49,15 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
                         ResultDetail(
                             ResultDetail.DetailScope.TRANSLATION,
                             "TO:${receiver.fullName}:${receiver.schemaName}",
-                            InvalidTranslationMessage.new(e.localizedMessage)
+                            InvalidTranslationMessage.new(e.localizedMessage),
+                            reportId = input.id,
                         )
                     )
                 }
                 return@mapNotNull null
             }
         }
+        return Pair(routedReports, warnings)
     }
 
     /**
