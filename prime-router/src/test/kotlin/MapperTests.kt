@@ -126,6 +126,14 @@ class MapperTests {
         // Test with a ID NOW device id
         val ev2 = ElementAndValue(modelElement, "ID NOW")
         assertThat(mapper.apply(codeElement, emptyList(), listOf(ev2))).isEqualTo("94534-5")
+
+        // Test for a device ID that has multiple rows and the same test ordered code.
+        val ev3 = ElementAndValue(modelElement, "1copy COVID-19 qPCR Multi Kit*")
+        assertThat(mapper.apply(codeElement, emptyList(), listOf(ev3))).isEqualTo("94531-1")
+
+        // Test for a device ID that has multiple rows and multiple test ordered codes.
+        val ev4 = ElementAndValue(modelElement, "Alinity i")
+        assertThat(mapper.apply(codeElement, emptyList(), listOf(ev4))).isNull()
     }
 
     @Test
