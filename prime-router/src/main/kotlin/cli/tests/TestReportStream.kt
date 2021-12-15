@@ -2388,7 +2388,7 @@ class SantaClaus : CoolTest() {
             // Now send it to ReportStream.
             val (responseCode, json) =
                 HttpUtilities.postReportFile(
-                    environment, file, sender, options.asyncProcessMode, null,
+                    environment, file, sender, options.asyncProcessMode, options.key,
                     payloadName = "$name ${status.description}",
                 )
             if (responseCode != HttpURLConnection.HTTP_CREATED) {

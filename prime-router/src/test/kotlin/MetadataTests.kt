@@ -32,6 +32,20 @@ import kotlin.test.assertNull
 
 class MetadataTests {
     @Test
+    fun `test findReportStreamFilterDefinitions`() {
+        val metadata = UnitTestUtils.simpleMetadata
+        assertThat(metadata.findReportStreamFilterDefinitions("matches")).isNotNull()
+        assertThat(metadata.findReportStreamFilterDefinitions("doesNotMatch")).isNotNull()
+        assertThat(metadata.findReportStreamFilterDefinitions("filterByCounty")).isNotNull()
+        assertThat(metadata.findReportStreamFilterDefinitions("orEquals")).isNotNull()
+        assertThat(metadata.findReportStreamFilterDefinitions("allowAll")).isNotNull()
+        assertThat(metadata.findReportStreamFilterDefinitions("allowNone")).isNotNull()
+        assertThat(metadata.findReportStreamFilterDefinitions("hasValidDataFor")).isNotNull()
+        assertThat(metadata.findReportStreamFilterDefinitions("isValidCLIA")).isNotNull()
+        assertThat(metadata.findReportStreamFilterDefinitions("hasAtLeastOneOf")).isNotNull()
+    }
+
+    @Test
     fun `test loading two schemas`() {
         val metadata = UnitTestUtils.simpleMetadata.loadSchemas(
             Schema(Element("a"), name = "one", topic = "test"),

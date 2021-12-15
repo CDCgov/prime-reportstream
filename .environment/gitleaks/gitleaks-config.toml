@@ -120,6 +120,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
     ]
     [rules.allowlist]
         regexes = [
+            'api/lookuptables/list',
             ' \* \(The older version of this API is "/api/reports"\)',
             ' \* since this auth (has|uses) a ',
             ' by option\(\"',
@@ -236,17 +237,6 @@ title = "PRIME ReportStream Gitleaks Configuration"
         "key",
         "Github",
     ]
-
-[[rules]]
-    description = "High Entropy"
-    regex = '[0-9a-zA-Z-_!{}/=]{4,120}'
-    file = '''(?i)(dump.sql|high-entropy-misc.txt)$'''
-    tags = [
-        "entropy",
-    ]
-    [[rules.Entropies]]
-        Min = "4.3"
-        Max = "7.0"
 
 [[rules]]
     description = "IPv4 addresses"
