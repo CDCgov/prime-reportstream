@@ -10,6 +10,8 @@
 
 **PII**: No
 
+**Format**: use value found in the Code column
+
 **Cardinality**: [0..1]
 
 **Value Sets**
@@ -420,6 +422,8 @@ The patient's drivers license number
 
 **PII**: No
 
+**Format**: use value found in the Code column
+
 **Cardinality**: [0..1]
 
 **Value Sets**
@@ -457,6 +461,8 @@ The patient's first name
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
@@ -538,7 +544,7 @@ The patient's phone number with area code
 
 **PII**: No
 
-**Format**: $code
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
@@ -649,7 +655,7 @@ The ID number of the lab order from the placer
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **LOINC Code**: 82810-3
 
@@ -803,6 +809,8 @@ A unique code for this specimen
 
 **PII**: No
 
+**Format**: use value found in the Code column
+
 **Default Value**: 258500001
 
 **Cardinality**: [0..1]
@@ -923,7 +931,7 @@ Is the test authorized for unproctored administration by the FDA (Y, N, UNK)
 
 **PII**: No
 
-**Format**: $alt
+**Format**: use value found in the Display column
 
 **Cardinality**: [0..1]
 
@@ -1014,6 +1022,8 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Default Value**: F
 

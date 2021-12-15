@@ -505,7 +505,7 @@ Other states may choose to define their own formats.
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **Default Value**: U
 
@@ -560,7 +560,7 @@ The patient's first name
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **Default Value**: U
 
@@ -680,7 +680,7 @@ The patient's phone number with area code
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **Default Value**: UNK
 
@@ -805,6 +805,8 @@ The ID number of the lab order from the placer
 
 **PII**: No
 
+**Format**: use value found in the Code column
+
 **Default Value**: T
 
 **Cardinality**: [0..1]
@@ -913,7 +915,7 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **Cardinality**: [0..1]
 
@@ -972,7 +974,7 @@ Translate inbound text to outbound SNOMED Codes
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **Cardinality**: [0..1]
 
@@ -1064,7 +1066,7 @@ The LOINC code of the test performed. This is a standardized coded value describ
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **Cardinality**: [0..1]
 
@@ -1148,6 +1150,8 @@ Translate multiple inbound Test Result values to RS values
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Default Value**: F
 
