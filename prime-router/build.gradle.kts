@@ -27,11 +27,11 @@ import java.time.format.DateTimeFormatter
 import java.util.Properties
 
 plugins {
-    kotlin("jvm") version "1.6.0"
-    id("org.flywaydb.flyway") version "8.2.0"
+    kotlin("jvm") version "1.6.10"
+    id("org.flywaydb.flyway") version "8.2.2"
     id("nu.studer.jooq") version "6.0.1"
     id("com.github.johnrengelman.shadow") version "7.1.0"
-    id("com.microsoft.azure.azurefunctions") version "1.8.1"
+    id("com.microsoft.azure.azurefunctions") version "1.8.2"
     id("org.jlleitschuh.gradle.ktlint") version "10.2.0"
     id("com.adarshr.test-logger") version "3.1.0"
     id("jacoco")
@@ -91,7 +91,7 @@ fun addVaultValuesToEnv(env: MutableMap<String, Any>) {
 defaultTasks("package")
 
 val ktorVersion = "1.6.7"
-val kotlinVersion = "1.6.0"
+val kotlinVersion = "1.6.10"
 jacoco.toolVersion = "0.8.7"
 
 // Set the compiler JVM target
@@ -576,7 +576,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
     implementation("com.microsoft.azure.functions:azure-functions-java-library:1.4.2")
     implementation("com.azure:azure-core:1.23.1")
-    implementation("com.azure:azure-core-http-netty:1.11.2")
+    implementation("com.azure:azure-core-http-netty:1.11.4")
     implementation("com.azure:azure-storage-blob:12.14.1") {
         exclude(group = "com.azure", module = "azure-core")
     }
@@ -605,18 +605,18 @@ dependencies {
     implementation("com.github.javafaker:javafaker:1.0.2")
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
-    implementation("com.googlecode.libphonenumber:libphonenumber:8.12.38")
+    implementation("com.googlecode.libphonenumber:libphonenumber:8.12.39")
     implementation("org.thymeleaf:thymeleaf:3.0.14.RELEASE")
-    implementation("com.sendgrid:sendgrid-java:4.8.0")
+    implementation("com.sendgrid:sendgrid-java:4.8.1")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.1")
     implementation("com.github.kittinunf.fuel:fuel:2.3.1") {
         exclude(group = "org.json", module = "json")
     }
     implementation("com.github.kittinunf.fuel:fuel-json:2.3.1")
-    implementation("org.json:json:20210307")
+    implementation("org.json:json:20211205")
     // DO NOT INCREMENT SSHJ to a newer version without first thoroughly testing it locally.
     implementation("com.hierynomus:sshj:0.31.0")
-    implementation("org.bouncycastle:bcprov-jdk15on:1.69")
+    implementation("org.bouncycastle:bcprov-jdk15on:1.70")
     implementation("com.jcraft:jsch:0.1.55")
     implementation("org.apache.commons:commons-lang3:3.12.0")
     implementation("org.apache.commons:commons-text:1.9")
@@ -624,15 +624,15 @@ dependencies {
     implementation("commons-io:commons-io:2.11.0")
     implementation("org.postgresql:postgresql:42.3.0")
     implementation("com.zaxxer:HikariCP:5.0.0")
-    implementation("org.flywaydb:flyway-core:8.2.0")
-    implementation("com.github.kayr:fuzzy-csv:1.7.2")
-    implementation("org.commonmark:commonmark:0.18.0")
+    implementation("org.flywaydb:flyway-core:8.2.2")
+    implementation("com.github.kayr:fuzzy-csv:1.7.3")
+    implementation("org.commonmark:commonmark:0.18.1")
     implementation("com.google.guava:guava:31.0.1-jre")
-    implementation("com.helger.as2:as2-lib:4.8.0")
+    implementation("com.helger.as2:as2-lib:4.9.0")
     // Prevent mixed versions of these libs based on different versions being included by different packages
-    implementation("org.bouncycastle:bcpkix-jdk15on:1.69")
-    implementation("org.bouncycastle:bcmail-jdk15on:1.69")
-    implementation("org.bouncycastle:bcprov-jdk15on:1.69")
+    implementation("org.bouncycastle:bcpkix-jdk15on:1.70")
+    implementation("org.bouncycastle:bcmail-jdk15on:1.70")
+    implementation("org.bouncycastle:bcprov-jdk15on:1.70")
 
     implementation("commons-net:commons-net:3.8.0")
     implementation("com.cronutils:cron-utils:9.1.5")
