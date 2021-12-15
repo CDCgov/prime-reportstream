@@ -1,9 +1,5 @@
 package gov.cdc.prime.router.azure
 
-import com.auth0.jwt.JWT
-import com.auth0.jwt.algorithms.Algorithm
-import com.auth0.jwt.interfaces.DecodedJWT
-import com.auth0.jwt.interfaces.JWTVerifier
 import com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.microsoft.azure.functions.ExecutionContext
@@ -28,8 +24,8 @@ import java.util.logging.Logger
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.memberProperties
 
-var NO_REPLY_EMAIL = System.getenv("EMAIL_NO_REPLY") ?: "default@noemail.com"
-var REPORT_STREAM_EMAIL = System.getenv("EMAIL_REPORT_STREAM") ?: "default@noemail.com"
+var NO_REPLY_EMAIL = "no-reply@cdc.gov"
+var REPORT_STREAM_EMAIL = "reportstream@cdc.gov"
 const val TOS_SUBJECT_BASE = "TOS Agreement for "
 
 /*INFO:
@@ -104,44 +100,23 @@ class EmailSenderFunction {
     ): HttpResponseMessage {
         val logger: Logger = context.logger
         val ret = request.createResponseBuilder(HttpStatus.UNAUTHORIZED)
-        val jwtToken: String = request.headers["authorization"] ?: ""
-        /* Jwt authorization check */
-        if (verifyFromSource(jwtToken, logger) !== null) {
-            /* Body existence check */
-            if (request.body === null) return ret.status(HttpStatus.BAD_REQUEST).build()
 
-            /* Body shape check */
-            val body: TosAgreementForm = parseBody(request.body!!, logger)
-                ?: return ret.status(HttpStatus.BAD_REQUEST).build()
-            if (!body.validate(logger)) return ret.status(HttpStatus.BAD_REQUEST).build()
+        /* Body existence check */
+        if (request.body === null) return ret.status(HttpStatus.BAD_REQUEST).build()
 
-            logger.info(request.body)
+        /* Body shape check */
+        val body: TosAgreementForm = parseBody(request.body!!, logger)
+            ?: return ret.status(HttpStatus.BAD_REQUEST).build()
 
-            /* Body exists and has all required properties; sendMail's response decides the outcome of this */
-            val sendgridId: String? = SecretHelper.getSecretService().fetchSecret("SENDGRID_ID")
-            val mail: String = createMail(body)
-            ret.status(sendMail(mail, sendgridId, logger)) /* Status becomes whatever SendGrid returns */
-        } else {
-            logger.info("You are unauthorized to call this endpoint")
-//            logger.info(authBody.toString())
-        }
+        /* Body content check */
+        if (!body.validate(logger)) return ret.status(HttpStatus.BAD_REQUEST).build()
+        logger.info(request.body)
+
+        /* Body exists and has all required properties; sendMail's response decides the outcome of this */
+        val sendgridId: String? = SecretHelper.getSecretService().fetchSecret("SENDGRID_ID")
+        val mail: String = createMail(body)
+        ret.status(sendMail(mail, sendgridId, logger)) /* Status becomes whatever SendGrid returns */
         return ret.build()
-    }
-
-    /*INFO:
-    *  This function is returning a DecodedJWT from com.auth0.jwt.interfaces rather than
-    *  a boolean, despite its singular implementation right now, so the DecodedJWT can
-    *  be used in future places that this is called, such as to get claims.
-    */
-    private fun verifyFromSource(jwt: String, logger: Logger): DecodedJWT? {
-        return try {
-            val algorithm: Algorithm = Algorithm.HMAC256(System.getenv("TokenSigningSecret"))
-            val verifier: JWTVerifier = JWT.require(algorithm).withIssuer("reportstream").build()
-            return verifier.verify(jwt)
-        } catch (ex: Throwable) {
-            logger.warning("There was an error while verifying your JWT: ${ex.message}")
-            null
-        }
     }
 
     /*TODO:
