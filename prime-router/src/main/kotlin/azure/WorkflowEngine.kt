@@ -176,7 +176,8 @@ class WorkflowEngine(
         rawBody: ByteArray,
         sender: Sender,
         actionHistory: ActionHistory,
-        workflowEngine: WorkflowEngine
+        workflowEngine: WorkflowEngine,
+        payloadName: String? = null,
     ): String {
         // Save a copy of the original report
         val senderReportFormat = Report.Format.safeValueOf(sender.format.toString())
@@ -186,7 +187,7 @@ class WorkflowEngine(
             blobFilename, sender.fullName, Event.EventAction.RECEIVE
         )
 
-        actionHistory.trackExternalInputReport(report, blobInfo)
+        actionHistory.trackExternalInputReport(report, blobInfo, payloadName)
         return blobInfo.blobUrl
     }
 
@@ -419,7 +420,7 @@ class WorkflowEngine(
         val (emptyReports, preparedReports) = routedReports.partition { (report, _) -> report.isEmpty() }
 
         emptyReports.forEach { (report, receiver) ->
-            if (!report.filteredItems.isEmpty()) {
+            if (!report.filteringResults.isEmpty()) {
                 actionHistory.trackFilteredReport(report, receiver)
             }
         }
@@ -467,7 +468,7 @@ class WorkflowEngine(
                 loggerMsg = "Queue: ${event.toQueueMessage()}"
             }
             receiver.format.isSingleItemFormat -> {
-                report.filteredItems.forEach {
+                report.filteringResults.forEach {
                     val emptyReport = Report(
                         report.schema,
                         emptyList(),
@@ -476,7 +477,7 @@ class WorkflowEngine(
                         bodyFormat = report.bodyFormat,
                         metadata = Metadata.getInstance()
                     )
-                    emptyReport.filteredItems.add(it)
+                    emptyReport.filteringResults.add(it)
                     actionHistory.trackFilteredReport(emptyReport, receiver)
                 }
 

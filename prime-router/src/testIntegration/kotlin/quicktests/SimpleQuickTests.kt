@@ -34,6 +34,33 @@ class SimpleQuickTests {
     }
 
     @Test
+    fun `test fake data generator`() {
+        val reddyFMCFilenameRegex = "reddyfmc-la-covid-19.*\\.csv"
+        val reddyFMCNumFakeRecords = 1
+
+        /**
+         * Generate ReddyFMC-LA data using the provided [county].
+         * @return the pathname of the generated file
+         */
+        fun generateStracData(county: String): String {
+            val reddyFMCFile = QuickTestUtils.generateFakeData(
+                "iPatientCare/ReddyFMC-LA-covid-19", reddyFMCNumFakeRecords,
+                Report.Format.CSV, "AL", county
+            )
+            QuickTestUtils.checkFilename(reddyFMCFile, reddyFMCFilenameRegex)
+            return reddyFMCFile
+        }
+
+        val fileList = mutableListOf<String>()
+        val countyList = listOf("Jefferson")
+
+        // Generate the fake data
+        countyList.forEach {
+            fileList.add(generateStracData(it))
+        }
+    }
+
+    @Test
     fun `test merge using fake data`() {
         val stracsFilenameRegex = "strac-covid-19.*\\.csv"
         val stracsNumFakeRecords = 5

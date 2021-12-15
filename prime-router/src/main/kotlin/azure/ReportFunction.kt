@@ -27,6 +27,7 @@ import gov.cdc.prime.router.tokens.TokenAuthentication
 import org.apache.logging.log4j.kotlin.Logging
 
 private const val CLIENT_PARAMETER = "client"
+private const val PAYLOAD_NAME_PARAMETER = "payloadName"
 private const val OPTION_PARAMETER = "option"
 private const val DEFAULT_PARAMETER = "default"
 private const val ROUTE_TO_PARAMETER = "routeTo"
@@ -74,7 +75,7 @@ class ReportFunction : Logging {
     ): HttpResponseMessage {
         val workflowEngine = WorkflowEngine()
 
-        val senderName = extractClientHeader(request)
+        val senderName = extractClient(request)
         if (senderName.isNullOrBlank())
             return HttpUtilities.bad(request, "Expected a '$CLIENT_PARAMETER' query parameter")
 
@@ -112,7 +113,7 @@ class ReportFunction : Logging {
     ): HttpResponseMessage {
         val workflowEngine = WorkflowEngine()
 
-        val senderName = extractClientHeader(request)
+        val senderName = extractClient(request)
         if (senderName.isNullOrBlank())
             return HttpUtilities.bad(request, "Expected a '$CLIENT_PARAMETER' query parameter")
 
@@ -132,7 +133,7 @@ class ReportFunction : Logging {
 
             if (authenticationStrategy is OktaAuthentication) {
                 // The report is coming from a sender that is using Okta, so set "oktaSender" to true
-                return authenticationStrategy.checkAccess(request, senderName, true) {
+                return authenticationStrategy.checkAccess(request, senderName, true, actionHistory) {
                     return@checkAccess processRequest(request, sender, context, workflowEngine, actionHistory)
                 }
             }
@@ -185,7 +186,8 @@ class ReportFunction : Logging {
             // track the sending organization and client based on the header
             try {
                 val validatedRequest = validateRequest(workflowEngine, request)
-                actionHistory.trackActionSender(validatedRequest.sender.fullName)
+                val payloadName = extractPayloadName(request)
+                actionHistory.trackActionSenderInfo(validatedRequest.sender.fullName, payloadName)
                 when (options) {
                     Options.CheckConnections, Options.ValidatePayload -> {
                         responseBuilder.body(
@@ -212,7 +214,7 @@ class ReportFunction : Logging {
                         report.bodyURL = workflowEngine.recordReceivedReport(
                             // should make createReport always return a report or error
                             report, validatedRequest.content.toByteArray(), sender,
-                            actionHistory, workflowEngine
+                            actionHistory, workflowEngine, payloadName
                         )
 
                         // call the correct processing function based on processing type
@@ -295,10 +297,20 @@ class ReportFunction : Logging {
      * Extract client header from request headers or query string parameters
      * @param request the http request message from the client
      */
-    private fun extractClientHeader(request: HttpRequestMessage<String?>): String {
+    private fun extractClient(request: HttpRequestMessage<String?>): String {
         // client can be in the header or in the url parameters:
         return request.headers[CLIENT_PARAMETER]
             ?: request.queryParameters.getOrDefault(CLIENT_PARAMETER, "")
+    }
+
+    /**
+     * Extract the optional payloadName (aka sender-supplied filename) from request headers or query string parameters
+     * @param request the http request message from the client
+     */
+    private fun extractPayloadName(request: HttpRequestMessage<String?>): String? {
+        // payloadName can be in the header or in the url parameters.  Return null if not found.
+        return request.headers[PAYLOAD_NAME_PARAMETER]
+            ?: request.queryParameters[PAYLOAD_NAME_PARAMETER]
     }
 
     // TODO: Make this so that we check sender's configuration if there is no param type, this is blocked by
@@ -350,7 +362,7 @@ class ReportFunction : Logging {
             .map { ResultDetail.param(ROUTE_TO_PARAMETER, InvalidParamMessage.new("Invalid receiver name: $it")) }
         errors.addAll(receiverNameErrors)
 
-        val clientName = extractClientHeader(request)
+        val clientName = extractClient(request)
         if (clientName.isBlank())
             errors.add(
                 ResultDetail.param(

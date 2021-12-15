@@ -224,9 +224,12 @@ class HttpUtilities {
             asyncProcessMode: Boolean = false,
             key: String? = null,
             option: Options? = null,
+            payloadName: String? = null
         ): Pair<Int, String> {
             if (!file.exists()) error("Unable to find file ${file.absolutePath}")
-            return postReportBytes(environment, file.readBytes(), sendingOrgClient, key, option, asyncProcessMode)
+            return postReportBytes(
+                environment, file.readBytes(), sendingOrgClient, key, option, asyncProcessMode, payloadName
+            )
         }
 
         /**
@@ -255,6 +258,7 @@ class HttpUtilities {
             key: String?,
             option: Options? = null,
             asyncProcessMode: Boolean = false,
+            payloadName: String? = null,
         ): Pair<Int, String> {
             val headers = mutableListOf<Pair<String, String>>()
             when (sendingOrgClient.format) {
@@ -271,6 +275,8 @@ class HttpUtilities {
             val urlBuilder = URIBuilder(environment.url.toString() + oldApi)
             if (option != null)
                 urlBuilder.setParameter("option", option.toString())
+            if (payloadName != null)
+                urlBuilder.setParameter("payloadName", payloadName)
 
             // if asyncProcessMode is present and true, add the 'processing=async' query param
             if (asyncProcessMode)
