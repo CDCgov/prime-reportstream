@@ -270,7 +270,7 @@ class LookupMapper : Mapper {
 }
 
 /**
- * The NpiLookupMapper is a specific implementation of the lookupMapper adn
+ * The NpiLookupMapper is a specific implementation of the lookupMapper and
  * thus no output values are present in this function. This function requires
  * the same lookup table configuration as lookupMapper.
  *

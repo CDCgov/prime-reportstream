@@ -314,40 +314,26 @@ class MapperTests {
         /* Schema and table configuration for tests */
         val table = LookupTable.read("./src/test/resources/metadata/tables/npi-lookup.csv")
         val tableName = "npi-lookup"
+
+        /* Hopefully this shuts SonarCloud up about duplicate code */
+        val elementInfo: List<Pair<String, String>> = listOf(
+            Pair("ordering_provider_id", "ordering_provider_id"),
+            Pair("testing_lab_clia", "testing_lab_clia"),
+            Pair("sender_id", "sender_id"),
+            Pair("ordering_provider_first_name", "first_name"),
+            Pair("ordering_provider_last_name", "last_name")
+        )
+        val elements: List<Element> = elementInfo.map { info ->
+            Element(
+                name = info.first,
+                type = Element.Type.TABLE,
+                table = tableName,
+                tableColumn = info.second
+            )
+        }
         val schema = Schema(
             tableName, topic = "Testing NPI lookup mapper",
-            elements = listOf(
-                Element(
-                    name = "ordering_provider_id",
-                    type = Element.Type.TABLE,
-                    table = "npi-lookup",
-                    tableColumn = "ordering_provider_id"
-                ),
-                Element(
-                    name = "testing_lab_clia",
-                    type = Element.Type.TABLE,
-                    table = "npi-lookup",
-                    tableColumn = "testing_lab_clia"
-                ),
-                Element(
-                    name = "sender_id",
-                    type = Element.Type.TABLE,
-                    table = "npi-lookup",
-                    tableColumn = "sender_id"
-                ),
-                Element(
-                    name = "ordering_provider_first_name",
-                    type = Element.Type.TABLE,
-                    table = "npi-lookup",
-                    tableColumn = "first_name"
-                ),
-                Element(
-                    name = "ordering_provider_last_name",
-                    type = Element.Type.TABLE,
-                    table = "npi-lookup",
-                    tableColumn = "last_name"
-                )
-            )
+            elements = elements
         )
         val metadata = Metadata(schema = schema, table = table, tableName = tableName)
         val npiElement = metadata.findSchema(tableName)?.findElement("ordering_provider_id")
