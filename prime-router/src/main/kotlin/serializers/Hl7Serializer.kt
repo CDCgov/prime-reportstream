@@ -1165,7 +1165,12 @@ class Hl7Serializer(
         terser.set(formPathSpec("OBX-24-2", aoeRep), report.getStringByHl7Field(row, "OBX-24-2"))
         terser.set(formPathSpec("OBX-24-3", aoeRep), report.getStringByHl7Field(row, "OBX-24-3"))
         terser.set(formPathSpec("OBX-24-4", aoeRep), report.getStringByHl7Field(row, "OBX-24-4"))
-        terser.set(formPathSpec("OBX-24-5", aoeRep), report.getStringByHl7Field(row, "OBX-24-5"))
+        // OBX-24-5 is a postal code as well. pad this for now
+        // TODO: come up with a better way to repeat these segments
+        terser.set(
+            formPathSpec("OBX-24-5", aoeRep),
+            report.getStringByHl7Field(row, "OBX-24-5")?.padStart(5, '0')
+        )
         terser.set(formPathSpec("OBX-24-9", aoeRep), report.getStringByHl7Field(row, "OBX-24-9"))
         // check for the OBX-23-6 value. it needs to be split apart
         val testingLabIdAssigner = report.getString(row, "testing_lab_id_assigner")
