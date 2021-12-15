@@ -295,9 +295,15 @@ iPatientCare is an ambulatory EMR, so this field is defaulted to 'N'.
 
 **Name**: Accession_no
 
+**Type**: ID
+
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
+
+**Documentation**:
+
+unique id to track the usage of the message
 
 ---
 

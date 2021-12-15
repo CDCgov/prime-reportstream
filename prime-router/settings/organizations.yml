@@ -291,6 +291,17 @@
       schemaName: non-standard/all-in-one-health-ca-covid-19
       format: CSV
 
+- name: pmg
+  description: Premier Medical Group USA
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: pmg
+      topic: covid-19
+      customerStatus: active
+      schemaName: direct/pmg-covid-19
+      format: CSV
+
 - name: az-phd
   description: Arizona PHD
   jurisdiction: STATE
@@ -537,6 +548,7 @@
         receivingFacilityOID: 2.16.840.1.114222.4.1.185
         truncateHDNamespaceIds: true
         usePid14ForPatientEmail: true
+        truncateHl7Fields: OBX-23-1
         suppressHl7Fields: OBX-18-1, OBX-18-2, OBX-18-3, OBX-18-4, OBX-15-3
         replaceValue:
           MSH-3-1: CDC PRIME - Atlanta,

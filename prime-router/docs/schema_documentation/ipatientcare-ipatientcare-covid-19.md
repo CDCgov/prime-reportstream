@@ -293,6 +293,20 @@ iPatientCare is an ambulatory EMR, so this field is defaulted to 'N'.
 
 ---
 
+**Name**: message_id
+
+**Type**: ID
+
+**PII**: No
+
+**Cardinality**: [1..1]
+
+**Documentation**:
+
+unique id to track the usage of the message
+
+---
+
 **Name**: DateColl
 
 **Type**: DATETIME
