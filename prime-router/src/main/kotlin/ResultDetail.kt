@@ -1,7 +1,6 @@
 package gov.cdc.prime.router
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import java.util.UUID
-// import javax.persistence.Column
 
 /**
  * @property scope of the result detail
@@ -14,16 +13,16 @@ data class ResultDetail(
     val trackingId: String,
     val responseMessage: ResponseMessage,
     val row: Int = -1,
-    val reportId: UUID? = null,
+    var reportId: UUID? = null,
     var action: Action? = null,
 ) {
     val rowNumber: Int
         get() = row + 1
 
-    // @Column(name="action_id")
     fun getActionId(): Long {
         return action!!.actionId
     }
+
     /**
      * @property REPORT scope for the detail
      * @property ITEM scope for the detail

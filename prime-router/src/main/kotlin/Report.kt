@@ -69,12 +69,21 @@ data class QualityFilterResult(
     val originalCount: Int,
     val filterName: String,
     val filterArgs: List<String>,
-    val filteredRows: IntArray
-) {
+    val filteredRows: IntArray,
+    override val type: ResponseMsgType = ResponseMsgType.TRANSLATION
+) : ResponseMessage {
     override fun toString(): String {
         return "For $receiverName, qualityFilter $filterName, $filterArgs" +
             " filtered out Rows ${filteredRows.map{ it + 1 }.joinToString(",")}" +
             " reducing the Item count from $originalCount to ${originalCount - filteredRows.size}."
+    }
+
+    override fun detailMsg(): String {
+        return toString()
+    }
+
+    override fun groupingId(): String {
+        return receiverName
     }
 }
 

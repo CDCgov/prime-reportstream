@@ -696,6 +696,15 @@ class ActionHistory {
             if (!filteredReportRows.getOrDefault(reportFile.reportId, emptyList()).isEmpty()) {
                 jsonGen.writeArrayFieldStart("filteredReportRows")
                 filteredReportRows.getValue(reportFile.reportId).forEach {
+                    trackDetails(
+                        ResultDetail(
+                            ResultDetail.DetailScope.REPORT,
+                            "",
+                            it,
+                            reportId = reportsOut[reportFile.reportId]?.reportId,
+                            action = action,
+                        )
+                    )
                     jsonGen.writeString(it.toString())
                 }
                 jsonGen.writeEndArray()

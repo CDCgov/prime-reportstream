@@ -20,6 +20,14 @@ data class ReadResult(
      */
     val warnings: List<ResultDetail> = emptyList(),
 ) {
+    init {
+        errors.forEach {
+            it.reportId = report.id
+        }
+        warnings.forEach {
+            it.reportId = report.id
+        }
+    }
 
     fun errorsToString(): String {
         return errors.joinToString("\n") { "Error in $it" }
