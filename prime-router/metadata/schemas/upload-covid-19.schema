@@ -17,14 +17,6 @@ elements:
     default: P
     csvFields: [ { name: processingModeCode } ]
 
-  #- name: filler_order_id
-  #  # ??? why not use a mapper here?
-  #  csvFields: [ { name: testId } ]
-  #
-  #- name: placer_order_id
-  #  # ??? why not use a mapper here?
-  #  csvFields: [ { name: testId } ]
-
   - name: placer_order_id
     documentation:  User does not need to include this column; we'll populate it.
     mapper: use(message_id)
@@ -43,19 +35,20 @@ elements:
     csvFields: [{name: correctedTestId}]
 
   - name: specimen_id
+    mapper: use(message_id)
     documentation: User does not need to include this column.  We'll copy the value from the testId if none is provided here.
     csvFields: [{ name: specimenId}]
 
   ### LIVD Related fields.
 
-  - name: equipment_model_name
-    documentation: Required.  Must match a value from LIVD column B, "Model". eg,  "BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B"
-    cardinality: ONE
-    csvFields: [{ name: deviceName}]
-
   - name: test_kit_name_id
-    documentation: Optional; we'll fill in if blank.  If filled in, must match a value from LIVD column M, "Test Kit Name ID"
+    cardinality: ONE
+    documentation: Required; we'll fill in if blank.  If filled in, must match a value from LIVD column M, "Test Kit Name ID"
     csvFields: [{ name: deviceIdentifier}]
+
+  - name: equipment_model_name
+    documentation: Must match a value from LIVD column B, "Model". eg,  "BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B"
+    csvFields: [{ name: deviceName}]
 
   - name: test_performed_code
     documentation: User does not need to include this column.  It'll get filled in automatically.
@@ -115,10 +108,6 @@ elements:
   # REMOVED: - name: date_result_released
   #  documentation: eg, 20210112
   #  csvFields: [{ name: testReportDate}]
-
-  #REMOVED - name: equipment_instance_id
-  #  documentation: Barcode or QR code.  Unique within one manufacturer.
-  #  csvFields: [{ name: serialNumber}]
 
   ### Begin Patient Info
 
@@ -285,10 +274,12 @@ elements:
   ### Begin Testing Lab Info
 
   - name: testing_lab_clia
+    cardinality: ONE
     documentation: Expecting a CLIA number here.  eg, "10D2218834"
     csvFields: [{ name: performingFacilityClia}]
 
   - name: testing_lab_name
+    cardinality: ONE
     csvFields: [{ name: performingFacilityName}]
 
   - name: testing_lab_street
@@ -388,7 +379,7 @@ elements:
     csvFields: [{ name: congregateResident }]
 
   - name: pregnant
-    documentation: AOE - Is the patient pregnant?
+    documentation: AOE - Is the patient pregnant? Use 77386006 for Pregnant, 60001007 for Not Pregnant, and 261665006 for Unknown.
     csvFields: [{ name: pregnant}]
 
   #REMOVED.  NOT USED IN HL7.  WE DO SEND THIS TO HHSProtect - name: site_of_care

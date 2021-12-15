@@ -34,7 +34,7 @@ AOE - Is the patient employed in a healthcare setting?
 
 **PII**: No
 
-**Cardinality**: [1..1]
+**Cardinality**: [0..1]
 
 
 **Reference URL**:
@@ -46,7 +46,7 @@ AOE - Is the patient employed in a healthcare setting?
 
 **Documentation**:
 
-Required.  Must match a value from LIVD column B, "Model". eg,  "BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B"
+Must match a value from LIVD column B, "Model". eg,  "BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B"
 
 ---
 
@@ -844,7 +844,7 @@ Code | Display
 
 **Documentation**:
 
-AOE - Is the patient pregnant?
+AOE - Is the patient pregnant? Use 77386006 for Pregnant, 60001007 for Not Pregnant, and 261665006 for Unknown.
 
 ---
 
@@ -1145,27 +1145,13 @@ Is the test authorized for unproctored administration by the FDA (Y, N, UNK)
 
 ---
 
-**Name**: testCodingSystem
-
-**PII**: No
-
-**Default Value**: LN
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-User does not need to include this column.  We'll set it to LN
-
----
-
 **Name**: deviceIdentifier
 
 **Type**: TABLE
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 
 **Reference URL**:
@@ -1177,7 +1163,7 @@ User does not need to include this column.  We'll set it to LN
 
 **Documentation**:
 
-Optional; we'll fill in if blank.  If filled in, must match a value from LIVD column M, "Test Kit Name ID"
+Required; we'll fill in if blank.  If filled in, must match a value from LIVD column M, "Test Kit Name ID"
 
 ---
 
@@ -1362,7 +1348,7 @@ The text value for the testing lab county. This is used to do the lookup in the 
 - [ORC-3-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.3.2)
 - [PID-3-4-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4.1)
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
