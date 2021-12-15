@@ -560,7 +560,7 @@ class MapperTests {
     @Test
     fun `test parseMapperField validation - allow mapper tokens to be parsed`() {
         // it should allow mapper tokens to be parsed: i.e. "$index"
-        var vals = Mappers.parseMapperField("concat(patient_id, \$index)")
+        val vals = Mappers.parseMapperField("concat(patient_id, \$index)")
         assertThat(vals.second[1]).isEqualTo("\$index")
     }
 
@@ -681,7 +681,7 @@ class MapperTests {
         val args = listOf("sender_id", "pregnant")
         val elementAndValues = listOf(ElementAndValue(indexElement, "all"), ElementAndValue(lookupElement, "y"))
         assertThat(mapper.valueNames(lookupElement, args)).isEqualTo(listOf("sender_id", "pregnant"))
-        assertThat(mapper.apply(lookupElement, args, elementAndValues)).isEqualTo("YES")
+        assertThat(mapper.apply(lookupElement, args, elementAndValues)).isEqualTo("77386006")
 
         val elementAndValuesUNK = listOf(
             ElementAndValue(indexElement, "all"),
