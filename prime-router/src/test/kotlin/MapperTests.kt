@@ -310,6 +310,92 @@ class MapperTests {
     }
 
     @Test
+    fun `test lookup with NpiLookupMapper`() {
+        /* Schema and table configuration for tests */
+        val table = LookupTable.read("./src/test/resources/metadata/tables/npi-lookup.csv")
+        val tableName = "npi-lookup"
+        val schema = Schema(
+            tableName, topic = "Testing NPI lookup mapper",
+            elements = listOf(
+                Element(
+                    name = "ordering_provider_id",
+                    type = Element.Type.TABLE,
+                    table = "npi-lookup",
+                    tableColumn = "ordering_provider_id"
+                ),
+                Element(
+                    name = "testing_lab_clia",
+                    type = Element.Type.TABLE,
+                    table = "npi-lookup",
+                    tableColumn = "testing_lab_clia"
+                ),
+                Element(
+                    name = "sender_id",
+                    type = Element.Type.TABLE,
+                    table = "npi-lookup",
+                    tableColumn = "sender_id"
+                ),
+                Element(
+                    name = "ordering_provider_first_name",
+                    type = Element.Type.TABLE,
+                    table = "npi-lookup",
+                    tableColumn = "first_name"
+                ),
+                Element(
+                    name = "ordering_provider_last_name",
+                    type = Element.Type.TABLE,
+                    table = "npi-lookup",
+                    tableColumn = "last_name"
+                )
+            )
+        )
+        val metadata = Metadata(schema = schema, table = table, tableName = tableName)
+        val npiElement = metadata.findSchema(tableName)?.findElement("ordering_provider_id")
+            ?: fail("Did not find Ordering_provider_id in test schema")
+        val cliaElement = metadata.findSchema(tableName)?.findElement("testing_lab_clia")
+            ?: fail("Did not find Testing_lab_clia in test schema")
+        val senderIdElement = metadata.findSchema(tableName)?.findElement("sender_id")
+            ?: fail("Did not find sender_id in test schema")
+        val firstNameElement = metadata.findSchema(tableName)?.findElement("ordering_provider_first_name")
+            ?: fail("Did not find Ordering_provider_first_name in test schema")
+        val lastNameElement = metadata.findSchema(tableName)?.findElement("ordering_provider_last_name")
+            ?: fail("Did not find Ordering_provider_last_name in test schema")
+        val mapper = NpiLookupMapper()
+
+        val args = listOf(npiElement.name, cliaElement.name, senderIdElement.name)
+
+        /* Testing value lookup when NPI is present */
+        val evNpiPresent = listOf(
+            ElementAndValue(npiElement, "1023040318"),
+            ElementAndValue(cliaElement, "01D2079572"),
+            ElementAndValue(senderIdElement, "cuc-al")
+        )
+
+        assertThat(mapper.valueNames(firstNameElement, args))
+            .isEqualTo(listOf("ordering_provider_id", "testing_lab_clia", "sender_id"))
+        assertThat(mapper.apply(firstNameElement, args, evNpiPresent)).isEqualTo("Paul")
+
+        assertThat(mapper.valueNames(lastNameElement, args))
+            .isEqualTo(listOf("ordering_provider_id", "testing_lab_clia", "sender_id"))
+        assertThat(mapper.apply(lastNameElement, args, evNpiPresent)).isEqualTo("Fineburg")
+
+        /* Testing value lookup when NPI is NOT present */
+        val evNpiNotPresent = listOf(
+            ElementAndValue(npiElement, ""),
+            ElementAndValue(cliaElement, "01D2079572"),
+            ElementAndValue(senderIdElement, "cuc-al")
+        )
+
+        assertThat(mapper.valueNames(firstNameElement, args))
+            .isEqualTo(listOf("ordering_provider_id", "testing_lab_clia", "sender_id"))
+        assertThat(mapper.apply(firstNameElement, args, evNpiNotPresent)).isEqualTo("Paul")
+
+        assertThat(mapper.valueNames(lastNameElement, args))
+            .isEqualTo(listOf("ordering_provider_id", "testing_lab_clia", "sender_id"))
+        assertThat(mapper.apply(lastNameElement, args, evNpiNotPresent)).isEqualTo("Fineburg")
+    }
+
+    @Test
     fun `test date time offset mapper with seconds`() {
         // arrange
         val mapper = DateTimeOffsetMapper()
