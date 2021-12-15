@@ -327,9 +327,8 @@ elements:
 
   - name: first_test
     type: CODE
-    valueSet: covid-19/yesno
-    documentation: Override the base hl70136 valueset with a custom one, to handle slightly different syntax
-    csvFields: [{ name: firstTest, format: $display}]
+    valueSet: hl70136
+    csvFields: [{ name: firstTest }]
 
   # REMOVED - name: previous_test_type
   #  documentation:  Custom field. Note, value matched LIVD column "F", "Test Performed LOINC Code"
@@ -349,9 +348,8 @@ elements:
 
   - name: employed_in_healthcare
     type: CODE
-    valueSet: covid-19/yesno
-    documentation: Override the base hl70136 valueset with a custom one, to handle slightly different syntax
-    csvFields: [{ name: healthcareEmployee, format: $display}]
+    valueSet: hl70136
+    csvFields: [{ name: healthcareEmployee }]
 
   - name: healthcare_employee_type
     documentation: Custom.  eg, 6816002
@@ -361,9 +359,8 @@ elements:
 
   - name: symptomatic_for_disease
     type: CODE
-    valueSet: covid-19/yesno
-    documentation: Override the base hl70136 valueset with a custom one, to handle slightly different syntax
-    csvFields: [{ name: symptomatic, format: $display}]
+    valueSet: hl70136
+    csvFields: [{ name: symptomatic }]
 
   - name: symptoms_list
     documentation:  Custom.  Just a simple text string for now. Format is symptomCode1^date1;symptomCode2^date2; ...
@@ -372,9 +369,8 @@ elements:
 
   - name: hospitalized
     type: CODE
-    valueSet: covid-19/yesno
-    documentation: Override the base hl70136 valueset with a custom one, to handle slightly different syntax
-    csvFields: [{ name: hospitalized, format: $display}]
+    valueSet: hl70136
+    csvFields: [{ name: hospitalized }]
 
   - name: hospitalized_code
     documentation:  Custom.  eg, 840539006, same valueset as testResult
@@ -384,15 +380,13 @@ elements:
 
   - name: icu
     type: CODE
-    valueSet: covid-19/yesno
-    documentation: Override the base hl70136 valueset with a custom one, to handle slightly different syntax
-    csvFields: [{ name: symptomsIcu, format: $display}]
+    valueSet: hl70136
+    csvFields: [{ name: symptomsIcu }]
 
   - name: resident_congregate_setting
     type: CODE
-    valueSet: covid-19/yesno
-    documentation: Override the base hl70136 valueset with a custom one, to handle slightly different syntax
-    csvFields: [{ name: congregateResident, format: $display}]
+    valueSet: hl70136
+    csvFields: [{ name: congregateResident }]
 
   - name: site_of_care
     documentation: Custom field

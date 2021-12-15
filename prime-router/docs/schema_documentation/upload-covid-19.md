@@ -10,8 +10,6 @@
 
 **PII**: No
 
-**Format**: $display
-
 **LOINC Code**: 95418-0
 
 **Cardinality**: [0..1]
@@ -20,13 +18,13 @@
 
 Code | Display
 ---- | -------
-Y|YES
-N|NO
-UNK|UNK
+Y|Yes
+N|No
+UNK|Unknown
 
 **Documentation**:
 
-Override the base hl70136 valueset with a custom one, to handle slightly different syntax
+Is the patient employed in health care?
 
 ---
 
@@ -78,8 +76,6 @@ Accension number
 
 **PII**: No
 
-**Format**: $display
-
 **LOINC Code**: 95417-2
 
 **Cardinality**: [0..1]
@@ -88,13 +84,13 @@ Accension number
 
 Code | Display
 ---- | -------
-Y|YES
-N|NO
-UNK|UNK
+Y|Yes
+N|No
+UNK|Unknown
 
 **Documentation**:
 
-Override the base hl70136 valueset with a custom one, to handle slightly different syntax
+Is this the patient's first test for this condition?
 
 ---
 
@@ -617,8 +613,6 @@ Custom.  eg, 6816002
 
 **PII**: No
 
-**Format**: $display
-
 **LOINC Code**: 77974-4
 
 **Cardinality**: [0..1]
@@ -627,13 +621,13 @@ Custom.  eg, 6816002
 
 Code | Display
 ---- | -------
-Y|YES
-N|NO
-UNK|UNK
+Y|Yes
+N|No
+UNK|Unknown
 
 **Documentation**:
 
-Override the base hl70136 valueset with a custom one, to handle slightly different syntax
+Is the patient hospitalized?
 
 ---
 
@@ -682,8 +676,6 @@ Custom.  eg, 840539006, same valueset as testResult
 
 **PII**: No
 
-**Format**: $display
-
 **LOINC Code**: 95420-6
 
 **Cardinality**: [0..1]
@@ -692,13 +684,13 @@ Custom.  eg, 840539006, same valueset as testResult
 
 Code | Display
 ---- | -------
-Y|YES
-N|NO
-UNK|UNK
+Y|Yes
+N|No
+UNK|Unknown
 
 **Documentation**:
 
-Override the base hl70136 valueset with a custom one, to handle slightly different syntax
+Is the patient in the ICU?
 
 ---
 
@@ -1533,8 +1525,6 @@ The reporting facility's name
 
 **PII**: No
 
-**Format**: $display
-
 **LOINC Code**: 95421-4
 
 **Cardinality**: [0..1]
@@ -1543,13 +1533,13 @@ The reporting facility's name
 
 Code | Display
 ---- | -------
-Y|YES
-N|NO
-UNK|UNK
+Y|Yes
+N|No
+UNK|Unknown
 
 **Documentation**:
 
-Override the base hl70136 valueset with a custom one, to handle slightly different syntax
+Does the patient reside in a congregate care setting?
 
 ---
 
@@ -1692,8 +1682,6 @@ The specimen source, such as Blood or Serum
 
 **PII**: No
 
-**Format**: $display
-
 **LOINC Code**: 95419-8
 
 **Cardinality**: [0..1]
@@ -1702,13 +1690,13 @@ The specimen source, such as Blood or Serum
 
 Code | Display
 ---- | -------
-Y|YES
-N|NO
-UNK|UNK
+Y|Yes
+N|No
+UNK|Unknown
 
 **Documentation**:
 
-Override the base hl70136 valueset with a custom one, to handle slightly different syntax
+Is the patient symptomatic?
 
 ---
 
