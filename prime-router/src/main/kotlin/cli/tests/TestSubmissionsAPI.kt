@@ -25,7 +25,7 @@ class TestSubmissionsAPI : CoolTest() {
         )
 
         passed = passed and isValidJsonResponse(
-            "${environment.url}/api/submissions",
+            "${environment.url}/api/history/submissions",
             listOf(
                 "limit" to "10",
             ),

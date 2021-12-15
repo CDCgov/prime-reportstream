@@ -23,7 +23,7 @@ import org.apache.logging.log4j.kotlin.Logging
  * Token functions.
  * @param metadata metadata instance
  */
-class TokenFunction(val metadata: Metadata) : Logging {
+class TokenFunction(val metadata: Metadata = Metadata.getInstance()) : Logging {
     /**
      * Handle requests for server-to-server auth tokens.
      */
