@@ -1248,7 +1248,7 @@ class Hl7Serializer(
     }
 
     /**
-     * Calculate for [hl7Field] and [value] the length to truncate the value according to theld.
+     * Calculate for [hl7Field] and [value] the length to truncate the value according to the
      * truncation rules in [hl7Config]. The [terser] is used to determine the HL7 specification length.
      */
     internal fun getMaxLength(hl7Field: String, value: String, hl7Config: Hl7Configuration?, terser: Terser): Int? {
