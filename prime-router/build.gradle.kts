@@ -27,7 +27,7 @@ import java.time.format.DateTimeFormatter
 import java.util.Properties
 
 plugins {
-    kotlin("jvm") version "1.6.0"
+    kotlin("jvm") version "1.6.10"
     id("org.flywaydb.flyway") version "8.2.0"
     id("nu.studer.jooq") version "6.0.1"
     id("com.github.johnrengelman.shadow") version "7.1.0"
@@ -631,7 +631,7 @@ dependencies {
     implementation("com.helger.as2:as2-lib:4.8.0")
     // Prevent mixed versions of these libs based on different versions being included by different packages
     implementation("org.bouncycastle:bcpkix-jdk15on:1.70")
-    implementation("org.bouncycastle:bcmail-jdk15on:1.69")
+    implementation("org.bouncycastle:bcmail-jdk15on:1.70")
     implementation("org.bouncycastle:bcprov-jdk15on:1.69")
 
     implementation("commons-net:commons-net:3.8.0")
