@@ -33,8 +33,11 @@ jobs:
       # - name: Install docker-compose
       #   run: apt-get update && apt-get --yes install docker-compose
 
+      - name: Spin up build containers
+        run: docker-compose -f docker-compose.postgres.yml up -d
+
       - name: Build Prime Router Package
-        run: bash ./build.sh -- gradle clean package
+        run: ./gradlew package -x fatjar -Pshowtests
 
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@v1
@@ -46,21 +49,6 @@ jobs:
         with:
           # This path is from the root of the repo as needed by the plugin
           files: prime-router/build/test-results/test/**/*.xml
-
-      - name: Run Integration Tests
-        run: bash ./gradlew testIntegration -Pshowtests
-
-      - name: Publish Integration Test Results
-        uses: EnricoMi/publish-unit-test-result-action@v1
-        # Per https://github.com/EnricoMi/publish-unit-test-result-action#support-fork-repositories-and-dependabot-branches
-        if: >
-          always() &&
-          github.event.sender.login != 'dependabot[bot]' &&
-          ( github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository )
-        with:
-          # This path is from the root of the repo as needed by the plugin
-          files: prime-router/build/test-results/testIntegration/**/*.xml
-          check_name: "Integration Test Results"
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v2
@@ -85,7 +73,14 @@ jobs:
         with:
           node-version: '14'
       - run: yarn install
-      - run: yarn run build
+
+      - name: build staging
+        run: yarn run build:staging
+        if: github.ref == 'refs/heads/master'
+
+      - name: build production
+        run: yarn run build:production
+        if: github.ref == 'refs/heads/production'
 
       - name: Save Static Website
         uses: actions/upload-artifact@v2

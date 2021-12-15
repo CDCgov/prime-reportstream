@@ -3,6 +3,7 @@ package gov.cdc.prime.router
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
+import gov.cdc.prime.router.common.NPIUtilities
 import gov.cdc.prime.router.metadata.LookupTable
 import java.io.ByteArrayInputStream
 import java.lang.IllegalArgumentException
@@ -561,59 +562,6 @@ class MapperTests {
         // it should allow mapper tokens to be parsed: i.e. "$index"
         var vals = Mappers.parseMapperField("concat(patient_id, \$index)")
         assertThat(vals.second[1]).isEqualTo("\$index")
-
-        // it should allow mapper tokens to be parsed with semi-colon literal values: i.e. "$dateFormat:some-valid-date-format"
-        vals = Mappers.parseMapperField("nullDateValidator(\$dateFormat:some-valid-date-format, test_result_date)")
-        assertThat(vals.second[0]).isEqualTo("\$dateFormat:some-valid-date-format")
-    }
-
-    @Test
-    fun `test NullDateValidator`() {
-        val mapper = NullDateValidator()
-        val elementA = Element("a")
-        val elementB = Element("b")
-
-        // $dateFormat:yyyyMMdd, a (element name)
-        // should return the original element's value
-        val args = listOf("yyyyMMdd", "a")
-        var value = listOf(ElementAndValue(elementA, "yyyyMMdd"), ElementAndValue(elementB, "20211028"))
-        assertThat(mapper.apply(elementA, args, value))
-            .isEqualTo("20211028")
-
-        // $dateFormat:MM/dd/yyyy, a (element name)
-        // should return the original element's value
-        val args2 = listOf("MM/dd/yyyy", "a")
-        value = listOf(ElementAndValue(elementA, "MM/dd/yyyy"), ElementAndValue(elementB, "10/28/2021"))
-        assertThat(mapper.apply(elementA, args2, value))
-            .isEqualTo("10/28/2021")
-
-        // mismatched formatting
-        // should return an empty string
-        value = listOf(ElementAndValue(elementA, "yyyyMMdd"), ElementAndValue(elementB, "a week ago"))
-        assertThat(mapper.apply(elementA, args, value))
-            .isEqualTo("")
-
-        // empty values
-        // should return an empty string
-        value = listOf()
-        assertThat(mapper.apply(elementA, args, value))
-            .isEqualTo("")
-
-        // empty args
-        // should return an empty string
-        value = listOf(ElementAndValue(elementA, "yyyyMMdd"), ElementAndValue(elementB, "a week ago"))
-        assertThat(mapper.apply(elementA, listOf(), value))
-            .isEqualTo("")
-
-        // invalid formatting
-        // should return an empty string
-        value = listOf(ElementAndValue(elementA, "iNvAlId"), ElementAndValue(elementB, "10/28/2021"))
-        assertThat(mapper.apply(elementA, args, value))
-            .isEqualTo("")
-
-        value = listOf(ElementAndValue(elementA, ""), ElementAndValue(elementB, "10/28/2021"))
-        assertThat(mapper.apply(elementA, args, value))
-            .isEqualTo("")
     }
 
     @Test
@@ -685,5 +633,32 @@ class MapperTests {
         values = listOf(ElementAndValue(elementA, ""), ElementAndValue(elementB, "value of B"))
         assertThat(mapper.apply(elementA, args, values))
             .isEqualTo(null)
+    }
+
+    @Test
+    fun `test ifNPI with valid NPI`() {
+        val mapper = IfNPIMapper()
+        val elementA = Element("a")
+        val args = listOf("a", "NPI", "U")
+        val values = listOf(ElementAndValue(elementA, NPIUtilities.VALID_NPI))
+        assertThat(mapper.apply(elementA, args, values)).isEqualTo("NPI")
+    }
+
+    @Test
+    fun `test ifNPI with invalid NPI`() {
+        val mapper = IfNPIMapper()
+        val elementA = Element("a")
+        val args = listOf("a", "NPI", "U")
+        val values = listOf(ElementAndValue(elementA, "xyz"))
+        assertThat(mapper.apply(elementA, args, values)).isEqualTo("U")
+    }
+
+    @Test
+    fun `test ifNPI with invalid NPI and 2 args`() {
+        val mapper = IfNPIMapper()
+        val elementA = Element("a")
+        val args = listOf("a", "NPI")
+        val values = listOf(ElementAndValue(elementA, "xyz"))
+        assertThat(mapper.apply(elementA, args, values)).isNull()
     }
 }

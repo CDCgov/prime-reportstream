@@ -9,21 +9,23 @@ describe("Home rendering", () => {
         render(<Home />);
     });
 
-    test("Container renders", () => {
-        expect(screen.getByTestId("container")).toBeInTheDocument();
+    test("Container renders", async () => {
+        expect(await screen.getByTestId("container")).toBeInTheDocument();
     });
 
     test("Renders correct number of elements", async () => {
-        content.sections.forEach(async (section) => {
-            expect(await screen.findAllByTestId("feature")).toHaveLength(
-                section.features?.length || 0
-            );
-        });
+        // these tests require each new feature section has a `data-testid="feature"` set!
+
+        // note: forEach() is not async friendly
+        for (const eachSection of content.sections) {
+            for (const eachFeature of eachSection.features) {
+                // make sure each feature for each section appears somewhere on the page.
+                expect(await screen.findByText(eachFeature.title)).toBeValid();
+            }
+        }
+
         expect(await screen.findAllByTestId("section")).toHaveLength(
-            content.sections.length
-        );
-        expect(await screen.findAllByTestId("free-secure")).toHaveLength(
-            content.freeSecure.length
+            content.sections.length + content.liveMapContact.length
         );
     });
 });

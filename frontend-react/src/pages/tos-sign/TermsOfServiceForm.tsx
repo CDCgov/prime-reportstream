@@ -14,7 +14,6 @@ import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet";
 
 import Title from "../../components/Title";
-import AuthResource from "../../resources/AuthResource";
 import { getStates } from "../../utils/OrganizationUtils";
 
 import SuccessPage from "./SuccessPage";
@@ -86,7 +85,7 @@ function TermsOfServiceForm() {
         }
 
         const response = await fetch(
-            `${AuthResource.getBaseUrl()}/api/email-registered`,
+            `${process.env.REACT_APP_BACKEND_URL}/api/email-registered`,
             {
                 method: "POST",
                 headers: {
@@ -253,6 +252,7 @@ function TermsOfServiceForm() {
                             <Label htmlFor="title">Job Title</Label>
                             <TextInput
                                 id="title"
+                                data-testid="title"
                                 name="title"
                                 type="text"
                                 value={title}
@@ -269,6 +269,7 @@ function TermsOfServiceForm() {
                             <TextInput
                                 alt="First name input"
                                 id="first-name"
+                                data-testid="first-name"
                                 name="first-name"
                                 type="text"
                                 value={firstName}
@@ -289,6 +290,7 @@ function TermsOfServiceForm() {
                             <TextInput
                                 alt="Last name input"
                                 id="last-name"
+                                data-testid="last-name"
                                 name="last-name"
                                 type="text"
                                 value={lastName}
@@ -309,6 +311,7 @@ function TermsOfServiceForm() {
                             <TextInput
                                 alt="Email input"
                                 id="email"
+                                data-testid="email"
                                 name="email"
                                 type="email"
                                 value={email}
@@ -335,6 +338,7 @@ function TermsOfServiceForm() {
                             <TextInput
                                 alt="Organization input"
                                 id="organization-name"
+                                data-testid="organization-name"
                                 name="organization-name"
                                 type="text"
                                 value={organizationName}
@@ -354,6 +358,7 @@ function TermsOfServiceForm() {
                             </Label>
                             <Dropdown
                                 id="input-dropdown"
+                                data-testid="states-dropdown"
                                 name="states-dropdown"
                                 value={territory}
                                 onChange={(
@@ -380,6 +385,7 @@ function TermsOfServiceForm() {
                             alt="Agreed checkbox"
                             className="padding-top-3"
                             id="multi-state"
+                            data-testid="multi-state"
                             name="multi-state"
                             label="My organization operates in multiple states"
                             onChange={(
@@ -394,6 +400,7 @@ function TermsOfServiceForm() {
                         <FormGroup error={agreeErrorFlag}>
                             <Checkbox
                                 id="agree"
+                                data-testid="agree"
                                 name="agree"
                                 onChange={(
                                     e: React.ChangeEvent<HTMLInputElement>
@@ -420,6 +427,7 @@ function TermsOfServiceForm() {
                     <Button
                         form="tos-agreement"
                         type="submit"
+                        data-testid="submit"
                         disabled={submitting}
                     >
                         Submit registration

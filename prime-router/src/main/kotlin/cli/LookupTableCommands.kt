@@ -35,8 +35,6 @@ import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.LookupTableFunctions
 import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableVersion
 import gov.cdc.prime.router.common.Environment
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
 import org.apache.commons.io.FileUtils
 import org.apache.http.HttpStatus
 import org.jooq.JSONB
@@ -155,35 +153,6 @@ class LookupTableEndpointUtilities(val environment: Environment) {
             .timeoutRead(requestTimeoutMillis)
             .responseJson()
         return getTableInfoFromResponse(result, response)
-    }
-
-    /**
-     * Check if we can connect to the enpoint.
-     * @return true if we can connect, false otherwise
-     */
-    private fun canConnect(): Boolean {
-        return try {
-            fetchList()
-            true
-        } catch (e: Exception) {
-            false
-        }
-    }
-
-    /**
-     * Waits for the endpoint to become available after a number of [retries] while waiting [pollIntervalSecs]
-     * between checks.
-     * @throws IOException if a connection was not made
-     */
-    fun waitForEndPoint(retries: Int, pollIntervalSecs: Long = 10L) {
-        var retryCount = 0
-        while (!canConnect()) {
-            retryCount++
-            if (retryCount > retries) throw IOException("Unable to connect to lookup tables endpoint")
-            runBlocking {
-                delay(pollIntervalSecs * 1000)
-            }
-        }
     }
 
     companion object {
@@ -818,8 +787,17 @@ class LookupTableLoadAllCommand : GenericLookupTableCommand(
     /**
      * Number of connection retries.
      */
-    private val connRetries by option("-r", "--retries", help = "Connection retries when checking the endpoint")
-        .int().default(10)
+    private val connRetries by option("-r", "--retries", help = "Number of seconds to retry waiting for the API")
+        .int().default(30)
+
+    /**
+     * Number of connection retries.
+     */
+    private val checkLastModified by option(
+        "--check-last-modified",
+        help = "Update settings only if input file is newer"
+    )
+        .flag(default = false)
 
     /**
      * The reference to the table creator command.
@@ -829,18 +807,16 @@ class LookupTableLoadAllCommand : GenericLookupTableCommand(
     override fun run() {
         if (environment != Environment.LOCAL) error("This command is only allowed in the local environment.")
 
-        // First wait for the endpoint to come online
-        TermUi.echo("Waiting for endpoint at ${environment.url} to be available...")
-        try {
-            LookupTableEndpointUtilities(environment).waitForEndPoint(connRetries)
-        } catch (e: IOException) {
-            error("Unable to connect to lookup table endpoint for environment in ${environment.url}")
-        }
+        // First wait for the API to come online
+        TermUi.echo("Waiting for the API at ${environment.url} to be available...")
+        CommandUtilities.waitForApi(environment, connRetries)
 
         // Get the list of current tables to only update or create new ones.
-        val tableUpdateTimes = LookupTableEndpointUtilities(environment).fetchList().map {
-            it.tableName to it.createdAt
-        }.toMap()
+        val tableUpdateTimes = if (checkLastModified)
+            LookupTableEndpointUtilities(environment).fetchList().map {
+                it.tableName to it.createdAt
+            }.toMap()
+        else emptyMap()
 
         // Loop through all the files
         val files = try {
@@ -854,7 +830,7 @@ class LookupTableLoadAllCommand : GenericLookupTableCommand(
             var needToLoad = true
             // If we have a table in the database then only update it if the last modified time of the file is 
             // greater than the created time in the database.
-            if (tableUpdateTimes.contains(tableName) && tableUpdateTimes[tableName] != null) {
+            if (checkLastModified && tableUpdateTimes.contains(tableName) && tableUpdateTimes[tableName] != null) {
                 val fileUpdatedTime = Instant.ofEpochMilli(it.lastModified())
                 if (!fileUpdatedTime.isAfter(tableUpdateTimes[tableName]!!.toInstant())) {
                     needToLoad = false

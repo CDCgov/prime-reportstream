@@ -42,16 +42,18 @@ function note() {
 }
 
 # Use a well known, stable version
-GITLEAKS_IMG_NAME="zricethezav/gitleaks:v7.5.0"
+GITLEAKS_IMG_NAME="zricethezav/gitleaks:v8.2.0"
 REPO_ROOT=$(git rev-parse --show-toplevel)
 CONTAINER_SOURCE_LOCATION="/repo"
 CONTAINER_LOCATION="repo"
 VERBOSE=${VERBOSE:-0}
+SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
 REPORT_JSON="gitleaks.report.json"
 LOGFILE="gitleaks.log"
 
 REPO_CONFIG_PATH=".environment/gitleaks/gitleaks-config.toml"
+CONFIG_FILE="gitleaks-config.toml"
 
 # Run gitleaks locally if installed
 LOCAL_GITLEAKS=0
@@ -62,25 +64,25 @@ fi
 function base_command() {
     if [[ ${LOCAL_GITLEAKS?} == 1 ]]; then
         echo "running gitleaks locally"
-        gitleaks \
-            --path="${REPO_ROOT?}" \
-            --repo-config-path="${REPO_CONFIG_PATH?}" \
-            --report="${REPO_ROOT?}/${REPORT_JSON?}" \
+        gitleaks protect \
+            --source="${REPO_ROOT?}" \
+            --report-path="${REPO_ROOT?}/${REPORT_JSON?}" \
+            --config="${SCRIPT_DIR?}/${CONFIG_FILE?}" \
+            --report-format "json" \
             $(if [[ ${VERBOSE?} != 0 ]]; then echo "--verbose"; else echo ""; fi) \
-            $1 \
-            2>"${LOGFILE?}"
+            $1 
     else
         echo "running gitleaks in docker"
         docker run \
             -v "${REPO_ROOT?}:${CONTAINER_SOURCE_LOCATION?}" \
             --rm \
-            "${GITLEAKS_IMG_NAME?}" \
-            --path="${CONTAINER_LOCATION?}" \
-            --repo-config-path="${REPO_CONFIG_PATH?}" \
-            --report="${CONTAINER_LOCATION?}/${REPORT_JSON?}" \
+            "${GITLEAKS_IMG_NAME?}" protect \
+            --source="${CONTAINER_SOURCE_LOCATION?}" \
+            --report-path="${CONTAINER_SOURCE_LOCATION?}/${REPORT_JSON?}" \
+            --config="${CONTAINER_SOURCE_LOCATION?}/${REPO_CONFIG_PATH?}" \
+            --report-format "json" \
             $(if [[ ${VERBOSE?} != 0 ]]; then echo "--verbose"; else echo ""; fi) \
-            $1 \
-            2>"${LOGFILE?}"
+            $1
     fi
     RC=$?
 
@@ -89,9 +91,8 @@ function base_command() {
 
 function scan_uncommitted() {
     note "Scanning your suggested changes."
-    # NOTE: ironically, the switch to scan your staged (i.e. to be committed) changes is to use the --unstaged switch
 
-    base_command "--unstaged"
+    base_command "--staged"
 
     RC=$?
 

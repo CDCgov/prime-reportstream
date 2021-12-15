@@ -12,6 +12,7 @@ import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.TestSource
+import gov.cdc.prime.router.unittest.UnitTestUtils
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.nio.charset.StandardCharsets
@@ -192,7 +193,7 @@ class CsvSerializerTests {
                 Element("b", csvFields = Element.csvFields("b"))
             )
         )
-        val report1 = Report(one, listOf(listOf("1", "2")), TestSource)
+        val report1 = Report(one, listOf(listOf("1", "2")), TestSource, metadata = UnitTestUtils.simpleMetadata)
         val expectedCsv = """
             a,b
             1,2
@@ -214,7 +215,7 @@ class CsvSerializerTests {
                 Element("b", csvFields = Element.csvFields("b"))
             )
         )
-        val report1 = Report(one, listOf(listOf("20201001", "2")), TestSource)
+        val report1 = Report(one, listOf(listOf("20201001", "2")), TestSource, metadata = UnitTestUtils.simpleMetadata)
         val expectedCsv = """
             _A,b
             10-01-2020,2
