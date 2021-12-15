@@ -1,0 +1,426 @@
+---
+name: upload-covid-19
+description: Schema for CSV Upload Tool
+topic: covid-19
+trackingElement: message_id
+basedOn: covid-19
+extends: covid-19
+
+elements:
+  - name: sender_id
+    documentation:  Required. User should place their sender organization name in this field.
+    default: ManualUpload
+    csvFields: [ { name: senderId } ]
+
+  - name: processing_mode_code
+    documentation:  User can leave this field out if its production data, and we'll default to 'P'
+    cardinality: ONE
+    default: P
+    csvFields: [ { name: processingModeCode } ]
+
+  #- name: filler_order_id
+  #  # ??? why not use a mapper here?
+  #  csvFields: [ { name: testId } ]
+  #
+  #- name: placer_order_id
+  #  # ??? why not use a mapper here?
+  #  csvFields: [ { name: testId } ]
+
+  - name: placer_order_id
+    mapper: use(message_id)
+
+  - name: filler_order_id
+    mapper: use(message_id)
+
+  # Above was mostly from Imagemover.  Below, I copied the direct-covid-19.schema and modified
+
+  - name: message_id
+    documentation: This is a crucial required field. A unique id for this submission of data.  Do not re-use when correcting previous results.  Rather, submit a new testId, and use the correctedTestId to refer to the testId of the old submission.   
+    csvFields: [{ name: testId}]
+
+  - name: previous_message_id
+    csvFields: [{name: correctedTestId}]
+
+  - name: specimen_id
+    documentation: User does not need to specify this.  We'll copy the value from the testId if none is provided here.
+    csvFields: [{ name: specimenId}]
+
+  ### LIVD Related fields.
+
+  - name: equipment_model_name
+    documentation: Required.  Must match a value from LIVD column B, "Model". eg,  "BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B"
+    cardinality: ONE
+    csvFields: [{ name: deviceName}]
+
+  - name: test_kit_name_id
+    documentation: Optional; we'll fill in if blank.  If filled in, must match a value from LIVD column M, "Test Kit Name ID"
+    csvFields: [{ name: deviceIdentifier}]
+
+  - name: test_performed_code
+    documentation: User does not need to specify this.  It'll get filled in automatically.
+    csvFields: [{ name: testPerformed }]
+
+  - name: ordered_test_code
+    # A LOINC eg, 94531-1.  However, this should get auto filled in from the LIVD table
+    documentation:  Leave this blank and we'll fill it in automatically.
+    csvFields: [{ name: testOrdered}]
+
+  # REMOVED  - name: ordered_test_name
+
+  - name: test_coding_system
+    default: LN
+    documentation: User does not need to specify this.   We'll set it to LN
+    csvFields: [{ name: testCodingSystem}]
+
+  - name: test_result
+    cardinality: ONE
+    documentation:  Specify a code.  For example, 260373001
+    csvFields: [{ name: testResult }]
+
+  - name: test_result_status
+    # F == final.
+    default: F
+    documentation:  User does not need to specify this.  It'll get filled in automatically
+    csvFields: [{ name: testResultStatus }]
+
+  # REMOVED - name: test_result_text
+
+  # REMOVED (or should we default to SCT??) - name: test_result_coding_system
+  #  documentation: eg, SCT.   Custom
+  #  type: TEXT
+  #  csvFields: [{ name: testResultCodingSystem }]
+
+  - name: specimen_type
+    # Make this required since its required by our qualityFilter
+    cardinality: ONE
+    csvFields: [{ name: specimenSource}]
+
+  # THERE ARE FOUR DATE FIELDS.... 1) test ordered, 2) specimen collected, 3) specimen received, 4) test result
+  # Our usual filter is:  hasAtLeastOneOf(order_test_date,specimen_collection_date_time,test_result_date)"
+
+  - name: order_test_date
+    documentation: eg, 20210108
+    csvFields: [{ name: testOrderedDate}]
+
+  - name: specimen_collection_date_time
+    documentation: eg, 20210113
+    csvFields: [{ name: specimenCollectedDate}]
+
+  - name: testing_lab_specimen_received_datetime
+    documentation: Optional. User does not need to specify this.  We'll fill it in from the specimenCollectedDate
+    csvFields: [{ name: specimenReceivedDate}]
+
+  - name: test_result_date
+    documentation: eg, 20210111
+    csvFields: [{ name: testResultDate}]
+
+  # REMOVED: - name: date_result_released
+  #  documentation: eg, 20210112
+  #  csvFields: [{ name: testReportDate}]
+
+  #REMOVED - name: equipment_instance_id
+  #  documentation: Barcode or QR code.  Unique within one manufacturer.
+  #  csvFields: [{ name: serialNumber}]
+
+  ### Begin Patient Info
+
+  - name: patient_last_name
+    documentation:  Required
+    csvFields: [{ name: patientNameLast}]
+
+  - name: patient_first_name
+    documentation:  Required
+    cardinality: ONE
+    csvFields: [{ name: patientNameFirst}]
+
+  - name: patient_middle_name
+    csvFields: [{ name: patientNameMiddle}]
+
+  - name: patient_id
+    csvFields: [{ name: patientUniqueId}]
+
+  - name: patient_id_type
+    documentation:  User does not need to fill this in.
+    default: PI
+
+  # Could we get rid of this and just calculate?
+  - name: patient_age
+    csvFields: [{ name: patientAge}]
+
+  # Using the HHS guidance instead of the FHIR UCUM codes (see https://www.hl7.org/fhir/valueset-age-units.html)
+  # In particular, using 'yr' for year instead of 'a'
+  - name: patient_age_units
+    type: CODE
+    pii: false
+    documentation:  User does not need to specify this.  Default to 'yr' if not specified.
+    cardinality: ZERO_OR_ONE
+    default: yr
+    valueSet: hhs_age_units
+    csvFields: [{ name: patientAgeUnits}]
+
+  - name: patient_dob
+    # This field is required by our default quality filter, so we'll make it required here. (???)
+    cardinality: ONE
+    csvFields: [{ name: patientDob}]
+
+  - name: patient_race
+    csvFields: [{ name: patientRace}]
+
+  # REMOVED - name: patient_race_text
+  #  documentation: Custom.    ReportStream uses patientRace code, not this text value.
+  #  type: TEXT
+  #  csvFields: [{ name: patientRaceText}]
+
+  - name: patient_ethnicity
+    documentation:  Use the required HHS values. (2135-2, 2186-5, UNK, ASKU)
+    altValues:
+      - code: H
+        display: 2135-2
+      - code: N
+        display: 2186-5
+      - code: U
+        display: UNK
+      - code: U
+        display: ASKU
+    csvFields: [{ name: patientEthnicity, format: $alt}]
+
+  # REMOVED - name: patient_ethnicity_text
+  #  documentation:  Custom. ReportStream uses the patientEthnicity code, not this text value.
+  #  type: TEXT
+  #  csvFields: [{ name: patientEthnicityText}]
+
+  - name: patient_gender
+    csvFields: [{ name: patientSex}]
+
+  #REMOVED - name: patient_id_hash
+  #  # Custom.   Needs to go into covid-19. Mimic waters here.
+  #  type: TEXT
+  #  mapper: hash(patient_id)
+  #  csvFields: [{ name: patientUniqueIdHash}]
+
+  - name: patient_street
+    csvFields: [{ name: patientHomeAddress}]
+
+  - name: patient_street2
+    csvFields: [{ name: patientHomeAddress2}]
+
+  - name: patient_city
+    csvFields: [{ name: patientCity}]
+
+  - name: patient_state
+    documentation: Required. Extremely important field for routing data to states.
+    csvFields: [{ name: patientState}]
+
+  - name: patient_zip_code 
+    csvFields: [{ name: patientZip}]
+
+  - name: patient_county
+    csvFields: [{ name: patientCounty}]
+
+  - name: patient_phone_number
+    csvFields: [{ name: patientPhone}]
+
+  #REMOVED - name: patient_phone_number_area_code
+  #  documentation:  Custom. Not currently used. ReportStream assumes area code is in patientPhone
+  #  type: TEXT
+  #  csvFields: [{ name: patientPhoneArea}]
+
+  - name: patient_email
+    csvFields: [{ name: patientEmail}]
+
+  ### Begin Ordering Provider Info
+
+  - name: ordering_provider_id
+    documentation:  eg, "1265050918"
+    csvFields: [{ name: orderingProviderNpi}]
+
+  - name: ordering_provider_last_name
+    csvFields: [{ name: orderingProviderLname}]
+
+  - name: ordering_provider_first_name
+    csvFields: [{ name: orderingProviderFname}]
+
+  - name: ordering_provider_street
+    csvFields: [{ name: orderingProviderAddress}]
+
+  - name: ordering_provider_street2
+    csvFields: [{ name: orderingProviderAddress2}]
+
+  - name: ordering_provider_city
+    csvFields: [{ name: orderingProviderCity}]
+
+  - name: ordering_provider_state
+    csvFields: [{ name: orderingProviderState}]
+
+  - name: ordering_provider_zip_code
+    csvFields: [{ name: orderingProviderZip}]
+
+  - name: ordering_provider_phone_number
+    csvFields: [{ name: orderingProviderPhone}]
+
+  # REMOVED - name: ordering_provider_phone_number_area_code
+  #  documentation: Custom.  Not currently used. ReportStream assumes area code is in orderingProviderPhone
+  #  type: TEXT
+  #  csvFields: [{ name: orderingProviderPhoneArea}]
+
+  ### Begin Ordering Facility Info
+
+  - name: ordering_facility_name
+    csvFields: [{ name: orderingFacilityName}]
+
+  - name: ordering_facility_street
+    csvFields: [{ name: orderingFacilityStreet}]
+
+  - name: ordering_facility_street2
+    csvFields: [{ name: orderingFacilityStreet2}]
+
+  - name: ordering_facility_city
+    csvFields: [{ name: orderingFacilityCity}]
+
+  - name: ordering_facility_state
+    cardinality:  ONE
+    documentation:  Note that many states expect this field to be available, or ReportStream is not able to route data to them.  Please provide if possible in order for us to route to as many states as possible.
+    csvFields: [{ name: orderingFacilityState}]
+
+  - name: ordering_facility_zip_code
+    csvFields: [{ name: orderingFacilityZip}]
+
+  - name: ordering_facility_county
+    csvFields: [{ name: orderingFacilityCounty}]
+
+  - name: ordering_facility_phone_number
+    csvFields: [{ name: orderingFacilityPhone}]
+
+  - name: ordering_facility_email
+    csvFields: [{ name: orderingFacilityEmail}]
+
+  ### Begin Testing Lab Info
+
+  - name: testing_lab_clia
+    documentation: Expecting a CLIA number here.  eg, "10D2218834"
+    csvFields: [{ name: performingFacilityClia}]
+
+  - name: testing_lab_name
+    csvFields: [{ name: performingFacilityName}]
+
+  - name: testing_lab_street
+    csvFields: [{ name: performingFacilityStreet}]
+
+  - name: testing_lab_street2
+    csvFields: [{ name: performingFacilityStreet2}]
+
+  - name: testing_lab_city
+    csvFields: [{ name: performingFacilityCity}]
+
+  - name: testing_lab_state
+    csvFields: [{ name: performingFacilityState}]
+
+  - name: testing_lab_zip_code
+    csvFields: [{ name: performingFacilityZip}]
+
+  - name: testing_lab_county
+    csvFields: [{ name: performingFacilityCounty}]
+
+  - name: testing_lab_phone_number
+    csvFields: [{ name: performingFacilityPhone}]
+
+  ### AOE and related Questions
+
+  - name: first_test
+    type: CODE
+    valueSet: covid-19/yesno
+    documentation: Override the base hl70136 valueset with a custom one, to handle slightly different syntax
+    csvFields: [{ name: firstTest, format: $display}]
+
+  # REMOVED - name: previous_test_type
+  #  documentation:  Custom field. Note, value matched LIVD column "F", "Test Performed LOINC Code"
+  #  type: TEXT
+  #  csvFields: [{ name: previousTestType}]
+
+  - name: previous_test_date
+    documentation: Custom field
+    type: DATE
+    csvFields: [{ name: previousTestDate}]
+
+  - name: previous_test_result
+    documentation: Custom field.  Example - 260415000
+    type: CODE
+    valueSet: covid-19/test_result
+    csvFields: [{ name: previousTestResult}]
+
+  - name: employed_in_healthcare
+    type: CODE
+    valueSet: covid-19/yesno
+    documentation: Override the base hl70136 valueset with a custom one, to handle slightly different syntax
+    csvFields: [{ name: healthcareEmployee, format: $display}]
+
+  - name: healthcare_employee_type
+    documentation: Custom.  eg, 6816002
+    type: CODE
+    valueSet: occupations
+    csvFields: [{ name: healthcareEmployeeType}]
+
+  - name: symptomatic_for_disease
+    type: CODE
+    valueSet: covid-19/yesno
+    documentation: Override the base hl70136 valueset with a custom one, to handle slightly different syntax
+    csvFields: [{ name: symptomatic, format: $display}]
+
+  - name: symptoms_list
+    documentation:  Custom.  Just a simple text string for now. Format is symptomCode1^date1;symptomCode2^date2; ...
+    type: TEXT
+    csvFields: [{ name: symptomsList}]
+
+  - name: hospitalized
+    type: CODE
+    valueSet: covid-19/yesno
+    documentation: Override the base hl70136 valueset with a custom one, to handle slightly different syntax
+    csvFields: [{ name: hospitalized, format: $display}]
+
+  - name: hospitalized_code
+    documentation:  Custom.  eg, 840539006, same valueset as testResult
+    csvFields: [{ name: hospitalizedCode}]
+    type: CODE
+    valueSet: covid-19/test_result
+
+  - name: icu
+    type: CODE
+    valueSet: covid-19/yesno
+    documentation: Override the base hl70136 valueset with a custom one, to handle slightly different syntax
+    csvFields: [{ name: symptomsIcu, format: $display}]
+
+  - name: resident_congregate_setting
+    type: CODE
+    valueSet: covid-19/yesno
+    documentation: Override the base hl70136 valueset with a custom one, to handle slightly different syntax
+    csvFields: [{ name: congregateResident, format: $display}]
+
+  - name: site_of_care
+    documentation: Custom field
+    type: CODE
+    valueSet: site_of_care
+    csvFields: [{ name: congregateResidentType}]
+
+  - name: pregnant
+    csvFields: [{ name: pregnant}]
+
+  # REMOVED - name: pregnant_text
+  #  documentation: Custom.  ReportStream uses the 'pregnant' code, not this text value.
+  #  type: TEXT
+  #  csvFields: [{ name: pregnantText}]
+
+  ### Other
+
+  - name: reporting_facility_name
+    mapper: use(testing_lab_name)
+
+  - name: reporting_facility_clia
+    mapper: use(testing_lab_clia)
+
+  # These fields are calculated
+  - name: test_authorized_for_otc
+  - name: test_authorized_for_home
+  - name: test_authorized_for_unproctored
+
+  
+
