@@ -144,38 +144,45 @@ open class LookupTable : Logging {
 
     /**
      * Generates search selectors based on the [exactMatches] and/or [prefixMatches] columns and value pairs.
-     * The new selector is added to an exiting selector if [selector] is provided.  The matches are
-     * case-sensitive if [ignoreCase] is set to false.
+     * The matches are case-sensitive if [ignoreCase] is set to false.
      * @return the selector
      */
     internal fun getSearchSelector(
         exactMatches: Map<String, String> = emptyMap(),
         prefixMatches: Map<String, String> = emptyMap(),
-        ignoreCase: Boolean = true,
-        selector: Selection? = null
-    ): Selection? {
+        ignoreCase: Boolean = true
+    ): Selection {
+        /**
+         * Predicate to do starts with search while ignoring case.
+         */
         class StartsWithIgnoreCasePredicate : BiPredicate<String, String> {
             override fun test(t: String, u: String): Boolean {
                 return t.startsWith(u, true)
             }
         }
 
-        check(exactMatches.isNotEmpty() || prefixMatches.isNotEmpty())
-        var newSelector = selector
-
-        exactMatches.forEach { (colName, searchValue) ->
-            val col = table.stringColumn(colName)
-            val stringSelector = if (ignoreCase) col.equalsIgnoreCase(searchValue) else col.isEqualTo(searchValue)
-            newSelector = if (newSelector == null) stringSelector else newSelector!!.and(stringSelector)
+        /**
+         * Generate the selector based on the provided [matches] while taking into account [isPrefixMatch] and adding
+         * to a provided [selector].
+         * @return a selector or null if no selector
+         */
+        fun generateSelector(matches: Map<String, String>, isPrefixMatch: Boolean, selector: Selection?): Selection? {
+            var complexSelector: Selection? = selector
+            matches.forEach { (colName, searchValue) ->
+                val col = table.stringColumn(colName)
+                val newSelector = when {
+                    isPrefixMatch && ignoreCase -> col.eval(StartsWithIgnoreCasePredicate(), searchValue)
+                    isPrefixMatch -> col.startsWith(searchValue)
+                    ignoreCase -> col.equalsIgnoreCase(searchValue)
+                    else -> col.isEqualTo(searchValue)
+                }
+                complexSelector = if (complexSelector == null) newSelector else complexSelector!!.and(newSelector)
+            }
+            return complexSelector
         }
 
-        prefixMatches.forEach { (colName, searchValue) ->
-            val col = table.stringColumn(colName)
-            val stringSelector = if (ignoreCase) col.eval(StartsWithIgnoreCasePredicate(), searchValue)
-            else col.startsWith(searchValue)
-            newSelector = if (newSelector == null) stringSelector else newSelector!!.and(stringSelector)
-        }
-        return newSelector
+        val selector = generateSelector(exactMatches, false, null)
+        return generateSelector(prefixMatches, true, selector) ?: error("No table selector was generated")
     }
 
     /**
@@ -188,8 +195,7 @@ open class LookupTable : Logging {
         exactMatches: Map<String, String>,
         ignoreCase: Boolean = true
     ): String? {
-        val values = lookupValues(lookupColumn, exactMatches, ignoreCase)
-        return if (values.size == 1) values[0] else null
+        return lookupPrefixValue(lookupColumn, emptyMap(), exactMatches, ignoreCase)
     }
 
     /**

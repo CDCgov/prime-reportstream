@@ -333,44 +333,48 @@ class LookupTableTests {
         // One selector
         var selector = table.getSearchSelector(mapOf(tableData2[0][0] to tableData2[1][0]))
         assertThat(selector).isNotNull()
-        assertThat(selector!!.isEmpty).isFalse()
+        assertThat(selector.isEmpty).isFalse()
         assertThat(selector.size()).isEqualTo(1) // Note this is the number of hits
 
-        // Adding selectors
+        // Multiple selectors
         selector = table.getSearchSelector(
             mapOf(
-                tableData2[0][1] to tableData2[1][1], tableData2[0][2] to tableData2[1][2]
-            ),
-            selector = selector
+                tableData2[0][0] to tableData2[1][0], tableData2[0][1] to tableData2[1][1],
+                tableData2[0][2] to tableData2[1][2]
+            )
         )
         assertThat(selector).isNotNull()
-        assertThat(selector!!.isEmpty).isFalse()
+        assertThat(selector.isEmpty).isFalse()
         assertThat(selector.size()).isEqualTo(1) // Note this is the number of hits
 
-        // Another add selectors, but this time no hits
+        // Another selector, but this time no hits
         selector = table.getSearchSelector(mapOf(tableData2[0][0] to tableData2[1][0]))
         assertThat(selector).isNotNull()
-        assertThat(selector!!.isEmpty).isFalse()
-        selector = table.getSearchSelector(mapOf(tableData2[0][1] to tableData2[2][1]), selector = selector)
+        assertThat(selector.isEmpty).isFalse()
+        selector = table.getSearchSelector(
+            mapOf(
+                tableData2[0][0] to tableData2[1][0],
+                tableData2[0][1] to tableData2[2][1]
+            )
+        )
         assertThat(selector).isNotNull()
-        assertThat(selector!!.isEmpty).isTrue()
+        assertThat(selector.isEmpty).isTrue()
 
         // Don't ignore case
         selector = table.getSearchSelector(mapOf(tableData2[0][0] to tableData2[1][0].uppercase()), ignoreCase = false)
         assertThat(selector).isNotNull()
-        assertThat(selector!!.isEmpty).isTrue()
+        assertThat(selector.isEmpty).isTrue()
 
         // Prefix selector only
         selector = table.getSearchSelector(prefixMatches = mapOf(tableData2[0][0] to "value"))
-        assertThat(selector!!.isEmpty).isFalse()
+        assertThat(selector.isEmpty).isFalse()
         assertThat(selector.size()).isEqualTo(5) // Note this is the number of hits
 
         // And multiple prefix selector only
         selector = table.getSearchSelector(
-            prefixMatches = mapOf(tableData2[0][1] to "repeatedIndex"),
-            selector = selector
+            prefixMatches = mapOf(tableData2[0][0] to "value", tableData2[0][1] to "repeatedIndex")
         )
-        assertThat(selector!!.isEmpty).isFalse()
+        assertThat(selector.isEmpty).isFalse()
         assertThat(selector.size()).isEqualTo(2) // Note this is the number of hits
 
         selector = table.getSearchSelector(
@@ -379,7 +383,7 @@ class LookupTableTests {
                 tableData2[0][1] to "repeatedIndex"
             )
         )
-        assertThat(selector!!.isEmpty).isFalse()
+        assertThat(selector.isEmpty).isFalse()
         assertThat(selector.size()).isEqualTo(2) // Note this is the number of hits
 
         // Don't ignore case
@@ -388,7 +392,7 @@ class LookupTableTests {
             ignoreCase = false
         )
         assertThat(selector).isNotNull()
-        assertThat(selector!!.isEmpty).isTrue()
+        assertThat(selector.isEmpty).isTrue()
 
         // Nothing passed
         assertFailsWith<IllegalStateException>(
