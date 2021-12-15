@@ -28,7 +28,7 @@ import java.util.Properties
 
 plugins {
     kotlin("jvm") version "1.6.10"
-    id("org.flywaydb.flyway") version "8.2.0"
+    id("org.flywaydb.flyway") version "8.2.2"
     id("nu.studer.jooq") version "6.0.1"
     id("com.github.johnrengelman.shadow") version "7.1.0"
     id("com.microsoft.azure.azurefunctions") version "1.8.2"
@@ -91,7 +91,7 @@ fun addVaultValuesToEnv(env: MutableMap<String, Any>) {
 defaultTasks("package")
 
 val ktorVersion = "1.6.7"
-val kotlinVersion = "1.6.0"
+val kotlinVersion = "1.6.10"
 jacoco.toolVersion = "0.8.7"
 
 // Set the compiler JVM target
