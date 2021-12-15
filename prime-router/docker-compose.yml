@@ -115,18 +115,6 @@ services:
     networks:
       - prime-router_build
 
-  settings:
-    build: settings/.
-    command: "--check-last-modified prime_dev /settings/organizations.yml"
-    depends_on:
-      - prime_dev
-    volumes:
-      - type: bind
-        source: ./settings
-        target: /settings
-    networks:
-      - prime-router_build
-
   # Secrets management
   vault:
     image: vault

@@ -2,7 +2,6 @@ import download from "downloadjs";
 import { Button } from "@trussworks/react-uswds";
 import { useOktaAuth } from "@okta/okta-react";
 
-import AuthResource from "../../../resources/AuthResource";
 import ReportResource from "../../../resources/ReportResource";
 import { GLOBAL_STORAGE_KEYS } from "../../../components/GlobalContextProvider";
 
@@ -23,7 +22,7 @@ const formatFileType = (fileType: string) => {
     return fileType;
 };
 
-/* 
+/*
     This element provides a download link on each row of the table and on the report
     details page
 */
@@ -36,7 +35,7 @@ function ReportLink(props: Props) {
         if (props.report !== undefined && props.report.reportId !== undefined) {
             let reportId = props.report.reportId;
             fetch(
-                `${AuthResource.getBaseUrl()}/api/history/report/${reportId}`,
+                `${process.env.REACT_APP_BACKEND_URL}/api/history/report/${reportId}`,
                 {
                     headers: {
                         Authorization: `Bearer ${authState?.accessToken?.accessToken}`,
