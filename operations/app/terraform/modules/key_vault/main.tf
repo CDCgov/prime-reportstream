@@ -31,51 +31,51 @@ resource "azurerm_key_vault" "application" {
   }
 }
 
-resource "azurerm_key_vault_access_policy" "dev_access_policy" {
-  key_vault_id = azurerm_key_vault.application.id
-  tenant_id    = data.azurerm_client_config.current.tenant_id
-  object_id    = var.aad_object_keyvault_admin
+# resource "azurerm_key_vault_access_policy" "dev_access_policy" {
+#   key_vault_id = azurerm_key_vault.application.id
+#   tenant_id    = data.azurerm_client_config.current.tenant_id
+#   object_id    = var.aad_object_keyvault_admin
 
-  key_permissions = [
-    "Get",
-    "List",
-    "Update",
-    "Create",
-    "Import",
-    "Delete",
-    "Recover",
-    "Backup",
-    "Restore",
-  ]
+#   key_permissions = [
+#     "Get",
+#     "List",
+#     "Update",
+#     "Create",
+#     "Import",
+#     "Delete",
+#     "Recover",
+#     "Backup",
+#     "Restore",
+#   ]
 
-  secret_permissions = [
-    "Get",
-    "List",
-    "Set",
-    "Delete",
-    "Recover",
-    "Backup",
-    "Restore",
-  ]
+#   secret_permissions = [
+#     "Get",
+#     "List",
+#     "Set",
+#     "Delete",
+#     "Recover",
+#     "Backup",
+#     "Restore",
+#   ]
 
-  certificate_permissions = [
-    "Get",
-    "List",
-    "Update",
-    "Create",
-    "Import",
-    "Delete",
-    "Recover",
-    "Backup",
-    "Restore",
-    "ManageContacts",
-    "ManageIssuers",
-    "GetIssuers",
-    "ListIssuers",
-    "SetIssuers",
-    "DeleteIssuers",
-  ]
-}
+#   certificate_permissions = [
+#     "Get",
+#     "List",
+#     "Update",
+#     "Create",
+#     "Import",
+#     "Delete",
+#     "Recover",
+#     "Backup",
+#     "Restore",
+#     "ManageContacts",
+#     "ManageIssuers",
+#     "GetIssuers",
+#     "ListIssuers",
+#     "SetIssuers",
+#     "DeleteIssuers",
+#   ]
+# }
 
 # resource "azurerm_key_vault_access_policy" "frontdoor_access_policy" {
 #   key_vault_id = azurerm_key_vault.application.id
@@ -91,9 +91,10 @@ resource "azurerm_key_vault_access_policy" "dev_access_policy" {
 # }
 
 resource "azurerm_key_vault_access_policy" "terraform_access_policy" {
+  count = var.environment == "dev" ?  0 : 1
   key_vault_id = azurerm_key_vault.application.id
   tenant_id    = data.azurerm_client_config.current.tenant_id
-  object_id    = data.azurerm_client_config.current.object_id
+  object_id    = var.terraform_object_id
 
   secret_permissions = [
     "Get",
@@ -167,9 +168,10 @@ resource "azurerm_key_vault_access_policy" "dev_app_config_access_policy" {
 }
 
 resource "azurerm_key_vault_access_policy" "terraform_app_config_access_policy" {
+  count = var.environment == "dev" ?  0 : 1
   key_vault_id = azurerm_key_vault.app_config.id
   tenant_id    = data.azurerm_client_config.current.tenant_id
-  object_id    = var.aad_object_keyvault_admin
+  object_id    = var.terraform_object_id
 
   secret_permissions = [
     "Get",

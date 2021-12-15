@@ -137,7 +137,7 @@ resource "azurerm_key_vault_access_policy" "postgres_policy" {
 }
 
 resource "azurerm_key_vault_key" "postgres_server_encryption_key" {
-  name         = "tfex-key"
+  name         = "tfex-key-2"
   key_vault_id = var.application_key_vault_id
   key_type     = "RSA"
   key_size     = 2048

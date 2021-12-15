@@ -55,26 +55,39 @@ enum class Options {
 }
 
 /**
- * QualityFilterResult records the rows filtered out by a quality filter.
- * As well as the function name and arguments that did the filtering.
+ * ReportStreamFilterResult records useful information about rows filtered by one filter call.  One filter
+ * might filter many rows. ReportStreamFilterResult entries are only created when filter logging is on.  This is to
+ * prevent tons of junk logging of jurisdictionalFilters - the vast majority of which typically filter out everything.
  *
  * @property receiverName Then intended reciever for the report
  * @property originalCount The original number of items in the report
  * @property filterName The name of the filter function that removed the rows
  * @property filterArgs The arguments used in the filter function
  * @property filteredRows The row's that were removed from the report, 0 indexed
+ * @property filteredTrackingElements The trackingElement values of the rows removed.
+ * Note that we can't guarantee the Sender is sending good unique trackingElement values.
  */
-data class QualityFilterResult(
+data class ReportStreamFilterResult(
     val receiverName: String,
     val originalCount: Int,
     val filterName: String,
     val filterArgs: List<String>,
-    val filteredRows: IntArray
+    val filteredCount: Int,
+    val filteredTrackingElements: List<String>,
 ) {
+    companion object {
+        // Use this value in logs and user-facing messages if the trackingElement is missing.
+        val DEFAULT_TRACKING_VALUE = "MissingID"
+    }
+
     override fun toString(): String {
-        return "For $receiverName, qualityFilter $filterName, $filterArgs" +
-            " filtered out Rows ${filteredRows.map{ it + 1 }.joinToString(",")}" +
-            " reducing the Item count from $originalCount to ${originalCount - filteredRows.size}."
+        return "For $receiverName, filter $filterName$filterArgs" +
+            " reduced the item count from $originalCount to ${originalCount - filteredCount}." +
+            if (filteredTrackingElements.isNullOrEmpty()) {
+                ""
+            } else {
+                "  Data with these IDs were filtered out: (${filteredTrackingElements.joinToString(",") })"
+            }
     }
 }
 
@@ -91,9 +104,10 @@ class Report : Logging {
     ) {
         INTERNAL("internal.csv", "text/csv"), // A format that serializes all elements of a Report.kt (in CSV)
         CSV("csv", "text/csv"), // A CSV format the follows the csvFields
+        CSV_SINGLE("csv", "text/csv", true),
         HL7("hl7", "application/hl7-v2", true), // HL7 with one result per file
         HL7_BATCH("hl7", "application/hl7-v2"), // HL7 with BHS and FHS headers
-        REDOX("redox", "text/json", true); // Redox format
+        REDOX("redox", "text/json", false); // Redox format contains multiple results (NDJSON)
         // FHIR
 
         companion object {
@@ -111,11 +125,7 @@ class Report : Logging {
     /**
      * the UUID for the report
      */
-    // TODO: Tech Debt - Made this var instead of val so we can update the report ID after creation in the async process
-    //  functionality. There is a way to do it as a passed in variable, but the way we create reports via parsing
-    //  contentBody does not lend itself to that way of doing it. Once we are storing a report in internal format
-    //  as part of initial ingest, this should be changed back to val - CD 11/08/2021
-    var id: ReportId
+    val id: ReportId
 
     /**
      * The schema of the data in the report
@@ -134,9 +144,10 @@ class Report : Logging {
     val destination: Receiver?
 
     /**
-     * The list of results from quality filters run against the initial report data.
+     * The list of info about data *removed* from this report by filtering.
+     * The list has one entry per filter applied, *not* one entry per row removed.
      */
-    val filteredItems: MutableList<QualityFilterResult> = mutableListOf()
+    val filteringResults: MutableList<ReportStreamFilterResult> = mutableListOf()
 
     /**
      * The time when the report was created
@@ -280,7 +291,8 @@ class Report : Logging {
         sources: List<Source>,
         destination: Receiver? = null,
         bodyFormat: Format? = null,
-        itemLineage: List<ItemLineage>? = null
+        itemLineage: List<ItemLineage>? = null,
+        metadata: Metadata? = null
     ) {
         this.id = UUID.randomUUID()
         this.schema = schema
@@ -290,7 +302,7 @@ class Report : Logging {
         this.bodyFormat = bodyFormat ?: destination?.format ?: Format.INTERNAL
         this.itemLineages = itemLineage
         this.createdDateTime = OffsetDateTime.now()
-        this.metadata = Metadata.getInstance()
+        this.metadata = metadata ?: Metadata.getInstance()
     }
 
     @Suppress("Destructure")
@@ -328,9 +340,10 @@ class Report : Logging {
             fromThisReport("copy"),
             destination ?: this.destination,
             bodyFormat ?: this.bodyFormat,
+            metadata = this.metadata
         )
         copy.itemLineages = createOneToOneItemLineages(this, copy)
-        copy.filteredItems.addAll(this.filteredItems)
+        copy.filteringResults.addAll(this.filteringResults)
         return copy
     }
 
@@ -380,29 +393,29 @@ class Report : Logging {
     }
 
     fun filter(
-        filterFunctions: List<Pair<JurisdictionalFilter, List<String>>>,
+        filterFunctions: List<Pair<ReportStreamFilterDefinition, List<String>>>,
         receiver: Receiver,
-        isQualityFilter: Boolean,
+        doLogging: Boolean,
+        trackingElement: String?,
         reverseTheFilter: Boolean = false
     ): Report {
-        val filteredRows = mutableListOf<QualityFilterResult>()
-        // First, only do detailed logging on qualityFilters.
-        // But, **don't** do detailed logging if reverseTheFilter is true.
-        // This is a hack, but its because the logging is nonsensical if the filter is reversed.
-        // (Its nontrivial to fix the detailed logging of a reversed filter, per deMorgan's law)
-        val doDetailedFilterLogging = isQualityFilter && !reverseTheFilter
+        val filteredRows = mutableListOf<ReportStreamFilterResult>()
         val combinedSelection = Selection.withRange(0, table.rowCount())
         filterFunctions.forEach { (filterFn, fnArgs) ->
-            val filterFnSelection = filterFn.getSelection(fnArgs, table, receiver, doDetailedFilterLogging)
-            if (doDetailedFilterLogging && filterFnSelection.size() < table.rowCount()) {
+            val filterFnSelection = filterFn.getSelection(fnArgs, table, receiver, doLogging)
+            if (doLogging && filterFnSelection.size() < table.rowCount()) {
                 val before = Selection.withRange(0, table.rowCount())
+                val filteredRowList = before.andNot(filterFnSelection).toList()
                 filteredRows.add(
-                    QualityFilterResult(
+                    ReportStreamFilterResult(
                         receiver.fullName,
                         table.rowCount(),
                         filterFn.name,
                         fnArgs,
-                        before.andNot(filterFnSelection).toArray()
+                        filteredRowList.size,
+                        getValuesInRows(
+                            trackingElement, filteredRowList, ReportStreamFilterResult.DEFAULT_TRACKING_VALUE
+                        )
                     )
                 )
             }
@@ -416,11 +429,36 @@ class Report : Logging {
         val filteredReport = Report(
             this.schema,
             filteredTable,
-            fromThisReport("filter: $filterFunctions")
+            fromThisReport("filter: $filterFunctions"),
+            metadata = this.metadata
         )
-        filteredReport.filteredItems.addAll(filteredRows)
+        // Write same info to our logs that goes in the json response obj
+        if (doLogging)
+            filteredRows.forEach { filterResult -> logger.info(filterResult.toString()) }
+        filteredReport.filteringResults.addAll(this.filteringResults) // copy ReportStreamFilterResults from prev
+        filteredReport.filteringResults.addAll(filteredRows) // and add any new ReportStreamFilterResults just created.
         filteredReport.itemLineages = createItemLineages(finalCombinedSelection, this, filteredReport)
         return filteredReport
+    }
+
+    /**
+     * Return the values in column [columnName] for these [rows].  If a [default] is specified,
+     * that value is used for all cases where the value is empty/null/missing for that row in the table.
+     * If [default] is null, this may return fewer rows than in [rows].
+     *
+     * @return an emptyList if the columnName is null (not an error)
+     *
+     */
+    fun getValuesInRows(columnName: String?, rows: List<Int>, default: String? = null): List<String> {
+        if (columnName.isNullOrEmpty()) return emptyList()
+        val columnIndex = this.table.columnIndex(columnName)
+        return rows.mapNotNull { row ->
+            val value = this.table.getString(row, columnIndex)
+            if (value.isNullOrEmpty())
+                default // might be null
+            else
+                value
+        }
     }
 
     fun deidentify(): Report {
@@ -435,7 +473,8 @@ class Report : Logging {
             schema,
             Table.create(columns),
             fromThisReport("deidentify"),
-            itemLineage = this.itemLineages
+            itemLineage = this.itemLineages,
+            metadata = this.metadata
         )
     }
 
@@ -528,7 +567,7 @@ class Report : Logging {
             safeSetStringInRow(it, "patient_zip_code", context.zipCode)
         }
         // return the new copy of the report here
-        return Report(schema, table, fromThisReport("synthesizeData"))
+        return Report(schema, table, fromThisReport("synthesizeData"), metadata = this.metadata)
     }
 
     /**
@@ -555,7 +594,10 @@ class Report : Logging {
         val pass1Columns = mapping.toSchema.elements.map { element -> buildColumnPass1(mapping, element) }
         val pass2Columns = mapping.toSchema.elements.map { element -> buildColumnPass2(mapping, element, pass1Columns) }
         val newTable = Table.create(pass2Columns)
-        return Report(mapping.toSchema, newTable, fromThisReport("mapping"), itemLineage = itemLineages)
+        return Report(
+            mapping.toSchema, newTable, fromThisReport("mapping"), itemLineage = itemLineages,
+            metadata = this.metadata
+        )
     }
 
     /**
@@ -624,18 +666,11 @@ class Report : Logging {
                             null
                         }
                     }
-                    it.patientAge = row.getStringOrNull("patient_dob").let { dob ->
-                        try {
-                            val d = LocalDate.parse(dob, Element.dateFormatter)
-                            if (d != null && it.specimenCollectionDateTime != null) {
-                                Period.between(d, it.specimenCollectionDateTime).years.toString()
-                            } else {
-                                null
-                            }
-                        } catch (_: Exception) {
-                            null
-                        }
-                    }
+                    it.patientAge = getAge(
+                        row.getStringOrNull("patient_age"),
+                        row.getStringOrNull("patient_dob"),
+                        it.specimenCollectionDateTime
+                    )
                     it.siteOfCare = row.getStringOrNull("site_of_care").trimToNull()
                     it.reportId = this.id
                     it.reportIndex = idx
@@ -652,6 +687,44 @@ class Report : Logging {
         } catch (e: Exception) {
             logger.error(e)
             emptyList()
+        }
+    }
+
+    /**
+     * getAge - calculate the age of the patient according to the criteria below:
+     *      if patient_age is given then
+     *          - validate it is not null, it is valid digit number, and not lesser than zero
+     *      else
+     *          - the patient will be calculated using period.between patient date of birth and
+     *          the speciment collection date.
+     *  @param patient_age - input patient's age.
+     *  @param patient_dob - imput patient date of birth.
+     *  @param specimenCollectionDate - input date of when speciment was collected.
+     *  @return age - result of patient's age.
+     */
+    private fun getAge(patient_age: String?, patient_dob: String?, specimenCollectionDate: LocalDate?): String? {
+
+        return if ((!patient_age.isNullOrBlank()) && patient_age.all { Character.isDigit(it) } &&
+            (patient_age.toInt() > 0)
+        ) {
+            patient_age
+        } else {
+            //
+            // Here, we got invalid or blank patient_age given to us.  Therefore, we will use patient date
+            // of birth and date of speciment collected to calculate the patient's age.
+            //
+            try {
+                val d = LocalDate.parse(patient_dob, Element.dateFormatter)
+                if (d != null && specimenCollectionDate != null &&
+                    (d.isBefore(specimenCollectionDate))
+                ) {
+                    Period.between(d, specimenCollectionDate).years.toString()
+                } else {
+                    null
+                }
+            } catch (_: Exception) {
+                null
+            }
         }
     }
 
@@ -768,7 +841,10 @@ class Report : Logging {
             // Build sources
             val sources = inputs.map { ReportSource(it.id, "merge") }
             val mergedReport =
-                Report(schema, newTable, sources, destination = head.destination, bodyFormat = head.bodyFormat)
+                Report(
+                    schema, newTable, sources, destination = head.destination, bodyFormat = head.bodyFormat,
+                    metadata = head.metadata
+                )
             mergedReport.itemLineages = createItemLineages(inputs, mergedReport)
             return mergedReport
         }
@@ -948,10 +1024,14 @@ class Report : Logging {
         }
 
         /**
-         * Try to extract an existing filename from report metadata.  If it does not exist or is malformed,
+         * Try to extract an existing filename from report metadata [header].  If it does not exist or is malformed,
          * create a new filename.
+         * @param metadata optional metadata instance used for dependency injection
          */
-        fun formExternalFilename(header: WorkflowEngine.Header): String {
+        fun formExternalFilename(
+            header: WorkflowEngine.Header,
+            metadata: Metadata? = null
+        ): String {
             // extract the filename from the blob url.
             val filename = if (header.reportFile.bodyUrl != null)
                 BlobAccess.BlobInfo.getBlobFilename(header.reportFile.bodyUrl)
@@ -965,17 +1045,22 @@ class Report : Logging {
                     header.reportFile.schemaName,
                     header.receiver?.format ?: error("Internal Error: ${header.receiver?.name} does not have a format"),
                     header.reportFile.createdAt,
-                    metadata = Metadata.getInstance()
+                    metadata = metadata ?: Metadata.getInstance()
                 )
             }
         }
 
+        /**
+         * Form external filename for a given [bodyUrl], [reportId], [schemaName], [format] and [createdAt].
+         * @param metadata optional metadata instance used for dependency injection
+         */
         fun formExternalFilename(
             bodyUrl: String?,
             reportId: ReportId,
             schemaName: String,
             format: Format,
-            createdAt: OffsetDateTime
+            createdAt: OffsetDateTime,
+            metadata: Metadata? = null
         ): String {
             // extract the filename from the blob url.
             val filename = if (bodyUrl != null)
@@ -988,7 +1073,7 @@ class Report : Logging {
                     schemaName,
                     format,
                     createdAt,
-                    metadata = Metadata.getInstance()
+                    metadata = metadata ?: Metadata.getInstance()
                 )
             }
         }

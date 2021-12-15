@@ -28,12 +28,12 @@ import java.util.Properties
 
 plugins {
     kotlin("jvm") version "1.6.0"
-    id("org.flywaydb.flyway") version "8.0.4"
+    id("org.flywaydb.flyway") version "8.2.0"
     id("nu.studer.jooq") version "6.0.1"
     id("com.github.johnrengelman.shadow") version "7.1.0"
     id("com.microsoft.azure.azurefunctions") version "1.8.1"
     id("org.jlleitschuh.gradle.ktlint") version "10.2.0"
-    id("com.adarshr.test-logger") version "3.0.0"
+    id("com.adarshr.test-logger") version "3.1.0"
     id("jacoco")
 }
 
@@ -77,9 +77,21 @@ val reportsApiEndpointHost = (
 val jooqSourceDir = "build/generated-src/jooq/src/main/java"
 val jooqPackageName = "gov.cdc.prime.router.azure.db"
 
+/**
+ * Add the `VAULT_TOKEN` in the local vault to the [env] map
+ */
+fun addVaultValuesToEnv(env: MutableMap<String, Any>) {
+    val file = File(".vault/env/.env.local")
+    if (!file.exists()) return
+    val prop = Properties()
+    FileInputStream(file).use { prop.load(it) }
+    prop.forEach { key, value -> env[key.toString()] = value.toString().replace("\"", "") }
+}
+
 defaultTasks("package")
 
-val kotlinVersion = "1.5.31"
+val ktorVersion = "1.6.7"
+val kotlinVersion = "1.6.0"
 jacoco.toolVersion = "0.8.7"
 
 // Set the compiler JVM target
@@ -96,6 +108,16 @@ compileTestKotlin.kotlinOptions.jvmTarget = "11"
 tasks.clean {
     // Delete the old Maven build folder
     delete("target")
+    // clean up all the old event files in the SOAP set up
+    doLast {
+        val eventsDir = File("../.environment/soap_service/soap/event/v1")
+        if (eventsDir.exists() && eventsDir.isDirectory && eventsDir.listFiles().isNotEmpty()) {
+            // Note FileUtils does not like when the folder is empty.
+            FileUtils.listFiles(eventsDir, arrayOf("event"), true).forEach {
+                it.delete()
+            }
+        }
+    }
 }
 
 /**
@@ -269,6 +291,13 @@ tasks.register("fatJar") {
     dependsOn("shadowJar")
 }
 
+tasks.ktlintCheck {
+    // DB tasks are not needed by ktlint, but gradle adds them by automatic configuration
+    tasks["generateJooq"].enabled = false
+    tasks["migrate"].enabled = false
+    tasks["flywayMigrate"].enabled = false
+}
+
 /**
  * PRIME CLI tasks
  */
@@ -284,6 +313,7 @@ tasks.register<JavaExec>("primeCLI") {
     environment["POSTGRES_USER"] = dbUser
     environment["POSTGRES_PASSWORD"] = dbPassword
     environment[KEY_PRIME_RS_API_ENDPOINT_HOST] = reportsApiEndpointHost
+    addVaultValuesToEnv(environment)
 
     // Use arguments passed by another task in the project.extra["cliArgs"] property.
     doFirst {
@@ -416,7 +446,7 @@ tasks.azureFunctionsRun {
             "Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=" +
             "http://localhost:10000/devstoreaccount1;QueueEndpoint=http://localhost:10001/devstoreaccount1;"
 
-    val env = mutableMapOf(
+    val env = mutableMapOf<String, Any>(
         "AzureWebJobsStorage" to devAzureConnectString,
         "PartnerStorage" to devAzureConnectString,
         "POSTGRES_USER" to dbUser,
@@ -430,10 +460,7 @@ tasks.azureFunctionsRun {
     )
 
     // Load the vault variables
-    val file = File(".vault/env/.env.local")
-    val prop = Properties()
-    FileInputStream(file).use { prop.load(it) }
-    prop.forEach { key, value -> env[key.toString()] = value.toString().replace("\"", "") }
+    addVaultValuesToEnv(env)
 
     environment(env)
     azurefunctions.localDebug = "transport=dt_socket,server=y,suspend=n,address=5005"
@@ -510,7 +537,7 @@ tasks.named<nu.studer.gradle.jooq.JooqGenerate>("generateJooq") {
 }
 
 /**
- * Convinience tasks
+ * Convenience tasks
  */
 // Convenience tasks
 tasks.register("compile") {
@@ -548,25 +575,25 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
     implementation("com.microsoft.azure.functions:azure-functions-java-library:1.4.2")
-    implementation("com.azure:azure-core:1.22.0")
+    implementation("com.azure:azure-core:1.23.1")
     implementation("com.azure:azure-core-http-netty:1.11.2")
-    implementation("com.azure:azure-storage-blob:12.14.2") {
+    implementation("com.azure:azure-storage-blob:12.14.1") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-storage-queue:12.11.1") {
+    implementation("com.azure:azure-storage-queue:12.11.2") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-security-keyvault-secrets:4.3.4") {
-        exclude(group = "com.azure", module = "azure-core")
-        exclude(group = "com.azure", module = "azure-core-http-netty")
-    }
-    implementation("com.azure:azure-identity:1.4.0") {
+    implementation("com.azure:azure-security-keyvault-secrets:4.3.5") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
-    implementation("org.apache.logging.log4j:log4j-api:[2.13.2,)")
-    implementation("org.apache.logging.log4j:log4j-core:[2.13.2,)")
-    implementation("org.apache.logging.log4j:log4j-slf4j-impl:[2.13.2,)")
+    implementation("com.azure:azure-identity:1.4.2") {
+        exclude(group = "com.azure", module = "azure-core")
+        exclude(group = "com.azure", module = "azure-core-http-netty")
+    }
+    implementation("org.apache.logging.log4j:log4j-api:[2.15.0,)")
+    implementation("org.apache.logging.log4j:log4j-core:[2.15.0,)")
+    implementation("org.apache.logging.log4j:log4j-slf4j-impl:[2.15.0,)")
     implementation("org.apache.logging.log4j:log4j-api-kotlin:1.1.0")
     implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.2.0")
     implementation("tech.tablesaw:tablesaw-core:0.42.0")
@@ -578,8 +605,8 @@ dependencies {
     implementation("com.github.javafaker:javafaker:1.0.2")
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
-    implementation("com.googlecode.libphonenumber:libphonenumber:8.12.37")
-    implementation("org.thymeleaf:thymeleaf:3.0.12.RELEASE")
+    implementation("com.googlecode.libphonenumber:libphonenumber:8.12.38")
+    implementation("org.thymeleaf:thymeleaf:3.0.14.RELEASE")
     implementation("com.sendgrid:sendgrid-java:4.8.0")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.1")
     implementation("com.github.kittinunf.fuel:fuel:2.3.1") {
@@ -597,22 +624,27 @@ dependencies {
     implementation("commons-io:commons-io:2.11.0")
     implementation("org.postgresql:postgresql:42.3.0")
     implementation("com.zaxxer:HikariCP:5.0.0")
-    implementation("org.flywaydb:flyway-core:8.0.4")
+    implementation("org.flywaydb:flyway-core:8.2.0")
     implementation("com.github.kayr:fuzzy-csv:1.7.2")
     implementation("org.commonmark:commonmark:0.18.0")
     implementation("com.google.guava:guava:31.0.1-jre")
-    implementation("com.helger.as2:as2-lib:4.7.1")
+    implementation("com.helger.as2:as2-lib:4.8.0")
     // Prevent mixed versions of these libs based on different versions being included by different packages
     implementation("org.bouncycastle:bcpkix-jdk15on:1.69")
     implementation("org.bouncycastle:bcmail-jdk15on:1.69")
     implementation("org.bouncycastle:bcprov-jdk15on:1.69")
 
     implementation("commons-net:commons-net:3.8.0")
-    implementation("com.cronutils:cron-utils:9.1.6")
+    implementation("com.cronutils:cron-utils:9.1.5")
     implementation("khttp:khttp:1.0.0")
+    implementation("com.auth0:java-jwt:3.18.2")
     implementation("io.jsonwebtoken:jjwt-api:0.11.2")
     implementation("de.m3y.kformat:kformat:0.8")
     implementation("io.github.java-diff-utils:java-diff-utils:4.11")
+    implementation("io.ktor:ktor-client-core:$ktorVersion")
+    implementation("io.ktor:ktor-client-cio:$ktorVersion")
+    implementation("io.ktor:ktor-client-apache:$ktorVersion")
+    implementation("io.ktor:ktor-client-logging:$ktorVersion")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.1")
     runtimeOnly("com.github.kittinunf.fuel:fuel-jackson:2.3.1")
@@ -628,8 +660,9 @@ dependencies {
     // kotlinx-coroutines-core is needed by mock-fuel
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
     testImplementation("com.github.KennethWussmann:mock-fuel:1.3.0")
-    testImplementation("io.mockk:mockk:1.12.0")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.1")
+    testImplementation("io.mockk:mockk:1.12.1")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.2")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.25")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.1")
+    testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.2")
 }

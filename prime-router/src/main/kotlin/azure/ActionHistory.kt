@@ -8,10 +8,10 @@ import com.microsoft.azure.functions.HttpResponseMessage
 import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Organization
-import gov.cdc.prime.router.QualityFilterResult
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
+import gov.cdc.prime.router.ReportStreamFilterResult
 import gov.cdc.prime.router.ResultDetail
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
@@ -32,6 +32,7 @@ import org.jooq.Configuration
 import org.jooq.DSLContext
 import org.jooq.JSONB
 import org.jooq.impl.DSL
+import org.jooq.impl.SQLDataType
 import java.io.ByteArrayOutputStream
 import java.time.Instant
 import java.time.OffsetDateTime
@@ -99,7 +100,7 @@ class ActionHistory {
     /**
      * List of rows per report that have been filtered out based on quality.
      */
-    val filteredReportRows = mutableMapOf<ReportId, List<QualityFilterResult>>()
+    val filteredReportRows = mutableMapOf<ReportId, List<ReportStreamFilterResult>>()
 
     /**
      * Messages to be queued in an azure queue as part of the result of this action.
@@ -137,6 +138,10 @@ class ActionHistory {
         messages.add(event)
     }
 
+    fun trackUsername(userName: String?) {
+        action.username = userName
+    }
+
     fun trackActionParams(request: HttpRequestMessage<String?>) {
         val factory = JsonFactory()
         val outStream = ByteArrayOutputStream()
@@ -149,6 +154,7 @@ class ActionHistory {
             request.headers
                 .filter { !it.key.contains("key") }
                 .filter { !it.key.contains("cookie") }
+                .filter { !it.key.contains("auth") }
                 .forEach { (key, value) ->
                     it.writeStringField(key, value)
                 }
@@ -190,24 +196,34 @@ class ActionHistory {
     fun trackActionResult(actionResult: String) {
         val tmp = if (action.actionResult.isNullOrBlank()) actionResult else "${action.actionResult}, $actionResult"
         val max = ACTION.ACTION_RESULT.dataType.length()
-        action.actionResult = tmp.chunked(size = max)[0]
+        // max is 0 for the CLOB type. we're using CLOB for the action_result now because we want
+        // bigly strings, not just small sad 2048 strings
+        action.actionResult = if (ACTION.ACTION_RESULT.dataType == SQLDataType.CLOB && max == 0) {
+            tmp
+        } else {
+            tmp.chunked(size = max)[0]
+        }
     }
 
-    fun trackActionResult(httpResponseMessage: HttpResponseMessage) {
-        trackActionResult(httpResponseMessage.status.toString())
+    fun trackActionResult(httpResponseMessage: HttpResponseMessage, showBody: Boolean = true) {
+        trackActionResult(
+            httpResponseMessage.status.toString() +
+                if (showBody) ": " + httpResponseMessage.body.toString() else ""
+        )
     }
 
     fun trackActionRequestResponse(request: HttpRequestMessage<String?>, response: HttpResponseMessage) {
         trackActionParams(request)
-        trackActionResult(response)
+        trackActionResult(response, false)
     }
 
     /**
      * Parses the client parameter and sets the sending organization
      * and client in the action table.
      * @param clientParam the client header submitted with the report
+     * @param payloadName an optional user-supplied name for the data submitted.  Eg, a filename.
      */
-    fun trackActionSender(clientParam: String) {
+    fun trackActionSenderInfo(clientParam: String, payloadName: String? = null) {
         // only set the action properties if not null
         if (clientParam.isNotBlank()) {
             try {
@@ -220,6 +236,7 @@ class ActionHistory {
                 )
             }
         }
+        action.externalName = payloadName
     }
 
     /**
@@ -267,7 +284,7 @@ class ActionHistory {
     /**
      * Use this to record history info about a new externally submitted report.
      */
-    fun trackExternalInputReport(report: Report, blobInfo: BlobAccess.BlobInfo) {
+    fun trackExternalInputReport(report: Report, blobInfo: BlobAccess.BlobInfo, payloadName: String? = null) {
         if (isReportAlreadyTracked(report.id)) {
             error("Bug:  attempt to track history of a report ($report.id) we've already associated with this action")
         }
@@ -290,6 +307,8 @@ class ActionHistory {
         reportFile.bodyUrl = blobInfo.blobUrl
         reportFile.bodyFormat = blobInfo.format.toString()
         reportFile.blobDigest = blobInfo.digest
+        reportFile.externalName = payloadName
+        action.externalName = payloadName
         reportFile.itemCount = report.itemCount
         reportsReceived[reportFile.reportId] = reportFile
 
@@ -320,7 +339,7 @@ class ActionHistory {
         reportFile.schemaTopic = report.schema.topic
         reportFile.itemCount = report.itemCount
         filteredOutReports[reportFile.reportId] = reportFile
-        filteredReportRows[reportFile.reportId] = report.filteredItems
+        filteredReportRows[reportFile.reportId] = report.filteringResults
     }
 
     /**
@@ -350,7 +369,32 @@ class ActionHistory {
         reportFile.blobDigest = blobInfo.digest
         reportFile.itemCount = report.itemCount
         reportsOut[reportFile.reportId] = reportFile
-        filteredReportRows[reportFile.reportId] = report.filteredItems
+        filteredReportRows[reportFile.reportId] = report.filteringResults
+        trackItemLineages(report)
+        trackEvent(event) // to be sent to queue later.
+    }
+
+    fun trackCreatedReport(
+        event: Event,
+        report: Report,
+        blobInfo: BlobAccess.BlobInfo
+    ) {
+        if (isReportAlreadyTracked(report.id)) {
+            error("Bug:  attempt to track history of a report ($report.id) we've already associated with this action")
+        }
+
+        val reportFile = ReportFile()
+        reportFile.reportId = report.id
+        reportFile.nextAction = event.eventAction.toTaskAction()
+        reportFile.nextActionAt = event.at
+        reportFile.schemaName = report.schema.name
+        reportFile.schemaTopic = report.schema.topic
+        reportFile.bodyUrl = blobInfo.blobUrl
+        reportFile.bodyFormat = blobInfo.format.toString()
+        reportFile.blobDigest = blobInfo.digest
+        reportFile.itemCount = report.itemCount
+        reportsOut[reportFile.reportId] = reportFile
+        filteredReportRows[reportFile.reportId] = report.filteringResults
         trackItemLineages(report)
         trackEvent(event) // to be sent to queue later.
     }
@@ -358,7 +402,7 @@ class ActionHistory {
     fun trackSentReport(
         receiver: Receiver,
         sentReportId: ReportId,
-        fileName: String?,
+        filename: String?,
         params: String,
         result: String,
         itemCount: Int
@@ -375,7 +419,8 @@ class ActionHistory {
         reportFile.receivingOrgSvc = receiver.name
         reportFile.schemaName = receiver.schemaName
         reportFile.schemaTopic = receiver.topic
-        reportFile.externalName = fileName
+        reportFile.externalName = filename
+        action.externalName = filename
         reportFile.transportParams = params
         reportFile.transportResult = result
         reportFile.bodyUrl = null
@@ -411,6 +456,7 @@ class ActionHistory {
         reportFile.schemaName = parentReportFile.schemaName
         reportFile.schemaTopic = parentReportFile.schemaTopic
         reportFile.externalName = filename
+        action.externalName = filename
         reportFile.transportParams = "{ \"reportRequested\": \"${parentReportFile.reportId}\"}"
         reportFile.transportResult = "{ \"downloadedBy\": \"$downloadedBy\"}"
         reportFile.bodyUrl = null // this entry represents an external file, not a blob.
@@ -419,6 +465,8 @@ class ActionHistory {
         reportFile.itemCount = parentReportFile.itemCount
         reportFile.downloadedBy = downloadedBy
         reportsOut[reportFile.reportId] = reportFile
+
+        trackUsername(downloadedBy)
     }
 
     private fun trackItemLineages(report: Report) {
@@ -595,36 +643,24 @@ class ActionHistory {
     ) {
         var destinationCounter = 0
         jsonGen.writeArrayFieldStart("destinations")
-        if (filteredOutReports.isNotEmpty()) {
-            filteredOutReports.forEach { (reportId, reportFile) ->
-                val fullname = reportFile.receivingOrg + "." + reportFile.receivingOrgSvc
-                val (organization, orgReceiver) = settings.findOrganizationAndReceiver(fullname) ?: return@forEach
-                prettyPrintDestinationJson(
+        val reports = reportsOut + filteredOutReports
+        if (reports.isNotEmpty()) {
+            val destinations = reports.map { (_, reportFile) ->
+                reportFile
+            }.groupBy({ it.receivingOrg + "." + it.receivingOrgSvc }, { it })
+
+            destinations.forEach { (destination, reportFiles) ->
+                val (organization, orgReceiver) = settings.findOrganizationAndReceiver(destination) ?: return@forEach
+                val countSent = prettyPrintDestinationJson(
                     jsonGen,
                     orgReceiver,
                     organization,
-                    reportFile.nextActionAt,
-                    reportFile.itemCount,
+                    reportFiles,
                     reportOptions,
-                    reportId
                 )
-                destinationCounter++
-            }
-        }
-        if (reportsOut.isNotEmpty()) {
-            reportsOut.forEach { (reportId, reportFile) ->
-                val fullname = reportFile.receivingOrg + "." + reportFile.receivingOrgSvc
-                val (organization, orgReceiver) = settings.findOrganizationAndReceiver(fullname) ?: return@forEach
-                prettyPrintDestinationJson(
-                    jsonGen,
-                    orgReceiver,
-                    organization,
-                    reportFile.nextActionAt,
-                    reportFile.itemCount,
-                    reportOptions,
-                    reportId
-                )
-                destinationCounter++
+                if (countSent > 0) {
+                    destinationCounter++
+                }
             }
         }
         jsonGen.writeEndArray()
@@ -635,45 +671,55 @@ class ActionHistory {
         jsonGen: JsonGenerator,
         orgReceiver: Receiver,
         organization: Organization,
-        sendingAt: OffsetDateTime?,
-        countToPrint: Int,
+        reportFiles: List<ReportFile>,
         reportOptions: Options,
-        reportId: ReportId
-    ) {
+    ): Int {
         jsonGen.writeStartObject()
         // jsonGen.writeStringField("id", reportFile.reportId.toString())   // TMI?
         jsonGen.writeStringField("organization", organization.description)
         jsonGen.writeStringField("organization_id", orgReceiver.organizationName)
         jsonGen.writeStringField("service", orgReceiver.name)
 
-        if (!filteredReportRows.getOrDefault(reportId, emptyList()).isEmpty()) {
-            jsonGen.writeArrayFieldStart("filteredReportRows")
-            filteredReportRows.getValue(reportId).forEach {
-                jsonGen.writeString(it.toString())
-            }
-            jsonGen.writeEndArray()
-        }
+        var sendingAt = "immediately"
+        var countToPrint = 0
+        reportFiles.forEach { reportFile ->
 
-        jsonGen.writeStringField(
-            "sending_at",
-            when {
+            if (!filteredReportRows.getOrDefault(reportFile.reportId, emptyList()).isEmpty()) {
+                jsonGen.writeArrayFieldStart("filteredReportRows")
+                filteredReportRows.getValue(reportFile.reportId).forEach {
+                    jsonGen.writeString(it.toString())
+                }
+                jsonGen.writeEndArray()
+            }
+
+            sendingAt = when {
                 reportOptions == Options.SkipSend -> {
                     "never - skipSend specified"
                 }
+                reportFile.nextActionAt != null -> {
+                    "${reportFile.nextActionAt}"
+                }
+                else -> {
+                    sendingAt
+                }
+            }
+            countToPrint += reportFile.itemCount
+        }
+        jsonGen.writeStringField(
+            "sending_at",
+            when {
                 countToPrint == 0 -> {
                     "never - all items filtered out"
                 }
-                sendingAt == null -> {
-                    "immediately"
-                }
                 else -> {
-                    "$sendingAt"
+                    sendingAt
                 }
             }
         )
 
         jsonGen.writeNumberField("itemCount", countToPrint)
         jsonGen.writeEndObject()
+        return countToPrint
     }
 
     companion object {
@@ -790,6 +836,23 @@ class ActionHistory {
     }
 
     /**
+     * This class houses items, messages, and scope information
+     * for the consolidated warning/error messaging.
+     *
+     * @param itemsByGroupingId MutableMap<String, MutableList<Int>> where the key is the groupingId
+     *     and the value is a mutable list row numbers integers
+     * @param messageByGroupingId stores messages in a MutableMap<String, String>
+     *     where the key is the groupingId and the value is a message as type String
+     * @param scopesByGroupingId stores items in a MutableMap<String, String>
+     *     where the key is the groupingId and the value is a Scope as type String
+     */
+    data class GroupedProperties(
+        val itemsByGroupingId: MutableMap<String, MutableList<Int>>,
+        val messageByGroupingId: MutableMap<String, String>,
+        val scopesByGroupingId: MutableMap<String, String>
+    )
+
+    /**
      * Creates a string that will be used to populate the action_response column of an action
      * after that action has been completed
      * @param options Message options passed in
@@ -816,13 +879,19 @@ class ActionHistory {
                 it.writeStringField("timestamp", DateTimeFormatter.ISO_INSTANT.format(Instant.now()))
                 it.writeStringField("topic", report.schema.topic)
                 it.writeNumberField("reportItemCount", report.itemCount)
+                if (action.sendingOrg != null && action.sendingOrgClient != null)
+                    it.writeStringField("sender", "${action.sendingOrg}.${action.sendingOrgClient}")
+                if (action.httpStatus != null)
+                    it.writeStringField("httpStatus", action.httpStatus?.toString() ?: "")
+                if (action.externalName != null)
+                    it.writeStringField("externalName", action.externalName)
                 // TODO: need to get the correct path and set the ENDPOINT_BASE correctly, blocked by waiting for
                 //  the historyApi to be ready. Once this is known, uncomment line below and ensure path is correct
                 // it.writeStringField("location", "[base path]/${report.id}")
             } else
                 it.writeNullField("id")
 
-            this.prettyPrintDestinationsJson(it, WorkflowEngine.settings, options)
+            this.prettyPrintDestinationsJson(it, WorkflowEngine.settingsProviderSingleton, options)
             // print the report routing when in verbose mode
             if (verbose) {
                 it.writeArrayFieldStart("routing")
@@ -840,23 +909,6 @@ class ActionHistory {
 
             it.writeNumberField("warningCount", warnings.size)
             it.writeNumberField("errorCount", errors.size)
-
-            fun writeDetailsArray(field: String, array: List<ResultDetail>) {
-                it.writeArrayFieldStart(field)
-                array.forEach { error ->
-                    it.writeStartObject()
-                    it.writeStringField("scope", error.scope.toString())
-                    it.writeStringField("id", error.id)
-                    it.writeStringField("details", error.responseMessage.detailMsg())
-                    if (error.rowNumber > 0) {
-                        it.writeStringField("row", error.rowNumber.toString())
-                    }
-                    it.writeEndObject()
-                }
-                it.writeEndArray()
-            }
-            writeDetailsArray("errors", errors)
-            writeDetailsArray("warnings", warnings)
 
             fun createRowsDescription(rows: List<Int>?): String {
                 // Consolidate row ranges, e.g. 1,2,3,5,7,8,9 -> 1-3,5,7-9
@@ -882,30 +934,79 @@ class ActionHistory {
                 return sb.toString()
             }
 
-            fun writeConsolidatedArray(field: String, array: List<ResultDetail>) {
-                val rowsByGroupingId = hashMapOf<String, MutableList<Int>>()
-                val messageByGroupingId = hashMapOf<String, String>()
-                array.forEach { resultDetail ->
+            /**
+             * This function parses a list of ResultDetail items to group them by
+             * groupingId and returns them as a GroupedProperties data class instance
+             *
+             * @param details List of ResultDetail items to be parsed
+             * @return GroupedProperties() containing items, messages, and scopes
+             *     grouped by groupingId
+             */
+            fun createPropertiesByGroupingId(details: List<ResultDetail>): GroupedProperties {
+                val itemsByGroupingId = mutableMapOf<String, MutableList<Int>>()
+                val messageByGroupingId = mutableMapOf<String, String>()
+                val scopesByGroupingId = mutableMapOf<String, String>()
+                details.forEach { resultDetail ->
                     val groupingId = resultDetail.responseMessage.groupingId()
-                    if (!rowsByGroupingId.containsKey(groupingId)) {
-                        rowsByGroupingId[groupingId] = mutableListOf()
+                    if (!itemsByGroupingId.containsKey(groupingId)) {
+                        itemsByGroupingId[groupingId] = mutableListOf()
                         messageByGroupingId[groupingId] = resultDetail.responseMessage.detailMsg()
+                        scopesByGroupingId[groupingId] = resultDetail.scope.toString()
                     }
-                    if (resultDetail.rowNumber > 0) {
-                        rowsByGroupingId[groupingId]?.add(resultDetail.rowNumber)
+                    if (resultDetail.row != -1) {
+                        itemsByGroupingId[groupingId]?.add(resultDetail.row + 1)
                     }
                 }
+                return GroupedProperties(
+                    itemsByGroupingId,
+                    messageByGroupingId,
+                    scopesByGroupingId
+                )
+            }
+
+            /**
+             * This function parses a list of ResultDetail items to group them by
+             * groupingId and returns them as a GroupedProperties data class instance
+             *
+             * @param field defines the name of the array in the JSON result
+             * @param resultDetailList the list of items to write to the JSON
+             */
+            fun writeConsolidatedArray(field: String, resultDetailList: List<ResultDetail>) {
+                val (
+                    itemsByGroupingId,
+                    messageByGroupingId,
+                    scopesByGroupId
+                ) = createPropertiesByGroupingId(resultDetailList)
                 it.writeArrayFieldStart(field)
-                rowsByGroupingId.keys.forEach { groupingId ->
+                itemsByGroupingId.keys.forEach { groupingId ->
                     it.writeStartObject()
+                    it.writeStringField("scope", scopesByGroupId[groupingId] as String)
                     it.writeStringField("message", messageByGroupingId[groupingId])
-                    it.writeStringField("rows", createRowsDescription(rowsByGroupingId[groupingId]))
+                    if (scopesByGroupId[groupingId] as String === "ITEM") {
+                        it.writeStringField(
+                            "itemNums",
+                            createRowsDescription(itemsByGroupingId[groupingId])
+                        )
+                        if (verbose) {
+                            val filtered = itemsByGroupingId.filter { item -> item.key === groupingId }
+                            it.writeArrayFieldStart("itemDetails")
+                            filtered.forEach { itemGroupingId ->
+                                itemGroupingId.value.forEach { itemNum ->
+                                    it.writeStartObject()
+                                    it.writeStringField("itemNum", itemNum.toString())
+                                    it.writeStringField("groupingId", itemGroupingId.key)
+                                    it.writeEndObject()
+                                }
+                            }
+                            it.writeEndArray()
+                        }
+                    }
                     it.writeEndObject()
                 }
                 it.writeEndArray()
             }
-            writeConsolidatedArray("consolidatedErrors", errors)
-            writeConsolidatedArray("consolidatedWarnings", warnings)
+            writeConsolidatedArray("errors", errors)
+            writeConsolidatedArray("warnings", warnings)
         }
         return outStream.toString()
     }

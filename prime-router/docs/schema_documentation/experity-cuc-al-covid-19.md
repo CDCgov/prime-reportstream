@@ -1975,7 +1975,7 @@ The reporting facility's name
 
 **Default Value**: cuc-al
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -2191,6 +2191,7 @@ Sofia SARS Antigen FIA_Quidel Corporation|Sofia SARS Antigen FIA
 10811877011269|Abbott-ID NOW COVID-19 (Molecular)
 RightSign COVID-19 IgG/IgM Rapid Test Cassette_Hangzhou Biotest Biotech Co., Ltd.|RightSign COVID-19 IgG/IgM Rapid Test Cassette
 COVID-19 IgG/IgM Rapid Test Cassette (Whole Blood/Serum/Plasma)_Healgen Scientific LLC|Healgen COVID-19 IgG IgM Rapid Test
+BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)|BD Veritor Rapid SARS-CoV-2 nucleocapsid antigen
 
 ---
 

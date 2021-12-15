@@ -27,14 +27,15 @@ import gov.cdc.prime.router.serializers.RedoxSerializer
 import gov.cdc.prime.router.transport.AS2Transport
 import gov.cdc.prime.router.transport.BlobStoreTransport
 import gov.cdc.prime.router.transport.FTPSTransport
+import gov.cdc.prime.router.transport.GAENTransport
 import gov.cdc.prime.router.transport.RedoxTransport
 import gov.cdc.prime.router.transport.RetryItems
 import gov.cdc.prime.router.transport.RetryToken
 import gov.cdc.prime.router.transport.SftpTransport
+import gov.cdc.prime.router.transport.SoapTransport
 import org.jooq.Configuration
 import org.jooq.Field
 import java.io.ByteArrayInputStream
-import java.lang.IllegalStateException
 import java.time.OffsetDateTime
 
 /**
@@ -46,26 +47,112 @@ import java.time.OffsetDateTime
  * @see DatabaseAccess.Header
  */
 class WorkflowEngine(
-    // Immutable objects can be shared between every function call
-    val metadata: Metadata = WorkflowEngine.metadata,
-    val settings: SettingsProvider = WorkflowEngine.settings,
-    val hl7Serializer: Hl7Serializer = WorkflowEngine.hl7Serializer,
-    val csvSerializer: CsvSerializer = WorkflowEngine.csvSerializer,
-    val redoxSerializer: RedoxSerializer = WorkflowEngine.redoxSerializer,
-    val translator: Translator = Translator(metadata, settings),
-    // New connection for every function
-    val db: DatabaseAccess = databaseAccess,
+    val metadata: Metadata = Metadata.getInstance(),
+    val settings: SettingsProvider = settingsProviderSingleton,
+    val hl7Serializer: Hl7Serializer = hl7SerializerSingleton,
+    val csvSerializer: CsvSerializer = csvSerializerSingleton,
+    val redoxSerializer: RedoxSerializer = redoxSerializerSingleton,
+    val db: DatabaseAccess = databaseAccessSingleton,
     val blob: BlobAccess = BlobAccess(csvSerializer, hl7Serializer, redoxSerializer),
     val queue: QueueAccess = QueueAccess,
+    val translator: Translator = Translator(metadata, settings),
     val sftpTransport: SftpTransport = SftpTransport(),
     val redoxTransport: RedoxTransport = RedoxTransport(),
     val as2Transport: AS2Transport = AS2Transport(),
     val ftpsTransport: FTPSTransport = FTPSTransport(),
+    val soapTransport: SoapTransport = SoapTransport(),
+    val gaenTransport: GAENTransport = GAENTransport()
 ) {
-    init {
-        // Load any updates to the database lookup tables.
-        // This check will run at the start of every function as they create a new instance of this class
-        metadata.checkForDatabaseLookupTableUpdates()
+
+    /**
+     * Custom builder for Workflow engine
+     */
+    data class Builder(
+        var metadata: Metadata? = null,
+        var settingsProvider: SettingsProvider? = null,
+        var databaseAccess: DatabaseAccess? = null,
+        var blobAccess: BlobAccess? = null,
+        var queueAccess: QueueAccess? = null,
+        var hl7Serializer: Hl7Serializer? = null,
+        var csvSerializer: CsvSerializer? = null,
+        var redoxSerializer: RedoxSerializer? = null
+    ) {
+        /**
+         * Set the metadata instance.
+         * @return the modified workflow engine
+         */
+        fun metadata(metadata: Metadata) = apply { this.metadata = metadata }
+
+        /**
+         * Set the settings provider instance.
+         * @return the modified workflow engine
+         */
+        fun settingsProvider(settingsProvider: SettingsProvider) = apply { this.settingsProvider = settingsProvider }
+
+        /**
+         * Set the database access instance.
+         * @return the modified workflow engine
+         */
+        fun databaseAccess(databaseAccess: DatabaseAccess) = apply { this.databaseAccess = databaseAccess }
+
+        /**
+         * Set the blob access instance.
+         * @return the modified workflow engine
+         */
+        fun blobAccess(blobAccess: BlobAccess) = apply { this.blobAccess = blobAccess }
+
+        /**
+         * Set the queue access instance.
+         * @return the modified workflow engine
+         */
+        fun queueAccess(queueAccess: QueueAccess) = apply { this.queueAccess = queueAccess }
+
+        /**
+         * Set the HL7 serializer instance.
+         * @return the modified workflow engine
+         */
+        fun hl7Serializer(hl7Serializer: Hl7Serializer) = apply { this.hl7Serializer = hl7Serializer }
+
+        /**
+         * Set the CSV serializer instance.
+         * @return the modified workflow engine
+         */
+        fun csvSerializer(csvSerializer: CsvSerializer) = apply { this.csvSerializer = csvSerializer }
+
+        /**
+         * Set the Redox serializer instance.
+         * @return the modified workflow engine
+         */
+        fun redoxSerializer(redoxSerializer: RedoxSerializer) = apply { this.redoxSerializer = redoxSerializer }
+
+        /**
+         * Build the workflow engine instance.
+         * @return the workflow engine instance
+         */
+        fun build(): WorkflowEngine {
+            if (metadata != null) {
+                settingsProvider = settingsProvider ?: getSettingsProvider(metadata!!)
+                hl7Serializer = hl7Serializer ?: Hl7Serializer(metadata!!, settingsProvider!!)
+                csvSerializer = csvSerializer ?: CsvSerializer(metadata!!)
+                redoxSerializer = redoxSerializer ?: RedoxSerializer(metadata!!)
+            } else {
+                settingsProvider = settingsProvider ?: settingsProviderSingleton
+                hl7Serializer = hl7Serializer ?: hl7SerializerSingleton
+                csvSerializer = csvSerializer ?: csvSerializerSingleton
+                redoxSerializer = redoxSerializer ?: redoxSerializerSingleton
+            }
+
+            return WorkflowEngine(
+                metadata ?: Metadata.getInstance(),
+                settingsProvider!!,
+                hl7Serializer!!,
+                csvSerializer!!,
+                redoxSerializer!!,
+                databaseAccess ?: databaseAccessSingleton,
+                blobAccess ?: BlobAccess(csvSerializer!!, hl7Serializer!!, redoxSerializer!!),
+                queueAccess ?: QueueAccess
+            )
+        }
     }
 
     val blobStoreTransport: BlobStoreTransport = BlobStoreTransport(this)
@@ -87,7 +174,8 @@ class WorkflowEngine(
         rawBody: ByteArray,
         sender: Sender,
         actionHistory: ActionHistory,
-        workflowEngine: WorkflowEngine
+        workflowEngine: WorkflowEngine,
+        payloadName: String? = null,
     ): String {
         // Save a copy of the original report
         val senderReportFormat = Report.Format.safeValueOf(sender.format.toString())
@@ -97,7 +185,7 @@ class WorkflowEngine(
             blobFilename, sender.fullName, Event.EventAction.RECEIVE
         )
 
-        actionHistory.trackExternalInputReport(report, blobInfo)
+        actionHistory.trackExternalInputReport(report, blobInfo, payloadName)
         return blobInfo.blobUrl
     }
 
@@ -332,7 +420,7 @@ class WorkflowEngine(
                 ).partition { (report, _) -> report.isEmpty() }
 
             emptyReports.forEach { (report, receiver) ->
-                if (!report.filteredItems.isEmpty()) {
+                if (!report.filteringResults.isEmpty()) {
                     actionHistory.trackFilteredReport(report, receiver)
                 }
             }
@@ -377,7 +465,20 @@ class WorkflowEngine(
                 this.dispatchReport(event, batchReport, actionHistory, receiver, txn, context)
                 loggerMsg = "Queue: ${event.toQueueMessage()}"
             }
-            receiver.format == Report.Format.HL7 -> {
+            receiver.format.isSingleItemFormat -> {
+                report.filteringResults.forEach {
+                    val emptyReport = Report(
+                        report.schema,
+                        emptyList(),
+                        emptyList(),
+                        destination = report.destination,
+                        bodyFormat = report.bodyFormat,
+                        metadata = Metadata.getInstance()
+                    )
+                    emptyReport.filteringResults.add(it)
+                    actionHistory.trackFilteredReport(emptyReport, receiver)
+                }
+
                 report
                     .split()
                     .forEach {
@@ -409,37 +510,18 @@ class WorkflowEngine(
         val errors: MutableList<ResultDetail> = mutableListOf()
         val warnings: MutableList<ResultDetail> = mutableListOf()
 
-        val reportFile = db.fetchReportFile(messageEvent.reportId)
-
         db.transact { txn ->
             val task = db.fetchAndLockTask(messageEvent.reportId, txn)
 
-            val blobContent = blob.downloadBlob(reportFile.bodyUrl)
+            val blobContent = blob.downloadBlob(task.bodyUrl)
             val currentAction = Event.EventAction.parseQueueMessage(task.nextAction.literal)
 
-            // Get sender record, throw error if it is null. It should not be possible to be null, since the sender
-            //  was not null during the receive
-            val sender = settings.findSender(reportFile.sendingOrg + "." + reportFile.sendingOrgClient)
-                ?: throw IllegalStateException(
-                    "Sender is null for report ${messageEvent.reportId} in the process step and it was not null " +
-                        "during receive. This should not be possible."
-                )
-
-            // Create report. At this point in the process this will never return a null report, it has already
-            //  been created as part of recieve.
-            val report = createReport(
-                sender,
-                blobContent.decodeToString(),
-                messageEvent.defaults,
-                errors,
-                warnings
-            )!!
-
-            // TODO: Tech Debt - update this when we are moving to storing internally-formatted report as part of
-            //  initial ingest.
-            // Set the id in the newly generated report to the correct UUID for the report coming out of the process
-            //  queue
-            report.id = messageEvent.reportId
+            val report = csvSerializer.readInternal(
+                task.schemaName,
+                ByteArrayInputStream(blobContent),
+                emptyList(),
+                blobReportId = messageEvent.reportId
+            )
 
             //  send to routeReport
             routeReport(
@@ -552,7 +634,7 @@ class WorkflowEngine(
         val bytes = blob.downloadBlob(header.task.bodyUrl)
         return when (header.task.bodyFormat) {
             // TODO after the CSV internal format is flushed from the system, this code will be safe to remove
-            "CSV" -> {
+            "CSV", "CSV_SINGLE" -> {
                 val result = csvSerializer.readExternal(
                     schema.name,
                     ByteArrayInputStream(bytes),
@@ -598,7 +680,7 @@ class WorkflowEngine(
         txn: DataAccessTransaction? = null
     ): Pair<Organization, Receiver> {
         return if (settings is SettingsFacade) {
-            val (organization, receiver) = settings.findOrganizationAndReceiver(fullName, txn)
+            val (organization, receiver) = (settings as SettingsFacade).findOrganizationAndReceiver(fullName, txn)
                 ?: error("Receiver not found in database: $fullName")
             Pair(organization, receiver)
         } else {
@@ -702,33 +784,39 @@ class WorkflowEngine(
          * These are all potentially heavy weight objects that
          * should only be created once.
          */
-        private val metadata = Metadata.getInstance()
-
-        val databaseAccess: DatabaseAccess by lazy {
+        val databaseAccessSingleton: DatabaseAccess by lazy {
             DatabaseAccess()
         }
 
-        val settings: SettingsProvider by lazy {
+        val settingsProviderSingleton: SettingsProvider by lazy {
+            getSettingsProvider(Metadata.getInstance())
+        }
+
+        private val csvSerializerSingleton: CsvSerializer by lazy {
+            CsvSerializer(Metadata.getInstance())
+        }
+
+        private val hl7SerializerSingleton: Hl7Serializer by lazy {
+            Hl7Serializer(Metadata.getInstance(), settingsProviderSingleton)
+        }
+
+        private val redoxSerializerSingleton: RedoxSerializer by lazy {
+            RedoxSerializer(Metadata.getInstance())
+        }
+
+        /**
+         * Get a settings provider for a given [metadata] instance.
+         * @return a settings provider
+         */
+        private fun getSettingsProvider(metadata: Metadata): SettingsProvider {
             val baseDir = System.getenv("AzureWebJobsScriptRoot") ?: "."
             val settingsEnabled: String? = System.getenv("FEATURE_FLAG_SETTINGS_ENABLED")
-            if (settingsEnabled == null || settingsEnabled.equals("true", ignoreCase = true)) {
-                SettingsFacade(metadata, databaseAccess)
+            return if (settingsEnabled == null || settingsEnabled.equals("true", ignoreCase = true)) {
+                SettingsFacade(metadata, databaseAccessSingleton)
             } else {
                 val ext = "-${Environment.get().toString().lowercase()}"
                 FileSettings("$baseDir/settings", orgExt = ext)
             }
-        }
-
-        private val csvSerializer: CsvSerializer by lazy {
-            CsvSerializer(metadata)
-        }
-
-        private val hl7Serializer: Hl7Serializer by lazy {
-            Hl7Serializer(metadata, settings)
-        }
-
-        private val redoxSerializer: RedoxSerializer by lazy {
-            RedoxSerializer(metadata)
         }
     }
 

@@ -1,4 +1,9 @@
 ## Set basic variables
+variable "terraform_object_id" {
+  type = string
+  description = "Object id of user running TF"
+  default = ""
+}
 variable "tf_secrets_vault" {
   default = "mla-tf-secrets"
 }

@@ -60,6 +60,7 @@ module "key_vault" {
   container_subnet = module.network.container_subnet_ids
   endpoint_subnet = module.network.endpoint_subnet_ids
   cyberark_ip_ingress = ""
+  terraform_object_id = var.terraform_object_id
 }
 
 module "container_registry" {

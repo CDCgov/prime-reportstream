@@ -42,3 +42,6 @@ variable "container_subnet" {}
 variable "endpoint_subnet" {}
 
 variable "cyberark_ip_ingress" {}
+variable "terraform_object_id" {
+  
+}

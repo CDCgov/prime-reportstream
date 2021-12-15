@@ -1,6 +1,6 @@
 import { Dropdown } from "@trussworks/react-uswds";
 import { CSSProperties, useState } from "react";
-import { useHistory } from "react-router";
+import { useHistory } from "react-router-dom";
 import { useResource } from "rest-hooks";
 
 import OrganizationResource from "../../resources/OrganizationResource";

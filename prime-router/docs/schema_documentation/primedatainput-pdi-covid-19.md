@@ -17,7 +17,7 @@
 Code | Display
 ---- | -------
 A|Abnormal (applies to non-numeric results)
->|Above absolute high-off instrument scale
+&#62;|Above absolute high-off instrument scale
 H|Above high normal
 HH|Above upper panic limits
 AC|Anti-complementary substances present
@@ -1379,7 +1379,7 @@ Code | Display
 
 **Documentation**:
 
-If the patient is a citizen of a tribal entity, we can track which entity here
+The tribal citizenship of the patient using the TribalEntityUS (OID 2.16.840.1.113883.5.140) table
 
 ---
 
@@ -1519,6 +1519,22 @@ UNK|Unknown
 **Documentation**:
 
 Does the patient reside in a congregate care setting?
+
+---
+
+**Name**: sender_id
+
+**Type**: TEXT
+
+**PII**: No
+
+**Default Value**: simple_report.default
+
+**Cardinality**: [1..1]
+
+**Documentation**:
+
+ID name of org that is sending this data to ReportStream.  Suitable for provenance or chain of custody tracking.  Not to be confused with sending_application, in which ReportStream acts as the 'sender' to the downstream jurisdiction.
 
 ---
 
