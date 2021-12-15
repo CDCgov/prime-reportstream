@@ -40,29 +40,5 @@ jobs:
       - name: "Check out changes"
         uses: actions/checkout@v2
 
-      - name: Use Node.js ${{ matrix.node-version }} with yarn
-        uses: actions/setup-node@v2
-        with:
-          node-version: '14'
-
-      - run: |
-          yarn install
-
-      - name: Build release for production branch (conditional check)
-        if: github.ref == 'refs/heads/production'
-        run: |
-          yarn build:production
-
-      - name: Build staging main/master branch (conditional check)
-        if: (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main')
-        run: |
-          yarn build:staging
-
-      - name: Build staging fallthrough for PR branch (conditional check)
-        if: (!(github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/production'))
-        working-directory: ./frontend-react
-        run: |
-          yarn lint:prettier
-          yarn lint:eslint
-          yarn test:ci
-          yarn build:staging
+      - name: Build frontend
+        uses: ./.github/actions/build-frontend

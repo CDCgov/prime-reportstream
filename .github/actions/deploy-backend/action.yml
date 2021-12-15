@@ -1,0 +1,126 @@
+# action.yml
+name: 'Push to ACR'
+description: 'Build and push to Azure Container Registry. Deploy to function app.'
+
+runs:
+  using: "composite"
+  steps:
+
+    - name: Set environment variables - dev
+      if: github.ref == 'refs/heads/dev-rheft'
+      shell: bash
+      run: |
+        echo "RESOURCE_GROUP=prime-dev-rheft" >> $GITHUB_ENV
+        echo "TERRAFORM_ENV=rheft" >> $GITHUB_ENV
+        echo "ACR_NAME=rkh5012containerregistry.azurecr.io" >> $GITHUB_ENV
+        echo "IMAGE_REPO=rkh5012" >> $GITHUB_ENV
+        echo "TAG=${{ github.sha }}" >> $GITHUB_ENV
+        echo "FUNCTION_APP=rkh5012-functionapp" >> $GITHUB_ENV
+
+    - name: Set environment variables - test
+      if: github.ref == 'refs/heads/ronheft/test-investigation'
+      shell: bash
+      run: |
+        echo "RESOURCE_GROUP=prime-data-hub-test" >> $GITHUB_ENV
+        echo "TERRAFORM_ENV=test" >> $GITHUB_ENV
+        echo "ACR_NAME=pdhtestcontainerregistry.azurecr.io" >> $GITHUB_ENV
+        echo "IMAGE_REPO=pdhtest" >> $GITHUB_ENV
+        echo "TAG=${{ github.sha }}" >> $GITHUB_ENV
+        echo "FUNCTION_APP=pdhtest-functionapp" >> $GITHUB_ENV
+
+    - name: Set environment variables - staging
+      if: github.ref == 'refs/heads/master'
+      shell: bash
+      run: |
+        echo "RESOURCE_GROUP=prime-data-hub-staging" >> $GITHUB_ENV
+        echo "TERRAFORM_ENV=staging" >> $GITHUB_ENV
+        echo "ACR_NAME=pdhstagingcontainerregistry.azurecr.io" >> $GITHUB_ENV
+        echo "IMAGE_REPO=pdhstaging" >> $GITHUB_ENV
+        echo "TAG=${{ github.sha }}" >> $GITHUB_ENV
+        echo "FUNCTION_APP=pdhstaging-functionapp" >> $GITHUB_ENV
+
+    - name: Set environment variables - production
+      if: github.ref == 'refs/heads/production'
+      shell: bash
+      run: |
+        echo "RESOURCE_GROUP=prime-data-hub-prod" >> $GITHUB_ENV
+        echo "TERRAFORM_ENV=prod" >> $GITHUB_ENV
+        echo "ACR_NAME=pdhprodcontainerregistry.azurecr.io" >> $GITHUB_ENV
+        echo "IMAGE_REPO=pdhprod" >> $GITHUB_ENV
+        echo "TAG=${{ github.sha }}" >> $GITHUB_ENV
+        echo "FUNCTION_APP=pdhprod-functionapp" >> $GITHUB_ENV
+
+    - uses: actions/download-artifact@v2
+      with:
+        name: prime-router-build-${{ github.run_id }}
+        path: prime-router
+
+    - name: Unpack router files
+      working-directory: prime-router
+      run: tar -zxvf prime-router-build.tar.gz
+      shell: bash
+
+    - name: ACR login
+      working-directory: prime-router
+      run: az acr login --name ${{ env.ACR_NAME }}
+      shell: bash
+
+    - name: Build Docker image
+      working-directory: prime-router
+      run: |
+        docker build . \
+          --file Dockerfile \
+          --tag ${{ env.ACR_NAME }}/${{ env.IMAGE_REPO }}:latest \
+          --tag ${{ env.ACR_NAME }}/${{ env.IMAGE_REPO }}:${{ env.TAG }}
+      shell: bash
+
+    - name: Push Docker image
+      run: docker push ${{ env.ACR_NAME }}/${{ env.IMAGE_REPO }} --all-tags
+      shell: bash
+
+    - name: Whitelist GitHub action runner in function app slot
+      id: ip-whitelist-create
+      run: |
+        RUNNER_IP="$(dig +short myip.opendns.com @resolver1.opendns.com)"
+        echo "::add-mask::$RUNNER_IP"
+        az functionapp config access-restriction add \
+          -g ${{ env.RESOURCE_GROUP }} \
+          -n ${{ env.FUNCTION_APP }} \
+          --slot candidate \
+          --rule-name GitHubActionIPV4 \
+          --description "Whitelist GitHub action runner" \
+          --action Allow \
+          --ip-address $RUNNER_IP \
+          --priority 750 \
+          > /dev/null 2>&1
+      shell: bash
+
+    - uses: Azure/functions-container-action@v1
+      id: deploy-candidate
+      with:
+        app-name: ${{ env.FUNCTION_APP }}
+        image: ${{ env.ACR_NAME }}/${{ env.IMAGE_REPO }}:${{ env.TAG }}
+        slot-name: candidate
+
+    - name: Promote candidate slot
+      id: promote-candidate
+      working-directory: operations
+      run: |
+        make \
+          TF_ENV=${{ env.TERRAFORM_ENV }} \
+          AZ_RESOURCE_PREFIX=${{ env.IMAGE_REPO }} \
+          AZ_RESOURCE_GROUP=${{ env.RESOURCE_GROUP }} \
+          zdd-promote-slot
+      shell: bash
+
+    - name: Remove GitHub action IP whitelist
+      if: ${{ always() }} # This should happen even on a failure
+      id: ip-whitelist-destroy
+      run: |
+        az functionapp config access-restriction remove \
+        -g ${{ env.RESOURCE_GROUP }} \
+        -n ${{ env.FUNCTION_APP }} \
+        --slot candidate \
+        --rule-name GitHubActionIPV4 \
+        > /dev/null 2>&1
+      shell: bash
