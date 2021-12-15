@@ -664,11 +664,15 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
      * Get the number of action records with action_params = [queueMessage]
      */
     fun getActionCountForReport(queueMessage: String): Int {
-        val ctx = create
-        return ctx
+        val oneDayAgo = OffsetDateTime.now().minusDays(1)
+        return create
             .select(inline(1))
             .from(ACTION)
-            .where(
+            // cheap way to limit the number of actions that need to be looked at - probably don't even need to look
+            //  this far back but this should be called rarely if ever in any case since it is only when a 'process'
+            //  fails and needs to be retried
+            .where(ACTION.CREATED_AT.greaterOrEqual(oneDayAgo))
+            .and(
                 ACTION.ACTION_NAME.eq(TaskAction.process)
                     .or(ACTION.ACTION_NAME.eq(TaskAction.process_warning))
                     .or(ACTION.ACTION_NAME.eq(TaskAction.process_error))
@@ -676,8 +680,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             .and(ACTION.ACTION_PARAMS.eq(queueMessage))
             .count()
     }
-
-
+    
     /**
      * Saves the connection check result to the db
      */
