@@ -4,7 +4,6 @@ description: Schema for CSV Upload Tool
 topic: covid-19
 trackingElement: message_id
 basedOn: covid-19
-extends: covid-19
 
 elements:
   - name: sender_id
