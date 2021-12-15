@@ -1,10 +1,12 @@
 package gov.cdc.prime.router.metadata
 
 import assertk.assertThat
+import assertk.assertions.contains
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
-import assertk.assertions.isGreaterThan
+import assertk.assertions.isNotEmpty
+import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import gov.cdc.prime.router.azure.DatabaseLookupTableAccess
@@ -14,6 +16,7 @@ import io.mockk.mockk
 import org.jooq.JSONB
 import org.jooq.exception.DataAccessException
 import java.io.ByteArrayInputStream
+import java.lang.IllegalStateException
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
@@ -25,6 +28,21 @@ class LookupTableTests {
             3,4
             5,6
     """.trimIndent()
+
+    private val tableData2 = listOf(
+        listOf("a", "b", "c"),
+        listOf("valueA1", "valueB1", "valueC1"),
+        listOf("valueA2", "valueB2", "valueC2"),
+        listOf("valueA3", "valueB3", "valueC3"),
+        listOf("valueA4", "repeatedIndex", "valueC4"),
+        listOf("valueA5", "repeatedIndex", "valueC5"),
+        listOf("repeatedValue", "repeatedIndex2", "valueC5"),
+        listOf("repeatedValue", "repeatedIndex2", "valueC5"),
+        listOf("repeatedValue2", "repeatedIndex3", "valueC5"),
+        listOf("repeatedValue2", "repeatedIndex3", "valueC5"),
+        listOf("repeatedValue2", "repeatedIndex3", "valueC5"),
+        listOf("repeatedValue3", "repeatedIndex3", "valueC5")
+    )
 
     init {
         table = LookupTable.read(inputStream = ByteArrayInputStream(csv.toByteArray()))
@@ -198,96 +216,81 @@ class LookupTableTests {
     }
 
     @Test
-    fun `lookup values test`() {
-        val tableData = listOf(
-            listOf("a", "b", "c"),
-            listOf("valueA1", "valueB1", "valueC1"),
-            listOf("valueA2", "valueB2", "valueC2"),
-            listOf("valueA3", "valueB3", "valueC3"),
-            listOf("valueA4", "repeatedIndex", "valueC4"),
-            listOf("valueA5", "repeatedIndex", "valueC5"),
-            listOf("repeatedValue", "repeatedIndex2", "valueC5"),
-            listOf("repeatedValue", "repeatedIndex2", "valueC5"),
-            listOf("repeatedValue2", "repeatedIndex3", "valueC5"),
-            listOf("repeatedValue2", "repeatedIndex3", "valueC5"),
-            listOf("repeatedValue2", "repeatedIndex3", "valueC5"),
-            listOf("repeatedValue3", "repeatedIndex3", "valueC5")
-        )
-        val table = LookupTable(table = tableData)
+    fun `lookup exact match test`() {
+        val table = LookupTable(table = tableData2)
 
         // Simple search
-        var result = table.lookupValues("a", mapOf("b" to "valueB2"))
+        var result = table.lookupValues(tableData2[0][0], mapOf(tableData2[0][1] to tableData2[3][1]))
         assertThat(result.size).isEqualTo(1)
-        assertThat(result[0]).isEqualTo("valueA2")
+        assertThat(result[0]).isEqualTo(tableData2[3][0])
 
         // This search will have two matches
-        result = table.lookupValues("a", mapOf("b" to "repeatedIndex"))
+        result = table.lookupValues(tableData2[0][0], mapOf(tableData2[0][1] to "repeatedIndex"))
         assertThat(result.size).isEqualTo(2)
 
         // This search has multiple matches, but they are all the same value
-        result = table.lookupValues("a", mapOf("b" to "repeatedIndex2"))
+        result = table.lookupValues(tableData2[0][0], mapOf(tableData2[0][1] to "repeatedIndex2"))
         assertThat(result.size).isEqualTo(1)
         assertThat(result[0]).isEqualTo("repeatedValue")
 
         // This search has multiple matches, but one value is repeated
-        result = table.lookupValues("a", mapOf("b" to "repeatedIndex3"))
+        result = table.lookupValues(tableData2[0][0], mapOf(tableData2[0][1] to "repeatedIndex3"))
         assertThat(result.size).isEqualTo(2)
 
         // Nothing found
-        result = table.lookupValues("a", mapOf("b" to "dummy"))
+        result = table.lookupValues(tableData2[0][0], mapOf(tableData2[0][1] to "dummy"))
         assertThat(result.size).isEqualTo(0)
 
-        // Error tests
-        assertThat(table.lookupValues("a", mapOf("b" to "dummy"))).isEmpty()
-        assertThat(table.lookupValues("dummmy", mapOf("b" to "repeatedIndex3"))).isEmpty()
-        assertThat(table.lookupValues("a", mapOf("dummy" to "repeatedIndex3"))).isEmpty()
+        // Lookup single value
+        assertThat(table.lookupValue(tableData2[0][0], mapOf(tableData2[0][1] to tableData2[3][1]))).isNotNull()
+        assertThat(table.lookupValue(tableData2[0][0], mapOf(tableData2[0][1] to "repeatedIndex"))).isNull()
 
-        val table2 = LookupTable.read("./metadata/tables/LIVD-SARS-CoV-2-2021-09-29.csv")
-        assertThat(table2.rowCount).isGreaterThan(0)
+        // Error tests
+        assertThat(table.lookupValues(tableData2[0][0], mapOf(tableData2[0][1] to "dummy"))).isEmpty()
+        assertThat(table.lookupValues("dummy", mapOf(tableData2[0][1] to "repeatedIndex3"))).isEmpty()
+        assertThat(table.lookupValues(tableData2[0][0], mapOf("dummy" to "repeatedIndex3"))).isEmpty()
     }
 
     @Test
-    fun `lookup prefix values test`() {
-        val tableData = listOf(
-            listOf("a", "b", "c"),
-            listOf("valueA1", "valueB1", "valueC1"),
-            listOf("valueA2", "valueB2", "valueC2"),
-            listOf("valueA3", "valueB3", "valueC3"),
-            listOf("valueA4", "repeatedIndex", "valueC4"),
-            listOf("valueA5", "repeatedIndex", "valueC5"),
-            listOf("repeatedValue", "repeatedIndex2", "valueC5"),
-            listOf("repeatedValue", "repeatedIndex2", "valueC5"),
-            listOf("repeatedValue2", "repeatedIndex3", "valueC5"),
-            listOf("repeatedValue2", "repeatedIndex3", "valueC5"),
-            listOf("repeatedValue2", "repeatedIndex3", "valueC5"),
-            listOf("repeatedValue3", "repeatedIndex3", "valueC5")
-        )
-        val table = LookupTable(table = tableData)
+    fun `lookup prefix match test`() {
+        val table = LookupTable(table = tableData2)
 
         // Simple search
-        var result = table.lookupPrefixValues("a", mapOf("b" to "valueB"))
+        var result = table.lookupPrefixValues(tableData2[0][0], mapOf(tableData2[0][1] to "valueB"))
         assertThat(result.size).isEqualTo(3)
-        assertThat(result.contains("valueA1")).isTrue()
-        assertThat(result.contains("valueA2")).isTrue()
-        assertThat(result.contains("valueA3")).isTrue()
+        assertThat(result.contains(tableData2[1][0])).isTrue()
+        assertThat(result.contains(tableData2[2][0])).isTrue()
+        assertThat(result.contains(tableData2[3][0])).isTrue()
 
         // Ignore case
-        result = table.lookupPrefixValues("a", mapOf("b" to "VALUEB"), ignoreCase = true)
+        result = table.lookupPrefixValues(tableData2[0][0], mapOf(tableData2[0][1] to "VALUEB"), ignoreCase = true)
         assertThat(result.size).isEqualTo(3)
-        assertThat(result.contains("valueA1")).isTrue()
-        assertThat(result.contains("valueA2")).isTrue()
-        assertThat(result.contains("valueA3")).isTrue()
+        assertThat(result.contains(tableData2[1][0])).isTrue()
+        assertThat(result.contains(tableData2[2][0])).isTrue()
+        assertThat(result.contains(tableData2[3][0])).isTrue()
 
         // Multiple returns
-        result = table.lookupPrefixValues("a", mapOf("b" to "repeatedIndex"))
-        assertThat(result.size).isEqualTo(5)
-        result = table.lookupPrefixValues("a", mapOf("b" to "repeatedIndex2"))
+        assertThat(table.lookupPrefixValues(tableData2[0][0], mapOf(tableData2[0][1] to "repeatedIndex")).size)
+            .isEqualTo(5)
+        assertThat(table.lookupPrefixValues(tableData2[0][0], mapOf(tableData2[0][1] to "repeatedIndex2")).size)
+            .isEqualTo(1)
+
+        // Lookup one value
+        assertThat(table.lookupPrefixValue(tableData2[0][0], mapOf(tableData2[0][1] to "repeatedIndex"))).isNull()
+        assertThat(table.lookupPrefixValue(tableData2[0][0], mapOf(tableData2[0][1] to "repeatedIndex2"))).isNotNull()
+
+        // With exact matches
+        result = table.lookupPrefixValues(
+            tableData2[0][0], mapOf(tableData2[0][1] to "value"),
+            mapOf(tableData2[0][2] to tableData2[3][2])
+        )
         assertThat(result.size).isEqualTo(1)
+        assertThat(result.contains(tableData2[3][0])).isTrue()
 
         // Error cases
-        assertThat(table.lookupPrefixValues("a", mapOf("b" to "dummy"))).isEmpty()
-        assertThat(table.lookupPrefixValues("dummmy", mapOf("b" to "repeatedIndex3"))).isEmpty()
-        assertThat(table.lookupPrefixValues("a", mapOf("dummy" to "repeatedIndex3"))).isEmpty()
+        assertThat(table.lookupPrefixValues(tableData2[0][0], mapOf(tableData2[0][1] to "dummy"))).isEmpty()
+        assertThat(table.lookupPrefixValues("dummy", mapOf(tableData2[0][1] to "repeatedIndex3"))).isEmpty()
+        assertThat(table.lookupPrefixValues(tableData2[0][0], mapOf("dummy" to "repeatedIndex3"))).isEmpty()
     }
 
     @org.junit.jupiter.api.Test
@@ -321,5 +324,118 @@ class LookupTableTests {
         assertThat(table.hasColumn("colA")).isTrue()
         assertThat(table.hasColumn("colB")).isTrue()
         assertThat(table.lookupValue("colB", mapOf("colA" to "value3"))).isEqualTo("value4")
+    }
+
+    @Test
+    fun `generate selector test`() {
+        val table = LookupTable(table = tableData2)
+
+        // One selector
+        var selector = table.getSearchSelector(mapOf(tableData2[0][0] to tableData2[1][0]))
+        assertThat(selector).isNotNull()
+        assertThat(selector!!.isEmpty).isFalse()
+        assertThat(selector.size()).isEqualTo(1) // Note this is the number of hits
+
+        // Adding selectors
+        selector = table.getSearchSelector(
+            mapOf(
+                tableData2[0][1] to tableData2[1][1], tableData2[0][2] to tableData2[1][2]
+            ),
+            selector = selector
+        )
+        assertThat(selector).isNotNull()
+        assertThat(selector!!.isEmpty).isFalse()
+        assertThat(selector.size()).isEqualTo(1) // Note this is the number of hits
+
+        // Another add selectors, but this time no hits
+        selector = table.getSearchSelector(mapOf(tableData2[0][0] to tableData2[1][0]))
+        assertThat(selector).isNotNull()
+        assertThat(selector!!.isEmpty).isFalse()
+        selector = table.getSearchSelector(mapOf(tableData2[0][1] to tableData2[2][1]), selector = selector)
+        assertThat(selector).isNotNull()
+        assertThat(selector!!.isEmpty).isTrue()
+
+        // Don't ignore case
+        selector = table.getSearchSelector(mapOf(tableData2[0][0] to tableData2[1][0].uppercase()), ignoreCase = false)
+        assertThat(selector).isNotNull()
+        assertThat(selector!!.isEmpty).isTrue()
+
+        // Prefix selector only
+        selector = table.getSearchSelector(prefixMatches = mapOf(tableData2[0][0] to "value"))
+        assertThat(selector!!.isEmpty).isFalse()
+        assertThat(selector.size()).isEqualTo(5) // Note this is the number of hits
+
+        // And multiple prefix selector only
+        selector = table.getSearchSelector(
+            prefixMatches = mapOf(tableData2[0][1] to "repeatedIndex"),
+            selector = selector
+        )
+        assertThat(selector!!.isEmpty).isFalse()
+        assertThat(selector.size()).isEqualTo(2) // Note this is the number of hits
+
+        selector = table.getSearchSelector(
+            prefixMatches = mapOf(
+                tableData2[0][0] to "value",
+                tableData2[0][1] to "repeatedIndex"
+            )
+        )
+        assertThat(selector!!.isEmpty).isFalse()
+        assertThat(selector.size()).isEqualTo(2) // Note this is the number of hits
+
+        // Don't ignore case
+        selector = table.getSearchSelector(
+            prefixMatches = mapOf(tableData2[0][0] to "VALUE"),
+            ignoreCase = false
+        )
+        assertThat(selector).isNotNull()
+        assertThat(selector!!.isEmpty).isTrue()
+
+        // Nothing passed
+        assertFailsWith<IllegalStateException>(
+            block = {
+                table.getSearchSelector()
+            }
+        )
+    }
+
+    @Test
+    fun `get data rows test`() {
+        val dataRows = LookupTable(table = tableData2).dataRows
+        assertThat(dataRows).isNotEmpty()
+        assertThat(dataRows.size).isEqualTo(tableData2.size - 1)
+        assertThat(dataRows.last()).isEqualTo(tableData2.last())
+
+        assertThat(LookupTable().dataRows).isEmpty()
+    }
+
+    @Test
+    fun `get distinct values test`() {
+        val table = LookupTable(table = tableData2)
+        val values = table.getDistinctValuesInColumn(tableData2[0][0])
+        assertThat(values).isNotEmpty()
+        assertThat(values.size).isEqualTo(8)
+        tableData2.forEachIndexed { index, list ->
+            if (index > 0) assertThat(values).contains(list[0]) // Skip the header
+        }
+
+        assertThat(table.getDistinctValuesInColumn("dummy")).isEmpty()
+    }
+
+    @Test
+    fun `filter test`() {
+        val table = LookupTable(table = tableData2)
+        var filteredTable = table.filter(mapOf(tableData2[0][0] to tableData2[1][0]))
+        assertThat(filteredTable).isNotNull()
+        assertThat(filteredTable.rowCount).isEqualTo(1)
+
+        filteredTable = table.filter(mapOf(tableData2[0][1] to tableData2[4][1]))
+        assertThat(filteredTable).isNotNull()
+        assertThat(filteredTable.rowCount).isEqualTo(2)
+
+        assertFailsWith<IllegalStateException>(
+            block = {
+                table.filter(mapOf("dummy" to "dummy"))
+            }
+        )
     }
 }

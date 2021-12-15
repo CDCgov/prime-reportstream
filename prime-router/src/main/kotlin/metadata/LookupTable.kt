@@ -56,7 +56,7 @@ open class LookupTable : Logging {
      */
     constructor(
         name: String = "",
-        table: List<List<String>> = emptyList(),
+        table: List<List<String>>,
         dbAccess: DatabaseLookupTableAccess? = null
     ) {
         this.name = name
@@ -143,33 +143,14 @@ open class LookupTable : Logging {
     }
 
     /**
-     * Generates an exact match selector based on the [exactMatches] columns and value pairs.  The new selector
-     * is added to an exiting selector if [selector] is provided.  The matches are case sensitive if [ignoreCase]
-     * is set to false.
+     * Generates search selectors based on the [exactMatches] and/or [prefixMatches] columns and value pairs.
+     * The new selector is added to an exiting selector if [selector] is provided.  The matches are
+     * case-sensitive if [ignoreCase] is set to false.
      * @return the selector
      */
-    private fun getExatchMatchSelector(
-        exactMatches: Map<String, String>,
-        ignoreCase: Boolean = true,
-        selector: Selection? = null
-    ): Selection? {
-        var newSelector = selector
-        exactMatches.forEach { (colName, searchValue) ->
-            val col = table.stringColumn(colName)
-            val stringSelector = if (ignoreCase) col.equalsIgnoreCase(searchValue) else col.isEqualTo(searchValue)
-            newSelector = if (selector == null) stringSelector else selector.and(stringSelector)
-        }
-        return newSelector
-    }
-
-    /**
-     * Generates a start with selector based on the [prefixMatches] columns and value pairs.  The new selector
-     * is added to an exiting selector if [selector] is provided.  The matches are case sensitive if [ignoreCase]
-     * is set to false.
-     * @return the selector
-     */
-    private fun getStartsWithSelector(
-        prefixMatches: Map<String, String>,
+    internal fun getSearchSelector(
+        exactMatches: Map<String, String> = emptyMap(),
+        prefixMatches: Map<String, String> = emptyMap(),
         ignoreCase: Boolean = true,
         selector: Selection? = null
     ): Selection? {
@@ -179,12 +160,20 @@ open class LookupTable : Logging {
             }
         }
 
+        check(exactMatches.isNotEmpty() || prefixMatches.isNotEmpty())
         var newSelector = selector
+
+        exactMatches.forEach { (colName, searchValue) ->
+            val col = table.stringColumn(colName)
+            val stringSelector = if (ignoreCase) col.equalsIgnoreCase(searchValue) else col.isEqualTo(searchValue)
+            newSelector = if (newSelector == null) stringSelector else newSelector!!.and(stringSelector)
+        }
+
         prefixMatches.forEach { (colName, searchValue) ->
             val col = table.stringColumn(colName)
             val stringSelector = if (ignoreCase) col.eval(StartsWithIgnoreCasePredicate(), searchValue)
             else col.startsWith(searchValue)
-            newSelector = if (selector == null) stringSelector else selector.and(stringSelector)
+            newSelector = if (newSelector == null) stringSelector else newSelector!!.and(stringSelector)
         }
         return newSelector
     }
@@ -247,10 +236,9 @@ open class LookupTable : Logging {
     ): List<String> {
         check(prefixMatches.isNotEmpty() || exactMatches.isNotEmpty())
         return try {
-            var selector = getStartsWithSelector(prefixMatches, ignoreCase)
-            selector = getExatchMatchSelector(exactMatches, ignoreCase, selector)
             @Suppress("UNCHECKED_CAST") // All columns are string columns
-            table.where(selector).column(lookupColumn).unique().asList() as List<String>
+            table.where(getSearchSelector(exactMatches, prefixMatches, ignoreCase))
+                .column(lookupColumn).unique().asList() as List<String>
         } catch (e: IllegalStateException) {
             emptyList()
         }
@@ -282,7 +270,7 @@ open class LookupTable : Logging {
     ): LookupTable {
         if (exactMatches.isEmpty()) return this
         try {
-            return LookupTable(name, table.where(getExatchMatchSelector(exactMatches, ignoreCase)))
+            return LookupTable(name, table.where(getSearchSelector(exactMatches, ignoreCase = ignoreCase)))
         } catch (e: IllegalStateException) {
             error("One or more columns specified in the matches was not found.")
         }
@@ -314,7 +302,7 @@ open class LookupTable : Logging {
     ): String? {
         fun filterRows2(): Table {
             return if (filterColumn != null && filterValue != null) {
-                table.where(getExatchMatchSelector(mapOf(filterColumn to filterValue)))
+                table.where(getSearchSelector(mapOf(filterColumn to filterValue)))
             } else table
         }
 
