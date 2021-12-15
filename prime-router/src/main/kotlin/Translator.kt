@@ -183,6 +183,17 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
             }
         }
 
+        // Warn if this receiver/org does not have a jurisdictionalFilter that overrides the default 'allowNone()'.
+        // This may be intentional, or may be an oversight.
+        if (filterType == ReportStreamFilterType.JURISDICTIONAL_FILTER &&
+            filterToApply.contains(AllowNone().name)
+        ) {
+            logger.warn(
+                "Possible error: jurisdictionalFilter ${AllowNone().name} is eliminating ALL data " +
+                    "for receiver ${receiver.fullName} in report ${input.id}, schema ${input.schema.name}"
+            )
+        }
+
         // This weird obj is of type List<Pair<ReportStreamFilterDef, List<String>>>
         val filterAndArgs = filterToApply.map { filterSpec ->
             val (fnName, fnArgs) = ReportStreamFilterDefinition.parseReportStreamFilter(filterSpec)

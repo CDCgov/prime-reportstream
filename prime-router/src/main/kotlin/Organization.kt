@@ -11,7 +11,9 @@ open class Organization(
     val countyName: String?,
     val filters: List<ReportStreamFilters>? = emptyList(), // one ReportStreamFilters obj per topic. 
 ) {
-    constructor(org: Organization) : this(org.name, org.description, org.jurisdiction, org.stateCode, org.countyName)
+    constructor(org: Organization) : this(
+        org.name, org.description, org.jurisdiction, org.stateCode, org.countyName, org.filters
+    )
 
     enum class Jurisdiction {
         FEDERAL,
