@@ -59,6 +59,22 @@ export const ReportStreamHeader = () => {
                 </NavLink>
             );
         }
+
+        if (permissionCheck(PERMISSIONS.PRIME_ADMIN, authState)) {
+            itemsMenu.splice(
+                1,
+                0,
+                <NavLink
+                    to="/submissions"
+                    key="submissions"
+                    data-attribute="hidden"
+                    hidden={true}
+                    className="usa-nav__link"
+                >
+                    <span>Submissions</span>
+                </NavLink>
+            );
+        }
     }
 
     return (
