@@ -511,10 +511,10 @@ class WorkflowEngine(
         // if there are already four process_warning records in the database for this reportId, this is the last try
         val actionStatus = if (numAttempts >= 4) TaskAction.process_error else TaskAction.process_warning
         // if count is < 4, add a process_warning status to the task
-        // if count is 5, add a process_error status to the task
+        // if count is >= 4, add a process_error status to the task
         actionHistory.setActionType(actionStatus)
         actionHistory.trackActionResult(
-            "Failed to process $numAttempts times, setting status to $actionStatus."
+            "Failed to process ${numAttempts+1} times, setting status to $actionStatus."
         )
 
         // save action record to db
