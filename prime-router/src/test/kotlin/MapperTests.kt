@@ -674,7 +674,7 @@ class MapperTests {
                 )
             )
         )
-        val metadata = Metadata(schema = schema, table = table, tableName = "test")
+        val metadata = Metadata(schema = schema, table = table, tableName = "sender_valuesets")
         val indexElement = Element("sender_id")
         val lookupElement = metadata.findSchema("test")?.findElement("pregnant") ?: fail("")
         val mapper = LookupSenderValuesetsMapper()
