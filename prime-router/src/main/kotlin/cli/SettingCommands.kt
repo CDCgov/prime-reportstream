@@ -653,7 +653,7 @@ class DiffReceiverSetting : DiffSettingCommand(
 /**
  * Update multiple settings
  */
-class MultipleSettings : CliktCommand (
+class MultipleSettings : CliktCommand(
     name = "multiple-settings",
     help = "Fetch and update multiple settings"
 ) {
