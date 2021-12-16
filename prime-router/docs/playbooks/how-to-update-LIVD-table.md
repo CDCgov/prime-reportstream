@@ -25,7 +25,11 @@ replacing the old LIVD table name with the new one (in all entries in the covid-
 7. Make sure these tests pass, if not make appropriate changes to the test cases that fail
      - ```gradlew test```
      - ```gradlew testIntegration```
-     - ```gradlew testEnd2End```
+     - ```gradlew testSmoke```
 8. Lastly, change the values in the supplemental table, for any model name, if it has change in the SARs table
+    - To do this, you need to check the model name in LIVD-Supplemental-20201-06-07.csv file
+    - Make sure that the model name is present in the new LIVD table.
+    - If the model name has change, record the new changes, in the Supplemental table; make sure the rest of the fields match
+    - Run tests in step #7
 ### Note: 
-Model names in the SARs table don't change as often, making step 8 just a checking routine.
+Model names in the SARs table don't change as often, making step 8 just a checking routine
