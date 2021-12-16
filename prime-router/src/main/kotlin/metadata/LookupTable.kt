@@ -206,7 +206,7 @@ open class LookupTable : Logging {
          * Lookup in column name [colName] for case-sensitive values that exactly match [value].
          * @return a reference to the current filter builder
          */
-        fun equals(colName: String, value: String) = apply {
+        fun isEqualTo(colName: String, value: String) = apply {
             addSelector(getColumn(colName)?.isEqualTo(value))
         }
 
@@ -240,7 +240,7 @@ open class LookupTable : Logging {
          * Lookup for values that equals the provided column name and value pair [matches] for case-sensitive matches.
          * @return a reference to the current filter builder
          */
-        fun equals(matches: Map<String, String>) = apply {
+        fun isEqualTo(matches: Map<String, String>) = apply {
             matches.forEach { (colName, value) -> addSelector(getColumn(colName)?.isEqualTo(value)) }
         }
 
@@ -295,49 +295,6 @@ open class LookupTable : Logging {
     }
 
     /**
-     * Generates search selectors based on the [exactMatches] and/or [prefixMatches] columns and value pairs.
-     * The matches are case-sensitive if [ignoreCase] is set to false.
-     * @return the selector
-     */
-    internal fun getSearchSelector(
-        exactMatches: Map<String, String> = emptyMap(),
-        prefixMatches: Map<String, String> = emptyMap(),
-        ignoreCase: Boolean = true
-    ): Selection {
-        /**
-         * Predicate to do starts with search while ignoring case.
-         */
-        class StartsWithIgnoreCasePredicate : BiPredicate<String, String> {
-            override fun test(t: String, u: String): Boolean {
-                return t.startsWith(u, true)
-            }
-        }
-
-        /**
-         * Generate the selector based on the provided [matches] while taking into account [isPrefixMatch] and adding
-         * to a provided [selector].
-         * @return a selector or null if no selector
-         */
-        fun generateSelector(matches: Map<String, String>, isPrefixMatch: Boolean, selector: Selection?): Selection? {
-            var complexSelector: Selection? = selector
-            matches.forEach { (colName, searchValue) ->
-                val col = table.stringColumn(colName)
-                val newSelector = when {
-                    isPrefixMatch && ignoreCase -> col.eval(StartsWithIgnoreCasePredicate(), searchValue)
-                    isPrefixMatch -> col.startsWith(searchValue)
-                    ignoreCase -> col.equalsIgnoreCase(searchValue)
-                    else -> col.isEqualTo(searchValue)
-                }
-                complexSelector = if (complexSelector == null) newSelector else complexSelector!!.and(newSelector)
-            }
-            return complexSelector
-        }
-
-        val selector = generateSelector(exactMatches, false, null)
-        return generateSelector(prefixMatches, true, selector) ?: error("No table selector was generated")
-    }
-
-    /**
      * Get the best match for the passed in [searchValue] in the table's [searchColumn]. If a match is found,
      * return the value in the [lookupColumn]. Optionally, filter the table before matching using [filterColumn] and
      * [filterValue]. Similar to lookupValue, but with a different heuristic match algorithm.
@@ -363,7 +320,7 @@ open class LookupTable : Logging {
     ): String? {
         fun filterRows(): Table {
             return if (filterColumn != null && filterValue != null) {
-                table.where(getSearchSelector(mapOf(filterColumn to filterValue)))
+                FilterBuilder().equalsIgnoreCase(filterColumn, filterValue).filter().table
             } else table
         }
 

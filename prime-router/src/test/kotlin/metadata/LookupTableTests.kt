@@ -150,57 +150,69 @@ class LookupTableTests {
         val table = LookupTable(table = tableData2)
 
         // Simple search
-        var result = table.FilterBuilder().equals(tableData2[0][1], tableData2[3][1]).findAllUnique(tableData2[0][0])
+        var result = table.FilterBuilder().isEqualTo(tableData2[0][1], tableData2[3][1]).findAllUnique(tableData2[0][0])
         assertThat(result.size).isEqualTo(1)
         assertThat(result[0]).isEqualTo(tableData2[3][0])
 
         // This search will have two matches
-        result = table.FilterBuilder().equals(tableData2[0][1], "repeatedIndex").findAllUnique(tableData2[0][0])
+        result = table.FilterBuilder().isEqualTo(tableData2[0][1], "repeatedIndex").findAllUnique(tableData2[0][0])
         assertThat(result.size).isEqualTo(2)
 
         // This search has multiple matches, but they are all the same value
-        result = table.FilterBuilder().equals(tableData2[0][1], "repeatedIndex2").findAllUnique(tableData2[0][0])
+        result = table.FilterBuilder().isEqualTo(tableData2[0][1], "repeatedIndex2").findAllUnique(tableData2[0][0])
         assertThat(result.size).isEqualTo(1)
         assertThat(result[0]).isEqualTo("repeatedValue")
 
         // This search has multiple matches, but one value is repeated
-        result = table.FilterBuilder().equals(tableData2[0][1], "repeatedIndex3").findAllUnique(tableData2[0][0])
+        result = table.FilterBuilder().isEqualTo(tableData2[0][1], "repeatedIndex3").findAllUnique(tableData2[0][0])
         assertThat(result.size).isEqualTo(2)
 
         // Nothing found
-        result = table.FilterBuilder().equals(tableData2[0][1], "dummy").findAllUnique(tableData2[0][0])
+        result = table.FilterBuilder().isEqualTo(tableData2[0][1], "dummy").findAllUnique(tableData2[0][0])
         assertThat(result.size).isEqualTo(0)
 
+        // Ignore case
+        result = table.FilterBuilder().equalsIgnoreCase(tableData2[0][1], "REPEATEDINDEX")
+            .findAllUnique(tableData2[0][0])
+        assertThat(result.size).isEqualTo(2)
+
         // Lookup single value
-        assertThat(table.FilterBuilder().equals(tableData2[0][1], tableData2[3][1]).findSingleResult(tableData2[0][0]))
-            .isNotNull()
         assertThat(
-            table.FilterBuilder().equals(tableData2[0][1], "repeatedIndex")
+            table.FilterBuilder().isEqualTo(tableData2[0][1], tableData2[3][1])
+                .findSingleResult(tableData2[0][0])
+        ).isNotNull()
+        assertThat(
+            table.FilterBuilder().isEqualTo(tableData2[0][1], "repeatedIndex")
                 .findSingleResult(tableData2[0][0])
         ).isNull()
 
         // Multiple matches
         result = table.FilterBuilder()
-            .equals(mapOf(tableData2[0][0] to tableData2[1][0], tableData2[0][1] to tableData2[1][1]))
+            .isEqualTo(mapOf(tableData2[0][0] to tableData2[1][0], tableData2[0][1] to tableData2[1][1]))
             .findAllUnique(tableData2[0][0])
         assertThat(result.size).isEqualTo(1)
 
         result = table.FilterBuilder()
-            .equals(mapOf(tableData2[0][0] to tableData2[1][0], tableData2[0][1] to tableData2[2][1]))
+            .isEqualTo(mapOf(tableData2[0][0] to tableData2[1][0], tableData2[0][1] to tableData2[2][1]))
             .findAllUnique(tableData2[0][0])
         assertThat(result.size).isEqualTo(0)
 
         // Error tests
         assertThat(
-            table.FilterBuilder().equals(tableData2[0][1], "dummy")
+            table.FilterBuilder().isEqualTo(tableData2[0][1], "dummy")
                 .findAllUnique(tableData2[0][0])
         ).isEmpty()
+
+        val builder = table.FilterBuilder().isEqualTo("dummy", "dummy")
+        assertThat(builder.findAllUnique(tableData2[0][0])).isEmpty()
+        assertThat(builder.hasError).isTrue()
+
         assertThat(
-            table.FilterBuilder().equals(tableData2[0][1], "repeatedIndex3")
+            table.FilterBuilder().isEqualTo(tableData2[0][1], "repeatedIndex3")
                 .findAllUnique("dummy")
         ).isEmpty()
         assertThat(
-            table.FilterBuilder().equals("dummy", "repeatedIndex3")
+            table.FilterBuilder().isEqualTo("dummy", "repeatedIndex3")
                 .findAllUnique(tableData2[0][0])
         ).isEmpty()
     }
@@ -246,7 +258,7 @@ class LookupTableTests {
 
         // With exact matches
         result = table.FilterBuilder().startsWith(tableData2[0][1], "value")
-            .equals(tableData2[0][2], tableData2[3][2]).findAllUnique(tableData2[0][0])
+            .isEqualTo(tableData2[0][2], tableData2[3][2]).findAllUnique(tableData2[0][0])
         assertThat(result.size).isEqualTo(1)
         assertThat(result.contains(tableData2[3][0])).isTrue()
 
@@ -257,7 +269,7 @@ class LookupTableTests {
         assertThat(result.size).isEqualTo(3)
 
         result = table.FilterBuilder()
-            .startsWith(mapOf(tableData2[0][0] to "valueA", tableData2[0][1] to "repeatedIndex2"))
+            .startsWithIgnoreCase(mapOf(tableData2[0][0] to "VALUEA", tableData2[0][1] to "repeatedIndex2"))
             .findAllUnique(tableData2[0][0])
         assertThat(result.size).isEqualTo(0)
 
@@ -306,7 +318,7 @@ class LookupTableTests {
         assertThat(table.name).isEqualTo(tableName)
         assertThat(table.hasColumn("colA")).isTrue()
         assertThat(table.hasColumn("colB")).isTrue()
-        assertThat(table.FilterBuilder().equals("colA", "value3").findSingleResult("colB"))
+        assertThat(table.FilterBuilder().isEqualTo("colA", "value3").findSingleResult("colB"))
             .isEqualTo("value4")
     }
 
@@ -336,14 +348,14 @@ class LookupTableTests {
     @Test
     fun `filter test`() {
         val table = LookupTable(table = tableData2)
-        var filteredTable = table.FilterBuilder().equals(tableData2[0][0], tableData2[1][0]).filter()
+        var filteredTable = table.FilterBuilder().isEqualTo(tableData2[0][0], tableData2[1][0]).filter()
         assertThat(filteredTable).isNotNull()
         assertThat(filteredTable.rowCount).isEqualTo(1)
 
-        filteredTable = table.FilterBuilder().equals(tableData2[0][1], tableData2[4][1]).filter()
+        filteredTable = table.FilterBuilder().isEqualTo(tableData2[0][1], tableData2[4][1]).filter()
         assertThat(filteredTable).isNotNull()
         assertThat(filteredTable.rowCount).isEqualTo(2)
 
-        assertThat(table.FilterBuilder().equals("dummy", "dummy").filter().rowCount).isEqualTo(0)
+        assertThat(table.FilterBuilder().isEqualTo("dummy", "dummy").filter().rowCount).isEqualTo(0)
     }
 }
