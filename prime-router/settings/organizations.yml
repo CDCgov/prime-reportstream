@@ -93,6 +93,17 @@
       type: "BLOBSTORE"
     externalName: null
 
+- name: upload
+  description: Sender who can test uploads to the Upload Tool.
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: upload
+      topic: covid-19
+      customerStatus: active
+      schemaName: upload-covid-19
+      format: CSV
+
 - name: safehealth
   description: SAFE - Safe Health Systems
   jurisdiction: FEDERAL
