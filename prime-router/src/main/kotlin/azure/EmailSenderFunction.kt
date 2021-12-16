@@ -24,8 +24,8 @@ import java.util.logging.Logger
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.memberProperties
 
-var NO_REPLY_EMAIL = System.getenv("EMAIL_NO_REPLY") ?: "default@noemail.com"
-var REPORT_STREAM_EMAIL = System.getenv("EMAIL_REPORT_STREAM") ?: "default@noemail.com"
+var NO_REPLY_EMAIL = "no-reply@cdc.gov"
+var REPORT_STREAM_EMAIL = "reportstream@cdc.gov"
 const val TOS_SUBJECT_BASE = "TOS Agreement for "
 
 /*INFO:

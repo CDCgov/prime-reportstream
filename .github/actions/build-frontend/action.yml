@@ -1,0 +1,45 @@
+# action.yml
+name: 'Build Frontend'
+description: 'Build react website'
+
+runs:
+  using: "composite"
+  steps:
+
+    - name: Use Node.js ${{ matrix.node-version }} with yarn
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14'
+
+    - run: yarn install
+      working-directory: frontend-react
+      shell: bash
+
+    - name: Build release for production branch (conditional check)
+      if: github.ref == 'refs/heads/production'
+      working-directory: frontend-react
+      run: yarn build:production
+      shell: bash
+
+    - name: Build release for staging branch (conditional check)
+      if: (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main')
+      working-directory: frontend-react
+      run: yarn build:staging
+      shell: bash
+
+    - name: Build release for non-production branch (conditional check)
+      if: (!(github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/production'))
+      working-directory: frontend-react
+      run: |
+        yarn lint:prettier
+        yarn lint:eslint
+        yarn test:ci
+        yarn build:staging
+      shell: bash
+
+    - name: Save Static Website
+      uses: actions/upload-artifact@v2
+      with:
+        name: static_website_react-${{ github.run_id }}
+        path: frontend-react/build
+        retention-days: 3
