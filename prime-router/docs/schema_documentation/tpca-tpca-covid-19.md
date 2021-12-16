@@ -1,10 +1,16 @@
 
 ### Schema:         tpca/tpca-covid-19
+### Topic:          covid-19
+### Tracking Element: Sample ID (specimen_id)
+### Base On: [covid-19](./covid-19.md)
+### Extends: [none](./none.md)
 #### Description:   A COVID-19 schema for TPCA working through A6
 
 ---
 
 **Name**: abnormal_flag
+
+**ReportStream Internal Name**: abnormal_flag
 
 **Type**: CODE
 
@@ -57,6 +63,8 @@ This field is generated based on the normalcy status of the result. A = abnormal
 
 **Name**: Appr Date
 
+**ReportStream Internal Name**: appr_date
+
 **Type**: DATE
 
 **PII**: No
@@ -68,6 +76,8 @@ This field is generated based on the normalcy status of the result. A = abnormal
 ---
 
 **Name**: HCW?
+
+**ReportStream Internal Name**: employed_in_healthcare
 
 **Type**: CODE
 
@@ -95,6 +105,8 @@ Is the patient employed in health care?
 
 **Name**: equipment_model_name
 
+**ReportStream Internal Name**: equipment_model_name
+
 **Type**: TABLE
 
 **PII**: No
@@ -112,6 +124,8 @@ Is the patient employed in health care?
 ---
 
 **Name**: 1st Test?
+
+**ReportStream Internal Name**: first_test
 
 **Type**: CODE
 
@@ -139,6 +153,8 @@ Is this the patient's first test for this condition?
 
 **Name**: Hosp?
 
+**ReportStream Internal Name**: hospitalized
+
 **Type**: CODE
 
 **PII**: No
@@ -164,6 +180,8 @@ Is the patient hospitalized?
 ---
 
 **Name**: ICU?
+
+**ReportStream Internal Name**: icu
 
 **Type**: CODE
 
@@ -191,6 +209,8 @@ Is the patient in the ICU?
 
 **Name**: Sympt Date
 
+**ReportStream Internal Name**: illness_onset_date
+
 **Type**: DATE
 
 **PII**: No
@@ -205,6 +225,8 @@ Is the patient in the ICU?
 
 **Name**: message_id
 
+**ReportStream Internal Name**: message_id
+
 **Type**: ID
 
 **PII**: No
@@ -218,6 +240,8 @@ unique id to track the usage of the message
 ---
 
 **Name**: message_profile_id
+
+**ReportStream Internal Name**: message_profile_id
 
 **Type**: EI
 
@@ -235,6 +259,8 @@ The message profile identifer
 
 **Name**: ordering_facility_city
 
+**ReportStream Internal Name**: ordering_facility_city
+
 **Type**: CITY
 
 **PII**: No
@@ -249,6 +275,8 @@ The city of the facility which the test was ordered from
 
 **Name**: ordering_facility_county
 
+**ReportStream Internal Name**: ordering_facility_county
+
 **Type**: TABLE
 
 **PII**: No
@@ -262,6 +290,8 @@ The city of the facility which the test was ordered from
 ---
 
 **Name**: ordering_facility_phone_number
+
+**ReportStream Internal Name**: ordering_facility_phone_number
 
 **Type**: TELEPHONE
 
@@ -278,6 +308,8 @@ The phone number of the facility which the test was ordered from
 ---
 
 **Name**: ordering_facility_state
+
+**ReportStream Internal Name**: ordering_facility_state
 
 **Type**: TABLE
 
@@ -297,6 +329,8 @@ The state of the facility which the test was ordered from
 
 **Name**: ordering_facility_street
 
+**ReportStream Internal Name**: ordering_facility_street
+
 **Type**: STREET
 
 **PII**: No
@@ -310,6 +344,8 @@ The address of the facility which the test was ordered from
 ---
 
 **Name**: ordering_facility_zip_code
+
+**ReportStream Internal Name**: ordering_facility_zip_code
 
 **Type**: POSTAL_CODE
 
@@ -325,6 +361,8 @@ The zip code of the facility which the test was ordered from
 
 **Name**: Provider
 
+**ReportStream Internal Name**: ordering_provider
+
 **Type**: TEXT
 
 **PII**: No
@@ -334,6 +372,8 @@ The zip code of the facility which the test was ordered from
 ---
 
 **Name**: ordering_provider_first_name
+
+**ReportStream Internal Name**: ordering_provider_first_name
 
 **Type**: PERSON_NAME
 
@@ -354,6 +394,8 @@ The first name of the provider who ordered the test
 
 **Name**: ordering_provider_last_name
 
+**ReportStream Internal Name**: ordering_provider_last_name
+
 **Type**: PERSON_NAME
 
 **PII**: No
@@ -373,6 +415,8 @@ The last name of provider who ordered the test
 
 **Name**: patient_age
 
+**ReportStream Internal Name**: patient_age
+
 **Type**: NUMBER
 
 **PII**: No
@@ -385,6 +429,8 @@ The last name of provider who ordered the test
 
 **Name**: Age
 
+**ReportStream Internal Name**: patient_age_and_units
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -392,6 +438,8 @@ The last name of provider who ordered the test
 ---
 
 **Name**: patient_age_units
+
+**ReportStream Internal Name**: patient_age_units
 
 **Type**: CODE
 
@@ -420,6 +468,8 @@ Always filled when `patient_age` is filled
 
 **Name**: City
 
+**ReportStream Internal Name**: patient_city
+
 **Type**: CITY
 
 **PII**: Yes
@@ -434,6 +484,8 @@ The patient's city
 
 **Name**: patient_county
 
+**ReportStream Internal Name**: patient_county
+
 **Type**: TABLE
 
 **PII**: No
@@ -447,6 +499,8 @@ The patient's city
 ---
 
 **Name**: DOB
+
+**ReportStream Internal Name**: patient_dob
 
 **Type**: DATE
 
@@ -467,6 +521,8 @@ Other states may choose to define their own formats.
 
 **Name**: patient_first_name
 
+**ReportStream Internal Name**: patient_first_name
+
 **Type**: PERSON_NAME
 
 **PII**: Yes
@@ -480,6 +536,8 @@ The patient's first name
 ---
 
 **Name**: Patient ID
+
+**ReportStream Internal Name**: patient_id
 
 **Type**: TEXT
 
@@ -497,6 +555,8 @@ the patient ID from the testing lab, the oder placer, the ordering provider, or 
 
 **Name**: patient_last_name
 
+**ReportStream Internal Name**: patient_last_name
+
 **Type**: PERSON_NAME
 
 **PII**: Yes
@@ -511,6 +571,8 @@ The patient's last name
 
 **Name**: Name
 
+**ReportStream Internal Name**: patient_name
+
 **Type**: TEXT
 
 **PII**: No
@@ -520,6 +582,8 @@ The patient's last name
 ---
 
 **Name**: patient_phone_number
+
+**ReportStream Internal Name**: patient_phone_number
 
 **Type**: TELEPHONE
 
@@ -535,6 +599,8 @@ The patient's phone number with area code
 
 **Name**: Phone
 
+**ReportStream Internal Name**: patient_phone_number_raw
+
 **Type**: TEXT
 
 **PII**: No
@@ -544,6 +610,8 @@ The patient's phone number with area code
 ---
 
 **Name**: Race
+
+**ReportStream Internal Name**: patient_race
 
 **Type**: CODE
 
@@ -602,6 +670,8 @@ The patient's race. There is a common valueset defined for race values, but some
 
 **Name**: State
 
+**ReportStream Internal Name**: patient_state
+
 **Type**: TABLE
 
 **PII**: No
@@ -620,6 +690,8 @@ The patient's state
 
 **Name**: Address
 
+**ReportStream Internal Name**: patient_street
+
 **Type**: STREET
 
 **PII**: Yes
@@ -633,6 +705,8 @@ The patient's street address
 ---
 
 **Name**: Zip
+
+**ReportStream Internal Name**: patient_zip_code
 
 **Type**: TABLE
 
@@ -651,6 +725,8 @@ The patient's zip code
 ---
 
 **Name**: Preg?
+
+**ReportStream Internal Name**: pregnant
 
 **Type**: CODE
 
@@ -689,6 +765,8 @@ Is the patient pregnant?
 
 **Name**: Nsg Home?
 
+**ReportStream Internal Name**: resident_congregate_care_setting
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -696,6 +774,8 @@ Is the patient pregnant?
 ---
 
 **Name**: Sample Type
+
+**ReportStream Internal Name**: sample_type
 
 **Type**: TEXT
 
@@ -706,6 +786,8 @@ Is the patient pregnant?
 ---
 
 **Name**: sending_application
+
+**ReportStream Internal Name**: sending_application
 
 **Type**: HD
 
@@ -723,6 +805,8 @@ The name and OID for the application sending information to the receivers
 ---
 
 **Name**: Draw Date
+
+**ReportStream Internal Name**: specimen_collection_date_time
 
 **Type**: DATETIME
 
@@ -748,6 +832,8 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 
 **Name**: Sample ID
 
+**ReportStream Internal Name**: specimen_id
+
 **Type**: EI
 
 **PII**: No
@@ -769,6 +855,8 @@ A unique code for this specimen
 ---
 
 **Name**: Symptomatic
+
+**ReportStream Internal Name**: symptomatic_for_disease
 
 **Type**: CODE
 
@@ -796,6 +884,8 @@ Is the patient symptomatic?
 
 **Name**: test_authorized_for_home
 
+**ReportStream Internal Name**: test_authorized_for_home
+
 **Type**: TABLE
 
 **PII**: No
@@ -819,6 +909,8 @@ Is the test authorized for home use by the FDA (Y, N, UNK)
 ---
 
 **Name**: test_authorized_for_otc
+
+**ReportStream Internal Name**: test_authorized_for_otc
 
 **Type**: TABLE
 
@@ -844,6 +936,8 @@ Is the test authorized for over-the-counter purchase by the FDA (Y, N, UNK)
 
 **Name**: test_authorized_for_unproctored
 
+**ReportStream Internal Name**: test_authorized_for_unproctored
+
 **Type**: TABLE
 
 **PII**: No
@@ -868,6 +962,8 @@ Is the test authorized for unproctored administration by the FDA (Y, N, UNK)
 
 **Name**: LOINC
 
+**ReportStream Internal Name**: test_performed_code
+
 **Type**: TABLE
 
 **PII**: No
@@ -886,6 +982,8 @@ The LOINC code of the test performed. This is a standardized coded value describ
 
 **Name**: LOINC Test Descr
 
+**ReportStream Internal Name**: test_performed_description
+
 **Type**: TEXT
 
 **PII**: No
@@ -895,6 +993,8 @@ The LOINC code of the test performed. This is a standardized coded value describ
 ---
 
 **Name**: SNOMED Rslt Code
+
+**ReportStream Internal Name**: test_result
 
 **Type**: CODE
 
@@ -937,6 +1037,8 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 
 **Name**: Result Descr
 
+**ReportStream Internal Name**: test_result_description
+
 **Type**: TEXT
 
 **PII**: No
@@ -946,6 +1048,8 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 ---
 
 **Name**: testing_lab_city
+
+**ReportStream Internal Name**: testing_lab_city
 
 **Type**: CITY
 
@@ -962,6 +1066,8 @@ The city of the testing lab
 ---
 
 **Name**: testing_lab_clia
+
+**ReportStream Internal Name**: testing_lab_clia
 
 **Type**: ID_CLIA
 
@@ -991,6 +1097,8 @@ An example of the ID is 03D2159846
 
 **Name**: testing_lab_county
 
+**ReportStream Internal Name**: testing_lab_county
+
 **Type**: TABLE
 
 **PII**: No
@@ -1010,6 +1118,8 @@ The text value for the testing lab county. This is used to do the lookup in the 
 ---
 
 **Name**: testing_lab_name
+
+**ReportStream Internal Name**: testing_lab_name
 
 **Type**: TEXT
 
@@ -1037,6 +1147,8 @@ The name of the laboratory which performed the test, can be the same as the send
 
 **Name**: testing_lab_phone_number
 
+**ReportStream Internal Name**: testing_lab_phone_number
+
 **Type**: TELEPHONE
 
 **PII**: No
@@ -1052,6 +1164,8 @@ The phone number of the testing lab
 ---
 
 **Name**: testing_lab_state
+
+**ReportStream Internal Name**: testing_lab_state
 
 **Type**: TABLE
 
@@ -1073,6 +1187,8 @@ The state for the testing lab
 
 **Name**: testing_lab_street
 
+**ReportStream Internal Name**: testing_lab_street
+
 **Type**: STREET
 
 **PII**: No
@@ -1088,6 +1204,8 @@ The street address for the testing lab
 ---
 
 **Name**: testing_lab_zip_code
+
+**ReportStream Internal Name**: testing_lab_zip_code
 
 **Type**: POSTAL_CODE
 

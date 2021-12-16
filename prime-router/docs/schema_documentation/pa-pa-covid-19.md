@@ -1,10 +1,16 @@
 
 ### Schema:         pa/pa-covid-19
+### Topic:          covid-19
+### Tracking Element: null (message_id)
+### Base On: [covid-19](./covid-19.md)
+### Extends: [none](./none.md)
 #### Description:   PA COVID-19 flat file
 
 ---
 
 **Name**: Notes
+
+**ReportStream Internal Name**: comment
 
 **Type**: TEXT
 
@@ -15,6 +21,8 @@
 ---
 
 **Name**: PerformingFacilityName
+
+**ReportStream Internal Name**: ordering_facility_name
 
 **Type**: TEXT
 
@@ -30,6 +38,8 @@ The name of the facility which the test was ordered from
 
 **Name**: PatientCity
 
+**ReportStream Internal Name**: patient_city
+
 **Type**: CITY
 
 **PII**: Yes
@@ -43,6 +53,8 @@ The patient's city
 ---
 
 **Name**: PatientDOB
+
+**ReportStream Internal Name**: patient_dob
 
 **Type**: DATE
 
@@ -60,6 +72,8 @@ Other states may choose to define their own formats.
 ---
 
 **Name**: PatientEthnicity
+
+**ReportStream Internal Name**: patient_ethnicity
 
 **Type**: CODE
 
@@ -87,6 +101,8 @@ consumers are free to define their own values. Please refer to the consumer-spec
 
 **Name**: PatientFirstName
 
+**ReportStream Internal Name**: patient_first_name
+
 **Type**: PERSON_NAME
 
 **PII**: Yes
@@ -100,6 +116,8 @@ The patient's first name
 ---
 
 **Name**: PatientGender
+
+**ReportStream Internal Name**: patient_gender
 
 **Type**: CODE
 
@@ -129,6 +147,8 @@ The patient's gender. There is a valueset defined based on the values in PID-8-1
 
 **Name**: PatientLastName
 
+**ReportStream Internal Name**: patient_last_name
+
 **Type**: PERSON_NAME
 
 **PII**: Yes
@@ -143,6 +163,8 @@ The patient's last name
 
 **Name**: PatientMiddleInitial
 
+**ReportStream Internal Name**: patient_middle_initial
+
 **Type**: PERSON_NAME
 
 **PII**: Yes
@@ -152,6 +174,8 @@ The patient's last name
 ---
 
 **Name**: PatientPhoneNumber
+
+**ReportStream Internal Name**: patient_phone_number
 
 **Type**: TELEPHONE
 
@@ -166,6 +190,8 @@ The patient's phone number with area code
 ---
 
 **Name**: PatientRace
+
+**ReportStream Internal Name**: patient_race
 
 **Type**: CODE
 
@@ -197,6 +223,8 @@ The patient's race. There is a common valueset defined for race values, but some
 
 **Name**: PatientState
 
+**ReportStream Internal Name**: patient_state
+
 **Type**: TABLE
 
 **PII**: No
@@ -215,6 +243,8 @@ The patient's state
 
 **Name**: PatientAddress1
 
+**ReportStream Internal Name**: patient_street
+
 **Type**: STREET
 
 **PII**: Yes
@@ -228,6 +258,8 @@ The patient's street address
 ---
 
 **Name**: PatientSuffix
+
+**ReportStream Internal Name**: patient_suffix
 
 **Type**: PERSON_NAME
 
@@ -243,6 +275,8 @@ The suffix for the patient's name, (i.e. Jr, Sr, etc)
 
 **Name**: PatientZipCode
 
+**ReportStream Internal Name**: patient_zip_code
+
 **Type**: POSTAL_CODE
 
 **PII**: No
@@ -256,6 +290,8 @@ The patient's zip code
 ---
 
 **Name**: SpecimenCollectedDate
+
+**ReportStream Internal Name**: specimen_collection_date_time
 
 **Type**: DATETIME
 
@@ -278,6 +314,8 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 ---
 
 **Name**: SpecimenSource
+
+**ReportStream Internal Name**: specimen_source_site_code
 
 **Type**: CODE
 
@@ -304,6 +342,8 @@ Refers back to the specimen source site, which is then encoded into the SPM-8 se
 ---
 
 **Name**: TestName
+
+**ReportStream Internal Name**: specimen_type
 
 **Type**: CODE
 
@@ -342,6 +382,8 @@ The specimen source, such as Blood or Serum
 ---
 
 **Name**: TestQualitativeResult
+
+**ReportStream Internal Name**: test_result
 
 **Type**: CODE
 
@@ -383,6 +425,8 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 ---
 
 **Name**: TestID
+
+**ReportStream Internal Name**: testing_lab_specimen_id
 
 **Type**: ID
 

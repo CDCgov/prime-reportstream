@@ -1,10 +1,16 @@
 
 ### Schema:         az/az-ihs-covid-19
+### Topic:          covid-19
+### Tracking Element: null (testing_lab_specimen_id)
+### Base On: [none](./none.md)
+### Extends: [az/az-covid-19](./az-az-covid-19.md)
 #### Description:   Schema for the Johns Hopkins sender. Modeled after the Arizona flat-file specification.
 
 ---
 
 **Name**: Notes
+
+**ReportStream Internal Name**: comment
 
 **Type**: TEXT
 
@@ -18,6 +24,8 @@
 
 **Name**: equipment_model_name
 
+**ReportStream Internal Name**: equipment_model_name
+
 **PII**: No
 
 **Default Value**: BinaxNOW COVID-19 Ag Card
@@ -28,6 +36,8 @@
 
 **Name**: message_id
 
+**ReportStream Internal Name**: message_id
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -35,6 +45,8 @@
 ---
 
 **Name**: Ordering_Facility_City
+
+**ReportStream Internal Name**: ordering_facility_city
 
 **Type**: CITY
 
@@ -50,6 +62,8 @@ The city of the facility which the test was ordered from
 
 **Name**: ordering_facility_name
 
+**ReportStream Internal Name**: ordering_facility_name
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -57,6 +71,8 @@ The city of the facility which the test was ordered from
 ---
 
 **Name**: Ordering_Facility_State
+
+**ReportStream Internal Name**: ordering_facility_state
 
 **Type**: TABLE
 
@@ -76,6 +92,8 @@ The state of the facility which the test was ordered from
 
 **Name**: Ordering_Facility_Address
 
+**ReportStream Internal Name**: ordering_facility_street
+
 **Type**: STREET
 
 **PII**: No
@@ -90,6 +108,8 @@ The address of the facility which the test was ordered from
 
 **Name**: Ordering_Facility_Zip
 
+**ReportStream Internal Name**: ordering_facility_zip_code
+
 **Type**: POSTAL_CODE
 
 **PII**: No
@@ -103,6 +123,8 @@ The zip code of the facility which the test was ordered from
 ---
 
 **Name**: Provider_First_Name
+
+**ReportStream Internal Name**: ordering_provider_first_name
 
 **Type**: PERSON_NAME
 
@@ -123,6 +145,8 @@ The first name of the provider who ordered the test
 
 **Name**: Provider_Last_Name
 
+**ReportStream Internal Name**: ordering_provider_last_name
+
 **Type**: PERSON_NAME
 
 **PII**: No
@@ -141,6 +165,8 @@ The last name of provider who ordered the test
 ---
 
 **Name**: Provider_Phone_Number
+
+**ReportStream Internal Name**: ordering_provider_phone_number
 
 **Type**: TELEPHONE
 
@@ -161,6 +187,8 @@ The phone number of the provider
 
 **Name**: Ordering_facility_name
 
+**ReportStream Internal Name**: organization_and_facility
+
 **Type**: TEXT
 
 **PII**: No
@@ -170,6 +198,8 @@ The phone number of the provider
 ---
 
 **Name**: Lab_Name
+
+**ReportStream Internal Name**: organization_name
 
 **Type**: TEXT
 
@@ -185,6 +215,8 @@ The SimpleReport concept of organization. It refers to organization for the orde
 
 **Name**: Patient_City
 
+**ReportStream Internal Name**: patient_city
+
 **Type**: CITY
 
 **PII**: Yes
@@ -199,6 +231,8 @@ The patient's city
 
 **Name**: Patient_County
 
+**ReportStream Internal Name**: patient_county
+
 **Type**: TABLE_OR_BLANK
 
 **PII**: No
@@ -212,6 +246,8 @@ The patient's city
 ---
 
 **Name**: Patient_Date_of_Birth
+
+**ReportStream Internal Name**: patient_dob
 
 **Type**: DATE
 
@@ -229,6 +265,8 @@ Other states may choose to define their own formats.
 ---
 
 **Name**: Ethnicity
+
+**ReportStream Internal Name**: patient_ethnicity
 
 **Type**: CODE
 
@@ -271,6 +309,8 @@ consumers are free to define their own values. Please refer to the consumer-spec
 
 **Name**: Patient_First_Name
 
+**ReportStream Internal Name**: patient_first_name
+
 **Type**: PERSON_NAME
 
 **PII**: Yes
@@ -284,6 +324,8 @@ The patient's first name
 ---
 
 **Name**: Patient_Sex
+
+**ReportStream Internal Name**: patient_gender
 
 **Type**: CODE
 
@@ -313,6 +355,8 @@ The patient's gender. There is a valueset defined based on the values in PID-8-1
 
 **Name**: Patient_ID
 
+**ReportStream Internal Name**: patient_id
+
 **Type**: TEXT
 
 **PII**: Yes
@@ -329,6 +373,8 @@ the patient ID from the testing lab, the oder placer, the ordering provider, or 
 
 **Name**: Patient_Last_Name
 
+**ReportStream Internal Name**: patient_last_name
+
 **Type**: PERSON_NAME
 
 **PII**: Yes
@@ -343,6 +389,8 @@ The patient's last name
 
 **Name**: Patient_Phone_Number
 
+**ReportStream Internal Name**: patient_phone_number
+
 **Type**: TELEPHONE
 
 **PII**: Yes
@@ -356,6 +404,8 @@ The patient's phone number with area code
 ---
 
 **Name**: Race
+
+**ReportStream Internal Name**: patient_race
 
 **Type**: CODE
 
@@ -408,6 +458,8 @@ The patient's race. There is a common valueset defined for race values, but some
 
 **Name**: Patient_State
 
+**ReportStream Internal Name**: patient_state
+
 **Type**: TABLE
 
 **PII**: No
@@ -428,6 +480,8 @@ The patient's state
 
 **Name**: Patient_Street_Address
 
+**ReportStream Internal Name**: patient_street
+
 **Type**: STREET
 
 **PII**: Yes
@@ -441,6 +495,8 @@ The patient's street address
 ---
 
 **Name**: Patient_Zip
+
+**ReportStream Internal Name**: patient_zip_code
 
 **Type**: POSTAL_CODE
 
@@ -457,6 +513,8 @@ The patient's zip code
 ---
 
 **Name**: Sending_Application
+
+**ReportStream Internal Name**: sending_application
 
 **Type**: HD
 
@@ -476,6 +534,8 @@ The name and OID for the application sending information to the receivers
 ---
 
 **Name**: Collection_Date
+
+**ReportStream Internal Name**: specimen_collection_date_time
 
 **Type**: DATETIME
 
@@ -501,6 +561,8 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 
 **Name**: Specimen_ID
 
+**ReportStream Internal Name**: specimen_id
+
 **Type**: EI
 
 **PII**: No
@@ -522,6 +584,8 @@ A unique code for this specimen
 ---
 
 **Name**: Specimen_Site
+
+**ReportStream Internal Name**: specimen_source_site_code
 
 **Type**: CODE
 
@@ -555,6 +619,8 @@ Refers back to the specimen source site, which is then encoded into the SPM-8 se
 ---
 
 **Name**: Specimen_Type
+
+**ReportStream Internal Name**: specimen_type
 
 **Type**: CODE
 
@@ -601,6 +667,8 @@ The specimen source, such as Blood or Serum
 
 **Name**: Test_Code
 
+**ReportStream Internal Name**: test_performed_code
+
 **Type**: TABLE
 
 **PII**: No
@@ -619,6 +687,8 @@ The LOINC code of the test performed. This is a standardized coded value describ
 
 **Name**: Test_Name
 
+**ReportStream Internal Name**: test_performed_name
+
 **Type**: TABLE
 
 **PII**: No
@@ -636,6 +706,8 @@ The LOINC description of the test performed as related to the LOINC code.
 ---
 
 **Name**: Result
+
+**ReportStream Internal Name**: test_result
 
 **Type**: CODE
 
@@ -678,6 +750,8 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 
 **Name**: Result_Date
 
+**ReportStream Internal Name**: test_result_date
+
 **Type**: DATETIME
 
 **PII**: No
@@ -689,6 +763,8 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 ---
 
 **Name**: Lab_City
+
+**ReportStream Internal Name**: testing_lab_city
 
 **Type**: CITY
 
@@ -703,6 +779,8 @@ The city of the testing lab
 ---
 
 **Name**: Lab_CLIA
+
+**ReportStream Internal Name**: testing_lab_clia
 
 **Type**: ID_CLIA
 
@@ -730,6 +808,8 @@ An example of the ID is 03D2159846
 
 **Name**: Lab_Phone
 
+**ReportStream Internal Name**: testing_lab_phone_number
+
 **Type**: TELEPHONE
 
 **PII**: No
@@ -743,6 +823,8 @@ The phone number of the testing lab
 ---
 
 **Name**: Lab_State
+
+**ReportStream Internal Name**: testing_lab_state
 
 **Type**: TABLE
 
@@ -762,6 +844,8 @@ The state for the testing lab
 
 **Name**: Lab_Address
 
+**ReportStream Internal Name**: testing_lab_street
+
 **Type**: STREET
 
 **PII**: No
@@ -775,6 +859,8 @@ The street address for the testing lab
 ---
 
 **Name**: Lab_Zip
+
+**ReportStream Internal Name**: testing_lab_zip_code
 
 **Type**: POSTAL_CODE
 

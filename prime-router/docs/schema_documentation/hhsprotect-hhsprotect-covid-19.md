@@ -1,10 +1,16 @@
 
 ### Schema:         hhsprotect/hhsprotect-covid-19
+### Topic:          covid-19
+### Tracking Element: testId (message_id)
+### Base On: [covid-19](./covid-19.md)
+### Extends: [direct/direct-covid-19](./direct-direct-covid-19.md)
 #### Description:   Schema for Submission to HHSProtect
 
 ---
 
 **Name**: testReportDate
+
+**ReportStream Internal Name**: date_result_released
 
 **Type**: DATETIME
 
@@ -21,6 +27,8 @@ eg, 20210112
 ---
 
 **Name**: healthcareEmployee
+
+**ReportStream Internal Name**: employed_in_healthcare
 
 **Type**: CODE
 
@@ -48,6 +56,8 @@ Override the base hl70136 valueset with a custom one, to handle slightly differe
 
 **Name**: serialNumber
 
+**ReportStream Internal Name**: equipment_instance_id
+
 **Type**: ID
 
 **PII**: No
@@ -61,6 +71,8 @@ Barcode or QR code.  Unique within one manufacturer.
 ---
 
 **Name**: deviceName
+
+**ReportStream Internal Name**: equipment_model_name
 
 **Type**: TABLE
 
@@ -84,6 +96,8 @@ Required.  Must match LIVD column B, "Model". eg,  "BD Veritor System for Rapid 
 
 **Name**: filler_order_id
 
+**ReportStream Internal Name**: filler_order_id
+
 **Type**: ID
 
 **PII**: No
@@ -103,6 +117,8 @@ Accension number
 ---
 
 **Name**: firstTest
+
+**ReportStream Internal Name**: first_test
 
 **Type**: CODE
 
@@ -129,6 +145,8 @@ Override the base hl70136 valueset with a custom one, to handle slightly differe
 ---
 
 **Name**: healthcareEmployeeType
+
+**ReportStream Internal Name**: healthcare_employee_type
 
 **Type**: CODE
 
@@ -645,6 +663,8 @@ Custom.  eg, 6816002
 
 **Name**: hospitalized
 
+**ReportStream Internal Name**: hospitalized
+
 **Type**: CODE
 
 **PII**: No
@@ -670,6 +690,8 @@ Override the base hl70136 valueset with a custom one, to handle slightly differe
 ---
 
 **Name**: hospitalizedCode
+
+**ReportStream Internal Name**: hospitalized_code
 
 **Type**: CODE
 
@@ -712,6 +734,8 @@ Custom.  eg, 840539006, same valueset as testResult
 
 **Name**: symptomsIcu
 
+**ReportStream Internal Name**: icu
+
 **Type**: CODE
 
 **PII**: No
@@ -738,6 +762,8 @@ Override the base hl70136 valueset with a custom one, to handle slightly differe
 
 **Name**: testId
 
+**ReportStream Internal Name**: message_id
+
 **Type**: ID
 
 **PII**: No
@@ -751,6 +777,8 @@ ReportStream copies value from the specimenId if none is provided by the sender.
 ---
 
 **Name**: testOrderedDate
+
+**ReportStream Internal Name**: order_test_date
 
 **Type**: DATETIME
 
@@ -767,6 +795,8 @@ eg, 20210108
 ---
 
 **Name**: testOrdered
+
+**ReportStream Internal Name**: ordered_test_code
 
 **Type**: TABLE
 
@@ -786,6 +816,8 @@ eg, 94531-1
 
 **Name**: testName
 
+**ReportStream Internal Name**: ordered_test_name
+
 **Type**: TABLE
 
 **PII**: No
@@ -804,6 +836,8 @@ Should be the name that matches to Test Ordered LOINC Long Name, in LIVD table
 
 **Name**: orderingFacilityCity
 
+**ReportStream Internal Name**: ordering_facility_city
+
 **Type**: CITY
 
 **PII**: No
@@ -817,6 +851,8 @@ The city of the facility which the test was ordered from
 ---
 
 **Name**: orderingFacilityCounty
+
+**ReportStream Internal Name**: ordering_facility_county
 
 **Type**: TABLE
 
@@ -832,6 +868,8 @@ The city of the facility which the test was ordered from
 
 **Name**: orderingFacilityEmail
 
+**ReportStream Internal Name**: ordering_facility_email
+
 **Type**: EMAIL
 
 **PII**: No
@@ -841,6 +879,8 @@ The city of the facility which the test was ordered from
 ---
 
 **Name**: orderingFacilityName
+
+**ReportStream Internal Name**: ordering_facility_name
 
 **Type**: TEXT
 
@@ -856,6 +896,8 @@ The name of the facility which the test was ordered from
 
 **Name**: orderingFacilityPhone
 
+**ReportStream Internal Name**: ordering_facility_phone_number
+
 **Type**: TELEPHONE
 
 **PII**: No
@@ -869,6 +911,8 @@ The phone number of the facility which the test was ordered from
 ---
 
 **Name**: orderingFacilityState
+
+**ReportStream Internal Name**: ordering_facility_state
 
 **Type**: TABLE
 
@@ -888,6 +932,8 @@ Note that many states expect this field to be available, or ReportStream is not 
 
 **Name**: orderingFacilityStreet
 
+**ReportStream Internal Name**: ordering_facility_street
+
 **Type**: STREET
 
 **PII**: No
@@ -901,6 +947,8 @@ The address of the facility which the test was ordered from
 ---
 
 **Name**: orderingFacilityStreet2
+
+**ReportStream Internal Name**: ordering_facility_street2
 
 **Type**: STREET_OR_BLANK
 
@@ -916,6 +964,8 @@ The secondary address of the facility which the test was ordered from
 
 **Name**: orderingFacilityZip
 
+**ReportStream Internal Name**: ordering_facility_zip_code
+
 **Type**: POSTAL_CODE
 
 **PII**: No
@@ -930,6 +980,8 @@ The zip code of the facility which the test was ordered from
 
 **Name**: orderingProviderCity
 
+**ReportStream Internal Name**: ordering_provider_city
+
 **Type**: CITY
 
 **PII**: Yes
@@ -943,6 +995,8 @@ The city of the provider
 ---
 
 **Name**: orderingProviderFname
+
+**ReportStream Internal Name**: ordering_provider_first_name
 
 **Type**: PERSON_NAME
 
@@ -963,6 +1017,8 @@ The first name of the provider who ordered the test
 
 **Name**: orderingProviderNpi
 
+**ReportStream Internal Name**: ordering_provider_id
+
 **Type**: ID_NPI
 
 **PII**: No
@@ -981,6 +1037,8 @@ eg, "1265050918"
 ---
 
 **Name**: orderingProviderLname
+
+**ReportStream Internal Name**: ordering_provider_last_name
 
 **Type**: PERSON_NAME
 
@@ -1001,6 +1059,8 @@ The last name of provider who ordered the test
 
 **Name**: orderingProviderPhone
 
+**ReportStream Internal Name**: ordering_provider_phone_number
+
 **Type**: TELEPHONE
 
 **PII**: Yes
@@ -1020,6 +1080,8 @@ The phone number of the provider
 
 **Name**: ordering_provider_phone_number_area_code
 
+**ReportStream Internal Name**: ordering_provider_phone_number_area_code
+
 **Type**: TEXT
 
 **PII**: No
@@ -1033,6 +1095,8 @@ Custom.  Not currently used. ReportStream assumes area code is in orderingProvid
 ---
 
 **Name**: orderingProviderState
+
+**ReportStream Internal Name**: ordering_provider_state
 
 **Type**: TABLE
 
@@ -1052,6 +1116,8 @@ The state of the provider
 
 **Name**: orderingProviderAddress
 
+**ReportStream Internal Name**: ordering_provider_street
+
 **Type**: STREET
 
 **PII**: Yes
@@ -1065,6 +1131,8 @@ The street address of the provider
 ---
 
 **Name**: orderingProviderAddress2
+
+**ReportStream Internal Name**: ordering_provider_street2
 
 **Type**: STREET_OR_BLANK
 
@@ -1080,6 +1148,8 @@ The street second address of the provider
 
 **Name**: orderingProviderZip
 
+**ReportStream Internal Name**: ordering_provider_zip_code
+
 **Type**: POSTAL_CODE
 
 **PII**: No
@@ -1094,6 +1164,8 @@ The zip code of the provider
 
 **Name**: patAge
 
+**ReportStream Internal Name**: patient_age
+
 **Type**: NUMBER
 
 **PII**: No
@@ -1105,6 +1177,8 @@ The zip code of the provider
 ---
 
 **Name**: patAgeUnits
+
+**ReportStream Internal Name**: patient_age_units
 
 **Type**: CODE
 
@@ -1129,6 +1203,8 @@ Always filled when `patient_age` is filled
 
 **Name**: patientCity
 
+**ReportStream Internal Name**: patient_city
+
 **Type**: CITY
 
 **PII**: Yes
@@ -1143,6 +1219,8 @@ The patient's city
 
 **Name**: patientCounty
 
+**ReportStream Internal Name**: patient_county
+
 **Type**: TABLE_OR_BLANK
 
 **PII**: No
@@ -1156,6 +1234,8 @@ The patient's city
 ---
 
 **Name**: patient_dob
+
+**ReportStream Internal Name**: patient_dob
 
 **Type**: DATE
 
@@ -1174,6 +1254,8 @@ Other states may choose to define their own formats.
 
 **Name**: patientEmail
 
+**ReportStream Internal Name**: patient_email
+
 **Type**: EMAIL
 
 **PII**: Yes
@@ -1183,6 +1265,8 @@ Other states may choose to define their own formats.
 ---
 
 **Name**: patientEthnicity
+
+**ReportStream Internal Name**: patient_ethnicity
 
 **Type**: CODE
 
@@ -1219,6 +1303,8 @@ Internally, ReportStream uses hl70189 (H,N,U), but should use HHS values. (2135-
 
 **Name**: patient_ethnicity_text
 
+**ReportStream Internal Name**: patient_ethnicity_text
+
 **Type**: TEXT
 
 **PII**: No
@@ -1233,6 +1319,8 @@ Custom. ReportStream uses the patientEthnicity code, not this text value.
 
 **Name**: patientNameFirst
 
+**ReportStream Internal Name**: patient_first_name
+
 **Type**: PERSON_NAME
 
 **PII**: Yes
@@ -1246,6 +1334,8 @@ The patient's first name
 ---
 
 **Name**: patientSex
+
+**ReportStream Internal Name**: patient_gender
 
 **Type**: CODE
 
@@ -1275,6 +1365,8 @@ The patient's gender. There is a valueset defined based on the values in PID-8-1
 
 **Name**: patient_id
 
+**ReportStream Internal Name**: patient_id
+
 **Type**: TEXT
 
 **PII**: Yes
@@ -1291,6 +1383,8 @@ the patient ID from the testing lab, the oder placer, the ordering provider, or 
 
 **Name**: patientUniqueId
 
+**ReportStream Internal Name**: patient_id_hash
+
 **Type**: TEXT
 
 **PII**: No
@@ -1300,6 +1394,8 @@ the patient ID from the testing lab, the oder placer, the ordering provider, or 
 ---
 
 **Name**: patient_id_type
+
+**ReportStream Internal Name**: patient_id_type
 
 **Type**: TEXT
 
@@ -1312,6 +1408,8 @@ the patient ID from the testing lab, the oder placer, the ordering provider, or 
 ---
 
 **Name**: patientNameLast
+
+**ReportStream Internal Name**: patient_last_name
 
 **Type**: PERSON_NAME
 
@@ -1327,6 +1425,8 @@ Not required, but generally data will not flow to states if last/first name prov
 
 **Name**: patientNameMiddle
 
+**ReportStream Internal Name**: patient_middle_name
+
 **Type**: PERSON_NAME
 
 **PII**: Yes
@@ -1336,6 +1436,8 @@ Not required, but generally data will not flow to states if last/first name prov
 ---
 
 **Name**: patientPhone
+
+**ReportStream Internal Name**: patient_phone_number
 
 **Type**: TELEPHONE
 
@@ -1351,6 +1453,8 @@ The patient's phone number with area code
 
 **Name**: patient_phone_number_area_code
 
+**ReportStream Internal Name**: patient_phone_number_area_code
+
 **Type**: TEXT
 
 **PII**: No
@@ -1364,6 +1468,8 @@ Custom. Not currently used. ReportStream assumes area code is in patientPhone
 ---
 
 **Name**: patientRace
+
+**ReportStream Internal Name**: patient_race
 
 **Type**: CODE
 
@@ -1395,6 +1501,8 @@ The patient's race. There is a common valueset defined for race values, but some
 
 **Name**: patient_race_text
 
+**ReportStream Internal Name**: patient_race_text
+
 **Type**: TEXT
 
 **PII**: No
@@ -1408,6 +1516,8 @@ Custom.    ReportStream uses patientRace code, not this text value.
 ---
 
 **Name**: patientState
+
+**ReportStream Internal Name**: patient_state
 
 **Type**: TABLE
 
@@ -1427,6 +1537,8 @@ Extremely important field for routing data to states.
 
 **Name**: patientHomeAddress
 
+**ReportStream Internal Name**: patient_street
+
 **Type**: STREET
 
 **PII**: Yes
@@ -1440,6 +1552,8 @@ The patient's street address
 ---
 
 **Name**: patientHomeAddress2
+
+**ReportStream Internal Name**: patient_street2
 
 **Type**: STREET_OR_BLANK
 
@@ -1455,6 +1569,8 @@ The patient's second address line
 
 **Name**: patZip
 
+**ReportStream Internal Name**: patient_zip_code
+
 **Type**: POSTAL_CODE
 
 **PII**: No
@@ -1468,6 +1584,8 @@ The patient's zip code
 ---
 
 **Name**: placer_order_id
+
+**ReportStream Internal Name**: placer_order_id
 
 **Type**: ID
 
@@ -1487,6 +1605,8 @@ The ID number of the lab order from the placer
 ---
 
 **Name**: pregnant
+
+**ReportStream Internal Name**: pregnant
 
 **Type**: CODE
 
@@ -1514,6 +1634,8 @@ Is the patient pregnant?
 
 **Name**: pregnant_text
 
+**ReportStream Internal Name**: pregnant_text
+
 **Type**: TEXT
 
 **PII**: No
@@ -1528,6 +1650,8 @@ Custom.  ReportStream uses the 'pregnant' code, not this text value.
 
 **Name**: correctedTestId
 
+**ReportStream Internal Name**: previous_message_id
+
 **Type**: ID
 
 **PII**: No
@@ -1541,6 +1665,8 @@ pointer/link to the unique id of a previously submitted result.  Usually blank. 
 ---
 
 **Name**: previousTestDate
+
+**ReportStream Internal Name**: previous_test_date
 
 **Type**: DATE
 
@@ -1557,6 +1683,8 @@ Custom field
 ---
 
 **Name**: previousTestResult
+
+**ReportStream Internal Name**: previous_test_result
 
 **Type**: CODE
 
@@ -1599,6 +1727,8 @@ Custom field.  Example - 260415000
 
 **Name**: previousTestType
 
+**ReportStream Internal Name**: previous_test_type
+
 **Type**: TEXT
 
 **PII**: No
@@ -1612,6 +1742,8 @@ Custom field. Note, value matched LIVD column "F", "Test Performed LOINC Code"
 ---
 
 **Name**: processingModeCode
+
+**ReportStream Internal Name**: processing_mode_code
 
 **Type**: CODE
 
@@ -1639,6 +1771,8 @@ P, D, or T for Production, Debugging, or Training
 
 **Name**: reportingFacility
 
+**ReportStream Internal Name**: reportingFacility
+
 **Type**: TEXT
 
 **PII**: No
@@ -1652,6 +1786,8 @@ This field is no longer used.  Included here so it does not generate a warning i
 ---
 
 **Name**: reporting_facility_clia
+
+**ReportStream Internal Name**: reporting_facility_clia
 
 **Type**: ID_CLIA
 
@@ -1675,6 +1811,8 @@ The reporting facility's CLIA
 
 **Name**: reportingFacility
 
+**ReportStream Internal Name**: reporting_facility_name
+
 **Type**: TEXT
 
 **PII**: No
@@ -1696,6 +1834,8 @@ The reporting facility's name
 ---
 
 **Name**: congregateResident
+
+**ReportStream Internal Name**: resident_congregate_setting
 
 **Type**: CODE
 
@@ -1723,6 +1863,8 @@ Override the base hl70136 valueset with a custom one, to handle slightly differe
 
 **Name**: submitterId
 
+**ReportStream Internal Name**: sender_id
+
 **Type**: TEXT
 
 **PII**: No
@@ -1736,6 +1878,8 @@ ID name of org that is sending this data to ReportStream.  Suitable for provenan
 ---
 
 **Name**: congregateResidentType
+
+**ReportStream Internal Name**: site_of_care
 
 **Type**: CODE
 
@@ -1777,6 +1921,8 @@ Custom field
 
 **Name**: specimenDate
 
+**ReportStream Internal Name**: specimen_collection_date_time
+
 **Type**: DATETIME
 
 **PII**: No
@@ -1800,6 +1946,8 @@ eg, 20210113
 
 **Name**: specimenId
 
+**ReportStream Internal Name**: specimen_id
+
 **Type**: EI
 
 **PII**: No
@@ -1821,6 +1969,8 @@ A unique id, such as a UUID. Note - Need to override the mapper in covid-19.sche
 ---
 
 **Name**: specimenSource
+
+**ReportStream Internal Name**: specimen_type
 
 **Type**: CODE
 
@@ -1860,6 +2010,8 @@ The specimen source, such as Blood or Serum
 
 **Name**: symptomatic
 
+**ReportStream Internal Name**: symptomatic_for_disease
+
 **Type**: CODE
 
 **PII**: No
@@ -1886,6 +2038,8 @@ Override the base hl70136 valueset with a custom one, to handle slightly differe
 
 **Name**: symptomsList
 
+**ReportStream Internal Name**: symptoms_list
+
 **Type**: TEXT
 
 **PII**: No
@@ -1899,6 +2053,8 @@ Custom.  Just a simple text string for now. Format is symptomCode1^date1;symptom
 ---
 
 **Name**: test_authorized_for_home
+
+**ReportStream Internal Name**: test_authorized_for_home
 
 **Type**: TABLE
 
@@ -1924,6 +2080,8 @@ Is the test authorized for home use by the FDA (Y, N, UNK)
 
 **Name**: test_authorized_for_otc
 
+**ReportStream Internal Name**: test_authorized_for_otc
+
 **Type**: TABLE
 
 **PII**: No
@@ -1947,6 +2105,8 @@ Is the test authorized for over-the-counter purchase by the FDA (Y, N, UNK)
 ---
 
 **Name**: test_authorized_for_unproctored
+
+**ReportStream Internal Name**: test_authorized_for_unproctored
 
 **Type**: TABLE
 
@@ -1972,6 +2132,8 @@ Is the test authorized for unproctored administration by the FDA (Y, N, UNK)
 
 **Name**: testCodingSystem
 
+**ReportStream Internal Name**: test_coding_system
+
 **Type**: TEXT
 
 **PII**: No
@@ -1985,6 +2147,8 @@ Custom.  Eg, "LN"
 ---
 
 **Name**: deviceIdentifier
+
+**ReportStream Internal Name**: test_kit_name_id
 
 **Type**: TABLE
 
@@ -2008,6 +2172,8 @@ Must match LIVD column M, "Test Kit Name ID"
 
 **Name**: testPerformed
 
+**ReportStream Internal Name**: test_performed_code
+
 **Type**: TABLE
 
 **PII**: No
@@ -2025,6 +2191,8 @@ eg, 94558-4
 ---
 
 **Name**: testResult
+
+**ReportStream Internal Name**: test_result
 
 **Type**: CODE
 
@@ -2067,6 +2235,8 @@ eg, 260373001
 
 **Name**: testResultCodingSystem
 
+**ReportStream Internal Name**: test_result_coding_system
+
 **Type**: TEXT
 
 **PII**: No
@@ -2080,6 +2250,8 @@ eg, SCT.   Custom
 ---
 
 **Name**: testResultDate
+
+**ReportStream Internal Name**: test_result_date
 
 **Type**: DATETIME
 
@@ -2096,6 +2268,8 @@ eg, 20210111
 ---
 
 **Name**: test_result_status
+
+**ReportStream Internal Name**: test_result_status
 
 **Type**: CODE
 
@@ -2140,6 +2314,8 @@ the test result is in some intermediate status, is a correction, or is the final
 
 **Name**: test_result_text
 
+**ReportStream Internal Name**: test_result_text
+
 **Type**: TEXT
 
 **PII**: No
@@ -2154,6 +2330,8 @@ eg, "DETECTED".  Custom.  ReportStream uses testResult code, not this text value
 
 **Name**: performingFacilityCity
 
+**ReportStream Internal Name**: testing_lab_city
+
 **Type**: CITY
 
 **PII**: No
@@ -2167,6 +2345,8 @@ The city of the testing lab
 ---
 
 **Name**: performingFacility
+
+**ReportStream Internal Name**: testing_lab_clia
 
 **Type**: ID_CLIA
 
@@ -2191,6 +2371,8 @@ Expecting a CLIA number here.  eg, "10D2218834"
 
 **Name**: performingFacilityCounty
 
+**ReportStream Internal Name**: testing_lab_county
+
 **Type**: TABLE
 
 **PII**: No
@@ -2208,6 +2390,8 @@ The text value for the testing lab county. This is used to do the lookup in the 
 ---
 
 **Name**: performingFacilityName
+
+**ReportStream Internal Name**: testing_lab_name
 
 **Type**: TEXT
 
@@ -2233,6 +2417,8 @@ The name of the laboratory which performed the test, can be the same as the send
 
 **Name**: performingFacilityPhone
 
+**ReportStream Internal Name**: testing_lab_phone_number
+
 **Type**: TELEPHONE
 
 **PII**: No
@@ -2246,6 +2432,8 @@ The phone number of the testing lab
 ---
 
 **Name**: performingFacilityState
+
+**ReportStream Internal Name**: testing_lab_state
 
 **Type**: TABLE
 
@@ -2265,6 +2453,8 @@ The state for the testing lab
 
 **Name**: performingFacilityStreet
 
+**ReportStream Internal Name**: testing_lab_street
+
 **Type**: STREET
 
 **PII**: No
@@ -2279,6 +2469,8 @@ The street address for the testing lab
 
 **Name**: performingFacilityStreet2
 
+**ReportStream Internal Name**: testing_lab_street2
+
 **Type**: STREET_OR_BLANK
 
 **PII**: No
@@ -2292,6 +2484,8 @@ Street 2 field for the testing lab
 ---
 
 **Name**: facilityZip
+
+**ReportStream Internal Name**: testing_lab_zip_code
 
 **Type**: POSTAL_CODE
 

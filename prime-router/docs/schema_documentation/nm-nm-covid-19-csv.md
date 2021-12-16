@@ -1,10 +1,16 @@
 
 ### Schema:         nm/nm-covid-19-csv
+### Topic:          covid-19
+### Tracking Element: null (message_id)
+### Base On: [covid-19](./covid-19.md)
+### Extends: [none](./none.md)
 #### Description:   New Mexico Flat File
 
 ---
 
 **Name**: EmpHealthcare
+
+**ReportStream Internal Name**: employed_in_healthcare
 
 **Type**: CODE
 
@@ -43,6 +49,8 @@ Is the patient employed in health care?
 
 **Name**: equipment_model_name
 
+**ReportStream Internal Name**: equipment_model_name
+
 **Type**: TABLE
 
 **PII**: No
@@ -60,6 +68,8 @@ Is the patient employed in health care?
 ---
 
 **Name**: FirstTest
+
+**ReportStream Internal Name**: first_test
 
 **Type**: CODE
 
@@ -98,6 +108,8 @@ Is this the patient's first test for this condition?
 
 **Name**: Hospitalized
 
+**ReportStream Internal Name**: hospitalized
+
 **Type**: CODE
 
 **PII**: No
@@ -134,6 +146,8 @@ Is the patient hospitalized?
 ---
 
 **Name**: ICU
+
+**ReportStream Internal Name**: icu
 
 **Type**: CODE
 
@@ -172,6 +186,8 @@ Is the patient in the ICU?
 
 **Name**: DateTimeMessage
 
+**ReportStream Internal Name**: local_file_created_date
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -179,6 +195,8 @@ Is the patient in the ICU?
 ---
 
 **Name**: PtEmpAddrCity
+
+**ReportStream Internal Name**: local_patient_employer_city
 
 **Type**: TEXT
 
@@ -192,6 +210,8 @@ Is the patient in the ICU?
 
 **Name**: PtEmpcounty
 
+**ReportStream Internal Name**: local_patient_employer_county
+
 **Type**: TEXT
 
 **PII**: No
@@ -203,6 +223,8 @@ Is the patient in the ICU?
 ---
 
 **Name**: PtEmpName
+
+**ReportStream Internal Name**: local_patient_employer_name
 
 **Type**: TEXT
 
@@ -216,6 +238,8 @@ Is the patient in the ICU?
 
 **Name**: PtEmpPhone
 
+**ReportStream Internal Name**: local_patient_employer_phone
+
 **Type**: TEXT
 
 **PII**: No
@@ -227,6 +251,8 @@ Is the patient in the ICU?
 ---
 
 **Name**: PtEmpAddrState
+
+**ReportStream Internal Name**: local_patient_employer_state
 
 **Type**: TEXT
 
@@ -240,6 +266,8 @@ Is the patient in the ICU?
 
 **Name**: PtEmpAddrStreet
 
+**ReportStream Internal Name**: local_patient_employer_street
+
 **Type**: TEXT
 
 **PII**: No
@@ -251,6 +279,8 @@ Is the patient in the ICU?
 ---
 
 **Name**: PtEmpAddrZip
+
+**ReportStream Internal Name**: local_patient_employer_zip
 
 **Type**: TEXT
 
@@ -264,6 +294,8 @@ Is the patient in the ICU?
 
 **Name**: PtLanguage
 
+**ReportStream Internal Name**: local_patient_language
+
 **Type**: TEXT
 
 **PII**: No
@@ -275,6 +307,8 @@ Is the patient in the ICU?
 ---
 
 **Name**: Occupation
+
+**ReportStream Internal Name**: local_patient_occupation
 
 **Type**: TEXT
 
@@ -288,6 +322,8 @@ Is the patient in the ICU?
 
 **Name**: PtSchAddrCity
 
+**ReportStream Internal Name**: local_patient_school_city
+
 **Type**: TEXT
 
 **PII**: No
@@ -299,6 +335,8 @@ Is the patient in the ICU?
 ---
 
 **Name**: PtSchcounty
+
+**ReportStream Internal Name**: local_patient_school_county
 
 **Type**: TEXT
 
@@ -312,6 +350,8 @@ Is the patient in the ICU?
 
 **Name**: PtSchoolName
 
+**ReportStream Internal Name**: local_patient_school_name
+
 **Type**: TEXT
 
 **PII**: No
@@ -323,6 +363,8 @@ Is the patient in the ICU?
 ---
 
 **Name**: PtSchAddrState
+
+**ReportStream Internal Name**: local_patient_school_state
 
 **Type**: TEXT
 
@@ -336,6 +378,8 @@ Is the patient in the ICU?
 
 **Name**: PtSchAddrStreet
 
+**ReportStream Internal Name**: local_patient_school_street
+
 **Type**: TEXT
 
 **PII**: No
@@ -347,6 +391,8 @@ Is the patient in the ICU?
 ---
 
 **Name**: PtSchAddrZip
+
+**ReportStream Internal Name**: local_patient_school_zip
 
 **Type**: TEXT
 
@@ -360,6 +406,8 @@ Is the patient in the ICU?
 
 **Name**: PtSSN
 
+**ReportStream Internal Name**: local_patient_ssn
+
 **Type**: TEXT
 
 **PII**: No
@@ -372,6 +420,8 @@ Is the patient in the ICU?
 
 **Name**: ResultNotes
 
+**ReportStream Internal Name**: local_result_notes
+
 **Type**: TEXT
 
 **PII**: No
@@ -383,6 +433,8 @@ Is the patient in the ICU?
 ---
 
 **Name**: ResultTestDesc
+
+**ReportStream Internal Name**: local_result_test_desc
 
 **Type**: TABLE
 
@@ -398,6 +450,8 @@ Is the patient in the ICU?
 
 **Name**: local_symptom_onset_date
 
+**ReportStream Internal Name**: local_symptom_onset_date
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -405,6 +459,8 @@ Is the patient in the ICU?
 ---
 
 **Name**: Result
+
+**ReportStream Internal Name**: local_test_result
 
 **Type**: CODE
 
@@ -443,6 +499,8 @@ Code | Display
 
 **Name**: OrdFacCity
 
+**ReportStream Internal Name**: ordering_facility_city
+
 **Type**: CITY
 
 **PII**: No
@@ -456,6 +514,8 @@ The city of the facility which the test was ordered from
 ---
 
 **Name**: OrdFacName
+
+**ReportStream Internal Name**: ordering_facility_name
 
 **Type**: TEXT
 
@@ -471,6 +531,8 @@ The name of the facility which the test was ordered from
 
 **Name**: OrdFacPhone
 
+**ReportStream Internal Name**: ordering_facility_phone_number
+
 **Type**: TELEPHONE
 
 **PII**: No
@@ -484,6 +546,8 @@ The phone number of the facility which the test was ordered from
 ---
 
 **Name**: OrdFacState
+
+**ReportStream Internal Name**: ordering_facility_state
 
 **Type**: TABLE
 
@@ -503,6 +567,8 @@ The state of the facility which the test was ordered from
 
 **Name**: OrdFacAddrStreet
 
+**ReportStream Internal Name**: ordering_facility_street
+
 **Type**: STREET
 
 **PII**: No
@@ -517,6 +583,8 @@ The address of the facility which the test was ordered from
 
 **Name**: OrdFacZip
 
+**ReportStream Internal Name**: ordering_facility_zip_code
+
 **Type**: POSTAL_CODE
 
 **PII**: No
@@ -530,6 +598,8 @@ The zip code of the facility which the test was ordered from
 ---
 
 **Name**: OrdProvFirstName
+
+**ReportStream Internal Name**: ordering_provider_first_name
 
 **Type**: PERSON_NAME
 
@@ -550,6 +620,8 @@ The first name of the provider who ordered the test
 
 **Name**: OrdProvLastName
 
+**ReportStream Internal Name**: ordering_provider_last_name
+
 **Type**: PERSON_NAME
 
 **PII**: No
@@ -568,6 +640,8 @@ The last name of provider who ordered the test
 ---
 
 **Name**: OrdProvPhone
+
+**ReportStream Internal Name**: ordering_provider_phone_number
 
 **Type**: TELEPHONE
 
@@ -588,6 +662,8 @@ The phone number of the provider
 
 **Name**: PtAddrCity
 
+**ReportStream Internal Name**: patient_city
+
 **Type**: CITY
 
 **PII**: Yes
@@ -602,6 +678,8 @@ The patient's city
 
 **Name**: PtCounty
 
+**ReportStream Internal Name**: patient_county
+
 **Type**: TABLE_OR_BLANK
 
 **PII**: No
@@ -615,6 +693,8 @@ The patient's city
 ---
 
 **Name**: PtDOB
+
+**ReportStream Internal Name**: patient_dob
 
 **Type**: DATE
 
@@ -635,6 +715,8 @@ Other states may choose to define their own formats.
 
 **Name**: PtEmailAdd
 
+**ReportStream Internal Name**: patient_email
+
 **Type**: EMAIL
 
 **PII**: Yes
@@ -644,6 +726,8 @@ Other states may choose to define their own formats.
 ---
 
 **Name**: PtEthnic
+
+**ReportStream Internal Name**: patient_ethnicity
 
 **Type**: CODE
 
@@ -671,6 +755,8 @@ consumers are free to define their own values. Please refer to the consumer-spec
 
 **Name**: PtFirstName
 
+**ReportStream Internal Name**: patient_first_name
+
 **Type**: PERSON_NAME
 
 **PII**: Yes
@@ -684,6 +770,8 @@ The patient's first name
 ---
 
 **Name**: PtSex
+
+**ReportStream Internal Name**: patient_gender
 
 **Type**: CODE
 
@@ -713,6 +801,8 @@ The patient's gender. There is a valueset defined based on the values in PID-8-1
 
 **Name**: PtID
 
+**ReportStream Internal Name**: patient_id
+
 **Type**: TEXT
 
 **PII**: Yes
@@ -729,6 +819,8 @@ the patient ID from the testing lab, the oder placer, the ordering provider, or 
 
 **Name**: PtLastName
 
+**ReportStream Internal Name**: patient_last_name
+
 **Type**: PERSON_NAME
 
 **PII**: Yes
@@ -743,6 +835,8 @@ The patient's last name
 
 **Name**: PtPhone
 
+**ReportStream Internal Name**: patient_phone_number
+
 **Type**: TELEPHONE
 
 **PII**: Yes
@@ -756,6 +850,8 @@ The patient's phone number with area code
 ---
 
 **Name**: PtRace
+
+**ReportStream Internal Name**: patient_race
 
 **Type**: CODE
 
@@ -808,6 +904,8 @@ The patient's race. There is a common valueset defined for race values, but some
 
 **Name**: PtAddrState
 
+**ReportStream Internal Name**: patient_state
+
 **Type**: TABLE
 
 **PII**: No
@@ -826,6 +924,8 @@ The patient's state
 
 **Name**: PtAddrStreet
 
+**ReportStream Internal Name**: patient_street
+
 **Type**: STREET
 
 **PII**: Yes
@@ -839,6 +939,8 @@ The patient's street address
 ---
 
 **Name**: PtTribe
+
+**ReportStream Internal Name**: patient_tribal_citizenship
 
 **Type**: CODE
 
@@ -1427,6 +1529,8 @@ The tribal citizenship of the patient using the TribalEntityUS (OID 2.16.840.1.1
 
 **Name**: PtAddrZip
 
+**ReportStream Internal Name**: patient_zip_code
+
 **Type**: POSTAL_CODE
 
 **PII**: No
@@ -1440,6 +1544,8 @@ The patient's zip code
 ---
 
 **Name**: Pregnant
+
+**ReportStream Internal Name**: pregnant
 
 **Type**: CODE
 
@@ -1478,6 +1584,8 @@ Is the patient pregnant?
 
 **Name**: RptFacName
 
+**ReportStream Internal Name**: reporting_facility
+
 **Type**: HD
 
 **PII**: No
@@ -1495,6 +1603,8 @@ aggregator
 ---
 
 **Name**: SenderCLIA
+
+**ReportStream Internal Name**: reporting_facility_clia
 
 **Type**: ID_CLIA
 
@@ -1517,6 +1627,8 @@ The reporting facility's CLIA
 ---
 
 **Name**: CongSetting
+
+**ReportStream Internal Name**: resident_congregate_setting
 
 **Type**: CODE
 
@@ -1555,6 +1667,8 @@ Does the patient reside in a congregate care setting?
 
 **Name**: SendingApp
 
+**ReportStream Internal Name**: sending_application
+
 **Type**: HD
 
 **PII**: No
@@ -1571,6 +1685,8 @@ The name and OID for the application sending information to the receivers
 ---
 
 **Name**: SpecCollDt
+
+**ReportStream Internal Name**: specimen_collection_date_time
 
 **Type**: DATETIME
 
@@ -1596,6 +1712,8 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 
 **Name**: AccessionNum
 
+**ReportStream Internal Name**: specimen_id
+
 **Type**: EI
 
 **PII**: No
@@ -1617,6 +1735,8 @@ A unique code for this specimen
 ---
 
 **Name**: SpecType
+
+**ReportStream Internal Name**: specimen_type
 
 **Type**: CODE
 
@@ -1656,6 +1776,8 @@ The specimen source, such as Blood or Serum
 
 **Name**: Symptomatic
 
+**ReportStream Internal Name**: symptomatic_for_disease
+
 **Type**: CODE
 
 **PII**: No
@@ -1692,6 +1814,8 @@ Is the patient symptomatic?
 ---
 
 **Name**: ResultTestCode
+
+**ReportStream Internal Name**: test_result
 
 **Type**: CODE
 
@@ -1733,6 +1857,8 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 ---
 
 **Name**: TestResultDt
+
+**ReportStream Internal Name**: test_result_date
 
 **Type**: DATETIME
 

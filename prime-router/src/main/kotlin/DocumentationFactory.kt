@@ -1,5 +1,6 @@
 package gov.cdc.prime.router
 
+import org.apache.logging.log4j.kotlin.Logging
 import org.commonmark.parser.Parser
 import org.commonmark.renderer.html.HtmlRenderer
 import java.io.File
@@ -9,7 +10,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 /** a singleton instance to let us build documentation off of a schema or off of an element */
-object DocumentationFactory {
+object DocumentationFactory : Logging {
     // will generate a documentation string based on markdown that can then be presented
     // to end users or be converted into HTML if we want to be fancy
     private const val hl7DocumentationUrl = "https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/"
@@ -26,11 +27,13 @@ object DocumentationFactory {
         val csvField = if (element.csvFields?.isNotEmpty() == true) element.csvFields[0] else null
         val sb = StringBuilder()
         val displayName = csvField?.name ?: element.name
+        val internalName = element.name
         val hl7Fields = element.hl7OutputFields?.plus(element.hl7Field)
 
         // our top-level element data points
         sb.appendLine("") // start with a blank line at the top 
         appendLabelAndData(sb, "Name", displayName)
+        appendLabelAndData(sb, "ReportStream Internal Name", internalName)
         appendLabelAndData(sb, "Type", element.type?.name)
         appendLabelAndData(sb, "PII", if (element.pii == true) "Yes" else "No")
 
@@ -93,10 +96,25 @@ ${element.documentation}
     // gets the documentation
     fun getSchemaDocumentation(schema: Schema): String {
         val sb = StringBuilder()
+        var elementName =
+            if (schema.trackingElement.isNullOrEmpty()) {
+                logger.warn("Schema ${schema.name}: TrackingElement is empty")
+                "none"
+            } else {
+                schema.findElement(schema.trackingElement)?.csvFields?.get(0)?.name.toString()
+            }
+        var extendName = if (schema.extends.isNullOrBlank()) "none" else schema.extends.replace('/', '-')
+        var schemaTrackingName = if (schema.trackingElement.isNullOrBlank()) "none" else schema.trackingElement
+        var schemabaseOn = if (schema.basedOn.isNullOrBlank()) "none" else schema.basedOn
+        var schemaExtends = if (schema.extends.isNullOrBlank()) "none" else schema.extends
 
         sb.appendLine(
             """
 ### Schema:         ${schema.name}
+### Topic:          ${schema.topic}
+### Tracking Element: $elementName ($schemaTrackingName)
+### Base On: [$schemabaseOn](./$schemabaseOn.md)
+### Extends: [$schemaExtends](./$extendName.md)
 #### Description:   ${schema.description}
 
 ---"""

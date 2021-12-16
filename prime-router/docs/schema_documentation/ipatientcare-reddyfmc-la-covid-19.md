@@ -1,10 +1,16 @@
 
 ### Schema:         ipatientcare/reddyfmc-la-covid-19
+### Topic:          covid-19
+### Tracking Element: none (none)
+### Base On: [none](./none.md)
+### Extends: [ipatientCare/ipatientcare-covid-19](./ipatientCare-ipatientcare-covid-19.md)
 #### Description:   iPatientCare CSV lab report schema, Reddy Family Medical Clinic, LA
 
 ---
 
 **Name**: Comments
+
+**ReportStream Internal Name**: Comments_Ignore
 
 **Type**: TEXT
 
@@ -20,6 +26,8 @@ This field is ignored.
 
 **Name**: LOINC
 
+**ReportStream Internal Name**: LOINC_Ignore
+
 **Type**: TEXT
 
 **PII**: No
@@ -33,6 +41,8 @@ This field is ignored.
 ---
 
 **Name**: Lab name
+
+**ReportStream Internal Name**: Lab name_Ignore
 
 **Type**: TEXT
 
@@ -48,6 +58,8 @@ This field is ignored.
 
 **Name**: PhyAddress1
 
+**ReportStream Internal Name**: PhyAddress1_Ignore
+
 **Type**: TEXT
 
 **PII**: No
@@ -61,6 +73,8 @@ This field is ignored.
 ---
 
 **Name**: PhysCity
+
+**ReportStream Internal Name**: PhysCity_Ignore
 
 **Type**: TEXT
 
@@ -76,6 +90,8 @@ This field is ignored.
 
 **Name**: PhysPhone
 
+**ReportStream Internal Name**: PhysPhone_Ignore
+
 **Type**: TEXT
 
 **PII**: No
@@ -89,6 +105,8 @@ This field is ignored.
 ---
 
 **Name**: PhysST
+
+**ReportStream Internal Name**: PhysST_Ignore
 
 **Type**: TEXT
 
@@ -104,6 +122,8 @@ This field is ignored.
 
 **Name**: PhysZip
 
+**ReportStream Internal Name**: PhysZip_Ignore
+
 **Type**: TEXT
 
 **PII**: No
@@ -117,6 +137,8 @@ This field is ignored.
 ---
 
 **Name**: Reference Range
+
+**ReportStream Internal Name**: Reference Range_Ignore
 
 **Type**: TEXT
 
@@ -132,6 +154,8 @@ This field is ignored.
 
 **Name**: ResultUnits
 
+**ReportStream Internal Name**: ResultUnits_Ignore
+
 **Type**: TEXT
 
 **PII**: No
@@ -146,6 +170,8 @@ This field is ignored.
 
 **Name**: SSN
 
+**ReportStream Internal Name**: SSN_Ignore
+
 **Type**: TEXT
 
 **PII**: No
@@ -159,6 +185,8 @@ This field is ignored.
 ---
 
 **Name**: ResultDate
+
+**ReportStream Internal Name**: date_result_released
 
 **Type**: DATETIME
 
@@ -175,6 +203,8 @@ ResultDate populates multiple fields.  This instance populates date_result_relea
 ---
 
 **Name**: equipment_model_name
+
+**ReportStream Internal Name**: equipment_model_name
 
 **Type**: TABLE
 
@@ -194,6 +224,8 @@ ResultDate populates multiple fields.  This instance populates date_result_relea
 
 **Name**: CLIA No
 
+**ReportStream Internal Name**: filler_clia
+
 **Type**: ID_CLIA
 
 **PII**: No
@@ -203,6 +235,8 @@ ResultDate populates multiple fields.  This instance populates date_result_relea
 ---
 
 **Name**: Facility
+
+**ReportStream Internal Name**: filler_name
 
 **Type**: TEXT
 
@@ -223,6 +257,8 @@ Facility populates multiple fields.  This instance populates filler_name.
 
 **Name**: Accession_no
 
+**ReportStream Internal Name**: filler_order_id
+
 **Type**: ID
 
 **PII**: No
@@ -242,6 +278,8 @@ Accension number
 ---
 
 **Name**: hospitalized
+
+**ReportStream Internal Name**: hospitalized
 
 **Type**: CODE
 
@@ -271,6 +309,8 @@ iPatientCare is an ambulatory EMR, so this field is defaulted to 'N'.
 
 **Name**: icu
 
+**ReportStream Internal Name**: icu
+
 **Type**: CODE
 
 **PII**: No
@@ -299,6 +339,8 @@ iPatientCare is an ambulatory EMR, so this field is defaulted to 'N'.
 
 **Name**: Accession_no
 
+**ReportStream Internal Name**: message_id
+
 **Type**: ID
 
 **PII**: No
@@ -312,6 +354,8 @@ unique id to track the usage of the message
 ---
 
 **Name**: DateColl
+
+**ReportStream Internal Name**: order_test_date
 
 **Type**: DATETIME
 
@@ -328,6 +372,8 @@ DateColl populates multiple fields.  This instance populates order_test_date.
 ---
 
 **Name**: TestName
+
+**ReportStream Internal Name**: ordered_test_name
 
 **Type**: TABLE
 
@@ -347,6 +393,8 @@ TestName populates multiple fields.  This instance populates ordered_test_name.
 
 **Name**: Fac_City
 
+**ReportStream Internal Name**: ordering_facility_city
+
 **Type**: CITY
 
 **PII**: No
@@ -360,6 +408,8 @@ Fac_City populates multiple fields.  This instance populates ordering_facility_c
 ---
 
 **Name**: Facility
+
+**ReportStream Internal Name**: ordering_facility_name
 
 **Type**: TEXT
 
@@ -375,6 +425,8 @@ Facility populates multiple fields.  This instance populates ordering_facility_n
 
 **Name**: Fac_Phone
 
+**ReportStream Internal Name**: ordering_facility_phone_number
+
 **Type**: TELEPHONE
 
 **PII**: No
@@ -388,6 +440,8 @@ Fac_Phone populates multiple fields.  This instance populates ordering_facility_
 ---
 
 **Name**: Fac_State
+
+**ReportStream Internal Name**: ordering_facility_state
 
 **Type**: TABLE
 
@@ -407,6 +461,8 @@ Fac_State populates multiple fields.  This instance populates ordering_facility_
 
 **Name**: Fac_Addr1
 
+**ReportStream Internal Name**: ordering_facility_street
+
 **Type**: STREET
 
 **PII**: No
@@ -420,6 +476,8 @@ Fac_Addr1 populates multiple fields.  This instance populates ordering_facility_
 ---
 
 **Name**: Fac_Zip
+
+**ReportStream Internal Name**: ordering_facility_zip_code
 
 **Type**: POSTAL_CODE
 
@@ -435,6 +493,8 @@ Fac_Zip populates multiple fields.  This instance populates ordering_facility_zi
 
 **Name**: Fac_City
 
+**ReportStream Internal Name**: ordering_provider_city
+
 **Type**: CITY
 
 **PII**: Yes
@@ -448,6 +508,8 @@ Fac_City populates multiple fields.  This instance populates ordering_provider_c
 ---
 
 **Name**: PhyName
+
+**ReportStream Internal Name**: ordering_provider_first_name
 
 **Type**: CODE
 
@@ -473,6 +535,8 @@ Wanda|Wanda Jefferson Wilson FNP-C
 
 **Name**: PhyName
 
+**ReportStream Internal Name**: ordering_provider_id
+
 **Type**: CODE
 
 **PII**: No
@@ -496,6 +560,8 @@ Code | Display
 ---
 
 **Name**: PhyName
+
+**ReportStream Internal Name**: ordering_provider_last_name
 
 **Type**: CODE
 
@@ -521,6 +587,8 @@ Jefferson Wilson FNP-C|Wanda Jefferson Wilson FNP-C
 
 **Name**: Fac_Phone
 
+**ReportStream Internal Name**: ordering_provider_phone_number
+
 **Type**: TELEPHONE
 
 **PII**: Yes
@@ -540,6 +608,8 @@ Fac_Phone populates multiple fields.  This instance populates ordering_provider_
 
 **Name**: Fac_State
 
+**ReportStream Internal Name**: ordering_provider_state
+
 **Type**: TABLE
 
 **PII**: No
@@ -558,6 +628,8 @@ Fac_State populates multiple fields.  This instance populates ordering_provider_
 
 **Name**: Fac_Addr1
 
+**ReportStream Internal Name**: ordering_provider_street
+
 **Type**: STREET
 
 **PII**: Yes
@@ -571,6 +643,8 @@ Fac_Addr1 populates multiple fields.  This instance populates ordering_provider_
 ---
 
 **Name**: Fac_Zip
+
+**ReportStream Internal Name**: ordering_provider_zip_code
 
 **Type**: POSTAL_CODE
 
@@ -586,6 +660,8 @@ Fac_Zip populates multiple fields.  This instance populates ordering_provider_zi
 
 **Name**: Patient City
 
+**ReportStream Internal Name**: patient_city
+
 **Type**: CITY
 
 **PII**: Yes
@@ -600,6 +676,8 @@ The patient's city
 
 **Name**: patient_county
 
+**ReportStream Internal Name**: patient_county
+
 **Type**: TABLE
 
 **PII**: No
@@ -613,6 +691,8 @@ The patient's city
 ---
 
 **Name**: Birth Date
+
+**ReportStream Internal Name**: patient_dob
 
 **Type**: DATE
 
@@ -632,6 +712,8 @@ Other states may choose to define their own formats.
 ---
 
 **Name**: Ethnicity
+
+**ReportStream Internal Name**: patient_ethnicity
 
 **Type**: CODE
 
@@ -674,6 +756,8 @@ Translate multiple inbound ethnicity values to RS / OMB values
 
 **Name**: First Name
 
+**ReportStream Internal Name**: patient_first_name
+
 **Type**: PERSON_NAME
 
 **PII**: Yes
@@ -687,6 +771,8 @@ The patient's first name
 ---
 
 **Name**: Sex
+
+**ReportStream Internal Name**: patient_gender
 
 **Type**: CODE
 
@@ -723,6 +809,8 @@ Translate multiple inbound Gender values to RS values
 
 **Name**: MRN
 
+**ReportStream Internal Name**: patient_id
+
 **Type**: TEXT
 
 **PII**: Yes
@@ -738,6 +826,8 @@ the patient ID from the testing lab, the oder placer, the ordering provider, or 
 ---
 
 **Name**: Facility
+
+**ReportStream Internal Name**: patient_id_assigner
 
 **Type**: HD
 
@@ -758,6 +848,8 @@ Facility populates multiple fields.  This instance populates patient_id_assigner
 
 **Name**: patient_id_type
 
+**ReportStream Internal Name**: patient_id_type
+
 **Type**: TEXT
 
 **PII**: No
@@ -769,6 +861,8 @@ Facility populates multiple fields.  This instance populates patient_id_assigner
 ---
 
 **Name**: Last Name
+
+**ReportStream Internal Name**: patient_last_name
 
 **Type**: PERSON_NAME
 
@@ -784,6 +878,8 @@ The patient's last name
 
 **Name**: Middle Name
 
+**ReportStream Internal Name**: patient_middle_name
+
 **Type**: PERSON_NAME
 
 **PII**: Yes
@@ -793,6 +889,8 @@ The patient's last name
 ---
 
 **Name**: Patient phone
+
+**ReportStream Internal Name**: patient_phone_number
 
 **Type**: TELEPHONE
 
@@ -807,6 +905,8 @@ The patient's phone number with area code
 ---
 
 **Name**: RACE
+
+**ReportStream Internal Name**: patient_race
 
 **Type**: CODE
 
@@ -868,6 +968,8 @@ Translate multiple inbound Race values to RS / OMB values
 
 **Name**: Patient State
 
+**ReportStream Internal Name**: patient_state
+
 **Type**: TABLE
 
 **PII**: No
@@ -886,6 +988,8 @@ The patient's state
 
 **Name**: Patient Address
 
+**ReportStream Internal Name**: patient_street
+
 **Type**: STREET
 
 **PII**: Yes
@@ -900,6 +1004,8 @@ The patient's street address
 
 **Name**: Patient ZipCode
 
+**ReportStream Internal Name**: patient_zip_code
+
 **Type**: POSTAL_CODE
 
 **PII**: No
@@ -913,6 +1019,8 @@ The patient's zip code
 ---
 
 **Name**: Accession_no
+
+**ReportStream Internal Name**: placer_order_id
 
 **Type**: ID
 
@@ -932,6 +1040,8 @@ The ID number of the lab order from the placer
 ---
 
 **Name**: Pregnant
+
+**ReportStream Internal Name**: pregnant
 
 **Type**: CODE
 
@@ -977,6 +1087,8 @@ Translate multiple inbound values into the Pregnancy SNOMED Codes
 
 **Name**: processing_mode_code
 
+**ReportStream Internal Name**: processing_mode_code
+
 **Type**: CODE
 
 **PII**: No
@@ -1003,6 +1115,8 @@ P, D, or T for Production, Debugging, or Training
 
 **Name**: CLIA No
 
+**ReportStream Internal Name**: reporting_facility_clia
+
 **Type**: ID_CLIA
 
 **PII**: No
@@ -1024,6 +1138,8 @@ The reporting facility's CLIA
 ---
 
 **Name**: Facility
+
+**ReportStream Internal Name**: reporting_facility_name
 
 **Type**: TEXT
 
@@ -1047,6 +1163,8 @@ Facility populates multiple fields.  This instance populates reporting_facility_
 
 **Name**: result_format
 
+**ReportStream Internal Name**: result_format
+
 **Type**: TEXT
 
 **PII**: No
@@ -1058,6 +1176,8 @@ Facility populates multiple fields.  This instance populates reporting_facility_
 ---
 
 **Name**: sender_id
+
+**ReportStream Internal Name**: sender_id
 
 **Type**: TEXT
 
@@ -1074,6 +1194,8 @@ ID name of org that is sending this data to ReportStream.  Suitable for provenan
 ---
 
 **Name**: DateColl
+
+**ReportStream Internal Name**: specimen_collection_date_time
 
 **Type**: DATETIME
 
@@ -1097,6 +1219,8 @@ DateColl populates multiple fields.  This instance populates specimen_collection
 ---
 
 **Name**: Specimen_Type
+
+**ReportStream Internal Name**: specimen_source_site_code
 
 **Type**: CODE
 
@@ -1158,6 +1282,8 @@ Translate inbound text to outbound SNOMED Codes
 ---
 
 **Name**: Specimen_Type
+
+**ReportStream Internal Name**: specimen_type
 
 **Type**: CODE
 
@@ -1227,6 +1353,8 @@ Translate inbound text to outbound SNOMED Codes
 
 **Name**: TestName
 
+**ReportStream Internal Name**: test_kit_name_id
+
 **Type**: CODE
 
 **PII**: No
@@ -1246,6 +1374,8 @@ Code | Display
 
 **Name**: TestName
 
+**ReportStream Internal Name**: test_performed_name
+
 **Type**: TABLE
 
 **PII**: No
@@ -1263,6 +1393,8 @@ TestName populates multiple fields.  This instance populates test_performed_name
 ---
 
 **Name**: LabResult
+
+**ReportStream Internal Name**: test_result
 
 **Type**: CODE
 
@@ -1337,6 +1469,8 @@ Translate multiple inbound Test Result values to RS values
 
 **Name**: ResultDate
 
+**ReportStream Internal Name**: test_result_date
+
 **Type**: DATETIME
 
 **PII**: No
@@ -1352,6 +1486,8 @@ ResultDate populates multiple fields.  This instance populates test_result_date.
 ---
 
 **Name**: test_result_status
+
+**ReportStream Internal Name**: test_result_status
 
 **Type**: CODE
 
@@ -1396,6 +1532,8 @@ the test result is in some intermediate status, is a correction, or is the final
 
 **Name**: Fac_City
 
+**ReportStream Internal Name**: testing_lab_city
+
 **Type**: CITY
 
 **PII**: No
@@ -1409,6 +1547,8 @@ Fac_City populates multiple fields.  This instance populates testing_lab_city.
 ---
 
 **Name**: CLIA No
+
+**ReportStream Internal Name**: testing_lab_clia
 
 **Type**: ID_CLIA
 
@@ -1436,6 +1576,8 @@ An example of the ID is 03D2159846
 
 **Name**: CLIA No
 
+**ReportStream Internal Name**: testing_lab_id
+
 **Type**: ID
 
 **PII**: No
@@ -1449,6 +1591,8 @@ Typically this will be the same as the `testing_lab_clia`, but potentially could
 ---
 
 **Name**: Facility
+
+**ReportStream Internal Name**: testing_lab_name
 
 **Type**: TEXT
 
@@ -1474,6 +1618,8 @@ Facility populates multiple fields.  This instance populates testing_lab_name.
 
 **Name**: Fac_Phone
 
+**ReportStream Internal Name**: testing_lab_phone_number
+
 **Type**: TELEPHONE
 
 **PII**: No
@@ -1487,6 +1633,8 @@ Fac_Phone populates multiple fields.  This instance populates testing_lab_phone_
 ---
 
 **Name**: DateColl
+
+**ReportStream Internal Name**: testing_lab_specimen_received_datetime
 
 **Type**: DATETIME
 
@@ -1503,6 +1651,8 @@ DateColl populates multiple fields.  This instance populates testing_lab_specime
 ---
 
 **Name**: Fac_State
+
+**ReportStream Internal Name**: testing_lab_state
 
 **Type**: TABLE
 
@@ -1522,6 +1672,8 @@ Fac_State populates multiple fields.  This instance populates testing_lab_state.
 
 **Name**: Fac_Addr1
 
+**ReportStream Internal Name**: testing_lab_street
+
 **Type**: STREET
 
 **PII**: No
@@ -1535,6 +1687,8 @@ Fac_Addr1 populates multiple fields.  This instance populates testing_lab_street
 ---
 
 **Name**: Fac_Zip
+
+**ReportStream Internal Name**: testing_lab_zip_code
 
 **Type**: POSTAL_CODE
 
