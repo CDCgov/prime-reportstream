@@ -454,7 +454,7 @@ The patient's city
 
 **PII**: No
 
-**Cardinality**: [1..1]
+**Cardinality**: [0..1]
 
 **Table**: fips-county
 
