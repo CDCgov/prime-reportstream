@@ -25,8 +25,6 @@ elements:
     documentation:  User does not need to include this column; we'll populate it.
     mapper: use(message_id)
 
-  # Above was mostly from Imagemover.  Below, I copied the direct-covid-19.schema and modified
-
   - name: message_id
     documentation: Required. A unique id for this submission of data.  Do not re-use when correcting previous results.  Rather, submit a new testId, and use the correctedTestId to refer to the testId of the old submission.   
     csvFields: [{ name: testId}]
@@ -58,12 +56,6 @@ elements:
     # A LOINC eg, 94531-1.  However, this should get auto filled in from the LIVD table
     documentation:  Leave this blank and we'll fill it in automatically.
     csvFields: [{ name: testOrdered}]
-
-  # REMOVED  - name: ordered_test_name
-
-  # REMOVED.  CUSTOM.  - name: test_coding_system
-  #  default: LN
-  #  csvFields: [{ name: testCodingSystem}]
 
   - name: test_result
     cardinality: ONE
@@ -105,10 +97,6 @@ elements:
     documentation: eg, 20210111
     csvFields: [{ name: testResultDate}]
 
-  # REMOVED: - name: date_result_released
-  #  documentation: eg, 20210112
-  #  csvFields: [{ name: testReportDate}]
-
   ### Begin Patient Info
 
   - name: patient_last_name
@@ -139,14 +127,14 @@ elements:
   - name: patient_age_units
     type: CODE
     pii: false
-    documentation:  User does not need to fill this in.  Default to 'yr' if not specified.
+    documentation:  User does not need to include this column.  Default to 'yr' if not specified.
     cardinality: ZERO_OR_ONE
     default: yr
     valueSet: hhs_age_units
     csvFields: [{ name: patientAgeUnits}]
 
   - name: patient_dob
-    # This field is required by our default quality filter, so we'll make it required here. (???)
+    # This field is required by our default quality filter, so we'll make it required here.
     cardinality: ONE
     csvFields: [{ name: patientDob}]
 
@@ -169,12 +157,6 @@ elements:
   - name: patient_gender
     csvFields: [{ name: patientSex}]
 
-  #REMOVED - name: patient_id_hash
-  #  # Custom.   Needs to go into covid-19. Mimic waters here.
-  #  type: TEXT
-  #  mapper: hash(patient_id)
-  #  csvFields: [{ name: patientUniqueIdHash}]
-
   - name: patient_street
     csvFields: [{ name: patientHomeAddress}]
 
@@ -196,11 +178,6 @@ elements:
 
   - name: patient_phone_number
     csvFields: [{ name: patientPhone}]
-
-  #REMOVED - name: patient_phone_number_area_code
-  #  documentation:  Custom. Not currently used. ReportStream assumes area code is in patientPhone
-  #  type: TEXT
-  #  csvFields: [{ name: patientPhoneArea}]
 
   - name: patient_email
     csvFields: [{ name: patientEmail}]
@@ -234,11 +211,6 @@ elements:
 
   - name: ordering_provider_phone_number
     csvFields: [{ name: orderingProviderPhone}]
-
-  # REMOVED - name: ordering_provider_phone_number_area_code
-  #  documentation: Custom.  Not currently used. ReportStream assumes area code is in orderingProviderPhone
-  #  type: TEXT
-  #  csvFields: [{ name: orderingProviderPhoneArea}]
 
   ### Begin Ordering Facility Info
 
@@ -311,33 +283,11 @@ elements:
     documentation:  AOE - Is this the patient's first test for COVID-19
     csvFields: [{ name: firstTest }]
 
-  # REMOVED - name: previous_test_type
-  #  documentation:  Custom field. Note, value matched LIVD column "F", "Test Performed LOINC Code"
-  #  type: TEXT
-  #  csvFields: [{ name: previousTestType}]
-
-  # REMOVED - name: previous_test_date
-  #  documentation: Custom field
-  #  type: DATE
-  #  csvFields: [{ name: previousTestDate}]
-
-  #REMOVED- name: previous_test_result
-  #  documentation: Custom field.  Example - 260415000
-  #  type: CODE
-  #  valueSet: covid-19/test_result
-  #  csvFields: [{ name: previousTestResult}]
-
   - name: employed_in_healthcare
     type: CODE
     valueSet: hl70136
     documentation:  AOE - Is the patient employed in a healthcare setting?
     csvFields: [{ name: healthcareEmployee }]
-
-  # REMOVED - name: healthcare_employee_type
-  #  documentation: Custom.  eg, 6816002
-  #  type: CODE
-  #  valueSet: occupations
-  #  csvFields: [{ name: healthcareEmployeeType}]
 
   - name: symptomatic_for_disease
     type: CODE
@@ -349,22 +299,11 @@ elements:
     documentation: AOE - Date of symptom onset
     csvFields: [{ name: symptomOnsetDate }]
 
-  #REMOVED- name: symptoms_list
-  #  documentation:  Custom.  Just a simple text string for now. Format is symptomCode1^date1;symptomCode2^date2; ...
-  #  type: TEXT
-  #  csvFields: [{ name: symptomsList}]
-
   - name: hospitalized
     type: CODE
     valueSet: hl70136
     documentation: AOE - Was the patient hospitalized because of COVID-19?
     csvFields: [{ name: hospitalized }]
-
-  # REMOVED - name: hospitalized_code
-  #  documentation:  Custom.  eg, 840539006, same valueset as testResult
-  #  csvFields: [{ name: hospitalizedCode}]
-  #  type: CODE
-  #  valueSet: covid-19/test_result
 
   - name: icu
     type: CODE
@@ -381,12 +320,6 @@ elements:
   - name: pregnant
     documentation: AOE - Is the patient pregnant? Use 77386006 for Pregnant, 60001007 for Not Pregnant, and 261665006 for Unknown.
     csvFields: [{ name: pregnant}]
-
-  #REMOVED.  NOT USED IN HL7.  WE DO SEND THIS TO HHSProtect - name: site_of_care
-  #  documentation: Custom field
-  #  type: CODE
-  #  valueSet: site_of_care
-  #  csvFields: [{ name: congregateResidentType}]
 
   ### Other
 

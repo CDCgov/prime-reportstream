@@ -10,6 +10,8 @@
 
 **PII**: No
 
+**Format**: use value found in the Code column
+
 **LOINC Code**: 95418-0
 
 **Cardinality**: [0..1]
@@ -76,6 +78,8 @@ User does not need to include this column; we'll populate it.
 
 **PII**: No
 
+**Format**: use value found in the Code column
+
 **LOINC Code**: 95417-2
 
 **Cardinality**: [0..1]
@@ -100,6 +104,8 @@ AOE - Is this the patient's first test for COVID-19
 
 **PII**: No
 
+**Format**: use value found in the Code column
+
 **LOINC Code**: 77974-4
 
 **Cardinality**: [0..1]
@@ -123,6 +129,8 @@ AOE - Was the patient hospitalized because of COVID-19?
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **LOINC Code**: 95420-6
 
@@ -498,6 +506,8 @@ The zip code of the provider
 
 **PII**: No
 
+**Format**: use value found in the Code column
+
 **Default Value**: yr
 
 **Cardinality**: [0..1]
@@ -511,7 +521,7 @@ yr|years
 
 **Documentation**:
 
-User does not need to fill this in.  Default to 'yr' if not specified.
+User does not need to include this column.  Default to 'yr' if not specified.
 
 ---
 
@@ -576,7 +586,7 @@ Other states may choose to define their own formats.
 
 **PII**: No
 
-**Format**: $alt
+**Format**: use value found in the Display column
 
 **Cardinality**: [0..1]
 
@@ -626,6 +636,8 @@ Required
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
@@ -722,6 +734,8 @@ The patient's phone number with area code
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
@@ -830,6 +844,8 @@ User does not need to include this column; we'll populate it.
 
 **PII**: No
 
+**Format**: use value found in the Code column
+
 **LOINC Code**: 82810-3
 
 **Cardinality**: [0..1]
@@ -867,6 +883,8 @@ pointer/link to the unique id of a previously submitted result.  Usually blank. 
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Default Value**: P
 
@@ -935,6 +953,8 @@ The reporting facility's name
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **LOINC Code**: 95421-4
 
@@ -1019,6 +1039,8 @@ User does not need to include this column.  We'll copy the value from the testId
 
 **PII**: No
 
+**Format**: use value found in the Code column
+
 **Cardinality**: [1..1]
 
 **Value Sets**
@@ -1054,6 +1076,8 @@ The specimen source, such as Blood or Serum
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **LOINC Code**: 95419-8
 
@@ -1191,6 +1215,8 @@ User does not need to include this column.  It'll get filled in automatically.
 
 **PII**: No
 
+**Format**: use value found in the Code column
+
 **Cardinality**: [1..1]
 
 **Value Sets**
@@ -1243,6 +1269,8 @@ eg, 20210111
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Default Value**: F
 
