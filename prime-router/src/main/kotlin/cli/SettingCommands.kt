@@ -10,12 +10,15 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.PrintMessage
 import com.github.ajalt.clikt.core.subcommands
+import com.github.ajalt.clikt.output.TermUi
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.choice
+import com.github.ajalt.clikt.parameters.types.file
 import com.github.ajalt.clikt.parameters.types.inputStream
+import com.github.ajalt.clikt.parameters.types.int
 import com.github.ajalt.clikt.parameters.types.outputStream
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.FuelError
@@ -25,15 +28,21 @@ import com.github.kittinunf.fuel.core.extensions.authentication
 import com.github.kittinunf.fuel.json.FuelJson
 import com.github.kittinunf.fuel.json.responseJson
 import com.github.kittinunf.result.Result
+import com.google.common.net.HttpHeaders
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.OrganizationAPI
 import gov.cdc.prime.router.azure.ReceiverAPI
 import gov.cdc.prime.router.azure.SenderAPI
+import gov.cdc.prime.router.common.Environment
 import org.apache.http.HttpStatus
+import java.io.File
 import java.io.InputStream
+import java.time.OffsetDateTime
+import java.time.format.DateTimeParseException
 
 private const val apiPath = "/api/settings"
 private const val dummyAccessToken = "dummy"
@@ -46,7 +55,7 @@ abstract class SettingCommand(
     name: String,
     help: String,
 ) : CliktCommand(name = name, help = help) {
-    private val env by option(
+    internal val env by option(
         "-e", "--env",
         metavar = "<name>",
         envvar = "PRIME_ENVIRONMENT",
@@ -64,13 +73,6 @@ abstract class SettingCommand(
 
     open val inStream: InputStream? = null
 
-    data class Environment(
-        val name: String,
-        val baseUrl: String,
-        val useHttp: Boolean = false,
-        val oktaApp: OktaCommand.OktaApp? = null
-    )
-
     enum class Operation { LIST, GET, PUT, DELETE }
     enum class SettingType { ORG, SENDER, RECEIVER }
 
@@ -83,10 +85,6 @@ abstract class SettingCommand(
         jsonMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
         yamlMapper.registerModule(JavaTimeModule())
         yamlMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-    }
-
-    fun getEnvironment(): Environment {
-        return getEnvironment(env)
     }
 
     fun getAccessToken(environment: Environment): String {
@@ -200,11 +198,23 @@ abstract class SettingCommand(
         }
     }
 
-    fun readInput(): String {
-        if (inStream == null) abort("Missing input file")
-        val input = String(inStream!!.readAllBytes())
+    /**
+     * Read the contents of an [inputStream].
+     * @return the file contents
+     */
+    fun readInput(inputStream: InputStream? = inStream): String {
+        if (inputStream == null) abort("Missing input file")
+        val input = String(inputStream.readAllBytes())
         if (input.isBlank()) abort("Blank input")
         return input
+    }
+
+    /**
+     * Read the contents [file].
+     * @return the file contents
+     */
+    fun readInput(file: File): String {
+        return readInput(file.inputStream())
     }
 
     fun writeOutput(output: String) {
@@ -266,26 +276,8 @@ abstract class SettingCommand(
     }
 
     companion object {
-        val environments = listOf(
-            Environment(
-                "local",
-                (
-                    System.getenv("PRIME_RS_API_ENDPOINT_HOST")
-                        ?: "localhost"
-                    ) + ":7071",
-                useHttp = true,
-            ),
-            Environment("test", "test.prime.cdc.gov", oktaApp = OktaCommand.OktaApp.DH_TEST),
-            Environment("staging", "staging.prime.cdc.gov", oktaApp = OktaCommand.OktaApp.DH_TEST),
-            Environment("prod", "prime.cdc.gov", oktaApp = OktaCommand.OktaApp.DH_PROD),
-        )
-
         fun abort(message: String): Nothing {
             throw PrintMessage(message, error = true)
-        }
-
-        fun getEnvironment(env: String): Environment {
-            return environments.find { it.name == env } ?: abort("bad environment")
         }
 
         fun formPath(
@@ -294,19 +286,10 @@ abstract class SettingCommand(
             settingType: SettingType,
             settingName: String
         ): String {
-            val protocol = if (environment.useHttp) "http" else "https"
-            return "$protocol://${environment.baseUrl}$apiPath${settingPath(operation, settingType, settingName)}"
+            return environment.formUrl("$apiPath${settingPath(operation, settingType, settingName)}").toString()
         }
 
-        fun formPath(
-            environment: Environment,
-            endPoint: String,
-        ): String {
-            val protocol = if (environment.useHttp) "http" else "https"
-            return "$protocol://${environment.baseUrl}/api/$endPoint"
-        }
-
-        fun settingPath(operation: Operation, settingType: SettingType, settingName: String): String {
+        private fun settingPath(operation: Operation, settingType: SettingType, settingName: String): String {
             return if (operation == Operation.LIST) {
                 when (settingType) {
                     SettingType.ORG -> "/organizations"
@@ -348,7 +331,7 @@ abstract class SingleSettingCommandNoSettingName(
 
     override fun run() {
         // Authenticate
-        val environment = getEnvironment()
+        val environment = Environment.get(env)
         val accessToken = getAccessToken(environment)
 
         // Operations
@@ -553,19 +536,74 @@ class PutMultipleSettings : SettingCommand(
     help = "set all settings from a 'organizations.yml' file"
 ) {
 
-    override val inStream by option("-i", "--input", help = "Input from file", metavar = "<file>")
-        .inputStream()
+    /**
+     * Input file with the settings.
+     */
+    private val inputFile by option("-i", "--input", help = "Input from file", metavar = "<file>")
+        .file(true, mustBeReadable = true).required()
+
+    /**
+     * Number of connection retries.
+     */
+    private val connRetries by option("-r", "--retries", help = "Number of seconds to retry waiting for the API")
+        .int().default(30)
+
+    /**
+     * Number of connection retries.
+     */
+    private val checkLastModified by option(
+        "--check-last-modified",
+        help = "Update settings only if input file is newer"
+    )
+        .flag(default = false)
 
     override fun run() {
-        val environment = getEnvironment()
+        val environment = Environment.get(env)
         val accessToken = getAccessToken(environment)
-        val results = putAll(environment, accessToken)
-        val output = "${results.joinToString("\n")}\n"
-        writeOutput(output)
+
+        // First wait for the API to come online
+        TermUi.echo("Waiting for the API at ${environment.url} to be available...")
+        CommandUtilities.waitForApi(environment, connRetries)
+
+        if (!checkLastModified || (checkLastModified && isFileUpdated(environment))) {
+            TermUi.echo("Loading settings from ${inputFile.absolutePath}...")
+            val results = putAll(environment, accessToken)
+            val output = "${results.joinToString("\n")}\n"
+            writeOutput(output)
+        } else {
+            TermUi.echo("No new updates found for settings.")
+        }
     }
 
-    fun putAll(environment: Environment, accessToken: String): List<String> {
-        val deepOrgs = readYaml()
+    /**
+     * Check if the settings from a file are newer than the data stored in the database for the
+     * given [environment].
+     * @return true if the file settings are newer or there is nothing in the database, false otherwise
+     */
+    private fun isFileUpdated(environment: Environment): Boolean {
+        val url = formPath(environment, Operation.LIST, SettingType.ORG, "")
+        val (_, response, result) = Fuel.head(url).authentication()
+            .bearer(getAccessToken(environment)).response()
+        return when (result) {
+            is Result.Success -> {
+                if (response[HttpHeaders.LAST_MODIFIED].isNotEmpty()) {
+                    try {
+                        val apiModifiedTime = OffsetDateTime.parse(
+                            response[HttpHeaders.LAST_MODIFIED].first(),
+                            HttpUtilities.lastModifiedFormatter
+                        )
+                        apiModifiedTime.toInstant().toEpochMilli() < inputFile.lastModified()
+                    } catch (e: DateTimeParseException) {
+                        error("Unable to decode last modified data from API call. $e")
+                    }
+                } else true // We have no last modified time, which means the DB is empty
+            }
+            else -> error("Unable to fetch settings last update time from API.  $result")
+        }
+    }
+
+    private fun putAll(environment: Environment, accessToken: String): List<String> {
+        val deepOrgs = readYaml(inputFile)
         val results = mutableListOf<String>()
         // Put orgs
         deepOrgs.forEach { deepOrg ->
@@ -586,8 +624,12 @@ class PutMultipleSettings : SettingCommand(
         return results
     }
 
-    fun readYaml(): List<DeepOrganization> {
-        val input = readInput()
+    /**
+     * Read the settings from a YAML file.
+     * @return the settings
+     */
+    private fun readYaml(file: File): List<DeepOrganization> {
+        val input = readInput(file.inputStream())
         return yamlMapper.readValue(input)
     }
 }
@@ -603,13 +645,13 @@ class GetMultipleSettings : SettingCommand(
     )
 
     override fun run() {
-        val environment = getEnvironment()
+        val environment = Environment.get(env)
         val accessToken = getAccessToken(environment)
         val output = getAll(environment, accessToken)
         writeOutput(output)
     }
 
-    fun getAll(environment: Environment, accessToken: String): String {
+    private fun getAll(environment: Environment, accessToken: String): String {
         // get orgs
         val orgsJson = getMany(environment, accessToken, SettingType.ORG, settingName = "")
         var orgs = jsonMapper.readValue(orgsJson, Array<OrganizationAPI>::class.java)

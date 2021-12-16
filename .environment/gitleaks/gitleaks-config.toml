@@ -12,6 +12,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
         'yarn\.lock$',
     ]
     paths = [
+        '.environment/soap_service/',
         '.idea/',
         '.terraform/providers/',
         'frontend/dist',
@@ -54,6 +55,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
             '(?i)cbrown@cdc.gov',
             '(?i)cglodosky@cdc.gov',
             '(?i)data@cdc.gov',
+            '(?i)default@noemail.com',
             '(?i)e.ripley@weyland(-)?yutani.com',
             '(?i)giang.hoang@datarobot.com',
             '(?i)hello@cypress.io',
@@ -62,6 +64,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
             '(?i)joe.jones@az.pima.gov',
             '(?i)local@test.com',
             '(?i)noreply@cdc.gov',
+            '(?i)no-reply@cdc.gov',
             '(?i)prime@cdc.gov',
             '(?i)qom6@cdc.gov',
             '(?i)qop5@cdc.gov',
@@ -100,6 +103,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
             'FAILED Sftp upload of inputReportId xxxx to SFTPTransportType\(host=sftp', # Not a secret, part of the docs
             'gpgkey=https:\/\/packages\.microsoft\.com\/keys\/microsoft\.asc\" \| tee \/etc\/yum\.repos\.d\/azure-cli\.repo',
             'HOST=localhost',                                   # Default cred, this is allowed (too broad??)
+            'host=sftp',                                        # Default dev env sftp. not real
             'pdhstaging-pgsql\.postgres\.database\.azure\.com', # Not a secret
         ]
         commits = [
@@ -116,6 +120,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
     ]
     [rules.allowlist]
         regexes = [
+            'api/lookuptables/list',
             ' \* \(The older version of this API is "/api/reports"\)',
             ' \* since this auth (has|uses) a ',
             ' by option\(\"',
@@ -152,7 +157,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
             'API_ENDPOINT_HOST\"\) \?: \"localhost\"',
             'api_url:',
             'apiKey: \"some_key\"',
-            'apiKey: \"some_key\"',
+            'API_KEY = "x-api-key"',
             'apiVersion',
             'authentication-type',
             'authenticationType == "',
@@ -200,6 +205,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
             'USER" to dbUser,',
             'user\)\.isEqualTo\("user"',
             'userAgent',
+            'UserApiKeyCredential\("rick"',
             'val (user|password)Variable = \"POSTGRES_(USER|PASSWORD)\"$',                  # Literal value
             'val exampleKeyId = "',
             'val key = \"(ohio|aphl(_light)?|as2ohp)\"',                                    # not really secrets
@@ -231,17 +237,6 @@ title = "PRIME ReportStream Gitleaks Configuration"
         "key",
         "Github",
     ]
-
-[[rules]]
-    description = "High Entropy"
-    regex = '[0-9a-zA-Z-_!{}/=]{4,120}'
-    file = '''(?i)(dump.sql|high-entropy-misc.txt)$'''
-    tags = [
-        "entropy",
-    ]
-    [[rules.Entropies]]
-        Min = "4.3"
-        Max = "7.0"
 
 [[rules]]
     description = "IPv4 addresses"

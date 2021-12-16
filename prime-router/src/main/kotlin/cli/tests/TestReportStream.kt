@@ -15,6 +15,7 @@ import com.github.ajalt.clikt.parameters.types.int
 import com.google.common.base.CharMatcher
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.REPORT_MAX_ITEMS
 import gov.cdc.prime.router.REPORT_MAX_ITEM_COLUMNS
 import gov.cdc.prime.router.Receiver
@@ -24,13 +25,14 @@ import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.DataAccessTransaction
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.HttpUtilities
-import gov.cdc.prime.router.azure.ReportFunction
-import gov.cdc.prime.router.azure.ReportStreamEnv
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.Tables.ACTION
+import gov.cdc.prime.router.azure.db.Tables.REPORT_FILE
+import gov.cdc.prime.router.azure.db.Tables.REPORT_LINEAGE
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.cli.FileUtilities
+import gov.cdc.prime.router.common.Environment
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -51,10 +53,10 @@ import kotlin.system.exitProcess
 import kotlin.system.measureTimeMillis
 
 enum class TestStatus(val description: String) {
-    DRAFT("Experimental"), // Tests that are experimental
-    FAILS("Always fails"), // For tests that just always fail, and we haven't fixed the issue yet.
+    DRAFT("Experimental Test"), // Tests that are experimental
+    FAILS("(Always fails)"), // For tests that just always fail, and we haven't fixed the issue yet.
     LOAD("Load Test"),
-    SMOKE("Part of Smoke test"), // Only Smoke the Good Stuff.
+    SMOKE("Smoke Test"), // Only Smoke the Good Stuff.
 }
 
 class TestReportStream : CliktCommand(
@@ -105,6 +107,15 @@ Examples:
         help = "Indicates the sender to use for the 'santaclaus' test."
     )
 
+    private val targetStates: String? by
+    option(
+        "--target-states",
+        metavar = "<abbrev>",
+        help = "For the 'santaclaus' test, create data only for these states. " +
+            "States should be two letters, comma-separated, e.g. 'FL,PA'. " +
+            "  Default is all states and territories."
+    )
+
     private val run by option(
         "--run",
         metavar = "test1,test2",
@@ -130,9 +141,8 @@ Examples:
 
     private val env by option(
         "--env",
-        help = "Specify local, test, staging, or prod.  'local' will connect to ${ReportStreamEnv.LOCAL.urlPrefix}," +
-            " and 'test' will connect to ${ReportStreamEnv.TEST.urlPrefix}"
-    ).choice("test", "local", "staging", "prod").default("local").validate {
+        help = "Specify the environment to connect to"
+    ).choice("test", "local", "staging").default("local").validate {
         envSanityCheck()
         when (it) {
             "test" -> require(!key.isNullOrBlank()) { "Must specify --key <secret> to submit reports to --env test" }
@@ -163,6 +173,11 @@ Examples:
         help = "Run tests one at a time."
     ).flag(default = false)
 
+    private val asyncProcessMode by option(
+        "--async",
+        help = "Use async processing when sending data"
+    ).flag(default = false)
+
     // Avoid accidentally connecting to the wrong database.
     private fun envSanityCheck() {
         val dbEnv = System.getenv("POSTGRES_URL") ?: error("Missing database env var. For help:  ./prime --help")
@@ -191,7 +206,7 @@ Examples:
             printTestList(coolTestList)
             exitProcess(0)
         }
-        val environment = ReportStreamEnv.valueOf(env.uppercase())
+        val environment = Environment.get(env)
 
         val tests = if (run != null) {
             run.toString().split(",").mapNotNull { test ->
@@ -208,7 +223,7 @@ Examples:
         }
         if (tests.isNotEmpty()) {
             TermUi.echo(
-                CoolTest.uglyMsgFormat("Running the following tests, POSTing to ${environment.urlPrefix}:")
+                CoolTest.uglyMsgFormat("Running the following tests, POSTing to ${environment.url}:")
             )
             printTestList(tests)
             runTests(tests, environment)
@@ -224,11 +239,11 @@ Examples:
         }
     }
 
-    private fun runTests(tests: List<CoolTest>, environment: ReportStreamEnv) {
+    private fun runTests(tests: List<CoolTest>, environment: Environment) {
         val failures = mutableListOf<CoolTest>()
         val options = CoolTestOptions(
-            items, submits, key, dir, sftpDir = sftpDir, env = env, sender = sender,
-            runSequential = runSequential
+            items, submits, key, dir, sftpDir = sftpDir, env = env, sender = sender, targetStates = targetStates,
+            runSequential = runSequential, asyncProcessMode = asyncProcessMode
         )
 
         /**
@@ -280,6 +295,7 @@ Examples:
     companion object {
         val coolTestList = listOf(
             Ping(),
+            SftpcheckTest(),
             End2End(),
             Merge(),
             WatersAuthTests(),
@@ -307,6 +323,7 @@ Examples:
             BadSftp(),
             Garbage(),
             SettingsTest(),
+            TestSubmissionsAPI(),
         )
     }
 }
@@ -319,8 +336,10 @@ data class CoolTestOptions(
     var muted: Boolean = false, // if true, print out less stuff,
     val sftpDir: String,
     val env: String,
-    val sender: String? = null,
-    val runSequential: Boolean = false
+    val sender: String? = null, // who is santa sending from?
+    val targetStates: String? = null, // who is santa sending to?
+    val runSequential: Boolean = false,
+    val asyncProcessMode: Boolean = false // if true, pass 'processing=async' on all tests
 )
 
 abstract class CoolTest {
@@ -335,7 +354,7 @@ abstract class CoolTest {
     private val outputMsgs = mutableListOf<String>()
 
     abstract suspend fun run(
-        environment: ReportStreamEnv,
+        environment: Environment,
         options: CoolTestOptions
     ): Boolean
 
@@ -390,12 +409,12 @@ abstract class CoolTest {
         storeMsg(msg)
     }
 
-    suspend fun waitABit(plusSecs: Int, env: ReportStreamEnv) {
+    suspend fun waitABit(plusSecs: Int, env: Environment) {
         // seconds elapsed so far in this minute
         val secsElapsed = OffsetDateTime.now().second % 60
         // Wait until the top of the next minute, and pluSecs more, for 'batch', and 'send' to finish.
         var waitSecs = 60 - secsElapsed + plusSecs
-        if (env != ReportStreamEnv.LOCAL) {
+        if (env != Environment.LOCAL) {
             // We are in Test or Staging, which don't execute on the top of the minute. Hack:
             waitSecs += 130
         } else if (secsElapsed > (60 - plusSecs)) {
@@ -415,6 +434,142 @@ abstract class CoolTest {
         }
     }
 
+    /**
+     * Polls for the json result of the process action for [reportId]
+     */
+    suspend fun pollForProcessResult(
+        reportId: ReportId,
+        maxPollSecs: Int = 180,
+        pollSleepSecs: Int = 20,
+    ): Map<ReportId, String?> {
+        var timeElapsedSecs = 0
+        var queryResult = emptyMap<ReportId, String?>()
+        echo("Polling for ReportStream process results, looking for $reportId.  (Max poll time $maxPollSecs seconds)")
+        val actualTimeElapsedMillis = measureTimeMillis {
+            while (timeElapsedSecs <= maxPollSecs) {
+                if (outputToConsole) {
+                    for (i in 1..pollSleepSecs) {
+                        delay(1000)
+                        // Print out some contemplative dots to show we are waiting.
+                        print(".")
+                    }
+                    echo()
+                } else {
+                    delay(pollSleepSecs.toLong() * 1000)
+                }
+                timeElapsedSecs += pollSleepSecs
+                queryResult = queryForProcessResults(reportId)
+                if (queryResult != null)
+                    break
+            }
+        }
+        echo("Polling for PROCESS records finished in ${actualTimeElapsedMillis / 1000 } seconds")
+
+        return queryResult
+    }
+
+    /**
+     * Looks for at least one row in the covidResultMetadata table for [reportId]
+     */
+    fun queryForCovidResults(
+        reportId: ReportId
+    ): Boolean {
+        var passed = false
+        db = WorkflowEngine().db
+        db.transact { txn ->
+            val ctx = DSL.using(txn)
+            val sql = """select cr.covid_results_metadata_id
+                from covid_result_metadata as cr
+                where cr.report_id = ?"""
+            val ret = ctx.fetch(sql, reportId)?.into(Int::class.java)
+            passed = ret != null && ret.size > 0
+        }
+        if (passed)
+            good("Covid result metadata found.")
+        return passed
+    }
+
+    /**
+     * Gets the single child of the passed in [reportId]. Throws an error if there is more than one
+     */
+    fun getSingleChildReportId(
+        reportId: ReportId,
+    ): ReportId {
+        var childReportId: ReportId? = null
+        db = WorkflowEngine().db
+        db.transact { txn ->
+            val ctx = DSL.using(txn)
+            // get internally generated reportId
+            childReportId = ctx.selectFrom(REPORT_LINEAGE)
+                .where(REPORT_LINEAGE.PARENT_REPORT_ID.eq(reportId))
+                .fetchOne(REPORT_LINEAGE.CHILD_REPORT_ID)
+        }
+        return childReportId!!
+    }
+
+    /**
+     * Returns all children produced by the process step for the parent [reportId], along with json response for each
+     */
+    private fun queryForProcessResults(
+        reportId: ReportId,
+    ): Map<ReportId, String?> {
+        var queryResult = emptyMap<ReportId, String?>()
+        db = WorkflowEngine().db
+        db.transact { txn ->
+            queryResult = processActionResultQuery(txn, reportId)
+        }
+        return queryResult
+    }
+
+    /**
+     * Examine the [jsonResponse] from the process action, makes sure there is at least one destination reported
+     * and report any errors
+     * @param jsonResponse The json that was generated by the process function
+     * @return true if there are no errors in the response, false otherwise
+     */
+    fun examineProcessResponse(jsonResponse: String?): Boolean {
+
+        var passed = true
+        try {
+            // if there is no process response, this test fails
+            if (jsonResponse == null)
+                return bad("Test Failed: No process response")
+
+            val tree = jacksonObjectMapper().readTree(jsonResponse)
+            val reportId = getReportIdFromResponse(jsonResponse)
+            echo("Id of submitted report: $reportId")
+            val topic = tree["topic"]
+            val errorCount = tree["errorCount"]
+            val destCount = tree["destinationCount"]
+            val destinations = tree["destinations"]
+
+            if (topic != null && !topic.isNull && topic.textValue().equals("covid-19", true)) {
+                good("'topic' is in response and correctly set to 'covid-19'")
+            } else {
+                passed = bad("***$name Test FAILED***: 'topic' is missing from response json")
+            }
+
+            if (errorCount != null && !errorCount.isNull && errorCount.intValue() == 0) {
+                good("No errors detected.")
+            } else {
+                passed = bad("***$name Test FAILED***: There were errors reported.")
+            }
+
+            if (destCount != null && !destCount.isNull && destCount.intValue() > 0) {
+                good("Data going to be sent to one or more destinations.")
+            } else {
+                passed = bad("***$name Test FAILED***: There are no destinations set for sending the data.")
+            }
+
+            if (reportId == null) {
+                passed = bad("***$name Test FAILED***: Report ID was empty.")
+            }
+        } catch (e: NullPointerException) {
+            passed = bad("***$name Test FAILED***: Unable to properly parse response json")
+        }
+        return passed
+    }
+
     suspend fun pollForLineageResults(
         reportId: ReportId,
         receivers: List<Receiver>,
@@ -423,6 +578,7 @@ abstract class CoolTest {
         silent: Boolean = false,
         maxPollSecs: Int = 180,
         pollSleepSecs: Int = 20, // I had this as every 5 secs, but was getting failures.  The queries run unfastly.
+        asyncProcessMode: Boolean = false
     ): Boolean {
         var timeElapsedSecs = 0
         var queryResults = listOf<Pair<Boolean, String>>()
@@ -440,7 +596,7 @@ abstract class CoolTest {
                     delay(pollSleepSecs.toLong() * 1000)
                 }
                 timeElapsedSecs += pollSleepSecs
-                queryResults = queryForLineageResults(reportId, receivers, totalItems, filterOrgName)
+                queryResults = queryForLineageResults(reportId, receivers, totalItems, filterOrgName, asyncProcessMode)
                 if (!queryResults.map { it.first }.contains(false)) break // everything passed!
             }
         }
@@ -456,30 +612,35 @@ abstract class CoolTest {
         return ! queryResults.map { it.first }.contains(false) // no falses == it passed!
     }
 
-    fun queryForLineageResults(
+    private fun queryForLineageResults(
         reportId: ReportId,
         receivers: List<Receiver>,
         totalItems: Int,
         filterOrgName: Boolean = false,
+        asyncProcessMode: Boolean = false
     ): List<Pair<Boolean, String>> {
         var queryResults = mutableListOf<Pair<Boolean, String>>()
         db = WorkflowEngine().db
         db.transact { txn ->
-            val expected = totalItems / receivers.size
             receivers.forEach { receiver ->
                 val actionsList = mutableListOf(TaskAction.receive)
                 // Bug:  this is looking at local cli data, but might be querying staging or prod.
                 // The hope is that the 'ignore' org is same in local, staging, prod.
+                if (asyncProcessMode) actionsList.add(TaskAction.process)
                 if (receiver.timing != null) actionsList.add(TaskAction.batch)
                 if (receiver.transport != null) actionsList.add(TaskAction.send)
                 actionsList.forEach { action ->
                     val count = itemLineageCountQuery(
                         txn = txn,
                         reportId = reportId,
-                        receivingOrgSvc = receiver.name,
+                        // if we are processing asynchronously the receive step doesn't have any receivers yet
+                        receivingOrgSvc = if (action == TaskAction.receive && asyncProcessMode) null else receiver.name,
                         receivingOrg = if (filterOrgName) receiver.organizationName else null,
                         action = action
                     )
+                    val expected = if (action == TaskAction.receive && asyncProcessMode) {
+                        totalItems
+                    } else totalItems / receivers.size
                     if (count == null || expected != count) {
                         queryResults += Pair(
                             false,
@@ -515,9 +676,11 @@ abstract class CoolTest {
     /**
      * Examine the [jsonResponse] from the API, makes sure there is at least one destination reported
      * and report any errors
-     * @return true if there are no errors in the reponse, false otherwise
+     * @param jsonResponse The json that was returned from the API
+     * @param shouldHaveDestination When posting async, the destination will not yet be calculated
+     * @return true if there are no errors in the response, false otherwise
      */
-    fun examineResponse(jsonResponse: String): Boolean {
+    fun examinePostResponse(jsonResponse: String, shouldHaveDestination: Boolean): Boolean {
 
         var passed = true
         try {
@@ -540,11 +703,12 @@ abstract class CoolTest {
                 passed = bad("***$name Test FAILED***: There were errors reported.")
             }
 
-            if (destCount != null && !destCount.isNull && destCount.intValue() > 0) {
-                good("Data going to be sent to one or more destinations.")
-            } else {
-                passed = bad("***$name Test FAILED***: There are no destinations set for sending the data.")
-            }
+            if (shouldHaveDestination)
+                if (destCount != null && !destCount.isNull && destCount.intValue() > 0) {
+                    good("Data going to be sent to one or more destinations.")
+                } else {
+                    passed = bad("***$name Test FAILED***: There are no destinations set for sending the data.")
+                }
 
             if (reportId == null) {
                 passed = bad("***$name Test FAILED***: Report ID was empty.")
@@ -594,9 +758,9 @@ abstract class CoolTest {
         lateinit var allGoodReceivers: MutableList<Receiver>
         lateinit var allGoodCounties: String
 
-        fun initListOfGoodReceiversAndCounties(env: ReportStreamEnv) {
+        fun initListOfGoodReceiversAndCounties(env: Environment) {
             allGoodReceivers = mutableListOf(csvReceiver, hl7Receiver, hl7BatchReceiver, hl7NullReceiver)
-            if (env == ReportStreamEnv.LOCAL) {
+            if (env == Environment.LOCAL) {
                 allGoodReceivers.add(redoxReceiver)
             }
 
@@ -653,10 +817,41 @@ abstract class CoolTest {
             return ANSI_CYAN + msg + ANSI_RESET
         }
 
+        /**
+         * Queries the database and pulls back the action_response json for the requested [reportId]
+         * @return String representing the jsonb value of action_result for the process action for this report
+         */
+        fun processActionResultQuery(
+            txn: DataAccessTransaction,
+            reportId: ReportId
+        ): Map<ReportId, String?> {
+            val ctx = DSL.using(txn)
+
+            // get the reports generated by the 'process' step
+            val processingReportIds = ctx.selectFrom(REPORT_LINEAGE)
+                .where(REPORT_LINEAGE.PARENT_REPORT_ID.eq(reportId))
+                .fetch(REPORT_LINEAGE.CHILD_REPORT_ID)
+
+            // get the action_response from the action table for the process task
+            val actionResponses = mutableMapOf<ReportId, String?>()
+            for (processingReportId in processingReportIds) {
+                val ret = ctx.select(ACTION.ACTION_RESPONSE)
+                    .from(ACTION)
+                    .join(REPORT_FILE)
+                    .on(ACTION.ACTION_ID.eq(REPORT_FILE.ACTION_ID))
+                    .and(REPORT_FILE.REPORT_ID.eq(processingReportId))
+                    .and(ACTION.ACTION_NAME.eq(TaskAction.process))
+                    .fetchOne(ACTION.ACTION_RESPONSE)
+                actionResponses[processingReportId] = ret?.toString()
+            }
+
+            return actionResponses
+        }
+
         fun itemLineageCountQuery(
             txn: DataAccessTransaction,
             reportId: ReportId,
-            receivingOrgSvc: String,
+            receivingOrgSvc: String? = null,
             receivingOrg: String? = null,
             action: TaskAction,
         ): Int? {
@@ -665,16 +860,19 @@ abstract class CoolTest {
               from item_lineage as IL
               join report_file as RF on IL.child_report_id = RF.report_id
               join action as A on A.action_id = RF.action_id
-              where RF.receiving_org_svc = ?
-              ${if (receivingOrg != null) "and RF.receiving_org = ?" else ""}
-              and A.action_name = ?
+              where
+              ${if (receivingOrgSvc != null) "RF.receiving_org_svc = ? and" else ""}
+              ${if (receivingOrg != null) "RF.receiving_org = ? and" else ""}
+              A.action_name = ?
               and IL.item_lineage_id in
               (select item_descendants(?)) """
 
-            if (receivingOrg != null) {
-                return ctx.fetchOne(sql, receivingOrgSvc, receivingOrg, action, reportId)?.into(Int::class.java)
+            return if (receivingOrg != null && receivingOrgSvc != null) {
+                ctx.fetchOne(sql, receivingOrgSvc, receivingOrg, action, reportId)?.into(Int::class.java)
+            } else if (receivingOrgSvc != null) {
+                ctx.fetchOne(sql, receivingOrgSvc, action, reportId)?.into(Int::class.java)
             } else {
-                return ctx.fetchOne(sql, receivingOrgSvc, action, reportId)?.into(Int::class.java)
+                ctx.fetchOne(sql, action, reportId)?.into(Int::class.java)
             }
         }
 
@@ -713,14 +911,15 @@ class Ping : CoolTest() {
     override val description = "CheckConnections: Is the reports endpoint alive and listening?"
     override val status = TestStatus.SMOKE
 
-    override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
-        ugly("Starting ping Test: run CheckConnections of ${environment.urlPrefix}")
+    override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
+        ugly("Starting ping Test: run CheckConnections of ${environment.url}")
         val (responseCode, json) = HttpUtilities.postReportBytes(
             environment,
             "x".toByteArray(),
             simpleRepSender,
             options.key,
-            ReportFunction.Options.CheckConnections
+            Options.CheckConnections,
+            payloadName = "$name ${status.description}",
         )
         echo("Response to POST: $responseCode")
         echo(json)
@@ -746,10 +945,20 @@ class End2End : CoolTest() {
     override val description = "Create Fake data, submit, wait, confirm sent via database lineage data"
     override val status = TestStatus.SMOKE
 
-    override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+    override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         initListOfGoodReceiversAndCounties(environment)
-        var passed = true
         ugly("Starting $name Test: send ${simpleRepSender.fullName} data to $allGoodCounties")
+
+        // run both sync and async end2end test
+        return forceSync(environment, options) && forceAsync(environment, options)
+    }
+
+    /**
+     * Forces synchronous end2end test
+     */
+    private suspend fun forceSync(environment: Environment, options: CoolTestOptions): Boolean {
+        ugly("Running end2end synchronously -- with no query param")
+        var passed = true
         val fakeItemCount = allGoodReceivers.size * options.items
         val file = FileUtilities.createFakeFile(
             metadata,
@@ -760,21 +969,106 @@ class End2End : CoolTest() {
             allGoodCounties,
             options.dir,
         )
+
         echo("Created datafile $file")
         // Now send it to ReportStream.
         val (responseCode, json) =
-            HttpUtilities.postReportFile(environment, file, simpleRepSender, options.key)
+            // force sync processing
+            HttpUtilities.postReportFile(
+                environment, file, simpleRepSender, false, options.key,
+                payloadName = "$name ${status.description} with async = false",
+            )
         if (responseCode != HttpURLConnection.HTTP_CREATED) {
             bad("***end2end Test FAILED***:  response code $responseCode")
             passed = false
         } else {
-            good("Posting of report succeeded with response code $responseCode")
+            good("Posting of sync report succeeded with response code $responseCode")
         }
         echo(json)
-        passed = passed and examineResponse(json)
+        passed = passed and examinePostResponse(json, true)
         val reportId = getReportIdFromResponse(json)
         if (reportId != null) {
-            passed = passed and pollForLineageResults(reportId, allGoodReceivers, fakeItemCount)
+            // check for covid result metadata - the examinePostResponse function above has already
+            //  verified that the topic is covid-19. This will need to be updated once we are supporting
+            //  non-covid record types
+            passed = passed and queryForCovidResults(reportId)
+            if (!passed)
+                bad("***sync end2end FAILED***: Covid metadata record not found")
+
+            // check that lineages were generated properly
+            passed = passed and pollForLineageResults(
+                reportId,
+                allGoodReceivers,
+                fakeItemCount,
+                asyncProcessMode = false
+            )
+        }
+
+        return passed
+    }
+
+    /**
+     * Forces asynchronous end2end test
+     */
+    private suspend fun forceAsync(environment: Environment, options: CoolTestOptions): Boolean {
+        ugly("Running end2end asynchronously -- with query param")
+        var passed = true
+        val fakeItemCount = allGoodReceivers.size * options.items
+        val file = FileUtilities.createFakeFile(
+            metadata,
+            settings,
+            simpleRepSender,
+            fakeItemCount,
+            receivingStates,
+            allGoodCounties,
+            options.dir,
+        )
+
+        echo("Created datafile $file")
+        // Now send it to ReportStream.
+        val (responseCode, json) =
+            // force async processing
+            HttpUtilities.postReportFile(
+                environment, file, simpleRepSender, true, options.key,
+                payloadName = "$name ${status.description} with async = true",
+            )
+        if (responseCode != HttpURLConnection.HTTP_CREATED) {
+            bad("***end2end Test FAILED***:  response code $responseCode")
+            passed = false
+        } else {
+            good("Posting of async report succeeded with response code $responseCode")
+        }
+        echo(json)
+        passed = passed and examinePostResponse(json, false)
+        if (!passed)
+            bad("***async end2end FAILED***: Error in post response")
+        // gets back 'received' reportId
+        val reportId = getReportIdFromResponse(json)
+
+        if (reportId != null) {
+            // gets back the id of the internal report
+            val internalReportId = getSingleChildReportId(reportId)
+
+            val processResults = pollForProcessResult(internalReportId)
+            // verify each result is valid
+            for (result in processResults.values)
+                passed = passed && examineProcessResponse(result)
+            if (!passed)
+                bad("***async end2end FAILED***: Process result invalid")
+
+            // check for covid result metadata - the examinePostResponse function above has already
+            //  verified that the topic is covid-19. This will need to be updated once we are supporting
+            //  non-covid record types
+            passed = passed and queryForCovidResults(reportId)
+            if (!passed)
+                bad("***async end2end FAILED***: Covid metadata record not found")
+
+            // check that lineages were generated properly
+            passed = passed and pollForLineageResults(
+                reportId, allGoodReceivers,
+                fakeItemCount,
+                asyncProcessMode = true
+            )
         }
 
         return passed
@@ -869,7 +1163,7 @@ class Merge : CoolTest() {
         return ! queryResults.map { it.first }.contains(false) // no falses == it passed!
     }
 
-    override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+    override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         var passed: Boolean
         val mergingReceivers = listOf<Receiver>(csvReceiver, hl7BatchReceiver)
         val mergingCounties = mergingReceivers.map { it.name }.joinToString(",")
@@ -889,7 +1183,14 @@ class Merge : CoolTest() {
             // Now send it to ReportStream over and over
             val reportIds = (1..options.submits).map {
                 val (responseCode, json) =
-                    HttpUtilities.postReportFile(environment, file, simpleRepSender, options.key)
+                    HttpUtilities.postReportFile(
+                        environment,
+                        file,
+                        simpleRepSender,
+                        options.asyncProcessMode,
+                        options.key,
+                        payloadName = "$name ${status.description}",
+                    )
                 echo("Response to POST: $responseCode")
                 if (responseCode != HttpURLConnection.HTTP_CREATED) {
                     return bad("***Merge Test FAILED***:  response code $responseCode")
@@ -914,7 +1215,7 @@ class Hl7Null : CoolTest() {
     override val description = "The NULL transport does db work, but no transport.  Uses HL7 format"
     override val status = TestStatus.SMOKE
 
-    override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+    override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         val fakeItemCount = 100
         ugly("Starting hl7null Test: test of many threads all doing database interactions, but no sends. ")
         val file = FileUtilities.createFakeFile(
@@ -931,7 +1232,10 @@ class Hl7Null : CoolTest() {
         val numResends = 1
         val reportIds = (1..numResends).map {
             val (responseCode, json) =
-                HttpUtilities.postReportFile(environment, file, simpleRepSender, options.key)
+                HttpUtilities.postReportFile(
+                    environment, file, simpleRepSender, options.asyncProcessMode, options.key,
+                    payloadName = "$name ${status.description}",
+                )
             echo("Response to POST: $responseCode")
             echo(json)
             if (responseCode != HttpURLConnection.HTTP_CREATED) {
@@ -945,7 +1249,8 @@ class Hl7Null : CoolTest() {
         return pollForLineageResults(
             reportId = reportIds[0],
             receivers = listOf(hl7NullReceiver),
-            totalItems = fakeItemCount
+            totalItems = fakeItemCount,
+            asyncProcessMode = options.asyncProcessMode
         )
     }
 }
@@ -955,20 +1260,23 @@ class TooManyCols : CoolTest() {
     override val description = "Submit a file with more than $REPORT_MAX_ITEM_COLUMNS columns, which should error"
     override val status = TestStatus.SMOKE
 
-    override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+    override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         ugly("Starting toomanycols Test: submitting a file with too many columns.")
         val file = File("./src/test/csv_test_files/input/too-many-columns.csv")
         if (!file.exists()) {
             error("Unable to find file ${file.absolutePath} to do toomanycols test")
         }
         val (responseCode, json) =
-            HttpUtilities.postReportFile(environment, file, simpleRepSender, options.key)
+            HttpUtilities.postReportFile(
+                environment, file, simpleRepSender, options.asyncProcessMode, options.key,
+                payloadName = "$name ${status.description}",
+            )
         echo("Response to POST: $responseCode")
         echo(json)
         try {
             val tree = jacksonObjectMapper().readTree(json)
             val firstError = (tree["errors"][0]) as ObjectNode
-            if (firstError["details"].textValue().contains("columns")) {
+            if (firstError["message"].textValue().contains("columns")) {
                 return good("toomanycols Test passed.")
             } else {
                 return bad("***toomanycols Test FAILED***:  did not find the error.")
@@ -983,7 +1291,7 @@ class BadCsv : CoolTest() {
     override val name = "badcsv"
     override val description = "Submit badly formatted csv files - should get errors"
     override val status = TestStatus.SMOKE
-    override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+    override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         val filenames = listOf("not-a-csv-file.csv", /* "column-headers-only.csv", */ "completely-empty-file.csv")
         var passed = true
         filenames.forEachIndexed { i, filename ->
@@ -996,7 +1304,9 @@ class BadCsv : CoolTest() {
                 environment,
                 file,
                 simpleRepSender,
-                options.key
+                options.asyncProcessMode,
+                options.key,
+                payloadName = "$name ${status.description}",
             )
             echo("Response to POST: $responseCode")
             if (responseCode >= 400) {
@@ -1032,7 +1342,7 @@ class Strac : CoolTest() {
     override val description = "Submit data in strac schema, send to all formats and variety of schemas"
     override val status = TestStatus.SMOKE
 
-    override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+    override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         initListOfGoodReceiversAndCounties(environment)
         ugly("Starting bigly strac Test: sending Strac data to all of these receivers: $allGoodCounties!")
         var passed = true
@@ -1049,7 +1359,14 @@ class Strac : CoolTest() {
         echo("Created datafile $file")
         // Now send it to ReportStream.
         val (responseCode, json) =
-            HttpUtilities.postReportFile(environment, file, stracSender, options.key)
+            HttpUtilities.postReportFile(
+                environment,
+                file,
+                stracSender,
+                options.asyncProcessMode,
+                options.key,
+                payloadName = "$name ${status.description}",
+            )
         echo("Response to POST: $responseCode")
         echo(json)
         if (responseCode != HttpURLConnection.HTTP_CREATED) {
@@ -1071,7 +1388,8 @@ class Strac : CoolTest() {
             return passed and pollForLineageResults(
                 reportId = reportId,
                 receivers = allGoodReceivers,
-                totalItems = fakeItemCount
+                totalItems = fakeItemCount,
+                asyncProcessMode = options.asyncProcessMode
             )
         } catch (e: Exception) {
             return bad("***strac Test FAILED***: Unexpected json returned")
@@ -1086,7 +1404,7 @@ class StracPack : CoolTest() {
         "  Same as hammertime, no delays between thread starts, so all threads start at once."
     override val status = TestStatus.LOAD
 
-    override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+    override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         ugly(
             "Starting stracpack Test: Starting ${options.submits} simultaneous threads, each submitting" +
                 " ${options.items} items of Strac data to the ${redoxReceiver.name} receiver only."
@@ -1108,7 +1426,14 @@ class StracPack : CoolTest() {
         for (i in 1..options.submits) {
             thread {
                 val (responseCode, json) =
-                    HttpUtilities.postReportFile(environment, file, stracSender, options.key)
+                    HttpUtilities.postReportFile(
+                        environment,
+                        file,
+                        stracSender,
+                        options.asyncProcessMode,
+                        options.key,
+                        payloadName = "$name ${status.description}",
+                    )
                 echo("$i: Response to POST: $responseCode")
                 if (responseCode != HttpURLConnection.HTTP_CREATED) {
                     echo(json)
@@ -1126,7 +1451,12 @@ class StracPack : CoolTest() {
         waitABit(5 * options.submits, environment) // SWAG: wait extra seconds extra per file submitted
         reportIds.forEach {
             passed = passed and
-                pollForLineageResults(reportId = it, receivers = listOf(redoxReceiver), totalItems = options.items)
+                pollForLineageResults(
+                    reportId = it,
+                    receivers = listOf(redoxReceiver),
+                    totalItems = options.items,
+                    asyncProcessMode = options.asyncProcessMode
+                )
         }
         return passed
     }
@@ -1144,7 +1474,7 @@ class Parallel : CoolTest() {
         file: File,
         numThreads: Int,
         numRounds: Int,
-        environment: ReportStreamEnv,
+        environment: Environment,
         options: CoolTestOptions
     ): Boolean {
         var passed = true
@@ -1152,6 +1482,7 @@ class Parallel : CoolTest() {
         val elapsedMillisTotal = measureTimeMillis {
             val threads = mutableListOf<Thread>()
             echo("Parallel Test: Starting $numThreads threads, each submitting $numRounds times")
+            echo("Options: $options")
             for (threadNum in 1..numThreads) {
                 val th = thread {
                     for (i in 1..numRounds) {
@@ -1161,8 +1492,10 @@ class Parallel : CoolTest() {
                                     environment,
                                     file,
                                     stracSender,
+                                    options.asyncProcessMode,
                                     options.key,
-                                    ReportFunction.Options.SkipSend
+                                    Options.SkipSend,
+                                    payloadName = "$name ${status.description}",
                                 )
                             if (responseCode != HttpURLConnection.HTTP_CREATED) {
                                 echo(json)
@@ -1207,7 +1540,7 @@ class Parallel : CoolTest() {
         return passed
     }
 
-    override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+    override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         ugly(
             "Starting parallel Test: Increasing numbers of threads submitting in parallel," +
                 " as fast as they can for $n rounds.  hl7null ${options.items} items per submission."
@@ -1224,10 +1557,26 @@ class Parallel : CoolTest() {
         echo("Created datafile $file")
         echo("Priming the pump by submitting twice:")
         val (r1, _) =
-            HttpUtilities.postReportFile(environment, file, stracSender, options.key, ReportFunction.Options.SkipSend)
+            HttpUtilities.postReportFile(
+                environment,
+                file,
+                stracSender,
+                options.asyncProcessMode,
+                options.key,
+                Options.SkipSend,
+                payloadName = "$name ${status.description}",
+            )
         echo("First response to POST: $r1")
         val (r2, _) =
-            HttpUtilities.postReportFile(environment, file, stracSender, options.key, ReportFunction.Options.SkipSend)
+            HttpUtilities.postReportFile(
+                environment,
+                file,
+                stracSender,
+                options.asyncProcessMode,
+                options.key,
+                Options.SkipSend,
+                payloadName = "$name ${status.description}",
+            )
         echo("Second response to POST: $r2.  Ready for the real test:")
         var passed = runTheParallelTest(file, 1, n, environment, options)
         passed = passed and runTheParallelTest(file, 2, n, environment, options)
@@ -1248,7 +1597,7 @@ class Waters : CoolTest() {
     override val description = "Submit data in waters schema, send to BLOBSTORE only"
     override val status = TestStatus.SMOKE
 
-    override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+    override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         ugly("Starting Waters: sending ${options.items} Waters items to ${blobstoreReceiver.name} receiver")
         val file = FileUtilities.createFakeFile(
             metadata,
@@ -1261,7 +1610,14 @@ class Waters : CoolTest() {
         )
         echo("Created datafile $file")
         val (responseCode, json) =
-            HttpUtilities.postReportFile(environment, file, watersSender, options.key)
+            HttpUtilities.postReportFile(
+                environment,
+                file,
+                watersSender,
+                options.asyncProcessMode,
+                options.key,
+                payloadName = "$name ${status.description}",
+            )
         echo("Response to POST: $responseCode")
         if (!options.muted) echo(json)
         if (responseCode != HttpURLConnection.HTTP_CREATED) {
@@ -1273,7 +1629,8 @@ class Waters : CoolTest() {
         return pollForLineageResults(
             reportId = reportId,
             receivers = listOf(blobstoreReceiver),
-            totalItems = options.items
+            totalItems = options.items,
+            asyncProcessMode = options.asyncProcessMode
         )
     }
 }
@@ -1285,7 +1642,7 @@ class RepeatWaters : CoolTest() {
         "  Can vary the sleeptime to determine what is a sustainable pace of submissions."
     override val status = TestStatus.LOAD
 
-    override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+    override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         val sleepBetweenSubmitMillis = 1000
         val variationMillis = 360
         ugly(
@@ -1315,7 +1672,14 @@ class RepeatWaters : CoolTest() {
                     var success: Boolean
                     runBlocking {
                         val (responseCode, json) =
-                            HttpUtilities.postReportFile(environment, file, watersSender, options.key)
+                            HttpUtilities.postReportFile(
+                                environment,
+                                file,
+                                watersSender,
+                                options.asyncProcessMode,
+                                options.key,
+                                payloadName = "$name ${status.description}",
+                            )
                         echo("Response to POST: $responseCode")
                         if (!options.muted) echo(json)
                         if (responseCode != HttpURLConnection.HTTP_CREATED) {
@@ -1330,7 +1694,8 @@ class RepeatWaters : CoolTest() {
                                 success = pollForLineageResults(
                                     reportId = reportId,
                                     receivers = listOf(blobstoreReceiver),
-                                    totalItems = options.items
+                                    totalItems = options.items,
+                                    asyncProcessMode = options.asyncProcessMode
                                 )
                             }
                         }
@@ -1372,7 +1737,7 @@ class HammerTime : CoolTest() {
         "  Unlike repeatwaters, no delays between thread starts, so all threads start at once."
     override val status = TestStatus.LOAD
 
-    override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+    override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         ugly(
             "Starting hammertime test: Starting ${options.submits} simultaneous threads, each submitting" +
                 " ${options.items} items of SimpleRep data to ${receiverToTest.name}"
@@ -1393,7 +1758,14 @@ class HammerTime : CoolTest() {
         for (i in 1..options.submits) {
             thread {
                 val (responseCode, json) =
-                    HttpUtilities.postReportFile(environment, file, simpleRepSender, options.key)
+                    HttpUtilities.postReportFile(
+                        environment,
+                        file,
+                        simpleRepSender,
+                        options.asyncProcessMode,
+                        options.key,
+                        payloadName = "$name ${status.description}",
+                    )
                 echo("Response to POST: $responseCode")
                 if (responseCode != HttpURLConnection.HTTP_CREATED) {
                     echo(json)
@@ -1411,7 +1783,12 @@ class HammerTime : CoolTest() {
         waitABit(5 * options.submits, environment) // SWAG: wait 5 seconds extra per file submitted
         reportIds.forEach {
             passed = passed and
-                pollForLineageResults(reportId = it, receivers = listOf(receiverToTest), totalItems = options.items)
+                pollForLineageResults(
+                    reportId = it,
+                    receivers = listOf(receiverToTest),
+                    totalItems = options.items,
+                    asyncProcessMode = options.asyncProcessMode
+                )
         }
         return passed
     }
@@ -1422,7 +1799,7 @@ class Garbage : CoolTest() {
     override val description = "Garbage in - Nice error message out"
     override val status = TestStatus.FAILS // new quality checks now prevent any data from flowing to other checks
 
-    override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+    override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         initListOfGoodReceiversAndCounties(environment)
         ugly("Starting $name Test: send ${emptySender.fullName} data to $allGoodCounties")
         var passed = true
@@ -1439,7 +1816,14 @@ class Garbage : CoolTest() {
         echo("Created datafile $file")
         // Now send it to ReportStream.
         val (responseCode, json) =
-            HttpUtilities.postReportFile(environment, file, emptySender, options.key)
+            HttpUtilities.postReportFile(
+                environment,
+                file,
+                emptySender,
+                options.asyncProcessMode,
+                options.key,
+                payloadName = "$name ${status.description}",
+            )
         echo("Response to POST: $responseCode")
         echo(json)
         try {
@@ -1474,7 +1858,7 @@ class QualityFilter : CoolTest() {
     /**
      * In the returned json, check the itemCount associated with receiver.name in the list of destinations.
      */
-    fun checkJsonItemCountForReceiver(receiver: Receiver, expectedCount: Int, json: String): Boolean {
+    private fun checkJsonItemCountForReceiver(receiver: Receiver, expectedCount: Int, json: String): Boolean {
         try {
             echo(json)
             val tree = jacksonObjectMapper().readTree(json)
@@ -1503,7 +1887,7 @@ class QualityFilter : CoolTest() {
         }
     }
 
-    override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+    override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         ugly("Starting $name Test")
         // ALLOW ALL
         ugly("\nTest the allowAll QualityFilter")
@@ -1520,9 +1904,33 @@ class QualityFilter : CoolTest() {
         echo("Created datafile $file")
         // Now send it to ReportStream.
         val (responseCode, json) =
-            HttpUtilities.postReportFile(environment, file, emptySender, options.key)
+            HttpUtilities.postReportFile(
+                environment,
+                file,
+                emptySender,
+                options.asyncProcessMode,
+                options.key,
+                payloadName = "$name ${status.description}"
+            )
         echo("Response to POST: $responseCode")
-        var passed = checkJsonItemCountForReceiver(qualityAllReceiver, fakeItemCount, json)
+
+        var passed = true
+        // if running in async mode, the initial response will not have destinations - the 'process' action result will
+        if (options.asyncProcessMode) {
+            val reportId = getReportIdFromResponse(json)
+            if (reportId != null) {
+                // gets back the id of the internal report
+                val internalReportId = getSingleChildReportId(reportId)
+
+                val processResults = pollForProcessResult(internalReportId)
+                // verify each result is valid
+                for (result in processResults.values)
+                    passed = passed &&
+                        examineProcessResponse(result) &&
+                        checkJsonItemCountForReceiver(qualityAllReceiver, fakeItemCount, result!!)
+            }
+        } else
+            passed = passed && checkJsonItemCountForReceiver(qualityAllReceiver, fakeItemCount, json)
 
         // QUALITY_PASS
         ugly("\nTest a QualityFilter that allows some data through")
@@ -1538,9 +1946,31 @@ class QualityFilter : CoolTest() {
         echo("Created datafile $file2")
         // Now send it to ReportStream.
         val (responseCode2, json2) =
-            HttpUtilities.postReportFile(environment, file2, emptySender, options.key)
+            HttpUtilities.postReportFile(
+                environment,
+                file2,
+                emptySender,
+                options.asyncProcessMode,
+                options.key,
+                payloadName = "$name ${status.description}"
+            )
         echo("Response to POST: $responseCode2")
-        passed = passed and checkJsonItemCountForReceiver(qualityGoodReceiver, 3, json2)
+        // if running in async mode, the initial response will not have destinations - the 'process' action result will
+        if (options.asyncProcessMode) {
+            val reportId = getReportIdFromResponse(json2)
+            if (reportId != null) {
+                // gets back the id of the internal report
+                val internalReportId2 = getSingleChildReportId(reportId)
+
+                val processResults2 = pollForProcessResult(internalReportId2)
+                // verify each result is valid
+                for (result in processResults2.values)
+                    passed = passed &&
+                        examineProcessResponse(result) &&
+                        checkJsonItemCountForReceiver(qualityGoodReceiver, fakeItemCount, result!!)
+            }
+        } else
+            passed = passed && checkJsonItemCountForReceiver(qualityGoodReceiver, 3, json2)
 
         // FAIL
         ugly("\nTest a QualityFilter that allows NO data through.")
@@ -1556,9 +1986,31 @@ class QualityFilter : CoolTest() {
         echo("Created datafile $file3")
         // Now send it to ReportStream.
         val (responseCode3, json3) =
-            HttpUtilities.postReportFile(environment, file3, emptySender, options.key)
+            HttpUtilities.postReportFile(
+                environment,
+                file3,
+                emptySender,
+                options.asyncProcessMode,
+                options.key,
+                payloadName = "$name ${status.description}",
+            )
         echo("Response to POST: $responseCode3")
-        passed = passed and checkJsonItemCountForReceiver(qualityFailReceiver, 0, json3)
+        // if running in async mode, the initial response will not have destinations - the 'process' action result will
+        if (options.asyncProcessMode) {
+            val reportId = getReportIdFromResponse(json3)
+            if (reportId != null) {
+                // gets back the id of the internal report
+                val internalReportId3 = getSingleChildReportId(reportId)
+
+                val processResults3 = pollForProcessResult(internalReportId3)
+                // verify each result is valid
+                for (result in processResults3.values)
+                    passed = passed &&
+                        examineProcessResponse(result) &&
+                        checkJsonItemCountForReceiver(qualityFailReceiver, fakeItemCount, result!!)
+            }
+        } else
+            passed = passed && checkJsonItemCountForReceiver(qualityFailReceiver, 0, json3)
 
         // QUALITY_REVERSED
         ugly("\nTest the REVERSE of the QualityFilter that allows some data through")
@@ -1574,9 +2026,31 @@ class QualityFilter : CoolTest() {
         echo("Created datafile $file4")
         // Now send it to ReportStream.
         val (responseCode4, json4) =
-            HttpUtilities.postReportFile(environment, file4, emptySender, options.key)
+            HttpUtilities.postReportFile(
+                environment,
+                file4,
+                emptySender,
+                options.asyncProcessMode,
+                options.key,
+                payloadName = "$name ${status.description}",
+            )
         echo("Response to POST: $responseCode4")
-        passed = passed and checkJsonItemCountForReceiver(qualityReversedReceiver, 2, json4)
+        // if running in async mode, the initial response will not have destinations - the 'process' action result will
+        if (options.asyncProcessMode) {
+            val reportId = getReportIdFromResponse(json4)
+            if (reportId != null) {
+                // gets back the id of the internal report
+                val internalReportId4 = getSingleChildReportId(reportId)
+
+                val processResults4 = pollForProcessResult(internalReportId4)
+                // verify each result is valid
+                for (result in processResults4.values)
+                    passed = passed &&
+                        examineProcessResponse(result) &&
+                        checkJsonItemCountForReceiver(qualityReversedReceiver, fakeItemCount, result!!)
+            }
+        } else
+            passed = passed && checkJsonItemCountForReceiver(qualityReversedReceiver, 2, json4)
 
         return passed
     }
@@ -1587,7 +2061,7 @@ class Huge : CoolTest() {
     override val description = "Submit $REPORT_MAX_ITEMS line csv file, wait, confirm via db.  Slow."
     override val status = TestStatus.LOAD
 
-    override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+    override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         val fakeItemCount = REPORT_MAX_ITEMS
         ugly("Starting huge Test: Attempting to send a report with $fakeItemCount items. This is terrapin slow.")
         val file = FileUtilities.createFakeFile(
@@ -1603,7 +2077,14 @@ class Huge : CoolTest() {
         echo("Created datafile $file")
         // Now send it to ReportStream.
         val (responseCode, json) =
-            HttpUtilities.postReportFile(environment, file, simpleRepSender, options.key)
+            HttpUtilities.postReportFile(
+                environment,
+                file,
+                simpleRepSender,
+                options.asyncProcessMode,
+                options.key,
+                payloadName = "$name ${status.description}",
+            )
         echo("Response to POST: $responseCode")
         echo(json)
         if (responseCode != HttpURLConnection.HTTP_CREATED) {
@@ -1613,7 +2094,12 @@ class Huge : CoolTest() {
             ?: return bad("***$name Test FAILED***: A report ID came back as null")
         echo("Id of submitted report: $reportId")
         waitABit(30, environment)
-        return pollForLineageResults(reportId = reportId, receivers = listOf(csvReceiver), totalItems = fakeItemCount)
+        return pollForLineageResults(
+            reportId = reportId,
+            receivers = listOf(csvReceiver),
+            totalItems = fakeItemCount,
+            asyncProcessMode = options.asyncProcessMode
+        )
     }
 }
 
@@ -1623,7 +2109,7 @@ class TooBig : CoolTest() {
     override val description = "Submit ${REPORT_MAX_ITEMS + 1} lines, which should be an error.  Slower ;)"
     override val status = TestStatus.LOAD
 
-    override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+    override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         val fakeItemCount = REPORT_MAX_ITEMS + 1
         ugly("Starting toobig test: Attempting to send a report with $fakeItemCount items. This is slllooooowww.")
         val file = FileUtilities.createFakeFile(
@@ -1639,7 +2125,14 @@ class TooBig : CoolTest() {
         echo("Created datafile $file")
         // Now send it to ReportStream.
         val (responseCode, json) =
-            HttpUtilities.postReportFile(environment, file, simpleRepSender, options.key)
+            HttpUtilities.postReportFile(
+                environment,
+                file,
+                simpleRepSender,
+                options.asyncProcessMode,
+                options.key,
+                payloadName = "$name ${status.description}",
+            )
         echo("Response to POST: $responseCode")
         echo(json)
         try {
@@ -1667,7 +2160,7 @@ class DbConnections : CoolTest() {
     override val description = "Test issue wherein many 'sends' caused db connection failures"
     override val status = TestStatus.DRAFT
 
-    override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+    override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         ugly("Starting dbconnections Test: test of many threads attempting to sftp ${options.items} HL7s.")
         val file = FileUtilities.createFakeFile(
             metadata,
@@ -1682,7 +2175,14 @@ class DbConnections : CoolTest() {
         // Now send it to ReportStream.   Make numResends > 1 to create merges.
         val reportIds = (1..options.submits).map {
             val (responseCode, json) =
-                HttpUtilities.postReportFile(environment, file, simpleRepSender, options.key)
+                HttpUtilities.postReportFile(
+                    environment,
+                    file,
+                    simpleRepSender,
+                    options.asyncProcessMode,
+                    options.key,
+                    payloadName = "$name ${status.description}",
+                )
             echo("Response to POST: $responseCode")
             echo(json)
             if (responseCode != HttpURLConnection.HTTP_CREATED) {
@@ -1698,7 +2198,12 @@ class DbConnections : CoolTest() {
         var passed = true
         reportIds.forEach {
             passed = passed and
-                pollForLineageResults(reportId = it, receivers = listOf(hl7Receiver), totalItems = options.items)
+                pollForLineageResults(
+                    reportId = it,
+                    receivers = listOf(hl7Receiver),
+                    totalItems = options.items,
+                    asyncProcessMode = options.asyncProcessMode
+                )
         }
         return passed
     }
@@ -1716,7 +2221,7 @@ class BadSftp : CoolTest() {
     override val description = "Test ReportStream's response to sftp connection failures. Tests RETRY too!"
     override val status = TestStatus.DRAFT
 
-    override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+    override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         ugly("Starting badsftp Test: test that our code handles sftp connectivity problems")
         val file = FileUtilities.createFakeFile(
             metadata,
@@ -1729,7 +2234,10 @@ class BadSftp : CoolTest() {
         )
         echo("Created datafile $file")
         val (responseCode, json) =
-            HttpUtilities.postReportFile(environment, file, simpleRepSender, options.key)
+            HttpUtilities.postReportFile(
+                environment, file, simpleRepSender, options.asyncProcessMode, options.key,
+                payloadName = "$name ${status.description}",
+            )
         echo("Response to POST: $responseCode")
         echo(json)
         if (responseCode != HttpURLConnection.HTTP_CREATED) {
@@ -1744,7 +2252,8 @@ class BadSftp : CoolTest() {
         return pollForLineageResults(
             reportId = reportId,
             receivers = listOf(sftpFailReceiver),
-            totalItems = options.items
+            totalItems = options.items,
+            asyncProcessMode = options.asyncProcessMode
         )
     }
 }
@@ -1760,7 +2269,7 @@ class InternationalContent : CoolTest() {
         "submit, wait, confirm sent via database lineage data"
     override val status = TestStatus.DRAFT // Because this can only be run local to get access to the SFTP folder
 
-    override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+    override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         if (options.env != "local") {
             return bad(
                 "***intcontent Test FAILED***: This test can only be run locally " +
@@ -1789,7 +2298,10 @@ class InternationalContent : CoolTest() {
         echo("Created datafile $file")
         // Now send it to ReportStream.
         val (responseCode, json) =
-            HttpUtilities.postReportFile(environment, file, simpleRepSender, options.key)
+            HttpUtilities.postReportFile(
+                environment, file, simpleRepSender, options.asyncProcessMode, options.key,
+                payloadName = "$name ${status.description}",
+            )
         echo("Response to POST: $responseCode")
         echo(json)
         if (responseCode != HttpURLConnection.HTTP_CREATED) {
@@ -1836,7 +2348,7 @@ class SantaClaus : CoolTest() {
     override val description = "Creates fake data as if from a sender and tries to send it to every state and territory"
     override val status = TestStatus.DRAFT
 
-    override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+    override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         var passed = true
         if (options.env !in listOf("local", "staging")) {
             return createBad("This test can only be run locally or on staging")
@@ -1851,7 +2363,15 @@ class SantaClaus : CoolTest() {
             // with the indicated by parameter
             sendersToTestWith = listOf(sender)
         }
-        val states = metadata.findLookupTable("fips-county")?.getDistinctValuesInColumn("State")?.toList() ?: listOf()
+
+        val states = if (options.targetStates.isNullOrEmpty()) {
+            metadata.findLookupTable("fips-county")?.getDistinctValuesInColumn("State")
+                ?.toList() ?: error("Santa is unable to find any states in the fips-county table")
+        } else {
+            options.targetStates.split(",")
+        }
+        ugly("Santa is sending data to these nice states: $states")
+
         sendersToTestWith.forEach { sender ->
             ugly("Starting $name Test: send with ${sender.fullName}")
             val file = FileUtilities.createFakeFile(
@@ -1861,13 +2381,16 @@ class SantaClaus : CoolTest() {
                 count = states.size,
                 format = if (sender.format == Sender.Format.CSV) Report.Format.CSV else Report.Format.HL7_BATCH,
                 directory = System.getProperty("java.io.tmpdir"),
-                targetStates = null,
+                targetStates = states.joinToString(","),
                 targetCounties = null
             )
             echo("Created datafile $file")
             // Now send it to ReportStream.
             val (responseCode, json) =
-                HttpUtilities.postReportFile(environment, file, sender, null)
+                HttpUtilities.postReportFile(
+                    environment, file, sender, options.asyncProcessMode, options.key,
+                    payloadName = "$name ${status.description}",
+                )
             if (responseCode != HttpURLConnection.HTTP_CREATED) {
                 return bad("***$name Test FAILED***:  response code $responseCode")
             } else {
@@ -1897,7 +2420,8 @@ class SantaClaus : CoolTest() {
                         receivers = receivers,
                         totalItems = receivers.size,
                         filterOrgName = true,
-                        silent = false
+                        silent = false,
+                        asyncProcessMode = options.asyncProcessMode
                     )
                 }
             }
@@ -1949,7 +2473,7 @@ class OtcProctored : CoolTest() {
     override val status = TestStatus.SMOKE
     val failures = mutableListOf<String>()
 
-    override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+    override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         val otcPairs = listOf(
             Pair("BinaxNOW COVID-19 Antigen Self Test_Abbott Diagnostics Scarborough, Inc.", "OTC_PROCTORED_YYY"),
             Pair("QuickVue At-Home COVID-19 Test_Quidel Corporation", "OTC_PROCTORED_NYY"),
@@ -1969,10 +2493,30 @@ class OtcProctored : CoolTest() {
             if (!reFile.exists()) {
                 error("Unable to find file ${reFile.absolutePath} to do otc test")
             }
-            val (responseCode, json) = HttpUtilities.postReportFile(environment, reFile, watersSender, options.key)
+            val (responseCode, json) = HttpUtilities.postReportFile(
+                environment,
+                reFile,
+                watersSender,
+                options.asyncProcessMode,
+                options.key
+            )
 
             echo("Response to POST: $responseCode")
-            if (examineResponse(json)) {
+            if (examinePostResponse(json, !options.asyncProcessMode)) {
+                // if testing async, verify the process result was generated
+                if (options.asyncProcessMode) {
+                    val reportId = getReportIdFromResponse(json)
+                    if (reportId != null) {
+                        // gets back the id of the internal report
+                        val internalReportId = getSingleChildReportId(reportId)
+
+                        val processResults = pollForProcessResult(internalReportId)
+                        // verify each result is valid
+                        for (result in processResults.values)
+                            if (!examineProcessResponse(result))
+                                bad("***async end2end FAILED***: Process result invalid")
+                    }
+                }
                 good("Test PASSED: ${pair.first}")
             } else {
                 bad("Test FAILED: ${pair.first}")
@@ -1983,7 +2527,7 @@ class OtcProctored : CoolTest() {
         if (failures.size == 0) {
             return true
         } else {
-            return bad("Tests FAILED: " + failures)
+            return bad("Tests FAILED: $failures")
         }
     }
 }

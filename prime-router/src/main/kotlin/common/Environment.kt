@@ -80,5 +80,13 @@ enum class Environment(
             else
                 inputUrl.host
         }
+
+        /**
+         * Checks if the current environment is the local environment.
+         * @return true if local environemnt, false otherwise
+         */
+        fun isLocal(): Boolean {
+            return get() == LOCAL
+        }
     }
 }

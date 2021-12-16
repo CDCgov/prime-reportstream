@@ -1,0 +1,17 @@
+name: gaen
+description: Google/Apple Exposure Notification
+organizationName: wa-phd
+topic: covid-19
+customerStatus: testing
+jurisdictionalFilter:
+  - matches(abnormal_flag, A)
+  - orEquals(ordering_facility_state, WA, patient_state, WA)
+timing: null
+translation:
+  type: GAEN
+transport:
+  type: GAEN
+  # Test server
+  apiUrl: "https://adminapi.encv-test.org/api/issue"
+  # for no send
+  # apiUrl: ""

@@ -2,15 +2,15 @@ import { useResource } from "rest-hooks";
 
 import FacilityResource from "../../resources/FacilityResource";
 
-interface Props {
+interface FacilitiesTableProps {
     /* REQUIRED
     Passing in a report allows this component to map through the facilities property
     to display a row per facility on the FaclitiesTable. */
     reportId: string;
 }
 
-function FacilitiesTable(props: Props) {
-    const { reportId }: Props = props;
+function FacilitiesTable(props: FacilitiesTableProps) {
+    const { reportId }: FacilitiesTableProps = props;
     const facilities: FacilityResource[] = useResource(
         FacilityResource.list(),
         { reportId: reportId }
@@ -22,7 +22,7 @@ function FacilitiesTable(props: Props) {
             <table
                 id="facilitiestable"
                 className="usa-table usa-table--borderless prime-table"
-                summary="Previous results"
+                aria-label="Facilities included in this report"
             >
                 <thead>
                     <tr>

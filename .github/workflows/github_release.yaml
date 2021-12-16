@@ -1,0 +1,142 @@
+name: Release to GitHub
+
+on:
+  push:
+    branches:
+      - production
+
+jobs:
+  wf_vars:
+    name: Set workflow variables
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ env.VERSION }}
+    steps:
+      - name: Check out changes
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 2
+      - name: Set base environment variables
+        run: |
+          echo >> $GITHUB_ENV VERSION="v-$(date +%Y.%m.%d-%H%M%S)"
+
+  build_router_gh_release:
+    name: Build router
+    needs:
+      - wf_vars
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: prime-router
+    env:
+      # These are for CI and not credentials of any system
+      POSTGRES_USER: prime
+      POSTGRES_PASSWORD: changeIT!
+    steps:
+      - name: Check out changes
+        uses: actions/checkout@v2
+      - name: Set environment variables
+        run: |
+          echo >> $GITHUB_ENV DB_USER=${POSTGRES_USER}
+          echo >> $GITHUB_ENV DB_PASSWORD=${POSTGRES_PASSWORD}
+      - name: Set up JDK 11
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'
+          distribution: 'adopt'
+          cache: 'gradle'
+      - uses: gradle/wrapper-validation-action@v1
+      - name: Spin up build containers
+        run: docker-compose -f docker-compose.postgres.yml up -d
+      - name: Build router package
+        run: ./gradlew clean package
+        # Archive artifact
+      - name: Tar router files
+        run: tar -czvf prime-router-build.tar.gz build
+      - name: Upload router artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: prime-router-build-${{ needs.wf_vars.outputs.version }}
+          path: prime-router/prime-router-build.tar.gz
+          retention-days: 1
+
+  build_frontend_react_gh_release:
+    name: Build frontend
+    needs:
+      - wf_vars
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend-react
+    steps:
+      - name: Check out changes
+        uses: actions/checkout@v2
+      - name: Build frontend
+        uses: ./.github/actions/build-frontend
+        # Archive artifact
+      - name: Tar frontend files
+        run: tar -czvf static-website-react.tar.gz build
+      - name: Upload frontend artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: static-website-react-${{ needs.wf_vars.outputs.version }}
+          path: frontend-react/static-website-react.tar.gz
+          retention-days: 1
+
+  publish_github_release:
+    name: Publish to Github
+    needs:
+      - wf_vars
+      - build_router_gh_release
+      - build_frontend_react_gh_release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out changes
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Download router artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: prime-router-build-${{ needs.wf_vars.outputs.version }}
+          path: archives/
+      - name: Download frontend artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: static-website-react-${{ needs.wf_vars.outputs.version }}
+          path: archives/
+      - name: Check if tags exist
+        id: tagged
+        shell: bash
+        run: |
+          count=$(git tag --list 'v-*' | wc -l)
+          if [ $count -gt 0 ]; then 
+            echo "::set-output name=tagged::1"; 
+          else 
+            echo "::set-output name=tagged::0"; 
+          fi
+      - name: Build changelog if tags exist
+        if: steps.tagged.outputs.tagged == 1
+        uses: mikepenz/release-changelog-builder-action@v2
+        with:
+          configuration: '.github/changelog_config.json'
+          # Allow changelog tests in forks
+          owner: 'CDCgov'
+          repo: 'prime-reportstream'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create release
+        uses: ncipollo/release-action@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ needs.wf_vars.outputs.version }}
+          artifacts: "archives/*.tar.gz,LICENSE"
+          generateReleaseNotes: true
+      - name: Delete older releases
+        uses: dev-drprasad/delete-older-releases@v0.2.0
+        with:
+          keep_latest: 5
+          delete_tags: false
+          delete_tag_pattern: 'v-20'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

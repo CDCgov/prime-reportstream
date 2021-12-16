@@ -21,7 +21,7 @@ a one time procedure and only needs to be run at workstation startup or when you
 
 ```bash
 docker-compose -f docker-compose.build.yml up --detach
-docker-compose up --scale prime_dev=0 --scale settings=0 --scale web_receiver=0 --detach
+docker-compose up --scale prime_dev=0 --detach
 ```
 
 ### Running the Azure functions

@@ -24,7 +24,7 @@ eg, 20210112
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **LOINC Code**: 95418-0
 
@@ -50,7 +50,7 @@ Override the base hl70136 valueset with a custom one, to handle slightly differe
 
 **PII**: No
 
-**Cardinality**: [1..1]
+**Cardinality**: [0..1]
 
 
 **Reference URL**:
@@ -62,7 +62,7 @@ Override the base hl70136 valueset with a custom one, to handle slightly differe
 
 **Documentation**:
 
-Required.  Must match LIVD column B, "Model". eg,  "BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B"
+If present, match LIVD column B, "Model". eg,  "BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B"
 
 ---
 
@@ -92,7 +92,7 @@ Accension number
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **LOINC Code**: 95417-2
 
@@ -118,7 +118,7 @@ Override the base hl70136 valueset with a custom one, to handle slightly differe
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **LOINC Code**: 77974-4
 
@@ -144,7 +144,7 @@ Override the base hl70136 valueset with a custom one, to handle slightly differe
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **LOINC Code**: 95420-6
 
@@ -317,7 +317,7 @@ The zip code of the provider
 
 **PII**: No
 
-**Format**: $alt
+**Format**: use value found in the Display column
 
 **Cardinality**: [0..1]
 
@@ -353,6 +353,8 @@ Internally, ReportStream uses hl70189 (H,N,U), but should use HHS values. (2135-
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
@@ -418,6 +420,8 @@ the patient ID from the testing lab, the oder placer, the ordering provider, or 
 
 **PII**: No
 
+**Format**: use value found in the Code column
+
 **Cardinality**: [0..1]
 
 **Value Sets**
@@ -454,7 +458,7 @@ The patient's race. There is a common valueset defined for race values, but some
 
 **Documentation**:
 
-not required since this is only going to HHSProtect
+The patient's state
 
 ---
 
@@ -497,6 +501,8 @@ The ID number of the lab order from the placer
 
 **PII**: No
 
+**Format**: use value found in the Code column
+
 **LOINC Code**: 82810-3
 
 **Cardinality**: [0..1]
@@ -520,6 +526,8 @@ Is the patient pregnant?
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
@@ -546,6 +554,7 @@ Code | Display
 840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
 840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
 373121007|Test not done
+82334004|Indeterminate
 
 **Documentation**:
 
@@ -573,7 +582,9 @@ Custom field. Note, value matched LIVD column "F", "Test Performed LOINC Code"
 
 **PII**: No
 
-**Default Value**: T
+**Format**: use value found in the Code column
+
+**Default Value**: P
 
 **Cardinality**: [0..1]
 
@@ -641,7 +652,7 @@ The reporting facility's name
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **LOINC Code**: 95421-4
 
@@ -682,6 +693,8 @@ ID name of org that is sending this data to ReportStream.  Suitable for provenan
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
@@ -743,6 +756,8 @@ A unique id, such as a UUID. Note - Need to override the mapper in covid-19.sche
 
 **PII**: No
 
+**Format**: use value found in the Code column
+
 **Cardinality**: [0..1]
 
 **Value Sets**
@@ -779,7 +794,7 @@ The specimen source, such as Blood or Serum
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **LOINC Code**: 95419-8
 
@@ -931,6 +946,8 @@ eg, 94558-4
 
 **PII**: No
 
+**Format**: use value found in the Code column
+
 **Cardinality**: [0..1]
 
 **Value Sets**
@@ -956,6 +973,7 @@ Code | Display
 840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
 840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
 373121007|Test not done
+82334004|Indeterminate
 
 **Documentation**:
 
@@ -982,6 +1000,8 @@ eg, 20210111
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Default Value**: F
 
@@ -1033,7 +1053,7 @@ the test result is in some intermediate status, is a correction, or is the final
 - [ORC-2-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.2.3)
 - [ORC-3-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.3.3)
 
-**Cardinality**: [1..1]
+**Cardinality**: [0..1]
 
 **Documentation**:
 

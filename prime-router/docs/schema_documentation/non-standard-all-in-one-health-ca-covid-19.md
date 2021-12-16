@@ -32,7 +32,7 @@ This field is ignored.
 
 ---
 
-**Name**: Ok To Contact Patient
+**Name**: Ok to Contact Patient
 
 **Type**: TEXT
 
@@ -342,6 +342,14 @@ The ordering provider’s National Provider Identifier
 
 ---
 
+**Name**: Provider ID/ NPI
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
 **Name**: Provider Last Name
 
 **Type**: PERSON_NAME
@@ -440,7 +448,21 @@ The patient's city
 
 ---
 
-**Name**: patient_county
+**Name**: Patient County
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Table**: fips-county
+
+**Table Column**: County
+
+---
+
+**Name**: patient_county_code
 
 **Type**: TABLE
 
@@ -448,9 +470,13 @@ The patient's city
 
 **Cardinality**: [0..1]
 
-**Table**: zip-code-data
+**Table**: fips-county
 
-**Table Column**: county
+**Table Column**: FIPS
+
+**Documentation**:
+
+The FIPS code for the patient's county
 
 ---
 
@@ -479,7 +505,7 @@ Other states may choose to define their own formats.
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **Default Value**: U
 
@@ -534,7 +560,7 @@ The patient's first name
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **Default Value**: U
 
@@ -654,7 +680,7 @@ The patient's phone number with area code
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **Default Value**: UNK
 
@@ -779,7 +805,9 @@ The ID number of the lab order from the placer
 
 **PII**: No
 
-**Default Value**: P
+**Format**: use value found in the Code column
+
+**Default Value**: T
 
 **Cardinality**: [0..1]
 
@@ -849,7 +877,7 @@ The reporting facility's name
 
 **Default Value**: all-in-one-health-ca
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -887,7 +915,7 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **Cardinality**: [0..1]
 
@@ -946,7 +974,7 @@ Translate inbound text to outbound SNOMED Codes
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **Cardinality**: [0..1]
 
@@ -1038,7 +1066,7 @@ The LOINC code of the test performed. This is a standardized coded value describ
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **Cardinality**: [0..1]
 
@@ -1122,6 +1150,8 @@ Translate multiple inbound Test Result values to RS values
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Default Value**: F
 

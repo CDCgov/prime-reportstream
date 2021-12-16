@@ -101,6 +101,8 @@
       version: 20200309
     - code: 373121007
       display: Test not done
+    - code: 82334004
+      display: Indeterminate 
 
 - name: covid-19/order
   system: LOINC

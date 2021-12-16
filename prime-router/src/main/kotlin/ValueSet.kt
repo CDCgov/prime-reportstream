@@ -1,5 +1,7 @@
 package gov.cdc.prime.router
 
+import com.fasterxml.jackson.annotation.JsonIgnore
+
 //  Example
 //
 //  - name: hl7_0136
@@ -28,6 +30,7 @@ data class ValueSet(
         NULLFL
     }
 
+    @get:JsonIgnore
     val systemCode
         get() = when (system) {
             SetSystem.HL7 -> name.uppercase()

@@ -24,6 +24,8 @@ class Metadata : Logging {
         MiddleInitialMapper(),
         UseMapper(),
         IfPresentMapper(),
+        IfNotPresentMapper(),
+        IfNPIMapper(),
         LookupMapper(),
         LIVDLookupMapper(),
         ConcatenateMapper(),
@@ -41,9 +43,9 @@ class Metadata : Logging {
         SplitByCommaMapper(),
         TimestampMapper(),
         HashMapper(),
-        NullMapper(),
+        NullMapper()
     )
-    private var jurisdictionalFilters = listOf(
+    private var reportStreamFilterDefinitions = listOf(
         FilterByCounty(),
         Matches(),
         DoesNotMatch(),
@@ -51,6 +53,7 @@ class Metadata : Logging {
         HasValidDataFor(),
         HasAtLeastOneOf(),
         AllowAll(),
+        AllowNone(),
         IsValidCLIA(),
     )
     private var valueSets = mapOf<String, ValueSet>()
@@ -97,8 +100,8 @@ class Metadata : Logging {
         tableName: String? = null,
         table: LookupTable? = null,
         tableDbAccess: DatabaseLookupTableAccess? = null
-    ) : this() {
-        if (tableDbAccess != null) this.tableDbAccess = tableDbAccess
+    ) {
+        this.tableDbAccess = tableDbAccess ?: DatabaseLookupTableAccess()
         valueSet?.let { loadValueSets(it) }
         table?.let { loadLookupTable(tableName ?: "", it) }
         schema?.let { loadSchemas(it) }
@@ -250,11 +253,11 @@ class Metadata : Logging {
     }
 
     /*
-    * JurisdictionalFilters
+    * ReportStreamFilterDefinitions
     */
 
-    fun findJurisdictionalFilter(name: String): JurisdictionalFilter? {
-        return jurisdictionalFilters.find { it.name.equals(name, ignoreCase = true) }
+    fun findReportStreamFilterDefinitions(name: String): ReportStreamFilterDefinition? {
+        return reportStreamFilterDefinitions.find { it.name.equals(name, ignoreCase = true) }
     }
 
     /*

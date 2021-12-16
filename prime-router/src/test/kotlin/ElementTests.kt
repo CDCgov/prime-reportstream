@@ -12,10 +12,12 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
-import java.time.ZoneId
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import kotlin.test.Test
 import kotlin.test.assertFails
+
+private const val dateFormat = "yyyy-MM-dd"
 
 internal class ElementTests {
 
@@ -100,7 +102,7 @@ internal class ElementTests {
             "a",
             type = Element.Type.DATETIME,
         )
-        val o = ZoneId.of(USTimeZone.CENTRAL.zoneId).rules.getOffset(Instant.now()).toString()
+        val o = ZoneOffset.UTC.rules.getOffset(Instant.now()).toString()
         val offset = if (o == "Z") {
             "+0000"
         } else {
@@ -113,7 +115,7 @@ internal class ElementTests {
             "a",
             type = Element.Type.DATETIME,
         )
-        three.toNormalized("2020-12-09", "yyyy-MM-dd").run {
+        three.toNormalized("2020-12-09", dateFormat).run {
             assertThat(this).isEqualTo("202012090000$offset")
         }
         mapOf(
@@ -147,8 +149,60 @@ internal class ElementTests {
             type = Element.Type.DATETIME,
         )
         // Other formats should work too, including sans the time.
-        two.toFormatted("202012090000+0000", "yyyy-MM-dd").run {
+        two.toFormatted("202012090000+0000", dateFormat).run {
             assertThat(this).isEqualTo("2020-12-09")
+        }
+    }
+
+    @Test
+    fun `test toFormatted date`() {
+        val two = Element(
+            "a",
+            type = Element.Type.DATE,
+        )
+        // Check correct formats should work too, including sans the time.
+        two.toFormatted("20201201", dateFormat).run {
+            assertThat(this).isEqualTo("2020-12-01")
+        }
+        // Check another correct format and expect to return only date.
+        two.toFormatted("20201202", "M/d/yyyy HH:nn").run {
+            assertThat(this).isEqualTo("12/2/2020 00:00")
+        }
+        // Given datetime format and expect to return only date.
+        two.toFormatted("20201203", "$dateFormat HH:mm:ss").run {
+            assertThat(this).isEqualTo("2020-12-03 00:00:00")
+        }
+    }
+
+    @Test
+    fun `test getDate output format`() {
+        val two = Element(
+            "a",
+            type = Element.Type.DATE,
+        )
+
+        // Check LocalDate output formate
+        val localDate = LocalDate.parse("2020-12-01")
+        two.getDate(localDate, dateFormat).run {
+            assertThat(this).isEqualTo("2020-12-01")
+        }
+
+        // Check LocalDateTime output format.
+        val localDateTime = LocalDateTime.parse("2018-12-12T13:30:30")
+        two.getDate(localDateTime, "M/d/yyyy HH:nn").run {
+            assertThat(this).isEqualTo("12/12/2018 13:00")
+        }
+
+        // Check OffsetDateTime output format.
+        val offsetDateTime = OffsetDateTime.parse("2018-12-12T13:30:30+05:00")
+        two.getDate(offsetDateTime, "$dateFormat HH:mm:ss").run {
+            assertThat(this).isEqualTo("2018-12-12 13:30:30")
+        }
+
+        // Check OffsetDateTime output format.
+        val instant = Instant.parse("2020-12-03T13:30:30.000Z")
+        two.getDate(instant, dateFormat).run {
+            assertThat(this).isEqualTo("2020-12-03T13:30:30Z")
         }
     }
 
@@ -286,6 +340,44 @@ internal class ElementTests {
     }
 
     @Test
+    fun `test checkForError DATE`() {
+        val checkForErrorDateElementNullify = Element(
+            "a",
+            type = Element.Type.DATE,
+            csvFields = Element.csvFields("date"),
+            nullifyValue = true
+        )
+
+        // nullify an invalid date if nullifyValue is true
+        assertThat(
+            checkForErrorDateElementNullify.checkForError("a week ago")
+        ).isEqualTo(
+            null
+        )
+
+        val checkForErrorDateElement = Element(
+            "a",
+            type = Element.Type.DATE,
+            csvFields = Element.csvFields("date")
+        )
+
+        // passing through a valid date of known manual formats does not throw an error
+        val dateStrings = arrayOf("12/20/2020", "12202020", "2020/12/20", "12/20/2020 12:15", "2020/12/20 12:15")
+        dateStrings.forEach { dateString ->
+            assertThat(
+                checkForErrorDateElement.checkForError(dateString)
+            ).isEqualTo(
+                null
+            )
+        }
+
+        // return an InvalidDateMessage
+        val expected = InvalidDateMessage.new("a week ago", "'date' ('a')", null)
+        val actual = checkForErrorDateElement.checkForError("a week ago", null)
+        assertThat(actual?.detailMsg()).isEqualTo(expected.detailMsg())
+    }
+
+    @Test
     fun `test normalize and formatted round-trips`() {
         val postal = Element(
             "a",
@@ -348,6 +440,45 @@ internal class ElementTests {
             date.toFormatted(date.toNormalized("2020-12-20"))
         ).isEqualTo(
             "20201220"
+        )
+
+        // normalize manually entered date use cases
+        // "M/d/yyyy", "MMddyyyy", "yyyy/M/d", "M/d/yyyy HH:mm", "yyyy/M/d HH:mm"
+        val dateStrings = arrayOf("12/20/2020", "12202020", "2020/12/20", "12/20/2020 12:15", "2020/12/20 12:15")
+        dateStrings.forEach { dateString ->
+            assertThat(
+                date.toFormatted(date.toNormalized(dateString))
+            ).isEqualTo(
+                "20201220"
+            )
+        }
+
+        val nullifyDateElement = Element(
+            "a",
+            type = Element.Type.DATE,
+            csvFields = Element.csvFields("date"),
+            nullifyValue = true
+        )
+
+        // normalize and nullify an invalid date
+        assertThat(
+            nullifyDateElement.toFormatted(nullifyDateElement.toNormalized("a week ago"))
+        ).isEqualTo(
+            ""
+        )
+
+        val nullifyDateTimeElement = Element(
+            "a",
+            type = Element.Type.DATETIME,
+            csvFields = Element.csvFields("datetime"),
+            nullifyValue = true
+        )
+
+        // normalize and nullify an invalid datetime
+        assertThat(
+            nullifyDateTimeElement.toFormatted(nullifyDateTimeElement.toNormalized("a week ago"))
+        ).isEqualTo(
+            ""
         )
 
         val datetime = Element(
@@ -542,7 +673,10 @@ internal class ElementTests {
                 "g", Element.Type.TEXT, mapper = "concat(a,e,\$currentDate)", mapperRef = ConcatenateMapper(),
                 mapperArgs = listOf("a", "e", "\$currentDate"), mapperOverridesValue = true, default = "someDefault",
                 delimiter = "-"
-            )
+            ),
+            Element("h", Element.Type.TEXT, default = "someDefault", defaultOverridesValue = false), // 7
+            Element("i", Element.Type.TEXT, default = "someDefault", defaultOverridesValue = true), // 8
+            Element("j", Element.Type.TEXT, defaultOverridesValue = true), // 9   (null default)
         )
         val schema = Schema("one", "covid-19", elements)
         val currentDate = LocalDate.now().format(Element.dateFormatter)
@@ -553,7 +687,10 @@ internal class ElementTests {
             elements[3].name to "TEST3",
             elements[4].name to "TEST4",
             elements[5].name to "TEST-TEST4-1",
-            elements[6].name to "TEST-TEST4-$currentDate"
+            elements[6].name to "TEST-TEST4-$currentDate",
+            elements[7].name to "value",
+            elements[8].name to "value",
+            elements[9].name to "value",
         )
 
         // Element has value and mapperAlwaysRun is false, so we get the raw value
@@ -583,6 +720,18 @@ internal class ElementTests {
         // Element with $currentDate
         finalValue = elements[6].processValue(mappedValues, schema)
         assertThat(finalValue).isEqualTo("${mappedValues[elements[6].name]}")
+
+        // Default does not override
+        finalValue = elements[7].processValue(mappedValues, schema)
+        assertThat(finalValue).isEqualTo("${mappedValues[elements[7].name]}")
+
+        // Default forces override
+        finalValue = elements[8].processValue(mappedValues, schema)
+        assertThat(finalValue).isEqualTo("someDefault")
+
+        // Default forces override, and the default is null.
+        finalValue = elements[9].processValue(mappedValues, schema)
+        assertThat(finalValue).isEqualTo("")
     }
 
     @Test
@@ -614,16 +763,34 @@ internal class ElementTests {
 
     @Test
     fun `test tokenized value mapping`() {
-        val elementNameIndex = "\$index"
-        val elementNameCurrentDate = "\$currentDate"
-
         val mockElement = Element("mock")
+
+        // sending in "$index" should return the index of the row being processed
+        val elementNameIndex = "\$index"
         val elementAndValueIndex = mockElement.tokenizeMapperValue(elementNameIndex, 3)
+        assertThat(elementAndValueIndex.value).isEqualTo("3")
+
+        // sending in "$currentDate" should return the current date of when the function was ran
+        val elementNameCurrentDate = "\$currentDate"
         val formatter = DateTimeFormatter.ofPattern("yyyyMMdd")
         val currentDate = LocalDate.now().format(formatter)
         val elementAndValueCurrentDate = mockElement.tokenizeMapperValue(elementNameCurrentDate)
+        assertThat(elementAndValueCurrentDate.value).isEqualTo(currentDate)
 
-        assertThat(elementAndValueIndex?.value).isEqualTo("3")
-        assertThat(elementAndValueCurrentDate?.value).isEqualTo(currentDate)
+        // if nothing "parsable" comes through, the token value will be an empty string
+        val elementNameNonValidToken = "\$nonValidToken:not valid"
+        val elementAndValueNotValidToken = mockElement.tokenizeMapperValue(elementNameNonValidToken)
+        assertThat(elementAndValueNotValidToken.value).isEqualTo("")
+
+        // sending in a "mode:literal" should return just the mode, which in this case is "literal"
+        val elementNameMode = "\$mode:literal"
+        val elementAndValueMode = mockElement.tokenizeMapperValue(elementNameMode)
+        assertThat(elementAndValueMode.value).isEqualTo("literal")
+
+        // sending in a "string:someDefaultString" should return just the string that needs to be the default value,
+        // which in this case is "someDefaultString"
+        val elementNameString = "\$string:someDefaultString"
+        val elementAndValueString = mockElement.tokenizeMapperValue(elementNameString)
+        assertThat(elementAndValueString.value).isEqualTo("someDefaultString")
     }
 }

@@ -202,7 +202,7 @@ class TranslationTests {
                 if (!config.shouldPass && result.passed) result.errors.add("Test was expected to fail, but passed.")
                 assertEquals(
                     config.shouldPass, result.passed,
-                    result.errors.joinToString("\n", "ERRORS:${System.lineSeparator()}") +
+                    result.errors.joinToString("\n", "ERRORS:${System.lineSeparator()}\n") +
                         result.warnings.joinToString("\n", "WARNINGS:${System.lineSeparator()}")
                 )
                 // Print the errors and warnings after the test completed successfully.

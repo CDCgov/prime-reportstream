@@ -4,7 +4,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.nimbusds.jose.jwk.JWK
 import com.nimbusds.jose.jwk.KeyType
 import gov.cdc.prime.router.Sender
-import gov.cdc.prime.router.cli.SettingCommand
+import gov.cdc.prime.router.common.Environment
 import io.jsonwebtoken.Jwts
 import java.io.File
 import java.net.URL
@@ -47,9 +47,9 @@ class SenderUtils {
             )
         }
 
-        fun generateSenderUrl(environment: SettingCommand.Environment, senderToken: String, scope: String): URL {
+        fun generateSenderUrl(environment: Environment, senderToken: String, scope: String): URL {
             return URL(
-                SettingCommand.formPath(environment, "token") + "?" +
+                environment.formUrl("api/token").toString() + "?" +
                     generateSenderUrlParameters(senderToken, scope)
                         .map { "${it.key}=${it.value}" }.joinToString("&")
             )
