@@ -29,16 +29,20 @@ import com.github.kittinunf.fuel.core.extensions.authentication
 import com.github.kittinunf.fuel.json.FuelJson
 import com.github.kittinunf.fuel.json.responseJson
 import com.github.kittinunf.result.Result
+import com.google.common.net.HttpHeaders
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.OrganizationAPI
 import gov.cdc.prime.router.azure.ReceiverAPI
 import gov.cdc.prime.router.azure.SenderAPI
 import gov.cdc.prime.router.common.Environment
 import org.apache.http.HttpStatus
 import java.io.File
+import java.time.OffsetDateTime
+import java.time.format.DateTimeParseException
 
 private const val apiPath = "/api/settings"
 private const val dummyAccessToken = "dummy"
@@ -649,7 +653,7 @@ class DiffReceiverSetting : DiffSettingCommand(
 /**
  * Update multiple settings
  */
-class MultipleSettings : CliktCommand(
+class MultipleSettings : CliktCommand (
     name = "multiple-settings",
     help = "Fetch and update multiple settings"
 ) {
@@ -672,14 +676,54 @@ class PutMultipleSettings : SettingCommand(
     private val connRetries by option("-r", "--retries", help = "Number of seconds to retry waiting for the API")
         .int().default(30)
 
+    /**
+     * Number of connection retries.
+     */
+    private val checkLastModified by option(
+        "--check-last-modified",
+        help = "Update settings only if input file is newer"
+    )
+        .flag(default = false)
+
     override fun run() {
         // First wait for the API to come online
         echo("Waiting for the API at ${cliEnvironment.url} to be available...")
         CommandUtilities.waitForApi(cliEnvironment, connRetries)
 
-        val results = putAll()
-        val output = "${results.joinToString("\n")}\n"
-        writeOutput(output)
+        if (!checkLastModified || (checkLastModified && isFileUpdated())) {
+            TermUi.echo("Loading settings from ${inputFile.absolutePath}...")
+            val results = putAll()
+            val output = "${results.joinToString("\n")}\n"
+            writeOutput(output)
+        } else {
+            TermUi.echo("No new updates found for settings.")
+        }
+    }
+
+    /**
+     * Check if the settings from a file are newer than the data stored in the database for commands environment.
+     * @return true if the file settings are newer or there is nothing in the database, false otherwise
+     */
+    private fun isFileUpdated(): Boolean {
+        val url = formPath(cliEnvironment, Operation.LIST, SettingType.ORG, "")
+        val (_, response, result) = Fuel.head(url).authentication()
+            .bearer(cliAccessToken).response()
+        return when (result) {
+            is Result.Success -> {
+                if (response[HttpHeaders.LAST_MODIFIED].isNotEmpty()) {
+                    try {
+                        val apiModifiedTime = OffsetDateTime.parse(
+                            response[HttpHeaders.LAST_MODIFIED].first(),
+                            HttpUtilities.lastModifiedFormatter
+                        )
+                        apiModifiedTime.toInstant().toEpochMilli() < inputFile.lastModified()
+                    } catch (e: DateTimeParseException) {
+                        error("Unable to decode last modified data from API call. $e")
+                    }
+                } else true // We have no last modified time, which means the DB is empty
+            }
+            else -> error("Unable to fetch settings last update time from API.  $result")
+        }
     }
 
     private fun putAll(): List<String> {
