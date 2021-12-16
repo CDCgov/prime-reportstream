@@ -15,10 +15,10 @@ class FakeReportIntegrationTests {
         assertThat(zipCodeTable).isNotNull()
         val state = "VT"
         val county = "Rutland"
-        val matchingCityRows = zipCodeTable!!.FilterBuilder().startsWith("state_abbr", state)
-            .startsWith("county", county).findAllUnique("city")
-        val matchingZipRows = zipCodeTable.FilterBuilder().startsWith("state_abbr", state)
-            .startsWith("county", county).findAllUnique("zipcode")
+        val matchingCityRows = zipCodeTable!!.FilterBuilder().startsWithIgnoreCase("state_abbr", state)
+            .startsWithIgnoreCase("county", county).findAllUnique("city")
+        val matchingZipRows = zipCodeTable.FilterBuilder().startsWithIgnoreCase("state_abbr", state)
+            .startsWithIgnoreCase("county", county).findAllUnique("zipcode")
         // act
         val context = FakeReport.RowContext(
             metadata::findLookupTable,
