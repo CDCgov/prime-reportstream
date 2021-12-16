@@ -6,8 +6,6 @@ import com.github.ajalt.clikt.core.PrintMessage
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.extensions.authentication
 import com.github.kittinunf.result.Result
-import de.m3y.kformat.Table
-import de.m3y.kformat.table
 import gov.cdc.prime.router.common.Environment
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
@@ -42,6 +40,16 @@ class CommandUtilities {
                     delay(pollIntervalSecs * 1000)
                 }
             }
+        }
+
+        /**
+         * Is the service running the environment
+         */
+        internal fun isApiAvailable(environment: Environment): Boolean {
+            val url = environment.formUrl(waitForApiEndpointPath)
+            val accessToken = OktaCommand.fetchAccessToken(environment.oktaApp)
+                ?: error("Unable to obtain Okta access token for environment $environment")
+            return isEndpointAvailable(url, accessToken)
         }
 
         /**
@@ -123,22 +131,6 @@ class CommandUtilities {
             val compareToMap = createMaps(compareTo)
             val mergedRows = mergeMaps(baseMap, compareToMap)
             return mergedRows.filter { it.baseValue != it.toValue }.sortedBy { it.name }
-        }
-
-        /**
-         * Render the list of output from [diffJson] in [diffList as a table.
-         */
-        fun renderDiffTable(diffList: List<DiffRow>): String {
-            if (diffList.isEmpty()) return ""
-            return table {
-                hints {
-                    borderStyle = Table.BorderStyle.SINGLE_LINE
-                }
-                header("name", "from", "to")
-                diffList.forEach {
-                    row(it.name, it.baseValue, it.toValue)
-                }
-            }.render().toString()
         }
 
         /**
