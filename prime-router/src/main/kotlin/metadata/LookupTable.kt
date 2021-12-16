@@ -143,6 +143,9 @@ open class LookupTable : Logging {
         return table.containsColumn(column)
     }
 
+    /**
+     * Filter builder used to find values or filter the lookup table.
+     */
     inner class FilterBuilder {
         /**
          * The filter selector.
