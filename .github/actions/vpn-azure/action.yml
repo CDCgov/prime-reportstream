@@ -1,0 +1,65 @@
+# action.yml
+name: 'VPN Azure'
+description: 'Connect to VPN and login to Azure'
+inputs:
+  tls-key:
+    description: "TLS key"
+    required: true
+  ca-cert:
+    description: "CA cert"
+    required: true
+  user-crt:
+    description: "User cert"
+    required: true
+  user-key:
+    description: "User key"
+    required: true
+  sp-creds:
+    description: "Azure Service Principal creds"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+
+    - name: Set environment variables - dev
+      if: github.ref == 'refs/heads/dev-rheft'
+      shell: bash
+      run: echo "VPN_ENV=dev" >> $GITHUB_ENV
+
+    - name: Set environment variables - test
+      if: github.ref == 'refs/heads/ronheft/test-investigation'
+      shell: bash
+      run: echo "VPN_ENV=test" >> $GITHUB_ENV
+
+    - name: Set environment variables - staging
+      if: github.ref == 'refs/heads/master'
+      shell: bash
+      run: echo "VPN_ENV=staging" >> $GITHUB_ENV
+
+    - name: Set environment variables - production
+      if: github.ref == 'refs/heads/production'
+      shell: bash
+      run: echo "VPN_ENV=prod" >> $GITHUB_ENV
+
+    - name: Install OpenVPN
+      run: |
+        sudo apt-get update
+        sudo apt-get install openvpn
+        sudo apt install openvpn-systemd-resolved
+      shell: bash
+
+    - uses: golfzaptw/action-connect-ovpn@2.0.1
+      if: env.VPN_ENV
+      id: connect_vpn
+      with:
+        FILE_OVPN: .github/vpn/${{ env.VPN_ENV }}.ovpn
+        TLS_KEY: ${{ inputs.tls-key }}
+      env:
+        CA_CRT: ${{ inputs.ca-cert}}
+        USER_CRT: ${{ inputs.user-crt }}
+        USER_KEY: ${{ inputs.user-key }}
+
+    - uses: azure/login@v1
+      with:
+        creds: ${{ inputs.sp-creds }}

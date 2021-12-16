@@ -71,13 +71,8 @@ jobs:
     steps:
       - name: Check out changes
         uses: actions/checkout@v2
-      - name: Use Node.js ${{ matrix.node-version }} yarn
-        uses: actions/setup-node@v2
-        with:
-          node-version: '14'
-      - run: yarn install
       - name: Build frontend
-        run: yarn run build:production
+        uses: ./.github/actions/build-frontend
         # Archive artifact
       - name: Tar frontend files
         run: tar -czvf static-website-react.tar.gz build
@@ -123,6 +118,11 @@ jobs:
       - name: Build changelog if tags exist
         if: steps.tagged.outputs.tagged == 1
         uses: mikepenz/release-changelog-builder-action@v2
+        with:
+          configuration: '.github/changelog_config.json'
+          # Allow changelog tests in forks
+          owner: 'CDCgov'
+          repo: 'prime-reportstream'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Create release
