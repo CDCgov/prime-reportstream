@@ -265,7 +265,7 @@ class LookupMapper : Mapper {
             }
             val lookupColumn = element.tableColumn
                 ?: error("Schema Error: no tableColumn for element ${element.name}")
-            lookupTable.lookupValue(lookupColumn, indexValues)
+            lookupTable.FilterBuilder().equalsIgnoreCase(indexValues).findSingleResult(lookupColumn)
         }
     }
 }
@@ -469,7 +469,7 @@ class LIVDLookupMapper : Mapper {
                 ?: error("Schema Error: no tableColumn for element '${element.name}'")
             val searchValues = mutableMapOf(onColumn to lookup)
             searchValues.putAll(filters)
-            return lookupTable.lookupValue(lookupColumn, searchValues)
+            return lookupTable.FilterBuilder().equalsIgnoreCase(searchValues).findSingleResult(lookupColumn)
         }
 
         /**
@@ -491,7 +491,8 @@ class LIVDLookupMapper : Mapper {
                 ?: error("Schema Error: could not find table '${element.table}'")
             val lookupColumn = element.tableColumn
                 ?: error("Schema Error: no tableColumn for element '${element.name}'")
-            return lookupTable.lookupPrefixValue(lookupColumn, mapOf(onColumn to lookup), filters)
+            return lookupTable.FilterBuilder().startsWithIgnoreCase(onColumn, lookup).equalsIgnoreCase(filters)
+                .findSingleResult(lookupColumn)
         }
     }
 }
@@ -519,8 +520,10 @@ class Obx17Mapper : Mapper {
                 ?: error("Schema Error: could not find table '${element.table}'")
             val indexColumn = indexElement.tableColumn
                 ?: error("Schema Error: no tableColumn for element '${indexElement.name}'")
-            val testKitNameId = lookupTable.lookupValue("Testkit Name ID", mapOf(indexColumn to indexValue))
-            val testKitNameIdType = lookupTable.lookupValue("Testkit Name ID Type", mapOf(indexColumn to indexValue))
+            val testKitNameId = lookupTable.FilterBuilder().equalsIgnoreCase(indexColumn, indexValue)
+                .findSingleResult("Testkit Name ID")
+            val testKitNameIdType = lookupTable.FilterBuilder().equalsIgnoreCase(indexColumn, indexValue)
+                .findSingleResult("Testkit Name ID Type")
             if (testKitNameId != null && testKitNameIdType != null) {
                 "${testKitNameId}_$testKitNameIdType"
             } else {
@@ -553,7 +556,9 @@ class Obx17TypeMapper : Mapper {
                 ?: error("Schema Error: could not find table '${element.table}'")
             val indexColumn = indexElement.tableColumn
                 ?: error("Schema Error: no tableColumn for element '${indexElement.name}'")
-            if (lookupTable.lookupValue("Testkit Name ID", mapOf(indexColumn to indexValue)) != null) "99ELR" else null
+            if (lookupTable.FilterBuilder().equalsIgnoreCase(indexColumn, indexValue)
+                .findSingleResult("Testkit Name ID") != null
+            ) "99ELR" else null
         }
     }
 }
@@ -802,7 +807,8 @@ class ZipCodeToCountyMapper : Mapper {
         } else {
             zipCode
         }
-        return table.lookupValue("county", mapOf("zipcode" to cleanedZip))
+        return table.FilterBuilder().equalsIgnoreCase("zipcode", cleanedZip)
+            .findSingleResult("county")
     }
 }
 

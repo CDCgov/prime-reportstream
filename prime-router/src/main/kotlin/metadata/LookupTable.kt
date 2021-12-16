@@ -76,6 +76,7 @@ open class LookupTable : Logging {
         this.table = table
         this.tableDbAccess = dbAccess ?: DatabaseLookupTableAccess()
     }
+
     /**
      * Set the table's data with [tableData].
      */
@@ -142,6 +143,157 @@ open class LookupTable : Logging {
         return table.containsColumn(column)
     }
 
+    inner class FilterBuilder {
+        /**
+         * The filter selector.
+         */
+        private var selector: Selection? = null
+
+        /**
+         * True if there was an error finding a specified column while adding filters.
+         */
+        var hasError = false
+            private set
+
+        /**
+         * Predicate to do starts with search while ignoring case.
+         */
+        inner class StartsWithIgnoreCasePredicate : BiPredicate<String, String> {
+            override fun test(t: String, u: String): Boolean {
+                return t.startsWith(u, true)
+            }
+        }
+
+        /**
+         * Add a [newSelector].
+         */
+        private fun addSelector(newSelector: Selection?) {
+            if (newSelector == null) return
+            selector = if (selector == null) newSelector else selector!!.and(newSelector)
+        }
+
+        /**
+         * Get the reference to a column using [colName].
+         * @return the reference to the column or null if the column was not found
+         */
+        private fun getColumn(colName: String): StringColumn? {
+            return try {
+                table.stringColumn(colName)
+            } catch (e: IllegalStateException) {
+                logger.error("Invalid column name $colName specified for lookup table $name.", e)
+                hasError = true
+                null
+            }
+        }
+
+        /**
+         * Lookup in column name [colName] for case-sensitive values that start with [value].
+         * @return a reference to the current filter builder
+         */
+        fun startsWith(colName: String, value: String) = apply {
+            addSelector(getColumn(colName)?.startsWith(value))
+        }
+
+        /**
+         * Lookup in column name [colName] for case-insensitive values that start with [value].
+         * @return a reference to the current filter builder
+         */
+        fun startsWithIgnoreCase(colName: String, value: String) = apply {
+            addSelector(getColumn(colName)?.eval(StartsWithIgnoreCasePredicate(), value))
+        }
+
+        /**
+         * Lookup in column name [colName] for case-sensitive values that exactly match [value].
+         * @return a reference to the current filter builder
+         */
+        fun equals(colName: String, value: String) = apply {
+            addSelector(getColumn(colName)?.isEqualTo(value))
+        }
+
+        /**
+         * Lookup in column name [colName] for case-insensitive values that exactly match [value].
+         * @return a reference to the current filter builder
+         */
+        fun equalsIgnoreCase(colName: String, value: String) = apply {
+            addSelector(getColumn(colName)?.equalsIgnoreCase(value))
+        }
+
+        /**
+         * Lookup for values that start with the provided column name and value pair [matches] for case-sensitive matches.
+         * @return a reference to the current filter builder
+         */
+        fun startsWith(matches: Map<String, String>) = apply {
+            matches.forEach { (colName, value) -> addSelector(getColumn(colName)?.startsWith(value)) }
+        }
+
+        /**
+         * Lookup for values that start with the provided column name and value pair [matches] for case-insensitive matches.
+         * @return a reference to the current filter builder
+         */
+        fun startsWithIgnoreCase(matches: Map<String, String>) = apply {
+            matches.forEach { (colName, value) ->
+                addSelector(getColumn(colName)?.eval(StartsWithIgnoreCasePredicate(), value))
+            }
+        }
+
+        /**
+         * Lookup for values that equals the provided column name and value pair [matches] for case-sensitive matches.
+         * @return a reference to the current filter builder
+         */
+        fun equals(matches: Map<String, String>) = apply {
+            matches.forEach { (colName, value) -> addSelector(getColumn(colName)?.isEqualTo(value)) }
+        }
+
+        /**
+         * Lookup for values that equals the provided column name and value pair [matches] for case-insensitive matches.
+         * @return a reference to the current filter builder
+         */
+        fun equalsIgnoreCase(matches: Map<String, String>) = apply {
+            matches.forEach { (colName, value) -> addSelector(getColumn(colName)?.equalsIgnoreCase(value)) }
+        }
+
+        /**
+         * Find all unique matching values with the specified filter.  For example, if no filter is specified then
+         * all unique values from a column are returned.
+         * @return a list of unique values or an empty list if no values found or an error occurred
+         */
+        @Suppress("UNCHECKED_CAST") // All columns are string columns
+        fun findAllUnique(lookupColumn: String): List<String> {
+            return try {
+                when {
+                    hasError -> emptyList()
+                    selector == null -> table.column(lookupColumn).unique().asList() as List<String>
+                    else -> table.where(selector).column(lookupColumn).unique().asList() as List<String>
+                }
+            } catch (e: IllegalStateException) {
+                logger.error("Invalid column name $lookupColumn specified for lookup table $name.", e)
+                emptyList()
+            }
+        }
+
+        /**
+         * Return a single value if the filter matched one and only one unique value.
+         * @return the value or null if no unique value is found or an error occurred
+         */
+        fun findSingleResult(lookupColumn: String): String? {
+            val values = findAllUnique(lookupColumn)
+            return if (values.size == 1) values[0] else null
+        }
+
+        /**
+         * Return a new table with all rows filtered by the specified filter.  If no filter is specified then
+         * this function will return a copy of the same lookup table.
+         * @return the filtered table or an empty table if an error occurred
+         */
+        fun filter(): LookupTable {
+            return when {
+                hasError -> LookupTable(name)
+                selector == null -> LookupTable(name, table)
+                else -> LookupTable(name, table.where(selector))
+            }
+        }
+    }
+
     /**
      * Generates search selectors based on the [exactMatches] and/or [prefixMatches] columns and value pairs.
      * The matches are case-sensitive if [ignoreCase] is set to false.
@@ -186,103 +338,6 @@ open class LookupTable : Logging {
     }
 
     /**
-     * Lookup a value in the provided [lookupColumn] name that exactly match the provided [exactMatches] that contain
-     * column name and value to match pairs. The matches are case-sensitive if [ignoreCase] is set to false.
-     * @return the found unique value or null if no unique value was found or the specified columns do not exist
-     */
-    fun lookupValue(
-        lookupColumn: String,
-        exactMatches: Map<String, String>,
-        ignoreCase: Boolean = true
-    ): String? {
-        return lookupPrefixValue(lookupColumn, emptyMap(), exactMatches, ignoreCase)
-    }
-
-    /**
-     * Lookup all unique values in the provided [lookupColumn] name that exactly match the provided [exactMatches]
-     * that contain column name and value to match pairs. The matches are case-sensitive if [ignoreCase] is set to
-     * false.
-     * @return a list of unique values found, or an empty list if no value was found or the specified columns do not exist
-     */
-    fun lookupValues(
-        lookupColumn: String,
-        exactMatches: Map<String, String>,
-        ignoreCase: Boolean = true
-    ): List<String> {
-        return lookupPrefixValues(lookupColumn, emptyMap(), exactMatches, ignoreCase)
-    }
-
-    /**
-     * Lookup a value in the provided [lookupColumn] name that starts with the provided [prefixMatches] that contain
-     * column name and value to match pairs. The optional [exactMatches] further filter the results with exact matches.
-     * The matches are case-sensitive if [ignoreCase] is set to false.
-     * @return the found unique value or null if no unique value was found or the specified columns do not exist
-     */
-    fun lookupPrefixValue(
-        lookupColumn: String,
-        prefixMatches: Map<String, String>,
-        exactMatches: Map<String, String> = emptyMap(),
-        ignoreCase: Boolean = true
-    ): String? {
-        val values = lookupPrefixValues(lookupColumn, prefixMatches, exactMatches, ignoreCase)
-        return if (values.size == 1) values[0] else null
-    }
-
-    /**
-     * Lookup all unique values in the provided [lookupColumn] name that starts with the provided [prefixMatches]
-     * that contain column name and value to match pairs. The optional [exactMatches] further filter the
-     * results with exact matches. The matches are case-sensitive if [ignoreCase] is set to false.
-     * @return a list of unique values found, or an empty list if no value was found or the specified columns do not exist
-     */
-    fun lookupPrefixValues(
-        lookupColumn: String,
-        prefixMatches: Map<String, String>,
-        exactMatches: Map<String, String> = emptyMap(),
-        ignoreCase: Boolean = true
-    ): List<String> {
-        check(prefixMatches.isNotEmpty() || exactMatches.isNotEmpty())
-        return try {
-            @Suppress("UNCHECKED_CAST") // All columns are string columns
-            table.where(getSearchSelector(exactMatches, prefixMatches, ignoreCase))
-                .column(lookupColumn).unique().asList() as List<String>
-        } catch (e: IllegalStateException) {
-            emptyList()
-        }
-    }
-
-    /**
-     * Get all distinct values from a [column] in the table
-     * @return a set with all unique values in the given column or an empty set if the table is empty or the
-     * specified column do not exist
-     */
-    fun getDistinctValuesInColumn(column: String): Set<String> {
-        return try {
-            @Suppress("UNCHECKED_CAST") // All columns are string columns
-            table.column(column).unique().asSet() as Set<String>
-        } catch (e: IllegalStateException) {
-            emptySet()
-        }
-    }
-
-    /**
-     * Generate a new lookup table by filtering the original table based on the given [exactMatches] that contain
-     * column name and value to match pairs. The matches are case-sensitive if [ignoreCase] is set to false.
-     * @return a filtered table
-     * @throws IllegalStateException if one or more specified columns do not exist
-     */
-    fun filter(
-        exactMatches: Map<String, String>,
-        ignoreCase: Boolean = true
-    ): LookupTable {
-        if (exactMatches.isEmpty()) return this
-        try {
-            return LookupTable(name, table.where(getSearchSelector(exactMatches, ignoreCase = ignoreCase)))
-        } catch (e: IllegalStateException) {
-            error("One or more columns specified in the matches was not found.")
-        }
-    }
-
-    /**
      * Get the best match for the passed in [searchValue] in the table's [searchColumn]. If a match is found,
      * return the value in the [lookupColumn]. Optionally, filter the table before matching using [filterColumn] and
      * [filterValue]. Similar to lookupValue, but with a different heuristic match algorithm.
@@ -306,7 +361,7 @@ open class LookupTable : Logging {
         filterColumn: String? = null,
         filterValue: String? = null,
     ): String? {
-        fun filterRows2(): Table {
+        fun filterRows(): Table {
             return if (filterColumn != null && filterValue != null) {
                 table.where(getSearchSelector(mapOf(filterColumn to filterValue)))
             } else table
@@ -323,7 +378,7 @@ open class LookupTable : Logging {
 
         // Scoring is based on simplified implementation of a weighted word match algorithm.
         // Common words are given a low weight, others are given a high weight.
-        fun scoreRows2(table: Table): List<Pair<Double, Int>> {
+        fun scoreRows(table: Table): List<Pair<Double, Int>> {
             // Score based on the search words that are passed in
             val searchWords = wordsFromRaw(searchValue)
             val uncommonSearchWords = searchWords.filter { !commonWords.contains(it) }
@@ -354,8 +409,8 @@ open class LookupTable : Logging {
             }
         }
 
-        val filteredRows = filterRows2()
-        val rowScores = scoreRows2(filteredRows)
+        val filteredRows = filterRows()
+        val rowScores = scoreRows(filteredRows)
         val maxRow = rowScores.maxByOrNull { it.first }
         return if (maxRow != null && maxRow.first > 0.0) {
             // If a match, do a lookup
