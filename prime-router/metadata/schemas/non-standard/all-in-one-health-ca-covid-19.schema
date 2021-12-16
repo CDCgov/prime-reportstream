@@ -58,6 +58,7 @@ elements:
 
     - name: patient_county
       type: TEXT
+      cardinality: ZERO_OR_ONE
       csvFields: [{name: Patient County}]
 
     - name: patient_county_code
