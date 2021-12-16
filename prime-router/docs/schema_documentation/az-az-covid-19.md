@@ -208,6 +208,8 @@ Other states may choose to define their own formats.
 
 **PII**: No
 
+**Format**: use value found in the Code column
+
 **Cardinality**: [0..1]
 
 **Value Sets**
@@ -245,6 +247,8 @@ The patient's first name
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
@@ -316,7 +320,7 @@ The patient's phone number with area code
 
 **PII**: No
 
-**Format**: $alt
+**Format**: use value found in the Display column
 
 **Cardinality**: [0..1]
 
@@ -480,7 +484,7 @@ A unique code for this specimen
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **Cardinality**: [0..1]
 
@@ -506,7 +510,7 @@ Refers back to the specimen source site, which is then encoded into the SPM-8 se
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **Cardinality**: [0..1]
 
@@ -580,7 +584,7 @@ The LOINC description of the test performed as related to the LOINC code.
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **Cardinality**: [0..1]
 

@@ -224,7 +224,7 @@ class SoapTransport(private val httpClient: HttpClient? = null) : ITransport {
      * Fetch the [SoapCredential] for a given [Receiver].
      * @return the SOAP credential
      */
-    internal fun lookupCredentials(receiver: Receiver): SoapCredential {
+    fun lookupCredentials(receiver: Receiver): SoapCredential {
         Preconditions.checkNotNull(receiver.transport)
         Preconditions.checkArgument(receiver.transport is SoapTransportType)
         val soapTransportInfo = receiver.transport as SoapTransportType

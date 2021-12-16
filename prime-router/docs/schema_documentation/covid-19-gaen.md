@@ -10,6 +10,8 @@
 
 **PII**: No
 
+**Format**: use value found in the Code column
+
 **Cardinality**: [0..1]
 
 **Value Sets**
@@ -17,7 +19,7 @@
 Code | Display
 ---- | -------
 A|Abnormal (applies to non-numeric results)
->|Above absolute high-off instrument scale
+&#62;|Above absolute high-off instrument scale
 H|Above high normal
 HH|Above upper panic limits
 AC|Anti-complementary substances present

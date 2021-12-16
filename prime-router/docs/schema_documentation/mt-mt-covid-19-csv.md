@@ -22,6 +22,8 @@
 
 **PII**: No
 
+**Format**: use value found in the Code column
+
 **LOINC Code**: 95418-0
 
 **Cardinality**: [0..1]
@@ -93,6 +95,8 @@ Accension number
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **LOINC Code**: 95417-2
 
@@ -515,7 +519,7 @@ Other states may choose to define their own formats.
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **Cardinality**: [0..1]
 
@@ -554,6 +558,8 @@ The patient's first name
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
@@ -645,7 +651,7 @@ The patient's phone number with area code
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **Cardinality**: [0..1]
 
@@ -792,6 +798,8 @@ pointer/link to the unique id of a previously submitted result.  Usually blank. 
 
 **PII**: No
 
+**Format**: use value found in the Code column
+
 **Default Value**: P
 
 **Cardinality**: [0..1]
@@ -860,6 +868,8 @@ The reporting facility's name
 
 **PII**: No
 
+**Format**: use value found in the Code column
+
 **LOINC Code**: 95421-4
 
 **Cardinality**: [0..1]
@@ -906,7 +916,7 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 
 **PII**: No
 
-**Format**: $code
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
@@ -932,7 +942,7 @@ Refers back to the specimen source site, which is then encoded into the SPM-8 se
 
 **PII**: No
 
-**Format**: $code
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
@@ -969,6 +979,8 @@ The specimen source, such as Blood or Serum
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **LOINC Code**: 95419-8
 
@@ -1030,7 +1042,7 @@ The LOINC description of the test performed as related to the LOINC code.
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **Cardinality**: [0..1]
 
@@ -1082,6 +1094,8 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **HL7 Fields**
 

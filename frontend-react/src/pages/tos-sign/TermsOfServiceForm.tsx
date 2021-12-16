@@ -12,7 +12,6 @@ import {
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet";
-import { sign } from "jsonwebtoken";
 
 import Title from "../../components/Title";
 import { getStates } from "../../utils/OrganizationUtils";
@@ -80,8 +79,7 @@ function TermsOfServiceForm() {
         resetAllErrorFlags();
 
         const body = createBody();
-        const auth = createAuth();
-        if (!body || !auth) {
+        if (body === null) {
             setSubmitting(false);
             return;
         }
@@ -92,7 +90,6 @@ function TermsOfServiceForm() {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: auth,
                 },
                 body: JSON.stringify(body),
             }
@@ -109,21 +106,10 @@ function TermsOfServiceForm() {
         setSuccess(true);
     };
 
-    const createAuth = (): string | null => {
-        const secret = process.env.REACT_APP_SECRET || null;
-        if (secret) {
-            return sign({ iss: "reportstream" }, secret);
-        } else {
-            console.error("Oops...no secrets here!");
-            setSubmitting(false);
-            return null;
-        }
-    };
-
     /* INFO
        handles the front-end not-null validation and builds the body object of type AgreementBody
        then returns it if no required values are absent. Otherwise, it returns null. */
-    function createBody() {
+    function createBody(): AgreementBody | null {
         let bodyHasNoErrors: boolean = true;
         const body: AgreementBody = {
             [Fields.title]: title,
@@ -266,6 +252,7 @@ function TermsOfServiceForm() {
                             <Label htmlFor="title">Job Title</Label>
                             <TextInput
                                 id="title"
+                                data-testid="title"
                                 name="title"
                                 type="text"
                                 value={title}
@@ -282,6 +269,7 @@ function TermsOfServiceForm() {
                             <TextInput
                                 alt="First name input"
                                 id="first-name"
+                                data-testid="first-name"
                                 name="first-name"
                                 type="text"
                                 value={firstName}
@@ -302,6 +290,7 @@ function TermsOfServiceForm() {
                             <TextInput
                                 alt="Last name input"
                                 id="last-name"
+                                data-testid="last-name"
                                 name="last-name"
                                 type="text"
                                 value={lastName}
@@ -322,6 +311,7 @@ function TermsOfServiceForm() {
                             <TextInput
                                 alt="Email input"
                                 id="email"
+                                data-testid="email"
                                 name="email"
                                 type="email"
                                 value={email}
@@ -348,6 +338,7 @@ function TermsOfServiceForm() {
                             <TextInput
                                 alt="Organization input"
                                 id="organization-name"
+                                data-testid="organization-name"
                                 name="organization-name"
                                 type="text"
                                 value={organizationName}
@@ -367,6 +358,7 @@ function TermsOfServiceForm() {
                             </Label>
                             <Dropdown
                                 id="input-dropdown"
+                                data-testid="states-dropdown"
                                 name="states-dropdown"
                                 value={territory}
                                 onChange={(
@@ -393,6 +385,7 @@ function TermsOfServiceForm() {
                             alt="Agreed checkbox"
                             className="padding-top-3"
                             id="multi-state"
+                            data-testid="multi-state"
                             name="multi-state"
                             label="My organization operates in multiple states"
                             onChange={(
@@ -407,6 +400,7 @@ function TermsOfServiceForm() {
                         <FormGroup error={agreeErrorFlag}>
                             <Checkbox
                                 id="agree"
+                                data-testid="agree"
                                 name="agree"
                                 onChange={(
                                     e: React.ChangeEvent<HTMLInputElement>
@@ -433,6 +427,7 @@ function TermsOfServiceForm() {
                     <Button
                         form="tos-agreement"
                         type="submit"
+                        data-testid="submit"
                         disabled={submitting}
                     >
                         Submit registration

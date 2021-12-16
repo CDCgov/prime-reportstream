@@ -10,6 +10,8 @@
 
 **PII**: No
 
+**Format**: use value found in the Code column
+
 **Cardinality**: [0..1]
 
 **Value Sets**
@@ -17,7 +19,7 @@
 Code | Display
 ---- | -------
 A|Abnormal (applies to non-numeric results)
->|Above absolute high-off instrument scale
+&#62;|Above absolute high-off instrument scale
 H|Above high normal
 HH|Above upper panic limits
 AC|Anti-complementary substances present
@@ -81,6 +83,8 @@ This field is generated based on the normalcy status of the result. A = abnormal
 
 **PII**: No
 
+**Format**: use value found in the Code column
+
 **Cardinality**: [0..1]
 
 **Value Sets**
@@ -98,6 +102,8 @@ P|Orderer (placer) is source of comment
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
@@ -176,6 +182,8 @@ Device_id_type is a generated value for the OBX-17 field. It is based on the dev
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **LOINC Code**: 95418-0
 
@@ -332,6 +340,8 @@ Accension number
 
 **PII**: No
 
+**Format**: use value found in the Code column
+
 **LOINC Code**: 95417-2
 
 **Cardinality**: [0..1]
@@ -356,6 +366,8 @@ Is this the patient's first test for this condition?
 
 **PII**: No
 
+**Format**: use value found in the Code column
+
 **LOINC Code**: 77974-4
 
 **Cardinality**: [0..1]
@@ -379,6 +391,8 @@ Is the patient hospitalized?
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **LOINC Code**: 95420-6
 
@@ -446,6 +460,8 @@ The message profile identifer
 
 **PII**: No
 
+**Format**: use value found in the Code column
+
 **Cardinality**: [0..1]
 
 **Value Sets**
@@ -472,6 +488,8 @@ X|Results cannot be obtained for this observation
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
@@ -940,6 +958,8 @@ The zip code of the provider
 
 **PII**: No
 
+**Format**: use value found in the Code column
+
 **Cardinality**: [0..1]
 
 **Value Sets**
@@ -1021,6 +1041,8 @@ The FIPS code for the patient's county
 
 **PII**: Yes
 
+**Format**: use value found in the Code column
+
 **Default Value**: N
 
 **Cardinality**: [0..1]
@@ -1082,6 +1104,8 @@ The patient's drivers license number
 
 **PII**: No
 
+**Format**: use value found in the Code column
+
 **Cardinality**: [0..1]
 
 **Value Sets**
@@ -1119,6 +1143,8 @@ The patient's first name
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
@@ -1241,6 +1267,8 @@ The patient's phone number with area code
 
 **PII**: No
 
+**Format**: use value found in the Code column
+
 **Cardinality**: [0..1]
 
 **Value Sets**
@@ -1328,6 +1356,8 @@ The suffix for the patient's name, (i.e. Jr, Sr, etc)
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
@@ -1997,6 +2027,8 @@ The ID number of the lab order from the placer
 
 **PII**: No
 
+**Format**: use value found in the Code column
+
 **LOINC Code**: 82810-3
 
 **Cardinality**: [0..1]
@@ -2020,6 +2052,8 @@ Is the patient pregnant?
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Default Value**: P
 
@@ -2153,6 +2187,8 @@ The reporting facility's name
 
 **PII**: No
 
+**Format**: use value found in the Code column
+
 **LOINC Code**: 95421-4
 
 **Cardinality**: [0..1]
@@ -2227,6 +2263,8 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
@@ -2335,6 +2373,8 @@ A unique code for this specimen
 
 **PII**: No
 
+**Format**: use value found in the Code column
+
 **Cardinality**: [0..1]
 
 **Value Sets**
@@ -2360,6 +2400,8 @@ V|Verifying collaborator
 
 **PII**: No
 
+**Format**: use value found in the Code column
+
 **Cardinality**: [0..1]
 
 **Value Sets**
@@ -2383,6 +2425,8 @@ Refers back to the specimen source site, which is then encoded into the SPM-8 se
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
@@ -2419,6 +2463,8 @@ The specimen source, such as Blood or Serum
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **LOINC Code**: 95419-8
 
@@ -2524,6 +2570,8 @@ The LOINC description of the test performed as related to the LOINC code.
 
 **PII**: No
 
+**Format**: use value found in the Code column
+
 **Cardinality**: [0..1]
 
 **Value Sets**
@@ -2572,6 +2620,8 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **HL7 Fields**
 

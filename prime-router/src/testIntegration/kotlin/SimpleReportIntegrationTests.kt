@@ -16,7 +16,7 @@ import kotlin.test.fail
 // creating transformed objects, writing them to output csv files, then doing a simple 'diff'
 // to see if they match expected output files.
 //
-class SimpleReportTests {
+class SimpleReportIntegrationTests {
     private val inputPath = "./src/test/csv_test_files/input/"
     private val expectedResultsPath = "./src/test/csv_test_files/expected/"
     private val outputPath = "./build/csv_test_files/"

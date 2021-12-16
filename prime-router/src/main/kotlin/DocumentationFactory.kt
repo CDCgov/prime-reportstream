@@ -33,7 +33,19 @@ object DocumentationFactory {
         appendLabelAndData(sb, "Name", displayName)
         appendLabelAndData(sb, "Type", element.type?.name)
         appendLabelAndData(sb, "PII", if (element.pii == true) "Yes" else "No")
-        appendLabelAndData(sb, "Format", csvField?.format)
+
+        if (element.type?.name == "CODE") {
+            when (csvField?.format) {
+                "\$display",
+                "\$alt" ->
+                    appendLabelAndData(sb, "Format", "use value found in the Display column")
+                else ->
+                    appendLabelAndData(sb, "Format", "use value found in the Code column")
+            }
+        } else {
+            appendLabelAndData(sb, "Format", csvField?.format)
+        }
+
         appendLabelAndData(sb, "Default Value", element.default)
         if (hl7Fields?.isNullOrEmpty() == false) {
             appendLabelAndList(sb, "HL7 Fields", hl7Fields.toSet().map { convertHl7FieldToUrl(it) })
@@ -197,7 +209,8 @@ ${element.documentation}
             appendable.appendLine("---- | -------")
 
             values.forEach { vs ->
-                appendable.appendLine("${vs.code}|${vs.display}")
+                val code = if (vs.code == ">") "&#62;" else vs.code // This to solve the markdown blockquote '>'
+                appendable.appendLine("$code|${vs.display}")
             }
             appendable.appendLine("")
         }

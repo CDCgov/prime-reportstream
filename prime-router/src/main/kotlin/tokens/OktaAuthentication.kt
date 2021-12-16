@@ -5,6 +5,7 @@ import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
 import gov.cdc.prime.router.Organization
+import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.AuthenticatedClaims
 import gov.cdc.prime.router.azure.AuthenticationVerifier
 import gov.cdc.prime.router.azure.HttpUtilities
@@ -52,6 +53,7 @@ class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLev
         request: HttpRequestMessage<String?>,
         organizationName: String = "",
         oktaSender: Boolean = false,
+        actionHistory: ActionHistory? = null,
         block: (AuthenticatedClaims) -> HttpResponseMessage
     ): HttpResponseMessage {
         try {
@@ -74,6 +76,7 @@ class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLev
             }
 
             logger.info("Request by ${claims.userName}: ${request.httpMethod}:${request.uri.path}")
+            actionHistory?.trackUsername(claims.userName)
             return block(claims)
         } catch (ex: Exception) {
             if (ex.message != null)
