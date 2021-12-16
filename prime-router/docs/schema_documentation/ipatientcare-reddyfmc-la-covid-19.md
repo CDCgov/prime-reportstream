@@ -247,6 +247,8 @@ Accension number
 
 **PII**: No
 
+**Format**: use value found in the Code column
+
 **Default Value**: N
 
 **LOINC Code**: 77974-4
@@ -272,6 +274,8 @@ iPatientCare is an ambulatory EMR, so this field is defaulted to 'N'.
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Default Value**: N
 
@@ -449,7 +453,7 @@ Fac_City populates multiple fields.  This instance populates ordering_provider_c
 
 **PII**: No
 
-**Format**: $alt
+**Format**: use value found in the Display column
 
 **Cardinality**: [0..1]
 
@@ -473,7 +477,7 @@ Wanda|Wanda Jefferson Wilson FNP-C
 
 **PII**: No
 
-**Format**: $alt
+**Format**: use value found in the Display column
 
 **Cardinality**: [0..1]
 
@@ -497,7 +501,7 @@ Code | Display
 
 **PII**: No
 
-**Format**: $alt
+**Format**: use value found in the Display column
 
 **Cardinality**: [0..1]
 
@@ -633,7 +637,7 @@ Other states may choose to define their own formats.
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **Default Value**: U
 
@@ -688,7 +692,7 @@ The patient's first name
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **Default Value**: U
 
@@ -808,7 +812,7 @@ The patient's phone number with area code
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **Default Value**: UNK
 
@@ -933,7 +937,7 @@ The ID number of the lab order from the placer
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **Default Value**: 
 
@@ -976,6 +980,8 @@ Translate multiple inbound values into the Pregnancy SNOMED Codes
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Default Value**: P
 
@@ -1096,7 +1102,7 @@ DateColl populates multiple fields.  This instance populates specimen_collection
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **Default Value**: 53342003
 
@@ -1157,7 +1163,7 @@ Translate inbound text to outbound SNOMED Codes
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **Default Value**: 445297001
 
@@ -1225,7 +1231,7 @@ Translate inbound text to outbound SNOMED Codes
 
 **PII**: No
 
-**Format**: $alt
+**Format**: use value found in the Display column
 
 **Cardinality**: [0..1]
 
@@ -1262,7 +1268,7 @@ TestName populates multiple fields.  This instance populates test_performed_name
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **Cardinality**: [0..1]
 
@@ -1350,6 +1356,8 @@ ResultDate populates multiple fields.  This instance populates test_result_date.
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Default Value**: F
 
