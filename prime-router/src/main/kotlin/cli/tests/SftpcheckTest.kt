@@ -8,8 +8,8 @@ import com.github.kittinunf.fuel.core.Response
 import com.github.kittinunf.fuel.core.extensions.authentication
 import com.github.kittinunf.fuel.json.responseJson
 import com.github.kittinunf.result.Result
+import gov.cdc.prime.router.cli.CommandUtilities
 import gov.cdc.prime.router.cli.OktaCommand
-import gov.cdc.prime.router.cli.SettingCommand
 import gov.cdc.prime.router.common.Environment
 import org.apache.http.HttpStatus
 
@@ -144,6 +144,6 @@ class SftpcheckTest : CoolTest() {
     private fun getAccessToken(environment: Environment): String {
         if (environment.oktaApp == null) return "dummy"
         return OktaCommand.fetchAccessToken(environment.oktaApp)
-            ?: SettingCommand.abort("Invalid access token. Run ./prime login to fetch/refresh your access token.")
+            ?: CommandUtilities.abort("Invalid access token. Run ./prime login to fetch/refresh your access token.")
     }
 }
