@@ -1,6 +1,5 @@
 package gov.cdc.prime.router.cli
 
-import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
@@ -13,7 +12,7 @@ import gov.cdc.prime.router.tokens.Scope
 import gov.cdc.prime.router.tokens.SenderUtils
 import java.io.File
 
-class AddPublicKey : SingleSettingCommand(
+class AddPublicKey : SettingCommand(
     name = "addkey",
     help = """
     Add a public key to an existing sender's setting
@@ -26,8 +25,6 @@ class AddPublicKey : SingleSettingCommand(
       openssl genrsa -out my-rsa-keypair.pem 2048
             openssl rsa -in my-rsa-keypair.pem -outform PEM -pubout -out my-rsa-public-key.pem
     """.trimIndent(),
-    settingType = SettingType.SENDER,
-    operation = Operation.GET
 ) {
     val publicKeyFilename by option(
         "--public-key",
@@ -52,14 +49,15 @@ class AddPublicKey : SingleSettingCommand(
         help = "Specify desired authorization scope.  Example:  'report' to request access to the 'report' endpoint."
     ).required()
 
+    private val settingName by nameOption
+    private val useJson by jsonOption
+
     val doIt by option(
         "--doit",
         help = "Save the modified Sender setting to the database (default is to just print the modified setting)"
     ).flag(default = false)
 
     override fun run() {
-        val environment = Environment.get(env)
-        val accessToken = getAccessToken(environment)
         val publicKeyFile = File(publicKeyFilename)
         if (! publicKeyFile.exists()) {
             echo("Unable to fine pem file " + publicKeyFile.absolutePath)
@@ -72,7 +70,7 @@ class AddPublicKey : SingleSettingCommand(
         val jwk = SenderUtils.readPublicKeyPemFile(publicKeyFile)
         jwk.kid = if (kid.isNullOrEmpty()) settingName else kid
 
-        val origSenderJson = get(environment, accessToken, settingType, settingName)
+        val origSenderJson = get(cliEnvironment, cliAccessToken, SettingType.SENDER, settingName)
         val origSender = Sender(jsonMapper.readValue(origSenderJson, SenderAPI::class.java))
 
         if (!Scope.isValidScope(scope, origSender)) {
@@ -84,10 +82,10 @@ class AddPublicKey : SingleSettingCommand(
         val newSenderJson = jsonMapper.writeValueAsString(newSender)
 
         echo("*** Original Sender *** ")
-        if (useJson) writeOutput(origSenderJson) else writeOutput(toYaml(origSenderJson, settingType))
+        if (useJson) writeOutput(origSenderJson) else writeOutput(toYaml(origSenderJson, SettingType.SENDER))
         echo("*** End Original Sender *** ")
         echo("*** Modified Sender, including new key *** ")
-        if (useJson) writeOutput(newSenderJson) else writeOutput(toYaml(newSenderJson, settingType))
+        if (useJson) writeOutput(newSenderJson) else writeOutput(toYaml(newSenderJson, SettingType.SENDER))
         echo("*** End Modified Sender, including new key *** ")
         if (!doIt) {
             echo(
@@ -99,22 +97,20 @@ class AddPublicKey : SingleSettingCommand(
             )
             return
         }
-        val response = put(environment, accessToken, settingType, settingName, newSenderJson)
+        val response = put(cliEnvironment, cliAccessToken, SettingType.SENDER, settingName, newSenderJson)
         echo()
         echo(response)
         echo()
     }
 }
 
-class TokenUrl : SingleSettingCommand(
+class TokenUrl : SettingCommand(
     name = "reqtoken",
     help = """
         Use my private key to request a token from ReportStream
         Example call:
             ./prime sender reqtoken --private-key my-es-keypair.pem --scope strac.default.report --name strac.default
     """.trimIndent(),
-    settingType = SettingType.SENDER,
-    operation = Operation.GET,
 ) {
     val privateKeyFilename by option(
         "--private-key",
@@ -128,6 +124,8 @@ class TokenUrl : SingleSettingCommand(
         metavar = "<desired scope>",
         help = "Specify desired authorization scope.  Example:  'report' to request access to the 'report' endpoint."
     ).required()
+
+    private val settingName by nameOption
 
     override fun run() {
         val environment = Environment.get(env)
