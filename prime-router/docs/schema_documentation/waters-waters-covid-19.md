@@ -1,10 +1,10 @@
 
-### Schema:         waters/waters-covid-19
-### Topic:          covid-19
+### Schema: waters/waters-covid-19
+### Topic: covid-19
 ### Tracking Element: testId (message_id)
 ### Base On: [covid-19](./covid-19.md)
-### Extends: [none](./none.md)
-#### Description:   WATERS OTC,POC COVID-19 flat file
+### Extends: none
+#### Description: WATERS OTC,POC COVID-19 flat file
 
 ---
 

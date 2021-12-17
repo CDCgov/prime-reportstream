@@ -1,10 +1,10 @@
 
-### Schema:         ipatientcare/ipatientcare-covid-19
-### Topic:          covid-19
-### Tracking Element: none (none)
+### Schema: ipatientcare/ipatientcare-covid-19
+### Topic: covid-19
+### Tracking Element: none
 ### Base On: [covid-19](./covid-19.md)
-### Extends: [none](./none.md)
-#### Description:   iPatientCare CSV lab report schema
+### Extends: none
+#### Description: iPatientCare CSV lab report schema
 
 ---
 

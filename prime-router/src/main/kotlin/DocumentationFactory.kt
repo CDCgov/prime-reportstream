@@ -27,13 +27,12 @@ object DocumentationFactory : Logging {
         val csvField = if (element.csvFields?.isNotEmpty() == true) element.csvFields[0] else null
         val sb = StringBuilder()
         val displayName = csvField?.name ?: element.name
-        val internalName = element.name
         val hl7Fields = element.hl7OutputFields?.plus(element.hl7Field)
 
         // our top-level element data points
         sb.appendLine("") // start with a blank line at the top 
         appendLabelAndData(sb, "Name", displayName)
-        appendLabelAndData(sb, "ReportStream Internal Name", internalName)
+        appendLabelAndData(sb, "ReportStream Internal Name", element.name)
         appendLabelAndData(sb, "Type", element.type?.name)
         appendLabelAndData(sb, "PII", if (element.pii == true) "Yes" else "No")
 
@@ -96,26 +95,35 @@ ${element.documentation}
     // gets the documentation
     fun getSchemaDocumentation(schema: Schema): String {
         val sb = StringBuilder()
-        var elementName =
+        var schemaTrackingName =
             if (schema.trackingElement.isNullOrEmpty()) {
                 logger.warn("Schema ${schema.name}: TrackingElement is empty")
                 "none"
             } else {
-                schema.findElement(schema.trackingElement)?.csvFields?.get(0)?.name.toString()
+                var trackingName = schema.findElement(schema.trackingElement)?.csvFields?.get(0)?.name
+                if (trackingName == null)
+                    "(${schema.trackingElement})"
+                else
+                    "$trackingName (${schema.trackingElement})"
             }
-        var extendName = if (schema.extends.isNullOrBlank()) "none" else schema.extends.replace('/', '-')
-        var schemaTrackingName = if (schema.trackingElement.isNullOrBlank()) "none" else schema.trackingElement
-        var schemabaseOn = if (schema.basedOn.isNullOrBlank()) "none" else schema.basedOn
-        var schemaExtends = if (schema.extends.isNullOrBlank()) "none" else schema.extends
+        var schemabaseOn = if (schema.basedOn.isNullOrBlank()) "none" else "[${schema.basedOn}](./${schema.basedOn}.md)"
+        var extendName =
+            if (schema.extends.isNullOrBlank()) {
+                "none"
+            } else {
+                schema.extends.replace('/', '-')
+            }
+        var schemaExtends = if (schema.extends.isNullOrBlank()) "none" else "[${schema.extends}](./$extendName.md)"
+        var schemaDescription = if (schema.description.isNullOrBlank()) "none" else "${schema.description}"
 
         sb.appendLine(
             """
-### Schema:         ${schema.name}
-### Topic:          ${schema.topic}
-### Tracking Element: $elementName ($schemaTrackingName)
-### Base On: [$schemabaseOn](./$schemabaseOn.md)
-### Extends: [$schemaExtends](./$extendName.md)
-#### Description:   ${schema.description}
+### Schema: ${schema.name}
+### Topic: ${schema.topic}
+### Tracking Element: $schemaTrackingName
+### Base On: $schemabaseOn
+### Extends: $schemaExtends
+#### Description: $schemaDescription
 
 ---"""
         )

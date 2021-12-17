@@ -1,10 +1,10 @@
 
-### Schema:         hl7/hl7-ingest-covid-19
-### Topic:          covid-19
-### Tracking Element: none (none)
-### Base On: [none](./none.md)
+### Schema: hl7/hl7-ingest-covid-19
+### Topic: covid-19
+### Tracking Element: none
+### Base On: none
 ### Extends: [covid-19](./covid-19.md)
-#### Description:   Schema for ingesting HL7 messages
+#### Description: Schema for ingesting HL7 messages
 
 ---
 

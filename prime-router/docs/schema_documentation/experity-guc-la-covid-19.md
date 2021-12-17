@@ -1,10 +1,10 @@
 
-### Schema:         experity/guc-la-covid-19
-### Topic:          covid-19
-### Tracking Element: none (none)
-### Base On: [none](./none.md)
+### Schema: experity/guc-la-covid-19
+### Topic: covid-19
+### Tracking Element: none
+### Base On: none
 ### Extends: [experity/experity-covid-19](./experity-experity-covid-19.md)
-#### Description:   Experity CSV lab report schema, Greenlight Urgent Care, LA
+#### Description: Experity CSV lab report schema, Greenlight Urgent Care, LA
 
 ---
 

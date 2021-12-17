@@ -1,10 +1,10 @@
 
-### Schema:         ipatientcare/reddyfmc-la-covid-19
-### Topic:          covid-19
-### Tracking Element: none (none)
-### Base On: [none](./none.md)
+### Schema: ipatientcare/reddyfmc-la-covid-19
+### Topic: covid-19
+### Tracking Element: none
+### Base On: none
 ### Extends: [ipatientCare/ipatientcare-covid-19](./ipatientCare-ipatientcare-covid-19.md)
-#### Description:   iPatientCare CSV lab report schema, Reddy Family Medical Clinic, LA
+#### Description: iPatientCare CSV lab report schema, Reddy Family Medical Clinic, LA
 
 ---
 

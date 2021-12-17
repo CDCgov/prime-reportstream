@@ -1,10 +1,10 @@
 
-### Schema:         covid-19
-### Topic:          covid-19
-### Tracking Element: none (none)
-### Base On: [none](./none.md)
-### Extends: [none](./none.md)
-#### Description:   collection of standard elements, not an actual schema
+### Schema: covid-19
+### Topic: covid-19
+### Tracking Element: none
+### Base On: none
+### Extends: none
+#### Description: collection of standard elements, not an actual schema
 
 ---
 

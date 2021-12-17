@@ -1,10 +1,10 @@
 
-### Schema:         ca/ca-scc-covid-19
-### Topic:          covid-19
+### Schema: ca/ca-scc-covid-19
+### Topic: covid-19
 ### Tracking Element: Accession Number (filler_order_id)
 ### Base On: [covid-19](./covid-19.md)
-### Extends: [none](./none.md)
-#### Description:   CSV download schema for Santa Clara County Public Health Department
+### Extends: none
+#### Description: CSV download schema for Santa Clara County Public Health Department
 
 ---
 

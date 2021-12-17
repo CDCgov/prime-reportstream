@@ -1,10 +1,10 @@
 
-### Schema:         sample/phd1-sample
-### Topic:          sample
-### Tracking Element: none (none)
-### Base On: [none](./none.md)
-### Extends: [none](./none.md)
-#### Description:   null
+### Schema: sample/phd1-sample
+### Topic: sample
+### Tracking Element: none
+### Base On: none
+### Extends: none
+#### Description: none
 
 ---
 

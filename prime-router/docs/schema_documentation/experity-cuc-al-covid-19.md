@@ -1,10 +1,10 @@
 
-### Schema:         experity/cuc-al-covid-19
-### Topic:          covid-19
-### Tracking Element: none (none)
-### Base On: [none](./none.md)
+### Schema: experity/cuc-al-covid-19
+### Topic: covid-19
+### Tracking Element: none
+### Base On: none
 ### Extends: [experity/experity-covid-19](./experity-experity-covid-19.md)
-#### Description:   Experity CSV lab report schema, Compass Urgent Care, AL
+#### Description: Experity CSV lab report schema, Compass Urgent Care, AL
 
 ---
 

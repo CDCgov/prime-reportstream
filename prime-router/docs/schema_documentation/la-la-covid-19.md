@@ -1,10 +1,10 @@
 
-### Schema:         la/la-covid-19
-### Topic:          covid-19
-### Tracking Element: null (message_id)
-### Base On: [none](./none.md)
+### Schema: la/la-covid-19
+### Topic: covid-19
+### Tracking Element: (message_id)
+### Base On: none
 ### Extends: [covid-19](./covid-19.md)
-#### Description:   LA COVID-19
+#### Description: LA COVID-19
 
 ---
 

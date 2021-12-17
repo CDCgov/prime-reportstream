@@ -1,10 +1,10 @@
 
-### Schema:         co/co-covid-19-redox
-### Topic:          covid-19
-### Tracking Element: none (none)
-### Base On: [none](./none.md)
+### Schema: co/co-covid-19-redox
+### Topic: covid-19
+### Tracking Element: none
+### Base On: none
 ### Extends: [covid-19-redox](./covid-19-redox.md)
-#### Description:   Colorado Department of Public Health (CDPHE) REDOX messages
+#### Description: Colorado Department of Public Health (CDPHE) REDOX messages
 
 ---
 

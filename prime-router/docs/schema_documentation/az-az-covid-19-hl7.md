@@ -1,10 +1,10 @@
 
-### Schema:         az/az-covid-19-hl7
-### Topic:          covid-19
-### Tracking Element: null (message_id)
-### Base On: [none](./none.md)
+### Schema: az/az-covid-19-hl7
+### Topic: covid-19
+### Tracking Element: (message_id)
+### Base On: none
 ### Extends: [covid-19](./covid-19.md)
-#### Description:   AZ COVID-19
+#### Description: AZ COVID-19
 
 ---
 

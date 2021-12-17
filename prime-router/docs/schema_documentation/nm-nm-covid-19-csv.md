@@ -1,10 +1,10 @@
 
-### Schema:         nm/nm-covid-19-csv
-### Topic:          covid-19
-### Tracking Element: null (message_id)
+### Schema: nm/nm-covid-19-csv
+### Topic: covid-19
+### Tracking Element: (message_id)
 ### Base On: [covid-19](./covid-19.md)
-### Extends: [none](./none.md)
-#### Description:   New Mexico Flat File
+### Extends: none
+#### Description: New Mexico Flat File
 
 ---
 

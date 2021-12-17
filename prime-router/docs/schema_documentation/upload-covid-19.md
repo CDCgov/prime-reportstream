@@ -1,10 +1,10 @@
 
-### Schema:         upload-covid-19
-### Topic:          covid-19
+### Schema: upload-covid-19
+### Topic: covid-19
 ### Tracking Element: testId (message_id)
 ### Base On: [covid-19](./covid-19.md)
-### Extends: [none](./none.md)
-#### Description:   Schema for CSV Upload Tool
+### Extends: none
+#### Description: Schema for CSV Upload Tool
 
 ---
 

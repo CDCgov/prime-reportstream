@@ -1,10 +1,10 @@
 
-### Schema:         or/or-covid-19-hl7
-### Topic:          covid-19
-### Tracking Element: null (message_id)
-### Base On: [none](./none.md)
+### Schema: or/or-covid-19-hl7
+### Topic: covid-19
+### Tracking Element: (message_id)
+### Base On: none
 ### Extends: [covid-19](./covid-19.md)
-#### Description:   OR COVID-19
+#### Description: OR COVID-19
 
 ---
 

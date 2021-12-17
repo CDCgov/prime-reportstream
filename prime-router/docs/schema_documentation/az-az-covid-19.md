@@ -1,10 +1,10 @@
 
-### Schema:         az/az-covid-19
-### Topic:          covid-19
-### Tracking Element: null (testing_lab_specimen_id)
+### Schema: az/az-covid-19
+### Topic: covid-19
+### Tracking Element: (testing_lab_specimen_id)
 ### Base On: [covid-19](./covid-19.md)
-### Extends: [none](./none.md)
-#### Description:   AZ COVID-19 flat file
+### Extends: none
+#### Description: AZ COVID-19 flat file
 
 ---
 

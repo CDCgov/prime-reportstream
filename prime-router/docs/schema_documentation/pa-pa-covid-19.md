@@ -1,10 +1,10 @@
 
-### Schema:         pa/pa-covid-19
-### Topic:          covid-19
-### Tracking Element: null (message_id)
+### Schema: pa/pa-covid-19
+### Topic: covid-19
+### Tracking Element: (message_id)
 ### Base On: [covid-19](./covid-19.md)
-### Extends: [none](./none.md)
-#### Description:   PA COVID-19 flat file
+### Extends: none
+#### Description: PA COVID-19 flat file
 
 ---
 

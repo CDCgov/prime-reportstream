@@ -1,10 +1,10 @@
 
-### Schema:         tpca/tpca-covid-19
-### Topic:          covid-19
+### Schema: tpca/tpca-covid-19
+### Topic: covid-19
 ### Tracking Element: Sample ID (specimen_id)
 ### Base On: [covid-19](./covid-19.md)
-### Extends: [none](./none.md)
-#### Description:   A COVID-19 schema for TPCA working through A6
+### Extends: none
+#### Description: A COVID-19 schema for TPCA working through A6
 
 ---
 

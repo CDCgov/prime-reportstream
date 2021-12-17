@@ -1,10 +1,10 @@
 
-### Schema:         primedatainput/pdi-covid-19
-### Topic:          covid-19
+### Schema: primedatainput/pdi-covid-19
+### Topic: covid-19
 ### Tracking Element: Result_ID (message_id)
 ### Base On: [covid-19](./covid-19.md)
-### Extends: [none](./none.md)
-#### Description:   SimpleReport COVID-19 flat file
+### Extends: none
+#### Description: SimpleReport COVID-19 flat file
 
 ---
 

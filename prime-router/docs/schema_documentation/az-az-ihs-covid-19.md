@@ -1,10 +1,10 @@
 
-### Schema:         az/az-ihs-covid-19
-### Topic:          covid-19
-### Tracking Element: null (testing_lab_specimen_id)
-### Base On: [none](./none.md)
+### Schema: az/az-ihs-covid-19
+### Topic: covid-19
+### Tracking Element: (testing_lab_specimen_id)
+### Base On: none
 ### Extends: [az/az-covid-19](./az-az-covid-19.md)
-#### Description:   Schema for the Johns Hopkins sender. Modeled after the Arizona flat-file specification.
+#### Description: Schema for the Johns Hopkins sender. Modeled after the Arizona flat-file specification.
 
 ---
 

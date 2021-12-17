@@ -1,10 +1,10 @@
 
-### Schema:         oh/oh-covid-19
-### Topic:          covid-19
-### Tracking Element: none (none)
+### Schema: oh/oh-covid-19
+### Topic: covid-19
+### Tracking Element: none
 ### Base On: [covid-19](./covid-19.md)
-### Extends: [none](./none.md)
-#### Description:   A schema for OH DOH to receive HL7 files
+### Extends: none
+#### Description: A schema for OH DOH to receive HL7 files
 
 ---
 

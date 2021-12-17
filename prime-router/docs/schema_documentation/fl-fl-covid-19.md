@@ -1,10 +1,10 @@
 
-### Schema:         fl/fl-covid-19
-### Topic:          covid-19
-### Tracking Element: null (message_id)
+### Schema: fl/fl-covid-19
+### Topic: covid-19
+### Tracking Element: (message_id)
 ### Base On: [covid-19](./covid-19.md)
-### Extends: [none](./none.md)
-#### Description:   Florida COVID-19 HL7
+### Extends: none
+#### Description: Florida COVID-19 HL7
 
 ---
 

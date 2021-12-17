@@ -1,10 +1,10 @@
 
-### Schema:         covid-19-gaen
-### Topic:          covid-19
+### Schema: covid-19-gaen
+### Topic: covid-19
 ### Tracking Element: message_id (message_id)
 ### Base On: [covid-19](./covid-19.md)
-### Extends: [none](./none.md)
-#### Description:   Schema for GAEN notification messages
+### Extends: none
+#### Description: Schema for GAEN notification messages
 
 ---
 

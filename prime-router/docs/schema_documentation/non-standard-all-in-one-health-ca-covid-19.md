@@ -1,10 +1,10 @@
 
-### Schema:         non-standard/all-in-one-health-ca-covid-19
-### Topic:          covid-19
-### Tracking Element: none (none)
+### Schema: non-standard/all-in-one-health-ca-covid-19
+### Topic: covid-19
+### Tracking Element: none
 ### Base On: [covid-19](./covid-19.md)
-### Extends: [none](./none.md)
-#### Description:   all-in-one-health - CSV lab report schema
+### Extends: none
+#### Description: all-in-one-health - CSV lab report schema
 
 ---
 

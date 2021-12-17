@@ -1,10 +1,10 @@
 
-### Schema:         direct/cue-covid-19
-### Topic:          covid-19
+### Schema: direct/cue-covid-19
+### Topic: covid-19
 ### Tracking Element: specimenId (specimen_id)
 ### Base On: [covid-19](./covid-19.md)
 ### Extends: [direct/direct-covid-19](./direct-direct-covid-19.md)
-#### Description:   Cue
+#### Description: Cue
 
 ---
 

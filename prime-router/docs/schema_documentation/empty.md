@@ -1,10 +1,10 @@
 
-### Schema:         empty
-### Topic:          covid-19
+### Schema: empty
+### Topic: covid-19
 ### Tracking Element: Message_ID (message_id)
 ### Base On: [covid-19](./covid-19.md)
-### Extends: [none](./none.md)
-#### Description:   Empty Schema.  For Testing error conditions.  Used by cli ./prime test
+### Extends: none
+#### Description: Empty Schema.  For Testing error conditions.  Used by cli ./prime test
 
 ---
 

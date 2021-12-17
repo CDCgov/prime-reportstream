@@ -45,12 +45,12 @@ class DocumentationTests {
     @Test
     fun `test building documentation string from a schema`() {
         val expected = """
-### Schema:         Test Schema
-### Topic:          Test Topic
+### Schema: Test Schema
+### Topic: Test Topic
 ### Tracking Element: Test TrackingElement (a)
 ### Base On: [TestBaseOn](./TestBaseOn.md)
 ### Extends: [test/extends](./test-extends.md)
-#### Description:   Test Description
+#### Description: Test Description
 
 ---
 

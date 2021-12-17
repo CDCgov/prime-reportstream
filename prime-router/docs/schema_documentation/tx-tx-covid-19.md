@@ -1,10 +1,10 @@
 
-### Schema:         tx/tx-covid-19
-### Topic:          covid-19
-### Tracking Element: null (message_id)
-### Base On: [none](./none.md)
+### Schema: tx/tx-covid-19
+### Topic: covid-19
+### Tracking Element: (message_id)
+### Base On: none
 ### Extends: [covid-19](./covid-19.md)
-#### Description:   TX NEDSS ELR for HL7 messages
+#### Description: TX NEDSS ELR for HL7 messages
 
 ---
 

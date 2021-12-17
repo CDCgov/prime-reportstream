@@ -1,10 +1,10 @@
 
-### Schema:         direct/direct-covid-19
-### Topic:          covid-19
+### Schema: direct/direct-covid-19
+### Topic: covid-19
 ### Tracking Element: specimenId (specimen_id)
 ### Base On: [covid-19](./covid-19.md)
-### Extends: [none](./none.md)
-#### Description:   Direct Submission to ReportStream COVID-19 flat file
+### Extends: none
+#### Description: Direct Submission to ReportStream COVID-19 flat file
 
 ---
 

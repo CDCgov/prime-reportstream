@@ -1,10 +1,10 @@
 
-### Schema:         hhsprotect/hhsprotect-covid-19
-### Topic:          covid-19
+### Schema: hhsprotect/hhsprotect-covid-19
+### Topic: covid-19
 ### Tracking Element: testId (message_id)
 ### Base On: [covid-19](./covid-19.md)
 ### Extends: [direct/direct-covid-19](./direct-direct-covid-19.md)
-#### Description:   Schema for Submission to HHSProtect
+#### Description: Schema for Submission to HHSProtect
 
 ---
 

@@ -1,10 +1,10 @@
 
-### Schema:         hl7/prescryptive-covid-19
-### Topic:          covid-19
-### Tracking Element: null (specimen_id)
-### Base On: [none](./none.md)
+### Schema: hl7/prescryptive-covid-19
+### Topic: covid-19
+### Tracking Element: (specimen_id)
+### Base On: none
 ### Extends: [hl7/hl7-ingest-covid-19](./hl7-hl7-ingest-covid-19.md)
-#### Description:   Prescryptive Health
+#### Description: Prescryptive Health
 
 ---
 

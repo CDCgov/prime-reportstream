@@ -1,10 +1,10 @@
 
-### Schema:         experity/experity-covid-19
-### Topic:          covid-19
-### Tracking Element: none (none)
+### Schema: experity/experity-covid-19
+### Topic: covid-19
+### Tracking Element: none
 ### Base On: [covid-19](./covid-19.md)
-### Extends: [none](./none.md)
-#### Description:   experity CSV lab report schema
+### Extends: none
+#### Description: experity CSV lab report schema
 
 ---
 

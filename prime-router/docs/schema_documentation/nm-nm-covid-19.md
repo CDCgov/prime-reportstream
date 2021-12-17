@@ -1,10 +1,10 @@
 
-### Schema:         nm/nm-covid-19
-### Topic:          covid-19
-### Tracking Element: null (message_id)
-### Base On: [none](./none.md)
+### Schema: nm/nm-covid-19
+### Topic: covid-19
+### Tracking Element: (message_id)
+### Base On: none
 ### Extends: [covid-19](./covid-19.md)
-#### Description:   NM COVID-19
+#### Description: NM COVID-19
 
 ---
 

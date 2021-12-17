@@ -1,10 +1,10 @@
 
-### Schema:         standard/standard-covid-19
-### Topic:          covid-19
-### Tracking Element: none (none)
-### Base On: [none](./none.md)
+### Schema: standard/standard-covid-19
+### Topic: covid-19
+### Tracking Element: none
+### Base On: none
 ### Extends: [covid-19](./covid-19.md)
-#### Description:   A standard file for ELR HL7 messags
+#### Description: A standard file for ELR HL7 messags
 
 ---
 

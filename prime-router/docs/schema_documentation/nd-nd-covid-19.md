@@ -1,10 +1,10 @@
 
-### Schema:         nd/nd-covid-19
-### Topic:          covid-19
-### Tracking Element: null (message_id)
+### Schema: nd/nd-covid-19
+### Topic: covid-19
+### Tracking Element: (message_id)
 ### Base On: [covid-19](./covid-19.md)
-### Extends: [none](./none.md)
-#### Description:   ND COVID-19
+### Extends: none
+#### Description: ND COVID-19
 
 ---
 

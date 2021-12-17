@@ -1,10 +1,10 @@
 
-### Schema:         covid-19-redox
-### Topic:          covid-19
-### Tracking Element: null (placer_order_id)
+### Schema: covid-19-redox
+### Topic: covid-19
+### Tracking Element: (placer_order_id)
 ### Base On: [covid-19](./covid-19.md)
-### Extends: [none](./none.md)
-#### Description:   Base schema for REDOX messages
+### Extends: none
+#### Description: Base schema for REDOX messages
 
 ---
 
