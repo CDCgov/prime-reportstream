@@ -4,10 +4,7 @@ import { useHistory } from "react-router-dom";
 import { useResource } from "rest-hooks";
 
 import OrganizationResource from "../../resources/OrganizationResource";
-import {
-    getStoredOrg,
-    useGlobalContext,
-} from "../GlobalContextProvider";
+import { getStoredOrg, useGlobalContext } from "../GlobalContextProvider";
 
 const OrganizationDropdown = () => {
     const [org, setOrg] = useState(getStoredOrg() || "");

@@ -4,7 +4,7 @@ const oktaAuthConfig: OktaAuthOptions = {
     issuer: `https://hhs-prime.okta.com/oauth2/default`,
     clientId: process.env.REACT_APP_OKTA_CLIENTID as string,
     redirectUri: window.location.origin + "/login/callback",
-    postLogoutRedirectUri: window.location.origin,  // tomn - this was window.localStorage.origin... which seemed wrong
+    postLogoutRedirectUri: window.location.origin, // tomn - this was window.localStorage.origin... which seemed wrong
     responseMode: "fragment",
     tokenManager: {
         storage: "sessionStorage",

@@ -46,9 +46,7 @@ function GlobalContextProvider({
 }: {
     children: JSX.Element[];
 }): JSX.Element {
-    const [organization, setOrganization] = useState(
-        getStoredOrg() || ""
-    );
+    const [organization, setOrganization] = useState(getStoredOrg() || "");
 
     const updateOrganization = (newOrganization: string): void => {
         sessionStorage.setItem(GLOBAL_STORAGE_KEYS.GLOBAL_ORG, newOrganization);
