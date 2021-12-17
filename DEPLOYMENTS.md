@@ -50,3 +50,17 @@ The cutoff time is automatically enforced via automatic branching from `master` 
     * At this time, our solution has been to do the deployments at times when there is no work-in-progress (WIP) in the system.
 1. The GitHub Action deploys the PR to the production environment
 1. A smoke test is run against production
+
+## Reduce duplication in GitHub Actions
+
+Steps duplicated across multiple GitHub workflows are not only difficult to maintain, but they also present a security risk when some steps are not implemented in a particular manner.
+
+Risk example:
+
+ 1. The action to fetch a secret from Azure Key Vault will leak values to the GitHub Actions log if any method other than the [env context](https://docs.github.com/en/actions/learn-github-actions/contexts#env-context) is used to assign to a variable.
+ 
+    A local action can be shared that already mitigates this risk.
+
+For sets of actions *(e.g. VPN, Azure login, build, etc.)* that are shared across multiple workflows, [local composite actions](https://docs.github.com/en/actions/creating-actions/about-custom-actions#composite-actions) allow them to reside in a [**single** location](.github/actions). 
+
+Branch restrictions *(`if: github.ref == 'refs/heads/production'`)* can also be included in the local action to prevent unintended activity.

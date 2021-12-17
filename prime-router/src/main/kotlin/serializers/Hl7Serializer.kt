@@ -580,18 +580,20 @@ class Hl7Serializer(
             val pathSpecTestingState = formPathSpec(testingStateField)
             var originState = terser.get(pathSpecTestingState)
 
-            if (originState.isEmpty()) {
+            if (originState.isNullOrEmpty()) {
                 val orderingStateField = "ORC-24-4"
                 val pathSpecOrderingState = formPathSpec(orderingStateField)
                 originState = terser.get(pathSpecOrderingState)
             }
 
-            val stateCode = report.destination?.let { settings.findOrganization(it.organizationName)?.stateCode }
+            if (!originState.isNullOrEmpty()) {
+                val stateCode = report.destination?.let { settings.findOrganization(it.organizationName)?.stateCode }
 
-            if (!originState.equals(stateCode)) {
-                val sendingFacility = "MSH-4-2"
-                val pathSpecSendingFacility = formPathSpec(sendingFacility)
-                terser.set(pathSpecSendingFacility, hl7Config?.cliaForOutOfStateTesting)
+                if (!originState.equals(stateCode)) {
+                    val sendingFacility = "MSH-4-2"
+                    val pathSpecSendingFacility = formPathSpec(sendingFacility)
+                    terser.set(pathSpecSendingFacility, hl7Config?.cliaForOutOfStateTesting)
+                }
             }
         }
 
@@ -1163,7 +1165,12 @@ class Hl7Serializer(
         terser.set(formPathSpec("OBX-24-2", aoeRep), report.getStringByHl7Field(row, "OBX-24-2"))
         terser.set(formPathSpec("OBX-24-3", aoeRep), report.getStringByHl7Field(row, "OBX-24-3"))
         terser.set(formPathSpec("OBX-24-4", aoeRep), report.getStringByHl7Field(row, "OBX-24-4"))
-        terser.set(formPathSpec("OBX-24-5", aoeRep), report.getStringByHl7Field(row, "OBX-24-5"))
+        // OBX-24-5 is a postal code as well. pad this for now
+        // TODO: come up with a better way to repeat these segments
+        terser.set(
+            formPathSpec("OBX-24-5", aoeRep),
+            report.getStringByHl7Field(row, "OBX-24-5")?.padStart(5, '0')
+        )
         terser.set(formPathSpec("OBX-24-9", aoeRep), report.getStringByHl7Field(row, "OBX-24-9"))
         // check for the OBX-23-6 value. it needs to be split apart
         val testingLabIdAssigner = report.getString(row, "testing_lab_id_assigner")
@@ -1250,13 +1257,20 @@ class Hl7Serializer(
      * truncation rules in [hl7Config]. The [terser] is used to determine the HL7 specification length.
      */
     internal fun getMaxLength(hl7Field: String, value: String, hl7Config: Hl7Configuration?, terser: Terser): Int? {
+        // get the fields to truncate
+        val hl7TruncationFields = hl7Config
+            ?.truncateHl7Fields
+            ?.uppercase()
+            ?.split(",")
+            ?.map { it.trim() }
+            ?: emptyList()
         return when {
             // This special case takes into account special rules needed by jurisdiction
             hl7Config?.truncateHDNamespaceIds == true && hl7Field in HD_FIELDS_LOCAL -> {
                 getTruncationLimitWithEncoding(value, HD_TRUNCATION_LIMIT)
             }
             // For the fields listed here use the hl7 max length
-            hl7Config?.truncateHl7Fields?.contains(hl7Field) == true -> {
+            hl7Field in hl7TruncationFields -> {
                 getHl7MaxLength(hl7Field, terser)
             }
             // In general, don't truncate. The thinking is that
