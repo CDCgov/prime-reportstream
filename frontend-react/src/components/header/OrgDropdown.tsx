@@ -5,14 +5,12 @@ import { useResource } from "rest-hooks";
 
 import OrganizationResource from "../../resources/OrganizationResource";
 import {
-    GLOBAL_STORAGE_KEYS,
+    getStoredOrg,
     useGlobalContext,
 } from "../GlobalContextProvider";
 
 const OrganizationDropdown = () => {
-    const [org, setOrg] = useState(
-        localStorage.getItem(GLOBAL_STORAGE_KEYS.GLOBAL_ORG) || ""
-    );
+    const [org, setOrg] = useState(getStoredOrg() || "");
     const history = useHistory();
     const { updateOrganization } = useGlobalContext();
 
