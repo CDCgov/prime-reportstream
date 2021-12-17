@@ -23,6 +23,10 @@ private const val apiPath = "/api/settings"
 class SettingsUtilities {
 
     companion object {
+        /**
+         * Increase from the default read timeout for slow responses from the API.
+         */
+        val requestTimeoutMillis = 30000
 
         /**
          * PUT function is the CRUD utility function that handle http client CREAT and UPDATE
@@ -42,6 +46,7 @@ class SettingsUtilities {
                 .bearer(accessToken)
                 .header(CONTENT_TYPE to jsonMimeType)
                 .jsonBody(payload)
+                .timeoutRead(requestTimeoutMillis)
                 .responseJson()
         }
 
@@ -61,6 +66,7 @@ class SettingsUtilities {
                 .authentication()
                 .bearer(accessToken)
                 .header(CONTENT_TYPE to jsonMimeType)
+                .timeoutRead(requestTimeoutMillis)
                 .responseString()
         }
 
@@ -80,6 +86,7 @@ class SettingsUtilities {
                 .authentication()
                 .bearer(accessToken)
                 .header(CONTENT_TYPE to jsonMimeType)
+                .timeoutRead(requestTimeoutMillis)
                 .responseString()
         }
     }
