@@ -36,7 +36,7 @@
       cliaForOutOfStateTesting: null
       cliaForSender: {}
       phoneNumberFormatting: "STANDARD"
-      suppressNonNPI: false
+      suppressNonNPI: true
       processingModeCode: null
       replaceDiiWithOid: null
       useOrderingFacilityName: "STANDARD"
@@ -97,7 +97,7 @@
       cliaForOutOfStateTesting: null
       cliaForSender: {}
       phoneNumberFormatting: "STANDARD"
-      suppressNonNPI: false
+      suppressNonNPI: true
       processingModeCode: null
       replaceDiiWithOid: null
       useOrderingFacilityName: "STANDARD"
