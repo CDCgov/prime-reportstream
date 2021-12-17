@@ -34,7 +34,7 @@ function load_config() {
   java -jar $fatjar lookuptables loadall -d $test_config_dir/metadata/tables -r 60 --check-last-modified
   # Note the settings require the full metadata catalog to be in place, so run last
   echo "Loading organization settings..."
-  java -jar $fatjar multiple-settings set -i $function_folder/settings/organizations.yml -r 60 --check-last-modified
+  java -jar $fatjar multiple-settings set -s -i $function_folder/settings/organizations.yml -r 60 --check-last-modified
 }
 
 # Load the configuration in the background.  It will wait for the API to start the loading.
