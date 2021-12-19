@@ -203,22 +203,6 @@ The city of the facility which the test was ordered from
 
 ---
 
-**Name**: ordering_facility_name
-
-**ReportStream Internal Name**: ordering_facility_name
-
-**Type**: TEXT
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The name of the facility which the test was ordered from
-
----
-
 **Name**: Ordering_facility_phone_number
 
 **ReportStream Internal Name**: ordering_facility_phone_number
@@ -508,24 +492,6 @@ The zip code of the provider
 **PII**: No
 
 **Cardinality**: [0..1]
-
----
-
-**Name**: organization_name
-
-**ReportStream Internal Name**: organization_name
-
-**Type**: TEXT
-
-**PII**: No
-
-**Default Value**: 
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The SimpleReport concept of organization. It refers to organization for the ordering & performing facility
 
 ---
 
@@ -846,27 +812,6 @@ The patient's zip code
 
 ---
 
-**Name**: placer_order_id
-
-**ReportStream Internal Name**: placer_order_id
-
-**Type**: ID
-
-**PII**: No
-
-**HL7 Fields**
-
-- [OBR-2-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.2.1)
-- [ORC-2-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.2.1)
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The ID number of the lab order from the placer
-
----
-
 **Name**: Resident_congregate_setting
 
 **ReportStream Internal Name**: resident_congregate_setting
@@ -1158,32 +1103,6 @@ The text value for the testing lab county. This is used to do the lookup in the 
 
 ---
 
-**Name**: testing_lab_name
-
-**ReportStream Internal Name**: testing_lab_name
-
-**Type**: TEXT
-
-**PII**: No
-
-**HL7 Fields**
-
-- [OBR-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.2.2)
-- [OBR-3-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.3.2)
-- [OBX-15-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.15.2)
-- [OBX-23-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.23.1)
-- [ORC-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.2.2)
-- [ORC-3-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.3.2)
-- [PID-3-4-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4.1)
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The name of the laboratory which performed the test, can be the same as the sending facility name
-
----
-
 **Name**: Testing_lab_phone_number
 
 **ReportStream Internal Name**: testing_lab_phone_number
@@ -1281,5 +1200,86 @@ Street 2 field for the testing lab
 **Documentation**:
 
 The postal code for the testing lab
+
+---
+
+**Name**: ordering_facility_name
+
+**ReportStream Internal Name**: ordering_facility_name
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The name of the facility which the test was ordered from
+
+---
+
+**Name**: organization_name
+
+**ReportStream Internal Name**: organization_name
+
+**Type**: TEXT
+
+**PII**: No
+
+**Default Value**: 
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The SimpleReport concept of organization. It refers to organization for the ordering & performing facility
+
+---
+
+**Name**: placer_order_id
+
+**ReportStream Internal Name**: placer_order_id
+
+**Type**: ID
+
+**PII**: No
+
+**HL7 Fields**
+
+- [OBR-2-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.2.1)
+- [ORC-2-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.2.1)
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The ID number of the lab order from the placer
+
+---
+
+**Name**: testing_lab_name
+
+**ReportStream Internal Name**: testing_lab_name
+
+**Type**: TEXT
+
+**PII**: No
+
+**HL7 Fields**
+
+- [OBR-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.2.2)
+- [OBR-3-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.3.2)
+- [OBX-15-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.15.2)
+- [OBX-23-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.23.1)
+- [ORC-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.2.2)
+- [ORC-3-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.3.2)
+- [PID-3-4-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4.1)
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The name of the laboratory which performed the test, can be the same as the sending facility name
 
 ---

@@ -22,28 +22,6 @@
 
 ---
 
-**Name**: equipment_model_name
-
-**ReportStream Internal Name**: equipment_model_name
-
-**PII**: No
-
-**Default Value**: BinaxNOW COVID-19 Ag Card
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: message_id
-
-**ReportStream Internal Name**: message_id
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
----
-
 **Name**: Ordering_Facility_City
 
 **ReportStream Internal Name**: ordering_facility_city
@@ -57,16 +35,6 @@
 **Documentation**:
 
 The city of the facility which the test was ordered from
-
----
-
-**Name**: ordering_facility_name
-
-**ReportStream Internal Name**: ordering_facility_name
-
-**PII**: No
-
-**Cardinality**: [0..1]
 
 ---
 
@@ -871,5 +839,37 @@ The street address for the testing lab
 **Documentation**:
 
 The postal code for the testing lab
+
+---
+
+**Name**: equipment_model_name
+
+**ReportStream Internal Name**: equipment_model_name
+
+**PII**: No
+
+**Default Value**: BinaxNOW COVID-19 Ag Card
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: message_id
+
+**ReportStream Internal Name**: message_id
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: ordering_facility_name
+
+**ReportStream Internal Name**: ordering_facility_name
+
+**PII**: No
+
+**Cardinality**: [0..1]
 
 ---

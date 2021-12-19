@@ -8,59 +8,6 @@
 
 ---
 
-**Name**: abnormal_flag
-
-**ReportStream Internal Name**: abnormal_flag
-
-**Type**: CODE
-
-**PII**: No
-
-**Format**: use value found in the Code column
-
-**Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display
----- | -------
-A|Abnormal (applies to non-numeric results)
-&#62;|Above absolute high-off instrument scale
-H|Above high normal
-HH|Above upper panic limits
-AC|Anti-complementary substances present
-<|Below absolute low-off instrument scale
-L|Below low normal
-LL|Below lower panic limits
-B|Better--use when direction not relevant
-TOX|Cytotoxic substance present
-DET|Detected
-IND|Indeterminate
-I|Intermediate. Indicates for microbiology susceptibilities only.
-MS|Moderately susceptible. Indicates for microbiology susceptibilities only.
-NEG|Negative
-null|No range defined, or normal ranges don't apply
-NR|Non-reactive
-N|Normal (applies to non-numeric results)
-ND|Not Detected
-POS|Positive
-QCF|Quality Control Failure
-RR|Reactive
-R|Resistant. Indicates for microbiology susceptibilities only.
-D|Significant change down
-U|Significant change up
-S|Susceptible. Indicates for microbiology susceptibilities only.
-AA|Very abnormal (applies to non-numeric units, analogous to panic limits for numeric units)
-VS|Very susceptible. Indicates for microbiology susceptibilities only.
-WR|Weakly reactive
-W|Worse--use when direction not relevant
-
-**Documentation**:
-
-This field is generated based on the normalcy status of the result. A = abnormal; N = normal
-
----
-
 **Name**: Date_result_released
 
 **ReportStream Internal Name**: date_result_released
@@ -132,28 +79,6 @@ Is the patient employed in health care?
 **Table**: LIVD-SARS-CoV-2-2021-09-29
 
 **Table Column**: Model
-
----
-
-**Name**: filler_order_id
-
-**ReportStream Internal Name**: filler_order_id
-
-**Type**: ID
-
-**PII**: No
-
-**HL7 Fields**
-
-- [OBR-3-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.3.1)
-- [ORC-3-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.3.1)
-- [SPM-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2)
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-Accension number
 
 ---
 
@@ -723,20 +648,6 @@ The patient's gender. There is a valueset defined based on the values in PID-8-1
 The ID for the patient within one of the reporting entities for this lab result. It could be the
 the patient ID from the testing lab, the oder placer, the ordering provider, or even within the PRIME system itself.
 
-
----
-
-**Name**: patient_id_type
-
-**ReportStream Internal Name**: patient_id_type
-
-**Type**: TEXT
-
-**PII**: No
-
-**Default Value**: PI
-
-**Cardinality**: [0..1]
 
 ---
 
@@ -1517,27 +1428,6 @@ The patient's zip code
 
 ---
 
-**Name**: placer_order_id
-
-**ReportStream Internal Name**: placer_order_id
-
-**Type**: ID
-
-**PII**: No
-
-**HL7 Fields**
-
-- [OBR-2-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.2.1)
-- [ORC-2-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.2.1)
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The ID number of the lab order from the placer
-
----
-
 **Name**: Corrected_result_ID
 
 **ReportStream Internal Name**: previous_message_id
@@ -1582,54 +1472,6 @@ P, D, or T for Production, Debugging, or Training
 
 ---
 
-**Name**: reporting_facility_clia
-
-**ReportStream Internal Name**: reporting_facility_clia
-
-**Type**: ID_CLIA
-
-**PII**: No
-
-**HL7 Fields**
-
-- [MSH-4-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/MSH.4.2)
-- [PID-3-4-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4.2)
-- [PID-3-6-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.6.2)
-- [SPM-2-1-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.1.3)
-- [SPM-2-2-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2.3)
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The reporting facility's CLIA
-
----
-
-**Name**: reporting_facility_name
-
-**ReportStream Internal Name**: reporting_facility_name
-
-**Type**: TEXT
-
-**PII**: No
-
-**HL7 Fields**
-
-- [MSH-4-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/MSH.4.1)
-- [PID-3-4-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4.1)
-- [PID-3-6-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.6.1)
-- [SPM-2-1-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.1.2)
-- [SPM-2-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2.2)
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The reporting facility's name
-
----
-
 **Name**: Resident_congregate_setting
 
 **ReportStream Internal Name**: resident_congregate_setting
@@ -1655,24 +1497,6 @@ UNK|Unknown
 **Documentation**:
 
 Does the patient reside in a congregate care setting?
-
----
-
-**Name**: sender_id
-
-**ReportStream Internal Name**: sender_id
-
-**Type**: TEXT
-
-**PII**: No
-
-**Default Value**: simple_report.default
-
-**Cardinality**: [1..1]
-
-**Documentation**:
-
-ID name of org that is sending this data to ReportStream.  Suitable for provenance or chain of custody tracking.  Not to be confused with sending_application, in which ReportStream acts as the 'sender' to the downstream jurisdiction.
 
 ---
 
@@ -1809,84 +1633,6 @@ UNK|Unknown
 **Documentation**:
 
 Is the patient symptomatic?
-
----
-
-**Name**: test_authorized_for_home
-
-**ReportStream Internal Name**: test_authorized_for_home
-
-**Type**: TABLE
-
-**PII**: No
-
-**Default Value**: N
-
-**Cardinality**: [0..1]
-
-
-**Reference URL**:
-[https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
-
-**Table**: LIVD-Supplemental-2021-06-07
-
-**Table Column**: is_home
-
-**Documentation**:
-
-Is the test authorized for home use by the FDA (Y, N, UNK)
-
----
-
-**Name**: test_authorized_for_otc
-
-**ReportStream Internal Name**: test_authorized_for_otc
-
-**Type**: TABLE
-
-**PII**: No
-
-**Default Value**: N
-
-**Cardinality**: [0..1]
-
-
-**Reference URL**:
-[https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
-
-**Table**: LIVD-Supplemental-2021-06-07
-
-**Table Column**: is_otc
-
-**Documentation**:
-
-Is the test authorized for over-the-counter purchase by the FDA (Y, N, UNK)
-
----
-
-**Name**: test_authorized_for_unproctored
-
-**ReportStream Internal Name**: test_authorized_for_unproctored
-
-**Type**: TABLE
-
-**PII**: No
-
-**Default Value**: N
-
-**Cardinality**: [0..1]
-
-
-**Reference URL**:
-[https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
-
-**Table**: LIVD-Supplemental-2021-06-07
-
-**Table Column**: is_unproctored
-
-**Documentation**:
-
-Is the test authorized for unproctored administration by the FDA (Y, N, UNK)
 
 ---
 
@@ -2183,5 +1929,259 @@ Street 2 field for the testing lab
 **Documentation**:
 
 The postal code for the testing lab
+
+---
+
+**Name**: abnormal_flag
+
+**ReportStream Internal Name**: abnormal_flag
+
+**Type**: CODE
+
+**PII**: No
+
+**Format**: use value found in the Code column
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+A|Abnormal (applies to non-numeric results)
+&#62;|Above absolute high-off instrument scale
+H|Above high normal
+HH|Above upper panic limits
+AC|Anti-complementary substances present
+<|Below absolute low-off instrument scale
+L|Below low normal
+LL|Below lower panic limits
+B|Better--use when direction not relevant
+TOX|Cytotoxic substance present
+DET|Detected
+IND|Indeterminate
+I|Intermediate. Indicates for microbiology susceptibilities only.
+MS|Moderately susceptible. Indicates for microbiology susceptibilities only.
+NEG|Negative
+null|No range defined, or normal ranges don't apply
+NR|Non-reactive
+N|Normal (applies to non-numeric results)
+ND|Not Detected
+POS|Positive
+QCF|Quality Control Failure
+RR|Reactive
+R|Resistant. Indicates for microbiology susceptibilities only.
+D|Significant change down
+U|Significant change up
+S|Susceptible. Indicates for microbiology susceptibilities only.
+AA|Very abnormal (applies to non-numeric units, analogous to panic limits for numeric units)
+VS|Very susceptible. Indicates for microbiology susceptibilities only.
+WR|Weakly reactive
+W|Worse--use when direction not relevant
+
+**Documentation**:
+
+This field is generated based on the normalcy status of the result. A = abnormal; N = normal
+
+---
+
+**Name**: filler_order_id
+
+**ReportStream Internal Name**: filler_order_id
+
+**Type**: ID
+
+**PII**: No
+
+**HL7 Fields**
+
+- [OBR-3-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.3.1)
+- [ORC-3-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.3.1)
+- [SPM-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2)
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+Accension number
+
+---
+
+**Name**: patient_id_type
+
+**ReportStream Internal Name**: patient_id_type
+
+**Type**: TEXT
+
+**PII**: No
+
+**Default Value**: PI
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: placer_order_id
+
+**ReportStream Internal Name**: placer_order_id
+
+**Type**: ID
+
+**PII**: No
+
+**HL7 Fields**
+
+- [OBR-2-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.2.1)
+- [ORC-2-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.2.1)
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The ID number of the lab order from the placer
+
+---
+
+**Name**: reporting_facility_clia
+
+**ReportStream Internal Name**: reporting_facility_clia
+
+**Type**: ID_CLIA
+
+**PII**: No
+
+**HL7 Fields**
+
+- [MSH-4-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/MSH.4.2)
+- [PID-3-4-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4.2)
+- [PID-3-6-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.6.2)
+- [SPM-2-1-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.1.3)
+- [SPM-2-2-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2.3)
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The reporting facility's CLIA
+
+---
+
+**Name**: reporting_facility_name
+
+**ReportStream Internal Name**: reporting_facility_name
+
+**Type**: TEXT
+
+**PII**: No
+
+**HL7 Fields**
+
+- [MSH-4-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/MSH.4.1)
+- [PID-3-4-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4.1)
+- [PID-3-6-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.6.1)
+- [SPM-2-1-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.1.2)
+- [SPM-2-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2.2)
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The reporting facility's name
+
+---
+
+**Name**: sender_id
+
+**ReportStream Internal Name**: sender_id
+
+**Type**: TEXT
+
+**PII**: No
+
+**Default Value**: simple_report.default
+
+**Cardinality**: [1..1]
+
+**Documentation**:
+
+ID name of org that is sending this data to ReportStream.  Suitable for provenance or chain of custody tracking.  Not to be confused with sending_application, in which ReportStream acts as the 'sender' to the downstream jurisdiction.
+
+---
+
+**Name**: test_authorized_for_home
+
+**ReportStream Internal Name**: test_authorized_for_home
+
+**Type**: TABLE
+
+**PII**: No
+
+**Default Value**: N
+
+**Cardinality**: [0..1]
+
+
+**Reference URL**:
+[https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
+
+**Table**: LIVD-Supplemental-2021-06-07
+
+**Table Column**: is_home
+
+**Documentation**:
+
+Is the test authorized for home use by the FDA (Y, N, UNK)
+
+---
+
+**Name**: test_authorized_for_otc
+
+**ReportStream Internal Name**: test_authorized_for_otc
+
+**Type**: TABLE
+
+**PII**: No
+
+**Default Value**: N
+
+**Cardinality**: [0..1]
+
+
+**Reference URL**:
+[https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
+
+**Table**: LIVD-Supplemental-2021-06-07
+
+**Table Column**: is_otc
+
+**Documentation**:
+
+Is the test authorized for over-the-counter purchase by the FDA (Y, N, UNK)
+
+---
+
+**Name**: test_authorized_for_unproctored
+
+**ReportStream Internal Name**: test_authorized_for_unproctored
+
+**Type**: TABLE
+
+**PII**: No
+
+**Default Value**: N
+
+**Cardinality**: [0..1]
+
+
+**Reference URL**:
+[https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
+
+**Table**: LIVD-Supplemental-2021-06-07
+
+**Table Column**: is_unproctored
+
+**Documentation**:
+
+Is the test authorized for unproctored administration by the FDA (Y, N, UNK)
 
 ---

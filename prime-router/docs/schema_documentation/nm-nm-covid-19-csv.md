@@ -47,26 +47,6 @@ Is the patient employed in health care?
 
 ---
 
-**Name**: equipment_model_name
-
-**ReportStream Internal Name**: equipment_model_name
-
-**Type**: TABLE
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-
-**Reference URL**:
-[https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
-
-**Table**: LIVD-SARS-CoV-2-2021-09-29
-
-**Table Column**: Model
-
----
-
 **Name**: FirstTest
 
 **ReportStream Internal Name**: first_test
@@ -445,16 +425,6 @@ Is the patient in the ICU?
 **Table**: LIVD-SARS-CoV-2-2021-01-20
 
 **Table Column**: Component
-
----
-
-**Name**: local_symptom_onset_date
-
-**ReportStream Internal Name**: local_symptom_onset_date
-
-**PII**: No
-
-**Cardinality**: [0..1]
 
 ---
 
@@ -1865,6 +1835,36 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 **PII**: No
 
 **Format**: yyyyMMdd
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: equipment_model_name
+
+**ReportStream Internal Name**: equipment_model_name
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+
+**Reference URL**:
+[https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
+
+**Table**: LIVD-SARS-CoV-2-2021-09-29
+
+**Table Column**: Model
+
+---
+
+**Name**: local_symptom_onset_date
+
+**ReportStream Internal Name**: local_symptom_onset_date
+
+**PII**: No
 
 **Cardinality**: [0..1]
 

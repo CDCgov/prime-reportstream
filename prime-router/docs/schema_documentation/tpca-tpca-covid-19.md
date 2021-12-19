@@ -8,59 +8,6 @@
 
 ---
 
-**Name**: abnormal_flag
-
-**ReportStream Internal Name**: abnormal_flag
-
-**Type**: CODE
-
-**PII**: No
-
-**Format**: use value found in the Code column
-
-**Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display
----- | -------
-A|Abnormal (applies to non-numeric results)
-&#62;|Above absolute high-off instrument scale
-H|Above high normal
-HH|Above upper panic limits
-AC|Anti-complementary substances present
-<|Below absolute low-off instrument scale
-L|Below low normal
-LL|Below lower panic limits
-B|Better--use when direction not relevant
-TOX|Cytotoxic substance present
-DET|Detected
-IND|Indeterminate
-I|Intermediate. Indicates for microbiology susceptibilities only.
-MS|Moderately susceptible. Indicates for microbiology susceptibilities only.
-NEG|Negative
-null|No range defined, or normal ranges don't apply
-NR|Non-reactive
-N|Normal (applies to non-numeric results)
-ND|Not Detected
-POS|Positive
-QCF|Quality Control Failure
-RR|Reactive
-R|Resistant. Indicates for microbiology susceptibilities only.
-D|Significant change down
-U|Significant change up
-S|Susceptible. Indicates for microbiology susceptibilities only.
-AA|Very abnormal (applies to non-numeric units, analogous to panic limits for numeric units)
-VS|Very susceptible. Indicates for microbiology susceptibilities only.
-WR|Weakly reactive
-W|Worse--use when direction not relevant
-
-**Documentation**:
-
-This field is generated based on the normalcy status of the result. A = abnormal; N = normal
-
----
-
 **Name**: Appr Date
 
 **ReportStream Internal Name**: appr_date
@@ -100,26 +47,6 @@ UNK|Unknown
 **Documentation**:
 
 Is the patient employed in health care?
-
----
-
-**Name**: equipment_model_name
-
-**ReportStream Internal Name**: equipment_model_name
-
-**Type**: TABLE
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-
-**Reference URL**:
-[https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
-
-**Table**: LIVD-SARS-CoV-2-2021-09-29
-
-**Table Column**: Model
 
 ---
 
@@ -223,142 +150,6 @@ Is the patient in the ICU?
 
 ---
 
-**Name**: message_id
-
-**ReportStream Internal Name**: message_id
-
-**Type**: ID
-
-**PII**: No
-
-**Cardinality**: [1..1]
-
-**Documentation**:
-
-unique id to track the usage of the message
-
----
-
-**Name**: message_profile_id
-
-**ReportStream Internal Name**: message_profile_id
-
-**Type**: EI
-
-**PII**: No
-
-**Default Value**: PHLabReport-NoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The message profile identifer
-
----
-
-**Name**: ordering_facility_city
-
-**ReportStream Internal Name**: ordering_facility_city
-
-**Type**: CITY
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The city of the facility which the test was ordered from
-
----
-
-**Name**: ordering_facility_county
-
-**ReportStream Internal Name**: ordering_facility_county
-
-**Type**: TABLE
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-**Table**: fips-county
-
-**Table Column**: County
-
----
-
-**Name**: ordering_facility_phone_number
-
-**ReportStream Internal Name**: ordering_facility_phone_number
-
-**Type**: TELEPHONE
-
-**PII**: No
-
-**Default Value**: 8509426624:1:
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The phone number of the facility which the test was ordered from
-
----
-
-**Name**: ordering_facility_state
-
-**ReportStream Internal Name**: ordering_facility_state
-
-**Type**: TABLE
-
-**PII**: No
-
-**Cardinality**: [1..1]
-
-**Table**: fips-county
-
-**Table Column**: State
-
-**Documentation**:
-
-The state of the facility which the test was ordered from
-
----
-
-**Name**: ordering_facility_street
-
-**ReportStream Internal Name**: ordering_facility_street
-
-**Type**: STREET
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The address of the facility which the test was ordered from
-
----
-
-**Name**: ordering_facility_zip_code
-
-**ReportStream Internal Name**: ordering_facility_zip_code
-
-**Type**: POSTAL_CODE
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The zip code of the facility which the test was ordered from
-
----
-
 **Name**: Provider
 
 **ReportStream Internal Name**: ordering_provider
@@ -371,62 +162,6 @@ The zip code of the facility which the test was ordered from
 
 ---
 
-**Name**: ordering_provider_first_name
-
-**ReportStream Internal Name**: ordering_provider_first_name
-
-**Type**: PERSON_NAME
-
-**PII**: No
-
-**HL7 Fields**
-
-- [OBR-16-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.16.3)
-- [ORC-12-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.12.3)
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The first name of the provider who ordered the test
-
----
-
-**Name**: ordering_provider_last_name
-
-**ReportStream Internal Name**: ordering_provider_last_name
-
-**Type**: PERSON_NAME
-
-**PII**: No
-
-**HL7 Fields**
-
-- [OBR-16-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.16.2)
-- [ORC-12-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.12.2)
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The last name of provider who ordered the test
-
----
-
-**Name**: patient_age
-
-**ReportStream Internal Name**: patient_age
-
-**Type**: NUMBER
-
-**PII**: No
-
-**LOINC Code**: 30525-0
-
-**Cardinality**: [0..1]
-
----
-
 **Name**: Age
 
 **ReportStream Internal Name**: patient_age_and_units
@@ -434,35 +169,6 @@ The last name of provider who ordered the test
 **PII**: No
 
 **Cardinality**: [0..1]
-
----
-
-**Name**: patient_age_units
-
-**ReportStream Internal Name**: patient_age_units
-
-**Type**: CODE
-
-**PII**: No
-
-**Format**: use value found in the Code column
-
-**Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display
----- | -------
-min|minutes
-h|hours
-d|days
-wk|weeks
-mo|months
-a|years
-
-**Documentation**:
-
-Always filled when `patient_age` is filled
 
 ---
 
@@ -479,22 +185,6 @@ Always filled when `patient_age` is filled
 **Documentation**:
 
 The patient's city
-
----
-
-**Name**: patient_county
-
-**ReportStream Internal Name**: patient_county
-
-**Type**: TABLE
-
-**PII**: No
-
-**Cardinality**: [1..1]
-
-**Table**: zip-code-data
-
-**Table Column**: county
 
 ---
 
@@ -519,22 +209,6 @@ Other states may choose to define their own formats.
 
 ---
 
-**Name**: patient_first_name
-
-**ReportStream Internal Name**: patient_first_name
-
-**Type**: PERSON_NAME
-
-**PII**: Yes
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The patient's first name
-
----
-
 **Name**: Patient ID
 
 **ReportStream Internal Name**: patient_id
@@ -553,22 +227,6 @@ the patient ID from the testing lab, the oder placer, the ordering provider, or 
 
 ---
 
-**Name**: patient_last_name
-
-**ReportStream Internal Name**: patient_last_name
-
-**Type**: PERSON_NAME
-
-**PII**: Yes
-
-**Cardinality**: [1..1]
-
-**Documentation**:
-
-The patient's last name
-
----
-
 **Name**: Name
 
 **ReportStream Internal Name**: patient_name
@@ -578,22 +236,6 @@ The patient's last name
 **PII**: No
 
 **Cardinality**: [0..1]
-
----
-
-**Name**: patient_phone_number
-
-**ReportStream Internal Name**: patient_phone_number
-
-**Type**: TELEPHONE
-
-**PII**: Yes
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The patient's phone number with area code
 
 ---
 
@@ -785,25 +427,6 @@ Is the patient pregnant?
 
 ---
 
-**Name**: sending_application
-
-**ReportStream Internal Name**: sending_application
-
-**Type**: HD
-
-**PII**: No
-
-**Default Value**: CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The name and OID for the application sending information to the receivers
-
-
----
-
 **Name**: Draw Date
 
 **ReportStream Internal Name**: specimen_collection_date_time
@@ -879,84 +502,6 @@ UNK|Unknown
 **Documentation**:
 
 Is the patient symptomatic?
-
----
-
-**Name**: test_authorized_for_home
-
-**ReportStream Internal Name**: test_authorized_for_home
-
-**Type**: TABLE
-
-**PII**: No
-
-**Default Value**: N
-
-**Cardinality**: [0..1]
-
-
-**Reference URL**:
-[https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
-
-**Table**: LIVD-Supplemental-2021-06-07
-
-**Table Column**: is_home
-
-**Documentation**:
-
-Is the test authorized for home use by the FDA (Y, N, UNK)
-
----
-
-**Name**: test_authorized_for_otc
-
-**ReportStream Internal Name**: test_authorized_for_otc
-
-**Type**: TABLE
-
-**PII**: No
-
-**Default Value**: N
-
-**Cardinality**: [0..1]
-
-
-**Reference URL**:
-[https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
-
-**Table**: LIVD-Supplemental-2021-06-07
-
-**Table Column**: is_otc
-
-**Documentation**:
-
-Is the test authorized for over-the-counter purchase by the FDA (Y, N, UNK)
-
----
-
-**Name**: test_authorized_for_unproctored
-
-**ReportStream Internal Name**: test_authorized_for_unproctored
-
-**Type**: TABLE
-
-**PII**: No
-
-**Default Value**: N
-
-**Cardinality**: [0..1]
-
-
-**Reference URL**:
-[https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
-
-**Table**: LIVD-Supplemental-2021-06-07
-
-**Table Column**: is_unproctored
-
-**Documentation**:
-
-Is the test authorized for unproctored administration by the FDA (Y, N, UNK)
 
 ---
 
@@ -1044,6 +589,461 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 **PII**: No
 
 **Cardinality**: [0..1]
+
+---
+
+**Name**: abnormal_flag
+
+**ReportStream Internal Name**: abnormal_flag
+
+**Type**: CODE
+
+**PII**: No
+
+**Format**: use value found in the Code column
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+A|Abnormal (applies to non-numeric results)
+&#62;|Above absolute high-off instrument scale
+H|Above high normal
+HH|Above upper panic limits
+AC|Anti-complementary substances present
+<|Below absolute low-off instrument scale
+L|Below low normal
+LL|Below lower panic limits
+B|Better--use when direction not relevant
+TOX|Cytotoxic substance present
+DET|Detected
+IND|Indeterminate
+I|Intermediate. Indicates for microbiology susceptibilities only.
+MS|Moderately susceptible. Indicates for microbiology susceptibilities only.
+NEG|Negative
+null|No range defined, or normal ranges don't apply
+NR|Non-reactive
+N|Normal (applies to non-numeric results)
+ND|Not Detected
+POS|Positive
+QCF|Quality Control Failure
+RR|Reactive
+R|Resistant. Indicates for microbiology susceptibilities only.
+D|Significant change down
+U|Significant change up
+S|Susceptible. Indicates for microbiology susceptibilities only.
+AA|Very abnormal (applies to non-numeric units, analogous to panic limits for numeric units)
+VS|Very susceptible. Indicates for microbiology susceptibilities only.
+WR|Weakly reactive
+W|Worse--use when direction not relevant
+
+**Documentation**:
+
+This field is generated based on the normalcy status of the result. A = abnormal; N = normal
+
+---
+
+**Name**: equipment_model_name
+
+**ReportStream Internal Name**: equipment_model_name
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+
+**Reference URL**:
+[https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
+
+**Table**: LIVD-SARS-CoV-2-2021-09-29
+
+**Table Column**: Model
+
+---
+
+**Name**: message_id
+
+**ReportStream Internal Name**: message_id
+
+**Type**: ID
+
+**PII**: No
+
+**Cardinality**: [1..1]
+
+**Documentation**:
+
+unique id to track the usage of the message
+
+---
+
+**Name**: message_profile_id
+
+**ReportStream Internal Name**: message_profile_id
+
+**Type**: EI
+
+**PII**: No
+
+**Default Value**: PHLabReport-NoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The message profile identifer
+
+---
+
+**Name**: ordering_facility_city
+
+**ReportStream Internal Name**: ordering_facility_city
+
+**Type**: CITY
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The city of the facility which the test was ordered from
+
+---
+
+**Name**: ordering_facility_county
+
+**ReportStream Internal Name**: ordering_facility_county
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Table**: fips-county
+
+**Table Column**: County
+
+---
+
+**Name**: ordering_facility_phone_number
+
+**ReportStream Internal Name**: ordering_facility_phone_number
+
+**Type**: TELEPHONE
+
+**PII**: No
+
+**Default Value**: 8509426624:1:
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The phone number of the facility which the test was ordered from
+
+---
+
+**Name**: ordering_facility_state
+
+**ReportStream Internal Name**: ordering_facility_state
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [1..1]
+
+**Table**: fips-county
+
+**Table Column**: State
+
+**Documentation**:
+
+The state of the facility which the test was ordered from
+
+---
+
+**Name**: ordering_facility_street
+
+**ReportStream Internal Name**: ordering_facility_street
+
+**Type**: STREET
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The address of the facility which the test was ordered from
+
+---
+
+**Name**: ordering_facility_zip_code
+
+**ReportStream Internal Name**: ordering_facility_zip_code
+
+**Type**: POSTAL_CODE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The zip code of the facility which the test was ordered from
+
+---
+
+**Name**: ordering_provider_first_name
+
+**ReportStream Internal Name**: ordering_provider_first_name
+
+**Type**: PERSON_NAME
+
+**PII**: No
+
+**HL7 Fields**
+
+- [OBR-16-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.16.3)
+- [ORC-12-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.12.3)
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The first name of the provider who ordered the test
+
+---
+
+**Name**: ordering_provider_last_name
+
+**ReportStream Internal Name**: ordering_provider_last_name
+
+**Type**: PERSON_NAME
+
+**PII**: No
+
+**HL7 Fields**
+
+- [OBR-16-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.16.2)
+- [ORC-12-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.12.2)
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The last name of provider who ordered the test
+
+---
+
+**Name**: patient_age
+
+**ReportStream Internal Name**: patient_age
+
+**Type**: NUMBER
+
+**PII**: No
+
+**LOINC Code**: 30525-0
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: patient_age_units
+
+**ReportStream Internal Name**: patient_age_units
+
+**Type**: CODE
+
+**PII**: No
+
+**Format**: use value found in the Code column
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+min|minutes
+h|hours
+d|days
+wk|weeks
+mo|months
+a|years
+
+**Documentation**:
+
+Always filled when `patient_age` is filled
+
+---
+
+**Name**: patient_county
+
+**ReportStream Internal Name**: patient_county
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [1..1]
+
+**Table**: zip-code-data
+
+**Table Column**: county
+
+---
+
+**Name**: patient_first_name
+
+**ReportStream Internal Name**: patient_first_name
+
+**Type**: PERSON_NAME
+
+**PII**: Yes
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The patient's first name
+
+---
+
+**Name**: patient_last_name
+
+**ReportStream Internal Name**: patient_last_name
+
+**Type**: PERSON_NAME
+
+**PII**: Yes
+
+**Cardinality**: [1..1]
+
+**Documentation**:
+
+The patient's last name
+
+---
+
+**Name**: patient_phone_number
+
+**ReportStream Internal Name**: patient_phone_number
+
+**Type**: TELEPHONE
+
+**PII**: Yes
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The patient's phone number with area code
+
+---
+
+**Name**: sending_application
+
+**ReportStream Internal Name**: sending_application
+
+**Type**: HD
+
+**PII**: No
+
+**Default Value**: CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The name and OID for the application sending information to the receivers
+
+
+---
+
+**Name**: test_authorized_for_home
+
+**ReportStream Internal Name**: test_authorized_for_home
+
+**Type**: TABLE
+
+**PII**: No
+
+**Default Value**: N
+
+**Cardinality**: [0..1]
+
+
+**Reference URL**:
+[https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
+
+**Table**: LIVD-Supplemental-2021-06-07
+
+**Table Column**: is_home
+
+**Documentation**:
+
+Is the test authorized for home use by the FDA (Y, N, UNK)
+
+---
+
+**Name**: test_authorized_for_otc
+
+**ReportStream Internal Name**: test_authorized_for_otc
+
+**Type**: TABLE
+
+**PII**: No
+
+**Default Value**: N
+
+**Cardinality**: [0..1]
+
+
+**Reference URL**:
+[https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
+
+**Table**: LIVD-Supplemental-2021-06-07
+
+**Table Column**: is_otc
+
+**Documentation**:
+
+Is the test authorized for over-the-counter purchase by the FDA (Y, N, UNK)
+
+---
+
+**Name**: test_authorized_for_unproctored
+
+**ReportStream Internal Name**: test_authorized_for_unproctored
+
+**Type**: TABLE
+
+**PII**: No
+
+**Default Value**: N
+
+**Cardinality**: [0..1]
+
+
+**Reference URL**:
+[https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
+
+**Table**: LIVD-Supplemental-2021-06-07
+
+**Table Column**: is_unproctored
+
+**Documentation**:
+
+Is the test authorized for unproctored administration by the FDA (Y, N, UNK)
 
 ---
 

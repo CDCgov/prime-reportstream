@@ -1197,26 +1197,6 @@ Translate multiple inbound Y/N/U AOE values to RS values
 
 ---
 
-**Name**: equipment_model_name
-
-**ReportStream Internal Name**: equipment_model_name
-
-**Type**: TABLE
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-
-**Reference URL**:
-[https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
-
-**Table**: LIVD-SARS-CoV-2-2021-09-29
-
-**Table Column**: Model
-
----
-
 **Name**: Testing_lab_ID
 
 **ReportStream Internal Name**: filler_clia
@@ -1306,66 +1286,6 @@ This field is ignored.
 
 ---
 
-**Name**: hospitalized
-
-**ReportStream Internal Name**: hospitalized
-
-**Type**: CODE
-
-**PII**: No
-
-**Format**: use value found in the Code column
-
-**Default Value**: N
-
-**LOINC Code**: 77974-4
-
-**Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display
----- | -------
-Y|Yes
-N|No
-UNK|Unknown
-
-**Documentation**:
-
-Is the patient hospitalized?
-
----
-
-**Name**: icu
-
-**ReportStream Internal Name**: icu
-
-**Type**: CODE
-
-**PII**: No
-
-**Format**: use value found in the Code column
-
-**Default Value**: N
-
-**LOINC Code**: 95420-6
-
-**Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display
----- | -------
-Y|Yes
-N|No
-UNK|Unknown
-
-**Documentation**:
-
-Is the patient in the ICU?
-
----
-
 **Name**: Illness_onset_date
 
 **ReportStream Internal Name**: illness_onset_date
@@ -1427,22 +1347,6 @@ unique id to track the usage of the message
 **Documentation**:
 
 The city of the facility which the test was ordered from
-
----
-
-**Name**: ordering_facility_name
-
-**ReportStream Internal Name**: ordering_facility_name
-
-**Type**: TEXT
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The name of the facility which the test was ordered from
 
 ---
 
@@ -1603,16 +1507,6 @@ The last name of provider who ordered the test
 
 ---
 
-**Name**: ordering_provider_lastfirst_name
-
-**ReportStream Internal Name**: ordering_provider_lastfirst_name
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
----
-
 **Name**: Ordering_provider_phone
 
 **ReportStream Internal Name**: ordering_provider_phone_number
@@ -1715,22 +1609,6 @@ The zip code of the provider
 **Documentation**:
 
 The patient's city
-
----
-
-**Name**: patient_county
-
-**ReportStream Internal Name**: patient_county
-
-**Type**: TABLE
-
-**PII**: No
-
-**Cardinality**: [1..1]
-
-**Table**: zip-code-data
-
-**Table Column**: county
 
 ---
 
@@ -1887,20 +1765,6 @@ the patient ID from the testing lab, the oder placer, the ordering provider, or 
 **Documentation**:
 
 The name of the assigner of the patient_id field. Typically we use the name of the ordering facility
-
----
-
-**Name**: patient_id_type
-
-**ReportStream Internal Name**: patient_id_type
-
-**Type**: TEXT
-
-**PII**: No
-
-**Default Value**: PI
-
-**Cardinality**: [0..1]
 
 ---
 
@@ -2194,30 +2058,6 @@ P, D, or T for Production, Debugging, or Training
 **Documentation**:
 
 The reporting facility's CLIA
-
----
-
-**Name**: reporting_facility_name
-
-**ReportStream Internal Name**: reporting_facility_name
-
-**Type**: TEXT
-
-**PII**: No
-
-**HL7 Fields**
-
-- [MSH-4-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/MSH.4.1)
-- [PID-3-4-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4.1)
-- [PID-3-6-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.6.1)
-- [SPM-2-1-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.1.2)
-- [SPM-2-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2.2)
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The reporting facility's name
 
 ---
 
@@ -2652,32 +2492,6 @@ Typically this will be the same as the `testing_lab_clia`, but potentially could
 
 ---
 
-**Name**: testing_lab_name
-
-**ReportStream Internal Name**: testing_lab_name
-
-**Type**: TEXT
-
-**PII**: No
-
-**HL7 Fields**
-
-- [OBR-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.2.2)
-- [OBR-3-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.3.2)
-- [OBX-15-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.15.2)
-- [OBX-23-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.23.1)
-- [ORC-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.2.2)
-- [ORC-3-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.3.2)
-- [PID-3-4-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4.1)
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The name of the laboratory which performed the test, can be the same as the sending facility name
-
----
-
 **Name**: Testing_lab_name
 
 **ReportStream Internal Name**: testing_lab_name_temp
@@ -2775,5 +2589,191 @@ The street address for the testing lab
 **Documentation**:
 
 The postal code for the testing lab
+
+---
+
+**Name**: equipment_model_name
+
+**ReportStream Internal Name**: equipment_model_name
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+
+**Reference URL**:
+[https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
+
+**Table**: LIVD-SARS-CoV-2-2021-09-29
+
+**Table Column**: Model
+
+---
+
+**Name**: hospitalized
+
+**ReportStream Internal Name**: hospitalized
+
+**Type**: CODE
+
+**PII**: No
+
+**Format**: use value found in the Code column
+
+**Default Value**: N
+
+**LOINC Code**: 77974-4
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+Y|Yes
+N|No
+UNK|Unknown
+
+**Documentation**:
+
+Is the patient hospitalized?
+
+---
+
+**Name**: icu
+
+**ReportStream Internal Name**: icu
+
+**Type**: CODE
+
+**PII**: No
+
+**Format**: use value found in the Code column
+
+**Default Value**: N
+
+**LOINC Code**: 95420-6
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+Y|Yes
+N|No
+UNK|Unknown
+
+**Documentation**:
+
+Is the patient in the ICU?
+
+---
+
+**Name**: ordering_facility_name
+
+**ReportStream Internal Name**: ordering_facility_name
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The name of the facility which the test was ordered from
+
+---
+
+**Name**: ordering_provider_lastfirst_name
+
+**ReportStream Internal Name**: ordering_provider_lastfirst_name
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: patient_county
+
+**ReportStream Internal Name**: patient_county
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [1..1]
+
+**Table**: zip-code-data
+
+**Table Column**: county
+
+---
+
+**Name**: patient_id_type
+
+**ReportStream Internal Name**: patient_id_type
+
+**Type**: TEXT
+
+**PII**: No
+
+**Default Value**: PI
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: reporting_facility_name
+
+**ReportStream Internal Name**: reporting_facility_name
+
+**Type**: TEXT
+
+**PII**: No
+
+**HL7 Fields**
+
+- [MSH-4-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/MSH.4.1)
+- [PID-3-4-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4.1)
+- [PID-3-6-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.6.1)
+- [SPM-2-1-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.1.2)
+- [SPM-2-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2.2)
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The reporting facility's name
+
+---
+
+**Name**: testing_lab_name
+
+**ReportStream Internal Name**: testing_lab_name
+
+**Type**: TEXT
+
+**PII**: No
+
+**HL7 Fields**
+
+- [OBR-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.2.2)
+- [OBR-3-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.3.2)
+- [OBX-15-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.15.2)
+- [OBX-23-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.23.1)
+- [ORC-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.2.2)
+- [ORC-3-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.3.2)
+- [PID-3-4-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4.1)
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The name of the laboratory which performed the test, can be the same as the sending facility name
 
 ---

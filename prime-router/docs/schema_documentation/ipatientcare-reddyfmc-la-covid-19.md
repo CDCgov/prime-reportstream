@@ -202,26 +202,6 @@ ResultDate populates multiple fields.  This instance populates date_result_relea
 
 ---
 
-**Name**: equipment_model_name
-
-**ReportStream Internal Name**: equipment_model_name
-
-**Type**: TABLE
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-
-**Reference URL**:
-[https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
-
-**Table**: LIVD-SARS-CoV-2-2021-04-28
-
-**Table Column**: Model
-
----
-
 **Name**: CLIA No
 
 **ReportStream Internal Name**: filler_clia
@@ -274,66 +254,6 @@ Facility populates multiple fields.  This instance populates filler_name.
 **Documentation**:
 
 Accension number
-
----
-
-**Name**: hospitalized
-
-**ReportStream Internal Name**: hospitalized
-
-**Type**: CODE
-
-**PII**: No
-
-**Format**: use value found in the Code column
-
-**Default Value**: N
-
-**LOINC Code**: 77974-4
-
-**Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display
----- | -------
-Y|Yes
-N|No
-UNK|Unknown
-
-**Documentation**:
-
-iPatientCare is an ambulatory EMR, so this field is defaulted to 'N'.
-
----
-
-**Name**: icu
-
-**ReportStream Internal Name**: icu
-
-**Type**: CODE
-
-**PII**: No
-
-**Format**: use value found in the Code column
-
-**Default Value**: N
-
-**LOINC Code**: 95420-6
-
-**Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display
----- | -------
-Y|Yes
-N|No
-UNK|Unknown
-
-**Documentation**:
-
-iPatientCare is an ambulatory EMR, so this field is defaulted to 'N'.
 
 ---
 
@@ -674,22 +594,6 @@ The patient's city
 
 ---
 
-**Name**: patient_county
-
-**ReportStream Internal Name**: patient_county
-
-**Type**: TABLE
-
-**PII**: No
-
-**Cardinality**: [1..1]
-
-**Table**: zip-code-data
-
-**Table Column**: county
-
----
-
 **Name**: Birth Date
 
 **ReportStream Internal Name**: patient_dob
@@ -843,20 +747,6 @@ the patient ID from the testing lab, the oder placer, the ordering provider, or 
 **Documentation**:
 
 Facility populates multiple fields.  This instance populates patient_id_assigner.
-
----
-
-**Name**: patient_id_type
-
-**ReportStream Internal Name**: patient_id_type
-
-**Type**: TEXT
-
-**PII**: No
-
-**Default Value**: PI
-
-**Cardinality**: [0..1]
 
 ---
 
@@ -1158,20 +1048,6 @@ The reporting facility's CLIA
 **Documentation**:
 
 Facility populates multiple fields.  This instance populates reporting_facility_name.
-
----
-
-**Name**: result_format
-
-**ReportStream Internal Name**: result_format
-
-**Type**: TEXT
-
-**PII**: No
-
-**Default Value**: CE
-
-**Cardinality**: [0..1]
 
 ---
 
@@ -1485,51 +1361,6 @@ ResultDate populates multiple fields.  This instance populates test_result_date.
 
 ---
 
-**Name**: test_result_status
-
-**ReportStream Internal Name**: test_result_status
-
-**Type**: CODE
-
-**PII**: No
-
-**Format**: use value found in the Code column
-
-**Default Value**: F
-
-**HL7 Fields**
-
-- [OBR-25-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.25.1)
-- [OBX-11-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.11.1)
-
-**Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display
----- | -------
-A|Some, but not all, results available
-C|Corrected, final
-F|Final results
-I|No results available; specimen received, procedure incomplete
-M|Corrected, not final
-N|Procedure completed, results pending
-O|Order received; specimen not yet received
-P|Preliminary
-R|Results stored; not yet verified
-S|No results available; procedure scheduled, but not done
-X|No results available; Order canceled
-Y|No order on record for this test
-Z|No record of this patient
-
-**Documentation**:
-
-The test result status, which is different from the test result itself. Per the valueset, this indicates if
-the test result is in some intermediate status, is a correction, or is the final result.
-
-
----
-
 **Name**: Fac_City
 
 **ReportStream Internal Name**: testing_lab_city
@@ -1699,5 +1530,174 @@ Fac_Addr1 populates multiple fields.  This instance populates testing_lab_street
 **Documentation**:
 
 Fac_Zip populates multiple fields.  This instance populates testing_lab_zip_code.
+
+---
+
+**Name**: equipment_model_name
+
+**ReportStream Internal Name**: equipment_model_name
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+
+**Reference URL**:
+[https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
+
+**Table**: LIVD-SARS-CoV-2-2021-04-28
+
+**Table Column**: Model
+
+---
+
+**Name**: hospitalized
+
+**ReportStream Internal Name**: hospitalized
+
+**Type**: CODE
+
+**PII**: No
+
+**Format**: use value found in the Code column
+
+**Default Value**: N
+
+**LOINC Code**: 77974-4
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+Y|Yes
+N|No
+UNK|Unknown
+
+**Documentation**:
+
+iPatientCare is an ambulatory EMR, so this field is defaulted to 'N'.
+
+---
+
+**Name**: icu
+
+**ReportStream Internal Name**: icu
+
+**Type**: CODE
+
+**PII**: No
+
+**Format**: use value found in the Code column
+
+**Default Value**: N
+
+**LOINC Code**: 95420-6
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+Y|Yes
+N|No
+UNK|Unknown
+
+**Documentation**:
+
+iPatientCare is an ambulatory EMR, so this field is defaulted to 'N'.
+
+---
+
+**Name**: patient_county
+
+**ReportStream Internal Name**: patient_county
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [1..1]
+
+**Table**: zip-code-data
+
+**Table Column**: county
+
+---
+
+**Name**: patient_id_type
+
+**ReportStream Internal Name**: patient_id_type
+
+**Type**: TEXT
+
+**PII**: No
+
+**Default Value**: PI
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: result_format
+
+**ReportStream Internal Name**: result_format
+
+**Type**: TEXT
+
+**PII**: No
+
+**Default Value**: CE
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: test_result_status
+
+**ReportStream Internal Name**: test_result_status
+
+**Type**: CODE
+
+**PII**: No
+
+**Format**: use value found in the Code column
+
+**Default Value**: F
+
+**HL7 Fields**
+
+- [OBR-25-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.25.1)
+- [OBX-11-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.11.1)
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+A|Some, but not all, results available
+C|Corrected, final
+F|Final results
+I|No results available; specimen received, procedure incomplete
+M|Corrected, not final
+N|Procedure completed, results pending
+O|Order received; specimen not yet received
+P|Preliminary
+R|Results stored; not yet verified
+S|No results available; procedure scheduled, but not done
+X|No results available; Order canceled
+Y|No order on record for this test
+Z|No record of this patient
+
+**Documentation**:
+
+The test result status, which is different from the test result itself. Per the valueset, this indicates if
+the test result is in some intermediate status, is a correction, or is the final result.
+
 
 ---

@@ -1391,20 +1391,6 @@ the patient ID from the testing lab, the oder placer, the ordering provider, or 
 
 ---
 
-**Name**: patient_id_type
-
-**ReportStream Internal Name**: patient_id_type
-
-**Type**: TEXT
-
-**PII**: No
-
-**Default Value**: PI
-
-**Cardinality**: [0..1]
-
----
-
 **Name**: patientNameLast
 
 **ReportStream Internal Name**: patient_last_name
@@ -1781,54 +1767,6 @@ This field is no longer used.  Included here so it does not generate a warning i
 
 ---
 
-**Name**: reporting_facility_clia
-
-**ReportStream Internal Name**: reporting_facility_clia
-
-**Type**: ID_CLIA
-
-**PII**: No
-
-**HL7 Fields**
-
-- [MSH-4-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/MSH.4.2)
-- [PID-3-4-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4.2)
-- [PID-3-6-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.6.2)
-- [SPM-2-1-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.1.3)
-- [SPM-2-2-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2.3)
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The reporting facility's CLIA
-
----
-
-**Name**: reporting_facility_name
-
-**ReportStream Internal Name**: reporting_facility_name
-
-**Type**: TEXT
-
-**PII**: No
-
-**HL7 Fields**
-
-- [MSH-4-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/MSH.4.1)
-- [PID-3-4-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4.1)
-- [PID-3-6-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.6.1)
-- [SPM-2-1-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.1.2)
-- [SPM-2-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2.2)
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The reporting facility's name
-
----
-
 **Name**: congregateResident
 
 **ReportStream Internal Name**: resident_congregate_setting
@@ -2048,84 +1986,6 @@ Custom.  Just a simple text string for now. Format is symptomCode1^date1;symptom
 
 ---
 
-**Name**: test_authorized_for_home
-
-**ReportStream Internal Name**: test_authorized_for_home
-
-**Type**: TABLE
-
-**PII**: No
-
-**Default Value**: N
-
-**Cardinality**: [0..1]
-
-
-**Reference URL**:
-[https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
-
-**Table**: LIVD-Supplemental-2021-06-07
-
-**Table Column**: is_home
-
-**Documentation**:
-
-Is the test authorized for home use by the FDA (Y, N, UNK)
-
----
-
-**Name**: test_authorized_for_otc
-
-**ReportStream Internal Name**: test_authorized_for_otc
-
-**Type**: TABLE
-
-**PII**: No
-
-**Default Value**: N
-
-**Cardinality**: [0..1]
-
-
-**Reference URL**:
-[https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
-
-**Table**: LIVD-Supplemental-2021-06-07
-
-**Table Column**: is_otc
-
-**Documentation**:
-
-Is the test authorized for over-the-counter purchase by the FDA (Y, N, UNK)
-
----
-
-**Name**: test_authorized_for_unproctored
-
-**ReportStream Internal Name**: test_authorized_for_unproctored
-
-**Type**: TABLE
-
-**PII**: No
-
-**Default Value**: N
-
-**Cardinality**: [0..1]
-
-
-**Reference URL**:
-[https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
-
-**Table**: LIVD-Supplemental-2021-06-07
-
-**Table Column**: is_unproctored
-
-**Documentation**:
-
-Is the test authorized for unproctored administration by the FDA (Y, N, UNK)
-
----
-
 **Name**: testCodingSystem
 
 **ReportStream Internal Name**: test_coding_system
@@ -2258,51 +2118,6 @@ eg, SCT.   Custom
 **Documentation**:
 
 eg, 20210111
-
----
-
-**Name**: test_result_status
-
-**ReportStream Internal Name**: test_result_status
-
-**Type**: CODE
-
-**PII**: No
-
-**Format**: use value found in the Code column
-
-**Default Value**: F
-
-**HL7 Fields**
-
-- [OBR-25-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.25.1)
-- [OBX-11-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.11.1)
-
-**Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display
----- | -------
-A|Some, but not all, results available
-C|Corrected, final
-F|Final results
-I|No results available; specimen received, procedure incomplete
-M|Corrected, not final
-N|Procedure completed, results pending
-O|Order received; specimen not yet received
-P|Preliminary
-R|Results stored; not yet verified
-S|No results available; procedure scheduled, but not done
-X|No results available; Order canceled
-Y|No order on record for this test
-Z|No record of this patient
-
-**Documentation**:
-
-The test result status, which is different from the test result itself. Per the valueset, this indicates if
-the test result is in some intermediate status, is a correction, or is the final result.
-
 
 ---
 
@@ -2490,5 +2305,190 @@ Street 2 field for the testing lab
 **Documentation**:
 
 The postal code for the testing lab
+
+---
+
+**Name**: patient_id_type
+
+**ReportStream Internal Name**: patient_id_type
+
+**Type**: TEXT
+
+**PII**: No
+
+**Default Value**: PI
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: reporting_facility_clia
+
+**ReportStream Internal Name**: reporting_facility_clia
+
+**Type**: ID_CLIA
+
+**PII**: No
+
+**HL7 Fields**
+
+- [MSH-4-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/MSH.4.2)
+- [PID-3-4-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4.2)
+- [PID-3-6-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.6.2)
+- [SPM-2-1-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.1.3)
+- [SPM-2-2-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2.3)
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The reporting facility's CLIA
+
+---
+
+**Name**: reporting_facility_name
+
+**ReportStream Internal Name**: reporting_facility_name
+
+**Type**: TEXT
+
+**PII**: No
+
+**HL7 Fields**
+
+- [MSH-4-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/MSH.4.1)
+- [PID-3-4-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4.1)
+- [PID-3-6-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.6.1)
+- [SPM-2-1-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.1.2)
+- [SPM-2-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2.2)
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The reporting facility's name
+
+---
+
+**Name**: test_authorized_for_home
+
+**ReportStream Internal Name**: test_authorized_for_home
+
+**Type**: TABLE
+
+**PII**: No
+
+**Default Value**: N
+
+**Cardinality**: [0..1]
+
+
+**Reference URL**:
+[https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
+
+**Table**: LIVD-Supplemental-2021-06-07
+
+**Table Column**: is_home
+
+**Documentation**:
+
+Is the test authorized for home use by the FDA (Y, N, UNK)
+
+---
+
+**Name**: test_authorized_for_otc
+
+**ReportStream Internal Name**: test_authorized_for_otc
+
+**Type**: TABLE
+
+**PII**: No
+
+**Default Value**: N
+
+**Cardinality**: [0..1]
+
+
+**Reference URL**:
+[https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
+
+**Table**: LIVD-Supplemental-2021-06-07
+
+**Table Column**: is_otc
+
+**Documentation**:
+
+Is the test authorized for over-the-counter purchase by the FDA (Y, N, UNK)
+
+---
+
+**Name**: test_authorized_for_unproctored
+
+**ReportStream Internal Name**: test_authorized_for_unproctored
+
+**Type**: TABLE
+
+**PII**: No
+
+**Default Value**: N
+
+**Cardinality**: [0..1]
+
+
+**Reference URL**:
+[https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
+
+**Table**: LIVD-Supplemental-2021-06-07
+
+**Table Column**: is_unproctored
+
+**Documentation**:
+
+Is the test authorized for unproctored administration by the FDA (Y, N, UNK)
+
+---
+
+**Name**: test_result_status
+
+**ReportStream Internal Name**: test_result_status
+
+**Type**: CODE
+
+**PII**: No
+
+**Format**: use value found in the Code column
+
+**Default Value**: F
+
+**HL7 Fields**
+
+- [OBR-25-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.25.1)
+- [OBX-11-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.11.1)
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+A|Some, but not all, results available
+C|Corrected, final
+F|Final results
+I|No results available; specimen received, procedure incomplete
+M|Corrected, not final
+N|Procedure completed, results pending
+O|Order received; specimen not yet received
+P|Preliminary
+R|Results stored; not yet verified
+S|No results available; procedure scheduled, but not done
+X|No results available; Order canceled
+Y|No order on record for this test
+Z|No record of this patient
+
+**Documentation**:
+
+The test result status, which is different from the test result itself. Per the valueset, this indicates if
+the test result is in some intermediate status, is a correction, or is the final result.
+
 
 ---

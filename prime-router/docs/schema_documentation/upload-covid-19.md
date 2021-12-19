@@ -60,28 +60,6 @@ Must match a value from LIVD column B, "Model". eg,  "BD Veritor System for Rapi
 
 ---
 
-**Name**: filler_order_id
-
-**ReportStream Internal Name**: filler_order_id
-
-**Type**: ID
-
-**PII**: No
-
-**HL7 Fields**
-
-- [OBR-3-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.3.1)
-- [ORC-3-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.3.1)
-- [SPM-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2)
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-User does not need to include this column; we'll populate it.
-
----
-
 **Name**: firstTest
 
 **ReportStream Internal Name**: first_test
@@ -755,24 +733,6 @@ the patient ID from the testing lab, the oder placer, the ordering provider, or 
 
 ---
 
-**Name**: patient_id_type
-
-**ReportStream Internal Name**: patient_id_type
-
-**Type**: TEXT
-
-**PII**: No
-
-**Default Value**: PI
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-User does not need to include this column.
-
----
-
 **Name**: patientNameLast
 
 **ReportStream Internal Name**: patient_last_name
@@ -917,27 +877,6 @@ The patient's zip code
 
 ---
 
-**Name**: placer_order_id
-
-**ReportStream Internal Name**: placer_order_id
-
-**Type**: ID
-
-**PII**: No
-
-**HL7 Fields**
-
-- [OBR-2-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.2.1)
-- [ORC-2-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.2.1)
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-User does not need to include this column; we'll populate it.
-
----
-
 **Name**: pregnant
 
 **ReportStream Internal Name**: pregnant
@@ -1007,54 +946,6 @@ T|Training
 **Documentation**:
 
 User does not need to include this column, and we'll default to 'P'
-
----
-
-**Name**: reporting_facility_clia
-
-**ReportStream Internal Name**: reporting_facility_clia
-
-**Type**: ID_CLIA
-
-**PII**: No
-
-**HL7 Fields**
-
-- [MSH-4-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/MSH.4.2)
-- [PID-3-4-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4.2)
-- [PID-3-6-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.6.2)
-- [SPM-2-1-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.1.3)
-- [SPM-2-2-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2.3)
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The reporting facility's CLIA
-
----
-
-**Name**: reporting_facility_name
-
-**ReportStream Internal Name**: reporting_facility_name
-
-**Type**: TEXT
-
-**PII**: No
-
-**HL7 Fields**
-
-- [MSH-4-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/MSH.4.1)
-- [PID-3-4-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4.1)
-- [PID-3-6-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.6.1)
-- [SPM-2-1-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.1.2)
-- [SPM-2-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2.2)
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The reporting facility's name
 
 ---
 
@@ -1216,84 +1107,6 @@ UNK|Unknown
 **Documentation**:
 
 AOE - Does the patient have symptoms related to COVID-19?
-
----
-
-**Name**: test_authorized_for_home
-
-**ReportStream Internal Name**: test_authorized_for_home
-
-**Type**: TABLE
-
-**PII**: No
-
-**Default Value**: N
-
-**Cardinality**: [0..1]
-
-
-**Reference URL**:
-[https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
-
-**Table**: LIVD-Supplemental-2021-06-07
-
-**Table Column**: is_home
-
-**Documentation**:
-
-Is the test authorized for home use by the FDA (Y, N, UNK)
-
----
-
-**Name**: test_authorized_for_otc
-
-**ReportStream Internal Name**: test_authorized_for_otc
-
-**Type**: TABLE
-
-**PII**: No
-
-**Default Value**: N
-
-**Cardinality**: [0..1]
-
-
-**Reference URL**:
-[https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
-
-**Table**: LIVD-Supplemental-2021-06-07
-
-**Table Column**: is_otc
-
-**Documentation**:
-
-Is the test authorized for over-the-counter purchase by the FDA (Y, N, UNK)
-
----
-
-**Name**: test_authorized_for_unproctored
-
-**ReportStream Internal Name**: test_authorized_for_unproctored
-
-**Type**: TABLE
-
-**PII**: No
-
-**Default Value**: N
-
-**Cardinality**: [0..1]
-
-
-**Reference URL**:
-[https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
-
-**Table**: LIVD-Supplemental-2021-06-07
-
-**Table Column**: is_unproctored
-
-**Documentation**:
-
-Is the test authorized for unproctored administration by the FDA (Y, N, UNK)
 
 ---
 
@@ -1627,5 +1440,192 @@ Street 2 field for the testing lab
 **Documentation**:
 
 The postal code for the testing lab
+
+---
+
+**Name**: filler_order_id
+
+**ReportStream Internal Name**: filler_order_id
+
+**Type**: ID
+
+**PII**: No
+
+**HL7 Fields**
+
+- [OBR-3-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.3.1)
+- [ORC-3-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.3.1)
+- [SPM-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2)
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+User does not need to include this column; we'll populate it.
+
+---
+
+**Name**: patient_id_type
+
+**ReportStream Internal Name**: patient_id_type
+
+**Type**: TEXT
+
+**PII**: No
+
+**Default Value**: PI
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+User does not need to include this column.
+
+---
+
+**Name**: placer_order_id
+
+**ReportStream Internal Name**: placer_order_id
+
+**Type**: ID
+
+**PII**: No
+
+**HL7 Fields**
+
+- [OBR-2-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.2.1)
+- [ORC-2-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.2.1)
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+User does not need to include this column; we'll populate it.
+
+---
+
+**Name**: reporting_facility_clia
+
+**ReportStream Internal Name**: reporting_facility_clia
+
+**Type**: ID_CLIA
+
+**PII**: No
+
+**HL7 Fields**
+
+- [MSH-4-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/MSH.4.2)
+- [PID-3-4-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4.2)
+- [PID-3-6-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.6.2)
+- [SPM-2-1-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.1.3)
+- [SPM-2-2-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2.3)
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The reporting facility's CLIA
+
+---
+
+**Name**: reporting_facility_name
+
+**ReportStream Internal Name**: reporting_facility_name
+
+**Type**: TEXT
+
+**PII**: No
+
+**HL7 Fields**
+
+- [MSH-4-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/MSH.4.1)
+- [PID-3-4-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4.1)
+- [PID-3-6-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.6.1)
+- [SPM-2-1-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.1.2)
+- [SPM-2-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2.2)
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The reporting facility's name
+
+---
+
+**Name**: test_authorized_for_home
+
+**ReportStream Internal Name**: test_authorized_for_home
+
+**Type**: TABLE
+
+**PII**: No
+
+**Default Value**: N
+
+**Cardinality**: [0..1]
+
+
+**Reference URL**:
+[https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
+
+**Table**: LIVD-Supplemental-2021-06-07
+
+**Table Column**: is_home
+
+**Documentation**:
+
+Is the test authorized for home use by the FDA (Y, N, UNK)
+
+---
+
+**Name**: test_authorized_for_otc
+
+**ReportStream Internal Name**: test_authorized_for_otc
+
+**Type**: TABLE
+
+**PII**: No
+
+**Default Value**: N
+
+**Cardinality**: [0..1]
+
+
+**Reference URL**:
+[https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
+
+**Table**: LIVD-Supplemental-2021-06-07
+
+**Table Column**: is_otc
+
+**Documentation**:
+
+Is the test authorized for over-the-counter purchase by the FDA (Y, N, UNK)
+
+---
+
+**Name**: test_authorized_for_unproctored
+
+**ReportStream Internal Name**: test_authorized_for_unproctored
+
+**Type**: TABLE
+
+**PII**: No
+
+**Default Value**: N
+
+**Cardinality**: [0..1]
+
+
+**Reference URL**:
+[https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
+
+**Table**: LIVD-Supplemental-2021-06-07
+
+**Table Column**: is_unproctored
+
+**Documentation**:
+
+Is the test authorized for unproctored administration by the FDA (Y, N, UNK)
 
 ---

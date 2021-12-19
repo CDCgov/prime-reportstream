@@ -8,71 +8,6 @@
 
 ---
 
-**Name**: abnormal_flag
-
-**ReportStream Internal Name**: abnormal_flag
-
-**Type**: CODE
-
-**PII**: No
-
-**Format**: use value found in the Code column
-
-**Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display
----- | -------
-A|Abnormal (applies to non-numeric results)
-&#62;|Above absolute high-off instrument scale
-H|Above high normal
-HH|Above upper panic limits
-AC|Anti-complementary substances present
-<|Below absolute low-off instrument scale
-L|Below low normal
-LL|Below lower panic limits
-B|Better--use when direction not relevant
-TOX|Cytotoxic substance present
-DET|Detected
-IND|Indeterminate
-I|Intermediate. Indicates for microbiology susceptibilities only.
-MS|Moderately susceptible. Indicates for microbiology susceptibilities only.
-NEG|Negative
-null|No range defined, or normal ranges don't apply
-NR|Non-reactive
-N|Normal (applies to non-numeric results)
-ND|Not Detected
-POS|Positive
-QCF|Quality Control Failure
-RR|Reactive
-R|Resistant. Indicates for microbiology susceptibilities only.
-D|Significant change down
-U|Significant change up
-S|Susceptible. Indicates for microbiology susceptibilities only.
-AA|Very abnormal (applies to non-numeric units, analogous to panic limits for numeric units)
-VS|Very susceptible. Indicates for microbiology susceptibilities only.
-WR|Weakly reactive
-W|Worse--use when direction not relevant
-
-**Documentation**:
-
-This field is generated based on the normalcy status of the result. A = abnormal; N = normal
-
----
-
-**Name**: date_result_released
-
-**ReportStream Internal Name**: date_result_released
-
-**Type**: DATETIME
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
----
-
 **Name**: equipment_model_name
 
 **ReportStream Internal Name**: equipment_model_name
@@ -126,80 +61,6 @@ Accension number
 **PII**: No
 
 **LOINC Code**: 65222-2
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: message_id
-
-**ReportStream Internal Name**: message_id
-
-**Type**: ID
-
-**PII**: No
-
-**Cardinality**: [1..1]
-
-**Documentation**:
-
-unique id to track the usage of the message
-
----
-
-**Name**: order_test_date
-
-**ReportStream Internal Name**: order_test_date
-
-**Type**: DATETIME
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: ordered_test_code
-
-**ReportStream Internal Name**: ordered_test_code
-
-**Type**: TABLE
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-**Table**: LIVD-SARS-CoV-2-2021-09-29
-
-**Table Column**: Test Ordered LOINC Code
-
----
-
-**Name**: ordered_test_name
-
-**ReportStream Internal Name**: ordered_test_name
-
-**Type**: TABLE
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-**Table**: LIVD-SARS-CoV-2-2021-09-29
-
-**Table Column**: Test Ordered LOINC Long Name
-
----
-
-**Name**: ordered_test_system
-
-**ReportStream Internal Name**: ordered_test_system
-
-**Type**: TEXT
-
-**PII**: No
-
-**Default Value**: LOINC
 
 **Cardinality**: [0..1]
 
@@ -320,22 +181,6 @@ The address of the facility which the test was ordered from
 **Documentation**:
 
 The zip code of the facility which the test was ordered from
-
----
-
-**Name**: ordering_provider_city
-
-**ReportStream Internal Name**: ordering_provider_city
-
-**Type**: CITY
-
-**PII**: Yes
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The city of the provider
 
 ---
 
@@ -546,36 +391,6 @@ The patient's gender. There is a valueset defined based on the values in PID-8-1
 
 ---
 
-**Name**: patient_id
-
-**ReportStream Internal Name**: patient_id
-
-**Type**: TEXT
-
-**PII**: Yes
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The ID for the patient within one of the reporting entities for this lab result. It could be the
-the patient ID from the testing lab, the oder placer, the ordering provider, or even within the PRIME system itself.
-
-
----
-
-**Name**: patient_id_type
-
-**ReportStream Internal Name**: patient_id_type
-
-**Type**: TEXT
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
----
-
 **Name**: patient_last_name
 
 **ReportStream Internal Name**: patient_last_name
@@ -759,24 +574,6 @@ Is the patient pregnant?
 
 ---
 
-**Name**: reference_range
-
-**ReportStream Internal Name**: reference_range
-
-**Type**: TEXT
-
-**PII**: No
-
-**Default Value**: Not Detected
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The reference range of the lab result, such as “Negative” or “Normal”. For IgG, IgM and CT results that provide a value you MUST fill out this filed.
-
----
-
 **Name**: reporting_facility_CLIA
 
 **ReportStream Internal Name**: reporting_facility_clia
@@ -840,6 +637,317 @@ The reporting facility's name
 **Documentation**:
 
 ID name of org that is sending this data to ReportStream.  Suitable for provenance or chain of custody tracking.  Not to be confused with sending_application, in which ReportStream acts as the 'sender' to the downstream jurisdiction.
+
+---
+
+**Name**: patient_appt_datetime
+
+**ReportStream Internal Name**: strac_patient_appt_datetime
+
+**Type**: DATETIME
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: patient_positive
+
+**ReportStream Internal Name**: test_result
+
+**Type**: CODE
+
+**PII**: No
+
+**Format**: use value found in the Display column
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+260373001|Detected
+260415000|Not detected
+720735008|Presumptive positive
+10828004|Positive
+42425007|Equivocal
+260385009|Negative
+895231008|Not detected in pooled specimen
+462371000124108|Detected in pooled specimen
+419984006|Inconclusive
+125154007|Specimen unsatisfactory for evaluation
+455371000124106|Invalid result
+840539006|Disease caused by sever acute respiratory syndrome coronavirus 2 (disorder)
+840544004|Suspected disease caused by severe acute respiratory coronavirus 2 (situation)
+840546002|Exposure to severe acute respiratory syndrome coronavirus 2 (event)
+840533007|Severe acute respiratory syndrome coronavirus 2 (organism)
+840536004|Antigen of severe acute respiratory syndrome coronavirus 2 (substance)
+840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
+840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
+373121007|Test not done
+82334004|Indeterminate
+260373001|Detected
+260415000|Not detected
+455371000124106|Invalid result
+720735008|Presumptive positive
+10828004|Positive
+42425007|Equivocal
+260385009|Negative
+895231008|Not detected in pooled specimen
+462371000124108|Detected in pooled specimen
+419984006|Inconclusive
+125154007|Specimen unsatisfactory for evaluation
+840539006|Disease caused by sever acute respiratory syndrome coronavirus 2 (disorder)
+840544004|Suspected disease caused by severe acute respiratory coronavirus 2 (situation)
+840546002|Exposure to severe acute respiratory syndrome coronavirus 2 (event)
+840533007|Severe acute respiratory syndrome coronavirus 2 (organism)
+840536004|Antigen of severe acute respiratory syndrome coronavirus 2 (substance)
+840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
+840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
+
+**Alt Value Sets**
+
+Code | Display
+---- | -------
+260373001|positive
+260415000|negative
+455371000124106|invalid
+720735008|Presumptive positive
+10828004|Positive
+42425007|Equivocal
+260385009|Negative
+895231008|Not detected in pooled specimen
+462371000124108|Detected in pooled specimen
+419984006|Inconclusive
+125154007|Specimen unsatisfactory for evaluation
+840539006|Disease caused by sever acute respitory syndrome coronavirus 2 (disorder)
+840544004|Suspected disease caused by severe acute respiratory coronavirus 2 (situation)
+840546002|Exposure to severe acute respiratory syndrome coronavirus 2 (event)
+840533007|Severe acute respiratory syndrome coronavirus 2 (organism)
+840536004|Antigen of severe acute respiratory syndrome coronavirus 2 (substance)
+840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
+840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
+
+**Documentation**:
+
+The result of the test performed. For IgG, IgM and CT results that give a numeric value put that here.
+
+---
+
+**Name**: patient_results
+
+**ReportStream Internal Name**: test_result_date
+
+**Type**: DATETIME
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: abnormal_flag
+
+**ReportStream Internal Name**: abnormal_flag
+
+**Type**: CODE
+
+**PII**: No
+
+**Format**: use value found in the Code column
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+A|Abnormal (applies to non-numeric results)
+&#62;|Above absolute high-off instrument scale
+H|Above high normal
+HH|Above upper panic limits
+AC|Anti-complementary substances present
+<|Below absolute low-off instrument scale
+L|Below low normal
+LL|Below lower panic limits
+B|Better--use when direction not relevant
+TOX|Cytotoxic substance present
+DET|Detected
+IND|Indeterminate
+I|Intermediate. Indicates for microbiology susceptibilities only.
+MS|Moderately susceptible. Indicates for microbiology susceptibilities only.
+NEG|Negative
+null|No range defined, or normal ranges don't apply
+NR|Non-reactive
+N|Normal (applies to non-numeric results)
+ND|Not Detected
+POS|Positive
+QCF|Quality Control Failure
+RR|Reactive
+R|Resistant. Indicates for microbiology susceptibilities only.
+D|Significant change down
+U|Significant change up
+S|Susceptible. Indicates for microbiology susceptibilities only.
+AA|Very abnormal (applies to non-numeric units, analogous to panic limits for numeric units)
+VS|Very susceptible. Indicates for microbiology susceptibilities only.
+WR|Weakly reactive
+W|Worse--use when direction not relevant
+
+**Documentation**:
+
+This field is generated based on the normalcy status of the result. A = abnormal; N = normal
+
+---
+
+**Name**: date_result_released
+
+**ReportStream Internal Name**: date_result_released
+
+**Type**: DATETIME
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: message_id
+
+**ReportStream Internal Name**: message_id
+
+**Type**: ID
+
+**PII**: No
+
+**Cardinality**: [1..1]
+
+**Documentation**:
+
+unique id to track the usage of the message
+
+---
+
+**Name**: order_test_date
+
+**ReportStream Internal Name**: order_test_date
+
+**Type**: DATETIME
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: ordered_test_code
+
+**ReportStream Internal Name**: ordered_test_code
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Table**: LIVD-SARS-CoV-2-2021-09-29
+
+**Table Column**: Test Ordered LOINC Code
+
+---
+
+**Name**: ordered_test_name
+
+**ReportStream Internal Name**: ordered_test_name
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Table**: LIVD-SARS-CoV-2-2021-09-29
+
+**Table Column**: Test Ordered LOINC Long Name
+
+---
+
+**Name**: ordered_test_system
+
+**ReportStream Internal Name**: ordered_test_system
+
+**Type**: TEXT
+
+**PII**: No
+
+**Default Value**: LOINC
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: ordering_provider_city
+
+**ReportStream Internal Name**: ordering_provider_city
+
+**Type**: CITY
+
+**PII**: Yes
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The city of the provider
+
+---
+
+**Name**: patient_id
+
+**ReportStream Internal Name**: patient_id
+
+**Type**: TEXT
+
+**PII**: Yes
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The ID for the patient within one of the reporting entities for this lab result. It could be the
+the patient ID from the testing lab, the oder placer, the ordering provider, or even within the PRIME system itself.
+
+
+---
+
+**Name**: patient_id_type
+
+**ReportStream Internal Name**: patient_id_type
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: reference_range
+
+**ReportStream Internal Name**: reference_range
+
+**Type**: TEXT
+
+**PII**: No
+
+**Default Value**: Not Detected
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The reference range of the lab result, such as “Negative” or “Normal”. For IgG, IgM and CT results that provide a value you MUST fill out this filed.
 
 ---
 
@@ -943,18 +1051,6 @@ The specimen source, such as Blood or Serum
 
 ---
 
-**Name**: patient_appt_datetime
-
-**ReportStream Internal Name**: strac_patient_appt_datetime
-
-**Type**: DATETIME
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
----
-
 **Name**: test_authorized_for_home
 
 **ReportStream Internal Name**: test_authorized_for_home
@@ -1030,102 +1126,6 @@ Is the test authorized for over-the-counter purchase by the FDA (Y, N, UNK)
 **Documentation**:
 
 Is the test authorized for unproctored administration by the FDA (Y, N, UNK)
-
----
-
-**Name**: patient_positive
-
-**ReportStream Internal Name**: test_result
-
-**Type**: CODE
-
-**PII**: No
-
-**Format**: use value found in the Display column
-
-**Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display
----- | -------
-260373001|Detected
-260415000|Not detected
-720735008|Presumptive positive
-10828004|Positive
-42425007|Equivocal
-260385009|Negative
-895231008|Not detected in pooled specimen
-462371000124108|Detected in pooled specimen
-419984006|Inconclusive
-125154007|Specimen unsatisfactory for evaluation
-455371000124106|Invalid result
-840539006|Disease caused by sever acute respiratory syndrome coronavirus 2 (disorder)
-840544004|Suspected disease caused by severe acute respiratory coronavirus 2 (situation)
-840546002|Exposure to severe acute respiratory syndrome coronavirus 2 (event)
-840533007|Severe acute respiratory syndrome coronavirus 2 (organism)
-840536004|Antigen of severe acute respiratory syndrome coronavirus 2 (substance)
-840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
-840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
-373121007|Test not done
-82334004|Indeterminate
-260373001|Detected
-260415000|Not detected
-455371000124106|Invalid result
-720735008|Presumptive positive
-10828004|Positive
-42425007|Equivocal
-260385009|Negative
-895231008|Not detected in pooled specimen
-462371000124108|Detected in pooled specimen
-419984006|Inconclusive
-125154007|Specimen unsatisfactory for evaluation
-840539006|Disease caused by sever acute respiratory syndrome coronavirus 2 (disorder)
-840544004|Suspected disease caused by severe acute respiratory coronavirus 2 (situation)
-840546002|Exposure to severe acute respiratory syndrome coronavirus 2 (event)
-840533007|Severe acute respiratory syndrome coronavirus 2 (organism)
-840536004|Antigen of severe acute respiratory syndrome coronavirus 2 (substance)
-840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
-840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
-
-**Alt Value Sets**
-
-Code | Display
----- | -------
-260373001|positive
-260415000|negative
-455371000124106|invalid
-720735008|Presumptive positive
-10828004|Positive
-42425007|Equivocal
-260385009|Negative
-895231008|Not detected in pooled specimen
-462371000124108|Detected in pooled specimen
-419984006|Inconclusive
-125154007|Specimen unsatisfactory for evaluation
-840539006|Disease caused by sever acute respitory syndrome coronavirus 2 (disorder)
-840544004|Suspected disease caused by severe acute respiratory coronavirus 2 (situation)
-840546002|Exposure to severe acute respiratory syndrome coronavirus 2 (event)
-840533007|Severe acute respiratory syndrome coronavirus 2 (organism)
-840536004|Antigen of severe acute respiratory syndrome coronavirus 2 (substance)
-840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
-840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
-
-**Documentation**:
-
-The result of the test performed. For IgG, IgM and CT results that give a numeric value put that here.
-
----
-
-**Name**: patient_results
-
-**ReportStream Internal Name**: test_result_date
-
-**Type**: DATETIME
-
-**PII**: No
-
-**Cardinality**: [0..1]
 
 ---
 

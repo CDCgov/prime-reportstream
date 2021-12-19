@@ -204,22 +204,6 @@ Accension number
 
 ---
 
-**Name**: message_id
-
-**ReportStream Internal Name**: message_id
-
-**Type**: ID
-
-**PII**: No
-
-**Cardinality**: [1..1]
-
-**Documentation**:
-
-unique id to track the usage of the message
-
----
-
 **Name**: Date Test Ordered
 
 **ReportStream Internal Name**: order_test_date
@@ -528,26 +512,6 @@ The patient's city
 
 ---
 
-**Name**: patient_county_code
-
-**ReportStream Internal Name**: patient_county_code
-
-**Type**: TABLE
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-**Table**: fips-county
-
-**Table Column**: FIPS
-
-**Documentation**:
-
-The FIPS code for the patient's county
-
----
-
 **Name**: Patient Date Of Birth
 
 **ReportStream Internal Name**: patient_dob
@@ -701,20 +665,6 @@ the patient ID from the testing lab, the oder placer, the ordering provider, or 
 **Documentation**:
 
 The name of the assigner of the patient_id field. Typically we use the name of the ordering facility
-
----
-
-**Name**: patient_id_type
-
-**ReportStream Internal Name**: patient_id_type
-
-**Type**: TEXT
-
-**PII**: No
-
-**Default Value**: PI
-
-**Cardinality**: [0..1]
 
 ---
 
@@ -897,34 +847,6 @@ The ID number of the lab order from the placer
 
 ---
 
-**Name**: processing_mode_code
-
-**ReportStream Internal Name**: processing_mode_code
-
-**Type**: CODE
-
-**PII**: No
-
-**Format**: use value found in the Code column
-
-**Default Value**: T
-
-**Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display
----- | -------
-D|Debugging
-P|Production
-T|Training
-
-**Documentation**:
-
-P, D, or T for Production, Debugging, or Training
-
----
-
 **Name**: Facility CLIA
 
 **ReportStream Internal Name**: reporting_facility_clia
@@ -970,24 +892,6 @@ The reporting facility's CLIA
 **Documentation**:
 
 The reporting facility's name
-
----
-
-**Name**: sender_id
-
-**ReportStream Internal Name**: sender_id
-
-**Type**: TEXT
-
-**PII**: No
-
-**Default Value**: all-in-one-health-ca
-
-**Cardinality**: [1..1]
-
-**Documentation**:
-
-ID name of org that is sending this data to ReportStream.  Suitable for provenance or chain of custody tracking.  Not to be confused with sending_application, in which ReportStream acts as the 'sender' to the downstream jurisdiction.
 
 ---
 
@@ -1143,26 +1047,6 @@ Code | Display
 **Documentation**:
 
 Translate inbound text to outbound SNOMED Codes
-
----
-
-**Name**: test_performed_code
-
-**ReportStream Internal Name**: test_performed_code
-
-**Type**: TABLE
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-**Table**: LIVD-SARS-CoV-2-2021-09-29
-
-**Table Column**: Test Performed LOINC Code
-
-**Documentation**:
-
-The LOINC code of the test performed. This is a standardized coded value describing the test
 
 ---
 
@@ -1499,5 +1383,121 @@ The street address for the testing lab
 **Documentation**:
 
 The postal code for the testing lab
+
+---
+
+**Name**: message_id
+
+**ReportStream Internal Name**: message_id
+
+**Type**: ID
+
+**PII**: No
+
+**Cardinality**: [1..1]
+
+**Documentation**:
+
+unique id to track the usage of the message
+
+---
+
+**Name**: patient_county_code
+
+**ReportStream Internal Name**: patient_county_code
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Table**: fips-county
+
+**Table Column**: FIPS
+
+**Documentation**:
+
+The FIPS code for the patient's county
+
+---
+
+**Name**: patient_id_type
+
+**ReportStream Internal Name**: patient_id_type
+
+**Type**: TEXT
+
+**PII**: No
+
+**Default Value**: PI
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: processing_mode_code
+
+**ReportStream Internal Name**: processing_mode_code
+
+**Type**: CODE
+
+**PII**: No
+
+**Format**: use value found in the Code column
+
+**Default Value**: T
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+D|Debugging
+P|Production
+T|Training
+
+**Documentation**:
+
+P, D, or T for Production, Debugging, or Training
+
+---
+
+**Name**: sender_id
+
+**ReportStream Internal Name**: sender_id
+
+**Type**: TEXT
+
+**PII**: No
+
+**Default Value**: all-in-one-health-ca
+
+**Cardinality**: [1..1]
+
+**Documentation**:
+
+ID name of org that is sending this data to ReportStream.  Suitable for provenance or chain of custody tracking.  Not to be confused with sending_application, in which ReportStream acts as the 'sender' to the downstream jurisdiction.
+
+---
+
+**Name**: test_performed_code
+
+**ReportStream Internal Name**: test_performed_code
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Table**: LIVD-SARS-CoV-2-2021-09-29
+
+**Table Column**: Test Performed LOINC Code
+
+**Documentation**:
+
+The LOINC code of the test performed. This is a standardized coded value describing the test
 
 ---
