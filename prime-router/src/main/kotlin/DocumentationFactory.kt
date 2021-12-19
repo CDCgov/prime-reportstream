@@ -128,7 +128,10 @@ ${element.documentation}
 ---"""
         )
 
-        schema.elements.sortedBy { it -> it.name }.forEach { element ->
+        schema.elements.filter { !it.csvFields.isNullOrEmpty() }.sortedBy { it -> it.name }.forEach { element ->
+            sb.append(getElementDocumentation(element))
+        }
+        schema.elements.filter { it.csvFields.isNullOrEmpty() }.sortedBy { it -> it.name }.forEach { element ->
             sb.append(getElementDocumentation(element))
         }
 
