@@ -4,7 +4,6 @@ import {
     setStoredOrg,
 } from "./GlobalContextProvider";
 
-
 it("Setting/getting/clearing sessionStorage works", () => {
     const testvalue = Number(Date.now()).toString();
     clearGlobalContext();
