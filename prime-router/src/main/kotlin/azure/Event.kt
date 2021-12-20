@@ -246,6 +246,9 @@ class BatchEvent(
             at == other.at
     }
 
+    // this should say 'batch' but will break production on deploy if there is anything in the batch queue
+    //  when it goes to prod. This value is used only to queue and dequeue message types
+    //  (toQueueMessage, parseQueueMessage)
     companion object {
         const val eventType = "receiver"
     }

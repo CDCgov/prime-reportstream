@@ -6,6 +6,7 @@ import com.microsoft.azure.functions.annotation.QueueTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
+import org.apache.logging.log4j.kotlin.logger
 import java.util.logging.Level
 
 const val batch = "batch"
@@ -44,7 +45,21 @@ class BatchFunction {
                 } else {
                     context.logger.info("Batch contains ${headers.size} reports")
                 }
-                val inReports = headers.map {
+
+                // find any headers that expected to have content but were unable to actually download
+                //  from the blob store.
+                headers.filter { it.expectingContent && it.content == null }
+                    .forEach{
+                        // TODO: at some point we will need to add in a way to put something in an error state.
+                        //  Right now a task or action can represent more than one receiver, and if one succeeds
+                        //  and the other fails we cannot mark the action as a BATCH_ERROR
+                        context.logger().error("Failure to download ${it.task.bodyUrl} from blobstore. " +
+                            "ReportId: ${it.task.reportId}")
+                    }
+
+                // only batch files that have the expected content.
+                val inReports = headers.filter { it.content != null }
+                    .map {
                     val report = workflowEngine.createReport(it)
                     // todo replace the use of task.reportId with info from ReportFile.
                     actionHistory.trackExistingInputReport(it.task.reportId)

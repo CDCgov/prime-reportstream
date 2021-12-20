@@ -707,7 +707,11 @@ class WorkflowEngine(
         val organization: Organization?,
         val receiver: Receiver?,
         val schema: Schema?,
-        val content: ByteArray?
+        val content: ByteArray?,
+        // todo: until this can be refactored, we need a way for the calling functions to know
+        //  if this header is expecting to have content to detect errors on download (IE, file does not exist
+        //  see #3505
+        val expectingContent: Boolean
     )
 
     private fun createHeader(
@@ -722,10 +726,12 @@ class WorkflowEngine(
             metadata.findSchema(reportFile.schemaName)
         else null
 
-        val content = if (reportFile.bodyUrl != null && fetchBlobBody)
+        val downloadContent = (reportFile.bodyUrl != null && fetchBlobBody)
+        val content = if (downloadContent && blob.exists(reportFile.bodyUrl))  {
             blob.downloadBlob(reportFile.bodyUrl)
+        }
         else null
-        return Header(task, reportFile, itemLineages, organization, receiver, schema, content)
+        return Header(task, reportFile, itemLineages, organization, receiver, schema, content, downloadContent)
     }
 
     fun fetchHeader(

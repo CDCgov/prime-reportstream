@@ -28,22 +28,25 @@ class BatchDeciderFunction {
         try {
             val db = WorkflowEngine().db
             db.transact { txn ->
+                // TODO: if for some reason we start missing batch runs, we would want to pull all receivers with
+                //  BATCH records that have next_action_at in the past and merge those with the batchInPrevious60Seconds
                 // find all receivers that should have batched within the last 60 seconds
                 settings.receivers.filter { it.timing != null && it.timing.batchInPrevious60Seconds() }
-                    // any that should have, get count of outstanding BATCH records (how many actions with BATCH for
-                    //  receiver
+                    // any that should have batched in the last 60 seconds, get count of outstanding BATCH records
+                    //  (how many actions with BATCH for receiver
                     .forEach { rec ->
-                        // todo: to support sending empty batches, we will need to check if the receiver wants that
+                        // TODO: to support sending empty batches, we will need to check if the receiver wants that
                         //  and add the queue message regardless. Currently functionality only adds a message if
                         //  there is at least one batch to run
                         // get the number of messages outstanding for this receiver
-                        val recordsToBatch = db.fetchNumberOutstandingBatchRecords(rec.organizationName, rec.name, txn)
-                        val queueWorkers = ceil((recordsToBatch.toDouble() / rec.timing!!.maxReportCount.toDouble()))
+                        val recordsToBatch = db.fetchNumberOutstandingBatchRecords(rec.fullName, txn)
+                        val queueMessages = ceil((recordsToBatch.toDouble() / rec.timing!!.maxReportCount.toDouble()))
                             .roundToInt()
-                        if (queueWorkers > 0)
+                        if (queueMessages > 0)
                             context.logger.info("Found $recordsToBatch for ${rec.fullName}," +
-                                "max size ${rec.timing.maxReportCount}. Starting $queueWorkers queue workers")
-                        repeat (queueWorkers) {
+                                "max size ${rec.timing.maxReportCount}. Queueing $queueMessages messages to BATCH")
+
+                        repeat (queueMessages) {
                             // build 'batch' event
                             val event = BatchEvent(Event.EventAction.BATCH, rec.fullName)
                             QueueAccess.sendMessage(event)
