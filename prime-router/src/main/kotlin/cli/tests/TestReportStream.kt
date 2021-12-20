@@ -2365,7 +2365,7 @@ class SantaClaus : CoolTest() {
         }
 
         val states = if (options.targetStates.isNullOrEmpty()) {
-            metadata.findLookupTable("fips-county")?.getDistinctValuesInColumn("State")
+            metadata.findLookupTable("fips-county")?.FilterBuilder()?.findAllUnique("State")
                 ?.toList() ?: error("Santa is unable to find any states in the fips-county table")
         } else {
             options.targetStates.split(",")

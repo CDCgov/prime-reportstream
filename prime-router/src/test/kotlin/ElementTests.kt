@@ -17,6 +17,8 @@ import java.time.format.DateTimeFormatter
 import kotlin.test.Test
 import kotlin.test.assertFails
 
+private const val dateFormat = "yyyy-MM-dd"
+
 internal class ElementTests {
 
     @Test
@@ -113,7 +115,7 @@ internal class ElementTests {
             "a",
             type = Element.Type.DATETIME,
         )
-        three.toNormalized("2020-12-09", "yyyy-MM-dd").run {
+        three.toNormalized("2020-12-09", dateFormat).run {
             assertThat(this).isEqualTo("202012090000$offset")
         }
         mapOf(
@@ -147,8 +149,60 @@ internal class ElementTests {
             type = Element.Type.DATETIME,
         )
         // Other formats should work too, including sans the time.
-        two.toFormatted("202012090000+0000", "yyyy-MM-dd").run {
+        two.toFormatted("202012090000+0000", dateFormat).run {
             assertThat(this).isEqualTo("2020-12-09")
+        }
+    }
+
+    @Test
+    fun `test toFormatted date`() {
+        val two = Element(
+            "a",
+            type = Element.Type.DATE,
+        )
+        // Check correct formats should work too, including sans the time.
+        two.toFormatted("20201201", dateFormat).run {
+            assertThat(this).isEqualTo("2020-12-01")
+        }
+        // Check another correct format and expect to return only date.
+        two.toFormatted("20201202", "M/d/yyyy HH:nn").run {
+            assertThat(this).isEqualTo("12/2/2020 00:00")
+        }
+        // Given datetime format and expect to return only date.
+        two.toFormatted("20201203", "$dateFormat HH:mm:ss").run {
+            assertThat(this).isEqualTo("2020-12-03 00:00:00")
+        }
+    }
+
+    @Test
+    fun `test getDate output format`() {
+        val two = Element(
+            "a",
+            type = Element.Type.DATE,
+        )
+
+        // Check LocalDate output formate
+        val localDate = LocalDate.parse("2020-12-01")
+        two.getDate(localDate, dateFormat).run {
+            assertThat(this).isEqualTo("2020-12-01")
+        }
+
+        // Check LocalDateTime output format.
+        val localDateTime = LocalDateTime.parse("2018-12-12T13:30:30")
+        two.getDate(localDateTime, "M/d/yyyy HH:nn").run {
+            assertThat(this).isEqualTo("12/12/2018 13:00")
+        }
+
+        // Check OffsetDateTime output format.
+        val offsetDateTime = OffsetDateTime.parse("2018-12-12T13:30:30+05:00")
+        two.getDate(offsetDateTime, "$dateFormat HH:mm:ss").run {
+            assertThat(this).isEqualTo("2018-12-12 13:30:30")
+        }
+
+        // Check OffsetDateTime output format.
+        val instant = Instant.parse("2020-12-03T13:30:30.000Z")
+        two.getDate(instant, dateFormat).run {
+            assertThat(this).isEqualTo("2020-12-03T13:30:30Z")
         }
     }
 
@@ -262,6 +316,30 @@ internal class ElementTests {
         }
         one.toFormatted("XZ5555", "\$zipFivePlusFour").run {
             assertThat(this).isEqualTo("XZ5555")
+        }
+        // check for padding
+        one.toFormatted("9999").run {
+            assertThat(this).isEqualTo("09999")
+        }
+        // check for padding again
+        one.toFormatted("999").run {
+            assertThat(this).isEqualTo("00999")
+        }
+        // check for padding one last time
+        one.toFormatted("9").run {
+            assertThat(this).isEqualTo("00009")
+        }
+        // check for padding with alt format
+        one.toFormatted("9999", "\$zipFive").run {
+            assertThat(this).isEqualTo("09999")
+        }
+        // check for padding again
+        one.toFormatted("999", "\$zipFive").run {
+            assertThat(this).isEqualTo("00999")
+        }
+        // check for padding one last time
+        one.toFormatted("9", "\$zipFive").run {
+            assertThat(this).isEqualTo("00009")
         }
     }
 
