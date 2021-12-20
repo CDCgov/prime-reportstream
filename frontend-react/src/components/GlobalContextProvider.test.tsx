@@ -2,10 +2,8 @@ import {
     clearGlobalContext,
     getStoredOrg,
     setStoredOrg,
-    useGlobalContext,
 } from "./GlobalContextProvider";
 
-// const store = mockStore({ user: { isAdmin: false } });
 
 it("Setting/getting/clearing sessionStorage works", () => {
     const testvalue = Number(Date.now()).toString();
