@@ -292,21 +292,15 @@ class LookupSenderValuesetsMapper : Mapper {
                 ?: error("Schema Error: could not find table ${element.table}")
 
             val lookupColumn = args[0]
-            val lookupValue = values.find { it.element.name == lookupColumn }?.value
+            val lookupValue = values.find { it.element.name == lookupColumn }?.value ?: return null
             val questionColumn = args[1]
-            val answer = values.find { it.element.name == questionColumn }?.value
-            val filterMap = mapOf<String, String>(
-                "$lookupColumn" to "$lookupValue",
-                "element_name" to element.name,
-                "free_text_substring" to "$answer"
-            )
-            val results = lookupTable.filter("result", filterMap)
+            val answer = values.find { it.element.name == questionColumn }?.value ?: return null
 
-            if (results.size > 1) {
-                error("Lookup Error: query returned more than one match. FilterMap: $filterMap")
-            }
-
-            results.firstOrNull()
+            lookupTable.FilterBuilder()
+                .equalsIgnoreCase(lookupColumn, lookupValue)
+                .equalsIgnoreCase("element_name", element.name)
+                .equalsIgnoreCase("free_text_substring", answer)
+                .findSingleResult("result")
         }
     }
 }
