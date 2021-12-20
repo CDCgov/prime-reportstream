@@ -60,14 +60,6 @@
       initialTime: "01:15"
       timeZone: "EASTERN"
       maxReportCount: 100
-    description: ""
-    transport: !<SFTP>
-      host: "gs-sftp.ahs.state.vt.us"
-      port: "22"
-      filePath: "./Prod/ToVDH/"
-      credentialName: null
-      type: "SFTP"
-    externalName: null
   - name: "elr-secondary"
     organizationName: "vt-doh"
     topic: "covid-19"
@@ -121,11 +113,5 @@
       initialTime: "01:15"
       timeZone: "EASTERN"
       maxReportCount: 100
-    description: ""
-    transport: !<SFTP>
-      host: "gs-sftp.ahs.state.vt.us"
-      port: "22"
-      filePath: "./Test/ToVDH/"
-      credentialName: null
-      type: "SFTP"
-    externalName: null
+
+

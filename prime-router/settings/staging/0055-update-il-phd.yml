@@ -54,8 +54,6 @@
       initialTime: "01:15"
       timeZone: "EASTERN"
       maxReportCount: 500
-    description: ""
-    transport: null
     externalName: "Secondary Feed"
   - name: "elr"
     organizationName: "il-phd"
@@ -104,11 +102,3 @@
       initialTime: "01:15"
       timeZone: "EASTERN"
       maxReportCount: 500
-    description: ""
-    transport: !<SFTP>
-      host: "moveit.illinois.gov"
-      port: "22"
-      filePath: "/Distribution/DPH/LabData/HL7-251/"
-      credentialName: null
-      type: "SFTP"
-    externalName: "Primary Feed"

@@ -59,14 +59,6 @@
       initialTime: "09:15"
       timeZone: "EASTERN"
       maxReportCount: 100
-    description: ""
-    transport: !<SFTP>
-      host: "njgov.moveitcloud.com"
-      port: "22"
-      filePath: "./PROD"
-      credentialName: null
-      type: "SFTP"
-    externalName: null
   - name: "elr-test"
     organizationName: "nj-doh"
     topic: "covid-19"
@@ -118,14 +110,6 @@
       initialTime: "09:15"
       timeZone: "EASTERN"
       maxReportCount: 100
-    description: ""
-    transport: !<SFTP>
-      host: "njgov.moveitcloud.com"
-      port: "22"
-      filePath: "./TEST"
-      credentialName: null
-      type: "SFTP"
-    externalName: null
   - name: "elr-test-secondary"
     organizationName: "nj-doh"
     topic: "covid-19"
@@ -177,14 +161,6 @@
       initialTime: "09:15"
       timeZone: "EASTERN"
       maxReportCount: 100
-    description: ""
-    transport: !<SFTP>
-      host: "njgov.moveitcloud.com"
-      port: "22"
-      filePath: "./TEST"
-      credentialName: "NJ-DOH--ELR"
-      type: "SFTP"
-    externalName: null
   - name: "elr-secondary"
     organizationName: "nj-doh"
     topic: "covid-19"
@@ -237,11 +213,3 @@
       initialTime: "09:15"
       timeZone: "EASTERN"
       maxReportCount: 100
-    description: ""
-    transport: !<SFTP>
-      host: "njgov.moveitcloud.com"
-      port: "22"
-      filePath: "./TEST"
-      credentialName: "NJ-DOH--ELR"
-      type: "SFTP"
-    externalName: null
