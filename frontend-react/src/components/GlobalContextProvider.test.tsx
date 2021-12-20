@@ -1,4 +1,9 @@
-import { clearGlobalContext, getStoredOrg, setStoredOrg, useGlobalContext } from "./GlobalContextProvider"
+import {
+    clearGlobalContext,
+    getStoredOrg,
+    setStoredOrg,
+    useGlobalContext,
+} from "./GlobalContextProvider";
 
 // const store = mockStore({ user: { isAdmin: false } });
 
