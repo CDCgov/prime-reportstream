@@ -10,6 +10,8 @@
 
 **PII**: No
 
+**Format**: use value found in the Code column
+
 **Cardinality**: [0..1]
 
 **Value Sets**
@@ -17,7 +19,7 @@
 Code | Display
 ---- | -------
 A|Abnormal (applies to non-numeric results)
->|Above absolute high-off instrument scale
+&#62;|Above absolute high-off instrument scale
 H|Above high normal
 HH|Above upper panic limits
 AC|Anti-complementary substances present
@@ -50,6 +52,16 @@ W|Worse--use when direction not relevant
 **Documentation**:
 
 This field is generated based on the normalcy status of the result. A = abnormal; N = normal
+
+---
+
+**Name**: date_result_released
+
+**Type**: DATETIME
+
+**PII**: No
+
+**Cardinality**: [0..1]
 
 ---
 
@@ -273,6 +285,20 @@ The zip code of the facility which the test was ordered from
 
 ---
 
+**Name**: ordering_provider_city
+
+**Type**: CITY
+
+**PII**: Yes
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The city of the provider
+
+---
+
 **Name**: Ordering_Provider_State
 
 **Type**: TABLE
@@ -396,6 +422,8 @@ The patient's drivers license number
 
 **PII**: No
 
+**Format**: use value found in the Code column
+
 **Cardinality**: [0..1]
 
 **Value Sets**
@@ -433,6 +461,8 @@ The patient's first name
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
@@ -514,7 +544,7 @@ The patient's phone number with area code
 
 **PII**: No
 
-**Format**: $code
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
@@ -625,7 +655,7 @@ The ID number of the lab order from the placer
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **LOINC Code**: 82810-3
 
@@ -779,6 +809,8 @@ A unique code for this specimen
 
 **PII**: No
 
+**Format**: use value found in the Code column
+
 **Default Value**: 258500001
 
 **Cardinality**: [0..1]
@@ -899,7 +931,7 @@ Is the test authorized for unproctored administration by the FDA (Y, N, UNK)
 
 **PII**: No
 
-**Format**: $alt
+**Format**: use value found in the Display column
 
 **Cardinality**: [0..1]
 
@@ -926,6 +958,7 @@ Code | Display
 840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
 840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
 373121007|Test not done
+82334004|Indeterminate
 260373001|Detected
 260415000|Not detected
 455371000124106|Invalid result
@@ -989,6 +1022,8 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Default Value**: F
 

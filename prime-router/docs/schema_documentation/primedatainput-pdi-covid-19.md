@@ -10,6 +10,8 @@
 
 **PII**: No
 
+**Format**: use value found in the Code column
+
 **Cardinality**: [0..1]
 
 **Value Sets**
@@ -17,7 +19,7 @@
 Code | Display
 ---- | -------
 A|Abnormal (applies to non-numeric results)
->|Above absolute high-off instrument scale
+&#62;|Above absolute high-off instrument scale
 H|Above high normal
 HH|Above upper panic limits
 AC|Anti-complementary substances present
@@ -70,6 +72,8 @@ This field is generated based on the normalcy status of the result. A = abnormal
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **LOINC Code**: 95418-0
 
@@ -142,6 +146,8 @@ Accension number
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **LOINC Code**: 95417-2
 
@@ -562,6 +568,8 @@ Other states may choose to define their own formats.
 
 **PII**: No
 
+**Format**: use value found in the Code column
+
 **Cardinality**: [0..1]
 
 **Value Sets**
@@ -599,6 +607,8 @@ The patient's first name
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
@@ -706,6 +716,8 @@ The patient's preferred language
 
 **PII**: No
 
+**Format**: use value found in the Code column
+
 **Cardinality**: [0..1]
 
 **Value Sets**
@@ -803,6 +815,8 @@ The suffix for the patient's name, (i.e. Jr, Sr, etc)
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
@@ -1379,7 +1393,7 @@ Code | Display
 
 **Documentation**:
 
-If the patient is a citizen of a tribal entity, we can track which entity here
+The tribal citizenship of the patient using the TribalEntityUS (OID 2.16.840.1.113883.5.140) table
 
 ---
 
@@ -1435,6 +1449,8 @@ pointer/link to the unique id of a previously submitted result.  Usually blank. 
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Default Value**: P
 
@@ -1504,6 +1520,8 @@ The reporting facility's name
 
 **PII**: No
 
+**Format**: use value found in the Code column
+
 **LOINC Code**: 95421-4
 
 **Cardinality**: [0..1]
@@ -1519,6 +1537,22 @@ UNK|Unknown
 **Documentation**:
 
 Does the patient reside in a congregate care setting?
+
+---
+
+**Name**: sender_id
+
+**Type**: TEXT
+
+**PII**: No
+
+**Default Value**: simple_report.default
+
+**Cardinality**: [1..1]
+
+**Documentation**:
+
+ID name of org that is sending this data to ReportStream.  Suitable for provenance or chain of custody tracking.  Not to be confused with sending_application, in which ReportStream acts as the 'sender' to the downstream jurisdiction.
 
 ---
 
@@ -1564,7 +1598,7 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 
 **PII**: No
 
-**Format**: $code
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
@@ -1589,6 +1623,8 @@ Refers back to the specimen source site, which is then encoded into the SPM-8 se
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
@@ -1625,6 +1661,8 @@ The specimen source, such as Blood or Serum
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **LOINC Code**: 95419-8
 
@@ -1740,6 +1778,8 @@ The LOINC code of the test performed. This is a standardized coded value describ
 
 **PII**: No
 
+**Format**: use value found in the Code column
+
 **Cardinality**: [0..1]
 
 **Value Sets**
@@ -1765,6 +1805,7 @@ Code | Display
 840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
 840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
 373121007|Test not done
+82334004|Indeterminate
 
 **Documentation**:
 
@@ -1789,6 +1830,8 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Default Value**: F
 

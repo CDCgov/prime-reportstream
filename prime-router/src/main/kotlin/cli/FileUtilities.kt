@@ -114,7 +114,7 @@ class FileUtilities {
             outputFile.outputStream().use {
                 when (format) {
                     Report.Format.INTERNAL -> csvSerializer.writeInternal(report, it)
-                    Report.Format.CSV -> csvSerializer.write(report, it)
+                    Report.Format.CSV, Report.Format.CSV_SINGLE -> csvSerializer.write(report, it)
                     Report.Format.HL7 -> hl7Serializer.write(report, it)
                     Report.Format.HL7_BATCH -> hl7Serializer.writeBatch(report, it)
                     Report.Format.REDOX -> redoxSerializer.write(report, it)

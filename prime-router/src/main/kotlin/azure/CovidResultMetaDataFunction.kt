@@ -67,7 +67,7 @@ class CovidResultMetaDataFunction : Logging {
                     context.logger.info("Removing old test data records for report id $reportId")
                     workflowEngine.db.deleteTestDataForReportId(reportId, txn)
                     context.logger.info("Inserting deidentified data")
-                    workflowEngine.db.saveTestData(deidentifiedData, txn)
+                    DatabaseAccess.saveTestData(deidentifiedData, txn)
                     context.logger.info("Done saving data for $reportId")
                     // add to collection for the response body
                     results[reportId] = "Saved ${deidentifiedData.count()} records"
@@ -114,7 +114,7 @@ class CovidResultMetaDataFunction : Logging {
             workflowEngine.db.transact { txn ->
                 workflowEngine.db.deleteTestDataForReportId(reportId, txn)
                 context.logger.info("Inserting deidentified data")
-                workflowEngine.db.saveTestData(deidentifiedData, txn)
+                DatabaseAccess.saveTestData(deidentifiedData, txn)
                 context.logger.info("Done saving data")
             }
             HttpUtilities.okResponse(request, writeResponseBody(reportId, deidentifiedData.count()))

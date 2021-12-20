@@ -2,7 +2,9 @@ package gov.cdc.prime.router
 
 import com.github.javafaker.Faker
 import com.github.javafaker.Name
+import gov.cdc.prime.router.common.NPIUtilities
 import gov.cdc.prime.router.metadata.LookupTable
+import org.apache.logging.log4j.kotlin.Logging
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.Random
@@ -18,19 +20,21 @@ import java.util.concurrent.TimeUnit
     synthetic data, which is data that originates from outside of
     prime and is then shuffled and/or faked
 */
-class FakeDataService {
+
+private const val zipCodeData = "zip-code-data"
+
+class FakeDataService : Logging {
     fun getFakeValueForElement(
         element: Element,
         context: FakeReport.RowContext,
     ): String {
         val faker = context.faker
-
         // creates fake text data
         fun createFakeText(element: Element): String {
             return when {
                 element.nameContains("name_of_testing_lab") -> "Any lab USA"
                 element.nameContains("lab_name") -> "Any lab USA"
-                element.nameContains("sender_id") -> "" // Allow the default to fill this in
+                element.nameContains("sender_id") -> "${element.default}" // Allow the default to fill this in
                 element.nameContains("facility_name") -> "Any facility USA"
                 element.nameContains("name_of_school") -> randomChoice("", context.schoolName)
                 element.nameContains("reference_range") -> randomChoice("", "Normal", "Abnormal", "Negative")
@@ -131,21 +135,40 @@ class FakeDataService {
             return when {
                 element.table?.startsWith("LIVD-SARS-CoV-2") == true -> {
                     if (element.tableColumn == null) return ""
-                    lookupTable.lookupValue("Model", context.equipmentModel, element.tableColumn)
+                    lookupTable.FilterBuilder().equalsIgnoreCase("Model", context.equipmentModel)
+                        .findSingleResult(element.tableColumn)
                         ?: error(
                             "Schema Error: Could not lookup ${context.equipmentModel} " +
                                 "to ${element.tableColumn}"
                         )
                 }
                 element.table?.startsWith("LIVD-Supplemental") == true -> {
-                    if (element.tableColumn == null) return ""
+                    if (element.tableColumn == null)
+                        return ""
                     element.default ?: ""
                 }
                 element.table == "fips-county" -> {
                     when {
                         element.nameContains("state") -> context.state
                         element.nameContains("county") -> context.county
-                        else -> TODO("Add this column in a table")
+                        (element.default == null) -> ""
+                        else -> {
+                            logger.warn("Add this column to the ${element.table} table")
+                            ""
+                        }
+                    }
+                }
+                element.table == zipCodeData -> {
+                    when {
+                        element.nameContains("state") -> context.state
+                        element.nameContains("county") -> context.county
+                        element.nameContains("zip") -> context.zipCode
+                        element.nameContains("city") -> context.city
+                        (element.default == null) -> ""
+                        else -> {
+                            logger.warn("Add this column to the ${element.table} table")
+                            ""
+                        }
                     }
                 }
                 else -> TODO("Add this table ${element.table}")
@@ -174,7 +197,7 @@ class FakeDataService {
             Element.Type.ID_CLIA -> faker.numerify("##D#######") // Ex, 03D1021379
             Element.Type.ID_DLN -> faker.idNumber().valid()
             Element.Type.ID_SSN -> faker.idNumber().validSvSeSsn()
-            Element.Type.ID_NPI -> faker.numerify("##########")
+            Element.Type.ID_NPI -> NPIUtilities.generateRandomNPI(faker)
             Element.Type.STREET -> faker.address().streetAddress()
             Element.Type.STREET_OR_BLANK -> ""
             Element.Type.PERSON_NAME -> createFakeName(element)
@@ -217,31 +240,23 @@ class FakeReport(val metadata: Metadata, val locale: Locale? = null) {
             when (state) {
                 "AZ" -> randomChoice("Pima", "Yuma")
                 "PA" -> randomChoice("Bucks", "Chester", "Montgomery")
-                else -> randomChoice(it.filter("State", state, "County"))
+                else -> randomChoice(
+                    it.FilterBuilder().equalsIgnoreCase("State", state)
+                        .findAllUnique("County")
+                )
             }
         } ?: "Prime"
         // find our zipcode
-        val zipCode: String = findLookupTable("zip-code-data")?.let {
+        val zipCode: String = findLookupTable(zipCodeData)?.let {
             randomChoice(
-                it.filter(
-                    "zipcode",
-                    mapOf(
-                        "state_abbr" to state,
-                        "county" to county
-                    )
-                )
+                it.FilterBuilder().equalsIgnoreCase("state_abbr", state).isEqualTo("county", county)
+                    .findAllUnique("zipcode")
             )
         } ?: faker.address().zipCode().toString()
-        val city: String = findLookupTable("zip-code-data")?.let {
+        val city: String = findLookupTable(zipCodeData)?.let {
             randomChoice(
-                it.filter(
-                    "city",
-                    mapOf(
-                        "state_abbr" to state,
-                        "county" to county,
-                        "zipcode" to zipCode
-                    )
-                )
+                it.FilterBuilder().equalsIgnoreCase("state_abbr", state).isEqualTo("county", county)
+                    .isEqualTo("zipcode", zipCode).findAllUnique("city")
             )
         } ?: faker.address().city().toString()
     }
@@ -310,7 +325,7 @@ class FakeReport(val metadata: Metadata, val locale: Locale? = null) {
     ): Report {
         val counties = targetCounties?.split(",")
         val states = if (targetStates.isNullOrEmpty()) {
-            metadata.findLookupTable("fips-county")?.getDistinctValuesInColumn("State")
+            metadata.findLookupTable("fips-county")?.FilterBuilder()?.findAllUnique("State")
                 ?.toList()
         } else {
             targetStates.split(",")

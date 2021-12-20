@@ -1,5 +1,7 @@
 package gov.cdc.prime.router
 
+import com.google.common.base.Preconditions
+import gov.cdc.prime.router.common.NPIUtilities
 import java.security.MessageDigest
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
@@ -165,6 +167,76 @@ class IfPresentMapper : Mapper {
 }
 
 /**
+ * This mapper checks if one or more elements are blank or not present on a row,
+ * and if so, will replace an element's value with either some literal string value
+ * or the value from a different field on a row
+ * ex. ifNotPresent($mode:literal, $string:NO ADDRESS, patient_zip_code, patient_state)
+ *      - if patient_zip_code and patient_state are missing or blank, then replace element's value with "NO ADDRESS"
+ *     ifNotPresent($mode:lookup, ordering_provider_city, patient_zip_code)
+ *      - if patient_zip_code is missing or blank, then replace element's value with that of the ordering_provider_city
+ */
+class IfNotPresentMapper : Mapper {
+    override val name = "ifNotPresent"
+
+    override fun valueNames(element: Element, args: List<String>): List<String> {
+        if (args.isEmpty()) error("Schema Error: ifNotPresent expects dependency and value parameters")
+        return args
+    }
+
+    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
+        val mode = args[0].split(":")[1]
+        val modeOperator = if (args[1].contains(":")) args[1].split(":")[1] else args[1]
+        val conditionList = args.subList(2, args.size)
+        conditionList.forEach {
+            val valuesElement = values.find { v -> v.element.name == it }
+            if (valuesElement != null && valuesElement.value.isNotBlank()) {
+                return null
+            }
+        }
+        when (mode) {
+            "literal" -> {
+                return modeOperator
+            }
+            "lookup" -> {
+                val lookupValue = values.find { v -> v.element.name == modeOperator }
+                return lookupValue?.value.toString()
+            }
+        }
+
+        return null
+    }
+}
+
+/**
+ * The args for the [IfNPIMapper] mapper are an element name, true value and false value.
+ *
+ * Example Usage:
+ * ```
+ * ifNPI(ordering_provider_id, NPI, U)
+ * ```
+ *
+ * Test if the value is a valid NPI according to CMS. Return the second parameter if test is true.
+ * Return third parameter if the test is false and the parameter is present
+ */
+class IfNPIMapper : Mapper {
+    override val name = "ifNPI"
+
+    override fun valueNames(element: Element, args: List<String>): List<String> {
+        if (args.size !in 2..3) error("Schema Error: ifPresent expects dependency and value parameters")
+        return args.subList(0, 1) // The element name
+    }
+
+    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
+        if (values.size != 1) return null
+        return if (NPIUtilities.isValidNPI(values[0].value)) {
+            args[1]
+        } else {
+            if (args.size == 3) args[2] else null
+        }
+    }
+}
+
+/**
  * The LookupMapper is used to lookup values from a lookup table
  * The args for the lookup mapper is the name of the element with the index value
  * The table involved is the element.table field
@@ -185,14 +257,15 @@ class LookupMapper : Mapper {
         } else {
             val lookupTable = element.tableRef
                 ?: error("Schema Error: could not find table ${element.table}")
-            val indexValues = values.map {
+            val indexValues = mutableMapOf<String, String>()
+            values.forEach {
                 val indexColumn = it.element.tableColumn
                     ?: error("Schema Error: no tableColumn for element ${it.element.name}")
-                Pair(indexColumn, it.value)
+                indexValues.put(indexColumn, it.value)
             }
             val lookupColumn = element.tableColumn
                 ?: error("Schema Error: no tableColumn for element ${element.name}")
-            lookupTable.lookupValues(indexValues, lookupColumn)
+            lookupTable.FilterBuilder().equalsIgnoreCase(indexValues).findSingleResult(lookupColumn)
         }
     }
 }
@@ -349,13 +422,31 @@ class LIVDLookupMapper : Mapper {
          * @param filters an optional list of additional filters to limit our search by
          * @return a possible String? value based on the lookup
          */
-        private fun lookupByEquipmentModelName(
+        internal fun lookupByEquipmentModelName(
             element: Element,
             value: String,
             filters: Map<String, String>
         ): String? {
             if (value.isBlank()) return null
-            return lookup(element, value, LIVD_MODEL, filters)
+
+            val result = lookup(element, value, LIVD_MODEL, filters)
+            // There is an issue with senders setting equipment model names with or without * across all their reports
+            // which result in incorrect data sent to receivers.  Check for a model name with or without * just in case.
+            return if (result.isNullOrBlank())
+                lookup(element, getValueVariation(value, "*"), LIVD_MODEL, filters)
+            else result
+        }
+
+        /**
+         * Gets a variation of a string [value] based on the [suffix].  If the suffix is present in the value
+         * then the variation is the value without the suffix, otherwise the variation is the value WITH the suffix.
+         * @param ignoreCase set to true to ignore case, false otherwise
+         * @return the string variation.
+         */
+        internal fun getValueVariation(value: String, suffix: String, ignoreCase: Boolean = true): String {
+            Preconditions.checkArgument(value.isNotEmpty())
+            Preconditions.checkArgument(suffix.isNotEmpty())
+            return if (value.endsWith(suffix, ignoreCase)) value.dropLast(suffix.length) else value + suffix
         }
 
         /**
@@ -376,7 +467,9 @@ class LIVDLookupMapper : Mapper {
                 ?: error("Schema Error: could not find table '${element.table}'")
             val lookupColumn = element.tableColumn
                 ?: error("Schema Error: no tableColumn for element '${element.name}'")
-            return lookupTable.lookupValue(onColumn, lookup, lookupColumn, filters)
+            val searchValues = mutableMapOf(onColumn to lookup)
+            searchValues.putAll(filters)
+            return lookupTable.FilterBuilder().equalsIgnoreCase(searchValues).findSingleResult(lookupColumn)
         }
 
         /**
@@ -398,7 +491,8 @@ class LIVDLookupMapper : Mapper {
                 ?: error("Schema Error: could not find table '${element.table}'")
             val lookupColumn = element.tableColumn
                 ?: error("Schema Error: no tableColumn for element '${element.name}'")
-            return lookupTable.lookupPrefixValue(onColumn, lookup, lookupColumn, filters)
+            return lookupTable.FilterBuilder().startsWithIgnoreCase(onColumn, lookup).equalsIgnoreCase(filters)
+                .findSingleResult(lookupColumn)
         }
     }
 }
@@ -426,8 +520,10 @@ class Obx17Mapper : Mapper {
                 ?: error("Schema Error: could not find table '${element.table}'")
             val indexColumn = indexElement.tableColumn
                 ?: error("Schema Error: no tableColumn for element '${indexElement.name}'")
-            val testKitNameId = lookupTable.lookupValue(indexColumn, indexValue, "Testkit Name ID")
-            val testKitNameIdType = lookupTable.lookupValue(indexColumn, indexValue, "Testkit Name ID Type")
+            val testKitNameId = lookupTable.FilterBuilder().equalsIgnoreCase(indexColumn, indexValue)
+                .findSingleResult("Testkit Name ID")
+            val testKitNameIdType = lookupTable.FilterBuilder().equalsIgnoreCase(indexColumn, indexValue)
+                .findSingleResult("Testkit Name ID Type")
             if (testKitNameId != null && testKitNameIdType != null) {
                 "${testKitNameId}_$testKitNameIdType"
             } else {
@@ -460,7 +556,9 @@ class Obx17TypeMapper : Mapper {
                 ?: error("Schema Error: could not find table '${element.table}'")
             val indexColumn = indexElement.tableColumn
                 ?: error("Schema Error: no tableColumn for element '${indexElement.name}'")
-            if (lookupTable.lookupValue(indexColumn, indexValue, "Testkit Name ID") != null) "99ELR" else null
+            if (lookupTable.FilterBuilder().equalsIgnoreCase(indexColumn, indexValue)
+                .findSingleResult("Testkit Name ID") != null
+            ) "99ELR" else null
         }
     }
 }
@@ -501,6 +599,7 @@ class Obx8Mapper : Mapper {
                 "840535000" -> "A" // Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
                 "840534001" -> "A" // Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
                 "373121007" -> "N" // Test not done
+                "82334004" -> "N" // Indeterminate
                 else -> null
             }
         }
@@ -559,7 +658,7 @@ class DateTimeOffsetMapper : Mapper {
                 error("Invalid date: '$value' for element '${element.name}'")
             }
         }
-        return if (values.isEmpty() || values.size > 1 || values[0].value.isNullOrBlank()) {
+        return if (values.isEmpty() || values.size > 1 || values[0].value.isBlank()) {
             null
         } else {
             val unit = args[1]
@@ -708,7 +807,8 @@ class ZipCodeToCountyMapper : Mapper {
         } else {
             zipCode
         }
-        return table.lookupValue(indexColumn = "zipcode", indexValue = cleanedZip, "county")
+        return table.FilterBuilder().equalsIgnoreCase("zipcode", cleanedZip)
+            .findSingleResult("county")
     }
 }
 
@@ -739,6 +839,8 @@ class HashMapper : Mapper {
 
 /**
  * This mapper performs no operation and is meant to override mappers set on parent schemas, so no mapper runs.
+ * It does not change any values.
+ * If you want to 'blank out' a value, use 'defaultOverridesValue: true', along with an empty 'default:'
  * Arguments: None
  * Returns: null
  */
@@ -758,7 +860,7 @@ class NullMapper : Mapper {
 
 object Mappers {
     fun parseMapperField(field: String): Pair<String, List<String>> {
-        val match = Regex("([a-zA-Z0-9]+)\\x28([a-z, \\x2E_\\x2DA-Z0-9?&$^]*)\\x29").find(field)
+        val match = Regex("([a-zA-Z0-9]+)\\x28([a-z, \\x2E_\\x2DA-Z0-9?&$*:^]*)\\x29").find(field)
             ?: error("Mapper field $field does not parse")
         val args = if (match.groupValues[2].isEmpty())
             emptyList()

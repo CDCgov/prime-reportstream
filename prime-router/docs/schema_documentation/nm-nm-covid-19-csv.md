@@ -10,7 +10,7 @@
 
 **PII**: No
 
-**Format**: $alt
+**Format**: use value found in the Display column
 
 **LOINC Code**: 95418-0
 
@@ -65,7 +65,7 @@ Is the patient employed in health care?
 
 **PII**: No
 
-**Format**: $alt
+**Format**: use value found in the Display column
 
 **LOINC Code**: 95417-2
 
@@ -102,7 +102,7 @@ Is this the patient's first test for this condition?
 
 **PII**: No
 
-**Format**: $alt
+**Format**: use value found in the Display column
 
 **LOINC Code**: 77974-4
 
@@ -139,7 +139,7 @@ Is the patient hospitalized?
 
 **PII**: No
 
-**Format**: $alt
+**Format**: use value found in the Display column
 
 **LOINC Code**: 95420-6
 
@@ -410,7 +410,7 @@ Is the patient in the ICU?
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **Cardinality**: [0..1]
 
@@ -437,6 +437,7 @@ Code | Display
 840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
 840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
 373121007|Test not done
+82334004|Indeterminate
 
 ---
 
@@ -648,6 +649,8 @@ Other states may choose to define their own formats.
 
 **PII**: No
 
+**Format**: use value found in the Code column
+
 **Cardinality**: [0..1]
 
 **Value Sets**
@@ -685,6 +688,8 @@ The patient's first name
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
@@ -756,7 +761,7 @@ The patient's phone number with area code
 
 **PII**: No
 
-**Format**: $alt
+**Format**: use value found in the Display column
 
 **Cardinality**: [0..1]
 
@@ -838,6 +843,8 @@ The patient's street address
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
@@ -1414,7 +1421,7 @@ Code | Display
 
 **Documentation**:
 
-If the patient is a citizen of a tribal entity, we can track which entity here
+The tribal citizenship of the patient using the TribalEntityUS (OID 2.16.840.1.113883.5.140) table
 
 ---
 
@@ -1438,7 +1445,7 @@ The patient's zip code
 
 **PII**: No
 
-**Format**: $alt
+**Format**: use value found in the Display column
 
 **LOINC Code**: 82810-3
 
@@ -1515,7 +1522,7 @@ The reporting facility's CLIA
 
 **PII**: No
 
-**Format**: $alt
+**Format**: use value found in the Display column
 
 **LOINC Code**: 95421-4
 
@@ -1615,7 +1622,7 @@ A unique code for this specimen
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **Cardinality**: [0..1]
 
@@ -1653,7 +1660,7 @@ The specimen source, such as Blood or Serum
 
 **PII**: No
 
-**Format**: $alt
+**Format**: use value found in the Display column
 
 **LOINC Code**: 95419-8
 
@@ -1690,7 +1697,7 @@ Is the patient symptomatic?
 
 **PII**: No
 
-**Format**: $code
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
@@ -1717,6 +1724,7 @@ Code | Display
 840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
 840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
 373121007|Test not done
+82334004|Indeterminate
 
 **Documentation**:
 

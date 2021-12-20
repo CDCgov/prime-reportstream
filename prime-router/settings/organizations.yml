@@ -16,7 +16,7 @@
       organizationName: simple_report
       topic: covid-19
       customerStatus: active
-      schemaName: hl7/hl7-ingest-covid-19
+      schemaName: hl7/test-covid-19
       format: HL7
 
 - name: waters
@@ -93,8 +93,16 @@
       type: "BLOBSTORE"
     externalName: null
 
-
-
+- name: upload
+  description: Sender who can test uploads to the Upload Tool.
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: upload
+      topic: covid-19
+      customerStatus: active
+      schemaName: upload-covid-19
+      format: CSV
 
 - name: safehealth
   description: SAFE - Safe Health Systems
@@ -217,6 +225,17 @@
       schemaName: hl7/lifepoint-covid-19
       format: HL7
 
+- name: prescryptive
+  description: Prescryptive Health
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: prescryptive
+      topic: covid-19
+      customerStatus: active
+      schemaName: hl7/prescryptive-covid-19
+      format: HL7
+
 - name: primary
   description: Primary Diagnostics, Inc. (primary.health)
   jurisdiction: FEDERAL
@@ -225,7 +244,7 @@
       organizationName: primary
       topic: covid-19
       customerStatus: active
-      schemaName: direct/primary-covid-19
+      schemaName: hl7/primary-covid-19
       format: HL7
 
 - name: "johns_hopkins"
@@ -281,6 +300,17 @@
       topic: covid-19
       customerStatus: active
       schemaName: non-standard/all-in-one-health-ca-covid-19
+      format: CSV
+
+- name: pmg
+  description: Premier Medical Group USA
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: pmg
+      topic: covid-19
+      customerStatus: active
+      schemaName: direct/pmg-covid-19
       format: CSV
 
 - name: az-phd
@@ -527,6 +557,24 @@
         receivingApplicationOID: 2.16.840.1.114222.4.1.185.1
         receivingFacilityName: VDH
         receivingFacilityOID: 2.16.840.1.114222.4.1.185
+        truncateHl7Fields: OBX-23-1
+        truncateHDNamespaceIds: true
+        usePid14ForPatientEmail: true
+        suppressNonNPI: true
+        suppressHl7Fields: OBX-18-1, OBX-18-2, OBX-18-3, OBX-18-4, OBX-15-3
+        replaceValue:
+          MSH-3-1: CDC PRIME - Atlanta,
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+        timeZone: CENTRAL
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
     - name: elr-secondary
       organizationName: vt-doh
       topic: covid-19
@@ -542,6 +590,24 @@
         receivingApplicationOID: 2.16.840.1.114222.4.1.185.1
         receivingFacilityName: VDH
         receivingFacilityOID: 2.16.840.1.114222.4.1.185
+        truncateHl7Fields: OBX-23-1
+        truncateHDNamespaceIds: true
+        usePid14ForPatientEmail: true
+        suppressNonNPI: true
+        suppressHl7Fields: OBX-18-1, OBX-18-2, OBX-18-3, OBX-18-4, OBx-15-3
+        replaceValue:
+          MSH-3-1: CDC PRIME - Atlanta,
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+        timeZone: CENTRAL
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
 
 - name: nd-doh
   description: North Dakota Department of Health
@@ -838,39 +904,6 @@
         initialTime: 00:00
         timeZone: CHAMORRO
 
-- name: vt-doh
-  description: Vermont Department of Health
-  jurisdiction: STATE
-  stateCode: VT
-  receivers:
-    - name: elr
-      organizationName: vt-doh
-      topic: covid-19
-      customerStatus: active
-      jurisdictionalFilter:
-        - orEquals(ordering_facility_state, VT, patient_state, VT)
-      translation:
-        type: HL7
-        useBatchHeaders: true
-        receivingApplicationName: NBS
-        receivingApplicationOID: 2.16.840.1.114222.4.1.185.1
-        receivingFacilityName: VDH
-        receivingFacilityOID: 2.16.840.1.114222.4.1.185
-        truncateHDNamespaceIds: true
-        usePid14ForPatientEmail: true
-        suppressHl7Fields: OBX-18
-      transport:
-        type: SFTP
-        host: sftp
-        port: 22
-        filePath: ./upload
-        credentialName: DEFAULT-SFTP
-      timing:
-        operation: MERGE
-        numberPerDay: 1440 # Every minute
-        initialTime: 00:00
-        timeZone: EASTERN
-
 - name: nj-doh
   description: New Jersey Department of Health
   jurisdiction: STATE
@@ -891,6 +924,7 @@
         receivingFacilityName: NJDOH
         receivingFacilityOID: 2.16.840.1.113883.3.1299
         truncateHDNamespaceIds: true
+        truncateHl7Fields: OBX-23-1
         reportingFacilityName: CDC PRIME
         reportingFacilityId: 11D2030855
       transport:
@@ -919,6 +953,7 @@
         receivingFacilityName: NJDOH
         receivingFacilityOID: 2.16.840.1.113883.3.1299
         truncateHDNamespaceIds: true
+        truncateHl7Fields: OBX-23-1
       transport:
         type: SFTP
         host: sftp
@@ -949,6 +984,7 @@
         receivingApplicationOID: 2.16.840.1.114222.4.3.3.6.2.1
         receivingFacilityName: MN DOH
         receivingFacilityOID: 2.16.840.1.114222.4.1.3661
+        suppressHl7Fields: SPM-2-1
       transport:
         type: SFTP
         host: sftp
@@ -1324,6 +1360,210 @@
   jurisdiction: STATE
   stateCode: PA
   receivers:
+    - name: elr-chester-hl7
+      organizationName: pa-phd
+      topic: covid-19
+      customerStatus: active
+      jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Chester, Delaware)" ]
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        nameFormat: chester_hl7
+        reportingFacilityName: Chester County Health Department
+        receivingApplicationName: PA-ELR
+        receivingFacilityName: PADOH
+        suppressHl7Fields: PID-13-1,ORC-23-1,OBR-16
+        replaceValue:
+          ORC-21-2: L
+        valueSetOverrides:
+          hl70189:
+            name: hl70189
+            system: HL7
+            version: 2.9
+            reference: HL7 guidance for ethnicity, modified for PA standards
+            values:
+              - code: H
+                display: Hispanic or Latino
+              - code: NH
+                replaces: N
+                display: Non Hispanic or Latino
+              - code: U
+                display: Unknown
+      transport:
+        type: SOAP
+        endpoint: "http://soap-webservice:8080/castlemock/mock/soap/project/eUAvaN/BasicHttpBinding_IUploadFile"
+        soapAction: "http://nedss.state.pa.us/2012/B01/elrwcf/IUploadFile/UploadFiles"
+        credentialName: DEFAULT-SOAP
+        namespaces:
+          "xmlns:elr": "http://nedss.state.pa.us/2012/B01/elrwcf"
+      timing:
+        operation: MERGE
+        numberPerDay: 1440
+        initialTime: 00:00
+        timeZone: EASTERN
+    - name: elr-montgomery-hl7
+      organizationName: pa-phd
+      topic: covid-19
+      customerStatus: active
+      jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Montgomery)" ]
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        nameFormat: montgomery_hl7
+        reportingFacilityName: Montgomery County Office of Public Health
+        receivingApplicationName: PA-ELR
+        receivingFacilityName: PADOH
+        suppressHl7Fields: PID-13-1,ORC-23-1,OBR-16
+        replaceValue:
+          ORC-21-2: L
+        valueSetOverrides:
+          hl70189:
+            name: hl70189
+            system: HL7
+            version: 2.9
+            reference: HL7 guidance for ethnicity, modified for PA standards
+            values:
+              - code: H
+                display: Hispanic or Latino
+              - code: NH
+                replaces: N
+                display: Non Hispanic or Latino
+              - code: U
+                display: Unknown
+      transport:
+        type: SOAP
+        endpoint: "http://soap-webservice:8080/castlemock/mock/soap/project/eUAvaN/BasicHttpBinding_IUploadFile"
+        soapAction: "http://nedss.state.pa.us/2012/B01/elrwcf/IUploadFile/UploadFiles"
+        credentialName: null
+        namespaces:
+          "xmlns:elr": "http://nedss.state.pa.us/2012/B01/elrwcf"
+      timing:
+        operation: MERGE
+        numberPerDay: 1440
+        initialTime: 00:00
+        timeZone: EASTERN
+    - name: elr-philadelphia-hl7
+      organizationName: pa-phd
+      topic: covid-19
+      customerStatus: active
+      jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Philadelphia)" ]
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        nameFormat: philadelphia_hl7
+        reportingFacilityName: Philadelphia Public Health Laboratory
+        receivingApplicationName: PA-ELR
+        receivingFacilityName: PADOH
+        suppressHl7Fields: PID-13-1,ORC-23-1,OBR-16
+        replaceValue:
+          ORC-21-2: L
+        valueSetOverrides:
+          hl70189:
+            name: hl70189
+            system: HL7
+            version: 2.9
+            reference: HL7 guidance for ethnicity, modified for PA standards
+            values:
+              - code: H
+                display: Hispanic or Latino
+              - code: NH
+                replaces: N
+                display: Non Hispanic or Latino
+              - code: U
+                display: Unknown
+      transport:
+        type: SOAP
+        endpoint: "http://soap-webservice:8080/castlemock/mock/soap/project/eUAvaN/BasicHttpBinding_IUploadFile"
+        soapAction: "http://nedss.state.pa.us/2012/B01/elrwcf/IUploadFile/UploadFiles"
+        credentialName: null
+        namespaces:
+          "xmlns:elr": "http://nedss.state.pa.us/2012/B01/elrwcf"
+      timing:
+        operation: MERGE
+        numberPerDay: 1440
+        initialTime: 00:00
+        timeZone: EASTERN
+    - name: elr-bucks-hl7
+      organizationName: pa-phd
+      topic: covid-19
+      customerStatus: active
+      jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Bucks)" ]
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        nameFormat: bucks_hl7
+        receivingApplicationName: PA-ELR
+        receivingFacilityName: PADOH
+        suppressHl7Fields: PID-13-1,ORC-23-1,OBR-16
+        replaceValue:
+          ORC-21-2: L
+        valueSetOverrides:
+          hl70189:
+            name: hl70189
+            system: HL7
+            version: 2.9
+            reference: HL7 guidance for ethnicity, modified for PA standards
+            values:
+              - code: H
+                display: Hispanic or Latino
+              - code: NH
+                replaces: N
+                display: Non Hispanic or Latino
+              - code: U
+                display: Unknown
+      transport:
+        type: SOAP
+        endpoint: "http://soap-webservice:8080/castlemock/mock/soap/project/eUAvaN/BasicHttpBinding_IUploadFile"
+        soapAction: "http://nedss.state.pa.us/2012/B01/elrwcf/IUploadFile/UploadFiles"
+        credentialName: null
+        namespaces:
+          "xmlns:elr": "http://nedss.state.pa.us/2012/B01/elrwcf"
+      timing:
+        operation: MERGE
+        numberPerDay: 1440
+        initialTime: 00:00
+        timeZone: EASTERN
+    - name: elr-allegheny-hl7
+      organizationName: pa-phd
+      topic: covid-19
+      customerStatus: active
+      jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Allegheny)" ]
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        nameFormat: allegheny_hl7
+        receivingApplicationName: PA-ELR
+        receivingFacilityName: PADOH
+        suppressHl7Fields: PID-13-1,ORC-23-1,OBR-16
+        replaceValue:
+          ORC-21-2: L
+        valueSetOverrides:
+          hl70189:
+            name: hl70189
+            system: HL7
+            version: 2.9
+            reference: HL7 guidance for ethnicity, modified for PA standards
+            values:
+              - code: H
+                display: Hispanic or Latino
+              - code: NH
+                replaces: N
+                display: Non Hispanic or Latino
+              - code: U
+                display: Unknown
+      transport:
+        type: SOAP
+        endpoint: "http://soap-webservice:8080/castlemock/mock/soap/project/eUAvaN/BasicHttpBinding_IUploadFile"
+        soapAction: "http://nedss.state.pa.us/2012/B01/elrwcf/IUploadFile/UploadFiles"
+        credentialName: null
+        namespaces:
+          "xmlns:elr": "http://nedss.state.pa.us/2012/B01/elrwcf"
+      timing:
+        operation: MERGE
+        numberPerDay: 1440
+        initialTime: 00:00
+        timeZone: EASTERN
+
     - name: elr-bucks-local
       organizationName: pa-phd
       topic: covid-19
@@ -1534,7 +1774,7 @@
       organizationName: "hhsprotect"
       topic: "covid-19"
       customerStatus: active
-      jurisdictionalFilter: [ "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*,Strac,InBios,reddyfmc,abbott,lifepoint,hca)" ]
+      jurisdictionalFilter: [ "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*,Strac,InBios,reddyfmc,abbott,lifepoint,hca,prescryptive)" ]
       qualityFilter: [ "allowAll()" ]
       translation:
         type: "CUSTOM"
@@ -1558,6 +1798,9 @@
 - name: ignore
   description: FOR TESTING ONLY
   jurisdiction: FEDERAL
+  filters:
+    - topic: covid-19
+      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)" ]
   senders:
     - name: ignore-strac      # Use this to test sending strac data
       organizationName: ignore
@@ -1587,7 +1830,7 @@
       organizationName: ignore
       topic: covid-19
       customerStatus: inactive
-      schemaName: hl7/hl7-ingest-covid-19
+      schemaName: hl7/test-covid-19
       format: HL7
   receivers:
     - name: CSV
@@ -1595,7 +1838,7 @@
       organizationName: ignore
       topic: covid-19
       customerStatus: inactive
-      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, CSV)" ]
+      jurisdictionalFilter: [ "matches(ordering_facility_county, CSV)" ]
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
@@ -1615,7 +1858,7 @@
       organizationName: ignore
       topic: covid-19
       customerStatus: inactive
-      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, HL7)" ]
+      jurisdictionalFilter: [ "matches(ordering_facility_county, HL7)" ]
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
@@ -1635,7 +1878,7 @@
       organizationName: ignore
       topic: covid-19
       customerStatus: inactive
-      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, HL7_BATCH)" ]
+      jurisdictionalFilter: [ "matches(ordering_facility_county, HL7_BATCH)" ]
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
@@ -1654,7 +1897,7 @@
       organizationName: ignore
       topic: covid-19
       customerStatus: inactive
-      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, REDOX)" ]
+      jurisdictionalFilter: [ "matches(ordering_facility_county, REDOX)" ]
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
@@ -1677,7 +1920,7 @@
       organizationName: ignore
       topic: covid-19
       customerStatus: inactive
-      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, AS2)" ]
+      jurisdictionalFilter: [ "matches(ordering_facility_county, AS2)" ]
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
@@ -1689,7 +1932,7 @@
       organizationName: ignore
       topic: covid-19
       customerStatus: inactive
-      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, HL7_NULL)" ]
+      jurisdictionalFilter: [ "matches(ordering_facility_county, HL7_NULL)" ]
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
@@ -1702,7 +1945,7 @@
       organizationName: ignore
       topic: covid-19
       customerStatus: inactive
-      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, BLOBSTORE)" ]
+      jurisdictionalFilter: [ "matches(ordering_facility_county, BLOBSTORE)" ]
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
@@ -1719,7 +1962,7 @@
       organizationName: ignore
       topic: covid-19
       customerStatus: inactive
-      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, SFTP_FAIL)" ]
+      jurisdictionalFilter: [ "matches(ordering_facility_county, SFTP_FAIL)" ]
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
@@ -1737,7 +1980,7 @@
       organizationName: ignore
       topic: covid-19
       customerStatus: inactive
-      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, QUALITY_PASS, removed)" ]
+      jurisdictionalFilter: [ "matches(ordering_facility_county, QUALITY_PASS, removed)" ]
       qualityFilter:
         - hasValidDataFor(message_id,ordering_facility_county,ordering_facility_state)
         - hasAtLeastOneOf(message_id,blankField)
@@ -1750,7 +1993,7 @@
       organizationName: ignore
       topic: covid-19
       customerStatus: inactive
-      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, QUALITY_REVERSED, kept)" ]
+      jurisdictionalFilter: [ "matches(ordering_facility_county, QUALITY_REVERSED, kept)" ]
       qualityFilter:
         - hasValidDataFor(message_id,ordering_facility_county,ordering_facility_state)
         - hasAtLeastOneOf(message_id,blankField)
@@ -1765,7 +2008,7 @@
       organizationName: ignore
       topic: covid-19
       customerStatus: inactive
-      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, QUALITY_ALL)" ]
+      jurisdictionalFilter: [ "matches(ordering_facility_county, QUALITY_ALL)" ]
       qualityFilter: [ "allowAll()" ]
       translation:
         type: CUSTOM
@@ -1775,7 +2018,7 @@
       organizationName: ignore
       topic: covid-19
       customerStatus: inactive
-      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, QUALITY_FAIL)" ]
+      jurisdictionalFilter: [ "matches(ordering_facility_county, QUALITY_FAIL)" ]
       qualityFilter: [ "hasValidDataFor(blankField)", "hasAtLeastOneOf(message_id,blankField)" ]
       translation:
         type: CUSTOM
@@ -1785,7 +2028,7 @@
       organizationName: ignore
       topic: covid-19
       customerStatus: inactive
-      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, OTC_PROCTORED)" ]
+      jurisdictionalFilter: [ "matches(ordering_facility_county, OTC_PROCTORED)" ]
       qualityFilter: [ "matches(test_authorized_for_otc, Y)","matches(test_authorized_for_home, Y)","matches(test_authorized_for_unproctored, Y)" ]
       translation:
         type: "CUSTOM"
@@ -1796,7 +2039,7 @@
       organizationName: ignore
       topic: covid-19
       customerStatus: inactive
-      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, OTC_PROCTORED)" ]
+      jurisdictionalFilter: [ "matches(ordering_facility_county, OTC_PROCTORED)" ]
       qualityFilter: [ "matches(test_authorized_for_otc, N)","matches(test_authorized_for_home, Y)","matches(test_authorized_for_unproctored, Y)" ]
       translation:
         type: "CUSTOM"
@@ -1807,7 +2050,7 @@
       organizationName: ignore
       topic: covid-19
       customerStatus: inactive
-      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, OTC_PROCTORED)" ]
+      jurisdictionalFilter: [ "matches(ordering_facility_county, OTC_PROCTORED)" ]
       qualityFilter: [ "matches(test_authorized_for_otc, N)","matches(test_authorized_for_home, UNK)","matches(test_authorized_for_unproctored, UNK)" ]
       translation:
         type: "CUSTOM"
@@ -1819,7 +2062,7 @@
       organizationName: ignore
       topic: covid-19
       customerStatus: active
-      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, EVERY_5_MINS)" ]
+      jurisdictionalFilter: [ "matches(ordering_facility_county, EVERY_5_MINS)" ]
       timing:
         operation: MERGE
         numberPerDay: 288 # Every 5 minutes
@@ -1838,10 +2081,29 @@
       organizationName: ignore
       topic: covid-19
       customerStatus: active
-      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, EVERY_15_MINS)" ]
+      jurisdictionalFilter: [ "matches(ordering_facility_county, EVERY_15_MINS)" ]
       timing:
         operation: MERGE
         numberPerDay: 96 # Every 15 minutes
+        initialTime: 00:00
+      translation:
+        type: HL7
+        useBatchHeaders: true
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+    - name: EVERY_60_MINS
+      externalName: Batches and Sends every 60 minutes.  For Load testing.
+      organizationName: ignore
+      topic: covid-19
+      customerStatus: active
+      jurisdictionalFilter: [ "matches(ordering_facility_county, EVERY_60_MINS)" ]
+      timing:
+        operation: MERGE
+        numberPerDay: 24 # Every 60 minutes
         initialTime: 00:00
       translation:
         type: HL7
@@ -2109,6 +2371,8 @@
       translation:
         type: HL7
         useBatchHeaders: true
+        suppressNonNPI: true
+        truncateHl7Fields: OBX-23-1
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
@@ -2740,6 +3004,20 @@
         receiverUrl: http://host.docker.internal:8000/pyas2/as2receive
         receiverId: p1as2
         senderId: CDCPRIMETEST
+    - name: gaen
+      description: Google/Apple Exposure Notification
+      organizationName: wa-phd
+      topic: covid-19
+      customerStatus: testing
+      jurisdictionalFilter:
+        - matches(abnormal_flag, A)
+        - orEquals(ordering_facility_state, WA, patient_state, WA)
+      timing: null
+      translation:
+        type: GAEN
+      transport:
+        type: GAEN
+        apiUrl: ""
 
 - name: wv-phd
   description: West Virginia Public Health Department
@@ -2792,3 +3070,23 @@
         port: 22
         filePath: ./upload
         credentialName: DEFAULT-SFTP
+- name: fl-hillsborough-phd
+  description: Florida Department of Health – Hillsborough County
+  jurisdiction: COUNTY
+  stateCode: FL
+  countyName: Hillsborough
+  receivers:
+    - name: elr-download
+      organizationName: fl-hillsborough-phd
+      topic: covid-19
+      customerStatus: testing
+      jurisdictionalFilter: [ "matches(ordering_facility_state, FL)", "matches(ordering_facility_county, Hillsborough)" ]
+      translation:
+        type: CUSTOM
+        schemaName: fl/fl-hillsborough-covid-19-csv
+        format: CSV
+      timing:
+        operation: MERGE
+        numberPerDay: 1
+        initialTime: 09:15 # A little after the 12am EASTERN reports from simple report
+        timeZone: EASTERN

@@ -1016,7 +1016,7 @@ This field is ignored.
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **Default Value**: 
 
@@ -1101,7 +1101,7 @@ Accension number
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **Default Value**: 
 
@@ -1152,6 +1152,8 @@ This field is ignored.
 
 **PII**: No
 
+**Format**: use value found in the Code column
+
 **Default Value**: N
 
 **LOINC Code**: 77974-4
@@ -1177,6 +1179,8 @@ Is the patient hospitalized?
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Default Value**: N
 
@@ -1547,7 +1551,7 @@ Other states may choose to define their own formats.
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **Default Value**: U
 
@@ -1602,7 +1606,7 @@ The patient's first name
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **Default Value**: U
 
@@ -1722,7 +1726,7 @@ The patient's phone number with area code
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **Default Value**: UNK
 
@@ -1861,7 +1865,7 @@ The ID number of the lab order from the placer
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **Default Value**: 
 
@@ -1904,6 +1908,8 @@ Translate multiple inbound values into the Pregnancy SNOMED Codes
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Default Value**: P
 
@@ -1975,7 +1981,7 @@ The reporting facility's name
 
 **Default Value**: cuc-al
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -2013,7 +2019,7 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **Default Value**: 71836000
 
@@ -2074,7 +2080,7 @@ Translate inbound text to outbound SNOMED Codes
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **Default Value**: 258500001
 
@@ -2142,7 +2148,7 @@ Translate inbound text to outbound SNOMED Codes
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **Default Value**: 
 
@@ -2179,7 +2185,7 @@ Translate multiple inbound Y/N/U AOE values to RS values
 
 **PII**: No
 
-**Format**: $alt
+**Format**: use value found in the Display column
 
 **Cardinality**: [0..1]
 
@@ -2191,6 +2197,7 @@ Sofia SARS Antigen FIA_Quidel Corporation|Sofia SARS Antigen FIA
 10811877011269|Abbott-ID NOW COVID-19 (Molecular)
 RightSign COVID-19 IgG/IgM Rapid Test Cassette_Hangzhou Biotest Biotech Co., Ltd.|RightSign COVID-19 IgG/IgM Rapid Test Cassette
 COVID-19 IgG/IgM Rapid Test Cassette (Whole Blood/Serum/Plasma)_Healgen Scientific LLC|Healgen COVID-19 IgG IgM Rapid Test
+BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)|BD Veritor Rapid SARS-CoV-2 nucleocapsid antigen
 
 ---
 
@@ -2210,7 +2217,7 @@ COVID-19 IgG/IgM Rapid Test Cassette (Whole Blood/Serum/Plasma)_Healgen Scientif
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **Cardinality**: [0..1]
 
@@ -2294,6 +2301,8 @@ Translate multiple inbound Test Result values to RS values
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Default Value**: F
 

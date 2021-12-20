@@ -208,6 +208,8 @@ Other states may choose to define their own formats.
 
 **PII**: No
 
+**Format**: use value found in the Code column
+
 **Cardinality**: [0..1]
 
 **Value Sets**
@@ -245,6 +247,8 @@ The patient's first name
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
@@ -316,7 +320,7 @@ The patient's phone number with area code
 
 **PII**: No
 
-**Format**: $alt
+**Format**: use value found in the Display column
 
 **Cardinality**: [0..1]
 
@@ -452,13 +456,35 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 
 ---
 
+**Name**: Specimen_ID
+
+**Type**: EI
+
+**PII**: No
+
+**HL7 Fields**
+
+- [SPM-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2)
+
+**Cardinality**: [0..1]
+
+
+**Reference URL**:
+[https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2) 
+
+**Documentation**:
+
+A unique code for this specimen
+
+---
+
 **Name**: Specimen_Site
 
 **Type**: CODE
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **Cardinality**: [0..1]
 
@@ -484,7 +510,7 @@ Refers back to the specimen source site, which is then encoded into the SPM-8 se
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **Cardinality**: [0..1]
 
@@ -558,7 +584,7 @@ The LOINC description of the test performed as related to the LOINC code.
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **Cardinality**: [0..1]
 
@@ -585,6 +611,7 @@ Code | Display
 840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
 840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
 373121007|Test not done
+82334004|Indeterminate
 
 **Documentation**:
 
@@ -655,20 +682,6 @@ An example of the ID is 03D2159846
 **Documentation**:
 
 The phone number of the testing lab
-
----
-
-**Name**: Specimen_ID
-
-**Type**: ID
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The specimen-id from the testing lab
 
 ---
 

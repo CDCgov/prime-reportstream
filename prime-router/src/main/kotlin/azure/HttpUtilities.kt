@@ -4,9 +4,12 @@ import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
 import com.microsoft.azure.functions.HttpStatus
+import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.PAYLOAD_MAX_BYTES
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.common.Environment
+import org.apache.http.client.utils.URIBuilder
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.File
 import java.io.IOException
@@ -16,19 +19,17 @@ import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
-enum class ReportStreamEnv(val urlPrefix: String) {
-    TEST("https://test.prime.cdc.gov"),
-    LOCAL("http://" + (System.getenv("PRIME_RS_API_ENDPOINT_HOST") ?: "localhost") + ":7071"),
-    STAGING("https://staging.prime.cdc.gov"),
-    PROD("not implemented"),
-}
-
 class HttpUtilities {
     companion object : Logging {
         const val jsonMediaType = "application/json"
         const val oldApi = "/api/reports"
         const val watersApi = "/api/waters"
         const val tokenApi = "/api/token"
+
+        /**
+         * Last modified time header value formatter.
+         */
+        val lastModifiedFormatter: DateTimeFormatter = DateTimeFormatter.RFC_1123_DATE_TIME
 
         fun okResponse(
             request: HttpRequestMessage<String?>,
@@ -155,10 +156,10 @@ class HttpUtilities {
         ) {
             if (lastModified == null) return
             // https://datatracker.ietf.org/doc/html/rfc7232#section-2.2 defines this header format
-            val lastModifiedFormatter = DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss")
-            // Convert to GMT timezone
+
+            // Convert to UTC timezone
             val lastModifiedGMT = OffsetDateTime.ofInstant(lastModified.toInstant(), ZoneOffset.UTC)
-            val lastModifiedFormatted = "${lastModifiedGMT.format(lastModifiedFormatter)} GMT"
+            val lastModifiedFormatted = lastModifiedGMT.format(lastModifiedFormatter)
             builder.header(HttpHeaders.LAST_MODIFIED, lastModifiedFormatted)
         }
 
@@ -212,14 +213,18 @@ class HttpUtilities {
          * Returns Pair(Http response code, json response text)
          */
         fun postReportFile(
-            environment: ReportStreamEnv,
+            environment: Environment,
             file: File,
             sendingOrgClient: Sender,
+            asyncProcessMode: Boolean = false,
             key: String? = null,
-            option: ReportFunction.Options ? = null
+            option: Options? = null,
+            payloadName: String? = null
         ): Pair<Int, String> {
             if (!file.exists()) error("Unable to find file ${file.absolutePath}")
-            return postReportBytes(environment, file.readBytes(), sendingOrgClient, key, option)
+            return postReportBytes(
+                environment, file.readBytes(), sendingOrgClient, key, option, asyncProcessMode, payloadName
+            )
         }
 
         /**
@@ -227,7 +232,7 @@ class HttpUtilities {
          * endpoint and sending the bearer token header
          */
         fun postReportFileFhir(
-            environment: ReportStreamEnv,
+            environment: Environment,
             file: File,
             sendingOrgClient: Sender,
             token: String? = null
@@ -242,11 +247,13 @@ class HttpUtilities {
          * Returns Pair(Http response code, json response text)
          */
         fun postReportBytes(
-            environment: ReportStreamEnv,
+            environment: Environment,
             bytes: ByteArray,
             sendingOrgClient: Sender,
             key: String?,
-            option: ReportFunction.Options? = null
+            option: Options? = null,
+            asyncProcessMode: Boolean = false,
+            payloadName: String? = null,
         ): Pair<Int, String> {
             val headers = mutableListOf<Pair<String, String>>()
             when (sendingOrgClient.format) {
@@ -256,19 +263,29 @@ class HttpUtilities {
             val clientStr = sendingOrgClient.organizationName +
                 if (sendingOrgClient.name.isNotBlank()) ".${sendingOrgClient.name}" else ""
             headers.add("client" to clientStr)
-            if (key == null && environment == ReportStreamEnv.TEST) error("key is required for Test environment")
+            if (key == null && environment == Environment.TEST) error("key is required for Test environment")
             if (key != null)
                 headers.add("x-functions-key" to key)
-            val url = environment.urlPrefix + oldApi + if (option != null) "?option=$option" else ""
-            return postHttp(url, bytes, headers)
+
+            val urlBuilder = URIBuilder(environment.url.toString() + oldApi)
+            if (option != null)
+                urlBuilder.setParameter("option", option.toString())
+            if (payloadName != null)
+                urlBuilder.setParameter("payloadName", payloadName)
+
+            // if asyncProcessMode is present and true, add the 'processing=async' query param
+            if (asyncProcessMode)
+                urlBuilder.setParameter("processing", "async")
+
+            return postHttp(urlBuilder.toString(), bytes, headers)
         }
 
         fun postReportBytesToWatersAPI(
-            environment: ReportStreamEnv,
+            environment: Environment,
             bytes: ByteArray,
             sendingOrgClient: Sender,
             token: String? = null,
-            option: ReportFunction.Options? = null
+            option: Options? = null
         ): Pair<Int, String> {
             val headers = mutableListOf<Pair<String, String>>()
             when (sendingOrgClient.format) {
@@ -279,7 +296,7 @@ class HttpUtilities {
                 if (sendingOrgClient.name.isNotBlank()) ".${sendingOrgClient.name}" else ""
             headers.add("client" to clientStr)
             token?.let { headers.add("authorization" to "Bearer $token") }
-            val url = environment.urlPrefix + watersApi + if (option != null) "?option=$option" else ""
+            val url = environment.url.toString() + watersApi + if (option != null) "?option=$option" else ""
             return postHttp(url, bytes, headers)
         }
 

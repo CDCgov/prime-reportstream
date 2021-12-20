@@ -8,18 +8,20 @@ import java.nio.file.Paths
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-// a singleton instance to let us build documentation off of a schema or off of an element
+/** a singleton instance to let us build documentation off of a schema or off of an element */
 object DocumentationFactory {
     // will generate a documentation string based on markdown that can then be presented
     // to end users or be converted into HTML if we want to be fancy
     private const val hl7DocumentationUrl = "https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/"
 
+    /** converts an HL7 field to a URL at Caristix */
     private fun convertHl7FieldToUrl(segmentName: String?): String {
         if (segmentName.isNullOrEmpty()) return ""
         val formattedSegment = segmentName.replace("-", ".")
         return "[$segmentName]($hl7DocumentationUrl$formattedSegment)"
     }
 
+    /** gets the documentation for an element */
     fun getElementDocumentation(element: Element): String {
         val csvField = if (element.csvFields?.isNotEmpty() == true) element.csvFields[0] else null
         val sb = StringBuilder()
@@ -31,7 +33,19 @@ object DocumentationFactory {
         appendLabelAndData(sb, "Name", displayName)
         appendLabelAndData(sb, "Type", element.type?.name)
         appendLabelAndData(sb, "PII", if (element.pii == true) "Yes" else "No")
-        appendLabelAndData(sb, "Format", csvField?.format)
+
+        if (element.type?.name == "CODE") {
+            when (csvField?.format) {
+                "\$display",
+                "\$alt" ->
+                    appendLabelAndData(sb, "Format", "use value found in the Display column")
+                else ->
+                    appendLabelAndData(sb, "Format", "use value found in the Code column")
+            }
+        } else {
+            appendLabelAndData(sb, "Format", csvField?.format)
+        }
+
         appendLabelAndData(sb, "Default Value", element.default)
         if (hl7Fields?.isNullOrEmpty() == false) {
             appendLabelAndList(sb, "HL7 Fields", hl7Fields.toSet().map { convertHl7FieldToUrl(it) })
@@ -195,7 +209,8 @@ ${element.documentation}
             appendable.appendLine("---- | -------")
 
             values.forEach { vs ->
-                appendable.appendLine("${vs.code}|${vs.display}")
+                val code = if (vs.code == ">") "&#62;" else vs.code // This to solve the markdown blockquote '>'
+                appendable.appendLine("$code|${vs.display}")
             }
             appendable.appendLine("")
         }

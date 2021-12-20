@@ -14,7 +14,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSync } from "@fortawesome/free-solid-svg-icons";
 
 import { senderClient } from "../webreceiver-utils";
-import AuthResource from "../resources/AuthResource";
 import SenderOrganizationResource from "../resources/SenderOrganizationResource";
 
 library.add(faSync);
@@ -22,9 +21,10 @@ library.add(faSync);
 export const Upload = () => {
     const { authState } = useOktaAuth();
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [fileInputResetValue, setFileInputResetValue] = useState(0);
     const [fileContent, setFileContent] = useState("");
-    const [consolidatedWarnings, setConsolidatedWarnings] = useState([]);
-    const [consolidatedErrors, setConsolidatedErrors] = useState([]);
+    const [warnings, setWarnings] = useState([]);
+    const [errors, setErrors] = useState([]);
     const [destinations, setDestinations] = useState("");
     const [reportId, setReportId] = useState(null);
     const [successTimestamp, setSuccessTimestamp] = useState("");
@@ -50,16 +50,19 @@ export const Upload = () => {
         let textBody;
         let response;
         try {
-            response = await fetch(`${AuthResource.getBaseUrl()}/api/waters`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "text/csv",
-                    client: client,
-                    "authentication-type": "okta",
-                    Authorization: `Bearer ${authState?.accessToken?.accessToken}`,
-                },
-                body: fileBody,
-            });
+            response = await fetch(
+                `${process.env.REACT_APP_BACKEND_URL}/api/waters`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "text/csv",
+                        client: client,
+                        "authentication-type": "okta",
+                        Authorization: `Bearer ${authState?.accessToken?.accessToken}`,
+                    },
+                    body: fileBody,
+                }
+            );
 
             textBody = await response.text();
 
@@ -78,7 +81,9 @@ export const Upload = () => {
         }
     };
 
-    const handleChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileChange = async (
+        event: React.ChangeEvent<HTMLInputElement>
+    ) => {
         try {
             if (!event?.currentTarget?.files?.length) {
                 // no files selected
@@ -108,8 +113,8 @@ export const Upload = () => {
         setIsSubmitting(true);
         setReportId(null);
         setSuccessTimestamp("");
-        setConsolidatedWarnings([]);
-        setConsolidatedErrors([]);
+        setWarnings([]);
+        setErrors([]);
         setDestinations("");
 
         if (fileContent.length === 0) {
@@ -146,21 +151,23 @@ export const Upload = () => {
                 );
             }
 
-            if (response?.consolidatedWarnings?.length) {
-                setConsolidatedWarnings(response.consolidatedWarnings);
+            if (response?.errors?.length > 0) {
+                setErrors(response.errors);
             }
 
-            if (response?.consolidatedErrors?.length) {
-                setConsolidatedErrors(response.consolidatedErrors);
+            if (response?.warnings?.length > 0) {
+                setWarnings(response.warnings);
             }
 
             setHeaderMessage("Your COVID-19 Results");
         } catch (error) {
-            if (response?.consolidatedErrors) {
-                setConsolidatedErrors(response.errors);
+            if (response?.errors) {
+                setErrors(response.errors);
             }
         }
         setButtonText("Upload another file");
+        // Changing the key to force the FileInput to reset. Otherwise it won't recognize changes to the file's content unless the file name changes
+        setFileInputResetValue(fileInputResetValue + 1);
         setIsSubmitting(false);
     };
 
@@ -249,7 +256,7 @@ export const Upload = () => {
                 </div>
             )}
 
-            {consolidatedErrors.length > 0 && (
+            {errors.length > 0 && (
                 <div>
                     <div className="usa-alert usa-alert--error" role="alert">
                         <div className="usa-alert__body">
@@ -269,7 +276,7 @@ export const Upload = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {consolidatedErrors.map((e, i) => {
+                            {errors.map((e, i) => {
                                 return (
                                     <tr key={"error_" + i}>
                                         <td>{e["message"]}</td>
@@ -282,7 +289,7 @@ export const Upload = () => {
                 </div>
             )}
 
-            {consolidatedWarnings.length > 0 && (
+            {warnings.length > 0 && (
                 <div>
                     <div className="usa-alert usa-alert--warning">
                         <div className="usa-alert__body">
@@ -290,7 +297,7 @@ export const Upload = () => {
                                 Alert: Unusable Fields Detected
                             </h4>
                             <p className="usa-alert__text">
-                                {consolidatedErrors.length <= 0 && (
+                                {errors.length <= 0 && (
                                     <span>
                                         Your file has been accepted with
                                         warnings.
@@ -310,7 +317,7 @@ export const Upload = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {consolidatedWarnings.map((e, i) => {
+                            {warnings.map((e, i) => {
                                 return (
                                     <tr key={"warning_" + i}>
                                         <td>{e["message"]}</td>
@@ -322,7 +329,6 @@ export const Upload = () => {
                     </table>
                 </div>
             )}
-
             <Form onSubmit={(e) => handleSubmit(e)}>
                 <FormGroup className="margin-bottom-3">
                     <Label
@@ -333,11 +339,12 @@ export const Upload = () => {
                         Upload your COVID-19 lab results as a .CSV.
                     </Label>
                     <FileInput
+                        key={fileInputResetValue}
                         id="upload-csv-input"
                         name="upload-csv-input"
                         aria-describedby="upload-csv-input-label"
                         accept=".csv, text/csv"
-                        onChange={(e) => handleChange(e)}
+                        onChange={(e) => handleFileChange(e)}
                         required
                     />
                 </FormGroup>

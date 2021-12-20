@@ -100,6 +100,9 @@ elements:
   - name: test_result_date
     csvFields: [{name: patient_results}]
 
+  - name: date_result_released
+    mapper: use(test_result_date)
+
   - name: patient_gender
     csvFields: [{name: patient_sex}]
 
@@ -221,3 +224,7 @@ elements:
   - name: test_authorized_for_otc
   - name: test_authorized_for_home
   - name: test_authorized_for_unproctored
+
+  # the ordering provider needs to be filled in as well
+  - name: ordering_provider_city
+    mapper: use(ordering_facility_city)
