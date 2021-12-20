@@ -140,7 +140,7 @@ class FakeReportTests {
             48123,De Witt,TX
         """.trimIndent()
 
-        val fipsCountyTable = LookupTable.read(ByteArrayInputStream(csv.toByteArray()))
+        val fipsCountyTable = LookupTable.read(inputStream = ByteArrayInputStream(csv.toByteArray()))
         val flRowContext = FakeReport.RowContext({ null }, "FL")
         val orderingFacilityStateElement = Element(
             "ordering_facility_state",
