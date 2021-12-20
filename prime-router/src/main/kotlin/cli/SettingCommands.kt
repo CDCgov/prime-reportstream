@@ -226,6 +226,7 @@ abstract class SettingCommand(
             .authentication()
             .bearer(accessToken)
             .header(CONTENT_TYPE to jsonMimeType)
+            .timeoutRead(SettingsUtilities.requestTimeoutMillis)
             .responseJson()
         return when (result) {
             is Result.Failure -> handleHttpFailure(settingName, response, result)
@@ -249,6 +250,7 @@ abstract class SettingCommand(
             .authentication()
             .bearer(accessToken)
             .header(CONTENT_TYPE to jsonMimeType)
+            .timeoutRead(SettingsUtilities.requestTimeoutMillis)
             .responseJson()
         return when (result) {
             is Result.Failure -> handleHttpFailure(settingName, response, result)

@@ -69,6 +69,7 @@ class LookupTableEndpointUtilities(val environment: Environment) {
             .get(apiUrl.toString(), listOf(LookupTableFunctions.showInactiveParamName to listInactive.toString()))
             .authentication()
             .bearer(oktaAccessToken)
+            .timeoutRead(requestTimeoutMillis)
             .responseJson()
         checkCommonErrorsFromResponse(result, response)
         try {
@@ -91,6 +92,7 @@ class LookupTableEndpointUtilities(val environment: Environment) {
             .put(apiUrl.toString())
             .authentication()
             .bearer(oktaAccessToken)
+            .timeoutRead(requestTimeoutMillis)
             .responseJson()
         return getTableInfoFromResponse(result, response)
     }
@@ -129,6 +131,7 @@ class LookupTableEndpointUtilities(val environment: Environment) {
             .get(apiUrl.toString())
             .authentication()
             .bearer(oktaAccessToken)
+            .timeoutRead(requestTimeoutMillis)
             .responseJson()
         return getTableInfoFromResponse(result, response)
     }
