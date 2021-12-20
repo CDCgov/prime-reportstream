@@ -43,10 +43,12 @@ class BatchDeciderFunction {
                         val queueMessages = ceil((recordsToBatch.toDouble() / rec.timing!!.maxReportCount.toDouble()))
                             .roundToInt()
                         if (queueMessages > 0)
-                            context.logger.info("Found $recordsToBatch for ${rec.fullName}," +
-                                "max size ${rec.timing.maxReportCount}. Queueing $queueMessages messages to BATCH")
+                            context.logger.info(
+                                "Found $recordsToBatch for ${rec.fullName}," +
+                                    "max size ${rec.timing.maxReportCount}. Queueing $queueMessages messages to BATCH"
+                            )
 
-                        repeat (queueMessages) {
+                        repeat(queueMessages) {
                             // build 'batch' event
                             val event = BatchEvent(Event.EventAction.BATCH, rec.fullName)
                             QueueAccess.sendMessage(event)
@@ -55,7 +57,6 @@ class BatchDeciderFunction {
             }
 
             context.logger.info("$batchDecider: Ending")
-
         } catch (e: Exception) {
             context.logger.log(Level.SEVERE, "Batch decider function exception", e)
         }

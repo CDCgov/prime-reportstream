@@ -3,11 +3,9 @@ package gov.cdc.prime.router.azure
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import gov.cdc.prime.router.Organization
-import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.db.Tables
-import gov.cdc.prime.router.azure.db.Tables.ACTION
 import gov.cdc.prime.router.azure.db.Tables.COVID_RESULT_METADATA
 import gov.cdc.prime.router.azure.db.Tables.EMAIL_SCHEDULE
 import gov.cdc.prime.router.azure.db.Tables.JTI_CACHE
@@ -656,15 +654,16 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
      */
     fun fetchNumberOutstandingBatchRecords(
         receiverFullName: String,
-        txn: DataAccessTransaction): Int {
+        txn: DataAccessTransaction
+    ): Int {
         val backstop = OffsetDateTime.now().minusDays(7)
         return DSL.using(txn)
-                .select(TASK.asterisk())
-                .from(TASK)
-                .where(TASK.NEXT_ACTION.eq(TaskAction.batch))
-                .and(TASK.RECEIVER_NAME.eq(receiverFullName))
-                .and(TASK.CREATED_AT.greaterOrEqual(backstop))
-                .count()
+            .select(TASK.asterisk())
+            .from(TASK)
+            .where(TASK.NEXT_ACTION.eq(TaskAction.batch))
+            .and(TASK.RECEIVER_NAME.eq(receiverFullName))
+            .and(TASK.CREATED_AT.greaterOrEqual(backstop))
+            .count()
     }
 
     /** Fetch the newest CreatedAt timestamp, active or deleted. */

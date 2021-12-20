@@ -750,10 +750,9 @@ class WorkflowEngine(
         else null
 
         val downloadContent = (reportFile.bodyUrl != null && fetchBlobBody)
-        val content = if (downloadContent && blob.exists(reportFile.bodyUrl))  {
+        val content = if (downloadContent && blob.exists(reportFile.bodyUrl)) {
             blob.downloadBlob(reportFile.bodyUrl)
-        }
-        else null
+        } else null
         return Header(task, reportFile, itemLineages, organization, receiver, schema, content, downloadContent)
     }
 
