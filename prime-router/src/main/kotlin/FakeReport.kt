@@ -135,7 +135,8 @@ class FakeDataService : Logging {
             return when {
                 element.table?.startsWith("LIVD-SARS-CoV-2") == true -> {
                     if (element.tableColumn == null) return ""
-                    lookupTable.lookupValue("Model", context.equipmentModel, element.tableColumn)
+                    lookupTable.FilterBuilder().equalsIgnoreCase("Model", context.equipmentModel)
+                        .findSingleResult(element.tableColumn)
                         ?: error(
                             "Schema Error: Could not lookup ${context.equipmentModel} " +
                                 "to ${element.tableColumn}"
@@ -239,31 +240,23 @@ class FakeReport(val metadata: Metadata, val locale: Locale? = null) {
             when (state) {
                 "AZ" -> randomChoice("Pima", "Yuma")
                 "PA" -> randomChoice("Bucks", "Chester", "Montgomery")
-                else -> randomChoice(it.filter("State", state, "County"))
+                else -> randomChoice(
+                    it.FilterBuilder().equalsIgnoreCase("State", state)
+                        .findAllUnique("County")
+                )
             }
         } ?: "Prime"
         // find our zipcode
         val zipCode: String = findLookupTable(zipCodeData)?.let {
             randomChoice(
-                it.filter(
-                    "zipcode",
-                    mapOf(
-                        "state_abbr" to state,
-                        "county" to county
-                    )
-                )
+                it.FilterBuilder().equalsIgnoreCase("state_abbr", state).isEqualTo("county", county)
+                    .findAllUnique("zipcode")
             )
         } ?: faker.address().zipCode().toString()
         val city: String = findLookupTable(zipCodeData)?.let {
             randomChoice(
-                it.filter(
-                    "city",
-                    mapOf(
-                        "state_abbr" to state,
-                        "county" to county,
-                        "zipcode" to zipCode
-                    )
-                )
+                it.FilterBuilder().equalsIgnoreCase("state_abbr", state).isEqualTo("county", county)
+                    .isEqualTo("zipcode", zipCode).findAllUnique("city")
             )
         } ?: faker.address().city().toString()
     }
@@ -332,7 +325,7 @@ class FakeReport(val metadata: Metadata, val locale: Locale? = null) {
     ): Report {
         val counties = targetCounties?.split(",")
         val states = if (targetStates.isNullOrEmpty()) {
-            metadata.findLookupTable("fips-county")?.getDistinctValuesInColumn("State")
+            metadata.findLookupTable("fips-county")?.FilterBuilder()?.findAllUnique("State")
                 ?.toList()
         } else {
             targetStates.split(",")
