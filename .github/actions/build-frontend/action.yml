@@ -1,6 +1,13 @@
 # action.yml
 name: 'Build Frontend'
 description: 'Build react website'
+inputs:
+  appinsights-staging-key:
+    description: Instrumentation key for staging environment
+    required: true
+  appinsights-prod-key:
+    description: Instrumentation key for production environment
+    required: true
 
 runs:
   using: "composite"
@@ -19,7 +26,7 @@ runs:
       if: github.ref == 'refs/heads/production'
       working-directory: frontend-react
       run: |
-        echo "REACT_APP_APPINSIGHTS_KEY=${{secrets.APPINSIGHTS_PROD_KEY}}" >> .env.production
+        echo "REACT_APP_APPINSIGHTS_KEY=${{ inputs.appinsights-prod-key }}" >> .env.production
         yarn build:production
       shell: bash
 
@@ -27,7 +34,7 @@ runs:
       if: (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main')
       working-directory: frontend-react
       run: |
-        echo "REACT_APP_APPINSIGHTS_KEY=${{ secrets.APPINSIGHTS_STAGING_KEY }}" >> .env.staging
+        echo "REACT_APP_APPINSIGHTS_KEY=${{ inputs.appinsights-staging-key }}" >> .env.staging
         yarn build:staging
       shell: bash
 
@@ -35,7 +42,7 @@ runs:
       if: (!(github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/production'))
       working-directory: frontend-react
       run: |
-        echo "REACT_APP_APPINSIGHTS_KEY=${{ secrets.APPINSIGHTS_STAGING_KEY }}" >> .env.staging
+        echo "REACT_APP_APPINSIGHTS_KEY=${{ inputs.appinsights-staging-key }}" >> .env.staging
         yarn lint:prettier
         yarn lint:eslint
         yarn test:ci
