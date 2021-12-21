@@ -29,15 +29,14 @@ jobs:
           echo >> $GITHUB_ENV DB_USER=${POSTGRES_USER}
           echo >> $GITHUB_ENV DB_PASSWORD=${POSTGRES_PASSWORD}
 
-      # Appears not to be needed on GitHub (but needed when running act [https://github.com/nektos/act] locally)
-      # - name: Install docker-compose
-      #   run: apt-get update && apt-get --yes install docker-compose
-
       - name: Spin up build containers
         run: docker-compose -f docker-compose.postgres.yml up -d
 
       - name: Build Prime Router Package
         run: ./gradlew package -x fatjar -Pshowtests
+
+      - name: Tar router files
+        run: tar -czvf prime-router-build.tar.gz build
 
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@v1
@@ -54,8 +53,8 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: prime-router-build-${{ github.run_id }}
-          path: prime-router/build
-          retention-days: 7
+          path: prime-router/prime-router-build.tar.gz
+          retention-days: 3
 
   build_frontend_react_release:
     name: "Release: Build Frontend (React)"
@@ -68,27 +67,8 @@ jobs:
       - name: "Check out changes"
         uses: actions/checkout@v2
 
-      - name: Use Node.js ${{ matrix.node-version }} yarn
-        uses: actions/setup-node@v2
-        with:
-          node-version: '14'
-      - run: yarn install
-
-      - name: build staging
-        run: yarn run build:staging
-        if: github.ref == 'refs/heads/master'
-
-      - name: build production
-        run: yarn run build:production
-        if: github.ref == 'refs/heads/production'
-
-      - name: Save Static Website
-        uses: actions/upload-artifact@v2
-        with:
-          name: static_website_react-${{ github.run_id }}
-          path: frontend-react/build
-          retention-days: 7
-
+      - name: Build frontend
+        uses: ./.github/actions/build-frontend
 
   deploy_release_dev:
     name: "Deploy Release: DEV"
@@ -99,87 +79,24 @@ jobs:
     environment: dev
     concurrency: dev
     runs-on: ubuntu-latest
-    env:
-      RESOURCE_GROUP: prime-dev-rheft
-      ACR_REPO: rkh5012containerregistry.azurecr.io
-      PREFIX: rkh5012
     steps:
       - name: "Check out changes"
         uses: actions/checkout@v2
 
-      - name: Download Router Artifact
-        uses: actions/download-artifact@v2
+      - name: Connect to VPN and login to Azure
+        uses: ./.github/actions/vpn-azure
         with:
-          name: prime-router-build-${{ github.run_id }}
-          path: prime-router/build
+          tls-key: ${{ secrets.TLS_KEY }}
+          ca-cert: ${{ secrets.CA_CRT}}
+          user-crt: ${{ secrets.USER_CRT }}
+          user-key: ${{ secrets.USER_KEY }}
+          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
 
-      - name: Build Docker Image
-        run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:${{ github.sha }}
+      - name: Deploy backend
+        uses: ./.github/actions/deploy-backend
 
-      - name: Install OpenVPN
-        run: |
-          sudo apt-get update
-          sudo apt-get install openvpn
-          sudo apt install openvpn-systemd-resolved
-
-      - name: Connect VPN
-        uses: golfzaptw/action-connect-ovpn@2.0.1
-        id: connect_vpn
-        with:
-          FILE_OVPN: ".github/vpn/dev.ovpn"
-          TLS_KEY: ${{ secrets.TLS_KEY }}
-        env:
-          CA_CRT: ${{ secrets.CA_CRT}}
-          USER_CRT: ${{ secrets.USER_CRT }}
-          USER_KEY: ${{ secrets.USER_KEY }}
-
-      - name: Login to Azure CLI
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
-
-      - name: ACR Login
-        run: az acr login --name ${{ env.ACR_REPO }}
-
-      - name: Push Docker Image
-        run: docker push ${{ env.ACR_REPO }}/${{ env.PREFIX }} --all-tags
-
-      - name: Whitelist GitHub Action Runner in Function App Slot
-        id: ip-whitelist-create
-        run: |
-          RUNNER_IP="$(dig +short myip.opendns.com @resolver1.opendns.com)"
-          echo "::add-mask::$RUNNER_IP"
-          az functionapp config access-restriction add -g ${{ env.RESOURCE_GROUP }} -n ${{ env.PREFIX }}-functionapp --slot candidate --rule-name GitHubActionIPV4 --action Allow --ip-address $RUNNER_IP --priority 750 > /dev/null 2>&1
-
-      - name: Deploy to Candidate App Slot
-        uses: Azure/functions-container-action@v1
-        id: deploy-candidate
-        with:
-          app-name: ${{ env.PREFIX }}-functionapp
-          image: ${{ env.ACR_REPO }}/${{ env.PREFIX }}:${{ github.sha }}
-          slot-name: candidate
-
-      - name: Promote Candidate Slot
-        id: promote-candidate
-        working-directory: operations
-        run: make TF_ENV=rheft AZ_RESOURCE_PREFIX=${{ env.PREFIX }} AZ_RESOURCE_GROUP=${{ env.RESOURCE_GROUP }} zdd-promote-slot
-
-      - name: Remove GitHub Action IP Whitelist
-        if: ${{ always() }} # This should happen even on a failure
-        id: ip-whitelist-destroy
-        run: |
-          az functionapp config access-restriction remove -g ${{ env.RESOURCE_GROUP }} -n ${{ env.PREFIX }}-functionapp --slot candidate --rule-name GitHubActionIPV4 > /dev/null 2>&1
-
-      - name: Download Frontend Artifact (React)
-        uses: actions/download-artifact@v2
-        with:
-          name: static_website_react-${{ github.run_id }}
-          path: frontend-react/build
-
-      - name: Upload Static Site (React)
-        working-directory: .
-        run: |
-          az storage blob upload-batch --account-name ${{ env.PREFIX }}public -s frontend-react/build -d '$web'
+      - name: Deploy frontend
+        uses: ./.github/actions/deploy-frontend
 
   deploy_release_test:
     name: "Deploy Release: TEST"
@@ -190,88 +107,24 @@ jobs:
     environment: test
     concurrency: test
     runs-on: ubuntu-latest
-    env:
-      RESOURCE_GROUP: prime-data-hub-test
-      ACR_REPO: pdhtestcontainerregistry.azurecr.io
-      PREFIX: pdhtest
     steps:
       - name: "Check out changes"
         uses: actions/checkout@v2
 
-      - name: Download Router Artifact
-        uses: actions/download-artifact@v2
+      - name: Connect to VPN and login to Azure
+        uses: ./.github/actions/vpn-azure
         with:
-          name: prime-router-build-${{ github.run_id }}
-          path: prime-router/build
+          tls-key: ${{ secrets.TLS_KEY }}
+          ca-cert: ${{ secrets.CA_CRT}}
+          user-crt: ${{ secrets.USER_CRT }}
+          user-key: ${{ secrets.USER_KEY }}
+          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
 
-      - name: Build Docker Image
-        run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:${{ github.sha }}
+      - name: Deploy backend
+        uses: ./.github/actions/deploy-backend
 
-      - name: Install OpenVPN
-        run: |
-          sudo apt-get update
-          sudo apt-get install openvpn
-          sudo apt install openvpn-systemd-resolved
-
-      - name: Connect VPN
-        uses: golfzaptw/action-connect-ovpn@2.0.1
-        id: connect_vpn
-        with:
-          FILE_OVPN: ".github/vpn/test.ovpn"
-          TLS_KEY: ${{ secrets.TLS_KEY }}
-        env:
-          CA_CRT: ${{ secrets.CA_CRT}}
-          USER_CRT: ${{ secrets.USER_CRT }}
-          USER_KEY: ${{ secrets.USER_KEY }}
-
-      - name: Login to Azure CLI
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
-
-      - name: ACR Login
-        run: az acr login --name ${{ env.ACR_REPO }}
-
-      - name: Push Docker Image
-        run: docker push ${{ env.ACR_REPO }}/${{ env.PREFIX }} --all-tags
-
-      - name: Whitelist GitHub Action Runner in Function App Slot
-        id: ip-whitelist-create
-        run: |
-          RUNNER_IP="$(dig +short myip.opendns.com @resolver1.opendns.com)"
-          echo "::add-mask::$RUNNER_IP"
-          az functionapp config access-restriction add -g ${{ env.RESOURCE_GROUP }} -n ${{ env.PREFIX }}-functionapp --slot candidate --rule-name GitHubActionIPV4 --action Allow --ip-address $RUNNER_IP --priority 750 > /dev/null 2>&1
-
-      - name: Deploy to Candidate App Slot
-        uses: Azure/functions-container-action@v1
-        id: deploy-candidate
-        with:
-          app-name: ${{ env.PREFIX }}-functionapp
-          image: ${{ env.ACR_REPO }}/${{ env.PREFIX }}:${{ github.sha }}
-          slot-name: candidate
-
-      - name: Promote Candidate Slot
-        id: promote-candidate
-        working-directory: operations
-        run: make TF_ENV=test AZ_RESOURCE_PREFIX=${{ env.PREFIX }} AZ_RESOURCE_GROUP=${{ env.RESOURCE_GROUP }} zdd-promote-slot
-
-      - name: Remove GitHub Action IP Whitelist
-        if: ${{ always() }} # This should happen even on a failure
-        id: ip-whitelist-destroy
-        run: |
-          az functionapp config access-restriction remove -g ${{ env.RESOURCE_GROUP }} -n ${{ env.PREFIX }}-functionapp --slot candidate --rule-name GitHubActionIPV4 > /dev/null 2>&1
-
-      - name: Download Frontend Artifact (React)
-        uses: actions/download-artifact@v2
-        with:
-          name: static_website_react-${{ github.run_id }}
-          path: frontend-react/build
-
-      - name: Upload Static Site (React)
-        working-directory: .
-        run: |
-          az storage blob delete-batch --account-name ${{ env.PREFIX }}public -s '$web'
-          az storage blob upload-batch --account-name ${{ env.PREFIX }}public -s frontend-react/build -d '$web'
+      - name: Deploy frontend
+        uses: ./.github/actions/deploy-frontend
 
   deploy_release_staging:
     name: "Deploy Release: STAGING"
@@ -282,88 +135,24 @@ jobs:
     environment: staging
     concurrency: staging
     runs-on: ubuntu-latest
-    env:
-      RESOURCE_GROUP: prime-data-hub-staging
-      ACR_REPO: pdhstagingcontainerregistry.azurecr.io
-      PREFIX: pdhstaging
     steps:
       - name: "Check out changes"
         uses: actions/checkout@v2
 
-      - name: Download Router Artifact
-        uses: actions/download-artifact@v2
+      - name: Connect to VPN and login to Azure
+        uses: ./.github/actions/vpn-azure
         with:
-          name: prime-router-build-${{ github.run_id }}
-          path: prime-router/build
+          tls-key: ${{ secrets.TLS_KEY }}
+          ca-cert: ${{ secrets.CA_CRT}}
+          user-crt: ${{ secrets.USER_CRT }}
+          user-key: ${{ secrets.USER_KEY }}
+          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
 
-      - name: Build Docker Image
-        run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:${{ github.sha }}
+      - name: Deploy backend
+        uses: ./.github/actions/deploy-backend
 
-      - name: Install OpenVPN
-        run: |
-          sudo apt-get update
-          sudo apt-get install openvpn
-          sudo apt install openvpn-systemd-resolved
-
-      - name: Connect VPN
-        uses: golfzaptw/action-connect-ovpn@2.0.1
-        id: connect_vpn
-        with:
-          FILE_OVPN: ".github/vpn/staging.ovpn"
-          TLS_KEY: ${{ secrets.TLS_KEY }}
-        env:
-          CA_CRT: ${{ secrets.CA_CRT}}
-          USER_CRT: ${{ secrets.USER_CRT }}
-          USER_KEY: ${{ secrets.USER_KEY }}
-
-      - name: Login to Azure CLI
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
-
-      - name: ACR Login
-        run: az acr login --name ${{ env.ACR_REPO }}
-
-      - name: Push Docker Image
-        run: docker push ${{ env.ACR_REPO }}/${{ env.PREFIX }} --all-tags
-
-      - name: Whitelist GitHub Action Runner in Function App Slot
-        id: ip-whitelist-create
-        run: |
-          RUNNER_IP="$(dig +short myip.opendns.com @resolver1.opendns.com)"
-          echo "::add-mask::$RUNNER_IP"
-          az functionapp config access-restriction add -g ${{ env.RESOURCE_GROUP }} -n ${{ env.PREFIX }}-functionapp --slot candidate --rule-name GitHubActionIPV4 --action Allow --ip-address $RUNNER_IP --priority 750 > /dev/null 2>&1
-
-      - name: Deploy to Candidate App Slot
-        uses: Azure/functions-container-action@v1
-        id: deploy-candidate
-        with:
-          app-name: ${{ env.PREFIX }}-functionapp
-          image: ${{ env.ACR_REPO }}/${{ env.PREFIX }}:${{ github.sha }}
-          slot-name: candidate
-
-      - name: Promote Candidate Slot
-        id: promote-candidate
-        working-directory: operations
-        run: make TF_ENV=staging AZ_RESOURCE_PREFIX=${{ env.PREFIX }} AZ_RESOURCE_GROUP=${{ env.RESOURCE_GROUP }} zdd-promote-slot
-
-      - name: Remove GitHub Action IP Whitelist
-        if: ${{ always() }} # This should happen even on a failure
-        id: ip-whitelist-destroy
-        run: |
-          az functionapp config access-restriction remove -g ${{ env.RESOURCE_GROUP }} -n ${{ env.PREFIX }}-functionapp --slot candidate --rule-name GitHubActionIPV4 > /dev/null 2>&1
-
-      - name: Download Frontend Artifact (React)
-        uses: actions/download-artifact@v2
-        with:
-          name: static_website_react-${{ github.run_id }}
-          path: frontend-react/build
-
-      - name: Upload Static Site (React)
-        working-directory: .
-        run: |
-          az storage blob delete-batch --account-name ${{ env.PREFIX }}public -s '$web'
-          az storage blob upload-batch --account-name ${{ env.PREFIX }}public -s frontend-react/build -d '$web'
+      - name: Deploy frontend
+        uses: ./.github/actions/deploy-frontend
 
   deploy_release_prod:
     name: "Deploy Release: PROD"
@@ -374,85 +163,21 @@ jobs:
     environment: prod
     concurrency: prod
     runs-on: ubuntu-latest
-    env:
-      RESOURCE_GROUP: prime-data-hub-prod
-      ACR_REPO: pdhprodcontainerregistry.azurecr.io
-      PREFIX: pdhprod
     steps:
       - name: "Check out changes"
         uses: actions/checkout@v2
 
-      - name: Download Router Artifact
-        uses: actions/download-artifact@v2
+      - name: Connect to VPN and login to Azure
+        uses: ./.github/actions/vpn-azure
         with:
-          name: prime-router-build-${{ github.run_id }}
-          path: prime-router/build
+          tls-key: ${{ secrets.TLS_KEY }}
+          ca-cert: ${{ secrets.CA_CRT}}
+          user-crt: ${{ secrets.USER_CRT }}
+          user-key: ${{ secrets.USER_KEY }}
+          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
 
-      - name: Build Docker Image
-        run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:${{ github.sha }}
+      - name: Deploy backend
+        uses: ./.github/actions/deploy-backend
 
-      - name: Install OpenVPN
-        run: |
-          sudo apt-get update
-          sudo apt-get install openvpn
-          sudo apt install openvpn-systemd-resolved
-
-      - name: Connect VPN
-        uses: golfzaptw/action-connect-ovpn@2.0.1
-        id: connect_vpn
-        with:
-          FILE_OVPN: ".github/vpn/prod.ovpn"
-          TLS_KEY: ${{ secrets.TLS_KEY }}
-        env:
-          CA_CRT: ${{ secrets.CA_CRT}}
-          USER_CRT: ${{ secrets.USER_CRT }}
-          USER_KEY: ${{ secrets.USER_KEY }}
-
-      - name: Login to Azure CLI
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
-
-      - name: ACR Login
-        run: az acr login --name ${{ env.ACR_REPO }}
-
-      - name: Push Docker Image
-        run: docker push ${{ env.ACR_REPO }}/${{ env.PREFIX }} --all-tags
-
-      - name: Whitelist GitHub Action Runner in Function App Slot
-        id: ip-whitelist-create
-        run: |
-          RUNNER_IP="$(dig +short myip.opendns.com @resolver1.opendns.com)"
-          echo "::add-mask::$RUNNER_IP"
-          az functionapp config access-restriction add -g ${{ env.RESOURCE_GROUP }} -n ${{ env.PREFIX }}-functionapp --slot candidate --rule-name GitHubActionIPV4 --action Allow --ip-address $RUNNER_IP --priority 750 > /dev/null 2>&1
-
-      - name: Deploy to Candidate App Slot
-        uses: Azure/functions-container-action@v1
-        id: deploy-candidate
-        with:
-          app-name: ${{ env.PREFIX }}-functionapp
-          image: ${{ env.ACR_REPO }}/${{ env.PREFIX }}:${{ github.sha }}
-          slot-name: candidate
-
-      - name: Promote Candidate Slot
-        id: promote-candidate
-        working-directory: operations
-        run: make TF_ENV=prod AZ_RESOURCE_PREFIX=${{ env.PREFIX }} AZ_RESOURCE_GROUP=${{ env.RESOURCE_GROUP }} zdd-promote-slot
-
-      - name: Remove GitHub Action IP Whitelist
-        if: ${{ always() }} # This should happen even on a failure
-        id: ip-whitelist-destroy
-        run: |
-          az functionapp config access-restriction remove -g ${{ env.RESOURCE_GROUP }} -n ${{ env.PREFIX }}-functionapp --slot candidate --rule-name GitHubActionIPV4 > /dev/null 2>&1
-
-      - name: Download Frontend Artifact (React)
-        uses: actions/download-artifact@v2
-        with:
-          name: static_website_react-${{ github.run_id }}
-          path: frontend-react/build
-
-      - name: Upload Static Site (React)
-        working-directory: .
-        run: |
-          az storage blob delete-batch --account-name ${{ env.PREFIX }}public -s '$web'
-          az storage blob upload-batch --account-name ${{ env.PREFIX }}public -s frontend-react/build -d '$web'
+      - name: Deploy frontend
+        uses: ./.github/actions/deploy-frontend

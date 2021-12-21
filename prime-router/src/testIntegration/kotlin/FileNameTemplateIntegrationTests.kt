@@ -11,6 +11,7 @@ import assertk.assertions.support.expected
 import assertk.assertions.support.show
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
+import com.fasterxml.jackson.module.kotlin.KotlinFeature
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.mockk.every
@@ -37,7 +38,15 @@ class FileNameTemplateIntegrationTests {
         every { it.receivingFacilityName }.returns("receiving facility")
         every { it.receivingOrganization }.returns("yoyodyne")
     }
-    private val mapper = ObjectMapper(YAMLFactory()).registerModule(KotlinModule())
+    private val mapper = ObjectMapper(YAMLFactory()).registerModule(
+        KotlinModule.Builder()
+            .withReflectionCacheSize(512)
+            .configure(KotlinFeature.NullToEmptyCollection, false)
+            .configure(KotlinFeature.NullToEmptyMap, false)
+            .configure(KotlinFeature.NullIsSameAsDefault, false)
+            .configure(KotlinFeature.StrictNullChecks, false)
+            .build()
+    )
     private val metadata = Metadata.getInstance()
     private val dateFormat = "yyyyMMdd"
     private val formatter = DateTimeFormatter.ofPattern(dateFormat)

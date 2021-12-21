@@ -82,7 +82,7 @@ class SettingsTest : CoolTest() {
         val path = SettingCommand.formPath(
             Environment.LOCAL,
             SettingCommand.Operation.GET,
-            SettingCommand.SettingType.ORG,
+            SettingCommand.SettingType.ORGANIZATION,
             settingName
         )
 
