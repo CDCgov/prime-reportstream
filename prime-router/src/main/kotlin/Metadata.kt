@@ -42,7 +42,8 @@ class Metadata : Logging {
         SplitByCommaMapper(),
         TimestampMapper(),
         HashMapper(),
-        NullMapper()
+        NullMapper(),
+        LookupSenderValuesetsMapper()
     )
     private var reportStreamFilterDefinitions = listOf(
         FilterByCounty(),
