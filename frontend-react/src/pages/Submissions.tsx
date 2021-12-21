@@ -5,7 +5,7 @@ import { useOktaAuth } from "@okta/okta-react";
 import moment from "moment";
 
 import { useOrgName } from "../utils/OrganizationUtils";
-import { GLOBAL_STORAGE_KEYS } from "../components/GlobalContextProvider";
+import { getStoredOrg } from "../components/GlobalContextProvider";
 
 import { ErrorPage } from "./error/ErrorPage";
 
@@ -20,7 +20,7 @@ const OrgName = () => {
 
 function Submissions() {
     const { authState } = useOktaAuth();
-    const organization = localStorage.getItem(GLOBAL_STORAGE_KEYS.GLOBAL_ORG);
+    const organization = getStoredOrg();
     const [submissions, setSubmissions] = useState([]);
 
     useEffect(() => {
