@@ -10,6 +10,8 @@
 
 **PII**: No
 
+**Format**: use value found in the Code column
+
 **Cardinality**: [0..1]
 
 **Value Sets**
@@ -71,6 +73,8 @@ This field is generated based on the normalcy status of the result. A = abnormal
 
 **PII**: No
 
+**Format**: use value found in the Code column
+
 **LOINC Code**: 95418-0
 
 **Cardinality**: [0..1]
@@ -113,6 +117,8 @@ Is the patient employed in health care?
 
 **PII**: No
 
+**Format**: use value found in the Code column
+
 **LOINC Code**: 95417-2
 
 **Cardinality**: [0..1]
@@ -137,6 +143,8 @@ Is this the patient's first test for this condition?
 
 **PII**: No
 
+**Format**: use value found in the Code column
+
 **LOINC Code**: 77974-4
 
 **Cardinality**: [0..1]
@@ -160,6 +168,8 @@ Is the patient hospitalized?
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **LOINC Code**: 95420-6
 
@@ -387,6 +397,8 @@ The last name of provider who ordered the test
 
 **PII**: No
 
+**Format**: use value found in the Code column
+
 **Cardinality**: [0..1]
 
 **Value Sets**
@@ -537,7 +549,7 @@ The patient's phone number with area code
 
 **PII**: No
 
-**Format**: $alt
+**Format**: use value found in the Display column
 
 **Cardinality**: [0..1]
 
@@ -644,7 +656,7 @@ The patient's zip code
 
 **PII**: No
 
-**Format**: $alt
+**Format**: use value found in the Display column
 
 **LOINC Code**: 82810-3
 
@@ -761,6 +773,8 @@ A unique code for this specimen
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **LOINC Code**: 95419-8
 
@@ -885,6 +899,8 @@ The LOINC code of the test performed. This is a standardized coded value describ
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 

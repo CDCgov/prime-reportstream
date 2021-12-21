@@ -10,6 +10,8 @@
 
 **PII**: No
 
+**Format**: use value found in the Code column
+
 **Cardinality**: [0..1]
 
 **Value Sets**
@@ -79,7 +81,7 @@ This field is generated based on the normalcy status of the result. A = abnormal
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **LOINC Code**: 95418-0
 
@@ -133,7 +135,7 @@ Override the base hl70136 valueset with a custom one, to handle slightly differe
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **LOINC Code**: 95417-2
 
@@ -159,7 +161,7 @@ Override the base hl70136 valueset with a custom one, to handle slightly differe
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **LOINC Code**: 77974-4
 
@@ -185,7 +187,7 @@ Override the base hl70136 valueset with a custom one, to handle slightly differe
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **LOINC Code**: 95420-6
 
@@ -512,7 +514,7 @@ Other states may choose to define their own formats.
 
 **PII**: No
 
-**Format**: $alt
+**Format**: use value found in the Display column
 
 **Cardinality**: [0..1]
 
@@ -564,6 +566,8 @@ The patient's first name
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
@@ -654,6 +658,8 @@ The patient's phone number with area code
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
@@ -752,6 +758,8 @@ The patient's zip code
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **LOINC Code**: 82810-3
 
@@ -870,7 +878,7 @@ The reporting facility's CLIA
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **LOINC Code**: 95421-4
 
@@ -911,6 +919,8 @@ ID name of org that is sending this data to ReportStream.  Suitable for provenan
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
@@ -994,6 +1004,8 @@ A unique code for this specimen
 
 **PII**: No
 
+**Format**: use value found in the Code column
+
 **Cardinality**: [0..1]
 
 **Value Sets**
@@ -1030,7 +1042,7 @@ The specimen source, such as Blood or Serum
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **LOINC Code**: 95419-8
 
@@ -1159,6 +1171,8 @@ Follows guidence for OBX-17 as defined in the HL7 Confluence page
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
