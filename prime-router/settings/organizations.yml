@@ -718,17 +718,16 @@
       organizationName: oh-ccchd-doh
       topic: covid-19
       customerStatus: testing
-      jurisdictionalFilter:
-        - matches(ordering_facility_state, OH)
-        - matches(ordering_facility_county, Clark)
+      jurisdictionalFilter: [ "matches(ordering_facility_state, OH)", "matches(ordering_facility_county, Clark)" ]
+      reverseTheQualityFilter: false
       translation:
+        type: "CUSTOM"
         schemaName: oh/oh-clark-covid-19-csv
         format: CSV
-        type: "CUSTOM"
-        nameFormat: ohio
+        nameFormat: "ohio"
       timing:
         operation: MERGE
-        numberPerDay: 1 # Per day
+        numberPerDay: 1440 # Per day
         initialTime: 00:05
         timeZone: EASTERN
       transport:
