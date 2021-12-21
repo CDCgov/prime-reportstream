@@ -725,18 +725,7 @@
         schemaName: oh/oh-clark-covid-19-csv
         format: CSV
         type: "CUSTOM"
-        useBatchHeaders: true
-        suppressQstForAoe: true
-        receivingApplicationName: OHDOH
-        receivingApplicationOID: 2.16.840.1.114222.4.1.3674
-        receivingFacilityName: OHDOH
-        receivingFacilityOID: 2.16.840.1.114222.4.1.3674
-        reportingFacilityName: CDC PRIME
-        reportingFacilityId: 36DSMP9999
         nameFormat: ohio
-        suppressHl7Fields: OBX-23-11
-        # turn off UNK and ASKU for this field
-        useBlankInsteadOfUnknown: patient_race
       timing:
         operation: MERGE
         numberPerDay: 1 # Per day
