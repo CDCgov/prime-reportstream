@@ -1,10 +1,12 @@
 import { createContext, useContext, useState } from "react";
 
 /* INFO
-   Please use these rather than hard-coded strings when 
-   referencing localStorage to set, get, or remove items
-   associated with global context */
-export enum GLOBAL_STORAGE_KEYS {
+   Please use these rather than hard-coded strings when
+   referencing localStorage/sessionStorage to set, get, or remove items
+   associated with global context
+   These keys are
+   */
+enum GLOBAL_STORAGE_KEYS {
     GLOBAL_BASE = "global-context-",
     GLOBAL_ORG = "global-context-org",
 }
@@ -16,15 +18,32 @@ export enum GLOBAL_STORAGE_KEYS {
 */
 export const GlobalContext = createContext({
     state: {
-        organization:
-            localStorage.getItem(GLOBAL_STORAGE_KEYS.GLOBAL_ORG) || "",
+        organization: getStoredOrg() || "",
     },
     updateOrganization: (newOrganization: string): void => {
         /* Default placeholder function model */
+        setStoredOrg(newOrganization);
     },
 });
+
 export function useGlobalContext() {
     return useContext(GlobalContext);
+}
+
+export function clearGlobalContext(): void {
+    for (let key in sessionStorage) {
+        if (key.includes(GLOBAL_STORAGE_KEYS.GLOBAL_BASE)) {
+            sessionStorage.removeItem(key);
+        }
+    }
+}
+
+export function getStoredOrg(): string | undefined {
+    return sessionStorage.getItem(GLOBAL_STORAGE_KEYS.GLOBAL_ORG) || undefined;
+}
+
+export function setStoredOrg(org: string) {
+    sessionStorage.setItem(GLOBAL_STORAGE_KEYS.GLOBAL_ORG, org);
 }
 
 function GlobalContextProvider({
@@ -32,12 +51,10 @@ function GlobalContextProvider({
 }: {
     children: JSX.Element[];
 }): JSX.Element {
-    const [organization, setOrganization] = useState(
-        localStorage.getItem(GLOBAL_STORAGE_KEYS.GLOBAL_ORG) || ""
-    );
+    const [organization, setOrganization] = useState(getStoredOrg() || "");
 
     const updateOrganization = (newOrganization: string): void => {
-        localStorage.setItem(GLOBAL_STORAGE_KEYS.GLOBAL_ORG, newOrganization);
+        setStoredOrg(newOrganization);
         setOrganization(newOrganization);
         setContext({
             state: {
@@ -50,7 +67,7 @@ function GlobalContextProvider({
     /* INFO
        This is where we would add more functions like updateOrganiztion()
        if we wanted to have more update functions for future global context
-       values 
+       values
     */
 
     const [context, setContext] = useState({
