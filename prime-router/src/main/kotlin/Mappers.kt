@@ -257,14 +257,50 @@ class LookupMapper : Mapper {
         } else {
             val lookupTable = element.tableRef
                 ?: error("Schema Error: could not find table ${element.table}")
-            val indexValues = values.map {
+            val indexValues = mutableMapOf<String, String>()
+            values.forEach {
                 val indexColumn = it.element.tableColumn
                     ?: error("Schema Error: no tableColumn for element ${it.element.name}")
-                Pair(indexColumn, it.value)
+                indexValues.put(indexColumn, it.value)
             }
             val lookupColumn = element.tableColumn
                 ?: error("Schema Error: no tableColumn for element ${element.name}")
-            lookupTable.lookupValues(indexValues, lookupColumn)
+            lookupTable.FilterBuilder().equalsIgnoreCase(indexValues).findSingleResult(lookupColumn)
+        }
+    }
+}
+
+/**
+ * The LookupSenderValuesetsMapper is used to lookup values from the "sender_valuesets" table/csv
+ * The args for the mapper are:
+ *      args[0] --> lookupColumn = the primary lookup field (usually "sender_id")
+ *      args[1] --> questionColumn = the secondary lookup field, expected to be the element name (i.e. patient_gender)
+ * The mapper uses the above arguments + the question's answer to retrieve a row from the table
+ */
+class LookupSenderValuesetsMapper : Mapper {
+    override val name = "lookupSenderValuesets"
+
+    override fun valueNames(element: Element, args: List<String>): List<String> {
+        return args
+    }
+
+    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
+        return if (values.size != args.size) {
+            null
+        } else {
+            val lookupTable = element.tableRef
+                ?: error("Schema Error: could not find table ${element.table}")
+
+            val lookupColumn = args[0]
+            val lookupValue = values.find { it.element.name == lookupColumn }?.value ?: return null
+            val questionColumn = args[1]
+            val answer = values.find { it.element.name == questionColumn }?.value ?: return null
+
+            lookupTable.FilterBuilder()
+                .equalsIgnoreCase(lookupColumn, lookupValue)
+                .equalsIgnoreCase("element_name", element.name)
+                .equalsIgnoreCase("free_text_substring", answer)
+                .findSingleResult("result")
         }
     }
 }
@@ -466,7 +502,9 @@ class LIVDLookupMapper : Mapper {
                 ?: error("Schema Error: could not find table '${element.table}'")
             val lookupColumn = element.tableColumn
                 ?: error("Schema Error: no tableColumn for element '${element.name}'")
-            return lookupTable.lookupValue(onColumn, lookup, lookupColumn, filters)
+            val searchValues = mutableMapOf(onColumn to lookup)
+            searchValues.putAll(filters)
+            return lookupTable.FilterBuilder().equalsIgnoreCase(searchValues).findSingleResult(lookupColumn)
         }
 
         /**
@@ -488,7 +526,8 @@ class LIVDLookupMapper : Mapper {
                 ?: error("Schema Error: could not find table '${element.table}'")
             val lookupColumn = element.tableColumn
                 ?: error("Schema Error: no tableColumn for element '${element.name}'")
-            return lookupTable.lookupPrefixValue(onColumn, lookup, lookupColumn, filters)
+            return lookupTable.FilterBuilder().startsWithIgnoreCase(onColumn, lookup).equalsIgnoreCase(filters)
+                .findSingleResult(lookupColumn)
         }
     }
 }
@@ -516,8 +555,10 @@ class Obx17Mapper : Mapper {
                 ?: error("Schema Error: could not find table '${element.table}'")
             val indexColumn = indexElement.tableColumn
                 ?: error("Schema Error: no tableColumn for element '${indexElement.name}'")
-            val testKitNameId = lookupTable.lookupValue(indexColumn, indexValue, "Testkit Name ID")
-            val testKitNameIdType = lookupTable.lookupValue(indexColumn, indexValue, "Testkit Name ID Type")
+            val testKitNameId = lookupTable.FilterBuilder().equalsIgnoreCase(indexColumn, indexValue)
+                .findSingleResult("Testkit Name ID")
+            val testKitNameIdType = lookupTable.FilterBuilder().equalsIgnoreCase(indexColumn, indexValue)
+                .findSingleResult("Testkit Name ID Type")
             if (testKitNameId != null && testKitNameIdType != null) {
                 "${testKitNameId}_$testKitNameIdType"
             } else {
@@ -550,7 +591,9 @@ class Obx17TypeMapper : Mapper {
                 ?: error("Schema Error: could not find table '${element.table}'")
             val indexColumn = indexElement.tableColumn
                 ?: error("Schema Error: no tableColumn for element '${indexElement.name}'")
-            if (lookupTable.lookupValue(indexColumn, indexValue, "Testkit Name ID") != null) "99ELR" else null
+            if (lookupTable.FilterBuilder().equalsIgnoreCase(indexColumn, indexValue)
+                .findSingleResult("Testkit Name ID") != null
+            ) "99ELR" else null
         }
     }
 }
@@ -650,7 +693,7 @@ class DateTimeOffsetMapper : Mapper {
                 error("Invalid date: '$value' for element '${element.name}'")
             }
         }
-        return if (values.isEmpty() || values.size > 1 || values[0].value.isNullOrBlank()) {
+        return if (values.isEmpty() || values.size > 1 || values[0].value.isBlank()) {
             null
         } else {
             val unit = args[1]
@@ -799,7 +842,8 @@ class ZipCodeToCountyMapper : Mapper {
         } else {
             zipCode
         }
-        return table.lookupValue(indexColumn = "zipcode", indexValue = cleanedZip, "county")
+        return table.FilterBuilder().equalsIgnoreCase("zipcode", cleanedZip)
+            .findSingleResult("county")
     }
 }
 

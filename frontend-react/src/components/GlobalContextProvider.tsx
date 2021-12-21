@@ -22,6 +22,7 @@ export const GlobalContext = createContext({
     },
     updateOrganization: (newOrganization: string): void => {
         /* Default placeholder function model */
+        setStoredOrg(newOrganization);
     },
 });
 
@@ -41,6 +42,10 @@ export function getStoredOrg(): string | undefined {
     return sessionStorage.getItem(GLOBAL_STORAGE_KEYS.GLOBAL_ORG) || undefined;
 }
 
+export function setStoredOrg(org: string) {
+    sessionStorage.setItem(GLOBAL_STORAGE_KEYS.GLOBAL_ORG, org);
+}
+
 function GlobalContextProvider({
     children,
 }: {
@@ -49,7 +54,7 @@ function GlobalContextProvider({
     const [organization, setOrganization] = useState(getStoredOrg() || "");
 
     const updateOrganization = (newOrganization: string): void => {
-        sessionStorage.setItem(GLOBAL_STORAGE_KEYS.GLOBAL_ORG, newOrganization);
+        setStoredOrg(newOrganization);
         setOrganization(newOrganization);
         setContext({
             state: {
