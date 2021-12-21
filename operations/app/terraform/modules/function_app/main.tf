@@ -183,7 +183,7 @@ resource "azurerm_app_service_virtual_network_swift_connection" "function_app_vn
 // Done via a template due to a missing Terraform feature:
 // https://github.com/terraform-providers/terraform-provider-azurerm/issues/1440
 resource "azurerm_template_deployment" "functionapp_sticky_settings" {
-  name                = "functionapp_sticky_settings_2"
+  name                = "functionapp_sticky_settings"
   resource_group_name = var.resource_group
   deployment_mode     = "Incremental"
 
