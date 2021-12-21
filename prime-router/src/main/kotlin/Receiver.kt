@@ -136,7 +136,7 @@ open class Receiver(
             val initialSeconds = LocalTime.parse(initialTime).toSecondOfDay()
             val durationFromInitial = zonedNow.toLocalTime().toSecondOfDay() - initialSeconds
             val period = (24 * 60 * 60) / numberPerDay
-            val secondsSinceMostRecentPeriodEnd = ((durationFromInitial + (24 * 60 * 60)) % period) - period
+            val secondsSinceMostRecentPeriodEnd = ((durationFromInitial + (24 * 60 * 60) - 60) % period) - period
             return secondsSinceMostRecentPeriodEnd >= -60
         }
 
