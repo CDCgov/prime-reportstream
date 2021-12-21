@@ -722,7 +722,9 @@
         - matches(ordering_facility_state, OH)
         - matches(ordering_facility_county, Clark)
       translation:
-        type: HL7
+        schemaName: oh/oh-clark-covid-19-csv
+        format: CSV
+        type: "CUSTOM"
         useBatchHeaders: true
         suppressQstForAoe: true
         receivingApplicationName: OHDOH
@@ -740,6 +742,12 @@
         numberPerDay: 1 # Per day
         initialTime: 00:05
         timeZone: EASTERN
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
 
 - name: nm-doh
   description: New Mexico Department of Health
@@ -3090,3 +3098,9 @@
         numberPerDay: 1
         initialTime: 09:15 # A little after the 12am EASTERN reports from simple report
         timeZone: EASTERN
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
