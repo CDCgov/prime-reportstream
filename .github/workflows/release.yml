@@ -157,7 +157,7 @@ jobs:
   deploy_release_prod:
     name: "Deploy Release: PROD"
     needs:
-      - build_release
+#      - build_release
       - build_frontend_react_release
     if: github.ref == 'refs/heads/production'
     environment: prod
@@ -176,8 +176,8 @@ jobs:
           user-key: ${{ secrets.USER_KEY }}
           sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
 
-      - name: Deploy backend
-        uses: ./.github/actions/deploy-backend
+#      - name: Deploy backend
+#        uses: ./.github/actions/deploy-backend
 
       - name: Deploy frontend
         uses: ./.github/actions/deploy-frontend
