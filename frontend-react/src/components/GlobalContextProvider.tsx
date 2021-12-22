@@ -16,6 +16,9 @@ enum GLOBAL_STORAGE_KEYS {
    Updating this default context model will allow us to expand on our
    global context offerings. We could store all kinds of preferences
    in here!
+
+   A change to any of these will trigger components that depend on
+   them to re-render.
 */
 export const GlobalContext = createContext({
     state: {

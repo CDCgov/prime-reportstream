@@ -1,11 +1,11 @@
-import { Suspense } from "react";
+import { Suspense, useContext } from "react";
 import { Helmet } from "react-helmet";
 import { NetworkErrorBoundary, useResource } from "rest-hooks";
 import moment from "moment";
 
 import { useOrgName } from "../utils/OrganizationUtils";
 import SubmissionsResource from "../resources/SubmissionsResource";
-import { getStoredOrg } from "../components/GlobalContextProvider";
+import { GlobalContext } from "../components/GlobalContextProvider";
 
 import { ErrorPage } from "./error/ErrorPage";
 
@@ -19,9 +19,11 @@ const OrgName = () => {
 };
 
 function Submissions() {
+    // this component will refresh when global context changes (e.g. organization changes)
+    const globalState = useContext(GlobalContext);
     const submissions: SubmissionsResource[] = useResource(
         SubmissionsResource.list(),
-        { organization: getStoredOrg() }
+        { organization: globalState.state.organization }
     );
     return (
         <NetworkErrorBoundary
