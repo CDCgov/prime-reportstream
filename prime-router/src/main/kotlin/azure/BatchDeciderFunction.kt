@@ -42,11 +42,10 @@ class BatchDeciderFunction {
                         val recordsToBatch = db.fetchNumberOutstandingBatchRecords(rec.fullName, txn)
                         val queueMessages = ceil((recordsToBatch.toDouble() / rec.timing!!.maxReportCount.toDouble()))
                             .roundToInt()
-                        if (queueMessages > 0)
-                            context.logger.info(
-                                "Found $recordsToBatch for ${rec.fullName}," +
-                                    "max size ${rec.timing.maxReportCount}. Queueing $queueMessages messages to BATCH"
-                            )
+                        context.logger.info(
+                            "Found $recordsToBatch for ${rec.fullName}," +
+                                "max size ${rec.timing.maxReportCount}. Queueing $queueMessages messages to BATCH"
+                        )
 
                         repeat(queueMessages) {
                             // build 'batch' event

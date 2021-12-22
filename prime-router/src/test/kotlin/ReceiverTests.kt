@@ -47,12 +47,12 @@ internal class ReceiverTests {
         assertThat(timing.isValid()).isTrue()
 
         val evenMinute =
-            ZonedDateTime.of(2020, 10, 2, 0, 1, 30, 0, ZoneId.of("UTC")).toOffsetDateTime()
+            ZonedDateTime.of(2020, 10, 2, 0, 2, 30, 0, ZoneId.of("UTC")).toOffsetDateTime()
         val actual1 = timing.batchInPrevious60Seconds(evenMinute)
         assertThat(actual1).isTrue()
 
         val oddMinute =
-            ZonedDateTime.of(2020, 10, 2, 0, 0, 30, 0, ZoneId.of("UTC")).toOffsetDateTime()
+            ZonedDateTime.of(2020, 10, 2, 0, 3, 30, 0, ZoneId.of("UTC")).toOffsetDateTime()
         val actual2 = timing.batchInPrevious60Seconds(oddMinute)
         assertThat(actual2).isFalse()
     }
