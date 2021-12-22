@@ -168,7 +168,7 @@ class ReportFunction : Logging {
         actionHistory: ActionHistory
     ): HttpResponseMessage {
         // determine if we should be following the sync or async workflow
-        val isAsync = processingType(request, sender) == ProcessingType.Async
+        val isAsync = processingType(request, sender) == ProcessingType.async
         val errors: MutableList<ResultDetail> = mutableListOf()
         val warnings: MutableList<ResultDetail> = mutableListOf()
         // The following is identical to waters (for arch reasons)
@@ -282,14 +282,12 @@ class ReportFunction : Logging {
     }
 
     private fun processingType(request: HttpRequestMessage<String?>, sender: Sender): ProcessingType {
-        // uppercase first char, so it matches enum when 'async' is passed in
         val processingTypeString = request.queryParameters.get(PROCESSING_TYPE_PARAMETER)
-            ?.replaceFirstChar { it.uppercase() }
         return if (processingTypeString == null) {
             sender.processingType
         } else {
             try {
-                ProcessingType.valueOf(processingTypeString)
+                ProcessingType.valueOfIgnoreCase(processingTypeString)
             } catch (e: IllegalArgumentException) {
                 sender.processingType
             }

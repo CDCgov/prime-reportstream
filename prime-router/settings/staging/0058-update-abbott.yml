@@ -10,4 +10,4 @@
       customerStatus: active
       schemaName: direct/abbott-covid-19
       format: CSV
-      processingType: Async
+      processingType: async

@@ -17,7 +17,7 @@ open class Sender(
     val customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
     val schemaName: String,
     val keys: List<JwkSet>? = null, // used to track server-to-server auths for this Sender via public keys sets
-    val processingType: ProcessingType = ProcessingType.Sync
+    val processingType: ProcessingType = ProcessingType.sync
 ) {
     /**
      * Enumeration representing whether a submission will be processed follow the synchronous or asynchronous
@@ -25,8 +25,19 @@ open class Sender(
      * string value is 'async'
      */
     enum class ProcessingType {
-        Sync,
-        Async,
+        sync,
+        async;
+
+        companion object {
+            fun valueOfIgnoreCase(value: String): ProcessingType {
+                ProcessingType.values().forEach {
+                    if (it.name.equals(value, true)) {
+                        return it
+                    }
+                }
+                throw IllegalArgumentException()
+            }
+        }
     }
 
     constructor(copy: Sender) : this(
