@@ -5,12 +5,14 @@
   jurisdiction: COUNTY
   stateCode: OH
   countyName: Clark
+  filters:
+    - topic: "covid-19"
+      jurisdictionalFilter: [ "matches(ordering_facility_state, OH)", "matches(ordering_facility_county, Clark)" ]
   receivers:
     - name: elr-download
       organizationName: oh-ccchd-doh
       topic: covid-19
       customerStatus: testing
-      jurisdictionalFilter: [ "matches(ordering_facility_state, OH)", "matches(ordering_facility_county, Clark)" ]
       reverseTheQualityFilter: false
       translation:
         type: "CUSTOM"
