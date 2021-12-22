@@ -7,7 +7,7 @@ import {
 it("Setting/getting/clearing sessionStorage works", () => {
     const testvalue = Number(Date.now()).toString();
     clearGlobalContext();
-    expect(getStoredOrg()).toBeUndefined();
+    expect(getStoredOrg()).toBe("");
 
     setStoredOrg(testvalue);
     expect(getStoredOrg()).toBe(testvalue);
