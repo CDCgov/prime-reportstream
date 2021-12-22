@@ -2367,8 +2367,13 @@
       translation:
         type: HL7
         useBatchHeaders: true
+        suppressAoe: true
         suppressNonNPI: true
+        truncateHDNamespaceIds: true
         truncateHl7Fields: OBX-23-1
+        phoneNumberFormatting: "STANDARD"
+        useOrderingFacilityName: "STANDARD"
+        nameFormat: "STANDARD"
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
