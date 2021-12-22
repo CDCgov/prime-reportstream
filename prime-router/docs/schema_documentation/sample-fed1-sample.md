@@ -1,10 +1,16 @@
 
-### Schema:         sample/fed1-sample
-#### Description:   null
+### Schema: sample/fed1-sample
+### Topic: sample
+### Tracking Element: none
+### Base On: none
+### Extends: none
+#### Description: none
 
 ---
 
 **Name**: lab
+
+**ReportStream Internal Name**: lab
 
 **PII**: No
 
@@ -13,6 +19,8 @@
 ---
 
 **Name**: observation
+
+**ReportStream Internal Name**: observation
 
 **Type**: TEXT
 
@@ -24,6 +32,8 @@
 
 **Name**: specimen_id
 
+**ReportStream Internal Name**: specimen_id
+
 **Type**: ID
 
 **PII**: No
@@ -34,6 +44,8 @@
 
 **Name**: state
 
+**ReportStream Internal Name**: state
+
 **Type**: TEXT
 
 **PII**: No
@@ -43,6 +55,8 @@
 ---
 
 **Name**: test_time
+
+**ReportStream Internal Name**: test_time
 
 **Type**: DATE
 
