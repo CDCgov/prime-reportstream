@@ -213,6 +213,7 @@
       customerStatus: active
       schemaName: direct/abbott-covid-19
       format: CSV
+      processingType: async
 
 - name: lifepoint
   description: LifePoint (Ellume data)
