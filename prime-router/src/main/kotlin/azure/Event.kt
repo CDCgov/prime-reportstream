@@ -20,6 +20,8 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
 
     enum class EventAction {
         PROCESS, // for when a message goes into a queue to be processed
+        PROCESS_WARNING, // when an attempt at a process action fails, but will be retried
+        PROCESS_ERROR, // when an attempt at a process action fails permanently
         RECEIVE,
         TRANSLATE, // Deprecated
         BATCH,
@@ -35,6 +37,8 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
         fun toTaskAction(): TaskAction {
             return when (this) {
                 PROCESS -> TaskAction.process
+                PROCESS_WARNING -> TaskAction.process_warning
+                PROCESS_ERROR -> TaskAction.process_error
                 RECEIVE -> TaskAction.receive
                 TRANSLATE -> TaskAction.translate
                 BATCH -> TaskAction.batch
