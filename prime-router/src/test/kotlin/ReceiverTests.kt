@@ -67,11 +67,31 @@ internal class ReceiverTests {
         )
         assertThat(timing2.isValid()).isTrue()
 
+        // if runs at 1:59:59:999 SHOULD BE FALSE
+        val edgeCase1 =
+            ZonedDateTime.of(2020, 10, 2, 1, 59, 59, 999, ZoneId.of(USTimeZone.PACIFIC.zoneId)).toOffsetDateTime()
+        val edgeResult1 = timing2.batchInPrevious60Seconds(edgeCase1)
+        assertThat(edgeResult1).isFalse()
+
+        // if runs at 2:00:00:000 SHOULD BE TRUE
         val twoAm =
             ZonedDateTime.of(2020, 10, 2, 2, 0, 0, 0, ZoneId.of(USTimeZone.PACIFIC.zoneId)).toOffsetDateTime()
         val actual3 = timing2.batchInPrevious60Seconds(twoAm)
         assertThat(actual3).isTrue()
 
+        // if runs at 2:00:59:999 SHOULD BE TRUE
+        val edgeCase2 =
+            ZonedDateTime.of(2020, 10, 2, 2, 0, 59, 999, ZoneId.of(USTimeZone.PACIFIC.zoneId)).toOffsetDateTime()
+        val edgeResult2 = timing2.batchInPrevious60Seconds(edgeCase2)
+        assertThat(edgeResult2).isTrue()
+
+        // if runs at 2:01:00:000 SHOULD BE FAlSE
+        val edgeCase3 =
+            ZonedDateTime.of(2020, 10, 2, 2, 1, 0, 0, ZoneId.of(USTimeZone.PACIFIC.zoneId)).toOffsetDateTime()
+        val edgeResult3 = timing2.batchInPrevious60Seconds(edgeCase3)
+        assertThat(edgeResult3).isFalse()
+
+        // some false cases
         val notTwoAmOne =
             ZonedDateTime.of(2020, 10, 2, 2, 5, 30, 0, ZoneId.of(USTimeZone.PACIFIC.zoneId)).toOffsetDateTime()
         val actual4 = timing2.batchInPrevious60Seconds(notTwoAmOne)
