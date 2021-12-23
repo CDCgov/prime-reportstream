@@ -1,4 +1,4 @@
-# ./prime multiple-settings set --env staging --input ./settings/staging/0058-setup-clark-county-oh.yml
+# ./prime multiple-settings set --env staging --input ./settings/staging/0058-update-clark-county-oh-doh.yml
 ---
 - name: oh-ccchd-doh
   description: Ohio Department of Health - Clark County
@@ -12,7 +12,7 @@
     - name: elr-download
       organizationName: oh-ccchd-doh
       topic: covid-19
-      customerStatus: testing
+      customerStatus: active
       reverseTheQualityFilter: false
       translation:
         type: "CUSTOM"
