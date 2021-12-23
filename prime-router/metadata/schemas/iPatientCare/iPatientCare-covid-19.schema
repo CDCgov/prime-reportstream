@@ -47,6 +47,7 @@ elements:
       csvFields: [{name: Patient ZipCode}]
 
     - name: patient_county
+      cardinality: ZERO_OR_ONE
       type: TABLE
       table: zip-code-data
       tableColumn: county
