@@ -6,6 +6,16 @@
   stateCode: "NJ"
   countyName: null
   senders: []
+  filters:
+    - topic: "covid-19"
+      jurisdictionalFilter:
+        - "orEquals(ordering_facility_state, NJ, patient_state, NJ)"
+        - "matches(processing_mode_code, P)"
+      qualityFilter:
+        - "hasAtLeastOneOf(order_test_date,specimen_collection_date_time,test_result_date)"
+        - "hasAtLeastOneOf(patient_street,patient_zip_code,patient_phone_number,patient_email)"
+        - "hasValidDataFor(message_id,equipment_model_name,specimen_type,test_result,patient_last_name,patient_first_name,patient_dob,ordering_provider_id,ordering_facility_name)"
+        - "isValidCLIA(testing_lab_clia)"
   receivers:
   - name: "elr"
     organizationName: "nj-doh"

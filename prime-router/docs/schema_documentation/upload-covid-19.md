@@ -1,10 +1,16 @@
 
-### Schema:         upload-covid-19
-#### Description:   Schema for CSV Upload Tool
+### Schema: upload-covid-19
+### Topic: covid-19
+### Tracking Element: testId (message_id)
+### Base On: [covid-19](./covid-19.md)
+### Extends: none
+#### Description: Schema for CSV Upload Tool
 
 ---
 
 **Name**: healthcareEmployee
+
+**ReportStream Internal Name**: employed_in_healthcare
 
 **Type**: CODE
 
@@ -32,6 +38,8 @@ AOE - Is the patient employed in a healthcare setting?
 
 **Name**: deviceName
 
+**ReportStream Internal Name**: equipment_model_name
+
 **Type**: TABLE
 
 **PII**: No
@@ -52,27 +60,9 @@ Must match a value from LIVD column B, "Model". eg,  "BD Veritor System for Rapi
 
 ---
 
-**Name**: filler_order_id
-
-**Type**: ID
-
-**PII**: No
-
-**HL7 Fields**
-
-- [OBR-3-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.3.1)
-- [ORC-3-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.3.1)
-- [SPM-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2)
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-User does not need to include this column; we'll populate it.
-
----
-
 **Name**: firstTest
+
+**ReportStream Internal Name**: first_test
 
 **Type**: CODE
 
@@ -100,6 +90,8 @@ AOE - Is this the patient's first test for COVID-19
 
 **Name**: hospitalized
 
+**ReportStream Internal Name**: hospitalized
+
 **Type**: CODE
 
 **PII**: No
@@ -125,6 +117,8 @@ AOE - Was the patient hospitalized because of COVID-19?
 ---
 
 **Name**: admittedToIcu
+
+**ReportStream Internal Name**: icu
 
 **Type**: CODE
 
@@ -152,6 +146,8 @@ AOE - Was the patient admitted to the intensive care unit for COVID-19?
 
 **Name**: symptomOnsetDate
 
+**ReportStream Internal Name**: illness_onset_date
+
 **Type**: DATE
 
 **PII**: No
@@ -168,6 +164,8 @@ AOE - Date of symptom onset
 
 **Name**: testId
 
+**ReportStream Internal Name**: message_id
+
 **Type**: ID
 
 **PII**: No
@@ -182,6 +180,8 @@ Required. A unique id for this submission of data.  Do not re-use when correctin
 
 **Name**: testOrderedDate
 
+**ReportStream Internal Name**: order_test_date
+
 **Type**: DATETIME
 
 **PII**: No
@@ -195,6 +195,8 @@ eg, 20210108
 ---
 
 **Name**: testOrdered
+
+**ReportStream Internal Name**: ordered_test_code
 
 **Type**: TABLE
 
@@ -214,6 +216,8 @@ Leave this blank and we'll fill it in automatically.
 
 **Name**: orderingFacilityCity
 
+**ReportStream Internal Name**: ordering_facility_city
+
 **Type**: CITY
 
 **PII**: No
@@ -227,6 +231,8 @@ The city of the facility which the test was ordered from
 ---
 
 **Name**: orderingFacilityCounty
+
+**ReportStream Internal Name**: ordering_facility_county
 
 **Type**: TABLE
 
@@ -242,6 +248,8 @@ The city of the facility which the test was ordered from
 
 **Name**: orderingFacilityEmail
 
+**ReportStream Internal Name**: ordering_facility_email
+
 **Type**: EMAIL
 
 **PII**: No
@@ -251,6 +259,8 @@ The city of the facility which the test was ordered from
 ---
 
 **Name**: orderingFacilityName
+
+**ReportStream Internal Name**: ordering_facility_name
 
 **Type**: TEXT
 
@@ -266,6 +276,8 @@ The name of the facility which the test was ordered from
 
 **Name**: orderingFacilityPhone
 
+**ReportStream Internal Name**: ordering_facility_phone_number
+
 **Type**: TELEPHONE
 
 **PII**: No
@@ -279,6 +291,8 @@ The phone number of the facility which the test was ordered from
 ---
 
 **Name**: orderingFacilityState
+
+**ReportStream Internal Name**: ordering_facility_state
 
 **Type**: TABLE
 
@@ -298,6 +312,8 @@ Note that many states expect this field to be available, or ReportStream is not 
 
 **Name**: orderingFacilityStreet
 
+**ReportStream Internal Name**: ordering_facility_street
+
 **Type**: STREET
 
 **PII**: No
@@ -311,6 +327,8 @@ The address of the facility which the test was ordered from
 ---
 
 **Name**: orderingFacilityStreet2
+
+**ReportStream Internal Name**: ordering_facility_street2
 
 **Type**: STREET_OR_BLANK
 
@@ -326,6 +344,8 @@ The secondary address of the facility which the test was ordered from
 
 **Name**: orderingFacilityZip
 
+**ReportStream Internal Name**: ordering_facility_zip_code
+
 **Type**: POSTAL_CODE
 
 **PII**: No
@@ -340,6 +360,8 @@ The zip code of the facility which the test was ordered from
 
 **Name**: orderingProviderCity
 
+**ReportStream Internal Name**: ordering_provider_city
+
 **Type**: CITY
 
 **PII**: Yes
@@ -353,6 +375,8 @@ The city of the provider
 ---
 
 **Name**: orderingProviderFname
+
+**ReportStream Internal Name**: ordering_provider_first_name
 
 **Type**: PERSON_NAME
 
@@ -373,6 +397,8 @@ The first name of the provider who ordered the test
 
 **Name**: orderingProviderNpi
 
+**ReportStream Internal Name**: ordering_provider_id
+
 **Type**: ID_NPI
 
 **PII**: No
@@ -391,6 +417,8 @@ eg, "1265050918"
 ---
 
 **Name**: orderingProviderLname
+
+**ReportStream Internal Name**: ordering_provider_last_name
 
 **Type**: PERSON_NAME
 
@@ -411,6 +439,8 @@ The last name of provider who ordered the test
 
 **Name**: orderingProviderPhone
 
+**ReportStream Internal Name**: ordering_provider_phone_number
+
 **Type**: TELEPHONE
 
 **PII**: Yes
@@ -430,6 +460,8 @@ The phone number of the provider
 
 **Name**: orderingProviderState
 
+**ReportStream Internal Name**: ordering_provider_state
+
 **Type**: TABLE
 
 **PII**: No
@@ -448,6 +480,8 @@ The state of the provider
 
 **Name**: orderingProviderAddress
 
+**ReportStream Internal Name**: ordering_provider_street
+
 **Type**: STREET
 
 **PII**: Yes
@@ -461,6 +495,8 @@ The street address of the provider
 ---
 
 **Name**: orderingProviderAddress2
+
+**ReportStream Internal Name**: ordering_provider_street2
 
 **Type**: STREET_OR_BLANK
 
@@ -476,6 +512,8 @@ The street second address of the provider
 
 **Name**: orderingProviderZip
 
+**ReportStream Internal Name**: ordering_provider_zip_code
+
 **Type**: POSTAL_CODE
 
 **PII**: No
@@ -490,6 +528,8 @@ The zip code of the provider
 
 **Name**: patientAge
 
+**ReportStream Internal Name**: patient_age
+
 **Type**: NUMBER
 
 **PII**: No
@@ -501,6 +541,8 @@ The zip code of the provider
 ---
 
 **Name**: patientAgeUnits
+
+**ReportStream Internal Name**: patient_age_units
 
 **Type**: CODE
 
@@ -527,6 +569,8 @@ User does not need to include this column.  Default to 'yr' if not specified.
 
 **Name**: patientCity
 
+**ReportStream Internal Name**: patient_city
+
 **Type**: CITY
 
 **PII**: Yes
@@ -541,6 +585,8 @@ The patient's city
 
 **Name**: patientCounty
 
+**ReportStream Internal Name**: patient_county
+
 **Type**: TABLE_OR_BLANK
 
 **PII**: No
@@ -554,6 +600,8 @@ The patient's city
 ---
 
 **Name**: patientDob
+
+**ReportStream Internal Name**: patient_dob
 
 **Type**: DATE
 
@@ -572,6 +620,8 @@ Other states may choose to define their own formats.
 
 **Name**: patientEmail
 
+**ReportStream Internal Name**: patient_email
+
 **Type**: EMAIL
 
 **PII**: Yes
@@ -581,6 +631,8 @@ Other states may choose to define their own formats.
 ---
 
 **Name**: patientEthnicity
+
+**ReportStream Internal Name**: patient_ethnicity
 
 **Type**: CODE
 
@@ -619,6 +671,8 @@ Use the required HHS values. (2135-2, 2186-5, UNK, ASKU)
 
 **Name**: patientNameFirst
 
+**ReportStream Internal Name**: patient_first_name
+
 **Type**: PERSON_NAME
 
 **PII**: Yes
@@ -632,6 +686,8 @@ Required
 ---
 
 **Name**: patientSex
+
+**ReportStream Internal Name**: patient_gender
 
 **Type**: CODE
 
@@ -661,6 +717,8 @@ The patient's gender. There is a valueset defined based on the values in PID-8-1
 
 **Name**: patientUniqueId
 
+**ReportStream Internal Name**: patient_id
+
 **Type**: TEXT
 
 **PII**: Yes
@@ -675,23 +733,9 @@ the patient ID from the testing lab, the oder placer, the ordering provider, or 
 
 ---
 
-**Name**: patient_id_type
-
-**Type**: TEXT
-
-**PII**: No
-
-**Default Value**: PI
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-User does not need to include this column.
-
----
-
 **Name**: patientNameLast
+
+**ReportStream Internal Name**: patient_last_name
 
 **Type**: PERSON_NAME
 
@@ -707,6 +751,8 @@ Required
 
 **Name**: patientNameMiddle
 
+**ReportStream Internal Name**: patient_middle_name
+
 **Type**: PERSON_NAME
 
 **PII**: Yes
@@ -716,6 +762,8 @@ Required
 ---
 
 **Name**: patientPhone
+
+**ReportStream Internal Name**: patient_phone_number
 
 **Type**: TELEPHONE
 
@@ -730,6 +778,8 @@ The patient's phone number with area code
 ---
 
 **Name**: patientRace
+
+**ReportStream Internal Name**: patient_race
 
 **Type**: CODE
 
@@ -761,6 +811,8 @@ The patient's race. There is a common valueset defined for race values, but some
 
 **Name**: patientState
 
+**ReportStream Internal Name**: patient_state
+
 **Type**: TABLE
 
 **PII**: No
@@ -779,6 +831,8 @@ Required. Extremely important field for routing data to states.
 
 **Name**: patientHomeAddress
 
+**ReportStream Internal Name**: patient_street
+
 **Type**: STREET
 
 **PII**: Yes
@@ -792,6 +846,8 @@ The patient's street address
 ---
 
 **Name**: patientHomeAddress2
+
+**ReportStream Internal Name**: patient_street2
 
 **Type**: STREET_OR_BLANK
 
@@ -807,6 +863,8 @@ The patient's second address line
 
 **Name**: patientZip
 
+**ReportStream Internal Name**: patient_zip_code
+
 **Type**: POSTAL_CODE
 
 **PII**: No
@@ -819,26 +877,9 @@ The patient's zip code
 
 ---
 
-**Name**: placer_order_id
-
-**Type**: ID
-
-**PII**: No
-
-**HL7 Fields**
-
-- [OBR-2-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.2.1)
-- [ORC-2-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.2.1)
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-User does not need to include this column; we'll populate it.
-
----
-
 **Name**: pregnant
+
+**ReportStream Internal Name**: pregnant
 
 **Type**: CODE
 
@@ -866,6 +907,8 @@ AOE - Is the patient pregnant? Use 77386006 for Pregnant, 60001007 for Not Pregn
 
 **Name**: correctedTestId
 
+**ReportStream Internal Name**: previous_message_id
+
 **Type**: ID
 
 **PII**: No
@@ -879,6 +922,8 @@ pointer/link to the unique id of a previously submitted result.  Usually blank. 
 ---
 
 **Name**: processingModeCode
+
+**ReportStream Internal Name**: processing_mode_code
 
 **Type**: CODE
 
@@ -904,51 +949,9 @@ User does not need to include this column, and we'll default to 'P'
 
 ---
 
-**Name**: reporting_facility_clia
-
-**Type**: ID_CLIA
-
-**PII**: No
-
-**HL7 Fields**
-
-- [MSH-4-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/MSH.4.2)
-- [PID-3-4-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4.2)
-- [PID-3-6-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.6.2)
-- [SPM-2-1-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.1.3)
-- [SPM-2-2-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2.3)
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The reporting facility's CLIA
-
----
-
-**Name**: reporting_facility_name
-
-**Type**: TEXT
-
-**PII**: No
-
-**HL7 Fields**
-
-- [MSH-4-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/MSH.4.1)
-- [PID-3-4-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4.1)
-- [PID-3-6-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.6.1)
-- [SPM-2-1-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.1.2)
-- [SPM-2-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2.2)
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The reporting facility's name
-
----
-
 **Name**: congregateResident
+
+**ReportStream Internal Name**: resident_congregate_setting
 
 **Type**: CODE
 
@@ -976,6 +979,8 @@ AOE - Does the patient reside in a congregate care setting?
 
 **Name**: senderId
 
+**ReportStream Internal Name**: sender_id
+
 **Type**: TEXT
 
 **PII**: No
@@ -991,6 +996,8 @@ Required. User should place their sender organization name in this field.
 ---
 
 **Name**: specimenCollectedDate
+
+**ReportStream Internal Name**: specimen_collection_date_time
 
 **Type**: DATETIME
 
@@ -1013,6 +1020,8 @@ eg, 20210113
 
 **Name**: specimenId
 
+**ReportStream Internal Name**: specimen_id
+
 **Type**: EI
 
 **PII**: No
@@ -1034,6 +1043,8 @@ User does not need to include this column.  We'll copy the value from the testId
 ---
 
 **Name**: specimenSource
+
+**ReportStream Internal Name**: specimen_type
 
 **Type**: CODE
 
@@ -1073,6 +1084,8 @@ The specimen source, such as Blood or Serum
 
 **Name**: symptomatic
 
+**ReportStream Internal Name**: symptomatic_for_disease
+
 **Type**: CODE
 
 **PII**: No
@@ -1097,79 +1110,9 @@ AOE - Does the patient have symptoms related to COVID-19?
 
 ---
 
-**Name**: test_authorized_for_home
-
-**Type**: TABLE
-
-**PII**: No
-
-**Default Value**: N
-
-**Cardinality**: [0..1]
-
-
-**Reference URL**:
-[https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
-
-**Table**: LIVD-Supplemental-2021-06-07
-
-**Table Column**: is_home
-
-**Documentation**:
-
-Is the test authorized for home use by the FDA (Y, N, UNK)
-
----
-
-**Name**: test_authorized_for_otc
-
-**Type**: TABLE
-
-**PII**: No
-
-**Default Value**: N
-
-**Cardinality**: [0..1]
-
-
-**Reference URL**:
-[https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
-
-**Table**: LIVD-Supplemental-2021-06-07
-
-**Table Column**: is_otc
-
-**Documentation**:
-
-Is the test authorized for over-the-counter purchase by the FDA (Y, N, UNK)
-
----
-
-**Name**: test_authorized_for_unproctored
-
-**Type**: TABLE
-
-**PII**: No
-
-**Default Value**: N
-
-**Cardinality**: [0..1]
-
-
-**Reference URL**:
-[https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
-
-**Table**: LIVD-Supplemental-2021-06-07
-
-**Table Column**: is_unproctored
-
-**Documentation**:
-
-Is the test authorized for unproctored administration by the FDA (Y, N, UNK)
-
----
-
 **Name**: deviceIdentifier
+
+**ReportStream Internal Name**: test_kit_name_id
 
 **Type**: TABLE
 
@@ -1193,6 +1136,8 @@ Required; we'll fill in if blank.  If filled in, must match a value from LIVD co
 
 **Name**: testPerformed
 
+**ReportStream Internal Name**: test_performed_code
+
 **Type**: TABLE
 
 **PII**: No
@@ -1210,6 +1155,8 @@ User does not need to include this column.  It'll get filled in automatically.
 ---
 
 **Name**: testResult
+
+**ReportStream Internal Name**: test_result
 
 **Type**: CODE
 
@@ -1252,6 +1199,8 @@ Specify a code.  For example, 260373001
 
 **Name**: testResultDate
 
+**ReportStream Internal Name**: test_result_date
+
 **Type**: DATETIME
 
 **PII**: No
@@ -1265,6 +1214,8 @@ eg, 20210111
 ---
 
 **Name**: testResultStatus
+
+**ReportStream Internal Name**: test_result_status
 
 **Type**: CODE
 
@@ -1307,6 +1258,8 @@ User does not need to include this column.  It'll get filled in automatically
 
 **Name**: performingFacilityCity
 
+**ReportStream Internal Name**: testing_lab_city
+
 **Type**: CITY
 
 **PII**: No
@@ -1320,6 +1273,8 @@ The city of the testing lab
 ---
 
 **Name**: performingFacilityClia
+
+**ReportStream Internal Name**: testing_lab_clia
 
 **Type**: ID_CLIA
 
@@ -1344,6 +1299,8 @@ Expecting a CLIA number here.  eg, "10D2218834"
 
 **Name**: performingFacilityCounty
 
+**ReportStream Internal Name**: testing_lab_county
+
 **Type**: TABLE
 
 **PII**: No
@@ -1361,6 +1318,8 @@ The text value for the testing lab county. This is used to do the lookup in the 
 ---
 
 **Name**: performingFacilityName
+
+**ReportStream Internal Name**: testing_lab_name
 
 **Type**: TEXT
 
@@ -1386,6 +1345,8 @@ The name of the laboratory which performed the test, can be the same as the send
 
 **Name**: performingFacilityPhone
 
+**ReportStream Internal Name**: testing_lab_phone_number
+
 **Type**: TELEPHONE
 
 **PII**: No
@@ -1400,6 +1361,8 @@ The phone number of the testing lab
 
 **Name**: specimenReceivedDate
 
+**ReportStream Internal Name**: testing_lab_specimen_received_datetime
+
 **Type**: DATETIME
 
 **PII**: No
@@ -1413,6 +1376,8 @@ Optional. User does not need to include this column - We'll fill it in from the 
 ---
 
 **Name**: performingFacilityState
+
+**ReportStream Internal Name**: testing_lab_state
 
 **Type**: TABLE
 
@@ -1432,6 +1397,8 @@ The state for the testing lab
 
 **Name**: performingFacilityStreet
 
+**ReportStream Internal Name**: testing_lab_street
+
 **Type**: STREET
 
 **PII**: No
@@ -1445,6 +1412,8 @@ The street address for the testing lab
 ---
 
 **Name**: performingFacilityStreet2
+
+**ReportStream Internal Name**: testing_lab_street2
 
 **Type**: STREET_OR_BLANK
 
@@ -1460,6 +1429,8 @@ Street 2 field for the testing lab
 
 **Name**: performingFacilityZip
 
+**ReportStream Internal Name**: testing_lab_zip_code
+
 **Type**: POSTAL_CODE
 
 **PII**: No
@@ -1469,5 +1440,192 @@ Street 2 field for the testing lab
 **Documentation**:
 
 The postal code for the testing lab
+
+---
+
+**Name**: filler_order_id
+
+**ReportStream Internal Name**: filler_order_id
+
+**Type**: ID
+
+**PII**: No
+
+**HL7 Fields**
+
+- [OBR-3-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.3.1)
+- [ORC-3-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.3.1)
+- [SPM-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2)
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+User does not need to include this column; we'll populate it.
+
+---
+
+**Name**: patient_id_type
+
+**ReportStream Internal Name**: patient_id_type
+
+**Type**: TEXT
+
+**PII**: No
+
+**Default Value**: PI
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+User does not need to include this column.
+
+---
+
+**Name**: placer_order_id
+
+**ReportStream Internal Name**: placer_order_id
+
+**Type**: ID
+
+**PII**: No
+
+**HL7 Fields**
+
+- [OBR-2-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.2.1)
+- [ORC-2-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.2.1)
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+User does not need to include this column; we'll populate it.
+
+---
+
+**Name**: reporting_facility_clia
+
+**ReportStream Internal Name**: reporting_facility_clia
+
+**Type**: ID_CLIA
+
+**PII**: No
+
+**HL7 Fields**
+
+- [MSH-4-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/MSH.4.2)
+- [PID-3-4-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4.2)
+- [PID-3-6-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.6.2)
+- [SPM-2-1-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.1.3)
+- [SPM-2-2-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2.3)
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The reporting facility's CLIA
+
+---
+
+**Name**: reporting_facility_name
+
+**ReportStream Internal Name**: reporting_facility_name
+
+**Type**: TEXT
+
+**PII**: No
+
+**HL7 Fields**
+
+- [MSH-4-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/MSH.4.1)
+- [PID-3-4-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4.1)
+- [PID-3-6-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.6.1)
+- [SPM-2-1-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.1.2)
+- [SPM-2-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2.2)
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The reporting facility's name
+
+---
+
+**Name**: test_authorized_for_home
+
+**ReportStream Internal Name**: test_authorized_for_home
+
+**Type**: TABLE
+
+**PII**: No
+
+**Default Value**: N
+
+**Cardinality**: [0..1]
+
+
+**Reference URL**:
+[https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
+
+**Table**: LIVD-Supplemental-2021-06-07
+
+**Table Column**: is_home
+
+**Documentation**:
+
+Is the test authorized for home use by the FDA (Y, N, UNK)
+
+---
+
+**Name**: test_authorized_for_otc
+
+**ReportStream Internal Name**: test_authorized_for_otc
+
+**Type**: TABLE
+
+**PII**: No
+
+**Default Value**: N
+
+**Cardinality**: [0..1]
+
+
+**Reference URL**:
+[https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
+
+**Table**: LIVD-Supplemental-2021-06-07
+
+**Table Column**: is_otc
+
+**Documentation**:
+
+Is the test authorized for over-the-counter purchase by the FDA (Y, N, UNK)
+
+---
+
+**Name**: test_authorized_for_unproctored
+
+**ReportStream Internal Name**: test_authorized_for_unproctored
+
+**Type**: TABLE
+
+**PII**: No
+
+**Default Value**: N
+
+**Cardinality**: [0..1]
+
+
+**Reference URL**:
+[https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
+
+**Table**: LIVD-Supplemental-2021-06-07
+
+**Table Column**: is_unproctored
+
+**Documentation**:
+
+Is the test authorized for unproctored administration by the FDA (Y, N, UNK)
 
 ---
