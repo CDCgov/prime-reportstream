@@ -1,61 +1,16 @@
 
-### Schema:         primedatainput/pdi-covid-19
-#### Description:   SimpleReport COVID-19 flat file
-
----
-
-**Name**: abnormal_flag
-
-**Type**: CODE
-
-**PII**: No
-
-**Format**: use value found in the Code column
-
-**Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display
----- | -------
-A|Abnormal (applies to non-numeric results)
-&#62;|Above absolute high-off instrument scale
-H|Above high normal
-HH|Above upper panic limits
-AC|Anti-complementary substances present
-<|Below absolute low-off instrument scale
-L|Below low normal
-LL|Below lower panic limits
-B|Better--use when direction not relevant
-TOX|Cytotoxic substance present
-DET|Detected
-IND|Indeterminate
-I|Intermediate. Indicates for microbiology susceptibilities only.
-MS|Moderately susceptible. Indicates for microbiology susceptibilities only.
-NEG|Negative
-null|No range defined, or normal ranges don't apply
-NR|Non-reactive
-N|Normal (applies to non-numeric results)
-ND|Not Detected
-POS|Positive
-QCF|Quality Control Failure
-RR|Reactive
-R|Resistant. Indicates for microbiology susceptibilities only.
-D|Significant change down
-U|Significant change up
-S|Susceptible. Indicates for microbiology susceptibilities only.
-AA|Very abnormal (applies to non-numeric units, analogous to panic limits for numeric units)
-VS|Very susceptible. Indicates for microbiology susceptibilities only.
-WR|Weakly reactive
-W|Worse--use when direction not relevant
-
-**Documentation**:
-
-This field is generated based on the normalcy status of the result. A = abnormal; N = normal
+### Schema: primedatainput/pdi-covid-19
+### Topic: covid-19
+### Tracking Element: Result_ID (message_id)
+### Base On: [covid-19](./covid-19.md)
+### Extends: none
+#### Description: SimpleReport COVID-19 flat file
 
 ---
 
 **Name**: Date_result_released
+
+**ReportStream Internal Name**: date_result_released
 
 **Type**: DATETIME
 
@@ -68,6 +23,8 @@ This field is generated based on the normalcy status of the result. A = abnormal
 ---
 
 **Name**: Employed_in_healthcare
+
+**ReportStream Internal Name**: employed_in_healthcare
 
 **Type**: CODE
 
@@ -95,6 +52,8 @@ Is the patient employed in health care?
 
 **Name**: Instrument_ID
 
+**ReportStream Internal Name**: equipment_instance_id
+
 **Type**: ID
 
 **PII**: No
@@ -104,6 +63,8 @@ Is the patient employed in health care?
 ---
 
 **Name**: Device_ID
+
+**ReportStream Internal Name**: equipment_model_name
 
 **Type**: TABLE
 
@@ -121,27 +82,9 @@ Is the patient employed in health care?
 
 ---
 
-**Name**: filler_order_id
-
-**Type**: ID
-
-**PII**: No
-
-**HL7 Fields**
-
-- [OBR-3-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.3.1)
-- [ORC-3-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.3.1)
-- [SPM-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2)
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-Accension number
-
----
-
 **Name**: First_test
+
+**ReportStream Internal Name**: first_test
 
 **Type**: CODE
 
@@ -169,6 +112,8 @@ Is this the patient's first test for this condition?
 
 **Name**: Illness_onset_date
 
+**ReportStream Internal Name**: illness_onset_date
+
 **Type**: DATE
 
 **PII**: No
@@ -180,6 +125,8 @@ Is this the patient's first test for this condition?
 ---
 
 **Name**: Result_ID
+
+**ReportStream Internal Name**: message_id
 
 **Type**: ID
 
@@ -195,6 +142,8 @@ unique id to track the usage of the message
 
 **Name**: Order_test_date
 
+**ReportStream Internal Name**: order_test_date
+
 **Type**: DATETIME
 
 **PII**: No
@@ -204,6 +153,8 @@ unique id to track the usage of the message
 ---
 
 **Name**: Ordering_facility_city
+
+**ReportStream Internal Name**: ordering_facility_city
 
 **Type**: CITY
 
@@ -219,6 +170,8 @@ The city of the facility which the test was ordered from
 
 **Name**: Ordering_facility_county
 
+**ReportStream Internal Name**: ordering_facility_county
+
 **Type**: TABLE
 
 **PII**: No
@@ -233,6 +186,8 @@ The city of the facility which the test was ordered from
 
 **Name**: Ordering_facility_email
 
+**ReportStream Internal Name**: ordering_facility_email
+
 **Type**: EMAIL
 
 **PII**: No
@@ -242,6 +197,8 @@ The city of the facility which the test was ordered from
 ---
 
 **Name**: Ordering_facility_name
+
+**ReportStream Internal Name**: ordering_facility_name
 
 **Type**: TEXT
 
@@ -257,6 +214,8 @@ The name of the facility which the test was ordered from
 
 **Name**: Ordering_facility_phone_number
 
+**ReportStream Internal Name**: ordering_facility_phone_number
+
 **Type**: TELEPHONE
 
 **PII**: No
@@ -270,6 +229,8 @@ The phone number of the facility which the test was ordered from
 ---
 
 **Name**: Ordering_facility_state
+
+**ReportStream Internal Name**: ordering_facility_state
 
 **Type**: TABLE
 
@@ -289,6 +250,8 @@ The state of the facility which the test was ordered from
 
 **Name**: Ordering_facility_street
 
+**ReportStream Internal Name**: ordering_facility_street
+
 **Type**: STREET
 
 **PII**: No
@@ -302,6 +265,8 @@ The address of the facility which the test was ordered from
 ---
 
 **Name**: Ordering_facility_street_2
+
+**ReportStream Internal Name**: ordering_facility_street2
 
 **Type**: STREET_OR_BLANK
 
@@ -317,6 +282,8 @@ The secondary address of the facility which the test was ordered from
 
 **Name**: Ordering_facility_zip_code
 
+**ReportStream Internal Name**: ordering_facility_zip_code
+
 **Type**: POSTAL_CODE
 
 **PII**: No
@@ -330,6 +297,8 @@ The zip code of the facility which the test was ordered from
 ---
 
 **Name**: Ordering_provider_city
+
+**ReportStream Internal Name**: ordering_provider_city
 
 **Type**: CITY
 
@@ -345,6 +314,8 @@ The city of the provider
 
 **Name**: Ordering_provider_county
 
+**ReportStream Internal Name**: ordering_provider_county
+
 **Type**: TABLE
 
 **PII**: No
@@ -358,6 +329,8 @@ The city of the provider
 ---
 
 **Name**: Ordering_provider_first_name
+
+**ReportStream Internal Name**: ordering_provider_first_name
 
 **Type**: PERSON_NAME
 
@@ -378,6 +351,8 @@ The first name of the provider who ordered the test
 
 **Name**: Ordering_provider_ID
 
+**ReportStream Internal Name**: ordering_provider_id
+
 **Type**: ID_NPI
 
 **PII**: No
@@ -396,6 +371,8 @@ The ordering provider’s National Provider Identifier
 ---
 
 **Name**: Ordering_provider_last_name
+
+**ReportStream Internal Name**: ordering_provider_last_name
 
 **Type**: PERSON_NAME
 
@@ -416,6 +393,8 @@ The last name of provider who ordered the test
 
 **Name**: Ordering_provider_phone_number
 
+**ReportStream Internal Name**: ordering_provider_phone_number
+
 **Type**: TELEPHONE
 
 **PII**: Yes
@@ -435,6 +414,8 @@ The phone number of the provider
 
 **Name**: Ordering_provider_state
 
+**ReportStream Internal Name**: ordering_provider_state
+
 **Type**: TABLE
 
 **PII**: No
@@ -453,6 +434,8 @@ The state of the provider
 
 **Name**: Ordering_provider_street
 
+**ReportStream Internal Name**: ordering_provider_street
+
 **Type**: STREET
 
 **PII**: Yes
@@ -466,6 +449,8 @@ The street address of the provider
 ---
 
 **Name**: Ordering_provider_street_2
+
+**ReportStream Internal Name**: ordering_provider_street2
 
 **Type**: STREET_OR_BLANK
 
@@ -481,6 +466,8 @@ The street second address of the provider
 
 **Name**: Ordering_provider_zip_code
 
+**ReportStream Internal Name**: ordering_provider_zip_code
+
 **Type**: POSTAL_CODE
 
 **PII**: No
@@ -494,6 +481,8 @@ The zip code of the provider
 ---
 
 **Name**: Organization_name
+
+**ReportStream Internal Name**: organization_name
 
 **Type**: TEXT
 
@@ -509,6 +498,8 @@ For cases where organization owns many facilities (eg, a large hospital system)
 
 **Name**: Patient_city
 
+**ReportStream Internal Name**: patient_city
+
 **Type**: CITY
 
 **PII**: Yes
@@ -523,6 +514,8 @@ The patient's city
 
 **Name**: Patient_county
 
+**ReportStream Internal Name**: patient_county
+
 **Type**: TABLE_OR_BLANK
 
 **PII**: No
@@ -536,6 +529,8 @@ The patient's city
 ---
 
 **Name**: Patient_DOB
+
+**ReportStream Internal Name**: patient_dob
 
 **Type**: DATE
 
@@ -554,6 +549,8 @@ Other states may choose to define their own formats.
 
 **Name**: Patient_email
 
+**ReportStream Internal Name**: patient_email
+
 **Type**: EMAIL
 
 **PII**: Yes
@@ -563,6 +560,8 @@ Other states may choose to define their own formats.
 ---
 
 **Name**: Patient_ethnicity
+
+**ReportStream Internal Name**: patient_ethnicity
 
 **Type**: CODE
 
@@ -590,6 +589,8 @@ consumers are free to define their own values. Please refer to the consumer-spec
 
 **Name**: Patient_first_name
 
+**ReportStream Internal Name**: patient_first_name
+
 **Type**: PERSON_NAME
 
 **PII**: Yes
@@ -603,6 +604,8 @@ The patient's first name
 ---
 
 **Name**: Patient_gender
+
+**ReportStream Internal Name**: patient_gender
 
 **Type**: CODE
 
@@ -632,6 +635,8 @@ The patient's gender. There is a valueset defined based on the values in PID-8-1
 
 **Name**: Patient_ID
 
+**ReportStream Internal Name**: patient_id
+
 **Type**: TEXT
 
 **PII**: Yes
@@ -646,19 +651,9 @@ the patient ID from the testing lab, the oder placer, the ordering provider, or 
 
 ---
 
-**Name**: patient_id_type
-
-**Type**: TEXT
-
-**PII**: No
-
-**Default Value**: PI
-
-**Cardinality**: [0..1]
-
----
-
 **Name**: Patient_last_name
+
+**ReportStream Internal Name**: patient_last_name
 
 **Type**: PERSON_NAME
 
@@ -674,6 +669,8 @@ The patient's last name
 
 **Name**: Patient_middle_name
 
+**ReportStream Internal Name**: patient_middle_name
+
 **Type**: PERSON_NAME
 
 **PII**: Yes
@@ -683,6 +680,8 @@ The patient's last name
 ---
 
 **Name**: Patient_phone_number
+
+**ReportStream Internal Name**: patient_phone_number
 
 **Type**: TELEPHONE
 
@@ -698,6 +697,8 @@ The patient's phone number with area code
 
 **Name**: Patient_preferred_language
 
+**ReportStream Internal Name**: patient_preferred_language
+
 **Type**: TEXT
 
 **PII**: No
@@ -711,6 +712,8 @@ The patient's preferred language
 ---
 
 **Name**: Patient_race
+
+**ReportStream Internal Name**: patient_race
 
 **Type**: CODE
 
@@ -742,6 +745,8 @@ The patient's race. There is a common valueset defined for race values, but some
 
 **Name**: Patient_role
 
+**ReportStream Internal Name**: patient_role
+
 **Type**: TEXT
 
 **PII**: No
@@ -751,6 +756,8 @@ The patient's race. There is a common valueset defined for race values, but some
 ---
 
 **Name**: Patient_state
+
+**ReportStream Internal Name**: patient_state
 
 **Type**: TABLE
 
@@ -770,6 +777,8 @@ The patient's state
 
 **Name**: Patient_street
 
+**ReportStream Internal Name**: patient_street
+
 **Type**: STREET
 
 **PII**: Yes
@@ -783,6 +792,8 @@ The patient's street address
 ---
 
 **Name**: Patient_street_2
+
+**ReportStream Internal Name**: patient_street2
 
 **Type**: STREET_OR_BLANK
 
@@ -798,6 +809,8 @@ The patient's second address line
 
 **Name**: Patient_suffix
 
+**ReportStream Internal Name**: patient_suffix
+
 **Type**: PERSON_NAME
 
 **PII**: Yes
@@ -811,6 +824,8 @@ The suffix for the patient's name, (i.e. Jr, Sr, etc)
 ---
 
 **Name**: Patient_tribal_affiliation
+
+**ReportStream Internal Name**: patient_tribal_citizenship
 
 **Type**: CODE
 
@@ -1399,6 +1414,8 @@ The tribal citizenship of the patient using the TribalEntityUS (OID 2.16.840.1.1
 
 **Name**: Patient_zip_code
 
+**ReportStream Internal Name**: patient_zip_code
+
 **Type**: POSTAL_CODE
 
 **PII**: No
@@ -1411,26 +1428,9 @@ The patient's zip code
 
 ---
 
-**Name**: placer_order_id
-
-**Type**: ID
-
-**PII**: No
-
-**HL7 Fields**
-
-- [OBR-2-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.2.1)
-- [ORC-2-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.2.1)
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The ID number of the lab order from the placer
-
----
-
 **Name**: Corrected_result_ID
+
+**ReportStream Internal Name**: previous_message_id
 
 **Type**: ID
 
@@ -1445,6 +1445,8 @@ pointer/link to the unique id of a previously submitted result.  Usually blank. 
 ---
 
 **Name**: Processing_mode_code
+
+**ReportStream Internal Name**: processing_mode_code
 
 **Type**: CODE
 
@@ -1470,51 +1472,9 @@ P, D, or T for Production, Debugging, or Training
 
 ---
 
-**Name**: reporting_facility_clia
-
-**Type**: ID_CLIA
-
-**PII**: No
-
-**HL7 Fields**
-
-- [MSH-4-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/MSH.4.2)
-- [PID-3-4-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4.2)
-- [PID-3-6-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.6.2)
-- [SPM-2-1-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.1.3)
-- [SPM-2-2-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2.3)
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The reporting facility's CLIA
-
----
-
-**Name**: reporting_facility_name
-
-**Type**: TEXT
-
-**PII**: No
-
-**HL7 Fields**
-
-- [MSH-4-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/MSH.4.1)
-- [PID-3-4-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4.1)
-- [PID-3-6-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.6.1)
-- [SPM-2-1-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.1.2)
-- [SPM-2-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2.2)
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The reporting facility's name
-
----
-
 **Name**: Resident_congregate_setting
+
+**ReportStream Internal Name**: resident_congregate_setting
 
 **Type**: CODE
 
@@ -1540,23 +1500,9 @@ Does the patient reside in a congregate care setting?
 
 ---
 
-**Name**: sender_id
-
-**Type**: TEXT
-
-**PII**: No
-
-**Default Value**: simple_report.default
-
-**Cardinality**: [1..1]
-
-**Documentation**:
-
-ID name of org that is sending this data to ReportStream.  Suitable for provenance or chain of custody tracking.  Not to be confused with sending_application, in which ReportStream acts as the 'sender' to the downstream jurisdiction.
-
----
-
 **Name**: Site_of_care
+
+**ReportStream Internal Name**: site_of_care
 
 **Type**: TEXT
 
@@ -1571,6 +1517,8 @@ The type of facility providing care (Hospital, Nursing Home, etc.).
 ---
 
 **Name**: Specimen_collection_date_time
+
+**ReportStream Internal Name**: specimen_collection_date_time
 
 **Type**: DATETIME
 
@@ -1593,6 +1541,8 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 ---
 
 **Name**: Specimen_source_site_code
+
+**ReportStream Internal Name**: specimen_source_site_code
 
 **Type**: CODE
 
@@ -1619,6 +1569,8 @@ Refers back to the specimen source site, which is then encoded into the SPM-8 se
 ---
 
 **Name**: Specimen_type_code
+
+**ReportStream Internal Name**: specimen_type
 
 **Type**: CODE
 
@@ -1658,6 +1610,8 @@ The specimen source, such as Blood or Serum
 
 **Name**: Symptomatic_for_disease
 
+**ReportStream Internal Name**: symptomatic_for_disease
+
 **Type**: CODE
 
 **PII**: No
@@ -1682,79 +1636,9 @@ Is the patient symptomatic?
 
 ---
 
-**Name**: test_authorized_for_home
-
-**Type**: TABLE
-
-**PII**: No
-
-**Default Value**: N
-
-**Cardinality**: [0..1]
-
-
-**Reference URL**:
-[https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
-
-**Table**: LIVD-Supplemental-2021-06-07
-
-**Table Column**: is_home
-
-**Documentation**:
-
-Is the test authorized for home use by the FDA (Y, N, UNK)
-
----
-
-**Name**: test_authorized_for_otc
-
-**Type**: TABLE
-
-**PII**: No
-
-**Default Value**: N
-
-**Cardinality**: [0..1]
-
-
-**Reference URL**:
-[https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
-
-**Table**: LIVD-Supplemental-2021-06-07
-
-**Table Column**: is_otc
-
-**Documentation**:
-
-Is the test authorized for over-the-counter purchase by the FDA (Y, N, UNK)
-
----
-
-**Name**: test_authorized_for_unproctored
-
-**Type**: TABLE
-
-**PII**: No
-
-**Default Value**: N
-
-**Cardinality**: [0..1]
-
-
-**Reference URL**:
-[https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
-
-**Table**: LIVD-Supplemental-2021-06-07
-
-**Table Column**: is_unproctored
-
-**Documentation**:
-
-Is the test authorized for unproctored administration by the FDA (Y, N, UNK)
-
----
-
 **Name**: Ordered_test_code
+
+**ReportStream Internal Name**: test_performed_code
 
 **Type**: TABLE
 
@@ -1773,6 +1657,8 @@ The LOINC code of the test performed. This is a standardized coded value describ
 ---
 
 **Name**: Test_result_code
+
+**ReportStream Internal Name**: test_result
 
 **Type**: CODE
 
@@ -1815,6 +1701,8 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 
 **Name**: Test_date
 
+**ReportStream Internal Name**: test_result_date
+
 **Type**: DATETIME
 
 **PII**: No
@@ -1826,6 +1714,8 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 ---
 
 **Name**: Test_result_status
+
+**ReportStream Internal Name**: test_result_status
 
 **Type**: CODE
 
@@ -1870,6 +1760,8 @@ the test result is in some intermediate status, is a correction, or is the final
 
 **Name**: Testing_lab_city
 
+**ReportStream Internal Name**: testing_lab_city
+
 **Type**: CITY
 
 **PII**: No
@@ -1883,6 +1775,8 @@ The city of the testing lab
 ---
 
 **Name**: Testing_lab_CLIA
+
+**ReportStream Internal Name**: testing_lab_clia
 
 **Type**: ID_CLIA
 
@@ -1910,6 +1804,8 @@ An example of the ID is 03D2159846
 
 **Name**: Testing_lab_county
 
+**ReportStream Internal Name**: testing_lab_county
+
 **Type**: TABLE
 
 **PII**: No
@@ -1927,6 +1823,8 @@ The text value for the testing lab county. This is used to do the lookup in the 
 ---
 
 **Name**: Testing_lab_name
+
+**ReportStream Internal Name**: testing_lab_name
 
 **Type**: TEXT
 
@@ -1952,6 +1850,8 @@ The name of the laboratory which performed the test, can be the same as the send
 
 **Name**: Testing_lab_phone_number
 
+**ReportStream Internal Name**: testing_lab_phone_number
+
 **Type**: TELEPHONE
 
 **PII**: No
@@ -1965,6 +1865,8 @@ The phone number of the testing lab
 ---
 
 **Name**: Testing_lab_state
+
+**ReportStream Internal Name**: testing_lab_state
 
 **Type**: TABLE
 
@@ -1984,6 +1886,8 @@ The state for the testing lab
 
 **Name**: Testing_lab_street
 
+**ReportStream Internal Name**: testing_lab_street
+
 **Type**: STREET
 
 **PII**: No
@@ -1997,6 +1901,8 @@ The street address for the testing lab
 ---
 
 **Name**: Testing_lab_street_2
+
+**ReportStream Internal Name**: testing_lab_street2
 
 **Type**: STREET_OR_BLANK
 
@@ -2012,6 +1918,8 @@ Street 2 field for the testing lab
 
 **Name**: Testing_lab_zip_code
 
+**ReportStream Internal Name**: testing_lab_zip_code
+
 **Type**: POSTAL_CODE
 
 **PII**: No
@@ -2021,5 +1929,259 @@ Street 2 field for the testing lab
 **Documentation**:
 
 The postal code for the testing lab
+
+---
+
+**Name**: abnormal_flag
+
+**ReportStream Internal Name**: abnormal_flag
+
+**Type**: CODE
+
+**PII**: No
+
+**Format**: use value found in the Code column
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+A|Abnormal (applies to non-numeric results)
+&#62;|Above absolute high-off instrument scale
+H|Above high normal
+HH|Above upper panic limits
+AC|Anti-complementary substances present
+<|Below absolute low-off instrument scale
+L|Below low normal
+LL|Below lower panic limits
+B|Better--use when direction not relevant
+TOX|Cytotoxic substance present
+DET|Detected
+IND|Indeterminate
+I|Intermediate. Indicates for microbiology susceptibilities only.
+MS|Moderately susceptible. Indicates for microbiology susceptibilities only.
+NEG|Negative
+null|No range defined, or normal ranges don't apply
+NR|Non-reactive
+N|Normal (applies to non-numeric results)
+ND|Not Detected
+POS|Positive
+QCF|Quality Control Failure
+RR|Reactive
+R|Resistant. Indicates for microbiology susceptibilities only.
+D|Significant change down
+U|Significant change up
+S|Susceptible. Indicates for microbiology susceptibilities only.
+AA|Very abnormal (applies to non-numeric units, analogous to panic limits for numeric units)
+VS|Very susceptible. Indicates for microbiology susceptibilities only.
+WR|Weakly reactive
+W|Worse--use when direction not relevant
+
+**Documentation**:
+
+This field is generated based on the normalcy status of the result. A = abnormal; N = normal
+
+---
+
+**Name**: filler_order_id
+
+**ReportStream Internal Name**: filler_order_id
+
+**Type**: ID
+
+**PII**: No
+
+**HL7 Fields**
+
+- [OBR-3-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.3.1)
+- [ORC-3-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.3.1)
+- [SPM-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2)
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+Accension number
+
+---
+
+**Name**: patient_id_type
+
+**ReportStream Internal Name**: patient_id_type
+
+**Type**: TEXT
+
+**PII**: No
+
+**Default Value**: PI
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: placer_order_id
+
+**ReportStream Internal Name**: placer_order_id
+
+**Type**: ID
+
+**PII**: No
+
+**HL7 Fields**
+
+- [OBR-2-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.2.1)
+- [ORC-2-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.2.1)
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The ID number of the lab order from the placer
+
+---
+
+**Name**: reporting_facility_clia
+
+**ReportStream Internal Name**: reporting_facility_clia
+
+**Type**: ID_CLIA
+
+**PII**: No
+
+**HL7 Fields**
+
+- [MSH-4-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/MSH.4.2)
+- [PID-3-4-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4.2)
+- [PID-3-6-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.6.2)
+- [SPM-2-1-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.1.3)
+- [SPM-2-2-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2.3)
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The reporting facility's CLIA
+
+---
+
+**Name**: reporting_facility_name
+
+**ReportStream Internal Name**: reporting_facility_name
+
+**Type**: TEXT
+
+**PII**: No
+
+**HL7 Fields**
+
+- [MSH-4-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/MSH.4.1)
+- [PID-3-4-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4.1)
+- [PID-3-6-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.6.1)
+- [SPM-2-1-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.1.2)
+- [SPM-2-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2.2)
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The reporting facility's name
+
+---
+
+**Name**: sender_id
+
+**ReportStream Internal Name**: sender_id
+
+**Type**: TEXT
+
+**PII**: No
+
+**Default Value**: simple_report.default
+
+**Cardinality**: [1..1]
+
+**Documentation**:
+
+ID name of org that is sending this data to ReportStream.  Suitable for provenance or chain of custody tracking.  Not to be confused with sending_application, in which ReportStream acts as the 'sender' to the downstream jurisdiction.
+
+---
+
+**Name**: test_authorized_for_home
+
+**ReportStream Internal Name**: test_authorized_for_home
+
+**Type**: TABLE
+
+**PII**: No
+
+**Default Value**: N
+
+**Cardinality**: [0..1]
+
+
+**Reference URL**:
+[https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
+
+**Table**: LIVD-Supplemental-2021-06-07
+
+**Table Column**: is_home
+
+**Documentation**:
+
+Is the test authorized for home use by the FDA (Y, N, UNK)
+
+---
+
+**Name**: test_authorized_for_otc
+
+**ReportStream Internal Name**: test_authorized_for_otc
+
+**Type**: TABLE
+
+**PII**: No
+
+**Default Value**: N
+
+**Cardinality**: [0..1]
+
+
+**Reference URL**:
+[https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
+
+**Table**: LIVD-Supplemental-2021-06-07
+
+**Table Column**: is_otc
+
+**Documentation**:
+
+Is the test authorized for over-the-counter purchase by the FDA (Y, N, UNK)
+
+---
+
+**Name**: test_authorized_for_unproctored
+
+**ReportStream Internal Name**: test_authorized_for_unproctored
+
+**Type**: TABLE
+
+**PII**: No
+
+**Default Value**: N
+
+**Cardinality**: [0..1]
+
+
+**Reference URL**:
+[https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
+
+**Table**: LIVD-Supplemental-2021-06-07
+
+**Table Column**: is_unproctored
+
+**Documentation**:
+
+Is the test authorized for unproctored administration by the FDA (Y, N, UNK)
 
 ---
