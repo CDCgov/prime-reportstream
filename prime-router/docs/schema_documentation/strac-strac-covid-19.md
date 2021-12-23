@@ -66,70 +66,6 @@ Accension number
 
 ---
 
-**Name**: message_id
-
-**Type**: ID
-
-**PII**: No
-
-**Cardinality**: [1..1]
-
-**Documentation**:
-
-unique id to track the usage of the message
-
----
-
-**Name**: order_test_date
-
-**Type**: DATETIME
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: ordered_test_code
-
-**Type**: TABLE
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-**Table**: LIVD-SARS-CoV-2-latest
-
-**Table Column**: Test Ordered LOINC Code
-
----
-
-**Name**: ordered_test_name
-
-**Type**: TABLE
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-**Table**: LIVD-SARS-CoV-2-latest
-
-**Table Column**: Test Ordered LOINC Long Name
-
----
-
-**Name**: ordered_test_system
-
-**Type**: TEXT
-
-**PII**: No
-
-**Default Value**: LOINC
-
-**Cardinality**: [0..1]
-
----
-
 **Name**: Ordering_Facility_City
 
 **ReportStream Internal Name**: ordering_facility_city
@@ -915,7 +851,7 @@ unique id to track the usage of the message
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-09-29
+**Table**: LIVD-SARS-CoV-2-latest
 
 **Table Column**: Test Ordered LOINC Code
 
@@ -931,7 +867,7 @@ unique id to track the usage of the message
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-09-29
+**Table**: LIVD-SARS-CoV-2-latest
 
 **Table Column**: Test Ordered LOINC Long Name
 

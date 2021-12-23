@@ -1050,24 +1050,6 @@ Translate inbound text to outbound SNOMED Codes
 
 ---
 
-**Name**: test_performed_code
-
-**Type**: TABLE
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-**Table**: LIVD-SARS-CoV-2-latest
-
-**Table Column**: Test Performed LOINC Code
-
-**Documentation**:
-
-The LOINC code of the test performed. This is a standardized coded value describing the test
-
----
-
 **Name**: Test Code
 
 **ReportStream Internal Name**: test_performed_code_temp
@@ -1510,7 +1492,7 @@ ID name of org that is sending this data to ReportStream.  Suitable for provenan
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-09-29
+**Table**: LIVD-SARS-CoV-2-latest
 
 **Table Column**: Test Performed LOINC Code
 
