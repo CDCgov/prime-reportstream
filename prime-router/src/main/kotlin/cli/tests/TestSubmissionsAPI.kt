@@ -9,7 +9,7 @@ import gov.cdc.prime.router.common.Environment
 class TestSubmissionsAPI : CoolTest() {
     override val name = "end2end-submission"
     override val description = "Confirm records via submission API."
-    override val status = TestStatus.SMOKE
+    override val status = TestStatus.DRAFT
 
     override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         initListOfGoodReceiversAndCounties(environment)
