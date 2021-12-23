@@ -12,6 +12,7 @@ import com.github.ajalt.clikt.parameters.options.option
 import gov.cdc.prime.router.CsvComparer
 import gov.cdc.prime.router.DocumentationFactory
 import gov.cdc.prime.router.FileSettings
+import gov.cdc.prime.router.LivdTable
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.SettingsProvider
@@ -250,11 +251,40 @@ class CompareCsvFiles : CliktCommand(
     }
 }
 
+class LivdTableDownload() : CliktCommand(
+    name = "livd-table",
+    help = """
+    livd-table downloads the latest LOINC test data, so it can be ingested automatically. 
+    
+    It looks for the LIVD-SAR-CoV-2-yyyy-MM-dd.xlsx file from https://www.cdc.gov/csels/dls/sars-cov-2-livd-codes.html.
+	If the file is found, it downloads the file into the directory specified by the --output-dir <path> option.
+	If the option is not specified, it will download the file to ./build directory.
+        
+    Example:
+      The following command will download the latest LIVD-SARS-CoV-2-yyyy-MM-dd.xlsx from the above URL.  It will 
+      store the file under the ./junk directory.
+      
+         ./prime livd-table --output-dir ./junk 
+    """
+) {
+    private val defaultOutputDir = "./build"
+    private val outputDir by option(
+        "--output-dir",
+        metavar = "<path>",
+        help = "interpret `--output` relative to this directory (default: \"$defaultOutputDir\")"
+    ).default(defaultOutputDir)
+
+    override fun run() {
+        LivdTable(outputDir).downloadFile()
+    }
+}
+
 fun main(args: Array<String>) = RouterCli()
     .completionOption()
     .subcommands(
         ProcessData(),
         ListSchemas(),
+        LivdTableDownload(),
         GenerateDocs(),
         CredentialsCli(),
         CompareCsvFiles(),
