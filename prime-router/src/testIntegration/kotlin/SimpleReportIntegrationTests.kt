@@ -54,10 +54,7 @@ class SimpleReportIntegrationTests {
         //        assertTrue(readResult.warnings.isEmpty())
         val inputReport = readResult.report ?: fail()
         // 2) Create transformed objects, according to the receiver table rules
-        val outputReports = Translator(metadata, settings).filterAndTranslateByReceiver(
-            inputReport,
-            warnings = mutableListOf<ResultDetail>()
-        )
+        val (outputReports, _) = Translator(metadata, settings).filterAndTranslateByReceiver(inputReport)
 
         // 3) Write transformed objs to files
         val outputFiles = mutableListOf<Pair<File, Receiver>>()
