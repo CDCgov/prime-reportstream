@@ -1,6 +1,8 @@
 package gov.cdc.prime.router.azure
 
 import com.microsoft.azure.functions.ExecutionContext
+import gov.cdc.prime.router.ActionDetail
+import gov.cdc.prime.router.ActionError
 import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.InvalidReportMessage
@@ -10,8 +12,6 @@ import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
-import gov.cdc.prime.router.ResultDetail
-import gov.cdc.prime.router.ResultError
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
@@ -409,7 +409,7 @@ class WorkflowEngine(
         defaults: Map<String, String>,
         routeTo: List<String>,
         actionHistory: ActionHistory,
-    ): List<ResultDetail> {
+    ): List<ActionDetail> {
         val (routedReports, warnings) = this.translator
             .filterAndTranslateByReceiver(
                 report,
@@ -532,8 +532,8 @@ class WorkflowEngine(
         context: ExecutionContext,
         actionHistory: ActionHistory
     ) {
-        val errors: MutableList<ResultDetail> = mutableListOf()
-        val warnings: MutableList<ResultDetail> = mutableListOf()
+        val errors: MutableList<ActionDetail> = mutableListOf()
+        val warnings: MutableList<ActionDetail> = mutableListOf()
 
         db.transact { txn ->
             val task = db.fetchAndLockTask(messageEvent.reportId, txn)
@@ -874,9 +874,9 @@ class WorkflowEngine(
                         defaultValues = defaults
                     )
                 } catch (e: Exception) {
-                    throw ResultError(
+                    throw ActionError(
                         e.message,
-                        ResultDetail.report(
+                        ActionDetail.report(
                             InvalidReportMessage.new(
                                 "An unexpected error occurred requiring additional help. Contact the ReportStream " +
                                     "team at reportstream@cdc.gov."
@@ -893,9 +893,9 @@ class WorkflowEngine(
                         ClientSource(organization = sender.organizationName, client = sender.name)
                     )
                 } catch (e: Exception) {
-                    throw ResultError(
+                    throw ActionError(
                         e.message,
-                        ResultDetail.report(
+                        ActionDetail.report(
                             InvalidReportMessage.new(
                                 "An unexpected error occurred requiring additional help. Contact the ReportStream " +
                                     "team at reportstream@cdc.gov."

@@ -10,15 +10,15 @@ import com.microsoft.azure.functions.annotation.AuthorizationLevel
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
+import gov.cdc.prime.router.ActionDetail
+import gov.cdc.prime.router.ActionError
+import gov.cdc.prime.router.ActionErrors
 import gov.cdc.prime.router.DEFAULT_SEPARATOR
 import gov.cdc.prime.router.InvalidParamMessage
 import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.ROUTE_TO_SEPARATOR
 import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.ResultDetail
-import gov.cdc.prime.router.ResultError
-import gov.cdc.prime.router.ResultErrors
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Sender.ProcessingType
 import gov.cdc.prime.router.azure.db.enums.TaskAction
@@ -199,7 +199,7 @@ class ReportFunction : Logging {
 
                         // checks for errors from createReport
                         if (options != Options.SkipInvalidItems && errors.isNotEmpty()) {
-                            throw ResultErrors(errors)
+                            throw ActionErrors(errors)
                         }
 
                         report.bodyURL = workflowEngine.recordReceivedReport(
@@ -247,7 +247,7 @@ class ReportFunction : Logging {
                         responseBuilder.status(HttpStatus.CREATED)
                     }
                 }
-            } catch (e: ResultError) {
+            } catch (e: ActionError) {
                 actionHistory.trackDetails(e.detail)
                 responseBuilder.body(
                     actionHistory.createResponseBody(
@@ -257,7 +257,7 @@ class ReportFunction : Logging {
                         verbose,
                     )
                 )
-            } catch (e: ResultErrors) {
+            } catch (e: ActionErrors) {
                 actionHistory.trackDetails(e.details)
                 responseBuilder.body(
                     actionHistory.createResponseBody(
@@ -342,20 +342,20 @@ class ReportFunction : Logging {
     }
 
     private fun validateRequest(engine: WorkflowEngine, request: HttpRequestMessage<String?>): ValidatedRequest {
-        val errors = mutableListOf<ResultDetail>()
+        val errors = mutableListOf<ActionDetail>()
         HttpUtilities.payloadSizeCheck(request)
 
         val receiverNamesText = request.queryParameters.getOrDefault(ROUTE_TO_PARAMETER, "")
         val routeTo = if (receiverNamesText.isNotBlank()) receiverNamesText.split(ROUTE_TO_SEPARATOR) else emptyList()
         val receiverNameErrors = routeTo
             .filter { engine.settings.findReceiver(it) == null }
-            .map { ResultDetail.param(ROUTE_TO_PARAMETER, InvalidParamMessage.new("Invalid receiver name: $it")) }
+            .map { ActionDetail.param(ROUTE_TO_PARAMETER, InvalidParamMessage.new("Invalid receiver name: $it")) }
         errors.addAll(receiverNameErrors)
 
         val clientName = extractClient(request)
         if (clientName.isBlank())
             errors.add(
-                ResultDetail.param(
+                ActionDetail.param(
                     CLIENT_PARAMETER, InvalidParamMessage.new("Expected a '$CLIENT_PARAMETER' query parameter")
                 )
             )
@@ -363,7 +363,7 @@ class ReportFunction : Logging {
         val sender = engine.settings.findSender(clientName)
         if (sender == null)
             errors.add(
-                ResultDetail.param(
+                ActionDetail.param(
                     CLIENT_PARAMETER, InvalidParamMessage.new("'$CLIENT_PARAMETER:$clientName': unknown sender")
                 )
             )
@@ -371,7 +371,7 @@ class ReportFunction : Logging {
         val schema = engine.metadata.findSchema(sender?.schemaName ?: "")
         if (sender != null && schema == null)
             errors.add(
-                ResultDetail.param(
+                ActionDetail.param(
                     CLIENT_PARAMETER,
                     InvalidParamMessage.new(
                         "'$CLIENT_PARAMETER:$clientName': unknown schema '${sender.schemaName}'"
@@ -381,10 +381,10 @@ class ReportFunction : Logging {
 
         val contentType = request.headers.getOrDefault(HttpHeaders.CONTENT_TYPE.lowercase(), "")
         if (contentType.isBlank()) {
-            errors.add(ResultDetail.param(HttpHeaders.CONTENT_TYPE, InvalidParamMessage.new("missing")))
+            errors.add(ActionDetail.param(HttpHeaders.CONTENT_TYPE, InvalidParamMessage.new("missing")))
         } else if (sender != null && sender.format.mimeType != contentType) {
             errors.add(
-                ResultDetail.param(
+                ActionDetail.param(
                     HttpHeaders.CONTENT_TYPE, InvalidParamMessage.new("expecting '${sender.format.mimeType}'")
                 )
             )
@@ -392,11 +392,11 @@ class ReportFunction : Logging {
 
         val content = request.body ?: ""
         if (content.isEmpty()) {
-            errors.add(ResultDetail.param("Content", InvalidParamMessage.new("expecting a post message with content")))
+            errors.add(ActionDetail.param("Content", InvalidParamMessage.new("expecting a post message with content")))
         }
 
         if (sender == null || schema == null || content.isEmpty() || errors.isNotEmpty()) {
-            throw ResultErrors(errors)
+            throw ActionErrors(errors)
         }
 
         val defaultValues = if (request.queryParameters.containsKey(DEFAULT_PARAMETER)) {
@@ -404,19 +404,19 @@ class ReportFunction : Logging {
             values.mapNotNull {
                 val parts = it.split(DEFAULT_SEPARATOR)
                 if (parts.size != 2) {
-                    errors.add(ResultDetail.report(InvalidReportMessage.new("'$it' is not a valid default")))
+                    errors.add(ActionDetail.report(InvalidReportMessage.new("'$it' is not a valid default")))
                     return@mapNotNull null
                 }
                 val element = schema.findElement(parts[0])
                 if (element == null) {
                     errors.add(
-                        ResultDetail.report(InvalidReportMessage.new("'${parts[0]}' is not a valid element name"))
+                        ActionDetail.report(InvalidReportMessage.new("'${parts[0]}' is not a valid element name"))
                     )
                     return@mapNotNull null
                 }
                 val error = element.checkForError(parts[1])
                 if (error != null) {
-                    errors.add(ResultDetail.param(DEFAULT_PARAMETER, error))
+                    errors.add(ActionDetail.param(DEFAULT_PARAMETER, error))
                     return@mapNotNull null
                 }
                 Pair(parts[0], parts[1])
@@ -426,7 +426,7 @@ class ReportFunction : Logging {
         }
 
         if (content.isEmpty() || errors.isNotEmpty()) {
-            throw ResultErrors(errors)
+            throw ActionErrors(errors)
         }
 
         return ValidatedRequest(

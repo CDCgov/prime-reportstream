@@ -3,10 +3,10 @@ package gov.cdc.prime.router.serializers.datatests
 import assertk.assertThat
 import assertk.assertions.isTrue
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
+import gov.cdc.prime.router.ActionErrors
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.ResultErrors
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.TestSource
 import gov.cdc.prime.router.Translator
@@ -248,7 +248,7 @@ class TranslationTests {
                         readResult.warnings.forEach { result.warnings.add(it.responseMessage.detailMsg()) }
                         result.passed = readResult.errors.isEmpty()
                         readResult.report
-                    } catch (e: ResultErrors) {
+                    } catch (e: ActionErrors) {
                         e.details.forEach { result.errors.add(it.responseMessage.detailMsg()) }
                         result.passed = false
                         null
@@ -273,7 +273,7 @@ class TranslationTests {
                         readResult.warnings.forEach { result.warnings.add(it.responseMessage.detailMsg()) }
                         result.passed = readResult.errors.isEmpty()
                         readResult.report
-                    } catch (e: ResultErrors) {
+                    } catch (e: ActionErrors) {
                         e.details.forEach { result.errors.add(it.responseMessage.detailMsg()) }
                         result.passed = false
                         null

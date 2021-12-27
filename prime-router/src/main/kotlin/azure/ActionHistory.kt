@@ -6,6 +6,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
+import gov.cdc.prime.router.ActionDetail
 import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Organization
@@ -13,7 +14,6 @@ import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.ReportStreamFilterResult
-import gov.cdc.prime.router.ResultDetail
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.azure.db.Tables
@@ -104,7 +104,7 @@ class ActionHistory {
      */
     val filteredReportRows = mutableMapOf<ReportId, List<ReportStreamFilterResult>>()
 
-    val details = mutableListOf<ResultDetail>()
+    val details = mutableListOf<ActionDetail>()
 
     /**
      * Messages to be queued in an azure queue as part of the result of this action.
@@ -142,13 +142,13 @@ class ActionHistory {
         messages.add(event)
     }
 
-    fun trackDetails(d: List<ResultDetail>) {
+    fun trackDetails(d: List<ActionDetail>) {
         d.forEach {
             trackDetails(it)
         }
     }
 
-    fun trackDetails(d: ResultDetail) {
+    fun trackDetails(d: ActionDetail) {
         d.action = action
         details.add(d)
     }
@@ -709,8 +709,8 @@ class ActionHistory {
                 jsonGen.writeArrayFieldStart("filteredReportRows")
                 filteredReportRows.getValue(reportFile.reportId).forEach {
                     trackDetails(
-                        ResultDetail(
-                            ResultDetail.DetailScope.REPORT,
+                        ActionDetail(
+                            ActionDetail.DetailScope.REPORT,
                             "",
                             it,
                             reportId = reportsOut[reportFile.reportId]?.reportId,
@@ -895,8 +895,8 @@ class ActionHistory {
      */
     fun createResponseBody(
         options: Options,
-        warnings: List<ResultDetail>,
-        errors: List<ResultDetail>,
+        warnings: List<ActionDetail>,
+        errors: List<ActionDetail>,
         verbose: Boolean,
         // TODO DG: This doesn't make sense to accept an arbitrary report and then use tracked reports for other info
         report: Report? = null
@@ -974,26 +974,26 @@ class ActionHistory {
             }
 
             /**
-             * This function parses a list of ResultDetail items to group them by
+             * This function parses a list of ActionDetail items to group them by
              * groupingId and returns them as a GroupedProperties data class instance
              *
-             * @param details List of ResultDetail items to be parsed
+             * @param details List of ActionDetail items to be parsed
              * @return GroupedProperties() containing items, messages, and scopes
              *     grouped by groupingId
              */
-            fun createPropertiesByGroupingId(details: List<ResultDetail>): GroupedProperties {
+            fun createPropertiesByGroupingId(details: List<ActionDetail>): GroupedProperties {
                 val itemsByGroupingId = mutableMapOf<String, MutableList<Int>>()
                 val messageByGroupingId = mutableMapOf<String, String>()
                 val scopesByGroupingId = mutableMapOf<String, String>()
-                details.forEach { resultDetail ->
-                    val groupingId = resultDetail.responseMessage.groupingId()
+                details.forEach { ActionDetail ->
+                    val groupingId = ActionDetail.responseMessage.groupingId()
                     if (!itemsByGroupingId.containsKey(groupingId)) {
                         itemsByGroupingId[groupingId] = mutableListOf()
-                        messageByGroupingId[groupingId] = resultDetail.responseMessage.detailMsg()
-                        scopesByGroupingId[groupingId] = resultDetail.scope.toString()
+                        messageByGroupingId[groupingId] = ActionDetail.responseMessage.detailMsg()
+                        scopesByGroupingId[groupingId] = ActionDetail.scope.toString()
                     }
-                    if (resultDetail.row != -1) {
-                        itemsByGroupingId[groupingId]?.add(resultDetail.row + 1)
+                    if (ActionDetail.row != -1) {
+                        itemsByGroupingId[groupingId]?.add(ActionDetail.row + 1)
                     }
                 }
                 return GroupedProperties(
@@ -1004,18 +1004,18 @@ class ActionHistory {
             }
 
             /**
-             * This function parses a list of ResultDetail items to group them by
+             * This function parses a list of ActionDetail items to group them by
              * groupingId and returns them as a GroupedProperties data class instance
              *
              * @param field defines the name of the array in the JSON result
-             * @param resultDetailList the list of items to write to the JSON
+             * @param ActionDetailList the list of items to write to the JSON
              */
-            fun writeConsolidatedArray(field: String, resultDetailList: List<ResultDetail>) {
+            fun writeConsolidatedArray(field: String, ActionDetailList: List<ActionDetail>) {
                 val (
                     itemsByGroupingId,
                     messageByGroupingId,
                     scopesByGroupId
-                ) = createPropertiesByGroupingId(resultDetailList)
+                ) = createPropertiesByGroupingId(ActionDetailList)
                 it.writeArrayFieldStart(field)
                 itemsByGroupingId.keys.forEach { groupingId ->
                     it.writeStartObject()

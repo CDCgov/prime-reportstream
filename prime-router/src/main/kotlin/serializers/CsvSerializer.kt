@@ -5,6 +5,8 @@ import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
 import com.github.doyaaaaaken.kotlincsv.util.CSVFieldNumDifferentException
 import com.github.doyaaaaaken.kotlincsv.util.CSVParseFormatException
 import com.github.doyaaaaaken.kotlincsv.util.MalformedCSVException
+import gov.cdc.prime.router.ActionDetail
+import gov.cdc.prime.router.ActionErrors
 import gov.cdc.prime.router.AltValueNotDefinedException
 import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.InvalidReportMessage
@@ -17,8 +19,6 @@ import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.ResponseMessage
-import gov.cdc.prime.router.ResultDetail
-import gov.cdc.prime.router.ResultErrors
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Source
 import org.apache.logging.log4j.kotlin.Logging
@@ -62,8 +62,8 @@ class CsvSerializer(val metadata: Metadata) : Logging {
         defaultValues: Map<String, String> = emptyMap(),
     ): ReadResult {
         val schema = metadata.findSchema(schemaName) ?: error("Internal Error: invalid schema name '$schemaName'")
-        val errors = mutableListOf<ResultDetail>()
-        val warnings = mutableListOf<ResultDetail>()
+        val errors = mutableListOf<ActionDetail>()
+        val warnings = mutableListOf<ActionDetail>()
         val rows = mutableListOf<Map<String, String>>()
         csvReader {
             quoteChar = '"'
@@ -76,7 +76,7 @@ class CsvSerializer(val metadata: Metadata) : Logging {
                     rows.add(row)
                     if (rows.size > REPORT_MAX_ITEMS) {
                         errors.add(
-                            ResultDetail.report(
+                            ActionDetail.report(
                                 InvalidReportMessage.new(
                                     "Your file's row size of ${rows.size} exceeds the maximum of $REPORT_MAX_ITEMS " +
                                         "rows per file. Reduce the amount of rows in this file."
@@ -87,7 +87,7 @@ class CsvSerializer(val metadata: Metadata) : Logging {
                     }
                     if (row.size > REPORT_MAX_ITEM_COLUMNS) {
                         errors.add(
-                            ResultDetail.report(
+                            ActionDetail.report(
                                 InvalidReportMessage.new(
                                     "Number of columns in your report exceeds the maximum of $REPORT_MAX_ITEM_COLUMNS" +
                                         " allowed. Adjust the excess columnar data in your report."
@@ -99,7 +99,7 @@ class CsvSerializer(val metadata: Metadata) : Logging {
                 }
             } catch (ex: CSVFieldNumDifferentException) {
                 errors.add(
-                    ResultDetail.report(
+                    ActionDetail.report(
                         InvalidReportMessage.new(
                             "CSV file has an inconsistent number of columns on row: ${ex.csvRowNum}"
                         )
@@ -107,7 +107,7 @@ class CsvSerializer(val metadata: Metadata) : Logging {
                 )
             } catch (ex: CSVParseFormatException) {
                 errors.add(
-                    ResultDetail.report(
+                    ActionDetail.report(
                         InvalidReportMessage.new(
                             "There's an issue parsing your file on row: ${ex.rowNum}. " +
                                 "For additional help, contact the ReportStream team at $REPORSTREAM_SUPPORT_EMAIL."
@@ -116,7 +116,7 @@ class CsvSerializer(val metadata: Metadata) : Logging {
                 )
             } catch (ex: MalformedCSVException) {
                 errors.add(
-                    ResultDetail.report(
+                    ActionDetail.report(
                         InvalidReportMessage.new(
                             "There's an issue parsing your file (Error: ${ex.message}) " +
                                 "For additional help, contact the ReportStream team at $REPORSTREAM_SUPPORT_EMAIL."
@@ -127,20 +127,20 @@ class CsvSerializer(val metadata: Metadata) : Logging {
         }
         if (errors.size > 0) {
             // warnings is empty at this point
-            throw ResultErrors(errors)
+            throw ActionErrors(errors)
         }
 
         if (rows.isEmpty()) {
-            warnings.add(ResultDetail.report(InvalidReportMessage.new("No reports were found in CSV content")))
+            warnings.add(ActionDetail.report(InvalidReportMessage.new("No reports were found in CSV content")))
             return ReadResult(Report(schema, emptyList(), sources, destination, metadata = metadata), errors, warnings)
         }
 
         val csvMapping = buildMappingForReading(schema, defaultValues, rows[0])
-        errors.addAll(csvMapping.errors.map { ResultDetail.report(InvalidReportMessage.new(it)) })
-        warnings.addAll(csvMapping.warnings.map { ResultDetail.report(InvalidReportMessage.new(it)) })
+        errors.addAll(csvMapping.errors.map { ActionDetail.report(InvalidReportMessage.new(it)) })
+        warnings.addAll(csvMapping.warnings.map { ActionDetail.report(InvalidReportMessage.new(it)) })
         if (errors.size > REPORT_MAX_ERRORS) {
             errors.add(
-                ResultDetail.report(
+                ActionDetail.report(
                     InvalidReportMessage.new(
                         "Report file failed: Number of errors exceeded threshold. Contact the ReportStream team at " +
                             "$REPORSTREAM_SUPPORT_EMAIL for assistance."
@@ -148,11 +148,11 @@ class CsvSerializer(val metadata: Metadata) : Logging {
                 )
             )
             // TODO DG: this needs result detail to have a level (warning, error, etc.)
-            throw ResultErrors(errors + warnings)
+            throw ActionErrors(errors + warnings)
         }
         // at this point there are no branches that can return a non null report and errors > 0
         if (csvMapping.errors.isNotEmpty()) {
-            throw ResultErrors(errors + warnings)
+            throw ActionErrors(errors + warnings)
         }
 
         val mappedRows = rows.mapIndexedNotNull { index, row ->
@@ -161,8 +161,8 @@ class CsvSerializer(val metadata: Metadata) : Logging {
             var trackingId = if (trackingColumn != null) result.row[trackingColumn] else ""
             if (trackingId.isEmpty())
                 trackingId = "row$index"
-            errors.addAll(result.errors.map { ResultDetail.item(trackingId, it, index) })
-            warnings.addAll(result.warnings.map { ResultDetail.item(trackingId, it, index) })
+            errors.addAll(result.errors.map { ActionDetail.item(trackingId, it, index) })
+            warnings.addAll(result.warnings.map { ActionDetail.item(trackingId, it, index) })
             if (result.errors.isEmpty()) {
                 result.row
             } else {
@@ -171,14 +171,14 @@ class CsvSerializer(val metadata: Metadata) : Logging {
         }
         if (errors.size > REPORT_MAX_ERRORS) {
             errors.add(
-                ResultDetail.report(
+                ActionDetail.report(
                     InvalidReportMessage.new(
                         "Report file failed: Number of errors exceeded threshold. Contact the ReportStream team at " +
                             "$REPORSTREAM_SUPPORT_EMAIL for assistance."
                     )
                 )
             )
-            throw ResultErrors(errors + warnings)
+            throw ActionErrors(errors + warnings)
         }
         return ReadResult(Report(schema, mappedRows, sources, destination, metadata = metadata), errors, warnings)
     }

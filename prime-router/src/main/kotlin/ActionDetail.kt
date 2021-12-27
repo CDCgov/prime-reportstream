@@ -8,7 +8,7 @@ import java.util.UUID
  * @property details of the result
  * @property row of csv related to message (set to -1 if not applicable)
  */
-data class ResultDetail(
+data class ActionDetail(
     val scope: DetailScope,
     val trackingId: String,
     val responseMessage: ResponseMessage,
@@ -36,24 +36,24 @@ data class ResultDetail(
     }
 
     companion object {
-        fun report(message: ResponseMessage): ResultDetail {
-            return ResultDetail(DetailScope.REPORT, "", message, -1)
+        fun report(message: ResponseMessage): ActionDetail {
+            return ActionDetail(DetailScope.REPORT, "", message, -1)
         }
 
-        fun item(trackingId: String, message: ResponseMessage, row: Int): ResultDetail {
-            return ResultDetail(DetailScope.ITEM, trackingId, message, row)
+        fun item(trackingId: String, message: ResponseMessage, row: Int): ActionDetail {
+            return ActionDetail(DetailScope.ITEM, trackingId, message, row)
         }
 
-        fun param(trackingId: String, message: ResponseMessage): ResultDetail {
-            return ResultDetail(DetailScope.PARAMETER, trackingId, message, -1)
+        fun param(trackingId: String, message: ResponseMessage): ActionDetail {
+            return ActionDetail(DetailScope.PARAMETER, trackingId, message, -1)
         }
 
-        fun translation(trackingId: String, message: ResponseMessage): ResultDetail {
-            return ResultDetail(DetailScope.TRANSLATION, trackingId, message, -1)
+        fun translation(trackingId: String, message: ResponseMessage): ActionDetail {
+            return ActionDetail(DetailScope.TRANSLATION, trackingId, message, -1)
         }
     }
 }
 
-class ResultError(message: String?, val detail: ResultDetail) : Error(message)
+class ActionError(message: String?, val detail: ActionDetail) : Error(message)
 
-class ResultErrors(val details: List<ResultDetail>) : Error()
+class ActionErrors(val details: List<ActionDetail>) : Error()

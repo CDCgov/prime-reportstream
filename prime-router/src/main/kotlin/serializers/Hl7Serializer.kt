@@ -13,6 +13,8 @@ import ca.uhn.hl7v2.parser.EncodingNotSupportedException
 import ca.uhn.hl7v2.parser.ModelClassFactory
 import ca.uhn.hl7v2.preparser.PreParser
 import ca.uhn.hl7v2.util.Terser
+import gov.cdc.prime.router.ActionDetail
+import gov.cdc.prime.router.ActionErrors
 import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.ElementAndValue
 import gov.cdc.prime.router.Hl7Configuration
@@ -20,8 +22,6 @@ import gov.cdc.prime.router.InvalidHL7Message
 import gov.cdc.prime.router.Mapper
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.ResultDetail
-import gov.cdc.prime.router.ResultErrors
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Source
@@ -367,23 +367,23 @@ class Hl7Serializer(
         input: InputStream,
         source: Source
     ): ReadResult {
-        val errors = mutableListOf<ResultDetail>()
-        val warnings = mutableListOf<ResultDetail>()
+        val errors = mutableListOf<ActionDetail>()
+        val warnings = mutableListOf<ActionDetail>()
         val messageBody = input.bufferedReader().use { it.readText() }
         val schema = metadata.findSchema(schemaName) ?: error("Schema name $schemaName not found")
         val mapping = convertBatchMessagesToMap(messageBody, schema)
         val mappedRows = mapping.mappedRows
-        errors.addAll(mapping.errors.map { ResultDetail(ResultDetail.DetailScope.ITEM, "", InvalidHL7Message.new(it)) })
+        errors.addAll(mapping.errors.map { ActionDetail(ActionDetail.DetailScope.ITEM, "", InvalidHL7Message.new(it)) })
         warnings.addAll(
             mapping.warnings.map {
-                ResultDetail(ResultDetail.DetailScope.ITEM, "", InvalidHL7Message.new(it))
+                ActionDetail(ActionDetail.DetailScope.ITEM, "", InvalidHL7Message.new(it))
             }
         )
         mappedRows.forEach {
             logger.debug("${it.key} -> ${it.value.joinToString()}")
         }
         if (errors.size > 0) {
-            throw ResultErrors(errors)
+            throw ActionErrors(errors)
         }
         val report = Report(schema, mappedRows, source, metadata = metadata)
         return ReadResult(report, errors, warnings)

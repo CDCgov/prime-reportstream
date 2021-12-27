@@ -8,6 +8,7 @@ import com.github.ajalt.clikt.parameters.options.convert
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.int
+import gov.cdc.prime.router.ActionDetail
 import gov.cdc.prime.router.CustomConfiguration
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DefaultValues
@@ -18,7 +19,6 @@ import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.ResultDetail
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Translator
 import gov.cdc.prime.router.serializers.CsvSerializer
@@ -414,7 +414,7 @@ class ProcessData(
 
         // Transform reports
         val translator = Translator(metadata, fileSettings)
-        val warnings = mutableListOf<ResultDetail>()
+        val warnings = mutableListOf<ActionDetail>()
         val outputReports: List<Pair<Report, Report.Format>> = when {
             route -> {
                 val (reports, byReceiverWarnings) = translator
