@@ -12,7 +12,6 @@ import it.skrape.selects.html5.a
 import java.io.File
 import java.io.FileOutputStream
 import java.net.URL
-import java.util.Scanner
 
 private const val cdcLOINCTestCodeMappingPage = "https://www.cdc.gov/csels/dls/sars-cov-2-livd-codes.html"
 private const val livdSARSCov2File = "LIVD-SARS-CoV-2"
