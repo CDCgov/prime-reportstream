@@ -2115,9 +2115,16 @@
         filePath: ./upload
         credentialName: DEFAULT-SFTP
 
-
-
-
+- name: historytest
+  description: FOR TESTING SUBMISSION HISTORY
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: historytest
+      topic: covid-19
+      customerStatus: active
+      schemaName: primedatainput/pdi-covid-19
+      format: CSV
 
 # all the rest
 - name: ak-phd

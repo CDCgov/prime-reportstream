@@ -323,7 +323,7 @@ Examples:
             BadSftp(),
             Garbage(),
             SettingsTest(),
-            TestSubmissionsAPI(),
+            HistoryApiTest(),
         )
     }
 }
@@ -757,6 +757,10 @@ abstract class CoolTest {
 
         lateinit var allGoodReceivers: MutableList<Receiver>
         lateinit var allGoodCounties: String
+
+        const val historyTestOrgName = "historytest"
+        val historyTestSender = settings.findSender("$historyTestOrgName.default")
+            ?: error("Unable to find sender $historyTestOrgName.default")
 
         fun initListOfGoodReceiversAndCounties(env: Environment) {
             allGoodReceivers = mutableListOf(csvReceiver, hl7Receiver, hl7BatchReceiver, hl7NullReceiver)
