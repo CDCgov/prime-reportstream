@@ -1,10 +1,16 @@
 
-### Schema:         empty
-#### Description:   Empty Schema.  For Testing error conditions.  Used by cli ./prime test
+### Schema: empty
+### Topic: covid-19
+### Tracking Element: Message_ID (message_id)
+### Base On: [covid-19](./covid-19.md)
+### Extends: none
+#### Description: Empty Schema.  For Testing error conditions.  Used by cli ./prime test
 
 ---
 
 **Name**: blankField
+
+**ReportStream Internal Name**: blank_field
 
 **Type**: BLANK
 
@@ -15,6 +21,8 @@
 ---
 
 **Name**: Message_ID
+
+**ReportStream Internal Name**: message_id
 
 **Type**: ID
 
@@ -30,6 +38,8 @@ unique id to track the usage of the message
 
 **Name**: Ordering_facility_county
 
+**ReportStream Internal Name**: ordering_facility_county
+
 **Type**: TABLE
 
 **PII**: No
@@ -43,6 +53,8 @@ unique id to track the usage of the message
 ---
 
 **Name**: Ordering_facilty_state
+
+**ReportStream Internal Name**: ordering_facility_state
 
 **Type**: TABLE
 
