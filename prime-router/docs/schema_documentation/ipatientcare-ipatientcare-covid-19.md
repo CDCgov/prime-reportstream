@@ -1387,7 +1387,7 @@ unique id to track the usage of the message
 
 **PII**: No
 
-**Cardinality**: [1..1]
+**Cardinality**: [0..1]
 
 **Table**: zip-code-data
 
