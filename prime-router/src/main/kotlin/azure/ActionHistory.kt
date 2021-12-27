@@ -710,7 +710,7 @@ class ActionHistory {
                 filteredReportRows.getValue(reportFile.reportId).forEach {
                     trackDetails(
                         ActionDetail(
-                            ActionDetail.DetailScope.REPORT,
+                            ActionDetail.DetailScope.report,
                             "",
                             it,
                             reportId = reportsOut[reportFile.reportId]?.reportId,

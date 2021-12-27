@@ -880,7 +880,8 @@ class WorkflowEngine(
                             InvalidReportMessage.new(
                                 "An unexpected error occurred requiring additional help. Contact the ReportStream " +
                                     "team at reportstream@cdc.gov."
-                            )
+                            ),
+                            ActionDetail.Type.error
                         )
                     )
                 }
@@ -899,7 +900,8 @@ class WorkflowEngine(
                             InvalidReportMessage.new(
                                 "An unexpected error occurred requiring additional help. Contact the ReportStream " +
                                     "team at reportstream@cdc.gov."
-                            )
+                            ),
+                            ActionDetail.Type.error
                         )
                     )
                 }

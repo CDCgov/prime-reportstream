@@ -50,7 +50,7 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
                 warnings?.let {
                     warnings.add(
                         ActionDetail(
-                            ActionDetail.DetailScope.TRANSLATION,
+                            ActionDetail.DetailScope.translation,
                             "TO:${receiver.fullName}:${receiver.schemaName}",
                             InvalidTranslationMessage.new(e.localizedMessage),
                             reportId = input.id,

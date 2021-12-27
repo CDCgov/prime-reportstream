@@ -8,11 +8,17 @@
  *
  */
 
+CREATE TYPE action_detail_type AS ENUM ('info', 'warning', 'error', 'transformation');
+
+CREATE TYPE action_detail_scope AS ENUM ('parameter', 'report', 'item', 'translation');
+
 CREATE TABLE action_detail
 (
   id BIGSERIAL PRIMARY KEY,
   action_id INTEGER NOT NULL REFERENCES action(action_id) ON DELETE CASCADE,
   response_message TEXT,
   row INTEGER,
-  report_id UUID REFERENCES report_file(report_id) ON DELETE CASCADE
+  report_id UUID REFERENCES report_file(report_id) ON DELETE CASCADE,
+  type action_detail_type,
+  scope action_detail_scope
 );

@@ -373,10 +373,24 @@ class Hl7Serializer(
         val schema = metadata.findSchema(schemaName) ?: error("Schema name $schemaName not found")
         val mapping = convertBatchMessagesToMap(messageBody, schema)
         val mappedRows = mapping.mappedRows
-        errors.addAll(mapping.errors.map { ActionDetail(ActionDetail.DetailScope.ITEM, "", InvalidHL7Message.new(it)) })
+        errors.addAll(
+            mapping.errors.map {
+                ActionDetail(
+                    ActionDetail.DetailScope.item,
+                    "",
+                    InvalidHL7Message.new(it),
+                    type = ActionDetail.Type.error
+                )
+            }
+        )
         warnings.addAll(
             mapping.warnings.map {
-                ActionDetail(ActionDetail.DetailScope.ITEM, "", InvalidHL7Message.new(it))
+                ActionDetail(
+                    ActionDetail.DetailScope.item,
+                    "",
+                    InvalidHL7Message.new(it),
+                    type = ActionDetail.Type.warning
+                )
             }
         )
         mappedRows.forEach {

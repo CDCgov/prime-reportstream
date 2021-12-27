@@ -15,6 +15,7 @@ data class ActionDetail(
     val row: Int = -1,
     var reportId: UUID? = null,
     var action: Action? = null,
+    val type: Type = Type.info,
 ) {
     val rowNumber: Int
         get() = row + 1
@@ -27,8 +28,9 @@ data class ActionDetail(
      * @property REPORT scope for the detail
      * @property ITEM scope for the detail
      */
-    enum class DetailScope { PARAMETER, REPORT, ITEM, TRANSLATION }
-    enum class Type { INFO, TRANSFORMATION, WARNING, ERROR }
+    enum class DetailScope { parameter, report, item, translation }
+
+    enum class Type { info, warning, error, transformation }
 
     override fun toString(): String {
         val tracking = if (trackingId.isBlank()) "" else " $trackingId"
@@ -36,20 +38,16 @@ data class ActionDetail(
     }
 
     companion object {
-        fun report(message: ResponseMessage): ActionDetail {
-            return ActionDetail(DetailScope.REPORT, "", message, -1)
+        fun report(message: ResponseMessage, type: Type): ActionDetail {
+            return ActionDetail(DetailScope.report, "", message, -1, type = type)
         }
 
-        fun item(trackingId: String, message: ResponseMessage, row: Int): ActionDetail {
-            return ActionDetail(DetailScope.ITEM, trackingId, message, row)
+        fun item(trackingId: String, message: ResponseMessage, row: Int, type: Type): ActionDetail {
+            return ActionDetail(DetailScope.item, trackingId, message, row, type = type)
         }
 
-        fun param(trackingId: String, message: ResponseMessage): ActionDetail {
-            return ActionDetail(DetailScope.PARAMETER, trackingId, message, -1)
-        }
-
-        fun translation(trackingId: String, message: ResponseMessage): ActionDetail {
-            return ActionDetail(DetailScope.TRANSLATION, trackingId, message, -1)
+        fun param(trackingId: String, message: ResponseMessage, type: Type = Type.error): ActionDetail {
+            return ActionDetail(DetailScope.parameter, trackingId, message, -1, type = type)
         }
     }
 }

@@ -404,13 +404,21 @@ class ReportFunction : Logging {
             values.mapNotNull {
                 val parts = it.split(DEFAULT_SEPARATOR)
                 if (parts.size != 2) {
-                    errors.add(ActionDetail.report(InvalidReportMessage.new("'$it' is not a valid default")))
+                    errors.add(
+                        ActionDetail.report(
+                            InvalidReportMessage.new("'$it' is not a valid default"),
+                            ActionDetail.Type.error
+                        )
+                    )
                     return@mapNotNull null
                 }
                 val element = schema.findElement(parts[0])
                 if (element == null) {
                     errors.add(
-                        ActionDetail.report(InvalidReportMessage.new("'${parts[0]}' is not a valid element name"))
+                        ActionDetail.report(
+                            InvalidReportMessage.new("'${parts[0]}' is not a valid element name"),
+                            ActionDetail.Type.error
+                        )
                     )
                     return@mapNotNull null
                 }
