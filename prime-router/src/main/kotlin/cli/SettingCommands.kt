@@ -4,11 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.module.kotlin.KotlinFeature
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.PrintMessage
+import com.github.ajalt.clikt.core.ProgramResult
 import com.github.ajalt.clikt.core.subcommands
 import com.github.ajalt.clikt.output.TermUi
 import com.github.ajalt.clikt.parameters.options.default
@@ -17,7 +19,6 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.file
-import com.github.ajalt.clikt.parameters.types.inputStream
 import com.github.ajalt.clikt.parameters.types.int
 import com.github.ajalt.clikt.parameters.types.outputStream
 import com.github.kittinunf.fuel.Fuel
@@ -29,6 +30,8 @@ import com.github.kittinunf.fuel.json.FuelJson
 import com.github.kittinunf.fuel.json.responseJson
 import com.github.kittinunf.result.Result
 import com.google.common.net.HttpHeaders
+import de.m3y.kformat.Table
+import de.m3y.kformat.table
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
@@ -40,7 +43,6 @@ import gov.cdc.prime.router.azure.SenderAPI
 import gov.cdc.prime.router.common.Environment
 import org.apache.http.HttpStatus
 import java.io.File
-import java.io.InputStream
 import java.time.OffsetDateTime
 import java.time.format.DateTimeParseException
 
@@ -49,7 +51,9 @@ private const val dummyAccessToken = "dummy"
 private const val jsonMimeType = "application/json"
 
 /**
- * Base class to handle common stuff: authentication, calling, inputs and outputs
+ * Base class to handle common stuff: authentication, calling, inputs and outputs.
+ * It has a composable set of methods for listing, getting, diffing, putting and deleting settings.
+ * The idea is to make concrete commands clear and concise by building primitives in this class.
  */
 abstract class SettingCommand(
     name: String,
@@ -64,20 +68,52 @@ abstract class SettingCommand(
         .choice("local", "test", "staging", "prod")
         .default("local", "local environment")
 
-    private val outStream by option("-o", "--output", help = "Output to file", metavar = "<file>")
-        .outputStream(createIfNotExist = true, truncateExisting = true)
-        .default(System.out)
+    protected val outStream by option(
+        "-o", "--output",
+        help = "Output to file",
+        metavar = "<file>"
+    ).outputStream(createIfNotExist = true, truncateExisting = true).default(System.out)
 
-    private val verbose by option("-v", "--verbose", help = "Verbose logging of each HTTP operation to console")
-        .flag(default = false)
+    protected val verbose by option(
+        "-v", "--verbose",
+        help = "Verbose logging of each HTTP operation to console"
+    ).flag(default = false)
 
-    open val inStream: InputStream? = null
+    protected val silent by option(
+        "-s", "--silent",
+        help = "Do not echo progress or prompt for confirmation"
+    ).flag(default = false)
+
+    protected val inputOption = option(
+        "-i", "--input",
+        help = "Input from file",
+        metavar = "<file>"
+    ).file(mustBeReadable = true).required()
+
+    protected val nameOption = option(
+        "-n", "--name",
+        metavar = "<name>",
+        help = "The full name of the setting"
+    ).required()
+
+    protected val jsonOption = option(
+        "--json",
+        help = "Use the JSON format instead of YAML"
+    ).flag(default = false)
 
     enum class Operation { LIST, GET, PUT, DELETE }
-    enum class SettingType { ORG, SENDER, RECEIVER }
+    enum class SettingType { ORGANIZATION, SENDER, RECEIVER }
 
     val jsonMapper = jacksonObjectMapper()
-    val yamlMapper: ObjectMapper = ObjectMapper(YAMLFactory()).registerModule(KotlinModule())
+    val yamlMapper: ObjectMapper = ObjectMapper(YAMLFactory()).registerModule(
+        KotlinModule.Builder()
+            .withReflectionCacheSize(512)
+            .configure(KotlinFeature.NullToEmptyCollection, false)
+            .configure(KotlinFeature.NullToEmptyMap, false)
+            .configure(KotlinFeature.NullIsSameAsDefault, false)
+            .configure(KotlinFeature.StrictNullChecks, false)
+            .build()
+    )
 
     init {
         // Format OffsetDateTime as an ISO string
@@ -87,12 +123,31 @@ abstract class SettingCommand(
         yamlMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
     }
 
-    fun getAccessToken(environment: Environment): String {
-        if (environment.oktaApp == null) return dummyAccessToken
-        return OktaCommand.fetchAccessToken(environment.oktaApp)
-            ?: abort("Invalid access token. Run ./prime login to fetch/refresh your access token.")
+    /**
+     * The environment specified by the command line parameters
+     */
+    val cliEnvironment: Environment by lazy {
+        Environment.get(env)
     }
 
+    /**
+     * The access token left by a previous login command as specified by the command line parameters
+     */
+    val cliAccessToken: String by lazy {
+        if (cliEnvironment.oktaApp == null) {
+            dummyAccessToken
+        } else {
+            OktaCommand.fetchAccessToken(cliEnvironment.oktaApp)
+                ?: abort(
+                    "Invalid access token. " +
+                        "Run ./prime login to fetch/refresh your access token for the $env environment."
+                )
+        }
+    }
+
+    /**
+     * Put entity for [settingName]. [settingType] is needed for serialization
+     */
     fun put(
         environment: Environment,
         accessToken: String,
@@ -101,9 +156,7 @@ abstract class SettingCommand(
         payload: String
     ): String {
         val path = formPath(environment, Operation.PUT, settingType, settingName)
-        if (verbose) {
-            echo("PUT $path :: $payload")
-        }
+        verbose("PUT $path :: $payload")
         val output = SettingsUtilities.put(path, accessToken, payload)
         val (_, response, result) = output
         return when (result) {
@@ -120,11 +173,12 @@ abstract class SettingCommand(
         }
     }
 
+    /**
+     * Delete entity for [settingName]. [settingType] is needed for serialization
+     */
     fun delete(environment: Environment, accessToken: String, settingType: SettingType, settingName: String): String {
         val path = formPath(environment, Operation.DELETE, settingType, settingName)
-        if (verbose) {
-            echo("DELETE $path")
-        }
+        verbose("DELETE $path")
         val (_, response, result) = SettingsUtilities.delete(path, accessToken)
         return when (result) {
             is Result.Failure ->
@@ -134,29 +188,45 @@ abstract class SettingCommand(
         }
     }
 
-    fun get(environment: Environment, accessToken: String, settingType: SettingType, settingName: String): String {
+    /**
+     * Get entity for [settingName]. [settingType] is needed for serialization
+     */
+    fun get(
+        environment: Environment,
+        accessToken: String,
+        settingType: SettingType,
+        settingName: String,
+        abortOnError: Boolean = true
+    ): String {
         val path = formPath(environment, Operation.GET, settingType, settingName)
-        if (verbose) {
-            echo("GET $path")
-        }
+        verbose("GET $path")
         val (_, response, result) = SettingsUtilities.get(path, accessToken)
         return when (result) {
-            is Result.Failure ->
-                abort("Error getting $settingName: ${response.responseMessage} ${String(response.data)}")
+            is Result.Failure -> {
+                if (abortOnError)
+                    abort(
+                        "Error getting $settingName in the $env environment:" +
+                            " ${response.responseMessage} ${String(response.data)}"
+                    )
+                else
+                    ""
+            }
             is Result.Success -> result.value
         }
     }
 
+    /**
+     * Get entities for [settingName]. [settingType] is needed for serialization
+     */
     fun getMany(environment: Environment, accessToken: String, settingType: SettingType, settingName: String): String {
         val path = formPath(environment, Operation.LIST, settingType, settingName)
-        if (verbose) {
-            echo("GET $path")
-        }
+        verbose("GET $path")
         val (_, response, result) = Fuel
             .get(path)
             .authentication()
             .bearer(accessToken)
             .header(CONTENT_TYPE to jsonMimeType)
+            .timeoutRead(SettingsUtilities.requestTimeoutMillis)
             .responseJson()
         return when (result) {
             is Result.Failure -> handleHttpFailure(settingName, response, result)
@@ -164,6 +234,9 @@ abstract class SettingCommand(
         }
     }
 
+    /**
+     * List entities for [settingName]. [settingType] is needed for serialization
+     */
     fun listNames(
         environment: Environment,
         accessToken: String,
@@ -171,20 +244,19 @@ abstract class SettingCommand(
         settingName: String
     ): List<String> {
         val path = formPath(environment, Operation.LIST, settingType, settingName)
-        if (verbose) {
-            echo("GET $path")
-        }
+        verbose("GET $path")
         val (_, response, result) = Fuel
             .get(path)
             .authentication()
             .bearer(accessToken)
             .header(CONTENT_TYPE to jsonMimeType)
+            .timeoutRead(SettingsUtilities.requestTimeoutMillis)
             .responseJson()
         return when (result) {
             is Result.Failure -> handleHttpFailure(settingName, response, result)
             is Result.Success -> {
                 val resultObjs = result.value.array()
-                val names = if (settingType == SettingType.ORG) {
+                val names = if (settingType == SettingType.ORGANIZATION) {
                     (0 until resultObjs.length())
                         .map { resultObjs.getJSONObject(it) }
                         .map { it.getString("name") }
@@ -198,23 +270,117 @@ abstract class SettingCommand(
         }
     }
 
+    // Class to capture the differences for particular setting object
+    data class SettingsDiff(
+        val settingType: SettingType,
+        val settingName: String,
+        val differences: List<CommandUtilities.Companion.DiffRow>
+    )
+
     /**
-     * Read the contents of an [inputStream].
-     * @return the file contents
+     * Calculate the difference of [settingName] in [environment] to [payload].
+     * [settingType] is needed for serialization. Returns a list of differences or an empty list for no differences.
      */
-    fun readInput(inputStream: InputStream? = inStream): String {
-        if (inputStream == null) abort("Missing input file")
-        val input = String(inputStream.readAllBytes())
-        if (input.isBlank()) abort("Blank input")
-        return input
+    fun diff(
+        environment: Environment,
+        accessToken: String,
+        settingType: SettingType,
+        settingName: String,
+        payload: String
+    ): List<SettingsDiff> {
+        val base = get(environment, accessToken, settingType, settingName, abortOnError = false)
+        val diffList = CommandUtilities.diffJson(base, payload)
+            .filter { !it.name.startsWith("meta") } // Remove the meta differences
+        return if (diffList.isNotEmpty())
+            listOf(SettingsDiff(settingType, settingName, diffList))
+        else
+            emptyList()
     }
 
     /**
-     * Read the contents [file].
-     * @return the file contents
+     * Difference the YAML [inputFile]. Returns a list of all settings with differences.
      */
-    fun readInput(file: File): String {
-        return readInput(file.inputStream())
+    protected fun diffAll(inputFile: File): List<SettingsDiff> {
+        val deepOrganizations = readYaml(inputFile)
+        val settingsDiff = mutableListOf<SettingsDiff>()
+        // diff organizations
+        deepOrganizations.forEach { deepOrg ->
+            val org = Organization(deepOrg)
+            val payload = jsonMapper.writeValueAsString(org)
+            settingsDiff += diff(cliEnvironment, cliAccessToken, SettingType.ORGANIZATION, deepOrg.name, payload)
+        }
+        // diff senders
+        deepOrganizations.flatMap { it.senders }.forEach { sender ->
+            val payload = jsonMapper.writeValueAsString(sender)
+            settingsDiff += diff(cliEnvironment, cliAccessToken, SettingType.SENDER, sender.fullName, payload)
+        }
+        // diff receivers
+        deepOrganizations.flatMap { it.receivers }.forEach { receiver ->
+            val payload = jsonMapper.writeValueAsString(receiver)
+            settingsDiff += diff(cliEnvironment, cliAccessToken, SettingType.RECEIVER, receiver.fullName, payload)
+        }
+        return settingsDiff.sortedWith(compareBy({ it.settingType.name }, { it.settingName }))
+    }
+
+    /**
+     * Echo the setting differences list in a single pretty table.
+     */
+    protected fun echoDiff(settingsDiff: List<SettingsDiff>) {
+        if (settingsDiff.isEmpty()) return
+        val renderedTable = table {
+            hints {
+                borderStyle = Table.BorderStyle.SINGLE_LINE
+            }
+            header("entity type", "entity name", "setting name", "environment value", "file value")
+            settingsDiff.forEach { diff ->
+                diff.differences.forEach { itemDiff ->
+                    row(
+                        diff.settingType.name.lowercase(),
+                        diff.settingName,
+                        itemDiff.name,
+                        itemDiff.baseValue,
+                        itemDiff.toValue
+                    )
+                }
+            }
+        }.render().toString()
+        echo(renderedTable)
+    }
+
+    /**
+     * Put all the in the [inputFile]. Return the list of results.
+     */
+    protected fun putAll(inputFile: File): List<String> {
+        val deepOrganizations = readYaml(inputFile)
+        val results = mutableListOf<String>()
+        // Put organizations
+        deepOrganizations.forEach { deepOrg ->
+            val org = Organization(deepOrg)
+            val payload = jsonMapper.writeValueAsString(org)
+            results += put(cliEnvironment, cliAccessToken, SettingType.ORGANIZATION, deepOrg.name, payload)
+        }
+        // Put senders
+        deepOrganizations.flatMap { it.senders }.forEach { sender ->
+            val payload = jsonMapper.writeValueAsString(sender)
+            results += put(cliEnvironment, cliAccessToken, SettingType.SENDER, sender.fullName, payload)
+        }
+        // Put receivers
+        deepOrganizations.flatMap { it.receivers }.forEach { receiver ->
+            val payload = jsonMapper.writeValueAsString(receiver)
+            results += put(cliEnvironment, cliAccessToken, SettingType.RECEIVER, receiver.fullName, payload)
+        }
+        return results
+    }
+
+    private fun readYaml(inputFile: File): List<DeepOrganization> {
+        val input = readInput(inputFile)
+        return yamlMapper.readValue(input)
+    }
+
+    fun readInput(inputFile: File): String {
+        val input = String(inputFile.readBytes())
+        if (input.isBlank()) abort("Blank input")
+        return input
     }
 
     fun writeOutput(output: String) {
@@ -242,7 +408,7 @@ abstract class SettingCommand(
 
     private fun readStructure(input: String, settingType: SettingType, mapper: ObjectMapper): Pair<String, String> {
         return when (settingType) {
-            SettingType.ORG -> {
+            SettingType.ORGANIZATION -> {
                 val organization = mapper.readValue(input, OrganizationAPI::class.java)
                 Pair(organization.name, jsonMapper.writeValueAsString(organization))
             }
@@ -260,7 +426,7 @@ abstract class SettingCommand(
     fun toYaml(output: String, settingType: SettingType): String {
         // DevNote: could be handled by inherited methods, but decided that keeping all these together was maintainable
         return when (settingType) {
-            SettingType.ORG -> {
+            SettingType.ORGANIZATION -> {
                 val organization = jsonMapper.readValue(output, OrganizationAPI::class.java)
                 yamlMapper.writeValueAsString(organization)
             }
@@ -275,11 +441,48 @@ abstract class SettingCommand(
         }
     }
 
-    companion object {
-        fun abort(message: String): Nothing {
-            throw PrintMessage(message, error = true)
-        }
+    /**
+     * Echo information to the console respecting the --silent flag
+     */
+    fun echo(message: String) {
+        if (!silent) TermUi.echo(message)
+    }
 
+    /**
+     * Echo verbose information to the console respecting the --silent and --verbose flag
+     */
+    fun verbose(message: String) {
+        if (verbose) TermUi.echo(message)
+    }
+
+    /**
+     * Abort the program with the message
+     */
+    fun abort(message: String): Nothing {
+        if (silent)
+            throw ProgramResult(statusCode = 1)
+        else
+            throw PrintMessage(message, error = true)
+    }
+
+    /**
+     * Confirm to continue or abort, if not in --silent mode. Display the [abortMessage] if exiting.
+     */
+    fun confirm(message: String = "Perform the above changes", abortMessage: String = "No change applied") {
+        if (!silent && TermUi.confirm(message) == false) {
+            abort(abortMessage)
+        }
+    }
+
+    /**
+     * Confirm that the api is available and that the CLI can access it. Abort if not available.
+     */
+    fun checkApi(environment: Environment) {
+        if (!CommandUtilities.isApiAvailable(environment))
+            abort("The $env environment's API is not available or you have an invalid access token.")
+    }
+
+    companion object {
         fun formPath(
             environment: Environment,
             operation: Operation,
@@ -292,13 +495,13 @@ abstract class SettingCommand(
         private fun settingPath(operation: Operation, settingType: SettingType, settingName: String): String {
             return if (operation == Operation.LIST) {
                 when (settingType) {
-                    SettingType.ORG -> "/organizations"
+                    SettingType.ORGANIZATION -> "/organizations"
                     SettingType.SENDER -> "/organizations/$settingName/senders"
                     SettingType.RECEIVER -> "/organizations/$settingName/receivers"
                 }
             } else {
                 when (settingType) {
-                    SettingType.ORG -> "/organizations/$settingName"
+                    SettingType.ORGANIZATION -> "/organizations/$settingName"
                     SettingType.SENDER -> {
                         val (orgName, senderName) = Sender.parseFullName(settingName)
                         "/organizations/$orgName/senders/$senderName"
@@ -314,76 +517,111 @@ abstract class SettingCommand(
 }
 
 /**
- * Handle a setting for a single entity. Includes the run method.
+ * List a single object entity
  */
-abstract class SingleSettingCommandNoSettingName(
-    val name: String,
-    val help: String,
+abstract class ListSettingCommand(
+    name: String,
+    help: String,
     val settingType: SettingType,
-    val operation: Operation
-) : SettingCommand(name = name, help = help) {
-    open val settingName: String = ""
-
-    val useJson by option(
-        "--json",
-        help = "Use the JSON format instead of YAML"
-    ).flag(default = false)
+) : SettingCommand(name, help) {
+    private val settingName: String by nameOption
 
     override fun run() {
-        // Authenticate
-        val environment = Environment.get(env)
-        val accessToken = getAccessToken(environment)
-
-        // Operations
-        when (operation) {
-            Operation.LIST -> {
-                if (settingType != SettingType.ORG && settingName.isBlank())
-                    abort("Missing organization name argument")
-                val output = listNames(environment, accessToken, settingType, settingName)
-                writeOutput(output.joinToString("\n"))
-            }
-            Operation.GET -> {
-                val output = get(environment, accessToken, settingType, settingName)
-                if (useJson) writeOutput(output) else writeOutput(toYaml(output, settingType))
-            }
-            Operation.PUT -> {
-                val (name, payload) = if (useJson)
-                    fromJson(readInput(), settingType)
-                else
-                    fromYaml(readInput(), settingType)
-                val output = put(environment, accessToken, settingType, name, payload)
-
-                writeOutput(output)
-            }
-            Operation.DELETE -> {
-                delete(environment, accessToken, settingType, settingName)
-                writeOutput("Success. Removed $settingName\n")
-            }
-        }
+        if (settingType != SettingType.ORGANIZATION && settingName.isBlank())
+            abort("Missing organization name argument")
+        checkApi(cliEnvironment)
+        val output = listNames(cliEnvironment, cliAccessToken, settingType, settingName)
+        writeOutput(output.joinToString("\n"))
     }
 }
 
-abstract class SingleSettingCommand(
+/**
+ * Get a single object entity
+ */
+abstract class GetSettingCommand(
     name: String,
     help: String,
-    settingType: SettingType,
-    operation: Operation
-) : SingleSettingCommandNoSettingName(name, help, settingType, operation) {
-    override val settingName: String by option(
-        "-n", "--name",
-        metavar = "<name>",
-        help = "The full name of the setting"
-    ).required()
+    val settingType: SettingType
+) : SettingCommand(name, help) {
+    private val settingName: String by nameOption
+    private val useJson: Boolean by jsonOption
+
+    override fun run() {
+        checkApi(cliEnvironment)
+        val output = get(cliEnvironment, cliAccessToken, settingType, settingName)
+        if (useJson) writeOutput(output) else writeOutput(toYaml(output, settingType))
+    }
 }
 
-abstract class SingleSettingWithInputCommand(
+/**
+ * Remove a single entity
+ */
+abstract class DeleteSettingCommand(
     name: String,
     help: String,
-    settingType: SettingType,
-    operation: Operation
-) : SingleSettingCommandNoSettingName(name, help, settingType, operation) {
-    override val inStream by option("-i", "--input", help = "Input from file", metavar = "<file>")
-        .inputStream()
+    val settingType: SettingType
+) : SettingCommand(name, help) {
+    private val settingName: String by nameOption
+
+    override fun run() {
+        checkApi(cliEnvironment)
+        delete(cliEnvironment, cliAccessToken, settingType, settingName)
+        writeOutput("Success. Removed $settingName\n")
+    }
+}
+
+/**
+ * Put an entity command with an input file
+ */
+abstract class PutSettingCommand(
+    name: String,
+    help: String,
+    val settingType: SettingType
+) : SettingCommand(name, help) {
+    private val inputFile by inputOption
+    private val useJson: Boolean by jsonOption
+
+    override fun run() {
+        checkApi(cliEnvironment)
+        val (name, payload) = if (useJson)
+            fromJson(readInput(inputFile), settingType)
+        else
+            fromYaml(readInput(inputFile), settingType)
+        if (!silent) {
+            val differences = diff(cliEnvironment, cliAccessToken, settingType, name, payload)
+            if (differences.isNotEmpty()) {
+                echoDiff(differences)
+                confirm()
+            }
+        }
+        val output = put(cliEnvironment, cliAccessToken, settingType, name, payload)
+        writeOutput(output)
+    }
+}
+
+/**
+ * Diff an entity command with an input file
+ */
+abstract class DiffSettingCommand(
+    name: String,
+    help: String,
+    val settingType: SettingType
+) : SettingCommand(name, help) {
+    private val inputFile by inputOption
+    private val useJson: Boolean by jsonOption
+
+    override fun run() {
+        checkApi(cliEnvironment)
+        val (name, payload) = if (useJson)
+            fromJson(readInput(inputFile), settingType)
+        else
+            fromYaml(readInput(inputFile), settingType)
+        val differences = diff(cliEnvironment, cliAccessToken, settingType, name, payload)
+        if (differences.isNotEmpty())
+            echoDiff(differences)
+        else
+            echo("No differences")
+    }
 }
 
 /**
@@ -395,39 +633,51 @@ class OrganizationSettings : CliktCommand(
 ) {
     init {
         subcommands(
-            ListOrganizationSetting(), GetOrganizationSetting(), PutOrganizationSetting(), DeleteOrganizationSetting()
+            ListOrganizationSetting(),
+            GetOrganizationSetting(),
+            PutOrganizationSetting(),
+            DeleteOrganizationSetting(),
+            DiffOrganizationSetting(),
         )
     }
 
-    override fun run() {}
+    override fun run() {
+        // Does not run at this level
+    }
 }
 
-class ListOrganizationSetting : SingleSettingCommandNoSettingName(
+class ListOrganizationSetting : SettingCommand(
     name = "list",
-    help = "List the names of all organizations",
-    settingType = SettingType.ORG,
-    operation = Operation.LIST
-)
+    help = "List the setting names of all organizations"
+) {
+    override fun run() {
+        val output = listNames(cliEnvironment, cliAccessToken, SettingType.ORGANIZATION, "")
+        writeOutput(output.joinToString("\n"))
+    }
+}
 
-class GetOrganizationSetting : SingleSettingCommand(
+class GetOrganizationSetting : GetSettingCommand(
     name = "get",
-    help = "Fetch a organization",
-    settingType = SettingType.ORG,
-    operation = Operation.GET
+    help = "Fetch an organization's settings",
+    settingType = SettingType.ORGANIZATION,
 )
 
-class PutOrganizationSetting : SingleSettingWithInputCommand(
+class PutOrganizationSetting : PutSettingCommand(
     name = "set",
-    help = "Update a organization",
-    settingType = SettingType.ORG,
-    operation = Operation.PUT
+    help = "Update an organization's settings",
+    settingType = SettingType.ORGANIZATION
 )
 
-class DeleteOrganizationSetting : SingleSettingCommand(
+class DeleteOrganizationSetting : DeleteSettingCommand(
     name = "remove",
-    help = "Remove a organization",
-    settingType = SettingType.ORG,
-    operation = Operation.DELETE
+    help = "Remove an organization",
+    settingType = SettingType.ORGANIZATION,
+)
+
+class DiffOrganizationSetting : DiffSettingCommand(
+    name = "diff",
+    help = "Compare an organization's setting from an environment to those in an file",
+    settingType = SettingType.ORGANIZATION
 )
 
 /**
@@ -443,40 +693,45 @@ class SenderSettings : CliktCommand(
             GetSenderSetting(),
             PutSenderSetting(),
             DeleteSenderSetting(),
+            DiffSenderSetting(),
             TokenUrl(),
             AddPublicKey(),
         )
     }
 
-    override fun run() {}
+    override fun run() {
+        // Does not run at this level
+    }
 }
 
-class ListSenderSetting : SingleSettingCommand(
+class ListSenderSetting : ListSettingCommand(
     name = "list",
     help = "List all sender names for an organization",
     settingType = SettingType.SENDER,
-    operation = Operation.LIST
 )
 
-class GetSenderSetting : SingleSettingCommand(
+class GetSenderSetting : GetSettingCommand(
     name = "get",
-    help = "Fetch a sender",
+    help = "Fetch a sender's settings",
     settingType = SettingType.SENDER,
-    operation = Operation.GET
 )
 
-class PutSenderSetting : SingleSettingWithInputCommand(
+class PutSenderSetting : PutSettingCommand(
     name = "set",
-    help = "Update a sender",
+    help = "Update a sender's settings",
     settingType = SettingType.SENDER,
-    operation = Operation.PUT
 )
 
-class DeleteSenderSetting : SingleSettingCommand(
+class DeleteSenderSetting : DeleteSettingCommand(
     name = "remove",
     help = "Remove a sender",
     settingType = SettingType.SENDER,
-    operation = Operation.DELETE
+)
+
+class DiffSenderSetting : DiffSettingCommand(
+    name = "diff",
+    help = "Compare sender's settings from an environment to those in a file",
+    settingType = SettingType.SENDER,
 )
 
 /**
@@ -486,37 +741,49 @@ class ReceiverSettings : CliktCommand(
     name = "receiver",
     help = "Fetch and update settings for a receiver"
 ) {
-    init { subcommands(ListReceiverSetting(), GetReceiverSetting(), PutReceiverSetting(), DeleteReceiverSetting()) }
+    init {
+        subcommands(
+            ListReceiverSetting(),
+            GetReceiverSetting(),
+            PutReceiverSetting(),
+            DeleteReceiverSetting(),
+            DiffReceiverSetting(),
+        )
+    }
 
-    override fun run() {}
+    override fun run() {
+        // Does not run at this level
+    }
 }
 
-class ListReceiverSetting : SingleSettingCommand(
+class ListReceiverSetting : ListSettingCommand(
     name = "list",
-    help = "Fetch receiver names for an organization",
+    help = "Fetch the receiver names for an organization",
     settingType = SettingType.RECEIVER,
-    operation = Operation.LIST
 )
 
-class GetReceiverSetting : SingleSettingCommand(
+class GetReceiverSetting : GetSettingCommand(
     name = "get",
-    help = "Fetch a receiver",
+    help = "Fetch a receiver's settings",
     settingType = SettingType.RECEIVER,
-    operation = Operation.GET
 )
 
-class PutReceiverSetting : SingleSettingWithInputCommand(
+class PutReceiverSetting : PutSettingCommand(
     name = "set",
-    help = "Update a receiver",
+    help = "Update a receiver's settings",
     settingType = SettingType.RECEIVER,
-    operation = Operation.PUT
 )
 
-class DeleteReceiverSetting : SingleSettingCommand(
+class DeleteReceiverSetting : DeleteSettingCommand(
     name = "remove",
     help = "Remove a receiver",
     settingType = SettingType.RECEIVER,
-    operation = Operation.DELETE
+)
+
+class DiffReceiverSetting : DiffSettingCommand(
+    name = "diff",
+    help = "Compare a receiver's settings from an environment to those in a file",
+    settingType = SettingType.RECEIVER,
 )
 
 /**
@@ -526,21 +793,18 @@ class MultipleSettings : CliktCommand(
     name = "multiple-settings",
     help = "Fetch and update multiple settings"
 ) {
-    init { subcommands(PutMultipleSettings(), GetMultipleSettings()) }
+    init { subcommands(PutMultipleSettings(), GetMultipleSettings(), DiffMultipleSettings()) }
 
-    override fun run() {}
+    override fun run() {
+        // Does not run at this level
+    }
 }
 
 class PutMultipleSettings : SettingCommand(
     name = "set",
-    help = "set all settings from a 'organizations.yml' file"
+    help = "Set all settings from a 'organizations.yml' file"
 ) {
-
-    /**
-     * Input file with the settings.
-     */
-    private val inputFile by option("-i", "--input", help = "Input from file", metavar = "<file>")
-        .file(true, mustBeReadable = true).required()
+    private val inputFile by inputOption
 
     /**
      * Number of connection retries.
@@ -558,32 +822,35 @@ class PutMultipleSettings : SettingCommand(
         .flag(default = false)
 
     override fun run() {
-        val environment = Environment.get(env)
-        val accessToken = getAccessToken(environment)
-
         // First wait for the API to come online
-        TermUi.echo("Waiting for the API at ${environment.url} to be available...")
-        CommandUtilities.waitForApi(environment, connRetries)
+        echo("Waiting for the API at ${cliEnvironment.url} to be available...")
+        CommandUtilities.waitForApi(cliEnvironment, connRetries)
 
-        if (!checkLastModified || (checkLastModified && isFileUpdated(environment))) {
-            TermUi.echo("Loading settings from ${inputFile.absolutePath}...")
-            val results = putAll(environment, accessToken)
+        if (!checkLastModified || (checkLastModified && isFileUpdated())) {
+            echo("Loading settings from ${inputFile.absolutePath}...")
+            if (!silent) {
+                val differences = diffAll(inputFile)
+                if (differences.isNotEmpty()) {
+                    echoDiff(differences)
+                    confirm()
+                }
+            }
+            val results = putAll(inputFile)
             val output = "${results.joinToString("\n")}\n"
             writeOutput(output)
         } else {
-            TermUi.echo("No new updates found for settings.")
+            echo("No new updates found for settings.")
         }
     }
 
     /**
-     * Check if the settings from a file are newer than the data stored in the database for the
-     * given [environment].
+     * Check if the settings from a file are newer than the data stored in the database for commands environment.
      * @return true if the file settings are newer or there is nothing in the database, false otherwise
      */
-    private fun isFileUpdated(environment: Environment): Boolean {
-        val url = formPath(environment, Operation.LIST, SettingType.ORG, "")
+    private fun isFileUpdated(): Boolean {
+        val url = formPath(cliEnvironment, Operation.LIST, SettingType.ORGANIZATION, "")
         val (_, response, result) = Fuel.head(url).authentication()
-            .bearer(getAccessToken(environment)).response()
+            .bearer(cliAccessToken).response()
         return when (result) {
             is Result.Success -> {
                 if (response[HttpHeaders.LAST_MODIFIED].isNotEmpty()) {
@@ -601,42 +868,29 @@ class PutMultipleSettings : SettingCommand(
             else -> error("Unable to fetch settings last update time from API.  $result")
         }
     }
+}
 
-    private fun putAll(environment: Environment, accessToken: String): List<String> {
-        val deepOrgs = readYaml(inputFile)
-        val results = mutableListOf<String>()
-        // Put orgs
-        deepOrgs.forEach { deepOrg ->
-            val org = Organization(deepOrg)
-            val payload = jsonMapper.writeValueAsString(org)
-            results += put(environment, accessToken, SettingType.ORG, deepOrg.name, payload)
-        }
-        // Put senders
-        deepOrgs.flatMap { it.senders }.forEach { sender ->
-            val payload = jsonMapper.writeValueAsString(sender)
-            results += put(environment, accessToken, SettingType.SENDER, sender.fullName, payload)
-        }
-        // Put receivers
-        deepOrgs.flatMap { it.receivers }.forEach { receiver ->
-            val payload = jsonMapper.writeValueAsString(receiver)
-            results += put(environment, accessToken, SettingType.RECEIVER, receiver.fullName, payload)
-        }
-        return results
-    }
+class DiffMultipleSettings : SettingCommand(
+    name = "diff",
+    help = "Compare all the settings from an environment to those in a file"
+) {
+    private val inputFile by inputOption
 
-    /**
-     * Read the settings from a YAML file.
-     * @return the settings
-     */
-    private fun readYaml(file: File): List<DeepOrganization> {
-        val input = readInput(file.inputStream())
-        return yamlMapper.readValue(input)
+    override fun run() {
+        checkApi(cliEnvironment)
+        echo("Loading settings from ${inputFile.absolutePath} to compare...")
+        val differences = diffAll(inputFile)
+        if (differences.isNotEmpty()) {
+            echoDiff(differences)
+        } else {
+            echo("No differences")
+        }
     }
 }
 
 class GetMultipleSettings : SettingCommand(
     name = "get",
-    help = "get all settings from an environment in yaml format"
+    help = "Get all settings from an environment in yaml format"
 ) {
     val filter by option(
         "-f", "--filter",
@@ -645,28 +899,27 @@ class GetMultipleSettings : SettingCommand(
     )
 
     override fun run() {
-        val environment = Environment.get(env)
-        val accessToken = getAccessToken(environment)
-        val output = getAll(environment, accessToken)
+        checkApi(cliEnvironment)
+        val output = getAll(cliEnvironment, cliAccessToken)
         writeOutput(output)
     }
 
     private fun getAll(environment: Environment, accessToken: String): String {
-        // get orgs
-        val orgsJson = getMany(environment, accessToken, SettingType.ORG, settingName = "")
-        var orgs = jsonMapper.readValue(orgsJson, Array<OrganizationAPI>::class.java)
+        // get organizations
+        val organizationJson = getMany(environment, accessToken, SettingType.ORGANIZATION, settingName = "")
+        var organizations = jsonMapper.readValue(organizationJson, Array<OrganizationAPI>::class.java)
         if (filter != null) {
-            orgs = orgs.filter { it.name.startsWith(filter!!, ignoreCase = true) }.toTypedArray()
+            organizations = organizations.filter { it.name.startsWith(filter!!, ignoreCase = true) }.toTypedArray()
         }
 
         // get senders and receivers per org
-        val deepOrgs = orgs.map { org ->
+        val deepOrganizations = organizations.map { org ->
             val sendersJson = getMany(environment, accessToken, SettingType.SENDER, org.name)
             val orgSenders = jsonMapper.readValue(sendersJson, Array<SenderAPI>::class.java).map { Sender(it) }
             val receiversJson = getMany(environment, accessToken, SettingType.RECEIVER, org.name)
             val orgReceivers = jsonMapper.readValue(receiversJson, Array<ReceiverAPI>::class.java).map { Receiver(it) }
             DeepOrganization(org, orgSenders, orgReceivers)
         }
-        return yamlMapper.writeValueAsString(deepOrgs)
+        return yamlMapper.writeValueAsString(deepOrganizations)
     }
 }

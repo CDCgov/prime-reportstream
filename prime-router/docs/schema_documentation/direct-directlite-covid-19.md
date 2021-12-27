@@ -1,10 +1,16 @@
 
-### Schema:         direct/directlite-covid-19
-#### Description:   Direct Submission to ReportStream COVID-19 flat file, Lite edition (tm)
+### Schema: direct/directlite-covid-19
+### Topic: covid-19
+### Tracking Element: specimenId (specimen_id)
+### Base On: [covid-19](./covid-19.md)
+### Extends: none
+#### Description: Direct Submission to ReportStream COVID-19 flat file, Lite edition (tm)
 
 ---
 
 **Name**: testReportDate
+
+**ReportStream Internal Name**: date_result_released
 
 **Type**: DATETIME
 
@@ -20,11 +26,13 @@ eg, 20210112
 
 **Name**: healthcareEmployee
 
+**ReportStream Internal Name**: employed_in_healthcare
+
 **Type**: CODE
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **LOINC Code**: 95418-0
 
@@ -46,6 +54,8 @@ Override the base hl70136 valueset with a custom one, to handle slightly differe
 
 **Name**: deviceName
 
+**ReportStream Internal Name**: equipment_model_name
+
 **Type**: TABLE
 
 **PII**: No
@@ -66,33 +76,15 @@ If present, match LIVD column B, "Model". eg,  "BD Veritor System for Rapid Dete
 
 ---
 
-**Name**: filler_order_id
-
-**Type**: ID
-
-**PII**: No
-
-**HL7 Fields**
-
-- [OBR-3-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.3.1)
-- [ORC-3-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.3.1)
-- [SPM-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2)
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-Accension number
-
----
-
 **Name**: firstTest
+
+**ReportStream Internal Name**: first_test
 
 **Type**: CODE
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **LOINC Code**: 95417-2
 
@@ -114,11 +106,13 @@ Override the base hl70136 valueset with a custom one, to handle slightly differe
 
 **Name**: hospitalized
 
+**ReportStream Internal Name**: hospitalized
+
 **Type**: CODE
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **LOINC Code**: 77974-4
 
@@ -140,11 +134,13 @@ Override the base hl70136 valueset with a custom one, to handle slightly differe
 
 **Name**: symptomsIcu
 
+**ReportStream Internal Name**: icu
+
 **Type**: CODE
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **LOINC Code**: 95420-6
 
@@ -166,6 +162,8 @@ Override the base hl70136 valueset with a custom one, to handle slightly differe
 
 **Name**: testId
 
+**ReportStream Internal Name**: message_id
+
 **Type**: ID
 
 **PII**: No
@@ -179,6 +177,8 @@ ReportStream copies value from the specimenId if none is provided by the sender.
 ---
 
 **Name**: testOrdered
+
+**ReportStream Internal Name**: ordered_test_code
 
 **Type**: TABLE
 
@@ -198,6 +198,8 @@ eg, 94531-1
 
 **Name**: testName
 
+**ReportStream Internal Name**: ordered_test_name
+
 **Type**: TABLE
 
 **PII**: No
@@ -215,6 +217,8 @@ Should be the name that matches to Test Ordered LOINC Long Name, in LIVD table
 ---
 
 **Name**: orderingProviderFname
+
+**ReportStream Internal Name**: ordering_provider_first_name
 
 **Type**: PERSON_NAME
 
@@ -235,6 +239,8 @@ The first name of the provider who ordered the test
 
 **Name**: orderingProviderNpi
 
+**ReportStream Internal Name**: ordering_provider_id
+
 **Type**: ID_NPI
 
 **PII**: No
@@ -253,6 +259,8 @@ eg, "1265050918"
 ---
 
 **Name**: orderingProviderLname
+
+**ReportStream Internal Name**: ordering_provider_last_name
 
 **Type**: PERSON_NAME
 
@@ -273,6 +281,8 @@ The last name of provider who ordered the test
 
 **Name**: orderingProviderZip
 
+**ReportStream Internal Name**: ordering_provider_zip_code
+
 **Type**: POSTAL_CODE
 
 **PII**: No
@@ -287,6 +297,8 @@ The zip code of the provider
 
 **Name**: patientAge
 
+**ReportStream Internal Name**: patient_age
+
 **Type**: NUMBER
 
 **PII**: No
@@ -298,6 +310,8 @@ The zip code of the provider
 ---
 
 **Name**: patientCounty
+
+**ReportStream Internal Name**: patient_county
 
 **Type**: TABLE_OR_BLANK
 
@@ -313,11 +327,13 @@ The zip code of the provider
 
 **Name**: patientEthnicity
 
+**ReportStream Internal Name**: patient_ethnicity
+
 **Type**: CODE
 
 **PII**: No
 
-**Format**: $alt
+**Format**: use value found in the Display column
 
 **Cardinality**: [0..1]
 
@@ -350,9 +366,13 @@ Internally, ReportStream uses hl70189 (H,N,U), but should use HHS values. (2135-
 
 **Name**: patientSex
 
+**ReportStream Internal Name**: patient_gender
+
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
@@ -376,6 +396,8 @@ The patient's gender. There is a valueset defined based on the values in PID-8-1
 
 **Name**: patientUniqueId
 
+**ReportStream Internal Name**: patient_id
+
 **Type**: TEXT
 
 **PII**: Yes
@@ -392,21 +414,11 @@ the patient ID from the testing lab, the oder placer, the ordering provider, or 
 
 **Name**: patientUniqueIdHash
 
-**Type**: TEXT
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: patient_id_type
+**ReportStream Internal Name**: patient_id_hash
 
 **Type**: TEXT
 
 **PII**: No
-
-**Default Value**: PI
 
 **Cardinality**: [0..1]
 
@@ -414,9 +426,13 @@ the patient ID from the testing lab, the oder placer, the ordering provider, or 
 
 **Name**: patientRace
 
+**ReportStream Internal Name**: patient_race
+
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
@@ -442,6 +458,8 @@ The patient's race. There is a common valueset defined for race values, but some
 
 **Name**: patientState
 
+**ReportStream Internal Name**: patient_state
+
 **Type**: TABLE
 
 **PII**: No
@@ -460,6 +478,8 @@ The patient's state
 
 **Name**: patientZip
 
+**ReportStream Internal Name**: patient_zip_code
+
 **Type**: POSTAL_CODE
 
 **PII**: No
@@ -472,30 +492,15 @@ The patient's zip code
 
 ---
 
-**Name**: placer_order_id
-
-**Type**: ID
-
-**PII**: No
-
-**HL7 Fields**
-
-- [OBR-2-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.2.1)
-- [ORC-2-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.2.1)
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The ID number of the lab order from the placer
-
----
-
 **Name**: pregnant
+
+**ReportStream Internal Name**: pregnant
 
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **LOINC Code**: 82810-3
 
@@ -517,9 +522,13 @@ Is the patient pregnant?
 
 **Name**: previousTestResult
 
+**ReportStream Internal Name**: previous_test_result
+
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
@@ -556,6 +565,8 @@ Custom field.  Example - 260415000
 
 **Name**: previousTestType
 
+**ReportStream Internal Name**: previous_test_type
+
 **Type**: TEXT
 
 **PII**: No
@@ -570,9 +581,13 @@ Custom field. Note, value matched LIVD column "F", "Test Performed LOINC Code"
 
 **Name**: processingModeCode
 
+**ReportStream Internal Name**: processing_mode_code
+
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Default Value**: P
 
@@ -592,57 +607,15 @@ P, D, or T for Production, Debugging, or Training
 
 ---
 
-**Name**: reporting_facility_clia
-
-**Type**: ID_CLIA
-
-**PII**: No
-
-**HL7 Fields**
-
-- [MSH-4-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/MSH.4.2)
-- [PID-3-4-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4.2)
-- [PID-3-6-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.6.2)
-- [SPM-2-1-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.1.3)
-- [SPM-2-2-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2.3)
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The reporting facility's CLIA
-
----
-
-**Name**: reporting_facility_name
-
-**Type**: TEXT
-
-**PII**: No
-
-**HL7 Fields**
-
-- [MSH-4-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/MSH.4.1)
-- [PID-3-4-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4.1)
-- [PID-3-6-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.6.1)
-- [SPM-2-1-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.1.2)
-- [SPM-2-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2.2)
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The reporting facility's name
-
----
-
 **Name**: congregateResident
+
+**ReportStream Internal Name**: resident_congregate_setting
 
 **Type**: CODE
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **LOINC Code**: 95421-4
 
@@ -664,6 +637,8 @@ Override the base hl70136 valueset with a custom one, to handle slightly differe
 
 **Name**: senderId
 
+**ReportStream Internal Name**: sender_id
+
 **Type**: TEXT
 
 **PII**: No
@@ -678,9 +653,13 @@ ID name of org that is sending this data to ReportStream.  Suitable for provenan
 
 **Name**: congregateResidentType
 
+**ReportStream Internal Name**: site_of_care
+
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
@@ -716,6 +695,8 @@ Custom field
 
 **Name**: specimenId
 
+**ReportStream Internal Name**: specimen_id
+
 **Type**: EI
 
 **PII**: No
@@ -738,9 +719,13 @@ A unique id, such as a UUID. Note - Need to override the mapper in covid-19.sche
 
 **Name**: specimenSource
 
+**ReportStream Internal Name**: specimen_type
+
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
@@ -774,11 +759,13 @@ The specimen source, such as Blood or Serum
 
 **Name**: symptomatic
 
+**ReportStream Internal Name**: symptomatic_for_disease
+
 **Type**: CODE
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **LOINC Code**: 95419-8
 
@@ -800,6 +787,8 @@ Override the base hl70136 valueset with a custom one, to handle slightly differe
 
 **Name**: symptomsList
 
+**ReportStream Internal Name**: symptoms_list
+
 **Type**: TEXT
 
 **PII**: No
@@ -812,79 +801,9 @@ Custom.  Just a simple text string for now. Format is symptomCode1^date1;symptom
 
 ---
 
-**Name**: test_authorized_for_home
-
-**Type**: TABLE
-
-**PII**: No
-
-**Default Value**: N
-
-**Cardinality**: [0..1]
-
-
-**Reference URL**:
-[https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
-
-**Table**: LIVD-Supplemental-2021-06-07
-
-**Table Column**: is_home
-
-**Documentation**:
-
-Is the test authorized for home use by the FDA (Y, N, UNK)
-
----
-
-**Name**: test_authorized_for_otc
-
-**Type**: TABLE
-
-**PII**: No
-
-**Default Value**: N
-
-**Cardinality**: [0..1]
-
-
-**Reference URL**:
-[https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
-
-**Table**: LIVD-Supplemental-2021-06-07
-
-**Table Column**: is_otc
-
-**Documentation**:
-
-Is the test authorized for over-the-counter purchase by the FDA (Y, N, UNK)
-
----
-
-**Name**: test_authorized_for_unproctored
-
-**Type**: TABLE
-
-**PII**: No
-
-**Default Value**: N
-
-**Cardinality**: [0..1]
-
-
-**Reference URL**:
-[https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
-
-**Table**: LIVD-Supplemental-2021-06-07
-
-**Table Column**: is_unproctored
-
-**Documentation**:
-
-Is the test authorized for unproctored administration by the FDA (Y, N, UNK)
-
----
-
 **Name**: deviceIdentifier
+
+**ReportStream Internal Name**: test_kit_name_id
 
 **Type**: TABLE
 
@@ -908,6 +827,8 @@ Must match LIVD column M, "Test Kit Name ID"
 
 **Name**: testPerformed
 
+**ReportStream Internal Name**: test_performed_code
+
 **Type**: TABLE
 
 **PII**: No
@@ -926,9 +847,13 @@ eg, 94558-4
 
 **Name**: testResult
 
+**ReportStream Internal Name**: test_result
+
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
@@ -965,6 +890,8 @@ eg, 260373001
 
 **Name**: testResultDate
 
+**ReportStream Internal Name**: test_result_date
+
 **Type**: DATETIME
 
 **PII**: No
@@ -977,11 +904,285 @@ eg, 20210111
 
 ---
 
+**Name**: performingFacility
+
+**ReportStream Internal Name**: testing_lab_clia
+
+**Type**: ID_CLIA
+
+**PII**: No
+
+**HL7 Fields**
+
+- [OBR-2-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.2.3)
+- [OBR-3-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.3.3)
+- [OBX-15-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.15.1)
+- [OBX-23-10](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.23.10)
+- [ORC-2-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.2.3)
+- [ORC-3-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.3.3)
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+Expecting a CLIA number here.  eg, "10D2218834"
+
+---
+
+**Name**: performingFacilityName
+
+**ReportStream Internal Name**: testing_lab_name
+
+**Type**: TEXT
+
+**PII**: No
+
+**HL7 Fields**
+
+- [OBR-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.2.2)
+- [OBR-3-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.3.2)
+- [OBX-15-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.15.2)
+- [OBX-23-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.23.1)
+- [ORC-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.2.2)
+- [ORC-3-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.3.2)
+- [PID-3-4-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4.1)
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The name of the laboratory which performed the test, can be the same as the sending facility name
+
+---
+
+**Name**: performingFacilityState
+
+**ReportStream Internal Name**: testing_lab_state
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Table**: fips-county
+
+**Table Column**: State
+
+**Documentation**:
+
+The state for the testing lab
+
+---
+
+**Name**: performingFacilityZip
+
+**ReportStream Internal Name**: testing_lab_zip_code
+
+**Type**: POSTAL_CODE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The postal code for the testing lab
+
+---
+
+**Name**: filler_order_id
+
+**ReportStream Internal Name**: filler_order_id
+
+**Type**: ID
+
+**PII**: No
+
+**HL7 Fields**
+
+- [OBR-3-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.3.1)
+- [ORC-3-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.3.1)
+- [SPM-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2)
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+Accension number
+
+---
+
+**Name**: patient_id_type
+
+**ReportStream Internal Name**: patient_id_type
+
+**Type**: TEXT
+
+**PII**: No
+
+**Default Value**: PI
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: placer_order_id
+
+**ReportStream Internal Name**: placer_order_id
+
+**Type**: ID
+
+**PII**: No
+
+**HL7 Fields**
+
+- [OBR-2-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.2.1)
+- [ORC-2-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.2.1)
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The ID number of the lab order from the placer
+
+---
+
+**Name**: reporting_facility_clia
+
+**ReportStream Internal Name**: reporting_facility_clia
+
+**Type**: ID_CLIA
+
+**PII**: No
+
+**HL7 Fields**
+
+- [MSH-4-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/MSH.4.2)
+- [PID-3-4-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4.2)
+- [PID-3-6-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.6.2)
+- [SPM-2-1-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.1.3)
+- [SPM-2-2-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2.3)
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The reporting facility's CLIA
+
+---
+
+**Name**: reporting_facility_name
+
+**ReportStream Internal Name**: reporting_facility_name
+
+**Type**: TEXT
+
+**PII**: No
+
+**HL7 Fields**
+
+- [MSH-4-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/MSH.4.1)
+- [PID-3-4-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4.1)
+- [PID-3-6-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.6.1)
+- [SPM-2-1-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.1.2)
+- [SPM-2-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2.2)
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The reporting facility's name
+
+---
+
+**Name**: test_authorized_for_home
+
+**ReportStream Internal Name**: test_authorized_for_home
+
+**Type**: TABLE
+
+**PII**: No
+
+**Default Value**: N
+
+**Cardinality**: [0..1]
+
+
+**Reference URL**:
+[https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
+
+**Table**: LIVD-Supplemental-2021-06-07
+
+**Table Column**: is_home
+
+**Documentation**:
+
+Is the test authorized for home use by the FDA (Y, N, UNK)
+
+---
+
+**Name**: test_authorized_for_otc
+
+**ReportStream Internal Name**: test_authorized_for_otc
+
+**Type**: TABLE
+
+**PII**: No
+
+**Default Value**: N
+
+**Cardinality**: [0..1]
+
+
+**Reference URL**:
+[https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
+
+**Table**: LIVD-Supplemental-2021-06-07
+
+**Table Column**: is_otc
+
+**Documentation**:
+
+Is the test authorized for over-the-counter purchase by the FDA (Y, N, UNK)
+
+---
+
+**Name**: test_authorized_for_unproctored
+
+**ReportStream Internal Name**: test_authorized_for_unproctored
+
+**Type**: TABLE
+
+**PII**: No
+
+**Default Value**: N
+
+**Cardinality**: [0..1]
+
+
+**Reference URL**:
+[https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
+
+**Table**: LIVD-Supplemental-2021-06-07
+
+**Table Column**: is_unproctored
+
+**Documentation**:
+
+Is the test authorized for unproctored administration by the FDA (Y, N, UNK)
+
+---
+
 **Name**: test_result_status
+
+**ReportStream Internal Name**: test_result_status
 
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Default Value**: F
 
@@ -1015,84 +1216,5 @@ Z|No record of this patient
 The test result status, which is different from the test result itself. Per the valueset, this indicates if
 the test result is in some intermediate status, is a correction, or is the final result.
 
-
----
-
-**Name**: performingFacility
-
-**Type**: ID_CLIA
-
-**PII**: No
-
-**HL7 Fields**
-
-- [OBR-2-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.2.3)
-- [OBR-3-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.3.3)
-- [OBX-15-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.15.1)
-- [OBX-23-10](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.23.10)
-- [ORC-2-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.2.3)
-- [ORC-3-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.3.3)
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-Expecting a CLIA number here.  eg, "10D2218834"
-
----
-
-**Name**: performingFacilityName
-
-**Type**: TEXT
-
-**PII**: No
-
-**HL7 Fields**
-
-- [OBR-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.2.2)
-- [OBR-3-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.3.2)
-- [OBX-15-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.15.2)
-- [OBX-23-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.23.1)
-- [ORC-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.2.2)
-- [ORC-3-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.3.2)
-- [PID-3-4-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4.1)
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The name of the laboratory which performed the test, can be the same as the sending facility name
-
----
-
-**Name**: performingFacilityState
-
-**Type**: TABLE
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-**Table**: fips-county
-
-**Table Column**: State
-
-**Documentation**:
-
-The state for the testing lab
-
----
-
-**Name**: performingFacilityZip
-
-**Type**: POSTAL_CODE
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The postal code for the testing lab
 
 ---

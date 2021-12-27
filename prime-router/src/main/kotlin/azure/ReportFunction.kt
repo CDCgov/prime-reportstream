@@ -20,6 +20,7 @@ import gov.cdc.prime.router.ResultDetail
 import gov.cdc.prime.router.ResultError
 import gov.cdc.prime.router.ResultErrors
 import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.Sender.ProcessingType
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.tokens.AuthenticationStrategy
 import gov.cdc.prime.router.tokens.OktaAuthentication
@@ -40,16 +41,6 @@ private const val PROCESSING_TYPE_PARAMETER = "processing"
  * This is basically the "front end" of the Hub. Reports come in here.
  */
 class ReportFunction : Logging {
-
-    /**
-     * Enumeration representing whether a submission will be processed follow the synchronous or asynchronous
-     * message pipeline. Within the code this defaults to Sync unless the PROCESSING_TYPE_PARAMETER query
-     * string value is 'async'
-     */
-    enum class ProcessingType {
-        Sync,
-        Async,
-    }
 
     data class ValidatedRequest(
         val content: String = "",
@@ -173,7 +164,7 @@ class ReportFunction : Logging {
         actionHistory: ActionHistory
     ): HttpResponseMessage {
         // determine if we should be following the sync or async workflow
-        val isAsync = processingType(request) == ProcessingType.Async
+        val isAsync = processingType(request, sender) == ProcessingType.async
         val responseBuilder = request.createResponseBuilder(HttpStatus.BAD_REQUEST)
             .header(HttpHeaders.CONTENT_TYPE, "application/json")
         try {
@@ -313,18 +304,17 @@ class ReportFunction : Logging {
             ?: request.queryParameters[PAYLOAD_NAME_PARAMETER]
     }
 
-    // TODO: Make this so that we check sender's configuration if there is no param type, this is blocked by
-    //  adding the 'processingType' attribute to a sender
-    private fun processingType(request: HttpRequestMessage<String?>): ProcessingType {
-        // uppercase first char, so it matches enum when 'async' is passed in
-        val processingTypeString = request.queryParameters.getOrDefault(PROCESSING_TYPE_PARAMETER, "Sync")
-            .replaceFirstChar { it.uppercase() }
-        val processingType = try {
-            ProcessingType.valueOf(processingTypeString)
-        } catch (e: IllegalArgumentException) {
-            ProcessingType.Sync
+    private fun processingType(request: HttpRequestMessage<String?>, sender: Sender): ProcessingType {
+        val processingTypeString = request.queryParameters.get(PROCESSING_TYPE_PARAMETER)
+        return if (processingTypeString == null) {
+            sender.processingType
+        } else {
+            try {
+                ProcessingType.valueOfIgnoreCase(processingTypeString)
+            } catch (e: IllegalArgumentException) {
+                sender.processingType
+            }
         }
-        return processingType
     }
 
     private fun processAsync(

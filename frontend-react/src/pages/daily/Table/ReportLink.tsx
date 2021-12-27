@@ -3,7 +3,7 @@ import { Button } from "@trussworks/react-uswds";
 import { useOktaAuth } from "@okta/okta-react";
 
 import ReportResource from "../../../resources/ReportResource";
-import { GLOBAL_STORAGE_KEYS } from "../../../components/GlobalContextProvider";
+import { getStoredOrg } from "../../../components/GlobalContextProvider";
 
 interface Props {
     /* REQURIED
@@ -28,7 +28,7 @@ const formatFileType = (fileType: string) => {
 */
 function ReportLink(props: Props) {
     const { authState } = useOktaAuth();
-    const organization = localStorage.getItem(GLOBAL_STORAGE_KEYS.GLOBAL_ORG);
+    const organization = getStoredOrg();
 
     const handleClick = (e: any) => {
         e.preventDefault();

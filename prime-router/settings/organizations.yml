@@ -93,6 +93,17 @@
       type: "BLOBSTORE"
     externalName: null
 
+- name: upload
+  description: Sender who can test uploads to the Upload Tool.
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: upload
+      topic: covid-19
+      customerStatus: active
+      schemaName: upload-covid-19
+      format: CSV
+
 - name: safehealth
   description: SAFE - Safe Health Systems
   jurisdiction: FEDERAL
@@ -202,6 +213,7 @@
       customerStatus: active
       schemaName: direct/abbott-covid-19
       format: CSV
+      processingType: async
 
 - name: lifepoint
   description: LifePoint (Ellume data)
@@ -546,9 +558,10 @@
         receivingApplicationOID: 2.16.840.1.114222.4.1.185.1
         receivingFacilityName: VDH
         receivingFacilityOID: 2.16.840.1.114222.4.1.185
+        truncateHl7Fields: OBX-23-1
         truncateHDNamespaceIds: true
         usePid14ForPatientEmail: true
-        truncateHl7Fields: OBX-23-1
+        suppressNonNPI: true
         suppressHl7Fields: OBX-18-1, OBX-18-2, OBX-18-3, OBX-18-4, OBX-15-3
         replaceValue:
           MSH-3-1: CDC PRIME - Atlanta,
@@ -578,8 +591,10 @@
         receivingApplicationOID: 2.16.840.1.114222.4.1.185.1
         receivingFacilityName: VDH
         receivingFacilityOID: 2.16.840.1.114222.4.1.185
+        truncateHl7Fields: OBX-23-1
         truncateHDNamespaceIds: true
         usePid14ForPatientEmail: true
+        suppressNonNPI: true
         suppressHl7Fields: OBX-18-1, OBX-18-2, OBX-18-3, OBX-18-4, OBx-15-3
         replaceValue:
           MSH-3-1: CDC PRIME - Atlanta,
@@ -699,33 +714,31 @@
   jurisdiction: COUNTY
   stateCode: OH
   countyName: Clark
+  filters:
+    - topic: "covid-19"
+      jurisdictionalFilter: [ "matches(ordering_facility_state, OH)", "matches(ordering_facility_county, Clark)" ]
   receivers:
     - name: elr-download
       organizationName: oh-ccchd-doh
       topic: covid-19
       customerStatus: testing
-      jurisdictionalFilter:
-        - matches(ordering_facility_state, OH)
-        - matches(ordering_facility_county, Clark)
+      reverseTheQualityFilter: false
       translation:
-        type: HL7
-        useBatchHeaders: true
-        suppressQstForAoe: true
-        receivingApplicationName: OHDOH
-        receivingApplicationOID: 2.16.840.1.114222.4.1.3674
-        receivingFacilityName: OHDOH
-        receivingFacilityOID: 2.16.840.1.114222.4.1.3674
-        reportingFacilityName: CDC PRIME
-        reportingFacilityId: 36DSMP9999
-        nameFormat: ohio
-        suppressHl7Fields: OBX-23-11
-        # turn off UNK and ASKU for this field
-        useBlankInsteadOfUnknown: patient_race
+        type: "CUSTOM"
+        schemaName: oh/oh-clark-covid-19-csv
+        format: CSV
+        nameFormat: "ohio"
       timing:
         operation: MERGE
-        numberPerDay: 1 # Per day
+        numberPerDay: 1440 # Per day
         initialTime: 00:05
         timeZone: EASTERN
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
 
 - name: nm-doh
   description: New Mexico Department of Health
@@ -910,6 +923,7 @@
         receivingFacilityName: NJDOH
         receivingFacilityOID: 2.16.840.1.113883.3.1299
         truncateHDNamespaceIds: true
+        truncateHl7Fields: OBX-23-1
         reportingFacilityName: CDC PRIME
         reportingFacilityId: 11D2030855
       transport:
@@ -938,6 +952,7 @@
         receivingFacilityName: NJDOH
         receivingFacilityOID: 2.16.840.1.113883.3.1299
         truncateHDNamespaceIds: true
+        truncateHl7Fields: OBX-23-1
       transport:
         type: SFTP
         host: sftp
@@ -2355,8 +2370,13 @@
       translation:
         type: HL7
         useBatchHeaders: true
+        suppressAoe: true
         suppressNonNPI: true
-        truncateHl7Fields: ORC-12-1, OBR-16-1
+        truncateHDNamespaceIds: true
+        truncateHl7Fields: OBX-23-1
+        phoneNumberFormatting: "STANDARD"
+        useOrderingFacilityName: "STANDARD"
+        nameFormat: "STANDARD"
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
@@ -3074,3 +3094,9 @@
         numberPerDay: 1
         initialTime: 09:15 # A little after the 12am EASTERN reports from simple report
         timeZone: EASTERN
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
