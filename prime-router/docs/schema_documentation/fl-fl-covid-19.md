@@ -1,14 +1,22 @@
 
-### Schema:         fl/fl-covid-19
-#### Description:   Florida COVID-19 HL7
+### Schema: fl/fl-covid-19
+### Topic: covid-19
+### Tracking Element: (message_id)
+### Base On: [covid-19](./covid-19.md)
+### Extends: none
+#### Description: Florida COVID-19 HL7
 
 ---
 
 **Name**: abnormal_flag
 
+**ReportStream Internal Name**: abnormal_flag
+
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
@@ -55,6 +63,8 @@ This field is generated based on the normalcy status of the result. A = abnormal
 
 **Name**: comment
 
+**ReportStream Internal Name**: comment
+
 **Type**: TEXT
 
 **PII**: No
@@ -65,9 +75,13 @@ This field is generated based on the normalcy status of the result. A = abnormal
 
 **Name**: comment_source
 
+**ReportStream Internal Name**: comment_source
+
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
@@ -83,9 +97,13 @@ P|Orderer (placer) is source of comment
 
 **Name**: comment_type
 
+**ReportStream Internal Name**: comment_type
+
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
@@ -106,6 +124,8 @@ RE|Remark
 
 **Name**: date_result_released
 
+**ReportStream Internal Name**: date_result_released
+
 **Type**: DATETIME
 
 **PII**: No
@@ -115,6 +135,8 @@ RE|Remark
 ---
 
 **Name**: device_id
+
+**ReportStream Internal Name**: device_id
 
 **Type**: TABLE
 
@@ -141,6 +163,8 @@ Device_id is a generated value for the OBX-17 field. It is based on the device m
 
 **Name**: device_id_type
 
+**ReportStream Internal Name**: device_id_type
+
 **Type**: TABLE
 
 **PII**: No
@@ -161,9 +185,13 @@ Device_id_type is a generated value for the OBX-17 field. It is based on the dev
 
 **Name**: employed_in_healthcare
 
+**ReportStream Internal Name**: employed_in_healthcare
+
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **LOINC Code**: 95418-0
 
@@ -185,6 +213,8 @@ Is the patient employed in health care?
 
 **Name**: equipment_manufacture
 
+**ReportStream Internal Name**: equipment_manufacture
+
 **Type**: TABLE
 
 **PII**: No
@@ -202,6 +232,8 @@ Is the patient employed in health care?
 ---
 
 **Name**: equipment_model_id
+
+**ReportStream Internal Name**: equipment_model_id
 
 **Type**: TABLE
 
@@ -221,6 +253,8 @@ Is the patient employed in health care?
 
 **Name**: equipment_model_id_type
 
+**ReportStream Internal Name**: equipment_model_id_type
+
 **Type**: TABLE
 
 **PII**: No
@@ -238,6 +272,8 @@ Is the patient employed in health care?
 ---
 
 **Name**: equipment_model_name
+
+**ReportStream Internal Name**: equipment_model_name
 
 **Type**: TABLE
 
@@ -257,6 +293,8 @@ Is the patient employed in health care?
 
 **Name**: file_created_date
 
+**ReportStream Internal Name**: file_created_date
+
 **Type**: DATE
 
 **PII**: No
@@ -271,6 +309,8 @@ When was this file created. This is only used for HL7 generation.
 
 **Name**: filler_clia
 
+**ReportStream Internal Name**: filler_clia
+
 **Type**: ID_CLIA
 
 **PII**: No
@@ -280,6 +320,8 @@ When was this file created. This is only used for HL7 generation.
 ---
 
 **Name**: filler_name
+
+**ReportStream Internal Name**: filler_name
 
 **Type**: TEXT
 
@@ -295,6 +337,8 @@ When was this file created. This is only used for HL7 generation.
 ---
 
 **Name**: filler_order_id
+
+**ReportStream Internal Name**: filler_order_id
 
 **Type**: ID
 
@@ -316,9 +360,13 @@ Accension number
 
 **Name**: first_test
 
+**ReportStream Internal Name**: first_test
+
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **LOINC Code**: 95417-2
 
@@ -340,9 +388,13 @@ Is this the patient's first test for this condition?
 
 **Name**: hospitalized
 
+**ReportStream Internal Name**: hospitalized
+
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **LOINC Code**: 77974-4
 
@@ -364,9 +416,13 @@ Is the patient hospitalized?
 
 **Name**: icu
 
+**ReportStream Internal Name**: icu
+
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **LOINC Code**: 95420-6
 
@@ -388,6 +444,8 @@ Is the patient in the ICU?
 
 **Name**: illness_onset_date
 
+**ReportStream Internal Name**: illness_onset_date
+
 **Type**: DATE
 
 **PII**: No
@@ -399,6 +457,8 @@ Is the patient in the ICU?
 ---
 
 **Name**: message_id
+
+**ReportStream Internal Name**: message_id
 
 **Type**: ID
 
@@ -413,6 +473,8 @@ unique id to track the usage of the message
 ---
 
 **Name**: message_profile_id
+
+**ReportStream Internal Name**: message_profile_id
 
 **Type**: EI
 
@@ -430,9 +492,13 @@ The message profile identifer
 
 **Name**: observation_result_status
 
+**ReportStream Internal Name**: observation_result_status
+
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
@@ -457,9 +523,13 @@ X|Results cannot be obtained for this observation
 
 **Name**: order_result_status
 
+**ReportStream Internal Name**: order_result_status
+
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
@@ -485,6 +555,8 @@ Z|No record of this patient
 
 **Name**: order_test_date
 
+**ReportStream Internal Name**: order_test_date
+
 **Type**: DATETIME
 
 **PII**: No
@@ -494,6 +566,8 @@ Z|No record of this patient
 ---
 
 **Name**: ordered_test_code
+
+**ReportStream Internal Name**: ordered_test_code
 
 **Type**: TABLE
 
@@ -509,6 +583,8 @@ Z|No record of this patient
 
 **Name**: ordered_test_encoding_version
 
+**ReportStream Internal Name**: ordered_test_encoding_version
+
 **Type**: TABLE
 
 **PII**: No
@@ -522,6 +598,8 @@ Z|No record of this patient
 ---
 
 **Name**: ordered_test_name
+
+**ReportStream Internal Name**: ordered_test_name
 
 **Type**: TABLE
 
@@ -537,6 +615,8 @@ Z|No record of this patient
 
 **Name**: ordering_facility_city
 
+**ReportStream Internal Name**: ordering_facility_city
+
 **Type**: CITY
 
 **PII**: No
@@ -550,6 +630,8 @@ The city of the facility which the test was ordered from
 ---
 
 **Name**: ordering_facility_county
+
+**ReportStream Internal Name**: ordering_facility_county
 
 **Type**: TABLE
 
@@ -565,6 +647,8 @@ The city of the facility which the test was ordered from
 
 **Name**: ordering_facility_county_code
 
+**ReportStream Internal Name**: ordering_facility_county_code
+
 **Type**: TABLE
 
 **PII**: No
@@ -579,6 +663,8 @@ The city of the facility which the test was ordered from
 
 **Name**: ordering_facility_email
 
+**ReportStream Internal Name**: ordering_facility_email
+
 **Type**: EMAIL
 
 **PII**: No
@@ -588,6 +674,8 @@ The city of the facility which the test was ordered from
 ---
 
 **Name**: ordering_facility_name
+
+**ReportStream Internal Name**: ordering_facility_name
 
 **Type**: TEXT
 
@@ -603,6 +691,8 @@ The name of the facility which the test was ordered from
 
 **Name**: ordering_facility_phone_number
 
+**ReportStream Internal Name**: ordering_facility_phone_number
+
 **Type**: TELEPHONE
 
 **PII**: No
@@ -616,6 +706,8 @@ The phone number of the facility which the test was ordered from
 ---
 
 **Name**: ordering_facility_state
+
+**ReportStream Internal Name**: ordering_facility_state
 
 **Type**: TABLE
 
@@ -635,6 +727,8 @@ The state of the facility which the test was ordered from
 
 **Name**: ordering_facility_street
 
+**ReportStream Internal Name**: ordering_facility_street
+
 **Type**: STREET
 
 **PII**: No
@@ -648,6 +742,8 @@ The address of the facility which the test was ordered from
 ---
 
 **Name**: ordering_facility_street2
+
+**ReportStream Internal Name**: ordering_facility_street2
 
 **Type**: STREET_OR_BLANK
 
@@ -663,6 +759,8 @@ The secondary address of the facility which the test was ordered from
 
 **Name**: ordering_facility_zip_code
 
+**ReportStream Internal Name**: ordering_facility_zip_code
+
 **Type**: POSTAL_CODE
 
 **PII**: No
@@ -676,6 +774,8 @@ The zip code of the facility which the test was ordered from
 ---
 
 **Name**: ordering_provider_city
+
+**ReportStream Internal Name**: ordering_provider_city
 
 **Type**: CITY
 
@@ -691,6 +791,8 @@ The city of the provider
 
 **Name**: ordering_provider_county
 
+**ReportStream Internal Name**: ordering_provider_county
+
 **Type**: TABLE
 
 **PII**: No
@@ -704,6 +806,8 @@ The city of the provider
 ---
 
 **Name**: ordering_provider_county_code
+
+**ReportStream Internal Name**: ordering_provider_county_code
 
 **Type**: TABLE
 
@@ -722,6 +826,8 @@ The FIPS code for the ordering provider
 ---
 
 **Name**: ordering_provider_first_name
+
+**ReportStream Internal Name**: ordering_provider_first_name
 
 **Type**: PERSON_NAME
 
@@ -742,6 +848,8 @@ The first name of the provider who ordered the test
 
 **Name**: ordering_provider_id
 
+**ReportStream Internal Name**: ordering_provider_id
+
 **Type**: ID_NPI
 
 **PII**: No
@@ -760,6 +868,8 @@ The ordering provider’s National Provider Identifier
 ---
 
 **Name**: ordering_provider_id_authority
+
+**ReportStream Internal Name**: ordering_provider_id_authority
 
 **Type**: HD
 
@@ -780,6 +890,8 @@ Usually the OID for CMS
 
 **Name**: ordering_provider_id_authority_type
 
+**ReportStream Internal Name**: ordering_provider_id_authority_type
+
 **Type**: TEXT
 
 **PII**: No
@@ -798,6 +910,8 @@ Usually NPI
 ---
 
 **Name**: ordering_provider_last_name
+
+**ReportStream Internal Name**: ordering_provider_last_name
 
 **Type**: PERSON_NAME
 
@@ -818,6 +932,8 @@ The last name of provider who ordered the test
 
 **Name**: ordering_provider_middle_name
 
+**ReportStream Internal Name**: ordering_provider_middle_name
+
 **Type**: PERSON_NAME
 
 **PII**: No
@@ -832,6 +948,8 @@ The last name of provider who ordered the test
 ---
 
 **Name**: ordering_provider_phone_number
+
+**ReportStream Internal Name**: ordering_provider_phone_number
 
 **Type**: TELEPHONE
 
@@ -852,6 +970,8 @@ The phone number of the provider
 
 **Name**: ordering_provider_state
 
+**ReportStream Internal Name**: ordering_provider_state
+
 **Type**: TABLE
 
 **PII**: No
@@ -870,6 +990,8 @@ The state of the provider
 
 **Name**: ordering_provider_street
 
+**ReportStream Internal Name**: ordering_provider_street
+
 **Type**: STREET
 
 **PII**: Yes
@@ -883,6 +1005,8 @@ The street address of the provider
 ---
 
 **Name**: ordering_provider_street2
+
+**ReportStream Internal Name**: ordering_provider_street2
 
 **Type**: STREET_OR_BLANK
 
@@ -898,6 +1022,8 @@ The street second address of the provider
 
 **Name**: ordering_provider_zip_code
 
+**ReportStream Internal Name**: ordering_provider_zip_code
+
 **Type**: POSTAL_CODE
 
 **PII**: No
@@ -912,6 +1038,8 @@ The zip code of the provider
 
 **Name**: patient_age
 
+**ReportStream Internal Name**: patient_age
+
 **Type**: NUMBER
 
 **PII**: No
@@ -924,9 +1052,13 @@ The zip code of the provider
 
 **Name**: patient_age_units
 
+**ReportStream Internal Name**: patient_age_units
+
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
@@ -949,6 +1081,8 @@ Always filled when `patient_age` is filled
 
 **Name**: patient_city
 
+**ReportStream Internal Name**: patient_city
+
 **Type**: CITY
 
 **PII**: Yes
@@ -963,6 +1097,8 @@ The patient's city
 
 **Name**: patient_county
 
+**ReportStream Internal Name**: patient_county
+
 **Type**: TABLE_OR_BLANK
 
 **PII**: No
@@ -976,6 +1112,8 @@ The patient's city
 ---
 
 **Name**: patient_county_code
+
+**ReportStream Internal Name**: patient_county_code
 
 **Type**: TABLE
 
@@ -995,6 +1133,8 @@ The FIPS code for the patient's county
 
 **Name**: patient_death_date
 
+**ReportStream Internal Name**: patient_death_date
+
 **Type**: DATE
 
 **PII**: Yes
@@ -1005,9 +1145,13 @@ The FIPS code for the patient's county
 
 **Name**: patient_died
 
+**ReportStream Internal Name**: patient_died
+
 **Type**: CODE
 
 **PII**: Yes
+
+**Format**: use value found in the Code column
 
 **Default Value**: N
 
@@ -1024,6 +1168,8 @@ UNK|Unknown
 ---
 
 **Name**: patient_dob
+
+**ReportStream Internal Name**: patient_dob
 
 **Type**: DATE
 
@@ -1042,6 +1188,8 @@ Other states may choose to define their own formats.
 
 **Name**: patient_drivers_license
 
+**ReportStream Internal Name**: patient_drivers_license
+
 **Type**: ID_DLN
 
 **PII**: Yes
@@ -1056,6 +1204,8 @@ The patient's drivers license number
 
 **Name**: patient_email
 
+**ReportStream Internal Name**: patient_email
+
 **Type**: EMAIL
 
 **PII**: Yes
@@ -1066,9 +1216,13 @@ The patient's drivers license number
 
 **Name**: patient_ethnicity
 
+**ReportStream Internal Name**: patient_ethnicity
+
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
@@ -1090,6 +1244,8 @@ consumers are free to define their own values. Please refer to the consumer-spec
 
 **Name**: patient_first_name
 
+**ReportStream Internal Name**: patient_first_name
+
 **Type**: PERSON_NAME
 
 **PII**: Yes
@@ -1104,9 +1260,13 @@ The patient's first name
 
 **Name**: patient_gender
 
+**ReportStream Internal Name**: patient_gender
+
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
@@ -1130,6 +1290,8 @@ The patient's gender. There is a valueset defined based on the values in PID-8-1
 
 **Name**: patient_id
 
+**ReportStream Internal Name**: patient_id
+
 **Type**: TEXT
 
 **PII**: Yes
@@ -1145,6 +1307,8 @@ the patient ID from the testing lab, the oder placer, the ordering provider, or 
 ---
 
 **Name**: patient_id_assigner
+
+**ReportStream Internal Name**: patient_id_assigner
 
 **Type**: HD
 
@@ -1165,6 +1329,8 @@ The name of the assigner of the patient_id field. Typically we use the name of t
 
 **Name**: patient_id_type
 
+**ReportStream Internal Name**: patient_id_type
+
 **Type**: TEXT
 
 **PII**: No
@@ -1174,6 +1340,8 @@ The name of the assigner of the patient_id field. Typically we use the name of t
 ---
 
 **Name**: patient_last_name
+
+**ReportStream Internal Name**: patient_last_name
 
 **Type**: PERSON_NAME
 
@@ -1189,6 +1357,8 @@ The patient's last name
 
 **Name**: patient_middle_name
 
+**ReportStream Internal Name**: patient_middle_name
+
 **Type**: PERSON_NAME
 
 **PII**: Yes
@@ -1198,6 +1368,8 @@ The patient's last name
 ---
 
 **Name**: patient_name_type_code
+
+**ReportStream Internal Name**: patient_name_type_code
 
 **Type**: TEXT
 
@@ -1210,6 +1382,8 @@ The patient's last name
 ---
 
 **Name**: patient_phone_number
+
+**ReportStream Internal Name**: patient_phone_number
 
 **Type**: TELEPHONE
 
@@ -1225,9 +1399,13 @@ The patient's phone number with area code
 
 **Name**: patient_race
 
+**ReportStream Internal Name**: patient_race
+
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
@@ -1253,6 +1431,8 @@ The patient's race. There is a common valueset defined for race values, but some
 
 **Name**: patient_state
 
+**ReportStream Internal Name**: patient_state
+
 **Type**: TABLE
 
 **PII**: No
@@ -1271,6 +1451,8 @@ The patient's state
 
 **Name**: patient_street
 
+**ReportStream Internal Name**: patient_street
+
 **Type**: STREET
 
 **PII**: Yes
@@ -1284,6 +1466,8 @@ The patient's street address
 ---
 
 **Name**: patient_street2
+
+**ReportStream Internal Name**: patient_street2
 
 **Type**: STREET_OR_BLANK
 
@@ -1299,6 +1483,8 @@ The patient's second address line
 
 **Name**: patient_suffix
 
+**ReportStream Internal Name**: patient_suffix
+
 **Type**: PERSON_NAME
 
 **PII**: Yes
@@ -1313,9 +1499,13 @@ The suffix for the patient's name, (i.e. Jr, Sr, etc)
 
 **Name**: patient_tribal_citizenship
 
+**ReportStream Internal Name**: patient_tribal_citizenship
+
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
@@ -1898,6 +2088,8 @@ The tribal citizenship of the patient using the TribalEntityUS (OID 2.16.840.1.1
 
 **Name**: patient_zip_code
 
+**ReportStream Internal Name**: patient_zip_code
+
 **Type**: POSTAL_CODE
 
 **PII**: No
@@ -1911,6 +2103,8 @@ The patient's zip code
 ---
 
 **Name**: placer_clia
+
+**ReportStream Internal Name**: placer_clia
 
 **Type**: ID_CLIA
 
@@ -1932,6 +2126,8 @@ The CLIA of the order placer
 
 **Name**: placer_name
 
+**ReportStream Internal Name**: placer_name
+
 **Type**: TEXT
 
 **PII**: No
@@ -1952,6 +2148,8 @@ The name of the placer of the lab order
 
 **Name**: placer_order_group_id
 
+**ReportStream Internal Name**: placer_order_group_id
+
 **Type**: ID
 
 **PII**: No
@@ -1961,6 +2159,8 @@ The name of the placer of the lab order
 ---
 
 **Name**: placer_order_id
+
+**ReportStream Internal Name**: placer_order_id
 
 **Type**: ID
 
@@ -1981,9 +2181,13 @@ The ID number of the lab order from the placer
 
 **Name**: pregnant
 
+**ReportStream Internal Name**: pregnant
+
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **LOINC Code**: 82810-3
 
@@ -2005,9 +2209,13 @@ Is the patient pregnant?
 
 **Name**: processing_mode_code
 
+**ReportStream Internal Name**: processing_mode_code
+
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Default Value**: P
 
@@ -2029,6 +2237,8 @@ P, D, or T for Production, Debugging, or Training
 
 **Name**: receiving_application
 
+**ReportStream Internal Name**: receiving_application
+
 **Type**: HD
 
 **PII**: No
@@ -2044,6 +2254,8 @@ The receiving application for the message (specified by the receiver)
 ---
 
 **Name**: receiving_facility
+
+**ReportStream Internal Name**: receiving_facility
 
 **Type**: HD
 
@@ -2061,6 +2273,8 @@ The receiving facility for the message (specified by the receiver)
 
 **Name**: reference_range
 
+**ReportStream Internal Name**: reference_range
+
 **Type**: TEXT
 
 **PII**: No
@@ -2074,6 +2288,8 @@ The reference range of the lab result, such as “Negative” or “Normal”. F
 ---
 
 **Name**: reporting_facility_clia
+
+**ReportStream Internal Name**: reporting_facility_clia
 
 **Type**: ID_CLIA
 
@@ -2097,6 +2313,8 @@ The reporting facility's CLIA
 
 **Name**: reporting_facility_name
 
+**ReportStream Internal Name**: reporting_facility_name
+
 **Type**: TEXT
 
 **PII**: No
@@ -2119,9 +2337,13 @@ The reporting facility's name
 
 **Name**: resident_congregate_setting
 
+**ReportStream Internal Name**: resident_congregate_setting
+
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **LOINC Code**: 95421-4
 
@@ -2143,6 +2365,8 @@ Does the patient reside in a congregate care setting?
 
 **Name**: result_format
 
+**ReportStream Internal Name**: result_format
+
 **Type**: TEXT
 
 **PII**: No
@@ -2154,6 +2378,8 @@ Does the patient reside in a congregate care setting?
 ---
 
 **Name**: sending_application
+
+**ReportStream Internal Name**: sending_application
 
 **Type**: HD
 
@@ -2171,6 +2397,8 @@ The name and OID for the application sending information to the receivers
 ---
 
 **Name**: specimen_collection_date_time
+
+**ReportStream Internal Name**: specimen_collection_date_time
 
 **Type**: DATETIME
 
@@ -2194,9 +2422,13 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 
 **Name**: specimen_collection_method
 
+**ReportStream Internal Name**: specimen_collection_method
+
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
@@ -2251,6 +2483,8 @@ WOOD|Swab, Wooden Shaft
 
 **Name**: specimen_collection_site
 
+**ReportStream Internal Name**: specimen_collection_site
+
 **Type**: TEXT
 
 **PII**: No
@@ -2265,6 +2499,8 @@ WOOD|Swab, Wooden Shaft
 
 **Name**: specimen_description
 
+**ReportStream Internal Name**: specimen_description
+
 **Type**: TEXT
 
 **PII**: No
@@ -2278,6 +2514,8 @@ WOOD|Swab, Wooden Shaft
 ---
 
 **Name**: specimen_id
+
+**ReportStream Internal Name**: specimen_id
 
 **Type**: EI
 
@@ -2301,9 +2539,13 @@ A unique code for this specimen
 
 **Name**: specimen_role
 
+**ReportStream Internal Name**: specimen_role
+
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
@@ -2326,9 +2568,13 @@ V|Verifying collaborator
 
 **Name**: specimen_source_site_code
 
+**ReportStream Internal Name**: specimen_source_site_code
+
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
@@ -2350,9 +2596,13 @@ Refers back to the specimen source site, which is then encoded into the SPM-8 se
 
 **Name**: specimen_type
 
+**ReportStream Internal Name**: specimen_type
+
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
@@ -2386,9 +2636,13 @@ The specimen source, such as Blood or Serum
 
 **Name**: symptomatic_for_disease
 
+**ReportStream Internal Name**: symptomatic_for_disease
+
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **LOINC Code**: 95419-8
 
@@ -2410,6 +2664,8 @@ Is the patient symptomatic?
 
 **Name**: test_kit_name_id_cwe_version
 
+**ReportStream Internal Name**: test_kit_name_id_cwe_version
+
 **Type**: TABLE
 
 **PII**: No
@@ -2427,6 +2683,8 @@ Follows guidance for OBX-17-7 where the version of the CWE field is passed along
 ---
 
 **Name**: test_performed_code
+
+**ReportStream Internal Name**: test_performed_code
 
 **Type**: TABLE
 
@@ -2446,6 +2704,8 @@ The LOINC code of the test performed. This is a standardized coded value describ
 
 **Name**: test_performed_name
 
+**ReportStream Internal Name**: test_performed_name
+
 **Type**: TABLE
 
 **PII**: No
@@ -2464,6 +2724,8 @@ The LOINC description of the test performed as related to the LOINC code.
 
 **Name**: test_performed_system_abbr
 
+**ReportStream Internal Name**: test_performed_system_abbr
+
 **Type**: TEXT
 
 **PII**: No
@@ -2475,6 +2737,8 @@ The LOINC description of the test performed as related to the LOINC code.
 ---
 
 **Name**: test_performed_system_version
+
+**ReportStream Internal Name**: test_performed_system_version
 
 **Type**: TABLE
 
@@ -2490,9 +2754,13 @@ The LOINC description of the test performed as related to the LOINC code.
 
 **Name**: test_result
 
+**ReportStream Internal Name**: test_result
+
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
@@ -2529,6 +2797,8 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 
 **Name**: test_result_date
 
+**ReportStream Internal Name**: test_result_date
+
 **Type**: DATETIME
 
 **PII**: No
@@ -2539,9 +2809,13 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 
 **Name**: test_result_status
 
+**ReportStream Internal Name**: test_result_status
+
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **HL7 Fields**
 
@@ -2578,6 +2852,8 @@ the test result is in some intermediate status, is a correction, or is the final
 
 **Name**: test_result_sub_id
 
+**ReportStream Internal Name**: test_result_sub_id
+
 **Type**: ID
 
 **PII**: No
@@ -2587,6 +2863,8 @@ the test result is in some intermediate status, is a correction, or is the final
 ---
 
 **Name**: test_result_units
+
+**ReportStream Internal Name**: test_result_units
 
 **Type**: TEXT
 
@@ -2602,6 +2880,8 @@ The units the test result is measured in.
 
 **Name**: testing_lab_accession_number
 
+**ReportStream Internal Name**: testing_lab_accession_number
+
 **Type**: ID
 
 **PII**: No
@@ -2616,6 +2896,8 @@ The accession number of the specimen collected
 
 **Name**: testing_lab_city
 
+**ReportStream Internal Name**: testing_lab_city
+
 **Type**: CITY
 
 **PII**: No
@@ -2629,6 +2911,8 @@ The city of the testing lab
 ---
 
 **Name**: testing_lab_clia
+
+**ReportStream Internal Name**: testing_lab_clia
 
 **Type**: ID_CLIA
 
@@ -2656,6 +2940,8 @@ An example of the ID is 03D2159846
 
 **Name**: testing_lab_county
 
+**ReportStream Internal Name**: testing_lab_county
+
 **Type**: TABLE
 
 **PII**: No
@@ -2673,6 +2959,8 @@ The text value for the testing lab county. This is used to do the lookup in the 
 ---
 
 **Name**: testing_lab_county_code
+
+**ReportStream Internal Name**: testing_lab_county_code
 
 **Type**: TABLE
 
@@ -2693,6 +2981,8 @@ The county code for the testing lab from the FIPS dataset. This is the standard 
 
 **Name**: testing_lab_id
 
+**ReportStream Internal Name**: testing_lab_id
+
 **Type**: ID
 
 **PII**: No
@@ -2707,6 +2997,8 @@ Typically this will be the same as the `testing_lab_clia`, but potentially could
 
 **Name**: testing_lab_id_assigner
 
+**ReportStream Internal Name**: testing_lab_id_assigner
+
 **Type**: HD
 
 **PII**: No
@@ -2720,6 +3012,8 @@ This is the assigner of the CLIA for the testing lab. If the testing lab has a C
 ---
 
 **Name**: testing_lab_name
+
+**ReportStream Internal Name**: testing_lab_name
 
 **Type**: TEXT
 
@@ -2745,6 +3039,8 @@ The name of the laboratory which performed the test, can be the same as the send
 
 **Name**: testing_lab_phone_number
 
+**ReportStream Internal Name**: testing_lab_phone_number
+
 **Type**: TELEPHONE
 
 **PII**: No
@@ -2759,6 +3055,8 @@ The phone number of the testing lab
 
 **Name**: testing_lab_specimen_id
 
+**ReportStream Internal Name**: testing_lab_specimen_id
+
 **Type**: ID
 
 **PII**: No
@@ -2772,6 +3070,8 @@ The specimen-id from the testing lab
 ---
 
 **Name**: testing_lab_specimen_received_datetime
+
+**ReportStream Internal Name**: testing_lab_specimen_received_datetime
 
 **Type**: DATETIME
 
@@ -2791,6 +3091,8 @@ be offset, so this field takes the `specimen_collection_date_time` field and off
 
 **Name**: testing_lab_state
 
+**ReportStream Internal Name**: testing_lab_state
+
 **Type**: TABLE
 
 **PII**: No
@@ -2809,6 +3111,8 @@ The state for the testing lab
 
 **Name**: testing_lab_street
 
+**ReportStream Internal Name**: testing_lab_street
+
 **Type**: STREET
 
 **PII**: No
@@ -2823,6 +3127,8 @@ The street address for the testing lab
 
 **Name**: testing_lab_street2
 
+**ReportStream Internal Name**: testing_lab_street2
+
 **Type**: STREET_OR_BLANK
 
 **PII**: No
@@ -2836,6 +3142,8 @@ Street 2 field for the testing lab
 ---
 
 **Name**: testing_lab_zip_code
+
+**ReportStream Internal Name**: testing_lab_zip_code
 
 **Type**: POSTAL_CODE
 

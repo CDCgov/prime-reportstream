@@ -16,6 +16,7 @@ elements:
     - name: processing_mode_code
       csvFields: [{name: processing_mode_code}]
 
+    - name: message_id
 
 #demographics
     - name: patient_id
@@ -46,6 +47,7 @@ elements:
       csvFields: [{name: Patient ZipCode}]
 
     - name: patient_county
+      cardinality: ZERO_OR_ONE
       type: TABLE
       table: zip-code-data
       tableColumn: county

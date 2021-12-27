@@ -30,7 +30,7 @@ plugins {
     kotlin("jvm") version "1.6.10"
     id("org.flywaydb.flyway") version "8.2.2"
     id("nu.studer.jooq") version "6.0.1"
-    id("com.github.johnrengelman.shadow") version "7.1.0"
+    id("com.github.johnrengelman.shadow") version "7.1.1"
     id("com.microsoft.azure.azurefunctions") version "1.8.2"
     id("org.jlleitschuh.gradle.ktlint") version "10.2.0"
     id("com.adarshr.test-logger") version "3.1.0"
@@ -573,7 +573,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-common:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")
     implementation("com.microsoft.azure.functions:azure-functions-java-library:1.4.2")
     implementation("com.azure:azure-core:1.23.1")
     implementation("com.azure:azure-core-http-netty:1.11.4")
@@ -591,16 +591,16 @@ dependencies {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
-    implementation("org.apache.logging.log4j:log4j-api:[2.16.0,)")
-    implementation("org.apache.logging.log4j:log4j-core:[2.16.0,)")
-    implementation("org.apache.logging.log4j:log4j-slf4j-impl:[2.16.0,)")
+    implementation("org.apache.logging.log4j:log4j-api:[2.17.0,)")
+    implementation("org.apache.logging.log4j:log4j-core:[2.17.0,)")
+    implementation("org.apache.logging.log4j:log4j-slf4j-impl:[2.17.0,)")
     implementation("org.apache.logging.log4j:log4j-api-kotlin:1.1.0")
     implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.2.0")
     implementation("tech.tablesaw:tablesaw-core:0.42.0")
     implementation("com.github.ajalt.clikt:clikt-jvm:3.3.0")
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.0")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.0")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.13.0")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.1")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.1")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.13.1")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.0")
     implementation("com.github.javafaker:javafaker:1.0.2")
     implementation("ca.uhn.hapi:hapi-base:2.3")
@@ -625,7 +625,6 @@ dependencies {
     implementation("org.postgresql:postgresql:42.3.0")
     implementation("com.zaxxer:HikariCP:5.0.0")
     implementation("org.flywaydb:flyway-core:8.2.2")
-    implementation("com.github.kayr:fuzzy-csv:1.7.3")
     implementation("org.commonmark:commonmark:0.18.1")
     implementation("com.google.guava:guava:31.0.1-jre")
     implementation("com.helger.as2:as2-lib:4.9.0")
