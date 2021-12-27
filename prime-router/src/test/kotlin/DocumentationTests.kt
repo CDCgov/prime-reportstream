@@ -11,13 +11,19 @@ class DocumentationTests {
         `I am a code example`
         > This is preformatted text
     """.trimIndent()
-    private val elem = Element(name = "a", type = Element.Type.TEXT)
+    private val elem = Element(
+        name = "a", type = Element.Type.TEXT,
+        csvFields = Element.csvFields("Test TrackingElement")
+    )
     private val elemWithDocumentation = Element(name = "a", type = Element.Type.TEXT, documentation = documentation)
     private val schema = Schema(
         name = "Test Schema",
-        topic = "",
+        topic = "Test Topic",
         elements = listOf(elem),
-        description = "This is a test schema"
+        trackingElement = "a",
+        description = "Test Description",
+        extends = "test/extends",
+        basedOn = "TestBaseOn"
     )
 
     @Test
@@ -39,12 +45,18 @@ class DocumentationTests {
     @Test
     fun `test building documentation string from a schema`() {
         val expected = """
-### Schema:         Test Schema
-#### Description:   This is a test schema
+### Schema: Test Schema
+### Topic: Test Topic
+### Tracking Element: Test TrackingElement (a)
+### Base On: [TestBaseOn](./TestBaseOn.md)
+### Extends: [test/extends](./test-extends.md)
+#### Description: Test Description
 
 ---
 
-**Name**: a
+**Name**: Test TrackingElement
+
+**ReportStream Internal Name**: a
 
 **Type**: TEXT
 
@@ -63,6 +75,8 @@ class DocumentationTests {
     fun `test building documentation for element with documentation value`() {
         val expected = """
 **Name**: a
+
+**ReportStream Internal Name**: a
 
 **Type**: TEXT
 
@@ -89,6 +103,8 @@ $documentation
         val expected = """
 **Name**: b
 
+**ReportStream Internal Name**: a
+
 **Type**: CODE
 
 **PII**: No
@@ -112,6 +128,8 @@ $documentation
         )
         val expected = """
 **Name**: b
+
+**ReportStream Internal Name**: a
 
 **Type**: CODE
 
@@ -137,6 +155,8 @@ $documentation
         val expected = """
 **Name**: b
 
+**ReportStream Internal Name**: a
+
 **Type**: CODE
 
 **PII**: No
@@ -160,6 +180,8 @@ $documentation
         )
         val expected = """
 **Name**: b
+
+**ReportStream Internal Name**: a
 
 **Type**: TEXT
 
@@ -187,6 +209,8 @@ $documentation
         val elemWithTypeCode = Element(name = "a", type = Element.Type.CODE, valueSetRef = valueSetA)
         val expected = """
 **Name**: a
+
+**ReportStream Internal Name**: a
 
 **Type**: CODE
 
