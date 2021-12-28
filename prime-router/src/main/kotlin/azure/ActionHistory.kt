@@ -351,6 +351,7 @@ class ActionHistory {
      * Track a report that was fully filtered out based on qualty
      */
     fun trackFilteredReport(
+        input: Report,
         report: Report,
         receiver: Receiver,
     ) {
@@ -361,8 +362,21 @@ class ActionHistory {
         reportFile.schemaName = report.schema.name
         reportFile.schemaTopic = report.schema.topic
         reportFile.itemCount = report.itemCount
+        reportFile.bodyFormat = report.bodyFormat.toString()
         filteredOutReports[reportFile.reportId] = reportFile
         filteredReportRows[reportFile.reportId] = report.filteringResults
+        report.filteringResults.forEach {
+            trackDetails(
+                ActionDetail(
+                    ActionDetail.DetailScope.report,
+                    "",
+                    it,
+                    reportId = report.id,
+                    action = action,
+                )
+            )
+        }
+        reportLineages.add(ReportLineage(null, null, input.id, report.id, null))
         trackedReports[report.id] = report
     }
 
@@ -394,6 +408,17 @@ class ActionHistory {
         reportFile.itemCount = report.itemCount
         reportsOut[reportFile.reportId] = reportFile
         filteredReportRows[reportFile.reportId] = report.filteringResults
+        report.filteringResults.forEach {
+            trackDetails(
+                ActionDetail(
+                    ActionDetail.DetailScope.report,
+                    "",
+                    it,
+                    reportId = report.id,
+                    action = action,
+                )
+            )
+        }
         trackedReports[report.id] = report
         trackItemLineages(report)
         trackEvent(event) // to be sent to queue later.
@@ -420,6 +445,17 @@ class ActionHistory {
         reportFile.itemCount = report.itemCount
         reportsOut[reportFile.reportId] = reportFile
         filteredReportRows[reportFile.reportId] = report.filteringResults
+        report.filteringResults.forEach {
+            trackDetails(
+                ActionDetail(
+                    ActionDetail.DetailScope.report,
+                    "",
+                    it,
+                    reportId = report.id,
+                    action = action,
+                )
+            )
+        }
         trackedReports[report.id] = report
         trackItemLineages(report)
         trackEvent(event) // to be sent to queue later.
@@ -534,6 +570,7 @@ class ActionHistory {
         action.actionId = insertAction(txn)
         reportsReceived.values.forEach { it.actionId = action.actionId }
         reportsOut.values.forEach { it.actionId = action.actionId }
+        filteredOutReports.values.forEach { it.actionId = action.actionId }
         insertReports(txn)
         DatabaseAccess.saveTestData(covidMetaDataRecords, txn)
         generateReportLineages(action.actionId)
@@ -565,6 +602,9 @@ class ActionHistory {
             insertReportFile(it, txn)
         }
         reportsOut.values.forEach {
+            insertReportFile(it, txn)
+        }
+        filteredOutReports.values.forEach {
             insertReportFile(it, txn)
         }
     }
@@ -625,6 +665,7 @@ class ActionHistory {
 
     private fun insertReportLineages(txn: Configuration) {
         reportLineages.forEach {
+            it.actionId = action.actionId
             insertReportLineage(it, txn)
         }
     }
@@ -718,15 +759,6 @@ class ActionHistory {
             if (!filteredReportRows.getOrDefault(reportFile.reportId, emptyList()).isEmpty()) {
                 jsonGen.writeArrayFieldStart("filteredReportRows")
                 filteredReportRows.getValue(reportFile.reportId).forEach {
-                    trackDetails(
-                        ActionDetail(
-                            ActionDetail.DetailScope.report,
-                            "",
-                            it,
-                            reportId = reportsOut[reportFile.reportId]?.reportId,
-                            action = action,
-                        )
-                    )
                     jsonGen.writeString(it.toString())
                 }
                 jsonGen.writeEndArray()

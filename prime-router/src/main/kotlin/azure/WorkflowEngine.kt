@@ -415,9 +415,9 @@ class WorkflowEngine(
 
         val (emptyReports, preparedReports) = routedReports.partition { (report, _) -> report.isEmpty() }
 
-        emptyReports.forEach { (report, receiver) ->
-            if (!report.filteringResults.isEmpty()) {
-                actionHistory.trackFilteredReport(report, receiver)
+        emptyReports.forEach { (filteredReport, receiver) ->
+            if (!filteredReport.filteringResults.isEmpty()) {
+                actionHistory.trackFilteredReport(report, filteredReport, receiver)
             }
         }
 
@@ -474,7 +474,7 @@ class WorkflowEngine(
                         metadata = Metadata.getInstance()
                     )
                     emptyReport.filteringResults.add(it)
-                    actionHistory.trackFilteredReport(emptyReport, receiver)
+                    actionHistory.trackFilteredReport(report, emptyReport, receiver)
                 }
 
                 report
