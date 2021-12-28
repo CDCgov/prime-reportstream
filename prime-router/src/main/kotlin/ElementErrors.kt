@@ -184,8 +184,8 @@ data class InvalidParamMessage(
 }
 
 data class InvalidReportMessage(
-    override val type: ResponseMsgType = ResponseMsgType.REPORT,
     val message: String = "",
+    override val type: ResponseMsgType = ResponseMsgType.REPORT,
 ) : ResponseMessage {
     override fun detailMsg(): String {
         return message
@@ -197,7 +197,7 @@ data class InvalidReportMessage(
 
     companion object {
         fun new(message: String): InvalidReportMessage {
-            return InvalidReportMessage(ResponseMsgType.REPORT, message)
+            return InvalidReportMessage(message)
         }
     }
 }

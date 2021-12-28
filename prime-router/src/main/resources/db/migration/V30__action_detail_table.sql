@@ -20,5 +20,6 @@ CREATE TABLE action_detail
   row INTEGER,
   report_id UUID REFERENCES report_file(report_id) ON DELETE CASCADE,
   type action_detail_type,
-  scope action_detail_scope
+  scope action_detail_scope,
+  context JSONB
 );

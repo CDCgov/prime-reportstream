@@ -1,7 +1,10 @@
 package gov.cdc.prime.router
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import java.util.UUID
 
+private val mapper = jacksonMapperBuilder().build()
 /**
  * @property scope of the result detail
  * @property id of the result (depends on scope)
@@ -13,6 +16,7 @@ data class ActionDetail(
     val trackingId: String,
     val responseMessage: ResponseMessage,
     val row: Int = -1,
+    val context: JsonNode = mapper.valueToTree(responseMessage),
     var reportId: UUID? = null,
     var action: Action? = null,
     val type: Type = Type.info,
@@ -40,6 +44,11 @@ data class ActionDetail(
     companion object {
         fun report(message: ResponseMessage, type: Type): ActionDetail {
             return ActionDetail(DetailScope.report, "", message, -1, type = type)
+        }
+
+        fun report(message: String, type: Type): ActionDetail {
+            val reportMessage = InvalidReportMessage(message)
+            return ActionDetail(DetailScope.report, "", reportMessage, -1, type = type)
         }
 
         fun item(trackingId: String, message: ResponseMessage, row: Int, type: Type): ActionDetail {
