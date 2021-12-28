@@ -184,8 +184,6 @@ class ReportFunction : Logging {
                         responseBuilder.body(
                             actionHistory.createResponseBody(
                                 options,
-                                emptyList(),
-                                emptyList(),
                                 false,
                             )
                         ).status(HttpStatus.OK)
@@ -202,11 +200,10 @@ class ReportFunction : Logging {
                             throw ActionErrors(errors)
                         }
 
-                        report.bodyURL = workflowEngine.recordReceivedReport(
-                            // should make createReport always return a report or error
-                            report, validatedRequest.content.toByteArray(), sender,
-                            actionHistory, workflowEngine, payloadName
+                        val blobInfo = workflowEngine.recordReceivedReport(
+                            report, validatedRequest.content.toByteArray(), sender
                         )
+                        actionHistory.trackExternalInputReport(report, blobInfo, payloadName)
 
                         // call the correct processing function based on processing type
                         if (isAsync) {
@@ -232,46 +229,44 @@ class ReportFunction : Logging {
 
                         actionHistory.trackDetails(errors)
                         actionHistory.trackDetails(warnings)
-                        // TODO DG: continue reducing this passing of mutable lists
-                        responseBuilder.body(
-                            actionHistory.createResponseBody(
-                                // TODO DG: get rid of the need for options, only used to handle "skip send" case
-                                // to tell them that it's never sent.
-                                options,
-                                warnings,
-                                errors,
-                                verbose,
-                                report
-                            )
-                        )
                         responseBuilder.status(HttpStatus.CREATED)
                     }
                 }
             } catch (e: ActionError) {
                 actionHistory.trackDetails(e.detail)
-                responseBuilder.body(
-                    actionHistory.createResponseBody(
-                        options,
-                        emptyList(),
-                        listOf(e.detail),
-                        verbose,
-                    )
-                )
             } catch (e: ActionErrors) {
                 actionHistory.trackDetails(e.details)
-                responseBuilder.body(
-                    actionHistory.createResponseBody(
-                        options,
-                        emptyList(),
-                        e.details,
-                        verbose,
-                    )
-                )
             }
+            responseBuilder.body(
+                actionHistory.createResponseBody(
+                    options,
+                    verbose,
+                )
+            )
         } catch (e: IllegalArgumentException) {
-            responseBuilder.body(e.message ?: "Invalid request.")
+            actionHistory.trackDetails(
+                ActionDetail.report(
+                    e.message ?: "Invalid request.", ActionDetail.Type.error
+                )
+            )
+            responseBuilder.body(
+                actionHistory.createResponseBody(
+                    Options.None,
+                    false,
+                )
+            )
         } catch (e: IllegalStateException) {
-            responseBuilder.body(e.message ?: "Invalid request.")
+            actionHistory.trackDetails(
+                ActionDetail.report(
+                    e.message ?: "Invalid request.", ActionDetail.Type.error
+                )
+            )
+            responseBuilder.body(
+                actionHistory.createResponseBody(
+                    Options.None,
+                    false,
+                )
+            )
         }
 
         val response = responseBuilder.build()

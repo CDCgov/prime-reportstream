@@ -175,20 +175,16 @@ class WorkflowEngine(
         report: Report,
         rawBody: ByteArray,
         sender: Sender,
-        actionHistory: ActionHistory,
-        workflowEngine: WorkflowEngine,
-        payloadName: String? = null,
-    ): String {
+    ): BlobAccess.BlobInfo {
         // Save a copy of the original report
         val senderReportFormat = Report.Format.safeValueOf(sender.format.toString())
         val blobFilename = report.name.replace(report.bodyFormat.ext, senderReportFormat.ext)
-        val blobInfo = workflowEngine.blob.uploadBody(
+        val blobInfo = blob.uploadBody(
             senderReportFormat, rawBody,
             blobFilename, sender.fullName, Event.EventAction.RECEIVE
         )
 
-        actionHistory.trackExternalInputReport(report, blobInfo, payloadName)
-        return blobInfo.blobUrl
+        return blobInfo
     }
 
     fun insertProcessTask(
@@ -532,9 +528,6 @@ class WorkflowEngine(
         context: ExecutionContext,
         actionHistory: ActionHistory
     ) {
-        val errors: MutableList<ActionDetail> = mutableListOf()
-        val warnings: MutableList<ActionDetail> = mutableListOf()
-
         db.transact { txn ->
             val task = db.fetchAndLockTask(messageEvent.reportId, txn)
 
@@ -547,6 +540,8 @@ class WorkflowEngine(
                 emptyList(),
                 blobReportId = messageEvent.reportId
             )
+
+            actionHistory.trackExistingInputReport(report)
 
             //  send to routeReport
             val warnings = routeReport(
@@ -562,10 +557,7 @@ class WorkflowEngine(
             // track response body
             val responseBody = actionHistory.createResponseBody(
                 messageEvent.options,
-                warnings,
-                errors,
                 true,
-                report
             )
             actionHistory.trackActionResponse(responseBody)
 
@@ -666,7 +658,7 @@ class WorkflowEngine(
                     emptyList(),
                     header.receiver
                 )
-                if (result.report == null || result.errors.isNotEmpty()) {
+                if (result.errors.isNotEmpty()) {
                     error("Internal Error: Could not read a saved CSV blob: ${header.task.bodyUrl}")
                 }
                 result.report

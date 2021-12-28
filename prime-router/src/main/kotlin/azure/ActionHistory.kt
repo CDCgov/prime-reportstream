@@ -69,6 +69,7 @@ class ActionHistory {
      */
     val action = Action()
 
+    val trackedReports = mutableMapOf<ReportId, Report>()
     /*
      * Reports that are inputs to this action, from previous steps.
      * These reports are already in report_file.  For this action, we insert them as parents into
@@ -297,6 +298,11 @@ class ActionHistory {
         reportsIn[reportId] = reportFile
     }
 
+    fun trackExistingInputReport(report: Report) {
+        trackExistingInputReport(report.id)
+        trackedReports[report.id] = report
+    }
+
     /**
      * Use this to record history info about a new externally submitted report.
      */
@@ -327,6 +333,7 @@ class ActionHistory {
         action.externalName = payloadName
         reportFile.itemCount = report.itemCount
         reportsReceived[reportFile.reportId] = reportFile
+        trackedReports[report.id] = report
 
         // if the received report topic is covid-19, generate deidentified metadata
         if (report.schema.topic.lowercase() == "covid-19") {
@@ -356,6 +363,7 @@ class ActionHistory {
         reportFile.itemCount = report.itemCount
         filteredOutReports[reportFile.reportId] = reportFile
         filteredReportRows[reportFile.reportId] = report.filteringResults
+        trackedReports[report.id] = report
     }
 
     /**
@@ -386,6 +394,7 @@ class ActionHistory {
         reportFile.itemCount = report.itemCount
         reportsOut[reportFile.reportId] = reportFile
         filteredReportRows[reportFile.reportId] = report.filteringResults
+        trackedReports[report.id] = report
         trackItemLineages(report)
         trackEvent(event) // to be sent to queue later.
     }
@@ -411,6 +420,7 @@ class ActionHistory {
         reportFile.itemCount = report.itemCount
         reportsOut[reportFile.reportId] = reportFile
         filteredReportRows[reportFile.reportId] = report.filteringResults
+        trackedReports[report.id] = report
         trackItemLineages(report)
         trackEvent(event) // to be sent to queue later.
     }
@@ -895,25 +905,24 @@ class ActionHistory {
      */
     fun createResponseBody(
         options: Options,
-        warnings: List<ActionDetail>,
-        errors: List<ActionDetail>,
         verbose: Boolean,
-        // TODO DG: This doesn't make sense to accept an arbitrary report and then use tracked reports for other info
-        report: Report? = null
     ): String {
+        val warnings = details.filter { it.type == ActionDetail.Type.warning }
+        val errors = details.filter { it.type == ActionDetail.Type.error }
         val factory = JsonFactory()
         val outStream = ByteArrayOutputStream()
         factory.createGenerator(outStream).use {
             it.useDefaultPrettyPrinter()
             it.writeStartObject()
+
+            val inboundReports = reportsReceived + reportsIn
+            check(inboundReports.size < 2) {
+                "Only able to record one report at a time."
+            }
+
+            val report = trackedReports[inboundReports.values.firstOrNull()?.reportId]
+
             if (report != null) {
-                val inboundReports = reportsReceived + reportsIn
-                checkNotNull(inboundReports[report.id]) {
-                    "Should only create a response body for reports that have beeen recorded."
-                }
-                check(inboundReports.size == 1) {
-                    "Only able to record one report at a time."
-                }
                 it.writeStringField("id", report.id.toString())
                 it.writeStringField("timestamp", DateTimeFormatter.ISO_INSTANT.format(Instant.now()))
                 it.writeStringField("topic", report.schema.topic)
