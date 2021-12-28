@@ -13,4 +13,19 @@ elements:
   - name: processing_mode_code
     default: P
 
+  - name: filler_order_id
+    csvFields: [ { name: specimenId } ]
+
+  - name: placer_order_id
+    csvFields: [ { name: specimenId } ]
+
+  # Force remove the value of the ordering provider name
+  - name: ordering_provider_first_name
+    default:
+    defaultOverridesValue: true
+
+  # Force remove the value of the ordering provider name
+  - name: ordering_provider_last_name
+    default:
+    defaultOverridesValue: true
 

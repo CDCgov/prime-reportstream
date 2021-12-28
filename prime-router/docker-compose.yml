@@ -1,4 +1,4 @@
-# This docker compose is intended to setup a developer
+# This docker-compose file is intended to set up a developer environment
 version: "3.3"
 services:
   # This container runs our Azure function code.
@@ -7,7 +7,7 @@ services:
       context: .
       dockerfile: Dockerfile.dev
       args:
-        INSECURE_SSL: "${PRIME_DATA_HUB_INSECURE_SSL}"
+        INSECURE_SSL: "${PRIME_DATA_HUB_INSECURE_SSL:-true}"
     volumes: # Attach the PWD into the image
       - type: bind
         source: ./build
@@ -35,9 +35,9 @@ services:
       - azurite
       - vault
     ports:
-      - 7071:7071 # default function port
-      - 5005:5005 # Java debug port
-      - 9090:9090 # Java JMX port
+      - "7071:7071" # default function port
+      - "5005:5005" # Java debug port
+      - "9090:9090" # Java JMX port
     networks:
       - prime-router_build
 
@@ -50,12 +50,12 @@ services:
       # map to Azurite data objects to the build directory
       - ./build/azurite:/data
     ports:
-      - 10000:10000
-      - 10001:10001
+      - "10000:10000"
+      - "10001:10001"
     networks:
       - prime-router_build
 
-  #local SFTP server as a receive point
+  # local SFTP server as a receive point
   sftp:
     image: atmoz/sftp
     ports:
@@ -73,6 +73,16 @@ services:
     networks:
       - prime-router_build
 
+  # a SOAP endpoint to test against
+  soap-webservice:
+    image: castlemock/castlemock
+    ports:
+      - "8087:8080"
+    volumes:
+      - ../.environment/soap_service:/root/.castlemock
+      - ../.environment/soap_service:/castlemock/castlemock
+    networks:
+      - prime-router_build
 
   # local FTPS Server
   ftps:
@@ -98,7 +108,6 @@ services:
     networks:
       - prime-router_build
 
-
   redox:
     image: mockserver/mockserver:mockserver-5.11.1
     ports:
@@ -110,18 +119,6 @@ services:
       - type: bind
         source: ./src/test/redox
         target: /config
-    networks:
-      - prime-router_build
-
-  settings:
-    build: settings/.
-    command: "--check-last-modified prime_dev /settings/organizations.yml"
-    depends_on:
-      - prime_dev
-    volumes:
-      - type: bind
-        source: ./settings
-        target: /settings
     networks:
       - prime-router_build
 
@@ -145,22 +142,6 @@ services:
     command: "/vault/config/init.sh"
     networks:
       - prime-router_build
-
-  web_receiver:
-    image: nginx:latest
-    ports:
-      - "8090:80"
-    volumes:
-      - "../frontend/dist:/usr/share/nginx/html"
-    depends_on:
-      - prime_dev
-    command: "'nginx' '-g' 'daemon off;'"
-    entrypoint: "/docker-entrypoint.sh"
-    networks:
-      - prime-router_build
-    build:
-      context: ../frontend
-      dockerfile: ../frontend/Dockerfile_dev
 
 volumes:
   # For storing a local encrypted secrets database

@@ -2,6 +2,7 @@
 
 package gov.cdc.prime.router.cli
 
+import cli.LivdTableDownload
 import com.github.ajalt.clikt.completion.completionOption
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.subcommands
@@ -255,6 +256,7 @@ fun main(args: Array<String>) = RouterCli()
     .subcommands(
         ProcessData(),
         ListSchemas(),
+        LivdTableDownload(),
         GenerateDocs(),
         CredentialsCli(),
         CompareCsvFiles(),
@@ -267,7 +269,8 @@ fun main(args: Array<String>) = RouterCli()
         MultipleSettings(),
         LookupTableCommands().subcommands(
             LookupTableListCommand(), LookupTableGetCommand(), LookupTableCreateCommand(),
-            LookupTableActivateCommand(), LookupTableDiffCommand()
-        )
+            LookupTableActivateCommand(), LookupTableDiffCommand(), LookupTableLoadAllCommand()
+        ),
+        ConvertFileCommands()
     )
     .main(args)

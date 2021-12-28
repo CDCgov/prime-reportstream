@@ -36,7 +36,7 @@ const DetailsContent = () => {
                 fallbackComponent={() => <ErrorPage type="message" />}
             >
                 <Suspense fallback={<Spinner />}>
-                    <FacilitiesTable reportId={report?.reportId || ""} />
+                    <FacilitiesTable reportId={reportId} />
                 </Suspense>
             </NetworkErrorBoundary>
             <HipaaNotice />

@@ -1,8 +1,8 @@
 package gov.cdc.prime.router.cli.tests
 
-import gov.cdc.prime.router.azure.ReportStreamEnv
 import gov.cdc.prime.router.cli.SettingCommand
 import gov.cdc.prime.router.cli.SettingsUtilities
+import gov.cdc.prime.router.common.Environment
 import org.apache.http.HttpStatus
 
 /**
@@ -34,16 +34,6 @@ class SettingsTest : CoolTest() {
     private val dummyAccessToken = "dummy"
     private val settingName = "dummy"
     private val settingErrorMessage = "Test GRUD of Setting API: "
-
-    /**
-     * Define private local environment to use for creating the path endpoint
-     * to the dummy organization.
-     */
-    private val envlocal = SettingCommand.Environment(
-        "local",
-        (System.getenv("PRIME_RS_API_ENDPOINT_HOST") ?: "localhost") + ":7071",
-        useHttp = true,
-    )
 
     /**
      * Define the new dummy organization to be use for test of setting/create the new
@@ -83,16 +73,16 @@ class SettingsTest : CoolTest() {
         }
     """
 
-    override suspend fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
-        ugly("Starting CRUD REST API ${environment.urlPrefix}")
+    override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
+        ugly("Starting CRUD REST API ${environment.url}")
 
         /**
          * Obtain the URL/path endpoint
          */
         val path = SettingCommand.formPath(
-            envlocal,
+            Environment.LOCAL,
             SettingCommand.Operation.GET,
-            SettingCommand.SettingType.ORG,
+            SettingCommand.SettingType.ORGANIZATION,
             settingName
         )
 

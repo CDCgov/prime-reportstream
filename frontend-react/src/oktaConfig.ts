@@ -2,9 +2,9 @@ import { OktaAuthOptions } from "@okta/okta-auth-js";
 
 const oktaAuthConfig: OktaAuthOptions = {
     issuer: `https://hhs-prime.okta.com/oauth2/default`,
-    clientId: "0oa6fm8j4G1xfrthd4h6",
+    clientId: process.env.REACT_APP_OKTA_CLIENTID as string,
     redirectUri: window.location.origin + "/login/callback",
-    postLogoutRedirectUri: window.localStorage.origin,
+    postLogoutRedirectUri: window.location.origin, // tomn - this was window.localStorage.origin... which seemed wrong
     responseMode: "fragment",
     tokenManager: {
         storage: "sessionStorage",
@@ -13,7 +13,7 @@ const oktaAuthConfig: OktaAuthOptions = {
 };
 
 const oktaSignInConfig = {
-    logo: "https://reportstream.cdc.gov/assets/img/cdc-logo.svg",
+    logo: "/assets/cdc-logo.svg",
     language: "en",
     features: {
         registration: false, // Disable self-service registration flow
@@ -21,7 +21,7 @@ const oktaSignInConfig = {
         router: true, // Leave this set to true for the API demo
     },
     baseUrl: `https://hhs-prime.okta.com`,
-    clientId: "0oa6fm8j4G1xfrthd4h6",
+    clientId: process.env.REACT_APP_OKTA_CLIENTID as string,
     redirectUri: `${window.location.origin}/login/callback`,
     authParams: {
         issuer: "https://hhs-prime.okta.com/oauth2/default",

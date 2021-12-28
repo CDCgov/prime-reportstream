@@ -3,10 +3,13 @@ package gov.cdc.prime.router
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
+import gov.cdc.prime.router.common.NPIUtilities
 import gov.cdc.prime.router.metadata.LookupTable
 import java.io.ByteArrayInputStream
+import java.lang.IllegalArgumentException
 import kotlin.test.Test
 import kotlin.test.assertFails
+import kotlin.test.assertFailsWith
 import kotlin.test.fail
 
 class MapperTests {
@@ -29,7 +32,7 @@ class MapperTests {
             3,4,y
             5,6,z
         """.trimIndent()
-        val table = LookupTable.read(ByteArrayInputStream(csv.toByteArray()))
+        val table = LookupTable.read(inputStream = ByteArrayInputStream(csv.toByteArray()))
         val schema = Schema(
             "test", topic = "test",
             elements = listOf(
@@ -54,7 +57,7 @@ class MapperTests {
             3,4,y
             5,6,z
         """.trimIndent()
-        val table = LookupTable.read(ByteArrayInputStream(csv.toByteArray()))
+        val table = LookupTable.read(inputStream = ByteArrayInputStream(csv.toByteArray()))
         val schema = Schema(
             "test", topic = "test",
             elements = listOf(
@@ -123,6 +126,14 @@ class MapperTests {
         // Test with a ID NOW device id
         val ev2 = ElementAndValue(modelElement, "ID NOW")
         assertThat(mapper.apply(codeElement, emptyList(), listOf(ev2))).isEqualTo("94534-5")
+
+        // Test for a device ID that has multiple rows and the same test ordered code.
+        val ev3 = ElementAndValue(modelElement, "1copy COVID-19 qPCR Multi Kit*")
+        assertThat(mapper.apply(codeElement, emptyList(), listOf(ev3))).isEqualTo("94531-1")
+
+        // Test for a device ID that has multiple rows and multiple test ordered codes.
+        val ev4 = ElementAndValue(modelElement, "Alinity i")
+        assertThat(mapper.apply(codeElement, emptyList(), listOf(ev4))).isNull()
     }
 
     @Test
@@ -188,6 +199,62 @@ class MapperTests {
         // Test with another
         val ev1a = ElementAndValue(deviceElement, "BinaxNOW COVID-19 Ag Card 2 Home Test")
         assertThat(mapper.apply(codeElement, emptyList(), listOf(ev1a))).isEqualTo("Y")
+    }
+
+    @Test
+    fun `test livdLookup model variation lookup`() {
+        val lookupTable = LookupTable.read("./metadata/tables/LIVD-SARS-CoV-2-2021-09-29.csv")
+        val element = Element(
+            "ordered_test_code",
+            tableRef = lookupTable,
+            tableColumn = "Test Ordered LOINC Code"
+        )
+
+        // Cue COVID-19 Test does not have an * in the table
+        var testModel = "Cue COVID-19 Test"
+        var expectedTestOrderedLoinc = "95409-9"
+        assertThat(LIVDLookupMapper.lookupByEquipmentModelName(element, testModel, emptyMap()))
+            .isEqualTo(expectedTestOrderedLoinc)
+
+        // Add an * to the end of the model name
+        assertThat(LIVDLookupMapper.lookupByEquipmentModelName(element, "$testModel*", emptyMap()))
+            .isEqualTo(expectedTestOrderedLoinc)
+
+        // Add some other character to fail the lookup
+        assertThat(LIVDLookupMapper.lookupByEquipmentModelName(element, "$testModel^", emptyMap()))
+            .isNull()
+
+        // Accula SARS-Cov-2 Test does have an * in the table
+        testModel = "Accula SARS-Cov-2 Test"
+        expectedTestOrderedLoinc = "95409-9"
+        assertThat(LIVDLookupMapper.lookupByEquipmentModelName(element, testModel, emptyMap()))
+            .isEqualTo(expectedTestOrderedLoinc)
+
+        // Add an * to the end of the model name
+        assertThat(LIVDLookupMapper.lookupByEquipmentModelName(element, "$testModel*", emptyMap()))
+            .isEqualTo(expectedTestOrderedLoinc)
+    }
+
+    @Test
+    fun `test value variation`() {
+        assertThat(LIVDLookupMapper.getValueVariation("dummy", "*")).isEqualTo("dummy*")
+        assertThat(LIVDLookupMapper.getValueVariation("dummy*", "*")).isEqualTo("dummy")
+        assertThat(LIVDLookupMapper.getValueVariation("dummy????", "???")).isEqualTo("dummy?")
+
+        assertThat(LIVDLookupMapper.getValueVariation("dummyCaSe", "CASE")).isEqualTo("dummy")
+        assertThat(LIVDLookupMapper.getValueVariation("dummyCaSe", "CASE", false)).isEqualTo("dummyCaSeCASE")
+
+        assertFailsWith<IllegalArgumentException>(
+            block = {
+                LIVDLookupMapper.getValueVariation("dummy", "")
+            }
+        )
+
+        assertFailsWith<IllegalArgumentException>(
+            block = {
+                LIVDLookupMapper.getValueVariation("", "*")
+            }
+        )
     }
 
     @Test
@@ -453,7 +520,7 @@ class MapperTests {
             zipcode,county
             32303,Leon
         """.trimIndent()
-        val table = LookupTable.read(ByteArrayInputStream(csv.toByteArray()))
+        val table = LookupTable.read(inputStream = ByteArrayInputStream(csv.toByteArray()))
         val schema = Schema(
             "test", topic = "test",
             elements = listOf(
@@ -500,7 +567,134 @@ class MapperTests {
 
     @Test
     fun `test parseMapperField validation - allow mapper tokens to be parsed`() {
+        // it should allow mapper tokens to be parsed: i.e. "$index"
         val vals = Mappers.parseMapperField("concat(patient_id, \$index)")
         assertThat(vals.second[1]).isEqualTo("\$index")
+    }
+
+    @Test
+    fun `test IfNotPresent mapper`() {
+        val mapper = IfNotPresentMapper()
+        val elementA = Element("a")
+        val elementB = Element("lookup_field")
+        val elementC1 = Element("condition_field_1")
+        val elementC2 = Element("condition_field_2")
+
+        // $mode:"literal" tests
+
+        // conditional fields are blank: should return the "$string" value
+        var args = listOf(
+            "\$mode:literal", "\$string:*** No Address Given ***", "condition_field_1", "condition_field_2"
+        )
+        var values = listOf(ElementAndValue(elementC1, ""), ElementAndValue(elementC2, ""))
+        assertThat(mapper.apply(elementA, args, values))
+            .isEqualTo("*** No Address Given ***")
+
+        // any conditional field is non-blank: should return null
+        args = listOf("\$mode:literal", "\$string:*** No Address Given ***", "condition_field_1", "condition_field_2")
+        values = listOf(ElementAndValue(elementC1, ""), ElementAndValue(elementC2, "nonBlank"))
+        assertThat(mapper.apply(elementA, args, values))
+            .isEqualTo(null)
+
+        // conditional fields not present: should return the "$string" value
+        args = listOf("\$mode:literal", "\$string:*** No Address Given ***", "condition_field_1", "condition_field_2")
+        values = listOf(ElementAndValue(elementA, ""))
+        assertThat(mapper.apply(elementA, args, values))
+            .isEqualTo("*** No Address Given ***")
+
+        // $mode:"lookup" tests
+
+        // conditional fields are blank: should return the value of lookup_field (Element B)
+        args = listOf("\$mode:lookup", "lookup_field", "condition_field_1", "condition_field_2")
+        values = listOf(
+            ElementAndValue(elementB, "value of B"),
+            ElementAndValue(elementC1, ""),
+            ElementAndValue(elementC2, "")
+        )
+        assertThat(mapper.apply(elementA, args, values))
+            .isEqualTo("value of B")
+
+        // any conditional field is non-blank: should return null
+        args = listOf("\$mode:lookup", "lookup_field", "condition_field_1", "condition_field_2")
+        values = listOf(
+            ElementAndValue(elementB, "value of B"),
+            ElementAndValue(elementC1, ""),
+            ElementAndValue(elementC2, "nonBlank")
+        )
+        assertThat(mapper.apply(elementA, args, values))
+            .isEqualTo(null)
+
+        // conditional fields not present: should return the value of lookup_field (Element B)
+        args = listOf("\$mode:lookup", "lookup_field", "condition_field_1", "condition_field_2")
+        values = listOf(ElementAndValue(elementA, ""), ElementAndValue(elementB, "value of B"))
+        assertThat(mapper.apply(elementA, args, values))
+            .isEqualTo("value of B")
+
+        // single non-blank condition: should return null
+        args = listOf("\$mode:lookup", "lookup_field", "condition_field_1")
+        values = listOf(ElementAndValue(elementB, "value of B"), ElementAndValue(elementC1, "nonBlank"))
+        assertThat(mapper.apply(elementA, args, values))
+            .isEqualTo(null)
+
+        // invalid $mode should return null
+        args = listOf("\$mode:iNvAlId", "lookup_field", "condition_field_1", "condition_field_2")
+        values = listOf(ElementAndValue(elementA, ""), ElementAndValue(elementB, "value of B"))
+        assertThat(mapper.apply(elementA, args, values))
+            .isEqualTo(null)
+    }
+
+    @Test
+    fun `test ifNPI with valid NPI`() {
+        val mapper = IfNPIMapper()
+        val elementA = Element("a")
+        val args = listOf("a", "NPI", "U")
+        val values = listOf(ElementAndValue(elementA, NPIUtilities.VALID_NPI))
+        assertThat(mapper.apply(elementA, args, values)).isEqualTo("NPI")
+    }
+
+    @Test
+    fun `test ifNPI with invalid NPI`() {
+        val mapper = IfNPIMapper()
+        val elementA = Element("a")
+        val args = listOf("a", "NPI", "U")
+        val values = listOf(ElementAndValue(elementA, "xyz"))
+        assertThat(mapper.apply(elementA, args, values)).isEqualTo("U")
+    }
+
+    @Test
+    fun `test ifNPI with invalid NPI and 2 args`() {
+        val mapper = IfNPIMapper()
+        val elementA = Element("a")
+        val args = listOf("a", "NPI")
+        val values = listOf(ElementAndValue(elementA, "xyz"))
+        assertThat(mapper.apply(elementA, args, values)).isNull()
+    }
+
+    @Test
+    fun `test LookupSenderValuesetsMapper`() {
+        val table = LookupTable.read("./src/test/resources/metadata/tables/sender_valuesets.csv")
+        val schema = Schema(
+            "test", topic = "test",
+            elements = listOf(
+                Element(
+                    "pregnant", type = Element.Type.TABLE, table = "sender_valuesets", tableColumn = "result",
+                    mapperOverridesValue = true
+                )
+            )
+        )
+        val metadata = Metadata(schema = schema, table = table, tableName = "sender_valuesets")
+        val indexElement = Element("sender_id")
+        val lookupElement = metadata.findSchema("test")?.findElement("pregnant") ?: fail("")
+        val mapper = LookupSenderValuesetsMapper()
+        val args = listOf("sender_id", "pregnant")
+        val elementAndValues = listOf(ElementAndValue(indexElement, "all"), ElementAndValue(lookupElement, "y"))
+        assertThat(mapper.valueNames(lookupElement, args)).isEqualTo(listOf("sender_id", "pregnant"))
+        assertThat(mapper.apply(lookupElement, args, elementAndValues)).isEqualTo("77386006")
+
+        val elementAndValuesUNK = listOf(
+            ElementAndValue(indexElement, "all"),
+            ElementAndValue(lookupElement, "yas queen")
+        )
+        assertThat(mapper.apply(lookupElement, args, elementAndValuesUNK)).isNull()
     }
 }

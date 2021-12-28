@@ -1,4 +1,3 @@
-// @ts-nocheck // TODO: fix types in this file
 import { GovBanner } from "@trussworks/react-uswds";
 import { Route, useHistory, Switch } from "react-router-dom";
 import { OktaAuth, toRelativeUrl } from "@okta/okta-auth-js";
@@ -16,7 +15,7 @@ import { Details } from "./pages/details/Details";
 import { Login } from "./pages/Login";
 import { TermsOfService } from "./pages/TermsOfService";
 import { ReportStreamHeader } from "./components/header/ReportStreamHeader";
-import { oktaSignInConfig, oktaAuthConfig } from "./oktaConfig";
+import { oktaAuthConfig } from "./oktaConfig";
 import { About } from "./pages/About";
 import { AuthorizedRoute } from "./components/AuthorizedRoute";
 import { PERMISSIONS } from "./resources/PermissionsResource";
@@ -25,11 +24,20 @@ import { Upload } from "./pages/Upload";
 import { CODES, ErrorPage } from "./pages/error/ErrorPage";
 import GlobalContextProvider from "./components/GlobalContextProvider";
 import { logout } from "./utils/UserUtils";
+import TermsOfServiceForm from "./pages/tos-sign/TermsOfServiceForm";
 import Spinner from "./components/Spinner";
+import Submissions from "./pages/Submissions";
 
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
 
 const App = () => {
+    // This is for sanity checking and can be removed
+    console.log(
+        `process.env.REACT_APP_CLIENT_ENV='${
+            process.env?.REACT_APP_CLIENT_ENV || "missing"
+        }'`
+    );
+
     const history = useHistory();
     const customAuthHandler = (): void => {
         history.push("/login");
@@ -42,6 +50,7 @@ const App = () => {
         // direct them to the /upload page if they do not have an organization that receives data
         const authState = OKTA_AUTH.authStateManager._authState;
         if (
+            authState &&
             !reportReceiver(authState) &&
             permissionCheck(PERMISSIONS.SENDER, authState)
         ) {
@@ -71,11 +80,15 @@ const App = () => {
         >
             <Suspense fallback={<Spinner fullPage />}>
                 <NetworkErrorBoundary
-                    fallbackComponent={() => <ErrorPage type="page" />}
+                    fallbackComponent={() => {
+                        return <div></div>;
+                    }}
                 >
                     <GlobalContextProvider>
                         <GovBanner aria-label="Official government website" />
                         <ReportStreamHeader />
+                        {/* Changed from main to div to fix weird padding issue at the top
+                        caused by USWDS styling */}
                         <main id="main-content">
                             <div className="content">
                                 <Switch>
@@ -95,13 +108,15 @@ const App = () => {
                                     />
                                     <Route
                                         path="/login"
-                                        render={() => (
-                                            <Login config={oktaSignInConfig} />
-                                        )}
+                                        render={() => <Login />}
                                     />
                                     <Route
                                         path="/login/callback"
                                         component={LoginCallback}
+                                    />
+                                    <Route
+                                        path="/sign-tos"
+                                        component={TermsOfServiceForm}
                                     />
                                     <AuthorizedRoute
                                         path="/daily-data"
@@ -112,6 +127,11 @@ const App = () => {
                                         path="/upload"
                                         authorize={PERMISSIONS.SENDER}
                                         component={Upload}
+                                    />
+                                    <AuthorizedRoute
+                                        path="/submissions"
+                                        authorize={PERMISSIONS.PRIME_ADMIN}
+                                        component={Submissions}
                                     />
                                     <SecureRoute
                                         path="/report-details"

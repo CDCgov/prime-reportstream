@@ -94,11 +94,11 @@ class SftpTransport : ITransport, Logging {
             val sftpTransportInfo = receiver.transport as SFTPTransportType
 
             // Override the SFTP host and port only if provided and in the local environment.
-            val host: String = if (Environment.get() == Environment.LOCAL &&
+            val host: String = if (Environment.isLocal() &&
                 !System.getenv("SFTP_HOST_OVERRIDE").isNullOrBlank()
             )
                 System.getenv("SFTP_HOST_OVERRIDE") else sftpTransportInfo.host
-            val port: String = if (Environment.get() == Environment.LOCAL &&
+            val port: String = if (Environment.isLocal() &&
                 !System.getenv("SFTP_PORT_OVERRIDE").isNullOrBlank()
             )
                 System.getenv("SFTP_PORT_OVERRIDE") else sftpTransportInfo.port
@@ -118,11 +118,8 @@ class SftpTransport : ITransport, Logging {
             // credentials use them, otherwise go with the
             // standard way by using the receiver full name
             val credentialName = sftpTransportInfo.credentialName ?: receiver.fullName
+            val credentialLabel = CredentialHelper.formCredentialLabel(credentialName)
 
-            val credentialLabel = credentialName
-                .replace(".", "--")
-                .replace("_", "-")
-                .uppercase()
             // Assumes credential will be cast as SftpCredential, if not return null, and thus the error case
             return CredentialHelper.getCredentialService().fetchCredential(
                 credentialLabel, "SftpTransport", CredentialRequestReason.SFTP_UPLOAD

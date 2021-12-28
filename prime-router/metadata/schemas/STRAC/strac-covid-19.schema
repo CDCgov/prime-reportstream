@@ -100,6 +100,9 @@ elements:
   - name: test_result_date
     csvFields: [{name: patient_results}]
 
+  - name: date_result_released
+    mapper: use(test_result_date)
+
   - name: patient_gender
     csvFields: [{name: patient_sex}]
 
@@ -198,6 +201,18 @@ elements:
   - name: testing_lab_name
     mapper: use(ordering_facility_name)
 
+  - name: testing_lab_street
+    mapper: use(ordering_facility_street)
+
+  - name: testing_lab_city
+    mapper: use(ordering_facility_city)
+
+  - name: testing_lab_state
+    mapper: use(ordering_facility_state)
+
+  - name: testing_lab_zip_code
+    mapper: use(ordering_facility_zip_code)
+
   # To be compatible with Redox we must have an patient_id
   # After some discussion, the placer_order_id was the best choice until STRAC provides a true patient_id
   - name: patient_id
@@ -221,3 +236,7 @@ elements:
   - name: test_authorized_for_otc
   - name: test_authorized_for_home
   - name: test_authorized_for_unproctored
+
+  # the ordering provider needs to be filled in as well
+  - name: ordering_provider_city
+    mapper: use(ordering_facility_city)

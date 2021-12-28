@@ -2,9 +2,8 @@ import download from "downloadjs";
 import { Button } from "@trussworks/react-uswds";
 import { useOktaAuth } from "@okta/okta-react";
 
-import AuthResource from "../../../resources/AuthResource";
 import ReportResource from "../../../resources/ReportResource";
-import { GLOBAL_STORAGE_KEYS } from "../../../components/GlobalContextProvider";
+import { getStoredOrg } from "../../../components/GlobalContextProvider";
 
 interface Props {
     /* REQURIED
@@ -23,20 +22,20 @@ const formatFileType = (fileType: string) => {
     return fileType;
 };
 
-/* 
+/*
     This element provides a download link on each row of the table and on the report
     details page
 */
 function ReportLink(props: Props) {
     const { authState } = useOktaAuth();
-    const organization = localStorage.getItem(GLOBAL_STORAGE_KEYS.GLOBAL_ORG);
+    const organization = getStoredOrg();
 
     const handleClick = (e: any) => {
         e.preventDefault();
         if (props.report !== undefined && props.report.reportId !== undefined) {
             let reportId = props.report.reportId;
             fetch(
-                `${AuthResource.getBaseUrl()}/api/history/report/${reportId}`,
+                `${process.env.REACT_APP_BACKEND_URL}/api/history/report/${reportId}`,
                 {
                     headers: {
                         Authorization: `Bearer ${authState?.accessToken?.accessToken}`,
@@ -47,7 +46,7 @@ function ReportLink(props: Props) {
                 .then((res) => res.json())
                 .then((report) => {
                     // The filename to use for the download should not contain blob folders if present
-                    let filename = decodeURIComponent(report.filename);
+                    let filename = decodeURIComponent(report.fileName);
                     let filenameStartIndex = filename.lastIndexOf("/");
                     if (
                         filenameStartIndex >= 0 &&

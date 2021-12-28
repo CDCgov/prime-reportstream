@@ -5,13 +5,12 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import gov.cdc.prime.router.azure.DatabaseLookupTableAccess
-import gov.cdc.prime.router.metadata.DatabaseLookupTable
 import gov.cdc.prime.router.metadata.LookupTable
+import org.apache.commons.io.FilenameUtils
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.exception.DataAccessException
 import java.io.File
 import java.io.FilenameFilter
-import java.io.InputStream
 import java.time.Instant
 
 /**
@@ -24,6 +23,8 @@ class Metadata : Logging {
         MiddleInitialMapper(),
         UseMapper(),
         IfPresentMapper(),
+        IfNotPresentMapper(),
+        IfNPIMapper(),
         LookupMapper(),
         LIVDLookupMapper(),
         ConcatenateMapper(),
@@ -42,8 +43,9 @@ class Metadata : Logging {
         TimestampMapper(),
         HashMapper(),
         NullMapper(),
+        LookupSenderValuesetsMapper()
     )
-    private var jurisdictionalFilters = listOf(
+    private var reportStreamFilterDefinitions = listOf(
         FilterByCounty(),
         Matches(),
         DoesNotMatch(),
@@ -51,6 +53,7 @@ class Metadata : Logging {
         HasValidDataFor(),
         HasAtLeastOneOf(),
         AllowAll(),
+        AllowNone(),
         IsValidCLIA(),
     )
     private var valueSets = mapOf<String, ValueSet>()
@@ -97,8 +100,8 @@ class Metadata : Logging {
         tableName: String? = null,
         table: LookupTable? = null,
         tableDbAccess: DatabaseLookupTableAccess? = null
-    ) : this() {
-        if (tableDbAccess != null) this.tableDbAccess = tableDbAccess
+    ) {
+        this.tableDbAccess = tableDbAccess ?: DatabaseLookupTableAccess()
         valueSet?.let { loadValueSets(it) }
         table?.let { loadLookupTable(tableName ?: "", it) }
         schema?.let { loadSchemas(it) }
@@ -250,11 +253,11 @@ class Metadata : Logging {
     }
 
     /*
-    * JurisdictionalFilters
+    * ReportStreamFilterDefinitions
     */
 
-    fun findJurisdictionalFilter(name: String): JurisdictionalFilter? {
-        return jurisdictionalFilters.find { it.name.equals(name, ignoreCase = true) }
+    fun findReportStreamFilterDefinitions(name: String): ReportStreamFilterDefinition? {
+        return reportStreamFilterDefinitions.find { it.name.equals(name, ignoreCase = true) }
     }
 
     /*
@@ -331,11 +334,6 @@ class Metadata : Logging {
         return this
     }
 
-    fun loadLookupTable(name: String, tableStream: InputStream): Metadata {
-        val table = LookupTable.read(tableStream)
-        return loadLookupTable(name, table)
-    }
-
     /**
      * Load the database lookup tables.
      */
@@ -354,7 +352,7 @@ class Metadata : Logging {
     @Synchronized
     internal fun loadDatabaseLookupTables() {
         logger.trace("Checking for database lookup table updates...")
-        val databaseTables = lookupTableStore.values.mapNotNull { if (it is DatabaseLookupTable) it else null }
+        val databaseTables = lookupTableStore.values.mapNotNull { if (it.isSourceDatabase) it else null }
 
         try {
             val activeTables = tableDbAccess.fetchTableList()
@@ -369,7 +367,7 @@ class Metadata : Logging {
                     // The table was removed
                     tableInfo == null -> {
                         // Note that we cannot remove the table as the schema would break with the existing code.
-                        dbTable.setTableData(emptyList())
+                        dbTable.clear()
                         logger.warn("Database lookup table ${dbTable.name} is no longer active.")
                     }
 
@@ -384,7 +382,7 @@ class Metadata : Logging {
             newTables.forEach {
                 loadLookupTable(
                     it.tableName,
-                    DatabaseLookupTable(it.tableName, tableDbAccess).loadTable(it.tableVersion)
+                    LookupTable(it.tableName, emptyList(), dbAccess = tableDbAccess).loadTable(it.tableVersion)
                 )
             }
         } catch (e: DataAccessException) {
@@ -400,7 +398,7 @@ class Metadata : Logging {
         val extFilter = FilenameFilter { _, name -> name.endsWith(tableExtension) }
         val files = File(catalogDir.absolutePath).listFiles(extFilter) ?: emptyArray()
         files.forEach { file ->
-            val table = LookupTable.read(file.inputStream())
+            val table = LookupTable.read(FilenameUtils.getBaseName(file.name), file.inputStream())
             val name = file.nameWithoutExtension
             block(name, table)
         }

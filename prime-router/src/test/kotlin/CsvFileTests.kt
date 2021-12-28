@@ -14,6 +14,7 @@ import assertk.assertions.support.expected
 import assertk.assertions.support.show
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.ReadResult
+import gov.cdc.prime.router.unittest.UnitTestUtils
 import org.junit.jupiter.api.TestInstance
 import java.io.File
 import kotlin.test.Test
@@ -41,7 +42,7 @@ class CsvFileTests {
         outputDirectory.mkdirs()
         val expectedDir = File(expectedResultsPath)
         assertThat(expectedDir).exists()
-        metadata = Metadata()
+        metadata = UnitTestUtils.simpleMetadata
         loadTestSchemas(metadata)
         settings = FileSettings()
         loadTestOrganizations(settings)
@@ -60,7 +61,7 @@ class CsvFileTests {
         }
         assertThat(result).hasNoWarnings().hasNoErrors()
         val inputReport = result.report ?: fail()
-        translateReport(inputReport, baseName)
+        translateReport(inputReport, baseName, listOf("federal-test-receiver-"))
     }
 
     @Test
@@ -75,7 +76,7 @@ class CsvFileTests {
         }
         assertThat(result).hasNoErrors()
         val inputReport = result.report ?: fail()
-        translateReport(inputReport, baseName)
+        translateReport(inputReport, baseName, emptyList<String>())
     }
 
     private fun ingestFile(file: File): ReadResult {
@@ -84,13 +85,14 @@ class CsvFileTests {
         return csvSerializer.readExternal(schema.name, file.inputStream(), TestSource)
     }
 
-    private fun translateReport(inputReport: Report, baseName: String) {
-        val outputReports = Translator(metadata, settings).translateByReceiver(inputReport)
-        assertThat(outputReports).hasSize(2)
+    private fun translateReport(inputReport: Report, baseName: String, expected: List<String>) {
+        val outputReports = Translator(metadata, settings).filterAndTranslateByReceiver(inputReport)
+        assertThat(outputReports).hasSize(expected.size)
 
         // Write transformed objs to files, and check they are correct
         outputReports
-            .zip(listOf("AZ-test-receiver-", "federal-test-receiver-"))
+            .map { (report, _) -> report }
+            .zip(expected)
             .forEach { (report, prefix) ->
                 val outputFile = File(outputPath, report.name)
                 if (!outputFile.exists()) {
