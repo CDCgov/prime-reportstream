@@ -459,6 +459,7 @@ abstract class CoolTest {
                 }
                 timeElapsedSecs += pollSleepSecs
                 queryResult = queryForProcessResults(reportId)
+                @Suppress("SENSELESS_COMPARISON")
                 if (queryResult != null)
                     break
             }
@@ -481,7 +482,8 @@ abstract class CoolTest {
             val sql = """select cr.covid_results_metadata_id
                 from covid_result_metadata as cr
                 where cr.report_id = ?"""
-            val ret = ctx.fetch(sql, reportId)?.into(Int::class.java)
+            val ret = ctx.fetch(sql, reportId).into(Int::class.java)
+            @Suppress("SENSELESS_COMPARISON")
             passed = ret != null && ret.size > 0
         }
         if (passed)
@@ -541,7 +543,6 @@ abstract class CoolTest {
             val topic = tree["topic"]
             val errorCount = tree["errorCount"]
             val destCount = tree["destinationCount"]
-            val destinations = tree["destinations"]
 
             if (topic != null && !topic.isNull && topic.textValue().equals("covid-19", true)) {
                 good("'topic' is in response and correctly set to 'covid-19'")
