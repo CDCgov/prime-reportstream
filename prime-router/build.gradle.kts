@@ -627,7 +627,7 @@ dependencies {
     implementation("org.flywaydb:flyway-core:8.3.0")
     implementation("org.commonmark:commonmark:0.18.1")
     implementation("com.google.guava:guava:31.0.1-jre")
-    implementation("com.helger.as2:as2-lib:4.9.0")
+    implementation("com.helger.as2:as2-lib:4.9.1")
     // Prevent mixed versions of these libs based on different versions being included by different packages
     implementation("org.bouncycastle:bcpkix-jdk15on:1.70")
     implementation("org.bouncycastle:bcmail-jdk15on:1.70")
@@ -645,7 +645,7 @@ dependencies {
     implementation("io.ktor:ktor-client-apache:$ktorVersion")
     implementation("io.ktor:ktor-client-logging:$ktorVersion")
     implementation("it.skrape:skrapeit-html-parser:1.1.6")
-    implementation("it.skrape:skrapeit-http-fetcher:1.1.6")
+    implementation("it.skrape:skrapeit-http-fetcher:1.1.7")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.1")
     runtimeOnly("com.github.kittinunf.fuel:fuel-jackson:2.3.1")
