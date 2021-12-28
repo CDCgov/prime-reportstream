@@ -1174,6 +1174,22 @@ the test result is in some intermediate status, is a correction, or is the final
 
 ---
 
+**Name**: testing_lab_city
+
+**ReportStream Internal Name**: testing_lab_city
+
+**Type**: CITY
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The city of the testing lab
+
+---
+
 **Name**: testing_lab_clia
 
 **ReportStream Internal Name**: testing_lab_clia
@@ -1225,5 +1241,57 @@ An example of the ID is 03D2159846
 **Documentation**:
 
 The name of the laboratory which performed the test, can be the same as the sending facility name
+
+---
+
+**Name**: testing_lab_state
+
+**ReportStream Internal Name**: testing_lab_state
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Table**: fips-county
+
+**Table Column**: State
+
+**Documentation**:
+
+The state for the testing lab
+
+---
+
+**Name**: testing_lab_street
+
+**ReportStream Internal Name**: testing_lab_street
+
+**Type**: STREET
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The street address for the testing lab
+
+---
+
+**Name**: testing_lab_zip_code
+
+**ReportStream Internal Name**: testing_lab_zip_code
+
+**Type**: POSTAL_CODE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The postal code for the testing lab
 
 ---
