@@ -1111,9 +1111,9 @@
         receivingFacilityName: MSDOH
       transport:
         type: SFTP
-        host: sftp-east.inductivehealth.com
+        host: sftp
         port: 22
-        filePath: ./
+        filePath: ./upload
         credentialName: null
       timing:
         operation: MERGE
@@ -1261,9 +1261,9 @@
         nameFormat: massachusetts
       transport:
         type: SFTP
-        host: sftp-dph.ehs.mass.gov
+        host: sftp
         port: 22
-        filePath: ./
+        filePath: ./upload
         credentialName: null
       timing:
         operation: MERGE
