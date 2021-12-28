@@ -5,8 +5,8 @@ PRIME ReportStream uses Terraform to manage our Azure development environment. A
 To ensure our Terraform state is managed with consistent Terraform versions, we are running Terraform through a Docker image. Terraform should not be used outside of this Docker image to ensure the Terraform core, plugins, and other versions all remain identical.
 
 ---
-# Prerequisites
-## Needed software
+## Prerequisites
+### Needed software
 > Terraform >= [1.0.5](https://www.terraform.io/downloads)
 
 > [Azure cli](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)
@@ -14,6 +14,32 @@ To ensure our Terraform state is managed with consistent Terraform versions, we 
 **Note**
 All CDC Azure infrastructure operations must be done behind the environment-specific VPN. You can find [directions for configuring your VPN client in prime-router/docs/VPN.md](https://github.com/CDCgov/prime-data-hub/blob/master/prime-router/docs/vpn.md).
 
+### Resource Group and KeyVault
+In order to deploy, we will need to define our resource group and keyvault. There are some specific keys we need to be pre-populated before we run our terraform as well. 
+
+### secrets.tf
+```
+
+data "azurerm_key_vault" "tf-secrets" {
+  name                = var.tf_secrets_vault
+  resource_group_name = var.resource_group
+}
+
+data "azurerm_key_vault_secret" "postgres_user" {
+  name      = "postgres-user"
+  key_vault_id = data.azurerm_key_vault.tf-secrets.id
+}
+
+data "azurerm_key_vault_secret" "postgres_pass" {
+  name      = "postgres-pass"
+  key_vault_id = data.azurerm_key_vault.tf-secrets.id
+}
+
+data "azurerm_key_vault_secret" "pagerduty_url" {
+  name      = "pagerduty-url"
+  key_vault_id = data.azurerm_key_vault.tf-secrets.id
+}
+```
 
 ## Terraform
 
