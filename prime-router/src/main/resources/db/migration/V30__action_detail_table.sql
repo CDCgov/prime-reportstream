@@ -8,7 +8,7 @@
  *
  */
 
-CREATE TYPE action_detail_type AS ENUM ('info', 'warning', 'error', 'transformation');
+CREATE TYPE action_detail_type AS ENUM ('info', 'warning', 'error', 'filter');
 
 CREATE TYPE action_detail_scope AS ENUM ('parameter', 'report', 'item', 'translation');
 

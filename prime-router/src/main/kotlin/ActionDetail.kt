@@ -34,7 +34,7 @@ data class ActionDetail(
      */
     enum class DetailScope { parameter, report, item, translation }
 
-    enum class Type { info, warning, error, transformation }
+    enum class Type { info, warning, error, filter }
 
     override fun toString(): String {
         val tracking = if (trackingId.isBlank()) "" else " $trackingId"

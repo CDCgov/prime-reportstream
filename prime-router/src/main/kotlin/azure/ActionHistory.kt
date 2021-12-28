@@ -373,6 +373,7 @@ class ActionHistory {
                     it,
                     reportId = report.id,
                     action = action,
+                    type = ActionDetail.Type.filter,
                 )
             )
         }
@@ -416,6 +417,7 @@ class ActionHistory {
                     it,
                     reportId = report.id,
                     action = action,
+                    type = ActionDetail.Type.filter,
                 )
             )
         }
@@ -453,6 +455,7 @@ class ActionHistory {
                     it,
                     reportId = report.id,
                     action = action,
+                    type = ActionDetail.Type.filter,
                 )
             )
         }
@@ -711,7 +714,6 @@ class ActionHistory {
     fun prettyPrintDestinationsJson(
         jsonGen: JsonGenerator,
         settings: SettingsProvider,
-        reportOptions: Options
     ) {
         var destinationCounter = 0
         jsonGen.writeArrayFieldStart("destinations")
@@ -728,7 +730,6 @@ class ActionHistory {
                     orgReceiver,
                     organization,
                     reportFiles,
-                    reportOptions,
                 )
                 if (countSent > 0) {
                     destinationCounter++
@@ -744,7 +745,6 @@ class ActionHistory {
         orgReceiver: Receiver,
         organization: Organization,
         reportFiles: List<ReportFile>,
-        reportOptions: Options,
     ): Int {
         jsonGen.writeStartObject()
         // jsonGen.writeStringField("id", reportFile.reportId.toString())   // TMI?
@@ -756,9 +756,15 @@ class ActionHistory {
         var countToPrint = 0
         reportFiles.forEach { reportFile ->
 
-            if (!filteredReportRows.getOrDefault(reportFile.reportId, emptyList()).isEmpty()) {
+            val filterDetails = details.filter {
+                it.reportId == reportFile.reportId
+            }.filter {
+                it.type == ActionDetail.Type.filter
+            }
+
+            if (filterDetails.isNotEmpty()) {
                 jsonGen.writeArrayFieldStart("filteredReportRows")
-                filteredReportRows.getValue(reportFile.reportId).forEach {
+                filterDetails.forEach {
                     jsonGen.writeString(it.toString())
                 }
                 jsonGen.writeEndArray()
@@ -971,7 +977,7 @@ class ActionHistory {
             } else
                 it.writeNullField("id")
 
-            this.prettyPrintDestinationsJson(it, WorkflowEngine.settingsProviderSingleton, options)
+            this.prettyPrintDestinationsJson(it, WorkflowEngine.settingsProviderSingleton)
             // print the report routing when in verbose mode
             if (verbose) {
                 it.writeArrayFieldStart("routing")
