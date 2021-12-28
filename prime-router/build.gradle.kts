@@ -624,7 +624,7 @@ dependencies {
     implementation("commons-io:commons-io:2.11.0")
     implementation("org.postgresql:postgresql:42.3.0")
     implementation("com.zaxxer:HikariCP:5.0.0")
-    implementation("org.flywaydb:flyway-core:8.2.2")
+    implementation("org.flywaydb:flyway-core:8.3.0")
     implementation("org.commonmark:commonmark:0.18.1")
     implementation("com.google.guava:guava:31.0.1-jre")
     implementation("com.helger.as2:as2-lib:4.9.1")
@@ -644,6 +644,8 @@ dependencies {
     implementation("io.ktor:ktor-client-cio:$ktorVersion")
     implementation("io.ktor:ktor-client-apache:$ktorVersion")
     implementation("io.ktor:ktor-client-logging:$ktorVersion")
+    implementation("it.skrape:skrapeit-html-parser:1.1.6")
+    implementation("it.skrape:skrapeit-http-fetcher:1.1.6")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.1")
     runtimeOnly("com.github.kittinunf.fuel:fuel-jackson:2.3.1")
