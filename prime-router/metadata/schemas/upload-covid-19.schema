@@ -7,14 +7,18 @@ basedOn: covid-19
 
 elements:
     - name: sender_id
-      documentation:  Required. User should place their sender organization name in this field.
-      default: ManualUpload
-      csvFields: [ { name: sender_id } ]
+      type: CODE
+      cardinality: ONE 
+      documentation: Validate the sender_id received against the valid list of Senders in the sender-automation.valueset
+      valueSet: sender-automation/sender_id
+      csvFields: [{ name: sender_id, format: $display}]
 
     - name: processing_mode_code
-      documentation:  User does not need to include this column, and we'll default to 'P'
-      default: P
-      csvFields: [ { name: processing_mode_code } ]
+      type: CODE
+      cardinality: ONE 
+      documentation: Retrieve the processing_mode_code for a Sender from the sender-automation.valueset
+      valueSet: sender-automation/processing_mode_code
+      csvFields: [{ name: sender_id, format: $display}]
 
 
 ############### Set the major ID fields
@@ -347,7 +351,7 @@ elements:
       csvFields: [{name: ordering_facility_name}]
 
 
-#AOE fields
+############### AOE fields
     - name: pregnant
       type: CODE
       valueSet: sender-automation/pregnant
@@ -378,7 +382,7 @@ elements:
 
     - name: illness_onset_date
       default: ""
-      csvFields: [{name: Illness_onset_date, format: "yyyyMMdd"}]
+      csvFields: [{name: illness_onset_date, format: "yyyyMMdd"}]
 
     - name: hospitalized
       type: CODE
