@@ -27,6 +27,7 @@ import { logout } from "./utils/UserUtils";
 import TermsOfServiceForm from "./pages/tos-sign/TermsOfServiceForm";
 import Spinner from "./components/Spinner";
 import Submissions from "./pages/Submissions";
+import AdminMain from "./pages/admin/AdminMain";
 
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
 
@@ -132,6 +133,11 @@ const App = () => {
                                         path="/submissions"
                                         authorize={PERMISSIONS.PRIME_ADMIN}
                                         component={Submissions}
+                                    />
+                                    <AuthorizedRoute
+                                        path="/admin"
+                                        authorize={PERMISSIONS.PRIME_ADMIN}
+                                        component={AdminMain}
                                     />
                                     <SecureRoute
                                         path="/report-details"
