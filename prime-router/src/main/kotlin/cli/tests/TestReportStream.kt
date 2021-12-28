@@ -36,6 +36,7 @@ import gov.cdc.prime.router.common.Environment
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import org.bouncycastle.asn1.x509.X509ObjectIdentifiers.organization
 import org.jooq.exception.DataAccessException
 import org.jooq.impl.DSL
 import org.jooq.impl.DSL.max
@@ -754,12 +755,21 @@ abstract class CoolTest {
         val hl7BatchReceiver = settings.receivers.filter { it.organizationName == orgName && it.name == "HL7_BATCH" }[0]
         val redoxReceiver = settings.receivers.filter { it.organizationName == orgName && it.name == "REDOX" }[0]
         val hl7NullReceiver = settings.receivers.filter { it.organizationName == orgName && it.name == "HL7_NULL" }[0]
+        val hl7PpkReceiver = settings.receivers.filter { it.organizationName == orgName && it.name == "HL7_BATCH_PPK" }[0]
+        val hl7PemReceiver = settings.receivers.filter { it.organizationName == orgName && it.name == "HL7_BATCH_PEM" }[0]
 
         lateinit var allGoodReceivers: MutableList<Receiver>
         lateinit var allGoodCounties: String
 
         fun initListOfGoodReceiversAndCounties(env: Environment) {
-            allGoodReceivers = mutableListOf(csvReceiver, hl7Receiver, hl7BatchReceiver, hl7NullReceiver)
+            allGoodReceivers = mutableListOf(
+                csvReceiver,
+                hl7Receiver,
+                hl7BatchReceiver,
+                hl7NullReceiver,
+                hl7PpkReceiver,
+                hl7PemReceiver,
+            )
             if (env == Environment.LOCAL) {
                 allGoodReceivers.add(redoxReceiver)
             }
