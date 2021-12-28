@@ -1,7 +1,7 @@
 ## Set up our Azure Virtual Network.
 ## Need to determine a way to run or not if vnets are pre-configured
 module "vnet" {
-  source = "../modules/vnet"
+  source = "../../modules/vnet"
   resource_group = var.resource_group
   environment = var.environment
   resource_prefix = var.resource_prefix
@@ -12,7 +12,7 @@ module "vnet" {
 ##########
 
 module "network" {
-  source          = "../modules/network"
+  source          = "../../modules/network"
   vnet_address_space = module.vnet.vnet_address_spaces
   vnet_ids        = module.vnet.ids
   vnets = module.vnet.vnets
@@ -24,7 +24,7 @@ module "network" {
 }
 
 module "nat_gateway" {
-  source           = "../modules/nat_gateway"
+  source           = "../../modules/nat_gateway"
   environment      = var.environment
   resource_group   = var.resource_group
   resource_prefix  = var.resource_prefix
@@ -38,7 +38,7 @@ module "nat_gateway" {
 ##########
 
 module "app_service_plan" {
-  source          = "../modules/app_service_plan"
+  source          = "../../modules/app_service_plan"
   environment     = var.environment
   resource_group  = var.resource_group
   resource_prefix = var.resource_prefix
@@ -48,7 +48,7 @@ module "app_service_plan" {
 }
 
 module "key_vault" {
-  source                      = "../modules/key_vault"
+  source                      = "../../modules/key_vault"
   environment                 = var.environment
   resource_group              = var.resource_group
   resource_prefix             = var.resource_prefix
@@ -64,7 +64,7 @@ module "key_vault" {
 }
 
 module "container_registry" {
-  source               = "../modules/container_registry"
+  source               = "../../modules/container_registry"
   environment          = var.environment
   resource_group       = var.resource_group
   resource_prefix      = var.resource_prefix
@@ -80,7 +80,7 @@ module "container_registry" {
 ##########
 
 module "database" {
-  source                   = "../modules/database"
+  source                   = "../../modules/database"
   environment              = var.environment
   resource_group           = var.resource_group
   resource_prefix          = var.resource_prefix
@@ -103,7 +103,7 @@ module "database" {
 }
 
 module "storage" {
-  source                      = "../modules/storage"
+  source                      = "../../modules/storage"
   environment                 = var.environment
   resource_group              = var.resource_group
   resource_prefix             = var.resource_prefix
@@ -125,7 +125,7 @@ module "storage" {
 
 
 module "application_insights" {
-  source          = "../modules/application_insights"
+  source          = "../../modules/application_insights"
   environment     = var.environment
   resource_group  = var.resource_group
   resource_prefix = var.resource_prefix
@@ -137,7 +137,7 @@ module "application_insights" {
 }
 
 module "function_app" {
-  source                      = "../modules/function_app"
+  source                      = "../../modules/function_app"
   environment                 = var.environment
   resource_group              = var.resource_group
   resource_prefix             = var.resource_prefix
@@ -161,7 +161,7 @@ module "function_app" {
 }
 
 # module "front_door" {
-#   source           = "../modules/front_door"
+#   source           = "../../modules/front_door"
 #   environment      = var.environment
 #   resource_group   = var.resource_group
 #   resource_prefix  = var.resource_prefix
@@ -175,7 +175,7 @@ module "function_app" {
 # module "sftp_container" {
 #   count = var.environment != "prod" ? 1 : 0
 
-#   source               = "../modules/sftp_container"
+#   source               = "../../modules/sftp_container"
 #   environment          = var.environment
 #   resource_group       = var.resource_group
 #   resource_prefix      = var.resource_prefix
@@ -186,7 +186,7 @@ module "function_app" {
 # module "metabase" {
 #   count = var.is_metabase_env ? 1 : 0
 
-#   source                 = "../modules/metabase"
+#   source                 = "../../modules/metabase"
 #   environment            = var.environment
 #   resource_group         = var.resource_group
 #   resource_prefix        = var.resource_prefix

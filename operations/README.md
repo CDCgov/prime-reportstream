@@ -4,87 +4,102 @@ PRIME ReportStream uses Terraform to manage our Azure development environment. A
 
 To ensure our Terraform state is managed with consistent Terraform versions, we are running Terraform through a Docker image. Terraform should not be used outside of this Docker image to ensure the Terraform core, plugins, and other versions all remain identical.
 
+---
+# Prerequisites
+## Needed software
+> Terraform >= [1.0.5](https://www.terraform.io/downloads)
 
-## Connect to the VPN
+> [Azure cli](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)
 
-All infrastructure operations must be done behind the environment-specific VPN. You can find [directions for configuring your VPN client in prime-router/docs/VPN.md](https://github.com/CDCgov/prime-data-hub/blob/master/prime-router/docs/vpn.md).
+**Note**
+All CDC Azure infrastructure operations must be done behind the environment-specific VPN. You can find [directions for configuring your VPN client in prime-router/docs/VPN.md](https://github.com/CDCgov/prime-data-hub/blob/master/prime-router/docs/vpn.md).
 
 
-## Run Terraform interactively
+## Terraform
 
-Ensure you have the intended git branch checked out and navigate to the `./operations` directory in your CLI. For production deploys, always deploy from the `master` branch.
+For production deploys, always deploy from the `master` branch.
 
-Our Terraform modules are broken out into four stages, each with the dependencies on the previous stages. Each stage can be accessed with an interactive terminal via the following commands:
+Our Terraform code is broken down into two main folders, vars and modules. The vars direcory will contain all the variables needed for the stage you want to deploy to. All variables required to deploy that specific stage should be contained in it's respective folder. This makes it easy to determine where variables need to be changed.
 
-```shell
-make TF_ENV={dev,test,staging,prod} tf-01-network
-make TF_ENV={dev,test,staging,prod} tf-02-config
-make TF_ENV={dev,test,staging,prod} tf-03-persistent
-make TF_ENV={dev,test,staging,prod} tf-04-app
+## Common commands
+Below are the following most common terraform commands:
+- `terraform output` - This will give you the current output of the terraform deploy if there is any.
+- `terraform plan` - This will tell you what will be added/removed during a deploy
+- `terraform apply` - This will actually deploy and changes you have made.
+
+
+### Directory Structure
+
+```
+terraform
+│   README.md
+│       
+│
+└─── vars
+│   │
+│   └─── dev
+│       │   azure.tf
+│       │   main.tf
+│       │   ...
+│   
+└─── modules
+│   └─── app_service_plan
+│   └─── application_insights
+│   └─── ...
 ```
 
-If `TF_ENV` is omitted, `TF_ENV=dev` will be assumed.
+# Modules
 
-## Login to Azure CLI (on first run and after token expiration)
+We utilize several custom modules that are as follows
 
+* app_service_plan -  
+* application_insights - 
+* common  
+  * private_endpoint - 
+  * vnet_dns_zones - 
+* container_registry - 
+* database - 
+* front-door - 
+* function_app -
+* key_vault -
+* metabase -
+* nat_gateway -
+* sftp_container -
+* storage - 
+* vnet - 
+
+
+### Important vars files
+This is a list of the important files that are necessary in each stage vars directory.  
+```
+azure.tf - Terraform specific requirements including backend.
+main.tf - Main terraform code page that cals individual modules.
+secrets.tf - Defines where secrets are to be pulled from in azure keyvault
+variables.tf - Has all necessary variables to run main.tf
+```
+
+## Azure Cli
+You will need to run the following the first time, or when your token expires.
 ```
 az login
 ```
 
 - Navigate to the provided login URL and input the provided token
 
-This only needs to be on first run and after your Azure credentials expire. The state of your login will be persisted in a Docker volume that is shared across stages.
-
-
 ## Using Terraform
 
-A typical Terraform deployment may look as follows:
+The vars directory is meant to contain all you need in order to run the deployment for the specific stage you wish to deploy. 
+For example, if you wish to deploy to stage you would do the following steps
 
-```shell
-make TF_ENV={dev,test,staging,prod} tf-01-network
-tf plan -out plan.out
-tf apply plan.out
-exit
-
-make TF_ENV={dev,test,staging,prod} tf-02-config
-tf plan -out plan.out
-tf apply plan.out
-exit
-
-make TF_ENV={dev,test,staging,prod} tf-03-persistent
-tf plan -out plan.out
-tf apply plan.out
-exit
-
-make TF_ENV={dev,test,staging,prod} tf-04-app
-tf plan -out plan.out
-tf apply plan.out
-exit
-```
-
-This will deploy all the various stages, giving the opportunity to review the changes after each `plan`.
-
-A few helpful things to note about our Terraform Docker container:
-* We have a custom `tf` script that runs Terraform commands.
-* Our `tf` script handles the `terraform init`, setting the correct resource group for Azure, and applying environment-specific configurations.
-* You should not use the `terraform` command directly.
-
-### Caveats
-
-The Azure Terraform module has several known quirks that result in unexpected additions to the Terraform plan:
-
-* Postgres Server Key (`module.database.azurerm_postgresql_server_key.postgres_server_key[0]`)
-  * Our Postgres encryption key is managed by the CDC
-  * Whenever the CDC rotates the key, Terraform thinks a change needs to be applied
-  * No change is actually applied when Terraform applies the plan, so there is no harm in accepting this change
-* Function App configuration (`module.prime_data_hub.module.function_app.azurerm_function_app.function_app`)
-  * The Function App is not run on a private endpoint, since the Front Door does not support private endpoints at this time
-  * Due to this, we are manually whitelisting developer IPs in the firewall configuration
-  * Terraform will suggest removing or adding IPs to the configuration
-  * There is no harm in accepting Terraform's suggested changes, but developers will have to re-add their IP to the firewall the next time they access the Function App
+- Navigate to the `vars/dev` directory
+- Verify all variables in each .tf file are correct.
+- Run the following code snippet.
 
 
-# Deploying a new environment
+
+
+
+# Deploying a new CDC environment
 
 * Environments must have a unique resource group.
 * Resources groups are managed by the CDC.
