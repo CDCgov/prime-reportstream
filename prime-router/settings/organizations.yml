@@ -1114,7 +1114,7 @@
         host: sftp
         port: 22
         filePath: ./upload
-        credentialName: null
+        credentialName: DEFAULT-SFTP
       timing:
         operation: MERGE
         numberPerDay: 1440
@@ -1264,7 +1264,7 @@
         host: sftp
         port: 22
         filePath: ./upload
-        credentialName: null
+        credentialName: DEFAULT-SFTP
       timing:
         operation: MERGE
         numberPerDay: 1440
