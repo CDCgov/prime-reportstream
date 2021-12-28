@@ -40,7 +40,7 @@ function terraform_fmt_check() {
     note "Checking Terraform formatting."
     MODIFIED_TF_FILES_COUNT=$(git status --porcelain | grep "\.tf$" | wc -l)
     RC=0
-    if [[ ${MODIFIED_TF_FILES_COUNT?} != 0 ]]; then
+    if [ ${MODIFIED_TF_FILES_COUNT?} != 0 ]; then
         make -C "${REPO_ROOT?}/operations" -f "${REPO_ROOT?}/operations/Makefile" tf-cmd TF_CMD="terraform fmt -check -recursive /app/src" >"${REPO_ROOT?}/${LOGFILE?}" 2>&1
         RC=$?
     else
