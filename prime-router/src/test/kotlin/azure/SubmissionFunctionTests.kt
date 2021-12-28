@@ -10,9 +10,22 @@ import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.SubmissionHistory
+import gov.cdc.prime.router.cli.tests.ExpectedSubmissionHistory
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import java.time.OffsetDateTime
+
+data class ExpectedAPIResponse(
+    val status: HttpStatus,
+    val body: List<ExpectedSubmissionHistory>? = null
+)
+
+data class SubmissionUnitTestCase(
+    val headers: Map<String, String>,
+    val parameters: Map<String, String>,
+    val expectedResponse: ExpectedAPIResponse,
+    val name: String?
+)
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class SubmissionFunctionTests {
@@ -110,81 +123,57 @@ class SubmissionFunctionTests {
     }
 ]"""
 
-    data class ExpectedStructure(
-        val taskId: Int,
-        val createdAt: OffsetDateTime,
-        val sendingOrg: String,
-        val httpStatus: Int,
-        val id: String?,
-        val topic: String?,
-        val reportItemCount: Int?,
-        val warningCount: Int?,
-        val errorCount: Int?
-    )
-
-    data class ExpectedResponse(
-        val status: HttpStatus,
-        val body: List<ExpectedStructure>? = null
-    )
-
-    data class TestCase(
-        val headers: Map<String, String>,
-        val parameters: Map<String, String>,
-        val expectedResponse: ExpectedResponse,
-        val name: String?
-    )
-
     @Test
     fun `test list submissions`() {
         val testCases = listOf(
-            TestCase(
+            SubmissionUnitTestCase(
                 emptyMap(),
                 emptyMap(),
-                ExpectedResponse(
+                ExpectedAPIResponse(
                     HttpStatus.UNAUTHORIZED
                 ),
                 "unauthorized"
             ),
-            TestCase(
+            SubmissionUnitTestCase(
                 mapOf("authorization" to "Bearer fdafads"),
                 emptyMap(),
-                ExpectedResponse(
+                ExpectedAPIResponse(
                     HttpStatus.OK
                 ),
                 "simple success"
             ),
-            TestCase(
+            SubmissionUnitTestCase(
                 mapOf("authorization" to "Bearer fdafads"),
                 mapOf("cursor" to "nonsense"),
-                ExpectedResponse(
+                ExpectedAPIResponse(
                     HttpStatus.BAD_REQUEST
                 ),
                 "bad date"
             ),
-            TestCase(
+            SubmissionUnitTestCase(
                 mapOf("authorization" to "Bearer fdafads"),
                 mapOf("pagesize" to "-1"),
-                ExpectedResponse(
+                ExpectedAPIResponse(
                     HttpStatus.BAD_REQUEST
                 ),
                 "bad pagesize"
             ),
-            TestCase(
+            SubmissionUnitTestCase(
                 mapOf("authorization" to "Bearer fdafads"),
                 mapOf("pagesize" to "fdas"),
-                ExpectedResponse(
+                ExpectedAPIResponse(
                     HttpStatus.BAD_REQUEST
                 ),
                 "bad pagesize, garbage"
             ),
-            TestCase(
+            SubmissionUnitTestCase(
                 mapOf("authorization" to "Bearer fdafads"),
                 mapOf(
                     "pagesize" to "10",
                     "cursor" to "2021-11-30T16:36:48.307109Z",
                     "sort" to "ASC"
                 ),
-                ExpectedResponse(
+                ExpectedAPIResponse(
                     HttpStatus.OK
                 ),
                 "good all params"

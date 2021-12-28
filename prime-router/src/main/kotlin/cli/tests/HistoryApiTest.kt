@@ -1,9 +1,11 @@
 package gov.cdc.prime.router.cli.tests
 
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.extensions.authentication
-import com.github.kittinunf.fuel.json.responseJson
 import com.github.kittinunf.result.Result
+import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.HttpUtilities
@@ -12,6 +14,29 @@ import gov.cdc.prime.router.cli.FileUtilities
 import gov.cdc.prime.router.cli.OktaCommand
 import gov.cdc.prime.router.common.Environment
 import java.net.HttpURLConnection
+import java.time.OffsetDateTime
+
+data class ExpectedSubmissionHistory(
+    val taskId: Int,
+    val createdAt: OffsetDateTime,
+    val sendingOrg: String,
+    val httpStatus: Int,
+    val id: ReportId?,
+    val topic: String?,
+    val reportItemCount: Int?,
+    val warningCount: Int?,
+    val errorCount: Int?
+)
+
+data class SubmissionAPITestCase(
+    val name: String,
+    val path: String,
+    val headers: Map<String, String>,
+    val parameters: List<Pair<String, Any?>>?,
+    val bearer: String,
+    val expectedHttpStatus: HttpStatus,
+    val expectedReports: Set<ReportId>,
+)
 
 class HistoryApiTest : CoolTest() {
     override val name = "history"
@@ -25,14 +50,14 @@ class HistoryApiTest : CoolTest() {
     /**
      * The access token left by a previous login command as specified by the command line parameters
      */
-    fun getAccessToken(env: Environment): String {
-        return if (env.oktaApp == null) {
+    fun getAccessToken(environment: Environment): String {
+        return if (environment.oktaApp == null) {
             "dummy"
         } else {
-            OktaCommand.fetchAccessToken(env.oktaApp)
+            OktaCommand.fetchAccessToken(environment.oktaApp)
                 ?: abort(
                     "Cannot run test $name.  Invalid access token. " +
-                        "Run ./prime login to fetch/refresh your access token for the $env environment."
+                        "Run ./prime login to fetch/refresh your access token for the $environment environment."
                 )
         }
     }
@@ -41,7 +66,7 @@ class HistoryApiTest : CoolTest() {
      * Create some fake history, so we have something to query for.
      * @return null on failure.  Otherwise returns the list of ReportIds created.
      */
-    fun submitTestData(environment: Environment, options: CoolTestOptions): List<ReportId>? {
+    private fun submitTestData(environment: Environment, options: CoolTestOptions): Set<ReportId>? {
         val receivers = listOf<Receiver>(csvReceiver)
         val counties = receivers.map { it.name }.joinToString(",")
         val fakeItemCount = receivers.size * options.items
@@ -79,47 +104,125 @@ class HistoryApiTest : CoolTest() {
                 }
             echo("Id of submitted report: $reportId")
             reportId
-        }
+        }.toSet()
         return reportIds
     }
 
-    override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
-        initListOfGoodReceiversAndCounties(environment)
-        var passed = true
+    /**
+     * Submit a query to the History API, get a response, and do very basic sanity checks on it.
+     * @return Pair(pass/fail status, json body string)
+     * The json body may be null even if the test passed, in cases of an expected error code.
+     */
+    private fun historyApiQuery(testCase: SubmissionAPITestCase): Pair<Boolean, String?> {
+        val (request, response, result) = Fuel.get(testCase.path, testCase.parameters)
+            .authentication()
+            .bearer(testCase.bearer)
+            .response()
+        if (response.statusCode != testCase.expectedHttpStatus.value()) {
+            bad(
+                "***$name Test '${testCase.name}' FAILED:" +
+                    " Expected HttpStatus ${testCase.expectedHttpStatus}. Got ${response.statusCode}"
+            )
+            return Pair(false, null)
+        }
+        if (testCase.expectedHttpStatus != HttpStatus.OK) {
+            good("$name test '${testCase.name}' passed:  Got expected http status ${testCase.expectedHttpStatus}")
+            return Pair(true, null)
+        }
+        if (response.contentLength <= 0) {
+            bad("***$name Test FAILED: empty body")
+            return Pair(false, null)
+        }
+        if (result !is Result.Success) {
+            bad("***$name Test FAILED:  Result is $result")
+            return Pair(false, null)
+        }
+        return Pair(true, result.value.decodeToString())
+    }
 
-        /*
-         * On local development we always use `simple_report` as the claiming organization.
-         */
+    /**
+     * Compare the list of reportIds we got from the original submissions vs response from history API
+     * @return whether the test passed
+     */
+    private fun checkHistorySummary(
+        testCase: SubmissionAPITestCase,
+        jsonHistory: String
+    ): Boolean {
+        val jsonMapper = jacksonObjectMapper()
+        jsonMapper.registerModule(JavaTimeModule())
+        val submissionsHistories = jsonMapper.readValue(jsonHistory, Array<ExpectedSubmissionHistory>::class.java)
+        if (submissionsHistories.size != testCase.expectedReports.size) {
+            return bad(
+                "*** $name: TEST '${testCase.name}' FAILED: " +
+                    "${testCase.expectedReports.size} reports submitted" +
+                    " but got ${submissionsHistories.size} submission histories."
+            )
+        }
+
+        val missingReportIds = testCase.expectedReports.minus(submissionsHistories.mapNotNull { it.id }.toSet())
+        if (missingReportIds.isNotEmpty()) {
+            return bad(
+                "*** $name: TEST '${testCase.name}' FAILED: " +
+                    "These ReportIds are missing from the history: ${missingReportIds.joinToString(",")}"
+            )
+        }
+        good("$name test '${testCase.name}' passed.")
+        return true
+    }
+
+    /**
+     * Main function to run the History Api Tests
+     */
+    override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         ugly("Starting $name Test: get submission history ")
+        val bearer = getAccessToken(environment)
 
         val reportIds = submitTestData(environment, options)
             ?: return bad("*** $name TEST FAILED:  Unable to submit test data")
-        passed = isValidJsonResponse(
-            // todo Is "ignore" right?   Make this a param?  Submit data first, then check it
-            "${environment.url}/api/history/$historyTestOrgName/submissions",
-            listOf(
-                "limit" to "10",
+
+        val testCases = listOf(
+            SubmissionAPITestCase(
+                "simple history API happy path test",
+                "${environment.url}/api/history/$historyTestOrgName/submissions",
+                emptyMap(),
+                listOf("pagesize" to options.submits),
+                bearer,
+                HttpStatus.OK,
+                expectedReports = reportIds,
             ),
-            getAccessToken(environment)
+            SubmissionAPITestCase(
+                "bad bearer token",
+                "${environment.url}/api/history/$historyTestOrgName/submissions",
+                emptyMap(),
+                listOf("pagesize" to options.submits),
+                "",
+                HttpStatus.SERVICE_UNAVAILABLE,
+                expectedReports = emptySet(),
+            ),
+            SubmissionAPITestCase(
+                "no such organization",
+                "${environment.url}/api/history/gobblegobble/submissions",
+                emptyMap(),
+                listOf("pagesize" to options.submits),
+                bearer,
+                HttpStatus.OK,
+                expectedReports = emptySet(),
+            ),
         )
+        var allPassed = testCases.map {
+            val (queryPass, json) = historyApiQuery(it)
 
-        return passed
-    }
+            val sanityCheck = when {
+                !queryPass -> false // api query failed.  Stop here with a fail.
+                json.isNullOrBlank() -> true // api query worked, but no json created.  Stop here with a pass.
+                else -> checkHistorySummary(it, json)
+            }
 
-    private fun isValidJsonResponse(path: String, param: List<Pair<String, Any?>>?, bearer: String): Boolean {
-        val (request, response, result) = Fuel.get(path, param)
-            .authentication()
-            .bearer(bearer)
-            .responseJson()
-
-        echo(response.toString())
-        echo(result.toString())
-
-        return if (result is Result.Success) {
-            true
-        } else {
-            bad("***$name Test FAILED: $result")
-            false
-        }
+            // Only the test failed, print out the json.
+            if (!sanityCheck && !json.isNullOrBlank())
+                bad("This json failed:\n$json")
+            sanityCheck
+        }.reduce { acc, onePassed -> acc and onePassed }
+        return allPassed
     }
 }
