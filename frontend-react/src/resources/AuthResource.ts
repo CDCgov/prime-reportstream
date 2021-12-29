@@ -1,8 +1,9 @@
-/* eslint-disable react-hooks/rules-of-hooks */
-import { useOktaAuth } from "@okta/okta-react";
 import { Resource } from "@rest-hooks/rest";
 
-import { getStoredOrg } from "../components/GlobalContextProvider";
+import {
+    getStoredOktaToken,
+    getStoredOrg,
+} from "../components/GlobalContextProvider";
 
 export default class AuthResource extends Resource {
     pk(parent?: any, key?: string): string | undefined {
@@ -10,15 +11,15 @@ export default class AuthResource extends Resource {
     }
 
     static useFetchInit = (init: RequestInit): RequestInit => {
-        const { authState } = useOktaAuth();
+        const accessToken = getStoredOktaToken();
         const organization = getStoredOrg();
 
         return {
             ...init,
             headers: {
                 ...init.headers,
-                Authorization: `Bearer ${authState?.accessToken?.accessToken}`,
-                Organization: organization!,
+                Authorization: `Bearer ${accessToken}`,
+                Organization: organization,
             },
         };
     };
