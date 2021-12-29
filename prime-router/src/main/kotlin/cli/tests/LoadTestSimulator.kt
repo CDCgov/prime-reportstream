@@ -15,15 +15,10 @@ import kotlin.concurrent.thread
 import kotlin.system.measureTimeMillis
 
 /**
- * Simulator is intended to simulate a wide variety of heavy load situations.
- *
- * todo Separate this into a useful Utilities class, so that many different simulation tests can use it.
+ * This is a Utility meant to provide a library of useful functions for running simulation load tests.
+ * Child classes of this implement actual tests.
  */
-class Simulator : CoolTest() {
-    override val name = "simulator"
-    override val description = "Simulate a pattern of submissions to RS. "
-    override val status = TestStatus.LOAD
-
+abstract class LoadTestSimulator : CoolTest() {
     /**
      * Input parameters to be sent to [runOneSimulation], representing a pattern of input submissions to ReportStream.
      */
@@ -213,6 +208,23 @@ class Simulator : CoolTest() {
             true
         )
 
+        /**
+         * This isn't a real load test - its designed to run reasonably quickly.
+         * Basically this acts as a smoke test for the [LoadTestSimulator].
+         */
+        val quick_simulation = Simulation(
+            "quick : Submit 2X10 = 20 tests to a fast receiver. 2 threads. Batches every minute.",
+            2,
+            10,
+            1,
+            "IG",
+            "CSV",
+            "ignore.CSV", // if smoke tests are going on, this will deliver screwy results.
+            0,
+            stracSender,
+            true
+        )
+
         val oneThreadX50 = Simulation(
             "oneThreadX50 : Submit 1X50 = 50 tests as fast as possible, on 1 thread.",
             1,
@@ -225,6 +237,7 @@ class Simulator : CoolTest() {
             stracSender,
             true
         )
+
         val fiveThreadsX50 = Simulation(
             "fiveThreadsX50: Submit 5X50 = 250 tests as fast as possible, across 5 threads.",
             5,
@@ -261,10 +274,10 @@ class Simulator : CoolTest() {
             stracSender,
             true
         )
-        val twentyThreadsX50 = Simulation(
-            "twentyThreadsX50 : Submit 20X50 = 1000 tests as fast as possible, across 20 threads.",
+        val twentyThreadsX100 = Simulation(
+            "twentyThreadsX50 : Submit 20X100 = 2000 tests as fast as possible, across 20 threads.",
             20,
-            50,
+            100,
             1,
             "IG",
             "EVERY_5_MINS",
@@ -311,6 +324,9 @@ class Simulator : CoolTest() {
         )
     }
 
+    /**
+     * Run this prior to running a load simulation.
+     */
     fun setup(environment: Environment, options: CoolTestOptions) {
         ugly("Starting $name test.")
         val result = runOneSimulation(primeThePump, environment, options)
@@ -321,7 +337,10 @@ class Simulator : CoolTest() {
         echo("Ready for the real test:")
     }
 
-    private suspend fun teardown(
+    /**
+     * Run this after running a load simulation.
+     */
+    suspend fun teardown(
         results: List<SimulatorResult>,
         entireTestMillis: Long,
         afterActionId: Int,
@@ -402,79 +421,10 @@ class Simulator : CoolTest() {
     }
 
     /**
-     * Meant to simulate a production load, minus strac since its just once a day.
-     * Runs in a couple mins.
-     */
-    fun productionSimulation(environment: Environment, options: CoolTestOptions): List<SimulatorResult> {
-        ugly("A test that simulates a high daytime load in Production")
-        val results = arrayListOf<SimulatorResult>()
-        results += runOneSimulation(fiveThreadsX100, environment, options) // cue
-        results += runOneSimulation(simpleReport, environment, options) // simple_report
-        results += runOneSimulation(fiveThreadsX100, environment, options) // more cue
-        results += runOneSimulation(fiveThreadsX100, environment, options) // more cue
-        results += runOneSimulation(spike, environment, options) // a big spike of cue
-        results += runOneSimulation(fiveThreadsX100, environment, options) // more regular cue
-        return results
-    }
-
-    /**
-     * This set of [Simulation] is meant to mimic the old "parallel" test, but going bigger, and skipping some.
-     */
-    fun parallel(environment: Environment, options: CoolTestOptions): List<SimulatorResult> {
-        ugly("A test mimics the old 'parallel' test.  Runs 1,5,10,20 threads.")
-        val results = arrayListOf<SimulatorResult>()
-        results += runOneSimulation(oneThreadX50, environment, options)
-        results += runOneSimulation(fiveThreadsX50, environment, options)
-        results += runOneSimulation(tenThreadsX50, environment, options)
-        results += runOneSimulation(twentyThreadsX50, environment, options)
-        return results
-    }
-
-    /**
-     * Runs a large batch test to see what throughput is like when we have multiple batches of 1000
-     */
-    private fun bigBatchTest(environment: Environment, options: CoolTestOptions): List<SimulatorResult> {
-        ugly("Sends a large batch batch time is set to 60 minutes.")
-        val results = arrayListOf<SimulatorResult>()
-        results += runOneSimulation(twentyThread_bigBatch, environment, options)
-//        results += runOneSimulation(twentyThread_bigBatch, environment, options)
-//        results += runOneSimulation(twentyThread_bigBatch, environment, options)
-//        results += runOneSimulation(twentyThread_bigBatch, environment, options)
-//        results += runOneSimulation(twentyThread_bigBatch, environment, options)
-//        results += runOneSimulation(twentyThread_bigBatch, environment, options)
-        return results
-    }
-
-    override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
-        setup(environment, options)
-        val afterActionId = getMostRecentActionId()
-        println("Max action id: $afterActionId")
-
-//        val results = mutableListOf<SimulatorResult>()
-//
-//        var elapsedTime = measureTimeMillis {
-//            results += runOneSimulation(oneThreadX50, environment, options)
-//            results += bigBatchTest(environment, options)
-//        }
-
-        // dev tests only. uncomment what you need to use when testing
-        val results = mutableListOf<SimulatorResult>()
-        var elapsedTime = measureTimeMillis {
-            results += productionSimulation(environment, options)
-            results += productionSimulation(environment, options)
-            results += runOneSimulation(typicalStracSubmission, environment, options) // strac
-            results += productionSimulation(environment, options)
-            results += productionSimulation(environment, options)
-            results += productionSimulation(environment, options)
-        }
-        return teardown(results, elapsedTime, afterActionId, options.asyncProcessMode)
-    }
-
-    /**
      * Checks that at least the correct number of process records are in the Action table after running simulator.
      * There may be more than expected if other tests occur at the same time, but there should not be fewer.
      */
-    private suspend fun checkTimedResults(
+    suspend fun checkTimedResults(
         expectedResults: Int,
         afterActionId: Int,
         taskToCheck: TaskAction,
@@ -524,7 +474,7 @@ class Simulator : CoolTest() {
         return passed
     }
 
-    private fun getMostRecentActionId(): Int {
+    fun getMostRecentActionId(): Int {
         var actionId = 0
         db = WorkflowEngine().db
         db.transact { txn ->
@@ -541,7 +491,7 @@ class Simulator : CoolTest() {
         return actionId
     }
 
-    private fun checkResultsQuery(
+    fun checkResultsQuery(
         afterActionId: Int,
         actionType: TaskAction,
         receivingOrg: String,
