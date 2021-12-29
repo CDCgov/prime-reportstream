@@ -4,8 +4,8 @@ import { NetworkErrorBoundary } from "rest-hooks";
 
 import { useOrgName } from "../../utils/OrganizationUtils";
 import Spinner from "../../components/Spinner";
-
 import { ErrorPage } from "../error/ErrorPage";
+
 import SubmissionTable from "./SubmissionsTable";
 
 const OrgName = () => {
@@ -40,8 +40,8 @@ function Submissions() {
                 <h1 className="margin-top-0 margin-bottom-0">COVID-19</h1>
             </section>
             <NetworkErrorBoundary
-                        fallbackComponent={() => <ErrorPage type="message" />}
-                    >
+                fallbackComponent={() => <ErrorPage type="message" />}
+            >
                 <Suspense fallback={<Spinner />}>
                     <SubmissionTable></SubmissionTable>
                 </Suspense>

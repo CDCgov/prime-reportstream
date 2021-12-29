@@ -1,9 +1,9 @@
 import { useContext } from "react";
-import SubmissionsResource from "../../resources/SubmissionsResource";
-import { GlobalContext } from "../../components/GlobalContextProvider";
 import moment from "moment";
 import { useResource } from "rest-hooks";
 
+import SubmissionsResource from "../../resources/SubmissionsResource";
+import { GlobalContext } from "../../components/GlobalContextProvider";
 
 function SubmissionsTable() {
     // this component will refresh when global context changes (e.g. organization changes)
@@ -44,18 +44,16 @@ function SubmissionsTable() {
                                     </th>
                                     <th scope="row"> </th>
                                     {/* File name */}
-                                    <th scope="row">
-                                        {s["reportItemCount"]}
-                                    </th>
+                                    <th scope="row">{s["reportItemCount"]}</th>
                                     <th scope="row">{s["id"]}</th>
                                     <th scope="row">{s["warningCount"]}</th>
                                 </tr>
                             );
                         })}
                     </tbody>
-                </table>        
+                </table>
             </div>
-        </div>       
+        </div>
     );
 }
 
