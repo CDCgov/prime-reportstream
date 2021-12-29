@@ -42,3 +42,6 @@ I've exempted this entire folder from the gitleaks check because it's just used 
     networks:
       - prime-router_build
 ```
+
+## Additional Documentation
+https://hub.docker.com/r/atmoz/sftp

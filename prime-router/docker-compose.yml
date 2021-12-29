@@ -68,8 +68,8 @@ services:
       - ../.environment/sftp-conf/ssh_host_ed25519_key:/etc/ssh/ssh_host_ed25519_key
       - ../.environment/sftp-conf/ssh_host_rsa_key:/etc/ssh/ssh_host_rsa_key
       # add a key for the dev
-      - ../.environment/sftp-conf/ssh_dev_rsa_key.pub:/home/bar/.ssh/keys/id_rsa.pub:ro
-      - ../.environment/sftp-conf/ignore-putty-file.pub:/home/fizz/.ssh/keys/id_rsa.pub:ro
+      - ../.environment/sftp-conf/ssh_dev_rsa_key.pem.pub:/home/bar/.ssh/keys/ssh_dev_rsa_key.pem.pub:ro
+      - ../.environment/sftp-conf/ignore-putty-file-old-openssh.pub:/home/fizz/.ssh/keys/ignore-putty-file-old-openssh.pub:ro
     networks:
       - prime-router_build
 

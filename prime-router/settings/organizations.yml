@@ -1908,7 +1908,7 @@
       organizationName: ignore
       topic: covid-19
       customerStatus: inactive
-      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, HL7_BATCH)" ]
+      jurisdictionalFilter: [ "matches(ordering_facility_county, HL7_BATCH)" ]
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
@@ -1928,7 +1928,7 @@
       organizationName: ignore
       topic: covid-19
       customerStatus: inactive
-      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, HL7_BATCH)" ]
+      jurisdictionalFilter: [ "matches(ordering_facility_county, HL7_BATCH)" ]
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute

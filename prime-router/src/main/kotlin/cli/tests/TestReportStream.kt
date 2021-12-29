@@ -937,15 +937,15 @@ class Ping : CoolTest() {
             bad("Ping/CheckConnections Test FAILED:  response code $responseCode")
             exitProcess(-1) // other tests won't work.
         }
-        try {
+        return try {
             val tree = jacksonObjectMapper().readTree(json)
             if (tree["errorCount"].intValue() != 0 || tree["warningCount"].intValue() != 0) {
-                return bad("***Ping/CheckConnections Test FAILED***")
+                bad("***Ping/CheckConnections Test FAILED***")
             } else {
-                return good("Test passed: Ping/CheckConnections")
+                good("Test passed: Ping/CheckConnections")
             }
         } catch (e: NullPointerException) {
-            return bad("***Ping/CheckConnections FAILED***: Unable to properly parse response json")
+            bad("***Ping/CheckConnections FAILED***: Unable to properly parse response json")
         }
     }
 }
