@@ -21,7 +21,9 @@ class BatchDeciderFunction : Logging {
     fun run(
         // run every minute (NCRONTAB expression {second} {minute} {hour} {day} {month} {day-of-week})
         @TimerTrigger(name = "batchDecider", schedule = "0 * * * * *")
+        @Suppress("UNUSED_PARAMETER")
         timerInfo: String,
+        @Suppress("UNUSED_PARAMETER")
         context: ExecutionContext,
     ) {
         logger.info("$batchDecider: Starting")
