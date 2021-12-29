@@ -277,7 +277,7 @@ class HasValidDataFor : ReportStreamFilterDefinition {
         val columnNames = table.columnNames()
         args.forEach { colName ->
             if (columnNames.contains(colName)) {
-                val before = Selection.with(*selection.toArray()) // hack way to copy to a new Selection obj
+                Selection.with(*selection.toArray()) // hack way to copy to a new Selection obj
                 selection = selection.andNot(table.stringColumn(colName).isEmptyString)
             } else {
                 return Selection.withRange(0, 0)
