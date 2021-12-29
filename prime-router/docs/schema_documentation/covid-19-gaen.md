@@ -1,10 +1,16 @@
 
-### Schema:         covid-19-gaen
-#### Description:   Schema for GAEN notification messages
+### Schema: covid-19-gaen
+### Topic: covid-19
+### Tracking Element: message_id (message_id)
+### Base On: [covid-19](./covid-19.md)
+### Extends: none
+#### Description: Schema for GAEN notification messages
 
 ---
 
 **Name**: abnormal_flag
+
+**ReportStream Internal Name**: abnormal_flag
 
 **Type**: CODE
 
@@ -57,6 +63,8 @@ This field is generated based on the normalcy status of the result. A = abnormal
 
 **Name**: date_result_released
 
+**ReportStream Internal Name**: date_result_released
+
 **Type**: DATETIME
 
 **PII**: No
@@ -68,6 +76,8 @@ This field is generated based on the normalcy status of the result. A = abnormal
 ---
 
 **Name**: illness_onset_date
+
+**ReportStream Internal Name**: illness_onset_date
 
 **Type**: DATE
 
@@ -83,6 +93,8 @@ This field is generated based on the normalcy status of the result. A = abnormal
 
 **Name**: message_id
 
+**ReportStream Internal Name**: message_id
+
 **Type**: ID
 
 **PII**: No
@@ -96,6 +108,8 @@ unique id to track the usage of the message
 ---
 
 **Name**: patient_phone_number
+
+**ReportStream Internal Name**: patient_phone_number
 
 **Type**: TELEPHONE
 

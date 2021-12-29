@@ -1,10 +1,16 @@
 
-### Schema:         sample/phd1-sample
-#### Description:   null
+### Schema: sample/phd1-sample
+### Topic: sample
+### Tracking Element: none
+### Base On: none
+### Extends: none
+#### Description: none
 
 ---
 
 **Name**: first_name
+
+**ReportStream Internal Name**: first_name
 
 **PII**: Yes
 
@@ -14,6 +20,8 @@
 
 **Name**: lab
 
+**ReportStream Internal Name**: lab
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -22,6 +30,8 @@
 
 **Name**: last_name
 
+**ReportStream Internal Name**: last_name
+
 **PII**: Yes
 
 **Cardinality**: [0..1]
@@ -29,6 +39,8 @@
 ---
 
 **Name**: observation
+
+**ReportStream Internal Name**: observation
 
 **Type**: TEXT
 
@@ -40,6 +52,8 @@
 
 **Name**: specimen_id
 
+**ReportStream Internal Name**: specimen_id
+
 **Type**: ID
 
 **PII**: No
@@ -50,6 +64,8 @@
 
 **Name**: state
 
+**ReportStream Internal Name**: state
+
 **Type**: TEXT
 
 **PII**: No
@@ -59,6 +75,8 @@
 ---
 
 **Name**: test_time
+
+**ReportStream Internal Name**: test_time
 
 **Type**: DATE
 
