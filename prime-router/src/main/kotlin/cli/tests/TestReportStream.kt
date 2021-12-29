@@ -459,6 +459,7 @@ abstract class CoolTest {
                 }
                 timeElapsedSecs += pollSleepSecs
                 queryResult = queryForProcessResults(reportId)
+                @Suppress("SENSELESS_COMPARISON")
                 if (queryResult != null)
                     break
             }
@@ -481,7 +482,8 @@ abstract class CoolTest {
             val sql = """select cr.covid_results_metadata_id
                 from covid_result_metadata as cr
                 where cr.report_id = ?"""
-            val ret = ctx.fetch(sql, reportId)?.into(Int::class.java)
+            val ret = ctx.fetch(sql, reportId).into(Int::class.java)
+            @Suppress("SENSELESS_COMPARISON")
             passed = ret != null && ret.size > 0
         }
         if (passed)
@@ -541,7 +543,6 @@ abstract class CoolTest {
             val topic = tree["topic"]
             val errorCount = tree["errorCount"]
             val destCount = tree["destinationCount"]
-            val destinations = tree["destinations"]
 
             if (topic != null && !topic.isNull && topic.textValue().equals("covid-19", true)) {
                 good("'topic' is in response and correctly set to 'covid-19'")
@@ -2365,7 +2366,7 @@ class SantaClaus : CoolTest() {
         }
 
         val states = if (options.targetStates.isNullOrEmpty()) {
-            metadata.findLookupTable("fips-county")?.getDistinctValuesInColumn("State")
+            metadata.findLookupTable("fips-county")?.FilterBuilder()?.findAllUnique("State")
                 ?.toList() ?: error("Santa is unable to find any states in the fips-county table")
         } else {
             options.targetStates.split(",")
@@ -2388,7 +2389,7 @@ class SantaClaus : CoolTest() {
             // Now send it to ReportStream.
             val (responseCode, json) =
                 HttpUtilities.postReportFile(
-                    environment, file, sender, options.asyncProcessMode, null,
+                    environment, file, sender, options.asyncProcessMode, options.key,
                     payloadName = "$name ${status.description}",
                 )
             if (responseCode != HttpURLConnection.HTTP_CREATED) {

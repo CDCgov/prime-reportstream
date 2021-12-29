@@ -298,7 +298,7 @@ class WorkflowEngine(
         // Send immediately.
         val nextEvent = ReportEvent(Event.EventAction.SEND, reportId, at = null)
         db.transact { txn ->
-            val task = db.fetchAndLockTask(reportId, txn) // Required, it creates lock.
+            db.fetchAndLockTask(reportId, txn) // Required, it creates lock.
             val organization = settings.findOrganization(receiver.organizationName)
                 ?: throw Exception("No such organization ${receiver.organizationName}")
             val header = fetchHeader(reportId, organization) // exception if not found
@@ -497,6 +497,29 @@ class WorkflowEngine(
     }
 
     /**
+     * The process step has failed. Ensure the actionHistory gets a 'warning' if it is not yet the 5th attempt
+     *  at this record. If it is the 5th attempt, set it to process_error
+     */
+    fun handleProcessFailure(
+        numAttempts: Int,
+        actionHistory: ActionHistory
+    ) {
+        // if there are already four process_warning records in the database for this reportId, this is the last try
+        val actionStatus = if (numAttempts >= 5) TaskAction.process_error else TaskAction.process_warning
+        // if count is < 5, add a process_warning status to the task
+        // if count is >= 5, add a process_error status to the task
+        actionHistory.setActionType(actionStatus)
+        actionHistory.trackActionResult(
+            "Failed to process $numAttempts times, setting status to $actionStatus."
+        )
+
+        // save action record to db
+        db.transact { txn ->
+            actionHistory.saveToDb(txn)
+        }
+    }
+
+    /**
      * Handle a receiver specific event. Fetch all pending tasks for the specified receiver and nextAction
      * @param messageEvent that was received
      * @param context execution context
@@ -680,7 +703,7 @@ class WorkflowEngine(
         txn: DataAccessTransaction? = null
     ): Pair<Organization, Receiver> {
         return if (settings is SettingsFacade) {
-            val (organization, receiver) = (settings as SettingsFacade).findOrganizationAndReceiver(fullName, txn)
+            val (organization, receiver) = (settings).findOrganizationAndReceiver(fullName, txn)
                 ?: error("Receiver not found in database: $fullName")
             Pair(organization, receiver)
         } else {
@@ -769,6 +792,8 @@ class WorkflowEngine(
 
                 Event.EventAction.BATCH_ERROR,
                 Event.EventAction.SEND_ERROR,
+                Event.EventAction.PROCESS_ERROR,
+                Event.EventAction.PROCESS_WARNING,
                 Event.EventAction.WIPE_ERROR -> Tables.TASK.ERRORED_AT
 
                 Event.EventAction.NONE -> error("Internal Error: NONE currentAction")

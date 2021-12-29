@@ -14,7 +14,7 @@ elements:
       default: all-in-one-health-ca
 
     - name: processing_mode_code
-      default: T
+      default: P
 
 
 #demographics
@@ -58,6 +58,7 @@ elements:
 
     - name: patient_county
       type: TEXT
+      cardinality: ZERO_OR_ONE
       csvFields: [{name: Patient County}]
 
     - name: patient_county_code
@@ -146,7 +147,9 @@ elements:
 # Set fields needed for the LIVDlookup() Mapper to set the LOINC code and OBX.17 - Device Info
 
     - name: equipment_model_name
+      cardinality: ONE
       csvFields: [{name: Device Identifier}]
+      mapperOverridesValue: true
 
     - name: test_performed_code_temp
       csvFields: [{name: Test Code}]

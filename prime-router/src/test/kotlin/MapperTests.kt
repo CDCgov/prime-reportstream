@@ -32,7 +32,7 @@ class MapperTests {
             3,4,y
             5,6,z
         """.trimIndent()
-        val table = LookupTable.read(ByteArrayInputStream(csv.toByteArray()))
+        val table = LookupTable.read(inputStream = ByteArrayInputStream(csv.toByteArray()))
         val schema = Schema(
             "test", topic = "test",
             elements = listOf(
@@ -57,7 +57,7 @@ class MapperTests {
             3,4,y
             5,6,z
         """.trimIndent()
-        val table = LookupTable.read(ByteArrayInputStream(csv.toByteArray()))
+        val table = LookupTable.read(inputStream = ByteArrayInputStream(csv.toByteArray()))
         val schema = Schema(
             "test", topic = "test",
             elements = listOf(
@@ -126,6 +126,14 @@ class MapperTests {
         // Test with a ID NOW device id
         val ev2 = ElementAndValue(modelElement, "ID NOW")
         assertThat(mapper.apply(codeElement, emptyList(), listOf(ev2))).isEqualTo("94534-5")
+
+        // Test for a device ID that has multiple rows and the same test ordered code.
+        val ev3 = ElementAndValue(modelElement, "1copy COVID-19 qPCR Multi Kit*")
+        assertThat(mapper.apply(codeElement, emptyList(), listOf(ev3))).isEqualTo("94531-1")
+
+        // Test for a device ID that has multiple rows and multiple test ordered codes.
+        val ev4 = ElementAndValue(modelElement, "Alinity i")
+        assertThat(mapper.apply(codeElement, emptyList(), listOf(ev4))).isNull()
     }
 
     @Test
@@ -584,7 +592,7 @@ class MapperTests {
             zipcode,county
             32303,Leon
         """.trimIndent()
-        val table = LookupTable.read(ByteArrayInputStream(csv.toByteArray()))
+        val table = LookupTable.read(inputStream = ByteArrayInputStream(csv.toByteArray()))
         val schema = Schema(
             "test", topic = "test",
             elements = listOf(
@@ -632,7 +640,7 @@ class MapperTests {
     @Test
     fun `test parseMapperField validation - allow mapper tokens to be parsed`() {
         // it should allow mapper tokens to be parsed: i.e. "$index"
-        var vals = Mappers.parseMapperField("concat(patient_id, \$index)")
+        val vals = Mappers.parseMapperField("concat(patient_id, \$index)")
         assertThat(vals.second[1]).isEqualTo("\$index")
     }
 
@@ -732,5 +740,33 @@ class MapperTests {
         val args = listOf("a", "NPI")
         val values = listOf(ElementAndValue(elementA, "xyz"))
         assertThat(mapper.apply(elementA, args, values)).isNull()
+    }
+
+    @Test
+    fun `test LookupSenderValuesetsMapper`() {
+        val table = LookupTable.read("./src/test/resources/metadata/tables/sender_valuesets.csv")
+        val schema = Schema(
+            "test", topic = "test",
+            elements = listOf(
+                Element(
+                    "pregnant", type = Element.Type.TABLE, table = "sender_valuesets", tableColumn = "result",
+                    mapperOverridesValue = true
+                )
+            )
+        )
+        val metadata = Metadata(schema = schema, table = table, tableName = "sender_valuesets")
+        val indexElement = Element("sender_id")
+        val lookupElement = metadata.findSchema("test")?.findElement("pregnant") ?: fail("")
+        val mapper = LookupSenderValuesetsMapper()
+        val args = listOf("sender_id", "pregnant")
+        val elementAndValues = listOf(ElementAndValue(indexElement, "all"), ElementAndValue(lookupElement, "y"))
+        assertThat(mapper.valueNames(lookupElement, args)).isEqualTo(listOf("sender_id", "pregnant"))
+        assertThat(mapper.apply(lookupElement, args, elementAndValues)).isEqualTo("77386006")
+
+        val elementAndValuesUNK = listOf(
+            ElementAndValue(indexElement, "all"),
+            ElementAndValue(lookupElement, "yas queen")
+        )
+        assertThat(mapper.apply(lookupElement, args, elementAndValuesUNK)).isNull()
     }
 }

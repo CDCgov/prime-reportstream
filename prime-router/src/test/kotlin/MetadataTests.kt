@@ -3,7 +3,6 @@ package gov.cdc.prime.router
 import assertk.Assert
 import assertk.all
 import assertk.assertThat
-import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNotNull
@@ -19,7 +18,6 @@ import assertk.assertions.support.show
 import gov.cdc.prime.router.azure.DatabaseLookupTableAccess
 import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableRow
 import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableVersion
-import gov.cdc.prime.router.metadata.DatabaseLookupTable
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.every
@@ -33,6 +31,20 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
 
 class MetadataTests {
+    @Test
+    fun `test findReportStreamFilterDefinitions`() {
+        val metadata = UnitTestUtils.simpleMetadata
+        assertThat(metadata.findReportStreamFilterDefinitions("matches")).isNotNull()
+        assertThat(metadata.findReportStreamFilterDefinitions("doesNotMatch")).isNotNull()
+        assertThat(metadata.findReportStreamFilterDefinitions("filterByCounty")).isNotNull()
+        assertThat(metadata.findReportStreamFilterDefinitions("orEquals")).isNotNull()
+        assertThat(metadata.findReportStreamFilterDefinitions("allowAll")).isNotNull()
+        assertThat(metadata.findReportStreamFilterDefinitions("allowNone")).isNotNull()
+        assertThat(metadata.findReportStreamFilterDefinitions("hasValidDataFor")).isNotNull()
+        assertThat(metadata.findReportStreamFilterDefinitions("isValidCLIA")).isNotNull()
+        assertThat(metadata.findReportStreamFilterDefinitions("hasAtLeastOneOf")).isNotNull()
+    }
+
     @Test
     fun `test loading two schemas`() {
         val metadata = UnitTestUtils.simpleMetadata.loadSchemas(
@@ -333,22 +345,21 @@ class MetadataTests {
         assertThat(metadata.lookupTableStore.size).isEqualTo(2)
         assertThat(metadata.lookupTableStore.containsKey(table1.tableName))
         assertThat(metadata.lookupTableStore.containsKey(table2.tableName))
-        assertThat(metadata.lookupTableStore[table1.tableName]!! is DatabaseLookupTable).isTrue()
-        assertThat(metadata.lookupTableStore[table2.tableName]!! is DatabaseLookupTable).isTrue()
+        assertThat(metadata.lookupTableStore[table1.tableName]!!.isSourceDatabase).isTrue()
+        assertThat(metadata.lookupTableStore[table2.tableName]!!.isSourceDatabase).isTrue()
         assertThat(metadata.lookupTableStore[table1.tableName]!!.rowCount).isEqualTo(1)
-        assertThat(metadata.lookupTableStore[table2.tableName]!!.dataRows.size).isEqualTo(1)
 
         // Test two good tables with one conflicting file table
         metadata.lookupTableStore = emptyMap()
-        metadata.lookupTableStore = mapOf(table2.tableName to LookupTable(emptyList()))
+        metadata.lookupTableStore = mapOf(table2.tableName to LookupTable(table = emptyList()))
         every { mockDbTableAccess.fetchTableList() } returns listOf(table1, table2)
         every { mockDbTableAccess.fetchTable(any(), any()) } returns tableData
         metadata.loadDatabaseLookupTables()
         assertThat(metadata.lookupTableStore.size).isEqualTo(2)
         assertThat(metadata.lookupTableStore.containsKey(table1.tableName))
         assertThat(metadata.lookupTableStore.containsKey(table2.tableName))
-        assertThat(metadata.lookupTableStore[table1.tableName]!! is DatabaseLookupTable).isTrue()
-        assertThat(metadata.lookupTableStore[table2.tableName]!! !is DatabaseLookupTable).isTrue()
+        assertThat(metadata.lookupTableStore[table1.tableName]!!.isSourceDatabase).isTrue()
+        assertThat(!metadata.lookupTableStore[table2.tableName]!!.isSourceDatabase).isTrue()
 
         // Add a new table - Note this uses the results from the test above.
         val table3 = LookupTableVersion()
@@ -362,7 +373,7 @@ class MetadataTests {
         assertThat(metadata.lookupTableStore.containsKey(table1.tableName))
         assertThat(metadata.lookupTableStore.containsKey(table2.tableName))
         assertThat(metadata.lookupTableStore.containsKey(table3.tableName))
-        assertThat(metadata.lookupTableStore[table3.tableName]!! is DatabaseLookupTable).isTrue()
+        assertThat(metadata.lookupTableStore[table3.tableName]!!.isSourceDatabase).isTrue()
 
         // Now a table was deleted or deactivated - Note this uses the results from the test above.
         every { mockDbTableAccess.fetchTableList() } returns listOf(table1, table2)
@@ -370,6 +381,5 @@ class MetadataTests {
         assertThat(metadata.lookupTableStore.size).isEqualTo(3)
         assertThat(metadata.lookupTableStore.containsKey(table3.tableName))
         assertThat(metadata.lookupTableStore[table3.tableName]!!.rowCount).isEqualTo(0)
-        assertThat(metadata.lookupTableStore[table3.tableName]!!.dataRows).isEmpty()
     }
 }
