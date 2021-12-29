@@ -117,7 +117,7 @@ class HistoryApiTest : CoolTest() {
         val (request, response, result) = Fuel.get(testCase.path, testCase.parameters)
             .authentication()
             .bearer(testCase.bearer)
-            .response()
+            .responseString()
         if (response.statusCode != testCase.expectedHttpStatus.value()) {
             bad(
                 "***$name Test '${testCase.name}' FAILED:" +
@@ -129,15 +129,16 @@ class HistoryApiTest : CoolTest() {
             good("$name test '${testCase.name}' passed:  Got expected http status ${testCase.expectedHttpStatus}")
             return Pair(true, null)
         }
-        if (response.contentLength <= 0) {
-            bad("***$name Test FAILED: empty body")
-            return Pair(false, null)
-        }
         if (result !is Result.Success) {
-            bad("***$name Test FAILED:  Result is $result")
+            bad("***$name Test '${testCase.name}' FAILED:  Result is $result")
             return Pair(false, null)
         }
-        return Pair(true, result.value.decodeToString())
+        val json: String = result.value
+        if (json.isNullOrEmpty()) {
+            bad("***$name Test '${testCase.name}' FAILED: empty body")
+            return Pair(false, null)
+        }
+        return Pair(true, json)
     }
 
     /**
@@ -180,7 +181,7 @@ class HistoryApiTest : CoolTest() {
         val reportIds = submitTestData(environment, options)
             ?: return bad("*** $name TEST FAILED:  Unable to submit test data")
 
-        val testCases = listOf(
+        val testCases = mutableListOf(
             SubmissionAPITestCase(
                 "simple history API happy path test",
                 "${environment.url}/api/history/$historyTestOrgName/submissions",
@@ -189,15 +190,6 @@ class HistoryApiTest : CoolTest() {
                 bearer,
                 HttpStatus.OK,
                 expectedReports = reportIds,
-            ),
-            SubmissionAPITestCase(
-                "bad bearer token",
-                "${environment.url}/api/history/$historyTestOrgName/submissions",
-                emptyMap(),
-                listOf("pagesize" to options.submits),
-                "",
-                HttpStatus.SERVICE_UNAVAILABLE,
-                expectedReports = emptySet(),
             ),
             SubmissionAPITestCase(
                 "no such organization",
@@ -209,6 +201,19 @@ class HistoryApiTest : CoolTest() {
                 expectedReports = emptySet(),
             ),
         )
+        if (environment != Environment.LOCAL) {
+            testCases.add(
+                SubmissionAPITestCase(
+                    "bad bearer token - TESTED ON STAGING, NOT TESTED ON LOCAL",
+                    "${environment.url}/api/history/$historyTestOrgName/submissions",
+                    emptyMap(),
+                    listOf("pagesize" to options.submits),
+                    bearer + "x",
+                    HttpStatus.SERVICE_UNAVAILABLE,
+                    expectedReports = emptySet(),
+                ),
+            )
+        }
         var allPassed = testCases.map {
             val (queryPass, json) = historyApiQuery(it)
 
