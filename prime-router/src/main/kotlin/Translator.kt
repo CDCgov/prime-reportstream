@@ -166,7 +166,7 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
         if (orgFilter.isNullOrEmpty()) orgFilter = null // force null to avoid empty strings
 
         // Last, retrieve the receiver-level filter for this filter type.
-        var receiverFilter: ReportStreamFilter? = filterType.receiverFilterProperty.get(receiver) as ReportStreamFilter
+        var receiverFilter: ReportStreamFilter? = filterType.receiverFilterProperty.get(receiver)
         if (receiverFilter.isNullOrEmpty()) receiverFilter = null // force null to be consistent with org and default.
 
         // Use the "and" of the  org filter and receiver filter if either or both exists - and override the default.
