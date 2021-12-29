@@ -263,12 +263,8 @@ data class Element(
             Type.BLANK -> ""
             Type.DATE -> {
                 if (format != null) {
-                    if (format != null) {
-                        var ta = parseDate(normalizedValue)
-                        getDate(ta, format)
-                    } else {
-                        normalizedValue
-                    }
+                    var ta = parseDate(normalizedValue)
+                    getDate(ta, format)
                 } else {
                     normalizedValue
                 }
