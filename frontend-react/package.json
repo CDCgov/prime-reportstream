@@ -3,7 +3,7 @@
     "version": "0.1.1",
     "private": true,
     "npmClient": "yarn",
-    "proxy": "https://staging.prime.cdc.gov",
+    "proxy": "http://localhost:7071",
     "dependencies": {
         "@craco/craco": "^6.4.3",
         "@fortawesome/fontawesome-svg-core": "^1.2.36",
