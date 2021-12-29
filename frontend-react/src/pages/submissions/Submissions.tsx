@@ -5,19 +5,14 @@ import { NetworkErrorBoundary } from "rest-hooks";
 import { useOrgName } from "../../utils/OrganizationUtils";
 import Spinner from "../../components/Spinner";
 import { ErrorPage } from "../error/ErrorPage";
+import HipaaNotice from "../../components/HipaaNotice";
+import Title from "../../components/Title";
 
 import SubmissionTable from "./SubmissionsTable";
 
-const OrgName = () => {
-    const orgName: string = useOrgName();
-    return (
-        <span id="orgName" className="text-normal text-base">
-            {orgName}
-        </span>
-    );
-};
-
 function Submissions() {
+    const orgName: string = useOrgName();
+
     return (
         <NetworkErrorBoundary
             fallbackComponent={() => <ErrorPage type="page" />}
@@ -26,26 +21,16 @@ function Submissions() {
                 <title>Submissions | {process.env.REACT_APP_TITLE}</title>
             </Helmet>
             <section className="grid-container margin-top-5">
-                <h3 className="margin-bottom-0">
-                    <Suspense
-                        fallback={
-                            <span className="text-normal text-base">
-                                Loading Info...
-                            </span>
-                        }
-                    >
-                        <OrgName />
-                    </Suspense>
-                </h3>
-                <h1 className="margin-top-0 margin-bottom-0">COVID-19</h1>
+                <Title title="COVID-19" preTitle={orgName} />
             </section>
             <NetworkErrorBoundary
                 fallbackComponent={() => <ErrorPage type="message" />}
             >
                 <Suspense fallback={<Spinner />}>
-                    <SubmissionTable></SubmissionTable>
+                    <SubmissionTable />
                 </Suspense>
             </NetworkErrorBoundary>
+            <HipaaNotice />
         </NetworkErrorBoundary>
     );
 }
