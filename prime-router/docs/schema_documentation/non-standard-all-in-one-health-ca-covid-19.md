@@ -158,7 +158,7 @@ This field is ignored.
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 
 **Reference URL**:
@@ -1446,7 +1446,7 @@ The FIPS code for the patient's county
 
 **Format**: use value found in the Code column
 
-**Default Value**: T
+**Default Value**: P
 
 **Cardinality**: [0..1]
 
