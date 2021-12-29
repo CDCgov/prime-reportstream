@@ -168,7 +168,7 @@ class EmailSenderFunction {
                 response = sg.api(request)
             } catch (ex: IOException) {
                 logger.warning("Can't contact sendgrid")
-                status = HttpStatus.BAD_GATEWAY
+                return HttpStatus.BAD_GATEWAY
             } finally {
                 logger.info("sending email - result ${response.statusCode}")
                 status = HttpStatus.valueOf(response.statusCode)
