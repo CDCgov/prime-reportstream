@@ -135,7 +135,7 @@ const App = () => {
                                         component={Submissions}
                                     />
                                     <AuthorizedRoute
-                                        path="/admin"
+                                        path="/admin/settings"
                                         authorize={PERMISSIONS.PRIME_ADMIN}
                                         component={AdminMain}
                                     />

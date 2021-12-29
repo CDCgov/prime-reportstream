@@ -14,6 +14,7 @@ import { PERMISSIONS } from "../../resources/PermissionsResource";
 import { OrganizationDropdown } from "./OrgDropdown";
 import { SignInOrUser } from "./SignInOrUser";
 import { HowItWorksDropdown } from "./HowItWorksDropdown";
+import { AdminDropdownNav } from "./AdminDropdownNav";
 
 export const ReportStreamHeader = () => {
     const { authState } = useOktaAuth();
@@ -71,17 +72,7 @@ export const ReportStreamHeader = () => {
         }
 
         if (permissionCheck(PERMISSIONS.PRIME_ADMIN, authState)) {
-            itemsMenu.push(
-                <NavLink
-                    to="/admin"
-                    key="admin"
-                    data-attribute="hidden"
-                    hidden={true}
-                    className="usa-nav__link"
-                >
-                    <span>Admin</span>
-                </NavLink>
-            );
+            itemsMenu.push(<AdminDropdownNav />);
         }
     }
 
