@@ -32,7 +32,7 @@ function SubmissionsTable() {
                     <tbody id="tBody" className="font-mono-2xs">
                         {submissions.map((s, i) => {
                             if (s == null) {
-                                return;
+                                return <tr key={"submission_" + i} />;
                             }
                             return (
                                 <tr key={"submission_" + i}>
