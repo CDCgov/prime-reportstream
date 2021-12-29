@@ -1,11 +1,11 @@
-import { useState, useEffect, Suspense } from "react";
+import { Suspense, useContext } from "react";
 import { Helmet } from "react-helmet";
-import { NetworkErrorBoundary } from "rest-hooks";
-import { useOktaAuth } from "@okta/okta-react";
+import { NetworkErrorBoundary, useResource } from "rest-hooks";
 import moment from "moment";
 
 import { useOrgName } from "../utils/OrganizationUtils";
-import { getStoredOrg } from "../components/GlobalContextProvider";
+import SubmissionsResource from "../resources/SubmissionsResource";
+import { GlobalContext } from "../components/GlobalContextProvider";
 
 import { ErrorPage } from "./error/ErrorPage";
 
@@ -19,23 +19,12 @@ const OrgName = () => {
 };
 
 function Submissions() {
-    const { authState } = useOktaAuth();
-    const organization = getStoredOrg();
-    const [submissions, setSubmissions] = useState([]);
-
-    useEffect(() => {
-        fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/api/history/${organization}/submissions`,
-            {
-                headers: {
-                    Authorization: `Bearer ${authState?.accessToken?.accessToken}`,
-                },
-            }
-        )
-            .then((res) => res.json())
-            .then((submissions) => setSubmissions(submissions));
-    }, [authState, organization]);
-
+    // this component will refresh when global context changes (e.g. organization changes)
+    const globalState = useContext(GlobalContext);
+    const submissions: SubmissionsResource[] = useResource(
+        SubmissionsResource.list(),
+        { organization: globalState.state.organization }
+    );
     return (
         <NetworkErrorBoundary
             fallbackComponent={() => <ErrorPage type="page" />}
@@ -83,7 +72,8 @@ function Submissions() {
                                                 .local()
                                                 .format("YYYY-MM-DD HH:mm")}
                                         </th>
-                                        <th scope="row"></th> {/* File name */}
+                                        <th scope="row"> </th>
+                                        {/* File name */}
                                         <th scope="row">
                                             {s["reportItemCount"]}
                                         </th>
