@@ -14,12 +14,12 @@ class FileSettings : SettingsProvider {
     private var senderStore: Map<String, Sender> = mapOf()
     private val mapper = ObjectMapper(YAMLFactory()).registerModule(
         KotlinModule.Builder()
-        .withReflectionCacheSize(512)
-        .configure(KotlinFeature.NullToEmptyCollection, false)
-        .configure(KotlinFeature.NullToEmptyMap, false)
-        .configure(KotlinFeature.NullIsSameAsDefault, false)
-        .configure(KotlinFeature.StrictNullChecks, false)
-        .build()
+            .withReflectionCacheSize(512)
+            .configure(KotlinFeature.NullToEmptyCollection, false)
+            .configure(KotlinFeature.NullToEmptyMap, false)
+            .configure(KotlinFeature.NullIsSameAsDefault, false)
+            .configure(KotlinFeature.StrictNullChecks, false)
+            .build()
     )
 
     /**

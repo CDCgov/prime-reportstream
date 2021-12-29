@@ -103,7 +103,9 @@ java {
 val compileKotlin: KotlinCompile by tasks
 val compileTestKotlin: KotlinCompile by tasks
 compileKotlin.kotlinOptions.jvmTarget = "11"
+compileKotlin.kotlinOptions.allWarningsAsErrors = true
 compileTestKotlin.kotlinOptions.jvmTarget = "11"
+compileTestKotlin.kotlinOptions.allWarningsAsErrors = true
 
 tasks.clean {
     // Delete the old Maven build folder

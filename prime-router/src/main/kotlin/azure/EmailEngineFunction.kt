@@ -122,12 +122,12 @@ class EmailScheduleEngine {
         val logger: Logger = context.logger
         val mapper = ObjectMapper().registerModule(
             KotlinModule.Builder()
-            .withReflectionCacheSize(512)
-            .configure(KotlinFeature.NullToEmptyCollection, false)
-            .configure(KotlinFeature.NullToEmptyMap, false)
-            .configure(KotlinFeature.NullIsSameAsDefault, false)
-            .configure(KotlinFeature.StrictNullChecks, false)
-            .build()
+                .withReflectionCacheSize(512)
+                .configure(KotlinFeature.NullToEmptyCollection, false)
+                .configure(KotlinFeature.NullToEmptyMap, false)
+                .configure(KotlinFeature.NullIsSameAsDefault, false)
+                .configure(KotlinFeature.StrictNullChecks, false)
+                .build()
         )
 
         // get the schedules to fire
