@@ -43,9 +43,7 @@ class BatchFunction {
                 //  from the blob store.
                 headers.filter { it.expectingContent && it.content == null }
                     .forEach {
-                        // TODO: at some point we will need to add in a way to put something in an error state.
-                        //  Right now a task or action can represent more than one receiver, and if one succeeds
-                        //  and the other fails we cannot mark the action as a BATCH_ERROR
+                        // TODO: Need to add Action with error state of batch_error. See ticket #3642
                         context.logger.severe(
                             "Failure to download ${it.task.bodyUrl} from blobstore. ReportId: ${it.task.reportId}"
                         )
