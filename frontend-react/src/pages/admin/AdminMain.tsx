@@ -18,7 +18,7 @@ const OrgName = () => {
     );
 };
 
-function Daily() {
+export function AdminMain() {
     return (
         <NetworkErrorBoundary
             fallbackComponent={() => <ErrorPage type="page" />}
@@ -51,5 +51,3 @@ function Daily() {
         </NetworkErrorBoundary>
     );
 }
-
-export default Daily;
