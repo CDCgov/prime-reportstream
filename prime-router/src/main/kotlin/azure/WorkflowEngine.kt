@@ -461,7 +461,7 @@ class WorkflowEngine(
                 val time = receiver.timing.nextTime()
                 // Always force a batched report to be saved in our INTERNAL format
                 val batchReport = report.copy(bodyFormat = Report.Format.INTERNAL)
-                val event = ReceiverEvent(Event.EventAction.BATCH, receiver.fullName, time)
+                val event = BatchEvent(Event.EventAction.BATCH, receiver.fullName, time)
                 this.dispatchReport(event, batchReport, actionHistory, receiver, txn, context)
                 loggerMsg = "Queue: ${event.toQueueMessage()}"
             }
@@ -585,14 +585,14 @@ class WorkflowEngine(
     }
 
     /**
-     * Handle a receiver specific event. Fetch all pending tasks for the specified receiver and nextAction
+     * Handle a batch event for a receiver. Fetch all pending tasks for the specified receiver and nextAction
      *
      * @param messageEvent that was received
      * @param maxCount of headers to process
      * @param updateBlock called with headers to process
      */
-    fun handleReceiverEvent(
-        messageEvent: ReceiverEvent,
+    fun handleBatchEvent(
+        messageEvent: BatchEvent,
         maxCount: Int,
         updateBlock: (headers: List<Header>, txn: Configuration?) -> Unit,
     ) {
@@ -730,7 +730,11 @@ class WorkflowEngine(
         val organization: Organization?,
         val receiver: Receiver?,
         val schema: Schema?,
-        val content: ByteArray?
+        val content: ByteArray?,
+        // todo: until this can be refactored, we need a way for the calling functions to know
+        //  if this header is expecting to have content to detect errors on download (IE, file does not exist
+        //  see #3505
+        val expectingContent: Boolean
     )
 
     private fun createHeader(
@@ -745,10 +749,11 @@ class WorkflowEngine(
             metadata.findSchema(reportFile.schemaName)
         else null
 
-        val content = if (reportFile.bodyUrl != null && fetchBlobBody)
+        val downloadContent = (reportFile.bodyUrl != null && fetchBlobBody)
+        val content = if (downloadContent && blob.exists(reportFile.bodyUrl)) {
             blob.downloadBlob(reportFile.bodyUrl)
-        else null
-        return Header(task, reportFile, itemLineages, organization, receiver, schema, content)
+        } else null
+        return Header(task, reportFile, itemLineages, organization, receiver, schema, content, downloadContent)
     }
 
     fun fetchHeader(

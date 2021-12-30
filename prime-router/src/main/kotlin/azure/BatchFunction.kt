@@ -6,6 +6,7 @@ import com.microsoft.azure.functions.annotation.QueueTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
+import org.apache.logging.log4j.kotlin.logger
 import java.util.logging.Level
 
 const val batch = "batch"
@@ -26,7 +27,7 @@ class BatchFunction {
         try {
             context.logger.info("Batch message: $message")
             val workflowEngine = WorkflowEngine()
-            val event = Event.parseQueueMessage(message) as ReceiverEvent
+            val event = Event.parseQueueMessage(message) as BatchEvent
             if (event.eventAction != Event.EventAction.BATCH) {
                 context.logger.warning("Batch function received a $message")
                 return
@@ -37,14 +38,29 @@ class BatchFunction {
             val actionHistory = ActionHistory(event.eventAction.toTaskAction(), context)
             actionHistory.trackActionParams(message)
 
-            workflowEngine.handleReceiverEvent(event, maxBatchSize) { headers, txn ->
-                if (headers.isEmpty()) {
+            workflowEngine.handleBatchEvent(event, maxBatchSize) { headers, txn ->
+                // find any headers that expected to have content but were unable to actually download
+                //  from the blob store.
+                headers.filter { it.expectingContent && it.content == null }
+                    .forEach {
+                        // TODO: Need to add Action with error state of batch_error. See ticket #3642
+                        context.logger.severe(
+                            "Failure to download ${it.task.bodyUrl} from blobstore. ReportId: ${it.task.reportId}"
+                        )
+                    }
+
+                // get a list of valid headers to process
+                val validHeaders = headers.filter { it.content != null }
+
+                if (validHeaders.isEmpty()) {
                     context.logger.info("Batch: empty batch")
-                    return@handleReceiverEvent
+                    return@handleBatchEvent
                 } else {
-                    context.logger.info("Batch contains ${headers.size} reports")
+                    context.logger.info("Batch contains ${validHeaders.size} reports")
                 }
-                val inReports = headers.map {
+
+                // only batch files that have the expected content.
+                val inReports = validHeaders.map {
                     val report = workflowEngine.createReport(it)
                     // todo replace the use of task.reportId with info from ReportFile.
                     actionHistory.trackExistingInputReport(it.task.reportId)

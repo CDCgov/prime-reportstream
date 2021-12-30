@@ -205,7 +205,7 @@ class ActionHistoryTests {
             )
         val schema = Schema("schema", "topic")
         val header = WorkflowEngine.Header(
-            Task(), reportFile1, null, org, org.receivers[0], schema, "".toByteArray()
+            Task(), reportFile1, null, org, org.receivers[0], schema, "".toByteArray(), true
         )
         val actionHistory1 = ActionHistory(TaskAction.download)
         val uuid2 = UUID.randomUUID()

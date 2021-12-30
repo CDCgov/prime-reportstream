@@ -115,8 +115,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             .where(cond)
             .limit(limit)
             .forUpdate()
-            .skipLocked() // Allows the same query to run in parallel. Otherwise, the query
-            // would lock the table.
+            .skipLocked() // Allows the same query to run in parallel. Otherwise, the query would lock the table.
             .fetch()
             .into(Task::class.java)
     }
@@ -648,6 +647,23 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                 .where(REPORT_FILE.REPORT_ID.eq(reportId))
                 .count()
             ) > 0
+    }
+
+    /**
+     * Get the number of outstanding actions to batch for a specific receiver
+     */
+    fun fetchNumberOutstandingBatchRecords(
+        receiverFullName: String,
+        txn: DataAccessTransaction
+    ): Int {
+        val backstop = OffsetDateTime.now().minusDays(7)
+        return DSL.using(txn)
+            .select(TASK.asterisk())
+            .from(TASK)
+            .where(TASK.NEXT_ACTION.eq(TaskAction.batch))
+            .and(TASK.RECEIVER_NAME.eq(receiverFullName))
+            .and(TASK.CREATED_AT.greaterOrEqual(backstop))
+            .count()
     }
 
     /** Fetch the newest CreatedAt timestamp, active or deleted. */
