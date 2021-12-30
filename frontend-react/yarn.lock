@@ -1656,10 +1656,10 @@
   dependencies:
     "@babel/runtime" "^7.11.2"
 
-"@okta/okta-signin-widget@^5.13.1":
-  version "5.13.1"
-  resolved "https://registry.yarnpkg.com/@okta/okta-signin-widget/-/okta-signin-widget-5.13.1.tgz#8dd91f3dc526db558299b6ba0981303c2d9cf285"
-  integrity sha512-lN+pc0mVke6oK0e8/Q57yC7uoVofDN51gn+9/aLOlJpizozeKmVDYyk1EpEyfTxO8im0vTfwWR0//7cM6m6tkw==
+"@okta/okta-signin-widget@^5.14.1":
+  version "5.14.1"
+  resolved "https://registry.yarnpkg.com/@okta/okta-signin-widget/-/okta-signin-widget-5.14.1.tgz#12f6b7dddd728c729b29dd23c373e689b3fd910f"
+  integrity sha512-aLOsgj7Gad5MIeBx4sWp/KMZMPerm7NkBmbERA/B61ID7jXTfd+h+rBza+T38r6PzYZxip1VUDW7h5DOQd0F/Q==
   dependencies:
     "@babel/polyfill" "^7.10.1"
     "@babel/runtime" "^7.10.3"
@@ -12504,10 +12504,10 @@ typedarray@^0.0.6:
   resolved "https://registry.yarnpkg.com/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
   integrity sha1-hnrHTjhkGHsdPUfZlqeOxciDB3c=
 
-typescript@^4.5.3:
-  version "4.5.3"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.5.3.tgz#afaa858e68c7103317d89eb90c5d8906268d353c"
-  integrity sha512-eVYaEHALSt+s9LbvgEv4Ef+Tdq7hBiIZgii12xXJnukryt3pMgJf6aKhoCZ3FWQsu6sydEnkg11fYXLzhLBjeQ==
+typescript@^4.5.4:
+  version "4.5.4"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.5.4.tgz#a17d3a0263bf5c8723b9c52f43c5084edf13c2e8"
+  integrity sha512-VgYs2A2QIRuGphtzFV7aQJduJ2gyfTljngLzjpfW9FoYZF6xuw1W0vW9ghCKLfcWrCFxK81CSGRAvS1pn4fIUg==
 
 u2f-api-polyfill@0.4.3:
   version "0.4.3"
