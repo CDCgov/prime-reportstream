@@ -192,15 +192,12 @@ title = "PRIME ReportStream Gitleaks Configuration"
             'PrincipalLevel\.USER',
             'private const val CREDENTIAL_KEY_PREFIX = "credential/"',
             'private const val okta([a-zA-Z0-9]+)Path = "/oauth2/default/v1/',
-            'private val redoxSecret = \"secret\"',
-            'private val redoxSecret = \"secret\"',
             'rsa_key_(2048|4096)\s*=\s*\"(pdh(prod|test|staging|)|rkh-dev)-((2048|4096)-)?key\"',     # Terraform artifacts
             'SECRET_STORAGE_METHOD(\")?\s=',                                                # Method, not a secret
             'secretClient\.getSecret\(\"',
             'SecretHelper\.getSecretService\(\)\.fetchSecret\(',                            # You are fetching the secret properly
             'secretService getProperty \"',
             'secretService\.fetchSecret\(',                                                 # You are fetching the secret properly
-            'some_secret',                                                                  # Old local dummy REDOX secret
             'user = if \(',
             'USER" to dbUser,',
             'user\)\.isEqualTo\("user"',
@@ -212,9 +209,6 @@ title = "PRIME ReportStream Gitleaks Configuration"
             'val key = \"(ohio|aphl(_light)?|as2ohp)\"',                                    # not really secrets
             'val KEY_DB_(USER|PASSWORD|URL) = (\"|\\\")DB_(USER|URL|PASSWORD)(\"|\\\")',    # contained verbatim 'DB_(USER|PASSWORD|URL)'
             'val KEY_PRIME_RS_(REPORTS_)?API_ENDPOINT_HOST = \"',                           # Setting of the name of an environment variable name
-            'val redoxAuthPath = \"/auth/authenticate\"',
-            'val redoxKey = \"apiKey\"',                                                    # Environment variable name, not value
-            'val secretEnvName = \"REDOX_SECRET\"',                                         # Environment variable name, not value
             'var keymap = require\(',
             'var tokenSigningSecret = "UVD4QOJ3H295Zi9Ayl3ySuoXNKiE8WYuOsaXOZfug3dwTUVBC1ZIKRPpG5LEyZDZ"',         # Invalidated
             'xox[baprs]-([0-9a-zA-Z]{10,48})',
