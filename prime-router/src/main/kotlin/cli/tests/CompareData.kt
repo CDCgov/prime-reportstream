@@ -156,7 +156,7 @@ class DataCompareTest : CoolTest() {
                             // gets back the id of the internal report
                             val internalReportId = getSingleChildReportId(reportId)
 
-                            val processResult = pollForProcessResult(internalReportId)
+                            pollForProcessResult(internalReportId)
 
                             val processResults = pollForProcessResult(internalReportId)
                             // verify each result is valid
