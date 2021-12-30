@@ -1656,10 +1656,10 @@
   dependencies:
     "@babel/runtime" "^7.11.2"
 
-"@okta/okta-signin-widget@^5.13.1":
-  version "5.13.1"
-  resolved "https://registry.yarnpkg.com/@okta/okta-signin-widget/-/okta-signin-widget-5.13.1.tgz#8dd91f3dc526db558299b6ba0981303c2d9cf285"
-  integrity sha512-lN+pc0mVke6oK0e8/Q57yC7uoVofDN51gn+9/aLOlJpizozeKmVDYyk1EpEyfTxO8im0vTfwWR0//7cM6m6tkw==
+"@okta/okta-signin-widget@^5.14.1":
+  version "5.14.1"
+  resolved "https://registry.yarnpkg.com/@okta/okta-signin-widget/-/okta-signin-widget-5.14.1.tgz#12f6b7dddd728c729b29dd23c373e689b3fd910f"
+  integrity sha512-aLOsgj7Gad5MIeBx4sWp/KMZMPerm7NkBmbERA/B61ID7jXTfd+h+rBza+T38r6PzYZxip1VUDW7h5DOQd0F/Q==
   dependencies:
     "@babel/polyfill" "^7.10.1"
     "@babel/runtime" "^7.10.3"
@@ -2044,10 +2044,10 @@
   dependencies:
     "@babel/types" "^7.3.0"
 
-"@types/dompurify@^2.3.1":
-  version "2.3.1"
-  resolved "https://registry.yarnpkg.com/@types/dompurify/-/dompurify-2.3.1.tgz#2934adcd31c4e6b02676f9c22f9756e5091c04dd"
-  integrity sha512-YJth9qa0V/E6/XPH1Jq4BC8uCMmO8V1fKWn8PCvuZcAhMn7q0ez9LW6naQT04UZzjFfAPhyRMZmI2a2rbMlEFA==
+"@types/dompurify@^2.3.2":
+  version "2.3.2"
+  resolved "https://registry.yarnpkg.com/@types/dompurify/-/dompurify-2.3.2.tgz#85e8fd9ab1d7d0d3078968682e458094d41a8ad6"
+  integrity sha512-iht/O0jie/hDur39Z1NzjfOT/O9Kn2aWY99aqOn7lwsjSttEoMyGWvZIuAzZy0cNvAZdjmqySp7Z4d3GfBEGQw==
   dependencies:
     "@types/trusted-types" "*"
 
