@@ -24,7 +24,7 @@
         "@types/react": "^17.0.37",
         "@types/react-dom": "^17.0.5",
         "craco-sass-resources-loader": "^1.1.0",
-        "dompurify": "^2.3.3",
+        "dompurify": "^2.3.4",
         "downloadjs": "^1.4.7",
         "env-cmd": "^10.1.0",
         "eslint-config-airbnb-base": "^15.0.0",
