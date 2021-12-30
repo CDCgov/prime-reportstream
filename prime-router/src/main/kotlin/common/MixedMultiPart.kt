@@ -14,7 +14,7 @@ import javax.mail.internet.MimeMultipart
 /**
  * Class to serialize/deserialize into the "multipart/mixed" format.
  *
- * see https://www.w3.org/Protocols/rfc1341/7_2_Multipart.html for information on the format.
+ * See https://www.w3.org/Protocols/rfc1341/7_2_Multipart.html for information on the format.
  */
 class MixedMultiPart(val parts: List<Part>, val boundary: String) : MultipartDataSource {
 
