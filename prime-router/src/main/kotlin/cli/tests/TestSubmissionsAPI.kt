@@ -12,7 +12,7 @@ class TestSubmissionsAPI : CoolTest() {
     override val status = TestStatus.SMOKE
 
     override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
-        initListOfGoodReceiversAndCounties(environment)
+        initListOfGoodReceiversAndCounties()
         var passed = true
 
         /*

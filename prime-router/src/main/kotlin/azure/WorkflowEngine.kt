@@ -277,7 +277,6 @@ class WorkflowEngine(
     fun resendEvent(
         reportId: ReportId,
         receiver: Receiver,
-        sendFailedOnly: Boolean,
         isTest: Boolean,
         msgs: MutableList<String>,
     ) {
