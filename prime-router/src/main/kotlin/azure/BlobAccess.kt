@@ -9,7 +9,6 @@ import com.azure.storage.blob.models.BlobStorageException
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
-import gov.cdc.prime.router.serializers.RedoxSerializer
 import org.apache.commons.io.FilenameUtils
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.ByteArrayInputStream
@@ -25,7 +24,6 @@ const val defaultBlobContainerName = "reports"
 class BlobAccess(
     private val csvSerializer: CsvSerializer,
     private val hl7Serializer: Hl7Serializer,
-    private val redoxSerializer: RedoxSerializer
 ) : Logging {
     private val defaultConnEnvVar = "AzureWebJobsStorage"
 
@@ -105,7 +103,6 @@ class BlobAccess(
             Report.Format.HL7 -> hl7Serializer.write(report, outputStream)
             Report.Format.HL7_BATCH -> hl7Serializer.writeBatch(report, outputStream)
             Report.Format.CSV, Report.Format.CSV_SINGLE -> csvSerializer.write(report, outputStream)
-            Report.Format.REDOX -> redoxSerializer.write(report, outputStream)
         }
         val contentBytes = outputStream.toByteArray()
         return Pair(report.bodyFormat, contentBytes)

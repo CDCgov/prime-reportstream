@@ -34,13 +34,13 @@ mkdir -p $outputdir
 # Dev note:  early on, I had problems with parsing output from ./prime before the file was actually created.
 #   So I got in the habit of grabbing the output, and parsing it separately.
 printf "${BLUE}Generating fake data with $rows rows${NC}\n"
-fake1="./prime data --input-fake $rows --input-schema $starter_schema --output $testfile1 --target-counties=CSV,HL7_BATCH,HL7,REDOX --target-states=PM"
+fake1="./prime data --input-fake $rows --input-schema $starter_schema --output $testfile1 --target-counties=CSV,HL7_BATCH,HL7 --target-states=PM"
 echo $fake1
 text=$($fake1)
 printf "$text\n"
 
 printf "${BLUE}Generating second fake data file with $rows rows${NC}\n"
-fake2="./prime data --input-fake $rows --input-schema $starter_schema --output $testfile2 --target-counties=CSV,HL7_BATCH,HL7,REDOX --target-states=PM"
+fake2="./prime data --input-fake $rows --input-schema $starter_schema --output $testfile2 --target-counties=CSV,HL7_BATCH,HL7 --target-states=PM"
 echo $fake2
 text=$($fake2)
 printf "$text\n"

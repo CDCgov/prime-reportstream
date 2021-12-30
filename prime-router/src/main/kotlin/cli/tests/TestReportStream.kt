@@ -314,7 +314,6 @@ Examples:
             Parallel(),
             Simulator(),
             HammerTime(),
-            StracPack(),
             RepeatWaters(),
             InternationalContent(),
             DataCompareTest(),
@@ -753,7 +752,6 @@ abstract class CoolTest {
         val csvReceiver = settings.receivers.filter { it.organizationName == orgName && it.name == "CSV" }[0]
         val hl7Receiver = settings.receivers.filter { it.organizationName == orgName && it.name == "HL7" }[0]
         val hl7BatchReceiver = settings.receivers.filter { it.organizationName == orgName && it.name == "HL7_BATCH" }[0]
-        val redoxReceiver = settings.receivers.filter { it.organizationName == orgName && it.name == "REDOX" }[0]
         val hl7NullReceiver = settings.receivers.filter { it.organizationName == orgName && it.name == "HL7_NULL" }[0]
 
         lateinit var allGoodReceivers: MutableList<Receiver>
@@ -761,11 +759,7 @@ abstract class CoolTest {
 
         fun initListOfGoodReceiversAndCounties(env: Environment) {
             allGoodReceivers = mutableListOf(csvReceiver, hl7Receiver, hl7BatchReceiver, hl7NullReceiver)
-            if (env == Environment.LOCAL) {
-                allGoodReceivers.add(redoxReceiver)
-            }
-
-            allGoodCounties = allGoodReceivers.map { it.name }.joinToString(",")
+            allGoodCounties = allGoodReceivers.joinToString(",") { it.name }
         }
 
         val blobstoreReceiver = settings.receivers.filter {
@@ -1395,71 +1389,6 @@ class Strac : CoolTest() {
         } catch (e: Exception) {
             return bad("***strac Test FAILED***: Unexpected json returned")
         }
-    }
-}
-
-class StracPack : CoolTest() {
-    override val name = "stracpack" // no its not 'strackpack'
-    override val description = "Submits via '--submits X' threads sending Strac data to Redox" +
-        ", Each submit has '--items Y' items." +
-        "  Same as hammertime, no delays between thread starts, so all threads start at once."
-    override val status = TestStatus.LOAD
-
-    override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
-        ugly(
-            "Starting stracpack Test: Starting ${options.submits} simultaneous threads, each submitting" +
-                " ${options.items} items of Strac data to the ${redoxReceiver.name} receiver only."
-        )
-        val file = FileUtilities.createFakeFile(
-            metadata,
-            settings,
-            stracSender,
-            options.items,
-            receivingStates,
-            redoxReceiver.name,
-            options.dir,
-        )
-        echo("Created datafile $file")
-        // Now send it to ReportStream over and over
-        val reportIds = mutableListOf<ReportId>()
-        var passed = true
-        // submit in thread grouping somewhat smaller than our database pool size.
-        for (i in 1..options.submits) {
-            thread {
-                val (responseCode, json) =
-                    HttpUtilities.postReportFile(
-                        environment,
-                        file,
-                        stracSender,
-                        options.asyncProcessMode,
-                        options.key,
-                        payloadName = "$name ${status.description}",
-                    )
-                echo("$i: Response to POST: $responseCode")
-                if (responseCode != HttpURLConnection.HTTP_CREATED) {
-                    echo(json)
-                    passed = bad("$i: ***StracPack Test FAILED***:  response code $responseCode")
-                } else {
-                    val reportId = getReportIdFromResponse(json)
-                    echo("$i: Id of submitted report: $reportId")
-                    synchronized(reportIds) {
-                        reportId?.let { reportIds.add(reportId) }
-                    }
-                }
-            }
-        }
-        // Since we have to wait for the sends anyway, I didn't bother with a join here.
-        waitABit(5 * options.submits, environment) // SWAG: wait extra seconds extra per file submitted
-        reportIds.forEach {
-            passed = passed and
-                pollForLineageResults(
-                    reportId = it,
-                    receivers = listOf(redoxReceiver),
-                    totalItems = options.items,
-                    asyncProcessMode = options.asyncProcessMode
-                )
-        }
-        return passed
     }
 }
 

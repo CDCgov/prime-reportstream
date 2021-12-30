@@ -150,7 +150,7 @@ class ActionHistoryTests {
                 receivers = listOf(
                     Receiver(
                         "myService", "myOrg", "topic1", CustomerStatus.INACTIVE, "schema1",
-                        format = Report.Format.REDOX
+                        format = Report.Format.CSV
                     )
                 )
             )
@@ -264,7 +264,7 @@ class ActionHistoryTests {
                 receivers = listOf(
                     Receiver(
                         "service0", "org0", "topic", CustomerStatus.INACTIVE, "schema",
-                        format = Report.Format.REDOX
+                        format = Report.Format.CSV
                     )
                 )
             )

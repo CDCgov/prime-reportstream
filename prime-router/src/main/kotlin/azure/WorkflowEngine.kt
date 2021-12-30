@@ -23,12 +23,10 @@ import gov.cdc.prime.router.azure.db.tables.pojos.Task
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
-import gov.cdc.prime.router.serializers.RedoxSerializer
 import gov.cdc.prime.router.transport.AS2Transport
 import gov.cdc.prime.router.transport.BlobStoreTransport
 import gov.cdc.prime.router.transport.FTPSTransport
 import gov.cdc.prime.router.transport.GAENTransport
-import gov.cdc.prime.router.transport.RedoxTransport
 import gov.cdc.prime.router.transport.RetryItems
 import gov.cdc.prime.router.transport.RetryToken
 import gov.cdc.prime.router.transport.SftpTransport
@@ -51,13 +49,11 @@ class WorkflowEngine(
     val settings: SettingsProvider = settingsProviderSingleton,
     val hl7Serializer: Hl7Serializer = hl7SerializerSingleton,
     val csvSerializer: CsvSerializer = csvSerializerSingleton,
-    val redoxSerializer: RedoxSerializer = redoxSerializerSingleton,
     val db: DatabaseAccess = databaseAccessSingleton,
-    val blob: BlobAccess = BlobAccess(csvSerializer, hl7Serializer, redoxSerializer),
+    val blob: BlobAccess = BlobAccess(csvSerializer, hl7Serializer),
     val queue: QueueAccess = QueueAccess,
     val translator: Translator = Translator(metadata, settings),
     val sftpTransport: SftpTransport = SftpTransport(),
-    val redoxTransport: RedoxTransport = RedoxTransport(),
     val as2Transport: AS2Transport = AS2Transport(),
     val ftpsTransport: FTPSTransport = FTPSTransport(),
     val soapTransport: SoapTransport = SoapTransport(),
@@ -75,7 +71,6 @@ class WorkflowEngine(
         var queueAccess: QueueAccess? = null,
         var hl7Serializer: Hl7Serializer? = null,
         var csvSerializer: CsvSerializer? = null,
-        var redoxSerializer: RedoxSerializer? = null
     ) {
         /**
          * Set the metadata instance.
@@ -120,12 +115,6 @@ class WorkflowEngine(
         fun csvSerializer(csvSerializer: CsvSerializer) = apply { this.csvSerializer = csvSerializer }
 
         /**
-         * Set the Redox serializer instance.
-         * @return the modified workflow engine
-         */
-        fun redoxSerializer(redoxSerializer: RedoxSerializer) = apply { this.redoxSerializer = redoxSerializer }
-
-        /**
          * Build the workflow engine instance.
          * @return the workflow engine instance
          */
@@ -134,12 +123,10 @@ class WorkflowEngine(
                 settingsProvider = settingsProvider ?: getSettingsProvider(metadata!!)
                 hl7Serializer = hl7Serializer ?: Hl7Serializer(metadata!!, settingsProvider!!)
                 csvSerializer = csvSerializer ?: CsvSerializer(metadata!!)
-                redoxSerializer = redoxSerializer ?: RedoxSerializer(metadata!!)
             } else {
                 settingsProvider = settingsProvider ?: settingsProviderSingleton
                 hl7Serializer = hl7Serializer ?: hl7SerializerSingleton
                 csvSerializer = csvSerializer ?: csvSerializerSingleton
-                redoxSerializer = redoxSerializer ?: redoxSerializerSingleton
             }
 
             return WorkflowEngine(
@@ -147,9 +134,8 @@ class WorkflowEngine(
                 settingsProvider!!,
                 hl7Serializer!!,
                 csvSerializer!!,
-                redoxSerializer!!,
                 databaseAccess ?: databaseAccessSingleton,
-                blobAccess ?: BlobAccess(csvSerializer!!, hl7Serializer!!, redoxSerializer!!),
+                blobAccess ?: BlobAccess(csvSerializer!!, hl7Serializer!!),
                 queueAccess ?: QueueAccess
             )
         }
@@ -319,22 +305,8 @@ class WorkflowEngine(
                         " at ${header.task.nextActionAt}"
                 )
             }
-            val retryItems: RetryItems = if (sendFailedOnly) {
-                val itemDispositions = fetchItemDispositions(reportFile)
-                // Yet another delightful feature of kotlin: groupingBy
-                val counts = itemDispositions.values.groupingBy { it }.eachCount()
-                msgs.add(
-                    "Of ${reportFile.itemCount} items, " +
-                        "${counts[RedoxTransport.ResultStatus.SUCCESS] ?: 0 } were sent successfully, " +
-                        "${counts[RedoxTransport.ResultStatus.FAILURE] ?: 0} were attempted but failed, " +
-                        "${counts[RedoxTransport.ResultStatus.NEVER_ATTEMPTED] ?: 0} were never attempted."
-                )
-                itemDispositions.filter { (_, disp) ->
-                    disp != RedoxTransport.ResultStatus.SUCCESS
-                }.map { (key, _) -> key.toString() }
-            } else {
-                RetryToken.allItems
-            }
+            val retryItems: RetryItems = RetryToken.allItems
+
             if (retryItems.isEmpty()) {
                 msgs.add("All Items in $reportId successfully sent.  Nothing to resend. DONE")
             } else {
@@ -361,42 +333,6 @@ class WorkflowEngine(
             }
         }
         if (!isTest) queue.sendMessage(nextEvent) // Avoid race condition by doing after txn completes.
-    }
-
-    /**
-     * Given a batched report, look at its children 'sent' reports, and gather the disposition
-     * of every item in the batched report.   If there are no children,
-     * this will return a map with all item statuses == NEVER_ATTEMPTED
-     */
-    fun fetchItemDispositions(reportFile: ReportFile): Map<Int, RedoxTransport.ResultStatus> {
-        if (reportFile.nextAction != TaskAction.send) {
-            throw Exception("Cannot send ${reportFile.reportId}. Its next action is ${reportFile.nextAction}")
-        }
-        if (reportFile.bodyFormat != Report.Format.REDOX.name) {
-            throw Exception("SendFailed option only applies to REDOX reports.  This report is ${reportFile.bodyFormat}")
-        }
-        // Track what happened to each item.
-        val itemsDispositionMap = mutableMapOf<Int, RedoxTransport.ResultStatus>().apply {
-            // Initialize all to assume nothing was every done
-            for (i in 0 until reportFile.itemCount) this[i] = RedoxTransport.ResultStatus.NEVER_ATTEMPTED
-        }
-        val childReportIds = db.fetchChildReports(reportFile.reportId)
-        childReportIds.forEach childIdFor@{ childId ->
-            val lineages = db.fetchItemLineagesForReport(childId, reportFile.itemCount)
-            lineages?.forEach lineageFor@{ lineage ->
-                // Once a success, always a success
-                if (itemsDispositionMap[lineage.parentIndex] == RedoxTransport.ResultStatus.SUCCESS)
-                    return@lineageFor
-                itemsDispositionMap[lineage.parentIndex] = when {
-                    lineage.transportResult.startsWith(RedoxTransport.ResultStatus.FAILURE.name) ->
-                        RedoxTransport.ResultStatus.FAILURE
-                    lineage.transportResult.startsWith(RedoxTransport.ResultStatus.NOT_SENT.name) ->
-                        RedoxTransport.ResultStatus.FAILURE
-                    else -> RedoxTransport.ResultStatus.SUCCESS
-                }
-            }
-        }
-        return itemsDispositionMap
     }
 
     // routeReport does all filtering and translating per receiver, generating one file per receiver to then be batched
@@ -828,10 +764,6 @@ class WorkflowEngine(
 
         private val hl7SerializerSingleton: Hl7Serializer by lazy {
             Hl7Serializer(Metadata.getInstance(), settingsProviderSingleton)
-        }
-
-        private val redoxSerializerSingleton: RedoxSerializer by lazy {
-            RedoxSerializer(Metadata.getInstance())
         }
 
         /**
