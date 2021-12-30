@@ -298,7 +298,7 @@ class WorkflowEngine(
         // Send immediately.
         val nextEvent = ReportEvent(Event.EventAction.SEND, reportId, at = null)
         db.transact { txn ->
-            val task = db.fetchAndLockTask(reportId, txn) // Required, it creates lock.
+            db.fetchAndLockTask(reportId, txn) // Required, it creates lock.
             val organization = settings.findOrganization(receiver.organizationName)
                 ?: throw Exception("No such organization ${receiver.organizationName}")
             val header = fetchHeader(reportId, organization) // exception if not found
@@ -703,7 +703,7 @@ class WorkflowEngine(
         txn: DataAccessTransaction? = null
     ): Pair<Organization, Receiver> {
         return if (settings is SettingsFacade) {
-            val (organization, receiver) = (settings as SettingsFacade).findOrganizationAndReceiver(fullName, txn)
+            val (organization, receiver) = (settings).findOrganizationAndReceiver(fullName, txn)
                 ?: error("Receiver not found in database: $fullName")
             Pair(organization, receiver)
         } else {

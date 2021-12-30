@@ -22,7 +22,7 @@ import { PERMISSIONS } from "./resources/PermissionsResource";
 import { permissionCheck, reportReceiver } from "./webreceiver-utils";
 import { Upload } from "./pages/Upload";
 import { CODES, ErrorPage } from "./pages/error/ErrorPage";
-import GlobalContextProvider from "./components/GlobalContextProvider";
+import { GlobalContextProvider } from "./components/GlobalContextProvider";
 import { logout } from "./utils/UserUtils";
 import TermsOfServiceForm from "./pages/tos-sign/TermsOfServiceForm";
 import Spinner from "./components/Spinner";
