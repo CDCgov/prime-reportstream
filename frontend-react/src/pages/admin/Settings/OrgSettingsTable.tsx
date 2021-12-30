@@ -1,12 +1,11 @@
 import { useState } from "react";
 import { useResource } from "rest-hooks";
 import { TextInput } from "@trussworks/react-uswds";
+import { NavLink } from "react-router-dom";
 
 import OrgSettingsResource from "../../../resources/OrgSettingsResource";
 
-interface OrgSettingsTableProps {}
-
-export function OrgSettingsTable(props: OrgSettingsTableProps) {
+export function OrgSettingsTable() {
     const orgSettings: OrgSettingsResource[] = useResource(
         OrgSettingsResource.list(),
         {}
@@ -28,7 +27,7 @@ export function OrgSettingsTable(props: OrgSettingsTableProps) {
                 />
             </div>
             <table
-                id="facilitiestable"
+                id="orgsettingstable"
                 className="usa-table usa-table--borderless prime-table"
                 aria-label="Facilities included in this report"
             >
@@ -48,7 +47,15 @@ export function OrgSettingsTable(props: OrgSettingsTableProps) {
                         )
                         .map((eachOrgSetting) => (
                             <tr key={eachOrgSetting.name}>
-                                <td>{eachOrgSetting.name}</td>
+                                <td>
+                                    <NavLink
+                                        to={`/admin/orgsettings/${eachOrgSetting.name}`}
+                                        key={eachOrgSetting.name}
+                                        className="usa-link"
+                                    >
+                                        {eachOrgSetting.name}
+                                    </NavLink>
+                                </td>
                                 <td>{eachOrgSetting?.description || "-"}</td>
                                 <td>{eachOrgSetting.jurisdiction || ""}</td>
                                 <td>{eachOrgSetting.stateCode || ""}</td>

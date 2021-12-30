@@ -28,6 +28,7 @@ import TermsOfServiceForm from "./pages/tos-sign/TermsOfServiceForm";
 import Spinner from "./components/Spinner";
 import Submissions from "./pages/Submissions";
 import { AdminMain } from "./pages/admin/AdminMain";
+import { AdminOrgEdit } from "./pages/admin/AdminOrgEdit";
 
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
 
@@ -138,6 +139,16 @@ const App = () => {
                                         path="/admin/settings"
                                         authorize={PERMISSIONS.PRIME_ADMIN}
                                         component={AdminMain}
+                                    />
+                                    <AuthorizedRoute
+                                        path="/admin/orgsettings/:orgname"
+                                        authorize={PERMISSIONS.PRIME_ADMIN}
+                                        component={AdminOrgEdit}
+                                    />
+                                    <AuthorizedRoute
+                                        path="/admin/orgsendersettings/:orgname"
+                                        authorize={PERMISSIONS.PRIME_ADMIN}
+                                        component={AdminOrgEdit}
                                     />
                                     <SecureRoute
                                         path="/report-details"

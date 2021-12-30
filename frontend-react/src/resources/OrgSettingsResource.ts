@@ -70,11 +70,13 @@ export default class OrgSettingsResource extends AuthResource {
         return "name";
     }
 
-    static listUrl(searchParams: {}): string {
-        return this.urlRoot;
+    static listUrl(params: {}): string {
+        return `${process.env.REACT_APP_BACKEND_URL}/api/settings/organizations`;
     }
 
-    static urlRoot = `${process.env.REACT_APP_BACKEND_URL}/api/settings/organizations`;
+    static url(params: { orgname: string }): string {
+        return `${process.env.REACT_APP_BACKEND_URL}/api/settings/organizations/${params.orgname}`;
+    }
 
     filterMatch(search: string | null): boolean {
         if (!search) {
