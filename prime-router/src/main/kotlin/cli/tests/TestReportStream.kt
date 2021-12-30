@@ -36,7 +36,6 @@ import gov.cdc.prime.router.common.Environment
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import org.bouncycastle.asn1.x509.X509ObjectIdentifiers.organization
 import org.jooq.exception.DataAccessException
 import org.jooq.impl.DSL
 import org.jooq.impl.DSL.max
