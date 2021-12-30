@@ -61,6 +61,36 @@ interface Translation {
     type: string;
 }
 
+interface Timing {
+    operation: string;
+    numberPerDay: number;
+    initialTime: string;
+    timeZone: string;
+    maxReportCount: number;
+}
+
+interface Transport {
+    type: string; //can be of type "SFTP", "EMAIL", "REDOX" or "BLOBSTORE"
+
+    // type = "SFTP"
+    host: string;
+    port: string;
+    filePath: string;
+    credentialName: string | null;
+
+    // type = "EMAIL"
+    addresses: string[];
+    from: string;
+
+    // type = "REDOX"
+    apiKey: string;
+    baseUrl: string;
+
+    // type = "BLOBSTORAGE"
+    storageName: string;
+    containerName: string;
+}
+
 export default class OrgReceiverSettingsResource extends AuthResource {
     readonly name: string = "";
     readonly organizationName: string = "";
@@ -71,6 +101,15 @@ export default class OrgReceiverSettingsResource extends AuthResource {
     readonly meta: MetaData[] = [];
     readonly translation: Translation[] = [];
     readonly description: string = "";
+    readonly jurisdictionalFilter: string[] = [];
+    readonly qualityFilter: string[] = [];
+    readonly routingFilter: string[] = [];
+    readonly processingModeFilter: string[] = [];
+    readonly reverseTheQualityFilter: boolean = false;
+    readonly deidentify: boolean = false;
+    readonly timing: Timing[] = [];
+    readonly transport: Transport[] = [];
+    readonly externalName: string = "";
 
     pk() {
         return this.name;

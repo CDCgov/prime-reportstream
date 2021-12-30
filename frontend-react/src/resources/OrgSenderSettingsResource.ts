@@ -28,7 +28,7 @@ export default class OrgSenderSettingsResource extends AuthResource {
     readonly topic: string = "";
     readonly customerStatus: string = "";
     readonly schemaName: string = "";
-    readonly keys: string = "";
+    readonly keys: string[] = [];
     readonly processingType: string = "";
     readonly meta: MetaData[] = [];
 

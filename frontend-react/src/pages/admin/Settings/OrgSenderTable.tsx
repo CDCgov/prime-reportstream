@@ -30,7 +30,6 @@ export function OrgSenderTable(props: OrgSettingsTableProps) {
                         <th scope="col">Topic</th>
                         <th scope="col">Status</th>
                         <th scope="col">Meta</th>
-                        <th scope="col">Processing Type</th>
                     </tr>
                 </thead>
                 <tbody id="tBodyOrgSender" className="font-mono-2xs">
@@ -43,7 +42,6 @@ export function OrgSenderTable(props: OrgSettingsTableProps) {
                             <td>
                                 {JSON.stringify(eachOrgSetting?.meta) || {}}
                             </td>
-                            <td>{eachOrgSetting.processingType || ""}</td>
                         </tr>
                     ))}
                 </tbody>
