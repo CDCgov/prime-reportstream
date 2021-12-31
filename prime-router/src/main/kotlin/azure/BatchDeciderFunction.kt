@@ -4,7 +4,6 @@ import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.StorageAccount
 import com.microsoft.azure.functions.annotation.TimerTrigger
-import gov.cdc.prime.router.cli.tests.CoolTest.Companion.settings
 import org.apache.logging.log4j.kotlin.Logging
 import kotlin.math.ceil
 import kotlin.math.roundToInt
@@ -28,15 +27,15 @@ class BatchDeciderFunction : Logging {
     ) {
         logger.info("$batchDecider: Starting")
         try {
-            val db = WorkflowEngine().db
-            db.transact { txn ->
+            val workflowEngine = WorkflowEngine()
+            workflowEngine.db.transact { txn ->
                 // TODO: if for some reason the batch decider misses proper calculation of a receiver's batch run
                 //  we would want to pull all receivers with BATCH records that have next_action_at in the past and
                 //  merge those with the batchInPrevious60Seconds. Testing shows this to be an unlikely scenario, but
                 //  there is always the chance that something odd happens with the timing of Azure timed functions.
 
                 // find all receivers that should have batched within the last 60 seconds
-                settings.receivers.filter { it.timing != null && it.timing.batchInPrevious60Seconds() }
+                workflowEngine.settings.receivers.filter { it.timing != null && it.timing.batchInPrevious60Seconds() }
                     // any that should have batched in the last 60 seconds, get count of outstanding BATCH records
                     //  (how many actions with BATCH for receiver
                     .forEach { rec ->
@@ -44,11 +43,11 @@ class BatchDeciderFunction : Logging {
                         //  and add the queue message regardless. Currently functionality only adds a message if
                         //  there is at least one batch to run
                         // get the number of messages outstanding for this receiver
-                        val recordsToBatch = db.fetchNumberOutstandingBatchRecords(rec.fullName, txn)
+                        val recordsToBatch = workflowEngine.db.fetchNumberOutstandingBatchRecords(rec.fullName, txn)
                         val queueMessages = ceil((recordsToBatch.toDouble() / rec.timing!!.maxReportCount.toDouble()))
                             .roundToInt()
                         logger.info(
-                            "Found $recordsToBatch for ${rec.fullName}," +
+                            "$batchDecider found $recordsToBatch for ${rec.fullName}," +
                                 "max size ${rec.timing.maxReportCount}. Queueing $queueMessages messages to BATCH"
                         )
 
@@ -62,7 +61,7 @@ class BatchDeciderFunction : Logging {
 
             logger.info("$batchDecider: Ending")
         } catch (e: Exception) {
-            logger.error("Batch decider function exception", e)
+            logger.error("$batchDecider function exception", e)
         }
     }
 }

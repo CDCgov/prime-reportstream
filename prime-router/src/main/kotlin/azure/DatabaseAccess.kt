@@ -99,16 +99,20 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
         at: OffsetDateTime?,
         receiverFullName: String,
         limit: Int,
+        backstopTime: OffsetDateTime?,
         txn: DataAccessTransaction
     ): List<Task> {
         val cond =
             if (at == null) {
-                TASK.RECEIVER_NAME.eq(receiverFullName).and(TASK.NEXT_ACTION.eq(nextAction))
+                TASK.RECEIVER_NAME.eq(receiverFullName)
+                    .and(TASK.NEXT_ACTION.eq(nextAction))
+                    .and(TASK.CREATED_AT.greaterOrEqual(backstopTime))
             } else {
                 TASK.RECEIVER_NAME
                     .eq(receiverFullName)
                     .and(TASK.NEXT_ACTION.eq(nextAction))
                     .and(TASK.NEXT_ACTION_AT.eq(at))
+                    .and(TASK.CREATED_AT.greaterOrEqual(backstopTime))
             }
         return DSL.using(txn)
             .selectFrom(TASK)
@@ -656,13 +660,12 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
         receiverFullName: String,
         txn: DataAccessTransaction
     ): Int {
-        val backstop = OffsetDateTime.now().minusDays(7)
         return DSL.using(txn)
             .select(TASK.asterisk())
             .from(TASK)
             .where(TASK.NEXT_ACTION.eq(TaskAction.batch))
             .and(TASK.RECEIVER_NAME.eq(receiverFullName))
-            .and(TASK.CREATED_AT.greaterOrEqual(backstop))
+            .and(TASK.CREATED_AT.greaterOrEqual(getBackstopTime()))
             .count()
     }
 
@@ -803,6 +806,15 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                 null,
                 null
             )
+        }
+
+        /**
+         * Max number of hours to wait for a Batch task to succeed.
+         * We only run batch on tasks created after the backstop time.
+         */
+        const val BACKSTOP_HOURS = 26L
+        fun getBackstopTime(): OffsetDateTime? {
+            return OffsetDateTime.now().minusHours(BACKSTOP_HOURS)
         }
 
         /**
