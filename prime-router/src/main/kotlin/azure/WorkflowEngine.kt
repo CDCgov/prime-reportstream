@@ -594,6 +594,7 @@ class WorkflowEngine(
     fun handleBatchEvent(
         messageEvent: BatchEvent,
         maxCount: Int,
+        backstopTime: OffsetDateTime?,
         updateBlock: (headers: List<Header>, txn: Configuration?) -> Unit,
     ) {
         db.transact { txn ->
@@ -602,6 +603,7 @@ class WorkflowEngine(
                 messageEvent.at,
                 messageEvent.receiverName,
                 maxCount,
+                backstopTime,
                 txn
             )
             val ids = tasks.map { it.reportId }

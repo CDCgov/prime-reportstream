@@ -24,12 +24,13 @@ class BatchFunction {
         message: String,
         context: ExecutionContext,
     ) {
+        val backstopTime = DatabaseAccess.getBackstopTime()
         try {
-            context.logger.info("Batch message: $message")
+            context.logger.info("BatchFunction starting.  Message: $message")
             val workflowEngine = WorkflowEngine()
             val event = Event.parseQueueMessage(message) as BatchEvent
             if (event.eventAction != Event.EventAction.BATCH) {
-                context.logger.warning("Batch function received a $message")
+                context.logger.warning("BatchFunction received a $message")
                 return
             }
             val receiver = workflowEngine.settings.findReceiver(event.receiverName)
@@ -37,8 +38,11 @@ class BatchFunction {
             val maxBatchSize = receiver.timing?.maxReportCount ?: defaultBatchSize
             val actionHistory = ActionHistory(event.eventAction.toTaskAction(), context)
             actionHistory.trackActionParams(message)
-
-            workflowEngine.handleBatchEvent(event, maxBatchSize) { headers, txn ->
+            context.logger.info(
+                "BatchFunction for $message" +
+                    " will look for tasks created after $backstopTime, for receiver ${event.receiverName}"
+            )
+            workflowEngine.handleBatchEvent(event, maxBatchSize, backstopTime) { headers, txn ->
                 // find any headers that expected to have content but were unable to actually download
                 //  from the blob store.
                 headers.filter { it.expectingContent && it.content == null }
@@ -53,10 +57,10 @@ class BatchFunction {
                 val validHeaders = headers.filter { it.content != null }
 
                 if (validHeaders.isEmpty()) {
-                    context.logger.info("Batch: empty batch")
+                    context.logger.info("Batch $message: empty batch")
                     return@handleBatchEvent
                 } else {
-                    context.logger.info("Batch contains ${validHeaders.size} reports")
+                    context.logger.info("Batch $message contains ${validHeaders.size} reports")
                 }
 
                 // only batch files that have the expected content.
@@ -86,8 +90,14 @@ class BatchFunction {
                 workflowEngine.recordAction(actionHistory, txn) // save to db
             }
             actionHistory.queueMessages(workflowEngine) // Must be done after txn, to avoid race condition
+            context.logger.info("BatchFunction succeeded for message: $message")
         } catch (e: Exception) {
-            context.logger.log(Level.SEVERE, "Batch function exception for event: $message", e)
+            context.logger.log(
+                Level.SEVERE,
+                "BatchFunction exception for message: $message," +
+                    " (while batching tasks created since $backstopTime) : ",
+                e
+            )
         }
     }
 }
