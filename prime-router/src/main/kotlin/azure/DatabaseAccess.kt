@@ -5,6 +5,7 @@ import com.zaxxer.hikari.HikariDataSource
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
+import gov.cdc.prime.router.azure.db.Routines
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.Tables.COVID_RESULT_METADATA
 import gov.cdc.prime.router.azure.db.Tables.EMAIL_SCHEDULE
@@ -21,6 +22,7 @@ import gov.cdc.prime.router.azure.db.tables.pojos.CovidResultMetadata
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.JtiCache
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
+import gov.cdc.prime.router.azure.db.tables.pojos.SenderItems
 import gov.cdc.prime.router.azure.db.tables.pojos.Setting
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
 import gov.cdc.prime.router.azure.db.tables.records.CovidResultMetadataRecord
@@ -199,6 +201,32 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             )
     }
 
+    /**
+     * Fetch a report_file row based on the passed blob file name.
+     */
+    fun fetchReportFileByBlobURL(
+        fileName: String,
+        txn: DataAccessTransaction? = null
+    ): ReportFile? {
+        val ctx = if (txn != null) DSL.using(txn) else create
+        return ctx.selectFrom(Tables.REPORT_FILE)
+            .where(REPORT_FILE.BODY_URL.like("%$fileName"))
+            .fetchOneInto(ReportFile::class.java)
+    }
+
+    /**
+     * Fetch a set of report_file rows based on the passed in list of [reportIds].
+     */
+    fun fetchReportFileByIds(
+        reportIds: List<ReportId>,
+        txn: DataAccessTransaction? = null
+    ): List<ReportFile> {
+        val ctx = if (txn != null) DSL.using(txn) else create
+        return ctx.selectFrom(Tables.REPORT_FILE)
+            .where(REPORT_FILE.REPORT_ID.`in`(reportIds))
+            .fetchInto(ReportFile::class.java)
+    }
+
     fun fetchAllInternalReports(
         createdDateTime: OffsetDateTime? = null,
         txn: DataAccessTransaction? = null
@@ -214,6 +242,18 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
         return ctx.selectFrom(Tables.REPORT_FILE).where(cond).fetchArray().map {
             it.into(ReportFile::class.java)
         }
+    }
+
+    fun fetchSenderItems(
+        receiverReportId: ReportId,
+        receiverReportIndex: Int,
+        limit: Int,
+        txn: DataAccessTransaction? = null
+    ): List<SenderItems> {
+        val ctx = if (txn != null) DSL.using(txn) else create
+        return ctx
+            .selectFrom(Routines.senderItems(receiverReportId, receiverReportIndex, limit))
+            .fetchInto(SenderItems::class.java)
     }
 
     /** Returns null if report has no item-level lineage info tracked. */
