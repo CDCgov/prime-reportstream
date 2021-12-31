@@ -436,7 +436,10 @@ abstract class LoadTestSimulator : CoolTest() {
         var resultsFound = 0
 
         var timeElapsedSecs = 0
-        println("Polling for $expectedResults $taskToCheck items.  (Max poll time $maxPollSecs seconds)")
+        println(
+            "Polling for $expectedResults $taskToCheck items after action $afterActionId." +
+                "  (Max poll time $maxPollSecs seconds)"
+        )
         val actualTimeElapsedMillis = measureTimeMillis {
             while (timeElapsedSecs <= maxPollSecs) {
                 if (outputToConsole) {
