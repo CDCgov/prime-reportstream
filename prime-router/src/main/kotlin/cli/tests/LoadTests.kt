@@ -40,22 +40,6 @@ class ProductionLoad : LoadTestSimulator() {
     override val description = "Simulate a Production Load"
     override val status = TestStatus.LOAD
 
-    /**
-     * Meant to simulate a production load, minus strac since its just once a day.
-     * Runs in a couple mins.
-     */
-    fun productionSimulation(environment: Environment, options: CoolTestOptions): List<SimulatorResult> {
-        ugly("A test that simulates a high daytime load in Production")
-        val results = arrayListOf<SimulatorResult>()
-        results += runOneSimulation(fiveThreadsX100, environment, options) // cue
-        results += runOneSimulation(simpleReport, environment, options) // simple_report
-        results += runOneSimulation(fiveThreadsX100, environment, options) // more cue
-        results += runOneSimulation(fiveThreadsX100, environment, options) // more cue
-        results += runOneSimulation(spike, environment, options) // a big spike of cue
-        results += runOneSimulation(fiveThreadsX100, environment, options) // more regular cue
-        return results
-    }
-
     override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         setup(environment, options)
         val afterActionId = getMostRecentActionId()
@@ -103,6 +87,29 @@ class DbConnectionsLoad : LoadTestSimulator() {
             results += runOneSimulation(twentyThreadsX100, environment, options)
             results += runOneSimulation(twentyThreadsX100, environment, options)
             results += runOneSimulation(twentyThreadsX100, environment, options)
+        }
+        return teardown(results, elapsedTime, afterActionId, options.asyncProcessMode)
+    }
+}
+
+class LongLoad : LoadTestSimulator() {
+    override val name = "long-load"
+    override val description = "A very long high load test"
+    override val status = TestStatus.LOAD
+
+    override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
+        setup(environment, options)
+        val afterActionId = getMostRecentActionId()
+        val results = mutableListOf<SimulatorResult>()
+        var elapsedTime = measureTimeMillis {
+            repeat(10) {
+                results += productionSimulation(environment, options)
+                results += productionSimulation(environment, options)
+                results += runOneSimulation(typicalStracSubmission, environment, options) // strac
+                results += productionSimulation(environment, options)
+                results += productionSimulation(environment, options)
+                results += productionSimulation(environment, options)
+            }
         }
         return teardown(results, elapsedTime, afterActionId, options.asyncProcessMode)
     }

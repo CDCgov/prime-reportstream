@@ -308,6 +308,7 @@ Examples:
             QuickLoad(),
             ProductionLoad(),
             DbConnectionsLoad(),
+            LongLoad(),
         )
     }
 }

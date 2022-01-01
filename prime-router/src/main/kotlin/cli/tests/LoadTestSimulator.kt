@@ -251,7 +251,7 @@ abstract class LoadTestSimulator : CoolTest() {
             true
         )
         val fiveThreadsX100 = Simulation( // Meant to simulate a high load from a single-test sender
-            "fiveThreadsX100 : Submit 5X100 = 500 tests as fast as possible, across 2 threads.",
+            "fiveThreadsX100 : Submit 5X100 = 500 tests as fast as possible, across 5 threads.",
             5,
             100,
             1,
@@ -287,8 +287,8 @@ abstract class LoadTestSimulator : CoolTest() {
             true
         )
         val spike = Simulation( // Simulate a sudden spike in sends all at once
-            "Spike: 50 Threads each submitting once.",
-            50,
+            "Spike: 100 Threads each submitting once.",
+            100,
             1,
             1,
             "IG",
@@ -301,7 +301,7 @@ abstract class LoadTestSimulator : CoolTest() {
         val typicalStracSubmission = Simulation(
             "typicalStracSubmission: 1 thread submitting 500 items a bunch of times in quick succession.",
             1,
-            10,
+            20,
             500,
             "IG",
             "EVERY_5_MINS",
@@ -311,10 +311,10 @@ abstract class LoadTestSimulator : CoolTest() {
             true
         )
         val simpleReport = Simulation( // Simulate a single large SimpleReport Send
-            "simpleReport: One submission SimpleReport data, 1000 Items",
+            "simpleReport: One submission SimpleReport data, 3000 Items",
             1,
             1,
-            1000,
+            3000,
             "IG",
             "EVERY_5_MINS",
             "ignore.EVERY_5_MINS",
@@ -342,7 +342,7 @@ abstract class LoadTestSimulator : CoolTest() {
      */
     suspend fun teardown(
         results: List<SimulatorResult>,
-        entireTestMillis: Long,
+        totalSubmissionTimeMillis: Long,
         afterActionId: Int,
         isAsyncProcessMode: Boolean
     ): Boolean {
@@ -352,14 +352,14 @@ abstract class LoadTestSimulator : CoolTest() {
         val submissionRateString = String.format("%.2f", totalSubmissions.toFloat() / (totalTime / 1000.0))
         val itemsPerSecond: Double = totalItems.toDouble() / (totalTime / 1000.0)
         val itemRateString = String.format("%.2f", itemsPerSecond)
-        val summary = "Simulation Done.   Summary:\n" +
+        val summary = "Simulation Submits Set: Summary Stats on Submissions:\n" +
             "Total Submissions submitted in Simulation runs:\t$totalSubmissions\n" +
             "Total Items submitted in Simulation runs:\t$totalItems\n" +
-            "Total Millis for Simulation runs:\t$totalTime\n" +
+            "Total Millis for Submissions:\t$totalTime\n" +
             "Overall Submission Rate:\t$submissionRateString submissions/second\n" +
-            "Overall Item Rate:\t$itemRateString items/second\n" +
-            "Predicted Items per hour:\t${(itemsPerSecond * 3600.0).toInt()} items/hour\n" +
-            "Total seconds for the entire simulation:\t${entireTestMillis / 1000} "
+            "Overall Item Submission Rate:\t$itemRateString items/second\n" +
+            "Predicted Item Submission rate per hour:\t${(itemsPerSecond * 3600.0).toInt()} items/hour\n" +
+            "Total seconds for submission part simulation:\t${totalSubmissionTimeMillis / 1000} "
         var passed = results.map { it.passed }.reduce { acc, passed -> acc and passed } // any single fail = failed test
         if (passed) {
             good(summary)
@@ -381,16 +381,41 @@ abstract class LoadTestSimulator : CoolTest() {
                 it.simulation.numThreads
         }
         println("Expecting $expectedResults total items. More than this may be found if other test")
-        // if we are running in async mode, verify the correct number of 'process' records have been generated
-        if (isAsyncProcessMode) {
-            passed = passed && checkTimedResults(
-                expectedResults,
-                afterActionId,
-                TaskAction.process,
-                receivingOrg,
-                receivingOrgSvc,
-                maxPollSecs = 600
-            )
+        val processWaitTimeMillis = measureTimeMillis {
+            // if we are running in async mode, verify the correct number of 'process' records have been generated
+            if (isAsyncProcessMode) {
+                passed = passed && checkTimedResults(
+                    expectedResults,
+                    afterActionId,
+                    TaskAction.process,
+                    receivingOrg,
+                    receivingOrgSvc,
+                    maxPollSecs = 600
+                )
+            }
+        }
+
+        // Since processing starts as soon as we start submitting, the submission time plus
+        // time spent waiting for process to complete, is a good measure of actual total processing time.
+        val totalProcessTimeMillis = totalSubmissionTimeMillis + processWaitTimeMillis
+        // Rate at which we can process Reports:
+        val processRateString = String.format(
+            "%.2f",
+            totalSubmissions.toFloat() / (totalProcessTimeMillis / 1000.0)
+        )
+        // Rate at which we can process Items:
+        val itemsProcessedPerSecond: Double = totalItems.toDouble() / (totalProcessTimeMillis / 1000.0)
+        val processItemRateString = String.format("%.2f", itemsProcessedPerSecond)
+        val processSummary =
+            "Total time spent processing submissions:\t${totalProcessTimeMillis / 1000} seconds\n" +
+                "Process rate:\t$processRateString 'process' Reports / second\n" +
+                "Process rate per item:\t$processItemRateString 'process' Items / second\n" +
+                "Predicted Item Process rate per hour:" +
+                "\t${(itemsProcessedPerSecond * 3600.0).toInt()} items/hour\n"
+        if (passed) {
+            good(processSummary)
+        } else {
+            bad(processSummary)
         }
 
         // poll for batch results - wait for up to 7 minutes
@@ -469,7 +494,7 @@ abstract class LoadTestSimulator : CoolTest() {
         val passed = resultsFound >= expectedResults
 
         if (passed) {
-            good("Found at $resultsFound $taskToCheck items.")
+            good("Found at least $resultsFound $taskToCheck items.")
         } else {
             bad("Did not find at least $expectedResults $taskToCheck items.")
         }
@@ -523,5 +548,21 @@ abstract class LoadTestSimulator : CoolTest() {
             )!!.into(Int::class.java)
         }
         return itemsFound
+    }
+
+    /**
+     * Meant to simulate a production load, minus strac since its just once a day.
+     * Runs in a couple mins.
+     */
+    fun productionSimulation(environment: Environment, options: CoolTestOptions): List<SimulatorResult> {
+        ugly("A test that simulates a high daytime load in Production")
+        val results = arrayListOf<SimulatorResult>()
+        results += runOneSimulation(fiveThreadsX100, environment, options) // cue
+        results += runOneSimulation(simpleReport, environment, options) // simple_report
+        results += runOneSimulation(fiveThreadsX100, environment, options) // more cue
+        results += runOneSimulation(fiveThreadsX100, environment, options) // more cue
+        results += runOneSimulation(spike, environment, options) // a big spike of cue
+        results += runOneSimulation(fiveThreadsX100, environment, options) // more regular cue
+        return results
     }
 }
