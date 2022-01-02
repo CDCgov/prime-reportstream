@@ -7,10 +7,16 @@ import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import org.apache.logging.log4j.kotlin.logger
+import java.time.OffsetDateTime
 import java.util.logging.Level
 
 const val batch = "batch"
 const val defaultBatchSize = 100
+
+/**
+ * Min number of times to retry a failed batching operation.
+ */
+const val NUM_BATCH_RETRIES = 2
 
 /**
  * Batch will find all the reports waiting to with a next "batch" action for a receiver name.
@@ -24,7 +30,7 @@ class BatchFunction {
         message: String,
         context: ExecutionContext,
     ) {
-        val backstopTime = DatabaseAccess.getBackstopTime()
+        var backstopTime: OffsetDateTime? = null
         try {
             context.logger.info("BatchFunction starting.  Message: $message")
             val workflowEngine = WorkflowEngine()
@@ -38,10 +44,12 @@ class BatchFunction {
             val maxBatchSize = receiver.timing?.maxReportCount ?: defaultBatchSize
             val actionHistory = ActionHistory(event.eventAction.toTaskAction(), context)
             actionHistory.trackActionParams(message)
-            context.logger.info(
-                "BatchFunction for $message" +
-                    " will look for tasks created after $backstopTime, for receiver ${event.receiverName}"
+            backstopTime = OffsetDateTime.now().minusMinutes(
+                WorkflowEngine.getBatchLookbackMins(
+                    receiver.timing?.numberPerDay ?: 1, NUM_BATCH_RETRIES
+                )
             )
+            context.logger.info("BatchFunction (msg=$message) using backstopTime=$backstopTime")
             workflowEngine.handleBatchEvent(event, maxBatchSize, backstopTime) { headers, txn ->
                 // find any headers that expected to have content but were unable to actually download
                 //  from the blob store.
@@ -94,8 +102,7 @@ class BatchFunction {
         } catch (e: Exception) {
             context.logger.log(
                 Level.SEVERE,
-                "BatchFunction exception for message: $message," +
-                    " (while batching tasks created since $backstopTime) : ",
+                "BatchFunction Exception (msg=$message, backstopTime=$backstopTime) : ",
                 e
             )
         }
