@@ -27,6 +27,8 @@ import { logout } from "./utils/UserUtils";
 import TermsOfServiceForm from "./pages/tos-sign/TermsOfServiceForm";
 import Spinner from "./components/Spinner";
 import Submissions from "./pages/submissions/Submissions";
+import { GettingStartedPublicHealthDepartments } from "./pages/getting-started/public-health-departments";
+import { GettingStartedReportingFacilities } from "./pages/getting-started/reporting-facilities";
 
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
 
@@ -117,6 +119,14 @@ const App = () => {
                                     <Route
                                         path="/sign-tos"
                                         component={TermsOfServiceForm}
+                                    />
+                                    <Route
+                                        path="/getting-started/public-health-departments"
+                                        component={GettingStartedPublicHealthDepartments}
+                                    />
+                                    <Route
+                                        path="/getting-started/reporting-facilities"
+                                        component={GettingStartedReportingFacilities}
                                     />
                                     <AuthorizedRoute
                                         path="/daily-data"
