@@ -598,8 +598,7 @@ class WorkflowEngine(
         updateBlock: (headers: List<Header>, txn: Configuration?) -> Unit,
     ) {
         db.transact { txn ->
-            val tasks = db.fetchAndLockTasksForOneReceiver(
-                messageEvent.eventAction.toTaskAction(),
+            val tasks = db.fetchAndLockBatchTasksForOneReceiver(
                 messageEvent.at,
                 messageEvent.receiverName,
                 maxCount,
@@ -849,6 +848,31 @@ class WorkflowEngine(
                 val ext = "-${Environment.get().toString().lowercase()}"
                 FileSettings("$baseDir/settings", orgExt = ext)
             }
+        }
+
+        /**
+         * Always find tasks at least this old.  This covers for  extended downtime due to a crash,
+         * as well as for 25 hour days etc.
+         */
+        const val BATCH_LOOKBACK_PADDING_MINS: Long = 180 // 3 hours
+
+        /**
+         * BatchFunction uses a backstop time to prevent it from processing too-old records.
+         * We also use this to prevent it from retrying unrecoverable batches over and over.
+         * So the backstop time is based on the frequency of batching for that receiver,
+         * as found in the receiver's [Receiver.Timing.numberPerDay].
+         *
+         * Note the effect of the padding is that for frequent batching, we'll actually allow
+         * more than [minNumRetries] retries.
+         *
+         * Calculation is done in minutes.
+         */
+        fun getBatchLookbackMins(numberBatchesPerDay: Int, minNumRetries: Int): Long {
+            val frequencyMins = if (numberBatchesPerDay > 0)
+                1440 / numberBatchesPerDay
+            else
+                1440
+            return ((minNumRetries + 1) * frequencyMins + BATCH_LOOKBACK_PADDING_MINS).toLong()
         }
     }
 

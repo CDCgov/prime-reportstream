@@ -5,6 +5,7 @@ import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.StorageAccount
 import com.microsoft.azure.functions.annotation.TimerTrigger
 import org.apache.logging.log4j.kotlin.Logging
+import java.time.OffsetDateTime
 import kotlin.math.ceil
 import kotlin.math.roundToInt
 
@@ -42,8 +43,17 @@ class BatchDeciderFunction : Logging {
                         // TODO: to support sending empty batches, we will need to check if the receiver wants that
                         //  and add the queue message regardless. Currently functionality only adds a message if
                         //  there is at least one batch to run
+
+                        // Calculate how far to look back based on how often this receiver batches.
+                        val backstopTime = OffsetDateTime.now().minusMinutes(
+                            WorkflowEngine.getBatchLookbackMins(
+                                rec.timing?.numberPerDay ?: 1, NUM_BATCH_RETRIES
+                            )
+                        )
                         // get the number of messages outstanding for this receiver
-                        val recordsToBatch = workflowEngine.db.fetchNumberOutstandingBatchRecords(rec.fullName, txn)
+                        val recordsToBatch = workflowEngine.db.fetchNumReportsNeedingBatch(
+                            rec.fullName, backstopTime, txn
+                        )
                         val queueMessages = ceil((recordsToBatch.toDouble() / rec.timing!!.maxReportCount.toDouble()))
                             .roundToInt()
                         logger.info(
