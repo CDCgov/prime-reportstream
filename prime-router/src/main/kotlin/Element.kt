@@ -156,6 +156,10 @@ data class Element(
         val universalIdSystem: String?
     )
 
+    /**
+     * An element can have subfields, for example when more than CSV field makes up a single element.
+     * See ElementTests for an example.
+     **/
     data class SubValue(
         val name: String,
         val value: String,
@@ -444,21 +448,23 @@ data class Element(
     }
 
     /**
-     * Take a formatted value and check to see if can be stored in a report.
+     * Take a formatted value and check to see if it can be stored in a report.
      */
     fun checkForError(formattedValue: String, format: String? = null): ResponseMessage? {
-        if (formattedValue.isBlank() && !isOptional && !canBeBlank) return MissingFieldMessage.new(fieldMapping)
+        // remove trailing spaces
+        val cleanedValue = formattedValue.trim()
+        if (cleanedValue.isBlank() && !isOptional && !canBeBlank) return MissingFieldMessage.new(fieldMapping)
         return when (type) {
             Type.DATE -> {
                 try {
-                    LocalDate.parse(formattedValue)
+                    LocalDate.parse(cleanedValue)
                     return null
                 } catch (e: DateTimeParseException) {
                     // continue to the next try
                 }
                 try {
                     val formatter = DateTimeFormatter.ofPattern(format ?: datePattern, Locale.ENGLISH)
-                    LocalDate.parse(formattedValue, formatter)
+                    LocalDate.parse(cleanedValue, formatter)
                     return null
                 } catch (e: DateTimeParseException) {
                     // continue to the next try
@@ -467,7 +473,7 @@ data class Element(
                 // the next six date validation patterns are valid date patterns that we have seen be
                 // manually entered into EMR systems, but are not consistent, so we cannot use the "format" param
                 try {
-                    validateManualDates(formattedValue, true)
+                    validateManualDates(cleanedValue, true)
                     return null
                 } catch (e: DateTimeParseException) {
                     // continue to the next try
@@ -476,7 +482,7 @@ data class Element(
                     val optionalDateTime = variableDateTimePattern
                     val df = DateTimeFormatter.ofPattern(optionalDateTime)
                     val ta = df.parseBest(
-                        formattedValue,
+                        cleanedValue,
                         OffsetDateTime::from,
                         LocalDateTime::from,
                         Instant::from,
@@ -488,14 +494,14 @@ data class Element(
                     if (nullifyValue) {
                         return null
                     } else {
-                        InvalidDateMessage.new(formattedValue, fieldMapping, format)
+                        InvalidDateMessage.new(cleanedValue, fieldMapping, format)
                     }
                 }
             }
             Type.DATETIME -> {
                 try {
                     // Try an ISO pattern
-                    OffsetDateTime.parse(formattedValue)
+                    OffsetDateTime.parse(cleanedValue)
                     return null
                 } catch (e: DateTimeParseException) {
                     // continue to the next try
@@ -503,14 +509,14 @@ data class Element(
                 try {
                     // Try a HL7 pattern
                     val formatter = DateTimeFormatter.ofPattern(format ?: datetimePattern, Locale.ENGLISH)
-                    OffsetDateTime.parse(formattedValue, formatter)
+                    OffsetDateTime.parse(cleanedValue, formatter)
                     return null
                 } catch (e: DateTimeParseException) {
                     // continue to the next try
                 }
                 try {
                     // Try to parse using a LocalDate pattern assuming it is in our canonical dateFormatter. Central timezone.
-                    val date = LocalDate.parse(formattedValue, dateFormatter)
+                    val date = LocalDate.parse(cleanedValue, dateFormatter)
                     val zoneOffset = ZoneOffset.UTC.rules.getOffset(Instant.now())
                     OffsetDateTime.of(date, LocalTime.of(0, 0), zoneOffset)
                     return null
@@ -522,7 +528,7 @@ data class Element(
                     val optionalDateTime = variableDateTimePattern
                     val df = DateTimeFormatter.ofPattern(optionalDateTime)
                     val ta = df.parseBest(
-                        formattedValue,
+                        cleanedValue,
                         OffsetDateTime::from,
                         LocalDateTime::from,
                         Instant::from,
@@ -543,35 +549,35 @@ data class Element(
                     // Try to parse using a LocalDate pattern, assuming it follows a non-canonical format value.
                     // Example: 'yyyy-mm-dd' - the incoming data is a Date, but not our canonical date format.
                     val formatter = DateTimeFormatter.ofPattern(format ?: datetimePattern, Locale.ENGLISH)
-                    LocalDate.parse(formattedValue, formatter)
+                    LocalDate.parse(cleanedValue, formatter)
                     null
                 } catch (e: DateTimeParseException) {
                     if (nullifyValue) {
                         return null
                     } else {
-                        InvalidDateMessage.new(formattedValue, fieldMapping, format)
+                        InvalidDateMessage.new(cleanedValue, fieldMapping, format)
                     }
                 }
             }
             Type.CODE -> {
                 // First, prioritize use of a local $alt format, even if no value set exists.
                 return if (format == altDisplayToken) {
-                    if (toAltCode(formattedValue) != null) null else
-                        InvalidCodeMessage.new(formattedValue, fieldMapping, format)
+                    if (toAltCode(cleanedValue) != null) null else
+                        InvalidCodeMessage.new(cleanedValue, fieldMapping, format)
                 } else {
                     if (valueSetRef == null) error("Schema Error: missing value set for $fieldMapping")
                     when (format) {
                         displayToken ->
-                            if (valueSetRef.toCodeFromDisplay(formattedValue) != null) null else
-                                InvalidCodeMessage.new(formattedValue, fieldMapping, format)
+                            if (valueSetRef.toCodeFromDisplay(cleanedValue) != null) null else
+                                InvalidCodeMessage.new(cleanedValue, fieldMapping, format)
                         codeToken -> {
                             val values = altValues ?: valueSetRef.values
-                            if (values.find { it.code == formattedValue } != null) null else
-                                InvalidCodeMessage.new(formattedValue, fieldMapping, format)
+                            if (values.find { it.code == cleanedValue } != null) null else
+                                InvalidCodeMessage.new(cleanedValue, fieldMapping, format)
                         }
                         else ->
-                            if (valueSetRef.toNormalizedCode(formattedValue) != null) null else
-                                InvalidCodeMessage.new(formattedValue, fieldMapping, format)
+                            if (valueSetRef.toNormalizedCode(cleanedValue) != null) null else
+                                InvalidCodeMessage.new(cleanedValue, fieldMapping, format)
                     }
                 }
             }
@@ -579,19 +585,19 @@ data class Element(
                 return try {
                     // parse can fail if the phone number is not correct, which feels like bad behavior
                     // this then causes a report level failure, not an element level failure
-                    val number = phoneNumberUtil.parse(formattedValue, "US")
+                    val number = phoneNumberUtil.parse(cleanedValue, "US")
                     if (!number.hasNationalNumber() || number.nationalNumber > 9999999999L)
-                        InvalidPhoneMessage.new(formattedValue, fieldMapping)
+                        InvalidPhoneMessage.new(cleanedValue, fieldMapping)
                     else
                         null
                 } catch (ex: Exception) {
-                    InvalidPhoneMessage.new(formattedValue, fieldMapping)
+                    InvalidPhoneMessage.new(cleanedValue, fieldMapping)
                 }
             }
             Type.POSTAL_CODE -> {
                 // Let in all formats defined by http://www.dhl.com.tw/content/dam/downloads/tw/express/forms/postcode_formats.pdf
-                return if (!Regex("^[A-Za-z\\d\\- ]{3,12}\$").matches(formattedValue))
-                    InvalidPostalMessage.new(formattedValue, fieldMapping, format)
+                return if (!Regex("^[A-Za-z\\d\\- ]{3,12}\$").matches(cleanedValue))
+                    InvalidPostalMessage.new(cleanedValue, fieldMapping, format)
                 else
                     null
             }
@@ -602,7 +608,7 @@ data class Element(
                     hdUniversalIdToken -> null
                     hdSystemToken -> null
                     hdCompleteFormat -> {
-                        val parts = formattedValue.split(hdDelimiter)
+                        val parts = cleanedValue.split(hdDelimiter)
                         if (parts.size == 1 || parts.size == 3) null else UnsupportedHDMessage.new()
                     }
                     else -> UnsupportedHDMessage.new(format, fieldMapping)
@@ -615,7 +621,7 @@ data class Element(
                     eiNamespaceIdToken -> null
                     eiSystemToken -> null
                     eiCompleteFormat -> {
-                        val parts = formattedValue.split(eiDelimiter)
+                        val parts = cleanedValue.split(eiDelimiter)
                         if (parts.size == 1 || parts.size == 4) null else UnsupportedEIMessage.new()
                     }
                     else -> UnsupportedEIMessage.new(format, fieldMapping)
