@@ -9,11 +9,9 @@ import {
 
 import { CODES, ErrorPage } from "../../error/ErrorPage";
 
-import { PhdOverview } from "./Overview";
-import { ELRChecklist } from "./ElrChecklist";
-import { DataDownloadGuide } from "./DataDownloadGuide";
+import { FacilitiesOverview } from "./Overview";
 
-export const GettingStartedPublicHealthDepartments = () => {
+export const GettingStartedTestingFacilities = () => {
     let { path, url } = useRouteMatch();
 
     var itemsMenu = [
@@ -24,20 +22,6 @@ export const GettingStartedPublicHealthDepartments = () => {
         >
             Overview
         </NavLink>,
-        <NavLink
-            to={`${url}/elr-checklist`}
-            activeClassName="usa-current"
-            className="usa-nav__link"
-        >
-            ELR onboarding checklist
-        </NavLink>,
-        <NavLink
-            to={`${url}/data-download-guide`}
-            activeClassName="usa-current"
-            className="usa-nav__link"
-        >
-            Data download website guide
-        </NavLink>,
     ];
 
     return (
@@ -46,7 +30,7 @@ export const GettingStartedPublicHealthDepartments = () => {
             <div className="grid-container">
                 <div className="grid-row grid-gap">
                     <div className="tablet:grid-col-12 margin-bottom-2">
-                        <h1 className="text-normal"><span className="font-sans-sm">Getting started</span><br /> Public health departments</h1>
+                        <h1 className="text-normal"><span className="font-sans-sm">Getting started</span><br /> Organizations and testing facilities</h1>
                     </div>
                 </div>
             </div>
@@ -64,15 +48,7 @@ export const GettingStartedPublicHealthDepartments = () => {
                         </Route>
                         <Route
                             path={`${path}/overview`}
-                            component={PhdOverview}
-                        />
-                        <Route
-                            path={`${path}/elr-checklist`}
-                            component={ELRChecklist}
-                        />
-                        <Route
-                            path={`${path}/data-download-guide`}
-                            component={DataDownloadGuide}
+                            component={FacilitiesOverview}
                         />
                         {/* Handles any undefined route */}
                         <Route
