@@ -10,10 +10,24 @@ import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.ActionResponse
+import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.SubmissionHistory
+import gov.cdc.prime.router.cli.tests.ExpectedSubmissionHistory
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import java.time.OffsetDateTime
+
+data class ExpectedAPIResponse(
+    val status: HttpStatus,
+    val body: List<ExpectedSubmissionHistory>? = null
+)
+
+data class SubmissionUnitTestCase(
+    val headers: Map<String, String>,
+    val parameters: Map<String, String>,
+    val expectedResponse: ExpectedAPIResponse,
+    val name: String?
+)
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class SubmissionFunctionTests {
@@ -70,61 +84,36 @@ class SubmissionFunctionTests {
         )
     )
 
-    data class ExpectedStructure(
-        val taskId: Int,
-        val createdAt: OffsetDateTime,
-        val sendingOrg: String,
-        val httpStatus: Int,
-        val externalName: String? = "",
-        val id: String?,
-        val topic: String?,
-        val reportItemCount: Int?,
-        val warningCount: Int?,
-        val errorCount: Int?
-    )
-
-    data class ExpectedResponse(
-        val status: HttpStatus,
-        val body: List<ExpectedStructure>? = null
-    )
-
-    data class TestCase(
-        val headers: Map<String, String>,
-        val parameters: Map<String, String>,
-        val expectedResponse: ExpectedResponse,
-        val name: String?
-    )
-
     @Test
     fun `test list submissions`() {
         val testCases = listOf(
-            TestCase(
+            SubmissionUnitTestCase(
                 emptyMap(),
                 emptyMap(),
-                ExpectedResponse(
-                    HttpStatus.UNAUTHORIZED,
+                ExpectedAPIResponse(
+                    HttpStatus.UNAUTHORIZED
                 ),
                 "unauthorized"
             ),
-            TestCase(
+            SubmissionUnitTestCase(
                 mapOf("authorization" to "Bearer fdafads"),
                 emptyMap(),
-                ExpectedResponse(
+                ExpectedAPIResponse(
                     HttpStatus.OK,
                     listOf(
-                        ExpectedStructure(
+                        ExpectedSubmissionHistory(
                             taskId = 8,
                             createdAt = OffsetDateTime.parse("2021-11-30T16:36:54.919104Z"),
                             sendingOrg = "simple_report",
                             httpStatus = 201,
                             externalName = "testname.csv",
-                            id = "a2cf1c46-7689-4819-98de-520b5007e45f",
+                            id = ReportId.fromString("a2cf1c46-7689-4819-98de-520b5007e45f"),
                             topic = "covid-19",
                             reportItemCount = 3,
                             warningCount = 3,
                             errorCount = 0
                         ),
-                        ExpectedStructure(
+                        ExpectedSubmissionHistory(
                             taskId = 7,
                             createdAt = OffsetDateTime.parse("2021-11-30T16:36:48.307109Z"),
                             sendingOrg = "simple_report",
@@ -139,38 +128,38 @@ class SubmissionFunctionTests {
                 ),
                 "simple success"
             ),
-            TestCase(
+            SubmissionUnitTestCase(
                 mapOf("authorization" to "Bearer fdafads"),
                 mapOf("cursor" to "nonsense"),
-                ExpectedResponse(
+                ExpectedAPIResponse(
                     HttpStatus.BAD_REQUEST
                 ),
                 "bad date"
             ),
-            TestCase(
+            SubmissionUnitTestCase(
                 mapOf("authorization" to "Bearer fdafads"),
                 mapOf("pagesize" to "-1"),
-                ExpectedResponse(
+                ExpectedAPIResponse(
                     HttpStatus.BAD_REQUEST
                 ),
                 "bad pagesize"
             ),
-            TestCase(
+            SubmissionUnitTestCase(
                 mapOf("authorization" to "Bearer fdafads"),
                 mapOf("pagesize" to "fdas"),
-                ExpectedResponse(
+                ExpectedAPIResponse(
                     HttpStatus.BAD_REQUEST
                 ),
                 "bad pagesize, garbage"
             ),
-            TestCase(
+            SubmissionUnitTestCase(
                 mapOf("authorization" to "Bearer fdafads"),
                 mapOf(
                     "pagesize" to "10",
                     "cursor" to "2021-11-30T16:36:48.307109Z",
                     "sort" to "ASC"
                 ),
-                ExpectedResponse(
+                ExpectedAPIResponse(
                     HttpStatus.OK
                 ),
                 "good all params"
@@ -191,7 +180,7 @@ class SubmissionFunctionTests {
             // Verify
             assertThat(response.getStatus()).isEqualTo(it.expectedResponse.status)
             if (response.getStatus() == HttpStatus.OK) {
-                val submissions: List<ExpectedStructure> = mapper.readValue(response.body.toString())
+                val submissions: List<ExpectedSubmissionHistory> = mapper.readValue(response.body.toString())
                 if (it.expectedResponse.body != null) {
                     assertThat(submissions.size).isEqualTo(it.expectedResponse.body.size)
                     assertThat(submissions).isEqualTo(it.expectedResponse.body)
