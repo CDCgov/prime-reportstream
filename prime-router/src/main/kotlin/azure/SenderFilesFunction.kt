@@ -18,7 +18,7 @@ import gov.cdc.prime.router.tokens.OktaAuthentication
 import java.io.IOException
 import java.util.UUID
 
-class SenderFileFunctions(
+class SenderFilesFunction(
     private val oktaAuthentication: OktaAuthentication = OktaAuthentication(PrincipalLevel.SYSTEM_ADMIN),
     private val dbAccess: DatabaseAccess = DatabaseAccess(),
     private val blobAccess: BlobAccess = BlobAccess()
@@ -107,7 +107,10 @@ class SenderFileFunctions(
         val sources = downloadSenderReports(items)
         val emptySource = sources.find { it.content.isEmpty() }
         if (emptySource != null)
-            return Pair(Status.BAD_REQUEST, "Could not fetch file, may have been deleted: ${emptySource.origin?.bodyUrl}")
+            return Pair(
+                Status.BAD_REQUEST,
+                "Could not fetch file, may have been deleted: ${emptySource.origin?.bodyUrl}"
+            )
 
         val payload = sources
             .synthesize(parameters)
