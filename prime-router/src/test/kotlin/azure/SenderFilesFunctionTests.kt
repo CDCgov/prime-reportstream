@@ -30,7 +30,7 @@ class SenderFilesFunctionTests {
     ): SenderFilesFunction {
         val dbAccess = mockDbAccess ?: mockk()
         val blobAccess = mockBlobAccess ?: mockk()
-        return SenderFileFunction(dbAccess = dbAccess, blobAccess = blobAccess)
+        return SenderFilesFunction(dbAccess = dbAccess, blobAccess = blobAccess)
     }
 
     private fun buildRequest(params: Map<String, String>): HttpRequestMessage<String?> {
