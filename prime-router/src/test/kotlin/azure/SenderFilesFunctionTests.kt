@@ -1,0 +1,124 @@
+package gov.cdc.prime.router.azure
+
+import assertk.assertThat
+import assertk.assertions.isEqualTo
+import assertk.assertions.isFailure
+import assertk.assertions.isGreaterThan
+import assertk.assertions.isNull
+import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
+import com.google.common.net.HttpHeaders
+import com.microsoft.azure.functions.HttpRequestMessage
+import gov.cdc.prime.router.ReportId
+import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
+import gov.cdc.prime.router.azure.db.tables.pojos.SenderItems
+import gov.cdc.prime.router.messages.ReportFileListMessage
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
+import java.net.URI
+import java.time.OffsetDateTime
+import java.util.UUID
+import kotlin.test.Test
+
+class SenderFilesFunctionTests {
+    private val mapper = jacksonMapperBuilder().build()
+
+    private fun buildSenderFilesFunction(
+        mockDbAccess: DatabaseAccess? = null,
+        mockBlobAccess: BlobAccess? = null
+    ): SenderFilesFunction {
+        val dbAccess = mockDbAccess ?: mockk()
+        val blobAccess = mockBlobAccess ?: mockk()
+        return SenderFileFunction(dbAccess = dbAccess, blobAccess = blobAccess)
+    }
+
+    private fun buildRequest(params: Map<String, String>): HttpRequestMessage<String?> {
+        val mockRequest = mockk<HttpRequestMessage<String?>>()
+        every { mockRequest.headers } returns mapOf(HttpHeaders.AUTHORIZATION.lowercase() to "Bearer dummy")
+        every { mockRequest.uri } returns URI.create("http://localhost:7071/api/sender-files")
+        every { mockRequest.queryParameters } returns params
+        return mockRequest
+    }
+
+    private fun buildReportFile(reportId: UUID): ReportFile {
+        return ReportFile(
+            reportId,
+            1,
+            TaskAction.send,
+            OffsetDateTime.now().minusWeeks(1),
+            "test",
+            "test-sender",
+            "test",
+            "test-receiver",
+            "",
+            "",
+            "covid-19",
+            "covid-19",
+            "https://localhost/blob",
+            "",
+            "CSV",
+            byteArrayOf(),
+            1,
+            null,
+            OffsetDateTime.now().minusWeeks(1),
+            ""
+        )
+    }
+
+    @Test
+    fun `test checkParameters`() {
+        // Happy path
+        val reportId: ReportId = UUID.randomUUID()
+        val mockRequestWithReportId = buildRequest(mapOf("report-id" to reportId.toString()))
+        val senderFileFunctions = buildSenderFilesFunction()
+        val functionParams = senderFileFunctions.checkParameters(mockRequestWithReportId)
+        assertThat(functionParams.reportFileName).isNull()
+        assertThat(functionParams.reportId).isEqualTo(reportId)
+        assertThat(functionParams.synthesize).isEqualTo(false)
+        assertThat(functionParams.limit).isGreaterThan(0)
+        assertThat(functionParams.offset).isEqualTo(0)
+        verify(atLeast = 1) { mockRequestWithReportId.queryParameters }
+
+        // Bad value
+        val mockRequestWithBadReportId = buildRequest(mapOf("report-id" to "1234"))
+        assertThat {
+            senderFileFunctions.checkParameters(mockRequestWithBadReportId)
+        }.isFailure()
+        verify(atLeast = 1) { mockRequestWithBadReportId.queryParameters }
+
+        // Missing value
+        val mockRequestMissing = buildRequest(emptyMap())
+        assertThat {
+            senderFileFunctions.checkParameters(mockRequestMissing)
+        }.isFailure()
+        verify(atLeast = 1) { mockRequestWithBadReportId.queryParameters }
+    }
+
+    @Test
+    fun `test processRequest`() {
+        // Happy path
+        val receiverReportId: ReportId = UUID.randomUUID()
+        val senderReportId: ReportId = UUID.randomUUID()
+        val body = """
+            A,B,C
+            0,1,2
+        """.trimIndent()
+        val functionParams = SenderFilesFunction.FunctionParameters(receiverReportId, null, false, 0, 1)
+        val mockDbAccess = mockk<DatabaseAccess>()
+        val mockBlobAccess = mockk<BlobAccess>()
+        every { mockDbAccess.fetchSenderItems(any(), any(), any()) } returns listOf(
+            SenderItems(senderReportId, 0, receiverReportId, 0)
+        )
+        every { mockBlobAccess.downloadBlob(any()) } returns body.toByteArray()
+        every { mockDbAccess.fetchReportFile(any(), any(), any()) } returns buildReportFile(senderReportId)
+        val senderFileFunctions = buildSenderFilesFunction(mockDbAccess, mockBlobAccess)
+        val (status, payload) = senderFileFunctions.processRequest(functionParams)
+        assertThat(status).isEqualTo(SenderFilesFunction.Status.OK)
+        val reportFileMessages = mapper.readValue(payload, ReportFileListMessage::class.java)
+        assertThat(reportFileMessages.reports[0].reportId).isEqualTo(senderReportId.toString())
+        assertThat(reportFileMessages.reports[0].contentType).isEqualTo("text/csv")
+        assertThat(reportFileMessages.reports[0].content.trim()).isEqualTo(body)
+        assertThat(reportFileMessages.reports[0].request?.reportId).isEqualTo(receiverReportId.toString())
+    }
+}

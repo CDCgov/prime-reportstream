@@ -47,6 +47,7 @@ class CsvUtilities {
             val outputStream = ByteArrayOutputStream()
             csvWriter {
                 delimiter = ','
+                lineTerminator = "\n"
             }.writeAll(table, outputStream)
             return String(outputStream.toByteArray())
         }
