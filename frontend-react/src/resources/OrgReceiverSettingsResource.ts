@@ -1,4 +1,4 @@
-import AuthResource from "./AuthResource";
+import OrgSettingsBaseResource from "./OrgSettingsBaseResource";
 /*
         "name": "giang",
         "organizationName": "waters",
@@ -47,12 +47,6 @@ import AuthResource from "./AuthResource";
     }
 */
 
-interface MetaData {
-    version: number;
-    createdBy: string;
-    createdAt: Date;
-}
-
 interface Translation {
     schemaName: string;
     format: string;
@@ -91,14 +85,12 @@ interface Transport {
     containerName: string;
 }
 
-export default class OrgReceiverSettingsResource extends AuthResource {
-    readonly name: string = "";
+export default class OrgReceiverSettingsResource extends OrgSettingsBaseResource {
     readonly organizationName: string = "";
     readonly topic: string = "";
     readonly customerStatus: string = "";
     readonly schemaName: string = "";
     readonly processingType: string = "";
-    readonly meta: MetaData[] = [];
     readonly translation: Translation[] = [];
     readonly description: string = "";
     readonly jurisdictionalFilter: string[] = [];

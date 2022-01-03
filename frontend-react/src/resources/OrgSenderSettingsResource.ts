@@ -1,4 +1,4 @@
-import AuthResource from "./AuthResource";
+import OrgSettingsBaseResource from "./OrgSettingsBaseResource";
 /*
         "name": "default",
         "organizationName": "simple_report",
@@ -15,14 +15,7 @@ import AuthResource from "./AuthResource";
         "processingType": "sync"
 */
 
-interface MetaData {
-    version: number;
-    createdBy: string;
-    createdAt: Date;
-}
-
-export default class OrgSenderSettingsResource extends AuthResource {
-    readonly name: string = "";
+export default class OrgSenderSettingsResource extends OrgSettingsBaseResource {
     readonly organizationName: string = "";
     readonly format: string = "";
     readonly topic: string = "";
@@ -30,7 +23,6 @@ export default class OrgSenderSettingsResource extends AuthResource {
     readonly schemaName: string = "";
     readonly keys: string[] = [];
     readonly processingType: string = "";
-    readonly meta: MetaData[] = [];
 
     pk() {
         return this.name;

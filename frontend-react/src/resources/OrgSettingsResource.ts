@@ -1,4 +1,4 @@
-import AuthResource from "./AuthResource";
+import OrgSettingsBaseResource from "./OrgSettingsBaseResource";
 /*
     Organization:
       description: An organization connected to data hub
@@ -31,13 +31,8 @@ import AuthResource from "./AuthResource";
           $ref: '#/components/schemas/SettingMetadata'
 
  */
-interface MetaData {
-    version: number;
-    createdBy: string;
-    createdAt: Date;
-}
 
-interface FilterData {
+export interface FilterData {
     topic: string;
     jurisdictionalFilter: string[] | null; // | undefined?
     qualityFilter: string[] | null;
@@ -53,21 +48,16 @@ interface FilterData {
 //     COUNTY = 'COUNTY'
 // }
 
-export default class OrgSettingsResource extends AuthResource {
-    readonly name: string = "";
+export default class OrgSettingsResource extends OrgSettingsBaseResource {
+    // pulls in other fields from OrgSettingsBaseResource
     readonly description: string = "";
     readonly jurisdiction: string = "";
     readonly stateCode: string = "";
     readonly countyName: string = "";
-    readonly meta: MetaData[] = [];
     readonly filter: FilterData[] = [];
 
-    pk() {
-        return this.name;
-    }
-
     static get key() {
-        return "name";
+        return "OrgSettingsResource";
     }
 
     static listUrl(params: {}): string {
