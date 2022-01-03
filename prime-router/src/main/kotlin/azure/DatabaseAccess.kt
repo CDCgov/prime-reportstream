@@ -93,21 +93,34 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             ?: error("Could not find $reportId that matches a task")
     }
 
-    /** Fetch multiple task records and lock them so other connections can not grab them */
-    fun fetchAndLockTasksForOneReceiver(
-        nextAction: TaskAction,
+    /**
+     * Fetch multiple task records and lock them so other connections cannot grab them.
+     * If the [at] time is not null, do an exact match against next_action_at. TODO remove this option - not used.
+     * If the [at] time is null, limit query to when next_action_at is after [backstopTime].
+     *
+     * BatchFunction's job in life is operating on a timer, so it only operates on Tasks with nonnull next_action_at.
+     *
+     * Note that this uses TASK.next_action_at as the backstopTime comparison, rather than TASK.created_at.
+     * This allows us to manually recover from failures by simply setting a TASK's next_action_at in the future.
+     * This also avoids "losing" batch tasks if a receiver's [Receiver.Timing.numberPerDay] changes while there is
+     * work-in-progress waiting to be batch.  For example, we might change the setting from once a day to once an hour.
+     */
+    fun fetchAndLockBatchTasksForOneReceiver(
         at: OffsetDateTime?,
         receiverFullName: String,
         limit: Int,
+        backstopTime: OffsetDateTime?,
         txn: DataAccessTransaction
     ): List<Task> {
         val cond =
             if (at == null) {
-                TASK.RECEIVER_NAME.eq(receiverFullName).and(TASK.NEXT_ACTION.eq(nextAction))
+                TASK.RECEIVER_NAME.eq(receiverFullName)
+                    .and(TASK.NEXT_ACTION.eq(TaskAction.batch))
+                    .and(TASK.NEXT_ACTION_AT.greaterOrEqual(backstopTime))
             } else {
                 TASK.RECEIVER_NAME
                     .eq(receiverFullName)
-                    .and(TASK.NEXT_ACTION.eq(nextAction))
+                    .and(TASK.NEXT_ACTION.eq(TaskAction.batch))
                     .and(TASK.NEXT_ACTION_AT.eq(at))
             }
         return DSL.using(txn)
@@ -118,6 +131,23 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             .skipLocked() // Allows the same query to run in parallel. Otherwise, the query would lock the table.
             .fetch()
             .into(Task::class.java)
+    }
+
+    /**
+     * Get the number of outstanding actions to batch for a specific receiver
+     */
+    fun fetchNumReportsNeedingBatch(
+        receiverFullName: String,
+        backstopTime: OffsetDateTime,
+        txn: DataAccessTransaction
+    ): Int {
+        return DSL.using(txn)
+            .select(TASK.asterisk())
+            .from(TASK)
+            .where(TASK.NEXT_ACTION.eq(TaskAction.batch))
+            .and(TASK.RECEIVER_NAME.eq(receiverFullName))
+            .and(TASK.NEXT_ACTION_AT.greaterOrEqual(backstopTime))
+            .count()
     }
 
     fun fetchTask(reportId: ReportId): Task {
@@ -647,23 +677,6 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                 .where(REPORT_FILE.REPORT_ID.eq(reportId))
                 .count()
             ) > 0
-    }
-
-    /**
-     * Get the number of outstanding actions to batch for a specific receiver
-     */
-    fun fetchNumberOutstandingBatchRecords(
-        receiverFullName: String,
-        txn: DataAccessTransaction
-    ): Int {
-        val backstop = OffsetDateTime.now().minusDays(7)
-        return DSL.using(txn)
-            .select(TASK.asterisk())
-            .from(TASK)
-            .where(TASK.NEXT_ACTION.eq(TaskAction.batch))
-            .and(TASK.RECEIVER_NAME.eq(receiverFullName))
-            .and(TASK.CREATED_AT.greaterOrEqual(backstop))
-            .count()
     }
 
     /** Fetch the newest CreatedAt timestamp, active or deleted. */
