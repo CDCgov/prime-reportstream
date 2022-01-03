@@ -22,9 +22,6 @@ export const ReportStreamHeader = () => {
     const toggleMobileNav = (): void =>
         setExpanded((prvExpanded) => !prvExpanded);
     let itemsMenu = [
-        <NavLink to="/about" key="about" id="docs" className="usa-nav__link">
-            <span>About</span>
-        </NavLink>,
         <GettingStartedDropdown />,
         <HowItWorksDropdown />,
     ];

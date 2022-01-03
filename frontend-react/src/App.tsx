@@ -16,7 +16,6 @@ import { Login } from "./pages/Login";
 import { TermsOfService } from "./pages/TermsOfService";
 import { ReportStreamHeader } from "./components/header/ReportStreamHeader";
 import { oktaAuthConfig } from "./oktaConfig";
-import { About } from "./pages/About";
 import { AuthorizedRoute } from "./components/AuthorizedRoute";
 import { PERMISSIONS } from "./resources/PermissionsResource";
 import { permissionCheck, reportReceiver } from "./webreceiver-utils";
@@ -99,7 +98,6 @@ const App = () => {
                                         exact={true}
                                         component={Home}
                                     />
-                                    <Route path="/about" component={About} />
                                     <Route
                                         path="/how-it-works"
                                         component={HowItWorks}

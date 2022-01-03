@@ -15,11 +15,19 @@ import { GettingStarted } from "./GettingStarted";
 import { WhereWereLive } from "./WhereWereLive";
 import { WebReceiverGuide } from "./WebReceiverGuide";
 import { SystemsAndSettings } from "./SystemsAndSettings";
+import { About } from "./About";
 
 export const HowItWorks = () => {
     let { path, url } = useRouteMatch();
 
     var itemsMenu = [
+        <NavLink
+            to={`${url}/about`}
+            activeClassName="usa-current"
+            className="usa-nav__link"
+        >
+            About
+        </NavLink>,
         <NavLink
             to={`${url}/getting-started`}
             activeClassName="usa-current"
@@ -76,6 +84,10 @@ export const HowItWorks = () => {
                         <Route exact path={path}>
                             <Redirect push to={`${path}/getting-started`} />
                         </Route>
+                        <Route
+                            path={`${path}/about`}
+                            component={About}
+                        />
                         <Route
                             path={`${path}/getting-started`}
                             component={GettingStarted}
