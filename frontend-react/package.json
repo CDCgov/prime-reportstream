@@ -140,7 +140,7 @@
         "prettier": "^2.5.0",
         "react-dropdown": "^1.9.2",
         "react-scripts": "^4.0.3",
-        "sass": "^1.42.1",
+        "sass": "^1.45.2",
         "stylelint": "^14.0.0",
         "yaml-loader": "^0.6.0"
     }
