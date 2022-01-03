@@ -84,7 +84,8 @@ class SendFunctionTests {
             null,
             settings.findOrganization("ignore"),
             settings.findReceiver("ignore.CSV"),
-            metadata.findSchema("covid-19"), "hello".toByteArray()
+            metadata.findSchema("covid-19"), "hello".toByteArray(),
+            true
         )
     }
 

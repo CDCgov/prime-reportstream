@@ -25,7 +25,7 @@ class EventTest {
 
     @Test
     fun `test receiverEvent encode and decode`() {
-        val event = ReceiverEvent(Event.EventAction.SEND, "test")
+        val event = BatchEvent(Event.EventAction.BATCH, "test")
         val message = event.toQueueMessage()
         val returnEvent = Event.parseQueueMessage(message)
         assertThat(returnEvent).isEqualTo(event)
@@ -33,7 +33,7 @@ class EventTest {
 
     @Test
     fun `test receiverEvent encode and decode with time`() {
-        val event = ReceiverEvent(Event.EventAction.SEND, "test", OffsetDateTime.now())
+        val event = BatchEvent(Event.EventAction.BATCH, "test", OffsetDateTime.now())
         val message = event.toQueueMessage()
         val returnEvent = Event.parseQueueMessage(message)
         assertThat(returnEvent).isEqualTo(event)

@@ -51,6 +51,7 @@ class SubmissionFunctionTests {
             list = list.filter {
                 it.sendingOrg == sendingOrg
             }
+            @Suppress("UNCHECKED_CAST")
             return list as List<T>
         }
     }
