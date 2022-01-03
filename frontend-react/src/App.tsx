@@ -91,7 +91,7 @@ const App = () => {
                         {/* Changed from main to div to fix weird padding issue at the top
                         caused by USWDS styling */}
                         <main id="main-content">
-                            <div className="content">
+                            
                                 <Switch>
                                     <Route
                                         path="/"
@@ -154,7 +154,7 @@ const App = () => {
                                         )}
                                     />
                                 </Switch>
-                            </div>
+                            
                         </main>
                     </GlobalContextProvider>
                     <footer className="usa-identifier footer">
