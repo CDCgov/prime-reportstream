@@ -35,12 +35,8 @@ class SubmissionFunctionTests {
             limit: Int,
             klass: Class<T>
         ): List<T> {
-            var list: List<SubmissionHistory> = mapper.readValue(dataset)
-            list = list.filter {
-                it.sendingOrg == sendingOrg
-            }
             @Suppress("UNCHECKED_CAST")
-            return list as List<T>
+            return dataset as List<T>
         }
     }
 
