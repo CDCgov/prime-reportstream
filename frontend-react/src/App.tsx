@@ -91,70 +91,68 @@ const App = () => {
                         {/* Changed from main to div to fix weird padding issue at the top
                         caused by USWDS styling */}
                         <main id="main-content">
-                            
-                                <Switch>
-                                    <Route
-                                        path="/"
-                                        exact={true}
-                                        component={Home}
-                                    />
-                                    <Route
-                                        path="/how-it-works"
-                                        component={HowItWorks}
-                                    />
-                                    <Route
-                                        path="/terms-of-service"
-                                        component={TermsOfService}
-                                    />
-                                    <Route
-                                        path="/login"
-                                        render={() => <Login />}
-                                    />
-                                    <Route
-                                        path="/login/callback"
-                                        component={LoginCallback}
-                                    />
-                                    <Route
-                                        path="/sign-tos"
-                                        component={TermsOfServiceForm}
-                                    />
-                                    <Route
-                                        path="/getting-started/public-health-departments"
-                                        component={GettingStartedPublicHealthDepartments}
-                                    />
-                                    <Route
-                                        path="/getting-started/reporting-facilities"
-                                        component={GettingStartedReportingFacilities}
-                                    />
-                                    <AuthorizedRoute
-                                        path="/daily-data"
-                                        authorize={PERMISSIONS.RECEIVER}
-                                        component={Daily}
-                                    />
-                                    <AuthorizedRoute
-                                        path="/upload"
-                                        authorize={PERMISSIONS.SENDER}
-                                        component={Upload}
-                                    />
-                                    <AuthorizedRoute
-                                        path="/submissions"
-                                        authorize={PERMISSIONS.PRIME_ADMIN}
-                                        component={Submissions}
-                                    />
-                                    <SecureRoute
-                                        path="/report-details"
-                                        component={Details}
-                                    />
-                                    {/* Handles any undefined route */}
-                                    <Route
-                                        render={() => (
-                                            <ErrorPage
-                                                code={CODES.NOT_FOUND_404}
-                                            />
-                                        )}
-                                    />
-                                </Switch>
-                            
+                            <Switch>
+                                <Route
+                                    path="/"
+                                    exact={true}
+                                    component={Home}
+                                />
+                                <Route
+                                    path="/how-it-works"
+                                    component={HowItWorks}
+                                />
+                                <Route
+                                    path="/terms-of-service"
+                                    component={TermsOfService}
+                                />
+                                <Route
+                                    path="/login"
+                                    render={() => <Login />}
+                                />
+                                <Route
+                                    path="/login/callback"
+                                    component={LoginCallback}
+                                />
+                                <Route
+                                    path="/sign-tos"
+                                    component={TermsOfServiceForm}
+                                />
+                                <Route
+                                    path="/getting-started/public-health-departments"
+                                    component={GettingStartedPublicHealthDepartments}
+                                />
+                                <Route
+                                    path="/getting-started/reporting-facilities"
+                                    component={GettingStartedReportingFacilities}
+                                />
+                                <AuthorizedRoute
+                                    path="/daily-data"
+                                    authorize={PERMISSIONS.RECEIVER}
+                                    component={Daily}
+                                />
+                                <AuthorizedRoute
+                                    path="/upload"
+                                    authorize={PERMISSIONS.SENDER}
+                                    component={Upload}
+                                />
+                                <AuthorizedRoute
+                                    path="/submissions"
+                                    authorize={PERMISSIONS.PRIME_ADMIN}
+                                    component={Submissions}
+                                />
+                                <SecureRoute
+                                    path="/report-details"
+                                    component={Details}
+                                />
+                                {/* Handles any undefined route */}
+                                <Route
+                                    render={() => (
+                                        <ErrorPage
+                                            code={CODES.NOT_FOUND_404}
+                                        />
+                                    )}
+                                />
+                            </Switch>
                         </main>
                     </GlobalContextProvider>
                     <footer className="usa-identifier footer">
