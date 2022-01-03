@@ -45,8 +45,8 @@ export const GettingStartedPublicHealthDepartments = () => {
         <section className="border-bottom border-base-lighter margin-bottom-6">
             <div className="grid-container">
                 <div className="grid-row grid-gap">
-                    <div className="tablet:grid-col-12 margin-bottom-2">
-                        <h1 className="text-normal"><span className="font-sans-sm">Getting started</span><br /> Public health departments</h1>
+                    <div className="tablet:grid-col-12 margin-bottom-1">
+                        <h1 className=" text-ink"><span className="text-base">Getting started</span><br /> Public health departments</h1>
                     </div>
                 </div>
             </div>
