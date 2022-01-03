@@ -10,6 +10,8 @@ import {
 import { CODES, ErrorPage } from "../../error/ErrorPage";
 
 import { FacilitiesOverview } from "./Overview";
+import { RegisterAnAccount } from "./RegisterAnAccount";
+import { CsvUploadGuide } from "./CsvUploadGuide";
 
 export const GettingStartedTestingFacilities = () => {
     let { path, url } = useRouteMatch();
@@ -21,6 +23,20 @@ export const GettingStartedTestingFacilities = () => {
             className="usa-nav__link"
         >
             Overview
+        </NavLink>,
+        <NavLink
+            to={`${url}/register-an-account`}
+            activeClassName="usa-current"
+            className="usa-nav__link"
+        >
+            Register an account
+        </NavLink>,
+        <NavLink
+            to={`${url}/csv-upload-guide`}
+            activeClassName="usa-current"
+            className="usa-nav__link"
+        >
+            CSV upload guide
         </NavLink>,
     ];
 
@@ -49,6 +65,14 @@ export const GettingStartedTestingFacilities = () => {
                         <Route
                             path={`${path}/overview`}
                             component={FacilitiesOverview}
+                        />
+                        <Route
+                            path={`${path}/register-an-account`}
+                            component={RegisterAnAccount}
+                        />
+                        <Route
+                            path={`${path}/csv-upload-guide`}
+                            component={CsvUploadGuide}
                         />
                         {/* Handles any undefined route */}
                         <Route

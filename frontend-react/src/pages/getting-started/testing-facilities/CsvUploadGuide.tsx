@@ -1,0 +1,129 @@
+import { Helmet } from "react-helmet";
+import DOMPurify from "dompurify";
+
+import site from "../../../content/site.json";
+
+/* eslint-disable jsx-a11y/anchor-has-content */
+export const CsvUploadGuide = () => {
+    return (
+        <>
+            <Helmet>
+                <title>
+                    CSV upload guide | Organizations and testing facilities | Getting started |{" "}
+                    {process.env.REACT_APP_TITLE}
+                </title>
+            </Helmet>
+            <section id="anchor-top">
+                <h2 className="margin-top-0">CSV upload guide</h2>
+                <p className="usa-intro">
+                    First, we’ll get you connected to our web application, where
+                    you can immediately start downloading reporting data that is
+                    relevant to your jurisdiction.
+                </p>
+                
+            </section>
+            <hr className="margin-y-6" />
+
+            <section>
+                <h2 id="data-download">Data download</h2>
+                Our fastest option to get up and running, our web application
+                gives you access to reporting results via manual download from
+                our online portal, in just two steps.
+                <ol className="usa-process-list">
+                    <li className="usa-process-list__item">
+                        <h4 className="usa-process-list__heading">
+                            Kickoff and onboarding
+                        </h4>
+                        <p className="margin-top-05">
+                            <a
+                                href={
+                                    "mailto:" +
+                                    DOMPurify.sanitize(site.orgs.RS.email) +
+                                    "?subject=Getting started with ReportStream"
+                                }
+                                className="margin-right-1 usa-link"
+                            >
+                                Send us an email
+                            </a>
+                            with the information below. In most cases we’ll
+                            review and approve your account in about a week.
+                        </p>
+                        <ul>
+                            <li>Name of public health department</li>
+                            <li>
+                                Jurisdiction type (state, county, city, etc.)
+                            </li>
+                            <li>
+                                Name of jurisdiction (For example: “Harris
+                                County” or “Washington State”)
+                            </li>
+                            <li>
+                                Name(s) and email(s) of people who need database
+                                access
+                            </li>
+                        </ul>
+                    </li>
+                    <li className="usa-process-list__item">
+                        <h4 className="usa-process-list__heading">Log in</h4>
+                        <p>
+                            We’ll send you your account information, then simply
+                            log in to download your reporting data.
+                        </p>
+                    </li>
+                </ol>
+                <h2 id="elr-connection">ELR connection</h2>
+                If you’ve decided you’ll need an ELR connection for your public
+                health data reporting, we’ll get some information from you on
+                your needs and requirements. Connecting with ReportStream is
+                similar to setting up an ELR feed with a lab or hospital, and
+                takes just a few steps.
+                <ol className="usa-process-list">
+                    <li className="usa-process-list__item">
+                        <h4 className="usa-process-list__heading">
+                            Kickoff and onboarding
+                        </h4>
+                        <p className="margin-top-05">
+                            Tell us your data configuration requirements and
+                            preferences by submitting our{" "}
+                            <a
+                                href={DOMPurify.sanitize(
+                                    site.forms.intakeElr.url
+                                )}
+                                className="usa-link"
+                            >
+                                ReportStream ELR onboarding form
+                            </a>
+                            . We’ll review your requirements and reach out to
+                            start the data integration process in about a week.
+                        </p>
+                    </li>
+                    <li className="usa-process-list__item">
+                        <h4 className="usa-process-list__heading">
+                            Connect and test
+                        </h4>
+                        <p>
+                            After sharing credentials for your SFTP server,
+                            we’ll work with you to ensure testing facility data
+                            arrives correctly in your database. First we’ll send
+                            over some test files and after the files are
+                            accepted by both ReportStream and the public health
+                            department, we’re ready for production, launch, and
+                            roll out.
+                        </p>
+                    </li>
+                    <li className="usa-process-list__item">
+                        <h4 className="usa-process-list__heading">
+                            Launch and roll out
+                        </h4>
+                        <p>
+                            Together we’ll decide on the first testing facility
+                            to begin sending you data. Going forward, it’s easy
+                            to register new testing facilities as they join
+                            ReportStream.
+                        </p>
+                    </li>
+                </ol>
+            </section>
+        </>
+    );
+};
