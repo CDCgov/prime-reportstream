@@ -114,7 +114,7 @@ class HistoryApiTest : CoolTest() {
      * The json body may be null even if the test passed, in cases of an expected error code.
      */
     private fun historyApiQuery(testCase: SubmissionAPITestCase): Pair<Boolean, String?> {
-        val (request, response, result) = Fuel.get(testCase.path, testCase.parameters)
+        val (_, response, result) = Fuel.get(testCase.path, testCase.parameters)
             .authentication()
             .bearer(testCase.bearer)
             .responseString()
