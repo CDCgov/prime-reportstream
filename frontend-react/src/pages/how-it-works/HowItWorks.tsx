@@ -10,10 +10,7 @@ import {
 import { CODES, ErrorPage } from "../error/ErrorPage";
 
 import { SecurityPractices } from "./SecurityPractices";
-import { ELRChecklist } from "./ElrChecklist";
-import { GettingStarted } from "./GettingStarted";
 import { WhereWereLive } from "./WhereWereLive";
-import { WebReceiverGuide } from "./WebReceiverGuide";
 import { SystemsAndSettings } from "./SystemsAndSettings";
 import { About } from "./About";
 
@@ -27,27 +24,6 @@ export const HowItWorks = () => {
             className="usa-nav__link"
         >
             About
-        </NavLink>,
-        <NavLink
-            to={`${url}/getting-started`}
-            activeClassName="usa-current"
-            className="usa-nav__link"
-        >
-            Getting started
-        </NavLink>,
-        <NavLink
-            to={`${url}/elr-checklist`}
-            activeClassName="usa-current"
-            className="usa-nav__link"
-        >
-            ELR onboarding checklist
-        </NavLink>,
-        <NavLink
-            to={`${url}/data-download-guide`}
-            activeClassName="usa-current"
-            className="usa-nav__link"
-        >
-            Data download website guide
         </NavLink>,
         <NavLink
             to={`${url}/where-were-live`}
@@ -77,7 +53,7 @@ export const HowItWorks = () => {
         <section className="border-bottom border-base-lighter margin-bottom-6">
             <div className="grid-container">
                 <div className="grid-row grid-gap">
-                    <div className="tablet:grid-col-12 margin-bottom-2">
+                    <div className="tablet:grid-col-12 margin-bottom-1">
                         <h1 className="text-ink">How it works</h1>
                     </div>
                 </div>
@@ -97,18 +73,6 @@ export const HowItWorks = () => {
                         <Route
                             path={`${path}/about`}
                             component={About}
-                        />
-                        <Route
-                            path={`${path}/getting-started`}
-                            component={GettingStarted}
-                        />
-                        <Route
-                            path={`${path}/elr-checklist`}
-                            component={ELRChecklist}
-                        />
-                        <Route
-                            path={`${path}/data-download-guide`}
-                            component={WebReceiverGuide}
                         />
                         <Route
                             path={`${path}/where-were-live`}
