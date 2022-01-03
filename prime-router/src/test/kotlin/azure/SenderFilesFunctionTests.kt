@@ -16,6 +16,7 @@ import gov.cdc.prime.router.messages.ReportFileListMessage
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import java.io.IOException
 import java.net.URI
 import java.time.OffsetDateTime
 import java.util.UUID
@@ -120,5 +121,23 @@ class SenderFilesFunctionTests {
         assertThat(reportFileMessages.reports[0].contentType).isEqualTo("text/csv")
         assertThat(reportFileMessages.reports[0].content.trim()).isEqualTo(body)
         assertThat(reportFileMessages.reports[0].request?.reportId).isEqualTo(receiverReportId.toString())
+    }
+
+    @Test
+    fun `test processRequest with No Blob`() {
+        // Test that the case where the blob is deleted is handled as expected
+        val receiverReportId: ReportId = UUID.randomUUID()
+        val senderReportId: ReportId = UUID.randomUUID()
+        val functionParams = SenderFilesFunction.FunctionParameters(receiverReportId, null, false, 0, 1)
+        val mockDbAccess = mockk<DatabaseAccess>()
+        val mockBlobAccess = mockk<BlobAccess>()
+        every { mockDbAccess.fetchSenderItems(any(), any(), any()) } returns listOf(
+            SenderItems(senderReportId, 0, receiverReportId, 0)
+        )
+        every { mockDbAccess.fetchReportFile(any(), any(), any()) } returns buildReportFile(senderReportId)
+        every { mockBlobAccess.downloadBlob(any()) } throws IOException("File not found")
+        val senderFileFunctions = buildSenderFilesFunction(mockDbAccess, mockBlobAccess)
+        val (status, payload) = senderFileFunctions.processRequest(functionParams)
+        assertThat(status).isEqualTo(SenderFilesFunction.Status.NOT_FOUND)
     }
 }

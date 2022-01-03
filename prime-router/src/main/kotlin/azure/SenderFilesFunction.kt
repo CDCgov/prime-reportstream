@@ -108,8 +108,8 @@ class SenderFilesFunction(
         val emptySource = sources.find { it.content.isEmpty() }
         if (emptySource != null)
             return Pair(
-                Status.BAD_REQUEST,
-                "Could not fetch file, may have been deleted: ${emptySource.origin?.bodyUrl}"
+                Status.NOT_FOUND,
+                "Could not fetch the specified file, may have been deleted: ${emptySource.origin?.bodyUrl}"
             )
 
         val payload = sources
@@ -196,6 +196,7 @@ class SenderFilesFunction(
         }
 
         internal fun extractContent(reportBlob: String, senderFormat: Sender.Format, itemIndices: List<Int>): String {
+            if (reportBlob.isBlank()) return ""
             return when (senderFormat) {
                 Sender.Format.CSV -> CsvUtilities.cut(reportBlob, itemIndices)
                 Sender.Format.HL7 -> TODO("Support for HL7 is not implemented")
