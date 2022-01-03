@@ -27,7 +27,7 @@ import TermsOfServiceForm from "./pages/tos-sign/TermsOfServiceForm";
 import Spinner from "./components/Spinner";
 import Submissions from "./pages/Submissions";
 import { GettingStartedPublicHealthDepartments } from "./pages/getting-started/public-health-departments";
-import { GettingStartedReportingFacilities } from "./pages/getting-started/reporting-facilities";
+import { GettingStartedTestingFacilities } from "./pages/getting-started/testing-facilities";
 
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
 
@@ -89,7 +89,7 @@ const App = () => {
                         <GovBanner aria-label="Official government website" />
                         <ReportStreamHeader />
                         {/* Changed from main to div to fix weird padding issue at the top
-                        caused by USWDS styling */}
+                        caused by USWDS styling | 01/22 merged styles from .content into main, don't see padding issues anymore? */}
                         <main id="main-content">
                             <Switch>
                                 <Route
@@ -122,8 +122,8 @@ const App = () => {
                                     component={GettingStartedPublicHealthDepartments}
                                 />
                                 <Route
-                                    path="/getting-started/reporting-facilities"
-                                    component={GettingStartedReportingFacilities}
+                                    path="/getting-started/testing-facilities"
+                                    component={GettingStartedTestingFacilities}
                                 />
                                 <AuthorizedRoute
                                     path="/daily-data"
