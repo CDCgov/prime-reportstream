@@ -30,7 +30,7 @@ export const GettingStartedTestingFacilities = () => {
             <div className="grid-container">
                 <div className="grid-row grid-gap">
                     <div className="tablet:grid-col-12 margin-bottom-2">
-                        <h1 className="text-normal"><span className="font-sans-sm">Getting started</span><br /> Organizations and testing facilities</h1>
+                        <h1 className="text-ink"><span className="text-base">Getting started</span><br /> Organizations and testing facilities</h1>
                     </div>
                 </div>
             </div>
