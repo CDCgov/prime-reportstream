@@ -79,55 +79,35 @@ We utilize several custom modules which are brokendown below.
 
 `Common Used Inputs`
 
-environment - The environment you are deploying to
-- Example: dev,stage,prod
-
-resource_group - The resource group name you want to deploy into
-- Example: prime_dev_rg
-
-resource_prefix - A prefix used to create unique names throughout the code
-- Example: myprefix
-
-location - The location you are deploying to in Azure
-- Example: eastus
-
+- environment - The environment you are deploying to
+- resource_group - The resource group name you want to deploy into
+- resource_prefix - A prefix used to create unique names throughout the code
+- location - The location you are deploying to in Azure
 ## app_service_plan
 _Description_: This module adds an app service plan that will be used to run our various function aps.
 
 _Inputs_: 
-- app_size - The application size from Azure
-  - Example: S1
--  app_tier - The tier for your service plan in Azure
-  - Example: Standard
+- app_size
+- app_tier
 
 _Outputs_:
-- service_plan_id - The id of the service plan
-  - Resource: azurerm_app_service_plan.service_plan.id
+- service_plan_id
 
 ## application_insights
 _Description_: This module adds the application insights.
 
 _Inputs_: 
-- pagerduty_url - The url for the pagerduty webook
-  - Example: https://events.pagerduty.com/generic/2010-04-15/create_event.json
-- postgres_server_id - The id of the postgres server
-  - Example: 
-- service_plan_id - The id of the app service plan
-  - Example: 
+- pagerduty_url
+- postgres_server_id
+- service_plan_id
 
 _Outputs:_:
-- instrumentation_key - 
-  - Example: 
-- app_id - 
-  - Example: 
-- connection_string - 
-  - Example: 
-- metabase_instrumentation_key - 
-  - Example: 
-- metabase_app_id - 
-  - Example: 
-- metabase_connection_string - 
-  - Example: 
+- instrumentation_key
+- app_id
+- connection_string
+- metabase_instrumentation_key
+- metabase_app_id
+- metabase_connection_string
 
 fdas
 
@@ -140,15 +120,11 @@ _Description_: This registry will be used for any docker images created for the 
 
 _Inputs_: 
 - public_subnets
-  - Example: 
 
 _Outputs:_:
 - container_registry_login_server
-  - Example:
 - container_registry_admin_username
-  - Example:
 - container_registry_admin_password
-  - Example: 
 
 
 ## database
@@ -156,71 +132,103 @@ _Description_:
 
 _Inputs_: 
 - postgres_user
- - Example:
 - postgres_pass
- - Example:
 - db_sku_name
- - Example:
 - db_version
- - Example:
 - db_storage_mb
- - Example:
 - db_auto_grow
- - Example:
 - db_prevent_destroy
- - Example:
 - db_threat_detection
- - Example:
 - endpoint_subnet
- - Example:
 - db_replica
- - Example:
 - application_key_vault_id
- - Example:
 
 _Outputs:_:
-
+- postgres_server_id
 ## front-door
-_Description_:
+_Description_: Optional Azure WAF
 
 _Inputs_: 
-
+- environment
+- resource_group
+- resource_prefix
+- location
+- https_cert_names
+- is_metabase_env
+- public_primary_web_endpoint
+- application_key_vault_id
 
 _Outputs:_:
 
 ## function_app
-_Description_:
+_Description_: The function app that will run the application
 
 _Inputs_: 
-
+- environment
+- resource_group
+- resource_prefix
+- location
+- ai_instrumentation_key
+- ai_connection_string
+- okta_redirect_url
+- terraform_caller_ip_address
+- use_cdc_managed_vnet
+- public_subnet
+- pagerduty_url
+- app_service_plan
+- primary_access_key
+- container_registry_login_server
+- container_registry_admin_username
+- container_registry_admin_password
+- primary_connection_string
+- postgres_user
+- postgres_pass
+- application_key_vault_id
 
 _Outputs:_:
 
 ## key_vault
-_Description_:
+_Description_: The vaults that the application/database will store secrets
 
 _Inputs_: 
-
+- environment
+- resource_group
+- resource_prefix
+- location
+- aad_object_keyvault_admin
+- terraform_caller_ip_address
+- use_cdc_managed_vnet
+- public_subnet
+- container_subnet
+- endpoint_subnet
+- cyberark_ip_ingress
+- terraform_object_id
 
 _Outputs:_:
 
 ## metabase
-_Description_:
+_Description_: 
+
+_Inputs_: 
+- environment
+- resource_group
+- resource_prefix
+- location
+- ai_instrumentation_key
+- ai_connection_string
+- use_cdc_managed_vnet
+
+_Outputs:_:
+
+## nat_gateway
+_Description_: The NAT gatway used by the project.
 
 _Inputs_: 
 
 
 _Outputs:_:
 
-## nat_gatewa
-_Description_:
-
-_Inputs_: 
-
-
-_Outputs:_:
-
-## sftp_containe
+## sftp_container
 _Description_:
 
 _Inputs_: 
