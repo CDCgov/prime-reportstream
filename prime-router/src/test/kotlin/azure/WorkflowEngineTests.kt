@@ -1,5 +1,7 @@
 package gov.cdc.prime.router.azure
 
+import assertk.assertThat
+import assertk.assertions.isEqualTo
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.Element
@@ -200,5 +202,30 @@ class WorkflowEngineTests {
             accessSpy.fetchReportFile(reportId = any(), any(), any())
         }
         confirmVerified(accessSpy, blobMock, queueMock)
+    }
+
+    @Test
+    fun `test getBatchLookbackMins`() {
+        // batch once a day, two retries
+        assertThat(WorkflowEngine.getBatchLookbackMins(1, 2))
+            .isEqualTo(4320 + WorkflowEngine.BATCH_LOOKBACK_PADDING_MINS)
+        // batch every minute, two retries
+        assertThat(WorkflowEngine.getBatchLookbackMins(1440, 2))
+            .isEqualTo(3 + WorkflowEngine.BATCH_LOOKBACK_PADDING_MINS)
+        // batch every two hours, two retries
+        assertThat(WorkflowEngine.getBatchLookbackMins(12, 2))
+            .isEqualTo(360 + WorkflowEngine.BATCH_LOOKBACK_PADDING_MINS)
+        // batch 3 times a day, two retries
+        assertThat(WorkflowEngine.getBatchLookbackMins(3, 2))
+            .isEqualTo(1440 + WorkflowEngine.BATCH_LOOKBACK_PADDING_MINS)
+        // bogus batches per day value, 1 retry
+        assertThat(WorkflowEngine.getBatchLookbackMins(0, 1))
+            .isEqualTo(2880 + WorkflowEngine.BATCH_LOOKBACK_PADDING_MINS)
+        // Batch every minute, no retries
+        assertThat(WorkflowEngine.getBatchLookbackMins(1440, 0))
+            .isEqualTo(1 + WorkflowEngine.BATCH_LOOKBACK_PADDING_MINS)
+        // Batch every minute, 10 retries
+        assertThat(WorkflowEngine.getBatchLookbackMins(1440, 10))
+            .isEqualTo(11 + WorkflowEngine.BATCH_LOOKBACK_PADDING_MINS)
     }
 }

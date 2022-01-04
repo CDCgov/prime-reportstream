@@ -24,7 +24,7 @@ import java.util.logging.Logger
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.memberProperties
 
-var NO_REPLY_EMAIL = "no-reply@cdc.gov"
+var NO_REPLY_EMAIL = "no-reply@reportstream.gov"
 var REPORT_STREAM_EMAIL = "reportstream@cdc.gov"
 const val TOS_SUBJECT_BASE = "TOS Agreement for "
 
@@ -143,6 +143,7 @@ class EmailSenderFunction {
         */
         mail.setTemplateId(TOS_AGREEMENT_TEMPLATE_ID)
         mail.setFrom(Email(NO_REPLY_EMAIL))
+        mail.setReplyTo(Email(REPORT_STREAM_EMAIL))
         mail.setSubject(TOS_SUBJECT_BASE + body.organizationName)
         p.addTo(Email(REPORT_STREAM_EMAIL))
         p.addCc(Email(body.email))
@@ -168,7 +169,7 @@ class EmailSenderFunction {
                 response = sg.api(request)
             } catch (ex: IOException) {
                 logger.warning("Can't contact sendgrid")
-                status = HttpStatus.BAD_GATEWAY
+                return HttpStatus.BAD_GATEWAY
             } finally {
                 logger.info("sending email - result ${response.statusCode}")
                 status = HttpStatus.valueOf(response.statusCode)
