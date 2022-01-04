@@ -153,7 +153,7 @@ class LookupTableFunctions(
         return getOktaAuthenticator(PrincipalLevel.SYSTEM_ADMIN).checkAccess(request) { oktaAuthenticatedClaim ->
             val inputData: List<Map<String, String>>
             try {
-                val tableSha1 = request.queryParameters[tableSha1]
+                val tableSha256 = request.queryParameters[tableSha256]
                 inputData = mapper.readValue(request.body!!.toString())
                 if (inputData.isEmpty())
                     HttpUtilities.badRequestResponse(
@@ -183,7 +183,7 @@ class LookupTableFunctions(
                         val latestVersion = lookupTableAccess.fetchLatestVersion(tableName) ?: 0
                         val newVersion = latestVersion + 1
                         lookupTableAccess.createTable(
-                            tableName, tableSha1, newVersion, tableRows,
+                            tableName, tableSha256, newVersion, tableRows,
                             oktaAuthenticatedClaim.userName
                         )
 
@@ -257,8 +257,8 @@ class LookupTableFunctions(
         const val showInactiveParamName = "showInactive"
 
         /**
-         * Name of the query parameter to sha1 tables checksum.
+         * Name of the query parameter to Sha256 tables checksum.
          */
-        const val tableSha1 = "tableSha1"
+        const val tableSha256 = "tableSha256"
     }
 }

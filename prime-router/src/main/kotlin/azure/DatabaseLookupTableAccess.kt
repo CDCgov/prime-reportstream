@@ -154,14 +154,14 @@ class DatabaseLookupTableAccess(private val db: DatabaseAccess = DatabaseAccess(
      * Create a new table [version] for a [tableName] using the provided [tableData].
      * This function will throw an exception upon an error and rollback any data inserted into the database.
      */
-    fun createTable(tableName: String, tableSha1: String?, version: Int, tableData: List<JSONB>, username: String) {
+    fun createTable(tableName: String, tableSha256: String?, version: Int, tableData: List<JSONB>, username: String) {
         val batchSize = 5000
         db.transact { txn ->
             val newVersion = DSL.using(txn).newRecord(Tables.LOOKUP_TABLE_VERSION)
             newVersion.isActive = false
             newVersion.createdBy = username
             newVersion.tableName = tableName
-            newVersion.tableSha1 = tableSha1
+            newVersion.tableSha256 = tableSha256
             newVersion.tableVersion = version
             if (newVersion.store() != 1) error("Error creating new version in database.")
 

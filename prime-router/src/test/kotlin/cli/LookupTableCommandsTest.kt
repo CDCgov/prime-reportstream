@@ -50,7 +50,7 @@ class LookupTableCommandsTest {
         data[0].isActive = false
         data[0].tableVersion = 1
         data[0].tableName = "name"
-        data[0].tableSha1 = "abc123"
+        data[0].tableSha256 = "abc123"
         val output = LookupTableCommands.infoToPrintableTable(data)
         assertThat(output.isNotEmpty()).isTrue()
 

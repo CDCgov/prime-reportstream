@@ -143,9 +143,9 @@ class LookupTableEndpointUtilities(val environment: Environment) {
      * @throws TableNotFoundException if the table and/or version is not found
      * @throws IOException if there is a server or API error
      */
-    fun createTable(tableName: String, tableSha1: String?, tableData: List<Map<String, String>>):
+    fun createTable(tableName: String, tableSha256: String?, tableData: List<Map<String, String>>):
         LookupTableVersion {
-        val apiUrl = environment.formUrl("$endpointRoot/$tableName?table&tableSha1=$tableSha1")
+        val apiUrl = environment.formUrl("$endpointRoot/$tableName?table&tableSha256=$tableSha256")
         val jsonPayload = mapper.writeValueAsString(tableData)
 
         val (_, response, result) = Fuel
@@ -333,10 +333,10 @@ class LookupTableCommands : CliktCommand(
                 hints {
                     borderStyle = Table.BorderStyle.SINGLE_LINE
                 }
-                header("Table Name", "Version", "Table Sha1", "Is Active", "Created By", "Created At")
+                header("Table Name", "Version", "Table Sha256", "Is Active", "Created By", "Created At")
                 versionList.forEach {
                     row(
-                        it.tableName, it.tableVersion, it.tableSha1, it.isActive.toString(), it.createdBy,
+                        it.tableName, it.tableVersion, it.tableSha256, it.isActive.toString(), it.createdBy,
                         it.createdAt.toString()
                     )
                 }
@@ -530,9 +530,9 @@ class LookupTableCreateCommand : GenericLookupTableCommand(
         .required()
 
     /**
-     * The table Sha1 checksum.
+     * The table Sha256 checksum.
      */
-    private val tableSha1 by option("-c", "--checksum", help = "The Sha1 checksum of the table")
+    private val tableSha256 by option("-c", "--checksum", help = "The Sha256 checksum of the table")
 
     override fun run() {
         // Read the input file.
@@ -583,7 +583,7 @@ class LookupTableCreateCommand : GenericLookupTableCommand(
                 == true
             ) || silent
         ) {
-            val newTableInfo = try { tableUtil.createTable(tableName, tableSha1, inputData) } catch (e: IOException) {
+            val newTableInfo = try { tableUtil.createTable(tableName, tableSha256, inputData) } catch (e: IOException) {
                 throw PrintMessage("Error creating new table version for $tableName: ${e.message}", true)
             }
             TermUi.echo(
@@ -824,10 +824,10 @@ class LookupTableLoadAllCommand : GenericLookupTableCommand(
     private val tableCreator = LookupTableCreateCommand()
 
     /**
-     * Calculate Sha1 checksum for the file.
-     * @return a string of Sha1 checksum
+     * Calculate Sha256 checksum for the file.
+     * @return a string of Sha256 checksum
      */
-    fun File.Sha1(): String {
+    fun File.Sha256(): String {
         val md = MessageDigest.getInstance("SHA-256")
         return this.inputStream().use { fis ->
             val buffer = ByteArray(8192)
@@ -871,11 +871,13 @@ class LookupTableLoadAllCommand : GenericLookupTableCommand(
 
         TermUi.echo("Loading ${files.size} tables from ${dir.absolutePath}...")
         files.forEach { it ->
-            val tableSha1 = it.Sha1()
+            val tableSha256 = it.Sha256()
             val tableName = it.nameWithoutExtension
 
             // Check to see if the table is up-to-date
-            val upToDateTable = activeTableList.firstOrNull { it.tableName == tableName && it.tableSha1 == tableSha1 }
+            val upToDateTable = activeTableList.firstOrNull {
+                it.tableName == tableName && it.tableSha256 == tableSha256
+            }
             if (upToDateTable != null && !force) {
                 TermUi.echo("Skipping $tableName since it is up-to-date.")
                 return@forEach
@@ -895,7 +897,7 @@ class LookupTableLoadAllCommand : GenericLookupTableCommand(
             if (needToLoad) {
                 TermUi.echo("Creating table $tableName...")
                 val args = mutableListOf(
-                    "-e", environment.toString().lowercase(), "-n", tableName, "-c", tableSha1,
+                    "-e", environment.toString().lowercase(), "-n", tableName, "-c", tableSha256,
                     "-i", it.absolutePath, "-s", "-a"
                 )
                 tableCreator.main(args)
