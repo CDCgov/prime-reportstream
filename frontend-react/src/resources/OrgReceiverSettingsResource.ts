@@ -86,29 +86,29 @@ interface Transport {
 }
 
 export default class OrgReceiverSettingsResource extends OrgSettingsBaseResource {
-    readonly organizationName: string = "";
-    readonly topic: string = "";
-    readonly customerStatus: string = "";
-    readonly schemaName: string = "";
-    readonly processingType: string = "";
-    readonly translation: Translation[] = [];
-    readonly description: string = "";
-    readonly jurisdictionalFilter: string[] = [];
-    readonly qualityFilter: string[] = [];
-    readonly routingFilter: string[] = [];
-    readonly processingModeFilter: string[] = [];
-    readonly reverseTheQualityFilter: boolean = false;
-    readonly deidentify: boolean = false;
-    readonly timing: Timing[] = [];
-    readonly transport: Transport[] = [];
-    readonly externalName: string = "";
+    organizationName: string = "";
+    topic: string = "";
+    customerStatus: string = "";
+    schemaName: string = "";
+    processingType: string = "";
+    translation: Translation[] = [];
+    description: string = "";
+    jurisdictionalFilter: string[] = [];
+    qualityFilter: string[] = [];
+    routingFilter: string[] = [];
+    processingModeFilter: string[] = [];
+    reverseTheQualityFilter: boolean = false;
+    deidentify: boolean = false;
+    timing: Timing[] = [];
+    transport: Transport[] = [];
+    externalName: string = "";
 
     pk() {
         return this.name;
     }
 
     static get key() {
-        return "name";
+        return "OrgReceiverSettingsResource";
     }
 
     static listUrl(params: { orgname: string }): string {

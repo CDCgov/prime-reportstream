@@ -16,20 +16,20 @@ import OrgSettingsBaseResource from "./OrgSettingsBaseResource";
 */
 
 export default class OrgSenderSettingsResource extends OrgSettingsBaseResource {
-    readonly organizationName: string = "";
-    readonly format: string = "";
-    readonly topic: string = "";
-    readonly customerStatus: string = "";
-    readonly schemaName: string = "";
-    readonly keys: string[] = [];
-    readonly processingType: string = "";
+    organizationName: string = "";
+    format: string = "";
+    topic: string = "";
+    customerStatus: string = "";
+    schemaName: string = "";
+    keys: string[] = [];
+    processingType: string = "";
 
     pk() {
         return this.name;
     }
 
     static get key() {
-        return "name";
+        return "OrgSenderSettingsResource";
     }
 
     static listUrl(params: { orgname: string }): string {

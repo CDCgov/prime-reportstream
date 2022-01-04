@@ -1,4 +1,5 @@
-import { useResource } from "rest-hooks";
+import { Button } from "@trussworks/react-uswds";
+import {useController, useResource} from "rest-hooks";
 
 import OrgSenderSettingsResource from "../../../resources/OrgSenderSettingsResource";
 
@@ -11,6 +12,14 @@ export function OrgSenderTable(props: OrgSettingsTableProps) {
         OrgSenderSettingsResource.list(),
         { orgname: props.orgname }
     );
+    const { fetch } = useController();
+    function testUpdate(setting: OrgSenderSettingsResource) {
+        debugger;
+        setting.topic = "COVID-2023";
+        const testData = JSON.stringify(setting);
+        console.log(testData);
+        fetch(OrgSenderSettingsResource.update(), { orgname: setting.organizationName, sendername: setting.name }, testData);
+    }
 
     return (
         <section
@@ -30,6 +39,7 @@ export function OrgSenderTable(props: OrgSettingsTableProps) {
                         <th scope="col">Topic</th>
                         <th scope="col">Status</th>
                         <th scope="col">Meta</th>
+                        <th scope="col">Action</th>
                     </tr>
                 </thead>
                 <tbody id="tBodyOrgSender" className="font-mono-2xs">
@@ -42,6 +52,7 @@ export function OrgSenderTable(props: OrgSettingsTableProps) {
                             <td>
                                 {JSON.stringify(eachOrgSetting?.meta) || {}}
                             </td>
+                            <td><Button type="button" name="test" onClick={ (e) => testUpdate(eachOrgSetting)}>UPDATE!</Button></td>
                         </tr>
                     ))}
                 </tbody>

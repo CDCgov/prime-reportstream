@@ -184,15 +184,15 @@ class SettingsFacade(
             )
 
             // Now insert
-            val (accessResult, resultMetadata) = when {
+            val (accessResult, resultData) = when {
                 current == null -> {
                     // No existing setting, just add to the new setting to the table
                     db.insertSetting(setting, txn)
-                    Pair(AccessResult.CREATED, settingMetadata)
+                    Pair(AccessResult.CREATED, mapper.writeValueAsString(setting.values))
                 }
                 current.values == normalizedJson -> {
                     // Don't create a new version if the payload matches the current version
-                    Pair(AccessResult.SUCCESS, SettingMetadata(current.version, current.createdBy, current.createdAt))
+                    Pair(AccessResult.SUCCESS, normalizedJson.toString())
                 }
                 else -> {
                     // Update existing setting by deactivate the current setting and inserting a new version
@@ -201,11 +201,16 @@ class SettingsFacade(
                     // If inserting an org, update all children settings to point to the new org
                     if (settingType == SettingType.ORGANIZATION)
                         db.updateOrganizationId(current.settingId, newId, txn)
-                    Pair(AccessResult.SUCCESS, settingMetadata)
+
+                    // convert to JSON object. Might want to move this to the Settings class itself
+                    val settingResult = mapper.readValue(setting.values.data(), clazz)
+                    settingResult.meta = SettingMetadata(setting.version, setting.createdBy, setting.createdAt)
+
+                    Pair(AccessResult.SUCCESS, mapper.writeValueAsString(settingResult))
                 }
             }
-            val outputJson = mapper.writeValueAsString(resultMetadata)
-            Pair(accessResult, outputJson)
+//            val outputJson = mapper.writeValueAsString(resultData)
+            Pair(accessResult, resultData)
         }
     }
 
