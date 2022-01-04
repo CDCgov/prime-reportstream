@@ -26,7 +26,7 @@ import { GlobalContextProvider } from "./components/GlobalContextProvider";
 import { logout } from "./utils/UserUtils";
 import TermsOfServiceForm from "./pages/tos-sign/TermsOfServiceForm";
 import Spinner from "./components/Spinner";
-import Submissions from "./pages/Submissions";
+import Submissions from "./pages/submissions/Submissions";
 
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
 
