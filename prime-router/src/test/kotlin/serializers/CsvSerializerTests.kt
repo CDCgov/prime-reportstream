@@ -247,7 +247,7 @@ class CsvSerializerTests {
         val csvConverter = CsvSerializer(Metadata(schema = one))
         // Run it
         assertFailsWith<ActionErrors> {
-            val result = csvConverter.readExternal("one", ByteArrayInputStream(csv.toByteArray()), TestSource)
+            csvConverter.readExternal("one", ByteArrayInputStream(csv.toByteArray()), TestSource)
         }
     }
 
@@ -270,7 +270,7 @@ class CsvSerializerTests {
         val csvConverter = CsvSerializer(Metadata(schema = one))
         // Run it
         val err = assertFailsWith<ActionErrors> {
-            val result = csvConverter.readExternal("one", ByteArrayInputStream(csv.toByteArray()), TestSource)
+            csvConverter.readExternal("one", ByteArrayInputStream(csv.toByteArray()), TestSource)
         }
         assertThat(err.details.size).isEqualTo(1)
     }
@@ -365,7 +365,7 @@ class CsvSerializerTests {
             1
         """.trimIndent()
         val err = assertFailsWith<ActionErrors> {
-            val result2 = csvConverter.readExternal("one", ByteArrayInputStream(csv2.toByteArray()), TestSource)
+            csvConverter.readExternal("one", ByteArrayInputStream(csv2.toByteArray()), TestSource)
         }
         assertThat(err.details.size).isEqualTo(2)
 

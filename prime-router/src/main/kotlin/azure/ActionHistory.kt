@@ -1032,15 +1032,15 @@ class ActionHistory {
                 val itemsByGroupingId = mutableMapOf<String, MutableList<Int>>()
                 val messageByGroupingId = mutableMapOf<String, String>()
                 val scopesByGroupingId = mutableMapOf<String, String>()
-                details.forEach { ActionDetail ->
-                    val groupingId = ActionDetail.responseMessage.groupingId()
+                details.forEach { actionDetail ->
+                    val groupingId = actionDetail.responseMessage.groupingId()
                     if (!itemsByGroupingId.containsKey(groupingId)) {
                         itemsByGroupingId[groupingId] = mutableListOf()
-                        messageByGroupingId[groupingId] = ActionDetail.responseMessage.detailMsg()
-                        scopesByGroupingId[groupingId] = ActionDetail.scope.toString()
+                        messageByGroupingId[groupingId] = actionDetail.responseMessage.detailMsg()
+                        scopesByGroupingId[groupingId] = actionDetail.scope.toString()
                     }
-                    if (ActionDetail.row != -1) {
-                        itemsByGroupingId[groupingId]?.add(ActionDetail.row + 1)
+                    if (actionDetail.row != -1) {
+                        itemsByGroupingId[groupingId]?.add(actionDetail.row + 1)
                     }
                 }
                 return GroupedProperties(
@@ -1057,12 +1057,12 @@ class ActionHistory {
              * @param field defines the name of the array in the JSON result
              * @param ActionDetailList the list of items to write to the JSON
              */
-            fun writeConsolidatedArray(field: String, ActionDetailList: List<ActionDetail>) {
+            fun writeConsolidatedArray(field: String, actionDetailList: List<ActionDetail>) {
                 val (
                     itemsByGroupingId,
                     messageByGroupingId,
                     scopesByGroupId
-                ) = createPropertiesByGroupingId(ActionDetailList)
+                ) = createPropertiesByGroupingId(actionDetailList)
                 it.writeArrayFieldStart(field)
                 itemsByGroupingId.keys.forEach { groupingId ->
                     it.writeStartObject()

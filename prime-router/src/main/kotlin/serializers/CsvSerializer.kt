@@ -166,7 +166,6 @@ class CsvSerializer(val metadata: Metadata) : Logging {
                     ActionDetail.Type.error
                 )
             )
-            // TODO DG: this needs result detail to have a level (warning, error, etc.)
             throw ActionErrors(errors + warnings)
         }
         // at this point there are no branches that can return a non null report and errors > 0
