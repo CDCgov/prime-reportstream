@@ -828,7 +828,7 @@ class LookupTableLoadAllCommand : GenericLookupTableCommand(
      * @return a string of Sha1 checksum
      */
     fun File.Sha1(): String {
-        val md = MessageDigest.getInstance("SHA1")
+        val md = MessageDigest.getInstance("SHA-256")
         return this.inputStream().use { fis ->
             val buffer = ByteArray(8192)
             generateSequence {
