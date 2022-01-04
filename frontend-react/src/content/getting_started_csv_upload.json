@@ -7,7 +7,7 @@
             "name": "Sender ID",
             "colHeader": "sender_id",
             "colHeaderReportstream": "",            
-            "required": "Required",
+            "required": true,
             "acceptableFormat": false,
             "acceptableValues": false,
             "example": false,
@@ -24,7 +24,7 @@
             "name": "Patient ID",
             "colHeader": "patient_id",
             "colHeaderReportstream": "",            
-            "required": "Not required",
+            "required": false,
             "acceptableFormat": false,
             "acceptableValues": false,
             "example": false,
@@ -38,46 +38,330 @@
             ]
         },
         {
-            "name": "",
+            "name": "Patient last name",
+            "colHeader": "patient_last_name",
+            "colHeaderReportstream": "",            
+            "required": true,
+            "acceptableFormat": false,
+            "acceptableValues": false,
+            "example": false,
+            "valueMessage": "",
+            "valueType": "String",
+            "values": [
+                "value"
+            ],               
+            "notes": [
+               "Enter patient’s last name. File will fail if field left blank."              
+            ]
+        },
+        {
+            "name": "Patient first name",
+            "colHeader": "patient_first_name",
+            "colHeaderReportstream": "",            
+            "required": true,
+            "acceptableFormat": false,
+            "acceptableValues": false,
+            "example": false,
+            "valueMessage": "",
+            "valueType": "String",
+            "values": [
+                "value"
+            ],               
+            "notes": [
+               "Enter patient’s last name. File will fail if field left blank."          
+            ]
+        },
+        {
+            "name": "Patient middle name",
+            "colHeader": "patient_middle_name",
+            "colHeaderReportstream": "",            
+            "required": false,
+            "acceptableFormat": false,
+            "acceptableValues": false,
+            "example": false,
+            "valueMessage": "",
+            "valueType": "String",
+            "values": [
+                "value"
+            ],               
+            "notes": [
+               "Enter patient’s middle name. "          
+            ]
+        },
+        {
+            "name": "Patient street address",
+            "colHeader": "patient_street",
+            "colHeaderReportstream": "",            
+            "required": true,
+            "acceptableFormat": false,
+            "acceptableValues": false,
+            "example": false,
+            "valueMessage": "",
+            "valueType": "Address",
+            "values": [
+                "Street address, ex: 1234 American Ln",
+                "** Homeless **",
+                "** Unknown / Not Given **"
+            ],               
+            "notes": [
+               "Enter patient's street address. File will fail if field left blank.",
+               "For homeless or other scenarios when no information is given, populate this field with ** Homeless ** or ** Unknown / Not Given **"                
+            ]
+        },
+        {
+            "name": "Patient street address line 2",
+            "colHeader": "patient_street2",
+            "colHeaderReportstream": "",            
+            "required": false,
+            "acceptableFormat": false,
+            "acceptableValues": false,
+            "example": false,
+            "valueMessage": "",
+            "valueType": "Address",
+            "values": [
+                "Secondary address information, ex: Apt, Suite"
+            ],               
+            "notes": [
+               ""                
+            ]
+        },
+        {
+            "name": "Patient city",
+            "colHeader": "patient_city",
+            "colHeaderReportstream": "",            
+            "required": true,
+            "acceptableFormat": false,
+            "acceptableValues": false,
+            "example": false,
+            "valueMessage": "",
+            "valueType": "Address",
+            "values": [
+                "ex: Chicago, Traverse City, Miami "
+            ],               
+            "notes": [
+               "Enter patient’s city. File will fail if field left blank.",
+               "For homeless or other scenarios when no information is given, populate this field with the Ordering Facilities information."              
+            ]
+        },
+        {
+            "name": "Patient state",
+            "colHeader": "patient_state",
+            "colHeaderReportstream": "",            
+            "required": true,
+            "acceptableFormat": true,
+            "acceptableValues": false,
+            "example": false,
+            "valueMessage": "",
+            "valueType": "Address, two-character state abbreviation (link)",
+            "values": [
+                "ex: MD, VT, TX"
+            ],               
+            "notes": [
+               "Enter patient’s state using the two-character state abbreviation. File will fail if field left blank. ",
+               "For homeless or other scenarios when no information is given, populate this field with the Ordering Facilities information."                
+            ]
+        },
+        {
+            "name": "Patient county",
+            "colHeader": "patient_county",
+            "colHeaderReportstream": "",            
+            "required": true,
+            "acceptableFormat": false,
+            "acceptableValues": false,
+            "example": false,
+            "valueMessage": "",
+            "valueType": "Address",
+            "values": [
+                "value"
+            ],               
+            "notes": [
+               "Enter patient’s county/parish name "          
+            ]
+        },
+        {
+            "name": "Patient zip code",
+            "colHeader": "patient_zip_code",
+            "colHeaderReportstream": "",            
+            "required": true,
+            "acceptableFormat": true,
+            "acceptableValues": false,
+            "example": false,
+            "valueMessage": "",
+            "valueType": "5 or 9 digit zip code",
+            "values": [
+                "##### ",
+                "#####-#### "
+            ],               
+            "notes": [
+               "Enter patient’s zip code. File will fail if value is not entered using acceptable format or field is left blank. ",
+               "For homeless or other scenarios when no information is given, populate field with the Ordering Facilities information. "                
+            ]
+        },
+        {
+            "name": "Patient phone number",
+            "colHeader": "patient_phone_number",
+            "colHeaderReportstream": "",            
+            "required": true,
+            "acceptableFormat": true,
+            "acceptableValues": false,
+            "example": false,
+            "valueMessage": "",
+            "valueType": "10-digit phone number",
+            "values": [
+                "###-###-####"
+            ],               
+            "notes": [
+               "Enter patient’s phone number. File will fail if value is not entered using acceptable format or field is left blank.",
+               "For homeless or other scenarios when no information is given, populate field with the Ordering Facilities information. "                
+            ]
+        },
+        {
+            "name": "Patient date of birth",
+            "colHeader": "patient_dob",
+            "colHeaderReportstream": "",            
+            "required": true,
+            "acceptableFormat": true,
+            "acceptableValues": false,
+            "example": false,
+            "valueMessage": "",
+            "valueType": "Date",
+            "values": [
+                "YYYYMMDD"
+            ],               
+            "notes": [
+               "Enter patient’s date of birth. File will fail if value is not entered using acceptable format or field is left blank."     
+            ]
+        },
+        {
+            "name": "Patient gender",
+            "colHeader": "patient_gender",
+            "colHeaderReportstream": "",            
+            "required": true,
+            "acceptableFormat": false,
+            "acceptableValues": true,
+            "example": false,
+            "valueMessage": "",
+            "valueType": "String",
+            "values": [
+                "M  or  Male", 
+                "F or Female", 
+                "O or Other",                
+                "U or Unknown", 
+                "A or Ambiguous",               
+                "N or Not applicable" 
+            ],               
+            "notes": [
+               "Enter patient's gender. File will fail if value not entered using acceptable values or field is left blank."              
+            ]
+        },
+        {
+            "name": "Patient race",
+            "colHeader": "patient_race",
+            "colHeaderReportstream": "",            
+            "required": true,
+            "acceptableFormat": false,
+            "acceptableValues": true,
+            "example": false,
+            "valueMessage": "",
+            "valueType": "Numeric, string",
+            "values": [
+                "1002-5 or American Indian or Alaska Native",
+                "2028-9 or Asian",
+                "2054-5 or Black or African American",
+                "2076-8 or Native Hawaiian or Other Pacific Islander",
+                "2106-3 or White",
+                "2131-1 or Other",
+                "ASKU or Ask, but unknown",
+                "UNK or Unknown"
+            ],               
+            "notes": [
+               "File will fail if numeric values or text values are not entered using acceptable values or field is left blank. "              
+            ]
+        },
+        {
+            "name": "Patient ethnicity",
+            "colHeader": "patient_ethnicity",
+            "colHeaderReportstream": "",            
+            "required": true,
+            "acceptableFormat": false,
+            "acceptableValues": true,
+            "example": false,
+            "valueMessage": "",
+            "valueType": "Numeric, string",
+            "values": [
+                "2135-2 OR Hispanic or Latino",
+                "2186-5 OR Not Hispanic or Latino",
+                "UNK OR Unknown" 
+            ],               
+            "notes": [
+               "File will fail if numeric values or text values are not entered using accepted values or field is left blank. "              
+            ]
+        },
+        {
+            "name": "Acession number COME BACK TO THIS ONE/TABLE 3",
             "colHeader": "",
             "colHeaderReportstream": "",            
-            "required": "",
+            "required": true,
             "acceptableFormat": false,
             "acceptableValues": false,
             "example": false,
             "valueMessage": "",
             "valueType": "",
             "values": [
-                "value",
-                "another value"
+                "value" 
             ],               
             "notes": [
-               "note",
-               "another note"                
+               "note"              
+            ]
+        },
+        {
+            "name": "Test kit name ID",
+            "colHeader": "test_kit_name_id",
+            "colHeaderReportstream": "",            
+            "required": true,
+            "acceptableFormat": false,
+            "acceptableValues": false,
+            "example": true,
+            "valueMessage": "",
+            "valueType": "Unique identifier",
+            "values": [
+                "10811877011269 represents the Abbott ID Now ",
+                "BD Veritor System for Rapid Detection of SARS-CoV-2_Becton, Dickinson and Company (BD)",
+                "BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)",
+                "RightSign COVID-19 IgG/IgM Rapid Test Cassette_Hangzhou Biotest Biotech Co., Ltd." 
+            ],               
+            "notes": [
+               "Enter Test kit Name ID value from Department of Health and Human Services’ (HHS) LOINC Mapping spreadsheet. File will fail if value not entered using acceptable values or field is left blank.",
+               "Go to https://www.cdc.gov/csels/dls/sars-cov-2-livd-codes.html. Click on the Mapping Tool labeled “LIVD SARS-CoV-2 Test Codes.xlsx” (the file will download to your computer).",
+               "Locate the saved file on your computer and open the file. Click on the “LOINC Mapping” tab. Go to Column M labeled “Testkit Name ID” to locate the corresponding value to enter"
+            ]
+        },
+        {
+            "name": "",
+            "colHeader": "",
+            "colHeaderReportstream": "",            
+            "required": true,
+            "acceptableFormat": false,
+            "acceptableValues": false,
+            "example": false,
+            "valueMessage": "",
+            "valueType": "",
+            "values": [
+                "value" 
+            ],               
+            "notes": [
+               "note"              
             ]
         }
         
     ],
     "foo" : [
-        "patient_id",
-        "patient_last_name",
-        "patient_first_name",
-        "patient_middle_name",
-        "patient_street",
-        "patient_street2",
-        "patient_city",
-        "patient_state",
-        "patient_county",
-        "patient_zip_code",
-        "patient_phone_number",
-        "patient_dob",
-        "patient_gender",
-        "patient_race",
-        "patient_ethnicity",
+        
+        "",
         "message_id",
         "placer_order_id",
         "filler_order_id",
-        "test_kit_name_id",
+        "",
         "test_performed_code",
         "test_result",
         "order_test_date",
