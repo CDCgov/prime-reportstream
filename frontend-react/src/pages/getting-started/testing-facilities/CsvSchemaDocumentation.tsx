@@ -42,7 +42,10 @@ export const CsvSchemaDocumentation = () => {
                         key={`field-${fieldIndex}`}
                         className="margin-bottom-6"
                     >
-                        <h3>{field.name} <span className="text-normal text-xs text-secondary margin-left-2">{field.required}</span></h3>
+                        <h3>
+                            {field.name}
+                            {field.required && <span className="text-normal text-xs text-secondary margin-left-2">Required</span>}
+                        </h3>
                         <div className="margin-top-neg-1 margin-bottom-3">
                             {field.notes?.map(
                                 (note, noteIndex) => {
@@ -63,7 +66,7 @@ export const CsvSchemaDocumentation = () => {
                         </div>
                         <div className="grid-row margin-bottom-05">
                             <div className="grid-col-4 text-base">Accepted value(s)</div>
-                            <div className="grid-col-auto">
+                            <div className="grid-col-8 font-family-mono">
                                 {field.values?.map(
                                     (value, valueIndex) => {
                                         return (
