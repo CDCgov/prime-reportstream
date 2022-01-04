@@ -315,7 +315,7 @@ class LookupSenderValuesetsMapper : Mapper {
  * type: TABLE
  * table: my-table
  * tableColumn: my-column
- * mapper: npiLookup(provider_id, facility_id, sender_id)
+ * mapper: npiLookup(provider_id, facility_clia, sender_id)
  * ```
  */
 class NpiLookupMapper : Mapper {
@@ -337,21 +337,21 @@ class NpiLookupMapper : Mapper {
         /* Column names passed in via schema */
         /* Because of the specificity here, we need args = provider_id (npi), facility_id, sender_id */
         val npiColumn = args[0]
-        val facilityIdColumn = args[1]
+        val facilityCliaColumn = args[1]
         val senderIdColumn = args[2]
 
         /* The values provided from the incoming row of data */
         val npiSent = values.find { it.element.name == npiColumn }?.value ?: ""
-        val facilityIdSent = values.find { it.element.name == facilityIdColumn }?.value ?: ""
+        val facilityCliaSent = values.find { it.element.name == facilityCliaColumn }?.value ?: ""
         val senderIdSent = values.find { it.element.name == senderIdColumn }?.value ?: ""
 
         /* The result stored after filtering the table */
         var filterResult: String?
 
         if (npiSent.isBlank()) {
-            /* Returns the lookupColumn value based on Facility_ID and Sender_ID where Default is true */
+            /* Returns the lookupColumn value based on Facility_CLIA and Sender_ID where Default is true */
             filterResult = lookupTable.FilterBuilder()
-                .equalsIgnoreCase(facilityIdColumn, facilityIdSent)
+                .equalsIgnoreCase(facilityCliaColumn, facilityCliaSent)
                 .equalsIgnoreCase(senderIdColumn, senderIdSent)
                 .equalsIgnoreCase("default", "true")
                 .findSingleResult(lookupColumn)
@@ -360,17 +360,6 @@ class NpiLookupMapper : Mapper {
             filterResult = lookupTable.FilterBuilder()
                 .equalsIgnoreCase(npiColumn, npiSent)
                 .findSingleResult(lookupColumn)
-            if (filterResult.isNullOrBlank()) {
-                /* Returns the lookupColumn value after mapping local -> exact NPI */
-                val localToExact = mapOf<String, String>(
-                    /* key: local NPI; value: exact NPI */
-                    /* TODO: need list of local -> generic NPIs from Rick Hood */
-                )
-                val exactNpi = localToExact[npiSent] ?: ""
-                filterResult = lookupTable.FilterBuilder()
-                    .equalsIgnoreCase(npiColumn, exactNpi)
-                    .findSingleResult(lookupColumn)
-            }
         }
 
         return filterResult
