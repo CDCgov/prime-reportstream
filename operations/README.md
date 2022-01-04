@@ -128,7 +128,7 @@ _Outputs:_:
 
 
 ## database
-_Description_:
+_Description_: Database for the project.
 
 _Inputs_: 
 - postgres_user
@@ -207,7 +207,7 @@ _Inputs_:
 _Outputs:_:
 
 ## metabase
-_Description_: 
+_Description_: Metabase DB for the project.
 
 _Inputs_: 
 - environment
@@ -224,15 +224,23 @@ _Outputs:_:
 _Description_: The NAT gatway used by the project.
 
 _Inputs_: 
-
+- environment
+- resource_group
+- resource_prefix
+- location
+- public_subnet_id
 
 _Outputs:_:
 
 ## sftp_container
-_Description_:
+_Description_: (Optional) A container used for STFP testing
 
 _Inputs_: 
-
+- environment
+- resource_group
+- resource_prefix
+- location
+- use_cdc_managed_vnet
 
 _Outputs:_:
 
@@ -240,18 +248,36 @@ _Outputs:_:
 _Description_:
 
 _Inputs_: 
-
+- environment
+- resource_group
+- resource_prefix
+- location
+- rsa_key_4096
+- terraform_caller_ip_address
+- use_cdc_managed_vnet
+- endpoint_subnet
+- public_subnet
+- container_subnet
+- application_key_vault_id
 
 _Outputs:_:
+- sa_primary_access_key
+- sa_primary_connection_string
+- sa_public_primary_web_endpoint
 
 ## vnet
-_Description_:
+_Description_: (Optional) Creates the VNET for the project
 
 _Inputs_: 
-
+- resource_group
+- environment
+- resource_prefix
 
 _Outputs:_:
-
+- ids
+- names
+- vnet_address_spaces
+- vnets
 
 
 ### Important vars files
@@ -282,8 +308,6 @@ For example, if you wish to deploy to stage you would do the following steps
 
 
 
-
-
 # Deploying a new CDC environment
 
 * Environments must have a unique resource group.
@@ -311,84 +335,17 @@ In your newly created storage account, create a container named: `terraformstate
 
 ![Storage Account Page 5](readme-assets/storage-account-page-5.png)
 
-## Create your Terraform configuration
-
-1. In the `app/src/environments/configuration` folder, create `{env}.tfvars` and `{env}.tfbackend` files
-2. The `{env}.tfvars` contains all the environment-specific variables
-    * You can base this off an existing environment, if necessary
-3. The `{env}.tfbackend` contains the location where Terraform will store your state
-    * You can base this off an existing environment and populate with the storage account created above
-
-## Deploy the environment
-
-Our Terraform modules are broken out into four stages, each with the dependencies on the previous layers:
-
-* `01-network`
-    * Contains the core network infrastructure
-    * VNET, subnets, VPN Gateway, etc.
-* `02-config`
-    * Contain the infrastructure required for configuring the environment
-    * Key Vaults, App Service Plan, etc.
-    * After deploying this layer, manual configuration is required
-    * This layer is dependent on the network infrastructure being deployed
-* `03-persistent`
-    * Contains the data storage infrastructure for the application
-    * Database, Storage Account
-    * This layer is dependent on the configuration infrastructure being deployed and secrets populated
-* `04-app`
-    * Contain the application servers and related infrastructure
-    * Function App, Front Door, Application Insights, etc.
-    * The layer is dependent on the persistent layer being deployed
-    
-To deploy the full state follow the deployment directions at the top of this document in the following order:
-
-1. Deploy `01-network`
-2. Create a VPN profile
-    * [See PR #638 for directions on standing up a VPN](https://github.com/CDCgov/prime-data-hub/pull/638)
-3. Connect to the VPN
-    * [Directions for configuring your VPN client in prime-router/docs/VPN.md](https://github.com/CDCgov/prime-data-hub/blob/master/prime-router/docs/vpn.md)
-4. Deploy `02-config`
-5. Populate the following secrets in the Key Vaults:
-   * `{env}-appconfig`:
-     * `functionapp-postgres-user`
-     * `functionapp-postgres-pass`
-   * `{env}-keyvault`:
-       * `hhsprotect-ip-ingress`
-       * `pagerduty-integration-url`
-6. Deploy `03-persistent`
-7. Deploy `04-app`
 
 # Tear down a environment
-
-Destroy the Terraform stages in reverse stage order:
-
-```shell
-make TF_ENV={dev,test,staging,prod} tf-04-app
-tf destroy
-exit
-
-make TF_ENV={dev,test,staging,prod} tf-03-persistent
-tf destroy
-exit
-
-make TF_ENV={dev,test,staging,prod} tf-02-config
-tf destroy
-exit
-
-make TF_ENV={dev,test,staging,prod} tf-01-network
-tf destroy
-exit
+To delete all terraform created resources run the following.
+```
+terraform destroy
 ```
 
-**WARNING:** Removing stages beyond `04-app` will release resources that are irrecoverable. Data is preserved by Azure retention policies, but public IP addresses and other static resources may be released.
+**WARNING:** Data is preserved by Azure retention policies, but public IP addresses and other static resources may be released.
 
 Any resource that is not ephemeral is marked with a `lifecycle { prevent_destroy = true }` annotation, requiring manual intervention to tear down the resource.
 
 # Known issues
 
-1. A few `terraform import` commands for azurerm have known to fail unless the resource path is quoted.
-Since `./tf.sh -c ""` expects input within double quotes, use single quotes instead: `./tf -e ${ENV_NAME} -c "import a 'b'"` (note `'b'`).
-
-   * Shown in [Terraform docs](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_diagnostic_setting#import) to address the reported [issue](https://github.com/hashicorp/terraform-provider-azurerm/issues/9347).
-
-2.  If `tf plan` or `tf plan-file` fail with an IP or `404` error *(found in `*.tfplan.stderr`)*, then Azure likely failed to respond and re-running should resolve the issue.
+1. There is a race condition currently happening when deploying from scratch. For now, simply run the `terraform apply` again and it should proceed.
