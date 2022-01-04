@@ -1,7 +1,7 @@
 # React app permissions
 
 ## Problem
-The ReportStream React application is managing showing/hiding content and turning abilities on and off via ad hoc permissions checks using Okta’s `authState` integration from the `useOktaAuth()` hook. An example of this can be seen in the code for showing or hiding the Upload and Submissions navigation items.
+The ReportStream React application is managing showing/hiding content and turning abilities on and off via ad hoc permissions checks using Okta’s `authState` integration from the `useOktaAuth()` hook. An example of this can be seen in the code for showing or hiding the Submissions navigation item.
 
 ```typescript
 const {authState} = useOktaAuth()
@@ -46,43 +46,42 @@ The structure for our bearer tokens can be seen below:
 }
 ```
 
-#### Login
+### Login
 On login, we are doing two things currently: filtering out the `DHPrimeAdmins` group then applying the `0th` index as the default organization to load, and storing the bearer token in `sessionStorage`. These are done via functions called in [Login.tsx](../../src/pages/Login.tsx) in the `onSuccess` function. 
 
 > Note:  This is where we begin to see a lack of specificity become troublesome. As soon as an organization has more than a single user type, a new organization would need to be made. We also assume one's default organization which can be a bad practice in some applications.
 
-#### Checking
+### Checking
 As an example of how we check these, first we have to be inside the component at the base level to call `useOktaAuth()`, then we pass a permission name and the authState to a `permissionCheck()` function that returns a boolean based on the user's authentication.
 
+#### `Component A`
 ```typescript
 const { authState } = useOktaAuth();
 /* ... */
-if (authState !== null && authState.isAuthenticated) {
-    if (permissionCheck(PERMISSIONS.SENDER, authState)) {
-        itemsMenu.splice(
-            1,
-            0,
-            <NavLink
-                to="/upload"
-                key="upload"
-                data-attribute="hidden"
-                hidden={true}
-                className="usa-nav__link"
-            >
-                <span>Upload</span>
-            </NavLink>
-        );
-    }
+if (permissionCheck(PERMISSIONS.SENDER, authState)) {
+    // Do the thing
 }
 ```
-> Note:  Using the hook to get our `authState` prevents us from using it as-needed within inner and outer functions. 
+#### `permissionCheck()`
+```typescript
+const permissionCheck = (permission: string, authState: AuthState) => {
+    if (permission === PERMISSIONS.RECEIVER) {
+        return reportReceiver(authState);
+    }
+    return authState.accessToken?.claims.organization.find((o: string) =>
+        o.includes(permission)
+    );
+};
+```
+
+> Note:  Using the hook to get our `authState` prevents us from using it as-needed within inner and outer functions. Notice it must be passed from the component to the function rather than being readily available as-needed in the function. 
 
 ---
 
 ## A new approach
 
 ### Addressing the solutions
-After doing some research on how permissions are handled, I have a few proposals on how to move forward.
+After doing some research on how permissions are handled currently, and what some best practices are, I have a few proposals on how to move forward.
 
 1. We are over-simplifying how we permit users by solely relying on their organization. -> We should utilize scopes and claims to better manage what permissions a user has.
 2. Relying on Okta's React library to access our authentication restricts us to only accessing our authentication information in a component. -> We should create our own Auth class that can be accessed outside of the restraints of hooks.
@@ -162,23 +161,8 @@ export class Authentication {
         return /* code that gets cookie */
     }
 
-    /* Boolean-returning methods aptly named for common 
-    auth checks */
-
-    function userIsAdmin(): boolean {
-        return this.claims.scope.includes("admin")
-    }
-
-    function userIsReceiver(): boolean {
-        return this.claims.scope.includes("receiver")
-    }
-
-    function userCanEditSettings(): boolean {
-        return userIsAdmin() && userIsReceiver()
-    }
-
-    function userIsInOrg(org: string) {
-        return this.orgs.contains(org)
+    function userHasClaim(claim: string): boolean {
+        return this.claims.includes(claim)
     }
 
 }
@@ -201,8 +185,8 @@ Lastly, we'll conclude by fixing up the implementation of our permissions checks
 ```typescript
 const restoreOriginalUri = async (_oktaAuth: any, originalUri: string) => {
     const authState: Authorization | undefined = cookieAuth;
-    if (authState?.userIsSender() && 
-        !authState?.userIsReceiver()) {
+    if (authState?.userHasClaim(CLAIM.SENDER) && 
+        !authState?.userHasClaim(CLAIM.RECEIVER)) {
             history.replace(
                 toRelativeUrl(
                     `${window.location.origin}/upload`,
