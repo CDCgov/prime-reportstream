@@ -139,7 +139,8 @@ class ActionHistory {
         action.actionName = taskAction
     }
 
-    fun trackEvent(event: Event) {
+    /** Adds a queue event to the messages property to be added to the queue later */
+    private fun trackEvent(event: Event) {
         messages.add(event)
     }
 
@@ -423,7 +424,10 @@ class ActionHistory {
         }
         trackedReports[report.id] = report
         trackItemLineages(report)
-        trackEvent(event) // to be sent to queue later.
+
+        // batch queue messages are added by the batchDecider, not ActionHistory
+        if (event.eventAction != Event.EventAction.BATCH)
+            trackEvent(event) // to be sent to queue later.
     }
 
     fun trackCreatedReport(
@@ -461,7 +465,10 @@ class ActionHistory {
         }
         trackedReports[report.id] = report
         trackItemLineages(report)
-        trackEvent(event) // to be sent to queue later.
+
+        // batch queue messages are added by the batchDecider, not ActionHistory
+        if (event.eventAction != Event.EventAction.BATCH)
+            trackEvent(event) // to be sent to queue later.
     }
 
     fun trackSentReport(

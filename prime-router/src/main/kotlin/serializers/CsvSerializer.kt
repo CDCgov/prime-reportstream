@@ -261,6 +261,19 @@ class CsvSerializer(val metadata: Metadata) : Logging {
                                             " alt valueset in schema ${schema.name}"
                                     )
                                     ""
+                                } catch (e: Exception) {
+                                    // When exceptions occur in toFormatted, its hard to tell what data caused them.
+                                    // So we catch, log, and rethrow here.
+                                    val usefulTrackingElementInfo = if (schema.trackingElement != null)
+                                        "${schema.trackingElement}=" +
+                                            report.getString(row, schema.trackingElement)
+                                    else "[tracking element column missing]"
+                                    logger.error(
+                                        e.toString() +
+                                            "  Exception in row with $usefulTrackingElementInfo:" +
+                                            " schema ${schema.name} element ${element.name} = value '$value' "
+                                    )
+                                    throw e
                                 }
                             }
                         } else {

@@ -296,7 +296,7 @@ class WorkflowEngine(
         // Send immediately.
         val nextEvent = ReportEvent(Event.EventAction.SEND, reportId, at = null)
         db.transact { txn ->
-            val task = db.fetchAndLockTask(reportId, txn) // Required, it creates lock.
+            db.fetchAndLockTask(reportId, txn) // Required, it creates lock.
             val organization = settings.findOrganization(receiver.organizationName)
                 ?: throw Exception("No such organization ${receiver.organizationName}")
             val header = fetchHeader(reportId, organization) // exception if not found
@@ -459,7 +459,7 @@ class WorkflowEngine(
                 val time = receiver.timing.nextTime()
                 // Always force a batched report to be saved in our INTERNAL format
                 val batchReport = report.copy(bodyFormat = Report.Format.INTERNAL)
-                val event = ReceiverEvent(Event.EventAction.BATCH, receiver.fullName, time)
+                val event = BatchEvent(Event.EventAction.BATCH, receiver.fullName, time)
                 this.dispatchReport(event, batchReport, actionHistory, receiver, txn, context)
                 loggerMsg = "Queue: ${event.toQueueMessage()}"
             }
@@ -579,23 +579,24 @@ class WorkflowEngine(
     }
 
     /**
-     * Handle a receiver specific event. Fetch all pending tasks for the specified receiver and nextAction
+     * Handle a batch event for a receiver. Fetch all pending tasks for the specified receiver and nextAction
      *
      * @param messageEvent that was received
      * @param maxCount of headers to process
      * @param updateBlock called with headers to process
      */
-    fun handleReceiverEvent(
-        messageEvent: ReceiverEvent,
+    fun handleBatchEvent(
+        messageEvent: BatchEvent,
         maxCount: Int,
+        backstopTime: OffsetDateTime?,
         updateBlock: (headers: List<Header>, txn: Configuration?) -> Unit,
     ) {
         db.transact { txn ->
-            val tasks = db.fetchAndLockTasksForOneReceiver(
-                messageEvent.eventAction.toTaskAction(),
+            val tasks = db.fetchAndLockBatchTasksForOneReceiver(
                 messageEvent.at,
                 messageEvent.receiverName,
                 maxCount,
+                backstopTime,
                 txn
             )
             val ids = tasks.map { it.reportId }
@@ -697,7 +698,7 @@ class WorkflowEngine(
         txn: DataAccessTransaction? = null
     ): Pair<Organization, Receiver> {
         return if (settings is SettingsFacade) {
-            val (organization, receiver) = (settings as SettingsFacade).findOrganizationAndReceiver(fullName, txn)
+            val (organization, receiver) = (settings).findOrganizationAndReceiver(fullName, txn)
                 ?: error("Receiver not found in database: $fullName")
             Pair(organization, receiver)
         } else {
@@ -724,7 +725,11 @@ class WorkflowEngine(
         val organization: Organization?,
         val receiver: Receiver?,
         val schema: Schema?,
-        val content: ByteArray?
+        val content: ByteArray?,
+        // todo: until this can be refactored, we need a way for the calling functions to know
+        //  if this header is expecting to have content to detect errors on download (IE, file does not exist
+        //  see #3505
+        val expectingContent: Boolean
     )
 
     private fun createHeader(
@@ -739,10 +744,11 @@ class WorkflowEngine(
             metadata.findSchema(reportFile.schemaName)
         else null
 
-        val content = if (reportFile.bodyUrl != null && fetchBlobBody)
+        val downloadContent = (reportFile.bodyUrl != null && fetchBlobBody)
+        val content = if (downloadContent && blob.exists(reportFile.bodyUrl)) {
             blob.downloadBlob(reportFile.bodyUrl)
-        else null
-        return Header(task, reportFile, itemLineages, organization, receiver, schema, content)
+        } else null
+        return Header(task, reportFile, itemLineages, organization, receiver, schema, content, downloadContent)
     }
 
     fun fetchHeader(
@@ -836,6 +842,31 @@ class WorkflowEngine(
                 val ext = "-${Environment.get().toString().lowercase()}"
                 FileSettings("$baseDir/settings", orgExt = ext)
             }
+        }
+
+        /**
+         * Always find tasks at least this old.  This covers for  extended downtime due to a crash,
+         * as well as for 25 hour days etc.
+         */
+        const val BATCH_LOOKBACK_PADDING_MINS: Long = 180 // 3 hours
+
+        /**
+         * BatchFunction uses a backstop time to prevent it from processing too-old records.
+         * We also use this to prevent it from retrying unrecoverable batches over and over.
+         * So the backstop time is based on the frequency of batching for that receiver,
+         * as found in the receiver's [Receiver.Timing.numberPerDay].
+         *
+         * Note the effect of the padding is that for frequent batching, we'll actually allow
+         * more than [minNumRetries] retries.
+         *
+         * Calculation is done in minutes.
+         */
+        fun getBatchLookbackMins(numberBatchesPerDay: Int, minNumRetries: Int): Long {
+            val frequencyMins = if (numberBatchesPerDay > 0)
+                1440 / numberBatchesPerDay
+            else
+                1440
+            return ((minNumRetries + 1) * frequencyMins + BATCH_LOOKBACK_PADDING_MINS).toLong()
         }
     }
 
