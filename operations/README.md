@@ -55,12 +55,11 @@ Below are the following most common terraform commands:
 
 
 ### Directory Structure
-
+The structure of the terraform code is as follows. We have separate stage variables in the ./vars directory, and all modules are contained in the moudles dir. This allows for a very clear area to add/troubleshoot code.
 ```
 terraform
 │   README.md
 │       
-│
 └─── vars
 │   │
 │   └─── dev
@@ -76,23 +75,175 @@ terraform
 
 # Modules
 
-We utilize several custom modules that are as follows
+We utilize several custom modules which are brokendown below. 
 
-* app_service_plan -  
-* application_insights - 
+`Common Used Inputs`
+
+environment - The environment you are deploying to
+- Example: dev,stage,prod
+
+resource_group - The resource group name you want to deploy into
+- Example: prime_dev_rg
+
+resource_prefix - A prefix used to create unique names throughout the code
+- Example: myprefix
+
+location - The location you are deploying to in Azure
+- Example: eastus
+
+## app_service_plan
+_Description_: This module adds an app service plan that will be used to run our various function aps.
+
+_Inputs_: 
+- app_size - The application size from Azure
+  - Example: S1
+-  app_tier - The tier for your service plan in Azure
+  - Example: Standard
+
+_Outputs_:
+- service_plan_id - The id of the service plan
+  - Resource: azurerm_app_service_plan.service_plan.id
+
+## application_insights
+_Description_: This module adds the application insights.
+
+_Inputs_: 
+- pagerduty_url - The url for the pagerduty webook
+  - Example: https://events.pagerduty.com/generic/2010-04-15/create_event.json
+- postgres_server_id - The id of the postgres server
+  - Example: 
+- service_plan_id - The id of the app service plan
+  - Example: 
+
+_Outputs:_:
+- instrumentation_key - 
+  - Example: 
+- app_id - 
+  - Example: 
+- connection_string - 
+  - Example: 
+- metabase_instrumentation_key - 
+  - Example: 
+- metabase_app_id - 
+  - Example: 
+- metabase_connection_string - 
+  - Example: 
+
+fdas
+
 * common  
   * private_endpoint - 
   * vnet_dns_zones - 
-* container_registry - 
-* database - 
-* front-door - 
-* function_app -
-* key_vault -
-* metabase -
-* nat_gateway -
-* sftp_container -
-* storage - 
-* vnet - 
+  
+## container_registry
+_Description_: This registry will be used for any docker images created for the appliction
+
+_Inputs_: 
+- public_subnets
+  - Example: 
+
+_Outputs:_:
+- container_registry_login_server
+  - Example:
+- container_registry_admin_username
+  - Example:
+- container_registry_admin_password
+  - Example: 
+
+
+## database
+_Description_:
+
+_Inputs_: 
+- postgres_user
+ - Example:
+- postgres_pass
+ - Example:
+- db_sku_name
+ - Example:
+- db_version
+ - Example:
+- db_storage_mb
+ - Example:
+- db_auto_grow
+ - Example:
+- db_prevent_destroy
+ - Example:
+- db_threat_detection
+ - Example:
+- endpoint_subnet
+ - Example:
+- db_replica
+ - Example:
+- application_key_vault_id
+ - Example:
+
+_Outputs:_:
+
+## front-door
+_Description_:
+
+_Inputs_: 
+
+
+_Outputs:_:
+
+## function_app
+_Description_:
+
+_Inputs_: 
+
+
+_Outputs:_:
+
+## key_vault
+_Description_:
+
+_Inputs_: 
+
+
+_Outputs:_:
+
+## metabase
+_Description_:
+
+_Inputs_: 
+
+
+_Outputs:_:
+
+## nat_gatewa
+_Description_:
+
+_Inputs_: 
+
+
+_Outputs:_:
+
+## sftp_containe
+_Description_:
+
+_Inputs_: 
+
+
+_Outputs:_:
+
+## storage
+_Description_:
+
+_Inputs_: 
+
+
+_Outputs:_:
+
+## vnet
+_Description_:
+
+_Inputs_: 
+
+
+_Outputs:_:
+
 
 
 ### Important vars files
