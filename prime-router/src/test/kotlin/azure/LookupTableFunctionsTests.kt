@@ -228,7 +228,7 @@ class LookupTableFunctionsTests {
     @Test
     fun `create table test`() {
         val tableName = "dummy"
-        val tableMd5 = "abc123"
+        val tableSha1 = "abc123"
         val latestVersion = 1
         every { mockRequest.httpMethod } returns HttpMethod.POST
         val lookupTableAccess = mockk<DatabaseLookupTableAccess>()
@@ -259,16 +259,20 @@ class LookupTableFunctionsTests {
         mockResponseBuilder = createResponseBuilder()
         every { mockRequest.createResponseBuilder(HttpStatus.OK) } returns mockResponseBuilder
         every { mockRequest.body } returns """[{"a": "11", "b": "21"},{"a": "12", "b": "22"}]"""
-        every { mockRequest.queryParameters } returns mapOf(LookupTableFunctions.tableMd5 to "abc123")
+        every { mockRequest.queryParameters } returns mapOf(LookupTableFunctions.tableSha1 to "abc123")
         val versionInfo = LookupTableVersion()
         versionInfo.tableName = tableName
-        versionInfo.tableMd5 = tableMd5
+        versionInfo.tableSha1 = tableSha1
         versionInfo.tableVersion = latestVersion + 1
         versionInfo.isActive = false
         versionInfo.createdBy = "author1"
         versionInfo.createdAt = OffsetDateTime.now()
-        every { lookupTableAccess.createTable(eq(tableName), eq(tableMd5), eq(latestVersion + 1), any(),
-            any()) } returns Unit
+        every {
+            lookupTableAccess.createTable(
+                eq(tableName), eq(tableSha1), eq(latestVersion + 1), any(),
+                any()
+            )
+        } returns Unit
         every { lookupTableAccess.fetchVersionInfo(eq(tableName), eq(latestVersion + 1)) } returns versionInfo
         LookupTableFunctions(lookupTableAccess).createLookupTable(mockRequest, tableName)
         verify(exactly = 1) {
@@ -295,7 +299,7 @@ class LookupTableFunctionsTests {
         mockResponseBuilder = createResponseBuilder()
         every { mockRequest.createResponseBuilder(HttpStatus.OK) } returns mockResponseBuilder
         every { lookupTableAccess.fetchLatestVersion(tableName) } returns null
-        every { lookupTableAccess.createTable(eq(tableName), eq(tableMd5), eq(1), any(), any()) } returns Unit
+        every { lookupTableAccess.createTable(eq(tableName), eq(tableSha1), eq(1), any(), any()) } returns Unit
         every { lookupTableAccess.fetchVersionInfo(eq(tableName), eq(1)) } returns versionInfo
         LookupTableFunctions(lookupTableAccess).createLookupTable(mockRequest, tableName)
         verify(exactly = 1) {

@@ -20,7 +20,7 @@
   lookup_table_version_id BIGSERIAL PRIMARY KEY,
   table_name character varying(512) NOT NULL,
   table_version INTEGER NOT NULL CHECK (table_version >= 0),
-  table_md5 character varying(512) NULL,
+  table_sha1 character varying(512) NULL,
   is_active BOOLEAN NOT NULL DEFAULT FALSE,
   created_by VARCHAR(63) NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
