@@ -153,6 +153,7 @@ class LookupTableFunctions(
         return getOktaAuthenticator(PrincipalLevel.SYSTEM_ADMIN).checkAccess(request) { oktaAuthenticatedClaim ->
             val inputData: List<Map<String, String>>
             try {
+                val tableMd5 = request.queryParameters[tableMd5]
                 inputData = mapper.readValue(request.body!!.toString())
                 if (inputData.isEmpty())
                     HttpUtilities.badRequestResponse(
@@ -181,7 +182,8 @@ class LookupTableFunctions(
                         }
                         val latestVersion = lookupTableAccess.fetchLatestVersion(tableName) ?: 0
                         val newVersion = latestVersion + 1
-                        lookupTableAccess.createTable(tableName, newVersion, tableRows, oktaAuthenticatedClaim.userName)
+                        lookupTableAccess.createTable(tableName, tableMd5, newVersion, tableRows,
+                            oktaAuthenticatedClaim.userName)
 
                         // Return the table version info
                         val json = mapper
@@ -251,5 +253,10 @@ class LookupTableFunctions(
          * Name of the query parameter to show inactive tables.
          */
         const val showInactiveParamName = "showInactive"
+
+        /**
+         * Name of the query parameter to md5 tables checksum.
+         */
+        const val tableMd5 = "tableMd5"
     }
 }

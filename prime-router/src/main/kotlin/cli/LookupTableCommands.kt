@@ -31,6 +31,7 @@ import com.github.kittinunf.result.Result
 import com.google.common.base.Preconditions
 import de.m3y.kformat.Table
 import de.m3y.kformat.table
+import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.LookupTableFunctions
 import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableVersion
@@ -41,6 +42,7 @@ import org.jooq.JSONB
 import java.io.File
 import java.io.IOException
 import java.nio.file.NoSuchFileException
+import java.security.MessageDigest
 import java.time.Instant
 
 /**
@@ -142,9 +144,9 @@ class LookupTableEndpointUtilities(val environment: Environment) {
      * @throws TableNotFoundException if the table and/or version is not found
      * @throws IOException if there is a server or API error
      */
-    fun createTable(tableName: String, tableData: List<Map<String, String>>):
+    fun createTable(tableName: String, tableMd5: String?, tableData: List<Map<String, String>>):
         LookupTableVersion {
-        val apiUrl = environment.formUrl("$endpointRoot/$tableName")
+        val apiUrl = environment.formUrl("$endpointRoot/$tableName?table&tableMd5=$tableMd5")
         val jsonPayload = mapper.writeValueAsString(tableData)
 
         val (_, response, result) = Fuel
@@ -332,10 +334,10 @@ class LookupTableCommands : CliktCommand(
                 hints {
                     borderStyle = Table.BorderStyle.SINGLE_LINE
                 }
-                header("Table Name", "Version", "Is Active", "Created By", "Created At")
+                header("Table Name", "Version", "Table MD5", "Is Active", "Created By", "Created At")
                 versionList.forEach {
                     row(
-                        it.tableName, it.tableVersion, it.isActive.toString(), it.createdBy,
+                        it.tableName, it.tableVersion, it.tableMd5, it.isActive.toString(), it.createdBy,
                         it.createdAt.toString()
                     )
                 }
@@ -528,11 +530,20 @@ class LookupTableCreateCommand : GenericLookupTableCommand(
     private val tableName by option("-n", "--name", help = "The name of the table to perform the operation on")
         .required()
 
+    /**
+     * The table MD5 checksum.
+     */
+    private val tableMd5 by option("-c", "--checksum", help = "The MD5 checksum of the table")
+
     override fun run() {
         // Read the input file.
         val inputData = csvReader().readAllWithHeader(inputFile)
-        if (inputData.size <= 1)
-            error("Input file ${inputFile.absolutePath} has no data.")
+        // Note: csvReader returns size of data-row(s) and NOT include the header-row.
+        // (i.e. If the file contains of header row, it returns size = 0)
+        if (inputData.size < 1) {
+            TermUi.echo("WARNING: Input file ${inputFile.absolutePath} has no data.")
+            return
+        }
 
         // Output the data for review.
         if (!silent) {
@@ -573,7 +584,7 @@ class LookupTableCreateCommand : GenericLookupTableCommand(
                 == true
             ) || silent
         ) {
-            val newTableInfo = try { tableUtil.createTable(tableName, inputData) } catch (e: IOException) {
+            val newTableInfo = try { tableUtil.createTable(tableName, tableMd5, inputData) } catch (e: IOException) {
                 throw PrintMessage("Error creating new table version for $tableName: ${e.message}", true)
             }
             TermUi.echo(
@@ -803,9 +814,34 @@ class LookupTableLoadAllCommand : GenericLookupTableCommand(
         .flag(default = false)
 
     /**
+     * Activate a created table in one shot.
+     */
+    private val force by option("-f", "--force", help = "Force to create table(s)")
+        .flag(default = false)
+
+    /**
      * The reference to the table creator command.
      */
     private val tableCreator = LookupTableCreateCommand()
+
+
+    /**
+     * Calculate MD5 checksum for the file.
+     * @return a string of MD5 checksum
+     */
+   fun File.md5(): String {
+        val md = MessageDigest.getInstance("MD5")
+        return this.inputStream().use { fis ->
+            val buffer = ByteArray(8192)
+            generateSequence {
+                when (val bytesRead = fis.read(buffer)) {
+                    -1 -> null
+                    else -> bytesRead
+                }
+            }.forEach { bytesRead -> md.update(buffer, 0, bytesRead) }
+            md.digest().joinToString("") { "%02x".format(it) }
+        }
+    }
 
     override fun run() {
         if (environment != Environment.LOCAL) error("This command is only allowed in the local environment.")
@@ -827,9 +863,26 @@ class LookupTableLoadAllCommand : GenericLookupTableCommand(
         } catch (e: NoSuchFileException) {
             error("Directory ${dir.absolutePath} does not exist")
         }
+
+        // If there is an existing active version then present a diff.
+        val activeTableList = try {
+            tableUtil.fetchList()
+        } catch (e: IOException) {
+            throw PrintMessage("Error fetching the list of tables: ${e.message}", true)
+        }
+
         TermUi.echo("Loading ${files.size} tables from ${dir.absolutePath}...")
-        files.forEach {
+        files.forEach { it ->
+            val tableMd5 = it.md5()
             val tableName = it.nameWithoutExtension
+
+            // Check to see if the table is up-to-date
+            val upToDateTable = activeTableList.firstOrNull { it.tableName == tableName && it.tableMd5 == tableMd5}
+            if (upToDateTable != null && !force) {
+                TermUi.echo("Skipping $tableName since it is up-to-date.")
+                return@forEach
+            }
+
             var needToLoad = true
             // If we have a table in the database then only update it if the last modified time of the file is 
             // greater than the created time in the database.
@@ -844,7 +897,7 @@ class LookupTableLoadAllCommand : GenericLookupTableCommand(
             if (needToLoad) {
                 TermUi.echo("Creating table $tableName...")
                 val args = mutableListOf(
-                    "-e", environment.toString().lowercase(), "-n", tableName,
+                    "-e", environment.toString().lowercase(), "-n", tableName, "-c", tableMd5,
                     "-i", it.absolutePath, "-s", "-a"
                 )
                 tableCreator.main(args)
