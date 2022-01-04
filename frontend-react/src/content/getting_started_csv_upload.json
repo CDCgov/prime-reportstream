@@ -337,6 +337,68 @@
             ]
         },
         {
+            "name": "Test performed code",
+            "colHeader": "test_performed_code",
+            "colHeaderReportstream": "",            
+            "required": true,
+            "acceptableFormat": false,
+            "acceptableValues": false,
+            "example": true,
+            "valueMessage": "",
+            "valueType": "LOINC code",
+            "values": [
+                "94534-5",
+                "94558-4",
+                "97097-0",
+                "94507-1",
+                "94508-9"
+            ],               
+            "notes": [
+               "Enter TestPerformed Code value from Department of Health and Human Services’ (HHS) LOINC Mapping spreadsheet. File will fail if value not entered using acceptable values or field is left blank.",
+               "Use the same Mapping Tool labeled LIVD SARS-CoV-2 Test Codes.xlsx. From the LOINC Mapping tab, go to Column F labeled Test Performed LOINC Code. Locate the corresponding value to enter"
+            ]
+        },
+        {
+            "name": "Test result",
+            "colHeader": "test_result",
+            "colHeaderReportstream": "",            
+            "required": true,
+            "acceptableFormat": false,
+            "acceptableValues": false,
+            "example": true,
+            "valueMessage": "",
+            "valueType": "Common values, SNOMED code",
+            "values": [
+                "Positive",
+                "Negative",
+                "Not Detected",
+                "Detected",
+                "Invalid Result" 
+            ],               
+            "notes": [
+               "File will fail if value not entered using acceptable text values or SNOMED codes or field is left blank. ",
+               "Enter a value from the Common Values listed. If needed, can use the same Mapping Tool labeled LIVD SARS-CoV-2 Test Codes.xlsx to locate SNOMED code values instead.", 
+               "From the “LOINC Mapping” tab, go to Column Column E labeled Vendor Result Description. Locate SNOMED code value and enter into field (Example: Positive = 260373001) "              
+            ]
+        },
+        {
+            "name": "",
+            "colHeader": "",
+            "colHeaderReportstream": "",            
+            "required": true,
+            "acceptableFormat": false,
+            "acceptableValues": false,
+            "example": false,
+            "valueMessage": "",
+            "valueType": "",
+            "values": [
+                "value" 
+            ],               
+            "notes": [
+               "note"              
+            ]
+        },
+        {
             "name": "",
             "colHeader": "",
             "colHeaderReportstream": "",            
@@ -357,12 +419,11 @@
     ],
     "foo" : [
         
-        "",
+   
         "message_id",
         "placer_order_id",
         "filler_order_id",
-        "",
-        "test_performed_code",
+   
         "test_result",
         "order_test_date",
         "specimen_collection_date_time",
