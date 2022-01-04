@@ -138,7 +138,7 @@ The **ONLY** thing is, while this is going on, we must keep the `organization` c
 
 ### The `Authentication` class
 
-This is a basic approach to how we can handle parsing claims into our own Objects. This object needs to be persisted so long as a user is logged in (likely via cookies).
+This is a basic approach to how we can handle parsing claims into our own Objects. This object needs to be persisted so long as a user is logged in (likely via `sessionStorage`).
 ```typescript
 export class Authentication {
     accessToken: string;
@@ -152,13 +152,13 @@ export class Authentication {
         document.cookie = generateCookie(accessToken, claims)
     }
 
-    function generateCookie(...args) {
-        /* Generate cookie string from args */
+    function updateStore() {
+        /* Creates and updates session storage version of Object */
     }
 
     /* Accessible inside and outside of React components */
-    function getAuthCookie(): Authentication {
-        return /* code that gets cookie */
+    function getAuth(): Authentication {
+        return /* Authentication from sessionStorage */
     }
 
     function userHasClaim(claim: string): boolean {
