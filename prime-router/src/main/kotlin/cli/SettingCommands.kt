@@ -126,18 +126,18 @@ abstract class SettingCommand(
     /**
      * The environment specified by the command line parameters
      */
-    val cliEnvironment: Environment by lazy {
+    val environment: Environment by lazy {
         Environment.get(env)
     }
 
     /**
      * The access token left by a previous login command as specified by the command line parameters
      */
-    val cliAccessToken: String by lazy {
-        if (cliEnvironment.oktaApp == null) {
+    val oktaAccessToken: String by lazy {
+        if (environment.oktaApp == null) {
             dummyAccessToken
         } else {
-            OktaCommand.fetchAccessToken(cliEnvironment.oktaApp)
+            OktaCommand.fetchAccessToken(environment.oktaApp)
                 ?: abort(
                     "Invalid access token. " +
                         "Run ./prime login to fetch/refresh your access token for the $env environment."
@@ -307,17 +307,17 @@ abstract class SettingCommand(
         deepOrganizations.forEach { deepOrg ->
             val org = Organization(deepOrg)
             val payload = jsonMapper.writeValueAsString(org)
-            settingsDiff += diff(cliEnvironment, cliAccessToken, SettingType.ORGANIZATION, deepOrg.name, payload)
+            settingsDiff += diff(environment, oktaAccessToken, SettingType.ORGANIZATION, deepOrg.name, payload)
         }
         // diff senders
         deepOrganizations.flatMap { it.senders }.forEach { sender ->
             val payload = jsonMapper.writeValueAsString(sender)
-            settingsDiff += diff(cliEnvironment, cliAccessToken, SettingType.SENDER, sender.fullName, payload)
+            settingsDiff += diff(environment, oktaAccessToken, SettingType.SENDER, sender.fullName, payload)
         }
         // diff receivers
         deepOrganizations.flatMap { it.receivers }.forEach { receiver ->
             val payload = jsonMapper.writeValueAsString(receiver)
-            settingsDiff += diff(cliEnvironment, cliAccessToken, SettingType.RECEIVER, receiver.fullName, payload)
+            settingsDiff += diff(environment, oktaAccessToken, SettingType.RECEIVER, receiver.fullName, payload)
         }
         return settingsDiff.sortedWith(compareBy({ it.settingType.name }, { it.settingName }))
     }
@@ -357,17 +357,17 @@ abstract class SettingCommand(
         deepOrganizations.forEach { deepOrg ->
             val org = Organization(deepOrg)
             val payload = jsonMapper.writeValueAsString(org)
-            results += put(cliEnvironment, cliAccessToken, SettingType.ORGANIZATION, deepOrg.name, payload)
+            results += put(environment, oktaAccessToken, SettingType.ORGANIZATION, deepOrg.name, payload)
         }
         // Put senders
         deepOrganizations.flatMap { it.senders }.forEach { sender ->
             val payload = jsonMapper.writeValueAsString(sender)
-            results += put(cliEnvironment, cliAccessToken, SettingType.SENDER, sender.fullName, payload)
+            results += put(environment, oktaAccessToken, SettingType.SENDER, sender.fullName, payload)
         }
         // Put receivers
         deepOrganizations.flatMap { it.receivers }.forEach { receiver ->
             val payload = jsonMapper.writeValueAsString(receiver)
-            results += put(cliEnvironment, cliAccessToken, SettingType.RECEIVER, receiver.fullName, payload)
+            results += put(environment, oktaAccessToken, SettingType.RECEIVER, receiver.fullName, payload)
         }
         return results
     }
@@ -529,8 +529,8 @@ abstract class ListSettingCommand(
     override fun run() {
         if (settingType != SettingType.ORGANIZATION && settingName.isBlank())
             abort("Missing organization name argument")
-        checkApi(cliEnvironment)
-        val output = listNames(cliEnvironment, cliAccessToken, settingType, settingName)
+        checkApi(environment)
+        val output = listNames(environment, oktaAccessToken, settingType, settingName)
         writeOutput(output.joinToString("\n"))
     }
 }
@@ -547,8 +547,8 @@ abstract class GetSettingCommand(
     private val useJson: Boolean by jsonOption
 
     override fun run() {
-        checkApi(cliEnvironment)
-        val output = get(cliEnvironment, cliAccessToken, settingType, settingName)
+        checkApi(environment)
+        val output = get(environment, oktaAccessToken, settingType, settingName)
         if (useJson) writeOutput(output) else writeOutput(toYaml(output, settingType))
     }
 }
@@ -564,8 +564,8 @@ abstract class DeleteSettingCommand(
     private val settingName: String by nameOption
 
     override fun run() {
-        checkApi(cliEnvironment)
-        delete(cliEnvironment, cliAccessToken, settingType, settingName)
+        checkApi(environment)
+        delete(environment, oktaAccessToken, settingType, settingName)
         writeOutput("Success. Removed $settingName\n")
     }
 }
@@ -582,19 +582,19 @@ abstract class PutSettingCommand(
     private val useJson: Boolean by jsonOption
 
     override fun run() {
-        checkApi(cliEnvironment)
+        checkApi(environment)
         val (name, payload) = if (useJson)
             fromJson(readInput(inputFile), settingType)
         else
             fromYaml(readInput(inputFile), settingType)
         if (!silent) {
-            val differences = diff(cliEnvironment, cliAccessToken, settingType, name, payload)
+            val differences = diff(environment, oktaAccessToken, settingType, name, payload)
             if (differences.isNotEmpty()) {
                 echoDiff(differences)
                 confirm()
             }
         }
-        val output = put(cliEnvironment, cliAccessToken, settingType, name, payload)
+        val output = put(environment, oktaAccessToken, settingType, name, payload)
         writeOutput(output)
     }
 }
@@ -611,12 +611,12 @@ abstract class DiffSettingCommand(
     private val useJson: Boolean by jsonOption
 
     override fun run() {
-        checkApi(cliEnvironment)
+        checkApi(environment)
         val (name, payload) = if (useJson)
             fromJson(readInput(inputFile), settingType)
         else
             fromYaml(readInput(inputFile), settingType)
-        val differences = diff(cliEnvironment, cliAccessToken, settingType, name, payload)
+        val differences = diff(environment, oktaAccessToken, settingType, name, payload)
         if (differences.isNotEmpty())
             echoDiff(differences)
         else
@@ -651,7 +651,7 @@ class ListOrganizationSetting : SettingCommand(
     help = "List the setting names of all organizations"
 ) {
     override fun run() {
-        val output = listNames(cliEnvironment, cliAccessToken, SettingType.ORGANIZATION, "")
+        val output = listNames(environment, oktaAccessToken, SettingType.ORGANIZATION, "")
         writeOutput(output.joinToString("\n"))
     }
 }
@@ -823,8 +823,8 @@ class PutMultipleSettings : SettingCommand(
 
     override fun run() {
         // First wait for the API to come online
-        echo("Waiting for the API at ${cliEnvironment.url} to be available...")
-        CommandUtilities.waitForApi(cliEnvironment, connRetries)
+        echo("Waiting for the API at ${environment.url} to be available...")
+        CommandUtilities.waitForApi(environment, connRetries)
 
         if (!checkLastModified || (checkLastModified && isFileUpdated())) {
             echo("Loading settings from ${inputFile.absolutePath}...")
@@ -848,9 +848,9 @@ class PutMultipleSettings : SettingCommand(
      * @return true if the file settings are newer or there is nothing in the database, false otherwise
      */
     private fun isFileUpdated(): Boolean {
-        val url = formPath(cliEnvironment, Operation.LIST, SettingType.ORGANIZATION, "")
+        val url = formPath(environment, Operation.LIST, SettingType.ORGANIZATION, "")
         val (_, response, result) = Fuel.head(url).authentication()
-            .bearer(cliAccessToken).response()
+            .bearer(oktaAccessToken).response()
         return when (result) {
             is Result.Success -> {
                 if (response[HttpHeaders.LAST_MODIFIED].isNotEmpty()) {
@@ -877,7 +877,7 @@ class DiffMultipleSettings : SettingCommand(
     private val inputFile by inputOption
 
     override fun run() {
-        checkApi(cliEnvironment)
+        checkApi(environment)
         echo("Loading settings from ${inputFile.absolutePath} to compare...")
         val differences = diffAll(inputFile)
         if (differences.isNotEmpty()) {
@@ -899,8 +899,8 @@ class GetMultipleSettings : SettingCommand(
     )
 
     override fun run() {
-        checkApi(cliEnvironment)
-        val output = getAll(cliEnvironment, cliAccessToken)
+        checkApi(environment)
+        val output = getAll(environment, oktaAccessToken)
         writeOutput(output)
     }
 

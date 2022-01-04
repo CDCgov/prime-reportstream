@@ -103,7 +103,9 @@ java {
 val compileKotlin: KotlinCompile by tasks
 val compileTestKotlin: KotlinCompile by tasks
 compileKotlin.kotlinOptions.jvmTarget = "11"
+compileKotlin.kotlinOptions.allWarningsAsErrors = true
 compileTestKotlin.kotlinOptions.jvmTarget = "11"
+compileTestKotlin.kotlinOptions.allWarningsAsErrors = true
 
 tasks.clean {
     // Delete the old Maven build folder
@@ -591,9 +593,9 @@ dependencies {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
-    implementation("org.apache.logging.log4j:log4j-api:[2.17.0,)")
-    implementation("org.apache.logging.log4j:log4j-core:[2.17.0,)")
-    implementation("org.apache.logging.log4j:log4j-slf4j-impl:[2.17.0,)")
+    implementation("org.apache.logging.log4j:log4j-api:[2.17.1,)")
+    implementation("org.apache.logging.log4j:log4j-core:[2.17.1,)")
+    implementation("org.apache.logging.log4j:log4j-slf4j-impl:[2.17.1,)")
     implementation("org.apache.logging.log4j:log4j-api-kotlin:1.1.0")
     implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.2.0")
     implementation("tech.tablesaw:tablesaw-core:0.42.0")

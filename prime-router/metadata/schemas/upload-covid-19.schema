@@ -6,333 +6,401 @@ trackingElement: message_id
 basedOn: covid-19
 
 elements:
-  - name: sender_id
-    documentation:  Required. User should place their sender organization name in this field.
-    default: ManualUpload
-    csvFields: [ { name: senderId } ]
-
-  - name: processing_mode_code
-    documentation:  User does not need to include this column, and we'll default to 'P'
-    cardinality: ONE
-    default: P
-    csvFields: [ { name: processingModeCode } ]
-
-  - name: placer_order_id
-    documentation:  User does not need to include this column; we'll populate it.
-    mapper: use(message_id)
-
-  - name: filler_order_id
-    documentation:  User does not need to include this column; we'll populate it.
-    mapper: use(message_id)
-
-  - name: message_id
-    documentation: Required. A unique id for this submission of data.  Do not re-use when correcting previous results.  Rather, submit a new testId, and use the correctedTestId to refer to the testId of the old submission.   
-    csvFields: [{ name: testId}]
-
-  - name: previous_message_id
-    csvFields: [{name: correctedTestId}]
-
-  - name: specimen_id
-    mapper: use(message_id)
-    documentation: User does not need to include this column.  We'll copy the value from the testId if none is provided here.
-    csvFields: [{ name: specimenId}]
-
-  ### LIVD Related fields.
-
-  - name: test_kit_name_id
-    cardinality: ONE
-    documentation: Required; we'll fill in if blank.  If filled in, must match a value from LIVD column M, "Test Kit Name ID"
-    csvFields: [{ name: deviceIdentifier}]
-
-  - name: equipment_model_name
-    documentation: Must match a value from LIVD column B, "Model". eg,  "BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B"
-    csvFields: [{ name: deviceName}]
-
-  - name: test_performed_code
-    documentation: User does not need to include this column.  It'll get filled in automatically.
-    csvFields: [{ name: testPerformed }]
-
-  - name: ordered_test_code
-    # A LOINC eg, 94531-1.  However, this should get auto filled in from the LIVD table
-    documentation:  Leave this blank and we'll fill it in automatically.
-    csvFields: [{ name: testOrdered}]
-
-  - name: test_result
-    cardinality: ONE
-    documentation:  Specify a code.  For example, 260373001
-    csvFields: [{ name: testResult }]
-
-  - name: test_result_status
-    # F == final.
-    default: F
-    documentation:  User does not need to include this column.  It'll get filled in automatically
-    csvFields: [{ name: testResultStatus }]
-
-  # REMOVED (or should we default to SCT??) - name: test_result_coding_system
-  #  documentation: eg, SCT.   Custom
-  #  type: TEXT
-  #  csvFields: [{ name: testResultCodingSystem }]
-
-  - name: specimen_type
-    # Make this required since its required by our qualityFilter
-    cardinality: ONE
-    csvFields: [{ name: specimenSource}]
-
-  # THERE ARE FOUR DATE FIELDS.... 1) test ordered, 2) specimen collected, 3) specimen received, 4) test result
-  # Our usual filter is:  hasAtLeastOneOf(order_test_date,specimen_collection_date_time,test_result_date)"
-
-  - name: order_test_date
-    documentation: eg, 20210108
-    csvFields: [{ name: testOrderedDate}]
-
-  - name: specimen_collection_date_time
-    documentation: eg, 20210113
-    csvFields: [{ name: specimenCollectedDate}]
-
-  - name: testing_lab_specimen_received_datetime
-    documentation: Optional. User does not need to include this column - We'll fill it in from the specimenCollectedDate
-    csvFields: [{ name: specimenReceivedDate}]
-
-  - name: test_result_date
-    documentation: eg, 20210111
-    csvFields: [{ name: testResultDate}]
-
-  ### Begin Patient Info
-
-  - name: patient_last_name
-    documentation:  Required
-    csvFields: [{ name: patientNameLast}]
-
-  - name: patient_first_name
-    documentation:  Required
-    cardinality: ONE
-    csvFields: [{ name: patientNameFirst}]
+    - name: sender_id
+      type: CODE
+      cardinality: ONE 
+      documentation: Validate the sender_id received against the valid list of Senders in the sender-automation.valueset
+      valueSet: sender-automation/sender_id
+      csvFields: [{ name: sender_id, format: $display}]
+
+    - name: processing_mode_code
+      type: CODE
+      cardinality: ONE 
+      documentation: Retrieve the processing_mode_code for a Sender from the sender-automation.valueset
+      valueSet: sender-automation/processing_mode_code
+      csvFields: [{ name: sender_id, format: $display}]
+
+
+############### Set the major ID fields
+    - name: patient_id
+      csvFields: [{name: patient_id}]
+
+    - name: accession_number_temp
+      mapper: concat(patient_id, $index, $currentDate)
+      delimiter: "+"
+
+    - name: filler_order_id_temp
+      csvFields: [ { name: accession_number } ]
+
+    - name: filler_order_id
+      csvFields: [ { name: accession_number } ]
+      mapperOverridesValue: true
+      mapper: ifNotPresent($mode:lookup, accession_number_temp, filler_order_id_temp)
+
+    - name: placer_order_id
+      mapper: use(filler_order_id)
+
+    - name: message_id
+      mapper: use(filler_order_id)
+
+    - name: testing_lab_specimen_id
+      mapper: use(filler_order_id)
+
+
+############### Patient Info
+    - name: patient_id_type
+      default: "PI"
+
+    - name: patient_last_name
+      cardinality: ONE 
+      csvFields: [{name: patient_last_name}]
+
+    - name: patient_middle_name
+      csvFields: [{name: patient_middle_name}]
+
+    - name: patient_first_name
+      cardinality: ONE 
+      csvFields: [{name: patient_first_name}]
+
+    - name: patient_street
+      cardinality: ONE 
+      csvFields: [{name: patient_street}]
+
+    - name: patient_street2
+      csvFields: [{name: patient_street2}]
+
+    - name: patient_city
+      cardinality: ONE 
+      csvFields: [{name: patient_city}]
+
+    - name: patient_state
+      cardinality: ONE 
+      csvFields: [{name: patient_state}]
+
+    - name: patient_zip_code
+      cardinality: ONE 
+      csvFields: [{name: patient_zip_code}]
+
+    - name: patient_county
+      type: TEXT
+      cardinality: ZERO_OR_ONE
+      csvFields: [{name: patient_county}]
+
+    - name: patient_county_code
+      type: TABLE
+      cardinality: ZERO_OR_ONE
+      table: fips-county
+      tableColumn: FIPS
+      mapper: lookup(patient_state, patient_county)
+
+    - name: patient_phone_number
+      csvFields: [{name: patient_phone_number}]
+
+    - name: patient_dob
+      cardinality: ONE 
+      csvFields: [{name: patient_dob, format: "yyyyMMdd"}]
+
+    - name: patient_gender
+      cardinality: ONE 
+      type: CODE
+      valueSet: sender-automation/gender
+      documentation: Translate multiple inbound Gender values to RS values
+      csvFields: [{ name: patient_gender, format: $display}]
+
+    - name: patient_ethnicity
+      type: CODE
+      cardinality: ONE 
+      valueSet: sender-automation/ethnicity
+      documentation: Translate multiple inbound ethnicity values to RS / OMB values
+      csvFields: [{ name: patient_ethnicity, format: $display}]
+
+    - name: patient_race
+      type: CODE
+      cardinality: ONE 
+      valueSet: sender-automation/race
+      documentation: Translate multiple inbound Race values to RS / OMB values
+      csvFields: [{ name: patient_race, format: $display}]
+
+
+
+############### Order Info / Result Info / Specimen Info
+    - name: order_test_date
+      cardinality: ONE 
+      csvFields: [{name: order_test_date, format: "yyyyMMdd"}]
+
+    - name: specimen_collection_date_temp
+      csvFields: [{name: specimen_collection_date }]
+
+    - name: specimen_collection_date_time
+      cardinality: ONE 
+      csvFields: [{name: specimen_collection_date, format: "yyyyMMdd"}]
+      mapperOverridesValue: true
+      mapper: ifNotPresent($mode:lookup, order_test_date, specimen_collection_date_temp)
+
+    - name: testing_lab_specimen_received_date_temp
+      csvFields: [{name: testing_lab_specimen_received_date, format: "yyyyMMdd"}]
+
+    - name: testing_lab_specimen_received_datetime
+      cardinality: ONE 
+      csvFields: [{name: testing_lab_specimen_received_date, format: "yyyyMMdd"}]
+      mapperOverridesValue: true
+      mapper: ifNotPresent($mode:lookup, order_test_date, testing_lab_specimen_received_date_temp)
+
+    - name: test_result_date
+      cardinality: ONE 
+      csvFields: [{name: test_result_date, format: "yyyyMMdd"}]
+
+    - name: date_result_released_temp
+      csvFields: [{name: date_result_released, format: "yyyyMMdd"}]
+
+    - name: date_result_released
+      cardinality: ONE 
+      csvFields: [{name: date_result_released, format: "yyyyMMdd"}]
+      mapperOverridesValue: true
+      mapper: ifNotPresent($mode:lookup, test_result_date, date_result_released_temp)
 
-  - name: patient_middle_name
-    csvFields: [{ name: patientNameMiddle}]
+    - name: test_result
+      cardinality: ONE 
+      type: CODE
+      valueSet: sender-automation/test_result
+      documentation: Translate multiple inbound Test Result values to RS values
+      csvFields: [{ name: test_result, format: $display}]
 
-  - name: patient_id
-    csvFields: [{ name: patientUniqueId}]
+    - name: test_result_status
+      default: F
 
-  - name: patient_id_type
-    documentation:  User does not need to include this column.
-    default: PI
+    - name: specimen_type
+      cardinality: ONE 
+      type: CODE
+      valueSet: sender-automation/specimen_type
+      documentation: Translate inbound text to outbound SNOMED Codes
+      csvFields: [{ name: specimen_type, format: $display}]
 
-  # Could we get rid of this and just calculate?
-  - name: patient_age
-    csvFields: [{ name: patientAge}]
+    - name: specimen_source_site_code
+      cardinality: ONE 
+      type: CODE
+      valueSet: sender-automation/specimen_source_site_code
+      documentation: Translate inbound text to outbound SNOMED Codes
+      csvFields: [{ name: specimen_type, format: $display}]
 
-  # Using the HHS guidance instead of the FHIR UCUM codes (see https://www.hl7.org/fhir/valueset-age-units.html)
-  # In particular, using 'yr' for year instead of 'a'
-  - name: patient_age_units
-    type: CODE
-    pii: false
-    documentation:  User does not need to include this column.  Default to 'yr' if not specified.
-    cardinality: ZERO_OR_ONE
-    default: yr
-    valueSet: hhs_age_units
-    csvFields: [{ name: patientAgeUnits}]
 
-  - name: patient_dob
-    # This field is required by our default quality filter, so we'll make it required here.
-    cardinality: ONE
-    csvFields: [{ name: patientDob}]
+############### LIVD Lookup() related fields
+    - name: test_kit_name_id
+      cardinality: ONE 
+      type: TEXT
+      csvFields: [{name: test_kit_name_id }]
 
-  - name: patient_race
-    csvFields: [{ name: patientRace}]
+    - name: test_performed_code
+      cardinality: ONE 
+      type: TEXT
+      csvFields: [{name: test_performed_code}]
 
-  - name: patient_ethnicity
-    documentation:  Use the required HHS values. (2135-2, 2186-5, UNK, ASKU)
-    altValues:
-      - code: H
-        display: 2135-2
-      - code: N
-        display: 2186-5
-      - code: U
-        display: UNK
-      - code: U
-        display: ASKU
-    csvFields: [{ name: patientEthnicity, format: $alt}]
+    # Appears this RS field must be set even if it is not being used for the LIVD table lookup
+    - name: equipment_model_name
 
-  - name: patient_gender
-    csvFields: [{ name: patientSex}]
 
-  - name: patient_street
-    csvFields: [{ name: patientHomeAddress}]
+############### Ordering provider info
+    - name: ordering_provider_id
+      cardinality: ONE 
+      csvFields: [{name: ordering_provider_id}]
 
-  - name: patient_street2
-    csvFields: [{ name: patientHomeAddress2}]
+    - name: ordering_provider_last_name
+      cardinality: ONE 
+      csvFields: [{name: ordering_provider_last_name}]
 
-  - name: patient_city
-    csvFields: [{ name: patientCity}]
+    - name: ordering_provider_first_name
+      cardinality: ONE 
+      csvFields: [{name: ordering_provider_first_name}]
 
-  - name: patient_state
-    documentation: Required. Extremely important field for routing data to states.
-    csvFields: [{ name: patientState}]
+    - name: ordering_provider_middle_name
+      csvFields: [{name: ordering_provider_middle_name}]
 
-  - name: patient_zip_code 
-    csvFields: [{ name: patientZip}]
+    - name: ordering_provider_street
+      cardinality: ONE 
+      csvFields: [{name: ordering_provider_street}]
 
-  - name: patient_county
-    csvFields: [{ name: patientCounty}]
+    - name: ordering_provider_street2
+      csvFields: [{name: ordering_provider_street2}]
 
-  - name: patient_phone_number
-    csvFields: [{ name: patientPhone}]
+    - name: ordering_provider_city
+      cardinality: ONE 
+      csvFields: [{name: ordering_provider_city}]
 
-  - name: patient_email
-    csvFields: [{ name: patientEmail}]
+    - name: ordering_provider_state
+      cardinality: ONE 
+      csvFields: [{name: ordering_provider_state}]
 
-  ### Begin Ordering Provider Info
+    - name: ordering_provider_zip_code
+      cardinality: ONE 
+      csvFields: [{name: ordering_provider_zip_code}]
+
+    - name: ordering_provider_phone_number
+      cardinality: ONE 
+      csvFields: [{name: ordering_provider_phone_number}]
 
-  - name: ordering_provider_id
-    documentation:  eg, "1265050918"
-    csvFields: [{ name: orderingProviderNpi}]
 
-  - name: ordering_provider_last_name
-    csvFields: [{ name: orderingProviderLname}]
+############### Testing lab info
+    - name: testing_lab_clia
+      cardinality: ONE 
+      csvFields: [{name: testing_lab_clia}]
 
-  - name: ordering_provider_first_name
-    csvFields: [{ name: orderingProviderFname}]
+    - name: testing_lab_id
+      csvFields: [{name: testing_lab_clia}]
 
-  - name: ordering_provider_street
-    csvFields: [{ name: orderingProviderAddress}]
+    - name: testing_lab_name
+      cardinality: ONE 
+      csvFields: [{name: testing_lab_name}]
 
-  - name: ordering_provider_street2
-    csvFields: [{ name: orderingProviderAddress2}]
+    - name: testing_lab_street
+      cardinality: ONE 
+      csvFields: [{name: testing_lab_street}]
 
-  - name: ordering_provider_city
-    csvFields: [{ name: orderingProviderCity}]
+    - name: testing_lab_street2
+      csvFields: [{name: testing_lab_street2}]
 
-  - name: ordering_provider_state
-    csvFields: [{ name: orderingProviderState}]
+    - name: testing_lab_city
+      csvFields: [{name: testing_lab_city}]
 
-  - name: ordering_provider_zip_code
-    csvFields: [{ name: orderingProviderZip}]
+    - name: testing_lab_state
+      csvFields: [{name: testing_lab_state}]
 
-  - name: ordering_provider_phone_number
-    csvFields: [{ name: orderingProviderPhone}]
+    - name: testing_lab_zip_code
+      csvFields: [{name: testing_lab_zip_code}]
 
-  ### Begin Ordering Facility Info
+    - name: testing_lab_phone_number
+      csvFields: [{name: testing_lab_phone_number}]
 
-  - name: ordering_facility_name
-    csvFields: [{ name: orderingFacilityName}]
 
-  - name: ordering_facility_street
-    csvFields: [{ name: orderingFacilityStreet}]
+############### Ordering facility info
+    - name: ordering_facility_name_temp
+      csvFields: [{name: ordering_facility_name}]
 
-  - name: ordering_facility_street2
-    csvFields: [{ name: orderingFacilityStreet2}]
-
-  - name: ordering_facility_city
-    csvFields: [{ name: orderingFacilityCity}]
-
-  - name: ordering_facility_state
-    cardinality:  ONE
-    documentation:  Note that many states expect this field to be available, or ReportStream is not able to route data to them.  Please provide if possible in order for us to route to as many states as possible.
-    csvFields: [{ name: orderingFacilityState}]
-
-  - name: ordering_facility_zip_code
-    csvFields: [{ name: orderingFacilityZip}]
-
-  - name: ordering_facility_county
-    csvFields: [{ name: orderingFacilityCounty}]
-
-  - name: ordering_facility_phone_number
-    csvFields: [{ name: orderingFacilityPhone}]
-
-  - name: ordering_facility_email
-    csvFields: [{ name: orderingFacilityEmail}]
-
-  ### Begin Testing Lab Info
-
-  - name: testing_lab_clia
-    cardinality: ONE
-    documentation: Expecting a CLIA number here.  eg, "10D2218834"
-    csvFields: [{ name: performingFacilityClia}]
-
-  - name: testing_lab_name
-    cardinality: ONE
-    csvFields: [{ name: performingFacilityName}]
-
-  - name: testing_lab_street
-    csvFields: [{ name: performingFacilityStreet}]
-
-  - name: testing_lab_street2
-    csvFields: [{ name: performingFacilityStreet2}]
-
-  - name: testing_lab_city
-    csvFields: [{ name: performingFacilityCity}]
-
-  - name: testing_lab_state
-    csvFields: [{ name: performingFacilityState}]
-
-  - name: testing_lab_zip_code
-    csvFields: [{ name: performingFacilityZip}]
-
-  - name: testing_lab_county
-    csvFields: [{ name: performingFacilityCounty}]
-
-  - name: testing_lab_phone_number
-    csvFields: [{ name: performingFacilityPhone}]
-
-  ### AOE and related Questions
-
-  - name: first_test
-    type: CODE
-    valueSet: hl70136
-    documentation:  AOE - Is this the patient's first test for COVID-19
-    csvFields: [{ name: firstTest }]
-
-  - name: employed_in_healthcare
-    type: CODE
-    valueSet: hl70136
-    documentation:  AOE - Is the patient employed in a healthcare setting?
-    csvFields: [{ name: healthcareEmployee }]
-
-  - name: symptomatic_for_disease
-    type: CODE
-    valueSet: hl70136
-    documentation: AOE - Does the patient have symptoms related to COVID-19?
-    csvFields: [{ name: symptomatic }]
-
-  - name: illness_onset_date
-    documentation: AOE - Date of symptom onset
-    csvFields: [{ name: symptomOnsetDate }]
-
-  - name: hospitalized
-    type: CODE
-    valueSet: hl70136
-    documentation: AOE - Was the patient hospitalized because of COVID-19?
-    csvFields: [{ name: hospitalized }]
-
-  - name: icu
-    type: CODE
-    valueSet: hl70136
-    documentation: AOE - Was the patient admitted to the intensive care unit for COVID-19?
-    csvFields: [{ name: admittedToIcu }]
-
-  - name: resident_congregate_setting
-    type: CODE
-    valueSet: hl70136
-    documentation:  AOE - Does the patient reside in a congregate care setting?
-    csvFields: [{ name: congregateResident }]
-
-  - name: pregnant
-    documentation: AOE - Is the patient pregnant? Use 77386006 for Pregnant, 60001007 for Not Pregnant, and 261665006 for Unknown.
-    csvFields: [{ name: pregnant}]
-
-  ### Other
-
-  - name: reporting_facility_name
-    mapper: use(testing_lab_name)
-
-  - name: reporting_facility_clia
-    mapper: use(testing_lab_clia)
-
-  # These fields are calculated
-  - name: test_authorized_for_otc
-  - name: test_authorized_for_home
-  - name: test_authorized_for_unproctored
-
-  
-
+    - name: ordering_facility_name
+      cardinality: ONE 
+      csvFields: [{name: ordering_facility_name}]
+      mapperOverridesValue: true
+      mapper: ifNotPresent($mode:lookup, testing_lab_name, ordering_facility_name_temp)
+
+    - name: ordering_facility_street_temp
+      csvFields: [{name: ordering_facility_street}]
+
+    - name: ordering_facility_street
+      cardinality: ONE 
+      csvFields: [{name: ordering_facility_street}]
+      mapperOverridesValue: true
+      mapper: ifNotPresent($mode:lookup, testing_lab_street, ordering_facility_street_temp)
+
+    - name: ordering_facility_street2_temp
+      csvFields: [{name: ordering_facility_street2}]
+
+    - name: ordering_facility_street2
+      csvFields: [{name: ordering_facility_street2}]
+      mapperOverridesValue: true
+      mapper: ifNotPresent($mode:lookup, testing_lab_street2, ordering_facility_street2_temp)
+
+    - name: ordering_facility_city_temp
+      csvFields: [{name: ordering_facility_city}]
+
+    - name: ordering_facility_city
+      cardinality: ONE 
+      csvFields: [{name: ordering_facility_city}]
+      mapperOverridesValue: true
+      mapper: ifNotPresent($mode:lookup, testing_lab_city, ordering_facility_city_temp)
+
+    - name: ordering_facility_state_temp
+      csvFields: [{name: ordering_facility_state}]
+
+    - name: ordering_facility_state
+      cardinality: ONE 
+      csvFields: [{name: ordering_facility_state}]
+      mapperOverridesValue: true
+      mapper: ifNotPresent($mode:lookup, testing_lab_state, ordering_facility_state_temp)
+
+    - name: ordering_facility_zip_code_temp
+      csvFields: [{name: ordering_facility_zip_code}]
+
+    - name: ordering_facility_zip_code
+      cardinality: ONE 
+      csvFields: [{name: ordering_facility_zip_code}]
+      mapperOverridesValue: true
+      mapper: ifNotPresent($mode:lookup, testing_lab_zip_code, ordering_facility_zip_temp)
+
+    - name: ordering_facility_phone_number_temp
+      csvFields: [{name: ordering_facility_phone_number}]
+
+    - name: ordering_facility_phone_number
+      cardinality: ONE 
+      csvFields: [{name: ordering_facility_phone_number}]
+      mapperOverridesValue: true
+      mapper: ifNotPresent($mode:lookup, testing_lab_phone_number, ordering_facility_phone_number_temp)
+
+
+################ Reporting Facility Info
+    - name: reporting_facility_name
+      csvFields: [{name: testing_lab_name }]
+
+    - name: reporting_facility_clia
+      csvFields: [{name: testing_lab_clia}]
+
+
+############### Set Other Miscellaneous Info
+    - name: filler_clia
+      csvFields: [{name: testing_lab_clia}]
+
+    - name: patient_id_assigner
+      csvFields: [{name: ordering_facility_name}]
+
+
+############### AOE fields
+    - name: pregnant
+      type: CODE
+      valueSet: sender-automation/pregnant
+      documentation: Translate multiple inbound values into the Pregnancy SNOMED Codes
+      csvFields: [{ name: pregnant, format: $display}]
+      default: ""
+
+    - name: first_test
+      type: CODE
+      valueSet: sender-automation/yesno
+      documentation: Translate multiple inbound Y/N/U AOE values to RS values
+      csvFields: [{ name: first_test, format: $display}]
+      default: ""
+
+    - name: employed_in_healthcare
+      type: CODE
+      valueSet: sender-automation/yesno
+      documentation: Translate multiple inbound Y/N/U AOE values to RS values
+      csvFields: [{ name: employed_in_healthcare, format: $display}]
+      default: ""
+
+    - name: symptomatic_for_disease
+      type: CODE
+      valueSet: sender-automation/yesno
+      documentation: Translate multiple inbound Y/N/U AOE values to RS values
+      csvFields: [{ name: symptomatic_for_disease, format: $display}]
+      default: ""
+
+    - name: illness_onset_date
+      default: ""
+      csvFields: [{name: illness_onset_date, format: "yyyyMMdd"}]
+
+    - name: hospitalized
+      type: CODE
+      valueSet: sender-automation/yesno
+      documentation: Translate multiple inbound Y/N/U AOE values to RS values
+      csvFields: [{ name: hospitalized, format: $display}]
+      default: ""
+
+    - name: icu
+      type: CODE
+      valueSet: sender-automation/yesno
+      documentation: Translate multiple inbound Y/N/U AOE values to RS values
+      csvFields: [{ name: icu, format: $display}]
+      default: ""
+
+    - name: resident_congregate_setting
+      type: CODE
+      valueSet: sender-automation/yesno
+      documentation: Translate multiple inbound Y/N/U AOE values to RS values
+      csvFields: [{ name: resident_congregate_setting, format: $display}]
+      default: ""
