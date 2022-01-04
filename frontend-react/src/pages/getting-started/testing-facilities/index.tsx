@@ -12,6 +12,7 @@ import { CODES, ErrorPage } from "../../error/ErrorPage";
 import { FacilitiesOverview } from "./Overview";
 import { RegisterAnAccount } from "./RegisterAnAccount";
 import { CsvUploadGuide } from "./CsvUploadGuide";
+import { CsvSchemaDocumentation } from "./CsvSchemaDocumentation";
 
 export const GettingStartedTestingFacilities = () => {
     let { path, url } = useRouteMatch();
@@ -38,6 +39,13 @@ export const GettingStartedTestingFacilities = () => {
         >
             CSV upload guide
         </NavLink>,
+        <NavLink
+        to={`${url}/csv-schema`}
+        activeClassName="usa-current"
+        className="usa-nav__link"
+    >
+        CSV schema documentation
+    </NavLink>,
     ];
 
     return (
@@ -45,7 +53,7 @@ export const GettingStartedTestingFacilities = () => {
         <section className="border-bottom border-base-lighter margin-bottom-6">
             <div className="grid-container">
                 <div className="grid-row grid-gap">
-                    <div className="tablet:grid-col-12 margin-bottom-2">
+                    <div className="tablet:grid-col-12 margin-bottom-05">
                         <h1 className="text-ink"><span className="text-base">Getting started</span><br /> Organizations and testing facilities</h1>
                     </div>
                 </div>
@@ -73,6 +81,10 @@ export const GettingStartedTestingFacilities = () => {
                         <Route
                             path={`${path}/csv-upload-guide`}
                             component={CsvUploadGuide}
+                        />
+                        <Route
+                            path={`${path}/csv-schema`}
+                            component={CsvSchemaDocumentation}
                         />
                         {/* Handles any undefined route */}
                         <Route

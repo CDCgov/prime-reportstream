@@ -1,0 +1,125 @@
+{
+    "title": "Foo",
+    "summary": "example summary",
+    "description": "Get faster, more accurate data directly from testing facilities, labs, and more — through a single connection.",
+    "fields": [
+        {
+            "name": "Sender ID",
+            "colHeader": "sender_id",
+            "colHeaderReportstream": "",            
+            "required": "Required",
+            "acceptableFormat": false,
+            "acceptableValues": false,
+            "example": false,
+            "valueMessage": "Enter default value:",
+            "valueType": "String",
+            "values": [
+                "ManualUpload"
+            ],               
+            "notes": [
+               "Entering the default value will return a unique ReportStream value that identifies the sending facility"
+            ]
+        },
+        {
+            "name": "Patient ID",
+            "colHeader": "patient_id",
+            "colHeaderReportstream": "",            
+            "required": "Not required",
+            "acceptableFormat": false,
+            "acceptableValues": false,
+            "example": false,
+            "valueMessage": "",
+            "valueType": "Unique identifier",
+            "values": [
+                ""
+            ],               
+            "notes": [
+               "Enter unique patient identifier. This is typically the Medical Record Number. <strong><em>Do not send a Social Security Number</em></strong>. This value is not required but preferred and required by some states."
+            ]
+        },
+        {
+            "name": "",
+            "colHeader": "",
+            "colHeaderReportstream": "",            
+            "required": "",
+            "acceptableFormat": false,
+            "acceptableValues": false,
+            "example": false,
+            "valueMessage": "",
+            "valueType": "",
+            "values": [
+                "value",
+                "another value"
+            ],               
+            "notes": [
+               "note",
+               "another note"                
+            ]
+        }
+        
+    ],
+    "foo" : [
+        "patient_id",
+        "patient_last_name",
+        "patient_first_name",
+        "patient_middle_name",
+        "patient_street",
+        "patient_street2",
+        "patient_city",
+        "patient_state",
+        "patient_county",
+        "patient_zip_code",
+        "patient_phone_number",
+        "patient_dob",
+        "patient_gender",
+        "patient_race",
+        "patient_ethnicity",
+        "message_id",
+        "placer_order_id",
+        "filler_order_id",
+        "test_kit_name_id",
+        "test_performed_code",
+        "test_result",
+        "order_test_date",
+        "specimen_collection_date_time",
+        "testing_lab_specimen_received_datetime",
+        "test_result_date",
+        "date_result_released",
+        "specimen_type",
+        "Specimen_source_site_code",
+        "ordering_provider_id",
+        "ordering_provider_last_name",
+        "ordering_provider_first_name",
+        "ordering_provider_middle_name",
+        "ordering_provider_street",
+        "ordering_provider_street2",
+        "ordering_provider_city",
+        "ordering_provider_state",
+        "ordering_provider_zip_code",
+        "ordering_provider_phone_number",
+        "testing_lab_clia",
+        "testing_lab_name",
+        "testing_lab_street",
+        "testing_lab_street2",
+        "testing_lab_city",
+        "testing_lab_state",
+        "testing_lab_zip_code",
+        "testing_lab_phone_number",
+        "pregnant",
+        "employed_in_healthcare",
+        "symptomatic_for_disease",
+        "illness_onset_date",
+        "resident_congregate_setting",
+        "hospitalized",
+        "icu",
+        "ordering_facility_name",
+        "ordering_facility_street",
+        "ordering_facility_street2",
+        "ordering_facility_city",
+        "ordering_facility_state",
+        "ordering_facility_zip_code",
+        "ordering_facility_phone_number",
+        "reporting_facility",
+        "reporting_facility_clia"
+    ]
+}
