@@ -429,7 +429,7 @@ class LIVDLookupMapper : Mapper {
             }
             if (result != null) return ElementResult(result)
         }
-        return ElementResult(null).warning(InvalidEquipmentMessage.new())
+        return ElementResult(null).warning(InvalidEquipmentMessage.new(element))
     }
 
     companion object {

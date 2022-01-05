@@ -245,9 +245,10 @@ data class InvalidHL7Message(
  */
 data class InvalidEquipmentMessage(
     override val type: ResponseMsgType = ResponseMsgType.INVALID_EQUIPMENT,
+    val elementName: String
 ) : ResponseMessage {
     override fun detailMsg(): String {
-        return "Unable to validate testing equipment information."
+        return "Unable to validate testing equipment information in field $elementName."
     }
 
     override fun groupingId(): String {
@@ -255,8 +256,8 @@ data class InvalidEquipmentMessage(
     }
 
     companion object {
-        fun new(): InvalidEquipmentMessage {
-            return InvalidEquipmentMessage()
+        fun new(element: Element): InvalidEquipmentMessage {
+            return InvalidEquipmentMessage(elementName = element.name)
         }
     }
 }
