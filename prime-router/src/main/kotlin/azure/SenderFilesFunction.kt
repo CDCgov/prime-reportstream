@@ -15,6 +15,8 @@ import gov.cdc.prime.router.common.CsvUtilities
 import gov.cdc.prime.router.messages.ReportFileListMessage
 import gov.cdc.prime.router.messages.ReportFileMessage
 import gov.cdc.prime.router.tokens.OktaAuthentication
+import org.apache.logging.log4j.kotlin.Logging
+import java.io.FileNotFoundException
 import java.io.IOException
 import java.util.UUID
 
@@ -22,7 +24,7 @@ class SenderFilesFunction(
     private val oktaAuthentication: OktaAuthentication = OktaAuthentication(PrincipalLevel.SYSTEM_ADMIN),
     private val dbAccess: DatabaseAccess = DatabaseAccess(),
     private val blobAccess: BlobAccess = BlobAccess()
-) {
+) : Logging {
     /**
      * The sender file end-point retrieves the reports that contributed to the specified output report.
      */
@@ -46,10 +48,10 @@ class SenderFilesFunction(
                 when (status) {
                     Status.OK -> HttpUtilities.okResponse(request, payload)
                     Status.BAD_REQUEST -> HttpUtilities.badRequestResponse(request, payload)
-                    Status.NOT_FOUND -> HttpUtilities.badRequestResponse(request, payload)
+                    Status.NOT_FOUND -> HttpUtilities.notFoundResponse(request, payload)
                 }
             } catch (e: Exception) {
-                // TODO: Log
+                logger.error("Internal error: $e")
                 HttpUtilities.internalErrorResponse(request)
             }
         }
@@ -72,16 +74,32 @@ class SenderFilesFunction(
     /**
      * Look at the request and extract parameters. Check for valid values.
      * Defaults are assumed if not specified.
+     * Throws [IllegalArgumentException] if any parameter is invalid.
      */
     internal fun checkParameters(request: HttpRequestMessage<String?>): FunctionParameters {
-        val reportId = request.queryParameters["report-id"].let { UUID.fromString(it) }
+        val reportId = try {
+            request.queryParameters["report-id"]?.let { UUID.fromString(it) }
+        } catch (e: Exception) {
+            throw IllegalArgumentException("Bad report-id parameter")
+        }
         val reportFileName = request.queryParameters["report-file-name"]
-        val synthesize = request.queryParameters["synthesize"]?.equals("true", ignoreCase = true) ?: false
-        val offset = request.queryParameters["offset"]?.toInt() ?: 0
-        val limit = request.queryParameters["limit"]?.toInt() ?: 100
-
+        val synthesize = try {
+            request.queryParameters["synthesize"]?.toBoolean() ?: false
+        } catch (e: Exception) {
+            throw IllegalArgumentException("Bad synthesize parameter")
+        }
+        val offset = try {
+            request.queryParameters["offset"]?.toInt() ?: 0
+        } catch (e: Exception) {
+            throw IllegalArgumentException("Bad offset parameter")
+        }
+        val limit = try {
+            request.queryParameters["limit"]?.toInt() ?: 100
+        } catch (e: Exception) {
+            throw IllegalArgumentException("Bad limit parameter")
+        }
         if (reportId == null && reportFileName == null) {
-            error("Expected either a report-id or a report-file-name")
+            throw IllegalArgumentException("Expected either a report-id or a report-file-name")
         }
 
         return FunctionParameters(
@@ -97,33 +115,38 @@ class SenderFilesFunction(
      * Main logic of the Azure function. Useful for testing.
      */
     internal fun processRequest(parameters: FunctionParameters): Pair<Status, String> {
-        val reportFile = findOutputFile(parameters)
-            ?: return Pair(Status.NOT_FOUND, "Report is not found")
+        val receiverReportFile = try {
+            findOutputFile(parameters)
+        } catch (e: Exception) {
+            return Pair(Status.NOT_FOUND, "Receiver report file not found: ${e.message}")
+        }
 
-        val items = findSenderItems(reportFile.reportId, parameters.offset, parameters.limit)
-        if (items.isEmpty())
+        val senderItems = findSenderItems(receiverReportFile.reportId, parameters.offset, parameters.limit)
+        if (senderItems.isEmpty()) {
             return Pair(Status.NOT_FOUND, "No sender reports found for report: ${parameters.reportId}")
+        }
 
-        val sources = downloadSenderReports(items)
-        val emptySource = sources.find { it.content.isEmpty() }
-        if (emptySource != null)
+        val senderReports = downloadSenderReports(senderItems)
+        val emptyReport = senderReports.find { it.content.isEmpty() }
+        if (emptyReport != null) {
             return Pair(
                 Status.NOT_FOUND,
-                "Could not fetch the specified file, may have been deleted: ${emptySource.origin?.bodyUrl}"
+                "Could not fetch the specified file, may have been deleted: ${emptyReport.origin?.bodyUrl}"
             )
+        }
 
-        val payload = sources
+        val payload = senderReports
             .synthesize(parameters)
             .serialize()
         return Pair(Status.OK, payload)
     }
 
-    private fun findOutputFile(parameters: FunctionParameters): ReportFile? {
+    private fun findOutputFile(parameters: FunctionParameters): ReportFile {
         return when {
             parameters.reportId != null -> dbAccess.fetchReportFile(parameters.reportId)
             parameters.reportFileName != null -> dbAccess.fetchReportFileByBlobURL(parameters.reportFileName)
             else -> null
-        }
+        } ?: throw FileNotFoundException("Could not find the specified report-file")
     }
 
     private fun findSenderItems(reportId: UUID, offset: Int, limit: Int): List<SenderItems> {

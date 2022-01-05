@@ -1,0 +1,182 @@
+package gov.cdc.prime.router.cli
+
+import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
+import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.core.PrintMessage
+import com.github.ajalt.clikt.output.TermUi
+import com.github.ajalt.clikt.parameters.options.default
+import com.github.ajalt.clikt.parameters.options.flag
+import com.github.ajalt.clikt.parameters.options.option
+import com.github.ajalt.clikt.parameters.options.required
+import com.github.ajalt.clikt.parameters.types.choice
+import com.github.kittinunf.fuel.Fuel
+import com.github.kittinunf.fuel.core.Headers
+import com.github.kittinunf.fuel.core.extensions.authentication
+import com.github.kittinunf.result.Result
+import gov.cdc.prime.router.azure.HttpUtilities
+import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.messages.ReportFileListMessage
+import gov.cdc.prime.router.messages.ReportFileMessage
+import java.nio.file.Files
+import java.nio.file.Path
+import kotlin.io.path.Path
+import kotlin.io.path.name
+
+class SenderFilesCommand : CliktCommand(
+    name = "sender-files",
+    help = "Retrieve the sender files for a report"
+) {
+    private val env by option(
+        "--env", help = "Connect to <name> environment", metavar = "name", envvar = "PRIME_ENVIRONMENT"
+    )
+        .choice("local", "test", "staging", "prod")
+        .default("local", "local")
+
+    private val reportIdArg by option(
+        "--report-id", help = "report-id of the receiver report", metavar = "report-id"
+    )
+
+    private val reportFileNameArg by option(
+        "--report-file-name", help = "file name of the receiver report", metavar = "file-name"
+    )
+
+    private val outDirectory by option(
+        "-o", "--output-dir",
+        help = "Output files into <dir>",
+        metavar = "<dir>"
+    ).required()
+
+    private val verbose by option(
+        "-v", "--verbose",
+        help = "Verbose logging of each HTTP operation to console"
+    ).flag(default = false)
+
+    private val jsonMapper = jacksonMapperBuilder()
+        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+        .build()
+
+    private val environment = lazy { Environment.get(env) }
+    private val accessToken = lazy {
+        if (environment.value.oktaApp == null) {
+            "dummy"
+        } else {
+            OktaCommand.fetchAccessToken(environment.value.oktaApp)
+                ?: abort(
+                    "Invalid access token. " +
+                        "Run ./prime login to fetch/refresh your access token for the $env environment."
+                )
+        }
+    }
+
+    /**
+     * Run the command
+     */
+    override fun run() {
+        try {
+            val reportFiles = getSenderFiles()
+            saveSenderFiles(reportFiles)
+            echo("Found and saved: ${reportFiles.size}")
+        } catch (e: Exception) {
+            abort(e.message ?: "Exception caught")
+        }
+    }
+
+    /**
+     * Call the sender-files api and retrieve a list of sender files.
+     */
+    private fun getSenderFiles(): List<ReportFileMessage> {
+        val path = environment.value.formUrl("api/sender-files")
+        val params = buildParameters()
+        verbose("GET $path with $params")
+        val (_, response, result) = Fuel
+            .get(path.toString(), params)
+            .authentication()
+            .bearer(accessToken.value)
+            .header(Headers.CONTENT_TYPE to HttpUtilities.jsonMediaType)
+            .timeoutRead(SettingsUtilities.requestTimeoutMillis)
+            .responseString()
+        return when (result) {
+            is Result.Failure -> {
+                abort(
+                    """
+                    Error requesting of the report files from the API 
+                    Status Code: ${response.statusCode}
+                    Message: ${response.responseMessage}
+                    Details: ${String(response.data)}
+                    """.trimIndent()
+                )
+            }
+            is Result.Success -> {
+                val message = jsonMapper.readValue(response.data, ReportFileListMessage::class.java)
+                    ?: error("Could not deserialize")
+                message.reports
+            }
+        }
+    }
+
+    /**
+     * Build parameters for a request from the command lines argmements
+     */
+    private fun buildParameters(): List<Pair<String, String>> {
+        val params = mutableListOf<Pair<String, String>>()
+        if (reportIdArg != null) params.add("report-id" to reportIdArg!!)
+        if (reportFileNameArg != null) params.add("report-file-name" to reportFileNameArg!!)
+        return params
+    }
+
+    /**
+     * Save a list of messages in [reportFiles] to the appropriate files under [outDirectory].
+     */
+    private fun saveSenderFiles(reportFiles: List<ReportFileMessage>) {
+        createDirectory(Path(outDirectory))
+        reportFiles.forEach { reportFileMessage ->
+            val dirAndFileName = splitBlobUrl(reportFileMessage.origin?.bodyUrl ?: error("expected blobUrl"))
+            if (dirAndFileName.size != 3) error("Path of file is not expected")
+            val dirPath = Path(outDirectory, dirAndFileName[1])
+            createDirectory(dirPath)
+            val filePath = Path(dirPath.toString(), dirAndFileName[2])
+            saveFile(filePath, reportFileMessage.content)
+        }
+    }
+
+    /**
+     * Parse the [blobUrl] into component directories and file name
+     */
+    private fun splitBlobUrl(blobUrl: String): List<String> {
+        val afterSlash = blobUrl.substringAfterLast("/")
+        return afterSlash.split("%2F")
+    }
+
+    /**
+     * If [dirPath] doesn't exist, create a directory
+     */
+    private fun createDirectory(dirPath: Path) {
+        if (Files.exists(dirPath)) {
+            if (Files.isDirectory(dirPath)) return else error("${dirPath.name} is not a directory")
+        }
+        Files.createDirectory(dirPath)
+    }
+
+    /**
+     * Save a file at the [filePath] Path with [content]. Do not overwrite existing files.
+     */
+    private fun saveFile(filePath: Path, content: String) {
+        if (Files.exists(filePath)) error("${filePath.fileName} already exists")
+        Files.writeString(filePath, content)
+    }
+
+    /**
+     * Echo verbose information to the console respecting the --silent and --verbose flag
+     */
+    private fun verbose(message: String) {
+        if (verbose) TermUi.echo(message)
+    }
+
+    /**
+     * Abort the program with the message
+     */
+    private fun abort(message: String): Nothing {
+        throw PrintMessage(message, error = true)
+    }
+}
