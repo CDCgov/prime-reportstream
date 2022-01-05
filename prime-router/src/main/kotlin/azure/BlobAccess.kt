@@ -127,6 +127,11 @@ class BlobAccess(
         return blobClient.blobUrl
     }
 
+    /** Checks if a blob actually exists in the blobstore */
+    fun exists(blobUrl: String): Boolean {
+        return getBlobClient(blobUrl).exists()
+    }
+
     fun downloadBlob(blobUrl: String): ByteArray {
         val stream = ByteArrayOutputStream()
         stream.use { getBlobClient(blobUrl).download(it) }

@@ -59,6 +59,7 @@ class MetaDataFunction : Logging {
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "metadata/livd"
         ) request: HttpRequestMessage<String?>,
+        @Suppress("UNUSED_PARAMETER")
         context: ExecutionContext,
     ): HttpResponseMessage {
         val filters = request.queryParameters
