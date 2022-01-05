@@ -270,36 +270,36 @@ internal class ElementTests {
     fun `test convert positive zero offset to negative offset`() {
         Element("a", type = Element.Type.DATE).run {
             // all happy path tests
-            this.convertPositiveOffsetToNegativeOffset("2022-01-05 08:00:00").run {
+            Element.convertPositiveOffsetToNegativeOffset("2022-01-05 08:00:00").run {
                 assertThat(this).isEqualTo("2022-01-05 08:00:00")
             }
-            this.convertPositiveOffsetToNegativeOffset("2022-01-05 08:00:00+0000").run {
+            Element.convertPositiveOffsetToNegativeOffset("2022-01-05 08:00:00+0000").run {
                 assertThat(this).isEqualTo("2022-01-05 08:00:00-0000")
             }
-            this.convertPositiveOffsetToNegativeOffset("2022-01-05 08:00:00-0000").run {
+            Element.convertPositiveOffsetToNegativeOffset("2022-01-05 08:00:00-0000").run {
                 assertThat(this).isEqualTo("2022-01-05 08:00:00-0000")
             }
-            this.convertPositiveOffsetToNegativeOffset("2022-01-05 08:00:00+00").run {
+            Element.convertPositiveOffsetToNegativeOffset("2022-01-05 08:00:00+00").run {
                 assertThat(this).isEqualTo("2022-01-05 08:00:00-00")
             }
-            this.convertPositiveOffsetToNegativeOffset("2022-01-05 08:00:00+00:00").run {
+            Element.convertPositiveOffsetToNegativeOffset("2022-01-05 08:00:00+00:00").run {
                 assertThat(this).isEqualTo("2022-01-05 08:00:00-00:00")
             }
             // non-zero offsets
-            this.convertPositiveOffsetToNegativeOffset("2022-01-05 08:00:00-0400").run {
+            Element.convertPositiveOffsetToNegativeOffset("2022-01-05 08:00:00-0400").run {
                 assertThat(this).isEqualTo("2022-01-05 08:00:00-0400")
             }
-            this.convertPositiveOffsetToNegativeOffset("2022-01-05 08:00:00+12").run {
+            Element.convertPositiveOffsetToNegativeOffset("2022-01-05 08:00:00+12").run {
                 assertThat(this).isEqualTo("2022-01-05 08:00:00+12")
             }
-            this.convertPositiveOffsetToNegativeOffset("2022-01-05 08:00:00+03:30").run {
+            Element.convertPositiveOffsetToNegativeOffset("2022-01-05 08:00:00+03:30").run {
                 assertThat(this).isEqualTo("2022-01-05 08:00:00+03:30")
             }
             // some unhappy paths. Don't use these formats.
-            this.convertPositiveOffsetToNegativeOffset("2022-01-05 08:00:00+").run {
+            Element.convertPositiveOffsetToNegativeOffset("2022-01-05 08:00:00+").run {
                 assertThat(this).isEqualTo("2022-01-05 08:00:00+")
             }
-            this.convertPositiveOffsetToNegativeOffset("2022+01+05 08:00:00").run {
+            Element.convertPositiveOffsetToNegativeOffset("2022+01+05 08:00:00").run {
                 assertThat(this).isEqualTo("2022+01+05 08:00:00")
             }
         }
