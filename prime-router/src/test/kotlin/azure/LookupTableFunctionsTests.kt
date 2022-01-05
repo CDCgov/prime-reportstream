@@ -229,6 +229,7 @@ class LookupTableFunctionsTests {
     fun `create table test`() {
         val tableName = "dummy"
         val tableSha256 = "abc123"
+        val force = true
         val latestVersion = 1
         every { mockRequest.httpMethod } returns HttpMethod.POST
         val lookupTableAccess = mockk<DatabaseLookupTableAccess>()
@@ -259,7 +260,7 @@ class LookupTableFunctionsTests {
         mockResponseBuilder = createResponseBuilder()
         every { mockRequest.createResponseBuilder(HttpStatus.OK) } returns mockResponseBuilder
         every { mockRequest.body } returns """[{"a": "11", "b": "21"},{"a": "12", "b": "22"}]"""
-        every { mockRequest.queryParameters } returns mapOf(LookupTableFunctions.tableSha256 to "abc123")
+        every { mockRequest.queryParameters } returns mapOf(LookupTableFunctions.force to "true")
         val versionInfo = LookupTableVersion()
         versionInfo.tableName = tableName
         versionInfo.tableSha256 = tableSha256
@@ -269,21 +270,23 @@ class LookupTableFunctionsTests {
         versionInfo.createdAt = OffsetDateTime.now()
         every {
             lookupTableAccess.createTable(
-                eq(tableName), eq(tableSha256), eq(latestVersion + 1), any(),
-                any()
+                eq(tableName), eq(latestVersion + 1), any(),
+                any(),
+                force
             )
         } returns Unit
         every { lookupTableAccess.fetchVersionInfo(eq(tableName), eq(latestVersion + 1)) } returns versionInfo
         LookupTableFunctions(lookupTableAccess).createLookupTable(mockRequest, tableName)
         verify(exactly = 1) {
             lookupTableAccess.createTable(
-                any(), any(), any(),
+                any(), any(),
                 withArg {
                     assertEquals(2, it.size)
                     val row = mapper.readValue<Map<String, String>>(it[0].data())
                     assertEquals("11", row["a"])
                 },
-                any()
+                any(),
+                force
             )
             mockResponseBuilder.body(
                 withArg {
@@ -299,7 +302,7 @@ class LookupTableFunctionsTests {
         mockResponseBuilder = createResponseBuilder()
         every { mockRequest.createResponseBuilder(HttpStatus.OK) } returns mockResponseBuilder
         every { lookupTableAccess.fetchLatestVersion(tableName) } returns null
-        every { lookupTableAccess.createTable(eq(tableName), eq(tableSha256), eq(1), any(), any()) } returns Unit
+        every { lookupTableAccess.createTable(eq(tableName), eq(1), any(), any(), force) } returns Unit
         every { lookupTableAccess.fetchVersionInfo(eq(tableName), eq(1)) } returns versionInfo
         LookupTableFunctions(lookupTableAccess).createLookupTable(mockRequest, tableName)
         verify(exactly = 1) {

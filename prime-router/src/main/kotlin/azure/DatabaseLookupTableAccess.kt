@@ -10,6 +10,7 @@ import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableVersion
 import org.jooq.JSONB
 import org.jooq.impl.DSL
 import java.lang.IllegalArgumentException
+import java.security.MessageDigest
 
 /**
  * Class to access lookup tables stored in the database.
@@ -151,21 +152,27 @@ class DatabaseLookupTableAccess(private val db: DatabaseAccess = DatabaseAccess(
     }
 
     /**
-     * Create a new table [version] for a [tableName] using the provided [tableData].
+     * Create a new table [version] for a [tableName] using the provided [tableData].  The force flag is use
+     * to force to update lookup table regardless.
      * This function will throw an exception upon an error and rollback any data inserted into the database.
      */
-    fun createTable(tableName: String, tableSha256: String?, version: Int, tableData: List<JSONB>, username: String) {
+    fun createTable(tableName: String, version: Int, tableData: List<JSONB>, username: String, force: Boolean) {
         val batchSize = 5000
         db.transact { txn ->
             val newVersion = DSL.using(txn).newRecord(Tables.LOOKUP_TABLE_VERSION)
             newVersion.isActive = false
             newVersion.createdBy = username
             newVersion.tableName = tableName
-            newVersion.tableSha256 = tableSha256
+            newVersion.tableSha256 = tableData.toString().toSHA256()
             newVersion.tableVersion = version
             if (newVersion.store() != 1) error("Error creating new version in database.")
 
             val versionId = newVersion.lookupTableVersionId
+
+            // Check for the lookup table in database is up-to-date or not.  If it is up-to-date and force=true,
+            // we force to update the table regardless.
+            if (isTableUpToDate(tableName, newVersion.tableSha256) && !force)
+                throw IllegalStateException("Conflict")
 
             // Use batching to make this faster
             var batchNumber = 1
@@ -201,6 +208,28 @@ class DatabaseLookupTableAccess(private val db: DatabaseAccess = DatabaseAccess(
                 ).fetchOne()?.into(LookupTableVersion::class.java)
         }
         return retVal
+    }
+
+    /**
+     * Calculate the SHA-256 checksum of the input data.
+     * @return SHA-256 checksum value
+     */
+    fun String.toSHA256(): String {
+        val bytes = MessageDigest.getInstance("SHA-256").digest(this.toByteArray())
+        return bytes.joinToString("") { "%02x".format(it) }
+    }
+
+    /**
+     * Check for table exist or not
+     * @return true if exist, otherwise, false
+     */
+    fun isTableUpToDate(tableName: String, tableSHA256: String): Boolean {
+        val oldVersion = fetchActiveVersion(tableName) ?: return false
+
+        val oldTableVersion = fetchVersionInfo(tableName, oldVersion)
+        if (oldTableVersion?.tableSha256 == tableSHA256) return true
+
+        return false
     }
 
     companion object {

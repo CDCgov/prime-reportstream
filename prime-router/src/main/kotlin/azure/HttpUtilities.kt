@@ -146,6 +146,17 @@ class HttpUtilities {
                 .build()
         }
 
+        fun internalErrorConflictResponse(
+            request: HttpRequestMessage<String?>
+        ): HttpResponseMessage {
+            val body = """{"error": "Internal error conflict at ${OffsetDateTime.now()}"}"""
+            return request
+                .createResponseBuilder(HttpStatus.CONFLICT)
+                .body(body)
+                .header(HttpHeaders.CONTENT_TYPE, jsonMediaType)
+                .build()
+        }
+
         fun errorJson(message: String): String {
             return """{"error": "$message"}"""
         }

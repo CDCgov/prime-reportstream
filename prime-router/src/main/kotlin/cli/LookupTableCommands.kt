@@ -41,7 +41,6 @@ import org.jooq.JSONB
 import java.io.File
 import java.io.IOException
 import java.nio.file.NoSuchFileException
-import java.security.MessageDigest
 import java.time.Instant
 
 /**
@@ -143,9 +142,9 @@ class LookupTableEndpointUtilities(val environment: Environment) {
      * @throws TableNotFoundException if the table and/or version is not found
      * @throws IOException if there is a server or API error
      */
-    fun createTable(tableName: String, tableSha256: String?, tableData: List<Map<String, String>>):
+    fun createTable(tableName: String, tableData: List<Map<String, String>>, force: Boolean):
         LookupTableVersion {
-        val apiUrl = environment.formUrl("$endpointRoot/$tableName?table&tableSha256=$tableSha256")
+        val apiUrl = environment.formUrl("$endpointRoot/$tableName?table&force=$force")
         val jsonPayload = mapper.writeValueAsString(tableData)
 
         val (_, response, result) = Fuel
@@ -225,6 +224,9 @@ class LookupTableEndpointUtilities(val environment: Environment) {
                         throw IOException(error)
                     }
                 }
+
+                result is Result.Failure && response.statusCode == HttpStatus.SC_CONFLICT ->
+                    throw IOException(response.statusCode.toString())
 
                 result is Result.Failure ->
                     throw IOException(getErrorFromResponse(result))
@@ -530,9 +532,9 @@ class LookupTableCreateCommand : GenericLookupTableCommand(
         .required()
 
     /**
-     * The table Sha256 checksum.
+     * Force to create table(s).
      */
-    private val tableSha256 by option("-c", "--checksum", help = "The Sha256 checksum of the table")
+    private val force by option("-f", "--force", help = "Force to create the table").flag()
 
     override fun run() {
         // Read the input file.
@@ -583,27 +585,37 @@ class LookupTableCreateCommand : GenericLookupTableCommand(
                 == true
             ) || silent
         ) {
-            val newTableInfo = try { tableUtil.createTable(tableName, tableSha256, inputData) } catch (e: IOException) {
-                throw PrintMessage("Error creating new table version for $tableName: ${e.message}", true)
+            val newTableInfo = try { tableUtil.createTable(tableName, inputData, force) } catch (e: IOException) {
+                when {
+                    e.message == HttpStatus.SC_CONFLICT.toString() -> {
+                        TermUi.echo(
+                            "\tSkipping lookup table: $tableName version: " +
+                                "$activeVersion since it is up-to-date."
+                        )
+                        return
+                    }
+                    else ->
+                        throw PrintMessage("\tError creating new table version for $tableName: ${e.message}", true)
+                }
             }
             TermUi.echo(
-                "${inputData.size} rows created for lookup table $tableName version " +
+                "\t${inputData.size} rows created for lookup table $tableName version " +
                     "${newTableInfo.tableVersion}."
             )
             // Always have an active version, so if this is the first version then activate it.
             if (activate || newTableInfo.tableVersion == 1) {
                 try { tableUtil.activateTable(tableName, newTableInfo.tableVersion) } catch (e: Exception) {
                     throw PrintMessage(
-                        "Error activating table $tableName version ${newTableInfo.tableVersion}. " +
+                        "\tError activating table $tableName version ${newTableInfo.tableVersion}. " +
                             "Table was created.  Try to activate it. : ${e.message}",
                         true
                     )
                 }
-                TermUi.echo("Table version ${newTableInfo.tableVersion} is now active.")
+                TermUi.echo("\tTable version ${newTableInfo.tableVersion} is now active.")
             } else
-                TermUi.echo("Table version ${newTableInfo.tableVersion} left inactive, so don't forget to activate it.")
+                TermUi.echo("\tTable version ${newTableInfo.tableVersion} left inactive, so don't forget to activate it.")
         } else
-            TermUi.echo("Aborted the creation of the lookup table.")
+            TermUi.echo("\tAborted the creation of the lookup table.")
     }
 }
 
@@ -815,31 +827,12 @@ class LookupTableLoadAllCommand : GenericLookupTableCommand(
     /**
      * Activate a created table in one shot.
      */
-    private val force by option("-f", "--force", help = "Force to create table(s)")
-        .flag(default = false)
+    private val force by option("-f", "--force", help = "Force to create table(s)").flag()
 
     /**
      * The reference to the table creator command.
      */
     private val tableCreator = LookupTableCreateCommand()
-
-    /**
-     * Calculate Sha256 checksum for the file.
-     * @return a string of Sha256 checksum
-     */
-    fun File.Sha256(): String {
-        val md = MessageDigest.getInstance("SHA-256")
-        return this.inputStream().use { fis ->
-            val buffer = ByteArray(8192)
-            generateSequence {
-                when (val bytesRead = fis.read(buffer)) {
-                    -1 -> null
-                    else -> bytesRead
-                }
-            }.forEach { bytesRead -> md.update(buffer, 0, bytesRead) }
-            md.digest().joinToString("") { "%02x".format(it) }
-        }
-    }
 
     override fun run() {
         if (environment != Environment.LOCAL) error("This command is only allowed in the local environment.")
@@ -862,26 +855,9 @@ class LookupTableLoadAllCommand : GenericLookupTableCommand(
             error("Directory ${dir.absolutePath} does not exist")
         }
 
-        // If there is an existing active version then present a diff.
-        val activeTableList = try {
-            tableUtil.fetchList()
-        } catch (e: IOException) {
-            throw PrintMessage("Error fetching the list of tables: ${e.message}", true)
-        }
-
         TermUi.echo("Loading ${files.size} tables from ${dir.absolutePath}...")
         files.forEach { it ->
-            val tableSha256 = it.Sha256()
             val tableName = it.nameWithoutExtension
-
-            // Check to see if the table is up-to-date
-            val upToDateTable = activeTableList.firstOrNull {
-                it.tableName == tableName && it.tableSha256 == tableSha256
-            }
-            if (upToDateTable != null && !force) {
-                TermUi.echo("Skipping $tableName since it is up-to-date.")
-                return@forEach
-            }
 
             var needToLoad = true
             // If we have a table in the database then only update it if the last modified time of the file is 
@@ -896,10 +872,11 @@ class LookupTableLoadAllCommand : GenericLookupTableCommand(
 
             if (needToLoad) {
                 TermUi.echo("Creating table $tableName...")
-                val args = mutableListOf(
-                    "-e", environment.toString().lowercase(), "-n", tableName, "-c", tableSha256,
+                val args: MutableList<String> = mutableListOf(
+                    "-e", environment.toString().lowercase(), "-n", tableName,
                     "-i", it.absolutePath, "-s", "-a"
                 )
+                if (force) args.add("-f")
                 tableCreator.main(args)
             }
         }

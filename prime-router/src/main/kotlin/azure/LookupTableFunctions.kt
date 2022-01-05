@@ -153,7 +153,7 @@ class LookupTableFunctions(
         return getOktaAuthenticator(PrincipalLevel.SYSTEM_ADMIN).checkAccess(request) { oktaAuthenticatedClaim ->
             val inputData: List<Map<String, String>>
             try {
-                val tableSha256 = request.queryParameters[tableSha256]
+                val force = request.queryParameters[force].toBoolean()
                 inputData = mapper.readValue(request.body!!.toString())
                 if (inputData.isEmpty())
                     HttpUtilities.badRequestResponse(
@@ -183,8 +183,8 @@ class LookupTableFunctions(
                         val latestVersion = lookupTableAccess.fetchLatestVersion(tableName) ?: 0
                         val newVersion = latestVersion + 1
                         lookupTableAccess.createTable(
-                            tableName, tableSha256, newVersion, tableRows,
-                            oktaAuthenticatedClaim.userName
+                            tableName, newVersion, tableRows,
+                            oktaAuthenticatedClaim.userName, force
                         )
 
                         // Return the table version info
@@ -198,6 +198,9 @@ class LookupTableFunctions(
                     request,
                     HttpUtilities.errorJson("Invalid request body.  Must be an array of objects")
                 )
+            } catch (e: IllegalStateException) {
+                logger.error("Unable to create lookup table $tableName", e)
+                HttpUtilities.internalErrorConflictResponse(request)
             } catch (e: Exception) {
                 logger.error("Unable to create lookup table $tableName", e)
                 HttpUtilities.internalErrorResponse(request)
@@ -259,6 +262,6 @@ class LookupTableFunctions(
         /**
          * Name of the query parameter to Sha256 tables checksum.
          */
-        const val tableSha256 = "tableSha256"
+        const val force = "force"
     }
 }
