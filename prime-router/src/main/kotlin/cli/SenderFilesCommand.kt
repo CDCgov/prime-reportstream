@@ -47,6 +47,11 @@ class SenderFilesCommand : CliktCommand(
         metavar = "<dir>"
     ).required()
 
+    private val overwrite by option(
+        "--overwrite",
+        help = "Overwrite files if needed",
+    ).flag(default = false)
+
     private val verbose by option(
         "-v", "--verbose",
         help = "Verbose logging of each HTTP operation to console"
@@ -159,10 +164,10 @@ class SenderFilesCommand : CliktCommand(
     }
 
     /**
-     * Save a file at the [filePath] Path with [content]. Do not overwrite existing files.
+     * Save a file at the [filePath] Path with [content]. Respect the overwrite flag.
      */
     private fun saveFile(filePath: Path, content: String) {
-        if (Files.exists(filePath)) error("${filePath.fileName} already exists")
+        if (!overwrite && Files.exists(filePath)) error("${filePath.fileName} already exists")
         Files.writeString(filePath, content)
     }
 

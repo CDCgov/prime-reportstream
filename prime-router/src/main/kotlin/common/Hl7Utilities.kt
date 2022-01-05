@@ -2,6 +2,10 @@ package gov.cdc.prime.router.common
 
 class Hl7Utilities {
     companion object {
+        /**
+         * Extract a set of messages from the many HL7 messages in [blob].
+         * [indices] is zero-based. The resultant HL7 will have the batch FHS heading and trailing segments.
+         */
         fun cut(blob: String, indices: List<Int>): String {
             return when {
                 blob.startsWith("MSH") -> cutSingle(blob, indices)
