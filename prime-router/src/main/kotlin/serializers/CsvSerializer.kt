@@ -327,7 +327,7 @@ class CsvSerializer(val metadata: Metadata) : Logging {
     }
 
     /**
-     * For a input row from the CSV file map to a schema defined row by
+     * For an input row from the CSV file map to a schema defined row by
      *
      *  1. Using values from the csv file
      *  2. Using a mapper defined by the schema
@@ -346,7 +346,8 @@ class CsvSerializer(val metadata: Metadata) : Logging {
         fun useCsv(element: Element): String? {
             val csvFields = csvMapping.useCsv[element.name] ?: return null
             val subValues = csvFields.map {
-                val value = inputRow.getValue(it.name)
+                // trim off the spaces here when creating the subvalue
+                val value = inputRow.getValue(it.name).trim()
                 Element.SubValue(it.name, value, it.format)
             }
             for (subValue in subValues) {

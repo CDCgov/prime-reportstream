@@ -9,6 +9,8 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.microsoft.azure.functions.HttpStatus
+import gov.cdc.prime.router.ActionResponse
+import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.SubmissionHistory
 import gov.cdc.prime.router.cli.tests.ExpectedSubmissionHistory
 import org.junit.jupiter.api.Test
@@ -38,7 +40,7 @@ class SubmissionFunctionTests {
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
     }
 
-    class TestSubmissionAccess(val dataset: String, val mapper: ObjectMapper) : SubmissionAccess {
+    class TestSubmissionAccess(val dataset: List<SubmissionHistory>, val mapper: ObjectMapper) : SubmissionAccess {
 
         override fun <T> fetchActions(
             sendingOrg: String,
@@ -47,82 +49,40 @@ class SubmissionFunctionTests {
             limit: Int,
             klass: Class<T>
         ): List<T> {
-            var list: List<SubmissionHistory> = mapper.readValue(dataset)
-            list = list.filter {
-                it.sendingOrg == sendingOrg
-            }
             @Suppress("UNCHECKED_CAST")
-            return list as List<T>
+            return dataset as List<T>
         }
     }
 
-    val testData = """[
-    {
-        "actionId": 8,
-        "createdAt": "2021-11-30T16:36:54.919104Z",
-        "sendingOrg": "simple_report",
-        "httpStatus": 201,
-        "actionResponse": {
-            "id": "a2cf1c46-7689-4819-98de-520b5007e45f",
-            "topic": "covid-19",
-            "reportItemCount": 3,
-            "warningCount": 3,
-            "errorCount": 0
-        }
-    },
-    {
-        "actionId": 7,
-        "createdAt": "2021-11-30T16:36:48.307109Z",
-        "sendingOrg": "simple_report",
-        "httpStatus": 400,
-        "actionResponse": {
-            "id": null,
-            "topic": null,
-            "reportItemCount": null,
-            "warningCount": 1,
-            "errorCount": 1
-        }
-    },
-    {
-        "actionId": 4,
-        "createdAt": "2021-11-30T15:30:28.134875Z",
-        "sendingOrg": "simple_report",
-        "httpStatus": 201,
-        "actionResponse": {
-            "id": "046a5c0d-7719-48c8-80bd-832f5f68a1bd",
-            "topic": "covid-19",
-            "reportItemCount": 1,
-            "warningCount": 1,
-            "errorCount": 0
-        }
-    },
-    {
-        "actionId": 1,
-        "createdAt": "2021-11-30T15:26:06.016247Z",
-        "sendingOrg": "simple_report",
-        "httpStatus": 201,
-        "actionResponse": {
-            "id": "508cdeb1-ac3f-4453-aa7c-45e4a825c7c0",
-            "topic": "covid-19",
-            "reportItemCount": 1,
-            "warningCount": 1,
-            "errorCount": 0
-        }
-    },
-    {
-        "actionId": 710,
-        "createdAt": "2021-11-30T16:36:48.307109Z",
-        "sendingOrg": "bobs_org",
-        "httpStatus": 400,
-        "actionResponse": {
-            "id": null,
-            "topic": null,
-            "reportItemCount": null,
-            "warningCount": 1,
-            "errorCount": 1
-        }
-    }
-]"""
+    val testData = listOf(
+        SubmissionHistory(
+            actionId = 8,
+            createdAt = OffsetDateTime.parse("2021-11-30T16:36:54.919104Z"),
+            sendingOrg = "simple_report",
+            httpStatus = 201,
+            externalName = "testname.csv",
+            actionResponse = ActionResponse(
+                id = "a2cf1c46-7689-4819-98de-520b5007e45f",
+                topic = "covid-19",
+                reportItemCount = 3,
+                warningCount = 3,
+                errorCount = 0
+            )
+        ),
+        SubmissionHistory(
+            actionId = 7,
+            createdAt = OffsetDateTime.parse("2021-11-30T16:36:48.307109Z"),
+            sendingOrg = "simple_report",
+            httpStatus = 400,
+            actionResponse = ActionResponse(
+                id = null,
+                topic = null,
+                reportItemCount = null,
+                warningCount = 1,
+                errorCount = 1
+            )
+        )
+    )
 
     @Test
     fun `test list submissions`() {
@@ -139,7 +99,32 @@ class SubmissionFunctionTests {
                 mapOf("authorization" to "Bearer fdafads"),
                 emptyMap(),
                 ExpectedAPIResponse(
-                    HttpStatus.OK
+                    HttpStatus.OK,
+                    listOf(
+                        ExpectedSubmissionHistory(
+                            taskId = 8,
+                            createdAt = OffsetDateTime.parse("2021-11-30T16:36:54.919104Z"),
+                            sendingOrg = "simple_report",
+                            httpStatus = 201,
+                            externalName = "testname.csv",
+                            id = ReportId.fromString("a2cf1c46-7689-4819-98de-520b5007e45f"),
+                            topic = "covid-19",
+                            reportItemCount = 3,
+                            warningCount = 3,
+                            errorCount = 0
+                        ),
+                        ExpectedSubmissionHistory(
+                            taskId = 7,
+                            createdAt = OffsetDateTime.parse("2021-11-30T16:36:48.307109Z"),
+                            sendingOrg = "simple_report",
+                            httpStatus = 400,
+                            id = null,
+                            topic = null,
+                            reportItemCount = null,
+                            warningCount = 1,
+                            errorCount = 1
+                        )
+                    )
                 ),
                 "simple success"
             ),
@@ -194,6 +179,13 @@ class SubmissionFunctionTests {
             ).submissions(httpRequestMessage)
             // Verify
             assertThat(response.getStatus()).isEqualTo(it.expectedResponse.status)
+            if (response.getStatus() == HttpStatus.OK) {
+                val submissions: List<ExpectedSubmissionHistory> = mapper.readValue(response.body.toString())
+                if (it.expectedResponse.body != null) {
+                    assertThat(submissions.size).isEqualTo(it.expectedResponse.body.size)
+                    assertThat(submissions).isEqualTo(it.expectedResponse.body)
+                }
+            }
         }
     }
 }
