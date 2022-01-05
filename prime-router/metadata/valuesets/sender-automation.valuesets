@@ -379,9 +379,6 @@
       display: Varied
       version: 2020-09-01
     - code: 71836000
-      display: Nasal
-      version: 2020-09-01
-    - code: 71836000
       display: Nasopharyngeal swab
       version: 2020-09-01
     - code: 71836000
@@ -413,6 +410,9 @@
       version: 2020-09-01
     - code: 53342003
       display: Mid-turbinate nasal swab
+      version: 2020-09-01
+    - code: 53342003
+      display: Nasal
       version: 2020-09-01
     - code: 53342003
       display: Nasal Swab
@@ -589,6 +589,8 @@
   values:
     - code: manualupload
       display: manualupload
+    - code: muc-al
+      display: muc-al-test
 
 - name: sender-automation/processing_mode_code
   reference: This maps validates inbound sender_id to a list of valid CSV sender
@@ -596,3 +598,5 @@
   values:
     - code: P
       display: manualupload
+    - code: P
+      display: muc-al-test

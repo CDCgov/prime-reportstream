@@ -13,6 +13,9 @@ elements:
       valueSet: sender-automation/sender_id
       csvFields: [{ name: sender_id, format: $display}]
 
+#    - name: organization_name
+#      mapper: use(sender_id)
+
     - name: processing_mode_code
       type: CODE
       cardinality: ONE 
@@ -189,6 +192,7 @@ elements:
       cardinality: ONE 
       type: TEXT
       csvFields: [{name: test_kit_name_id }]
+      mapperOverridesValue: true
 
     - name: test_performed_code
       cardinality: ONE 
@@ -197,7 +201,8 @@ elements:
 
     # Appears this RS field must be set even if it is not being used for the LIVD table lookup
     - name: equipment_model_name
-
+      cardinality: ONE 
+      mapperOverridesValue: true
 
 ############### Ordering provider info
     - name: ordering_provider_id
