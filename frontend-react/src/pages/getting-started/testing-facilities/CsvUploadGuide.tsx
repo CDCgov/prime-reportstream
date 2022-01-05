@@ -1,7 +1,4 @@
 import { Helmet } from "react-helmet";
-import DOMPurify from "dompurify";
-
-import site from "../../../content/site.json";
 
 /* eslint-disable jsx-a11y/anchor-has-content */
 export const CsvUploadGuide = () => {
@@ -14,115 +11,111 @@ export const CsvUploadGuide = () => {
                 </title>
             </Helmet>
             <section id="anchor-top">
-                <h2 className="margin-top-0">CSV upload guide</h2>
-                <p className="usa-intro">
-                    First, we’ll get you connected to our web application, where
-                    you can immediately start downloading reporting data that is
-                    relevant to your jurisdiction.
+                <span className="text-base text-italic">Updated: January 2022</span>
+                <h2 className=" margin-top-0">CSV upload guide</h2>
+                <p className="usa-intro text-base">
+                    The ReportStream CSV upload guide is a resource for testing facilities that submit COVID-19 data reporting results to local, state, and federal jurisdictions using a CSV file format.
                 </p>
-                
+                <p className="usa-intro text-base margin-bottom-6">
+                    This guide provides step-by-step instructions and guidance for preparing and uploading COVID-19 data reporting results via a CSV file to ReportStream. 
+                </p>  
+                <h3>How Do I Use this Guide? </h3>
+                <p>
+                    The ReportStream CSV Uploader Guide is designed for the technical user at the testing facility or sending location who’ll submit COVID-19 data reporting results in small volumes to local, state, and federal jurisdictions using CSV file format. This guide provides step-by-step instructions for preparing and uploading CSV files successfully to ReportStream.
+                </p>  
+                <h3>What Topics Will I Learn?</h3> 
+                <ul>
+                    <li>How to prepare a CSV file for ReportStream</li>
+                    <li>How to upload a CSV file to ReportStream</li>
+                    <li>How to troubleshoot common file submission errors returned by ReportStream</li>
+                </ul>           
             </section>
-            <hr className="margin-y-6" />
-
             <section>
-                <h2 id="data-download">Data download</h2>
-                Our fastest option to get up and running, our web application
-                gives you access to reporting results via manual download from
-                our online portal, in just two steps.
+                <h3 className="font-body-lg border-top-1px border-ink margin-top-8 margin-bottom-6 padding-top-1">Preparing a CSV file</h3>
                 <ol className="usa-process-list">
                     <li className="usa-process-list__item">
                         <h4 className="usa-process-list__heading">
-                            Kickoff and onboarding
+                            Download the ReportStream reference CSV and review the documentation
                         </h4>
                         <p className="margin-top-05">
-                            <a
-                                href={
-                                    "mailto:" +
-                                    DOMPurify.sanitize(site.orgs.RS.email) +
-                                    "?subject=Getting started with ReportStream"
-                                }
-                                className="margin-right-1 usa-link"
-                            >
-                                Send us an email
-                            </a>
-                            with the information below. In most cases we’ll
-                            review and approve your account in about a week.
+                            [If your jurisdiction already has a CSV, compare it to our reference file/documentation. If you're starting from scratch, use the reference CSV as a template].
+                        </p>
+                        <p>
+                            [Download the ReportStream reference CSV schema file LINK].
+                        </p>
+                        <p>
+                            [Review the CSV documentation].
+                        </p>
+                    </li>
+                    <li className="usa-process-list__item">
+                        <h4 className="usa-process-list__heading">Format your CSV to match the ReportStream reference file</h4>
+                        <p>
+                            [Whether you're modifying an existing file or creating a new one from scratch, Include all column headers underneath “ReportStream CSV Field Names” (from the documentation)) in your CSV file, even if you don’t have the data. Make sure values are written exactly as displayed.]
+                        </p>
+                    </li>
+                    <li className="usa-process-list__item">
+                        <h4 className="usa-process-list__heading">Enter values into your CSV file</h4>
+                        <p>
+                            [Follow instructions (from the documentation) on how to modify your existing CSV template headers with ReportStream field names, and how to enter correct values underneath each ReportStream Field ]
+                        </p>
+                        <p>[CSV Column Names” = Displays the column headers used by ReportStream (make sure values are written exactly as displayed below)] </p>
+                        <p>[Required fields:Displays whether a value is required (Yes) , requested (Requested) or optional (No) for the ReportStream CSV field ]</p>
+                        <p>[Data Requirements for User” = Displays a required or recommended value a user must enter to be accepted by ReportStream (our guidance considers HHS data requirements and standard data accepted by the majority of state, tribal, local, or territorial public health agencies we’ve worked with).]</p>
+                    </li>
+                    <li className="usa-process-list__item">
+                        <h4 className="usa-process-list__heading">Export your CSV</h4>
+                        <p>
+                            [Export your properly formatted CSV with filled-in data. Export as CSV, NOT XLS, XLXS, or other formats.]
+                        </p>
+                    </li>
+                </ol>            
+            </section>            
+            <section>
+                <h3 className="font-body-lg border-top-1px border-ink margin-top-8 margin-bottom-6 padding-top-1">Uploading a CSV file</h3>
+                <p>[description of what uploading is in more detail].</p>
+                <ol className="usa-process-list">
+                    <li className="usa-process-list__item">
+                        <h4 className="usa-process-list__heading">
+                            Log in to ReportStream
+                        </h4>
+                        <p className="margin-top-05">
+                        Go to https://reportstream.cdc.gov/login
+                           
                         </p>
                         <ul>
-                            <li>Name of public health department</li>
-                            <li>
-                                Jurisdiction type (state, county, city, etc.)
-                            </li>
-                            <li>
-                                Name of jurisdiction (For example: “Harris
-                                County” or “Washington State”)
-                            </li>
-                            <li>
-                                Name(s) and email(s) of people who need database
-                                access
-                            </li>
+                            <li>Go to https://reportstream.cdc.gov/login</li>
+                            <li>Enter username</li>
+                            <li>Enter password</li>
+                            <li>Click Sign In</li>
                         </ul>
-                    </li>
-                    <li className="usa-process-list__item">
-                        <h4 className="usa-process-list__heading">Log in</h4>
                         <p>
-                            We’ll send you your account information, then simply
-                            log in to download your reporting data.
+                            [image].
                         </p>
-                    </li>
-                </ol>
-                <h2 id="elr-connection">ELR connection</h2>
-                If you’ve decided you’ll need an ELR connection for your public
-                health data reporting, we’ll get some information from you on
-                your needs and requirements. Connecting with ReportStream is
-                similar to setting up an ELR feed with a lab or hospital, and
-                takes just a few steps.
-                <ol className="usa-process-list">
-                    <li className="usa-process-list__item">
-                        <h4 className="usa-process-list__heading">
-                            Kickoff and onboarding
-                        </h4>
-                        <p className="margin-top-05">
-                            Tell us your data configuration requirements and
-                            preferences by submitting our{" "}
-                            <a
-                                href={DOMPurify.sanitize(
-                                    site.forms.intakeElr.url
-                                )}
-                                className="usa-link"
-                            >
-                                ReportStream ELR onboarding form
-                            </a>
-                            . We’ll review your requirements and reach out to
-                            start the data integration process in about a week.
-                        </p>
+                        
                     </li>
                     <li className="usa-process-list__item">
-                        <h4 className="usa-process-list__heading">
-                            Connect and test
-                        </h4>
+                        <h4 className="usa-process-list__heading">Navigate to "Upload"</h4>
                         <p>
-                            After sharing credentials for your SFTP server,
-                            we’ll work with you to ensure testing facility data
-                            arrives correctly in your database. First we’ll send
-                            over some test files and after the files are
-                            accepted by both ReportStream and the public health
-                            department, we’re ready for production, launch, and
-                            roll out.
+                            [Foo] [image]
                         </p>
                     </li>
                     <li className="usa-process-list__item">
-                        <h4 className="usa-process-list__heading">
-                            Launch and roll out
-                        </h4>
+                        <h4 className="usa-process-list__heading">Select file to upload</h4>
                         <p>
-                            Together we’ll decide on the first testing facility
-                            to begin sending you data. Going forward, it’s easy
-                            to register new testing facilities as they join
-                            ReportStream.
+                            [Option A: Drag your CSV file from your folder to the upload area. Option B: Click “choose from folder” to browse your computer, select CSV file and click Open. ] [Image]
                         </p>
                     </li>
-                </ol>
+                    <li className="usa-process-list__item">
+                        <h4 className="usa-process-list__heading">Upload the file</h4>
+                        <p>
+                            [Click uplaod] [Image]
+                        </p>
+                    </li>
+                </ol> 
+            </section>
+            <section>
+                <h3 className="font-body-lg border-top-1px border-ink margin-top-8 margin-bottom-6 padding-top-1">Troubleshooting common upload errors</h3>
+                <p>[description of what uploading is in more detail].</p>
             </section>
         </>
     );
