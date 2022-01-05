@@ -263,7 +263,7 @@ data class Element(
             Type.BLANK -> ""
             Type.DATE -> {
                 if (format != null) {
-                    var ta = parseDate(normalizedValue)
+                    val ta = parseDate(normalizedValue)
                     getDate(ta, format)
                 } else {
                     normalizedValue
