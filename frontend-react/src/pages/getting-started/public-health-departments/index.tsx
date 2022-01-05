@@ -56,7 +56,7 @@ export const GettingStartedPublicHealthDepartments = () => {
                 <div className="tablet:grid-col-4 margin-bottom-6">
                     <SideNav items={itemsMenu} />
                 </div>
-                <div className="tablet:grid-col-8 usa-prose rs-documentation">
+                <div className="tablet:grid-col-8 usa-prose">
                     <Switch>
                         {/* Handles anyone going to /getting-started without extension */}
                         <Route exact path={path}>

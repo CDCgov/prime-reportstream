@@ -6,7 +6,7 @@
         {
             "sections" : [
                 { 
-                    "title": "ReportStream internal formatting [COME BACK TO THIS]",
+                    "title": "ReportStream application data elements",
                     "items": [
                         {
                             "name": "Sender ID",
