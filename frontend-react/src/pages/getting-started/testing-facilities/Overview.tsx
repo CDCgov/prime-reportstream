@@ -22,10 +22,6 @@ export const FacilitiesOverview = () => {
                 <p>CSV is a delimited text file that uses a comma to separate values. Each line of the file is a data record. Each record consists of one or more fields, separated by commas.</p>          
                 
             </section>
-
-            <section>
-                
-            </section>
         </>
     );
 };

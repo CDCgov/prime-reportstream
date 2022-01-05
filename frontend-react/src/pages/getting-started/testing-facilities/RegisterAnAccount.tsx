@@ -1,7 +1,4 @@
 import { Helmet } from "react-helmet";
-import DOMPurify from "dompurify";
-
-import site from "../../../content/site.json";
 
 /* eslint-disable jsx-a11y/anchor-has-content */
 export const RegisterAnAccount = () => {
@@ -14,120 +11,104 @@ export const RegisterAnAccount = () => {
                 </title>
             </Helmet>
             <section id="anchor-top">
-                <h2 className="margin-top-0">Register an account</h2>
-                <p className="usa-intro">
-                    First, we’ll get you connected to our web application, where
-                    you can immediately start downloading reporting data that is
-                    relevant to your jurisdiction.
+                <h2 className="margin-top-0">Register for a free ReportStream account</h2>
+                <p className="usa-intro text-base">
+                    This guide provides instructions for registering for a free user account with ReportStream. Steps in this guide:
                 </p>
-                <p className="usa-intro">
-                    Depending on your needs, we can also create a customized
-                    Electronic Lab Reporting (ELR) connection — an online setup
-                    used to send digital lab reports to public health
-                    departments via a secure server. Either way, reach out to us
-                    and we’ll get back to you in about a week.
-                </p>
-                
+                <ul>
+                    <li>Contact ReportStream</li>
+                    <li>Recieve activation email</li>
+                    <li>Set up password</li>
+                    <li>Set up security question</li>
+                    <li>Set up two-factor authentication</li>
+                    <li>Close window</li>
+                    <li>Log in to ReportStream</li>
+                </ul>
+                <p>[info alert about SR and RS connection]</p>
             </section>
-            <hr className="margin-y-6" />
 
             <section>
-                <h2 id="data-download">Data download</h2>
-                Our fastest option to get up and running, our web application
-                gives you access to reporting results via manual download from
-                our online portal, in just two steps.
                 <ol className="usa-process-list">
                     <li className="usa-process-list__item">
                         <h4 className="usa-process-list__heading">
-                            Kickoff and onboarding
+                            Contact ReportStream
                         </h4>
                         <p className="margin-top-05">
-                            <a
-                                href={
-                                    "mailto:" +
-                                    DOMPurify.sanitize(site.orgs.RS.email) +
-                                    "?subject=Getting started with ReportStream"
-                                }
-                                className="margin-right-1 usa-link"
-                            >
-                                Send us an email
-                            </a>
-                            with the information below. In most cases we’ll
-                            review and approve your account in about a week.
-                        </p>
+                        Send an email to reportstream@cdc.gov. Example message template:</p>
+                        <blockquote>
+                            to: reportstream@cdc.gov
+                            subject: Register a new organization or testing facility account
+
+                            Hi,
+
+                            I'd like to get a user account set up to use reportstream.
+
+                            First name Last Name
+                            Job title
+                            Organization
+                            Email
+                            Phone number
+                        </blockquote>
+                    </li>
+                    <li className="usa-process-list__item">
+                        <h4 className="usa-process-list__heading">Recieve activation email</h4>
+                        <p>Important: SimpleReport and ReportStream are both part of the Pandemic-Ready Interoperability Modernization Effort initiative provided by CDC and USDS to strengthen data quality and information technology systems in state and local health departments.</p>
                         <ul>
-                            <li>Name of public health department</li>
-                            <li>
-                                Jurisdiction type (state, county, city, etc.)
-                            </li>
-                            <li>
-                                Name of jurisdiction (For example: “Harris
-                                County” or “Washington State”)
-                            </li>
-                            <li>
-                                Name(s) and email(s) of people who need database
-                                access
-                            </li>
+                            <li>An email will arrive in your inbox from support@simplereport.gov with the subject line “Welcome to SimpleReport” (Important: It could take up to 1 business day to receive the activation email) </li>
+                            <li>Open email</li>
+                            <li>Click Activate your account</li>
                         </ul>
+                        <p>[img]</p>
                     </li>
                     <li className="usa-process-list__item">
-                        <h4 className="usa-process-list__heading">Log in</h4>
-                        <p>
-                            We’ll send you your account information, then simply
-                            log in to download your reporting data.
-                        </p>
-                    </li>
-                </ol>
-                <h2 id="elr-connection">ELR connection</h2>
-                If you’ve decided you’ll need an ELR connection for your public
-                health data reporting, we’ll get some information from you on
-                your needs and requirements. Connecting with ReportStream is
-                similar to setting up an ELR feed with a lab or hospital, and
-                takes just a few steps.
-                <ol className="usa-process-list">
-                    <li className="usa-process-list__item">
-                        <h4 className="usa-process-list__heading">
-                            Kickoff and onboarding
-                        </h4>
-                        <p className="margin-top-05">
-                            Tell us your data configuration requirements and
-                            preferences by submitting our{" "}
-                            <a
-                                href={DOMPurify.sanitize(
-                                    site.forms.intakeElr.url
-                                )}
-                                className="usa-link"
-                            >
-                                ReportStream ELR onboarding form
-                            </a>
-                            . We’ll review your requirements and reach out to
-                            start the data integration process in about a week.
-                        </p>
+                        <h4 className="usa-process-list__heading">Set up password</h4>
+                        <p>Important: SimpleReport and ReportStream are both part of the Pandemic-Ready Interoperability Modernization Effort initiative provided by CDC and USDS to strengthen data quality and information technology systems in state and local health departments.</p>
+                        <ul>
+                            <li>A prompt will appear for you to create a password (must be at least 8 characters, include an uppercase and lowercase letter, and a number. </li>
+                            <li>Enter the password again in the Confirm password field </li>
+                            <li>Click Continue </li>
+                        </ul>
+                        <p>[img]</p>
                     </li>
                     <li className="usa-process-list__item">
-                        <h4 className="usa-process-list__heading">
-                            Connect and test
-                        </h4>
-                        <p>
-                            After sharing credentials for your SFTP server,
-                            we’ll work with you to ensure testing facility data
-                            arrives correctly in your database. First we’ll send
-                            over some test files and after the files are
-                            accepted by both ReportStream and the public health
-                            department, we’re ready for production, launch, and
-                            roll out.
-                        </p>
+                        <h4 className="usa-process-list__heading">Set up security question</h4>
+                        <p>Important: SimpleReport and ReportStream are both part of the Pandemic-Ready Interoperability Modernization Effort initiative provided by CDC and USDS to strengthen data quality and information technology systems in state and local health departments.</p>
+                        <ul>
+                            <li>A prompt will appear for you to select your security question </li>
+                            <li>Click the drop-down list to select your preferred security question </li>
+                            <li>Enter your response in the Answer field </li>
+                            <li>Click Continue </li>
+                        </ul>
+                        <p>[img]</p>
                     </li>
                     <li className="usa-process-list__item">
-                        <h4 className="usa-process-list__heading">
-                            Launch and roll out
-                        </h4>
-                        <p>
-                            Together we’ll decide on the first testing facility
-                            to begin sending you data. Going forward, it’s easy
-                            to register new testing facilities as they join
-                            ReportStream.
-                        </p>
+                        <h4 className="usa-process-list__heading">Set up two-factor authentication [required]</h4>
+                        <p>Important: SimpleReport and ReportStream are both part of the Pandemic-Ready Interoperability Modernization Effort initiative provided by CDC and USDS to strengthen data quality and information technology systems in state and local health departments.</p>
+                        <ul>
+                            <li>A prompt will appear for you to set up a second layer of security to protect your account  </li>
+                            <li>Click the option you prefer  </li>
+                        </ul>
+                        <p>[img]</p>
+                    </li>
+                    <li className="usa-process-list__item">
+                        <h4 className="usa-process-list__heading">Close window</h4>
+                        <p>Important: SimpleReport and ReportStream are both part of the Pandemic-Ready Interoperability Modernization Effort initiative provided by CDC and USDS to strengthen data quality and information technology systems in state and local health departments.</p>
+                        <ul>
+                            <li>A prompt will appear confirming your account set up is complete (Important: It could take up to 1 business day before your account receives access to upload CSV files.) </li>
+                            <li>Ignore the “Continue to SimpleReport” button   </li>
+                            <li>Close out of the window </li>
+                        </ul>
+                        <p>[img]</p>
+                    </li>
+                    <li className="usa-process-list__item">
+                        <h4 className="usa-process-list__heading">Log in to ReportStream</h4>
+                        
+                        <ul>
+                            <li>Go to https://reportstream.cdc.gov/login  </li>
+                            <li>Enter your username and password  </li>
+                            <li>Contact reportstream@cdc.gov if you run into login issues </li>
+                        </ul>
+                        <p>[img]</p>
                     </li>
                 </ol>
             </section>
