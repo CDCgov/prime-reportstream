@@ -1148,6 +1148,7 @@ class Hl7Serializer(
         units: String? = null,
         suppressQst: Boolean = false,
     ) {
+        val hl7Config = report.destination?.translation as? Hl7Configuration
         // if the value type is a date, we need to specify that for the AOE questions
         val valueType = when (element.type) {
             Element.Type.DATE -> "DT"
@@ -1172,10 +1173,16 @@ class Hl7Serializer(
             else -> setComponent(terser, element, "OBX-5", aoeRep, value, report)
         }
 
+        val rawObx19Value = report.getString(row, "test_result_date")
+        val obx19Value = if (rawObx19Value != null && hl7Config?.convertPositiveDateTimeOffsetToNegative == true) {
+            Element.convertPositiveOffsetToNegativeOffset(rawObx19Value)
+        } else {
+            rawObx19Value
+        }
         terser.set(formPathSpec("OBX-11", aoeRep), "F")
         terser.set(formPathSpec("OBX-14", aoeRep), date)
         // some states want the observation date for the AOE questions as well
-        terser.set(formPathSpec("OBX-19", aoeRep), report.getString(row, "test_result_date"))
+        terser.set(formPathSpec("OBX-19", aoeRep), obx19Value)
         terser.set(formPathSpec("OBX-23-7", aoeRep), "XX")
         // many states can't accept the QST datapoint out at the end because it is nonstandard
         // we need to pass this in via the translation configuration

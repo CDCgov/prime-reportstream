@@ -1163,7 +1163,7 @@ data class Element(
          */
         fun convertPositiveOffsetToNegativeOffset(value: String): String {
             // look for the +0 offset
-            val re = Regex(".*?\\+(00|0000|00:00)$")
+            val re = Regex(".+?\\+(00|0000|00:00)$")
             val match = re.find(value)
             // check to see if there is a match, if there isn't return the date as expected
             return when (match?.groups?.isNotEmpty()) {

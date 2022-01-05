@@ -302,6 +302,18 @@ internal class ElementTests {
             Element.convertPositiveOffsetToNegativeOffset("2022+01+05 08:00:00").run {
                 assertThat(this).isEqualTo("2022+01+05 08:00:00")
             }
+            Element.convertPositiveOffsetToNegativeOffset("").run {
+                assertThat(this).isEqualTo("")
+            }
+            Element.convertPositiveOffsetToNegativeOffset("     ").run {
+                assertThat(this).isEqualTo("     ")
+            }
+            Element.convertPositiveOffsetToNegativeOffset("+0000").run {
+                assertThat(this).isEqualTo("+0000")
+            }
+            Element.convertPositiveOffsetToNegativeOffset("+0000 2022-01-05").run {
+                assertThat(this).isEqualTo("+0000 2022-01-05")
+            }
         }
     }
 
