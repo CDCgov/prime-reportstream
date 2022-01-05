@@ -42,7 +42,7 @@ export const CsvSchemaDocumentation = () => {
                         key={`field-${fieldIndex}`}
                         className="margin-bottom-6"
                     >
-                        <h3>
+                        <h3 id={`doc-${field.colHeader}`}>
                             {field.name}
                             {field.required && <span className="text-normal text-xs text-secondary margin-left-2">Required</span>}
                         </h3>
