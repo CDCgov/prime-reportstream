@@ -25,7 +25,8 @@ data class ExpectedSubmissionHistory(
     val topic: String?,
     val reportItemCount: Int?,
     val warningCount: Int?,
-    val errorCount: Int?
+    val errorCount: Int?,
+    val externalName: String? = ""
 )
 
 data class SubmissionAPITestCase(
