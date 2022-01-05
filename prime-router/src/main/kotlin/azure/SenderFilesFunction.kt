@@ -12,6 +12,7 @@ import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.SenderItems
 import gov.cdc.prime.router.common.CsvUtilities
+import gov.cdc.prime.router.common.Hl7Utilities
 import gov.cdc.prime.router.messages.ReportFileListMessage
 import gov.cdc.prime.router.messages.ReportFileMessage
 import gov.cdc.prime.router.tokens.OktaAuthentication
@@ -222,7 +223,7 @@ class SenderFilesFunction(
             if (reportBlob.isBlank()) return ""
             return when (senderFormat) {
                 Sender.Format.CSV -> CsvUtilities.cut(reportBlob, itemIndices)
-                Sender.Format.HL7 -> TODO("Support for HL7 is not implemented")
+                Sender.Format.HL7 -> Hl7Utilities.cut(reportBlob, itemIndices)
             }
         }
     }
