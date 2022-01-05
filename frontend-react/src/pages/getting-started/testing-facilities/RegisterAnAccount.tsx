@@ -17,6 +17,7 @@ export const RegisterAnAccount = () => {
                 </p>
                 <ul>
                     <li>Contact ReportStream</li>
+                    <li>Accept the terms of service</li>
                     <li>Recieve activation email</li>
                     <li>Set up password</li>
                     <li>Set up security question</li>
@@ -49,6 +50,13 @@ export const RegisterAnAccount = () => {
                             Email
                             Phone number
                         </blockquote>
+                    </li>
+                    <li className="usa-process-list__item">
+                        <h4 className="usa-process-list__heading">
+                            Accept the terms of service
+                        </h4>
+                        <p className="margin-top-05">
+                        Copy goes here:</p>
                     </li>
                     <li className="usa-process-list__item">
                         <h4 className="usa-process-list__heading">Recieve activation email</h4>

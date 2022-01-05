@@ -14,8 +14,8 @@ export const DataDownloadGuide = () => {
                 </title>
             </Helmet>
             <section id="anchor-top">
-                <h1 className="margin-top-0">Data download website guide</h1>
-                <p className="usa-intro">
+                <h2 className="margin-top-0">Data download website guide</h2>
+                <p className="usa-intro text-base">
                     The{" "}
                     <NavLink to="/login" key="login" className="usa-link">
                         data download website

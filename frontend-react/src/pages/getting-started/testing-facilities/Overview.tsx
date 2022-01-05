@@ -15,6 +15,8 @@ export const FacilitiesOverview = () => {
                 <p className="usa-intro text-base margin-bottom-6">
                     ReportStream is a free, open-source data platform that makes it easy for public health data to be transferred from organizations and testing facilities to public health departments.
                 </p>
+                <h3>Why ReportStream?</h3>
+                <p>Free, no more faxes/paper/line-by-line entry other workarounds, deliver data where you're required to, </p>  
                 <h3>How do I submit data through ReportStream?</h3>
                 <p>[VIA ELR or CSV UPLOAD]. Currently, ReportStream can accept either a comma-separated values (CSV) file or Health Level 7 (HL7) input data format.</p>  
                 <h3>What’s the Difference Between CSV and HL7?</h3> 

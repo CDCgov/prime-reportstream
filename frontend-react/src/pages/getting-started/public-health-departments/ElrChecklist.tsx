@@ -15,14 +15,14 @@ export const ELRChecklist = () => {
                 </title>
             </Helmet>
             <section id="anchor-top">
-                <h1 className="margin-top-0">ELR Onboarding Checklist</h1>
+                <h2 className="margin-top-0">ELR Onboarding Checklist</h2>
 
-                <p className="usa-intro">
+                <p className="usa-intro text-base">
                     If you’re a public health department and want to connect
                     ReportStream through Electronic Lab Reporting (ELR), you’ll
                     need to fill out the ReportStream ELR onboarding form.
                 </p>
-                <p className="usa-intro">
+                <p className="usa-intro text-base">
                     Our checklist here provides a preview of what we’ll ask, so
                     you can gather everything you need to complete the form.
                 </p>

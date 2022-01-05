@@ -17,21 +17,24 @@ export const CsvSchemaDocumentation = () => {
             <section id="anchor-top">
                 <span className="text-base text-italic">Updated: January 2022</span>
                 <h2 className="margin-top-0 ">CSV schema documentation</h2>
-                <p className="usa-intro">
+                <p className="usa-intro text-base">
                    
                     {schema.summary}
 
-                    <a
+                </p>
+                <p>Required: explanation of required. Files will fail to be processed if required fields are left blank or contain incorrect values.</p>
+                <p>Requested: explanation of requested</p>
+                <p>Optional: explanation of optinoal</p>
+                <p><a
                         href={
                             "mailto:" +
                             DOMPurify.sanitize(site.orgs.RS.email) +
                             "?subject=Getting started with ReportStream"
                         }
-                        className="margin-left-1"
+                        className="foo"
                     >
-                        Get in touch
+                        ReportStream schema CSV
                     </a>
-                    .
                 </p>
                 
             </section>
@@ -41,12 +44,13 @@ export const CsvSchemaDocumentation = () => {
                     <div
                         data-testid="fieldDiv"
                         key={`field-${fieldIndex}`}
+                        
                         className="margin-bottom-5"
                     >
                         {field.sections?.map((section, sectionIndex) => {
                             return (
                                 <div 
-                                    key={`section-${sectionIndex}`}
+                                    key={`section-${fieldIndex}-${sectionIndex}`}
                                     className="border-top-1px border-ink margin-top-9"
                                 >
                                     <h3
@@ -58,7 +62,7 @@ export const CsvSchemaDocumentation = () => {
                                     {section.items?.map((item, itemIndex) => {
                                         return (
                                             <div
-                                                key={`item-${itemIndex}`}
+                                                key={`item-${fieldIndex}-${sectionIndex}-${itemIndex}`}
                                                 className="margin-top-8"
                                             >
                                                 
@@ -68,12 +72,13 @@ export const CsvSchemaDocumentation = () => {
                                                 >
                                                     {item.name}
                                                     {item.required ? <span className="text-normal bg-white border-1px border-secondary font-body-3xs padding-x-1 padding-y-05 text-secondary margin-left-2 text-ttbottom">Required</span> : <span className="text-normal bg-white border-1px border-base font-body-3xs padding-x-1 padding-y-05 text-base margin-left-2">Optional</span>}
+                                                    {section.title === 'Ask on entry (AOE) data elements'? <span className="text-normal bg-white border-1px border-base font-body-3xs padding-x-1 padding-y-05 text-base margin-left-2">Requested</span> : null}
                                                 </h4>
                                                 <div className="margin-bottom-3">
                                                     {item.notes?.map(
                                                         (note, noteIndex) => {
                                                             return (
-                                                                <p key={`value-${noteIndex}`}>{note}</p>
+                                                                <p key={`value-${fieldIndex}-${sectionIndex}-${itemIndex}-${noteIndex}`}>{note}</p>
                                                             );
                                                         }
                                                     )}
@@ -88,15 +93,18 @@ export const CsvSchemaDocumentation = () => {
                                                 </div>
                                                 <div className="grid-row margin-bottom-05 border-base-lighter border-top-1px padding-top-1">
                                                     <div className="grid-col-4 text-base">
-                                                        {item.acceptedFormat && <>Accepted format</>}
-                                                        {item.acceptedValues && <>Accepted value(s)</>}
-                                                        {item.acceptedExample && <>Example(s)</>}
+                                                        {item.acceptedFormat ? <>Accepted format</> : null }
+                                                        {item.acceptedValues ? <>Accepted value(s)</> : null}
+                                                        {item.acceptedExample ? <>Example(s)</> : null}
                                                     </div>
                                                     <div className="grid-col-8">
                                                         {item.values?.map(
                                                             (value, valueIndex) => {
                                                                 return (
-                                                                    <><span key={`value-${valueIndex}`}>{value}</span><br /></>
+                                                                    <div 
+                                                                        key={`value-${fieldIndex}-${sectionIndex}-${itemIndex}-${valueIndex}`}
+                                                                        dangerouslySetInnerHTML={{ __html: `${value}` }}
+                                                                    ></div>
                                                                 );
                                                             }
                                                         )}
