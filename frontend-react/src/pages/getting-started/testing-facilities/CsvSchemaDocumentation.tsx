@@ -15,7 +15,8 @@ export const CsvSchemaDocumentation = () => {
                 </title>
             </Helmet>
             <section id="anchor-top">
-                <h2 className="margin-top-0 font-body-xl">CSV schema documentation</h2>
+                <span className="text-base text-italic">Updated: January 2022</span>
+                <h2 className="margin-top-0 ">CSV schema documentation</h2>
                 <p className="usa-intro">
                    
                     {schema.summary}
