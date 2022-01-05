@@ -169,7 +169,7 @@ class ReportFunction : Logging {
             .header(HttpHeaders.CONTENT_TYPE, "application/json")
         // extract the verbose param and default to empty if not present
         val verboseParam = request.queryParameters.getOrDefault(VERBOSE_PARAMETER, "")
-        verbose = verboseParam.equals(VERBOSE_TRUE, true)
+        val verbose = verboseParam.equals(VERBOSE_TRUE, true)
         try {
             val optionsText = request.queryParameters.getOrDefault(OPTION_PARAMETER, "None")
             val options = Options.valueOf(optionsText)
