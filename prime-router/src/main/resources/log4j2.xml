@@ -30,7 +30,7 @@
         </Logger>
         -->
 
-        <Root level="INFO">
+        <Root level="INFO" additivity="false">
             <AppenderRef ref="Console"/>
         </Root>
     </Loggers>

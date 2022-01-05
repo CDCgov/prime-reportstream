@@ -82,6 +82,7 @@ class RedoxTransportTests {
             settings.findReceiver("ignore.REDOX"),
             metadata.findSchema("covid-19"),
             content = content.toByteArray(),
+            true
         )
     }
 
