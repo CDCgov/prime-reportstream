@@ -239,3 +239,24 @@ data class InvalidHL7Message(
         }
     }
 }
+
+/**
+ * An message to denote that an equipment was not found in the LIVD table.
+ */
+data class InvalidEquipmentMessage(
+    override val type: ResponseMsgType = ResponseMsgType.INVALID_EQUIPMENT,
+) : ResponseMessage {
+    override fun detailMsg(): String {
+        return "Unable to validate testing equipment information."
+    }
+
+    override fun groupingId(): String {
+        return detailMsg()
+    }
+
+    companion object {
+        fun new(): InvalidEquipmentMessage {
+            return InvalidEquipmentMessage()
+        }
+    }
+}
