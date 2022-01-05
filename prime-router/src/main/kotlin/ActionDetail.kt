@@ -2,6 +2,7 @@ package gov.cdc.prime.router
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
+import java.time.Instant
 import java.util.UUID
 
 private val mapper = jacksonMapperBuilder().build()
@@ -20,6 +21,7 @@ data class ActionDetail(
     var reportId: UUID? = null,
     var action: Action? = null,
     val type: Type = Type.info,
+    val time: Instant = Instant.now(),
 ) {
     val rowNumber: Int
         get() = row + 1

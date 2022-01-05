@@ -21,5 +21,6 @@ CREATE TABLE action_detail
   report_id UUID REFERENCES report_file(report_id) ON DELETE CASCADE,
   type action_detail_type,
   scope action_detail_scope,
-  context JSONB
+  context JSONB,
+  time timestamp NOT NULL
 );
