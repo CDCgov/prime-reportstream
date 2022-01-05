@@ -14,7 +14,7 @@ export const FacilitiesOverview = () => {
                 </title>
             </Helmet>
             <section id="anchor-top">
-                <h1 className="margin-top-0">Foo foo baz</h1>
+                <h2 className="margin-top-0">Foo foo baz</h2>
                 <p className="usa-intro">
                     First, we’ll get you connected to our web application, where
                     you can immediately start downloading reporting data that is

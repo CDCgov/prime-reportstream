@@ -15,7 +15,7 @@ export const CsvSchemaDocumentation = () => {
                 </title>
             </Helmet>
             <section id="anchor-top">
-                <h2 className="margin-top-0">CSV schema documentation</h2>
+                <h2 className="margin-top-0 font-body-xl">CSV schema documentation</h2>
                 <p className="usa-intro">
                    
                     {schema.summary}
@@ -40,24 +40,31 @@ export const CsvSchemaDocumentation = () => {
                     <div
                         data-testid="fieldDiv"
                         key={`field-${fieldIndex}`}
-                        className="margin-bottom-5 border-top-1px border-base-lighter"
+                        className="margin-bottom-5"
                     >
                         {field.sections?.map((section, sectionIndex) => {
                             return (
                                 <div 
                                     key={`section-${sectionIndex}`}
-                                    className="border-top-1px border-base-lighter margin-top-5 padding-top-1"
+                                    className="border-top-1px border-ink margin-top-9"
                                 >
-                                    <h3>{section.title}</h3>
+                                    <h3
+                                        className="font-body-lg margin-y-1"
+                                    >
+                                        {section.title}
+                                    </h3>
 
                                     {section.items?.map((item, itemIndex) => {
                                         return (
                                             <div
                                                 key={`item-${itemIndex}`}
-                                                className="margin-top-6"
+                                                className="margin-top-8"
                                             >
                                                 
-                                                <h4 id={`doc-${item.colHeader}`}>
+                                                <h4 
+                                                    id={`doc-${item.colHeader}`}
+                                                    className="font-body-md margin-bottom-2"
+                                                >
                                                     {item.name}
                                                     {item.required ? <span className="text-normal bg-white border-1px border-secondary font-body-3xs padding-x-1 padding-y-05 text-secondary margin-left-2 text-ttbottom">Required</span> : <span className="text-normal bg-white border-1px border-base font-body-3xs padding-x-1 padding-y-05 text-base margin-left-2">Optional</span>}
                                                 </h4>
