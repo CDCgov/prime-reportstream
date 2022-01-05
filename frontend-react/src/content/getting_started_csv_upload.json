@@ -298,20 +298,21 @@
             ]
         },
         {
-            "name": "Acession number COME BACK TO THIS ONE/TABLE 3",
-            "colHeader": "",
+            "name": "Acession number",
+            "colHeader": "accession_number ",
             "colHeaderReportstream": "",            
             "required": true,
             "acceptableFormat": false,
             "acceptableValues": false,
             "example": false,
             "valueMessage": "",
-            "valueType": "",
+            "valueType": "Unique ID",
             "values": [
                 "value" 
             ],               
             "notes": [
-               "note"              
+               "Enter Accession Number, if known. If unknown, leave blank and ReportStream will return a unique ID.",
+               "An Accession number is a unique ID that identifies a single result. It’s state required, but if the Accession Number is unknown, ReportStream will return a unique ID using the following string of information: patient_id + Row# + Today’s date (example: ID123+5+20211223)."              
             ]
         },
         {
@@ -382,20 +383,672 @@
             ]
         },
         {
-            "name": "",
-            "colHeader": "",
+            "name": "Order test date",
+            "colHeader": "order_test_date",
+            "colHeaderReportstream": "",            
+            "required": true,
+            "acceptableFormat": true,
+            "acceptableValues": false,
+            "example": false,
+            "valueMessage": "",
+            "valueType": "Date",
+            "values": [
+                "YYYYMMDD" 
+            ],               
+            "notes": [
+               "Enter order test date. File will fail if value is not entered using acceptable format or field is left blank. "              
+            ]
+        },
+        {
+            "name": "Specimen collection date",
+            "colHeader": "specimen_collection_date",
+            "colHeaderReportstream": "",            
+            "required": true,
+            "acceptableFormat": true,
+            "acceptableValues": false,
+            "example": false,
+            "valueMessage": "",
+            "valueType": "Date",
+            "values": [
+                "YYYYMMDD" 
+            ],               
+            "notes": [
+               "Enter speciment collection date. If unknown, populate field with the order_test_date. In most cases, these are the same. Can be left blank if same as order_test_date."              
+            ]
+        },
+        {
+            "name": "Testing lab specimen received date",
+            "colHeader": "testing_lab_specimen_received_date",
+            "colHeaderReportstream": "",            
+            "required": true,
+            "acceptableFormat": true,
+            "acceptableValues": false,
+            "example": false,
+            "valueMessage": "",
+            "valueType": "Date",
+            "values": [
+                "YYYYMMDD" 
+            ],               
+            "notes": [
+               "Enter the testing lab speciment received date. If unknown, populate field with the order_test_date value. In most cases, these are the same. Can be left blank if same as order_test_date."              
+            ]
+        },
+        {
+            "name": "Test result date",
+            "colHeader": "test_result_date",
+            "colHeaderReportstream": "",            
+            "required": true,
+            "acceptableFormat": true,
+            "acceptableValues": false,
+            "example": false,
+            "valueMessage": "",
+            "valueType": "Date",
+            "values": [
+                "YYYYMMDD" 
+            ],               
+            "notes": [
+               "Enter test result date. File will fail if value is not entered using acceptable format or field is left blank. "              
+            ]
+        },
+        {
+            "name": "Date result released",
+            "colHeader": "date_result_released",
+            "colHeaderReportstream": "",            
+            "required": true,
+            "acceptableFormat": true,
+            "acceptableValues": false,
+            "example": false,
+            "valueMessage": "",
+            "valueType": "Date",
+            "values": [
+                "YYYYMMDD" 
+            ],               
+            "notes": [
+               "Enter test result date. If unknown, populate field with the test_result_date value. In most cases, these are the same.Can be left blank if same as order_test_date."              
+            ]
+        },
+        {
+            "name": "Specimen type",
+            "colHeader": "specimen_type",
             "colHeaderReportstream": "",            
             "required": true,
             "acceptableFormat": false,
             "acceptableValues": false,
             "example": false,
             "valueMessage": "",
-            "valueType": "",
+            "valueType": "Common values",
+            "values": [
+                "Nasal Swab",
+                "Nasopharyngeal Swab",
+                "Anterior Nares Swab",
+                "Throat Swab",
+                "Oropharyngeal Swab",
+                "Whole Blood",
+                "Plasma",
+                "Serum" 
+            ],               
+            "notes": [
+            "File will fail if value not entered using acceptable text values or SNOMED codes or field is left blank. ",
+               "Use the same Mapping Tool labeled 'LIVD SARS-CoV-2 Test Codes.xlsx'. From the 'LOINC Mapping' tab, go to Column D labeled 'Vendor Specimen Description'. Locate the corresponding text value or SNOMED code and enter into field (Example: Anterior Nares Swab = '697989009')"              
+            ]
+        },
+        {
+            "name": "Ordering provider ID",
+            "colHeader": "ordering_provider_id",
+            "colHeaderReportstream": "",            
+            "required": true,
+            "acceptableFormat": false,
+            "acceptableValues": true,
+            "example": true,
+            "valueMessage": "",
+            "valueType": "Unique identifier",
+            "values": [
+                "NPI Example: 1013012657",
+                "Local Code Example: muc1290" 
+            ],               
+            "notes": [
+               "Enter NPI. If NPI unknown, enter local coding. File will fail if field left blank.",
+               "NPI is a 10-position all-numeric identification number assigned by the NPS to uniquely identify a health care provider. NPIs can be found at https://npiregistry.cms.hhs.gov/",
+               ""               
+            ]
+        },
+        {
+            "name": "Ordering provider last name",
+            "colHeader": "ordering_provider_last_name",
+            "colHeaderReportstream": "",            
+            "required": true,
+            "acceptableFormat": false,
+            "acceptableValues": true,
+            "example": false,
+            "valueMessage": "",
+            "valueType": "String",
             "values": [
                 "value" 
             ],               
             "notes": [
-               "note"              
+               "Enter the last name of the ordering provider. File will fail if field left blank. "              
+            ]
+        },
+        {
+            "name": "Ordering provider first name",
+            "colHeader": "ordering_provider_first_name",
+            "colHeaderReportstream": "",            
+            "required": true,
+            "acceptableFormat": false,
+            "acceptableValues": true,
+            "example": false,
+            "valueMessage": "",
+            "valueType": "String",
+            "values": [
+                "value" 
+            ],               
+            "notes": [
+               "Enter the first name of the ordering provider. File will fail if field left blank. "              
+            ]
+        },
+        {
+            "name": "Ordering provider middle name",
+            "colHeader": "ordering_provider_middle_name",
+            "colHeaderReportstream": "",            
+            "required": false,
+            "acceptableFormat": false,
+            "acceptableValues": true,
+            "example": false,
+            "valueMessage": "",
+            "valueType": "String",
+            "values": [
+                "value" 
+            ],               
+            "notes": [
+               "Enter the middle name of the ordering provider, if known. This value is optional and can be left blank if no information is provided.  "              
+            ]
+        },
+        {
+            "name": "Ordering provider street address",
+            "colHeader": "ordering_provider_street",
+            "colHeaderReportstream": "",            
+            "required": true,
+            "acceptableFormat": false,
+            "acceptableValues": false,
+            "example": true,
+            "valueMessage": "",
+            "valueType": "Address",
+            "values": [
+                "ex: 1234 America Ln" 
+            ],               
+            "notes": [
+               "Enter the street address of the ordering provider. File will fail if field left blank. "              
+            ]
+        },
+        {
+            "name": "Ordering provider street address line 2",
+            "colHeader": "ordering_provider_street2",
+            "colHeaderReportstream": "",            
+            "required": false,
+            "acceptableFormat": false,
+            "acceptableValues": false,
+            "example": true,
+            "valueMessage": "",
+            "valueType": "Address",
+            "values": [
+                "ex: Apt 101, Suite 550" 
+            ],               
+            "notes": [
+               "Enter ordering provider’s additional address information, if applicable. This value is optional and can be left blank if no information is provided."              
+            ]
+        },
+        {
+            "name": "Ordering provider city",
+            "colHeader": "ordering_provider_city",
+            "colHeaderReportstream": "",            
+            "required": true,
+            "acceptableFormat": false,
+            "acceptableValues": true,
+            "example": false,
+            "valueMessage": "",
+            "valueType": "Address",
+            "values": [
+                "value" 
+            ],               
+            "notes": [
+               "Enter ordering provider’s city. File will fail if field left blank"              
+            ]
+        },
+        {
+            "name": "Ordering provider state",
+            "colHeader": "ordering_provider_state",
+            "colHeaderReportstream": "",            
+            "required": true,
+            "acceptableFormat": false,
+            "acceptableValues": true,
+            "example": false,
+            "valueMessage": "",
+            "valueType": "Address, two-character state abbreviation",
+            "values": [
+                "value" 
+            ],               
+            "notes": [
+               "Enter ordering provider’s state. File will fail if field left blank"              
+            ]
+        },
+        {
+            "name": "Ordering provider zip code",
+            "colHeader": "ordering_provider_zip_code",
+            "colHeaderReportstream": "",            
+            "required": true,
+            "acceptableFormat": true,
+            "acceptableValues": false,
+            "example": false,
+            "valueType": "5 or 9 digit zip code",
+            "values": [
+                "##### ",
+                "#####-#### "
+            ],               
+            "notes": [
+               "Enter ordering provider zip code. File will fail if value is not entered using acceptable format or field is left blank. "               
+            ]
+        },
+        {
+            "name": "Ordering provider phone number",
+            "colHeader": "ordering_provider_phone_number",
+            "colHeaderReportstream": "",            
+            "required": true,
+            "acceptableFormat": true,
+            "acceptableValues": false,
+            "example": false,
+            "valueMessage": "",
+            "valueType": "10-digit phone number",
+            "values": [
+                "###-###-####"
+            ],               
+            "notes": [
+               "Enter ordering provider’s phone number. File will fail if value is not entered using acceptable format or field is left blank."              
+            ]
+        },
+        {
+            "name": "Testing lab CLIA number",
+            "colHeader": "testing_lab_clia",
+            "colHeaderReportstream": "",            
+            "required": true,
+            "acceptableFormat": false,
+            "acceptableValues": false,
+            "example": true,
+            "valueMessage": "",
+            "valueType": "CLIA number",
+            "values": [
+                "ex: 01D1058443" 
+            ],               
+            "notes": [
+               "Enter testing lab’s CLIA number. File will fail if left blank. ",
+               "CLIA numbers can be found at https://www.cdc.gov/clia/LabSearch.html "              
+            ]
+        },
+        {
+            "name": "Testing lab name",
+            "colHeader": "testing_lab_name",
+            "colHeaderReportstream": "",            
+            "required": true,
+            "acceptableFormat": false,
+            "acceptableValues": true,
+            "example": false,
+            "valueMessage": "",
+            "valueType": "Name",
+            "values": [
+                "value" 
+            ],               
+            "notes": [
+               "Enter testing lab’s name. File will fail if field left blank."              
+            ]
+        },
+        {
+            "name": "Testing lab street address",
+            "colHeader": "testing_lab_street",
+            "colHeaderReportstream": "",            
+            "required": true,
+            "acceptableFormat": false,
+            "acceptableValues": false,
+            "example": true,
+            "valueMessage": "",
+            "valueType": "Address",
+            "values": [
+                "ex: 1234 America Ln" 
+            ],               
+            "notes": [
+               "Enter the street address of the testing lab. File will fail if field left blank. "              
+            ]
+        },
+        {
+            "name": "Testing lab street address line 2",
+            "colHeader": "testing_lab_street2",
+            "colHeaderReportstream": "",            
+            "required": false,
+            "acceptableFormat": false,
+            "acceptableValues": false,
+            "example": true,
+            "valueMessage": "",
+            "valueType": "Address",
+            "values": [
+                "ex: Apt 101, Suite 550" 
+            ],               
+            "notes": [
+               "Enter testing lab’s additional address information, if applicable. This value is optional and can be left blank if no information is provided."              
+            ]
+        },
+        {
+            "name": "Testing lab city",
+            "colHeader": "testing_lab_city",
+            "colHeaderReportstream": "",            
+            "required": true,
+            "acceptableFormat": false,
+            "acceptableValues": false,
+            "example": true,
+            "valueMessage": "",
+            "valueType": "Address",
+            "values": [
+                "value" 
+            ],               
+            "notes": [
+               "Enter testing lab’s city. File will fail if field left blank"              
+            ]
+        },
+        {
+            "name": "Testing lab state",
+            "colHeader": "testing_lab_state",
+            "colHeaderReportstream": "",            
+            "required": true,
+            "acceptableFormat": true,
+            "acceptableValues": false,
+            "example": false,
+            "valueMessage": "",
+            "valueType": "Address, two-character state abbreviation",
+            "values": [
+                "value" 
+            ],               
+            "notes": [
+               "Enter ordering provider’s state. File will fail if field left blank."              
+            ]
+        },
+        {
+            "name": "Testing lab zip code",
+            "colHeader": "testing_lab_zip_code",
+            "colHeaderReportstream": "",            
+            "required": true,
+            "acceptableFormat": true,
+            "acceptableValues": false,
+            "example": false,
+            "valueType": "5 or 9 digit zip code",
+            "values": [
+                "##### ",
+                "#####-#### "
+            ],               
+            "notes": [
+               "Enter testing lab zip code. File will fail if value is not entered using acceptable format or field is left blank. "               
+            ]
+        },
+        {
+            "name": "Testing lab phone number",
+            "colHeader": "testing_lab_phone_number",
+            "colHeaderReportstream": "",            
+            "required": true,
+            "acceptableFormat": true,
+            "acceptableValues": false,
+            "example": false,
+            "valueMessage": "",
+            "valueType": "10-digit phone number",
+            "values": [
+                "###-###-####"
+            ],               
+            "notes": [
+               "Enter testing lab’s phone number. File will fail if value is not entered using acceptable format or field is left blank."              
+            ]
+        },
+        {
+            "name": "Pregnant",
+            "colHeader": "pregnant",
+            "colHeaderReportstream": "",            
+            "required": true,
+            "acceptableFormat": false,
+            "acceptableValues": true,
+            "example": false,
+            "valueMessage": "",
+            "valueType": "Status",
+            "values": [
+                "Y or YES",
+                "N or NO",              
+                "U or UNK" 
+            ],               
+            "notes": [
+               "Enter patient’s pregnancy status. Field is not required, but requested for thorough reporting. Enter one of the acceptable values exactly as displayed."              
+            ]
+        },
+        {
+            "name": "Employed in healthcare",
+            "colHeader": "employed_in_healthcare",
+            "colHeaderReportstream": "",            
+            "required": true,
+            "acceptableFormat": false,
+            "acceptableValues": true,
+            "example": false,
+            "valueMessage": "",
+            "valueType": "Status",
+            "values": [
+                "Y or YES",
+                "N or NO",              
+                "U or UNK" 
+            ],               
+            "notes": [
+               "Enter patient’s employment in healthcare status. Field is not required, but requested for thorough reporting. Enter one of the acceptable values exactly as displayed."              
+            ]
+        },
+        {
+            "name": "Symptomatic for disease",
+            "colHeader": "symptomatic_for_disease",
+            "colHeaderReportstream": "",            
+            "required": true,
+            "acceptableFormat": false,
+            "acceptableValues": true,
+            "example": false,
+            "valueMessage": "",
+            "valueType": "Status",
+            "values": [
+                "Y or YES",
+                "N or NO",              
+                "U or UNK" 
+            ],               
+            "notes": [
+               "Enter patient’s symptomatic for disease status. Field is not required, but requested for thorough reporting. Enter one of the acceptable values exactly as displayed."              
+            ]
+        },
+        {
+            "name": "Illness onset date",
+            "colHeader": "illness_onset_date",
+            "colHeaderReportstream": "",            
+            "required": true,
+            "acceptableFormat": true,
+            "acceptableValues": false,
+            "example": false,
+            "valueMessage": "",
+            "valueType": "Status",
+            "values": [
+                "YYYYMMDD"
+            ],               
+            "notes": [
+                "Enter patient’s illness onset date.  Field is not required, but requested for thorough reporting. Enter value using accebtable format displayed."              
+            ]
+        },
+        {
+            "name": "Resident congregate setting",
+            "colHeader": "resident_congregate_setting",
+            "colHeaderReportstream": "",            
+            "required": true,
+            "acceptableFormat": false,
+            "acceptableValues": true,
+            "example": false,
+            "valueMessage": "",
+            "valueType": "Status",
+            "values": [
+                "Y or YES",
+                "N or NO",              
+                "U or UNK" 
+            ],               
+            "notes": [
+               "Enter patient’s congregate housing status. Field is not required, but requested for thorough reporting. Enter one of the acceptable values exactly as displayed."              
+            ]
+        },
+        {
+            "name": "Hospitalized",
+            "colHeader": "hospitalized",
+            "colHeaderReportstream": "",            
+            "required": true,
+            "acceptableFormat": false,
+            "acceptableValues": true,
+            "example": false,
+            "valueMessage": "",
+            "valueType": "Status",
+            "values": [
+                "Y or YES",
+                "N or NO",              
+                "U or UNK" 
+            ],               
+            "notes": [
+               "Enter patient’s hospitalization status. Field is not required, but requested for thorough reporting. Enter one of the acceptable values exactly as displayed."              
+            ]
+        },
+        {
+            "name": "Intensive care unit",
+            "colHeader": "icu",
+            "colHeaderReportstream": "",            
+            "required": true,
+            "acceptableFormat": false,
+            "acceptableValues": true,
+            "example": false,
+            "valueMessage": "",
+            "valueType": "Status",
+            "values": [
+                "Y or YES",
+                "N or NO",              
+                "U or UNK" 
+            ],               
+            "notes": [
+               "Enter patient’s intensive care unit (ICU) status.  Field is not required, but requested for thorough reporting. Enter one of the acceptable values exactly as displayed."              
+            ]
+        },
+        {
+            "name": "Ordering facility name",
+            "colHeader": "ordering_facility_name",
+            "colHeaderReportstream": "",            
+            "required": true,
+            "acceptableFormat": false,
+            "acceptableValues": true,
+            "example": false,
+            "valueMessage": "",
+            "valueType": "Name",
+            "values": [
+                "value" 
+            ],               
+            "notes": [
+               "Enter ordering facility name. Can be left blank if same as testing_lab_name. "              
+            ]
+        },
+        {
+            "name": "Ordering facility street address",
+            "colHeader": "ordering_facility_street",
+            "colHeaderReportstream": "",            
+            "required": true,
+            "acceptableFormat": false,
+            "acceptableValues": false,
+            "example": true,
+            "valueMessage": "",
+            "valueType": "Address",
+            "values": [
+                "ex: 1234 America Ln" 
+            ],               
+            "notes": [
+               "Enter the street address of the ordering facility. Can be left blank if same as testing_lab_street."              
+            ]
+        },
+        {
+            "name": "Ordering facility street address line 2",
+            "colHeader": "ordering_facility_street2",
+            "colHeaderReportstream": "",            
+            "required": false,
+            "acceptableFormat": false,
+            "acceptableValues": false,
+            "example": true,
+            "valueMessage": "",
+            "valueType": "Address",
+            "values": [
+                "ex: Apt 101, Suite 550" 
+            ],               
+            "notes": [
+               "Enter ordering facility’s additional address information, if applicable. This value is optional and can be left blank if no information is provided."              
+            ]
+        },
+        {
+            "name": "Ordering facility city",
+            "colHeader": "ordering_facility_city ",
+            "colHeaderReportstream": "",            
+            "required": true,
+            "acceptableFormat": false,
+            "acceptableValues": false,
+            "example": true,
+            "valueMessage": "",
+            "valueType": "Address",
+            "values": [
+                "value" 
+            ],               
+            "notes": [
+               "Enter ordering facility’s city. Can be left blank if same as testing_lab_city."              
+            ]
+        },
+        {
+            "name": "Ordering facility state",
+            "colHeader": "ordering_facility_state",
+            "colHeaderReportstream": "",            
+            "required": true,
+            "acceptableFormat": true,
+            "acceptableValues": false,
+            "example": false,
+            "valueMessage": "",
+            "valueType": "Address, two-character state abbreviation",
+            "values": [
+                "value" 
+            ],               
+            "notes": [
+               "Enter ordering facility’s state. Can be left blank if same as testing_lab_state."              
+            ]
+        },
+        {
+            "name": "Ordering facility zip code",
+            "colHeader": "ordering_facility_zip_code",
+            "colHeaderReportstream": "",            
+            "required": true,
+            "acceptableFormat": true,
+            "acceptableValues": false,
+            "example": false,
+            "valueType": "5 or 9 digit zip code",
+            "values": [
+                "##### ",
+                "#####-#### "
+            ],               
+            "notes": [
+               "Enter ordering facility zip code. Can be left blank if same as testing_lab_zip_code. "               
+            ]
+        },
+        {
+            "name": "Ordering facility phone number",
+            "colHeader": "ordering_facility_phone_number",
+            "colHeaderReportstream": "",            
+            "required": true,
+            "acceptableFormat": true,
+            "acceptableValues": false,
+            "example": false,
+            "valueType": "10 digit phone number",
+            "values": [
+                "###-###-####"
+            ],               
+            "notes": [
+               "Enter ordering facility phone number. Can be left blank if same as testing_lab_phone_number."               
             ]
         },
         {
@@ -404,17 +1057,18 @@
             "colHeaderReportstream": "",            
             "required": true,
             "acceptableFormat": false,
-            "acceptableValues": false,
+            "acceptableValues": true,
             "example": false,
             "valueMessage": "",
             "valueType": "",
             "values": [
-                "value" 
+                ""
             ],               
             "notes": [
-               "note"              
+               ""              
             ]
         }
+        
         
     ],
     "foo" : [
@@ -422,49 +1076,7 @@
    
         "message_id",
         "placer_order_id",
-        "filler_order_id",
-   
-        "test_result",
-        "order_test_date",
-        "specimen_collection_date_time",
-        "testing_lab_specimen_received_datetime",
-        "test_result_date",
-        "date_result_released",
-        "specimen_type",
-        "Specimen_source_site_code",
-        "ordering_provider_id",
-        "ordering_provider_last_name",
-        "ordering_provider_first_name",
-        "ordering_provider_middle_name",
-        "ordering_provider_street",
-        "ordering_provider_street2",
-        "ordering_provider_city",
-        "ordering_provider_state",
-        "ordering_provider_zip_code",
-        "ordering_provider_phone_number",
-        "testing_lab_clia",
-        "testing_lab_name",
-        "testing_lab_street",
-        "testing_lab_street2",
-        "testing_lab_city",
-        "testing_lab_state",
-        "testing_lab_zip_code",
-        "testing_lab_phone_number",
-        "pregnant",
-        "employed_in_healthcare",
-        "symptomatic_for_disease",
-        "illness_onset_date",
-        "resident_congregate_setting",
-        "hospitalized",
-        "icu",
-        "ordering_facility_name",
-        "ordering_facility_street",
-        "ordering_facility_street2",
-        "ordering_facility_city",
-        "ordering_facility_state",
-        "ordering_facility_zip_code",
-        "ordering_facility_phone_number",
-        "reporting_facility",
-        "reporting_facility_clia"
+        "filler_order_id",   
+        ""
     ]
 }
