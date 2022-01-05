@@ -8,12 +8,10 @@ import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
 import gov.cdc.prime.router.ActionDetail
 import gov.cdc.prime.router.ClientSource
-import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
-import gov.cdc.prime.router.ReportStreamFilterResult
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.azure.db.Tables
@@ -101,10 +99,8 @@ class ActionHistory {
     val filteredOutReports = mutableMapOf<ReportId, ReportFile>()
 
     /**
-     * List of rows per report that have been filtered out based on quality.
+     * List of details that happened during the action
      */
-    val filteredReportRows = mutableMapOf<ReportId, List<ReportStreamFilterResult>>()
-
     val details = mutableListOf<ActionDetail>()
 
     /**
@@ -263,6 +259,7 @@ class ActionHistory {
      */
     fun trackActionResponse(response: HttpResponseMessage, verboseResponse: String) {
         action.httpStatus = response.status.value()
+        val verboseResponse = createResponseBody(true)
         if (!verboseResponse.isNullOrBlank())
             this.trackActionResponse(verboseResponse)
     }
@@ -365,7 +362,6 @@ class ActionHistory {
         reportFile.itemCount = report.itemCount
         reportFile.bodyFormat = report.bodyFormat.toString()
         filteredOutReports[reportFile.reportId] = reportFile
-        filteredReportRows[reportFile.reportId] = report.filteringResults
         report.filteringResults.forEach {
             trackDetails(
                 ActionDetail(
@@ -409,7 +405,6 @@ class ActionHistory {
         reportFile.blobDigest = blobInfo.digest
         reportFile.itemCount = report.itemCount
         reportsOut[reportFile.reportId] = reportFile
-        filteredReportRows[reportFile.reportId] = report.filteringResults
         report.filteringResults.forEach {
             trackDetails(
                 ActionDetail(
@@ -450,7 +445,6 @@ class ActionHistory {
         reportFile.blobDigest = blobInfo.digest
         reportFile.itemCount = report.itemCount
         reportsOut[reportFile.reportId] = reportFile
-        filteredReportRows[reportFile.reportId] = report.filteringResults
         report.filteringResults.forEach {
             trackDetails(
                 ActionDetail(
@@ -949,7 +943,6 @@ class ActionHistory {
      * @return A json representation of the result of whatever action called this
      */
     fun createResponseBody(
-        options: Options,
         verbose: Boolean,
     ): String {
         val warnings = details.filter { it.type == ActionDetail.Type.warning }

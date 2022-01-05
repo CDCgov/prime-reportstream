@@ -40,7 +40,6 @@ import java.util.Date
 import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.fail
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class Hl7SerializerTests {
@@ -730,7 +729,7 @@ NTE|1|L|This is a final comment|RE"""
             every { it.organizationName }.returns("vt-dph")
         }
 
-        val testReport = csvSerializer.readExternal(schema, inputStream, listOf(TestSource), receiver).report ?: fail()
+        val testReport = csvSerializer.readExternal(schema, inputStream, listOf(TestSource), receiver).report
         val output = serializer.createMessage(testReport, 0)
         val mcf = CanonicalModelClassFactory("2.5.1")
         context.modelClassFactory = mcf

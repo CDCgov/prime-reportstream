@@ -20,7 +20,6 @@ import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
-import kotlin.test.fail
 
 //
 // Using JUnit here, but this is not a unit test.  This tests end-to-end:  ingesting a csv file,
@@ -60,7 +59,7 @@ class CsvFileTests {
             prop("errors") { ReadResult::errors.call(it) }.isEmpty()
         }
         assertThat(result).hasNoWarnings().hasNoErrors()
-        val inputReport = result.report ?: fail()
+        val inputReport = result.report
         translateReport(inputReport, baseName, listOf("federal-test-receiver-"))
     }
 
@@ -75,7 +74,7 @@ class CsvFileTests {
             prop("errors") { ReadResult::errors.call(it) }.isEmpty()
         }
         assertThat(result).hasNoErrors()
-        val inputReport = result.report ?: fail()
+        val inputReport = result.report
         translateReport(inputReport, baseName, emptyList<String>())
     }
 

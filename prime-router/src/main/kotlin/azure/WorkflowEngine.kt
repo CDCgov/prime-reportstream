@@ -556,7 +556,6 @@ class WorkflowEngine(
             actionHistory.trackDetails(warnings)
             // track response body
             val responseBody = actionHistory.createResponseBody(
-                messageEvent.options,
                 true,
             )
             actionHistory.trackActionResponse(responseBody)

@@ -217,9 +217,6 @@ class ProcessData(
     }
 
     private fun handleReadResult(result: ReadResult): Report {
-        if (result.report == null) {
-            error(result.errorsToString())
-        }
         if (result.errors.isNotEmpty()) {
             echo(result.errorsToString())
         }

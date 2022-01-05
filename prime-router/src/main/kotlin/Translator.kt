@@ -47,7 +47,7 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
                 Pair(translatedReport, receiver)
             } catch (e: IllegalStateException) {
                 // catching individual translation exceptions enables overall work to continue
-                warnings?.let {
+                warnings.let {
                     warnings.add(
                         ActionDetail(
                             ActionDetail.DetailScope.translation,

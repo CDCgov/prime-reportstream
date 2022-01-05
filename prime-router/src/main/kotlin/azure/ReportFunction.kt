@@ -183,7 +183,6 @@ class ReportFunction : Logging {
                     Options.CheckConnections, Options.ValidatePayload -> {
                         responseBuilder.body(
                             actionHistory.createResponseBody(
-                                options,
                                 false,
                             )
                         ).status(HttpStatus.OK)
@@ -239,7 +238,6 @@ class ReportFunction : Logging {
             }
             responseBuilder.body(
                 actionHistory.createResponseBody(
-                    options,
                     verbose,
                 )
             )
@@ -251,7 +249,6 @@ class ReportFunction : Logging {
             )
             responseBuilder.body(
                 actionHistory.createResponseBody(
-                    Options.None,
                     false,
                 )
             )
@@ -263,7 +260,6 @@ class ReportFunction : Logging {
             )
             responseBuilder.body(
                 actionHistory.createResponseBody(
-                    Options.None,
                     false,
                 )
             )
