@@ -76,7 +76,7 @@ class SenderFilesFunctionTests {
         val functionParams = senderFileFunctions.checkParameters(mockRequestWithReportId)
         assertThat(functionParams.reportFileName).isNull()
         assertThat(functionParams.reportId).isEqualTo(reportId)
-        assertThat(functionParams.fakePatientInfo).isEqualTo(false)
+        assertThat(functionParams.onlyDestinationReportItems).isEqualTo(false)
         assertThat(functionParams.limit).isGreaterThan(0)
         assertThat(functionParams.offset).isEqualTo(0)
         verify(atLeast = 1) { mockRequestWithReportId.queryParameters }

@@ -7,7 +7,6 @@ import com.microsoft.azure.functions.HttpResponseMessage
 import com.microsoft.azure.functions.annotation.AuthorizationLevel
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
-import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
@@ -25,8 +24,7 @@ import java.util.UUID
 class SenderFilesFunction(
     private val oktaAuthentication: OktaAuthentication = OktaAuthentication(PrincipalLevel.SYSTEM_ADMIN),
     private val dbAccess: DatabaseAccess = DatabaseAccess(),
-    private val blobAccess: BlobAccess = BlobAccess(),
-    private val metadata: Metadata? = Metadata.getInstance()
+    private val blobAccess: BlobAccess = BlobAccess()
 ) : Logging {
     /**
      * The sender file end-point retrieves the reports that contributed to the specified output report.
@@ -63,7 +61,7 @@ class SenderFilesFunction(
     data class FunctionParameters(
         val reportId: ReportId?,
         val reportFileName: String?,
-        val fakePatientInfo: Boolean,
+        val onlyDestinationReportItems: Boolean,
         val offset: Int,
         val limit: Int,
     )
@@ -81,34 +79,34 @@ class SenderFilesFunction(
      */
     internal fun checkParameters(request: HttpRequestMessage<String?>): FunctionParameters {
         val reportId = try {
-            request.queryParameters["report-id"]?.let { UUID.fromString(it) }
+            request.queryParameters[REPORT_ID_PARAM]?.let { UUID.fromString(it) }
         } catch (e: Exception) {
-            throw IllegalArgumentException("Bad report-id parameter")
+            throw IllegalArgumentException("Bad $REPORT_ID_PARAM parameter")
         }
-        val reportFileName = request.queryParameters["report-file-name"]?.replace("/", "%2F")
-        val fakePatientInfo = try {
-            request.queryParameters["fake-patient"]?.toBoolean() ?: false
+        val reportFileName = request.queryParameters[REPORT_FILE_NAME_PARAM]?.replace("/", "%2F")
+        val fullReport = try {
+            request.queryParameters[ONLY_REPORT_ITEMS]?.toBoolean() ?: false
         } catch (e: Exception) {
-            throw IllegalArgumentException("Bad fake-patient parameter")
+            throw IllegalArgumentException("Bad $ONLY_REPORT_ITEMS parameter")
         }
         val offset = try {
-            request.queryParameters["offset"]?.toInt() ?: 0
+            request.queryParameters[OFFSET_PARAM]?.toInt() ?: 0
         } catch (e: Exception) {
-            throw IllegalArgumentException("Bad offset parameter")
+            throw IllegalArgumentException("Bad $OFFSET_PARAM parameter")
         }
         val limit = try {
-            request.queryParameters["limit"]?.toInt() ?: 100
+            request.queryParameters[LIMIT_PARAM]?.toInt() ?: DEFAULT_LIMIT_PARAM
         } catch (e: Exception) {
-            throw IllegalArgumentException("Bad limit parameter")
+            throw IllegalArgumentException("Bad $LIMIT_PARAM parameter")
         }
         if (reportId == null && reportFileName == null) {
-            throw IllegalArgumentException("Expected either a report-id or a report-file-name")
+            throw IllegalArgumentException("Expected either a $REPORT_ID_PARAM or a $REPORT_FILE_NAME_PARAM parameter")
         }
 
         return FunctionParameters(
             reportId,
             reportFileName,
-            fakePatientInfo,
+            fullReport,
             offset,
             limit
         )
@@ -129,7 +127,7 @@ class SenderFilesFunction(
             return Pair(Status.NOT_FOUND, "No sender reports found for report: ${parameters.reportId}")
         }
 
-        val senderReports = downloadSenderReports(senderItems)
+        val senderReports = downloadSenderReports(senderItems, parameters)
         val emptyReport = senderReports.find { it.content.isEmpty() }
         if (emptyReport != null) {
             return Pair(
@@ -138,9 +136,7 @@ class SenderFilesFunction(
             )
         }
 
-        val payload = senderReports
-            .fakePatient(parameters)
-            .serialize()
+        val payload = senderReports.serialize()
         return Pair(Status.OK, payload)
     }
 
@@ -161,7 +157,8 @@ class SenderFilesFunction(
      * download the sender blobs and extract the content of each sender item.
      */
     private fun downloadSenderReports(
-        items: List<SenderItems>
+        items: List<SenderItems>,
+        parameters: FunctionParameters
     ): List<ReportFileMessage> {
         // Group by senderReportId to avoid downloading blobs multiple times
         val itemsByReport = items.groupBy { it.senderReportId!! }
@@ -172,9 +169,14 @@ class SenderFilesFunction(
             } catch (e: IOException) {
                 ""
             }
+
             val senderIndices = senderItems.map { it.senderReportIndex!! }
             val senderFormat = mapBodyFormatToSenderFormat(reportFile.bodyFormat!!)
-            val body = extractContent(blob, senderFormat, senderIndices)
+            val body = if (parameters.onlyDestinationReportItems) {
+                cutContent(blob, senderFormat, senderIndices)
+            } else {
+                blob
+            }
 
             ReportFileMessage(
                 reportId = reportFile.reportId.toString(),
@@ -197,32 +199,7 @@ class SenderFilesFunction(
         }
     }
 
-    /**
-     * Look at the patient info our synthesizer if [parameters] indicates that option. Return [this] otherwise.
-     */
-    private fun List<ReportFileMessage>.fakePatient(parameters: FunctionParameters): List<ReportFileMessage> {
-        return if (parameters.fakePatientInfo) {
-            this.map {
-                val fakePatientContent = when (mapBodyFormatToSenderFormat(it.contentType)) {
-                    Sender.Format.CSV -> TODO()
-                    Sender.Format.HL7 -> TODO()
-                }
-                ReportFileMessage(
-                    it.reportId,
-                    it.schemaTopic,
-                    it.schemaName,
-                    it.contentType,
-                    fakePatientContent,
-                    it.origin,
-                    it.request
-                )
-            }
-        } else {
-            this
-        }
-    }
-
-    private fun extractContent(reportBlob: String, senderFormat: Sender.Format, itemIndices: List<Int>): String {
+    private fun cutContent(reportBlob: String, senderFormat: Sender.Format, itemIndices: List<Int>): String {
         if (reportBlob.isBlank()) return ""
         return when (senderFormat) {
             Sender.Format.CSV -> CsvUtilities.cut(reportBlob, itemIndices)
@@ -239,6 +216,36 @@ class SenderFilesFunction(
     }
 
     companion object {
+        /**
+         * Query parameter for the report-id option
+         */
+        const val REPORT_ID_PARAM = "report-id"
+
+        /**
+         * Query parameter for the report-file-name option
+         */
+        const val REPORT_FILE_NAME_PARAM = "report-file-name"
+
+        /**
+         * Query parameter for the only destination report options
+         */
+        const val ONLY_REPORT_ITEMS = "only-report-items"
+
+        /**
+         * Query parameter the offset in the receiver report
+         */
+        const val OFFSET_PARAM = "offset"
+
+        /**
+         * Query parameter to limit the receiver report
+         */
+        const val LIMIT_PARAM = "limit"
+
+        /**
+         * Default limit parameter
+         */
+        const val DEFAULT_LIMIT_PARAM = 10000
+
         private val mapper = jacksonMapperBuilder().build()
 
         private fun mapBodyFormatToSenderFormat(bodyFormat: String): Sender.Format {

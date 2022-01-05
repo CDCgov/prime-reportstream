@@ -15,6 +15,7 @@ import com.github.kittinunf.fuel.core.Headers
 import com.github.kittinunf.fuel.core.extensions.authentication
 import com.github.kittinunf.result.Result
 import gov.cdc.prime.router.azure.HttpUtilities
+import gov.cdc.prime.router.azure.SenderFilesFunction
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.messages.ReportFileListMessage
 import gov.cdc.prime.router.messages.ReportFileMessage
@@ -27,6 +28,8 @@ class SenderFilesCommand : CliktCommand(
     name = "sender-files",
     help = "Reverse the routing of a report and retrieve the source files."
 ) {
+    // Command Line Parameters
+
     private val env by option(
         "--env", help = "Connect to <name> environment", metavar = "name", envvar = "PRIME_ENVIRONMENT"
     )
@@ -40,6 +43,18 @@ class SenderFilesCommand : CliktCommand(
     private val reportFileNameArg by option(
         "--report-file-name", help = "file name of the receiver report", metavar = "file-name"
     )
+
+    private val offsetArg by option(
+        "--offset", help = "the offset into the receiver report", metavar = "index"
+    )
+
+    private val limitArg by option(
+        "--limit", help = "the maximum number of receiver items to retrieve", metavar = "count"
+    )
+
+    private val onlyReportItemsFlag by option(
+        "--only-report-items", help = "In sender files, only include items that route to the receiver report",
+    ).flag()
 
     private val outDirectory by option(
         "-o", "--output-dir",
@@ -129,8 +144,11 @@ class SenderFilesCommand : CliktCommand(
      */
     private fun buildParameters(): List<Pair<String, String>> {
         val params = mutableListOf<Pair<String, String>>()
-        if (reportIdArg != null) params.add("report-id" to reportIdArg!!)
-        if (reportFileNameArg != null) params.add("report-file-name" to reportFileNameArg!!)
+        reportIdArg?.let { params.add(SenderFilesFunction.REPORT_ID_PARAM to it) }
+        reportFileNameArg?.let { params.add(SenderFilesFunction.REPORT_FILE_NAME_PARAM to it) }
+        offsetArg?.let { params.add(SenderFilesFunction.OFFSET_PARAM to it) }
+        limitArg?.let { params.add(SenderFilesFunction.LIMIT_PARAM to it) }
+        if (onlyReportItemsFlag) params.add(SenderFilesFunction.ONLY_REPORT_ITEMS to "true")
         return params
     }
 
