@@ -257,11 +257,10 @@ class ActionHistory {
      * @param response the response created while processing the submitted report
      * @param verboseResponse the generated verbose response with all details
      */
-    fun trackActionResponse(response: HttpResponseMessage, verboseResponse: String) {
+    fun trackActionResponse(response: HttpResponseMessage) {
         action.httpStatus = response.status.value()
         val verboseResponse = createResponseBody(true)
-        if (!verboseResponse.isNullOrBlank())
-            this.trackActionResponse(verboseResponse)
+        this.trackActionResponse(verboseResponse)
     }
 
     /**

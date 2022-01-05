@@ -47,16 +47,14 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
                 Pair(translatedReport, receiver)
             } catch (e: IllegalStateException) {
                 // catching individual translation exceptions enables overall work to continue
-                warnings.let {
-                    warnings.add(
-                        ActionDetail(
-                            ActionDetail.DetailScope.translation,
-                            "TO:${receiver.fullName}:${receiver.schemaName}",
-                            InvalidTranslationMessage.new(e.localizedMessage),
-                            reportId = input.id,
-                        )
+                warnings.add(
+                    ActionDetail(
+                        ActionDetail.DetailScope.translation,
+                        "TO:${receiver.fullName}:${receiver.schemaName}",
+                        InvalidTranslationMessage.new(e.localizedMessage),
+                        reportId = input.id,
                     )
-                }
+                )
                 return@mapNotNull null
             }
         }
