@@ -7,6 +7,7 @@ import com.microsoft.azure.functions.HttpResponseMessage
 import com.microsoft.azure.functions.annotation.AuthorizationLevel
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
+import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
@@ -24,7 +25,8 @@ import java.util.UUID
 class SenderFilesFunction(
     private val oktaAuthentication: OktaAuthentication = OktaAuthentication(PrincipalLevel.SYSTEM_ADMIN),
     private val dbAccess: DatabaseAccess = DatabaseAccess(),
-    private val blobAccess: BlobAccess = BlobAccess()
+    private val blobAccess: BlobAccess = BlobAccess(),
+    private val metadata: Metadata? = Metadata.getInstance()
 ) : Logging {
     /**
      * The sender file end-point retrieves the reports that contributed to the specified output report.
@@ -61,7 +63,7 @@ class SenderFilesFunction(
     data class FunctionParameters(
         val reportId: ReportId?,
         val reportFileName: String?,
-        val synthesize: Boolean,
+        val fakePatientInfo: Boolean,
         val offset: Int,
         val limit: Int,
     )
@@ -83,11 +85,11 @@ class SenderFilesFunction(
         } catch (e: Exception) {
             throw IllegalArgumentException("Bad report-id parameter")
         }
-        val reportFileName = request.queryParameters["report-file-name"]
-        val synthesize = try {
-            request.queryParameters["synthesize"]?.toBoolean() ?: false
+        val reportFileName = request.queryParameters["report-file-name"]?.replace("/", "%2F")
+        val fakePatientInfo = try {
+            request.queryParameters["fake-patient"]?.toBoolean() ?: false
         } catch (e: Exception) {
-            throw IllegalArgumentException("Bad synthesize parameter")
+            throw IllegalArgumentException("Bad fake-patient parameter")
         }
         val offset = try {
             request.queryParameters["offset"]?.toInt() ?: 0
@@ -106,14 +108,14 @@ class SenderFilesFunction(
         return FunctionParameters(
             reportId,
             reportFileName,
-            synthesize,
+            fakePatientInfo,
             offset,
             limit
         )
     }
 
     /**
-     * Main logic of the Azure function. Useful for testing.
+     * Main logic of the Azure function. Useful for unit testing.
      */
     internal fun processRequest(parameters: FunctionParameters): Pair<Status, String> {
         val receiverReportFile = try {
@@ -137,7 +139,7 @@ class SenderFilesFunction(
         }
 
         val payload = senderReports
-            .synthesize(parameters)
+            .fakePatient(parameters)
             .serialize()
         return Pair(Status.OK, payload)
     }
@@ -195,14 +197,42 @@ class SenderFilesFunction(
         }
     }
 
-    private fun List<ReportFileMessage>.synthesize(parameters: FunctionParameters): List<ReportFileMessage> {
-        return if (parameters.synthesize) {
-            TODO()
+    /**
+     * Look at the patient info our synthesizer if [parameters] indicates that option. Return [this] otherwise.
+     */
+    private fun List<ReportFileMessage>.fakePatient(parameters: FunctionParameters): List<ReportFileMessage> {
+        return if (parameters.fakePatientInfo) {
+            this.map {
+                val fakePatientContent = when (mapBodyFormatToSenderFormat(it.contentType)) {
+                    Sender.Format.CSV -> TODO()
+                    Sender.Format.HL7 -> TODO()
+                }
+                ReportFileMessage(
+                    it.reportId,
+                    it.schemaTopic,
+                    it.schemaName,
+                    it.contentType,
+                    fakePatientContent,
+                    it.origin,
+                    it.request
+                )
+            }
         } else {
             this
         }
     }
 
+    private fun extractContent(reportBlob: String, senderFormat: Sender.Format, itemIndices: List<Int>): String {
+        if (reportBlob.isBlank()) return ""
+        return when (senderFormat) {
+            Sender.Format.CSV -> CsvUtilities.cut(reportBlob, itemIndices)
+            Sender.Format.HL7 -> Hl7Utilities.cut(reportBlob, itemIndices)
+        }
+    }
+
+    /**
+     * Write as a JSON string
+     */
     private fun List<ReportFileMessage>.serialize(): String {
         val payload = ReportFileListMessage(this)
         return mapper.writeValueAsString(payload)
@@ -216,14 +246,6 @@ class SenderFilesFunction(
                 "CSV", "CSV_SINGLE", "INTERNAL" -> Sender.Format.CSV
                 "HL7", "HL7_BATCH" -> Sender.Format.HL7
                 else -> error("Unknown body format type: $bodyFormat")
-            }
-        }
-
-        internal fun extractContent(reportBlob: String, senderFormat: Sender.Format, itemIndices: List<Int>): String {
-            if (reportBlob.isBlank()) return ""
-            return when (senderFormat) {
-                Sender.Format.CSV -> CsvUtilities.cut(reportBlob, itemIndices)
-                Sender.Format.HL7 -> Hl7Utilities.cut(reportBlob, itemIndices)
             }
         }
     }

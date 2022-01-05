@@ -25,7 +25,7 @@ import kotlin.io.path.name
 
 class SenderFilesCommand : CliktCommand(
     name = "sender-files",
-    help = "Retrieve the sender files for a report"
+    help = "Reverse the routing of a report and retrieve the source files."
 ) {
     private val env by option(
         "--env", help = "Connect to <name> environment", metavar = "name", envvar = "PRIME_ENVIRONMENT"
@@ -57,6 +57,11 @@ class SenderFilesCommand : CliktCommand(
         help = "Verbose logging of each HTTP operation to console"
     ).flag(default = false)
 
+    private val silent by option(
+        "-s", "--silent",
+        help = "Do not echo progress or prompt for confirmation"
+    ).flag(default = false)
+
     private val jsonMapper = jacksonMapperBuilder()
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
         .build()
@@ -81,9 +86,8 @@ class SenderFilesCommand : CliktCommand(
         try {
             val reportFiles = getSenderFiles()
             saveSenderFiles(reportFiles)
-            echo("Found and saved: ${reportFiles.size}")
         } catch (e: Exception) {
-            abort(e.message ?: "Exception caught")
+            abort("Exception Error: ${e.message}")
         }
     }
 
@@ -121,7 +125,7 @@ class SenderFilesCommand : CliktCommand(
     }
 
     /**
-     * Build parameters for a request from the command lines argmements
+     * Build parameters for a request from the command lines arguments
      */
     private fun buildParameters(): List<Pair<String, String>> {
         val params = mutableListOf<Pair<String, String>>()
@@ -137,11 +141,13 @@ class SenderFilesCommand : CliktCommand(
         createDirectory(Path(outDirectory))
         reportFiles.forEach { reportFileMessage ->
             val dirAndFileName = splitBlobUrl(reportFileMessage.origin?.bodyUrl ?: error("expected blobUrl"))
-            if (dirAndFileName.size != 3) error("Path of file is not expected")
-            val dirPath = Path(outDirectory, dirAndFileName[1])
-            createDirectory(dirPath)
-            val filePath = Path(dirPath.toString(), dirAndFileName[2])
-            saveFile(filePath, reportFileMessage.content)
+            if (dirAndFileName.size != 3) error("Path of blob does not have 2 directories as expected")
+            createDirectory(Path(outDirectory, dirAndFileName[0]))
+            createDirectory(Path(outDirectory, dirAndFileName[0], dirAndFileName[1]))
+            saveFile(
+                Path(outDirectory, dirAndFileName[0], dirAndFileName[1], dirAndFileName[2]),
+                reportFileMessage.content
+            )
         }
     }
 
@@ -164,11 +170,19 @@ class SenderFilesCommand : CliktCommand(
     }
 
     /**
-     * Save a file at the [filePath] Path with [content]. Respect the overwrite flag.
+     * Save a file at the [filePath] Path with [content]. Respect the [overwrite] flag.
      */
     private fun saveFile(filePath: Path, content: String) {
         if (!overwrite && Files.exists(filePath)) error("${filePath.fileName} already exists")
+        echo("Writing: $filePath")
         Files.writeString(filePath, content)
+    }
+
+    /**
+     * Echo verbose information to the console respecting the --silent and --verbose flag
+     */
+    private fun echo(message: String) {
+        if (!silent) TermUi.echo(message)
     }
 
     /**
