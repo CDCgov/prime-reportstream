@@ -117,12 +117,30 @@ test can be applied:
 
 Being that ReportStream is an ETL tool the data will be transformed by processes in the system and 
 thus the quality may differ between input and output. I propose first that we measure quality in the 
-covid-19 schema. To do so, a field should be added to the schema to hold the score(quality_score).
-A new mapper would review the values in the fields identified above then return a score. The scoring 
-system will be based on points with a threshold value. The threshold value will have a standard default, 
-or it can be set for each organization. Each group listed above (Essential, Required, Optional) are 
-assigned a point value. To start we will analyze the data using the completeness and accuracy metrics. 
-Starting with a total value of zero, when that field fails a test the point value for its group is 
-added to the total value. The sum total value creates the quality score. The quality 
-score is then compared to the threshold value. A high score is bad! If the quality score is above or 
-equal to the threshold then the message should be considered below quality.
+COVID-19 schema. 
+
+### Scoring System
+
+The scoring system will be based on points with a threshold value. The threshold value will 
+have a standard default, or it can be set for each organization. Each group listed above 
+(Essential, Required, Optional) are assigned a point value. To start we will analyze the data using 
+the completeness and accuracy metrics. Starting with a total value of zero, when that field fails a 
+test the point value for its group is added to the total value. The sum total value creates the quality 
+score. The quality score is then compared to the threshold value. A high score is bad! If the quality 
+score is above or equal to the threshold then the message should be considered below quality.
+
+#### Example
+
+![ScoringExample](scoring_example.png "Scoring Example")
+* Each X represents a failure of a completeness or accuracy test
+
+* Default Threshold = 20
+
+The perfect message had zero missing or inaccurate fields and thus a perfect score of zero! The good message was 
+missing one field in the required group and one in the optional group. That resulted in a quality score 
+of 15 with is below the threshold so it passes the quality scoring! The bad message was missing a field 
+in the essential group and three in the optional group resulting in a scored of 35. You can see that if 
+a message arrives with any essential field missing the value then the Default threshold(20) would be met.
+
+### Implementation
+
