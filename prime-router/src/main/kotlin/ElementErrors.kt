@@ -248,7 +248,8 @@ data class InvalidEquipmentMessage(
     val elementName: String
 ) : ResponseMessage {
     override fun detailMsg(): String {
-        return "Unable to validate testing equipment information in field $elementName."
+        return "Invalid field $elementName; please refer to the Department of Health and Human Services’ (HHS) " +
+            "LOINC Mapping spreadsheet for acceptable values."
     }
 
     override fun groupingId(): String {
