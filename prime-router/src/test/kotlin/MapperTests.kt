@@ -115,7 +115,7 @@ class MapperTests {
     @Test
     fun `test livdLookup with Equipment Model Name`() {
         val lookupTable = LookupTable.read(livdPath)
-        val codeElement = Element(
+        var codeElement = Element(
             "ordered_test_code",
             tableRef = lookupTable,
             tableColumn = "Test Ordered LOINC Code"
@@ -137,6 +137,43 @@ class MapperTests {
 
         // Test for a device ID that has multiple rows and multiple test ordered codes.
         val ev4 = ElementAndValue(modelElement, "Alinity i")
+        mapper.apply(codeElement, emptyList(), listOf(ev4)).also {
+            assertThat(it.value).isNull()
+            assertThat(it.warnings).isEmpty()
+        }
+
+        // Test that the warning is only provided for fields that could be sent by a sender
+        codeElement = Element(
+            "ordered_test_code",
+            tableRef = lookupTable,
+            tableColumn = "Test Ordered LOINC Code",
+            hl7Field = "OBX-1"
+        )
+        mapper.apply(codeElement, emptyList(), listOf(ev4)).also {
+            assertThat(it.value).isNull()
+            assertThat(it.warnings).isNotEmpty()
+        }
+        codeElement = Element(
+            "ordered_test_code",
+            tableRef = lookupTable,
+            tableColumn = "Test Ordered LOINC Code",
+            hl7OutputFields = listOf("OBX-1")
+        )
+        mapper.apply(codeElement, emptyList(), listOf(ev4)).also {
+            assertThat(it.value).isNull()
+            assertThat(it.warnings).isNotEmpty()
+        }
+        codeElement = Element(
+            "ordered_test_code",
+            tableRef = lookupTable,
+            tableColumn = "Test Ordered LOINC Code",
+            csvFields = listOf(Element.CsvField("somefield", null))
+        )
+        mapper.apply(codeElement, emptyList(), listOf(ev4)).also {
+            assertThat(it.value).isNull()
+            assertThat(it.warnings).isNotEmpty()
+        }
+
         assertThat(mapper.apply(codeElement, emptyList(), listOf(ev4)).value).isNull()
     }
 
@@ -191,7 +228,8 @@ class MapperTests {
         val codeElement = Element(
             "test_authorized_for_otc",
             tableRef = lookupTable,
-            tableColumn = "is_otc"
+            tableColumn = "is_otc",
+            hl7Field = "OBX-1"
         )
         val deviceElement = Element("equipment_model_name")
         val mapper = LIVDLookupMapper()
