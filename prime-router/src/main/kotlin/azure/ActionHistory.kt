@@ -362,6 +362,7 @@ class ActionHistory {
         reportFile.bodyFormat = report.bodyFormat.toString()
         filteredOutReports[reportFile.reportId] = reportFile
         reportLineages.add(ReportLineage(null, null, input.id, report.id, null))
+        trackFilteredItems(report)
         trackedReports[report.id] = report
     }
 
@@ -393,6 +394,7 @@ class ActionHistory {
         reportFile.itemCount = report.itemCount
         reportsOut[reportFile.reportId] = reportFile
         trackedReports[report.id] = report
+        trackFilteredItems(report)
         trackItemLineages(report)
 
         // batch queue messages are added by the batchDecider, not ActionHistory
@@ -422,6 +424,7 @@ class ActionHistory {
         reportsOut[reportFile.reportId] = reportFile
         trackedReports[report.id] = report
         trackItemLineages(report)
+        trackFilteredItems(report)
 
         // batch queue messages are added by the batchDecider, not ActionHistory
         if (event.eventAction != Event.EventAction.BATCH)
@@ -496,6 +499,27 @@ class ActionHistory {
         reportsOut[reportFile.reportId] = reportFile
 
         trackUsername(downloadedBy)
+    }
+
+    // NOTE: Needs to be done only once a report is tracked
+    // otherwise the report refrenced by the Detail
+    // will not match the report that is tracked and stored.
+    //
+    // If the behavior of a Report ID changing during interim
+    // transformations changes these details can be tracked sooner.
+    fun trackFilteredItems(report: Report) {
+        report.filteringResults.forEach {
+            trackDetails(
+                ActionDetail(
+                    ActionDetail.DetailScope.report,
+                    "",
+                    it,
+                    reportId = report.id,
+                    action = action,
+                    type = ActionDetail.Type.filter,
+                )
+            )
+        }
     }
 
     private fun trackItemLineages(report: Report) {
@@ -1002,8 +1026,8 @@ class ActionHistory {
                         messageByGroupingId[groupingId] = actionDetail.responseMessage.detailMsg()
                         scopesByGroupingId[groupingId] = actionDetail.scope.toString()
                     }
-                    if (actionDetail.row != -1) {
-                        itemsByGroupingId[groupingId]?.add(actionDetail.row + 1)
+                    if (actionDetail.index != -1) {
+                        itemsByGroupingId[groupingId]?.add(actionDetail.index + 1)
                     }
                 }
                 return GroupedProperties(

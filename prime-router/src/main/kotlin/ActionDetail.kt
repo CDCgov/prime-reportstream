@@ -16,7 +16,7 @@ data class ActionDetail(
     val scope: DetailScope,
     val trackingId: String,
     val responseMessage: ResponseMessage,
-    val row: Int = -1,
+    val index: Int = -1,
     val context: JsonNode = mapper.valueToTree(responseMessage),
     var reportId: UUID? = null,
     var action: Action? = null,
@@ -24,7 +24,7 @@ data class ActionDetail(
     val time: Instant = Instant.now(),
 ) {
     val rowNumber: Int
-        get() = row + 1
+        get() = index + 1
 
     fun getActionId(): Long {
         return action!!.actionId
