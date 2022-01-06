@@ -44,8 +44,8 @@ data class ActionDetail(
     }
 
     companion object {
-        fun report(message: ResponseMessage, type: Type): ActionDetail {
-            return ActionDetail(DetailScope.report, "", message, -1, type = type)
+        fun report(message: ResponseMessage, type: Type, reportId: UUID? = null): ActionDetail {
+            return ActionDetail(DetailScope.report, "", message, -1, type = type, reportId = reportId)
         }
 
         fun report(message: String, type: Type): ActionDetail {

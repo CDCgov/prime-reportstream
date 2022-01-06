@@ -361,7 +361,6 @@ class ActionHistory {
         reportFile.itemCount = report.itemCount
         reportFile.bodyFormat = report.bodyFormat.toString()
         filteredOutReports[reportFile.reportId] = reportFile
-        trackFilteredItems(report)
         reportLineages.add(ReportLineage(null, null, input.id, report.id, null))
         trackedReports[report.id] = report
     }
@@ -395,7 +394,6 @@ class ActionHistory {
         reportsOut[reportFile.reportId] = reportFile
         trackedReports[report.id] = report
         trackItemLineages(report)
-        trackFilteredItems(report)
 
         // batch queue messages are added by the batchDecider, not ActionHistory
         if (event.eventAction != Event.EventAction.BATCH)
@@ -424,7 +422,6 @@ class ActionHistory {
         reportsOut[reportFile.reportId] = reportFile
         trackedReports[report.id] = report
         trackItemLineages(report)
-        trackFilteredItems(report)
 
         // batch queue messages are added by the batchDecider, not ActionHistory
         if (event.eventAction != Event.EventAction.BATCH)
@@ -499,21 +496,6 @@ class ActionHistory {
         reportsOut[reportFile.reportId] = reportFile
 
         trackUsername(downloadedBy)
-    }
-
-    fun trackFilteredItems(report: Report) {
-        report.filteringResults.forEach {
-            trackDetails(
-                ActionDetail(
-                    ActionDetail.DetailScope.report,
-                    "",
-                    it,
-                    reportId = report.id,
-                    action = action,
-                    type = ActionDetail.Type.filter,
-                )
-            )
-        }
     }
 
     private fun trackItemLineages(report: Report) {

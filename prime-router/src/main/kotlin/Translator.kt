@@ -31,8 +31,8 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
         defaultValues: DefaultValues = emptyMap(),
         limitReceiversTo: List<String> = emptyList(),
     ): Pair<List<Pair<Report, Receiver>>, List<ActionDetail>> {
-        val warnings = mutableListOf<ActionDetail>()
-        if (input.isEmpty()) return Pair(emptyList(), warnings)
+        val details = mutableListOf<ActionDetail>()
+        if (input.isEmpty()) return Pair(emptyList(), details)
         val routedReports = settings.receivers.filter { receiver ->
             receiver.topic == input.schema.topic &&
                 (limitReceiversTo.isEmpty() || limitReceiversTo.contains(receiver.fullName))
@@ -40,6 +40,9 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
             try {
                 // Filter the report
                 val filteredReport = filterByAllFilterTypes(settings, input, receiver) ?: return@mapNotNull null
+                filteredReport.filteringResults.forEach { filterResult ->
+                    details.add(ActionDetail.report(filterResult, ActionDetail.Type.filter, filteredReport.id))
+                }
                 if (filteredReport.isEmpty()) return@mapNotNull Pair(filteredReport, receiver)
 
                 // Translate the filteredReport
@@ -47,7 +50,7 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
                 Pair(translatedReport, receiver)
             } catch (e: IllegalStateException) {
                 // catching individual translation exceptions enables overall work to continue
-                warnings.add(
+                details.add(
                     ActionDetail(
                         ActionDetail.DetailScope.translation,
                         "TO:${receiver.fullName}:${receiver.schemaName}",
@@ -58,7 +61,7 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
                 return@mapNotNull null
             }
         }
-        return Pair(routedReports, warnings)
+        return Pair(routedReports, details)
     }
 
     /**

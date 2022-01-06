@@ -14,11 +14,10 @@ CREATE TYPE action_detail_scope AS ENUM ('parameter', 'report', 'item', 'transla
 
 CREATE TABLE action_detail
 (
-  id BIGSERIAL PRIMARY KEY,
+  action_detail_id BIGSERIAL PRIMARY KEY,
   action_id INTEGER NOT NULL REFERENCES action(action_id) ON DELETE CASCADE,
-  response_message TEXT,
-  row INTEGER,
   report_id UUID REFERENCES report_file(report_id) ON DELETE CASCADE,
+  index INTEGER,
   type action_detail_type,
   scope action_detail_scope,
   context JSONB,
