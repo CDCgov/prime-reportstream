@@ -12,7 +12,6 @@ import com.microsoft.azure.functions.annotation.HttpTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.ActionDetail
 import gov.cdc.prime.router.ActionError
-import gov.cdc.prime.router.ActionErrors
 import gov.cdc.prime.router.DEFAULT_SEPARATOR
 import gov.cdc.prime.router.InvalidParamMessage
 import gov.cdc.prime.router.InvalidReportMessage
@@ -196,7 +195,7 @@ class ReportFunction : Logging {
 
                         // checks for errors from createReport
                         if (options != Options.SkipInvalidItems && errors.isNotEmpty()) {
-                            throw ActionErrors(errors)
+                            throw ActionError(errors)
                         }
 
                         val blobInfo = workflowEngine.recordReceivedReport(
@@ -232,8 +231,6 @@ class ReportFunction : Logging {
                     }
                 }
             } catch (e: ActionError) {
-                actionHistory.trackDetails(e.detail)
-            } catch (e: ActionErrors) {
                 actionHistory.trackDetails(e.details)
             }
         } catch (e: IllegalArgumentException) {
@@ -376,7 +373,7 @@ class ReportFunction : Logging {
         }
 
         if (sender == null || schema == null || content.isEmpty() || errors.isNotEmpty()) {
-            throw ActionErrors(errors)
+            throw ActionError(errors)
         }
 
         val defaultValues = if (request.queryParameters.containsKey(DEFAULT_PARAMETER)) {
@@ -414,7 +411,7 @@ class ReportFunction : Logging {
         }
 
         if (content.isEmpty() || errors.isNotEmpty()) {
-            throw ActionErrors(errors)
+            throw ActionError(errors)
         }
 
         return ValidatedRequest(

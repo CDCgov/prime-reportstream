@@ -6,7 +6,7 @@ import com.github.doyaaaaaken.kotlincsv.util.CSVFieldNumDifferentException
 import com.github.doyaaaaaken.kotlincsv.util.CSVParseFormatException
 import com.github.doyaaaaaken.kotlincsv.util.MalformedCSVException
 import gov.cdc.prime.router.ActionDetail
-import gov.cdc.prime.router.ActionErrors
+import gov.cdc.prime.router.ActionError
 import gov.cdc.prime.router.AltValueNotDefinedException
 import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.InvalidReportMessage
@@ -132,7 +132,7 @@ class CsvSerializer(val metadata: Metadata) : Logging {
         }
         if (errors.size > 0) {
             // warnings is empty at this point
-            throw ActionErrors(errors)
+            throw ActionError(errors)
         }
 
         if (rows.isEmpty()) {
@@ -166,11 +166,11 @@ class CsvSerializer(val metadata: Metadata) : Logging {
                     ActionDetail.Type.error
                 )
             )
-            throw ActionErrors(errors + warnings)
+            throw ActionError(errors + warnings)
         }
         // at this point there are no branches that can return a non null report and errors > 0
         if (csvMapping.errors.isNotEmpty()) {
-            throw ActionErrors(errors + warnings)
+            throw ActionError(errors + warnings)
         }
 
         val mappedRows = rows.mapIndexedNotNull { index, row ->
@@ -197,7 +197,7 @@ class CsvSerializer(val metadata: Metadata) : Logging {
                     ActionDetail.Type.error
                 )
             )
-            throw ActionErrors(errors + warnings)
+            throw ActionError(errors + warnings)
         }
         return ReadResult(Report(schema, mappedRows, sources, destination, metadata = metadata), errors, warnings)
     }

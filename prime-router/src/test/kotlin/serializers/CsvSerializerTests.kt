@@ -6,7 +6,7 @@ import assertk.assertions.isFailure
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.isTrue
-import gov.cdc.prime.router.ActionErrors
+import gov.cdc.prime.router.ActionError
 import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
@@ -246,7 +246,7 @@ class CsvSerializerTests {
         """.trimIndent()
         val csvConverter = CsvSerializer(Metadata(schema = one))
         // Run it
-        assertFailsWith<ActionErrors> {
+        assertFailsWith<ActionError> {
             csvConverter.readExternal("one", ByteArrayInputStream(csv.toByteArray()), TestSource)
         }
     }
@@ -269,7 +269,7 @@ class CsvSerializerTests {
         """.trimIndent()
         val csvConverter = CsvSerializer(Metadata(schema = one))
         // Run it
-        val err = assertFailsWith<ActionErrors> {
+        val err = assertFailsWith<ActionError> {
             csvConverter.readExternal("one", ByteArrayInputStream(csv.toByteArray()), TestSource)
         }
         assertThat(err.details.size).isEqualTo(1)
@@ -364,7 +364,7 @@ class CsvSerializerTests {
             a
             1
         """.trimIndent()
-        val err = assertFailsWith<ActionErrors> {
+        val err = assertFailsWith<ActionError> {
             csvConverter.readExternal("one", ByteArrayInputStream(csv2.toByteArray()), TestSource)
         }
         assertThat(err.details.size).isEqualTo(2)
@@ -542,7 +542,7 @@ class CsvSerializerTests {
             OBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN||260415000^Not detected^SCT|||N^Normal (applies to non-numeric results)^HL70078|||F|||202102090000-0600|||CareStart COVID-19 Antigen test_Access Bio, Inc._EUA^^99ELR||202102090000-0600||||Avante at Ormond Beach^^^^^CLIA&2.16.840.1.113883.4.7&ISO^^^^10D0876999^CLIA|170 North King Road^^Ormond Beach^FL^32174^^^^12127
             """.trimIndent().toByteArray()
         )
-        val err = assertFailsWith<ActionErrors> {
+        val err = assertFailsWith<ActionError> {
             result = serializer.readExternal(schema.name, hl7Data, TestSource)
         }
         assertThat(err.details).isNotEmpty()

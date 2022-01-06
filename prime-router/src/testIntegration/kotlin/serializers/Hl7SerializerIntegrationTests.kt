@@ -12,7 +12,7 @@ import ca.uhn.hl7v2.DefaultHapiContext
 import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.util.Terser
-import gov.cdc.prime.router.ActionErrors
+import gov.cdc.prime.router.ActionError
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.FileSource
 import gov.cdc.prime.router.Hl7Configuration
@@ -416,12 +416,12 @@ NTE|1|L|This is a final comment|RE"""
         assertThat(result.report.itemCount).isEqualTo(0)
 
         val csvContent = ByteArrayInputStream("a,b,c\n1,2,3".toByteArray())
-        assertFailsWith<ActionErrors> {
+        assertFailsWith<ActionError> {
             result = serializer.readExternal(hl7SchemaName, csvContent, TestSource)
         }
 
         val incompleteHL7 = ByteArrayInputStream("MSH|^~\\&|CD".toByteArray())
-        assertFailsWith<ActionErrors> {
+        assertFailsWith<ActionError> {
             result = serializer.readExternal(hl7SchemaName, incompleteHL7, TestSource)
         }
 
@@ -433,7 +433,7 @@ NTE|1|L|This is a final comment|RE"""
             PID|1||2a14112c-ece1-4f82-915c-7b3a8d152eda^^^Avante at Ormond Beach^PI||Doe^Kareem^Millie^^^^L||19580810|F||2106-3^White^HL70005^^^^2.5.1|688 Leighann Inlet^^South Rodneychester^TX^67071||^PRN^^roscoe.wilkinson@email.com^1^211^2240784|||||||||U^Unknown^HL70189||||||||N
             """.trimIndent().toByteArray()
         )
-        assertFailsWith<ActionErrors> {
+        assertFailsWith<ActionError> {
             result = serializer.readExternal(hl7SchemaName, incompleteHL7v2, TestSource)
         }
 
@@ -448,7 +448,7 @@ NTE|1|L|This is a final comment|RE"""
             OBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN||260415000^Not detected^SCT|||N^Normal (applies to non-numeric results)^HL70078|||F|||202102090000-0600|||CareStart COVID-19 Antigen test_Access Bio, Inc._EUA^^99ELR||202102090000-0600||||Avante at Ormond Beach^^^^^CLIA&2.16.840.1.113883.4.7&ISO^^^^10D0876999^CLIA|170 North King Road^^Ormond Beach^FL^32174^^^^12127
             """.trimIndent().toByteArray()
         )
-        assertFailsWith<ActionErrors> {
+        assertFailsWith<ActionError> {
             result = serializer.readExternal(hl7SchemaName, wrongHL7Version, TestSource)
         }
     }

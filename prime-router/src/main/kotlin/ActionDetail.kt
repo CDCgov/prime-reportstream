@@ -63,6 +63,11 @@ data class ActionDetail(
     }
 }
 
-class ActionError(message: String?, val detail: ActionDetail) : Error(message)
-
-class ActionErrors(val details: List<ActionDetail>) : Error()
+/**
+ * ActionError is a throwable for cases where an event during an action
+ * is a true error that prevents subsequent behavior.
+ */
+class ActionError(message: String?, val details: List<ActionDetail>) : Error(message) {
+    constructor(message: String?, detail: ActionDetail) : this(message, listOf(detail))
+    constructor(details: List<ActionDetail>) : this(null, details)
+}

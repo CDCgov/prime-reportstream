@@ -14,7 +14,7 @@ import ca.uhn.hl7v2.parser.ModelClassFactory
 import ca.uhn.hl7v2.preparser.PreParser
 import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.router.ActionDetail
-import gov.cdc.prime.router.ActionErrors
+import gov.cdc.prime.router.ActionError
 import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.ElementAndValue
 import gov.cdc.prime.router.Hl7Configuration
@@ -397,7 +397,7 @@ class Hl7Serializer(
             logger.debug("${it.key} -> ${it.value.joinToString()}")
         }
         if (errors.size > 0) {
-            throw ActionErrors(errors)
+            throw ActionError(errors)
         }
         val report = Report(schema, mappedRows, source, metadata = metadata)
         return ReadResult(report, errors, warnings)
