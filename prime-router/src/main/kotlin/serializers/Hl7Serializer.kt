@@ -889,8 +889,9 @@ class Hl7Serializer(
         hl7Field: String,
         hl7Config: Hl7Configuration?
     ) {
-        // todo: implement logic for the conversion of the date time values
+        // first allow the truncation to happen, so we carry that logic on down
         val truncatedValue = trimAndTruncateValue(value, hl7Field, hl7Config, terser)
+        // if we need to convert the offset do it now
         if (hl7Config?.convertPositiveDateTimeOffsetToNegative == true) {
             // we need to convert the offset on date and date time to a negative offset if
             // that is what the receiver needs
