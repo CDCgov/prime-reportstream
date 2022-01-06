@@ -857,6 +857,7 @@ internal class ElementTests {
 
     @Test
     fun `test element result data class`() {
+        val element = Element("a")
         var result = ElementResult(null)
         assertThat(result.value).isNull()
 
@@ -865,21 +866,24 @@ internal class ElementTests {
         assertThat(result.errors).isEmpty()
         assertThat(result.warnings).isEmpty()
 
-        result.warning(InvalidEquipmentMessage.new())
+        result.warning(InvalidEquipmentMessage.new(element))
         assertThat(result.warnings.size).isEqualTo(1)
         assertThat(result.errors).isEmpty()
 
-        result.error(InvalidEquipmentMessage.new())
+        result.error(InvalidEquipmentMessage.new(element))
         assertThat(result.errors.size).isEqualTo(1)
 
         result = ElementResult(
-            "value", mutableListOf(InvalidEquipmentMessage.new(), InvalidEquipmentMessage.new()),
-            mutableListOf(InvalidEquipmentMessage.new(), InvalidEquipmentMessage.new(), InvalidEquipmentMessage.new())
+            "value", mutableListOf(InvalidEquipmentMessage.new(element), InvalidEquipmentMessage.new(element)),
+            mutableListOf(
+                InvalidEquipmentMessage.new(element), InvalidEquipmentMessage.new(element),
+                InvalidEquipmentMessage.new(element)
+            )
         )
-        result.warning(InvalidEquipmentMessage.new())
+        result.warning(InvalidEquipmentMessage.new(element))
         assertThat(result.warnings.size).isEqualTo(4)
         assertThat(result.errors.size).isEqualTo(2)
-        result.error(InvalidEquipmentMessage.new())
+        result.error(InvalidEquipmentMessage.new(element))
         assertThat(result.errors.size).isEqualTo(3)
     }
 
@@ -938,14 +942,14 @@ internal class ElementTests {
             override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): ElementResult {
                 return if (args.isEmpty()) ElementResult(null)
                 else when (args[0]) {
-                    "1warning" -> ElementResult(null).warning(InvalidEquipmentMessage.new())
-                    "2warnings" -> ElementResult(null).warning(InvalidEquipmentMessage.new())
-                        .warning(InvalidEquipmentMessage.new())
-                    "1error" -> ElementResult(null).error(InvalidEquipmentMessage.new())
-                    "2errors" -> ElementResult(null).error(InvalidEquipmentMessage.new())
-                        .error(InvalidEquipmentMessage.new())
-                    "mixed" -> ElementResult(null).error(InvalidEquipmentMessage.new())
-                        .warning(InvalidEquipmentMessage.new())
+                    "1warning" -> ElementResult(null).warning(InvalidEquipmentMessage.new(element))
+                    "2warnings" -> ElementResult(null).warning(InvalidEquipmentMessage.new(element))
+                        .warning(InvalidEquipmentMessage.new(element))
+                    "1error" -> ElementResult(null).error(InvalidEquipmentMessage.new(element))
+                    "2errors" -> ElementResult(null).error(InvalidEquipmentMessage.new(element))
+                        .error(InvalidEquipmentMessage.new(element))
+                    "mixed" -> ElementResult(null).error(InvalidEquipmentMessage.new(element))
+                        .warning(InvalidEquipmentMessage.new(element))
                     else -> throw UnsupportedOperationException()
                 }
             }
