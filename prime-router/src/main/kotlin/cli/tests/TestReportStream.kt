@@ -309,6 +309,7 @@ Examples:
             ProductionLoad(),
             DbConnectionsLoad(),
             LongLoad(),
+            ABot(),
         )
     }
 }

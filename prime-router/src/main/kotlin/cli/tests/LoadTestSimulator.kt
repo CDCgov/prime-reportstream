@@ -299,9 +299,9 @@ abstract class LoadTestSimulator : CoolTest() {
             true
         )
         val spike = Simulation( // Simulate a sudden spike in sends all at once
-            "Spike: 100 Threads each submitting once.",
-            100,
-            1,
+            "Spike: 200 Threads each submitting 25 times.",
+            200,
+            25,
             1,
             "IG",
             "EVERY_5_MINS",

@@ -130,6 +130,22 @@ class LongLoad : LoadTestSimulator() {
     }
 }
 
+class ABot : LoadTestSimulator() {
+    override val name = "abot-load"
+    override val description = "A burst of transmissions every few minutes"
+    override val status = TestStatus.LOAD
+
+    override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
+        setup(environment, options)
+        val afterActionId = getMostRecentActionId()
+        val results = mutableListOf<SimulatorResult>()
+        var elapsedTime = measureTimeMillis {
+            results += runOneSimulation(spike, environment, options) // cue
+        }
+        return teardown(results, elapsedTime, afterActionId, options.asyncProcessMode)
+    }
+}
+
 class Huge : CoolTest() {
     override val name = "huge"
     override val description = "Submit $REPORT_MAX_ITEMS line csv file, wait, confirm via db.  Slow."
