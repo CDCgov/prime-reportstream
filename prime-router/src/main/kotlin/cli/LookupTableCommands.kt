@@ -613,7 +613,10 @@ class LookupTableCreateCommand : GenericLookupTableCommand(
                 }
                 TermUi.echo("\tTable version ${newTableInfo.tableVersion} is now active.")
             } else
-                TermUi.echo("\tTable version ${newTableInfo.tableVersion} left inactive, so don't forget to activate it.")
+                TermUi.echo(
+                    "\tTable version ${newTableInfo.tableVersion} " +
+                        "left inactive, so don't forget to activate it."
+                )
         } else
             TermUi.echo("\tAborted the creation of the lookup table.")
     }
