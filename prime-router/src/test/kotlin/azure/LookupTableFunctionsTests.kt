@@ -260,10 +260,10 @@ class LookupTableFunctionsTests {
         mockResponseBuilder = createResponseBuilder()
         every { mockRequest.createResponseBuilder(HttpStatus.OK) } returns mockResponseBuilder
         every { mockRequest.body } returns """[{"a": "11", "b": "21"},{"a": "12", "b": "22"}]"""
-        every { mockRequest.queryParameters } returns mapOf(LookupTableFunctions.force to "true")
+        every { mockRequest.queryParameters } returns mapOf(LookupTableFunctions.forceQueryParameter to "true")
         val versionInfo = LookupTableVersion()
         versionInfo.tableName = tableName
-        versionInfo.tableSha256 = tableSha256
+        versionInfo.tableSha256Checksum = tableSha256
         versionInfo.tableVersion = latestVersion + 1
         versionInfo.isActive = false
         versionInfo.createdBy = "author1"

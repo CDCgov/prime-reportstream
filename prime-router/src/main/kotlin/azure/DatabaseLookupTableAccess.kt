@@ -152,7 +152,7 @@ class DatabaseLookupTableAccess(private val db: DatabaseAccess = DatabaseAccess(
     }
 
     /**
-     * Create a new table [version] for a [tableName] using the provided [tableData].  The force flag is use
+     * Create a new table [version] for a [tableName] using the provided [tableData].  The [force] flag is use
      * to force to update lookup table regardless.
      * This function will throw an exception upon an error and rollback any data inserted into the database.
      */
@@ -163,7 +163,7 @@ class DatabaseLookupTableAccess(private val db: DatabaseAccess = DatabaseAccess(
             newVersion.isActive = false
             newVersion.createdBy = username
             newVersion.tableName = tableName
-            newVersion.tableSha256 = tableData.toString().toSHA256()
+            newVersion.tableSha256Checksum = tableData.toString().toSHA256()
             newVersion.tableVersion = version
             if (newVersion.store() != 1) error("Error creating new version in database.")
 
@@ -171,7 +171,7 @@ class DatabaseLookupTableAccess(private val db: DatabaseAccess = DatabaseAccess(
 
             // Check for the lookup table in database is up-to-date or not.  If it is up-to-date and force=true,
             // we force to update the table regardless.
-            if (isTableUpToDate(tableName, newVersion.tableSha256) && !force)
+            if (isTableUpToDate(tableName, newVersion.tableSha256Checksum) && !force)
                 throw IllegalStateException("Conflict")
 
             // Use batching to make this faster
@@ -227,7 +227,7 @@ class DatabaseLookupTableAccess(private val db: DatabaseAccess = DatabaseAccess(
         val oldVersion = fetchActiveVersion(tableName) ?: return false
 
         val oldTableVersion = fetchVersionInfo(tableName, oldVersion)
-        if (oldTableVersion?.tableSha256 == tableSHA256) return true
+        if (oldTableVersion?.tableSha256Checksum == tableSHA256) return true
 
         return false
     }

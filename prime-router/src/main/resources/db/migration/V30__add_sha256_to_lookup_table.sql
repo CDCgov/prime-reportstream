@@ -14,5 +14,5 @@
  *
  */
 ALTER TABLE lookup_table_version
-ADD COLUMN table_sha256 character varying(512) NULL
+ADD COLUMN table_sha256_checksum character varying(512) NOT NULL
 ;

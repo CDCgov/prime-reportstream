@@ -153,7 +153,7 @@ class LookupTableFunctions(
         return getOktaAuthenticator(PrincipalLevel.SYSTEM_ADMIN).checkAccess(request) { oktaAuthenticatedClaim ->
             val inputData: List<Map<String, String>>
             try {
-                val force = request.queryParameters[force].toBoolean()
+                val forceTableToLoad = request.queryParameters[forceQueryParameter].toBoolean()
                 inputData = mapper.readValue(request.body!!.toString())
                 if (inputData.isEmpty())
                     HttpUtilities.badRequestResponse(
@@ -184,7 +184,7 @@ class LookupTableFunctions(
                         val newVersion = latestVersion + 1
                         lookupTableAccess.createTable(
                             tableName, newVersion, tableRows,
-                            oktaAuthenticatedClaim.userName, force
+                            oktaAuthenticatedClaim.userName, forceTableToLoad
                         )
 
                         // Return the table version info
@@ -200,7 +200,7 @@ class LookupTableFunctions(
                 )
             } catch (e: IllegalStateException) {
                 logger.error("Unable to create lookup table $tableName", e)
-                HttpUtilities.internalErrorConflictResponse(request)
+                HttpUtilities.internalErrorConflictResponse(request, "Lookup Table conflict")
             } catch (e: Exception) {
                 logger.error("Unable to create lookup table $tableName", e)
                 HttpUtilities.internalErrorResponse(request)
@@ -260,8 +260,8 @@ class LookupTableFunctions(
         const val showInactiveParamName = "showInactive"
 
         /**
-         * Name of the query parameter to Sha256 tables checksum.
+         * Name of the query parameter to force lookup table to create regardless.
          */
-        const val force = "force"
+        const val forceQueryParameter = "forceTableToCreate"
     }
 }

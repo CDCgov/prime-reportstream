@@ -137,14 +137,14 @@ class LookupTableEndpointUtilities(val environment: Environment) {
     }
 
     /**
-     * Submit to the API a new table version using [tableName] and [tableData].
+     * Submit to the API a new table version using [tableName], [tableData], and [forceTableToLoad].
      * @return the table version information for the created table
      * @throws TableNotFoundException if the table and/or version is not found
      * @throws IOException if there is a server or API error
      */
-    fun createTable(tableName: String, tableData: List<Map<String, String>>, force: Boolean):
+    fun createTable(tableName: String, tableData: List<Map<String, String>>, forceTableToCreate: Boolean):
         LookupTableVersion {
-        val apiUrl = environment.formUrl("$endpointRoot/$tableName?table&force=$force")
+        val apiUrl = environment.formUrl("$endpointRoot/$tableName?table&forceTableToCreate=$forceTableToCreate")
         val jsonPayload = mapper.writeValueAsString(tableData)
 
         val (_, response, result) = Fuel
@@ -175,7 +175,7 @@ class LookupTableEndpointUtilities(val environment: Environment) {
         class TableNotFoundException(message: String) : Exception(message)
 
         /**
-         * Exception thrown with a [message] if the identical table found/exist in the database.
+         * Exception thrown with a [message] if a table is not found.
          */
         class TableConflictException(message: String) : Exception(message)
 
@@ -340,11 +340,14 @@ class LookupTableCommands : CliktCommand(
                 hints {
                     borderStyle = Table.BorderStyle.SINGLE_LINE
                 }
-                header("Table Name", "Version", "Table Sha256", "Is Active", "Created By", "Created At")
+                header(
+                    "Table Name", "Version", "Table Sha256 Checksum", "Is Active", "Created By",
+                    "Created At"
+                )
                 versionList.forEach {
                     row(
-                        it.tableName, it.tableVersion, it.tableSha256, it.isActive.toString(), it.createdBy,
-                        it.createdAt.toString()
+                        it.tableName, it.tableVersion, it.tableSha256Checksum ?: "", it.isActive.toString(),
+                        it.createdBy, it.createdAt.toString()
                     )
                 }
             }.render()
@@ -539,7 +542,10 @@ class LookupTableCreateCommand : GenericLookupTableCommand(
     /**
      * Force to create table(s).
      */
-    private val force by option("-f", "--force", help = "Force to create the table").flag()
+    private val forceTableToCreate by option(
+        "-f", "--force",
+        help = "Force the creation of new table(s) even if it is already exist"
+    ).flag()
 
     override fun run() {
         // Read the input file.
@@ -547,7 +553,7 @@ class LookupTableCreateCommand : GenericLookupTableCommand(
         // Note: csvReader returns size of data-row(s) and NOT include the header-row.
         // (i.e. If the file contains of header row, it returns size = 0)
         if (inputData.size < 1) {
-            TermUi.echo("WARNING: Input file ${inputFile.absolutePath} has no data.")
+            TermUi.echo("ERROR: Input file ${inputFile.absolutePath} has no data.")
             return
         }
 
@@ -591,7 +597,7 @@ class LookupTableCreateCommand : GenericLookupTableCommand(
             ) || silent
         ) {
             val newTableInfo = try {
-                tableUtil.createTable(tableName, inputData, force)
+                tableUtil.createTable(tableName, inputData, forceTableToCreate)
             } catch (e: IOException) {
                 throw PrintMessage("\tError creating new table version for $tableName: ${e.message}", true)
             } catch (e: LookupTableEndpointUtilities.Companion.TableConflictException) {
@@ -601,6 +607,7 @@ class LookupTableCreateCommand : GenericLookupTableCommand(
                 )
                 return
             }
+
             TermUi.echo(
                 "\t${inputData.size} rows created for lookup table $tableName version " +
                     "${newTableInfo.tableVersion}."
@@ -833,7 +840,10 @@ class LookupTableLoadAllCommand : GenericLookupTableCommand(
     /**
      * Activate a created table in one shot.
      */
-    private val force by option("-f", "--force", help = "Force to create table(s)").flag()
+    private val forceTableToCreate by option(
+        "-f", "--force",
+        help = "Force the creation of new table(s) even if it is already exist"
+    ).flag()
 
     /**
      * The reference to the table creator command.
@@ -882,7 +892,7 @@ class LookupTableLoadAllCommand : GenericLookupTableCommand(
                     "-e", environment.toString().lowercase(), "-n", tableName,
                     "-i", it.absolutePath, "-s", "-a"
                 )
-                if (force) args.add("-f")
+                if (forceTableToCreate) args.add("-f")
                 tableCreator.main(args)
             }
         }

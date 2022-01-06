@@ -146,15 +146,18 @@ class HttpUtilities {
                 .build()
         }
 
+        /**
+         * The method handles the lookup table conflict failure.
+         * It uses to pass the HTTP Status 409 response code back to API consumer.
+         */
         fun internalErrorConflictResponse(
-            request: HttpRequestMessage<String?>
+            request: HttpRequestMessage<String?>,
+            errorMessage: String? = null
         ): HttpResponseMessage {
-            val body = """{"error": "Internal error conflict at ${OffsetDateTime.now()}"}"""
-            return request
-                .createResponseBuilder(HttpStatus.CONFLICT)
-                .body(body)
-                .header(HttpHeaders.CONTENT_TYPE, jsonMediaType)
-                .build()
+            val response = request.createResponseBuilder(HttpStatus.CONFLICT)
+            if (!errorMessage.isNullOrBlank())
+                response.body(errorJson(errorMessage))
+            return response.build()
         }
 
         fun errorJson(message: String): String {
