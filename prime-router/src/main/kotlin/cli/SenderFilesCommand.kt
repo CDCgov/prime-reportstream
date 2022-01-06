@@ -26,7 +26,7 @@ import kotlin.io.path.name
 
 class SenderFilesCommand : CliktCommand(
     name = "sender-files",
-    help = "Reverse the routing of a report and retrieve the source files."
+    help = "For a specified report, trace each item's ancestry and retrieve the source files submitted by senders."
 ) {
     // Command Line Parameters
 
@@ -37,23 +37,23 @@ class SenderFilesCommand : CliktCommand(
         .default("local", "local")
 
     private val reportIdArg by option(
-        "--report-id", help = "report-id of the receiver report", metavar = "report-id"
+        "--report-id", help = "Report-id (uuid format) of the receiver report", metavar = "report-id"
     )
 
     private val reportFileNameArg by option(
-        "--report-file-name", help = "file name of the receiver report", metavar = "file-name"
+        "--report-file-name", help = "File name of the receiver report", metavar = "file-name"
     )
 
     private val offsetArg by option(
-        "--offset", help = "the offset into the receiver report", metavar = "index"
+        "--offset", help = "The offset into the receiver report for the first item.", metavar = "index"
     )
 
     private val limitArg by option(
-        "--limit", help = "the maximum number of receiver items to retrieve", metavar = "count"
+        "--limit", help = "The maximum number of receiver items to retrieve", metavar = "count"
     )
 
     private val onlyReportItemsFlag by option(
-        "--only-report-items", help = "In sender files, only include items that route to the receiver report",
+        "--only-report-items", help = "Only include items that route to the receiver report",
     ).flag()
 
     private val outDirectory by option(
@@ -69,7 +69,7 @@ class SenderFilesCommand : CliktCommand(
 
     private val verbose by option(
         "-v", "--verbose",
-        help = "Verbose logging of each HTTP operation to console"
+        help = "Verbose logging of each HTTP operation to the console"
     ).flag(default = false)
 
     private val silent by option(
