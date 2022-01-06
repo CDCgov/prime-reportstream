@@ -5,28 +5,6 @@
     "fields": [
         {
             "sections" : [
-                { 
-                    "title": "ReportStream application data elements",
-                    "items": [
-                        {
-                            "name": "Sender ID",
-                            "colHeader": "sender_id",
-                            "colHeaderReportstream": "",            
-                            "required": true,
-                            "acceptedFormat": false,
-                            "acceptedValues": true,
-                            "acceptedExample": false,
-                            "valueMessage": "Enter default value:",
-                            "valueType": "text",
-                            "values": [
-                                "<code>ManualUpload</code>"
-                            ],               
-                            "notes": [
-                            "Entering the default value will return a unique ReportStream value that identifies the sending facility"
-                            ]
-                        }
-                    ]
-                },
                 {
                     "title": "Patient data elements",
                     "items": [
