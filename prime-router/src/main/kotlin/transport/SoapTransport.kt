@@ -184,7 +184,7 @@ class SoapTransport(private val httpClient: HttpClient? = null) : ITransport {
             // if the error is a 500 we can do a retry, but both should probably throw a pager duty notification
             when (t) {
                 is ClientRequestException -> {
-                    (t as ClientRequestException).let {
+                    (t).let {
                         context.logger.severe(
                             "Received ${it.response.status.value}: ${it.response.status.description} " +
                                 "requesting ${it.response.request.url}. This is not recoverable. Will not retry."
@@ -199,7 +199,7 @@ class SoapTransport(private val httpClient: HttpClient? = null) : ITransport {
                     // instrumentation based on the specific error type we're getting. One benefit
                     // we can use now is getting the specific response information from the
                     // ServerResponseException
-                    (t as ServerResponseException).let {
+                    (t).let {
                         context.logger.severe(
                             "Received ${it.response.status.value}: ${it.response.status.description} " +
                                 "from server ${it.response.request.url}. This may be recoverable. Will retry."
