@@ -1,4 +1,7 @@
 import { Helmet } from "react-helmet";
+import DOMPurify from "dompurify";
+
+import site from "../../../content/site.json";
 
 /* eslint-disable jsx-a11y/anchor-has-content */
 export const FacilitiesOverview = () => {
@@ -10,18 +13,44 @@ export const FacilitiesOverview = () => {
                     {process.env.REACT_APP_TITLE}
                 </title>
             </Helmet>
-            <section id="anchor-top">
+            <section id="anchor-top" className="usa-prose">
                 <h2 className="margin-top-0">Overview</h2>
-                <p className="usa-intro text-base margin-bottom-6">
+                <p className="usa-intro text-base padding-bottom-4 margin-bottom-4 border-bottom-1px border-base-lighter">
                     ReportStream is a free, open-source data platform that makes it easy for public health data to be transferred from organizations and testing facilities to public health departments.
                 </p>
-                <h3>Why ReportStream?</h3>
-                <p>Free, no more faxes/paper/line-by-line entry other workarounds, deliver data where you're required to, </p>  
+                <h3 className="margin-top-4">Why submit data with ReportStream?</h3>
+                <ul>                    
+                    <li>Meet your reporting requirements through a single connection. ReportStream is working with <a href="/how-it-works/where-were-live">jurisdictions across the country</a> to route your data where it needs to go.</li>
+                    <li>Test results and patient data are securely stored and protected by two-factor authentication, database encryption, and HTTPS.</li> 
+                    <li>Created by the CDC and developed for COVID-19 test data, ReportStream is 100% free. </li>
+                </ul> 
+
+
                 <h3>How do I submit data through ReportStream?</h3>
-                <p>[VIA ELR or CSV UPLOAD]. Currently, ReportStream can accept either a comma-separated values (CSV) file or Health Level 7 (HL7) input data format.</p>  
-                <h3>What’s the Difference Between CSV and HL7?</h3> 
-                <p>HL7 is the data format underlying Electronic Lab Reporting (ELR). HL7 is a set of international standards for transfer of clinical and administrative data between software applications used by various healthcare providers.</p> 
-                <p>CSV is a delimited text file that uses a comma to separate values. Each line of the file is a data record. Each record consists of one or more fields, separated by commas.</p>          
+                <p>ReportStream can receive report data in either a <a href="https://en.wikipedia.org/wiki/Comma-separated_values" target="_blank" rel="noreferrer noopener">comma-separated values (CSV)</a> or <a href="https://www.hl7.org/" target="_blank" rel="noreferrer noopener">Health Level 7 (HL7)</a> file via a variety of methods.</p>
+                <p>Contact us as reportstream@cdc.gov to learn more.</p>
+                <h4>Electronic Laboratory Reporting (ELR)</h4>
+                <p>Depending on the needs of your organization or facility, Reportstream can configure an ELR connection with your existing systems. ReportStream has established connections with large organizations, test manufacturers, and facilities with advanced systems.</p>
+                <h4>CSV upload <span className="text-secondarybg-white border-1px border-secondary font-body-3xs padding-x-1 padding-y-05 text-secondary margin-left-2 text-ttbottom">Pilot program </span></h4>
+                <p>Use a simple online tool to submit a CSV formatted with a standard schema. Receive real-time validation and feedback on file format and field values before submission. This feature is currently being piloted in select jurisdictions with organinzations or facilities that have existing Electronic Medical Record (EMR) systems.</p>
+                <h4>SimpleReport</h4>
+                <p>A partner project under PRIME, SimpleReport ...</p>
+
+                <h3 className="margin-top-6 padding-top-6 border-top-1px border-base-lighter">Get started with ReportStream</h3>
+                <p className="margin-bottom-4">Ready to get started or just have
+                more questions? Email us at <a href={"mailto:" + DOMPurify.sanitize(site.orgs.RS.email) + "?subject=Getting started with ReportStream"} className="usa-link">{DOMPurify.sanitize(site.orgs.RS.email)}</a> and we’ll follow up with next steps.</p>
+                <p>
+                    <a
+                        href={
+                            "mailto:" +
+                            DOMPurify.sanitize(site.orgs.RS.email) +
+                            "?subject=Getting started with ReportStream"
+                        }
+                        className="usa-button usa-button--outline"
+                    >
+                        Get in touch
+                    </a>
+                </p>
                 
             </section>
         </>

@@ -14,10 +14,10 @@ export const CsvUploadGuide = () => {
                 <span className="text-base text-italic">Updated: January 2022</span>
                 <h2 className=" margin-top-0">CSV upload guide</h2>
                 <p className="usa-intro text-base">
-                    The ReportStream CSV upload guide is a resource for testing facilities that submit COVID-19 data reporting results to local, state, and federal jurisdictions using a CSV file format.
+                    The CSV upload guide is a resource for organizations and testing facilities that submit COVID-19 test results to local, state, and federal jurisdictions using a CSV file format.
                 </p>
                 <p className="usa-intro text-base margin-bottom-6">
-                    This guide provides step-by-step instructions and guidance for preparing and uploading COVID-19 data reporting results via a CSV file to ReportStream. 
+                    This guide provides step-by-step instructions and guidance for preparing and uploading COVID-19 test results via a CSV file to ReportStream. 
                 </p>  
                 <h3>How Do I Use this Guide? </h3>
                 <p>

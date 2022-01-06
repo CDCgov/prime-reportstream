@@ -38,7 +38,7 @@ export const CsvSchemaDocumentation = () => {
                 </p>
                 
             </section>
-
+            
             {schema.fields.map((field, fieldIndex) => {
                 return (
                     <div
@@ -71,8 +71,8 @@ export const CsvSchemaDocumentation = () => {
                                                     className="font-body-md margin-bottom-2"
                                                 >
                                                     {item.name}
-                                                    {item.required ? <span className="text-normal bg-white border-1px border-secondary font-body-3xs padding-x-1 padding-y-05 text-secondary margin-left-2 text-ttbottom">Required</span> : <span className="text-normal bg-white border-1px border-base font-body-3xs padding-x-1 padding-y-05 text-base margin-left-2">Optional</span>}
-                                                    {section.title === 'Ask on entry (AOE) data elements'? <span className="text-normal bg-white border-1px border-base font-body-3xs padding-x-1 padding-y-05 text-base margin-left-2">Requested</span> : null}
+                                                    {item.required ? <span className="text-normal bg-white border-1px border-secondary font-body-3xs padding-x-1 padding-y-05 text-secondary margin-left-2 text-ttbottom">Required</span> : <span className="text-normal bg-white border-1px border-base font-body-3xs padding-x-1 padding-y-05 text-base margin-left-2 text-ttbottom">Optional</span>}
+                                                    {section.title === 'Ask on entry (AOE) data elements'? <span className="text-normal bg-white border-1px border-base font-body-3xs padding-x-1 padding-y-05 text-base margin-left-2 text-ttbottom">Requested</span> : null}
                                                 </h4>
                                                 <div className="margin-bottom-3">
                                                     {item.notes?.map(
