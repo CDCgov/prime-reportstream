@@ -429,7 +429,13 @@ class LIVDLookupMapper : Mapper {
             }
             if (result != null) return ElementResult(result)
         }
-        return ElementResult(null).warning(InvalidEquipmentMessage.new(element))
+        return ElementResult(null).also {
+            // Hide any warnings to fields the user does not send to us
+            if (!element.csvFields.isNullOrEmpty() || !element.hl7Field.isNullOrBlank() ||
+                !element.hl7OutputFields.isNullOrEmpty()
+            )
+                it.warning(InvalidEquipmentMessage.new(element))
+        }
     }
 
     companion object {
