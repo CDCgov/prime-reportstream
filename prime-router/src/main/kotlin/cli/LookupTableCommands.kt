@@ -175,6 +175,11 @@ class LookupTableEndpointUtilities(val environment: Environment) {
         class TableNotFoundException(message: String) : Exception(message)
 
         /**
+         * Exception thrown with a [message] if the identical table found/exist in the database.
+         */
+        class TableConflictException(message: String) : Exception(message)
+
+        /**
          * Gets a table version information object from a [result] and [response] returned by the API.
          * @return a table version information object
          * @throws TableNotFoundException if the table and/or version is not found
@@ -226,7 +231,7 @@ class LookupTableEndpointUtilities(val environment: Environment) {
                 }
 
                 result is Result.Failure && response.statusCode == HttpStatus.SC_CONFLICT ->
-                    throw IOException(response.statusCode.toString())
+                    throw TableConflictException(getErrorFromResponse(result))
 
                 result is Result.Failure ->
                     throw IOException(getErrorFromResponse(result))
@@ -585,18 +590,16 @@ class LookupTableCreateCommand : GenericLookupTableCommand(
                 == true
             ) || silent
         ) {
-            val newTableInfo = try { tableUtil.createTable(tableName, inputData, force) } catch (e: IOException) {
-                when {
-                    e.message == HttpStatus.SC_CONFLICT.toString() -> {
-                        TermUi.echo(
-                            "\tSkipping lookup table: $tableName version: " +
-                                "$activeVersion since it is up-to-date."
-                        )
-                        return
-                    }
-                    else ->
-                        throw PrintMessage("\tError creating new table version for $tableName: ${e.message}", true)
-                }
+            val newTableInfo = try {
+                tableUtil.createTable(tableName, inputData, force)
+            } catch (e: IOException) {
+                throw PrintMessage("\tError creating new table version for $tableName: ${e.message}", true)
+            } catch (e: LookupTableEndpointUtilities.Companion.TableConflictException) {
+                TermUi.echo(
+                    "\tSkipping lookup table: $tableName version: " +
+                        "$activeVersion since it is up-to-date."
+                )
+                return
             }
             TermUi.echo(
                 "\t${inputData.size} rows created for lookup table $tableName version " +
