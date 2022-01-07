@@ -569,6 +569,14 @@ repositories {
     }
 }
 
+// Prevent logback from being used by slf4j, no matter who declares it. Otherwise slf4j can pickup logback instead of
+// log4j from the classpath and our configuration gets ignored.
+configurations {
+    implementation {
+        exclude(group = "ch.qos.logback")
+    }
+}
+
 dependencies {
     jooqGenerator("org.postgresql:postgresql:42.3.1")
 

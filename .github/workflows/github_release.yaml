@@ -116,6 +116,7 @@ jobs:
             echo "::set-output name=tagged::0"; 
           fi
       - name: Build changelog if tags exist
+        id: build_changelog
         if: steps.tagged.outputs.tagged == 1
         uses: mikepenz/release-changelog-builder-action@v2
         with:
@@ -132,6 +133,7 @@ jobs:
           tag: ${{ needs.wf_vars.outputs.version }}
           artifacts: "archives/*.tar.gz,LICENSE"
           generateReleaseNotes: true
+          body: ${{steps.build_changelog.outputs.changelog}}
       - name: Delete older releases
         uses: dev-drprasad/delete-older-releases@v0.2.0
         with:
