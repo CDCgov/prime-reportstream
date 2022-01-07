@@ -105,7 +105,7 @@ export const ELRChecklist = () => {
                     the ELR onboarding form, we recommend first reviewing
                     information on our{" "}
                     <a
-                        href="/how-it-works/getting-started"
+                        href="/getting-started/public-health-departments/overview"
                         className="usa-link"
                     >
                         Getting started page
