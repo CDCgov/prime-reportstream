@@ -200,7 +200,7 @@ class LookupTableFunctions(
                 )
             } catch (e: IllegalStateException) {
                 logger.error("Unable to create lookup table $tableName", e)
-                HttpUtilities.internalErrorConflictResponse(request, "Lookup Table conflict")
+                HttpUtilities.internalErrorConflictResponse(request, "New Lookup Table ${e.message}")
             } catch (e: Exception) {
                 logger.error("Unable to create lookup table $tableName", e)
                 HttpUtilities.internalErrorResponse(request)

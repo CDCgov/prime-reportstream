@@ -171,8 +171,11 @@ class DatabaseLookupTableAccess(private val db: DatabaseAccess = DatabaseAccess(
 
             // Check for the lookup table in database is up-to-date or not.  If it is up-to-date and force=true,
             // we force to update the table regardless.
-            if (isTableUpToDate(tableName, newVersion.tableSha256Checksum) && !force)
-                throw IllegalStateException("Conflict")
+            val versionConflict = isTableUpToDate(tableName, newVersion.tableSha256Checksum)
+            if (versionConflict != null && !force)
+                throw IllegalStateException(
+                    "${newVersion.tableName} is conflicting with the existing table version: $versionConflict"
+                )
 
             // Use batching to make this faster
             var batchNumber = 1
@@ -220,16 +223,22 @@ class DatabaseLookupTableAccess(private val db: DatabaseAccess = DatabaseAccess(
     }
 
     /**
-     * Check for table exist or not
-     * @return true if exist, otherwise, false
+     * Check against active or lastest table if it eguals to either of those table.
+     * @return version that equal to the new table, otherwise, null
      */
-    fun isTableUpToDate(tableName: String, tableSHA256: String): Boolean {
-        val oldVersion = fetchActiveVersion(tableName) ?: return false
+    fun isTableUpToDate(tableName: String, tableSHA256: String): Int? {
+        val activeVersion = fetchActiveVersion(tableName)
+        if (activeVersion != null) {
+            val activeTableVersion = fetchVersionInfo(tableName, activeVersion)
+            if (activeTableVersion?.tableSha256Checksum == tableSHA256) return activeVersion
+        }
 
-        val oldTableVersion = fetchVersionInfo(tableName, oldVersion)
-        if (oldTableVersion?.tableSha256Checksum == tableSHA256) return true
-
-        return false
+        val latestVersion = fetchLatestVersion(tableName)
+        if (latestVersion != null) {
+            val latestTableVersion = fetchVersionInfo(tableName, latestVersion)
+            if (latestTableVersion?.tableSha256Checksum == tableSHA256) return latestVersion
+        }
+        return null
     }
 
     companion object {

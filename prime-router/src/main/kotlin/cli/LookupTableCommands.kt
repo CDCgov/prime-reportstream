@@ -601,10 +601,7 @@ class LookupTableCreateCommand : GenericLookupTableCommand(
             } catch (e: IOException) {
                 throw PrintMessage("\tError creating new table version for $tableName: ${e.message}", true)
             } catch (e: LookupTableEndpointUtilities.Companion.TableConflictException) {
-                TermUi.echo(
-                    "\tSkipping lookup table: $tableName version: " +
-                        "$activeVersion since it is up-to-date."
-                )
+                TermUi.echo("\tSkipping ${e.message}")
                 return
             }
 
