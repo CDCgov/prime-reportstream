@@ -64,20 +64,12 @@ test can be applied:
      - Valid CLIA
    - Test Result date
      - Valid non-future date
-   - Patient race
-     - Value in HL70005
-   - Patient ethnicity
-     - Value in HL70189
-   - Patient sex
-     - Value in HL70001
    - Patient residence zip code
-     - Valid Zip
+     - Valid Zip Code
    - Patient residence county
      - Valid County 
    - Ordering Facility Phone
      - Number of digits is correct
-   - Result Status
-     - Value in HL70123
    - Performing facility CLIA number
      - Valid CLIA
    - Specimen Source
@@ -104,12 +96,10 @@ test can be applied:
     - Value in LIVD table
   - Date of analysis (Observation Date OBX)
     - Valid non-future date
-  - Specimen Collection Method (SPM-7)
-    - Value in HL70488
   - Ordering provider NPI (as applicable)
     - Valid NPI number
   - Ordering provider zip
-    - Valid zip
+    - Valid zip code
   - Performing facility zip code
     - Valid zip code
 
@@ -144,3 +134,49 @@ a message arrives with any essential field missing the value then the Default th
 
 ### Implementation
 
+To begin data quality should be measured against the COVID-19 schema. To do so, a new element(dataQuality)
+should be created that can be added to the various fields listed above. That element would allow for fields
+to be identified as the appropriate priority category(Essential, Required, Optional) and include the appropriate 
+completness or accuracy tests. Example:
+
+```
+- name: patient_zip_code
+  type: POSTAL_CODE
+  pii: false
+  cardinality: ZERO_OR_ONE
+  natFlatFileField: Patient_zip_code
+  hhsGuidanceField: Patient residence zip code
+  hl7Field: PID-11-5
+  documentation: The patient's zip code
+  dataQuality:
+    - priority(essential)
+    - notNull()
+    - isZipCode()
+```
+
+The dataQuality element would need to take in the priority level for the field. Next different tests could be 
+made available. These tests would include:
+
+| test | Description |
+| ----------------- | ----------------- |
+| isNull() | is there a value in the field |
+| isZipCode() | is this a valid zip code |
+| isValidDate() | is this date valid and in the past |
+| isCLIA() | does this CLIA exist |
+| isSNOMED() | does this SNOMED exist |
+| isSNOMEDDescription() | does SNOMED description align with SNOMED code |
+| isLOINC() | does this LOINC exist |
+| isLOINCDescription() | oes LOINC description align with LOINC code |
+| isPhone() | properly formatted phone number |
+| inLIVD() | value in LIVD table |
+| isNPI() | value is valid NPI |
+
+Each test would contribute to towards the total data quality score. The score value would be maintained as a
+property of the Report. The value could be analyzed individually and over time.
+
+## Future Consideration
+
+Data analysis is not a new concept and is important to all data systems. As such, there are data analysis 
+frameworks and libraries that could be investigated and implemented to build a richer data analysis environment.
+If we begin with the implementation described above I think the users may quickly see the potential. Do we need
+to re-invent the wheel? Or is there an opportunity to use existing tools?
