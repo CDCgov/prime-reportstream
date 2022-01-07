@@ -92,11 +92,7 @@ const App = () => {
                         caused by USWDS styling | 01/22 merged styles from .content into main, don't see padding issues anymore? */}
                         <main id="main-content">
                             <Switch>
-                                <Route
-                                    path="/"
-                                    exact={true}
-                                    component={Home}
-                                />
+                                <Route path="/" exact={true} component={Home} />
                                 <Route
                                     path="/how-it-works"
                                     component={HowItWorks}
@@ -105,10 +101,7 @@ const App = () => {
                                     path="/terms-of-service"
                                     component={TermsOfService}
                                 />
-                                <Route
-                                    path="/login"
-                                    render={() => <Login />}
-                                />
+                                <Route path="/login" render={() => <Login />} />
                                 <Route
                                     path="/login/callback"
                                     component={LoginCallback}
@@ -119,7 +112,9 @@ const App = () => {
                                 />
                                 <Route
                                     path="/getting-started/public-health-departments"
-                                    component={GettingStartedPublicHealthDepartments}
+                                    component={
+                                        GettingStartedPublicHealthDepartments
+                                    }
                                 />
                                 <Route
                                     path="/getting-started/testing-facilities"
@@ -147,9 +142,7 @@ const App = () => {
                                 {/* Handles any undefined route */}
                                 <Route
                                     render={() => (
-                                        <ErrorPage
-                                            code={CODES.NOT_FOUND_404}
-                                        />
+                                        <ErrorPage code={CODES.NOT_FOUND_404} />
                                     )}
                                 />
                             </Switch>

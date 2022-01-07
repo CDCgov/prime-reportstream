@@ -37,7 +37,6 @@ export const About = () => {
                     Contact us
                 </a>
 
-                
                 <div className="margin-top-6 padding-top-4 border-top border-base-lighter">
                     <p>
                         ReportStream (also known as PRIME ReportStream) was
@@ -82,8 +81,7 @@ export const About = () => {
                         technology.
                     </p>
                 </div>
-                
             </section>
-       </>
+        </>
     );
 };

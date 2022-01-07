@@ -38,7 +38,11 @@ export const WhereWereLive = () => {
                 </p>
             </section>
             <section className="padding-y-4">
-                <img className="margin-bottom-6" src={usamapsvg} alt="Map of states using ReportStream" />
+                <img
+                    className="margin-bottom-6"
+                    src={usamapsvg}
+                    alt="Map of states using ReportStream"
+                />
                 ReportStream has established connections to send and report
                 public health data for each of the states and territories listed
                 here.

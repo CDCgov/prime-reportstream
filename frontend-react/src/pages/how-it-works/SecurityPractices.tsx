@@ -11,13 +11,15 @@ export const SecurityPractices = () => {
                 </title>
             </Helmet>
             <section id="anchor-top">
-                <h1 className="margin-top-0 font-body-xl">Security practices</h1>
+                <h1 className="margin-top-0 font-body-xl">
+                    Security practices
+                </h1>
                 <p className="usa-intro text-base">
                     Get answers to common questions about ReportStream security
                     and data practices.
                 </p>
             </section>
-            
+
             <section className="margin-top-6 padding-top-4 border-top border-base-lighter">
                 <h2>
                     Does ReportStream have security audits and attestations?

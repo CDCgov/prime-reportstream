@@ -21,10 +21,7 @@ export const ReportStreamHeader = () => {
     const [expanded, setExpanded] = useState(false);
     const toggleMobileNav = (): void =>
         setExpanded((prvExpanded) => !prvExpanded);
-    let itemsMenu = [
-        <GettingStartedDropdown />,
-        <HowItWorksDropdown />,
-    ];
+    let itemsMenu = [<GettingStartedDropdown />, <HowItWorksDropdown />];
 
     if (authState !== null && authState.isAuthenticated) {
         if (reportReceiver(authState)) {

@@ -19,8 +19,12 @@ const GettingStartedDropdown = () => {
     }, []);
 
     const testMenuItems = [
-        <NavLink to="/getting-started/public-health-departments/overview">Public health departments</NavLink>,
-        <NavLink to="/getting-started/testing-facilities/overview">Organizations and testing facilities</NavLink> 
+        <NavLink to="/getting-started/public-health-departments/overview">
+            Public health departments
+        </NavLink>,
+        <NavLink to="/getting-started/testing-facilities/overview">
+            Organizations and testing facilities
+        </NavLink>,
     ];
 
     return (
