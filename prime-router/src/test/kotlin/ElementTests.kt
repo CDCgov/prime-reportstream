@@ -80,6 +80,25 @@ internal class ElementTests {
         one.toNormalized("1998-30-03", "yyyy-dd-MM").run {
             assertThat(this).isEqualTo("19980330")
         }
+        // Check for dates with trailing spaces
+        one.toNormalized("1998-03-30 ").run {
+            assertThat(this).isEqualTo("19980330")
+        }
+        // Check for dates with leading spaces
+        one.toNormalized(" 1998-03-30").run {
+            assertThat(this).isEqualTo("19980330")
+        }
+        // Check for dates with leading and trailing spaces
+        one.toNormalized(" 1998-03-30 ").run {
+            assertThat(this).isEqualTo("19980330")
+        }
+        // check edge cases
+        one.toNormalized("").run {
+            assertThat(this).isEqualTo("")
+        }
+        one.toNormalized("     ").run {
+            assertThat(this).isEqualTo("")
+        }
     }
 
     @Test
@@ -127,6 +146,22 @@ internal class ElementTests {
             val ta = df.parseBest(it.key, OffsetDateTime::from, LocalDateTime::from, Instant::from)
             val dt = LocalDateTime.from(ta)
             assertThat(df.format(dt)).isEqualTo(it.value)
+        }
+        // edge cases
+        one.toNormalized("1998-03-30T12:00Z ").run {
+            assertThat(this).isEqualTo("199803301200+0000")
+        }
+        one.toNormalized(" 1998-03-30T12:00Z").run {
+            assertThat(this).isEqualTo("199803301200+0000")
+        }
+        one.toNormalized(" 1998-03-30T12:00Z ").run {
+            assertThat(this).isEqualTo("199803301200+0000")
+        }
+        one.toNormalized("").run {
+            assertThat(this).isEqualTo("")
+        }
+        one.toNormalized("     ").run {
+            assertThat(this).isEqualTo("")
         }
     }
 
