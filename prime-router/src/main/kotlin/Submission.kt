@@ -1,6 +1,8 @@
 package gov.cdc.prime.router
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.annotation.JsonInclude.Include
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonUnwrapped
 import java.time.OffsetDateTime
@@ -30,6 +32,7 @@ class SubmissionHistory(
     val createdAt: OffsetDateTime,
     val sendingOrg: String,
     val httpStatus: Int,
+    @JsonInclude(Include.NON_NULL) val externalName: String? = "",
     actionResponse: ActionResponse,
 ) {
     @JsonUnwrapped

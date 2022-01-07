@@ -72,7 +72,10 @@ elements:
       csvFields: [{name: Patient Phone Number}]
 
     - name: patient_dob
+      cardinality: ONE
+      nullifyValue: true
       csvFields: [{name: Patient Date Of Birth, format: "yyyyMMdd"}]
+      nullifyValue: true
 
     - name: patient_gender
       type: CODE
@@ -98,18 +101,28 @@ elements:
 
 # Specimen/Order Info
     - name: specimen_collection_date_time
+      cardinality: ONE
+      nullifyValue: true
       csvFields: [{name: Specimen Collection Date, format: "yyyyMMdd"}]
 
     - name: order_test_date
+      cardinality: ONE
+      nullifyValue: true
       csvFields: [{name: Date Test Ordered, format: "yyyyMMdd"}]
 
     - name: testing_lab_specimen_received_datetime
+      cardinality: ONE
+      nullifyValue: true
       csvFields: [{name: Specimen Received Date, format: "yyyyMMdd"}]
 
     - name: test_result_date
+      cardinality: ONE
+      nullifyValue: true
       csvFields: [{name: Result Date, format: "yyyyMMdd"}]
 
     - name: date_result_released
+      cardinality: ONE
+      nullifyValue: true
       csvFields: [{name: Date Reported, format: "yyyyMMdd"}]
 
     - name: test_result

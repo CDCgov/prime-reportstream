@@ -25,7 +25,7 @@ import { GlobalContextProvider } from "./components/GlobalContextProvider";
 import { logout } from "./utils/UserUtils";
 import TermsOfServiceForm from "./pages/tos-sign/TermsOfServiceForm";
 import Spinner from "./components/Spinner";
-import Submissions from "./pages/Submissions";
+import Submissions from "./pages/submissions/Submissions";
 import { GettingStartedPublicHealthDepartments } from "./pages/getting-started/public-health-departments";
 import { GettingStartedTestingFacilities } from "./pages/getting-started/testing-facilities";
 
