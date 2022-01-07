@@ -2,7 +2,7 @@ import content from "../../content/content.json";
 
 export default function Hero() {
     return (
-        <section className="rs-hero margin-top-neg-4 desktop:margin-top-neg-8">
+        <section className="rs-hero margin-top-neg-4 desktop:margin-top-0">
             <div className="grid-container usa-section padding-y-4 tablet:padding-y-6 tablet:margin-bottom-4">
                 <div className="grid-row grid-gap margin-bottom-0 rs-hero__flex-center ">
                     <div className="tablet:grid-col-10">

@@ -2,9 +2,9 @@ import { Helmet } from "react-helmet";
 import { NavLink } from "react-router-dom";
 import DOMPurify from "dompurify";
 
-import site from "../../content/site.json";
+import site from "../../../content/site.json";
 
-export const WebReceiverGuide = () => {
+export const DataDownloadGuide = () => {
     return (
         <>
             <Helmet>
