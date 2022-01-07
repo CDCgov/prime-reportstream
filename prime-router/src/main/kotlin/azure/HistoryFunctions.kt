@@ -444,7 +444,10 @@ open class BaseHistoryFunction : Logging {
             }
         }
         if (!userName.isNullOrBlank() && !accessOrgName.isNullOrBlank()) {
-            val dbOrganization = workflowEngine.settings.findOrganization(accessOrgName.replace('_', '-'))
+            /*   NOTE: This was noted as taking an Okta org name and converting it, but that was prior to
+             *   the React front-end sending the org in the proper format xx-phd.
+             */
+            val dbOrganization = workflowEngine.settings.findOrganization(accessOrgName)
             if (dbOrganization != null) {
                 return AuthClaims(userName, dbOrganization)
             } else {
