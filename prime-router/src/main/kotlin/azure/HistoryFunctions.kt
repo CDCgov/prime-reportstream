@@ -15,6 +15,7 @@ import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.tokens.OktaAuthentication
 import org.apache.logging.log4j.kotlin.Logging
 import java.time.OffsetDateTime
 import java.util.UUID
@@ -151,7 +152,6 @@ data class FileReturn(val content: String, val filename: String, val mimetype: S
 
 class GetReports :
     BaseHistoryFunction() {
-
     @FunctionName("getReports")
     @StorageAccount("AzureWebJobsStorage")
     fun run(
@@ -208,6 +208,7 @@ class GetFacilitiesByReportId :
 open class BaseHistoryFunction : Logging {
     val DAYS_TO_SHOW = 30L
     val workflowEngine = WorkflowEngine()
+    val oktaAuthentication = OktaAuthentication(PrincipalLevel.USER)
 
     fun getReports(
         request: HttpRequestMessage<String?>,
@@ -404,58 +405,58 @@ open class BaseHistoryFunction : Logging {
      * returns null if not authorized, otherwise returns a set of claims.
      */
     fun checkAuthenticated(request: HttpRequestMessage<String?>, context: ExecutionContext): AuthClaims? {
-        var userName = ""
-        // orgs in the settings table of the database have a format of "zz-phd",
-        // while the auth service claims has a format of "DHzz_phd"
-        // claimsOrgName will have the format of "DHzz_phd"
-        val claimsOrgName = request.headers["organization"] ?: ""
+        var userName: String? = null /* Format: email */
+        val requestOrgName = request.headers["organization"] ?: "" /* Format: xx-phd */
+        var oktaOrganizations: List<String?>
+        var accessOrgName: String? = null /* Format: xx-phd */
+        var jwtToken = request.headers["authorization"] ?: "" /* Format: Bearer ... */
 
-        // orgName will have the format of "zz-phd" and is used to look up in the settings table of the database
-        var orgName = getOrgNameFromHeader(claimsOrgName)
-
-        var jwtToken = request.headers["authorization"] ?: ""
-
-        jwtToken = if (jwtToken.length > 7) jwtToken.substring(7) else ""
-
+        /* INFO:
+        *   JWT cannot be parsed by OktaAuthentication object here because Admins who do not
+        *   exist in one or more DHxx_phd groups on Okta will be unable to see any receiver's
+        *   reports.
+        *
+        *   To fix this, below we apply the same verifier, and then we see if oktaOrganizations.contains(orgName) OR
+        *   oktaOrganizations.contains("DHPrimeAdmins") before authorizing.
+        */
         if (jwtToken.isNotBlank()) {
+            /* Trims Bearer off token */
+            jwtToken = jwtToken.substring(7)
             try {
-                // get the access token verifier
+                /* Build our verifier to spec with what's in OktaAuthentication class */
                 val jwtVerifier = JwtVerifiers.accessTokenVerifierBuilder()
                     .setIssuer("https://${System.getenv("OKTA_baseUrl")}/oauth2/default")
                     .build()
-                // get it to decode the token from the header
                 val jwt = jwtVerifier.decode(jwtToken)
                     ?: throw Throwable("Error in validation of jwt token")
-                // get the user name and org
-                userName = jwt.claims["sub"].toString()
-                val orgs = jwt.claims["organization"]
 
-                // a user can now be part of a sender group as well, so find the first "non-sender" group in their claims
+                /* Set claims from parsed jwt */
+                userName = jwt.claims["sub"].toString()
                 @Suppress("UNCHECKED_CAST")
-                val org = if (orgs !== null) (orgs as List<String>).find {
-                    org ->
-                    !org.lowercase().contains("sender")
-                } else ""
-                if (org != null) {
-                    orgName = if (org.length > 3) org.substring(2) else ""
+                oktaOrganizations = jwt.claims["organization"] as List<String>
+
+                accessOrgName = when {
+                    oktaOrganizations.contains("DHPrimeAdmins") ||
+                        oktaOrganizations.contains(toOktaOrgName(requestOrgName)) -> requestOrgName
+                    else -> null
                 }
             } catch (ex: Throwable) {
                 context.logger.log(Level.WARNING, "Error in verification of token", ex)
                 return null
             }
         }
-        if (userName.isNotBlank() && orgName.isNotBlank()) {
-            val organization = workflowEngine.settings.findOrganization(orgName.replace('_', '-'))
-            if (organization != null) {
-                return AuthClaims(userName, organization)
+        if (!userName.isNullOrBlank() && !accessOrgName.isNullOrBlank()) {
+            val dbOrganization = workflowEngine.settings.findOrganization(accessOrgName.replace('_', '-'))
+            if (dbOrganization != null) {
+                return AuthClaims(userName, dbOrganization)
             } else {
-                context.logger.info("User $userName failed auth: Organization $orgName is unknown to the system.")
+                context.logger.info("User $userName failed auth: Organization $accessOrgName is unknown to the system.")
             }
         }
         return null
     }
 
-    fun getOrgNameFromHeader(orgNameHeader: String): String {
-        return if (orgNameHeader.isNotEmpty()) orgNameHeader.substring(2).replace("_", "-") else ""
+    private fun toOktaOrgName(orgNameHeader: String): String {
+        return "DH${orgNameHeader.replace('-', '_')}"
     }
 }
