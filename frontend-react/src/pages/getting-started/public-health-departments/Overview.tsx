@@ -14,7 +14,7 @@ export const PhdOverview = () => {
                 </title>
             </Helmet>
             <section id="anchor-top">
-                <h2 className="font-sans-xl margin-top-0">Overview</h2>
+                <h2 className="margin-top-0">Overview</h2>
                 <p className="usa-intro text-base">
                     First, we’ll get you connected to our web application, where
                     you can immediately start downloading reporting data that is
