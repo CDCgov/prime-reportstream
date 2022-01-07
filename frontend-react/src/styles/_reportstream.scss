@@ -196,3 +196,14 @@ h3 img[src*="svg"] {
   @include u-margin(0);
 }
 
+.rs-process-list__documentation {
+
+  img {
+    display: block;
+    max-width: 15rem;
+    @include u-border(1px, 'base-lighter');
+    margin-top: units(4);
+
+  }
+}
+

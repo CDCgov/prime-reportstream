@@ -29,7 +29,8 @@ export const AccountRegistrationGuide = () => {
             </section>
 
             <section>
-                <ol className="usa-process-list">
+                <h3 className="font-body-lg border-top-1px border-ink margin-top-8 margin-bottom-6 padding-top-1">Register for a ReportStream account</h3>
+                <ol className="usa-process-list rs-process-list__documentation">
                     <li className="usa-process-list__item">
                         <h4 className="usa-process-list__heading">
                             Contact ReportStream
@@ -84,7 +85,7 @@ export const AccountRegistrationGuide = () => {
                         <p>Use the drop-down list to select your preferred security question and enter your response.</p>
 
                         <p><strong>iii. Set up multi-factor authentication</strong></p>
-                        <p>Pick a multi-factor authentication option, and click "Setup" below it. These authentication options are meant to secure your account. Below, you can review instructions for setting up SMS authentication and Google Authenticator/Okta Verify.</p>
+                        <p>Pick a multi-factor authentication option, and click "Setup" below it. These authentication options are meant to secure your account. Below, you can review instructions for setting up <a href="#anchor-mfa" className="usa-link">SMS authentication and Google Authenticator/Okta Verify</a>.</p>
                         <p><em>If you choose biometric authentication, make sure that you’ll only log in to ReportStream from the device you’re currently using. Biometric authentication may be difficult to use across multiple devices.</em></p>
                                                     
                         <li><strong>iv. Click "Continue" </strong></li>
@@ -110,6 +111,30 @@ export const AccountRegistrationGuide = () => {
                         </ul>
                         <p>[img]</p>
                     </li>
+                </ol>
+            </section>
+            <section>
+                <h3 id="anchor-mfa" className="font-body-lg border-top-1px border-ink margin-top-8 margin-bottom-6 padding-top-1">Multi-factor authentication options</h3>
+                <p>If you choose SMS or Google Authenticator/Okta Verify as your multi-factor authentication, follow the instructions below to get set up.</p>
+                
+                <h4 id="sms-authentication">SMS authentication</h4>
+                <ol className="usa-process-list rs-process-list__documentation">
+                    <li className="usa-process-list__item">Enter your phone number, then click <strong>Send code</strong>. (Make sure to click <strong>Send code</strong>, or you won’t be able to continue.)
+                    <img src="/assets/img/getting-started/sms-step-1.png" alt="Okta page asking for your phone number and the blue &quot;Send code&quot; button" /></li>
+                    <li className="usa-process-list__item">Check your text messages for a 6-digit authentication code.</li>
+                    <li className="usa-process-list__item">Enter the code in the “Enter Code” field, then click <strong>Verify</strong>.
+                    <img src="/assets/img/getting-started/sms-step-3.png" alt="Okta page with the &quot;Enter Code&quot; field and blue &quot;Verify&quot; button" /></li>
+                </ol>
+
+                <h4 id="google-authenticator-or-okta-verify">Google Authenticator or Okta Verify</h4>
+                <ol className="usa-process-list rs-process-list__documentation">
+                    <li className="usa-process-list__item">Select the kind of phone that you use (either iPhone or Android). You’ll be asked to download an app. Download it on your phone and wait for it to install. (The page on your device might vary a bit from the screenshot below, based on your device type and whether you chose Google Authenticator or Okta Verify.)<br />
+                    <img src="/assets/img/getting-started/authenticator-verify-step-1.png" alt="Okta page that asks you to choose iPhone or Android, with directions for downloading the app" /></li>
+                    <li className="usa-process-list__item">Once the app is installed, click <strong>Next</strong>.</li>
+                    <li className="usa-process-list__item">Open the app and scan the QR code that appears on your ReportStream registration page. Once you’ve successfully scanned the QR code, click <strong>Next</strong>.
+                    <img src="/assets/img/getting-started/authenticator-verify-step-3.png" alt="Okta page with the QR code" /></li>
+                    <li className="usa-process-list__item">Back on your phone, the app will show you a code. Enter the code on the registration page, then click <strong>Verify</strong>. (The code changes regularly, so you’ll need to check the app each time you log in to ReportStream.)
+                    <img src="/assets/img/getting-started/authenticator-verify-step-4.png" alt="Okta page with the &quot;Enter Code&quot; field and blue &quot;Verify&quot; button" /></li>
                 </ol>
             </section>
         </>
