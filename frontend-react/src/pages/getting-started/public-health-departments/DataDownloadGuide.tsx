@@ -16,11 +16,7 @@ export const DataDownloadGuide = () => {
             <section id="anchor-top">
                 <h2 className="margin-top-0">Data download website guide</h2>
                 <p className="usa-intro text-base">
-                    The{" "}
-                    <NavLink to="/login" key="login" className="usa-link">
-                        data download website
-                    </NavLink>{" "}
-                    enables a public health department to access data from
+                    The data download website enables a public health department to access data from
                     senders via a secure, online portal.
                 </p>
                 <a

@@ -151,7 +151,7 @@ export const ELRChecklist = () => {
 
                 <p>
                     ReportStream sends data as an{" "}
-                    <a href="https://why.hl7.org/">HL7</a> file via Secure File
+                    <a href="https://hl7.org/">HL7</a> file via Secure File
                     Transfer Protocol (SFTP). We capture Health and Human
                     Services (HHS) required fields, including “Ask on Order
                     Entry” questions.{" "}

@@ -183,7 +183,7 @@ export const PhdOverview = () => {
                 <p>
                     Check out our{" "}
                     <a
-                        href="/how-it-works/elr-checklist"
+                        href="/getting-started/public-health-departments/elr-checklist"
                         className="usa-link margin-right-1 usa-link"
                     >
                         ELR onboarding checklist
