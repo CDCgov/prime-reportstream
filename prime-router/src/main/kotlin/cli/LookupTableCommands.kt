@@ -346,7 +346,7 @@ class LookupTableCommands : CliktCommand(
                 )
                 versionList.forEach {
                     row(
-                        it.tableName, it.tableVersion, it.tableSha256Checksum ?: "", it.isActive.toString(),
+                        it.tableName, it.tableVersion, it.tableSha256Checksum, it.isActive.toString(),
                         it.createdBy, it.createdAt.toString()
                     )
                 }
@@ -842,7 +842,7 @@ class LookupTableLoadAllCommand : GenericLookupTableCommand(
      */
     private val forceTableToCreate by option(
         "-f", "--force",
-        help = "Force the creation of new table(s) even if it is already exist"
+        help = "Force the creation of new table(s) even if it already exists"
     ).flag()
 
     /**
