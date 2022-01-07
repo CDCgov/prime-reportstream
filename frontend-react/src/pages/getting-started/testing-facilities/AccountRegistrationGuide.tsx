@@ -6,7 +6,7 @@ export const AccountRegistrationGuide = () => {
         <>
             <Helmet>
                 <title>
-                    Register an account | Organizations and testing facilities | Getting started |{" "}
+                    Account registration guide | Organizations and testing facilities | Getting started |{" "}
                     {process.env.REACT_APP_TITLE}
                 </title>
             </Helmet>

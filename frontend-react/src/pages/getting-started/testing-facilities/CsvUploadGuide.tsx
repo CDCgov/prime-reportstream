@@ -15,20 +15,16 @@ export const CsvUploadGuide = () => {
                 <h2 className=" margin-top-0">CSV upload guide <span className="text-secondary bg-white border-1px border-secondary font-body-3xs padding-x-1 padding-y-05 text-secondary margin-left-2 text-ttbottom">Pilot program </span></h2>
                 <p className="usa-intro text-base margin-bottom-4">
                     Step-by-step instructions and guidance for preparing and uploading COVID-19 test results via a comma-separated values (CSV) file. 
-                </p>  
-                <h3>How Do I Use this Guide? </h3>
-                <p>
-                    The ReportStream CSV Uploader Guide is designed for the technical user at the testing facility or sending location who’ll submit COVID-19 data reporting results in small volumes to local, state, and federal jurisdictions using CSV file format. This guide provides step-by-step instructions for preparing and uploading CSV files successfully to ReportStream.
-                </p>  
-                <h3>What Topics Will I Learn?</h3> 
+                </p> 
+                <p>Use a simple online tool to submit a CSV formatted with a standard schema. Receive real-time validation and feedback on file format and field values before submission. This feature is currently being piloted in select jurisdictions with organinzations or facilities that have existing Electronic Medical Record (EMR) systems.</p>
+                <p><strong>In this guide</strong></p> 
                 <ul>
-                    <li>How to prepare a CSV file for ReportStream</li>
-                    <li>How to upload a CSV file to ReportStream</li>
-                    <li>How to troubleshoot common file submission errors returned by ReportStream</li>
+                    <li><a href="#preparing-a-csv" className="usa-link">How to prepare a CSV file for ReportStream</a></li>
+                    <li><a href="#upload-a-csv" className="usa-link">How to upload a CSV file to ReportStream</a></li>
                 </ul>           
             </section>
             <section>
-                <h3 className="font-body-lg border-top-1px border-ink margin-top-8 margin-bottom-6 padding-top-1">Preparing a CSV file</h3>
+                <h3 id="preparing-a-csv" className="font-body-lg border-top-1px border-ink margin-top-8 margin-bottom-6 padding-top-1">Preparing a CSV file</h3>
                 <ol className="usa-process-list">
                     <li className="usa-process-list__item">
                         <h4 className="usa-process-list__heading">
@@ -68,7 +64,7 @@ export const CsvUploadGuide = () => {
                 </ol>            
             </section>            
             <section>
-                <h3 className="font-body-lg border-top-1px border-ink margin-top-8 margin-bottom-6 padding-top-1">Uploading a CSV file</h3>
+                <h3 id="upload-a-csv" className="font-body-lg border-top-1px border-ink margin-top-8 margin-bottom-6 padding-top-1">Uploading a CSV file</h3>
                 <p>[description of what uploading is in more detail].</p>
                 <ol className="usa-process-list">
                     <li className="usa-process-list__item">
