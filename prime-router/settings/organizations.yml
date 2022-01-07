@@ -2401,6 +2401,7 @@
         type: HL7
         useBatchHeaders: true
         suppressNonNPI: true
+        truncateHDNamespaceIds: true
         truncateHl7Fields: OBX-23-1
       timing:
         operation: MERGE
