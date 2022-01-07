@@ -189,3 +189,10 @@ h3 img[src*="svg"] {
   margin-bottom: 0.5rem;
 }
 
+.rs-blockquote__documentation {
+  @include u-bg('base-lightest');
+  @include u-padding-x(3);
+  @include u-padding-y(1);
+  @include u-margin(0);
+}
+

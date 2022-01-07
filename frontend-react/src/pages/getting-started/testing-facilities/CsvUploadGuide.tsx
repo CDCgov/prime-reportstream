@@ -12,12 +12,9 @@ export const CsvUploadGuide = () => {
             </Helmet>
             <section id="anchor-top">
                 <span className="text-base text-italic">Updated: January 2022</span>
-                <h2 className=" margin-top-0">CSV upload guide</h2>
-                <p className="usa-intro text-base">
-                    The CSV upload guide is a resource for organizations and testing facilities that submit COVID-19 test results to local, state, and federal jurisdictions using a CSV file format.
-                </p>
-                <p className="usa-intro text-base margin-bottom-6">
-                    This guide provides step-by-step instructions and guidance for preparing and uploading COVID-19 test results via a CSV file to ReportStream. 
+                <h2 className=" margin-top-0">CSV upload guide <span className="text-secondary bg-white border-1px border-secondary font-body-3xs padding-x-1 padding-y-05 text-secondary margin-left-2 text-ttbottom">Pilot program </span></h2>
+                <p className="usa-intro text-base margin-bottom-4">
+                    Step-by-step instructions and guidance for preparing and uploading COVID-19 test results via a comma-separated values (CSV) file. 
                 </p>  
                 <h3>How Do I Use this Guide? </h3>
                 <p>
@@ -112,10 +109,6 @@ export const CsvUploadGuide = () => {
                         </p>
                     </li>
                 </ol> 
-            </section>
-            <section>
-                <h3 className="font-body-lg border-top-1px border-ink margin-top-8 margin-bottom-6 padding-top-1">Troubleshooting common upload errors</h3>
-                <p>[description of what uploading is in more detail].</p>
             </section>
         </>
     );

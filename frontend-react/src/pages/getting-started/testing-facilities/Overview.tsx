@@ -13,7 +13,7 @@ export const FacilitiesOverview = () => {
                     {process.env.REACT_APP_TITLE}
                 </title>
             </Helmet>
-            <section id="anchor-top" className="usa-prose">
+            <section id="anchor-top">
                 <h2 className="margin-top-0">Overview</h2>
                 <p className="usa-intro text-base padding-bottom-4 margin-bottom-4 border-bottom-1px border-base-lighter">
                     ReportStream is a free, open-source data platform that makes it easy for public health data to be transferred from organizations and testing facilities to public health departments.
@@ -27,11 +27,11 @@ export const FacilitiesOverview = () => {
 
 
                 <h3>How do I submit data through ReportStream?</h3>
-                <p>ReportStream can receive report data in either a <a href="https://en.wikipedia.org/wiki/Comma-separated_values" target="_blank" rel="noreferrer noopener">comma-separated values (CSV)</a> or <a href="https://www.hl7.org/" target="_blank" rel="noreferrer noopener">Health Level 7 (HL7)</a> file via a variety of methods.</p>
-                <p>Contact us as reportstream@cdc.gov to learn more.</p>
+                <p>ReportStream can receive report data as either <a href="https://en.wikipedia.org/wiki/Comma-separated_values" target="_blank" rel="noreferrer noopener">comma-separated values (CSV)</a> or <a href="https://www.hl7.org/" target="_blank" rel="noreferrer noopener">Health Level 7 (HL7)</a> files via a variety of methods.</p>
+                <p>Not sure which method is right for you? Contact us as <a href={"mailto:" + DOMPurify.sanitize(site.orgs.RS.email) + "?subject=Getting started with ReportStream"} className="usa-link">{DOMPurify.sanitize(site.orgs.RS.email)}</a> to learn more.</p>
                 <h4>Electronic Laboratory Reporting (ELR)</h4>
-                <p>Depending on the needs of your organization or facility, Reportstream can configure an ELR connection with your existing systems. ReportStream has established connections with large organizations, test manufacturers, and facilities with advanced systems.</p>
-                <h4>CSV upload <span className="text-secondarybg-white border-1px border-secondary font-body-3xs padding-x-1 padding-y-05 text-secondary margin-left-2 text-ttbottom">Pilot program </span></h4>
+                <p>Depending on the needs of your organization or facility, ReportStream can configure an ELR connection with your existing systems. ReportStream has established connections with large organizations, test manufacturers, and facilities with advanced systems.</p>
+                <h4>CSV upload <span className="text-secondary bg-white border-1px border-secondary font-body-3xs padding-x-1 padding-y-05 text-secondary margin-left-2 text-ttbottom">Pilot program </span></h4>
                 <p>Use a simple online tool to submit a CSV formatted with a standard schema. Receive real-time validation and feedback on file format and field values before submission. This feature is currently being piloted in select jurisdictions with organinzations or facilities that have existing Electronic Medical Record (EMR) systems.</p>
                 <h4>SimpleReport</h4>
                 <p>A partner project under PRIME, SimpleReport ...</p>

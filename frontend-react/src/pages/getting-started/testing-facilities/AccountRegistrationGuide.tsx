@@ -1,0 +1,117 @@
+import { Helmet } from "react-helmet";
+
+/* eslint-disable jsx-a11y/anchor-has-content */
+export const AccountRegistrationGuide = () => {
+    return (
+        <>
+            <Helmet>
+                <title>
+                    Register an account | Organizations and testing facilities | Getting started |{" "}
+                    {process.env.REACT_APP_TITLE}
+                </title>
+            </Helmet>
+            <section id="anchor-top">
+                <span className="text-base text-italic">Updated: January 2022</span>
+                <h2 className="margin-top-0">Account registration guide</h2>
+                <p className="usa-intro text-base">
+                    The ReportStream team will help you set up a new user account. Follow the below steps to reach out and get the process started.
+                </p>
+
+                <div className="usa-alert usa-alert--info margin-y-6">
+                    <div className="usa-alert__body">
+                        <h4 className="usa-alert__heading">
+                            Communications during registration
+                        </h4>
+                        <p>ReportStream, as part of the <a href="https://www.cdc.gov/surveillance/projects/pandemic-ready-it-systems.html" className="usa-link" rel="noreferrer noopener">Pandemic-Ready Interoperability Modernization Effort (PRIME)</a>, shares some resources with other projects operated by the CDC.</p>
+                        <p className="usa-alert__text">Some automated communications you receive during the registration process may contain references to <a href="https://simplereport.gov" className="usa-link" rel="noreferrer noopener">SimpleReport</a>, a PRIME project that ReportStream closely collaborates with. If you have questions about any step of the registration process, contact us at reportstream@cdc.gov.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <ol className="usa-process-list">
+                    <li className="usa-process-list__item">
+                        <h4 className="usa-process-list__heading">
+                            Contact ReportStream
+                        </h4>
+                        <p className="margin-top-05">
+                        Send an email to reportstream@cdc.gov. Use the example text below as a template for your message:</p>
+                        <blockquote className="rs-blockquote__documentation">
+                            <p>To: reportstream@cdc.gov<br />
+                            Subject: Register a new account: organization or testing facility</p>
+
+                            <p>Hi,</p>
+
+                            <p>I'd like to get a new user account set up for ReportStream.</p>
+
+                            <p>
+                                Name:<br />
+                                Job title:<br />
+                                Organization:<br />
+                                Email address:<br />
+                                Phone number:<br />
+                            </p>
+                        </blockquote>
+                    </li>
+                    <li className="usa-process-list__item">
+                        <h4 className="usa-process-list__heading">
+                            Accept the terms of service
+                        </h4>
+                        <ul className="margin-top-2">
+                            <li>A ReportStream representative will process your registration request and respond via email with a link to an online form</li>
+                            <li>Open the link to view the form and review the ReportStream <a href="/terms-of-service">terms of service</a></li>
+                            <li>Fill out and submit the form. <em>You must accept the terms of service and submit this form in order to move to step 3.</em></li>
+                        </ul>
+                    </li>
+                    <li className="usa-process-list__item">
+                        <h4 className="usa-process-list__heading">Receive account activation email</h4>
+                        <ul className="margin-top-2">
+                            <li>An email will arrive in your inbox from support@simplereport.gov with the subject line "Welcome to SimpleReport." <em>It can take up to 1 business day to receive the activation email.</em> </li>
+                            <li>Open the email and click "Activate your account"</li>
+                        </ul>
+                        <p>[img]</p>
+                    </li>
+                    <li className="usa-process-list__item">
+                        <h4 className="usa-process-list__heading">Activate your account</h4>
+                        <p>After opening the link in the activation email, follow the prompts to set up your account.</p>
+                        <p><strong>i. Create a secure password that includes:</strong></p>
+                        <ul>
+                            <li>A minimum of 8 characters</li>
+                            <li>An uppercase and a lowercase letter</li>
+                            <li>A number</li>
+                        </ul>
+                        <p><strong>ii. Choose a "Forgot password" question</strong></p>
+                        <p>Use the drop-down list to select your preferred security question and enter your response.</p>
+
+                        <p><strong>iii. Set up multi-factor authentication</strong></p>
+                        <p>Pick a multi-factor authentication option, and click "Setup" below it. These authentication options are meant to secure your account. Below, you can review instructions for setting up SMS authentication and Google Authenticator/Okta Verify.</p>
+                        <p><em>If you choose biometric authentication, make sure that you’ll only log in to ReportStream from the device you’re currently using. Biometric authentication may be difficult to use across multiple devices.</em></p>
+                                                    
+                        <li><strong>iv. Click "Continue" </strong></li>
+                        
+                        <p>[img]</p>
+                    </li>
+                    <li className="usa-process-list__item">
+                        <h4 className="usa-process-list__heading">Close window</h4>
+                        <ul>
+                            <li>A prompt will appear confirming your account set up is complete. <em>It can take up to 1 business day before your account receives access to upload CSV files</em>. </li>
+                            <li>Ignore the "Continue to SimpleReport" button</li>
+                            <li>Close out of the window</li>
+                        </ul>
+                        <p>[img]</p>
+                    </li>
+                    <li className="usa-process-list__item">
+                        <h4 className="usa-process-list__heading">Log in to ReportStream</h4>
+                        
+                        <ul>
+                            <li>Go to https://reportstream.cdc.gov/login  </li>
+                            <li>Enter your username and password  </li>
+                            <li>Contact reportstream@cdc.gov if you run into login issues </li>
+                        </ul>
+                        <p>[img]</p>
+                    </li>
+                </ol>
+            </section>
+        </>
+    );
+};
