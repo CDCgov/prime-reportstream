@@ -1229,7 +1229,7 @@ class Hl7Serializer(
     internal fun getTruncationLimitWithEncoding(value: String, truncationLimit: Int?): Int? {
 
         return if (truncationLimit != null) {
-            val regex = "[&^~]".toRegex()
+            val regex = "[&^~|]".toRegex()
             val endIndex = min(value.length, truncationLimit)
             val matchCount = regex.findAll(value.substring(0, endIndex)).count()
 
