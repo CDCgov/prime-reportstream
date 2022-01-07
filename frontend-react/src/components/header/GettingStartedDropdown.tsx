@@ -2,7 +2,7 @@ import { Menu, NavDropDownButton } from "@trussworks/react-uswds";
 import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 
-const HowItWorksDropdown = () => {
+const GettingStartedDropdown = () => {
     const [isOpen, setIsOpen] = useState(false);
 
     /* Used since setIsOpen cannot be directly called in useEffect */
@@ -19,13 +19,11 @@ const HowItWorksDropdown = () => {
     }, []);
 
     const testMenuItems = [
-        <NavLink to="/how-it-works/about">About</NavLink>,
-        <NavLink to="/how-it-works/where-were-live">Where we're live</NavLink>,
-        <NavLink to="/how-it-works/systems-and-settings">
-            System and settings
+        <NavLink to="/getting-started/public-health-departments/overview">
+            Public health departments
         </NavLink>,
-        <NavLink to="/how-it-works/security-practices">
-            Security practices
+        <NavLink to="/getting-started/testing-facilities/overview">
+            Organizations and testing facilities
         </NavLink>,
     ];
 
@@ -37,7 +35,7 @@ const HowItWorksDropdown = () => {
                     setIsOpen(!isOpen);
                 }}
                 isOpen={isOpen}
-                label="How it works"
+                label="Getting Started"
                 isCurrent={isOpen}
             />
             <Menu
@@ -50,4 +48,4 @@ const HowItWorksDropdown = () => {
     );
 };
 
-export { HowItWorksDropdown };
+export { GettingStartedDropdown };

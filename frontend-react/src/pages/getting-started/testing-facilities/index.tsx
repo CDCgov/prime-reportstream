@@ -7,44 +7,44 @@ import {
     useRouteMatch,
 } from "react-router-dom";
 
-import { CODES, ErrorPage } from "../error/ErrorPage";
+import { CODES, ErrorPage } from "../../error/ErrorPage";
 
-import { SecurityPractices } from "./SecurityPractices";
-import { WhereWereLive } from "./WhereWereLive";
-import { SystemsAndSettings } from "./SystemsAndSettings";
-import { About } from "./About";
+import { FacilitiesOverview } from "./Overview";
+import { RegisterAnAccount } from "./RegisterAnAccount";
+import { CsvUploadGuide } from "./CsvUploadGuide";
+import { CsvSchemaDocumentation } from "./CsvSchemaDocumentation";
 
-export const HowItWorks = () => {
+export const GettingStartedTestingFacilities = () => {
     let { path, url } = useRouteMatch();
 
     var itemsMenu = [
         <NavLink
-            to={`${url}/about`}
+            to={`${url}/overview`}
             activeClassName="usa-current"
             className="usa-nav__link"
         >
-            About
+            Overview
         </NavLink>,
         <NavLink
-            to={`${url}/where-were-live`}
+            to={`${url}/register-an-account`}
             activeClassName="usa-current"
             className="usa-nav__link"
         >
-            Where we're live
+            Register an account
         </NavLink>,
         <NavLink
-            to={`${url}/systems-and-settings`}
+            to={`${url}/csv-upload-guide`}
             activeClassName="usa-current"
             className="usa-nav__link"
         >
-            Systems and settings
+            CSV upload guide
         </NavLink>,
         <NavLink
-            to={`${url}/security-practices`}
+            to={`${url}/csv-schema`}
             activeClassName="usa-current"
             className="usa-nav__link"
         >
-            Security practices
+            CSV schema documentation
         </NavLink>,
     ];
 
@@ -53,8 +53,13 @@ export const HowItWorks = () => {
             <section className="border-bottom border-base-lighter margin-bottom-6">
                 <div className="grid-container">
                     <div className="grid-row grid-gap">
-                        <div className="tablet:grid-col-12 margin-bottom-1">
-                            <h1 className="text-ink">How it works</h1>
+                        <div className="tablet:grid-col-12 margin-bottom-05">
+                            <h1 className="text-ink">
+                                <span className="text-base">
+                                    Getting started
+                                </span>
+                                <br /> Organizations and testing facilities
+                            </h1>
                         </div>
                     </div>
                 </div>
@@ -64,24 +69,27 @@ export const HowItWorks = () => {
                     <div className="tablet:grid-col-4 margin-bottom-6">
                         <SideNav items={itemsMenu} />
                     </div>
-                    <div className="tablet:grid-col-8 usa-prose rs-documentation">
+                    <div className="tablet:grid-col-8 usa-prose">
                         <Switch>
-                            {/* Handles anyone going to /how-it-works without extension */}
+                            {/* Handles anyone going to /getting-started without extension */}
                             <Route exact path={path}>
-                                <Redirect push to={`${path}/getting-started`} />
+                                <Redirect push to={`${path}/overview`} />
                             </Route>
-                            <Route path={`${path}/about`} component={About} />
                             <Route
-                                path={`${path}/where-were-live`}
-                                component={WhereWereLive}
+                                path={`${path}/overview`}
+                                component={FacilitiesOverview}
                             />
                             <Route
-                                path={`${path}/systems-and-settings`}
-                                component={SystemsAndSettings}
+                                path={`${path}/register-an-account`}
+                                component={RegisterAnAccount}
                             />
                             <Route
-                                path={`${path}/security-practices`}
-                                component={SecurityPractices}
+                                path={`${path}/csv-upload-guide`}
+                                component={CsvUploadGuide}
+                            />
+                            <Route
+                                path={`${path}/csv-schema`}
+                                component={CsvSchemaDocumentation}
                             />
                             {/* Handles any undefined route */}
                             <Route

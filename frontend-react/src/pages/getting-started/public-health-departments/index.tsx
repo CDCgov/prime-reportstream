@@ -7,44 +7,36 @@ import {
     useRouteMatch,
 } from "react-router-dom";
 
-import { CODES, ErrorPage } from "../error/ErrorPage";
+import { CODES, ErrorPage } from "../../error/ErrorPage";
 
-import { SecurityPractices } from "./SecurityPractices";
-import { WhereWereLive } from "./WhereWereLive";
-import { SystemsAndSettings } from "./SystemsAndSettings";
-import { About } from "./About";
+import { PhdOverview } from "./Overview";
+import { ELRChecklist } from "./ElrChecklist";
+import { DataDownloadGuide } from "./DataDownloadGuide";
 
-export const HowItWorks = () => {
+export const GettingStartedPublicHealthDepartments = () => {
     let { path, url } = useRouteMatch();
 
     var itemsMenu = [
         <NavLink
-            to={`${url}/about`}
+            to={`${url}/overview`}
             activeClassName="usa-current"
             className="usa-nav__link"
         >
-            About
+            Overview
         </NavLink>,
         <NavLink
-            to={`${url}/where-were-live`}
+            to={`${url}/elr-checklist`}
             activeClassName="usa-current"
             className="usa-nav__link"
         >
-            Where we're live
+            ELR onboarding checklist
         </NavLink>,
         <NavLink
-            to={`${url}/systems-and-settings`}
+            to={`${url}/data-download-guide`}
             activeClassName="usa-current"
             className="usa-nav__link"
         >
-            Systems and settings
-        </NavLink>,
-        <NavLink
-            to={`${url}/security-practices`}
-            activeClassName="usa-current"
-            className="usa-nav__link"
-        >
-            Security practices
+            Data download website guide
         </NavLink>,
     ];
 
@@ -53,8 +45,13 @@ export const HowItWorks = () => {
             <section className="border-bottom border-base-lighter margin-bottom-6">
                 <div className="grid-container">
                     <div className="grid-row grid-gap">
-                        <div className="tablet:grid-col-12 margin-bottom-1">
-                            <h1 className="text-ink">How it works</h1>
+                        <div className="tablet:grid-col-12 margin-bottom-05">
+                            <h1 className=" text-ink">
+                                <span className="text-base">
+                                    Getting started
+                                </span>
+                                <br /> Public health departments
+                            </h1>
                         </div>
                     </div>
                 </div>
@@ -64,24 +61,23 @@ export const HowItWorks = () => {
                     <div className="tablet:grid-col-4 margin-bottom-6">
                         <SideNav items={itemsMenu} />
                     </div>
-                    <div className="tablet:grid-col-8 usa-prose rs-documentation">
+                    <div className="tablet:grid-col-8 usa-prose">
                         <Switch>
-                            {/* Handles anyone going to /how-it-works without extension */}
+                            {/* Handles anyone going to /getting-started without extension */}
                             <Route exact path={path}>
-                                <Redirect push to={`${path}/getting-started`} />
+                                <Redirect push to={`${path}/overview`} />
                             </Route>
-                            <Route path={`${path}/about`} component={About} />
                             <Route
-                                path={`${path}/where-were-live`}
-                                component={WhereWereLive}
+                                path={`${path}/overview`}
+                                component={PhdOverview}
                             />
                             <Route
-                                path={`${path}/systems-and-settings`}
-                                component={SystemsAndSettings}
+                                path={`${path}/elr-checklist`}
+                                component={ELRChecklist}
                             />
                             <Route
-                                path={`${path}/security-practices`}
-                                component={SecurityPractices}
+                                path={`${path}/data-download-guide`}
+                                component={DataDownloadGuide}
                             />
                             {/* Handles any undefined route */}
                             <Route
