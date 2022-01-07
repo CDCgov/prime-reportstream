@@ -444,7 +444,7 @@ data class Element(
     /**
      * Take a formatted value and check to see if can be stored in a report.
      */
-    fun checkForError(formattedValue: String, format: String? = null): ResponseMessage? {
+    fun checkForError(formattedValue: String, format: String? = null): ActionEventDetail? {
         if (formattedValue.isBlank() && !isOptional && !canBeBlank) return MissingFieldMessage.new(fieldMapping)
         return when (type) {
             Type.DATE -> {

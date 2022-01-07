@@ -13,8 +13,8 @@ import ca.uhn.hl7v2.parser.EncodingNotSupportedException
 import ca.uhn.hl7v2.parser.ModelClassFactory
 import ca.uhn.hl7v2.preparser.PreParser
 import ca.uhn.hl7v2.util.Terser
-import gov.cdc.prime.router.ActionDetail
 import gov.cdc.prime.router.ActionError
+import gov.cdc.prime.router.ActionEvent
 import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.ElementAndValue
 import gov.cdc.prime.router.Hl7Configuration
@@ -367,29 +367,29 @@ class Hl7Serializer(
         input: InputStream,
         source: Source
     ): ReadResult {
-        val errors = mutableListOf<ActionDetail>()
-        val warnings = mutableListOf<ActionDetail>()
+        val errors = mutableListOf<ActionEvent>()
+        val warnings = mutableListOf<ActionEvent>()
         val messageBody = input.bufferedReader().use { it.readText() }
         val schema = metadata.findSchema(schemaName) ?: error("Schema name $schemaName not found")
         val mapping = convertBatchMessagesToMap(messageBody, schema)
         val mappedRows = mapping.mappedRows
         errors.addAll(
             mapping.errors.map {
-                ActionDetail(
-                    ActionDetail.DetailScope.item,
+                ActionEvent(
+                    ActionEvent.DetailScope.item,
                     "",
                     InvalidHL7Message.new(it),
-                    type = ActionDetail.Type.error
+                    type = ActionEvent.Type.error
                 )
             }
         )
         warnings.addAll(
             mapping.warnings.map {
-                ActionDetail(
-                    ActionDetail.DetailScope.item,
+                ActionEvent(
+                    ActionEvent.DetailScope.item,
                     "",
                     InvalidHL7Message.new(it),
-                    type = ActionDetail.Type.warning
+                    type = ActionEvent.Type.warning
                 )
             }
         )

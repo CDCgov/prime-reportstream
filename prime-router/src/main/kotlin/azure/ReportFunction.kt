@@ -10,8 +10,8 @@ import com.microsoft.azure.functions.annotation.AuthorizationLevel
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
-import gov.cdc.prime.router.ActionDetail
 import gov.cdc.prime.router.ActionError
+import gov.cdc.prime.router.ActionEvent
 import gov.cdc.prime.router.DEFAULT_SEPARATOR
 import gov.cdc.prime.router.InvalidParamMessage
 import gov.cdc.prime.router.InvalidReportMessage
@@ -235,14 +235,14 @@ class ReportFunction : Logging {
             }
         } catch (e: IllegalArgumentException) {
             actionHistory.trackDetails(
-                ActionDetail.report(
-                    e.message ?: "Invalid request.", ActionDetail.Type.error
+                ActionEvent.report(
+                    e.message ?: "Invalid request.", ActionEvent.Type.error
                 )
             )
         } catch (e: IllegalStateException) {
             actionHistory.trackDetails(
-                ActionDetail.report(
-                    e.message ?: "Invalid request.", ActionDetail.Type.error
+                ActionEvent.report(
+                    e.message ?: "Invalid request.", ActionEvent.Type.error
                 )
             )
         }
@@ -319,20 +319,20 @@ class ReportFunction : Logging {
     }
 
     private fun validateRequest(engine: WorkflowEngine, request: HttpRequestMessage<String?>): ValidatedRequest {
-        val errors = mutableListOf<ActionDetail>()
+        val errors = mutableListOf<ActionEvent>()
         HttpUtilities.payloadSizeCheck(request)
 
         val receiverNamesText = request.queryParameters.getOrDefault(ROUTE_TO_PARAMETER, "")
         val routeTo = if (receiverNamesText.isNotBlank()) receiverNamesText.split(ROUTE_TO_SEPARATOR) else emptyList()
         val receiverNameErrors = routeTo
             .filter { engine.settings.findReceiver(it) == null }
-            .map { ActionDetail.param(ROUTE_TO_PARAMETER, InvalidParamMessage.new("Invalid receiver name: $it")) }
+            .map { ActionEvent.param(ROUTE_TO_PARAMETER, InvalidParamMessage.new("Invalid receiver name: $it")) }
         errors.addAll(receiverNameErrors)
 
         val clientName = extractClient(request)
         if (clientName.isBlank())
             errors.add(
-                ActionDetail.param(
+                ActionEvent.param(
                     CLIENT_PARAMETER, InvalidParamMessage.new("Expected a '$CLIENT_PARAMETER' query parameter")
                 )
             )
@@ -340,7 +340,7 @@ class ReportFunction : Logging {
         val sender = engine.settings.findSender(clientName)
         if (sender == null)
             errors.add(
-                ActionDetail.param(
+                ActionEvent.param(
                     CLIENT_PARAMETER, InvalidParamMessage.new("'$CLIENT_PARAMETER:$clientName': unknown sender")
                 )
             )
@@ -348,7 +348,7 @@ class ReportFunction : Logging {
         val schema = engine.metadata.findSchema(sender?.schemaName ?: "")
         if (sender != null && schema == null)
             errors.add(
-                ActionDetail.param(
+                ActionEvent.param(
                     CLIENT_PARAMETER,
                     InvalidParamMessage.new(
                         "'$CLIENT_PARAMETER:$clientName': unknown schema '${sender.schemaName}'"
@@ -358,10 +358,10 @@ class ReportFunction : Logging {
 
         val contentType = request.headers.getOrDefault(HttpHeaders.CONTENT_TYPE.lowercase(), "")
         if (contentType.isBlank()) {
-            errors.add(ActionDetail.param(HttpHeaders.CONTENT_TYPE, InvalidParamMessage.new("missing")))
+            errors.add(ActionEvent.param(HttpHeaders.CONTENT_TYPE, InvalidParamMessage.new("missing")))
         } else if (sender != null && sender.format.mimeType != contentType) {
             errors.add(
-                ActionDetail.param(
+                ActionEvent.param(
                     HttpHeaders.CONTENT_TYPE, InvalidParamMessage.new("expecting '${sender.format.mimeType}'")
                 )
             )
@@ -369,7 +369,7 @@ class ReportFunction : Logging {
 
         val content = request.body ?: ""
         if (content.isEmpty()) {
-            errors.add(ActionDetail.param("Content", InvalidParamMessage.new("expecting a post message with content")))
+            errors.add(ActionEvent.param("Content", InvalidParamMessage.new("expecting a post message with content")))
         }
 
         if (sender == null || schema == null || content.isEmpty() || errors.isNotEmpty()) {
@@ -382,9 +382,9 @@ class ReportFunction : Logging {
                 val parts = it.split(DEFAULT_SEPARATOR)
                 if (parts.size != 2) {
                     errors.add(
-                        ActionDetail.report(
+                        ActionEvent.report(
                             InvalidReportMessage.new("'$it' is not a valid default"),
-                            ActionDetail.Type.error
+                            ActionEvent.Type.error
                         )
                     )
                     return@mapNotNull null
@@ -392,16 +392,16 @@ class ReportFunction : Logging {
                 val element = schema.findElement(parts[0])
                 if (element == null) {
                     errors.add(
-                        ActionDetail.report(
+                        ActionEvent.report(
                             InvalidReportMessage.new("'${parts[0]}' is not a valid element name"),
-                            ActionDetail.Type.error
+                            ActionEvent.Type.error
                         )
                     )
                     return@mapNotNull null
                 }
                 val error = element.checkForError(parts[1])
                 if (error != null) {
-                    errors.add(ActionDetail.param(DEFAULT_PARAMETER, error))
+                    errors.add(ActionEvent.param(DEFAULT_PARAMETER, error))
                     return@mapNotNull null
                 }
                 Pair(parts[0], parts[1])

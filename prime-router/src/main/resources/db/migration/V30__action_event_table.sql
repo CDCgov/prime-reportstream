@@ -8,18 +8,18 @@
  *
  */
 
-CREATE TYPE action_detail_type AS ENUM ('info', 'warning', 'error', 'filter');
+CREATE TYPE action_event_type AS ENUM ('info', 'warning', 'error', 'filter');
 
-CREATE TYPE action_detail_scope AS ENUM ('parameter', 'report', 'item', 'translation');
+CREATE TYPE action_event_scope AS ENUM ('parameter', 'report', 'item', 'translation');
 
-CREATE TABLE action_detail
+CREATE TABLE action_event
 (
-  action_detail_id BIGSERIAL PRIMARY KEY,
+  action_event_id BIGSERIAL PRIMARY KEY,
   action_id INTEGER NOT NULL REFERENCES action(action_id) ON DELETE CASCADE,
   report_id UUID REFERENCES report_file(report_id) ON DELETE CASCADE,
   index INTEGER,
-  type action_detail_type,
-  scope action_detail_scope,
-  context JSONB,
+  type action_event_type,
+  scope action_event_scope,
+  detail JSONB,
   time timestamp NOT NULL
 );

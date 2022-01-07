@@ -1,6 +1,6 @@
 package gov.cdc.prime.router.serializers
 
-import gov.cdc.prime.router.ActionDetail
+import gov.cdc.prime.router.ActionEvent
 import gov.cdc.prime.router.Report
 
 /**
@@ -14,11 +14,11 @@ data class ReadResult(
     /**
      * The list of errors that caused a item to not be reported
      */
-    val errors: List<ActionDetail> = emptyList(),
+    val errors: List<ActionEvent> = emptyList(),
     /**
      * An list of warnings that could be a data error
      */
-    val warnings: List<ActionDetail> = emptyList(),
+    val warnings: List<ActionEvent> = emptyList(),
 ) {
     init {
         errors.forEach {

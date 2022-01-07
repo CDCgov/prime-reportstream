@@ -74,8 +74,8 @@ data class ReportStreamFilterResult(
     val filterArgs: List<String>,
     val filteredCount: Int,
     val filteredTrackingElements: List<String>,
-    override val type: ResponseMsgType = ResponseMsgType.TRANSLATION
-) : ResponseMessage {
+    override val type: ActionEventDetailType = ActionEventDetailType.TRANSLATION
+) : ActionEventDetail {
     companion object {
         // Use this value in logs and user-facing messages if the trackingElement is missing.
         val DEFAULT_TRACKING_VALUE = "MissingID"

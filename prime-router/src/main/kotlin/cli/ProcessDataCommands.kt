@@ -8,7 +8,7 @@ import com.github.ajalt.clikt.parameters.options.convert
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.int
-import gov.cdc.prime.router.ActionDetail
+import gov.cdc.prime.router.ActionEvent
 import gov.cdc.prime.router.CustomConfiguration
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DefaultValues
@@ -411,7 +411,7 @@ class ProcessData(
 
         // Transform reports
         val translator = Translator(metadata, fileSettings)
-        val warnings = mutableListOf<ActionDetail>()
+        val warnings = mutableListOf<ActionEvent>()
         val outputReports: List<Pair<Report, Report.Format>> = when {
             route -> {
                 val (reports, byReceiverWarnings) = translator
@@ -453,7 +453,7 @@ class ProcessData(
         if (warnings.size > 0) {
             echo("Problems occurred during translation to output schema:")
             warnings.forEach {
-                echo("${it.scope} ${it.trackingId}: ${it.responseMessage.detailMsg()}")
+                echo("${it.scope} ${it.trackingId}: ${it.detail.detailMsg()}")
             }
             echo()
         }

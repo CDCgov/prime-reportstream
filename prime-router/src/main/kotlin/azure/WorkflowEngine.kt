@@ -1,8 +1,8 @@
 package gov.cdc.prime.router.azure
 
 import com.microsoft.azure.functions.ExecutionContext
-import gov.cdc.prime.router.ActionDetail
 import gov.cdc.prime.router.ActionError
+import gov.cdc.prime.router.ActionEvent
 import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.InvalidReportMessage
@@ -405,7 +405,7 @@ class WorkflowEngine(
         defaults: Map<String, String>,
         routeTo: List<String>,
         actionHistory: ActionHistory,
-    ): List<ActionDetail> {
+    ): List<ActionEvent> {
         val (routedReports, warnings) = this.translator
             .filterAndTranslateByReceiver(
                 report,
@@ -898,12 +898,12 @@ class WorkflowEngine(
                 } catch (e: Exception) {
                     throw ActionError(
                         e.message,
-                        ActionDetail.report(
+                        ActionEvent.report(
                             InvalidReportMessage.new(
                                 "An unexpected error occurred requiring additional help. Contact the ReportStream " +
                                     "team at reportstream@cdc.gov."
                             ),
-                            ActionDetail.Type.error
+                            ActionEvent.Type.error
                         )
                     )
                 }
@@ -918,12 +918,12 @@ class WorkflowEngine(
                 } catch (e: Exception) {
                     throw ActionError(
                         e.message,
-                        ActionDetail.report(
+                        ActionEvent.report(
                             InvalidReportMessage.new(
                                 "An unexpected error occurred requiring additional help. Contact the ReportStream " +
                                     "team at reportstream@cdc.gov."
                             ),
-                            ActionDetail.Type.error
+                            ActionEvent.Type.error
                         )
                     )
                 }

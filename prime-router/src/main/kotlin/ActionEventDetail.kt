@@ -1,6 +1,7 @@
 package gov.cdc.prime.router
+import com.fasterxml.jackson.annotation.JsonTypeInfo
 
-enum class ResponseMsgType {
+enum class ActionEventDetailType {
     // CSV Serializing errors
     INVALID_DATE,
     INVALID_CODE,
@@ -16,8 +17,9 @@ enum class ResponseMsgType {
     INVALID_HL7,
 }
 
-interface ResponseMessage {
-    val type: ResponseMsgType
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
+interface ActionEventDetail {
+    val type: ActionEventDetailType
     fun detailMsg(): String
     fun groupingId(): String
 }

@@ -30,8 +30,8 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
         input: Report,
         defaultValues: DefaultValues = emptyMap(),
         limitReceiversTo: List<String> = emptyList(),
-    ): Pair<List<Pair<Report, Receiver>>, List<ActionDetail>> {
-        val warnings = mutableListOf<ActionDetail>()
+    ): Pair<List<Pair<Report, Receiver>>, List<ActionEvent>> {
+        val warnings = mutableListOf<ActionEvent>()
         if (input.isEmpty()) return Pair(emptyList(), warnings)
         val routedReports = settings.receivers.filter { receiver ->
             receiver.topic == input.schema.topic &&
@@ -48,8 +48,8 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
             } catch (e: IllegalStateException) {
                 // catching individual translation exceptions enables overall work to continue
                 warnings.add(
-                    ActionDetail(
-                        ActionDetail.DetailScope.translation,
+                    ActionEvent(
+                        ActionEvent.DetailScope.translation,
                         "TO:${receiver.fullName}:${receiver.schemaName}",
                         InvalidTranslationMessage.new(e.localizedMessage),
                         reportId = input.id,

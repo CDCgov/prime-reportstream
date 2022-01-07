@@ -6,7 +6,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
-import gov.cdc.prime.router.ActionDetail
+import gov.cdc.prime.router.ActionEvent
 import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
@@ -16,7 +16,7 @@ import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.Tables.ACTION
-import gov.cdc.prime.router.azure.db.Tables.ACTION_DETAIL
+import gov.cdc.prime.router.azure.db.Tables.ACTION_EVENT
 import gov.cdc.prime.router.azure.db.Tables.ITEM_LINEAGE
 import gov.cdc.prime.router.azure.db.Tables.REPORT_FILE
 import gov.cdc.prime.router.azure.db.Tables.REPORT_LINEAGE
@@ -101,7 +101,7 @@ class ActionHistory {
     /**
      * List of details that happened during the action
      */
-    val details = mutableListOf<ActionDetail>()
+    val details = mutableListOf<ActionEvent>()
 
     /**
      * Messages to be queued in an azure queue as part of the result of this action.
@@ -140,13 +140,13 @@ class ActionHistory {
         messages.add(event)
     }
 
-    fun trackDetails(d: List<ActionDetail>) {
+    fun trackDetails(d: List<ActionEvent>) {
         d.forEach {
             trackDetails(it)
         }
     }
 
-    fun trackDetails(d: ActionDetail) {
+    fun trackDetails(d: ActionEvent) {
         d.action = action
         details.add(d)
     }
@@ -510,13 +510,13 @@ class ActionHistory {
     fun trackFilteredItems(report: Report) {
         report.filteringResults.forEach {
             trackDetails(
-                ActionDetail(
-                    ActionDetail.DetailScope.report,
+                ActionEvent(
+                    ActionEvent.DetailScope.report,
                     "",
                     it,
                     reportId = report.id,
                     action = action,
-                    type = ActionDetail.Type.filter,
+                    type = ActionEvent.Type.filter,
                 )
             )
         }
@@ -569,7 +569,7 @@ class ActionHistory {
         insertItemLineages(itemLineages, txn)
 
         details.forEach {
-            val detailRecord = DSL.using(txn).newRecord(ACTION_DETAIL, it)
+            val detailRecord = DSL.using(txn).newRecord(ACTION_EVENT, it)
             detailRecord.store()
         }
     }
@@ -747,7 +747,7 @@ class ActionHistory {
             val filterDetails = details.filter {
                 it.reportId == reportFile.reportId
             }.filter {
-                it.type == ActionDetail.Type.filter
+                it.type == ActionEvent.Type.filter
             }
 
             if (filterDetails.isNotEmpty()) {
@@ -932,8 +932,8 @@ class ActionHistory {
     fun createResponseBody(
         verbose: Boolean,
     ): String {
-        val warnings = details.filter { it.type == ActionDetail.Type.warning }
-        val errors = details.filter { it.type == ActionDetail.Type.error }
+        val warnings = details.filter { it.type == ActionEvent.Type.warning }
+        val errors = details.filter { it.type == ActionEvent.Type.error }
         val factory = JsonFactory()
         val outStream = ByteArrayOutputStream()
         factory.createGenerator(outStream).use {
@@ -1008,22 +1008,22 @@ class ActionHistory {
             }
 
             /**
-             * This function parses a list of ActionDetail items to group them by
+             * This function parses a list of ActionEvent items to group them by
              * groupingId and returns them as a GroupedProperties data class instance
              *
-             * @param details List of ActionDetail items to be parsed
+             * @param details List of ActionEvent items to be parsed
              * @return GroupedProperties() containing items, messages, and scopes
              *     grouped by groupingId
              */
-            fun createPropertiesByGroupingId(details: List<ActionDetail>): GroupedProperties {
+            fun createPropertiesByGroupingId(details: List<ActionEvent>): GroupedProperties {
                 val itemsByGroupingId = mutableMapOf<String, MutableList<Int>>()
                 val messageByGroupingId = mutableMapOf<String, String>()
                 val scopesByGroupingId = mutableMapOf<String, String>()
                 details.forEach { actionDetail ->
-                    val groupingId = actionDetail.responseMessage.groupingId()
+                    val groupingId = actionDetail.detail.groupingId()
                     if (!itemsByGroupingId.containsKey(groupingId)) {
                         itemsByGroupingId[groupingId] = mutableListOf()
-                        messageByGroupingId[groupingId] = actionDetail.responseMessage.detailMsg()
+                        messageByGroupingId[groupingId] = actionDetail.detail.detailMsg()
                         scopesByGroupingId[groupingId] = actionDetail.scope.toString()
                     }
                     if (actionDetail.index != -1) {
@@ -1038,13 +1038,13 @@ class ActionHistory {
             }
 
             /**
-             * This function parses a list of ActionDetail items to group them by
+             * This function parses a list of ActionEvent items to group them by
              * groupingId and returns them as a GroupedProperties data class instance
              *
              * @param field defines the name of the array in the JSON result
              * @param ActionDetailList the list of items to write to the JSON
              */
-            fun writeConsolidatedArray(field: String, actionDetailList: List<ActionDetail>) {
+            fun writeConsolidatedArray(field: String, actionDetailList: List<ActionEvent>) {
                 val (
                     itemsByGroupingId,
                     messageByGroupingId,
