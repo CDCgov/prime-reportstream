@@ -15,6 +15,9 @@ export const CsvSchemaDocumentation = () => {
             <section id="anchor-top">
                 <span className="text-base text-italic">Updated: January 2022</span>
                 <h2 className="margin-top-0 ">CSV schema documentation <span className="text-secondary bg-white border-1px border-secondary font-body-3xs padding-x-1 padding-y-05 text-secondary margin-left-2 text-ttbottom">Pilot program </span></h2>
+                <p className="usa-intro text-base">
+                    How to format data for submission to ReportStream via CSV upload.
+                </p>
                 
                 <p><strong>In this guide</strong></p> 
                 <ul>
@@ -39,14 +42,18 @@ export const CsvSchemaDocumentation = () => {
                 </ul>
                 <p><strong>Resources</strong></p> 
                 <ul>
-                    <li><a href="#preparing-a-csv" className="usa-link">ReportStream standard schema CSV</a></li>
+                    <li><a href="/assets/csv/ReportStream-StandardCSV-ExampleData-20220107.csv" className="usa-link">ReportStream standard CSV with example data</a></li>
                 </ul> 
-                <p><strong>About required, requested, and optional fields</strong></p> 
-                <ul>
-                    <li>Required: Files will fail to be processed if required fields are left blank or contain incorrect values.</li>
-                    <li>Requested: explanation of requested</li>
-                    <li>Optional: explanation of optinoal</li>
-                </ul>
+                <div className="usa-alert usa-alert--info margin-y-6">
+                    <div className="usa-alert__body">
+                        <h3 className="usa-alert__heading font-body-md margin-top-05">
+                        About required, requested, and optional fields
+                        </h3>
+                        <p><strong>Required:</strong> Files <em>must</em> contain these column headers and values. If headers or fields are blank or contain incorrect values you will not be able to submit your file. Accepted values are outlined for each header and field below.</p>
+                        <p><strong>Requested:</strong> Fields are not required. If available, including this data is incredibly helpful to public health.</p>
+                        <p className="usa-alert__text"><strong>Optional:</strong> Fields are not required.</p>
+                    </div>
+                </div>               
                 
             </section>
             

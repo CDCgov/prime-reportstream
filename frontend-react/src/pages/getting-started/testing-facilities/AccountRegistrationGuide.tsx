@@ -19,9 +19,9 @@ export const AccountRegistrationGuide = () => {
 
                 <div className="usa-alert usa-alert--info margin-y-6">
                     <div className="usa-alert__body">
-                        <h4 className="usa-alert__heading">
+                        <h3 className="usa-alert__heading font-body-md margin-top-05">
                             Communications during registration
-                        </h4>
+                        </h3>
                         <p>ReportStream, as part of the <a href="https://www.cdc.gov/surveillance/projects/pandemic-ready-it-systems.html" className="usa-link" target="_blank" rel="noreferrer noopener">Pandemic-Ready Interoperability Modernization Effort (PRIME)</a>, shares some resources with other projects operated by the CDC.</p>
                         <p className="usa-alert__text">Some automated communications you receive during the registration process may contain references to <a href="https://simplereport.gov" className="usa-link" target="_blank" rel="noreferrer noopener">SimpleReport</a>, a PRIME project that ReportStream closely collaborates with. If you have questions about any step of the registration process, contact us at reportstream@cdc.gov.</p>
                     </div>
