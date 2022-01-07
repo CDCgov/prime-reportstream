@@ -15,7 +15,6 @@ import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.db.enums.TaskAction
-import gov.cdc.prime.router.tokens.OktaAuthentication
 import org.apache.logging.log4j.kotlin.Logging
 import java.time.OffsetDateTime
 import java.util.UUID
@@ -208,7 +207,6 @@ class GetFacilitiesByReportId :
 open class BaseHistoryFunction : Logging {
     val DAYS_TO_SHOW = 30L
     val workflowEngine = WorkflowEngine()
-    val oktaAuthentication = OktaAuthentication(PrincipalLevel.USER)
 
     fun getReports(
         request: HttpRequestMessage<String?>,
