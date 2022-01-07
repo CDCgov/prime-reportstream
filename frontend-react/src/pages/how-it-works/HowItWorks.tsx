@@ -50,52 +50,49 @@ export const HowItWorks = () => {
 
     return (
         <>
-        <section className="border-bottom border-base-lighter margin-bottom-6">
-            <div className="grid-container">
-                <div className="grid-row grid-gap">
-                    <div className="tablet:grid-col-12 margin-bottom-1">
-                        <h1 className="text-ink">How it works</h1>
+            <section className="border-bottom border-base-lighter margin-bottom-6">
+                <div className="grid-container">
+                    <div className="grid-row grid-gap">
+                        <div className="tablet:grid-col-12 margin-bottom-1">
+                            <h1 className="text-ink">How it works</h1>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </section>
-        <section className="grid-container margin-bottom-5">
-            <div className="grid-row grid-gap">
-                <div className="tablet:grid-col-4 margin-bottom-6">
-                    <SideNav items={itemsMenu} />
+            </section>
+            <section className="grid-container margin-bottom-5">
+                <div className="grid-row grid-gap">
+                    <div className="tablet:grid-col-4 margin-bottom-6">
+                        <SideNav items={itemsMenu} />
+                    </div>
+                    <div className="tablet:grid-col-8 usa-prose rs-documentation">
+                        <Switch>
+                            {/* Handles anyone going to /how-it-works without extension */}
+                            <Route exact path={path}>
+                                <Redirect push to={`${path}/getting-started`} />
+                            </Route>
+                            <Route path={`${path}/about`} component={About} />
+                            <Route
+                                path={`${path}/where-were-live`}
+                                component={WhereWereLive}
+                            />
+                            <Route
+                                path={`${path}/systems-and-settings`}
+                                component={SystemsAndSettings}
+                            />
+                            <Route
+                                path={`${path}/security-practices`}
+                                component={SecurityPractices}
+                            />
+                            {/* Handles any undefined route */}
+                            <Route
+                                render={() => (
+                                    <ErrorPage code={CODES.NOT_FOUND_404} />
+                                )}
+                            />
+                        </Switch>
+                    </div>
                 </div>
-                <div className="tablet:grid-col-8 usa-prose rs-documentation">
-                    <Switch>
-                        {/* Handles anyone going to /how-it-works without extension */}
-                        <Route exact path={path}>
-                            <Redirect push to={`${path}/getting-started`} />
-                        </Route>
-                        <Route
-                            path={`${path}/about`}
-                            component={About}
-                        />
-                        <Route
-                            path={`${path}/where-were-live`}
-                            component={WhereWereLive}
-                        />
-                        <Route
-                            path={`${path}/systems-and-settings`}
-                            component={SystemsAndSettings}
-                        />
-                        <Route
-                            path={`${path}/security-practices`}
-                            component={SecurityPractices}
-                        />
-                        {/* Handles any undefined route */}
-                        <Route
-                            render={() => (
-                                <ErrorPage code={CODES.NOT_FOUND_404} />
-                            )}
-                        />
-                    </Switch>
-                </div>
-            </div>
-        </section>
+            </section>
         </>
     );
 };
