@@ -13,7 +13,6 @@ import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.SenderItems
 import gov.cdc.prime.router.common.CsvUtilities
 import gov.cdc.prime.router.common.Hl7Utilities
-import gov.cdc.prime.router.messages.ReportFileListMessage
 import gov.cdc.prime.router.messages.ReportFileMessage
 import gov.cdc.prime.router.tokens.OktaAuthentication
 import org.apache.logging.log4j.kotlin.Logging
@@ -211,8 +210,7 @@ class SenderFilesFunction(
      * Write as a JSON string
      */
     private fun List<ReportFileMessage>.serialize(): String {
-        val payload = ReportFileListMessage(this)
-        return mapper.writeValueAsString(payload)
+        return mapper.writeValueAsString(this)
     }
 
     companion object {

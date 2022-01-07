@@ -17,7 +17,6 @@ import com.github.kittinunf.result.Result
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.SenderFilesFunction
 import gov.cdc.prime.router.common.Environment
-import gov.cdc.prime.router.messages.ReportFileListMessage
 import gov.cdc.prime.router.messages.ReportFileMessage
 import java.nio.file.Files
 import java.nio.file.Path
@@ -120,6 +119,7 @@ class SenderFilesCommand : CliktCommand(
             .header(Headers.CONTENT_TYPE to HttpUtilities.jsonMediaType)
             .timeoutRead(SettingsUtilities.requestTimeoutMillis)
             .responseString()
+        @Suppress("UNREACHABLE_CODE")
         return when (result) {
             is Result.Failure -> {
                 abort(
@@ -132,9 +132,9 @@ class SenderFilesCommand : CliktCommand(
                 )
             }
             is Result.Success -> {
-                val message = jsonMapper.readValue(response.data, ReportFileListMessage::class.java)
+                val reports = jsonMapper.readValue(response.data, Array<ReportFileMessage>::class.java)
                     ?: error("Could not deserialize")
-                message.reports
+                return reports.toList()
             }
         }
     }

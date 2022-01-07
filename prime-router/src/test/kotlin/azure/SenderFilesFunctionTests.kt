@@ -12,7 +12,7 @@ import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.SenderItems
-import gov.cdc.prime.router.messages.ReportFileListMessage
+import gov.cdc.prime.router.messages.ReportFileMessage
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -116,11 +116,11 @@ class SenderFilesFunctionTests {
         val senderFileFunctions = buildSenderFilesFunction(mockDbAccess, mockBlobAccess)
         val (status, payload) = senderFileFunctions.processRequest(functionParams)
         assertThat(status).isEqualTo(SenderFilesFunction.Status.OK)
-        val reportFileMessages = mapper.readValue(payload, ReportFileListMessage::class.java)
-        assertThat(reportFileMessages.reports[0].reportId).isEqualTo(senderReportId.toString())
-        assertThat(reportFileMessages.reports[0].contentType).isEqualTo("text/csv")
-        assertThat(reportFileMessages.reports[0].content.trim()).isEqualTo(body)
-        assertThat(reportFileMessages.reports[0].request?.reportId).isEqualTo(receiverReportId.toString())
+        val reportFileMessages = mapper.readValue(payload, Array<ReportFileMessage>::class.java)
+        assertThat(reportFileMessages[0].reportId).isEqualTo(senderReportId.toString())
+        assertThat(reportFileMessages[0].contentType).isEqualTo("text/csv")
+        assertThat(reportFileMessages[0].content.trim()).isEqualTo(body)
+        assertThat(reportFileMessages[0].request?.reportId).isEqualTo(receiverReportId.toString())
     }
 
     @Test

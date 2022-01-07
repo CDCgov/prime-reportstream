@@ -36,10 +36,3 @@ class ReportFileMessage(
         val indices: List<Int> = emptyList()
     )
 }
-
-/**
- * A list of [ReportFileMessage]
- */
-class ReportFileListMessage(
-    val reports: List<ReportFileMessage>
-)
