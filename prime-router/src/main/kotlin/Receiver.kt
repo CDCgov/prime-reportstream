@@ -124,6 +124,22 @@ open class Receiver(
                 .toOffsetDateTime()
         }
 
+        /**
+         * Returns true if this receiver is scheduled to run a batch in the last minute
+         */
+        fun batchInPrevious60Seconds(now: OffsetDateTime = OffsetDateTime.now()): Boolean {
+            val zoneId = ZoneId.of(timeZone.zoneId)
+            val zonedNow = now
+                .atZoneSameInstant(zoneId)
+                .withNano(0)
+
+            val initialSeconds = LocalTime.parse(initialTime).toSecondOfDay()
+            val durationFromInitial = zonedNow.toLocalTime().toSecondOfDay() - initialSeconds
+            val period = (24 * 60 * 60) / numberPerDay
+            val secondsSinceMostRecentPeriodEnd = ((durationFromInitial + (24 * 60 * 60) - 60) % period) - period
+            return secondsSinceMostRecentPeriodEnd >= -60
+        }
+
         @JsonIgnore
         fun isValid(): Boolean {
             return numberPerDay in 1..(24 * 60)

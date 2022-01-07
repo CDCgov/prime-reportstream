@@ -6,7 +6,10 @@ import { Tokens } from "@okta/okta-auth-js";
 
 import OktaSignInWidget from "../components/OktaSignInWidget";
 import { groupToOrg } from "../webreceiver-utils";
-import { useGlobalContext } from "../components/GlobalContextProvider";
+import {
+    setStoredOktaToken,
+    useGlobalContext,
+} from "../components/GlobalContextProvider";
 import { PERMISSIONS } from "../resources/PermissionsResource";
 import { oktaSignInConfig } from "../oktaConfig";
 
@@ -19,11 +22,13 @@ export const Login = () => {
             tokens?.accessToken?.claims?.organization.filter(
                 (group: string) => group !== PERMISSIONS.PRIME_ADMIN
             ) || [];
+        setStoredOktaToken(tokens?.accessToken?.accessToken || "");
         updateOrganization(groupToOrg(oktaGroups[0]) || "");
         oktaAuth.handleLoginRedirect(tokens);
     };
 
     const onError = (err: any) => {
+        setStoredOktaToken(""); // clear on error.
         console.log("error logging in", err);
     };
 

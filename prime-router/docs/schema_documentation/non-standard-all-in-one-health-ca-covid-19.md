@@ -146,7 +146,7 @@ This field is ignored.
 
 **Format**: yyyyMMdd
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 ---
 
@@ -214,7 +214,7 @@ Accension number
 
 **Format**: yyyyMMdd
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 ---
 
@@ -522,7 +522,7 @@ The patient's city
 
 **Format**: yyyyMMdd
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -912,7 +912,7 @@ The reporting facility's name
 - [OBX-14](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.14)
 - [SPM-17-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.17.1)
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -1145,7 +1145,7 @@ Translate multiple inbound Test Result values to RS values
 
 **Format**: yyyyMMdd
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 ---
 
@@ -1322,7 +1322,7 @@ The specimen-id from the testing lab
 
 **Format**: yyyyMMdd
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
