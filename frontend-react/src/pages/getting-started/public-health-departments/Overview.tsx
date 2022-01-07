@@ -1,20 +1,20 @@
 import { Helmet } from "react-helmet";
 import DOMPurify from "dompurify";
 
-import site from "../../content/site.json";
+import site from "../../../content/site.json";
 
 /* eslint-disable jsx-a11y/anchor-has-content */
-export const GettingStarted = () => {
+export const PhdOverview = () => {
     return (
         <>
             <Helmet>
                 <title>
-                    Getting started | How it works |{" "}
+                    Public health departments | Getting started |{" "}
                     {process.env.REACT_APP_TITLE}
                 </title>
             </Helmet>
             <section id="anchor-top">
-                <h1 className="margin-top-0">Getting started</h1>
+                <h2 className="font-sans-xl margin-top-0">Overview</h2>
                 <p className="usa-intro">
                     First, we’ll get you connected to our web application, where
                     you can immediately start downloading reporting data that is
