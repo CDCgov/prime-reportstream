@@ -42,7 +42,7 @@ export const CsvSchemaDocumentation = () => {
                 </ul>
                 <p><strong>Resources</strong></p> 
                 <ul>
-                    <li><a href="/assets/csv/ReportStream-StandardCSV-ExampleData-20220107.csv" className="usa-link">ReportStream standard CSV with example data</a></li>
+                    <li><a id="standard-csv" href="/assets/csv/ReportStream-StandardCSV-ExampleData-20220107.csv" className="usa-link">ReportStream standard CSV with example data</a></li>
                 </ul> 
                 <div className="usa-alert usa-alert--info margin-y-6">
                     <div className="usa-alert__body">
@@ -82,7 +82,7 @@ export const CsvSchemaDocumentation = () => {
                                         return (
                                             <div
                                                 key={`item-${fieldIndex}-${sectionIndex}-${itemIndex}`}
-                                                className="margin-top-8"
+                                                className="margin-top-8 rs-documentation__values"
                                             >
                                                 
                                                 <h4 
@@ -97,7 +97,10 @@ export const CsvSchemaDocumentation = () => {
                                                     {item.notes?.map(
                                                         (note, noteIndex) => {
                                                             return (
-                                                                <p key={`value-${fieldIndex}-${sectionIndex}-${itemIndex}-${noteIndex}`}>{note}</p>
+                                                                <p 
+                                                                    key={`value-${fieldIndex}-${sectionIndex}-${itemIndex}-${noteIndex}`}
+                                                                    dangerouslySetInnerHTML={{ __html: `${note}` }}
+                                                                ></p>
                                                             );
                                                         }
                                                     )}
@@ -136,7 +139,7 @@ export const CsvSchemaDocumentation = () => {
                                 </div>
                             );
                         })}
-                        <p><a href="#anchor-top" className="usa-link">Return to top</a></p>
+                        <p className="margin-top-8"><a href="#anchor-top" className="usa-link">Return to top</a></p>
                     </div>
                 );
             })}

@@ -33,11 +33,11 @@
                             "required": true,
                             "acceptedFormat": false,
                             "acceptedValues": false,
-                            "acceptedExample": true,
+                            "acceptedExample": false,
                             "valueMessage": "",
                             "valueType": "Text",
                             "values": [
-                                "Smith, Johnson"
+                                ""
                             ],               
                             "notes": [
                                "Enter patient’s last name. File will fail if field left blank."              
@@ -50,11 +50,11 @@
                             "required": true,
                             "acceptedFormat": false,
                             "acceptedValues": false,
-                            "acceptedExample": true,
+                            "acceptedExample": false,
                             "valueMessage": "",
                             "valueType": "Text",
                             "values": [
-                                "Robert, Don"
+                                ""
                             ],               
                             "notes": [
                                "Enter patient’s last name. File will fail if field left blank."          
@@ -67,11 +67,11 @@
                             "required": false,
                             "acceptedFormat": false,
                             "acceptedValues": false,
-                            "acceptedExample": true,
+                            "acceptedExample": false,
                             "valueMessage": "",
                             "valueType": "String",
                             "values": [
-                                "James, Wayne"
+                                ""
                             ],               
                             "notes": [
                                "Enter patient’s middle name."          
@@ -89,8 +89,8 @@
                             "valueType": "Address, accepted value",
                             "values": [
                                 "ex: 1234 America Ln",
-                                "** Homeless **",
-                                "** Unknown / Not Given **"
+                                "<code>** Homeless **</code>",
+                                "<code>** Unknown / Not Given **</code>"
                             ],               
                             "notes": [
                                "Enter patient's street address. File will fail if field left blank.",
@@ -121,11 +121,11 @@
                             "required": true,
                             "acceptedFormat": false,
                             "acceptedValues": false,
-                            "acceptedExample": true,
+                            "acceptedExample": false,
                             "valueMessage": "",
                             "valueType": "Address",
                             "values": [
-                                "Chicago, Traverse City, Miami"
+                                ""
                             ],               
                             "notes": [
                                "Enter patient’s city. File will fail if field left blank.",
@@ -157,11 +157,11 @@
                             "required": true,
                             "acceptedFormat": false,
                             "acceptedValues": false,
-                            "acceptedExample": true,
+                            "acceptedExample": false,
                             "valueMessage": "",
                             "valueType": "Address",
                             "values": [
-                                "Cook, Orleans, Hennepin"
+                                ""
                             ],               
                             "notes": [
                                "Enter patient’s county/parish name."          
@@ -254,14 +254,14 @@
                             "valueMessage": "",
                             "valueType": "Numeric or text accepted value",
                             "values": [
-                                "1002-5 or American Indian or Alaska Native",
-                                "2028-9 or Asian",
-                                "2054-5 or Black or African American",
-                                "2076-8 or Native Hawaiian or Other Pacific Islander",
-                                "2106-3 or White",
-                                "2131-1 or Other",
-                                "ASKU or Ask, but unknown",
-                                "UNK or Unknown"
+                                "<code>1002-5</code> or <code>American Indian or Alaska Native</code>",
+                                "<code>2028-9</code> or <code>Asian</code>",
+                                "<code>2054-5</code> or <code>Black or African American</code>",
+                                "<code>2076-8</code> or <code>Native Hawaiian or Other Pacific Islander</code>",
+                                "<code>2106-3</code> or <code>White</code>",
+                                "<code>2131-1</code> or <code>Other</code>",
+                                "<code>ASKU</code> or <code>Ask, but unknown</code>",
+                                "<code>UNK</code> or <code>Unknown</code>"
                             ],               
                             "notes": [
                                "File will fail if numeric values or text values are not entered using acceptable values or field is left blank. "              
@@ -278,9 +278,9 @@
                             "valueMessage": "",
                             "valueType": "Numeric or text accepted value",
                             "values": [
-                                "2135-2 OR Hispanic or Latino",
-                                "2186-5 OR Not Hispanic or Latino",
-                                "UNK OR Unknown" 
+                                "<code>2135-2</code> or <code>Hispanic or Latino</code>",
+                                "<code>2186-5</code> or <code>Not Hispanic or Latino</code>",
+                                "<code>UNK</code> or <code>Unknown</code>" 
                             ],               
                             "notes": [
                                "File will fail if numeric values or text values are not entered using accepted values or field is left blank. "              
@@ -525,11 +525,11 @@
                             "required": true,
                             "acceptedFormat": false,
                             "acceptedValues": false,
-                            "acceptedExample": true,
+                            "acceptedExample": false,
                             "valueMessage": "",
                             "valueType": "Text",
                             "values": [
-                                "Nelson, Knowles" 
+                                "" 
                             ],               
                             "notes": [
                                "Enter the last name of the ordering provider. File will fail if field left blank. "              
@@ -542,11 +542,11 @@
                             "required": true,
                             "acceptedFormat": false,
                             "acceptedValues": false,
-                            "acceptedExample": true,
+                            "acceptedExample": false,
                             "valueMessage": "",
                             "valueType": "Text",
                             "values": [
-                                "Samantha, Aaliyah" 
+                                "" 
                             ],               
                             "notes": [
                                "Enter the first name of the ordering provider. File will fail if field left blank."              
@@ -558,12 +558,12 @@
                             "colHeaderReportstream": "",            
                             "required": false,
                             "acceptedFormat": false,
-                            "acceptedValues": true,
+                            "acceptedValues": false,
                             "acceptedExample": false,
                             "valueMessage": "",
                             "valueType": "Text",
                             "values": [
-                                "Ann, Louise" 
+                                "" 
                             ],               
                             "notes": [
                                "Enter the middle name of the ordering provider, if known. This value is optional and can be left blank if no information is provided. "              
@@ -610,11 +610,11 @@
                             "required": true,
                             "acceptedFormat": false,
                             "acceptedValues": false,
-                            "acceptedExample": true,
+                            "acceptedExample": false,
                             "valueMessage": "",
                             "valueType": "Address",
                             "values": [
-                                "Burlington, Tuscon, Little Rock" 
+                                "" 
                             ],               
                             "notes": [
                                "Enter ordering provider’s city. File will fail if field left blank."              
@@ -753,11 +753,11 @@
                             "required": true,
                             "acceptedFormat": false,
                             "acceptedValues": false,
-                            "acceptedExample": true,
+                            "acceptedExample": false,
                             "valueMessage": "",
                             "valueType": "Address",
                             "values": [
-                                "Philadelphia, Baltimore, Newark" 
+                                "" 
                             ],               
                             "notes": [
                                "Enter testing lab’s city. File will fail if field left blank."              
@@ -831,9 +831,9 @@
                             "valueMessage": "",
                             "valueType": "Status",
                             "values": [
-                                "Y or YES",
-                                "N or NO",              
-                                "U or UNK" 
+                                "<code>Y</code> or <code>YES</code>",
+                                "<code>N</code> or <code>NO</code>",              
+                                "<code>U</code> or <code>UNK</code>" 
                             ],               
                             "notes": [
                             "Enter patient’s pregnancy status. Field is not required, but requested for thorough reporting. Enter one of the acceptable values exactly as displayed."              
@@ -850,9 +850,9 @@
                             "valueMessage": "",
                             "valueType": "Status",
                             "values": [
-                                "Y or YES",
-                                "N or NO",              
-                                "U or UNK" 
+                                "<code>Y</code> or <code>YES</code>",
+                                "<code>N</code> or <code>NO</code>",              
+                                "<code>U</code> or <code>UNK</code>" 
                             ],               
                             "notes": [
                             "Enter patient’s employment in healthcare status. Field is not required, but requested for thorough reporting. Enter one of the acceptable values exactly as displayed."              
@@ -869,9 +869,9 @@
                             "valueMessage": "",
                             "valueType": "Status",
                             "values": [
-                                "Y or YES",
-                                "N or NO",              
-                                "U or UNK" 
+                                "<code>Y</code> or <code>YES</code>",
+                                "<code>N</code> or <code>NO</code>",              
+                                "<code>U</code> or <code>UNK</code>" 
                             ],               
                             "notes": [
                             "Enter patient’s symptomatic for disease status. Field is not required, but requested for thorough reporting. Enter one of the acceptable values exactly as displayed."              
@@ -924,9 +924,9 @@
                             "valueMessage": "",
                             "valueType": "Status",
                             "values": [
-                                "Y or YES",
-                                "N or NO",              
-                                "U or UNK" 
+                                "<code>Y</code> or <code>YES</code>",
+                                "<code>N</code> or <code>NO</code>",              
+                                "<code>U</code> or <code>UNK</code>" 
                             ],               
                             "notes": [
                             "Enter patient’s hospitalization status. Field is not required, but requested for thorough reporting. Enter one of the acceptable values exactly as displayed."              
@@ -943,9 +943,9 @@
                             "valueMessage": "",
                             "valueType": "Status",
                             "values": [
-                                "Y or YES",
-                                "N or NO",              
-                                "U or UNK" 
+                                "<code>Y</code>or YES</code>",
+                                "<code>N</code> or NO</code>",              
+                                "<code>U</code> or UNK</code>" 
                             ],               
                             "notes": [
                             "Enter patient’s intensive care unit (ICU) status.  Field is not required, but requested for thorough reporting. Enter one of the acceptable values exactly as displayed."              
@@ -1015,11 +1015,11 @@
                             "required": true,
                             "acceptedFormat": false,
                             "acceptedValues": false,
-                            "acceptedExample": true,
+                            "acceptedExample": false,
                             "valueMessage": "",
                             "valueType": "Address",
                             "values": [
-                                "value" 
+                                "" 
                             ],               
                             "notes": [
                                "Enter ordering facility’s city. Can be left blank if same as testing_lab_city."              
@@ -1036,7 +1036,7 @@
                             "valueMessage": "",
                             "valueType": "Address, two-character state abbreviation",
                             "values": [
-                                "value" 
+                                "Two-character state abbreviation, ex: MD, VT, TX." 
                             ],               
                             "notes": [
                                "Enter ordering facility’s state. Can be left blank if same as testing_lab_state."              
@@ -1052,8 +1052,8 @@
                             "acceptedExample": false,
                             "valueType": "5 or 9 digit zip code",
                             "values": [
-                                "##### ",
-                                "#####-#### "
+                                "12345",
+                                "12345-6789"
                             ],               
                             "notes": [
                                "Enter ordering facility zip code. Can be left blank if same as testing_lab_zip_code. "               
@@ -1069,7 +1069,7 @@
                             "acceptedExample": false,
                             "valueType": "10 digit phone number",
                             "values": [
-                                "###-###-####"
+                                "000-000-0000"
                             ],               
                             "notes": [
                                "Enter ordering facility phone number. Can be left blank if same as testing_lab_phone_number."               

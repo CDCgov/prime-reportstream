@@ -189,6 +189,18 @@ h3 img[src*="svg"] {
   margin-bottom: 0.5rem;
 }
 
+.rs-documentation__values {
+
+  code {
+    display: inline-block;
+    padding-left: units(1);
+    padding-right: units(1);
+    border-radius: 2px;
+    @include u-bg('gray-5');
+    @include u-text('gray-90');
+  }
+}
+
 .rs-blockquote__documentation {
   @include u-bg('base-lightest');
   @include u-padding-x(3);
