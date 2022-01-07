@@ -83,6 +83,7 @@ class AS2TransportIntegrationTests {
             settings.findReceiver("ignore.AS2"),
             metadata.findSchema("covid-19"),
             content = content.toByteArray(),
+            true
         )
     }
 

@@ -85,6 +85,7 @@ class SoapTransportIntegrationTests : TransportIntegrationTests() {
             settings.findReceiver("pa-phd.elr-chester-hl7"),
             metadata.findSchema("covid-19"),
             content = content.toByteArray(),
+            true
         )
     }
 
