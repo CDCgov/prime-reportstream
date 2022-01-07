@@ -1,10 +1,10 @@
 
-### Schema: upload-covid-19
+### Schema: manualupload/csvuploadertest-covid-19
 ### Topic: covid-19
-### Tracking Element: (message_id)
-### Base On: [covid-19](./covid-19.md)
-### Extends: none
-#### Description: Schema for CSV Upload Tool
+### Tracking Element: none
+### Base On: none
+### Extends: [upload-covid-19](./upload-covid-19.md)
+#### Description: CSV Uploader Test
 
 ---
 
@@ -1137,6 +1137,8 @@ Translate multiple inbound Y/N/U AOE values to RS values
 **Type**: TEXT
 
 **PII**: No
+
+**Default Value**: csvuploadertest
 
 **Cardinality**: [1..1]
 

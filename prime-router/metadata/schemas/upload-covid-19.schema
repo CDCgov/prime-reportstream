@@ -6,22 +6,26 @@ trackingElement: message_id
 basedOn: covid-19
 
 elements:
+    - name: sender_id
+      csvFields: [ { name: sender_id } ]
+
+    - name: processing_mode_code
+      csvFields: [ { name: processing_mode_code } ]
+
 
 ############### Set the major ID fields
     - name: patient_id
       csvFields: [{name: patient_id}]
 
     - name: accession_number_temp
+      type: TEXT
       mapper: concat(patient_id, $index, $currentDate)
       delimiter: "+"
-
-    - name: filler_order_id_temp
-      csvFields: [ { name: accession_number } ]
 
     - name: filler_order_id
       csvFields: [ { name: accession_number } ]
       mapperOverridesValue: true
-      mapper: ifNotPresent($mode:lookup, accession_number_temp, filler_order_id_temp)
+      mapper: ifNotPresent($mode:lookup, accession_number_temp, filler_order_id)
 
     - name: placer_order_id
       mapper: use(filler_order_id)
@@ -116,6 +120,7 @@ elements:
       csvFields: [{name: order_test_date, format: "yyyyMMdd"}]
 
     - name: specimen_collection_date_temp
+      type: TEXT
       csvFields: [{name: specimen_collection_date }]
 
     - name: specimen_collection_date_time
@@ -126,8 +131,8 @@ elements:
       mapper: ifNotPresent($mode:lookup, order_test_date, specimen_collection_date_temp)
 
     - name: testing_lab_specimen_received_date_temp
-      nullifyValue: true
-      csvFields: [{name: testing_lab_specimen_received_date, format: "yyyyMMdd"}]
+      type: TEXT
+      csvFields: [{name: testing_lab_specimen_received_date}]
 
     - name: testing_lab_specimen_received_datetime
       cardinality: ONE 
@@ -142,6 +147,7 @@ elements:
       csvFields: [{name: test_result_date, format: "yyyyMMdd"}]
 
     - name: date_result_released_temp
+      type: TEXT
       csvFields: [{name: date_result_released}]
 
     - name: date_result_released
@@ -263,9 +269,11 @@ elements:
 
 ############### Ordering facility info
     - name: ordering_facility_name_temp
+      type: TEXT
       csvFields: [{name: ordering_facility_name}]
 
     - name: ordering_facility_street_temp
+      type: TEXT
       csvFields: [{name: ordering_facility_street}]
 
     - name: ordering_facility_name
