@@ -213,7 +213,6 @@
       customerStatus: active
       schemaName: direct/abbott-covid-19
       format: CSV
-      processingType: async
 
 - name: lifepoint
   description: LifePoint (Ellume data)
@@ -301,6 +300,17 @@
       topic: covid-19
       customerStatus: active
       schemaName: non-standard/all-in-one-health-ca-covid-19
+      format: CSV
+
+- name: manualupload
+  description: Sender for Manual Upload of the RS Standard CSV File
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: manualupload
+      topic: covid-19
+      customerStatus: active
+      schemaName: upload-covid-19
       format: CSV
 
 - name: pmg
@@ -725,31 +735,33 @@
   jurisdiction: COUNTY
   stateCode: OH
   countyName: Clark
-  filters:
-    - topic: "covid-19"
-      jurisdictionalFilter: [ "matches(ordering_facility_state, OH)", "matches(ordering_facility_county, Clark)" ]
   receivers:
     - name: elr-download
       organizationName: oh-ccchd-doh
       topic: covid-19
       customerStatus: testing
-      reverseTheQualityFilter: false
+      jurisdictionalFilter:
+        - matches(ordering_facility_state, OH)
+        - matches(ordering_facility_county, Clark)
       translation:
-        type: "CUSTOM"
-        schemaName: oh/oh-clark-covid-19-csv
-        format: CSV
-        nameFormat: "ohio"
+        type: HL7
+        useBatchHeaders: true
+        suppressQstForAoe: true
+        receivingApplicationName: OHDOH
+        receivingApplicationOID: 2.16.840.1.114222.4.1.3674
+        receivingFacilityName: OHDOH
+        receivingFacilityOID: 2.16.840.1.114222.4.1.3674
+        reportingFacilityName: CDC PRIME
+        reportingFacilityId: 36DSMP9999
+        nameFormat: ohio
+        suppressHl7Fields: OBX-23-11
+        # turn off UNK and ASKU for this field
+        useBlankInsteadOfUnknown: patient_race
       timing:
         operation: MERGE
-        numberPerDay: 1440 # Per day
+        numberPerDay: 1 # Per day
         initialTime: 00:05
         timeZone: EASTERN
-      transport:
-        type: SFTP
-        host: sftp
-        port: 22
-        filePath: ./upload
-        credentialName: DEFAULT-SFTP
 
 - name: nm-doh
   description: New Mexico Department of Health
@@ -2125,9 +2137,16 @@
         filePath: ./upload
         credentialName: DEFAULT-SFTP
 
-
-
-
+- name: historytest
+  description: FOR TESTING SUBMISSION HISTORY
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: historytest
+      topic: covid-19
+      customerStatus: active
+      schemaName: primedatainput/pdi-covid-19
+      format: CSV
 
 # all the rest
 - name: ak-phd
@@ -2381,13 +2400,8 @@
       translation:
         type: HL7
         useBatchHeaders: true
-        suppressAoe: true
         suppressNonNPI: true
-        truncateHDNamespaceIds: true
         truncateHl7Fields: OBX-23-1
-        phoneNumberFormatting: "STANDARD"
-        useOrderingFacilityName: "STANDARD"
-        nameFormat: "STANDARD"
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
@@ -3105,9 +3119,3 @@
         numberPerDay: 1
         initialTime: 09:15 # A little after the 12am EASTERN reports from simple report
         timeZone: EASTERN
-      transport:
-        type: SFTP
-        host: sftp
-        port: 22
-        filePath: ./upload
-        credentialName: DEFAULT-SFTP
