@@ -50,16 +50,7 @@ export const HowItWorks = () => {
 
     return (
         <>
-        <section className="border-bottom border-base-lighter margin-bottom-6">
-            <div className="grid-container">
-                <div className="grid-row grid-gap">
-                    <div className="tablet:grid-col-12 margin-bottom-1">
-                        <h1 className="text-ink">How it works</h1>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <section className="grid-container margin-bottom-5">
+        <section className="grid-container tablet:margin-top-6 margin-bottom-5">
             <div className="grid-row grid-gap">
                 <div className="tablet:grid-col-4 margin-bottom-6">
                     <SideNav items={itemsMenu} />
