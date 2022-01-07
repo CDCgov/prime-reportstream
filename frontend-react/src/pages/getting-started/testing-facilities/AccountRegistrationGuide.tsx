@@ -22,8 +22,8 @@ export const AccountRegistrationGuide = () => {
                         <h4 className="usa-alert__heading">
                             Communications during registration
                         </h4>
-                        <p>ReportStream, as part of the <a href="https://www.cdc.gov/surveillance/projects/pandemic-ready-it-systems.html" className="usa-link" rel="noreferrer noopener">Pandemic-Ready Interoperability Modernization Effort (PRIME)</a>, shares some resources with other projects operated by the CDC.</p>
-                        <p className="usa-alert__text">Some automated communications you receive during the registration process may contain references to <a href="https://simplereport.gov" className="usa-link" rel="noreferrer noopener">SimpleReport</a>, a PRIME project that ReportStream closely collaborates with. If you have questions about any step of the registration process, contact us at reportstream@cdc.gov.</p>
+                        <p>ReportStream, as part of the <a href="https://www.cdc.gov/surveillance/projects/pandemic-ready-it-systems.html" className="usa-link" target="_blank" rel="noreferrer noopener">Pandemic-Ready Interoperability Modernization Effort (PRIME)</a>, shares some resources with other projects operated by the CDC.</p>
+                        <p className="usa-alert__text">Some automated communications you receive during the registration process may contain references to <a href="https://simplereport.gov" className="usa-link" target="_blank" rel="noreferrer noopener">SimpleReport</a>, a PRIME project that ReportStream closely collaborates with. If you have questions about any step of the registration process, contact us at reportstream@cdc.gov.</p>
                     </div>
                 </div>
             </section>
@@ -70,7 +70,6 @@ export const AccountRegistrationGuide = () => {
                             <li>An email will arrive in your inbox from support@simplereport.gov with the subject line "Welcome to SimpleReport." <em>It can take up to 1 business day to receive the activation email.</em> </li>
                             <li>Open the email and click "Activate your account"</li>
                         </ul>
-                        <p>[img]</p>
                     </li>
                     <li className="usa-process-list__item">
                         <h4 className="usa-process-list__heading">Activate your account</h4>
@@ -89,8 +88,6 @@ export const AccountRegistrationGuide = () => {
                         <p><em>If you choose biometric authentication, make sure that you’ll only log in to ReportStream from the device you’re currently using. Biometric authentication may be difficult to use across multiple devices.</em></p>
                                                     
                         <li><strong>iv. Click "Continue" </strong></li>
-                        
-                        <p>[img]</p>
                     </li>
                     <li className="usa-process-list__item">
                         <h4 className="usa-process-list__heading">Close window</h4>
@@ -99,17 +96,15 @@ export const AccountRegistrationGuide = () => {
                             <li>Ignore the "Continue to SimpleReport" button</li>
                             <li>Close out of the window</li>
                         </ul>
-                        <p>[img]</p>
                     </li>
                     <li className="usa-process-list__item">
                         <h4 className="usa-process-list__heading">Log in to ReportStream</h4>
                         
                         <ul>
-                            <li>Go to https://reportstream.cdc.gov/login  </li>
+                            <li>Go to <a href="/login" className="usa-link">https://reportstream.cdc.gov/login</a>  </li>
                             <li>Enter your username and password  </li>
-                            <li>Contact reportstream@cdc.gov if you run into login issues </li>
+                            <li>Contact reportstream@cdc.gov if you run into any login issues </li>
                         </ul>
-                        <p>[img]</p>
                     </li>
                 </ol>
             </section>
