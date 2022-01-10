@@ -1,6 +1,4 @@
 import OrgSettingsBaseResource from "./OrgSettingsBaseResource";
-import {Endpoint} from "@rest-hooks/rest";
-import {schema} from "@rest-hooks/normalizr";
 /*
         "name": "default",
         "organizationName": "simple_report",
@@ -44,14 +42,16 @@ export default class OrgSenderSettingsResource extends OrgSettingsBaseResource {
 
     static delete2() {
         const endpoint = this.endpointMutate();
-        return this.memo('#delete', () => endpoint.extend({
-            fetch(params) {
-                // @ts-ignore
-                return endpoint.fetch.call(this, params).then(() => params);
-            },
+        return this.memo("#delete", () =>
+            endpoint.extend({
+                fetch(params) {
+                    // @ts-ignore
+                    return endpoint.fetch.call(this, params).then(() => params);
+                },
 
-            method: 'DELETE',
-            schema: null
-        }));
+                method: "DELETE",
+                schema: null,
+            })
+        );
     }
 }

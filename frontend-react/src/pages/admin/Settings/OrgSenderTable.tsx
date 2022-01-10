@@ -1,5 +1,5 @@
 import { Button } from "@trussworks/react-uswds";
-import {useController, useResource} from "rest-hooks";
+import { useController, useResource } from "rest-hooks";
 
 import OrgSenderSettingsResource from "../../../resources/OrgSenderSettingsResource";
 
@@ -18,13 +18,20 @@ export function OrgSenderTable(props: OrgSettingsTableProps) {
         setting.topic = "COVID-2023";
         const testData = JSON.stringify(setting);
         console.log(testData);
-        fetch(OrgSenderSettingsResource.update(), { orgname: setting.organizationName, sendername: setting.name }, testData);
+        fetch(
+            OrgSenderSettingsResource.update(),
+            { orgname: setting.organizationName, sendername: setting.name },
+            testData
+        );
     }
     function testDelete(setting: OrgSenderSettingsResource) {
         debugger;
         const testDeleteData = JSON.stringify(setting);
         console.log(testDeleteData);
-        fetch(OrgSenderSettingsResource.delete2(), { orgname: setting.organizationName, sendername: setting.name });
+        fetch(OrgSenderSettingsResource.delete2(), {
+            orgname: setting.organizationName,
+            sendername: setting.name,
+        });
     }
 
     return (
@@ -59,8 +66,20 @@ export function OrgSenderTable(props: OrgSettingsTableProps) {
                                 {JSON.stringify(eachOrgSetting?.meta) || {}}
                             </td>
                             <td>
-                                <Button type="button" name="testUpdate" onClick={ (e) => testUpdate(eachOrgSetting)}>UPDATE!</Button>
-                                <Button type="button" name="testDelete" onClick={ (e) => testDelete(eachOrgSetting)}>delete</Button>
+                                <Button
+                                    type="button"
+                                    name="testUpdate"
+                                    onClick={(e) => testUpdate(eachOrgSetting)}
+                                >
+                                    UPDATE!
+                                </Button>
+                                <Button
+                                    type="button"
+                                    name="testDelete"
+                                    onClick={(e) => testDelete(eachOrgSetting)}
+                                >
+                                    delete
+                                </Button>
                             </td>
                         </tr>
                     ))}
