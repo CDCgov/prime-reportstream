@@ -379,9 +379,6 @@
       display: Varied
       version: 2020-09-01
     - code: 71836000
-      display: Nasal
-      version: 2020-09-01
-    - code: 71836000
       display: Nasopharyngeal swab
       version: 2020-09-01
     - code: 71836000
@@ -413,6 +410,9 @@
       version: 2020-09-01
     - code: 53342003
       display: Mid-turbinate nasal swab
+      version: 2020-09-01
+    - code: 53342003
+      display: Nasal
       version: 2020-09-01
     - code: 53342003
       display: Nasal Swab

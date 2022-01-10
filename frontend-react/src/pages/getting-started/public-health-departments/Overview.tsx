@@ -1,26 +1,26 @@
 import { Helmet } from "react-helmet";
 import DOMPurify from "dompurify";
 
-import site from "../../content/site.json";
+import site from "../../../content/site.json";
 
 /* eslint-disable jsx-a11y/anchor-has-content */
-export const GettingStarted = () => {
+export const PhdOverview = () => {
     return (
         <>
             <Helmet>
                 <title>
-                    Getting started | How it works |{" "}
+                    Public health departments | Getting started |{" "}
                     {process.env.REACT_APP_TITLE}
                 </title>
             </Helmet>
             <section id="anchor-top">
-                <h1 className="margin-top-0">Getting started</h1>
-                <p className="usa-intro">
+                <h2 className="margin-top-0">Overview</h2>
+                <p className="usa-intro text-base">
                     First, we’ll get you connected to our web application, where
                     you can immediately start downloading reporting data that is
                     relevant to your jurisdiction.
                 </p>
-                <p className="usa-intro">
+                <p className="usa-intro text-base">
                     Depending on your needs, we can also create a customized
                     Electronic Lab Reporting (ELR) connection — an online setup
                     used to send digital lab reports to public health
@@ -37,8 +37,10 @@ export const GettingStarted = () => {
                 >
                     Contact us
                 </a>
-                <hr className="margin-y-6" />
-                On this page:
+
+                <p className="margin-top-4">
+                    <strong>On this page:</strong>
+                </p>
                 <ul>
                     <li>
                         <a href="#data-download" className="usa-link">
@@ -60,10 +62,14 @@ export const GettingStarted = () => {
                     </li>
                 </ul>
             </section>
-            <hr className="margin-y-6" />
 
             <section>
-                <h2 id="data-download">Data download</h2>
+                <h3
+                    id="data-download"
+                    className="font-body-lg border-top-1px border-ink margin-top-8 margin-bottom-6 padding-top-1"
+                >
+                    Data download
+                </h3>
                 Our fastest option to get up and running, our web application
                 gives you access to reporting results via manual download from
                 our online portal, in just two steps.
@@ -109,7 +115,12 @@ export const GettingStarted = () => {
                         </p>
                     </li>
                 </ol>
-                <h2 id="elr-connection">ELR connection</h2>
+                <h3
+                    id="elr-connection"
+                    className="font-body-lg border-top-1px border-ink margin-top-8 margin-bottom-6 padding-top-1"
+                >
+                    ELR connection
+                </h3>
                 If you’ve decided you’ll need an ELR connection for your public
                 health data reporting, we’ll get some information from you on
                 your needs and requirements. Connecting with ReportStream is
@@ -161,9 +172,12 @@ export const GettingStarted = () => {
                         </p>
                     </li>
                 </ol>
-                <h2 id="connecting-to-testing-facilities">
+                <h3
+                    id="connecting-to-testing-facilities"
+                    className="font-body-lg border-top-1px border-ink margin-top-8 margin-bottom-6 padding-top-1"
+                >
                     Connecting to testing facilities
-                </h2>
+                </h3>
                 <p>
                     New testing facilities join ReportStream on a regular basis,
                     through our partner SimpleReport, or through other public
@@ -183,7 +197,7 @@ export const GettingStarted = () => {
                 <p>
                     Check out our{" "}
                     <a
-                        href="/how-it-works/elr-checklist"
+                        href="/getting-started/public-health-departments/elr-checklist"
                         className="usa-link margin-right-1 usa-link"
                     >
                         ELR onboarding checklist
@@ -198,8 +212,9 @@ export const GettingStarted = () => {
                     </a>
                     .
                 </p>
-                <hr className="margin-y-6" />
-                <h2>Get started with ReportStream</h2>
+                <h3 className="font-body-lg border-top-1px border-ink margin-top-8 margin-bottom-6 padding-top-1">
+                    Get started with ReportStream
+                </h3>
                 Ready to bring ReportStream to your jurisdiction or just have
                 more questions? Email us and we’ll follow up with next steps.
                 <p>

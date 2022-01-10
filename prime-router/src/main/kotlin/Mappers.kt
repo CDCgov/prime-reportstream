@@ -63,7 +63,7 @@ interface Mapper {
      * @param args from the schema
      * @param values that where fetched based on valueNames
      */
-    fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String?
+    fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): ElementResult
 }
 
 data class ElementAndValue(
@@ -79,15 +79,17 @@ class MiddleInitialMapper : Mapper {
         return args
     }
 
-    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
-        if (values.isEmpty()) {
-            return null
-        } else {
-            if (values.size != 1) error("Found ${values.size} values.  Expecting 1 value. Args: $args, Values: $values")
-            if (values.first().value.isEmpty())
-                return null
-            return values.first().value.substring(0..0).uppercase()
-        }
+    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): ElementResult {
+        return ElementResult(
+            if (values.isEmpty()) {
+                null
+            } else {
+                if (values.size != 1)
+                    error("Found ${values.size} values.  Expecting 1 value. Args: $args, Values: $values")
+                else if (values.first().value.isEmpty()) null
+                else values.first().value.substring(0..0).uppercase()
+            }
+        )
     }
 }
 
@@ -100,21 +102,23 @@ class UseMapper : Mapper {
 
     override fun valueNames(element: Element, args: List<String>) = args
 
-    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
-        return if (values.isEmpty()) {
-            null
-        } else {
-            val (fromElement, fromValue) = values.first()
-            when {
-                element.type == fromElement.type -> fromValue
-                element.type == Element.Type.DATE && fromElement.type == Element.Type.DATETIME -> {
-                    LocalDateTime.parse(fromValue, Element.datetimeFormatter).format(Element.dateFormatter)
+    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): ElementResult {
+        return ElementResult(
+            if (values.isEmpty()) {
+                null
+            } else {
+                val (fromElement, fromValue) = values.first()
+                when {
+                    element.type == fromElement.type -> fromValue
+                    element.type == Element.Type.DATE && fromElement.type == Element.Type.DATETIME -> {
+                        LocalDateTime.parse(fromValue, Element.datetimeFormatter).format(Element.dateFormatter)
+                    }
+                    element.type == Element.Type.TEXT -> fromValue
+                    // TODO: Unchecked conversions should probably be removed, but the PIMA schema relies on this, right now.
+                    else -> fromValue
                 }
-                element.type == Element.Type.TEXT -> fromValue
-                // TODO: Unchecked conversions should probably be removed, but the PIMA schema relies on this, right now.
-                else -> fromValue
             }
-        }
+        )
     }
 }
 
@@ -136,12 +140,15 @@ class ConcatenateMapper : Mapper {
         return args
     }
 
-    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
-        return if (values.isEmpty()) {
-            null
-        } else {
-            values.joinToString(separator = element.delimiter ?: ", ") { it.value } // default ", " separator for now.
-        }
+    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): ElementResult {
+        return ElementResult(
+            if (values.isEmpty()) {
+                null
+            } else {
+                // default ", " separator for now.
+                values.joinToString(separator = element.delimiter ?: ", ") { it.value }
+            }
+        )
     }
 }
 
@@ -157,12 +164,14 @@ class IfPresentMapper : Mapper {
         return args.subList(0, 1) // The element name
     }
 
-    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
-        return if (values.size == 1) {
-            return args[1]
-        } else {
-            null
-        }
+    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): ElementResult {
+        return ElementResult(
+            if (values.size == 1) {
+                args[1]
+            } else {
+                null
+            }
+        )
     }
 }
 
@@ -183,27 +192,26 @@ class IfNotPresentMapper : Mapper {
         return args
     }
 
-    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
+    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): ElementResult {
         val mode = args[0].split(":")[1]
         val modeOperator = if (args[1].contains(":")) args[1].split(":")[1] else args[1]
         val conditionList = args.subList(2, args.size)
         conditionList.forEach {
             val valuesElement = values.find { v -> v.element.name == it }
             if (valuesElement != null && valuesElement.value.isNotBlank()) {
-                return null
+                return ElementResult(null)
             }
         }
-        when (mode) {
-            "literal" -> {
-                return modeOperator
+        return ElementResult(
+            when (mode) {
+                "literal" -> modeOperator
+                "lookup" -> {
+                    val lookupValue = values.find { v -> v.element.name == modeOperator }
+                    lookupValue?.value.toString()
+                }
+                else -> null
             }
-            "lookup" -> {
-                val lookupValue = values.find { v -> v.element.name == modeOperator }
-                return lookupValue?.value.toString()
-            }
-        }
-
-        return null
+        )
     }
 }
 
@@ -226,13 +234,13 @@ class IfNPIMapper : Mapper {
         return args.subList(0, 1) // The element name
     }
 
-    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
-        if (values.size != 1) return null
-        return if (NPIUtilities.isValidNPI(values[0].value)) {
-            args[1]
-        } else {
-            if (args.size == 3) args[2] else null
-        }
+    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): ElementResult {
+        return ElementResult(
+            if (values.size != 1) null
+            else if (NPIUtilities.isValidNPI(values[0].value)) args[1]
+            else if (args.size == 3) args[2]
+            else null
+        )
     }
 }
 
@@ -251,22 +259,24 @@ class LookupMapper : Mapper {
         return args
     }
 
-    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
-        return if (values.size != args.size) {
-            null
-        } else {
-            val lookupTable = element.tableRef
-                ?: error("Schema Error: could not find table ${element.table}")
-            val indexValues = mutableMapOf<String, String>()
-            values.forEach {
-                val indexColumn = it.element.tableColumn
-                    ?: error("Schema Error: no tableColumn for element ${it.element.name}")
-                indexValues.put(indexColumn, it.value)
+    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): ElementResult {
+        return ElementResult(
+            if (values.size != args.size) {
+                null
+            } else {
+                val lookupTable = element.tableRef
+                    ?: error("Schema Error: could not find table ${element.table}")
+                val indexValues = mutableMapOf<String, String>()
+                values.forEach {
+                    val indexColumn = it.element.tableColumn
+                        ?: error("Schema Error: no tableColumn for element ${it.element.name}")
+                    indexValues.put(indexColumn, it.value)
+                }
+                val lookupColumn = element.tableColumn
+                    ?: error("Schema Error: no tableColumn for element ${element.name}")
+                lookupTable.FilterBuilder().equalsIgnoreCase(indexValues).findSingleResult(lookupColumn)
             }
-            val lookupColumn = element.tableColumn
-                ?: error("Schema Error: no tableColumn for element ${element.name}")
-            lookupTable.FilterBuilder().equalsIgnoreCase(indexValues).findSingleResult(lookupColumn)
-        }
+        )
     }
 }
 
@@ -284,24 +294,87 @@ class LookupSenderValuesetsMapper : Mapper {
         return args
     }
 
-    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
-        return if (values.size != args.size) {
-            null
+    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): ElementResult {
+        return ElementResult(
+            if (values.size != args.size) {
+                null
+            } else {
+                val lookupTable = element.tableRef
+                    ?: error("Schema Error: could not find table ${element.table}")
+
+                val lookupColumn = args[0]
+                val lookupValue = values.find { it.element.name == lookupColumn }?.value ?: return ElementResult(null)
+                val questionColumn = args[1]
+                val answer = values.find { it.element.name == questionColumn }?.value ?: return ElementResult(null)
+
+                lookupTable.FilterBuilder()
+                    .equalsIgnoreCase(lookupColumn, lookupValue)
+                    .equalsIgnoreCase("element_name", element.name)
+                    .equalsIgnoreCase("free_text_substring", answer)
+                    .findSingleResult("result")
+            }
+        )
+    }
+}
+
+/**
+ * The NpiLookupMapper is a specific implementation of the lookupMapper and
+ * thus no output values are present in this function. This function requires
+ * the same lookup table configuration as lookupMapper.
+ *
+ * In-schema usage:
+ * ```
+ * type: TABLE
+ * table: my-table
+ * tableColumn: my-column
+ * mapper: npiLookup(provider_id, facility_clia, sender_id)
+ * ```
+ */
+class NpiLookupMapper : Mapper {
+    override val name = "npiLookup"
+
+    override fun valueNames(element: Element, args: List<String>): List<String> {
+        if (args.isEmpty())
+            error("Schema Error: lookup mapper expected one or more args")
+        return args
+    }
+
+    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): ElementResult {
+        /* The table ref and column from the element that called the mapper */
+        val lookupTable = element.tableRef
+            ?: error("Schema Error: could not find table ${element.table}")
+        val lookupColumn = element.tableColumn
+            ?: error("Schema Error: no tableColumn for element ${element.name}")
+
+        /* Column names passed in via schema */
+        /* Because of the specificity here, we need args = provider_id (npi), facility_id, sender_id */
+        val npiColumn = args[0]
+        val facilityCliaColumn = args[1]
+        val senderIdColumn = args[2]
+
+        /* The values provided from the incoming row of data */
+        val npiSent = values.find { it.element.name == npiColumn }?.value ?: ""
+        val facilityCliaSent = values.find { it.element.name == facilityCliaColumn }?.value ?: ""
+        val senderIdSent = values.find { it.element.name == senderIdColumn }?.value ?: ""
+
+        /* The result stored after filtering the table */
+        val filterResult: String?
+
+        if (npiSent.isBlank()) {
+            /* Returns the lookupColumn value based on Facility_CLIA and Sender_ID where Default is true */
+            filterResult = lookupTable.FilterBuilder()
+                .equalsIgnoreCase(facilityCliaColumn, facilityCliaSent)
+                .equalsIgnoreCase(senderIdColumn, senderIdSent)
+                .equalsIgnoreCase("default", "true")
+                .findSingleResult(lookupColumn)
         } else {
-            val lookupTable = element.tableRef
-                ?: error("Schema Error: could not find table ${element.table}")
-
-            val lookupColumn = args[0]
-            val lookupValue = values.find { it.element.name == lookupColumn }?.value ?: return null
-            val questionColumn = args[1]
-            val answer = values.find { it.element.name == questionColumn }?.value ?: return null
-
-            lookupTable.FilterBuilder()
-                .equalsIgnoreCase(lookupColumn, lookupValue)
-                .equalsIgnoreCase("element_name", element.name)
-                .equalsIgnoreCase("free_text_substring", answer)
-                .findSingleResult("result")
+            /* Uses NPI to lookup value */
+            filterResult = lookupTable.FilterBuilder()
+                .equalsIgnoreCase(npiColumn, npiSent)
+                .findSingleResult(lookupColumn)
         }
+
+        return ElementResult(filterResult)
     }
 }
 
@@ -336,7 +409,7 @@ class LIVDLookupMapper : Mapper {
         return listOf(EQUIPMENT_MODEL_NAME, DEVICE_ID, EQUIPMENT_MODEL_ID, TEST_KIT_NAME_ID, TEST_PERFORMED_CODE)
     }
 
-    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
+    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): ElementResult {
         // get the test performed code for additional filtering of the test information in case we are
         // dealing with tests that check for more than one type of disease, for example COVID + influenza
         val testPerformedCode = values.firstOrNull { it.element.name == TEST_PERFORMED_CODE }?.value
@@ -354,9 +427,15 @@ class LIVDLookupMapper : Mapper {
                 EQUIPMENT_MODEL_NAME -> lookupByEquipmentModelName(element, it.value, filters)
                 else -> null
             }
-            if (result != null) return result
+            if (result != null) return ElementResult(result)
         }
-        return null
+        return ElementResult(null).also {
+            // Hide any warnings to fields the user does not send to us
+            if (!element.csvFields.isNullOrEmpty() || !element.hl7Field.isNullOrBlank() ||
+                !element.hl7OutputFields.isNullOrEmpty()
+            )
+                it.warning(InvalidEquipmentMessage.new(element))
+        }
     }
 
     companion object {
@@ -546,25 +625,27 @@ class Obx17Mapper : Mapper {
         return listOf("equipment_model_name")
     }
 
-    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
-        return if (values.isEmpty()) {
-            null
-        } else {
-            val (indexElement, indexValue) = values.first()
-            val lookupTable = element.tableRef
-                ?: error("Schema Error: could not find table '${element.table}'")
-            val indexColumn = indexElement.tableColumn
-                ?: error("Schema Error: no tableColumn for element '${indexElement.name}'")
-            val testKitNameId = lookupTable.FilterBuilder().equalsIgnoreCase(indexColumn, indexValue)
-                .findSingleResult("Testkit Name ID")
-            val testKitNameIdType = lookupTable.FilterBuilder().equalsIgnoreCase(indexColumn, indexValue)
-                .findSingleResult("Testkit Name ID Type")
-            if (testKitNameId != null && testKitNameIdType != null) {
-                "${testKitNameId}_$testKitNameIdType"
-            } else {
+    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): ElementResult {
+        return ElementResult(
+            if (values.isEmpty()) {
                 null
+            } else {
+                val (indexElement, indexValue) = values.first()
+                val lookupTable = element.tableRef
+                    ?: error("Schema Error: could not find table '${element.table}'")
+                val indexColumn = indexElement.tableColumn
+                    ?: error("Schema Error: no tableColumn for element '${indexElement.name}'")
+                val testKitNameId = lookupTable.FilterBuilder().equalsIgnoreCase(indexColumn, indexValue)
+                    .findSingleResult("Testkit Name ID")
+                val testKitNameIdType = lookupTable.FilterBuilder().equalsIgnoreCase(indexColumn, indexValue)
+                    .findSingleResult("Testkit Name ID Type")
+                if (testKitNameId != null && testKitNameIdType != null) {
+                    "${testKitNameId}_$testKitNameIdType"
+                } else {
+                    null
+                }
             }
-        }
+        )
     }
 }
 
@@ -582,19 +663,21 @@ class Obx17TypeMapper : Mapper {
         return listOf("equipment_model_name")
     }
 
-    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
-        return if (values.isEmpty()) {
-            null
-        } else {
-            val (indexElement, indexValue) = values.first()
-            val lookupTable = element.tableRef
-                ?: error("Schema Error: could not find table '${element.table}'")
-            val indexColumn = indexElement.tableColumn
-                ?: error("Schema Error: no tableColumn for element '${indexElement.name}'")
-            if (lookupTable.FilterBuilder().equalsIgnoreCase(indexColumn, indexValue)
-                .findSingleResult("Testkit Name ID") != null
-            ) "99ELR" else null
-        }
+    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): ElementResult {
+        return ElementResult(
+            if (values.isEmpty()) {
+                null
+            } else {
+                val (indexElement, indexValue) = values.first()
+                val lookupTable = element.tableRef
+                    ?: error("Schema Error: could not find table '${element.table}'")
+                val indexColumn = indexElement.tableColumn
+                    ?: error("Schema Error: no tableColumn for element '${indexElement.name}'")
+                if (lookupTable.FilterBuilder().equalsIgnoreCase(indexColumn, indexValue)
+                    .findSingleResult("Testkit Name ID") != null
+                ) "99ELR" else null
+            }
+        )
     }
 }
 
@@ -610,34 +693,36 @@ class Obx8Mapper : Mapper {
         return listOf("test_result")
     }
 
-    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
-        return if (values.isEmpty() || values.size > 1) {
-            null
-        } else {
-            return when (values[0].value) {
-                "260373001" -> "A" // Detected
-                "260415000" -> "N" // Not Detected
-                "720735008" -> "A" // Presumptive positive
-                "42425007" -> "N" // Equivocal
-                "260385009" -> "N" // Negative
-                "10828004" -> "A" // Positive
-                "895231008" -> "N" // Not detected in pooled specimen
-                "462371000124108" -> "A" // Detected in pooled specimen
-                "419984006" -> "N" // Inconclusive
-                "125154007" -> "N" // Specimen unsatisfactory for evaluation
-                "455371000124106" -> "N" // Invalid result
-                "840539006" -> "A" // Disease caused by sever acute respiratory syndrome coronavirus 2 (disorder)
-                "840544004" -> "A" // Disease caused by severe acute respiratory coronavirus 2 (situation)
-                "840546002" -> "A" // Exposure to severe acute respiratory syndrome coronavirus 2 (event)
-                "840533007" -> "A" // Severe acute respiratory syndrome coronavirus 2 (organism)
-                "840536004" -> "A" // Antigen of severe acute respiratory syndrome coronavirus 2 (substance)
-                "840535000" -> "A" // Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
-                "840534001" -> "A" // Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
-                "373121007" -> "N" // Test not done
-                "82334004" -> "N" // Indeterminate
-                else -> null
+    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): ElementResult {
+        return ElementResult(
+            if (values.isEmpty() || values.size > 1) {
+                null
+            } else {
+                when (values[0].value) {
+                    "260373001" -> "A" // Detected
+                    "260415000" -> "N" // Not Detected
+                    "720735008" -> "A" // Presumptive positive
+                    "42425007" -> "N" // Equivocal
+                    "260385009" -> "N" // Negative
+                    "10828004" -> "A" // Positive
+                    "895231008" -> "N" // Not detected in pooled specimen
+                    "462371000124108" -> "A" // Detected in pooled specimen
+                    "419984006" -> "N" // Inconclusive
+                    "125154007" -> "N" // Specimen unsatisfactory for evaluation
+                    "455371000124106" -> "N" // Invalid result
+                    "840539006" -> "A" // Disease caused by sever acute respiratory syndrome coronavirus 2 (disorder)
+                    "840544004" -> "A" // Disease caused by severe acute respiratory coronavirus 2 (situation)
+                    "840546002" -> "A" // Exposure to severe acute respiratory syndrome coronavirus 2 (event)
+                    "840533007" -> "A" // Severe acute respiratory syndrome coronavirus 2 (organism)
+                    "840536004" -> "A" // Antigen of severe acute respiratory syndrome coronavirus 2 (substance)
+                    "840535000" -> "A" // Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
+                    "840534001" -> "A" // Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
+                    "373121007" -> "N" // Test not done
+                    "82334004" -> "N" // Indeterminate
+                    else -> null
+                }
             }
-        }
+        )
     }
 }
 
@@ -648,7 +733,7 @@ class TimestampMapper : Mapper {
         return emptyList()
     }
 
-    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
+    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): ElementResult {
         val tsFormat = if (args.isEmpty()) {
             "yyyyMMddHHmmss.SSSSZZZ"
         } else {
@@ -656,13 +741,15 @@ class TimestampMapper : Mapper {
         }
 
         val ts = OffsetDateTime.now()
-        return try {
-            val formatter = DateTimeFormatter.ofPattern(tsFormat)
-            formatter.format(ts)
-        } catch (_: Exception) {
-            val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
-            formatter.format(ts)
-        }
+        return ElementResult(
+            try {
+                val formatter = DateTimeFormatter.ofPattern(tsFormat)
+                formatter.format(ts)
+            } catch (_: Exception) {
+                val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
+                formatter.format(ts)
+            }
+        )
     }
 }
 
@@ -675,7 +762,7 @@ class DateTimeOffsetMapper : Mapper {
         return listOf(args[0])
     }
 
-    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
+    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): ElementResult {
         fun parseDateTime(value: String): OffsetDateTime {
             return try {
                 OffsetDateTime.parse(value)
@@ -693,22 +780,24 @@ class DateTimeOffsetMapper : Mapper {
                 error("Invalid date: '$value' for element '${element.name}'")
             }
         }
-        return if (values.isEmpty() || values.size > 1 || values[0].value.isBlank()) {
-            null
-        } else {
-            val unit = args[1]
-            val offsetValue = args[2].toLong()
-            val normalDate = parseDateTime(values[0].value)
-            val adjustedDateTime = when (unit.lowercase()) {
-                "second", "seconds" -> normalDate.plusSeconds(offsetValue)
-                "minute", "minutes" -> normalDate.plusMinutes(offsetValue)
-                "day", "days" -> normalDate.plusDays(offsetValue)
-                "month", "months" -> normalDate.plusMonths(offsetValue)
-                "year", "years" -> normalDate.plusYears(offsetValue)
-                else -> error("Unit passed into mapper is not valid: $unit")
+        return ElementResult(
+            if (values.isEmpty() || values.size > 1 || values[0].value.isBlank()) {
+                null
+            } else {
+                val unit = args[1]
+                val offsetValue = args[2].toLong()
+                val normalDate = parseDateTime(values[0].value)
+                val adjustedDateTime = when (unit.lowercase()) {
+                    "second", "seconds" -> normalDate.plusSeconds(offsetValue)
+                    "minute", "minutes" -> normalDate.plusMinutes(offsetValue)
+                    "day", "days" -> normalDate.plusDays(offsetValue)
+                    "month", "months" -> normalDate.plusMonths(offsetValue)
+                    "year", "years" -> normalDate.plusYears(offsetValue)
+                    else -> error("Unit passed into mapper is not valid: $unit")
+                }
+                formatter.format(adjustedDateTime)
             }
-            formatter.format(adjustedDateTime)
-        }
+        )
     }
 }
 
@@ -720,12 +809,12 @@ class CoalesceMapper : Mapper {
         return args
     }
 
-    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
-        if (values.isEmpty()) return null
+    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): ElementResult {
+        if (values.isEmpty()) return ElementResult(null)
         val ev = values.firstOrNull {
             it.value.isNotEmpty()
         }
-        return ev?.value ?: ""
+        return ElementResult(ev?.value ?: "")
     }
 }
 
@@ -736,9 +825,9 @@ class TrimBlanksMapper : Mapper {
         return listOf(args[0])
     }
 
-    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
+    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): ElementResult {
         val ev = values.firstOrNull()?.value ?: ""
-        return ev.trim()
+        return ElementResult(ev.trim())
     }
 }
 
@@ -750,12 +839,12 @@ class StripPhoneFormattingMapper : Mapper {
         return listOf(args[0])
     }
 
-    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
-        if (values.isEmpty()) return null
+    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): ElementResult {
+        if (values.isEmpty()) return ElementResult(null)
         val returnValue = values.firstOrNull()?.value ?: ""
         val nonDigitRegex = "\\D".toRegex()
         val cleanedNumber = nonDigitRegex.replace(returnValue, "")
-        return "$cleanedNumber:1:"
+        return ElementResult("$cleanedNumber:1:")
     }
 }
 
@@ -766,11 +855,11 @@ class StripNonNumericDataMapper : Mapper {
         return args
     }
 
-    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
-        if (values.isEmpty()) return null
+    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): ElementResult {
+        if (values.isEmpty()) return ElementResult(null)
         val returnValue = values.firstOrNull()?.value ?: ""
         val nonDigitRegex = "\\D".toRegex()
-        return nonDigitRegex.replace(returnValue, "").trim()
+        return ElementResult(nonDigitRegex.replace(returnValue, "").trim())
     }
 }
 
@@ -781,11 +870,11 @@ class StripNumericDataMapper : Mapper {
         return args
     }
 
-    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
-        if (values.isEmpty()) return null
+    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): ElementResult {
+        if (values.isEmpty()) return ElementResult(null)
         val returnValue = values.firstOrNull()?.value ?: ""
         val nonDigitRegex = "\\d".toRegex()
-        return nonDigitRegex.replace(returnValue, "").trim()
+        return ElementResult(nonDigitRegex.replace(returnValue, "").trim())
     }
 }
 
@@ -796,8 +885,8 @@ class SplitMapper : Mapper {
         return listOf(args[0])
     }
 
-    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
-        if (values.isEmpty()) return null
+    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): ElementResult {
+        if (values.isEmpty()) return ElementResult(null)
         val value = values.firstOrNull()?.value ?: ""
         val delimiter = if (args.count() > 2) {
             args[2]
@@ -806,7 +895,7 @@ class SplitMapper : Mapper {
         }
         val splitElements = value.split(delimiter)
         val index = args[1].toInt()
-        return splitElements.getOrNull(index)?.trim()
+        return ElementResult(splitElements.getOrNull(index)?.trim())
     }
 }
 
@@ -817,13 +906,13 @@ class SplitByCommaMapper : Mapper {
         return listOf(args[0])
     }
 
-    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
-        if (values.isEmpty()) return null
+    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): ElementResult {
+        if (values.isEmpty()) return ElementResult(null)
         val value = values.firstOrNull()?.value ?: ""
         val delimiter = ","
         val splitElements = value.split(delimiter)
         val index = args[1].toInt()
-        return splitElements.getOrNull(index)?.trim()
+        return ElementResult(splitElements.getOrNull(index)?.trim())
     }
 }
 
@@ -834,16 +923,18 @@ class ZipCodeToCountyMapper : Mapper {
         return args
     }
 
-    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
+    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): ElementResult {
         val table = element.tableRef ?: error("Cannot perform lookup on a null table")
-        val zipCode = values.firstOrNull()?.value ?: return null
+        val zipCode = values.firstOrNull()?.value ?: return ElementResult(null)
         val cleanedZip = if (zipCode.contains("-")) {
             zipCode.split("-").first()
         } else {
             zipCode
         }
-        return table.FilterBuilder().equalsIgnoreCase("zipcode", cleanedZip)
-            .findSingleResult("county")
+        return ElementResult(
+            table.FilterBuilder().equalsIgnoreCase("zipcode", cleanedZip)
+                .findSingleResult("county")
+        )
     }
 }
 
@@ -856,12 +947,12 @@ class HashMapper : Mapper {
 
     override fun valueNames(element: Element, args: List<String>) = args
 
-    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
+    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): ElementResult {
         if (args.isEmpty()) error("Must pass at least one element name to $name")
-        if (values.isEmpty()) return null
+        if (values.isEmpty()) return ElementResult(null)
         val concatenation = values.joinToString("") { it.value }
-        if (concatenation.isEmpty()) return null
-        return digest(concatenation.toByteArray()).lowercase()
+        if (concatenation.isEmpty()) return ElementResult(null)
+        return ElementResult(digest(concatenation.toByteArray()).lowercase())
     }
 
     companion object {
@@ -888,8 +979,8 @@ class NullMapper : Mapper {
         return emptyList()
     }
 
-    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
-        return null
+    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): ElementResult {
+        return ElementResult(null)
     }
 }
 

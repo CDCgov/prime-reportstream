@@ -15,18 +15,14 @@ import { OrganizationDropdown } from "./OrgDropdown";
 import { SignInOrUser } from "./SignInOrUser";
 import { HowItWorksDropdown } from "./HowItWorksDropdown";
 import { AdminDropdownNav } from "./AdminDropdownNav";
+import { GettingStartedDropdown } from "./GettingStartedDropdown";
 
 export const ReportStreamHeader = () => {
     const { authState } = useOktaAuth();
     const [expanded, setExpanded] = useState(false);
     const toggleMobileNav = (): void =>
         setExpanded((prvExpanded) => !prvExpanded);
-    let itemsMenu = [
-        <NavLink to="/about" key="about" id="docs" className="usa-nav__link">
-            <span>About</span>
-        </NavLink>,
-        <HowItWorksDropdown />,
-    ];
+    let itemsMenu = [<GettingStartedDropdown />, <HowItWorksDropdown />];
 
     if (authState !== null && authState.isAuthenticated) {
         if (reportReceiver(authState)) {
