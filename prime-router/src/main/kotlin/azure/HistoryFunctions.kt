@@ -417,44 +417,44 @@ open class BaseHistoryFunction : Logging {
         *   To fix this, below we apply the same verifier, and then we see if oktaOrganizations.contains(orgName) OR
         *   oktaOrganizations.contains("DHPrimeAdmins") before authorizing.
         */
-        if (jwtToken.isNotBlank()) {
+        if (jwtToken.isBlank()) return null
+
+        try {
             /* Trims Bearer off token */
             jwtToken = jwtToken.substring(7)
-            try {
-                /* Build our verifier to spec with what's in OktaAuthentication class */
-                val jwtVerifier = JwtVerifiers.accessTokenVerifierBuilder()
-                    .setIssuer("https://${System.getenv("OKTA_baseUrl")}/oauth2/default")
-                    .build()
-                val jwt = jwtVerifier.decode(jwtToken)
-                    ?: throw Throwable("Error in validation of jwt token")
+            /* Build our verifier to spec with what's in OktaAuthentication class */
+            val jwtVerifier = JwtVerifiers.accessTokenVerifierBuilder()
+                .setIssuer("https://${System.getenv("OKTA_baseUrl")}/oauth2/default")
+                .build()
+            val jwt = jwtVerifier.decode(jwtToken)
+                ?: throw Throwable("Error in validation of jwt token")
 
-                /* Set claims from parsed jwt */
-                userName = jwt.claims["sub"].toString()
-                @Suppress("UNCHECKED_CAST")
-                oktaOrganizations = jwt.claims["organization"] as List<String>
+            /* Set claims from parsed jwt */
+            userName = jwt.claims["sub"].toString()
+            @Suppress("UNCHECKED_CAST")
+            oktaOrganizations = jwt.claims["organization"] as List<String>
 
-                accessOrgName = when {
-                    oktaOrganizations.contains("DHPrimeAdmins") ||
-                        oktaOrganizations.contains(toOktaOrgName(requestOrgName)) -> requestOrgName
-                    else -> null
-                }
-            } catch (ex: Throwable) {
-                context.logger.log(Level.WARNING, "Error in verification of token", ex)
-                return null
+            accessOrgName = when {
+                oktaOrganizations.contains("DHPrimeAdmins") ||
+                    oktaOrganizations.contains(toOktaOrgName(requestOrgName)) -> requestOrgName
+                else -> null
             }
+        } catch (ex: Throwable) {
+            context.logger.log(Level.WARNING, "Error in verification of token", ex)
+            return null
         }
-        if (!userName.isNullOrBlank() && !accessOrgName.isNullOrBlank()) {
-            /*   NOTE: This was noted as taking an Okta org name and converting it, but that was prior to
-             *   the React front-end sending the org in the proper format xx-phd.
-             */
-            val dbOrganization = workflowEngine.settings.findOrganization(accessOrgName)
-            if (dbOrganization != null) {
-                return AuthClaims(userName, dbOrganization)
-            } else {
-                context.logger.info("User $userName failed auth: Organization $accessOrgName is unknown to the system.")
-            }
+
+        if (userName.isBlank() || accessOrgName.isNullOrBlank()) return null
+        /*   NOTE: This was noted as taking an Okta org name and converting it, but that was prior to
+         *   the React front-end sending the org in the proper format xx-phd.
+         */
+        val dbOrganization = workflowEngine.settings.findOrganization(accessOrgName)
+        return if (dbOrganization != null) {
+            AuthClaims(userName, dbOrganization)
+        } else {
+            context.logger.info("User $userName failed auth: Organization $accessOrgName is unknown to the system.")
+            null
         }
-        return null
     }
 
     private fun toOktaOrgName(orgNameHeader: String): String {
