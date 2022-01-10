@@ -380,6 +380,8 @@ The ordering provider’s National Provider Identifier
 
 **ReportStream Internal Name**: ordering_provider_id_temp
 
+**Type**: TEXT
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1053,6 +1055,8 @@ Translate inbound text to outbound SNOMED Codes
 **Name**: Test Code
 
 **ReportStream Internal Name**: test_performed_code_temp
+
+**Type**: TEXT
 
 **PII**: No
 
