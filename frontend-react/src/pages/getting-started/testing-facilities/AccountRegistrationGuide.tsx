@@ -110,7 +110,7 @@ export const AccountRegistrationGuide = () => {
                             <li>
                                 A ReportStream representative will process your
                                 registration request and respond via email with
-                                a link to an online form
+                                a link to an online form. <em>It can take up to 1 business day to receive this email</em>. 
                             </li>
                             <li>
                                 Open the link to view the form and review the
@@ -121,7 +121,7 @@ export const AccountRegistrationGuide = () => {
                                 Fill out and submit the form.{" "}
                                 <em>
                                     You must accept the terms of service and
-                                    submit this form in order to move to step 3.
+                                    submit this form in order to move to step 3. 
                                 </em>
                             </li>
                         </ul>
