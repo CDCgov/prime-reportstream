@@ -403,10 +403,10 @@ open class BaseHistoryFunction : Logging {
      * returns null if not authorized, otherwise returns a set of claims.
      */
     fun checkAuthenticated(request: HttpRequestMessage<String?>, context: ExecutionContext): AuthClaims? {
-        var userName: String? = null /* Format: email */
+        val userName: String? /* Format: email */
         val requestOrgName = request.headers["organization"] ?: "" /* Format: xx-phd */
-        var oktaOrganizations: List<String?>
-        var accessOrgName: String? = null /* Format: xx-phd */
+        val oktaOrganizations: List<String?>
+        val accessOrgName: String? /* Format: xx-phd */
         var jwtToken = request.headers["authorization"] ?: "" /* Format: Bearer ... */
 
         /* INFO:
