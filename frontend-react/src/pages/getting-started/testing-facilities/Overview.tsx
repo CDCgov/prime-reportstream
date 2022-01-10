@@ -102,10 +102,11 @@ export const FacilitiesOverview = () => {
                             </span>
                         </h4>
                         <p>
-                            Use a simple online tool to submit a CSV file formatted
-                            with a standard schema. Receive real-time validation
-                            and feedback on file format and field values. This feature is currently being piloted
-                            in select jurisdictions with organizations or
+                            Use a simple online tool to submit a CSV file
+                            formatted with a standard schema. Receive real-time
+                            validation and feedback on file format and field
+                            values. This feature is currently being piloted in
+                            select jurisdictions with organizations or
                             facilities that have existing Electronic Medical
                             Record (EMR) systems.
                         </p>

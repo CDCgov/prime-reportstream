@@ -56,15 +56,18 @@ export const AccountRegistrationGuide = () => {
                             </a>
                             , a PRIME project that ReportStream closely
                             collaborates with. If you have questions about any
-                            step of the registration process, contact us at <a
-                                    href={
-                                        "mailto:" +
-                                        DOMPurify.sanitize(site.orgs.RS.email) +
-                                        "?subject=Getting started with ReportStream"
-                                    }
-                                    className="usa-link"
-                                >reportstream@cdc.gov
-                                </a>.
+                            step of the registration process, contact us at{" "}
+                            <a
+                                href={
+                                    "mailto:" +
+                                    DOMPurify.sanitize(site.orgs.RS.email) +
+                                    "?subject=Getting started with ReportStream"
+                                }
+                                className="usa-link"
+                            >
+                                reportstream@cdc.gov
+                            </a>
+                            .
                         </p>
                     </div>
                 </div>
@@ -80,16 +83,19 @@ export const AccountRegistrationGuide = () => {
                             Contact ReportStream
                         </h4>
                         <p className="margin-top-05">
-                            Send an email to <a
-                                    href={
-                                        "mailto:" +
-                                        DOMPurify.sanitize(site.orgs.RS.email) +
-                                        "?subject=Register a new account: organization or testing facility"
-                                    }
-                                    className="usa-link"
-                                >reportstream@cdc.gov
-                                </a>. Use the
-                            example text below as a template for your message:
+                            Send an email to{" "}
+                            <a
+                                href={
+                                    "mailto:" +
+                                    DOMPurify.sanitize(site.orgs.RS.email) +
+                                    "?subject=Register a new account: organization or testing facility"
+                                }
+                                className="usa-link"
+                            >
+                                reportstream@cdc.gov
+                            </a>
+                            . Use the example text below as a template for your
+                            message:
                         </p>
                         <blockquote className="rs-blockquote__documentation">
                             <p>
@@ -260,15 +266,18 @@ export const AccountRegistrationGuide = () => {
                             </li>
                             <li>Enter your username and password </li>
                             <li>
-                                Contact <a
+                                Contact{" "}
+                                <a
                                     href={
                                         "mailto:" +
                                         DOMPurify.sanitize(site.orgs.RS.email) +
                                         "?subject=Getting started with ReportStream"
                                     }
                                     className="usa-link"
-                                >reportstream@cdc.gov
-                                </a> if you run into any login issues{" "}
+                                >
+                                    reportstream@cdc.gov
+                                </a>{" "}
+                                if you run into any login issues{" "}
                             </li>
                         </ul>
                     </li>
