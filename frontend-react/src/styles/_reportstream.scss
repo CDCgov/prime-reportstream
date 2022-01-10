@@ -199,6 +199,16 @@ h3 img[src*="svg"] {
     @include u-bg('gray-5');
     @include u-text('gray-90');
   }
+
+  .value-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    li {
+      margin: 0 0 units(1) 0;
+    }
+  }
 }
 
 .rs-blockquote__documentation {
