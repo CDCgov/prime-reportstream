@@ -46,7 +46,7 @@ export const GettingStartedPublicHealthDepartments = () => {
                 <div className="grid-container">
                     <div className="grid-row grid-gap">
                         <div className="tablet:grid-col-12 margin-bottom-05">
-                            <h1 className=" text-ink">
+                            <h1 className=" text-ink mobile:padding-top-0">
                                 <span className="text-base">
                                     Getting started
                                 </span>

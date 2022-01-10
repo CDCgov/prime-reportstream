@@ -1,16 +1,16 @@
 
-### Schema: ipatientcare/reddyfmc-la-covid-19
+### Schema: manualupload/csvuploadertest-covid-19
 ### Topic: covid-19
 ### Tracking Element: none
 ### Base On: none
-### Extends: [ipatientCare/ipatientcare-covid-19](./ipatientCare-ipatientcare-covid-19.md)
-#### Description: iPatientCare CSV lab report schema, Reddy Family Medical Clinic, LA
+### Extends: [upload-covid-19](./upload-covid-19.md)
+#### Description: CSV Uploader Test
 
 ---
 
-**Name**: Comments
+**Name**: comment
 
-**ReportStream Internal Name**: Comments_Ignore
+**ReportStream Internal Name**: comment
 
 **Type**: TEXT
 
@@ -18,173 +18,9 @@
 
 **Cardinality**: [0..1]
 
-**Documentation**:
-
-This field is ignored.
-
 ---
 
-**Name**: LOINC
-
-**ReportStream Internal Name**: LOINC_Ignore
-
-**Type**: TEXT
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-This field is ignored.
-
----
-
-**Name**: Lab name
-
-**ReportStream Internal Name**: Lab name_Ignore
-
-**Type**: TEXT
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-This field is ignored.
-
----
-
-**Name**: PhyAddress1
-
-**ReportStream Internal Name**: PhyAddress1_Ignore
-
-**Type**: TEXT
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-This field is ignored.
-
----
-
-**Name**: PhysCity
-
-**ReportStream Internal Name**: PhysCity_Ignore
-
-**Type**: TEXT
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-This field is ignored.
-
----
-
-**Name**: PhysPhone
-
-**ReportStream Internal Name**: PhysPhone_Ignore
-
-**Type**: TEXT
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-This field is ignored.
-
----
-
-**Name**: PhysST
-
-**ReportStream Internal Name**: PhysST_Ignore
-
-**Type**: TEXT
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-This field is ignored.
-
----
-
-**Name**: PhysZip
-
-**ReportStream Internal Name**: PhysZip_Ignore
-
-**Type**: TEXT
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-This field is ignored.
-
----
-
-**Name**: Reference Range
-
-**ReportStream Internal Name**: Reference Range_Ignore
-
-**Type**: TEXT
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-This field is ignored.
-
----
-
-**Name**: ResultUnits
-
-**ReportStream Internal Name**: ResultUnits_Ignore
-
-**Type**: TEXT
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-This field is ignored.
-
----
-
-**Name**: SSN
-
-**ReportStream Internal Name**: SSN_Ignore
-
-**Type**: TEXT
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-This field is ignored.
-
----
-
-**Name**: ResultDate
+**Name**: date_result_released
 
 **ReportStream Internal Name**: date_result_released
 
@@ -192,17 +28,84 @@ This field is ignored.
 
 **PII**: No
 
-**Format**: M/d/yyyy
+**Format**: yyyyMMdd
 
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-ResultDate populates multiple fields.  This instance populates date_result_released.
+**Cardinality**: [1..1]
 
 ---
 
-**Name**: CLIA No
+**Name**: date_result_released
+
+**ReportStream Internal Name**: date_result_released_temp
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: employed_in_healthcare
+
+**ReportStream Internal Name**: employed_in_healthcare
+
+**Type**: CODE
+
+**PII**: No
+
+**Format**: use value found in the Display column
+
+**Default Value**: 
+
+**LOINC Code**: 95418-0
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+Y|YES
+Y|Y
+N|NO
+N|N
+UNK|Unknown
+UNK|U
+UNK|UNK
+UNK|N/A
+UNK|NA
+UNK|NR
+UNK|NP
+UNK|maybe
+
+**Documentation**:
+
+Translate multiple inbound Y/N/U AOE values to RS values
+
+---
+
+**Name**: equipment_model_name
+
+**ReportStream Internal Name**: equipment_model_name
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [1..1]
+
+
+**Reference URL**:
+[https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
+
+**Table**: LIVD-SARS-CoV-2-2021-09-29
+
+**Table Column**: Model
+
+---
+
+**Name**: testing_lab_clia
 
 **ReportStream Internal Name**: filler_clia
 
@@ -214,28 +117,7 @@ ResultDate populates multiple fields.  This instance populates date_result_relea
 
 ---
 
-**Name**: Facility
-
-**ReportStream Internal Name**: filler_name
-
-**Type**: TEXT
-
-**PII**: No
-
-**HL7 Fields**
-
-- [OBR-3-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.3.2)
-- [ORC-3-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.3.2)
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-Facility populates multiple fields.  This instance populates filler_name.
-
----
-
-**Name**: Accession_no
+**Name**: accession_number
 
 **ReportStream Internal Name**: filler_order_id
 
@@ -257,23 +139,142 @@ Accension number
 
 ---
 
-**Name**: Accession_no
+**Name**: first_test
 
-**ReportStream Internal Name**: message_id
+**ReportStream Internal Name**: first_test
 
-**Type**: ID
+**Type**: CODE
 
 **PII**: No
 
-**Cardinality**: [1..1]
+**Format**: use value found in the Display column
+
+**Default Value**: 
+
+**LOINC Code**: 95417-2
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+Y|YES
+Y|Y
+N|NO
+N|N
+UNK|Unknown
+UNK|U
+UNK|UNK
+UNK|N/A
+UNK|NA
+UNK|NR
+UNK|NP
+UNK|maybe
 
 **Documentation**:
 
-unique id to track the usage of the message
+Translate multiple inbound Y/N/U AOE values to RS values
 
 ---
 
-**Name**: DateColl
+**Name**: hospitalized
+
+**ReportStream Internal Name**: hospitalized
+
+**Type**: CODE
+
+**PII**: No
+
+**Format**: use value found in the Display column
+
+**Default Value**: 
+
+**LOINC Code**: 77974-4
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+Y|YES
+Y|Y
+N|NO
+N|N
+UNK|Unknown
+UNK|U
+UNK|UNK
+UNK|N/A
+UNK|NA
+UNK|NR
+UNK|NP
+UNK|maybe
+
+**Documentation**:
+
+Translate multiple inbound Y/N/U AOE values to RS values
+
+---
+
+**Name**: icu
+
+**ReportStream Internal Name**: icu
+
+**Type**: CODE
+
+**PII**: No
+
+**Format**: use value found in the Display column
+
+**Default Value**: 
+
+**LOINC Code**: 95420-6
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+Y|YES
+Y|Y
+N|NO
+N|N
+UNK|Unknown
+UNK|U
+UNK|UNK
+UNK|N/A
+UNK|NA
+UNK|NR
+UNK|NP
+UNK|maybe
+
+**Documentation**:
+
+Translate multiple inbound Y/N/U AOE values to RS values
+
+---
+
+**Name**: illness_onset_date
+
+**ReportStream Internal Name**: illness_onset_date
+
+**Type**: DATE
+
+**PII**: No
+
+**Format**: yyyyMMdd
+
+**Default Value**: 
+
+**LOINC Code**: 65222-2
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: order_test_date
 
 **ReportStream Internal Name**: order_test_date
 
@@ -281,37 +282,13 @@ unique id to track the usage of the message
 
 **PII**: No
 
-**Format**: M/d/yyyy
+**Format**: yyyyMMdd
 
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-DateColl populates multiple fields.  This instance populates order_test_date.
+**Cardinality**: [1..1]
 
 ---
 
-**Name**: TestName
-
-**ReportStream Internal Name**: ordered_test_name
-
-**Type**: TABLE
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-**Table**: LIVD-SARS-CoV-2-2021-09-29
-
-**Table Column**: Test Ordered LOINC Long Name
-
-**Documentation**:
-
-TestName populates multiple fields.  This instance populates ordered_test_name.
-
----
-
-**Name**: Fac_City
+**Name**: ordering_facility_city
 
 **ReportStream Internal Name**: ordering_facility_city
 
@@ -319,15 +296,15 @@ TestName populates multiple fields.  This instance populates ordered_test_name.
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
-Fac_City populates multiple fields.  This instance populates ordering_facility_city.
+The city of the facility which the test was ordered from
 
 ---
 
-**Name**: Facility
+**Name**: ordering_facility_name
 
 **ReportStream Internal Name**: ordering_facility_name
 
@@ -335,15 +312,27 @@ Fac_City populates multiple fields.  This instance populates ordering_facility_c
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
-Facility populates multiple fields.  This instance populates ordering_facility_name.
+The name of the facility which the test was ordered from
 
 ---
 
-**Name**: Fac_Phone
+**Name**: ordering_facility_name
+
+**ReportStream Internal Name**: ordering_facility_name_temp
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: ordering_facility_phone_number
 
 **ReportStream Internal Name**: ordering_facility_phone_number
 
@@ -351,15 +340,15 @@ Facility populates multiple fields.  This instance populates ordering_facility_n
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
-Fac_Phone populates multiple fields.  This instance populates ordering_facility_phone_number.
+The phone number of the facility which the test was ordered from
 
 ---
 
-**Name**: Fac_State
+**Name**: ordering_facility_state
 
 **ReportStream Internal Name**: ordering_facility_state
 
@@ -375,11 +364,11 @@ Fac_Phone populates multiple fields.  This instance populates ordering_facility_
 
 **Documentation**:
 
-Fac_State populates multiple fields.  This instance populates ordering_facility_state.
+The state of the facility which the test was ordered from
 
 ---
 
-**Name**: Fac_Addr1
+**Name**: ordering_facility_street
 
 **ReportStream Internal Name**: ordering_facility_street
 
@@ -387,15 +376,43 @@ Fac_State populates multiple fields.  This instance populates ordering_facility_
 
 **PII**: No
 
+**Cardinality**: [1..1]
+
+**Documentation**:
+
+The address of the facility which the test was ordered from
+
+---
+
+**Name**: ordering_facility_street2
+
+**ReportStream Internal Name**: ordering_facility_street2
+
+**Type**: STREET_OR_BLANK
+
+**PII**: No
+
 **Cardinality**: [0..1]
 
 **Documentation**:
 
-Fac_Addr1 populates multiple fields.  This instance populates ordering_facility_street.
+The secondary address of the facility which the test was ordered from
 
 ---
 
-**Name**: Fac_Zip
+**Name**: ordering_facility_street
+
+**ReportStream Internal Name**: ordering_facility_street_temp
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: ordering_facility_zip_code
 
 **ReportStream Internal Name**: ordering_facility_zip_code
 
@@ -403,15 +420,15 @@ Fac_Addr1 populates multiple fields.  This instance populates ordering_facility_
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
-Fac_Zip populates multiple fields.  This instance populates ordering_facility_zip_code.
+The zip code of the facility which the test was ordered from
 
 ---
 
-**Name**: Fac_City
+**Name**: ordering_provider_city
 
 **ReportStream Internal Name**: ordering_provider_city
 
@@ -419,102 +436,95 @@ Fac_Zip populates multiple fields.  This instance populates ordering_facility_zi
 
 **PII**: Yes
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
-Fac_City populates multiple fields.  This instance populates ordering_provider_city.
+The city of the provider
 
 ---
 
-**Name**: PhyName
+**Name**: ordering_provider_first_name
 
 **ReportStream Internal Name**: ordering_provider_first_name
 
-**Type**: CODE
+**Type**: PERSON_NAME
 
 **PII**: No
 
-**Format**: use value found in the Display column
+**HL7 Fields**
 
-**Cardinality**: [0..1]
+- [OBR-16-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.16.3)
+- [ORC-12-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.12.3)
 
-**Alt Value Sets**
+**Cardinality**: [1..1]
 
-Code | Display
----- | -------
-Holly|Holly Delatte NP
-De Anna|De Anna Dark FNP-C
-DeAnna|DeAnna Dark FNP-C
-Nagaratna|Nagaratna Reddy MD.
-Cassandra|Cassandra Hill-Selders NP
-Crystal|Crystal Rivet NP
-Darrell|Darrell Davis NP
-Wanda|Wanda Jefferson Wilson FNP-C
-Wanda|Wanda Jefferson FNP-C
-Raveen|Raveen Coon FNP-C
+**Documentation**:
+
+The first name of the provider who ordered the test
 
 ---
 
-**Name**: PhyName
+**Name**: ordering_provider_id
 
 **ReportStream Internal Name**: ordering_provider_id
 
-**Type**: CODE
+**Type**: ID_NPI
 
 **PII**: No
 
-**Format**: use value found in the Display column
+**HL7 Fields**
 
-**Cardinality**: [0..1]
+- [OBR-16-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.16.1)
+- [ORC-12-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.12.1)
 
-**Alt Value Sets**
+**Cardinality**: [1..1]
 
-Code | Display
----- | -------
-1275978678|Holly Delatte NP
-1205306602|De Anna Dark FNP-C
-1205306602|DeAnna Dark FNP-C
-1770580508|Nagaratna Reddy MD.
-1912515651|Cassandra Hill-Selders NP
-1699120493|Crystal Rivet NP
-1821458373|Darrell Davis NP
-1518378009|Wanda Jefferson Wilson FNP-C
-1518378009|Wanda Jefferson FNP-C
-1215690334|Raveen Coon FNP-C
+**Documentation**:
+
+The ordering provider’s National Provider Identifier
 
 ---
 
-**Name**: PhyName
+**Name**: ordering_provider_last_name
 
 **ReportStream Internal Name**: ordering_provider_last_name
 
-**Type**: CODE
+**Type**: PERSON_NAME
 
 **PII**: No
 
-**Format**: use value found in the Display column
+**HL7 Fields**
 
-**Cardinality**: [0..1]
+- [OBR-16-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.16.2)
+- [ORC-12-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.12.2)
 
-**Alt Value Sets**
+**Cardinality**: [1..1]
 
-Code | Display
----- | -------
-Delatte NP|Holly Delatte NP
-Dark FNP-C|De Anna Dark FNP-C
-Dark FNP-C|DeAnna Dark FNP-C
-Reddy MD|Nagaratna Reddy MD.
-Hill-Selders NP|Cassandra Hill-Selders NP
-Rivet NP|Crystal Rivet NP
-Davis NP|Darrell Davis NP
-Jefferson Wilson FNP-C|Wanda Jefferson Wilson FNP-C
-Jefferson FNP-C|Wanda Jefferson FNP-C
-Coon FNP-C|Raveen Coon FNP-C
+**Documentation**:
+
+The last name of provider who ordered the test
 
 ---
 
-**Name**: Fac_Phone
+**Name**: ordering_provider_middle_name
+
+**ReportStream Internal Name**: ordering_provider_middle_name
+
+**Type**: PERSON_NAME
+
+**PII**: No
+
+**HL7 Fields**
+
+- [OBR-16-4](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.16.4)
+- [ORC-12-4](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.12.4)
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: ordering_provider_phone_number
 
 **ReportStream Internal Name**: ordering_provider_phone_number
 
@@ -527,15 +537,15 @@ Coon FNP-C|Raveen Coon FNP-C
 - [OBR-17](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.17)
 - [ORC-14](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.14)
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
-Fac_Phone populates multiple fields.  This instance populates ordering_provider_phone_number.
+The phone number of the provider
 
 ---
 
-**Name**: Fac_State
+**Name**: ordering_provider_state
 
 **ReportStream Internal Name**: ordering_provider_state
 
@@ -543,7 +553,7 @@ Fac_Phone populates multiple fields.  This instance populates ordering_provider_
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Table**: fips-county
 
@@ -551,11 +561,11 @@ Fac_Phone populates multiple fields.  This instance populates ordering_provider_
 
 **Documentation**:
 
-Fac_State populates multiple fields.  This instance populates ordering_provider_state.
+The state of the provider
 
 ---
 
-**Name**: Fac_Addr1
+**Name**: ordering_provider_street
 
 **ReportStream Internal Name**: ordering_provider_street
 
@@ -563,15 +573,31 @@ Fac_State populates multiple fields.  This instance populates ordering_provider_
 
 **PII**: Yes
 
+**Cardinality**: [1..1]
+
+**Documentation**:
+
+The street address of the provider
+
+---
+
+**Name**: ordering_provider_street2
+
+**ReportStream Internal Name**: ordering_provider_street2
+
+**Type**: STREET_OR_BLANK
+
+**PII**: Yes
+
 **Cardinality**: [0..1]
 
 **Documentation**:
 
-Fac_Addr1 populates multiple fields.  This instance populates ordering_provider_street.
+The street second address of the provider
 
 ---
 
-**Name**: Fac_Zip
+**Name**: ordering_provider_zip_code
 
 **ReportStream Internal Name**: ordering_provider_zip_code
 
@@ -579,15 +605,15 @@ Fac_Addr1 populates multiple fields.  This instance populates ordering_provider_
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
-Fac_Zip populates multiple fields.  This instance populates ordering_provider_zip_code.
+The zip code of the provider
 
 ---
 
-**Name**: Patient City
+**Name**: patient_city
 
 **ReportStream Internal Name**: patient_city
 
@@ -595,7 +621,7 @@ Fac_Zip populates multiple fields.  This instance populates ordering_provider_zi
 
 **PII**: Yes
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -603,7 +629,23 @@ The patient's city
 
 ---
 
-**Name**: Birth Date
+**Name**: patient_county
+
+**ReportStream Internal Name**: patient_county
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Table**: fips-county
+
+**Table Column**: County
+
+---
+
+**Name**: patient_dob
 
 **ReportStream Internal Name**: patient_dob
 
@@ -611,9 +653,9 @@ The patient's city
 
 **PII**: Yes
 
-**Format**: M/d/yyyy H:nn
+**Format**: yyyyMMdd
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -624,7 +666,7 @@ Other states may choose to define their own formats.
 
 ---
 
-**Name**: Ethnicity
+**Name**: patient_ethnicity
 
 **ReportStream Internal Name**: patient_ethnicity
 
@@ -634,9 +676,7 @@ Other states may choose to define their own formats.
 
 **Format**: use value found in the Display column
 
-**Default Value**: U
-
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Value Sets**
 
@@ -667,7 +707,7 @@ Translate multiple inbound ethnicity values to RS / OMB values
 
 ---
 
-**Name**: First Name
+**Name**: patient_first_name
 
 **ReportStream Internal Name**: patient_first_name
 
@@ -675,7 +715,7 @@ Translate multiple inbound ethnicity values to RS / OMB values
 
 **PII**: Yes
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -683,7 +723,7 @@ The patient's first name
 
 ---
 
-**Name**: Sex
+**Name**: patient_gender
 
 **ReportStream Internal Name**: patient_gender
 
@@ -693,9 +733,7 @@ The patient's first name
 
 **Format**: use value found in the Display column
 
-**Default Value**: U
-
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Value Sets**
 
@@ -720,7 +758,7 @@ Translate multiple inbound Gender values to RS values
 
 ---
 
-**Name**: MRN
+**Name**: patient_id
 
 **ReportStream Internal Name**: patient_id
 
@@ -738,7 +776,7 @@ the patient ID from the testing lab, the oder placer, the ordering provider, or 
 
 ---
 
-**Name**: Facility
+**Name**: ordering_facility_name
 
 **ReportStream Internal Name**: patient_id_assigner
 
@@ -755,11 +793,11 @@ the patient ID from the testing lab, the oder placer, the ordering provider, or 
 
 **Documentation**:
 
-Facility populates multiple fields.  This instance populates patient_id_assigner.
+The name of the assigner of the patient_id field. Typically we use the name of the ordering facility
 
 ---
 
-**Name**: Last Name
+**Name**: patient_last_name
 
 **ReportStream Internal Name**: patient_last_name
 
@@ -775,7 +813,7 @@ The patient's last name
 
 ---
 
-**Name**: Middle Name
+**Name**: patient_middle_name
 
 **ReportStream Internal Name**: patient_middle_name
 
@@ -787,7 +825,7 @@ The patient's last name
 
 ---
 
-**Name**: Patient phone
+**Name**: patient_phone_number
 
 **ReportStream Internal Name**: patient_phone_number
 
@@ -803,7 +841,7 @@ The patient's phone number with area code
 
 ---
 
-**Name**: RACE
+**Name**: patient_race
 
 **ReportStream Internal Name**: patient_race
 
@@ -813,9 +851,7 @@ The patient's phone number with area code
 
 **Format**: use value found in the Display column
 
-**Default Value**: UNK
-
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Value Sets**
 
@@ -865,7 +901,7 @@ Translate multiple inbound Race values to RS / OMB values
 
 ---
 
-**Name**: Patient State
+**Name**: patient_state
 
 **ReportStream Internal Name**: patient_state
 
@@ -885,7 +921,7 @@ The patient's state
 
 ---
 
-**Name**: Patient Address
+**Name**: patient_street
 
 **ReportStream Internal Name**: patient_street
 
@@ -893,7 +929,7 @@ The patient's state
 
 **PII**: Yes
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -901,7 +937,23 @@ The patient's street address
 
 ---
 
-**Name**: Patient ZipCode
+**Name**: patient_street2
+
+**ReportStream Internal Name**: patient_street2
+
+**Type**: STREET_OR_BLANK
+
+**PII**: Yes
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The patient's second address line
+
+---
+
+**Name**: patient_zip_code
 
 **ReportStream Internal Name**: patient_zip_code
 
@@ -909,7 +961,7 @@ The patient's street address
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -917,28 +969,7 @@ The patient's zip code
 
 ---
 
-**Name**: Accession_no
-
-**ReportStream Internal Name**: placer_order_id
-
-**Type**: ID
-
-**PII**: No
-
-**HL7 Fields**
-
-- [OBR-2-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.2.1)
-- [ORC-2-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.2.1)
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The ID number of the lab order from the placer
-
----
-
-**Name**: Pregnant
+**Name**: pregnant
 
 **ReportStream Internal Name**: pregnant
 
@@ -1012,7 +1043,7 @@ P, D, or T for Production, Debugging, or Training
 
 ---
 
-**Name**: CLIA No
+**Name**: testing_lab_clia
 
 **ReportStream Internal Name**: reporting_facility_clia
 
@@ -1036,7 +1067,7 @@ The reporting facility's CLIA
 
 ---
 
-**Name**: Facility
+**Name**: testing_lab_name
 
 **ReportStream Internal Name**: reporting_facility_name
 
@@ -1056,7 +1087,46 @@ The reporting facility's CLIA
 
 **Documentation**:
 
-Facility populates multiple fields.  This instance populates reporting_facility_name.
+The reporting facility's name
+
+---
+
+**Name**: resident_congregate_setting
+
+**ReportStream Internal Name**: resident_congregate_setting
+
+**Type**: CODE
+
+**PII**: No
+
+**Format**: use value found in the Display column
+
+**Default Value**: 
+
+**LOINC Code**: 95421-4
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+Y|YES
+Y|Y
+N|NO
+N|N
+UNK|Unknown
+UNK|U
+UNK|UNK
+UNK|N/A
+UNK|NA
+UNK|NR
+UNK|NP
+UNK|maybe
+
+**Documentation**:
+
+Translate multiple inbound Y/N/U AOE values to RS values
 
 ---
 
@@ -1068,7 +1138,7 @@ Facility populates multiple fields.  This instance populates reporting_facility_
 
 **PII**: No
 
-**Default Value**: reddyfmc
+**Default Value**: csvuploadertest
 
 **Cardinality**: [1..1]
 
@@ -1078,7 +1148,19 @@ ID name of org that is sending this data to ReportStream.  Suitable for provenan
 
 ---
 
-**Name**: DateColl
+**Name**: specimen_collection_date
+
+**ReportStream Internal Name**: specimen_collection_date_temp
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: specimen_collection_date
 
 **ReportStream Internal Name**: specimen_collection_date_time
 
@@ -1086,7 +1168,7 @@ ID name of org that is sending this data to ReportStream.  Suitable for provenan
 
 **PII**: No
 
-**Format**: M/d/yyyy
+**Format**: yyyyMMdd
 
 **HL7 Fields**
 
@@ -1095,15 +1177,16 @@ ID name of org that is sending this data to ReportStream.  Suitable for provenan
 - [OBX-14](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.14)
 - [SPM-17-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.17.1)
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
-DateColl populates multiple fields.  This instance populates specimen_collection_date_time.
+The date which the specimen was collected. The default format is yyyyMMddHHmmsszz
+
 
 ---
 
-**Name**: Specimen_Type
+**Name**: specimen_type
 
 **ReportStream Internal Name**: specimen_source_site_code
 
@@ -1113,9 +1196,7 @@ DateColl populates multiple fields.  This instance populates specimen_collection
 
 **Format**: use value found in the Display column
 
-**Default Value**: 53342003
-
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Value Sets**
 
@@ -1166,7 +1247,7 @@ Translate inbound text to outbound SNOMED Codes
 
 ---
 
-**Name**: Specimen_Type
+**Name**: specimen_type
 
 **ReportStream Internal Name**: specimen_type
 
@@ -1176,9 +1257,7 @@ Translate inbound text to outbound SNOMED Codes
 
 **Format**: use value found in the Display column
 
-**Default Value**: 445297001
-
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Value Sets**
 
@@ -1236,9 +1315,9 @@ Translate inbound text to outbound SNOMED Codes
 
 ---
 
-**Name**: TestName
+**Name**: symptomatic_for_disease
 
-**ReportStream Internal Name**: test_kit_name_id
+**ReportStream Internal Name**: symptomatic_for_disease
 
 **Type**: CODE
 
@@ -1246,38 +1325,56 @@ Translate inbound text to outbound SNOMED Codes
 
 **Format**: use value found in the Display column
 
+**Default Value**: 
+
+**LOINC Code**: 95419-8
+
 **Cardinality**: [0..1]
 
-**Alt Value Sets**
+**Value Sets**
 
 Code | Display
 ---- | -------
-10811877011290|SARS-CoV-2 (COVID-19) Ag
-10811877011290|     SARS-CoV-2 (COVID-19) Ag
-
----
-
-**Name**: TestName
-
-**ReportStream Internal Name**: test_performed_name
-
-**Type**: TABLE
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-**Table**: LIVD-SARS-CoV-2-2021-09-29
-
-**Table Column**: Test Performed LOINC Long Name
+Y|YES
+Y|Y
+N|NO
+N|N
+UNK|Unknown
+UNK|U
+UNK|UNK
+UNK|N/A
+UNK|NA
+UNK|NR
+UNK|NP
+UNK|maybe
 
 **Documentation**:
 
-TestName populates multiple fields.  This instance populates test_performed_name.
+Translate multiple inbound Y/N/U AOE values to RS values
 
 ---
 
-**Name**: LabResult
+**Name**: test_performed_code
+
+**ReportStream Internal Name**: test_performed_code
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [1..1]
+
+**Table**: LIVD-SARS-CoV-2-2021-09-29
+
+**Table Column**: Test Performed LOINC Code
+
+**Documentation**:
+
+The LOINC code of the test performed. This is a standardized coded value describing the test
+
+---
+
+**Name**: test_result
 
 **ReportStream Internal Name**: test_result
 
@@ -1287,7 +1384,7 @@ TestName populates multiple fields.  This instance populates test_performed_name
 
 **Format**: use value found in the Display column
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Value Sets**
 
@@ -1352,7 +1449,7 @@ Translate multiple inbound Test Result values to RS values
 
 ---
 
-**Name**: ResultDate
+**Name**: test_result_date
 
 **ReportStream Internal Name**: test_result_date
 
@@ -1360,17 +1457,13 @@ Translate multiple inbound Test Result values to RS values
 
 **PII**: No
 
-**Format**: M/d/yyyy
+**Format**: yyyyMMdd
 
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-ResultDate populates multiple fields.  This instance populates test_result_date.
+**Cardinality**: [1..1]
 
 ---
 
-**Name**: Fac_City
+**Name**: testing_lab_city
 
 **ReportStream Internal Name**: testing_lab_city
 
@@ -1382,11 +1475,11 @@ ResultDate populates multiple fields.  This instance populates test_result_date.
 
 **Documentation**:
 
-Fac_City populates multiple fields.  This instance populates testing_lab_city.
+The city of the testing lab
 
 ---
 
-**Name**: CLIA No
+**Name**: testing_lab_clia
 
 **ReportStream Internal Name**: testing_lab_clia
 
@@ -1414,7 +1507,7 @@ An example of the ID is 03D2159846
 
 ---
 
-**Name**: CLIA No
+**Name**: testing_lab_clia
 
 **ReportStream Internal Name**: testing_lab_id
 
@@ -1430,7 +1523,7 @@ Typically this will be the same as the `testing_lab_clia`, but potentially could
 
 ---
 
-**Name**: Facility
+**Name**: testing_lab_name
 
 **ReportStream Internal Name**: testing_lab_name
 
@@ -1448,15 +1541,15 @@ Typically this will be the same as the `testing_lab_clia`, but potentially could
 - [ORC-3-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.3.2)
 - [PID-3-4-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4.1)
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
-Facility populates multiple fields.  This instance populates testing_lab_name.
+The name of the laboratory which performed the test, can be the same as the sending facility name
 
 ---
 
-**Name**: Fac_Phone
+**Name**: testing_lab_phone_number
 
 **ReportStream Internal Name**: testing_lab_phone_number
 
@@ -1468,11 +1561,23 @@ Facility populates multiple fields.  This instance populates testing_lab_name.
 
 **Documentation**:
 
-Fac_Phone populates multiple fields.  This instance populates testing_lab_phone_number.
+The phone number of the testing lab
 
 ---
 
-**Name**: DateColl
+**Name**: testing_lab_specimen_received_date
+
+**ReportStream Internal Name**: testing_lab_specimen_received_date_temp
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: testing_lab_specimen_received_date
 
 **ReportStream Internal Name**: testing_lab_specimen_received_datetime
 
@@ -1480,17 +1585,21 @@ Fac_Phone populates multiple fields.  This instance populates testing_lab_phone_
 
 **PII**: No
 
-**Format**: M/d/yyyy
+**Format**: yyyyMMdd
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
-DateColl populates multiple fields.  This instance populates testing_lab_specimen_received_datetime.
+The received date time for the specimen. This field is very important to many states for their HL7,
+but for most of our senders, the received date time is the same as the collected date time. Unfortunately,
+setting them to the same time breaks many validation rules. Most ELR systems apparently look for them to
+be offset, so this field takes the `specimen_collection_date_time` field and offsets it by a small amount.
+
 
 ---
 
-**Name**: Fac_State
+**Name**: testing_lab_state
 
 **ReportStream Internal Name**: testing_lab_state
 
@@ -1506,11 +1615,11 @@ DateColl populates multiple fields.  This instance populates testing_lab_specime
 
 **Documentation**:
 
-Fac_State populates multiple fields.  This instance populates testing_lab_state.
+The state for the testing lab
 
 ---
 
-**Name**: Fac_Addr1
+**Name**: testing_lab_street
 
 **ReportStream Internal Name**: testing_lab_street
 
@@ -1518,15 +1627,31 @@ Fac_State populates multiple fields.  This instance populates testing_lab_state.
 
 **PII**: No
 
+**Cardinality**: [1..1]
+
+**Documentation**:
+
+The street address for the testing lab
+
+---
+
+**Name**: testing_lab_street2
+
+**ReportStream Internal Name**: testing_lab_street2
+
+**Type**: STREET_OR_BLANK
+
+**PII**: No
+
 **Cardinality**: [0..1]
 
 **Documentation**:
 
-Fac_Addr1 populates multiple fields.  This instance populates testing_lab_street.
+Street 2 field for the testing lab
 
 ---
 
-**Name**: Fac_Zip
+**Name**: testing_lab_zip_code
 
 **ReportStream Internal Name**: testing_lab_zip_code
 
@@ -1538,33 +1663,25 @@ Fac_Addr1 populates multiple fields.  This instance populates testing_lab_street
 
 **Documentation**:
 
-Fac_Zip populates multiple fields.  This instance populates testing_lab_zip_code.
+The postal code for the testing lab
 
 ---
 
-**Name**: equipment_model_name
+**Name**: accession_number_temp
 
-**ReportStream Internal Name**: equipment_model_name
+**ReportStream Internal Name**: accession_number_temp
 
-**Type**: TABLE
+**Type**: TEXT
 
 **PII**: No
 
 **Cardinality**: [0..1]
 
-
-**Reference URL**:
-[https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
-
-**Table**: LIVD-SARS-CoV-2-2021-04-28
-
-**Table Column**: Model
-
 ---
 
-**Name**: hospitalized
+**Name**: comment_source
 
-**ReportStream Internal Name**: hospitalized
+**ReportStream Internal Name**: comment_source
 
 **Type**: CODE
 
@@ -1572,59 +1689,37 @@ Fac_Zip populates multiple fields.  This instance populates testing_lab_zip_code
 
 **Format**: use value found in the Code column
 
-**Default Value**: N
-
-**LOINC Code**: 77974-4
-
 **Cardinality**: [0..1]
 
 **Value Sets**
 
 Code | Display
 ---- | -------
-Y|Yes
-N|No
-UNK|Unknown
-
-**Documentation**:
-
-iPatientCare is an ambulatory EMR, so this field is defaulted to 'N'.
+L|Ancillary (filler) department is source of comment
+O|Other system is source of comment
+P|Orderer (placer) is source of comment
 
 ---
 
-**Name**: icu
+**Name**: message_id
 
-**ReportStream Internal Name**: icu
+**ReportStream Internal Name**: message_id
 
-**Type**: CODE
+**Type**: ID
 
 **PII**: No
 
-**Format**: use value found in the Code column
-
-**Default Value**: N
-
-**LOINC Code**: 95420-6
-
-**Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display
----- | -------
-Y|Yes
-N|No
-UNK|Unknown
+**Cardinality**: [1..1]
 
 **Documentation**:
 
-iPatientCare is an ambulatory EMR, so this field is defaulted to 'N'.
+unique id to track the usage of the message
 
 ---
 
-**Name**: patient_county
+**Name**: patient_county_code
 
-**ReportStream Internal Name**: patient_county
+**ReportStream Internal Name**: patient_county_code
 
 **Type**: TABLE
 
@@ -1632,9 +1727,13 @@ iPatientCare is an ambulatory EMR, so this field is defaulted to 'N'.
 
 **Cardinality**: [0..1]
 
-**Table**: zip-code-data
+**Table**: fips-county
 
-**Table Column**: county
+**Table Column**: FIPS
+
+**Documentation**:
+
+The FIPS code for the patient's county
 
 ---
 
@@ -1652,17 +1751,24 @@ iPatientCare is an ambulatory EMR, so this field is defaulted to 'N'.
 
 ---
 
-**Name**: result_format
+**Name**: placer_order_id
 
-**ReportStream Internal Name**: result_format
+**ReportStream Internal Name**: placer_order_id
 
-**Type**: TEXT
+**Type**: ID
 
 **PII**: No
 
-**Default Value**: CE
+**HL7 Fields**
+
+- [OBR-2-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.2.1)
+- [ORC-2-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.2.1)
 
 **Cardinality**: [0..1]
+
+**Documentation**:
+
+The ID number of the lab order from the placer
 
 ---
 
@@ -1708,5 +1814,21 @@ Z|No record of this patient
 The test result status, which is different from the test result itself. Per the valueset, this indicates if
 the test result is in some intermediate status, is a correction, or is the final result.
 
+
+---
+
+**Name**: testing_lab_specimen_id
+
+**ReportStream Internal Name**: testing_lab_specimen_id
+
+**Type**: ID
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The specimen-id from the testing lab
 
 ---

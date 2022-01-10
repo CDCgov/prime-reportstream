@@ -9,7 +9,6 @@ import gov.cdc.prime.router.AltValueNotDefinedException
 import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Metadata
-import gov.cdc.prime.router.MissingFieldMessage
 import gov.cdc.prime.router.REPORT_MAX_ERRORS
 import gov.cdc.prime.router.REPORT_MAX_ITEMS
 import gov.cdc.prime.router.REPORT_MAX_ITEM_COLUMNS
@@ -109,7 +108,7 @@ class CsvSerializer(val metadata: Metadata) : Logging {
                     ResultDetail.report(
                         InvalidReportMessage.new(
                             "There's an issue parsing your file on row: ${ex.rowNum}. " +
-                                "For additional help, contact the ReportStream team at $REPORSTREAM_SUPPORT_EMAIL."
+                                "For additional help, contact the ReportStream team at $REPORTSTREAM_SUPPORT_EMAIL."
                         )
                     )
                 )
@@ -118,7 +117,7 @@ class CsvSerializer(val metadata: Metadata) : Logging {
                     ResultDetail.report(
                         InvalidReportMessage.new(
                             "There's an issue parsing your file (Error: ${ex.message}) " +
-                                "For additional help, contact the ReportStream team at $REPORSTREAM_SUPPORT_EMAIL."
+                                "For additional help, contact the ReportStream team at $REPORTSTREAM_SUPPORT_EMAIL."
                         )
                     )
                 )
@@ -141,7 +140,7 @@ class CsvSerializer(val metadata: Metadata) : Logging {
                 ResultDetail.report(
                     InvalidReportMessage.new(
                         "Report file failed: Number of errors exceeded threshold. Contact the ReportStream team at " +
-                            "$REPORSTREAM_SUPPORT_EMAIL for assistance."
+                            "$REPORTSTREAM_SUPPORT_EMAIL for assistance."
                     )
                 )
             )
@@ -157,8 +156,9 @@ class CsvSerializer(val metadata: Metadata) : Logging {
             var trackingId = if (trackingColumn != null) result.row[trackingColumn] else ""
             if (trackingId.isEmpty())
                 trackingId = "row$index"
-            errors.addAll(result.errors.map { ResultDetail.item(trackingId, it, index) })
-            warnings.addAll(result.warnings.map { ResultDetail.item(trackingId, it, index) })
+            // Add only add unique errors and warnings
+            errors.addAll(result.errors.map { ResultDetail.item(trackingId, it, index) }.distinct())
+            warnings.addAll(result.warnings.map { ResultDetail.item(trackingId, it, index) }.distinct())
             if (result.errors.isEmpty()) {
                 result.row
             } else {
@@ -170,7 +170,7 @@ class CsvSerializer(val metadata: Metadata) : Logging {
                 ResultDetail.report(
                     InvalidReportMessage.new(
                         "Report file failed: Number of errors exceeded threshold. Contact the ReportStream team at " +
-                            "$REPORSTREAM_SUPPORT_EMAIL for assistance."
+                            "$REPORTSTREAM_SUPPORT_EMAIL for assistance."
                     )
                 )
             )
@@ -338,6 +338,7 @@ class CsvSerializer(val metadata: Metadata) : Logging {
      * Also, format values into the normalized format for the type
      */
     private fun mapRow(schema: Schema, csvMapping: CsvMapping, inputRow: Map<String, String>, index: Int): RowResult {
+        // TODO Refactor this code to make the error and cardinality logic more readable and remove the use of failureValue
         val lookupValues = mutableMapOf<String, String>()
         val errors = mutableListOf<ResponseMessage>()
         val warnings = mutableListOf<ResponseMessage>()
@@ -378,24 +379,26 @@ class CsvSerializer(val metadata: Metadata) : Logging {
 
         // Now process the data through mappers and default values
         schema.elements.forEach { element ->
-            lookupValues[element.name] = element.processValue(lookupValues, schema, csvMapping.defaultOverrides, index)
+            // Do not process any field that had an error
+            if (lookupValues[element.name] != failureValue) {
+                val mappedResult =
+                    element.processValue(lookupValues, schema, csvMapping.defaultOverrides, index)
+                lookupValues[element.name] = mappedResult.value ?: ""
+                errors.addAll(mappedResult.errors)
+                warnings.addAll(mappedResult.warnings)
+            } else {
+                lookupValues[element.name] = ""
+            }
         }
 
         // Output with value
         val outputRow = schema.elements.map { element ->
-            var value = lookupValues[element.name] ?: error("Internal Error: Second pass should have all values")
-            if (value.isBlank() && !element.isOptional) {
-                errors += MissingFieldMessage.new(element.fieldMapping)
-            }
-            if (value == failureValue) {
-                value = ""
-            }
-            value
+            lookupValues[element.name] ?: error("Internal Error: Second pass should have all values")
         }
         return RowResult(outputRow, errors, warnings)
     }
 
     companion object {
-        const val REPORSTREAM_SUPPORT_EMAIL = "reportstream@cdc.gov"
+        const val REPORTSTREAM_SUPPORT_EMAIL = "reportstream@cdc.gov"
     }
 }

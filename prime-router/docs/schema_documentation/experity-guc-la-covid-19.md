@@ -2125,7 +2125,6 @@ Code | Display
 ---- | -------
 71836000|Nasopharyngeal structure (body structure)
 71836000|Varied
-71836000|Nasal
 71836000|Nasopharyngeal swab
 71836000|258500001
 71836000|Nasopharyngeal aspirate
@@ -2137,6 +2136,7 @@ Code | Display
 53342003|Swab of internal nose
 53342003|Anterior nares swab
 53342003|Mid-turbinate nasal swab
+53342003|Nasal
 53342003|Nasal Swab
 53342003|445297001
 53342003|697989009
