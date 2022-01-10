@@ -1239,7 +1239,7 @@ class Hl7Serializer(
                 truncationLimit
             }
         } else {
-            null
+            truncationLimit
         }
     }
 
@@ -1254,7 +1254,6 @@ class Hl7Serializer(
         terser: Terser
     ): String {
         val maxLength = getMaxLength(hl7Field, value, hl7Config, terser)
-        println("This is the length: " + maxLength)
         return value.trimAndTruncate(maxLength)
     }
 
