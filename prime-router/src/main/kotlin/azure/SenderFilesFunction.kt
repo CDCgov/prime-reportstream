@@ -55,7 +55,7 @@ class SenderFilesFunction(
                     Status.NOT_FOUND -> HttpUtilities.notFoundResponse(request, result.payload)
                 }
             } catch (e: Exception) {
-                logger.error("Internal error: $e")
+                logger.error("Internal error for ${it.userName} request: $e")
                 HttpUtilities.internalErrorResponse(request)
             }
         }
