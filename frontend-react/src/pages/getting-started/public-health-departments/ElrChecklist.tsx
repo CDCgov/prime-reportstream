@@ -46,9 +46,9 @@ export const ELRChecklist = () => {
                     Contact us
                 </a>
 
-                <hr className="margin-y-6" />
+                
 
-                <p className="margin-top-4">
+                <p className="margin-top-6">
                     <strong>On this page:</strong>
                 </p>
 
@@ -120,7 +120,6 @@ export const ELRChecklist = () => {
                     with your IT and data specialists.
                 </p>
             </section>
-            <hr className="margin-y-6" />
             <section>
                 <h3 id="elr-contact-information">ELR contact information</h3>
 
@@ -135,7 +134,7 @@ export const ELRChecklist = () => {
                     <li>Phone number</li>
                 </ul>
 
-                <h3 id="alternate-contact-information">
+                <h3 id="alternate-contact-information" className="font-body-lg border-top-1px border-ink margin-top-8 margin-bottom-6 padding-top-1">
                     Program or admin staff contact information
                 </h3>
 
@@ -145,7 +144,7 @@ export const ELRChecklist = () => {
                     <li>Phone number</li>
                 </ul>
 
-                <h3 id="data-requirements-and-preferences">
+                <h3 id="data-requirements-and-preferences" className="font-body-lg border-top-1px border-ink margin-top-8 margin-bottom-6 padding-top-1">
                     Data requirements and preferences{" "}
                 </h3>
 
@@ -225,7 +224,7 @@ export const ELRChecklist = () => {
                     </li>
                 </ul>
 
-                <h3 id="testing-facility-registration">
+                <h3 id="testing-facility-registration" className="font-body-lg border-top-1px border-ink margin-top-8 margin-bottom-6 padding-top-1">
                     Testing facility registration{" "}
                 </h3>
 
@@ -259,7 +258,7 @@ export const ELRChecklist = () => {
                     </li>
                 </ul>
 
-                <h3 id="hl7-data-fields">
+                <h3 id="hl7-data-fields" className="font-body-lg border-top-1px border-ink margin-top-8 margin-bottom-6 padding-top-1">
                     HL7 data fields (Not applicable if using an alternate data
                     format){" "}
                 </h3>
@@ -277,7 +276,7 @@ export const ELRChecklist = () => {
                     </li>
                 </ul>
 
-                <h3 id="sftp-details">SFTP details </h3>
+                <h3 id="sftp-details" className="font-body-lg border-top-1px border-ink margin-top-8 margin-bottom-6 padding-top-1">SFTP details </h3>
 
                 <ul>
                     <li>Staging host name (DNS name)</li>
@@ -286,7 +285,7 @@ export const ELRChecklist = () => {
                     <li>Prod host folder (folder name) </li>
                 </ul>
 
-                <h3 id="document-uploads">Document uploads </h3>
+                <h3 id="document-uploads" className="font-body-lg border-top-1px border-ink margin-top-8 margin-bottom-6 padding-top-1">Document uploads </h3>
 
                 <ul>
                     <li>
@@ -303,9 +302,9 @@ export const ELRChecklist = () => {
                     </li>
                 </ul>
             </section>
-            <hr className="margin-y-6" />
+            
             <section>
-                <h2>Ready for ReportStream?</h2>
+                <h3 className="font-body-lg border-top-1px border-ink margin-top-8 margin-bottom-6 padding-top-1">Ready for ReportStream?</h3>
 
                 <p>
                     Once you have all the information you need, submit our{" "}
