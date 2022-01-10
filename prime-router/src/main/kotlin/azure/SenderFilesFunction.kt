@@ -44,11 +44,15 @@ class SenderFilesFunction(
                 } catch (e: IllegalArgumentException) {
                     return@checkAccess HttpUtilities.badRequestResponse(request, e.message ?: "")
                 }
-                val (status, payload) = processRequest(parameters)
-                when (status) {
-                    Status.OK -> HttpUtilities.okResponse(request, payload)
-                    Status.BAD_REQUEST -> HttpUtilities.badRequestResponse(request, payload)
-                    Status.NOT_FOUND -> HttpUtilities.notFoundResponse(request, payload)
+                val result = processRequest(parameters)
+                when (result.status) {
+                    Status.OK -> {
+                        val auditMsg = fromAuditMessage(it.userName, result.reportsIds)
+                        logger.info(auditMsg)
+                        HttpUtilities.okResponse(request, result.payload)
+                    }
+                    Status.BAD_REQUEST -> HttpUtilities.badRequestResponse(request, result.payload)
+                    Status.NOT_FOUND -> HttpUtilities.notFoundResponse(request, result.payload)
                 }
             } catch (e: Exception) {
                 logger.error("Internal error: $e")
@@ -57,23 +61,20 @@ class SenderFilesFunction(
         }
     }
 
+    /**
+     * Encapsulates the possible query parameters
+     */
     data class FunctionParameters(
         val reportId: ReportId?,
         val reportFileName: String?,
         val onlyDestinationReportItems: Boolean,
         val offset: Int,
-        val limit: Int,
+        val limit: Int
     )
 
-    enum class Status {
-        OK,
-        NOT_FOUND,
-        BAD_REQUEST,
-    }
-
     /**
-     * Look at the request and extract parameters. Check for valid values.
-     * Defaults are assumed if not specified.
+     * Look at the queryParameters of the request and extract function parameters.
+     * Check for valid values with defaults are assumed if not specified.
      * Throws [IllegalArgumentException] if any parameter is invalid.
      */
     internal fun checkParameters(request: HttpRequestMessage<String?>): FunctionParameters {
@@ -111,32 +112,43 @@ class SenderFilesFunction(
         )
     }
 
+    enum class Status {
+        OK,
+        NOT_FOUND,
+        BAD_REQUEST,
+    }
+
+    data class ProcessResult(
+        val status: Status,
+        val payload: String,
+        val reportsIds: List<String>? = null
+    )
+
     /**
      * Main logic of the Azure function. Useful for unit testing.
      */
-    internal fun processRequest(parameters: FunctionParameters): Pair<Status, String> {
+    internal fun processRequest(parameters: FunctionParameters): ProcessResult {
         val receiverReportFile = try {
             findOutputFile(parameters)
         } catch (e: Exception) {
-            return Pair(Status.NOT_FOUND, "Receiver report file not found: ${e.message}")
+            return ProcessResult(Status.NOT_FOUND, "Receiver report file not found: ${e.message}")
         }
 
         val senderItems = findSenderItems(receiverReportFile.reportId, parameters.offset, parameters.limit)
         if (senderItems.isEmpty()) {
-            return Pair(Status.NOT_FOUND, "No sender reports found for report: ${parameters.reportId}")
+            return ProcessResult(Status.NOT_FOUND, "No sender reports found for report: ${parameters.reportId}")
         }
 
         val senderReports = downloadSenderReports(senderItems, parameters)
         val emptyReport = senderReports.find { it.content.isEmpty() }
         if (emptyReport != null) {
-            return Pair(
+            return ProcessResult(
                 Status.NOT_FOUND,
                 "Could not fetch the specified file, may have been deleted: ${emptyReport.origin?.bodyUrl}"
             )
         }
-
         val payload = senderReports.serialize()
-        return Pair(Status.OK, payload)
+        return ProcessResult(Status.OK, payload, senderReports.map { it.reportId })
     }
 
     private fun findOutputFile(parameters: FunctionParameters): ReportFile {
@@ -210,6 +222,14 @@ class SenderFilesFunction(
      */
     private fun List<ReportFileMessage>.serialize(): String {
         return mapper.writeValueAsString(this)
+    }
+
+    /**
+     * Create a log message for the purpose of recording who downloaded what.
+     * [reportIds] tell the what. [userName] tells the who.
+     */
+    private fun fromAuditMessage(userName: String, reportIds: List<String>?): String {
+        return "User $userName has downloaded these reports through the sender-file API: $reportIds"
     }
 
     companion object {
