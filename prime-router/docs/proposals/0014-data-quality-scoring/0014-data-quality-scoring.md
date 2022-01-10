@@ -171,12 +171,20 @@ made available. These tests would include:
 | inLIVD() | value in LIVD table |
 | isNPI() | value is valid NPI |
 
-Each test would contribute to towards the total data quality score. The score value would be maintained as a
-property of the Report. The value could be analyzed individually and over time.
+Each test would contribute to towards the total data quality score. A new function would calculate the score and 
+a new field would be needed in the COVID Result Metadata table to hold the total score. At that point the score
+could be used in further analysis over time.
+
+### Implementation Risks
+
+If the scoring logic changes at any point after the initial production launch, all prior scores would need to
+be accounted for. Since a few of the fields (Patient name, dob, phone) are PII and cannot be retained long term, the 
+score cannot be recalculated following the logic changes. So if a change is required, then all past scores should be 
+voided. A potential solution is to replace the score with a general value such as a grade (A, B, C, etc). 
 
 ## Future Consideration
 
 Data analysis is not a new concept and is important to all data systems. As such, there are data analysis 
-frameworks and libraries that could be investigated and implemented to build a richer data analysis environment.
+frameworks and libraries that could be investigated and implemented to build a richer data-analytics environment.
 If we begin with the implementation described above I think the users may quickly see the potential. Do we need
 to re-invent the wheel? Or is there an opportunity to use existing tools?
