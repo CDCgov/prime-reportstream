@@ -12,8 +12,14 @@ class CsvUtilities {
          * Indices are zero based with the row after the header being the first.
          */
         fun cut(csvTable: String, indices: List<Int>): String {
+            if (csvTable.isBlank()) {
+                if (indices.isEmpty()) return "" else error("Blank content with non-empty indices")
+            }
             val inputRows = stringToTable(csvTable)
-            val outputRows = listOf(inputRows[0]) + indices.map { inputRows[it + 1] }
+            val outputRows = listOf(inputRows[0]) + indices.map {
+                if (it >= inputRows.size + 1) error("Index $it is out of bounds")
+                inputRows[it + 1]
+            }
             return tableToString(outputRows)
         }
 

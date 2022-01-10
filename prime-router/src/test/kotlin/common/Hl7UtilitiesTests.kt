@@ -1,7 +1,9 @@
 package gov.cdc.prime.router.common
 
 import assertk.assertThat
+import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
+import assertk.assertions.isFailure
 import kotlin.test.Test
 
 class Hl7UtilitiesTests {
@@ -50,6 +52,8 @@ class Hl7UtilitiesTests {
             FTS|1
             """.trimIndent().replace('\n', '\r')
         )
+        assertThat { Hl7Utilities.cut(input, listOf(3)) }.isFailure()
+        assertThat(Hl7Utilities.cut("", listOf())).isEmpty()
     }
 
     @Test
@@ -74,5 +78,8 @@ class Hl7UtilitiesTests {
             SPM|1|435180&Any facility USA&29D0071355&CLIA^172016&Any facility USA&29D0071355&CLIA||871810001^Mid-turbinate nasal swab^SCT^^^^2.67|||EPLA^Environmental, Plate^HL70048|71836000^Nasopharyngeal structure (body structure)^SCT^^^^2020-09-01||2a5f3x|Q|||m21ehnz8d|||202201011137-0800|202112280640-0800
             """.trimIndent().replace('\n', '\r')
         )
+
+        assertThat { Hl7Utilities.cut(input, listOf(1)) }.isFailure()
+        assertThat(Hl7Utilities.cut("", listOf())).isEmpty()
     }
 }

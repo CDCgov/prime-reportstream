@@ -7,6 +7,9 @@ class Hl7Utilities {
          * [indices] is zero-based. The resultant HL7 will have the batch FHS heading and trailing segments.
          */
         fun cut(blob: String, indices: List<Int>): String {
+            if (blob.isBlank()) {
+                if (indices.isEmpty()) return "" else error("Blank content with non-empty indices")
+            }
             return when {
                 blob.startsWith("MSH") -> cutSingle(blob, indices)
                 blob.startsWith("FHS") -> cutMultiple(blob, indices)
@@ -15,7 +18,7 @@ class Hl7Utilities {
         }
 
         private fun cutSingle(blob: String, indicies: List<Int>): String {
-            if (indicies.size != 1 && indicies[0] != 0) error("Mismatch of sender format")
+            if (indicies.size != 1 || indicies[0] != 0) error("Indices are out of bounds")
             return blob
         }
 
@@ -37,6 +40,7 @@ class Hl7Utilities {
             outSegments.add(allSegments[0])
             outSegments.add(allSegments[1])
             indices.forEach { index ->
+                if (index >= messageStartIndices.size - 1) error("Index $index is out of bounds of the content")
                 val slice = allSegments.slice(messageStartIndices[index] until messageStartIndices[index + 1])
                 outSegments.addAll(slice)
             }

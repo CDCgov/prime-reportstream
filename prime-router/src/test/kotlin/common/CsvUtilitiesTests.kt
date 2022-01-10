@@ -1,7 +1,9 @@
 package gov.cdc.prime.router.common
 
 import assertk.assertThat
+import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
+import assertk.assertions.isFailure
 import kotlin.test.Test
 
 class CsvUtilitiesTests {
@@ -27,5 +29,7 @@ class CsvUtilitiesTests {
                 31,32,33
             """.trimIndent()
         )
+        assertThat { CsvUtilities.cut("", listOf(3)) }.isFailure()
+        assertThat(CsvUtilities.cut("", listOf()).trim()).isEmpty()
     }
 }
