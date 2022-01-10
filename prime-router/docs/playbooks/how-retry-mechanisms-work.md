@@ -10,11 +10,11 @@ ReportStream aims for exactly-once semantics, however all software is mortal, an
 
 Since the functions are subtly different, the retry mechanisms are also subtly different for each.
 
-### Receive
+## Receive
 
 We depend on our senders to have robust retry mechanisms if the receive does not return a 201.
 
-### Process
+## Process
 
 The Process step is triggered by events placed on the `process` queue by the previous step, Receive.   The Process step then starts a new transaction, which grabs and locks the associated row in the TASK table.
 
@@ -24,7 +24,7 @@ Note that when Process fails, the transaction will abort, and the TASK table ent
 
 You can also examine the `process_poison` queue in the Azure Portal.
 
-##### Useful Process Query
+### Useful Process Query
 
 This query assumes that anything in the process queue older than 15 minutes is a problem.
 
@@ -33,7 +33,7 @@ This query assumes that anything in the process queue older than 15 minutes is a
 select report_id, next_action, next_action_at, schema_name, receiver_name, item_count, created_at from task where next_action = 'process' and next_action_at < now() - interval '15 minutes';
 ```
 
-### Batch
+## Batch
 
 Batch function retry makes use of the natural cadence of delivery that each Receiver has.
 
@@ -47,7 +47,7 @@ For example, if a Receiver is set to receive data once a day, its backstop-time 
 
 On failure, the BatchFunction transaction will abort, and the TASK table entry will remain unchanged.  The next time that Receiver is scheduled to receive data, the aborted TASK entries will be re-run --- until the backstop time is reached, then it will not retry any longer, and manual intervention will be required.
 
-##### Useful Batch Query
+### Useful Batch Query
 
 This query will find batch tasks in the TASK table that should have been processed but have not
 
@@ -55,7 +55,7 @@ This query will find batch tasks in the TASK table that should have been process
 select report_id, next_action, next_action_at, schema_name, receiver_name, item_count, created_at from task where next_action = 'batch' and created_at > now() - interval '4 days' and next_action_at < now() - interval '15 minutes';
 ```
 
-### Send
+## Send
 
 SendFunction uses the message queue and TASK table to do retries.
 
@@ -73,7 +73,7 @@ In this case, the transaction is __not__ aborted - the TASK table is updated as 
 
 After 4 retries, Send gives up, and puts a `send_error` action in the Action table, and does not try any more.
 
-##### Query to find failed Sends
+### Query to find failed Sends
 
 You can use the ACTION table to find failed Sends, searching for send_error actions.
 
@@ -84,7 +84,7 @@ select report_id, next_action, next_action_at, schema_name, receiver_name, item_
 Note this is identical to the `batch` query.
 
 
-#### Bonus for those who love complexity
+## Bonus for those who love complexity
 
 There is another transport that also sends one Item at a time:  the default HL7 implementation, with the useBatchHeaders: false, will send one HL7 message at a time.   However this data is broken apart during the Batch step, and not during Send.  That is, individual Send items are put on the queue when useBatchHeaders is false.
 
