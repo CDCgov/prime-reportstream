@@ -30,7 +30,7 @@ export const CsvUploadGuide = () => {
                     standard schema. Receive real-time validation and feedback
                     on file format and field values before submission. This
                     feature is currently being piloted in select jurisdictions
-                    with organinzations or facilities that have existing
+                    with organizations or facilities that have existing
                     Electronic Medical Record (EMR) systems.
                 </p>
                 <p>
@@ -244,7 +244,7 @@ export const CsvUploadGuide = () => {
                                 re-export it as a .CSV
                             </li>
                             <li>
-                                Return to step 3 and upload the modified file
+                                Return to step 3 and upload the corrected file
                             </li>
                         </ul>
                     </li>

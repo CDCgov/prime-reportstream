@@ -84,7 +84,7 @@ export const FacilitiesOverview = () => {
                 </p>
                 <ul>
                     <li>
-                        <h4>Electronic Laboratory Reporting (ELR)</h4>
+                        <h4>Electronic Laboratory Reporting (ELR) via API</h4>
                         <p>
                             Depending on the needs of your organization or
                             facility, ReportStream can configure an ELR
@@ -102,11 +102,10 @@ export const FacilitiesOverview = () => {
                             </span>
                         </h4>
                         <p>
-                            Use a simple online tool to submit a CSV formatted
+                            Use a simple online tool to submit a CSV file formatted
                             with a standard schema. Receive real-time validation
-                            and feedback on file format and field values before
-                            submission. This feature is currently being piloted
-                            in select jurisdictions with organinzations or
+                            and feedback on file format and field values. This feature is currently being piloted
+                            in select jurisdictions with organizations or
                             facilities that have existing Electronic Medical
                             Record (EMR) systems.
                         </p>
