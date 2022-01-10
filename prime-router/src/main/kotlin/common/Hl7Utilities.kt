@@ -17,8 +17,8 @@ class Hl7Utilities {
             }
         }
 
-        private fun cutSingle(blob: String, indicies: List<Int>): String {
-            if (indicies.size != 1 || indicies[0] != 0) error("Indices are out of bounds")
+        private fun cutSingle(blob: String, indices: List<Int>): String {
+            if (indices.size != 1 || indices[0] != 0) error("Indices are out of bounds")
             return blob
         }
 
