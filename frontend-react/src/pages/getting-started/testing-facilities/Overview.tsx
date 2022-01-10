@@ -101,7 +101,7 @@ export const FacilitiesOverview = () => {
                     Electronic Medical Record (EMR) systems.
                 </p>
                 <h4>SimpleReport</h4>
-                <p>A partner project under PRIME, SimpleReport ...</p>
+                <p><a href="https://simplereport.gov" target="_blank" rel="noreferrer noopener" className="usa-link">SimpleReport</a> is a fast, free, and easy way for COVID-19 testing facilities to report results to public health departments. Skip re-entering the same data every time you report. Just pull up a name, enter the test result, and submit. It’s that easy. SimpleReport automatically converts your data into the format required by your public health department. Real-time reporting submits test results the moment you record them — saving you time.</p>
 
                 <h3 className="margin-top-6 padding-top-6 border-top-1px border-base-lighter">
                     Get started with ReportStream
