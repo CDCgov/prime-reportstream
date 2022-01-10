@@ -37,8 +37,10 @@ export const PhdOverview = () => {
                 >
                     Contact us
                 </a>
-                
-                <p className="margin-top-4"><strong>On this page:</strong></p>
+
+                <p className="margin-top-4">
+                    <strong>On this page:</strong>
+                </p>
                 <ul>
                     <li>
                         <a href="#data-download" className="usa-link">
@@ -210,8 +212,9 @@ export const PhdOverview = () => {
                     </a>
                     .
                 </p>
-                
-                <h3 className="font-body-lg border-top-1px border-ink margin-top-8 margin-bottom-6 padding-top-1">Get started with ReportStream</h3>
+                <h3 className="font-body-lg border-top-1px border-ink margin-top-8 margin-bottom-6 padding-top-1">
+                    Get started with ReportStream
+                </h3>
                 Ready to bring ReportStream to your jurisdiction or just have
                 more questions? Email us and we’ll follow up with next steps.
                 <p>

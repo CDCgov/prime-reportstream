@@ -31,27 +31,31 @@ export const DataDownloadGuide = () => {
                 </a>
             </section>
             <section>
-                <h3 className="font-body-lg border-top-1px border-ink margin-top-8 margin-bottom-6 padding-top-1">Benefits of the data download site</h3>
-                
+                <h3 className="font-body-lg border-top-1px border-ink margin-top-8 margin-bottom-6 padding-top-1">
+                    Benefits of the data download site
+                </h3>
+
                 <h4>Receive data from SimpleReport</h4>
                 <p>
                     If your jurisdiction is interested in receiving
-                    point-of-care tests results from SimpleReport, you
-                    can access data via your ReportStream account.
+                    point-of-care tests results from SimpleReport, you can
+                    access data via your ReportStream account.
                 </p>
                 <h4>Get started without ELR</h4>
                 <p>
-                    Download data in standard CSV and HL7 formats
-                    without setting up an ELR feed.
+                    Download data in standard CSV and HL7 formats without
+                    setting up an ELR feed.
                 </p>
                 <h4>Secure and personalized</h4>
                 <p>
-                    Set up secure, individual logins for each member of
-                    your team.
+                    Set up secure, individual logins for each member of your
+                    team.
                 </p>
             </section>
             <section>
-                <h3 className="font-body-lg border-top-1px border-ink margin-top-8 margin-bottom-6 padding-top-1">Using the site</h3>
+                <h3 className="font-body-lg border-top-1px border-ink margin-top-8 margin-bottom-6 padding-top-1">
+                    Using the site
+                </h3>
                 <h4>Recommended browser</h4>
 
                 <p>
@@ -102,7 +106,9 @@ export const DataDownloadGuide = () => {
 
                 <h4>General usage</h4>
 
-                <h4><em>Account creation</em></h4>
+                <h4>
+                    <em>Account creation</em>
+                </h4>
                 <p>
                     ReportStream is utilizing a{" "}
                     <a href="https://www.hhs.gov/" className="usa-link">
@@ -150,7 +156,9 @@ export const DataDownloadGuide = () => {
                     </li>
                 </ul>
 
-                <h4><em>Sign in to the application</em></h4>
+                <h4>
+                    <em>Sign in to the application</em>
+                </h4>
 
                 <ul>
                     <li>
@@ -174,7 +182,9 @@ export const DataDownloadGuide = () => {
                     </li>
                 </ul>
 
-                <h4><em>Account management</em></h4>
+                <h4>
+                    <em>Account management</em>
+                </h4>
                 <p>
                     ReportStream will manually manage user accounts for your
                     team. To add or remove team members, email us at{" "}
@@ -184,7 +194,9 @@ export const DataDownloadGuide = () => {
                     .
                 </p>
 
-                <h4><em>Password reset</em></h4>
+                <h4>
+                    <em>Password reset</em>
+                </h4>
                 <ul>
                     <li>
                         If you forgot your password, follow the instructions
@@ -201,7 +213,9 @@ export const DataDownloadGuide = () => {
                     </li>
                 </ul>
 
-                <h4><em>Accessing data</em></h4>
+                <h4>
+                    <em>Accessing data</em>
+                </h4>
                 <p>
                     You will be able to download the most recently reported test
                     result data, as well as up to 30 days of previously reported
@@ -220,7 +234,9 @@ export const DataDownloadGuide = () => {
                     as possible.
                 </p>
 
-                <h4><em>Support</em></h4>
+                <h4>
+                    <em>Support</em>
+                </h4>
                 <p>
                     Do you have questions, problems, or bugs to report? Email
                     the team at&nbsp;

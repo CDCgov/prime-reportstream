@@ -39,8 +39,11 @@ export const FacilitiesOverview = () => {
                         encryption, and HTTPS.
                     </li>
                     <li>
-                        <a href="/how-it-works/about" className="usa-link">Created by the CDC and developed for COVID-19 test data</a>,
-                        ReportStream is 100% free.{" "}
+                        <a href="/how-it-works/about" className="usa-link">
+                            Created by the CDC and developed for COVID-19 test
+                            data
+                        </a>
+                        , ReportStream is 100% free.{" "}
                     </li>
                 </ul>
 
@@ -62,10 +65,11 @@ export const FacilitiesOverview = () => {
                     >
                         Health Level 7 (HL7)
                     </a>{" "}
-                    files via a variety of methods. All submissions are subject to jurisdictional approval.
+                    files via a variety of methods. All submissions are subject
+                    to jurisdictional approval.
                 </p>
                 <p>
-                     Not sure which method is right for you? Contact us as{" "}
+                    Not sure which method is right for you? Contact us as{" "}
                     <a
                         href={
                             "mailto:" +
@@ -82,10 +86,11 @@ export const FacilitiesOverview = () => {
                     <li>
                         <h4>Electronic Laboratory Reporting (ELR)</h4>
                         <p>
-                            Depending on the needs of your organization or facility,
-                            ReportStream can configure an ELR connection with your
-                            existing systems. ReportStream has established connections
-                            with large organizations, test manufacturers, and facilities
+                            Depending on the needs of your organization or
+                            facility, ReportStream can configure an ELR
+                            connection with your existing systems. ReportStream
+                            has established connections with large
+                            organizations, test manufacturers, and facilities
                             with advanced systems.
                         </p>
                     </li>
@@ -97,18 +102,53 @@ export const FacilitiesOverview = () => {
                             </span>
                         </h4>
                         <p>
-                            Use a simple online tool to submit a CSV formatted with a
-                            standard schema. Receive real-time validation and feedback
-                            on file format and field values before submission. This
-                            feature is currently being piloted in select jurisdictions
-                            with organinzations or facilities that have existing
-                            Electronic Medical Record (EMR) systems.
+                            Use a simple online tool to submit a CSV formatted
+                            with a standard schema. Receive real-time validation
+                            and feedback on file format and field values before
+                            submission. This feature is currently being piloted
+                            in select jurisdictions with organinzations or
+                            facilities that have existing Electronic Medical
+                            Record (EMR) systems.
                         </p>
-                        <p>Learn how <a href="/getting-started/testing-facilities/csv-upload-guide" className="usa-link">CSV upload</a> works or read the <a href="/getting-started/testing-facilities/csv-schema" className="usa-link">full documentation</a>.</p>
+                        <p>
+                            Learn how{" "}
+                            <a
+                                href="/getting-started/testing-facilities/csv-upload-guide"
+                                className="usa-link"
+                            >
+                                CSV upload
+                            </a>{" "}
+                            works or read the{" "}
+                            <a
+                                href="/getting-started/testing-facilities/csv-schema"
+                                className="usa-link"
+                            >
+                                full documentation
+                            </a>
+                            .
+                        </p>
                     </li>
                     <li>
                         <h4>SimpleReport</h4>
-                        <p><a href="https://simplereport.gov" target="_blank" rel="noreferrer noopener" className="usa-link">SimpleReport</a> is a fast, free, and easy way for COVID-19 testing facilities to report results to public health departments. Skip re-entering the same data every time you report. Just pull up a name, enter the test result, and submit. SimpleReport automatically converts your data into the format required by your public health department. Real-time reporting submits test results the moment you record them — saving you time.</p>
+                        <p>
+                            <a
+                                href="https://simplereport.gov"
+                                target="_blank"
+                                rel="noreferrer noopener"
+                                className="usa-link"
+                            >
+                                SimpleReport
+                            </a>{" "}
+                            is a fast, free, and easy way for COVID-19 testing
+                            facilities to report results to public health
+                            departments. Skip re-entering the same data every
+                            time you report. Just pull up a name, enter the test
+                            result, and submit. SimpleReport automatically
+                            converts your data into the format required by your
+                            public health department. Real-time reporting
+                            submits test results the moment you record them —
+                            saving you time.
+                        </p>
                     </li>
                 </ul>
 

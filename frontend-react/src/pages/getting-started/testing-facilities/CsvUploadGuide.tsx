@@ -139,8 +139,8 @@ export const CsvUploadGuide = () => {
                         <p>
                             <em>
                                 Be sure to save your file as .CSV. ReportStream
-                                CSV upload does not accept files saved as .XLS, .XLXS, or
-                                other formats.
+                                CSV upload does not accept files saved as .XLS,
+                                .XLXS, or other formats.
                             </em>
                         </p>
                     </li>
@@ -201,32 +201,52 @@ export const CsvUploadGuide = () => {
                         </h4>
                         <ul className="margin-top-2">
                             <li>Click "Upload."</li>
-                            <li>ReportStream will validate your file and provide confirmation that it has been accepted.</li>
+                            <li>
+                                ReportStream will validate your file and provide
+                                confirmation that it has been accepted.
+                            </li>
                         </ul>
-                        <p><strong>Optional: If you receive errors after clicking "Upload"</strong></p>
                         <p>
-                            ReportStream validates all uploaded files against
-                            a <a href="/getting-started/testing-facilities/csv-schema" className="usa-link">standard CSV schema</a>. If any errors are
-                            detected with a file's format or data, the
-                            application will alert you to specific changes you
-                            need to make before the file can be submitted.
+                            <strong>
+                                Optional: If you receive errors after clicking
+                                "Upload"
+                            </strong>
+                        </p>
+                        <p>
+                            ReportStream validates all uploaded files against a{" "}
+                            <a
+                                href="/getting-started/testing-facilities/csv-schema"
+                                className="usa-link"
+                            >
+                                standard CSV schema
+                            </a>
+                            . If any errors are detected with a file's format or
+                            data, the application will alert you to specific
+                            changes you need to make before the file can be
+                            submitted.
                         </p>
                         <p>Resolving errors with a CSV:</p>
                         <ul>
                             <li>
                                 Review the list of errors and recommended
-                                changes suggested by ReportStream. Reference the <a href="/getting-started/testing-facilities/csv-schema" className="usa-link">CSV schema documentation</a> again for any
-                                adjustments to column headers or values.
+                                changes suggested by ReportStream. Reference the{" "}
+                                <a
+                                    href="/getting-started/testing-facilities/csv-schema"
+                                    className="usa-link"
+                                >
+                                    CSV schema documentation
+                                </a>{" "}
+                                again for any adjustments to column headers or
+                                values.
                             </li>
                             <li>
-                                Make the recommended changes to the file
-                                and re-export it as a .CSV
+                                Make the recommended changes to the file and
+                                re-export it as a .CSV
                             </li>
                             <li>
                                 Return to step 3 and upload the modified file
                             </li>
-                        </ul>              
-                        
+                        </ul>
                     </li>
                 </ol>
             </section>
