@@ -850,7 +850,9 @@ class PutMultipleSettings : SettingCommand(
     private fun isFileUpdated(): Boolean {
         val url = formPath(environment, Operation.LIST, SettingType.ORGANIZATION, "")
         val (_, response, result) = Fuel.head(url).authentication()
-            .bearer(oktaAccessToken).response()
+            .bearer(oktaAccessToken)
+            .timeoutRead(SettingsUtilities.requestTimeoutMillis)
+            .response()
         return when (result) {
             is Result.Success -> {
                 if (response[HttpHeaders.LAST_MODIFIED].isNotEmpty()) {

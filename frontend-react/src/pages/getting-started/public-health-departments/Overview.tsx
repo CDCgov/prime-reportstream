@@ -1,26 +1,26 @@
 import { Helmet } from "react-helmet";
 import DOMPurify from "dompurify";
 
-import site from "../../content/site.json";
+import site from "../../../content/site.json";
 
 /* eslint-disable jsx-a11y/anchor-has-content */
-export const GettingStarted = () => {
+export const PhdOverview = () => {
     return (
         <>
             <Helmet>
                 <title>
-                    Getting started | How it works |{" "}
+                    Public health departments | Getting started |{" "}
                     {process.env.REACT_APP_TITLE}
                 </title>
             </Helmet>
             <section id="anchor-top">
-                <h1 className="margin-top-0">Getting started</h1>
-                <p className="usa-intro">
+                <h2 className="margin-top-0">Overview</h2>
+                <p className="usa-intro text-base">
                     First, we’ll get you connected to our web application, where
                     you can immediately start downloading reporting data that is
                     relevant to your jurisdiction.
                 </p>
-                <p className="usa-intro">
+                <p className="usa-intro text-base">
                     Depending on your needs, we can also create a customized
                     Electronic Lab Reporting (ELR) connection — an online setup
                     used to send digital lab reports to public health
@@ -183,7 +183,7 @@ export const GettingStarted = () => {
                 <p>
                     Check out our{" "}
                     <a
-                        href="/how-it-works/elr-checklist"
+                        href="/getting-started/public-health-departments/elr-checklist"
                         className="usa-link margin-right-1 usa-link"
                     >
                         ELR onboarding checklist
