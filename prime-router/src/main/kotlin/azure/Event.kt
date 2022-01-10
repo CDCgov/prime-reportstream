@@ -96,9 +96,9 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
                     val reportId = UUID.fromString(parts[2])
                     ReportEvent(action, reportId, after)
                 }
-                ReceiverEvent.eventType -> {
+                BatchEvent.eventType -> {
                     val after = parts.getOrNull(3)?.let { OffsetDateTime.parse(it) }
-                    ReceiverEvent(action, parts[2], after)
+                    BatchEvent(action, parts[2], after)
                 }
                 ProcessEvent.eventType -> {
                     // since process event type has multiple optional parameters, they will be either populated
@@ -141,8 +141,8 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
                     if (parts.size > 4) error("Internal Error: Report events can have no more than 4 parts.")
                 }
                 // Receiver event requires 'event type', 'action', 'receiver name'. 'at' is optional
-                ReceiverEvent.eventType -> {
-                    if (parts.size > 4) error("Internal Error: Receiver events can have no more than 4 parts.")
+                BatchEvent.eventType -> {
+                    if (parts.size > 4) error("Internal Error: Batch events can have no more than 4 parts.")
                 }
                 // Process event requires 'event type', 'action', 'report id', and 'options'.
                 //  'route to', 'default' and 'at are optional but must be present (even if a blank string).
@@ -230,7 +230,10 @@ class ReportEvent(
     }
 }
 
-class ReceiverEvent(
+/**
+ * Queue message for Batch
+ */
+class BatchEvent(
     eventAction: EventAction,
     val receiverName: String,
     at: OffsetDateTime? = null,
@@ -241,12 +244,15 @@ class ReceiverEvent(
     }
 
     override fun equals(other: Any?): Boolean {
-        return other is ReceiverEvent &&
+        return other is BatchEvent &&
             eventAction == other.eventAction &&
             receiverName == other.receiverName &&
             at == other.at
     }
 
+    // this should say 'batch' but will break production on deploy if there is anything in the batch queue
+    //  when it goes to prod. This value is used only to queue and dequeue message types
+    //  (toQueueMessage, parseQueueMessage)
     companion object {
         const val eventType = "receiver"
     }

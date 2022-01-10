@@ -302,6 +302,28 @@
       schemaName: non-standard/all-in-one-health-ca-covid-19
       format: CSV
 
+- name: csvuploadertest
+  description: Sender for Testing Manual Upload of the RS Standard CSV File
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: csvuploadertest
+      topic: covid-19
+      customerStatus: active
+      schemaName: manualupload/csvuploadertest-covid-19
+      format: CSV
+
+- name: manualupload
+  description: Sender for Manual Upload of the RS Standard CSV File
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: manualupload
+      topic: covid-19
+      customerStatus: active
+      schemaName: upload-covid-19
+      format: CSV
+
 - name: pmg
   description: Premier Medical Group USA
   jurisdiction: FEDERAL
@@ -311,6 +333,17 @@
       topic: covid-19
       customerStatus: active
       schemaName: direct/pmg-covid-19
+      format: CSV
+
+- name: anavasidx
+  description: AnavasiDx
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: anavasidx
+      topic: covid-19
+      customerStatus: active
+      schemaName: direct/anavasidx-covid-19
       format: CSV
 
 - name: az-phd
@@ -564,6 +597,7 @@
         suppressHl7Fields: OBX-18-1, OBX-18-2, OBX-18-3, OBX-18-4, OBX-15-3
         replaceValue:
           MSH-3-1: CDC PRIME - Atlanta,
+        convertPositiveDateTimeOffsetToNegative: true
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
@@ -2115,9 +2149,16 @@
         filePath: ./upload
         credentialName: DEFAULT-SFTP
 
-
-
-
+- name: historytest
+  description: FOR TESTING SUBMISSION HISTORY
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: historytest
+      topic: covid-19
+      customerStatus: active
+      schemaName: primedatainput/pdi-covid-19
+      format: CSV
 
 # all the rest
 - name: ak-phd

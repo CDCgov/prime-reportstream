@@ -7,7 +7,7 @@ import OrganizationResource from "../../resources/OrganizationResource";
 import { getStoredOrg, useGlobalContext } from "../GlobalContextProvider";
 
 const OrganizationDropdown = () => {
-    const [org, setOrg] = useState(getStoredOrg() || "");
+    const [org, setOrg] = useState(getStoredOrg());
     const history = useHistory();
     const { updateOrganization } = useGlobalContext();
 

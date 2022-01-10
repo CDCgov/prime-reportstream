@@ -445,11 +445,14 @@ Code | Display
 ---- | -------
 Holly|Holly Delatte NP
 De Anna|De Anna Dark FNP-C
+DeAnna|DeAnna Dark FNP-C
 Nagaratna|Nagaratna Reddy MD.
 Cassandra|Cassandra Hill-Selders NP
 Crystal|Crystal Rivet NP
 Darrell|Darrell Davis NP
 Wanda|Wanda Jefferson Wilson FNP-C
+Wanda|Wanda Jefferson FNP-C
+Raveen|Raveen Coon FNP-C
 
 ---
 
@@ -471,11 +474,14 @@ Code | Display
 ---- | -------
 1275978678|Holly Delatte NP
 1205306602|De Anna Dark FNP-C
+1205306602|DeAnna Dark FNP-C
 1770580508|Nagaratna Reddy MD.
 1912515651|Cassandra Hill-Selders NP
 1699120493|Crystal Rivet NP
 1821458373|Darrell Davis NP
 1518378009|Wanda Jefferson Wilson FNP-C
+1518378009|Wanda Jefferson FNP-C
+1215690334|Raveen Coon FNP-C
 
 ---
 
@@ -497,11 +503,14 @@ Code | Display
 ---- | -------
 Delatte NP|Holly Delatte NP
 Dark FNP-C|De Anna Dark FNP-C
+Dark FNP-C|DeAnna Dark FNP-C
 Reddy MD|Nagaratna Reddy MD.
 Hill-Selders NP|Cassandra Hill-Selders NP
 Rivet NP|Crystal Rivet NP
 Davis NP|Darrell Davis NP
 Jefferson Wilson FNP-C|Wanda Jefferson Wilson FNP-C
+Jefferson FNP-C|Wanda Jefferson FNP-C
+Coon FNP-C|Raveen Coon FNP-C
 
 ---
 
@@ -1114,7 +1123,6 @@ Code | Display
 ---- | -------
 71836000|Nasopharyngeal structure (body structure)
 71836000|Varied
-71836000|Nasal
 71836000|Nasopharyngeal swab
 71836000|258500001
 71836000|Nasopharyngeal aspirate
@@ -1126,6 +1134,7 @@ Code | Display
 53342003|Swab of internal nose
 53342003|Anterior nares swab
 53342003|Mid-turbinate nasal swab
+53342003|Nasal
 53342003|Nasal Swab
 53342003|445297001
 53342003|697989009
@@ -1621,7 +1630,7 @@ iPatientCare is an ambulatory EMR, so this field is defaulted to 'N'.
 
 **PII**: No
 
-**Cardinality**: [1..1]
+**Cardinality**: [0..1]
 
 **Table**: zip-code-data
 

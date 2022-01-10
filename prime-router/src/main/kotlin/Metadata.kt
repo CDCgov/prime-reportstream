@@ -2,6 +2,7 @@ package gov.cdc.prime.router
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
+import com.fasterxml.jackson.module.kotlin.KotlinFeature
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import gov.cdc.prime.router.azure.DatabaseLookupTableAccess
@@ -43,7 +44,8 @@ class Metadata : Logging {
         TimestampMapper(),
         HashMapper(),
         NullMapper(),
-        LookupSenderValuesetsMapper()
+        LookupSenderValuesetsMapper(),
+        NpiLookupMapper()
     )
     private var reportStreamFilterDefinitions = listOf(
         FilterByCounty(),
@@ -57,7 +59,15 @@ class Metadata : Logging {
         IsValidCLIA(),
     )
     private var valueSets = mapOf<String, ValueSet>()
-    private val mapper = ObjectMapper(YAMLFactory()).registerModule(KotlinModule())
+    private val mapper = ObjectMapper(YAMLFactory()).registerModule(
+        KotlinModule.Builder()
+            .withReflectionCacheSize(512)
+            .configure(KotlinFeature.NullToEmptyCollection, false)
+            .configure(KotlinFeature.NullToEmptyMap, false)
+            .configure(KotlinFeature.NullIsSameAsDefault, false)
+            .configure(KotlinFeature.StrictNullChecks, false)
+            .build()
+    )
 
     /**
      * The database lookup table access.
@@ -211,8 +221,6 @@ class Metadata : Logging {
     private fun fixupElement(element: Element, baseElement: Element? = null): Element {
         if (element.canBeBlank && element.default != null)
             error("Schema Error: '${element.name}' has both a default and a canBeBlank field")
-        if (element.canBeBlank && element.mapper != null)
-            error("Schema Error: '${element.name}' has both a mapper and a canBeBlank field")
         val valueSet = element.valueSet ?: baseElement?.valueSet
         val valueSetRef = valueSet?.let {
             val ref = findValueSet(it)
