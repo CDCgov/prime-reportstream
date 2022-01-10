@@ -14,14 +14,10 @@ export const DataDownloadGuide = () => {
                 </title>
             </Helmet>
             <section id="anchor-top">
-                <h1 className="margin-top-0">Data download website guide</h1>
-                <p className="usa-intro">
-                    The{" "}
-                    <NavLink to="/login" key="login" className="usa-link">
-                        data download website
-                    </NavLink>{" "}
-                    enables a public health department to access data from
-                    senders via a secure, online portal.
+                <h2 className="margin-top-0">Data download website guide</h2>
+                <p className="usa-intro text-base">
+                    The data download website enables a public health department
+                    to access data from senders via a secure, online portal.
                 </p>
                 <a
                     href={
