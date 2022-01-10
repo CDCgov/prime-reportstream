@@ -71,13 +71,13 @@ class LivdTableExtracks() : CliktCommand(
             val fileOutputStream = FileOutputStream(File(outputfile))
 
             try {
-                val fis = FileInputStream(File(inputfile))
+                val fileInputStream = FileInputStream(File(inputfile))
                 var workbook: Workbook? = null
                 val ext: String = FilenameUtils.getExtension(inputfile)
                 if (ext.equals("xlsx", ignoreCase = true)) {
-                    workbook = XSSFWorkbook(fis)
+                    workbook = XSSFWorkbook(fileInputStream)
                 } else if (ext.equals("xls", ignoreCase = true)) {
-                    workbook = HSSFWorkbook(fis)
+                    workbook = HSSFWorkbook(fileInputStream)
                 }
 
                 // Check for output file duplication
@@ -97,14 +97,14 @@ class LivdTableExtracks() : CliktCommand(
                 val rowEnd = sheet.getLastRowNum()
 
                 for (rowNum in rowStart until rowEnd + 1) {
-                    val r: Row = sheet.getRow(rowNum) ?: continue
+                    val row: Row = sheet.getRow(rowNum) ?: continue
 
-                    val lastColumn: Short = r.lastCellNum
+                    val lastColumn: Short = row.lastCellNum
                     for (cn in 0 until lastColumn) {
                         var delimiterChar = ","
                         if (cn + 1 == lastColumn.toInt()) delimiterChar = ""
 
-                        val cell = r.getCell(cn, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL)
+                        val cell = row.getCell(cn, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL)
 
                         if (cell == null) {
                             data.append("" + delimiterChar)
