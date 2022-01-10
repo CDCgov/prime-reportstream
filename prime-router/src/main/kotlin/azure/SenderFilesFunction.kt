@@ -199,7 +199,6 @@ class SenderFilesFunction(
     }
 
     private fun cutContent(reportBlob: String, senderFormat: Sender.Format, itemIndices: List<Int>): String {
-        if (reportBlob.isBlank()) return ""
         return when (senderFormat) {
             Sender.Format.CSV -> CsvUtilities.cut(reportBlob, itemIndices)
             Sender.Format.HL7 -> Hl7Utilities.cut(reportBlob, itemIndices)
