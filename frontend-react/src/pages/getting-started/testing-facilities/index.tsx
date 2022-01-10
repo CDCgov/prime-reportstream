@@ -10,7 +10,7 @@ import {
 import { CODES, ErrorPage } from "../../error/ErrorPage";
 
 import { FacilitiesOverview } from "./Overview";
-import { RegisterAnAccount } from "./RegisterAnAccount";
+import { AccountRegistrationGuide } from "./AccountRegistrationGuide";
 import { CsvUploadGuide } from "./CsvUploadGuide";
 import { CsvSchemaDocumentation } from "./CsvSchemaDocumentation";
 
@@ -26,11 +26,11 @@ export const GettingStartedTestingFacilities = () => {
             Overview
         </NavLink>,
         <NavLink
-            to={`${url}/register-an-account`}
+            to={`${url}/account-registration-guide`}
             activeClassName="usa-current"
             className="usa-nav__link"
         >
-            Register an account
+            Account registration guide
         </NavLink>,
         <NavLink
             to={`${url}/csv-upload-guide`}
@@ -80,8 +80,8 @@ export const GettingStartedTestingFacilities = () => {
                                 component={FacilitiesOverview}
                             />
                             <Route
-                                path={`${path}/register-an-account`}
-                                component={RegisterAnAccount}
+                                path={`${path}/account-registration-guide`}
+                                component={AccountRegistrationGuide}
                             />
                             <Route
                                 path={`${path}/csv-upload-guide`}

@@ -5,17 +5,17 @@ import site from "../../content/site.json";
 
 export const About = () => {
     return (
-        <div className="grid-container">
+        <>
             <Helmet>
                 <title>About | {process.env.REACT_APP_TITLE}</title>
             </Helmet>
             <section
                 id="anchor-top"
-                className="usa-section margin-y-0 tablet:padding-top-2 tablet:padding-bottom-2 usa-prose measure-5"
+                className="usa-section margin-y-0 padding-top-0 tablet:padding-bottom-2 measure-5"
             >
-                <h1 className="margin-top-0">About</h1>
+                <h1 className="margin-top-0 font-body-xl">About</h1>
 
-                <p className="usa-intro">
+                <p className="usa-intro text-base">
                     ReportStream is an open source, cloud based platform that
                     aggregates and delivers COVID-19 test results to health
                     departments. We send data directly from testing facilities,
@@ -37,9 +37,7 @@ export const About = () => {
                     Contact us
                 </a>
 
-                <hr className="margin-y-6" />
-
-                <div className="grid-row grid-gap">
+                <div className="margin-top-6 padding-top-4 border-top border-base-lighter">
                     <p>
                         ReportStream (also known as PRIME ReportStream) was
                         created for the public good by the{" "}
@@ -84,6 +82,6 @@ export const About = () => {
                     </p>
                 </div>
             </section>
-        </div>
+        </>
     );
 };
