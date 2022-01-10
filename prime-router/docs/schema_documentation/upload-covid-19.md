@@ -8,6 +8,18 @@
 
 ---
 
+**Name**: comment
+
+**ReportStream Internal Name**: comment
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
 **Name**: date_result_released
 
 **ReportStream Internal Name**: date_result_released
@@ -26,9 +38,9 @@
 
 **ReportStream Internal Name**: date_result_released_temp
 
-**PII**: No
+**Type**: TEXT
 
-**Format**: yyyyMMdd
+**PII**: No
 
 **Cardinality**: [0..1]
 
@@ -73,6 +85,26 @@ Translate multiple inbound Y/N/U AOE values to RS values
 
 ---
 
+**Name**: equipment_model_name
+
+**ReportStream Internal Name**: equipment_model_name
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [1..1]
+
+
+**Reference URL**:
+[https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
+
+**Table**: LIVD-SARS-CoV-2-2021-09-29
+
+**Table Column**: Model
+
+---
+
 **Name**: testing_lab_clia
 
 **ReportStream Internal Name**: filler_clia
@@ -104,16 +136,6 @@ Translate multiple inbound Y/N/U AOE values to RS values
 **Documentation**:
 
 Accension number
-
----
-
-**Name**: accession_number
-
-**ReportStream Internal Name**: filler_order_id_temp
-
-**PII**: No
-
-**Cardinality**: [0..1]
 
 ---
 
@@ -282,16 +304,6 @@ The city of the facility which the test was ordered from
 
 ---
 
-**Name**: ordering_facility_city
-
-**ReportStream Internal Name**: ordering_facility_city_temp
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
----
-
 **Name**: ordering_facility_name
 
 **ReportStream Internal Name**: ordering_facility_name
@@ -311,6 +323,8 @@ The name of the facility which the test was ordered from
 **Name**: ordering_facility_name
 
 **ReportStream Internal Name**: ordering_facility_name_temp
+
+**Type**: TEXT
 
 **PII**: No
 
@@ -334,16 +348,6 @@ The phone number of the facility which the test was ordered from
 
 ---
 
-**Name**: ordering_facility_phone_number
-
-**ReportStream Internal Name**: ordering_facility_phone_number_temp
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
----
-
 **Name**: ordering_facility_state
 
 **ReportStream Internal Name**: ordering_facility_state
@@ -361,16 +365,6 @@ The phone number of the facility which the test was ordered from
 **Documentation**:
 
 The state of the facility which the test was ordered from
-
----
-
-**Name**: ordering_facility_state
-
-**ReportStream Internal Name**: ordering_facility_state_temp
-
-**PII**: No
-
-**Cardinality**: [0..1]
 
 ---
 
@@ -406,19 +400,11 @@ The secondary address of the facility which the test was ordered from
 
 ---
 
-**Name**: ordering_facility_street2
-
-**ReportStream Internal Name**: ordering_facility_street2_temp
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
----
-
 **Name**: ordering_facility_street
 
 **ReportStream Internal Name**: ordering_facility_street_temp
+
+**Type**: TEXT
 
 **PII**: No
 
@@ -439,16 +425,6 @@ The secondary address of the facility which the test was ordered from
 **Documentation**:
 
 The zip code of the facility which the test was ordered from
-
----
-
-**Name**: ordering_facility_zip_code
-
-**ReportStream Internal Name**: ordering_facility_zip_code_temp
-
-**PII**: No
-
-**Cardinality**: [0..1]
 
 ---
 
@@ -1039,7 +1015,7 @@ Translate multiple inbound values into the Pregnancy SNOMED Codes
 
 ---
 
-**Name**: sender_id
+**Name**: processing_mode_code
 
 **ReportStream Internal Name**: processing_mode_code
 
@@ -1047,21 +1023,23 @@ Translate multiple inbound values into the Pregnancy SNOMED Codes
 
 **PII**: No
 
-**Format**: use value found in the Display column
+**Format**: use value found in the Code column
 
 **Default Value**: P
 
-**Cardinality**: [1..1]
+**Cardinality**: [0..1]
 
 **Value Sets**
 
 Code | Display
 ---- | -------
-P|manualupload
+D|Debugging
+P|Production
+T|Training
 
 **Documentation**:
 
-Retrieve the processing_mode_code for a Sender from the sender-automation.valueset
+P, D, or T for Production, Debugging, or Training
 
 ---
 
@@ -1156,29 +1134,23 @@ Translate multiple inbound Y/N/U AOE values to RS values
 
 **ReportStream Internal Name**: sender_id
 
-**Type**: CODE
+**Type**: TEXT
 
 **PII**: No
 
-**Format**: use value found in the Display column
-
 **Cardinality**: [1..1]
-
-**Value Sets**
-
-Code | Display
----- | -------
-manualupload|manualupload
 
 **Documentation**:
 
-Validate the sender_id received against the valid list of Senders in the sender-automation.valueset
+ID name of org that is sending this data to ReportStream.  Suitable for provenance or chain of custody tracking.  Not to be confused with sending_application, in which ReportStream acts as the 'sender' to the downstream jurisdiction.
 
 ---
 
 **Name**: specimen_collection_date
 
 **ReportStream Internal Name**: specimen_collection_date_temp
+
+**Type**: TEXT
 
 **PII**: No
 
@@ -1230,7 +1202,6 @@ Code | Display
 ---- | -------
 71836000|Nasopharyngeal structure (body structure)
 71836000|Varied
-71836000|Nasal
 71836000|Nasopharyngeal swab
 71836000|258500001
 71836000|Nasopharyngeal aspirate
@@ -1242,6 +1213,7 @@ Code | Display
 53342003|Swab of internal nose
 53342003|Anterior nares swab
 53342003|Mid-turbinate nasal swab
+53342003|Nasal
 53342003|Nasal Swab
 53342003|445297001
 53342003|697989009
@@ -1377,30 +1349,6 @@ UNK|maybe
 **Documentation**:
 
 Translate multiple inbound Y/N/U AOE values to RS values
-
----
-
-**Name**: test_kit_name_id
-
-**ReportStream Internal Name**: test_kit_name_id
-
-**Type**: TEXT
-
-**PII**: No
-
-**Cardinality**: [1..1]
-
-
-**Reference URL**:
-[https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
-
-**Table**: LIVD-SARS-CoV-2-2021-09-29
-
-**Table Column**: Testkit Name ID
-
-**Documentation**:
-
-Follows guidence for OBX-17 as defined in the HL7 Confluence page
 
 ---
 
@@ -1619,9 +1567,9 @@ The phone number of the testing lab
 
 **ReportStream Internal Name**: testing_lab_specimen_received_date_temp
 
-**PII**: No
+**Type**: TEXT
 
-**Format**: yyyyMMdd
+**PII**: No
 
 **Cardinality**: [0..1]
 
@@ -1721,29 +1669,33 @@ The postal code for the testing lab
 
 **ReportStream Internal Name**: accession_number_temp
 
+**Type**: TEXT
+
 **PII**: No
 
 **Cardinality**: [0..1]
 
 ---
 
-**Name**: equipment_model_name
+**Name**: comment_source
 
-**ReportStream Internal Name**: equipment_model_name
+**ReportStream Internal Name**: comment_source
 
-**Type**: TABLE
+**Type**: CODE
 
 **PII**: No
 
+**Format**: use value found in the Code column
+
 **Cardinality**: [0..1]
 
+**Value Sets**
 
-**Reference URL**:
-[https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
-
-**Table**: LIVD-SARS-CoV-2-2021-09-29
-
-**Table Column**: Model
+Code | Display
+---- | -------
+L|Ancillary (filler) department is source of comment
+O|Other system is source of comment
+P|Orderer (placer) is source of comment
 
 ---
 

@@ -223,7 +223,7 @@ class FakeReport(val metadata: Metadata, val locale: Locale? = null) {
         reportState: String? = null,
         val schemaName: String? = null,
         reportCounty: String? = null,
-        val locale: Locale? = null
+        locale: Locale? = null
     ) {
         val faker = if (locale == null) Faker() else Faker(locale)
         val patientName: Name = faker.name()
@@ -300,7 +300,7 @@ class FakeReport(val metadata: Metadata, val locale: Locale? = null) {
                 }
 
                 // get fake data for element
-                mapperRef.apply(element, refAndArgs.second, evs) ?: ""
+                mapperRef.apply(element, refAndArgs.second, evs).value ?: ""
             }
             else -> buildColumn(element, rowContext)
         }
