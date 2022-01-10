@@ -302,6 +302,17 @@
       schemaName: non-standard/all-in-one-health-ca-covid-19
       format: CSV
 
+- name: csvuploadertest
+  description: Sender for Testing Manual Upload of the RS Standard CSV File
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: csvuploadertest
+      topic: covid-19
+      customerStatus: active
+      schemaName: manualupload/csvuploadertest-covid-19
+      format: CSV
+
 - name: manualupload
   description: Sender for Manual Upload of the RS Standard CSV File
   jurisdiction: FEDERAL
