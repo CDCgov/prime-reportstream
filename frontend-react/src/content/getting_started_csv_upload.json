@@ -16,14 +16,15 @@
                             "required": false,
                             "acceptedFormat": false,
                             "acceptedValues": false,
-                            "acceptedExample": true,
+                            "acceptedExample": false,
                             "valueMessage": "",
                             "valueType": "Unique identifier",
                             "values": [
-                                "Medical Record Number"
+                                ""
                             ],               
                             "notes": [
-                               "Enter unique patient identifier. This is typically the Medical Record Number. <strong><em>Do not send a Social Security Number</em></strong>. This value is not required but preferred and required by some states."
+                               "Enter unique patient identifier. This is typically the Medical Record Number. <strong><em>Do not send a Social Security Number</em></strong>.",
+                               "This value might be required by some states. This value is optional and can be left blank if no information is provided."
                             ]
                         },
                         {
@@ -69,12 +70,12 @@
                             "acceptedValues": false,
                             "acceptedExample": false,
                             "valueMessage": "",
-                            "valueType": "String",
+                            "valueType": "Text",
                             "values": [
                                 ""
                             ],               
                             "notes": [
-                               "Enter patient’s middle name."          
+                               "Enter patient’s middle name, if known. This value is optional and can be left blank if no information is provided."          
                             ]
                         },
                         {
@@ -104,14 +105,14 @@
                             "required": false,
                             "acceptedFormat": false,
                             "acceptedValues": false,
-                            "acceptedExample": true,
+                            "acceptedExample": false,
                             "valueMessage": "",
                             "valueType": "Address",
                             "values": [
-                                "Apt 101, Suite 550, Room 237"
+                                ""
                             ],               
                             "notes": [
-                                "Secondary address information for apartment, suite, etc."                
+                                "Enter patient’s additional address information, if applicable. This value is optional and can be left blank if no information is provided. "                
                             ]
                         },
                         {
@@ -129,7 +130,7 @@
                             ],               
                             "notes": [
                                "Enter patient’s city. File will fail if field left blank.",
-                               "For homeless or other scenarios when no information is given, populate this field with the Ordering Facility's information."              
+                               "For homeless or other scenarios when no information is given, populate this field with the Ordering Facility information."              
                             ]
                         },
                         {
@@ -143,11 +144,11 @@
                             "valueMessage": "",
                             "valueType": "Address",
                             "values": [
-                                "Two-character state abbreviation, ex: MD, VT, TX"
+                                "Two-character state abbreviation."
                             ],               
                             "notes": [
                                "Enter patient’s state using the two-character state abbreviation. File will fail if field left blank. ",
-                               "For homeless or other scenarios when no information is given, populate this field with the Ordering Facilities information."                
+                               "For homeless or other scenarios when no information is given, populate this field with the Ordering Facility information."                
                             ]
                         },
                         {
@@ -201,7 +202,7 @@
                             ],               
                             "notes": [
                                "Enter patient’s phone number. File will fail if value is not entered using acceptable format or field is left blank.",
-                               "For homeless or other scenarios when no information is given, populate field with the Ordering Facilities information. "                
+                               "For homeless or other scenarios when no information is given, populate field with the Ordering Facility information. "                
                             ]
                         },
                         {
@@ -218,7 +219,7 @@
                                 "YYYYMMDD"
                             ],               
                             "notes": [
-                               "Enter patient’s date of birth. File will fail if value is not entered using acceptable format or field is left blank."     
+                               "Enter patient’s date of birth. File will fail if value is not entered using accepted format or field is left blank."     
                             ]
                         },
                         {
@@ -240,7 +241,7 @@
                                 "<code>N</code> or <code>Not applicable</code>" 
                             ],               
                             "notes": [
-                               "Enter patient's gender. File will fail if value not entered using acceptable values or field is left blank."              
+                               "Enter patient's gender. File will fail if value not entered using accepted values or field is left blank."              
                             ]
                         },
                         {
@@ -311,8 +312,8 @@
                             ]
                         },
                         {
-                            "name": "Test kit name ID",
-                            "colHeader": "test_kit_name_id",
+                            "name": "Equipment model name",
+                            "colHeader": "equipment_model_name",
                             "colHeaderReportstream": "",            
                             "required": true,
                             "acceptedFormat": false,
@@ -321,15 +322,15 @@
                             "valueMessage": "",
                             "valueType": "Unique identifier",
                             "values": [
-                                "10811877011269 represents the Abbott ID Now ",
-                                "BD Veritor System for Rapid Detection of SARS-CoV-2_Becton, Dickinson and Company (BD)",
-                                "BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)",
-                                "RightSign COVID-19 IgG/IgM Rapid Test Cassette_Hangzhou Biotest Biotech Co., Ltd." 
+                                "<code>ID NOW</code> represents the Abbott ID Now",
+                                "<code>BD Veritor System for Rapid Detection of SARS-CoV-2</code>",
+                                "<code>BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B</code>",
+                                "<code>RightSign COVID-19 IgG/IgM Rapid Test Cassette</code>" 
                             ],               
                             "notes": [
-                               "Enter Test kit Name ID value from Department of Health and Human Services' (HHS) LOINC Mapping spreadsheet. File will fail if value not entered using acceptable values or field is left blank.",
-                               "Go to https://www.cdc.gov/csels/dls/sars-cov-2-livd-codes.html. Click on the Mapping Tool labeled \"LIVD SARS-CoV-2 Test Codes.xlsx\" (the file will download to your computer).",
-                               "Locate the saved file on your computer and open the file. Click on the \"LOINC Mapping\" tab. Go to Column M labeled \"Testkit Name ID\" to locate the corresponding value to enter"
+                               "Enter equipment model name value from Department of Health and Human Services' (HHS) LOINC Mapping spreadsheet. File will fail if value not entered using accepted values or field is left blank.",
+                               "Go to <a href=\"https://www.cdc.gov/csels/dls/sars-cov-2-livd-codes.html\" class=\"usa-link\" target=\"_blank\" rel=\"noreferrer noopener\">https://www.cdc.gov/csels/dls/sars-cov-2-livd-codes.html</a>. Click on the Mapping Tool labeled \"LIVD SARS-CoV-2 Test Codes.xlsx\" to downlaod the file.",
+                               "Locate the saved file on your computer and it. Click on the \"LOINC Mapping\" tab. Go to Column M labeled \"Testkit Name ID\" to locate the corresponding value to enter."
                             ]
                         },
                         {
@@ -408,7 +409,7 @@
                                 "YYYYMMDD" 
                             ],               
                             "notes": [
-                               "Enter speciment collection date. If unknown, populate field with the order_test_date. In most cases, these are the same. Can be left blank if same as order_test_date."              
+                               "Enter speciment collection date. If unknown, populate field with the order_test_date value. In most cases, these are the same. Can be left blank if same as order_test_date."              
                             ]
                         },
                         {
@@ -477,16 +478,17 @@
                             "acceptedValues": true,
                             "acceptedExample": false,
                             "valueMessage": "",
-                            "valueType": "Common values",
+                            "valueType": "Common values, SNOMED code",
                             "values": [
-                                "Nasal Swab",
-                                "Nasopharyngeal Swab",
-                                "Anterior Nares Swab",
-                                "Throat Swab",
-                                "Oropharyngeal Swab",
-                                "Whole Blood",
-                                "Plasma",
-                                "Serum" 
+                                "<code>Nasal Swab</code>",
+                                "<code>Nasopharyngeal Swab</code>",
+                                "<code>Anterior Nares Swab</code>",
+                                "<code>Throat Swab</code>",
+                                "<code>Oropharyngeal Swab</code>",
+                                "<code>Whole Blood</code>",
+                                "<code>Plasma</code>",
+                                "<code>Serum</code>",
+                                "SNOMED code" 
                             ],               
                             "notes": [
                             "File will fail if value not entered using acceptable text values or SNOMED codes or field is left blank. ",
@@ -514,7 +516,7 @@
                             ],               
                             "notes": [
                                "Enter NPI. If NPI unknown, enter local coding. File will fail if field left blank.",
-                               "NPI is a 10-position all-numeric identification number assigned by the NPS to uniquely identify a health care provider. NPIs can be found at https://npiregistry.cms.hhs.gov/.",
+                               "NPI is a 10-position all-numeric identification number assigned by the NPS to uniquely identify a health care provider. NPIs can be found at <a href=\"https://npiregistry.cms.hhs.gov/\" class=\"usa-link\" rel=\"noreferrer noopener\" target=\"_blank\">https://npiregistry.cms.hhs.gov/</a>.",
                                ""               
                             ]
                         },
@@ -631,7 +633,7 @@
                             "valueMessage": "",
                             "valueType": "Address",
                             "values": [
-                                "Two-character state abbreviation, ex: MD, VT, TX." 
+                                "Two-character state abbreviation." 
                             ],               
                             "notes": [
                                "Enter ordering provider’s state. File will fail if field left blank."              
@@ -692,7 +694,7 @@
                             ],               
                             "notes": [
                                "Enter testing lab’s CLIA number. File will fail if left blank.",
-                               "CLIA numbers can be found at https://www.cdc.gov/clia/LabSearch.html ."              
+                               "CLIA numbers can be found at <a href=\"https://www.cdc.gov/clia/LabSearch.html\" class=\"usa-link\" target=\"_blank\" rel=\"noreferrer noopener\">https://www.cdc.gov/clia/LabSearch.html</a> ."              
                             ]
                         },
                         {
@@ -736,11 +738,11 @@
                             "required": false,
                             "acceptedFormat": false,
                             "acceptedValues": false,
-                            "acceptedExample": true,
+                            "acceptedExample": false,
                             "valueMessage": "",
                             "valueType": "Address",
                             "values": [
-                                "Apt 101, Suite 550, Room 237" 
+                                "" 
                             ],               
                             "notes": [
                                "Enter testing lab’s additional address information, if applicable. This value is optional and can be left blank if no information is provided."              
@@ -774,7 +776,7 @@
                             "valueMessage": "",
                             "valueType": "Address",
                             "values": [
-                                "Two-character state abbreviation, ex: MD, VT, TX." 
+                                "Two-character state abbreviation." 
                             ],               
                             "notes": [
                                "Enter ordering provider’s state. File will fail if field left blank."              
@@ -943,9 +945,9 @@
                             "valueMessage": "",
                             "valueType": "Status",
                             "values": [
-                                "<code>Y</code>or YES</code>",
-                                "<code>N</code> or NO</code>",              
-                                "<code>U</code> or UNK</code>" 
+                                "<code>Y</code> or <code>YES</code>",
+                                "<code>N</code> or <code>NO</code>",              
+                                "<code>U</code> or <code>UNK</code>" 
                             ],               
                             "notes": [
                             "Enter patient’s intensive care unit (ICU) status.  Field is not required, but requested for thorough reporting. Enter one of the acceptable values exactly as displayed."              
@@ -985,7 +987,7 @@
                             "valueMessage": "",
                             "valueType": "Address",
                             "values": [
-                                "ex: 1234 America Ln" 
+                                "1234 America Ln" 
                             ],               
                             "notes": [
                                "Enter the street address of the ordering facility. Can be left blank if same as testing_lab_street."              
@@ -1036,7 +1038,7 @@
                             "valueMessage": "",
                             "valueType": "Address, two-character state abbreviation",
                             "values": [
-                                "Two-character state abbreviation, ex: MD, VT, TX." 
+                                "Two-character state abbreviation." 
                             ],               
                             "notes": [
                                "Enter ordering facility’s state. Can be left blank if same as testing_lab_state."              
@@ -1075,6 +1077,29 @@
                                "Enter ordering facility phone number. Can be left blank if same as testing_lab_phone_number."               
                             ]
                         }                    
+                    ]
+                },
+                {
+                    "title": "Additional data elements and notes",
+                    "slug": "additional-data-elements",
+                    "items": [
+                        {
+                            "name": "Comment",
+                            "colHeader": "comment",
+                            "colHeaderReportstream": "",            
+                            "required": false,
+                            "acceptedFormat": false,
+                            "acceptedValues": false,
+                            "acceptedExample": false,
+                            "valueMessage": "",
+                            "valueType": "Text",
+                            "values": [
+                                "" 
+                            ],               
+                            "notes": [
+                               "Enter any comments related to diagnostics or patient care. This field is not intended for characteristics of the COVID-19 tests or statements about false positive or negative results. This value is optional and can be left blank if no information is provided."              
+                            ]
+                        }
                     ]
                 }
             ]
