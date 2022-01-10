@@ -257,6 +257,22 @@ Accension number
 
 ---
 
+**Name**: Accession_no
+
+**ReportStream Internal Name**: message_id
+
+**Type**: ID
+
+**PII**: No
+
+**Cardinality**: [1..1]
+
+**Documentation**:
+
+unique id to track the usage of the message
+
+---
+
 **Name**: DateColl
 
 **ReportStream Internal Name**: order_test_date
@@ -1360,22 +1376,6 @@ UNK|Unknown
 **Documentation**:
 
 iPatientCare is an ambulatory EMR, so this field is defaulted to 'N'.
-
----
-
-**Name**: message_id
-
-**ReportStream Internal Name**: message_id
-
-**Type**: ID
-
-**PII**: No
-
-**Cardinality**: [1..1]
-
-**Documentation**:
-
-unique id to track the usage of the message
 
 ---
 

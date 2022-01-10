@@ -17,6 +17,8 @@ elements:
       csvFields: [{name: processing_mode_code}]
 
     - name: message_id
+      csvFields: [{name: Accession_no}]
+
 
 #demographics
     - name: patient_id

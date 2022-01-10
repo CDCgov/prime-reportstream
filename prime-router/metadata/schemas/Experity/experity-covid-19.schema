@@ -167,9 +167,11 @@ elements:
 
 #ordering facility + reporting facility name
     - name: testing_lab_name_temp
+      type: TEXT
       csvFields: [{name: Testing_lab_name}]
 
     - name: ordering_facility_name_temp
+      type: TEXT
       csvFields: [{name: Ordering_facility_name}]
 
     - name: reporting_facility_name

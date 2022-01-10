@@ -1354,6 +1354,8 @@ The city of the facility which the test was ordered from
 
 **ReportStream Internal Name**: ordering_facility_name_temp
 
+**Type**: TEXT
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -2495,6 +2497,8 @@ Typically this will be the same as the `testing_lab_clia`, but potentially could
 **Name**: Testing_lab_name
 
 **ReportStream Internal Name**: testing_lab_name_temp
+
+**Type**: TEXT
 
 **PII**: No
 
