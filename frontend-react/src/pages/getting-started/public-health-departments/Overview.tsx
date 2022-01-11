@@ -37,8 +37,10 @@ export const PhdOverview = () => {
                 >
                     Contact us
                 </a>
-                <hr className="margin-y-6" />
-                On this page:
+
+                <p className="margin-top-4">
+                    <strong>On this page:</strong>
+                </p>
                 <ul>
                     <li>
                         <a href="#data-download" className="usa-link">
@@ -60,10 +62,14 @@ export const PhdOverview = () => {
                     </li>
                 </ul>
             </section>
-            <hr className="margin-y-6" />
 
             <section>
-                <h2 id="data-download">Data download</h2>
+                <h3
+                    id="data-download"
+                    className="font-body-lg border-top-1px border-ink margin-top-8 margin-bottom-6 padding-top-1"
+                >
+                    Data download
+                </h3>
                 Our fastest option to get up and running, our web application
                 gives you access to reporting results via manual download from
                 our online portal, in just two steps.
@@ -109,7 +115,12 @@ export const PhdOverview = () => {
                         </p>
                     </li>
                 </ol>
-                <h2 id="elr-connection">ELR connection</h2>
+                <h3
+                    id="elr-connection"
+                    className="font-body-lg border-top-1px border-ink margin-top-8 margin-bottom-6 padding-top-1"
+                >
+                    ELR connection
+                </h3>
                 If you’ve decided you’ll need an ELR connection for your public
                 health data reporting, we’ll get some information from you on
                 your needs and requirements. Connecting with ReportStream is
@@ -161,9 +172,12 @@ export const PhdOverview = () => {
                         </p>
                     </li>
                 </ol>
-                <h2 id="connecting-to-testing-facilities">
+                <h3
+                    id="connecting-to-testing-facilities"
+                    className="font-body-lg border-top-1px border-ink margin-top-8 margin-bottom-6 padding-top-1"
+                >
                     Connecting to testing facilities
-                </h2>
+                </h3>
                 <p>
                     New testing facilities join ReportStream on a regular basis,
                     through our partner SimpleReport, or through other public
@@ -198,8 +212,9 @@ export const PhdOverview = () => {
                     </a>
                     .
                 </p>
-                <hr className="margin-y-6" />
-                <h2>Get started with ReportStream</h2>
+                <h3 className="font-body-lg border-top-1px border-ink margin-top-8 margin-bottom-6 padding-top-1">
+                    Get started with ReportStream
+                </h3>
                 Ready to bring ReportStream to your jurisdiction or just have
                 more questions? Email us and we’ll follow up with next steps.
                 <p>
