@@ -1,4 +1,7 @@
 import { Helmet } from "react-helmet";
+import DOMPurify from "dompurify";
+
+import site from "../../../content/site.json";
 
 /* eslint-disable jsx-a11y/anchor-has-content */
 export const AccountRegistrationGuide = () => {
@@ -17,7 +20,7 @@ export const AccountRegistrationGuide = () => {
                 <h2 className="margin-top-0">Account registration guide</h2>
                 <p className="usa-intro text-base">
                     The ReportStream team will help you set up a new user
-                    account. Follow the below steps to reach out and get the
+                    account. Follow the steps below to reach out and get the
                     process started.
                 </p>
 
@@ -53,8 +56,18 @@ export const AccountRegistrationGuide = () => {
                             </a>
                             , a PRIME project that ReportStream closely
                             collaborates with. If you have questions about any
-                            step of the registration process, contact us at
-                            reportstream@cdc.gov.
+                            step of the registration process, contact us at{" "}
+                            <a
+                                href={
+                                    "mailto:" +
+                                    DOMPurify.sanitize(site.orgs.RS.email) +
+                                    "?subject=Getting started with ReportStream"
+                                }
+                                className="usa-link"
+                            >
+                                reportstream@cdc.gov
+                            </a>
+                            .
                         </p>
                     </div>
                 </div>
@@ -70,8 +83,19 @@ export const AccountRegistrationGuide = () => {
                             Contact ReportStream
                         </h4>
                         <p className="margin-top-05">
-                            Send an email to reportstream@cdc.gov. Use the
-                            example text below as a template for your message:
+                            Send an email to{" "}
+                            <a
+                                href={
+                                    "mailto:" +
+                                    DOMPurify.sanitize(site.orgs.RS.email) +
+                                    "?subject=Register a new account: organization or testing facility"
+                                }
+                                className="usa-link"
+                            >
+                                reportstream@cdc.gov
+                            </a>
+                            . Use the example text below as a template for your
+                            message:
                         </p>
                         <blockquote className="rs-blockquote__documentation">
                             <p>
@@ -110,7 +134,12 @@ export const AccountRegistrationGuide = () => {
                             <li>
                                 A ReportStream representative will process your
                                 registration request and respond via email with
-                                a link to an online form
+                                a link to an online form.{" "}
+                                <em>
+                                    It can take 2-3 business days to receive
+                                    this email
+                                </em>
+                                .
                             </li>
                             <li>
                                 Open the link to view the form and review the
@@ -237,8 +266,18 @@ export const AccountRegistrationGuide = () => {
                             </li>
                             <li>Enter your username and password </li>
                             <li>
-                                Contact reportstream@cdc.gov if you run into any
-                                login issues{" "}
+                                Contact{" "}
+                                <a
+                                    href={
+                                        "mailto:" +
+                                        DOMPurify.sanitize(site.orgs.RS.email) +
+                                        "?subject=Getting started with ReportStream"
+                                    }
+                                    className="usa-link"
+                                >
+                                    reportstream@cdc.gov
+                                </a>{" "}
+                                if you run into any login issues{" "}
                             </li>
                         </ul>
                     </li>
