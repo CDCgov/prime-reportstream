@@ -30,7 +30,7 @@ export const WhereWereLive = () => {
                             DOMPurify.sanitize(site.orgs.RS.email) +
                             "?subject=Getting started with ReportStream"
                         }
-                        className="margin-left-1"
+                        className="margin-left-1 usa-link"
                     >
                         Get in touch
                     </a>
