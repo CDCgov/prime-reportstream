@@ -1,7 +1,7 @@
 
 ### Schema: experity/experity-covid-19
 ### Topic: covid-19
-### Tracking Element: none
+### Tracking Element: Testing_lab_accession_number (message_id)
 ### Base On: [covid-19](./covid-19.md)
 ### Extends: none
 #### Description: experity CSV lab report schema
@@ -1354,6 +1354,8 @@ The city of the facility which the test was ordered from
 
 **ReportStream Internal Name**: ordering_facility_name_temp
 
+**Type**: TEXT
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -2473,6 +2475,8 @@ Typically this will be the same as the `testing_lab_clia`, but potentially could
 **Name**: Testing_lab_name
 
 **ReportStream Internal Name**: testing_lab_name_temp
+
+**Type**: TEXT
 
 **PII**: No
 
