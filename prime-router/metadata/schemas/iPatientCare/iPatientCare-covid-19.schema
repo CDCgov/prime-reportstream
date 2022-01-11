@@ -5,6 +5,7 @@
 # 
 name: ipatientcare-covid-19
 topic: covid-19
+trackingElement: message_id
 description: iPatientCare CSV lab report schema
 basedOn: covid-19
 elements:

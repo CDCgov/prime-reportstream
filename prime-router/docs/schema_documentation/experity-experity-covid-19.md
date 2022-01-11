@@ -1,7 +1,7 @@
 
 ### Schema: experity/experity-covid-19
 ### Topic: covid-19
-### Tracking Element: none
+### Tracking Element: Testing_lab_accession_number (message_id)
 ### Base On: [covid-19](./covid-19.md)
 ### Extends: none
 #### Description: experity CSV lab report schema

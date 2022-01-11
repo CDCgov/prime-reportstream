@@ -5,6 +5,7 @@
 #
 name: experity-covid-19
 topic: covid-19
+trackingElement: message_id
 description: experity CSV lab report schema
 basedOn: covid-19
 
@@ -262,6 +263,7 @@ elements:
     - name: illness_onset_date
       default: ""
       csvFields: [{name: Illness_onset_date, format: "M/d/yyyy"}]
+      nullifyValue: true
 
 
 # Default Values

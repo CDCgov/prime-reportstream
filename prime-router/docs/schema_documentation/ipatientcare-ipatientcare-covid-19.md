@@ -1,7 +1,7 @@
 
 ### Schema: ipatientcare/ipatientcare-covid-19
 ### Topic: covid-19
-### Tracking Element: none
+### Tracking Element: Accession_no (message_id)
 ### Base On: [covid-19](./covid-19.md)
 ### Extends: none
 #### Description: iPatientCare CSV lab report schema
