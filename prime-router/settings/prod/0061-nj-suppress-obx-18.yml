@@ -203,7 +203,7 @@
         reportingFacilityId: "11D2030855"
         reportingFacilityIdType: null
         suppressQstForAoe: false
-        suppressHl7Fields: "OBX-18"
+        suppressHl7Fields: "OBX-18-1,OBX-18-2,OBX-18-3"
         suppressAoe: false
         defaultAoeToUnknown: false
         useBlankInsteadOfUnknown: null
