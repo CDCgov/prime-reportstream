@@ -1,7 +1,7 @@
 
 ### Schema: experity/cuc-al-covid-19
 ### Topic: covid-19
-### Tracking Element: none
+### Tracking Element: Testing_lab_accession_number (message_id)
 ### Base On: none
 ### Extends: [experity/experity-covid-19](./experity-experity-covid-19.md)
 #### Description: Experity CSV lab report schema, Compass Urgent Care, AL
@@ -1354,6 +1354,8 @@ The city of the facility which the test was ordered from
 
 **ReportStream Internal Name**: ordering_facility_name_temp
 
+**Type**: TEXT
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1838,6 +1840,7 @@ Code | Display
 1002-5|American Indian or Alaska Native
 1002-5|American Indian
 1002-5|Native American
+1002-5|1002-5
 2054-5|Black or African American
 2054-5|African American
 2054-5|African American Alaska Native
@@ -2510,6 +2513,8 @@ Typically this will be the same as the `testing_lab_clia`, but potentially could
 **Name**: Testing_lab_name
 
 **ReportStream Internal Name**: testing_lab_name_temp
+
+**Type**: TEXT
 
 **PII**: No
 
