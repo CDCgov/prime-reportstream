@@ -69,7 +69,7 @@ Send is different because it allows for partial failures.   This is because the 
 
 When a failure occurs, Send puts a new message on the `send` queue, that contains information on what Items to retry.  That message is giving a start time in the future, using a simple exponential backoff strategy.  The message also contains the number of retries so far, and a `send_warning` action is placed in the action table.
 
-In this case, the transaction is __not__ aborted - the TASK table is updated as stated, and Azure thinks the Send succeeded - in other words, rather than using Azure's built-in retry mechanism, we have built our own retry for Send.
+In this case, the transaction is __not__ aborted.  The TASK table is updated with a new retry_token value, __and__ a new message is put in the `send` queue.  (This is done in the calls to `updateHeader` (which updates the TASK table) and `queue.sendMessage` in `WorkflowEngine.kt::handleReportEvent(...).)  Then SendFunction is done, and Azure thinks the Send succeeded - in other words, rather than using Azure's built-in retry mechanism, we have built our own retry for Send.
 
 After 4 retries, Send gives up, and puts a `send_error` action in the Action table, and does not try any more.
 
@@ -81,8 +81,7 @@ You can also use the TASK table, as follows:
 
 select report_id, next_action, next_action_at, schema_name, receiver_name, item_count, created_at from task where next_action = 'send' and created_at > now() - interval '4 days' and next_action_at < now() - interval '15 minutes';
 
-Note this is identical to the `batch` query.
-
+Note this is identical to the `batch` query, above.
 
 ## Bonus for those who love complexity
 
@@ -90,6 +89,5 @@ There is another transport that also sends one Item at a time:  the default HL7 
 
 So... the Batch function also splits as well as merges.
 
-Note that no receiver is using useBatchHeaders: false at the moment.
+Note that as of this moment, no receiver is using useBatchHeaders: false.
 
-wi9G7*zW
