@@ -103,7 +103,9 @@ java {
 val compileKotlin: KotlinCompile by tasks
 val compileTestKotlin: KotlinCompile by tasks
 compileKotlin.kotlinOptions.jvmTarget = "11"
+compileKotlin.kotlinOptions.allWarningsAsErrors = true
 compileTestKotlin.kotlinOptions.jvmTarget = "11"
+compileTestKotlin.kotlinOptions.allWarningsAsErrors = true
 
 tasks.clean {
     // Delete the old Maven build folder
@@ -567,6 +569,14 @@ repositories {
     }
 }
 
+// Prevent logback from being used by slf4j, no matter who declares it. Otherwise slf4j can pickup logback instead of
+// log4j from the classpath and our configuration gets ignored.
+configurations {
+    implementation {
+        exclude(group = "ch.qos.logback")
+    }
+}
+
 dependencies {
     jooqGenerator("org.postgresql:postgresql:42.3.1")
 
@@ -591,9 +601,9 @@ dependencies {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
-    implementation("org.apache.logging.log4j:log4j-api:[2.17.0,)")
-    implementation("org.apache.logging.log4j:log4j-core:[2.17.0,)")
-    implementation("org.apache.logging.log4j:log4j-slf4j-impl:[2.17.0,)")
+    implementation("org.apache.logging.log4j:log4j-api:[2.17.1,)")
+    implementation("org.apache.logging.log4j:log4j-core:[2.17.1,)")
+    implementation("org.apache.logging.log4j:log4j-slf4j-impl:[2.17.1,)")
     implementation("org.apache.logging.log4j:log4j-api-kotlin:1.1.0")
     implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.2.0")
     implementation("tech.tablesaw:tablesaw-core:0.42.0")
@@ -638,7 +648,7 @@ dependencies {
     implementation("khttp:khttp:1.0.0")
     implementation("com.auth0:java-jwt:3.18.2")
     implementation("io.jsonwebtoken:jjwt-api:0.11.2")
-    implementation("de.m3y.kformat:kformat:0.8")
+    implementation("de.m3y.kformat:kformat:0.9")
     implementation("io.github.java-diff-utils:java-diff-utils:4.11")
     implementation("io.ktor:ktor-client-core:$ktorVersion")
     implementation("io.ktor:ktor-client-cio:$ktorVersion")
