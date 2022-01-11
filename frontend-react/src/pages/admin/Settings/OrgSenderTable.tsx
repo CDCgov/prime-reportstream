@@ -12,23 +12,21 @@ export function OrgSenderTable(props: OrgSettingsTableProps) {
         OrgSenderSettingsResource.list(),
         { orgname: props.orgname }
     );
-    const { fetch } = useController();
+    const { fetch: fetchController } = useController();
     function testUpdate(setting: OrgSenderSettingsResource) {
-        debugger;
         setting.topic = "COVID-2023";
         const testData = JSON.stringify(setting);
         console.log(testData);
-        fetch(
+        fetchController(
             OrgSenderSettingsResource.update(),
             { orgname: setting.organizationName, sendername: setting.name },
             testData
         );
     }
     function testDelete(setting: OrgSenderSettingsResource) {
-        debugger;
         const testDeleteData = JSON.stringify(setting);
         console.log(testDeleteData);
-        fetch(OrgSenderSettingsResource.delete2(), {
+        fetchController(OrgSenderSettingsResource.delete2(), {
             orgname: setting.organizationName,
             sendername: setting.name,
         });

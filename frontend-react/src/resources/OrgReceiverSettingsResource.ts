@@ -47,14 +47,6 @@ import OrgSettingsBaseResource from "./OrgSettingsBaseResource";
     }
 */
 
-interface Translation {
-    schemaName: string;
-    format: string;
-    nameFormat: string;
-    receivingOrganization: string;
-    type: string;
-}
-
 interface Timing {
     operation: string;
     numberPerDay: number;
@@ -90,8 +82,7 @@ export default class OrgReceiverSettingsResource extends OrgSettingsBaseResource
     topic: string = "";
     customerStatus: string = "";
     schemaName: string = "";
-    processingType: string = "";
-    translation: Translation[] = [];
+    translation: object = {};
     description: string = "";
     jurisdictionalFilter: string[] = [];
     qualityFilter: string[] = [];
