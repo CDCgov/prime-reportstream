@@ -1,0 +1,51 @@
+# action.yml
+name: 'Build Variables'
+description: 'Variables shared by build workflows'
+outputs:
+  env_name:
+    value: ${{ steps.build_result.outputs.env_name }}
+  version:
+    value: ${{ steps.version_result.outputs.version }}
+
+runs:
+  using: "composite"
+  steps:
+
+    - name: Set Build Environment - DEV
+      id: build_dev
+      if: github.ref == 'refs/heads/dev-rheft'
+      shell: bash
+      run: echo "::set-output name=env_name::dev"
+
+    - name: Set Build Environment - TEST
+      id: build_test
+      if: github.ref == 'refs/heads/ronheft/test-investigation'
+      shell: bash
+      run: echo "::set-output name=env_name::test"
+
+    - name: Set Build Environment - STAGING
+      id: build_staging
+      if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/josiahsiegel/#3775-deploy-frontend-efficiency'
+      shell: bash
+      run: echo "::set-output name=env_name::staging"
+
+    - name: Set Build Environment - PROD
+      id: build_prod
+      if: github.ref == 'refs/heads/production'
+      shell: bash
+      run: echo "::set-output name=env_name::prod"
+
+    - name: Set Build Environment - RESULT
+      id: build_result
+      shell: bash
+      run: |
+        echo "::set-output name=env_name::\
+        ${{ steps.build_dev.outputs.env_name }}\
+        ${{ steps.build_test.outputs.env_name }}\
+        ${{ steps.build_staging.outputs.env_name }}\
+        ${{ steps.build_prod.outputs.env_name }}"
+
+    - name: Set tag automatically
+      id: version_result
+      shell: bash
+      run: echo "::set-output name=version::v-$(date +%Y.%m.%d-%H%M%S)"
