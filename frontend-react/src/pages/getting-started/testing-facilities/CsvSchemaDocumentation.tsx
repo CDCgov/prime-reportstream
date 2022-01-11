@@ -184,23 +184,23 @@ export const CsvSchemaDocumentation = () => {
                                                             <>Example(s)</>
                                                         ) : null}
                                                     </div>
-                                                    <div className="grid-col-8">
+                                                    <ul className="grid-col-8 value-list">
                                                         {item.values?.map(
                                                             (
                                                                 value,
                                                                 valueIndex
                                                             ) => {
                                                                 return (
-                                                                    <div
+                                                                    <li
                                                                         key={`value-${fieldIndex}-${sectionIndex}-${itemIndex}-${valueIndex}`}
                                                                         dangerouslySetInnerHTML={{
                                                                             __html: `${value}`,
                                                                         }}
-                                                                    ></div>
+                                                                    ></li>
                                                                 );
                                                             }
                                                         )}
-                                                    </div>
+                                                    </ul>
                                                 </div>
                                             </div>
                                         );

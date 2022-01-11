@@ -2,7 +2,6 @@
 
 package gov.cdc.prime.router.cli
 
-import cli.LivdTableDownload
 import com.github.ajalt.clikt.completion.completionOption
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.subcommands
