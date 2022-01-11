@@ -898,6 +898,7 @@
         receivingApplicationName: NEDSS
         receivingFacilityName: TX-ELR
         defaultAoeToUnknown: true
+        nameFormat: texas
       transport:
         type: SFTP
         host: sftp
