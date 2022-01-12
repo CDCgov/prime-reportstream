@@ -66,6 +66,8 @@
       display: American Indian
     - code: 1002-5
       display: Native American
+    - code: 1002-5
+      display: 1002-5
     - code: 2054-5
       display: Black or African American
     - code: 2054-5

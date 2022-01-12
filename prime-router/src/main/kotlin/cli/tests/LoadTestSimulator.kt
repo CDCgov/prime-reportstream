@@ -250,6 +250,18 @@ abstract class LoadTestSimulator : CoolTest() {
             stracSender,
             true
         )
+        val twoThreadsX1000with50msDelay = Simulation(
+            "twoThreadsX100withDelay : Submit 2X1000 = 2000 tests with 50ms delay between submits.",
+            2,
+            1000,
+            1,
+            "IG",
+            "EVERY_5_MINS",
+            "ignore.EVERY_5_MINS",
+            50,
+            stracSender,
+            true
+        )
         val fiveThreadsX100 = Simulation( // Meant to simulate a high load from a single-test sender
             "fiveThreadsX100 : Submit 5X100 = 500 tests as fast as possible, across 5 threads.",
             5,
@@ -287,9 +299,9 @@ abstract class LoadTestSimulator : CoolTest() {
             true
         )
         val spike = Simulation( // Simulate a sudden spike in sends all at once
-            "Spike: 100 Threads each submitting once.",
-            100,
-            1,
+            "Spike: 200 Threads each submitting 25 times.",
+            200,
+            25,
             1,
             "IG",
             "EVERY_5_MINS",
