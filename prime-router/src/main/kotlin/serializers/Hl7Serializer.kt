@@ -339,7 +339,10 @@ class Hl7Serializer(
 
             // Second, we process all the element raw values through mappers and defaults.
             schema.elements.forEach {
-                mappedRows[it.name] = it.processValue(mappedRows, schema)
+                val mappedResult = it.processValue(mappedRows, schema)
+                mappedRows[it.name] = mappedResult.value ?: ""
+                errors.addAll(mappedResult.errors.map { it.detailMsg() })
+                warnings.addAll(mappedResult.warnings.map { it.detailMsg() })
             }
         } catch (e: Exception) {
             val msg = "${e.localizedMessage} ${e.stackTraceToString()}"
@@ -359,7 +362,7 @@ class Hl7Serializer(
             if (mappedRows[it] != null) listOf(mappedRows[it]!!) else emptyList()
         }
 
-        return RowResult(rows, errors, warnings)
+        return RowResult(rows, errors.distinct(), warnings.distinct())
     }
 
     fun readExternal(
@@ -840,7 +843,7 @@ class Hl7Serializer(
         if (valuesForMapper == null) {
             terser.set(pathSpec, "")
         } else {
-            val mappedValue = mapper.apply(element, args, valuesForMapper) ?: ""
+            val mappedValue = mapper.apply(element, args, valuesForMapper).value ?: ""
             val truncatedValue = trimAndTruncateValue(mappedValue, hl7Field, config, terser)
             // there are instances where we need to replace the DII value that comes from the LIVD
             // table with an OID that reflects that this is an equipment UID instead. NH raised this

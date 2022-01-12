@@ -239,3 +239,26 @@ data class InvalidHL7Message(
         }
     }
 }
+
+/**
+ * An message to denote that an equipment was not found in the LIVD table.
+ */
+data class InvalidEquipmentMessage(
+    override val type: ActionEventDetailType = ActionEventDetailType.INVALID_EQUIPMENT,
+    val elementName: String
+) : ActionEventDetail {
+    override fun detailMsg(): String {
+        return "Invalid field $elementName; please refer to the Department of Health and Human Services’ (HHS) " +
+            "LOINC Mapping spreadsheet for acceptable values."
+    }
+
+    override fun groupingId(): String {
+        return detailMsg()
+    }
+
+    companion object {
+        fun new(element: Element): InvalidEquipmentMessage {
+            return InvalidEquipmentMessage(elementName = element.name)
+        }
+    }
+}

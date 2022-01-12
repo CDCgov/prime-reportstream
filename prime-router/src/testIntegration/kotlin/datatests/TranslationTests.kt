@@ -244,12 +244,12 @@ class TranslationTests {
                             input,
                             TestSource
                         )
-                        readResult.errors.forEach { result.errors.add(it.responseMessage.detailMsg()) }
-                        readResult.warnings.forEach { result.warnings.add(it.responseMessage.detailMsg()) }
+                        readResult.errors.forEach { result.errors.add(it.detail.detailMsg()) }
+                        readResult.warnings.forEach { result.warnings.add(it.detail.detailMsg()) }
                         result.passed = readResult.errors.isEmpty()
                         readResult.report
                     } catch (e: ActionError) {
-                        e.details.forEach { result.errors.add(it.responseMessage.detailMsg()) }
+                        e.details.forEach { result.errors.add(it.detail.detailMsg()) }
                         result.passed = false
                         null
                     }
@@ -269,12 +269,12 @@ class TranslationTests {
                             input,
                             TestSource
                         )
-                        readResult.errors.forEach { result.errors.add(it.responseMessage.detailMsg()) }
-                        readResult.warnings.forEach { result.warnings.add(it.responseMessage.detailMsg()) }
+                        readResult.errors.forEach { result.errors.add(it.detail.detailMsg()) }
+                        readResult.warnings.forEach { result.warnings.add(it.detail.detailMsg()) }
                         result.passed = readResult.errors.isEmpty()
                         readResult.report
                     } catch (e: ActionError) {
-                        e.details.forEach { result.errors.add(it.responseMessage.detailMsg()) }
+                        e.details.forEach { result.errors.add(it.detail.detailMsg()) }
                         result.passed = false
                         null
                     }

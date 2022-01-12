@@ -3,7 +3,7 @@
 import { Helmet } from "react-helmet";
 import DOMPurify from "dompurify";
 
-import site from "../../content/site.json";
+import site from "../../../content/site.json";
 
 export const ELRChecklist = () => {
     return (
@@ -15,14 +15,14 @@ export const ELRChecklist = () => {
                 </title>
             </Helmet>
             <section id="anchor-top">
-                <h1 className="margin-top-0">ELR Onboarding Checklist</h1>
+                <h2 className="margin-top-0">ELR Onboarding Checklist</h2>
 
-                <p className="usa-intro">
+                <p className="usa-intro text-base">
                     If you’re a public health department and want to connect
                     ReportStream through Electronic Lab Reporting (ELR), you’ll
                     need to fill out the ReportStream ELR onboarding form.
                 </p>
-                <p className="usa-intro">
+                <p className="usa-intro text-base">
                     Our checklist here provides a preview of what we’ll ask, so
                     you can gather everything you need to complete the form.
                 </p>
@@ -105,7 +105,7 @@ export const ELRChecklist = () => {
                     the ELR onboarding form, we recommend first reviewing
                     information on our{" "}
                     <a
-                        href="/how-it-works/getting-started"
+                        href="/getting-started/public-health-departments/overview"
                         className="usa-link"
                     >
                         Getting started page
@@ -151,7 +151,7 @@ export const ELRChecklist = () => {
 
                 <p>
                     ReportStream sends data as an{" "}
-                    <a href="https://why.hl7.org/">HL7</a> file via Secure File
+                    <a href="https://hl7.org/">HL7</a> file via Secure File
                     Transfer Protocol (SFTP). We capture Health and Human
                     Services (HHS) required fields, including “Ask on Order
                     Entry” questions.{" "}

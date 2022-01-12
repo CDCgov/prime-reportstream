@@ -11,11 +11,11 @@ import kotlin.test.Test
 import kotlin.test.assertTrue
 import kotlin.test.fail
 
-//
-// Using JUnit here, but this is not a unit test.  This tests end-to-end:  ingesting a csv file,
-// creating transformed objects, writing them to output csv files, then doing a simple 'diff'
-// to see if they match expected output files.
-//
+/**
+ * Using JUnit here, but this is not a unit test.  This tests end-to-end:  ingesting a csv file,
+ * creating transformed objects, writing them to output csv files, then doing a simple 'diff'
+ * to see if they match expected output files.
+ */
 class SimpleReportIntegrationTests {
     private val inputPath = "./src/test/csv_test_files/input/"
     private val expectedResultsPath = "./src/test/csv_test_files/expected/"
@@ -109,7 +109,6 @@ class SimpleReportIntegrationTests {
         // 1) Ingest the file
         val inputFileSource = FileSource(inputFilePath)
         val readResult = csvSerializer.readExternal(schema.name, inputFile.inputStream(), inputFileSource)
-        assertThat(readResult.warnings).isEmpty()
         assertThat(readResult.errors).isEmpty()
         val inputReport = readResult.report ?: fail()
 

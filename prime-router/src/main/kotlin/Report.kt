@@ -63,7 +63,7 @@ enum class Options {
  * @property originalCount The original number of items in the report
  * @property filterName The name of the filter function that removed the rows
  * @property filterArgs The arguments used in the filter function
- * @property filteredRows The row's that were removed from the report, 0 indexed
+ * @property filteredCount ?
  * @property filteredTrackingElements The trackingElement values of the rows removed.
  * Note that we can't guarantee the Sender is sending good unique trackingElement values.
  */
@@ -84,7 +84,7 @@ data class ReportStreamFilterResult(
     override fun toString(): String {
         return "For $receiverName, filter $filterName$filterArgs" +
             " reduced the item count from $originalCount to ${originalCount - filteredCount}." +
-            if (filteredTrackingElements.isNullOrEmpty()) {
+            if (filteredTrackingElements.isEmpty()) {
                 ""
             } else {
                 "  Data with these IDs were filtered out: (${filteredTrackingElements.joinToString(",") })"
@@ -795,7 +795,7 @@ class Report : Logging {
                     if (value == null || value.isBlank()) return@mapNotNull null
                     ElementAndValue(element, value)
                 }
-                elementValue = mapper.apply(toElement, args, inputValues) ?: ""
+                elementValue = mapper.apply(toElement, args, inputValues).value ?: ""
             }
             if (toElement.useDefault(elementValue)) elementValue = mapping.useDefault[toElement.name] ?: ""
             elementValue

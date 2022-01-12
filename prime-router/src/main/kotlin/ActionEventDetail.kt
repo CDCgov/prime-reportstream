@@ -15,6 +15,8 @@ enum class ActionEventDetailType {
     UNSUPPORTED_EI,
     // HL7 Serializing errors
     INVALID_HL7,
+    // Common errors
+    INVALID_EQUIPMENT,
 }
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")

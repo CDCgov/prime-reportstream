@@ -193,15 +193,21 @@ class ReportFunction : Logging {
                             validatedRequest.defaults,
                         )
 
-                        // checks for errors from createReport
-                        if (options != Options.SkipInvalidItems && errors.isNotEmpty()) {
-                            throw ActionError(errors)
-                        }
-
+                        // NOTE: It may make more sense to store this first:
+                        // 1. store incoming report
+                        // 2. translate to internal format and store
+                        // 3. process
                         val blobInfo = workflowEngine.recordReceivedReport(
                             report, validatedRequest.content.toByteArray(), sender
                         )
                         actionHistory.trackExternalInputReport(report, blobInfo, payloadName)
+
+                        // checks for errors from createReport
+                        if (options != Options.SkipInvalidItems && errors.isNotEmpty()) {
+                            throw ActionError(errors)
+                        }
+                        actionHistory.trackDetails(errors)
+                        actionHistory.trackDetails(warnings)
 
                         // call the correct processing function based on processing type
                         if (isAsync) {
@@ -225,8 +231,6 @@ class ReportFunction : Logging {
                             actionHistory.trackDetails(routingWarnings)
                         }
 
-                        actionHistory.trackDetails(errors)
-                        actionHistory.trackDetails(warnings)
                         responseBuilder.status(HttpStatus.CREATED)
                     }
                 }

@@ -15,11 +15,6 @@ import java.util.UUID
 
 private val mapper = jacksonMapperBuilder().build()
 
-data class Experiment(
-    val test: String = "hello",
-    val again: String = "world",
-)
-
 class JsonConverter<T> (val c: Class<T>) : Converter<JSONB, T> {
 
     override fun from(dbObject: JSONB): T {
