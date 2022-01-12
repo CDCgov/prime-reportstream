@@ -404,10 +404,10 @@ open class BaseHistoryFunction : Logging {
      */
     fun checkAuthenticated(request: HttpRequestMessage<String?>, context: ExecutionContext): AuthClaims? {
         val userName: String? /* Format: email */
-        val requestOrgName = request.headers["organization"] ?: "" /* Format: xx-phd */
+        val requestOrgName: String? = request.headers["organization"] /* Format: xx-phd */
         val oktaOrganizations: List<String?>
         val accessOrgName: String? /* Format: xx-phd */
-        var jwtToken = request.headers["authorization"] ?: "" /* Format: Bearer ... */
+        var jwtToken: String? = request.headers["authorization"] /* Format: Bearer ... */
 
         /* INFO:
         *   JWT cannot be parsed by OktaAuthentication object here because Admins who do not
@@ -417,7 +417,7 @@ open class BaseHistoryFunction : Logging {
         *   To fix this, below we apply the same verifier, and then we see if oktaOrganizations.contains(orgName) OR
         *   oktaOrganizations.contains("DHPrimeAdmins") before authorizing.
         */
-        if (jwtToken.isBlank()) return null
+        if (jwtToken.isNullOrBlank() || requestOrgName.isNullOrBlank()) return null
 
         try {
             /* Trims Bearer off token */
@@ -444,7 +444,7 @@ open class BaseHistoryFunction : Logging {
             return null
         }
 
-        if (userName.isBlank() || accessOrgName.isNullOrBlank()) return null
+        if (userName.isNullOrBlank() || accessOrgName.isNullOrBlank()) return null
         /*   NOTE: This was noted as taking an Okta org name and converting it, but that was prior to
          *   the React front-end sending the org in the proper format xx-phd.
          */
