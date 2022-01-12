@@ -52,7 +52,7 @@ class SimpleReportIntegrationTests {
         assertThat(readResult.errors).isEmpty()
         // I removed this test- at this time, the SimpleReport parsing does return an empty column warning.
         //        assertTrue(readResult.warnings.isEmpty())
-        val inputReport = readResult.report ?: fail()
+        val inputReport = readResult.report
         // 2) Create transformed objects, according to the receiver table rules
         val (outputReports, _) = Translator(metadata, settings).filterAndTranslateByReceiver(inputReport)
 
@@ -110,7 +110,7 @@ class SimpleReportIntegrationTests {
         val inputFileSource = FileSource(inputFilePath)
         val readResult = csvSerializer.readExternal(schema.name, inputFile.inputStream(), inputFileSource)
         assertThat(readResult.errors).isEmpty()
-        val inputReport = readResult.report ?: fail()
+        val inputReport = readResult.report
 
         // 2) Write the input report back out to a new file
         val outputFile = File(outputPath, inputReport.name)
