@@ -73,7 +73,7 @@ data class ActionEvent(
     val scope: DetailScope,
     val trackingId: String,
     val detail: ActionEventDetail,
-    val index: Int = -1,
+    val index: Int? = null,
     var reportId: UUID? = null,
     var action: Action? = null,
     val type: Type = Type.info,
