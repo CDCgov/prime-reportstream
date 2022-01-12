@@ -33,10 +33,11 @@ function SubmissionsTable() {
         if (paginationSort === "ASC") {
             // sort by createdAt DESC
             // because when the paginationSort is ASC, the results from the server are reversed
+            const fallbackDate = "1/1/2020";
             submissions.sort(
                 (a, b) =>
-                    Date.parse(b.createdAt?.toString() || "") -
-                    Date.parse(a.createdAt?.toString() || "")
+                    Date.parse(b.createdAt?.toString() || fallbackDate) -
+                    Date.parse(a.createdAt?.toString() || fallbackDate)
             );
         }
         return submissions;
@@ -100,7 +101,7 @@ function SubmissionsTable() {
                                             .local()
                                             .format("YYYY-MM-DD HH:mm")}
                                     </th>
-                                    <th scope="row"></th>
+                                    <th scope="row">&nbsp;</th>
                                     {/* File name */}
                                     <th scope="row">{s["reportItemCount"]}</th>
                                     <th scope="row">{s["id"]}</th>
@@ -110,8 +111,11 @@ function SubmissionsTable() {
                         })}
                     </tbody>
                 </table>
-                {submissions.length === 0 && (
+                {submissions.length === 0 && !paginationCursor && (
                     <p>There were no results found.</p>
+                )}
+                {submissions.length === 0 && paginationCursor && (
+                    <p>No more results found.</p>
                 )}
                 {(submissions.length > 0 || paginationCursor) && (
                     <span className="float-right margin-top-5">
