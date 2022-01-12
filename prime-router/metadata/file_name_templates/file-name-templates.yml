@@ -102,3 +102,10 @@
   elements:
     - cdc_prime_phila_
     - createdDate()
+
+- name: texas
+  upperCase: true
+  elements:
+    - CDCPRIME_11D2030855_
+    - createdDate()
+

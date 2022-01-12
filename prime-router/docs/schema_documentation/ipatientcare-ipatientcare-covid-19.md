@@ -1,7 +1,7 @@
 
 ### Schema: ipatientcare/ipatientcare-covid-19
 ### Topic: covid-19
-### Tracking Element: none
+### Tracking Element: Accession_no (message_id)
 ### Base On: [covid-19](./covid-19.md)
 ### Extends: none
 #### Description: iPatientCare CSV lab report schema
@@ -254,6 +254,22 @@ Facility populates multiple fields.  This instance populates filler_name.
 **Documentation**:
 
 Accension number
+
+---
+
+**Name**: Accession_no
+
+**ReportStream Internal Name**: message_id
+
+**Type**: ID
+
+**PII**: No
+
+**Cardinality**: [1..1]
+
+**Documentation**:
+
+unique id to track the usage of the message
 
 ---
 
@@ -1361,22 +1377,6 @@ UNK|Unknown
 **Documentation**:
 
 iPatientCare is an ambulatory EMR, so this field is defaulted to 'N'.
-
----
-
-**Name**: message_id
-
-**ReportStream Internal Name**: message_id
-
-**Type**: ID
-
-**PII**: No
-
-**Cardinality**: [1..1]
-
-**Documentation**:
-
-unique id to track the usage of the message
 
 ---
 

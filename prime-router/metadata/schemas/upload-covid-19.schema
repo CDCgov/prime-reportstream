@@ -255,12 +255,15 @@ elements:
       csvFields: [{name: testing_lab_street2}]
 
     - name: testing_lab_city
+      cardinality: ONE 
       csvFields: [{name: testing_lab_city}]
 
     - name: testing_lab_state
+      cardinality: ONE 
       csvFields: [{name: testing_lab_state}]
 
     - name: testing_lab_zip_code
+      cardinality: ONE 
       csvFields: [{name: testing_lab_zip_code}]
 
     - name: testing_lab_phone_number
@@ -374,6 +377,7 @@ elements:
     - name: illness_onset_date
       default: ""
       csvFields: [{name: illness_onset_date, format: "yyyyMMdd"}]
+      nullifyValue: true
 
     - name: hospitalized
       type: CODE

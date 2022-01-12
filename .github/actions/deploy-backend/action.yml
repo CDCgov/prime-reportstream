@@ -162,7 +162,7 @@ runs:
       shell: bash
 
     - name: Push Docker image (unsigned)
-      if: env.DOCKER_CONTENT_TRUST != 1
+      if: env.USE_DCT != 'true'
       run: |
         docker push ${{ env.ACR_NAME }}/${{ env.IMAGE_REPO }} --all-tags
         RED='\033[0;31m'
