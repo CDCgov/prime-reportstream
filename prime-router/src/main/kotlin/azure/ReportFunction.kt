@@ -169,7 +169,7 @@ class ReportFunction : Logging {
         // extract the verbose param and default to empty if not present
         val verboseParam = request.queryParameters.getOrDefault(VERBOSE_PARAMETER, "")
         val verbose = verboseParam.equals(VERBOSE_TRUE, true)
-        try {
+        val report = try {
             val optionsText = request.queryParameters.getOrDefault(OPTION_PARAMETER, "None")
             val options = Options.valueOf(optionsText)
 
@@ -180,11 +180,8 @@ class ReportFunction : Logging {
                 actionHistory.trackActionSenderInfo(validatedRequest.sender.fullName, payloadName)
                 when (options) {
                     Options.CheckConnections, Options.ValidatePayload -> {
-                        responseBuilder.body(
-                            actionHistory.createResponseBody(
-                                false,
-                            )
-                        ).status(HttpStatus.OK)
+                        responseBuilder.status(HttpStatus.OK)
+                        null
                     }
                     else -> {
                         val (report, errors, warnings) = workflowEngine.createReport(
@@ -232,10 +229,12 @@ class ReportFunction : Logging {
                         }
 
                         responseBuilder.status(HttpStatus.CREATED)
+                        report
                     }
                 }
             } catch (e: ActionError) {
                 actionHistory.trackDetails(e.details)
+                null
             }
         } catch (e: IllegalArgumentException) {
             actionHistory.trackDetails(
@@ -243,21 +242,24 @@ class ReportFunction : Logging {
                     e.message ?: "Invalid request.", ActionEvent.Type.error
                 )
             )
+            null
         } catch (e: IllegalStateException) {
             actionHistory.trackDetails(
                 ActionEvent.report(
                     e.message ?: "Invalid request.", ActionEvent.Type.error
                 )
             )
+            null
         }
         responseBuilder.body(
             actionHistory.createResponseBody(
                 verbose,
+                report
             )
         )
         val response = responseBuilder.build()
         actionHistory.trackActionResult(response)
-        actionHistory.trackActionResponse(response)
+        actionHistory.trackActionResponse(response, report)
         workflowEngine.recordAction(actionHistory)
 
         // queue messages here after all task / action records are in

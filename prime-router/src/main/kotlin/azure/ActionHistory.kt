@@ -68,7 +68,6 @@ class ActionHistory {
      */
     val action = Action()
 
-    val trackedReports = mutableMapOf<ReportId, Report>()
     /*
      * Reports that are inputs to this action, from previous steps.
      * These reports are already in report_file.  For this action, we insert them as parents into
@@ -258,9 +257,9 @@ class ActionHistory {
      * @param response the response created while processing the submitted report
      * @param verboseResponse the generated verbose response with all details
      */
-    fun trackActionResponse(response: HttpResponseMessage) {
+    fun trackActionResponse(response: HttpResponseMessage, report: Report?) {
         action.httpStatus = response.status.value()
-        val verboseResponse = createResponseBody(true)
+        val verboseResponse = createResponseBody(true, report)
         this.trackActionResponse(verboseResponse)
     }
 
@@ -298,7 +297,6 @@ class ActionHistory {
 
     fun trackExistingInputReport(report: Report) {
         trackExistingInputReport(report.id)
-        trackedReports[report.id] = report
     }
 
     /**
@@ -331,7 +329,6 @@ class ActionHistory {
         action.externalName = payloadName
         reportFile.itemCount = report.itemCount
         reportsReceived[reportFile.reportId] = reportFile
-        trackedReports[report.id] = report
 
         // if the received report topic is covid-19, generate deidentified metadata
         if (report.schema.topic.lowercase() == "covid-19") {
@@ -364,7 +361,6 @@ class ActionHistory {
         filteredOutReports[reportFile.reportId] = reportFile
         reportLineages.add(ReportLineage(null, null, input.id, report.id, null))
         trackFilteredItems(report)
-        trackedReports[report.id] = report
     }
 
     /**
@@ -394,7 +390,6 @@ class ActionHistory {
         reportFile.blobDigest = blobInfo.digest
         reportFile.itemCount = report.itemCount
         reportsOut[reportFile.reportId] = reportFile
-        trackedReports[report.id] = report
         trackFilteredItems(report)
         trackItemLineages(report)
 
@@ -423,7 +418,6 @@ class ActionHistory {
         reportFile.blobDigest = blobInfo.digest
         reportFile.itemCount = report.itemCount
         reportsOut[reportFile.reportId] = reportFile
-        trackedReports[report.id] = report
         trackItemLineages(report)
         trackFilteredItems(report)
 
@@ -936,6 +930,7 @@ class ActionHistory {
      */
     fun createResponseBody(
         verbose: Boolean,
+        report: Report?,
     ): String {
         val warnings = details.filter { it.type == ActionEvent.Type.warning }
         val errors = details.filter { it.type == ActionEvent.Type.error }
@@ -945,14 +940,11 @@ class ActionHistory {
             it.useDefaultPrettyPrinter()
             it.writeStartObject()
 
-            val inboundReports = reportsReceived + reportsIn
-            check(inboundReports.size < 2) {
-                "Only able to record one report at a time."
-            }
-
-            val report = trackedReports[inboundReports.values.firstOrNull()?.reportId]
-
             if (report != null) {
+                val inboundReports = reportsReceived + reportsIn
+                check(inboundReports.containsKey(report.id)) {
+                    "Only tracked incoming reports can generate a response."
+                }
                 it.writeStringField("id", report.id.toString())
                 it.writeStringField("timestamp", DateTimeFormatter.ISO_INSTANT.format(Instant.now()))
                 it.writeStringField("topic", report.schema.topic)
@@ -966,24 +958,25 @@ class ActionHistory {
                 // TODO: need to get the correct path and set the ENDPOINT_BASE correctly, blocked by waiting for
                 //  the historyApi to be ready. Once this is known, uncomment line below and ensure path is correct
                 // it.writeStringField("location", "[base path]/${report.id}")
+
+                // print the report routing when in verbose mode
+                if (verbose) {
+                    it.writeArrayFieldStart("routing")
+                    createItemRouting(report).forEach { ij ->
+                        it.writeStartObject()
+                        it.writeNumberField("reportIndex", ij.reportIndex)
+                        it.writeStringField("trackingId", ij.trackingId)
+                        it.writeArrayFieldStart("destinations")
+                        ij.destinations.sorted().forEach { d -> it.writeString(d) }
+                        it.writeEndArray()
+                        it.writeEndObject()
+                    }
+                    it.writeEndArray()
+                }
             } else
                 it.writeNullField("id")
 
             this.prettyPrintDestinationsJson(it, WorkflowEngine.settingsProviderSingleton)
-            // print the report routing when in verbose mode
-            if (verbose) {
-                it.writeArrayFieldStart("routing")
-                createItemRouting(report).forEach { ij ->
-                    it.writeStartObject()
-                    it.writeNumberField("reportIndex", ij.reportIndex)
-                    it.writeStringField("trackingId", ij.trackingId)
-                    it.writeArrayFieldStart("destinations")
-                    ij.destinations.sorted().forEach { d -> it.writeString(d) }
-                    it.writeEndArray()
-                    it.writeEndObject()
-                }
-                it.writeEndArray()
-            }
 
             it.writeNumberField("warningCount", warnings.size)
             it.writeNumberField("errorCount", errors.size)
@@ -1097,7 +1090,7 @@ class ActionHistory {
      * @return the report routing for each item
      */
     private fun createItemRouting(
-        report: Report?,
+        report: Report,
     ): List<ItemRouting> {
         // create the item routing from the item lineage
         val routingMap = mutableMapOf<Int, ItemRouting>()
@@ -1108,22 +1101,17 @@ class ActionHistory {
             }
         }
         // account for any items that routed no where and were not in the item lineage
-        return report?.let {
-            val items = mutableListOf<ItemRouting>()
-            // the report has all the submitted items
-            it.itemIndices.forEach { i ->
-                // if an item was not present, create the routing with empty destinations
-                items.add(
-                    routingMap.getOrDefault(
-                        i,
-                        ItemRouting(i, it.getString(i, it.schema.trackingElement ?: ""))
-                    )
+        val items = mutableListOf<ItemRouting>()
+        // the report has all the submitted items
+        report.itemIndices.forEach { i ->
+            // if an item was not present, create the routing with empty destinations
+            items.add(
+                routingMap.getOrDefault(
+                    i,
+                    ItemRouting(i, report.getString(i, report.schema.trackingElement ?: ""))
                 )
-            }
-            items
-        } ?: run {
-            // unlikely, but in case the report is null...
-            routingMap.toSortedMap().values.map { it }
+            )
         }
+        return items
     }
 }
