@@ -31,6 +31,7 @@ import { GettingStartedTestingFacilities } from "./pages/getting-started/testing
 import { AdminMain } from "./pages/admin/AdminMain";
 import { AdminOrgEdit } from "./pages/admin/AdminOrgEdit";
 import { EditReceiverSettings } from "./pages/admin/Settings/EditReceiverSettings";
+import { EditSenderSettings } from "./pages/admin/Settings/EditSenderSettings";
 
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
 
@@ -149,14 +150,14 @@ const App = () => {
                                     component={AdminOrgEdit}
                                 />
                                 <AuthorizedRoute
-                                    path="/admin/orgsendersettings/:orgname"
-                                    authorize={PERMISSIONS.PRIME_ADMIN}
-                                    component={AdminOrgEdit}
-                                />
-                                <AuthorizedRoute
                                     path="/admin/orgreceiversettings/:orgname/:receivername"
                                     authorize={PERMISSIONS.PRIME_ADMIN}
                                     component={EditReceiverSettings}
+                                />
+                                <AuthorizedRoute
+                                    path="/admin/orgsendersettings/:orgname/:sendername"
+                                    authorize={PERMISSIONS.PRIME_ADMIN}
+                                    component={EditSenderSettings}
                                 />
                                 <SecureRoute
                                     path="/report-details"

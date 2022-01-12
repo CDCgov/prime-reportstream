@@ -1,5 +1,5 @@
-import { Button } from "@trussworks/react-uswds";
-import { useController, useResource } from "rest-hooks";
+import { useResource } from "rest-hooks";
+import { NavLink } from "react-router-dom";
 
 import OrgSenderSettingsResource from "../../../resources/OrgSenderSettingsResource";
 
@@ -12,25 +12,25 @@ export function OrgSenderTable(props: OrgSettingsTableProps) {
         OrgSenderSettingsResource.list(),
         { orgname: props.orgname }
     );
-    const { fetch: fetchController } = useController();
-    function testUpdate(setting: OrgSenderSettingsResource) {
-        setting.topic = "COVID-2023";
-        const testData = JSON.stringify(setting);
-        console.log(testData);
-        fetchController(
-            OrgSenderSettingsResource.update(),
-            { orgname: setting.organizationName, sendername: setting.name },
-            testData
-        );
-    }
-    function testDelete(setting: OrgSenderSettingsResource) {
-        const testDeleteData = JSON.stringify(setting);
-        console.log(testDeleteData);
-        fetchController(OrgSenderSettingsResource.delete2(), {
-            orgname: setting.organizationName,
-            sendername: setting.name,
-        });
-    }
+    // const { fetch: fetchController } = useController();
+    // function testUpdate(setting: OrgSenderSettingsResource) {
+    //     setting.topic = "COVID-2023";
+    //     const testData = JSON.stringify(setting);
+    //     console.log(testData);
+    //     fetchController(
+    //         OrgSenderSettingsResource.update(),
+    //         { orgname: setting.organizationName, sendername: setting.name },
+    //         testData
+    //     );
+    // }
+    // function testDelete(setting: OrgSenderSettingsResource) {
+    //     const testDeleteData = JSON.stringify(setting);
+    //     console.log(testDeleteData);
+    //     fetchController(OrgSenderSettingsResource.delete2(), {
+    //         orgname: setting.organizationName,
+    //         sendername: setting.name,
+    //     });
+    // }
 
     return (
         <section
@@ -64,20 +64,27 @@ export function OrgSenderTable(props: OrgSettingsTableProps) {
                                 {JSON.stringify(eachOrgSetting?.meta) || {}}
                             </td>
                             <td>
-                                <Button
-                                    type="button"
-                                    name="testUpdate"
-                                    onClick={(e) => testUpdate(eachOrgSetting)}
+                                <NavLink
+                                    to={`/admin/orgsendersettings/${eachOrgSetting.organizationName}/${eachOrgSetting.name}`}
+                                    key={eachOrgSetting.name}
+                                    className="usa-link"
                                 >
-                                    UPDATE!
-                                </Button>
-                                <Button
-                                    type="button"
-                                    name="testDelete"
-                                    onClick={(e) => testDelete(eachOrgSetting)}
-                                >
-                                    delete
-                                </Button>
+                                    edit
+                                </NavLink>
+                                {/*<Button*/}
+                                {/*    type="button"*/}
+                                {/*    name="testUpdate"*/}
+                                {/*    onClick={(e) => testUpdate(eachOrgSetting)}*/}
+                                {/*>*/}
+                                {/*    UPDATE!*/}
+                                {/*</Button>*/}
+                                {/*<Button*/}
+                                {/*    type="button"*/}
+                                {/*    name="testDelete"*/}
+                                {/*    onClick={(e) => testDelete(eachOrgSetting)}*/}
+                                {/*>*/}
+                                {/*    delete*/}
+                                {/*</Button>*/}
                             </td>
                         </tr>
                     ))}

@@ -114,7 +114,7 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
                             </Grid>
                             <Grid col="fill">
                                 <TextInput
-                                    id={`description-${orgReceiverSettings.description}`}
+                                    id={`description-${orgReceiverSettings.name}`}
                                     name="description"
                                     type="text"
                                     defaultValue={
@@ -139,7 +139,7 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
                             </Grid>
                             <Grid col="fill">
                                 <Textarea
-                                    id={`translation-${orgReceiverSettings.translation}`}
+                                    id={`translation-${orgReceiverSettings.name}`}
                                     name="translation"
                                     defaultValue={
                                         JSON.stringify(
@@ -148,7 +148,7 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
                                             "\t"
                                         ) || ""
                                     }
-                                    data-testid="description"
+                                    data-testid="translation"
                                     maxLength={255}
                                     onChange={(
                                         e: React.ChangeEvent<HTMLTextAreaElement>
@@ -161,38 +161,13 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
                         </Grid>
                         <Grid row>
                             <Grid col="fill">
-                                <Label htmlFor="description">
-                                    Description:{" "}
-                                </Label>
-                            </Grid>
-                            <Grid col="fill">
-                                <TextInput
-                                    id={`description-${orgReceiverSettings.description}`}
-                                    name="description"
-                                    type="text"
-                                    defaultValue={
-                                        orgReceiverSettings.description
-                                    }
-                                    data-testid="description"
-                                    maxLength={255}
-                                    onChange={(
-                                        e: React.ChangeEvent<HTMLInputElement>
-                                    ) =>
-                                        (orgReceiverSettings.description =
-                                            e.target.value)
-                                    }
-                                />
-                            </Grid>
-                        </Grid>
-                        <Grid row>
-                            <Grid col="fill">
                                 <Label htmlFor="jurisdictionalFilter">
                                     Jurisdictional Filter:{" "}
                                 </Label>
                             </Grid>
                             <Grid col="fill">
                                 <Textarea
-                                    id={`jurisdictionalFilter-${orgReceiverSettings.jurisdictionalFilter}`}
+                                    id={`jurisdictionalFilter-${orgReceiverSettings.name}`}
                                     name="jurisdictionalFilter"
                                     defaultValue={
                                         JSON.stringify(
@@ -220,7 +195,7 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
                             </Grid>
                             <Grid col="fill">
                                 <Textarea
-                                    id={`qualityFilter-${orgReceiverSettings.qualityFilter}`}
+                                    id={`qualityFilter-${orgReceiverSettings.name}`}
                                     name="qualityFilter"
                                     defaultValue={
                                         JSON.stringify(
@@ -248,7 +223,7 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
                             </Grid>
                             <Grid col="fill">
                                 <Checkbox
-                                    id={`reverseTheQualityFilter-${orgReceiverSettings.reverseTheQualityFilter}`}
+                                    id={`reverseTheQualityFilter-${orgReceiverSettings.name}`}
                                     name="reverseTheQualityFilter"
                                     data-testid="reverseTheQualityFilter"
                                     defaultChecked={
@@ -272,7 +247,7 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
                             </Grid>
                             <Grid col="fill">
                                 <Textarea
-                                    id={`routingFilter-${orgReceiverSettings.routingFilter}`}
+                                    id={`routingFilter-${orgReceiverSettings.name}`}
                                     name="routingFilter"
                                     defaultValue={
                                         JSON.stringify(
@@ -300,7 +275,7 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
                             </Grid>
                             <Grid col="fill">
                                 <Textarea
-                                    id={`processingModeFilter-${orgReceiverSettings.processingModeFilter}`}
+                                    id={`processingModeFilter-${orgReceiverSettings.name}`}
                                     name="processingModeFilter"
                                     defaultValue={
                                         JSON.stringify(
@@ -328,7 +303,7 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
                             </Grid>
                             <Grid col="fill">
                                 <Checkbox
-                                    id={`deidentify-${orgReceiverSettings.deidentify}`}
+                                    id={`deidentify-${orgReceiverSettings.name}`}
                                     name="deidentify"
                                     data-testid="deidentify"
                                     defaultChecked={
@@ -350,7 +325,7 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
                             </Grid>
                             <Grid col="fill">
                                 <Textarea
-                                    id={`timing-${orgReceiverSettings.timing}`}
+                                    id={`timing-${orgReceiverSettings.name}`}
                                     name="timing"
                                     defaultValue={
                                         JSON.stringify(
@@ -376,7 +351,7 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
                             </Grid>
                             <Grid col="fill">
                                 <Textarea
-                                    id={`transport-${orgReceiverSettings.transport}`}
+                                    id={`transport-${orgReceiverSettings.name}`}
                                     name="transport"
                                     defaultValue={
                                         JSON.stringify(
@@ -404,7 +379,7 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
                             </Grid>
                             <Grid col="fill">
                                 <TextInput
-                                    id={`externalName-${orgReceiverSettings.externalName}`}
+                                    id={`externalName-${orgReceiverSettings.name}`}
                                     name="externalName"
                                     type="text"
                                     defaultValue={
