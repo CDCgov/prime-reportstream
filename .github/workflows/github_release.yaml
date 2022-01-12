@@ -55,15 +55,6 @@ jobs:
           appinsights-staging-key: ${{ secrets.APPINSIGHTS_STAGING_KEY }}
           appinsights-prod-key: ${{ secrets.APPINSIGHTS_PROD_KEY }}
           version: ${{ needs.wf_vars.outputs.version }}
-        # Archive artifact
-      - name: Tar frontend files
-        run: tar -czvf static-website-react.tar.gz build
-      - name: Upload frontend artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: static-website-react-${{ needs.wf_vars.outputs.version }}
-          path: frontend-react/static-website-react.tar.gz
-          retention-days: 1
 
   publish_github_release:
     name: Publish to Github

@@ -6,6 +6,10 @@ outputs:
     value: ${{ steps.build_result.outputs.env_name }}
   version:
     value: ${{ steps.version_result.outputs.version }}
+  has_router_change:
+    value: ${{ steps.backend_check.outputs.router }}
+  has_react_change:
+    value: ${{ steps.frontend_check.outputs.frontend_react }}
 
 runs:
   using: "composite"
@@ -49,3 +53,25 @@ runs:
       id: version_result
       shell: bash
       run: echo "::set-output name=version::v-$(date +%Y.%m.%d-%H%M%S)"
+
+    - uses: dorny/paths-filter@v2
+      id: backend_check
+      with:
+        list-files: csv
+        filters: |
+          router:
+            - 'prime-router/**'
+            - 'operations/**'
+            - '.github/actions/build-backend/action.yml'
+            - '.github/actions/deploy-backend/action.yml'
+
+    - uses: dorny/paths-filter@v2
+      id: frontend_check
+      with:
+        list-files: csv
+        filters: |
+          frontend_react:
+            - 'frontend-react/**'
+            - 'operations/**'
+            - '.github/actions/build-frontend/action.yml'
+            - '.github/actions/deploy-frontend/action.yml'

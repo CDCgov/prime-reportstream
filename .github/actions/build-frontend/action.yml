@@ -57,9 +57,14 @@ runs:
         yarn build:staging
       shell: bash
 
-    - name: Save Static Website
+    - name: Tar frontend files
+      shell: bash
+      working-directory: frontend-react
+      run: tar -czvf static-website-react.tar.gz build
+
+    - name: Upload frontend artifact
       uses: actions/upload-artifact@v2
       with:
-        name: static_website_react-${{ inputs.version }}
-        path: frontend-react/build
-        retention-days: 3
+        name: static-website-react-${{ inputs.version }}
+        path: frontend-react/static-website-react.tar.gz
+        retention-days: 1

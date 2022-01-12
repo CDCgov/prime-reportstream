@@ -7,19 +7,20 @@ on:
       - production
       - dev-rheft
       - ronheft/test-investigation
-      - josiahsiegel/#3775-deploy-frontend-efficiency
 
 defaults:
   run:
     working-directory: prime-router
 
 jobs:
-  set_build_env:
+  pre_job:
     name: "Set Build Environment"
     runs-on: ubuntu-latest
     outputs:
       env_name: ${{ steps.build_vars.outputs.env_name }}
       version: ${{ steps.build_vars.outputs.version }}
+      has_router_change: ${{ steps.build_vars.outputs.has_router_change }}
+      has_react_change: ${{ steps.build_vars.outputs.has_react_change }}
     steps:
       - name: Check out changes
         uses: actions/checkout@v2
@@ -31,7 +32,8 @@ jobs:
   build_release:
     name: "Release: Build Router"
     needs:
-      - set_build_env
+      - pre_job
+    if: needs.pre_job.outputs.has_router_change == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Check out changes
@@ -40,17 +42,17 @@ jobs:
       - name: Build backend
         uses: ./.github/actions/build-backend
         with:
-          version: ${{ needs.set_build_env.outputs.version }}
+          version: ${{ needs.pre_job.outputs.version }}
 
   build_frontend_react_release:
     name: "Release: Build Frontend (React)"
     needs:
-      - set_build_env
+      - pre_job
+    if: needs.pre_job.outputs.has_react_change == 'true'
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: frontend-react
-
     steps:
       - name: Check out changes
         uses: actions/checkout@v2
@@ -58,19 +60,23 @@ jobs:
       - name: Build frontend
         uses: ./.github/actions/build-frontend
         with:
-          env-name: ${{ needs.set_build_env.outputs.env_name }}
+          env-name: ${{ needs.pre_job.outputs.env_name }}
           appinsights-staging-key: ${{ secrets.APPINSIGHTS_STAGING_KEY }}
           appinsights-prod-key: ${{ secrets.APPINSIGHTS_PROD_KEY }}
-          version: ${{ needs.set_build_env.outputs.version }}
+          version: ${{ needs.pre_job.outputs.version }}
 
   deploy_release:
-    name: "Deploy Release: ${{ needs.set_build_env.outputs.env_name }}"
+    name: "Deploy Release: ${{ needs.pre_job.outputs.env_name }}"
     needs:
-      - set_build_env
+      - pre_job
       - build_release
       - build_frontend_react_release
-    environment: ${{ needs.set_build_env.outputs.env_name }}
-    concurrency: ${{ needs.set_build_env.outputs.env_name }}
+    if: |
+      always() && 
+      (needs.pre_job.outputs.has_router_change == 'true' ||
+      needs.pre_job.outputs.has_react_change == 'true')
+    environment: ${{ needs.pre_job.outputs.env_name }}
+    concurrency: ${{ needs.pre_job.outputs.env_name }}
     runs-on: ubuntu-latest
     steps:
       - name: Check out changes
@@ -79,7 +85,7 @@ jobs:
       - name: Connect to VPN and login to Azure
         uses: ./.github/actions/vpn-azure
         with:
-          env-name: ${{ needs.set_build_env.outputs.env_name }}
+          env-name: ${{ needs.pre_job.outputs.env_name }}
           tls-key: ${{ secrets.TLS_KEY }}
           ca-cert: ${{ secrets.CA_CRT}}
           user-crt: ${{ secrets.USER_CRT }}
@@ -87,15 +93,17 @@ jobs:
           sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
 
       - name: Deploy backend
+        if: needs.pre_job.outputs.has_router_change == 'true'
         uses: ./.github/actions/deploy-backend
         with:
-          env-name: ${{ needs.set_build_env.outputs.env_name }}
+          env-name: ${{ needs.pre_job.outputs.env_name }}
           dct-root-pass: ${{ secrets.DCT_ROOT_PASS }}
           dct-repo-pass: ${{ secrets.DCT_REPO_PASS }}
-          version: ${{ needs.set_build_env.outputs.version }}
+          version: ${{ needs.pre_job.outputs.version }}
 
       - name: Deploy frontend
+        if: needs.pre_job.outputs.has_react_change == 'true'
         uses: ./.github/actions/deploy-frontend
         with:
-          env-name: ${{ needs.set_build_env.outputs.env_name }}
-          version: ${{ needs.set_build_env.outputs.version }}
+          env-name: ${{ needs.pre_job.outputs.env_name }}
+          version: ${{ needs.pre_job.outputs.version }}
