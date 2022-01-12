@@ -8,6 +8,8 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinFeature
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
+import com.github.kittinunf.fuel.Fuel
+import com.github.kittinunf.fuel.json.responseJson
 import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
@@ -35,7 +37,6 @@ import java.time.OffsetDateTime
 import java.time.ZonedDateTime
 import java.util.logging.Level
 import java.util.logging.Logger
-import khttp.get as httpGet
 
 const val SCHEDULE = "*/5 * * * *" // every 5 minutes
 const val OKTA_ISSUER = "https://hhs-prime.okta.com/oauth2/default"
@@ -307,21 +308,15 @@ class EmailScheduleEngine {
                 var grp = encodeOrg(org)
 
                 // get the OKTA Group Id
-                var response1 =
-                    httpGet(
-                        url = "$OKTA_GROUPS_API?q=$grp",
-                        headers = mapOf("Authorization" to "SSWS $ssws")
-                    )
-                var grpId = ((response1.jsonArray).get(0) as JSONObject).getString("id")
+                var (_, _, response1) = Fuel.get("$OKTA_GROUPS_API?q=$grp")
+                    .header(mapOf("Authorization" to "SSWS $ssws")).responseJson()
+                var grpId = ((response1.get().array()).get(0) as JSONObject).getString("id")
 
                 // get the users within that OKTA group
-                var response =
-                    httpGet(
-                        url = "$OKTA_GROUPS_API/$grpId/users",
-                        headers = mapOf("Authorization" to "SSWS $ssws")
-                    )
+                var (_, _, response) = Fuel.get("$OKTA_GROUPS_API/$grpId/users")
+                    .header(mapOf("Authorization" to "SSWS $ssws")).responseJson()
 
-                for (user in response.jsonArray) emails.add(
+                for (user in response.get().array()) emails.add(
                     (user as JSONObject).getJSONObject("profile").getString("email")
                 )
             }
