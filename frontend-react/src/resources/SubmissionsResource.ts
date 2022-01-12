@@ -8,7 +8,9 @@ export default class SubmissionsResource extends AuthResource {
     readonly warningCount: number = 0;
 
     pk(params: any) {
-        return this.id;
+        // For failed submissions, the report id will be null. Rest Hooks will not persist a record without a pk, thus
+        // falling back to using createdAt.
+        return this.id || this.createdAt?.toString();
     }
 
     /* INFO
