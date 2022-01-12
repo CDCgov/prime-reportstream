@@ -291,13 +291,13 @@ elements:
       mapperOverridesValue: true
       mapper: ifNotPresent($mode:lookup, testing_lab_street, ordering_facility_name_temp, ordering_facility_street_temp)
 
-    - name: ordering_facility_street2
-      csvFields: [{name: ordering_facility_street2}]
-
 #    - name: ordering_facility_street2
 #      csvFields: [{name: ordering_facility_street2}]
-#      mapperOverridesValue: true
-#      mapper: ifNotPresent($mode:lookup, testing_lab_street2, ordering_facility_name_temp, ordering_facility_street_temp)
+
+    - name: ordering_facility_street2
+      csvFields: [{name: ordering_facility_street2}]
+      mapperOverridesValue: true
+      mapper: ifNotPresent($mode:lookup, testing_lab_street2, ordering_facility_name_temp, ordering_facility_street_temp)
 
     - name: ordering_facility_city
       cardinality: ONE 
