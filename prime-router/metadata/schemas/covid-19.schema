@@ -998,6 +998,10 @@ elements:
     default: N
     documentation: Is the test authorized for unproctored administration by the FDA (Y, N, UNK)
 
+  - name: test_correction_reason
+    type: TEXT
+    hl7Field: NTE-3
+
   - name: test_kit_name_id
     type: TABLE
     table: LIVD-SARS-CoV-2-2021-09-29

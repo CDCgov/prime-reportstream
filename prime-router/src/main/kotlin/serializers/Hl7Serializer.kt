@@ -433,6 +433,7 @@ class Hl7Serializer(
             ?.map { it.trim() } ?: emptyList()
         // start processing
         var aoeSequence = 1
+        var nteSequence = 0
         val terser = Terser(message)
         setLiterals(terser)
         // we are going to set up overrides for the elements in the collection if the valueset
@@ -517,7 +518,7 @@ class Hl7Serializer(
             } else if (element.hl7Field == "ORC-21-1") {
                 setOrderingFacilityComponent(terser, rawFacilityName = value, useOrderingFacilityName, report, row)
             } else if (element.hl7Field == "NTE-3") {
-                setNote(terser, value)
+                setNote(terser, nteSequence++, value)
             } else if (element.hl7Field == "MSH-7") {
                 setComponent(
                     terser,
@@ -1218,14 +1219,14 @@ class Hl7Serializer(
         }
     }
 
-    private fun setNote(terser: Terser, value: String) {
+    private fun setNote(terser: Terser, noteRep: Int, value: String) {
         if (value.isBlank()) return
-        terser.set(formPathSpec("NTE-1"), "1")
-        terser.set(formPathSpec("NTE-3"), value)
-        terser.set(formPathSpec("NTE-4-1"), "RE")
-        terser.set(formPathSpec("NTE-4-2"), "Remark")
-        terser.set(formPathSpec("NTE-4-3"), "HL70364")
-        terser.set(formPathSpec("NTE-4-7"), HL7_SPEC_VERSION)
+        terser.set(formPathSpec("NTE-1", noteRep), noteRep.toString())
+        terser.set(formPathSpec("NTE-3", noteRep), value)
+        terser.set(formPathSpec("NTE-4-1", noteRep), "RE")
+        terser.set(formPathSpec("NTE-4-2", noteRep), "Remark")
+        terser.set(formPathSpec("NTE-4-3", noteRep), "HL70364")
+        terser.set(formPathSpec("NTE-4-7", noteRep), HL7_SPEC_VERSION)
     }
 
     private fun setLiterals(terser: Terser) {

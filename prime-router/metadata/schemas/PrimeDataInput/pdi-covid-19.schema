@@ -51,6 +51,12 @@ elements:
   - name: previous_message_id
     csvFields: [{name: Corrected_result_ID}]
 
+  - name: test_correction_reason
+    csvFields: [{name: Test_correction_reason}]
+
+  - name: comment
+    csvFields: [{name: Comment}]
+
   - name: placer_order_id
     mapper: use(message_id)
 
