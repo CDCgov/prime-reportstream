@@ -1,7 +1,7 @@
 
 ### Schema: ipatientcare/reddyfmc-la-covid-19
 ### Topic: covid-19
-### Tracking Element: none
+### Tracking Element: Accession_no (message_id)
 ### Base On: none
 ### Extends: [ipatientCare/ipatientcare-covid-19](./ipatientCare-ipatientcare-covid-19.md)
 #### Description: iPatientCare CSV lab report schema, Reddy Family Medical Clinic, LA
@@ -829,6 +829,7 @@ Code | Display
 1002-5|American Indian or Alaska Native
 1002-5|American Indian
 1002-5|Native American
+1002-5|1002-5
 2054-5|Black or African American
 2054-5|African American
 2054-5|African American Alaska Native
@@ -1123,7 +1124,6 @@ Code | Display
 ---- | -------
 71836000|Nasopharyngeal structure (body structure)
 71836000|Varied
-71836000|Nasal
 71836000|Nasopharyngeal swab
 71836000|258500001
 71836000|Nasopharyngeal aspirate
@@ -1135,6 +1135,7 @@ Code | Display
 53342003|Swab of internal nose
 53342003|Anterior nares swab
 53342003|Mid-turbinate nasal swab
+53342003|Nasal
 53342003|Nasal Swab
 53342003|445297001
 53342003|697989009
