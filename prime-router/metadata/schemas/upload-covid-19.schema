@@ -7,18 +7,10 @@ basedOn: covid-19
 
 elements:
     - name: sender_id
-      type: CODE
-      cardinality: ONE 
-      documentation: Validate the sender_id received against the valid list of Senders in the sender-automation.valueset
-      valueSet: sender-automation/sender_id
-      csvFields: [{ name: sender_id, format: $display}]
+      csvFields: [ { name: sender_id } ]
 
     - name: processing_mode_code
-      type: CODE
-      cardinality: ONE 
-      documentation: Retrieve the processing_mode_code for a Sender from the sender-automation.valueset
-      valueSet: sender-automation/processing_mode_code
-      csvFields: [{ name: sender_id, format: $display}]
+      csvFields: [ { name: processing_mode_code } ]
 
 
 ############### Set the major ID fields
@@ -26,16 +18,14 @@ elements:
       csvFields: [{name: patient_id}]
 
     - name: accession_number_temp
+      type: TEXT
       mapper: concat(patient_id, $index, $currentDate)
       delimiter: "+"
-
-    - name: filler_order_id_temp
-      csvFields: [ { name: accession_number } ]
 
     - name: filler_order_id
       csvFields: [ { name: accession_number } ]
       mapperOverridesValue: true
-      mapper: ifNotPresent($mode:lookup, accession_number_temp, filler_order_id_temp)
+      mapper: ifNotPresent($mode:lookup, accession_number_temp, filler_order_id)
 
     - name: placer_order_id
       mapper: use(filler_order_id)
@@ -126,35 +116,43 @@ elements:
 ############### Order Info / Result Info / Specimen Info
     - name: order_test_date
       cardinality: ONE 
+      nullifyValue: true
       csvFields: [{name: order_test_date, format: "yyyyMMdd"}]
 
     - name: specimen_collection_date_temp
+      type: TEXT
       csvFields: [{name: specimen_collection_date }]
 
     - name: specimen_collection_date_time
       cardinality: ONE 
+      nullifyValue: true
       csvFields: [{name: specimen_collection_date, format: "yyyyMMdd"}]
       mapperOverridesValue: true
       mapper: ifNotPresent($mode:lookup, order_test_date, specimen_collection_date_temp)
 
     - name: testing_lab_specimen_received_date_temp
-      csvFields: [{name: testing_lab_specimen_received_date, format: "yyyyMMdd"}]
+      type: TEXT
+      csvFields: [{name: testing_lab_specimen_received_date}]
 
     - name: testing_lab_specimen_received_datetime
       cardinality: ONE 
+      nullifyValue: true
       csvFields: [{name: testing_lab_specimen_received_date, format: "yyyyMMdd"}]
       mapperOverridesValue: true
       mapper: ifNotPresent($mode:lookup, order_test_date, testing_lab_specimen_received_date_temp)
 
     - name: test_result_date
       cardinality: ONE 
+      nullifyValue: true
       csvFields: [{name: test_result_date, format: "yyyyMMdd"}]
 
     - name: date_result_released_temp
-      csvFields: [{name: date_result_released, format: "yyyyMMdd"}]
+      type: TEXT
+      csvFields: [{name: date_result_released}]
 
     - name: date_result_released
       cardinality: ONE 
+      nullifyValue: true
       csvFields: [{name: date_result_released, format: "yyyyMMdd"}]
       mapperOverridesValue: true
       mapper: ifNotPresent($mode:lookup, test_result_date, date_result_released_temp)
@@ -185,18 +183,16 @@ elements:
 
 
 ############### LIVD Lookup() related fields
-    - name: test_kit_name_id
+    - name: equipment_model_name
       cardinality: ONE 
       type: TEXT
-      csvFields: [{name: test_kit_name_id }]
+      csvFields: [{name: equipment_model_name }]
+      mapperOverridesValue: true
 
     - name: test_performed_code
       cardinality: ONE 
       type: TEXT
       csvFields: [{name: test_performed_code}]
-
-    # Appears this RS field must be set even if it is not being used for the LIVD table lookup
-    - name: equipment_model_name
 
 
 ############### Ordering provider info
@@ -259,12 +255,15 @@ elements:
       csvFields: [{name: testing_lab_street2}]
 
     - name: testing_lab_city
+      cardinality: ONE 
       csvFields: [{name: testing_lab_city}]
 
     - name: testing_lab_state
+      cardinality: ONE 
       csvFields: [{name: testing_lab_state}]
 
     - name: testing_lab_zip_code
+      cardinality: ONE 
       csvFields: [{name: testing_lab_zip_code}]
 
     - name: testing_lab_phone_number
@@ -273,66 +272,56 @@ elements:
 
 ############### Ordering facility info
     - name: ordering_facility_name_temp
+      type: TEXT
       csvFields: [{name: ordering_facility_name}]
+
+    - name: ordering_facility_street_temp
+      type: TEXT
+      csvFields: [{name: ordering_facility_street}]
 
     - name: ordering_facility_name
       cardinality: ONE 
       csvFields: [{name: ordering_facility_name}]
       mapperOverridesValue: true
-      mapper: ifNotPresent($mode:lookup, testing_lab_name, ordering_facility_name_temp)
-
-    - name: ordering_facility_street_temp
-      csvFields: [{name: ordering_facility_street}]
+      mapper: ifNotPresent($mode:lookup, testing_lab_name, ordering_facility_name_temp, ordering_facility_street_temp)
 
     - name: ordering_facility_street
       cardinality: ONE 
       csvFields: [{name: ordering_facility_street}]
       mapperOverridesValue: true
-      mapper: ifNotPresent($mode:lookup, testing_lab_street, ordering_facility_street_temp)
-
-    - name: ordering_facility_street2_temp
-      csvFields: [{name: ordering_facility_street2}]
+      mapper: ifNotPresent($mode:lookup, testing_lab_street, ordering_facility_name_temp, ordering_facility_street_temp)
 
     - name: ordering_facility_street2
       csvFields: [{name: ordering_facility_street2}]
-      mapperOverridesValue: true
-      mapper: ifNotPresent($mode:lookup, testing_lab_street2, ordering_facility_street2_temp)
 
-    - name: ordering_facility_city_temp
-      csvFields: [{name: ordering_facility_city}]
+#    - name: ordering_facility_street2
+#      csvFields: [{name: ordering_facility_street2}]
+#      mapperOverridesValue: true
+#      mapper: ifNotPresent($mode:lookup, testing_lab_street2, ordering_facility_name_temp, ordering_facility_street_temp)
 
     - name: ordering_facility_city
       cardinality: ONE 
       csvFields: [{name: ordering_facility_city}]
       mapperOverridesValue: true
-      mapper: ifNotPresent($mode:lookup, testing_lab_city, ordering_facility_city_temp)
-
-    - name: ordering_facility_state_temp
-      csvFields: [{name: ordering_facility_state}]
+      mapper: ifNotPresent($mode:lookup, testing_lab_city, ordering_facility_name_temp,ordering_facility_street_temp)
 
     - name: ordering_facility_state
       cardinality: ONE 
       csvFields: [{name: ordering_facility_state}]
       mapperOverridesValue: true
-      mapper: ifNotPresent($mode:lookup, testing_lab_state, ordering_facility_state_temp)
-
-    - name: ordering_facility_zip_code_temp
-      csvFields: [{name: ordering_facility_zip_code}]
+      mapper: ifNotPresent($mode:lookup, testing_lab_state, ordering_facility_name_temp, ordering_facility_street_temp)
 
     - name: ordering_facility_zip_code
       cardinality: ONE 
       csvFields: [{name: ordering_facility_zip_code}]
       mapperOverridesValue: true
-      mapper: ifNotPresent($mode:lookup, testing_lab_zip_code, ordering_facility_zip_temp)
-
-    - name: ordering_facility_phone_number_temp
-      csvFields: [{name: ordering_facility_phone_number}]
+      mapper: ifNotPresent($mode:lookup, testing_lab_zip_code, ordering_facility_name_temp, ordering_facility_street_temp)
 
     - name: ordering_facility_phone_number
       cardinality: ONE 
       csvFields: [{name: ordering_facility_phone_number}]
       mapperOverridesValue: true
-      mapper: ifNotPresent($mode:lookup, testing_lab_phone_number, ordering_facility_phone_number_temp)
+      mapper: ifNotPresent($mode:lookup, testing_lab_phone_number, ordering_facility_name_temp, ordering_facility_street_temp)
 
 
 ################ Reporting Facility Info
@@ -350,6 +339,11 @@ elements:
     - name: patient_id_assigner
       csvFields: [{name: ordering_facility_name}]
 
+    - name: comment
+      csvFields: [{name: comment}]
+
+    - name: comment_source
+      mapper: ifPresent(comment, L )
 
 ############### AOE fields
     - name: pregnant
@@ -383,6 +377,7 @@ elements:
     - name: illness_onset_date
       default: ""
       csvFields: [{name: illness_onset_date, format: "yyyyMMdd"}]
+      nullifyValue: true
 
     - name: hospitalized
       type: CODE

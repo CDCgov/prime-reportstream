@@ -3,7 +3,7 @@
 import { Helmet } from "react-helmet";
 import DOMPurify from "dompurify";
 
-import site from "../../content/site.json";
+import site from "../../../content/site.json";
 
 export const ELRChecklist = () => {
     return (
@@ -15,14 +15,14 @@ export const ELRChecklist = () => {
                 </title>
             </Helmet>
             <section id="anchor-top">
-                <h1 className="margin-top-0">ELR Onboarding Checklist</h1>
+                <h2 className="margin-top-0">ELR Onboarding Checklist</h2>
 
-                <p className="usa-intro">
+                <p className="usa-intro text-base">
                     If you’re a public health department and want to connect
                     ReportStream through Electronic Lab Reporting (ELR), you’ll
                     need to fill out the ReportStream ELR onboarding form.
                 </p>
-                <p className="usa-intro">
+                <p className="usa-intro text-base">
                     Our checklist here provides a preview of what we’ll ask, so
                     you can gather everything you need to complete the form.
                 </p>
@@ -46,9 +46,7 @@ export const ELRChecklist = () => {
                     Contact us
                 </a>
 
-                <hr className="margin-y-6" />
-
-                <p className="margin-top-4">
+                <p className="margin-top-6">
                     <strong>On this page:</strong>
                 </p>
 
@@ -105,7 +103,7 @@ export const ELRChecklist = () => {
                     the ELR onboarding form, we recommend first reviewing
                     information on our{" "}
                     <a
-                        href="/how-it-works/getting-started"
+                        href="/getting-started/public-health-departments/overview"
                         className="usa-link"
                     >
                         Getting started page
@@ -120,7 +118,6 @@ export const ELRChecklist = () => {
                     with your IT and data specialists.
                 </p>
             </section>
-            <hr className="margin-y-6" />
             <section>
                 <h3 id="elr-contact-information">ELR contact information</h3>
 
@@ -135,7 +132,10 @@ export const ELRChecklist = () => {
                     <li>Phone number</li>
                 </ul>
 
-                <h3 id="alternate-contact-information">
+                <h3
+                    id="alternate-contact-information"
+                    className="font-body-lg border-top-1px border-ink margin-top-8 margin-bottom-6 padding-top-1"
+                >
                     Program or admin staff contact information
                 </h3>
 
@@ -145,13 +145,16 @@ export const ELRChecklist = () => {
                     <li>Phone number</li>
                 </ul>
 
-                <h3 id="data-requirements-and-preferences">
+                <h3
+                    id="data-requirements-and-preferences"
+                    className="font-body-lg border-top-1px border-ink margin-top-8 margin-bottom-6 padding-top-1"
+                >
                     Data requirements and preferences{" "}
                 </h3>
 
                 <p>
                     ReportStream sends data as an{" "}
-                    <a href="https://why.hl7.org/">HL7</a> file via Secure File
+                    <a href="https://hl7.org/">HL7</a> file via Secure File
                     Transfer Protocol (SFTP). We capture Health and Human
                     Services (HHS) required fields, including “Ask on Order
                     Entry” questions.{" "}
@@ -225,7 +228,10 @@ export const ELRChecklist = () => {
                     </li>
                 </ul>
 
-                <h3 id="testing-facility-registration">
+                <h3
+                    id="testing-facility-registration"
+                    className="font-body-lg border-top-1px border-ink margin-top-8 margin-bottom-6 padding-top-1"
+                >
                     Testing facility registration{" "}
                 </h3>
 
@@ -259,7 +265,10 @@ export const ELRChecklist = () => {
                     </li>
                 </ul>
 
-                <h3 id="hl7-data-fields">
+                <h3
+                    id="hl7-data-fields"
+                    className="font-body-lg border-top-1px border-ink margin-top-8 margin-bottom-6 padding-top-1"
+                >
                     HL7 data fields (Not applicable if using an alternate data
                     format){" "}
                 </h3>
@@ -277,7 +286,12 @@ export const ELRChecklist = () => {
                     </li>
                 </ul>
 
-                <h3 id="sftp-details">SFTP details </h3>
+                <h3
+                    id="sftp-details"
+                    className="font-body-lg border-top-1px border-ink margin-top-8 margin-bottom-6 padding-top-1"
+                >
+                    SFTP details{" "}
+                </h3>
 
                 <ul>
                     <li>Staging host name (DNS name)</li>
@@ -286,7 +300,12 @@ export const ELRChecklist = () => {
                     <li>Prod host folder (folder name) </li>
                 </ul>
 
-                <h3 id="document-uploads">Document uploads </h3>
+                <h3
+                    id="document-uploads"
+                    className="font-body-lg border-top-1px border-ink margin-top-8 margin-bottom-6 padding-top-1"
+                >
+                    Document uploads{" "}
+                </h3>
 
                 <ul>
                     <li>
@@ -303,9 +322,11 @@ export const ELRChecklist = () => {
                     </li>
                 </ul>
             </section>
-            <hr className="margin-y-6" />
+
             <section>
-                <h2>Ready for ReportStream?</h2>
+                <h3 className="font-body-lg border-top-1px border-ink margin-top-8 margin-bottom-6 padding-top-1">
+                    Ready for ReportStream?
+                </h3>
 
                 <p>
                     Once you have all the information you need, submit our{" "}

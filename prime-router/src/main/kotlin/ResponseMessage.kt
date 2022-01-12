@@ -14,6 +14,8 @@ enum class ResponseMsgType {
     UNSUPPORTED_EI,
     // HL7 Serializing errors
     INVALID_HL7,
+    // Common errors
+    INVALID_EQUIPMENT,
 }
 
 interface ResponseMessage {
