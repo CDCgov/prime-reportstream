@@ -17,6 +17,8 @@ import java.net.URL
  */
 class CommandUtilities {
     companion object {
+        const val API_TIMEOUT_MSECS = 1000
+
         /**
          * The API endpoint to check for.  This needs to be a simple operation.
          */
