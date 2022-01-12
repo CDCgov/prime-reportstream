@@ -2,9 +2,9 @@ import { Helmet } from "react-helmet";
 import { NavLink } from "react-router-dom";
 import DOMPurify from "dompurify";
 
-import site from "../../content/site.json";
+import site from "../../../content/site.json";
 
-export const WebReceiverGuide = () => {
+export const DataDownloadGuide = () => {
     return (
         <>
             <Helmet>
@@ -14,14 +14,10 @@ export const WebReceiverGuide = () => {
                 </title>
             </Helmet>
             <section id="anchor-top">
-                <h1 className="margin-top-0">Data download website guide</h1>
-                <p className="usa-intro">
-                    The{" "}
-                    <NavLink to="/login" key="login" className="usa-link">
-                        data download website
-                    </NavLink>{" "}
-                    enables a public health department to access data from
-                    senders via a secure, online portal.
+                <h2 className="margin-top-0">Data download website guide</h2>
+                <p className="usa-intro text-base">
+                    The data download website enables a public health department
+                    to access data from senders via a secure, online portal.
                 </p>
                 <a
                     href={
@@ -34,38 +30,33 @@ export const WebReceiverGuide = () => {
                     Contact us
                 </a>
             </section>
-            <hr className="margin-y-6" />
             <section>
-                <h2>Benefits of the data download site</h2>
-                <ul className="padding-bottom-1">
-                    <li>
-                        <h3>Receive data from SimpleReport</h3>
-                        <p>
-                            If your jurisdiction is interested in receiving
-                            point-of-care tests results from SimpleReport, you
-                            can access data via your ReportStream account.
-                        </p>
-                    </li>
-                    <li>
-                        <h3>Get started without ELR</h3>
-                        <p>
-                            Download data in standard CSV and HL7 formats
-                            without setting up an ELR feed.
-                        </p>
-                    </li>
-                    <li>
-                        <h3>Secure and personalized</h3>
-                        <p>
-                            Set up secure, individual logins for each member of
-                            your team.
-                        </p>
-                    </li>
-                </ul>
+                <h3 className="font-body-lg border-top-1px border-ink margin-top-8 margin-bottom-6 padding-top-1">
+                    Benefits of the data download site
+                </h3>
+
+                <h4>Receive data from SimpleReport</h4>
+                <p>
+                    If your jurisdiction is interested in receiving
+                    point-of-care tests results from SimpleReport, you can
+                    access data via your ReportStream account.
+                </p>
+                <h4>Get started without ELR</h4>
+                <p>
+                    Download data in standard CSV and HL7 formats without
+                    setting up an ELR feed.
+                </p>
+                <h4>Secure and personalized</h4>
+                <p>
+                    Set up secure, individual logins for each member of your
+                    team.
+                </p>
             </section>
-            <hr className="margin-top-3 margin-bottom-6" />
             <section>
-                <h2>Using the site</h2>
-                <h3>Recommended browser</h3>
+                <h3 className="font-body-lg border-top-1px border-ink margin-top-8 margin-bottom-6 padding-top-1">
+                    Using the site
+                </h3>
+                <h4>Recommended browser</h4>
 
                 <p>
                     Please use a modern desktop web browser (ex:{" "}
@@ -113,9 +104,11 @@ export const WebReceiverGuide = () => {
                     </em>
                 </p>
 
-                <h3>General usage</h3>
+                <h4>General usage</h4>
 
-                <h4>Account creation</h4>
+                <h4>
+                    <em>Account creation</em>
+                </h4>
                 <p>
                     ReportStream is utilizing a{" "}
                     <a href="https://www.hhs.gov/" className="usa-link">
@@ -163,7 +156,9 @@ export const WebReceiverGuide = () => {
                     </li>
                 </ul>
 
-                <h4>Sign in to the application</h4>
+                <h4>
+                    <em>Sign in to the application</em>
+                </h4>
 
                 <ul>
                     <li>
@@ -187,7 +182,9 @@ export const WebReceiverGuide = () => {
                     </li>
                 </ul>
 
-                <h4>Account management</h4>
+                <h4>
+                    <em>Account management</em>
+                </h4>
                 <p>
                     ReportStream will manually manage user accounts for your
                     team. To add or remove team members, email us at{" "}
@@ -197,7 +194,9 @@ export const WebReceiverGuide = () => {
                     .
                 </p>
 
-                <h4>Password reset</h4>
+                <h4>
+                    <em>Password reset</em>
+                </h4>
                 <ul>
                     <li>
                         If you forgot your password, follow the instructions
@@ -214,7 +213,9 @@ export const WebReceiverGuide = () => {
                     </li>
                 </ul>
 
-                <h4>Accessing data</h4>
+                <h4>
+                    <em>Accessing data</em>
+                </h4>
                 <p>
                     You will be able to download the most recently reported test
                     result data, as well as up to 30 days of previously reported
@@ -233,7 +234,9 @@ export const WebReceiverGuide = () => {
                     as possible.
                 </p>
 
-                <h4>Support</h4>
+                <h4>
+                    <em>Support</em>
+                </h4>
                 <p>
                     Do you have questions, problems, or bugs to report? Email
                     the team at&nbsp;

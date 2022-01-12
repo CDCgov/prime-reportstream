@@ -1,4 +1,4 @@
-package cli
+package gov.cdc.prime.router.cli
 
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.default

@@ -95,7 +95,7 @@ class HistoryApiTest : CoolTest() {
                 )
             echo("Response to POST: $responseCode")
             if (responseCode != HttpURLConnection.HTTP_CREATED) {
-                bad("***$name Test FAILED***:  response code $responseCode")
+                bad("***$name Test FAILED***:  response code $responseCode.  Error: $json")
                 return null // failure
             }
             val reportId = getReportIdFromResponse(json)

@@ -102,14 +102,45 @@ class LongLoad : LoadTestSimulator() {
         val afterActionId = getMostRecentActionId()
         val results = mutableListOf<SimulatorResult>()
         var elapsedTime = measureTimeMillis {
-            repeat(10) {
-                results += productionSimulation(environment, options)
-                results += productionSimulation(environment, options)
-                results += runOneSimulation(typicalStracSubmission, environment, options) // strac
-                results += productionSimulation(environment, options)
-                results += productionSimulation(environment, options)
-                results += productionSimulation(environment, options)
+            repeat(2) {
+                results += longProdSimulation(environment, options)
+                results += longProdSimulation(environment, options)
+                results += longProdSimulation(environment, options)
+                results += longProdSimulation(environment, options)
             }
+            results += runOneSimulation(typicalStracSubmission, environment, options) // strac
+        }
+        return teardown(results, elapsedTime, afterActionId, options.asyncProcessMode)
+    }
+
+    /**
+     * Meant to simulate a production load, minus strac since its just once a day.
+     * Run in about 20 minutes.  About 11,000 Items submitted
+     */
+    fun longProdSimulation(environment: Environment, options: CoolTestOptions): List<SimulatorResult> {
+        ugly("A test that simulates a high daytime load in Production")
+        val results = arrayListOf<SimulatorResult>()
+        results += runOneSimulation(twoThreadsX1000with50msDelay, environment, options) // cue
+        results += runOneSimulation(simpleReport, environment, options) // simple_report
+        results += runOneSimulation(twoThreadsX1000with50msDelay, environment, options) // cue
+        results += runOneSimulation(twoThreadsX1000with50msDelay, environment, options) // cue
+        results += runOneSimulation(spike, environment, options) // a big spike of abbott
+        results += runOneSimulation(twoThreadsX1000with50msDelay, environment, options) // cue
+        return results
+    }
+}
+
+class ABot : LoadTestSimulator() {
+    override val name = "abot-load"
+    override val description = "A burst of transmissions every few minutes"
+    override val status = TestStatus.LOAD
+
+    override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
+        setup(environment, options)
+        val afterActionId = getMostRecentActionId()
+        val results = mutableListOf<SimulatorResult>()
+        var elapsedTime = measureTimeMillis {
+            results += runOneSimulation(spike, environment, options) // cue
         }
         return teardown(results, elapsedTime, afterActionId, options.asyncProcessMode)
     }
