@@ -563,9 +563,31 @@ tasks.register("resetDB") {
 
 repositories {
     mavenCentral()
-    jcenter()
     maven {
         url = uri("https://jitpack.io")
+    }
+}
+
+buildscript {
+    configurations {
+        classpath {
+            /*
+             * Need to exclude this library due to the following dependency chain having an issue with the json-smart
+             * library version.
+             *   com.microsoft.azure.azurefunctions:com.microsoft.azure.azurefunctions.gradle.plugin:1.8.2 >
+             *   com.microsoft.azure:azure-functions-gradle-plugin:1.8.2 >
+             *   com.microsoft.azure:azure-toolkit-common-lib:0.12.3 >
+             *   com.microsoft.azure:adal4j:1.6.7 > com.nimbusds:oauth2-oidc-sdk:9.15
+             * Looks like com.nimbusds:oauth2-oidc-sdk:9.15 has an invalid dependency version of [1.3.2,2.4.2]
+             * This will need to be removed once this issue is resolved in Maven.
+             */
+            exclude("net.minidev", "json-smart")
+        }
+    }
+    dependencies {
+        // Now force the gradle build script to get the proper library for com.nimbusds:oauth2-oidc-sdk:9.15.  This
+        // will need to be removed once this issue is resolved in Maven.
+        classpath("net.minidev:json-smart:2.4.2")
     }
 }
 
@@ -645,7 +667,6 @@ dependencies {
 
     implementation("commons-net:commons-net:3.8.0")
     implementation("com.cronutils:cron-utils:9.1.5")
-    implementation("khttp:khttp:1.0.0")
     implementation("com.auth0:java-jwt:3.18.2")
     implementation("io.jsonwebtoken:jjwt-api:0.11.2")
     implementation("de.m3y.kformat:kformat:0.9")
