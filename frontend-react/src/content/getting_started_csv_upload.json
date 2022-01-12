@@ -16,14 +16,15 @@
                             "required": false,
                             "acceptedFormat": false,
                             "acceptedValues": false,
-                            "acceptedExample": true,
+                            "acceptedExample": false,
                             "valueMessage": "",
                             "valueType": "Unique identifier",
                             "values": [
-                                "Medical Record Number"
+                                ""
                             ],               
                             "notes": [
-                               "Enter unique patient identifier. This is typically the Medical Record Number. <strong><em>Do not send a Social Security Number</em></strong>. This value is not required but preferred and required by some states."
+                               "Enter unique patient identifier. This is typically the Medical Record Number. <strong><em>Do not send a Social Security Number</em></strong>.",
+                               "This value is optional and can be left blank if no information is provided. <em>Some jurisdictions may require this field, ReportStream will notify you if this is the case.</em>"
                             ]
                         },
                         {
@@ -57,7 +58,7 @@
                                 ""
                             ],               
                             "notes": [
-                               "Enter patient’s last name. File will fail if field left blank."          
+                               "Enter patient’s first name. File will fail if field left blank."          
                             ]
                         },
                         {
@@ -69,12 +70,12 @@
                             "acceptedValues": false,
                             "acceptedExample": false,
                             "valueMessage": "",
-                            "valueType": "String",
+                            "valueType": "Text",
                             "values": [
                                 ""
                             ],               
                             "notes": [
-                               "Enter patient’s middle name."          
+                               "Enter patient’s middle name, if known. This value is optional and can be left blank if no information is provided."          
                             ]
                         },
                         {
@@ -89,12 +90,13 @@
                             "valueType": "Address, accepted value",
                             "values": [
                                 "ex: 1234 America Ln",
-                                "<code>** Homeless **</code>",
-                                "<code>** Unknown / Not Given **</code>"
+                                "<code>** Unknown / Not Given **</code>",
+                                "<code>** Homeless **</code>"
+                                
                             ],               
                             "notes": [
                                "Enter patient's street address. File will fail if field left blank.",
-                               "For homeless or other scenarios when no information is given, populate this field with <code>** Homeless **</code> or <code>** Unknown / Not Given **</code>"                
+                               "If no address given or homeless, populate this field with <code>** Unknown / Not Given **</code> or <code>** Homeless **</code>. "                
                             ]
                         },
                         {
@@ -104,14 +106,14 @@
                             "required": false,
                             "acceptedFormat": false,
                             "acceptedValues": false,
-                            "acceptedExample": true,
+                            "acceptedExample": false,
                             "valueMessage": "",
                             "valueType": "Address",
                             "values": [
-                                "Apt 101, Suite 550, Room 237"
+                                ""
                             ],               
                             "notes": [
-                                "Secondary address information for apartment, suite, etc."                
+                                "Enter patient’s additional address information, if applicable. This value is optional and can be left blank if no information is provided. "                
                             ]
                         },
                         {
@@ -129,7 +131,7 @@
                             ],               
                             "notes": [
                                "Enter patient’s city. File will fail if field left blank.",
-                               "For homeless or other scenarios when no information is given, populate this field with the Ordering Facility's information."              
+                               "If no address given or homeless, populate this field with the <a href=\"#ordering-facility\" class=\"usa-link\">ordering facility</a> information."              
                             ]
                         },
                         {
@@ -143,11 +145,11 @@
                             "valueMessage": "",
                             "valueType": "Address",
                             "values": [
-                                "Two-character state abbreviation, ex: MD, VT, TX"
+                                "Two-character state abbreviation"
                             ],               
                             "notes": [
                                "Enter patient’s state using the two-character state abbreviation. File will fail if field left blank. ",
-                               "For homeless or other scenarios when no information is given, populate this field with the Ordering Facilities information."                
+                               "If no address given or homeless, populate this field with the <a href=\"#ordering-facility\" class=\"usa-link\">ordering facility</a> information."                
                             ]
                         },
                         {
@@ -183,7 +185,7 @@
                             ],               
                             "notes": [
                                "Enter patient’s zip code. File will fail if value is not entered using acceptable format or field is left blank. ",
-                               "For homeless or other scenarios when no information is given, populate field with the Ordering Facility's information. "                
+                               "If no address given or homeless, populate field with the <a href=\"#ordering-facility\" class=\"usa-link\">ordering facility</a> information. "                
                             ]
                         },
                         {
@@ -201,7 +203,7 @@
                             ],               
                             "notes": [
                                "Enter patient’s phone number. File will fail if value is not entered using acceptable format or field is left blank.",
-                               "For homeless or other scenarios when no information is given, populate field with the Ordering Facilities information. "                
+                               "If no address given or homeless, populate field with the <a href=\"#ordering-facility\" class=\"usa-link\">ordering facility</a> information. "                
                             ]
                         },
                         {
@@ -218,7 +220,7 @@
                                 "YYYYMMDD"
                             ],               
                             "notes": [
-                               "Enter patient’s date of birth. File will fail if value is not entered using acceptable format or field is left blank."     
+                               "Enter patient’s date of birth. File will fail if value is not entered using accepted format or field is left blank."     
                             ]
                         },
                         {
@@ -232,7 +234,7 @@
                             "valueMessage": "",
                             "valueType": "Accepted value",
                             "values": [
-                                "<code>M</code>  or  <code>Male</code>", 
+                                "<code>M</code> or <code>Male</code>", 
                                 "<code>F</code> or <code>Female</code>", 
                                 "<code>O</code> or <code>Other</code>",                
                                 "<code>U</code> or <code>Unknown</code>", 
@@ -240,7 +242,7 @@
                                 "<code>N</code> or <code>Not applicable</code>" 
                             ],               
                             "notes": [
-                               "Enter patient's gender. File will fail if value not entered using acceptable values or field is left blank."              
+                               "Enter patient's gender. File will fail if value not entered using accepted values or field is left blank. Accepted values come from values mapped to LOINC codes you can find in the <a href=\"https://phinvads.cdc.gov/vads/SearchVocab.action\" class=\"usa-link\" target=\"_blank\" rel=\"noreferrer noopener\">PHIN VADS system</a>."              
                             ]
                         },
                         {
@@ -264,7 +266,7 @@
                                 "<code>UNK</code> or <code>Unknown</code>"
                             ],               
                             "notes": [
-                               "File will fail if numeric values or text values are not entered using acceptable values or field is left blank. "              
+                               "File will fail if numeric values or text values are not entered using acceptable values or field is left blank. Accepted values come from values mapped to LOINC codes you can find in the <a href=\"https://phinvads.cdc.gov/vads/SearchVocab.action\" class=\"usa-link\" target=\"_blank\" rel=\"noreferrer noopener\">PHIN VADS system</a>. "              
                             ]
                         },
                         {
@@ -283,7 +285,7 @@
                                 "<code>UNK</code> or <code>Unknown</code>" 
                             ],               
                             "notes": [
-                               "File will fail if numeric values or text values are not entered using accepted values or field is left blank. "              
+                               "File will fail if numeric values or text values are not entered using accepted values or field is left blank. Accepted values come from values mapped to LOINC codes you can find in the <a href=\"https://phinvads.cdc.gov/vads/SearchVocab.action\" class=\"usa-link\" target=\"_blank\" rel=\"noreferrer noopener\">PHIN VADS system</a>."              
                             ]
                         }
                     ]
@@ -293,7 +295,7 @@
                     "slug": "order-and-result",
                     "items": [
                         {
-                            "name": "Acession number",
+                            "name": "Accession number",
                             "colHeader": "accession_number ",
                             "colHeaderReportstream": "",            
                             "required": true,
@@ -306,13 +308,12 @@
                                 "ID12345-6789" 
                             ],               
                             "notes": [
-                               "An Accession number is a unique ID that identifies a single result.",
-                               "If the Accession Number is unknown, leave the field blank. ReportStream will generate a unique ID using the following information: patient_id + Row# + Today’s date (example: ID123+5+20211223)."              
+                               "An accession number is a unique ID that identifies a single result. This field is important for public health departments to refer back to a test event. File will fail if field left blank."              
                             ]
                         },
                         {
-                            "name": "Test kit name ID",
-                            "colHeader": "test_kit_name_id",
+                            "name": "Equipment model name",
+                            "colHeader": "equipment_model_name",
                             "colHeaderReportstream": "",            
                             "required": true,
                             "acceptedFormat": false,
@@ -321,15 +322,15 @@
                             "valueMessage": "",
                             "valueType": "Unique identifier",
                             "values": [
-                                "10811877011269 represents the Abbott ID Now ",
-                                "BD Veritor System for Rapid Detection of SARS-CoV-2_Becton, Dickinson and Company (BD)",
-                                "BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)",
-                                "RightSign COVID-19 IgG/IgM Rapid Test Cassette_Hangzhou Biotest Biotech Co., Ltd." 
+                                "<code>ID NOW</code>",
+                                "<code>BD Veritor System for Rapid Detection of SARS-CoV-2*</code>",
+                                "<code>BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B*</code>",
+                                "<code>RightSign COVID-19 IgG/IgM Rapid Test Cassette*</code>" 
                             ],               
                             "notes": [
-                               "Enter Test kit Name ID value from Department of Health and Human Services' (HHS) LOINC Mapping spreadsheet. File will fail if value not entered using acceptable values or field is left blank.",
-                               "Go to https://www.cdc.gov/csels/dls/sars-cov-2-livd-codes.html. Click on the Mapping Tool labeled \"LIVD SARS-CoV-2 Test Codes.xlsx\" (the file will download to your computer).",
-                               "Locate the saved file on your computer and open the file. Click on the \"LOINC Mapping\" tab. Go to Column M labeled \"Testkit Name ID\" to locate the corresponding value to enter"
+                               "Enter equipment model name value from Department of Health and Human Services' (HHS) LOINC Mapping spreadsheet. File will fail if value not entered using accepted values or field is left blank.",
+                               "Go to <a href=\"https://www.cdc.gov/csels/dls/sars-cov-2-livd-codes.html\" class=\"usa-link\" target=\"_blank\" rel=\"noreferrer noopener\">https://www.cdc.gov/csels/dls/sars-cov-2-livd-codes.html</a>. Click on the Mapping Tool labeled \"LIVD SARS-CoV-2 Test Codes.xlsx\" to download the file.",
+                               "Locate the saved file on your computer and open it. Click on the \"LOINC Mapping\" tab. Go to Column B, labeled \"Model\" to locate the corresponding value to enter."
                             ]
                         },
                         {
@@ -351,7 +352,8 @@
                             ],               
                             "notes": [
                                "Enter TestPerformed Code value from Department of Health and Human Services' (HHS) LOINC Mapping spreadsheet. File will fail if value not entered using acceptable values or field is left blank.",
-                               "Use the same Mapping Tool labeled \"LIVD SARS-CoV-2 Test Codes.xlsx\". From the LOINC Mapping tab, go to Column F labeled \"Test Performed LOINC Code\". Locate the corresponding value to enter."
+                               "Go to <a href=\"https://www.cdc.gov/csels/dls/sars-cov-2-livd-codes.html\" class=\"usa-link\" target=\"_blank\" rel=\"noreferrer noopener\">https://www.cdc.gov/csels/dls/sars-cov-2-livd-codes.html</a>. Click on the Mapping Tool labeled \"LIVD SARS-CoV-2 Test Codes.xlsx\" to download the file.",
+                               "Locate the saved file on your computer and open it. Click on the \"LOINC Mapping\" tab. Go to Column F, labeled \"Test Performed LOINC Code\". Locate the corresponding value to enter."
                             ]
                         },
                         {
@@ -365,16 +367,17 @@
                             "valueMessage": "",
                             "valueType": "Common values, SNOMED code",
                             "values": [
-                                "Positive",
-                                "Negative",
-                                "Not Detected",
-                                "Detected",
-                                "Invalid Result" 
+                                "<code>Positive</code>",
+                                "<code>Negative</code>",
+                                "<code>Not Detected</code>",
+                                "<code>Detected</code>",
+                                "<code>Invalid Result</code>",
+                                "SNOMED code from lookup table, ex: 260373001" 
                             ],               
                             "notes": [
-                               "File will fail if value is not entered using accepted text values or SNOMED codes, or if the field is left blank. ",
-                               "Enter a value from the Common Values listed.",
-                               "If needed, can use the same Mapping Tool labeled \"LIVD SARS-CoV-2 Test Codes.xlsx\" to locate SNOMED code values instead. From the \"LOINC Mapping\" tab, go to Column Column E labeled Vendor Result Description. Locate SNOMED code value and enter into field (Example: Positive = 260373001)."
+                               "File will fail if value is not entered using accepted text values or SNOMED codes, or if the field is left blank. Enter a value from the common values listed.",
+                               "Go to <a href=\"https://www.cdc.gov/csels/dls/sars-cov-2-livd-codes.html\" class=\"usa-link\" target=\"_blank\" rel=\"noreferrer noopener\">https://www.cdc.gov/csels/dls/sars-cov-2-livd-codes.html</a>. Click on the Mapping Tool labeled \"LIVD SARS-CoV-2 Test Codes.xlsx\" to download the file.",
+                               "Locate the saved file on your computer and open it. Click on the \"LOINC Mapping\" tab. Go to Column E, labeled \"Vendor Result Description\". Locate SNOMED code value and enter into field (Example: Positive = 260373001)."
                             ]
                         },
                         {
@@ -408,7 +411,7 @@
                                 "YYYYMMDD" 
                             ],               
                             "notes": [
-                               "Enter speciment collection date. If unknown, populate field with the order_test_date. In most cases, these are the same. Can be left blank if same as order_test_date."              
+                               "Enter specimen collection date. If unknown, populate field with the order_test_date value. In most cases, these are the same. Can be left blank if same as order_test_date."              
                             ]
                         },
                         {
@@ -477,20 +480,22 @@
                             "acceptedValues": true,
                             "acceptedExample": false,
                             "valueMessage": "",
-                            "valueType": "Common values",
+                            "valueType": "Common values, SNOMED code",
                             "values": [
-                                "Nasal Swab",
-                                "Nasopharyngeal Swab",
-                                "Anterior Nares Swab",
-                                "Throat Swab",
-                                "Oropharyngeal Swab",
-                                "Whole Blood",
-                                "Plasma",
-                                "Serum" 
+                                "<code>Nasal Swab</code>",
+                                "<code>Nasopharyngeal Swab</code>",
+                                "<code>Anterior Nares Swab</code>",
+                                "<code>Throat Swab</code>",
+                                "<code>Oropharyngeal Swab</code>",
+                                "<code>Whole Blood</code>",
+                                "<code>Plasma</code>",
+                                "<code>Serum</code>",
+                                "SNOMED code from lookup table, ex: 697989009" 
                             ],               
                             "notes": [
                             "File will fail if value not entered using acceptable text values or SNOMED codes or field is left blank. ",
-                            "Use the same Mapping Tool labeled \"LIVD SARS-CoV-2 Test Codes.xlsx\". From the 'LOINC Mapping' tab, go to Column D labeled \"Vendor Specimen Description\". Locate the corresponding text value or SNOMED code and enter into field (Example: Anterior Nares Swab = \"697989009\")."              
+                            "Go to <a href=\"https://www.cdc.gov/csels/dls/sars-cov-2-livd-codes.html\" class=\"usa-link\" target=\"_blank\" rel=\"noreferrer noopener\">https://www.cdc.gov/csels/dls/sars-cov-2-livd-codes.html</a>. Click on the Mapping Tool labeled \"LIVD SARS-CoV-2 Test Codes.xlsx\" to download the file.",
+                            "Locate the saved file on your computer and open it. Click on the \"LOINC Mapping\" tab. Go to Column D, labeled \"Vendor Specimen Description\". Locate the corresponding text value or SNOMED code and enter into field (example: Anterior Nares Swab = \"697989009\")."              
                             ]
                         }
                     ]
@@ -509,12 +514,12 @@
                             "valueMessage": "",
                             "valueType": "Unique identifier",
                             "values": [
-                                "NPI Example: 1013012657",
-                                "Local Code Example: muc1290" 
+                                "NPI example: 1013012657",
+                                "Local code example: muc1290" 
                             ],               
                             "notes": [
-                               "Enter NPI. If NPI unknown, enter local coding. File will fail if field left blank.",
-                               "NPI is a 10-position all-numeric identification number assigned by the NPS to uniquely identify a health care provider. NPIs can be found at https://npiregistry.cms.hhs.gov/.",
+                               "Enter National Provider Identifier (NPI). ReportStream prefers this value, however if NPI is unknown enter local coding. File will fail if field left blank. <em>Some jurisdictions may not accept a local code, ReportStream will work with you if this is the case</em>.",
+                               "NPI is a 10-character all-numeric identification number to uniquely identify a health care provider. NPIs can be found at <a href=\"https://npiregistry.cms.hhs.gov/\" class=\"usa-link\" rel=\"noreferrer noopener\" target=\"_blank\">https://npiregistry.cms.hhs.gov/</a>.",
                                ""               
                             ]
                         },
@@ -576,11 +581,11 @@
                             "required": true,
                             "acceptedFormat": false,
                             "acceptedValues": false,
-                            "acceptedExample": true,
+                            "acceptedExample": false,
                             "valueMessage": "",
                             "valueType": "Address",
                             "values": [
-                                "1234 America Ln" 
+                                "" 
                             ],               
                             "notes": [
                                "Enter the street address of the ordering provider. File will fail if field left blank. "              
@@ -593,11 +598,11 @@
                             "required": false,
                             "acceptedFormat": false,
                             "acceptedValues": false,
-                            "acceptedExample": true,
+                            "acceptedExample": false,
                             "valueMessage": "",
                             "valueType": "Address",
                             "values": [
-                                "Apt 101, Suite 550, Room 237" 
+                                "" 
                             ],               
                             "notes": [
                                "Enter ordering provider’s additional address information, if applicable. This value is optional and can be left blank if no information is provided."              
@@ -631,7 +636,7 @@
                             "valueMessage": "",
                             "valueType": "Address",
                             "values": [
-                                "Two-character state abbreviation, ex: MD, VT, TX." 
+                                "Two-character state abbreviation." 
                             ],               
                             "notes": [
                                "Enter ordering provider’s state. File will fail if field left blank."              
@@ -688,11 +693,11 @@
                             "valueMessage": "",
                             "valueType": "CLIA number",
                             "values": [
-                                "01D1058443" 
+                                "11D2030855" 
                             ],               
                             "notes": [
                                "Enter testing lab’s CLIA number. File will fail if left blank.",
-                               "CLIA numbers can be found at https://www.cdc.gov/clia/LabSearch.html ."              
+                               "CLIA numbers can be found at <a href=\"https://www.cdc.gov/clia/LabSearch.html\" class=\"usa-link\" target=\"_blank\" rel=\"noreferrer noopener\">https://www.cdc.gov/clia/LabSearch.html</a>."              
                             ]
                         },
                         {
@@ -719,11 +724,11 @@
                             "required": true,
                             "acceptedFormat": false,
                             "acceptedValues": false,
-                            "acceptedExample": true,
+                            "acceptedExample": false,
                             "valueMessage": "",
                             "valueType": "Address",
                             "values": [
-                                "1234 America Ln" 
+                                "" 
                             ],               
                             "notes": [
                                "Enter the street address of the testing lab. File will fail if field left blank."              
@@ -736,11 +741,11 @@
                             "required": false,
                             "acceptedFormat": false,
                             "acceptedValues": false,
-                            "acceptedExample": true,
+                            "acceptedExample": false,
                             "valueMessage": "",
                             "valueType": "Address",
                             "values": [
-                                "Apt 101, Suite 550, Room 237" 
+                                "" 
                             ],               
                             "notes": [
                                "Enter testing lab’s additional address information, if applicable. This value is optional and can be left blank if no information is provided."              
@@ -774,10 +779,10 @@
                             "valueMessage": "",
                             "valueType": "Address",
                             "values": [
-                                "Two-character state abbreviation, ex: MD, VT, TX." 
+                                "Two-character state abbreviation." 
                             ],               
                             "notes": [
-                               "Enter ordering provider’s state. File will fail if field left blank."              
+                               "Enter testing lab's state. File will fail if field left blank."              
                             ]
                         },
                         {
@@ -794,14 +799,14 @@
                                 "12345-6789"
                             ],               
                             "notes": [
-                               "Enter testing lab zip code. File will fail if value is not entered using accepted format or field is left blank. "               
+                               "Enter testing lab's zip code. File will fail if value is not entered using accepted format or field is left blank. "               
                             ]
                         },
                         {
                             "name": "Testing lab phone number",
                             "colHeader": "testing_lab_phone_number",
                             "colHeaderReportstream": "",            
-                            "required": true,
+                            "required": false,
                             "acceptedFormat": true,
                             "acceptedValues": false,
                             "acceptedExample": false,
@@ -811,7 +816,7 @@
                                 "000-000-0000"
                             ],               
                             "notes": [
-                               "Enter testing lab’s phone number. File will fail if value is not entered using accepted format or field is left blank."              
+                               "Enter testing lab’s phone number, if known. File will fail if value is not entered using accepted format."              
                             ]
                         }
                     ]
@@ -886,7 +891,7 @@
                             "acceptedValues": false,
                             "acceptedExample": false,
                             "valueMessage": "",
-                            "valueType": "Status",
+                            "valueType": "Date",
                             "values": [
                                 "YYYYMMDD"
                             ],               
@@ -905,9 +910,9 @@
                             "valueMessage": "",
                             "valueType": "Status",
                             "values": [
-                                "Y or YES",
-                                "N or NO",              
-                                "U or UNK" 
+                                "<code>Y</code> or <code>YES</code>",
+                                "<code>N</code> or <code>NO</code>",              
+                                "<code>U</code> or <code>UNK</code>" 
                             ],               
                             "notes": [
                             "Enter patient’s congregate housing status. Field is not required, but requested for thorough reporting. Enter one of the acceptable values exactly as displayed."              
@@ -943,9 +948,9 @@
                             "valueMessage": "",
                             "valueType": "Status",
                             "values": [
-                                "<code>Y</code>or YES</code>",
-                                "<code>N</code> or NO</code>",              
-                                "<code>U</code> or UNK</code>" 
+                                "<code>Y</code> or <code>YES</code>",
+                                "<code>N</code> or <code>NO</code>",              
+                                "<code>U</code> or <code>UNK</code>" 
                             ],               
                             "notes": [
                             "Enter patient’s intensive care unit (ICU) status.  Field is not required, but requested for thorough reporting. Enter one of the acceptable values exactly as displayed."              
@@ -963,15 +968,15 @@
                             "colHeaderReportstream": "",            
                             "required": true,
                             "acceptedFormat": false,
-                            "acceptedValues": true,
+                            "acceptedValues": false,
                             "acceptedExample": false,
                             "valueMessage": "",
-                            "valueType": "Name",
+                            "valueType": "Text",
                             "values": [
-                                "value" 
+                                "" 
                             ],               
                             "notes": [
-                               "Enter ordering facility name. Can be left blank if same as testing_lab_name. "              
+                               "Enter ordering facility name. Can be left blank if same as <a href=\"#testing-facility\" class=\"usa-link\">testing_lab_name</a>. "              
                             ]
                         },
                         {
@@ -981,14 +986,14 @@
                             "required": true,
                             "acceptedFormat": false,
                             "acceptedValues": false,
-                            "acceptedExample": true,
+                            "acceptedExample": false,
                             "valueMessage": "",
                             "valueType": "Address",
                             "values": [
-                                "ex: 1234 America Ln" 
+                                "" 
                             ],               
                             "notes": [
-                               "Enter the street address of the ordering facility. Can be left blank if same as testing_lab_street."              
+                               "Enter the street address of the ordering facility. Can be left blank if same as <a href=\"#testing-facility\" class=\"usa-link\">testing_lab_street</a>."              
                             ]
                         },
                         {
@@ -998,11 +1003,11 @@
                             "required": false,
                             "acceptedFormat": false,
                             "acceptedValues": false,
-                            "acceptedExample": true,
+                            "acceptedExample": false,
                             "valueMessage": "",
                             "valueType": "Address",
                             "values": [
-                                "ex: Apt 101, Suite 550" 
+                                "" 
                             ],               
                             "notes": [
                                "Enter ordering facility’s additional address information, if applicable. This value is optional and can be left blank if no information is provided."              
@@ -1022,7 +1027,7 @@
                                 "" 
                             ],               
                             "notes": [
-                               "Enter ordering facility’s city. Can be left blank if same as testing_lab_city."              
+                               "Enter ordering facility’s city. Can be left blank if same as <a href=\"#testing-facility\" class=\"usa-link\">testing_lab_city</a>."              
                             ]
                         },
                         {
@@ -1034,12 +1039,12 @@
                             "acceptedValues": false,
                             "acceptedExample": false,
                             "valueMessage": "",
-                            "valueType": "Address, two-character state abbreviation",
+                            "valueType": "Address",
                             "values": [
-                                "Two-character state abbreviation, ex: MD, VT, TX." 
+                                "Two-character state abbreviation." 
                             ],               
                             "notes": [
-                               "Enter ordering facility’s state. Can be left blank if same as testing_lab_state."              
+                               "Enter ordering facility’s state. Can be left blank if same as <a href=\"#testing-facility\" class=\"usa-link\">testing_lab_state</a>."              
                             ]
                         },
                         {
@@ -1056,7 +1061,7 @@
                                 "12345-6789"
                             ],               
                             "notes": [
-                               "Enter ordering facility zip code. Can be left blank if same as testing_lab_zip_code. "               
+                               "Enter ordering facility zip code. Can be left blank if same as <a href=\"#testing-facility\" class=\"usa-link\">testing_lab_zip_code</a>. "               
                             ]
                         },
                         {
@@ -1072,9 +1077,33 @@
                                 "000-000-0000"
                             ],               
                             "notes": [
-                               "Enter ordering facility phone number. Can be left blank if same as testing_lab_phone_number."               
+                               "Enter ordering facility phone number. Can be left blank if same as <a href=\"#testing-facility\" class=\"usa-link\">testing_lab_phone_number</a>."               
                             ]
                         }                    
+                    ]
+                },
+                {
+                    "title": "Additional data elements and notes",
+                    "slug": "additional-data-elements",
+                    "items": [
+                        {
+                            "name": "Comment",
+                            "colHeader": "comment",
+                            "colHeaderReportstream": "",            
+                            "required": false,
+                            "acceptedFormat": false,
+                            "acceptedValues": false,
+                            "acceptedExample": false,
+                            "valueMessage": "",
+                            "valueType": "Text",
+                            "values": [
+                                "" 
+                            ],               
+                            "notes": [
+                               "If there are comments from a physician or lab technician you want to relay to your public health department, enter them here. This field is not intended for characteristics of COVID-19 tests or statements about false positive or negative results. This value is optional and can be left blank if no information is provided.",
+                               "<em>Do not include commas (,) in any comments.</em>"              
+                            ]
+                        }
                     ]
                 }
             ]
