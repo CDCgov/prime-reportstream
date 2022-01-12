@@ -3,3 +3,11 @@
  */
 
 rootProject.name = "prime-router"
+
+// Make sure the gradle plugin manager is not using JCenter, which was shutdown
+pluginManagement {
+    repositories {
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
