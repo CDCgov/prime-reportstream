@@ -579,14 +579,15 @@ buildscript {
              *   com.microsoft.azure:azure-toolkit-common-lib:0.12.3 >
              *   com.microsoft.azure:adal4j:1.6.7 > com.nimbusds:oauth2-oidc-sdk:9.15
              * Looks like com.nimbusds:oauth2-oidc-sdk:9.15 has an invalid dependency version of [1.3.2,2.4.2]
+             * This will need to be removed once this issue is resolved in Maven.
              */
             exclude("net.minidev", "json-smart")
         }
     }
     dependencies {
         // Now force the gradle build script to get the proper library for com.nimbusds:oauth2-oidc-sdk:9.15.  This
-        // Will need to be removed once this issue is resolved in Maven.
-        classpath("net.minidev:json-smart:2.4.7")
+        // will need to be removed once this issue is resolved in Maven.
+        classpath("net.minidev:json-smart:2.4.2")
     }
 }
 
