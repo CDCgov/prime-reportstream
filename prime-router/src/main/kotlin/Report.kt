@@ -72,8 +72,8 @@ data class ReportStreamFilterResult(
     val originalCount: Int,
     val filterName: String,
     val filterArgs: List<String>,
-    val filteredCount: Int,
-    val filteredTrackingElements: List<String>,
+    val filteredTrackingElement: String,
+    val filteredIndex: Int,
     override val type: ActionEventDetailType = ActionEventDetailType.TRANSLATION
 ) : ActionEventDetail {
     companion object {
@@ -83,12 +83,7 @@ data class ReportStreamFilterResult(
 
     override fun toString(): String {
         return "For $receiverName, filter $filterName$filterArgs" +
-            " reduced the item count from $originalCount to ${originalCount - filteredCount}." +
-            if (filteredTrackingElements.isEmpty()) {
-                ""
-            } else {
-                "  Data with these IDs were filtered out: (${filteredTrackingElements.joinToString(",") })"
-            }
+            " filtered out item $filteredTrackingElement at index $filteredIndex"
     }
 
     override fun detailMsg(): String {
@@ -417,18 +412,21 @@ class Report : Logging {
             if (doLogging && filterFnSelection.size() < table.rowCount()) {
                 val before = Selection.withRange(0, table.rowCount())
                 val filteredRowList = before.andNot(filterFnSelection).toList()
-                filteredRows.add(
-                    ReportStreamFilterResult(
-                        receiver.fullName,
-                        table.rowCount(),
-                        filterFn.name,
-                        fnArgs,
-                        filteredRowList.size,
-                        getValuesInRows(
-                            trackingElement, filteredRowList, ReportStreamFilterResult.DEFAULT_TRACKING_VALUE
+                val rowsFiltered = getValuesInRows(
+                    trackingElement, filteredRowList, ReportStreamFilterResult.DEFAULT_TRACKING_VALUE
+                )
+                rowsFiltered.zip(filteredRowList).forEach { (trackingId, index) ->
+                    filteredRows.add(
+                        ReportStreamFilterResult(
+                            receiver.fullName,
+                            table.rowCount(),
+                            filterFn.name,
+                            fnArgs,
+                            trackingId,
+                            index
                         )
                     )
-                )
+                }
             }
             combinedSelection.and(filterFnSelection)
         }

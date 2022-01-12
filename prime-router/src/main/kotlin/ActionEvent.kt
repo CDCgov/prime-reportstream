@@ -81,7 +81,7 @@ data class ActionEvent(
 ) {
 
     val rowNumber: Int
-        get() = index + 1
+        get() = index?.let { it + 1 } ?: -1
 
     fun getActionId(): Long {
         return action!!.actionId
@@ -97,12 +97,12 @@ data class ActionEvent(
 
     companion object {
         fun report(message: ActionEventDetail, type: Type, reportId: UUID? = null): ActionEvent {
-            return ActionEvent(DetailScope.report, "", message, -1, type = type, reportId = reportId)
+            return ActionEvent(DetailScope.report, "", message, type = type, reportId = reportId)
         }
 
         fun report(message: String, type: Type): ActionEvent {
             val reportMessage = InvalidReportMessage(message)
-            return ActionEvent(DetailScope.report, "", reportMessage, -1, type = type)
+            return ActionEvent(DetailScope.report, "", reportMessage, type = type)
         }
 
         fun item(trackingId: String, message: ActionEventDetail, row: Int, type: Type): ActionEvent {
@@ -110,7 +110,7 @@ data class ActionEvent(
         }
 
         fun param(trackingId: String, message: ActionEventDetail, type: Type = Type.error): ActionEvent {
-            return ActionEvent(DetailScope.parameter, trackingId, message, -1, type = type)
+            return ActionEvent(DetailScope.parameter, trackingId, message, type = type)
         }
     }
 }

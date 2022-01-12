@@ -513,8 +513,9 @@ class ActionHistory {
             trackDetails(
                 ActionEvent(
                     ActionEvent.DetailScope.report,
-                    "",
+                    it.filteredTrackingElement,
                     it,
+                    it.filteredIndex,
                     reportId = report.id,
                     action = action,
                     type = ActionEvent.Type.filter,
@@ -1030,8 +1031,8 @@ class ActionHistory {
                         messageByGroupingId[groupingId] = actionDetail.detail.detailMsg()
                         scopesByGroupingId[groupingId] = actionDetail.scope.toString()
                     }
-                    if (actionDetail.index != -1) {
-                        itemsByGroupingId[groupingId]?.add(actionDetail.index + 1)
+                    actionDetail.index?.let {
+                        itemsByGroupingId[groupingId]?.add(actionDetail.rowNumber)
                     }
                 }
                 return GroupedProperties(
