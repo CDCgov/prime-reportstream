@@ -30,7 +30,7 @@ import { GettingStartedPublicHealthDepartments } from "./pages/getting-started/p
 import { GettingStartedTestingFacilities } from "./pages/getting-started/testing-facilities";
 import { AdminMain } from "./pages/admin/AdminMain";
 import { AdminOrgEdit } from "./pages/admin/AdminOrgEdit";
-import { EditSettings } from "./pages/admin/Settings/EditSetting";
+import { EditReceiverSettings } from "./pages/admin/Settings/EditReceiverSettings";
 
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
 
@@ -156,7 +156,7 @@ const App = () => {
                                 <AuthorizedRoute
                                     path="/admin/orgreceiversettings/:orgname/:receivername"
                                     authorize={PERMISSIONS.PRIME_ADMIN}
-                                    component={EditSettings}
+                                    component={EditReceiverSettings}
                                 />
                                 <SecureRoute
                                     path="/report-details"
