@@ -337,7 +337,7 @@ class Hl7Serializer(
             }
 
             // Second, we process all the element raw values through mappers and defaults.
-            schema.elements.forEach {
+            schema.elements.forEach { it ->
                 val mappedResult = it.processValue(mappedRows, schema)
                 mappedRows[it.name] = mappedResult.value ?: ""
                 errors.addAll(mappedResult.errors.map { it.detailMsg() })
@@ -465,7 +465,7 @@ class Hl7Serializer(
         // serialize the rest of the elements
         reportElements.forEach { element ->
             val value = report.getString(row, element.name).let {
-                if (it.isNullOrEmpty() || it.equals("null")) {
+                if (it.isNullOrEmpty() || it == "null") {
                     element.default ?: ""
                 } else {
                     it

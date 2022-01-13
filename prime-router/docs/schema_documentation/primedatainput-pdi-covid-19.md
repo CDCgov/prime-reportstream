@@ -8,6 +8,18 @@
 
 ---
 
+**Name**: Comment
+
+**ReportStream Internal Name**: comment
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
 **Name**: Date_result_released
 
 **ReportStream Internal Name**: date_result_released
@@ -1633,6 +1645,18 @@ UNK|Unknown
 **Documentation**:
 
 Is the patient symptomatic?
+
+---
+
+**Name**: Test_correction_reason
+
+**ReportStream Internal Name**: test_correction_reason
+
+**Type**: TEXT
+
+**PII**: Yes
+
+**Cardinality**: [0..1]
 
 ---
 
