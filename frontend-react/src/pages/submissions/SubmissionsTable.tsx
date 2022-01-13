@@ -1,6 +1,11 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import moment from "moment";
 import { useResource } from "rest-hooks";
+import {
+    Button,
+    IconNavigateBefore,
+    IconNavigateNext,
+} from "@trussworks/react-uswds";
 
 import SubmissionsResource from "../../resources/SubmissionsResource";
 import { GlobalContext } from "../../components/GlobalContextProvider";
@@ -8,10 +13,67 @@ import { GlobalContext } from "../../components/GlobalContextProvider";
 function SubmissionsTable() {
     // this component will refresh when global context changes (e.g. organization changes)
     const globalState = useContext(GlobalContext);
+
+    // state of pagination
+    const [paginationCursor, setPaginationCursor] = useState("");
+    const [paginationSort, setPaginationSort] = useState("DESC");
+    const [paginationPageSize] = useState(10);
+
     const submissions: SubmissionsResource[] = useResource(
         SubmissionsResource.list(),
-        { organization: globalState.state.organization }
+        {
+            organization: globalState.state.organization,
+            cursor: paginationCursor,
+            pageSize: paginationPageSize,
+            sort: paginationSort,
+        }
     );
+
+    const sortedSubmissions = () => {
+        if (paginationSort === "ASC") {
+            // sort by createdAt DESC
+            // because when the paginationSort is ASC, the results from the server are reversed
+            const fallbackDate = "1/1/2020";
+            submissions.sort(
+                (a, b) =>
+                    Date.parse(b.createdAt?.toString() || fallbackDate) -
+                    Date.parse(a.createdAt?.toString() || fallbackDate)
+            );
+        }
+        return submissions;
+    };
+
+    const updatePaginationCursor = (next: boolean) => {
+        let cursor = submissions[0]?.createdAt?.toString() || "";
+        let sort = "ASC";
+        if (next) {
+            cursor =
+                submissions[submissions.length - 1]?.createdAt?.toString() ||
+                "";
+            sort = "DESC";
+        }
+        setPaginationCursor(cursor);
+        setPaginationSort(sort);
+    };
+
+    // we can tell if we're on the first page by saving the first result and then checking against it later
+    const [firstPaginationCursor] = useState(
+        submissions[submissions.length - 1]?.createdAt?.toString() || ""
+    );
+
+    const onFirstPage = () => {
+        return submissions.find(
+            (s) => s.createdAt?.toString() === firstPaginationCursor
+        );
+    };
+
+    // 2022-01-07: the team suggested to see if the number of items matches
+    // the requested page size to tell if it is the last page,
+    // and then leave a message if there are no results on the next page
+    const onLastPage = () => {
+        return submissions.length !== paginationPageSize;
+    };
+
     return (
         <div className="grid-container usa-section margin-bottom-10">
             <div className="grid-col-12">
@@ -30,7 +92,7 @@ function SubmissionsTable() {
                         </tr>
                     </thead>
                     <tbody id="tBody" className="font-mono-2xs">
-                        {submissions.map((s, i) => {
+                        {sortedSubmissions().map((s, i) => {
                             return (
                                 <tr key={"submission_" + i}>
                                     <th scope="row">
@@ -39,7 +101,7 @@ function SubmissionsTable() {
                                             .local()
                                             .format("YYYY-MM-DD HH:mm")}
                                     </th>
-                                    <th scope="row"> </th>
+                                    <th scope="row">&nbsp;</th>
                                     {/* File name */}
                                     <th scope="row">{s["reportItemCount"]}</th>
                                     <th scope="row">{s["id"]}</th>
@@ -49,6 +111,42 @@ function SubmissionsTable() {
                         })}
                     </tbody>
                 </table>
+                {submissions.length === 0 && !paginationCursor && (
+                    <p>There were no results found.</p>
+                )}
+                {submissions.length === 0 && paginationCursor && (
+                    <p>No more results found.</p>
+                )}
+                {(submissions.length > 0 || paginationCursor) && (
+                    <span className="float-right margin-top-5">
+                        {!onFirstPage() && (
+                            <Button
+                                className="text-no-underline margin-right-4"
+                                type="button"
+                                unstyled
+                                onClick={() => updatePaginationCursor(false)}
+                            >
+                                <span>
+                                    <IconNavigateBefore className="text-middle" />
+                                    Previous
+                                </span>
+                            </Button>
+                        )}
+                        {!onLastPage() && (
+                            <Button
+                                className="text-no-underline"
+                                type="button"
+                                unstyled
+                                onClick={() => updatePaginationCursor(true)}
+                            >
+                                <span>
+                                    Next
+                                    <IconNavigateNext className="text-middle" />
+                                </span>
+                            </Button>
+                        )}
+                    </span>
+                )}
             </div>
         </div>
     );
