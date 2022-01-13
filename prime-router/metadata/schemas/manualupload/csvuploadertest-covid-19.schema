@@ -5,6 +5,7 @@
 # 
 name: csvuploadertest-covid-19
 topic: covid-19
+trackingElement: message_id
 description: CSV Uploader Test
 extends: upload-covid-19
 
