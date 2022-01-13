@@ -898,6 +898,7 @@
         receivingApplicationName: NEDSS
         receivingFacilityName: TX-ELR
         defaultAoeToUnknown: true
+        nameFormat: texas
       transport:
         type: SFTP
         host: sftp
@@ -1283,6 +1284,7 @@
         receivingFacilityOID: 2.16.840.1.113883.19.3.2
         truncateHDNamespaceIds: true
         nameFormat: massachusetts
+        suppressHl7Fields: "PID-20"
       transport:
         type: SFTP
         host: sftp

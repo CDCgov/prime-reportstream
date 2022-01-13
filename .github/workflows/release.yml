@@ -13,15 +13,42 @@ defaults:
     working-directory: prime-router
 
 jobs:
+  set_build_env:
+    name: "Set Build Environment"
+    runs-on: ubuntu-latest
+    outputs:
+      env_name: ${{ env.ENV_NAME }}
+    steps:
+      - name: Check out changes
+        uses: actions/checkout@v2
+
+      - name: Set Build Environment - DEV
+        if: github.ref == 'refs/heads/dev-rheft'
+        run: echo >> $GITHUB_ENV ENV_NAME='dev'
+
+      - name: Set Build Environment - TEST
+        if: github.ref == 'refs/heads/ronheft/test-investigation'
+        run: echo >> $GITHUB_ENV ENV_NAME='test'
+
+      - name: Set Build Environment - STAGING
+        if: github.ref == 'refs/heads/master'
+        run: echo >> $GITHUB_ENV ENV_NAME='staging'
+
+      - name: Set Build Environment - PROD
+        if: github.ref == 'refs/heads/production'
+        run: echo >> $GITHUB_ENV ENV_NAME='prod'
+
   build_release:
     name: "Release: Build Router"
+    needs:
+      - set_build_env
     runs-on: ubuntu-latest
     env:
       # These are for CI and not credentials of any system
       POSTGRES_USER: prime
       POSTGRES_PASSWORD: changeIT!
     steps:
-      - name: "Check out changes"
+      - name: Check out changes
         uses: actions/checkout@v2
 
       - name: Set Environment Variables
@@ -58,34 +85,37 @@ jobs:
 
   build_frontend_react_release:
     name: "Release: Build Frontend (React)"
+    needs:
+      - set_build_env
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: frontend-react
 
     steps:
-      - name: "Check out changes"
+      - name: Check out changes
         uses: actions/checkout@v2
 
       - name: Build frontend
         uses: ./.github/actions/build-frontend
 
-  deploy_release_dev:
-    name: "Deploy Release: DEV"
+  deploy_release:
+    name: "Deploy Release: ${{ needs.set_build_env.outputs.env_name }}"
     needs:
+      - set_build_env
       - build_release
       - build_frontend_react_release
-    if: github.ref == 'refs/heads/dev-rheft'
-    environment: dev
-    concurrency: dev
+    environment: ${{ needs.set_build_env.outputs.env_name }}
+    concurrency: ${{ needs.set_build_env.outputs.env_name }}
     runs-on: ubuntu-latest
     steps:
-      - name: "Check out changes"
+      - name: Check out changes
         uses: actions/checkout@v2
 
       - name: Connect to VPN and login to Azure
         uses: ./.github/actions/vpn-azure
         with:
+          env-name: ${{ needs.set_build_env.outputs.env_name }}
           tls-key: ${{ secrets.TLS_KEY }}
           ca-cert: ${{ secrets.CA_CRT}}
           user-crt: ${{ secrets.USER_CRT }}
@@ -94,90 +124,12 @@ jobs:
 
       - name: Deploy backend
         uses: ./.github/actions/deploy-backend
-
-      - name: Deploy frontend
-        uses: ./.github/actions/deploy-frontend
-
-  deploy_release_test:
-    name: "Deploy Release: TEST"
-    needs:
-      - build_release
-      - build_frontend_react_release
-    if: github.ref == 'refs/heads/ronheft/test-investigation'
-    environment: test
-    concurrency: test
-    runs-on: ubuntu-latest
-    steps:
-      - name: "Check out changes"
-        uses: actions/checkout@v2
-
-      - name: Connect to VPN and login to Azure
-        uses: ./.github/actions/vpn-azure
         with:
-          tls-key: ${{ secrets.TLS_KEY }}
-          ca-cert: ${{ secrets.CA_CRT}}
-          user-crt: ${{ secrets.USER_CRT }}
-          user-key: ${{ secrets.USER_KEY }}
-          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
-
-      - name: Deploy backend
-        uses: ./.github/actions/deploy-backend
+          env-name: ${{ needs.set_build_env.outputs.env_name }}
+          dct-root-pass: ${{ secrets.DCT_ROOT_PASS }}
+          dct-repo-pass: ${{ secrets.DCT_REPO_PASS }}
 
       - name: Deploy frontend
         uses: ./.github/actions/deploy-frontend
-
-  deploy_release_staging:
-    name: "Deploy Release: STAGING"
-    needs:
-      - build_release
-      - build_frontend_react_release
-    if: github.ref == 'refs/heads/master'
-    environment: staging
-    concurrency: staging
-    runs-on: ubuntu-latest
-    steps:
-      - name: "Check out changes"
-        uses: actions/checkout@v2
-
-      - name: Connect to VPN and login to Azure
-        uses: ./.github/actions/vpn-azure
         with:
-          tls-key: ${{ secrets.TLS_KEY }}
-          ca-cert: ${{ secrets.CA_CRT}}
-          user-crt: ${{ secrets.USER_CRT }}
-          user-key: ${{ secrets.USER_KEY }}
-          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
-
-      - name: Deploy backend
-        uses: ./.github/actions/deploy-backend
-
-      - name: Deploy frontend
-        uses: ./.github/actions/deploy-frontend
-
-  deploy_release_prod:
-    name: "Deploy Release: PROD"
-    needs:
-      - build_release
-      - build_frontend_react_release
-    if: github.ref == 'refs/heads/production'
-    environment: prod
-    concurrency: prod
-    runs-on: ubuntu-latest
-    steps:
-      - name: "Check out changes"
-        uses: actions/checkout@v2
-
-      - name: Connect to VPN and login to Azure
-        uses: ./.github/actions/vpn-azure
-        with:
-          tls-key: ${{ secrets.TLS_KEY }}
-          ca-cert: ${{ secrets.CA_CRT}}
-          user-crt: ${{ secrets.USER_CRT }}
-          user-key: ${{ secrets.USER_KEY }}
-          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
-
-      - name: Deploy backend
-        uses: ./.github/actions/deploy-backend
-
-      - name: Deploy frontend
-        uses: ./.github/actions/deploy-frontend
+          env-name: ${{ needs.set_build_env.outputs.env_name }}

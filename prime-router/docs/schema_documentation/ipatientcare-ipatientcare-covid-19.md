@@ -1,7 +1,7 @@
 
 ### Schema: ipatientcare/ipatientcare-covid-19
 ### Topic: covid-19
-### Tracking Element: none
+### Tracking Element: Accession_no (message_id)
 ### Base On: [covid-19](./covid-19.md)
 ### Extends: none
 #### Description: iPatientCare CSV lab report schema
@@ -257,6 +257,22 @@ Accension number
 
 ---
 
+**Name**: Accession_no
+
+**ReportStream Internal Name**: message_id
+
+**Type**: ID
+
+**PII**: No
+
+**Cardinality**: [1..1]
+
+**Documentation**:
+
+unique id to track the usage of the message
+
+---
+
 **Name**: DateColl
 
 **ReportStream Internal Name**: order_test_date
@@ -285,7 +301,7 @@ DateColl populates multiple fields.  This instance populates order_test_date.
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-09-29
+**Table**: LIVD-SARS-CoV-2-latest
 
 **Table Column**: Test Ordered LOINC Long Name
 
@@ -726,6 +742,7 @@ Code | Display
 1002-5|American Indian or Alaska Native
 1002-5|American Indian
 1002-5|Native American
+1002-5|1002-5
 2054-5|Black or African American
 2054-5|African American
 2054-5|African American Alaska Native
@@ -1008,7 +1025,7 @@ DateColl populates multiple fields.  This instance populates specimen_collection
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-09-29
+**Table**: LIVD-SARS-CoV-2-latest
 
 **Table Column**: Test Performed LOINC Long Name
 
@@ -1360,22 +1377,6 @@ UNK|Unknown
 **Documentation**:
 
 iPatientCare is an ambulatory EMR, so this field is defaulted to 'N'.
-
----
-
-**Name**: message_id
-
-**ReportStream Internal Name**: message_id
-
-**Type**: ID
-
-**PII**: No
-
-**Cardinality**: [1..1]
-
-**Documentation**:
-
-unique id to track the usage of the message
 
 ---
 
