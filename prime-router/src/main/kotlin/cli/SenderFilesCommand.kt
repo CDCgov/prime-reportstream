@@ -13,7 +13,8 @@ import com.github.ajalt.clikt.parameters.types.choice
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.Headers
 import com.github.kittinunf.fuel.core.extensions.authentication
-import com.github.kittinunf.result.Result
+import com.github.kittinunf.result.map
+import com.github.kittinunf.result.onError
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.SenderFilesFunction
 import gov.cdc.prime.router.common.Environment
@@ -119,24 +120,19 @@ class SenderFilesCommand : CliktCommand(
             .header(Headers.CONTENT_TYPE to HttpUtilities.jsonMediaType)
             .timeoutRead(SettingsUtilities.requestTimeoutMillis)
             .responseString()
-        @Suppress("UNREACHABLE_CODE")
-        return when (result) {
-            is Result.Failure -> {
-                abort(
-                    """
-                    Error requesting of the report files from the API 
-                    Status Code: ${response.statusCode}
-                    Message: ${response.responseMessage}
-                    Details: ${String(response.data)}
-                    """.trimIndent()
-                )
-            }
-            is Result.Success -> {
-                val reports = jsonMapper.readValue(response.data, Array<ReportFileMessage>::class.java)
-                    ?: error("Could not deserialize")
-                return reports.toList()
-            }
-        }
+        return result.map {
+            jsonMapper.readValue(response.data, Array<ReportFileMessage>::class.java)?.toList()
+                ?: abort("Could not deserialize")
+        }.onError {
+            abort(
+                """
+                Error requesting of the report files from the API 
+                Status Code: ${response.statusCode}
+                Message: ${response.responseMessage}
+                Details: ${String(response.data)}
+                """.trimIndent()
+            )
+        }.get()
     }
 
     /**
