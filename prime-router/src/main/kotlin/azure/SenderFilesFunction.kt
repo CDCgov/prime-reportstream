@@ -39,26 +39,33 @@ class SenderFilesFunction(
     ): HttpResponseMessage {
         return oktaAuthentication.checkAccess(request) {
             try {
-                val parameters = try {
-                    checkParameters(request)
-                } catch (e: IllegalArgumentException) {
-                    return@checkAccess HttpUtilities.badRequestResponse(request, e.message ?: "")
-                }
+                val parameters = checkParameters(request)
                 val result = processRequest(parameters)
-                when (result.status) {
-                    Status.OK -> {
-                        val auditMsg = fromAuditMessage(it.userName, result.reportsIds)
-                        logger.info(auditMsg)
-                        HttpUtilities.okResponse(request, result.payload)
-                    }
-                    Status.BAD_REQUEST -> HttpUtilities.badRequestResponse(request, result.payload)
-                    Status.NOT_FOUND -> HttpUtilities.notFoundResponse(request, result.payload)
-                }
-            } catch (e: Exception) {
-                logger.error("Internal error for ${it.userName} request: $e")
+                logger.info(fromAuditMessage(it.userName, result.reportsIds))
+                HttpUtilities.okResponse(request, result.payload)
+            } catch (ex: IllegalArgumentException) {
+                HttpUtilities.badRequestResponse(request, ex.message ?: "")
+            } catch (ex: FileNotFoundException) {
+                HttpUtilities.notFoundResponse(request, ex.message ?: "")
+            } catch (ex: Exception) {
+                logger.error("Internal error for ${it.userName} request: $ex")
                 HttpUtilities.internalErrorResponse(request)
             }
         }
+    }
+
+    /**
+     * To indicate a bad request error throw an [IllegalArgumentException] with [message]
+     */
+    private fun badRequest(message: String): Nothing {
+        throw IllegalArgumentException(message)
+    }
+
+    /**
+     * To indicate a not found error throw an [FileNotFoundException] with [message]
+     */
+    private fun notFound(message: String): Nothing {
+        throw FileNotFoundException(message)
     }
 
     /**
@@ -81,26 +88,26 @@ class SenderFilesFunction(
         val reportId = try {
             request.queryParameters[REPORT_ID_PARAM]?.let { UUID.fromString(it) }
         } catch (e: Exception) {
-            throw IllegalArgumentException("Bad $REPORT_ID_PARAM parameter")
+            badRequest("Bad $REPORT_ID_PARAM parameter. Details: ${e.message}")
         }
         val reportFileName = request.queryParameters[REPORT_FILE_NAME_PARAM]?.replace("/", "%2F")
         val fullReport = try {
             request.queryParameters[ONLY_REPORT_ITEMS]?.toBoolean() ?: false
         } catch (e: Exception) {
-            throw IllegalArgumentException("Bad $ONLY_REPORT_ITEMS parameter")
+            badRequest("Bad $ONLY_REPORT_ITEMS parameter. Details: ${e.message}")
         }
         val offset = try {
             request.queryParameters[OFFSET_PARAM]?.toInt() ?: 0
         } catch (e: Exception) {
-            throw IllegalArgumentException("Bad $OFFSET_PARAM parameter")
+            badRequest("Bad $OFFSET_PARAM parameter. Details: ${e.message}")
         }
         val limit = try {
             request.queryParameters[LIMIT_PARAM]?.toInt() ?: DEFAULT_LIMIT_PARAM
         } catch (e: Exception) {
-            throw IllegalArgumentException("Bad $LIMIT_PARAM parameter")
+            badRequest("Bad $LIMIT_PARAM parameter. Details: ${e.message}")
         }
         if (reportId == null && reportFileName == null) {
-            throw IllegalArgumentException("Expected either a $REPORT_ID_PARAM or a $REPORT_FILE_NAME_PARAM parameter")
+            badRequest("Expected either a $REPORT_ID_PARAM or a $REPORT_FILE_NAME_PARAM parameter")
         }
 
         return FunctionParameters(
@@ -112,14 +119,7 @@ class SenderFilesFunction(
         )
     }
 
-    enum class Status {
-        OK,
-        NOT_FOUND,
-        BAD_REQUEST,
-    }
-
     data class ProcessResult(
-        val status: Status,
         val payload: String,
         val reportsIds: List<String>? = null
     )
@@ -128,27 +128,15 @@ class SenderFilesFunction(
      * Main logic of the Azure function. Useful for unit testing.
      */
     internal fun processRequest(parameters: FunctionParameters): ProcessResult {
-        val receiverReportFile = try {
-            findOutputFile(parameters)
-        } catch (e: Exception) {
-            return ProcessResult(Status.NOT_FOUND, "Receiver report file not found: ${e.message}")
-        }
-
+        val receiverReportFile = findOutputFile(parameters)
         val senderItems = findSenderItems(receiverReportFile.reportId, parameters.offset, parameters.limit)
         if (senderItems.isEmpty()) {
-            return ProcessResult(Status.NOT_FOUND, "No sender reports found for report: ${parameters.reportId}")
+            notFound("No sender reports found for report: ${parameters.reportId}")
         }
 
         val senderReports = downloadSenderReports(senderItems, parameters)
-        val emptyReport = senderReports.find { it.content.isEmpty() }
-        if (emptyReport != null) {
-            return ProcessResult(
-                Status.NOT_FOUND,
-                "Could not fetch the specified file, may have been deleted: ${emptyReport.origin?.bodyUrl}"
-            )
-        }
         val payload = senderReports.serialize()
-        return ProcessResult(Status.OK, payload, senderReports.map { it.reportId })
+        return ProcessResult(payload, senderReports.map { it.reportId })
     }
 
     private fun findOutputFile(parameters: FunctionParameters): ReportFile {
@@ -156,7 +144,7 @@ class SenderFilesFunction(
             parameters.reportId != null -> dbAccess.fetchReportFile(parameters.reportId)
             parameters.reportFileName != null -> dbAccess.fetchReportFileByBlobURL(parameters.reportFileName)
             else -> null
-        } ?: throw FileNotFoundException("Could not find the specified report-file")
+        } ?: notFound("Could not find the specified report-file")
     }
 
     private fun findSenderItems(reportId: UUID, offset: Int, limit: Int): List<SenderItems> {
@@ -178,7 +166,8 @@ class SenderFilesFunction(
             val blob = try {
                 String(blobAccess.downloadBlob(reportFile.bodyUrl))
             } catch (e: IOException) {
-                ""
+                logger.info("Unable to download $reportId at ${reportFile.bodyUrl}. Details: ${e.message}")
+                notFound("Could not fetch a report file, may have been deleted: $reportId")
             }
 
             val senderIndices = senderItems.map { it.senderReportIndex!! }

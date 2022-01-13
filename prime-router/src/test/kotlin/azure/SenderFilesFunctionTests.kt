@@ -4,6 +4,7 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFailure
 import assertk.assertions.isGreaterThan
+import assertk.assertions.isInstanceOf
 import assertk.assertions.isNull
 import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
 import com.google.common.net.HttpHeaders
@@ -16,6 +17,7 @@ import gov.cdc.prime.router.messages.ReportFileMessage
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import java.io.FileNotFoundException
 import java.io.IOException
 import java.net.URI
 import java.time.OffsetDateTime
@@ -114,9 +116,8 @@ class SenderFilesFunctionTests {
         every { mockBlobAccess.downloadBlob(any()) } returns body.toByteArray()
         every { mockDbAccess.fetchReportFile(any(), any(), any()) } returns buildReportFile(senderReportId)
         val senderFileFunctions = buildSenderFilesFunction(mockDbAccess, mockBlobAccess)
-        val (status, payload) = senderFileFunctions.processRequest(functionParams)
-        assertThat(status).isEqualTo(SenderFilesFunction.Status.OK)
-        val reportFileMessages = mapper.readValue(payload, Array<ReportFileMessage>::class.java)
+        val result = senderFileFunctions.processRequest(functionParams)
+        val reportFileMessages = mapper.readValue(result.payload, Array<ReportFileMessage>::class.java)
         assertThat(reportFileMessages[0].reportId).isEqualTo(senderReportId.toString())
         assertThat(reportFileMessages[0].contentType).isEqualTo("text/csv")
         assertThat(reportFileMessages[0].content.trim()).isEqualTo(body)
@@ -137,25 +138,24 @@ class SenderFilesFunctionTests {
         every { mockDbAccess.fetchReportFile(any(), any(), any()) } returns buildReportFile(senderReportId)
         every { mockBlobAccess.downloadBlob(any()) } throws IOException("File not found")
         val senderFileFunctions = buildSenderFilesFunction(mockDbAccess, mockBlobAccess)
-        val (status, _) = senderFileFunctions.processRequest(functionParams)
-        assertThat(status).isEqualTo(SenderFilesFunction.Status.NOT_FOUND)
+        assertThat { senderFileFunctions.processRequest(functionParams) }
+            .isFailure()
+            .isInstanceOf(FileNotFoundException::class.java)
     }
 
     @Test
-    fun `test processRequest with receiver report`() {
-        // Test that the case where the blob is deleted is handled as expected
+    fun `test the case with no ancestors`() {
         val receiverReportId: ReportId = UUID.randomUUID()
         val senderReportId: ReportId = UUID.randomUUID()
         val functionParams = SenderFilesFunction.FunctionParameters(receiverReportId, null, false, 0, 1)
         val mockDbAccess = mockk<DatabaseAccess>()
         val mockBlobAccess = mockk<BlobAccess>()
-        every { mockDbAccess.fetchReportFile(any(), any(), any()) } throws IOException("File not found")
-        every { mockDbAccess.fetchSenderItems(any(), any(), any()) } returns listOf(
-            SenderItems(senderReportId, 0, receiverReportId, 0)
-        )
+        every { mockDbAccess.fetchSenderItems(any(), any(), any()) } returns emptyList()
+        every { mockDbAccess.fetchReportFile(any(), any(), any()) } returns buildReportFile(senderReportId)
         every { mockBlobAccess.downloadBlob(any()) } throws IOException("File not found")
         val senderFileFunctions = buildSenderFilesFunction(mockDbAccess, mockBlobAccess)
-        val (status, _) = senderFileFunctions.processRequest(functionParams)
-        assertThat(status).isEqualTo(SenderFilesFunction.Status.NOT_FOUND)
+        assertThat { senderFileFunctions.processRequest(functionParams) }
+            .isFailure()
+            .isInstanceOf(FileNotFoundException::class.java)
     }
 }
