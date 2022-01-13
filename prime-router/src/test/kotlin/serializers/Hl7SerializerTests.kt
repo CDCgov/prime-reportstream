@@ -37,6 +37,7 @@ import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Date
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.fail
@@ -690,7 +691,7 @@ NTE|1|L|This is a final comment|RE"""
         assertThat(serializer.getHl7MaxLength("OBR-16-1-2", emptyTerser)).isNull()
     }
 
-    // @Ignore // Test case works locally but not in github. Build issue seems to be the one affecting it in remote branch.
+    @Ignore // Test case works locally but not in github. Build issue seems to be the one affecting it in remote branch.
     @Test
     fun `test write a message with Receiver for VT with HD truncation and OBX-23-1 with 50 chars`() {
         val inputStream = File("./src/test/unit_test_files/vt_test_file.csv").inputStream()

@@ -518,8 +518,7 @@ class Hl7Serializer(
             } else if (element.hl7Field == "ORC-21-1") {
                 setOrderingFacilityComponent(terser, rawFacilityName = value, useOrderingFacilityName, report, row)
             } else if (element.hl7Field == "NTE-3") {
-                setNote(terser, nteSequence, value)
-                nteSequence++
+                setNote(terser, nteSequence++, value)
             } else if (element.hl7Field == "MSH-7") {
                 setComponent(
                     terser,
