@@ -1,7 +1,12 @@
 package gov.cdc.prime.router.cli
 
 import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
+import com.fasterxml.jackson.module.kotlin.kotlinModule
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.PrintMessage
 import com.github.ajalt.clikt.output.TermUi
@@ -16,16 +21,21 @@ import com.github.kittinunf.fuel.core.Headers
 import com.github.kittinunf.fuel.core.extensions.authentication
 import com.github.kittinunf.result.getOrElse
 import com.github.kittinunf.result.map
+import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.messages.PreviewMessage
+import gov.cdc.prime.router.messages.ReceiverMessage
 import gov.cdc.prime.router.messages.ReportFileMessage
+import gov.cdc.prime.router.messages.SenderMessage
 import java.nio.file.Files
 import java.nio.file.Path
+import kotlin.io.path.Path
 import kotlin.io.path.name
 
 class PreviewCommand : CliktCommand(
     name = "preview",
-    help = "Preview the output for an input and a settings files. All settings files are in the YAML format."
+    help = "Preview the translation for the provided input and settings files."
 ) {
     // Command Line Parameters
     private val env by option(
@@ -47,40 +57,40 @@ class PreviewCommand : CliktCommand(
         metavar = "<dir>"
     ).required()
 
+    private val overwrite by option(
+        "--overwrite",
+        help = "Overwrite files if needed",
+    ).flag(default = false)
+
+    private val senderNameOption by option(
+        "--sender-name",
+        metavar = "<org-name>.<sender-name>",
+        help = "Instead of a settings file, use the environment's settings"
+    )
+
     private val senderFile by option(
         "--sender-file",
         metavar = "<file>",
-        help = "Settings file for the sender"
+        help = "YAML settings file for the sender"
     ).file(mustExist = true, mustBeReadable = true, canBeSymlink = true, canBeDir = false)
 
-    private val senderName by option(
-        "--sender-name",
-        metavar = "<org-name>.<sender-name>",
+    private val receiverNameOption by option(
+        "--receiver-name",
+        metavar = "<org-name>.<receiver.name>",
         help = "Instead of a settings file, use the environment's settings"
     )
 
     private val receiverFile by option(
         "--receiver-file",
         metavar = "<file>",
-        help = "Settings file for a receiver"
+        help = "YAML settings file for a receiver"
     ).file(mustExist = true, mustBeReadable = true, canBeSymlink = true, canBeDir = false)
-
-    private val receiverName by option(
-        "--receiver-name",
-        metavar = "<org-name>.<receiver.name>",
-        help = "Instead of a settings file, use the environment's settings"
-    )
 
     private val organizationsFile by option(
         "--deep-organizations-file",
         metavar = "<file>",
         help = "A deep organizations.yml file for organizations, receivers and senders"
     ).file(mustExist = true, mustBeReadable = true, canBeSymlink = true, canBeDir = false)
-
-    private val overwrite by option(
-        "--overwrite",
-        help = "Overwrite files if needed",
-    ).flag(default = false)
 
     private val verbose by option(
         "-v", "--verbose",
@@ -95,6 +105,10 @@ class PreviewCommand : CliktCommand(
     private val jsonMapper = jacksonMapperBuilder()
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
         .build()
+    private val yamlMapper: ObjectMapper = ObjectMapper(YAMLFactory())
+        .registerModule(kotlinModule())
+        .registerModule(JavaTimeModule())
+        .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
 
     private val environment = lazy { Environment.get(env) }
     private val accessToken = lazy {
@@ -155,17 +169,52 @@ class PreviewCommand : CliktCommand(
     }
 
     /**
-     * Build parameters for a request from the command lines arguments
+     * Build a preview request body from the command lines arguments
      */
     private fun formPreviewBody(): String {
-        TODO()
+        val sender = senderFile?.let {
+            yamlMapper.readValue(it, SenderMessage::class.java)
+        }
+        val receiver = receiverFile?.let {
+            yamlMapper.readValue(it, ReceiverMessage::class.java)
+        }
+        val deepOrganizations = organizationsFile?.let {
+            yamlMapper.readValue(it, Array<DeepOrganization>::class.java)?.toList()
+        }
+        val senderName = senderNameOption
+            ?: sender?.fullName
+            ?: abort("Missing sender name")
+        sender?.also {
+            if (senderName != it.fullName)
+                abort("Sender full-name $senderName does not match the sender file: ${it.fullName}")
+        }
+        val receiverName = receiverNameOption
+            ?: receiver?.fullName
+            ?: abort("Missing receiver name")
+        receiver?.also {
+            if (it.fullName != receiverName)
+                abort("Receiver full-name $receiverName does not match receiver file: ${it.fullName}")
+        }
+        val inputContent = inputFile.let {
+            inputFile.readText()
+        }
+        val previewMessage = PreviewMessage(
+            senderName,
+            sender,
+            receiverName,
+            receiver,
+            deepOrganizations,
+            inputContent
+        )
+        return jsonMapper.writeValueAsString(previewMessage)
     }
 
     /**
      * Save a report file message
      */
     private fun saveReportFiles(reportFile: ReportFileMessage) {
-        TODO("$reportFile")
+        createDirectory(Path(outDirectory))
+        saveFile(Path(outDirectory, reportFile.externalFileName), reportFile.content)
     }
 
     /**
