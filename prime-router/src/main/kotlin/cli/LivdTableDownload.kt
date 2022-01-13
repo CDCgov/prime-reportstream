@@ -57,7 +57,7 @@ class LivdTableDownload : CliktCommand(
     """
 ) {
     private val defaultOutputDir = "./build"
-    private val outputDirFile by option(
+    private val outputFile by option(
         "--output-file",
         metavar = "<path/filename>",
         help = "Output pathname where to store the LIVD data as CSV."
@@ -67,7 +67,7 @@ class LivdTableDownload : CliktCommand(
         val downloadedDirFile = downloadFile(defaultOutputDir)
         if (downloadedDirFile.isEmpty()) return
 
-        extractLivdTable(sheetName, downloadedDirFile, outputDirFile)
+        extractLivdTable(sheetName, downloadedDirFile, outputFile)
     }
 
     /**
@@ -79,9 +79,7 @@ class LivdTableDownload : CliktCommand(
      *      empty string ("").  If the option is not specified, it will download the file to ./build directory.
      */
     private fun downloadFile(outputDir: String): String {
-        //
         // Get the link to the LIVD-SARS-CoV-2-yyyy-MM-dd.xlsx file
-        //
         val livdFile = search(cdcLOINCTestCodeMappingPageUrl, livdSARSCov2File)
         if (livdFile.isEmpty()) {
             TermUi.echo("\tError: unable to find LOINC code data to download!")
@@ -89,27 +87,23 @@ class LivdTableDownload : CliktCommand(
         }
         val livdFileUrl = "https://cdc.gov/" + livdFile.get(0)
 
-        //
         // Create the local file in the specified directory
-        //
         val localFilename = livdFileUrl.split('/').filter { it.contains(livdSARSCov2File) }.get(0)
-        val outputFile = File(outputDir, localFilename)
+        val outputfile = File(outputDir, localFilename)
 
-        //
         // Read the file from the website and store it in local directory
-        //
         URL(livdFileUrl).openStream().use { input ->
-            if (outputFile.exists()) {
-                val c = prompt("\t$outputFile file is already existed: You want to overwrite it (y/n)?", "n")
+            if (outputfile.exists()) {
+                val c = prompt("\t$outputfile file is already existed: You want to overwrite it (y/n)?", "n")
                 if (c?.lowercase() == "n") {
                     return ""
                 } else {
-                    TermUi.echo("\tThe $outputFile file is overwriting.")
+                    TermUi.echo("\tThe $outputfile file is overwriting.")
                 }
             }
 
             try {
-                FileOutputStream(outputFile).use { output ->
+                FileOutputStream(outputfile).use { output ->
                     input.copyTo(output)
                 }
             } catch (e: Exception) {
@@ -118,7 +112,7 @@ class LivdTableDownload : CliktCommand(
             }
         }
 
-        TermUi.echo("\tSUCCESS: The $outputFile file is downloaded.")
+        TermUi.echo("\tSUCCESS: The $outputfile file is downloaded.")
         return "$outputDir/$localFilename"
     }
 
@@ -156,9 +150,7 @@ class LivdTableDownload : CliktCommand(
      * @return true for success and false for failure.
      */
     private fun extractLivdTable(sheetName: String, inputfile: String, outputfile: String): Boolean {
-        //
         // Check for input file exist
-        //
         if (!File(inputfile).exists()) {
             TermUi.echo("\tERROR: The $inputfile file does not exist.")
         }
@@ -173,9 +165,7 @@ class LivdTableDownload : CliktCommand(
             workbook = HSSFWorkbook(fileInputStream)
         }
 
-        //
         // Check for output file duplication
-        //
         if (File(outputfile).exists()) {
             val c = TermUi.prompt("\t$outputfile file is already existed: You want to overwrite it (y/n)?", "n")
             if (c?.lowercase() == "n") {
@@ -187,9 +177,7 @@ class LivdTableDownload : CliktCommand(
 
         val fileOutputStream = FileOutputStream(File(outputfile))
 
-        //
         // Get the LOINC Mapping sheet
-        //
         val sheet: Sheet? = workbook!!.getSheet(sheetName)
         if (sheet == null) {
             TermUi.echo("\tERROR: Sheet \"$sheetName\" doesn't exist in the $inputfile file.")
@@ -199,44 +187,32 @@ class LivdTableDownload : CliktCommand(
         val rowStart = sheet.getFirstRowNum() // Get starting row number
         val rowEnd = sheet.getLastRowNum() // Get ending row number
 
-        //
         // Start scan each row of the sheet.
-        //
         for (rowNum in rowStart until rowEnd + 1) {
             val row: Row = sheet.getRow(rowNum) ?: continue // Skip the empty row.
 
-            //
             // Scan each column of the sheet
-            //
             val lastColumn: Short = row.lastCellNum
             for (cn in 0 until lastColumn) {
                 var delimiterChar = ","
                 if (cn + 1 == lastColumn.toInt()) delimiterChar = "" // Use blank delimiter after the last column
-                //
                 // Get cell object from the sheet.
-                //
                 val cell = row.getCell(cn, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL)
 
                 if (cell == null) {
                     data.append("" + delimiterChar) // Insert blank if cell is null.
                 } else {
-                    //
                     // Fill in string csv data according the cell type.
-                    //
                     when (cell.cellType) {
                         CellType.BOOLEAN -> data.append(cell.booleanCellValue.toString() + delimiterChar)
                         CellType.NUMERIC -> data.append(cell.numericCellValue.toString() + delimiterChar)
                         CellType.STRING -> {
-                            //
                             // Drop '*' if it is at the end of the string.'
-                            //
                             val stringValue = if (cell.stringCellValue.last() == '*')
                                 cell.stringCellValue.dropLast(1)
                             else
                                 cell.stringCellValue
-                            //
                             // Add " to string that contains "string" (i.e ""string"")
-                            //
                             if (stringValue.contains("\n") || stringValue.contains(",") ||
                                 (stringValue.contains("\""))
                             ) {
@@ -257,9 +233,7 @@ class LivdTableDownload : CliktCommand(
             data.append(System.lineSeparator()) // End of each row
         }
 
-        //
         // Write to CSV file.
-        //
         fileOutputStream.write(data.toString().toByteArray())
         fileOutputStream.close()
 
