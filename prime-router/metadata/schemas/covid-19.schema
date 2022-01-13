@@ -1001,6 +1001,7 @@ elements:
   - name: test_correction_reason
     type: TEXT
     hl7Field: NTE-3
+    pii: true
 
   - name: test_kit_name_id
     type: TABLE
