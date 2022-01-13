@@ -464,7 +464,7 @@ class Hl7Serializer(
         // serialize the rest of the elements
         reportElements.forEach { element ->
             val value = report.getString(row, element.name).let {
-                if (it.isNullOrEmpty()) {
+                if (it.isNullOrEmpty() || it.equals("null")) {
                     element.default ?: ""
                 } else {
                     it
@@ -1220,6 +1220,7 @@ class Hl7Serializer(
 
     private fun setNote(terser: Terser, value: String) {
         if (value.isBlank()) return
+        terser.set(formPathSpec("NTE-1"), "1")
         terser.set(formPathSpec("NTE-3"), value)
         terser.set(formPathSpec("NTE-4-1"), "RE")
         terser.set(formPathSpec("NTE-4-2"), "Remark")

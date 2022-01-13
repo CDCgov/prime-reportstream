@@ -23,7 +23,12 @@ export default class SubmissionsResource extends AuthResource {
         return "SubmissionsResource";
     }
 
-    static listUrl(searchParams: { organization: string }): string {
-        return `${process.env.REACT_APP_BACKEND_URL}/api/history/${searchParams.organization}/submissions`;
+    static listUrl(searchParams: {
+        organization: string;
+        pageSize: number;
+        cursor: string;
+        sort: string;
+    }): string {
+        return `${process.env.REACT_APP_BACKEND_URL}/api/history/${searchParams.organization}/submissions?pagesize=${searchParams.pageSize}&cursor=${searchParams.cursor}&sort=${searchParams.sort}`;
     }
 }
