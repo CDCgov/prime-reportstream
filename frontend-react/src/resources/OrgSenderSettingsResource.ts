@@ -1,19 +1,4 @@
 import OrgSettingsBaseResource from "./OrgSettingsBaseResource";
-/*
-        "name": "default",
-        "organizationName": "simple_report",
-        "format": "CSV",
-        "topic": "covid-19",
-        "customerStatus": "active",
-        "schemaName": "primedatainput/pdi-covid-19",
-        "meta": {
-            "version": 1,
-            "createdBy": "local@test.com",
-            "createdAt": "2021-12-23T22:20:12.262679Z"
-        },
-        "keys": null,
-        "processingType": "sync"
-*/
 
 export default class OrgSenderSettingsResource extends OrgSettingsBaseResource {
     organizationName: string = "";

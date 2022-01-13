@@ -1,81 +1,4 @@
 import OrgSettingsBaseResource from "./OrgSettingsBaseResource";
-/*
-        "name": "giang",
-        "organizationName": "waters",
-        "topic": "covid-19",
-        "customerStatus": "active",
-        "translation": {
-            "schemaName": "waters/waters-covid-19",
-            "format": "CSV",
-            "defaults": {},
-            "nameFormat": "STANDARD",
-            "receivingOrganization": null,
-            "type": "CUSTOM"
-        },
-        "jurisdictionalFilter": [
-            "hasAtLeastOneOf(waters_submitter, sender_id)",
-            "orEquals(patient_state, GH, ordering_facility_state, GH)"
-        ],
-        "qualityFilter": [
-            "allowAll()"
-        ],
-        "routingFilter": [],
-        "processingModeFilter": [],
-        "reverseTheQualityFilter": false,
-        "deidentify": true,
-        "timing": {
-            "operation": "MERGE",
-            "numberPerDay": 1440,
-            "initialTime": "00:00",
-            "timeZone": "EASTERN",
-            "maxReportCount": 10000
-        },
-        "description": "",
-        "transport": {
-            "host": "sftp",
-            "port": "22",
-            "filePath": "./upload",
-            "credentialName": "DEFAULT-SFTP",
-            "type": "SFTP"
-        },
-        "meta": {
-            "version": 0,
-            "createdBy": "local@test.com",
-            "createdAt": "2021-12-15T23:52:17.669824Z"
-        },
-        "externalName": null
-    }
-*/
-
-interface Timing {
-    operation: string;
-    numberPerDay: number;
-    initialTime: string;
-    timeZone: string;
-    maxReportCount: number;
-}
-
-interface Transport {
-    type: string; //can be of type "SFTP", "EMAIL", "REDOX" or "BLOBSTORE"
-
-    // type = "SFTP"
-    host: string;
-    port: string;
-    filePath: string;
-    credentialName: string | null;
-
-    // type = "EMAIL"
-    addresses: string[];
-    from: string;
-
-    // type = "REDOX"
-    apiKey: string;
-    baseUrl: string;
-
-    // type = "BLOBSTORAGE"
-    storageName: string;
-    containerName: string;
-}
 
 export default class OrgReceiverSettingsResource extends OrgSettingsBaseResource {
     organizationName: string = "";
@@ -84,14 +7,14 @@ export default class OrgReceiverSettingsResource extends OrgSettingsBaseResource
     schemaName: string = "";
     translation: object = {};
     description: string = "";
-    jurisdictionalFilter: string[] = [];
-    qualityFilter: string[] = [];
-    routingFilter: string[] = [];
-    processingModeFilter: string[] = [];
+    jurisdictionalFilter: object = [];
+    qualityFilter: object = [];
+    routingFilter: object = [];
+    processingModeFilter: object = [];
     reverseTheQualityFilter: boolean = false;
     deidentify: boolean = false;
-    timing: Timing[] = [];
-    transport: Transport[] = [];
+    timing: object = [];
+    transport: object = [];
     externalName: string = "";
 
     pk() {
