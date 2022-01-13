@@ -32,8 +32,8 @@ class SubmissionHistory(
     val createdAt: OffsetDateTime,
     val sendingOrg: String,
     val httpStatus: Int,
-    actionResponse: ActionResponse?,
     @JsonInclude(Include.NON_NULL) val externalName: String? = "",
+    actionResponse: ActionResponse,
 ) {
     @JsonUnwrapped
     val actionReponse = actionResponse

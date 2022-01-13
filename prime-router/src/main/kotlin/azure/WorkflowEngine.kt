@@ -541,7 +541,7 @@ class WorkflowEngine(
                 blobReportId = messageEvent.reportId
             )
 
-            actionHistory.trackExistingInputReport(report)
+            actionHistory.trackExistingInputReport(report.id)
 
             //  send to routeReport
             val warnings = routeReport(
@@ -882,7 +882,7 @@ class WorkflowEngine(
      * @param warnings Transaction store of warnings produced while processing this message
      * @return Returns a generated report object, or null
      */
-    fun createReport(
+    fun parseReport(
         sender: Sender,
         content: String,
         defaults: Map<String, String>,
@@ -898,14 +898,14 @@ class WorkflowEngine(
                     )
                 } catch (e: Exception) {
                     throw ActionError(
-                        e.message,
                         ActionEvent.report(
                             InvalidReportMessage.new(
                                 "An unexpected error occurred requiring additional help. Contact the ReportStream " +
                                     "team at reportstream@cdc.gov."
                             ),
-                            ActionEvent.Type.error
-                        )
+                            ActionEvent.ActionEventType.error
+                        ),
+                        e.message,
                     )
                 }
             }
@@ -918,14 +918,14 @@ class WorkflowEngine(
                     )
                 } catch (e: Exception) {
                     throw ActionError(
-                        e.message,
                         ActionEvent.report(
                             InvalidReportMessage.new(
                                 "An unexpected error occurred requiring additional help. Contact the ReportStream " +
                                     "team at reportstream@cdc.gov."
                             ),
-                            ActionEvent.Type.error
-                        )
+                            ActionEvent.ActionEventType.error
+                        ),
+                        e.message,
                     )
                 }
             }

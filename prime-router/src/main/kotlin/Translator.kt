@@ -49,7 +49,7 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
                 // catching individual translation exceptions enables overall work to continue
                 warnings.add(
                     ActionEvent(
-                        ActionEvent.DetailScope.translation,
+                        ActionEvent.ActionEventScope.translation,
                         "TO:${receiver.fullName}:${receiver.schemaName}",
                         InvalidTranslationMessage.new(e.localizedMessage),
                         reportId = input.id,

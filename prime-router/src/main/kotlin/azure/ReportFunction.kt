@@ -174,83 +174,79 @@ class ReportFunction : Logging {
             val options = Options.valueOf(optionsText)
 
             // track the sending organization and client based on the header
-            try {
-                val validatedRequest = validateRequest(workflowEngine, request)
-                val payloadName = extractPayloadName(request)
-                actionHistory.trackActionSenderInfo(validatedRequest.sender.fullName, payloadName)
-                when (options) {
-                    Options.CheckConnections, Options.ValidatePayload -> {
-                        responseBuilder.status(HttpStatus.OK)
-                        null
-                    }
-                    else -> {
-                        val (report, errors, warnings) = workflowEngine.createReport(
-                            sender,
-                            validatedRequest.content,
-                            validatedRequest.defaults,
-                        )
-
-                        // NOTE: It may make more sense to store this first:
-                        // 1. store incoming report
-                        // 2. translate to internal format and store
-                        // 3. process
-                        val blobInfo = workflowEngine.recordReceivedReport(
-                            report, validatedRequest.content.toByteArray(), sender
-                        )
-                        actionHistory.trackExternalInputReport(report, blobInfo, payloadName)
-
-                        // checks for errors from createReport
-                        if (options != Options.SkipInvalidItems && errors.isNotEmpty()) {
-                            throw ActionError(errors)
-                        }
-                        actionHistory.trackDetails(errors)
-                        actionHistory.trackDetails(warnings)
-
-                        // call the correct processing function based on processing type
-                        if (isAsync) {
-                            processAsync(
-                                report,
-                                workflowEngine,
-                                options,
-                                validatedRequest.defaults,
-                                validatedRequest.routeTo,
-                                actionHistory
-                            )
-                        } else {
-                            val routingWarnings = workflowEngine.routeReport(
-                                context,
-                                report,
-                                options,
-                                validatedRequest.defaults,
-                                validatedRequest.routeTo,
-                                actionHistory
-                            )
-                            actionHistory.trackDetails(routingWarnings)
-                        }
-
-                        responseBuilder.status(HttpStatus.CREATED)
-                        report
-                    }
+            val validatedRequest = validateRequest(workflowEngine, request)
+            val payloadName = extractPayloadName(request)
+            actionHistory.trackActionSenderInfo(validatedRequest.sender.fullName, payloadName)
+            when (options) {
+                Options.CheckConnections, Options.ValidatePayload -> {
+                    responseBuilder.status(HttpStatus.OK)
+                    null
                 }
-            } catch (e: ActionError) {
-                actionHistory.trackDetails(e.details)
-                null
+                else -> {
+                    val (report, errors, warnings) = workflowEngine.parseReport(
+                        sender,
+                        validatedRequest.content,
+                        validatedRequest.defaults,
+                    )
+
+                    val blobInfo = workflowEngine.recordReceivedReport(
+                        report, validatedRequest.content.toByteArray(), sender
+                    )
+                    actionHistory.trackExternalInputReport(report, blobInfo, payloadName)
+
+                    // checks for errors from parseReport
+                    if (options != Options.SkipInvalidItems && errors.isNotEmpty()) {
+                        throw ActionError(errors)
+                    }
+
+                    actionHistory.trackDetails(errors)
+                    actionHistory.trackDetails(warnings)
+
+                    // call the correct processing function based on processing type
+                    if (isAsync) {
+                        processAsync(
+                            report,
+                            workflowEngine,
+                            options,
+                            validatedRequest.defaults,
+                            validatedRequest.routeTo,
+                            actionHistory
+                        )
+                    } else {
+                        val routingWarnings = workflowEngine.routeReport(
+                            context,
+                            report,
+                            options,
+                            validatedRequest.defaults,
+                            validatedRequest.routeTo,
+                            actionHistory
+                        )
+                        actionHistory.trackDetails(routingWarnings)
+                    }
+
+                    responseBuilder.status(HttpStatus.CREATED)
+                    report
+                }
             }
+        } catch (e: ActionError) {
+            actionHistory.trackDetails(e.details)
+            null
         } catch (e: IllegalArgumentException) {
             actionHistory.trackDetails(
                 ActionEvent.report(
-                    e.message ?: "Invalid request.", ActionEvent.Type.error
+                    e.message ?: "Invalid request.", ActionEvent.ActionEventType.error
                 )
             )
             null
         } catch (e: IllegalStateException) {
             actionHistory.trackDetails(
                 ActionEvent.report(
-                    e.message ?: "Invalid request.", ActionEvent.Type.error
+                    e.message ?: "Invalid request.", ActionEvent.ActionEventType.error
                 )
             )
             null
         }
+
         responseBuilder.body(
             actionHistory.createResponseBody(
                 verbose,
@@ -390,7 +386,7 @@ class ReportFunction : Logging {
                     errors.add(
                         ActionEvent.report(
                             InvalidReportMessage.new("'$it' is not a valid default"),
-                            ActionEvent.Type.error
+                            ActionEvent.ActionEventType.error
                         )
                     )
                     return@mapNotNull null
@@ -400,7 +396,7 @@ class ReportFunction : Logging {
                     errors.add(
                         ActionEvent.report(
                             InvalidReportMessage.new("'${parts[0]}' is not a valid element name"),
-                            ActionEvent.Type.error
+                            ActionEvent.ActionEventType.error
                         )
                     )
                     return@mapNotNull null

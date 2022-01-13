@@ -21,5 +21,7 @@ CREATE TABLE action_event
   type action_event_type,
   scope action_event_scope,
   detail JSONB,
-  time timestamp NOT NULL
+  created_at timestamp NOT NULL
 );
+
+CREATE INDEX action_event_created_at_idx on action_event(created_at)

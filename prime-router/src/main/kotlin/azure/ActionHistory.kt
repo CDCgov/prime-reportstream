@@ -99,7 +99,7 @@ class ActionHistory {
     val filteredOutReports = mutableMapOf<ReportId, ReportFile>()
 
     /**
-     * List of details that happened during the action
+     * A List of events discribing the details of what has happened during an Action.
      */
     val details = mutableListOf<ActionEvent>()
 
@@ -293,10 +293,6 @@ class ActionHistory {
         val reportFile = ReportFile()
         reportFile.reportId = reportId
         reportsIn[reportId] = reportFile
-    }
-
-    fun trackExistingInputReport(report: Report) {
-        trackExistingInputReport(report.id)
     }
 
     /**
@@ -506,13 +502,13 @@ class ActionHistory {
         report.filteringResults.forEach {
             trackDetails(
                 ActionEvent(
-                    ActionEvent.DetailScope.report,
+                    ActionEvent.ActionEventScope.report,
                     it.filteredTrackingElement,
                     it,
                     it.filteredIndex,
                     reportId = report.id,
                     action = action,
-                    type = ActionEvent.Type.filter,
+                    type = ActionEvent.ActionEventType.filter,
                 )
             )
         }
@@ -743,7 +739,7 @@ class ActionHistory {
             val filterDetails = details.filter {
                 it.reportId == reportFile.reportId
             }.filter {
-                it.type == ActionEvent.Type.filter
+                it.type == ActionEvent.ActionEventType.filter
             }
 
             if (filterDetails.isNotEmpty()) {
@@ -932,8 +928,8 @@ class ActionHistory {
         verbose: Boolean,
         report: Report?,
     ): String {
-        val warnings = details.filter { it.type == ActionEvent.Type.warning }
-        val errors = details.filter { it.type == ActionEvent.Type.error }
+        val warnings = details.filter { it.type == ActionEvent.ActionEventType.warning }
+        val errors = details.filter { it.type == ActionEvent.ActionEventType.error }
         val factory = JsonFactory()
         val outStream = ByteArrayOutputStream()
         factory.createGenerator(outStream).use {
@@ -1025,7 +1021,7 @@ class ActionHistory {
                         scopesByGroupingId[groupingId] = actionDetail.scope.toString()
                     }
                     actionDetail.index?.let {
-                        itemsByGroupingId[groupingId]?.add(actionDetail.rowNumber)
+                        itemsByGroupingId[groupingId]?.add(actionDetail.index + 1)
                     }
                 }
                 return GroupedProperties(

@@ -522,18 +522,6 @@ jooq {
                                 // 
                                 // If provided, both "includeExpressions" and "includeTypes" must match.
                                 .withIncludeExpression("action_event.detail")
-                                // A Java regex matching data types to be forced to
-                                // have this type.
-                                // 
-                                // Data types may be reported by your database as:
-                                // - NUMBER              regexp suggestion: NUMBER
-                                // - NUMBER(5)           regexp suggestion: NUMBER\(5\)
-                                // - NUMBER(5, 2)        regexp suggestion: NUMBER\(5,\s*2\)
-                                // - any other form
-                                // 
-                                // It is thus recommended to use defensive regexes for types.
-                                // 
-                                // If provided, both "includeExpressions" and "includeTypes" must match.
                                 .withIncludeTypes("JSONB")
                         )
                     }
