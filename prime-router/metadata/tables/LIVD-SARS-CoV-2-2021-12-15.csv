@@ -3886,9 +3886,6 @@ sputum (119334006^Sputum specimen^SCT)","POSITIVE (260373001^Detected^SCT)
 PRESUMPTIVE POSITIVE (720735008^Presumptive positive^SCT)
 NEGATIVE (260415000^Not detected^SCT)
 INVALID (455371000124106^Invalid result^SCT or 125154007^Specimen unsatisfactory for evaluation^SCT)",94500-6,SARS coronavirus 2 RNA [Presence] in Respiratory specimen by NAA with probe detection,94531-1,SARS coronavirus 2 RNA panel - Respiratory specimen by NAA with probe detection,,,,"STANDARD M nCoV Real-Time Detection Kit_SD Biosensor, Inc.",EUA,,,SARS coronavirus 2 RNA,PrThr,Pt,Respiratory,Ord,Probe.amp.tar,20200512,2.68
-"SD Biosensor, Inc.",COVID-19 At-Home Test*,SARS-CoV-2 nucleocapsid protein antigen,anterior nasal (nares) swab (697989009^Anterior nares swab^SCT),"Negative result (260415000^Not Detected^SCT)
-Positive result (260373001^Detected^SCT)
-Invalid result (455371000124106^Invalid result^SCT or 125154007^Specimen unsatisfactory for evaluation^SCT)",97097-0,SARS-CoV-2 (COVID-19) Ag [Presence] in Upper respiratory specimen by Rapid immunoassay,97097-0,SARS-CoV-2 (COVID-19) Ag [Presence] in Upper respiratory specimen by Rapid immunoassay,,,,"SD Biosensor, Inc._COVID-19 At-Home Test",EUA,,,SARS coronavirus 2 Ag,PrThr,Pt,Respiratory.upper,Ord,IA.rapid,20220105,2.70
 SEASUN Biomaterials,AQ-TOP COVID-19 Rapid Detection Kit*,SARS-CoV-2,"Nasal swab (445297001^Swab of internal nose^SCT)
 Mid-turbinate nasal swabs(871810001^Mid-turbinate nasal swab^SCT)
 nasopharyngeal swab (258500001^Nasopharyngeal swab^SCT)
@@ -4046,9 +4043,6 @@ plasma (119361006^Plasma specimen^SCT)",QUAL units,94505-5,SARS-CoV-2 (COVID-19)
 Siemens Healthcare Diagnostics Inc.,Dimension Vista SARS-CoV-2 IgG (COV2G)*,SARS-CoV-2 IgG Result Interpretation,"serum (119364003^Serum specimen^SCT)
 plasma (119361006^Plasma specimen^SCT)","IgG antibodies to SARS-CoV-2 are not detected (260385009^Negative^SCT)
 IgG antibodies to SARS-CoV-2 are detected (10828004^Positive^SCT)",94563-4,SARS-CoV-2 (COVID-19) IgG Ab [Presence] in Serum or Plasma by Immunoassay,94505-5,SARS-CoV-2 (COVID-19) IgG Ab [Units/volume] in Serum or Plasma by Immunoassay,,,,Dimension Vista SARS-CoV-2 IgG (COV2G)_Siemens Healthcare Diagnostics Inc.,EUA,,,SARS coronavirus 2 Ab.IgG,PrThr,Pt,Ser/Plas,Ord,IA,20210113,2.68
-Siemens Healthineers,CLINITEST Rapid COVID-19 Antigen Self-Test*,SARS-CoV-2 nucleocapsid protein antigen,anterior nasal (nares) swab (697989009^Anterior nares swab^SCT),"COVID-19 Positive (260373001^Detected^SCT)
-COVID-19 Negative (260415000^Not Detected^SCT)
-Invalid (455371000124106^Invalid result^SCT or 125154007^Specimen unsatisfactory for evaluation^SCT)",97097-0,SARS-CoV-2 (COVID-19) Ag [Presence] in Upper respiratory specimen by Rapid immunoassay,97097-0,SARS-CoV-2 (COVID-19) Ag [Presence] in Upper respiratory specimen by Rapid immunoassay,,,,Siemens Healthineers_CLINITEST Rapid COVID-19 Antigen Self-Test,EUA,,,SARS coronavirus 2 Ag,PrThr,Pt,Respiratory.upper,Ord,IA.rapid,20220105,2.70
 "SML GENETREE Co., Ltd.",Ezplex SARS-CoV-2 G Kit*,SARS-CoV-2 RNA Result,"nasopharyngeal swabs (258500001^Nasopharyngeal swab^SCT)
 oropharyngeal swabs (258529004^Throat swab^SCT)
 combined nasopharyngeal/oropharyngeal swabs (433801000124107^Nasopharyngeal and oropharyngeal swab^SCT)
@@ -4401,10 +4395,6 @@ nasal wash/aspirates (433871000124101^Nasal washings^SCT or 429931000124105^Nasa
 bronchoalveolar lavage (BAL) specimens (258607008^Bronchoalveolar lavage fluid sample^SCT)","Positive for SARS-CoV-2 for the Test Sample (260373001^Detected^SCT)
 Negative for SARS-CoV-2 for the Test Sample (260415000^Not Detected^SCT)
 Invalid Test Sample result (455371000124106^Invalid result^SCT or 125154007^Specimen unsatisfactory for evaluation^SCT)",95424-8,SARS-CoV-2 (COVID-19) RNA [Presence] in Respiratory specimen by Sequencing,95424-8,SARS-CoV-2 (COVID-19) RNA [Presence] in Respiratory specimen by Sequencing,,,,SARS-CoV-2 NGS Assay_Twist Bioscience Corporation,EUA,NextSeq 550Dx Sequencing System_Illumina,MNI,SARS coronavirus 2 RNA,PrThr,Pt,Respiratory,Ord,Sequencing,20210331,2.69
-UCSD BCG EXCITE Lab,LDT: UCSD EXCITE COVID-19 Test*,SARS-CoV-2 RNA,anterior nasal swab (697989009^Anterior nares swab^SCT),"Invalid (455371000124106^Invalid result^SCT or 125154007^Specimen unsatisfactory for evaluation^SCT)
-SARS-CoV-2 Not Detected (260415000^Not Detected^SCT)
-SARS-CoV-2 Inconclusive (419984006^Inconclusive^SCT)
-Positive for SARS-CoV-2 (260373001^Detected^SCT)",95406-5,SARS-CoV-2 (COVID-19) RNA [Presence] in Nose by NAA with probe detection,94531-1,SARS-CoV-2 (COVID-19) RNA panel - Respiratory specimen by NAA with probe detection,,,,UCSD BCG EXCITE Lab_UCSD EXCITE COVID-19 Test,EUA,ABI QuantStudio 7 Pro_Thermo Fisher,MNI,SARS coronavirus 2 RNA,PrThr,Pt,Nose,Ord,Probe.amp.tar,20220105,2.69
 "UCSF Health Clinical Laboratories, UCSF Clinical Labs at China Basin",LDT: SARS-CoV-2 RNA DETECTR Assay*,SARS-CoV-2 Result Interpretation,"nasopharyngeal swabs (258500001^Nasopharyngeal swab^SCT)
 oropharyngeal (throat) swabs (258529004^Throat swab^SCT)
 mid-turbinate nasal swabs (871810001^Mid-turbinate nasal swab^SCT)
