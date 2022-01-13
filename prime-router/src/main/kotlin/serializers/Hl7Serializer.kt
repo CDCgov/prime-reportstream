@@ -518,7 +518,8 @@ class Hl7Serializer(
             } else if (element.hl7Field == "ORC-21-1") {
                 setOrderingFacilityComponent(terser, rawFacilityName = value, useOrderingFacilityName, report, row)
             } else if (element.hl7Field == "NTE-3") {
-                setNote(terser, nteSequence++, value)
+                setNote(terser, nteSequence, value)
+                nteSequence++
             } else if (element.hl7Field == "MSH-7") {
                 setComponent(
                     terser,
@@ -608,7 +609,7 @@ class Hl7Serializer(
         cliaForSender.forEach { (sender, clia) ->
             try {
                 // find that sender in the map
-                if (sender.equals(senderID.trim(), ignoreCase = true) && !clia.isEmpty()) {
+                if (sender.equals(senderID.trim(), ignoreCase = true) && clia.isNotEmpty()) {
                     // if the sender needs should have a specific CLIA then overwrite the CLIA here
                     val pathSpecSendingFacilityID = formPathSpec("MSH-4-2")
                     terser.set(pathSpecSendingFacilityID, clia)
@@ -1221,7 +1222,7 @@ class Hl7Serializer(
 
     private fun setNote(terser: Terser, noteRep: Int, value: String) {
         if (value.isBlank()) return
-        terser.set(formPathSpec("NTE-1", noteRep), noteRep.toString())
+        terser.set(formPathSpec("NTE-1", noteRep), noteRep.plus(1).toString())
         terser.set(formPathSpec("NTE-3", noteRep), value)
         terser.set(formPathSpec("NTE-4-1", noteRep), "RE")
         terser.set(formPathSpec("NTE-4-2", noteRep), "Remark")
