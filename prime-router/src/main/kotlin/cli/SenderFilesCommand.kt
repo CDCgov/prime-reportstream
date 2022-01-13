@@ -126,7 +126,7 @@ class SenderFilesCommand : CliktCommand(
         }.onError {
             abort(
                 """
-                Error requesting of the report files from the API 
+                Error using report-files API 
                 Status Code: ${response.statusCode}
                 Message: ${response.responseMessage}
                 Details: ${String(response.data)}
