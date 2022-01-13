@@ -5,6 +5,7 @@
 #
 name: all-in-one-health-ca-covid-19
 topic: covid-19
+trackingElement: message_id
 description: all-in-one-health - CSV lab report schema
 basedOn: covid-19
 
@@ -165,6 +166,7 @@ elements:
       mapperOverridesValue: true
 
     - name: test_performed_code_temp
+      type: TEXT
       csvFields: [{name: Test Code}]
 
     - name: test_performed_code
@@ -173,6 +175,7 @@ elements:
 
 # Ordering provider
     - name: ordering_provider_id_temp
+      type: TEXT
       csvFields: [{name: Provider ID/ NPI}]
 
     - name: ordering_provider_id

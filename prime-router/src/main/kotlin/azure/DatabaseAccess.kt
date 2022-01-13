@@ -128,6 +128,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
         return DSL.using(txn)
             .selectFrom(TASK)
             .where(cond)
+            .orderBy(TASK.CREATED_AT)
             .limit(limit)
             .forUpdate()
             .skipLocked() // Allows the same query to run in parallel. Otherwise, the query would lock the table.

@@ -1,7 +1,7 @@
 
 ### Schema: non-standard/all-in-one-health-ca-covid-19
 ### Topic: covid-19
-### Tracking Element: none
+### Tracking Element: (message_id)
 ### Base On: [covid-19](./covid-19.md)
 ### Extends: none
 #### Description: all-in-one-health - CSV lab report schema
@@ -164,7 +164,7 @@ This field is ignored.
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
 
-**Table**: LIVD-SARS-CoV-2-2021-09-29
+**Table**: LIVD-SARS-CoV-2-latest
 
 **Table Column**: Model
 
@@ -379,6 +379,8 @@ The ordering provider’s National Provider Identifier
 **Name**: Provider ID/ NPI
 
 **ReportStream Internal Name**: ordering_provider_id_temp
+
+**Type**: TEXT
 
 **PII**: No
 
@@ -738,6 +740,7 @@ Code | Display
 1002-5|American Indian or Alaska Native
 1002-5|American Indian
 1002-5|Native American
+1002-5|1002-5
 2054-5|Black or African American
 2054-5|African American
 2054-5|African American Alaska Native
@@ -1053,6 +1056,8 @@ Translate inbound text to outbound SNOMED Codes
 **Name**: Test Code
 
 **ReportStream Internal Name**: test_performed_code_temp
+
+**Type**: TEXT
 
 **PII**: No
 
@@ -1492,7 +1497,7 @@ ID name of org that is sending this data to ReportStream.  Suitable for provenan
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-09-29
+**Table**: LIVD-SARS-CoV-2-latest
 
 **Table Column**: Test Performed LOINC Code
 

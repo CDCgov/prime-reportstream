@@ -1,7 +1,7 @@
 
 ### Schema: manualupload/csvuploadertest-covid-19
 ### Topic: covid-19
-### Tracking Element: none
+### Tracking Element: (message_id)
 ### Base On: none
 ### Extends: [upload-covid-19](./upload-covid-19.md)
 #### Description: CSV Uploader Test
@@ -99,7 +99,7 @@ Translate multiple inbound Y/N/U AOE values to RS values
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
 
-**Table**: LIVD-SARS-CoV-2-2021-09-29
+**Table**: LIVD-SARS-CoV-2-latest
 
 **Table Column**: Model
 
@@ -865,6 +865,7 @@ Code | Display
 1002-5|American Indian or Alaska Native
 1002-5|American Indian
 1002-5|Native American
+1002-5|1002-5
 2054-5|Black or African American
 2054-5|African American
 2054-5|African American Alaska Native
@@ -1364,7 +1365,7 @@ Translate multiple inbound Y/N/U AOE values to RS values
 
 **Cardinality**: [1..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-09-29
+**Table**: LIVD-SARS-CoV-2-latest
 
 **Table Column**: Test Performed LOINC Code
 
@@ -1471,7 +1472,7 @@ Translate multiple inbound Test Result values to RS values
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -1607,7 +1608,7 @@ be offset, so this field takes the `specimen_collection_date_time` field and off
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Table**: fips-county
 
@@ -1659,7 +1660,7 @@ Street 2 field for the testing lab
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
