@@ -465,7 +465,7 @@ class Hl7Serializer(
         // serialize the rest of the elements
         reportElements.forEach { element ->
             val value = report.getString(row, element.name).let {
-                if (it.isNullOrEmpty()) {
+                if (it.isNullOrEmpty() || it.equals("null")) {
                     element.default ?: ""
                 } else {
                     it
