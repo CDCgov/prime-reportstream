@@ -104,19 +104,15 @@ jobs:
         with:
           name: static-website-react-${{ needs.wf_vars.outputs.version }}
           path: archives/
-      - name: Check if tags exist
-        id: tagged
-        shell: bash
-        run: |
-          count=$(git tag --list 'v-*' | wc -l)
-          if [ $count -gt 0 ]; then 
-            echo "::set-output name=tagged::1"; 
-          else 
-            echo "::set-output name=tagged::0"; 
-          fi
-      - name: Build changelog if tags exist
+      - name: Create release
+        uses: ncipollo/release-action@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ needs.wf_vars.outputs.version }}
+          allowUpdates: true
+          artifacts: "archives/*.tar.gz,LICENSE"
+      - name: Build changelog
         id: build_changelog
-        if: steps.tagged.outputs.tagged == 1
         uses: mikepenz/release-changelog-builder-action@v2
         with:
           configuration: '.github/changelog_config.json'
@@ -125,15 +121,12 @@ jobs:
           repo: 'prime-reportstream'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Create release
+      - name: Update release notes
         uses: ncipollo/release-action@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ needs.wf_vars.outputs.version }}
-          artifacts: "archives/*.tar.gz,LICENSE"
-          generateReleaseNotes: false
-          omitBody: false
-          omitBodyDuringUpdate: true
+          allowUpdates: true
           body: ${{steps.build_changelog.outputs.changelog}}
       - name: Delete older releases
         uses: dev-drprasad/delete-older-releases@v0.2.0

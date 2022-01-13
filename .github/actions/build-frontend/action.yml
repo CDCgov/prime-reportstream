@@ -55,6 +55,6 @@ runs:
     - name: Save Static Website
       uses: actions/upload-artifact@v2
       with:
-        name: static_website_react-${{ github.run_id }}
+        name: static-website-react-${{ github.run_id }}
         path: frontend-react/build
         retention-days: 3
