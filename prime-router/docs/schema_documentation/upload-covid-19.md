@@ -1470,7 +1470,7 @@ Translate multiple inbound Test Result values to RS values
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -1606,7 +1606,7 @@ be offset, so this field takes the `specimen_collection_date_time` field and off
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Table**: fips-county
 
@@ -1658,7 +1658,7 @@ Street 2 field for the testing lab
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
