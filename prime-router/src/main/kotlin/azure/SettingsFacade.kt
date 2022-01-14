@@ -184,7 +184,7 @@ class SettingsFacade(
             )
 
             // Now insert
-            val (accessResult, resultData) = when {
+            val (accessResult, resultMetadata) = when {
                 current == null -> {
                     // No existing setting, just add to the new setting to the table
                     db.insertSetting(setting, txn)
@@ -205,9 +205,12 @@ class SettingsFacade(
                 }
             }
 
-            // convert to JSON object. Might want to move this to the Settings class itself
             val settingResult = mapper.readValue(setting.values.data(), clazz)
-            settingResult.meta = SettingMetadata(resultData.version, resultData.createdBy, resultData.createdAt)
+            settingResult.meta = SettingMetadata(
+                resultMetadata.version,
+                resultMetadata.createdBy,
+                resultMetadata.createdAt
+            )
 
             val outputJson = mapper.writeValueAsString(settingResult)
             Pair(accessResult, outputJson)
