@@ -6,7 +6,7 @@ function logout(oktaAuth: OktaAuth): void {
     if (oktaAuth?.signOut) {
         try {
             oktaAuth.signOut();
-        } catch(e) {
+        } catch (e) {
             console.trace(e);
         }
     }
