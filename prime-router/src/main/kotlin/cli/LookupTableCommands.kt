@@ -601,8 +601,7 @@ class LookupTableCreateCommand : GenericLookupTableCommand(
             } catch (e: IOException) {
                 throw PrintMessage("\tError creating new table version for $tableName: ${e.message}", true)
             } catch (e: LookupTableEndpointUtilities.Companion.TableConflictException) {
-                TermUi.echo("\tSkipping ${e.message}")
-                return
+                throw PrintMessage("\tSkipping New Lookup Table $tableName since it is duplicated", true)
             }
 
             TermUi.echo(

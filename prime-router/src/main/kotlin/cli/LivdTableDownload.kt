@@ -42,42 +42,32 @@ private const val sheetName = "LOINC Mapping"
 /**
  * LivdTableDownload is the command line interface for the livd-table-download command. It parses the command line
  * for option given as below.
+ *
+ * It looks for the LIVD-SAR-CoV-2-yyyy-MM-dd.xlsx file from $cdcLOINCTestCodeMappingPageUrl.  If the file is found,
+ * it downloads the file into the ./build directory.  If not found, it will prompt error accordingly.  Next, it build
+ * the output Lookup Table (<tableName.csv> file) with the table name specified by --output-file <path/filename>
+ * option. If the --output-file is not specified, it will use the ./metadata/tables/$livdSARSCov2File-latest.csv as
+ * the default output file.  Finally, it uses the output filename as the new lookup table name to update the
+ * lookup tables in the database as the new version of the table.  It updates new version of the lookup table in
+ * the given --env [local, test, staging, or prod] with the default to "local" environment.
+ *
+ * Note, this command will always create new version of the lookup table.
+ *
+ * Example:
+ * The command below will download the latest LIVD-SARS-CoV-2-yyyy-MM-dd.xlsx file from the above UTL.
+ * It will crate the LIVD-SARS-CoV-2-latest.csv file under the ./metadata/tables directory.
+ *
+ *  ./prime livd-table-download
+ *
  */
 class LivdTableDownload() : CliktCommand(
     name = "livd-table-download",
     help = """
-    livd-table-download downloads the latest LOINC test data from CDC website, so it can be used to update the 
-    new version of the lookup table in the database automatically. 
-    
-    It looks for the LIVD-SAR-CoV-2-yyyy-MM-dd.xlsx file from $cdcLOINCTestCodeMappingPageUrl.  If the file is found, 
-    it downloads the file into the ./build directory.  If not found, it will prompt error accordingly.  Next, it build 
-    the output Lookup Table (<tableName.csv> file) with the table name specified by --output-file <path/filename> 
-    option. If the --output-file is not specified, it will use the ./metadata/tables/$livdSARSCov2File-latest.csv as
-    the default output file.  Finally, it uses the output filename as the new lookup table name to update the 
-    lookup tables in the database as the new version of the table.  It updates new version of the lookup table in 
-    the given --env [local, test, staging, or prod] with the default to "local" environment.
-    
-    Note, this command will always create new version of the lookup table.
-        
-    Example: The following command will download the latest LIVD-SARS-CoV-2-yyyy-MM-dd.xlsx from the above URL.  
-      It will store the LIVD-SARS-CoV-2-xyz.csv file under the ./junk directory and update the LIVD-SARS-CoV-2-xyz
-      lookup table in the database.
-      
-         ./prime livd-table-download --output-file ./junk/LIVD-SARS-CoV-2-xyz.csv
-         
-      The command below will download the latest LIVD-SARS-CoV-2-yyyy-MM-dd.xlsx file from the above UTL.
-      It will crate the LIVD-SARS-CoV-2-latest.csv file under the ./metadata/tables directory.
-      
-        ./prime livd-table-download
+    It downloads the latest LOINC test data, extract Lookup Table, and the database as a new version. 
     """
 ) {
     private val defaultOutputDir = "./build"
-    private val defaultOutPutFile = "./metadata/tables/$livdSARSCov2File-latest.csv"
-    private val outputFile by option(
-        "--output-file",
-        metavar = "<path/filename>",
-        help = "Output pathname where to store the LIVD data as CSV."
-    ).default(defaultOutPutFile)
+    private val outPutFile = "./build/$livdSARSCov2File.csv"
 
     /**
      * The environment to connect to.
@@ -94,28 +84,21 @@ class LivdTableDownload() : CliktCommand(
         )
         .default(Environment.LOCAL.envName, "local environment")
 
-    /**
-     * The environment the command needs to run on.
-     */
-    internal val environment get() = Environment.get(env)
-
-    /**
-     * The reference to the table creator command.
-     */
-    private val tableCreator = LookupTableCreateCommand()
-
     override fun run() {
+        TermUi.echo("Downloading the lookup table ...")
         // Download the LIVD-SARS-CoV2-yyyyMMdd.xlsx from CDC web site given above.
         val downloadedDirFile = downloadFile(defaultOutputDir)
         if (downloadedDirFile.isEmpty()) return
 
         // Extracts the "LIONC Mapping" sheet from the Excel and output to the specified output CSV format file
         // specified by --output-file option.
-        if (!extractLivdTable(sheetName, downloadedDirFile, outputFile)) return
+        if (!extractLivdTable(sheetName, downloadedDirFile, outPutFile)) return
 
         // Now, upload the LIVD-SARS-CoV-2-yyyyMMdd (LIVD lookup table) to a new version of a lookup tables
         // in database.
-        updateTheLivdLookupTable(File(outputFile))
+        if (!updateTheLivdLookupTable(File(outPutFile))) return
+
+        TermUi.echo("\tSUCCESS: The lookup table is updated.")
     }
 
     /**
@@ -141,15 +124,6 @@ class LivdTableDownload() : CliktCommand(
 
         // Read the file from the website and store it in local directory
         URL(livdFileUrl).openStream().use { input ->
-            if (outputfile.exists()) {
-                val c = prompt("\t$outputfile file is already existed: You want to overwrite it (y/n)?", "n")
-                if (c?.lowercase() == "n") {
-                    return ""
-                } else {
-                    TermUi.echo("\tOverwriting the $outputfile file.")
-                }
-            }
-
             try {
                 FileOutputStream(outputfile).use { output ->
                     input.copyTo(output)
@@ -160,7 +134,6 @@ class LivdTableDownload() : CliktCommand(
             }
         }
 
-        TermUi.echo("\tSUCCESS: The $outputfile file is downloaded.")
         return "$outputDir/$localFilename"
     }
 
@@ -211,16 +184,6 @@ class LivdTableDownload() : CliktCommand(
             workbook = XSSFWorkbook(fileInputStream)
         } else if (ext.equals("xls", ignoreCase = true)) {
             workbook = HSSFWorkbook(fileInputStream)
-        }
-
-        // Check for output file duplication
-        if (File(outputfile).exists()) {
-            val c = TermUi.prompt("\t$outputfile file is already existed: You want to overwrite it (y/n)?", "n")
-            if (c?.lowercase() == "n") {
-                return false
-            } else {
-                TermUi.echo("\tOverwriting the $outputfile file.")
-            }
         }
 
         val fileOutputStream = FileOutputStream(File(outputfile))
@@ -284,8 +247,6 @@ class LivdTableDownload() : CliktCommand(
         // Write to CSV file.
         fileOutputStream.write(data.toString().toByteArray())
         fileOutputStream.close()
-
-        TermUi.echo("\tSUCCESS: The $outputfile file is created.\n")
         return true
     }
 
@@ -294,13 +255,22 @@ class LivdTableDownload() : CliktCommand(
      * Command line options.  And then, it calls the create lookup table command to create the new version of lookup
      * table.  Note, it always create the new version regardless since it uses -f option.
      */
-    private fun updateTheLivdLookupTable(livdLookupTable: File) {
-        val tableName = livdLookupTable.nameWithoutExtension
-        TermUi.echo("Creating table $tableName...")
+    private fun updateTheLivdLookupTable(livdLookupTable: File): Boolean {
+
+        // The environment the command needs to run on.
+        val environment = Environment.get(env)
+
+        TermUi.echo("Creating $livdSARSCov2File table ...")
         val args: MutableList<String> = mutableListOf(
-            "-e", environment.toString().lowercase(), "-n", tableName,
-            "-i", livdLookupTable.absolutePath, "-s", "-a", "-f"
+            "-e", environment.toString().lowercase(), "-n", livdSARSCov2File,
+            "-i", livdLookupTable.absolutePath, "-s"
         )
-        tableCreator.main(args)
+
+        try {
+            LookupTableCreateCommand().main(args)
+            return true
+        } catch (e: Exception) {
+            return false
+        }
     }
 }
