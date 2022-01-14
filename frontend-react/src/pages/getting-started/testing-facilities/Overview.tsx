@@ -105,13 +105,7 @@ export const FacilitiesOverview = () => {
                             Use a simple online tool to submit a CSV file
                             formatted with a standard schema. Receive real-time
                             validation and feedback on file format and field
-                            values. This feature is currently being piloted in
-                            select jurisdictions with organizations or
-                            facilities that have existing Electronic Medical
-                            Record (EMR) systems.
-                        </p>
-                        <p>
-                            Learn how{" "}
+                            values.</p><p> Learn how{" "}
                             <a
                                 href="/getting-started/testing-facilities/csv-upload-guide"
                                 className="usa-link"
@@ -125,8 +119,12 @@ export const FacilitiesOverview = () => {
                             >
                                 full documentation
                             </a>
-                            .
+                            .</p><p><em>This feature is currently being piloted in
+                            select jurisdictions with organizations or
+                            facilities that have existing Electronic Medical
+                            Record (EMR) systems. Pilot partners are selected by recommendation from jurisdictions. Find out if your jurisdiction is partnered with ReportStream and contact us to learn more. </em>
                         </p>
+                        
                     </li>
                     <li>
                         <h4>SimpleReport</h4>

@@ -26,12 +26,12 @@ export const CsvUploadGuide = () => {
                     (CSV) file.
                 </p>
                 <p>
-                    Use a simple online tool to submit a CSV file with a
-                    standard schema. Receive real-time validation and feedback
-                    on file format and field values before submission. This
-                    feature is currently being piloted in select jurisdictions
-                    with organizations or facilities that have existing
-                    Electronic Medical Record (EMR) systems.
+                    Use a simple online tool to submit a CSV file with a <a href="/getting-started/testing-facilities/csv-schema" className="usa-link">standard schema</a>. Receive real-time validation and feedback
+                    on file format and field values before submission.</p>
+                    <p><em>This feature is currently being piloted in
+                            select jurisdictions with organizations or
+                            facilities that have existing Electronic Medical
+                            Record (EMR) systems. Pilot partners are selected by recommendation from jurisdictions. Find out if your jurisdiction is partnered with ReportStream and contact us to learn more. </em>
                 </p>
                 <p>
                     <strong>In this guide</strong>
@@ -58,6 +58,11 @@ export const CsvUploadGuide = () => {
                             className="usa-link"
                         >
                             ReportStream standard CSV with example data
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/getting-started/testing-facilities/csv-schema" className="usa-link">
+                            CSV schema documentation
                         </a>
                     </li>
                 </ul>

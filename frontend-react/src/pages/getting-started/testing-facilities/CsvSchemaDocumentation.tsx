@@ -26,6 +26,14 @@ export const CsvSchemaDocumentation = () => {
                     How to format data for submission to ReportStream via CSV
                     upload.
                 </p>
+                <p>
+                The ReportStream standard CSV schema is a blend of the Department of Health and Human Science's (HHS) <a href="https://www.hhs.gov/coronavirus/testing/covid-19-diagnostic-data-reporting/index.html" target="_blank" className="usa-link">requirements for COVID-19 test data</a> as well as those of numerous jurisdictions. This standard schema will be accepted by state, tribal, local, or territorial (STLT) health departments partnered with ReportStream. </p><p> 
+                <em>This documentation is related to <a href="/getting-started/testing-facilities/csv-upload-guide" className="usa-link">CSV upload</a>, a feature currently being piloted in
+                            select jurisdictions with organizations or
+                            facilities that have existing Electronic Medical
+                            Record (EMR) systems. Pilot partners are selected by recommendation from jurisdictions. Find out if your jurisdiction is partnered with ReportStream and contact us to learn more. </em>
+                    
+                </p>
 
                 <p>
                     <strong>In this guide</strong>
@@ -71,23 +79,30 @@ export const CsvSchemaDocumentation = () => {
                 <div className="usa-alert usa-alert--info margin-y-6">
                     <div className="usa-alert__body">
                         <h3 className="usa-alert__heading font-body-md margin-top-05">
-                            About required, requested, and optional fields
+                            Notes on formatting your CSV
                         </h3>
-                        <p>
-                            <strong>Required:</strong> Files <em>must</em>{" "}
+                        <p >
+                            <strong>Column headers and order</strong>
+                            <ul>
+                                <li>Column headers can can be placed in any order.</li>
+                                <li>Column headers must be included as specified in this documentation. </li>
+                            </ul>
+                            
+                        </p>
+                        <p> <strong>Required, requested, and optional fields</strong></p>
+                        <ul className="usa-alert__text">
+                            <li><strong>Required:</strong> Files <em>must</em>{" "}
                             contain these column headers and values. If headers
                             or fields are blank or contain incorrect values you
                             will not be able to submit your file. Accepted
-                            values are outlined for each header and field below.
-                        </p>
-                        <p>
-                            <strong>Requested:</strong> Fields are not required.
+                            values are outlined for each header and field below.</li>
+                            <li><strong>Requested:</strong> Fields are not required.
                             If available, including this data is incredibly
-                            helpful to public health.
-                        </p>
-                        <p className="usa-alert__text">
-                            <strong>Optional:</strong> Fields are not required.
-                        </p>
+                            helpful to public health.</li>
+                            <li><strong>Optional:</strong> Fields are not required.</li>
+                        
+                        </ul>
+                        
                     </div>
                 </div>
             </section>
