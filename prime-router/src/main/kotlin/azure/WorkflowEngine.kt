@@ -5,7 +5,6 @@ import gov.cdc.prime.router.ActionError
 import gov.cdc.prime.router.ActionEvent
 import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.FileSettings
-import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Organization
@@ -175,7 +174,9 @@ class WorkflowEngine(
         report: Report,
         rawBody: ByteArray,
         sender: Sender,
-    ): BlobAccess.BlobInfo {
+        actionHistory: ActionHistory,
+        payloadName: String? = null,
+    ): String {
         // Save a copy of the original report
         val senderReportFormat = Report.Format.safeValueOf(sender.format.toString())
         val blobFilename = report.name.replace(report.bodyFormat.ext, senderReportFormat.ext)
@@ -184,7 +185,8 @@ class WorkflowEngine(
             blobFilename, sender.fullName, Event.EventAction.RECEIVE
         )
 
-        return blobInfo
+        actionHistory.trackExternalInputReport(report, blobInfo, payloadName)
+        return blobInfo.blobUrl
     }
 
     fun insertProcessTask(
@@ -899,11 +901,8 @@ class WorkflowEngine(
                 } catch (e: Exception) {
                     throw ActionError(
                         ActionEvent.report(
-                            InvalidReportMessage.new(
-                                "An unexpected error occurred requiring additional help. Contact the ReportStream " +
-                                    "team at reportstream@cdc.gov."
-                            ),
-                            ActionEvent.ActionEventType.error
+                            "An unexpected error occurred requiring additional help. Contact the ReportStream " +
+                                "team at reportstream@cdc.gov."
                         ),
                         e.message,
                     )
@@ -919,11 +918,8 @@ class WorkflowEngine(
                 } catch (e: Exception) {
                     throw ActionError(
                         ActionEvent.report(
-                            InvalidReportMessage.new(
-                                "An unexpected error occurred requiring additional help. Contact the ReportStream " +
-                                    "team at reportstream@cdc.gov."
-                            ),
-                            ActionEvent.ActionEventType.error
+                            "An unexpected error occurred requiring additional help. Contact the ReportStream " +
+                                "team at reportstream@cdc.gov."
                         ),
                         e.message,
                     )

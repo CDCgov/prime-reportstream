@@ -50,8 +50,8 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
                 warnings.add(
                     ActionEvent(
                         ActionEvent.ActionEventScope.translation,
-                        "TO:${receiver.fullName}:${receiver.schemaName}",
                         InvalidTranslationMessage.new(e.localizedMessage),
+                        "TO:${receiver.fullName}:${receiver.schemaName}",
                         reportId = input.id,
                     )
                 )

@@ -380,7 +380,6 @@ class Hl7Serializer(
             mapping.errors.map {
                 ActionEvent(
                     ActionEvent.ActionEventScope.item,
-                    "",
                     InvalidHL7Message.new(it),
                     type = ActionEvent.ActionEventType.error
                 )
@@ -390,7 +389,6 @@ class Hl7Serializer(
             mapping.warnings.map {
                 ActionEvent(
                     ActionEvent.ActionEventScope.item,
-                    "",
                     InvalidHL7Message.new(it),
                     type = ActionEvent.ActionEventType.warning
                 )

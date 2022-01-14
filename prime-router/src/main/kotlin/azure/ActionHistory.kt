@@ -503,8 +503,8 @@ class ActionHistory {
             trackDetails(
                 ActionEvent(
                     ActionEvent.ActionEventScope.report,
-                    it.filteredTrackingElement,
                     it,
+                    it.filteredTrackingElement,
                     it.filteredIndex,
                     reportId = report.id,
                     action = action,

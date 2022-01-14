@@ -14,7 +14,6 @@ import gov.cdc.prime.router.ActionError
 import gov.cdc.prime.router.ActionEvent
 import gov.cdc.prime.router.DEFAULT_SEPARATOR
 import gov.cdc.prime.router.InvalidParamMessage
-import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.ROUTE_TO_SEPARATOR
 import gov.cdc.prime.router.Report
@@ -189,10 +188,9 @@ class ReportFunction : Logging {
                         validatedRequest.defaults,
                     )
 
-                    val blobInfo = workflowEngine.recordReceivedReport(
-                        report, validatedRequest.content.toByteArray(), sender
+                    workflowEngine.recordReceivedReport(
+                        report, validatedRequest.content.toByteArray(), sender, actionHistory, payloadName
                     )
-                    actionHistory.trackExternalInputReport(report, blobInfo, payloadName)
 
                     // checks for errors from parseReport
                     if (options != Options.SkipInvalidItems && errors.isNotEmpty()) {
@@ -385,8 +383,7 @@ class ReportFunction : Logging {
                 if (parts.size != 2) {
                     errors.add(
                         ActionEvent.report(
-                            InvalidReportMessage.new("'$it' is not a valid default"),
-                            ActionEvent.ActionEventType.error
+                            "'$it' is not a valid default",
                         )
                     )
                     return@mapNotNull null
@@ -395,8 +392,7 @@ class ReportFunction : Logging {
                 if (element == null) {
                     errors.add(
                         ActionEvent.report(
-                            InvalidReportMessage.new("'${parts[0]}' is not a valid element name"),
-                            ActionEvent.ActionEventType.error
+                            "'${parts[0]}' is not a valid element name",
                         )
                     )
                     return@mapNotNull null

@@ -11,8 +11,8 @@ import java.util.UUID
  */
 data class ActionEvent(
     val scope: ActionEventScope,
-    val trackingId: String,
     val detail: ActionEventDetail,
+    val trackingId: String? = null,
     val index: Int? = null,
     var reportId: UUID? = null,
     var action: Action? = null,
@@ -34,16 +34,16 @@ data class ActionEvent(
 
     companion object {
         fun report(message: ActionEventDetail, type: ActionEventType, reportId: UUID? = null): ActionEvent {
-            return ActionEvent(ActionEventScope.report, "", message, type = type, reportId = reportId)
+            return ActionEvent(ActionEventScope.report, message, type = type, reportId = reportId)
         }
 
-        fun report(message: String, type: ActionEventType): ActionEvent {
+        fun report(message: String, type: ActionEventType = ActionEventType.error): ActionEvent {
             val reportMessage = InvalidReportMessage(message)
-            return ActionEvent(ActionEventScope.report, "", reportMessage, type = type)
+            return ActionEvent(ActionEventScope.report, reportMessage, type = type)
         }
 
         fun item(trackingId: String, message: ActionEventDetail, row: Int, type: ActionEventType): ActionEvent {
-            return ActionEvent(ActionEventScope.item, trackingId, message, row, type = type)
+            return ActionEvent(ActionEventScope.item, message, trackingId, row, type = type)
         }
 
         fun param(
@@ -51,7 +51,7 @@ data class ActionEvent(
             message: ActionEventDetail,
             type: ActionEventType = ActionEventType.error
         ): ActionEvent {
-            return ActionEvent(ActionEventScope.parameter, trackingId, message, type = type)
+            return ActionEvent(ActionEventScope.parameter, message, trackingId, type = type)
         }
     }
 }
