@@ -165,8 +165,10 @@ data class UnsupportedEIMessage(
 }
 
 data class InvalidParamMessage(
+    val httpParameter: String,
+    val message: String,
+    val detail: ActionEventDetail? = null,
     override val type: ActionEventDetailType = ActionEventDetailType.INVALID_PARAM,
-    val message: String = "",
 ) : ActionEventDetail {
     override fun detailMsg(): String {
         return message
@@ -174,12 +176,6 @@ data class InvalidParamMessage(
 
     override fun groupingId(): String {
         return message
-    }
-
-    companion object {
-        fun new(message: String): InvalidParamMessage {
-            return InvalidParamMessage(ActionEventDetailType.INVALID_PARAM, message)
-        }
     }
 }
 

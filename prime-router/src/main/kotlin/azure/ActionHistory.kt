@@ -492,12 +492,18 @@ class ActionHistory {
         trackUsername(downloadedBy)
     }
 
-    // NOTE: Needs to be done only once a report is tracked
-    // otherwise the report refrenced by the Detail
-    // will not match the report that is tracked and stored.
-    //
-    // If the behavior of a Report ID changing during interim
-    // transformations changes these details can be tracked sooner.
+    /**
+     * Record the filtered items in a report as Events in the Action
+     *
+     * NOTE: Needs to be done only once a report is tracked
+     * otherwise the report refrenced by the Detail
+     * will not match the report that is tracked and stored.
+     *
+     * If the behavior of a Report ID changing during interim
+     * transformations changes these details can be tracked sooner.
+     *
+     * @param report The report who's *filter results* to record
+     */
     fun trackFilteredItems(report: Report) {
         report.filteringResults.forEach {
             trackDetails(

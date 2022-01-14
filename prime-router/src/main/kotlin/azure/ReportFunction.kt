@@ -13,7 +13,6 @@ import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.ActionError
 import gov.cdc.prime.router.ActionEvent
 import gov.cdc.prime.router.DEFAULT_SEPARATOR
-import gov.cdc.prime.router.InvalidParamMessage
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.ROUTE_TO_SEPARATOR
 import gov.cdc.prime.router.Report
@@ -326,14 +325,14 @@ class ReportFunction : Logging {
         val routeTo = if (receiverNamesText.isNotBlank()) receiverNamesText.split(ROUTE_TO_SEPARATOR) else emptyList()
         val receiverNameErrors = routeTo
             .filter { engine.settings.findReceiver(it) == null }
-            .map { ActionEvent.param(ROUTE_TO_PARAMETER, InvalidParamMessage.new("Invalid receiver name: $it")) }
+            .map { ActionEvent.param(ROUTE_TO_PARAMETER, "Invalid receiver name: $it") }
         errors.addAll(receiverNameErrors)
 
         val clientName = extractClient(request)
         if (clientName.isBlank())
             errors.add(
                 ActionEvent.param(
-                    CLIENT_PARAMETER, InvalidParamMessage.new("Expected a '$CLIENT_PARAMETER' query parameter")
+                    CLIENT_PARAMETER, "Expected a '$CLIENT_PARAMETER' query parameter"
                 )
             )
 
@@ -341,7 +340,7 @@ class ReportFunction : Logging {
         if (sender == null)
             errors.add(
                 ActionEvent.param(
-                    CLIENT_PARAMETER, InvalidParamMessage.new("'$CLIENT_PARAMETER:$clientName': unknown sender")
+                    CLIENT_PARAMETER, "'$CLIENT_PARAMETER:$clientName': unknown sender"
                 )
             )
 
@@ -350,26 +349,24 @@ class ReportFunction : Logging {
             errors.add(
                 ActionEvent.param(
                     CLIENT_PARAMETER,
-                    InvalidParamMessage.new(
-                        "'$CLIENT_PARAMETER:$clientName': unknown schema '${sender.schemaName}'"
-                    )
+                    "'$CLIENT_PARAMETER:$clientName': unknown schema '${sender.schemaName}'"
                 )
             )
 
         val contentType = request.headers.getOrDefault(HttpHeaders.CONTENT_TYPE.lowercase(), "")
         if (contentType.isBlank()) {
-            errors.add(ActionEvent.param(HttpHeaders.CONTENT_TYPE, InvalidParamMessage.new("missing")))
+            errors.add(ActionEvent.param(HttpHeaders.CONTENT_TYPE, "missing"))
         } else if (sender != null && sender.format.mimeType != contentType) {
             errors.add(
                 ActionEvent.param(
-                    HttpHeaders.CONTENT_TYPE, InvalidParamMessage.new("expecting '${sender.format.mimeType}'")
+                    HttpHeaders.CONTENT_TYPE, "expecting '${sender.format.mimeType}'"
                 )
             )
         }
 
         val content = request.body ?: ""
         if (content.isEmpty()) {
-            errors.add(ActionEvent.param("Content", InvalidParamMessage.new("expecting a post message with content")))
+            errors.add(ActionEvent.param("Content", "expecting a post message with content"))
         }
 
         if (sender == null || schema == null || content.isEmpty() || errors.isNotEmpty()) {
