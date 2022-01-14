@@ -59,6 +59,11 @@ class SubmissionFunction(
         }
     }
 
+    /**
+     * This endpoint is meant for use by either an Admin or a User.
+     * It does not assume the user belongs to a single Organization.  Rather, it uses
+     * the organization in the URL path, after first confirming authorization to access that organization.
+     */
     @FunctionName("getOrgSubmissions")
     fun organizationSubmissions(
         @HttpTrigger(
@@ -83,6 +88,8 @@ class SubmissionFunction(
 
     /**
      * An Azure Function that is triggered at the `/api/submissions/` endpoint
+     * This endpoint is meant for use by a User.  It assumes the user belongs to a single Organization.
+     * DO NOT USE - DEPRECATED - DELETE THIS
      *
      * @param qSortOrder a user supplied sort order overwriting the default value.
      * @param qResultsAfterDate a user supplied `OffsetDateTime` overwriting the default value.

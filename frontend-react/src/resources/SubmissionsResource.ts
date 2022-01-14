@@ -8,7 +8,9 @@ export default class SubmissionsResource extends AuthResource {
     readonly warningCount: number = 0;
 
     pk(params: any) {
-        return this.id;
+        // For failed submissions, the report id will be null. Rest Hooks will not persist a record without a pk, thus
+        // falling back to using createdAt.
+        return this.id || this.createdAt?.toString();
     }
 
     /* INFO
@@ -21,7 +23,12 @@ export default class SubmissionsResource extends AuthResource {
         return "SubmissionsResource";
     }
 
-    static listUrl(searchParams: { organization: string }): string {
-        return `${process.env.REACT_APP_BACKEND_URL}/api/history/${searchParams.organization}/submissions`;
+    static listUrl(searchParams: {
+        organization: string;
+        pageSize: number;
+        cursor: string;
+        sort: string;
+    }): string {
+        return `${process.env.REACT_APP_BACKEND_URL}/api/history/${searchParams.organization}/submissions?pagesize=${searchParams.pageSize}&cursor=${searchParams.cursor}&sort=${searchParams.sort}`;
     }
 }

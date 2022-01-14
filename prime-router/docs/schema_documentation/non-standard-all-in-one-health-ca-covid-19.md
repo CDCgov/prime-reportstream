@@ -1,7 +1,7 @@
 
 ### Schema: non-standard/all-in-one-health-ca-covid-19
 ### Topic: covid-19
-### Tracking Element: none
+### Tracking Element: (message_id)
 ### Base On: [covid-19](./covid-19.md)
 ### Extends: none
 #### Description: all-in-one-health - CSV lab report schema
@@ -146,7 +146,7 @@ This field is ignored.
 
 **Format**: yyyyMMdd
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 ---
 
@@ -164,7 +164,7 @@ This field is ignored.
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
 
-**Table**: LIVD-SARS-CoV-2-2021-09-29
+**Table**: LIVD-SARS-CoV-2-latest
 
 **Table Column**: Model
 
@@ -214,7 +214,7 @@ Accension number
 
 **Format**: yyyyMMdd
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 ---
 
@@ -380,6 +380,8 @@ The ordering provider’s National Provider Identifier
 
 **ReportStream Internal Name**: ordering_provider_id_temp
 
+**Type**: TEXT
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -522,7 +524,7 @@ The patient's city
 
 **Format**: yyyyMMdd
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -738,6 +740,7 @@ Code | Display
 1002-5|American Indian or Alaska Native
 1002-5|American Indian
 1002-5|Native American
+1002-5|1002-5
 2054-5|Black or African American
 2054-5|African American
 2054-5|African American Alaska Native
@@ -912,7 +915,7 @@ The reporting facility's name
 - [OBX-14](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.14)
 - [SPM-17-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.17.1)
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -939,7 +942,6 @@ Code | Display
 ---- | -------
 71836000|Nasopharyngeal structure (body structure)
 71836000|Varied
-71836000|Nasal
 71836000|Nasopharyngeal swab
 71836000|258500001
 71836000|Nasopharyngeal aspirate
@@ -951,6 +953,7 @@ Code | Display
 53342003|Swab of internal nose
 53342003|Anterior nares swab
 53342003|Mid-turbinate nasal swab
+53342003|Nasal
 53342003|Nasal Swab
 53342003|445297001
 53342003|697989009
@@ -1054,6 +1057,8 @@ Translate inbound text to outbound SNOMED Codes
 
 **ReportStream Internal Name**: test_performed_code_temp
 
+**Type**: TEXT
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1145,7 +1150,7 @@ Translate multiple inbound Test Result values to RS values
 
 **Format**: yyyyMMdd
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 ---
 
@@ -1322,7 +1327,7 @@ The specimen-id from the testing lab
 
 **Format**: yyyyMMdd
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -1492,7 +1497,7 @@ ID name of org that is sending this data to ReportStream.  Suitable for provenan
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-09-29
+**Table**: LIVD-SARS-CoV-2-latest
 
 **Table Column**: Test Performed LOINC Code
 

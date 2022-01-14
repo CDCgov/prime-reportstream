@@ -70,7 +70,7 @@ class AddPublicKey : SettingCommand(
         val jwk = SenderUtils.readPublicKeyPemFile(publicKeyFile)
         jwk.kid = if (kid.isNullOrEmpty()) settingName else kid
 
-        val origSenderJson = get(cliEnvironment, cliAccessToken, SettingType.SENDER, settingName)
+        val origSenderJson = get(environment, oktaAccessToken, SettingType.SENDER, settingName)
         val origSender = Sender(jsonMapper.readValue(origSenderJson, SenderAPI::class.java))
 
         if (!Scope.isValidScope(scope, origSender)) {
@@ -97,7 +97,7 @@ class AddPublicKey : SettingCommand(
             )
             return
         }
-        val response = put(cliEnvironment, cliAccessToken, SettingType.SENDER, settingName, newSenderJson)
+        val response = put(environment, oktaAccessToken, SettingType.SENDER, settingName, newSenderJson)
         echo()
         echo(response)
         echo()

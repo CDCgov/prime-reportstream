@@ -16,9 +16,8 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 2
-      - name: Set base environment variables
-        run: |
-          echo >> $GITHUB_ENV VERSION="v-$(date +%Y.%m.%d-%H%M%S)"
+      - name: Set tag automatically
+        run: echo >> $GITHUB_ENV VERSION="v-$(date +%Y.%m.%d-%H%M%S)"
 
   build_router_gh_release:
     name: Build router
@@ -116,6 +115,7 @@ jobs:
             echo "::set-output name=tagged::0"; 
           fi
       - name: Build changelog if tags exist
+        id: build_changelog
         if: steps.tagged.outputs.tagged == 1
         uses: mikepenz/release-changelog-builder-action@v2
         with:
@@ -131,7 +131,10 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ needs.wf_vars.outputs.version }}
           artifacts: "archives/*.tar.gz,LICENSE"
-          generateReleaseNotes: true
+          generateReleaseNotes: false
+          omitBody: false
+          omitBodyDuringUpdate: true
+          body: ${{steps.build_changelog.outputs.changelog}}
       - name: Delete older releases
         uses: dev-drprasad/delete-older-releases@v0.2.0
         with:
