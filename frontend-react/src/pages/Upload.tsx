@@ -15,6 +15,7 @@ import { faSync } from "@fortawesome/free-solid-svg-icons";
 
 import { senderClient } from "../webreceiver-utils";
 import SenderOrganizationResource from "../resources/SenderOrganizationResource";
+import { getStoredOrg } from "../components/GlobalContextProvider";
 
 library.add(faSync);
 
@@ -38,7 +39,7 @@ export const Upload = () => {
 
     const client = senderClient(authState);
     const organization = useResource(SenderOrganizationResource.detail(), {
-        name: client,
+        name: getStoredOrg(),
     });
 
     const userName = {

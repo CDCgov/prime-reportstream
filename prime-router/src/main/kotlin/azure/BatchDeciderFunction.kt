@@ -26,7 +26,7 @@ class BatchDeciderFunction : Logging {
         @Suppress("UNUSED_PARAMETER")
         context: ExecutionContext,
     ) {
-        logger.info("$batchDecider: Starting")
+        logger.trace("$batchDecider: Starting")
         try {
             val workflowEngine = WorkflowEngine()
             workflowEngine.db.transact { txn ->
@@ -56,10 +56,10 @@ class BatchDeciderFunction : Logging {
                         )
                         val queueMessages = ceil((recordsToBatch.toDouble() / rec.timing!!.maxReportCount.toDouble()))
                             .roundToInt()
-                        logger.info(
-                            "$batchDecider found $recordsToBatch for ${rec.fullName}," +
-                                "max size ${rec.timing.maxReportCount}. Queueing $queueMessages messages to BATCH"
-                        )
+                        val logMessage = "$batchDecider found $recordsToBatch for ${rec.fullName}," +
+                            "max size ${rec.timing.maxReportCount}. Queueing $queueMessages messages to BATCH"
+                        if (recordsToBatch > 0) logger.info(logMessage)
+                        else logger.debug(logMessage)
 
                         repeat(queueMessages) {
                             // build 'batch' event
@@ -69,7 +69,7 @@ class BatchDeciderFunction : Logging {
                     }
             }
 
-            logger.info("$batchDecider: Ending")
+            logger.trace("$batchDecider: Ending")
         } catch (e: Exception) {
             logger.error("$batchDecider function exception", e)
         }
