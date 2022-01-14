@@ -54,8 +54,8 @@ export function OrgSenderTable(props: OrgSettingsTableProps) {
                     </tr>
                 </thead>
                 <tbody id="tBodyOrgSender" className="font-mono-2xs">
-                    {orgSenderSettings.map((eachOrgSetting) => (
-                        <tr key={eachOrgSetting.name}>
+                    {orgSenderSettings.map((eachOrgSetting, index) => (
+                        <tr key={`sender-row-${eachOrgSetting.name}-${index}`}>
                             <td>{eachOrgSetting.name}</td>
                             <td>{eachOrgSetting?.organizationName || "-"}</td>
                             <td>{eachOrgSetting.topic || ""}</td>
@@ -65,11 +65,19 @@ export function OrgSenderTable(props: OrgSettingsTableProps) {
                             </td>
                             <td>
                                 <NavLink
-                                    to={`/admin/orgsendersettings/${eachOrgSetting.organizationName}/${eachOrgSetting.name}`}
-                                    key={eachOrgSetting.name}
+                                    to={`/admin/orgsendersettings/org/${eachOrgSetting.organizationName}/sender/${eachOrgSetting.name}/action/edit`}
+                                    key={`sender-edit-link-${eachOrgSetting.name}-${index}`}
                                     className="usa-link"
                                 >
                                     edit
+                                </NavLink>
+                                {" "}
+                                <NavLink
+                                    to={`/admin/orgsendersettings/org/${eachOrgSetting.organizationName}/sender/${eachOrgSetting.name}/action/delete`}
+                                    key={`sender-delete-link-${eachOrgSetting.name}-${index}`}
+                                    className="usa-link"
+                                >
+                                    delete
                                 </NavLink>
                                 {/*<Button*/}
                                 {/*    type="button"*/}

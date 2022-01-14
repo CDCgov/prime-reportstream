@@ -13,11 +13,12 @@ import { ErrorPage } from "../../error/ErrorPage";
 import OrgSenderSettingsResource from "../../../resources/OrgSenderSettingsResource";
 import { TextInputComponent } from "../../../components/Admin/AdminFormEdit";
 
-type Props = { orgname: string; sendername: string };
+type Props = { orgname: string; sendername: string; action: string };
 
 export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
     const orgname = match?.params?.orgname || "";
     const sendername = match?.params?.sendername || "";
+    const action = match?.params?.action || "";
 
     const FormComponent = () => {
         const orgSenderSettings: OrgSenderSettingsResource = useResource(
@@ -27,16 +28,45 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
 
         const { fetch: fetchController } = useController();
         const saveData = async () => {
-            try {
-                const data = JSON.stringify(orgSenderSettings);
-                await fetchController(
-                    OrgSenderSettingsResource.update(),
-                    { orgname, sendername: sendername },
-                    data
-                );
-            } catch (e) {
-                console.trace(e);
+            switch (action) {
+                case 'edit':
+                    try {
+                        debugger;
+                        console.log('EDIT SETTING')
+                        const data = JSON.stringify(orgSenderSettings);
+                        await fetchController(
+                            OrgSenderSettingsResource.update(),
+                            { orgname, sendername: sendername },
+                            data
+                        );
+                    } catch (e) {
+                        console.trace(e);
+                        return false;
+                    }
+                    break;
+                case 'delete':
+                    try {
+                        debugger;
+                        console.log('DELETE SETTING')
+                        const data = JSON.stringify(orgSenderSettings);
+                        await fetchController(
+                            OrgSenderSettingsResource.deleteSetting(),
+                            { orgname, sendername: sendername }
+                        );
+                    } catch (e) {
+                        console.trace(e);
+                        return false;
+                    }
+                    break;
+                case 'create':
+                    console.log('CREATE SETTING');
+                    return false;
+                    break;
+                    // TODO: implement create setting case
+                default:
+                    return false;
             }
+
             return true;
         };
 

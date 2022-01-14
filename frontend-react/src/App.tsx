@@ -145,17 +145,17 @@ const App = () => {
                                     component={AdminMain}
                                 />
                                 <AuthorizedRoute
-                                    path="/admin/orgsettings/:orgname"
+                                    path="/admin/orgsettings/org/:orgname"
                                     authorize={PERMISSIONS.PRIME_ADMIN}
                                     component={AdminOrgEdit}
                                 />
                                 <AuthorizedRoute
-                                    path="/admin/orgreceiversettings/:orgname/:receivername"
+                                    path="/admin/orgreceiversettings/org/:orgname/receiver/:receivername/action/:action"
                                     authorize={PERMISSIONS.PRIME_ADMIN}
                                     component={EditReceiverSettings}
                                 />
                                 <AuthorizedRoute
-                                    path="/admin/orgsendersettings/:orgname/:sendername"
+                                    path="/admin/orgsendersettings/org/:orgname/sender/:sendername/action/:action"
                                     authorize={PERMISSIONS.PRIME_ADMIN}
                                     component={EditSenderSettings}
                                 />

@@ -46,11 +46,11 @@ export function OrgSettingsTable() {
                             eachOrgSetting.filterMatch(filter)
                         )
                         .map((eachOrgSetting) => (
-                            <tr key={eachOrgSetting.name}>
+                            <tr key={`sender-row-${eachOrgSetting.name}`}>
                                 <td>
                                     <NavLink
-                                        to={`/admin/orgsettings/${eachOrgSetting.name}`}
-                                        key={eachOrgSetting.name}
+                                        to={`/admin/orgsettings/org/${eachOrgSetting.name}`}
+                                        key={`sender-link-${eachOrgSetting.name}`}
                                         className="usa-link"
                                     >
                                         {eachOrgSetting.name}
