@@ -58,6 +58,7 @@ class CsvSerializer(val metadata: Metadata) : Logging {
         sources: List<Source>,
         destination: Receiver? = null,
         defaultValues: Map<String, String> = emptyMap(),
+        sender: Sender? = null,
     ): ReadResult {
         val schema = metadata.findSchema(schemaName) ?: error("Internal Error: invalid schema name '$schemaName'")
         val errors = mutableListOf<ResultDetail>()
@@ -151,7 +152,7 @@ class CsvSerializer(val metadata: Metadata) : Logging {
         }
 
         val mappedRows = rows.mapIndexedNotNull { index, row ->
-            val result = mapRow(schema, csvMapping, row, index)
+            val result = mapRow(schema, csvMapping, row, index, sender = sender)
             val trackingColumn = schema.findElementColumn(schema.trackingElement ?: "")
             var trackingId = if (trackingColumn != null) result.row[trackingColumn] else ""
             if (trackingId.isEmpty())
@@ -337,7 +338,13 @@ class CsvSerializer(val metadata: Metadata) : Logging {
      *
      * Also, format values into the normalized format for the type
      */
-    private fun mapRow(schema: Schema, csvMapping: CsvMapping, inputRow: Map<String, String>, index: Int): RowResult {
+    private fun mapRow(
+        schema: Schema,
+        csvMapping: CsvMapping,
+        inputRow: Map<String, String>,
+        index: Int,
+        sender: Sender? = null,
+    ): RowResult {
         // TODO Refactor this code to make the error and cardinality logic more readable and remove the use of failureValue
         val lookupValues = mutableMapOf<String, String>()
         val errors = mutableListOf<ResponseMessage>()
@@ -382,7 +389,7 @@ class CsvSerializer(val metadata: Metadata) : Logging {
             // Do not process any field that had an error
             if (lookupValues[element.name] != failureValue) {
                 val mappedResult =
-                    element.processValue(lookupValues, schema, csvMapping.defaultOverrides, index)
+                    element.processValue(lookupValues, schema, csvMapping.defaultOverrides, index, sender)
                 lookupValues[element.name] = mappedResult.value ?: ""
                 errors.addAll(mappedResult.errors)
                 warnings.addAll(mappedResult.warnings)

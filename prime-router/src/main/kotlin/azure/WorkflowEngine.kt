@@ -904,7 +904,8 @@ class WorkflowEngine(
                         schemaName = sender.schemaName,
                         input = ByteArrayInputStream(content.toByteArray()),
                         sources = listOf(ClientSource(organization = sender.organizationName, client = sender.name)),
-                        defaultValues = defaults
+                        defaultValues = defaults,
+                        sender = sender,
                     )
                     errors += readResult.errors
                     warnings += readResult.warnings

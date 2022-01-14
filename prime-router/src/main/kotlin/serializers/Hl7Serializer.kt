@@ -367,7 +367,7 @@ class Hl7Serializer(
     fun readExternal(
         schemaName: String,
         input: InputStream,
-        source: Source
+        source: Source,
     ): ReadResult {
         val errors = mutableListOf<ResultDetail>()
         val warnings = mutableListOf<ResultDetail>()

@@ -20,3 +20,9 @@ elements:
   - name: blank_field
     type: BLANK
     csvFields: [{name: blankField}]
+
+  - name: sender_setting_field
+    cardinality: ONE
+    type: TEXT
+    mapper: useSenderSetting(fullName)
+    csvFields: [{name: senderSettingField}]

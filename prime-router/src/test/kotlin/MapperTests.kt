@@ -335,6 +335,57 @@ class MapperTests {
     }
 
     @Test
+    fun `test useSenderSetting`() {
+        val sender = Sender(
+            "senderName",
+            "orgName",
+            format = Sender.Format.CSV,
+            "covid-19",
+            CustomerStatus.ACTIVE,
+            "mySchemaName",
+            keys = null,
+            processingType = Sender.ProcessingType.async
+        )
+        val elementA = Element("a")
+        val mapper = UseSenderSettingMapper()
+        var args = listOf("name")
+        assertThat(mapper.valueNames(elementA, args)).isEqualTo(emptyList())
+        assertThat(mapper.apply(elementA, args, emptyList(), sender).value)
+            .isEqualTo("senderName")
+        args = listOf("organizationName")
+        assertThat(mapper.apply(elementA, args, emptyList(), sender).value)
+            .isEqualTo("orgName")
+        args = listOf("fullName")
+        assertThat(mapper.apply(elementA, args, emptyList(), sender).value)
+            .isEqualTo("orgName.senderName")
+        args = listOf("topic")
+        assertThat(mapper.apply(elementA, args, emptyList(), sender).value)
+            .isEqualTo("covid-19")
+        args = listOf("schemaName")
+        assertThat(mapper.apply(elementA, args, emptyList(), sender).value)
+            .isEqualTo("mySchemaName")
+
+        // Various error cases:
+
+        // Can't read non-string fields as of yet.
+        args = listOf("processingType")
+        assertFailsWith<ClassCastException>(block = { mapper.apply(elementA, args, emptyList(), sender) })
+        // Must have an arg
+        args = emptyList()
+        assertFails(block = { mapper.apply(elementA, args, emptyList(), sender) })
+        // Must have a single arg
+        args = listOf("a", "b")
+        assertFails(block = { mapper.apply(elementA, args, emptyList(), sender) })
+        // Arg must be a valid name of a Sender settings field
+        args = listOf("not a valid value")
+        val response = mapper.apply(elementA, args, emptyList(), sender)
+        assertThat(response.value).isNull()
+        assertThat(response.errors.size).isEqualTo(1)
+        assertThat(response.errors[0].type).isEqualTo(ResponseMsgType.REPORT)
+        assertThat(response.errors[0].detailMsg().contains("not a valid value")).isEqualTo(true)
+    }
+
+    @Test
     fun `test ConcatenateMapper`() {
         val mapper = ConcatenateMapper()
         val args = listOf("a", "b", "c")

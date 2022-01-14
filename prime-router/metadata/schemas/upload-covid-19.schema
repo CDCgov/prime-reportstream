@@ -7,6 +7,7 @@ basedOn: covid-19
 
 elements:
     - name: sender_id
+      mapper: useSenderSetting(organizationName)
       csvFields: [ { name: sender_id } ]
 
     - name: processing_mode_code
