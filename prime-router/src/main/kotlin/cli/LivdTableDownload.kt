@@ -98,7 +98,7 @@ class LivdTableDownload() : CliktCommand(
         // in database.
         if (!updateTheLivdLookupTable(File(outPutFile))) return
 
-        TermUi.echo("\tSUCCESS: The lookup table is updated.")
+        TermUi.echo("\tThe lookup table is updated successfully.")
     }
 
     /**
