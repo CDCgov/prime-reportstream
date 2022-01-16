@@ -159,8 +159,6 @@ class UseMapper : Mapper {
  *  - if you use mapperOverridesValue with this, you will get unexpected results.
  *  - currently this only works for String values in the Sender obj.  :(
  *  - this does not work with commandline ./prime, because the CLI knows nothing about settings.
- *  - this does not work with HL7, because apparently HL7s don't call mappers on initial read, other
- *  than for covid-19 AOEs(!)
  */
 class UseSenderSettingMapper : Mapper {
     override val name = "useSenderSetting"

@@ -295,6 +295,7 @@ Examples:
             OtcProctored(),
             BadHl7(),
             Jti(),
+            SenderSettings(),
             InternationalContent(),
             DataCompareTest(),
             SantaClaus(),
@@ -775,6 +776,9 @@ abstract class CoolTest {
         }[0]
         val qualityReversedReceiver = settings.receivers.filter {
             it.organizationName == orgName && it.name == "QUALITY_REVERSED"
+        }[0]
+        val senderSettingReceiver = settings.receivers.filter {
+            it.organizationName == orgName && it.name == "sender_settings"
         }[0]
 
         const val ANSI_RESET = "\u001B[0m"

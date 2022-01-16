@@ -21,8 +21,20 @@ elements:
     type: BLANK
     csvFields: [{name: blankField}]
 
-  - name: sender_setting_field
+  # Used to test the useSenderSetting mapper
+  - name: sender_fullname
     cardinality: ONE
     type: TEXT
     mapper: useSenderSetting(fullName)
-    csvFields: [{name: senderSettingField}]
+
+  # Used to test the useSenderSetting mapper
+  - name: sender_orgname
+    cardinality: ONE
+    type: TEXT
+    mapper: useSenderSetting(organizationName)
+
+  # Used to test the useSenderSetting mapper
+  - name: sender_topic
+    cardinality: ONE
+    type: TEXT
+    mapper: useSenderSetting(topic)

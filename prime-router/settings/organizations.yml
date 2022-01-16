@@ -2150,6 +2150,31 @@
         port: 22
         filePath: ./upload
         credentialName: DEFAULT-SFTP
+    - name: sender_settings
+      externalName: Used to test putting sender settings into the data, using ignore.ignore-empty
+      organizationName: ignore
+      topic: covid-19
+      customerStatus: active
+      jurisdictionalFilter: [ "matches(ordering_facility_county, sender_settings)" ]
+      qualityFilter: [ "allowAll()" ]
+      routingFilter:
+        - matches(sender_fullname, ignore.ignore-empty)
+        - matches(sender_orgname, ignore)
+        - matches(sender_topic, covid-19)
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+      translation:
+        type: CUSTOM
+        schemaName: empty
+        format: CSV
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
 
 - name: historytest
   description: FOR TESTING SUBMISSION HISTORY
