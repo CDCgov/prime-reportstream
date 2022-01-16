@@ -18,6 +18,7 @@ import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.ResponseMessage
 import gov.cdc.prime.router.ResultDetail
 import gov.cdc.prime.router.Schema
+import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Source
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.InputStream

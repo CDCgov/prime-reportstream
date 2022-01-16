@@ -927,7 +927,8 @@ class WorkflowEngine(
                     val readResult = this.hl7Serializer.readExternal(
                         schemaName = sender.schemaName,
                         input = ByteArrayInputStream(content.toByteArray()),
-                        ClientSource(organization = sender.organizationName, client = sender.name)
+                        ClientSource(organization = sender.organizationName, client = sender.name),
+                        sender = sender,
                     )
                     errors += readResult.errors
                     warnings += readResult.warnings
