@@ -71,3 +71,39 @@ unique id to track the usage of the message
 The state of the facility which the test was ordered from
 
 ---
+
+**Name**: sender_fullname
+
+**ReportStream Internal Name**: sender_fullname
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [1..1]
+
+---
+
+**Name**: sender_orgname
+
+**ReportStream Internal Name**: sender_orgname
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [1..1]
+
+---
+
+**Name**: sender_topic
+
+**ReportStream Internal Name**: sender_topic
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [1..1]
+
+---

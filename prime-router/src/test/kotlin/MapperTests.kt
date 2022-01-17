@@ -365,11 +365,18 @@ class MapperTests {
         assertThat(mapper.apply(elementA, args, emptyList(), sender).value)
             .isEqualTo("mySchemaName")
 
-        // Various error cases:
-
-        // Can't read non-string fields as of yet.
+        // useSenderSetting does a best effort to get string values for other types.
         args = listOf("processingType")
-        assertFailsWith<ClassCastException>(block = { mapper.apply(elementA, args, emptyList(), sender) })
+        assertThat(mapper.apply(elementA, args, emptyList(), sender).value)
+            .isEqualTo("async")
+        args = listOf("customerStatus")
+        assertThat(mapper.apply(elementA, args, emptyList(), sender).value)
+            .isEqualTo("ACTIVE")
+        args = listOf("format")
+        assertThat(mapper.apply(elementA, args, emptyList(), sender).value)
+            .isEqualTo("CSV")
+
+        // Error cases:
         // Must have an arg
         args = emptyList()
         assertFails(block = { mapper.apply(elementA, args, emptyList(), sender) })

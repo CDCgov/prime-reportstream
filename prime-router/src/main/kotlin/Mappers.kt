@@ -10,7 +10,6 @@ import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 import java.util.Locale
 import javax.xml.bind.DatatypeConverter
-import kotlin.reflect.KProperty1
 import kotlin.reflect.full.memberProperties
 
 /**
@@ -151,14 +150,14 @@ class UseMapper : Mapper {
  * As of this writing mappers are called in three places:
  *  - during initial read (in [Element.processValue])
  *  - during creation of internal data (in [Report.buildColumnPass2])
- *  - during creation of outgoing data (in [Hl7Serializer.setComponentForTable])
+ *  - during creation of outgoing data (in, eg, [Hl7Serializer.setComponentForTable])
  *  ONLY the first of those has access to Sender info.  Therefore its incumbent upon the
- *  writer of the mapper to ensure it works without failure if the Sender obj is null.
+ *  writer of any mapr to ensure it works without failure if the Sender obj is null.
  *
  *  Notes:
- *  - if you use mapperOverridesValue with this, you will get unexpected results.
- *  - currently this only works for String values in the Sender obj.  :(
- *  - this does not work with commandline ./prime, because the CLI knows nothing about settings.
+ *  1. If you use mapperOverridesValue with this, you will get unexpected results.
+ *  2. [UseSenderSettingMapper] always returns the toString() value regardless of the field type.
+ *  3. This does not work with commandline ./prime, because the CLI knows nothing about settings.
  */
 class UseSenderSettingMapper : Mapper {
     override val name = "useSenderSetting"
@@ -183,12 +182,10 @@ class UseSenderSettingMapper : Mapper {
                 args.size != 1 -> error("Schema Error for ${element.name}: useSenderSetting expects a single argument")
                 else -> {
                     try {
-                        @Suppress("UNCHECKED_CAST")
                         val senderProperty = Sender::class.memberProperties.first {
                             it.name == args[0]
                         }
-                            as KProperty1<Sender, String>
-                        senderProperty.get(sender)
+                        senderProperty.get(sender).toString()
                     } catch (e: NoSuchElementException) {
                         return ElementResult(
                             null,
