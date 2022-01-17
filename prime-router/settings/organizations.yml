@@ -2184,7 +2184,8 @@
         - matches(sender_fullname, ignore.ignore-empty)
         - matches(sender_orgname, ignore)
       processingModeFilter:
-        - matches(processing_mode_code, T)
+        # Because ignore.ignore-empty has customerStatus = active
+        - matches(processing_mode_code, P)
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
