@@ -187,6 +187,12 @@ class SettingsTest : CoolTest() {
     }
 }
 
+/**
+ * The key to this [SenderSettings] smoke test is in the SETTINGS_TEST receiver in organizations.yml.
+ * SETTINGS_TEST has specific filters such that if the sender settings were not properly extracted
+ * from the `ignore.ignore-empty` sender, the SETTINGS_TEST receiver's data will get filtered out,
+ * and the test will fail.
+ */
 class SenderSettings : CoolTest() {
     override val name = "sender-settings"
     override val description = "Test that we can extract values from Sender settings and put into our data "

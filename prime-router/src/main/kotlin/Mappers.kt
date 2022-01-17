@@ -151,8 +151,9 @@ class UseMapper : Mapper {
  *  - during initial read (in [Element.processValue])
  *  - during creation of internal data (in [Report.buildColumnPass2])
  *  - during creation of outgoing data (in, eg, [Hl7Serializer.setComponentForTable])
- *  ONLY the first of those has access to Sender info.  Therefore its incumbent upon the
- *  writer of any mapr to ensure it works without failure if the Sender obj is null.
+ *  ONLY the first of those has access to Sender info. However, the mapper may be called in
+ *  any or all of those three places. Therefore, its incumbent upon the
+ *  writer of any mapper to ensure it works without failure if the Sender obj is null.
  *
  *  Notes:
  *  1. If you use mapperOverridesValue with this, you will get unexpected results.
