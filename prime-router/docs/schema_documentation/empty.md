@@ -72,6 +72,34 @@ The state of the facility which the test was ordered from
 
 ---
 
+**Name**: processing_mode_code
+
+**ReportStream Internal Name**: processing_mode_code
+
+**Type**: CODE
+
+**PII**: No
+
+**Format**: use value found in the Code column
+
+**Default Value**: P
+
+**Cardinality**: [1..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+D|Debugging
+P|Production
+T|Training
+
+**Documentation**:
+
+P, D, or T for Production, Debugging, or Training
+
+---
+
 **Name**: sender_fullname
 
 **ReportStream Internal Name**: sender_fullname
@@ -87,18 +115,6 @@ The state of the facility which the test was ordered from
 **Name**: sender_orgname
 
 **ReportStream Internal Name**: sender_orgname
-
-**Type**: TEXT
-
-**PII**: No
-
-**Cardinality**: [1..1]
-
----
-
-**Name**: sender_topic
-
-**ReportStream Internal Name**: sender_topic
 
 **Type**: TEXT
 

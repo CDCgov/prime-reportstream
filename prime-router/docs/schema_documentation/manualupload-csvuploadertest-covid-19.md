@@ -1125,24 +1125,6 @@ Translate multiple inbound Y/N/U AOE values to RS values
 
 ---
 
-**Name**: sender_id
-
-**ReportStream Internal Name**: sender_id
-
-**Type**: TEXT
-
-**PII**: No
-
-**Default Value**: csvuploadertest
-
-**Cardinality**: [1..1]
-
-**Documentation**:
-
-ID name of org that is sending this data to ReportStream.  Suitable for provenance or chain of custody tracking.  Not to be confused with sending_application, in which ReportStream acts as the 'sender' to the downstream jurisdiction.
-
----
-
 **Name**: specimen_collection_date
 
 **ReportStream Internal Name**: specimen_collection_date_temp
@@ -1758,6 +1740,24 @@ The FIPS code for the patient's county
 **Documentation**:
 
 The ID number of the lab order from the placer
+
+---
+
+**Name**: sender_id
+
+**ReportStream Internal Name**: sender_id
+
+**Type**: TEXT
+
+**PII**: No
+
+**Default Value**: csvuploadertest
+
+**Cardinality**: [1..1]
+
+**Documentation**:
+
+ID name of org that is sending this data to ReportStream.  Suitable for provenance or chain of custody tracking.  Not to be confused with sending_application, in which ReportStream acts as the 'sender' to the downstream jurisdiction.
 
 ---
 
