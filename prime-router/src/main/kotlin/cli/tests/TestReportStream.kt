@@ -777,8 +777,8 @@ abstract class CoolTest {
         val qualityReversedReceiver = settings.receivers.filter {
             it.organizationName == orgName && it.name == "QUALITY_REVERSED"
         }[0]
-        val senderSettingReceiver = settings.receivers.filter {
-            it.organizationName == orgName && it.name == "sender_settings"
+        val settingsTestReceiver = settings.receivers.filter {
+            it.organizationName == orgName && it.name == "SETTINGS_TEST"
         }[0]
 
         const val ANSI_RESET = "\u001B[0m"

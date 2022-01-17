@@ -369,13 +369,15 @@ class MapperTests {
         args = listOf("processingType")
         assertThat(mapper.apply(elementA, args, emptyList(), sender).value)
             .isEqualTo("async")
-        args = listOf("customerStatus")
-        assertThat(mapper.apply(elementA, args, emptyList(), sender).value)
-            .isEqualTo("ACTIVE")
         args = listOf("format")
         assertThat(mapper.apply(elementA, args, emptyList(), sender).value)
             .isEqualTo("CSV")
-
+        args = listOf("customerStatus")
+        assertThat(mapper.apply(elementA, args, emptyList(), sender).value)
+            .isEqualTo("ACTIVE")
+        args = listOf("processingModeCode")
+        assertThat(mapper.apply(elementA, args, emptyList(), sender).value)
+            .isEqualTo("P")
         // Error cases:
         // Must have an arg
         args = emptyList()

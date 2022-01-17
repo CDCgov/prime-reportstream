@@ -34,7 +34,6 @@ elements:
     mapper: useSenderSetting(organizationName)
 
   # Used to test the useSenderSetting mapper
-  - name: sender_topic
+  - name: processing_mode_code
     cardinality: ONE
-    type: TEXT
-    mapper: useSenderSetting(topic)
+    mapper: useSenderSetting(processingModeCode)

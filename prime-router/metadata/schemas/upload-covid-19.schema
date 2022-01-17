@@ -8,11 +8,10 @@ basedOn: covid-19
 elements:
     - name: sender_id
       mapper: useSenderSetting(organizationName)
-      csvFields: [ { name: sender_id } ]
 
     - name: processing_mode_code
+      mapper: useSenderSetting(processingModeCode)   
       csvFields: [ { name: processing_mode_code } ]
-
 
 ############### Set the major ID fields
     - name: patient_id

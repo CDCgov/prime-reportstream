@@ -200,7 +200,7 @@ class SenderSettings : CoolTest() {
             emptySender,
             options.items,
             receivingStates,
-            senderSettingReceiver.name,
+            settingsTestReceiver.name,
             options.dir,
         )
         echo("Created datafile $file")
@@ -223,7 +223,7 @@ class SenderSettings : CoolTest() {
         echo("Id of submitted report: $reportId")
         return pollForLineageResults(
             reportId = reportId,
-            receivers = listOf(senderSettingReceiver),
+            receivers = listOf(settingsTestReceiver),
             totalItems = options.items,
             asyncProcessMode = options.asyncProcessMode
         )
