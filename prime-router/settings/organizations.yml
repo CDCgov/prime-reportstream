@@ -1881,7 +1881,7 @@
     - name: ignore-empty      # Use this to test sending data from the 'empty' schema
       organizationName: ignore
       topic: covid-19
-      customerStatus: inactive
+      customerStatus: active
       schemaName: empty
       format: CSV
     - name: ignore-hl7      # Use this to test sending data from the HL7 schema
@@ -2050,7 +2050,7 @@
     - name: QUALITY_REVERSED
       organizationName: ignore
       topic: covid-19
-      customerStatus: active
+      customerStatus: inactive
       jurisdictionalFilter: [ "matches(ordering_facility_county, QUALITY_REVERSED, kept)" ]
       qualityFilter:
         - hasValidDataFor(message_id,ordering_facility_county,ordering_facility_state)
@@ -2065,7 +2065,7 @@
     - name: QUALITY_ALL
       organizationName: ignore
       topic: covid-19
-      customerStatus: active
+      customerStatus: inactive
       jurisdictionalFilter: [ "matches(ordering_facility_county, QUALITY_ALL)" ]
       qualityFilter: [ "allowAll()" ]
       translation:
@@ -2075,7 +2075,7 @@
     - name: QUALITY_FAIL
       organizationName: ignore
       topic: covid-19
-      customerStatus: active
+      customerStatus: inactive
       jurisdictionalFilter: [ "matches(ordering_facility_county, QUALITY_FAIL)" ]
       qualityFilter: [ "hasValidDataFor(blankField)", "hasAtLeastOneOf(message_id,blankField)" ]
       translation:
