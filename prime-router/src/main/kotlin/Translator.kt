@@ -37,27 +37,39 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
             receiver.topic == input.schema.topic &&
                 (limitReceiversTo.isEmpty() || limitReceiversTo.contains(receiver.fullName))
         }.mapNotNull { receiver ->
-            try {
-                // Filter the report
-                val filteredReport = filterByAllFilterTypes(settings, input, receiver) ?: return@mapNotNull null
-                if (filteredReport.isEmpty()) return@mapNotNull Pair(filteredReport, receiver)
+            val translatedReport = filterAndTranslateForReceiver(input, receiver, defaultValues, warnings)
+            translatedReport?.let { Pair(translatedReport, receiver) }
+        }
+    }
 
-                // Translate the filteredReport
-                val translatedReport = translateByReceiver(filteredReport, receiver, defaultValues)
-                Pair(translatedReport, receiver)
-            } catch (e: IllegalStateException) {
-                // catching individual translation exceptions enables overall work to continue
-                warnings?.let {
-                    warnings.add(
-                        ResultDetail(
-                            ResultDetail.DetailScope.TRANSLATION,
-                            "TO:${receiver.fullName}:${receiver.schemaName}",
-                            InvalidTranslationMessage.new(e.localizedMessage)
-                        )
+    /**
+     * Filter and translate for a [input] report for a single [receiver].
+     */
+    fun filterAndTranslateForReceiver(
+        input: Report,
+        receiver: Receiver,
+        defaultValues: DefaultValues = emptyMap(),
+        warnings: MutableList<ResultDetail>? = null,
+    ): Report? {
+        try {
+            // Filter the report
+            val filteredReport = filterByAllFilterTypes(settings, input, receiver) ?: return null
+            if (filteredReport.isEmpty()) return filteredReport
+
+            // Translate the filteredReport
+            return translateByReceiver(filteredReport, receiver, defaultValues)
+        } catch (e: IllegalStateException) {
+            // catching individual translation exceptions enables overall work to continue
+            warnings?.let {
+                warnings.add(
+                    ResultDetail(
+                        ResultDetail.DetailScope.TRANSLATION,
+                        "TO:${receiver.fullName}:${receiver.schemaName}",
+                        InvalidTranslationMessage.new(e.localizedMessage)
                     )
-                }
-                return@mapNotNull null
+                )
             }
+            return null
         }
     }
 
@@ -202,7 +214,7 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
             Pair(filterFn, fnArgs)
         }
 
-        val filteredReport = input.filter(
+        val filteredReport = input.translate(
             filterAndArgs,
             receiver,
             doLogging,

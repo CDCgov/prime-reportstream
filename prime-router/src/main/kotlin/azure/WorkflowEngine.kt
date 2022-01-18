@@ -36,6 +36,7 @@ import gov.cdc.prime.router.transport.SoapTransport
 import org.jooq.Configuration
 import org.jooq.Field
 import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 import java.time.OffsetDateTime
 
 /**
@@ -53,7 +54,7 @@ class WorkflowEngine(
     val csvSerializer: CsvSerializer = csvSerializerSingleton,
     val redoxSerializer: RedoxSerializer = redoxSerializerSingleton,
     val db: DatabaseAccess = databaseAccessSingleton,
-    val blob: BlobAccess = BlobAccess(csvSerializer, hl7Serializer, redoxSerializer),
+    val blob: BlobAccess = BlobAccess(),
     val queue: QueueAccess = QueueAccess,
     val translator: Translator = Translator(metadata, settings),
     val sftpTransport: SftpTransport = SftpTransport(),
@@ -149,7 +150,7 @@ class WorkflowEngine(
                 csvSerializer!!,
                 redoxSerializer!!,
                 databaseAccess ?: databaseAccessSingleton,
-                blobAccess ?: BlobAccess(csvSerializer!!, hl7Serializer!!, redoxSerializer!!),
+                blobAccess ?: BlobAccess(),
                 queueAccess ?: QueueAccess
             )
         }
@@ -212,7 +213,7 @@ class WorkflowEngine(
         val receiverName = "${receiver.organizationName}.${receiver.name}"
         val blobInfo = try {
             // formatting errors can occur down in here.
-            blob.uploadBody(report, receiverName, nextAction.eventAction)
+            uploadBody(report, receiverName, nextAction.eventAction)
         } catch (ex: Exception) {
             context?.logger?.warning(
                 "Got exception while dispatching to schema ${report.schema.name}" +
@@ -685,10 +686,40 @@ class WorkflowEngine(
     }
 
     /**
+     * Serialize a [report] into bytes according to format of the report using the serializer of the workflow engine.
+     */
+    fun serializeReport(report: Report): ByteArray {
+        val outputStream = ByteArrayOutputStream()
+        when (report.bodyFormat) {
+            Report.Format.INTERNAL -> csvSerializer.writeInternal(report, outputStream)
+            // HL7 needs some additional configuration we set on the translation in organization
+            Report.Format.HL7 -> hl7Serializer.write(report, outputStream)
+            Report.Format.HL7_BATCH -> hl7Serializer.writeBatch(report, outputStream)
+            Report.Format.CSV, Report.Format.CSV_SINGLE -> csvSerializer.write(report, outputStream)
+            Report.Format.REDOX -> redoxSerializer.write(report, outputStream)
+        }
+        return outputStream.toByteArray()
+    }
+
+    /**
      * Create a report object from a header including loading the blob data associated with it
      */
     fun readBody(header: Header): ByteArray {
         return blob.downloadBlob(header.task.bodyUrl)
+    }
+
+    /**
+     * Upload the [report] to the blob store using the [action] to determine a folder as needed.  A [subfolderName]
+     * is optional and is added as a prefix to the blob filename.
+     * @return the information about the uploaded blob
+     */
+    fun uploadBody(
+        report: Report,
+        subfolderName: String? = null,
+        action: Event.EventAction = Event.EventAction.NONE
+    ): BlobAccess.BlobInfo {
+        val blobBytes = serializeReport(report)
+        return blob.uploadBody(report.bodyFormat, blobBytes, report.name, subfolderName, action)
     }
 
     fun recordAction(actionHistory: ActionHistory, txn: Configuration? = null) {
@@ -878,7 +909,6 @@ class WorkflowEngine(
 
     // 1. detect format and get serializer
     // 2. readExternal and return result / errors / warnings
-    // TODO: This could be moved to a utility/reports.kt or something like that, as it is not really part of workflow
     /**
      * Reads in a received message of HL7 or CSV format, generates an in-memory report instance
      * @param sender Sender information, pulled from database based on sender name

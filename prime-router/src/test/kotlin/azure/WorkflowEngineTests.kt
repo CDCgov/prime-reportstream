@@ -66,7 +66,7 @@ class WorkflowEngineTests {
         val actionHistory = mockk<ActionHistory>()
         val receiver = Receiver("myRcvr", "topic", "mytopic", CustomerStatus.INACTIVE, "mySchema")
 
-        every { blobMock.uploadBody(report = eq(report1), any(), any()) }
+        every { blobMock.uploadBody(any(), any(), any(), any(), any()) }
             .returns(BlobAccess.BlobInfo(bodyFormat, bodyUrl, "".toByteArray()))
         every { accessSpy.insertTask(report = eq(report1), bodyFormat.toString(), bodyUrl, eq(event)) }.returns(Unit)
         every { actionHistory.trackCreatedReport(any(), any(), any(), any()) }.returns(Unit)
@@ -82,7 +82,7 @@ class WorkflowEngineTests {
                 nextAction = any()
             )
             actionHistory.trackCreatedReport(any(), any(), any(), any())
-            blobMock.uploadBody(report = any(), any(), any())
+            blobMock.uploadBody(any(), any(), any(), any(), any())
         }
         confirmVerified(accessSpy, blobMock, queueMock)
     }
@@ -100,7 +100,7 @@ class WorkflowEngineTests {
         val actionHistory = mockk<ActionHistory>()
         val receiver = Receiver("MyRcvr", "topic", "mytopic", CustomerStatus.INACTIVE, "mySchema")
 
-        every { blobMock.uploadBody(report = eq(report1), any(), any()) }
+        every { blobMock.uploadBody(any(), any(), any(), any(), any()) }
             .returns(BlobAccess.BlobInfo(bodyFormat, bodyUrl, "".toByteArray()))
         every { accessSpy.insertTask(report = eq(report1), bodyFormat.toString(), bodyUrl, eq(event)) }.returns(Unit)
 
@@ -118,7 +118,7 @@ class WorkflowEngineTests {
                 bodyUrl = any(),
                 nextAction = any()
             )
-            blobMock.uploadBody(report = any(), any(), any())
+            blobMock.uploadBody(any(), any(), any(), any(), any())
             actionHistory.trackCreatedReport(any(), any(), any(), any())
 // todo           queueMock.sendMessage(event = any())
 // todo           blobMock.deleteBlob(blobUrl = any())

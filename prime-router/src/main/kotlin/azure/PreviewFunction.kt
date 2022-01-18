@@ -9,7 +9,9 @@ import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.ResultDetail
 import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.messages.PreviewErrorResponseMessage
 import gov.cdc.prime.router.messages.PreviewMessage
 import gov.cdc.prime.router.tokens.OktaAuthentication
 import org.apache.logging.log4j.kotlin.Logging
@@ -44,8 +46,14 @@ class PreviewFunction(
         }
     }
 
-    private fun badRequest(message: String): Nothing {
-        throw IllegalArgumentException(message)
+    private fun badRequest(
+        message: String,
+        errors: List<ResultDetail> = emptyList(),
+        warnings: List<ResultDetail> = emptyList()
+    ): Nothing {
+        val previewErrorMessage = PreviewErrorResponseMessage(message, errors, warnings)
+        val response = mapper.writeValueAsString(previewErrorMessage)
+        throw IllegalArgumentException(response)
     }
 
     data class FunctionParameters(
@@ -75,32 +83,36 @@ class PreviewFunction(
      * Main logic of the Azure function. Useful for unit testing.
      */
     internal fun processRequest(parameters: FunctionParameters): String {
-        return readReport(parameters)
-            .filter(parameters)
-            .serialize(parameters)
+        val warnings = mutableListOf<ResultDetail>()
+        return readReport(parameters, warnings)
+            .translate(parameters, warnings)
+            .serialize()
     }
 
-    private fun readReport(parameters: FunctionParameters): Report {
-        TODO("$parameters")
+    private fun readReport(parameters: FunctionParameters, warnings: MutableList<ResultDetail>): Report {
+        val errors = mutableListOf<ResultDetail>()
+        return workflowEngine.createReport(
+            sender = parameters.sender,
+            content = parameters.previewMessage.inputContent,
+            defaults = emptyMap(),
+            errors = errors,
+            warnings = warnings
+        ) ?: badRequest("Unable to deserialize report", errors, warnings)
     }
 
-    private fun Report.filter(parameters: FunctionParameters): Report {
-        TODO("$parameters, $this")
+    private fun Report.translate(parameters: FunctionParameters, warnings: MutableList<ResultDetail>): Report {
+        return workflowEngine.translator.filterAndTranslateForReceiver(
+            this,
+            parameters.receiver,
+            warnings = warnings
+        ) ?: badRequest("Unable to translate the report. May not match filters", warnings = warnings)
     }
 
-    private fun Report.serialize(parameters: FunctionParameters): String {
-        TODO("$parameters, $this")
+    private fun Report.serialize(): String {
+        return String(workflowEngine.serializeReport(this))
     }
 
     companion object {
         private val mapper = jacksonMapperBuilder().build()
-
-        private fun mapBodyFormatToSenderFormat(bodyFormat: String): Sender.Format {
-            return when (bodyFormat) {
-                "CSV", "CSV_SINGLE", "INTERNAL" -> Sender.Format.CSV
-                "HL7", "HL7_BATCH" -> Sender.Format.HL7
-                else -> error("Unknown body format type: $bodyFormat")
-            }
-        }
     }
 }
