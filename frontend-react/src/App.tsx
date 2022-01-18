@@ -130,9 +130,12 @@ const App = () => {
                                     authorize={PERMISSIONS.SENDER}
                                     component={Upload}
                                 />
+                                {/* TODO: AuthorizedRoute needs to take many potential auth groups.
+                                 *  We should fix this when we refactor our permissions layer.
+                                 */}
                                 <AuthorizedRoute
                                     path="/submissions"
-                                    authorize={PERMISSIONS.PRIME_ADMIN}
+                                    authorize={PERMISSIONS.SENDER}
                                     component={Submissions}
                                 />
                                 <SecureRoute

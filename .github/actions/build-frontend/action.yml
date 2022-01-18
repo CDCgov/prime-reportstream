@@ -2,11 +2,16 @@
 name: 'Build Frontend'
 description: 'Build react website'
 inputs:
+  env-name:
+    required: true
   appinsights-staging-key:
     description: Instrumentation key for staging environment
     required: true
   appinsights-prod-key:
     description: Instrumentation key for production environment
+    required: true
+  version:
+    description: "Version tag"
     required: true
 
 runs:
@@ -23,7 +28,7 @@ runs:
       shell: bash
 
     - name: Build release for production branch (conditional check)
-      if: github.ref == 'refs/heads/production'
+      if: inputs.env-name == 'prod'
       working-directory: frontend-react
       run: |
         echo "" >> .env.production
@@ -32,7 +37,7 @@ runs:
       shell: bash
 
     - name: Build release for staging branch (conditional check)
-      if: (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main')
+      if: inputs.env-name == 'staging'
       working-directory: frontend-react
       run: |
         echo "" >> .env.staging
@@ -41,7 +46,7 @@ runs:
       shell: bash
 
     - name: Build release for non-production branch (conditional check)
-      if: (!(github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/production'))
+      if: (!(inputs.env-name == 'staging' || inputs.env-name == 'prod'))
       working-directory: frontend-react
       run: |
         echo "" >> .env.staging
@@ -52,9 +57,14 @@ runs:
         yarn build:staging
       shell: bash
 
-    - name: Save Static Website
+    - name: Tar frontend files
+      shell: bash
+      working-directory: frontend-react
+      run: tar -czvf static-website-react.tar.gz build
+
+    - name: Upload frontend artifact
       uses: actions/upload-artifact@v2
       with:
-        name: static_website_react-${{ github.run_id }}
-        path: frontend-react/build
-        retention-days: 3
+        name: static-website-react-${{ inputs.version }}
+        path: frontend-react/static-website-react.tar.gz
+        retention-days: 1
