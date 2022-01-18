@@ -1,5 +1,7 @@
 import { Helmet } from "react-helmet";
+import DOMPurify from "dompurify";
 
+import site from "../../../content/site.json";
 import schema from "../../../content/getting_started_csv_upload.json";
 
 /* eslint-disable jsx-a11y/anchor-has-content */
@@ -27,18 +29,75 @@ export const CsvSchemaDocumentation = () => {
                     upload.
                 </p>
                 <p>
-                The ReportStream standard CSV schema is a blend of the Department of Health and Human Science's (HHS) <a href="https://www.hhs.gov/coronavirus/testing/covid-19-diagnostic-data-reporting/index.html" target="_blank" className="usa-link">requirements for COVID-19 test data</a> as well as those of numerous jurisdictions. This standard schema will be accepted by state, tribal, local, or territorial (STLT) health departments partnered with ReportStream. </p><p> 
-                <em>This documentation is related to <a href="/getting-started/testing-facilities/csv-upload-guide" className="usa-link">CSV upload</a>, a feature currently being piloted in
-                            select jurisdictions with organizations or
-                            facilities that have existing Electronic Medical
-                            Record (EMR) systems. Pilot partners are selected by recommendation from jurisdictions. Find out if your jurisdiction is partnered with ReportStream and contact us to learn more. </em>
-                    
+                    The ReportStream standard CSV schema is a blend of the
+                    Department of Health and Human Science's (HHS){" "}
+                    <a
+                        href="https://www.hhs.gov/coronavirus/testing/covid-19-diagnostic-data-reporting/index.html"
+                        target="_blank"
+                        rel="noreferrer noopener"
+                        className="usa-link"
+                    >
+                        requirements for COVID-19 test data
+                    </a>{" "}
+                    as well as those of numerous jurisdictions. This standard
+                    schema will be accepted by state, tribal, local, or
+                    territorial (STLT) health departments{" "}
+                    <a
+                        href="/how-it-works/where-were-live"
+                        className="usa-link"
+                    >
+                        partnered
+                    </a>{" "}
+                    with ReportStream.{" "}
                 </p>
+
+                <div className="usa-alert usa-alert--info margin-y-6">
+                    <div className="usa-alert__body">
+                        <h3 className="usa-alert__heading font-body-md margin-top-05">
+                            About CSV upload
+                        </h3>
+                        This documentation will help you prepare a file for{" "}
+                        <a
+                            href="/getting-started/testing-facilities/csv-upload-guide"
+                            className="usa-link"
+                        >
+                            CSV upload
+                        </a>
+                        . This feature is currently being piloted in select
+                        jurisdictions with organizations or facilities that have
+                        existing Electronic Medical Record (EMR) systems. Pilot
+                        partners are selected by recommendation from
+                        jurisdictions. Find out if your jurisdiction is{" "}
+                        <a
+                            href="/how-it-works/where-were-live"
+                            className="usa-link"
+                        >
+                            partnered
+                        </a>{" "}
+                        with ReportStream and{" "}
+                        <a
+                            href={
+                                "mailto:" +
+                                DOMPurify.sanitize(site.orgs.RS.email) +
+                                "?subject=Getting started with ReportStream"
+                            }
+                            className="usa-link"
+                        >
+                            contact us
+                        </a>{" "}
+                        to learn more.
+                    </div>
+                </div>
 
                 <p>
                     <strong>In this guide</strong>
                 </p>
                 <ul>
+                    <li>
+                        <a href="#formatting-guidelines" className="usa-link">
+                            General formatting guidelines
+                        </a>
+                    </li>
                     {schema.fields.map((field, fieldIndex) => {
                         return (
                             <div key={`toc-${fieldIndex}`} className="">
@@ -76,35 +135,53 @@ export const CsvSchemaDocumentation = () => {
                         </a>
                     </li>
                 </ul>
-                <div className="usa-alert usa-alert--info margin-y-6">
-                    <div className="usa-alert__body">
-                        <h3 className="usa-alert__heading font-body-md margin-top-05">
-                            Notes on formatting your CSV
-                        </h3>
-                        <p >
-                            <strong>Column headers and order</strong>
-                            <ul>
-                                <li>Column headers can can be placed in any order.</li>
-                                <li>Column headers must be included as specified in this documentation. </li>
-                            </ul>
-                            
-                        </p>
-                        <p> <strong>Required, requested, and optional fields</strong></p>
-                        <ul className="usa-alert__text">
-                            <li><strong>Required:</strong> Files <em>must</em>{" "}
-                            contain these column headers and values. If headers
-                            or fields are blank or contain incorrect values you
-                            will not be able to submit your file. Accepted
-                            values are outlined for each header and field below.</li>
-                            <li><strong>Requested:</strong> Fields are not required.
-                            If available, including this data is incredibly
-                            helpful to public health.</li>
-                            <li><strong>Optional:</strong> Fields are not required.</li>
-                        
-                        </ul>
-                        
-                    </div>
-                </div>
+            </section>
+
+            <section className="border-top-1px border-ink margin-top-9">
+                <h3
+                    id="formatting-guidelines"
+                    className="font-body-lg margin-y-1"
+                >
+                    General formatting guidelines
+                </h3>
+
+                <h4 className="margin-top-4">Column headers and order</h4>
+                <ul>
+                    <li>Column headers can can be placed in any order.</li>
+                    <li>
+                        Column headers must be included as specified in this
+                        documentation.{" "}
+                    </li>
+                </ul>
+
+                <h4>Required, requested, and optional fields</h4>
+
+                <p>
+                    <span className="text-normal bg-white border-1px border-secondary font-body-3xs padding-x-1 padding-y-05 text-secondary margin-right-1 text-middle">
+                        Required
+                    </span>
+                </p>
+                <p>
+                    Files <em>must</em> contain these column headers and values.
+                    If headers or fields are blank or contain incorrect values
+                    you will not be able to submit your file. Accepted values
+                    are outlined for each header and field below
+                </p>
+                <p>
+                    <span className="text-normal bg-white border-1px border-base font-body-3xs padding-x-1 padding-y-05 text-base margin-right-1 text-middle">
+                        Requested
+                    </span>
+                </p>
+                <p>
+                    Fields are not required. If available, including this data
+                    is incredibly helpful to public health.
+                </p>
+                <p>
+                    <span className="text-normal bg-white border-1px border-base font-body-3xs padding-x-1 padding-y-05 text-base margin-right-1 text-middle">
+                        Optional
+                    </span>
+                </p>
+                <p>Fields are not required.</p>
             </section>
 
             {schema.fields.map((field, fieldIndex) => {

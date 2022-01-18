@@ -1,4 +1,7 @@
 import { Helmet } from "react-helmet";
+import DOMPurify from "dompurify";
+
+import site from "../../../content/site.json";
 
 /* eslint-disable jsx-a11y/anchor-has-content */
 export const CsvUploadGuide = () => {
@@ -26,13 +29,46 @@ export const CsvUploadGuide = () => {
                     (CSV) file.
                 </p>
                 <p>
-                    Use a simple online tool to submit a CSV file with a <a href="/getting-started/testing-facilities/csv-schema" className="usa-link">standard schema</a>. Receive real-time validation and feedback
-                    on file format and field values before submission.</p>
-                    <p><em>This feature is currently being piloted in
-                            select jurisdictions with organizations or
-                            facilities that have existing Electronic Medical
-                            Record (EMR) systems. Pilot partners are selected by recommendation from jurisdictions. Find out if your jurisdiction is partnered with ReportStream and contact us to learn more. </em>
+                    Use a simple online tool to submit a CSV file with a{" "}
+                    <a
+                        href="/getting-started/testing-facilities/csv-schema"
+                        className="usa-link"
+                    >
+                        standard schema
+                    </a>
+                    . Receive real-time validation and feedback on file format
+                    and field values before submission.
                 </p>
+                <div className="usa-alert usa-alert--info margin-y-6">
+                    <div className="usa-alert__body">
+                        <h3 className="usa-alert__heading font-body-md margin-top-05">
+                            About CSV upload
+                        </h3>
+                        This feature is currently being piloted in select
+                        jurisdictions with organizations or facilities that have
+                        existing Electronic Medical Record (EMR) systems. Pilot
+                        partners are selected by recommendation from
+                        jurisdictions. Find out if your jurisdiction is{" "}
+                        <a
+                            href="/how-it-works/where-were-live"
+                            className="usa-link"
+                        >
+                            partnered
+                        </a>{" "}
+                        with ReportStream and{" "}
+                        <a
+                            href={
+                                "mailto:" +
+                                DOMPurify.sanitize(site.orgs.RS.email) +
+                                "?subject=Getting started with ReportStream"
+                            }
+                            className="usa-link"
+                        >
+                            contact us
+                        </a>{" "}
+                        to learn more.
+                    </div>
+                </div>
                 <p>
                     <strong>In this guide</strong>
                 </p>
@@ -58,11 +94,6 @@ export const CsvUploadGuide = () => {
                             className="usa-link"
                         >
                             ReportStream standard CSV with example data
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/getting-started/testing-facilities/csv-schema" className="usa-link">
-                            CSV schema documentation
                         </a>
                     </li>
                 </ul>
