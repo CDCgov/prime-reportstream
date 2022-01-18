@@ -1,10 +1,10 @@
 
-### Schema: manualupload/csvuploadertest-covid-19
+### Schema: manualupload/cadph-csvuploadertest-covid-19
 ### Topic: covid-19
 ### Tracking Element: (message_id)
 ### Base On: none
 ### Extends: [upload-covid-19](./upload-covid-19.md)
-#### Description: CSV Uploader Test
+#### Description: CA-DPH CSV Uploader Test
 
 ---
 
@@ -1020,7 +1020,7 @@ Translate multiple inbound values into the Pregnancy SNOMED Codes
 
 **Format**: use value found in the Code column
 
-**Default Value**: P
+**Default Value**: T
 
 **Cardinality**: [0..1]
 
@@ -1133,7 +1133,7 @@ Translate multiple inbound Y/N/U AOE values to RS values
 
 **PII**: No
 
-**Default Value**: csvuploadertest
+**Default Value**: cadph-csvuploadertest
 
 **Cardinality**: [1..1]
 
