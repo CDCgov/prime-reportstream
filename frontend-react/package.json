@@ -39,6 +39,7 @@
         "react-helmet": "^6.1.0",
         "react-idle-timer": "^4.6.4",
         "react-router-dom": "^5.2.0",
+        "react-toastify": "^8.1.0",
         "rest-hooks": "^6.1.7",
         "rimraf": "^3.0.2",
         "sass-loader": "^12.4.0",
