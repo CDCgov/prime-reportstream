@@ -65,11 +65,11 @@ object DocumentationFactory : Logging {
 
         // build the valuesets
         if (element.valueSetRef != null) {
-            appendValueSetTable(sb, "Value Sets", element.valueSetRef.values)
+            appendValueSetTable(sb, "Value Sets", element)
         }
 
         if (element.altValues?.isNotEmpty() == true) {
-            appendValueSetTable(sb, "Alt Value Sets", element.altValues)
+            appendValueSetTable(sb, "Alt Value Sets", element)
         }
 
         if (element.table?.isNotEmpty() == true) {
@@ -230,7 +230,29 @@ ${element.documentation}
         appendable.appendLine("")
     }
 
-    private fun appendValueSetTable(appendable: Appendable, label: String, values: Collection<ValueSet.Value>?) {
+    private fun appendValueSetTable(appendable: Appendable, label: String, element: Element) {
+        val system = element.valueSetRef?.system ?: ValueSet.SetSystem.NULLFL
+        val values: List<ValueSet.Value>?  = when(label) {
+            "Value Sets" -> element.valueSetRef?.values
+            "Alt Value Sets" -> element.altValues
+            else -> emptyList()
+        }
+
+        if (values?.isNotEmpty() == true) {
+
+            appendable.appendLine("**$label**\n")
+            appendable.appendLine("Code | Display | System")
+            appendable.appendLine("---- | ------- | ------")
+
+            values.forEach { vs ->
+                val code = if (vs.code == ">") "&#62;" else vs.code // This to solve the markdown blockquote '>'
+                appendable.appendLine("$code|${vs.display}|${vs.system ?: system}")
+            }
+            appendable.appendLine("")
+        }
+    }
+    /* TODO - out
+    private fun appendAltValueSetTable(appendable: Appendable, label: String, values: Collection<ValueSet.Value>?) {
         if (values?.isNotEmpty() == true) {
 
             appendable.appendLine("**$label**\n")
@@ -244,4 +266,5 @@ ${element.documentation}
             appendable.appendLine("")
         }
     }
+    */
 }
