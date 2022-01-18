@@ -33,9 +33,9 @@ const permissionCheck = (permission: string, authState: AuthState) => {
     }
 
     /* Right now, we're checking for a "DHSender" substring, not an exact match */
-    return authState.accessToken?.claims.organization.find((org: string) => {
-        org.includes(permission);
-    });
+    return authState.accessToken?.claims.organization.find((org: string) =>
+        org.includes(permission)
+    );
 };
 
 // A receiver is anyone with an organization that is not "DHSender", i.e.: "DHaz_phd"
