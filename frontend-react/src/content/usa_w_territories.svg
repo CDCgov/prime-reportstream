@@ -12,7 +12,7 @@
     /* Individual states and territories can be colored as follows: */
     .ak, /* Alaska */
     .al, /* Alabama */
-    .ar, /* Arkansas */
+    /* .ar, Arkansas */
     /* .as, American Samoa */
     .az, /* Arizona */
     .ca, /* California */
