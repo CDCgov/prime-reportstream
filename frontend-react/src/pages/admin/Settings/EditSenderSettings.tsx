@@ -29,10 +29,10 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
         const { fetch: fetchController } = useController();
         const saveData = async () => {
             switch (action) {
-                case 'edit':
+                case "edit":
                     try {
                         debugger;
-                        console.log('EDIT SETTING')
+                        console.log("EDIT SETTING");
                         const data = JSON.stringify(orgSenderSettings);
                         await fetchController(
                             OrgSenderSettingsResource.update(),
@@ -44,11 +44,9 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
                         return false;
                     }
                     break;
-                case 'delete':
+                case "delete":
                     try {
                         debugger;
-                        console.log('DELETE SETTING')
-                        const data = JSON.stringify(orgSenderSettings);
                         await fetchController(
                             OrgSenderSettingsResource.deleteSetting(),
                             { orgname, sendername: sendername }
@@ -58,11 +56,11 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
                         return false;
                     }
                     break;
-                case 'create':
-                    console.log('CREATE SETTING');
+                case "create":
+                    console.log("CREATE SETTING");
                     return false;
                     break;
-                    // TODO: implement create setting case
+                // TODO: implement create setting case
                 default:
                     return false;
             }

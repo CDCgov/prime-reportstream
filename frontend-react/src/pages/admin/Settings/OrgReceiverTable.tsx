@@ -38,7 +38,9 @@ export function OrgReceiverTable(props: OrgSettingsTableProps) {
                 </thead>
                 <tbody id="tBodyOrgReceiver" className="font-mono-2xs">
                     {orgReceiverSettings.map((eachOrgSetting, index) => (
-                        <tr key={`receiver-row-${eachOrgSetting.name}-${index}`}>
+                        <tr
+                            key={`receiver-row-${eachOrgSetting.name}-${index}`}
+                        >
                             <td>{eachOrgSetting.name}</td>
                             <td>{eachOrgSetting?.organizationName || "-"}</td>
                             <td>{eachOrgSetting.topic || ""}</td>
@@ -55,7 +57,7 @@ export function OrgReceiverTable(props: OrgSettingsTableProps) {
                             <td>
                                 <NavLink
                                     to={`/admin/orgreceiversettings/org/${eachOrgSetting.organizationName}/receiver/${eachOrgSetting.name}/action/edit`}
-                                       key={`receiver-link-${eachOrgSetting.name}-${index}`}
+                                    key={`receiver-link-${eachOrgSetting.name}-${index}`}
                                     className="usa-link"
                                 >
                                     edit

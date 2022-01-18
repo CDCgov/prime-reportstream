@@ -1,7 +1,10 @@
-import { useResource } from "rest-hooks";
+import { useController, useResource } from "rest-hooks";
 import { NavLink } from "react-router-dom";
+import { Button, ModalRef, ButtonGroup, Table } from "@trussworks/react-uswds";
+import { useRef, useState } from "react";
 
 import OrgSenderSettingsResource from "../../../resources/OrgSenderSettingsResource";
+import { ConfirmDeleteSettingModal } from "../../../components/Admin/AdminModal";
 
 interface OrgSettingsTableProps {
     orgname: string;
@@ -12,7 +15,21 @@ export function OrgSenderTable(props: OrgSettingsTableProps) {
         OrgSenderSettingsResource.list(),
         { orgname: props.orgname }
     );
-    // const { fetch: fetchController } = useController();
+    const { fetch: fetchController } = useController();
+    const [deleteItemId, SetDeleteItemId] = useState("");
+    const modalRef = useRef<ModalRef>(null);
+
+    const doDeleteSetting = () => {
+        debugger;
+        console.log(deleteItemId);
+        // delete deleteItemId;
+    };
+
+    const ShowDeleteConfirm = (itemId: string) => {
+        SetDeleteItemId(itemId);
+        modalRef?.current?.toggleModal(undefined, true);
+    };
+
     // function testUpdate(setting: OrgSenderSettingsResource) {
     //     setting.topic = "COVID-2023";
     //     const testData = JSON.stringify(setting);
@@ -23,14 +40,6 @@ export function OrgSenderTable(props: OrgSettingsTableProps) {
     //         testData
     //     );
     // }
-    // function testDelete(setting: OrgSenderSettingsResource) {
-    //     const testDeleteData = JSON.stringify(setting);
-    //     console.log(testDeleteData);
-    //     fetchController(OrgSenderSettingsResource.delete2(), {
-    //         orgname: setting.organizationName,
-    //         sendername: setting.name,
-    //     });
-    // }
 
     return (
         <section
@@ -38,10 +47,10 @@ export function OrgSenderTable(props: OrgSettingsTableProps) {
             className="grid-container margin-bottom-5"
         >
             <h2>Organization Sender Settings ({orgSenderSettings.length})</h2>
-            <table
-                id="orgsendersettingstable"
-                className="usa-table usa-table--borderless prime-table"
+            <Table
+                key="orgsendersettingstable"
                 aria-label="Organization Senders"
+                striped
             >
                 <thead>
                     <tr>
@@ -64,40 +73,37 @@ export function OrgSenderTable(props: OrgSettingsTableProps) {
                                 {JSON.stringify(eachOrgSetting?.meta) || {}}
                             </td>
                             <td>
-                                <NavLink
-                                    to={`/admin/orgsendersettings/org/${eachOrgSetting.organizationName}/sender/${eachOrgSetting.name}/action/edit`}
-                                    key={`sender-edit-link-${eachOrgSetting.name}-${index}`}
-                                    className="usa-link"
-                                >
-                                    edit
-                                </NavLink>
-                                {" "}
-                                <NavLink
-                                    to={`/admin/orgsendersettings/org/${eachOrgSetting.organizationName}/sender/${eachOrgSetting.name}/action/delete`}
-                                    key={`sender-delete-link-${eachOrgSetting.name}-${index}`}
-                                    className="usa-link"
-                                >
-                                    delete
-                                </NavLink>
-                                {/*<Button*/}
-                                {/*    type="button"*/}
-                                {/*    name="testUpdate"*/}
-                                {/*    onClick={(e) => testUpdate(eachOrgSetting)}*/}
-                                {/*>*/}
-                                {/*    UPDATE!*/}
-                                {/*</Button>*/}
-                                {/*<Button*/}
-                                {/*    type="button"*/}
-                                {/*    name="testDelete"*/}
-                                {/*    onClick={(e) => testDelete(eachOrgSetting)}*/}
-                                {/*>*/}
-                                {/*    delete*/}
-                                {/*</Button>*/}
+                                <ButtonGroup type="segmented">
+                                    <NavLink
+                                        className="usa-button"
+                                        to={`/admin/orgsendersettings/org/${eachOrgSetting.organizationName}/sender/${eachOrgSetting.name}/action/edit`}
+                                        key={`sender-edit-link-${eachOrgSetting.name}-${index}`}
+                                    >
+                                        Edit
+                                    </NavLink>
+                                    <Button
+                                        type={"button"}
+                                        onClick={() =>
+                                            ShowDeleteConfirm(
+                                                eachOrgSetting.name
+                                            )
+                                        }
+                                    >
+                                        Delete
+                                    </Button>
+                                </ButtonGroup>
                             </td>
                         </tr>
                     ))}
                 </tbody>
-            </table>
+            </Table>
+            <ConfirmDeleteSettingModal
+                uniquid={"deletesenderdata"}
+                onConfirm={doDeleteSetting}
+                modalRef={modalRef}
+            >
+                Delete
+            </ConfirmDeleteSettingModal>
         </section>
     );
 }

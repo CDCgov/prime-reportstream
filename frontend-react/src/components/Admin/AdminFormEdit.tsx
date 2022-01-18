@@ -5,7 +5,6 @@ import {
     Textarea,
     TextInput,
 } from "@trussworks/react-uswds";
-import React from "react";
 
 export const TextInputComponent = (params: {
     fieldname: string;
