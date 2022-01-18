@@ -32,7 +32,7 @@ runs:
     - name: Download Frontend Artifact (React)
       uses: actions/download-artifact@v2
       with:
-        name: static_website_react-${{ github.run_id }}
+        name: static-website-react-${{ github.run_id }}
         path: frontend-react/build
 
     - name: Upload Static Site (React)
