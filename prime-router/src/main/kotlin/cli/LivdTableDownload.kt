@@ -45,17 +45,16 @@ private const val sheetName = "LOINC Mapping"
  *
  * It looks for the LIVD-SAR-CoV-2-yyyy-MM-dd.xlsx file from $cdcLOINCTestCodeMappingPageUrl.  If the file is found,
  * it downloads the file into the ./build directory.  If not found, it will prompt error accordingly.  Next, it build
- * the output Lookup Table (<tableName.csv> file) with the table name specified by --output-file <path/filename>
- * option. If the --output-file is not specified, it will use the ./metadata/tables/$livdSARSCov2File-latest.csv as
- * the default output file.  Finally, it uses the output filename as the new lookup table name to update the
- * lookup tables in the database as the new version of the table.  It updates new version of the lookup table in
- * the given --env [local, test, staging, or prod] with the default to "local" environment.
+ * the output Lookup Table (<./build/LIVD-SARS-CoV-2.csv> file) with the table name.  Finally, it updates the
+ * LIVD-SARS-CoV-2 lookup tables in the database as the new version of the table.
+ * It updates new version of the lookup table in the given --env [local, test, staging, or prod] with the default
+ * to "local" environment.
  *
  * Note, this command will always create new version of the lookup table.
  *
  * Example:
- * The command below will download the latest LIVD-SARS-CoV-2-yyyy-MM-dd.xlsx file from the above UTL.
- * It will crate the LIVD-SARS-CoV-2-latest.csv file under the ./metadata/tables directory.
+ * The command below will download the latest LIVD mapping catalogue and create a new lookup tables as needed.
+ * It took "LIVD mapping catalogue" from the CDC website.
  *
  *  ./prime livd-table-download
  *
@@ -263,7 +262,7 @@ class LivdTableDownload() : CliktCommand(
         TermUi.echo("Creating $livdSARSCov2File table ...")
         val args: MutableList<String> = mutableListOf(
             "-e", environment.toString().lowercase(), "-n", livdSARSCov2File,
-            "-i", livdLookupTable.absolutePath, "-s"
+            "-i", livdLookupTable.absolutePath
         )
 
         try {
