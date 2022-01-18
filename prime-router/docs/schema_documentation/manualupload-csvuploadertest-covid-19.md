@@ -28,8 +28,6 @@
 
 **PII**: No
 
-**Format**: yyyyMMdd
-
 **Cardinality**: [1..1]
 
 ---
@@ -99,7 +97,7 @@ Translate multiple inbound Y/N/U AOE values to RS values
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
 
-**Table**: LIVD-SARS-CoV-2-2021-09-29
+**Table**: LIVD-SARS-CoV-2-latest
 
 **Table Column**: Model
 
@@ -278,11 +276,9 @@ Translate multiple inbound Y/N/U AOE values to RS values
 
 **ReportStream Internal Name**: order_test_date
 
-**Type**: DATETIME
+**Type**: DATE
 
 **PII**: No
-
-**Format**: yyyyMMdd
 
 **Cardinality**: [1..1]
 
@@ -652,8 +648,6 @@ The patient's city
 **Type**: DATE
 
 **PII**: Yes
-
-**Format**: yyyyMMdd
 
 **Cardinality**: [1..1]
 
@@ -1169,8 +1163,6 @@ ID name of org that is sending this data to ReportStream.  Suitable for provenan
 
 **PII**: No
 
-**Format**: yyyyMMdd
-
 **HL7 Fields**
 
 - [OBR-7](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.7)
@@ -1365,7 +1357,7 @@ Translate multiple inbound Y/N/U AOE values to RS values
 
 **Cardinality**: [1..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-09-29
+**Table**: LIVD-SARS-CoV-2-latest
 
 **Table Column**: Test Performed LOINC Code
 
@@ -1454,11 +1446,9 @@ Translate multiple inbound Test Result values to RS values
 
 **ReportStream Internal Name**: test_result_date
 
-**Type**: DATETIME
+**Type**: DATE
 
 **PII**: No
-
-**Format**: yyyyMMdd
 
 **Cardinality**: [1..1]
 
@@ -1585,8 +1575,6 @@ The phone number of the testing lab
 **Type**: DATETIME
 
 **PII**: No
-
-**Format**: yyyyMMdd
 
 **Cardinality**: [1..1]
 
