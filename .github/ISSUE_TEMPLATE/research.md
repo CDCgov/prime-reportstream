@@ -18,9 +18,9 @@ assignees: ''
 
 ## Background
 
-- [ ] Look into the the population or individual we're meeting with
+- [ ] Look into the the population/oranization/individual we're meeting with
 - [ ] Have we had previous contact/meetings/etc?
-- [ ] Desk research the organization/individual for and any relevant information. Can their documentation might address interview questions?
+- [ ] Desk research on the participant for any relevant information. Can their website/documentation/etc inform interview questions?
 
 [Any info on participants/session goals/etc to share ... ]
 
