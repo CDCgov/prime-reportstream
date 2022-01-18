@@ -232,7 +232,7 @@ ${element.documentation}
 
     private fun appendValueSetTable(appendable: Appendable, label: String, element: Element) {
         val system = element.valueSetRef?.system ?: ValueSet.SetSystem.NULLFL
-        val values: List<ValueSet.Value>?  = when(label) {
+        val values: List<ValueSet.Value>? = when (label) {
             "Value Sets" -> element.valueSetRef?.values
             "Alt Value Sets" -> element.altValues
             else -> emptyList()
@@ -251,20 +251,4 @@ ${element.documentation}
             appendable.appendLine("")
         }
     }
-    /* TODO - out
-    private fun appendAltValueSetTable(appendable: Appendable, label: String, values: Collection<ValueSet.Value>?) {
-        if (values?.isNotEmpty() == true) {
-
-            appendable.appendLine("**$label**\n")
-            appendable.appendLine("Code | Display")
-            appendable.appendLine("---- | -------")
-
-            values.forEach { vs ->
-                val code = if (vs.code == ">") "&#62;" else vs.code // This to solve the markdown blockquote '>'
-                appendable.appendLine("$code|${vs.display}")
-            }
-            appendable.appendLine("")
-        }
-    }
-    */
 }

@@ -239,8 +239,9 @@ Code | Display | System
         val valueSetA = ValueSet(
             "a",
             ValueSet.SetSystem.HL7,
-            values = listOf(ValueSet.Value(
-                ">","Above absolute high-off instrument scale",
+            values = listOf(
+                ValueSet.Value(
+                    ">", "Above absolute high-off instrument scale",
                     system = ValueSet.SetSystem.LOINC
                 )
             )
