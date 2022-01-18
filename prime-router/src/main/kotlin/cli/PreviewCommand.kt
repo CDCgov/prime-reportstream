@@ -25,8 +25,8 @@ import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.messages.PreviewMessage
+import gov.cdc.prime.router.messages.PreviewResponseMessage
 import gov.cdc.prime.router.messages.ReceiverMessage
-import gov.cdc.prime.router.messages.ReportFileMessage
 import gov.cdc.prime.router.messages.SenderMessage
 import java.nio.file.Files
 import java.nio.file.Path
@@ -130,15 +130,18 @@ class PreviewCommand : CliktCommand(
         try {
             val previewReport = getPreviewFile()
             saveReportFiles(previewReport)
+        } catch (e: PrintMessage) {
+            // PrintMessage is the standard way to exit a command
+            throw e
         } catch (e: Exception) {
-            abort("Exception Error: ${e.message}")
+            abort("CLI Internal Error: ${e.message}")
         }
     }
 
     /**
      * Call the sender-files api and retrieve a list of sender files.
      */
-    private fun getPreviewFile(): ReportFileMessage {
+    private fun getPreviewFile(): PreviewResponseMessage {
         // Setup
         val path = environment.value.formUrl("api/preview")
         val previewMessage = formPreviewBody()
@@ -151,18 +154,18 @@ class PreviewCommand : CliktCommand(
             .authentication()
             .bearer(accessToken.value)
             .header(Headers.CONTENT_TYPE to HttpUtilities.jsonMediaType)
-            .timeoutRead(CommandUtilities.API_TIMEOUT_MSECS)
+            .timeoutRead(CommandUtilities.API_TIMEOUT_MSECS * 10)
             .responseString()
 
         return result.map {
-            jsonMapper.readValue(it, ReportFileMessage::class.java)
+            jsonMapper.readValue(it, PreviewResponseMessage::class.java)
         }.getOrElse {
             abort(
                 """
                 Error calling the preview API
                 Status Code: ${response.statusCode}
                 Message: ${response.responseMessage}
-                Details: ${String(response.data)}
+                Details: ${String(response.body().toByteArray())}
                 """.trimIndent()
             )
         }
@@ -212,9 +215,9 @@ class PreviewCommand : CliktCommand(
     /**
      * Save a report file message
      */
-    private fun saveReportFiles(reportFile: ReportFileMessage) {
+    private fun saveReportFiles(previewResponse: PreviewResponseMessage) {
         createDirectory(Path(outDirectory))
-        saveFile(Path(outDirectory, reportFile.externalFileName), reportFile.content)
+        saveFile(Path(outDirectory, previewResponse.externalFileName), previewResponse.content)
     }
 
     /**
@@ -231,7 +234,7 @@ class PreviewCommand : CliktCommand(
      * Save a file at the [filePath] Path with [content]. Respect the [overwrite] flag.
      */
     private fun saveFile(filePath: Path, content: String) {
-        if (!overwrite && Files.exists(filePath)) error("${filePath.fileName} already exists")
+        if (!overwrite && Files.exists(filePath)) abort("${filePath.fileName} already exists")
         echo("Writing: $filePath")
         Files.writeString(filePath, content)
     }

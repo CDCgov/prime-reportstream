@@ -13,12 +13,13 @@ import gov.cdc.prime.router.ResultDetail
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.messages.PreviewErrorResponseMessage
 import gov.cdc.prime.router.messages.PreviewMessage
+import gov.cdc.prime.router.messages.PreviewResponseMessage
 import gov.cdc.prime.router.tokens.OktaAuthentication
 import org.apache.logging.log4j.kotlin.Logging
 
 class PreviewFunction(
     private val oktaAuthentication: OktaAuthentication = OktaAuthentication(PrincipalLevel.SYSTEM_ADMIN),
-    private val workflowEngine: WorkflowEngine
+    private val workflowEngine: WorkflowEngine = WorkflowEngine()
 ) : Logging {
     /**
      * The preview end-point does a translation of the input message to the output payload
@@ -86,7 +87,7 @@ class PreviewFunction(
         val warnings = mutableListOf<ResultDetail>()
         return readReport(parameters, warnings)
             .translate(parameters, warnings)
-            .serialize()
+            .serialize(parameters, warnings)
     }
 
     private fun readReport(parameters: FunctionParameters, warnings: MutableList<ResultDetail>): Report {
@@ -108,8 +109,15 @@ class PreviewFunction(
         ) ?: badRequest("Unable to translate the report. May not match filters", warnings = warnings)
     }
 
-    private fun Report.serialize(): String {
-        return String(workflowEngine.serializeReport(this))
+    private fun Report.serialize(parameters: FunctionParameters, warnings: List<ResultDetail>): String {
+        val content = String(workflowEngine.serializeReport(this))
+        val response = PreviewResponseMessage(
+            receiverName = parameters.receiver.fullName,
+            externalFileName = parameters.receiver.name,
+            content = content,
+            warnings = warnings
+        )
+        return mapper.writeValueAsString(response)
     }
 
     companion object {
