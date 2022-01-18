@@ -16,6 +16,7 @@ import {
     TextAreaComponent,
     TextInputComponent,
 } from "../../../components/Admin/AdminFormEdit";
+import { showAlertNotification, showError } from "../../../components/AlertNotifications";
 
 type Props = { orgname: string; receivername: string };
 
@@ -38,8 +39,12 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
                     { orgname, receivername },
                     data
                 );
+                showAlertNotification("success", "Receiver setting saved successfully");
             } catch (e) {
+                // @ts-ignore
+                showError(`Reciever Setting was NOT saved. Reason: '${e.toString()}'`);
                 console.trace(e);
+
             }
             return true;
         };
