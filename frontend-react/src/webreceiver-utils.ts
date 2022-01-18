@@ -31,7 +31,9 @@ const permissionCheck = (permission: string, authState: AuthState) => {
     if (permission === PERMISSIONS.RECEIVER) {
         return reportReceiver(authState);
     }
-    return authState.accessToken?.claims.organization.includes(permission);
+    return authState.accessToken?.claims.organization.find((org: string) => {
+        org.includes(permission)
+    });
 };
 
 // A receiver is anyone with an organization that is not "DHSender", i.e.: "DHaz_phd"
