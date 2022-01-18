@@ -29,7 +29,7 @@ runs:
 
     - name: Set Build Environment - STAGING
       id: build_staging
-      if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/josiahsiegel/#3775-deploy-frontend-efficiency'
+      if: github.ref == 'refs/heads/master'
       shell: bash
       run: echo "::set-output name=env_name::staging"
 

@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - production
-      - josiahsiegel/#3775-deploy-frontend-efficiency
 
 jobs:
   wf_vars:
@@ -80,7 +79,6 @@ jobs:
           name: static-website-react-${{ needs.wf_vars.outputs.version }}
           path: archives/
       - name: Create release
-        if: needs.wf_vars.outputs.version == 'prod'
         uses: ncipollo/release-action@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -98,7 +96,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Update release notes
-        if: needs.wf_vars.outputs.version == 'prod'
         uses: ncipollo/release-action@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}

@@ -7,7 +7,6 @@ on:
       - production
       - dev-rheft
       - ronheft/test-investigation
-      - josiahsiegel/#3775-deploy-frontend-efficiency
 
 defaults:
   run:
