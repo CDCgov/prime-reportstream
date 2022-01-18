@@ -204,7 +204,15 @@ class SettingsFacade(
                     Pair(AccessResult.SUCCESS, settingMetadata)
                 }
             }
-            val outputJson = mapper.writeValueAsString(resultMetadata)
+
+            val settingResult = mapper.readValue(setting.values.data(), clazz)
+            settingResult.meta = SettingMetadata(
+                resultMetadata.version,
+                resultMetadata.createdBy,
+                resultMetadata.createdAt
+            )
+
+            val outputJson = mapper.writeValueAsString(settingResult)
             Pair(accessResult, outputJson)
         }
     }

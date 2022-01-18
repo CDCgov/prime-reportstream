@@ -1,13 +1,25 @@
 # action.yml
 name: 'Push to ACR'
 description: 'Build and push to Azure Container Registry. Deploy to function app.'
+inputs:
+  dct-root-pass:
+    description: "Docker Content Trust root pass"
+    required: false
+  dct-repo-pass:
+    description: "Docker Content Trust repo pass"
+    required: false
+  env-name:
+    required: true
+  version:
+    description: "Version tag"
+    required: true
 
 runs:
   using: "composite"
   steps:
 
     - name: Set environment variables - dev
-      if: github.ref == 'refs/heads/dev-rheft'
+      if: inputs.env-name == 'dev'
       shell: bash
       run: |
         echo "RESOURCE_GROUP=prime-dev-rheft" >> $GITHUB_ENV
@@ -18,7 +30,7 @@ runs:
         echo "FUNCTION_APP=rkh5012-functionapp" >> $GITHUB_ENV
 
     - name: Set environment variables - test
-      if: github.ref == 'refs/heads/ronheft/test-investigation'
+      if: inputs.env-name == 'test'
       shell: bash
       run: |
         echo "RESOURCE_GROUP=prime-data-hub-test" >> $GITHUB_ENV
@@ -29,7 +41,7 @@ runs:
         echo "FUNCTION_APP=pdhtest-functionapp" >> $GITHUB_ENV
 
     - name: Set environment variables - staging
-      if: github.ref == 'refs/heads/master'
+      if: inputs.env-name == 'staging'
       shell: bash
       run: |
         echo "RESOURCE_GROUP=prime-data-hub-staging" >> $GITHUB_ENV
@@ -37,10 +49,12 @@ runs:
         echo "ACR_NAME=pdhstagingcontainerregistry.azurecr.io" >> $GITHUB_ENV
         echo "IMAGE_REPO=pdhstaging" >> $GITHUB_ENV
         echo "TAG=${{ github.sha }}" >> $GITHUB_ENV
+        #echo "KEY_VAULT=pdhstaging-keyvault" >> $GITHUB_ENV
+        #echo "KEY_NAME=pdhstaging-code-sign" >> $GITHUB_ENV
         echo "FUNCTION_APP=pdhstaging-functionapp" >> $GITHUB_ENV
 
     - name: Set environment variables - production
-      if: github.ref == 'refs/heads/production'
+      if: inputs.env-name == 'prod'
       shell: bash
       run: |
         echo "RESOURCE_GROUP=prime-data-hub-prod" >> $GITHUB_ENV
@@ -50,9 +64,14 @@ runs:
         echo "TAG=${{ github.sha }}" >> $GITHUB_ENV
         echo "FUNCTION_APP=pdhprod-functionapp" >> $GITHUB_ENV
 
+    - name: Use DCT if dependencies exist
+      if: env.KEY_VAULT && inputs.dct-root-pass && inputs.dct-repo-pass
+      shell: bash
+      run: echo "USE_DCT=true" >> $GITHUB_ENV
+
     - uses: actions/download-artifact@v2
       with:
-        name: prime-router-build-${{ github.run_id }}
+        name: prime-router-build-${{ inputs.version }}
         path: prime-router
 
     - name: Unpack router files
@@ -65,6 +84,60 @@ runs:
       run: az acr login --name ${{ env.ACR_NAME }}
       shell: bash
 
+    - uses: Azure/get-keyvault-secrets@v1
+      if: env.USE_DCT == 'true'
+      with:
+        keyvault: ${{ env.KEY_VAULT }}
+        secrets: ${{ env.KEY_NAME }}  # comma separated list of secret keys that need to be fetched from the Key Vault 
+      id: key-vault
+
+    - name: Create ssl key file
+      if: env.USE_DCT == 'true'
+      working-directory: prime-router
+      run: |
+        # Set key vault secret as private key file
+        echo "$SSL_KEY" > private.pem
+        chmod 600 private.pem
+        # Public key from private key
+        openssl rsa -in "private.pem" -pubout > "public.pem"
+      shell: bash
+      env:
+        SSL_KEY: ${{ steps.key-vault.outputs[env.KEY_NAME] }}
+    
+    - name: Confirm if runner is a signer
+      if: env.USE_DCT == 'true'
+      working-directory: prime-router
+      shell: bash
+      run: |
+        echo "DOCKER_CONTENT_TRUST_ROOT_PASSPHRASE=${{ inputs.dct-root-pass }}" >> $GITHUB_ENV
+        echo "DOCKER_CONTENT_TRUST_REPOSITORY_PASSPHRASE=${{ inputs.dct-repo-pass }}" >> $GITHUB_ENV
+        docker trust inspect --pretty "${{ env.ACR_NAME }}/${{ env.IMAGE_REPO }}"
+        SIGNERS=$(docker trust inspect "${{ env.ACR_NAME }}/${{ env.IMAGE_REPO }}" | jq '.[].Signers')
+        if [[ "$SIGNERS" != *${{ env.IMAGE_REPO }}* ]]; then
+          echo "NEEDS_SIGNER=true" >> $GITHUB_ENV
+        fi
+
+    - name: Add signer
+      if: env.NEEDS_SIGNER == 'true'
+      working-directory: prime-router
+      shell: bash
+      run: |
+        # Delegate signing using the public key
+        # Runs once if signer does not exist
+        docker trust signer add --key "public.pem" "${{ env.IMAGE_REPO }}" "${{ env.ACR_NAME }}/${{ env.IMAGE_REPO }}"
+
+    - name: Load the private key onto Docker trust store
+      if: env.USE_DCT == 'true'
+      working-directory: prime-router
+      run: |
+        docker trust key load --name "codesign" "private.pem"
+        GREEN='\033[0;32m'
+        PURPLE='\033[0;35m'
+        NC='\033[0m' # No Color
+        echo -e "Confirm \"${GREEN}Successfully imported key from private.pem${NC}\"" \
+        "\nIf successful, IGNORE  \"${PURPLE}failed to import key to store: ...${NC}\" (due to unused content within private key)"
+      shell: bash
+
     - name: Build Docker image
       working-directory: prime-router
       run: |
@@ -74,8 +147,30 @@ runs:
           --tag ${{ env.ACR_NAME }}/${{ env.IMAGE_REPO }}:${{ env.TAG }}
       shell: bash
 
-    - name: Push Docker image
-      run: docker push ${{ env.ACR_NAME }}/${{ env.IMAGE_REPO }} --all-tags
+    - name: Push Docker image (signed)
+      if: env.USE_DCT == 'true'
+      run: |
+        echo "DOCKER_CONTENT_TRUST=1" >> $GITHUB_ENV
+        docker push ${{ env.ACR_NAME }}/${{ env.IMAGE_REPO }}:latest --disable-content-trust=false
+        docker push ${{ env.ACR_NAME }}/${{ env.IMAGE_REPO }}:${{ env.TAG }} --disable-content-trust=false
+        GREEN='\033[0;32m'
+        echo -e "${GREEN}#############" \
+        "\n${GREEN}#" \
+        "\n${GREEN}#   SIGNED" \
+        "\n${GREEN}#" \
+        "\n${GREEN}#############"
+      shell: bash
+
+    - name: Push Docker image (unsigned)
+      if: env.USE_DCT != 'true'
+      run: |
+        docker push ${{ env.ACR_NAME }}/${{ env.IMAGE_REPO }} --all-tags
+        RED='\033[0;31m'
+        echo -e "${RED}#############" \
+        "\n${RED}#" \
+        "\n${RED}#  UNSIGNED" \
+        "\n${RED}#" \
+        "\n${RED}#############"
       shell: bash
 
     - name: Whitelist GitHub action runner in function app slot
