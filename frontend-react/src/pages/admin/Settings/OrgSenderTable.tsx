@@ -5,6 +5,7 @@ import { useRef, useState } from "react";
 
 import OrgSenderSettingsResource from "../../../resources/OrgSenderSettingsResource";
 import { ConfirmDeleteSettingModal } from "../../../components/Admin/AdminModal";
+import { showAlertNotification, showError, showNotification } from "../../../components/AlertNotifications";
 
 interface OrgSettingsTableProps {
     orgname: string;
@@ -20,9 +21,16 @@ export function OrgSenderTable(props: OrgSettingsTableProps) {
     const modalRef = useRef<ModalRef>(null);
 
     const doDeleteSetting = () => {
-        debugger;
-        console.log(deleteItemId);
-        // delete deleteItemId;
+        try {
+            debugger;
+            console.log(deleteItemId);
+            // delete deleteItemId;
+            showAlertNotification("success", `Item '${deleteItemId}' has been deleted`);
+        } catch (e) {
+            // @ts-ignore
+            showError(`Deleting item '${deleteItemId}' failed. ${e.toString()}`);
+        }
+
     };
 
     const ShowDeleteConfirm = (itemId: string) => {
