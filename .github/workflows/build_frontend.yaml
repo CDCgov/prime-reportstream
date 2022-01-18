@@ -15,9 +15,14 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       has_react_change: ${{ steps.skip_check.outputs.frontend_react }}
+      env_name: ${{ steps.build_vars.outputs.env_name }}
+      version: ${{ steps.build_vars.outputs.version }}
     steps:
       - name: "Check out changes"
         uses: actions/checkout@v2
+      - name: Build vars
+        id: build_vars
+        uses: ./.github/actions/build-vars
       - uses: dorny/paths-filter@v2
         id: skip_check
         with:
@@ -43,5 +48,7 @@ jobs:
       - name: Build frontend
         uses: ./.github/actions/build-frontend
         with:
+          env-name: ${{ needs.pre_job.outputs.env_name }}
           appinsights-staging-key: ${{ secrets.APPINSIGHTS_STAGING_KEY }}
           appinsights-prod-key: ${{ secrets.APPINSIGHTS_PROD_KEY }}
+          version: ${{ needs.pre_job.outputs.version }}
