@@ -26,7 +26,9 @@ export const ReportStreamHeader = () => {
 
     if (authState !== null && authState.isAuthenticated) {
         if (reportReceiver(authState)) {
-            itemsMenu.push(
+            itemsMenu.splice(
+                0,
+                0,
                 <NavLink
                     to="/daily-data"
                     key="daily"
@@ -40,7 +42,9 @@ export const ReportStreamHeader = () => {
         }
 
         if (permissionCheck(PERMISSIONS.SENDER, authState)) {
-            itemsMenu.push(
+            itemsMenu.splice(
+                1,
+                0,
                 <NavLink
                     to="/upload"
                     key="upload"
@@ -53,8 +57,13 @@ export const ReportStreamHeader = () => {
             );
         }
 
-        if (permissionCheck(PERMISSIONS.PRIME_ADMIN, authState)) {
-            itemsMenu.push(
+        if (
+            permissionCheck(PERMISSIONS.SENDER, authState) ||
+            permissionCheck(PERMISSIONS.PRIME_ADMIN, authState)
+        ) {
+            itemsMenu.splice(
+                1,
+                0,
                 <NavLink
                     to="/submissions"
                     key="submissions"
