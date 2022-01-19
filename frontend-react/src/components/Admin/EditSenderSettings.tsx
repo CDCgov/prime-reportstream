@@ -24,7 +24,7 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
         );
 
         const { fetch: fetchController } = useController();
-        const saveData = async () => {
+        const saveSenderData = async () => {
             switch (action) {
                 case "edit":
                     try {
@@ -135,7 +135,7 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
                         form="edit-setting"
                         type="submit"
                         data-testid="submit"
-                        onClick={() => saveData()}
+                        onClick={() => saveSenderData()}
                     >
                         Save
                     </Button>
@@ -151,7 +151,7 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
             <Suspense
                 fallback={
                     <span className="text-normal text-base">
-                        Loading Info...
+                        Loading Sender Settings Info...
                     </span>
                 }
             >
