@@ -31,8 +31,10 @@ const permissionCheck = (permission: string, authState: AuthState) => {
     if (permission === PERMISSIONS.RECEIVER) {
         return reportReceiver(authState);
     }
-    return authState.accessToken?.claims.organization.find((o: string) =>
-        o.includes(permission)
+
+    /* Right now, we're checking for a "DHSender" substring, not an exact match */
+    return authState.accessToken?.claims.organization.find((org: string) =>
+        org.includes(permission)
     );
 };
 

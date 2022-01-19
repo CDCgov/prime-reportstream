@@ -28,8 +28,6 @@
 
 **PII**: No
 
-**Format**: yyyyMMdd
-
 **Cardinality**: [1..1]
 
 ---
@@ -278,11 +276,9 @@ Translate multiple inbound Y/N/U AOE values to RS values
 
 **ReportStream Internal Name**: order_test_date
 
-**Type**: DATETIME
+**Type**: DATE
 
 **PII**: No
-
-**Format**: yyyyMMdd
 
 **Cardinality**: [1..1]
 
@@ -652,8 +648,6 @@ The patient's city
 **Type**: DATE
 
 **PII**: Yes
-
-**Format**: yyyyMMdd
 
 **Cardinality**: [1..1]
 
@@ -1131,24 +1125,6 @@ Translate multiple inbound Y/N/U AOE values to RS values
 
 ---
 
-**Name**: sender_id
-
-**ReportStream Internal Name**: sender_id
-
-**Type**: TEXT
-
-**PII**: No
-
-**Default Value**: csvuploadertest
-
-**Cardinality**: [1..1]
-
-**Documentation**:
-
-ID name of org that is sending this data to ReportStream.  Suitable for provenance or chain of custody tracking.  Not to be confused with sending_application, in which ReportStream acts as the 'sender' to the downstream jurisdiction.
-
----
-
 **Name**: specimen_collection_date
 
 **ReportStream Internal Name**: specimen_collection_date_temp
@@ -1168,8 +1144,6 @@ ID name of org that is sending this data to ReportStream.  Suitable for provenan
 **Type**: DATETIME
 
 **PII**: No
-
-**Format**: yyyyMMdd
 
 **HL7 Fields**
 
@@ -1454,11 +1428,9 @@ Translate multiple inbound Test Result values to RS values
 
 **ReportStream Internal Name**: test_result_date
 
-**Type**: DATETIME
+**Type**: DATE
 
 **PII**: No
-
-**Format**: yyyyMMdd
 
 **Cardinality**: [1..1]
 
@@ -1585,8 +1557,6 @@ The phone number of the testing lab
 **Type**: DATETIME
 
 **PII**: No
-
-**Format**: yyyyMMdd
 
 **Cardinality**: [1..1]
 
@@ -1770,6 +1740,24 @@ The FIPS code for the patient's county
 **Documentation**:
 
 The ID number of the lab order from the placer
+
+---
+
+**Name**: sender_id
+
+**ReportStream Internal Name**: sender_id
+
+**Type**: TEXT
+
+**PII**: No
+
+**Default Value**: csvuploadertest
+
+**Cardinality**: [1..1]
+
+**Documentation**:
+
+ID name of org that is sending this data to ReportStream.  Suitable for provenance or chain of custody tracking.  Not to be confused with sending_application, in which ReportStream acts as the 'sender' to the downstream jurisdiction.
 
 ---
 
