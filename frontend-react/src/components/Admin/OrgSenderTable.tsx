@@ -33,7 +33,6 @@ export function OrgSenderTable(props: OrgSettingsTableProps) {
                 (item) => item.name === deleteItemId
             );
             if (index >= 0) {
-                // delete orgSenderSettings[index];
                 orgSenderSettings.splice(index, 1);
             }
             showAlertNotification(

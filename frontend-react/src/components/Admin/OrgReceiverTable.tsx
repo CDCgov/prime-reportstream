@@ -36,7 +36,6 @@ export function OrgReceiverTable(props: OrgSettingsTableProps) {
                 (item) => item.name === deleteItemId
             );
             if (index >= 0) {
-                // delete orgReceiverSettings[index];
                 orgReceiverSettings.splice(index, 1);
             }
             showAlertNotification(
