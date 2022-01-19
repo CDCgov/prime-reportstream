@@ -1,20 +1,11 @@
 import React, { Suspense } from "react";
-import {
-    Form,
-    FormGroup,
-    Button,
-    GridContainer,
-    Grid,
-} from "@trussworks/react-uswds";
+import { Button, GridContainer, Grid } from "@trussworks/react-uswds";
 import { useResource, NetworkErrorBoundary, useController } from "rest-hooks";
 import { RouteComponentProps, useHistory } from "react-router-dom";
 
 import { ErrorPage } from "../../pages/error/ErrorPage";
 import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource";
-import {
-    showAlertNotification,
-    showError,
-} from "../AlertNotifications";
+import { showAlertNotification, showError } from "../AlertNotifications";
 
 import { TextInputComponent } from "./AdminFormEdit";
 
@@ -49,10 +40,12 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
                             `Item '${sendername}' has been updated`
                         );
                         history.goBack();
-                    } catch (e) {
+                    } catch (e: any) {
                         console.trace(e);
-                        // @ts-ignore
-                        showError(`Updating item '${sendername}' failed. ${e.toString()}`);
+
+                        showError(
+                            `Updating item '${sendername}' failed. ${e.toString()}`
+                        );
                         return false;
                     }
                     break;
@@ -69,10 +62,14 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
                             `Item '${orgSenderSettings.name}' has been created`
                         );
                         history.goBack();
-                    } catch (e) {
+                    } catch (e: any) {
                         console.trace(e);
-                        // @ts-ignore
-                        showError(`Cloning item '${orgSenderSettings.name}' failed. ${e.toString()}`);
+
+                        showError(
+                            `Cloning item '${
+                                orgSenderSettings.name
+                            }' failed. ${e.toString()}`
+                        );
                         return false;
                     }
                     break;
@@ -85,74 +82,64 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
 
         return (
             <GridContainer>
-                <Form name="edit-setting" onSubmit={() => saveData()}>
-                    <FormGroup>
-                        <Grid row>
-                            <Grid col="fill">
-                                Org name:{" "}
-                                {match?.params?.orgname ||
-                                    "missing param 'orgname'"}
-                                <br />
-                                Sender name:{" "}
-                                {match?.params?.sendername ||
-                                    "missing param 'sendername'"}
-                                <br />
-                                <br />
-                            </Grid>
-                        </Grid>
-                        <TextInputComponent
-                            fieldname={"name"}
-                            label={"Name"}
-                            defaultvalue={
-                                action === "edit" ? orgSenderSettings.name : ""
-                            }
-                            savefunc={(v) => (orgSenderSettings.name = v)}
-                            disabled={action === "edit"}
-                        />
-                        <TextInputComponent
-                            fieldname={"format"}
-                            label={"Format"}
-                            defaultvalue={orgSenderSettings.format}
-                            savefunc={(v) => (orgSenderSettings.format = v)}
-                        />
-                        <TextInputComponent
-                            fieldname={"topic"}
-                            label={"Topic"}
-                            defaultvalue={orgSenderSettings.topic}
-                            savefunc={(v) => (orgSenderSettings.topic = v)}
-                        />
-                        <TextInputComponent
-                            fieldname={"customerStatus"}
-                            label={"Customer Status"}
-                            defaultvalue={orgSenderSettings.customerStatus}
-                            savefunc={(v) =>
-                                (orgSenderSettings.customerStatus = v)
-                            }
-                        />
-                        <TextInputComponent
-                            fieldname={"schemaName"}
-                            label={"Schema Name"}
-                            defaultvalue={orgSenderSettings.schemaName}
-                            savefunc={(v) => (orgSenderSettings.schemaName = v)}
-                        />
-                        <Grid row>
-                            <Button
-                                type="button"
-                                onClick={() => history.goBack()}
-                            >
-                                Cancel
-                            </Button>
-                            <Button
-                                form="edit-setting"
-                                type="submit"
-                                data-testid="submit"
-                                onClick={() => saveData()}
-                            >
-                                Save
-                            </Button>
-                        </Grid>
-                    </FormGroup>
-                </Form>
+                <Grid row>
+                    <Grid col="fill">
+                        Org name:{" "}
+                        {match?.params?.orgname || "missing param 'orgname'"}
+                        <br />
+                        Sender name:{" "}
+                        {match?.params?.sendername ||
+                            "missing param 'sendername'"}
+                        <br />
+                        <br />
+                    </Grid>
+                </Grid>
+                <TextInputComponent
+                    fieldname={"name"}
+                    label={"Name"}
+                    defaultvalue={
+                        action === "edit" ? orgSenderSettings.name : ""
+                    }
+                    savefunc={(v) => (orgSenderSettings.name = v)}
+                    disabled={action === "edit"}
+                />
+                <TextInputComponent
+                    fieldname={"format"}
+                    label={"Format"}
+                    defaultvalue={orgSenderSettings.format}
+                    savefunc={(v) => (orgSenderSettings.format = v)}
+                />
+                <TextInputComponent
+                    fieldname={"topic"}
+                    label={"Topic"}
+                    defaultvalue={orgSenderSettings.topic}
+                    savefunc={(v) => (orgSenderSettings.topic = v)}
+                />
+                <TextInputComponent
+                    fieldname={"customerStatus"}
+                    label={"Customer Status"}
+                    defaultvalue={orgSenderSettings.customerStatus}
+                    savefunc={(v) => (orgSenderSettings.customerStatus = v)}
+                />
+                <TextInputComponent
+                    fieldname={"schemaName"}
+                    label={"Schema Name"}
+                    defaultvalue={orgSenderSettings.schemaName}
+                    savefunc={(v) => (orgSenderSettings.schemaName = v)}
+                />
+                <Grid row>
+                    <Button type="button" onClick={() => history.goBack()}>
+                        Cancel
+                    </Button>
+                    <Button
+                        form="edit-setting"
+                        type="submit"
+                        data-testid="submit"
+                        onClick={() => saveData()}
+                    >
+                        Save
+                    </Button>
+                </Grid>
             </GridContainer>
         );
     };

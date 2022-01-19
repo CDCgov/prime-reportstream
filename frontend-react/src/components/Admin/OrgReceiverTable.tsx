@@ -4,10 +4,7 @@ import { Button, ModalRef, ButtonGroup, Table } from "@trussworks/react-uswds";
 import { useRef, useState } from "react";
 
 import OrgReceiverSettingsResource from "../../resources/OrgReceiverSettingsResource";
-import {
-    showAlertNotification,
-    showError,
-} from "../AlertNotifications";
+import { showAlertNotification, showError } from "../AlertNotifications";
 
 import { ConfirmDeleteSettingModal } from "./AdminModal";
 
@@ -29,7 +26,6 @@ export function OrgReceiverTable(props: OrgSettingsTableProps) {
     };
     const doDeleteSetting = async () => {
         try {
-            debugger;
             await fetchController(OrgReceiverSettingsResource.deleteSetting(), {
                 orgname: props.orgname,
                 receivername: deleteItemId,
@@ -48,15 +44,15 @@ export function OrgReceiverTable(props: OrgSettingsTableProps) {
                 `Item '${deleteItemId}' has been deleted`
             );
             return true;
-        } catch (e) {
+        } catch (e: any) {
             console.trace(e);
-            // @ts-ignore
-            showError(`Deleting item '${deleteItemId}' failed. ${e.toString()}`);
+            showError(
+                `Deleting item '${deleteItemId}' failed. ${e.toString()}`
+            );
             return false;
         }
     };
 
-    // @ts-ignore
     return (
         <section
             id="orgreceiversettings"
@@ -69,6 +65,7 @@ export function OrgReceiverTable(props: OrgSettingsTableProps) {
                 key="orgreceiversettingstable"
                 aria-label="Organization Receivers"
                 striped
+                fullWidth
             >
                 <thead>
                     <tr>

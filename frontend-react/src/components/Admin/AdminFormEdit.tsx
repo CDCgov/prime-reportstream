@@ -16,10 +16,10 @@ export const TextInputComponent = (params: {
     const key = params.fieldname;
     return (
         <Grid row>
-            <Grid col="fill">
+            <Grid col={3}>
                 <Label htmlFor={params.fieldname}>{params.label}:</Label>
             </Grid>
-            <Grid col="fill">
+            <Grid col={9}>
                 <TextInput
                     id={key}
                     name={key}
@@ -41,14 +41,18 @@ export const TextAreaComponent = (params: {
     defaultvalue: object;
     savefunc: (val: object) => void;
 }): JSX.Element => {
-    const defaultValue = JSON.stringify(params.defaultvalue);
+    let defaultValue = JSON.stringify(params?.defaultvalue, undefined, 2);
+    if (defaultValue === "null") {
+        defaultValue = "";
+    }
+
     const key = params.fieldname;
     return (
         <Grid row>
-            <Grid col="fill">
+            <Grid col={3}>
                 <Label htmlFor={params.fieldname}>{params.label}:</Label>
             </Grid>
-            <Grid col="fill">
+            <Grid col={9}>
                 <Textarea
                     id={key}
                     name={key}
@@ -73,10 +77,10 @@ export const CheckboxComponent = (params: {
     const key = params.fieldname;
     return (
         <Grid row>
-            <Grid col="fill">
+            <Grid col={3}>
                 <Label htmlFor={params.fieldname}>{params.label}:</Label>
             </Grid>
-            <Grid col="fill">
+            <Grid col={9}>
                 <Checkbox
                     id={key}
                     name={key}

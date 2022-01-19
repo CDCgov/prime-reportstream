@@ -4,10 +4,7 @@ import { Button, ModalRef, ButtonGroup, Table } from "@trussworks/react-uswds";
 import { useRef, useState } from "react";
 
 import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource";
-import {
-    showAlertNotification,
-    showError,
-} from "../AlertNotifications";
+import { showAlertNotification, showError } from "../AlertNotifications";
 
 import { ConfirmDeleteSettingModal } from "./AdminModal";
 
@@ -26,7 +23,6 @@ export function OrgSenderTable(props: OrgSettingsTableProps) {
 
     const doDeleteSetting = async () => {
         try {
-            debugger;
             await fetchController(OrgSenderSettingsResource.deleteSetting(), {
                 orgname: props.orgname,
                 sendername: deleteItemId,
@@ -45,10 +41,11 @@ export function OrgSenderTable(props: OrgSettingsTableProps) {
                 `Item '${deleteItemId}' has been deleted`
             );
             return true;
-        } catch (e) {
+        } catch (e: any) {
             console.trace(e);
-            // @ts-ignore
-            showError(`Deleting item '${deleteItemId}' failed. ${e.toString()}`);
+            showError(
+                `Deleting item '${deleteItemId}' failed. ${e.toString()}`
+            );
             return false;
         }
     };
@@ -58,7 +55,6 @@ export function OrgSenderTable(props: OrgSettingsTableProps) {
         modalRef?.current?.toggleModal(undefined, true);
     };
 
-    // @ts-ignore
     return (
         <section
             id="orgsendersettings"
@@ -69,6 +65,7 @@ export function OrgSenderTable(props: OrgSettingsTableProps) {
                 key="orgsendersettingstable"
                 aria-label="Organization Senders"
                 striped
+                fullWidth
             >
                 <thead>
                     <tr>
