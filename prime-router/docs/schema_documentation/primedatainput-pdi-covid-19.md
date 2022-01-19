@@ -1636,6 +1636,18 @@ Is the patient symptomatic?
 
 ---
 
+**Name**: Test_correction_reason
+
+**ReportStream Internal Name**: test_correction_reason
+
+**Type**: TEXT
+
+**PII**: Yes
+
+**Cardinality**: [0..1]
+
+---
+
 **Name**: Ordered_test_code
 
 **ReportStream Internal Name**: test_performed_code
