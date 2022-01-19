@@ -24,7 +24,6 @@ export const Upload = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [fileInputResetValue, setFileInputResetValue] = useState(0);
     const [fileContent, setFileContent] = useState("");
-    const [warnings, setWarnings] = useState([]);
     const [errors, setErrors] = useState([]);
     const [destinations, setDestinations] = useState("");
     const [reportId, setReportId] = useState(null);
@@ -114,7 +113,6 @@ export const Upload = () => {
         setIsSubmitting(true);
         setReportId(null);
         setSuccessTimestamp("");
-        setWarnings([]);
         setErrors([]);
         setDestinations("");
 
@@ -154,10 +152,6 @@ export const Upload = () => {
 
             if (response?.errors?.length > 0) {
                 setErrors(response.errors);
-            }
-
-            if (response?.warnings?.length > 0) {
-                setWarnings(response.warnings);
             }
 
             setHeaderMessage("Your COVID-19 Results");
@@ -290,46 +284,6 @@ export const Upload = () => {
                 </div>
             )}
 
-            {warnings.length > 0 && (
-                <div>
-                    <div className="usa-alert usa-alert--warning">
-                        <div className="usa-alert__body">
-                            <h4 className="usa-alert__heading">
-                                Alert: Unusable Fields Detected
-                            </h4>
-                            <p className="usa-alert__text">
-                                {errors.length <= 0 && (
-                                    <span>
-                                        Your file has been accepted with
-                                        warnings.
-                                    </span>
-                                )}
-                                There were fields detected that are unusable for
-                                public health action. Enter valid information
-                                for future submissions.
-                            </p>
-                        </div>
-                    </div>
-                    <table className="usa-table usa-table--borderless">
-                        <thead>
-                            <tr>
-                                <th>Requested Edit</th>
-                                <th>Areas Containing the Requested Edit</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {warnings.map((e, i) => {
-                                return (
-                                    <tr key={"warning_" + i}>
-                                        <td>{e["message"]}</td>
-                                        <td>{e["rows"]}</td>
-                                    </tr>
-                                );
-                            })}
-                        </tbody>
-                    </table>
-                </div>
-            )}
             <Form onSubmit={(e) => handleSubmit(e)}>
                 <FormGroup className="margin-bottom-3">
                     <Label
