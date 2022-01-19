@@ -52,9 +52,7 @@ runs:
     - name: Set tag automatically
       id: version_result
       shell: bash
-      run: |
-        echo "::set-output name=version::v-2022.01.13-152653"
-        #echo "::set-output name=version::v-$(date +%Y.%m.%d-%H%M%S)"
+      run: echo "::set-output name=version::v-$(date +%Y.%m.%d-%H%M%S)"
 
     - uses: dorny/paths-filter@v2
       id: backend_check
