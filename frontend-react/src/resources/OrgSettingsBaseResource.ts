@@ -16,4 +16,22 @@ export default abstract class OrgSettingsBaseResource extends AuthResource {
     pk() {
         return this.name;
     }
+
+    // we had to build our own override for delete() because the api was not returning
+    // the full response expected by react. Once that api change is made, there should
+    // be no need for this method and delete() should be used.
+    static deleteSetting() {
+        const endpoint = this.endpointMutate();
+        return this.memo("#delete", () =>
+            endpoint.extend({
+                fetch(params) {
+                    // @ts-ignore
+                    return endpoint.fetch.call(this, params).then(() => params);
+                },
+
+                method: "DELETE",
+                schema: null,
+            })
+        );
+    }
 }

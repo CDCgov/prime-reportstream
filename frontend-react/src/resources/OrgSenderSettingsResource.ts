@@ -24,19 +24,4 @@ export default class OrgSenderSettingsResource extends OrgSettingsBaseResource {
     static url(params: { orgname: string; sendername: string }): string {
         return `${process.env.REACT_APP_BACKEND_URL}/api/settings/organizations/${params.orgname}/senders/${params.sendername}`;
     }
-
-    static deleteSetting() {
-        const endpoint = this.endpointMutate();
-        return this.memo("#delete", () =>
-            endpoint.extend({
-                fetch(params) {
-                    // @ts-ignore
-                    return endpoint.fetch.call(this, params).then(() => params);
-                },
-
-                method: "DELETE",
-                schema: null,
-            })
-        );
-    }
 }

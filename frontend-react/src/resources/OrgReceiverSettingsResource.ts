@@ -32,19 +32,4 @@ export default class OrgReceiverSettingsResource extends OrgSettingsBaseResource
     static url(params: { orgname: string; receivername: string }): string {
         return `${process.env.REACT_APP_BACKEND_URL}/api/settings/organizations/${params.orgname}/receivers/${params.receivername}`;
     }
-
-    static deleteSetting() {
-        const endpoint = this.endpointMutate();
-        return this.memo("#delete", () =>
-            endpoint.extend({
-                fetch(params) {
-                    // @ts-ignore
-                    return endpoint.fetch.call(this, params).then(() => params);
-                },
-
-                method: "DELETE",
-                schema: null,
-            })
-        );
-    }
 }
