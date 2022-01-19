@@ -15,17 +15,11 @@ export const showNotification = (children: JSX.Element) => {
 };
 
 export const showAlertNotification = (
-    type: 'success' | 'warning' | 'error' | 'info',
+    type: "success" | "warning" | "error" | "info",
     title?: React.ReactNode | string,
     message?: React.ReactNode | string
 ) => {
-    showNotification(
-        <Alert
-            type={type}
-            heading={title}
-            children={message}
-        />
-    );
+    showNotification(<Alert type={type} heading={title} children={message} />);
 };
 
 export const showError = (

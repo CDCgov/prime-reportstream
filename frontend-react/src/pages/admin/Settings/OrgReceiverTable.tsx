@@ -1,7 +1,14 @@
-import { useResource } from "rest-hooks";
+import { useController, useResource } from "rest-hooks";
 import { NavLink } from "react-router-dom";
+import { Button, ModalRef, ButtonGroup, Table } from "@trussworks/react-uswds";
+import { useRef, useState } from "react";
 
 import OrgReceiverSettingsResource from "../../../resources/OrgReceiverSettingsResource";
+import {
+    showAlertNotification,
+    showError,
+} from "../../../components/AlertNotifications";
+import { ConfirmDeleteSettingModal } from "../../../components/Admin/AdminModal";
 
 interface OrgSettingsTableProps {
     orgname: string;
@@ -12,7 +19,45 @@ export function OrgReceiverTable(props: OrgSettingsTableProps) {
         OrgReceiverSettingsResource.list(),
         { orgname: props.orgname }
     );
+    const { fetch: fetchController } = useController();
+    const [deleteItemId, SetDeleteItemId] = useState("");
+    const modalRef = useRef<ModalRef>(null);
+    const ShowDeleteConfirm = (itemId: string) => {
+        SetDeleteItemId(itemId);
+        modalRef?.current?.toggleModal(undefined, true);
+    };
+    const doDeleteSetting = async () => {
+        try {
+            debugger;
+            await fetchController(OrgReceiverSettingsResource.deleteSetting(), {
+                orgname: props.orgname,
+                receivername: deleteItemId,
+            });
 
+            // instead of refetching, just remove from list
+            const index = orgReceiverSettings.findIndex(
+                (item) => item.name === deleteItemId
+            );
+            if (index >= 0) {
+                // delete orgReceiverSettings[index];
+                orgReceiverSettings.splice(index, 1);
+            }
+            showAlertNotification(
+                "success",
+                `Item '${deleteItemId}' has been deleted`
+            );
+            return true;
+        } catch (e) {
+            console.trace(e);
+            // @ts-ignore
+            showError(
+                `Deleting item '${deleteItemId}' failed. ${e.toString()}`
+            );
+            return false;
+        }
+    };
+
+    // @ts-ignore
     return (
         <section
             id="orgreceiversettings"
@@ -21,10 +66,10 @@ export function OrgReceiverTable(props: OrgSettingsTableProps) {
             <h2>
                 Organization Receiver Settings ({orgReceiverSettings.length})
             </h2>
-            <table
-                id="orgreceiversettingstable"
-                className="usa-table usa-table--borderless prime-table"
+            <Table
+                key="orgreceiversettingstable"
                 aria-label="Organization Receivers"
+                striped
             >
                 <thead>
                     <tr>
@@ -46,27 +91,47 @@ export function OrgReceiverTable(props: OrgSettingsTableProps) {
                             <td>{eachOrgSetting.topic || ""}</td>
                             <td>{eachOrgSetting.customerStatus || ""}</td>
                             <td>
-                                <code>
-                                    {JSON.stringify(
-                                        eachOrgSetting?.meta,
-                                        null,
-                                        "\n\t"
-                                    ) || {}}
-                                </code>
+                                {JSON.stringify(eachOrgSetting?.meta) || {}}
                             </td>
                             <td>
-                                <NavLink
-                                    to={`/admin/orgreceiversettings/org/${eachOrgSetting.organizationName}/receiver/${eachOrgSetting.name}/action/edit`}
-                                    key={`receiver-link-${eachOrgSetting.name}-${index}`}
-                                    className="usa-link"
-                                >
-                                    edit
-                                </NavLink>
+                                <ButtonGroup type="segmented">
+                                    <NavLink
+                                        className="usa-button"
+                                        to={`/admin/orgreceiversettings/org/${eachOrgSetting.organizationName}/receiver/${eachOrgSetting.name}/action/edit`}
+                                        key={`receiver-edit-link-${eachOrgSetting.name}-${index}`}
+                                    >
+                                        Edit
+                                    </NavLink>
+                                    <NavLink
+                                        className="usa-button"
+                                        to={`/admin/orgreceiversettings/org/${eachOrgSetting.organizationName}/receiver/${eachOrgSetting.name}/action/clone`}
+                                        key={`receiver-clone-link-${eachOrgSetting.name}-${index}`}
+                                    >
+                                        Clone
+                                    </NavLink>
+                                    <Button
+                                        type={"button"}
+                                        onClick={() =>
+                                            ShowDeleteConfirm(
+                                                eachOrgSetting.name
+                                            )
+                                        }
+                                    >
+                                        Delete
+                                    </Button>
+                                </ButtonGroup>
                             </td>
                         </tr>
                     ))}
                 </tbody>
-            </table>
+            </Table>
+            <ConfirmDeleteSettingModal
+                uniquid={"deletereceiverdata"}
+                onConfirm={doDeleteSetting}
+                modalRef={modalRef}
+            >
+                Delete
+            </ConfirmDeleteSettingModal>
         </section>
     );
 }

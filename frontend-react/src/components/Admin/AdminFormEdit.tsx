@@ -11,6 +11,7 @@ export const TextInputComponent = (params: {
     label: string;
     defaultvalue: string;
     savefunc: (val: string) => void;
+    disabled?: boolean;
 }): JSX.Element => {
     const key = params.fieldname;
     return (
@@ -27,6 +28,7 @@ export const TextInputComponent = (params: {
                     data-testid={key}
                     maxLength={255}
                     onChange={(e) => params.savefunc(e?.target?.value || "")}
+                    disabled={params.disabled}
                 />
             </Grid>
         </Grid>
@@ -56,7 +58,6 @@ export const TextAreaComponent = (params: {
                     onBlur={(e) =>
                         params.savefunc(JSON.parse(e?.target?.value || "{}"))
                     }
-                    // onSubmit={(e) => params.savefunc(JSON.parse(e?.target.value || "{}"))}
                 />
             </Grid>
         </Grid>

@@ -10,7 +10,7 @@ export interface MetaData {
  * This is an ABSTRACT base class for all the fields that are common to all the various "settings" api calls.
  */
 export default abstract class OrgSettingsBaseResource extends AuthResource {
-    readonly name: string = "";
+    name: string = "";
     readonly meta: MetaData[] = [];
 
     pk() {

@@ -7,7 +7,7 @@ import {
     Grid,
 } from "@trussworks/react-uswds";
 import { useResource, NetworkErrorBoundary, useController } from "rest-hooks";
-import { RouteComponentProps } from "react-router-dom";
+import { RouteComponentProps, useHistory } from "react-router-dom";
 
 import { ErrorPage } from "../../error/ErrorPage";
 import OrgReceiverSettingsResource from "../../../resources/OrgReceiverSettingsResource";
@@ -16,36 +16,60 @@ import {
     TextAreaComponent,
     TextInputComponent,
 } from "../../../components/Admin/AdminFormEdit";
-import { showAlertNotification, showError } from "../../../components/AlertNotifications";
+import {
+    showAlertNotification,
+    showError,
+} from "../../../components/AlertNotifications";
 
-type Props = { orgname: string; receivername: string };
+type Props = { orgname: string; receivername: string; action: string };
 
 export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
     const orgname = match?.params?.orgname || "";
     const receivername = match?.params?.receivername || "";
+    const action = match?.params?.action || "";
+    const history = useHistory();
 
     const FormComponent = () => {
         const orgReceiverSettings: OrgReceiverSettingsResource = useResource(
             OrgReceiverSettingsResource.detail(),
-            { orgname, receivername }
+            { orgname, receivername, action }
         );
 
         const { fetch: fetchController } = useController();
         const saveData = async () => {
-            try {
-                const data = JSON.stringify(orgReceiverSettings);
-                await fetchController(
-                    OrgReceiverSettingsResource.update(),
-                    { orgname, receivername },
-                    data
-                );
-                showAlertNotification("success", "Receiver setting saved successfully");
-            } catch (e) {
-                // @ts-ignore
-                showError(`Reciever Setting was NOT saved. Reason: '${e.toString()}'`);
-                console.trace(e);
-
+            switch (action) {
+                case "edit":
+                    try {
+                        const data = JSON.stringify(orgReceiverSettings);
+                        await fetchController(
+                            OrgReceiverSettingsResource.update(),
+                            { orgname, receivername: receivername },
+                            data
+                        );
+                        history.goBack();
+                    } catch (e) {
+                        console.trace(e);
+                        return false;
+                    }
+                    break;
+                case "clone":
+                    try {
+                        const data = JSON.stringify(orgReceiverSettings);
+                        await fetchController(
+                            OrgReceiverSettingsResource.update(),
+                            { orgname, receivername: orgReceiverSettings.name },
+                            data
+                        );
+                        history.goBack();
+                    } catch (e) {
+                        console.trace(e);
+                        return false;
+                    }
+                    break;
+                default:
+                    return false;
             }
+
             return true;
         };
 
@@ -66,6 +90,17 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
                                 <br />
                             </Grid>
                         </Grid>
+                        <TextInputComponent
+                            fieldname={"name"}
+                            label={"Name"}
+                            defaultvalue={
+                                action === "edit"
+                                    ? orgReceiverSettings.name
+                                    : ""
+                            }
+                            savefunc={(v) => (orgReceiverSettings.name = v)}
+                            disabled={action === "edit"}
+                        />
                         <TextInputComponent
                             fieldname={"topic"}
                             label={"Topic"}
@@ -175,12 +210,18 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
                         />
                         <Grid row>
                             <Button
+                                type="button"
+                                onClick={() => history.goBack()}
+                            >
+                                Cancel
+                            </Button>
+                            <Button
                                 form="edit-setting"
                                 type="submit"
                                 data-testid="submit"
                                 onClick={() => saveData()}
                             >
-                                Submit!
+                                Save
                             </Button>
                         </Grid>
                     </FormGroup>

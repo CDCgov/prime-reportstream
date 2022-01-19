@@ -5,7 +5,11 @@ import { useRef, useState } from "react";
 
 import OrgSenderSettingsResource from "../../../resources/OrgSenderSettingsResource";
 import { ConfirmDeleteSettingModal } from "../../../components/Admin/AdminModal";
-import { showAlertNotification, showError, showNotification } from "../../../components/AlertNotifications";
+import {
+    showAlertNotification,
+    showError,
+    showNotification,
+} from "../../../components/AlertNotifications";
 
 interface OrgSettingsTableProps {
     orgname: string;
@@ -20,17 +24,35 @@ export function OrgSenderTable(props: OrgSettingsTableProps) {
     const [deleteItemId, SetDeleteItemId] = useState("");
     const modalRef = useRef<ModalRef>(null);
 
-    const doDeleteSetting = () => {
+    const doDeleteSetting = async () => {
         try {
             debugger;
-            console.log(deleteItemId);
-            // delete deleteItemId;
-            showAlertNotification("success", `Item '${deleteItemId}' has been deleted`);
-        } catch (e) {
-            // @ts-ignore
-            showError(`Deleting item '${deleteItemId}' failed. ${e.toString()}`);
-        }
+            await fetchController(OrgSenderSettingsResource.deleteSetting(), {
+                orgname: props.orgname,
+                sendername: deleteItemId,
+            });
 
+            // instead of refetching, just remove from list
+            const index = orgSenderSettings.findIndex(
+                (item) => item.name === deleteItemId
+            );
+            if (index >= 0) {
+                // delete orgSenderSettings[index];
+                orgSenderSettings.splice(index, 1);
+            }
+            showAlertNotification(
+                "success",
+                `Item '${deleteItemId}' has been deleted`
+            );
+            return true;
+        } catch (e) {
+            console.trace(e);
+            // @ts-ignore
+            showError(
+                `Deleting item '${deleteItemId}' failed. ${e.toString()}`
+            );
+            return false;
+        }
     };
 
     const ShowDeleteConfirm = (itemId: string) => {
@@ -38,17 +60,7 @@ export function OrgSenderTable(props: OrgSettingsTableProps) {
         modalRef?.current?.toggleModal(undefined, true);
     };
 
-    // function testUpdate(setting: OrgSenderSettingsResource) {
-    //     setting.topic = "COVID-2023";
-    //     const testData = JSON.stringify(setting);
-    //     console.log(testData);
-    //     fetchController(
-    //         OrgSenderSettingsResource.update(),
-    //         { orgname: setting.organizationName, sendername: setting.name },
-    //         testData
-    //     );
-    // }
-
+    // @ts-ignore
     return (
         <section
             id="orgsendersettings"
@@ -88,6 +100,13 @@ export function OrgSenderTable(props: OrgSettingsTableProps) {
                                         key={`sender-edit-link-${eachOrgSetting.name}-${index}`}
                                     >
                                         Edit
+                                    </NavLink>
+                                    <NavLink
+                                        className="usa-button"
+                                        to={`/admin/orgsendersettings/org/${eachOrgSetting.organizationName}/sender/${eachOrgSetting.name}/action/clone`}
+                                        key={`sender-clone-link-${eachOrgSetting.name}-${index}`}
+                                    >
+                                        Clone
                                     </NavLink>
                                     <Button
                                         type={"button"}

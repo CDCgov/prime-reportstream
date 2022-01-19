@@ -7,7 +7,7 @@ import {
     Grid,
 } from "@trussworks/react-uswds";
 import { useResource, NetworkErrorBoundary, useController } from "rest-hooks";
-import { RouteComponentProps } from "react-router-dom";
+import { RouteComponentProps, useHistory } from "react-router-dom";
 
 import { ErrorPage } from "../../error/ErrorPage";
 import OrgSenderSettingsResource from "../../../resources/OrgSenderSettingsResource";
@@ -19,11 +19,12 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
     const orgname = match?.params?.orgname || "";
     const sendername = match?.params?.sendername || "";
     const action = match?.params?.action || "";
+    const history = useHistory();
 
     const FormComponent = () => {
         const orgSenderSettings: OrgSenderSettingsResource = useResource(
             OrgSenderSettingsResource.detail(),
-            { orgname, sendername: sendername }
+            { orgname, sendername: sendername, action: action }
         );
 
         const { fetch: fetchController } = useController();
@@ -31,7 +32,6 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
             switch (action) {
                 case "edit":
                     try {
-                        debugger;
                         console.log("EDIT SETTING");
                         const data = JSON.stringify(orgSenderSettings);
                         await fetchController(
@@ -39,28 +39,26 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
                             { orgname, sendername: sendername },
                             data
                         );
+                        history.goBack();
                     } catch (e) {
                         console.trace(e);
                         return false;
                     }
                     break;
-                case "delete":
+                case "clone":
                     try {
-                        debugger;
+                        const data = JSON.stringify(orgSenderSettings);
                         await fetchController(
-                            OrgSenderSettingsResource.deleteSetting(),
-                            { orgname, sendername: sendername }
+                            OrgSenderSettingsResource.update(),
+                            { orgname, sendername: orgSenderSettings.name },
+                            data
                         );
+                        history.goBack();
                     } catch (e) {
                         console.trace(e);
                         return false;
                     }
                     break;
-                case "create":
-                    console.log("CREATE SETTING");
-                    return false;
-                    break;
-                // TODO: implement create setting case
                 default:
                     return false;
             }
@@ -85,6 +83,15 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
                                 <br />
                             </Grid>
                         </Grid>
+                        <TextInputComponent
+                            fieldname={"name"}
+                            label={"Name"}
+                            defaultvalue={
+                                action === "edit" ? orgSenderSettings.name : ""
+                            }
+                            savefunc={(v) => (orgSenderSettings.name = v)}
+                            disabled={action === "edit"}
+                        />
                         <TextInputComponent
                             fieldname={"format"}
                             label={"Format"}
@@ -113,12 +120,18 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
                         />
                         <Grid row>
                             <Button
+                                type="button"
+                                onClick={() => history.goBack()}
+                            >
+                                Cancel
+                            </Button>
+                            <Button
                                 form="edit-setting"
                                 type="submit"
                                 data-testid="submit"
                                 onClick={() => saveData()}
                             >
-                                Submit!
+                                Save
                             </Button>
                         </Grid>
                     </FormGroup>
