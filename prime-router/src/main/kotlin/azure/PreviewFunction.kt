@@ -111,9 +111,17 @@ class PreviewFunction(
 
     private fun Report.serialize(parameters: FunctionParameters, warnings: List<ResultDetail>): String {
         val content = String(workflowEngine.serializeReport(this))
+        val externalName = Report.formFilename(
+            id,
+            schema.name,
+            bodyFormat,
+            createdDateTime,
+            parameters.receiver.translation,
+            workflowEngine.metadata
+        )
         val response = PreviewResponseMessage(
             receiverName = parameters.receiver.fullName,
-            externalFileName = parameters.receiver.name,
+            externalFileName = externalName,
             content = content,
             warnings = warnings
         )

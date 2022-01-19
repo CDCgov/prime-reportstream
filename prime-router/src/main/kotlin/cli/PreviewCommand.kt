@@ -128,8 +128,10 @@ class PreviewCommand : CliktCommand(
      */
     override fun run() {
         try {
-            val previewReport = getPreviewFile()
-            saveReportFiles(previewReport)
+            getPreview()
+                .echoWarnings()
+                .saveWarnings()
+                .saveReportFiles()
         } catch (e: PrintMessage) {
             // PrintMessage is the standard way to exit a command
             throw e
@@ -141,7 +143,7 @@ class PreviewCommand : CliktCommand(
     /**
      * Call the sender-files api and retrieve a list of sender files.
      */
-    private fun getPreviewFile(): PreviewResponseMessage {
+    private fun getPreview(): PreviewResponseMessage {
         // Setup
         val path = environment.value.formUrl("api/preview")
         val previewMessage = formPreviewBody()
@@ -213,11 +215,29 @@ class PreviewCommand : CliktCommand(
     }
 
     /**
+     * Echo the warnings in the [PreviewResponseMessage]
+     */
+    private fun PreviewResponseMessage.echoWarnings(): PreviewResponseMessage {
+        warnings.forEach {
+            echo("Warning: $it")
+        }
+        return this
+    }
+
+    /**
+     * Save the warnings
+     */
+    private fun PreviewResponseMessage.saveWarnings(): PreviewResponseMessage {
+        return this
+    }
+
+    /**
      * Save a report file message
      */
-    private fun saveReportFiles(previewResponse: PreviewResponseMessage) {
+    private fun PreviewResponseMessage.saveReportFiles(): PreviewResponseMessage {
         createDirectory(Path(outDirectory))
-        saveFile(Path(outDirectory, previewResponse.externalFileName), previewResponse.content)
+        saveFile(Path(outDirectory, this.externalFileName), this.content)
+        return this
     }
 
     /**
