@@ -46,9 +46,15 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
                             { orgname, receivername: receivername },
                             data
                         );
+                        showAlertNotification(
+                            "success",
+                            `Item '${receivername}' has been updated`
+                        );
                         history.goBack();
                     } catch (e) {
                         console.trace(e);
+                        // @ts-ignore
+                        showError(`Updating item '${receivername}' failed. ${e.toString()}`);
                         return false;
                     }
                     break;
@@ -60,9 +66,15 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
                             { orgname, receivername: orgReceiverSettings.name },
                             data
                         );
+                        showAlertNotification(
+                            "success",
+                            `Item '${orgReceiverSettings.name}' has been created`
+                        );
                         history.goBack();
                     } catch (e) {
                         console.trace(e);
+                        // @ts-ignore
+                        showError(`Cloning item '${orgReceiverSettings.name}' failed. ${e.toString()}`);
                         return false;
                     }
                     break;

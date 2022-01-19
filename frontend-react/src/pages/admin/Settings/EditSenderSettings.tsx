@@ -12,6 +12,10 @@ import { RouteComponentProps, useHistory } from "react-router-dom";
 import { ErrorPage } from "../../error/ErrorPage";
 import OrgSenderSettingsResource from "../../../resources/OrgSenderSettingsResource";
 import { TextInputComponent } from "../../../components/Admin/AdminFormEdit";
+import {
+    showAlertNotification,
+    showError,
+} from "../../../components/AlertNotifications";
 
 type Props = { orgname: string; sendername: string; action: string };
 
@@ -39,9 +43,15 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
                             { orgname, sendername: sendername },
                             data
                         );
+                        showAlertNotification(
+                            "success",
+                            `Item '${sendername}' has been updated`
+                        );
                         history.goBack();
                     } catch (e) {
                         console.trace(e);
+                        // @ts-ignore
+                        showError(`Updating item '${sendername}' failed. ${e.toString()}`);
                         return false;
                     }
                     break;
@@ -53,9 +63,15 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
                             { orgname, sendername: orgSenderSettings.name },
                             data
                         );
+                        showAlertNotification(
+                            "success",
+                            `Item '${orgSenderSettings.name}' has been created`
+                        );
                         history.goBack();
                     } catch (e) {
                         console.trace(e);
+                        // @ts-ignore
+                        showError(`Cloning item '${orgSenderSettings.name}' failed. ${e.toString()}`);
                         return false;
                     }
                     break;
