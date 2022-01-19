@@ -41,7 +41,10 @@ export const ReportStreamHeader = () => {
             );
         }
 
-        if (permissionCheck(PERMISSIONS.SENDER, authState)) {
+        if (
+            permissionCheck(PERMISSIONS.SENDER, authState) ||
+            permissionCheck(PERMISSIONS.PRIME_ADMIN, authState)
+        ) {
             itemsMenu.splice(
                 1,
                 0,
