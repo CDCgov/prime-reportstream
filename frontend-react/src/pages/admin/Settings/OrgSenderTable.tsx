@@ -48,9 +48,7 @@ export function OrgSenderTable(props: OrgSettingsTableProps) {
         } catch (e) {
             console.trace(e);
             // @ts-ignore
-            showError(
-                `Deleting item '${deleteItemId}' failed. ${e.toString()}`
-            );
+            showError(`Deleting item '${deleteItemId}' failed. ${e.toString()}`);
             return false;
         }
     };
