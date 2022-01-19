@@ -112,7 +112,9 @@ class LivdTableDownload() : CliktCommand(
         // Get the link to the LIVD-SARS-CoV-2-yyyy-MM-dd.xlsx file
         val livdFile = search(cdcLOINCTestCodeMappingPageUrl, livdSARSCov2File)
         if (livdFile.isEmpty()) {
-            TermUi.echo("\tERROR: unable to find LOINC code data to download!")
+            TermUi.echo(
+                "\tERROR: unable to find LOINC code data file matching LIVD-SARS-CoV-2-yyyy-MM-dd to download!"
+            )
             return ""
         }
         val livdFileUrl = "https://cdc.gov/" + livdFile.get(0)
@@ -177,14 +179,13 @@ class LivdTableDownload() : CliktCommand(
 
         val data = StringBuffer() // Buffer and output file for CSV data
         val fileInputStream = FileInputStream(File(inputfile))
-        var workbook: Workbook? = null
         val ext: String = FilenameUtils.getExtension(inputfile)
-        if (ext.equals("xlsx", ignoreCase = true)) {
-            workbook = XSSFWorkbook(fileInputStream)
-        } else if (ext.equals("xls", ignoreCase = true)) {
-            workbook = HSSFWorkbook(fileInputStream)
+        if (!ext.equals("xlsx", ignoreCase = true)) {
+            TermUi.echo("\tERROR: the $inputfile is unsupported since it is not Excel format file.")
+            return false
         }
 
+        val workbook: Workbook? = XSSFWorkbook(fileInputStream)
         val fileOutputStream = FileOutputStream(File(outputfile))
 
         // Get the LOINC Mapping sheet
