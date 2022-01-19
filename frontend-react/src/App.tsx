@@ -135,7 +135,7 @@ const App = () => {
                                  */}
                                 <AuthorizedRoute
                                     path="/submissions"
-                                    authorize={PERMISSIONS.SENDER}
+                                    authorize={PERMISSIONS.PRIME_ADMIN}
                                     component={Submissions}
                                 />
                                 <SecureRoute
