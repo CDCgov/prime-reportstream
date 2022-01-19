@@ -9,17 +9,18 @@ import {
 import { useResource, NetworkErrorBoundary, useController } from "rest-hooks";
 import { RouteComponentProps, useHistory } from "react-router-dom";
 
-import { ErrorPage } from "../../error/ErrorPage";
-import OrgReceiverSettingsResource from "../../../resources/OrgReceiverSettingsResource";
+import { ErrorPage } from "../../pages/error/ErrorPage";
+import OrgReceiverSettingsResource from "../../resources/OrgReceiverSettingsResource";
+import {
+    showAlertNotification,
+    showError,
+} from "../AlertNotifications";
+
 import {
     CheckboxComponent,
     TextAreaComponent,
     TextInputComponent,
-} from "../../../components/Admin/AdminFormEdit";
-import {
-    showAlertNotification,
-    showError,
-} from "../../../components/AlertNotifications";
+} from "./AdminFormEdit";
 
 type Props = { orgname: string; receivername: string; action: string };
 

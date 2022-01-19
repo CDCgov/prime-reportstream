@@ -3,13 +3,13 @@ import { NavLink } from "react-router-dom";
 import { Button, ModalRef, ButtonGroup, Table } from "@trussworks/react-uswds";
 import { useRef, useState } from "react";
 
-import OrgSenderSettingsResource from "../../../resources/OrgSenderSettingsResource";
-import { ConfirmDeleteSettingModal } from "../../../components/Admin/AdminModal";
+import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource";
 import {
     showAlertNotification,
     showError,
-    showNotification,
-} from "../../../components/AlertNotifications";
+} from "../AlertNotifications";
+
+import { ConfirmDeleteSettingModal } from "./AdminModal";
 
 interface OrgSettingsTableProps {
     orgname: string;

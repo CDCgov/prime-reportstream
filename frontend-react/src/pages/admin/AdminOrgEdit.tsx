@@ -7,9 +7,8 @@ import HipaaNotice from "../../components/HipaaNotice";
 import Spinner from "../../components/Spinner";
 import { ErrorPage } from "../error/ErrorPage";
 import OrgSettingsResource from "../../resources/OrgSettingsResource";
-
-import { OrgSenderTable } from "./Settings/OrgSenderTable";
-import { OrgReceiverTable } from "./Settings/OrgReceiverTable";
+import { OrgSenderTable } from "../../components/Admin/OrgSenderTable";
+import { OrgReceiverTable } from "../../components/Admin/OrgReceiverTable";
 
 type AdminOrgEditProps = {
     orgname: string;

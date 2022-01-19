@@ -31,8 +31,8 @@ import { GettingStartedPublicHealthDepartments } from "./pages/getting-started/p
 import { GettingStartedTestingFacilities } from "./pages/getting-started/testing-facilities";
 import { AdminMain } from "./pages/admin/AdminMain";
 import { AdminOrgEdit } from "./pages/admin/AdminOrgEdit";
-import { EditReceiverSettings } from "./pages/admin/Settings/EditReceiverSettings";
-import { EditSenderSettings } from "./pages/admin/Settings/EditSenderSettings";
+import { EditReceiverSettings } from "./components/Admin/EditReceiverSettings";
+import { EditSenderSettings } from "./components/Admin/EditSenderSettings";
 
 import "react-toastify/dist/ReactToastify.css";
 

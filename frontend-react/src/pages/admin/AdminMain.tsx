@@ -6,8 +6,7 @@ import HipaaNotice from "../../components/HipaaNotice";
 import Spinner from "../../components/Spinner";
 import { useOrgName } from "../../utils/OrganizationUtils";
 import { ErrorPage } from "../error/ErrorPage";
-
-import { OrgSettingsTable } from "./Settings/OrgSettingsTable";
+import { OrgSettingsTable } from "../../components/Admin/OrgSettingsTable";
 
 const OrgName = () => {
     const orgName: string = useOrgName();

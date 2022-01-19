@@ -3,7 +3,7 @@ import { useResource } from "rest-hooks";
 import { TextInput } from "@trussworks/react-uswds";
 import { NavLink } from "react-router-dom";
 
-import OrgSettingsResource from "../../../resources/OrgSettingsResource";
+import OrgSettingsResource from "../../resources/OrgSettingsResource";
 
 export function OrgSettingsTable() {
     const orgSettings: OrgSettingsResource[] = useResource(
