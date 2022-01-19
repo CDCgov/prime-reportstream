@@ -247,7 +247,7 @@ Code | Display | System
             )
         )
         val elemWithValuesSetValues = Element(name = "a", type = Element.Type.CODE, valueSetRef = valueSetA)
-        var expected = """
+        val expected = """
 **Name**: a
 
 **ReportStream Internal Name**: a
@@ -268,7 +268,7 @@ Code | Display | System
 
 ---
 """
-        var actual = DocumentationFactory.getElementDocumentation(elemWithValuesSetValues)
+        val actual = DocumentationFactory.getElementDocumentation(elemWithValuesSetValues)
         assertThat(actual).isEqualTo(expected)
     }
 }
