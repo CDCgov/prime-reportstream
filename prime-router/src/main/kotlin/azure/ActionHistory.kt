@@ -508,7 +508,7 @@ class ActionHistory {
         report.filteringResults.forEach {
             trackDetails(
                 ActionEvent(
-                    ActionEvent.ActionEventScope.report,
+                    ActionEvent.ActionEventScope.item,
                     it,
                     it.filteredTrackingElement,
                     it.filteredIndex,
