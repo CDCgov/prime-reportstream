@@ -88,11 +88,11 @@ The state of the facility which the test was ordered from
 
 **Value Sets**
 
-Code | Display
----- | -------
-D|Debugging
-P|Production
-T|Training
+Code | Display | System
+---- | ------- | ------
+D|Debugging|HL7
+P|Production|HL7
+T|Training|HL7
 
 **Documentation**:
 

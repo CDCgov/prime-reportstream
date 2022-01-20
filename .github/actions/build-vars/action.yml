@@ -7,9 +7,9 @@ outputs:
   version:
     value: ${{ steps.version_result.outputs.version }}
   has_router_change:
-    value: ${{ steps.backend_check.outputs.router }}
+    value: ${{ steps.backend_change_result.outputs.has_router_change }}
   has_react_change:
-    value: ${{ steps.frontend_check.outputs.frontend_react }}
+    value: ${{ steps.frontend_change_result.outputs.has_react_change }}
 
 runs:
   using: "composite"
@@ -65,6 +65,16 @@ runs:
             - '.github/actions/build-backend/action.yml'
             - '.github/actions/deploy-backend/action.yml'
 
+    - name: Force backend change if prod
+      id: backend_change_result
+      shell: bash
+      run: |
+        if [[ '${{ steps.build_result.outputs.env_name }}' == 'prod' ]]; then
+          echo "::set-output name=has_router_change::true"
+        else
+          echo "::set-output name=has_router_change::${{ steps.backend_check.outputs.router }}"
+        fi
+
     - uses: dorny/paths-filter@v2
       id: frontend_check
       with:
@@ -75,3 +85,13 @@ runs:
             - 'operations/**'
             - '.github/actions/build-frontend/action.yml'
             - '.github/actions/deploy-frontend/action.yml'
+
+    - name: Front frontend change if prod
+      id: frontend_change_result
+      shell: bash
+      run: |
+        if [[ '${{ steps.build_result.outputs.env_name }}' == 'prod' ]]; then
+          echo "::set-output name=has_react_change::true"
+        else
+          echo "::set-output name=has_react_change::${{ steps.frontend_check.outputs.frontend_react }}"
+        fi
