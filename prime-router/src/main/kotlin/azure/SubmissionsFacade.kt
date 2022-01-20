@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import gov.cdc.prime.router.DetailedSubmissionHistory
 import gov.cdc.prime.router.SubmissionHistory
 import java.time.OffsetDateTime
 
@@ -88,6 +89,17 @@ class SubmissionsFacade(
             SubmissionHistory::class.java
         )
         return submissions
+    }
+
+    fun findSubmission(
+        organizationName: String,
+        submissionId: Long,
+    ): DetailedSubmissionHistory? {
+        return db.fetchAction(
+            organizationName,
+            submissionId,
+            DetailedSubmissionHistory::class.java
+        )
     }
 
     companion object {

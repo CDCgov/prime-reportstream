@@ -21,6 +21,43 @@ import java.time.OffsetDateTime
  * @param errorCount of the Submission is `action_response.errorCount` from the table `public.action`
  */
 
+@JsonIgnoreProperties(ignoreUnknown = true)
+class DetailedSubmissionHistory(
+    @JsonProperty("id")
+    val actionId: Long,
+    @JsonProperty("submittedAt")
+    val createdAt: OffsetDateTime,
+    @JsonProperty("submitter")
+    val sendingOrg: String,
+    val httpStatus: Int,
+    @JsonInclude(Include.NON_NULL) val externalName: String? = "",
+    actionResponse: DetailedActionResponse,
+) {
+    val submissionId: String? = actionResponse.id
+    val warningCount: Int? = actionResponse.warningCount
+    val errorCount: Int? = actionResponse.errorCount
+    val errors: List<Detail>? = actionResponse.errors
+    val warnings: List<Detail>? = actionResponse.warnings
+    val topic: String? = actionResponse.topic
+}
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class DetailedActionResponse(
+    val id: String?,
+    val topic: String?,
+    val reportItemCount: Int?,
+    val warningCount: Int?,
+    val errorCount: Int?,
+    val errors: List<Detail>?,
+    val warnings: List<Detail>?,
+)
+
+data class Detail(
+    val scope: String,
+    val message: String,
+    val itemNums: String,
+)
+
 /*
  * TODO: see Github Issues #2314 for expected filename field
  */
