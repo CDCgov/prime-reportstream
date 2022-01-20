@@ -17,7 +17,7 @@ import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.Tables.ACTION
-import gov.cdc.prime.router.azure.db.Tables.ACTION_EVENT
+import gov.cdc.prime.router.azure.db.Tables.ACTION_LOG
 import gov.cdc.prime.router.azure.db.Tables.ITEM_LINEAGE
 import gov.cdc.prime.router.azure.db.Tables.REPORT_FILE
 import gov.cdc.prime.router.azure.db.Tables.REPORT_LINEAGE
@@ -567,7 +567,7 @@ class ActionHistory {
         insertItemLineages(itemLineages, txn)
 
         details.forEach {
-            val detailRecord = DSL.using(txn).newRecord(ACTION_EVENT, it)
+            val detailRecord = DSL.using(txn).newRecord(ACTION_LOG, it)
             detailRecord.store()
         }
     }
