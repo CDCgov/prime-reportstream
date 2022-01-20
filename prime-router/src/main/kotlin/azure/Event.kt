@@ -92,13 +92,15 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
             val action = EventAction.parseQueueMessage(parts[1])
             return when (parts[0]) {
                 ReportEvent.eventType -> {
-                    val after = parts.getOrNull(3)?.let { OffsetDateTime.parse(it) }
+                    val after = parts.getOrNull(4)?.let { OffsetDateTime.parse(it) }
                     val reportId = UUID.fromString(parts[2])
-                    ReportEvent(action, reportId, after)
+                    val isEmpty = parts[3] == "true"
+                    ReportEvent(action, reportId, isEmpty, after)
                 }
                 BatchEvent.eventType -> {
-                    val after = parts.getOrNull(3)?.let { OffsetDateTime.parse(it) }
-                    BatchEvent(action, parts[2], after)
+                    val after = parts.getOrNull(4)?.let { OffsetDateTime.parse(it) }
+                    val isEmpty = parts[3] == "true"
+                    BatchEvent(action, parts[2], isEmpty, after)
                 }
                 ProcessEvent.eventType -> {
                     // since process event type has multiple optional parameters, they will be either populated
@@ -138,11 +140,11 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
             when (parts[0]) {
                 // Report event requires 'event type', 'action', and 'report id'. 'at' is optional
                 ReportEvent.eventType -> {
-                    if (parts.size > 4) error("Internal Error: Report events can have no more than 4 parts.")
+                    if (parts.size > 5) error("Internal Error: Report events can have no more than 4 parts.")
                 }
                 // Receiver event requires 'event type', 'action', 'receiver name'. 'at' is optional
                 BatchEvent.eventType -> {
-                    if (parts.size > 4) error("Internal Error: Batch events can have no more than 4 parts.")
+                    if (parts.size > 5) error("Internal Error: Batch events can have no more than 5 parts.")
                 }
                 // Process event requires 'event type', 'action', 'report id', and 'options'.
                 //  'route to', 'default' and 'at are optional but must be present (even if a blank string).
@@ -208,13 +210,14 @@ class ProcessEvent(
 class ReportEvent(
     eventAction: EventAction,
     val reportId: UUID,
+    val isEmptyBatch: Boolean,
     at: OffsetDateTime? = null,
-    val retryToken: RetryToken? = null
+    val retryToken: RetryToken? = null,
 ) : Event(eventAction, at) {
 
     override fun toQueueMessage(): String {
         val afterClause = if (at == null) "" else "$messageDelimiter${DateTimeFormatter.ISO_DATE_TIME.format(at)}"
-        return "$eventType$messageDelimiter$eventAction$messageDelimiter$reportId$afterClause"
+        return "$eventType$messageDelimiter$eventAction$messageDelimiter$reportId$messageDelimiter$isEmptyBatch$afterClause"
     }
 
     override fun equals(other: Any?): Boolean {
@@ -236,11 +239,12 @@ class ReportEvent(
 class BatchEvent(
     eventAction: EventAction,
     val receiverName: String,
+    val isEmptyBatch: Boolean,
     at: OffsetDateTime? = null,
 ) : Event(eventAction, at) {
     override fun toQueueMessage(): String {
         val afterClause = if (at == null) "" else "$messageDelimiter${DateTimeFormatter.ISO_DATE_TIME.format(at)}"
-        return "$eventType$messageDelimiter$eventAction$messageDelimiter$receiverName$afterClause"
+        return "$eventType$messageDelimiter$eventAction$messageDelimiter$receiverName$messageDelimiter$isEmptyBatch$afterClause"
     }
 
     override fun equals(other: Any?): Boolean {

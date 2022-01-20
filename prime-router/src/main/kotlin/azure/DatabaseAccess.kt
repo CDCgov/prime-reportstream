@@ -6,6 +6,7 @@ import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.db.Tables
+import gov.cdc.prime.router.azure.db.Tables.ACTION
 import gov.cdc.prime.router.azure.db.Tables.COVID_RESULT_METADATA
 import gov.cdc.prime.router.azure.db.Tables.EMAIL_SCHEDULE
 import gov.cdc.prime.router.azure.db.Tables.JTI_CACHE
@@ -149,6 +150,29 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             .and(TASK.RECEIVER_NAME.eq(receiverFullName))
             .and(TASK.NEXT_ACTION_AT.greaterOrEqual(backstopTime))
             .count()
+    }
+
+    /**
+     * Given a receiver, finds out if the receiver had at least one 'send' action within after the passed in [checkTime]
+     */
+    fun checkRecentlySent(
+        receiverOrg: String,
+        receiverSvc: String,
+        checkTime: OffsetDateTime,
+        txn: DataAccessTransaction
+    ): Boolean {
+        return DSL.using(txn)
+            .select(ACTION.asterisk())
+            .from(ACTION)
+            .join(Tables.REPORT_FILE)
+            .on(ACTION.ACTION_ID.eq(Tables.REPORT_FILE.ACTION_ID))
+            .where(Tables.REPORT_FILE.RECEIVING_ORG.eq(receiverOrg))
+            .and(Tables.REPORT_FILE.RECEIVING_ORG_SVC.eq(receiverSvc))
+            .and(ACTION.CREATED_AT.greaterOrEqual(checkTime))
+            .and(ACTION.ACTION_NAME.eq(TaskAction.send))
+            .count() > 0
+
+
     }
 
     fun fetchTask(reportId: ReportId): Task {

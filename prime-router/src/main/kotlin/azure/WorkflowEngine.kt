@@ -3,6 +3,7 @@ package gov.cdc.prime.router.azure
 import com.microsoft.azure.functions.ExecutionContext
 import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.FileSettings
+import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Options
@@ -207,12 +208,33 @@ class WorkflowEngine(
         actionHistory: ActionHistory,
         receiver: Receiver,
         txn: Configuration? = null,
-        context: ExecutionContext? = null
+        context: ExecutionContext? = null,
+        isEmptyReport: Boolean = false
     ) {
         val receiverName = "${receiver.organizationName}.${receiver.name}"
+
+        // these values come from the first item in a batched report, except for empty batches which have no items\
+        //  in the generateBotyAndUploadReport function these values are only used if it is an HL7 batch
+        // todo when generateBodyAndUploadReport is refactored, this can be changed
+        val sendingApp: String? = if (isEmptyReport) "CDC PRIME - Atlanta" else null
+        val receivingApp: String? = if (isEmptyReport && receiver.translation is Hl7Configuration)
+            receiver.translation.receivingApplicationName
+        else null
+        val receivingFacility: String? = if (isEmptyReport && receiver.translation is Hl7Configuration)
+            receiver.translation.receivingFacilityName
+        else null
+
+
         val blobInfo = try {
             // formatting errors can occur down in here.
-            blob.uploadBody(report, receiverName, nextAction.eventAction)
+            blob.generateBodyAndUploadReport(
+                report,
+                receiverName,
+                nextAction.eventAction,
+                sendingApp,
+                receivingApp,
+                receivingFacility
+            )
         } catch (ex: Exception) {
             context?.logger?.warning(
                 "Got exception while dispatching to schema ${report.schema.name}" +
@@ -228,7 +250,12 @@ class WorkflowEngine(
             db.insertTask(report, blobInfo.format.toString(), blobInfo.blobUrl, nextAction, txn)
             // todo remove this; its now tracked in BlobInfo
             report.bodyURL = blobInfo.blobUrl
-            actionHistory.trackCreatedReport(nextAction, report, receiver, blobInfo)
+
+            // if this is a newly generated empty report, track it as a 'new report'
+            if (isEmptyReport)
+                actionHistory.trackGeneratedEmptyReport(nextAction, report, receiver, blobInfo)
+            else
+                actionHistory.trackCreatedReport(nextAction, report, receiver, blobInfo)
         } catch (e: Exception) {
             // Clean up
             blob.deleteBlob(blobInfo.blobUrl)
@@ -296,7 +323,8 @@ class WorkflowEngine(
         msgs: MutableList<String>,
     ) {
         // Send immediately.
-        val nextEvent = ReportEvent(Event.EventAction.SEND, reportId, at = null)
+        // TODO CD: is this resend even used?
+        val nextEvent = ReportEvent(Event.EventAction.SEND, reportId, false, at = null)
         db.transact { txn ->
             db.fetchAndLockTask(reportId, txn) // Required, it creates lock.
             val organization = settings.findOrganization(receiver.organizationName)
@@ -399,6 +427,36 @@ class WorkflowEngine(
         return itemsDispositionMap
     }
 
+    /**
+     * Creates an empty report to send to receivers that want empties
+     */
+    fun generateEmptyReport(
+        context: ExecutionContext,
+        actionHistory: ActionHistory,
+        receiver: Receiver,
+    ) {
+        //generate empty report for receiver's specified foramt
+        val toSchema = metadata.findSchema(receiver.schemaName)
+            ?: error("${receiver.schemaName} schema is missing from catalog")
+        val clientSource = ClientSource("ReportStream","EmptyBatch")
+
+        val emptyReport = Report(
+            toSchema,
+            emptyList(),
+            listOf(clientSource),
+            destination = receiver,
+            bodyFormat = receiver.format,
+            metadata = Metadata.getInstance(),
+            itemLineage = emptyList()
+        )
+
+        // set the empty report to be sent to the receiver
+        this.db.transact { txn ->
+            val sendEvent = ReportEvent(Event.EventAction.SEND, emptyReport.id, true)
+            this.dispatchReport(sendEvent, emptyReport, actionHistory, receiver, txn, context, true)
+        }
+    }
+
     // routeReport does all filtering and translating per receiver, generating one file per receiver to then be batched
     fun routeReport(
         context: ExecutionContext,
@@ -453,7 +511,7 @@ class WorkflowEngine(
         when {
             options == Options.SkipSend -> {
                 // Note that SkipSend should really be called SkipBothTimingAndSend  ;)
-                val event = ReportEvent(Event.EventAction.NONE, report.id)
+                val event = ReportEvent(Event.EventAction.NONE, report.id, actionHistory.generatingEmptyReport)
                 this.dispatchReport(event, report, actionHistory, receiver, txn, context)
                 loggerMsg = "Queue: ${event.toQueueMessage()}"
             }
@@ -461,7 +519,7 @@ class WorkflowEngine(
                 val time = receiver.timing.nextTime()
                 // Always force a batched report to be saved in our INTERNAL format
                 val batchReport = report.copy(bodyFormat = Report.Format.INTERNAL)
-                val event = BatchEvent(Event.EventAction.BATCH, receiver.fullName, time)
+                val event = BatchEvent(Event.EventAction.BATCH, receiver.fullName, false, time)
                 this.dispatchReport(event, batchReport, actionHistory, receiver, txn, context)
                 loggerMsg = "Queue: ${event.toQueueMessage()}"
             }
@@ -482,13 +540,13 @@ class WorkflowEngine(
                 report
                     .split()
                     .forEach {
-                        val event = ReportEvent(Event.EventAction.SEND, it.id)
+                        val event = ReportEvent(Event.EventAction.SEND, it.id, actionHistory.generatingEmptyReport)
                         this.dispatchReport(event, it, actionHistory, receiver, txn, context)
                     }
                 loggerMsg = "Queued to send immediately: HL7 split into ${report.itemCount} individual reports"
             }
             else -> {
-                val event = ReportEvent(Event.EventAction.SEND, report.id)
+                val event = ReportEvent(Event.EventAction.SEND, report.id, actionHistory.generatingEmptyReport)
                 this.dispatchReport(event, report, actionHistory, receiver, txn, context)
                 loggerMsg = "Queued to send immediately: ${event.toQueueMessage()}"
             }
@@ -605,6 +663,7 @@ class WorkflowEngine(
                 backstopTime,
                 txn
             )
+
             val ids = tasks.map { it.reportId }
             val reportFiles = ids
                 .mapNotNull {

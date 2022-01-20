@@ -63,12 +63,21 @@ class BlobAccess(
      * is optional and is added as a prefix to the blob filename.
      * @return the information about the uploaded blob
      */
-    fun uploadBody(
+    // TODO: This should be refactored so that generating the body bytes is part of Report.kt
+    fun generateBodyAndUploadReport(
         report: Report,
         subfolderName: String? = null,
-        action: Event.EventAction = Event.EventAction.NONE
+        action: Event.EventAction = Event.EventAction.NONE,
+        sendingApplicationReport: String? = null,
+        receivingApplicationReport: String? = null,
+        receivingFacilityReport: String? = null
     ): BlobInfo {
-        val (bodyFormat, blobBytes) = createBodyBytes(report)
+        val (bodyFormat, blobBytes) = createBodyBytes(
+            report,
+            sendingApplicationReport,
+            receivingApplicationReport,
+            receivingFacilityReport
+        )
         return uploadBody(bodyFormat, blobBytes, report.name, subfolderName, action)
     }
 
@@ -97,13 +106,24 @@ class BlobAccess(
         return BlobInfo(bodyFormat, blobUrl, digest)
     }
 
-    private fun createBodyBytes(report: Report): Pair<Report.Format, ByteArray> {
+    private fun createBodyBytes(
+        report: Report,
+        sendingApplicationReport: String? = null,
+        receivingApplicationReport: String? = null,
+        receivingFacilityReport: String? = null
+    ): Pair<Report.Format, ByteArray> {
         val outputStream = ByteArrayOutputStream()
         when (report.bodyFormat) {
             Report.Format.INTERNAL -> csvSerializer.writeInternal(report, outputStream)
             // HL7 needs some additional configuration we set on the translation in organization
             Report.Format.HL7 -> hl7Serializer.write(report, outputStream)
-            Report.Format.HL7_BATCH -> hl7Serializer.writeBatch(report, outputStream)
+            Report.Format.HL7_BATCH -> hl7Serializer.writeBatch(
+                report,
+                outputStream,
+                sendingApplicationReport,
+                receivingApplicationReport,
+                receivingFacilityReport
+            )
             Report.Format.CSV, Report.Format.CSV_SINGLE -> csvSerializer.write(report, outputStream)
             Report.Format.REDOX -> redoxSerializer.write(report, outputStream)
         }

@@ -1,5 +1,6 @@
 package gov.cdc.prime.router
 
+import com.github.javafaker.Bool
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
@@ -849,7 +850,7 @@ class Report : Logging {
             return mergedReport
         }
 
-        fun createItemLineages(parentReports: List<Report>, childReport: Report): List<ItemLineage> {
+        private fun createItemLineages(parentReports: List<Report>, childReport: Report): List<ItemLineage> {
             var childRowNum = 0
             val itemLineages = mutableListOf<ItemLineage>()
             parentReports.forEach { parentReport ->

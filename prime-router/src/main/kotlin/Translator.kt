@@ -21,6 +21,7 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
         val useMapper: Map<String, Mapper>,
         val useDefault: Map<String, String>,
         val missing: Set<String>,
+        val forceEmpty: Set<String>
     )
 
     /**
@@ -227,15 +228,16 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
     public fun translateByReceiver(
         input: Report,
         receiver: Receiver,
-        defaultValues: DefaultValues = emptyMap()
+        defaultValues: DefaultValues = emptyMap(),
+        generatingEmpty: Boolean = false
     ): Report {
         // Apply mapping to change schema
-        val toReport: Report = if (receiver.schemaName != input.schema.name) {
+        val toReport: Report = if (generatingEmpty || receiver.schemaName != input.schema.name) {
             val toSchema = metadata.findSchema(receiver.schemaName)
                 ?: error("${receiver.schemaName} schema is missing from catalog")
             val receiverDefaults = receiver.translation.defaults
             val defaults = if (receiverDefaults.isNotEmpty()) receiverDefaults.plus(defaultValues) else defaultValues
-            val mapping = buildMapping(toSchema, input.schema, defaults)
+            val mapping = buildMapping(toSchema, input.schema, defaults, generatingEmpty)
             if (mapping.missing.isNotEmpty()) {
                 error(
                     "Error: To translate to ${receiver.fullName}, ${toSchema.name}, these elements are missing: ${
@@ -284,7 +286,11 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
      * Build the mapping that will translate a one schema to another. The mapping
      * can be used for multiple translations.
      */
-    fun buildMapping(toSchema: Schema, fromSchema: Schema, defaultValues: DefaultValues): Mapping {
+    fun buildMapping(
+        toSchema: Schema,
+                     fromSchema: Schema,
+                     defaultValues: DefaultValues,
+                     generateEmpty: Boolean = false): Mapping {
         if (toSchema.topic != fromSchema.topic) error("Trying to match schema with different topics")
 
         val useDirectly = mutableMapOf<String, String>()
@@ -292,26 +298,32 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
         val useMapper = mutableMapOf<String, Mapper>()
         val useDefault = mutableMapOf<String, String>()
         val missing = mutableSetOf<String>()
+        val forceEmpty = mutableSetOf<String>()
 
         toSchema.elements.forEach { toElement ->
-            var isMissing = toElement.cardinality == Element.Cardinality.ONE
-            fromSchema.findElement(toElement.name)?.let { matchedElement ->
-                useDirectly[toElement.name] = matchedElement.name
-                isMissing = false
+            if (generateEmpty) {
+                forceEmpty.add(toElement.name)
             }
-            toElement.mapper?.let {
-                val name = Mappers.parseMapperField(it).first
-                useMapper[toElement.name] = metadata.findMapper(name) ?: error("Mapper $name is not found")
-                isMissing = false
-            }
-            if (toElement.hasDefaultValue(defaultValues)) {
-                useDefault[toElement.name] = toElement.defaultValue(defaultValues)
-                isMissing = false
-            }
-            if (isMissing) {
-                missing.add(toElement.name)
+            else {
+                var isMissing = toElement.cardinality == Element.Cardinality.ONE
+                fromSchema.findElement(toElement.name)?.let { matchedElement ->
+                    useDirectly[toElement.name] = matchedElement.name
+                    isMissing = false
+                }
+                toElement.mapper?.let {
+                    val name = Mappers.parseMapperField(it).first
+                    useMapper[toElement.name] = metadata.findMapper(name) ?: error("Mapper $name is not found")
+                    isMissing = false
+                }
+                if (toElement.hasDefaultValue(defaultValues)) {
+                    useDefault[toElement.name] = toElement.defaultValue(defaultValues)
+                    isMissing = false
+                }
+                if (isMissing) {
+                    missing.add(toElement.name)
+                }
             }
         }
-        return Mapping(toSchema, fromSchema, useDirectly, useValueSet, useMapper, useDefault, missing)
+        return Mapping(toSchema, fromSchema, useDirectly, useValueSet, useMapper, useDefault, missing, forceEmpty)
     }
 }

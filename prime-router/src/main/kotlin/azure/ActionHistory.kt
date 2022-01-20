@@ -108,6 +108,11 @@ class ActionHistory {
     val messages = mutableListOf<Event>()
 
     /**
+     * This will be true if this actionHistory is being used to track generation of an empty batch file
+     */
+    val generatingEmptyReport: Boolean
+
+    /**
      *
      * Collection of all the parent-child report relationships created by this action.
      *
@@ -125,9 +130,10 @@ class ActionHistory {
      */
     val itemLineages = mutableSetOf<ItemLineage>()
 
-    constructor(taskAction: TaskAction, context: ExecutionContext? = null) {
+    constructor(taskAction: TaskAction, context: ExecutionContext? = null, generatingEmptyReport: Boolean  = false) {
         action.actionName = taskAction
         this.context = context
+        this.generatingEmptyReport = generatingEmptyReport
     }
 
     fun setActionType(taskAction: TaskAction) {
@@ -326,6 +332,30 @@ class ActionHistory {
     }
 
     /**
+     * Use this to record history info about a newly generated empty report for sending to receivers that
+     * request empty batches.
+     */
+    fun trackGeneratedEmptyReport(event: Event, report: Report, receiver: Receiver, blobInfo: BlobAccess.BlobInfo) {
+        val reportFile = ReportFile()
+        reportFile.reportId = report.id
+
+        reportFile.nextAction = TaskAction.send
+        reportFile.receivingOrg = receiver.organizationName
+        reportFile.receivingOrgSvc = receiver.name
+        reportFile.schemaName = report.schema.name
+        reportFile.schemaTopic = report.schema.topic
+        reportFile.bodyUrl = blobInfo.blobUrl
+        reportFile.bodyFormat = blobInfo.format.toString()
+        reportFile.blobDigest = blobInfo.digest
+        reportFile.itemCount = report.itemCount
+        reportsReceived[reportFile.reportId] = reportFile
+
+        // add to queue
+        if (event.eventAction != Event.EventAction.BATCH)
+           trackEvent(event)
+    }
+
+    /**
      * Track a report that was fully filtered out based on qualty
      */
     fun trackFilteredReport(
@@ -517,7 +547,26 @@ class ActionHistory {
         reportsOut.values.forEach { it.actionId = action.actionId }
         insertReports(txn)
         DatabaseAccess.saveTestData(covidMetaDataRecords, txn)
-        generateReportLineages(action.actionId)
+
+        // TODO: Generation of lineages needs to be separated from database insert functionality, since there
+        //  are conditional lineage generation rules
+        if (generatingEmptyReport) {
+            // if we are generating an empty report for the 'send' step there will be one report in and one out.
+            //  make sure to track the lineage. for the 'batch 'step there will not be any lineage
+            if (reportsIn.size == 1 && reportsOut.size == 1)
+                reportLineages.add(
+                    ReportLineage(
+                        null,
+                        action.actionId,
+                        reportsIn.values.first().reportId,
+                        reportsOut.values.first().reportId,
+                        null
+                    )
+                )
+        }
+        else {
+            generateReportLineagesUsingItemLineage(action.actionId)
+        }
         insertReportLineages(txn)
         insertItemLineages(itemLineages, txn)
     }
@@ -562,7 +611,7 @@ class ActionHistory {
      * Use the detailed item lineage to exactly/correctly generate the report parent/child relationships.
      *
      */
-    private fun generateReportLineages(actionId: Long) {
+    private fun generateReportLineagesUsingItemLineage(actionId: Long) {
         // Extract the distinct parent/child report pairs from the Item Lineage
         val parentChildReports = itemLineages.map { Pair(it.parentReportId, it.childReportId) }.toSet()
         parentChildReports.forEach {
