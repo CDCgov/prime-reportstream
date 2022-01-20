@@ -11,7 +11,7 @@ import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.ActionError
-import gov.cdc.prime.router.ActionEvent
+import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.DEFAULT_SEPARATOR
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.ROUTE_TO_SEPARATOR
@@ -230,15 +230,15 @@ class ReportFunction : Logging {
             null
         } catch (e: IllegalArgumentException) {
             actionHistory.trackDetails(
-                ActionEvent.report(
-                    e.message ?: "Invalid request.", ActionEvent.ActionEventType.error
+                ActionLog.report(
+                    e.message ?: "Invalid request.", ActionLog.ActionLogType.error
                 )
             )
             null
         } catch (e: IllegalStateException) {
             actionHistory.trackDetails(
-                ActionEvent.report(
-                    e.message ?: "Invalid request.", ActionEvent.ActionEventType.error
+                ActionLog.report(
+                    e.message ?: "Invalid request.", ActionLog.ActionLogType.error
                 )
             )
             null
@@ -318,20 +318,20 @@ class ReportFunction : Logging {
     }
 
     private fun validateRequest(engine: WorkflowEngine, request: HttpRequestMessage<String?>): ValidatedRequest {
-        val errors = mutableListOf<ActionEvent>()
+        val errors = mutableListOf<ActionLog>()
         HttpUtilities.payloadSizeCheck(request)
 
         val receiverNamesText = request.queryParameters.getOrDefault(ROUTE_TO_PARAMETER, "")
         val routeTo = if (receiverNamesText.isNotBlank()) receiverNamesText.split(ROUTE_TO_SEPARATOR) else emptyList()
         val receiverNameErrors = routeTo
             .filter { engine.settings.findReceiver(it) == null }
-            .map { ActionEvent.param(ROUTE_TO_PARAMETER, "Invalid receiver name: $it") }
+            .map { ActionLog.param(ROUTE_TO_PARAMETER, "Invalid receiver name: $it") }
         errors.addAll(receiverNameErrors)
 
         val clientName = extractClient(request)
         if (clientName.isBlank())
             errors.add(
-                ActionEvent.param(
+                ActionLog.param(
                     CLIENT_PARAMETER, "Expected a '$CLIENT_PARAMETER' query parameter"
                 )
             )
@@ -339,7 +339,7 @@ class ReportFunction : Logging {
         val sender = engine.settings.findSender(clientName)
         if (sender == null)
             errors.add(
-                ActionEvent.param(
+                ActionLog.param(
                     CLIENT_PARAMETER, "'$CLIENT_PARAMETER:$clientName': unknown sender"
                 )
             )
@@ -347,7 +347,7 @@ class ReportFunction : Logging {
         val schema = engine.metadata.findSchema(sender?.schemaName ?: "")
         if (sender != null && schema == null)
             errors.add(
-                ActionEvent.param(
+                ActionLog.param(
                     CLIENT_PARAMETER,
                     "'$CLIENT_PARAMETER:$clientName': unknown schema '${sender.schemaName}'"
                 )
@@ -355,10 +355,10 @@ class ReportFunction : Logging {
 
         val contentType = request.headers.getOrDefault(HttpHeaders.CONTENT_TYPE.lowercase(), "")
         if (contentType.isBlank()) {
-            errors.add(ActionEvent.param(HttpHeaders.CONTENT_TYPE, "missing"))
+            errors.add(ActionLog.param(HttpHeaders.CONTENT_TYPE, "missing"))
         } else if (sender != null && sender.format.mimeType != contentType) {
             errors.add(
-                ActionEvent.param(
+                ActionLog.param(
                     HttpHeaders.CONTENT_TYPE, "expecting '${sender.format.mimeType}'"
                 )
             )
@@ -366,7 +366,7 @@ class ReportFunction : Logging {
 
         val content = request.body ?: ""
         if (content.isEmpty()) {
-            errors.add(ActionEvent.param("Content", "expecting a post message with content"))
+            errors.add(ActionLog.param("Content", "expecting a post message with content"))
         }
 
         if (sender == null || schema == null || content.isEmpty() || errors.isNotEmpty()) {
@@ -379,7 +379,7 @@ class ReportFunction : Logging {
                 val parts = it.split(DEFAULT_SEPARATOR)
                 if (parts.size != 2) {
                     errors.add(
-                        ActionEvent.report(
+                        ActionLog.report(
                             "'$it' is not a valid default",
                         )
                     )
@@ -388,7 +388,7 @@ class ReportFunction : Logging {
                 val element = schema.findElement(parts[0])
                 if (element == null) {
                     errors.add(
-                        ActionEvent.report(
+                        ActionLog.report(
                             "'${parts[0]}' is not a valid element name",
                         )
                     )
@@ -396,7 +396,7 @@ class ReportFunction : Logging {
                 }
                 val error = element.checkForError(parts[1])
                 if (error != null) {
-                    errors.add(ActionEvent.param(DEFAULT_PARAMETER, error))
+                    errors.add(ActionLog.param(DEFAULT_PARAMETER, error))
                     return@mapNotNull null
                 }
                 Pair(parts[0], parts[1])

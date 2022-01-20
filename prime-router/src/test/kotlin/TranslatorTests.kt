@@ -381,8 +381,8 @@ class TranslatorTests {
             metadata = metadata
         )
         translator.filterAndTranslateByReceiver(table1).run {
-            assertThat(this.first.size).isEqualTo(1)
-            val (mappedTable, forReceiver) = this.first[0]
+            assertThat(this.reports.size).isEqualTo(1)
+            val (mappedTable, forReceiver) = this.reports[0]
             assertThat(mappedTable.schema).isEqualTo(table1.schema)
             assertThat(mappedTable.itemCount).isEqualTo(1)
             assertThat(forReceiver).isEqualTo(settings.receivers.toTypedArray()[0])

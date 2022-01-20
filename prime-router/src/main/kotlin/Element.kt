@@ -453,7 +453,7 @@ data class Element(
     /**
      * Take a formatted value and check to see if it can be stored in a report.
      */
-    fun checkForError(formattedValue: String, format: String? = null): ActionEventDetail? {
+    fun checkForError(formattedValue: String, format: String? = null): ActionLogDetail? {
         // remove trailing spaces
         val cleanedValue = formattedValue.trim()
         if (cleanedValue.isBlank() && !isOptional && !canBeBlank) return MissingFieldMessage.new(fieldMapping)
@@ -1208,14 +1208,14 @@ data class Element(
  */
 data class ElementResult(
     var value: String?,
-    val errors: MutableList<ActionEventDetail> = mutableListOf(),
-    val warnings: MutableList<ActionEventDetail> = mutableListOf()
+    val errors: MutableList<ActionLogDetail> = mutableListOf(),
+    val warnings: MutableList<ActionLogDetail> = mutableListOf()
 ) {
     /**
      * Add an error [message] to the result.
      * @return the same instance of the result
      */
-    fun error(message: ActionEventDetail) = apply {
+    fun error(message: ActionLogDetail) = apply {
         errors.add(message)
     }
 
@@ -1223,7 +1223,7 @@ data class ElementResult(
      * Add a warning [message] to the result.
      * @return the same instance of the result
      */
-    fun warning(message: ActionEventDetail) = apply {
+    fun warning(message: ActionLogDetail) = apply {
         warnings.add(message)
     }
 }

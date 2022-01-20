@@ -58,4 +58,4 @@ abstract class JsonBinding<T> (val klass: Class<T>) : AbstractBinding<JSONB, T>(
     }
 }
 
-class ActionEventDetailBinding : JsonBinding<ActionEventDetail>(ActionEventDetail::class.java)
+class ActionLogDetailBinding : JsonBinding<ActionLogDetail>(ActionLogDetail::class.java)

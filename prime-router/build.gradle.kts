@@ -515,9 +515,9 @@ jooq {
                         forcedTypes.add(
                             ForcedType()
                                 // Specify the Java type of your custom type. This corresponds to the Binding's <U> type.
-                                .withUserType("gov.cdc.prime.router.ActionEventDetail")
+                                .withUserType("gov.cdc.prime.router.ActionLogDetail")
                                 // Associate that custom type with your binding.
-                                .withBinding("gov.cdc.prime.router.ActionEventDetailBinding")
+                                .withBinding("gov.cdc.prime.router.ActionLogDetailBinding")
                                 // A Java regex matching fully-qualified columns, attributes, parameters. Use the pipe to separate several expressions.
                                 // 
                                 // If provided, both "includeExpressions" and "includeTypes" must match.

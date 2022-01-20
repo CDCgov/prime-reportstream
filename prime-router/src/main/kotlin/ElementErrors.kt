@@ -1,10 +1,10 @@
 package gov.cdc.prime.router
 
 data class MissingFieldMessage(
-    override val type: ActionEventDetailType = ActionEventDetailType.MISSING,
+    override val type: ActionLogDetailType = ActionLogDetailType.MISSING,
     val formattedValue: String = "",
     val fieldMapping: String = ""
-) : ActionEventDetail {
+) : ActionLogDetail {
     override fun detailMsg(): String {
         return "Blank value for element $fieldMapping"
     }
@@ -15,17 +15,17 @@ data class MissingFieldMessage(
 
     companion object {
         fun new(fieldMapping: String): MissingFieldMessage {
-            return MissingFieldMessage(ActionEventDetailType.MISSING, "", fieldMapping)
+            return MissingFieldMessage(ActionLogDetailType.MISSING, "", fieldMapping)
         }
     }
 }
 
 data class InvalidDateMessage(
-    override val type: ActionEventDetailType = ActionEventDetailType.INVALID_DATE,
+    override val type: ActionLogDetailType = ActionLogDetailType.INVALID_DATE,
     val formattedValue: String = "",
     val fieldMapping: String = "",
     val format: String? = ""
-) : ActionEventDetail {
+) : ActionLogDetail {
     override fun detailMsg(): String {
         var msg = "Invalid date: '$formattedValue' for element $fieldMapping."
         if (format !== null) {
@@ -40,17 +40,17 @@ data class InvalidDateMessage(
 
     companion object {
         fun new(formattedValue: String, fieldMapping: String, format: String?): InvalidDateMessage {
-            return InvalidDateMessage(ActionEventDetailType.INVALID_DATE, formattedValue, fieldMapping, format)
+            return InvalidDateMessage(ActionLogDetailType.INVALID_DATE, formattedValue, fieldMapping, format)
         }
     }
 }
 
 data class InvalidCodeMessage(
-    override val type: ActionEventDetailType = ActionEventDetailType.INVALID_CODE,
+    override val type: ActionLogDetailType = ActionLogDetailType.INVALID_CODE,
     val formattedValue: String = "",
     val fieldMapping: String = "",
     val format: String? = ""
-) : ActionEventDetail {
+) : ActionLogDetail {
     override fun detailMsg(): String {
         var msg = "Invalid code: '$formattedValue' is not a display value in altValues set for $fieldMapping."
         if (format !== null) {
@@ -65,16 +65,16 @@ data class InvalidCodeMessage(
 
     companion object {
         fun new(formattedValue: String, fieldMapping: String, format: String?): InvalidCodeMessage {
-            return InvalidCodeMessage(ActionEventDetailType.INVALID_CODE, formattedValue, fieldMapping, format)
+            return InvalidCodeMessage(ActionLogDetailType.INVALID_CODE, formattedValue, fieldMapping, format)
         }
     }
 }
 
 data class InvalidPhoneMessage(
-    override val type: ActionEventDetailType = ActionEventDetailType.INVALID_PHONE,
+    override val type: ActionLogDetailType = ActionLogDetailType.INVALID_PHONE,
     val formattedValue: String = "",
     val fieldMapping: String = ""
-) : ActionEventDetail {
+) : ActionLogDetail {
     override fun detailMsg(): String {
         return "Invalid phone number '$formattedValue' for $fieldMapping. Reformat to a 10-digit phone number " +
             "(e.g. (555) - 555-5555)."
@@ -86,17 +86,17 @@ data class InvalidPhoneMessage(
 
     companion object {
         fun new(formattedValue: String, fieldMapping: String): InvalidPhoneMessage {
-            return InvalidPhoneMessage(ActionEventDetailType.INVALID_PHONE, formattedValue, fieldMapping)
+            return InvalidPhoneMessage(ActionLogDetailType.INVALID_PHONE, formattedValue, fieldMapping)
         }
     }
 }
 
 data class InvalidPostalMessage(
-    override val type: ActionEventDetailType = ActionEventDetailType.INVALID_POSTAL,
+    override val type: ActionLogDetailType = ActionLogDetailType.INVALID_POSTAL,
     val formattedValue: String = "",
     val fieldMapping: String = "",
     val format: String? = ""
-) : ActionEventDetail {
+) : ActionLogDetail {
     override fun detailMsg(): String {
         var msg = "Invalid postal code '$formattedValue' for $fieldMapping."
         if (format !== null) {
@@ -111,16 +111,16 @@ data class InvalidPostalMessage(
 
     companion object {
         fun new(formattedValue: String, fieldMapping: String, format: String?): InvalidPostalMessage {
-            return InvalidPostalMessage(ActionEventDetailType.INVALID_POSTAL, formattedValue, fieldMapping, format)
+            return InvalidPostalMessage(ActionLogDetailType.INVALID_POSTAL, formattedValue, fieldMapping, format)
         }
     }
 }
 
 data class UnsupportedHDMessage(
-    override val type: ActionEventDetailType = ActionEventDetailType.UNSUPPORTED_HD,
+    override val type: ActionLogDetailType = ActionLogDetailType.UNSUPPORTED_HD,
     val formattedValue: String = "",
     val fieldMapping: String = ""
-) : ActionEventDetail {
+) : ActionLogDetail {
     override fun detailMsg(): String {
         return "Unsupported HD format for input: '$formattedValue' in $fieldMapping"
     }
@@ -131,20 +131,20 @@ data class UnsupportedHDMessage(
 
     companion object {
         fun new(): UnsupportedHDMessage {
-            return UnsupportedHDMessage(ActionEventDetailType.UNSUPPORTED_HD)
+            return UnsupportedHDMessage(ActionLogDetailType.UNSUPPORTED_HD)
         }
 
         fun new(formattedValue: String, fieldMapping: String): UnsupportedHDMessage {
-            return UnsupportedHDMessage(ActionEventDetailType.UNSUPPORTED_HD, formattedValue, fieldMapping)
+            return UnsupportedHDMessage(ActionLogDetailType.UNSUPPORTED_HD, formattedValue, fieldMapping)
         }
     }
 }
 
 data class UnsupportedEIMessage(
-    override val type: ActionEventDetailType = ActionEventDetailType.UNSUPPORTED_EI,
+    override val type: ActionLogDetailType = ActionLogDetailType.UNSUPPORTED_EI,
     val formattedValue: String = "",
     val fieldMapping: String = ""
-) : ActionEventDetail {
+) : ActionLogDetail {
     override fun detailMsg(): String {
         return "Unsupported EI format for input: '$formattedValue' in $fieldMapping"
     }
@@ -155,11 +155,11 @@ data class UnsupportedEIMessage(
 
     companion object {
         fun new(): UnsupportedEIMessage {
-            return UnsupportedEIMessage(ActionEventDetailType.UNSUPPORTED_EI)
+            return UnsupportedEIMessage(ActionLogDetailType.UNSUPPORTED_EI)
         }
 
         fun new(formattedValue: String, fieldMapping: String): UnsupportedEIMessage {
-            return UnsupportedEIMessage(ActionEventDetailType.UNSUPPORTED_EI, formattedValue, fieldMapping)
+            return UnsupportedEIMessage(ActionLogDetailType.UNSUPPORTED_EI, formattedValue, fieldMapping)
         }
     }
 }
@@ -167,9 +167,9 @@ data class UnsupportedEIMessage(
 data class InvalidParamMessage(
     val httpParameter: String,
     val message: String,
-    val detail: ActionEventDetail? = null,
-    override val type: ActionEventDetailType = ActionEventDetailType.INVALID_PARAM,
-) : ActionEventDetail {
+    val detail: ActionLogDetail? = null,
+    override val type: ActionLogDetailType = ActionLogDetailType.INVALID_PARAM,
+) : ActionLogDetail {
     override fun detailMsg(): String {
         return message
     }
@@ -181,8 +181,8 @@ data class InvalidParamMessage(
 
 data class InvalidReportMessage(
     val message: String = "",
-    override val type: ActionEventDetailType = ActionEventDetailType.REPORT,
-) : ActionEventDetail {
+    override val type: ActionLogDetailType = ActionLogDetailType.REPORT,
+) : ActionLogDetail {
     override fun detailMsg(): String {
         return message
     }
@@ -199,9 +199,9 @@ data class InvalidReportMessage(
 }
 
 data class InvalidTranslationMessage(
-    override val type: ActionEventDetailType = ActionEventDetailType.TRANSLATION,
+    override val type: ActionLogDetailType = ActionLogDetailType.TRANSLATION,
     val message: String = "",
-) : ActionEventDetail {
+) : ActionLogDetail {
     override fun detailMsg(): String {
         return message
     }
@@ -212,15 +212,15 @@ data class InvalidTranslationMessage(
 
     companion object {
         fun new(message: String): InvalidTranslationMessage {
-            return InvalidTranslationMessage(ActionEventDetailType.TRANSLATION, message)
+            return InvalidTranslationMessage(ActionLogDetailType.TRANSLATION, message)
         }
     }
 }
 
 data class InvalidHL7Message(
-    override val type: ActionEventDetailType = ActionEventDetailType.INVALID_HL7,
+    override val type: ActionLogDetailType = ActionLogDetailType.INVALID_HL7,
     val message: String = "",
-) : ActionEventDetail {
+) : ActionLogDetail {
     override fun detailMsg(): String {
         return message
     }
@@ -231,7 +231,7 @@ data class InvalidHL7Message(
 
     companion object {
         fun new(message: String): InvalidHL7Message {
-            return InvalidHL7Message(ActionEventDetailType.INVALID_HL7, message)
+            return InvalidHL7Message(ActionLogDetailType.INVALID_HL7, message)
         }
     }
 }
@@ -240,9 +240,9 @@ data class InvalidHL7Message(
  * An message to denote that an equipment was not found in the LIVD table.
  */
 data class InvalidEquipmentMessage(
-    override val type: ActionEventDetailType = ActionEventDetailType.INVALID_EQUIPMENT,
+    override val type: ActionLogDetailType = ActionLogDetailType.INVALID_EQUIPMENT,
     val elementName: String
-) : ActionEventDetail {
+) : ActionLogDetail {
     override fun detailMsg(): String {
         return "Invalid field $elementName; please refer to the Department of Health and Human Services’ (HHS) " +
             "LOINC Mapping spreadsheet for acceptable values."

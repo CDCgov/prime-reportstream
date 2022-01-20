@@ -2,7 +2,7 @@ package gov.cdc.prime.router.azure
 
 import com.microsoft.azure.functions.ExecutionContext
 import gov.cdc.prime.router.ActionError
-import gov.cdc.prime.router.ActionEvent
+import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
@@ -407,7 +407,7 @@ class WorkflowEngine(
         defaults: Map<String, String>,
         routeTo: List<String>,
         actionHistory: ActionHistory,
-    ): List<ActionEvent> {
+    ): List<ActionLog> {
         val (routedReports, warnings) = this.translator
             .filterAndTranslateByReceiver(
                 report,
@@ -900,7 +900,7 @@ class WorkflowEngine(
                     )
                 } catch (e: Exception) {
                     throw ActionError(
-                        ActionEvent.report(
+                        ActionLog.report(
                             "An unexpected error occurred requiring additional help. Contact the ReportStream " +
                                 "team at reportstream@cdc.gov."
                         ),
@@ -917,7 +917,7 @@ class WorkflowEngine(
                     )
                 } catch (e: Exception) {
                     throw ActionError(
-                        ActionEvent.report(
+                        ActionLog.report(
                             "An unexpected error occurred requiring additional help. Contact the ReportStream " +
                                 "team at reportstream@cdc.gov."
                         ),

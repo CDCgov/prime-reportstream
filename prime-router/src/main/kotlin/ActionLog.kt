@@ -4,7 +4,7 @@ import java.time.Instant
 import java.util.UUID
 
 /**
- * ActionEvent models events that happen over the
+ * ActionLog models events that happen over the
  * execution of an Action
  *
  * TODO: Rename Event (in Event.kt) to message to better
@@ -19,14 +19,14 @@ import java.util.UUID
  * @property type The type of even that happened, defaults to info
  * @property created_at The time the event happened durring execution
  */
-data class ActionEvent(
-    val scope: ActionEventScope,
-    val detail: ActionEventDetail,
+data class ActionLog(
+    val scope: ActionLogScope,
+    val detail: ActionLogDetail,
     val trackingId: String? = null,
     val index: Int? = null,
     var reportId: UUID? = null,
     var action: Action? = null,
-    val type: ActionEventType = ActionEventType.info,
+    val type: ActionLogType = ActionLogType.info,
     val created_at: Instant = Instant.now(),
 ) {
 
@@ -40,9 +40,9 @@ data class ActionEvent(
      * @property ITEM scope for the event
      * @property TRANSLATION scope for the event
      */
-    enum class ActionEventScope { parameter, report, item, translation }
+    enum class ActionLogScope { parameter, report, item, translation }
 
-    enum class ActionEventType { info, warning, error, filter }
+    enum class ActionLogType { info, warning, error, filter }
 
     companion object {
         /**
@@ -55,8 +55,8 @@ data class ActionEvent(
          * @param reportId The identifier for the report this event happened to
          * @return The created event with report scope
          */
-        fun report(message: ActionEventDetail, type: ActionEventType, reportId: UUID? = null): ActionEvent {
-            return ActionEvent(ActionEventScope.report, message, type = type, reportId = reportId)
+        fun report(message: ActionLogDetail, type: ActionLogType, reportId: UUID? = null): ActionLog {
+            return ActionLog(ActionLogScope.report, message, type = type, reportId = reportId)
         }
 
         /**
@@ -68,9 +68,9 @@ data class ActionEvent(
          * @param type Usually error
          * @return The created event with report scope and InvalidReportMessage detail
          */
-        fun report(message: String, type: ActionEventType = ActionEventType.error): ActionEvent {
+        fun report(message: String, type: ActionLogType = ActionLogType.error): ActionLog {
             val reportMessage = InvalidReportMessage(message)
-            return ActionEvent(ActionEventScope.report, reportMessage, type = type)
+            return ActionLog(ActionLogScope.report, reportMessage, type = type)
         }
 
         /**
@@ -82,8 +82,8 @@ data class ActionEvent(
          * @param type The type of the event
          * @return The created event with item scope
          */
-        fun item(trackingId: String, message: ActionEventDetail, index: Int, type: ActionEventType): ActionEvent {
-            return ActionEvent(ActionEventScope.item, message, trackingId, index, type = type)
+        fun item(trackingId: String, message: ActionLogDetail, index: Int, type: ActionLogType): ActionLog {
+            return ActionLog(ActionLogScope.item, message, trackingId, index, type = type)
         }
 
         /**
@@ -96,11 +96,11 @@ data class ActionEvent(
          */
         fun param(
             httpParameter: String,
-            detail: ActionEventDetail,
-            type: ActionEventType = ActionEventType.error
-        ): ActionEvent {
-            return ActionEvent(
-                ActionEventScope.parameter,
+            detail: ActionLogDetail,
+            type: ActionLogType = ActionLogType.error
+        ): ActionLog {
+            return ActionLog(
+                ActionLogScope.parameter,
                 InvalidParamMessage(
                     httpParameter,
                     "",
@@ -121,10 +121,10 @@ data class ActionEvent(
         fun param(
             httpParameter: String,
             message: String,
-            type: ActionEventType = ActionEventType.error
-        ): ActionEvent {
-            return ActionEvent(
-                ActionEventScope.parameter,
+            type: ActionLogType = ActionLogType.error
+        ): ActionLog {
+            return ActionLog(
+                ActionLogScope.parameter,
                 InvalidParamMessage(
                     httpParameter,
                     message,
@@ -142,7 +142,7 @@ data class ActionEvent(
  * @property details are the events that occured to trigger this error
  * @property message text describing the error
  */
-class ActionError(val details: List<ActionEvent>, message: String? = null) : Error(message) {
-    constructor(detail: ActionEvent, message: String? = null) : this(listOf(detail), message)
-    constructor(details: List<ActionEvent>) : this(details, null)
+class ActionError(val details: List<ActionLog>, message: String? = null) : Error(message) {
+    constructor(detail: ActionLog, message: String? = null) : this(listOf(detail), message)
+    constructor(details: List<ActionLog>) : this(details, null)
 }

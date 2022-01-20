@@ -14,7 +14,7 @@ import ca.uhn.hl7v2.parser.ModelClassFactory
 import ca.uhn.hl7v2.preparser.PreParser
 import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.router.ActionError
-import gov.cdc.prime.router.ActionEvent
+import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.ElementAndValue
 import gov.cdc.prime.router.Hl7Configuration
@@ -370,27 +370,27 @@ class Hl7Serializer(
         input: InputStream,
         source: Source
     ): ReadResult {
-        val errors = mutableListOf<ActionEvent>()
-        val warnings = mutableListOf<ActionEvent>()
+        val errors = mutableListOf<ActionLog>()
+        val warnings = mutableListOf<ActionLog>()
         val messageBody = input.bufferedReader().use { it.readText() }
         val schema = metadata.findSchema(schemaName) ?: error("Schema name $schemaName not found")
         val mapping = convertBatchMessagesToMap(messageBody, schema)
         val mappedRows = mapping.mappedRows
         errors.addAll(
             mapping.errors.map {
-                ActionEvent(
-                    ActionEvent.ActionEventScope.item,
+                ActionLog(
+                    ActionLog.ActionLogScope.item,
                     InvalidHL7Message.new(it),
-                    type = ActionEvent.ActionEventType.error
+                    type = ActionLog.ActionLogType.error
                 )
             }
         )
         warnings.addAll(
             mapping.warnings.map {
-                ActionEvent(
-                    ActionEvent.ActionEventScope.item,
+                ActionLog(
+                    ActionLog.ActionLogScope.item,
                     InvalidHL7Message.new(it),
-                    type = ActionEvent.ActionEventType.warning
+                    type = ActionLog.ActionLogType.warning
                 )
             }
         )
