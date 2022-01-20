@@ -52,10 +52,10 @@ class BatchDeciderFunction(private val workflowEngine: WorkflowEngine = Workflow
                         )
                         var queueMessages = ceil((recordsToBatch.toDouble() / rec.timing!!.maxReportCount.toDouble()))
                             .roundToInt()
-                        logger.info(
-                            "$batchDecider found $recordsToBatch for ${rec.fullName}," +
-                                "max size ${rec.timing.maxReportCount}. Queueing $queueMessages messages to BATCH"
-                        )
+                        val logMessage = "$batchDecider found $recordsToBatch for ${rec.fullName}," +
+                            "max size ${rec.timing.maxReportCount}. Queueing $queueMessages messages to BATCH"
+                        if (recordsToBatch > 0) logger.info(logMessage)
+                        else logger.debug(logMessage)
 
                         var isEmpty = false
                         // if there are no records to send but the receiver is set on 'send when empty' check if

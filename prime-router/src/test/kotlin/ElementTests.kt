@@ -1015,7 +1015,12 @@ internal class ElementTests {
                 return args
             }
 
-            override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): ElementResult {
+            override fun apply(
+                element: Element,
+                args: List<String>,
+                values: List<ElementAndValue>,
+                sender: Sender?
+            ): ElementResult {
                 return if (args.isEmpty()) ElementResult(null)
                 else when (args[0]) {
                     "1warning" -> ElementResult(null).warning(InvalidEquipmentMessage.new(element))
