@@ -313,6 +313,28 @@
       schemaName: manualupload/csvuploadertest-covid-19
       format: CSV
 
+- name: sourcebioscience_ca
+  description: Source BioScience CSV COVID schema, California
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: sourcebioscience_ca
+      topic: covid-19
+      customerStatus: active
+      schemaName: manualupload/sourcebioscience_ca-covid-19
+      format: CSV
+
+- name: cadph-csvuploadertest
+  description: CA-DPH CSV Uploader Test
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: cadph-csvuploadertest
+      topic: covid-19
+      customerStatus: active
+      schemaName: manualupload/cadph-csvuploadertest-covid-19
+      format: CSV
+
 - name: manualupload
   description: Sender for Manual Upload of the RS Standard CSV File
   jurisdiction: FEDERAL
@@ -1859,7 +1881,7 @@
     - name: ignore-empty      # Use this to test sending data from the 'empty' schema
       organizationName: ignore
       topic: covid-19
-      customerStatus: inactive
+      customerStatus: active
       schemaName: empty
       format: CSV
     - name: ignore-hl7      # Use this to test sending data from the HL7 schema
@@ -2144,6 +2166,34 @@
       translation:
         type: HL7
         useBatchHeaders: true
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+    - name: SETTINGS_TEST
+      externalName: Used to test putting sender settings into the data, using ignore.ignore-empty
+      organizationName: ignore
+      topic: covid-19
+      customerStatus: active
+      jurisdictionalFilter: [ "matches(ordering_facility_county, SETTINGS_TEST)" ]
+      qualityFilter: [ "allowAll()" ]
+      # These three filters must match the settings for the ignore.ignore-empty Sender.
+      routingFilter:
+        - matches(sender_fullname, ignore.ignore-empty)
+        - matches(sender_orgname, ignore)
+      processingModeFilter:
+        # Because ignore.ignore-empty has customerStatus = active
+        - matches(processing_mode_code, P)
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+      translation:
+        type: CUSTOM
+        schemaName: empty
+        format: CSV
       transport:
         type: SFTP
         host: sftp

@@ -7,11 +7,11 @@ basedOn: covid-19
 
 elements:
     - name: sender_id
-      csvFields: [ { name: sender_id } ]
+      mapper: useSenderSetting(organizationName)
 
     - name: processing_mode_code
+      mapper: useSenderSetting(processingModeCode)   
       csvFields: [ { name: processing_mode_code } ]
-
 
 ############### Set the major ID fields
     - name: patient_id
@@ -88,7 +88,7 @@ elements:
 
     - name: patient_dob
       cardinality: ONE 
-      csvFields: [{name: patient_dob, format: "yyyyMMdd"}]
+      csvFields: [{name: patient_dob}]
 
     - name: patient_gender
       cardinality: ONE 
@@ -115,9 +115,10 @@ elements:
 
 ############### Order Info / Result Info / Specimen Info
     - name: order_test_date
+      type: DATE
       cardinality: ONE 
       nullifyValue: true
-      csvFields: [{name: order_test_date, format: "yyyyMMdd"}]
+      csvFields: [{name: order_test_date}]
 
     - name: specimen_collection_date_temp
       type: TEXT
@@ -126,7 +127,7 @@ elements:
     - name: specimen_collection_date_time
       cardinality: ONE 
       nullifyValue: true
-      csvFields: [{name: specimen_collection_date, format: "yyyyMMdd"}]
+      csvFields: [{name: specimen_collection_date}]
       mapperOverridesValue: true
       mapper: ifNotPresent($mode:lookup, order_test_date, specimen_collection_date_temp)
 
@@ -137,14 +138,15 @@ elements:
     - name: testing_lab_specimen_received_datetime
       cardinality: ONE 
       nullifyValue: true
-      csvFields: [{name: testing_lab_specimen_received_date, format: "yyyyMMdd"}]
+      csvFields: [{name: testing_lab_specimen_received_date}]
       mapperOverridesValue: true
       mapper: ifNotPresent($mode:lookup, order_test_date, testing_lab_specimen_received_date_temp)
 
     - name: test_result_date
+      type: DATE
       cardinality: ONE 
       nullifyValue: true
-      csvFields: [{name: test_result_date, format: "yyyyMMdd"}]
+      csvFields: [{name: test_result_date}]
 
     - name: date_result_released_temp
       type: TEXT
@@ -153,7 +155,7 @@ elements:
     - name: date_result_released
       cardinality: ONE 
       nullifyValue: true
-      csvFields: [{name: date_result_released, format: "yyyyMMdd"}]
+      csvFields: [{name: date_result_released}]
       mapperOverridesValue: true
       mapper: ifNotPresent($mode:lookup, test_result_date, date_result_released_temp)
 
