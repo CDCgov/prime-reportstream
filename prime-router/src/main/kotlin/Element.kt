@@ -952,13 +952,15 @@ data class Element(
      * @param allElementValues the values for all other elements.  Used for the mappers.
      * @param schema the schema
      * @param defaultOverrides element name and value pairs of defaults that override schema defaults
+     * @param sender Sender who submitted the data.  Can be null if called at a point in code where its not known
      * @return a mutable set with the processed value or empty string
      */
     fun processValue(
         allElementValues: Map<String, String>,
         schema: Schema,
         defaultOverrides: Map<String, String> = emptyMap(),
-        index: Int = 0
+        index: Int = 0,
+        sender: Sender? = null,
     ): ElementResult {
         val retVal = ElementResult(if (allElementValues[name].isNullOrEmpty()) "" else allElementValues[name]!!)
         if (useMapper(retVal.value) && mapperRef != null) {
@@ -980,7 +982,7 @@ data class Element(
                 }
             }
             // Only overwrite an existing value if the mapper returns a string
-            val mapperResult = mapperRef.apply(this, args, valuesForMapper)
+            val mapperResult = mapperRef.apply(this, args, valuesForMapper, sender)
             val value = mapperResult.value
             if (!value.isNullOrBlank()) {
                 retVal.value = value
