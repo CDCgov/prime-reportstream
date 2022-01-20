@@ -66,7 +66,7 @@ export const ConfirmDeleteSettingModal: React.FC<DeleteSettingsModalProps> = ({
                 </ModalHeading>
                 <div className="usa-prose">
                     <p id={`${uniquid}-description`}>
-                        You are about to delete this setting.
+                        You are about to delete this setting: {uniquid}
                     </p>
                 </div>
                 <ModalFooter>

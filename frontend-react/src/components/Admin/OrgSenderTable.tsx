@@ -119,7 +119,7 @@ export function OrgSenderTable(props: OrgSettingsTableProps) {
                 </tbody>
             </Table>
             <ConfirmDeleteSettingModal
-                uniquid={"deletesenderdata"}
+                uniquid={deleteItemId}
                 onConfirm={doDeleteSetting}
                 modalRef={modalRef}
             >

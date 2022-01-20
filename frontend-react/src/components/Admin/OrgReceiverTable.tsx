@@ -121,7 +121,7 @@ export function OrgReceiverTable(props: OrgSettingsTableProps) {
                 </tbody>
             </Table>
             <ConfirmDeleteSettingModal
-                uniquid={"deletereceiverdata"}
+                uniquid={deleteItemId}
                 onConfirm={doDeleteSetting}
                 modalRef={modalRef}
             >
