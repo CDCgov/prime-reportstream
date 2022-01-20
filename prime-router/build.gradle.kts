@@ -164,7 +164,7 @@ tasks.test {
 }
 
 tasks.dokkaHtml.configure {
-    val docsDir = File(project.projectDir, "/docs/dokka")
+    val docsDir = File(project.buildDir, "/docs/dokka")
     outputDirectory.set(docsDir)
 }
 
