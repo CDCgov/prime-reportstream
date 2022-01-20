@@ -118,6 +118,7 @@ class DatabaseLookupTableAccess(private val db: DatabaseAccess = DatabaseAccess(
                     Tables.LOOKUP_TABLE_VERSION.TABLE_NAME.eq(tableName)
                         .and(Tables.LOOKUP_TABLE_VERSION.TABLE_VERSION.eq(version))
                 )
+                .orderBy(Tables.LOOKUP_TABLE_ROW.LOOKUP_TABLE_ROW_ID.asc())
                 .fetchInto(LookupTableRow::class.java)
         }
         return rows
@@ -152,8 +153,8 @@ class DatabaseLookupTableAccess(private val db: DatabaseAccess = DatabaseAccess(
     }
 
     /**
-     * Create a new table [version] for a [tableName] using the provided [tableData].  The [force] flag is use
-     * to force to update lookup table regardless.
+     * Create a new table [version] for a [tableName] using the provided [tableData].  The [force] flag is used
+     * to force an update of a lookup table.
      * This function will throw an exception upon an error and rollback any data inserted into the database.
      */
     fun createTable(tableName: String, version: Int, tableData: List<JSONB>, username: String, force: Boolean) {
@@ -217,16 +218,16 @@ class DatabaseLookupTableAccess(private val db: DatabaseAccess = DatabaseAccess(
      * Calculate the SHA-256 checksum of the input data.
      * @return SHA-256 checksum value
      */
-    fun String.toSHA256(): String {
+    private fun String.toSHA256(): String {
         val bytes = MessageDigest.getInstance("SHA-256").digest(this.toByteArray())
         return bytes.joinToString("") { "%02x".format(it) }
     }
 
     /**
-     * Check against active or lastest table if it eguals to either of those table.
+     * Check against active or latest table if it equals to either of those table.
      * @return version that equal to the new table, otherwise, null
      */
-    fun isTableUpToDate(tableName: String, tableSHA256: String): Int? {
+    private fun isTableUpToDate(tableName: String, tableSHA256: String): Int? {
         val activeVersion = fetchActiveVersion(tableName)
         if (activeVersion != null) {
             val activeTableVersion = fetchVersionInfo(tableName, activeVersion)
