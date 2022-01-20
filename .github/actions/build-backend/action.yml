@@ -1,0 +1,54 @@
+# action.yml
+name: 'Build Backend'
+description: 'Build backend router'
+inputs:
+  version:
+    description: "Version tag"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+
+    # These are for CI and not credentials of any system
+    - name: Set Environment Variables
+      working-directory: prime-router
+      shell: bash
+      run: |
+        echo >> $GITHUB_ENV DB_USER='prime'
+        echo >> $GITHUB_ENV DB_PASSWORD='changeIT!'
+
+    - uses: gradle/wrapper-validation-action@v1
+
+    - name: Spin up build containers
+      working-directory: prime-router
+      shell: bash
+      run: docker-compose -f docker-compose.postgres.yml up -d
+
+    - name: Build Prime Router Package
+      working-directory: prime-router
+      shell: bash
+      run: ./gradlew package -x fatjar -Pshowtests
+
+    - name: Tar router files
+      working-directory: prime-router
+      shell: bash
+      run: tar -czvf prime-router-build.tar.gz build
+
+    - name: Publish Unit Test Results
+      uses: EnricoMi/publish-unit-test-result-action@v1
+      # Per https://github.com/EnricoMi/publish-unit-test-result-action#support-fork-repositories-and-dependabot-branches
+      if: >
+        always() &&
+        github.event.sender.login != 'dependabot[bot]' &&
+        ( github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository )
+      with:
+        # This path is from the root of the repo as needed by the plugin
+        files: prime-router/build/test-results/test/**/*.xml
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: prime-router-build-${{ inputs.version }}
+        path: prime-router/prime-router-build.tar.gz
+        retention-days: 3
