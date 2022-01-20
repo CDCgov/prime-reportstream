@@ -66,7 +66,7 @@ class LivdTableDownload() : CliktCommand(
     """
 ) {
     private val defaultOutputDir = "./build"
-    private val outPutFile = "./build/$livdSARSCov2File.csv"
+    private val outputFile = "./build/$livdSARSCov2File.csv"
 
     /**
      * The environment to connect to.
@@ -91,11 +91,11 @@ class LivdTableDownload() : CliktCommand(
 
         // Extracts the "LIONC Mapping" sheet from the Excel and output to the specified output CSV format file
         // specified by --output-file option.
-        if (!extractLivdTable(sheetName, downloadedDirFile, outPutFile)) return
+        if (!extractLivdTable(sheetName, downloadedDirFile, outputFile)) return
 
         // Now, upload the LIVD-SARS-CoV-2-yyyyMMdd (LIVD lookup table) to a new version of a lookup tables
         // in database.
-        if (!updateTheLivdLookupTable(File(outPutFile))) return
+        if (!updateTheLivdLookupTable(File(outputFile))) return
 
         TermUi.echo("\tThe lookup table is updated successfully.")
     }
