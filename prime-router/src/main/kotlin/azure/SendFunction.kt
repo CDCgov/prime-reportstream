@@ -89,7 +89,15 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
                     }
                 }
                 context.logger.info("For $inputReportId:  finished send().  Calling handleRetry.")
-                handleRetry(nextRetryItems, inputReportId, serviceName, retryToken, context, actionHistory, event.isEmptyBatch)
+                handleRetry(
+                    nextRetryItems,
+                    inputReportId,
+                    serviceName,
+                    retryToken,
+                    context,
+                    actionHistory,
+                    event.isEmptyBatch
+                )
             }
         } catch (t: Throwable) {
             // For debugging and auditing purposes

@@ -1,6 +1,5 @@
 package gov.cdc.prime.router
 
-import com.github.javafaker.Bool
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction

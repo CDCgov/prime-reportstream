@@ -1,44 +1,18 @@
 package gov.cdc.prime.router.azure
 
-import assertk.assertThat
-import assertk.assertions.isEqualTo
-import assertk.assertions.isNotNull
-import assertk.assertions.isNull
-import assertk.assertions.isTrue
-import com.microsoft.azure.functions.ExecutionContext
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
-import gov.cdc.prime.router.Element
-import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
-import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.SettingsProvider
-import gov.cdc.prime.router.USTimeZone
-import gov.cdc.prime.router.azure.db.enums.TaskAction
-import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
-import gov.cdc.prime.router.azure.db.tables.pojos.Task
-import gov.cdc.prime.router.transport.RetryToken
-import gov.cdc.prime.router.transport.SftpTransport
-import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
-import io.mockk.confirmVerified
-import io.mockk.every
 import io.mockk.mockkClass
-import io.mockk.mockkConstructor
 import io.mockk.spyk
-import io.mockk.verify
-import org.jooq.Configuration
 import org.jooq.tools.jdbc.MockConnection
 import org.jooq.tools.jdbc.MockDataProvider
 import org.jooq.tools.jdbc.MockResult
 import org.junit.jupiter.api.BeforeEach
-import java.time.OffsetDateTime
-import java.util.UUID
-import java.util.logging.Level
-import java.util.logging.Logger
-import kotlin.test.Test
 
 class BatchDeciderTests {
     val dataProvider = MockDataProvider { emptyArray<MockResult>() }
@@ -57,7 +31,9 @@ class BatchDeciderTests {
                 "topic",
                 CustomerStatus.INACTIVE,
                 "one",
-                timing = timing1)),
+                timing = timing1
+            )
+        ),
     )
 
     private fun makeEngine(metadata: Metadata, settings: SettingsProvider): WorkflowEngine {
@@ -203,5 +179,4 @@ class BatchDeciderTests {
 //        assertThat(nextEvent!!.retryToken).isNull()
 //        verify { anyConstructed<ActionHistory>().setActionType(TaskAction.send_error) }
 //    }
-
 }

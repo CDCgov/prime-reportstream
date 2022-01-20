@@ -61,9 +61,8 @@ class BatchFunction {
                     actionHistory,
                     receiver
                 )
-             workflowEngine.recordAction(actionHistory)
-            }
-            else {
+                workflowEngine.recordAction(actionHistory)
+            } else {
                 workflowEngine.handleBatchEvent(event, maxBatchSize, backstopTime) { headers, txn ->
                     // find any headers that expected to have content but were unable to actually download
                     //  from the blob store.
@@ -103,7 +102,11 @@ class BatchFunction {
                         mergedReports
                     outReports.forEach {
                         val outReport = it.copy(destination = receiver, bodyFormat = receiver.format)
-                        val outEvent = ReportEvent(Event.EventAction.SEND, outReport.id, actionHistory.generatingEmptyReport)
+                        val outEvent = ReportEvent(
+                            Event.EventAction.SEND,
+                            outReport.id,
+                            actionHistory.generatingEmptyReport
+                        )
                         workflowEngine.dispatchReport(outEvent, outReport, actionHistory, receiver, txn, null)
                     }
                     val msg = if (inReports.size == 1 && outReports.size == 1) "Success: No merging needed - batch of 1"

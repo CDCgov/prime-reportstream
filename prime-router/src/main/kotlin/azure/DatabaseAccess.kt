@@ -171,8 +171,6 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             .and(ACTION.CREATED_AT.greaterOrEqual(checkTime))
             .and(ACTION.ACTION_NAME.eq(TaskAction.send))
             .count() > 0
-
-
     }
 
     fun fetchTask(reportId: ReportId): Task {

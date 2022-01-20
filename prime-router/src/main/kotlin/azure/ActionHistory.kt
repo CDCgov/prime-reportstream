@@ -130,7 +130,7 @@ class ActionHistory {
      */
     val itemLineages = mutableSetOf<ItemLineage>()
 
-    constructor(taskAction: TaskAction, context: ExecutionContext? = null, generatingEmptyReport: Boolean  = false) {
+    constructor(taskAction: TaskAction, context: ExecutionContext? = null, generatingEmptyReport: Boolean = false) {
         action.actionName = taskAction
         this.context = context
         this.generatingEmptyReport = generatingEmptyReport
@@ -352,7 +352,7 @@ class ActionHistory {
 
         // add to queue
         if (event.eventAction != Event.EventAction.BATCH)
-           trackEvent(event)
+            trackEvent(event)
     }
 
     /**
@@ -563,8 +563,7 @@ class ActionHistory {
                         null
                     )
                 )
-        }
-        else {
+        } else {
             generateReportLineagesUsingItemLineage(action.actionId)
         }
         insertReportLineages(txn)

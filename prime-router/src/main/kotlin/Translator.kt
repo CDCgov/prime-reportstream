@@ -288,9 +288,10 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
      */
     fun buildMapping(
         toSchema: Schema,
-                     fromSchema: Schema,
-                     defaultValues: DefaultValues,
-                     generateEmpty: Boolean = false): Mapping {
+        fromSchema: Schema,
+        defaultValues: DefaultValues,
+        generateEmpty: Boolean = false
+    ): Mapping {
         if (toSchema.topic != fromSchema.topic) error("Trying to match schema with different topics")
 
         val useDirectly = mutableMapOf<String, String>()
@@ -303,8 +304,7 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
         toSchema.elements.forEach { toElement ->
             if (generateEmpty) {
                 forceEmpty.add(toElement.name)
-            }
-            else {
+            } else {
                 var isMissing = toElement.cardinality == Element.Cardinality.ONE
                 fromSchema.findElement(toElement.name)?.let { matchedElement ->
                     useDirectly[toElement.name] = matchedElement.name

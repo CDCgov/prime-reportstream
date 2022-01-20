@@ -224,7 +224,6 @@ class WorkflowEngine(
             receiver.translation.receivingFacilityName
         else null
 
-
         val blobInfo = try {
             // formatting errors can occur down in here.
             blob.generateBodyAndUploadReport(
@@ -435,10 +434,10 @@ class WorkflowEngine(
         actionHistory: ActionHistory,
         receiver: Receiver,
     ) {
-        //generate empty report for receiver's specified foramt
+        // generate empty report for receiver's specified foramt
         val toSchema = metadata.findSchema(receiver.schemaName)
             ?: error("${receiver.schemaName} schema is missing from catalog")
-        val clientSource = ClientSource("ReportStream","EmptyBatch")
+        val clientSource = ClientSource("ReportStream", "EmptyBatch")
 
         val emptyReport = Report(
             toSchema,

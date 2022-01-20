@@ -22,7 +22,6 @@ import org.jooq.Configuration
 import org.junit.jupiter.api.BeforeEach
 import java.time.OffsetDateTime
 import java.util.UUID
-import java.util.logging.Level
 import java.util.logging.Logger
 import kotlin.test.Test
 
@@ -211,7 +210,6 @@ class SendFunctionTests {
         assertThat(nextEvent!!.retryToken).isNull()
         verify { anyConstructed<ActionHistory>().setActionType(TaskAction.send_error) }
     }
-
 
     // TODO CD: Should this test even work?  it looks like we changed to 'error' instead of 'logger.severe'
 //    @Test

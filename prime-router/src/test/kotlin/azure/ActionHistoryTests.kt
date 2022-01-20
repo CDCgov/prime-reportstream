@@ -93,7 +93,7 @@ class ActionHistoryTests {
 
     @Test
     fun `test trackGeneratedEmptyReport`() {
-        val event1 = ReportEvent(Event.EventAction.TRANSLATE, UUID.randomUUID(), false,  OffsetDateTime.now())
+        val event1 = ReportEvent(Event.EventAction.TRANSLATE, UUID.randomUUID(), false, OffsetDateTime.now())
         val one = Schema(name = "one", topic = "test", elements = listOf())
         val report1 = Report(
             one, listOf(),
@@ -127,7 +127,7 @@ class ActionHistoryTests {
 
     @Test
     fun `test trackCreatedReport`() {
-        val event1 = ReportEvent(Event.EventAction.TRANSLATE, UUID.randomUUID(), false,  OffsetDateTime.now())
+        val event1 = ReportEvent(Event.EventAction.TRANSLATE, UUID.randomUUID(), false, OffsetDateTime.now())
         val schema1 = Schema(name = "schema1", topic = "topic1", elements = listOf())
         val report1 = Report(
             schema1, listOf(), sources = listOf(ClientSource("myOrg", "myClient")),

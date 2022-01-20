@@ -95,12 +95,14 @@ class Hl7Serializer(
     ) {
         // Dev Note: HAPI doesn't support a batch of messages, so this code creates
         // these segments by hand
-        outputStream.write(createHeaders(
-            report,
-            sendingApplicationReport,
-            receivingApplicationReport,
-            receivingFacilityReport
-        ).toByteArray())
+        outputStream.write(
+            createHeaders(
+                report,
+                sendingApplicationReport,
+                receivingApplicationReport,
+                receivingFacilityReport
+            ).toByteArray()
+        )
         report.itemIndices.map {
             val message = createMessage(report, it)
             outputStream.write(message.toByteArray())
@@ -1368,12 +1370,12 @@ class Hl7Serializer(
         receivingFacilityReportIn: String? = null
     ): String {
 
-        val sendingApplicationReport = sendingApplicationReportIn ?:
-        (report.getString(0, "sending_application") ?: "")
-        val receivingApplicationReport = receivingApplicationReportIn ?:
-        report.getString(0, "receiving_application") ?: ""
-        val receivingFacilityReport = receivingFacilityReportIn ?:
-        report.getString(0, "receiving_facility") ?: ""
+        val sendingApplicationReport = sendingApplicationReportIn
+            ?: (report.getString(0, "sending_application") ?: "")
+        val receivingApplicationReport = receivingApplicationReportIn
+            ?: (report.getString(0, "receiving_application") ?: "")
+        val receivingFacilityReport = receivingFacilityReportIn
+            ?: (report.getString(0, "receiving_facility") ?: "")
 
         var sendingAppTruncationLimit: Int? = null
         var receivingAppTruncationLimit: Int? = null

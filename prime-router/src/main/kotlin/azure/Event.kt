@@ -217,7 +217,8 @@ class ReportEvent(
 
     override fun toQueueMessage(): String {
         val afterClause = if (at == null) "" else "$messageDelimiter${DateTimeFormatter.ISO_DATE_TIME.format(at)}"
-        return "$eventType$messageDelimiter$eventAction$messageDelimiter$reportId$messageDelimiter$isEmptyBatch$afterClause"
+        return "$eventType$messageDelimiter$eventAction$messageDelimiter$reportId" +
+            "$messageDelimiter$isEmptyBatch$afterClause"
     }
 
     override fun equals(other: Any?): Boolean {
@@ -244,7 +245,8 @@ class BatchEvent(
 ) : Event(eventAction, at) {
     override fun toQueueMessage(): String {
         val afterClause = if (at == null) "" else "$messageDelimiter${DateTimeFormatter.ISO_DATE_TIME.format(at)}"
-        return "$eventType$messageDelimiter$eventAction$messageDelimiter$receiverName$messageDelimiter$isEmptyBatch$afterClause"
+        return "$eventType$messageDelimiter$eventAction$messageDelimiter$receiverName" +
+            "$messageDelimiter$isEmptyBatch$afterClause"
     }
 
     override fun equals(other: Any?): Boolean {
