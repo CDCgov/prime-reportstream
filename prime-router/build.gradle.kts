@@ -521,7 +521,7 @@ jooq {
                                 // A Java regex matching fully-qualified columns, attributes, parameters. Use the pipe to separate several expressions.
                                 // 
                                 // If provided, both "includeExpressions" and "includeTypes" must match.
-                                .withIncludeExpression("action_event.detail")
+                                .withIncludeExpression("action_log.detail")
                                 .withIncludeTypes("JSONB")
                         )
                     }
