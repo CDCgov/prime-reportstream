@@ -23,6 +23,7 @@ import gov.cdc.prime.router.Mapper
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
+import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Source
 import gov.cdc.prime.router.ValueSet
@@ -104,7 +105,7 @@ class Hl7Serializer(
     /*
      * Read in a file
      */
-    fun convertBatchMessagesToMap(message: String, schema: Schema): Hl7Mapping {
+    fun convertBatchMessagesToMap(message: String, schema: Schema, sender: Sender? = null): Hl7Mapping {
         val mappedRows: MutableMap<String, MutableList<String>> = mutableMapOf()
         val errors = mutableListOf<String>()
         val warnings = mutableListOf<String>()
@@ -119,7 +120,7 @@ class Hl7Serializer(
          * Parse an HL7 [message] from a string.
          */
         fun parseStringMessage(message: String) {
-            val parsedMessage = convertMessageToMap(message, schema)
+            val parsedMessage = convertMessageToMap(message, schema, sender = sender)
             parsedMessage.errors.forEach {
                 errors.add("Report $reportNumber: $it")
             }
@@ -169,7 +170,7 @@ class Hl7Serializer(
      * Convert an HL7 [message] based on the specified [schema].
      * @returns the resulting data
      */
-    fun convertMessageToMap(message: String, schema: Schema): RowResult {
+    fun convertMessageToMap(message: String, schema: Schema, sender: Sender? = null): RowResult {
         /**
          * Query the terser and get a value.
          * @param terser the HAPI terser
@@ -339,7 +340,7 @@ class Hl7Serializer(
 
             // Second, we process all the element raw values through mappers and defaults.
             schema.elements.forEach {
-                val mappedResult = it.processValue(mappedRows, schema)
+                val mappedResult = it.processValue(mappedRows, schema, sender = sender)
                 mappedRows[it.name] = mappedResult.value ?: ""
                 errors.addAll(mappedResult.errors.map { it.detailMsg() })
                 warnings.addAll(mappedResult.warnings.map { it.detailMsg() })
@@ -368,13 +369,14 @@ class Hl7Serializer(
     fun readExternal(
         schemaName: String,
         input: InputStream,
-        source: Source
+        source: Source,
+        sender: Sender? = null,
     ): ReadResult {
         val errors = mutableListOf<ActionLog>()
         val warnings = mutableListOf<ActionLog>()
         val messageBody = input.bufferedReader().use { it.readText() }
         val schema = metadata.findSchema(schemaName) ?: error("Schema name $schemaName not found")
-        val mapping = convertBatchMessagesToMap(messageBody, schema)
+        val mapping = convertBatchMessagesToMap(messageBody, schema, sender = sender)
         val mappedRows = mapping.mappedRows
         errors.addAll(
             mapping.errors.map {

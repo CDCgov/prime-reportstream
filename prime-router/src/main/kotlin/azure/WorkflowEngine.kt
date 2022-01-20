@@ -896,7 +896,8 @@ class WorkflowEngine(
                         schemaName = sender.schemaName,
                         input = ByteArrayInputStream(content.toByteArray()),
                         sources = listOf(ClientSource(organization = sender.organizationName, client = sender.name)),
-                        defaultValues = defaults
+                        defaultValues = defaults,
+                        sender = sender,
                     )
                 } catch (e: Exception) {
                     throw ActionError(
@@ -913,7 +914,8 @@ class WorkflowEngine(
                     this.hl7Serializer.readExternal(
                         schemaName = sender.schemaName,
                         input = ByteArrayInputStream(content.toByteArray()),
-                        ClientSource(organization = sender.organizationName, client = sender.name)
+                        ClientSource(organization = sender.organizationName, client = sender.name),
+                        sender = sender,
                     )
                 } catch (e: Exception) {
                     throw ActionError(
