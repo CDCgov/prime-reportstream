@@ -1,7 +1,7 @@
 
 ### Schema: manualupload/csvuploadertest-covid-19
 ### Topic: covid-19
-### Tracking Element: none
+### Tracking Element: (message_id)
 ### Base On: none
 ### Extends: [upload-covid-19](./upload-covid-19.md)
 #### Description: CSV Uploader Test
@@ -27,8 +27,6 @@
 **Type**: DATETIME
 
 **PII**: No
-
-**Format**: yyyyMMdd
 
 **Cardinality**: [1..1]
 
@@ -99,7 +97,7 @@ Translate multiple inbound Y/N/U AOE values to RS values
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
 
-**Table**: LIVD-SARS-CoV-2-2021-09-29
+**Table**: LIVD-SARS-CoV-2-latest
 
 **Table Column**: Model
 
@@ -278,11 +276,9 @@ Translate multiple inbound Y/N/U AOE values to RS values
 
 **ReportStream Internal Name**: order_test_date
 
-**Type**: DATETIME
+**Type**: DATE
 
 **PII**: No
-
-**Format**: yyyyMMdd
 
 **Cardinality**: [1..1]
 
@@ -652,8 +648,6 @@ The patient's city
 **Type**: DATE
 
 **PII**: Yes
-
-**Format**: yyyyMMdd
 
 **Cardinality**: [1..1]
 
@@ -1131,24 +1125,6 @@ Translate multiple inbound Y/N/U AOE values to RS values
 
 ---
 
-**Name**: sender_id
-
-**ReportStream Internal Name**: sender_id
-
-**Type**: TEXT
-
-**PII**: No
-
-**Default Value**: csvuploadertest
-
-**Cardinality**: [1..1]
-
-**Documentation**:
-
-ID name of org that is sending this data to ReportStream.  Suitable for provenance or chain of custody tracking.  Not to be confused with sending_application, in which ReportStream acts as the 'sender' to the downstream jurisdiction.
-
----
-
 **Name**: specimen_collection_date
 
 **ReportStream Internal Name**: specimen_collection_date_temp
@@ -1168,8 +1144,6 @@ ID name of org that is sending this data to ReportStream.  Suitable for provenan
 **Type**: DATETIME
 
 **PII**: No
-
-**Format**: yyyyMMdd
 
 **HL7 Fields**
 
@@ -1365,7 +1339,7 @@ Translate multiple inbound Y/N/U AOE values to RS values
 
 **Cardinality**: [1..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-09-29
+**Table**: LIVD-SARS-CoV-2-latest
 
 **Table Column**: Test Performed LOINC Code
 
@@ -1454,11 +1428,9 @@ Translate multiple inbound Test Result values to RS values
 
 **ReportStream Internal Name**: test_result_date
 
-**Type**: DATETIME
+**Type**: DATE
 
 **PII**: No
-
-**Format**: yyyyMMdd
 
 **Cardinality**: [1..1]
 
@@ -1472,7 +1444,7 @@ Translate multiple inbound Test Result values to RS values
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -1586,8 +1558,6 @@ The phone number of the testing lab
 
 **PII**: No
 
-**Format**: yyyyMMdd
-
 **Cardinality**: [1..1]
 
 **Documentation**:
@@ -1608,7 +1578,7 @@ be offset, so this field takes the `specimen_collection_date_time` field and off
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Table**: fips-county
 
@@ -1660,7 +1630,7 @@ Street 2 field for the testing lab
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -1770,6 +1740,24 @@ The FIPS code for the patient's county
 **Documentation**:
 
 The ID number of the lab order from the placer
+
+---
+
+**Name**: sender_id
+
+**ReportStream Internal Name**: sender_id
+
+**Type**: TEXT
+
+**PII**: No
+
+**Default Value**: csvuploadertest
+
+**Cardinality**: [1..1]
+
+**Documentation**:
+
+ID name of org that is sending this data to ReportStream.  Suitable for provenance or chain of custody tracking.  Not to be confused with sending_application, in which ReportStream acts as the 'sender' to the downstream jurisdiction.
 
 ---
 

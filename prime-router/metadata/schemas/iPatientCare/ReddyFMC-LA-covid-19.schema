@@ -5,6 +5,7 @@
 # 
 name: reddyfmc-la-covid-19
 topic: covid-19
+trackingElement: message_id
 description: iPatientCare CSV lab report schema, Reddy Family Medical Clinic, LA
 extends: ipatientCare/ipatientcare-covid-19
 

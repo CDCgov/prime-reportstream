@@ -1,7 +1,7 @@
 
 ### Schema: experity/guc-la-covid-19
 ### Topic: covid-19
-### Tracking Element: none
+### Tracking Element: Testing_lab_accession_number (message_id)
 ### Base On: none
 ### Extends: [experity/experity-covid-19](./experity-experity-covid-19.md)
 #### Description: Experity CSV lab report schema, Greenlight Urgent Care, LA
@@ -1354,6 +1354,8 @@ The city of the facility which the test was ordered from
 
 **ReportStream Internal Name**: ordering_facility_name_temp
 
+**Type**: TEXT
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -2497,6 +2499,8 @@ Typically this will be the same as the `testing_lab_clia`, but potentially could
 
 **ReportStream Internal Name**: testing_lab_name_temp
 
+**Type**: TEXT
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -2607,7 +2611,7 @@ The postal code for the testing lab
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
 
-**Table**: LIVD-SARS-CoV-2-2021-09-29
+**Table**: LIVD-SARS-CoV-2-latest
 
 **Table Column**: Model
 
