@@ -258,10 +258,6 @@ class SettingsFacade(
             db.insertDeletedSettingAndChildren(current.settingId, settingMetadata, txn)
             db.deactivateSettingAndChildren(current.settingId, txn)
 
-            // convert to JSON object. Might want to move this to the Settings class itself
-            val settingResult = mapper.readValue(current.values.data(), clazz)
-            settingResult.meta = SettingMetadata(current.version, current.createdBy, current.createdAt)
-
             val outputJson = mapper.writeValueAsString(settingMetadata)
             Pair(AccessResult.SUCCESS, outputJson)
         }
