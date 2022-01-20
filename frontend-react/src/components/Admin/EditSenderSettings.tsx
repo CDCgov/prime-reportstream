@@ -28,7 +28,6 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
             switch (action) {
                 case "edit":
                     try {
-                        console.log("EDIT SETTING");
                         const data = JSON.stringify(orgSenderSettings);
                         await fetchController(
                             OrgSenderSettingsResource.update(),
@@ -53,6 +52,8 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
                     try {
                         const data = JSON.stringify(orgSenderSettings);
                         await fetchController(
+                            // NOTE: this does not use the expected OrgSenderSettingsResource.create() method
+                            // due to the endpoint being an 'upsert' (PUT) instead of the expected 'insert' (POST)
                             OrgSenderSettingsResource.update(),
                             { orgname, sendername: orgSenderSettings.name },
                             data
