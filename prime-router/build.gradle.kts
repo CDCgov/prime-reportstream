@@ -35,6 +35,7 @@ plugins {
     id("org.jlleitschuh.gradle.ktlint") version "10.2.0"
     id("com.adarshr.test-logger") version "3.1.0"
     id("jacoco")
+    id("org.jetbrains.dokka") version "1.6.10"
 }
 
 group = "gov.cdc.prime"
@@ -162,9 +163,14 @@ tasks.test {
     }
 }
 
+tasks.dokkaHtml.configure {
+    val docsDir = File(project.projectDir, "/docs/dokka")
+    outputDirectory.set(docsDir)
+}
+
 tasks.jacocoTestReport {
     dependsOn(tasks.test)
-    // Jacoco wants the source file directory structure to match the package name like in Java, so 
+    // Jacoco wants the source file directory structure to match the package name like in Java, so
     // move the source files to a temp location with that structure.
     val sourcesDir = File(project.projectDir, "/src/main/kotlin")
     val jacocoSourcesDir = File(project.buildDir, "/jacoco/sources")
@@ -439,6 +445,7 @@ tasks.register("quickPackage") {
     tasks["compileTestKotlin"].enabled = false
     tasks["migrate"].enabled = false
     tasks["flywayMigrate"].enabled = false
+    tasks["dokkaHtml"].enabled = false
 }
 
 tasks.azureFunctionsRun {
@@ -481,6 +488,7 @@ tasks.register("quickRun") {
     tasks["compileTestKotlin"].enabled = false
     tasks["migrate"].enabled = false
     tasks["flywayMigrate"].enabled = false
+    tasks["dokkaHtml"].enabled = false
 }
 
 /**
