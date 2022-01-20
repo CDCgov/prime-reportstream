@@ -1,36 +1,4 @@
 import OrgSettingsBaseResource from "./OrgSettingsBaseResource";
-/*
-    Organization:
-      description: An organization connected to data hub
-      type: object
-      required: ["name", "description", "jurisdiction" ]
-      properties:
-        name:
-          description: the unique id for the organization
-          type: string
-          example: az-phd
-        description:
-          description: the displayable description of the organization
-          type: string
-          example: Arizona PHD
-        jurisdiction:
-          type: string
-          enum:
-            - National
-            - State
-            - County
-        stateCode:
-          description: the two letter code for the organization
-          type: string
-          example: AZ
-        countyName:
-          description: the county name (must match FIPS name)
-          type: string
-          example: Pima
-        meta:
-          $ref: '#/components/schemas/SettingMetadata'
-
- */
 
 export interface FilterData {
     topic: string;
