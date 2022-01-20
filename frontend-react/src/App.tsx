@@ -16,16 +16,18 @@ import { Login } from "./pages/Login";
 import { TermsOfService } from "./pages/TermsOfService";
 import { ReportStreamHeader } from "./components/header/ReportStreamHeader";
 import { oktaAuthConfig } from "./oktaConfig";
-import { About } from "./pages/About";
 import { AuthorizedRoute } from "./components/AuthorizedRoute";
 import { PERMISSIONS } from "./resources/PermissionsResource";
 import { permissionCheck, reportReceiver } from "./webreceiver-utils";
 import { Upload } from "./pages/Upload";
 import { CODES, ErrorPage } from "./pages/error/ErrorPage";
-import GlobalContextProvider from "./components/GlobalContextProvider";
+import { GlobalContextProvider } from "./components/GlobalContextProvider";
 import { logout } from "./utils/UserUtils";
 import TermsOfServiceForm from "./pages/tos-sign/TermsOfServiceForm";
 import Spinner from "./components/Spinner";
+import Submissions from "./pages/submissions/Submissions";
+import { GettingStartedPublicHealthDepartments } from "./pages/getting-started/public-health-departments";
+import { GettingStartedTestingFacilities } from "./pages/getting-started/testing-facilities";
 
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
 
@@ -87,61 +89,66 @@ const App = () => {
                         <GovBanner aria-label="Official government website" />
                         <ReportStreamHeader />
                         {/* Changed from main to div to fix weird padding issue at the top
-                        caused by USWDS styling */}
+                        caused by USWDS styling | 01/22 merged styles from .content into main, don't see padding issues anymore? */}
                         <main id="main-content">
-                            <div className="content">
-                                <Switch>
-                                    <Route
-                                        path="/"
-                                        exact={true}
-                                        component={Home}
-                                    />
-                                    <Route path="/about" component={About} />
-                                    <Route
-                                        path="/how-it-works"
-                                        component={HowItWorks}
-                                    />
-                                    <Route
-                                        path="/terms-of-service"
-                                        component={TermsOfService}
-                                    />
-                                    <Route
-                                        path="/login"
-                                        render={() => <Login />}
-                                    />
-                                    <Route
-                                        path="/login/callback"
-                                        component={LoginCallback}
-                                    />
-                                    <AuthorizedRoute
-                                        path="/sign-tos"
-                                        authorize={PERMISSIONS.PRIME_ADMIN}
-                                        component={TermsOfServiceForm}
-                                    />
-                                    <AuthorizedRoute
-                                        path="/daily-data"
-                                        authorize={PERMISSIONS.RECEIVER}
-                                        component={Daily}
-                                    />
-                                    <AuthorizedRoute
-                                        path="/upload"
-                                        authorize={PERMISSIONS.SENDER}
-                                        component={Upload}
-                                    />
-                                    <SecureRoute
-                                        path="/report-details"
-                                        component={Details}
-                                    />
-                                    {/* Handles any undefined route */}
-                                    <Route
-                                        render={() => (
-                                            <ErrorPage
-                                                code={CODES.NOT_FOUND_404}
-                                            />
-                                        )}
-                                    />
-                                </Switch>
-                            </div>
+                            <Switch>
+                                <Route path="/" exact={true} component={Home} />
+                                <Route
+                                    path="/how-it-works"
+                                    component={HowItWorks}
+                                />
+                                <Route
+                                    path="/terms-of-service"
+                                    component={TermsOfService}
+                                />
+                                <Route path="/login" render={() => <Login />} />
+                                <Route
+                                    path="/login/callback"
+                                    component={LoginCallback}
+                                />
+                                <Route
+                                    path="/sign-tos"
+                                    component={TermsOfServiceForm}
+                                />
+                                <Route
+                                    path="/getting-started/public-health-departments"
+                                    component={
+                                        GettingStartedPublicHealthDepartments
+                                    }
+                                />
+                                <Route
+                                    path="/getting-started/testing-facilities"
+                                    component={GettingStartedTestingFacilities}
+                                />
+                                <AuthorizedRoute
+                                    path="/daily-data"
+                                    authorize={PERMISSIONS.RECEIVER}
+                                    component={Daily}
+                                />
+                                <AuthorizedRoute
+                                    path="/upload"
+                                    authorize={PERMISSIONS.SENDER}
+                                    component={Upload}
+                                />
+                                {/* TODO: AuthorizedRoute needs to take many potential auth groups.
+                                 *  We should fix this when we refactor our permissions layer.
+                                 */}
+                                <AuthorizedRoute
+                                    path="/submissions"
+                                    authorize={PERMISSIONS.PRIME_ADMIN}
+                                    component={Submissions}
+                                />
+                                <SecureRoute
+                                    path="/report-details"
+                                    component={Details}
+                                />
+                                {/* Handles any undefined route */}
+                                <Route
+                                    render={() => (
+                                        <ErrorPage code={CODES.NOT_FOUND_404} />
+                                    )}
+                                />
+                            </Switch>
                         </main>
                     </GlobalContextProvider>
                     <footer className="usa-identifier footer">

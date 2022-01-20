@@ -686,7 +686,7 @@ NTE|1|L|This is a final comment|RE"""
         assertThat(serializer.getHl7MaxLength("OBX-18", emptyTerser)).isEqualTo(22)
         assertThat(serializer.getHl7MaxLength("OBX-18-1", emptyTerser)).isEqualTo(199)
         assertThat(serializer.getHl7MaxLength("OBX-19", emptyTerser)).isEqualTo(26)
-
+        assertThat(serializer.getHl7MaxLength("OBX-23-1", emptyTerser)).isEqualTo(50)
         // Test that a subcomponent returns null
         assertThat(serializer.getHl7MaxLength("OBR-16-1-2", emptyTerser)).isNull()
     }

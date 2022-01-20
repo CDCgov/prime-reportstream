@@ -93,6 +93,17 @@
       type: "BLOBSTORE"
     externalName: null
 
+- name: upload
+  description: Sender who can test uploads to the Upload Tool.
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: upload
+      topic: covid-19
+      customerStatus: active
+      schemaName: upload-covid-19
+      format: CSV
+
 - name: safehealth
   description: SAFE - Safe Health Systems
   jurisdiction: FEDERAL
@@ -289,6 +300,72 @@
       topic: covid-19
       customerStatus: active
       schemaName: non-standard/all-in-one-health-ca-covid-19
+      format: CSV
+
+- name: csvuploadertest
+  description: Sender for Testing Manual Upload of the RS Standard CSV File
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: csvuploadertest
+      topic: covid-19
+      customerStatus: active
+      schemaName: manualupload/csvuploadertest-covid-19
+      format: CSV
+
+- name: sourcebioscience_ca
+  description: Source BioScience CSV COVID schema, California
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: sourcebioscience_ca
+      topic: covid-19
+      customerStatus: active
+      schemaName: manualupload/sourcebioscience_ca-covid-19
+      format: CSV
+
+- name: cadph-csvuploadertest
+  description: CA-DPH CSV Uploader Test
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: cadph-csvuploadertest
+      topic: covid-19
+      customerStatus: active
+      schemaName: manualupload/cadph-csvuploadertest-covid-19
+      format: CSV
+
+- name: manualupload
+  description: Sender for Manual Upload of the RS Standard CSV File
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: manualupload
+      topic: covid-19
+      customerStatus: active
+      schemaName: upload-covid-19
+      format: CSV
+
+- name: pmg
+  description: Premier Medical Group USA
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: pmg
+      topic: covid-19
+      customerStatus: active
+      schemaName: direct/pmg-covid-19
+      format: CSV
+
+- name: anavasidx
+  description: AnavasiDx
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: anavasidx
+      topic: covid-19
+      customerStatus: active
+      schemaName: direct/anavasidx-covid-19
       format: CSV
 
 - name: az-phd
@@ -535,11 +612,14 @@
         receivingApplicationOID: 2.16.840.1.114222.4.1.185.1
         receivingFacilityName: VDH
         receivingFacilityOID: 2.16.840.1.114222.4.1.185
+        truncateHl7Fields: OBX-23-1
         truncateHDNamespaceIds: true
         usePid14ForPatientEmail: true
+        suppressNonNPI: true
         suppressHl7Fields: OBX-18-1, OBX-18-2, OBX-18-3, OBX-18-4, OBX-15-3
         replaceValue:
           MSH-3-1: CDC PRIME - Atlanta,
+        convertPositiveDateTimeOffsetToNegative: true
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
@@ -566,8 +646,10 @@
         receivingApplicationOID: 2.16.840.1.114222.4.1.185.1
         receivingFacilityName: VDH
         receivingFacilityOID: 2.16.840.1.114222.4.1.185
+        truncateHl7Fields: OBX-23-1
         truncateHDNamespaceIds: true
         usePid14ForPatientEmail: true
+        suppressNonNPI: true
         suppressHl7Fields: OBX-18-1, OBX-18-2, OBX-18-3, OBX-18-4, OBx-15-3
         replaceValue:
           MSH-3-1: CDC PRIME - Atlanta,
@@ -838,6 +920,7 @@
         receivingApplicationName: NEDSS
         receivingFacilityName: TX-ELR
         defaultAoeToUnknown: true
+        nameFormat: texas
       transport:
         type: SFTP
         host: sftp
@@ -898,6 +981,7 @@
         receivingFacilityName: NJDOH
         receivingFacilityOID: 2.16.840.1.113883.3.1299
         truncateHDNamespaceIds: true
+        truncateHl7Fields: OBX-23-1
         reportingFacilityName: CDC PRIME
         reportingFacilityId: 11D2030855
       transport:
@@ -926,6 +1010,7 @@
         receivingFacilityName: NJDOH
         receivingFacilityOID: 2.16.840.1.113883.3.1299
         truncateHDNamespaceIds: true
+        truncateHl7Fields: OBX-23-1
       transport:
         type: SFTP
         host: sftp
@@ -1221,6 +1306,7 @@
         receivingFacilityOID: 2.16.840.1.113883.19.3.2
         truncateHDNamespaceIds: true
         nameFormat: massachusetts
+        suppressHl7Fields: "PID-20"
       transport:
         type: SFTP
         host: sftp
@@ -1795,7 +1881,7 @@
     - name: ignore-empty      # Use this to test sending data from the 'empty' schema
       organizationName: ignore
       topic: covid-19
-      customerStatus: inactive
+      customerStatus: active
       schemaName: empty
       format: CSV
     - name: ignore-hl7      # Use this to test sending data from the HL7 schema
@@ -2086,10 +2172,45 @@
         port: 22
         filePath: ./upload
         credentialName: DEFAULT-SFTP
+    - name: SETTINGS_TEST
+      externalName: Used to test putting sender settings into the data, using ignore.ignore-empty
+      organizationName: ignore
+      topic: covid-19
+      customerStatus: active
+      jurisdictionalFilter: [ "matches(ordering_facility_county, SETTINGS_TEST)" ]
+      qualityFilter: [ "allowAll()" ]
+      # These three filters must match the settings for the ignore.ignore-empty Sender.
+      routingFilter:
+        - matches(sender_fullname, ignore.ignore-empty)
+        - matches(sender_orgname, ignore)
+      processingModeFilter:
+        # Because ignore.ignore-empty has customerStatus = active
+        - matches(processing_mode_code, P)
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+      translation:
+        type: CUSTOM
+        schemaName: empty
+        format: CSV
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
 
-
-
-
+- name: historytest
+  description: FOR TESTING SUBMISSION HISTORY
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: historytest
+      topic: covid-19
+      customerStatus: active
+      schemaName: primedatainput/pdi-covid-19
+      format: CSV
 
 # all the rest
 - name: ak-phd
@@ -2344,7 +2465,7 @@
         type: HL7
         useBatchHeaders: true
         suppressNonNPI: true
-        truncateHl7Fields: ORC-12-1, OBR-16-1
+        truncateHl7Fields: OBX-23-1
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute

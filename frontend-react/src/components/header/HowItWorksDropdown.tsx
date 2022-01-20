@@ -19,13 +19,7 @@ const HowItWorksDropdown = () => {
     }, []);
 
     const testMenuItems = [
-        <NavLink to="/how-it-works/getting-started">Getting started</NavLink>,
-        <NavLink to="/how-it-works/elr-checklist">
-            ELR onboarding checklist
-        </NavLink>,
-        <NavLink to="/how-it-works/data-download-guide">
-            Data download website guide
-        </NavLink>,
+        <NavLink to="/how-it-works/about">About</NavLink>,
         <NavLink to="/how-it-works/where-were-live">Where we're live</NavLink>,
         <NavLink to="/how-it-works/systems-and-settings">
             System and settings

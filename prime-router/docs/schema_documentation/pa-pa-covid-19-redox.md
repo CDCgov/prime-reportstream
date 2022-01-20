@@ -1,14 +1,22 @@
 
-### Schema:         pa/pa-covid-19-redox
-#### Description:   Pennsylvania Department of Health REDOX messages
+### Schema: pa/pa-covid-19-redox
+### Topic: covid-19
+### Tracking Element: none
+### Base On: none
+### Extends: [covid-19-redox](./covid-19-redox.md)
+#### Description: Pennsylvania Department of Health REDOX messages
 
 ---
 
 **Name**: abnormal_flag
 
+**ReportStream Internal Name**: abnormal_flag
+
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
@@ -64,6 +72,8 @@ This field is generated based on the normalcy status of the result. A = abnormal
 
 **Name**: date_result_released
 
+**ReportStream Internal Name**: date_result_released
+
 **Type**: DATETIME
 
 **PII**: No
@@ -73,6 +83,8 @@ This field is generated based on the normalcy status of the result. A = abnormal
 ---
 
 **Name**: device_id
+
+**ReportStream Internal Name**: device_id
 
 **Type**: TABLE
 
@@ -89,7 +101,7 @@ This field is generated based on the normalcy status of the result. A = abnormal
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
 
-**Table**: LIVD-SARS-CoV-2-2021-09-29
+**Table**: LIVD-SARS-CoV-2-latest
 
 **Documentation**:
 
@@ -99,9 +111,13 @@ Device_id is a generated value for the OBX-17 field. It is based on the device m
 
 **Name**: employed_in_healthcare
 
+**ReportStream Internal Name**: employed_in_healthcare
+
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **LOINC Code**: 95418-0
 
@@ -123,6 +139,8 @@ Is the patient employed in health care?
 
 **Name**: equipment_model_name
 
+**ReportStream Internal Name**: equipment_model_name
+
 **Type**: TABLE
 
 **PII**: No
@@ -133,13 +151,15 @@ Is the patient employed in health care?
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
 
-**Table**: LIVD-SARS-CoV-2-2021-09-29
+**Table**: LIVD-SARS-CoV-2-latest
 
 **Table Column**: Model
 
 ---
 
 **Name**: filler_order_id
+
+**ReportStream Internal Name**: filler_order_id
 
 **Type**: ID
 
@@ -161,9 +181,13 @@ Accension number
 
 **Name**: first_test
 
+**ReportStream Internal Name**: first_test
+
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **LOINC Code**: 95417-2
 
@@ -185,9 +209,13 @@ Is this the patient's first test for this condition?
 
 **Name**: hospitalized
 
+**ReportStream Internal Name**: hospitalized
+
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **LOINC Code**: 77974-4
 
@@ -209,9 +237,13 @@ Is the patient hospitalized?
 
 **Name**: icu
 
+**ReportStream Internal Name**: icu
+
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **LOINC Code**: 95420-6
 
@@ -233,6 +265,8 @@ Is the patient in the ICU?
 
 **Name**: illness_onset_date
 
+**ReportStream Internal Name**: illness_onset_date
+
 **Type**: DATE
 
 **PII**: No
@@ -245,6 +279,8 @@ Is the patient in the ICU?
 
 **Name**: order_test_date
 
+**ReportStream Internal Name**: order_test_date
+
 **Type**: DATETIME
 
 **PII**: No
@@ -255,13 +291,15 @@ Is the patient in the ICU?
 
 **Name**: ordered_test_code
 
+**ReportStream Internal Name**: ordered_test_code
+
 **Type**: TABLE
 
 **PII**: No
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-09-29
+**Table**: LIVD-SARS-CoV-2-latest
 
 **Table Column**: Test Ordered LOINC Code
 
@@ -269,19 +307,23 @@ Is the patient in the ICU?
 
 **Name**: ordered_test_name
 
+**ReportStream Internal Name**: ordered_test_name
+
 **Type**: TABLE
 
 **PII**: No
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-09-29
+**Table**: LIVD-SARS-CoV-2-latest
 
 **Table Column**: Test Ordered LOINC Long Name
 
 ---
 
 **Name**: ordered_test_system
+
+**ReportStream Internal Name**: ordered_test_system
 
 **Type**: TEXT
 
@@ -294,6 +336,8 @@ Is the patient in the ICU?
 ---
 
 **Name**: ordering_facility_city
+
+**ReportStream Internal Name**: ordering_facility_city
 
 **Type**: CITY
 
@@ -309,6 +353,8 @@ The city of the facility which the test was ordered from
 
 **Name**: ordering_facility_country
 
+**ReportStream Internal Name**: ordering_facility_country
+
 **Type**: TEXT
 
 **PII**: No
@@ -320,6 +366,8 @@ The city of the facility which the test was ordered from
 ---
 
 **Name**: ordering_facility_county
+
+**ReportStream Internal Name**: ordering_facility_county
 
 **Type**: TABLE
 
@@ -335,6 +383,8 @@ The city of the facility which the test was ordered from
 
 **Name**: ordering_facility_county_code
 
+**ReportStream Internal Name**: ordering_facility_county_code
+
 **Type**: TABLE
 
 **PII**: No
@@ -349,6 +399,8 @@ The city of the facility which the test was ordered from
 
 **Name**: ordering_facility_email
 
+**ReportStream Internal Name**: ordering_facility_email
+
 **Type**: EMAIL
 
 **PII**: No
@@ -358,6 +410,8 @@ The city of the facility which the test was ordered from
 ---
 
 **Name**: ordering_facility_name
+
+**ReportStream Internal Name**: ordering_facility_name
 
 **Type**: TEXT
 
@@ -373,6 +427,8 @@ The name of the facility which the test was ordered from
 
 **Name**: ordering_facility_phone_number
 
+**ReportStream Internal Name**: ordering_facility_phone_number
+
 **Type**: TELEPHONE
 
 **PII**: No
@@ -386,6 +442,8 @@ The phone number of the facility which the test was ordered from
 ---
 
 **Name**: ordering_facility_state
+
+**ReportStream Internal Name**: ordering_facility_state
 
 **Type**: TABLE
 
@@ -405,6 +463,8 @@ The state of the facility which the test was ordered from
 
 **Name**: ordering_facility_street
 
+**ReportStream Internal Name**: ordering_facility_street
+
 **Type**: STREET
 
 **PII**: No
@@ -418,6 +478,8 @@ The address of the facility which the test was ordered from
 ---
 
 **Name**: ordering_facility_zip_code
+
+**ReportStream Internal Name**: ordering_facility_zip_code
 
 **Type**: POSTAL_CODE
 
@@ -433,6 +495,8 @@ The zip code of the facility which the test was ordered from
 
 **Name**: ordering_provider_city
 
+**ReportStream Internal Name**: ordering_provider_city
+
 **Type**: CITY
 
 **PII**: Yes
@@ -447,6 +511,8 @@ The city of the provider
 
 **Name**: ordering_provider_country
 
+**ReportStream Internal Name**: ordering_provider_country
+
 **Type**: TEXT
 
 **PII**: No
@@ -458,6 +524,8 @@ The city of the provider
 ---
 
 **Name**: ordering_provider_county
+
+**ReportStream Internal Name**: ordering_provider_county
 
 **Type**: TABLE
 
@@ -473,6 +541,8 @@ The city of the provider
 
 **Name**: ordering_provider_county_code
 
+**ReportStream Internal Name**: ordering_provider_county_code
+
 **Type**: TABLE
 
 **PII**: No
@@ -487,6 +557,8 @@ The city of the provider
 
 **Name**: ordering_provider_email
 
+**ReportStream Internal Name**: ordering_provider_email
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -494,6 +566,8 @@ The city of the provider
 ---
 
 **Name**: ordering_provider_first_name
+
+**ReportStream Internal Name**: ordering_provider_first_name
 
 **Type**: PERSON_NAME
 
@@ -514,6 +588,8 @@ The first name of the provider who ordered the test
 
 **Name**: ordering_provider_id
 
+**ReportStream Internal Name**: ordering_provider_id
+
 **Type**: ID_NPI
 
 **PII**: No
@@ -532,6 +608,8 @@ The ordering provider’s National Provider Identifier
 ---
 
 **Name**: ordering_provider_last_name
+
+**ReportStream Internal Name**: ordering_provider_last_name
 
 **Type**: PERSON_NAME
 
@@ -552,6 +630,8 @@ The last name of provider who ordered the test
 
 **Name**: ordering_provider_phone_number
 
+**ReportStream Internal Name**: ordering_provider_phone_number
+
 **Type**: TELEPHONE
 
 **PII**: Yes
@@ -571,6 +651,8 @@ The phone number of the provider
 
 **Name**: ordering_provider_state
 
+**ReportStream Internal Name**: ordering_provider_state
+
 **Type**: TABLE
 
 **PII**: No
@@ -589,6 +671,8 @@ The state of the provider
 
 **Name**: ordering_provider_street
 
+**ReportStream Internal Name**: ordering_provider_street
+
 **Type**: STREET
 
 **PII**: Yes
@@ -602,6 +686,8 @@ The street address of the provider
 ---
 
 **Name**: ordering_provider_zip_code
+
+**ReportStream Internal Name**: ordering_provider_zip_code
 
 **Type**: POSTAL_CODE
 
@@ -617,6 +703,8 @@ The zip code of the provider
 
 **Name**: patient_city
 
+**ReportStream Internal Name**: patient_city
+
 **Type**: CITY
 
 **PII**: Yes
@@ -631,6 +719,8 @@ The patient's city
 
 **Name**: patient_country
 
+**ReportStream Internal Name**: patient_country
+
 **Type**: TEXT
 
 **PII**: No
@@ -642,6 +732,8 @@ The patient's city
 ---
 
 **Name**: patient_county
+
+**ReportStream Internal Name**: patient_county
 
 **Type**: TABLE_OR_BLANK
 
@@ -657,6 +749,8 @@ The patient's city
 
 **Name**: patient_county_code
 
+**ReportStream Internal Name**: patient_county_code
+
 **Type**: TABLE
 
 **PII**: No
@@ -670,6 +764,8 @@ The patient's city
 ---
 
 **Name**: patient_dob
+
+**ReportStream Internal Name**: patient_dob
 
 **Type**: DATE
 
@@ -688,6 +784,8 @@ Other states may choose to define their own formats.
 
 **Name**: patient_drivers_license
 
+**ReportStream Internal Name**: patient_drivers_license
+
 **Type**: ID_DLN
 
 **PII**: Yes
@@ -702,6 +800,8 @@ The patient's drivers license number
 
 **Name**: patient_email
 
+**ReportStream Internal Name**: patient_email
+
 **Type**: EMAIL
 
 **PII**: Yes
@@ -712,9 +812,13 @@ The patient's drivers license number
 
 **Name**: patient_ethnicity
 
+**ReportStream Internal Name**: patient_ethnicity
+
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
@@ -745,6 +849,8 @@ consumers are free to define their own values. Please refer to the consumer-spec
 
 **Name**: patient_first_name
 
+**ReportStream Internal Name**: patient_first_name
+
 **Type**: PERSON_NAME
 
 **PII**: Yes
@@ -759,9 +865,13 @@ The patient's first name
 
 **Name**: patient_gender
 
+**ReportStream Internal Name**: patient_gender
+
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
@@ -802,6 +912,8 @@ The patient's gender. There is a valueset defined based on the values in PID-8-1
 
 **Name**: patient_id
 
+**ReportStream Internal Name**: patient_id
+
 **Type**: TEXT
 
 **PII**: Yes
@@ -818,6 +930,8 @@ the patient ID from the testing lab, the oder placer, the ordering provider, or 
 
 **Name**: patient_id_type
 
+**ReportStream Internal Name**: patient_id_type
+
 **Type**: TEXT
 
 **PII**: No
@@ -827,6 +941,8 @@ the patient ID from the testing lab, the oder placer, the ordering provider, or 
 ---
 
 **Name**: patient_last_name
+
+**ReportStream Internal Name**: patient_last_name
 
 **Type**: PERSON_NAME
 
@@ -842,6 +958,8 @@ The patient's last name
 
 **Name**: patient_middle_name
 
+**ReportStream Internal Name**: patient_middle_name
+
 **Type**: PERSON_NAME
 
 **PII**: Yes
@@ -851,6 +969,8 @@ The patient's last name
 ---
 
 **Name**: patient_phone_number
+
+**ReportStream Internal Name**: patient_phone_number
 
 **Type**: TELEPHONE
 
@@ -866,9 +986,13 @@ The patient's phone number with area code
 
 **Name**: patient_race
 
+**ReportStream Internal Name**: patient_race
+
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
@@ -913,6 +1037,8 @@ The patient's race. There is a common valueset defined for race values, but some
 
 **Name**: patient_state
 
+**ReportStream Internal Name**: patient_state
+
 **Type**: TABLE
 
 **PII**: No
@@ -931,6 +1057,8 @@ The patient's state
 
 **Name**: patient_street
 
+**ReportStream Internal Name**: patient_street
+
 **Type**: STREET
 
 **PII**: Yes
@@ -945,6 +1073,8 @@ The patient's street address
 
 **Name**: patient_zip_code
 
+**ReportStream Internal Name**: patient_zip_code
+
 **Type**: POSTAL_CODE
 
 **PII**: No
@@ -958,6 +1088,8 @@ The patient's zip code
 ---
 
 **Name**: placer_order_id
+
+**ReportStream Internal Name**: placer_order_id
 
 **Type**: ID
 
@@ -978,9 +1110,13 @@ The ID number of the lab order from the placer
 
 **Name**: pregnant
 
+**ReportStream Internal Name**: pregnant
+
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **LOINC Code**: 82810-3
 
@@ -1002,9 +1138,13 @@ Is the patient pregnant?
 
 **Name**: processing_mode_code
 
+**ReportStream Internal Name**: processing_mode_code
+
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Default Value**: T
 
@@ -1037,6 +1177,8 @@ P, D, or T for Production, Debugging, or Training
 
 **Name**: redox_destination_id
 
+**ReportStream Internal Name**: redox_destination_id
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1044,6 +1186,8 @@ P, D, or T for Production, Debugging, or Training
 ---
 
 **Name**: redox_destination_name
+
+**ReportStream Internal Name**: redox_destination_name
 
 **PII**: No
 
@@ -1053,6 +1197,8 @@ P, D, or T for Production, Debugging, or Training
 
 **Name**: redox_employed_in_healthcare_code
 
+**ReportStream Internal Name**: redox_employed_in_healthcare_code
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1060,6 +1206,8 @@ P, D, or T for Production, Debugging, or Training
 ---
 
 **Name**: redox_employed_in_healthcare_codeset
+
+**ReportStream Internal Name**: redox_employed_in_healthcare_codeset
 
 **PII**: No
 
@@ -1069,6 +1217,8 @@ P, D, or T for Production, Debugging, or Training
 
 **Name**: redox_employed_in_healthcare_description
 
+**ReportStream Internal Name**: redox_employed_in_healthcare_description
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1076,6 +1226,8 @@ P, D, or T for Production, Debugging, or Training
 ---
 
 **Name**: redox_employed_in_healthcare_status
+
+**ReportStream Internal Name**: redox_employed_in_healthcare_status
 
 **PII**: No
 
@@ -1085,6 +1237,8 @@ P, D, or T for Production, Debugging, or Training
 
 **Name**: redox_employed_in_healthcare_value_type
 
+**ReportStream Internal Name**: redox_employed_in_healthcare_value_type
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1092,6 +1246,8 @@ P, D, or T for Production, Debugging, or Training
 ---
 
 **Name**: redox_first_test_code
+
+**ReportStream Internal Name**: redox_first_test_code
 
 **PII**: No
 
@@ -1101,6 +1257,8 @@ P, D, or T for Production, Debugging, or Training
 
 **Name**: redox_first_test_codeset
 
+**ReportStream Internal Name**: redox_first_test_codeset
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1108,6 +1266,8 @@ P, D, or T for Production, Debugging, or Training
 ---
 
 **Name**: redox_first_test_description
+
+**ReportStream Internal Name**: redox_first_test_description
 
 **PII**: No
 
@@ -1117,6 +1277,8 @@ P, D, or T for Production, Debugging, or Training
 
 **Name**: redox_first_test_status
 
+**ReportStream Internal Name**: redox_first_test_status
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1124,6 +1286,8 @@ P, D, or T for Production, Debugging, or Training
 ---
 
 **Name**: redox_first_test_value_type
+
+**ReportStream Internal Name**: redox_first_test_value_type
 
 **PII**: No
 
@@ -1133,6 +1297,8 @@ P, D, or T for Production, Debugging, or Training
 
 **Name**: redox_hospitalized_code
 
+**ReportStream Internal Name**: redox_hospitalized_code
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1140,6 +1306,8 @@ P, D, or T for Production, Debugging, or Training
 ---
 
 **Name**: redox_hospitalized_codeset
+
+**ReportStream Internal Name**: redox_hospitalized_codeset
 
 **PII**: No
 
@@ -1149,6 +1317,8 @@ P, D, or T for Production, Debugging, or Training
 
 **Name**: redox_hospitalized_description
 
+**ReportStream Internal Name**: redox_hospitalized_description
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1156,6 +1326,8 @@ P, D, or T for Production, Debugging, or Training
 ---
 
 **Name**: redox_hospitalized_status
+
+**ReportStream Internal Name**: redox_hospitalized_status
 
 **PII**: No
 
@@ -1165,6 +1337,8 @@ P, D, or T for Production, Debugging, or Training
 
 **Name**: redox_hospitalized_value_type
 
+**ReportStream Internal Name**: redox_hospitalized_value_type
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1172,6 +1346,8 @@ P, D, or T for Production, Debugging, or Training
 ---
 
 **Name**: redox_icu_code
+
+**ReportStream Internal Name**: redox_icu_code
 
 **PII**: No
 
@@ -1181,6 +1357,8 @@ P, D, or T for Production, Debugging, or Training
 
 **Name**: redox_icu_codeset
 
+**ReportStream Internal Name**: redox_icu_codeset
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1188,6 +1366,8 @@ P, D, or T for Production, Debugging, or Training
 ---
 
 **Name**: redox_icu_description
+
+**ReportStream Internal Name**: redox_icu_description
 
 **PII**: No
 
@@ -1197,6 +1377,8 @@ P, D, or T for Production, Debugging, or Training
 
 **Name**: redox_icu_status
 
+**ReportStream Internal Name**: redox_icu_status
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1204,6 +1386,8 @@ P, D, or T for Production, Debugging, or Training
 ---
 
 **Name**: redox_icu_value_type
+
+**ReportStream Internal Name**: redox_icu_value_type
 
 **PII**: No
 
@@ -1213,6 +1397,8 @@ P, D, or T for Production, Debugging, or Training
 
 **Name**: redox_illness_onset_date_code
 
+**ReportStream Internal Name**: redox_illness_onset_date_code
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1220,6 +1406,8 @@ P, D, or T for Production, Debugging, or Training
 ---
 
 **Name**: redox_illness_onset_date_codeset
+
+**ReportStream Internal Name**: redox_illness_onset_date_codeset
 
 **PII**: No
 
@@ -1229,6 +1417,8 @@ P, D, or T for Production, Debugging, or Training
 
 **Name**: redox_illness_onset_date_description
 
+**ReportStream Internal Name**: redox_illness_onset_date_description
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1236,6 +1426,8 @@ P, D, or T for Production, Debugging, or Training
 ---
 
 **Name**: redox_illness_onset_date_status
+
+**ReportStream Internal Name**: redox_illness_onset_date_status
 
 **PII**: No
 
@@ -1245,6 +1437,8 @@ P, D, or T for Production, Debugging, or Training
 
 **Name**: redox_illness_onset_date_value_type
 
+**ReportStream Internal Name**: redox_illness_onset_date_value_type
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1252,6 +1446,8 @@ P, D, or T for Production, Debugging, or Training
 ---
 
 **Name**: redox_patient_drivers_license_type
+
+**ReportStream Internal Name**: redox_patient_drivers_license_type
 
 **PII**: No
 
@@ -1261,6 +1457,8 @@ P, D, or T for Production, Debugging, or Training
 
 **Name**: redox_pregnant_code
 
+**ReportStream Internal Name**: redox_pregnant_code
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1268,6 +1466,8 @@ P, D, or T for Production, Debugging, or Training
 ---
 
 **Name**: redox_pregnant_codeset
+
+**ReportStream Internal Name**: redox_pregnant_codeset
 
 **PII**: No
 
@@ -1277,6 +1477,8 @@ P, D, or T for Production, Debugging, or Training
 
 **Name**: redox_pregnant_description
 
+**ReportStream Internal Name**: redox_pregnant_description
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1284,6 +1486,8 @@ P, D, or T for Production, Debugging, or Training
 ---
 
 **Name**: redox_pregnant_status
+
+**ReportStream Internal Name**: redox_pregnant_status
 
 **PII**: No
 
@@ -1293,6 +1497,8 @@ P, D, or T for Production, Debugging, or Training
 
 **Name**: redox_pregnant_value_type
 
+**ReportStream Internal Name**: redox_pregnant_value_type
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1300,6 +1506,8 @@ P, D, or T for Production, Debugging, or Training
 ---
 
 **Name**: redox_resident_congregate_setting_code
+
+**ReportStream Internal Name**: redox_resident_congregate_setting_code
 
 **PII**: No
 
@@ -1309,6 +1517,8 @@ P, D, or T for Production, Debugging, or Training
 
 **Name**: redox_resident_congregate_setting_codeset
 
+**ReportStream Internal Name**: redox_resident_congregate_setting_codeset
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1316,6 +1526,8 @@ P, D, or T for Production, Debugging, or Training
 ---
 
 **Name**: redox_resident_congregate_setting_description
+
+**ReportStream Internal Name**: redox_resident_congregate_setting_description
 
 **PII**: No
 
@@ -1325,6 +1537,8 @@ P, D, or T for Production, Debugging, or Training
 
 **Name**: redox_resident_congregate_setting_status
 
+**ReportStream Internal Name**: redox_resident_congregate_setting_status
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1333,6 +1547,8 @@ P, D, or T for Production, Debugging, or Training
 
 **Name**: redox_resident_congregate_setting_value_type
 
+**ReportStream Internal Name**: redox_resident_congregate_setting_value_type
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1340,6 +1556,8 @@ P, D, or T for Production, Debugging, or Training
 ---
 
 **Name**: redox_resulted
+
+**ReportStream Internal Name**: redox_resulted
 
 **PII**: No
 
@@ -1351,6 +1569,8 @@ P, D, or T for Production, Debugging, or Training
 
 **Name**: redox_source_id
 
+**ReportStream Internal Name**: redox_source_id
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1358,6 +1578,8 @@ P, D, or T for Production, Debugging, or Training
 ---
 
 **Name**: redox_source_name
+
+**ReportStream Internal Name**: redox_source_name
 
 **PII**: No
 
@@ -1367,6 +1589,8 @@ P, D, or T for Production, Debugging, or Training
 
 **Name**: redox_symptomatic_for_disease_code
 
+**ReportStream Internal Name**: redox_symptomatic_for_disease_code
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1374,6 +1598,8 @@ P, D, or T for Production, Debugging, or Training
 ---
 
 **Name**: redox_symptomatic_for_disease_codeset
+
+**ReportStream Internal Name**: redox_symptomatic_for_disease_codeset
 
 **PII**: No
 
@@ -1383,6 +1609,8 @@ P, D, or T for Production, Debugging, or Training
 
 **Name**: redox_symptomatic_for_disease_description
 
+**ReportStream Internal Name**: redox_symptomatic_for_disease_description
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1390,6 +1618,8 @@ P, D, or T for Production, Debugging, or Training
 ---
 
 **Name**: redox_symptomatic_for_disease_status
+
+**ReportStream Internal Name**: redox_symptomatic_for_disease_status
 
 **PII**: No
 
@@ -1399,6 +1629,8 @@ P, D, or T for Production, Debugging, or Training
 
 **Name**: redox_symptomatic_for_disease_value_type
 
+**ReportStream Internal Name**: redox_symptomatic_for_disease_value_type
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1407,6 +1639,8 @@ P, D, or T for Production, Debugging, or Training
 
 **Name**: redox_test_lab_id_type
 
+**ReportStream Internal Name**: redox_test_lab_id_type
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1414,6 +1648,8 @@ P, D, or T for Production, Debugging, or Training
 ---
 
 **Name**: redox_test_result_type
+
+**ReportStream Internal Name**: redox_test_result_type
 
 **PII**: No
 
@@ -1424,6 +1660,8 @@ P, D, or T for Production, Debugging, or Training
 ---
 
 **Name**: reference_range
+
+**ReportStream Internal Name**: reference_range
 
 **Type**: TEXT
 
@@ -1439,9 +1677,13 @@ The reference range of the lab result, such as “Negative” or “Normal”. F
 
 **Name**: resident_congregate_setting
 
+**ReportStream Internal Name**: resident_congregate_setting
+
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **LOINC Code**: 95421-4
 
@@ -1462,6 +1704,8 @@ Does the patient reside in a congregate care setting?
 ---
 
 **Name**: specimen_collection_date_time
+
+**ReportStream Internal Name**: specimen_collection_date_time
 
 **Type**: DATETIME
 
@@ -1485,6 +1729,8 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 
 **Name**: specimen_received_date_time
 
+**ReportStream Internal Name**: specimen_received_date_time
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1493,9 +1739,13 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 
 **Name**: specimen_source_site_code
 
+**ReportStream Internal Name**: specimen_source_site_code
+
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
@@ -1517,9 +1767,13 @@ Refers back to the specimen source site, which is then encoded into the SPM-8 se
 
 **Name**: specimen_type
 
+**ReportStream Internal Name**: specimen_type
+
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
@@ -1553,9 +1807,13 @@ The specimen source, such as Blood or Serum
 
 **Name**: symptomatic_for_disease
 
+**ReportStream Internal Name**: symptomatic_for_disease
+
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **LOINC Code**: 95419-8
 
@@ -1577,13 +1835,15 @@ Is the patient symptomatic?
 
 **Name**: test_performed_code
 
+**ReportStream Internal Name**: test_performed_code
+
 **Type**: TABLE
 
 **PII**: No
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-09-29
+**Table**: LIVD-SARS-CoV-2-latest
 
 **Table Column**: Test Performed LOINC Code
 
@@ -1595,13 +1855,15 @@ The LOINC code of the test performed. This is a standardized coded value describ
 
 **Name**: test_performed_name
 
+**ReportStream Internal Name**: test_performed_name
+
 **Type**: TABLE
 
 **PII**: No
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-09-29
+**Table**: LIVD-SARS-CoV-2-latest
 
 **Table Column**: Test Performed LOINC Long Name
 
@@ -1612,6 +1874,8 @@ The LOINC description of the test performed as related to the LOINC code.
 ---
 
 **Name**: test_performed_system
+
+**ReportStream Internal Name**: test_performed_system
 
 **Type**: TEXT
 
@@ -1625,9 +1889,13 @@ The LOINC description of the test performed as related to the LOINC code.
 
 **Name**: test_result
 
+**ReportStream Internal Name**: test_result
+
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
@@ -1664,6 +1932,8 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 
 **Name**: test_result_date
 
+**ReportStream Internal Name**: test_result_date
+
 **Type**: DATETIME
 
 **PII**: No
@@ -1674,9 +1944,13 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 
 **Name**: test_result_status
 
+**ReportStream Internal Name**: test_result_status
+
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **HL7 Fields**
 
@@ -1744,6 +2018,8 @@ the test result is in some intermediate status, is a correction, or is the final
 
 **Name**: testing_lab_city
 
+**ReportStream Internal Name**: testing_lab_city
+
 **Type**: CITY
 
 **PII**: No
@@ -1757,6 +2033,8 @@ The city of the testing lab
 ---
 
 **Name**: testing_lab_clia
+
+**ReportStream Internal Name**: testing_lab_clia
 
 **Type**: ID_CLIA
 
@@ -1784,6 +2062,8 @@ An example of the ID is 03D2159846
 
 **Name**: testing_lab_country
 
+**ReportStream Internal Name**: testing_lab_country
+
 **Type**: TEXT
 
 **PII**: No
@@ -1799,6 +2079,8 @@ The country for the testing lab. Currently defaults to USA
 ---
 
 **Name**: testing_lab_county
+
+**ReportStream Internal Name**: testing_lab_county
 
 **Type**: TABLE
 
@@ -1818,6 +2100,8 @@ The text value for the testing lab county. This is used to do the lookup in the 
 
 **Name**: testing_lab_county_code
 
+**ReportStream Internal Name**: testing_lab_county_code
+
 **Type**: TABLE
 
 **PII**: No
@@ -1832,6 +2116,8 @@ The text value for the testing lab county. This is used to do the lookup in the 
 
 **Name**: testing_lab_email
 
+**ReportStream Internal Name**: testing_lab_email
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1839,6 +2125,8 @@ The text value for the testing lab county. This is used to do the lookup in the 
 ---
 
 **Name**: testing_lab_name
+
+**ReportStream Internal Name**: testing_lab_name
 
 **Type**: TEXT
 
@@ -1864,6 +2152,8 @@ The name of the laboratory which performed the test, can be the same as the send
 
 **Name**: testing_lab_phone_number
 
+**ReportStream Internal Name**: testing_lab_phone_number
+
 **Type**: TELEPHONE
 
 **PII**: No
@@ -1877,6 +2167,8 @@ The phone number of the testing lab
 ---
 
 **Name**: testing_lab_state
+
+**ReportStream Internal Name**: testing_lab_state
 
 **Type**: TABLE
 
@@ -1896,6 +2188,8 @@ The state for the testing lab
 
 **Name**: testing_lab_street
 
+**ReportStream Internal Name**: testing_lab_street
+
 **Type**: STREET
 
 **PII**: No
@@ -1909,6 +2203,8 @@ The street address for the testing lab
 ---
 
 **Name**: testing_lab_zip_code
+
+**ReportStream Internal Name**: testing_lab_zip_code
 
 **Type**: POSTAL_CODE
 

@@ -34,11 +34,12 @@ function load_config() {
   java -jar $fatjar lookuptables loadall -d $test_config_dir/metadata/tables -r 60 --check-last-modified
   # Note the settings require the full metadata catalog to be in place, so run last
   echo "Loading organization settings..."
-  java -jar $fatjar multiple-settings set -i $function_folder/settings/organizations.yml -r 60 --check-last-modified
+  java -jar $fatjar multiple-settings set -s -i $function_folder/settings/organizations.yml -r 60 --check-last-modified
+  echo "Done loading local configurations."
 }
 
 # Load the configuration in the background.  It will wait for the API to start the loading.
-load_config | awk '{print "[LOAD CONFIG] " $0}' &
+load_config | awk -v date="$(date +[%FT%TZ])" '{print date " [LOAD CONFIG] " $0}' &
 
 # Run the functions
 func host start --cors http://localhost:8090,http://localhost:3000 --language-worker -- "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"

@@ -1,10 +1,16 @@
 
-### Schema:         experity/guc-la-covid-19
-#### Description:   Experity CSV lab report schema, Greenlight Urgent Care, LA
+### Schema: experity/guc-la-covid-19
+### Topic: covid-19
+### Tracking Element: Testing_lab_accession_number (message_id)
+### Base On: none
+### Extends: [experity/experity-covid-19](./experity-experity-covid-19.md)
+#### Description: Experity CSV lab report schema, Greenlight Urgent Care, LA
 
 ---
 
 **Name**: Abnormal_flag
+
+**ReportStream Internal Name**: Abnormal_flag_Ignore
 
 **Type**: TEXT
 
@@ -20,6 +26,8 @@ This field is ignored.
 
 **Name**: Comments
 
+**ReportStream Internal Name**: Comments_Ignore
+
 **Type**: TEXT
 
 **PII**: No
@@ -33,6 +41,8 @@ This field is ignored.
 ---
 
 **Name**: Disease_symptoms
+
+**ReportStream Internal Name**: Disease_symptoms_Ignore
 
 **Type**: TEXT
 
@@ -48,6 +58,8 @@ This field is ignored.
 
 **Name**: Employed_in_high_risk_setting
 
+**ReportStream Internal Name**: Employed_in_high_risk_setting_Ignore
+
 **Type**: TEXT
 
 **PII**: No
@@ -61,6 +73,8 @@ This field is ignored.
 ---
 
 **Name**: File_created_date
+
+**ReportStream Internal Name**: File_created_date_Ignore
 
 **Type**: TEXT
 
@@ -76,6 +90,8 @@ This field is ignored.
 
 **Name**: Hospitalized
 
+**ReportStream Internal Name**: Hospitalized_Ignore
+
 **Type**: TEXT
 
 **PII**: No
@@ -89,6 +105,8 @@ This field is ignored.
 ---
 
 **Name**: ICU
+
+**ReportStream Internal Name**: ICU_Ignore
 
 **Type**: TEXT
 
@@ -104,6 +122,8 @@ This field is ignored.
 
 **Name**: Instrument_instance_ID
 
+**ReportStream Internal Name**: Instrument_instance_ID_Ignore
+
 **Type**: TEXT
 
 **PII**: No
@@ -117,6 +137,8 @@ This field is ignored.
 ---
 
 **Name**: Instrument_model_ID
+
+**ReportStream Internal Name**: Instrument_model_ID_Ignore
 
 **Type**: TEXT
 
@@ -132,6 +154,8 @@ This field is ignored.
 
 **Name**: Instrument_model_name
 
+**ReportStream Internal Name**: Instrument_model_name_Ignore
+
 **Type**: TEXT
 
 **PII**: No
@@ -145,6 +169,8 @@ This field is ignored.
 ---
 
 **Name**: Link_test_to_parent_accession
+
+**ReportStream Internal Name**: Link_test_to_parent_accession_Ignore
 
 **Type**: TEXT
 
@@ -160,6 +186,8 @@ This field is ignored.
 
 **Name**: Link_test_to_parent_result
 
+**ReportStream Internal Name**: Link_test_to_parent_result_Ignore
+
 **Type**: TEXT
 
 **PII**: No
@@ -173,6 +201,8 @@ This field is ignored.
 ---
 
 **Name**: Order_result_status
+
+**ReportStream Internal Name**: Order_result_status_Ignore
 
 **Type**: TEXT
 
@@ -188,6 +218,8 @@ This field is ignored.
 
 **Name**: Ordered_test_code
 
+**ReportStream Internal Name**: Ordered_test_code_Ignore
+
 **Type**: TEXT
 
 **PII**: No
@@ -201,6 +233,8 @@ This field is ignored.
 ---
 
 **Name**: Ordered_test_code_system
+
+**ReportStream Internal Name**: Ordered_test_code_system_Ignore
 
 **Type**: TEXT
 
@@ -216,6 +250,8 @@ This field is ignored.
 
 **Name**: Ordering_facility_county
 
+**ReportStream Internal Name**: Ordering_facility_county_Ignore
+
 **Type**: TEXT
 
 **PII**: No
@@ -229,6 +265,8 @@ This field is ignored.
 ---
 
 **Name**: Ordering_facility_street_2
+
+**ReportStream Internal Name**: Ordering_facility_street_2_Ignore
 
 **Type**: TEXT
 
@@ -244,6 +282,8 @@ This field is ignored.
 
 **Name**: Ordering_provider_county
 
+**ReportStream Internal Name**: Ordering_provider_county_Ignore
+
 **Type**: TEXT
 
 **PII**: No
@@ -257,6 +297,8 @@ This field is ignored.
 ---
 
 **Name**: Patient_ID_2
+
+**ReportStream Internal Name**: Patient_ID_2_Ignore
 
 **Type**: TEXT
 
@@ -272,6 +314,8 @@ This field is ignored.
 
 **Name**: Patient_ID_2_assigner
 
+**ReportStream Internal Name**: Patient_ID_2_assigner_Ignore
+
 **Type**: TEXT
 
 **PII**: No
@@ -285,6 +329,8 @@ This field is ignored.
 ---
 
 **Name**: Patient_ID_2_type
+
+**ReportStream Internal Name**: Patient_ID_2_type_Ignore
 
 **Type**: TEXT
 
@@ -300,6 +346,8 @@ This field is ignored.
 
 **Name**: Patient_ID_assigner
 
+**ReportStream Internal Name**: Patient_ID_assigner_Ignore
+
 **Type**: TEXT
 
 **PII**: No
@@ -313,6 +361,8 @@ This field is ignored.
 ---
 
 **Name**: Patient_ID_type
+
+**ReportStream Internal Name**: Patient_ID_type_Ignore
 
 **Type**: TEXT
 
@@ -328,6 +378,8 @@ This field is ignored.
 
 **Name**: Patient_age
 
+**ReportStream Internal Name**: Patient_age_Ignore
+
 **Type**: TEXT
 
 **PII**: No
@@ -341,6 +393,8 @@ This field is ignored.
 ---
 
 **Name**: Patient_age_units
+
+**ReportStream Internal Name**: Patient_age_units_Ignore
 
 **Type**: TEXT
 
@@ -356,6 +410,8 @@ This field is ignored.
 
 **Name**: Patient_county
 
+**ReportStream Internal Name**: Patient_county_Ignore
+
 **Type**: TEXT
 
 **PII**: No
@@ -369,6 +425,8 @@ This field is ignored.
 ---
 
 **Name**: Patient_death_date
+
+**ReportStream Internal Name**: Patient_death_date_Ignore
 
 **Type**: TEXT
 
@@ -384,6 +442,8 @@ This field is ignored.
 
 **Name**: Patient_died
 
+**ReportStream Internal Name**: Patient_died_Ignore
+
 **Type**: TEXT
 
 **PII**: No
@@ -397,6 +457,8 @@ This field is ignored.
 ---
 
 **Name**: Patient_location
+
+**ReportStream Internal Name**: Patient_location_Ignore
 
 **Type**: TEXT
 
@@ -412,6 +474,8 @@ This field is ignored.
 
 **Name**: Patient_occupation
 
+**ReportStream Internal Name**: Patient_occupation_Ignore
+
 **Type**: TEXT
 
 **PII**: No
@@ -425,6 +489,8 @@ This field is ignored.
 ---
 
 **Name**: Patient_residency_type
+
+**ReportStream Internal Name**: Patient_residency_type_Ignore
 
 **Type**: TEXT
 
@@ -440,6 +506,8 @@ This field is ignored.
 
 **Name**: Patient_suffix
 
+**ReportStream Internal Name**: Patient_suffix_Ignore
+
 **Type**: TEXT
 
 **PII**: No
@@ -453,6 +521,8 @@ This field is ignored.
 ---
 
 **Name**: Public_health_case_ID
+
+**ReportStream Internal Name**: Public_health_case_ID_Ignore
 
 **Type**: TEXT
 
@@ -468,6 +538,8 @@ This field is ignored.
 
 **Name**: Reference_range
 
+**ReportStream Internal Name**: Reference_range_Ignore
+
 **Type**: TEXT
 
 **PII**: No
@@ -481,6 +553,8 @@ This field is ignored.
 ---
 
 **Name**: Report_facil_data_source_app
+
+**ReportStream Internal Name**: Report_facil_data_source_app_Ignore
 
 **Type**: TEXT
 
@@ -496,6 +570,8 @@ This field is ignored.
 
 **Name**: Reporting_facility_ID
 
+**ReportStream Internal Name**: Reporting_facility_ID_Ignore
+
 **Type**: TEXT
 
 **PII**: No
@@ -509,6 +585,8 @@ This field is ignored.
 ---
 
 **Name**: Reporting_facility_name
+
+**ReportStream Internal Name**: Reporting_facility_name_Ignore
 
 **Type**: TEXT
 
@@ -524,6 +602,8 @@ This field is ignored.
 
 **Name**: Resident_congregate_setting
 
+**ReportStream Internal Name**: Resident_congregate_setting_Ignore
+
 **Type**: TEXT
 
 **PII**: No
@@ -537,6 +617,8 @@ This field is ignored.
 ---
 
 **Name**: Result_format
+
+**ReportStream Internal Name**: Result_format_Ignore
 
 **Type**: TEXT
 
@@ -552,6 +634,8 @@ This field is ignored.
 
 **Name**: Specimen_received_date_time
 
+**ReportStream Internal Name**: Specimen_received_date_time_Ignore
+
 **Type**: TEXT
 
 **PII**: No
@@ -565,6 +649,8 @@ This field is ignored.
 ---
 
 **Name**: Specimen_source_site_code
+
+**ReportStream Internal Name**: Specimen_source_site_code_Ignore
 
 **Type**: TEXT
 
@@ -580,6 +666,8 @@ This field is ignored.
 
 **Name**: Specimen_source_site_code_sys
 
+**ReportStream Internal Name**: Specimen_source_site_code_sys_Ignore
+
 **Type**: TEXT
 
 **PII**: No
@@ -593,6 +681,8 @@ This field is ignored.
 ---
 
 **Name**: Specimen_source_site_descrip
+
+**ReportStream Internal Name**: Specimen_source_site_descrip_Ignore
 
 **Type**: TEXT
 
@@ -608,6 +698,8 @@ This field is ignored.
 
 **Name**: Specimen_type_code
 
+**ReportStream Internal Name**: Specimen_type_code_Ignore
+
 **Type**: TEXT
 
 **PII**: No
@@ -621,6 +713,8 @@ This field is ignored.
 ---
 
 **Name**: Specimen_type_code_system
+
+**ReportStream Internal Name**: Specimen_type_code_system_Ignore
 
 **Type**: TEXT
 
@@ -636,6 +730,8 @@ This field is ignored.
 
 **Name**: Specimen_type_free_text
 
+**ReportStream Internal Name**: Specimen_type_free_text_Ignore
+
 **Type**: TEXT
 
 **PII**: No
@@ -649,6 +745,8 @@ This field is ignored.
 ---
 
 **Name**: Submitter_sample_ID_assigner
+
+**ReportStream Internal Name**: Submitter_sample_ID_assigner_Ignore
 
 **Type**: TEXT
 
@@ -664,6 +762,8 @@ This field is ignored.
 
 **Name**: Submitter_unique_sample_ID
 
+**ReportStream Internal Name**: Submitter_unique_sample_ID_Ignore
+
 **Type**: TEXT
 
 **PII**: No
@@ -677,6 +777,8 @@ This field is ignored.
 ---
 
 **Name**: Test_date
+
+**ReportStream Internal Name**: Test_date_Ignore
 
 **Type**: TEXT
 
@@ -692,6 +794,8 @@ This field is ignored.
 
 **Name**: Test_kit_EUA_ID
 
+**ReportStream Internal Name**: Test_kit_EUA_ID_Ignore
+
 **Type**: TEXT
 
 **PII**: No
@@ -705,6 +809,8 @@ This field is ignored.
 ---
 
 **Name**: Test_kit_instance_ID
+
+**ReportStream Internal Name**: Test_kit_instance_ID_Ignore
 
 **Type**: TEXT
 
@@ -720,6 +826,8 @@ This field is ignored.
 
 **Name**: Test_kit_model_ID
 
+**ReportStream Internal Name**: Test_kit_model_ID_Ignore
+
 **Type**: TEXT
 
 **PII**: No
@@ -733,6 +841,8 @@ This field is ignored.
 ---
 
 **Name**: Test_kit_model_name
+
+**ReportStream Internal Name**: Test_kit_model_name_Ignore
 
 **Type**: TEXT
 
@@ -748,6 +858,8 @@ This field is ignored.
 
 **Name**: Test_method_description
 
+**ReportStream Internal Name**: Test_method_description_Ignore
+
 **Type**: TEXT
 
 **PII**: No
@@ -761,6 +873,8 @@ This field is ignored.
 ---
 
 **Name**: Test_performed_code
+
+**ReportStream Internal Name**: Test_performed_code_Ignore
 
 **Type**: TEXT
 
@@ -776,6 +890,8 @@ This field is ignored.
 
 **Name**: Test_performed_code_system
 
+**ReportStream Internal Name**: Test_performed_code_system_Ignore
+
 **Type**: TEXT
 
 **PII**: No
@@ -789,6 +905,8 @@ This field is ignored.
 ---
 
 **Name**: Test_performed_description
+
+**ReportStream Internal Name**: Test_performed_description_Ignore
 
 **Type**: TEXT
 
@@ -804,6 +922,8 @@ This field is ignored.
 
 **Name**: Test_performed_number
 
+**ReportStream Internal Name**: Test_performed_number_Ignore
+
 **Type**: TEXT
 
 **PII**: No
@@ -817,6 +937,8 @@ This field is ignored unless there is an antibody test.  Then this must be set i
 ---
 
 **Name**: Test_result_code_system
+
+**ReportStream Internal Name**: Test_result_code_system_Ignore
 
 **Type**: TEXT
 
@@ -832,6 +954,8 @@ This field is ignored.
 
 **Name**: Test_result_comparator
 
+**ReportStream Internal Name**: Test_result_comparator_Ignore
+
 **Type**: TEXT
 
 **PII**: No
@@ -845,6 +969,8 @@ This field is ignored.
 ---
 
 **Name**: Test_result_description
+
+**ReportStream Internal Name**: Test_result_description_Ignore
 
 **Type**: TEXT
 
@@ -860,6 +986,8 @@ This field is ignored.
 
 **Name**: Test_result_free_text
 
+**ReportStream Internal Name**: Test_result_free_text_Ignore
+
 **Type**: TEXT
 
 **PII**: No
@@ -873,6 +1001,8 @@ This field is ignored.
 ---
 
 **Name**: Test_result_number2
+
+**ReportStream Internal Name**: Test_result_number2_Ignore
 
 **Type**: TEXT
 
@@ -888,6 +1018,8 @@ This field is ignored.
 
 **Name**: Test_result_number
 
+**ReportStream Internal Name**: Test_result_number_Ignore
+
 **Type**: TEXT
 
 **PII**: No
@@ -901,6 +1033,8 @@ This field is ignored.
 ---
 
 **Name**: Test_result_number_separator
+
+**ReportStream Internal Name**: Test_result_number_separator_Ignore
 
 **Type**: TEXT
 
@@ -916,6 +1050,8 @@ This field is ignored.
 
 **Name**: Test_result_sub_ID
 
+**ReportStream Internal Name**: Test_result_sub_ID_Ignore
+
 **Type**: TEXT
 
 **PII**: No
@@ -929,6 +1065,8 @@ This field is ignored.
 ---
 
 **Name**: Test_result_units
+
+**ReportStream Internal Name**: Test_result_units_Ignore
 
 **Type**: TEXT
 
@@ -944,6 +1082,8 @@ This field is ignored.
 
 **Name**: Testing_lab_county
 
+**ReportStream Internal Name**: Testing_lab_county_Ignore
+
 **Type**: TEXT
 
 **PII**: No
@@ -957,6 +1097,8 @@ This field is ignored.
 ---
 
 **Name**: Testing_lab_specimen_ID
+
+**ReportStream Internal Name**: Testing_lab_specimen_ID_Ignore
 
 **Type**: TEXT
 
@@ -972,6 +1114,8 @@ This field is ignored.
 
 **Name**: Testing_lab_street2
 
+**ReportStream Internal Name**: Testing_lab_street2_Ignore
+
 **Type**: TEXT
 
 **PII**: No
@@ -985,6 +1129,8 @@ This field is ignored.
 ---
 
 **Name**: Travel_history
+
+**ReportStream Internal Name**: Travel_history_Ignore
 
 **Type**: TEXT
 
@@ -1000,6 +1146,8 @@ This field is ignored.
 
 **Name**: Date_result_released
 
+**ReportStream Internal Name**: date_result_released
+
 **Type**: DATETIME
 
 **PII**: No
@@ -1012,11 +1160,13 @@ This field is ignored.
 
 **Name**: Employed_in_healthcare
 
+**ReportStream Internal Name**: employed_in_healthcare
+
 **Type**: CODE
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **Default Value**: 
 
@@ -1047,25 +1197,9 @@ Translate multiple inbound Y/N/U AOE values to RS values
 
 ---
 
-**Name**: equipment_model_name
-
-**Type**: TABLE
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-
-**Reference URL**:
-[https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
-
-**Table**: LIVD-SARS-CoV-2-2021-09-29
-
-**Table Column**: Model
-
----
-
 **Name**: Testing_lab_ID
+
+**ReportStream Internal Name**: filler_clia
 
 **Type**: ID_CLIA
 
@@ -1076,6 +1210,8 @@ Translate multiple inbound Y/N/U AOE values to RS values
 ---
 
 **Name**: Testing_lab_accession_number
+
+**ReportStream Internal Name**: filler_order_id
 
 **Type**: ID
 
@@ -1097,11 +1233,13 @@ Accension number
 
 **Name**: First_test
 
+**ReportStream Internal Name**: first_test
+
 **Type**: CODE
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **Default Value**: 
 
@@ -1134,6 +1272,8 @@ Translate multiple inbound Y/N/U AOE values to RS values
 
 **Name**: flatfile_version_no
 
+**ReportStream Internal Name**: flatfile_version_no_Ignore
+
 **Type**: TEXT
 
 **PII**: No
@@ -1146,59 +1286,9 @@ This field is ignored.
 
 ---
 
-**Name**: hospitalized
-
-**Type**: CODE
-
-**PII**: No
-
-**Default Value**: N
-
-**LOINC Code**: 77974-4
-
-**Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display
----- | -------
-Y|Yes
-N|No
-UNK|Unknown
-
-**Documentation**:
-
-Is the patient hospitalized?
-
----
-
-**Name**: icu
-
-**Type**: CODE
-
-**PII**: No
-
-**Default Value**: N
-
-**LOINC Code**: 95420-6
-
-**Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display
----- | -------
-Y|Yes
-N|No
-UNK|Unknown
-
-**Documentation**:
-
-Is the patient in the ICU?
-
----
-
 **Name**: Illness_onset_date
+
+**ReportStream Internal Name**: illness_onset_date
 
 **Type**: DATE
 
@@ -1216,6 +1306,8 @@ Is the patient in the ICU?
 
 **Name**: Testing_lab_accession_number
 
+**ReportStream Internal Name**: message_id
+
 **Type**: ID
 
 **PII**: No
@@ -1230,6 +1322,8 @@ unique id to track the usage of the message
 
 **Name**: Order_test_date
 
+**ReportStream Internal Name**: order_test_date
+
 **Type**: DATETIME
 
 **PII**: No
@@ -1241,6 +1335,8 @@ unique id to track the usage of the message
 ---
 
 **Name**: Ordering_facility_city
+
+**ReportStream Internal Name**: ordering_facility_city
 
 **Type**: CITY
 
@@ -1254,21 +1350,11 @@ The city of the facility which the test was ordered from
 
 ---
 
-**Name**: ordering_facility_name
+**Name**: Ordering_facility_name
+
+**ReportStream Internal Name**: ordering_facility_name_temp
 
 **Type**: TEXT
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The name of the facility which the test was ordered from
-
----
-
-**Name**: Ordering_facility_name
 
 **PII**: No
 
@@ -1277,6 +1363,8 @@ The name of the facility which the test was ordered from
 ---
 
 **Name**: Ordering_facility_phone_number
+
+**ReportStream Internal Name**: ordering_facility_phone_number
 
 **Type**: TELEPHONE
 
@@ -1291,6 +1379,8 @@ The phone number of the facility which the test was ordered from
 ---
 
 **Name**: Ordering_facility_state
+
+**ReportStream Internal Name**: ordering_facility_state
 
 **Type**: TABLE
 
@@ -1310,6 +1400,8 @@ The state of the facility which the test was ordered from
 
 **Name**: Ordering_facility_street
 
+**ReportStream Internal Name**: ordering_facility_street
+
 **Type**: STREET
 
 **PII**: No
@@ -1323,6 +1415,8 @@ The address of the facility which the test was ordered from
 ---
 
 **Name**: Ordering_facility_zip_code
+
+**ReportStream Internal Name**: ordering_facility_zip_code
 
 **Type**: POSTAL_CODE
 
@@ -1338,6 +1432,8 @@ The zip code of the facility which the test was ordered from
 
 **Name**: Ordering_provider_city
 
+**ReportStream Internal Name**: ordering_provider_city
+
 **Type**: CITY
 
 **PII**: Yes
@@ -1351,6 +1447,8 @@ The city of the provider
 ---
 
 **Name**: Ordering_provider_first_name
+
+**ReportStream Internal Name**: ordering_provider_first_name
 
 **Type**: PERSON_NAME
 
@@ -1371,6 +1469,8 @@ The first name of the provider who ordered the test
 
 **Name**: Ordering_provider_ID
 
+**ReportStream Internal Name**: ordering_provider_id
+
 **Type**: ID_NPI
 
 **PII**: No
@@ -1390,6 +1490,8 @@ The ordering provider’s National Provider Identifier
 
 **Name**: Ordering_provider_last_name
 
+**ReportStream Internal Name**: ordering_provider_last_name
+
 **Type**: PERSON_NAME
 
 **PII**: No
@@ -1407,15 +1509,9 @@ The last name of provider who ordered the test
 
 ---
 
-**Name**: ordering_provider_lastfirst_name
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
----
-
 **Name**: Ordering_provider_phone
+
+**ReportStream Internal Name**: ordering_provider_phone_number
 
 **Type**: TELEPHONE
 
@@ -1436,6 +1532,8 @@ The phone number of the provider
 
 **Name**: Ordering_provider_state
 
+**ReportStream Internal Name**: ordering_provider_state
+
 **Type**: TABLE
 
 **PII**: No
@@ -1454,6 +1552,8 @@ The state of the provider
 
 **Name**: Ordering_provider_street
 
+**ReportStream Internal Name**: ordering_provider_street
+
 **Type**: STREET
 
 **PII**: Yes
@@ -1467,6 +1567,8 @@ The street address of the provider
 ---
 
 **Name**: Ordering_provider_street2
+
+**ReportStream Internal Name**: ordering_provider_street2
 
 **Type**: STREET_OR_BLANK
 
@@ -1482,6 +1584,8 @@ The street second address of the provider
 
 **Name**: Ordering_provider_zip_code
 
+**ReportStream Internal Name**: ordering_provider_zip_code
+
 **Type**: POSTAL_CODE
 
 **PII**: No
@@ -1496,6 +1600,8 @@ The zip code of the provider
 
 **Name**: Patient_city
 
+**ReportStream Internal Name**: patient_city
+
 **Type**: CITY
 
 **PII**: Yes
@@ -1508,21 +1614,9 @@ The patient's city
 
 ---
 
-**Name**: patient_county
-
-**Type**: TABLE
-
-**PII**: No
-
-**Cardinality**: [1..1]
-
-**Table**: zip-code-data
-
-**Table Column**: county
-
----
-
 **Name**: Patient_DOB
+
+**ReportStream Internal Name**: patient_dob
 
 **Type**: DATE
 
@@ -1543,11 +1637,13 @@ Other states may choose to define their own formats.
 
 **Name**: Patient_ethnicity
 
+**ReportStream Internal Name**: patient_ethnicity
+
 **Type**: CODE
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **Default Value**: U
 
@@ -1584,6 +1680,8 @@ Translate multiple inbound ethnicity values to RS / OMB values
 
 **Name**: Patient_first_name
 
+**ReportStream Internal Name**: patient_first_name
+
 **Type**: PERSON_NAME
 
 **PII**: Yes
@@ -1598,11 +1696,13 @@ The patient's first name
 
 **Name**: Patient_gender
 
+**ReportStream Internal Name**: patient_gender
+
 **Type**: CODE
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **Default Value**: U
 
@@ -1633,6 +1733,8 @@ Translate multiple inbound Gender values to RS values
 
 **Name**: Patient_ID
 
+**ReportStream Internal Name**: patient_id
+
 **Type**: TEXT
 
 **PII**: Yes
@@ -1648,6 +1750,8 @@ the patient ID from the testing lab, the oder placer, the ordering provider, or 
 ---
 
 **Name**: Ordering_facility_name
+
+**ReportStream Internal Name**: patient_id_assigner
 
 **Type**: HD
 
@@ -1666,19 +1770,9 @@ The name of the assigner of the patient_id field. Typically we use the name of t
 
 ---
 
-**Name**: patient_id_type
-
-**Type**: TEXT
-
-**PII**: No
-
-**Default Value**: PI
-
-**Cardinality**: [0..1]
-
----
-
 **Name**: Patient_last_name
+
+**ReportStream Internal Name**: patient_last_name
 
 **Type**: PERSON_NAME
 
@@ -1694,6 +1788,8 @@ The patient's last name
 
 **Name**: Patient_middle_name
 
+**ReportStream Internal Name**: patient_middle_name
+
 **Type**: PERSON_NAME
 
 **PII**: Yes
@@ -1703,6 +1799,8 @@ The patient's last name
 ---
 
 **Name**: Patient_phone_number
+
+**ReportStream Internal Name**: patient_phone_number
 
 **Type**: TELEPHONE
 
@@ -1718,11 +1816,13 @@ The patient's phone number with area code
 
 **Name**: Patient_race
 
+**ReportStream Internal Name**: patient_race
+
 **Type**: CODE
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **Default Value**: UNK
 
@@ -1740,6 +1840,7 @@ Code | Display
 1002-5|American Indian or Alaska Native
 1002-5|American Indian
 1002-5|Native American
+1002-5|1002-5
 2054-5|Black or African American
 2054-5|African American
 2054-5|African American Alaska Native
@@ -1778,6 +1879,8 @@ Translate multiple inbound Race values to RS / OMB values
 
 **Name**: Patient_state
 
+**ReportStream Internal Name**: patient_state
+
 **Type**: TABLE
 
 **PII**: No
@@ -1796,6 +1899,8 @@ The patient's state
 
 **Name**: Patient_street
 
+**ReportStream Internal Name**: patient_street
+
 **Type**: STREET
 
 **PII**: Yes
@@ -1809,6 +1914,8 @@ The patient's street address
 ---
 
 **Name**: Patient_street2
+
+**ReportStream Internal Name**: patient_street2
 
 **Type**: STREET_OR_BLANK
 
@@ -1824,6 +1931,8 @@ The patient's second address line
 
 **Name**: Patient_zip_code
 
+**ReportStream Internal Name**: patient_zip_code
+
 **Type**: POSTAL_CODE
 
 **PII**: No
@@ -1837,6 +1946,8 @@ The patient's zip code
 ---
 
 **Name**: Testing_lab_accession_number
+
+**ReportStream Internal Name**: placer_order_id
 
 **Type**: ID
 
@@ -1857,11 +1968,13 @@ The ID number of the lab order from the placer
 
 **Name**: Pregnant
 
+**ReportStream Internal Name**: pregnant
+
 **Type**: CODE
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **Default Value**: 
 
@@ -1901,9 +2014,13 @@ Translate multiple inbound values into the Pregnancy SNOMED Codes
 
 **Name**: processing_mode_code
 
+**ReportStream Internal Name**: processing_mode_code
+
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Default Value**: P
 
@@ -1925,6 +2042,8 @@ P, D, or T for Production, Debugging, or Training
 
 **Name**: Testing_lab_ID
 
+**ReportStream Internal Name**: reporting_facility_clia
+
 **Type**: ID_CLIA
 
 **PII**: No
@@ -1945,29 +2064,9 @@ The reporting facility's CLIA
 
 ---
 
-**Name**: reporting_facility_name
-
-**Type**: TEXT
-
-**PII**: No
-
-**HL7 Fields**
-
-- [MSH-4-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/MSH.4.1)
-- [PID-3-4-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4.1)
-- [PID-3-6-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.6.1)
-- [SPM-2-1-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.1.2)
-- [SPM-2-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2.2)
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The reporting facility's name
-
----
-
 **Name**: sender_id
+
+**ReportStream Internal Name**: sender_id
 
 **Type**: TEXT
 
@@ -1984,6 +2083,8 @@ ID name of org that is sending this data to ReportStream.  Suitable for provenan
 ---
 
 **Name**: Specimen_collection_date_time
+
+**ReportStream Internal Name**: specimen_collection_date_time
 
 **Type**: DATETIME
 
@@ -2009,11 +2110,13 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 
 **Name**: Specimen_type_description
 
+**ReportStream Internal Name**: specimen_source_site_code
+
 **Type**: CODE
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **Default Value**: 71836000
 
@@ -2025,7 +2128,6 @@ Code | Display
 ---- | -------
 71836000|Nasopharyngeal structure (body structure)
 71836000|Varied
-71836000|Nasal
 71836000|Nasopharyngeal swab
 71836000|258500001
 71836000|Nasopharyngeal aspirate
@@ -2037,6 +2139,7 @@ Code | Display
 53342003|Swab of internal nose
 53342003|Anterior nares swab
 53342003|Mid-turbinate nasal swab
+53342003|Nasal
 53342003|Nasal Swab
 53342003|445297001
 53342003|697989009
@@ -2070,11 +2173,13 @@ Translate inbound text to outbound SNOMED Codes
 
 **Name**: Specimen_type_description
 
+**ReportStream Internal Name**: specimen_type
+
 **Type**: CODE
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **Default Value**: 258500001
 
@@ -2138,11 +2243,13 @@ Translate inbound text to outbound SNOMED Codes
 
 **Name**: Symptomatic_for_disease
 
+**ReportStream Internal Name**: symptomatic_for_disease
+
 **Type**: CODE
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **Default Value**: 
 
@@ -2175,11 +2282,13 @@ Translate multiple inbound Y/N/U AOE values to RS values
 
 **Name**: Ordered_test_description
 
+**ReportStream Internal Name**: test_kit_name_id
+
 **Type**: CODE
 
 **PII**: No
 
-**Format**: $alt
+**Format**: use value found in the Display column
 
 **Cardinality**: [0..1]
 
@@ -2194,11 +2303,13 @@ CareStart COVID-19 Antigen test_Access Bio, Inc.|Coronavirus Antigen IA Rapid Te
 
 **Name**: Test_result_coded
 
+**ReportStream Internal Name**: test_result
+
 **Type**: CODE
 
 **PII**: No
 
-**Format**: $display
+**Format**: use value found in the Display column
 
 **Cardinality**: [0..1]
 
@@ -2267,6 +2378,8 @@ Translate multiple inbound Test Result values to RS values
 
 **Name**: Date_result_released
 
+**ReportStream Internal Name**: test_result_date
+
 **Type**: DATETIME
 
 **PII**: No
@@ -2279,9 +2392,13 @@ Translate multiple inbound Test Result values to RS values
 
 **Name**: Test_result_status
 
+**ReportStream Internal Name**: test_result_status
+
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Default Value**: F
 
@@ -2320,6 +2437,8 @@ the test result is in some intermediate status, is a correction, or is the final
 
 **Name**: Testing_lab_city
 
+**ReportStream Internal Name**: testing_lab_city
+
 **Type**: CITY
 
 **PII**: No
@@ -2333,6 +2452,8 @@ The city of the testing lab
 ---
 
 **Name**: Testing_lab_ID
+
+**ReportStream Internal Name**: testing_lab_clia
 
 **Type**: ID_CLIA
 
@@ -2360,6 +2481,8 @@ An example of the ID is 03D2159846
 
 **Name**: Testing_lab_ID
 
+**ReportStream Internal Name**: testing_lab_id
+
 **Type**: ID
 
 **PII**: No
@@ -2372,31 +2495,11 @@ Typically this will be the same as the `testing_lab_clia`, but potentially could
 
 ---
 
-**Name**: testing_lab_name
+**Name**: Testing_lab_name
+
+**ReportStream Internal Name**: testing_lab_name_temp
 
 **Type**: TEXT
-
-**PII**: No
-
-**HL7 Fields**
-
-- [OBR-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.2.2)
-- [OBR-3-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.3.2)
-- [OBX-15-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.15.2)
-- [OBX-23-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.23.1)
-- [ORC-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.2.2)
-- [ORC-3-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.3.2)
-- [PID-3-4-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4.1)
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The name of the laboratory which performed the test, can be the same as the sending facility name
-
----
-
-**Name**: Testing_lab_name
 
 **PII**: No
 
@@ -2405,6 +2508,8 @@ The name of the laboratory which performed the test, can be the same as the send
 ---
 
 **Name**: Ordering_facility_phone_number
+
+**ReportStream Internal Name**: testing_lab_phone_number
 
 **Type**: TELEPHONE
 
@@ -2419,6 +2524,8 @@ The phone number of the testing lab
 ---
 
 **Name**: Specimen_collection_date_time
+
+**ReportStream Internal Name**: testing_lab_specimen_received_datetime
 
 **Type**: DATETIME
 
@@ -2440,6 +2547,8 @@ be offset, so this field takes the `specimen_collection_date_time` field and off
 
 **Name**: Testing_lab_state
 
+**ReportStream Internal Name**: testing_lab_state
+
 **Type**: TABLE
 
 **PII**: No
@@ -2458,6 +2567,8 @@ The state for the testing lab
 
 **Name**: Testing_lab_street
 
+**ReportStream Internal Name**: testing_lab_street
+
 **Type**: STREET
 
 **PII**: No
@@ -2472,6 +2583,8 @@ The street address for the testing lab
 
 **Name**: Testing_lab_zip_code
 
+**ReportStream Internal Name**: testing_lab_zip_code
+
 **Type**: POSTAL_CODE
 
 **PII**: No
@@ -2481,5 +2594,191 @@ The street address for the testing lab
 **Documentation**:
 
 The postal code for the testing lab
+
+---
+
+**Name**: equipment_model_name
+
+**ReportStream Internal Name**: equipment_model_name
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+
+**Reference URL**:
+[https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
+
+**Table**: LIVD-SARS-CoV-2-latest
+
+**Table Column**: Model
+
+---
+
+**Name**: hospitalized
+
+**ReportStream Internal Name**: hospitalized
+
+**Type**: CODE
+
+**PII**: No
+
+**Format**: use value found in the Code column
+
+**Default Value**: N
+
+**LOINC Code**: 77974-4
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+Y|Yes
+N|No
+UNK|Unknown
+
+**Documentation**:
+
+Is the patient hospitalized?
+
+---
+
+**Name**: icu
+
+**ReportStream Internal Name**: icu
+
+**Type**: CODE
+
+**PII**: No
+
+**Format**: use value found in the Code column
+
+**Default Value**: N
+
+**LOINC Code**: 95420-6
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+Y|Yes
+N|No
+UNK|Unknown
+
+**Documentation**:
+
+Is the patient in the ICU?
+
+---
+
+**Name**: ordering_facility_name
+
+**ReportStream Internal Name**: ordering_facility_name
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The name of the facility which the test was ordered from
+
+---
+
+**Name**: ordering_provider_lastfirst_name
+
+**ReportStream Internal Name**: ordering_provider_lastfirst_name
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: patient_county
+
+**ReportStream Internal Name**: patient_county
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Table**: zip-code-data
+
+**Table Column**: county
+
+---
+
+**Name**: patient_id_type
+
+**ReportStream Internal Name**: patient_id_type
+
+**Type**: TEXT
+
+**PII**: No
+
+**Default Value**: PI
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: reporting_facility_name
+
+**ReportStream Internal Name**: reporting_facility_name
+
+**Type**: TEXT
+
+**PII**: No
+
+**HL7 Fields**
+
+- [MSH-4-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/MSH.4.1)
+- [PID-3-4-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4.1)
+- [PID-3-6-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.6.1)
+- [SPM-2-1-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.1.2)
+- [SPM-2-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2.2)
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The reporting facility's name
+
+---
+
+**Name**: testing_lab_name
+
+**ReportStream Internal Name**: testing_lab_name
+
+**Type**: TEXT
+
+**PII**: No
+
+**HL7 Fields**
+
+- [OBR-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.2.2)
+- [OBR-3-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.3.2)
+- [OBX-15-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.15.2)
+- [OBX-23-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.23.1)
+- [ORC-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.2.2)
+- [ORC-3-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.3.2)
+- [PID-3-4-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4.1)
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The name of the laboratory which performed the test, can be the same as the sending facility name
 
 ---

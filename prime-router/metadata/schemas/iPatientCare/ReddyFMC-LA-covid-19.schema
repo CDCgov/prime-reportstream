@@ -5,6 +5,7 @@
 # 
 name: reddyfmc-la-covid-19
 topic: covid-19
+trackingElement: message_id
 description: iPatientCare CSV lab report schema, Reddy Family Medical Clinic, LA
 extends: ipatientCare/ipatientcare-covid-19
 
@@ -37,6 +38,8 @@ elements:
           display: Holly Delatte NP
         - code: 1205306602
           display: De Anna Dark FNP-C
+        - code: 1205306602
+          display: DeAnna Dark FNP-C
         - code: 1770580508
           display: Nagaratna Reddy MD.
         - code: 1912515651
@@ -47,6 +50,10 @@ elements:
           display: Darrell Davis NP
         - code: 1518378009
           display: Wanda Jefferson Wilson FNP-C
+        - code: 1518378009
+          display: Wanda Jefferson FNP-C
+        - code: 1215690334
+          display: Raveen Coon FNP-C
 
     - name: ordering_provider_last_name
       type: CODE
@@ -56,6 +63,8 @@ elements:
           display: Holly Delatte NP
         - code: Dark FNP-C
           display: De Anna Dark FNP-C
+        - code: Dark FNP-C
+          display: DeAnna Dark FNP-C
         - code: Reddy MD
           display: Nagaratna Reddy MD.
         - code: Hill-Selders NP
@@ -66,6 +75,10 @@ elements:
           display: Darrell Davis NP
         - code: Jefferson Wilson FNP-C
           display: Wanda Jefferson Wilson FNP-C
+        - code: Jefferson FNP-C
+          display: Wanda Jefferson FNP-C
+        - code: Coon FNP-C
+          display: Raveen Coon FNP-C
 
     - name: ordering_provider_first_name
       type: CODE
@@ -75,6 +88,8 @@ elements:
           display: Holly Delatte NP
         - code: De Anna
           display: De Anna Dark FNP-C
+        - code: DeAnna
+          display: DeAnna Dark FNP-C
         - code: Nagaratna
           display: Nagaratna Reddy MD.
         - code: Cassandra
@@ -85,6 +100,10 @@ elements:
           display: Darrell Davis NP
         - code: Wanda
           display: Wanda Jefferson Wilson FNP-C
+        - code: Wanda
+          display: Wanda Jefferson FNP-C
+        - code: Raveen
+          display: Raveen Coon FNP-C
 
 
     - name: specimen_type
