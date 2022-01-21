@@ -2,8 +2,10 @@ package gov.cdc.prime.router.cli
 
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.output.TermUi
+import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
-import com.github.ajalt.clikt.parameters.options.required
+import com.github.ajalt.clikt.parameters.types.choice
+import gov.cdc.prime.router.common.Environment
 import it.skrape.core.htmlDocument
 import it.skrape.fetcher.HttpFetcher
 import it.skrape.fetcher.response
@@ -40,34 +42,62 @@ private const val sheetName = "LOINC Mapping"
 /**
  * LivdTableDownload is the command line interface for the livd-table-download command. It parses the command line
  * for option given as below.
+ *
+ * It looks for the LIVD-SAR-CoV-2-yyyy-MM-dd.xlsx file from $cdcLOINCTestCodeMappingPageUrl.  If the file is found,
+ * it downloads the file into the ./build directory.  If not found, it will prompt error accordingly.  Next, it build
+ * the output Lookup Table (<./build/LIVD-SARS-CoV-2.csv> file) with the table name.  Finally, it updates the
+ * LIVD-SARS-CoV-2 lookup tables in the database as the new version of the table.
+ * It updates new version of the lookup table in the given --env [local, test, staging, or prod] with the default
+ * to "local" environment.
+ *
+ * Note, this command will always create new version of the lookup table.
+ *
+ * Example:
+ * The command below will download the latest LIVD mapping catalogue and create a new lookup tables as needed.
+ * It took "LIVD mapping catalogue" from the CDC website.
+ *
+ *  ./prime livd-table-download
+ *
  */
-class LivdTableDownload : CliktCommand(
+class LivdTableDownload() : CliktCommand(
     name = "livd-table-download",
     help = """
-    livd-table downloads the latest LOINC test data, so it can be ingested automatically. 
-    
-    It looks for the LIVD-SAR-CoV-2-yyyy-MM-dd.xlsx file from $cdcLOINCTestCodeMappingPageUrl.
-	If the file is found, it downloads the file into the directory specified by the --output-dir <path> option.
-	If the option is not specified, it will download the file to ./build directory.
-        
-    Example: The following command will download the latest LIVD-SARS-CoV-2-yyyy-MM-dd.xlsx from the above URL.  
-      It will store the LIVD-SARS-CoV-2-xyz.csv file under the ./junk directory.
-      
-         ./prime livd-table-download --output-file ./junk/LIVD-SARS-CoV-2-xyz.csv
+    It downloads the latest LOINC test data, extract Lookup Table, and the database as a new version. 
     """
 ) {
     private val defaultOutputDir = "./build"
-    private val outputFile by option(
-        "--output-file",
-        metavar = "<path/filename>",
-        help = "Output pathname where to store the LIVD data as CSV."
-    ).required()
+    private val outputFile = "./build/$livdSARSCov2File.csv"
+
+    /**
+     * The environment to connect to.
+     */
+    private val env by option(
+        "-e", "--env",
+        metavar = "<name>",
+        envvar = "PRIME_ENVIRONMENT",
+        help = "Connect to <name> environment.\nChoose between [local|test|staging|prod]"
+    )
+        .choice(
+            Environment.LOCAL.envName, Environment.STAGING.envName,
+            Environment.TEST.envName, Environment.PROD.envName
+        )
+        .default(Environment.LOCAL.envName, "local environment")
 
     override fun run() {
+        TermUi.echo("Downloading the lookup table ...")
+        // Download the LIVD-SARS-CoV2-yyyyMMdd.xlsx from CDC web site given above.
         val downloadedDirFile = downloadFile(defaultOutputDir)
         if (downloadedDirFile.isEmpty()) return
 
-        extractLivdTable(sheetName, downloadedDirFile, outputFile)
+        // Extracts the "LIONC Mapping" sheet from the Excel and output to the specified output CSV format file
+        // specified by --output-file option.
+        if (!extractLivdTable(sheetName, downloadedDirFile, outputFile)) return
+
+        // Now, upload the LIVD-SARS-CoV-2-yyyyMMdd (LIVD lookup table) to a new version of a lookup tables
+        // in database.
+        if (!updateTheLivdLookupTable(File(outputFile))) return
+
+        TermUi.echo("\tThe lookup table is updated successfully.")
     }
 
     /**
@@ -82,7 +112,9 @@ class LivdTableDownload : CliktCommand(
         // Get the link to the LIVD-SARS-CoV-2-yyyy-MM-dd.xlsx file
         val livdFile = search(cdcLOINCTestCodeMappingPageUrl, livdSARSCov2File)
         if (livdFile.isEmpty()) {
-            TermUi.echo("\tError: unable to find LOINC code data to download!")
+            TermUi.echo(
+                "\tERROR: unable to find LOINC code data file matching LIVD-SARS-CoV-2-yyyy-MM-dd to download!"
+            )
             return ""
         }
         val livdFileUrl = "https://cdc.gov/" + livdFile.get(0)
@@ -93,26 +125,16 @@ class LivdTableDownload : CliktCommand(
 
         // Read the file from the website and store it in local directory
         URL(livdFileUrl).openStream().use { input ->
-            if (outputfile.exists()) {
-                val c = prompt("\t$outputfile file is already existed: You want to overwrite it (y/n)?", "n")
-                if (c?.lowercase() == "n") {
-                    return ""
-                } else {
-                    TermUi.echo("\tThe $outputfile file is overwriting.")
-                }
-            }
-
             try {
                 FileOutputStream(outputfile).use { output ->
                     input.copyTo(output)
                 }
             } catch (e: Exception) {
-                TermUi.echo("\tERROR: $e")
+                TermUi.echo("\tERROR: Unable to write the downloaded file - $e")
                 return ""
             }
         }
 
-        TermUi.echo("\tSUCCESS: The $outputfile file is downloaded.")
         return "$outputDir/$localFilename"
     }
 
@@ -157,24 +179,13 @@ class LivdTableDownload : CliktCommand(
 
         val data = StringBuffer() // Buffer and output file for CSV data
         val fileInputStream = FileInputStream(File(inputfile))
-        var workbook: Workbook? = null
         val ext: String = FilenameUtils.getExtension(inputfile)
-        if (ext.equals("xlsx", ignoreCase = true)) {
-            workbook = XSSFWorkbook(fileInputStream)
-        } else if (ext.equals("xls", ignoreCase = true)) {
-            workbook = HSSFWorkbook(fileInputStream)
+        if (!ext.equals("xlsx", ignoreCase = true)) {
+            TermUi.echo("\tERROR: the $inputfile is unsupported since it is not Excel format file.")
+            return false
         }
 
-        // Check for output file duplication
-        if (File(outputfile).exists()) {
-            val c = TermUi.prompt("\t$outputfile file is already existed: You want to overwrite it (y/n)?", "n")
-            if (c?.lowercase() == "n") {
-                return false
-            } else {
-                TermUi.echo("\tOverwriting the $outputfile file.")
-            }
-        }
-
+        val workbook: Workbook? = XSSFWorkbook(fileInputStream)
         val fileOutputStream = FileOutputStream(File(outputfile))
 
         // Get the LOINC Mapping sheet
@@ -236,8 +247,30 @@ class LivdTableDownload : CliktCommand(
         // Write to CSV file.
         fileOutputStream.write(data.toString().toByteArray())
         fileOutputStream.close()
-
-        TermUi.echo("\tSUCCESS: The $outputfile file is created.\n")
         return true
+    }
+
+    /**
+     * Updates the LIVD lookup table name [livdLookupTable] of CSV file.  It setups PRIME CLI Lookup Table Create
+     * Command line options.  And then, it calls the create lookup table command to create the new version of lookup
+     * table.  Note, it always create the new version regardless since it uses -f option.
+     */
+    private fun updateTheLivdLookupTable(livdLookupTable: File): Boolean {
+
+        // The environment the command needs to run on.
+        val environment = Environment.get(env)
+
+        TermUi.echo("Creating $livdSARSCov2File table ...")
+        val args: MutableList<String> = mutableListOf(
+            "-e", environment.toString().lowercase(), "-n", livdSARSCov2File,
+            "-i", livdLookupTable.absolutePath
+        )
+
+        try {
+            LookupTableCreateCommand().main(args)
+            return true
+        } catch (e: Exception) {
+            return false
+        }
     }
 }
