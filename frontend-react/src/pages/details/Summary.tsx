@@ -16,7 +16,7 @@ function Summary(props: Props) {
     const orgName: string = useOrgName();
 
     return (
-        <section className="grid-container">
+        <section className="grid-container tablet:margin-top-6">
             <nav
                 className="usa-breadcrumb usa-breadcrumb--wrap"
                 aria-label="Breadcrumbs"

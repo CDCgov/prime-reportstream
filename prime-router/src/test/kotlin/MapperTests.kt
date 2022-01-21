@@ -1,8 +1,11 @@
 package gov.cdc.prime.router
 
 import assertk.assertThat
+import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
+import assertk.assertions.isNotEmpty
 import assertk.assertions.isNull
+import assertk.assertions.isNullOrEmpty
 import gov.cdc.prime.router.common.NPIUtilities
 import gov.cdc.prime.router.metadata.LookupTable
 import java.io.ByteArrayInputStream
@@ -20,8 +23,8 @@ class MapperTests {
         val mapper = MiddleInitialMapper()
         val args = listOf("test_element")
         val element = Element("test")
-        assertThat(mapper.apply(element, args, listOf(ElementAndValue(element, "Rick")))).isEqualTo("R")
-        assertThat(mapper.apply(element, args, listOf(ElementAndValue(element, "rick")))).isEqualTo("R")
+        assertThat(mapper.apply(element, args, listOf(ElementAndValue(element, "Rick"))).value).isEqualTo("R")
+        assertThat(mapper.apply(element, args, listOf(ElementAndValue(element, "rick"))).value).isEqualTo("R")
     }
 
     @Test
@@ -32,7 +35,7 @@ class MapperTests {
             3,4,y
             5,6,z
         """.trimIndent()
-        val table = LookupTable.read(ByteArrayInputStream(csv.toByteArray()))
+        val table = LookupTable.read(inputStream = ByteArrayInputStream(csv.toByteArray()))
         val schema = Schema(
             "test", topic = "test",
             elements = listOf(
@@ -46,7 +49,8 @@ class MapperTests {
         val mapper = LookupMapper()
         val args = listOf("a")
         assertThat(mapper.valueNames(lookupElement, args)).isEqualTo(listOf("a"))
-        assertThat(mapper.apply(lookupElement, args, listOf(ElementAndValue(indexElement, "3")))).isEqualTo("y")
+        assertThat(mapper.apply(lookupElement, args, listOf(ElementAndValue(indexElement, "3"))).value)
+            .isEqualTo("y")
     }
 
     @Test
@@ -57,7 +61,7 @@ class MapperTests {
             3,4,y
             5,6,z
         """.trimIndent()
-        val table = LookupTable.read(ByteArrayInputStream(csv.toByteArray()))
+        val table = LookupTable.read(inputStream = ByteArrayInputStream(csv.toByteArray()))
         val schema = Schema(
             "test", topic = "test",
             elements = listOf(
@@ -74,7 +78,7 @@ class MapperTests {
         val args = listOf("a", "b")
         val elementAndValues = listOf(ElementAndValue(indexElement, "3"), ElementAndValue(index2Element, "4"))
         assertThat(mapper.valueNames(lookupElement, args)).isEqualTo(listOf("a", "b"))
-        assertThat(mapper.apply(lookupElement, args, elementAndValues)).isEqualTo("y")
+        assertThat(mapper.apply(lookupElement, args, elementAndValues).value).isEqualTo("y")
     }
 
     @Test
@@ -93,25 +97,25 @@ class MapperTests {
             deviceElement,
             "BinaxNOW COVID-19 Ag Card Home Test_Abbott Diagnostics Scarborough, Inc._EUA"
         )
-        assertThat(mapper.apply(codeElement, emptyList(), listOf(ev1))).isEqualTo("94558-4")
+        assertThat(mapper.apply(codeElement, emptyList(), listOf(ev1)).value).isEqualTo("94558-4")
 
         // Test with a truncated device ID
         val ev1a = ElementAndValue(deviceElement, "BinaxNOW COVID-19 Ag Card Home Test_Abb#")
-        assertThat(mapper.apply(codeElement, emptyList(), listOf(ev1a))).isEqualTo("94558-4")
+        assertThat(mapper.apply(codeElement, emptyList(), listOf(ev1a)).value).isEqualTo("94558-4")
 
         // Test with a ID NOW device id which is has a FDA number
         val ev2 = ElementAndValue(deviceElement, "10811877011269_DII")
-        assertThat(mapper.apply(codeElement, emptyList(), listOf(ev2))).isEqualTo("94534-5")
+        assertThat(mapper.apply(codeElement, emptyList(), listOf(ev2)).value).isEqualTo("94534-5")
 
         // With GUDID DI
         val ev3 = ElementAndValue(deviceElement, "10811877011269")
-        assertThat(mapper.apply(codeElement, emptyList(), listOf(ev3))).isEqualTo("94534-5")
+        assertThat(mapper.apply(codeElement, emptyList(), listOf(ev3)).value).isEqualTo("94534-5")
     }
 
     @Test
     fun `test livdLookup with Equipment Model Name`() {
         val lookupTable = LookupTable.read(livdPath)
-        val codeElement = Element(
+        var codeElement = Element(
             "ordered_test_code",
             tableRef = lookupTable,
             tableColumn = "Test Ordered LOINC Code"
@@ -121,11 +125,56 @@ class MapperTests {
 
         // Test with a EUA
         val ev1 = ElementAndValue(modelElement, "BinaxNOW COVID-19 Ag Card")
-        assertThat(mapper.apply(codeElement, emptyList(), listOf(ev1))).isEqualTo("94558-4")
+        assertThat(mapper.apply(codeElement, emptyList(), listOf(ev1)).value).isEqualTo("94558-4")
 
         // Test with a ID NOW device id
         val ev2 = ElementAndValue(modelElement, "ID NOW")
-        assertThat(mapper.apply(codeElement, emptyList(), listOf(ev2))).isEqualTo("94534-5")
+        assertThat(mapper.apply(codeElement, emptyList(), listOf(ev2)).value).isEqualTo("94534-5")
+
+        // Test for a device ID that has multiple rows and the same test ordered code.
+        val ev3 = ElementAndValue(modelElement, "1copy COVID-19 qPCR Multi Kit*")
+        assertThat(mapper.apply(codeElement, emptyList(), listOf(ev3)).value).isEqualTo("94531-1")
+
+        // Test for a device ID that has multiple rows and multiple test ordered codes.
+        val ev4 = ElementAndValue(modelElement, "Alinity i")
+        mapper.apply(codeElement, emptyList(), listOf(ev4)).also {
+            assertThat(it.value).isNull()
+            assertThat(it.warnings).isEmpty()
+        }
+
+        // Test that the warning is only provided for fields that could be sent by a sender
+        codeElement = Element(
+            "ordered_test_code",
+            tableRef = lookupTable,
+            tableColumn = "Test Ordered LOINC Code",
+            hl7Field = "OBX-1"
+        )
+        mapper.apply(codeElement, emptyList(), listOf(ev4)).also {
+            assertThat(it.value).isNull()
+            assertThat(it.warnings).isNotEmpty()
+        }
+        codeElement = Element(
+            "ordered_test_code",
+            tableRef = lookupTable,
+            tableColumn = "Test Ordered LOINC Code",
+            hl7OutputFields = listOf("OBX-1")
+        )
+        mapper.apply(codeElement, emptyList(), listOf(ev4)).also {
+            assertThat(it.value).isNull()
+            assertThat(it.warnings).isNotEmpty()
+        }
+        codeElement = Element(
+            "ordered_test_code",
+            tableRef = lookupTable,
+            tableColumn = "Test Ordered LOINC Code",
+            csvFields = listOf(Element.CsvField("somefield", null))
+        )
+        mapper.apply(codeElement, emptyList(), listOf(ev4)).also {
+            assertThat(it.value).isNull()
+            assertThat(it.warnings).isNotEmpty()
+        }
+
+        assertThat(mapper.apply(codeElement, emptyList(), listOf(ev4)).value).isNull()
     }
 
     @Test
@@ -148,7 +197,7 @@ class MapperTests {
                 ElementAndValue(testPerformedElement, "95209-3")
             )
         ).let {
-            assertThat(it)
+            assertThat(it.value)
                 .equals("SARS-CoV+SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay")
         }
     }
@@ -166,11 +215,11 @@ class MapperTests {
 
         // Test with an FDA device id
         val ev1 = ElementAndValue(deviceElement, "10811877011337")
-        assertThat(mapper.apply(codeElement, emptyList(), listOf(ev1))).isEqualTo("N")
+        assertThat(mapper.apply(codeElement, emptyList(), listOf(ev1)).value).isEqualTo("N")
 
         // Test with a truncated device ID
         val ev1a = ElementAndValue(deviceElement, "BinaxNOW COVID-19 Ag Card 2 Home#")
-        assertThat(mapper.apply(codeElement, emptyList(), listOf(ev1a))).isEqualTo("Y")
+        assertThat(mapper.apply(codeElement, emptyList(), listOf(ev1a)).value).isEqualTo("Y")
     }
 
     @Test
@@ -179,18 +228,28 @@ class MapperTests {
         val codeElement = Element(
             "test_authorized_for_otc",
             tableRef = lookupTable,
-            tableColumn = "is_otc"
+            tableColumn = "is_otc",
+            hl7Field = "OBX-1"
         )
         val deviceElement = Element("equipment_model_name")
         val mapper = LIVDLookupMapper()
 
         // Test with an FDA device id
         val ev1 = ElementAndValue(deviceElement, "BinaxNOW COVID-19 Ag Card Home Test")
-        assertThat(mapper.apply(codeElement, emptyList(), listOf(ev1))).isEqualTo("N")
+        var result = mapper.apply(codeElement, emptyList(), listOf(ev1))
+        assertThat(result.value).isEqualTo("N")
+        assertThat(result.errors).isEmpty()
+        assertThat(result.warnings).isEmpty()
 
         // Test with another
         val ev1a = ElementAndValue(deviceElement, "BinaxNOW COVID-19 Ag Card 2 Home Test")
-        assertThat(mapper.apply(codeElement, emptyList(), listOf(ev1a))).isEqualTo("Y")
+        assertThat(mapper.apply(codeElement, emptyList(), listOf(ev1a)).value).isEqualTo("Y")
+
+        val ev2 = ElementAndValue(deviceElement, "Some bad text")
+        result = mapper.apply(codeElement, emptyList(), listOf(ev2))
+        assertThat(result.value).isNullOrEmpty()
+        assertThat(result.errors).isEmpty()
+        assertThat(result.warnings).isNotEmpty()
     }
 
     @Test
@@ -255,8 +314,8 @@ class MapperTests {
         val mapper = IfPresentMapper()
         val args = listOf("a", "const")
         assertThat(mapper.valueNames(element, args)).isEqualTo(listOf("a"))
-        assertThat(mapper.apply(element, args, listOf(ElementAndValue(element, "3")))).isEqualTo("const")
-        assertThat(mapper.apply(element, args, emptyList())).isNull()
+        assertThat(mapper.apply(element, args, listOf(ElementAndValue(element, "3"))).value).isEqualTo("const")
+        assertThat(mapper.apply(element, args, emptyList()).value).isNull()
     }
 
     @Test
@@ -269,9 +328,70 @@ class MapperTests {
         assertThat(mapper.valueNames(elementA, args)).isEqualTo(listOf("b", "c"))
         assertThat(
             mapper.apply(elementA, args, listOf(ElementAndValue(elementB, "B"), ElementAndValue(elementC, "C")))
+                .value
         ).isEqualTo("B")
-        assertThat(mapper.apply(elementA, args, listOf(ElementAndValue(elementC, "C")))).isEqualTo("C")
-        assertThat(mapper.apply(elementA, args, emptyList())).isNull()
+        assertThat(mapper.apply(elementA, args, listOf(ElementAndValue(elementC, "C"))).value).isEqualTo("C")
+        assertThat(mapper.apply(elementA, args, emptyList()).value).isNull()
+    }
+
+    @Test
+    fun `test useSenderSetting`() {
+        val sender = Sender(
+            "senderName",
+            "orgName",
+            format = Sender.Format.CSV,
+            "covid-19",
+            CustomerStatus.ACTIVE,
+            "mySchemaName",
+            keys = null,
+            processingType = Sender.ProcessingType.async
+        )
+        val elementA = Element("a")
+        val mapper = UseSenderSettingMapper()
+        var args = listOf("name")
+        assertThat(mapper.valueNames(elementA, args)).isEqualTo(emptyList())
+        assertThat(mapper.apply(elementA, args, emptyList(), sender).value)
+            .isEqualTo("senderName")
+        args = listOf("organizationName")
+        assertThat(mapper.apply(elementA, args, emptyList(), sender).value)
+            .isEqualTo("orgName")
+        args = listOf("fullName")
+        assertThat(mapper.apply(elementA, args, emptyList(), sender).value)
+            .isEqualTo("orgName.senderName")
+        args = listOf("topic")
+        assertThat(mapper.apply(elementA, args, emptyList(), sender).value)
+            .isEqualTo("covid-19")
+        args = listOf("schemaName")
+        assertThat(mapper.apply(elementA, args, emptyList(), sender).value)
+            .isEqualTo("mySchemaName")
+
+        // useSenderSetting does a best effort to get string values for other types.
+        args = listOf("processingType")
+        assertThat(mapper.apply(elementA, args, emptyList(), sender).value)
+            .isEqualTo("async")
+        args = listOf("format")
+        assertThat(mapper.apply(elementA, args, emptyList(), sender).value)
+            .isEqualTo("CSV")
+        args = listOf("customerStatus")
+        assertThat(mapper.apply(elementA, args, emptyList(), sender).value)
+            .isEqualTo("ACTIVE")
+        args = listOf("processingModeCode")
+        assertThat(mapper.apply(elementA, args, emptyList(), sender).value)
+            .isEqualTo("P")
+        // Error cases:
+        // Must have an arg
+        args = emptyList()
+        assertFails(block = { mapper.apply(elementA, args, emptyList(), sender) })
+        // Must have a single arg
+        args = listOf("a", "b")
+        assertFails(block = { mapper.apply(elementA, args, emptyList(), sender) })
+        // Arg must be a valid name of a Sender settings field
+        args = listOf("not a valid value")
+        val response = mapper.apply(elementA, args, emptyList(), sender)
+        assertThat(response.value).isNull()
+        assertThat(response.errors.size).isEqualTo(1)
+        assertThat(response.errors[0].type).isEqualTo(ResponseMsgType.REPORT)
+        assertThat(response.errors[0].detailMsg().contains("not a valid value")).isEqualTo(true)
     }
 
     @Test
@@ -286,7 +406,7 @@ class MapperTests {
             ElementAndValue(elementB, "string2"),
             ElementAndValue(elementC, "string3")
         )
-        assertThat(mapper.apply(elementA, args, values)).isEqualTo("string1, string2, string3")
+        assertThat(mapper.apply(elementA, args, values).value).isEqualTo("string1, string2, string3")
     }
 
     @Test
@@ -306,7 +426,79 @@ class MapperTests {
         val expected = "string1^string2^string3"
         val actual = mapper.apply(elementA, args, values)
         // assert
-        assertThat(actual).isEqualTo(expected)
+        assertThat(actual.value).isEqualTo(expected)
+    }
+
+    @Test
+    fun `test lookup with NpiLookupMapper`() {
+        /* Schema and table configuration for tests */
+        val table = LookupTable.read("./src/test/resources/metadata/tables/npi-lookup.csv")
+        val tableName = "npi-lookup"
+
+        /* Hopefully this shuts SonarCloud up about duplicate code */
+        val elementInfo: List<Pair<String, String>> = listOf(
+            Pair("ordering_provider_id", "ordering_provider_id"),
+            Pair("testing_lab_clia", "testing_lab_clia"),
+            Pair("sender_id", "sender_id"),
+            Pair("ordering_provider_first_name", "first_name"),
+            Pair("ordering_provider_last_name", "last_name")
+        )
+        val elements: List<Element> = elementInfo.map { info ->
+            Element(
+                name = info.first,
+                type = Element.Type.TABLE,
+                table = tableName,
+                tableColumn = info.second
+            )
+        }
+        val schema = Schema(
+            tableName, topic = "Testing NPI lookup mapper",
+            elements = elements
+        )
+        val metadata = Metadata(schema = schema, table = table, tableName = tableName)
+        val npiElement = metadata.findSchema(tableName)?.findElement("ordering_provider_id")
+            ?: fail("Did not find Ordering_provider_id in test schema")
+        val cliaElement = metadata.findSchema(tableName)?.findElement("testing_lab_clia")
+            ?: fail("Did not find Testing_lab_clia in test schema")
+        val senderIdElement = metadata.findSchema(tableName)?.findElement("sender_id")
+            ?: fail("Did not find sender_id in test schema")
+        val firstNameElement = metadata.findSchema(tableName)?.findElement("ordering_provider_first_name")
+            ?: fail("Did not find Ordering_provider_first_name in test schema")
+        val lastNameElement = metadata.findSchema(tableName)?.findElement("ordering_provider_last_name")
+            ?: fail("Did not find Ordering_provider_last_name in test schema")
+        val mapper = NpiLookupMapper()
+
+        val args = listOf(npiElement.name, cliaElement.name, senderIdElement.name)
+
+        /* Testing value lookup when NPI is present */
+        val evNpiPresent = listOf(
+            ElementAndValue(npiElement, "1023040318"),
+            ElementAndValue(cliaElement, "01D2079572"),
+            ElementAndValue(senderIdElement, "cuc-al")
+        )
+
+        assertThat(mapper.valueNames(firstNameElement, args))
+            .isEqualTo(listOf("ordering_provider_id", "testing_lab_clia", "sender_id"))
+        assertThat(mapper.apply(firstNameElement, args, evNpiPresent).value).isEqualTo("Paul")
+
+        assertThat(mapper.valueNames(lastNameElement, args))
+            .isEqualTo(listOf("ordering_provider_id", "testing_lab_clia", "sender_id"))
+        assertThat(mapper.apply(lastNameElement, args, evNpiPresent).value).isEqualTo("Fineburg")
+
+        /* Testing value lookup when NPI is NOT present */
+        val evNpiNotPresent = listOf(
+            ElementAndValue(npiElement, ""),
+            ElementAndValue(cliaElement, "01D2079572"),
+            ElementAndValue(senderIdElement, "cuc-al")
+        )
+
+        assertThat(mapper.valueNames(firstNameElement, args))
+            .isEqualTo(listOf("ordering_provider_id", "testing_lab_clia", "sender_id"))
+        assertThat(mapper.apply(firstNameElement, args, evNpiNotPresent).value).isEqualTo("Paul")
+
+        assertThat(mapper.valueNames(lastNameElement, args))
+            .isEqualTo(listOf("ordering_provider_id", "testing_lab_clia", "sender_id"))
+        assertThat(mapper.apply(lastNameElement, args, evNpiNotPresent).value).isEqualTo("Fineburg")
     }
 
     @Test
@@ -326,7 +518,7 @@ class MapperTests {
         val expected = "20210302000006.0000-0600"
         val actual = mapper.apply(element, args, values)
         // assert
-        assertThat(actual).isEqualTo(expected)
+        assertThat(actual.value).isEqualTo(expected)
     }
 
     @Test
@@ -346,7 +538,7 @@ class MapperTests {
         val expected = "20210302000000.0000-0600"
         val actual = mapper.apply(element, args, values)
         // assert
-        assertThat(actual).isEqualTo(expected)
+        assertThat(actual.value).isEqualTo(expected)
     }
 
     @Test
@@ -366,7 +558,7 @@ class MapperTests {
         val expected = "20210302000100.0000-0600"
         val actual = mapper.apply(element, args, values)
         // assert
-        assertThat(actual).isEqualTo(expected)
+        assertThat(actual.value).isEqualTo(expected)
     }
 
     @Test
@@ -386,7 +578,7 @@ class MapperTests {
         val expected = "20210302000000.0000-0600"
         val actual = mapper.apply(element, args, values)
         // assert
-        assertThat(actual).isEqualTo(expected)
+        assertThat(actual.value).isEqualTo(expected)
     }
 
     @Test
@@ -404,7 +596,7 @@ class MapperTests {
         var expected = "c"
         var actual = mapper.apply(element, args, values)
         // assert
-        assertThat(actual).isEqualTo(expected)
+        assertThat(actual.value).isEqualTo(expected)
 
         values = listOf(
             ElementAndValue(Element("a"), ""),
@@ -413,7 +605,7 @@ class MapperTests {
         )
         expected = "b"
         actual = mapper.apply(element, args, values)
-        assertThat(actual).isEqualTo(expected)
+        assertThat(actual.value).isEqualTo(expected)
     }
 
     @Test
@@ -426,7 +618,7 @@ class MapperTests {
         )
         val expected = "8509999999:1:"
         val actual = mapper.apply(element, args, values)
-        assertThat(actual).isEqualTo(expected)
+        assertThat(actual.value).isEqualTo(expected)
     }
 
     @Test
@@ -439,7 +631,7 @@ class MapperTests {
         )
         val expected = "years"
         val actual = mapper.apply(element, args, values)
-        assertThat(actual).isEqualTo(expected)
+        assertThat(actual.value).isEqualTo(expected)
     }
 
     @Test
@@ -452,7 +644,7 @@ class MapperTests {
         )
         val expected = "99"
         val actual = mapper.apply(element, args, values)
-        assertThat(actual).isEqualTo(expected)
+        assertThat(actual.value).isEqualTo(expected)
     }
 
     @Test
@@ -465,7 +657,7 @@ class MapperTests {
         )
         val expected = "John"
         val actual = mapper.apply(element, args, values)
-        assertThat(actual).isEqualTo(expected)
+        assertThat(actual.value).isEqualTo(expected)
     }
 
     @Test
@@ -477,7 +669,7 @@ class MapperTests {
             ElementAndValue(Element("patient_name"), "ThereAreNoSpacesHere")
         )
         val actual = mapper.apply(element, args, values)
-        assertThat(actual).isNull()
+        assertThat(actual.value).isNull()
     }
 
     @Test
@@ -490,7 +682,7 @@ class MapperTests {
         )
         val expected = "Mona"
         val actual = mapper.apply(element, args, values)
-        assertThat(actual).isEqualTo(expected)
+        assertThat(actual.value).isEqualTo(expected)
     }
 
     @Test
@@ -502,7 +694,7 @@ class MapperTests {
             ElementAndValue(Element("patient_name"), "I have no commas")
         )
         val actual = mapper.apply(element, args, values)
-        assertThat(actual).isNull()
+        assertThat(actual.value).isNull()
     }
 
     @Test
@@ -512,7 +704,7 @@ class MapperTests {
             zipcode,county
             32303,Leon
         """.trimIndent()
-        val table = LookupTable.read(ByteArrayInputStream(csv.toByteArray()))
+        val table = LookupTable.read(inputStream = ByteArrayInputStream(csv.toByteArray()))
         val schema = Schema(
             "test", topic = "test",
             elements = listOf(
@@ -526,7 +718,7 @@ class MapperTests {
         )
         val expected = "Leon"
         val actual = mapper.apply(lookupElement, listOf("patient_zip_code"), values)
-        assertThat(actual).isEqualTo(expected)
+        assertThat(actual.value).isEqualTo(expected)
     }
 
     @Test
@@ -539,7 +731,7 @@ class MapperTests {
         // Single value conversion
         val arg = listOf("a")
         val value = listOf(ElementAndValue(elementA, "6086edf8e412650032408e96"))
-        assertThat(mapper.apply(elementA, arg, value))
+        assertThat(mapper.apply(elementA, arg, value).value)
             .isEqualTo("47496cafa04e9c489444b60575399f51e9abc061f4fdda40c31d814325bfc223")
         // Multiple values concatenated
         val args = listOf("a", "b", "c")
@@ -548,19 +740,19 @@ class MapperTests {
             ElementAndValue(elementB, "string2"),
             ElementAndValue(elementC, "string3")
         )
-        assertThat(mapper.apply(elementA, args, values))
+        assertThat(mapper.apply(elementA, args, values).value)
             .isEqualTo("c8fa773cd54e7a7eb7ca08577d0bd23e6ce3a73e61df176213d9ec90f06cb45f")
         // Unhappy path cases
         assertFails { mapper.apply(elementA, listOf(), listOf()) } // must pass a field name
-        assertThat(mapper.apply(elementA, arg, listOf())).isNull() // column not found in the data.
+        assertThat(mapper.apply(elementA, arg, listOf()).value).isNull() // column not found in the data.
         // column has empty data
-        assertThat(mapper.apply(elementA, arg, listOf(ElementAndValue(elementA, "")))).isNull()
+        assertThat(mapper.apply(elementA, arg, listOf(ElementAndValue(elementA, ""))).value).isNull()
     }
 
     @Test
     fun `test parseMapperField validation - allow mapper tokens to be parsed`() {
         // it should allow mapper tokens to be parsed: i.e. "$index"
-        var vals = Mappers.parseMapperField("concat(patient_id, \$index)")
+        val vals = Mappers.parseMapperField("concat(patient_id, \$index)")
         assertThat(vals.second[1]).isEqualTo("\$index")
     }
 
@@ -579,19 +771,19 @@ class MapperTests {
             "\$mode:literal", "\$string:*** No Address Given ***", "condition_field_1", "condition_field_2"
         )
         var values = listOf(ElementAndValue(elementC1, ""), ElementAndValue(elementC2, ""))
-        assertThat(mapper.apply(elementA, args, values))
+        assertThat(mapper.apply(elementA, args, values).value)
             .isEqualTo("*** No Address Given ***")
 
         // any conditional field is non-blank: should return null
         args = listOf("\$mode:literal", "\$string:*** No Address Given ***", "condition_field_1", "condition_field_2")
         values = listOf(ElementAndValue(elementC1, ""), ElementAndValue(elementC2, "nonBlank"))
-        assertThat(mapper.apply(elementA, args, values))
+        assertThat(mapper.apply(elementA, args, values).value)
             .isEqualTo(null)
 
         // conditional fields not present: should return the "$string" value
         args = listOf("\$mode:literal", "\$string:*** No Address Given ***", "condition_field_1", "condition_field_2")
         values = listOf(ElementAndValue(elementA, ""))
-        assertThat(mapper.apply(elementA, args, values))
+        assertThat(mapper.apply(elementA, args, values).value)
             .isEqualTo("*** No Address Given ***")
 
         // $mode:"lookup" tests
@@ -603,7 +795,7 @@ class MapperTests {
             ElementAndValue(elementC1, ""),
             ElementAndValue(elementC2, "")
         )
-        assertThat(mapper.apply(elementA, args, values))
+        assertThat(mapper.apply(elementA, args, values).value)
             .isEqualTo("value of B")
 
         // any conditional field is non-blank: should return null
@@ -613,25 +805,25 @@ class MapperTests {
             ElementAndValue(elementC1, ""),
             ElementAndValue(elementC2, "nonBlank")
         )
-        assertThat(mapper.apply(elementA, args, values))
+        assertThat(mapper.apply(elementA, args, values).value)
             .isEqualTo(null)
 
         // conditional fields not present: should return the value of lookup_field (Element B)
         args = listOf("\$mode:lookup", "lookup_field", "condition_field_1", "condition_field_2")
         values = listOf(ElementAndValue(elementA, ""), ElementAndValue(elementB, "value of B"))
-        assertThat(mapper.apply(elementA, args, values))
+        assertThat(mapper.apply(elementA, args, values).value)
             .isEqualTo("value of B")
 
         // single non-blank condition: should return null
         args = listOf("\$mode:lookup", "lookup_field", "condition_field_1")
         values = listOf(ElementAndValue(elementB, "value of B"), ElementAndValue(elementC1, "nonBlank"))
-        assertThat(mapper.apply(elementA, args, values))
+        assertThat(mapper.apply(elementA, args, values).value)
             .isEqualTo(null)
 
         // invalid $mode should return null
         args = listOf("\$mode:iNvAlId", "lookup_field", "condition_field_1", "condition_field_2")
         values = listOf(ElementAndValue(elementA, ""), ElementAndValue(elementB, "value of B"))
-        assertThat(mapper.apply(elementA, args, values))
+        assertThat(mapper.apply(elementA, args, values).value)
             .isEqualTo(null)
     }
 
@@ -641,7 +833,7 @@ class MapperTests {
         val elementA = Element("a")
         val args = listOf("a", "NPI", "U")
         val values = listOf(ElementAndValue(elementA, NPIUtilities.VALID_NPI))
-        assertThat(mapper.apply(elementA, args, values)).isEqualTo("NPI")
+        assertThat(mapper.apply(elementA, args, values).value).isEqualTo("NPI")
     }
 
     @Test
@@ -650,7 +842,7 @@ class MapperTests {
         val elementA = Element("a")
         val args = listOf("a", "NPI", "U")
         val values = listOf(ElementAndValue(elementA, "xyz"))
-        assertThat(mapper.apply(elementA, args, values)).isEqualTo("U")
+        assertThat(mapper.apply(elementA, args, values).value).isEqualTo("U")
     }
 
     @Test
@@ -659,6 +851,34 @@ class MapperTests {
         val elementA = Element("a")
         val args = listOf("a", "NPI")
         val values = listOf(ElementAndValue(elementA, "xyz"))
-        assertThat(mapper.apply(elementA, args, values)).isNull()
+        assertThat(mapper.apply(elementA, args, values).value).isNull()
+    }
+
+    @Test
+    fun `test LookupSenderValuesetsMapper`() {
+        val table = LookupTable.read("./src/test/resources/metadata/tables/sender_valuesets.csv")
+        val schema = Schema(
+            "test", topic = "test",
+            elements = listOf(
+                Element(
+                    "pregnant", type = Element.Type.TABLE, table = "sender_valuesets", tableColumn = "result",
+                    mapperOverridesValue = true
+                )
+            )
+        )
+        val metadata = Metadata(schema = schema, table = table, tableName = "sender_valuesets")
+        val indexElement = Element("sender_id")
+        val lookupElement = metadata.findSchema("test")?.findElement("pregnant") ?: fail("")
+        val mapper = LookupSenderValuesetsMapper()
+        val args = listOf("sender_id", "pregnant")
+        val elementAndValues = listOf(ElementAndValue(indexElement, "all"), ElementAndValue(lookupElement, "y"))
+        assertThat(mapper.valueNames(lookupElement, args)).isEqualTo(listOf("sender_id", "pregnant"))
+        assertThat(mapper.apply(lookupElement, args, elementAndValues).value).isEqualTo("77386006")
+
+        val elementAndValuesUNK = listOf(
+            ElementAndValue(indexElement, "all"),
+            ElementAndValue(lookupElement, "yas queen")
+        )
+        assertThat(mapper.apply(lookupElement, args, elementAndValuesUNK).value).isNull()
     }
 }

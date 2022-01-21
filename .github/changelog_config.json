@@ -1,0 +1,84 @@
+{
+    "categories": [
+        {
+            "title": "## 💻 Frontend",
+            "labels": [
+                "frontend",
+                "javascript"
+            ]
+        },
+        {
+            "title": "## 🔧 Backend",
+            "labels": [
+                "backend",
+                "router"
+            ]
+        },
+        {
+            "title": "## 🚀 Pipelines",
+            "labels": [
+                "DevOps", 
+                "deployment", 
+                "checks", 
+                "automated", 
+                "workflow", 
+                "scan",
+                "pipeline"
+            ]
+        },
+        {
+            "title": "## 🐛 Fixes",
+            "labels": [
+                "fix", 
+                "fixed", 
+                "fixed", 
+                "bug", 
+                "correct"
+            ]
+        },
+        {
+            "title": "## 🧪 Tests",
+            "labels": [
+                "test"
+            ]
+        },
+        {
+            "title": "## 💸 Tech debt",
+            "labels": [
+                "tech-debt"
+            ]
+        },
+        {
+            "title": "## 🎲 Uncategorized",
+            "labels": []
+        }
+    ],
+    "ignore_labels": [
+      "ignore",
+      "dependencies"
+    ],
+    "sort": "ASC",
+    "template": "${{CHANGELOG}}",
+    "pr_template": "- ${{TITLE}}\n   - PR: #${{NUMBER}}",
+    "empty_template": "- no changes",
+    "label_extractor": [
+        {
+            "pattern": "(\\w+)",
+            "on_property": "title",
+            "method": "match"
+        }
+    ],
+    "max_tags_to_fetch": 50,
+    "max_pull_requests": 300,
+    "max_back_track_time_days": 60,
+    "tag_resolver": {
+      "method": "sort",
+      "filter": {
+        "pattern": "v-20(.+)",
+        "flags": "gu"
+      }
+    },
+    "base_branches": [
+      "master"
+    ]
+}
