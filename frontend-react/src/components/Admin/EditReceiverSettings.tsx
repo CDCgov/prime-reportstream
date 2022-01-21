@@ -28,7 +28,7 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
         );
 
         const { fetch: fetchController } = useController();
-        const saveRecieverData = async () => {
+        const saveReceiverData = async () => {
             switch (action) {
                 case "edit":
                     try {
@@ -196,7 +196,7 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
                         form="edit-setting"
                         type="submit"
                         data-testid="submit"
-                        onClick={() => saveRecieverData()}
+                        onClick={() => saveReceiverData()}
                     >
                         Save
                     </Button>
@@ -210,17 +210,15 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
             fallbackComponent={() => <ErrorPage type="page" />}
         >
             <section className="grid-container margin-bottom-5">
-                <h3 className="margin-bottom-0">
-                    <Suspense
-                        fallback={
-                            <span className="text-normal text-base">
-                                Loading Receiver Info...
-                            </span>
-                        }
-                    >
-                        <FormComponent />
-                    </Suspense>
-                </h3>
+                <Suspense
+                    fallback={
+                        <span className="text-normal text-base">
+                            Loading Receiver Info...
+                        </span>
+                    }
+                >
+                    <FormComponent />
+                </Suspense>
             </section>
         </NetworkErrorBoundary>
     );
