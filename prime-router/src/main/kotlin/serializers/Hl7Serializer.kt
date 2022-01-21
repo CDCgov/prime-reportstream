@@ -22,6 +22,7 @@ import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ResultDetail
 import gov.cdc.prime.router.Schema
+import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Source
 import gov.cdc.prime.router.ValueSet
@@ -103,7 +104,7 @@ class Hl7Serializer(
     /*
      * Read in a file
      */
-    fun convertBatchMessagesToMap(message: String, schema: Schema): Hl7Mapping {
+    fun convertBatchMessagesToMap(message: String, schema: Schema, sender: Sender? = null): Hl7Mapping {
         val mappedRows: MutableMap<String, MutableList<String>> = mutableMapOf()
         val errors = mutableListOf<String>()
         val warnings = mutableListOf<String>()
@@ -118,7 +119,7 @@ class Hl7Serializer(
          * Parse an HL7 [message] from a string.
          */
         fun parseStringMessage(message: String) {
-            val parsedMessage = convertMessageToMap(message, schema)
+            val parsedMessage = convertMessageToMap(message, schema, sender = sender)
             parsedMessage.errors.forEach {
                 errors.add("Report $reportNumber: $it")
             }
@@ -168,7 +169,7 @@ class Hl7Serializer(
      * Convert an HL7 [message] based on the specified [schema].
      * @returns the resulting data
      */
-    fun convertMessageToMap(message: String, schema: Schema): RowResult {
+    fun convertMessageToMap(message: String, schema: Schema, sender: Sender? = null): RowResult {
         /**
          * Query the terser and get a value.
          * @param terser the HAPI terser
@@ -338,7 +339,7 @@ class Hl7Serializer(
 
             // Second, we process all the element raw values through mappers and defaults.
             schema.elements.forEach {
-                val mappedResult = it.processValue(mappedRows, schema)
+                val mappedResult = it.processValue(mappedRows, schema, sender = sender)
                 mappedRows[it.name] = mappedResult.value ?: ""
                 errors.addAll(mappedResult.errors.map { it.detailMsg() })
                 warnings.addAll(mappedResult.warnings.map { it.detailMsg() })
@@ -367,13 +368,14 @@ class Hl7Serializer(
     fun readExternal(
         schemaName: String,
         input: InputStream,
-        source: Source
+        source: Source,
+        sender: Sender? = null,
     ): ReadResult {
         val errors = mutableListOf<ResultDetail>()
         val warnings = mutableListOf<ResultDetail>()
         val messageBody = input.bufferedReader().use { it.readText() }
         val schema = metadata.findSchema(schemaName) ?: error("Schema name $schemaName not found")
-        val mapping = convertBatchMessagesToMap(messageBody, schema)
+        val mapping = convertBatchMessagesToMap(messageBody, schema, sender = sender)
         val mappedRows = mapping.mappedRows
         errors.addAll(mapping.errors.map { ResultDetail(ResultDetail.DetailScope.ITEM, "", InvalidHL7Message.new(it)) })
         warnings.addAll(
@@ -464,7 +466,7 @@ class Hl7Serializer(
         // serialize the rest of the elements
         reportElements.forEach { element ->
             val value = report.getString(row, element.name).let {
-                if (it.isNullOrEmpty()) {
+                if (it.isNullOrEmpty() || it.equals("null")) {
                     element.default ?: ""
                 } else {
                     it
@@ -555,7 +557,7 @@ class Hl7Serializer(
             val tsValue = terser.get(pathSpec)
             if (!tsValue.isNullOrEmpty()) {
                 try {
-                    val dtFormatter = DateTimeFormatter.ofPattern("yyyMMddHHmmss")
+                    val dtFormatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
                     val parsedDate = OffsetDateTime.parse(tsValue, formatter).format(dtFormatter)
                     terser.set(pathSpec, parsedDate)
                 } catch (_: Exception) {
@@ -871,10 +873,36 @@ class Hl7Serializer(
             Element.Type.TELEPHONE -> setTelephoneComponent(terser, value, pathSpec, element, phoneNumberFormatting)
             Element.Type.EMAIL -> setEmailComponent(terser, value, element, hl7Config)
             Element.Type.POSTAL_CODE -> setPostalComponent(terser, value, pathSpec, element)
+            Element.Type.DATE, Element.Type.DATETIME -> setDateTimeComponent(
+                terser,
+                value,
+                pathSpec,
+                hl7Field,
+                hl7Config
+            )
             else -> {
                 val truncatedValue = trimAndTruncateValue(value, hl7Field, hl7Config, terser)
                 terser.set(pathSpec, truncatedValue)
             }
+        }
+    }
+
+    internal fun setDateTimeComponent(
+        terser: Terser,
+        value: String,
+        pathSpec: String,
+        hl7Field: String,
+        hl7Config: Hl7Configuration?
+    ) {
+        // first allow the truncation to happen, so we carry that logic on down
+        val truncatedValue = trimAndTruncateValue(value, hl7Field, hl7Config, terser)
+        // if we need to convert the offset do it now
+        if (hl7Config?.convertPositiveDateTimeOffsetToNegative == true) {
+            // we need to convert the offset on date and date time to a negative offset if
+            // that is what the receiver needs
+            terser.set(pathSpec, Element.convertPositiveOffsetToNegativeOffset(truncatedValue))
+        } else {
+            terser.set(pathSpec, truncatedValue)
         }
     }
 
@@ -1126,6 +1154,7 @@ class Hl7Serializer(
         units: String? = null,
         suppressQst: Boolean = false,
     ) {
+        val hl7Config = report.destination?.translation as? Hl7Configuration
         // if the value type is a date, we need to specify that for the AOE questions
         val valueType = when (element.type) {
             Element.Type.DATE -> "DT"
@@ -1150,10 +1179,16 @@ class Hl7Serializer(
             else -> setComponent(terser, element, "OBX-5", aoeRep, value, report)
         }
 
+        val rawObx19Value = report.getString(row, "test_result_date")
+        val obx19Value = if (rawObx19Value != null && hl7Config?.convertPositiveDateTimeOffsetToNegative == true) {
+            Element.convertPositiveOffsetToNegativeOffset(rawObx19Value)
+        } else {
+            rawObx19Value
+        }
         terser.set(formPathSpec("OBX-11", aoeRep), "F")
         terser.set(formPathSpec("OBX-14", aoeRep), date)
         // some states want the observation date for the AOE questions as well
-        terser.set(formPathSpec("OBX-19", aoeRep), report.getString(row, "test_result_date"))
+        terser.set(formPathSpec("OBX-19", aoeRep), obx19Value)
         terser.set(formPathSpec("OBX-23-7", aoeRep), "XX")
         // many states can't accept the QST datapoint out at the end because it is nonstandard
         // we need to pass this in via the translation configuration
@@ -1187,6 +1222,7 @@ class Hl7Serializer(
 
     private fun setNote(terser: Terser, value: String) {
         if (value.isBlank()) return
+        terser.set(formPathSpec("NTE-1"), "1")
         terser.set(formPathSpec("NTE-3"), value)
         terser.set(formPathSpec("NTE-4-1"), "RE")
         terser.set(formPathSpec("NTE-4-2"), "Remark")
@@ -1355,14 +1391,14 @@ class Hl7Serializer(
             "$sendingFacility|" +
             "$receivingApp|" +
             "$receivingFacility|" +
-            nowTimestamp() +
+            nowTimestamp(hl7Config) +
             hl7SegmentDelimiter +
             "BHS|$encodingCharacters|" +
             "$sendingApp|" +
             "$sendingFacility|" +
             "$receivingApp|" +
             "$receivingFacility|" +
-            nowTimestamp() +
+            nowTimestamp(hl7Config) +
             hl7SegmentDelimiter
     }
 
@@ -1371,9 +1407,13 @@ class Hl7Serializer(
             "FTS|1$hl7SegmentDelimiter"
     }
 
-    private fun nowTimestamp(): String {
+    private fun nowTimestamp(hl7Config: Hl7Configuration? = null): String {
         val timestamp = OffsetDateTime.now(ZoneId.systemDefault())
-        return Element.datetimeFormatter.format(timestamp)
+        return if (hl7Config?.convertPositiveDateTimeOffsetToNegative == true) {
+            Element.convertPositiveOffsetToNegativeOffset(Element.datetimeFormatter.format(timestamp))
+        } else {
+            Element.datetimeFormatter.format(timestamp)
+        }
     }
 
     private fun buildComponent(spec: String, component: Int = 1): String {
