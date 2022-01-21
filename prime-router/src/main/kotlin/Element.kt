@@ -1092,7 +1092,9 @@ data class Element(
             "[yyyyMMddHHmmss][yyyy-MM-dd HH:mm:ss.ZZZ]" +
             "[yyyy-MM-dd[ HH:mm:ss[.S[S][S]]]]" +
             "[yyyyMMdd[ HH:mm:ss[.S[S][S]]]]" +
-            "[M/d/yyyy[ HH:mm:ss[.S[S][S]]]]"
+            "[M/d/yyyy[ HH:mm[:ss[.S[S][S]]]]]" +
+            "[MMddyyyy[ HH:mm[:ss[.S[S][S]]]]]" +
+            "[yyyy/M/d[ HH:mm[:ss[.S[S][S]]]]]"
         val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern(datePattern, Locale.ENGLISH)
         val datetimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern(datetimePattern, Locale.ENGLISH)
         val manuallyEnteredDateFormats =
