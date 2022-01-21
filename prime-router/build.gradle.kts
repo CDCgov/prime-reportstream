@@ -32,7 +32,7 @@ plugins {
     id("nu.studer.jooq") version "6.0.1"
     id("com.github.johnrengelman.shadow") version "7.1.1"
     id("com.microsoft.azure.azurefunctions") version "1.8.2"
-    id("org.jlleitschuh.gradle.ktlint") version "10.2.0"
+    id("org.jlleitschuh.gradle.ktlint") version "10.2.1"
     id("com.adarshr.test-logger") version "3.1.0"
     id("jacoco")
 }
@@ -637,7 +637,7 @@ dependencies {
     implementation("com.github.javafaker:javafaker:1.0.2")
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
-    implementation("com.googlecode.libphonenumber:libphonenumber:8.12.39")
+    implementation("com.googlecode.libphonenumber:libphonenumber:8.12.41")
     implementation("org.thymeleaf:thymeleaf:3.0.14.RELEASE")
     implementation("com.sendgrid:sendgrid-java:4.8.1")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.1")
