@@ -90,46 +90,12 @@ resource "azurerm_function_app" "function_app" {
   location                   = var.location
   resource_group_name        = var.resource_group
   app_service_plan_id        = var.app_service_plan
-  storage_account_name       = "${var.resource_prefix}storageaccount"
+  storage_account_name       = "${var.resource_prefix}sasb"
   storage_account_access_key = var.primary_access_key
   https_only                 = true
   os_type                    = "linux"
   version                    = "~3"
   enable_builtin_logging     = false
-
-  site_config {
-    ip_restriction {
-      action                    = "Allow"
-      name                      = "AllowVNetTraffic"
-      priority                  = 100
-      virtual_network_subnet_id = var.public_subnet[0]
-    }
-
-    ip_restriction {
-      action                    = "Allow"
-      name                      = "AllowVNetEastTraffic"
-      priority                  = 100
-      virtual_network_subnet_id = var.public_subnet[0]
-    }
-
-    ip_restriction {
-      action      = "Allow"
-      name        = "AllowFrontDoorTraffic"
-      priority    = 110
-      service_tag = "AzureFrontDoor.Backend"
-    }
-
-    scm_use_main_ip_restriction = true
-
-    http2_enabled             = true
-    always_on                 = true
-    use_32_bit_worker_process = false
-    linux_fx_version          = "DOCKER|${var.container_registry_login_server}/${var.resource_prefix}:latest"
-
-    cors {
-      allowed_origins = concat(local.cors_all, var.environment == "prod" ? local.cors_prod : local.cors_lower)
-    }
-  }
 
   app_settings = merge(local.all_app_settings, {
     "POSTGRES_URL" = "jdbc:postgresql://${var.resource_prefix}-pgsql.postgres.database.azure.com:5432/prime_data_hub?sslmode=require"
@@ -138,9 +104,6 @@ resource "azurerm_function_app" "function_app" {
     "PartnerStorage" = var.primary_connection_string
   })
 
-  identity {
-    type = "SystemAssigned"
-  }
 
   tags = {
     environment = var.environment

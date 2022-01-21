@@ -4,9 +4,43 @@ variable "terraform_object_id" {
   description = "Object id of user running TF"
   default = ""
 }
+
 variable "tf_secrets_vault" {
-  default = "pdhtest-keyvault"
+  default = "prime-data-hub-test"
 }
+
+###################
+## VNET Variables
+###################
+
+variable "east_address_space" {
+  type = list
+  description = "East VNET Address Space CIDR"
+  default = ["172.17.5.0/25"]
+}
+
+variable "east_dns_servers" {
+  type = list
+  description = "List of DNS Servers"
+  default = ["172.17.0.135"]
+}
+
+variable "west_address_space" {
+  type = list
+  description = "East VNET Address Space CIDR"
+  default = ["172.17.5.128/25"]
+}
+
+variable "west_dns_servers" {
+  type = list
+  description = "List of DNS Servers"
+  default = ["172.17.0.135"]
+}
+
+
+
+
+
 
 variable "environment"{
     default = "dev"
@@ -16,7 +50,7 @@ variable "resource_group"{
 }
 
 variable "resource_prefix"{
-    default = "mla2"
+    default = "pdhtest"
 }
 variable "location"{
     default = "eastus"

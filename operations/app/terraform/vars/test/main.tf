@@ -5,47 +5,51 @@ module "vnet" {
   resource_group = var.resource_group
   environment = var.environment
   resource_prefix = var.resource_prefix
+  east_address_space = var.east_address_space
+  east_dns_servers = var.east_dns_servers
+  west_address_space = var.west_address_space
+  west_dns_servers = var.west_dns_servers
 }
 
 ##########
 ## 01-network
 ##########
 
-module "network" {
-  source          = "../../modules/network"
-  vnet_address_space = module.vnet.vnet_address_spaces
-  vnet_ids        = module.vnet.ids
-  vnets = module.vnet.vnets
-  vnet_names      = module.vnet.names
-  environment     = var.environment
-  resource_group  = var.resource_group
-  resource_prefix = var.resource_prefix
-  location        = var.location
-}
+# module "network" {
+#   source          = "../../modules/network"
+#   vnet_address_space = module.vnet.vnet_address_spaces
+#   vnet_ids        = module.vnet.ids
+#   vnets = module.vnet.vnets
+#   vnet_names      = module.vnet.names
+#   environment     = var.environment
+#   resource_group  = var.resource_group
+#   resource_prefix = var.resource_prefix
+#   location        = var.location
+# }
 
-module "nat_gateway" {
-  source           = "../../modules/nat_gateway"
-  environment      = var.environment
-  resource_group   = var.resource_group
-  resource_prefix  = var.resource_prefix
-  location         = var.location
-  public_subnet_id = module.network.public_subnet_ids[0]
-}
+# module "nat_gateway" {
+#   source           = "../../modules/nat_gateway"
+#   environment      = var.environment
+#   resource_group   = var.resource_group
+#   resource_prefix  = var.resource_prefix
+#   location         = var.location
+#   public_subnet_id = module.network.public_subnet_ids[0]
+# }
 
 
 ##########
 ## 02-config
 ##########
 
-module "app_service_plan" {
-  source          = "../../modules/app_service_plan"
-  environment     = var.environment
-  resource_group  = var.resource_group
-  resource_prefix = var.resource_prefix
-  location        = var.location
-  app_tier        = var.app_tier
-  app_size        = var.app_size
-}
+# module "app_service_plan" {
+#   source          = "../../modules/app_service_plan"
+#   environment     = var.environment
+#   resource_group  = var.resource_group
+#   resource_prefix = var.resource_prefix
+#   location        = var.location
+#   app_tier        = var.app_tier
+#   app_size        = var.app_size
+# }
 
 # module "key_vault" {
 #   source                      = "../../modules/key_vault"
