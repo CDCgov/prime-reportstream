@@ -32,9 +32,10 @@ plugins {
     id("nu.studer.jooq") version "6.0.1"
     id("com.github.johnrengelman.shadow") version "7.1.1"
     id("com.microsoft.azure.azurefunctions") version "1.8.2"
-    id("org.jlleitschuh.gradle.ktlint") version "10.2.0"
+    id("org.jlleitschuh.gradle.ktlint") version "10.2.1"
     id("com.adarshr.test-logger") version "3.1.0"
     id("jacoco")
+    id("org.jetbrains.dokka") version "1.6.10"
 }
 
 group = "gov.cdc.prime"
@@ -162,9 +163,19 @@ tasks.test {
     }
 }
 
+tasks.javadoc.configure {
+    actions.clear()
+    dependsOn(tasks.dokkaHtml)
+}
+
+tasks.dokkaHtml.configure {
+    val docsDir = File(project.buildDir, "/docs/dokka")
+    outputDirectory.set(docsDir)
+}
+
 tasks.jacocoTestReport {
     dependsOn(tasks.test)
-    // Jacoco wants the source file directory structure to match the package name like in Java, so 
+    // Jacoco wants the source file directory structure to match the package name like in Java, so
     // move the source files to a temp location with that structure.
     val sourcesDir = File(project.projectDir, "/src/main/kotlin")
     val jacocoSourcesDir = File(project.buildDir, "/jacoco/sources")
@@ -439,6 +450,7 @@ tasks.register("quickPackage") {
     tasks["compileTestKotlin"].enabled = false
     tasks["migrate"].enabled = false
     tasks["flywayMigrate"].enabled = false
+    tasks["dokkaHtml"].enabled = false
 }
 
 tasks.azureFunctionsRun {
@@ -481,6 +493,7 @@ tasks.register("quickRun") {
     tasks["compileTestKotlin"].enabled = false
     tasks["migrate"].enabled = false
     tasks["flywayMigrate"].enabled = false
+    tasks["dokkaHtml"].enabled = false
 }
 
 /**
@@ -563,9 +576,31 @@ tasks.register("resetDB") {
 
 repositories {
     mavenCentral()
-    jcenter()
     maven {
         url = uri("https://jitpack.io")
+    }
+}
+
+buildscript {
+    configurations {
+        classpath {
+            /*
+             * Need to exclude this library due to the following dependency chain having an issue with the json-smart
+             * library version.
+             *   com.microsoft.azure.azurefunctions:com.microsoft.azure.azurefunctions.gradle.plugin:1.8.2 >
+             *   com.microsoft.azure:azure-functions-gradle-plugin:1.8.2 >
+             *   com.microsoft.azure:azure-toolkit-common-lib:0.12.3 >
+             *   com.microsoft.azure:adal4j:1.6.7 > com.nimbusds:oauth2-oidc-sdk:9.15
+             * Looks like com.nimbusds:oauth2-oidc-sdk:9.15 has an invalid dependency version of [1.3.2,2.4.2]
+             * This will need to be removed once this issue is resolved in Maven.
+             */
+            exclude("net.minidev", "json-smart")
+        }
+    }
+    dependencies {
+        // Now force the gradle build script to get the proper library for com.nimbusds:oauth2-oidc-sdk:9.15.  This
+        // will need to be removed once this issue is resolved in Maven.
+        classpath("net.minidev:json-smart:2.4.2")
     }
 }
 
@@ -655,6 +690,9 @@ dependencies {
     implementation("io.ktor:ktor-client-logging:$ktorVersion")
     implementation("it.skrape:skrapeit-html-parser:1.1.6")
     implementation("it.skrape:skrapeit-http-fetcher:1.1.6")
+    implementation("org.apache.poi:poi:5.1.0")
+    implementation("org.apache.poi:poi-ooxml:5.1.0")
+    implementation("commons-io:commons-io: 2.11.0")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.1")
     runtimeOnly("com.github.kittinunf.fuel:fuel-jackson:2.3.1")

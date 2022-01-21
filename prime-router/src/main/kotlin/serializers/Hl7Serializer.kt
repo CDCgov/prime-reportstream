@@ -22,6 +22,7 @@ import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ResultDetail
 import gov.cdc.prime.router.Schema
+import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Source
 import gov.cdc.prime.router.ValueSet
@@ -103,7 +104,7 @@ class Hl7Serializer(
     /*
      * Read in a file
      */
-    fun convertBatchMessagesToMap(message: String, schema: Schema): Hl7Mapping {
+    fun convertBatchMessagesToMap(message: String, schema: Schema, sender: Sender? = null): Hl7Mapping {
         val mappedRows: MutableMap<String, MutableList<String>> = mutableMapOf()
         val errors = mutableListOf<String>()
         val warnings = mutableListOf<String>()
@@ -118,7 +119,7 @@ class Hl7Serializer(
          * Parse an HL7 [message] from a string.
          */
         fun parseStringMessage(message: String) {
-            val parsedMessage = convertMessageToMap(message, schema)
+            val parsedMessage = convertMessageToMap(message, schema, sender = sender)
             parsedMessage.errors.forEach {
                 errors.add("Report $reportNumber: $it")
             }
@@ -168,7 +169,7 @@ class Hl7Serializer(
      * Convert an HL7 [message] based on the specified [schema].
      * @returns the resulting data
      */
-    fun convertMessageToMap(message: String, schema: Schema): RowResult {
+    fun convertMessageToMap(message: String, schema: Schema, sender: Sender? = null): RowResult {
         /**
          * Query the terser and get a value.
          * @param terser the HAPI terser
@@ -338,7 +339,7 @@ class Hl7Serializer(
 
             // Second, we process all the element raw values through mappers and defaults.
             schema.elements.forEach {
-                val mappedResult = it.processValue(mappedRows, schema)
+                val mappedResult = it.processValue(mappedRows, schema, sender = sender)
                 mappedRows[it.name] = mappedResult.value ?: ""
                 errors.addAll(mappedResult.errors.map { it.detailMsg() })
                 warnings.addAll(mappedResult.warnings.map { it.detailMsg() })
@@ -367,13 +368,14 @@ class Hl7Serializer(
     fun readExternal(
         schemaName: String,
         input: InputStream,
-        source: Source
+        source: Source,
+        sender: Sender? = null,
     ): ReadResult {
         val errors = mutableListOf<ResultDetail>()
         val warnings = mutableListOf<ResultDetail>()
         val messageBody = input.bufferedReader().use { it.readText() }
         val schema = metadata.findSchema(schemaName) ?: error("Schema name $schemaName not found")
-        val mapping = convertBatchMessagesToMap(messageBody, schema)
+        val mapping = convertBatchMessagesToMap(messageBody, schema, sender = sender)
         val mappedRows = mapping.mappedRows
         errors.addAll(mapping.errors.map { ResultDetail(ResultDetail.DetailScope.ITEM, "", InvalidHL7Message.new(it)) })
         warnings.addAll(
@@ -433,6 +435,7 @@ class Hl7Serializer(
             ?.map { it.trim() } ?: emptyList()
         // start processing
         var aoeSequence = 1
+        var nteSequence = 0
         val terser = Terser(message)
         setLiterals(terser)
         // we are going to set up overrides for the elements in the collection if the valueset
@@ -464,7 +467,7 @@ class Hl7Serializer(
         // serialize the rest of the elements
         reportElements.forEach { element ->
             val value = report.getString(row, element.name).let {
-                if (it.isNullOrEmpty()) {
+                if (it.isNullOrEmpty() || it.equals("null")) {
                     element.default ?: ""
                 } else {
                     it
@@ -516,8 +519,8 @@ class Hl7Serializer(
                 }
             } else if (element.hl7Field == "ORC-21-1") {
                 setOrderingFacilityComponent(terser, rawFacilityName = value, useOrderingFacilityName, report, row)
-            } else if (element.hl7Field == "NTE-3") {
-                setNote(terser, value)
+            } else if (element.hl7Field == "NTE-3" && value.isNotBlank()) {
+                setNote(terser, nteSequence++, value)
             } else if (element.hl7Field == "MSH-7") {
                 setComponent(
                     terser,
@@ -1218,14 +1221,14 @@ class Hl7Serializer(
         }
     }
 
-    private fun setNote(terser: Terser, value: String) {
+    private fun setNote(terser: Terser, nteRep: Int, value: String) {
         if (value.isBlank()) return
-        terser.set(formPathSpec("NTE-1"), "1")
-        terser.set(formPathSpec("NTE-3"), value)
-        terser.set(formPathSpec("NTE-4-1"), "RE")
-        terser.set(formPathSpec("NTE-4-2"), "Remark")
-        terser.set(formPathSpec("NTE-4-3"), "HL70364")
-        terser.set(formPathSpec("NTE-4-7"), HL7_SPEC_VERSION)
+        terser.set(formPathSpec("NTE-1", nteRep), nteRep.plus(1).toString())
+        terser.set(formPathSpec("NTE-3", nteRep), value)
+        terser.set(formPathSpec("NTE-4-1", nteRep), "RE")
+        terser.set(formPathSpec("NTE-4-2", nteRep), "Remark")
+        terser.set(formPathSpec("NTE-4-3", nteRep), "HL70364")
+        terser.set(formPathSpec("NTE-4-7", nteRep), HL7_SPEC_VERSION)
     }
 
     private fun setLiterals(terser: Terser) {
@@ -1454,7 +1457,7 @@ class Hl7Serializer(
             "SPM" -> "/PATIENT_RESULT/ORDER_OBSERVATION/SPECIMEN/SPM"
             "PID" -> "/PATIENT_RESULT/PATIENT/PID"
             "OBX" -> "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION$repSpec/OBX"
-            "NTE" -> "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/NTE"
+            "NTE" -> "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/NTE$repSpec"
             else -> segment
         }
     }
