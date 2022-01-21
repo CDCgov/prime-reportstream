@@ -88,7 +88,6 @@ function SubmissionsTable() {
                             <th scope="col">File</th>
                             <th scope="col">Records</th>
                             <th scope="col">Report ID</th>
-                            <th scope="col">Warnings</th>
                         </tr>
                     </thead>
                     <tbody id="tBody" className="font-mono-2xs">
@@ -101,11 +100,10 @@ function SubmissionsTable() {
                                             .local()
                                             .format("YYYY-MM-DD HH:mm")}
                                     </th>
-                                    <th scope="row">&nbsp;</th>
+                                    <th scope="row">{s["externalName"]}</th>
                                     {/* File name */}
                                     <th scope="row">{s["reportItemCount"]}</th>
                                     <th scope="row">{s["id"]}</th>
-                                    <th scope="row">{s["warningCount"]}</th>
                                 </tr>
                             );
                         })}

@@ -71,3 +71,55 @@ unique id to track the usage of the message
 The state of the facility which the test was ordered from
 
 ---
+
+**Name**: processing_mode_code
+
+**ReportStream Internal Name**: processing_mode_code
+
+**Type**: CODE
+
+**PII**: No
+
+**Format**: use value found in the Code column
+
+**Default Value**: P
+
+**Cardinality**: [1..1]
+
+**Value Sets**
+
+Code | Display | System
+---- | ------- | ------
+D|Debugging|HL7
+P|Production|HL7
+T|Training|HL7
+
+**Documentation**:
+
+P, D, or T for Production, Debugging, or Training
+
+---
+
+**Name**: sender_fullname
+
+**ReportStream Internal Name**: sender_fullname
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [1..1]
+
+---
+
+**Name**: sender_orgname
+
+**ReportStream Internal Name**: sender_orgname
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [1..1]
+
+---
