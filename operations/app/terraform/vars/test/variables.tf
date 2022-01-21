@@ -37,13 +37,23 @@ variable "west_dns_servers" {
   default = ["172.17.0.135"]
 }
 
+variable "vnet_address_space" {
+  type = list
+  description = "VNET Address Space CIDR"
+  default = ["10.0.0.0/16"]
+}
 
+variable "vnet_peer_address_space" {
+  type = list
+  description = "VNET Address Space CIDR"
+  default = ["10.1.0.0/16"]
+}
 
 
 
 
 variable "environment"{
-    default = "dev"
+    default = "test"
 }
 variable "resource_group"{
     default = "prime-data-hub-test"

@@ -31,3 +31,13 @@ variable "west_dns_servers" {
   type = list
   description = "List of DNS Servers"
 }
+
+variable "vnet_address_space" {
+  type = list
+  description = "VNET Address Space CIDR"
+}
+
+variable "vnet_peer_address_space" {
+  type = list
+  description = "VNET Address Space CIDR"
+}

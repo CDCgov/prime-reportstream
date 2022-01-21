@@ -9,6 +9,8 @@ module "vnet" {
   east_dns_servers = var.east_dns_servers
   west_address_space = var.west_address_space
   west_dns_servers = var.west_dns_servers
+  vnet_address_space = var.vnet_address_space
+  vnet_peer_address_space = var.vnet_peer_address_space
 }
 
 ##########
