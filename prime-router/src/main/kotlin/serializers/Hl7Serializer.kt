@@ -1673,7 +1673,7 @@ class Hl7Serializer(
          * List of fields that have the universal HD type
          */
         val HD_FIELDS_UNIVERSAL = listOf(
-            "MSH-3-1", "MSH-4-2", "OBR-3-3", "OBR-2-3", "ORC-3-3", "ORC-2-3", "ORC-4-3",
+            "MSH-3-2", "MSH-4-2", "OBR-3-3", "OBR-2-3", "ORC-3-3", "ORC-2-3", "ORC-4-3",
             "PID-3-4-2", "PID-3-6-2", "SPM-2-1-3", "SPM-2-2-3"
         )
 
