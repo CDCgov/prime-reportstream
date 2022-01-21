@@ -43,15 +43,15 @@ module "vnet" {
 ## 02-config
 ##########
 
-# module "app_service_plan" {
-#   source          = "../../modules/app_service_plan"
-#   environment     = var.environment
-#   resource_group  = var.resource_group
-#   resource_prefix = var.resource_prefix
-#   location        = var.location
-#   app_tier        = var.app_tier
-#   app_size        = var.app_size
-# }
+ module "app_service_plan" {
+   source          = "../../modules/app_service_plan"
+   environment     = var.environment
+   resource_group  = var.resource_group
+   resource_prefix = var.resource_prefix
+   location        = var.location
+   app_tier        = var.app_tier
+   app_size        = var.app_size
+ }
 
 # module "key_vault" {
 #   source                      = "../../modules/key_vault"

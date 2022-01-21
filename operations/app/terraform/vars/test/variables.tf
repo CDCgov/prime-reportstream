@@ -89,11 +89,11 @@ variable "aad_object_keyvault_admin"{
 ##################
 
 variable "app_tier" {
-  default = "Standard"
+  default = "PremiumV2"
 }
 
 variable "app_size" {
-  default = "S1"
+  default = "P3v2"
 }
 
 ##################
