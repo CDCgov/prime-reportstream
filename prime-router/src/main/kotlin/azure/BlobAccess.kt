@@ -63,7 +63,6 @@ class BlobAccess(
      * is optional and is added as a prefix to the blob filename.
      * @return the information about the uploaded blob
      */
-    // TODO: This should be refactored so that generating the body bytes is part of Report.kt
     fun generateBodyAndUploadReport(
         report: Report,
         subfolderName: String? = null,

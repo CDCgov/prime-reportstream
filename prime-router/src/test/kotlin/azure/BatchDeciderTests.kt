@@ -2,17 +2,24 @@ package gov.cdc.prime.router.azure
 
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
+import gov.cdc.prime.router.Element
+import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
+import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.SettingsProvider
 import io.mockk.clearAllMocks
+import io.mockk.confirmVerified
+import io.mockk.every
 import io.mockk.mockkClass
 import io.mockk.spyk
+import io.mockk.verify
 import org.jooq.tools.jdbc.MockConnection
 import org.jooq.tools.jdbc.MockDataProvider
 import org.jooq.tools.jdbc.MockResult
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 
 class BatchDeciderTests {
     val dataProvider = MockDataProvider { emptyArray<MockResult>() }
@@ -46,31 +53,31 @@ class BatchDeciderTests {
         clearAllMocks()
     }
 
-//    @Test
-//    fun `Test with no receiver getting empty batch file`() {
-//        // Setup
-//        every { queueMock.sendMessage(any()) } returns Unit
-//        every { timing1.isValid()} returns true
-//        every { timing1.batchInPrevious60Seconds(any())} returns true
-//
-//        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
-//        val metadata = Metadata(schema = one)
-//        val settings = FileSettings().loadOrganizations(oneOrganization)
-//        val engine = makeEngine(metadata, settings)
-//
-//        every { engine.db.fetchNumReportsNeedingBatch(any(), any(), any()) }.answers {
-//            0
-//        }
-//        every { queueMock.sendMessage(any()) }.returns(Unit)
-//
-//        // Invoke batch decider run
-//        BatchDeciderFunction(engine).run("", context = null)
-//
-//        // Verify that QueueAccess.sendMessage was not called
-//        verify(exactly = 0) {queueMock.sendMessage(any())}
-//
-//        confirmVerified(queueMock)
-//    }
+    @Test
+    fun `Test with no receiver getting empty batch file`() {
+        // Setup
+        every { queueMock.sendMessage(any()) } returns Unit
+        every { timing1.isValid() } returns true
+        every { timing1.batchInPrevious60Seconds(any()) } returns true
+
+        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val metadata = Metadata(schema = one)
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val engine = makeEngine(metadata, settings)
+
+        every { engine.db.fetchNumReportsNeedingBatch(any(), any(), any()) }.answers {
+            0
+        }
+        every { queueMock.sendMessage(any()) }.returns(Unit)
+
+        // Invoke batch decider run
+        BatchDeciderFunction(engine).run("", context = null)
+
+        // Verify that QueueAccess.sendMessage was not called
+        verify(exactly = 0) { queueMock.sendMessage(any()) }
+
+        confirmVerified(queueMock)
+    }
 
     // TODO CD: This needs to be built out, but having issues with Mockk
 //    @Test
