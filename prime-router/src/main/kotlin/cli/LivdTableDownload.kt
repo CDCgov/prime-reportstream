@@ -92,7 +92,7 @@ class LivdTableDownload : CliktCommand(
     ).file(true).default(File(defaultSupplFile))
 
     override fun run() {
-        TermUi.echo("Downloading the lookup table ...")
+        TermUi.echo("Downloading the LIVD table ...")
         FileUtils.forceMkdir(File(defaultOutputDir))
 
         // Download the file from CDC website.
@@ -100,7 +100,7 @@ class LivdTableDownload : CliktCommand(
 
         // Extracts the data from the Excel and output to the specified output CSV format file.
         val tempRawLivdOutFile = File.createTempFile(
-            livdSARSCov2FilenamePrefix, "_raw.csv",
+            livdSARSCov2FilenamePrefix, "_orig.csv",
             File(defaultOutputDir)
         )
         extractLivdTable(sheetName, downloadedFile, tempRawLivdOutFile)
@@ -117,7 +117,7 @@ class LivdTableDownload : CliktCommand(
         if (!updateTheLivdLookupTable(tempMergedLivdOutFile))
             error("There was an error storing the LIVD lookup table.")
         else
-            TermUi.echo("\tThe lookup table is updated successfully.")
+            TermUi.echo("The lookup table was updated successfully.")
     }
 
     /**
@@ -191,7 +191,7 @@ class LivdTableDownload : CliktCommand(
     private fun extractLivdTable(sheetName: String, inputfile: File, outputfile: File): Boolean {
         // Check for input file exist
         if (!inputfile.exists()) {
-            TermUi.echo("\tERROR: The $inputfile file does not exist.")
+            error("$inputfile file does not exist.")
         }
 
         val data = StringBuffer() // Buffer and output file for CSV data
@@ -287,7 +287,7 @@ class LivdTableDownload : CliktCommand(
         val missingColList = mutableListOf<String>()
         supplLivdTable.columns().forEach { supplCol ->
             try {
-                rawLivdTable.stringColumn(supplCol.name())
+                rawLivdTable.stringColumn(supplCol.name()) // This is the test to see if the column exists
                 commonColList.add(supplCol.name())
             } catch (e: IllegalStateException) { missingColList.add(supplCol.name()) }
         }
@@ -302,6 +302,7 @@ class LivdTableDownload : CliktCommand(
         var addedRows = 0
         var modRows = 0
         var nonUniqueRows = 0
+        var badRows = 0
         supplLivdTable.forEach { supplRow ->
             var selector: Selection? = null
             commonColList.forEach { colName ->
@@ -314,8 +315,9 @@ class LivdTableDownload : CliktCommand(
             }
             when {
                 selector == null -> {
-                    TermUi.echo("WARNING: Found row #${supplRow.rowNumber} with no device information.")
+                    TermUi.echo("Found row #${supplRow.rowNumber} with no device information.")
                     TermUi.echo(supplRow)
+                    badRows++
                 }
                 selector!!.isEmpty -> {
                     // A new row is needed
@@ -339,12 +341,15 @@ class LivdTableDownload : CliktCommand(
             }
         }
 
+        // Print out the results of the merge.
         if (!silent) {
             TermUi.echo("Modified $modRows LIVD records with supplemental LIVD information.")
             TermUi.echo("Added $addedRows LIVD records from supplemental LIVD information.")
         }
+        if (badRows > 0)
+            error("Found $badRows row(s) in $livdSupplementalPathname that do not have device information")
         if (nonUniqueRows > 0)
-            error("Found $nonUniqueRows rows in $livdSupplementalPathname that does not match to a unique LIVD record.")
+            error("Found $nonUniqueRows row(s) in $livdSupplementalPathname that do not match to a unique LIVD record.")
         rawLivdTable.write().csv(outputFile)
     }
 
