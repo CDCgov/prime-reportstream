@@ -435,6 +435,7 @@ class Hl7Serializer(
             ?.map { it.trim() } ?: emptyList()
         // start processing
         var aoeSequence = 1
+        var nteSequence = 0
         val terser = Terser(message)
         setLiterals(terser)
         // we are going to set up overrides for the elements in the collection if the valueset
@@ -518,8 +519,8 @@ class Hl7Serializer(
                 }
             } else if (element.hl7Field == "ORC-21-1") {
                 setOrderingFacilityComponent(terser, rawFacilityName = value, useOrderingFacilityName, report, row)
-            } else if (element.hl7Field == "NTE-3") {
-                setNote(terser, value)
+            } else if (element.hl7Field == "NTE-3" && value.isNotBlank()) {
+                setNote(terser, nteSequence++, value)
             } else if (element.hl7Field == "MSH-7") {
                 setComponent(
                     terser,
@@ -1220,14 +1221,14 @@ class Hl7Serializer(
         }
     }
 
-    private fun setNote(terser: Terser, value: String) {
+    private fun setNote(terser: Terser, nteRep: Int, value: String) {
         if (value.isBlank()) return
-        terser.set(formPathSpec("NTE-1"), "1")
-        terser.set(formPathSpec("NTE-3"), value)
-        terser.set(formPathSpec("NTE-4-1"), "RE")
-        terser.set(formPathSpec("NTE-4-2"), "Remark")
-        terser.set(formPathSpec("NTE-4-3"), "HL70364")
-        terser.set(formPathSpec("NTE-4-7"), HL7_SPEC_VERSION)
+        terser.set(formPathSpec("NTE-1", nteRep), nteRep.plus(1).toString())
+        terser.set(formPathSpec("NTE-3", nteRep), value)
+        terser.set(formPathSpec("NTE-4-1", nteRep), "RE")
+        terser.set(formPathSpec("NTE-4-2", nteRep), "Remark")
+        terser.set(formPathSpec("NTE-4-3", nteRep), "HL70364")
+        terser.set(formPathSpec("NTE-4-7", nteRep), HL7_SPEC_VERSION)
     }
 
     private fun setLiterals(terser: Terser) {
@@ -1456,7 +1457,7 @@ class Hl7Serializer(
             "SPM" -> "/PATIENT_RESULT/ORDER_OBSERVATION/SPECIMEN/SPM"
             "PID" -> "/PATIENT_RESULT/PATIENT/PID"
             "OBX" -> "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION$repSpec/OBX"
-            "NTE" -> "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/NTE"
+            "NTE" -> "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/NTE$repSpec"
             else -> segment
         }
     }
