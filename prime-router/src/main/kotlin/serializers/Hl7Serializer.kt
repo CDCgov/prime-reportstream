@@ -1665,7 +1665,7 @@ class Hl7Serializer(
          * List of fields that have the local HD type.
          */
         val HD_FIELDS_LOCAL = listOf(
-            "MSH-4-1", "OBR-3-2", "OBR-2-2", "ORC-3-2", "ORC-2-2", "ORC-4-2",
+            "MSH-3-1", "MSH-4-1", "OBR-3-2", "OBR-2-2", "ORC-3-2", "ORC-2-2", "ORC-4-2",
             "PID-3-4-1", "PID-3-6-1", "SPM-2-1-2", "SPM-2-2-2"
         )
 
@@ -1673,7 +1673,7 @@ class Hl7Serializer(
          * List of fields that have the universal HD type
          */
         val HD_FIELDS_UNIVERSAL = listOf(
-            "MSH-4-2", "OBR-3-3", "OBR-2-3", "ORC-3-3", "ORC-2-3", "ORC-4-3",
+            "MSH-3-1", "MSH-4-2", "OBR-3-3", "OBR-2-3", "ORC-3-3", "ORC-2-3", "ORC-4-3",
             "PID-3-4-2", "PID-3-6-2", "SPM-2-1-3", "SPM-2-2-3"
         )
 
@@ -1686,6 +1686,7 @@ class Hl7Serializer(
 
         // Component specific sub-component length from HL7 specification Chapter 2A
         private val CWE_MAX_LENGTHS = arrayOf(20, 199, 20, 20, 199, 20, 10, 10, 199)
+        private val CX_MAX_LENGTHS = arrayOf(15, 1, 3, 227, 5, 227, 5, 227, 8, 8, 705, 705)
         private val EI_MAX_LENGTHS = arrayOf(199, 20, 199, 6)
         private val EIP_MAX_LENGTHS = arrayOf(427, 427)
         private val HD_MAX_LENGTHS = arrayOf(20, 199, 6)
@@ -1701,6 +1702,7 @@ class Hl7Serializer(
          */
         val HL7_COMPONENT_MAX_LENGTH = mapOf(
             "CWE" to CWE_MAX_LENGTHS,
+            "CX" to CX_MAX_LENGTHS,
             "EI" to EI_MAX_LENGTHS,
             "EIP" to EIP_MAX_LENGTHS,
             "HD" to HD_MAX_LENGTHS,
