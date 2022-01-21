@@ -1,4 +1,7 @@
 import { Helmet } from "react-helmet";
+import DOMPurify from "dompurify";
+
+import site from "../../../content/site.json";
 
 /* eslint-disable jsx-a11y/anchor-has-content */
 export const CsvUploadGuide = () => {
@@ -26,13 +29,46 @@ export const CsvUploadGuide = () => {
                     (CSV) file.
                 </p>
                 <p>
-                    Use a simple online tool to submit a CSV formatted with a
-                    standard schema. Receive real-time validation and feedback
-                    on file format and field values before submission. This
-                    feature is currently being piloted in select jurisdictions
-                    with organinzations or facilities that have existing
-                    Electronic Medical Record (EMR) systems.
+                    Use a simple online tool to submit a CSV file with a{" "}
+                    <a
+                        href="/getting-started/testing-facilities/csv-schema"
+                        className="usa-link"
+                    >
+                        standard schema
+                    </a>
+                    . Receive real-time validation and feedback on file format
+                    and field values before submission.
                 </p>
+                <div className="usa-alert usa-alert--info margin-y-6">
+                    <div className="usa-alert__body">
+                        <h3 className="usa-alert__heading font-body-md margin-top-05">
+                            About CSV upload
+                        </h3>
+                        This feature is currently being piloted in select
+                        jurisdictions with organizations or facilities that have
+                        existing Electronic Medical Record (EMR) systems. Pilot
+                        partners are selected by recommendation from
+                        jurisdictions. Find out if your jurisdiction is{" "}
+                        <a
+                            href="/how-it-works/where-were-live"
+                            className="usa-link"
+                        >
+                            partnered
+                        </a>{" "}
+                        with ReportStream and{" "}
+                        <a
+                            href={
+                                "mailto:" +
+                                DOMPurify.sanitize(site.orgs.RS.email) +
+                                "?subject=Getting started with ReportStream"
+                            }
+                            className="usa-link"
+                        >
+                            contact us
+                        </a>{" "}
+                        to learn more.
+                    </div>
+                </div>
                 <p>
                     <strong>In this guide</strong>
                 </p>
@@ -139,8 +175,8 @@ export const CsvUploadGuide = () => {
                         <p>
                             <em>
                                 Be sure to save your file as .CSV. ReportStream
-                                does not accept files saved as .XLS, .XLXS, or
-                                other formats.
+                                CSV upload does not accept files saved as .XLS,
+                                .XLXS, or other formats.
                             </em>
                         </p>
                     </li>
@@ -167,7 +203,7 @@ export const CsvUploadGuide = () => {
                             </li>
                             <li>Enter username</li>
                             <li>Enter password</li>
-                            <li>Click Sign In</li>
+                            <li>Click "Sign in"</li>
                         </ul>
                     </li>
                     <li className="usa-process-list__item">
@@ -199,7 +235,13 @@ export const CsvUploadGuide = () => {
                         <h4 className="usa-process-list__heading">
                             Upload the file
                         </h4>
-                        <p className="margin-top-2">Click "Upload."</p>
+                        <ul className="margin-top-2">
+                            <li>Click "Upload."</li>
+                            <li>
+                                ReportStream will validate your file and provide
+                                confirmation that it has been accepted.
+                            </li>
+                        </ul>
                         <p>
                             <strong>
                                 Optional: If you receive errors after clicking
@@ -207,26 +249,38 @@ export const CsvUploadGuide = () => {
                             </strong>
                         </p>
                         <p>
-                            ReportStream validates all uploaded files against
-                            the standard CSV schema. In the event any errors are
-                            detected with a file's format or data, the
-                            application will alert you to specific changes you
-                            need to make before the file can be submitted.
+                            ReportStream validates all uploaded files against a{" "}
+                            <a
+                                href="/getting-started/testing-facilities/csv-schema"
+                                className="usa-link"
+                            >
+                                standard CSV schema
+                            </a>
+                            . If any errors are detected with a file's format or
+                            data, the application will alert you to specific
+                            changes you need to make before the file can be
+                            submitted.
                         </p>
-                        <p>Resolving errors with your CSV:</p>
+                        <p>Resolving errors with a CSV:</p>
                         <ul>
                             <li>
                                 Review the list of errors and recommended
-                                changes suggested by ReportStream. Reference the
-                                CSV schema documentation again for any
-                                adjustments to column headers and values.
+                                changes suggested by ReportStream. Reference the{" "}
+                                <a
+                                    href="/getting-started/testing-facilities/csv-schema"
+                                    className="usa-link"
+                                >
+                                    CSV schema documentation
+                                </a>{" "}
+                                again for any adjustments to column headers or
+                                values.
                             </li>
                             <li>
-                                Make the recommended changes in your CSV file
-                                and re-export it as a .CSV
+                                Make the recommended changes to the file and
+                                re-export it as a .CSV
                             </li>
                             <li>
-                                Return to step 3 and upload your modified file
+                                Return to step 3 and upload the corrected file
                             </li>
                         </ul>
                     </li>

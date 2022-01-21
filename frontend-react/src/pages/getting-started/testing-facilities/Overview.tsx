@@ -28,7 +28,10 @@ export const FacilitiesOverview = () => {
                     <li>
                         Meet your reporting requirements through a single
                         connection. ReportStream is working with{" "}
-                        <a href="/how-it-works/where-were-live">
+                        <a
+                            href="/how-it-works/where-were-live"
+                            className="usa-link"
+                        >
                             jurisdictions across the country
                         </a>{" "}
                         to route your data where it needs to go.
@@ -39,8 +42,11 @@ export const FacilitiesOverview = () => {
                         encryption, and HTTPS.
                     </li>
                     <li>
-                        Created by the CDC and developed for COVID-19 test data,
-                        ReportStream is 100% free.{" "}
+                        <a href="/how-it-works/about" className="usa-link">
+                            Created by the CDC and developed for COVID-19 test
+                            data
+                        </a>
+                        , ReportStream is 100% free.{" "}
                     </li>
                 </ul>
 
@@ -62,7 +68,8 @@ export const FacilitiesOverview = () => {
                     >
                         Health Level 7 (HL7)
                     </a>{" "}
-                    files via a variety of methods.
+                    files via a variety of methods. All submissions are subject
+                    to jurisdictional approval.
                 </p>
                 <p>
                     Not sure which method is right for you? Contact us as{" "}
@@ -78,30 +85,101 @@ export const FacilitiesOverview = () => {
                     </a>{" "}
                     to learn more.
                 </p>
-                <h4>Electronic Laboratory Reporting (ELR)</h4>
-                <p>
-                    Depending on the needs of your organization or facility,
-                    ReportStream can configure an ELR connection with your
-                    existing systems. ReportStream has established connections
-                    with large organizations, test manufacturers, and facilities
-                    with advanced systems.
-                </p>
-                <h4>
-                    CSV upload{" "}
-                    <span className="text-secondary bg-white border-1px border-secondary font-body-3xs padding-x-1 padding-y-05 text-secondary margin-left-2 text-ttbottom">
-                        Pilot program{" "}
-                    </span>
-                </h4>
-                <p>
-                    Use a simple online tool to submit a CSV formatted with a
-                    standard schema. Receive real-time validation and feedback
-                    on file format and field values before submission. This
-                    feature is currently being piloted in select jurisdictions
-                    with organinzations or facilities that have existing
-                    Electronic Medical Record (EMR) systems.
-                </p>
-                <h4>SimpleReport</h4>
-                <p>A partner project under PRIME, SimpleReport ...</p>
+                <ul>
+                    <li>
+                        <h4>Electronic Laboratory Reporting (ELR) via API</h4>
+                        <p>
+                            Depending on the needs of your organization or
+                            facility, ReportStream can configure an ELR
+                            connection with your existing systems. ReportStream
+                            has established connections with large
+                            organizations, test manufacturers, and facilities
+                            with advanced systems.
+                        </p>
+                    </li>
+                    <li>
+                        <h4>
+                            CSV upload{" "}
+                            <span className="text-secondary bg-white border-1px border-secondary font-body-3xs padding-x-1 padding-y-05 text-secondary margin-left-2 text-ttbottom">
+                                Pilot program{" "}
+                            </span>
+                        </h4>
+                        <p>
+                            Use a simple online tool to submit a CSV file
+                            formatted with a standard schema. Receive real-time
+                            validation and feedback on file format and field
+                            values.
+                        </p>
+                        <p>
+                            {" "}
+                            Learn how{" "}
+                            <a
+                                href="/getting-started/testing-facilities/csv-upload-guide"
+                                className="usa-link"
+                            >
+                                CSV upload
+                            </a>{" "}
+                            works or read the{" "}
+                            <a
+                                href="/getting-started/testing-facilities/csv-schema"
+                                className="usa-link"
+                            >
+                                full documentation
+                            </a>
+                            .
+                        </p>
+                        <p>
+                            <em>
+                                This feature is currently being piloted in
+                                select jurisdictions with organizations or
+                                facilities that have existing Electronic Medical
+                                Record (EMR) systems. Pilot partners are
+                                selected by recommendation from jurisdictions.
+                                Find out if your jurisdiction is{" "}
+                                <a
+                                    href="/how-it-works/where-were-live"
+                                    className="usa-link"
+                                >
+                                    partnered
+                                </a>{" "}
+                                with ReportStream and{" "}
+                                <a
+                                    href={
+                                        "mailto:" +
+                                        DOMPurify.sanitize(site.orgs.RS.email) +
+                                        "?subject=Getting started with ReportStream"
+                                    }
+                                    className="usa-link"
+                                >
+                                    contact us
+                                </a>{" "}
+                                to learn more.{" "}
+                            </em>
+                        </p>
+                    </li>
+                    <li>
+                        <h4>SimpleReport</h4>
+                        <p>
+                            <a
+                                href="https://simplereport.gov"
+                                target="_blank"
+                                rel="noreferrer noopener"
+                                className="usa-link"
+                            >
+                                SimpleReport
+                            </a>{" "}
+                            is a fast, free, and easy way for COVID-19 testing
+                            facilities to report results to public health
+                            departments. Skip re-entering the same data every
+                            time you report. Just pull up a name, enter the test
+                            result, and submit. SimpleReport automatically
+                            converts your data into the format required by your
+                            public health department. Real-time reporting
+                            submits test results the moment you record them —
+                            saving you time.
+                        </p>
+                    </li>
+                </ul>
 
                 <h3 className="margin-top-6 padding-top-6 border-top-1px border-base-lighter">
                     Get started with ReportStream

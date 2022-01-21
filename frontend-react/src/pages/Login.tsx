@@ -23,7 +23,8 @@ export const Login = () => {
                 (group: string) => group !== PERMISSIONS.PRIME_ADMIN
             ) || [];
         setStoredOktaToken(tokens?.accessToken?.accessToken || "");
-        updateOrganization(groupToOrg(oktaGroups[0]) || "");
+        /* Setting az-phd as default when PrimeAdmin has no sender/receiver orgs */
+        updateOrganization(groupToOrg(oktaGroups[0]) || "az-phd");
         oktaAuth.handleLoginRedirect(tokens);
     };
 
