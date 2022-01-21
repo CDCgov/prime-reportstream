@@ -163,6 +163,11 @@ tasks.test {
     }
 }
 
+tasks.javadoc.configure {
+    actions.clear()
+    dependsOn(tasks.dokkaHtml)
+}
+
 tasks.dokkaHtml.configure {
     val docsDir = File(project.buildDir, "/docs/dokka")
     outputDirectory.set(docsDir)
