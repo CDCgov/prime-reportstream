@@ -645,7 +645,6 @@ dependencies {
 
     implementation("commons-net:commons-net:3.8.0")
     implementation("com.cronutils:cron-utils:9.1.6")
-    implementation("khttp:khttp:1.0.0")
     implementation("com.auth0:java-jwt:3.18.2")
     implementation("io.jsonwebtoken:jjwt-api:0.11.2")
     implementation("de.m3y.kformat:kformat:0.9")
