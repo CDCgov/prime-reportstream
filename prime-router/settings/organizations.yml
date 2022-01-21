@@ -381,7 +381,6 @@
 
 - name: az-phd
   description: Arizona PHD
-
   jurisdiction: STATE
   stateCode: AZ
   receivers:
