@@ -555,7 +555,7 @@ class WorkflowEngine(
                 actionHistory
             )
 
-            actionHistory.trackDetails(warnings)
+            actionHistory.trackLogs(warnings)
             // track response body
             val responseBody = actionHistory.createResponseBody(
                 true,

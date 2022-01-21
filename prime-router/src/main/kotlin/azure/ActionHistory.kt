@@ -99,9 +99,9 @@ class ActionHistory {
     val filteredOutReports = mutableMapOf<ReportId, ReportFile>()
 
     /**
-     * A List of events discribing the details of what has happened during an Action.
+     * A List of events describing the details of what has happened during an Action.
      */
-    val details = mutableListOf<ActionLog>()
+    val actionLogs = mutableListOf<ActionLog>()
 
     /**
      * Messages to be queued in an azure queue as part of the result of this action.
@@ -140,15 +140,25 @@ class ActionHistory {
         messages.add(event)
     }
 
-    fun trackDetails(d: List<ActionLog>) {
-        d.forEach {
-            trackDetails(it)
+    /**
+     * Track a list of logs that happened durring this action
+     *
+     * @param logs The List of ActionLogs to track against this action
+     */
+    fun trackLogs(logs: List<ActionLog>) {
+        logs.forEach {
+            trackLogs(it)
         }
     }
 
-    fun trackDetails(d: ActionLog) {
-        d.action = action
-        details.add(d)
+    /**
+     * Track a log that happened durring this action
+     *
+     * @param log The ActionLogs to track against this action
+     */
+    fun trackLogs(log: ActionLog) {
+        log.action = action
+        actionLogs.add(log)
     }
 
     fun trackUsername(userName: String?) {
@@ -506,7 +516,7 @@ class ActionHistory {
      */
     fun trackFilteredItems(report: Report) {
         report.filteringResults.forEach {
-            trackDetails(
+            trackLogs(
                 ActionLog(
                     ActionLog.ActionLogScope.item,
                     it,
@@ -566,7 +576,7 @@ class ActionHistory {
         insertReportLineages(txn)
         insertItemLineages(itemLineages, txn)
 
-        details.forEach {
+        actionLogs.forEach {
             val detailRecord = DSL.using(txn).newRecord(ACTION_LOG, it)
             detailRecord.store()
         }
@@ -742,7 +752,7 @@ class ActionHistory {
         var countToPrint = 0
         reportFiles.forEach { reportFile ->
 
-            val filterDetails = details.filter {
+            val filterDetails = actionLogs.filter {
                 it.reportId == reportFile.reportId
             }.filter {
                 it.type == ActionLog.ActionLogType.filter
@@ -934,8 +944,8 @@ class ActionHistory {
         verbose: Boolean,
         report: Report?,
     ): String {
-        val warnings = details.filter { it.type == ActionLog.ActionLogType.warning }
-        val errors = details.filter { it.type == ActionLog.ActionLogType.error }
+        val warnings = actionLogs.filter { it.type == ActionLog.ActionLogType.warning }
+        val errors = actionLogs.filter { it.type == ActionLog.ActionLogType.error }
         val factory = JsonFactory()
         val outStream = ByteArrayOutputStream()
         factory.createGenerator(outStream).use {
@@ -1011,15 +1021,15 @@ class ActionHistory {
              * This function parses a list of ActionLog items to group them by
              * groupingId and returns them as a GroupedProperties data class instance
              *
-             * @param details List of ActionLog items to be parsed
+             * @param actionLogs List of ActionLog items to be parsed
              * @return GroupedProperties() containing items, messages, and scopes
              *     grouped by groupingId
              */
-            fun createPropertiesByGroupingId(details: List<ActionLog>): GroupedProperties {
+            fun createPropertiesByGroupingId(actionLogs: List<ActionLog>): GroupedProperties {
                 val itemsByGroupingId = mutableMapOf<String, MutableList<Int>>()
                 val messageByGroupingId = mutableMapOf<String, String>()
                 val scopesByGroupingId = mutableMapOf<String, String>()
-                details.forEach { actionDetail ->
+                actionLogs.forEach { actionDetail ->
                     val groupingId = actionDetail.detail.groupingId()
                     if (!itemsByGroupingId.containsKey(groupingId)) {
                         itemsByGroupingId[groupingId] = mutableListOf()

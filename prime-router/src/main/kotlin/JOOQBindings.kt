@@ -11,6 +11,12 @@ import org.jooq.impl.AbstractBinding
 import org.jooq.impl.DSL
 import java.util.Objects
 
+/**
+ * Provides a converter for POJOs into JSONB and back using the jackson library
+ * and it's kotlin extensions.
+ *
+ * @param c The class of the POJO for a converter
+ */
 class JsonConverter<T> (val c: Class<T>) : Converter<JSONB, T> {
     private val mapper = jacksonMapperBuilder().build()
 
@@ -31,6 +37,14 @@ class JsonConverter<T> (val c: Class<T>) : Converter<JSONB, T> {
     }
 }
 
+/**
+ * Provides a binding for POJOs into JSONB and back using the jackson library
+ * and it's kotlin extensions.
+ *
+ * NOTE: these then have to be registered as a forced type in build.gradle.kts
+ *
+ * @param klass The class of the POJO this should be used in the inheritance for the POJO specific binding
+ */
 abstract class JsonBinding<T> (val klass: Class<T>) : AbstractBinding<JSONB, T>() {
     override fun converter(): Converter<JSONB, T> {
         return JsonConverter(klass)
@@ -58,4 +72,7 @@ abstract class JsonBinding<T> (val klass: Class<T>) : AbstractBinding<JSONB, T>(
     }
 }
 
+/**
+ * A binding for ActionLogDetails to be converted to and from a JSONB column by JOOQ
+ */
 class ActionLogDetailBinding : JsonBinding<ActionLogDetail>(ActionLogDetail::class.java)

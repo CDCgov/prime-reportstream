@@ -196,8 +196,8 @@ class ReportFunction : Logging {
                         throw ActionError(errors)
                     }
 
-                    actionHistory.trackDetails(errors)
-                    actionHistory.trackDetails(warnings)
+                    actionHistory.trackLogs(errors)
+                    actionHistory.trackLogs(warnings)
 
                     // call the correct processing function based on processing type
                     if (isAsync) {
@@ -218,7 +218,7 @@ class ReportFunction : Logging {
                             validatedRequest.routeTo,
                             actionHistory
                         )
-                        actionHistory.trackDetails(routingWarnings)
+                        actionHistory.trackLogs(routingWarnings)
                     }
 
                     responseBuilder.status(HttpStatus.CREATED)
@@ -226,17 +226,17 @@ class ReportFunction : Logging {
                 }
             }
         } catch (e: ActionError) {
-            actionHistory.trackDetails(e.details)
+            actionHistory.trackLogs(e.details)
             null
         } catch (e: IllegalArgumentException) {
-            actionHistory.trackDetails(
+            actionHistory.trackLogs(
                 ActionLog.report(
                     e.message ?: "Invalid request.", ActionLog.ActionLogType.error
                 )
             )
             null
         } catch (e: IllegalStateException) {
-            actionHistory.trackDetails(
+            actionHistory.trackLogs(
                 ActionLog.report(
                     e.message ?: "Invalid request.", ActionLog.ActionLogType.error
                 )
