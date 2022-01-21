@@ -8,7 +8,7 @@ import {
 } from "@trussworks/react-uswds";
 import { NavLink } from "react-router-dom";
 
-import { permissionCheck, reportReceiver } from "../../webreceiver-utils";
+import { permissionCheck } from "../../webreceiver-utils";
 import { PERMISSIONS } from "../../resources/PermissionsResource";
 
 import { OrganizationDropdown } from "./OrgDropdown";
@@ -25,7 +25,10 @@ export const ReportStreamHeader = () => {
     let itemsMenu = [<GettingStartedDropdown />, <HowItWorksDropdown />];
 
     if (authState !== null && authState.isAuthenticated) {
-        if (reportReceiver(authState)) {
+        if (
+            permissionCheck(PERMISSIONS.RECEIVER, authState) ||
+            permissionCheck(PERMISSIONS.PRIME_ADMIN, authState)
+        ) {
             itemsMenu.push(
                 <NavLink
                     to="/daily-data"
