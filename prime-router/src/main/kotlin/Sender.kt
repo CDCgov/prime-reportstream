@@ -16,8 +16,30 @@ open class Sender(
     val topic: String,
     val customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
     val schemaName: String,
-    val keys: List<JwkSet>? = null // used to track server-to-server auths for this Sender via public keys sets
+    val keys: List<JwkSet>? = null, // used to track server-to-server auths for this Sender via public keys sets
+    val processingType: ProcessingType = ProcessingType.sync
 ) {
+    /**
+     * Enumeration representing whether a submission will be processed follow the synchronous or asynchronous
+     * message pipeline. Within the code this defaults to Sync unless the PROCESSING_TYPE_PARAMETER query
+     * string value is 'async'
+     */
+    enum class ProcessingType {
+        sync,
+        async;
+
+        companion object {
+            fun valueOfIgnoreCase(value: String): ProcessingType {
+                ProcessingType.values().forEach {
+                    if (it.name.equals(value, true)) {
+                        return it
+                    }
+                }
+                throw IllegalArgumentException()
+            }
+        }
+    }
+
     constructor(copy: Sender) : this(
         copy.name,
         copy.organizationName,
@@ -41,6 +63,20 @@ open class Sender(
 
     @get:JsonIgnore
     val fullName: String get() = "$organizationName$fullNameSeparator$name"
+
+    /**
+     * Calculate the customer's default processingModeCode based on their
+     * CustomerStatus value. Note that the default customerStatus is
+     * INACTIVE which will put that customer in "T" mode.
+     * Official values for processing_mode_code are in hl70103.
+     * Don't remove this - it is used via reflection, not by a direct usage.
+     */
+    @get:JsonIgnore
+    val processingModeCode: String get() = when (customerStatus) {
+        CustomerStatus.ACTIVE -> "P"
+        CustomerStatus.INACTIVE -> "T"
+        CustomerStatus.TESTING -> "T"
+    }
 
     enum class Format(val mimeType: String) {
         CSV("text/csv"),

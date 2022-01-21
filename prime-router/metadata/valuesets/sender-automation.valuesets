@@ -66,6 +66,8 @@
       display: American Indian
     - code: 1002-5
       display: Native American
+    - code: 1002-5
+      display: 1002-5
     - code: 2054-5
       display: Black or African American
     - code: 2054-5
@@ -379,9 +381,6 @@
       display: Varied
       version: 2020-09-01
     - code: 71836000
-      display: Nasal
-      version: 2020-09-01
-    - code: 71836000
       display: Nasopharyngeal swab
       version: 2020-09-01
     - code: 71836000
@@ -413,6 +412,9 @@
       version: 2020-09-01
     - code: 53342003
       display: Mid-turbinate nasal swab
+      version: 2020-09-01
+    - code: 53342003
+      display: Nasal
       version: 2020-09-01
     - code: 53342003
       display: Nasal Swab

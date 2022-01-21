@@ -28,9 +28,9 @@ import java.util.Properties
 
 plugins {
     kotlin("jvm") version "1.6.10"
-    id("org.flywaydb.flyway") version "8.2.2"
+    id("org.flywaydb.flyway") version "8.3.0"
     id("nu.studer.jooq") version "6.0.1"
-    id("com.github.johnrengelman.shadow") version "7.1.0"
+    id("com.github.johnrengelman.shadow") version "7.1.1"
     id("com.microsoft.azure.azurefunctions") version "1.8.2"
     id("org.jlleitschuh.gradle.ktlint") version "10.2.0"
     id("com.adarshr.test-logger") version "3.1.0"
@@ -103,7 +103,9 @@ java {
 val compileKotlin: KotlinCompile by tasks
 val compileTestKotlin: KotlinCompile by tasks
 compileKotlin.kotlinOptions.jvmTarget = "11"
+compileKotlin.kotlinOptions.allWarningsAsErrors = true
 compileTestKotlin.kotlinOptions.jvmTarget = "11"
+compileTestKotlin.kotlinOptions.allWarningsAsErrors = true
 
 tasks.clean {
     // Delete the old Maven build folder
@@ -561,9 +563,39 @@ tasks.register("resetDB") {
 
 repositories {
     mavenCentral()
-    jcenter()
     maven {
         url = uri("https://jitpack.io")
+    }
+}
+
+buildscript {
+    configurations {
+        classpath {
+            /*
+             * Need to exclude this library due to the following dependency chain having an issue with the json-smart
+             * library version.
+             *   com.microsoft.azure.azurefunctions:com.microsoft.azure.azurefunctions.gradle.plugin:1.8.2 >
+             *   com.microsoft.azure:azure-functions-gradle-plugin:1.8.2 >
+             *   com.microsoft.azure:azure-toolkit-common-lib:0.12.3 >
+             *   com.microsoft.azure:adal4j:1.6.7 > com.nimbusds:oauth2-oidc-sdk:9.15
+             * Looks like com.nimbusds:oauth2-oidc-sdk:9.15 has an invalid dependency version of [1.3.2,2.4.2]
+             * This will need to be removed once this issue is resolved in Maven.
+             */
+            exclude("net.minidev", "json-smart")
+        }
+    }
+    dependencies {
+        // Now force the gradle build script to get the proper library for com.nimbusds:oauth2-oidc-sdk:9.15.  This
+        // will need to be removed once this issue is resolved in Maven.
+        classpath("net.minidev:json-smart:2.4.2")
+    }
+}
+
+// Prevent logback from being used by slf4j, no matter who declares it. Otherwise slf4j can pickup logback instead of
+// log4j from the classpath and our configuration gets ignored.
+configurations {
+    implementation {
+        exclude(group = "ch.qos.logback")
     }
 }
 
@@ -573,7 +605,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-common:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")
     implementation("com.microsoft.azure.functions:azure-functions-java-library:1.4.2")
     implementation("com.azure:azure-core:1.23.1")
     implementation("com.azure:azure-core-http-netty:1.11.4")
@@ -591,16 +623,16 @@ dependencies {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
-    implementation("org.apache.logging.log4j:log4j-api:[2.15.0,)")
-    implementation("org.apache.logging.log4j:log4j-core:[2.15.0,)")
-    implementation("org.apache.logging.log4j:log4j-slf4j-impl:[2.15.0,)")
+    implementation("org.apache.logging.log4j:log4j-api:[2.17.1,)")
+    implementation("org.apache.logging.log4j:log4j-core:[2.17.1,)")
+    implementation("org.apache.logging.log4j:log4j-slf4j-impl:[2.17.1,)")
     implementation("org.apache.logging.log4j:log4j-api-kotlin:1.1.0")
     implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.2.0")
     implementation("tech.tablesaw:tablesaw-core:0.42.0")
     implementation("com.github.ajalt.clikt:clikt-jvm:3.3.0")
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.0")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.0")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.13.0")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.1")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.1")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.13.1")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.0")
     implementation("com.github.javafaker:javafaker:1.0.2")
     implementation("ca.uhn.hapi:hapi-base:2.3")
@@ -624,11 +656,10 @@ dependencies {
     implementation("commons-io:commons-io:2.11.0")
     implementation("org.postgresql:postgresql:42.3.0")
     implementation("com.zaxxer:HikariCP:5.0.0")
-    implementation("org.flywaydb:flyway-core:8.2.2")
-    implementation("com.github.kayr:fuzzy-csv:1.7.3")
+    implementation("org.flywaydb:flyway-core:8.3.0")
     implementation("org.commonmark:commonmark:0.18.1")
     implementation("com.google.guava:guava:31.0.1-jre")
-    implementation("com.helger.as2:as2-lib:4.9.0")
+    implementation("com.helger.as2:as2-lib:4.9.1")
     // Prevent mixed versions of these libs based on different versions being included by different packages
     implementation("org.bouncycastle:bcpkix-jdk15on:1.70")
     implementation("org.bouncycastle:bcmail-jdk15on:1.70")
@@ -636,15 +667,19 @@ dependencies {
 
     implementation("commons-net:commons-net:3.8.0")
     implementation("com.cronutils:cron-utils:9.1.5")
-    implementation("khttp:khttp:1.0.0")
     implementation("com.auth0:java-jwt:3.18.2")
     implementation("io.jsonwebtoken:jjwt-api:0.11.2")
-    implementation("de.m3y.kformat:kformat:0.8")
+    implementation("de.m3y.kformat:kformat:0.9")
     implementation("io.github.java-diff-utils:java-diff-utils:4.11")
     implementation("io.ktor:ktor-client-core:$ktorVersion")
     implementation("io.ktor:ktor-client-cio:$ktorVersion")
     implementation("io.ktor:ktor-client-apache:$ktorVersion")
     implementation("io.ktor:ktor-client-logging:$ktorVersion")
+    implementation("it.skrape:skrapeit-html-parser:1.1.6")
+    implementation("it.skrape:skrapeit-http-fetcher:1.1.6")
+    implementation("org.apache.poi:poi:5.1.0")
+    implementation("org.apache.poi:poi-ooxml:5.1.0")
+    implementation("commons-io:commons-io: 2.11.0")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.1")
     runtimeOnly("com.github.kittinunf.fuel:fuel-jackson:2.3.1")
