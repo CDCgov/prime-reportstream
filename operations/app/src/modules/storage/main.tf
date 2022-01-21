@@ -100,7 +100,7 @@ resource "azurerm_storage_management_policy" "retention_policy" {
   storage_account_id = azurerm_storage_account.storage_account.id
 
   rule {
-    name    = "30dayretention"
+    name    = "limitedretention"
     enabled = true
 
     filters {
@@ -265,7 +265,7 @@ resource "azurerm_storage_management_policy" "storage_partner_retention_policy" 
   storage_account_id = azurerm_storage_account.storage_partner.id
 
   rule {
-    name    = "30dayretention"
+    name    = "limitedretention"
     enabled = true
 
     filters {
