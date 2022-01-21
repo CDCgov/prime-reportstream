@@ -13,7 +13,6 @@ import it.skrape.fetcher.skrape
 import it.skrape.selects.eachHref
 import it.skrape.selects.html5.a
 import org.apache.commons.io.FilenameUtils
-import org.apache.poi.hssf.usermodel.HSSFWorkbook
 import org.apache.poi.ss.usermodel.CellType
 import org.apache.poi.ss.usermodel.Row
 import org.apache.poi.ss.usermodel.Sheet
