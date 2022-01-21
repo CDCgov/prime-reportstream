@@ -4,18 +4,8 @@ import { NetworkErrorBoundary } from "rest-hooks";
 
 import HipaaNotice from "../../components/HipaaNotice";
 import Spinner from "../../components/Spinner";
-import { useOrgName } from "../../utils/OrganizationUtils";
 import { ErrorPage } from "../error/ErrorPage";
 import { OrgSettingsTable } from "../../components/Admin/OrgSettingsTable";
-
-const OrgName = () => {
-    const orgName: string = useOrgName();
-    return (
-        <span id="orgName" className="text-normal text-base">
-            Admin settings for {orgName}
-        </span>
-    );
-};
 
 export function AdminMain() {
     return (
@@ -33,9 +23,7 @@ export function AdminMain() {
                                 Loading Info...
                             </span>
                         }
-                    >
-                        <OrgName />
-                    </Suspense>
+                    />
                 </h3>
             </section>
             <NetworkErrorBoundary
