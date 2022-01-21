@@ -209,15 +209,19 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
         <NetworkErrorBoundary
             fallbackComponent={() => <ErrorPage type="page" />}
         >
-            <Suspense
-                fallback={
-                    <span className="text-normal text-base">
-                        Loading Receiver Info...
-                    </span>
-                }
-            >
-                <FormComponent />
-            </Suspense>
+            <section className="grid-container margin-bottom-5">
+                <h3 className="margin-bottom-0">
+                    <Suspense
+                        fallback={
+                            <span className="text-normal text-base">
+                                Loading Receiver Info...
+                            </span>
+                        }
+                    >
+                        <FormComponent />
+                    </Suspense>
+                </h3>
+            </section>
         </NetworkErrorBoundary>
     );
 }
