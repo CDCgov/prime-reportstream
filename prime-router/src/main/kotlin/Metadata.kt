@@ -23,6 +23,7 @@ class Metadata : Logging {
     private var mappers = listOf(
         MiddleInitialMapper(),
         UseMapper(),
+        UseSenderSettingMapper(),
         IfPresentMapper(),
         IfNotPresentMapper(),
         IfNPIMapper(),
