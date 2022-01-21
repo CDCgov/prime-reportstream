@@ -375,10 +375,10 @@ class LookupTableCommands : CliktCommand(
                 .inlineDiffByWord(true)
                 .ignoreWhiteSpaces(true)
                 .oldTag { start: Boolean? ->
-                    if (true == start) "\u001B[9m" else "\u001B[0m" // Use strikethrough for deleted changes
+                    if (true == start) "\u001B[9;101m" else "\u001B[0m" // Use strikethrough and red for deleted changes
                 }
                 .newTag { start: Boolean? ->
-                    if (true == start) "\u001B[1m" else "\u001B[0m" // Use bold for additions
+                    if (true == start) "\u001B[1;42m" else "\u001B[0m" // Use bold and green for additions
                 }
                 .build()
 
