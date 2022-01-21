@@ -4,7 +4,10 @@
   jurisdiction: "STATE"
   stateCode: "IA"
   countyName: null
-  filters: null
+  filters:
+    - topic: "covid-19"
+      jurisdictionalFilter:
+      - "orEquals(ordering_facility_state, IA, patient_state, IA)"
   senders: []
   receivers:
     - name: "elr"
@@ -43,8 +46,7 @@
         nameFormat: "STANDARD"
         receivingOrganization: null
         type: "HL7"
-      jurisdictionalFilter:
-        - "orEquals(ordering_facility_state, IA, patient_state, IA)"
+      jurisdictionalFilter: []
       qualityFilter: []
       routingFilter: []
       processingModeFilter: []
