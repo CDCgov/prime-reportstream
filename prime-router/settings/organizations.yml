@@ -406,7 +406,6 @@
         schemaName: az/az-covid-19
         format: CSV
         nameFormat: standard_secondary
-
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
@@ -435,6 +434,12 @@
         numberPerDay: 1440 # Every minute.  NOTE:  In production, they want deliveries once a day at 8am MST.
         initialTime: 00:00
         timeZone: ARIZONA
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
 
 - name: ca-scc-phd
   description: Public Health Department - Santa Clara, California
@@ -2473,6 +2478,7 @@
         type: HL7
         useBatchHeaders: true
         suppressNonNPI: true
+        truncateHDNamespaceIds: true
         truncateHl7Fields: OBX-23-1
       timing:
         operation: MERGE
