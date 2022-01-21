@@ -30,7 +30,7 @@ export function AdminOrgEdit({
                 <title>Admin | Org Edit | {process.env.REACT_APP_TITLE}</title>
             </Helmet>
             <section className="grid-container margin-bottom-5">
-                <h3 className="margin-bottom-0">
+                <h2 className="margin-bottom-0">
                     <Suspense
                         fallback={
                             <span className="text-normal text-base">
@@ -41,7 +41,7 @@ export function AdminOrgEdit({
                         Org name:{" "}
                         {match?.params?.orgname || "missing param 'orgname'"}
                     </Suspense>
-                </h3>
+                </h2>
             </section>
             <NetworkErrorBoundary
                 fallbackComponent={() => <ErrorPage type="message" />}

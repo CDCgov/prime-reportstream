@@ -84,7 +84,7 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
         return (
             <GridContainer containerSize={"desktop"}>
                 <Grid row>
-                    <Grid col="fill">
+                    <Grid col="fill" className="text-bold">
                         Org name:{" "}
                         {match?.params?.orgname || "missing param 'orgname'"}
                         <br />

@@ -31,7 +31,9 @@ export const ModalConfirmDeleteButton = ({
             key={`${uniquid}-confirm-button`}
             data-uniqueid={uniquid}
             type="button"
-        >{buttonProps.children}</Button>
+        >
+            {buttonProps.children}
+        </Button>
     );
 };
 

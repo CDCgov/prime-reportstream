@@ -84,7 +84,7 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
         return (
             <GridContainer>
                 <Grid row>
-                    <Grid col="fill">
+                    <Grid col="fill" className="text-bold">
                         Org name:{" "}
                         {match?.params?.orgname || "missing param 'orgname'"}
                         <br />
@@ -150,17 +150,15 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
             fallbackComponent={() => <ErrorPage type="page" />}
         >
             <section className="grid-container margin-bottom-5">
-                <h3 className="margin-bottom-0">
-                    <Suspense
-                        fallback={
-                            <span className="text-normal text-base">
-                                Loading Sender Settings Info...
-                            </span>
-                        }
-                    >
-                        <FormComponent />
-                    </Suspense>
-                </h3>
+                <Suspense
+                    fallback={
+                        <span className="text-normal text-base">
+                            Loading Sender Settings Info...
+                        </span>
+                    }
+                >
+                    <FormComponent />
+                </Suspense>
             </section>
         </NetworkErrorBoundary>
     );
