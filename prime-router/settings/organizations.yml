@@ -368,8 +368,20 @@
       schemaName: direct/anavasidx-covid-19
       format: CSV
 
+- name: mns
+  description: Medical Network Solutions
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: mns
+      topic: covid-19
+      customerStatus: active
+      schemaName: hl7/mns-covid-19
+      format: HL7
+
 - name: az-phd
   description: Arizona PHD
+
   jurisdiction: STATE
   stateCode: AZ
   receivers:
