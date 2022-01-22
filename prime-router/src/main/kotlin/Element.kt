@@ -527,21 +527,15 @@ data class Element(
                     // continue to the next try
                 }
                 try {
-                    // this is a saving throw
-                    val optionalDateTime = variableDateTimePattern
-                    val df = DateTimeFormatter.ofPattern(optionalDateTime)
-                    val ta = df.parseBest(
-                        cleanedValue,
-                        OffsetDateTime::from,
-                        LocalDateTime::from,
-                        Instant::from,
-                        LocalDate::from
-                    )
-                    if (ta is LocalDateTime) {
-                        LocalDateTime.from(ta).atZone(ZoneId.of(USTimeZone.CENTRAL.zoneId)).toOffsetDateTime()
-                    } else {
-                        LocalDate.from(ta).atStartOfDay(ZoneId.of(USTimeZone.CENTRAL.zoneId)).toOffsetDateTime()
-                    }
+                    getBestDateTime(cleanedValue, variableDateTimePattern)
+                    return null
+                } catch (e: DateTimeParseException) {
+                    // continue to the next try
+                } catch (e: DateTimeException) {
+                    // this could also happen
+                }
+                try {
+                    getBestDateTime(cleanedValue, datePatternMMddyyyy)
                     return null
                 } catch (e: DateTimeParseException) {
                     // continue to the next try
@@ -717,32 +711,13 @@ data class Element(
                 } catch (e: DateTimeParseException) {
                     null
                 } ?: try {
-                    // this is a saving throw. the variable date time pattern gives us four different
-                    // types of date patterns to try against, the very last one has nested optional
-                    // portions, which means it can accept a wider array of data, including just date without time
-                    // which we can then coerce to a date time value
-                    val optionalDateTime = variableDateTimePattern
-                    val df = DateTimeFormatter.ofPattern(optionalDateTime)
-                    // parseBest makes an attempt to take formatter with a variable pattern and will then
-                    // pick the best return type from the options we pass in, cast as a TemporalAccessor
-                    // which is a wrapper around all the other potential types.
-                    val ta = df.parseBest(
-                        cleanedFormattedValue,
-                        OffsetDateTime::from,
-                        LocalDateTime::from,
-                        Instant::from,
-                        LocalDate::from
-                    )
-                    // if the TA is a local date time, parse as such and convert to offset
-                    // otherwise, if it's a date, parse just the date type and then upsize to date time
-                    // by assuming start of day. If we aren't given data with an actual time precision
-                    // then pushing it to the start of the day *should* be okay
-                    val parsedValue = if (ta is LocalDateTime) {
-                        LocalDateTime.from(ta).atZone(ZoneId.of(USTimeZone.CENTRAL.zoneId)).toOffsetDateTime()
-                    } else {
-                        LocalDate.from(ta).atStartOfDay(ZoneId.of(USTimeZone.CENTRAL.zoneId)).toOffsetDateTime()
-                    }
-                    parsedValue
+                    getBestDateTime(cleanedFormattedValue, datePatternMMddyyyy)
+                } catch (e: DateTimeParseException) {
+                    null
+                } catch (e: DateTimeException) {
+                    null
+                } ?: try {
+                    getBestDateTime(cleanedFormattedValue, variableDateTimePattern)
                 } catch (e: DateTimeParseException) {
                     // if this value can be nullified because it is badly formatted, simply return a blank string
                     if (nullifyValue) {
@@ -832,6 +807,32 @@ data class Element(
             }
             else -> cleanedFormattedValue
         }
+    }
+
+    /**
+     * The function return the best OffsetDatetime.  If it can't parse, it will throw either
+     * DateTimeParseException or DateTimeException.  Which allows the caller to catch the exception.
+     * @param [value] datetime value to be parsed.
+     * @param  [optionalDateTime] format to parse
+     * @return [OffsetDateTime] the best parsed datetime value
+     */
+    fun getBestDateTime(value: String, optionalDateTime: String): OffsetDateTime {
+
+        val df = DateTimeFormatter.ofPattern(optionalDateTime)
+        val ta = df.parseBest(
+            value,
+            OffsetDateTime::from,
+            LocalDateTime::from,
+            Instant::from,
+            LocalDate::from
+        )
+        val parsedValue = if (ta is LocalDateTime) {
+            LocalDateTime.from(ta).atZone(ZoneId.of(USTimeZone.CENTRAL.zoneId)).toOffsetDateTime()
+        } else {
+            LocalDate.from(ta).atStartOfDay(ZoneId.of(USTimeZone.CENTRAL.zoneId)).toOffsetDateTime()
+        }
+
+        return parsedValue
     }
 
     fun toNormalized(subValues: List<SubValue>): String {
@@ -1085,6 +1086,7 @@ data class Element(
 
     companion object {
         const val datePattern = "yyyyMMdd"
+        const val datePatternMMddyyyy = "MMddyyyy"
         const val datetimePattern = "yyyyMMddHHmmZZZ"
         // isn't she a beauty? This allows for all kinds of possible date time variations
         const val variableDateTimePattern = "[yyyyMMddHHmmssZ]" +
@@ -1093,7 +1095,6 @@ data class Element(
             "[yyyy-MM-dd[ HH:mm:ss[.S[S][S]]]]" +
             "[yyyyMMdd[ HH:mm:ss[.S[S][S]]]]" +
             "[M/d/yyyy[ HH:mm[:ss[.S[S][S]]]]]" +
-            "[MMddyyyy[ HH:mm[:ss[.S[S][S]]]]]" +
             "[yyyy/M/d[ HH:mm[:ss[.S[S][S]]]]]"
         val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern(datePattern, Locale.ENGLISH)
         val datetimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern(datetimePattern, Locale.ENGLISH)
