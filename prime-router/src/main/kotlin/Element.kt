@@ -813,7 +813,7 @@ data class Element(
      * The function return the best OffsetDatetime.  If it can't parse, it will throw either
      * DateTimeParseException or DateTimeException.  Which allows the caller to catch the exception.
      * @param [value] datetime value to be parsed.
-     * @param  [optionalDateTime] format to parse
+     * @param [optionalDateTime] format to parse
      * @return [OffsetDateTime] the best parsed datetime value
      */
     fun getBestDateTime(value: String, optionalDateTime: String): OffsetDateTime {
