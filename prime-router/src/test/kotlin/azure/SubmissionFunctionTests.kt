@@ -61,6 +61,14 @@ class SubmissionFunctionTests {
             @Suppress("UNCHECKED_CAST")
             return dataset.first() as T
         }
+
+        override fun <T> fetchRelatedActions(
+            submissionId: Long,
+            klass: Class<T>
+        ): List<T> {
+            @Suppress("UNCHECKED_CAST")
+            return dataset as List<T>
+        }
     }
 
     val testData = listOf(

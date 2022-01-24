@@ -28,23 +28,46 @@ class DetailedSubmissionHistory(
     @JsonProperty("submittedAt")
     val createdAt: OffsetDateTime,
     @JsonProperty("submitter")
-    val sendingOrg: String,
-    val httpStatus: Int,
+    val sendingOrg: String?,
+    val httpStatus: Int?,
     @JsonInclude(Include.NON_NULL) val externalName: String? = "",
-    actionResponse: DetailedActionResponse,
+    actionResponse: DetailedActionResponse?,
 ) {
-    val submissionId: String? = actionResponse.id
-    val warningCount: Int? = actionResponse.warningCount
-    val errorCount: Int? = actionResponse.errorCount
-    val errors: List<Detail>? = actionResponse.errors
-    val warnings: List<Detail>? = actionResponse.warnings
-    val topic: String? = actionResponse.topic
+    val submissionId: String? = actionResponse?.id
+    val destinations = mutableListOf<Destination>()
+    // TODO: these should just be getters
+
+    val errors = mutableListOf<Detail>()
+    val warnings = mutableListOf<Detail>()
+    val topic: String? = actionResponse?.topic
+
+    val warningCount: Int
+        get() = warnings.size
+
+    val errorCount: Int
+        get() = errors.size
+
+    init {
+        destinations.addAll(actionResponse?.destinations ?: emptyList())
+        errors.addAll(actionResponse?.errors ?: emptyList())
+        warnings.addAll(actionResponse?.warnings ?: emptyList())
+    }
+
+    fun enrich(relations: List<DetailedSubmissionHistory>) {
+        relations.forEach { relation ->
+            // TODO: cusotm handling per "action_name"
+            destinations += relation.destinations
+            errors += relation.errors
+            warnings += relation.warnings
+        }
+    }
 }
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class DetailedActionResponse(
     val id: String?,
     val topic: String?,
+    val destinations: List<Destination>?,
     val reportItemCount: Int?,
     val warningCount: Int?,
     val errorCount: Int?,
@@ -53,9 +76,19 @@ data class DetailedActionResponse(
 )
 
 data class Detail(
-    val scope: String,
-    val message: String,
-    val itemNums: String,
+    val scope: String?,
+    val message: String?,
+    val itemNums: String?,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class Destination(
+    val organization: String,
+    val organization_id: String,
+    val service: String,
+    val filteredReportRows: List<String>?,
+    val sending_at: String,
+    val itemCount: Int,
 )
 
 /*

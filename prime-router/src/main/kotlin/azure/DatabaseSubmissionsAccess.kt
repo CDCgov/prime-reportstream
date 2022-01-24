@@ -1,8 +1,12 @@
 package gov.cdc.prime.router.azure
 
 import gov.cdc.prime.router.azure.db.Tables.ACTION
+import gov.cdc.prime.router.azure.db.Tables.REPORT_LINEAGE
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import org.jooq.CommonTableExpression
 import org.jooq.impl.DSL
+import org.jooq.impl.SQLDataType.BIGINT
+import org.jooq.impl.SQLDataType.UUID
 import java.time.OffsetDateTime
 
 interface SubmissionAccess {
@@ -24,6 +28,11 @@ interface SubmissionAccess {
         submissionId: Long,
         klass: Class<T>
     ): T?
+
+    fun <T> fetchRelatedActions(
+        submissionId: Long,
+        klass: Class<T>
+    ): List<T>
 }
 /**
  * Class to access lookup tables stored in the database.
@@ -77,6 +86,48 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = DatabaseAccess(
                         .and(ACTION.ACTION_ID.eq(submissionId))
                 )
                 .fetchOne()?.into(klass)
+        }
+    }
+
+    override fun <T> fetchRelatedActions(
+        submissionId: Long,
+        klass: Class<T>,
+    ): List<T> {
+        val cte: CommonTableExpression<*> = DSL.name("t").fields(
+            "action_id",
+            "child_report_id",
+            "parent_report_id"
+        ).`as`(
+            DSL.select(
+                REPORT_LINEAGE.ACTION_ID,
+                REPORT_LINEAGE.CHILD_REPORT_ID,
+                REPORT_LINEAGE.PARENT_REPORT_ID,
+            )
+                .from(REPORT_LINEAGE)
+                .where(REPORT_LINEAGE.ACTION_ID.eq(submissionId))
+                .unionAll(
+                    DSL.select(
+                        REPORT_LINEAGE.ACTION_ID,
+                        REPORT_LINEAGE.CHILD_REPORT_ID,
+                        REPORT_LINEAGE.PARENT_REPORT_ID,
+                    )
+                        .from(DSL.table(DSL.name("t")))
+                        .join(REPORT_LINEAGE)
+                        .on(
+                            DSL.field(DSL.name("t", "child_report_id"), UUID)
+                                .eq(REPORT_LINEAGE.PARENT_REPORT_ID)
+                        )
+                )
+        )
+        return db.transactReturning { txn ->
+            DSL.using(txn)
+                .withRecursive(cte)
+                .select()
+                .from(ACTION)
+                .join(cte)
+                .on(ACTION.ACTION_ID.eq(cte.field("action_id", BIGINT)))
+                .where(ACTION.ACTION_ID.ne(submissionId))
+                .fetchInto(klass)
         }
     }
 }

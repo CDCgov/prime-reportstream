@@ -95,11 +95,22 @@ class SubmissionsFacade(
         organizationName: String,
         submissionId: Long,
     ): DetailedSubmissionHistory? {
-        return db.fetchAction(
+
+        val submission = db.fetchAction(
             organizationName,
             submissionId,
             DetailedSubmissionHistory::class.java
         )
+
+        submission?.let {
+            val relatedSubmissions = db.fetchRelatedActions(
+                submission.actionId,
+                DetailedSubmissionHistory::class.java,
+            )
+            it.enrich(relatedSubmissions)
+        }
+
+        return submission
     }
 
     companion object {
