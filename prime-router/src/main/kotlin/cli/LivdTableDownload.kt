@@ -278,8 +278,11 @@ class LivdTableDownload : CliktCommand(
 
         // Cleanup any models that have * at the end.
         supplLivdTable.forEach {
-            if (it.getString(LIVDLookupMapper.LIVD_MODEL).endsWith("*"))
-                it.setString(LIVDLookupMapper.LIVD_MODEL, it.getString(LIVDLookupMapper.LIVD_MODEL).dropLast(1))
+            if (it.getString(LIVDLookupMapper.Companion.LivdTableColumns.MODEL.colName).endsWith("*"))
+                it.setString(
+                    LIVDLookupMapper.Companion.LivdTableColumns.MODEL.colName,
+                    it.getString(LIVDLookupMapper.Companion.LivdTableColumns.MODEL.colName).dropLast(1)
+                )
         }
 
         // Get the columns we need to process and add any new columns to the LIVD table
@@ -389,21 +392,21 @@ class LivdTableDownload : CliktCommand(
         /**
          * livdSARSCov2File is the prefix of the LIVD-SARS-CoV-2-yyyyMMdd.xlsx file to download.
          */
-        private val livdSARSCov2FilenamePrefix = "LIVD-SARS-CoV-2"
+        private const val livdSARSCov2FilenamePrefix = "LIVD-SARS-CoV-2"
 
         /**
          * Sheet name within the downloaded file Excel file.
          */
-        private val sheetName = "LOINC Mapping"
+        private const val sheetName = "LOINC Mapping"
 
         /**
          * Default folder to write files to.
          */
-        private val defaultOutputDir = "./build/livd-download"
+        private const val defaultOutputDir = "./build/livd-download"
 
         /**
          * The default location of the supplemental file.
          */
-        private val defaultSupplFile = "./metadata/tables/LIVD-Supplemental.csv"
+        private const val defaultSupplFile = "./metadata/tables/LIVD-Supplemental.csv"
     }
 }

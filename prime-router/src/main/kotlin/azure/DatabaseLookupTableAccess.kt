@@ -174,8 +174,8 @@ class DatabaseLookupTableAccess(private val db: DatabaseAccess = DatabaseAccess(
             // we force to update the table regardless.
             val versionConflict = isTableUpToDate(tableName, newVersion.tableSha256Checksum)
             if (versionConflict != null && !force)
-                throw IllegalStateException(
-                    "${newVersion.tableName} is conflicting with the existing table version: $versionConflict"
+                throw DuplicateTableException(
+                    "${newVersion.tableName} is identical to the existing table version: $versionConflict"
                 )
 
             // Use batching to make this faster
@@ -271,5 +271,7 @@ class DatabaseLookupTableAccess(private val db: DatabaseAccess = DatabaseAccess(
                 inputData.subList(start, end)
             }
         }
+
+        class DuplicateTableException(message: String) : Exception(message)
     }
 }

@@ -264,25 +264,25 @@ class MapperTests {
         // Cue COVID-19 Test does not have an * in the table
         var testModel = "Cue COVID-19 Test"
         var expectedTestOrderedLoinc = "95409-9"
-        assertThat(LIVDLookupMapper.lookupByEquipmentModelName(element, testModel, emptyMap()))
+        assertThat(LIVDLookupMapper.lookupByEquipmentModelName(element, testModel, lookupTable.FilterBuilder()))
             .isEqualTo(expectedTestOrderedLoinc)
 
         // Add an * to the end of the model name
-        assertThat(LIVDLookupMapper.lookupByEquipmentModelName(element, "$testModel*", emptyMap()))
+        assertThat(LIVDLookupMapper.lookupByEquipmentModelName(element, "$testModel*", lookupTable.FilterBuilder()))
             .isEqualTo(expectedTestOrderedLoinc)
 
         // Add some other character to fail the lookup
-        assertThat(LIVDLookupMapper.lookupByEquipmentModelName(element, "$testModel^", emptyMap()))
+        assertThat(LIVDLookupMapper.lookupByEquipmentModelName(element, "$testModel^", lookupTable.FilterBuilder()))
             .isNull()
 
         // Accula SARS-Cov-2 Test does have an * in the table
         testModel = "Accula SARS-Cov-2 Test"
         expectedTestOrderedLoinc = "95409-9"
-        assertThat(LIVDLookupMapper.lookupByEquipmentModelName(element, testModel, emptyMap()))
+        assertThat(LIVDLookupMapper.lookupByEquipmentModelName(element, testModel, lookupTable.FilterBuilder()))
             .isEqualTo(expectedTestOrderedLoinc)
 
         // Add an * to the end of the model name
-        assertThat(LIVDLookupMapper.lookupByEquipmentModelName(element, "$testModel*", emptyMap()))
+        assertThat(LIVDLookupMapper.lookupByEquipmentModelName(element, "$testModel*", lookupTable.FilterBuilder()))
             .isEqualTo(expectedTestOrderedLoinc)
     }
 
