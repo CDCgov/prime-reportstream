@@ -17,17 +17,17 @@ module "vnet" {
 ## 01-network
 ##########
 
-# module "network" {
-#   source          = "../../modules/network"
-#   vnet_address_space = module.vnet.vnet_address_spaces
-#   vnet_ids        = module.vnet.ids
-#   vnets = module.vnet.vnets
-#   vnet_names      = module.vnet.names
-#   environment     = var.environment
-#   resource_group  = var.resource_group
-#   resource_prefix = var.resource_prefix
-#   location        = var.location
-# }
+module "network" {
+  source          = "../../modules/network"
+  vnet_address_space = module.vnet.vnet_address_spaces
+  vnet_ids        = module.vnet.ids
+  vnets = module.vnet.vnets
+  vnet_names      = module.vnet.names
+  environment     = var.environment
+  resource_group  = var.resource_group
+  resource_prefix = var.resource_prefix
+  location        = var.location
+}
 
 # module "nat_gateway" {
 #   source           = "../../modules/nat_gateway"
