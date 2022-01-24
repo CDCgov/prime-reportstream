@@ -144,9 +144,11 @@
         "stylelint": "^14.2.0",
         "yaml-loader": "^0.6.0"
     },
+    "peerDependencies": {
+      "postcss": "^8.4.5"
+    },
     "resolutions": {
-        "react-scripts/node-forge": "^1.0.0",
-        "react-scripts/postcss": "8.2.13",
-        "react-scripts/resolve-url-loader/postcss": "8.2.13"
+        "react-scripts/**/node-forge": "^1.0.0",
+        "@okta/**/node-fetch": "^2.6.7"
     }
 }
