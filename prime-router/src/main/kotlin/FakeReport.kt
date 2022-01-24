@@ -230,8 +230,8 @@ class FakeReport(val metadata: Metadata, val locale: Locale? = null) {
         val schoolName: String = faker.university().name()
         val equipmentModel = randomChoice(
             // Use only equipment that have equipment UID and equipment UID type to pass quality gate for HL7 messages
-            "LumiraDx SARS-CoV-2 Ag Test*",
-            "BD Veritor System for Rapid Detection of SARS-CoV-2*"
+            "LumiraDx SARS-CoV-2 Ag Test",
+            "BD Veritor System for Rapid Detection of SARS-CoV-2"
         )
         // find our state
         val state: String = reportState ?: randomChoice("FL", "PA", "TX", "AZ", "ND", "CO", "LA", "NM", "VT", "GU")
