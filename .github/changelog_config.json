@@ -3,7 +3,8 @@
         {
             "title": "## 💻 Frontend",
             "labels": [
-                "frontend"
+                "frontend",
+                "javascript"
             ]
         },
         {
@@ -14,14 +15,15 @@
             ]
         },
         {
-            "title": "## 🚀 DevOps",
+            "title": "## 🚀 Pipelines",
             "labels": [
                 "DevOps", 
                 "deployment", 
                 "checks", 
                 "automated", 
                 "workflow", 
-                "scan"
+                "scan",
+                "pipeline"
             ]
         },
         {
@@ -38,6 +40,12 @@
             "title": "## 🧪 Tests",
             "labels": [
                 "test"
+            ]
+        },
+        {
+            "title": "## 💸 Tech debt",
+            "labels": [
+                "tech-debt"
             ]
         },
         {
@@ -61,7 +69,7 @@
         }
     ],
     "max_tags_to_fetch": 50,
-    "max_pull_requests": 100,
+    "max_pull_requests": 300,
     "max_back_track_time_days": 60,
     "tag_resolver": {
       "method": "sort",

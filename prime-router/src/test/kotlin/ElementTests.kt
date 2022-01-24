@@ -1,8 +1,10 @@
 package gov.cdc.prime.router
 
 import assertk.assertThat
+import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
+import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
@@ -238,6 +240,82 @@ internal class ElementTests {
         val instant = Instant.parse("2020-12-03T13:30:30.000Z")
         two.getDate(instant, dateFormat).run {
             assertThat(this).isEqualTo("2020-12-03T13:30:30Z")
+        }
+
+        // now let's check some other date formats
+        val parser = DateTimeFormatter.ofPattern(
+            "[yyyy-MM-dd'T'HH:mm:ssZ]" +
+                "[yyyy-MM-dd'T'HH:mm:ssxxx]" +
+                "[yyyy-MM-dd'T'HH:mm:ssx]"
+        )
+        // Check OffsetDateTime output format.
+        listOf(
+            "2018-12-12T13:30:30+00:00",
+            "2018-12-12T13:30:30+00",
+            "2018-12-12T13:30:30+0000",
+        ).forEach { date ->
+            val odt = parser.parseBest(date, OffsetDateTime::from, Instant::from)
+            two.getDate(odt, "$dateFormat HH:mm:ss").run {
+                assertThat(this).isEqualTo("2018-12-12 13:30:30")
+            }
+            two.getDate(odt, "$dateFormat HH:mm:ssZZZ").run {
+                assertThat(this).isEqualTo("2018-12-12 13:30:30+0000")
+            }
+            // now check converting the date time to the negative offset
+            two.getDate(odt, "$dateFormat HH:mm:ssZZZ", true).run {
+                assertThat(this).isEqualTo("2018-12-12 13:30:30-0000")
+            }
+        }
+    }
+
+    @Test
+    fun `test convert positive zero offset to negative offset`() {
+        Element("a", type = Element.Type.DATE).run {
+            // all happy path tests
+            Element.convertPositiveOffsetToNegativeOffset("2022-01-05 08:00:00").run {
+                assertThat(this).isEqualTo("2022-01-05 08:00:00")
+            }
+            Element.convertPositiveOffsetToNegativeOffset("2022-01-05 08:00:00+0000").run {
+                assertThat(this).isEqualTo("2022-01-05 08:00:00-0000")
+            }
+            Element.convertPositiveOffsetToNegativeOffset("2022-01-05 08:00:00-0000").run {
+                assertThat(this).isEqualTo("2022-01-05 08:00:00-0000")
+            }
+            Element.convertPositiveOffsetToNegativeOffset("2022-01-05 08:00:00+00").run {
+                assertThat(this).isEqualTo("2022-01-05 08:00:00-00")
+            }
+            Element.convertPositiveOffsetToNegativeOffset("2022-01-05 08:00:00+00:00").run {
+                assertThat(this).isEqualTo("2022-01-05 08:00:00-00:00")
+            }
+            // non-zero offsets
+            Element.convertPositiveOffsetToNegativeOffset("2022-01-05 08:00:00-0400").run {
+                assertThat(this).isEqualTo("2022-01-05 08:00:00-0400")
+            }
+            Element.convertPositiveOffsetToNegativeOffset("2022-01-05 08:00:00+12").run {
+                assertThat(this).isEqualTo("2022-01-05 08:00:00+12")
+            }
+            Element.convertPositiveOffsetToNegativeOffset("2022-01-05 08:00:00+03:30").run {
+                assertThat(this).isEqualTo("2022-01-05 08:00:00+03:30")
+            }
+            // some unhappy paths. Don't use these formats.
+            Element.convertPositiveOffsetToNegativeOffset("2022-01-05 08:00:00+").run {
+                assertThat(this).isEqualTo("2022-01-05 08:00:00+")
+            }
+            Element.convertPositiveOffsetToNegativeOffset("2022+01+05 08:00:00").run {
+                assertThat(this).isEqualTo("2022+01+05 08:00:00")
+            }
+            Element.convertPositiveOffsetToNegativeOffset("").run {
+                assertThat(this).isEqualTo("")
+            }
+            Element.convertPositiveOffsetToNegativeOffset("     ").run {
+                assertThat(this).isEqualTo("     ")
+            }
+            Element.convertPositiveOffsetToNegativeOffset("+0000").run {
+                assertThat(this).isEqualTo("+0000")
+            }
+            Element.convertPositiveOffsetToNegativeOffset("+0000 2022-01-05").run {
+                assertThat(this).isEqualTo("+0000 2022-01-05")
+            }
         }
     }
 
@@ -754,43 +832,43 @@ internal class ElementTests {
 
         // Element has value and mapperAlwaysRun is false, so we get the raw value
         var finalValue = elements[0].processValue(mappedValues, schema)
-        assertThat(finalValue).isEqualTo(mappedValues[elements[0].name])
+        assertThat(finalValue.value).isEqualTo(mappedValues[elements[0].name])
 
         // Element with no raw value, no mapper and default returns a default.
         finalValue = elements[1].processValue(mappedValues, schema)
-        assertThat(finalValue).isEqualTo(elements[1].default)
+        assertThat(finalValue.value).isEqualTo(elements[1].default)
 
         // Element with mapper and no raw value returns mapper value
         finalValue = elements[2].processValue(mappedValues, schema)
-        assertThat(finalValue).isEqualTo("${mappedValues[elements[0].name]}, ${mappedValues[elements[4].name]}")
+        assertThat(finalValue.value).isEqualTo("${mappedValues[elements[0].name]}, ${mappedValues[elements[4].name]}")
 
         // Element with raw value and mapperAlwaysRun to false returns raw value
         finalValue = elements[3].processValue(mappedValues, schema)
-        assertThat(finalValue).isEqualTo(mappedValues[elements[3].name])
+        assertThat(finalValue.value).isEqualTo(mappedValues[elements[3].name])
 
         // Element with raw value and mapperAlwaysRun to true returns mapper value
         finalValue = elements[4].processValue(mappedValues, schema)
-        assertThat(finalValue).isEqualTo("${mappedValues[elements[0].name]}, ${mappedValues[elements[4].name]}")
+        assertThat(finalValue.value).isEqualTo("${mappedValues[elements[0].name]}, ${mappedValues[elements[4].name]}")
 
         // Element with $index
         finalValue = elements[5].processValue(mappedValues, schema, emptyMap(), 1)
-        assertThat(finalValue).isEqualTo("${mappedValues[elements[5].name]}")
+        assertThat(finalValue.value).isEqualTo("${mappedValues[elements[5].name]}")
 
         // Element with $currentDate
         finalValue = elements[6].processValue(mappedValues, schema)
-        assertThat(finalValue).isEqualTo("${mappedValues[elements[6].name]}")
+        assertThat(finalValue.value).isEqualTo("${mappedValues[elements[6].name]}")
 
         // Default does not override
         finalValue = elements[7].processValue(mappedValues, schema)
-        assertThat(finalValue).isEqualTo("${mappedValues[elements[7].name]}")
+        assertThat(finalValue.value).isEqualTo("${mappedValues[elements[7].name]}")
 
         // Default forces override
         finalValue = elements[8].processValue(mappedValues, schema)
-        assertThat(finalValue).isEqualTo("someDefault")
+        assertThat(finalValue.value).isEqualTo("someDefault")
 
         // Default forces override, and the default is null.
         finalValue = elements[9].processValue(mappedValues, schema)
-        assertThat(finalValue).isEqualTo("")
+        assertThat(finalValue.value).isEqualTo("")
     }
 
     @Test
@@ -851,5 +929,195 @@ internal class ElementTests {
         val elementNameString = "\$string:someDefaultString"
         val elementAndValueString = mockElement.tokenizeMapperValue(elementNameString)
         assertThat(elementAndValueString.value).isEqualTo("someDefaultString")
+    }
+
+    @Test
+    fun `test element result data class`() {
+        val element = Element("a")
+        var result = ElementResult(null)
+        assertThat(result.value).isNull()
+
+        result = ElementResult("value")
+        assertThat(result.value).isEqualTo("value")
+        assertThat(result.errors).isEmpty()
+        assertThat(result.warnings).isEmpty()
+
+        result.warning(InvalidEquipmentMessage.new(element))
+        assertThat(result.warnings.size).isEqualTo(1)
+        assertThat(result.errors).isEmpty()
+
+        result.error(InvalidEquipmentMessage.new(element))
+        assertThat(result.errors.size).isEqualTo(1)
+
+        result = ElementResult(
+            "value", mutableListOf(InvalidEquipmentMessage.new(element), InvalidEquipmentMessage.new(element)),
+            mutableListOf(
+                InvalidEquipmentMessage.new(element), InvalidEquipmentMessage.new(element),
+                InvalidEquipmentMessage.new(element)
+            )
+        )
+        result.warning(InvalidEquipmentMessage.new(element))
+        assertThat(result.warnings.size).isEqualTo(4)
+        assertThat(result.errors.size).isEqualTo(2)
+        result.error(InvalidEquipmentMessage.new(element))
+        assertThat(result.errors.size).isEqualTo(3)
+    }
+
+    @Test
+    fun `test process value`() {
+        val elementA = Element("a")
+        val elementB = Element("b", default = "default")
+        val elementC = Element("c", mapperRef = NullMapper())
+        val elementD = Element("d", mapperRef = NullMapper(), default = "default")
+        val elementE = Element("e", mapperRef = TrimBlanksMapper(), mapperArgs = listOf("a"))
+        val schema = Schema(
+            "name", "topic",
+            elements = listOf(elementA, elementB, elementC, elementD, elementE)
+        )
+
+        // Simple value tests with elements with no mapper or default value
+        assertThat(elementA.processValue(emptyMap(), schema).value).isEqualTo("")
+
+        var allElementValues = mapOf(elementB.name to "")
+        assertThat(elementA.processValue(allElementValues, schema).value).isEqualTo("")
+
+        allElementValues = mapOf(elementA.name to "")
+        assertThat(elementA.processValue(allElementValues, schema).value).isEqualTo("")
+
+        allElementValues = mapOf(elementA.name to "value")
+        assertThat(elementA.processValue(allElementValues, schema).value).isEqualTo("value")
+
+        // Simple value tests with elements with no mapper, but default value
+        allElementValues = mapOf(elementA.name to "", elementB.name to "")
+        assertThat(elementB.processValue(allElementValues, schema).value).isEqualTo(elementB.default)
+
+        allElementValues = mapOf(elementA.name to "", elementB.name to "value")
+        assertThat(elementB.processValue(allElementValues, schema).value).isEqualTo("value")
+
+        // Now with a mapper that returns an empty/missing value
+        allElementValues = mapOf(elementC.name to "")
+        assertThat(elementC.processValue(allElementValues, schema).value).isEqualTo("")
+
+        allElementValues = mapOf(elementD.name to "")
+        assertThat(elementD.processValue(allElementValues, schema).value).isEqualTo(elementD.default)
+
+        // Now with a mapper that returns some non-blank value
+        allElementValues = mapOf(elementA.name to "untrimmedvalue  ")
+        assertThat(elementE.processValue(allElementValues, schema).value).isEqualTo("untrimmedvalue")
+    }
+
+    @Test
+    fun `test process value returns warnings or errors`() {
+        class SomeCoolMapper : Mapper {
+            override val name = "some"
+
+            override fun valueNames(element: Element, args: List<String>): List<String> {
+                return args
+            }
+
+            override fun apply(
+                element: Element,
+                args: List<String>,
+                values: List<ElementAndValue>,
+                sender: Sender?
+            ): ElementResult {
+                return if (args.isEmpty()) ElementResult(null)
+                else when (args[0]) {
+                    "1warning" -> ElementResult(null).warning(InvalidEquipmentMessage.new(element))
+                    "2warnings" -> ElementResult(null).warning(InvalidEquipmentMessage.new(element))
+                        .warning(InvalidEquipmentMessage.new(element))
+                    "1error" -> ElementResult(null).error(InvalidEquipmentMessage.new(element))
+                    "2errors" -> ElementResult(null).error(InvalidEquipmentMessage.new(element))
+                        .error(InvalidEquipmentMessage.new(element))
+                    "mixed" -> ElementResult(null).error(InvalidEquipmentMessage.new(element))
+                        .warning(InvalidEquipmentMessage.new(element))
+                    else -> throw UnsupportedOperationException()
+                }
+            }
+        }
+        val elementA = Element("a", mapperRef = SomeCoolMapper())
+        val elementB = Element(
+            "a", mapperRef = SomeCoolMapper(), mapperArgs = listOf("1warning"),
+            cardinality = Element.Cardinality.ZERO_OR_ONE
+        )
+        val elementC = Element(
+            "a", mapperRef = SomeCoolMapper(), mapperArgs = listOf("2warnings"),
+            cardinality = Element.Cardinality.ZERO_OR_ONE
+        )
+        val elementD = Element(
+            "a", mapperRef = SomeCoolMapper(), mapperArgs = listOf("1error"),
+            cardinality = Element.Cardinality.ZERO_OR_ONE
+        )
+        val elementE = Element(
+            "a", mapperRef = SomeCoolMapper(), mapperArgs = listOf("2errors"),
+            cardinality = Element.Cardinality.ZERO_OR_ONE
+        )
+        val elementF = Element(
+            "a", mapperRef = SomeCoolMapper(), mapperArgs = listOf("mixed"),
+            cardinality = Element.Cardinality.ZERO_OR_ONE
+        )
+        val elementG = Element(
+            "a", mapperRef = SomeCoolMapper(), mapperArgs = listOf("1warning"),
+            cardinality = Element.Cardinality.ONE
+        )
+        val elementH = Element(
+            "a", mapperRef = SomeCoolMapper(), mapperArgs = listOf("1error"),
+            cardinality = Element.Cardinality.ONE
+        )
+        val elementI = Element(
+            "a", mapperRef = SomeCoolMapper(), mapperArgs = listOf("mixed"),
+            cardinality = Element.Cardinality.ONE
+        )
+        val elementJ = Element("a", mapperRef = SomeCoolMapper(), cardinality = Element.Cardinality.ONE)
+        val schema = Schema(
+            "name", "topic",
+            elements = listOf(
+                elementA, elementB, elementC, elementD, elementE, elementF, elementG, elementH, elementI,
+                elementJ
+            )
+        )
+
+        var result = elementA.processValue(emptyMap(), schema)
+        assertThat(result.errors).isEmpty()
+        assertThat(result.warnings).isEmpty()
+
+        result = elementB.processValue(emptyMap(), schema)
+        assertThat(result.errors).isEmpty()
+        assertThat(result.warnings.size).isEqualTo(1)
+
+        result = elementC.processValue(emptyMap(), schema)
+        assertThat(result.errors).isEmpty()
+        assertThat(result.warnings.size).isEqualTo(2)
+
+        // The mapper returns an error, but the field is not required, so we get warnings.
+        result = elementD.processValue(emptyMap(), schema)
+        assertThat(result.errors).isEmpty()
+        assertThat(result.warnings.size).isEqualTo(1)
+
+        result = elementE.processValue(emptyMap(), schema)
+        assertThat(result.errors).isEmpty()
+        assertThat(result.warnings.size).isEqualTo(2)
+
+        result = elementF.processValue(emptyMap(), schema)
+        assertThat(result.errors).isEmpty()
+        assertThat(result.warnings.size).isEqualTo(2)
+
+        // The element value is required, so we always get an error.
+        result = elementG.processValue(emptyMap(), schema)
+        assertThat(result.errors).isNotEmpty()
+        assertThat(result.warnings).isEmpty()
+
+        result = elementH.processValue(emptyMap(), schema)
+        assertThat(result.errors).isNotEmpty()
+        assertThat(result.warnings).isEmpty()
+
+        result = elementI.processValue(emptyMap(), schema)
+        assertThat(result.errors).isNotEmpty()
+        assertThat(result.warnings).isNotEmpty()
+
+        // And now just a required element that has a blank value
+        result = elementJ.processValue(emptyMap(), schema)
+        assertThat(result.errors).isNotEmpty()
+        assertThat(result.warnings).isEmpty()
     }
 }

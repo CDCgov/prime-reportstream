@@ -31,12 +31,12 @@ class AltValueNotDefinedException(message: String) : IllegalStateException(messa
  *
  *    Schema 1 -> Standard Standard -> schema 2
  *
- * To describe the intent of a element there are references to the national standards.
+ * To describe the intent of an element there are references to the national standards.
  */
 data class Element(
     // An element can either be a new element or one based on previously defined element
     // - A name of form [A-Za-z0-9_]+ is a new element
-    // - A name of form [A-Za-z0-9_]+.[A-Za-z0-9_]+ is an element based on an previously defined element
+    // - A name of form [A-Za-z0-9_]+.[A-Za-z0-9_]+ is an element based on a previously defined element
     //
     val name: String,
 
@@ -404,26 +404,29 @@ data class Element(
     // and then output based on the format. you can extend this to accept a third
     // variable which would be the element's output format, and do an extra branch
     // based on that
-    fun getDate(temporalAccessor: TemporalAccessor, outputFormat: String): String {
+    fun getDate(
+        temporalAccessor: TemporalAccessor,
+        outputFormat: String,
+        convertPositiveOffsetToNegative: Boolean = false
+    ): String {
         val outputFormatter = DateTimeFormatter.ofPattern(outputFormat)
-        val formattedDate = when {
-            // if the date parsed out as LocalDate
-            temporalAccessor is LocalDate ->
-                LocalDate.from(temporalAccessor)
-                    .atStartOfDay()
-                    .format(outputFormatter)
-            temporalAccessor is LocalDateTime ->
-                LocalDateTime.from(temporalAccessor)
-                    .format(outputFormatter)
-            temporalAccessor is OffsetDateTime ->
-                OffsetDateTime.from(temporalAccessor)
-                    .format(outputFormatter)
-            temporalAccessor is Instant ->
-                Instant.from(temporalAccessor).toString()
+        val formattedDate = when (temporalAccessor) {
+            is LocalDate -> LocalDate.from(temporalAccessor)
+                .atStartOfDay()
+                .format(outputFormatter)
+            is LocalDateTime -> LocalDateTime.from(temporalAccessor)
+                .format(outputFormatter)
+            is OffsetDateTime -> OffsetDateTime.from(temporalAccessor)
+                .format(outputFormatter)
+            is Instant -> Instant.from(temporalAccessor).toString()
             else -> error("Unsupported format!")
         }
 
-        return formattedDate
+        return if (convertPositiveOffsetToNegative) {
+            convertPositiveOffsetToNegativeOffset(formattedDate)
+        } else {
+            formattedDate
+        }
     }
 
     fun truncateIfNeeded(str: String): String {
@@ -929,18 +932,18 @@ data class Element(
      * Determines if an element needs to use a mapper given the [elementValue].
      * @return true if a mapper needs to be run
      */
-    fun useMapper(elementValue: String): Boolean {
+    fun useMapper(elementValue: String?): Boolean {
         val overrideValue = mapperOverridesValue != null && mapperOverridesValue
-        return mapperRef != null && (overrideValue || elementValue.isBlank())
+        return mapperRef != null && (overrideValue || elementValue.isNullOrBlank())
     }
 
     /**
      * Determines if an element needs to use a default given the [elementValue].
      * @return true if a default needs to be used
      */
-    fun useDefault(elementValue: String): Boolean {
+    fun useDefault(elementValue: String?): Boolean {
         val overrideValue = defaultOverridesValue != null && defaultOverridesValue
-        return overrideValue || elementValue.isBlank()
+        return overrideValue || elementValue.isNullOrBlank()
     }
 
     /**
@@ -949,19 +952,21 @@ data class Element(
      * @param allElementValues the values for all other elements.  Used for the mappers.
      * @param schema the schema
      * @param defaultOverrides element name and value pairs of defaults that override schema defaults
+     * @param sender Sender who submitted the data.  Can be null if called at a point in code where its not known
      * @return a mutable set with the processed value or empty string
      */
     fun processValue(
         allElementValues: Map<String, String>,
         schema: Schema,
         defaultOverrides: Map<String, String> = emptyMap(),
-        index: Int = 0
-    ): String {
-        var retVal = if (allElementValues[name].isNullOrEmpty()) "" else allElementValues[name]!!
-        if (useMapper(retVal)) {
-            // This gets the requiredvalue names, then gets the value from mappedRows that has the data
+        index: Int = 0,
+        sender: Sender? = null,
+    ): ElementResult {
+        val retVal = ElementResult(if (allElementValues[name].isNullOrEmpty()) "" else allElementValues[name]!!)
+        if (useMapper(retVal.value) && mapperRef != null) {
+            // This gets the required value names, then gets the value from mappedRows that has the data
             val args = mapperArgs ?: emptyList()
-            val valueNames = mapperRef?.valueNames(this, args) ?: emptyList()
+            val valueNames = mapperRef.valueNames(this, args)
             val valuesForMapper = valueNames.mapNotNull { elementName ->
                 if (elementName.contains("$")) {
                     tokenizeMapperValue(elementName, index)
@@ -977,9 +982,21 @@ data class Element(
                 }
             }
             // Only overwrite an existing value if the mapper returns a string
-            val value = mapperRef?.apply(this, args, valuesForMapper)
+            val mapperResult = mapperRef.apply(this, args, valuesForMapper, sender)
+            val value = mapperResult.value
             if (!value.isNullOrBlank()) {
-                retVal = value
+                retVal.value = value
+            }
+
+            // Add any errors or warnings.  Use warnings as errors for required fields.
+            if (this.isOptional) {
+                retVal.warnings.addAll(mapperResult.errors)
+                retVal.warnings.addAll(mapperResult.warnings)
+            } else if (mapperResult.errors.isNotEmpty()) {
+                retVal.errors.addAll(mapperResult.errors)
+                retVal.warnings.addAll(mapperResult.warnings)
+            } else {
+                retVal.errors.addAll(mapperResult.warnings)
             }
         }
 
@@ -988,13 +1005,17 @@ data class Element(
         // Normally, default values are only apply if the value is blank at this point in the code.
         // However, if the Element has defaultOverridesValue=true set, that forces this code to run.
         // todo get rid of defaultOverrides in the URL.  I think its always an empty map!
-        if (useDefault(retVal)) {
-            retVal = if (defaultOverrides.containsKey(name)) { // First the URL default is used if it exists.
+        if (useDefault(retVal.value)) {
+            retVal.value = if (defaultOverrides.containsKey(name)) { // First the URL default is used if it exists.
                 defaultOverrides[name] ?: ""
             } else if (!default.isNullOrBlank()) { // otherwise, use the default in the schema
                 default
             } else {
-                "" // Otherwise force the value to be empty/blank.
+                // Check for cardinality and force the value to be empty/blank.
+                if (retVal.value.isNullOrBlank() && !isOptional) {
+                    retVal.errors += MissingFieldMessage.new(fieldMapping)
+                }
+                ""
             }
         }
 
@@ -1018,23 +1039,14 @@ data class Element(
                 retVal = ElementAndValue(tokenElement, currentDate)
             }
             elementName.contains("\$mode:") -> {
-                retVal = ElementAndValue(tokenElement, extractStringValue(elementName))
+                retVal = ElementAndValue(tokenElement, elementName.split(":")[1])
             }
             elementName.contains("\$string:") -> {
-                retVal = ElementAndValue(tokenElement, extractStringValue(elementName))
+                retVal = ElementAndValue(tokenElement, elementName.split(":")[1])
             }
         }
 
         return retVal
-    }
-
-    /**
-     * Retrieves the value of a generalized token as string (i.e. "$mode:literal" returns "literal")
-     * @param token the token
-     * @return the string value of a token
-     */
-    private fun extractStringValue(token: String): String {
-        return token.split(":")[1]
     }
 
     /**
@@ -1143,5 +1155,77 @@ data class Element(
                 else -> error("Internal Error: Invalid EI value '$value'")
             }
         }
+
+        /**
+         * this looks to see if there is an "all zero offset" preceded by a plus sign on the
+         * date time value. if there is, then we're going to flip this bit over to be
+         * a negative offset. Note, according to the ISO-8601 specification, UTC is *NEVER*
+         * supposed to be represented by `-0000`, only ever `+0000`. That said, RFC3339 does
+         * offer the opportunity to use `-0000` to reflect an "unknown offset time", so it
+         * is still valid and does parse. Also, Java understands and can parse from `-0000`
+         * to `+0000`, so we are not breaking our implementation there.
+         *
+         * In addition to RFC3339 allowing for `-0000`, the HL7 spec allows for that value too,
+         * so we should be good in a system that is HL7 compliant.
+         *
+         * RFC Link: https://datatracker.ietf.org/doc/html/rfc3339#section-4.3
+         */
+        fun convertPositiveOffsetToNegativeOffset(value: String): String {
+            // look for the +0 offset
+            val re = Regex(".+?\\+(00|0000|00:00)$")
+            val match = re.find(value)
+            // check to see if there is a match, if there isn't return the date as expected
+            return when (match?.groups?.isNotEmpty()) {
+                true -> {
+                    // get the offset value at the end of the string
+                    val offsetValue = match.groups.last()?.value
+                    // if there's actually a match, and all of the values in the offset are zero
+                    // because we only want to do this conversion IF the offset is zero. we never
+                    // want to do this if the offset is some other value
+                    if (offsetValue != null && offsetValue.all { it == '0' || it == ':' }) {
+                        // create our replacement values
+                        // I am doing it this way because it's possible that our desired level of
+                        // precision for date time offset could change. I don't want my code to
+                        // assume that it will always be +0000. +00 and +00:00 are also acceptable values,
+                        // so I want this to be able to handle those options as well
+                        val searchValue = "+$offsetValue"
+                        val replaceValue = "-$offsetValue"
+                        // replace the positive offset with the negative offset
+                        value.replace(searchValue, replaceValue)
+                    } else {
+                        // we had an offset, but it's not what we expected, so just return the
+                        // original value we were passed in to be safe
+                        value
+                    }
+                }
+                // the regex didn't match, so return the original value we passed in
+                else -> value
+            }
+        }
+    }
+}
+
+/**
+ * A result for a given element with a [value] that may include [errors] or [warnings].
+ */
+data class ElementResult(
+    var value: String?,
+    val errors: MutableList<ResponseMessage> = mutableListOf(),
+    val warnings: MutableList<ResponseMessage> = mutableListOf()
+) {
+    /**
+     * Add an error [message] to the result.
+     * @return the same instance of the result
+     */
+    fun error(message: ResponseMessage) = apply {
+        errors.add(message)
+    }
+
+    /**
+     * Add a warning [message] to the result.
+     * @return the same instance of the result
+     */
+    fun warning(message: ResponseMessage) = apply {
+        warnings.add(message)
     }
 }
