@@ -259,6 +259,37 @@ class CsvSerializerTests {
     }
 
     @Test
+    fun `test check error for multiple datetime formatting`() {
+        val one = Schema(
+            name = "one",
+            topic = "test",
+            elements = listOf(
+                Element(
+                    "a",
+                    csvFields = Element.csvFields("_A")
+                ),
+                Element(
+                    "b",
+                    type = Element.Type.DATETIME,
+                    cardinality = Element.Cardinality.ONE,
+                    csvFields = Element.csvFields("_B")
+                )
+            )
+        )
+
+        val csv = """
+            _A,_B
+            MMddyyyy,13012021
+            M/d/yyyy,11/50/2021
+            yyyy/M/d,2021/13/3
+        """.trimIndent()
+
+        val csvConverter = CsvSerializer(Metadata(schema = one))
+        val result = csvConverter.readExternal("one", ByteArrayInputStream(csv.toByteArray()), TestSource)
+        assertThat(result.errors.size).isEqualTo(3)
+    }
+
+    @Test
     fun `test missing column`() {
         // setup a malformed CSV
         val one = Schema(
