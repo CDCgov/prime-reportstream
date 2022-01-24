@@ -1266,13 +1266,18 @@ class Hl7Serializer(
      * @param truncationLimit the starting limit
      * @return the new truncation limit or starting limit if no special characters are found
      */
-    internal fun getTruncationLimitWithEncoding(value: String, truncationLimit: Int): Int {
-        val regex = "[&^~|]".toRegex()
-        val endIndex = min(value.length, truncationLimit)
-        val matchCount = regex.findAll(value.substring(0, endIndex)).count()
+    internal fun getTruncationLimitWithEncoding(value: String, truncationLimit: Int?): Int? {
 
-        return if (matchCount > 0) {
-            truncationLimit.minus(matchCount.times(2))
+        return if (truncationLimit != null) {
+            val regex = "[&^~|]".toRegex()
+            val endIndex = min(value.length, truncationLimit)
+            val matchCount = regex.findAll(value.substring(0, endIndex)).count()
+
+            if (matchCount > 0) {
+                truncationLimit.minus(matchCount.times(2))
+            } else {
+                truncationLimit
+            }
         } else {
             truncationLimit
         }
@@ -1304,6 +1309,12 @@ class Hl7Serializer(
             ?.split(",")
             ?.map { it.trim() }
             ?: emptyList()
+
+        // The & character in HL7 is a sub sub field separator. A validly
+        // produced HL7 message should escape & characters as \T\ so that
+        // the HL7 parser doesn't interpret these as sub sub field separators.
+        // Because of this reason, all string values should go through the getTruncationLimitWithEncoding
+        // so that string values that contain sub sub field separators (^&~) will be properly truncated.
         return when {
             // This special case takes into account special rules needed by jurisdiction
             hl7Config?.truncateHDNamespaceIds == true && hl7Field in HD_FIELDS_LOCAL -> {
@@ -1311,7 +1322,7 @@ class Hl7Serializer(
             }
             // For the fields listed here use the hl7 max length
             hl7Field in hl7TruncationFields -> {
-                getHl7MaxLength(hl7Field, terser)
+                getTruncationLimitWithEncoding(value, getHl7MaxLength(hl7Field, terser))
             }
             // In general, don't truncate. The thinking is that
             // 1. the max length of the specification is "normative" not system specific.
