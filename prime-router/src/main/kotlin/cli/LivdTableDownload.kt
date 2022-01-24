@@ -7,7 +7,7 @@ import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.file
-import gov.cdc.prime.router.LIVDLookupMapper
+import gov.cdc.prime.router.LivdTableColumns
 import gov.cdc.prime.router.common.Environment
 import it.skrape.core.htmlDocument
 import it.skrape.fetcher.HttpFetcher
@@ -97,20 +97,10 @@ class LivdTableDownload : CliktCommand(
 
         // Download the file from CDC website.
         val downloadedFile = downloadFile(defaultOutputDir)
-
-        // Extracts the data from the Excel and output to the specified output CSV format file.
-        val tempRawLivdOutFile = File.createTempFile(
-            livdSARSCov2FilenamePrefix, "_orig.csv",
-            File(defaultOutputDir)
-        )
-        extractLivdTable(sheetName, downloadedFile, tempRawLivdOutFile)
-
+        // Extract the data from the Excel and output to the specified output CSV format file.
+        val tempRawLivdOutFile = extractLivdTable(sheetName, downloadedFile)
         // Merge the supplemental LIVD table with the raw.
-        val tempMergedLivdOutFile = File.createTempFile(
-            livdSARSCov2FilenamePrefix, "_final.csv",
-            File(defaultOutputDir)
-        )
-        mergeLivdSupplementalTable(tempRawLivdOutFile, tempMergedLivdOutFile)
+        val tempMergedLivdOutFile = mergeLivdSupplementalTable(tempRawLivdOutFile)
         tempRawLivdOutFile.delete()
 
         // Now, store the data as a LIVD lookup table.
@@ -135,10 +125,11 @@ class LivdTableDownload : CliktCommand(
             error("Unable to find LOINC code data file matching LIVD-SARS-CoV-2-yyyy-MM-dd to download!")
         }
         val livdFileUrl = URL("$loincMappingBaseUrl${livdFile[0]}")
-
-        // Create the local file in the specified directory
-        val localFilename = FilenameUtils.getName(livdFile[0])
-        val outputFile = File(outputDir, localFilename)
+        val outputFile = File.createTempFile(
+            "${FilenameUtils.getBaseName(livdFile[0])}_",
+            "_downloaded.${FilenameUtils.getExtension(livdFile[0])}",
+            File(outputDir)
+        )
 
         // Read the file from the website and store it in local directory
         livdFileUrl.openStream().use { input ->
@@ -182,13 +173,13 @@ class LivdTableDownload : CliktCommand(
 
     /**
      * Extracts LIVD table from sheet [sheetName] of the input Excel format [inputfile] file, converts to
-     * csv format, and output to the CSV format [outputfile] file.
+     * csv format, and output to a CSV formatted file.
      * @param sheetName is the LOINC Mapping sheet from the downloaded LOINC data code file.
      * @param inputfile is the input Excel file name.
      * @param inputfile is the output CSV file name.
-     * @return true for success and false for failure.
+     * @return the CSV formatted file with the LIVD data
      */
-    private fun extractLivdTable(sheetName: String, inputfile: File, outputfile: File): Boolean {
+    private fun extractLivdTable(sheetName: String, inputfile: File): File {
         // Check for input file exist
         if (!inputfile.exists()) {
             error("$inputfile file does not exist.")
@@ -202,6 +193,10 @@ class LivdTableDownload : CliktCommand(
         }
 
         val workbook: Workbook = XSSFWorkbook(fileInputStream)
+        val outputfile = File.createTempFile(
+            livdSARSCov2FilenamePrefix, "_orig.csv",
+            File(defaultOutputDir)
+        )
         val fileOutputStream = FileOutputStream(outputfile)
 
         // Get the LOINC Mapping sheet
@@ -223,36 +218,39 @@ class LivdTableDownload : CliktCommand(
                 // Get cell object from the sheet.
                 val cell = row.getCell(cn, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL)
 
-                if (cell == null) {
-                    data.append("" + delimiterChar) // Insert blank if cell is null.
-                } else {
+                val cellValue = if (cell == null) "" // Insert blank if cell is null.
+                else {
                     // Fill in string csv data according the cell type.
                     when (cell.cellType) {
-                        CellType.BOOLEAN -> data.append(cell.booleanCellValue.toString() + delimiterChar)
-                        CellType.NUMERIC -> data.append(cell.numericCellValue.toString() + delimiterChar)
+                        CellType.BOOLEAN -> cell.booleanCellValue.toString()
+                        CellType.NUMERIC -> cell.numericCellValue.toString()
                         CellType.STRING -> {
+                            // Do some sanitation of the strings
+                            var stringValue = cell.stringCellValue
+
                             // Drop '*' if it is at the end of the string.'
-                            val stringValue = if (cell.stringCellValue.last() == '*')
-                                cell.stringCellValue.dropLast(1)
-                            else
-                                cell.stringCellValue
-                            // Add " to string that contains "string" (i.e ""string"")
+                            if (cell.stringCellValue.last() == '*') stringValue = cell.stringCellValue.dropLast(1)
+
+                            // Add " to a string that contains quoted strings (i.e ""string"")
                             if (stringValue.contains("\n") || stringValue.contains(",") ||
                                 (stringValue.contains("\""))
                             ) {
                                 // String that contain special character(s)
-                                data.append(
-                                    "\"" + stringValue.replace("\"", "\"\"") +
-                                        "\"" + delimiterChar
-                                )
-                            } else {
-                                data.append(stringValue + delimiterChar)
+                                stringValue = "\"" + stringValue.replace("\"", "\"\"") +
+                                    "\""
                             }
+
+                            // Trim whitespaces
+                            // Strings may have non-breaking-white-space (NBSP) codes in them
+                            stringValue = stringValue.replace('\u00A0', ' ').trim()
+
+                            stringValue
                         }
-                        CellType.BLANK -> data.append("" + delimiterChar)
-                        else -> data.append("$cell,")
+                        CellType.BLANK -> ""
+                        else -> "$cell"
                     }
                 }
+                data.append(cellValue + delimiterChar)
             }
             data.append(System.lineSeparator()) // End of each row
         }
@@ -260,14 +258,15 @@ class LivdTableDownload : CliktCommand(
         // Write to CSV file.
         fileOutputStream.write(data.toString().toByteArray())
         fileOutputStream.close()
-        return true
+        return outputfile
     }
 
     /**
      * Merge the supplemental LIVD data into one table with the LIVD data in [rawLivdFile] and generate a CSV
-     * file in [outputFile].
+     * file.
+     * @return the CSV formatted file with the merged LIVD data
      */
-    private fun mergeLivdSupplementalTable(rawLivdFile: File, outputFile: File) {
+    private fun mergeLivdSupplementalTable(rawLivdFile: File): File {
         // First load both tables
         val rawLivdReaderOptions = CsvReadOptions.builder(rawLivdFile).columnTypesToDetect(listOf(ColumnType.STRING))
             .build()
@@ -278,10 +277,10 @@ class LivdTableDownload : CliktCommand(
 
         // Cleanup any models that have * at the end.
         supplLivdTable.forEach {
-            if (it.getString(LIVDLookupMapper.Companion.LivdTableColumns.MODEL.colName).endsWith("*"))
+            if (it.getString(LivdTableColumns.MODEL.colName).endsWith("*"))
                 it.setString(
-                    LIVDLookupMapper.Companion.LivdTableColumns.MODEL.colName,
-                    it.getString(LIVDLookupMapper.Companion.LivdTableColumns.MODEL.colName).dropLast(1)
+                    LivdTableColumns.MODEL.colName,
+                    it.getString(LivdTableColumns.MODEL.colName).dropLast(1)
                 )
         }
 
@@ -353,7 +352,13 @@ class LivdTableDownload : CliktCommand(
             error("Found $badRows row(s) in $livdSupplementalPathname that do not have device information")
         if (nonUniqueRows > 0)
             error("Found $nonUniqueRows row(s) in $livdSupplementalPathname that do not match to a unique LIVD record.")
+
+        val outputFile = File.createTempFile(
+            livdSARSCov2FilenamePrefix, "_final.csv",
+            File(defaultOutputDir)
+        )
         rawLivdTable.write().csv(outputFile)
+        return outputFile
     }
 
     /**
@@ -407,6 +412,6 @@ class LivdTableDownload : CliktCommand(
         /**
          * The default location of the supplemental file.
          */
-        private const val defaultSupplFile = "./metadata/tables/LIVD-Supplemental.csv"
+        private const val defaultSupplFile = "./metadata/tables/livd/LIVD-Supplemental.csv"
     }
 }

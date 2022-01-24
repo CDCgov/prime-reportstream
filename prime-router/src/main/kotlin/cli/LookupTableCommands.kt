@@ -823,7 +823,7 @@ class LookupTableLoadAllCommand : GenericLookupTableCommand(
     /**
      * Default directory for tables.
      */
-    private val defaultDir = "./src/test/resources/metadata/tables"
+    private val defaultDir = "./metadata/tables/local"
 
     /**
      * The table name.

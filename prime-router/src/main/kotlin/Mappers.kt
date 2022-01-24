@@ -497,6 +497,29 @@ class NpiLookupMapper : Mapper {
 }
 
 /**
+ * Column names in the LIVD table.
+ */
+enum class LivdTableColumns(val colName: String) {
+    TESTKIT_NAME_ID("Testkit Name ID"),
+    EQUIPMENT_UID("Equipment UID"),
+    MODEL("Model"),
+    TEST_PERFORMED_CODE("Test Performed LOINC Code"),
+    PROCESSING_MODE_CODE("processing_mode_code"),
+}
+
+/**
+ * Element names
+ */
+enum class ElementNames(val elementName: String) {
+    DEVICE_ID("device_id"),
+    EQUIPMENT_MODEL_ID("equipment_model_id"),
+    EQUIPMENT_MODEL_NAME("equipment_model_name"),
+    TEST_KIT_NAME_ID("test_kit_name_id"),
+    TEST_PERFORMED_CODE("test_performed_code"),
+    PROCESSING_MODE_CODE("processing_mode_code"),
+}
+
+/**
  * This is a lookup mapper specialized for the LIVD table. The LIVD table has multiple columns
  * which could be used for lookup. Different senders send different information, so this mapper
  * incorporates business logic to do this lookup based on the available information.
@@ -570,23 +593,6 @@ class LIVDLookupMapper : Mapper {
 
     companion object {
         private val standard99ELRTypes = listOf("EUA", "DII", "DIT", "DIM", "MNT", "MNI", "MNM")
-
-        enum class LivdTableColumns(val colName: String) {
-            TESTKIT_NAME_ID("Testkit Name ID"),
-            EQUIPMENT_UID("Equipment UID"),
-            MODEL("Model"),
-            TEST_PERFORMED_CODE("Test Performed LOINC Code"),
-            PROCESSING_MODE_CODE("processing_mode_code"),
-        }
-
-        enum class ElementNames(val elementName: String) {
-            DEVICE_ID("device_id"),
-            EQUIPMENT_MODEL_ID("equipment_model_id"),
-            EQUIPMENT_MODEL_NAME("equipment_model_name"),
-            TEST_KIT_NAME_ID("test_kit_name_id"),
-            TEST_PERFORMED_CODE("test_performed_code"),
-            PROCESSING_MODE_CODE("processing_mode_code"),
-        }
 
         private const val testProcessingModeCode = "T"
 
@@ -682,18 +688,10 @@ class LIVDLookupMapper : Mapper {
         ): String? {
             if (value.isBlank()) return null
 
-            // Keep a copy of the filter as we may be doing two lookups
-            val filterCopy = filters.filter().FilterBuilder()
+            // Remove any * coming in the model value
+            val sanitizedValue = if (value.endsWith("*")) value.dropLast(1) else value
 
-            val result = lookup(element, value, LivdTableColumns.MODEL.colName, filters)
-            // There is an issue with senders setting equipment model names with or without * across all their reports
-            // which result in incorrect data sent to receivers.  Check for a model name with or without * just in case.
-            return if (result.isNullOrBlank())
-                lookup(
-                    element, getValueVariation(value, "*"), LivdTableColumns.MODEL.colName,
-                    filterCopy
-                )
-            else result
+            return lookup(element, sanitizedValue, LivdTableColumns.MODEL.colName, filters)
         }
 
         /**
@@ -778,9 +776,15 @@ class Obx17Mapper : Mapper {
                     ?: error("Schema Error: could not find table '${element.table}'")
                 val indexColumn = indexElement.tableColumn
                     ?: error("Schema Error: no tableColumn for element '${indexElement.name}'")
-                val testKitNameId = lookupTable.FilterBuilder().equalsIgnoreCase(indexColumn, indexValue)
+
+                // Remove any * coming in the model value
+                val sanitizedValue = if (indexElement.name == ElementNames.EQUIPMENT_MODEL_NAME.elementName &&
+                    indexValue.endsWith("*")
+                ) indexValue.dropLast(1) else indexValue
+
+                val testKitNameId = lookupTable.FilterBuilder().equalsIgnoreCase(indexColumn, sanitizedValue)
                     .findSingleResult("Testkit Name ID")
-                val testKitNameIdType = lookupTable.FilterBuilder().equalsIgnoreCase(indexColumn, indexValue)
+                val testKitNameIdType = lookupTable.FilterBuilder().equalsIgnoreCase(indexColumn, sanitizedValue)
                     .findSingleResult("Testkit Name ID Type")
                 if (testKitNameId != null && testKitNameIdType != null) {
                     "${testKitNameId}_$testKitNameIdType"
@@ -803,7 +807,7 @@ class Obx17TypeMapper : Mapper {
     override fun valueNames(element: Element, args: List<String>): List<String> {
         if (args.isNotEmpty())
             error("Schema Error: obx17Type mapper does not expect args")
-        return listOf("equipment_model_name")
+        return listOf(ElementNames.EQUIPMENT_MODEL_NAME.elementName)
     }
 
     override fun apply(
@@ -821,7 +825,11 @@ class Obx17TypeMapper : Mapper {
                     ?: error("Schema Error: could not find table '${element.table}'")
                 val indexColumn = indexElement.tableColumn
                     ?: error("Schema Error: no tableColumn for element '${indexElement.name}'")
-                if (lookupTable.FilterBuilder().equalsIgnoreCase(indexColumn, indexValue)
+
+                // Remove any * coming in the model value
+                val sanitizedValue = if (indexValue.endsWith("*")) indexValue.dropLast(1) else indexValue
+
+                if (lookupTable.FilterBuilder().equalsIgnoreCase(indexColumn, sanitizedValue)
                     .findSingleResult("Testkit Name ID") != null
                 ) "99ELR" else null
             }
