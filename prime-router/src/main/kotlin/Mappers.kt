@@ -578,11 +578,15 @@ class LIVDLookupMapper : Mapper {
 
         // carry on as usual
         values.forEach {
+            val filtersCopy = filters.copy() // Filters are not reusable
             val result = when (it.element.name) {
-                ElementNames.DEVICE_ID.elementName -> lookupByDeviceId(element, it.value, filters)
-                ElementNames.EQUIPMENT_MODEL_ID.elementName -> lookupByEquipmentUid(element, it.value, filters)
-                ElementNames.TEST_KIT_NAME_ID.elementName -> lookupByTestkitId(element, it.value, filters)
-                ElementNames.EQUIPMENT_MODEL_NAME.elementName -> lookupByEquipmentModelName(element, it.value, filters)
+                ElementNames.DEVICE_ID.elementName -> lookupByDeviceId(element, it.value, filtersCopy)
+                ElementNames.EQUIPMENT_MODEL_ID.elementName -> lookupByEquipmentUid(element, it.value, filtersCopy)
+                ElementNames.TEST_KIT_NAME_ID.elementName -> lookupByTestkitId(element, it.value, filtersCopy)
+                ElementNames.EQUIPMENT_MODEL_NAME.elementName -> lookupByEquipmentModelName(
+                    element, it.value,
+                    filtersCopy
+                )
                 else -> null
             }
             if (result != null) return ElementResult(result)

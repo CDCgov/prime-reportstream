@@ -278,6 +278,14 @@ open class LookupTable : Logging {
                 else -> LookupTable(name, table.where(selector))
             }
         }
+
+        /**
+         * Make a copy of the filter.
+         * @return a copy of the filter.
+         */
+        fun copy(): FilterBuilder {
+            return filter().FilterBuilder()
+        }
     }
 
     /**
