@@ -669,7 +669,7 @@ dependencies {
     implementation("commons-io:commons-io:2.11.0")
     implementation("org.postgresql:postgresql:42.3.0")
     implementation("com.zaxxer:HikariCP:5.0.0")
-    implementation("org.flywaydb:flyway-core:8.3.0")
+    implementation("org.flywaydb:flyway-core:8.4.2")
     implementation("org.commonmark:commonmark:0.18.1")
     implementation("com.google.guava:guava:31.0.1-jre")
     implementation("com.helger.as2:as2-lib:4.9.1")
@@ -680,7 +680,7 @@ dependencies {
 
     implementation("commons-net:commons-net:3.8.0")
     implementation("com.cronutils:cron-utils:9.1.5")
-    implementation("com.auth0:java-jwt:3.18.2")
+    implementation("com.auth0:java-jwt:3.18.3")
     implementation("io.jsonwebtoken:jjwt-api:0.11.2")
     implementation("de.m3y.kformat:kformat:0.9")
     implementation("io.github.java-diff-utils:java-diff-utils:4.11")
