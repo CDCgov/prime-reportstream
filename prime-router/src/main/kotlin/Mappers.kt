@@ -566,6 +566,11 @@ class LIVDLookupMapper : Mapper {
         // get the test performed code for additional filtering of the test information in case we are
         // dealing with tests that check for more than one type of disease, for example COVID + influenza
         values.firstOrNull { it.element.name == ElementNames.TEST_PERFORMED_CODE.elementName }?.value?.also {
+            filters.notEqualsIgnoreCase(LivdTableColumns.TEST_PERFORMED_CODE.colName, testProcessingModeCode)
+        }
+
+        // If the data is NOT flagged as test data then ignore any test devices in the LIVD table
+        values.firstOrNull { it.element.name == ElementNames.PROCESSING_MODE_CODE.elementName }?.value?.also {
             if (it.uppercase() != testProcessingModeCode) {
                 filters.notEqualsIgnoreCase(LivdTableColumns.PROCESSING_MODE_CODE.colName, testProcessingModeCode)
             }
