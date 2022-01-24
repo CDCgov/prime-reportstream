@@ -202,7 +202,7 @@ class LookupTableFunctions(
                 logger.error("Unable to create lookup table $tableName", e)
                 HttpUtilities.internalErrorConflictResponse(request, "New Lookup Table ${e.message}")
             } catch (e: DatabaseLookupTableAccess.Companion.DuplicateTableException) {
-                logger.warn("Ignored duplicate table data for table $tableName.")
+                logger.warn("Ignoring creation of duplicate table data for table $tableName.")
                 HttpUtilities.internalErrorConflictResponse(request, "New Lookup Table ${e.message}")
             } catch (e: Exception) {
                 logger.error("Unable to create lookup table $tableName", e)

@@ -615,9 +615,10 @@ class LookupTableCreateCommand : GenericLookupTableCommand(
                 throw PrintMessage("\tError creating new table version for $tableName: ${e.message}", true)
             } catch (e: LookupTableEndpointUtilities.Companion.TableConflictException) {
                 val dupVersion = e.message?.substringAfterLast("version")
-                throw PrintMessage(
-                    "\tSkipping New Lookup Table $tableName since it is duplicated with version$dupVersion.", true
+                TermUi.echo(
+                    "Skipping creation of duplicate table $tableName since it is duplicated with version$dupVersion."
                 )
+                return
             }
 
             TermUi.echo(
