@@ -11,7 +11,7 @@
         "@fortawesome/react-fontawesome": "^0.1.16",
         "@okta/okta-auth-js": "^5.9.1",
         "@okta/okta-react": "^6.1.0",
-        "@okta/okta-signin-widget": "^5.14.1",
+        "@okta/okta-signin-widget": "^5.16.1",
         "@rest-hooks/hooks": "^2.0.0",
         "@rest-hooks/rest": "^2.2.0",
         "@rest-hooks/test": "^7.1.0",
