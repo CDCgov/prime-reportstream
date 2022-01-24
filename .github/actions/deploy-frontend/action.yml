@@ -4,6 +4,9 @@ description: 'Push react website to Azure blob storage'
 inputs:
   env-name:
     required: true
+  version:
+    description: "Version tag"
+    required: true
 
 runs:
   using: "composite"
@@ -32,8 +35,13 @@ runs:
     - name: Download Frontend Artifact (React)
       uses: actions/download-artifact@v2
       with:
-        name: static_website_react-${{ github.run_id }}
-        path: frontend-react/build
+        name: static-website-react-${{ inputs.version }}
+        path: frontend-react
+
+    - name: Unpack frontend files
+      working-directory: frontend-react
+      run: tar -zxvf static-website-react.tar.gz
+      shell: bash
 
     - name: Upload Static Site (React)
       if: env.IMAGE_REPO
