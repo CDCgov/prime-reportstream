@@ -38,8 +38,6 @@ elements:
 
   # The type of device used for the test.  eg, BinaxNOW COVID-19 Ag Card
   - name: equipment_model_name
-    cardinality: ONE
-    mapperOverridesValue: true
     csvFields: [{name: Device_ID}]
 
   # Identifier for the specific piece of equipment used.
