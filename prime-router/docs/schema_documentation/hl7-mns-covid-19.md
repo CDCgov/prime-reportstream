@@ -1,10 +1,10 @@
 
-### Schema: pa/pa-covid-19-hl7
+### Schema: hl7/mns-covid-19
 ### Topic: covid-19
-### Tracking Element: none
+### Tracking Element: (specimen_id)
 ### Base On: none
-### Extends: [covid-19](./covid-19.md)
-#### Description: Pennsylvania Department of Health HL7 messages
+### Extends: [hl7/hl7-ingest-covid-19](./hl7-hl7-ingest-covid-19.md)
+#### Description: Medical Network Solutions
 
 ---
 
@@ -531,7 +531,7 @@ unique id to track the usage of the message
 
 **PII**: No
 
-**Default Value**: PHLabReport-NoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
+**Default Value**: 
 
 **Cardinality**: [0..1]
 
@@ -1387,6 +1387,19 @@ Code | Display | System
 H|Hispanic or Latino|HL7
 N|Non Hispanic or Latino|HL7
 U|Unknown|HL7
+H|Hispanic or Latino|HL7
+N|Non Hispanic or Latino|HL7
+U|Unknown|HL7
+U|Unknown|HL7
+
+**Alt Value Sets**
+
+Code | Display | System
+---- | ------- | ------
+H|2135-2|HL7
+N|2186-5|HL7
+U|UNK|HL7
+U|ASKU|HL7
 
 **Documentation**:
 
@@ -2423,7 +2436,7 @@ pointer/link to the unique id of a previously submitted result.  Usually blank. 
 
 **Format**: use value found in the Code column
 
-**Default Value**: P
+**Default Value**: T
 
 **Cardinality**: [0..1]
 
@@ -2461,8 +2474,6 @@ P, D, or T for Production, Debugging, or Training
 
 **PII**: No
 
-**Default Value**: PA-ELR
-
 **Cardinality**: [0..1]
 
 **Documentation**:
@@ -2478,8 +2489,6 @@ The receiving application for the message (specified by the receiver)
 **Type**: HD
 
 **PII**: No
-
-**Default Value**: PADOH
 
 **Cardinality**: [0..1]
 
@@ -2621,6 +2630,8 @@ Does the patient reside in a congregate care setting?
 
 **PII**: No
 
+**Default Value**: mns
+
 **Cardinality**: [1..1]
 
 **Documentation**:
@@ -2637,7 +2648,7 @@ ID name of org that is sending this data to ReportStream.  Suitable for provenan
 
 **PII**: No
 
-**Default Value**: CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO
+**Default Value**: 
 
 **Cardinality**: [0..1]
 

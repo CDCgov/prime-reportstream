@@ -6,6 +6,7 @@ export default class SubmissionsResource extends AuthResource {
     readonly createdAt: Date | undefined;
     readonly reportItemCount: number = 0;
     readonly warningCount: number = 0;
+    readonly externalName: string | undefined = "";
 
     pk(params: any) {
         // For failed submissions, the report id will be null. Rest Hooks will not persist a record without a pk, thus
