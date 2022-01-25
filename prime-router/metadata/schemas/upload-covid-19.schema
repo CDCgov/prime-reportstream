@@ -168,6 +168,16 @@ elements:
 
     - name: test_result_status
       default: F
+      nullifyValue: false
+      type: CODE
+      csvFields: [{name: test_result_status, format: $alt}]
+      altValues:
+        - code: "F"
+          display: "F"
+        - code: "F"
+          display: ""
+        - code: "C"
+          display: "C"
 
     - name: specimen_type
       cardinality: ONE 
