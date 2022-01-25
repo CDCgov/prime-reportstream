@@ -46,7 +46,7 @@ export const WhereWereLive = () => {
                 ReportStream has established connections to send and report
                 public health data for each of the states and territories listed
                 here.
-                <ul>
+                <ul className={"rs-livestate-two-column"}>
                     {live.data
                         .sort((a, b) => a.state.localeCompare(b.state))
                         .map((data) => (

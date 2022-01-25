@@ -229,3 +229,16 @@ h3 img[src*="svg"] {
   }
 }
 
+.rs-livestate-two-column {
+    list-style: unset;
+    overflow: hidden;
+    column-count: 2;
+    column-gap: 1.25em;
+}
+
+.rs-livestate-two-column>* {
+    list-style: unset;
+    display: inline-block;
+    width: 80%;
+    padding-bottom: 0.5m;
+}
