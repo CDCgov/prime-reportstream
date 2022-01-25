@@ -9,10 +9,8 @@ import assertk.assertions.isNullOrEmpty
 import gov.cdc.prime.router.common.NPIUtilities
 import gov.cdc.prime.router.metadata.LookupTable
 import java.io.ByteArrayInputStream
-import java.lang.IllegalArgumentException
 import kotlin.test.Test
 import kotlin.test.assertFails
-import kotlin.test.assertFailsWith
 import kotlin.test.fail
 
 class MapperTests {
@@ -124,7 +122,9 @@ class MapperTests {
         val mapper = LIVDLookupMapper()
 
         // Test with a EUA
-        val ev1 = ElementAndValue(modelElement, "BinaxNOW COVID-19 Ag Card")
+        var ev1 = ElementAndValue(modelElement, "BinaxNOW COVID-19 Ag Card")
+        assertThat(mapper.apply(codeElement, emptyList(), listOf(ev1)).value).isEqualTo("94558-4")
+        ev1 = ElementAndValue(modelElement, "BinaxNOW COVID-19 Ag Card*")
         assertThat(mapper.apply(codeElement, emptyList(), listOf(ev1)).value).isEqualTo("94558-4")
 
         // Test with a ID NOW device id
@@ -284,28 +284,6 @@ class MapperTests {
         // Add an * to the end of the model name
         assertThat(LIVDLookupMapper.lookupByEquipmentModelName(element, "$testModel*", lookupTable.FilterBuilder()))
             .isEqualTo(expectedTestOrderedLoinc)
-    }
-
-    @Test
-    fun `test value variation`() {
-        assertThat(LIVDLookupMapper.getValueVariation("dummy", "*")).isEqualTo("dummy*")
-        assertThat(LIVDLookupMapper.getValueVariation("dummy*", "*")).isEqualTo("dummy")
-        assertThat(LIVDLookupMapper.getValueVariation("dummy????", "???")).isEqualTo("dummy?")
-
-        assertThat(LIVDLookupMapper.getValueVariation("dummyCaSe", "CASE")).isEqualTo("dummy")
-        assertThat(LIVDLookupMapper.getValueVariation("dummyCaSe", "CASE", false)).isEqualTo("dummyCaSeCASE")
-
-        assertFailsWith<IllegalArgumentException>(
-            block = {
-                LIVDLookupMapper.getValueVariation("dummy", "")
-            }
-        )
-
-        assertFailsWith<IllegalArgumentException>(
-            block = {
-                LIVDLookupMapper.getValueVariation("", "*")
-            }
-        )
     }
 
     @Test

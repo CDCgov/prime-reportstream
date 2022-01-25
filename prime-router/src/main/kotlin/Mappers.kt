@@ -1,6 +1,5 @@
 package gov.cdc.prime.router
 
-import com.google.common.base.Preconditions
 import gov.cdc.prime.router.common.NPIUtilities
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.serializers.Hl7Serializer
@@ -701,18 +700,6 @@ class LIVDLookupMapper : Mapper {
             val sanitizedValue = if (value.endsWith("*")) value.dropLast(1) else value
 
             return lookup(element, sanitizedValue, LivdTableColumns.MODEL.colName, filters)
-        }
-
-        /**
-         * Gets a variation of a string [value] based on the [suffix].  If the suffix is present in the value
-         * then the variation is the value without the suffix, otherwise the variation is the value WITH the suffix.
-         * @param ignoreCase set to true to ignore case, false otherwise
-         * @return the string variation.
-         */
-        internal fun getValueVariation(value: String, suffix: String, ignoreCase: Boolean = true): String {
-            Preconditions.checkArgument(value.isNotEmpty())
-            Preconditions.checkArgument(suffix.isNotEmpty())
-            return if (value.endsWith(suffix, ignoreCase)) value.dropLast(suffix.length) else value + suffix
         }
 
         /**
