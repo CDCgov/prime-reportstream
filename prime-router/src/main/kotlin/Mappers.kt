@@ -569,10 +569,11 @@ class LIVDLookupMapper : Mapper {
         }
 
         // If the data is NOT flagged as test data then ignore any test devices in the LIVD table
-        values.firstOrNull { it.element.name == ElementNames.PROCESSING_MODE_CODE.elementName }?.value?.also {
-            if (it.uppercase() != testProcessingModeCode) {
-                filters.notEqualsIgnoreCase(LivdTableColumns.PROCESSING_MODE_CODE.colName, testProcessingModeCode)
-            }
+        val processingModeCode = values.firstOrNull {
+            it.element.name == ElementNames.PROCESSING_MODE_CODE.elementName
+        }?.value
+        if (processingModeCode == null || processingModeCode.uppercase() != testProcessingModeCode) {
+            filters.notEqualsIgnoreCase(LivdTableColumns.PROCESSING_MODE_CODE.colName, testProcessingModeCode)
         }
 
         // carry on as usual

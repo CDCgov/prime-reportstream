@@ -287,6 +287,41 @@ class MapperTests {
     }
 
     @Test
+    fun `test supplemental devices for test only`() {
+        val lookupTable = LookupTable.read(livdPath)
+        val modelElement = Element(
+            ElementNames.EQUIPMENT_MODEL_NAME.elementName,
+            tableRef = lookupTable,
+            tableColumn = LivdTableColumns.MODEL.colName
+        )
+        val testKitElement = Element(
+            ElementNames.TEST_KIT_NAME_ID.elementName,
+            tableRef = lookupTable,
+            tableColumn = LivdTableColumns.TESTKIT_NAME_ID.colName
+        )
+        val processingCodeElement = Element(
+            ElementNames.PROCESSING_MODE_CODE.elementName
+        )
+
+        val mapper = LIVDLookupMapper()
+        val modeP = ElementAndValue(processingCodeElement, "P")
+        val modeT = ElementAndValue(processingCodeElement, "T")
+
+        // Test_OTC_Device is a test only device
+        val ev1 = ElementAndValue(modelElement, "Test_OTC_Device")
+        assertThat(mapper.apply(testKitElement, emptyList(), listOf(ev1, modeP)).value).isNullOrEmpty()
+        assertThat(mapper.apply(testKitElement, emptyList(), listOf(ev1)).value).isNullOrEmpty()
+        assertThat(mapper.apply(testKitElement, emptyList(), listOf(ev1, modeT)).value).isEqualTo(ev1.value)
+
+        // Test_OTC_Device is a test only device
+        val ev2 = ElementAndValue(modelElement, "BinaxNOW COVID-19 Ag Card")
+        val testKitIdBinax = "10811877011290"
+        assertThat(mapper.apply(testKitElement, emptyList(), listOf(ev2, modeP)).value).isEqualTo(testKitIdBinax)
+        assertThat(mapper.apply(testKitElement, emptyList(), listOf(ev2)).value).isEqualTo(testKitIdBinax)
+        assertThat(mapper.apply(testKitElement, emptyList(), listOf(ev2, modeT)).value).isEqualTo(testKitIdBinax)
+    }
+
+    @Test
     fun `test ifPresent`() {
         val element = Element("a")
         val mapper = IfPresentMapper()
