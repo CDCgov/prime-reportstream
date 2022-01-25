@@ -1,10 +1,12 @@
 package gov.cdc.prime.router
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonInclude.Include
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonUnwrapped
+import gov.cdc.prime.router.azure.db.enums.TaskAction
 import java.time.OffsetDateTime
 
 /**
@@ -25,11 +27,17 @@ import java.time.OffsetDateTime
 class DetailedSubmissionHistory(
     @JsonProperty("id")
     val actionId: Long,
+    @JsonIgnore
+    val actionName: TaskAction,
     @JsonProperty("submittedAt")
     val createdAt: OffsetDateTime,
     @JsonProperty("submitter")
     val sendingOrg: String?,
     val httpStatus: Int?,
+    @JsonIgnore
+    val receivingOrg: String?,
+    @JsonIgnore
+    val receivingOrgSvc: String?,
     @JsonInclude(Include.NON_NULL) val externalName: String? = "",
     actionResponse: DetailedActionResponse?,
 ) {
@@ -53,14 +61,49 @@ class DetailedSubmissionHistory(
         warnings.addAll(actionResponse?.warnings ?: emptyList())
     }
 
-    fun enrich(relations: List<DetailedSubmissionHistory>) {
-        relations.forEach { relation ->
-            // TODO: cusotm handling per "action_name"
-            destinations += relation.destinations
-            errors += relation.errors
-            warnings += relation.warnings
+    fun enrichWithDescendants(descendants: List<DetailedSubmissionHistory>) {
+        descendants.forEach { descendant ->
+            enrichWithDescendant(descendant)
         }
     }
+
+    fun enrichWithDescendant(descendant: DetailedSubmissionHistory) {
+        when (descendant.actionName) {
+            TaskAction.process -> enrichWithProcessAction(descendant)
+            // TaskAction.batch -> enrichWithBatchAction(descendant)
+            TaskAction.send -> enrichWithSendAction(descendant)
+            // TaskAction.download -> enrichWithDownloadAction(descendant)
+            else -> {}
+        }
+    }
+
+    private fun enrichWithProcessAction(descendant: DetailedSubmissionHistory) {
+        require(descendant.actionName == TaskAction.process) { "Must be a process action" }
+
+        destinations += descendant.destinations
+        errors += descendant.errors
+        warnings += descendant.warnings
+    }
+
+    /*
+    private fun enrichWithBatchAction(descendant: DetailedSubmissionHistory) {
+
+    }
+    */
+
+    private fun enrichWithSendAction(descendant: DetailedSubmissionHistory) {
+        require(descendant.actionName == TaskAction.send) { "Must be a send action" }
+        destinations.find {
+            it.organizationId == descendant.receivingOrg && it.service == descendant.receivingOrgSvc
+        }?.let {
+            it.sentAt = descendant.createdAt
+        }
+    }
+    /*
+    private fun enrichWithDownloadAction(descendant: DetailedSubmissionHistory) {
+
+    }
+    */
 }
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -84,11 +127,14 @@ data class Detail(
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class Destination(
     val organization: String,
-    val organization_id: String,
+    @JsonProperty("organization_id")
+    val organizationId: String,
     val service: String,
     val filteredReportRows: List<String>?,
-    val sending_at: String,
+    @JsonProperty("sending_at")
+    val sendingAt: String,
     val itemCount: Int,
+    var sentAt: OffsetDateTime?,
 )
 
 /*

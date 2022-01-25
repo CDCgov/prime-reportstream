@@ -107,7 +107,7 @@ class SubmissionsFacade(
                 submission.actionId,
                 DetailedSubmissionHistory::class.java,
             )
-            it.enrich(relatedSubmissions)
+            it.enrichWithDescendants(relatedSubmissions)
         }
 
         return submission

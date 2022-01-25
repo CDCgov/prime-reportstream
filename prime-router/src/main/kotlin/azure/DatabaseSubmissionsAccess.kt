@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.azure
 
 import gov.cdc.prime.router.azure.db.Tables.ACTION
+import gov.cdc.prime.router.azure.db.Tables.REPORT_FILE
 import gov.cdc.prime.router.azure.db.Tables.REPORT_LINEAGE
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import org.jooq.CommonTableExpression
@@ -89,14 +90,12 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = DatabaseAccess(
         }
     }
 
-    override fun <T> fetchRelatedActions(
-        submissionId: Long,
-        klass: Class<T>,
-    ): List<T> {
-        val cte: CommonTableExpression<*> = DSL.name("t").fields(
+    fun reportDecendentExpression(submissionId: Long): CommonTableExpression<*> {
+        return DSL.name("t").fields(
             "action_id",
             "child_report_id",
             "parent_report_id"
+            // Backticks escape the kotlin reserved word, so JOOQ can use it's "as"
         ).`as`(
             DSL.select(
                 REPORT_LINEAGE.ACTION_ID,
@@ -119,6 +118,13 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = DatabaseAccess(
                         )
                 )
         )
+    }
+
+    override fun <T> fetchRelatedActions(
+        submissionId: Long,
+        klass: Class<T>,
+    ): List<T> {
+        val cte = reportDecendentExpression(submissionId)
         return db.transactReturning { txn ->
             DSL.using(txn)
                 .withRecursive(cte)
@@ -126,6 +132,8 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = DatabaseAccess(
                 .from(ACTION)
                 .join(cte)
                 .on(ACTION.ACTION_ID.eq(cte.field("action_id", BIGINT)))
+                .join(REPORT_FILE)
+                .on(REPORT_FILE.REPORT_ID.eq(cte.field("child_report_id", UUID)))
                 .where(ACTION.ACTION_ID.ne(submissionId))
                 .fetchInto(klass)
         }
