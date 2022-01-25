@@ -247,6 +247,22 @@
       schemaName: hl7/primary-covid-19
       format: HL7
 
+- name: "naval-health-clinic-lemoore"
+  description: "Naval Health Clinic - Lemoore"
+  jurisdiction: "FEDERAL"
+  stateCode: null
+  countyName: null
+  filters: []
+  senders:
+    - name: "default"
+      organizationName: "naval-health-clinic-lemoore"
+      format: "CSV"
+      topic: "covid-19"
+      customerStatus: "testing"
+      schemaName: "upload-covid-19"
+      keys: null
+      processingType: "sync"
+
 - name: "johns_hopkins"
   description: "Johns Hopkin's / IHS school testing program"
   jurisdiction: "FEDERAL"
