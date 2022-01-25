@@ -41,10 +41,11 @@ class FileSettings : SettingsProvider {
     }
 
     fun loadOrganizations(filePath: String): FileSettings {
+        val organizationsFile = File(filePath)
         try {
-            return loadOrganizations(File(filePath).inputStream())
+            return loadOrganizations(organizationsFile.inputStream())
         } catch (e: Exception) {
-            throw Exception("Error loading: $filePath", e)
+            throw Exception("Error loading: ${organizationsFile.name}", e)
         }
     }
 
