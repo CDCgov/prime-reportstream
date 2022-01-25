@@ -10,12 +10,12 @@ terraform {
 
   # NOTE: injected at init time by calling terraform init with the "--backend-config=<path to .tfbackend file>"
   # See configurations directory
-  # backend "azurerm" {
-  #   resource_group_name  = "mla-rg"
-  #   storage_account_name = "mlatfsg"
-  #   container_name       = "tstate"
-  #   key                  = "dev.terraform.tfstate"
-  # }
+  backend "azurerm" {
+    resource_group_name  = "prime-data-hub-test"
+    storage_account_name = "pdhtestnewterraform"
+    container_name       = "terraformstate"
+    key                  = "test.terraform.tfstate"
+  }
 }
 
 provider "azurerm" {
