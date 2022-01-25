@@ -7,6 +7,12 @@ Contains lookup tables loaded directly from files.
 Contains the LIVD supplemental table that gets merged into the downloaded LIVD table by
 running the command `./prime livd-table-download`. 
 
+To update the LIVD Supplemental table:
+1. Make the needed updates to the [LIVD-Supplemental.csv](livd/LIVD-Supplemental.csv) file.
+2. Run `./prime livd-table-download -a`, verify the diff looks correct, then create the new lookup table version.
+3. Test the changes locally.
+4. Once the changes are verified, deploy the updated lookup table to staging and production.
+
 ## _local_ folder
 These are CSV copies of lookup tables from production used for local testing.  
 To reload this tables run `./gradlew reloadTables`. These should be periodically updated from production.
