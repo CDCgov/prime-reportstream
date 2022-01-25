@@ -10,6 +10,7 @@ import com.microsoft.azure.functions.annotation.AuthorizationLevel
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
+import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.DEFAULT_SEPARATOR
 import gov.cdc.prime.router.InvalidParamMessage
 import gov.cdc.prime.router.InvalidReportMessage
@@ -304,6 +305,7 @@ class ReportFunction : Logging {
     ) {
 
         val report = parsedReport.copy()
+        val senderName = (parsedReport.sources[0] as ClientSource).name
 
         if (report.bodyFormat != Report.Format.INTERNAL) {
             error("Processing a non internal report async.")
@@ -311,7 +313,7 @@ class ReportFunction : Logging {
 
         val processEvent = ProcessEvent(Event.EventAction.PROCESS, report.id, options, defaults, routeTo)
 
-        val blobInfo = workflowEngine.blob.uploadBody(report, action = processEvent.eventAction)
+        val blobInfo = workflowEngine.blob.uploadBody(report, senderName, action = processEvent.eventAction)
 
         actionHistory.trackCreatedReport(processEvent, report, blobInfo)
         // add task to task table
