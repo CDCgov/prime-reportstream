@@ -168,16 +168,19 @@ elements:
 
     - name: test_result_status
       default: F
-      nullifyValue: false
+      cardinality: ONE 
+      nullifyValue: true
       type: CODE
       csvFields: [{name: test_result_status, format: $alt}]
       altValues:
         - code: "F"
           display: "F"
         - code: "F"
-          display: ""
+          display: "f"
         - code: "C"
           display: "C"
+        - code: "C"
+          display: "c"
 
     - name: specimen_type
       cardinality: ONE 
@@ -303,13 +306,13 @@ elements:
       mapperOverridesValue: true
       mapper: ifNotPresent($mode:lookup, testing_lab_street, ordering_facility_name_temp, ordering_facility_street_temp)
 
-    - name: ordering_facility_street2
-      csvFields: [{name: ordering_facility_street2}]
-
 #    - name: ordering_facility_street2
 #      csvFields: [{name: ordering_facility_street2}]
-#      mapperOverridesValue: true
-#      mapper: ifNotPresent($mode:lookup, testing_lab_street2, ordering_facility_name_temp, ordering_facility_street_temp)
+
+    - name: ordering_facility_street2
+      csvFields: [{name: ordering_facility_street2}]
+      mapperOverridesValue: true
+      mapper: ifNotPresent($mode:lookup, testing_lab_street2, ordering_facility_name_temp, ordering_facility_street_temp)
 
     - name: ordering_facility_city
       cardinality: ONE 
