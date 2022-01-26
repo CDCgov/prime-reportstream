@@ -192,7 +192,6 @@ class UseSenderSettingMapper : Mapper {
                             null,
                             mutableListOf(
                                 InvalidReportMessage(
-                                    ResponseMsgType.REPORT,
                                     "ReportStream internal error in $name: ${args[0]} is not a sender setting field"
                                 )
                             )

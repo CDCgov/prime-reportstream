@@ -411,7 +411,7 @@ class MapperTests {
         val response = mapper.apply(elementA, args, emptyList(), sender)
         assertThat(response.value).isNull()
         assertThat(response.errors.size).isEqualTo(1)
-        assertThat(response.errors[0].type).isEqualTo(ResponseMsgType.REPORT)
+        assertThat(response.errors[0].type).isEqualTo(ActionLogDetailType.REPORT)
         assertThat(response.errors[0].detailMsg().contains("not a valid value")).isEqualTo(true)
     }
 

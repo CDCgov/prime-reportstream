@@ -3,6 +3,7 @@ package gov.cdc.prime.router.serializers.datatests
 import assertk.assertThat
 import assertk.assertions.isTrue
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
+import gov.cdc.prime.router.ActionError
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
@@ -238,15 +239,21 @@ class TranslationTests {
 
             return when (format) {
                 Report.Format.HL7 -> {
-                    val readResult = Hl7Serializer(metadata, settings).readExternal(
-                        schema.name,
-                        input,
-                        TestSource
-                    )
-                    readResult.errors.forEach { result.errors.add(it.responseMessage.detailMsg()) }
-                    readResult.warnings.forEach { result.warnings.add(it.responseMessage.detailMsg()) }
-                    result.passed = readResult.errors.isEmpty()
-                    readResult.report
+                    try {
+                        val readResult = Hl7Serializer(metadata, settings).readExternal(
+                            schema.name,
+                            input,
+                            TestSource
+                        )
+                        readResult.errors.forEach { result.errors.add(it.detail.detailMsg()) }
+                        readResult.warnings.forEach { result.warnings.add(it.detail.detailMsg()) }
+                        result.passed = readResult.errors.isEmpty()
+                        readResult.report
+                    } catch (e: ActionError) {
+                        e.details.forEach { result.errors.add(it.detail.detailMsg()) }
+                        result.passed = false
+                        null
+                    }
                 }
                 Report.Format.INTERNAL -> {
                     CsvSerializer(metadata).readInternal(
@@ -257,15 +264,21 @@ class TranslationTests {
                     )
                 }
                 else -> {
-                    val readResult = CsvSerializer(metadata).readExternal(
-                        schema.name,
-                        input,
-                        TestSource
-                    )
-                    readResult.errors.forEach { result.errors.add(it.responseMessage.detailMsg()) }
-                    readResult.warnings.forEach { result.warnings.add(it.responseMessage.detailMsg()) }
-                    result.passed = readResult.errors.isEmpty()
-                    readResult.report
+                    try {
+                        val readResult = CsvSerializer(metadata).readExternal(
+                            schema.name,
+                            input,
+                            TestSource
+                        )
+                        readResult.errors.forEach { result.errors.add(it.detail.detailMsg()) }
+                        readResult.warnings.forEach { result.warnings.add(it.detail.detailMsg()) }
+                        result.passed = readResult.errors.isEmpty()
+                        readResult.report
+                    } catch (e: ActionError) {
+                        e.details.forEach { result.errors.add(it.detail.detailMsg()) }
+                        result.passed = false
+                        null
+                    }
                 }
             }
         }
