@@ -10,6 +10,7 @@ import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.SettingsProvider
 import io.mockk.clearAllMocks
+import io.mockk.every
 import io.mockk.mockkClass
 import io.mockk.spyk
 import io.mockk.verify
@@ -42,8 +43,10 @@ class BatchFunctionTests {
     )
 
     private fun makeEngine(metadata: Metadata, settings: SettingsProvider): WorkflowEngine {
-        return WorkflowEngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy)
-            .blobAccess(blobMock).queueAccess(queueMock).build()
+        return spyk(
+            WorkflowEngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy)
+                .blobAccess(blobMock).queueAccess(queueMock).build()
+        )
     }
 
     @BeforeEach
@@ -54,13 +57,18 @@ class BatchFunctionTests {
     @Test
     fun `Test running batchFunction as 'empty batch'`() {
         // Setup
+        every { timing1.isValid() } returns true
+        every { timing1.maxReportCount } returns 500
+        every { timing1.numberPerDay } returns 1440
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val engine = makeEngine(metadata, settings)
 
+        every { engine.generateEmptyReport(any(), any(), any()) } returns Unit
+
         // the message that will be passed to batchFunction
-        val message = "receiver&BATCH&hhsprotect.elr&true"
+        val message = "receiver&BATCH&phd.elr&true"
 
         // Invoke batch function run
         BatchFunction(engine).run(message, context = null)
