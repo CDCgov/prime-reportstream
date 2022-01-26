@@ -84,7 +84,7 @@ class BatchDeciderFunction(private val workflowEngine: WorkflowEngine = Workflow
                         repeat(queueMessages) {
                             // build 'batch' event
                             val event = BatchEvent(Event.EventAction.BATCH, rec.fullName, isEmpty)
-                            QueueAccess.sendMessage(event)
+                            workflowEngine.queue.sendMessage(event)
                         }
                     }
             }

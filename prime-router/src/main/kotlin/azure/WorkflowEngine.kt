@@ -430,7 +430,7 @@ class WorkflowEngine(
      * Creates an empty report to send to receivers that want empties
      */
     fun generateEmptyReport(
-        context: ExecutionContext,
+        context: ExecutionContext?,
         actionHistory: ActionHistory,
         receiver: Receiver,
     ) {

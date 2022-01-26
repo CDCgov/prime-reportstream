@@ -79,111 +79,80 @@ class BatchDeciderTests {
         confirmVerified(queueMock)
     }
 
-    // TODO CD: This needs to be built out, but having issues with Mockk
-//    @Test
-//    fun `Test with receiver getting empty on every batch`() {
-//        // Setup
-//        every { anyConstructed<QueueAccess>().sendMessage(any()) } returns Unit
-//        every { timing1.isValid()} returns true
-//        every { timing1.batchInPrevious60Seconds(any())} returns true
-//        every { timing1.numberPerDay} returns 1440
-//        every { timing1.maxReportCount} returns 500
-//        every { timing1.whenEmpty }.answers {
-//            Receiver.WhenEmpty(
-//                Receiver.EmptyOperation.SEND,
-//                false
-//            )
-//        }
-//
-//        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
-//        val metadata = Metadata(schema = one)
-//        val settings = FileSettings().loadOrganizations(oneOrganization)
-//        val engine = makeEngine(metadata, settings)
-//
-//        every { engine.db.fetchNumReportsNeedingBatch(any(), any(), any()) }.answers {
-//            0
-//        }
-//
-//        // Invoke batch decider run
-//        BatchDeciderFunction(engine).run("", context = null)
-//        BatchDeciderFunction(engine).run("", context = null)
-//
-//        // Verify that QueueAccess.sendMessage was not called
-//        verify(exactly = 2) {queueMock.sendMessage(any())}
-//
-//        confirmVerified(queueMock)
-//    }
+    @Test
+    fun `Test with receiver getting empty on every batch`() {
+        // Setup
+        every { queueMock.sendMessage(any()) } returns Unit
+        every { timing1.isValid() } returns true
+        every { timing1.batchInPrevious60Seconds(any()) } returns true
+        every { timing1.numberPerDay } returns 1440
+        every { timing1.maxReportCount } returns 500
+        every { timing1.whenEmpty }.answers {
+            Receiver.WhenEmpty(
+                Receiver.EmptyOperation.SEND,
+                false
+            )
+        }
 
-//    // TODO CD
-//    @Test
-//    fun `Test with receiver getting empty once per day - has not received`() {
-// Setup
-//    every { queueMock.sendMessage(any()) } returns Unit
-//    every { timing1.isValid()} returns true
-//    every { timing1.batchInPrevious60Seconds(any())} returns true
-//    every { timing1.numberPerDay} returns 1440
-//    every { timing1.maxReportCount} returns 500
-//    every { timing1.whenEmpty }.answers {
-//        Receiver.WhenEmpty(
-//            Receiver.EmptyOperation.SEND,
-//            false
-//        )
-//    }
-//
-//    val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
-//    val metadata = Metadata(schema = one)
-//    val settings = FileSettings().loadOrganizations(oneOrganization)
-//    val engine = makeEngine(metadata, settings)
-//
-//    every { engine.db.fetchNumReportsNeedingBatch(any(), any(), any()) }.answers {
-//        0
-//    }
-//    every { engine.db.checkRecentlySent(any(), any(), any(), any()) }.answers {
-//        false
-//    }
-//
-//    every { queueMock.sendMessage(any()) }.returns(Unit)
-//
-//    // Invoke batch decider run
-//    BatchDeciderFunction(engine).run("", context = null)
-//    BatchDeciderFunction(engine).run("", context = null)
-//
-//    // Verify that QueueAccess.sendMessage was not called
-//    verify(exactly = 2) {queueMock.sendMessage(any())}
-//
-//    confirmVerified(queueMock)
-//    }
-//
-//    // TODO CD
-//    @Test
-//    fun `Test with receiver getting empty once per day - has received`() {
-//        // Setup
-//        var nextEvent: ReportEvent? = null
-//        setupLogger()
-//        mockkConstructor(ActionHistory::class)
-//        every { anyConstructed<ActionHistory>().setActionType(TaskAction.send_error) } returns Unit
-//        val reportId = UUID.randomUUID()
-//        every { workflowEngine.handleReportEvent(any(), context, any()) }.answers {
-//            val block = thirdArg() as
-//                (header: WorkflowEngine.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
-//            val header = makeHeader()
-//            // Should be high enough retry count that the next action should have an error
-//            nextEvent = block(
-//                header, RetryToken(100, RetryToken.allItems), null
-//            )
-//        }
-//        setupWorkflow()
-//        every { sftpTransport.send(any(), any(), any(), any(), any(), any()) }.returns(RetryToken.allItems)
-//        every { workflowEngine.recordAction(any()) }.returns(Unit)
-//
-//        // Invoke
-//        val event = ReportEvent(Event.EventAction.SEND, reportId, false)
-//        SendFunction(workflowEngine).run(event.toQueueMessage(), context)
-//
-//        // Verify
-//        assertThat(nextEvent).isNotNull()
-//        assertThat(nextEvent!!.eventAction).isEqualTo(Event.EventAction.SEND_ERROR)
-//        assertThat(nextEvent!!.retryToken).isNull()
-//        verify { anyConstructed<ActionHistory>().setActionType(TaskAction.send_error) }
-//    }
+        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val metadata = Metadata(schema = one)
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val engine = makeEngine(metadata, settings)
+
+        every { engine.db.fetchNumReportsNeedingBatch(any(), any(), any()) }.answers {
+            0
+        }
+
+        // Invoke batch decider run
+        BatchDeciderFunction(engine).run("", context = null)
+        BatchDeciderFunction(engine).run("", context = null)
+
+        verify(exactly = 2) { queueMock.sendMessage(any()) }
+        verify(exactly = 0) { accessSpy.checkRecentlySent(any(), any(), any(), any()) }
+
+        confirmVerified(queueMock)
+    }
+
+    @Test
+    fun `Test with receiver getting empty once per day`() {
+        // Setup
+        every { queueMock.sendMessage(any()) } returns Unit
+        every { timing1.isValid() } returns true
+        every { timing1.batchInPrevious60Seconds(any()) } returns true
+        every { timing1.numberPerDay } returns 1440
+        every { timing1.maxReportCount } returns 500
+        every { timing1.whenEmpty }.answers {
+            Receiver.WhenEmpty(
+                Receiver.EmptyOperation.SEND,
+                true
+            )
+        }
+
+        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val metadata = Metadata(schema = one)
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val engine = makeEngine(metadata, settings)
+
+        every { engine.db.fetchNumReportsNeedingBatch(any(), any(), any()) }.answers {
+            0
+        }
+        every { engine.db.checkRecentlySent(any(), any(), any(), any()) }.answers {
+            false
+        }
+
+        // Invoke batch decider run
+        BatchDeciderFunction(engine).run("", context = null)
+
+        // change response of recentlySent
+        every { engine.db.checkRecentlySent(any(), any(), any(), any()) }.answers {
+            true
+        }
+
+        BatchDeciderFunction(engine).run("", context = null)
+
+        verify(exactly = 1) { queueMock.sendMessage(any()) }
+        verify(exactly = 2) { accessSpy.checkRecentlySent(any(), any(), any(), any()) }
+
+        confirmVerified(queueMock)
+    }
 }

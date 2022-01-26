@@ -6,8 +6,8 @@ import com.microsoft.azure.functions.annotation.QueueTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
+import org.apache.logging.log4j.kotlin.Logging
 import java.time.OffsetDateTime
-import java.util.logging.Level
 
 const val batch = "batch"
 const val defaultBatchSize = 100
@@ -21,21 +21,21 @@ const val NUM_BATCH_RETRIES = 2
  * Batch will find all the reports waiting to with a next "batch" action for a receiver name.
  * It will either send the reports directly or merge them together.
  */
-class BatchFunction {
+class BatchFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()) : Logging {
     @FunctionName(batch)
     @StorageAccount("AzureWebJobsStorage")
     fun run(
         @QueueTrigger(name = "message", queueName = batch)
         message: String,
-        context: ExecutionContext,
+        @Suppress("UNUSED_PARAMETER")
+        context: ExecutionContext?,
     ) {
         var backstopTime: OffsetDateTime? = null
         try {
-            context.logger.info("BatchFunction starting.  Message: $message")
-            val workflowEngine = WorkflowEngine()
+            logger.info("BatchFunction starting.  Message: $message")
             val event = Event.parseQueueMessage(message) as BatchEvent
             if (event.eventAction != Event.EventAction.BATCH) {
-                context.logger.warning("BatchFunction received a $message")
+                logger.error("BatchFunction received a $message")
                 return
             }
             val receiver = workflowEngine.settings.findReceiver(event.receiverName)
@@ -52,7 +52,7 @@ class BatchFunction {
                     receiver.timing?.numberPerDay ?: 1, NUM_BATCH_RETRIES
                 )
             )
-            context.logger.info("BatchFunction (msg=$message) using backstopTime=$backstopTime")
+            logger.info("BatchFunction (msg=$message) using backstopTime=$backstopTime")
 
             // if this 'batch' event is for an empty batch, create the empty file
             if (event.isEmptyBatch) {
@@ -69,7 +69,7 @@ class BatchFunction {
                     headers.filter { it.expectingContent && it.content == null }
                         .forEach {
                             // TODO: Need to add Action with error state of batch_error. See ticket #3642
-                            context.logger.severe(
+                            logger.fatal(
                                 "Failure to download ${it.task.bodyUrl} from blobstore. ReportId: ${it.task.reportId}"
                             )
                         }
@@ -78,10 +78,10 @@ class BatchFunction {
                     val validHeaders = if (event.isEmptyBatch) headers else headers.filter { it.content != null }
 
                     if (validHeaders.isEmpty()) {
-                        context.logger.info("Batch $message: empty batch")
+                        logger.info("Batch $message: empty batch")
                         return@handleBatchEvent
                     } else {
-                        context.logger.info("Batch $message contains ${validHeaders.size} reports")
+                        logger.info("Batch $message contains ${validHeaders.size} reports")
                     }
 
                     // only batch files that have the expected content.
@@ -116,10 +116,9 @@ class BatchFunction {
                 }
             }
             actionHistory.queueMessages(workflowEngine) // Must be done after txn, to avoid race condition
-            context.logger.info("BatchFunction succeeded for message: $message")
+            logger.info("BatchFunction succeeded for message: $message")
         } catch (e: Exception) {
-            context.logger.log(
-                Level.SEVERE,
+            logger.fatal(
                 "BatchFunction Exception (msg=$message, backstopTime=$backstopTime) : ",
                 e
             )
