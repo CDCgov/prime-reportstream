@@ -101,7 +101,7 @@ class MapperTests {
         val ev1a = ElementAndValue(deviceElement, "BinaxNOW COVID-19 Ag Card 2 Home Test_Abb#")
         assertThat(mapper.apply(codeElement, emptyList(), listOf(ev1a)).value).isEqualTo("94558-4")
 
-        // Test with a ID NOW device id which is has a FDA number
+        // Test with an ID NOW device id which is has an FDA number
         val ev2 = ElementAndValue(deviceElement, "10811877011269_DII")
         assertThat(mapper.apply(codeElement, emptyList(), listOf(ev2)).value).isEqualTo("94534-5")
 
@@ -121,7 +121,7 @@ class MapperTests {
         val modelElement = Element(ElementNames.EQUIPMENT_MODEL_NAME.elementName)
         val mapper = LIVDLookupMapper()
 
-        // Test with a EUA
+        // Test with an EUA
         var ev1 = ElementAndValue(modelElement, "BinaxNOW COVID-19 Ag Card")
         assertThat(mapper.apply(codeElement, emptyList(), listOf(ev1)).value).isEqualTo("94558-4")
         ev1 = ElementAndValue(modelElement, "BinaxNOW COVID-19 Ag Card*")
@@ -329,6 +329,14 @@ class MapperTests {
         assertThat(mapper.valueNames(element, args)).isEqualTo(listOf("a"))
         assertThat(mapper.apply(element, args, listOf(ElementAndValue(element, "3"))).value).isEqualTo("const")
         assertThat(mapper.apply(element, args, emptyList()).value).isNull()
+    }
+
+    @Test
+    fun `test get cleaned up model name`() {
+        val modelName = "some model"
+        assertThat(LivdLookupUtilities.getCleanedModelName(modelName)).isEqualTo(modelName)
+        assertThat(LivdLookupUtilities.getCleanedModelName("$modelName*")).isEqualTo(modelName)
+        assertThat(LivdLookupUtilities.getCleanedModelName("*$modelName**")).isEqualTo("*$modelName*")
     }
 
     @Test

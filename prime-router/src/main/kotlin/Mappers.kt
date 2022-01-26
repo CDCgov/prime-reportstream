@@ -518,6 +518,16 @@ enum class ElementNames(val elementName: String) {
     PROCESSING_MODE_CODE("processing_mode_code"),
 }
 
+object LivdLookupUtilities {
+    /**
+     * Clean up a [modelName].
+     * @return cleaned up model name
+     */
+    fun getCleanedModelName(modelName: String): String {
+        // Remove a single * from the end of the name
+        return if (modelName.endsWith("*")) modelName.dropLast(1) else modelName
+    }
+}
 /**
  * This is a lookup mapper specialized for the LIVD table. The LIVD table has multiple columns
  * which could be used for lookup. Different senders send different information, so this mapper
@@ -696,11 +706,10 @@ class LIVDLookupMapper : Mapper {
             filters: LookupTable.FilterBuilder
         ): String? {
             if (value.isBlank()) return null
-
-            // Remove any * coming in the model value
-            val sanitizedValue = if (value.endsWith("*")) value.dropLast(1) else value
-
-            return lookup(element, sanitizedValue, LivdTableColumns.MODEL.colName, filters)
+            return lookup(
+                element, LivdLookupUtilities.getCleanedModelName(value), LivdTableColumns.MODEL.colName,
+                filters
+            )
         }
 
         /**
@@ -775,9 +784,8 @@ class Obx17Mapper : Mapper {
                     ?: error("Schema Error: no tableColumn for element '${indexElement.name}'")
 
                 // Remove any * coming in the model value
-                val sanitizedValue = if (indexElement.name == ElementNames.EQUIPMENT_MODEL_NAME.elementName &&
-                    indexValue.endsWith("*")
-                ) indexValue.dropLast(1) else indexValue
+                val sanitizedValue = if (indexElement.name == ElementNames.EQUIPMENT_MODEL_NAME.elementName)
+                    LivdLookupUtilities.getCleanedModelName(indexValue) else indexValue
 
                 val testKitNameId = lookupTable.FilterBuilder().equalsIgnoreCase(indexColumn, sanitizedValue)
                     .findSingleResult("Testkit Name ID")
@@ -822,11 +830,10 @@ class Obx17TypeMapper : Mapper {
                     ?: error("Schema Error: could not find table '${element.table}'")
                 val indexColumn = indexElement.tableColumn
                     ?: error("Schema Error: no tableColumn for element '${indexElement.name}'")
-
-                // Remove any * coming in the model value
-                val sanitizedValue = if (indexValue.endsWith("*")) indexValue.dropLast(1) else indexValue
-
-                if (lookupTable.FilterBuilder().equalsIgnoreCase(indexColumn, sanitizedValue)
+                if (lookupTable.FilterBuilder().equalsIgnoreCase(
+                        indexColumn,
+                        LivdLookupUtilities.getCleanedModelName(indexValue)
+                    )
                     .findSingleResult("Testkit Name ID") != null
                 ) "99ELR" else null
             }
