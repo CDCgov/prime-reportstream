@@ -8,6 +8,7 @@ import com.github.ajalt.clikt.parameters.options.convert
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.int
+import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.CustomConfiguration
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DefaultValues
@@ -18,7 +19,6 @@ import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.ResultDetail
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Translator
 import gov.cdc.prime.router.serializers.CsvSerializer
@@ -217,9 +217,6 @@ class ProcessData(
     }
 
     private fun handleReadResult(result: ReadResult): Report {
-        if (result.report == null) {
-            error(result.errorsToString())
-        }
         if (result.errors.isNotEmpty()) {
             echo(result.errorsToString())
         }
@@ -414,13 +411,15 @@ class ProcessData(
 
         // Transform reports
         val translator = Translator(metadata, fileSettings)
-        val warnings = mutableListOf<ResultDetail>()
+        val warnings = mutableListOf<ActionLog>()
         val outputReports: List<Pair<Report, Report.Format>> = when {
-            route ->
-                translator
-                    .filterAndTranslateByReceiver(inputReport, getDefaultValues(), emptyList(), warnings)
-                    .filter { it.first.itemCount > 0 }
-                    .map { it.first to getOutputFormat(it.second.format) }
+            route -> {
+                val (reports, byReceiverWarnings) = translator
+                    .filterAndTranslateByReceiver(inputReport, getDefaultValues(), emptyList())
+                warnings += byReceiverWarnings
+                reports.filter { it.report.itemCount > 0 }
+                    .map { it.report to getOutputFormat(it.receiver.format) }
+            }
             routeTo != null -> {
                 val pair = translator.translate(
                     input = inputReport,
@@ -454,7 +453,7 @@ class ProcessData(
         if (warnings.size > 0) {
             echo("Problems occurred during translation to output schema:")
             warnings.forEach {
-                echo("${it.scope} ${it.id}: ${it.responseMessage.detailMsg()}")
+                echo("${it.scope} ${it.trackingId}: ${it.detail.detailMsg()}")
             }
             echo()
         }

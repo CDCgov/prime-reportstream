@@ -325,8 +325,8 @@
     - name: default
       organizationName: csvuploadertest
       topic: covid-19
-      customerStatus: active
-      schemaName: manualupload/csvuploadertest-covid-19
+      customerStatus: testing
+      schemaName: upload-covid-19
       format: CSV
 
 - name: sourcebioscience_ca
@@ -336,8 +336,8 @@
     - name: default
       organizationName: sourcebioscience_ca
       topic: covid-19
-      customerStatus: active
-      schemaName: manualupload/sourcebioscience_ca-covid-19
+      customerStatus: testing
+      schemaName: upload-covid-19
       format: CSV
 
 - name: cadph-csvuploadertest
@@ -347,18 +347,7 @@
     - name: default
       organizationName: cadph-csvuploadertest
       topic: covid-19
-      customerStatus: active
-      schemaName: manualupload/cadph-csvuploadertest-covid-19
-      format: CSV
-
-- name: manualupload
-  description: Sender for Manual Upload of the RS Standard CSV File
-  jurisdiction: FEDERAL
-  senders:
-    - name: default
-      organizationName: manualupload
-      topic: covid-19
-      customerStatus: active
+      customerStatus: testing
       schemaName: upload-covid-19
       format: CSV
 
@@ -833,14 +822,20 @@
   description: New Mexico Department of Health
   jurisdiction: STATE
   stateCode: NM
+  filters:
+    - topic: "covid-19"
+      jurisdictionalFilter:
+        - "orEquals(ordering_facility_state, NM, patient_state, NM)"
+      qualityFilter: null
+      routingFilter: null
+      processingModeFilter: null
   receivers:
     - name: elr
       externalName: Primary
       organizationName: nm-doh
       topic: covid-19
       customerStatus: active
-      jurisdictionalFilter:
-        - matches(ordering_facility_state, NM)
+      jurisdictionalFilter: []
       translation:
         type: HL7
         useBatchHeaders: true
@@ -854,31 +849,10 @@
         # turn off UNK and ASKU for this field
         useBlankInsteadOfUnknown: patient_race
         suppressHl7Fields: OBX-17-1
+        useOrderingFacilityName: "NCES"
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
-        initialTime: 00:00
-        timeZone: MOUNTAIN
-      transport:
-        type: SFTP
-        host: sftp
-        port: 22
-        filePath: ./upload
-        credentialName: DEFAULT-SFTP
-    - name: elr-csv
-      externalName: Secondary
-      organizationName: nm-doh
-      topic: covid-19
-      customerStatus: active
-      jurisdictionalFilter:
-        - matches(ordering_facility_state, NM)
-      translation:
-        type: CUSTOM
-        format: CSV
-        schemaName: nm/nm-covid-19-csv
-      timing:
-        operation: MERGE
-        numberPerDay: 1440
         initialTime: 00:00
         timeZone: MOUNTAIN
       transport:
