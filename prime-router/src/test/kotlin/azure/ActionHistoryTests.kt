@@ -14,7 +14,6 @@ import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.FileSettings
-import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
@@ -283,6 +282,7 @@ class ActionHistoryTests {
         r0.reportId = UUID.randomUUID()
         r0.receivingOrg = org0.name
         r0.receivingOrgSvc = org0.receivers[0].name
+        r0.nextAction = TaskAction.send
         r0.itemCount = 17
         actionHistory.reportsOut[r0.reportId] = r0
         val r1 = ReportFile()
@@ -298,7 +298,7 @@ class ActionHistoryTests {
         factory.createGenerator(outStream).use {
             it.writeStartObject()
             // Finally, we're ready to run the test:
-            actionHistory.prettyPrintDestinationsJson(it, settings, Options.None)
+            actionHistory.prettyPrintDestinationsJson(it, settings)
             it.writeEndObject()
         }
 
@@ -334,7 +334,7 @@ class ActionHistoryTests {
         outStream = ByteArrayOutputStream()
         factory.createGenerator(outStream).use {
             it.writeStartObject()
-            actionHistory.prettyPrintDestinationsJson(it, settings, Options.None)
+            actionHistory.prettyPrintDestinationsJson(it, settings)
             it.writeEndObject()
         }
         val json2 = outStream.toString()
@@ -350,13 +350,13 @@ class ActionHistoryTests {
         outStream = ByteArrayOutputStream()
         factory.createGenerator(outStream).use {
             it.writeStartObject()
-            actionHistory.prettyPrintDestinationsJson(it, settings, Options.SkipSend)
+            actionHistory.prettyPrintDestinationsJson(it, settings)
             it.writeEndObject()
         }
         val json3 = outStream.toString()
         val tree3: JsonNode? = jacksonObjectMapper().readTree(json3)
         val arr3 = tree3?.get("destinations") as ArrayNode?
-        assertThat(arr3?.get(0)?.get("sending_at")?.textValue() ?: "").isEqualTo(
+        assertThat(arr3?.get(1)?.get("sending_at")?.textValue() ?: "").isEqualTo(
             "never - skipSend specified"
         )
     }
