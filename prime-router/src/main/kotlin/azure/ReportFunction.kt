@@ -305,7 +305,9 @@ class ReportFunction : Logging {
     ) {
 
         val report = parsedReport.copy()
-        val senderName = (parsedReport.sources[0] as ClientSource).name
+        val sender = parsedReport.sources.firstOrNull()
+            ?: error("Unable to process report ${report.id} because sender sources collection is empty.")
+        val senderName = (sender as ClientSource).name
 
         if (report.bodyFormat != Report.Format.INTERNAL) {
             error("Processing a non internal report async.")
