@@ -247,6 +247,22 @@
       schemaName: hl7/primary-covid-19
       format: HL7
 
+- name: "naval-health-clinic-lemoore"
+  description: "Naval Health Clinic - Lemoore"
+  jurisdiction: "FEDERAL"
+  stateCode: null
+  countyName: null
+  filters: []
+  senders:
+    - name: "default"
+      organizationName: "naval-health-clinic-lemoore"
+      format: "CSV"
+      topic: "covid-19"
+      customerStatus: "testing"
+      schemaName: "upload-covid-19"
+      keys: null
+      processingType: "sync"
+
 - name: "johns_hopkins"
   description: "Johns Hopkin's / IHS school testing program"
   jurisdiction: "FEDERAL"
@@ -367,6 +383,17 @@
       customerStatus: active
       schemaName: direct/anavasidx-covid-19
       format: CSV
+
+- name: mns
+  description: Medical Network Solutions
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: mns
+      topic: covid-19
+      customerStatus: active
+      schemaName: hl7/mns-covid-19
+      format: HL7
 
 - name: az-phd
   description: Arizona PHD
@@ -2522,6 +2549,10 @@
   description: Iowa Public Health Department
   jurisdiction: STATE
   stateCode: IA
+  filters:
+    - topic: "covid-19"
+      jurisdictionalFilter:
+      - "orEquals(ordering_facility_state, IA, patient_state, IA)"
   receivers:
     - name: elr
       organizationName: ia-phd
@@ -2530,8 +2561,37 @@
       jurisdictionalFilter:
         - orEquals(ordering_facility_state, IA, patient_state, IA)
       translation:
-        type: HL7
+        useTestProcessingMode: false
         useBatchHeaders: true
+        receivingApplicationName: IA.DOH.IDSS
+        receivingApplicationOID: 2.16.840.1.114222.4.3.3.19
+        receivingFacilityName: IA DOH
+        receivingFacilityOID: 2.16.840.1.114222.4.1.3650
+        messageProfileId: null
+        replaceValue: { }
+        reportingFacilityName: null
+        reportingFacilityId: null
+        reportingFacilityIdType: null
+        suppressQstForAoe: false
+        suppressHl7Fields: null
+        suppressAoe: false
+        defaultAoeToUnknown: false
+        useBlankInsteadOfUnknown: null
+        truncateHDNamespaceIds: true
+        truncateHl7Fields: null
+        usePid14ForPatientEmail: false
+        convertTimestampToDateTime: null
+        cliaForOutOfStateTesting: null
+        cliaForSender: { }
+        phoneNumberFormatting: "STANDARD"
+        suppressNonNPI: false
+        processingModeCode: null
+        replaceDiiWithOid: null
+        useOrderingFacilityName: "STANDARD"
+        valueSetOverrides: { }
+        nameFormat: "STANDARD"
+        receivingOrganization: null
+        type: "HL7"
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute

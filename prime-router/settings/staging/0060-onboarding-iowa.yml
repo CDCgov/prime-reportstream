@@ -1,0 +1,63 @@
+---
+- name: "ia-phd"
+  description: "Iowa Public Health Department"
+  jurisdiction: "STATE"
+  stateCode: "IA"
+  countyName: null
+  filters:
+    - topic: "covid-19"
+      jurisdictionalFilter:
+      - "orEquals(ordering_facility_state, IA, patient_state, IA)"
+  senders: []
+  receivers:
+    - name: "elr"
+      organizationName: "ia-phd"
+      topic: "covid-19"
+      customerStatus: "active"
+      translation: !<HL7>
+        useTestProcessingMode: false
+        useBatchHeaders: true
+        receivingApplicationName: IA.DOH.IDSS
+        receivingApplicationOID: 2.16.840.1.114222.4.3.3.19
+        receivingFacilityName: IA DOH
+        receivingFacilityOID: 2.16.840.1.114222.4.1.3650
+        messageProfileId: null
+        replaceValue: {}
+        reportingFacilityName: null
+        reportingFacilityId: null
+        reportingFacilityIdType: null
+        suppressQstForAoe: false
+        suppressHl7Fields: null
+        suppressAoe: false
+        defaultAoeToUnknown: false
+        useBlankInsteadOfUnknown: null
+        truncateHDNamespaceIds: true
+        truncateHl7Fields: null
+        usePid14ForPatientEmail: false
+        convertTimestampToDateTime: null
+        cliaForOutOfStateTesting: null
+        cliaForSender: {}
+        phoneNumberFormatting: "STANDARD"
+        suppressNonNPI: false
+        processingModeCode: null
+        replaceDiiWithOid: null
+        useOrderingFacilityName: "STANDARD"
+        valueSetOverrides: {}
+        nameFormat: "STANDARD"
+        receivingOrganization: null
+        type: "HL7"
+      jurisdictionalFilter: []
+      qualityFilter: []
+      routingFilter: []
+      processingModeFilter: []
+      reverseTheQualityFilter: false
+      deidentify: false
+      timing:
+        operation: "MERGE"
+        numberPerDay: 12
+        initialTime: "01:15"
+        timeZone: "EASTERN"
+        maxReportCount: 500
+      description: ""
+      transport: null
+      externalName: Iowa Primary Feed
