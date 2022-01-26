@@ -1,16 +1,16 @@
 package gov.cdc.prime.router.azure
 
 import com.microsoft.azure.functions.ExecutionContext
+import gov.cdc.prime.router.ActionError
+import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.FileSettings
-import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
-import gov.cdc.prime.router.ResultDetail
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
@@ -23,6 +23,7 @@ import gov.cdc.prime.router.azure.db.tables.pojos.Task
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
+import gov.cdc.prime.router.serializers.ReadResult
 import gov.cdc.prime.router.serializers.RedoxSerializer
 import gov.cdc.prime.router.transport.AS2Transport
 import gov.cdc.prime.router.transport.BlobStoreTransport
@@ -174,13 +175,12 @@ class WorkflowEngine(
         rawBody: ByteArray,
         sender: Sender,
         actionHistory: ActionHistory,
-        workflowEngine: WorkflowEngine,
         payloadName: String? = null,
     ): String {
         // Save a copy of the original report
         val senderReportFormat = Report.Format.safeValueOf(sender.format.toString())
         val blobFilename = report.name.replace(report.bodyFormat.ext, senderReportFormat.ext)
-        val blobInfo = workflowEngine.blob.uploadBody(
+        val blobInfo = blob.uploadBody(
             senderReportFormat, rawBody,
             blobFilename, sender.fullName, Event.EventAction.RECEIVE
         )
@@ -406,25 +406,24 @@ class WorkflowEngine(
         options: Options,
         defaults: Map<String, String>,
         routeTo: List<String>,
-        warnings: MutableList<ResultDetail>,
         actionHistory: ActionHistory,
-    ) {
-        this.db.transact { txn ->
-            val (emptyReports, preparedReports) = this
-                .translator
-                .filterAndTranslateByReceiver(
-                    report,
-                    defaults,
-                    routeTo,
-                    warnings,
-                ).partition { (report, _) -> report.isEmpty() }
+    ): List<ActionLog> {
+        val (routedReports, warnings) = this.translator
+            .filterAndTranslateByReceiver(
+                report,
+                defaults,
+                routeTo,
+            )
 
-            emptyReports.forEach { (report, receiver) ->
-                if (!report.filteringResults.isEmpty()) {
-                    actionHistory.trackFilteredReport(report, receiver)
-                }
+        val (emptyReports, preparedReports) = routedReports.partition { (report, _) -> report.isEmpty() }
+
+        emptyReports.forEach { (filteredReport, receiver) ->
+            if (!filteredReport.filteringResults.isEmpty()) {
+                actionHistory.trackFilteredReport(report, filteredReport, receiver)
             }
+        }
 
+        this.db.transact { txn ->
             preparedReports.forEach { (report, receiver) ->
                 sendToDestination(
                     report,
@@ -436,6 +435,7 @@ class WorkflowEngine(
                 )
             }
         }
+        return warnings
     }
 
     // 1. create <event, report> pair or pairs depending on input
@@ -476,7 +476,7 @@ class WorkflowEngine(
                         metadata = Metadata.getInstance()
                     )
                     emptyReport.filteringResults.add(it)
-                    actionHistory.trackFilteredReport(emptyReport, receiver)
+                    actionHistory.trackFilteredReport(report, emptyReport, receiver)
                 }
 
                 report
@@ -530,9 +530,6 @@ class WorkflowEngine(
         context: ExecutionContext,
         actionHistory: ActionHistory
     ) {
-        val errors: MutableList<ResultDetail> = mutableListOf()
-        val warnings: MutableList<ResultDetail> = mutableListOf()
-
         db.transact { txn ->
             val task = db.fetchAndLockTask(messageEvent.reportId, txn)
 
@@ -546,22 +543,21 @@ class WorkflowEngine(
                 blobReportId = messageEvent.reportId
             )
 
+            actionHistory.trackExistingInputReport(report.id)
+
             //  send to routeReport
-            routeReport(
+            val warnings = routeReport(
                 context,
                 report,
                 messageEvent.options,
                 messageEvent.defaults,
                 messageEvent.routeTo,
-                warnings,
                 actionHistory
             )
 
+            actionHistory.trackLogs(warnings)
             // track response body
             val responseBody = actionHistory.createResponseBody(
-                messageEvent.options,
-                warnings,
-                errors,
                 true,
                 report
             )
@@ -665,7 +661,7 @@ class WorkflowEngine(
                     emptyList(),
                     header.receiver
                 )
-                if (result.report == null || result.errors.isNotEmpty()) {
+                if (result.errors.isNotEmpty()) {
                     error("Internal Error: Could not read a saved CSV blob: ${header.task.bodyUrl}")
                 }
                 result.report
@@ -888,61 +884,47 @@ class WorkflowEngine(
      * @param warnings Transaction store of warnings produced while processing this message
      * @return Returns a generated report object, or null
      */
-    fun createReport(
+    fun parseReport(
         sender: Sender,
         content: String,
         defaults: Map<String, String>,
-        // TODO: Tech debt, should not be getting errors and warnings as side effect work, should be returning something
-        //  and building these in the response object from the top layer function
-        errors: MutableList<ResultDetail>,
-        warnings: MutableList<ResultDetail>
-    ): Report? {
+    ): ReadResult {
         return when (sender.format) {
             Sender.Format.CSV -> {
                 try {
-                    val readResult = this.csvSerializer.readExternal(
+                    this.csvSerializer.readExternal(
                         schemaName = sender.schemaName,
                         input = ByteArrayInputStream(content.toByteArray()),
                         sources = listOf(ClientSource(organization = sender.organizationName, client = sender.name)),
                         defaultValues = defaults,
                         sender = sender,
                     )
-                    errors += readResult.errors
-                    warnings += readResult.warnings
-                    readResult.report
                 } catch (e: Exception) {
-                    errors.add(
-                        ResultDetail.report(
-                            InvalidReportMessage.new(
-                                "An unexpected error occurred requiring additional help. Contact the ReportStream " +
-                                    "team at reportstream@cdc.gov."
-                            )
-                        )
+                    throw ActionError(
+                        ActionLog.report(
+                            "An unexpected error occurred requiring additional help. Contact the ReportStream " +
+                                "team at reportstream@cdc.gov."
+                        ),
+                        e.message,
                     )
-                    null
                 }
             }
             Sender.Format.HL7 -> {
                 try {
-                    val readResult = this.hl7Serializer.readExternal(
+                    this.hl7Serializer.readExternal(
                         schemaName = sender.schemaName,
                         input = ByteArrayInputStream(content.toByteArray()),
                         ClientSource(organization = sender.organizationName, client = sender.name),
                         sender = sender,
                     )
-                    errors += readResult.errors
-                    warnings += readResult.warnings
-                    readResult.report
                 } catch (e: Exception) {
-                    errors.add(
-                        ResultDetail.report(
-                            InvalidReportMessage.new(
-                                "An unexpected error occurred requiring " +
-                                    "additional help. Contact the ReportStream team at reportstream@cdc.gov."
-                            )
-                        )
+                    throw ActionError(
+                        ActionLog.report(
+                            "An unexpected error occurred requiring additional help. Contact the ReportStream " +
+                                "team at reportstream@cdc.gov."
+                        ),
+                        e.message,
                     )
-                    null
                 }
             }
         }

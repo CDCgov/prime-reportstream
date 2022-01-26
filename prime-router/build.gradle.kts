@@ -21,6 +21,7 @@ import org.apache.commons.io.FileUtils
 import org.apache.commons.io.FilenameUtils
 import org.apache.tools.ant.filters.ReplaceTokens
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jooq.meta.jaxb.ForcedType
 import java.io.FileInputStream
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -524,6 +525,18 @@ jooq {
                         name = "org.jooq.meta.postgres.PostgresDatabase"
                         inputSchema = "public"
                         includes = ".*"
+                        forcedTypes.add(
+                            ForcedType()
+                                // Specify the Java type of your custom type. This corresponds to the Binding's <U> type.
+                                .withUserType("gov.cdc.prime.router.ActionLogDetail")
+                                // Associate that custom type with your binding.
+                                .withBinding("gov.cdc.prime.router.ActionLogDetailBinding")
+                                // A Java regex matching fully-qualified columns, attributes, parameters. Use the pipe to separate several expressions.
+                                // 
+                                // If provided, both "includeExpressions" and "includeTypes" must match.
+                                .withIncludeExpression("action_log.detail")
+                                .withIncludeTypes("JSONB")
+                        )
                     }
                     generate.apply {
                         isImmutablePojos = false
@@ -642,7 +655,7 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-api-kotlin:1.1.0")
     implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.2.0")
     implementation("tech.tablesaw:tablesaw-core:0.42.0")
-    implementation("com.github.ajalt.clikt:clikt-jvm:3.3.0")
+    implementation("com.github.ajalt.clikt:clikt-jvm:3.4.0")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.1")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.1")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.13.1")
@@ -689,7 +702,7 @@ dependencies {
     implementation("io.ktor:ktor-client-apache:$ktorVersion")
     implementation("io.ktor:ktor-client-logging:$ktorVersion")
     implementation("it.skrape:skrapeit-html-parser:1.1.6")
-    implementation("it.skrape:skrapeit-http-fetcher:1.1.6")
+    implementation("it.skrape:skrapeit-http-fetcher:1.2.0")
     implementation("org.apache.poi:poi:5.1.0")
     implementation("org.apache.poi:poi-ooxml:5.1.0")
     implementation("commons-io:commons-io: 2.11.0")

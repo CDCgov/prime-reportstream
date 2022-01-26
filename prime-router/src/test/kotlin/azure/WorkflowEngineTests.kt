@@ -140,7 +140,7 @@ class WorkflowEngineTests {
         every { actionHistory.trackExternalInputReport(any(), any()) }.returns(Unit)
 
         val engine = makeEngine(metadata, settings)
-        engine.recordReceivedReport(report1, "body".toByteArray(), sender, actionHistory, engine)
+        engine.recordReceivedReport(report1, "body".toByteArray(), sender, actionHistory)
 
         verify(exactly = 1) {
             actionHistory.trackExternalInputReport(any(), any())

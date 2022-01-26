@@ -13,6 +13,8 @@ import ca.uhn.hl7v2.parser.EncodingNotSupportedException
 import ca.uhn.hl7v2.parser.ModelClassFactory
 import ca.uhn.hl7v2.preparser.PreParser
 import ca.uhn.hl7v2.util.Terser
+import gov.cdc.prime.router.ActionError
+import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.ElementAndValue
 import gov.cdc.prime.router.Hl7Configuration
@@ -20,7 +22,6 @@ import gov.cdc.prime.router.InvalidHL7Message
 import gov.cdc.prime.router.Mapper
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.ResultDetail
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
@@ -371,22 +372,37 @@ class Hl7Serializer(
         source: Source,
         sender: Sender? = null,
     ): ReadResult {
-        val errors = mutableListOf<ResultDetail>()
-        val warnings = mutableListOf<ResultDetail>()
+        val errors = mutableListOf<ActionLog>()
+        val warnings = mutableListOf<ActionLog>()
         val messageBody = input.bufferedReader().use { it.readText() }
         val schema = metadata.findSchema(schemaName) ?: error("Schema name $schemaName not found")
         val mapping = convertBatchMessagesToMap(messageBody, schema, sender = sender)
         val mappedRows = mapping.mappedRows
-        errors.addAll(mapping.errors.map { ResultDetail(ResultDetail.DetailScope.ITEM, "", InvalidHL7Message.new(it)) })
+        errors.addAll(
+            mapping.errors.map {
+                ActionLog(
+                    ActionLog.ActionLogScope.item,
+                    InvalidHL7Message.new(it),
+                    type = ActionLog.ActionLogType.error
+                )
+            }
+        )
         warnings.addAll(
             mapping.warnings.map {
-                ResultDetail(ResultDetail.DetailScope.ITEM, "", InvalidHL7Message.new(it))
+                ActionLog(
+                    ActionLog.ActionLogScope.item,
+                    InvalidHL7Message.new(it),
+                    type = ActionLog.ActionLogType.warning
+                )
             }
         )
         mappedRows.forEach {
             logger.debug("${it.key} -> ${it.value.joinToString()}")
         }
-        val report = if (errors.size > 0) null else Report(schema, mappedRows, source, metadata = metadata)
+        if (errors.size > 0) {
+            throw ActionError(errors)
+        }
+        val report = Report(schema, mappedRows, source, metadata = metadata)
         return ReadResult(report, errors, warnings)
     }
 
