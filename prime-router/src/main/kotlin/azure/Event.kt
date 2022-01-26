@@ -183,9 +183,9 @@ class ProcessEvent(
         val defaultsQueueParam = defaults.map { pair -> "${pair.key}:${pair.value}" }.joinToString(",")
 
         // determine if these parts of the queue message are present
-        val atClause = if (at == null) "" else "${DateTimeFormatter.ISO_DATE_TIME.format(at)}"
-        val defaultClause = if (defaultsQueueParam.isEmpty()) "" else "$defaultsQueueParam"
-        val routeToClause = if (routeToQueueParam.isEmpty()) "" else "$routeToQueueParam"
+        val atClause = if (at == null) "" else DateTimeFormatter.ISO_DATE_TIME.format(at)
+        val defaultClause = if (defaultsQueueParam.isEmpty()) "" else defaultsQueueParam
+        val routeToClause = if (routeToQueueParam.isEmpty()) "" else routeToQueueParam
 
         // generate the process queue message
         return "$eventType$messageDelimiter$eventAction$messageDelimiter$reportId$messageDelimiter$options" +
@@ -198,6 +198,13 @@ class ProcessEvent(
             reportId == other.reportId &&
             at == other.at &&
             retryToken == other.retryToken
+    }
+
+    override fun hashCode(): Int {
+        return (7 * eventAction.hashCode()) +
+            (31 * reportId.hashCode()) +
+            (17 * at.hashCode()) +
+            (19 * retryDuration.hashCode())
     }
 
     companion object {
@@ -225,6 +232,13 @@ class ReportEvent(
             retryToken == other.retryToken
     }
 
+    override fun hashCode(): Int {
+        return (7 * eventAction.hashCode()) +
+            (31 * reportId.hashCode()) +
+            (17 * at.hashCode()) +
+            (19 * retryDuration.hashCode())
+    }
+
     companion object {
         const val eventType = "report"
     }
@@ -248,6 +262,12 @@ class BatchEvent(
             eventAction == other.eventAction &&
             receiverName == other.receiverName &&
             at == other.at
+    }
+
+    override fun hashCode(): Int {
+        return (7 * eventAction.hashCode()) +
+            (19 * receiverName.hashCode()) +
+            (17 * at.hashCode())
     }
 
     // this should say 'batch' but will break production on deploy if there is anything in the batch queue
