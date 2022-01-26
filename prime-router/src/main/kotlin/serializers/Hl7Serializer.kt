@@ -921,7 +921,20 @@ class Hl7Serializer(
         val maxLength = getMaxLength(hl7Field, value, hl7Config, terser)
         val hd = Element.parseHD(value, maxLength)
         if (hd.universalId != null && hd.universalIdSystem != null) {
-            terser.set("$pathSpec-1", hd.name) // already truncated
+            // if we have entered this space, there is a chance we will not have accurately calculated
+            // the max length for the HD namespace ID. Case in point, sending_application in the
+            // COVID-19 schema is coded to go into the MSH-3 segment. when getMaxLength above is invoked
+            // it doesn't accurately calculate max length because the max length for the entire field
+            // is the sum of the three subfields. thus, an HD namespace ID can slide through untruncated.
+            // we know that this could happen because the parseHD method does a split on the field, and if
+            // there's more than one field, it fills in the universalId and universalIdSystem fields.
+            // at this point now we do a final saving throw to see if maybe the subfield needs another trim.
+            if (hl7Config?.truncateHDNamespaceIds == true) {
+                val subpartMaxLength = getMaxLength("$hl7Field-1", value, hl7Config, terser)
+                terser.set("$pathSpec-1", hd.name.trimAndTruncate(subpartMaxLength))
+            } else {
+                terser.set("$pathSpec-1", hd.name)
+            }
             terser.set("$pathSpec-2", hd.universalId)
             terser.set("$pathSpec-3", hd.universalIdSystem)
         } else {

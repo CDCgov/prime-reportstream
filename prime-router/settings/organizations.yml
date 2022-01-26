@@ -2567,7 +2567,7 @@
         defaultAoeToUnknown: false
         useBlankInsteadOfUnknown: null
         truncateHDNamespaceIds: true
-        truncateHl7Fields: null
+        truncateHl7Fields: MSH-3-1
         usePid14ForPatientEmail: false
         convertTimestampToDateTime: null
         cliaForOutOfStateTesting: null
