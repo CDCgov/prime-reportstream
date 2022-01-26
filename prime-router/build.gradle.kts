@@ -21,6 +21,7 @@ import org.apache.commons.io.FileUtils
 import org.apache.commons.io.FilenameUtils
 import org.apache.tools.ant.filters.ReplaceTokens
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jooq.meta.jaxb.ForcedType
 import java.io.FileInputStream
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -28,13 +29,14 @@ import java.util.Properties
 
 plugins {
     kotlin("jvm") version "1.6.10"
-    id("org.flywaydb.flyway") version "8.3.0"
+    id("org.flywaydb.flyway") version "8.4.2"
     id("nu.studer.jooq") version "6.0.1"
     id("com.github.johnrengelman.shadow") version "7.1.1"
     id("com.microsoft.azure.azurefunctions") version "1.8.2"
-    id("org.jlleitschuh.gradle.ktlint") version "10.2.0"
+    id("org.jlleitschuh.gradle.ktlint") version "10.2.1"
     id("com.adarshr.test-logger") version "3.1.0"
     id("jacoco")
+    id("org.jetbrains.dokka") version "1.6.10"
 }
 
 group = "gov.cdc.prime"
@@ -162,9 +164,19 @@ tasks.test {
     }
 }
 
+tasks.javadoc.configure {
+    actions.clear()
+    dependsOn(tasks.dokkaHtml)
+}
+
+tasks.dokkaHtml.configure {
+    val docsDir = File(project.buildDir, "/docs/dokka")
+    outputDirectory.set(docsDir)
+}
+
 tasks.jacocoTestReport {
     dependsOn(tasks.test)
-    // Jacoco wants the source file directory structure to match the package name like in Java, so 
+    // Jacoco wants the source file directory structure to match the package name like in Java, so
     // move the source files to a temp location with that structure.
     val sourcesDir = File(project.projectDir, "/src/main/kotlin")
     val jacocoSourcesDir = File(project.buildDir, "/jacoco/sources")
@@ -439,6 +451,7 @@ tasks.register("quickPackage") {
     tasks["compileTestKotlin"].enabled = false
     tasks["migrate"].enabled = false
     tasks["flywayMigrate"].enabled = false
+    tasks["dokkaHtml"].enabled = false
 }
 
 tasks.azureFunctionsRun {
@@ -481,6 +494,7 @@ tasks.register("quickRun") {
     tasks["compileTestKotlin"].enabled = false
     tasks["migrate"].enabled = false
     tasks["flywayMigrate"].enabled = false
+    tasks["dokkaHtml"].enabled = false
 }
 
 /**
@@ -511,6 +525,18 @@ jooq {
                         name = "org.jooq.meta.postgres.PostgresDatabase"
                         inputSchema = "public"
                         includes = ".*"
+                        forcedTypes.add(
+                            ForcedType()
+                                // Specify the Java type of your custom type. This corresponds to the Binding's <U> type.
+                                .withUserType("gov.cdc.prime.router.ActionLogDetail")
+                                // Associate that custom type with your binding.
+                                .withBinding("gov.cdc.prime.router.ActionLogDetailBinding")
+                                // A Java regex matching fully-qualified columns, attributes, parameters. Use the pipe to separate several expressions.
+                                // 
+                                // If provided, both "includeExpressions" and "includeTypes" must match.
+                                .withIncludeExpression("action_log.detail")
+                                .withIncludeTypes("JSONB")
+                        )
                     }
                     generate.apply {
                         isImmutablePojos = false
@@ -607,7 +633,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")
     implementation("com.microsoft.azure.functions:azure-functions-java-library:1.4.2")
-    implementation("com.azure:azure-core:1.23.1")
+    implementation("com.azure:azure-core:1.24.1")
     implementation("com.azure:azure-core-http-netty:1.11.4")
     implementation("com.azure:azure-storage-blob:12.14.1") {
         exclude(group = "com.azure", module = "azure-core")
@@ -629,15 +655,15 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-api-kotlin:1.1.0")
     implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.2.0")
     implementation("tech.tablesaw:tablesaw-core:0.42.0")
-    implementation("com.github.ajalt.clikt:clikt-jvm:3.3.0")
+    implementation("com.github.ajalt.clikt:clikt-jvm:3.4.0")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.1")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.1")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.13.1")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.0")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.1")
     implementation("com.github.javafaker:javafaker:1.0.2")
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
-    implementation("com.googlecode.libphonenumber:libphonenumber:8.12.39")
+    implementation("com.googlecode.libphonenumber:libphonenumber:8.12.41")
     implementation("org.thymeleaf:thymeleaf:3.0.14.RELEASE")
     implementation("com.sendgrid:sendgrid-java:4.8.1")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.1")
@@ -656,7 +682,7 @@ dependencies {
     implementation("commons-io:commons-io:2.11.0")
     implementation("org.postgresql:postgresql:42.3.0")
     implementation("com.zaxxer:HikariCP:5.0.0")
-    implementation("org.flywaydb:flyway-core:8.3.0")
+    implementation("org.flywaydb:flyway-core:8.4.2")
     implementation("org.commonmark:commonmark:0.18.1")
     implementation("com.google.guava:guava:31.0.1-jre")
     implementation("com.helger.as2:as2-lib:4.9.1")
@@ -667,7 +693,7 @@ dependencies {
 
     implementation("commons-net:commons-net:3.8.0")
     implementation("com.cronutils:cron-utils:9.1.5")
-    implementation("com.auth0:java-jwt:3.18.2")
+    implementation("com.auth0:java-jwt:3.18.3")
     implementation("io.jsonwebtoken:jjwt-api:0.11.2")
     implementation("de.m3y.kformat:kformat:0.9")
     implementation("io.github.java-diff-utils:java-diff-utils:4.11")
@@ -676,7 +702,7 @@ dependencies {
     implementation("io.ktor:ktor-client-apache:$ktorVersion")
     implementation("io.ktor:ktor-client-logging:$ktorVersion")
     implementation("it.skrape:skrapeit-html-parser:1.1.6")
-    implementation("it.skrape:skrapeit-http-fetcher:1.1.6")
+    implementation("it.skrape:skrapeit-http-fetcher:1.2.0")
     implementation("org.apache.poi:poi:5.1.0")
     implementation("org.apache.poi:poi-ooxml:5.1.0")
     implementation("commons-io:commons-io: 2.11.0")

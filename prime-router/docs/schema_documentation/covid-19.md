@@ -3004,6 +3004,18 @@ Is the test authorized for unproctored administration by the FDA (Y, N, UNK)
 
 ---
 
+**Name**: test_correction_reason
+
+**ReportStream Internal Name**: test_correction_reason
+
+**Type**: TEXT
+
+**PII**: Yes
+
+**Cardinality**: [0..1]
+
+---
+
 **Name**: test_kit_name_id
 
 **ReportStream Internal Name**: test_kit_name_id

@@ -202,6 +202,13 @@ class ProcessEvent(
             retryToken == other.retryToken
     }
 
+    override fun hashCode(): Int {
+        return (7 * eventAction.hashCode()) +
+            (31 * reportId.hashCode()) +
+            (17 * at.hashCode()) +
+            (19 * retryDuration.hashCode())
+    }
+
     companion object {
         const val eventType = "process"
     }
@@ -229,6 +236,13 @@ class ReportEvent(
             retryToken == other.retryToken
     }
 
+    override fun hashCode(): Int {
+        return (7 * eventAction.hashCode()) +
+            (31 * reportId.hashCode()) +
+            (17 * at.hashCode()) +
+            (19 * retryDuration.hashCode())
+    }
+
     companion object {
         const val eventType = "report"
     }
@@ -254,6 +268,12 @@ class BatchEvent(
             eventAction == other.eventAction &&
             receiverName == other.receiverName &&
             at == other.at
+    }
+
+    override fun hashCode(): Int {
+        return (7 * eventAction.hashCode()) +
+            (19 * receiverName.hashCode()) +
+            (17 * at.hashCode())
     }
 
     // this should say 'batch' but will break production on deploy if there is anything in the batch queue

@@ -13,6 +13,8 @@ import ca.uhn.hl7v2.parser.EncodingNotSupportedException
 import ca.uhn.hl7v2.parser.ModelClassFactory
 import ca.uhn.hl7v2.preparser.PreParser
 import ca.uhn.hl7v2.util.Terser
+import gov.cdc.prime.router.ActionError
+import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.ElementAndValue
 import gov.cdc.prime.router.Hl7Configuration
@@ -20,7 +22,6 @@ import gov.cdc.prime.router.InvalidHL7Message
 import gov.cdc.prime.router.Mapper
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.ResultDetail
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
@@ -381,22 +382,37 @@ class Hl7Serializer(
         source: Source,
         sender: Sender? = null,
     ): ReadResult {
-        val errors = mutableListOf<ResultDetail>()
-        val warnings = mutableListOf<ResultDetail>()
+        val errors = mutableListOf<ActionLog>()
+        val warnings = mutableListOf<ActionLog>()
         val messageBody = input.bufferedReader().use { it.readText() }
         val schema = metadata.findSchema(schemaName) ?: error("Schema name $schemaName not found")
         val mapping = convertBatchMessagesToMap(messageBody, schema, sender = sender)
         val mappedRows = mapping.mappedRows
-        errors.addAll(mapping.errors.map { ResultDetail(ResultDetail.DetailScope.ITEM, "", InvalidHL7Message.new(it)) })
+        errors.addAll(
+            mapping.errors.map {
+                ActionLog(
+                    ActionLog.ActionLogScope.item,
+                    InvalidHL7Message.new(it),
+                    type = ActionLog.ActionLogType.error
+                )
+            }
+        )
         warnings.addAll(
             mapping.warnings.map {
-                ResultDetail(ResultDetail.DetailScope.ITEM, "", InvalidHL7Message.new(it))
+                ActionLog(
+                    ActionLog.ActionLogScope.item,
+                    InvalidHL7Message.new(it),
+                    type = ActionLog.ActionLogType.warning
+                )
             }
         )
         mappedRows.forEach {
             logger.debug("${it.key} -> ${it.value.joinToString()}")
         }
-        val report = if (errors.size > 0) null else Report(schema, mappedRows, source, metadata = metadata)
+        if (errors.size > 0) {
+            throw ActionError(errors)
+        }
+        val report = Report(schema, mappedRows, source, metadata = metadata)
         return ReadResult(report, errors, warnings)
     }
 
@@ -445,6 +461,7 @@ class Hl7Serializer(
             ?.map { it.trim() } ?: emptyList()
         // start processing
         var aoeSequence = 1
+        var nteSequence = 0
         val terser = Terser(message)
         setLiterals(terser)
         // we are going to set up overrides for the elements in the collection if the valueset
@@ -528,8 +545,8 @@ class Hl7Serializer(
                 }
             } else if (element.hl7Field == "ORC-21-1") {
                 setOrderingFacilityComponent(terser, rawFacilityName = value, useOrderingFacilityName, report, row)
-            } else if (element.hl7Field == "NTE-3") {
-                setNote(terser, value)
+            } else if (element.hl7Field == "NTE-3" && value.isNotBlank()) {
+                setNote(terser, nteSequence++, value)
             } else if (element.hl7Field == "MSH-7") {
                 setComponent(
                     terser,
@@ -1230,14 +1247,14 @@ class Hl7Serializer(
         }
     }
 
-    private fun setNote(terser: Terser, value: String) {
+    private fun setNote(terser: Terser, nteRep: Int, value: String) {
         if (value.isBlank()) return
-        terser.set(formPathSpec("NTE-1"), "1")
-        terser.set(formPathSpec("NTE-3"), value)
-        terser.set(formPathSpec("NTE-4-1"), "RE")
-        terser.set(formPathSpec("NTE-4-2"), "Remark")
-        terser.set(formPathSpec("NTE-4-3"), "HL70364")
-        terser.set(formPathSpec("NTE-4-7"), HL7_SPEC_VERSION)
+        terser.set(formPathSpec("NTE-1", nteRep), nteRep.plus(1).toString())
+        terser.set(formPathSpec("NTE-3", nteRep), value)
+        terser.set(formPathSpec("NTE-4-1", nteRep), "RE")
+        terser.set(formPathSpec("NTE-4-2", nteRep), "Remark")
+        terser.set(formPathSpec("NTE-4-3", nteRep), "HL70364")
+        terser.set(formPathSpec("NTE-4-7", nteRep), HL7_SPEC_VERSION)
     }
 
     private fun setLiterals(terser: Terser) {
@@ -1275,13 +1292,18 @@ class Hl7Serializer(
      * @param truncationLimit the starting limit
      * @return the new truncation limit or starting limit if no special characters are found
      */
-    internal fun getTruncationLimitWithEncoding(value: String, truncationLimit: Int): Int {
-        val regex = "[&^~|]".toRegex()
-        val endIndex = min(value.length, truncationLimit)
-        val matchCount = regex.findAll(value.substring(0, endIndex)).count()
+    internal fun getTruncationLimitWithEncoding(value: String, truncationLimit: Int?): Int? {
 
-        return if (matchCount > 0) {
-            truncationLimit.minus(matchCount.times(2))
+        return if (truncationLimit != null) {
+            val regex = "[&^~|]".toRegex()
+            val endIndex = min(value.length, truncationLimit)
+            val matchCount = regex.findAll(value.substring(0, endIndex)).count()
+
+            if (matchCount > 0) {
+                truncationLimit.minus(matchCount.times(2))
+            } else {
+                truncationLimit
+            }
         } else {
             truncationLimit
         }
@@ -1313,6 +1335,12 @@ class Hl7Serializer(
             ?.split(",")
             ?.map { it.trim() }
             ?: emptyList()
+
+        // The & character in HL7 is a sub sub field separator. A validly
+        // produced HL7 message should escape & characters as \T\ so that
+        // the HL7 parser doesn't interpret these as sub sub field separators.
+        // Because of this reason, all string values should go through the getTruncationLimitWithEncoding
+        // so that string values that contain sub sub field separators (^&~) will be properly truncated.
         return when {
             // This special case takes into account special rules needed by jurisdiction
             hl7Config?.truncateHDNamespaceIds == true && hl7Field in HD_FIELDS_LOCAL -> {
@@ -1320,7 +1348,7 @@ class Hl7Serializer(
             }
             // For the fields listed here use the hl7 max length
             hl7Field in hl7TruncationFields -> {
-                getHl7MaxLength(hl7Field, terser)
+                getTruncationLimitWithEncoding(value, getHl7MaxLength(hl7Field, terser))
             }
             // In general, don't truncate. The thinking is that
             // 1. the max length of the specification is "normative" not system specific.
@@ -1480,7 +1508,7 @@ class Hl7Serializer(
             "SPM" -> "/PATIENT_RESULT/ORDER_OBSERVATION/SPECIMEN/SPM"
             "PID" -> "/PATIENT_RESULT/PATIENT/PID"
             "OBX" -> "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION$repSpec/OBX"
-            "NTE" -> "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/NTE"
+            "NTE" -> "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/NTE$repSpec"
             else -> segment
         }
     }
@@ -1689,7 +1717,7 @@ class Hl7Serializer(
          * List of fields that have the local HD type.
          */
         val HD_FIELDS_LOCAL = listOf(
-            "MSH-4-1", "OBR-3-2", "OBR-2-2", "ORC-3-2", "ORC-2-2", "ORC-4-2",
+            "MSH-3-1", "MSH-4-1", "OBR-3-2", "OBR-2-2", "ORC-3-2", "ORC-2-2", "ORC-4-2",
             "PID-3-4-1", "PID-3-6-1", "SPM-2-1-2", "SPM-2-2-2"
         )
 
@@ -1697,7 +1725,7 @@ class Hl7Serializer(
          * List of fields that have the universal HD type
          */
         val HD_FIELDS_UNIVERSAL = listOf(
-            "MSH-4-2", "OBR-3-3", "OBR-2-3", "ORC-3-3", "ORC-2-3", "ORC-4-3",
+            "MSH-3-2", "MSH-4-2", "OBR-3-3", "OBR-2-3", "ORC-3-3", "ORC-2-3", "ORC-4-3",
             "PID-3-4-2", "PID-3-6-2", "SPM-2-1-3", "SPM-2-2-3"
         )
 
@@ -1710,6 +1738,7 @@ class Hl7Serializer(
 
         // Component specific sub-component length from HL7 specification Chapter 2A
         private val CWE_MAX_LENGTHS = arrayOf(20, 199, 20, 20, 199, 20, 10, 10, 199)
+        private val CX_MAX_LENGTHS = arrayOf(15, 1, 3, 227, 5, 227, 5, 227, 8, 8, 705, 705)
         private val EI_MAX_LENGTHS = arrayOf(199, 20, 199, 6)
         private val EIP_MAX_LENGTHS = arrayOf(427, 427)
         private val HD_MAX_LENGTHS = arrayOf(20, 199, 6)
@@ -1725,6 +1754,7 @@ class Hl7Serializer(
          */
         val HL7_COMPONENT_MAX_LENGTH = mapOf(
             "CWE" to CWE_MAX_LENGTHS,
+            "CX" to CX_MAX_LENGTHS,
             "EI" to EI_MAX_LENGTHS,
             "EIP" to EIP_MAX_LENGTHS,
             "HD" to HD_MAX_LENGTHS,

@@ -39,7 +39,6 @@ class ProcessFunction {
 
             actionHistory = ActionHistory(event.eventAction.toTaskAction(), context)
             actionHistory.trackActionParams(message)
-            actionHistory.trackExistingInputReport(event.reportId)
 
             workflowEngine.handleProcessEvent(event, context, actionHistory)
         } catch (e: Exception) {

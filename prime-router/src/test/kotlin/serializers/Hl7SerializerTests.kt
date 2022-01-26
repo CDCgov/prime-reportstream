@@ -40,7 +40,6 @@ import java.util.Date
 import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.fail
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class Hl7SerializerTests {
@@ -634,9 +633,17 @@ NTE|1|L|This is a final comment|RE"""
             truncateHDNamespaceIds = false,
             truncateHl7Fields = "MSH-4-1, MSH-3-1" // Enables truncation on these fields
         )
+        // The truncation with encoding will subtract 2 from the length for every occurrence of a
+        // special characters [&^~]. This is done because the HL7 parser escapes them by replacing them with a three
+        // character string. For example, & will get replaced with \T\. This adds 2 to the length of the value.
+        // Because of this, after getting the length truncated to 20 (HD truncation), the string value gets checked
+        // one more time to accommodate for any especial characters.
+        // "Test & Value ~ Text" truncates to "Test & Value ~ T" because the final string value will be
+        // converted to "Test \T\ Value \R\ Test",
+        // so the final string value with 20 characters will be equals to "Test \T\ Value \R\ T"
         val inputAndExpected = mapOf(
             "short" to "short",
-            "Test & Value ~ Text ^ String" to "Test & Value ~ Text",
+            "Test & Value ~ Text ^ String" to "Test & Value ~ T",
         )
         for ((input, expected) in inputAndExpected) {
             val actual = serializer.trimAndTruncateValue(input, "MSH-4-1", hl7Config, emptyTerser)
@@ -730,7 +737,7 @@ NTE|1|L|This is a final comment|RE"""
             every { it.organizationName }.returns("vt-dph")
         }
 
-        val testReport = csvSerializer.readExternal(schema, inputStream, listOf(TestSource), receiver).report ?: fail()
+        val testReport = csvSerializer.readExternal(schema, inputStream, listOf(TestSource), receiver).report
         val output = serializer.createMessage(testReport, 0)
         val mcf = CanonicalModelClassFactory("2.5.1")
         context.modelClassFactory = mcf
