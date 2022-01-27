@@ -23,6 +23,16 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
         val missing: Set<String>,
     )
 
+    data class RoutedReport(
+        val report: Report,
+        val receiver: Receiver,
+    )
+
+    data class RoutedReportsResult(
+        val reports: List<RoutedReport>,
+        val details: List<ActionLog>,
+    )
+
     /**
      * Translate and filter by the list of receiver in metadata. Only return reports that have items.
      */
@@ -30,35 +40,35 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
         input: Report,
         defaultValues: DefaultValues = emptyMap(),
         limitReceiversTo: List<String> = emptyList(),
-        warnings: MutableList<ResultDetail>? = null,
-    ): List<Pair<Report, Receiver>> {
-        if (input.isEmpty()) return emptyList()
-        return settings.receivers.filter { receiver ->
+    ): RoutedReportsResult {
+        val warnings = mutableListOf<ActionLog>()
+        if (input.isEmpty()) return RoutedReportsResult(emptyList(), warnings)
+        val routedReports = settings.receivers.filter { receiver ->
             receiver.topic == input.schema.topic &&
                 (limitReceiversTo.isEmpty() || limitReceiversTo.contains(receiver.fullName))
         }.mapNotNull { receiver ->
             try {
                 // Filter the report
                 val filteredReport = filterByAllFilterTypes(settings, input, receiver) ?: return@mapNotNull null
-                if (filteredReport.isEmpty()) return@mapNotNull Pair(filteredReport, receiver)
+                if (filteredReport.isEmpty()) return@mapNotNull RoutedReport(filteredReport, receiver)
 
                 // Translate the filteredReport
                 val translatedReport = translateByReceiver(filteredReport, receiver, defaultValues)
-                Pair(translatedReport, receiver)
+                RoutedReport(translatedReport, receiver)
             } catch (e: IllegalStateException) {
                 // catching individual translation exceptions enables overall work to continue
-                warnings?.let {
-                    warnings.add(
-                        ResultDetail(
-                            ResultDetail.DetailScope.TRANSLATION,
-                            "TO:${receiver.fullName}:${receiver.schemaName}",
-                            InvalidTranslationMessage.new(e.localizedMessage)
-                        )
+                warnings.add(
+                    ActionLog(
+                        ActionLog.ActionLogScope.translation,
+                        InvalidTranslationMessage.new(e.localizedMessage),
+                        "TO:${receiver.fullName}:${receiver.schemaName}",
+                        reportId = input.id,
                     )
-                }
+                )
                 return@mapNotNull null
             }
         }
+        return RoutedReportsResult(routedReports, warnings)
     }
 
     /**
