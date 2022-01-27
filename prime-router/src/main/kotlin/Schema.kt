@@ -5,7 +5,7 @@ package gov.cdc.prime.router
  * needed to translate data to the form that a public health authority needs.
  *
  * Schemas can be either be `basedOn` another schema or `extend` another schema. If
- * a schema is `basedOn` another schema, the elements of the schema that match the
+ * a schema is `basedOn` another schema, the elements of the schema that match
  * the elements of the base schema inherit their properties. The `basedOn` feature is
  * useful when defining a state CSV schema because it allows the state schema to only specify the names
  * of the elements it wants and the unique properties of that element. For example:
