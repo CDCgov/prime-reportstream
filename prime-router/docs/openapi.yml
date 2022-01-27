@@ -217,7 +217,7 @@ paths:
           example: fl-phd.elr,fl-phd.download
         - in: query
           name: processing
-          description: 'sync' or 'async'. defaults to 'sync'. Determines if the incoming message will follow the sync or async process
+          description: "'sync' or 'async'. defaults to 'sync'. Determines if the incoming message will follow the sync or async process"
           required: false
           schema:
               type: string
