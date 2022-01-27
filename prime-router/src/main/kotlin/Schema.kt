@@ -93,6 +93,84 @@ data class Schema(
         return elements.filter(block).flatMap { it.csvFields ?: emptyList() }
     }
 
+    /**
+     * Order the elements in this schema so elements that are dependencies to another elements mapper
+     * are first.
+     * @return the ordered element list
+     */
+    internal fun orderElementsByMapperDependencies(): List<Element> {
+        // Start with all elements that DO NOT have a mapper as completed.
+        val orderedElements = elements.filter { it.mapperRef == null }.toMutableList()
+        val unorderedElements = elements.filter { it.mapperRef != null }.toMutableList()
+
+        while (unorderedElements.isNotEmpty()) {
+            // This is to keep track of how many elements we ordered in one run
+            val unorderedElementsLeft = unorderedElements.size
+
+            // Iterate through the list, so we can remove items without having a concurrent modification exception
+            with(unorderedElements.iterator()) {
+                forEach { element ->
+                    val args = element.mapperArgs ?: emptyList()
+                    val valueNames = element.mapperRef?.valueNames(element, args)
+                    var hasAllDependencies = true
+                    valueNames?.forEach { valueName ->
+                        // Look through all values names that are elements in the schema and not itself.
+                        if (valueName != element.name) findElement(valueName)?.let {
+                            if (!orderedElements.contains(it)) hasAllDependencies = false
+                        }
+                    }
+                    if (hasAllDependencies) {
+                        orderedElements.add(element)
+                        remove()
+                    }
+                }
+            }
+
+            // If the number of unordered elements did not change then we can no longer order the rest of them
+            if (unorderedElementsLeft == unorderedElements.size) {
+                orderedElements.addAll(unorderedElements)
+                break
+            }
+        }
+
+        // Paranoia test.
+        check(orderedElements.size == elements.size)
+        return orderedElements
+    }
+
+    /**
+     * Determine the values for the elements on this schema.  This function checks if a
+     * mapper needs to be run or if a default needs to be applied.
+     * @param allElementValues the values for all other elements which are updated as needed
+     * @param errors errors will be added to this list
+     * @param warnings warnings will be added to this list
+     * @param defaultOverrides element name and value pairs of defaults that override schema defaults
+     * @param itemIndex the index of the item from a report being processed
+     * @param sender Sender who submitted the data.  Can be null if called at a point in code where its not known
+     */
+    fun processValues(
+        allElementValues: MutableMap<String, String>,
+        errors: MutableList<ActionLogDetail>,
+        warnings: MutableList<ActionLogDetail>,
+        defaultOverrides: Map<String, String> = emptyMap(),
+        itemIndex: Int = 0,
+        sender: Sender? = null,
+        specialFailureValue: String? = null
+    ) {
+        orderElementsByMapperDependencies().forEach { element ->
+            // Do not process any field that had an error
+            if (specialFailureValue == null || allElementValues[element.name] != specialFailureValue) {
+                val mappedResult =
+                    element.processValue(allElementValues, this, defaultOverrides, itemIndex, sender)
+                allElementValues[element.name] = mappedResult.value ?: ""
+                errors.addAll(mappedResult.errors)
+                warnings.addAll(mappedResult.warnings)
+            } else {
+                allElementValues[element.name] = ""
+            }
+        }
+    }
+
     companion object {
         fun formBaseName(name: String): String {
             if (!name.contains("/")) return name
