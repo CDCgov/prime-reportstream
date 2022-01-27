@@ -3,7 +3,12 @@ package gov.cdc.prime.router
 import com.github.javafaker.Faker
 import com.github.javafaker.Name
 import gov.cdc.prime.router.common.NPIUtilities
+import gov.cdc.prime.router.metadata.ConcatenateMapper
+import gov.cdc.prime.router.metadata.ElementAndValue
 import gov.cdc.prime.router.metadata.LookupTable
+import gov.cdc.prime.router.metadata.Mapper
+import gov.cdc.prime.router.metadata.Mappers
+import gov.cdc.prime.router.metadata.UseMapper
 import org.apache.logging.log4j.kotlin.Logging
 import java.text.SimpleDateFormat
 import java.util.Locale
