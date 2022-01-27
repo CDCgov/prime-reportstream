@@ -621,9 +621,9 @@ internal class ElementTests {
 
         // passing through a valid date of known manual formats does not throw an error
         val dateTimeStrings = arrayOf(
-            "12502021",     // Wrong date = 50
-            "13/01/2021",   // Wrong month = 13
-            "abcd/12/3"     // Wrong year = abcd
+            "12502021", // Wrong date = 50
+            "13/01/2021", // Wrong month = 13
+            "abcd/12/3" // Wrong year = abcd
         )
 
         dateTimeStrings.forEach { dateTimeString ->
