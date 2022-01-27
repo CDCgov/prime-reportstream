@@ -652,7 +652,7 @@ components:
         timestamp:
           description: the timestamp for this report submission
           type: string
-          format: time-date
+          format: date-time
         topic:
           description: the topic configured for the client organization sender
           type: string
@@ -724,7 +724,8 @@ components:
           items:
             type: string
         sending_at:
-          type: time-date
+          type: string
+          format: date-time
           description: The time at which the report will be sent
         itemCount:
           type: integer
@@ -769,7 +770,7 @@ components:
         createdAt:
           description: the time that the particular revision was created
           type: string
-          format: time-date
+          format: date-time
           readOnly: true
         createdBy:
           description: the user who created the particular revision
@@ -906,7 +907,6 @@ components:
             anyOf:
               - $ref: '#/components/schemas/CustomConfiguration'
               - $ref: '#/components/schemas/StandardHL7Configuration'
-              - $ref: '#/components/schemas/RedoxConfiguration'
             discriminator:
               propertyName: type
         timing:
