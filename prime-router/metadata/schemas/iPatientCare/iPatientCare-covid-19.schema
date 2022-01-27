@@ -254,7 +254,7 @@ elements:
 
 #this lookup is in the covid-19 schema, but doesn't appear to execute??
     - name: equipment_model_name
-      table: LIVD-SARS-CoV-2-2021-04-28
+      table: LIVD-SARS-CoV-2
       tableColumn: Model
       mapper: livdLookup()
 
