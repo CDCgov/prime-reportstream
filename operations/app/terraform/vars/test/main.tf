@@ -69,15 +69,15 @@ module "network" {
 #   terraform_object_id = var.terraform_object_id
 # }
 
-# module "container_registry" {
-#   source               = "../../modules/container_registry"
-#   environment          = var.environment
-#   resource_group       = var.resource_group
-#   resource_prefix      = var.resource_prefix
-#   location             = var.location
-#   enable_content_trust = true
-#   public_subnets = module.network.public_subnet_ids
-# }
+ module "container_registry" {
+   source               = "../../modules/container_registry"
+   environment          = var.environment
+   resource_group       = var.resource_group
+   resource_prefix      = var.resource_prefix
+   location             = var.location
+   enable_content_trust = true
+   public_subnets = module.network.public_subnet_ids
+ }
 
 
 
