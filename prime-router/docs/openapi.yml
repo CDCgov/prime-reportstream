@@ -90,25 +90,25 @@ paths:
         - in: query
           name: organizations
           schema:
-            oneOf:
-              - type: array
-              - type: integer
+            type: array
+            items:
+              type: integer
           required: false
           description: (`{INT, INT, INT}` || `INT` - default `ALL`) Return results from specific Organization or array of Organizations. Must have admin access.
         - in: query
           name: recipients
           schema:
-            oneOf:
-              - type: array
-              - type: integer
+            type: array
+            items:
+              type: integer
           required: false
           description: (`{INT, INT, INT}` || `INT` - default `ALL`) Return results from specific Recipient or array of Recipients.
         - in: query
           name: senders
           schema:
-            oneOf:
-              - type: array
-              - type: integer
+            type: array
+            items:
+              type: integer
           required: false
           description: (`{INT, INT, INT}`  || `INT` - default `ALL`) Return results from specific Sender or array of Senders.
         - in: query
