@@ -185,9 +185,9 @@ class ProcessEvent(
         val defaultsQueueParam = defaults.map { pair -> "${pair.key}:${pair.value}" }.joinToString(",")
 
         // determine if these parts of the queue message are present
-        val atClause = if (at == null) "" else "${DateTimeFormatter.ISO_DATE_TIME.format(at)}"
-        val defaultClause = if (defaultsQueueParam.isEmpty()) "" else "$defaultsQueueParam"
-        val routeToClause = if (routeToQueueParam.isEmpty()) "" else "$routeToQueueParam"
+        val atClause = if (at == null) "" else DateTimeFormatter.ISO_DATE_TIME.format(at)
+        val defaultClause = if (defaultsQueueParam.isEmpty()) "" else defaultsQueueParam
+        val routeToClause = if (routeToQueueParam.isEmpty()) "" else routeToQueueParam
 
         // generate the process queue message
         return "$eventType$messageDelimiter$eventAction$messageDelimiter$reportId$messageDelimiter$options" +
