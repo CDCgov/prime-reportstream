@@ -1,10 +1,8 @@
 package gov.cdc.prime.router.metadata
 
 import gov.cdc.prime.router.Element
-import gov.cdc.prime.router.ElementAndValue
 import gov.cdc.prime.router.ElementResult
 import gov.cdc.prime.router.InvalidEquipmentMessage
-import gov.cdc.prime.router.Mapper
 import gov.cdc.prime.router.Sender
 
 /**

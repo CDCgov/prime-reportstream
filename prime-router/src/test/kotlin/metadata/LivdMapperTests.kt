@@ -7,7 +7,6 @@ import assertk.assertions.isNotEmpty
 import assertk.assertions.isNull
 import assertk.assertions.isNullOrEmpty
 import gov.cdc.prime.router.Element
-import gov.cdc.prime.router.ElementAndValue
 import kotlin.test.Test
 
 class LivdMapperTests {

@@ -1,5 +1,9 @@
-package gov.cdc.prime.router
+package gov.cdc.prime.router.metadata
 
+import gov.cdc.prime.router.Element
+import gov.cdc.prime.router.ElementResult
+import gov.cdc.prime.router.InvalidReportMessage
+import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.common.NPIUtilities
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import java.security.MessageDigest
