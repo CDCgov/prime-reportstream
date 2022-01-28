@@ -1065,7 +1065,7 @@ class ActionHistory {
                     it.writeStartObject()
                     it.writeStringField("scope", scopesByGroupId[groupingId] as String)
                     it.writeStringField("message", messageByGroupingId[groupingId])
-                    if (scopesByGroupId[groupingId] as String === "ITEM") {
+                    if (scopesByGroupId[groupingId] as String === "item") {
                         it.writeStringField(
                             "itemNums",
                             createRowsDescription(itemsByGroupingId[groupingId])
