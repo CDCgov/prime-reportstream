@@ -43,7 +43,7 @@ function FacilitiesTable(props: FacilitiesTableProps) {
                             <td>{facility.CLIA}</td>
                             <td>{facility.total}</td>
                             <td>
-                                {facility.positive ? facility.positive : "-"}
+                                {facility.positive}
                             </td>
                             <td></td>
                         </tr>
