@@ -927,7 +927,7 @@ class ActionHistory {
     data class GroupedProperties(
         val itemsByGroupingId: MutableMap<String, MutableList<Int>>,
         val messageByGroupingId: MutableMap<String, String>,
-        val scopesByGroupingId: MutableMap<String, String>
+        val scopesByGroupingId: MutableMap<String, ActionLog.ActionLogScope>
     )
 
     /**
@@ -1028,13 +1028,13 @@ class ActionHistory {
             fun createPropertiesByGroupingId(actionLogs: List<ActionLog>): GroupedProperties {
                 val itemsByGroupingId = mutableMapOf<String, MutableList<Int>>()
                 val messageByGroupingId = mutableMapOf<String, String>()
-                val scopesByGroupingId = mutableMapOf<String, String>()
+                val scopesByGroupingId = mutableMapOf<String, ActionLog.ActionLogScope>()
                 actionLogs.forEach { actionDetail ->
                     val groupingId = actionDetail.detail.groupingId()
                     if (!itemsByGroupingId.containsKey(groupingId)) {
                         itemsByGroupingId[groupingId] = mutableListOf()
                         messageByGroupingId[groupingId] = actionDetail.detail.detailMsg()
-                        scopesByGroupingId[groupingId] = actionDetail.scope.toString()
+                        scopesByGroupingId[groupingId] = actionDetail.scope
                     }
                     actionDetail.index?.let {
                         itemsByGroupingId[groupingId]?.add(actionDetail.index + 1)
@@ -1063,9 +1063,9 @@ class ActionHistory {
                 it.writeArrayFieldStart(field)
                 itemsByGroupingId.keys.forEach { groupingId ->
                     it.writeStartObject()
-                    it.writeStringField("scope", scopesByGroupId[groupingId] as String)
+                    it.writeStringField("scope", scopesByGroupId[groupingId].toString())
                     it.writeStringField("message", messageByGroupingId[groupingId])
-                    if (scopesByGroupId[groupingId] as String === "ITEM") {
+                    if (scopesByGroupId[groupingId] == ActionLog.ActionLogScope.item) {
                         it.writeStringField(
                             "itemNums",
                             createRowsDescription(itemsByGroupingId[groupingId])
