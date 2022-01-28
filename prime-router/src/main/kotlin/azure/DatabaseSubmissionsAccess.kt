@@ -1,7 +1,5 @@
 package gov.cdc.prime.router.azure
 
-import gov.cdc.prime.router.ActionLog
-import gov.cdc.prime.router.DetailReport
 import gov.cdc.prime.router.azure.db.Tables.ACTION
 import gov.cdc.prime.router.azure.db.Tables.ACTION_LOG
 import gov.cdc.prime.router.azure.db.Tables.REPORT_FILE
@@ -27,17 +25,19 @@ interface SubmissionAccess {
         klass: Class<T>
     ): List<T>
 
-    fun <T> fetchAction(
+    fun <T, P, U> fetchAction(
         sendingOrg: String,
         submissionId: Long,
-        klass: Class<T>
+        klass: Class<T>,
+        reportsKlass: Class<P>,
+        logsKlass: Class<U>,
     ): T?
 
     fun <T, P, U> fetchRelatedActions(
         submissionId: Long,
         klass: Class<T>,
         reportsKlass: Class<P>,
-        logsClass: Class<U>,
+        logsKlass: Class<U>,
     ): List<T>
 }
 /**
@@ -77,10 +77,12 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = DatabaseAccess(
         }
     }
 
-    override fun <T> fetchAction(
+    override fun <T, P, U> fetchAction(
         sendingOrg: String,
         submissionId: Long,
         klass: Class<T>,
+        reportsKlass: Class<P>,
+        logsKlass: Class<U>,
     ): T? {
         return db.transactReturning { txn ->
             DSL.using(txn)
@@ -91,7 +93,7 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = DatabaseAccess(
                             .from(ACTION_LOG)
                             .where(ACTION_LOG.ACTION_ID.eq(ACTION.ACTION_ID))
                     ).`as`("logs").convertFrom { r ->
-                        r?.into(ActionLog::class.java)
+                        r?.into(logsKlass)
                     },
                     DSL.multiset(
                         DSL.select()
@@ -99,7 +101,7 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = DatabaseAccess(
                             .where(REPORT_FILE.ACTION_ID.eq(ACTION.ACTION_ID))
                     ).`as`("reports").convertFrom { r ->
                         // TODO this function needs to either be more generic or much less generic now
-                        r?.into(DetailReport::class.java)
+                        r?.into(reportsKlass)
                     },
                 )
                 .from(ACTION)
@@ -146,7 +148,7 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = DatabaseAccess(
         submissionId: Long,
         klass: Class<T>,
         reportsKlass: Class<P>,
-        logsClass: Class<U>,
+        logsKlass: Class<U>,
     ): List<T> {
         val cte = reportDecendentExpression(submissionId)
         return db.transactReturning { txn ->
@@ -167,7 +169,7 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = DatabaseAccess(
                             .from(ACTION_LOG)
                             .where(ACTION_LOG.ACTION_ID.eq(ACTION.ACTION_ID))
                     ).`as`("logs").convertFrom { r ->
-                        r?.into(logsClass)
+                        r?.into(logsKlass)
                     }
                 )
                 .from(ACTION)

@@ -41,13 +41,13 @@ class DetailedSubmissionHistory(
     @JsonIgnore
     var reports: MutableList<DetailReport>?,
     @JsonIgnore
-    val logs: List<ActionLog>?,
+    val logs: List<DetailActionLog>?,
 ) {
     val receivedReportId: String? = actionResponse?.id
     val destinations = mutableListOf<Destination>()
 
-    val errors = mutableListOf<ActionLog>()
-    val warnings = mutableListOf<ActionLog>()
+    val errors = mutableListOf<DetailActionLog>()
+    val warnings = mutableListOf<DetailActionLog>()
 
     val topic: String? = actionResponse?.topic
 
@@ -66,7 +66,7 @@ class DetailedSubmissionHistory(
                         report.receivingOrgSvc!!,
                         logs?.filter {
                             it.type == ActionLog.ActionLogType.filter && it.reportId == report.reportId
-                        }?.map { it.detail.toString() },
+                        }?.map { it.message },
                         report.nextActionAt?.toString() ?: "",
                         report.itemCount,
                     )
@@ -105,7 +105,7 @@ class DetailedSubmissionHistory(
                         report.receivingOrgSvc!!,
                         descendant.logs?.filter {
                             it.type == ActionLog.ActionLogType.filter && it.reportId == report.reportId
-                        }?.map { it.detail.toString() },
+                        }?.map { it.message },
                         report.nextActionAt?.toString() ?: "",
                         report.itemCount,
                     )
@@ -139,6 +139,20 @@ class DetailedSubmissionHistory(
     */
 }
 
+@JsonIgnoreProperties(ignoreUnknown = true)
+class DetailActionLog(
+    val scope: ActionLog.ActionLogScope,
+    @JsonIgnore
+    val reportId: UUID,
+    val index: Int?,
+    val trackingId: String?,
+    val type: ActionLog.ActionLogType,
+    detail: ActionLogDetail,
+) {
+    val message: String = detail.detailMsg()
+}
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class DetailReport(
     val reportId: UUID,
     val receivingOrg: String?,
