@@ -12,6 +12,7 @@ import com.microsoft.azure.functions.annotation.HttpTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.ActionError
 import gov.cdc.prime.router.ActionLog
+import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.DEFAULT_SEPARATOR
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.ROUTE_TO_SEPARATOR
@@ -303,6 +304,9 @@ class ReportFunction : Logging {
     ) {
 
         val report = parsedReport.copy()
+        val sender = parsedReport.sources.firstOrNull()
+            ?: error("Unable to process report ${report.id} because sender sources collection is empty.")
+        val senderName = (sender as ClientSource).name
 
         if (report.bodyFormat != Report.Format.INTERNAL) {
             error("Processing a non internal report async.")
@@ -310,7 +314,7 @@ class ReportFunction : Logging {
 
         val processEvent = ProcessEvent(Event.EventAction.PROCESS, report.id, options, defaults, routeTo)
 
-        val blobInfo = workflowEngine.blob.uploadBody(report, action = processEvent.eventAction)
+        val blobInfo = workflowEngine.blob.uploadBody(report, senderName, action = processEvent.eventAction)
 
         actionHistory.trackCreatedReport(processEvent, report, blobInfo)
         // add task to task table
