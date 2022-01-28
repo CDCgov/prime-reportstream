@@ -1,6 +1,9 @@
 package gov.cdc.prime.router.azure
 
+import gov.cdc.prime.router.ActionLog
+import gov.cdc.prime.router.DetailReport
 import gov.cdc.prime.router.azure.db.Tables.ACTION
+import gov.cdc.prime.router.azure.db.Tables.ACTION_LOG
 import gov.cdc.prime.router.azure.db.Tables.REPORT_FILE
 import gov.cdc.prime.router.azure.db.Tables.REPORT_LINEAGE
 import gov.cdc.prime.router.azure.db.enums.TaskAction
@@ -79,7 +82,24 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = DatabaseAccess(
     ): T? {
         return db.transactReturning { txn ->
             DSL.using(txn)
-                .select()
+                .select(
+                    ACTION.asterisk(),
+                    DSL.multiset(
+                        DSL.select()
+                            .from(ACTION_LOG)
+                            .where(ACTION_LOG.ACTION_ID.eq(ACTION.ACTION_ID))
+                    ).`as`("logs").convertFrom { r ->
+                        r?.into(ActionLog::class.java)
+                    },
+                    DSL.multiset(
+                        DSL.select()
+                            .from(REPORT_FILE)
+                            .where(REPORT_FILE.ACTION_ID.eq(ACTION.ACTION_ID))
+                    ).`as`("reports").convertFrom { r ->
+                        // TODO this function needs to either be more generic or much less generic now
+                        r?.into(DetailReport::class.java)
+                    },
+                )
                 .from(ACTION)
                 .where(
                     ACTION.ACTION_NAME.eq(TaskAction.receive)
@@ -128,12 +148,28 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = DatabaseAccess(
         return db.transactReturning { txn ->
             DSL.using(txn)
                 .withRecursive(cte)
-                .select()
+                .selectDistinct(
+                    ACTION.asterisk(),
+                    DSL.multiset(
+                        DSL.select()
+                            .from(REPORT_FILE)
+                            .where(REPORT_FILE.ACTION_ID.eq(ACTION.ACTION_ID))
+                    ).`as`("reports").convertFrom { r ->
+                        // TODO this function needs to either be more generic or much less generic now
+                        r?.into(DetailReport::class.java)
+                    },
+                    DSL.multiset(
+                        DSL.select()
+                            .from(ACTION_LOG)
+                            .where(ACTION_LOG.ACTION_ID.eq(ACTION.ACTION_ID))
+                    ).`as`("logs").convertFrom { r ->
+                        r?.into(ActionLog::class.java)
+                    }
+                )
                 .from(ACTION)
                 .join(cte)
                 .on(ACTION.ACTION_ID.eq(cte.field("action_id", BIGINT)))
-                .join(REPORT_FILE)
-                .on(REPORT_FILE.REPORT_ID.eq(cte.field("child_report_id", UUID)))
+                // TODO can we remove this and use only this function to get info (even if no reports are generated?)
                 .where(ACTION.ACTION_ID.ne(submissionId))
                 .fetchInto(klass)
         }

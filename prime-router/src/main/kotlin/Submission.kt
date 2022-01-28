@@ -6,8 +6,10 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonInclude.Include
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonUnwrapped
+import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import java.time.OffsetDateTime
+import java.util.UUID
 
 /**
  * A `Submission` represents one submission of a message from a sender.
@@ -22,10 +24,10 @@ import java.time.OffsetDateTime
  * @param warningCount of the Submission is `action_response.warningCount` from the table `public.action`
  * @param errorCount of the Submission is `action_response.errorCount` from the table `public.action`
  */
-
+@JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 class DetailedSubmissionHistory(
-    @JsonProperty("id")
+    @JsonProperty("submissinoId")
     val actionId: Long,
     @JsonIgnore
     val actionName: TaskAction,
@@ -34,19 +36,20 @@ class DetailedSubmissionHistory(
     @JsonProperty("submitter")
     val sendingOrg: String?,
     val httpStatus: Int?,
-    @JsonIgnore
-    val receivingOrg: String?,
-    @JsonIgnore
-    val receivingOrgSvc: String?,
     @JsonInclude(Include.NON_NULL) val externalName: String? = "",
     actionResponse: DetailedActionResponse?,
+    @JsonIgnore
+    var reports: MutableList<DetailReport>?,
+    @JsonIgnore
+    val logs: List<ActionLog>?,
 ) {
-    val submissionId: String? = actionResponse?.id
+    val receivedReportId: String? = actionResponse?.id
     val destinations = mutableListOf<Destination>()
     // TODO: these should just be getters
 
-    val errors = mutableListOf<Detail>()
-    val warnings = mutableListOf<Detail>()
+    val errors = mutableListOf<ActionLog>()
+    val warnings = mutableListOf<ActionLog>()
+
     val topic: String? = actionResponse?.topic
 
     val warningCount: Int
@@ -56,12 +59,27 @@ class DetailedSubmissionHistory(
         get() = errors.size
 
     init {
-        destinations.addAll(actionResponse?.destinations ?: emptyList())
-        errors.addAll(actionResponse?.errors ?: emptyList())
-        warnings.addAll(actionResponse?.warnings ?: emptyList())
+        reports?.forEach { report ->
+            report.receivingOrg?.let {
+                destinations.add(
+                    Destination(
+                        report.receivingOrg,
+                        report.receivingOrgSvc!!,
+                        logs?.filter {
+                            it.type == ActionLog.ActionLogType.filter && it.reportId == report.reportId
+                        }?.map { it.detail.toString() },
+                        report.nextActionAt?.toString() ?: "",
+                        report.itemCount,
+                    )
+                )
+            }
+        }
+        errors.addAll(logs?.filter { it.type == ActionLog.ActionLogType.error } ?: emptyList())
+        warnings.addAll(logs?.filter { it.type == ActionLog.ActionLogType.warning } ?: emptyList())
     }
 
     fun enrichWithDescendants(descendants: List<DetailedSubmissionHistory>) {
+        check(descendants.distinctBy { it.actionId }.size == descendants.size)
         descendants.forEach { descendant ->
             enrichWithDescendant(descendant)
         }
@@ -70,7 +88,7 @@ class DetailedSubmissionHistory(
     fun enrichWithDescendant(descendant: DetailedSubmissionHistory) {
         when (descendant.actionName) {
             TaskAction.process -> enrichWithProcessAction(descendant)
-            // TaskAction.batch -> enrichWithBatchAction(descendant)
+            TaskAction.batch -> enrichWithBatchAction(descendant)
             TaskAction.send -> enrichWithSendAction(descendant)
             // TaskAction.download -> enrichWithDownloadAction(descendant)
             else -> {}
@@ -80,23 +98,39 @@ class DetailedSubmissionHistory(
     private fun enrichWithProcessAction(descendant: DetailedSubmissionHistory) {
         require(descendant.actionName == TaskAction.process) { "Must be a process action" }
 
-        destinations += descendant.destinations
+        descendant.reports?.forEach { report ->
+            report.receivingOrg?.let {
+                destinations.add(
+                    Destination(
+                        report.receivingOrg,
+                        report.receivingOrgSvc!!,
+                        descendant.logs?.filter {
+                            it.type == ActionLog.ActionLogType.filter && it.reportId == report.reportId
+                        }?.map { it.detail.toString() },
+                        report.nextActionAt?.toString() ?: "",
+                        report.itemCount,
+                    )
+                )
+            }
+        }
         errors += descendant.errors
         warnings += descendant.warnings
     }
 
-    /*
     private fun enrichWithBatchAction(descendant: DetailedSubmissionHistory) {
-
+        require(descendant.actionName == TaskAction.batch) { "Must be a process action" }
     }
-    */
 
     private fun enrichWithSendAction(descendant: DetailedSubmissionHistory) {
         require(descendant.actionName == TaskAction.send) { "Must be a send action" }
-        destinations.find {
-            it.organizationId == descendant.receivingOrg && it.service == descendant.receivingOrgSvc
-        }?.let {
-            it.sentAt = descendant.createdAt
+        descendant.reports?.let { it ->
+            it.forEach { report ->
+                destinations.find {
+                    it.organizationId == report.receivingOrg && it.service == report.receivingOrgSvc
+                }?.let {
+                    it.sentReports.add(report)
+                }
+            }
         }
     }
     /*
@@ -105,6 +139,19 @@ class DetailedSubmissionHistory(
     }
     */
 }
+
+data class DetailReport(
+    val reportId: UUID,
+    val sendingOrg: String?,
+    val sendingOrgClient: String?,
+    val receivingOrg: String?,
+    val receivingOrgSvc: String?,
+    val transportResult: String?,
+    val externalName: String?,
+    val createdAt: OffsetDateTime?,
+    val nextActionAt: OffsetDateTime?,
+    val itemCount: Int,
+)
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class DetailedActionResponse(
@@ -126,7 +173,6 @@ data class Detail(
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class Destination(
-    val organization: String,
     @JsonProperty("organization_id")
     val organizationId: String,
     val service: String,
@@ -134,8 +180,15 @@ data class Destination(
     @JsonProperty("sending_at")
     val sendingAt: String,
     val itemCount: Int,
-    var sentAt: OffsetDateTime?,
-)
+    var sentReports: MutableList<DetailReport> = mutableListOf(),
+) {
+    val organization: String?
+        get() = WorkflowEngine.settingsProviderSingleton.findOrganizationAndReceiver(
+            "$organizationId.$service"
+        )?.let { (org, _) ->
+            org.description
+        }
+}
 
 /*
  * TODO: see Github Issues #2314 for expected filename field

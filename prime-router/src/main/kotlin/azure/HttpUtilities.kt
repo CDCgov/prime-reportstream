@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.azure
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
@@ -37,6 +38,7 @@ class HttpUtilities {
             // Format OffsetDateTime as an ISO string
             mapper.registerModule(JavaTimeModule())
             mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+            mapper.setSerializationInclusion(Include.NON_NULL)
         }
 
         /**
