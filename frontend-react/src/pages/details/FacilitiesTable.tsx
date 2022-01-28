@@ -1,6 +1,8 @@
-import { useResource } from "rest-hooks";
+import { useOktaAuth } from "@okta/okta-react";
+import { useEffect, useState } from "react";
 
 import FacilityResource from "../../resources/FacilityResource";
+import { useGlobalContext } from "../../components/GlobalContextProvider";
 
 interface FacilitiesTableProps {
     /* REQUIRED
@@ -10,15 +12,29 @@ interface FacilitiesTableProps {
 }
 
 function FacilitiesTable(props: FacilitiesTableProps) {
+    const { authState } = useOktaAuth();
+    const { state } = useGlobalContext();
+
+    const [facilities, setFacilities] = useState<FacilityResource[]>();
     const { reportId }: FacilitiesTableProps = props;
-    const facilities: FacilityResource[] = useResource(
-        FacilityResource.list(),
-        { reportId: reportId }
-    );
+
+    useEffect(() => {
+        fetch(
+            `${process.env.REACT_APP_BACKEND_URL}/api/history/report/${reportId}/facilities`,
+            {
+                headers: {
+                    Authorization: `Bearer ${authState?.accessToken?.accessToken}`,
+                    Organization: state.organization!,
+                },
+            }
+        )
+            .then((response) => response.json())
+            .then((data) => setFacilities(data));
+    });
 
     return (
         <section id="facilities" className="grid-container margin-bottom-5">
-            <h2>Facilities reporting ({facilities.length})</h2>
+            <h2>Facilities reporting ({facilities?.length})</h2>
             <table
                 id="facilitiestable"
                 className="usa-table usa-table--borderless prime-table"
@@ -34,7 +50,7 @@ function FacilitiesTable(props: FacilitiesTableProps) {
                     </tr>
                 </thead>
                 <tbody id="tBodyFac" className="font-mono-2xs">
-                    {facilities.map((facility) => (
+                    {facilities?.map((facility) => (
                         <tr key={facility.CLIA}>
                             <td>{facility.facility}</td>
                             <td>
@@ -45,7 +61,6 @@ function FacilitiesTable(props: FacilitiesTableProps) {
                             <td>
                                 {facility.positive ? facility.positive : "-"}
                             </td>
-                            <td></td>
                         </tr>
                     ))}
                 </tbody>
