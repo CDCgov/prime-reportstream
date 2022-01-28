@@ -10,7 +10,7 @@ elements:
       mapper: useSenderSetting(organizationName)
 
     - name: processing_mode_code
-      mapper: useSenderSetting(processingModeCode)   
+      mapper: useSenderSetting(customerStatus)   
       csvFields: [ { name: processing_mode_code } ]
 
 ############### Set the major ID fields
