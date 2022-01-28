@@ -27,7 +27,7 @@ import java.util.UUID
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 class DetailedSubmissionHistory(
-    @JsonProperty("submissinoId")
+    @JsonProperty("submissionId")
     val actionId: Long,
     @JsonIgnore
     val actionName: TaskAction,
@@ -45,7 +45,6 @@ class DetailedSubmissionHistory(
 ) {
     val receivedReportId: String? = actionResponse?.id
     val destinations = mutableListOf<Destination>()
-    // TODO: these should just be getters
 
     val errors = mutableListOf<ActionLog>()
     val warnings = mutableListOf<ActionLog>()
@@ -142,11 +141,8 @@ class DetailedSubmissionHistory(
 
 data class DetailReport(
     val reportId: UUID,
-    val sendingOrg: String?,
-    val sendingOrgClient: String?,
     val receivingOrg: String?,
     val receivingOrgSvc: String?,
-    val transportResult: String?,
     val externalName: String?,
     val createdAt: OffsetDateTime?,
     val nextActionAt: OffsetDateTime?,

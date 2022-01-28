@@ -33,9 +33,11 @@ interface SubmissionAccess {
         klass: Class<T>
     ): T?
 
-    fun <T> fetchRelatedActions(
+    fun <T, P, U> fetchRelatedActions(
         submissionId: Long,
-        klass: Class<T>
+        klass: Class<T>,
+        reportsKlass: Class<P>,
+        logsClass: Class<U>,
     ): List<T>
 }
 /**
@@ -140,9 +142,11 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = DatabaseAccess(
         )
     }
 
-    override fun <T> fetchRelatedActions(
+    override fun <T, P, U> fetchRelatedActions(
         submissionId: Long,
         klass: Class<T>,
+        reportsKlass: Class<P>,
+        logsClass: Class<U>,
     ): List<T> {
         val cte = reportDecendentExpression(submissionId)
         return db.transactReturning { txn ->
@@ -156,14 +160,14 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = DatabaseAccess(
                             .where(REPORT_FILE.ACTION_ID.eq(ACTION.ACTION_ID))
                     ).`as`("reports").convertFrom { r ->
                         // TODO this function needs to either be more generic or much less generic now
-                        r?.into(DetailReport::class.java)
+                        r?.into(reportsKlass)
                     },
                     DSL.multiset(
                         DSL.select()
                             .from(ACTION_LOG)
                             .where(ACTION_LOG.ACTION_ID.eq(ACTION.ACTION_ID))
                     ).`as`("logs").convertFrom { r ->
-                        r?.into(ActionLog::class.java)
+                        r?.into(logsClass)
                     }
                 )
                 .from(ACTION)

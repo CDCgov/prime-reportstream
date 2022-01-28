@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import gov.cdc.prime.router.ActionLog
+import gov.cdc.prime.router.DetailReport
 import gov.cdc.prime.router.DetailedSubmissionHistory
 import gov.cdc.prime.router.SubmissionHistory
 import java.time.OffsetDateTime
@@ -107,6 +109,8 @@ class SubmissionsFacade(
             val relatedSubmissions = db.fetchRelatedActions(
                 submission.actionId,
                 DetailedSubmissionHistory::class.java,
+                DetailReport::class.java,
+                ActionLog::class.java,
             )
             it.enrichWithDescendants(relatedSubmissions)
         }
