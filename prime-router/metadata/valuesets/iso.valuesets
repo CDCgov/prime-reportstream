@@ -1,0 +1,518 @@
+---
+- name: iso3166
+  system: ISO3166
+  referenceUrl: https://hl7-definition.caristix.com/v2/HL7v2.3/Tables/ISO3166
+  values:
+  - code: ABW
+    description: Aruba
+  - code: AFG
+    description: Afghanistan
+  - code: AGO
+    description: Angola
+  - code: AIA
+    description: Anguilla
+  - code: ALA
+    description: Aland Islands
+  - code: ALB
+    description: Albania
+  - code: AND
+    description: Andorra
+  - code: ARE
+    description: United Arab Emirates
+  - code: ARG
+    description: Argentina
+  - code: ARM
+    description: Armenia
+  - code: ASM
+    description: American Samoa
+  - code: ATA
+    description: Antarctica
+  - code: ATF
+    description: French Southern Territories
+  - code: ATG
+    description: Antigua and Barbuda
+  - code: AUS
+    description: Australia
+  - code: AUT
+    description: Austria
+  - code: AZE
+    description: Azerbaijan
+  - code: BDI
+    description: Burundi
+  - code: BEL
+    description: Belgium
+  - code: BEN
+    description: Benin
+  - code: BES
+    description: Bonaire, Sint Eustatius and Saba
+  - code: BFA
+    description: Burkina Faso
+  - code: BGD
+    description: Bangladesh
+  - code: BGR
+    description: Bulgaria
+  - code: BHR
+    description: Bahrain
+  - code: BHS
+    description: Bahamas
+  - code: BIH
+    description: Bosnia and Herzegovina
+  - code: BLM
+    description: Saint BarthÃ©lemy
+  - code: BLR
+    description: Belarus
+  - code: BLZ
+    description: Belize
+  - code: BMU
+    description: Bermuda
+  - code: BOL
+    description: Bolivia (Plurinational State of)
+  - code: BRA
+    description: Brazil
+  - code: BRB
+    description: Barbados
+  - code: BRN
+    description: Brunei Darussalam
+  - code: BTN
+    description: Bhutan
+  - code: BVT
+    description: Bouvet Island
+  - code: BWA
+    description: Botswana
+  - code: CAF
+    description: Central African Republic
+  - code: CAN
+    description: Canada
+  - code: CCK
+    description: Cocos (Keeling) Islands
+  - code: CHE
+    description: Switzerland
+  - code: CHL
+    description: Chile
+  - code: CHN
+    description: China
+  - code: CIV
+    description: Côte d'Ivoire
+  - code: CMR
+    description: Cameroon
+  - code: COD
+    description: Congo, Democratic Republic of the
+  - code: COG
+    description: Congo
+  - code: COK
+    description: Cook Islands
+  - code: COL
+    description: Colombia
+  - code: COM
+    description: Comoros
+  - code: CPV
+    description: Cabo Verde
+  - code: CRI
+    description: Costa Rica
+  - code: CUB
+    description: Cuba
+  - code: CUW
+    description: CuraÃ§ao
+  - code: CXR
+    description: Christmas Island
+  - code: CYM
+    description: Cayman Islands
+  - code: CYP
+    description: Cyprus
+  - code: CZE
+    description: Czechia
+  - code: DEU
+    description: Germany
+  - code: DJI
+    description: Djibouti
+  - code: DMA
+    description: Dominica
+  - code: DNK
+    description: Denmark
+  - code: DOM
+    description: Dominican Republic
+  - code: DZA
+    description: Algeria
+  - code: ECU
+    description: Ecuador
+  - code: EGY
+    description: Egypt
+  - code: ERI
+    description: Eritrea
+  - code: ESH
+    description: Western Sahara
+  - code: ESP
+    description: Spain
+  - code: EST
+    description: Estonia
+  - code: ETH
+    description: Ethiopia
+  - code: FIN
+    description: Finland
+  - code: FJI
+    description: Fiji
+  - code: FLK
+    description: Falkland Islands (Malvinas)
+  - code: FRA
+    description: France
+  - code: FRO
+    description: Faroe Islands
+  - code: FSM
+    description: Micronesia (Federated States of)
+  - code: GAB
+    description: Gabon
+  - code: GBR
+    description: United Kingdom of Great Britain and Northern Ireland
+  - code: GEO
+    description: Georgia
+  - code: GGY
+    description: Guernsey
+  - code: GHA
+    description: Ghana
+  - code: GIB
+    description: Gibraltar
+  - code: GIN
+    description: Guinea
+  - code: GLP
+    description: Guadeloupe
+  - code: GMB
+    description: Gambia
+  - code: GNB
+    description: Guinea-Bissau
+  - code: GNQ
+    description: Equatorial Guinea
+  - code: GRC
+    description: Greece
+  - code: GRD
+    description: Grenada
+  - code: GRL
+    description: Greenland
+  - code: GTM
+    description: Guatemala
+  - code: GUF
+    description: French Guiana
+  - code: GUM
+    description: Guam
+  - code: GUY
+    description: Guyana
+  - code: HKG
+    description: Hong Kong
+  - code: HMD
+    description: Heard Island and McDonald Islands
+  - code: HND
+    description: Honduras
+  - code: HRV
+    description: Croatia
+  - code: HTI
+    description: Haiti
+  - code: HUN
+    description: Hungary
+  - code: IDN
+    description: Indonesia
+  - code: IMN
+    description: Isle of Man
+  - code: IND
+    description: India
+  - code: IOT
+    description: British Indian Ocean Territory
+  - code: IRL
+    description: Ireland
+  - code: IRN
+    description: Iran (Islamic Republic of)
+  - code: IRQ
+    description: Iraq
+  - code: ISL
+    description: Iceland
+  - code: ISR
+    description: Israel
+  - code: ITA
+    description: Italy
+  - code: JAM
+    description: Jamaica
+  - code: JEY
+    description: Jersey
+  - code: JOR
+    description: Jordan
+  - code: JPN
+    description: Japan
+  - code: KAZ
+    description: Kazakhstan
+  - code: KEN
+    description: Kenya
+  - code: KGZ
+    description: Kyrgyzstan
+  - code: KHM
+    description: Cambodia
+  - code: KIR
+    description: Kiribati
+  - code: KNA
+    description: Saint Kitts and Nevis
+  - code: KOR
+    description: Korea, Republic of
+  - code: KWT
+    description: Kuwait
+  - code: LAO
+    description: Lao People's Democratic Republic
+  - code: LBN
+    description: Lebanon
+  - code: LBR
+    description: Liberia
+  - code: LBY
+    description: Libya
+  - code: LCA
+    description: Saint Lucia
+  - code: LIE
+    description: Liechtenstein
+  - code: LKA
+    description: Sri Lanka
+  - code: LSO
+    description: Lesotho
+  - code: LTU
+    description: Lithuania
+  - code: LUX
+    description: Luxembourg
+  - code: LVA
+    description: Latvia
+  - code: MAC
+    description: Macao
+  - code: MAF
+    description: Saint Martin (French part)
+  - code: MAR
+    description: Morocco
+  - code: MCO
+    description: Monaco
+  - code: MDA
+    description: Moldova, Republic of
+  - code: MDG
+    description: Madagascar
+  - code: MDV
+    description: Maldives
+  - code: MEX
+    description: Mexico
+  - code: MHL
+    description: Marshall Islands
+  - code: MKD
+    description: North Macedonia
+  - code: MLI
+    description: Mali
+  - code: MLT
+    description: Malta
+  - code: MMR
+    description: Myanmar
+  - code: MNE
+    description: Montenegro
+  - code: MNG
+    description: Mongolia
+  - code: MNP
+    description: Northern Mariana Islands
+  - code: MOZ
+    description: Mozambique
+  - code: MRT
+    description: Mauritania
+  - code: MSR
+    description: Montserrat
+  - code: MTQ
+    description: Martinique
+  - code: MUS
+    description: Mauritius
+  - code: MWI
+    description: Malawi
+  - code: MYS
+    description: Malaysia
+  - code: MYT
+    description: Mayotte
+  - code: NAM
+    description: Namibia
+  - code: NCL
+    description: New Caledonia
+  - code: NER
+    description: Niger
+  - code: NFK
+    description: Norfolk Island
+  - code: NGA
+    description: Nigeria
+  - code: NIC
+    description: Nicaragua
+  - code: NIU
+    description: Niue
+  - code: NLD
+    description: Netherlands
+  - code: NOR
+    description: Norway
+  - code: NPL
+    description: Nepal
+  - code: NRU
+    description: Nauru
+  - code: NZL
+    description: New Zealand
+  - code: OMN
+    description: Oman
+  - code: PAK
+    description: Pakistan
+  - code: PAN
+    description: Panama
+  - code: PCN
+    description: Pitcairn
+  - code: PER
+    description: Peru
+  - code: PHL
+    description: Philippines
+  - code: PLW
+    description: Palau
+  - code: PNG
+    description: Papua New Guinea
+  - code: POL
+    description: Poland
+  - code: PRI
+    description: Puerto Rico
+  - code: PRK
+    description: Korea (Democratic People's Republic of)
+  - code: PRT
+    description: Portugal
+  - code: PRY
+    description: Paraguay
+  - code: PSE
+    description: Palestine, State of
+  - code: PYF
+    description: French Polynesia
+  - code: QAT
+    description: Qatar
+  - code: REU
+    description: RÃ©union
+  - code: ROU
+    description: Romania
+  - code: RUS
+    description: Russian Federation
+  - code: RWA
+    description: Rwanda
+  - code: SAU
+    description: Saudi Arabia
+  - code: SDN
+    description: Sudan
+  - code: SEN
+    description: Senegal
+  - code: SGP
+    description: Singapore
+  - code: SGS
+    description: South Georgia and the South Sandwich Islands
+  - code: SHN
+    description: Saint Helena, Ascension and Tristan da Cunha
+  - code: SJM
+    description: Svalbard and Jan Mayen
+  - code: SLB
+    description: Solomon Islands
+  - code: SLE
+    description: Sierra Leone
+  - code: SLV
+    description: El Salvador
+  - code: SMR
+    description: San Marino
+  - code: SOM
+    description: Somalia
+  - code: SPM
+    description: Saint Pierre and Miquelon
+  - code: SRB
+    description: Serbia
+  - code: SSD
+    description: South Sudan
+  - code: STP
+    description: Sao Tome and Principe
+  - code: SUR
+    description: Suriname
+  - code: SVK
+    description: Slovakia
+  - code: SVN
+    description: Slovenia
+  - code: SWE
+    description: Sweden
+  - code: SWZ
+    description: Eswatini
+  - code: SXM
+    description: Sint Maarten (Dutch part)
+  - code: SYC
+    description: Seychelles
+  - code: SYR
+    description: Syrian Arab Republic
+  - code: TCA
+    description: Turks and Caicos Islands
+  - code: TCD
+    description: Chad
+  - code: TGO
+    description: Togo
+  - code: THA
+    description: Thailand
+  - code: TJK
+    description: Tajikistan
+  - code: TKL
+    description: Tokelau
+  - code: TKM
+    description: Turkmenistan
+  - code: TLS
+    description: Timor-Leste
+  - code: TON
+    description: Tonga
+  - code: TTO
+    description: Trinidad and Tobago
+  - code: TUN
+    description: Tunisia
+  - code: TUR
+    description: Turkey
+  - code: TUV
+    description: Tuvalu
+  - code: TWN
+    description: Taiwan, Province of China
+  - code: TZA
+    description: Tanzania, United Republic of
+  - code: UGA
+    description: Uganda
+  - code: UKR
+    description: Ukraine
+  - code: UMI
+    description: United States Minor Outlying Islands
+  - code: URY
+    description: Uruguay
+  - code: USA
+    description: United States of America
+  - code: UZB
+    description: Uzbekistan
+  - code: VAT
+    description: Holy See
+  - code: VCT
+    description: Saint Vincent and the Grenadines
+  - code: VEN
+    description: Venezuela (Bolivarian Republic of)
+  - code: VGB
+    description: Virgin Islands (British)
+  - code: VIR
+    description: Virgin Islands (U.S.)
+  - code: VNM
+    description: Viet Nam
+  - code: VUT
+    description: Vanuatu
+  - code: WLF
+    description: Wallis and Futuna
+  - code: WSM
+    description: Samoa
+  - code: YEM
+    description: Yemen
+  - code: ZAF
+    description: South Africa
+  - code: ZMB
+    description: : Zambia
+  - code: ZWE
+    description: Zimbabwe
+
+- name: iso639
+  system: ISO639
+  referenceUrl: https://www.loc.gov/standards/iso639-2/php/code_list.php
+  values:
+  - code: aar
+    description: Afar
+  - code: abk
+    description: Abkhazian
+  - code: ace
+    description: Achinese
+  - code: ach
+    description: Acoli
+
+
