@@ -84,9 +84,10 @@ class LIVDLookupMapper : Mapper {
         val filters = lookupTable.FilterBuilder()
         // get the test performed code for additional filtering of the test information in case we are
         // dealing with tests that check for more than one type of disease, for example COVID + influenza
-        values.firstOrNull { it.element.name == ElementNames.TEST_PERFORMED_CODE.elementName }?.value?.also {
-            filters.notEqualsIgnoreCase(LivdTableColumns.TEST_PERFORMED_CODE.colName, testProcessingModeCode)
-        }
+        values.firstOrNull { it.element.name == ElementNames.TEST_PERFORMED_CODE.elementName }?.value
+            ?.also { testPerformedCode ->
+                filters.equalsIgnoreCase(LivdTableColumns.TEST_PERFORMED_CODE.colName, testPerformedCode)
+            }
 
         // If the data is NOT flagged as test data then ignore any test devices in the LIVD table
         val processingModeCode = values.firstOrNull {
@@ -96,10 +97,6 @@ class LIVDLookupMapper : Mapper {
             filters.notEqualsIgnoreCase(LivdTableColumns.PROCESSING_MODE_CODE.colName, testProcessingModeCode)
         }
 
-        val testPerformedCode = values.firstOrNull {
-            it.element.name == ElementNames.TEST_PERFORMED_CODE.elementName
-        }?.value
-
         // carry on as usual
         values.forEach {
             val filtersCopy = filters.copy() // Filters are not reusable
@@ -107,43 +104,10 @@ class LIVDLookupMapper : Mapper {
                 ElementNames.DEVICE_ID.elementName -> lookupByDeviceId(element, it.value, filtersCopy)
                 ElementNames.EQUIPMENT_MODEL_ID.elementName -> lookupByEquipmentUid(element, it.value, filtersCopy)
                 ElementNames.TEST_KIT_NAME_ID.elementName -> lookupByTestkitId(element, it.value, filtersCopy)
-                ElementNames.EQUIPMENT_MODEL_NAME.elementName -> {
-                    // from time to time we will encounter tests that are multiplex, which means they can be
-                    // used to test for more than one disease. Unfortunately for us, the LIVD table includes
-                    // not just the COVID results, but also all the other diagnostic LOINC codes for the other
-                    // diseases the test is designed for. For example, the Sofia 2 test can check for influenza
-                    // A, B, *AND* COVID. This means that when we filter by the equipment model name, we can
-                    // end up with more than one row returned from the LIVD table. When that happens, the lookup
-                    // method below will only return a value if there's only a single row returned by the filtering,
-                    // and therefore returns null for any multiplex test. *****THIS IS NOT OKAY*****
-                    // I have added logic here to check and see if we have a test performed code as well,
-                    // and if we do, we use that to winnow down the list further. We can't depend on this for all
-                    // senders because not all senders give us the test performed code. We also **CANNOT** just use
-                    // the test performed code to get the values that we want from the LIVD table. For example,
-                    // test 94500-6 matches 188 tests from a multitude of different manufacturers right now, which
-                    // means we'd never be able to fill out other parts of the HL7 message as we need to.
-                    // THEREFORE...
-                    // I am pulling the test ordered code from the list of values we get, and if it is present
-                    // then we can use that to filter down to a single matching row as the lookup logic expects
-                    // and get back the test results we expect
-                    if (testPerformedCode != null) {
-                        // copy the filter and add a new one to also search on test performed code
-                        val dualFilterCopy = filtersCopy.equalsIgnoreCase(
-                            LivdTableColumns.TEST_PERFORMED_CODE.colName,
-                            testPerformedCode
-                        )
-                        lookupByEquipmentModelName(
-                            element, it.value,
-                            dualFilterCopy
-                        )
-                    } else {
-                        // the default state, just search by model name
-                        lookupByEquipmentModelName(
-                            element, it.value,
-                            filtersCopy
-                        )
-                    }
-                }
+                ElementNames.EQUIPMENT_MODEL_NAME.elementName -> lookupByEquipmentModelName(
+                    element, it.value,
+                    filtersCopy
+                )
                 else -> null
             }
             if (result != null) return ElementResult(result)
