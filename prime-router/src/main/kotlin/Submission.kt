@@ -12,17 +12,17 @@ import java.time.OffsetDateTime
 import java.util.UUID
 
 /**
- * A `Submission` represents one submission of a message from a sender.
+ * A `DetailedSubmissionHistory` represents the detailed life history of a submission of a message from a sender.
  *
- * @param taskId of the Submission is `action_id` from table `public.action`
- * @param createdAt of the Submission is `created_at` from the table `public.action`
- * @param sendingOrg of the Submission is `sending_org` from the table `public.action`
- * @param httpStatus of the Submission is `http_status` from the table `public.action`
- * @param id of the Submission is `action_response.id` and represents a Report ID from the table `public.action`
- * @param topic of the Submission is `action_response.topic` from the table `public.action`
- * @param reportItemCount of the Submission is `action_response.reportItemCount` and represents a Report ID from the table `public.action`
- * @param warningCount of the Submission is `action_response.warningCount` from the table `public.action`
- * @param errorCount of the Submission is `action_response.errorCount` from the table `public.action`
+ * @param actionId of the Submission is `action_id` from the `action` table
+ * @param actionName of the Submission is `action_name` from the `action` table
+ * @param createdAt of the Submission is `created_at` from the the `action` table
+ * @param sendingOrg of the Submission is `sending_org` from the the `action` table
+ * @param httpStatus of the Submission is `http_status` from the the `action` table
+ * @param externalName of the Submission is `external_name` from the the `action` table
+ * @param actionResponse of the Submission is the structured JSON from the `action` table
+ * @param reports of the Submission are the Reports related to the action from the `report_file` table
+ * @param logs of the Submission are the Logs produced by the submission from the `action_log` table
  */
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -87,13 +87,18 @@ class DetailedSubmissionHistory(
     fun enrichWithDescendant(descendant: DetailedSubmissionHistory) {
         when (descendant.actionName) {
             TaskAction.process -> enrichWithProcessAction(descendant)
-            TaskAction.batch -> enrichWithBatchAction(descendant)
+            // TaskAction.batch -> enrichWithBatchAction(descendant)
             TaskAction.send -> enrichWithSendAction(descendant)
             // TaskAction.download -> enrichWithDownloadAction(descendant)
             else -> {}
         }
     }
 
+    /**
+     * Enrich a parent detailed history with details from the process action
+     *
+     * Add destinations, errors, and warnings, to the history details.
+     */
     private fun enrichWithProcessAction(descendant: DetailedSubmissionHistory) {
         require(descendant.actionName == TaskAction.process) { "Must be a process action" }
 
@@ -102,10 +107,17 @@ class DetailedSubmissionHistory(
         warnings += descendant.warnings
     }
 
+    /*
     private fun enrichWithBatchAction(descendant: DetailedSubmissionHistory) {
         require(descendant.actionName == TaskAction.batch) { "Must be a process action" }
     }
+    */
 
+    /**
+     * Enrich a parent detailed history with details from the send action
+     *
+     * Add sent report information to each destination present in the parent's historical details.
+     */
     private fun enrichWithSendAction(descendant: DetailedSubmissionHistory) {
         require(descendant.actionName == TaskAction.send) { "Must be a send action" }
         descendant.reports?.let { it ->
@@ -114,6 +126,18 @@ class DetailedSubmissionHistory(
                     it.organizationId == report.receivingOrg && it.service == report.receivingOrgSvc
                 }?.let {
                     it.sentReports.add(report)
+                } ?: run {
+                    if (report.receivingOrg != null && report.receivingOrgSvc != null) {
+                        destinations.add(
+                            Destination(
+                                report.receivingOrg,
+                                report.receivingOrgSvc,
+                                listOf(),
+                                "",
+                                report.itemCount,
+                            )
+                        )
+                    }
                 }
             }
         }
@@ -175,10 +199,6 @@ data class Destination(
             org.description
         }
 }
-
-/*
- * TODO: see Github Issues #2314 for expected filename field
- */
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 class SubmissionHistory(

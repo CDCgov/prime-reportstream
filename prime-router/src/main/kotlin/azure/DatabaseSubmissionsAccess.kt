@@ -101,6 +101,9 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = DatabaseAccess(
         )
     }
 
+    /**
+     * fetch the details of a single action
+     */
     override fun <T, P, U> fetchAction(
         sendingOrg: String,
         submissionId: Long,
@@ -121,7 +124,7 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = DatabaseAccess(
         }
     }
 
-    fun reportDecendentExpression(submissionId: Long): CommonTableExpression<*> {
+    private fun reportDecendentExpression(submissionId: Long): CommonTableExpression<*> {
         return DSL.name("t").fields(
             "action_id",
             "child_report_id",
@@ -151,6 +154,11 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = DatabaseAccess(
         )
     }
 
+    /**
+     * Fetch the details of an actions relations (descendents)
+     *
+     * This is done through a recursive query on the report_lineage table
+     */
     override fun <T, P, U> fetchRelatedActions(
         submissionId: Long,
         klass: Class<T>,
