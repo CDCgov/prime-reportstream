@@ -23,6 +23,11 @@ variable "is_metabase_env" {
   description = "Should Metabase be deployed in this environment"
 }
 
-variable "pagerduty_url" {}
+#variable "pagerduty_url" {}
 variable "postgres_server_id" {}
 variable "service_plan_id" {}
+
+variable "workspace_id" {
+  type        = string
+  description = "Log Analytics Workspace resource id"
+}

@@ -129,19 +129,6 @@ module "network" {
 # # ## 04-App
 # # ##########
 
-
-# module "application_insights" {
-#   source          = "../../modules/application_insights"
-#   environment     = var.environment
-#   resource_group  = var.resource_group
-#   resource_prefix = var.resource_prefix
-#   location        = var.location
-#   is_metabase_env = var.is_metabase_env
-#   pagerduty_url   = data.azurerm_key_vault_secret.pagerduty_url.value
-#   postgres_server_id = module.database.postgres_server_id
-#   service_plan_id = module.app_service_plan.service_plan_id
-# }
-
 # module "function_app" {
 #   source                      = "../../modules/function_app"
 #   environment                 = var.environment
@@ -201,3 +188,28 @@ module "network" {
 #   ai_connection_string   = module.application_insights.metabase_connection_string
 #   use_cdc_managed_vnet   = var.use_cdc_managed_vnet
 # }
+
+##########
+## 05-Monitor
+##########
+
+module "log_analytics_workspace" {
+  source          = "../../modules/log_analytics_workspace"
+  environment     = var.environment
+  resource_group  = var.resource_group
+  resource_prefix = var.resource_prefix
+  location        = var.location
+}
+
+module "application_insights" {
+  source          = "../../modules/application_insights"
+  environment     = var.environment
+  resource_group  = var.resource_group
+  resource_prefix = var.resource_prefix
+  location        = var.location
+  is_metabase_env = var.is_metabase_env
+  #pagerduty_url   = data.azurerm_key_vault_secret.pagerduty_url.value
+  postgres_server_id = module.log_analytics_workspace.postgres_server_id
+  service_plan_id = module.log_analytics_workspace.service_plan_id
+  workspace_id    = module.log_analytics_workspace.law_id
+}
