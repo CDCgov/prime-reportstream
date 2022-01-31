@@ -10,8 +10,7 @@ elements:
       mapper: useSenderSetting(organizationName)
 
     - name: processing_mode_code
-      mapper: useSenderSetting(processingModeCode)   
-      csvFields: [ { name: processing_mode_code } ]
+      default: "T"
 
 ############### Set the major ID fields
     - name: patient_id

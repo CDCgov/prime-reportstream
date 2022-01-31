@@ -340,6 +340,17 @@
       schemaName: upload-covid-19
       format: CSV
 
+- name: vivature-tx
+  description: Vivature CSV COVID schema
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: vivature-tx
+      topic: covid-19
+      customerStatus: testing
+      schemaName: upload-covid-19
+      format: CSV
+
 - name: cadph-csvuploadertest
   description: CA-DPH CSV Uploader Test
   jurisdiction: FEDERAL
@@ -633,6 +644,7 @@
         receivingApplicationOID: 2.16.840.1.114222.4.1.185.1
         receivingFacilityName: VDH
         receivingFacilityOID: 2.16.840.1.114222.4.1.185
+        suppressAoe: true
         truncateHl7Fields: OBX-23-1
         truncateHDNamespaceIds: true
         usePid14ForPatientEmail: true
@@ -667,6 +679,7 @@
         receivingApplicationOID: 2.16.840.1.114222.4.1.185.1
         receivingFacilityName: VDH
         receivingFacilityOID: 2.16.840.1.114222.4.1.185
+        suppressAoe: true
         truncateHl7Fields: OBX-23-1
         truncateHDNamespaceIds: true
         usePid14ForPatientEmail: true
@@ -822,14 +835,20 @@
   description: New Mexico Department of Health
   jurisdiction: STATE
   stateCode: NM
+  filters:
+    - topic: "covid-19"
+      jurisdictionalFilter:
+        - "orEquals(ordering_facility_state, NM, patient_state, NM)"
+      qualityFilter: null
+      routingFilter: null
+      processingModeFilter: null
   receivers:
     - name: elr
       externalName: Primary
       organizationName: nm-doh
       topic: covid-19
       customerStatus: active
-      jurisdictionalFilter:
-        - matches(ordering_facility_state, NM)
+      jurisdictionalFilter: []
       translation:
         type: HL7
         useBatchHeaders: true
@@ -843,31 +862,10 @@
         # turn off UNK and ASKU for this field
         useBlankInsteadOfUnknown: patient_race
         suppressHl7Fields: OBX-17-1
+        useOrderingFacilityName: "NCES"
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
-        initialTime: 00:00
-        timeZone: MOUNTAIN
-      transport:
-        type: SFTP
-        host: sftp
-        port: 22
-        filePath: ./upload
-        credentialName: DEFAULT-SFTP
-    - name: elr-csv
-      externalName: Secondary
-      organizationName: nm-doh
-      topic: covid-19
-      customerStatus: active
-      jurisdictionalFilter:
-        - matches(ordering_facility_state, NM)
-      translation:
-        type: CUSTOM
-        format: CSV
-        schemaName: nm/nm-covid-19-csv
-      timing:
-        operation: MERGE
-        numberPerDay: 1440
         initialTime: 00:00
         timeZone: MOUNTAIN
       transport:
@@ -2567,7 +2565,7 @@
         defaultAoeToUnknown: false
         useBlankInsteadOfUnknown: null
         truncateHDNamespaceIds: true
-        truncateHl7Fields: null
+        truncateHl7Fields: MSH-3-1
         usePid14ForPatientEmail: false
         convertTimestampToDateTime: null
         cliaForOutOfStateTesting: null

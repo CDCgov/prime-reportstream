@@ -24,7 +24,7 @@
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
 
-**Table**: LIVD-SARS-CoV-2-latest
+**Table**: LIVD-SARS-CoV-2
 
 **Table Column**: Model
 
@@ -851,7 +851,7 @@ unique id to track the usage of the message
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-latest
+**Table**: LIVD-SARS-CoV-2
 
 **Table Column**: Test Ordered LOINC Code
 
@@ -867,7 +867,7 @@ unique id to track the usage of the message
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-latest
+**Table**: LIVD-SARS-CoV-2
 
 **Table Column**: Test Ordered LOINC Long Name
 
@@ -1067,7 +1067,7 @@ The specimen source, such as Blood or Serum
 **Reference URL**:
 [https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
 
-**Table**: LIVD-Supplemental-2021-06-07
+**Table**: LIVD-SARS-CoV-2
 
 **Table Column**: is_home
 
@@ -1093,7 +1093,7 @@ Is the test authorized for home use by the FDA (Y, N, UNK)
 **Reference URL**:
 [https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
 
-**Table**: LIVD-Supplemental-2021-06-07
+**Table**: LIVD-SARS-CoV-2
 
 **Table Column**: is_otc
 
@@ -1119,7 +1119,7 @@ Is the test authorized for over-the-counter purchase by the FDA (Y, N, UNK)
 **Reference URL**:
 [https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
 
-**Table**: LIVD-Supplemental-2021-06-07
+**Table**: LIVD-SARS-CoV-2
 
 **Table Column**: is_unproctored
 

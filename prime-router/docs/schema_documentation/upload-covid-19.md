@@ -97,7 +97,7 @@ Translate multiple inbound Y/N/U AOE values to RS values
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
 
-**Table**: LIVD-SARS-CoV-2-latest
+**Table**: LIVD-SARS-CoV-2
 
 **Table Column**: Model
 
@@ -1010,34 +1010,6 @@ Translate multiple inbound values into the Pregnancy SNOMED Codes
 
 ---
 
-**Name**: processing_mode_code
-
-**ReportStream Internal Name**: processing_mode_code
-
-**Type**: CODE
-
-**PII**: No
-
-**Format**: use value found in the Code column
-
-**Default Value**: P
-
-**Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display | System
----- | ------- | ------
-D|Debugging|HL7
-P|Production|HL7
-T|Training|HL7
-
-**Documentation**:
-
-P, D, or T for Production, Debugging, or Training
-
----
-
 **Name**: testing_lab_clia
 
 **ReportStream Internal Name**: reporting_facility_clia
@@ -1339,7 +1311,7 @@ Translate multiple inbound Y/N/U AOE values to RS values
 
 **Cardinality**: [1..1]
 
-**Table**: LIVD-SARS-CoV-2-latest
+**Table**: LIVD-SARS-CoV-2
 
 **Table Column**: Test Performed LOINC Code
 
@@ -1798,6 +1770,34 @@ The FIPS code for the patient's county
 **Documentation**:
 
 The ID number of the lab order from the placer
+
+---
+
+**Name**: processing_mode_code
+
+**ReportStream Internal Name**: processing_mode_code
+
+**Type**: CODE
+
+**PII**: No
+
+**Format**: use value found in the Code column
+
+**Default Value**: T
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display | System
+---- | ------- | ------
+D|Debugging|HL7
+P|Production|HL7
+T|Training|HL7
+
+**Documentation**:
+
+P, D, or T for Production, Debugging, or Training
 
 ---
 
