@@ -1010,34 +1010,6 @@ Translate multiple inbound values into the Pregnancy SNOMED Codes
 
 ---
 
-**Name**: processing_mode_code
-
-**ReportStream Internal Name**: processing_mode_code
-
-**Type**: CODE
-
-**PII**: No
-
-**Format**: use value found in the Code column
-
-**Default Value**: P
-
-**Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display | System
----- | ------- | ------
-D|Debugging|HL7
-P|Production|HL7
-T|Training|HL7
-
-**Documentation**:
-
-P, D, or T for Production, Debugging, or Training
-
----
-
 **Name**: testing_lab_clia
 
 **ReportStream Internal Name**: reporting_facility_clia
@@ -1798,6 +1770,34 @@ The FIPS code for the patient's county
 **Documentation**:
 
 The ID number of the lab order from the placer
+
+---
+
+**Name**: processing_mode_code
+
+**ReportStream Internal Name**: processing_mode_code
+
+**Type**: CODE
+
+**PII**: No
+
+**Format**: use value found in the Code column
+
+**Default Value**: T
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display | System
+---- | ------- | ------
+D|Debugging|HL7
+P|Production|HL7
+T|Training|HL7
+
+**Documentation**:
+
+P, D, or T for Production, Debugging, or Training
 
 ---
 
