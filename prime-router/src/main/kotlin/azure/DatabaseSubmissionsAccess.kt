@@ -6,6 +6,7 @@ import gov.cdc.prime.router.azure.db.Tables.REPORT_FILE
 import gov.cdc.prime.router.azure.db.Tables.REPORT_LINEAGE
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import org.jooq.CommonTableExpression
+import org.jooq.SelectFieldOrAsterisk
 import org.jooq.impl.DSL
 import org.jooq.impl.SQLDataType.BIGINT
 import org.jooq.impl.SQLDataType.UUID
@@ -77,6 +78,29 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = DatabaseAccess(
         }
     }
 
+    private fun <P, U> detailedSubmissionSelect(
+        reportsKlass: Class<P>,
+        logsKlass: Class<U>,
+    ): List<SelectFieldOrAsterisk> {
+        return listOf(
+            ACTION.asterisk(),
+            DSL.multiset(
+                DSL.select()
+                    .from(ACTION_LOG)
+                    .where(ACTION_LOG.ACTION_ID.eq(ACTION.ACTION_ID))
+            ).`as`("logs").convertFrom { r ->
+                r?.into(logsKlass)
+            },
+            DSL.multiset(
+                DSL.select()
+                    .from(REPORT_FILE)
+                    .where(REPORT_FILE.ACTION_ID.eq(ACTION.ACTION_ID))
+            ).`as`("reports").convertFrom { r ->
+                r?.into(reportsKlass)
+            },
+        )
+    }
+
     override fun <T, P, U> fetchAction(
         sendingOrg: String,
         submissionId: Long,
@@ -86,24 +110,7 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = DatabaseAccess(
     ): T? {
         return db.transactReturning { txn ->
             DSL.using(txn)
-                .select(
-                    ACTION.asterisk(),
-                    DSL.multiset(
-                        DSL.select()
-                            .from(ACTION_LOG)
-                            .where(ACTION_LOG.ACTION_ID.eq(ACTION.ACTION_ID))
-                    ).`as`("logs").convertFrom { r ->
-                        r?.into(logsKlass)
-                    },
-                    DSL.multiset(
-                        DSL.select()
-                            .from(REPORT_FILE)
-                            .where(REPORT_FILE.ACTION_ID.eq(ACTION.ACTION_ID))
-                    ).`as`("reports").convertFrom { r ->
-                        // TODO this function needs to either be more generic or much less generic now
-                        r?.into(reportsKlass)
-                    },
-                )
+                .select(detailedSubmissionSelect(reportsKlass, logsKlass))
                 .from(ACTION)
                 .where(
                     ACTION.ACTION_NAME.eq(TaskAction.receive)
@@ -154,28 +161,10 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = DatabaseAccess(
         return db.transactReturning { txn ->
             DSL.using(txn)
                 .withRecursive(cte)
-                .selectDistinct(
-                    ACTION.asterisk(),
-                    DSL.multiset(
-                        DSL.select()
-                            .from(REPORT_FILE)
-                            .where(REPORT_FILE.ACTION_ID.eq(ACTION.ACTION_ID))
-                    ).`as`("reports").convertFrom { r ->
-                        // TODO this function needs to either be more generic or much less generic now
-                        r?.into(reportsKlass)
-                    },
-                    DSL.multiset(
-                        DSL.select()
-                            .from(ACTION_LOG)
-                            .where(ACTION_LOG.ACTION_ID.eq(ACTION.ACTION_ID))
-                    ).`as`("logs").convertFrom { r ->
-                        r?.into(logsKlass)
-                    }
-                )
+                .selectDistinct(detailedSubmissionSelect(reportsKlass, logsKlass))
                 .from(ACTION)
                 .join(cte)
                 .on(ACTION.ACTION_ID.eq(cte.field("action_id", BIGINT)))
-                // TODO can we remove this and use only this function to get info (even if no reports are generated?)
                 .where(ACTION.ACTION_ID.ne(submissionId))
                 .fetchInto(klass)
         }

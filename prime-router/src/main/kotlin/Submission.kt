@@ -97,21 +97,7 @@ class DetailedSubmissionHistory(
     private fun enrichWithProcessAction(descendant: DetailedSubmissionHistory) {
         require(descendant.actionName == TaskAction.process) { "Must be a process action" }
 
-        descendant.reports?.forEach { report ->
-            report.receivingOrg?.let {
-                destinations.add(
-                    Destination(
-                        report.receivingOrg,
-                        report.receivingOrgSvc!!,
-                        descendant.logs?.filter {
-                            it.type == ActionLog.ActionLogType.filter && it.reportId == report.reportId
-                        }?.map { it.message },
-                        report.nextActionAt?.toString() ?: "",
-                        report.itemCount,
-                    )
-                )
-            }
-        }
+        destinations += descendant.destinations
         errors += descendant.errors
         warnings += descendant.warnings
     }
@@ -155,7 +141,9 @@ class DetailActionLog(
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class DetailReport(
     val reportId: UUID,
+    @JsonIgnore
     val receivingOrg: String?,
+    @JsonIgnore
     val receivingOrgSvc: String?,
     val externalName: String?,
     val createdAt: OffsetDateTime?,
@@ -167,18 +155,6 @@ data class DetailReport(
 data class DetailedActionResponse(
     val id: String?,
     val topic: String?,
-    val destinations: List<Destination>?,
-    val reportItemCount: Int?,
-    val warningCount: Int?,
-    val errorCount: Int?,
-    val errors: List<Detail>?,
-    val warnings: List<Detail>?,
-)
-
-data class Detail(
-    val scope: String?,
-    val message: String?,
-    val itemNums: String?,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)

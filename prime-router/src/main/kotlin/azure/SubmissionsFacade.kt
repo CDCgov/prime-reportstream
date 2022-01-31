@@ -107,7 +107,6 @@ class SubmissionsFacade(
         )
 
         submission?.let {
-            // TODO: I think we can just use this query if it's written correctly
             val relatedSubmissions = db.fetchRelatedActions(
                 submission.actionId,
                 DetailedSubmissionHistory::class.java,

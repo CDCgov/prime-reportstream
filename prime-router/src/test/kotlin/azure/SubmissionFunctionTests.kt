@@ -53,18 +53,22 @@ class SubmissionFunctionTests {
             return dataset as List<T>
         }
 
-        override fun <T> fetchAction(
+        override fun <T, P, U> fetchAction(
             sendingOrg: String,
             submissionId: Long,
-            klass: Class<T>
+            klass: Class<T>,
+            reportsKlass: Class<P>,
+            logsKlass: Class<U>,
         ): T? {
             @Suppress("UNCHECKED_CAST")
             return dataset.first() as T
         }
 
-        override fun <T> fetchRelatedActions(
+        override fun <T, P, U> fetchRelatedActions(
             submissionId: Long,
-            klass: Class<T>
+            klass: Class<T>,
+            reportsKlass: Class<P>,
+            logsKlass: Class<U>,
         ): List<T> {
             @Suppress("UNCHECKED_CAST")
             return dataset as List<T>
