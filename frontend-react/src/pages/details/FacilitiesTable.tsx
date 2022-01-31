@@ -42,10 +42,7 @@ function FacilitiesTable(props: FacilitiesTableProps) {
                             </td>
                             <td>{facility.CLIA}</td>
                             <td>{facility.total}</td>
-                            <td>
-                                {facility.positive}
-                            </td>
-                            <td></td>
+                            <td>{facility.positive}</td>
                         </tr>
                     ))}
                 </tbody>
