@@ -1260,6 +1260,32 @@ class Hl7Serializer(
         terser.set(formPathSpec("NTE-4-7", nteRep), HL7_SPEC_VERSION)
     }
 
+    private fun setOTCDefault(terser: Terser) {
+        terser.set(formPathSpec("MSH-4-1"), "PRIME OTC")
+        terser.set(formPathSpec("MSH-4-2"), "0OCDCPRIME")
+
+        terser.set(formPathSpec("OBR-16-3"), "SA.OverTheCounter")
+
+        terser.set(formPathSpec("ORC-12-3"), "SA.OverTheCounter")
+        terser.set(formPathSpec("ORC-21-1"), "SA.OverTheCounter")
+        terser.set(formPathSpec("ORC-22-1"), "11 Fake AtHome Test Street")
+        terser.set(formPathSpec("ORC-22-3"), "Yakutat")
+        terser.set(formPathSpec("ORC-22-4"), "AK")
+        terser.set(formPathSpec("ORC-22-5"), "99689")
+        terser.set(formPathSpec("ORC-22-9"), "02282")
+        terser.set(formPathSpec("ORC-23-5"), "111")
+        terser.set(formPathSpec("ORC-23-6"), "1111111")
+
+        terser.set(formPathSpec("OBX-15-1"), "00Z0000014")
+        terser.set(formPathSpec("OBX-23-1"), "SA.OverTheCounter")
+        terser.set(formPathSpec("OBX-23-10"), "00Z0000014")
+        terser.set(formPathSpec("OBX-21-1"), "11 Fake AtHome Test Street")
+        terser.set(formPathSpec("OBX-22-3"), "Yakutat")
+        terser.set(formPathSpec("OBX-22-4"), "AK")
+        terser.set(formPathSpec("OBX-22-5"), "99689")
+        terser.set(formPathSpec("OBX-22-9"), "02282")
+    }
+
     private fun setLiterals(terser: Terser) {
         // Value that NIST requires (although # is not part of 2.5.1)
         terser.set("MSH-12", HL7_SPEC_VERSION)
