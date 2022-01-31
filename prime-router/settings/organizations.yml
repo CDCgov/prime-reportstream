@@ -356,6 +356,22 @@
       schemaName: upload-covid-19
       format: CSV
 
+- name: "cdphe-csvuploader"
+  description: "CDPHE (CO) - CSV Uploader"
+  jurisdiction: "FEDERAL"
+  stateCode: null
+  countyName: null
+  filters: []
+  senders:
+    - name: "default"
+      organizationName: "cdphe-csvuploader"
+      format: "CSV"
+      topic: "covid-19"
+      customerStatus: "testing"
+      schemaName: "upload-covid-19"
+      keys: null
+      processingType: "sync"
+
 - name: vivature-tx
   description: Vivature CSV COVID schema
   jurisdiction: FEDERAL
