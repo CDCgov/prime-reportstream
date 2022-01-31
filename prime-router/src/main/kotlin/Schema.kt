@@ -1,5 +1,7 @@
 package gov.cdc.prime.router
 
+import gov.cdc.prime.router.metadata.LIVDLookupMapper
+
 /**
  * A PRIME schema contains a collection of data elements, mappings, validations and standard algorithms
  * needed to translate data to the form that a public health authority needs.
