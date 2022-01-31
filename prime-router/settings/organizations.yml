@@ -329,6 +329,22 @@
       schemaName: upload-covid-19
       format: CSV
 
+- name: "sdilabs-ca"
+  description: "SDI Labs - CA"
+  jurisdiction: "FEDERAL"
+  stateCode: null
+  countyName: null
+  filters: []
+  senders:
+    - name: "default"
+      organizationName: "sdilabs-ca"
+      format: "CSV"
+      topic: "covid-19"
+      customerStatus: "testing"
+      schemaName: "upload-covid-19"
+      keys: null
+      processingType: "sync"
+
 - name: sourcebioscience_ca
   description: Source BioScience CSV COVID schema, California
   jurisdiction: FEDERAL
