@@ -1,5 +1,4 @@
 package gov.cdc.prime.router
-import com.fasterxml.jackson.annotation.JsonIgnore
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import java.time.Instant
 import java.util.UUID
@@ -31,7 +30,6 @@ data class ActionLog(
     val created_at: Instant = Instant.now(),
 ) {
 
-    @JsonIgnore
     fun getActionId(): Long {
         return action!!.actionId
     }
