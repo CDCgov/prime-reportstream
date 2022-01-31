@@ -43,10 +43,16 @@ class SchemaTests {
         // These two elements depend on each other, so they will be last
         val elementF = Element("f", mapperRef = ConcatenateMapper(), mapperArgs = listOf("a", "e", "g"))
         val elementG = Element("g", mapperRef = ConcatenateMapper(), mapperArgs = listOf("e", "f", "d"))
+        // Some LIVD Mapper elements
+        val livdElementA = Element(ElementNames.EQUIPMENT_MODEL_NAME.elementName, mapperRef = LIVDLookupMapper())
+        val livdElementB = Element(ElementNames.TEST_KIT_NAME_ID.elementName, mapperRef = LIVDLookupMapper())
 
         val schema1 = Schema(
             name = "one", topic = "test",
-            elements = listOf(elementA, elementB, elementC, elementD, elementE, elementF, elementG)
+            elements = listOf(
+                elementA, elementB, elementC, elementD, elementE, elementF, elementG, livdElementA,
+                livdElementB
+            )
         )
         var orderedElements = schema1.orderElementsByMapperDependencies()
         assertThat(orderedElements[0]).isEqualTo(elementA)
@@ -54,12 +60,17 @@ class SchemaTests {
         assertThat(orderedElements[2]).isEqualTo(elementC)
         assertThat(orderedElements[3]).isEqualTo(elementD)
         assertThat(orderedElements[4]).isEqualTo(elementE)
-        assertThat(orderedElements[5]).isEqualTo(elementF)
-        assertThat(orderedElements[6]).isEqualTo(elementG)
+        assertThat(orderedElements[5]).isEqualTo(livdElementA)
+        assertThat(orderedElements[6]).isEqualTo(livdElementB)
+        assertThat(orderedElements[7]).isEqualTo(elementF)
+        assertThat(orderedElements[8]).isEqualTo(elementG)
 
         val schema2 = Schema(
             name = "one", topic = "test",
-            elements = listOf(elementG, elementF, elementE, elementD, elementC, elementB, elementA)
+            elements = listOf(
+                livdElementB, livdElementA, elementG, elementF, elementE, elementD, elementC, elementB,
+                elementA
+            )
         )
         orderedElements = schema2.orderElementsByMapperDependencies()
         assertThat(orderedElements[0]).isEqualTo(elementB)
@@ -67,12 +78,17 @@ class SchemaTests {
         assertThat(orderedElements[2]).isEqualTo(elementE)
         assertThat(orderedElements[3]).isEqualTo(elementD)
         assertThat(orderedElements[4]).isEqualTo(elementC)
-        assertThat(orderedElements[5]).isEqualTo(elementG)
-        assertThat(orderedElements[6]).isEqualTo(elementF)
+        assertThat(orderedElements[5]).isEqualTo(livdElementA)
+        assertThat(orderedElements[6]).isEqualTo(livdElementB)
+        assertThat(orderedElements[7]).isEqualTo(elementG)
+        assertThat(orderedElements[8]).isEqualTo(elementF)
 
         val schema3 = Schema(
             name = "one", topic = "test",
-            elements = listOf(elementD, elementC, elementF, elementG, elementE, elementB, elementA)
+            elements = listOf(
+                elementD, elementC, elementF, livdElementB, livdElementA, elementG, elementE, elementB,
+                elementA
+            )
         )
         orderedElements = schema3.orderElementsByMapperDependencies()
         assertThat(orderedElements[0]).isEqualTo(elementB)
@@ -80,8 +96,10 @@ class SchemaTests {
         assertThat(orderedElements[2]).isEqualTo(elementD)
         assertThat(orderedElements[3]).isEqualTo(elementC)
         assertThat(orderedElements[4]).isEqualTo(elementE)
-        assertThat(orderedElements[5]).isEqualTo(elementF)
-        assertThat(orderedElements[6]).isEqualTo(elementG)
+        assertThat(orderedElements[5]).isEqualTo(livdElementA)
+        assertThat(orderedElements[6]).isEqualTo(livdElementB)
+        assertThat(orderedElements[7]).isEqualTo(elementF)
+        assertThat(orderedElements[8]).isEqualTo(elementG)
     }
 
     @Test
