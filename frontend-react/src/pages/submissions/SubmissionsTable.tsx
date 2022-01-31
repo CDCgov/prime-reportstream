@@ -1,14 +1,18 @@
 import { useContext, useState } from "react";
 import moment from "moment";
-import { useResource } from "rest-hooks";
 import {
     Button,
     IconNavigateBefore,
     IconNavigateNext,
 } from "@trussworks/react-uswds";
+import { useResource } from "rest-hooks";
+// import { useCache } from "@rest-hooks/core";
 
 import SubmissionsResource from "../../resources/SubmissionsResource";
 import { GlobalContext } from "../../components/GlobalContextProvider";
+
+
+const SUBMISSION_PAGE_LENGTH = 20;
 
 function SubmissionsTable() {
     // this component will refresh when global context changes (e.g. organization changes)
@@ -17,7 +21,7 @@ function SubmissionsTable() {
     // state of pagination
     const [paginationCursor, setPaginationCursor] = useState("");
     const [paginationSort, setPaginationSort] = useState("DESC");
-    const [paginationPageSize] = useState(10);
+    const [paginationPageSize] = useState(SUBMISSION_PAGE_LENGTH);
 
     const submissions: SubmissionsResource[] = useResource(
         SubmissionsResource.list(),
@@ -29,27 +33,32 @@ function SubmissionsTable() {
         }
     );
 
-    const sortedSubmissions = () => {
+    const sortedSubmissions = ():SubmissionsResource[] => {
         if (paginationSort === "ASC") {
             // sort by createdAt DESC
             // because when the paginationSort is ASC, the results from the server are reversed
-            const fallbackDate = "1/1/2020";
-            submissions.sort(
+            submissions?.sort(
                 (a, b) =>
-                    Date.parse(b.createdAt?.toString() || fallbackDate) -
-                    Date.parse(a.createdAt?.toString() || fallbackDate)
+                    b.createdAt.getTime() - a.createdAt.getTime()
             );
         }
-        return submissions;
+        return submissions || [];
     };
 
+    const getCursor = (): string => {
+        if (!submissions || !submissions.length) {
+            return "";
+        }
+        return submissions[submissions.length - 1]?.createdAt?.toString() || "";
+    }
     const updatePaginationCursor = (next: boolean) => {
+        if (!submissions) {
+            return;
+        }
         let cursor = submissions[0]?.createdAt?.toString() || "";
         let sort = "ASC";
         if (next) {
-            cursor =
-                submissions[submissions.length - 1]?.createdAt?.toString() ||
-                "";
+            cursor = getCursor();
             sort = "DESC";
         }
         setPaginationCursor(cursor);
@@ -57,12 +66,10 @@ function SubmissionsTable() {
     };
 
     // we can tell if we're on the first page by saving the first result and then checking against it later
-    const [firstPaginationCursor] = useState(
-        submissions[submissions.length - 1]?.createdAt?.toString() || ""
-    );
+    const [firstPaginationCursor] = useState(getCursor());
 
     const onFirstPage = () => {
-        return submissions.find(
+        return submissions?.find(
             (s) => s.createdAt?.toString() === firstPaginationCursor
         );
     };
@@ -71,7 +78,7 @@ function SubmissionsTable() {
     // the requested page size to tell if it is the last page,
     // and then leave a message if there are no results on the next page
     const onLastPage = () => {
-        return submissions.length !== paginationPageSize;
+        return submissions?.length !== paginationPageSize;
     };
 
     return (
@@ -91,31 +98,34 @@ function SubmissionsTable() {
                         </tr>
                     </thead>
                     <tbody id="tBody" className="font-mono-2xs">
-                        {sortedSubmissions().map((s, i) => {
+                        {sortedSubmissions().filter(
+                            // failed will not have an id. do not display them.
+                            (s) => s.isSuccessSubmitted()
+                        ).map((s) => {
                             return (
-                                <tr key={"submission_" + i}>
+                                <tr key={s.pk()}>
                                     <th scope="row">
                                         {moment
-                                            .utc(s["createdAt"])
+                                            .utc(s.createdAt)
                                             .local()
                                             .format("YYYY-MM-DD HH:mm")}
                                     </th>
-                                    <th scope="row">{s["externalName"]}</th>
                                     {/* File name */}
-                                    <th scope="row">{s["reportItemCount"]}</th>
-                                    <th scope="row">{s["id"]}</th>
+                                    <th scope="row">{s.externalName}</th>
+                                    <th scope="row">{s.reportItemCount}</th>
+                                    <th scope="row">{s.id}</th>
                                 </tr>
                             );
                         })}
                     </tbody>
                 </table>
-                {submissions.length === 0 && !paginationCursor && (
+                {(submissions?.length === 0 && !paginationCursor) && (
                     <p>There were no results found.</p>
                 )}
-                {submissions.length === 0 && paginationCursor && (
+                {(submissions?.length === 0 && paginationCursor) && (
                     <p>No more results found.</p>
                 )}
-                {(submissions.length > 0 || paginationCursor) && (
+                {(submissions?.length !== 0 || paginationCursor) && (
                     <span className="float-right margin-top-5">
                         {!onFirstPage() && (
                             <Button
