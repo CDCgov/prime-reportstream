@@ -97,6 +97,8 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
             context.logger.log(Level.SEVERE, msg, t)
             actionHistory.setActionType(TaskAction.send_error)
             actionHistory.trackActionResult(msg)
+            // To Record the Exception
+            throw t
         } finally {
             // Note this is operating in a different transaction than the one that did the fetch/lock of the repor
             context.logger.info("About to save ActionHistory for $message")
@@ -140,6 +142,8 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
                 actionHistory.trackActionResult(msg)
                 context.logger.info(msg)
                 ReportEvent(Event.EventAction.SEND_ERROR, reportId)
+                // throw an Exception to be caught in the run function (above)
+                throw IllegalStateException(msg)
             } else {
                 // retry using a back-off strategy
                 val waitMinutes = retryDuration.getOrDefault(nextRetryCount, maxDurationValue)

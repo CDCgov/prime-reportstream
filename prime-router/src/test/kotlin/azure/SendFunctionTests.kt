@@ -25,6 +25,7 @@ import java.util.UUID
 import java.util.logging.Level
 import java.util.logging.Logger
 import kotlin.test.Test
+import kotlin.test.assertFailsWith
 
 class SendFunctionTests {
     val context = mockkClass(ExecutionContext::class)
@@ -201,15 +202,20 @@ class SendFunctionTests {
         every { sftpTransport.send(any(), any(), any(), any(), any(), any()) }.returns(RetryToken.allItems)
         every { workflowEngine.recordAction(any()) }.returns(Unit)
 
-        // Invoke
-        val event = ReportEvent(Event.EventAction.SEND, reportId)
-        SendFunction(workflowEngine).run(event.toQueueMessage(), context)
+        // Catch the thrown exception - because this is just a test
+        assertFailsWith<IllegalStateException>(
+            block = {
+                // Invoke
+                val event = ReportEvent(Event.EventAction.SEND, reportId)
+                SendFunction(workflowEngine).run(event.toQueueMessage(), context)
 
-        // Verify
-        assertThat(nextEvent).isNotNull()
-        assertThat(nextEvent!!.eventAction).isEqualTo(Event.EventAction.SEND_ERROR)
-        assertThat(nextEvent!!.retryToken).isNull()
-        verify { anyConstructed<ActionHistory>().setActionType(TaskAction.send_error) }
+                // Verify
+                assertThat(nextEvent).isNotNull()
+                assertThat(nextEvent!!.eventAction).isEqualTo(Event.EventAction.SEND_ERROR)
+                assertThat(nextEvent!!.retryToken).isNull()
+                verify { anyConstructed<ActionHistory>().setActionType(TaskAction.send_error) }
+            }
+        )
     }
 
     @Test
@@ -218,9 +224,14 @@ class SendFunctionTests {
         setupLogger()
         every { workflowEngine.recordAction(any()) }.returns(Unit)
 
-        // Invoke
-        SendFunction(workflowEngine).run("", context)
-        // Verify
-        verify(atLeast = 1) { logger.log(Level.SEVERE, any(), any<Throwable>()) }
+        // Catch the thrown exception - because this is just a test
+        assertFailsWith<IllegalStateException>(
+            block = {
+                // Invoke
+                SendFunction(workflowEngine).run("", context)
+                // Verify
+                verify(atLeast = 1) { logger.log(Level.SEVERE, any(), any<Throwable>()) }
+            }
+        )
     }
 }
