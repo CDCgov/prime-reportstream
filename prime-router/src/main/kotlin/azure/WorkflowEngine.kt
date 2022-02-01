@@ -426,7 +426,7 @@ class WorkflowEngine(
     }
 
     /**
-     * Creates an empty report to send to receivers that want empties
+     * Creates an empty report to send to a [receiver] that is configured to receive empty batches.
      */
     fun generateEmptyReport(
         context: ExecutionContext?,

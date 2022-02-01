@@ -19,7 +19,8 @@ const val NUM_BATCH_RETRIES = 2
 
 /**
  * Batch will find all the reports waiting to with a next "batch" action for a receiver name.
- * It will either send the reports directly or merge them together.
+ * It will either send the reports directly or merge them together.  A [workflowEngine] can be passed in for
+ * mocking/testing purposes.
  */
 class BatchFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()) : Logging {
     @FunctionName(batch)

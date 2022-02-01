@@ -14,7 +14,7 @@ const val batchDecider = "batchDecider"
 
 /**
  * This runs as a cron job every minute to determine which receivers, if any, should have batch queue message(s)
- * added to the stack.
+ * added to the stack. A [workflowEngine] can be passed in for mocking/testing purposes.
  */
 class BatchDeciderFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()) : Logging {
     @FunctionName(batchDecider)

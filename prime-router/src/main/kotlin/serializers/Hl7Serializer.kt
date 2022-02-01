@@ -87,7 +87,9 @@ class Hl7Serializer(
     }
 
     /**
-     * Write a report with BHS and FHS segments and multiple items
+     * Write a report with BHS and FHS segments and multiple items. [sendingApplicationReport],
+     * [receivingApplicationReport], and [receivingFacilityReport] are used for empty batch generation and will be used
+     * if passed in (instead of pulling them from the 1st record)
      */
     fun writeBatch(
         report: Report,
@@ -1402,8 +1404,8 @@ class Hl7Serializer(
     }
 
     /**
-     * Creates the headers for hl7 batch. Generally the sendingApplication, receivingApplication, and
-     * recievingFacility will come from the first item in the file. In the case of empty batch, it
+     * Creates the headers for hl7 batch. Generally the [sendingApplication], [receivingApplication], and
+     * [recievingFacility] will come from the first item in the file. In the case of empty batch, it
      * must be passed in.
      */
     private fun createHeaders(

@@ -240,16 +240,15 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
     fun translateByReceiver(
         input: Report,
         receiver: Receiver,
-        defaultValues: DefaultValues = emptyMap(),
-        generatingEmpty: Boolean = false
+        defaultValues: DefaultValues = emptyMap()
     ): Report {
         // Apply mapping to change schema
-        val toReport: Report = if (generatingEmpty || receiver.schemaName != input.schema.name) {
+        val toReport: Report = if (receiver.schemaName != input.schema.name) {
             val toSchema = metadata.findSchema(receiver.schemaName)
                 ?: error("${receiver.schemaName} schema is missing from catalog")
             val receiverDefaults = receiver.translation.defaults
             val defaults = if (receiverDefaults.isNotEmpty()) receiverDefaults.plus(defaultValues) else defaultValues
-            val mapping = buildMapping(toSchema, input.schema, defaults, generatingEmpty)
+            val mapping = buildMapping(toSchema, input.schema, defaults)
             if (mapping.missing.isNotEmpty()) {
                 error(
                     "Error: To translate to ${receiver.fullName}, ${toSchema.name}, these elements are missing: ${
@@ -296,7 +295,9 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
 
     /**
      * Build the mapping that will translate a one schema to another. The mapping
-     * can be used for multiple translations.
+     * can be used for multiple translations. If [generateEmpty] is set to true, it will
+     * force all elements into the 'forceEmpty' which will cause them to generate an empty file, and not
+     * look for values when generating.
      */
     fun buildMapping(
         toSchema: Schema,

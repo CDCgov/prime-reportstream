@@ -153,7 +153,8 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
     }
 
     /**
-     * Given a receiver, finds out if the receiver had at least one 'send' action within after the passed in [checkTime]
+     * Given a receiver, finds out if the receiver (identified by [receiverOrg] and [receiverSvc]) had at least
+     * one 'send' action within after the passed in [checkTime].
      */
     fun checkRecentlySent(
         receiverOrg: String,

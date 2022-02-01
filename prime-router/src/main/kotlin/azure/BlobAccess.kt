@@ -105,6 +105,11 @@ class BlobAccess(
         return BlobInfo(bodyFormat, blobUrl, digest)
     }
 
+    /**
+     * Uses a serializer that matches the bodyFormat of the passed in [report] to generate a ByteArray to upload
+     * to the blobstore. [sendingApplicationReport], [receivingApplicationReport], and [receivingFacilityReport] are
+     * optional parameter that should be populated solely for empty HL7_BATCH files.
+     */
     private fun createBodyBytes(
         report: Report,
         sendingApplicationReport: String? = null,

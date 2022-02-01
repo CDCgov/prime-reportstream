@@ -355,8 +355,8 @@ class ActionHistory {
     }
 
     /**
-     * Use this to record history info about a newly generated empty report for sending to receivers that
-     * request empty batches.
+     * Use this to record history info about a newly generated empty [report] for sending to [receiver] that
+     * has requested an empty batch. The [event] will be batch or send.
      */
     fun trackGeneratedEmptyReport(event: Event, report: Report, receiver: Receiver, blobInfo: BlobAccess.BlobInfo) {
         val reportFile = ReportFile()
