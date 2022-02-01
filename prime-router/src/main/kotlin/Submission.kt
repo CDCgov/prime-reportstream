@@ -42,8 +42,6 @@ class DetailedSubmissionHistory(
     @JsonIgnore
     val logs: List<DetailActionLog>?,
 ) {
-    val receivedReportId: String? = actionResponse?.id
-    // NOTE: Duplicate info to maintain backward compat
     val id: String? = actionResponse?.id
     val destinations = mutableListOf<Destination>()
 
