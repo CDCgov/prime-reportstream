@@ -943,9 +943,10 @@ data class Element(
     /**
      * Determine the value for this element based on the schema configuration.  This function checks if a
      * mapper needs to be run or if a default needs to be applied.
-     * @param allElementValues the values for all other elements.  Used for the mappers.
+     * @param allElementValues the values for all other elements which are updated as needed
      * @param schema the schema
      * @param defaultOverrides element name and value pairs of defaults that override schema defaults
+     * @param index the index of the item from a report being processed
      * @param sender Sender who submitted the data.  Can be null if called at a point in code where its not known
      * @return a mutable set with the processed value or empty string
      */
