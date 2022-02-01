@@ -61,6 +61,21 @@ locals {
       id   = data.azurerm_virtual_network.east_vnet.id
       name = "east_vnet"
       diag_logs = data.azurerm_monitor_diagnostic_categories.east_vnet.logs
+    },
+    "storage_account" = {
+      id   = data.azurerm_storage_account.storage_account.id
+      name = "storage_account"
+      diag_logs = data.azurerm_monitor_diagnostic_categories.storage_account.logs
+    },
+    "storage_public" = {
+      id   = data.azurerm_storage_account.storage_public.id
+      name = "storage_public"
+      diag_logs = data.azurerm_monitor_diagnostic_categories.storage_public.logs
+    },
+    "storage_partner" = {
+      id   = data.azurerm_storage_account.storage_partner.id
+      name = "storage_partner"
+      diag_logs = data.azurerm_monitor_diagnostic_categories.storage_partner.logs
     }
   }
 }

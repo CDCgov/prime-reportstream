@@ -6,7 +6,7 @@ variable "terraform_object_id" {
 }
 
 variable "tf_secrets_vault" {
-  default = "prime-data-hub-test"
+  default = "pdhtest-keyvault"
 }
 
 ###################

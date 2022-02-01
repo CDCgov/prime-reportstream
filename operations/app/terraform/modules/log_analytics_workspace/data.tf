@@ -123,3 +123,27 @@ data "azurerm_virtual_network" "vnet_peer" {
   name                = "${var.resource_prefix}-vnet-peer"
   resource_group_name = var.resource_group
 }
+
+data "azurerm_storage_account" "storage_account" {
+  name                = "${var.resource_prefix}storageaccount"
+  resource_group_name = var.resource_group
+}
+data "azurerm_monitor_diagnostic_categories" "storage_account" {
+  resource_id = data.azurerm_storage_account.storage_account.id
+}
+
+data "azurerm_storage_account" "storage_public" {
+  name                = "${var.resource_prefix}public"
+  resource_group_name = var.resource_group
+}
+data "azurerm_monitor_diagnostic_categories" "storage_public" {
+  resource_id = data.azurerm_storage_account.storage_public.id
+}
+
+data "azurerm_storage_account" "storage_partner" {
+  name                = "${var.resource_prefix}partner"
+  resource_group_name = var.resource_group
+}
+data "azurerm_monitor_diagnostic_categories" "storage_partner" {
+  resource_id = data.azurerm_storage_account.storage_partner.id
+}

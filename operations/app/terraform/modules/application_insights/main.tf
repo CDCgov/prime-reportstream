@@ -21,11 +21,11 @@ resource "azurerm_monitor_action_group" "action_group" {
   resource_group_name = var.resource_group
   short_name          = "ReportStream"
 
-  # webhook_receiver {
-  #   name                    = "PagerDuty"
-  #   service_uri             = var.pagerduty_url
-  #   use_common_alert_schema = true
-  # }
+  webhook_receiver {
+    name                    = "PagerDuty"
+    service_uri             = var.pagerduty_url
+    use_common_alert_schema = true
+  }
 
   tags = {
     "environment" = var.environment
