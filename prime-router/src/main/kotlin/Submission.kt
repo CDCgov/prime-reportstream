@@ -154,7 +154,7 @@ class DetailedSubmissionHistory(
 class DetailActionLog(
     val scope: ActionLog.ActionLogScope,
     @JsonIgnore
-    val reportId: UUID,
+    val reportId: UUID?,
     val index: Int?,
     val trackingId: String?,
     val type: ActionLog.ActionLogType,
