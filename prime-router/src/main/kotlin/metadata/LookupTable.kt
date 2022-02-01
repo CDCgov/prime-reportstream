@@ -168,6 +168,15 @@ open class LookupTable : Logging {
         }
 
         /**
+         * Predicate to do not equals search while ignoring case.
+         */
+        inner class NotEqualsIgnoreCasePredicate : BiPredicate<String, String> {
+            override fun test(t: String, u: String): Boolean {
+                return !t.equals(u, true)
+            }
+        }
+
+        /**
          * Add a [newSelector].
          */
         private fun addSelector(newSelector: Selection?) {
@@ -222,37 +231,11 @@ open class LookupTable : Logging {
         }
 
         /**
-         * Lookup for values that start with the provided column name and value pair [matches] for case-sensitive matches.
+         * Lookup in column name [colName] for case-insensitive values that NOT exactly match [value].
          * @return a reference to the current filter builder
          */
-        fun startsWith(matches: Map<String, String>) = apply {
-            matches.forEach { (colName, value) -> addSelector(getColumn(colName)?.startsWith(value)) }
-        }
-
-        /**
-         * Lookup for values that start with the provided column name and value pair [matches] for case-insensitive matches.
-         * @return a reference to the current filter builder
-         */
-        fun startsWithIgnoreCase(matches: Map<String, String>) = apply {
-            matches.forEach { (colName, value) ->
-                addSelector(getColumn(colName)?.eval(StartsWithIgnoreCasePredicate(), value))
-            }
-        }
-
-        /**
-         * Lookup for values that equals the provided column name and value pair [matches] for case-sensitive matches.
-         * @return a reference to the current filter builder
-         */
-        fun isEqualTo(matches: Map<String, String>) = apply {
-            matches.forEach { (colName, value) -> addSelector(getColumn(colName)?.isEqualTo(value)) }
-        }
-
-        /**
-         * Lookup for values that equals the provided column name and value pair [matches] for case-insensitive matches.
-         * @return a reference to the current filter builder
-         */
-        fun equalsIgnoreCase(matches: Map<String, String>) = apply {
-            matches.forEach { (colName, value) -> addSelector(getColumn(colName)?.equalsIgnoreCase(value)) }
+        fun notEqualsIgnoreCase(colName: String, value: String) = apply {
+            addSelector(getColumn(colName)?.eval(NotEqualsIgnoreCasePredicate(), value))
         }
 
         /**
@@ -294,6 +277,14 @@ open class LookupTable : Logging {
                 selector == null -> LookupTable(name, table)
                 else -> LookupTable(name, table.where(selector))
             }
+        }
+
+        /**
+         * Make a copy of the filter.
+         * @return a copy of the filter.
+         */
+        fun copy(): FilterBuilder {
+            return filter().FilterBuilder()
         }
     }
 
