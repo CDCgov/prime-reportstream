@@ -15,6 +15,7 @@ import ca.uhn.hl7v2.preparser.PreParser
 import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.router.ActionError
 import gov.cdc.prime.router.ActionLog
+import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.InvalidHL7Message
@@ -339,12 +340,11 @@ class Hl7Serializer(
             }
 
             // Second, we process all the element raw values through mappers and defaults.
-            schema.elements.forEach {
-                val mappedResult = it.processValue(mappedRows, schema, sender = sender)
-                mappedRows[it.name] = mappedResult.value ?: ""
-                errors.addAll(mappedResult.errors.map { it.detailMsg() })
-                warnings.addAll(mappedResult.warnings.map { it.detailMsg() })
-            }
+            val errorActionLogs = mutableListOf<ActionLogDetail>()
+            val warningActionLogs = mutableListOf<ActionLogDetail>()
+            schema.processValues(mappedRows, errorActionLogs, warningActionLogs, sender = sender)
+            errors.addAll(errorActionLogs.map { it.detailMsg() })
+            warnings.addAll(warningActionLogs.map { it.detailMsg() })
         } catch (e: Exception) {
             val msg = "${e.localizedMessage} ${e.stackTraceToString()}"
             logger.error(msg)
