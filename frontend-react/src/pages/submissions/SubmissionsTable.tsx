@@ -1,17 +1,12 @@
 import { useContext, useState } from "react";
-import moment from "moment";
-import {
-    Button,
-    IconNavigateBefore,
-    IconNavigateNext,
-} from "@trussworks/react-uswds";
+import { Button, IconNavigateBefore, IconNavigateNext, } from "@trussworks/react-uswds";
 import { useResource } from "rest-hooks";
 
 // import { useCache } from "@rest-hooks/core";
 import SubmissionsResource from "../../resources/SubmissionsResource";
 import { GlobalContext } from "../../components/GlobalContextProvider";
 
-const SUBMISSION_PAGE_LENGTH = 20;
+const SUBMISSION_PAGE_LENGTH = 10;
 
 function SubmissionsTable() {
     // this component will refresh when global context changes (e.g. organization changes)
@@ -33,42 +28,40 @@ function SubmissionsTable() {
     );
 
     const sortedSubmissions = (): SubmissionsResource[] => {
-        if (paginationSort === "ASC") {
-            // sort by createdAt DESC
-            // because when the paginationSort is ASC, the results from the server are reversed
-            submissions?.sort(
-                (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
-            );
-        }
+        submissions?.sort((a, b) => SubmissionsResource.sortByCreatedAt(a, b));
         return submissions || [];
     };
 
-    const getCursor = (): string => {
+    const getCursorStart = (): string => {
         if (!submissions || !submissions.length) {
             return "";
         }
-        return submissions[submissions.length - 1]?.createdAt?.toString() || "";
+        return submissions[0]?.createdAt || "";
     };
+
+    const getCursorEnd = (): string => {
+        if (!submissions || !submissions.length) {
+            return "";
+        }
+        return submissions[submissions.length - 1]?.createdAt || ""
+    };
+
     const updatePaginationCursor = (next: boolean) => {
         if (!submissions) {
             return;
         }
-        let cursor = submissions[0]?.createdAt?.toString() || "";
-        let sort = "ASC";
-        if (next) {
-            cursor = getCursor();
-            sort = "DESC";
-        }
+        const cursor = next ? getCursorEnd() : getCursorStart();
+        const sort = next ? "DESC" : "ASC";
         setPaginationCursor(cursor);
         setPaginationSort(sort);
     };
 
     // we can tell if we're on the first page by saving the first result and then checking against it later
-    const [firstPaginationCursor] = useState(getCursor());
+    const [firstPaginationCursor] = useState(getCursorEnd());
 
     const onFirstPage = () => {
         return submissions?.find(
-            (s) => s.createdAt?.toString() === firstPaginationCursor
+            (s) => s.createdAt === firstPaginationCursor
         );
     };
 
@@ -88,35 +81,30 @@ function SubmissionsTable() {
                     aria-label="Submission history from the last 30 days"
                 >
                     <thead>
-                        <tr>
-                            <th scope="col">Date/time submitted</th>
-                            <th scope="col">File</th>
-                            <th scope="col">Records</th>
-                            <th scope="col">Report ID</th>
-                        </tr>
+                    <tr>
+                        <th scope="col">Date/time submitted</th>
+                        <th scope="col">File</th>
+                        <th scope="col">Records</th>
+                        <th scope="col">Report ID</th>
+                    </tr>
                     </thead>
                     <tbody id="tBody" className="font-mono-2xs">
-                        {sortedSubmissions()
-                            .filter(
-                                // failed will not have an id. do not display them.
-                                (s) => s.isSuccessSubmitted()
-                            )
-                            .map((s) => {
-                                return (
-                                    <tr key={s.pk()}>
-                                        <th scope="row">
-                                            {moment
-                                                .utc(s.createdAt)
-                                                .local()
-                                                .format("YYYY-MM-DD HH:mm")}
-                                        </th>
-                                        {/* File name */}
-                                        <th scope="row">{s.externalName}</th>
-                                        <th scope="row">{s.reportItemCount}</th>
-                                        <th scope="row">{s.id}</th>
-                                    </tr>
-                                );
-                            })}
+                    {sortedSubmissions()
+                        // failed submissions will not have an id. do not display them.
+                        .filter((s) => s.isSuccessSubmitted())
+                        .map((s) => {
+                            return (
+                                <tr key={s.pk()}>
+                                    <th scope="row">
+                                        {(new Date(s.createdAt)).toLocaleString()}
+                                    </th>
+                                    {/* File name */}
+                                    <th scope="row">{s.externalName}</th>
+                                    <th scope="row">{s.reportItemCount}</th>
+                                    <th scope="row">{s.id}</th>
+                                </tr>
+                            );
+                        })}
                     </tbody>
                 </table>
                 {submissions?.length === 0 && !paginationCursor && (
@@ -125,7 +113,7 @@ function SubmissionsTable() {
                 {submissions?.length === 0 && paginationCursor && (
                     <p>No more results found.</p>
                 )}
-                {(submissions?.length !== 0 || paginationCursor) && (
+                {( submissions?.length !== 0 || paginationCursor ) && (
                     <span className="float-right margin-top-5">
                         {!onFirstPage() && (
                             <Button
@@ -135,7 +123,7 @@ function SubmissionsTable() {
                                 onClick={() => updatePaginationCursor(false)}
                             >
                                 <span>
-                                    <IconNavigateBefore className="text-middle" />
+                                    <IconNavigateBefore className="text-middle"/>
                                     Previous
                                 </span>
                             </Button>
@@ -149,7 +137,7 @@ function SubmissionsTable() {
                             >
                                 <span>
                                     Next
-                                    <IconNavigateNext className="text-middle" />
+                                    <IconNavigateNext className="text-middle"/>
                                 </span>
                             </Button>
                         )}

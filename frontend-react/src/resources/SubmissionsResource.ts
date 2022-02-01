@@ -11,7 +11,7 @@ const FALLBACKDATE = "2020-01-01T00:00:00.000Z";
 
 export default class SubmissionsResource extends AuthResource {
     readonly taskId: number = 0;
-    readonly createdAt: Date = new Date(FALLBACKDATE);
+    readonly createdAt: string = FALLBACKDATE; // format is "2022-02-01T15:11:58.200754Z"
     readonly sendingOrg: string = "";
     readonly httpStatus: number = 0;
     readonly externalName: string = "";
@@ -24,7 +24,7 @@ export default class SubmissionsResource extends AuthResource {
     pk() {
         // For failed submissions, the report id will be null. Rest Hooks will not cache a record without a pk, thus
         // falling back to using createdAt.
-        return this.id || this.createdAt?.toString();
+        return `${this.createdAt} ${this.id}`;
     }
 
     static get key() {
@@ -37,5 +37,23 @@ export default class SubmissionsResource extends AuthResource {
 
     isSuccessSubmitted(): boolean {
         return this.id !== null;
+    }
+
+    /**
+     * compareFunction for sorting. Sonar wants it in a function for complexity reasons.
+     * @param a {SubmissionsResource}
+     * @param b {SubmissionsResource}
+     * @return {number}  typical compareFunction result -1, 0, 1
+     */
+    static sortByCreatedAt(
+        a: SubmissionsResource,
+        b: SubmissionsResource
+    ): number {
+        // format "2022-02-01T15:11:58.200754Z" means we can compare strings without converting to dates
+        // since it's in descending time format (aka year, month, day, hour, min, sec)
+        if (a.createdAt === b.createdAt) {
+            return 0;
+        }
+        return a.createdAt > b.createdAt ? -1 : 1;
     }
 }
