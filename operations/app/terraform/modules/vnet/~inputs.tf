@@ -12,32 +12,35 @@ variable "resource_prefix" {
   description = "Resourec Prefix"
 }
 
-variable "east_address_space" {
-  type = list
-  description = "East VNET Address Space CIDR"
-}
+# variable "east_address_space" {
+#   type = list
+#   description = "East VNET Address Space CIDR"
+# }
 
-variable "east_dns_servers" {
-  type = list
-  description = "List of DNS Servers"
-}
+# variable "east_dns_servers" {
+#   type = list
+#   description = "List of DNS Servers"
+# }
 
-variable "west_address_space" {
-  type = list
-  description = "East VNET Address Space CIDR"
-}
+# variable "west_address_space" {
+#   type = list
+#   description = "East VNET Address Space CIDR"
+# }
 
-variable "west_dns_servers" {
-  type = list
-  description = "List of DNS Servers"
-}
+# variable "west_dns_servers" {
+#   type = list
+#   description = "List of DNS Servers"
+# }
 
-variable "vnet_address_space" {
-  type = list
-  description = "VNET Address Space CIDR"
-}
+# variable "vnet_address_space" {
+#   type = list
+#   description = "VNET Address Space CIDR"
+# }
 
-variable "vnet_peer_address_space" {
-  type = list
-  description = "VNET Address Space CIDR"
+# variable "vnet_peer_address_space" {
+#   type = list
+#   description = "VNET Address Space CIDR"
+# }
+
+variable "azure_vns" {
 }

@@ -10,46 +10,129 @@ variable "tf_secrets_vault" {
 }
 
 ###################
-## VNET Variables
+## Netowrk Variables
 ###################
 
-variable "east_address_space" {
-  type = list
-  description = "East VNET Address Space CIDR"
-  default = ["172.17.5.0/25"]
+variable "network" {
+  description = "The map that describes all of our networking. Orders are important for subnets."
+  default = {
+    "East-vnet" = {
+      "address_space" = "172.17.5.0/25"
+      "dns_servers" = ["172.17.0.135"]
+      "location" = "East Us"
+      "nsg_prefix" = "eastus-"
+      "network_security_groups" = ["private", "public", "container", "endpoint"]
+      "subnets" = ["public", "private", "container", "endpoint"]
+      "subnet_cidrs" =  [
+        {
+          name     = "public"
+          new_bits = 3
+        },
+        {
+          name     = "container"
+          new_bits = 3
+        },
+        {
+          name     = "private"
+          new_bits = 3
+        },
+        {
+          name     = "endpoint"
+          new_bits = 2
+        },
+      ]
+    },
+    "West-vnet" = {
+      "address_space" = "172.17.5.128/25"
+      "dns_servers" = ["172.17.0.135"]
+      "location" = "West Us"
+      "subnets" = ["public", "private", "container", "endpoint"]
+      "nsg_prefix" = "westus-"
+      "network_security_groups" = ["private", "public", "container", "endpoint"]
+      "subnet_cidrs" =  [
+        {
+          name     = "public"
+          new_bits = 3
+        },
+        {
+          name     = "container"
+          new_bits = 3
+        },
+        {
+          name     = "private"
+          new_bits = 3
+        },
+        {
+          name     = "endpoint"
+          new_bits = 2
+        },
+      ]
+    },
+    "vnet" = {
+      "address_space" = "10.0.0.0/16"
+      "dns_server" = [""]
+      "location" = "East Us"
+      "subnets" = ["public", "private", "container", "endpoint"]
+      "nsg_prefix" = ""
+      "network_security_groups" = ["public", "private", "container"]
+      "subnet_cidrs" =  [
+        {
+          name     = "public"
+          new_bits = 8
+        },
+        {
+          name     = "container"
+          new_bits = 8
+        },
+        {
+          name     = "GatewaySubnet"
+          new_bits = 8
+        },
+        {
+          name     = "private"
+          new_bits = 8
+        },
+        {
+          name = "endpoint"
+          new_bits = 8
+        }
+      ]
+    },
+    "vnet-peer" = {
+      "address_space" = "10.1.0.0/16"
+      "dns_server" = [""]
+      "location" = "West Us"
+      "subnets" = ["private", "endpoint"]
+      "nsg_prefix" = "vnetpeer-"
+      "network_security_groups" = []
+      "subnet_cidrs" =  [
+                {
+          name     = "public"
+          new_bits = 8
+        },
+        {
+          name     = "container"
+          new_bits = 8
+        },
+        {
+          name     = "private"
+          new_bits = 8
+        },
+        {
+          name     = "endpoint"
+          new_bits = 8
+        },
+      ]
+    }
+  }
 }
 
-variable "east_dns_servers" {
-  type = list
-  description = "List of DNS Servers"
-  default = ["172.17.0.135"]
-}
-
-variable "west_address_space" {
-  type = list
-  description = "East VNET Address Space CIDR"
-  default = ["172.17.5.128/25"]
-}
-
-variable "west_dns_servers" {
-  type = list
-  description = "List of DNS Servers"
-  default = ["172.17.0.135"]
-}
-
-variable "vnet_address_space" {
-  type = list
-  description = "VNET Address Space CIDR"
-  default = ["10.0.0.0/16"]
-}
-
-variable "vnet_peer_address_space" {
-  type = list
-  description = "VNET Address Space CIDR"
-  default = ["10.1.0.0/16"]
-}
 
 
+
+
+
+##############################################
 
 
 variable "environment"{
