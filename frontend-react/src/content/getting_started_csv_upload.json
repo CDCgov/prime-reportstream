@@ -642,7 +642,7 @@
                             "valueMessage": "",
                             "valueType": "Address",
                             "values": [
-                                "Two-character state abbreviation." 
+                                "Two-character state abbreviation" 
                             ],               
                             "notes": [
                                "Enter ordering provider's state. File will fail if field left blank."              
@@ -785,7 +785,7 @@
                             "valueMessage": "",
                             "valueType": "Address",
                             "values": [
-                                "Two-character state abbreviation." 
+                                "Two-character state abbreviation" 
                             ],               
                             "notes": [
                                "Enter testing lab's state. File will fail if field left blank."              
@@ -1047,7 +1047,7 @@
                             "valueMessage": "",
                             "valueType": "Address",
                             "values": [
-                                "Two-character state abbreviation." 
+                                "Two-character state abbreviation" 
                             ],               
                             "notes": [
                                "Enter ordering facility's state. Can be left blank if same as <a href=\"#testing-facility\" class=\"usa-link\">testing_lab_state</a>."              
