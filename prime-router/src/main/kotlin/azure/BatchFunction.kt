@@ -32,7 +32,7 @@ class BatchFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine(
     ) {
         var backstopTime: OffsetDateTime? = null
         try {
-            logger.info("BatchFunction starting.  Message: $message")
+            logger.trace("BatchFunction starting.  Message: $message")
             val event = Event.parseQueueMessage(message) as BatchEvent
             if (event.eventAction != Event.EventAction.BATCH) {
                 logger.error("BatchFunction received a $message")
@@ -52,7 +52,7 @@ class BatchFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine(
                     receiver.timing?.numberPerDay ?: 1, NUM_BATCH_RETRIES
                 )
             )
-            logger.info("BatchFunction (msg=$message) using backstopTime=$backstopTime")
+            logger.trace("BatchFunction (msg=$message) using backstopTime=$backstopTime")
 
             // if this 'batch' event is for an empty batch, create the empty file
             if (event.isEmptyBatch) {
@@ -69,7 +69,7 @@ class BatchFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine(
                     headers.filter { it.expectingContent && it.content == null }
                         .forEach {
                             // TODO: Need to add Action with error state of batch_error. See ticket #3642
-                            logger.fatal(
+                            logger.error(
                                 "Failure to download ${it.task.bodyUrl} from blobstore. ReportId: ${it.task.reportId}"
                             )
                         }
@@ -116,7 +116,7 @@ class BatchFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine(
                 }
             }
             actionHistory.queueMessages(workflowEngine) // Must be done after txn, to avoid race condition
-            logger.info("BatchFunction succeeded for message: $message")
+            logger.trace("BatchFunction succeeded for message: $message")
         } catch (e: Exception) {
             logger.fatal(
                 "BatchFunction Exception (msg=$message, backstopTime=$backstopTime) : ",
