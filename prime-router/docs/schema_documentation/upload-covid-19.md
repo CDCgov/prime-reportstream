@@ -276,7 +276,7 @@ Translate multiple inbound Y/N/U AOE values to RS values
 
 **ReportStream Internal Name**: order_test_date
 
-**Type**: DATE
+**Type**: DATETIME
 
 **PII**: No
 
@@ -1010,6 +1010,49 @@ Translate multiple inbound values into the Pregnancy SNOMED Codes
 
 ---
 
+**Name**: processing_mode_code
+
+**ReportStream Internal Name**: processing_mode_code
+
+**Type**: CODE
+
+**PII**: No
+
+**Format**: use value found in the Display column
+
+**Default Value**: P
+
+**Cardinality**: [1..1]
+
+**Value Sets**
+
+Code | Display | System
+---- | ------- | ------
+D|Debugging|HL7
+P|Production|HL7
+T|Training|HL7
+T|Training|HL7
+T|Training|HL7
+T|Training|HL7
+P|Production|HL7
+P|Production|HL7
+
+**Alt Value Sets**
+
+Code | Display | System
+---- | ------- | ------
+T|TESTING|HL7
+T|INACTIVE|HL7
+T|T|HL7
+P|ACTIVE|HL7
+P|P|HL7
+
+**Documentation**:
+
+P, D, or T for Production, Debugging, or Training
+
+---
+
 **Name**: testing_lab_clia
 
 **ReportStream Internal Name**: reporting_facility_clia
@@ -1400,7 +1443,7 @@ Translate multiple inbound Test Result values to RS values
 
 **ReportStream Internal Name**: test_result_date
 
-**Type**: DATE
+**Type**: DATETIME
 
 **PII**: No
 
@@ -1773,31 +1816,13 @@ The ID number of the lab order from the placer
 
 ---
 
-**Name**: processing_mode_code
+**Name**: processing_mode_code_fromsettings
 
-**ReportStream Internal Name**: processing_mode_code
-
-**Type**: CODE
+**ReportStream Internal Name**: processing_mode_code_fromsettings
 
 **PII**: No
 
-**Format**: use value found in the Code column
-
-**Default Value**: T
-
 **Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display | System
----- | ------- | ------
-D|Debugging|HL7
-P|Production|HL7
-T|Training|HL7
-
-**Documentation**:
-
-P, D, or T for Production, Debugging, or Training
 
 ---
 
