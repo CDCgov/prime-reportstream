@@ -15,7 +15,7 @@ resource "azurerm_monitor_scheduled_query_rules_alert" "http_response_time" {
   frequency           = 5
   time_window         = 5
 
-  data_source_id = azurerm_application_insights.app_insights.id
+  data_source_id = local.app_insights_id
 
   query = <<-QUERY
 requests
@@ -28,7 +28,7 @@ requests
   }
 
   action {
-    action_group = [azurerm_monitor_action_group.action_group[0].id]
+    action_group = [local.action_group_id]
   }
 }
 
@@ -44,7 +44,7 @@ resource "azurerm_monitor_smart_detector_alert_rule" "failure_anomalies" {
   detector_type       = "FailureAnomaliesDetector"
 
   action_group {
-    ids = [azurerm_monitor_action_group.action_group[0].id]
+    ids = [local.action_group_id]
   }
 }
 
@@ -59,7 +59,7 @@ resource "azurerm_monitor_scheduled_query_rules_alert" "http_2xx_failed_requests
   frequency           = 5
   time_window         = 5
 
-  data_source_id = azurerm_application_insights.app_insights.id
+  data_source_id = local.app_insights_id
 
   query = <<-QUERY
 requests
@@ -72,7 +72,7 @@ requests
   }
 
   action {
-    action_group = [azurerm_monitor_action_group.action_group[0].id]
+    action_group = [local.action_group_id]
   }
 }
 
@@ -87,7 +87,7 @@ resource "azurerm_monitor_scheduled_query_rules_alert" "http_4xx_errors" {
   frequency           = 5
   time_window         = 5
 
-  data_source_id = azurerm_application_insights.app_insights.id
+  data_source_id = local.app_insights_id
 
   query = <<-QUERY
 requests
@@ -100,7 +100,7 @@ requests
   }
 
   action {
-    action_group = [azurerm_monitor_action_group.action_group[0].id]
+    action_group = [local.action_group_id]
   }
 }
 
@@ -115,7 +115,7 @@ resource "azurerm_monitor_scheduled_query_rules_alert" "http_5xx_errors" {
   frequency           = 5
   time_window         = 5
 
-  data_source_id = azurerm_application_insights.app_insights.id
+  data_source_id = local.app_insights_id
 
   query = <<-QUERY
 requests
@@ -128,6 +128,6 @@ requests
   }
 
   action {
-    action_group = [azurerm_monitor_action_group.action_group[0].id]
+    action_group = [local.action_group_id]
   }
 }

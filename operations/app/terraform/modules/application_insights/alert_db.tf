@@ -68,7 +68,7 @@ resource "azurerm_monitor_scheduled_query_rules_alert" "db_query_duration" {
   frequency           = 5
   time_window         = 5
 
-  data_source_id = azurerm_application_insights.app_insights.id
+  data_source_id = local.app_insights_id
 
   query = <<-QUERY
 dependencies
@@ -81,7 +81,7 @@ dependencies
   }
 
   action {
-    action_group = [azurerm_monitor_action_group.action_group[0].id]
+    action_group = [local.action_group_id]
   }
 }
 
@@ -96,7 +96,7 @@ resource "azurerm_monitor_scheduled_query_rules_alert" "db_query_duration_over_t
   frequency           = 5
   time_window         = 5
 
-  data_source_id = azurerm_application_insights.app_insights.id
+  data_source_id = local.app_insights_id
 
   query = <<-QUERY
 dependencies
@@ -109,6 +109,6 @@ dependencies
   }
 
   action {
-    action_group = [azurerm_monitor_action_group.action_group[0].id]
+    action_group = [local.action_group_id]
   }
 }
