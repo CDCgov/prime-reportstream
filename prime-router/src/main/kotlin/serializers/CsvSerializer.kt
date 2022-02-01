@@ -381,18 +381,7 @@ class CsvSerializer(val metadata: Metadata) : Logging {
         }
 
         // Now process the data through mappers and default values
-        schema.elements.forEach { element ->
-            // Do not process any field that had an error
-            if (lookupValues[element.name] != failureValue) {
-                val mappedResult =
-                    element.processValue(lookupValues, schema, csvMapping.defaultOverrides, index, sender)
-                lookupValues[element.name] = mappedResult.value ?: ""
-                errors.addAll(mappedResult.errors)
-                warnings.addAll(mappedResult.warnings)
-            } else {
-                lookupValues[element.name] = ""
-            }
-        }
+        schema.processValues(lookupValues, errors, warnings, csvMapping.defaultOverrides, index, sender, failureValue)
 
         // Output with value
         val outputRow = schema.elements.map { element ->
