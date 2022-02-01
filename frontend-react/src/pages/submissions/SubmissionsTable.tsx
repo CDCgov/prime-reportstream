@@ -19,14 +19,13 @@ function SubmissionsTable() {
     // state of pagination
     const [paginationCursor, setPaginationCursor] = useState("");
     const [paginationSort, setPaginationSort] = useState("DESC");
-    const [paginationPageSize] = useState(SUBMISSION_PAGE_LENGTH);
 
     const submissions: SubmissionsResource[] = useResource(
         SubmissionsResource.list(),
         {
             organization: globalState.state.organization,
             cursor: paginationCursor,
-            pageSize: paginationPageSize,
+            pageSize: SUBMISSION_PAGE_LENGTH,
             sort: paginationSort,
         }
     );
@@ -36,6 +35,7 @@ function SubmissionsTable() {
         return submissions || [];
     };
 
+    // this treats the FIRST entry in the list as the starting point. Used when doing a Prev
     const getCursorStart = (): string => {
         if (!submissions || !submissions.length) {
             return "";
@@ -43,6 +43,7 @@ function SubmissionsTable() {
         return submissions[0]?.createdAt || "";
     };
 
+    // this treats the last entry on the page as the starting point. Used when doing Next
     const getCursorEnd = (): string => {
         if (!submissions || !submissions.length) {
             return "";
@@ -71,13 +72,51 @@ function SubmissionsTable() {
     // the requested page size to tell if it is the last page,
     // and then leave a message if there are no results on the next page
     const onLastPage = () => {
-        return submissions?.length !== paginationPageSize;
+        return submissions?.length !== SUBMISSION_PAGE_LENGTH;
+    };
+
+    const NextPrevButtonsComponent = () => {
+        return (
+            <>
+                {(submissions?.length !== 0 || paginationCursor) && (
+                    <span className="float-right margin-top-5">
+                        {!onFirstPage() && (
+                            <Button
+                                className="text-no-underline margin-right-4"
+                                type="button"
+                                unstyled
+                                onClick={() => updatePaginationCursor(false)}
+                            >
+                                <span>
+                                    <IconNavigateBefore className="text-middle" />
+                                    Previous
+                                </span>
+                            </Button>
+                        )}
+                        {!onLastPage() && (
+                            <Button
+                                className="text-no-underline"
+                                type="button"
+                                unstyled
+                                onClick={() => updatePaginationCursor(true)}
+                            >
+                                <span>
+                                    Next
+                                    <IconNavigateNext className="text-middle" />
+                                </span>
+                            </Button>
+                        )}
+                    </span>
+                )}
+            </>
+        );
     };
 
     return (
-        <div className="grid-container usa-section margin-bottom-10">
+        <div className="grid-container margin-bottom-10">
             <div className="grid-col-12">
                 <h2>Submissions</h2>
+                <NextPrevButtonsComponent />
                 <table
                     className="usa-table usa-table--borderless prime-table"
                     aria-label="Submission history from the last 30 days"
@@ -117,36 +156,7 @@ function SubmissionsTable() {
                 {submissions?.length === 0 && paginationCursor && (
                     <p>No more results found.</p>
                 )}
-                {(submissions?.length !== 0 || paginationCursor) && (
-                    <span className="float-right margin-top-5">
-                        {!onFirstPage() && (
-                            <Button
-                                className="text-no-underline margin-right-4"
-                                type="button"
-                                unstyled
-                                onClick={() => updatePaginationCursor(false)}
-                            >
-                                <span>
-                                    <IconNavigateBefore className="text-middle" />
-                                    Previous
-                                </span>
-                            </Button>
-                        )}
-                        {!onLastPage() && (
-                            <Button
-                                className="text-no-underline"
-                                type="button"
-                                unstyled
-                                onClick={() => updatePaginationCursor(true)}
-                            >
-                                <span>
-                                    Next
-                                    <IconNavigateNext className="text-middle" />
-                                </span>
-                            </Button>
-                        )}
-                    </span>
-                )}
+                <NextPrevButtonsComponent />
             </div>
         </div>
     );
