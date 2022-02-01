@@ -46,21 +46,21 @@ module "network" {
 #    app_size        = var.app_size
 #  }
 
-# module "key_vault" {
-#   source                      = "../../modules/key_vault"
-#   environment                 = var.environment
-#   resource_group              = var.resource_group
-#   resource_prefix             = var.resource_prefix
-#   location                    = var.location
-#   aad_object_keyvault_admin   = var.aad_object_keyvault_admin
-#   terraform_caller_ip_address = var.terraform_caller_ip_address
-#   use_cdc_managed_vnet        = var.use_cdc_managed_vnet
-#   public_subnet = module.network.public_subnet_ids
-#   container_subnet = module.network.container_subnet_ids
-#   endpoint_subnet = module.network.endpoint_subnet_ids
-#   cyberark_ip_ingress = ""
-#   terraform_object_id = var.terraform_object_id
-# }
+ module "key_vault" {
+   source                      = "../../modules/key_vault"
+   environment                 = var.environment
+   resource_group              = var.resource_group
+   resource_prefix             = var.resource_prefix
+   location                    = var.location
+   aad_object_keyvault_admin   = var.aad_object_keyvault_admin
+   terraform_caller_ip_address = var.terraform_caller_ip_address
+   use_cdc_managed_vnet        = var.use_cdc_managed_vnet
+   public_subnet = module.network.public_subnet_ids
+   container_subnet = module.network.container_subnet_ids
+   endpoint_subnet = module.network.endpoint_subnet_ids
+   cyberark_ip_ingress = ""
+   terraform_object_id = var.terraform_object_id
+ }
 
 #  module "container_registry" {
 #    source               = "../../modules/container_registry"

@@ -2,7 +2,7 @@
 variable "terraform_object_id" {
   type = string
   description = "Object id of user running TF"
-  default = ""
+  default = "4d81288c-27a3-4df8-b776-c9da8e688bc7"
 }
 
 variable "tf_secrets_vault" {
