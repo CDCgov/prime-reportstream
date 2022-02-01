@@ -24,7 +24,6 @@ import java.util.UUID
  * @param reports of the Submission are the Reports related to the action from the `report_file` table
  * @param logs of the Submission are the Logs produced by the submission from the `action_log` table
  */
-@JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 class DetailedSubmissionHistory(
     @JsonProperty("submissionId")
@@ -44,6 +43,8 @@ class DetailedSubmissionHistory(
     val logs: List<DetailActionLog>?,
 ) {
     val receivedReportId: String? = actionResponse?.id
+    // NOTE: Duplicate info to maintain backward compat
+    val id: String? = actionResponse?.id
     val destinations = mutableListOf<Destination>()
 
     val errors = mutableListOf<DetailActionLog>()
@@ -162,6 +163,7 @@ class DetailActionLog(
     val message: String = detail.detailMsg()
 }
 
+@JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class DetailReport(
     val reportId: UUID,
