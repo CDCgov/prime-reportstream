@@ -18,18 +18,5 @@ variable "location" {
   description = "Network Location"
 }
 
-variable "vnet_ids" {
-  description = "Vnet IDs"
-}
+variable "azure_vns" {}
 
-variable "vnet_names" {
-  description = "Vnet Names"
-}
-
-variable "vnet_address_space" {
-  description = "The address space of the newly created vNet"
-}
-
-variable "vnets" {
-  description = "List of vnet objects"
-}

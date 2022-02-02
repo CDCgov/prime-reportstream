@@ -9,9 +9,12 @@ resource "azurerm_container_registry" "container_registry" {
   #   default_action = "Allow"
 
   #   virtual_network {
-  #     count = var.public_subnets
   #     action    = "Allow"
-  #     subnet_id = var.public_subnets[count.index]
+  #     subnet_id = var.public_subnets[0]
+  #   }
+  #   virtual_network {
+  #     action    = "Allow"
+  #     subnet_id = var.public_subnets[2]
   #   }
   # }
 
