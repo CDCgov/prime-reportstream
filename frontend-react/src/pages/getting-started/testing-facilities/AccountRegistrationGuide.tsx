@@ -101,8 +101,8 @@ export const AccountRegistrationGuide = () => {
                             <p>
                                 To: reportstream@cdc.gov
                                 <br />
-                                Subject: Register a new account - organization or
-                                testing facility
+                                Subject: Register a new account - organization
+                                or testing facility
                             </p>
 
                             <p>Hi,</p>
