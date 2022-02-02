@@ -1,11 +1,11 @@
 ## Set up our Azure Virtual Network.
 ## Need to determine a way to run or not if vnets are pre-configured
 module "vnet" {
-  source = "../../modules/vnet"
-  resource_group = var.resource_group
-  environment = var.environment
+  source          = "../../modules/vnet"
+  resource_group  = var.resource_group
+  environment     = var.environment
   resource_prefix = var.resource_prefix
-  azure_vns = var.network
+  azure_vns       = var.network
 }
 
 ##########
@@ -13,13 +13,13 @@ module "vnet" {
 ##########
 
 module "network" {
-  source          = "../../modules/network"
+  source = "../../modules/network"
 
   environment     = var.environment
   resource_group  = var.resource_group
   resource_prefix = var.resource_prefix
   location        = var.location
-  azure_vns = var.network
+  azure_vns       = var.network
 }
 
 # module "nat_gateway" {
@@ -36,41 +36,41 @@ module "network" {
 ## 02-config
 ##########
 
-  module "app_service_plan" {
-    source          = "../../modules/app_service_plan"
-    environment     = var.environment
-    resource_group  = var.resource_group
-    resource_prefix = var.resource_prefix
-    location        = var.location
-    app_tier        = var.app_tier
-    app_size        = var.app_size
-  }
+module "app_service_plan" {
+  source          = "../../modules/app_service_plan"
+  environment     = var.environment
+  resource_group  = var.resource_group
+  resource_prefix = var.resource_prefix
+  location        = var.location
+  app_tier        = var.app_tier
+  app_size        = var.app_size
+}
 
- module "key_vault" {
-   source                      = "../../modules/key_vault"
-   environment                 = var.environment
-   resource_group              = var.resource_group
-   resource_prefix             = var.resource_prefix
-   location                    = var.location
-   aad_object_keyvault_admin   = var.aad_object_keyvault_admin
-   terraform_caller_ip_address = var.terraform_caller_ip_address
-   use_cdc_managed_vnet        = var.use_cdc_managed_vnet
-   public_subnet = module.network.public_subnet_ids
-   container_subnet = module.network.container_subnet_ids
-   endpoint_subnet = module.network.endpoint_subnet_ids
-   cyberark_ip_ingress = ""
-   terraform_object_id = var.terraform_object_id
- }
+module "key_vault" {
+  source                      = "../../modules/key_vault"
+  environment                 = var.environment
+  resource_group              = var.resource_group
+  resource_prefix             = var.resource_prefix
+  location                    = var.location
+  aad_object_keyvault_admin   = var.aad_object_keyvault_admin
+  terraform_caller_ip_address = var.terraform_caller_ip_address
+  use_cdc_managed_vnet        = var.use_cdc_managed_vnet
+  public_subnet               = module.network.public_subnet_ids
+  container_subnet            = module.network.container_subnet_ids
+  endpoint_subnet             = module.network.endpoint_subnet_ids
+  cyberark_ip_ingress         = ""
+  terraform_object_id         = var.terraform_object_id
+}
 
-#  module "container_registry" {
-#    source               = "../../modules/container_registry"
-#    environment          = var.environment
-#    resource_group       = var.resource_group
-#    resource_prefix      = var.resource_prefix
-#    location             = var.location
-#    enable_content_trust = true
-#    public_subnets = module.network.public_subnet_ids
-#  }
+module "container_registry" {
+  source               = "../../modules/container_registry"
+  environment          = var.environment
+  resource_group       = var.resource_group
+  resource_prefix      = var.resource_prefix
+  location             = var.location
+  enable_content_trust = false
+  public_subnets       = module.network.public_subnet_ids
+}
 
 
 
@@ -195,14 +195,14 @@ module "log_analytics_workspace" {
 }
 
 module "application_insights" {
-  source          = "../../modules/application_insights"
-  environment     = var.environment
-  resource_group  = var.resource_group
-  resource_prefix = var.resource_prefix
-  location        = var.location
-  is_metabase_env = var.is_metabase_env
-  pagerduty_url   = data.azurerm_key_vault_secret.pagerduty_url.value
+  source             = "../../modules/application_insights"
+  environment        = var.environment
+  resource_group     = var.resource_group
+  resource_prefix    = var.resource_prefix
+  location           = var.location
+  is_metabase_env    = var.is_metabase_env
+  pagerduty_url      = data.azurerm_key_vault_secret.pagerduty_url.value
   postgres_server_id = [module.log_analytics_workspace.postgres_server_id]
-  service_plan_id = [module.log_analytics_workspace.service_plan_id]
-  workspace_id    = module.log_analytics_workspace.law_id
+  service_plan_id    = [module.log_analytics_workspace.service_plan_id]
+  workspace_id       = module.log_analytics_workspace.law_id
 }
