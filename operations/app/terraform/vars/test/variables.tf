@@ -77,6 +77,10 @@ variable "network" {
       "network_security_groups" = ["public", "private", "container"]
       "subnet_cidrs" =  [
         {
+          name     = "GatewaySubnet"
+          new_bits = 8
+        },
+        {
           name     = "public"
           new_bits = 8
         },
@@ -85,11 +89,11 @@ variable "network" {
           new_bits = 8
         },
         {
-          name     = "GatewaySubnet"
+          name     = "private"
           new_bits = 8
         },
         {
-          name     = "private"
+          name     = "unused"
           new_bits = 8
         },
         {
@@ -107,11 +111,15 @@ variable "network" {
       "network_security_groups" = []
       "subnet_cidrs" =  [
                 {
+          name     = "container"
+          new_bits = 8
+        },
+        {
           name     = "public"
           new_bits = 8
         },
         {
-          name     = "container"
+          name     = "notused"
           new_bits = 8
         },
         {
@@ -119,6 +127,10 @@ variable "network" {
           new_bits = 8
         },
         {
+          name     = "blank"
+          new_bits = 8
+        },
+                {
           name     = "endpoint"
           new_bits = 8
         },

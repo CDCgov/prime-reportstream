@@ -12,8 +12,6 @@ module "subnet_addresses" {
   // https://registry.terraform.io/modules/hashicorp/subnets/cidr/latest
   networks = each.value.subnet_cidrs
 }
-
-
 /* Public subnet */
 resource "azurerm_subnet" "public_subnet" {
   for_each = { for k, v in var.azure_vns : k => v if contains(var.azure_vns[k].subnets, "public")}
@@ -111,8 +109,6 @@ resource "azurerm_subnet" "private_subnet" {
     ]
   }
 }
-
-
 
 /* Endpoint subnet */
 resource "azurerm_subnet" "endpoint_subnet" {
