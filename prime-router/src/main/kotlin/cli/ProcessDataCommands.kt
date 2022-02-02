@@ -5,6 +5,7 @@ import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.groups.mutuallyExclusiveOptions
 import com.github.ajalt.clikt.parameters.groups.single
 import com.github.ajalt.clikt.parameters.options.convert
+import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.int
@@ -100,6 +101,12 @@ class ProcessData(
         metavar = "<schema_name>",
         help = "interpret input according to this schema"
     )
+
+    private val inputClient by option(
+        "--input-client",
+        metavar = "<client_name>",
+        help = "interpret input according to this client"
+    ).default("")
 
     // Actions
     private val validate by option(
@@ -231,8 +238,21 @@ class ProcessData(
         settings: SettingsProvider,
         fileName: String
     ): Report {
-        val schemaName = inputSchema?.lowercase() ?: ""
-        val schema = metadata.findSchema(schemaName) ?: error("Schema $schemaName is not found")
+        val (schema, sender) = if (!inputClient.isNullOrEmpty()) {
+            val sender = settings.findSender(inputClient)
+            Pair(
+                sender?.let {
+                    metadata.findSchema(it.schemaName) ?: error("Schema $inputClient is not found")
+                },
+                sender
+            )
+        } else {
+            val schName = inputSchema?.lowercase() ?: ""
+            metadata.findSchema(schName) ?: error("Schema $inputSchema is not found")
+            Pair(metadata.findSchema(schName), null)
+        }
+
+        val schemaName = schema?.name as String
         val file = File(fileName)
         if (!file.exists()) error("$fileName does not exist")
         echo("Opened: ${file.absolutePath}")
@@ -242,7 +262,8 @@ class ProcessData(
                 val result = hl7Serializer.readExternal(
                     schemaName,
                     file.inputStream(),
-                    FileSource(file.nameWithoutExtension)
+                    FileSource(file.nameWithoutExtension),
+                    sender = sender
                 )
                 handleReadResult(result)
             }
@@ -260,7 +281,8 @@ class ProcessData(
                         csvSerializer.readExternal(
                             schema.name,
                             file.inputStream(),
-                            FileSource(file.nameWithoutExtension)
+                            FileSource(file.nameWithoutExtension),
+                            sender = sender
                         )
                     handleReadResult(result)
                 }
@@ -364,8 +386,17 @@ class ProcessData(
             is InputSource.DirSource ->
                 TODO("Dir source is not implemented")
             is InputSource.FakeSource -> {
-                val schema = metadata.findSchema(inputSchema ?: "")
-                    ?: error("$inputSchema is an invalid schema name")
+                val schema = if (!inputClient.isNullOrEmpty()) {
+                    fileSettings.findSender(inputClient)?.let {
+                        metadata.findSchema(it.schemaName) ?: error("Schema $inputClient is not found")
+                    }
+                } else {
+                    val schName = inputSchema?.lowercase() ?: ""
+                    metadata.findSchema(schName)
+                } ?: when (inputClient) {
+                    "" -> error("Schema $inputSchema is not found")
+                    else -> error("Schema $inputClient is not found")
+                }
                 FakeReport(metadata).build(
                     schema,
                     (inputSource as InputSource.FakeSource).count,
