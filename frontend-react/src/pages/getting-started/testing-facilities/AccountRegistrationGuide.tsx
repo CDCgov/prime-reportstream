@@ -228,8 +228,8 @@ export const AccountRegistrationGuide = () => {
                         <p>
                             <em>
                                 If you choose biometric authentication, make
-                                sure that you’ll only log in to ReportStream
-                                from the device you’re currently using.
+                                sure that you'll only log in to ReportStream
+                                from the device you're currently using.
                                 Biometric authentication may be difficult to use
                                 across multiple devices.
                             </em>
@@ -308,7 +308,7 @@ export const AccountRegistrationGuide = () => {
                     <li className="usa-process-list__item">
                         Enter your phone number, then click{" "}
                         <strong>Send code</strong>. (Make sure to click{" "}
-                        <strong>Send code</strong>, or you won’t be able to
+                        <strong>Send code</strong>, or you won't be able to
                         continue.)
                         <img
                             src="/assets/img/getting-started/sms-step-1.png"
@@ -335,7 +335,7 @@ export const AccountRegistrationGuide = () => {
                 <ol className="usa-process-list rs-process-list__documentation">
                     <li className="usa-process-list__item">
                         Select the kind of phone that you use (either iPhone or
-                        Android). You’ll be asked to download an app. Download
+                        Android). You'll be asked to download an app. Download
                         it on your phone and wait for it to install. (The page
                         on your device might vary a bit from the screenshot
                         below, based on your device type and whether you chose
@@ -351,7 +351,7 @@ export const AccountRegistrationGuide = () => {
                     </li>
                     <li className="usa-process-list__item">
                         Open the app and scan the QR code that appears on your
-                        ReportStream registration page. Once you’ve successfully
+                        ReportStream registration page. Once you've successfully
                         scanned the QR code, click <strong>Next</strong>.
                         <img
                             src="/assets/img/getting-started/authenticator-verify-step-3.png"
@@ -362,7 +362,7 @@ export const AccountRegistrationGuide = () => {
                         Back on your phone, the app will show you a code. Enter
                         the code on the registration page, then click{" "}
                         <strong>Verify</strong>. (The code changes regularly, so
-                        you’ll need to check the app each time you log in to
+                        you'll need to check the app each time you log in to
                         ReportStream.)
                         <img
                             src="/assets/img/getting-started/authenticator-verify-step-4.png"
