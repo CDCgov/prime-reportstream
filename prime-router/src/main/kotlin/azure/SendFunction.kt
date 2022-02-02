@@ -63,7 +63,7 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
                 context.logger.warning("Send function received a $message")
                 return
             }
-            workflowEngine.handleReportEvent(event, context) { header, retryToken, _ ->
+            val nextEvent = workflowEngine.handleReportEvent(event, context) { header, retryToken, _ ->
                 val receiver = header.receiver
                     ?: error("Internal Error: could not find ${header.task.receiverName}")
                 val inputReportId = header.reportFile.reportId
@@ -90,6 +90,10 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
                 }
                 context.logger.info("For $inputReportId:  finished send().  Calling handleRetry.")
                 handleRetry(nextRetryItems, inputReportId, serviceName, retryToken, context, actionHistory)
+            }
+            // throw an Exception if a send_error is the next event
+            if (nextEvent?.eventAction == Event.EventAction.SEND_ERROR) {
+                throw IllegalStateException(actionHistory.action.actionResult)
             }
         } catch (t: Throwable) {
             // For debugging and auditing purposes
@@ -142,8 +146,6 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
                 actionHistory.trackActionResult(msg)
                 context.logger.info(msg)
                 ReportEvent(Event.EventAction.SEND_ERROR, reportId)
-                // throw an Exception to be caught in the run function (above)
-                throw IllegalStateException(msg)
             } else {
                 // retry using a back-off strategy
                 val waitMinutes = retryDuration.getOrDefault(nextRetryCount, maxDurationValue)

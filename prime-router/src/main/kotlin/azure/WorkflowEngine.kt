@@ -246,7 +246,7 @@ class WorkflowEngine(
         messageEvent: ReportEvent,
         context: ExecutionContext? = null,
         updateBlock: (header: Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent,
-    ) {
+    ): ReportEvent? {
         var nextEvent: ReportEvent? = null
         db.transact { txn ->
             val reportId = messageEvent.reportId
@@ -283,6 +283,8 @@ class WorkflowEngine(
             )
         }
         if (nextEvent != null) queue.sendMessage(nextEvent!!) // Avoid race condition by doing after txn completes.
+
+        return nextEvent
     }
 
     /**

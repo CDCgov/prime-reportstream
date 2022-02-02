@@ -106,6 +106,7 @@ class SendFunctionTests {
                 (header: WorkflowEngine.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
             val header = makeHeader()
             nextEvent = block(header, null, null)
+            nextEvent
         }
         every { sftpTransport.send(any(), any(), any(), any(), any(), any()) }.returns(null)
         every { workflowEngine.recordAction(any()) }.returns(Unit)
@@ -131,6 +132,7 @@ class SendFunctionTests {
                 (header: WorkflowEngine.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
             val header = makeHeader()
             nextEvent = block(header, null, null)
+            nextEvent
         }
         setupWorkflow()
         every { sftpTransport.send(any(), any(), any(), any(), any(), any()) }.returns(RetryToken.allItems)
@@ -162,6 +164,7 @@ class SendFunctionTests {
             nextEvent = block(
                 header, RetryToken(2, RetryToken.allItems), null
             )
+            nextEvent
         }
         setupWorkflow()
         every { sftpTransport.send(any(), any(), any(), any(), any(), any()) }.returns(RetryToken.allItems)
@@ -197,6 +200,7 @@ class SendFunctionTests {
             nextEvent = block(
                 header, RetryToken(100, RetryToken.allItems), null
             )
+            nextEvent
         }
         setupWorkflow()
         every { sftpTransport.send(any(), any(), any(), any(), any(), any()) }.returns(RetryToken.allItems)
@@ -206,10 +210,15 @@ class SendFunctionTests {
         val event = ReportEvent(Event.EventAction.SEND, reportId)
 
         // Catch the thrown exception - to keep the test from failing
-        assertFailsWith<IllegalStateException> { SendFunction(workflowEngine).run(event.toQueueMessage(), context) }
+        val er = assertFailsWith<IllegalStateException> {
+            SendFunction(workflowEngine).run(event.toQueueMessage(), context)
+        }
+        assertThat(er.message!!.startsWith("All retries failed."))
 
         // Verify
-        assertThat(nextEvent).isNull()
+        assertThat(nextEvent).isNotNull()
+        assertThat(nextEvent!!.eventAction).isEqualTo(Event.EventAction.SEND_ERROR)
+        assertThat(nextEvent!!.retryToken).isNull()
         verify { anyConstructed<ActionHistory>().setActionType(TaskAction.send_error) }
     }
 
