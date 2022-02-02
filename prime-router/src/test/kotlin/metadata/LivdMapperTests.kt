@@ -3,6 +3,7 @@ package gov.cdc.prime.router.metadata
 import assertk.assertThat
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
+import assertk.assertions.isFailure
 import assertk.assertions.isFalse
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNull
@@ -327,6 +328,9 @@ class LivdMapperTests {
     fun `test LIVD apply mapper lookup logic`() {
         val mapper = LIVDLookupMapper()
 
+        // Bad element
+        assertThat { mapper.apply(Element("noTableElement"), emptyList(), emptyList()) }.isFailure()
+
         // Simple device ID lookups
         var devIndex = 1
         assertThat(
@@ -497,7 +501,7 @@ class LivdMapperTests {
         assertThat(mapperResult.warnings).isNotEmpty()
         assertThat(mapperResult.errors).isEmpty()
 
-        // HL7 Field
+        // HL7 field
         newModelNameElement = Element(
             ElementNames.EQUIPMENT_MODEL_NAME.elementName,
             tableRef = livdTable,
@@ -515,12 +519,31 @@ class LivdMapperTests {
         assertThat(mapperResult.warnings).isNotEmpty()
         assertThat(mapperResult.errors).isEmpty()
 
-        // HL7 Field
+        // HL7 output field
         newModelNameElement = Element(
             ElementNames.EQUIPMENT_MODEL_NAME.elementName,
             tableRef = livdTable,
             tableColumn = LivdTableColumns.MODEL.colName,
             hl7OutputFields = listOf("OBX-1", "OBX-2")
+        )
+        mapperResult = mapper.apply(
+            newModelNameElement, emptyList(),
+            listOf(
+                createValue(testKitElement, devIndex),
+                ElementAndValue(processingModeElement, "")
+            )
+        )
+        assertThat(mapperResult.value.isNullOrEmpty()).isTrue()
+        assertThat(mapperResult.warnings).isNotEmpty()
+        assertThat(mapperResult.errors).isEmpty()
+
+        // HL7 field and output fields
+        newModelNameElement = Element(
+            ElementNames.EQUIPMENT_MODEL_NAME.elementName,
+            tableRef = livdTable,
+            tableColumn = LivdTableColumns.MODEL.colName,
+            hl7OutputFields = listOf("OBX-1", "OBX-2"),
+            hl7Field = "OBX-1"
         )
         mapperResult = mapper.apply(
             newModelNameElement, emptyList(),
