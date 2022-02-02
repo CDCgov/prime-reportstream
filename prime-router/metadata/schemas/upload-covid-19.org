@@ -9,9 +9,27 @@ elements:
     - name: sender_id
       mapper: useSenderSetting(organizationName)
 
+#    - name: processing_mode_code_fromsettings
+#      type: CODE
+#      mapper: useSenderSetting(processingModeCode)
+
     - name: processing_mode_code
+      cardinality: ONE
       mapper: useSenderSetting(processingModeCode)
-      csvFields: [ { name: processing_mode_code } ]
+      csvFields: [ { name: processing_mode_code, format: $alt} ]
+      type: CODE
+      altValues:
+        - code: "T"
+          display: "TESTING"
+        - code: "T"
+          display: "INACTIVE"
+        - code: "T"
+          display: "T"
+        - code: "P"
+          display: "ACTIVE"
+        - code: "P"
+          display: "P"
+
 
 ############### Set the major ID fields
     - name: patient_id
@@ -87,6 +105,7 @@ elements:
       csvFields: [{name: patient_phone_number}]
 
     - name: patient_dob
+      type: DATE
       cardinality: ONE 
       csvFields: [{name: patient_dob}]
 
@@ -115,7 +134,7 @@ elements:
 
 ############### Order Info / Result Info / Specimen Info
     - name: order_test_date
-      type: DATE
+      type: DATETIME
       cardinality: ONE 
       nullifyValue: true
       csvFields: [{name: order_test_date}]
@@ -125,6 +144,7 @@ elements:
       csvFields: [{name: specimen_collection_date }]
 
     - name: specimen_collection_date_time
+      type: DATETIME
       cardinality: ONE 
       nullifyValue: true
       csvFields: [{name: specimen_collection_date}]
@@ -136,6 +156,7 @@ elements:
       csvFields: [{name: testing_lab_specimen_received_date}]
 
     - name: testing_lab_specimen_received_datetime
+      type: DATETIME
       cardinality: ONE 
       nullifyValue: true
       csvFields: [{name: testing_lab_specimen_received_date}]
@@ -143,7 +164,7 @@ elements:
       mapper: ifNotPresent($mode:lookup, order_test_date, testing_lab_specimen_received_date_temp)
 
     - name: test_result_date
-      type: DATE
+      type: DATETIME
       cardinality: ONE 
       nullifyValue: true
       csvFields: [{name: test_result_date}]
@@ -153,6 +174,7 @@ elements:
       csvFields: [{name: date_result_released}]
 
     - name: date_result_released
+      type: DATETIME
       cardinality: ONE 
       nullifyValue: true
       csvFields: [{name: date_result_released}]
@@ -390,6 +412,7 @@ elements:
       default: ""
 
     - name: illness_onset_date
+      type: DATE
       default: ""
       csvFields: [{name: illness_onset_date, format: "yyyyMMdd"}]
       nullifyValue: true
