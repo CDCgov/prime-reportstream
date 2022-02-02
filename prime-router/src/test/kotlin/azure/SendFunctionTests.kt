@@ -202,20 +202,15 @@ class SendFunctionTests {
         every { sftpTransport.send(any(), any(), any(), any(), any(), any()) }.returns(RetryToken.allItems)
         every { workflowEngine.recordAction(any()) }.returns(Unit)
 
-        // Catch the thrown exception - because this is just a test
-        assertFailsWith<IllegalStateException>(
-            block = {
-                // Invoke
-                val event = ReportEvent(Event.EventAction.SEND, reportId)
-                SendFunction(workflowEngine).run(event.toQueueMessage(), context)
+        // Invoke
+        val event = ReportEvent(Event.EventAction.SEND, reportId)
 
-                // Verify
-                assertThat(nextEvent).isNotNull()
-                assertThat(nextEvent!!.eventAction).isEqualTo(Event.EventAction.SEND_ERROR)
-                assertThat(nextEvent!!.retryToken).isNull()
-                verify { anyConstructed<ActionHistory>().setActionType(TaskAction.send_error) }
-            }
-        )
+        // Catch the thrown exception - to keep the test from failing
+        assertFailsWith<IllegalStateException> { SendFunction(workflowEngine).run(event.toQueueMessage(), context) }
+
+        // Verify
+        assertThat(nextEvent).isNull()
+        verify { anyConstructed<ActionHistory>().setActionType(TaskAction.send_error) }
     }
 
     @Test
@@ -224,14 +219,10 @@ class SendFunctionTests {
         setupLogger()
         every { workflowEngine.recordAction(any()) }.returns(Unit)
 
-        // Catch the thrown exception - because this is just a test
-        assertFailsWith<IllegalStateException>(
-            block = {
-                // Invoke
-                SendFunction(workflowEngine).run("", context)
-                // Verify
-                verify(atLeast = 1) { logger.log(Level.SEVERE, any(), any<Throwable>()) }
-            }
-        )
+        // Invoke (Catch the thrown exception)
+        assertFailsWith<IllegalStateException> { SendFunction(workflowEngine).run("", context) }
+
+        // Verify
+        verify(atLeast = 1) { logger.log(Level.SEVERE, any(), any<Throwable>()) }
     }
 }

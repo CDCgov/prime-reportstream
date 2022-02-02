@@ -97,7 +97,7 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
             context.logger.log(Level.SEVERE, msg, t)
             actionHistory.setActionType(TaskAction.send_error)
             actionHistory.trackActionResult(msg)
-            // To Record the Exception
+            // To Expose the Exception
             throw t
         } finally {
             // Note this is operating in a different transaction than the one that did the fetch/lock of the repor
