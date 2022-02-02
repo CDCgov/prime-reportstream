@@ -7,6 +7,7 @@ import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import org.apache.logging.log4j.kotlin.Logging
+import org.apache.logging.log4j.kotlin.logger
 import java.time.OffsetDateTime
 
 const val batch = "batch"
@@ -57,12 +58,24 @@ class BatchFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine(
 
             // if this 'batch' event is for an empty batch, create the empty file
             if (event.isEmptyBatch) {
-                workflowEngine.generateEmptyReport(
-                    context,
-                    actionHistory,
-                    receiver
-                )
-                workflowEngine.recordAction(actionHistory)
+
+                // There is a potential use case where a receiver could be using HL7 passthrough. There is no agreed-
+                //  upon format for what an 'empty' HL7 file looks like, and there are no receivers with this type
+                //  in prod as of now (2/2/2022). This short circuit is in case one somehow gets put in in the future
+                //  to prevent the application from hard crashing.
+                if (receiver.format == Report.Format.HL7) {
+                    logger.error(
+                        "'Empty Batch' not supported for individual HL7 file. Only CSV/HL7_BATCH " +
+                            "formats are supported."
+                    )
+                } else {
+                    workflowEngine.generateEmptyReport(
+                        context,
+                        actionHistory,
+                        receiver
+                    )
+                    workflowEngine.recordAction(actionHistory)
+                }
             } else {
                 workflowEngine.handleBatchEvent(event, maxBatchSize, backstopTime) { headers, txn ->
                     // find any headers that expected to have content but were unable to actually download

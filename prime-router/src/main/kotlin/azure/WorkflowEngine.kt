@@ -35,6 +35,7 @@ import gov.cdc.prime.router.transport.RetryItems
 import gov.cdc.prime.router.transport.RetryToken
 import gov.cdc.prime.router.transport.SftpTransport
 import gov.cdc.prime.router.transport.SoapTransport
+import org.apache.logging.log4j.kotlin.logger
 import org.jooq.Configuration
 import org.jooq.Field
 import java.io.ByteArrayInputStream

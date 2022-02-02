@@ -22,8 +22,7 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
         val useValueSet: Map<String, String>,
         val useMapper: Map<String, Mapper>,
         val useDefault: Map<String, String>,
-        val missing: Set<String>,
-        val forceEmpty: Set<String>
+        val missing: Set<String>
     )
 
     data class RoutedReport(
@@ -295,15 +294,12 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
 
     /**
      * Build the mapping that will translate a one schema to another. The mapping
-     * can be used for multiple translations. If [generateEmpty] is set to true, it will
-     * force all elements into the 'forceEmpty' which will cause them to generate an empty file, and not
-     * look for values when generating.
+     * can be used for multiple translations.
      */
     fun buildMapping(
         toSchema: Schema,
         fromSchema: Schema,
-        defaultValues: DefaultValues,
-        generateEmpty: Boolean = false
+        defaultValues: DefaultValues
     ): Mapping {
         if (toSchema.topic != fromSchema.topic) error("Trying to match schema with different topics")
 
@@ -312,31 +308,26 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
         val useMapper = mutableMapOf<String, Mapper>()
         val useDefault = mutableMapOf<String, String>()
         val missing = mutableSetOf<String>()
-        val forceEmpty = mutableSetOf<String>()
 
         toSchema.elements.forEach { toElement ->
-            if (generateEmpty) {
-                forceEmpty.add(toElement.name)
-            } else {
-                var isMissing = toElement.cardinality == Element.Cardinality.ONE
-                fromSchema.findElement(toElement.name)?.let { matchedElement ->
-                    useDirectly[toElement.name] = matchedElement.name
-                    isMissing = false
-                }
-                toElement.mapper?.let {
-                    val name = Mappers.parseMapperField(it).first
-                    useMapper[toElement.name] = metadata.findMapper(name) ?: error("Mapper $name is not found")
-                    isMissing = false
-                }
-                if (toElement.hasDefaultValue(defaultValues)) {
-                    useDefault[toElement.name] = toElement.defaultValue(defaultValues)
-                    isMissing = false
-                }
-                if (isMissing) {
-                    missing.add(toElement.name)
-                }
+            var isMissing = toElement.cardinality == Element.Cardinality.ONE
+            fromSchema.findElement(toElement.name)?.let { matchedElement ->
+                useDirectly[toElement.name] = matchedElement.name
+                isMissing = false
+            }
+            toElement.mapper?.let {
+                val name = Mappers.parseMapperField(it).first
+                useMapper[toElement.name] = metadata.findMapper(name) ?: error("Mapper $name is not found")
+                isMissing = false
+            }
+            if (toElement.hasDefaultValue(defaultValues)) {
+                useDefault[toElement.name] = toElement.defaultValue(defaultValues)
+                isMissing = false
+            }
+            if (isMissing) {
+                missing.add(toElement.name)
             }
         }
-        return Mapping(toSchema, fromSchema, useDirectly, useValueSet, useMapper, useDefault, missing, forceEmpty)
+        return Mapping(toSchema, fromSchema, useDirectly, useValueSet, useMapper, useDefault, missing)
     }
 }
