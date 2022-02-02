@@ -41,7 +41,7 @@ resource "azurerm_virtual_network" "azure_vns" {
   location            = each.value.location
   resource_group_name = var.resource_group
   address_space       = [each.value.address_space]
-  # tags = {
-  #   "environment" = var.environment
-  # }
+   tags = {
+     "environment" = var.environment
+   }
 }
