@@ -257,6 +257,9 @@ class LivdMapperTests {
         assertThat(mapper.apply(testKitElement, emptyList(), listOf(ev2, modeT)).value).isEqualTo(testKitIdBinax)
     }
 
+    /**
+     * The fake LIVD data to be used in the table
+     */
     private val fakeLivdTableData = listOf(
         listOf(
             LivdTableColumns.MODEL.colName, LivdTableColumns.TEST_PERFORMED_CODE.colName,
@@ -311,6 +314,11 @@ class LivdMapperTests {
     )
     private val processingModeElement = Element(ElementNames.PROCESSING_MODE_CODE.elementName)
 
+    /**
+     * Grab a cell value from the lIVD data based on the [deviceindex] starting at 1 and a given [element].
+     * This function uses the column name provided in the element to find the data in the table.
+     * @return a string with the cell value
+     */
     private fun getDeviceCol(deviceindex: Int, element: Element): String {
         check(deviceindex < fakeLivdTableData.size)
         check(deviceindex > 0)
@@ -320,6 +328,11 @@ class LivdMapperTests {
         return fakeLivdTableData[deviceindex][colIndex]
     }
 
+    /**
+     * Creates an element value object based on the [element] and [deviceIdElement] starting at 1 to
+     * be used as input to a mapper.
+     * @return the element value object with the data
+     */
     private fun createValue(element: Element, deviceindex: Int): ElementAndValue {
         return ElementAndValue(element, getDeviceCol(deviceindex, element))
     }
