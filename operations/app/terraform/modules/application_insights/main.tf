@@ -8,6 +8,7 @@ resource "azurerm_application_insights" "app_insights" {
   location            = var.location
   resource_group_name = var.resource_group
   application_type    = "web"
+  workspace_id        = var.workspace_id
 
   tags = {
     environment = var.environment
@@ -29,4 +30,10 @@ resource "azurerm_monitor_action_group" "action_group" {
   tags = {
     "environment" = var.environment
   }
+}
+
+// Prevent TF changes where Microsoft.Insights is forced lowercase
+locals {
+  action_group_id = try(replace(azurerm_monitor_action_group.action_group[0].id,"Microsoft.Insights","microsoft.insights"), "")
+  app_insights_id = replace(azurerm_application_insights.app_insights.id,"Microsoft.Insights","microsoft.insights")
 }
