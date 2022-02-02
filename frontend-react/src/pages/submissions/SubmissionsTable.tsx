@@ -1,6 +1,7 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import {
     Button,
+    ButtonGroup,
     IconNavigateBefore,
     IconNavigateNext,
 } from "@trussworks/react-uswds";
@@ -30,7 +31,26 @@ function SubmissionsTable() {
         }
     );
 
-    const sortedSubmissions = (): SubmissionsResource[] => {
+    // we can tell if we're on the first page by saving the first result and then checking against it later
+    const [firstPaginationCursor, setFirstPaginationCursor] = useState("");
+    const [atLeastOneEntry, setAtLeastOneEntry] = useState(false);
+    const [moreThanOnePage, setMoreThanOnePage] = useState(false);
+
+    // after the first page loads, set up some state info about the data.
+    useEffect(() => {
+        if (
+            !submissions?.length || // no data
+            atLeastOneEntry
+        ) {
+            // already ran
+            return; // use defaults or data determined from the first page.
+        }
+        setAtLeastOneEntry(true); // otherwise !submissions?.length would have returned
+        setFirstPaginationCursor(submissions[0].createdAt || "");
+        setMoreThanOnePage(submissions.length >= SUBMISSION_PAGE_LENGTH);
+    }, [atLeastOneEntry, submissions]);
+
+    const getSortedSubmissions = (): SubmissionsResource[] => {
         submissions?.sort((a, b) => SubmissionsResource.sortByCreatedAt(a, b));
         return submissions || [];
     };
@@ -61,10 +81,8 @@ function SubmissionsTable() {
         setPaginationSort(sort);
     };
 
-    // we can tell if we're on the first page by saving the first result and then checking against it later
-    const [firstPaginationCursor] = useState(getCursorEnd());
-
     const onFirstPage = () => {
+        // do any elements match the current cursor?
         return submissions?.find((s) => s.createdAt === firstPaginationCursor);
     };
 
@@ -76,39 +94,35 @@ function SubmissionsTable() {
     };
 
     const NextPrevButtonsComponent = () => {
+        // on both the first and last page if there's only one page of data
+        if (!moreThanOnePage) {
+            return <></>;
+        }
         return (
-            <>
-                {(submissions?.length !== 0 || paginationCursor) && (
-                    <span className="float-right margin-top-5">
-                        {!onFirstPage() && (
-                            <Button
-                                className="text-no-underline margin-right-4"
-                                type="button"
-                                unstyled
-                                onClick={() => updatePaginationCursor(false)}
-                            >
-                                <span>
-                                    <IconNavigateBefore className="text-middle" />
-                                    Previous
-                                </span>
-                            </Button>
-                        )}
-                        {!onLastPage() && (
-                            <Button
-                                className="text-no-underline"
-                                type="button"
-                                unstyled
-                                onClick={() => updatePaginationCursor(true)}
-                            >
-                                <span>
-                                    Next
-                                    <IconNavigateNext className="text-middle" />
-                                </span>
-                            </Button>
-                        )}
-                    </span>
+            <ButtonGroup type="segmented" className="float-right margin-top-5">
+                {!onFirstPage() && (
+                    <Button
+                        type="button"
+                        onClick={() => updatePaginationCursor(false)}
+                    >
+                        <span>
+                            <IconNavigateBefore className="text-middle" />
+                            Previous
+                        </span>
+                    </Button>
                 )}
-            </>
+                {!onLastPage() && (
+                    <Button
+                        type="button"
+                        onClick={() => updatePaginationCursor(true)}
+                    >
+                        <span>
+                            Next
+                            <IconNavigateNext className="text-middle" />
+                        </span>
+                    </Button>
+                )}
+            </ButtonGroup>
         );
     };
 
@@ -130,7 +144,7 @@ function SubmissionsTable() {
                         </tr>
                     </thead>
                     <tbody id="tBody" className="font-mono-2xs">
-                        {sortedSubmissions()
+                        {getSortedSubmissions()
                             // failed submissions will not have an id. do not display them.
                             .filter((s) => s.isSuccessSubmitted())
                             .map((s) => {
