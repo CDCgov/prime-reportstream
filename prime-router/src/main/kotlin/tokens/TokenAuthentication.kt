@@ -13,7 +13,6 @@ import io.jsonwebtoken.JwtException
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SigningKeyResolverAdapter
 import org.apache.logging.log4j.kotlin.Logging
-import java.lang.IllegalArgumentException
 import java.lang.RuntimeException
 import java.security.Key
 import java.time.OffsetDateTime
@@ -71,13 +70,7 @@ class TokenAuthentication(val jtiCache: JtiCache) : Logging {
                 return false
             }
             return jtiCache.isJTIOk(jti, expiresAt) // check for replay attacks
-        } catch (ex: JwtException) {
-            logErr(actionHistory, "Rejecting SenderToken JWT: $ex")
-            return false
-        } catch (e: IllegalArgumentException) {
-            logErr(actionHistory, "Rejecting SenderToken JWT: $e")
-            return false
-        } catch (e: NullPointerException) {
+        } catch (e: Exception) {
             logErr(actionHistory, "Rejecting SenderToken JWT: $e")
             return false
         }
