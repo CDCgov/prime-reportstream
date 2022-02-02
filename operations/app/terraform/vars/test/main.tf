@@ -194,3 +194,4 @@ module "network" {
 #   ai_connection_string   = module.application_insights.metabase_connection_string
 #   use_cdc_managed_vnet   = var.use_cdc_managed_vnet
 # }
+
