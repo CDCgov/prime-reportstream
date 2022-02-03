@@ -87,15 +87,27 @@ class Hl7Serializer(
     }
 
     /**
-     * Write a report with BHS and FHS segments and multiple items
+     * Write a report with BHS and FHS segments and multiple items. [sendingApplicationReport],
+     * [receivingApplicationReport], and [receivingFacilityReport] are used for empty batch generation and will be used
+     * if passed in (instead of pulling them from the 1st record)
      */
     fun writeBatch(
         report: Report,
         outputStream: OutputStream,
+        sendingApplicationReport: String? = null,
+        receivingApplicationReport: String? = null,
+        receivingFacilityReport: String? = null
     ) {
         // Dev Note: HAPI doesn't support a batch of messages, so this code creates
         // these segments by hand
-        outputStream.write(createHeaders(report).toByteArray())
+        outputStream.write(
+            createHeaders(
+                report,
+                sendingApplicationReport,
+                receivingApplicationReport,
+                receivingFacilityReport
+            ).toByteArray()
+        )
         report.itemIndices.map {
             val message = createMessage(report, it)
             outputStream.write(message.toByteArray())
@@ -1391,10 +1403,24 @@ class Hl7Serializer(
         }
     }
 
-    private fun createHeaders(report: Report): String {
-        val sendingApplicationReport = report.getString(0, "sending_application") ?: ""
-        val receivingApplicationReport = report.getString(0, "receiving_application") ?: ""
-        val receivingFacilityReport = report.getString(0, "receiving_facility") ?: ""
+    /**
+     * Creates the headers for hl7 batch. Generally the [sendingApplication], [receivingApplication], and
+     * [recievingFacility] will come from the first item in the file. In the case of empty batch, it
+     * must be passed in.
+     */
+    private fun createHeaders(
+        report: Report,
+        sendingApplicationReportIn: String? = null,
+        receivingApplicationReportIn: String? = null,
+        receivingFacilityReportIn: String? = null
+    ): String {
+
+        val sendingApplicationReport = sendingApplicationReportIn
+            ?: (report.getString(0, "sending_application") ?: "")
+        val receivingApplicationReport = receivingApplicationReportIn
+            ?: (report.getString(0, "receiving_application") ?: "")
+        val receivingFacilityReport = receivingFacilityReportIn
+            ?: (report.getString(0, "receiving_facility") ?: "")
 
         var sendingAppTruncationLimit: Int? = null
         var receivingAppTruncationLimit: Int? = null
