@@ -264,7 +264,7 @@ data class Element(
             addError("requires a table and table column.")
 
         // Elements of type table need a table ref
-        if ((type == Type.TABLE || type == Type.TABLE_OR_BLANK) && tableRef == null)
+        if ((type == Type.TABLE || type == Type.TABLE_OR_BLANK || !tableColumn.isNullOrBlank()) && tableRef == null)
             addError("requires a table.")
 
         // Elements with mapper parameters require a mapper
