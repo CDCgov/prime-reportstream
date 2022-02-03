@@ -49,7 +49,8 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
         @BindingName("NextVisibleTime") nextVisibleTime: Date? = null,
         @BindingName("InsertionTime") insertionTime: Date? = null,
     ) {
-        val actionHistory = ActionHistory(TaskAction.send, context)
+        val event = Event.parseQueueMessage(message) as ReportEvent
+        val actionHistory = ActionHistory(TaskAction.send, context, event.isEmptyBatch)
         actionHistory.trackActionParams(message)
         context.logger.info(
             "Started Send Function: $message, id=$messageId," +
@@ -57,7 +58,6 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
                 " nextVisibleTime=$nextVisibleTime, insertionTime=$insertionTime"
         )
         try {
-            val event = Event.parseQueueMessage(message) as ReportEvent
             if (event.eventAction != Event.EventAction.SEND) {
                 context.logger.warning("Send function received a $message")
                 return
@@ -88,7 +88,15 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
                     }
                 }
                 context.logger.info("For $inputReportId:  finished send().  Calling handleRetry.")
-                handleRetry(nextRetryItems, inputReportId, serviceName, retryToken, context, actionHistory)
+                handleRetry(
+                    nextRetryItems,
+                    inputReportId,
+                    serviceName,
+                    retryToken,
+                    context,
+                    actionHistory,
+                    event.isEmptyBatch
+                )
             }
         } catch (t: Throwable) {
             // For debugging and auditing purposes
@@ -124,11 +132,12 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
         retryToken: RetryToken?,
         context: ExecutionContext,
         actionHistory: ActionHistory,
+        isEmptyBatch: Boolean
     ): ReportEvent {
         return if (nextRetryItems.isEmpty()) {
             // All OK
             context.logger.info("Successfully sent report: $reportId to $serviceName")
-            ReportEvent(Event.EventAction.NONE, reportId)
+            ReportEvent(Event.EventAction.NONE, reportId, isEmptyBatch)
         } else {
             val nextRetryCount = (retryToken?.retryCount ?: 0) + 1
             if (nextRetryCount > maxRetryCount) {
@@ -137,7 +146,7 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
                 actionHistory.setActionType(TaskAction.send_error)
                 actionHistory.trackActionResult(msg)
                 context.logger.info(msg)
-                ReportEvent(Event.EventAction.SEND_ERROR, reportId)
+                ReportEvent(Event.EventAction.SEND_ERROR, reportId, isEmptyBatch)
             } else {
                 // retry using a back-off strategy
                 val waitMinutes = retryDuration.getOrDefault(nextRetryCount, maxDurationValue)
@@ -149,7 +158,7 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
                 context.logger.info(msg)
                 actionHistory.setActionType(TaskAction.send_warning)
                 actionHistory.trackActionResult(msg)
-                ReportEvent(Event.EventAction.SEND, reportId, nextRetryTime, nextRetryToken)
+                ReportEvent(Event.EventAction.SEND, reportId, isEmptyBatch, nextRetryTime, nextRetryToken)
             }
         }
     }

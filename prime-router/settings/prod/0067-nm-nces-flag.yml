@@ -1,0 +1,72 @@
+---
+- name: "nm-doh"
+  description: "New Mexico Department of Health"
+  jurisdiction: "STATE"
+  stateCode: "NM"
+  countyName: null
+  filters:
+    - topic: "covid-19"
+      jurisdictionalFilter:
+        - "orEquals(ordering_facility_state, NM, patient_state, NM)"
+      qualityFilter: null
+      routingFilter: null
+      processingModeFilter: null
+  senders: []
+  receivers:
+    - name: "elr"
+      organizationName: "nm-doh"
+      topic: "covid-19"
+      customerStatus: "active"
+      translation: !<HL7>
+        useTestProcessingMode: false
+        useBatchHeaders: true
+        receivingApplicationName: "NMDOH"
+        receivingApplicationOID: "2.16.840.1.113883.3.5364"
+        receivingFacilityName: "NMDOH"
+        receivingFacilityOID: "2.16.840.1.113883.3.5364"
+        messageProfileId: null
+        replaceValue: {}
+        reportingFacilityName: null
+        reportingFacilityId: null
+        reportingFacilityIdType: null
+        suppressQstForAoe: false
+        suppressHl7Fields: "OBX-17-1"
+        suppressAoe: false
+        defaultAoeToUnknown: false
+        useBlankInsteadOfUnknown: "patient_race"
+        truncateHDNamespaceIds: true
+        truncateHl7Fields: null
+        usePid14ForPatientEmail: false
+        convertTimestampToDateTime: null
+        cliaForOutOfStateTesting: null
+        cliaForSender: {}
+        phoneNumberFormatting: "STANDARD"
+        suppressNonNPI: false
+        processingModeCode: "P"
+        replaceDiiWithOid: null
+        useOrderingFacilityName: "NCES"
+        valueSetOverrides: {}
+        nameFormat: "APHL_LIGHT"
+        receivingOrganization: "elr"
+        convertPositiveDateTimeOffsetToNegative: false
+        type: "HL7"
+      jurisdictionalFilter: []
+      qualityFilter: []
+      routingFilter: []
+      processingModeFilter: []
+      reverseTheQualityFilter: false
+      deidentify: false
+      timing:
+        operation: "MERGE"
+        numberPerDay: 12
+        initialTime: "01:15"
+        timeZone: "EASTERN"
+        maxReportCount: 500
+      description: ""
+      transport: !<SFTP>
+        host: "sftp.syncronys.org"
+        port: "22"
+        filePath: "./incoming/ELR/"
+        credentialName: null
+        type: "SFTP"
+      externalName: null

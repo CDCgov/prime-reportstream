@@ -6,6 +6,7 @@ import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.db.Tables
+import gov.cdc.prime.router.azure.db.Tables.ACTION
 import gov.cdc.prime.router.azure.db.Tables.COVID_RESULT_METADATA
 import gov.cdc.prime.router.azure.db.Tables.EMAIL_SCHEDULE
 import gov.cdc.prime.router.azure.db.Tables.JTI_CACHE
@@ -93,31 +94,84 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             ?: error("Could not find $reportId that matches a task")
     }
 
-    /** Fetch multiple task records and lock them so other connections can not grab them */
-    fun fetchAndLockTasksForOneReceiver(
-        nextAction: TaskAction,
+    /**
+     * Fetch multiple task records and lock them so other connections cannot grab them.
+     * If the [at] time is not null, do an exact match against next_action_at. TODO remove this option - not used.
+     * If the [at] time is null, limit query to when next_action_at is after [backstopTime].
+     *
+     * BatchFunction's job in life is operating on a timer, so it only operates on Tasks with nonnull next_action_at.
+     *
+     * Note that this uses TASK.next_action_at as the backstopTime comparison, rather than TASK.created_at.
+     * This allows us to manually recover from failures by simply setting a TASK's next_action_at in the future.
+     * This also avoids "losing" batch tasks if a receiver's [Receiver.Timing.numberPerDay] changes while there is
+     * work-in-progress waiting to be batch.  For example, we might change the setting from once a day to once an hour.
+     */
+    fun fetchAndLockBatchTasksForOneReceiver(
         at: OffsetDateTime?,
         receiverFullName: String,
         limit: Int,
+        backstopTime: OffsetDateTime?,
         txn: DataAccessTransaction
     ): List<Task> {
         val cond =
             if (at == null) {
-                TASK.RECEIVER_NAME.eq(receiverFullName).and(TASK.NEXT_ACTION.eq(nextAction))
+                TASK.RECEIVER_NAME.eq(receiverFullName)
+                    .and(TASK.NEXT_ACTION.eq(TaskAction.batch))
+                    .and(TASK.NEXT_ACTION_AT.greaterOrEqual(backstopTime))
             } else {
                 TASK.RECEIVER_NAME
                     .eq(receiverFullName)
-                    .and(TASK.NEXT_ACTION.eq(nextAction))
+                    .and(TASK.NEXT_ACTION.eq(TaskAction.batch))
                     .and(TASK.NEXT_ACTION_AT.eq(at))
             }
         return DSL.using(txn)
             .selectFrom(TASK)
             .where(cond)
+            .orderBy(TASK.CREATED_AT)
             .limit(limit)
             .forUpdate()
             .skipLocked() // Allows the same query to run in parallel. Otherwise, the query would lock the table.
             .fetch()
             .into(Task::class.java)
+    }
+
+    /**
+     * Get the number of outstanding actions to batch for a specific receiver
+     */
+    fun fetchNumReportsNeedingBatch(
+        receiverFullName: String,
+        backstopTime: OffsetDateTime,
+        txn: DataAccessTransaction
+    ): Int {
+        return DSL.using(txn)
+            .select(TASK.asterisk())
+            .from(TASK)
+            .where(TASK.NEXT_ACTION.eq(TaskAction.batch))
+            .and(TASK.RECEIVER_NAME.eq(receiverFullName))
+            .and(TASK.NEXT_ACTION_AT.greaterOrEqual(backstopTime))
+            .count()
+    }
+
+    /**
+     * Given a receiver, finds out if the receiver (identified by [receiverOrg] and [receiverSvc]) had at least
+     * one 'send' action within after the passed in [checkTime].
+     */
+    fun checkRecentlySent(
+        receiverOrg: String,
+        receiverSvc: String,
+        checkTime: OffsetDateTime,
+        txn: DataAccessTransaction
+    ): Boolean {
+        return DSL.using(txn)
+            .select(ACTION.asterisk())
+            .from(ACTION)
+            .join(Tables.REPORT_FILE)
+            .on(ACTION.ACTION_ID.eq(Tables.REPORT_FILE.ACTION_ID))
+            .where(Tables.REPORT_FILE.RECEIVING_ORG.eq(receiverOrg))
+            .and(Tables.REPORT_FILE.RECEIVING_ORG_SVC.eq(receiverSvc))
+            .and(ACTION.CREATED_AT.greaterOrEqual(checkTime))
+            .and(ACTION.ACTION_NAME.eq(TaskAction.send))
+            .count() > 0
     }
 
     fun fetchTask(reportId: ReportId): Task {
@@ -647,23 +701,6 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                 .where(REPORT_FILE.REPORT_ID.eq(reportId))
                 .count()
             ) > 0
-    }
-
-    /**
-     * Get the number of outstanding actions to batch for a specific receiver
-     */
-    fun fetchNumberOutstandingBatchRecords(
-        receiverFullName: String,
-        txn: DataAccessTransaction
-    ): Int {
-        val backstop = OffsetDateTime.now().minusDays(7)
-        return DSL.using(txn)
-            .select(TASK.asterisk())
-            .from(TASK)
-            .where(TASK.NEXT_ACTION.eq(TaskAction.batch))
-            .and(TASK.RECEIVER_NAME.eq(receiverFullName))
-            .and(TASK.CREATED_AT.greaterOrEqual(backstop))
-            .count()
     }
 
     /** Fetch the newest CreatedAt timestamp, active or deleted. */

@@ -6,7 +6,35 @@ import com.fasterxml.jackson.module.kotlin.KotlinFeature
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import gov.cdc.prime.router.azure.DatabaseLookupTableAccess
+import gov.cdc.prime.router.metadata.CoalesceMapper
+import gov.cdc.prime.router.metadata.ConcatenateMapper
+import gov.cdc.prime.router.metadata.DateTimeOffsetMapper
+import gov.cdc.prime.router.metadata.HashMapper
+import gov.cdc.prime.router.metadata.IfNPIMapper
+import gov.cdc.prime.router.metadata.IfNotPresentMapper
+import gov.cdc.prime.router.metadata.IfPresentMapper
+import gov.cdc.prime.router.metadata.LIVDLookupMapper
+import gov.cdc.prime.router.metadata.LookupMapper
+import gov.cdc.prime.router.metadata.LookupSenderValuesetsMapper
 import gov.cdc.prime.router.metadata.LookupTable
+import gov.cdc.prime.router.metadata.Mapper
+import gov.cdc.prime.router.metadata.Mappers
+import gov.cdc.prime.router.metadata.MiddleInitialMapper
+import gov.cdc.prime.router.metadata.NpiLookupMapper
+import gov.cdc.prime.router.metadata.NullMapper
+import gov.cdc.prime.router.metadata.Obx17Mapper
+import gov.cdc.prime.router.metadata.Obx17TypeMapper
+import gov.cdc.prime.router.metadata.Obx8Mapper
+import gov.cdc.prime.router.metadata.SplitByCommaMapper
+import gov.cdc.prime.router.metadata.SplitMapper
+import gov.cdc.prime.router.metadata.StripNonNumericDataMapper
+import gov.cdc.prime.router.metadata.StripNumericDataMapper
+import gov.cdc.prime.router.metadata.StripPhoneFormattingMapper
+import gov.cdc.prime.router.metadata.TimestampMapper
+import gov.cdc.prime.router.metadata.TrimBlanksMapper
+import gov.cdc.prime.router.metadata.UseMapper
+import gov.cdc.prime.router.metadata.UseSenderSettingMapper
+import gov.cdc.prime.router.metadata.ZipCodeToCountyMapper
 import org.apache.commons.io.FilenameUtils
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.exception.DataAccessException
@@ -23,6 +51,7 @@ class Metadata : Logging {
     private var mappers = listOf(
         MiddleInitialMapper(),
         UseMapper(),
+        UseSenderSettingMapper(),
         IfPresentMapper(),
         IfNotPresentMapper(),
         IfNPIMapper(),
@@ -44,7 +73,8 @@ class Metadata : Logging {
         TimestampMapper(),
         HashMapper(),
         NullMapper(),
-        LookupSenderValuesetsMapper()
+        LookupSenderValuesetsMapper(),
+        NpiLookupMapper()
     )
     private var reportStreamFilterDefinitions = listOf(
         FilterByCounty(),
@@ -220,8 +250,6 @@ class Metadata : Logging {
     private fun fixupElement(element: Element, baseElement: Element? = null): Element {
         if (element.canBeBlank && element.default != null)
             error("Schema Error: '${element.name}' has both a default and a canBeBlank field")
-        if (element.canBeBlank && element.mapper != null)
-            error("Schema Error: '${element.name}' has both a mapper and a canBeBlank field")
         val valueSet = element.valueSet ?: baseElement?.valueSet
         val valueSetRef = valueSet?.let {
             val ref = findValueSet(it)

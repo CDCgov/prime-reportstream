@@ -8,30 +8,28 @@ import {
 } from "@trussworks/react-uswds";
 import { NavLink } from "react-router-dom";
 
-import { permissionCheck, reportReceiver } from "../../webreceiver-utils";
+import { permissionCheck } from "../../webreceiver-utils";
 import { PERMISSIONS } from "../../resources/PermissionsResource";
 
 import { OrganizationDropdown } from "./OrgDropdown";
 import { SignInOrUser } from "./SignInOrUser";
 import { HowItWorksDropdown } from "./HowItWorksDropdown";
+import { AdminDropdownNav } from "./AdminDropdownNav";
+import { GettingStartedDropdown } from "./GettingStartedDropdown";
 
 export const ReportStreamHeader = () => {
     const { authState } = useOktaAuth();
     const [expanded, setExpanded] = useState(false);
     const toggleMobileNav = (): void =>
         setExpanded((prvExpanded) => !prvExpanded);
-    let itemsMenu = [
-        <NavLink to="/about" key="about" id="docs" className="usa-nav__link">
-            <span>About</span>
-        </NavLink>,
-        <HowItWorksDropdown />,
-    ];
+    let itemsMenu = [<GettingStartedDropdown />, <HowItWorksDropdown />];
 
     if (authState !== null && authState.isAuthenticated) {
-        if (reportReceiver(authState)) {
-            itemsMenu.splice(
-                0,
-                0,
+        if (
+            permissionCheck(PERMISSIONS.RECEIVER, authState) ||
+            permissionCheck(PERMISSIONS.PRIME_ADMIN, authState)
+        ) {
+            itemsMenu.push(
                 <NavLink
                     to="/daily-data"
                     key="daily"
@@ -44,10 +42,11 @@ export const ReportStreamHeader = () => {
             );
         }
 
-        if (permissionCheck(PERMISSIONS.SENDER, authState)) {
-            itemsMenu.splice(
-                1,
-                0,
+        if (
+            permissionCheck(PERMISSIONS.SENDER, authState) ||
+            permissionCheck(PERMISSIONS.PRIME_ADMIN, authState)
+        ) {
+            itemsMenu.push(
                 <NavLink
                     to="/upload"
                     key="upload"
@@ -60,10 +59,11 @@ export const ReportStreamHeader = () => {
             );
         }
 
-        if (permissionCheck(PERMISSIONS.PRIME_ADMIN, authState)) {
-            itemsMenu.splice(
-                1,
-                0,
+        if (
+            // permissionCheck(PERMISSIONS.SENDER, authState) ||
+            permissionCheck(PERMISSIONS.PRIME_ADMIN, authState)
+        ) {
+            itemsMenu.push(
                 <NavLink
                     to="/submissions"
                     key="submissions"
@@ -74,6 +74,10 @@ export const ReportStreamHeader = () => {
                     <span>Submissions</span>
                 </NavLink>
             );
+        }
+
+        if (permissionCheck(PERMISSIONS.PRIME_ADMIN, authState)) {
+            itemsMenu.push(<AdminDropdownNav />);
         }
     }
 

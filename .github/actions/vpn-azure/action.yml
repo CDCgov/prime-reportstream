@@ -17,28 +17,30 @@ inputs:
   sp-creds:
     description: "Azure Service Principal creds"
     required: true
+  env-name:
+    required: true
 
 runs:
   using: "composite"
   steps:
 
     - name: Set environment variables - dev
-      if: github.ref == 'refs/heads/dev-rheft'
+      if: inputs.env-name == 'dev'
       shell: bash
       run: echo "VPN_ENV=dev" >> $GITHUB_ENV
 
     - name: Set environment variables - test
-      if: github.ref == 'refs/heads/ronheft/test-investigation'
+      if: inputs.env-name == 'test'
       shell: bash
       run: echo "VPN_ENV=test" >> $GITHUB_ENV
 
     - name: Set environment variables - staging
-      if: github.ref == 'refs/heads/master'
+      if: inputs.env-name == 'staging'
       shell: bash
       run: echo "VPN_ENV=staging" >> $GITHUB_ENV
 
     - name: Set environment variables - production
-      if: github.ref == 'refs/heads/production'
+      if: inputs.env-name == 'prod'
       shell: bash
       run: echo "VPN_ENV=prod" >> $GITHUB_ENV
 
