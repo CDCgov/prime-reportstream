@@ -40,9 +40,7 @@ class BatchDeciderFunction(private val workflowEngine: WorkflowEngine = Workflow
                     // any that should have batched in the last 60 seconds, get count of outstanding BATCH records
                     //  (how many actions with BATCH for receiver
                     .forEach { rec ->
-                        val msgInfo = determineQueueMessageCount(rec, txn)
-                        val queueMessages = msgInfo.first
-                        val isEmpty = msgInfo.second
+                        val (queueMessages, isEmpty) = determineQueueMessageCount(rec, txn)
 
                         repeat(queueMessages) {
                             // build 'batch' event
@@ -62,7 +60,9 @@ class BatchDeciderFunction(private val workflowEngine: WorkflowEngine = Workflow
     /**
      * Determines how many, if any, batch queue messages should be added to the batch queue for [receiver].
      * Handles checking the receiver's configured whenEmpty element of timing, and adding a batch message
-     * if needed to send empty batch file
+     * if needed to send empty batch file.
+     *
+     * @param txn DataAccessTransaction to use. If not present, underlying data queries will create their own
      */
     internal fun determineQueueMessageCount(receiver: Receiver, txn: DataAccessTransaction?): Pair<Int, Boolean> {
         // Calculate how far to look back based on how often this receiver batches.
