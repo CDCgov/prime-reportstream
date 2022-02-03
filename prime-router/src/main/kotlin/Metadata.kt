@@ -277,7 +277,8 @@ class Metadata : Logging {
             valueSetRef = valueSetRef,
             tableRef = tableRef,
             mapperRef = refAndArgs?.first,
-            mapperArgs = refAndArgs?.second
+            mapperArgs = refAndArgs?.second,
+            type = fullElement.type ?: Element.Type.TEXT
         )
     }
 
