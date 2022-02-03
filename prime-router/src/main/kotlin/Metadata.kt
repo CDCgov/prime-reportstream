@@ -184,6 +184,19 @@ class Metadata : Logging {
 
         schemas.forEach { fixupSchema(it.name) }
         schemaStore = fixedUpSchemas
+
+        // Validate the schemas
+        val validationErrors = mutableListOf<String>()
+        schemaStore.values.forEach { schema ->
+            schema.elements.forEach { element ->
+                validationErrors.addAll(element.getValidationErrors(schema.name))
+            }
+        }
+        if (validationErrors.isNotEmpty())
+            error(
+                "There were errors validating the schemas." + System.lineSeparator() +
+                    validationErrors.joinToString(System.lineSeparator())
+            )
         return this
     }
 
@@ -248,8 +261,6 @@ class Metadata : Logging {
      * The fixup process fills in references and inherited attributes.
      */
     private fun fixupElement(element: Element, baseElement: Element? = null): Element {
-        if (element.canBeBlank && element.default != null)
-            error("Schema Error: '${element.name}' has both a default and a canBeBlank field")
         val valueSet = element.valueSet ?: baseElement?.valueSet
         val valueSetRef = valueSet?.let {
             val ref = findValueSet(it)
@@ -277,8 +288,7 @@ class Metadata : Logging {
             valueSetRef = valueSetRef,
             tableRef = tableRef,
             mapperRef = refAndArgs?.first,
-            mapperArgs = refAndArgs?.second,
-            type = fullElement.type ?: Element.Type.TEXT
+            mapperArgs = refAndArgs?.second
         )
     }
 

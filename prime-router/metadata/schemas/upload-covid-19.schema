@@ -10,6 +10,7 @@ elements:
       mapper: useSenderSetting(organizationName)
 
     - name: processing_mode_code_fromsettings
+      type: TEXT
       mapper: useSenderSetting(processingModeCode)
 
     - name: processing_mode_code

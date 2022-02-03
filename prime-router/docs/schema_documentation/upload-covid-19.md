@@ -1820,6 +1820,8 @@ The ID number of the lab order from the placer
 
 **ReportStream Internal Name**: processing_mode_code_fromsettings
 
+**Type**: TEXT
+
 **PII**: No
 
 **Cardinality**: [0..1]
