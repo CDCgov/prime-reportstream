@@ -1,13 +1,5 @@
 import OrgSettingsBaseResource from "./OrgSettingsBaseResource";
 
-export interface FilterData {
-    topic: string;
-    jurisdictionalFilter: string[] | null; // | undefined?
-    qualityFilter: string[] | null;
-    routingFilter: string[] | null;
-    processingModeFilter: string[] | null;
-}
-
 // fyi the API defines these as CamelCased but the DB seems to have them UPPERCASED
 // so, we can't really have an enumerator.
 // enum JurisdictionData {
@@ -18,11 +10,11 @@ export interface FilterData {
 
 export default class OrgSettingsResource extends OrgSettingsBaseResource {
     // pulls in other fields from OrgSettingsBaseResource
-    readonly description: string = "";
-    readonly jurisdiction: string = "";
-    readonly stateCode: string = "";
-    readonly countyName: string = "";
-    readonly filter: FilterData[] = [];
+    description: string = "";
+    jurisdiction: string = "";
+    stateCode: string | null = "";
+    countyName: string | null = "";
+    filters: object = [];
 
     static get key() {
         return "OrgSettingsResource";
