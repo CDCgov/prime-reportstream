@@ -18,8 +18,8 @@ import io.mockk.verify
 import org.jooq.tools.jdbc.MockConnection
 import org.jooq.tools.jdbc.MockDataProvider
 import org.jooq.tools.jdbc.MockResult
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
+import kotlin.test.BeforeTest
+import kotlin.test.Test
 
 class BatchDeciderTests {
     val dataProvider = MockDataProvider { emptyArray<MockResult>() }
@@ -48,7 +48,7 @@ class BatchDeciderTests {
             .blobAccess(blobMock).queueAccess(queueMock).build()
     }
 
-    @BeforeEach
+    @BeforeTest
     fun reset() {
         clearAllMocks()
     }
@@ -58,6 +58,9 @@ class BatchDeciderTests {
         // Setup
         every { queueMock.sendMessage(any()) } returns Unit
         every { timing1.isValid() } returns true
+        every { timing1.numberPerDay } returns 1
+        every { timing1.maxReportCount } returns 1
+        every { timing1.whenEmpty } returns Receiver.WhenEmpty()
         every { timing1.batchInPrevious60Seconds(any()) } returns true
 
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
