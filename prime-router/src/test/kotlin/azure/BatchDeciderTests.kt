@@ -8,17 +8,15 @@ import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
-import io.mockk.confirmVerified
 import io.mockk.every
 import io.mockk.mockkClass
 import io.mockk.spyk
-import io.mockk.verify
 import org.jooq.tools.jdbc.MockConnection
 import org.jooq.tools.jdbc.MockDataProvider
 import org.jooq.tools.jdbc.MockResult
 import kotlin.test.BeforeTest
-import kotlin.test.Ignore
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class BatchDeciderTests {
     val dataProvider = MockDataProvider { emptyArray<MockResult>() }
@@ -53,7 +51,6 @@ class BatchDeciderTests {
     }
 
     @Test
-    @Ignore // These tests are failing in Github. Will be fixed in another PR.
     fun `Test with no receiver getting empty batch file`() {
         // Setup
         every { queueMock.sendMessage(any()) } returns Unit
@@ -72,16 +69,14 @@ class BatchDeciderTests {
         every { queueMock.sendMessage(any()) }.returns(Unit)
 
         // Invoke batch decider run
-        BatchDeciderFunction(engine).run("", context = null)
+        var result = BatchDeciderFunction(engine).determineQueueMessageCount(oneOrganization.receivers[0], null)
 
-        // Verify that QueueAccess.sendMessage was not called
-        verify(exactly = 0) { queueMock.sendMessage(any()) }
-
-        confirmVerified(queueMock)
+        // Verify that the reciever will not be put in the batch queue
+        assertEquals(0, result.first)
+        assertEquals(false, result.second)
     }
 
     @Test
-    @Ignore // These tests are failing in Github. Will be fixed in another PR.
     fun `Test with receiver getting empty on every batch`() {
         // Setup
         every { queueMock.sendMessage(any()) } returns Unit
@@ -104,17 +99,18 @@ class BatchDeciderTests {
         }
 
         // Invoke batch decider run
+        var result1 = BatchDeciderFunction(engine).determineQueueMessageCount(oneOrganization.receivers[0], null)
+        var result2 = BatchDeciderFunction(engine).determineQueueMessageCount(oneOrganization.receivers[0], null)
         BatchDeciderFunction(engine).run("", context = null)
         BatchDeciderFunction(engine).run("", context = null)
 
-        verify(exactly = 2) { queueMock.sendMessage(any()) }
-        verify(exactly = 0) { accessSpy.checkRecentlySent(any(), any(), any(), any()) }
-
-        confirmVerified(queueMock)
+        assertEquals(1, result1.first)
+        assertEquals(true, result1.second)
+        assertEquals(1, result2.first)
+        assertEquals(true, result2.second)
     }
 
     @Test
-    @Ignore // These tests are failing in Github. Will be fixed in another PR.
     fun `Test with receiver getting empty once per day`() {
         // Setup
         every { queueMock.sendMessage(any()) } returns Unit
@@ -140,18 +136,18 @@ class BatchDeciderTests {
         }
 
         // Invoke batch decider run
-        BatchDeciderFunction(engine).run("", context = null)
+        var result1 = BatchDeciderFunction(engine).determineQueueMessageCount(oneOrganization.receivers[0], null)
 
         // change response of recentlySent
         every { engine.db.checkRecentlySent(any(), any(), any(), any()) }.answers {
             true
         }
 
-        BatchDeciderFunction(engine).run("", context = null)
+        var result2 = BatchDeciderFunction(engine).determineQueueMessageCount(oneOrganization.receivers[0], null)
 
-        verify(exactly = 1) { queueMock.sendMessage(any()) }
-        verify(exactly = 2) { accessSpy.checkRecentlySent(any(), any(), any(), any()) }
-
-        confirmVerified(queueMock)
+        assertEquals(1, result1.first)
+        assertEquals(true, result1.second)
+        assertEquals(0, result2.first)
+        assertEquals(false, result2.second)
     }
 }
