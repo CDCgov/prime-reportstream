@@ -98,15 +98,15 @@ class SendFunctionTests {
     @Test
     fun `Test with message`() {
         // Setup
-        var nextEvent1: ReportEvent? = null
+        var nextEvent: ReportEvent? = null
         setupLogger()
         setupWorkflow()
         every { workflowEngine.handleReportEvent(any(), context, any()) }.answers {
             val block = thirdArg() as
                 (header: WorkflowEngine.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
             val header = makeHeader()
-            nextEvent1 = block(header, null, null)
-            nextEvent1
+            nextEvent = block(header, null, null)
+            nextEvent
         }
         every { sftpTransport.send(any(), any(), any(), any(), any(), any()) }.returns(null)
         every { workflowEngine.recordAction(any()) }.returns(Unit)
@@ -115,15 +115,15 @@ class SendFunctionTests {
         val event = ReportEvent(Event.EventAction.SEND, reportId)
         SendFunction(workflowEngine).run(event.toQueueMessage(), context)
         // Verify
-        assertThat(nextEvent1).isNotNull()
-        assertThat(nextEvent1!!.eventAction).isEqualTo(Event.EventAction.NONE)
-        assertThat(nextEvent1!!.retryToken).isNull()
+        assertThat(nextEvent).isNotNull()
+        assertThat(nextEvent!!.eventAction).isEqualTo(Event.EventAction.NONE)
+        assertThat(nextEvent!!.retryToken).isNull()
     }
 
     @Test
     fun `Test with sftp error`() {
         // Setup
-        var nextEvent2: ReportEvent? = null
+        var nextEvent: ReportEvent? = null
         setupLogger()
         mockkConstructor(ActionHistory::class)
         every { anyConstructed<ActionHistory>().setActionType(TaskAction.send_warning) } returns Unit
@@ -131,8 +131,8 @@ class SendFunctionTests {
             val block = thirdArg() as
                 (header: WorkflowEngine.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
             val header = makeHeader()
-            nextEvent2 = block(header, null, null)
-            nextEvent2
+            nextEvent = block(header, null, null)
+            nextEvent
         }
         setupWorkflow()
         every { sftpTransport.send(any(), any(), any(), any(), any(), any()) }.returns(RetryToken.allItems)
@@ -142,17 +142,17 @@ class SendFunctionTests {
         SendFunction(workflowEngine).run(event.toQueueMessage(), context)
 
         // Verify
-        assertThat(nextEvent2).isNotNull()
-        assertThat(nextEvent2!!.eventAction).isEqualTo(Event.EventAction.SEND)
-        assertThat(nextEvent2!!.retryToken).isNotNull()
-        assertThat(nextEvent2!!.retryToken?.retryCount).isEqualTo(1)
+        assertThat(nextEvent).isNotNull()
+        assertThat(nextEvent!!.eventAction).isEqualTo(Event.EventAction.SEND)
+        assertThat(nextEvent!!.retryToken).isNotNull()
+        assertThat(nextEvent!!.retryToken?.retryCount).isEqualTo(1)
         verify(exactly = 1) { anyConstructed<ActionHistory>().setActionType(TaskAction.send_warning) }
     }
 
     @Test
     fun `Test with third sftp error`() {
         // Setup
-        var nextEvent3: ReportEvent? = null
+        var nextEvent: ReportEvent? = null
         setupLogger()
         mockkConstructor(ActionHistory::class)
         every { anyConstructed<ActionHistory>().setActionType(TaskAction.send_warning) } returns Unit
@@ -161,10 +161,10 @@ class SendFunctionTests {
                 (header: WorkflowEngine.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
 
             val header = makeHeader()
-            nextEvent3 = block(
+            nextEvent = block(
                 header, RetryToken(2, RetryToken.allItems), null
             )
-            nextEvent3
+            nextEvent
         }
         setupWorkflow()
         every { sftpTransport.send(any(), any(), any(), any(), any(), any()) }.returns(RetryToken.allItems)
@@ -175,19 +175,19 @@ class SendFunctionTests {
         SendFunction(workflowEngine).run(event.toQueueMessage(), context)
 
         // Verify
-        assertThat(nextEvent3).isNotNull()
-        assertThat(nextEvent3!!.eventAction).isEqualTo(Event.EventAction.SEND)
-        assertThat(nextEvent3!!.retryToken).isNotNull()
-        assertThat(nextEvent3!!.retryToken?.retryCount).isEqualTo(3)
-        assertThat(nextEvent3!!.at!!.isAfter(OffsetDateTime.now().plusMinutes(2))).isTrue()
-        nextEvent3!!.retryToken?.toJSON()?.let { assertThat(it.contains("\"retryCount\":3")).isTrue() }
+        assertThat(nextEvent).isNotNull()
+        assertThat(nextEvent!!.eventAction).isEqualTo(Event.EventAction.SEND)
+        assertThat(nextEvent!!.retryToken).isNotNull()
+        assertThat(nextEvent!!.retryToken?.retryCount).isEqualTo(3)
+        assertThat(nextEvent!!.at!!.isAfter(OffsetDateTime.now().plusMinutes(2))).isTrue()
+        nextEvent!!.retryToken?.toJSON()?.let { assertThat(it.contains("\"retryCount\":3")).isTrue() }
         verify(exactly = 1) { anyConstructed<ActionHistory>().setActionType(TaskAction.send_warning) }
     }
 
     @Test
     fun `Test with 100th sftp error`() {
         // Setup
-        var nextEvent4: ReportEvent? = null
+        var nextEvent: ReportEvent? = null
         setupLogger()
         mockkConstructor(ActionHistory::class)
         every { anyConstructed<ActionHistory>().setActionType(TaskAction.send_error) } returns Unit
@@ -197,10 +197,10 @@ class SendFunctionTests {
                 (header: WorkflowEngine.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
             val header = makeHeader()
             // Should be high enough retry count that the next action should have an error
-            nextEvent4 = block(
+            nextEvent = block(
                 header, RetryToken(100, RetryToken.allItems), null
             )
-            nextEvent4
+            nextEvent
         }
         setupWorkflow()
         every { sftpTransport.send(any(), any(), any(), any(), any(), any()) }.returns(RetryToken.allItems)
@@ -216,9 +216,9 @@ class SendFunctionTests {
         assertThat(er.message!!.startsWith("All retries failed."))
 
         // Verify
-        assertThat(nextEvent4).isNotNull()
-        assertThat(nextEvent4!!.eventAction).isEqualTo(Event.EventAction.SEND_ERROR)
-        assertThat(nextEvent4!!.retryToken).isNull()
+        assertThat(nextEvent).isNotNull()
+        assertThat(nextEvent!!.eventAction).isEqualTo(Event.EventAction.SEND_ERROR)
+        assertThat(nextEvent!!.retryToken).isNull()
         verify { anyConstructed<ActionHistory>().setActionType(TaskAction.send_error) }
     }
 
