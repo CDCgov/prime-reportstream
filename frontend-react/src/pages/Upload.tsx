@@ -19,7 +19,7 @@ import { getStoredOrg } from "../components/GlobalContextProvider";
 import { showError } from "../components/AlertNotifications";
 
 // values taken from Report.kt
-const PAYLOAD_MAX_BYTES = 50 * 1000 * 1000;  // no idea why this isn't in "k" (* 1024).
+const PAYLOAD_MAX_BYTES = 50 * 1000 * 1000; // no idea why this isn't in "k" (* 1024).
 const REPORT_MAX_ITEMS = 10000;
 const REPORT_MAX_ITEM_COLUMNS = 2000;
 // const REPORT_MAX_ERRORS = 100;
