@@ -91,6 +91,7 @@ class BatchDeciderFunction(private val workflowEngine: WorkflowEngine = Workflow
 
             logger.trace("$batchDecider: Ending")
         } catch (e: Exception) {
+            // Catching all exceptions, so Azure does not auto-implement the queue retry
             logger.error("$batchDecider function exception", e)
         }
     }
