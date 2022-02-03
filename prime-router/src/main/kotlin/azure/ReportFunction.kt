@@ -314,8 +314,11 @@ class ReportFunction : Logging {
 
         val processEvent = ProcessEvent(Event.EventAction.PROCESS, report.id, options, defaults, routeTo)
 
-        val blobInfo = workflowEngine.blob.uploadBody(report, senderName, action = processEvent.eventAction)
-
+        val blobInfo = workflowEngine.blob.generateBodyAndUploadReport(
+            report,
+            senderName,
+            action = processEvent.eventAction
+        )
         actionHistory.trackCreatedReport(processEvent, report, blobInfo)
         // add task to task table
         workflowEngine.insertProcessTask(report, report.bodyFormat.toString(), blobInfo.blobUrl, processEvent)
