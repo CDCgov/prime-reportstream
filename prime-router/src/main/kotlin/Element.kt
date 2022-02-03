@@ -258,7 +258,7 @@ data class Element(
         if (type == null) addError("requires an element type.")
 
         // Table lookups require a table
-        if ((mapper == LookupMapper().name || mapper == LIVDLookupMapper().name) &&
+        if ((mapperRef?.name == LookupMapper().name || mapperRef?.name == LIVDLookupMapper().name) &&
             (tableRef == null || tableColumn.isNullOrBlank())
         )
             addError("requires a table and table column.")

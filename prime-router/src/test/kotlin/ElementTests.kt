@@ -4,14 +4,19 @@ import assertk.assertThat
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
+import assertk.assertions.isGreaterThan
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
+import assertk.assertions.size
 import assertk.assertions.startsWith
 import gov.cdc.prime.router.metadata.ConcatenateMapper
 import gov.cdc.prime.router.metadata.ElementAndValue
+import gov.cdc.prime.router.metadata.LIVDLookupMapper
+import gov.cdc.prime.router.metadata.LookupMapper
+import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.metadata.Mapper
 import gov.cdc.prime.router.metadata.NullMapper
 import gov.cdc.prime.router.metadata.TrimBlanksMapper
@@ -1124,5 +1129,87 @@ internal class ElementTests {
         result = elementJ.processValue(emptyMap(), schema)
         assertThat(result.errors).isNotEmpty()
         assertThat(result.warnings).isEmpty()
+    }
+
+    @Test
+    fun `test element validation`() {
+        // Type tests
+        assertThat(Element("name").getValidationErrors("schema")).isNotEmpty()
+        assertThat(Element("name", type = Element.Type.TEXT).getValidationErrors("schema")).isEmpty()
+
+        // Lookup mapper tests
+        assertThat(
+            Element("name", type = Element.Type.TEXT, mapperRef = LookupMapper())
+                .getValidationErrors("schema")
+        ).isNotEmpty()
+        assertThat(
+            Element("name", type = Element.Type.TEXT, mapperRef = LookupMapper(), tableRef = LookupTable())
+                .getValidationErrors("schema")
+        ).isNotEmpty()
+        assertThat(
+            Element("name", type = Element.Type.TEXT, mapperRef = LookupMapper(), tableColumn = "column")
+                .getValidationErrors("schema")
+        ).isNotEmpty()
+        assertThat(
+            Element(
+                "name", type = Element.Type.TEXT, mapperRef = LookupMapper(), tableRef = LookupTable(),
+                tableColumn = "column"
+            )
+                .getValidationErrors("schema")
+        ).isEmpty()
+        assertThat(
+            Element("name", type = Element.Type.TEXT, mapperRef = LIVDLookupMapper())
+                .getValidationErrors("schema")
+        ).isNotEmpty()
+        assertThat(
+            Element("name", type = Element.Type.TEXT, mapperRef = LIVDLookupMapper(), tableRef = LookupTable())
+                .getValidationErrors("schema")
+        ).isNotEmpty()
+        assertThat(
+            Element("name", type = Element.Type.TEXT, mapperRef = LIVDLookupMapper(), tableColumn = "column")
+                .getValidationErrors("schema")
+        ).isNotEmpty()
+        assertThat(
+            Element(
+                "name", type = Element.Type.TEXT, mapperRef = LIVDLookupMapper(), tableRef = LookupTable(),
+                tableColumn = "column"
+            )
+                .getValidationErrors("schema")
+        ).isEmpty()
+
+        // Mapper tests
+        assertThat(
+            Element("name", type = Element.Type.TEXT, mapperOverridesValue = true)
+                .getValidationErrors("schema")
+        ).isNotEmpty()
+        assertThat(
+            Element("name", type = Element.Type.TEXT, mapperOverridesValue = true, mapperRef = NullMapper())
+                .getValidationErrors("schema")
+        ).isEmpty()
+
+        assertThat(
+            Element("name", type = Element.Type.TEXT, mapperArgs = listOf("arg"))
+                .getValidationErrors("schema")
+        ).isNotEmpty()
+        assertThat(
+            Element("name", type = Element.Type.TEXT, mapperArgs = listOf("arg"), mapperRef = NullMapper())
+                .getValidationErrors("schema")
+        ).isEmpty()
+
+        // Can be blank test
+        assertThat(
+            Element("name", type = Element.Type.TEXT_OR_BLANK)
+                .getValidationErrors("schema")
+        ).isEmpty()
+        assertThat(
+            Element("name", type = Element.Type.TEXT_OR_BLANK, default = "default")
+                .getValidationErrors("schema")
+        ).isNotEmpty()
+
+        // Multiple errors returned
+        assertThat(
+            Element("name", type = Element.Type.TEXT_OR_BLANK, default = "default", mapperArgs = listOf("arg"))
+                .getValidationErrors("schema")
+        ).size().isGreaterThan(1)
     }
 }

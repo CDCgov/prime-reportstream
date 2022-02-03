@@ -477,7 +477,7 @@ class Metadata : Logging {
     /**
      * Validate all the loaded schemas.
      */
-    private fun validateSchemas() {
+    internal fun validateSchemas() {
         // Validate the schemas
         val validationErrors = mutableListOf<String>()
         schemaStore.values.forEach { schema ->
