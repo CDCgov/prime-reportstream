@@ -54,10 +54,7 @@ export const Upload = () => {
         lastName: authState?.accessToken?.claims.family_name || "",
     };
 
-    const uploadReport = async function postData(
-        fileBody: string,
-        fileName: string
-    ) {
+    const uploadReport = async function postData() {
         let textBody;
         let response;
         try {
@@ -67,13 +64,12 @@ export const Upload = () => {
                     method: "POST",
                     headers: {
                         "Content-Type": "text/csv",
-                        client: client,
+                        client: client, // ignore.ignore-waters
                         "authentication-type": "okta",
                         Authorization: `Bearer ${authState?.accessToken?.accessToken}`,
-                        Organization: `${organization}`,
                         payloadName: fileName, // header Naming-Convention or namingConvention or naming-convention?
                     },
-                    body: fileBody,
+                    body: fileContent,
                 }
             );
 
@@ -148,7 +144,7 @@ export const Upload = () => {
 
             if (columncount > REPORT_MAX_ITEM_COLUMNS) {
                 showError(
-                    `The file '${file.name}' has too many columns. The maximum number of columns allowed is ${REPORT_MAX_ITEM_COLUMNS}.`
+                    `The file '${file.name}' has too many columns. The maximum number of allowed columns is ${REPORT_MAX_ITEM_COLUMNS}.`
                 );
                 return;
             }
@@ -180,7 +176,7 @@ export const Upload = () => {
 
         let response;
         try {
-            response = await uploadReport(fileContent, fileName);
+            response = await uploadReport();
             if (response?.destinations?.length) {
                 // NOTE: `{ readonly [key: string]: string }` means a key:value object
                 setDestinations(
