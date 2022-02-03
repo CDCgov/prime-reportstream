@@ -127,6 +127,7 @@ class Metadata : Logging {
         loadSchemaCatalog(metadataDir.toPath().resolve(schemasSubdirectory).toString())
         loadFileNameTemplates(metadataDir.toPath().resolve(fileNameTemplatesSubdirectory).toString())
         logger.trace("Metadata initialized.")
+        validateSchemas()
     }
 
     /**
@@ -185,18 +186,6 @@ class Metadata : Logging {
         schemas.forEach { fixupSchema(it.name) }
         schemaStore = fixedUpSchemas
 
-        // Validate the schemas
-        val validationErrors = mutableListOf<String>()
-        schemaStore.values.forEach { schema ->
-            schema.elements.forEach { element ->
-                validationErrors.addAll(element.getValidationErrors(schema.name))
-            }
-        }
-        if (validationErrors.isNotEmpty())
-            error(
-                "There were errors validating the schemas." + System.lineSeparator() +
-                    validationErrors.joinToString(System.lineSeparator())
-            )
         return this
     }
 
@@ -483,6 +472,24 @@ class Metadata : Logging {
         } catch (e: Exception) {
             throw Exception("Error reading '${file.name}'", e)
         }
+    }
+
+    /**
+     * Validate all the loaded schemas.
+     */
+    private fun validateSchemas() {
+        // Validate the schemas
+        val validationErrors = mutableListOf<String>()
+        schemaStore.values.forEach { schema ->
+            schema.elements.forEach { element ->
+                validationErrors.addAll(element.getValidationErrors(schema.name))
+            }
+        }
+        if (validationErrors.isNotEmpty())
+            error(
+                "There were errors validating the schemas." + System.lineSeparator() +
+                    validationErrors.joinToString(System.lineSeparator())
+            )
     }
 
     companion object {
