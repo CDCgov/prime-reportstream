@@ -1188,11 +1188,37 @@ internal class ElementTests {
         ).isEmpty()
 
         assertThat(
-            Element("name", type = Element.Type.TEXT, mapperArgs = listOf("arg"))
+            Element("name", type = Element.Type.TEXT, mapperArgs = listOf("arg"), mapperRef = NullMapper())
+                .validate()
+        ).isEmpty()
+        assertThat(
+            Element("name", type = Element.Type.TEXT, mapperArgs = listOf("arg"), mapperRef = NullMapper())
+                .validate()
+        ).isEmpty()
+
+        // Table tests
+        assertThat(
+            Element("name", type = Element.Type.TABLE)
                 .validate()
         ).isNotEmpty()
         assertThat(
-            Element("name", type = Element.Type.TEXT, mapperArgs = listOf("arg"), mapperRef = NullMapper())
+            Element("name", type = Element.Type.TABLE, tableRef = LookupTable())
+                .validate()
+        ).isEmpty()
+        assertThat(
+            Element("name", type = Element.Type.TABLE_OR_BLANK)
+                .validate()
+        ).isNotEmpty()
+        assertThat(
+            Element("name", type = Element.Type.TABLE_OR_BLANK, tableRef = LookupTable())
+                .validate()
+        ).isEmpty()
+        assertThat(
+            Element("name", type = Element.Type.TEXT, tableColumn = "column")
+                .validate()
+        ).isNotEmpty()
+        assertThat(
+            Element("name", type = Element.Type.TEXT, tableColumn = "column", tableRef = LookupTable())
                 .validate()
         ).isEmpty()
 
