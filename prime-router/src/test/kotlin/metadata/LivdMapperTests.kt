@@ -315,7 +315,7 @@ class LivdMapperTests {
     private val processingModeElement = Element(ElementNames.PROCESSING_MODE_CODE.elementName)
 
     /**
-     * Grab a cell value from the lIVD data based on the [deviceindex] starting at 1 and a given [element].
+     * Grab a cell value from the LIVD data based on the [deviceindex] starting at 1 and a given [element].
      * This function uses the column name provided in the element to find the data in the table.
      * @return a string with the cell value
      */
