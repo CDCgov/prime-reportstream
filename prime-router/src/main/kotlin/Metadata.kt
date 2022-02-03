@@ -478,13 +478,8 @@ class Metadata : Logging {
      * Validate all the loaded schemas.
      */
     internal fun validateSchemas() {
-        // Validate the schemas
         val validationErrors = mutableListOf<String>()
-        schemaStore.values.forEach { schema ->
-            schema.elements.forEach { element ->
-                validationErrors.addAll(element.getValidationErrors(schema.name))
-            }
-        }
+        schemaStore.values.forEach { validationErrors.addAll(it.validate()) }
         if (validationErrors.isNotEmpty())
             error(
                 "There were errors validating the schemas." + System.lineSeparator() +

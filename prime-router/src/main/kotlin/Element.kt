@@ -241,17 +241,17 @@ data class Element(
     }
 
     /**
-     * Generate validation error messages if this element of [schemaName] is not valid.
+     * Generate validation error messages if this element is not valid.
      * @return a list of error messages, or an empty list if no errors
      */
-    fun getValidationErrors(schemaName: String): List<String> {
+    fun validate(): List<String> {
         val errorList = mutableListOf<String>()
 
         /**
          * Add an error [message].
          */
         fun addError(message: String) {
-            errorList.add("Element $name from schema $schemaName $message.")
+            errorList.add("Element $name - $message.")
         }
 
         // All elements require a type

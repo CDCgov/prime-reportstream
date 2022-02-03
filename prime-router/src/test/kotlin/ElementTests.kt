@@ -1134,82 +1134,82 @@ internal class ElementTests {
     @Test
     fun `test element validation`() {
         // Type tests
-        assertThat(Element("name").getValidationErrors("schema")).isNotEmpty()
-        assertThat(Element("name", type = Element.Type.TEXT).getValidationErrors("schema")).isEmpty()
+        assertThat(Element("name").validate()).isNotEmpty()
+        assertThat(Element("name", type = Element.Type.TEXT).validate()).isEmpty()
 
         // Lookup mapper tests
         assertThat(
             Element("name", type = Element.Type.TEXT, mapperRef = LookupMapper())
-                .getValidationErrors("schema")
+                .validate()
         ).isNotEmpty()
         assertThat(
             Element("name", type = Element.Type.TEXT, mapperRef = LookupMapper(), tableRef = LookupTable())
-                .getValidationErrors("schema")
+                .validate()
         ).isNotEmpty()
         assertThat(
             Element("name", type = Element.Type.TEXT, mapperRef = LookupMapper(), tableColumn = "column")
-                .getValidationErrors("schema")
+                .validate()
         ).isNotEmpty()
         assertThat(
             Element(
                 "name", type = Element.Type.TEXT, mapperRef = LookupMapper(), tableRef = LookupTable(),
                 tableColumn = "column"
             )
-                .getValidationErrors("schema")
+                .validate()
         ).isEmpty()
         assertThat(
             Element("name", type = Element.Type.TEXT, mapperRef = LIVDLookupMapper())
-                .getValidationErrors("schema")
+                .validate()
         ).isNotEmpty()
         assertThat(
             Element("name", type = Element.Type.TEXT, mapperRef = LIVDLookupMapper(), tableRef = LookupTable())
-                .getValidationErrors("schema")
+                .validate()
         ).isNotEmpty()
         assertThat(
             Element("name", type = Element.Type.TEXT, mapperRef = LIVDLookupMapper(), tableColumn = "column")
-                .getValidationErrors("schema")
+                .validate()
         ).isNotEmpty()
         assertThat(
             Element(
                 "name", type = Element.Type.TEXT, mapperRef = LIVDLookupMapper(), tableRef = LookupTable(),
                 tableColumn = "column"
             )
-                .getValidationErrors("schema")
+                .validate()
         ).isEmpty()
 
         // Mapper tests
         assertThat(
             Element("name", type = Element.Type.TEXT, mapperOverridesValue = true)
-                .getValidationErrors("schema")
+                .validate()
         ).isNotEmpty()
         assertThat(
             Element("name", type = Element.Type.TEXT, mapperOverridesValue = true, mapperRef = NullMapper())
-                .getValidationErrors("schema")
+                .validate()
         ).isEmpty()
 
         assertThat(
             Element("name", type = Element.Type.TEXT, mapperArgs = listOf("arg"))
-                .getValidationErrors("schema")
+                .validate()
         ).isNotEmpty()
         assertThat(
             Element("name", type = Element.Type.TEXT, mapperArgs = listOf("arg"), mapperRef = NullMapper())
-                .getValidationErrors("schema")
+                .validate()
         ).isEmpty()
 
         // Can be blank test
         assertThat(
             Element("name", type = Element.Type.TEXT_OR_BLANK)
-                .getValidationErrors("schema")
+                .validate()
         ).isEmpty()
         assertThat(
             Element("name", type = Element.Type.TEXT_OR_BLANK, default = "default")
-                .getValidationErrors("schema")
+                .validate()
         ).isNotEmpty()
 
         // Multiple errors returned
         assertThat(
             Element("name", type = Element.Type.TEXT_OR_BLANK, default = "default", mapperArgs = listOf("arg"))
-                .getValidationErrors("schema")
+                .validate()
         ).size().isGreaterThan(1)
     }
 }
