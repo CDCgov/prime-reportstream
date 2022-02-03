@@ -12,8 +12,8 @@ export default class OrgSettingsResource extends OrgSettingsBaseResource {
     // pulls in other fields from OrgSettingsBaseResource
     description: string = "";
     jurisdiction: string = "";
-    stateCode: null | string = "";
-    countyName: null | string = "";
+    stateCode: string | null = "";
+    countyName: string | null = "";
     filters: object = [];
 
     static get key() {

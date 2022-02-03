@@ -35,7 +35,6 @@ export function AdminOrgEdit({
     const { fetch: fetchController } = useController();
     const saveOrgData = async () => {
         try {
-            debugger;
             const data = JSON.stringify(orgSettings);
             await fetchController(
                 OrgSettingsResource.update(),

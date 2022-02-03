@@ -9,7 +9,7 @@ import {
 export const TextInputComponent = (params: {
     fieldname: string;
     label: string;
-    defaultvalue: null | string;
+    defaultvalue: string | null;
     savefunc: (val: string) => void;
     disabled?: boolean;
 }): JSX.Element => {
