@@ -12,16 +12,16 @@ resource "azurerm_postgresql_server" "postgres_server" {
   version    = var.db_version
   storage_mb = var.db_storage_mb
 
-  # auto_grow_enabled = var.db_auto_grow
+  auto_grow_enabled = var.db_auto_grow
 
-  # public_network_access_enabled    = false
+  public_network_access_enabled    = false
   ssl_enforcement_enabled          = true
-  # ssl_minimal_tls_version_enforced = "TLS1_2"
+  ssl_minimal_tls_version_enforced = "TLS1_2"
 
-  # threat_detection_policy {
-  #   enabled              = var.db_threat_detection
-  #   email_account_admins = true
-  # }
+   threat_detection_policy {
+     enabled              = var.db_threat_detection
+     email_account_admins = true
+   }
 
   # Required for customer-managed encryption
   identity {
