@@ -509,6 +509,7 @@ flyway {
 
 // Database code generation configuration
 jooq {
+    version.set("3.15.4")
     configurations {
         create("main") { // name of the jOOQ configuration
             jooqConfiguration.apply {
@@ -525,17 +526,19 @@ jooq {
                         name = "org.jooq.meta.postgres.PostgresDatabase"
                         inputSchema = "public"
                         includes = ".*"
-                        forcedTypes.add(
-                            ForcedType()
-                                // Specify the Java type of your custom type. This corresponds to the Binding's <U> type.
-                                .withUserType("gov.cdc.prime.router.ActionLogDetail")
-                                // Associate that custom type with your binding.
-                                .withBinding("gov.cdc.prime.router.ActionLogDetailBinding")
-                                // A Java regex matching fully-qualified columns, attributes, parameters. Use the pipe to separate several expressions.
-                                // 
-                                // If provided, both "includeExpressions" and "includeTypes" must match.
-                                .withIncludeExpression("action_log.detail")
-                                .withIncludeTypes("JSONB")
+                        forcedTypes.addAll(
+                            arrayOf(
+                                ForcedType()
+                                    // Specify the Java type of your custom type. This corresponds to the Binding's <U> type.
+                                    .withUserType("gov.cdc.prime.router.ActionLogDetail")
+                                    // Associate that custom type with your binding.
+                                    .withBinding("gov.cdc.prime.router.ActionLogDetailBinding")
+                                    // A Java regex matching fully-qualified columns, attributes, parameters. Use the pipe to separate several expressions.
+                                    // 
+                                    // If provided, both "includeExpressions" and "includeTypes" must match.
+                                    .withIncludeExpression("action_log.detail")
+                                    .withIncludeTypes("JSONB"),
+                            )
                         )
                     }
                     generate.apply {
