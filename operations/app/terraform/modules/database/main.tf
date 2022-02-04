@@ -149,10 +149,10 @@ resource "azurerm_postgresql_active_directory_administrator" "postgres_aad_admin
 #  ]
 #}
 
-resource "azurerm_postgresql_server_key" "postgres_server_key" {
-  server_id        = azurerm_postgresql_server.postgres_server.id
-  key_vault_key_id = var.rsa_key_2048
-}
+#resource "azurerm_postgresql_server_key" "postgres_server_key" {
+#  server_id        = azurerm_postgresql_server.postgres_server.id
+#  key_vault_key_id = var.rsa_key_2048
+#}
 
 // Databases
 
