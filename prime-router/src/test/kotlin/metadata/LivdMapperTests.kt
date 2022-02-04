@@ -3,9 +3,12 @@ package gov.cdc.prime.router.metadata
 import assertk.assertThat
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
+import assertk.assertions.isFailure
+import assertk.assertions.isFalse
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNull
 import assertk.assertions.isNullOrEmpty
+import assertk.assertions.isTrue
 import gov.cdc.prime.router.Element
 import kotlin.test.Test
 
@@ -252,5 +255,318 @@ class LivdMapperTests {
         assertThat(mapper.apply(testKitElement, emptyList(), listOf(ev2, modeP)).value).isEqualTo(testKitIdBinax)
         assertThat(mapper.apply(testKitElement, emptyList(), listOf(ev2)).value).isEqualTo(testKitIdBinax)
         assertThat(mapper.apply(testKitElement, emptyList(), listOf(ev2, modeT)).value).isEqualTo(testKitIdBinax)
+    }
+
+    /**
+     * The fake LIVD data to be used in the table
+     */
+    private val fakeLivdTableData = listOf(
+        listOf(
+            LivdTableColumns.MODEL.colName, LivdTableColumns.TEST_PERFORMED_CODE.colName,
+            LivdTableColumns.TESTKIT_NAME_ID.colName, LivdTableColumns.EQUIPMENT_UID.colName,
+            LivdTableColumns.PROCESSING_MODE_CODE.colName
+        ),
+        // Rows 1-3: Similar to 1copy COVID-19 qPCR Multi Kit, the only change is the equipment UID
+        listOf("model1", "90001-1", "model1kit1", "model1uid1", ""),
+        listOf("model1", "90001-1", "model1kit1", "model1uid2", ""),
+        listOf("model1", "90001-1", "model1kit1", "model1uid3", ""),
+
+        // Rows 4-6: Similar to TRUPCR SARS-CoV-2 Kit, with different LOINC codes
+        listOf("model2", "90001-1", "model2kit1", "model2uid1", ""),
+        listOf("model2", "90001-1", "model2kit1", "model2uid2", ""),
+        listOf("model2", "90001-2", "model2kit1", "model2uid3", ""),
+
+        // Rows: 7-8: Test devices 
+        listOf("model3", "90003-1", "model3kit1", "model3uid1", LIVDLookupMapper.testProcessingModeCode),
+        listOf("model4", "90003-1", "model4kit1", "model4uid1", LIVDLookupMapper.testProcessingModeCode),
+
+        // Rows 9-11: Some devices with similar data, but different test performed code
+        listOf("model5", "90005-1", "model5kit1", "model5uid1", ""),
+        listOf("model5", "90005-2", "model5kit1", "model5uid1", ""),
+        listOf("model5", "90005-3", "model5kit1", "model5uid1", ""),
+    )
+
+    private val livdTable = LookupTable("LIVD", fakeLivdTableData)
+
+    private val modelNameElement = Element(
+        ElementNames.EQUIPMENT_MODEL_NAME.elementName,
+        tableRef = livdTable,
+        tableColumn = LivdTableColumns.MODEL.colName
+    )
+    private val testKitElement = Element(
+        ElementNames.TEST_KIT_NAME_ID.elementName,
+        tableRef = livdTable,
+        tableColumn = LivdTableColumns.TESTKIT_NAME_ID.colName
+    )
+    private val equipmentUidElement = Element(
+        ElementNames.EQUIPMENT_MODEL_ID.elementName,
+        tableRef = livdTable,
+        tableColumn = LivdTableColumns.EQUIPMENT_UID.colName
+    )
+    private val deviceIdElement = Element(
+        ElementNames.DEVICE_ID.elementName,
+        tableRef = livdTable
+    )
+    private val testPerformedCodeElement = Element(
+        ElementNames.TEST_PERFORMED_CODE.elementName,
+        tableRef = livdTable,
+        tableColumn = LivdTableColumns.TEST_PERFORMED_CODE.colName
+    )
+    private val processingModeElement = Element(ElementNames.PROCESSING_MODE_CODE.elementName)
+
+    /**
+     * Grab a cell value from the LIVD data based on the [deviceindex] starting at 1 and a given [element].
+     * This function uses the column name provided in the element to find the data in the table.
+     * @return a string with the cell value
+     */
+    private fun getDeviceCol(deviceindex: Int, element: Element): String {
+        check(deviceindex < fakeLivdTableData.size)
+        check(deviceindex > 0)
+        check(!element.tableColumn.isNullOrBlank())
+        val colIndex = fakeLivdTableData[0].indexOf(element.tableColumn)
+        check(colIndex >= 0)
+        return fakeLivdTableData[deviceindex][colIndex]
+    }
+
+    /**
+     * Creates an element value object based on the [element] and [deviceIdElement] starting at 1 to
+     * be used as input to a mapper.
+     * @return the element value object with the data
+     */
+    private fun createValue(element: Element, deviceindex: Int): ElementAndValue {
+        return ElementAndValue(element, getDeviceCol(deviceindex, element))
+    }
+
+    @Test
+    fun `test LIVD apply mapper lookup logic`() {
+        val mapper = LIVDLookupMapper()
+
+        // Bad element
+        assertThat { mapper.apply(Element("noTableElement"), emptyList(), emptyList()) }.isFailure()
+
+        // Simple device ID lookups
+        var devIndex = 1
+        assertThat(
+            mapper.apply(
+                modelNameElement, emptyList(),
+                listOf(ElementAndValue(deviceIdElement, "model1kit1")) // Device ID can contain a testkit name
+            ).value
+        ).isEqualTo(getDeviceCol(devIndex, modelNameElement))
+
+        // Simple test kit lookups
+        devIndex = 9
+        assertThat(
+            mapper.apply(
+                equipmentUidElement, emptyList(),
+                listOf(createValue(testKitElement, devIndex))
+            ).value
+        ).isEqualTo(getDeviceCol(devIndex, equipmentUidElement))
+
+        // Simple model name lookups
+        devIndex = 1
+        assertThat(
+            mapper.apply(
+                testKitElement, emptyList(),
+                listOf(createValue(modelNameElement, devIndex))
+            ).value
+        ).isEqualTo(getDeviceCol(devIndex, testKitElement))
+
+        // Simple equipment UID lookups
+        devIndex = 1
+        assertThat(
+            mapper.apply(
+                modelNameElement, emptyList(),
+                listOf(createValue(equipmentUidElement, devIndex))
+            ).value
+        ).isEqualTo(getDeviceCol(devIndex, modelNameElement))
+
+        // Lookup with test performed code
+        devIndex = 4
+        assertThat(
+            mapper.apply(
+                modelNameElement, emptyList(),
+                listOf(
+                    createValue(testKitElement, devIndex),
+                    createValue(testPerformedCodeElement, devIndex)
+                )
+            ).value
+        ).isEqualTo(getDeviceCol(devIndex, modelNameElement))
+        assertThat(
+            mapper.apply(
+                modelNameElement, emptyList(),
+                listOf(
+                    createValue(testKitElement, devIndex),
+                    createValue(testPerformedCodeElement, 7) // Provide some other code
+                )
+            ).value
+        ).isNullOrEmpty()
+
+        // Lookup for test devices
+        devIndex = 1
+        assertThat(
+            mapper.apply(
+                modelNameElement, emptyList(),
+                listOf(
+                    createValue(testKitElement, devIndex),
+                    ElementAndValue(processingModeElement, "")
+                )
+            ).value
+        ).isEqualTo(getDeviceCol(devIndex, modelNameElement))
+        assertThat(
+            mapper.apply(
+                modelNameElement, emptyList(),
+                listOf(
+                    createValue(testKitElement, devIndex),
+                    ElementAndValue(processingModeElement, "P")
+                )
+            ).value
+        ).isEqualTo(getDeviceCol(devIndex, modelNameElement))
+        assertThat(
+            mapper.apply(
+                modelNameElement, emptyList(),
+                listOf(
+                    createValue(testKitElement, devIndex),
+                    ElementAndValue(processingModeElement, LIVDLookupMapper.testProcessingModeCode)
+                )
+            ).value
+        ).isEqualTo(getDeviceCol(devIndex, modelNameElement))
+        devIndex = 7
+        assertThat(
+            mapper.apply(
+                modelNameElement, emptyList(),
+                listOf(
+                    createValue(testKitElement, devIndex),
+                    ElementAndValue(processingModeElement, LIVDLookupMapper.testProcessingModeCode)
+                )
+            ).value
+        ).isEqualTo(getDeviceCol(devIndex, modelNameElement))
+        assertThat(
+            mapper.apply(
+                modelNameElement, emptyList(),
+                listOf(
+                    createValue(testKitElement, devIndex),
+                    ElementAndValue(processingModeElement, "")
+                )
+            ).value
+        ).isNullOrEmpty()
+
+        // Test the loop over the different inputs
+        devIndex = 7
+        assertThat(
+            mapper.apply(
+                modelNameElement, emptyList(),
+                listOf(
+                    ElementAndValue(processingModeElement, LIVDLookupMapper.testProcessingModeCode),
+                    ElementAndValue(modelNameElement, ""),
+                    ElementAndValue(equipmentUidElement, ""),
+                    ElementAndValue(deviceIdElement, ""),
+                    createValue(testKitElement, devIndex)
+                )
+            ).value
+        ).isEqualTo(getDeviceCol(devIndex, modelNameElement))
+    }
+
+    @Test
+    fun `test LIVD mapper apply warnings and errors`() {
+        val mapper = LIVDLookupMapper()
+
+        // We get a value, so no warnings or errors.
+        val devIndex = 7
+        var mapperResult = mapper.apply(
+            modelNameElement, emptyList(),
+            listOf(
+                createValue(testKitElement, devIndex),
+                ElementAndValue(processingModeElement, LIVDLookupMapper.testProcessingModeCode)
+            )
+        )
+        assertThat(mapperResult.value.isNullOrEmpty()).isFalse()
+        assertThat(mapperResult.warnings).isEmpty()
+        assertThat(mapperResult.errors).isEmpty()
+
+        // No value, but elements have no fields, so no error or warnings
+        mapperResult = mapper.apply(
+            modelNameElement, emptyList(),
+            listOf(
+                createValue(testKitElement, devIndex),
+                ElementAndValue(processingModeElement, "")
+            )
+        )
+        assertThat(mapperResult.value.isNullOrEmpty()).isTrue()
+        assertThat(mapperResult.warnings).isEmpty()
+        assertThat(mapperResult.errors).isEmpty()
+
+        // Element has fields
+        // CSV field
+        var newModelNameElement = Element(
+            ElementNames.EQUIPMENT_MODEL_NAME.elementName,
+            tableRef = livdTable,
+            tableColumn = LivdTableColumns.MODEL.colName,
+            csvFields = listOf(Element.CsvField("name", null))
+        )
+        mapperResult = mapper.apply(
+            newModelNameElement, emptyList(),
+            listOf(
+                createValue(testKitElement, devIndex),
+                ElementAndValue(processingModeElement, "")
+            )
+        )
+        assertThat(mapperResult.value.isNullOrEmpty()).isTrue()
+        assertThat(mapperResult.warnings).isNotEmpty()
+        assertThat(mapperResult.errors).isEmpty()
+
+        // HL7 field
+        newModelNameElement = Element(
+            ElementNames.EQUIPMENT_MODEL_NAME.elementName,
+            tableRef = livdTable,
+            tableColumn = LivdTableColumns.MODEL.colName,
+            hl7Field = "OBX-1"
+        )
+        mapperResult = mapper.apply(
+            newModelNameElement, emptyList(),
+            listOf(
+                createValue(testKitElement, devIndex),
+                ElementAndValue(processingModeElement, "")
+            )
+        )
+        assertThat(mapperResult.value.isNullOrEmpty()).isTrue()
+        assertThat(mapperResult.warnings).isNotEmpty()
+        assertThat(mapperResult.errors).isEmpty()
+
+        // HL7 output field
+        newModelNameElement = Element(
+            ElementNames.EQUIPMENT_MODEL_NAME.elementName,
+            tableRef = livdTable,
+            tableColumn = LivdTableColumns.MODEL.colName,
+            hl7OutputFields = listOf("OBX-1", "OBX-2")
+        )
+        mapperResult = mapper.apply(
+            newModelNameElement, emptyList(),
+            listOf(
+                createValue(testKitElement, devIndex),
+                ElementAndValue(processingModeElement, "")
+            )
+        )
+        assertThat(mapperResult.value.isNullOrEmpty()).isTrue()
+        assertThat(mapperResult.warnings).isNotEmpty()
+        assertThat(mapperResult.errors).isEmpty()
+
+        // HL7 field and output fields
+        newModelNameElement = Element(
+            ElementNames.EQUIPMENT_MODEL_NAME.elementName,
+            tableRef = livdTable,
+            tableColumn = LivdTableColumns.MODEL.colName,
+            hl7OutputFields = listOf("OBX-1", "OBX-2"),
+            hl7Field = "OBX-1"
+        )
+        mapperResult = mapper.apply(
+            newModelNameElement, emptyList(),
+            listOf(
+                createValue(testKitElement, devIndex),
+                ElementAndValue(processingModeElement, "")
+            )
+        )
+        assertThat(mapperResult.value.isNullOrEmpty()).isTrue()
+        assertThat(mapperResult.warnings).isNotEmpty()
+        assertThat(mapperResult.errors).isEmpty()
     }
 }
