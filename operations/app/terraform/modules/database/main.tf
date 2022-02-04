@@ -1,5 +1,6 @@
 // Postgres Server
 data "azurerm_client_config" "current" {}
+
 resource "azurerm_postgresql_server" "postgres_server" {
   name                         = "${var.resource_prefix}-pgsql"
   location                     = var.location
@@ -128,29 +129,29 @@ resource "azurerm_postgresql_active_directory_administrator" "postgres_aad_admin
 
 // Encryption
 
-resource "azurerm_key_vault_access_policy" "postgres_policy" {
-  key_vault_id = var.application_key_vault_id
-  tenant_id    = data.azurerm_client_config.current.tenant_id
-  object_id    = azurerm_postgresql_server.postgres_server.identity.0.principal_id
+#resource "azurerm_key_vault_access_policy" "postgres_policy" {
+#  key_vault_id = var.application_key_vault_id
+#  tenant_id    = data.azurerm_client_config.current.tenant_id
+#  object_id    = azurerm_postgresql_server.postgres_server.identity.0.principal_id
+#
+#  key_permissions = ["get", "unwrapkey", "wrapkey"]
+#}
 
-  key_permissions = ["get", "unwrapkey", "wrapkey"]
-}
-
-resource "azurerm_key_vault_key" "postgres_server_encryption_key" {
-  name         = "tfex-key-2"
-  key_vault_id = var.application_key_vault_id
-  key_type     = "RSA"
-  key_size     = 2048
-  key_opts     = ["decrypt", "encrypt", "sign", "unwrapKey", "verify", "wrapKey"]
-
-  depends_on = [
-    azurerm_key_vault_access_policy.postgres_policy
-  ]
-}
+#resource "azurerm_key_vault_key" "postgres_server_encryption_key" {
+#  name         = "tfex-key-2"
+#  key_vault_id = var.application_key_vault_id
+#  key_type     = "RSA"
+#  key_size     = 2048
+#  key_opts     = ["decrypt", "encrypt", "sign", "unwrapKey", "verify", "wrapKey"]
+#
+#  depends_on = [
+#    azurerm_key_vault_access_policy.postgres_policy
+#  ]
+#}
 
 resource "azurerm_postgresql_server_key" "postgres_server_key" {
   server_id        = azurerm_postgresql_server.postgres_server.id
-  key_vault_key_id = azurerm_key_vault_key.postgres_server_encryption_key.id
+  key_vault_key_id = var.rsa_key_2048
 }
 
 // Databases

@@ -78,28 +78,28 @@ module "container_registry" {
 # ## 03-Persistent
 # ##########
 
-# module "database" {
-#   source                   = "../../modules/database"
-#   environment              = var.environment
-#   resource_group           = var.resource_group
-#   resource_prefix          = var.resource_prefix
-#   location                 = var.location
-#   rsa_key_2048             = var.rsa_key_2048
-#   aad_group_postgres_admin = var.aad_group_postgres_admin
-#   is_metabase_env          = var.is_metabase_env
-#   use_cdc_managed_vnet     = var.use_cdc_managed_vnet
-#   postgres_user            = data.azurerm_key_vault_secret.postgres_user.value
-#   postgres_pass            = data.azurerm_key_vault_secret.postgres_pass.value
-#   db_sku_name              = var.db_sku_name
-#   db_version               = var.db_version
-#   db_storage_mb            = var.db_storage_mb
-#   db_auto_grow             = var.db_auto_grow
-#   db_prevent_destroy       = var.db_prevent_destroy
-#   db_threat_detection      = var.db_threat_detection
-#   endpoint_subnet = module.network.endpoint_subnet_ids
-#   db_replica =  var.db_replica
-#   application_key_vault_id = module.key_vault.application_key_vault_id
-# }
+module "database" {
+  source                   = "../../modules/database"
+  environment              = var.environment
+  resource_group           = var.resource_group
+  resource_prefix          = var.resource_prefix
+  location                 = var.location
+  rsa_key_2048             = data.azurerm_key_vault_key.pdhtest-2048-key.id
+  aad_group_postgres_admin = var.aad_group_postgres_admin
+  is_metabase_env          = var.is_metabase_env
+  use_cdc_managed_vnet     = var.use_cdc_managed_vnet
+  postgres_user            = data.azurerm_key_vault_secret.postgres_user.value
+  postgres_pass            = data.azurerm_key_vault_secret.postgres_pass.value
+  db_sku_name              = var.db_sku_name
+  db_version               = var.db_version
+  db_storage_mb            = var.db_storage_mb
+  db_auto_grow             = var.db_auto_grow
+  db_prevent_destroy       = var.db_prevent_destroy
+  db_threat_detection      = var.db_threat_detection
+  endpoint_subnet          = module.network.endpoint_subnet_ids
+  db_replica               = var.db_replica
+  application_key_vault_id = module.key_vault.application_key_vault_id
+}
 
 # module "storage" {
 #   source                      = "../../modules/storage"
