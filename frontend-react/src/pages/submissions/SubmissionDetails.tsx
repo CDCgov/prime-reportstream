@@ -6,7 +6,7 @@ import { getStoredOrg } from '../../components/GlobalContextProvider';
 import Spinner from '../../components/Spinner';
 import Title from '../../components/Title';
 import ActionDetailsResource from '../../resources/ActionDetailsResource';
-import { Destination, SubmissionDate } from '../../types/SubmissionDetailsTypes'
+import { Destination } from '../../types/SubmissionDetailsTypes'
 import { ErrorPage } from '../error/ErrorPage';
 
 /* Custom types */
@@ -22,6 +22,11 @@ type DestinationItemProps = {
 
 type SubmissionDetailsProps = {
     actionId: string | undefined
+}
+
+type SubmissionDate = {
+    dateString: string;
+    timeString: string;
 }
 
 /* 
