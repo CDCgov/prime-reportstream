@@ -655,7 +655,6 @@ class QualityFilter : CoolTest() {
         // ALLOW ALL
         ugly("\nTest the allowAll QualityFilter")
         val fakeItemCount = 5
-        var expectItemCount = fakeItemCount
         val file = FileUtilities.createFakeFile(
             metadata,
             settings,
@@ -679,6 +678,7 @@ class QualityFilter : CoolTest() {
         echo("Response to POST: $responseCode")
 
         var passed = true
+        var expectItemCount = fakeItemCount
         // if running in async mode, the initial response will not have destinations - the 'process' action result will
         if (options.asyncProcessMode) {
             val reportId = getReportIdFromResponse(json)
