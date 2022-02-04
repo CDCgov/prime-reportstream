@@ -40,46 +40,7 @@ class BatchDeciderFunction(private val workflowEngine: WorkflowEngine = Workflow
                     // any that should have batched in the last 60 seconds, get count of outstanding BATCH records
                     //  (how many actions with BATCH for receiver
                     .forEach { rec ->
-                        // Calculate how far to look back based on how often this receiver batches.
-                        val backstopTime = OffsetDateTime.now().minusMinutes(
-                            WorkflowEngine.getBatchLookbackMins(
-                                rec.timing?.numberPerDay ?: 1, NUM_BATCH_RETRIES
-                            )
-                        )
-                        // get the number of messages outstanding for this receiver
-                        val recordsToBatch = workflowEngine.db.fetchNumReportsNeedingBatch(
-                            rec.fullName, backstopTime, txn
-                        )
-                        var queueMessages = ceil((recordsToBatch.toDouble() / rec.timing!!.maxReportCount.toDouble()))
-                            .roundToInt()
-                        val logMessage = "$batchDecider found $recordsToBatch for ${rec.fullName}," +
-                            "max size ${rec.timing.maxReportCount}. Queueing $queueMessages messages to BATCH"
-                        if (recordsToBatch > 0) logger.info(logMessage)
-                        else logger.debug(logMessage)
-
-                        var isEmpty = false
-                        // if there are no records to send but the receiver is set on 'send when empty' check if
-                        //  a message should be added anyway
-                        if (rec.timing.whenEmpty.action == Receiver.EmptyOperation.SEND && queueMessages == 0) {
-
-                            val oneDayAgo = OffsetDateTime.now().minusDays(1)
-                            // lazy load this, may not need it if empty file is set to go every batch run
-                            val sentInLastDay: Boolean by lazy {
-                                workflowEngine.db.checkRecentlySent(
-                                    rec.organizationName,
-                                    rec.name,
-                                    oneDayAgo,
-                                    txn
-                                )
-                            }
-                            // determine if we need to send an 'empty' file. This is true if either we send an empty
-                            //  file every time the batch runs for this receiver of if we have not had a SEND
-                            //  action within the last 24 hours
-                            if (!rec.timing.whenEmpty.onlyOncePerDay || !sentInLastDay) {
-                                queueMessages = 1
-                                isEmpty = true
-                            }
-                        }
+                        val (queueMessages, isEmpty) = determineQueueMessageCount(rec, txn)
 
                         repeat(queueMessages) {
                             // build 'batch' event
@@ -91,7 +52,60 @@ class BatchDeciderFunction(private val workflowEngine: WorkflowEngine = Workflow
 
             logger.trace("$batchDecider: Ending")
         } catch (e: Exception) {
+            // Catching all exceptions, so Azure does not auto-implement the queue retry
             logger.error("$batchDecider function exception", e)
         }
+    }
+
+    /**
+     * Determines how many, if any, batch queue messages should be added to the batch queue for [receiver].
+     * Handles checking the receiver's configured whenEmpty element of timing, and adding a batch message
+     * if needed to send empty batch file.
+     *
+     * @param txn DataAccessTransaction to use. If not present, underlying data queries will create their own
+     */
+    internal fun determineQueueMessageCount(receiver: Receiver, txn: DataAccessTransaction?): Pair<Int, Boolean> {
+        // Calculate how far to look back based on how often this receiver batches.
+        val backstopTime = OffsetDateTime.now().minusMinutes(
+            WorkflowEngine.getBatchLookbackMins(
+                receiver.timing?.numberPerDay ?: 1, NUM_BATCH_RETRIES
+            )
+        )
+        // get the number of messages outstanding for this receiver
+        val recordsToBatch = workflowEngine.db.fetchNumReportsNeedingBatch(
+            receiver.fullName, backstopTime, txn
+        )
+        var queueMessages = ceil((recordsToBatch.toDouble() / receiver.timing!!.maxReportCount.toDouble()))
+            .roundToInt()
+        val logMessage = "$batchDecider found $recordsToBatch for ${receiver.fullName}," +
+            "max size ${receiver.timing.maxReportCount}. Queueing $queueMessages messages to BATCH"
+        if (recordsToBatch > 0) logger.info(logMessage)
+        else logger.debug(logMessage)
+
+        var isEmpty = false
+        // if there are no records to send but the receiver is set on 'send when empty' check if
+        //  a message should be added anyway
+        if (receiver.timing.whenEmpty.action == Receiver.EmptyOperation.SEND && queueMessages == 0) {
+
+            val oneDayAgo = OffsetDateTime.now().minusDays(1)
+            // lazy load this, may not need it if empty file is set to go every batch run
+            val sentInLastDay: Boolean by lazy {
+                workflowEngine.db.checkRecentlySent(
+                    receiver.organizationName,
+                    receiver.name,
+                    oneDayAgo,
+                    txn
+                )
+            }
+            // determine if we need to send an 'empty' file. This is true if either we send an empty
+            //  file every time the batch runs for this receiver of if we have not had a SEND
+            //  action within the last 24 hours
+            if (!receiver.timing.whenEmpty.onlyOncePerDay || !sentInLastDay) {
+                queueMessages = 1
+                isEmpty = true
+            }
+        }
+
+        return Pair(queueMessages, isEmpty)
     }
 }

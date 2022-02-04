@@ -2,24 +2,21 @@ package gov.cdc.prime.router.azure
 
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
-import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.FileSettings
-import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
-import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.SettingsProvider
+import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
-import io.mockk.confirmVerified
 import io.mockk.every
 import io.mockk.mockkClass
 import io.mockk.spyk
-import io.mockk.verify
 import org.jooq.tools.jdbc.MockConnection
 import org.jooq.tools.jdbc.MockDataProvider
 import org.jooq.tools.jdbc.MockResult
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class BatchDeciderTests {
     val dataProvider = MockDataProvider { emptyArray<MockResult>() }
@@ -43,12 +40,12 @@ class BatchDeciderTests {
         ),
     )
 
-    private fun makeEngine(metadata: Metadata, settings: SettingsProvider): WorkflowEngine {
-        return WorkflowEngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy)
-            .blobAccess(blobMock).queueAccess(queueMock).build()
+    private fun makeEngine(settings: SettingsProvider): WorkflowEngine {
+        return WorkflowEngine.Builder().metadata(UnitTestUtils.simpleMetadata).settingsProvider(settings)
+            .databaseAccess(accessSpy).blobAccess(blobMock).queueAccess(queueMock).build()
     }
 
-    @BeforeEach
+    @BeforeTest
     fun reset() {
         clearAllMocks()
     }
@@ -58,12 +55,13 @@ class BatchDeciderTests {
         // Setup
         every { queueMock.sendMessage(any()) } returns Unit
         every { timing1.isValid() } returns true
+        every { timing1.numberPerDay } returns 1
+        every { timing1.maxReportCount } returns 1
+        every { timing1.whenEmpty } returns Receiver.WhenEmpty()
         every { timing1.batchInPrevious60Seconds(any()) } returns true
 
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
-        val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        val engine = makeEngine(metadata, settings)
+        val engine = makeEngine(settings)
 
         every { engine.db.fetchNumReportsNeedingBatch(any(), any(), any()) }.answers {
             0
@@ -71,12 +69,11 @@ class BatchDeciderTests {
         every { queueMock.sendMessage(any()) }.returns(Unit)
 
         // Invoke batch decider run
-        BatchDeciderFunction(engine).run("", context = null)
+        var result = BatchDeciderFunction(engine).determineQueueMessageCount(oneOrganization.receivers[0], null)
 
-        // Verify that QueueAccess.sendMessage was not called
-        verify(exactly = 0) { queueMock.sendMessage(any()) }
-
-        confirmVerified(queueMock)
+        // Verify that the reciever will not be put in the batch queue
+        assertEquals(0, result.first)
+        assertEquals(false, result.second)
     }
 
     @Test
@@ -94,23 +91,23 @@ class BatchDeciderTests {
             )
         }
 
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
-        val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        val engine = makeEngine(metadata, settings)
+        val engine = makeEngine(settings)
 
         every { engine.db.fetchNumReportsNeedingBatch(any(), any(), any()) }.answers {
             0
         }
 
         // Invoke batch decider run
+        var result1 = BatchDeciderFunction(engine).determineQueueMessageCount(oneOrganization.receivers[0], null)
+        var result2 = BatchDeciderFunction(engine).determineQueueMessageCount(oneOrganization.receivers[0], null)
         BatchDeciderFunction(engine).run("", context = null)
         BatchDeciderFunction(engine).run("", context = null)
 
-        verify(exactly = 2) { queueMock.sendMessage(any()) }
-        verify(exactly = 0) { accessSpy.checkRecentlySent(any(), any(), any(), any()) }
-
-        confirmVerified(queueMock)
+        assertEquals(1, result1.first)
+        assertEquals(true, result1.second)
+        assertEquals(1, result2.first)
+        assertEquals(true, result2.second)
     }
 
     @Test
@@ -128,10 +125,8 @@ class BatchDeciderTests {
             )
         }
 
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
-        val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        val engine = makeEngine(metadata, settings)
+        val engine = makeEngine(settings)
 
         every { engine.db.fetchNumReportsNeedingBatch(any(), any(), any()) }.answers {
             0
@@ -141,18 +136,18 @@ class BatchDeciderTests {
         }
 
         // Invoke batch decider run
-        BatchDeciderFunction(engine).run("", context = null)
+        var result1 = BatchDeciderFunction(engine).determineQueueMessageCount(oneOrganization.receivers[0], null)
 
         // change response of recentlySent
         every { engine.db.checkRecentlySent(any(), any(), any(), any()) }.answers {
             true
         }
 
-        BatchDeciderFunction(engine).run("", context = null)
+        var result2 = BatchDeciderFunction(engine).determineQueueMessageCount(oneOrganization.receivers[0], null)
 
-        verify(exactly = 1) { queueMock.sendMessage(any()) }
-        verify(exactly = 2) { accessSpy.checkRecentlySent(any(), any(), any(), any()) }
-
-        confirmVerified(queueMock)
+        assertEquals(1, result1.first)
+        assertEquals(true, result1.second)
+        assertEquals(0, result2.first)
+        assertEquals(false, result2.second)
     }
 }
