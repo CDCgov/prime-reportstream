@@ -375,10 +375,10 @@ class LookupTableCommands : CliktCommand(
                 .inlineDiffByWord(true)
                 .ignoreWhiteSpaces(true)
                 .oldTag { start: Boolean? ->
-                    if (true == start) "\u001B[9m" else "\u001B[0m" // Use strikethrough for deleted changes
+                    if (true == start) "\u001B[9;101m" else "\u001B[0m" // Use strikethrough and red for deleted changes
                 }
                 .newTag { start: Boolean? ->
-                    if (true == start) "\u001B[1m" else "\u001B[0m" // Use bold for additions
+                    if (true == start) "\u001B[1;42m" else "\u001B[0m" // Use bold and green for additions
                 }
                 .build()
 
@@ -615,9 +615,10 @@ class LookupTableCreateCommand : GenericLookupTableCommand(
                 throw PrintMessage("\tError creating new table version for $tableName: ${e.message}", true)
             } catch (e: LookupTableEndpointUtilities.Companion.TableConflictException) {
                 val dupVersion = e.message?.substringAfterLast("version")
-                throw PrintMessage(
-                    "\tSkipping New Lookup Table $tableName since it is duplicated with version$dupVersion.", true
+                TermUi.echo(
+                    "Skipping creation of duplicate table $tableName since it is duplicated with version$dupVersion."
                 )
+                return
             }
 
             TermUi.echo(
@@ -822,7 +823,7 @@ class LookupTableLoadAllCommand : GenericLookupTableCommand(
     /**
      * Default directory for tables.
      */
-    private val defaultDir = "./src/test/resources/metadata/tables"
+    private val defaultDir = "./metadata/tables/local"
 
     /**
      * The table name.

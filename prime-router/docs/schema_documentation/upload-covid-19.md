@@ -97,7 +97,7 @@ Translate multiple inbound Y/N/U AOE values to RS values
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
 
-**Table**: LIVD-SARS-CoV-2-latest
+**Table**: LIVD-SARS-CoV-2
 
 **Table Column**: Model
 
@@ -276,7 +276,7 @@ Translate multiple inbound Y/N/U AOE values to RS values
 
 **ReportStream Internal Name**: order_test_date
 
-**Type**: DATE
+**Type**: DATETIME
 
 **PII**: No
 
@@ -1018,11 +1018,11 @@ Translate multiple inbound values into the Pregnancy SNOMED Codes
 
 **PII**: No
 
-**Format**: use value found in the Code column
+**Format**: use value found in the Display column
 
 **Default Value**: P
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Value Sets**
 
@@ -1031,6 +1031,21 @@ Code | Display | System
 D|Debugging|HL7
 P|Production|HL7
 T|Training|HL7
+T|Training|HL7
+T|Training|HL7
+T|Training|HL7
+P|Production|HL7
+P|Production|HL7
+
+**Alt Value Sets**
+
+Code | Display | System
+---- | ------- | ------
+T|TESTING|HL7
+T|INACTIVE|HL7
+T|T|HL7
+P|ACTIVE|HL7
+P|P|HL7
 
 **Documentation**:
 
@@ -1339,7 +1354,7 @@ Translate multiple inbound Y/N/U AOE values to RS values
 
 **Cardinality**: [1..1]
 
-**Table**: LIVD-SARS-CoV-2-latest
+**Table**: LIVD-SARS-CoV-2
 
 **Table Column**: Test Performed LOINC Code
 
@@ -1428,7 +1443,7 @@ Translate multiple inbound Test Result values to RS values
 
 **ReportStream Internal Name**: test_result_date
 
-**Type**: DATE
+**Type**: DATETIME
 
 **PII**: No
 
@@ -1798,6 +1813,16 @@ The FIPS code for the patient's county
 **Documentation**:
 
 The ID number of the lab order from the placer
+
+---
+
+**Name**: processing_mode_code_fromsettings
+
+**ReportStream Internal Name**: processing_mode_code_fromsettings
+
+**PII**: No
+
+**Cardinality**: [0..1]
 
 ---
 
