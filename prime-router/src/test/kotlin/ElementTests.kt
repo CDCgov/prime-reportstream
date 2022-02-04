@@ -10,6 +10,11 @@ import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import assertk.assertions.startsWith
+import gov.cdc.prime.router.metadata.ConcatenateMapper
+import gov.cdc.prime.router.metadata.ElementAndValue
+import gov.cdc.prime.router.metadata.Mapper
+import gov.cdc.prime.router.metadata.NullMapper
+import gov.cdc.prime.router.metadata.TrimBlanksMapper
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime

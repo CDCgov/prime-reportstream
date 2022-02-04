@@ -5,6 +5,8 @@ import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.CovidResultMetadata
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
+import gov.cdc.prime.router.metadata.ElementAndValue
+import gov.cdc.prime.router.metadata.Mappers
 import org.apache.logging.log4j.kotlin.Logging
 import tech.tablesaw.api.Row
 import tech.tablesaw.api.StringColumn
@@ -63,8 +65,7 @@ enum class Options {
  * @property originalCount The original number of items in the report
  * @property filterName The name of the filter function that removed the rows
  * @property filterArgs The arguments used in the filter function
- * @property filteredCount ?
- * @property filteredTrackingElements The trackingElement values of the rows removed.
+ * @property filteredTrackingElement The trackingElement value of the rows removed.
  * Note that we can't guarantee the Sender is sending good unique trackingElement values.
  */
 data class ReportStreamFilterResult(
@@ -858,7 +859,7 @@ class Report : Logging {
             return mergedReport
         }
 
-        fun createItemLineages(parentReports: List<Report>, childReport: Report): List<ItemLineage> {
+        private fun createItemLineages(parentReports: List<Report>, childReport: Report): List<ItemLineage> {
             var childRowNum = 0
             val itemLineages = mutableListOf<ItemLineage>()
             parentReports.forEach { parentReport ->

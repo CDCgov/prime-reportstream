@@ -15,11 +15,10 @@ import ca.uhn.hl7v2.preparser.PreParser
 import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.router.ActionError
 import gov.cdc.prime.router.ActionLog
+import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.Element
-import gov.cdc.prime.router.ElementAndValue
 import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.InvalidHL7Message
-import gov.cdc.prime.router.Mapper
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
@@ -27,7 +26,9 @@ import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Source
 import gov.cdc.prime.router.ValueSet
+import gov.cdc.prime.router.metadata.ElementAndValue
 import gov.cdc.prime.router.metadata.LookupTable
+import gov.cdc.prime.router.metadata.Mapper
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.InputStream
 import java.io.OutputStream
@@ -86,15 +87,27 @@ class Hl7Serializer(
     }
 
     /**
-     * Write a report with BHS and FHS segments and multiple items
+     * Write a report with BHS and FHS segments and multiple items. [sendingApplicationReport],
+     * [receivingApplicationReport], and [receivingFacilityReport] are used for empty batch generation and will be used
+     * if passed in (instead of pulling them from the 1st record)
      */
     fun writeBatch(
         report: Report,
         outputStream: OutputStream,
+        sendingApplicationReport: String? = null,
+        receivingApplicationReport: String? = null,
+        receivingFacilityReport: String? = null
     ) {
         // Dev Note: HAPI doesn't support a batch of messages, so this code creates
         // these segments by hand
-        outputStream.write(createHeaders(report).toByteArray())
+        outputStream.write(
+            createHeaders(
+                report,
+                sendingApplicationReport,
+                receivingApplicationReport,
+                receivingFacilityReport
+            ).toByteArray()
+        )
         report.itemIndices.map {
             val message = createMessage(report, it)
             outputStream.write(message.toByteArray())
@@ -339,12 +352,11 @@ class Hl7Serializer(
             }
 
             // Second, we process all the element raw values through mappers and defaults.
-            schema.elements.forEach {
-                val mappedResult = it.processValue(mappedRows, schema, sender = sender)
-                mappedRows[it.name] = mappedResult.value ?: ""
-                errors.addAll(mappedResult.errors.map { it.detailMsg() })
-                warnings.addAll(mappedResult.warnings.map { it.detailMsg() })
-            }
+            val errorActionLogs = mutableListOf<ActionLogDetail>()
+            val warningActionLogs = mutableListOf<ActionLogDetail>()
+            schema.processValues(mappedRows, errorActionLogs, warningActionLogs, sender = sender)
+            errors.addAll(errorActionLogs.map { it.detailMsg() })
+            warnings.addAll(warningActionLogs.map { it.detailMsg() })
         } catch (e: Exception) {
             val msg = "${e.localizedMessage} ${e.stackTraceToString()}"
             logger.error(msg)
@@ -1215,7 +1227,7 @@ class Hl7Serializer(
         } else {
             rawObx19Value
         }
-        terser.set(formPathSpec("OBX-11", aoeRep), "F")
+        terser.set(formPathSpec("OBX-11", aoeRep), report.getString(row, "test_result_status"))
         terser.set(formPathSpec("OBX-14", aoeRep), date)
         // some states want the observation date for the AOE questions as well
         terser.set(formPathSpec("OBX-19", aoeRep), obx19Value)
@@ -1391,10 +1403,24 @@ class Hl7Serializer(
         }
     }
 
-    private fun createHeaders(report: Report): String {
-        val sendingApplicationReport = report.getString(0, "sending_application") ?: ""
-        val receivingApplicationReport = report.getString(0, "receiving_application") ?: ""
-        val receivingFacilityReport = report.getString(0, "receiving_facility") ?: ""
+    /**
+     * Creates the headers for hl7 batch. Generally the [sendingApplication], [receivingApplication], and
+     * [recievingFacility] will come from the first item in the file. In the case of empty batch, it
+     * must be passed in.
+     */
+    private fun createHeaders(
+        report: Report,
+        sendingApplicationReportIn: String? = null,
+        receivingApplicationReportIn: String? = null,
+        receivingFacilityReportIn: String? = null
+    ): String {
+
+        val sendingApplicationReport = sendingApplicationReportIn
+            ?: (report.getString(0, "sending_application") ?: "")
+        val receivingApplicationReport = receivingApplicationReportIn
+            ?: (report.getString(0, "receiving_application") ?: "")
+        val receivingFacilityReport = receivingFacilityReportIn
+            ?: (report.getString(0, "receiving_facility") ?: "")
 
         var sendingAppTruncationLimit: Int? = null
         var receivingAppTruncationLimit: Int? = null

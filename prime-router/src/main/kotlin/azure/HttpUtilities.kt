@@ -1,5 +1,9 @@
 package gov.cdc.prime.router.azure
 
+import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
@@ -25,6 +29,15 @@ class HttpUtilities {
         const val oldApi = "/api/reports"
         const val watersApi = "/api/waters"
         const val tokenApi = "/api/token"
+
+        // Ignoring unknown properties because we don't require them. -DK
+        private val mapper = jacksonObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+
+        init {
+            // Format OffsetDateTime as an ISO string
+            mapper.registerModule(JavaTimeModule())
+            mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+        }
 
         /**
          * Last modified time header value formatter.
@@ -63,6 +76,17 @@ class HttpUtilities {
                 .createResponseBuilder(HttpStatus.OK)
                 .header(HttpHeaders.CONTENT_TYPE, jsonMediaType)
                 .also { addHeaderIfModified(it, lastModified) }
+                .build()
+        }
+
+        fun <T> okJSONResponse(
+            request: HttpRequestMessage<String?>,
+            body: T
+        ): HttpResponseMessage {
+            return request
+                .createResponseBuilder(HttpStatus.OK)
+                .header(HttpHeaders.CONTENT_TYPE, jsonMediaType)
+                .body(mapper.writeValueAsString(body))
                 .build()
         }
 
@@ -349,4 +373,5 @@ class HttpUtilities {
     }
 }
 
-class HttpException(message: String, val code: HttpStatus) : Error(message)
+open class HttpException(message: String, val code: HttpStatus) : Error(message)
+class HttpNotFoundException(message: String) : HttpException(message, HttpStatus.NOT_FOUND)
