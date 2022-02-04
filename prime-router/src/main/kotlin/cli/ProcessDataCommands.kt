@@ -5,7 +5,6 @@ import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.groups.mutuallyExclusiveOptions
 import com.github.ajalt.clikt.parameters.groups.single
 import com.github.ajalt.clikt.parameters.options.convert
-import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.int
@@ -36,6 +35,11 @@ sealed class InputSource {
     data class FakeSource(val count: Int) : InputSource()
     data class DirSource(val dirName: String) : InputSource()
     data class ListOfFilesSource(val commaSeparatedList: String) : InputSource() // supports merge.
+}
+
+sealed class InputClientInfo {
+    data class InputSchema(val schemaName: String) : InputClientInfo()
+    data class InputClient(val clientName: String) : InputClientInfo()
 }
 
 /**
@@ -96,17 +100,19 @@ class ProcessData(
             completionCandidates = CompletionCandidates.Path
         ).convert { InputSource.DirSource(it) },
     ).single()
-    private val inputSchema by option(
-        "--input-schema",
-        metavar = "<schema_name>",
-        help = "interpret input according to this schema"
-    )
 
-    private val inputClient by option(
-        "--input-client",
-        metavar = "<client_name>",
-        help = "interpret input according to this client"
-    ).default("")
+    private val inputClientInfo: InputClientInfo? by mutuallyExclusiveOptions(
+        option(
+            "--input-schema",
+            metavar = "<schema_name>",
+            help = "interpret input according to this schema"
+        ).convert { InputClientInfo.InputSchema(it) },
+        option(
+            "--input-client",
+            metavar = "<client_name>",
+            help = "interpret input according to this client"
+        ).convert {  InputClientInfo.InputClient(it) }
+    ).single()
 
     // Actions
     private val validate by option(
@@ -212,13 +218,15 @@ class ProcessData(
 
     private fun mergeReports(
         metadata: Metadata,
+        schema: Schema?,
+        sender: Sender?,
         settings: SettingsProvider,
         listOfFiles: String
     ): Report {
         if (listOfFiles.isEmpty()) error("No files to merge.")
         val files = listOfFiles.split(",", " ").filter { it.isNotBlank() }
         if (files.isEmpty()) error("No files to merge found in comma separated list.  Need at least one file.")
-        val reports = files.map { readReportFromFile(metadata, settings, it) }
+        val reports = files.map { readReportFromFile(metadata, schema, sender, settings, it) }
         echo("Merging ${reports.size} reports.")
         return Report.merge(reports)
     }
@@ -235,23 +243,11 @@ class ProcessData(
 
     private fun readReportFromFile(
         metadata: Metadata,
+        schema: Schema?,
+        sender: Sender?,
         settings: SettingsProvider,
         fileName: String
     ): Report {
-        val (schema, sender) = if (!inputClient.isNullOrEmpty()) {
-            val sender = settings.findSender(inputClient)
-            Pair(
-                sender?.let {
-                    metadata.findSchema(it.schemaName) ?: error("Schema $inputClient is not found")
-                },
-                sender
-            )
-        } else {
-            val schName = inputSchema?.lowercase() ?: ""
-            metadata.findSchema(schName) ?: error("Schema $inputSchema is not found")
-            Pair(metadata.findSchema(schName), null)
-        }
-
         val schemaName = schema?.name as String
         val file = File(fileName)
         if (!file.exists()) error("$fileName does not exist")
@@ -377,28 +373,46 @@ class ProcessData(
         val hl7Serializer = Hl7Serializer(metadata, fileSettings)
         val redoxSerializer = RedoxSerializer(metadata)
         echo("Loaded schema and receivers")
+
+        val (schema, sender) = when (inputClientInfo) {
+            is InputClientInfo.InputClient -> {
+                val clientName = (inputClientInfo as InputClientInfo.InputClient).clientName
+                val sender = fileSettings.findSender(clientName)
+                Pair(
+                    sender?.let {
+                        metadata.findSchema(it.schemaName) ?: error("Schema $clientName is not found")
+                    },
+                    sender
+                )
+            }
+            is InputClientInfo.InputSchema -> {
+                val inputSchema = (inputClientInfo as InputClientInfo.InputSchema).schemaName
+                val schName = inputSchema.lowercase()
+                metadata.findSchema(schName) ?: error("Schema $inputSchema is not found")
+                Pair(metadata.findSchema(schName), null)
+            }
+            else -> {
+                error("input schema or client's name must be specified")
+            }
+        }
+
         // Gather input source
         var inputReport: Report = when (inputSource) {
             is InputSource.ListOfFilesSource ->
-                mergeReports(metadata, fileSettings, (inputSource as InputSource.ListOfFilesSource).commaSeparatedList)
+                mergeReports(
+                    metadata, schema, sender, fileSettings,
+                    (inputSource as InputSource.ListOfFilesSource).commaSeparatedList
+                )
             is InputSource.FileSource ->
-                readReportFromFile(metadata, fileSettings, (inputSource as InputSource.FileSource).fileName)
+                readReportFromFile(
+                    metadata, schema, sender, fileSettings,
+                    (inputSource as InputSource.FileSource).fileName
+                )
             is InputSource.DirSource ->
                 TODO("Dir source is not implemented")
             is InputSource.FakeSource -> {
-                val schema = if (!inputClient.isNullOrEmpty()) {
-                    fileSettings.findSender(inputClient)?.let {
-                        metadata.findSchema(it.schemaName) ?: error("Schema $inputClient is not found")
-                    }
-                } else {
-                    val schName = inputSchema?.lowercase() ?: ""
-                    metadata.findSchema(schName)
-                } ?: when (inputClient) {
-                    "" -> error("Schema $inputSchema is not found")
-                    else -> error("Schema $inputClient is not found")
-                }
                 FakeReport(metadata).build(
-                    schema,
+                    schema as Schema,
                     (inputSource as InputSource.FakeSource).count,
                     FileSource("fake"),
                     targetStates,
