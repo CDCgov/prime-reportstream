@@ -329,6 +329,39 @@
       schemaName: upload-covid-19
       format: CSV
 
+
+- name: "corebiolabs-oh"
+  description: "Core Bio Labs, Ohio - CSV Uploader"
+  jurisdiction: "FEDERAL"
+  stateCode: null
+  countyName: null
+  filters: []
+  senders:
+    - name: "default"
+      organizationName: "corebiolabs-oh"
+      format: "CSV"
+      topic: "covid-19"
+      customerStatus: "testing"
+      schemaName: "upload-covid-19"
+      keys: null
+      processingType: "sync"
+
+- name: "ocrapidtest-ca"
+  description: "OC Rapid Test (CA) - CSV Uploader"
+  jurisdiction: "FEDERAL"
+  stateCode: null
+  countyName: null
+  filters: []
+  senders:
+    - name: "default"
+      organizationName: "ocrapidtest-ca"
+      format: "CSV"
+      topic: "covid-19"
+      customerStatus: "testing"
+      schemaName: "upload-covid-19"
+      keys: null
+      processingType: "sync"
+
 - name: "sdilabs-ca"
   description: "SDI Labs - CA"
   jurisdiction: "FEDERAL"

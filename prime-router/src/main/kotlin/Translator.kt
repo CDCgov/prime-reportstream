@@ -22,7 +22,7 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
         val useValueSet: Map<String, String>,
         val useMapper: Map<String, Mapper>,
         val useDefault: Map<String, String>,
-        val missing: Set<String>,
+        val missing: Set<String>
     )
 
     data class RoutedReport(
@@ -296,7 +296,11 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
      * Build the mapping that will translate a one schema to another. The mapping
      * can be used for multiple translations.
      */
-    fun buildMapping(toSchema: Schema, fromSchema: Schema, defaultValues: DefaultValues): Mapping {
+    fun buildMapping(
+        toSchema: Schema,
+        fromSchema: Schema,
+        defaultValues: DefaultValues
+    ): Mapping {
         if (toSchema.topic != fromSchema.topic) error("Trying to match schema with different topics")
 
         val useDirectly = mutableMapOf<String, String>()
