@@ -35,6 +35,7 @@ import { EditReceiverSettings } from "./components/Admin/EditReceiverSettings";
 import { EditSenderSettings } from "./components/Admin/EditSenderSettings";
 
 import "react-toastify/dist/ReactToastify.css";
+import SubmissionDetails from "./pages/submissions/SubmissionDetails";
 
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
 
@@ -140,6 +141,11 @@ const App = () => {
                                 {/* TODO: AuthorizedRoute needs to take many potential auth groups.
                                  *  We should fix this when we refactor our permissions layer.
                                  */}
+                                <AuthorizedRoute
+                                    path="/submissions/:actionId"
+                                    authorize={PERMISSIONS.PRIME_ADMIN}
+                                    component={SubmissionDetails}
+                                />
                                 <AuthorizedRoute
                                     path="/submissions"
                                     authorize={PERMISSIONS.PRIME_ADMIN}

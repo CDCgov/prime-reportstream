@@ -23,4 +23,22 @@ export default class ActionDetailsResource extends AuthResource {
     pk() {
         return `${this.submissionId}-${this.submitter}`;
     }
+
+    /* 
+       Since we won't be using urlRoot to build our urls we still need to tell rest hooks
+       how to uniquely identify this Resource
+    */
+    static get key() {
+        return "ActionDetailsResource";
+    }
+
+    static url(searchParams: {
+        actionId: string;
+        organization: string;
+    }): string {
+        if (searchParams && Object.keys(searchParams).length) {
+            return `${process.env.REACT_APP_BACKEND_URL}/api/history/${searchParams.organization}/submissions/${searchParams.actionId}`;
+        }
+        throw new Error("Action details require an ActionID to retrieve");
+    }
 }

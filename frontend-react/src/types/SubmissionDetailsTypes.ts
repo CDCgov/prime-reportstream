@@ -1,11 +1,20 @@
+export interface SubmissionDetailsParams {
+    actionId: number;
+}
+
 export interface Destination {
-    orgId: string;
+    organization_id: string;
     organization: string;
     service: string;
     filteredReportRows: string[];
-    sendingAt: string;
+    sending_at: string;
     itemCount: number;
     sentReports: string[];
+}
+
+export interface SubmissionDate {
+    dateString: string;
+    timeString: string;
 }
 
 export interface ReportWarning {
