@@ -124,7 +124,10 @@ class LIVDLookupMapper : Mapper {
     companion object {
         private val standard99ELRTypes = listOf("EUA", "DII", "DIT", "DIM", "MNT", "MNI", "MNM")
 
-        private const val testProcessingModeCode = "T"
+        /**
+         * The value for the processing mode code for test data.
+         */
+        internal const val testProcessingModeCode = "T"
 
         /**
          * Does a lookup in the LIVD table based on the element Id

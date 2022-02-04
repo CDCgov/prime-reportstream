@@ -9,7 +9,7 @@ import {
 export const TextInputComponent = (params: {
     fieldname: string;
     label: string;
-    defaultvalue: string;
+    defaultvalue: string | null;
     savefunc: (val: string) => void;
     disabled?: boolean;
 }): JSX.Element => {
@@ -24,7 +24,7 @@ export const TextInputComponent = (params: {
                     id={key}
                     name={key}
                     type="text"
-                    defaultValue={params.defaultvalue}
+                    defaultValue={params.defaultvalue || ""}
                     data-testid={key}
                     maxLength={255}
                     onChange={(e) => params.savefunc(e?.target?.value || "")}
