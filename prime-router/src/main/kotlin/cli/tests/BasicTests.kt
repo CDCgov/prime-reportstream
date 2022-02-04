@@ -655,6 +655,7 @@ class QualityFilter : CoolTest() {
         // ALLOW ALL
         ugly("\nTest the allowAll QualityFilter")
         val fakeItemCount = 5
+        var expectItemCount = fakeItemCount
         val file = FileUtilities.createFakeFile(
             metadata,
             settings,
@@ -690,13 +691,14 @@ class QualityFilter : CoolTest() {
                 for (result in processResults.values)
                     passed = passed &&
                         examineProcessResponse(result) &&
-                        checkJsonItemCountForReceiver(qualityAllReceiver, fakeItemCount, result!!)
+                        checkJsonItemCountForReceiver(qualityAllReceiver, expectItemCount, result!!)
             }
         } else
-            passed = passed && checkJsonItemCountForReceiver(qualityAllReceiver, fakeItemCount, json)
+            passed = passed && checkJsonItemCountForReceiver(qualityAllReceiver, expectItemCount, json)
 
         // QUALITY_PASS
         ugly("\nTest a QualityFilter that allows some data through")
+        expectItemCount = fakeItemCount - 2 // Removed 2 items
         val file2 = FileUtilities.createFakeFile(
             metadata,
             settings,
@@ -730,13 +732,14 @@ class QualityFilter : CoolTest() {
                 for (result in processResults2.values)
                     passed = passed &&
                         examineProcessResponse(result) &&
-                        checkJsonItemCountForReceiver(qualityGoodReceiver, fakeItemCount, result!!)
+                        checkJsonItemCountForReceiver(qualityGoodReceiver, expectItemCount, result!!)
             }
         } else
-            passed = passed && checkJsonItemCountForReceiver(qualityGoodReceiver, 3, json2)
+            passed = passed && checkJsonItemCountForReceiver(qualityGoodReceiver, expectItemCount, json2)
 
         // FAIL
         ugly("\nTest a QualityFilter that allows NO data through.")
+        expectItemCount = 0 // No Item
         val file3 = FileUtilities.createFakeFile(
             metadata,
             settings,
@@ -770,13 +773,14 @@ class QualityFilter : CoolTest() {
                 for (result in processResults3.values)
                     passed = passed &&
                         examineProcessResponse(result) &&
-                        checkJsonItemCountForReceiver(qualityFailReceiver, fakeItemCount, result!!)
+                        checkJsonItemCountForReceiver(qualityFailReceiver, expectItemCount, result!!)
             }
         } else
-            passed = passed && checkJsonItemCountForReceiver(qualityFailReceiver, 0, json3)
+            passed = passed && checkJsonItemCountForReceiver(qualityFailReceiver, expectItemCount, json3)
 
         // QUALITY_REVERSED
         ugly("\nTest the REVERSE of the QualityFilter that allows some data through")
+        expectItemCount = 2
         val file4 = FileUtilities.createFakeFile(
             metadata,
             settings,
@@ -810,10 +814,10 @@ class QualityFilter : CoolTest() {
                 for (result in processResults4.values)
                     passed = passed &&
                         examineProcessResponse(result) &&
-                        checkJsonItemCountForReceiver(qualityReversedReceiver, fakeItemCount, result!!)
+                        checkJsonItemCountForReceiver(qualityReversedReceiver, expectItemCount, result!!)
             }
         } else
-            passed = passed && checkJsonItemCountForReceiver(qualityReversedReceiver, 2, json4)
+            passed = passed && checkJsonItemCountForReceiver(qualityReversedReceiver, expectItemCount, json4)
 
         return passed
     }
