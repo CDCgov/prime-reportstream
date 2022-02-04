@@ -22,6 +22,7 @@ import org.jooq.Configuration
 import org.junit.jupiter.api.BeforeEach
 import java.time.OffsetDateTime
 import java.util.UUID
+import java.util.logging.Level
 import java.util.logging.Logger
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
@@ -214,14 +215,13 @@ class SendFunctionTests {
         }
         assertThat(er.message!!.startsWith("All retries failed."))
 
-
         // Verify
         assertThat(nextEvent).isNotNull()
         assertThat(nextEvent!!.eventAction).isEqualTo(Event.EventAction.SEND_ERROR)
         assertThat(nextEvent!!.retryToken).isNull()
         verify { anyConstructed<ActionHistory>().setActionType(TaskAction.send_error) }
     }
-    
+
     @Test
     fun `Test with a bad message`() {
         // Setup
@@ -234,5 +234,4 @@ class SendFunctionTests {
         // Verify
         verify(atLeast = 1) { logger.log(Level.SEVERE, any(), any<Throwable>()) }
     }
-
 }
