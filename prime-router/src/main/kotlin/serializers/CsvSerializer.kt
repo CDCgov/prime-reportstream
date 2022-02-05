@@ -49,8 +49,8 @@ class CsvSerializer(val metadata: Metadata) : Logging {
         val warnings: List<ActionLogDetail>,
     )
 
-    fun readExternal(schemaName: String, input: InputStream, source: Source): ReadResult {
-        return readExternal(schemaName, input, listOf(source))
+    fun readExternal(schemaName: String, input: InputStream, source: Source, sender: Sender? = null): ReadResult {
+        return readExternal(schemaName, input, listOf(source), sender = sender)
     }
 
     fun readExternal(
