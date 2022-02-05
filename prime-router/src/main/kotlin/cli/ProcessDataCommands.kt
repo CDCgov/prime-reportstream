@@ -19,6 +19,8 @@ import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.Schema
+import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Translator
 import gov.cdc.prime.router.serializers.CsvSerializer
@@ -111,7 +113,7 @@ class ProcessData(
             "--input-client",
             metavar = "<client_name>",
             help = "interpret input according to this client"
-        ).convert {  InputClientInfo.InputClient(it) }
+        ).convert { InputClientInfo.InputClient(it) }
     ).single()
 
     // Actions
