@@ -138,15 +138,20 @@ function SubmissionDetails() {
     );
     const submissionDate = generateSubmissionDate(actionDetails.submittedAt)
 
-    return (
-        <div
-            className="grid-container margin-bottom-10"
-            data-testid="container">
-            <div className="grid-col-12">
-                {/* TODO: why does the spinner take the whole dang page?! */}
-                <NetworkErrorBoundary
-                    fallbackComponent={() => <ErrorPage type="page" />}
-                >
+    if (!actionDetails) {
+        return (
+            <ErrorPage type="page" />
+        )
+    } else {
+        return (
+            <div
+                className="grid-container margin-bottom-10"
+                data-testid="container">
+                <div className="grid-col-12">
+                    {/* TODO: why does the spinner take the whole dang page?! */}
+                    {/* <NetworkErrorBoundary
+                        fallbackComponent={() => <ErrorPage type="page" />}
+                    > */}
                     <Suspense fallback={<Title title='Loading info...' />}>
                         <Title
                             preTitle={
@@ -168,10 +173,11 @@ function SubmissionDetails() {
                             ))
                         }
                     </Suspense>
-                </NetworkErrorBoundary>
+                    {/* </NetworkErrorBoundary> */}
+                </div>
             </div>
-        </div>
-    );
+        );
+    }
 }
 
 export default SubmissionDetails;
