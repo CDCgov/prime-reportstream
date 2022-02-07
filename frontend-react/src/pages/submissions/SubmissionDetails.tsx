@@ -34,10 +34,14 @@ type SubmissionDate = {
     necessary date and time string formats for this page.
 
     @param dateTimeString - the value representing when a report was sent, returned
-    by the API         
+    by the API  
+    
+    @returns SubmissionDate
+    dateString format: 1 Jan 2022
+    timeString format: 3:00 PM
 */
 // TODO: Refactor, maybe??
-const generateSubmissionDate = (dateTimeString: string): SubmissionDate => {
+export const generateSubmissionDate = (dateTimeString: string): SubmissionDate => {
     const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
         "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
     ];
@@ -71,7 +75,7 @@ const generateSubmissionDate = (dateTimeString: string): SubmissionDate => {
     @param item - the title of a property; e.g. Report ID
     @param content - the content of a property; e.g. 000000-0000-0000-000000
 */
-function DetailItem({ item, content, subItem }: DetailItemProps) {
+export function DetailItem({ item, content, subItem }: DetailItemProps) {
     return (
         <div style={{
             'display': 'flex',
@@ -91,7 +95,7 @@ function DetailItem({ item, content, subItem }: DetailItemProps) {
     @param destinationObj - a single object from the destinations array
     in the history/submissions details API
 */
-function DestinationItem({ destinationObj }: DestinationItemProps) {
+export function DestinationItem({ destinationObj }: DestinationItemProps) {
     const submissionDate = generateSubmissionDate(destinationObj.sending_at) || "unsent"
     return (
         <div style={{
@@ -135,7 +139,9 @@ function SubmissionDetails() {
     const submissionDate = generateSubmissionDate(actionDetails.submittedAt)
 
     return (
-        <div className="grid-container margin-bottom-10">
+        <div
+            className="grid-container margin-bottom-10"
+            data-testid="container">
             <div className="grid-col-12">
                 {/* TODO: why does the spinner take the whole dang page?! */}
                 <NetworkErrorBoundary
