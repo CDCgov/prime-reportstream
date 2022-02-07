@@ -122,7 +122,6 @@ class Metadata : Logging {
         val metadataDir = File(metadataPath)
         if (!metadataDir.isDirectory) error("Expected metadata directory")
         loadValueSetCatalog(metadataDir.toPath().resolve(valuesetsSubdirectory).toString())
-        loadLookupTables(metadataDir.toPath().resolve(tableSubdirectory).toString())
         loadDatabaseLookupTables()
         loadSchemaCatalog(metadataDir.toPath().resolve(schemasSubdirectory).toString())
         loadFileNameTemplates(metadataDir.toPath().resolve(fileNameTemplatesSubdirectory).toString())
@@ -352,19 +351,6 @@ class Metadata : Logging {
      * Last time the database lookup tables were checked.
      */
     internal var tablelastCheckedAt = Instant.now()
-
-    private fun loadLookupTables(filePath: String): Metadata {
-        val catalogDir = File(filePath)
-        if (!catalogDir.isDirectory) error("Expected ${catalogDir.absolutePath} to be a directory")
-        try {
-            readAllTables(catalogDir) { tableName: String, table: LookupTable ->
-                loadLookupTable(tableName, table)
-            }
-            return this
-        } catch (e: Exception) {
-            throw Exception("Error loading tables in '$filePath'", e)
-        }
-    }
 
     fun loadLookupTable(name: String, table: LookupTable): Metadata {
         lookupTableStore = lookupTableStore.plus(name.lowercase() to table)
