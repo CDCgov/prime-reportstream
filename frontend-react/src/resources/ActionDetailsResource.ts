@@ -42,14 +42,6 @@ export default class ActionDetailsResource extends AuthResource {
         throw new Error("Action details require an ActionID to retrieve");
     }
 
-    static listDummy(many: number): ActionDetailsResource[] {
-        let list: ActionDetailsResource[] = [];
-        for (let i in list) {
-            list[i] = ActionDetailsResource.dummy();
-        }
-        return list;
-    }
-
     static dummy(): ActionDetailsResource {
         /* 
             The rest of this will be pertinent to fill in later, but is okay

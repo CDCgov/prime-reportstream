@@ -1,10 +1,7 @@
 import { render, screen } from "@testing-library/react";
-import TestRenderer from 'react-test-renderer';
 import ActionDetailsResource from "../../resources/ActionDetailsResource";
 import SubmissionDetails, { DestinationItem, DetailItem } from './SubmissionDetails'
 import { BrowserRouter } from "react-router-dom";
-import { Destination } from "../../types/SubmissionDetailsTypes";
-import { Component } from "spinners-react";
 
 const mockData: ActionDetailsResource = ActionDetailsResource.dummy()
 jest.mock('rest-hooks', () => ({
@@ -20,7 +17,7 @@ describe("SubmissionDetails w/ data", () => {
             TODO: Custom renderers to handle Router, etc. when
             we need to use more complex render settings
         */
-        let component = render(
+        render(
             <BrowserRouter>
                 <SubmissionDetails />
             </BrowserRouter>

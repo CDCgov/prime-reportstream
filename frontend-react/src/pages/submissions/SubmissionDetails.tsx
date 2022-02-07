@@ -1,4 +1,3 @@
-import { Button } from '@trussworks/react-uswds';
 import { Suspense } from 'react';
 import { useParams } from 'react-router-dom';
 import { NetworkErrorBoundary, useResource } from 'rest-hooks';
@@ -149,9 +148,9 @@ function SubmissionDetails() {
                 data-testid="container">
                 <div className="grid-col-12">
                     {/* TODO: why does the spinner take the whole dang page?! */}
-                    {/* <NetworkErrorBoundary
+                    <NetworkErrorBoundary
                         fallbackComponent={() => <ErrorPage type="page" />}
-                    > */}
+                    >
                     <Suspense fallback={<Title title='Loading info...' />}>
                         <Title
                             preTitle={
@@ -173,7 +172,7 @@ function SubmissionDetails() {
                             ))
                         }
                     </Suspense>
-                    {/* </NetworkErrorBoundary> */}
+                    </NetworkErrorBoundary>
                 </div>
             </div>
         );
