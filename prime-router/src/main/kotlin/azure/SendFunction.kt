@@ -50,72 +50,80 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
         @BindingName("NextVisibleTime") nextVisibleTime: Date? = null,
         @BindingName("InsertionTime") insertionTime: Date? = null,
     ) {
-        val event = Event.parseQueueMessage(message) as ReportEvent
-        val actionHistory = ActionHistory(TaskAction.send, context, event.isEmptyBatch)
-        actionHistory.trackActionParams(message)
-        context.logger.info(
-            "Started Send Function: $message, id=$messageId," +
-                " dequeueCount=$dequeueCount, " +
-                " nextVisibleTime=$nextVisibleTime, insertionTime=$insertionTime"
-        )
         try {
-            if (event.eventAction != Event.EventAction.SEND) {
-                context.logger.warning("Send function received a $message")
-                return
-            }
-            val nextEvent = workflowEngine.handleReportEvent(event, context) { header, retryToken, _ ->
-                val receiver = header.receiver
-                    ?: error("Internal Error: could not find ${header.task.receiverName}")
-                val inputReportId = header.reportFile.reportId
-                actionHistory.trackExistingInputReport(inputReportId)
-                val serviceName = receiver.fullName
-                val nextRetryItems = mutableListOf<String>()
-                if (receiver.transport == null) {
-                    actionHistory.setActionType(TaskAction.send_warning)
-                    actionHistory.trackActionResult("Not sending $inputReportId to $serviceName: No transports defined")
-                } else {
-                    val retryItems = retryToken?.items
-                    val sentReportId = UUID.randomUUID() // each sent report gets its own UUID
-                    val nextRetry = getTransport(receiver.transport)?.send(
-                        receiver.transport,
-                        header,
-                        sentReportId,
-                        retryItems,
+            val event = Event.parseQueueMessage(message) as ReportEvent
+            val actionHistory = ActionHistory(TaskAction.send, context, event.isEmptyBatch)
+
+            try {
+                actionHistory.trackActionParams(message)
+                context.logger.info(
+                    "Started Send Function: $message, id=$messageId," +
+                        " dequeueCount=$dequeueCount, " +
+                        " nextVisibleTime=$nextVisibleTime, insertionTime=$insertionTime"
+                )
+                if (event.eventAction != Event.EventAction.SEND) {
+                    context.logger.warning("Send function received a $message")
+                    return
+                }
+                val nextEvent = workflowEngine.handleReportEvent(event, context) { header, retryToken, _ ->
+                    val receiver = header.receiver
+                        ?: error("Internal Error: could not find ${header.task.receiverName}")
+                    val inputReportId = header.reportFile.reportId
+                    actionHistory.trackExistingInputReport(inputReportId)
+                    val serviceName = receiver.fullName
+                    val nextRetryItems = mutableListOf<String>()
+                    if (receiver.transport == null) {
+                        actionHistory.setActionType(TaskAction.send_warning)
+                        actionHistory.trackActionResult(
+                            "Not sending $inputReportId to $serviceName: No transports defined"
+                        )
+                    } else {
+                        val retryItems = retryToken?.items
+                        val sentReportId = UUID.randomUUID() // each sent report gets its own UUID
+                        val nextRetry = getTransport(receiver.transport)?.send(
+                            receiver.transport,
+                            header,
+                            sentReportId,
+                            retryItems,
+                            context,
+                            actionHistory,
+                        )
+                        if (nextRetry != null) {
+                            nextRetryItems += nextRetry
+                        }
+                    }
+                    context.logger.info("For $inputReportId:  finished send().  Calling handleRetry.")
+                    handleRetry(
+                        nextRetryItems,
+                        inputReportId,
+                        serviceName,
+                        retryToken,
                         context,
                         actionHistory,
+                        event.isEmptyBatch
                     )
-                    if (nextRetry != null) {
-                        nextRetryItems += nextRetry
-                    }
                 }
-                context.logger.info("For $inputReportId:  finished send().  Calling handleRetry.")
-                handleRetry(
-                    nextRetryItems,
-                    inputReportId,
-                    serviceName,
-                    retryToken,
-                    context,
-                    actionHistory,
-                    event.isEmptyBatch
-                )
+                // throw an Exception if a send_error is the next event
+                if (nextEvent?.eventAction == Event.EventAction.SEND_ERROR) {
+                    throw IllegalStateException(actionHistory.action.actionResult)
+                }
+            } catch (t: Throwable) {
+                // For debugging and auditing purposes
+                val msg = "Send function unrecoverable exception for event: $message"
+                actionHistory.setActionType(TaskAction.send_error)
+                actionHistory.trackActionResult(msg)
+                // To Expose the Exception
+                throw t
+            } finally {
+                // Note this is operating in a different transaction than the one that did the fetch/lock of the repor
+                context.logger.info("About to save ActionHistory for $message")
+                workflowEngine.recordAction(actionHistory)
+                context.logger.info("Done saving ActionHistory for $message")
             }
-            // throw an Exception if a send_error is the next event
-            if (nextEvent?.eventAction == Event.EventAction.SEND_ERROR) {
-                throw IllegalStateException(actionHistory.action.actionResult)
-            }
-        } catch (t: Throwable) {
-            // For debugging and auditing purposes
+        } catch (e: Throwable) {
             val msg = "Send function unrecoverable exception for event: $message"
-            context.logger.log(Level.SEVERE, msg, t)
-            actionHistory.setActionType(TaskAction.send_error)
-            actionHistory.trackActionResult(msg)
-            // To Expose the Exception
-            throw t
-        } finally {
-            // Note this is operating in a different transaction than the one that did the fetch/lock of the repor
-            context.logger.info("About to save ActionHistory for $message")
-            workflowEngine.recordAction(actionHistory)
-            context.logger.info("Done saving ActionHistory for $message")
+            context.logger.log(Level.SEVERE, msg, e)
+            throw e
         }
     }
 
