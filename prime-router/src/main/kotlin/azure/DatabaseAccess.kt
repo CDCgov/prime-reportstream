@@ -141,9 +141,10 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
     fun fetchNumReportsNeedingBatch(
         receiverFullName: String,
         backstopTime: OffsetDateTime,
-        txn: DataAccessTransaction
+        txn: DataAccessTransaction?
     ): Int {
-        return DSL.using(txn)
+        val ctx = if (txn != null) DSL.using(txn) else create
+        return ctx
             .select(TASK.asterisk())
             .from(TASK)
             .where(TASK.NEXT_ACTION.eq(TaskAction.batch))
@@ -160,9 +161,10 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
         receiverOrg: String,
         receiverSvc: String,
         checkTime: OffsetDateTime,
-        txn: DataAccessTransaction
+        txn: DataAccessTransaction?
     ): Boolean {
-        return DSL.using(txn)
+        val ctx = if (txn != null) DSL.using(txn) else create
+        return ctx
             .select(ACTION.asterisk())
             .from(ACTION)
             .join(Tables.REPORT_FILE)
