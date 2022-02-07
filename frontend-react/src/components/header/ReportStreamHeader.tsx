@@ -7,6 +7,7 @@ import {
     NavMenuButton,
 } from "@trussworks/react-uswds";
 import { NavLink } from "react-router-dom";
+import { NetworkErrorBoundary } from "rest-hooks";
 
 import { permissionCheck } from "../../webreceiver-utils";
 import { PERMISSIONS } from "../../resources/PermissionsResource";
@@ -16,7 +17,6 @@ import { SignInOrUser } from "./SignInOrUser";
 import { HowItWorksDropdown } from "./HowItWorksDropdown";
 import { AdminDropdownNav } from "./AdminDropdownNav";
 import { GettingStartedDropdown } from "./GettingStartedDropdown";
-import { NetworkErrorBoundary } from "rest-hooks";
 
 export const ReportStreamHeader = () => {
     const { authState } = useOktaAuth();
