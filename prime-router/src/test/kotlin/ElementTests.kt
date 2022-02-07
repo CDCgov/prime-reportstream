@@ -384,6 +384,64 @@ internal class ElementTests {
     }
 
     @Test
+    fun `test toNormalized dateTime`() {
+        val one = Element(
+            "a",
+            type = Element.Type.DATETIME,
+            csvFields = Element.csvFields("datetime")
+        )
+
+        // Test MMddyyyy, 12012021 format
+        one.toNormalized("12012021").run {
+            assertThat(this).isEqualTo("202112010000-0600")
+        }
+        // Test M/d/yyyy,12/2/2021 format
+        one.toNormalized("12/2/2021").run {
+            assertThat(this).isEqualTo("202112020000-0600")
+        }
+        // Test yyyy/M/d,2021/12/3
+        one.toNormalized("2021/12/3").run {
+            assertThat(this).isEqualTo("202112030000-0600")
+        }
+        // Test M/d/yyyy HH:mm,12/4/2021 09:00
+        one.toNormalized("12/4/2021 09:00").run {
+            assertThat(this).isEqualTo("202112040900-0600")
+        }
+        // Test yyyy/M/d HH:mm,2021/12/05 10:00
+        one.toNormalized("2021/12/05 10:00").run {
+            assertThat(this).isEqualTo("202112051000-0600")
+        }
+    }
+
+    @Test
+    fun `test failed toNormalized dateTime`() {
+        val one = Element(
+            "a",
+            type = Element.Type.DATETIME,
+            csvFields = Element.csvFields("datetime")
+        )
+
+        // Test wrong date = 50
+        try {
+            one.toNormalized("12502021")
+        } catch (e: IllegalStateException) {
+            assertThat(e.message).isEqualTo("Invalid date: '12502021' for element 'datetime' ('a')")
+        }
+        // Test wrong month = 13
+        try {
+            one.toNormalized("13/2/2021")
+        } catch (e: IllegalStateException) {
+            assertThat(e.message).isEqualTo("Invalid date: '13/2/2021' for element 'datetime' ('a')")
+        }
+        // Test wrong year = abcd
+        try {
+            one.toNormalized("abcd/12/3")
+        } catch (e: IllegalStateException) {
+            assertThat(e.message).isEqualTo("Invalid date: 'abcd/12/3' for element 'datetime' ('a')")
+        }
+    }
+
+    @Test
     fun `test toFormatted phone`() {
         val one = Element(
             "a",
@@ -517,6 +575,69 @@ internal class ElementTests {
         val expected = InvalidDateMessage.new("a week ago", "'date' ('a')", null)
         val actual = checkForErrorDateElement.checkForError("a week ago", null)
         assertThat(actual?.detailMsg()).isEqualTo(expected.detailMsg())
+    }
+
+    @Test
+    fun `test checkForError dateTime`() {
+        val checkForErrorDateTimeElementNullify = Element(
+            "a",
+            type = Element.Type.DATETIME,
+            csvFields = Element.csvFields("datetime"),
+            nullifyValue = true
+        )
+
+        // nullify an invalid date if nullifyValue is true
+        assertThat(
+            checkForErrorDateTimeElementNullify.checkForError("a week ago")
+        ).isEqualTo(
+            null
+        )
+
+        val checkForErrorDateTimeElement = Element(
+            "a",
+            type = Element.Type.DATETIME,
+            csvFields = Element.csvFields("datetime")
+        )
+
+        // passing through a valid date of known manual formats does not throw an error
+        val dateTimeStrings = arrayOf("12012021", "12/2/2021", "2021/12/3", "12/4/2021 09:00", "2021/12/05 10:00")
+
+        dateTimeStrings.forEach { dateTimeString ->
+            assertThat(
+                checkForErrorDateTimeElement.checkForError(dateTimeString)
+            ).isEqualTo(
+                null
+            )
+        }
+
+        // return an InvalidDateMessage
+        val expected = InvalidDateMessage.new("a week ago", "'datetime' ('a')", null)
+        val actual = checkForErrorDateTimeElement.checkForError("a week ago", null)
+        assertThat(actual?.detailMsg()).isEqualTo(expected.detailMsg())
+    }
+
+    @Test
+    fun `test failed checkForError dateTime`() {
+        val checkForErrorDateTimeElement = Element(
+            "a",
+            type = Element.Type.DATETIME,
+            csvFields = Element.csvFields("datetime")
+        )
+
+        // passing through a valid date of known manual formats does not throw an error
+        val dateTimeStrings = arrayOf(
+            "12502021", // Wrong date = 50
+            "13/01/2021", // Wrong month = 13
+            "abcd/12/3" // Wrong year = abcd
+        )
+
+        dateTimeStrings.forEach { dateTimeString ->
+            assertThat(
+                checkForErrorDateTimeElement.checkForError(dateTimeString)?.type
+            ).isEqualTo(
+                ActionLogDetailType.INVALID_DATE
+            )
+        }
     }
 
     @Test
