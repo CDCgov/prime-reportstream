@@ -543,7 +543,7 @@ abstract class CoolTest {
                 passed = bad("***$name Test FAILED***: There were errors reported.")
             }
 
-            if (destCount != null && !destCount.isNull && destCount.intValue() > 0) {
+            if (destCount != null && !destCount.isNull && destCount.intValue() >= 0) {
                 good("Data going to be sent to one or more destinations.")
             } else {
                 passed = bad("***$name Test FAILED***: There are no destinations set for sending the data.")
