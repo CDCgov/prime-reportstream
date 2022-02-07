@@ -16,6 +16,7 @@ import { SignInOrUser } from "./SignInOrUser";
 import { HowItWorksDropdown } from "./HowItWorksDropdown";
 import { AdminDropdownNav } from "./AdminDropdownNav";
 import { GettingStartedDropdown } from "./GettingStartedDropdown";
+import { NetworkErrorBoundary } from "rest-hooks";
 
 export const ReportStreamHeader = () => {
     const { authState } = useOktaAuth();
@@ -104,7 +105,15 @@ export const ReportStreamHeader = () => {
                     {authState?.accessToken?.claims?.organization.includes(
                         PERMISSIONS.PRIME_ADMIN
                     ) ? (
-                        <OrganizationDropdown />
+                        <NetworkErrorBoundary
+                            fallbackComponent={() => (
+                                <select>
+                                    <option>Network error</option>
+                                </select>
+                            )}
+                        >
+                            <OrganizationDropdown />
+                        </NetworkErrorBoundary>
                     ) : null}
                     <SignInOrUser />
                 </PrimaryNav>
