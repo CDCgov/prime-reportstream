@@ -43,11 +43,11 @@ export default class ActionDetailsResource extends AuthResource {
     }
 
     static listDummy(many: number): ActionDetailsResource[] {
-        let list: ActionDetailsResource[] = []
+        let list: ActionDetailsResource[] = [];
         for (let i in list) {
-            list[i] = ActionDetailsResource.dummy()
+            list[i] = ActionDetailsResource.dummy();
         }
-        return list
+        return list;
     }
 
     static dummy(): ActionDetailsResource {
@@ -73,8 +73,8 @@ export default class ActionDetailsResource extends AuthResource {
                     ],
                     sending_at: "1970-04-07T16:26:14.34593Z",
                     itemCount: 3,
-                    sentReports: []
-                }
+                    sentReports: [],
+                },
             ],
             errors: [
                 {
@@ -82,15 +82,15 @@ export default class ActionDetailsResource extends AuthResource {
                     type: "",
                     message: "",
                     index: 0,
-                    trackingId: ""
-                }
+                    trackingId: "",
+                },
             ],
             warnings: [
                 {
                     scope: "",
                     type: "",
-                    message: ""
-                }
+                    message: "",
+                },
             ],
             topic: "TEST",
             warningCount: 0,
@@ -100,7 +100,7 @@ export default class ActionDetailsResource extends AuthResource {
             pk: function (): string {
                 throw new Error("Function not implemented.");
             },
-            url: ""
-        }
+            url: "",
+        };
     }
 }
