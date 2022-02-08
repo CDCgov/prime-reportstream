@@ -51,10 +51,12 @@ open class Receiver(
         topic: String,
         customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
         schemaName: String,
-        format: Report.Format = Report.Format.CSV
+        format: Report.Format = Report.Format.CSV,
+        timing: Timing? = null
     ) : this(
         name, organizationName, topic, customerStatus,
-        CustomConfiguration(schemaName = schemaName, format = format, emptyMap(), "standard", null)
+        CustomConfiguration(schemaName = schemaName, format = format, emptyMap(), "standard", null),
+        timing = timing
     )
 
     constructor(copy: Receiver) : this(
@@ -100,6 +102,7 @@ open class Receiver(
         val initialTime: String = "00:00",
         val timeZone: USTimeZone = USTimeZone.EASTERN,
         val maxReportCount: Int = 500,
+        val whenEmpty: WhenEmpty = WhenEmpty()
     ) {
         /**
          * Calculate the next event time.
@@ -124,6 +127,22 @@ open class Receiver(
                 .toOffsetDateTime()
         }
 
+        /**
+         * Returns true if this receiver is scheduled to run a batch in the last minute
+         */
+        fun batchInPrevious60Seconds(now: OffsetDateTime = OffsetDateTime.now()): Boolean {
+            val zoneId = ZoneId.of(timeZone.zoneId)
+            val zonedNow = now
+                .atZoneSameInstant(zoneId)
+                .withNano(0)
+
+            val initialSeconds = LocalTime.parse(initialTime).toSecondOfDay()
+            val durationFromInitial = zonedNow.toLocalTime().toSecondOfDay() - initialSeconds
+            val period = (24 * 60 * 60) / numberPerDay
+            val secondsSinceMostRecentPeriodEnd = ((durationFromInitial + (24 * 60 * 60) - 60) % period) - period
+            return secondsSinceMostRecentPeriodEnd >= -60
+        }
+
         @JsonIgnore
         fun isValid(): Boolean {
             return numberPerDay in 1..(24 * 60)
@@ -133,6 +152,22 @@ open class Receiver(
     enum class BatchOperation {
         NONE,
         MERGE
+    }
+
+    /**
+     * Options when a receiver's batch is scheduled to run but there are no records for the receiver
+     */
+    data class WhenEmpty(
+        val action: EmptyOperation = EmptyOperation.NONE,
+        val onlyOncePerDay: Boolean = false
+    )
+
+    /**
+     * When it is batch time and there are no records should the receiver get a file or not
+     */
+    enum class EmptyOperation {
+        NONE,
+        SEND,
     }
 
     /**

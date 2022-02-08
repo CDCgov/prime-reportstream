@@ -10,17 +10,16 @@ export const SystemsAndSettings = () => {
                 </title>
             </Helmet>
             <section id="anchor-top">
-                <h1 className="margin-top-0">Systems and Settings</h1>
+                <h1 className="margin-top-0 font-body-xl">
+                    Systems and Settings
+                </h1>
 
-                <p className="usa-intro">
+                <p className="usa-intro text-base">
                     Learn more about the ReportStream system and how to set up
                     and use our tool.
                 </p>
 
-                <hr className="margin-y-6" />
-
                 <p className="text-bold">On this page:</p>
-
                 <ul>
                     <li>
                         <a
@@ -58,8 +57,8 @@ export const SystemsAndSettings = () => {
                     </li>
                 </ul>
             </section>
-            <hr className="margin-y-6" />
-            <section>
+
+            <section className="margin-top-6 padding-top-2 border-top border-base-lighter">
                 <h2 id="data-security-and-storage">
                     Data security and storage
                 </h2>

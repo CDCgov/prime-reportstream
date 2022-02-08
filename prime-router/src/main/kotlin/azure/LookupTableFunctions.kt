@@ -153,6 +153,7 @@ class LookupTableFunctions(
         return getOktaAuthenticator(PrincipalLevel.SYSTEM_ADMIN).checkAccess(request) { oktaAuthenticatedClaim ->
             val inputData: List<Map<String, String>>
             try {
+                val forceTableToLoad = request.queryParameters[forceQueryParameter].toBoolean()
                 inputData = mapper.readValue(request.body!!.toString())
                 if (inputData.isEmpty())
                     HttpUtilities.badRequestResponse(
@@ -181,7 +182,10 @@ class LookupTableFunctions(
                         }
                         val latestVersion = lookupTableAccess.fetchLatestVersion(tableName) ?: 0
                         val newVersion = latestVersion + 1
-                        lookupTableAccess.createTable(tableName, newVersion, tableRows, oktaAuthenticatedClaim.userName)
+                        lookupTableAccess.createTable(
+                            tableName, newVersion, tableRows,
+                            oktaAuthenticatedClaim.userName, forceTableToLoad
+                        )
 
                         // Return the table version info
                         val json = mapper
@@ -194,6 +198,12 @@ class LookupTableFunctions(
                     request,
                     HttpUtilities.errorJson("Invalid request body.  Must be an array of objects")
                 )
+            } catch (e: IllegalStateException) {
+                logger.error("Unable to create lookup table $tableName", e)
+                HttpUtilities.internalErrorConflictResponse(request, "New Lookup Table ${e.message}")
+            } catch (e: DatabaseLookupTableAccess.Companion.DuplicateTableException) {
+                logger.warn("Ignoring creation of duplicate table data for table $tableName.")
+                HttpUtilities.internalErrorConflictResponse(request, "New Lookup Table ${e.message}")
             } catch (e: Exception) {
                 logger.error("Unable to create lookup table $tableName", e)
                 HttpUtilities.internalErrorResponse(request)
@@ -251,5 +261,10 @@ class LookupTableFunctions(
          * Name of the query parameter to show inactive tables.
          */
         const val showInactiveParamName = "showInactive"
+
+        /**
+         * Name of the query parameter to force lookup table to create regardless.
+         */
+        const val forceQueryParameter = "forceTableToCreate"
     }
 }

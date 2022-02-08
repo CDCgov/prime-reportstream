@@ -1,60 +1,68 @@
 
-### Schema:         co/co-covid-19-redox
-#### Description:   Colorado Department of Public Health (CDPHE) REDOX messages
+### Schema: co/co-covid-19-redox
+### Topic: covid-19
+### Tracking Element: none
+### Base On: none
+### Extends: [covid-19-redox](./covid-19-redox.md)
+#### Description: Colorado Department of Public Health (CDPHE) REDOX messages
 
 ---
 
 **Name**: abnormal_flag
 
+**ReportStream Internal Name**: abnormal_flag
+
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
 **Value Sets**
 
-Code | Display
----- | -------
-A|Abnormal (applies to non-numeric results)
-&#62;|Above absolute high-off instrument scale
-H|Above high normal
-HH|Above upper panic limits
-AC|Anti-complementary substances present
-<|Below absolute low-off instrument scale
-L|Below low normal
-LL|Below lower panic limits
-B|Better--use when direction not relevant
-TOX|Cytotoxic substance present
-DET|Detected
-IND|Indeterminate
-I|Intermediate. Indicates for microbiology susceptibilities only.
-MS|Moderately susceptible. Indicates for microbiology susceptibilities only.
-NEG|Negative
-null|No range defined, or normal ranges don't apply
-NR|Non-reactive
-N|Normal (applies to non-numeric results)
-ND|Not Detected
-POS|Positive
-QCF|Quality Control Failure
-RR|Reactive
-R|Resistant. Indicates for microbiology susceptibilities only.
-D|Significant change down
-U|Significant change up
-S|Susceptible. Indicates for microbiology susceptibilities only.
-AA|Very abnormal (applies to non-numeric units, analogous to panic limits for numeric units)
-VS|Very susceptible. Indicates for microbiology susceptibilities only.
-WR|Weakly reactive
-W|Worse--use when direction not relevant
-A|Abnormal (applies to non-numeric results)
-N|Normal (applies to non-numeric results)
+Code | Display | System
+---- | ------- | ------
+A|Abnormal (applies to non-numeric results)|HL7
+&#62;|Above absolute high-off instrument scale|HL7
+H|Above high normal|HL7
+HH|Above upper panic limits|HL7
+AC|Anti-complementary substances present|HL7
+<|Below absolute low-off instrument scale|HL7
+L|Below low normal|HL7
+LL|Below lower panic limits|HL7
+B|Better--use when direction not relevant|HL7
+TOX|Cytotoxic substance present|HL7
+DET|Detected|HL7
+IND|Indeterminate|HL7
+I|Intermediate. Indicates for microbiology susceptibilities only.|HL7
+MS|Moderately susceptible. Indicates for microbiology susceptibilities only.|HL7
+NEG|Negative|HL7
+null|No range defined, or normal ranges don't apply|HL7
+NR|Non-reactive|HL7
+N|Normal (applies to non-numeric results)|HL7
+ND|Not Detected|HL7
+POS|Positive|HL7
+QCF|Quality Control Failure|HL7
+RR|Reactive|HL7
+R|Resistant. Indicates for microbiology susceptibilities only.|HL7
+D|Significant change down|HL7
+U|Significant change up|HL7
+S|Susceptible. Indicates for microbiology susceptibilities only.|HL7
+AA|Very abnormal (applies to non-numeric units, analogous to panic limits for numeric units)|HL7
+VS|Very susceptible. Indicates for microbiology susceptibilities only.|HL7
+WR|Weakly reactive|HL7
+W|Worse--use when direction not relevant|HL7
+A|Abnormal (applies to non-numeric results)|HL7
+N|Normal (applies to non-numeric results)|HL7
 
 **Alt Value Sets**
 
-Code | Display
----- | -------
-A|Abnormal
-N|Normal
+Code | Display | System
+---- | ------- | ------
+A|Abnormal|HL7
+N|Normal|HL7
 
 **Documentation**:
 
@@ -63,6 +71,8 @@ This field is generated based on the normalcy status of the result. A = abnormal
 ---
 
 **Name**: date_result_released
+
+**ReportStream Internal Name**: date_result_released
 
 **Type**: DATETIME
 
@@ -73,6 +83,8 @@ This field is generated based on the normalcy status of the result. A = abnormal
 ---
 
 **Name**: device_id
+
+**ReportStream Internal Name**: device_id
 
 **Type**: TABLE
 
@@ -89,7 +101,7 @@ This field is generated based on the normalcy status of the result. A = abnormal
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
 
-**Table**: LIVD-SARS-CoV-2-2021-09-29
+**Table**: LIVD-SARS-CoV-2
 
 **Documentation**:
 
@@ -99,9 +111,13 @@ Device_id is a generated value for the OBX-17 field. It is based on the device m
 
 **Name**: employed_in_healthcare
 
+**ReportStream Internal Name**: employed_in_healthcare
+
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **LOINC Code**: 95418-0
 
@@ -109,11 +125,11 @@ Device_id is a generated value for the OBX-17 field. It is based on the device m
 
 **Value Sets**
 
-Code | Display
----- | -------
-Y|Yes
-N|No
-UNK|Unknown
+Code | Display | System
+---- | ------- | ------
+Y|Yes|HL7
+N|No|HL7
+UNK|Unknown|NULLFL
 
 **Documentation**:
 
@@ -122,6 +138,8 @@ Is the patient employed in health care?
 ---
 
 **Name**: equipment_model_name
+
+**ReportStream Internal Name**: equipment_model_name
 
 **Type**: TABLE
 
@@ -133,13 +151,15 @@ Is the patient employed in health care?
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
 
-**Table**: LIVD-SARS-CoV-2-2021-09-29
+**Table**: LIVD-SARS-CoV-2
 
 **Table Column**: Model
 
 ---
 
 **Name**: filler_order_id
+
+**ReportStream Internal Name**: filler_order_id
 
 **Type**: ID
 
@@ -161,9 +181,13 @@ Accension number
 
 **Name**: first_test
 
+**ReportStream Internal Name**: first_test
+
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **LOINC Code**: 95417-2
 
@@ -171,11 +195,11 @@ Accension number
 
 **Value Sets**
 
-Code | Display
----- | -------
-Y|Yes
-N|No
-UNK|Unknown
+Code | Display | System
+---- | ------- | ------
+Y|Yes|HL7
+N|No|HL7
+UNK|Unknown|NULLFL
 
 **Documentation**:
 
@@ -185,9 +209,13 @@ Is this the patient's first test for this condition?
 
 **Name**: hospitalized
 
+**ReportStream Internal Name**: hospitalized
+
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **LOINC Code**: 77974-4
 
@@ -195,11 +223,11 @@ Is this the patient's first test for this condition?
 
 **Value Sets**
 
-Code | Display
----- | -------
-Y|Yes
-N|No
-UNK|Unknown
+Code | Display | System
+---- | ------- | ------
+Y|Yes|HL7
+N|No|HL7
+UNK|Unknown|NULLFL
 
 **Documentation**:
 
@@ -209,9 +237,13 @@ Is the patient hospitalized?
 
 **Name**: icu
 
+**ReportStream Internal Name**: icu
+
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **LOINC Code**: 95420-6
 
@@ -219,11 +251,11 @@ Is the patient hospitalized?
 
 **Value Sets**
 
-Code | Display
----- | -------
-Y|Yes
-N|No
-UNK|Unknown
+Code | Display | System
+---- | ------- | ------
+Y|Yes|HL7
+N|No|HL7
+UNK|Unknown|NULLFL
 
 **Documentation**:
 
@@ -232,6 +264,8 @@ Is the patient in the ICU?
 ---
 
 **Name**: illness_onset_date
+
+**ReportStream Internal Name**: illness_onset_date
 
 **Type**: DATE
 
@@ -245,6 +279,8 @@ Is the patient in the ICU?
 
 **Name**: order_test_date
 
+**ReportStream Internal Name**: order_test_date
+
 **Type**: DATETIME
 
 **PII**: No
@@ -255,13 +291,15 @@ Is the patient in the ICU?
 
 **Name**: ordered_test_code
 
+**ReportStream Internal Name**: ordered_test_code
+
 **Type**: TABLE
 
 **PII**: No
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-09-29
+**Table**: LIVD-SARS-CoV-2
 
 **Table Column**: Test Ordered LOINC Code
 
@@ -269,19 +307,23 @@ Is the patient in the ICU?
 
 **Name**: ordered_test_name
 
+**ReportStream Internal Name**: ordered_test_name
+
 **Type**: TABLE
 
 **PII**: No
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-09-29
+**Table**: LIVD-SARS-CoV-2
 
 **Table Column**: Test Ordered LOINC Long Name
 
 ---
 
 **Name**: ordered_test_system
+
+**ReportStream Internal Name**: ordered_test_system
 
 **Type**: TEXT
 
@@ -294,6 +336,8 @@ Is the patient in the ICU?
 ---
 
 **Name**: ordering_facility_city
+
+**ReportStream Internal Name**: ordering_facility_city
 
 **Type**: CITY
 
@@ -309,6 +353,8 @@ The city of the facility which the test was ordered from
 
 **Name**: ordering_facility_country
 
+**ReportStream Internal Name**: ordering_facility_country
+
 **Type**: TEXT
 
 **PII**: No
@@ -320,6 +366,8 @@ The city of the facility which the test was ordered from
 ---
 
 **Name**: ordering_facility_county
+
+**ReportStream Internal Name**: ordering_facility_county
 
 **Type**: TABLE
 
@@ -335,6 +383,8 @@ The city of the facility which the test was ordered from
 
 **Name**: ordering_facility_email
 
+**ReportStream Internal Name**: ordering_facility_email
+
 **Type**: EMAIL
 
 **PII**: No
@@ -344,6 +394,8 @@ The city of the facility which the test was ordered from
 ---
 
 **Name**: ordering_facility_name
+
+**ReportStream Internal Name**: ordering_facility_name
 
 **Type**: TEXT
 
@@ -359,6 +411,8 @@ The name of the facility which the test was ordered from
 
 **Name**: ordering_facility_phone_number
 
+**ReportStream Internal Name**: ordering_facility_phone_number
+
 **Type**: TELEPHONE
 
 **PII**: No
@@ -372,6 +426,8 @@ The phone number of the facility which the test was ordered from
 ---
 
 **Name**: ordering_facility_state
+
+**ReportStream Internal Name**: ordering_facility_state
 
 **Type**: TABLE
 
@@ -391,6 +447,8 @@ The state of the facility which the test was ordered from
 
 **Name**: ordering_facility_street
 
+**ReportStream Internal Name**: ordering_facility_street
+
 **Type**: STREET
 
 **PII**: No
@@ -404,6 +462,8 @@ The address of the facility which the test was ordered from
 ---
 
 **Name**: ordering_facility_zip_code
+
+**ReportStream Internal Name**: ordering_facility_zip_code
 
 **Type**: POSTAL_CODE
 
@@ -419,6 +479,8 @@ The zip code of the facility which the test was ordered from
 
 **Name**: ordering_provider_city
 
+**ReportStream Internal Name**: ordering_provider_city
+
 **Type**: CITY
 
 **PII**: Yes
@@ -433,6 +495,8 @@ The city of the provider
 
 **Name**: ordering_provider_country
 
+**ReportStream Internal Name**: ordering_provider_country
+
 **Type**: TEXT
 
 **PII**: No
@@ -444,6 +508,8 @@ The city of the provider
 ---
 
 **Name**: ordering_provider_county
+
+**ReportStream Internal Name**: ordering_provider_county
 
 **Type**: TABLE
 
@@ -459,6 +525,8 @@ The city of the provider
 
 **Name**: ordering_provider_email
 
+**ReportStream Internal Name**: ordering_provider_email
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -466,6 +534,8 @@ The city of the provider
 ---
 
 **Name**: ordering_provider_first_name
+
+**ReportStream Internal Name**: ordering_provider_first_name
 
 **Type**: PERSON_NAME
 
@@ -486,6 +556,8 @@ The first name of the provider who ordered the test
 
 **Name**: ordering_provider_id
 
+**ReportStream Internal Name**: ordering_provider_id
+
 **Type**: ID_NPI
 
 **PII**: No
@@ -504,6 +576,8 @@ The ordering provider’s National Provider Identifier
 ---
 
 **Name**: ordering_provider_last_name
+
+**ReportStream Internal Name**: ordering_provider_last_name
 
 **Type**: PERSON_NAME
 
@@ -524,6 +598,8 @@ The last name of provider who ordered the test
 
 **Name**: ordering_provider_phone_number
 
+**ReportStream Internal Name**: ordering_provider_phone_number
+
 **Type**: TELEPHONE
 
 **PII**: Yes
@@ -543,6 +619,8 @@ The phone number of the provider
 
 **Name**: ordering_provider_state
 
+**ReportStream Internal Name**: ordering_provider_state
+
 **Type**: TABLE
 
 **PII**: No
@@ -561,6 +639,8 @@ The state of the provider
 
 **Name**: ordering_provider_street
 
+**ReportStream Internal Name**: ordering_provider_street
+
 **Type**: STREET
 
 **PII**: Yes
@@ -574,6 +654,8 @@ The street address of the provider
 ---
 
 **Name**: ordering_provider_zip_code
+
+**ReportStream Internal Name**: ordering_provider_zip_code
 
 **Type**: POSTAL_CODE
 
@@ -589,6 +671,8 @@ The zip code of the provider
 
 **Name**: patient_city
 
+**ReportStream Internal Name**: patient_city
+
 **Type**: CITY
 
 **PII**: Yes
@@ -603,6 +687,8 @@ The patient's city
 
 **Name**: patient_country
 
+**ReportStream Internal Name**: patient_country
+
 **Type**: TEXT
 
 **PII**: No
@@ -614,6 +700,8 @@ The patient's city
 ---
 
 **Name**: patient_county
+
+**ReportStream Internal Name**: patient_county
 
 **Type**: TABLE_OR_BLANK
 
@@ -628,6 +716,8 @@ The patient's city
 ---
 
 **Name**: patient_dob
+
+**ReportStream Internal Name**: patient_dob
 
 **Type**: DATE
 
@@ -646,6 +736,8 @@ Other states may choose to define their own formats.
 
 **Name**: patient_drivers_license
 
+**ReportStream Internal Name**: patient_drivers_license
+
 **Type**: ID_DLN
 
 **PII**: Yes
@@ -660,6 +752,8 @@ The patient's drivers license number
 
 **Name**: patient_email
 
+**ReportStream Internal Name**: patient_email
+
 **Type**: EMAIL
 
 **PII**: Yes
@@ -670,28 +764,32 @@ The patient's drivers license number
 
 **Name**: patient_ethnicity
 
+**ReportStream Internal Name**: patient_ethnicity
+
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
 **Value Sets**
 
-Code | Display
----- | -------
-H|Hispanic or Latino
-N|Non Hispanic or Latino
-U|Unknown
-H|Hispanic or Latino
-N|Non Hispanic or Latino
+Code | Display | System
+---- | ------- | ------
+H|Hispanic or Latino|HL7
+N|Non Hispanic or Latino|HL7
+U|Unknown|HL7
+H|Hispanic or Latino|HL7
+N|Non Hispanic or Latino|HL7
 
 **Alt Value Sets**
 
-Code | Display
----- | -------
-H|true
-N|false
+Code | Display | System
+---- | ------- | ------
+H|true|HL7
+N|false|HL7
 
 **Documentation**:
 
@@ -702,6 +800,8 @@ consumers are free to define their own values. Please refer to the consumer-spec
 ---
 
 **Name**: patient_first_name
+
+**ReportStream Internal Name**: patient_first_name
 
 **Type**: PERSON_NAME
 
@@ -717,39 +817,43 @@ The patient's first name
 
 **Name**: patient_gender
 
+**ReportStream Internal Name**: patient_gender
+
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
 **Value Sets**
 
-Code | Display
----- | -------
-M|Male
-F|Female
-O|Other
-A|Ambiguous
-U|Unknown
-N|Not applicable
-M|Male
-F|Female
-O|Other
-A|Ambiguous
-U|Unknown
-N|Not applicable
+Code | Display | System
+---- | ------- | ------
+M|Male|HL7
+F|Female|HL7
+O|Other|HL7
+A|Ambiguous|HL7
+U|Unknown|HL7
+N|Not applicable|HL7
+M|Male|HL7
+F|Female|HL7
+O|Other|HL7
+A|Ambiguous|HL7
+U|Unknown|HL7
+N|Not applicable|HL7
 
 **Alt Value Sets**
 
-Code | Display
----- | -------
-M|Male
-F|Female
-O|Other
-A|Nonbinary
-U|Unknown
-N|Unknown
+Code | Display | System
+---- | ------- | ------
+M|Male|HL7
+F|Female|HL7
+O|Other|HL7
+A|Nonbinary|HL7
+U|Unknown|HL7
+N|Unknown|HL7
 
 **Documentation**:
 
@@ -759,6 +863,8 @@ The patient's gender. There is a valueset defined based on the values in PID-8-1
 ---
 
 **Name**: patient_id
+
+**ReportStream Internal Name**: patient_id
 
 **Type**: TEXT
 
@@ -776,6 +882,8 @@ the patient ID from the testing lab, the oder placer, the ordering provider, or 
 
 **Name**: patient_id_type
 
+**ReportStream Internal Name**: patient_id_type
+
 **Type**: TEXT
 
 **PII**: No
@@ -785,6 +893,8 @@ the patient ID from the testing lab, the oder placer, the ordering provider, or 
 ---
 
 **Name**: patient_last_name
+
+**ReportStream Internal Name**: patient_last_name
 
 **Type**: PERSON_NAME
 
@@ -800,6 +910,8 @@ The patient's last name
 
 **Name**: patient_middle_name
 
+**ReportStream Internal Name**: patient_middle_name
+
 **Type**: PERSON_NAME
 
 **PII**: Yes
@@ -809,6 +921,8 @@ The patient's last name
 ---
 
 **Name**: patient_phone_number
+
+**ReportStream Internal Name**: patient_phone_number
 
 **Type**: TELEPHONE
 
@@ -824,43 +938,47 @@ The patient's phone number with area code
 
 **Name**: patient_race
 
+**ReportStream Internal Name**: patient_race
+
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
 **Value Sets**
 
-Code | Display
----- | -------
-1002-5|American Indian or Alaska Native
-2028-9|Asian
-2054-5|Black or African American
-2076-8|Native Hawaiian or Other Pacific Islander
-2106-3|White
-2131-1|Other
-UNK|Unknown
-ASKU|Asked, but unknown
-1002-5|American Indian or Alaska Native
-2028-9|Asian
-2054-5|Black or African American
-2076-8|Native Hawaiian or Other Pacific Islander
-2106-3|White
-2131-1|Other
-ASKU|Asked, but unknown
+Code | Display | System
+---- | ------- | ------
+1002-5|American Indian or Alaska Native|HL7
+2028-9|Asian|HL7
+2054-5|Black or African American|HL7
+2076-8|Native Hawaiian or Other Pacific Islander|HL7
+2106-3|White|HL7
+2131-1|Other|HL7
+UNK|Unknown|NULLFL
+ASKU|Asked, but unknown|NULLFL
+1002-5|American Indian or Alaska Native|HL7
+2028-9|Asian|HL7
+2054-5|Black or African American|HL7
+2076-8|Native Hawaiian or Other Pacific Islander|HL7
+2106-3|White|HL7
+2131-1|Other|HL7
+ASKU|Asked, but unknown|NULLFL
 
 **Alt Value Sets**
 
-Code | Display
----- | -------
-1002-5|American Indian or Alaska Native
-2028-9|Asian
-2054-5|Black or African American
-2076-8|Native Hawaiian or Other Pacific Islander
-2106-3|White
-2131-1|Other Race
-ASKU|Unknown
+Code | Display | System
+---- | ------- | ------
+1002-5|American Indian or Alaska Native|HL7
+2028-9|Asian|HL7
+2054-5|Black or African American|HL7
+2076-8|Native Hawaiian or Other Pacific Islander|HL7
+2106-3|White|HL7
+2131-1|Other Race|HL7
+ASKU|Unknown|HL7
 
 **Documentation**:
 
@@ -870,6 +988,8 @@ The patient's race. There is a common valueset defined for race values, but some
 ---
 
 **Name**: patient_state
+
+**ReportStream Internal Name**: patient_state
 
 **Type**: TABLE
 
@@ -889,6 +1009,8 @@ The patient's state
 
 **Name**: patient_street
 
+**ReportStream Internal Name**: patient_street
+
 **Type**: STREET
 
 **PII**: Yes
@@ -903,6 +1025,8 @@ The patient's street address
 
 **Name**: patient_zip_code
 
+**ReportStream Internal Name**: patient_zip_code
+
 **Type**: POSTAL_CODE
 
 **PII**: No
@@ -916,6 +1040,8 @@ The patient's zip code
 ---
 
 **Name**: placer_order_id
+
+**ReportStream Internal Name**: placer_order_id
 
 **Type**: ID
 
@@ -936,9 +1062,13 @@ The ID number of the lab order from the placer
 
 **Name**: pregnant
 
+**ReportStream Internal Name**: pregnant
+
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **LOINC Code**: 82810-3
 
@@ -946,11 +1076,11 @@ The ID number of the lab order from the placer
 
 **Value Sets**
 
-Code | Display
----- | -------
-77386006|Pregnant
-60001007|Not Pregnant
-261665006|Unknown
+Code | Display | System
+---- | ------- | ------
+77386006|Pregnant|SNOMED_CT
+60001007|Not Pregnant|SNOMED_CT
+261665006|Unknown|SNOMED_CT
 
 **Documentation**:
 
@@ -960,9 +1090,13 @@ Is the patient pregnant?
 
 **Name**: processing_mode_code
 
+**ReportStream Internal Name**: processing_mode_code
+
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Default Value**: T
 
@@ -970,22 +1104,22 @@ Is the patient pregnant?
 
 **Value Sets**
 
-Code | Display
----- | -------
-D|Debugging
-P|Production
-T|Training
-D|Debugging
-T|Training
-P|Production
+Code | Display | System
+---- | ------- | ------
+D|Debugging|HL7
+P|Production|HL7
+T|Training|HL7
+D|Debugging|HL7
+T|Training|HL7
+P|Production|HL7
 
 **Alt Value Sets**
 
-Code | Display
----- | -------
-D|true
-T|true
-P|false
+Code | Display | System
+---- | ------- | ------
+D|true|HL7
+T|true|HL7
+P|false|HL7
 
 **Documentation**:
 
@@ -995,6 +1129,8 @@ P, D, or T for Production, Debugging, or Training
 
 **Name**: redox_destination_id
 
+**ReportStream Internal Name**: redox_destination_id
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1002,6 +1138,8 @@ P, D, or T for Production, Debugging, or Training
 ---
 
 **Name**: redox_destination_name
+
+**ReportStream Internal Name**: redox_destination_name
 
 **PII**: No
 
@@ -1011,6 +1149,8 @@ P, D, or T for Production, Debugging, or Training
 
 **Name**: redox_employed_in_healthcare_code
 
+**ReportStream Internal Name**: redox_employed_in_healthcare_code
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1018,6 +1158,8 @@ P, D, or T for Production, Debugging, or Training
 ---
 
 **Name**: redox_employed_in_healthcare_codeset
+
+**ReportStream Internal Name**: redox_employed_in_healthcare_codeset
 
 **PII**: No
 
@@ -1027,6 +1169,8 @@ P, D, or T for Production, Debugging, or Training
 
 **Name**: redox_employed_in_healthcare_description
 
+**ReportStream Internal Name**: redox_employed_in_healthcare_description
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1034,6 +1178,8 @@ P, D, or T for Production, Debugging, or Training
 ---
 
 **Name**: redox_employed_in_healthcare_status
+
+**ReportStream Internal Name**: redox_employed_in_healthcare_status
 
 **PII**: No
 
@@ -1043,6 +1189,8 @@ P, D, or T for Production, Debugging, or Training
 
 **Name**: redox_employed_in_healthcare_value_type
 
+**ReportStream Internal Name**: redox_employed_in_healthcare_value_type
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1050,6 +1198,8 @@ P, D, or T for Production, Debugging, or Training
 ---
 
 **Name**: redox_first_test_code
+
+**ReportStream Internal Name**: redox_first_test_code
 
 **PII**: No
 
@@ -1059,6 +1209,8 @@ P, D, or T for Production, Debugging, or Training
 
 **Name**: redox_first_test_codeset
 
+**ReportStream Internal Name**: redox_first_test_codeset
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1066,6 +1218,8 @@ P, D, or T for Production, Debugging, or Training
 ---
 
 **Name**: redox_first_test_description
+
+**ReportStream Internal Name**: redox_first_test_description
 
 **PII**: No
 
@@ -1075,6 +1229,8 @@ P, D, or T for Production, Debugging, or Training
 
 **Name**: redox_first_test_status
 
+**ReportStream Internal Name**: redox_first_test_status
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1082,6 +1238,8 @@ P, D, or T for Production, Debugging, or Training
 ---
 
 **Name**: redox_first_test_value_type
+
+**ReportStream Internal Name**: redox_first_test_value_type
 
 **PII**: No
 
@@ -1091,6 +1249,8 @@ P, D, or T for Production, Debugging, or Training
 
 **Name**: redox_hospitalized_code
 
+**ReportStream Internal Name**: redox_hospitalized_code
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1098,6 +1258,8 @@ P, D, or T for Production, Debugging, or Training
 ---
 
 **Name**: redox_hospitalized_codeset
+
+**ReportStream Internal Name**: redox_hospitalized_codeset
 
 **PII**: No
 
@@ -1107,6 +1269,8 @@ P, D, or T for Production, Debugging, or Training
 
 **Name**: redox_hospitalized_description
 
+**ReportStream Internal Name**: redox_hospitalized_description
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1114,6 +1278,8 @@ P, D, or T for Production, Debugging, or Training
 ---
 
 **Name**: redox_hospitalized_status
+
+**ReportStream Internal Name**: redox_hospitalized_status
 
 **PII**: No
 
@@ -1123,6 +1289,8 @@ P, D, or T for Production, Debugging, or Training
 
 **Name**: redox_hospitalized_value_type
 
+**ReportStream Internal Name**: redox_hospitalized_value_type
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1130,6 +1298,8 @@ P, D, or T for Production, Debugging, or Training
 ---
 
 **Name**: redox_icu_code
+
+**ReportStream Internal Name**: redox_icu_code
 
 **PII**: No
 
@@ -1139,6 +1309,8 @@ P, D, or T for Production, Debugging, or Training
 
 **Name**: redox_icu_codeset
 
+**ReportStream Internal Name**: redox_icu_codeset
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1146,6 +1318,8 @@ P, D, or T for Production, Debugging, or Training
 ---
 
 **Name**: redox_icu_description
+
+**ReportStream Internal Name**: redox_icu_description
 
 **PII**: No
 
@@ -1155,6 +1329,8 @@ P, D, or T for Production, Debugging, or Training
 
 **Name**: redox_icu_status
 
+**ReportStream Internal Name**: redox_icu_status
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1162,6 +1338,8 @@ P, D, or T for Production, Debugging, or Training
 ---
 
 **Name**: redox_icu_value_type
+
+**ReportStream Internal Name**: redox_icu_value_type
 
 **PII**: No
 
@@ -1171,6 +1349,8 @@ P, D, or T for Production, Debugging, or Training
 
 **Name**: redox_illness_onset_date_code
 
+**ReportStream Internal Name**: redox_illness_onset_date_code
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1178,6 +1358,8 @@ P, D, or T for Production, Debugging, or Training
 ---
 
 **Name**: redox_illness_onset_date_codeset
+
+**ReportStream Internal Name**: redox_illness_onset_date_codeset
 
 **PII**: No
 
@@ -1187,6 +1369,8 @@ P, D, or T for Production, Debugging, or Training
 
 **Name**: redox_illness_onset_date_description
 
+**ReportStream Internal Name**: redox_illness_onset_date_description
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1194,6 +1378,8 @@ P, D, or T for Production, Debugging, or Training
 ---
 
 **Name**: redox_illness_onset_date_status
+
+**ReportStream Internal Name**: redox_illness_onset_date_status
 
 **PII**: No
 
@@ -1203,6 +1389,8 @@ P, D, or T for Production, Debugging, or Training
 
 **Name**: redox_illness_onset_date_value_type
 
+**ReportStream Internal Name**: redox_illness_onset_date_value_type
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1210,6 +1398,8 @@ P, D, or T for Production, Debugging, or Training
 ---
 
 **Name**: redox_patient_drivers_license_type
+
+**ReportStream Internal Name**: redox_patient_drivers_license_type
 
 **PII**: No
 
@@ -1219,6 +1409,8 @@ P, D, or T for Production, Debugging, or Training
 
 **Name**: redox_pregnant_code
 
+**ReportStream Internal Name**: redox_pregnant_code
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1226,6 +1418,8 @@ P, D, or T for Production, Debugging, or Training
 ---
 
 **Name**: redox_pregnant_codeset
+
+**ReportStream Internal Name**: redox_pregnant_codeset
 
 **PII**: No
 
@@ -1235,6 +1429,8 @@ P, D, or T for Production, Debugging, or Training
 
 **Name**: redox_pregnant_description
 
+**ReportStream Internal Name**: redox_pregnant_description
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1242,6 +1438,8 @@ P, D, or T for Production, Debugging, or Training
 ---
 
 **Name**: redox_pregnant_status
+
+**ReportStream Internal Name**: redox_pregnant_status
 
 **PII**: No
 
@@ -1251,6 +1449,8 @@ P, D, or T for Production, Debugging, or Training
 
 **Name**: redox_pregnant_value_type
 
+**ReportStream Internal Name**: redox_pregnant_value_type
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1258,6 +1458,8 @@ P, D, or T for Production, Debugging, or Training
 ---
 
 **Name**: redox_resident_congregate_setting_code
+
+**ReportStream Internal Name**: redox_resident_congregate_setting_code
 
 **PII**: No
 
@@ -1267,6 +1469,8 @@ P, D, or T for Production, Debugging, or Training
 
 **Name**: redox_resident_congregate_setting_codeset
 
+**ReportStream Internal Name**: redox_resident_congregate_setting_codeset
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1274,6 +1478,8 @@ P, D, or T for Production, Debugging, or Training
 ---
 
 **Name**: redox_resident_congregate_setting_description
+
+**ReportStream Internal Name**: redox_resident_congregate_setting_description
 
 **PII**: No
 
@@ -1283,6 +1489,8 @@ P, D, or T for Production, Debugging, or Training
 
 **Name**: redox_resident_congregate_setting_status
 
+**ReportStream Internal Name**: redox_resident_congregate_setting_status
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1291,6 +1499,8 @@ P, D, or T for Production, Debugging, or Training
 
 **Name**: redox_resident_congregate_setting_value_type
 
+**ReportStream Internal Name**: redox_resident_congregate_setting_value_type
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1298,6 +1508,8 @@ P, D, or T for Production, Debugging, or Training
 ---
 
 **Name**: redox_resulted
+
+**ReportStream Internal Name**: redox_resulted
 
 **PII**: No
 
@@ -1309,6 +1521,8 @@ P, D, or T for Production, Debugging, or Training
 
 **Name**: redox_source_id
 
+**ReportStream Internal Name**: redox_source_id
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1316,6 +1530,8 @@ P, D, or T for Production, Debugging, or Training
 ---
 
 **Name**: redox_source_name
+
+**ReportStream Internal Name**: redox_source_name
 
 **PII**: No
 
@@ -1325,6 +1541,8 @@ P, D, or T for Production, Debugging, or Training
 
 **Name**: redox_symptomatic_for_disease_code
 
+**ReportStream Internal Name**: redox_symptomatic_for_disease_code
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1332,6 +1550,8 @@ P, D, or T for Production, Debugging, or Training
 ---
 
 **Name**: redox_symptomatic_for_disease_codeset
+
+**ReportStream Internal Name**: redox_symptomatic_for_disease_codeset
 
 **PII**: No
 
@@ -1341,6 +1561,8 @@ P, D, or T for Production, Debugging, or Training
 
 **Name**: redox_symptomatic_for_disease_description
 
+**ReportStream Internal Name**: redox_symptomatic_for_disease_description
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1348,6 +1570,8 @@ P, D, or T for Production, Debugging, or Training
 ---
 
 **Name**: redox_symptomatic_for_disease_status
+
+**ReportStream Internal Name**: redox_symptomatic_for_disease_status
 
 **PII**: No
 
@@ -1357,6 +1581,8 @@ P, D, or T for Production, Debugging, or Training
 
 **Name**: redox_symptomatic_for_disease_value_type
 
+**ReportStream Internal Name**: redox_symptomatic_for_disease_value_type
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1365,6 +1591,8 @@ P, D, or T for Production, Debugging, or Training
 
 **Name**: redox_test_lab_id_type
 
+**ReportStream Internal Name**: redox_test_lab_id_type
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1372,6 +1600,8 @@ P, D, or T for Production, Debugging, or Training
 ---
 
 **Name**: redox_test_result_type
+
+**ReportStream Internal Name**: redox_test_result_type
 
 **PII**: No
 
@@ -1382,6 +1612,8 @@ P, D, or T for Production, Debugging, or Training
 ---
 
 **Name**: reference_range
+
+**ReportStream Internal Name**: reference_range
 
 **Type**: TEXT
 
@@ -1397,9 +1629,13 @@ The reference range of the lab result, such as “Negative” or “Normal”. F
 
 **Name**: resident_congregate_setting
 
+**ReportStream Internal Name**: resident_congregate_setting
+
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **LOINC Code**: 95421-4
 
@@ -1407,11 +1643,11 @@ The reference range of the lab result, such as “Negative” or “Normal”. F
 
 **Value Sets**
 
-Code | Display
----- | -------
-Y|Yes
-N|No
-UNK|Unknown
+Code | Display | System
+---- | ------- | ------
+Y|Yes|HL7
+N|No|HL7
+UNK|Unknown|NULLFL
 
 **Documentation**:
 
@@ -1420,6 +1656,8 @@ Does the patient reside in a congregate care setting?
 ---
 
 **Name**: specimen_collection_date_time
+
+**ReportStream Internal Name**: specimen_collection_date_time
 
 **Type**: DATETIME
 
@@ -1443,6 +1681,8 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 
 **Name**: specimen_received_date_time
 
+**ReportStream Internal Name**: specimen_received_date_time
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1451,21 +1691,25 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 
 **Name**: specimen_source_site_code
 
+**ReportStream Internal Name**: specimen_source_site_code
+
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
 **Value Sets**
 
-Code | Display
----- | -------
-119297000|Blood specimen (specimen)
-71836000|Nasopharyngeal structure (body structure)
-45206002|Nasal structure (body structure)
-53342003|Internal nose structure (body structure)
-29092000|Venous structure (body structure)
+Code | Display | System
+---- | ------- | ------
+119297000|Blood specimen (specimen)|SNOMED_CT
+71836000|Nasopharyngeal structure (body structure)|SNOMED_CT
+45206002|Nasal structure (body structure)|SNOMED_CT
+53342003|Internal nose structure (body structure)|SNOMED_CT
+29092000|Venous structure (body structure)|SNOMED_CT
 
 **Documentation**:
 
@@ -1475,33 +1719,37 @@ Refers back to the specimen source site, which is then encoded into the SPM-8 se
 
 **Name**: specimen_type
 
+**ReportStream Internal Name**: specimen_type
+
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
 **Value Sets**
 
-Code | Display
----- | -------
-445297001|Swab of internal nose
-258500001|Nasopharyngeal swab
-871810001|Mid-turbinate nasal swab
-697989009|Anterior nares swab
-258411007|Nasopharyngeal aspirate
-429931000124105|Nasal aspirate
-258529004|Throat swab
-119334006|Sputum specimen
-119342007|Saliva specimen
-258607008|Bronchoalveolar lavage fluid sample
-119364003|Serum specimen
-119361006|Plasma specimen
-440500007|Dried blood spot specimen
-258580003|Whole blood sample
-122555007|Venous blood specimen
-119297000|Blood specimen
-122554006|Capillary blood specimen
+Code | Display | System
+---- | ------- | ------
+445297001|Swab of internal nose|SNOMED_CT
+258500001|Nasopharyngeal swab|SNOMED_CT
+871810001|Mid-turbinate nasal swab|SNOMED_CT
+697989009|Anterior nares swab|SNOMED_CT
+258411007|Nasopharyngeal aspirate|SNOMED_CT
+429931000124105|Nasal aspirate|SNOMED_CT
+258529004|Throat swab|SNOMED_CT
+119334006|Sputum specimen|SNOMED_CT
+119342007|Saliva specimen|SNOMED_CT
+258607008|Bronchoalveolar lavage fluid sample|SNOMED_CT
+119364003|Serum specimen|SNOMED_CT
+119361006|Plasma specimen|SNOMED_CT
+440500007|Dried blood spot specimen|SNOMED_CT
+258580003|Whole blood sample|SNOMED_CT
+122555007|Venous blood specimen|SNOMED_CT
+119297000|Blood specimen|SNOMED_CT
+122554006|Capillary blood specimen|SNOMED_CT
 
 **Documentation**:
 
@@ -1511,9 +1759,13 @@ The specimen source, such as Blood or Serum
 
 **Name**: symptomatic_for_disease
 
+**ReportStream Internal Name**: symptomatic_for_disease
+
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **LOINC Code**: 95419-8
 
@@ -1521,11 +1773,11 @@ The specimen source, such as Blood or Serum
 
 **Value Sets**
 
-Code | Display
----- | -------
-Y|Yes
-N|No
-UNK|Unknown
+Code | Display | System
+---- | ------- | ------
+Y|Yes|HL7
+N|No|HL7
+UNK|Unknown|NULLFL
 
 **Documentation**:
 
@@ -1535,13 +1787,15 @@ Is the patient symptomatic?
 
 **Name**: test_performed_code
 
+**ReportStream Internal Name**: test_performed_code
+
 **Type**: TABLE
 
 **PII**: No
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-09-29
+**Table**: LIVD-SARS-CoV-2
 
 **Table Column**: Test Performed LOINC Code
 
@@ -1553,13 +1807,15 @@ The LOINC code of the test performed. This is a standardized coded value describ
 
 **Name**: test_performed_name
 
+**ReportStream Internal Name**: test_performed_name
+
 **Type**: TABLE
 
 **PII**: No
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-09-29
+**Table**: LIVD-SARS-CoV-2
 
 **Table Column**: Test Performed LOINC Long Name
 
@@ -1570,6 +1826,8 @@ The LOINC description of the test performed as related to the LOINC code.
 ---
 
 **Name**: test_performed_system
+
+**ReportStream Internal Name**: test_performed_system
 
 **Type**: TEXT
 
@@ -1583,36 +1841,40 @@ The LOINC description of the test performed as related to the LOINC code.
 
 **Name**: test_result
 
+**ReportStream Internal Name**: test_result
+
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
 **Value Sets**
 
-Code | Display
----- | -------
-260373001|Detected
-260415000|Not detected
-720735008|Presumptive positive
-10828004|Positive
-42425007|Equivocal
-260385009|Negative
-895231008|Not detected in pooled specimen
-462371000124108|Detected in pooled specimen
-419984006|Inconclusive
-125154007|Specimen unsatisfactory for evaluation
-455371000124106|Invalid result
-840539006|Disease caused by sever acute respiratory syndrome coronavirus 2 (disorder)
-840544004|Suspected disease caused by severe acute respiratory coronavirus 2 (situation)
-840546002|Exposure to severe acute respiratory syndrome coronavirus 2 (event)
-840533007|Severe acute respiratory syndrome coronavirus 2 (organism)
-840536004|Antigen of severe acute respiratory syndrome coronavirus 2 (substance)
-840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
-840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
-373121007|Test not done
-82334004|Indeterminate
+Code | Display | System
+---- | ------- | ------
+260373001|Detected|SNOMED_CT
+260415000|Not detected|SNOMED_CT
+720735008|Presumptive positive|SNOMED_CT
+10828004|Positive|SNOMED_CT
+42425007|Equivocal|SNOMED_CT
+260385009|Negative|SNOMED_CT
+895231008|Not detected in pooled specimen|SNOMED_CT
+462371000124108|Detected in pooled specimen|SNOMED_CT
+419984006|Inconclusive|SNOMED_CT
+125154007|Specimen unsatisfactory for evaluation|SNOMED_CT
+455371000124106|Invalid result|SNOMED_CT
+840539006|Disease caused by sever acute respiratory syndrome coronavirus 2 (disorder)|SNOMED_CT
+840544004|Suspected disease caused by severe acute respiratory coronavirus 2 (situation)|SNOMED_CT
+840546002|Exposure to severe acute respiratory syndrome coronavirus 2 (event)|SNOMED_CT
+840533007|Severe acute respiratory syndrome coronavirus 2 (organism)|SNOMED_CT
+840536004|Antigen of severe acute respiratory syndrome coronavirus 2 (substance)|SNOMED_CT
+840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)|SNOMED_CT
+840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)|SNOMED_CT
+373121007|Test not done|SNOMED_CT
+82334004|Indeterminate|SNOMED_CT
 
 **Documentation**:
 
@@ -1621,6 +1883,8 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 ---
 
 **Name**: test_result_date
+
+**ReportStream Internal Name**: test_result_date
 
 **Type**: DATETIME
 
@@ -1632,9 +1896,13 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 
 **Name**: test_result_status
 
+**ReportStream Internal Name**: test_result_status
+
 **Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Code column
 
 **HL7 Fields**
 
@@ -1645,52 +1913,52 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 
 **Value Sets**
 
-Code | Display
----- | -------
-A|Some, but not all, results available
-C|Corrected, final
-F|Final results
-I|No results available; specimen received, procedure incomplete
-M|Corrected, not final
-N|Procedure completed, results pending
-O|Order received; specimen not yet received
-P|Preliminary
-R|Results stored; not yet verified
-S|No results available; procedure scheduled, but not done
-X|No results available; Order canceled
-Y|No order on record for this test
-Z|No record of this patient
-C|Corrected, final
-F|Final results
-X|No results available; Order canceled
-A|Some, but not all, results available
-I|No results available; specimen received, procedure incomplete
-M|Corrected, not final
-N|Procedure completed, results pending
-O|Order received; specimen not yet received
-P|Preliminary
-R|Results stored; not yet verified
-S|No results available; procedure scheduled, but not done
-Y|No order on record for this test
-Z|No record of this patient
+Code | Display | System
+---- | ------- | ------
+A|Some, but not all, results available|HL7
+C|Corrected, final|HL7
+F|Final results|HL7
+I|No results available; specimen received, procedure incomplete|HL7
+M|Corrected, not final|HL7
+N|Procedure completed, results pending|HL7
+O|Order received; specimen not yet received|HL7
+P|Preliminary|HL7
+R|Results stored; not yet verified|HL7
+S|No results available; procedure scheduled, but not done|HL7
+X|No results available; Order canceled|HL7
+Y|No order on record for this test|HL7
+Z|No record of this patient|HL7
+C|Corrected, final|HL7
+F|Final results|HL7
+X|No results available; Order canceled|HL7
+A|Some, but not all, results available|HL7
+I|No results available; specimen received, procedure incomplete|HL7
+M|Corrected, not final|HL7
+N|Procedure completed, results pending|HL7
+O|Order received; specimen not yet received|HL7
+P|Preliminary|HL7
+R|Results stored; not yet verified|HL7
+S|No results available; procedure scheduled, but not done|HL7
+Y|No order on record for this test|HL7
+Z|No record of this patient|HL7
 
 **Alt Value Sets**
 
-Code | Display
----- | -------
-C|Corrected
-F|Final
-X|Canceled
-A|Preliminary
-I|Unavailable
-M|Corrected
-N|Preliminary
-O|Preliminary
-P|Preliminary
-R|Preliminary
-S|Unavailable
-Y|Unavailable
-Z|Unavailable
+Code | Display | System
+---- | ------- | ------
+C|Corrected|HL7
+F|Final|HL7
+X|Canceled|HL7
+A|Preliminary|HL7
+I|Unavailable|HL7
+M|Corrected|HL7
+N|Preliminary|HL7
+O|Preliminary|HL7
+P|Preliminary|HL7
+R|Preliminary|HL7
+S|Unavailable|HL7
+Y|Unavailable|HL7
+Z|Unavailable|HL7
 
 **Documentation**:
 
@@ -1701,6 +1969,8 @@ the test result is in some intermediate status, is a correction, or is the final
 ---
 
 **Name**: testing_lab_city
+
+**ReportStream Internal Name**: testing_lab_city
 
 **Type**: CITY
 
@@ -1715,6 +1985,8 @@ The city of the testing lab
 ---
 
 **Name**: testing_lab_clia
+
+**ReportStream Internal Name**: testing_lab_clia
 
 **Type**: ID_CLIA
 
@@ -1742,6 +2014,8 @@ An example of the ID is 03D2159846
 
 **Name**: testing_lab_country
 
+**ReportStream Internal Name**: testing_lab_country
+
 **Type**: TEXT
 
 **PII**: No
@@ -1757,6 +2031,8 @@ The country for the testing lab. Currently defaults to USA
 ---
 
 **Name**: testing_lab_county
+
+**ReportStream Internal Name**: testing_lab_county
 
 **Type**: TABLE
 
@@ -1776,6 +2052,8 @@ The text value for the testing lab county. This is used to do the lookup in the 
 
 **Name**: testing_lab_email
 
+**ReportStream Internal Name**: testing_lab_email
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1783,6 +2061,8 @@ The text value for the testing lab county. This is used to do the lookup in the 
 ---
 
 **Name**: testing_lab_name
+
+**ReportStream Internal Name**: testing_lab_name
 
 **Type**: TEXT
 
@@ -1808,6 +2088,8 @@ The name of the laboratory which performed the test, can be the same as the send
 
 **Name**: testing_lab_phone_number
 
+**ReportStream Internal Name**: testing_lab_phone_number
+
 **Type**: TELEPHONE
 
 **PII**: No
@@ -1821,6 +2103,8 @@ The phone number of the testing lab
 ---
 
 **Name**: testing_lab_state
+
+**ReportStream Internal Name**: testing_lab_state
 
 **Type**: TABLE
 
@@ -1840,6 +2124,8 @@ The state for the testing lab
 
 **Name**: testing_lab_street
 
+**ReportStream Internal Name**: testing_lab_street
+
 **Type**: STREET
 
 **PII**: No
@@ -1853,6 +2139,8 @@ The street address for the testing lab
 ---
 
 **Name**: testing_lab_zip_code
+
+**ReportStream Internal Name**: testing_lab_zip_code
 
 **Type**: POSTAL_CODE
 

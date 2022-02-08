@@ -1,16 +1,17 @@
 package gov.cdc.prime.router.azure
 
 import com.microsoft.azure.functions.ExecutionContext
+import gov.cdc.prime.router.ActionError
+import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.FileSettings
-import gov.cdc.prime.router.InvalidReportMessage
+import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
-import gov.cdc.prime.router.ResultDetail
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
@@ -23,6 +24,7 @@ import gov.cdc.prime.router.azure.db.tables.pojos.Task
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
+import gov.cdc.prime.router.serializers.ReadResult
 import gov.cdc.prime.router.serializers.RedoxSerializer
 import gov.cdc.prime.router.transport.AS2Transport
 import gov.cdc.prime.router.transport.BlobStoreTransport
@@ -33,6 +35,7 @@ import gov.cdc.prime.router.transport.RetryItems
 import gov.cdc.prime.router.transport.RetryToken
 import gov.cdc.prime.router.transport.SftpTransport
 import gov.cdc.prime.router.transport.SoapTransport
+import org.apache.logging.log4j.kotlin.logger
 import org.jooq.Configuration
 import org.jooq.Field
 import java.io.ByteArrayInputStream
@@ -174,13 +177,12 @@ class WorkflowEngine(
         rawBody: ByteArray,
         sender: Sender,
         actionHistory: ActionHistory,
-        workflowEngine: WorkflowEngine,
         payloadName: String? = null,
     ): String {
         // Save a copy of the original report
         val senderReportFormat = Report.Format.safeValueOf(sender.format.toString())
         val blobFilename = report.name.replace(report.bodyFormat.ext, senderReportFormat.ext)
-        val blobInfo = workflowEngine.blob.uploadBody(
+        val blobInfo = blob.uploadBody(
             senderReportFormat, rawBody,
             blobFilename, sender.fullName, Event.EventAction.RECEIVE
         )
@@ -207,12 +209,32 @@ class WorkflowEngine(
         actionHistory: ActionHistory,
         receiver: Receiver,
         txn: Configuration? = null,
-        context: ExecutionContext? = null
+        context: ExecutionContext? = null,
+        isEmptyReport: Boolean = false
     ) {
         val receiverName = "${receiver.organizationName}.${receiver.name}"
+
+        // these values come from the first item in a batched report, except for empty batches which have no items\
+        //  in the generateBodyAndUploadReport function these values are only used if it is an HL7 batch
+        // todo when generateBodyAndUploadReport is refactored, this can be changed
+        val sendingApp: String? = if (isEmptyReport) "CDC PRIME - Atlanta" else null
+        val receivingApp: String? = if (isEmptyReport && receiver.translation is Hl7Configuration)
+            receiver.translation.receivingApplicationName
+        else null
+        val receivingFacility: String? = if (isEmptyReport && receiver.translation is Hl7Configuration)
+            receiver.translation.receivingFacilityName
+        else null
+
         val blobInfo = try {
             // formatting errors can occur down in here.
-            blob.uploadBody(report, receiverName, nextAction.eventAction)
+            blob.generateBodyAndUploadReport(
+                report,
+                receiverName,
+                nextAction.eventAction,
+                sendingApp,
+                receivingApp,
+                receivingFacility
+            )
         } catch (ex: Exception) {
             context?.logger?.warning(
                 "Got exception while dispatching to schema ${report.schema.name}" +
@@ -228,7 +250,12 @@ class WorkflowEngine(
             db.insertTask(report, blobInfo.format.toString(), blobInfo.blobUrl, nextAction, txn)
             // todo remove this; its now tracked in BlobInfo
             report.bodyURL = blobInfo.blobUrl
-            actionHistory.trackCreatedReport(nextAction, report, receiver, blobInfo)
+
+            // if this is a newly generated empty report, track it as a 'new report'
+            if (isEmptyReport)
+                actionHistory.trackGeneratedEmptyReport(nextAction, report, receiver, blobInfo)
+            else
+                actionHistory.trackCreatedReport(nextAction, report, receiver, blobInfo)
         } catch (e: Exception) {
             // Clean up
             blob.deleteBlob(blobInfo.blobUrl)
@@ -296,9 +323,9 @@ class WorkflowEngine(
         msgs: MutableList<String>,
     ) {
         // Send immediately.
-        val nextEvent = ReportEvent(Event.EventAction.SEND, reportId, at = null)
+        val nextEvent = ReportEvent(Event.EventAction.SEND, reportId, at = null, isEmptyBatch = false)
         db.transact { txn ->
-            val task = db.fetchAndLockTask(reportId, txn) // Required, it creates lock.
+            db.fetchAndLockTask(reportId, txn) // Required, it creates lock.
             val organization = settings.findOrganization(receiver.organizationName)
                 ?: throw Exception("No such organization ${receiver.organizationName}")
             val header = fetchHeader(reportId, organization) // exception if not found
@@ -399,6 +426,36 @@ class WorkflowEngine(
         return itemsDispositionMap
     }
 
+    /**
+     * Creates an empty report to send to a [receiver] that is configured to receive empty batches.
+     */
+    fun generateEmptyReport(
+        context: ExecutionContext?,
+        actionHistory: ActionHistory,
+        receiver: Receiver,
+    ) {
+        // generate empty report for receiver's specified foramt
+        val toSchema = metadata.findSchema(receiver.schemaName)
+            ?: error("${receiver.schemaName} schema is missing from catalog")
+        val clientSource = ClientSource("ReportStream", "EmptyBatch")
+
+        val emptyReport = Report(
+            toSchema,
+            emptyList(),
+            listOf(clientSource),
+            destination = receiver,
+            bodyFormat = receiver.format,
+            metadata = Metadata.getInstance(),
+            itemLineage = emptyList()
+        )
+
+        // set the empty report to be sent to the receiver
+        this.db.transact { txn ->
+            val sendEvent = ReportEvent(Event.EventAction.SEND, emptyReport.id, true)
+            this.dispatchReport(sendEvent, emptyReport, actionHistory, receiver, txn, context, true)
+        }
+    }
+
     // routeReport does all filtering and translating per receiver, generating one file per receiver to then be batched
     fun routeReport(
         context: ExecutionContext,
@@ -406,25 +463,24 @@ class WorkflowEngine(
         options: Options,
         defaults: Map<String, String>,
         routeTo: List<String>,
-        warnings: MutableList<ResultDetail>,
         actionHistory: ActionHistory,
-    ) {
-        this.db.transact { txn ->
-            val (emptyReports, preparedReports) = this
-                .translator
-                .filterAndTranslateByReceiver(
-                    report,
-                    defaults,
-                    routeTo,
-                    warnings,
-                ).partition { (report, _) -> report.isEmpty() }
+    ): List<ActionLog> {
+        val (routedReports, warnings) = this.translator
+            .filterAndTranslateByReceiver(
+                report,
+                defaults,
+                routeTo,
+            )
 
-            emptyReports.forEach { (report, receiver) ->
-                if (!report.filteringResults.isEmpty()) {
-                    actionHistory.trackFilteredReport(report, receiver)
-                }
+        val (emptyReports, preparedReports) = routedReports.partition { (report, _) -> report.isEmpty() }
+
+        emptyReports.forEach { (filteredReport, receiver) ->
+            if (!filteredReport.filteringResults.isEmpty()) {
+                actionHistory.trackFilteredReport(report, filteredReport, receiver)
             }
+        }
 
+        this.db.transact { txn ->
             preparedReports.forEach { (report, receiver) ->
                 sendToDestination(
                     report,
@@ -436,6 +492,7 @@ class WorkflowEngine(
                 )
             }
         }
+        return warnings
     }
 
     // 1. create <event, report> pair or pairs depending on input
@@ -453,7 +510,7 @@ class WorkflowEngine(
         when {
             options == Options.SkipSend -> {
                 // Note that SkipSend should really be called SkipBothTimingAndSend  ;)
-                val event = ReportEvent(Event.EventAction.NONE, report.id)
+                val event = ReportEvent(Event.EventAction.NONE, report.id, actionHistory.generatingEmptyReport)
                 this.dispatchReport(event, report, actionHistory, receiver, txn, context)
                 loggerMsg = "Queue: ${event.toQueueMessage()}"
             }
@@ -461,7 +518,7 @@ class WorkflowEngine(
                 val time = receiver.timing.nextTime()
                 // Always force a batched report to be saved in our INTERNAL format
                 val batchReport = report.copy(bodyFormat = Report.Format.INTERNAL)
-                val event = ReceiverEvent(Event.EventAction.BATCH, receiver.fullName, time)
+                val event = BatchEvent(Event.EventAction.BATCH, receiver.fullName, false, time)
                 this.dispatchReport(event, batchReport, actionHistory, receiver, txn, context)
                 loggerMsg = "Queue: ${event.toQueueMessage()}"
             }
@@ -476,24 +533,47 @@ class WorkflowEngine(
                         metadata = Metadata.getInstance()
                     )
                     emptyReport.filteringResults.add(it)
-                    actionHistory.trackFilteredReport(emptyReport, receiver)
+                    actionHistory.trackFilteredReport(report, emptyReport, receiver)
                 }
 
                 report
                     .split()
                     .forEach {
-                        val event = ReportEvent(Event.EventAction.SEND, it.id)
+                        val event = ReportEvent(Event.EventAction.SEND, it.id, actionHistory.generatingEmptyReport)
                         this.dispatchReport(event, it, actionHistory, receiver, txn, context)
                     }
                 loggerMsg = "Queued to send immediately: HL7 split into ${report.itemCount} individual reports"
             }
             else -> {
-                val event = ReportEvent(Event.EventAction.SEND, report.id)
+                val event = ReportEvent(Event.EventAction.SEND, report.id, actionHistory.generatingEmptyReport)
                 this.dispatchReport(event, report, actionHistory, receiver, txn, context)
                 loggerMsg = "Queued to send immediately: ${event.toQueueMessage()}"
             }
         }
         context.logger.info(loggerMsg)
+    }
+
+    /**
+     * The process step has failed. Ensure the actionHistory gets a 'warning' if it is not yet the 5th attempt
+     *  at this record. If it is the 5th attempt, set it to process_error
+     */
+    fun handleProcessFailure(
+        numAttempts: Int,
+        actionHistory: ActionHistory
+    ) {
+        // if there are already four process_warning records in the database for this reportId, this is the last try
+        val actionStatus = if (numAttempts >= 5) TaskAction.process_error else TaskAction.process_warning
+        // if count is < 5, add a process_warning status to the task
+        // if count is >= 5, add a process_error status to the task
+        actionHistory.setActionType(actionStatus)
+        actionHistory.trackActionResult(
+            "Failed to process $numAttempts times, setting status to $actionStatus."
+        )
+
+        // save action record to db
+        db.transact { txn ->
+            actionHistory.saveToDb(txn)
+        }
     }
 
     /**
@@ -507,9 +587,6 @@ class WorkflowEngine(
         context: ExecutionContext,
         actionHistory: ActionHistory
     ) {
-        val errors: MutableList<ResultDetail> = mutableListOf()
-        val warnings: MutableList<ResultDetail> = mutableListOf()
-
         db.transact { txn ->
             val task = db.fetchAndLockTask(messageEvent.reportId, txn)
 
@@ -523,22 +600,21 @@ class WorkflowEngine(
                 blobReportId = messageEvent.reportId
             )
 
+            actionHistory.trackExistingInputReport(report.id)
+
             //  send to routeReport
-            routeReport(
+            val warnings = routeReport(
                 context,
                 report,
                 messageEvent.options,
                 messageEvent.defaults,
                 messageEvent.routeTo,
-                warnings,
                 actionHistory
             )
 
+            actionHistory.trackLogs(warnings)
             // track response body
             val responseBody = actionHistory.createResponseBody(
-                messageEvent.options,
-                warnings,
-                errors,
                 true,
                 report
             )
@@ -562,23 +638,24 @@ class WorkflowEngine(
     }
 
     /**
-     * Handle a receiver specific event. Fetch all pending tasks for the specified receiver and nextAction
+     * Handle a batch event for a receiver. Fetch all pending tasks for the specified receiver and nextAction
      *
      * @param messageEvent that was received
      * @param maxCount of headers to process
      * @param updateBlock called with headers to process
      */
-    fun handleReceiverEvent(
-        messageEvent: ReceiverEvent,
+    fun handleBatchEvent(
+        messageEvent: BatchEvent,
         maxCount: Int,
+        backstopTime: OffsetDateTime?,
         updateBlock: (headers: List<Header>, txn: Configuration?) -> Unit,
     ) {
         db.transact { txn ->
-            val tasks = db.fetchAndLockTasksForOneReceiver(
-                messageEvent.eventAction.toTaskAction(),
+            val tasks = db.fetchAndLockBatchTasksForOneReceiver(
                 messageEvent.at,
                 messageEvent.receiverName,
                 maxCount,
+                backstopTime,
                 txn
             )
             val ids = tasks.map { it.reportId }
@@ -641,7 +718,7 @@ class WorkflowEngine(
                     emptyList(),
                     header.receiver
                 )
-                if (result.report == null || result.errors.isNotEmpty()) {
+                if (result.errors.isNotEmpty()) {
                     error("Internal Error: Could not read a saved CSV blob: ${header.task.bodyUrl}")
                 }
                 result.report
@@ -680,7 +757,7 @@ class WorkflowEngine(
         txn: DataAccessTransaction? = null
     ): Pair<Organization, Receiver> {
         return if (settings is SettingsFacade) {
-            val (organization, receiver) = (settings as SettingsFacade).findOrganizationAndReceiver(fullName, txn)
+            val (organization, receiver) = (settings).findOrganizationAndReceiver(fullName, txn)
                 ?: error("Receiver not found in database: $fullName")
             Pair(organization, receiver)
         } else {
@@ -707,7 +784,11 @@ class WorkflowEngine(
         val organization: Organization?,
         val receiver: Receiver?,
         val schema: Schema?,
-        val content: ByteArray?
+        val content: ByteArray?,
+        // todo: until this can be refactored, we need a way for the calling functions to know
+        //  if this header is expecting to have content to detect errors on download (IE, file does not exist
+        //  see #3505
+        val expectingContent: Boolean
     )
 
     private fun createHeader(
@@ -722,10 +803,11 @@ class WorkflowEngine(
             metadata.findSchema(reportFile.schemaName)
         else null
 
-        val content = if (reportFile.bodyUrl != null && fetchBlobBody)
+        val downloadContent = (reportFile.bodyUrl != null && fetchBlobBody)
+        val content = if (downloadContent && blob.exists(reportFile.bodyUrl)) {
             blob.downloadBlob(reportFile.bodyUrl)
-        else null
-        return Header(task, reportFile, itemLineages, organization, receiver, schema, content)
+        } else null
+        return Header(task, reportFile, itemLineages, organization, receiver, schema, content, downloadContent)
     }
 
     fun fetchHeader(
@@ -769,6 +851,8 @@ class WorkflowEngine(
 
                 Event.EventAction.BATCH_ERROR,
                 Event.EventAction.SEND_ERROR,
+                Event.EventAction.PROCESS_ERROR,
+                Event.EventAction.PROCESS_WARNING,
                 Event.EventAction.WIPE_ERROR -> Tables.TASK.ERRORED_AT
 
                 Event.EventAction.NONE -> error("Internal Error: NONE currentAction")
@@ -818,6 +902,31 @@ class WorkflowEngine(
                 FileSettings("$baseDir/settings", orgExt = ext)
             }
         }
+
+        /**
+         * Always find tasks at least this old.  This covers for  extended downtime due to a crash,
+         * as well as for 25 hour days etc.
+         */
+        const val BATCH_LOOKBACK_PADDING_MINS: Long = 180 // 3 hours
+
+        /**
+         * BatchFunction uses a backstop time to prevent it from processing too-old records.
+         * We also use this to prevent it from retrying unrecoverable batches over and over.
+         * So the backstop time is based on the frequency of batching for that receiver,
+         * as found in the receiver's [Receiver.Timing.numberPerDay].
+         *
+         * Note the effect of the padding is that for frequent batching, we'll actually allow
+         * more than [minNumRetries] retries.
+         *
+         * Calculation is done in minutes.
+         */
+        fun getBatchLookbackMins(numberBatchesPerDay: Int, minNumRetries: Int): Long {
+            val frequencyMins = if (numberBatchesPerDay > 0)
+                1440 / numberBatchesPerDay
+            else
+                1440
+            return ((minNumRetries + 1) * frequencyMins + BATCH_LOOKBACK_PADDING_MINS).toLong()
+        }
     }
 
     // 1. detect format and get serializer
@@ -832,59 +941,47 @@ class WorkflowEngine(
      * @param warnings Transaction store of warnings produced while processing this message
      * @return Returns a generated report object, or null
      */
-    fun createReport(
+    fun parseReport(
         sender: Sender,
         content: String,
         defaults: Map<String, String>,
-        // TODO: Tech debt, should not be getting errors and warnings as side effect work, should be returning something
-        //  and building these in the response object from the top layer function
-        errors: MutableList<ResultDetail>,
-        warnings: MutableList<ResultDetail>
-    ): Report? {
+    ): ReadResult {
         return when (sender.format) {
             Sender.Format.CSV -> {
                 try {
-                    val readResult = this.csvSerializer.readExternal(
+                    this.csvSerializer.readExternal(
                         schemaName = sender.schemaName,
                         input = ByteArrayInputStream(content.toByteArray()),
                         sources = listOf(ClientSource(organization = sender.organizationName, client = sender.name)),
-                        defaultValues = defaults
+                        defaultValues = defaults,
+                        sender = sender,
                     )
-                    errors += readResult.errors
-                    warnings += readResult.warnings
-                    readResult.report
                 } catch (e: Exception) {
-                    errors.add(
-                        ResultDetail.report(
-                            InvalidReportMessage.new(
-                                "An unexpected error occurred requiring additional help. Contact the ReportStream " +
-                                    "team at reportstream@cdc.gov."
-                            )
-                        )
+                    throw ActionError(
+                        ActionLog.report(
+                            "An unexpected error occurred requiring additional help. Contact the ReportStream " +
+                                "team at reportstream@cdc.gov."
+                        ),
+                        e.message,
                     )
-                    null
                 }
             }
             Sender.Format.HL7 -> {
                 try {
-                    val readResult = this.hl7Serializer.readExternal(
+                    this.hl7Serializer.readExternal(
                         schemaName = sender.schemaName,
                         input = ByteArrayInputStream(content.toByteArray()),
-                        ClientSource(organization = sender.organizationName, client = sender.name)
+                        ClientSource(organization = sender.organizationName, client = sender.name),
+                        sender = sender,
                     )
-                    errors += readResult.errors
-                    warnings += readResult.warnings
-                    readResult.report
                 } catch (e: Exception) {
-                    errors.add(
-                        ResultDetail.report(
-                            InvalidReportMessage.new(
-                                "An unexpected error occurred requiring " +
-                                    "additional help. Contact the ReportStream team at reportstream@cdc.gov."
-                            )
-                        )
+                    throw ActionError(
+                        ActionLog.report(
+                            "An unexpected error occurred requiring additional help. Contact the ReportStream " +
+                                "team at reportstream@cdc.gov."
+                        ),
+                        e.message,
                     )
-                    null
                 }
             }
         }
