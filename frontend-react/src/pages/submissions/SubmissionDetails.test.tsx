@@ -3,6 +3,7 @@ import ActionDetailsResource from "../../resources/ActionDetailsResource";
 import SubmissionDetails, { DestinationItem, DetailItem } from './SubmissionDetails'
 import { BrowserRouter } from "react-router-dom";
 
+const timeRegex: RegExp = /[0-9]+:[0-9]+ [a-zA-Z]M/i
 const mockData: ActionDetailsResource = ActionDetailsResource.dummy()
 jest.mock('rest-hooks', () => ({
     useResource: () => { return mockData },
@@ -37,7 +38,7 @@ describe("SubmissionDetails", () => {
         /* DestinationItem contents*/
         const receiverOrgName = await screen.findByText(mockData.destinations[0].organization)
         const transmissionDate = await screen.findByText("7 Apr 1970")
-        const transmissionTime = await screen.findByText("11:26 AM")
+        const transmissionTime = await screen.findByText(timeRegex)
         const recordsTransmitted = await screen.findByText(mockData.destinations[0].itemCount)
 
         /* 
@@ -99,7 +100,7 @@ describe("DestinationItem", () => {
             ActionDetailsResource.dummy() 
         */
         expect(screen.getByText(/7 Apr 1970/i)).toBeInTheDocument();
-        expect(screen.getByText(/[0-9]+:[0-9]+ [a-zA-Z]M/i)).toBeInTheDocument();
+        expect(screen.getByText(timeRegex)).toBeInTheDocument();
         expect(screen.getByText(/3/i)).toBeInTheDocument();
     })
 })
