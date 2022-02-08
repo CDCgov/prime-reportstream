@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { Match, Matcher, MatcherFunction, render, screen } from "@testing-library/react";
 import ActionDetailsResource from "../../resources/ActionDetailsResource";
 import SubmissionDetails, { DestinationItem, DetailItem } from './SubmissionDetails'
 import { BrowserRouter } from "react-router-dom";
@@ -8,7 +8,6 @@ import { BrowserRouter } from "react-router-dom";
     value has the parsed timestamp. Use a function 
 */
 const timeRegex: RegExp = /[0-9]+:[0-9]+ [a-zA-Z]M/
-
 const mockData: ActionDetailsResource = ActionDetailsResource.dummy()
 jest.mock('rest-hooks', () => ({
     useResource: () => { return mockData },
@@ -37,19 +36,19 @@ describe("SubmissionDetails", () => {
     })
 
     test("renders data to sub-components", async () => {
+        /* Custom matcher for transitionTime */
+        const findTimeWithoutDate: MatcherFunction = (content, element): boolean => {
+            if (!content.includes("7 Apr 1970") && timeRegex.test(content)) return true
+            return false
+        }
+
         /* Report ID DetailItem */
         const idElement = await screen.findByText(mockData.id)
 
         /* DestinationItem contents*/
         const receiverOrgName = await screen.findByText(mockData.destinations[0].organization)
         const transmissionDate = await screen.findByText("7 Apr 1970")
-        /* TODO: This has to take a Matcher function but no useful documentation exists. Following
-            current documentation (i.e. using the lambda seen here) results in errors.
-           See: https://testing-library.com/docs/react-testing-library/cheatsheet/#text-match-options
-        */
-        // const transmissionTime = screen.getByText((content, element) => {
-        //     if (!content.startsWith("7 Apr 1970")) return element
-        // })
+        const transmissionTime = screen.getByText(findTimeWithoutDate)
         const recordsTransmitted = await screen.findByText(mockData.destinations[0].itemCount)
 
         /* 
@@ -60,7 +59,7 @@ describe("SubmissionDetails", () => {
             idElement,
             receiverOrgName,
             transmissionDate,
-            // transmissionTime,
+            transmissionTime,
             recordsTransmitted
         ]
 
