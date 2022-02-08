@@ -369,7 +369,7 @@ tasks.register("generateDocs") {
 tasks.register("reloadSettings") {
     group = rootProject.description ?: ""
     description = "Reload the settings database table"
-    project.extra["cliArgs"] = listOf("multiple-settings", "set", "-i", "./settings/organizations.yml")
+    project.extra["cliArgs"] = listOf("multiple-settings", "set", "-i", "./settings/organizations.yml", "-s")
     finalizedBy("primeCLI")
 }
 

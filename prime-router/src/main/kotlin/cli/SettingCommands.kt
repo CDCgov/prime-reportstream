@@ -45,6 +45,7 @@ import org.apache.http.HttpStatus
 import java.io.File
 import java.time.OffsetDateTime
 import java.time.format.DateTimeParseException
+import kotlin.system.exitProcess
 
 private const val apiPath = "/api/settings"
 private const val dummyAccessToken = "dummy"
@@ -887,6 +888,8 @@ class DiffMultipleSettings : SettingCommand(
         checkApi(environment)
         echo("Loading settings from ${inputFile.absolutePath} to compare...")
         val differences = diffAll(inputFile)
+        // If we are running silent then return a bad exit status if there are differences
+        if (silent && differences.isNotEmpty()) exitProcess(1)
         if (differences.isNotEmpty()) {
             echoDiff(differences)
         } else {
