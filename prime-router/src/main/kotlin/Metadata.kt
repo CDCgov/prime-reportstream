@@ -35,7 +35,6 @@ import gov.cdc.prime.router.metadata.TrimBlanksMapper
 import gov.cdc.prime.router.metadata.UseMapper
 import gov.cdc.prime.router.metadata.UseSenderSettingMapper
 import gov.cdc.prime.router.metadata.ZipCodeToCountyMapper
-import org.apache.commons.io.FilenameUtils
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.exception.DataAccessException
 import java.io.File
@@ -417,16 +416,6 @@ class Metadata : Logging {
         return lookupTableStore[name.lowercase()]
     }
 
-    private fun readAllTables(catalogDir: File, block: (String, LookupTable) -> Unit) {
-        val extFilter = FilenameFilter { _, name -> name.endsWith(tableExtension) }
-        val files = File(catalogDir.absolutePath).listFiles(extFilter) ?: emptyArray()
-        files.forEach { file ->
-            val table = LookupTable.read(FilenameUtils.getBaseName(file.name), file.inputStream())
-            val name = file.nameWithoutExtension
-            block(name, table)
-        }
-    }
-
     /*
         file name templates
     */
@@ -463,11 +452,9 @@ class Metadata : Logging {
     companion object {
         const val schemaExtension = ".schema"
         const val valueSetExtension = ".valuesets"
-        const val tableExtension = ".csv"
         private const val defaultMetadataDirectory = "./metadata"
         const val schemasSubdirectory = "schemas"
         const val valuesetsSubdirectory = "valuesets"
-        const val tableSubdirectory = "tables"
         const val fileNameTemplatesSubdirectory = "./file_name_templates"
 
         /**
