@@ -35,7 +35,6 @@ import gov.cdc.prime.router.metadata.TrimBlanksMapper
 import gov.cdc.prime.router.metadata.UseMapper
 import gov.cdc.prime.router.metadata.UseSenderSettingMapper
 import gov.cdc.prime.router.metadata.ZipCodeToCountyMapper
-import org.apache.commons.io.FilenameUtils
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.exception.DataAccessException
 import java.io.File
@@ -122,7 +121,6 @@ class Metadata : Logging {
         val metadataDir = File(metadataPath)
         if (!metadataDir.isDirectory) error("Expected metadata directory")
         loadValueSetCatalog(metadataDir.toPath().resolve(valuesetsSubdirectory).toString())
-        loadLookupTables(metadataDir.toPath().resolve(tableSubdirectory).toString())
         loadDatabaseLookupTables()
         loadSchemaCatalog(metadataDir.toPath().resolve(schemasSubdirectory).toString())
         loadFileNameTemplates(metadataDir.toPath().resolve(fileNameTemplatesSubdirectory).toString())
@@ -353,19 +351,6 @@ class Metadata : Logging {
      */
     internal var tablelastCheckedAt = Instant.now()
 
-    private fun loadLookupTables(filePath: String): Metadata {
-        val catalogDir = File(filePath)
-        if (!catalogDir.isDirectory) error("Expected ${catalogDir.absolutePath} to be a directory")
-        try {
-            readAllTables(catalogDir) { tableName: String, table: LookupTable ->
-                loadLookupTable(tableName, table)
-            }
-            return this
-        } catch (e: Exception) {
-            throw Exception("Error loading tables in '$filePath'", e)
-        }
-    }
-
     fun loadLookupTable(name: String, table: LookupTable): Metadata {
         lookupTableStore = lookupTableStore.plus(name.lowercase() to table)
         return this
@@ -431,16 +416,6 @@ class Metadata : Logging {
         return lookupTableStore[name.lowercase()]
     }
 
-    private fun readAllTables(catalogDir: File, block: (String, LookupTable) -> Unit) {
-        val extFilter = FilenameFilter { _, name -> name.endsWith(tableExtension) }
-        val files = File(catalogDir.absolutePath).listFiles(extFilter) ?: emptyArray()
-        files.forEach { file ->
-            val table = LookupTable.read(FilenameUtils.getBaseName(file.name), file.inputStream())
-            val name = file.nameWithoutExtension
-            block(name, table)
-        }
-    }
-
     /*
         file name templates
     */
@@ -477,11 +452,9 @@ class Metadata : Logging {
     companion object {
         const val schemaExtension = ".schema"
         const val valueSetExtension = ".valuesets"
-        const val tableExtension = ".csv"
         private const val defaultMetadataDirectory = "./metadata"
         const val schemasSubdirectory = "schemas"
         const val valuesetsSubdirectory = "valuesets"
-        const val tableSubdirectory = "tables"
         const val fileNameTemplatesSubdirectory = "./file_name_templates"
 
         /**
