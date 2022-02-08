@@ -2,13 +2,12 @@ import { MatcherFunction, render, screen } from "@testing-library/react";
 import ActionDetailsResource from "../../resources/ActionDetailsResource";
 import SubmissionDetails, { DestinationItem, DetailItem } from './SubmissionDetails'
 import { BrowserRouter } from "react-router-dom";
-import { useResource } from "rest-hooks";
 
 /* 
     Using the included regex can end up pulling various elements where the
     value has the parsed timestamp. Use a function 
 */
-const timeRegex: RegExp = /[0-9]+:[0-9]+ [a-zA-Z]M/
+const timeRegex: RegExp = /\d+:\d+ [A,P]M/
 const mockData: ActionDetailsResource = ActionDetailsResource.dummy()
 jest.mock('rest-hooks', () => ({
     useResource: () => { return mockData },

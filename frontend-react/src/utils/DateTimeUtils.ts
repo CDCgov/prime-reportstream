@@ -48,7 +48,6 @@ export const generateSubmissionDate = (
     } else if (hours === 0) {
         /* Midnight */
         hours = 12;
-        meridian = "am";
     }
 
     /* Create strings from parsed values */
