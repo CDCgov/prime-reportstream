@@ -4,8 +4,8 @@ import { NetworkErrorBoundary, useResource } from 'rest-hooks';
 import { getStoredOrg } from '../../components/GlobalContextProvider';
 import Spinner from '../../components/Spinner';
 import Title from '../../components/Title';
-import ActionDetailsResource from '../../resources/ActionDetailsResource';
-import { Destination } from '../../types/SubmissionDetailsTypes'
+import ActionDetailsResource, { Destination } from '../../resources/ActionDetailsResource';
+import { generateSubmissionDate } from '../../utils/DateTimeUtils';
 import { ErrorPage } from '../error/ErrorPage';
 
 /* Custom types */
@@ -21,50 +21,6 @@ type DestinationItemProps = {
 
 type SubmissionDetailsProps = {
     actionId: string | undefined
-}
-
-type SubmissionDate = {
-    dateString: string;
-    timeString: string;
-}
-
-/* 
-    This function serves as a cleaner (read: more contained) way of parsing out
-    necessary date and time string formats for this page.
-
-    @param dateTimeString - the value representing when a report was sent, returned
-    by the API  
-    
-    @returns SubmissionDate
-    dateString format: 1 Jan 2022
-    timeString format: 3:00 PM
-*/
-// TODO: Refactor, maybe??
-export const generateSubmissionDate = (dateTimeString: string): SubmissionDate => {
-    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
-        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-    ];
-    const dateTimeISO = new Date(dateTimeString)
-
-    /* Parse time into parts */
-    const minutes = dateTimeISO.getMinutes()
-    let hours = dateTimeISO.getHours()
-    let meridian = "am"
-
-    /* 12-hour and meridian conversion */
-    if (hours > 12) {
-        hours -= 12
-        meridian = "pm"
-    }
-
-    /* Create strings from parsed values */
-    const time = `${hours}:${minutes} ${meridian.toUpperCase()}`
-    const date = `${dateTimeISO.getDate()} ${monthNames[dateTimeISO.getMonth()]} ${dateTimeISO.getFullYear()}`
-
-    return {
-        dateString: date,
-        timeString: time
-    }
 }
 
 /* 
@@ -128,7 +84,7 @@ export function DestinationItem({ destinationObj }: DestinationItemProps) {
     @param actionId - the id tracking the ActionLog object containing
     the information to display. Used to call the API.
 */
-function SubmissionDetails() {
+function SubmissionDetailsContent() {
     const organization = getStoredOrg();
     const { actionId } = useParams<SubmissionDetailsProps>()
     const actionDetails: ActionDetailsResource = useResource(
@@ -147,36 +103,43 @@ function SubmissionDetails() {
                 className="grid-container margin-bottom-10"
                 data-testid="container">
                 <div className="grid-col-12">
-                    {/* TODO: why does the spinner take the whole dang page?! */}
-                    <NetworkErrorBoundary
-                        fallbackComponent={() => <ErrorPage type="page" />}
-                    >
-                    <Suspense fallback={<Title title='Loading info...' />}>
-                        <Title
-                            preTitle={
-                                `${actionDetails.submitter} ${actionDetails.topic.toUpperCase()} Submissions`
-                            }
-                            title={`${submissionDate.dateString} ${submissionDate.timeString}`} />
-                    </Suspense>
-                    <Suspense fallback={<Spinner />}>
-                        <DetailItem
-                            item={'Report ID'}
-                            content={actionDetails.id}
-                        />
-                        {
-                            actionDetails.destinations.map(dst => (
-                                <DestinationItem
-                                    key={`${dst.organization_id}-${dst.sending_at}`}
-                                    destinationObj={dst}
-                                />
-                            ))
+                    <Title
+                        preTitle={
+                            `${actionDetails.submitter} ${actionDetails.topic.toUpperCase()} Submissions`
                         }
-                    </Suspense>
-                    </NetworkErrorBoundary>
+                        title={`${submissionDate.dateString} ${submissionDate.timeString}`} />
+                    <DetailItem
+                        item={'Report ID'}
+                        content={actionDetails.id}
+                    />
+                    {
+                        actionDetails.destinations.map(dst => (
+                            <DestinationItem
+                                key={`${dst.organization_id}-${dst.sending_at}`}
+                                destinationObj={dst}
+                            />
+                        ))
+                    }
                 </div>
             </div>
         );
     }
+}
+
+/* 
+    For a component to use the Suspense and NEB fallbacks, it must be nested within
+    the according tags, hence this wrapper.
+*/
+function SubmissionDetails() {
+    return (
+        <NetworkErrorBoundary
+            fallbackComponent={() => <ErrorPage type='page' />}>
+            <Suspense
+                fallback={<Spinner fullPage />}>
+                <SubmissionDetailsContent />
+            </Suspense>
+        </NetworkErrorBoundary>
+    )
 }
 
 export default SubmissionDetails;

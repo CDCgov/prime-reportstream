@@ -1,10 +1,25 @@
-import {
-    Destination,
-    ReportError,
-    ReportWarning,
-} from "../types/SubmissionDetailsTypes";
-
 import AuthResource from "./AuthResource";
+
+export interface Destination {
+    organization_id: string;
+    organization: string;
+    service: string;
+    filteredReportRows: string[];
+    sending_at: string;
+    itemCount: number;
+    sentReports: string[];
+}
+
+export interface ReportWarning {
+    scope: string;
+    type: string;
+    message: string;
+}
+
+export interface ReportError extends ReportWarning {
+    index: number;
+    trackingId: string;
+}
 
 export default class ActionDetailsResource extends AuthResource {
     readonly submissionId: number = -1;
@@ -53,7 +68,7 @@ export default class ActionDetailsResource extends AuthResource {
             submitter: "Jest",
             httpStatus: 201,
             externalName: "SubmissionDetails Unit Test",
-            id: "f4072cc6-7ea0-4070-8e60-34a584b7c822",
+            id: "x0000xx0-0xx0-0000-0x00-00x000x0x000",
             destinations: [
                 {
                     organization_id: "jest",

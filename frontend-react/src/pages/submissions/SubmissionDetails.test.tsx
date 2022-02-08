@@ -11,7 +11,7 @@ jest.mock('rest-hooks', () => ({
         ({ children }: { children: JSX.Element[] }) => { return <>{children}</> }
 }))
 
-describe("SubmissionDetails w/ data", () => {
+describe("SubmissionDetails", () => {
     beforeEach(() => {
         /*
             TODO: Custom renderers to handle Router, etc. when
@@ -25,13 +25,20 @@ describe("SubmissionDetails w/ data", () => {
     })
 
     test("renders without error", async () => {
+
         const container = await screen.findByTestId("container");
         expect(container).toBeInTheDocument();
     })
 
     test("renders data to sub-components", async () => {
+        /* Report ID DetailItem */
         const idElement = await screen.findByText(mockData.id)
+
+        /* DestinationItem contents*/
         const receiverOrgName = await screen.findByText(mockData.destinations[0].organization)
+        const transmissionDate = await screen.findByText("7 Apr 1970")
+        const transmissionTime = await screen.findByText("11:26 AM")
+        const recordsTransmitted = await screen.findByText(mockData.destinations[0].itemCount)
 
         /* 
             As above, so below. Add any new elements needing unit test
@@ -39,12 +46,19 @@ describe("SubmissionDetails w/ data", () => {
         */
         const testElements = [
             idElement,
-            receiverOrgName
+            receiverOrgName,
+            transmissionDate,
+            transmissionTime,
+            recordsTransmitted
         ]
 
         for (let i = 0; i < testElements.length; i++) {
             expect(testElements[i]).toBeInTheDocument();
         }
+    })
+
+    test("renders error when data is not present", () => {
+
     })
 })
 
@@ -85,7 +99,7 @@ describe("DestinationItem", () => {
             ActionDetailsResource.dummy() 
         */
         expect(screen.getByText(/7 Apr 1970/i)).toBeInTheDocument();
-        expect(screen.getByText(/11:26/i)).toBeInTheDocument();
+        expect(screen.getByText(/[0-9]+:[0-9]+ [a-zA-Z]M/i)).toBeInTheDocument();
         expect(screen.getByText(/3/i)).toBeInTheDocument();
     })
 })
