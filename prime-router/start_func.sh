@@ -40,7 +40,6 @@ function load_config() {
 # Load the configuration in the background if not running in GitHub Actions.
 if [ ! -z "$GITHUB_ACTIONS" ]
 then
-   echo "Loading configurations..."
    load_config | awk -v date="$(date +[%FT%TZ])" '{print date " [LOAD CONFIG] " $0}' &
 else
    echo "Running in GitHub Actions.  Skipping load of configuration."

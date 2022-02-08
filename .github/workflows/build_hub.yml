@@ -94,7 +94,7 @@ jobs:
       - name: Give some time for the container to start
         uses: juliangruber/sleep-action@v1
         with:
-          time: 45s
+          time: 30s
       
       - name: Ensure all the lookup tables are loaded
         run: ./gradlew reloadTables
