@@ -91,7 +91,7 @@ jobs:
         run: |
           docker-compose -f docker-compose.yml up -d prime_dev redox ftps sftp azurite
           
-      - name: Wait for all the settings to be loaded
+      - name: Wait for the settings to be loaded
         run: |
           retries_left=10
           exit_code=0
