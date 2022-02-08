@@ -58,7 +58,6 @@ export const TextAreaComponent = (params: {
                     name={key}
                     defaultValue={defaultValue}
                     data-testid={key}
-                    maxLength={255}
                     onBlur={(e) =>
                         params.savefunc(JSON.parse(e?.target?.value || "{}"))
                     }

@@ -1,8 +1,8 @@
-import React, { Suspense, useRef , SetStateAction, useState } from "react";
+import React, { Suspense } from "react";
 import { Button, GridContainer, Grid } from "@trussworks/react-uswds";
 import { useResource, NetworkErrorBoundary, useController } from "rest-hooks";
 import { RouteComponentProps, useHistory } from "react-router-dom";
-import { diff as DiffEditor } from "react-ace";
+// import { diff as DiffEditor } from "react-ace";
 
 import { ErrorPage } from "../../pages/error/ErrorPage";
 import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource";
@@ -10,7 +10,8 @@ import { showAlertNotification, showError } from "../AlertNotifications";
 
 // import { render } from "react-dom";
 // import "ace-builds/src-noconflict/theme-github";
-import "ace-builds/webpack-resolver";
+// import "ace-builds/webpack-resolver";
+// import {TextAreaComponent} from "./AdminFormEdit";
 // import { TextInputComponent } from "./AdminFormEdit";
 
 type Props = {
@@ -22,30 +23,30 @@ type Props = {
 
 export function CompareSettings({ match }: RouteComponentProps<Props>) {
     const history = useHistory();
-    const defaultVal = `{
-    "name": "ignore",
-    "description": "FOR TESTING ONLY sdsd",
-    "jurisdiction": "FEDERAL",
-    "stateCode": null,
-    "countyName": null,
-    "filters": [
-        {
-            "topic": "covid-19",
-            "jurisdictionalFilter": [
-                "matches(ordering_facility_state, IG)"
-            ],
-            "qualityFilter": null,
-            "routingFilter": null,
-            "processingModeFilter": null
-        }
-    ],
-    "meta": {
-        "version": 16,
-        "createdBy": "local@test.com",
-        "createdAt": "2022-02-03T18:12:44.606332Z"
-    }
-}`;
-    const [state, setState] = useState([defaultVal, defaultVal]);
+    //     const defaultVal = `{
+    //     "name": "ignore",
+    //     "description": "FOR TESTING ONLY sdsd",
+    //     "jurisdiction": "FEDERAL",
+    //     "stateCode": null,
+    //     "countyName": null,
+    //     "filters": [
+    //         {
+    //             "topic": "covid-19",
+    //             "jurisdictionalFilter": [
+    //                 "matches(ordering_facility_state, IG)"
+    //             ],
+    //             "qualityFilter": null,
+    //             "routingFilter": null,
+    //             "processingModeFilter": null
+    //         }
+    //     ],
+    //     "meta": {
+    //         "version": 16,
+    //         "createdBy": "local@test.com",
+    //         "createdAt": "2022-02-03T18:12:44.606332Z"
+    //     }
+    // }`;
+    // const [state, setState] = useState([defaultVal, defaultVal]);
     // const state2: string[] = useRef([defaultVal,defaultVal]);
     const orgname = match?.params?.orgname || "";
     const sendername = match?.params?.sendername || "";
@@ -118,12 +119,12 @@ export function CompareSettings({ match }: RouteComponentProps<Props>) {
             return true;
         };
 
-        function onChange(value: string[]) {
-            // debugger;
-            // setState(value);
-            // state2[0] = value[0];
-            // state2[1] = value[1];
-        }
+        // function onChange(value: string[]) {
+        //     // debugger;
+        //     // setState(value);
+        //     // state2[0] = value[0];
+        //     // state2[1] = value[1];
+        // }
 
         return (
             <GridContainer>
@@ -139,18 +140,12 @@ export function CompareSettings({ match }: RouteComponentProps<Props>) {
                         <br />
                     </Grid>
                 </Grid>
-                <DiffEditor
-                    value={state}
-                    height="1000px"
-                    width="1000px"
-                    setOptions={{
-                        useWorker: false,
-                    }}
-                    mode="json"
-                    theme="github"
-                    className="codeMarker"
-                    onChange={(value, e) => onChange(value || [])}
-                />
+                {/*<TextAreaComponent*/}
+                {/*    fieldname={"filters"}*/}
+                {/*    label={"Filters"}*/}
+                {/*    defaultvalue={orgSettings.filters}*/}
+                {/*    savefunc={(v) => (orgSettings.filters = v)}*/}
+                {/*/>*/}
                 <Grid row>
                     <Button type="button" onClick={() => history.goBack()}>
                         Cancel

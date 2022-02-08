@@ -58,7 +58,14 @@ export function OrgReceiverTable(props: OrgSettingsTableProps) {
             className="grid-container margin-bottom-5"
         >
             <h2>
-                Organization Receiver Settings ({orgReceiverSettings.length})
+                Organization Receiver Settings ({orgReceiverSettings.length}){" "}
+                <NavLink
+                    className="usa-button"
+                    to={`/admin/orgnewsetting/org/${props.orgname}/settingtype/receiver`}
+                    key={`receiver-create-link`}
+                >
+                    New
+                </NavLink>
             </h2>
             <Table
                 key="orgreceiversettingstable"

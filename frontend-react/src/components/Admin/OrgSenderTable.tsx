@@ -59,7 +59,16 @@ export function OrgSenderTable(props: OrgSettingsTableProps) {
             id="orgsendersettings"
             className="grid-container margin-bottom-5"
         >
-            <h2>Organization Sender Settings ({orgSenderSettings.length})</h2>
+            <h2>
+                Organization Sender Settings ({orgSenderSettings.length}){" "}
+                <NavLink
+                    className="usa-button"
+                    to={`/admin/orgnewsetting/org/${props.orgname}/settingtype/sender`}
+                    key={`sender-create-link`}
+                >
+                    New
+                </NavLink>
+            </h2>
             <Table
                 key="orgsendersettingstable"
                 aria-label="Organization Senders"
