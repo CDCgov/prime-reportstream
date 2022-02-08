@@ -15,5 +15,5 @@ test("SubmissionDates have valid format", () => {
 
     // This will fail if you change the dummy object's dates!
     expect(submissionDate.dateString).toBe("7 Apr 1970");
-    expect(submissionDate.timeString).toMatch(/[0-9]+:[0-9]+ [a-zA-Z]M/i);
+    expect(submissionDate.timeString).toMatch(/\d+:\d+ [A,P]M/);
 });
