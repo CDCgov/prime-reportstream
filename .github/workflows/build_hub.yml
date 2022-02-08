@@ -99,12 +99,13 @@ jobs:
           do
              # Sleep first to give an initial time for the loading to finish
              sleep 30
-             ./prime multiple-settings diff -i ./settings/organizations.yml -s
+             ./prime multiple-settings get --fail-on-empty
              exit_code = $?
              if [ $exit_code -eq 0 ]
              then
                break
              else
+               echo "Settings are still not loaded. Retrying $retries_left more times..."
                retries_left=$(expr $retries_left - 1)
              fi
           done

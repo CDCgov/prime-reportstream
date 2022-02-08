@@ -908,6 +908,11 @@ class GetMultipleSettings : SettingCommand(
         metavar = "<filter>"
     )
 
+    val failOnEmpty by option(
+        "--fail-on-empty",
+        help = "return a failure if there are no settings returned"
+    ).flag(default = false)
+
     override fun run() {
         checkApi(environment)
         val output = getAll(environment, oktaAccessToken)
@@ -929,6 +934,10 @@ class GetMultipleSettings : SettingCommand(
             val receiversJson = getMany(environment, accessToken, SettingType.RECEIVER, org.name)
             val orgReceivers = jsonMapper.readValue(receiversJson, Array<ReceiverAPI>::class.java).map { Receiver(it) }
             DeepOrganization(org, orgSenders, orgReceivers)
+        }
+        if (failOnEmpty && deepOrganizations.isEmpty()) {
+            TermUi.echo("There were no settings returned.")
+            exitProcess(1)
         }
         return yamlMapper.writeValueAsString(deepOrganizations)
     }
