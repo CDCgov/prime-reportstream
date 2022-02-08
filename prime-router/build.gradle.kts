@@ -637,14 +637,14 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")
     implementation("com.microsoft.azure.functions:azure-functions-java-library:1.4.2")
     implementation("com.azure:azure-core:1.24.1")
-    implementation("com.azure:azure-core-http-netty:1.11.4")
+    implementation("com.azure:azure-core-http-netty:1.11.6")
     implementation("com.azure:azure-storage-blob:12.14.1") {
         exclude(group = "com.azure", module = "azure-core")
     }
     implementation("com.azure:azure-storage-queue:12.11.2") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-security-keyvault-secrets:4.3.5") {
+    implementation("com.azure:azure-security-keyvault-secrets:4.3.6") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
@@ -695,7 +695,7 @@ dependencies {
     implementation("org.bouncycastle:bcprov-jdk15on:1.70")
 
     implementation("commons-net:commons-net:3.8.0")
-    implementation("com.cronutils:cron-utils:9.1.5")
+    implementation("com.cronutils:cron-utils:9.1.6")
     implementation("com.auth0:java-jwt:3.18.3")
     implementation("io.jsonwebtoken:jjwt-api:0.11.2")
     implementation("de.m3y.kformat:kformat:0.9")

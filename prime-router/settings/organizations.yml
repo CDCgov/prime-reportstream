@@ -3324,3 +3324,19 @@
         numberPerDay: 1
         initialTime: 09:15 # A little after the 12am EASTERN reports from simple report
         timeZone: EASTERN
+
+- name: "kern-county-phsd-ca"
+  description: "Kern County Public Health Services Dept (CA) - CSV Uploader"
+  jurisdiction: "FEDERAL"
+  stateCode: null
+  countyName: null
+  filters: []
+  senders:
+    - name: "default"
+      organizationName: "kern-county-phsd-ca"
+      format: "CSV"
+      topic: "covid-19"
+      customerStatus: "testing"
+      schemaName: "upload-covid-19"
+      keys: null
+      processingType: "sync"
