@@ -130,6 +130,10 @@ elements:
       documentation: Translate multiple inbound Race values to RS / OMB values
       csvFields: [{ name: patient_race, format: $display}]
 
+    - name: patient_primary_language
+      type: TEXT
+      default: "eng"
+      csvFields: [{name: patient_primary_language}]
 
 
 ############### Order Info / Result Info / Specimen Info
@@ -328,9 +332,6 @@ elements:
       mapperOverridesValue: true
       mapper: ifNotPresent($mode:lookup, testing_lab_street, ordering_facility_name_temp, ordering_facility_street_temp)
 
-#    - name: ordering_facility_street2
-#      csvFields: [{name: ordering_facility_street2}]
-
     - name: ordering_facility_street2
       csvFields: [{name: ordering_facility_street2}]
       mapperOverridesValue: true
@@ -363,10 +364,14 @@ elements:
 
 ################ Reporting Facility Info
     - name: reporting_facility_name
-      csvFields: [{name: testing_lab_name }]
+      cardinality: ONE
+      mapper: use(reporting_facility_name, testing_lab_name)
+      csvFields: [{name: reporting_facility_name }]
 
     - name: reporting_facility_clia
-      csvFields: [{name: testing_lab_clia}]
+      cardinality: ONE
+      mapper: use(reporting_facility_clia, testing_lab_clia)
+      csvFields: [{name: reporting_facility_clia}]
 
 
 ############### Set Other Miscellaneous Info
@@ -381,6 +386,7 @@ elements:
 
     - name: comment_source
       mapper: ifPresent(comment, L )
+
 
 ############### AOE fields
     - name: pregnant
