@@ -1,7 +1,8 @@
-import { Match, Matcher, MatcherFunction, render, screen } from "@testing-library/react";
+import { MatcherFunction, render, screen } from "@testing-library/react";
 import ActionDetailsResource from "../../resources/ActionDetailsResource";
 import SubmissionDetails, { DestinationItem, DetailItem } from './SubmissionDetails'
 import { BrowserRouter } from "react-router-dom";
+import { useResource } from "rest-hooks";
 
 /* 
     Using the included regex can end up pulling various elements where the
@@ -66,10 +67,6 @@ describe("SubmissionDetails", () => {
         for (let i = 0; i < testElements.length; i++) {
             expect(testElements[i]).toBeInTheDocument();
         }
-    })
-
-    test("renders error when data is not present", () => {
-
     })
 })
 
