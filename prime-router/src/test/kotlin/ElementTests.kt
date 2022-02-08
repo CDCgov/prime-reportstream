@@ -4,14 +4,19 @@ import assertk.assertThat
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
+import assertk.assertions.isGreaterThan
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
+import assertk.assertions.size
 import assertk.assertions.startsWith
 import gov.cdc.prime.router.metadata.ConcatenateMapper
 import gov.cdc.prime.router.metadata.ElementAndValue
+import gov.cdc.prime.router.metadata.LIVDLookupMapper
+import gov.cdc.prime.router.metadata.LookupMapper
+import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.metadata.Mapper
 import gov.cdc.prime.router.metadata.NullMapper
 import gov.cdc.prime.router.metadata.TrimBlanksMapper
@@ -1245,5 +1250,113 @@ internal class ElementTests {
         result = elementJ.processValue(emptyMap(), schema)
         assertThat(result.errors).isNotEmpty()
         assertThat(result.warnings).isEmpty()
+    }
+
+    @Test
+    fun `test element validation`() {
+        // Type tests
+        assertThat(Element("name").validate()).isNotEmpty()
+        assertThat(Element("name", type = Element.Type.TEXT).validate()).isEmpty()
+
+        // Lookup mapper tests
+        assertThat(
+            Element("name", type = Element.Type.TEXT, mapperRef = LookupMapper())
+                .validate()
+        ).isNotEmpty()
+        assertThat(
+            Element("name", type = Element.Type.TEXT, mapperRef = LookupMapper(), tableRef = LookupTable())
+                .validate()
+        ).isNotEmpty()
+        assertThat(
+            Element("name", type = Element.Type.TEXT, mapperRef = LookupMapper(), tableColumn = "column")
+                .validate()
+        ).isNotEmpty()
+        assertThat(
+            Element(
+                "name", type = Element.Type.TEXT, mapperRef = LookupMapper(), tableRef = LookupTable(),
+                tableColumn = "column"
+            )
+                .validate()
+        ).isEmpty()
+        assertThat(
+            Element("name", type = Element.Type.TEXT, mapperRef = LIVDLookupMapper())
+                .validate()
+        ).isNotEmpty()
+        assertThat(
+            Element("name", type = Element.Type.TEXT, mapperRef = LIVDLookupMapper(), tableRef = LookupTable())
+                .validate()
+        ).isNotEmpty()
+        assertThat(
+            Element("name", type = Element.Type.TEXT, mapperRef = LIVDLookupMapper(), tableColumn = "column")
+                .validate()
+        ).isNotEmpty()
+        assertThat(
+            Element(
+                "name", type = Element.Type.TEXT, mapperRef = LIVDLookupMapper(), tableRef = LookupTable(),
+                tableColumn = "column"
+            )
+                .validate()
+        ).isEmpty()
+
+        // Mapper tests
+        assertThat(
+            Element("name", type = Element.Type.TEXT, mapperOverridesValue = true)
+                .validate()
+        ).isNotEmpty()
+        assertThat(
+            Element("name", type = Element.Type.TEXT, mapperOverridesValue = true, mapperRef = NullMapper())
+                .validate()
+        ).isEmpty()
+
+        assertThat(
+            Element("name", type = Element.Type.TEXT, mapperArgs = listOf("arg"), mapperRef = NullMapper())
+                .validate()
+        ).isEmpty()
+        assertThat(
+            Element("name", type = Element.Type.TEXT, mapperArgs = listOf("arg"), mapperRef = NullMapper())
+                .validate()
+        ).isEmpty()
+
+        // Table tests
+        assertThat(
+            Element("name", type = Element.Type.TABLE)
+                .validate()
+        ).isNotEmpty()
+        assertThat(
+            Element("name", type = Element.Type.TABLE, tableRef = LookupTable())
+                .validate()
+        ).isEmpty()
+        assertThat(
+            Element("name", type = Element.Type.TABLE_OR_BLANK)
+                .validate()
+        ).isNotEmpty()
+        assertThat(
+            Element("name", type = Element.Type.TABLE_OR_BLANK, tableRef = LookupTable())
+                .validate()
+        ).isEmpty()
+        assertThat(
+            Element("name", type = Element.Type.TEXT, tableColumn = "column")
+                .validate()
+        ).isNotEmpty()
+        assertThat(
+            Element("name", type = Element.Type.TEXT, tableColumn = "column", tableRef = LookupTable())
+                .validate()
+        ).isEmpty()
+
+        // Can be blank test
+        assertThat(
+            Element("name", type = Element.Type.TEXT_OR_BLANK)
+                .validate()
+        ).isEmpty()
+        assertThat(
+            Element("name", type = Element.Type.TEXT_OR_BLANK, default = "default")
+                .validate()
+        ).isNotEmpty()
+
+        // Multiple errors returned
+        assertThat(
+            Element("name", type = Element.Type.TEXT_OR_BLANK, default = "default", mapperArgs = listOf("arg"))
+                .validate()
+        ).size().isGreaterThan(1)
     }
 }

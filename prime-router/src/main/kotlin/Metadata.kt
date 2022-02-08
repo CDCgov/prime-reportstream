@@ -125,6 +125,7 @@ class Metadata : Logging {
         loadSchemaCatalog(metadataDir.toPath().resolve(schemasSubdirectory).toString())
         loadFileNameTemplates(metadataDir.toPath().resolve(fileNameTemplatesSubdirectory).toString())
         logger.trace("Metadata initialized.")
+        validateSchemas()
     }
 
     /**
@@ -182,6 +183,7 @@ class Metadata : Logging {
 
         schemas.forEach { fixupSchema(it.name) }
         schemaStore = fixedUpSchemas
+
         return this
     }
 
@@ -246,8 +248,6 @@ class Metadata : Logging {
      * The fixup process fills in references and inherited attributes.
      */
     private fun fixupElement(element: Element, baseElement: Element? = null): Element {
-        if (element.canBeBlank && element.default != null)
-            error("Schema Error: '${element.name}' has both a default and a canBeBlank field")
         val valueSet = element.valueSet ?: baseElement?.valueSet
         val valueSetRef = valueSet?.let {
             val ref = findValueSet(it)
@@ -447,6 +447,19 @@ class Metadata : Logging {
         } catch (e: Exception) {
             throw Exception("Error reading '${file.name}'", e)
         }
+    }
+
+    /**
+     * Validate all the loaded schemas.
+     */
+    internal fun validateSchemas() {
+        val validationErrors = mutableListOf<String>()
+        schemaStore.values.forEach { validationErrors.addAll(it.validate()) }
+        if (validationErrors.isNotEmpty())
+            error(
+                "There were errors validating the schemas." + System.lineSeparator() +
+                    validationErrors.joinToString(System.lineSeparator())
+            )
     }
 
     companion object {
