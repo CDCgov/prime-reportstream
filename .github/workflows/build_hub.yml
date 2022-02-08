@@ -92,23 +92,31 @@ jobs:
           docker-compose -f docker-compose.yml up -d prime_dev redox ftps sftp azurite
           
       - name: Wait for the settings to be loaded
+        # Test to see if all settings have been loaded.
         run: |
           retries_left=10
           exit_code=0
           while [ $retries_left -gt 0 ]
           do
              # Sleep first to give an initial time for the loading to finish
-             sleep 30
-             ./prime multiple-settings get --fail-on-empty >& /dev/null
-             exit_code=$?
-             if [ $exit_code -eq 0 ]
+             sleep 3
+             if [ $stage -eq 0 ]
              then
-               break
+               ./prime multiple-settings get --fail-on-empty >& /dev/null
+               if [ $? -eq 0 ]; then stage=1; fi
+             fi
+             if [ $stage -eq 1 ]
+             then
+               ./prime multiple-settings diff -i ./settings/organizations.yml -s >& /dev/null
+               exit_code=$?
+             fi
+             if [ $exit_code -eq 0 ]; then break
              else
                echo "Settings are still not loaded. Retrying $retries_left more times..."
                retries_left=$(expr $retries_left - 1)
              fi
           done
+
           if [ $exit_code -eq 0 ]; then true; else false; fi
         
       # Integrations tests require the metadata catalog
