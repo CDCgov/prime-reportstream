@@ -45,7 +45,6 @@ import org.apache.http.HttpStatus
 import java.io.File
 import java.time.OffsetDateTime
 import java.time.format.DateTimeParseException
-import kotlin.system.exitProcess
 
 private const val apiPath = "/api/settings"
 private const val dummyAccessToken = "dummy"
@@ -888,8 +887,6 @@ class DiffMultipleSettings : SettingCommand(
         checkApi(environment)
         echo("Loading settings from ${inputFile.absolutePath} to compare...")
         val differences = diffAll(inputFile)
-        // If we are running silent then return a bad exit status if there are differences
-        if (silent && differences.isNotEmpty()) exitProcess(1)
         if (differences.isNotEmpty()) {
             echoDiff(differences)
         } else {
@@ -907,11 +904,6 @@ class GetMultipleSettings : SettingCommand(
         help = "filter the organizations, only returning those with names that start with <filter>",
         metavar = "<filter>"
     )
-
-    val failOnEmpty by option(
-        "--fail-on-empty",
-        help = "return a failure if there are no settings returned"
-    ).flag(default = false)
 
     override fun run() {
         checkApi(environment)
@@ -934,10 +926,6 @@ class GetMultipleSettings : SettingCommand(
             val receiversJson = getMany(environment, accessToken, SettingType.RECEIVER, org.name)
             val orgReceivers = jsonMapper.readValue(receiversJson, Array<ReceiverAPI>::class.java).map { Receiver(it) }
             DeepOrganization(org, orgSenders, orgReceivers)
-        }
-        if (failOnEmpty && deepOrganizations.isEmpty()) {
-            TermUi.echo("There were no settings returned.")
-            exitProcess(1)
         }
         return yamlMapper.writeValueAsString(deepOrganizations)
     }
