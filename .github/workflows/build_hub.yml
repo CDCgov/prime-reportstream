@@ -96,10 +96,10 @@ jobs:
         with:
           time: 30s
       
-      - name: Ensure all the lookup tables are loaded
+      - name: Load the lookup tables
         run: ./gradlew reloadTables
         
-      - name: Ensure all the settings are loaded
+      - name: Load the settings
         run: ./gradlew reloadSettings
         
       # Integrations tests require the metadata catalog
