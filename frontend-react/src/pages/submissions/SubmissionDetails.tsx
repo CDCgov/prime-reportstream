@@ -1,27 +1,29 @@
-import { Suspense } from 'react';
-import { useParams } from 'react-router-dom';
-import { NetworkErrorBoundary, useResource } from 'rest-hooks';
-import { getStoredOrg } from '../../components/GlobalContextProvider';
-import Spinner from '../../components/Spinner';
-import Title from '../../components/Title';
-import ActionDetailsResource, { Destination } from '../../resources/ActionDetailsResource';
-import { generateSubmissionDate } from '../../utils/DateTimeUtils';
-import { ErrorPage } from '../error/ErrorPage';
+import { Suspense } from "react";
+import { useParams } from "react-router-dom";
+import { NetworkErrorBoundary, useResource } from "rest-hooks";
+import { getStoredOrg } from "../../components/GlobalContextProvider";
+import Spinner from "../../components/Spinner";
+import Title from "../../components/Title";
+import ActionDetailsResource, {
+    Destination,
+} from "../../resources/ActionDetailsResource";
+import { generateSubmissionDate } from "../../utils/DateTimeUtils";
+import { ErrorPage } from "../error/ErrorPage";
 
 /* Custom types */
 type DetailItemProps = {
-    item: string,
-    content: any,
+    item: string;
+    content: any;
     subItem?: boolean;
-}
+};
 
 type DestinationItemProps = {
-    destinationObj: Destination
-}
+    destinationObj: Destination;
+};
 
 type SubmissionDetailsProps = {
-    actionId: string | undefined
-}
+    actionId: string | undefined;
+};
 
 /* 
     A component displaying a soft gray title and content in
@@ -32,11 +34,13 @@ type SubmissionDetailsProps = {
 */
 export function DetailItem({ item, content, subItem }: DetailItemProps) {
     return (
-        <div style={{
-            'display': 'flex',
-            'flexDirection': 'column',
-            'margin': subItem ? '16px 32px' : '8px 0px'
-        }}>
+        <div
+            style={{
+                display: "flex",
+                flexDirection: "column",
+                margin: subItem ? "16px 32px" : "8px 0px",
+            }}
+        >
             <span>{item}</span>
             <span>{content}</span>
         </div>
@@ -51,25 +55,28 @@ export function DetailItem({ item, content, subItem }: DetailItemProps) {
     in the history/submissions details API
 */
 export function DestinationItem({ destinationObj }: DestinationItemProps) {
-    const submissionDate = generateSubmissionDate(destinationObj.sending_at) || "unsent"
+    const submissionDate =
+        generateSubmissionDate(destinationObj.sending_at) || "unsent";
     return (
-        <div style={{
-            'display': 'flex',
-            'flexDirection': 'column',
-        }}>
+        <div
+            style={{
+                display: "flex",
+                flexDirection: "column",
+            }}
+        >
             <h2>{destinationObj.organization}</h2>
             <DetailItem
-                item={'Transmission Date'}
+                item={"Transmission Date"}
                 content={submissionDate.dateString}
                 subItem
             />
             <DetailItem
-                item={'Transmission Time'}
+                item={"Transmission Time"}
                 content={submissionDate.timeString}
                 subItem
             />
             <DetailItem
-                item={'Records'}
+                item={"Records"}
                 content={destinationObj.itemCount}
                 subItem
             />
@@ -86,40 +93,35 @@ export function DestinationItem({ destinationObj }: DestinationItemProps) {
 */
 function SubmissionDetailsContent() {
     const organization = getStoredOrg();
-    const { actionId } = useParams<SubmissionDetailsProps>()
+    const { actionId } = useParams<SubmissionDetailsProps>();
     const actionDetails: ActionDetailsResource = useResource(
         ActionDetailsResource.detail(),
         { actionId, organization }
     );
-    const submissionDate = generateSubmissionDate(actionDetails.submittedAt)
+    const submissionDate = generateSubmissionDate(actionDetails.submittedAt);
 
     if (!actionDetails) {
-        return (
-            <ErrorPage type="page" />
-        )
+        return <ErrorPage type="page" />;
     } else {
         return (
             <div
                 className="grid-container margin-bottom-10"
-                data-testid="container">
+                data-testid="container"
+            >
                 <div className="grid-col-12">
                     <Title
-                        preTitle={
-                            `${actionDetails.submitter} ${actionDetails.topic.toUpperCase()} Submissions`
-                        }
-                        title={`${submissionDate.dateString} ${submissionDate.timeString}`} />
-                    <DetailItem
-                        item={'Report ID'}
-                        content={actionDetails.id}
+                        preTitle={`${
+                            actionDetails.submitter
+                        } ${actionDetails.topic.toUpperCase()} Submissions`}
+                        title={`${submissionDate.dateString} ${submissionDate.timeString}`}
                     />
-                    {
-                        actionDetails.destinations.map(dst => (
-                            <DestinationItem
-                                key={`${dst.organization_id}-${dst.sending_at}`}
-                                destinationObj={dst}
-                            />
-                        ))
-                    }
+                    <DetailItem item={"Report ID"} content={actionDetails.id} />
+                    {actionDetails.destinations.map((dst) => (
+                        <DestinationItem
+                            key={`${dst.organization_id}-${dst.sending_at}`}
+                            destinationObj={dst}
+                        />
+                    ))}
                 </div>
             </div>
         );
@@ -133,13 +135,13 @@ function SubmissionDetailsContent() {
 function SubmissionDetails() {
     return (
         <NetworkErrorBoundary
-            fallbackComponent={() => <ErrorPage type='page' />}>
-            <Suspense
-                fallback={<Spinner fullPage />}>
+            fallbackComponent={() => <ErrorPage type="page" />}
+        >
+            <Suspense fallback={<Spinner fullPage />}>
                 <SubmissionDetailsContent />
             </Suspense>
         </NetworkErrorBoundary>
-    )
+    );
 }
 
 export default SubmissionDetails;

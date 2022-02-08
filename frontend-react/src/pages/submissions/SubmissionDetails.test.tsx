@@ -1,20 +1,26 @@
 import { MatcherFunction, render, screen } from "@testing-library/react";
 import ActionDetailsResource from "../../resources/ActionDetailsResource";
-import SubmissionDetails, { DestinationItem, DetailItem } from './SubmissionDetails'
+import SubmissionDetails, {
+    DestinationItem,
+    DetailItem,
+} from "./SubmissionDetails";
 import { BrowserRouter } from "react-router-dom";
 
 /* 
     Using the included regex can end up pulling various elements where the
     value has the parsed timestamp. Use a function 
 */
-const timeRegex: RegExp = /\d+:\d+ [A,P]M/
-const mockData: ActionDetailsResource = ActionDetailsResource.dummy()
-jest.mock('rest-hooks', () => ({
-    useResource: () => { return mockData },
+const timeRegex: RegExp = /\d+:\d+ [A,P]M/;
+const mockData: ActionDetailsResource = ActionDetailsResource.dummy();
+jest.mock("rest-hooks", () => ({
+    useResource: () => {
+        return mockData;
+    },
     /* Must return children when mocking, otherwise nothing inside renders */
-    NetworkErrorBoundary:
-        ({ children }: { children: JSX.Element[] }) => { return <>{children}</> }
-}))
+    NetworkErrorBoundary: ({ children }: { children: JSX.Element[] }) => {
+        return <>{children}</>;
+    },
+}));
 
 describe("SubmissionDetails", () => {
     beforeEach(() => {
@@ -26,30 +32,37 @@ describe("SubmissionDetails", () => {
             <BrowserRouter>
                 <SubmissionDetails />
             </BrowserRouter>
-        )
-    })
+        );
+    });
 
     test("renders without error", async () => {
-
         const container = await screen.findByTestId("container");
         expect(container).toBeInTheDocument();
-    })
+    });
 
     test("renders data to sub-components", async () => {
         /* Custom matcher for transitionTime */
-        const findTimeWithoutDate: MatcherFunction = (content, element): boolean => {
-            if (!content.includes("7 Apr 1970") && timeRegex.test(content)) return true
-            return false
-        }
+        const findTimeWithoutDate: MatcherFunction = (
+            content,
+            element
+        ): boolean => {
+            if (!content.includes("7 Apr 1970") && timeRegex.test(content))
+                return true;
+            return false;
+        };
 
         /* Report ID DetailItem */
-        const idElement = await screen.findByText(mockData.id)
+        const idElement = await screen.findByText(mockData.id);
 
         /* DestinationItem contents*/
-        const receiverOrgName = await screen.findByText(mockData.destinations[0].organization)
-        const transmissionDate = await screen.findByText("7 Apr 1970")
-        const transmissionTime = screen.getByText(findTimeWithoutDate)
-        const recordsTransmitted = await screen.findByText(mockData.destinations[0].itemCount)
+        const receiverOrgName = await screen.findByText(
+            mockData.destinations[0].organization
+        );
+        const transmissionDate = await screen.findByText("7 Apr 1970");
+        const transmissionTime = screen.getByText(findTimeWithoutDate);
+        const recordsTransmitted = await screen.findByText(
+            mockData.destinations[0].itemCount
+        );
 
         /* 
             As above, so below. Add any new elements needing unit test
@@ -60,42 +73,38 @@ describe("SubmissionDetails", () => {
             receiverOrgName,
             transmissionDate,
             transmissionTime,
-            recordsTransmitted
-        ]
+            recordsTransmitted,
+        ];
 
         for (let i = 0; i < testElements.length; i++) {
             expect(testElements[i]).toBeInTheDocument();
         }
-    })
-})
+    });
+});
 
 describe("DetailItem", () => {
     beforeEach(() => {
         render(
             <BrowserRouter>
-                <DetailItem
-                    item="Test Item"
-                    content="Test Content" />
+                <DetailItem item="Test Item" content="Test Content" />
             </BrowserRouter>
-        )
-    })
+        );
+    });
 
     test("renders content", () => {
         expect(screen.getByText(/test item/i)).toBeInTheDocument();
         expect(screen.getByText(/test content/i)).toBeInTheDocument();
-    })
-})
+    });
+});
 
 describe("DestinationItem", () => {
     beforeEach(() => {
         render(
             <BrowserRouter>
-                <DestinationItem
-                    destinationObj={mockData.destinations[0]}
-                />
+                <DestinationItem destinationObj={mockData.destinations[0]} />
             </BrowserRouter>
-        )
-    })
+        );
+    });
 
     test("renders content", () => {
         expect(screen.getByText(/transmission date/i)).toBeInTheDocument();
@@ -108,5 +117,5 @@ describe("DestinationItem", () => {
         expect(screen.getByText(/7 Apr 1970/i)).toBeInTheDocument();
         expect(screen.getByText(timeRegex)).toBeInTheDocument();
         expect(screen.getByText(/3/i)).toBeInTheDocument();
-    })
-})
+    });
+});

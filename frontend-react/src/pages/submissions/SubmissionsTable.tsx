@@ -152,7 +152,9 @@ function SubmissionsTable() {
                                 return (
                                     <tr key={s.pk()}>
                                         <th scope="row">
-                                            <NavLink to={`/submissions/${s.taskId}`}>
+                                            <NavLink
+                                                to={`/submissions/${s.taskId}`}
+                                            >
                                                 {new Date(
                                                     s.createdAt
                                                 ).toLocaleString()}
