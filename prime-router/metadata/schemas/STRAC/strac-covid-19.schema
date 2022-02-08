@@ -191,6 +191,7 @@ elements:
     mapper: use(strac_patient_appt_datetime)
 
   - name: specimen_received_date_time
+    type: TEXT
     mapper: use(strac_patient_appt_datetime)
 
   - name: abnormal_flag
