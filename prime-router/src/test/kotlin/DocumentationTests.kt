@@ -222,13 +222,53 @@ $documentation
 
 **Value Sets**
 
-Code | Display
----- | -------
-&#62;|Above absolute high-off instrument scale
+Code | Display | System
+---- | ------- | ------
+&#62;|Above absolute high-off instrument scale|HL7
 
 ---
 """
         val actual = DocumentationFactory.getElementDocumentation(elemWithTypeCode)
+        assertThat(actual).isEqualTo(expected)
+    }
+
+    @Test
+    fun `test documentation for element with valueSet table generation`() {
+
+        // Test case that contains element.system = HL7 and element.ValueSet.Values.system = LOINC
+        val valueSetA = ValueSet(
+            "a",
+            ValueSet.SetSystem.HL7,
+            values = listOf(
+                ValueSet.Value(
+                    ">", "Above absolute high-off instrument scale",
+                    system = ValueSet.SetSystem.LOINC
+                )
+            )
+        )
+        val elemWithValuesSetValues = Element(name = "a", type = Element.Type.CODE, valueSetRef = valueSetA)
+        val expected = """
+**Name**: a
+
+**ReportStream Internal Name**: a
+
+**Type**: CODE
+
+**PII**: No
+
+**Format**: use value found in the Code column
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display | System
+---- | ------- | ------
+&#62;|Above absolute high-off instrument scale|LOINC
+
+---
+"""
+        val actual = DocumentationFactory.getElementDocumentation(elemWithValuesSetValues)
         assertThat(actual).isEqualTo(expected)
     }
 }

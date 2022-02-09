@@ -9,9 +9,9 @@
         "@fortawesome/fontawesome-svg-core": "^1.2.36",
         "@fortawesome/free-solid-svg-icons": "^5.15.4",
         "@fortawesome/react-fontawesome": "^0.1.16",
-        "@okta/okta-auth-js": "^5.9.1",
-        "@okta/okta-react": "^6.1.0",
-        "@okta/okta-signin-widget": "^5.14.1",
+        "@okta/okta-auth-js": "^5.11.0",
+        "@okta/okta-react": "^6.4.1",
+        "@okta/okta-signin-widget": "^5.16.1",
         "@rest-hooks/hooks": "^2.0.0",
         "@rest-hooks/rest": "^2.2.0",
         "@rest-hooks/test": "^7.1.0",
@@ -21,7 +21,7 @@
         "@types/hookrouter": "^2.2.5",
         "@types/jsonwebtoken": "^8.5.5",
         "@types/node": "^15.3.0",
-        "@types/react": "^17.0.37",
+        "@types/react": "^17.0.38",
         "@types/react-dom": "^17.0.5",
         "craco-sass-resources-loader": "^1.1.0",
         "dompurify": "^2.3.4",
@@ -39,6 +39,7 @@
         "react-helmet": "^6.1.0",
         "react-idle-timer": "^4.6.4",
         "react-router-dom": "^5.2.0",
+        "react-toastify": "^8.1.0",
         "rest-hooks": "^6.1.7",
         "rimraf": "^3.0.2",
         "sass-loader": "^12.4.0",
@@ -60,10 +61,10 @@
         "eject": "react-scripts eject",
         "lint": "npm-run-all -p lint:eslint lint:prettier",
         "lint:write": "npm-run-all -p lint:eslint:write lint:prettier:write",
-        "lint:eslint": "eslint 'src/**/*.{js,ts,jsx,tsx}'",
-        "lint:eslint:write": "eslint --fix 'src/**/*.{js,ts,jsx,tsx}'",
-        "lint:prettier": "prettier --check 'src/**/*.{js,ts,jsx,tsx}'",
-        "lint:prettier:write": "prettier --write 'src/**/*.{js,ts,jsx,tsx}'",
+        "lint:eslint": "eslint src/**/*.{js,ts,jsx,tsx}",
+        "lint:eslint:write": "eslint --fix src/**/*.{js,ts,jsx,tsx}",
+        "lint:prettier": "prettier --check src/**/*.{js,ts,jsx,tsx}",
+        "lint:prettier:write": "prettier --write src/**/*.{js,ts,jsx,tsx}",
         "cypress-open": "./node_modules/.bin/cypress open",
         "cypress-run": "./node_modules/.bin/cypress run",
         "yarn:show-outdated-packages": "yarn outdated"
@@ -139,11 +140,15 @@
         "prettier": "^2.5.0",
         "react-dropdown": "^1.9.2",
         "react-scripts": "^4.0.3",
-        "sass": "^1.42.1",
-        "stylelint": "^14.0.0",
+        "sass": "^1.45.2",
+        "stylelint": "^14.2.0",
         "yaml-loader": "^0.6.0"
     },
+    "peerDependencies": {
+      "postcss": "^8.4.5"
+    },
     "resolutions": {
-        "react-scripts/postcss": "8.2.13"
+        "react-scripts/**/node-forge": "^1.0.0",
+        "@okta/**/node-fetch": "^2.6.7"
     }
 }

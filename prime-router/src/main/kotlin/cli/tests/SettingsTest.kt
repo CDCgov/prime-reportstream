@@ -1,9 +1,12 @@
 package gov.cdc.prime.router.cli.tests
 
+import gov.cdc.prime.router.azure.HttpUtilities
+import gov.cdc.prime.router.cli.FileUtilities
 import gov.cdc.prime.router.cli.SettingCommand
 import gov.cdc.prime.router.cli.SettingsUtilities
 import gov.cdc.prime.router.common.Environment
 import org.apache.http.HttpStatus
+import java.net.HttpURLConnection
 
 /**
  * Test CRUD of the Setting API.  It is smoke test that does the following steps:
@@ -181,5 +184,54 @@ class SettingsTest : CoolTest() {
         }
 
         return good("Test passed: Test GRUD REST API ")
+    }
+}
+
+/**
+ * The key to this [SenderSettings] smoke test is in the SETTINGS_TEST receiver in organizations.yml.
+ * SETTINGS_TEST has specific filters such that if the sender settings were not properly extracted
+ * from the `ignore.ignore-empty` sender, the SETTINGS_TEST receiver's data will get filtered out,
+ * and the test will fail.
+ */
+class SenderSettings : CoolTest() {
+    override val name = "sender-settings"
+    override val description = "Test that we can extract values from Sender settings and put into our data "
+    override val status = TestStatus.SMOKE
+
+    override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
+        ugly("Starting $name: $description")
+        val file = FileUtilities.createFakeFile(
+            metadata,
+            settings,
+            emptySender,
+            options.items,
+            receivingStates,
+            settingsTestReceiver.name,
+            options.dir,
+        )
+        echo("Created datafile $file")
+        val (responseCode, json) =
+            HttpUtilities.postReportFile(
+                environment,
+                file,
+                emptySender,
+                options.asyncProcessMode,
+                options.key,
+                payloadName = "$name ${status.description}",
+            )
+        echo("Response to POST: $responseCode")
+        if (!options.muted) echo(json)
+        if (responseCode != HttpURLConnection.HTTP_CREATED) {
+            return bad("***$name Test FAILED***:  response code $responseCode")
+        }
+        val reportId = getReportIdFromResponse(json)
+            ?: return bad("***$name Test FAILED***: A report ID came back as null")
+        echo("Id of submitted report: $reportId")
+        return pollForLineageResults(
+            reportId = reportId,
+            receivers = listOf(settingsTestReceiver),
+            totalItems = options.items,
+            asyncProcessMode = options.asyncProcessMode
+        )
     }
 }

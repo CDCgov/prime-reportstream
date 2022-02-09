@@ -295,6 +295,7 @@ Examples:
             OtcProctored(),
             BadHl7(),
             Jti(),
+            SenderSettings(),
             InternationalContent(),
             DataCompareTest(),
             SantaClaus(),
@@ -542,7 +543,7 @@ abstract class CoolTest {
                 passed = bad("***$name Test FAILED***: There were errors reported.")
             }
 
-            if (destCount != null && !destCount.isNull && destCount.intValue() > 0) {
+            if (destCount != null && !destCount.isNull && destCount.intValue() >= 0) {
                 good("Data going to be sent to one or more destinations.")
             } else {
                 passed = bad("***$name Test FAILED***: There are no destinations set for sending the data.")
@@ -775,6 +776,9 @@ abstract class CoolTest {
         }[0]
         val qualityReversedReceiver = settings.receivers.filter {
             it.organizationName == orgName && it.name == "QUALITY_REVERSED"
+        }[0]
+        val settingsTestReceiver = settings.receivers.filter {
+            it.organizationName == orgName && it.name == "SETTINGS_TEST"
         }[0]
 
         const val ANSI_RESET = "\u001B[0m"

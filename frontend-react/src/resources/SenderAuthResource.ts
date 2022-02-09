@@ -12,7 +12,7 @@ export default class SenderAuthResource extends AuthResource {
 
     static useFetchInit = (init: RequestInit): RequestInit => {
         const accessToken = getStoredOktaToken();
-        const organization = getStoredOrg(); //         const senderOrganization = senderClient(authState);
+        const organization = getStoredOrg();
 
         return {
             ...init,

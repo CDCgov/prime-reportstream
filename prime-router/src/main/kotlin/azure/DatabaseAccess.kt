@@ -7,6 +7,7 @@ import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.db.Routines
 import gov.cdc.prime.router.azure.db.Tables
+import gov.cdc.prime.router.azure.db.Tables.ACTION
 import gov.cdc.prime.router.azure.db.Tables.COVID_RESULT_METADATA
 import gov.cdc.prime.router.azure.db.Tables.EMAIL_SCHEDULE
 import gov.cdc.prime.router.azure.db.Tables.JTI_CACHE
@@ -142,15 +143,39 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
     fun fetchNumReportsNeedingBatch(
         receiverFullName: String,
         backstopTime: OffsetDateTime,
-        txn: DataAccessTransaction
+        txn: DataAccessTransaction?
     ): Int {
-        return DSL.using(txn)
+        val ctx = if (txn != null) DSL.using(txn) else create
+        return ctx
             .select(TASK.asterisk())
             .from(TASK)
             .where(TASK.NEXT_ACTION.eq(TaskAction.batch))
             .and(TASK.RECEIVER_NAME.eq(receiverFullName))
             .and(TASK.NEXT_ACTION_AT.greaterOrEqual(backstopTime))
             .count()
+    }
+
+    /**
+     * Given a receiver, finds out if the receiver (identified by [receiverOrg] and [receiverSvc]) had at least
+     * one 'send' action within after the passed in [checkTime].
+     */
+    fun checkRecentlySent(
+        receiverOrg: String,
+        receiverSvc: String,
+        checkTime: OffsetDateTime,
+        txn: DataAccessTransaction?
+    ): Boolean {
+        val ctx = if (txn != null) DSL.using(txn) else create
+        return ctx
+            .select(ACTION.asterisk())
+            .from(ACTION)
+            .join(Tables.REPORT_FILE)
+            .on(ACTION.ACTION_ID.eq(Tables.REPORT_FILE.ACTION_ID))
+            .where(Tables.REPORT_FILE.RECEIVING_ORG.eq(receiverOrg))
+            .and(Tables.REPORT_FILE.RECEIVING_ORG_SVC.eq(receiverSvc))
+            .and(ACTION.CREATED_AT.greaterOrEqual(checkTime))
+            .and(ACTION.ACTION_NAME.eq(TaskAction.send))
+            .count() > 0
     }
 
     fun fetchTask(reportId: ReportId): Task {

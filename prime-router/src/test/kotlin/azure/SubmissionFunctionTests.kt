@@ -52,6 +52,27 @@ class SubmissionFunctionTests {
             @Suppress("UNCHECKED_CAST")
             return dataset as List<T>
         }
+
+        override fun <T, P, U> fetchAction(
+            sendingOrg: String,
+            submissionId: Long,
+            klass: Class<T>,
+            reportsKlass: Class<P>,
+            logsKlass: Class<U>,
+        ): T? {
+            @Suppress("UNCHECKED_CAST")
+            return dataset.first() as T
+        }
+
+        override fun <T, P, U> fetchRelatedActions(
+            submissionId: Long,
+            klass: Class<T>,
+            reportsKlass: Class<P>,
+            logsKlass: Class<U>,
+        ): List<T> {
+            @Suppress("UNCHECKED_CAST")
+            return dataset as List<T>
+        }
     }
 
     val testData = listOf(
@@ -176,7 +197,10 @@ class SubmissionFunctionTests {
                 SubmissionsFacade(
                     TestSubmissionAccess(testData, mapper)
                 )
-            ).submissions(httpRequestMessage)
+            ).submissions(
+                httpRequestMessage,
+                "simple_report",
+            )
             // Verify
             assertThat(response.getStatus()).isEqualTo(it.expectedResponse.status)
             if (response.getStatus() == HttpStatus.OK) {
