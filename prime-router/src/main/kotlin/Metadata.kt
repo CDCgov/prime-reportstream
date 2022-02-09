@@ -46,7 +46,8 @@ class Metadata : Logging {
         HashMapper(),
         NullMapper(),
         LookupSenderValuesetsMapper(),
-        NpiLookupMapper()
+        NpiLookupMapper(),
+        CountryMapper(),
     )
     private var reportStreamFilterDefinitions = listOf(
         FilterByCounty(),

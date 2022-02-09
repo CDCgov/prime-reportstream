@@ -1137,9 +1137,10 @@ class CountryMapper : Mapper {
         values: List<ElementAndValue>,
         sender: Sender?
     ): ElementResult {
+        val patientCountry = values.firstOrNull { it.element.name == element.name }?.value
         val patientPostalCode = values.firstOrNull { it.element.name == "patient_zip_code" }?.value
         return ElementResult(
-            when (values.firstOrNull()?.value.isNullOrEmpty()) {
+            when (patientCountry.isNullOrEmpty()) {
                 true -> {
                     if (patientPostalCode != null && canadianPostalCodeRegex.matches(patientPostalCode)) {
                         "CAN"
@@ -1147,7 +1148,7 @@ class CountryMapper : Mapper {
                         "USA"
                     }
                 }
-                else -> values.firstOrNull()?.value
+                else -> patientCountry
             }
         )
     }
