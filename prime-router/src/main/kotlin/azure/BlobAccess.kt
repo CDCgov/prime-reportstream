@@ -23,9 +23,9 @@ import java.security.MessageDigest
 const val defaultBlobContainerName = "reports"
 
 class BlobAccess(
-    private val csvSerializer: CsvSerializer,
-    private val hl7Serializer: Hl7Serializer,
-    private val redoxSerializer: RedoxSerializer
+    private val csvSerializer: CsvSerializer? = null,
+    private val hl7Serializer: Hl7Serializer? = null,
+    private val redoxSerializer: RedoxSerializer? = null,
 ) : Logging {
     private val defaultConnEnvVar = "AzureWebJobsStorage"
 
@@ -118,18 +118,18 @@ class BlobAccess(
     ): Pair<Report.Format, ByteArray> {
         val outputStream = ByteArrayOutputStream()
         when (report.bodyFormat) {
-            Report.Format.INTERNAL -> csvSerializer.writeInternal(report, outputStream)
+            Report.Format.INTERNAL -> csvSerializer?.writeInternal(report, outputStream)
             // HL7 needs some additional configuration we set on the translation in organization
-            Report.Format.HL7 -> hl7Serializer.write(report, outputStream)
-            Report.Format.HL7_BATCH -> hl7Serializer.writeBatch(
+            Report.Format.HL7 -> hl7Serializer?.write(report, outputStream)
+            Report.Format.HL7_BATCH -> hl7Serializer?.writeBatch(
                 report,
                 outputStream,
                 sendingApplicationReport,
                 receivingApplicationReport,
                 receivingFacilityReport
             )
-            Report.Format.CSV, Report.Format.CSV_SINGLE -> csvSerializer.write(report, outputStream)
-            Report.Format.REDOX -> redoxSerializer.write(report, outputStream)
+            Report.Format.CSV, Report.Format.CSV_SINGLE -> csvSerializer?.write(report, outputStream)
+            Report.Format.REDOX -> redoxSerializer?.write(report, outputStream)
         }
         val contentBytes = outputStream.toByteArray()
         return Pair(report.bodyFormat, contentBytes)
