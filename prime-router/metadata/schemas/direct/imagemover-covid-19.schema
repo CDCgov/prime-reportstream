@@ -29,3 +29,10 @@ elements:
     default:
     defaultOverridesValue: true
 
+  # default the values for reporting facility if none exists
+  - name: reporting_facility_name
+    default: CDC Prime
+
+  - name: reporting_facility_clia
+    default: 11D2030855
+
