@@ -254,7 +254,7 @@ data class InvalidEquipmentMessage(
 
     companion object {
         fun new(element: Element): InvalidEquipmentMessage {
-            return InvalidEquipmentMessage(elementName = element.name)
+            return InvalidEquipmentMessage(elementName = element.fieldMapping)
         }
     }
 }
