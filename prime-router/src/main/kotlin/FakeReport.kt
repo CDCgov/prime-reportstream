@@ -27,11 +27,6 @@ import java.util.concurrent.TimeUnit
 */
 
 private const val zipCodeData = "zip-code-data"
-private val siteOfCare = arrayOf(
-    "airport", "assisted_living", "camp", "correctional_facility", "employer", "fqhc", "government_agency",
-    "hospice", "hospital", "k12", "lab", "nursing_home", "other", "pharmacy", "primary_care", "shelter",
-    "treatment_center", "university", "urgent_care"
-)
 
 class FakeDataService : Logging {
     fun getFakeValueForElement(
@@ -49,7 +44,11 @@ class FakeDataService : Logging {
                 element.nameContains("name_of_school") -> randomChoice("", context.schoolName)
                 element.nameContains("reference_range") -> randomChoice("", "Normal", "Abnormal", "Negative")
                 element.nameContains("result_format") -> "CWE"
-                element.nameContains("site_of_care") -> siteOfCare[(0..18).random()]
+                element.nameContains("site_of_care") -> randomChoice(
+                    "airport", "assisted_living", "camp", "correctional_facility", "employer", "fqhc",
+                    "government_agency", "hospice", "hospital", "k12", "lab", "nursing_home", "other",
+                    "pharmacy", "primary_care", "shelter", "treatment_center", "university", "urgent_care"
+                )
                 element.nameContains("patient_age_and_units") -> {
                     val unit = randomChoice("months", "years", "days")
                     val value = when (unit) {
