@@ -3,9 +3,12 @@ name: phd1-sample
 topic: sample
 elements:
   - name: lab
+    type: TEXT
   - name: first_name
+    type: TEXT
     pii: true
   - name: last_name
+    type: TEXT
     pii: true
   - name: state
     type: TEXT
