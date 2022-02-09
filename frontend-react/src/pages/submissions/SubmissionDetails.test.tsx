@@ -6,11 +6,11 @@ import SubmissionDetails, {
 } from "./SubmissionDetails";
 import { BrowserRouter } from "react-router-dom";
 
-/* 
+/*
     Using the included regex can end up pulling various elements where the
-    value has the parsed timestamp. Use a function 
+    value has the parsed timestamp. Use a function
 */
-const timeRegex: RegExp = /\d+:\d+ [A,P]M/;
+const timeRegex: RegExp = /[0-9]{1,2}:[0-9]{1,2} [A,P]M/;
 const mockData: ActionDetailsResource = ActionDetailsResource.dummy();
 jest.mock("rest-hooks", () => ({
     useResource: () => {
@@ -64,9 +64,9 @@ describe("SubmissionDetails", () => {
             mockData.destinations[0].itemCount
         );
 
-        /* 
+        /*
             As above, so below. Add any new elements needing unit test
-            verification to this array to be tested! 
+            verification to this array to be tested!
         */
         const testElements = [
             idElement,
@@ -112,7 +112,7 @@ describe("DestinationItem", () => {
         expect(screen.getByText(/records/i)).toBeInTheDocument();
         /*
             These must change if we ever change the sending_at property of
-            ActionDetailsResource.dummy() 
+            ActionDetailsResource.dummy()
         */
         expect(screen.getByText(/7 Apr 1970/i)).toBeInTheDocument();
         expect(screen.getByText(timeRegex)).toBeInTheDocument();
