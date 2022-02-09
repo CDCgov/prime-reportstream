@@ -14,7 +14,7 @@ When informing us of security issues, please use a descriptive subject line for 
 
 - Your name and affiliation (if any).
 - A description of the technical details of the vulnerabilities. This will help us in reliably reproducing your finding(s).
-- An explanation who can exploit this vulnerability, and what they gain when doing so -- write an attack scenario. This will help us evaluate your report quickly, especially if the issue is complex.
+- An explanation of who can exploit this vulnerability, and what they could gain when doing so (an attack scenario). This will help us evaluate your report quickly, especially if the issue is complex.
 - Whether this vulnerability public or known to third parties. If it is, please provide details.
 
-If you believe that an existing (public) issue is security-related, please send an email to **_TBD_**. Your report should include the issue ID (and/or link) and a short description of why it should be handled according to this security policy.
+If you believe that an existing (public) issue is security-related, please send an email to [us](mailto:reportstream@cdc.gov?subject=Vulnerabilityi Issue #). Your report should include the issue ID (and/or link) and a short description of why it should be handled according to this security policy.
