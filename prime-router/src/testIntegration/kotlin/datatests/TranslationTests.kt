@@ -237,10 +237,10 @@ class TranslationTests {
             result: CompareData.Result
         ): Report? {
             val sender = settings.senders.filter { it.schemaName == schema.name }.randomOrNull()
-            return when (format) {
-                // Get a random sender name that uses the provided schema, or null if no sender is found.
-                Report.Format.HL7 -> {
-                    try {
+            return try {
+                when (format) {
+                    // Get a random sender name that uses the provided schema, or null if no sender is found.
+                    Report.Format.HL7 -> {
                         val readResult = Hl7Serializer(metadata, settings).readExternal(
                             schema.name,
                             input,
@@ -251,22 +251,16 @@ class TranslationTests {
                         readResult.warnings.forEach { result.warnings.add(it.detail.detailMsg()) }
                         result.passed = readResult.errors.isEmpty()
                         readResult.report
-                    } catch (e: ActionError) {
-                        e.details.forEach { result.errors.add(it.detail.detailMsg()) }
-                        result.passed = false
-                        null
                     }
-                }
-                Report.Format.INTERNAL -> {
-                    CsvSerializer(metadata).readInternal(
-                        schema.name,
-                        input,
-                        listOf(TestSource),
-                        useDefaultsForMissing = true
-                    )
-                }
-                else -> {
-                    try {
+                    Report.Format.INTERNAL -> {
+                        CsvSerializer(metadata).readInternal(
+                            schema.name,
+                            input,
+                            listOf(TestSource),
+                            useDefaultsForMissing = true
+                        )
+                    }
+                    else -> {
                         val readResult = CsvSerializer(metadata).readExternal(
                             schema.name,
                             input,
@@ -277,12 +271,12 @@ class TranslationTests {
                         readResult.warnings.forEach { result.warnings.add(it.detail.detailMsg()) }
                         result.passed = readResult.errors.isEmpty()
                         readResult.report
-                    } catch (e: ActionError) {
-                        e.details.forEach { result.errors.add(it.detail.detailMsg()) }
-                        result.passed = false
-                        null
                     }
                 }
+            } catch (e: ActionError) {
+                e.details.forEach { result.errors.add(it.detail.detailMsg()) }
+                result.passed = false
+                null
             }
         }
 
