@@ -1364,24 +1364,24 @@ internal class ElementTests {
 
     @Test
     fun `test field mapping output`() {
-        var element = Element("a")
+        var element = Element("name")
         assertThat(element.fieldMapping).contains(element.name)
 
-        element = Element("a", hl7Field = "OBX-1")
+        element = Element("name", hl7Field = "OBX-1")
         assertThat(element.fieldMapping).contains(element.name)
         assertThat(element.fieldMapping).contains(element.hl7Field!!)
 
-        element = Element("a", hl7Field = "OBX-1", hl7OutputFields = listOf("OBX-2", "OBX-3"))
+        element = Element("name", hl7Field = "OBX-1", hl7OutputFields = listOf("OBX-2", "OBX-3"))
         assertThat(element.fieldMapping).contains(element.name)
         assertThat(element.fieldMapping).contains(element.hl7Field!!)
         element.hl7OutputFields!!.forEach { assertThat(element.fieldMapping).doesNotContain(it) }
 
-        element = Element("a", hl7OutputFields = listOf("OBX-2", "OBX-3"))
+        element = Element("name", hl7OutputFields = listOf("OBX-2", "OBX-3"))
         assertThat(element.fieldMapping).contains(element.name)
         element.hl7OutputFields!!.forEach { assertThat(element.fieldMapping).contains(it) }
 
         element = Element(
-            "a",
+            "name",
             csvFields = listOf(Element.CsvField("fielda", null), Element.CsvField("fieldb", null))
         )
         assertThat(element.fieldMapping).contains(element.name)
