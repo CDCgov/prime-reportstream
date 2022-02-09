@@ -2,7 +2,7 @@
 
 This document outlines our security policy for the code base and product and how to report vulnerabilities.
 
-This repository was created for use by the Centers for Disease Control and Prevention (CDC) which is part of the Department of Health and Human Services (HHS).  Vulnerability discloseure is governed by the HHS [Vulnerability Disclosure Policy](https://www.hhs.gov/vulnerability-disclosure-policy/index.html)
+This repository was created for use by the Centers for Disease Control and Prevention (CDC) which is part of the U.S Department of Health and Human Services (HHS).  Vulnerability discloseure is governed by the HHS [Vulnerability Disclosure Policy](https://www.hhs.gov/vulnerability-disclosure-policy/index.html)
 
 ## Reporting a Vulnerability
 
