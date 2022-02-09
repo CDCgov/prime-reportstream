@@ -2712,6 +2712,8 @@ The name of the facility which the test was ordered from
 
 **ReportStream Internal Name**: ordering_provider_lastfirst_name
 
+**Type**: TEXT
+
 **PII**: No
 
 **Cardinality**: [0..1]

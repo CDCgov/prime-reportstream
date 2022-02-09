@@ -12,6 +12,8 @@
 
 **ReportStream Internal Name**: first_name
 
+**Type**: TEXT
+
 **PII**: Yes
 
 **Cardinality**: [0..1]
@@ -22,6 +24,8 @@
 
 **ReportStream Internal Name**: lab
 
+**Type**: TEXT
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -31,6 +35,8 @@
 **Name**: last_name
 
 **ReportStream Internal Name**: last_name
+
+**Type**: TEXT
 
 **PII**: Yes
 

@@ -186,6 +186,18 @@ data class Schema(
         }
     }
 
+    /**
+     * Validate all the elements in the schema.
+     * @return a list of error messages, or an empty list if no errors
+     */
+    fun validate(): MutableList<String> {
+        val validationErrors = mutableListOf<String>()
+        elements.forEach { element ->
+            validationErrors.addAll(element.validate().map { "Schema $name: $it" })
+        }
+        return validationErrors
+    }
+
     companion object {
         fun formBaseName(name: String): String {
             if (!name.contains("/")) return name
