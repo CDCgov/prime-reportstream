@@ -205,8 +205,9 @@ data class Element(
      */
     val isTableLookup get() = mapperRef != null && type == Type.TABLE
 
-    // Creates a field mapping string showing the external CSV header name(s)
-    // and the corresponding internal field name
+    /**
+     * Creates a field mapping string showing the external field names and the element name.
+     */
     val fieldMapping: String get() {
         return when {
             !csvFields.isNullOrEmpty() -> "'${csvFields.map { it -> it.name }.joinToString(",")}' ('$name')"
