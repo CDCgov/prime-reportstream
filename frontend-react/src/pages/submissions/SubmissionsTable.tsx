@@ -6,11 +6,10 @@ import {
     IconNavigateNext,
 } from "@trussworks/react-uswds";
 import { useResource } from "rest-hooks";
+import { NavLink } from "react-router-dom";
 
-// import { useCache } from "@rest-hooks/core";
 import SubmissionsResource from "../../resources/SubmissionsResource";
 import { GlobalContext } from "../../components/GlobalContextProvider";
-import { NavLink } from "react-router-dom";
 
 const SUBMISSION_PAGE_LENGTH = 10;
 

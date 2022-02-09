@@ -1,10 +1,14 @@
-import { MatcherFunction, render, screen } from "@testing-library/react";
+import { MatcherFunction, screen } from "@testing-library/react";
+import { MockResolver } from "@rest-hooks/test";
+
 import ActionDetailsResource from "../../resources/ActionDetailsResource";
+import { success } from "../../resources/fixtures/ActionDetailFixtures";
+import { renderWithRouter } from "../../utils/CustomRenderUtils";
+
 import SubmissionDetails, {
     DestinationItem,
     DetailItem,
 } from "./SubmissionDetails";
-import { BrowserRouter } from "react-router-dom";
 
 /*
     Using the included regex can end up pulling various elements where the
@@ -13,9 +17,6 @@ import { BrowserRouter } from "react-router-dom";
 const timeRegex: RegExp = /[0-9]{1,2}:[0-9]{1,2} [A,P]M/;
 const mockData: ActionDetailsResource = ActionDetailsResource.dummy();
 jest.mock("rest-hooks", () => ({
-    useResource: () => {
-        return mockData;
-    },
     /* Must return children when mocking, otherwise nothing inside renders */
     NetworkErrorBoundary: ({ children }: { children: JSX.Element[] }) => {
         return <>{children}</>;
@@ -28,10 +29,10 @@ describe("SubmissionDetails", () => {
             TODO: Custom renderers to handle Router, etc. when
             we need to use more complex render settings
         */
-        render(
-            <BrowserRouter>
+        renderWithRouter(
+            <MockResolver fixtures={success}>
                 <SubmissionDetails />
-            </BrowserRouter>
+            </MockResolver>
         );
     });
 
@@ -84,10 +85,8 @@ describe("SubmissionDetails", () => {
 
 describe("DetailItem", () => {
     beforeEach(() => {
-        render(
-            <BrowserRouter>
-                <DetailItem item="Test Item" content="Test Content" />
-            </BrowserRouter>
+        renderWithRouter(
+            <DetailItem item="Test Item" content="Test Content" />
         );
     });
 
@@ -99,10 +98,8 @@ describe("DetailItem", () => {
 
 describe("DestinationItem", () => {
     beforeEach(() => {
-        render(
-            <BrowserRouter>
-                <DestinationItem destinationObj={mockData.destinations[0]} />
-            </BrowserRouter>
+        renderWithRouter(
+            <DestinationItem destinationObj={mockData.destinations[0]} />
         );
     });
 
