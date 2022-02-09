@@ -34,7 +34,6 @@ import { AdminOrgEdit } from "./pages/admin/AdminOrgEdit";
 import { EditReceiverSettings } from "./components/Admin/EditReceiverSettings";
 import { EditSenderSettings } from "./components/Admin/EditSenderSettings";
 import "react-toastify/dist/ReactToastify.css";
-import { CompareSettings } from "./components/Admin/CompareSettings";
 import { NewSetting } from "./components/Admin/NewSetting";
 
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
@@ -165,11 +164,6 @@ const App = () => {
                                     path="/admin/orgsendersettings/org/:orgname/sender/:sendername/action/:action"
                                     authorize={PERMISSIONS.PRIME_ADMIN}
                                     component={EditSenderSettings}
-                                />
-                                <AuthorizedRoute
-                                    path="/admin/orgcomparesettings/org/:orgname/sender/:sendername/action/:action"
-                                    authorize={PERMISSIONS.PRIME_ADMIN}
-                                    component={CompareSettings}
                                 />
                                 <AuthorizedRoute
                                     path="/admin/orgnewsetting/org/:orgname/settingtype/:settingtype"
