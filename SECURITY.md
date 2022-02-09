@@ -8,7 +8,7 @@ This repository was created for use by the Centers for Disease Control and Preve
 
 If you think you have found a vulnerability or security-related issue, _please report them to us directly_.
 
-**Do not create GitHub issues for security issues.** Please report any security related issues you find to **_TBD_** or ask us to reach out to you directly.
+**Do not create GitHub issues for security issues.** Please report any security related issues you find to [us](mailto:reportstream@cdc.gov?subject=Vulnerability) or ask us to reach out to you directly.
 
 When informing us of security issues, please use a descriptive subject line for your report. In addition, please include the following information along with your report:
 
