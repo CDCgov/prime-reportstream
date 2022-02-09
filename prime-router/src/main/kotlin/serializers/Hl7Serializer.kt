@@ -27,7 +27,6 @@ import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Source
 import gov.cdc.prime.router.ValueSet
 import gov.cdc.prime.router.metadata.ElementAndValue
-import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.metadata.Mapper
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.InputStream
@@ -1407,8 +1406,8 @@ class Hl7Serializer(
     }
 
     /**
-     * Creates the headers for hl7 batch. Generally the [sendingApplication], [receivingApplication], and
-     * [recievingFacility] will come from the first item in the file. In the case of empty batch, it
+     * Creates the headers for hl7 batch. Generally the [sendingApplicationReportIn], [receivingApplicationReportIn], and
+     * [receivingFacilityReportIn] will come from the first item in the file. In the case of empty batch, it
      * must be passed in.
      */
     private fun createHeaders(
@@ -1791,7 +1790,7 @@ class Hl7Serializer(
 
         // Do a lazy init because this table may never be used and it is large
         val ncesLookupTable = lazy {
-            LookupTable.read("./metadata/tables/nces_id_2021_6_28.csv")
+            Metadata.getInstance().findLookupTable("nces_id") ?: error("Unable to find the NCES ID lookup table.")
         }
     }
 }

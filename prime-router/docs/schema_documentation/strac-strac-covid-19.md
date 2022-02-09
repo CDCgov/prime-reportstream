@@ -1003,6 +1003,8 @@ A unique code for this specimen
 
 **ReportStream Internal Name**: specimen_received_date_time
 
+**Type**: TEXT
+
 **PII**: No
 
 **Cardinality**: [0..1]
