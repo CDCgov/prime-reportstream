@@ -4,6 +4,8 @@ import com.google.i18n.phonenumbers.PhoneNumberUtil
 import gov.cdc.prime.router.Element.Cardinality.ONE
 import gov.cdc.prime.router.Element.Cardinality.ZERO_OR_ONE
 import gov.cdc.prime.router.metadata.ElementAndValue
+import gov.cdc.prime.router.metadata.LIVDLookupMapper
+import gov.cdc.prime.router.metadata.LookupMapper
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.metadata.Mapper
 import java.lang.Exception
@@ -232,6 +234,44 @@ data class Element(
             csvFields = this.csvFields ?: baseElement.csvFields,
             delimiter = this.delimiter ?: baseElement.delimiter,
         )
+    }
+
+    /**
+     * Generate validation error messages if this element is not valid.
+     * @return a list of error messages, or an empty list if no errors
+     */
+    fun validate(): List<String> {
+        val errorList = mutableListOf<String>()
+
+        /**
+         * Add an error [message].
+         */
+        fun addError(message: String) {
+            errorList.add("Element $name - $message.")
+        }
+
+        // All elements require a type
+        if (type == null) addError("requires an element type.")
+
+        // Table lookups require a table
+        if ((mapperRef?.name == LookupMapper().name || mapperRef?.name == LIVDLookupMapper().name) &&
+            (tableRef == null || tableColumn.isNullOrBlank())
+        )
+            addError("requires a table and table column.")
+
+        // Elements of type table need a table ref
+        if ((type == Type.TABLE || type == Type.TABLE_OR_BLANK || !tableColumn.isNullOrBlank()) && tableRef == null)
+            addError("requires a table.")
+
+        // Elements with mapper parameters require a mapper
+        if ((mapperOverridesValue == true || !mapperArgs.isNullOrEmpty()) && mapperRef == null)
+            addError("has mapper related parameters, but no mapper.")
+
+        // Elements that can be blank should not have a default
+        if (canBeBlank && default != null)
+            addError("has a default specified, but can be blank")
+
+        return errorList
     }
 
     fun nameContains(substring: String): Boolean {

@@ -97,6 +97,9 @@ data class Hl7Configuration
     override val nameFormat: String = "standard",
     override val receivingOrganization: String?,
     val convertPositiveDateTimeOffsetToNegative: Boolean? = false,
+    // lets us strip chars we don't want showing up in the outbound message
+    // this should really be done on the sender side, but it lives here for now
+    val stripInvalidCharsRegex: String? = null,
 ) : TranslatorConfiguration("HL7") {
     /**
      * Formatting for XTN fields
