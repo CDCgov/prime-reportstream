@@ -1,6 +1,4 @@
 import { MatcherFunction, screen } from "@testing-library/react";
-import { MockResolver } from "@rest-hooks/test";
-
 import ActionDetailsResource from "../../resources/ActionDetailsResource";
 import { success } from "../../resources/fixtures/ActionDetailFixtures";
 import { renderWithRouter } from "../../utils/CustomRenderUtils";
@@ -17,6 +15,9 @@ import SubmissionDetails, {
 const timeRegex: RegExp = /[0-9]{1,2}:[0-9]{1,2} [A,P]M/;
 const mockData: ActionDetailsResource = ActionDetailsResource.dummy();
 jest.mock("rest-hooks", () => ({
+    useResource: () => {
+        return mockData;
+    },
     /* Must return children when mocking, otherwise nothing inside renders */
     NetworkErrorBoundary: ({ children }: { children: JSX.Element[] }) => {
         return <>{children}</>;
@@ -29,11 +30,7 @@ describe("SubmissionDetails", () => {
             TODO: Custom renderers to handle Router, etc. when
             we need to use more complex render settings
         */
-        renderWithRouter(
-            <MockResolver fixtures={success}>
-                <SubmissionDetails />
-            </MockResolver>
-        );
+        renderWithRouter(<SubmissionDetails />);
     });
 
     test("renders without error", async () => {
