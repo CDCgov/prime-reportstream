@@ -206,7 +206,7 @@ data class Element(
     val isTableLookup get() = mapperRef != null && type == Type.TABLE
 
     /**
-     * Creates a field mapping string showing the external field names and the element name.
+     * String showing the external field name(s) if any and the element name.
      */
     val fieldMapping: String get() {
         return when {
