@@ -445,6 +445,9 @@ class Hl7Serializer(
         val suppressAoe = hl7Config?.suppressAoe ?: false
         val useOrderingFacilityName = hl7Config?.useOrderingFacilityName
             ?: Hl7Configuration.OrderingFacilityName.STANDARD
+        val stripInvalidCharactersRegex: Regex? = hl7Config?.stripInvalidCharsRegex?.let {
+            Regex(hl7Config.stripInvalidCharsRegex)
+        }
 
         // and we have some fields to suppress
         val suppressedFields = hl7Config
@@ -494,12 +497,12 @@ class Hl7Serializer(
         // serialize the rest of the elements
         reportElements.forEach { element ->
             val value = report.getString(row, element.name).let {
-                if (it.isNullOrEmpty() || it.equals("null")) {
+                if (it.isNullOrEmpty() || it == "null") {
                     element.default ?: ""
                 } else {
-                    it
+                    stripInvalidCharactersRegex?.replace(it, "") ?: it
                 }
-            }
+            }.trim()
 
             if (suppressedFields.contains(element.hl7Field) && element.hl7OutputFields.isNullOrEmpty())
                 return@forEach
