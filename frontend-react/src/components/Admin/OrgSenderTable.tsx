@@ -59,16 +59,7 @@ export function OrgSenderTable(props: OrgSettingsTableProps) {
             id="orgsendersettings"
             className="grid-container margin-bottom-5"
         >
-            <h2>
-                Organization Sender Settings ({orgSenderSettings.length}){" "}
-                <NavLink
-                    className="usa-button"
-                    to={`/admin/orgnewsetting/org/${props.orgname}/settingtype/sender`}
-                    key={`sender-create-link`}
-                >
-                    New
-                </NavLink>
-            </h2>
+            <h2>Organization Sender Settings ({orgSenderSettings.length})</h2>
             <Table
                 key="orgsendersettingstable"
                 aria-label="Organization Senders"
@@ -83,6 +74,15 @@ export function OrgSenderTable(props: OrgSettingsTableProps) {
                         <th scope="col">Status</th>
                         <th scope="col">Meta</th>
                         <th scope="col">Action</th>
+                        <th scope="col" align="right">
+                            <NavLink
+                                className="usa-button"
+                                to={`/admin/orgnewsetting/org/${props.orgname}/settingtype/sender`}
+                                key={`sender-create-link`}
+                            >
+                                New
+                            </NavLink>
+                        </th>
                     </tr>
                 </thead>
                 <tbody id="tBodyOrgSender" className="font-mono-2xs">
@@ -95,7 +95,7 @@ export function OrgSenderTable(props: OrgSettingsTableProps) {
                             <td>
                                 {JSON.stringify(eachOrgSetting?.meta) || {}}
                             </td>
-                            <td>
+                            <td colSpan={2}>
                                 <ButtonGroup type="segmented">
                                     <NavLink
                                         className="usa-button"
