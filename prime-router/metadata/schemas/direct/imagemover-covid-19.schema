@@ -29,9 +29,3 @@ elements:
     default:
     defaultOverridesValue: true
 
-  - name: specimen_collection_date_time
-    cardinality: ONE
-    documentation: eg, 20210113
-    csvFields: [{ name: specimenCollectedDate}]
-    mapper: use(test_result_date)
-
