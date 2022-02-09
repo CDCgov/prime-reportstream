@@ -1124,6 +1124,39 @@ class ZipCodeToCountyMapper : Mapper {
     }
 }
 
+class CountryMapper : Mapper {
+    override val name = "countryMapper"
+
+    override fun valueNames(element: Element, args: List<String>): List<String> {
+        return args
+    }
+
+    override fun apply(
+        element: Element,
+        args: List<String>,
+        values: List<ElementAndValue>,
+        sender: Sender?
+    ): ElementResult {
+        val patientPostalCode = values.firstOrNull { it.element.name == "patient_zip_code" }?.value
+        return ElementResult(
+            when (values.firstOrNull()?.value.isNullOrEmpty()) {
+                true -> {
+                    if (patientPostalCode != null && canadianPostalCodeRegex.matches(patientPostalCode)) {
+                        "CAN"
+                    } else {
+                        "USA"
+                    }
+                }
+                else -> values.firstOrNull()?.value
+            }
+        )
+    }
+
+    companion object {
+        private val canadianPostalCodeRegex = "[A-Z][0-9][A-Z]\\s?[0-9][A-Z][0-9]".toRegex(RegexOption.IGNORE_CASE)
+    }
+}
+
 /**
  * Create a SHA-256 digest hash of the concatenation of values
  * Example:   hash(patient_last_name,patient_first_name)
