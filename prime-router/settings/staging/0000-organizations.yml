@@ -414,77 +414,6 @@
         initialTime: 00:00
         timeZone: EASTERN
 
-- name: co-phd
-  description: Colorado Department of Health
-  jurisdiction: STATE
-  stateCode: CO
-  receivers:
-    - name: elr-redox-staging
-      organizationName: co-phd
-      topic: covid-19
-      jurisdictionalFilter: [ "matches(ordering_facility_state, CO)" ]
-      deidentify: false
-      translation:
-        type: REDOX
-        useTestProcessingMode: true
-        destinationId: 62d62d52-3771-4151-aff4-4a3d420a8b7a
-        destinationName: "Colorado Dept of Public Health (CDPHE)"
-        sourceId: d89d4057-930f-4c5b-bb39-8cddb326e928
-        sourceName: "Prime Data Hub (Staging)"
-
-- name: pa-phd
-  description: Pennsylvania Department of Health
-  jurisdiction: STATE
-  stateCode: PA
-  receivers:
-    - name: elr-bucks-staging
-      organizationName: pa-phd
-      topic: covid-19
-      jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Bucks)" ]
-      deidentify: false
-      translation:
-        type: CUSTOM
-        schemaName: pa/pa-covid-19-redox
-        defaults:
-          processing_mode_code: T
-          redox_destination_id: e0d33443-c134-4e5f-9c15-69f9ba6340bf
-          redox_destination_name: "CDC Bucks County PDH Destination (s)"
-          redox_source_id: d89d4057-930f-4c5b-bb39-8cddb326e928
-          redox_source_name: "Prime Data Hub (Staging)"
-        format: REDOX
-
-    - name: elr-chester-staging
-      organizationName: pa-phd
-      topic: covid-19
-      jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Chester, Delaware)" ]
-      deidentify: false
-      translation:
-        type: CUSTOM
-        schemaName: pa/pa-covid-19-redox
-        defaults:
-          processing_mode_code: T
-          redox_destination_id: 86aa61ac-8864-417f-860e-d83ae46c951f
-          redox_destination_name: "CDC Chester County PDH Destination (s)"
-          redox_source_id: d89d4057-930f-4c5b-bb39-8cddb326e928
-          redox_source_name: "Prime Data Hub (Staging)"
-        format: REDOX
-
-    - name: elr-montgomery-staging
-      organizationName: pa-phd
-      topic: covid-19
-      jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Montgomery)" ]
-      deidentify: false
-      translation:
-        type: CUSTOM
-        schemaName: pa/pa-covid-19-redox
-        defaults:
-          processing_mode_code: T
-          redox_destination_id: 21485dc8-8a6e-49d3-8b80-46531e015039
-          redox_destination_name: "CDC Montgomery County PDH Destination (s)"
-          redox_source_id: d89d4057-930f-4c5b-bb39-8cddb326e928
-          redox_source_name: "Prime Data Hub (Staging)"
-        format: REDOX
-
 - name: pa-chester-phd
   description: Health Department - Chester County, Pennsylvania
   jurisdiction: COUNTY
@@ -596,24 +525,6 @@
         host: 10.0.2.4
         port: 22
         filePath: ./upload
-    - name: REDOX     # NOTE:  No Redox transport available in Staging at this time.
-      organizationName: ignore
-      topic: covid-19
-      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, REDOX)" ]
-      timing:
-        operation: MERGE
-        numberPerDay: 1440 # Every minute
-        initialTime: 00:00
-      translation:
-        type: CUSTOM
-        schemaName: pa/pa-covid-19-redox
-        format: REDOX
-        defaults:
-          processing_mode_code: T
-          redox_destination_id: 21485dc8-8a6e-49d3-8b80-46531e015039
-          redox_destination_name: "CDC Montgomery County PDH Destination (s) TEST ONLY"
-          redox_source_id: d89d4057-930f-4c5b-bb39-8cddb326e928
-          redox_source_name: "Prime Data Hub (Staging)"
     - name: HL7_NULL
       organizationName: ignore
       topic: covid-19

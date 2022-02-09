@@ -8,7 +8,15 @@
  *
  */
 
--- sets all receivers that have transport type of REDOX to have null transport type in case one gets rehydrated
+-- deactivate all receivers who are set to use redox, nullify redox settings
+update setting
+set is_active = false
+where type = 'RECEIVER'
+	and (
+	values -> 'translation' ->> 'format' = 'REDOX'
+	OR values -> 'transport' ->> 'type' = 'REDOX'
+);
+
 update setting
 set values = jsonb_set(values, '{transport}', 'null', false)
 where setting_id in (
@@ -16,6 +24,19 @@ where setting_id in (
 	from setting
 	where type = 'RECEIVER'
 	and (
-		values -> 'transport' ->> 'type' = 'REDOX'
+	values -> 'translation' ->> 'format' = 'REDOX'
+	OR values -> 'transport' ->> 'type' = 'REDOX'
 	)
-)
+);
+
+update setting
+set values = jsonb_set(values, '{translation}', 'null', false)
+where setting_id in (
+	select setting_id
+	from setting
+	where type = 'RECEIVER'
+	and (
+	values -> 'translation' ->> 'format' = 'REDOX'
+	OR values -> 'transport' ->> 'type' = 'REDOX'
+	)
+);
