@@ -1,4 +1,4 @@
-package gov.cdc.prime.router.serializers.datatests
+package gov.cdc.prime.router.datatests
 
 import assertk.assertThat
 import assertk.assertions.isTrue
@@ -236,14 +236,16 @@ class TranslationTests {
             format: Report.Format,
             result: CompareData.Result
         ): Report? {
-
+            val sender = settings.senders.filter { it.schemaName == schema.name }.randomOrNull()
             return when (format) {
+                // Get a random sender name that uses the provided schema, or null if no sender is found.
                 Report.Format.HL7 -> {
                     try {
                         val readResult = Hl7Serializer(metadata, settings).readExternal(
                             schema.name,
                             input,
-                            TestSource
+                            TestSource,
+                            sender
                         )
                         readResult.errors.forEach { result.errors.add(it.detail.detailMsg()) }
                         readResult.warnings.forEach { result.warnings.add(it.detail.detailMsg()) }
@@ -268,7 +270,8 @@ class TranslationTests {
                         val readResult = CsvSerializer(metadata).readExternal(
                             schema.name,
                             input,
-                            TestSource
+                            TestSource,
+                            sender
                         )
                         readResult.errors.forEach { result.errors.add(it.detail.detailMsg()) }
                         readResult.warnings.forEach { result.warnings.add(it.detail.detailMsg()) }
