@@ -2,7 +2,7 @@ data "azurerm_client_config" "current" {}
 
 resource "azurerm_storage_account" "storage_account" {
   resource_group_name       = var.resource_group
-  name                      = "${var.resource_prefix}sasb"
+  name                      = "${var.resource_prefix}storageaccount"
   location                  = var.location
   account_tier              = "Standard"
   account_replication_type  = "GRS"
@@ -179,15 +179,15 @@ resource "azurerm_storage_account" "storage_partner" {
     default_action = "Deny"
     bypass         = ["None"]
 
-    # ip_rules = sensitive(concat(
-    #   split(",", data.azurerm_key_vault_secret.hhsprotect_ip_ingress.value),
-    #   split(",", data.azurerm_key_vault_secret.cyberark_ip_ingress.value),
-    #   [split("/", var.terraform_caller_ip_address)[0]], # Storage accounts only allow CIDR-notation for /[0-30]
-    # ))
+    ip_rules = sensitive(concat(
+      split(",", data.azurerm_key_vault_secret.hhsprotect_ip_ingress.value),
+      split(",", data.azurerm_key_vault_secret.cyberark_ip_ingress.value),
+      [split("/", var.terraform_caller_ip_address)[0]], # Storage accounts only allow CIDR-notation for /[0-30]
+    ))
 
-    ip_rules = [var.terraform_caller_ip_address]
+    # ip_rules = [var.terraform_caller_ip_address]
 
-    virtual_network_subnet_ids = concat(var.endpoint_subnet, var.container_subnet)
+    virtual_network_subnet_ids = concat(var.endpoint_subnet, var.container_subnet, var.public_subnet)
   }
 
   # Required for customer-managed encryption
@@ -238,32 +238,32 @@ module "storageaccountpartner_blob_private_endpoint" {
   endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? "" : var.endpoint_subnet[0]
 }
 
-# resource "azurerm_storage_container" "storage_container_hhsprotect" {
-#   name                 = "hhsprotect"
-#   storage_account_name = azurerm_storage_account.storage_partner.name
-# }
+resource "azurerm_storage_container" "storage_container_hhsprotect" {
+  name                 = "hhsprotect"
+  storage_account_name = azurerm_storage_account.storage_partner.name
+}
 
-# resource "azurerm_storage_management_policy" "storage_partner_retention_policy" {
-#   storage_account_id = azurerm_storage_account.storage_partner.id
+resource "azurerm_storage_management_policy" "storage_partner_retention_policy" {
+  storage_account_id = azurerm_storage_account.storage_partner.id
 
-#   rule {
-#     name    = "30dayretention"
-#     enabled = true
+  rule {
+    name    = "30dayretention"
+    enabled = true
 
-#     filters {
-#       prefix_match = ["hhsprotect/"]
-#       blob_types   = ["blockBlob", "appendBlob"]
-#     }
+    filters {
+      prefix_match = ["hhsprotect/"]
+      blob_types   = ["blockBlob", "appendBlob"]
+    }
 
-#     actions {
-#       base_blob {
-#         delete_after_days_since_modification_greater_than = 30
-#       }
-#       snapshot {
-#         delete_after_days_since_creation_greater_than = 30
-#       }
-#       # Terraform does not appear to support deletion of versions
-#       # This needs to be manually checked in the policy and set to 30 days
-#     }
-#   }
-# }
+    actions {
+      base_blob {
+        delete_after_days_since_modification_greater_than = 30
+      }
+      snapshot {
+        delete_after_days_since_creation_greater_than = 30
+      }
+      # Terraform does not appear to support deletion of versions
+      # This needs to be manually checked in the policy and set to 30 days
+    }
+  }
+}
