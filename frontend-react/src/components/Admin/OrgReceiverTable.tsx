@@ -74,6 +74,15 @@ export function OrgReceiverTable(props: OrgSettingsTableProps) {
                         <th scope="col">Status</th>
                         <th scope="col">Meta</th>
                         <th scope="col">Action</th>
+                        <th scope="col">
+                            <NavLink
+                                className="usa-button"
+                                to={`/admin/orgnewsetting/org/${props.orgname}/settingtype/receiver`}
+                                key={`receiver-create-link`}
+                            >
+                                New
+                            </NavLink>
+                        </th>
                     </tr>
                 </thead>
                 <tbody id="tBodyOrgReceiver" className="font-mono-2xs">
@@ -88,7 +97,7 @@ export function OrgReceiverTable(props: OrgSettingsTableProps) {
                             <td>
                                 {JSON.stringify(eachOrgSetting?.meta) || {}}
                             </td>
-                            <td>
+                            <td colSpan={2}>
                                 <ButtonGroup type="segmented">
                                     <NavLink
                                         className="usa-button"
