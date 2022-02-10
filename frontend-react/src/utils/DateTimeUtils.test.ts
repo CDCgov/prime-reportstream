@@ -1,4 +1,3 @@
-import ActionDetailsResource from "../resources/ActionDetailsResource";
 import { ResponseType, TestResponse } from "../resources/TestResponse";
 
 import { generateSubmissionDate } from "./DateTimeUtils";
