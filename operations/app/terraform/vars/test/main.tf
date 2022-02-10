@@ -208,7 +208,7 @@ module "application_insights" {
   location           = var.location
   is_metabase_env    = var.is_metabase_env
   pagerduty_url      = data.azurerm_key_vault_secret.pagerduty_url.value
-  postgres_server_id = [module.log_analytics_workspace.postgres_server_id]
-  service_plan_id    = [module.log_analytics_workspace.service_plan_id]
+  postgres_server_id = module.database.postgres_server_id
+  service_plan_id    = module.app_service_plan.service_plan_id
   workspace_id       = module.log_analytics_workspace.law_id
 }

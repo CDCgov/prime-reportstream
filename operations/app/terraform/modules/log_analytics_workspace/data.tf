@@ -43,7 +43,7 @@ locals {
 }
 
 data "azurerm_monitor_diagnostic_categories" "diagnostics" {
-  for_each                   = local.default
+  for_each    = local.default
   resource_id = each.value.resource_id
 }
 
@@ -53,7 +53,7 @@ data "azurerm_function_app" "function_app" {
 }
 
 data "azurerm_resources" "front_door" {
-  type = "Microsoft.Network/frontdoors"
+  type                = "Microsoft.Network/frontdoors"
   resource_group_name = var.resource_group
 }
 
