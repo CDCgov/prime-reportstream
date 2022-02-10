@@ -16,6 +16,10 @@ export class TestResponse {
         switch (responseType) {
             case ResponseType.ACTION_DETAIL:
                 this.data = this.actionDetails;
+                break;
+            default:
+                this.data = null
+                break;
         }
     }
 
