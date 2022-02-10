@@ -22,6 +22,11 @@ module "network" {
   azure_vns       = var.network
 }
 
+# temp data source
+data "azurerm_nat_gateway" "nat_gateway" {
+  name                = "${var.resource_prefix}-natgateway"
+  resource_group_name = var.resource_group
+}
 # module "nat_gateway" {
 #   source           = "../../modules/nat_gateway"
 #   environment      = var.environment
@@ -101,6 +106,21 @@ module "database" {
   application_key_vault_id = module.key_vault.application_key_vault_id
 }
 
+# temp data source
+data "azurerm_storage_account" "storage_account" {
+  name                = "${var.resource_prefix}storageaccount"
+  resource_group_name = var.resource_group
+}
+# temp data source
+data "azurerm_storage_account" "storage_public" {
+  name                = "${var.resource_prefix}public"
+  resource_group_name = var.resource_group
+}
+# temp data source
+data "azurerm_storage_account" "storage_partner" {
+  name                = "${var.resource_prefix}partner"
+  resource_group_name = var.resource_group
+}
 # module "storage" {
 #   source                      = "../../modules/storage"
 #   environment                 = var.environment
@@ -122,6 +142,11 @@ module "database" {
 # # ## 04-App
 # # ##########
 
+# temp data source
+data "azurerm_function_app" "function_app" {
+  name                = "${var.resource_prefix}-functionapp"
+  resource_group_name = var.resource_group
+}
 # module "function_app" {
 #   source                      = "../../modules/function_app"
 #   environment                 = var.environment
@@ -146,6 +171,11 @@ module "database" {
 #   application_key_vault_id = module.key_vault.application_key_vault_id
 # }
 
+# temp data source
+data "azurerm_resources" "front_door" {
+  type                = "Microsoft.Network/frontdoors"
+  resource_group_name = var.resource_group
+}
 # module "front_door" {
 #   source           = "../../modules/front_door"
 #   environment      = var.environment
@@ -198,6 +228,14 @@ module "log_analytics_workspace" {
   application_key_vault_id   = module.key_vault.application_key_vault_id
   app_config_key_vault_id    = module.key_vault.app_config_key_vault_id
   client_config_key_vault_id = module.key_vault.client_config_key_vault_id
+  function_app_id            = data.azurerm_function_app.function_app.id
+  front_door_id              = data.azurerm_resources.front_door.resources[0].id
+  nat_gateway_id             = data.azurerm_nat_gateway.nat_gateway.id
+  east_vnet_id               = module.vnet.east_vnet_id
+  west_vnet_id               = module.vnet.west_vnet_id
+  storage_account_id         = data.azurerm_storage_account.storage_account.id
+  storage_public_id          = data.azurerm_storage_account.storage_public.id
+  storage_partner_id         = data.azurerm_storage_account.storage_partner.id
 }
 
 module "application_insights" {

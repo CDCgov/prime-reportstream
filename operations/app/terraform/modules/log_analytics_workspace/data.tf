@@ -1,7 +1,7 @@
 locals {
   default = {
     "function_app" = {
-      resource_id = data.azurerm_function_app.function_app.id
+      resource_id = var.function_app_id
     },
     "service_plan" = {
       resource_id = var.service_plan_id
@@ -13,7 +13,7 @@ locals {
       resource_id = var.postgres_server_id
     },
     "front_door" = {
-      resource_id = data.azurerm_resources.front_door.resources[0].id
+      resource_id = var.front_door_id
     },
     "application_key_vault" = {
       resource_id = var.application_key_vault_id
@@ -25,19 +25,19 @@ locals {
       resource_id = var.client_config_key_vault_id
     },
     "west_vnet" = {
-      resource_id = data.azurerm_virtual_network.west_vnet.id
+      resource_id = var.west_vnet_id
     },
     "east_vnet" = {
-      resource_id = data.azurerm_virtual_network.east_vnet.id
+      resource_id = var.east_vnet_id
     },
     "storage_account" = {
-      resource_id = data.azurerm_storage_account.storage_account.id
+      resource_id = var.storage_account_id
     },
     "storage_public" = {
-      resource_id = data.azurerm_storage_account.storage_public.id
+      resource_id = var.storage_public_id
     },
     "storage_partner" = {
-      resource_id = data.azurerm_storage_account.storage_partner.id
+      resource_id = var.storage_partner_id
     }
   }
 }
@@ -45,44 +45,4 @@ locals {
 data "azurerm_monitor_diagnostic_categories" "diagnostics" {
   for_each    = local.default
   resource_id = each.value.resource_id
-}
-
-data "azurerm_function_app" "function_app" {
-  name                = "${var.resource_prefix}-functionapp"
-  resource_group_name = var.resource_group
-}
-
-data "azurerm_resources" "front_door" {
-  type                = "Microsoft.Network/frontdoors"
-  resource_group_name = var.resource_group
-}
-
-data "azurerm_nat_gateway" "nat_gateway" {
-  name                = "${var.resource_prefix}-natgateway"
-  resource_group_name = var.resource_group
-}
-
-data "azurerm_virtual_network" "west_vnet" {
-  name                = "${var.resource_prefix}-West-vnet"
-  resource_group_name = var.resource_group
-}
-
-data "azurerm_virtual_network" "east_vnet" {
-  name                = "${var.resource_prefix}-East-vnet"
-  resource_group_name = var.resource_group
-}
-
-data "azurerm_storage_account" "storage_account" {
-  name                = "${var.resource_prefix}storageaccount"
-  resource_group_name = var.resource_group
-}
-
-data "azurerm_storage_account" "storage_public" {
-  name                = "${var.resource_prefix}public"
-  resource_group_name = var.resource_group
-}
-
-data "azurerm_storage_account" "storage_partner" {
-  name                = "${var.resource_prefix}partner"
-  resource_group_name = var.resource_group
 }

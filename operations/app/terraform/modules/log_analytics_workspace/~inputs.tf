@@ -47,3 +47,43 @@ variable "client_config_key_vault_id" {
   type        = string
   description = "Client Config Key Vault resource id"
 }
+
+variable "function_app_id" {
+  type        = string
+  description = "Function App resource id"
+}
+
+variable "front_door_id" {
+  type        = string
+  description = "Front Door resource id"
+}
+
+variable "nat_gateway_id" {
+  type        = string
+  description = "Nat Gateway resource id"
+}
+
+variable "east_vnet_id" {
+  type        = string
+  description = "East Vnet resource id"
+}
+
+variable "west_vnet_id" {
+  type        = string
+  description = "West Vnet resource id"
+}
+
+variable "storage_account_id" {
+  type        = string
+  description = "Storage Account resource id"
+}
+
+variable "storage_public_id" {
+  type        = string
+  description = "Storage Public resource id"
+}
+
+variable "storage_partner_id" {
+  type        = string
+  description = "Storage Partner resource id"
+}
