@@ -20,6 +20,7 @@ import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Sender.ProcessingType
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.engine.RawSubmission
 import gov.cdc.prime.router.tokens.AuthenticationStrategy
 import gov.cdc.prime.router.tokens.OktaAuthentication
 import gov.cdc.prime.router.tokens.TokenAuthentication
@@ -188,9 +189,11 @@ class ReportFunction : Logging {
                         validatedRequest.defaults,
                     )
 
-                    workflowEngine.recordReceivedReport(
+                    val receivedBlobInfo = workflowEngine.recordReceivedReport(
                         report, validatedRequest.content.toByteArray(), sender, actionHistory, payloadName
                     )
+
+                    routeToFHIREngine(receivedBlobInfo, sender, workflowEngine.queue)
 
                     // checks for errors from parseReport
                     if (options != Options.SkipInvalidItems && errors.isNotEmpty()) {
@@ -267,6 +270,27 @@ class ReportFunction : Logging {
         )
         // TODO: having to build response twice in order to save it and then include a response with the resulting actionID
         return responseBuilder.build()
+    }
+
+    private fun routeToFHIREngine(blobInfo: BlobAccess.BlobInfo, sender: Sender, queue: QueueAccess) {
+        try {
+            if (System.getenv("ENABLE_FHIR_ENGINE")?.isNotEmpty() ?: false)
+                when (blobInfo.format) {
+                    // limit to hl7
+                    Report.Format.HL7, Report.Format.HL7_BATCH ->
+                        queue.sendMessage(
+                            fhirQueueName, // TODO no magic strings
+                            RawSubmission(
+                                blobInfo.blobUrl,
+                                BlobAccess.digestToString(blobInfo.digest),
+                                sender.fullName
+                            ).serialize()
+                        )
+                    else -> {}
+                }
+        } catch (t: Throwable) {
+            logger.info("Failed to queue message for FHIR Engine\n$t")
+        }
     }
 
     /**

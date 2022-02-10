@@ -33,16 +33,26 @@ object QueueAccess {
         val base64Message = String(Base64.getEncoder().encode(event.toQueueMessage().toByteArray()))
         val now = OffsetDateTime.now()
         var invisibleDuration = Duration.between(now, event.at ?: now)
+        sendMessage(queueName, base64Message, invisibleDuration)
+    }
+
+    fun sendMessage(
+        queueName: String,
+        message: String,
+        invisibleDuration: Duration = Duration.ZERO,
+    ) {
         // Bug:  event.at is calculated before the call to workflowengine.recordHistory
         // In cases of very large datasets, that db write can take a very long time, pushing
         // the current time past event.at.  This causes negative durations.  Hence this:
-        if (invisibleDuration.isNegative) {
-            invisibleDuration = Duration.ZERO
+        val duration = if (invisibleDuration.isNegative) {
+            Duration.ZERO
+        } else {
+            invisibleDuration
         }
         val timeToLive = invisibleDuration.plusDays(timeToLiveDays)
         createQueueClient(queueName).sendMessageWithResponse(
-            base64Message,
-            invisibleDuration,
+            message,
+            duration,
             timeToLive,
             null,
             null

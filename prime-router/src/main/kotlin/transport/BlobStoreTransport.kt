@@ -6,9 +6,11 @@ import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.ActionHistory
+import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 
+// TODO workflow engine no longer needed
 class BlobStoreTransport(val workflowEngine: WorkflowEngine) : ITransport {
     override fun send(
         transportType: TransportType,
@@ -25,7 +27,7 @@ class BlobStoreTransport(val workflowEngine: WorkflowEngine) : ITransport {
             val receiver = header.receiver ?: error("No receiver defined for report ${header.reportFile.reportId}")
             val bodyUrl = header.reportFile.bodyUrl ?: error("Report ${header.reportFile.reportId} has no blob to copy")
             context.logger.info("About to copy $bodyUrl to $envVar:$storageName")
-            var newUrl = workflowEngine.blob.copyBlob(bodyUrl, envVar, storageName)
+            var newUrl = BlobAccess.copyBlob(bodyUrl, envVar, storageName)
             val msg = "Successfully copied $bodyUrl to $newUrl"
             context.logger.info(msg)
             actionHistory.trackActionResult(msg)
