@@ -1,6 +1,7 @@
 import { MatcherFunction, screen } from "@testing-library/react";
+
 import ActionDetailsResource from "../../resources/ActionDetailsResource";
-import { success } from "../../resources/fixtures/ActionDetailFixtures";
+import { ResponseType, TestResponse } from "../../resources/TestResponse";
 import { renderWithRouter } from "../../utils/CustomRenderUtils";
 
 import SubmissionDetails, {
@@ -13,7 +14,9 @@ import SubmissionDetails, {
     value has the parsed timestamp. Use a function
 */
 const timeRegex: RegExp = /[0-9]{1,2}:[0-9]{1,2} [A,P]M/;
-const mockData: ActionDetailsResource = ActionDetailsResource.dummy();
+const mockData: ActionDetailsResource = new TestResponse(
+    ResponseType.ACTION_DETAIL
+).data;
 jest.mock("rest-hooks", () => ({
     useResource: () => {
         return mockData;
@@ -106,7 +109,7 @@ describe("DestinationItem", () => {
         expect(screen.getByText(/records/i)).toBeInTheDocument();
         /*
             These must change if we ever change the sending_at property of
-            ActionDetailsResource.dummy()
+            our test ActionDetailResource in TestResponse.ts
         */
         expect(screen.getByText(/7 Apr 1970/i)).toBeInTheDocument();
         expect(screen.getByText(timeRegex)).toBeInTheDocument();

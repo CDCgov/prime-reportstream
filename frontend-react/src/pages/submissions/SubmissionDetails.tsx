@@ -56,8 +56,7 @@ export function DetailItem({ item, content, subItem }: DetailItemProps) {
     in the history/submissions details API
 */
 export function DestinationItem({ destinationObj }: DestinationItemProps) {
-    const submissionDate =
-        generateSubmissionDate(destinationObj.sending_at) || "unsent";
+    const submissionDate = generateSubmissionDate(destinationObj.sending_at);
     return (
         <div
             style={{
@@ -68,12 +67,16 @@ export function DestinationItem({ destinationObj }: DestinationItemProps) {
             <h2>{destinationObj.organization}</h2>
             <DetailItem
                 item={"Transmission Date"}
-                content={submissionDate.dateString}
+                content={
+                    submissionDate ? submissionDate.dateString : "Parsing error" //TODO: What should this say?
+                }
                 subItem
             />
             <DetailItem
                 item={"Transmission Time"}
-                content={submissionDate.timeString}
+                content={
+                    submissionDate ? submissionDate.timeString : "Parsing error" //TODO: What should this say?
+                }
                 subItem
             />
             <DetailItem
@@ -114,7 +117,11 @@ function SubmissionDetailsContent() {
                         preTitle={`${
                             actionDetails.submitter
                         } ${actionDetails.topic.toUpperCase()} Submissions`}
-                        title={`${submissionDate.dateString} ${submissionDate.timeString}`}
+                        title={
+                            submissionDate
+                                ? `${submissionDate.dateString} ${submissionDate.timeString}`
+                                : "Parsing error" //TODO: What should this say?
+                        }
                     />
                     <DetailItem item={"Report ID"} content={actionDetails.id} />
                     {actionDetails.destinations.map((dst) => (

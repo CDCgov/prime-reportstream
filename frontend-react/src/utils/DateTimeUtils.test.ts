@@ -1,4 +1,5 @@
 import ActionDetailsResource from "../resources/ActionDetailsResource";
+import { ResponseType, TestResponse } from "../resources/TestResponse";
 
 import { generateSubmissionDate } from "./DateTimeUtils";
 
@@ -8,12 +9,27 @@ import { generateSubmissionDate } from "./DateTimeUtils";
     Times: 12:00 AM
 */
 test("SubmissionDates have valid format", () => {
-    const actionDetailsTestResource = ActionDetailsResource.dummy();
+    const actionDetailsTestResource = new TestResponse(
+        ResponseType.ACTION_DETAIL
+    ).data;
     const submissionDate = generateSubmissionDate(
         actionDetailsTestResource.submittedAt
     );
 
-    // This will fail if you change the dummy object's dates!
-    expect(submissionDate.dateString).toBe("7 Apr 1970");
-    expect(submissionDate.timeString).toMatch(/[0-9]{1,2}:[0-9]{1,2} [A,P]M/);
+    if (submissionDate) {
+        // This will fail if you change the dummy object's dates!
+        expect(submissionDate.dateString).toBe("7 Apr 1970");
+        expect(submissionDate.timeString).toMatch(
+            /[0-9]{1,2}:[0-9]{1,2} [A,P]M/
+        );
+    } else {
+        throw new Error(
+            "You were the chosen one! You were meant to destroy the nulls, not join them!"
+        );
+    }
+});
+
+test("SubmissionDate returns null for invalid date strings", () => {
+    const submissionDate = generateSubmissionDate("I have the high ground!");
+    expect(submissionDate).toBe(null);
 });

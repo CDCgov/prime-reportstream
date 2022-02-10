@@ -10,13 +10,13 @@ export type SubmissionDate = {
     @param dateTimeString - the value representing when a report was sent, returned
     by the API  
     
-    @returns SubmissionDate
+    @returns SubmissionDate | null
     dateString format: 1 Jan 2022
     timeString format: 3:00 PM
 */
 export const generateSubmissionDate = (
     dateTimeString: string
-): SubmissionDate => {
+): SubmissionDate | null => {
     const monthNames = [
         "Jan",
         "Feb",
@@ -35,10 +35,13 @@ export const generateSubmissionDate = (
     /* Converts to local timezone as a Date object */
     const dateTimeISO = new Date(dateTimeString);
 
+    /* Catch bad dates */
+    if (isNaN(dateTimeISO.getDate())) return null;
+
     /* Parse time into parts */
-    const minutes = dateTimeISO.getMinutes();
-    let hours = dateTimeISO.getHours();
-    let meridian = "am";
+    const minutes: number = dateTimeISO.getMinutes();
+    let hours: number = dateTimeISO.getHours();
+    let meridian: string = "am";
 
     /* 12-hour and meridian conversion */
     if (hours > 12) {
@@ -51,8 +54,8 @@ export const generateSubmissionDate = (
     }
 
     /* Create strings from parsed values */
-    const time = `${hours}:${minutes} ${meridian.toUpperCase()}`;
-    const date = `${dateTimeISO.getDate()} ${
+    const time: string = `${hours}:${minutes} ${meridian.toUpperCase()}`;
+    const date: string = `${dateTimeISO.getDate()} ${
         monthNames[dateTimeISO.getMonth()]
     } ${dateTimeISO.getFullYear()}`;
 
