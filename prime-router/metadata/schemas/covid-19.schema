@@ -501,7 +501,8 @@ elements:
     documentation: The patient's city
 
   - name: patient_citizenship
-    type: TEXT
+    type: CODE
+    valueSet: iso3166
     pii: false
     cardinality: ZERO_OR_ONE
     hl7Field: PID-26
@@ -668,7 +669,8 @@ elements:
     hl7Field: PID-5-3
 
   - name: patient_nationality
-    type: TEXT
+    type: CODE
+    valueSet: iso3166
     pii: false
     cardinality: ZERO_OR_ONE
     hl7Field: PID-28
@@ -691,7 +693,8 @@ elements:
     documentation: The patient's phone number with area code
 
   - name: patient_preferred_language
-    type: TEXT
+    type: CODE
+    valueSet: iso639
     pii: false
     cardinality: ZERO_OR_ONE
     hl7Field: PID-15
