@@ -139,5 +139,13 @@ class FileUtilities {
 
             return fileW
         }
+
+        /**
+         * Does the file name of [file] match the internal file name pattern
+         */
+        fun isInternalFile(file: File): Boolean {
+            return file.extension.equals("INTERNAL", ignoreCase = true) ||
+                file.nameWithoutExtension.endsWith("INTERNAL", ignoreCase = true)
+        }
     }
 }
