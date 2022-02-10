@@ -29,10 +29,6 @@ jest.mock("rest-hooks", () => ({
 
 describe("SubmissionDetails", () => {
     beforeEach(() => {
-        /*
-            TODO: Custom renderers to handle Router, etc. when
-            we need to use more complex render settings
-        */
         renderWithRouter(<SubmissionDetails />);
     });
 

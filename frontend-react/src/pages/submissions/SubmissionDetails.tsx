@@ -68,14 +68,14 @@ export function DestinationItem({ destinationObj }: DestinationItemProps) {
             <DetailItem
                 item={"Transmission Date"}
                 content={
-                    submissionDate ? submissionDate.dateString : "Parsing error" //TODO: What should this say?
+                    submissionDate ? submissionDate.dateString : "Parsing error"
                 }
                 subItem
             />
             <DetailItem
                 item={"Transmission Time"}
                 content={
-                    submissionDate ? submissionDate.timeString : "Parsing error" //TODO: What should this say?
+                    submissionDate ? submissionDate.timeString : "Parsing error"
                 }
                 subItem
             />
@@ -120,7 +120,7 @@ function SubmissionDetailsContent() {
                         title={
                             submissionDate
                                 ? `${submissionDate.dateString} ${submissionDate.timeString}`
-                                : "Parsing error" //TODO: What should this say?
+                                : "Parsing error"
                         }
                     />
                     <DetailItem item={"Report ID"} content={actionDetails.id} />
