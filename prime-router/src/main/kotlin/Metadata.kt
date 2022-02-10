@@ -8,6 +8,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import gov.cdc.prime.router.azure.DatabaseLookupTableAccess
 import gov.cdc.prime.router.metadata.CoalesceMapper
 import gov.cdc.prime.router.metadata.ConcatenateMapper
+import gov.cdc.prime.router.metadata.CountryMapper
 import gov.cdc.prime.router.metadata.DateTimeOffsetMapper
 import gov.cdc.prime.router.metadata.HashMapper
 import gov.cdc.prime.router.metadata.IfNPIMapper
@@ -74,7 +75,7 @@ class Metadata : Logging {
         NullMapper(),
         LookupSenderValuesetsMapper(),
         NpiLookupMapper(),
-        CountryMapper(),
+        CountryMapper()
     )
     private var reportStreamFilterDefinitions = listOf(
         FilterByCounty(),
