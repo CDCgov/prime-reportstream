@@ -1,5 +1,7 @@
 package gov.cdc.prime.router
 
+import gov.cdc.prime.router.metadata.Mapper
+import gov.cdc.prime.router.metadata.Mappers
 import org.apache.logging.log4j.kotlin.Logging
 
 /**
@@ -20,7 +22,7 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
         val useValueSet: Map<String, String>,
         val useMapper: Map<String, Mapper>,
         val useDefault: Map<String, String>,
-        val missing: Set<String>,
+        val missing: Set<String>
     )
 
     data class RoutedReport(
@@ -234,7 +236,7 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
      * Filter a [input] report for a [receiver] by that receiver's qualityFilter and
      * then translate the filtered report based on the receiver's schema.
      */
-    public fun translateByReceiver(
+    fun translateByReceiver(
         input: Report,
         receiver: Receiver,
         defaultValues: DefaultValues = emptyMap()
@@ -264,7 +266,7 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
         var transformed = toReport
         if (receiver.deidentify)
             transformed = transformed.deidentify()
-        var copy = transformed.copy(destination = receiver, bodyFormat = receiver.format)
+        val copy = transformed.copy(destination = receiver, bodyFormat = receiver.format)
         copy.filteringResults.addAll(input.filteringResults)
         return copy
     }
@@ -294,7 +296,11 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
      * Build the mapping that will translate a one schema to another. The mapping
      * can be used for multiple translations.
      */
-    fun buildMapping(toSchema: Schema, fromSchema: Schema, defaultValues: DefaultValues): Mapping {
+    fun buildMapping(
+        toSchema: Schema,
+        fromSchema: Schema,
+        defaultValues: DefaultValues
+    ): Mapping {
         if (toSchema.topic != fromSchema.topic) error("Trying to match schema with different topics")
 
         val useDirectly = mutableMapOf<String, String>()

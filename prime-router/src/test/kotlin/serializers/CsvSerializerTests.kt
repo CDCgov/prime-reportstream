@@ -2,7 +2,6 @@ package gov.cdc.prime.router.serializers
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import assertk.assertions.isFailure
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.isTrue
@@ -230,6 +229,67 @@ class CsvSerializerTests {
     }
 
     @Test
+    fun `test multiple datetime formatting`() {
+        val one = Schema(
+            name = "one",
+            topic = "test",
+            elements = listOf(
+                Element("a", csvFields = Element.csvFields("_A")),
+                Element("b", type = Element.Type.DATETIME, csvFields = Element.csvFields("_B"))
+            )
+        )
+
+        val csv = """
+            _A,_B
+            MMddyyyy,12012021
+            M/d/yyyy,12/2/2021
+            yyyy/M/d,2021/12/3
+            M/d/yyyy HH:mm,12/4/2021 09:00
+            yyyy/M/d HH:mm,2021/12/05 10:00
+        """.trimIndent()
+
+        val csvConverter = CsvSerializer(Metadata(schema = one))
+        val result = csvConverter.readExternal("one", ByteArrayInputStream(csv.toByteArray()), TestSource)
+        assertThat(result.errors.size).isEqualTo(0)
+        assertThat(result.report.getString(0, 1)).isEqualTo("202112010000-0600")
+        assertThat(result.report.getString(1, 1)).isEqualTo("202112020000-0600")
+        assertThat(result.report.getString(2, 1)).isEqualTo("202112030000-0600")
+        assertThat(result.report.getString(3, 1)).isEqualTo("202112040900-0600")
+        assertThat(result.report.getString(4, 1)).isEqualTo("202112051000-0600")
+    }
+
+    @Test
+    fun `test check error for multiple datetime formatting`() {
+        val one = Schema(
+            name = "one",
+            topic = "test",
+            elements = listOf(
+                Element(
+                    "a",
+                    csvFields = Element.csvFields("_A")
+                ),
+                Element(
+                    "b",
+                    type = Element.Type.DATETIME,
+                    cardinality = Element.Cardinality.ONE,
+                    csvFields = Element.csvFields("_B")
+                )
+            )
+        )
+
+        val csv = """
+            _A,_B
+            MMddyyyy,13012021
+            M/d/yyyy,11/50/2021
+            yyyy/M/d,2021/13/3
+        """.trimIndent()
+
+        val csvConverter = CsvSerializer(Metadata(schema = one))
+        val result = csvConverter.readExternal("one", ByteArrayInputStream(csv.toByteArray()), TestSource)
+        assertThat(result.errors.size).isEqualTo(3)
+    }
+
+    @Test
     fun `test missing column`() {
         // setup a malformed CSV
         val one = Schema(
@@ -408,24 +468,6 @@ class CsvSerializerTests {
         assertThat(result4.report.itemCount).isEqualTo(1)
         assertThat(result4.report.getString(0, "b")).isEqualTo("B")
         assertThat(result4.report.getString(0, "d")).isEqualTo("D")
-    }
-
-    @Test
-    fun `test blank and default`() {
-        val one = Schema(
-            name = "one",
-            topic = "test",
-            elements = listOf(
-                Element(
-                    "a",
-                    cardinality = Element.Cardinality.ONE,
-                    type = Element.Type.TEXT_OR_BLANK,
-                    csvFields = Element.csvFields("a"),
-                    default = "y" // should be incompatible with TEXT_OR_BLANK
-                ),
-            )
-        )
-        assertThat { Metadata(one) }.isFailure()
     }
 
     @Test

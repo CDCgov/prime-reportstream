@@ -16,6 +16,13 @@ import { faSync } from "@fortawesome/free-solid-svg-icons";
 import { senderClient } from "../webreceiver-utils";
 import SenderOrganizationResource from "../resources/SenderOrganizationResource";
 import { getStoredOrg } from "../components/GlobalContextProvider";
+import { showError } from "../components/AlertNotifications";
+
+// values taken from Report.kt
+const PAYLOAD_MAX_BYTES = 50 * 1000 * 1000; // no idea why this isn't in "k" (* 1024).
+const REPORT_MAX_ITEMS = 10000;
+const REPORT_MAX_ITEM_COLUMNS = 2000;
+// const REPORT_MAX_ERRORS = 100;
 
 library.add(faSync);
 
@@ -24,6 +31,7 @@ export const Upload = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [fileInputResetValue, setFileInputResetValue] = useState(0);
     const [fileContent, setFileContent] = useState("");
+    const [fileName, setFileName] = useState("");
     const [errors, setErrors] = useState([]);
     const [destinations, setDestinations] = useState("");
     const [reportId, setReportId] = useState(null);
@@ -46,7 +54,7 @@ export const Upload = () => {
         lastName: authState?.accessToken?.claims.family_name || "",
     };
 
-    const uploadReport = async function postData(fileBody: string) {
+    const uploadReport = async function postData() {
         let textBody;
         let response;
         try {
@@ -56,11 +64,12 @@ export const Upload = () => {
                     method: "POST",
                     headers: {
                         "Content-Type": "text/csv",
-                        client: client,
+                        client: client, // ignore.ignore-waters
                         "authentication-type": "okta",
                         Authorization: `Bearer ${authState?.accessToken?.accessToken}`,
+                        payloadName: fileName, // header Naming-Convention or namingConvention or naming-convention?
                     },
-                    body: fileBody,
+                    body: fileContent,
                 }
             );
 
@@ -95,14 +104,59 @@ export const Upload = () => {
                 return;
             }
 
+            if (file.size > PAYLOAD_MAX_BYTES) {
+                const maxkbytes = (PAYLOAD_MAX_BYTES / 1024).toLocaleString(
+                    "en-US",
+                    { maximumFractionDigits: 2, minimumFractionDigits: 2 }
+                );
+
+                showError(
+                    `The file '${file.name}' is too large. The maximum file size is ${maxkbytes}k`
+                );
+                return;
+            }
             // load the "contents" of the file. Hope it fits in memory!
             const filecontent = await file.text();
+
+            // count the number of lines
+            const linecount = (filecontent.match(/\n/g) || []).length + 1;
+            if (linecount > REPORT_MAX_ITEMS) {
+                showError(
+                    `The file '${file.name}' has too many rows. The maximum number of rows allowed is ${REPORT_MAX_ITEMS}.`
+                );
+                return;
+            }
+            if (linecount <= 1) {
+                showError(
+                    `The file '${file.name}' doesn't contain any valid data. ` +
+                        `File should have a header line and at least one line of data.`
+                );
+                return;
+            }
+
+            // get the first line and examine it
+            const firstline = (filecontent.match(/^(.*)\n/) || [""])[0];
+            // ideally, the columns would be comma seperated, but they may be tabs, because the first
+            // line is a header, we don't have to worry about escaped delimitors in strings (e.g. ,"Smith, John",)
+            const columncount =
+                (firstline.match(/,/g) || []).length ||
+                (firstline.match(/\t/g) || []).length;
+
+            if (columncount > REPORT_MAX_ITEM_COLUMNS) {
+                showError(
+                    `The file '${file.name}' has too many columns. The maximum number of allowed columns is ${REPORT_MAX_ITEM_COLUMNS}.`
+                );
+                return;
+            }
+
+            setFileName(file.name);
             setFileContent(filecontent);
             // todo: this is a good place to do basic validation of the upload file. e.g. does it have
             // all the required columns? Are any rows obviously not correct (empty or obviously wrong type)?
-        } catch (err) {
+        } catch (err: any) {
             // todo: have central error reporting mechanism.
             console.error(err);
+            showError(`An unexpected error happened: '${err.toString()}'`);
         }
     };
 
@@ -122,7 +176,7 @@ export const Upload = () => {
 
         let response;
         try {
-            response = await uploadReport(fileContent);
+            response = await uploadReport();
             if (response?.destinations?.length) {
                 // NOTE: `{ readonly [key: string]: string }` means a key:value object
                 setDestinations(
@@ -275,7 +329,7 @@ export const Upload = () => {
                                 return (
                                     <tr key={"error_" + i}>
                                         <td>{e["message"]}</td>
-                                        <td>{e["rows"]}</td>
+                                        <td>{e["itemNums"]}</td>
                                     </tr>
                                 );
                             })}
@@ -303,7 +357,10 @@ export const Upload = () => {
                         required
                     />
                 </FormGroup>
-                <Button type="submit" disabled={isSubmitting}>
+                <Button
+                    type="submit"
+                    disabled={isSubmitting || fileName.length === 0}
+                >
                     {isSubmitting && (
                         <span>
                             <FontAwesomeIcon

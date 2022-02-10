@@ -101,7 +101,7 @@ This field is generated based on the normalcy status of the result. A = abnormal
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
 
-**Table**: LIVD-SARS-CoV-2-latest
+**Table**: LIVD-SARS-CoV-2
 
 **Documentation**:
 
@@ -151,7 +151,7 @@ Is the patient employed in health care?
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
 
-**Table**: LIVD-SARS-CoV-2-latest
+**Table**: LIVD-SARS-CoV-2
 
 **Table Column**: Model
 
@@ -267,7 +267,7 @@ Is the patient in the ICU?
 
 **ReportStream Internal Name**: illness_onset_date
 
-**Type**: DATE
+**Type**: TEXT
 
 **PII**: No
 
@@ -299,7 +299,7 @@ Is the patient in the ICU?
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-latest
+**Table**: LIVD-SARS-CoV-2
 
 **Table Column**: Test Ordered LOINC Code
 
@@ -315,7 +315,7 @@ Is the patient in the ICU?
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-latest
+**Table**: LIVD-SARS-CoV-2
 
 **Table Column**: Test Ordered LOINC Long Name
 
@@ -526,6 +526,8 @@ The city of the provider
 **Name**: ordering_provider_email
 
 **ReportStream Internal Name**: ordering_provider_email
+
+**Type**: TEXT
 
 **PII**: No
 
@@ -1131,6 +1133,8 @@ P, D, or T for Production, Debugging, or Training
 
 **ReportStream Internal Name**: redox_destination_id
 
+**Type**: TEXT
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1140,6 +1144,8 @@ P, D, or T for Production, Debugging, or Training
 **Name**: redox_destination_name
 
 **ReportStream Internal Name**: redox_destination_name
+
+**Type**: TEXT
 
 **PII**: No
 
@@ -1151,6 +1157,8 @@ P, D, or T for Production, Debugging, or Training
 
 **ReportStream Internal Name**: redox_employed_in_healthcare_code
 
+**Type**: TEXT
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1160,6 +1168,8 @@ P, D, or T for Production, Debugging, or Training
 **Name**: redox_employed_in_healthcare_codeset
 
 **ReportStream Internal Name**: redox_employed_in_healthcare_codeset
+
+**Type**: TEXT
 
 **PII**: No
 
@@ -1171,6 +1181,8 @@ P, D, or T for Production, Debugging, or Training
 
 **ReportStream Internal Name**: redox_employed_in_healthcare_description
 
+**Type**: TEXT
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1180,6 +1192,8 @@ P, D, or T for Production, Debugging, or Training
 **Name**: redox_employed_in_healthcare_status
 
 **ReportStream Internal Name**: redox_employed_in_healthcare_status
+
+**Type**: TEXT
 
 **PII**: No
 
@@ -1191,6 +1205,8 @@ P, D, or T for Production, Debugging, or Training
 
 **ReportStream Internal Name**: redox_employed_in_healthcare_value_type
 
+**Type**: TEXT
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1200,6 +1216,8 @@ P, D, or T for Production, Debugging, or Training
 **Name**: redox_first_test_code
 
 **ReportStream Internal Name**: redox_first_test_code
+
+**Type**: TEXT
 
 **PII**: No
 
@@ -1211,6 +1229,8 @@ P, D, or T for Production, Debugging, or Training
 
 **ReportStream Internal Name**: redox_first_test_codeset
 
+**Type**: TEXT
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1220,6 +1240,8 @@ P, D, or T for Production, Debugging, or Training
 **Name**: redox_first_test_description
 
 **ReportStream Internal Name**: redox_first_test_description
+
+**Type**: TEXT
 
 **PII**: No
 
@@ -1231,6 +1253,8 @@ P, D, or T for Production, Debugging, or Training
 
 **ReportStream Internal Name**: redox_first_test_status
 
+**Type**: TEXT
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1240,6 +1264,8 @@ P, D, or T for Production, Debugging, or Training
 **Name**: redox_first_test_value_type
 
 **ReportStream Internal Name**: redox_first_test_value_type
+
+**Type**: TEXT
 
 **PII**: No
 
@@ -1251,6 +1277,8 @@ P, D, or T for Production, Debugging, or Training
 
 **ReportStream Internal Name**: redox_hospitalized_code
 
+**Type**: TEXT
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1260,6 +1288,8 @@ P, D, or T for Production, Debugging, or Training
 **Name**: redox_hospitalized_codeset
 
 **ReportStream Internal Name**: redox_hospitalized_codeset
+
+**Type**: TEXT
 
 **PII**: No
 
@@ -1271,6 +1301,8 @@ P, D, or T for Production, Debugging, or Training
 
 **ReportStream Internal Name**: redox_hospitalized_description
 
+**Type**: TEXT
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1280,6 +1312,8 @@ P, D, or T for Production, Debugging, or Training
 **Name**: redox_hospitalized_status
 
 **ReportStream Internal Name**: redox_hospitalized_status
+
+**Type**: TEXT
 
 **PII**: No
 
@@ -1291,6 +1325,8 @@ P, D, or T for Production, Debugging, or Training
 
 **ReportStream Internal Name**: redox_hospitalized_value_type
 
+**Type**: TEXT
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1300,6 +1336,8 @@ P, D, or T for Production, Debugging, or Training
 **Name**: redox_icu_code
 
 **ReportStream Internal Name**: redox_icu_code
+
+**Type**: TEXT
 
 **PII**: No
 
@@ -1311,6 +1349,8 @@ P, D, or T for Production, Debugging, or Training
 
 **ReportStream Internal Name**: redox_icu_codeset
 
+**Type**: TEXT
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1320,6 +1360,8 @@ P, D, or T for Production, Debugging, or Training
 **Name**: redox_icu_description
 
 **ReportStream Internal Name**: redox_icu_description
+
+**Type**: TEXT
 
 **PII**: No
 
@@ -1331,6 +1373,8 @@ P, D, or T for Production, Debugging, or Training
 
 **ReportStream Internal Name**: redox_icu_status
 
+**Type**: TEXT
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1340,6 +1384,8 @@ P, D, or T for Production, Debugging, or Training
 **Name**: redox_icu_value_type
 
 **ReportStream Internal Name**: redox_icu_value_type
+
+**Type**: TEXT
 
 **PII**: No
 
@@ -1351,6 +1397,8 @@ P, D, or T for Production, Debugging, or Training
 
 **ReportStream Internal Name**: redox_illness_onset_date_code
 
+**Type**: TEXT
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1360,6 +1408,8 @@ P, D, or T for Production, Debugging, or Training
 **Name**: redox_illness_onset_date_codeset
 
 **ReportStream Internal Name**: redox_illness_onset_date_codeset
+
+**Type**: TEXT
 
 **PII**: No
 
@@ -1371,6 +1421,8 @@ P, D, or T for Production, Debugging, or Training
 
 **ReportStream Internal Name**: redox_illness_onset_date_description
 
+**Type**: TEXT
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1380,6 +1432,8 @@ P, D, or T for Production, Debugging, or Training
 **Name**: redox_illness_onset_date_status
 
 **ReportStream Internal Name**: redox_illness_onset_date_status
+
+**Type**: TEXT
 
 **PII**: No
 
@@ -1391,6 +1445,8 @@ P, D, or T for Production, Debugging, or Training
 
 **ReportStream Internal Name**: redox_illness_onset_date_value_type
 
+**Type**: TEXT
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1400,6 +1456,8 @@ P, D, or T for Production, Debugging, or Training
 **Name**: redox_patient_drivers_license_type
 
 **ReportStream Internal Name**: redox_patient_drivers_license_type
+
+**Type**: TEXT
 
 **PII**: No
 
@@ -1411,6 +1469,8 @@ P, D, or T for Production, Debugging, or Training
 
 **ReportStream Internal Name**: redox_pregnant_code
 
+**Type**: TEXT
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1420,6 +1480,8 @@ P, D, or T for Production, Debugging, or Training
 **Name**: redox_pregnant_codeset
 
 **ReportStream Internal Name**: redox_pregnant_codeset
+
+**Type**: TEXT
 
 **PII**: No
 
@@ -1431,6 +1493,8 @@ P, D, or T for Production, Debugging, or Training
 
 **ReportStream Internal Name**: redox_pregnant_description
 
+**Type**: TEXT
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1440,6 +1504,8 @@ P, D, or T for Production, Debugging, or Training
 **Name**: redox_pregnant_status
 
 **ReportStream Internal Name**: redox_pregnant_status
+
+**Type**: TEXT
 
 **PII**: No
 
@@ -1451,6 +1517,8 @@ P, D, or T for Production, Debugging, or Training
 
 **ReportStream Internal Name**: redox_pregnant_value_type
 
+**Type**: TEXT
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1460,6 +1528,8 @@ P, D, or T for Production, Debugging, or Training
 **Name**: redox_resident_congregate_setting_code
 
 **ReportStream Internal Name**: redox_resident_congregate_setting_code
+
+**Type**: TEXT
 
 **PII**: No
 
@@ -1471,6 +1541,8 @@ P, D, or T for Production, Debugging, or Training
 
 **ReportStream Internal Name**: redox_resident_congregate_setting_codeset
 
+**Type**: TEXT
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1480,6 +1552,8 @@ P, D, or T for Production, Debugging, or Training
 **Name**: redox_resident_congregate_setting_description
 
 **ReportStream Internal Name**: redox_resident_congregate_setting_description
+
+**Type**: TEXT
 
 **PII**: No
 
@@ -1491,6 +1565,8 @@ P, D, or T for Production, Debugging, or Training
 
 **ReportStream Internal Name**: redox_resident_congregate_setting_status
 
+**Type**: TEXT
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1501,6 +1577,8 @@ P, D, or T for Production, Debugging, or Training
 
 **ReportStream Internal Name**: redox_resident_congregate_setting_value_type
 
+**Type**: TEXT
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1510,6 +1588,8 @@ P, D, or T for Production, Debugging, or Training
 **Name**: redox_resulted
 
 **ReportStream Internal Name**: redox_resulted
+
+**Type**: TEXT
 
 **PII**: No
 
@@ -1523,6 +1603,8 @@ P, D, or T for Production, Debugging, or Training
 
 **ReportStream Internal Name**: redox_source_id
 
+**Type**: TEXT
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1532,6 +1614,8 @@ P, D, or T for Production, Debugging, or Training
 **Name**: redox_source_name
 
 **ReportStream Internal Name**: redox_source_name
+
+**Type**: TEXT
 
 **PII**: No
 
@@ -1543,6 +1627,8 @@ P, D, or T for Production, Debugging, or Training
 
 **ReportStream Internal Name**: redox_symptomatic_for_disease_code
 
+**Type**: TEXT
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1552,6 +1638,8 @@ P, D, or T for Production, Debugging, or Training
 **Name**: redox_symptomatic_for_disease_codeset
 
 **ReportStream Internal Name**: redox_symptomatic_for_disease_codeset
+
+**Type**: TEXT
 
 **PII**: No
 
@@ -1563,6 +1651,8 @@ P, D, or T for Production, Debugging, or Training
 
 **ReportStream Internal Name**: redox_symptomatic_for_disease_description
 
+**Type**: TEXT
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1572,6 +1662,8 @@ P, D, or T for Production, Debugging, or Training
 **Name**: redox_symptomatic_for_disease_status
 
 **ReportStream Internal Name**: redox_symptomatic_for_disease_status
+
+**Type**: TEXT
 
 **PII**: No
 
@@ -1583,6 +1675,8 @@ P, D, or T for Production, Debugging, or Training
 
 **ReportStream Internal Name**: redox_symptomatic_for_disease_value_type
 
+**Type**: TEXT
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1593,6 +1687,8 @@ P, D, or T for Production, Debugging, or Training
 
 **ReportStream Internal Name**: redox_test_lab_id_type
 
+**Type**: TEXT
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1602,6 +1698,8 @@ P, D, or T for Production, Debugging, or Training
 **Name**: redox_test_result_type
 
 **ReportStream Internal Name**: redox_test_result_type
+
+**Type**: TEXT
 
 **PII**: No
 
@@ -1682,6 +1780,8 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 **Name**: specimen_received_date_time
 
 **ReportStream Internal Name**: specimen_received_date_time
+
+**Type**: TEXT
 
 **PII**: No
 
@@ -1795,7 +1895,7 @@ Is the patient symptomatic?
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-latest
+**Table**: LIVD-SARS-CoV-2
 
 **Table Column**: Test Performed LOINC Code
 
@@ -1815,7 +1915,7 @@ The LOINC code of the test performed. This is a standardized coded value describ
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-latest
+**Table**: LIVD-SARS-CoV-2
 
 **Table Column**: Test Performed LOINC Long Name
 
@@ -2053,6 +2153,8 @@ The text value for the testing lab county. This is used to do the lookup in the 
 **Name**: testing_lab_email
 
 **ReportStream Internal Name**: testing_lab_email
+
+**Type**: TEXT
 
 **PII**: No
 

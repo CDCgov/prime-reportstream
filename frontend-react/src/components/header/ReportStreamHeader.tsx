@@ -7,6 +7,7 @@ import {
     NavMenuButton,
 } from "@trussworks/react-uswds";
 import { NavLink } from "react-router-dom";
+import { NetworkErrorBoundary } from "rest-hooks";
 
 import { permissionCheck } from "../../webreceiver-utils";
 import { PERMISSIONS } from "../../resources/PermissionsResource";
@@ -104,7 +105,15 @@ export const ReportStreamHeader = () => {
                     {authState?.accessToken?.claims?.organization.includes(
                         PERMISSIONS.PRIME_ADMIN
                     ) ? (
-                        <OrganizationDropdown />
+                        <NetworkErrorBoundary
+                            fallbackComponent={() => (
+                                <select>
+                                    <option>Network error</option>
+                                </select>
+                            )}
+                        >
+                            <OrganizationDropdown />
+                        </NetworkErrorBoundary>
                     ) : null}
                     <SignInOrUser />
                 </PrimaryNav>

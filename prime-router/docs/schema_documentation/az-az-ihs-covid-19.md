@@ -643,7 +643,7 @@ The specimen source, such as Blood or Serum
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-latest
+**Table**: LIVD-SARS-CoV-2
 
 **Table Column**: Test Performed LOINC Code
 
@@ -663,7 +663,7 @@ The LOINC code of the test performed. This is a standardized coded value describ
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-latest
+**Table**: LIVD-SARS-CoV-2
 
 **Table Column**: Test Performed LOINC Long Name
 
@@ -846,6 +846,8 @@ The postal code for the testing lab
 
 **ReportStream Internal Name**: equipment_model_name
 
+**Type**: TEXT
+
 **PII**: No
 
 **Default Value**: BinaxNOW COVID-19 Ag Card
@@ -858,6 +860,8 @@ The postal code for the testing lab
 
 **ReportStream Internal Name**: message_id
 
+**Type**: TEXT
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -867,6 +871,8 @@ The postal code for the testing lab
 **Name**: ordering_facility_name
 
 **ReportStream Internal Name**: ordering_facility_name
+
+**Type**: TEXT
 
 **PII**: No
 

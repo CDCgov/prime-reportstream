@@ -15,11 +15,10 @@ import ca.uhn.hl7v2.preparser.PreParser
 import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.router.ActionError
 import gov.cdc.prime.router.ActionLog
+import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.Element
-import gov.cdc.prime.router.ElementAndValue
 import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.InvalidHL7Message
-import gov.cdc.prime.router.Mapper
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
@@ -27,7 +26,8 @@ import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Source
 import gov.cdc.prime.router.ValueSet
-import gov.cdc.prime.router.metadata.LookupTable
+import gov.cdc.prime.router.metadata.ElementAndValue
+import gov.cdc.prime.router.metadata.Mapper
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.InputStream
 import java.io.OutputStream
@@ -86,15 +86,27 @@ class Hl7Serializer(
     }
 
     /**
-     * Write a report with BHS and FHS segments and multiple items
+     * Write a report with BHS and FHS segments and multiple items. [sendingApplicationReport],
+     * [receivingApplicationReport], and [receivingFacilityReport] are used for empty batch generation and will be used
+     * if passed in (instead of pulling them from the 1st record)
      */
     fun writeBatch(
         report: Report,
         outputStream: OutputStream,
+        sendingApplicationReport: String? = null,
+        receivingApplicationReport: String? = null,
+        receivingFacilityReport: String? = null
     ) {
         // Dev Note: HAPI doesn't support a batch of messages, so this code creates
         // these segments by hand
-        outputStream.write(createHeaders(report).toByteArray())
+        outputStream.write(
+            createHeaders(
+                report,
+                sendingApplicationReport,
+                receivingApplicationReport,
+                receivingFacilityReport
+            ).toByteArray()
+        )
         report.itemIndices.map {
             val message = createMessage(report, it)
             outputStream.write(message.toByteArray())
@@ -339,12 +351,11 @@ class Hl7Serializer(
             }
 
             // Second, we process all the element raw values through mappers and defaults.
-            schema.elements.forEach {
-                val mappedResult = it.processValue(mappedRows, schema, sender = sender)
-                mappedRows[it.name] = mappedResult.value ?: ""
-                errors.addAll(mappedResult.errors.map { it.detailMsg() })
-                warnings.addAll(mappedResult.warnings.map { it.detailMsg() })
-            }
+            val errorActionLogs = mutableListOf<ActionLogDetail>()
+            val warningActionLogs = mutableListOf<ActionLogDetail>()
+            schema.processValues(mappedRows, errorActionLogs, warningActionLogs, sender = sender)
+            errors.addAll(errorActionLogs.map { it.detailMsg() })
+            warnings.addAll(warningActionLogs.map { it.detailMsg() })
         } catch (e: Exception) {
             val msg = "${e.localizedMessage} ${e.stackTraceToString()}"
             logger.error(msg)
@@ -434,6 +445,9 @@ class Hl7Serializer(
         val suppressAoe = hl7Config?.suppressAoe ?: false
         val useOrderingFacilityName = hl7Config?.useOrderingFacilityName
             ?: Hl7Configuration.OrderingFacilityName.STANDARD
+        val stripInvalidCharactersRegex: Regex? = hl7Config?.stripInvalidCharsRegex?.let {
+            Regex(hl7Config.stripInvalidCharsRegex)
+        }
 
         // and we have some fields to suppress
         val suppressedFields = hl7Config
@@ -483,12 +497,12 @@ class Hl7Serializer(
         // serialize the rest of the elements
         reportElements.forEach { element ->
             val value = report.getString(row, element.name).let {
-                if (it.isNullOrEmpty() || it.equals("null")) {
+                if (it.isNullOrEmpty() || it == "null") {
                     element.default ?: ""
                 } else {
-                    it
+                    stripInvalidCharactersRegex?.replace(it, "") ?: it
                 }
-            }
+            }.trim()
 
             if (suppressedFields.contains(element.hl7Field) && element.hl7OutputFields.isNullOrEmpty())
                 return@forEach
@@ -937,7 +951,20 @@ class Hl7Serializer(
         val maxLength = getMaxLength(hl7Field, value, hl7Config, terser)
         val hd = Element.parseHD(value, maxLength)
         if (hd.universalId != null && hd.universalIdSystem != null) {
-            terser.set("$pathSpec-1", hd.name) // already truncated
+            // if we have entered this space, there is a chance we will not have accurately calculated
+            // the max length for the HD namespace ID. Case in point, sending_application in the
+            // COVID-19 schema is coded to go into the MSH-3 segment. when getMaxLength above is invoked
+            // it doesn't accurately calculate max length because the max length for the entire field
+            // is the sum of the three subfields. thus, an HD namespace ID can slide through untruncated.
+            // we know that this could happen because the parseHD method does a split on the field, and if
+            // there's more than one field, it fills in the universalId and universalIdSystem fields.
+            // at this point now we do a final saving throw to see if maybe the subfield needs another trim.
+            if (hl7Config?.truncateHDNamespaceIds == true) {
+                val subpartMaxLength = getMaxLength("$hl7Field-1", value, hl7Config, terser)
+                terser.set("$pathSpec-1", hd.name.trimAndTruncate(subpartMaxLength))
+            } else {
+                terser.set("$pathSpec-1", hd.name)
+            }
             terser.set("$pathSpec-2", hd.universalId)
             terser.set("$pathSpec-3", hd.universalIdSystem)
         } else {
@@ -1203,7 +1230,7 @@ class Hl7Serializer(
         } else {
             rawObx19Value
         }
-        terser.set(formPathSpec("OBX-11", aoeRep), "F")
+        terser.set(formPathSpec("OBX-11", aoeRep), report.getString(row, "test_result_status"))
         terser.set(formPathSpec("OBX-14", aoeRep), date)
         // some states want the observation date for the AOE questions as well
         terser.set(formPathSpec("OBX-19", aoeRep), obx19Value)
@@ -1379,10 +1406,24 @@ class Hl7Serializer(
         }
     }
 
-    private fun createHeaders(report: Report): String {
-        val sendingApplicationReport = report.getString(0, "sending_application") ?: ""
-        val receivingApplicationReport = report.getString(0, "receiving_application") ?: ""
-        val receivingFacilityReport = report.getString(0, "receiving_facility") ?: ""
+    /**
+     * Creates the headers for hl7 batch. Generally the [sendingApplicationReportIn], [receivingApplicationReportIn], and
+     * [receivingFacilityReportIn] will come from the first item in the file. In the case of empty batch, it
+     * must be passed in.
+     */
+    private fun createHeaders(
+        report: Report,
+        sendingApplicationReportIn: String? = null,
+        receivingApplicationReportIn: String? = null,
+        receivingFacilityReportIn: String? = null
+    ): String {
+
+        val sendingApplicationReport = sendingApplicationReportIn
+            ?: (report.getString(0, "sending_application") ?: "")
+        val receivingApplicationReport = receivingApplicationReportIn
+            ?: (report.getString(0, "receiving_application") ?: "")
+        val receivingFacilityReport = receivingFacilityReportIn
+            ?: (report.getString(0, "receiving_facility") ?: "")
 
         var sendingAppTruncationLimit: Int? = null
         var receivingAppTruncationLimit: Int? = null
@@ -1750,7 +1791,7 @@ class Hl7Serializer(
 
         // Do a lazy init because this table may never be used and it is large
         val ncesLookupTable = lazy {
-            LookupTable.read("./metadata/tables/nces_id_2021_6_28.csv")
+            Metadata.getInstance().findLookupTable("nces_id") ?: error("Unable to find the NCES ID lookup table.")
         }
     }
 }

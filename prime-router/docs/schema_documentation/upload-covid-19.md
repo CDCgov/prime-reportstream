@@ -97,7 +97,7 @@ Translate multiple inbound Y/N/U AOE values to RS values
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
 
-**Table**: LIVD-SARS-CoV-2-latest
+**Table**: LIVD-SARS-CoV-2
 
 **Table Column**: Model
 
@@ -276,7 +276,7 @@ Translate multiple inbound Y/N/U AOE values to RS values
 
 **ReportStream Internal Name**: order_test_date
 
-**Type**: DATE
+**Type**: DATETIME
 
 **PII**: No
 
@@ -835,6 +835,20 @@ The patient's phone number with area code
 
 ---
 
+**Name**: patient_primary_language
+
+**ReportStream Internal Name**: patient_primary_language
+
+**Type**: TEXT
+
+**PII**: No
+
+**Default Value**: eng
+
+**Cardinality**: [0..1]
+
+---
+
 **Name**: patient_race
 
 **ReportStream Internal Name**: patient_race
@@ -1018,11 +1032,11 @@ Translate multiple inbound values into the Pregnancy SNOMED Codes
 
 **PII**: No
 
-**Format**: use value found in the Code column
+**Format**: use value found in the Display column
 
 **Default Value**: P
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Value Sets**
 
@@ -1031,6 +1045,21 @@ Code | Display | System
 D|Debugging|HL7
 P|Production|HL7
 T|Training|HL7
+T|Training|HL7
+T|Training|HL7
+T|Training|HL7
+P|Production|HL7
+P|Production|HL7
+
+**Alt Value Sets**
+
+Code | Display | System
+---- | ------- | ------
+T|TESTING|HL7
+T|INACTIVE|HL7
+T|T|HL7
+P|ACTIVE|HL7
+P|P|HL7
 
 **Documentation**:
 
@@ -1038,7 +1067,7 @@ P, D, or T for Production, Debugging, or Training
 
 ---
 
-**Name**: testing_lab_clia
+**Name**: reporting_facility_clia
 
 **ReportStream Internal Name**: reporting_facility_clia
 
@@ -1054,7 +1083,7 @@ P, D, or T for Production, Debugging, or Training
 - [SPM-2-1-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.1.3)
 - [SPM-2-2-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2.3)
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -1062,7 +1091,7 @@ The reporting facility's CLIA
 
 ---
 
-**Name**: testing_lab_name
+**Name**: reporting_facility_name
 
 **ReportStream Internal Name**: reporting_facility_name
 
@@ -1078,7 +1107,7 @@ The reporting facility's CLIA
 - [SPM-2-1-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.1.2)
 - [SPM-2-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2.2)
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -1339,7 +1368,7 @@ Translate multiple inbound Y/N/U AOE values to RS values
 
 **Cardinality**: [1..1]
 
-**Table**: LIVD-SARS-CoV-2-latest
+**Table**: LIVD-SARS-CoV-2
 
 **Table Column**: Test Performed LOINC Code
 
@@ -1428,7 +1457,7 @@ Translate multiple inbound Test Result values to RS values
 
 **ReportStream Internal Name**: test_result_date
 
-**Type**: DATE
+**Type**: DATETIME
 
 **PII**: No
 
@@ -1798,6 +1827,18 @@ The FIPS code for the patient's county
 **Documentation**:
 
 The ID number of the lab order from the placer
+
+---
+
+**Name**: processing_mode_code_fromsettings
+
+**ReportStream Internal Name**: processing_mode_code_fromsettings
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
 
 ---
 
