@@ -229,3 +229,12 @@ h3 img[src*="svg"] {
   }
 }
 
+.rs-oktapreview-watermark {
+    transform: rotate(343deg);
+    position: absolute;
+    opacity: .6;
+    top: 1em;
+    color: crimson;
+    overflow: hidden;
+    font-weight: 900;
+}

@@ -16,6 +16,8 @@ const SignInOrUser = () => {
                 .then((cl) => setUser(cl.email ? cl.email : "unknown user"));
         }
     });
+    const isPreview =
+        `${process.env.REACT_APP_OKTA_URL}`.match(/oktapreview.com/) !== null;
 
     return authState?.isAuthenticated ? (
         <div className="prime-user-account">
@@ -34,8 +36,8 @@ const SignInOrUser = () => {
         </div>
     ) : (
         <NavLink to="/daily-data">
-            <Button type="button" outline>
-                Log in
+            <Button type="button" inverse={isPreview}>
+                Log in {isPreview ? "via OtkaPreview" : ""}
             </Button>
         </NavLink>
     );

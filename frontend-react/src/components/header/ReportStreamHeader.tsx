@@ -7,6 +7,7 @@ import {
     NavMenuButton,
 } from "@trussworks/react-uswds";
 import { NavLink } from "react-router-dom";
+import { NetworkErrorBoundary } from "rest-hooks";
 
 import { permissionCheck } from "../../webreceiver-utils";
 import { PERMISSIONS } from "../../resources/PermissionsResource";
@@ -23,6 +24,9 @@ export const ReportStreamHeader = () => {
     const toggleMobileNav = (): void =>
         setExpanded((prvExpanded) => !prvExpanded);
     let itemsMenu = [<GettingStartedDropdown />, <HowItWorksDropdown />];
+    const isOktaPreview =
+        `${process.env.REACT_APP_OKTA_URL}`.match(/oktapreview.com/) !== null;
+    const environment = `${process.env.REACT_APP_CLIENT_ENV}`;
 
     if (authState !== null && authState.isAuthenticated) {
         if (
@@ -92,6 +96,9 @@ export const ReportStreamHeader = () => {
                                     ReportStream
                                 </NavLink>
                             </em>
+                            <span className="rs-oktapreview-watermark">
+                                {isOktaPreview ? environment : ""}
+                            </span>
                         </Title>
                     </div>
                     <NavMenuButton onClick={toggleMobileNav} label="Menu" />
