@@ -219,7 +219,7 @@ variable "aad_group_postgres_admin" {
 ##########
 
 variable "db_sku_name" {
-  default = "GP_Gen5_2"
+  default = "GP_Gen5_16"
 }
 variable "db_version" {
   default = "11"
@@ -228,14 +228,14 @@ variable "db_storage_mb" {
   default = 5120
 }
 variable "db_auto_grow" {
-  default = false
+  default = true
 }
 variable "db_prevent_destroy" {
   default = false
 }
 
 variable "db_threat_detection" {
-  default = false
+  default = true
 }
 
 variable "db_replica" {
