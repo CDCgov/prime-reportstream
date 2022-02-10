@@ -18,7 +18,7 @@ export class TestResponse {
                 this.data = this.actionDetails;
                 break;
             default:
-                this.data = null
+                this.data = null;
                 break;
         }
     }
