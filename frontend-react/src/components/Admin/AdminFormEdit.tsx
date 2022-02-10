@@ -42,7 +42,7 @@ export const TextAreaComponent = (params: {
     savefunc: (val: object) => void;
 }): JSX.Element => {
     let defaultValue = JSON.stringify(params?.defaultvalue, undefined, 2);
-    if (defaultValue === "null") {
+    if (defaultValue === "null" || defaultValue === "[]") {
         defaultValue = "";
     }
 
