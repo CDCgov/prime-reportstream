@@ -27,7 +27,6 @@ import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Source
 import gov.cdc.prime.router.ValueSet
 import gov.cdc.prime.router.metadata.ElementAndValue
-import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.metadata.Mapper
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.InputStream
@@ -446,6 +445,9 @@ class Hl7Serializer(
         val suppressAoe = hl7Config?.suppressAoe ?: false
         val useOrderingFacilityName = hl7Config?.useOrderingFacilityName
             ?: Hl7Configuration.OrderingFacilityName.STANDARD
+        val stripInvalidCharactersRegex: Regex? = hl7Config?.stripInvalidCharsRegex?.let {
+            Regex(hl7Config.stripInvalidCharsRegex)
+        }
 
         // and we have some fields to suppress
         val suppressedFields = hl7Config
@@ -495,12 +497,12 @@ class Hl7Serializer(
         // serialize the rest of the elements
         reportElements.forEach { element ->
             val value = report.getString(row, element.name).let {
-                if (it.isNullOrEmpty() || it.equals("null")) {
+                if (it.isNullOrEmpty() || it == "null") {
                     element.default ?: ""
                 } else {
-                    it
+                    stripInvalidCharactersRegex?.replace(it, "") ?: it
                 }
-            }
+            }.trim()
 
             if (suppressedFields.contains(element.hl7Field) && element.hl7OutputFields.isNullOrEmpty())
                 return@forEach
@@ -1404,8 +1406,8 @@ class Hl7Serializer(
     }
 
     /**
-     * Creates the headers for hl7 batch. Generally the [sendingApplication], [receivingApplication], and
-     * [recievingFacility] will come from the first item in the file. In the case of empty batch, it
+     * Creates the headers for hl7 batch. Generally the [sendingApplicationReportIn], [receivingApplicationReportIn], and
+     * [receivingFacilityReportIn] will come from the first item in the file. In the case of empty batch, it
      * must be passed in.
      */
     private fun createHeaders(
@@ -1788,7 +1790,7 @@ class Hl7Serializer(
 
         // Do a lazy init because this table may never be used and it is large
         val ncesLookupTable = lazy {
-            LookupTable.read("./metadata/tables/nces_id_2021_6_28.csv")
+            Metadata.getInstance().findLookupTable("nces_id") ?: error("Unable to find the NCES ID lookup table.")
         }
     }
 }
