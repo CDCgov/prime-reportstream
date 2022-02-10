@@ -3377,3 +3377,19 @@
       schemaName: "upload-covid-19"
       keys: null
       processingType: "sync"
+
+- name: "hollywoodsmiles-ca"
+  description: "Hollywood Smiles in CA - CSV Uploader"
+  jurisdiction: "FEDERAL"
+  stateCode: null
+  countyName: null
+  filters: []
+  senders:
+    - name: "default"
+      organizationName: "hollywoodsmiles-ca"
+      format: "CSV"
+      topic: "covid-19"
+      customerStatus: "testing"
+      schemaName: "upload-covid-19"
+      keys: null
+      processingType: "sync"
