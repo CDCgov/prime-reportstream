@@ -267,7 +267,7 @@ class ProcessData(
             }
             else -> {
                 val csvSerializer = CsvSerializer(metadata)
-                return if (file.extension.uppercase() == "INTERNAL") {
+                return if (FileUtilities.isInternalFile(file)) {
                     csvSerializer.readInternal(
                         schema.name,
                         file.inputStream(),
