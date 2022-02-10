@@ -187,11 +187,17 @@ module "database" {
 ##########
 
 module "log_analytics_workspace" {
-  source          = "../../modules/log_analytics_workspace"
-  environment     = var.environment
-  resource_group  = var.resource_group
-  resource_prefix = var.resource_prefix
-  location        = var.location
+  source                     = "../../modules/log_analytics_workspace"
+  environment                = var.environment
+  resource_group             = var.resource_group
+  resource_prefix            = var.resource_prefix
+  location                   = var.location
+  service_plan_id            = module.app_service_plan.service_plan_id
+  container_registry_id      = module.container_registry.container_registry_id
+  postgres_server_id         = module.database.postgres_server_id
+  application_key_vault_id   = module.key_vault.application_key_vault_id
+  app_config_key_vault_id    = module.key_vault.app_config_key_vault_id
+  client_config_key_vault_id = module.key_vault.client_config_key_vault_id
 }
 
 module "application_insights" {
