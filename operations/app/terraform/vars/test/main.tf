@@ -198,14 +198,14 @@ module "log_analytics_workspace" {
   application_key_vault_id   = module.key_vault.application_key_vault_id
   app_config_key_vault_id    = module.key_vault.app_config_key_vault_id
   client_config_key_vault_id = module.key_vault.client_config_key_vault_id
-  function_app_id            = data.azurerm_function_app.function_app.id
-  front_door_id              = data.azurerm_resources.front_door.resources[0].id
-  nat_gateway_id             = data.azurerm_nat_gateway.nat_gateway.id
+  function_app_id            = module.function_app.function_app_id
+  front_door_id              = module.front_door.front_door_id
+  nat_gateway_id             = module.nat_gateway.nat_gateway_id
   east_vnet_id               = module.vnet.east_vnet_id
   west_vnet_id               = module.vnet.west_vnet_id
-  storage_account_id         = data.azurerm_storage_account.storage_account.id
-  storage_public_id          = data.azurerm_storage_account.storage_public.id
-  storage_partner_id         = data.azurerm_storage_account.storage_partner.id
+  storage_account_id         = module.storage.storage_account_id
+  storage_public_id          = module.storage.storage_public_id
+  storage_partner_id         = module.storage.storage_partner_id
 }
 
 module "application_insights" {

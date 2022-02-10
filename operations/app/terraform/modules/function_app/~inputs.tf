@@ -36,7 +36,7 @@ variable "okta_redirect_url" {
 }
 
 variable "terraform_caller_ip_address" {
-  type        = string
+  type        = list(string)
   description = "The IP address of the Terraform script caller. This IP will have already been whitelisted; it's inclusion is to prevent its removal during terraform apply calls."
   sensitive   = true
 }
