@@ -1386,5 +1386,14 @@ internal class ElementTests {
         )
         assertThat(element.fieldMapping).contains(element.name)
         element.csvFields!!.forEach { assertThat(element.fieldMapping).contains(it.name) }
+
+        // CSV fields win over HL7
+        element = Element(
+            "name", hl7Field = "OBX-1",
+            csvFields = listOf(Element.CsvField("fielda", null))
+        )
+        assertThat(element.fieldMapping).contains(element.name)
+        element.csvFields!!.forEach { assertThat(element.fieldMapping).contains(it.name) }
+        assertThat(element.fieldMapping).doesNotContain(element.hl7Field!!)
     }
 }
