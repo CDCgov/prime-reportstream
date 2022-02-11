@@ -1,6 +1,8 @@
 package gov.cdc.prime.router
 
 import assertk.assertThat
+import assertk.assertions.contains
+import assertk.assertions.doesNotContain
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
@@ -1358,5 +1360,40 @@ internal class ElementTests {
             Element("name", type = Element.Type.TEXT_OR_BLANK, default = "default", mapperArgs = listOf("arg"))
                 .validate()
         ).size().isGreaterThan(1)
+    }
+
+    @Test
+    fun `test field mapping output`() {
+        var element = Element("name")
+        assertThat(element.fieldMapping).contains(element.name)
+
+        element = Element("name", hl7Field = "OBX-1")
+        assertThat(element.fieldMapping).contains(element.name)
+        assertThat(element.fieldMapping).contains(element.hl7Field!!)
+
+        element = Element("name", hl7Field = "OBX-1", hl7OutputFields = listOf("OBX-2", "OBX-3"))
+        assertThat(element.fieldMapping).contains(element.name)
+        assertThat(element.fieldMapping).contains(element.hl7Field!!)
+        element.hl7OutputFields!!.forEach { assertThat(element.fieldMapping).doesNotContain(it) }
+
+        element = Element("name", hl7OutputFields = listOf("OBX-2", "OBX-3"))
+        assertThat(element.fieldMapping).contains(element.name)
+        element.hl7OutputFields!!.forEach { assertThat(element.fieldMapping).contains(it) }
+
+        element = Element(
+            "name",
+            csvFields = listOf(Element.CsvField("fielda", null), Element.CsvField("fieldb", null))
+        )
+        assertThat(element.fieldMapping).contains(element.name)
+        element.csvFields!!.forEach { assertThat(element.fieldMapping).contains(it.name) }
+
+        // CSV fields win over HL7
+        element = Element(
+            "name", hl7Field = "OBX-1",
+            csvFields = listOf(Element.CsvField("fielda", null))
+        )
+        assertThat(element.fieldMapping).contains(element.name)
+        element.csvFields!!.forEach { assertThat(element.fieldMapping).contains(it.name) }
+        assertThat(element.fieldMapping).doesNotContain(element.hl7Field!!)
     }
 }

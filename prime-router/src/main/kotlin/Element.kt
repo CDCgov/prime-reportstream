@@ -205,9 +205,17 @@ data class Element(
      */
     val isTableLookup get() = mapperRef != null && type == Type.TABLE
 
-    // Creates a field mapping string showing the external CSV header name(s)
-    // and the corresponding internal field name
-    val fieldMapping get() = "'${this.csvFields?.joinToString { it -> it.name }}' ('${this.name}')"
+    /**
+     * String showing the external field name(s) if any and the element name.
+     */
+    val fieldMapping: String get() {
+        return when {
+            !csvFields.isNullOrEmpty() -> "'${csvFields.map { it -> it.name }.joinToString(",")}' ('$name')"
+            !hl7Field.isNullOrBlank() -> "'$hl7Field' ('$name')"
+            !hl7OutputFields.isNullOrEmpty() -> "'${hl7OutputFields.joinToString(",")}}' ('$name')"
+            else -> "'$name'"
+        }
+    }
 
     fun inheritFrom(baseElement: Element): Element {
         return Element(
