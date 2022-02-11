@@ -695,8 +695,6 @@ The patient's city
 
 **PII**: No
 
-**Default Value**: USA
-
 **Cardinality**: [0..1]
 
 ---
