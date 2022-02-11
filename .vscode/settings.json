@@ -33,5 +33,8 @@
     ],
     "[typescriptreact]": {
         "editor.defaultFormatter": "vscode.typescript-language-features"
+    },
+    "[terraform]": {
+        "editor.defaultFormatter": "hashicorp.terraform"
     }
 }

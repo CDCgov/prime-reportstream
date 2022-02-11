@@ -19,7 +19,7 @@ resource "azurerm_storage_account" "storage_account" {
     #   [split("/", var.terraform_caller_ip_address)[0]], # Storage accounts only allow CIDR-notation for /[0-30]
     # ))
 
-    ip_rules = [var.terraform_caller_ip_address]
+    ip_rules = var.terraform_caller_ip_address
 
     virtual_network_subnet_ids = concat(var.public_subnet, var.container_subnet, var.endpoint_subnet)
   }
@@ -182,7 +182,7 @@ resource "azurerm_storage_account" "storage_partner" {
     ip_rules = sensitive(concat(
       split(",", data.azurerm_key_vault_secret.hhsprotect_ip_ingress.value),
       split(",", data.azurerm_key_vault_secret.cyberark_ip_ingress.value),
-      [split("/", var.terraform_caller_ip_address)[0]], # Storage accounts only allow CIDR-notation for /[0-30]
+      var.terraform_caller_ip_address, # Storage accounts only allow CIDR-notation for /[0-30]
     ))
 
     # ip_rules = [var.terraform_caller_ip_address]

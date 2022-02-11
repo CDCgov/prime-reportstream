@@ -176,7 +176,7 @@ variable "okta_redirect_url" {
   default = "https://prime-data-hub-rkh5012.azurefd.net/download"
 }
 variable "aad_object_keyvault_admin" {
-  default = "f94409a9-12b1-4820-a1b6-e3e0a4fa282d"
+  default = "3c17896c-ff94-4298-a719-aaac248aa2c8"
 } # Group or individual user id
 
 ##################
@@ -200,7 +200,8 @@ variable "use_cdc_managed_vnet" {
 }
 
 variable "terraform_caller_ip_address" {
-  default = "162.224.209.174"
+  type    = list(string)
+  default = ["162.224.209.174","24.163.118.70","75.191.122.59"]
 }
 
 #############################

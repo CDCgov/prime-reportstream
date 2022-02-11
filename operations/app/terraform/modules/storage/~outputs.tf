@@ -9,3 +9,15 @@ output "sa_primary_connection_string" {
 output "sa_public_primary_web_endpoint" {
   value = azurerm_storage_account.storage_public.primary_web_endpoint 
 }
+
+output "storage_account_id" {
+  value = azurerm_storage_account.storage_account.id
+}
+
+output "storage_public_id" {
+  value = azurerm_storage_account.storage_public.id
+}
+
+output "storage_partner_id" {
+  value = azurerm_storage_account.storage_partner.id
+}
