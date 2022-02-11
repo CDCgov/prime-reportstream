@@ -46,7 +46,7 @@ The work would be staged in several PRs, roughly based on the steps of the solut
 ### Details
 
 The solution outlined creates a new set of `Translation` classes, one for each serializer and deserializer class.
-The current `HL7Translation` and `RedoxTranslation` would not change. 
+The current `HL7Translation` would not change. 
 However, the `CustomTranslation` would be removed or replaced by a new `CSVTranslation`. 
 Much like the current `HL7Translation`, this new `CSVTranslation` could have settings like empty values and date formats that affect the whole conversion. 
 
