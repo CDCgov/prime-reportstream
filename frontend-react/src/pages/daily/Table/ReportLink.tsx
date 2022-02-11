@@ -6,13 +6,13 @@ import ReportResource from "../../../resources/ReportResource";
 import { getStoredOrg } from "../../../components/GlobalContextProvider";
 
 interface Props {
-    /* REQURIED
+    /* REQUIRED
     A ReportResource is passed in using this property. This is necessary for download()
     since that function relies on the content, fileName, and mimeType properties */
     report: ReportResource | undefined;
 
     /* OPTIONAL
-    This boolean flag changes the return value from a standart <a> link to a <Button> (USWDS)
+    This boolean flag changes the return value from a standard <a> link to a <Button> (USWDS)
     so this single component can be used in Daily.tsx and Details.tsx */
     button?: boolean;
 }
