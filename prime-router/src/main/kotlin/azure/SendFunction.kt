@@ -10,7 +10,6 @@ import gov.cdc.prime.router.BlobStoreTransportType
 import gov.cdc.prime.router.FTPSTransportType
 import gov.cdc.prime.router.GAENTransportType
 import gov.cdc.prime.router.NullTransportType
-import gov.cdc.prime.router.RedoxTransportType
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.SFTPTransportType
 import gov.cdc.prime.router.SoapTransportType
@@ -116,7 +115,6 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
     private fun getTransport(transportType: TransportType): ITransport? {
         return when (transportType) {
             is SFTPTransportType -> workflowEngine.sftpTransport
-            is RedoxTransportType -> workflowEngine.redoxTransport
             is BlobStoreTransportType -> workflowEngine.blobStoreTransport
             is AS2TransportType -> workflowEngine.as2Transport
             is FTPSTransportType -> workflowEngine.ftpsTransport

@@ -68,7 +68,7 @@ class End2End : CoolTest() {
     override val status = TestStatus.SMOKE
 
     override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
-        initListOfGoodReceiversAndCounties(environment)
+        initListOfGoodReceiversAndCounties()
         ugly("Starting $name Test: send ${simpleRepSender.fullName} data to $allGoodCounties")
 
         // run both sync and async end2end test
@@ -465,7 +465,7 @@ class Strac : CoolTest() {
     override val status = TestStatus.SMOKE
 
     override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
-        initListOfGoodReceiversAndCounties(environment)
+        initListOfGoodReceiversAndCounties()
         ugly("Starting bigly strac Test: sending Strac data to all of these receivers: $allGoodCounties!")
         var passed = true
         val fakeItemCount = allGoodReceivers.size * options.items
@@ -563,7 +563,7 @@ class Garbage : CoolTest() {
     override val status = TestStatus.FAILS // new quality checks now prevent any data from flowing to other checks
 
     override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
-        initListOfGoodReceiversAndCounties(environment)
+        initListOfGoodReceiversAndCounties()
         ugly("Starting $name Test: send ${emptySender.fullName} data to $allGoodCounties")
         var passed = true
         val fakeItemCount = allGoodReceivers.size * options.items

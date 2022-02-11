@@ -17,7 +17,6 @@
 
         <!-- ReportStream logs -->
         <Logger name="gov.cdc.prime.router" level="info"/>
-        <Logger name="gov.cdc.prime.router.transport.RedoxTransport"/>
         <Logger name="gov.cdc.prime.router.credentials" level="info"/>
 
         <!-- Example to turn on debugging in your favorite package

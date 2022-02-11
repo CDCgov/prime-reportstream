@@ -179,14 +179,6 @@ open class Receiver(
                 if (metadata.findSchema(translation.schemaName) == null)
                     return "Invalid schemaName: ${translation.schemaName}"
             }
-            is Hl7Configuration -> {
-                if (transport != null && transport is RedoxTransportType)
-                    return "HL7 configurations should not have a Redox transport"
-            }
-            is RedoxConfiguration -> {
-                if (transport != null && transport !is RedoxTransportType)
-                    return "Redox configurations should have Redox transports"
-            }
         }
         return null
     }
