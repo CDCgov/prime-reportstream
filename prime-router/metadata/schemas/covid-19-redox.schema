@@ -7,15 +7,19 @@ basedOn: covid-19
 trackingElement: placer_order_id
 elements:
   - name: redox_source_id
+    type: TEXT
     redoxOutputFields: ["Meta.Source.ID"]
 
   - name: redox_source_name
+    type: TEXT
     redoxOutputFields: ["Meta.Source.Name"]
 
   - name: redox_destination_id
+    type: TEXT
     redoxOutputFields: ["Meta.Destinations[0].ID"]
 
   - name: redox_destination_name
+    type: TEXT
     redoxOutputFields: ["Meta.Destinations[0].Name"]
 
   - name: processing_mode_code
@@ -53,6 +57,7 @@ elements:
     redoxOutputFields: ["Patient.Identifiers[1].ID"]
 
   - name: redox_patient_drivers_license_type
+    type: TEXT
     mapper: "ifPresent(patient_drivers_license, DL)"
     redoxOutputFields: ["Patient.Identifiers[1].IDType"]
 
@@ -162,6 +167,7 @@ elements:
     redoxOutputFields: ["Orders[0].ApplicationOrderID"]
 
   - name: specimen_received_date_time
+    type: TEXT
     mapper: use(specimen_collection_date_time)
     redoxOutputFields: ["Orders[0].TransactionDateTime"]
 
@@ -242,9 +248,11 @@ elements:
     redoxOutputFields: ["Orders[0].Provider.PhoneNumber.Office"]
 
   - name: ordering_provider_email
+    type: TEXT
     redoxOutputFields: [ "Orders[0].Provider.EmailAddresses" ]
 
   - name: redox_resulted
+    type: TEXT
     default: "Resulted"
     redoxOutputFields: ["Orders[0].Status"]
 
@@ -273,6 +281,7 @@ elements:
     redoxOutputFields: ["Orders[0].Results[0].Value"]
 
   - name: redox_test_result_type
+    type: TEXT
     default: Coded Entry
     redoxOutputFields: ["Orders[0].Results[0].ValueType"]
 
@@ -291,6 +300,7 @@ elements:
     redoxOutputFields: [ "Orders[0].Results[0].Producer.ID" ]
 
   - name: redox_test_lab_id_type
+    type: TEXT
     mapper: ifPresent(testing_lab_clia, CLIA)
     redoxOutputFields: [ "Orders[0].Results[0].Producer.IDType" ]
 
@@ -319,6 +329,7 @@ elements:
     redoxOutputFields: [ "Orders[0].Results[0].Producer.PhoneNumber.Office" ]
 
   - name: testing_lab_email
+    type: TEXT
     redoxOutputFields: [ "Orders[0].Results[0].Producer.EmailAddresses" ]
 
   #
@@ -333,46 +344,57 @@ elements:
     redoxOutputFields: [ "Orders[0].Results[1].Value" ]
 
   - name: redox_pregnant_value_type
+    type: TEXT
     redoxOutputFields: [ "Orders[0].Results[1].ValueType" ]
     mapper: ifPresent(pregnant, Coded Entry)
 
   - name: redox_pregnant_code
+    type: TEXT
     redoxOutputFields: [ "Orders[0].Results[1].Code" ]
     mapper: ifPresent(pregnant, 82810-3)
 
   - name: redox_pregnant_codeset
+    type: TEXT
     redoxOutputFields: [ "Orders[0].Results[1].Codeset" ]
     mapper: ifPresent(pregnant, LOINC)
 
   - name: redox_pregnant_description
+    type: TEXT
     redoxOutputFields: [ "Orders[0].Results[1].Description" ]
     mapper: "ifPresent(pregnant, Pregnancy status)"
 
   - name: redox_pregnant_status
+    type: TEXT
     redoxOutputFields: [ "Orders[0].Results[1].Status" ]
     mapper: ifPresent(pregnant, Final)
 
 
   - name: illness_onset_date
+    type: TEXT
     redoxOutputFields: [ "Orders[0].Results[2].Value" ]
 
   - name: redox_illness_onset_date_value_type
+    type: TEXT
     redoxOutputFields: [ "Orders[0].Results[2].ValueType" ]
     mapper: ifPresent(illness_onset_date, Date)
 
   - name: redox_illness_onset_date_code
+    type: TEXT
     redoxOutputFields: [ "Orders[0].Results[2].Code" ]
     mapper: ifPresent(illness_onset_date, 65222-2)
 
   - name: redox_illness_onset_date_codeset
+    type: TEXT
     redoxOutputFields: [ "Orders[0].Results[2].Codeset" ]
     mapper: ifPresent(illness_onset_date, LOINC)
 
   - name: redox_illness_onset_date_description
+    type: TEXT
     redoxOutputFields: [ "Orders[0].Results[2].Description" ]
     mapper: "ifPresent(illness_onset_date, Date and time of symptom onset)"
 
   - name: redox_illness_onset_date_status
+    type: TEXT
     redoxOutputFields: [ "Orders[0].Results[2].Status" ]
     mapper: ifPresent(illness_onset_date, Final)
 
@@ -381,22 +403,27 @@ elements:
     redoxOutputFields: [ "Orders[0].Results[3].Value" ]
 
   - name: redox_employed_in_healthcare_value_type
+    type: TEXT
     redoxOutputFields: [ "Orders[0].Results[3].ValueType" ]
     mapper: ifPresent(employed_in_healthcare, Coded Entry)
 
   - name: redox_employed_in_healthcare_code
+    type: TEXT
     redoxOutputFields: [ "Orders[0].Results[3].Code" ]
     mapper: ifPresent(employed_in_healthcare, 95418-0)
 
   - name: redox_employed_in_healthcare_codeset
+    type: TEXT
     redoxOutputFields: [ "Orders[0].Results[3].Codeset" ]
     mapper: ifPresent(employed_in_healthcare, LOINC)
 
   - name: redox_employed_in_healthcare_description
+    type: TEXT
     redoxOutputFields: [ "Orders[0].Results[3].Description" ]
     mapper: "ifPresent(employed_in_healthcare, Whether patient is employed in a healthcare setting)"
 
   - name: redox_employed_in_healthcare_status
+    type: TEXT
     redoxOutputFields: [ "Orders[0].Results[3].Status" ]
     mapper: ifPresent(employed_in_healthcare, Final)
 
@@ -405,22 +432,27 @@ elements:
     redoxOutputFields: [ "Orders[0].Results[4].Value" ]
 
   - name: redox_first_test_value_type
+    type: TEXT
     redoxOutputFields: [ "Orders[0].Results[4].ValueType" ]
     mapper: ifPresent(first_test, Coded Entry)
 
   - name: redox_first_test_code
+    type: TEXT
     redoxOutputFields: [ "Orders[0].Results[4].Code" ]
     mapper: ifPresent(first_test, 95417-2)
 
   - name: redox_first_test_codeset
+    type: TEXT
     redoxOutputFields: [ "Orders[0].Results[4].Codeset" ]
     mapper: ifPresent(first_test, LOINC)
 
   - name: redox_first_test_description
+    type: TEXT
     redoxOutputFields: [ "Orders[0].Results[4].Description" ]
     mapper: "ifPresent(first_test, First test for condition of interest)"
 
   - name: redox_first_test_status
+    type: TEXT
     redoxOutputFields: [ "Orders[0].Results[4].Status" ]
     mapper: ifPresent(first_test, Final)
 
@@ -428,22 +460,27 @@ elements:
     redoxOutputFields: [ "Orders[0].Results[5].Value" ]
 
   - name: redox_hospitalized_value_type
+    type: TEXT
     redoxOutputFields: [ "Orders[0].Results[5].ValueType" ]
     mapper: ifPresent(hospitalized, Coded Entry)
 
   - name: redox_hospitalized_code
+    type: TEXT
     redoxOutputFields: [ "Orders[0].Results[5].Code" ]
     mapper: ifPresent(hospitalized, 77974-4)
 
   - name: redox_hospitalized_codeset
+    type: TEXT
     redoxOutputFields: [ "Orders[0].Results[5].Codeset" ]
     mapper: ifPresent(hospitalized, LOINC)
 
   - name: redox_hospitalized_description
+    type: TEXT
     redoxOutputFields: [ "Orders[0].Results[5].Description" ]
     mapper: "ifPresent(hospitalized, Whether patient was hospitalized because of this condition)"
 
   - name: redox_hospitalized_status
+    type: TEXT
     redoxOutputFields: [ "Orders[0].Results[5].Status" ]
     mapper: ifPresent(hospitalized, Final)
     
@@ -452,22 +489,27 @@ elements:
     redoxOutputFields: [ "Orders[0].Results[6].Value" ]
 
   - name: redox_icu_value_type
+    type: TEXT
     redoxOutputFields: [ "Orders[0].Results[6].ValueType" ]
     mapper: ifPresent(icu, Coded Entry)
 
   - name: redox_icu_code
+    type: TEXT
     redoxOutputFields: [ "Orders[0].Results[6].Code" ]
     mapper: ifPresent(icu, 95420-6)
 
   - name: redox_icu_codeset
+    type: TEXT
     redoxOutputFields: [ "Orders[0].Results[6].Codeset" ]
     mapper: ifPresent(icu, LOINC)
 
   - name: redox_icu_description
+    type: TEXT
     redoxOutputFields: [ "Orders[0].Results[6].Description" ]
     mapper: "ifPresent(icu, Admitted to intensive care unit for condition of interest)"
 
   - name: redox_icu_status
+    type: TEXT
     redoxOutputFields: [ "Orders[0].Results[6].Status" ]
     mapper: ifPresent(icu, Final)
     
@@ -476,22 +518,27 @@ elements:
     redoxOutputFields: [ "Orders[0].Results[7].Value" ]
 
   - name: redox_resident_congregate_setting_value_type
+    type: TEXT
     redoxOutputFields: [ "Orders[0].Results[7].ValueType" ]
     mapper: ifPresent(resident_congregate_setting, Coded Entry)
 
   - name: redox_resident_congregate_setting_code
+    type: TEXT
     redoxOutputFields: [ "Orders[0].Results[7].Code" ]
     mapper: ifPresent(resident_congregate_setting, 95421-4)
 
   - name: redox_resident_congregate_setting_codeset
+    type: TEXT
     redoxOutputFields: [ "Orders[0].Results[7].Codeset" ]
     mapper: ifPresent(resident_congregate_setting, LOINC)
 
   - name: redox_resident_congregate_setting_description
+    type: TEXT
     redoxOutputFields: [ "Orders[0].Results[7].Description" ]
     mapper: "ifPresent(resident_congregate_setting, Resides in a congregate care setting)"
 
   - name: redox_resident_congregate_setting_status
+    type: TEXT
     redoxOutputFields: [ "Orders[0].Results[7].Status" ]
     mapper: ifPresent(resident_congregate_setting, Final)
     
@@ -500,21 +547,26 @@ elements:
     redoxOutputFields: [ "Orders[0].Results[8].Value" ]
 
   - name: redox_symptomatic_for_disease_value_type
+    type: TEXT
     redoxOutputFields: [ "Orders[0].Results[8].ValueType" ]
     mapper: ifPresent(symptomatic_for_disease, Coded Entry)
 
   - name: redox_symptomatic_for_disease_code
+    type: TEXT
     redoxOutputFields: [ "Orders[0].Results[8].Code" ]
     mapper: ifPresent(symptomatic_for_disease, 95419-8)
 
   - name: redox_symptomatic_for_disease_codeset
+    type: TEXT
     redoxOutputFields: [ "Orders[0].Results[8].Codeset" ]
     mapper: ifPresent(symptomatic_for_disease, LOINC)
 
   - name: redox_symptomatic_for_disease_description
+    type: TEXT
     redoxOutputFields: [ "Orders[0].Results[8].Description" ]
     mapper: "ifPresent(symptomatic_for_disease, Has symptoms related to condition of interest)"
 
   - name: redox_symptomatic_for_disease_status
+    type: TEXT
     redoxOutputFields: [ "Orders[0].Results[8].Status" ]
     mapper: ifPresent(symptomatic_for_disease, Final)
