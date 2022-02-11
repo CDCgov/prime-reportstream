@@ -6,8 +6,8 @@ import {
     IconNavigateNext,
 } from "@trussworks/react-uswds";
 import { useResource } from "rest-hooks";
+import { NavLink } from "react-router-dom";
 
-// import { useCache } from "@rest-hooks/core";
 import SubmissionsResource from "../../resources/SubmissionsResource";
 import { GlobalContext } from "../../components/GlobalContextProvider";
 
@@ -151,9 +151,13 @@ function SubmissionsTable() {
                                 return (
                                     <tr key={s.pk()}>
                                         <th scope="row">
-                                            {new Date(
-                                                s.createdAt
-                                            ).toLocaleString()}
+                                            <NavLink
+                                                to={`/submissions/${s.taskId}`}
+                                            >
+                                                {new Date(
+                                                    s.createdAt
+                                                ).toLocaleString()}
+                                            </NavLink>
                                         </th>
                                         {/* File name */}
                                         <th scope="row">{s.externalName}</th>
