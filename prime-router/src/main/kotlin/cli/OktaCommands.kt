@@ -36,6 +36,8 @@ import kotlin.random.Random
  */
 private const val oktaProdBaseUrl = "https://hhs-prime.okta.com"
 private const val oktaPreviewBaseUrl = "https://hhs-prime.oktapreview.com"
+private const val oktaProdClientId = "0oa6kt4j3tOFz5SH84h6"
+private const val oktaPreviewClientId = "0oa2fs6vp3W5MTzjh1d7"
 private const val oktaAuthorizePath = "/oauth2/default/v1/authorize" // Default authorization server
 private const val oktaTokenPath = "/oauth2/default/v1/token"
 private const val oktaUserInfoPath = "/oauth2/default/v1/userinfo"
@@ -201,10 +203,10 @@ abstract class OktaCommand(name: String, help: String) : CliktCommand(name = nam
         internal const val dummyOktaAccessToken = "dummy"
 
         internal val clientIds = mapOf(
-            OktaApp.DH_PROD to "0oa6kt4j3tOFz5SH84h6",
-            OktaApp.DH_TEST to "0oa6fm8j4G1xfrthd4h6",
-            OktaApp.DH_STAGE to "0oa2fs6vp3W5MTzjh1d7", // oktapreview.com
-            OktaApp.DH_DEV to "0oa2fs6vp3W5MTzjh1d7",
+            OktaApp.DH_PROD to oktaProdClientId,
+            OktaApp.DH_TEST to oktaPreviewClientId,
+            OktaApp.DH_STAGE to oktaPreviewClientId,
+            OktaApp.DH_DEV to oktaPreviewClientId,
         )
         internal val oktaBaseUrls = mapOf(
             OktaApp.DH_PROD to oktaProdBaseUrl,
