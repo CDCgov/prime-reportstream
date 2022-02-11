@@ -266,7 +266,7 @@ class ProcessData(
             }
             else -> {
                 val csvSerializer = CsvSerializer(metadata)
-                return if (file.extension.uppercase() == "INTERNAL") {
+                return if (FileUtilities.isInternalFile(file)) {
                     csvSerializer.readInternal(
                         schema.name,
                         file.inputStream(),
@@ -389,7 +389,9 @@ class ProcessData(
                 val inputSchema = (inputClientInfo as InputClientInfo.InputSchema).schemaName
                 val schName = inputSchema.lowercase()
                 metadata.findSchema(schName) ?: error("Schema $inputSchema is not found")
-                Pair(metadata.findSchema(schName), null)
+                // Get a random sender name that uses the provided schema, or null if no sender is found.
+                val sender = fileSettings.senders.filter { it.schemaName == schName }.randomOrNull()
+                Pair(metadata.findSchema(schName), sender)
             }
             else -> {
                 error("input schema or client's name must be specified")
