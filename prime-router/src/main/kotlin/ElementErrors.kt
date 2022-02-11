@@ -244,7 +244,7 @@ data class InvalidEquipmentMessage(
     val elementName: String
 ) : ActionLogDetail {
     override fun detailMsg(): String {
-        return "Invalid field $elementName; please refer to the Department of Health and Human Services’ (HHS) " +
+        return "Invalid field $elementName; please refer to the Department of Health and Human Services' (HHS) " +
             "LOINC Mapping spreadsheet for acceptable values."
     }
 
@@ -254,7 +254,7 @@ data class InvalidEquipmentMessage(
 
     companion object {
         fun new(element: Element): InvalidEquipmentMessage {
-            return InvalidEquipmentMessage(elementName = element.name)
+            return InvalidEquipmentMessage(elementName = element.fieldMapping)
         }
     }
 }
