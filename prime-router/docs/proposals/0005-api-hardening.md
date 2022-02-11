@@ -94,20 +94,6 @@ The truncation character is not fixed; applications may use any character. The t
 
 HL7 does not have hard size limits.  [See here, for example](https://healthstandards.com/blog/2007/01/05/introduction-to-hl7-field-cardinality-and-field-lengths/)
 
-### RedoxEngine Notes on Size Limitations
-
-Redox has a 200K limit for files submitted via its API and 30Meg on files uploaded. Note that the 200k corresponds to a single Item max limit in our world, so that's actually quite large, equivalent to 1000 column CSV of 200chars each.
-
-[Taken from here](https://developer.redoxengine.com/onboarding/)
-```
-The break point in which you would use the file upload endpoint vs. directly sending data to the API as a base64 encoded string or plain text string is currently 200KB. If you expect that the contents of your messages may occasionally exceed 200KB, you should use this method to upload the file to Redox.
-
-There is currently a 30MB file size limit for all files uploaded to Redox. Attempting to load any larger files will return a 413 error response.
-```
-(Note:  I've also seen a 10Meg file size limit at Redox)
-
-Character encoding:  Redox uses UTF-8.   However, [see here](https://www.redoxengine.com/blog/everything-you-wanted-to-know-about-character-encoding-in-hl7-and-redox/) for messy issues related to HL7.
-
 ## Guidance and Requirements, taken from the Zendesk tickets
 
 #### Max size Test cases:
@@ -116,7 +102,7 @@ Character encoding:  Redox uses UTF-8.   However, [see here](https://www.redoxen
 - Write test framework to cover these and other test cases, that can be run against the azure functions, either locally or in test.
 
 ### Acceptance Criteria
-- [X] Consideration of HL7 and Redox limits
+- [X] Consideration of HL7 limits
 - [ ] Allow individual custom schemas to set limits
 - [X] truncate fields when converting
 - [X] Consider whether to Error or Warn on truncation.
