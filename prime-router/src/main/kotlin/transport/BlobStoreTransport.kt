@@ -10,8 +10,7 @@ import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 
-// TODO workflow engine no longer needed
-class BlobStoreTransport(val workflowEngine: WorkflowEngine) : ITransport {
+class BlobStoreTransport() : ITransport {
     override fun send(
         transportType: TransportType,
         header: WorkflowEngine.Header,

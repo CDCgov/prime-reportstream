@@ -34,7 +34,7 @@ class FHIREngine : Logging {
         // val hl7 = deserialize(content) 
         // val fhir = translate(hl7, FHIR)
         // val resultHL7 = translate(fhir, HL7)
-        // val result = serialize(resultHL7)s
+        // val result = serialize(resultHL7)
 
         val result = blobContent
         compare(blobContent, result)

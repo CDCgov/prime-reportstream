@@ -279,7 +279,7 @@ class ReportFunction : Logging {
                     // limit to hl7
                     Report.Format.HL7, Report.Format.HL7_BATCH ->
                         queue.sendMessage(
-                            fhirQueueName, // TODO no magic strings
+                            fhirQueueName,
                             RawSubmission(
                                 blobInfo.blobUrl,
                                 BlobAccess.digestToString(blobInfo.digest),

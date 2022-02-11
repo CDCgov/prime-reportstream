@@ -158,7 +158,7 @@ class WorkflowEngine(
         }
     }
 
-    val blobStoreTransport: BlobStoreTransport = BlobStoreTransport(this)
+    val blobStoreTransport: BlobStoreTransport = BlobStoreTransport()
 
     /**
      * Check the connections to Azure Storage and DB
