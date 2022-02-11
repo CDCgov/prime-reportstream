@@ -28,7 +28,6 @@ class FHIREngine : Logging {
         check(content is RawSubmission) { "An unknown message was received by the FHIR Engine" }
 
         val blobContent = content.download()
-        // ------ //
 
         logger.info("Got content ${blobContent.size}")
 
@@ -38,8 +37,7 @@ class FHIREngine : Logging {
         // val result = serialize(resultHL7)s
 
         val result = blobContent
-        // ------ //
-        check(blobContent == result) { "FHIR - HL7 processing failed" }
+        compare(blobContent, result)
         logger.info("Succesfully handled ${content.digest}")
     }
 
@@ -50,5 +48,9 @@ class FHIREngine : Logging {
             "FHIR - Downloaded file does not match expected file ${this.digest} | $localDigest"
         }
         return blobContent
+    }
+
+    internal fun compare(input: ByteArray, output: ByteArray) {
+        check(input.contentEquals(output)) { "FHIR - HL7 processing failed" }
     }
 }

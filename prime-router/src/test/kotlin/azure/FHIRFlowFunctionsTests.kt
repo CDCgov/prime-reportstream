@@ -4,6 +4,7 @@ import io.mockk.every
 import io.mockk.mockkObject
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 
 class FHIRFlowFunctionsTests {
 
@@ -23,52 +24,94 @@ SPM|1|1234d1d1-95fe-462c-8ac6-46728dba581c&&05D2222542&ISO^1234d1d1-95fe-462c-8a
 BTS|1
 FTS|1"""
 
-    data class TestCase(
-        val name: String,
-        val message: String,
-        val exception: Throwable?,
-    )
-
-    val testCases = listOf(
-        TestCase(
-            "success",
-            "{\"class\":\"gov.cdc.prime.router.engine.RawSubmission\"," +
-                "\"blobURL\":\"http://localhost:10000/devstoreaccount1/reports/receive%2Fsimple_report.hl7test%2F" +
-                "test-covid-19-4990af55-c25b-474b-b4f6-7ccf155706b0-20220210113202.hl7\"," +
-                "\"digest\":\"ffffff9bffffffcb46fffffff5ffffff886fffffff84ffffff9efffffffaffffffd23bfffffff3ffffff8d" +
-                "4d7ffffffff2156fffffffbaffffff963ffffffff6ffffffa0397b10607fffffffa36cffffffbf71\"," +
-                "\"sender\":\"simple_report.hl7test\"}",
-            null,
-        ),
-        TestCase(
-            "bad-digest",
-            "{\"class\":\"gov.cdc.prime.router.engine.RawSubmission\"," +
-                "\"blobURL\":\"http://localhost:10000/devstoreaccount1/reports/receive%2Fsimple_report.hl7test%2F" +
-                "test-covid-19-4990af55-c25b-474b-b4f6-7ccf155706b0-20220210113202.hl7\"," +
-                "\"digest\":\"ffffff9bffffffcb46fffffff5ffffff886fffffff84ffffff9efffffffaffffffd23bfffffff3ffffff8" +
-                "d4d7ffffffff2156fffffffbaffffff963ffffffff6ffffffa0397b10607fffffffa36cffffffbf71\"," +
-                "\"sender\":\"simple_report.hl7test\"}",
-            IllegalStateException(
-                "FHIR - Downloaded file does not match expected file" +
-                    "ffffff9bffffffcb46fffffff5ffffff886fffffff84fffff9efffffffaffffffd23bfffffff3ffffff8d4d7fffff" +
-                    "fff2156fffffffbaffffff963ffffffff6ffffffa0397b10607fffffffa36cffffffbf71 | " +
-                    "ffffff9bffffffcb46fffffff5ffffff886fffffff84ffffff9efffffffaffffffd23bfffffff3ffffff8d4d7ffff" +
-                    "ffff2156fffffffbaffffff963ffffffff6ffffffa0397b10607fffffffa36cffffffbf71"
-            ),
-        ),
-    )
-
     @Test
     fun `process and test fhir`() {
+
+        data class TestCase(
+            val name: String,
+            val message: String,
+            val exception: Throwable?,
+        )
+
+        val testCases = listOf(
+            TestCase(
+                "success",
+                "{\"class\":\"gov.cdc.prime.router.engine.RawSubmission\"," +
+                    "\"blobURL\":\"http://localhost:10000/devstoreaccount1/reports/receive%2Fsimple_report.hl7test%2F" +
+                    "test-covid-19-4990af55-c25b-474b-b4f6-7ccf155706b0-20220210113202.hl7\"," +
+                    "\"digest\":\"ffffff9bffffffcb46fffffff5ffffff886fffffff84ffffff9efffffffaffffffd23bfffffff3" +
+                    "ffffff8d4d7ffffffff2156fffffffbaffffff963ffffffff6ffffffa0397b10607fffffffa36cffffffbf71\"," +
+                    "\"sender\":\"simple_report.hl7test\"}",
+                null,
+            ),
+            TestCase(
+                "bad-digest",
+                "{\"class\":\"gov.cdc.prime.router.engine.RawSubmission\"," +
+                    "\"blobURL\":\"http://localhost:10000/devstoreaccount1/reports/receive%2Fsimple_report.hl7test%2F" +
+                    "test-covid-19-4990af55-c25b-474b-b4f6-7ccf155706b0-20220210113202.hl7\"," +
+                    "\"digest\":\"badffffff9bffffffcb46fffffff5ffffff886fffffff84ffffff9efffffffaffffffd23bfffffff3" +
+                    "ffffff8d4d7ffffffff2156fffffffbaffffff963ffffffff6ffffffa0397b10607fffffffa36cffffffbf71\"," +
+                    "\"sender\":\"simple_report.hl7test\"}",
+                IllegalStateException(
+                    "FHIR - Downloaded file does not match expected file " +
+                        "badffffff9bffffffcb46fffffff5ffffff886fffffff84ffffff9efffffffaffffffd23bfffffff3ffffff8d4d7" +
+                        "ffffffff2156fffffffbaffffff963ffffffff6ffffffa0397b10607fffffffa36cffffffbf71" +
+                        " | " +
+                        "ffffff9bffffffcb46fffffff5ffffff886fffffff84ffffff9efffffffaffffffd23bfffffff3ffffff8d4d7" +
+                        "ffffffff2156fffffffbaffffff963ffffffff6ffffffa0397b10607fffffffa36cffffffbf71"
+                ),
+            ),
+        )
+
         mockkObject(BlobAccess.Companion)
         every { BlobAccess.Companion.downloadBlob(any()) } returns testHL7.toByteArray()
         val fhirEngine = FHIREngine()
         testCases.forEach { test ->
             try {
                 fhirEngine.process(test.message)
+                assertNull(test.exception, test.name)
             } catch (t: Throwable) {
                 assertEquals(test.exception!!::class, t::class, test.name)
                 assertEquals(test.exception.message, t.message, test.name)
+            }
+        }
+    }
+
+    @Test
+    fun `test results`() {
+        data class TestCase(
+            val name: String,
+            val input: ByteArray,
+            val output: ByteArray,
+            val exception: Throwable? = null
+        )
+
+        val testCases = listOf(
+            TestCase(
+                "matching",
+                testHL7.toByteArray(),
+                testHL7.toByteArray(),
+            ),
+            TestCase(
+                "not matching",
+                testHL7.toByteArray(),
+                "bad$testHL7".toByteArray(),
+                IllegalStateException("FHIR - HL7 processing failed")
+            )
+        )
+
+        val fhirEngine = FHIREngine()
+        testCases.forEach { case ->
+            try {
+                fhirEngine.compare(case.input, case.output)
+                assertNull(case.exception, case.name)
+            } catch (t: Throwable) {
+                if (case.exception != null) {
+                    assertEquals(case.exception::class, t::class, case.name)
+                    assertEquals(case.exception.message, t.message, case.name)
+                } else {
+                    throw t
+                }
             }
         }
     }
