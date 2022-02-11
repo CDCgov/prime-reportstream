@@ -10,7 +10,8 @@
 
 -- deactivate all receivers who are set to use redox, nullify redox settings
 update setting
-set is_active = false
+set is_active = false,
+is_deleted = true
 where type = 'RECEIVER'
 	and (
 	values -> 'translation' ->> 'format' = 'REDOX'

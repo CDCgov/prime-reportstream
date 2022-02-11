@@ -19,7 +19,7 @@ The system will define these overall limits:
 - MAX_BYTES - a reasonable limit on the overall size of the payload. (Azure limit is 100Meg.)   **Suggest: 40Meg. (allows 4k per row)** 
 - MAX_ITEMS - a limit on the number of Items (in a CSV, this is a limit on the number of rows + 1).  **Suggest: 10,000 Items (10,001 rows)**
 - **Phase 2 work?**: (MAX_COLUMNS - for CSVs only, a limit on the number of columns input. **Suggest: 1000 columns**)
-- MAX_ITEM_SIZE - byte limit on the size of one item.  This is most useful for reading in hl7 - we'll want a way to reject inputs without having to get bogged down in detailed item parsing.   **Suggest:  200K**
+- MAX_ITEM_SIZE - byte limit on the size of one item.  This is most useful for reading in hl7 - we'll want a way to reject inputs without having to get bogged down in detailed item parsing.   **Suggest:  200K, to match Redox max**
 - MAX_ERRORS - Validation will fail immediately if the total number of Errors passes this threshold.  **Suggest: 100 errors**
 - Note:  no limit on warnings, since warnings by definition should not cause failures.
 
