@@ -11,7 +11,12 @@
             "title": "## 🔧 Backend",
             "labels": [
                 "backend",
-                "router"
+                "router",
+                "index",
+                "indexes",
+                "api",
+                "sender",
+                "schema"
             ]
         },
         {
@@ -31,7 +36,9 @@
             "labels": [
                 "fix", 
                 "fixed", 
-                "fixed", 
+                "fixed",
+                "fixes",
+                "fixing", 
                 "bug", 
                 "correct"
             ]
@@ -39,7 +46,8 @@
         {
             "title": "## 🧪 Tests",
             "labels": [
-                "test"
+                "test",
+                "tests"
             ]
         },
         {
