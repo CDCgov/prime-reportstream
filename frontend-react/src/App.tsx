@@ -33,8 +33,9 @@ import { AdminMain } from "./pages/admin/AdminMain";
 import { AdminOrgEdit } from "./pages/admin/AdminOrgEdit";
 import { EditReceiverSettings } from "./components/Admin/EditReceiverSettings";
 import { EditSenderSettings } from "./components/Admin/EditSenderSettings";
-
 import "react-toastify/dist/ReactToastify.css";
+import SubmissionDetails from "./pages/submissions/SubmissionDetails";
+import { NewSetting } from "./components/Admin/NewSetting";
 
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
 
@@ -141,6 +142,11 @@ const App = () => {
                                  *  We should fix this when we refactor our permissions layer.
                                  */}
                                 <AuthorizedRoute
+                                    path="/submissions/:actionId"
+                                    authorize={PERMISSIONS.PRIME_ADMIN}
+                                    component={SubmissionDetails}
+                                />
+                                <AuthorizedRoute
                                     path="/submissions"
                                     authorize={PERMISSIONS.PRIME_ADMIN}
                                     component={Submissions}
@@ -164,6 +170,11 @@ const App = () => {
                                     path="/admin/orgsendersettings/org/:orgname/sender/:sendername/action/:action"
                                     authorize={PERMISSIONS.PRIME_ADMIN}
                                     component={EditSenderSettings}
+                                />
+                                <AuthorizedRoute
+                                    path="/admin/orgnewsetting/org/:orgname/settingtype/:settingtype"
+                                    authorize={PERMISSIONS.PRIME_ADMIN}
+                                    component={NewSetting}
                                 />
                                 <SecureRoute
                                     path="/report-details"
