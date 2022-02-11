@@ -832,5 +832,8 @@ NTE|1|L|This is a final comment|RE"""
         rightNow.atZone(ZoneId.of("US/Eastern")).let {
             assertThat(it.toLocalDateTime()).isEqualTo(rightNow.toLocalDateTime(report))
         }
+        OffsetDateTime.from(rightNow.atZone(ZoneId.of("US/Eastern"))).let {
+            assertThat(it.toLocalDateTime()).isEqualTo(rightNow.toLocalDateTime(report))
+        }
     }
 }

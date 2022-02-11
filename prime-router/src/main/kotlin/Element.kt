@@ -3,6 +3,7 @@ package gov.cdc.prime.router
 import com.google.i18n.phonenumbers.PhoneNumberUtil
 import gov.cdc.prime.router.Element.Cardinality.ONE
 import gov.cdc.prime.router.Element.Cardinality.ZERO_OR_ONE
+import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.metadata.ElementAndValue
 import gov.cdc.prime.router.metadata.LIVDLookupMapper
 import gov.cdc.prime.router.metadata.LookupMapper
@@ -20,7 +21,6 @@ import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
-import java.time.temporal.TemporalAccessor
 import java.util.Locale
 
 class AltValueNotDefinedException(message: String) : IllegalStateException(message)
@@ -312,18 +312,11 @@ data class Element(
         val formattedValue = when (type) {
             // sometimes you just need to send through an empty column
             Type.BLANK -> ""
+            Type.DATETIME,
             Type.DATE -> {
                 if (format != null) {
-                    val ta = parseDate(cleanedNormalizedValue)
-                    getDate(ta, format)
-                } else {
-                    cleanedNormalizedValue
-                }
-            }
-            Type.DATETIME -> {
-                if (format != null) {
-                    val formatter = DateTimeFormatter.ofPattern(format)
-                    LocalDateTime.parse(cleanedNormalizedValue, datetimeFormatter).format(formatter)
+                    val ta = DateUtilities.parseDate(cleanedNormalizedValue)
+                    DateUtilities.getDate(ta, format)
                 } else {
                     cleanedNormalizedValue
                 }
@@ -437,42 +430,6 @@ data class Element(
             else -> cleanedNormalizedValue
         }
         return truncateIfNeeded(formattedValue)
-    }
-
-    // this method takes a date value as a string and returns a
-    // TemporalAccessor based on the variable date time pattern
-    fun parseDate(dateValue: String): TemporalAccessor {
-        return DateTimeFormatter.ofPattern(variableDateTimePattern)
-            .parseBest(dateValue, OffsetDateTime::from, LocalDateTime::from, Instant::from, LocalDate::from)
-    }
-
-    // given a temporal accessor this will check the type that it needs to return
-    // and then output based on the format. you can extend this to accept a third
-    // variable which would be the element's output format, and do an extra branch
-    // based on that
-    fun getDate(
-        temporalAccessor: TemporalAccessor,
-        outputFormat: String,
-        convertPositiveOffsetToNegative: Boolean = false
-    ): String {
-        val outputFormatter = DateTimeFormatter.ofPattern(outputFormat)
-        val formattedDate = when (temporalAccessor) {
-            is LocalDate -> LocalDate.from(temporalAccessor)
-                .atStartOfDay()
-                .format(outputFormatter)
-            is LocalDateTime -> LocalDateTime.from(temporalAccessor)
-                .format(outputFormatter)
-            is OffsetDateTime -> OffsetDateTime.from(temporalAccessor)
-                .format(outputFormatter)
-            is Instant -> Instant.from(temporalAccessor).toString()
-            else -> error("Unsupported format!")
-        }
-
-        return if (convertPositiveOffsetToNegative) {
-            convertPositiveOffsetToNegativeOffset(formattedDate)
-        } else {
-            formattedDate
-        }
     }
 
     fun truncateIfNeeded(str: String): String {
