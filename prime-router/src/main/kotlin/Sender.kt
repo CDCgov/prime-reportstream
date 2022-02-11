@@ -1,6 +1,8 @@
 package gov.cdc.prime.router
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonProperty
+import gov.cdc.prime.router.azure.Facility
 import gov.cdc.prime.router.tokens.Jwk
 import gov.cdc.prime.router.tokens.JwkSet
 
@@ -17,7 +19,8 @@ open class Sender(
     val customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
     val schemaName: String,
     val keys: List<JwkSet>? = null, // used to track server-to-server auths for this Sender via public keys sets
-    val processingType: ProcessingType = ProcessingType.sync
+    val processingType: ProcessingType = ProcessingType.sync,
+    val senderType: SenderType = SenderType.facility
 ) {
     /**
      * Enumeration representing whether a submission will be processed follow the synchronous or asynchronous
@@ -38,6 +41,23 @@ open class Sender(
                 throw IllegalArgumentException()
             }
         }
+    }
+
+    /**
+     * @property testManufacturer Sender a test manufacturer (Abbott, Roche, Quidel)
+     * @property dataAggregator Sender is a data aggregator (LifePoint, ImageMover, SimpleReport, Prescryptyve)
+     * @property facility Sender is a facility (CSV-uploader, urgent care, nursing homes, A1 Health--home health and hospice)
+     * @property hospitalSystem Sender is a hospital or large hospital system (HCA)
+     */
+    enum class SenderType {
+        @JsonProperty("testManufacturer")
+        testManufacturer,
+        @JsonProperty("dataAggregator")
+        dataAggregator,
+        @JsonProperty("facility")
+        facility,
+        @JsonProperty("hospitalSystem")
+        hospitalSystem
     }
 
     constructor(copy: Sender) : this(
