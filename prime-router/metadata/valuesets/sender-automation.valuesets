@@ -488,6 +488,31 @@
     - code: 31389004
       display: 31389004
       version: 2020-09-01
+    - code: ""
+      display: Sputum specimen 
+    - code: ""
+      display: Sputum 
+    - code: ""
+      display: 119334006
+    - code: ""
+      display: Saliva specimen 
+    - code: ""
+      display: Saliva 
+    - code: ""
+      display: 123851003 
+#  Place holder for SNOMED: 123851003 because we may add it soon.
+#    - code: 123851003
+#      display: Sputum specimen 
+#    - code: 123851003
+#      display: Sputum 
+#    - code: 123851003
+#      display: 119334006
+#    - code: 123851003
+#      display: Saliva specimen 
+#    - code: 123851003
+#      display: Saliva 
+#    - code: 123851003
+#      display: 123851003 
 
 - name: sender-automation/specimen_type
   system: SNOMED_CT
@@ -539,9 +564,13 @@
     - code: 119334006
       display: Sputum specimen 
     - code: 119334006
+      display: Sputum 
+    - code: 119334006
       display: 119334006
     - code: 119342007
       display: Saliva specimen 
+    - code: 119342007
+      display: Saliva 
     - code: 119342007
       display: 119342007 
     - code: 258607008

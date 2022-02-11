@@ -1200,7 +1200,7 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 
 **Format**: use value found in the Display column
 
-**Cardinality**: [1..1]
+**Cardinality**: [0..1]
 
 **Value Sets**
 
@@ -1244,6 +1244,12 @@ Code | Display | System
 31389004|Oropharyngeal|SNOMED_CT
 31389004|Oropharyngeal Swab|SNOMED_CT
 31389004|31389004|SNOMED_CT
+|Sputum specimen|SNOMED_CT
+|Sputum|SNOMED_CT
+|119334006|SNOMED_CT
+|Saliva specimen|SNOMED_CT
+|Saliva|SNOMED_CT
+|123851003|SNOMED_CT
 
 **Documentation**:
 
@@ -1289,8 +1295,10 @@ Code | Display | System
 258529004|Oropharyngeal Swab|SNOMED_CT
 258529004|258529004|SNOMED_CT
 119334006|Sputum specimen|SNOMED_CT
+119334006|Sputum|SNOMED_CT
 119334006|119334006|SNOMED_CT
 119342007|Saliva specimen|SNOMED_CT
+119342007|Saliva|SNOMED_CT
 119342007|119342007|SNOMED_CT
 258607008|Bronchoalveolar lavage fluid sample|SNOMED_CT
 258607008|258607008|SNOMED_CT
