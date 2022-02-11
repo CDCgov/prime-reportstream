@@ -35,7 +35,9 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
+import java.time.temporal.TemporalAccessor
 import java.util.Properties
 import java.util.TimeZone
 import kotlin.math.min
@@ -533,17 +535,18 @@ class Hl7Serializer(
             } else if (element.hl7Field == "AOE" && element.type == Element.Type.NUMBER && !suppressAoe) {
                 if (value.isNotBlank()) {
                     val units = report.getString(row, "${element.name}_units")
+                    // TODO: cast to local time if the receiver wants it done
                     val date = report.getString(row, "specimen_collection_date_time") ?: ""
                     setAOE(terser, element, aoeSequence++, date, value, report, row, units, suppressQst)
                 }
             } else if (element.hl7Field == "AOE" && !suppressAoe) {
+                // TODO: cast to local time if the receiver wants it done
+                val date = report.getString(row, "specimen_collection_date_time") ?: ""
                 if (value.isNotBlank()) {
-                    val date = report.getString(row, "specimen_collection_date_time") ?: ""
                     setAOE(terser, element, aoeSequence++, date, value, report, row, suppressQst = suppressQst)
                 } else {
                     // if the value is null but we're defaulting
                     if (hl7Config?.defaultAoeToUnknown == true) {
-                        val date = report.getString(row, "specimen_collection_date_time") ?: ""
                         setAOE(terser, element, aoeSequence++, date, "UNK", report, row, suppressQst = suppressQst)
                     }
                 }
@@ -552,6 +555,7 @@ class Hl7Serializer(
             } else if (element.hl7Field == "NTE-3" && value.isNotBlank()) {
                 setNote(terser, nteSequence++, value)
             } else if (element.hl7Field == "MSH-7") {
+                // TODO: put the created date time into local time if the receiver wants it done
                 setComponent(
                     terser,
                     element,
@@ -584,6 +588,7 @@ class Hl7Serializer(
         }
 
         convertTimestampToDateTimeFields.forEach {
+            // TODO: convert to local date time before converting if the receiver wants it so
             val pathSpec = formPathSpec(it)
             val tsValue = terser.get(pathSpec)
             if (!tsValue.isNullOrEmpty()) {
@@ -909,7 +914,7 @@ class Hl7Serializer(
                 value,
                 pathSpec,
                 hl7Field,
-                hl7Config
+                report
             )
             else -> {
                 val truncatedValue = trimAndTruncateValue(value, hl7Field, hl7Config, terser)
@@ -923,8 +928,10 @@ class Hl7Serializer(
         value: String,
         pathSpec: String,
         hl7Field: String,
-        hl7Config: Hl7Configuration?
+        report: Report
     ) {
+        // TODO: convert to local date time if the receiver wants it so
+        val hl7Config = report.destination?.translation as? Hl7Configuration
         // first allow the truncation to happen, so we carry that logic on down
         val truncatedValue = trimAndTruncateValue(value, hl7Field, hl7Config, terser)
         // if we need to convert the offset do it now
@@ -1222,7 +1229,7 @@ class Hl7Serializer(
             }
             else -> setComponent(terser, element, "OBX-5", aoeRep, value, report)
         }
-
+        // TODO: convert to local date time if that's what the receiver wants
         val rawObx19Value = report.getString(row, "test_result_date")
         val obx19Value = if (rawObx19Value != null && hl7Config?.convertPositiveDateTimeOffsetToNegative == true) {
             Element.convertPositiveOffsetToNegativeOffset(rawObx19Value)
@@ -1231,6 +1238,7 @@ class Hl7Serializer(
         }
         terser.set(formPathSpec("OBX-11", aoeRep), report.getString(row, "test_result_status"))
         terser.set(formPathSpec("OBX-14", aoeRep), date)
+        // TODO: convert to local date time if that's what the receiver wants
         // some states want the observation date for the AOE questions as well
         terser.set(formPathSpec("OBX-19", aoeRep), obx19Value)
         terser.set(formPathSpec("OBX-23-7", aoeRep), "XX")
@@ -1293,6 +1301,7 @@ class Hl7Serializer(
         terser.set("SFT-2", buildVersion)
         terser.set("SFT-3", SOFTWARE_PRODUCT_NAME)
         terser.set("SFT-4", buildVersion)
+        // TODO: convert to local date time if the receiver wants it so
         terser.set("SFT-6", buildDate)
         terser.set("/PATIENT_RESULT/PATIENT/PID-1", "1")
         terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-1", "RE")
@@ -1310,7 +1319,6 @@ class Hl7Serializer(
      * @return the new truncation limit or starting limit if no special characters are found
      */
     internal fun getTruncationLimitWithEncoding(value: String, truncationLimit: Int?): Int? {
-
         return if (truncationLimit != null) {
             val regex = "[&^~|]".toRegex()
             val endIndex = min(value.length, truncationLimit)
@@ -1416,7 +1424,6 @@ class Hl7Serializer(
         receivingApplicationReportIn: String? = null,
         receivingFacilityReportIn: String? = null
     ): String {
-
         val sendingApplicationReport = sendingApplicationReportIn
             ?: (report.getString(0, "sending_application") ?: "")
         val receivingApplicationReport = receivingApplicationReportIn
@@ -1460,14 +1467,14 @@ class Hl7Serializer(
             "$sendingFacility|" +
             "$receivingApp|" +
             "$receivingFacility|" +
-            nowTimestamp(hl7Config) +
+            nowTimestamp(report) +
             hl7SegmentDelimiter +
             "BHS|$encodingCharacters|" +
             "$sendingApp|" +
             "$sendingFacility|" +
             "$receivingApp|" +
             "$receivingFacility|" +
-            nowTimestamp(hl7Config) +
+            nowTimestamp(report) +
             hl7SegmentDelimiter
     }
 
@@ -1476,8 +1483,18 @@ class Hl7Serializer(
             "FTS|1$hl7SegmentDelimiter"
     }
 
-    private fun nowTimestamp(hl7Config: Hl7Configuration? = null): String {
-        val timestamp = OffsetDateTime.now(ZoneId.systemDefault())
+    private fun nowTimestamp(report: Report? = null): String {
+        val hl7Config = report?.destination?.translation as? Hl7Configuration
+        // check to see if the timezone for the receiver is not null and if want to convert to the local
+        // timezone for the receiver
+        val timezone = if (
+            hl7Config?.convertDateTimesToReceiverLocalTime == true && report.destination.timeZone != null
+        ) {
+            ZoneId.of(report.destination.timeZone.zoneId)
+        } else {
+            ZoneId.systemDefault()
+        }
+        val timestamp = OffsetDateTime.now(timezone)
         return if (hl7Config?.convertPositiveDateTimeOffsetToNegative == true) {
             Element.convertPositiveOffsetToNegativeOffset(Element.datetimeFormatter.format(timestamp))
         } else {
@@ -1554,7 +1571,6 @@ class Hl7Serializer(
      * @return the phone number or empty string
      */
     internal fun decodeHl7TelecomData(terser: Terser, element: Element, hl7Field: String): String {
-
         /**
          * Extract a phone number from a value [xtnValue] of an XTN HL7 field.
          * @return a normalized phone number or empty if no phone number was found
@@ -1805,4 +1821,19 @@ fun String.trimAndTruncate(maxLength: Int?): String {
     else
         startTrimmed
     return truncated.trimEnd()
+}
+
+fun TemporalAccessor.toLocalDateTime(report: Report): TemporalAccessor {
+    val hl7Config = report.destination?.translation as? Hl7Configuration
+    return if (hl7Config?.convertDateTimesToReceiverLocalTime == true && report.destination.timeZone != null) {
+        val zone = ZoneId.of(report.destination.timeZone.zoneId)
+        when (this) {
+            is Instant -> this.atZone(zone).toLocalDateTime()
+            is OffsetDateTime -> this.atZoneSameInstant(zone).toLocalDateTime()
+            is ZonedDateTime -> Instant.from(this).atZone(zone).toLocalDateTime()
+            else -> this
+        }
+    } else {
+        this
+    }
 }

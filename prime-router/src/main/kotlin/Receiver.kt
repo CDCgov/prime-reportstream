@@ -26,6 +26,7 @@ import java.time.ZoneId
  * @param description of the receiver
  * @param transport that the org wishes to receive
  * @param externalName an external display name for the receiver. useful for display in the website
+ * @param timeZone the timezone the receiver operates under
  */
 open class Receiver(
     val name: String,
@@ -43,6 +44,13 @@ open class Receiver(
     val description: String = "",
     val transport: TransportType? = null,
     val externalName: String? = null,
+    /**
+     * The timezone for the receiver. This is different from the timezone in Timing, which controls the calculation of
+     * when and how often to send reports to the receiver. They are distinct ideas. The timeZone for the receiver is
+     * the timezone they operate under, and what we can use, if present, to convert date times in their data to if they
+     * so request.
+     */
+    val timeZone: USTimeZone? = null,
 ) {
     // Custom constructor
     constructor(

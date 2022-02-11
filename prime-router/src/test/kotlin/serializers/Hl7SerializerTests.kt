@@ -27,6 +27,7 @@ import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.TestSource
+import gov.cdc.prime.router.USTimeZone
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.every
 import io.mockk.mockk
@@ -36,8 +37,10 @@ import io.mockk.verify
 import org.junit.jupiter.api.TestInstance
 import java.io.ByteArrayOutputStream
 import java.io.File
+import java.time.Instant
 import java.time.LocalDate
 import java.time.OffsetDateTime
+import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.util.Calendar
@@ -811,5 +814,23 @@ NTE|1|L|This is a final comment|RE"""
         assertEquals("sending_app", parts[2])
         assertEquals("receiving_app", parts[4])
         assertEquals("receiving_facility", parts[5])
+    }
+
+    @Test
+    fun `check temporal accessor coercion`() {
+        // set up our variables and mock
+        // arrange
+        val rightNow = Instant.now()
+        val hl7Configuration = mockk<Hl7Configuration>()
+        every { hl7Configuration.convertDateTimesToReceiverLocalTime } returns true
+        val destination = mockk<Receiver>()
+        every { destination.timeZone } returns USTimeZone.EASTERN
+        every { destination.translation } returns hl7Configuration
+        val report = mockk<Report>()
+        every { report.destination } returns destination
+        // act & assert
+        rightNow.atZone(ZoneId.of("US/Eastern")).let {
+            assertThat(it.toLocalDateTime()).isEqualTo(rightNow.toLocalDateTime(report))
+        }
     }
 }

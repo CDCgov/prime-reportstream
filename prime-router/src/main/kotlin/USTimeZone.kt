@@ -1,5 +1,6 @@
 package gov.cdc.prime.router
 
+/** The time zones our partners are in */
 enum class USTimeZone(val zoneId: String) {
     PACIFIC("US/Pacific"),
     MOUNTAIN("US/Mountain"),
