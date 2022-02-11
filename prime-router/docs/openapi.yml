@@ -1122,20 +1122,6 @@ components:
           type: string
           example: /in/test
 
-    RedoxTransport:
-      description: Describe the Redox transport
-      type: object
-      required: [type]
-      properties:
-        type:
-          description: The discriminator
-          type: string
-          example: REDOX
-        baseUrl:
-          description: the base URL to send the Redox message. If missing, production Redox URL is used
-          type: string
-          default: null
-
     BlobStoreTransport:
       description: Moves results to a Azure Blob Store. Typcially used for HHS Protect interfaces.
       type: object
