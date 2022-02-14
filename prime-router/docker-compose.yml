@@ -62,7 +62,14 @@ services:
         - "2222:22"
     volumes:
       - ./build/sftp:/home/foo/upload
-    command: foo:pass:1001::upload
+      # add more users
+      - ../.environment/sftp-conf/users.conf:/etc/sftp/users.conf:ro
+      # add host keys so we're the same all the time and no MITM messages
+      - ../.environment/sftp-conf/ssh_host_ed25519_key:/etc/ssh/ssh_host_ed25519_key
+      - ../.environment/sftp-conf/ssh_host_rsa_key:/etc/ssh/ssh_host_rsa_key
+      # add a key for the dev
+      - ../.environment/sftp-conf/ssh_dev_rsa_key.pem.pub:/home/bar/.ssh/keys/ssh_dev_rsa_key.pem.pub:ro
+      - ../.environment/sftp-conf/ignore-putty-file-old-openssh.pub:/home/fizz/.ssh/keys/ignore-putty-file-old-openssh.pub:ro
     networks:
       - prime-router_build
 
