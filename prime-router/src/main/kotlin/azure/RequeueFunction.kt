@@ -31,7 +31,7 @@ class RequeueFunction : Logging {
         val workflowEngine = WorkflowEngine()
         val actionHistory = ActionHistory(TaskAction.resend, context)
         actionHistory.trackActionParams(request)
-        var msgs = mutableListOf<String>()
+        val msgs = mutableListOf<String>()
         val response = try {
             doResend(request, workflowEngine, msgs)
         } catch (t: Throwable) {
@@ -57,11 +57,10 @@ class RequeueFunction : Logging {
         val reportId = UUID.fromString(reportIdStr)
         val fullName = request.queryParameters["receiver"]
             ?: return HttpUtilities.bad(request, "Missing option receiver\n")
-        val isFailedOnly = ! request.queryParameters["failedOnly"].isNullOrEmpty()
         val receiver = workflowEngine.settings.findReceiver(fullName)
             ?: return HttpUtilities.bad(request, "No such receiver fullname $fullName\n")
         // sanity checks throw exceptions inside here:
-        workflowEngine.resendEvent(reportId, receiver, isFailedOnly, isTest, msgs)
+        workflowEngine.resendEvent(reportId, receiver, isTest, msgs)
         return HttpUtilities.httpResponse(request, msgs.joinToString("\n") + "\n", HttpStatus.OK)
     }
 }

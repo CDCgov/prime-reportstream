@@ -28,18 +28,22 @@ function load_config() {
   # Use the prime CLI to load configuration in the background
   # The fatjar is two levels up in the libs folder
   top_dir=$function_folder/../..
-  test_config_dir=$top_dir/resources/test
   fatjar=$top_dir/libs/prime-router-0.1-SNAPSHOT-all.jar
   echo "Loading lookup tables..."
-  java -jar $fatjar lookuptables loadall -d $test_config_dir/metadata/tables -r 60 --check-last-modified
+  java -jar $fatjar lookuptables loadall -d $function_folder/metadata/tables/local -r 60 --check-last-modified
   # Note the settings require the full metadata catalog to be in place, so run last
   echo "Loading organization settings..."
   java -jar $fatjar multiple-settings set -s -i $function_folder/settings/organizations.yml -r 60 --check-last-modified
   echo "Done loading local configurations."
 }
 
-# Load the configuration in the background.  It will wait for the API to start the loading.
-load_config | awk -v date="$(date +[%FT%TZ])" '{print date " [LOAD CONFIG] " $0}' &
+# Load the configuration in the background if not running in GitHub Actions.
+if [ ! -z "$GITHUB_ACTIONS" ]
+then
+   load_config | awk -v date="$(date +[%FT%TZ])" '{print date " [LOAD CONFIG] " $0}' &
+else
+   echo "Running in GitHub Actions.  Skipping load of configuration."
+fi
 
 # Run the functions
 func host start --cors http://localhost:8090,http://localhost:3000 --language-worker -- "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
