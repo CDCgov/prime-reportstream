@@ -27,7 +27,8 @@ data class ValueSet(
         LOCAL,
         FHIR,
         UCUM,
-        NULLFL
+        NULLFL,
+        ISO
     }
 
     @get:JsonIgnore
@@ -40,6 +41,7 @@ data class ValueSet(
             SetSystem.LOCAL -> "LOCAL"
             SetSystem.FHIR -> "FHIR"
             SetSystem.NULLFL -> "NULLFL"
+            SetSystem.ISO -> "ISO"
         }
 
     data class Value(
