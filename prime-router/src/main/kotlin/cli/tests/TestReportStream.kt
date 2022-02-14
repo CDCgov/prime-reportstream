@@ -741,10 +741,15 @@ abstract class CoolTest {
         val hl7Receiver = settings.receivers.filter { it.organizationName == orgName && it.name == "HL7" }[0]
         val hl7BatchReceiver = settings.receivers.filter { it.organizationName == orgName && it.name == "HL7_BATCH" }[0]
         val hl7NullReceiver = settings.receivers.filter { it.organizationName == orgName && it.name == "HL7_NULL" }[0]
+        val hl7PpkReceiver = settings.receivers.filter {
+            it.organizationName == orgName && it.name == "HL7_BATCH_PPK"
+        }[0]
+        val hl7PemReceiver = settings.receivers.filter {
+            it.organizationName == orgName && it.name == "HL7_BATCH_PEM"
+        }[0]
 
         lateinit var allGoodReceivers: MutableList<Receiver>
         lateinit var allGoodCounties: String
-
         const val historyTestOrgName = "historytest"
         val historyTestSender = settings.findSender("$historyTestOrgName.default")
             ?: error("Unable to find sender $historyTestOrgName.default")
