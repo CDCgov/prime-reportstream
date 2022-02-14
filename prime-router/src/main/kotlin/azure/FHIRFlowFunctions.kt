@@ -6,6 +6,7 @@ import com.microsoft.azure.functions.annotation.QueueTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.cli.tests.CompareData
 import gov.cdc.prime.router.cli.tests.CompareHl7Data
+import gov.cdc.prime.router.encoding.HL7
 import gov.cdc.prime.router.engine.Message
 import gov.cdc.prime.router.engine.RawSubmission
 import org.apache.logging.log4j.kotlin.Logging
@@ -37,8 +38,10 @@ class FHIRFlowFunctions : Logging {
         val blobContent = content.download()
 
         logger.debug("Got content ${blobContent.size}")
+        // TODO behind an interface?
+        val hl7 = HL7.deserialize(String(blobContent))
+        val result = hl7.encode()
 
-        val result = String(blobContent)
         val comparison = compare(String(blobContent), result)
         if (!comparison.passed) {
             logger.debug("Failed on message $message\n$comparison")
