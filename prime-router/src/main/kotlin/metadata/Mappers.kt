@@ -810,6 +810,71 @@ class ZipCodeToCountyMapper : Mapper {
 }
 
 /**
+ * The CountryMapper examines both the patient_country and the patient_zip_code fields for a row
+ * and makes a determination based on both values whether the patient is in the US or is in Canada.
+ * It is currently restricted to those two choices because we do not have a need to extend it beyond
+ * those countries.
+ *
+ * The functionality works as follows:
+ * - If a value exists for patient_country, pass that through untouched. We always assume that whatever
+ *   the sender gives us is correct and should not be enriched.
+ * - If there is not a value for patient_country we then look at the patient_zip_code field. If the patient
+ *   zip code matches the pattern for a Canadian postal code then we assume we are dealing with a Canadian
+ *   address. Canadian postal codes follow a pattern of A9A 9A9 where 'A' represents a letter between A-Z
+ *   and '9' represents a number between 0-9.
+ * - If the patient_zip_code doesn't match a Canadian postal code pattern, then we default to USA.
+ */
+class CountryMapper : Mapper {
+    override val name = "countryMapper"
+
+    override fun valueNames(element: Element, args: List<String>): List<String> {
+        return args
+    }
+
+    override fun apply(
+        element: Element,
+        args: List<String>,
+        values: List<ElementAndValue>,
+        sender: Sender?
+    ): ElementResult {
+        val patientCountry = values.firstOrNull { it.element.name == element.name }?.value
+        val patientPostalCode = values.firstOrNull { it.element.name == "patient_zip_code" }?.value
+        return ElementResult(
+            when (patientCountry.isNullOrEmpty()) {
+                true -> {
+                    if (patientPostalCode != null && canadianPostalCodeRegex.matches(patientPostalCode)) {
+                        CAN
+                    } else {
+                        USA
+                    }
+                }
+                else -> patientCountry
+            }
+        )
+    }
+
+    companion object {
+        /**
+         * This regex matches Canadian postal codes, which follow a pattern of A9A 9A9, where 'A' means any
+         * alpha character from [A-Z] and 9 represents any number between [0-9]. The space between the two
+         * groupings is technically part of their postal code standard, but in the case of our processing,
+         * we typically have stripped it out. So a Canadian postal code could look like J0A 0A0, or J0A0A0.
+         *
+         * A Canadian postal code is broken down by the first character being the postal district, for example,
+         * Ontario, and the next two characters representing the forward sortation area.The second set of three
+         * digits is the local delivery unit. Small fun fact, Canada Post has a special postal code for Santa
+         * so children can address their letters to him at H0H 0H0.
+         */
+        private val canadianPostalCodeRegex = "[A-Z][0-9][A-Z]\\s?[0-9][A-Z][0-9]".toRegex(RegexOption.IGNORE_CASE)
+        /** No magic strings. */
+        /** No magic strings. */
+        private const val USA = "USA"
+        /** No magic strings. */
+        private const val CAN = "CAN"
+    }
+}
+
+/**
  * Create a SHA-256 digest hash of the concatenation of values
  * Example:   hash(patient_last_name,patient_first_name)
  */
