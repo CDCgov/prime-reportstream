@@ -4,6 +4,7 @@ import com.microsoft.azure.functions.annotation.BindingName
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.QueueTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
+import gov.cdc.prime.router.cli.tests.CompareHl7Data
 import gov.cdc.prime.router.engine.Message
 import gov.cdc.prime.router.engine.RawSubmission
 import org.apache.logging.log4j.kotlin.Logging
@@ -36,8 +37,8 @@ class FHIREngine : Logging {
         // val resultHL7 = translate(fhir, HL7)
         // val result = serialize(resultHL7)
 
-        val result = blobContent
-        compare(blobContent, result)
+        val result = String(blobContent)
+        compare(String(blobContent), result)
         logger.info("Succesfully handled ${content.digest}")
     }
 
@@ -50,7 +51,8 @@ class FHIREngine : Logging {
         return blobContent
     }
 
-    internal fun compare(input: ByteArray, output: ByteArray) {
-        check(input.contentEquals(output)) { "FHIR - HL7 processing failed" }
+    internal fun compare(input: String, output: String) {
+        val result = CompareHl7Data().compare(input.byteInputStream(), output.byteInputStream())
+        check(result.passed) { "FHIR - HL7 processing failed" }
     }
 }

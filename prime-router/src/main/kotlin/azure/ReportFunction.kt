@@ -277,7 +277,7 @@ class ReportFunction : Logging {
             if (System.getenv("ENABLE_FHIR_ENGINE")?.isNotEmpty() ?: false)
                 when (blobInfo.format) {
                     // limit to hl7
-                    Report.Format.HL7, Report.Format.HL7_BATCH ->
+                    Report.Format.HL7 ->
                         queue.sendMessage(
                             fhirQueueName,
                             RawSubmission(
