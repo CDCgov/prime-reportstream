@@ -116,6 +116,9 @@ elements:
   - name: patient_zip_code
     csvFields: [{name: Patient_zip_code}]
 
+  - name: patient_country
+    csvFields: [{name: Patient_country}]
+
   - name: patient_phone_number
     csvFields: [{name: Patient_phone_number}]
 

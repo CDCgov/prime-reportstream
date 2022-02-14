@@ -512,6 +512,18 @@ The patient's city
 
 ---
 
+**Name**: Patient_country
+
+**ReportStream Internal Name**: patient_country
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
 **Name**: Patient_county
 
 **ReportStream Internal Name**: patient_county
@@ -704,6 +716,480 @@ The patient's phone number with area code
 **PII**: No
 
 **Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display | System
+---- | ------- | ------
+abk|Abkhazian|ISO
+ace|Achinese|ISO
+ach|Acoli|ISO
+ada|Adangme|ISO
+ady|Adyghe; Adygei|ISO
+aar|Afar|ISO
+afh|Afrihili|ISO
+afr|Afrikaans|ISO
+afa|Afro-Asiatic (Other)|ISO
+ain|Ainu|ISO
+aka|Akan|ISO
+akk|Akkadian|ISO
+alb|Albanian|ISO
+ale|Aleut|ISO
+alg|Algonquian languages|ISO
+tut|Altaic (Other)|ISO
+amh|Amharic|ISO
+anp|Angika|ISO
+apa|Apache languages|ISO
+ara|Arabic|ISO
+arg|Aragonese|ISO
+arp|Arapaho|ISO
+arw|Arawak|ISO
+arm|Armenian|ISO
+rup|Aromanian; Arumanian; Macedo-Romanian|ISO
+art|Artificial (Other)|ISO
+asm|Assamese|ISO
+ast|Asturian; Bable; Leonese; Asturleonese|ISO
+ath|Athapascan languages|ISO
+aus|Australian languages|ISO
+map|Austronesian (Other)|ISO
+ava|Avaric|ISO
+ave|Avestan|ISO
+awa|Awadhi|ISO
+aym|Aymara|ISO
+aze|Azerbaijani|ISO
+ban|Balinese|ISO
+bat|Baltic (Other)|ISO
+bal|Baluchi|ISO
+bam|Bambara|ISO
+bai|Bamileke languages|ISO
+bad|Banda languages|ISO
+bnt|Bantu (Other)|ISO
+bas|Basa|ISO
+bak|Bashkir|ISO
+baq|Basque|ISO
+btk|Batak languages|ISO
+bej|Beja; Bedawiyet|ISO
+bel|Belarusian|ISO
+bem|Bemba|ISO
+ben|Bengali|ISO
+ber|Berber (Other)|ISO
+bho|Bhojpuri|ISO
+bih|Bihari|ISO
+bik|Bikol|ISO
+bin|Bini; Edo|ISO
+bis|Bislama|ISO
+byn|Blin; Bilin|ISO
+zbl|Blissymbols; Blissymbolics; Bliss|ISO
+nob|Norwegian Bokmål|ISO
+bos|Bosnian|ISO
+bra|Braj|ISO
+bre|Breton|ISO
+bug|Buginese|ISO
+bul|Bulgarian|ISO
+bua|Buriat|ISO
+bur|Burmese|ISO
+cad|Caddo|ISO
+cat|Catalan; Valencian|ISO
+cau|Caucasian (Other)|ISO
+ceb|Cebuano|ISO
+cel|Celtic (Other)|ISO
+cai|Central American Indian (Other)|ISO
+khm|Central Khmer|ISO
+chg|Chagatai|ISO
+cmc|Chamic languages|ISO
+cha|Chamorro|ISO
+che|Chechen|ISO
+chr|Cherokee|ISO
+chy|Cheyenne|ISO
+chb|Chibcha|ISO
+nya|Chichewa; Chewa; Nyanja|ISO
+chi|Chinese|ISO
+chn|Chinook jargon|ISO
+chp|Chipewyan; Dene Suline|ISO
+cho|Choctaw|ISO
+chk|Chuukese|ISO
+chv|Chuvash|ISO
+nwc|Classical Newari; Old Newari; Classical Nepal Bhasa|ISO
+syc|Classical Syriac|ISO
+cop|Coptic|ISO
+cor|Cornish|ISO
+cos|Corsican|ISO
+cre|Cree|ISO
+mus|Creek|ISO
+crp|Creoles and pidgins (Other)|ISO
+cpe|Creoles and pidgins English based (Other)|ISO
+cpf|Creoles and pidgins French-based (Other)|ISO
+cpp|Creoles and pidgins Portuguese-based (Other)|ISO
+crh|Crimean Tatar; Crimean Turkish|ISO
+hrv|Croatian|ISO
+cus|Cushitic (Other)|ISO
+cze|Czech|ISO
+dak|Dakota|ISO
+dan|Danish|ISO
+dar|Dargwa|ISO
+del|Delaware|ISO
+din|Dinka|ISO
+div|Divehi; Dhivehi; Maldivian|ISO
+doi|Dogri|ISO
+dgr|Dogrib|ISO
+dra|Dravidian (Other)|ISO
+dua|Duala|ISO
+dut|Dutch; Flemish|ISO
+dyu|Dyula|ISO
+dzo|Dzongkha|ISO
+frs|Eastern Frisian|ISO
+efi|Efik|ISO
+eka|Ekajuk|ISO
+elx|Elamite|ISO
+eng|English|ISO
+myv|Erzya|ISO
+epo|Esperanto|ISO
+est|Estonian|ISO
+ewe|Ewe|ISO
+ewo|Ewondo|ISO
+fan|Fang|ISO
+fat|Fanti|ISO
+fao|Faroese|ISO
+fij|Fijian|ISO
+fil|Filipino; Pilipino|ISO
+fin|Finnish|ISO
+fiu|Finno-Ugrian (Other)|ISO
+fon|Fon|ISO
+fre|French|ISO
+fur|Friulian|ISO
+ful|Fulah|ISO
+gaa|Ga|ISO
+gla|Gaelic; Scottish Gaelic|ISO
+car|Galibi Carib|ISO
+glg|Galician|ISO
+lug|Ganda|ISO
+gay|Gayo|ISO
+gba|Gbaya|ISO
+gez|Geez|ISO
+geo|Georgian|ISO
+ger|German|ISO
+gem|Germanic (Other)|ISO
+gil|Gilbertese|ISO
+gon|Gondi|ISO
+gor|Gorontalo|ISO
+got|Gothic|ISO
+grb|Grebo|ISO
+gre|Greek Modern (1453-)|ISO
+grn|Guarani|ISO
+guj|Gujarati|ISO
+gwi|Gwich'in|ISO
+hai|Haida|ISO
+hat|Haitian; Haitian Creole|ISO
+hau|Hausa|ISO
+haw|Hawaiian|ISO
+heb|Hebrew|ISO
+her|Herero|ISO
+hil|Hiligaynon|ISO
+him|Himachali|ISO
+hin|Hindi|ISO
+hmo|Hiri Motu|ISO
+hit|Hittite|ISO
+hmn|Hmong|ISO
+hun|Hungarian|ISO
+hup|Hupa|ISO
+iba|Iban|ISO
+ice|Icelandic|ISO
+ido|Ido|ISO
+ibo|Igbo|ISO
+ijo|Ijo languages|ISO
+ilo|Iloko|ISO
+smn|Inari Sami|ISO
+inc|Indic (Other)|ISO
+ine|Indo-European (Other)|ISO
+ind|Indonesian|ISO
+inh|Ingush|ISO
+ina|Interlingua (International Auxiliary Language Association)|ISO
+ile|Interlingue; Occidental|ISO
+iku|Inuktitut|ISO
+ipk|Inupiaq|ISO
+ira|Iranian (Other)|ISO
+gle|Irish|ISO
+iro|Iroquoian languages|ISO
+ita|Italian|ISO
+jpn|Japanese|ISO
+jav|Javanese|ISO
+jrb|Judeo-Arabic|ISO
+jpr|Judeo-Persian|ISO
+kbd|Kabardian|ISO
+kab|Kabyle|ISO
+kac|Kachin; Jingpho|ISO
+kal|Kalaallisut; Greenlandic|ISO
+xal|Kalmyk; Oirat|ISO
+kam|Kamba|ISO
+kan|Kannada|ISO
+kau|Kanuri|ISO
+krc|Karachay-Balkar|ISO
+kaa|Kara-Kalpak|ISO
+krl|Karelian|ISO
+kar|Karen languages|ISO
+kas|Kashmiri|ISO
+csb|Kashubian|ISO
+kaw|Kawi|ISO
+kaz|Kazakh|ISO
+kha|Khasi|ISO
+khi|Khoisan (Other)|ISO
+kho|Khotanese|ISO
+kik|Kikuyu; Gikuyu|ISO
+kmb|Kimbundu|ISO
+kin|Kinyarwanda|ISO
+kir|Kirghiz; Kyrgyz|ISO
+tlh|Klingon; tlhIngan-Hol|ISO
+kom|Komi|ISO
+kon|Kongo|ISO
+kok|Konkani|ISO
+kor|Korean|ISO
+kos|Kosraean|ISO
+kpe|Kpelle|ISO
+kro|Kru languages|ISO
+kua|Kuanyama; Kwanyama|ISO
+kum|Kumyk|ISO
+kur|Kurdish|ISO
+kru|Kurukh|ISO
+kut|Kutenai|ISO
+lad|Ladino|ISO
+lah|Lahnda|ISO
+lam|Lamba|ISO
+day|Land Dayak languages|ISO
+lao|Lao|ISO
+lat|Latin|ISO
+lav|Latvian|ISO
+lez|Lezghian|ISO
+lim|Limburgan; Limburger; Limburgish|ISO
+lin|Lingala|ISO
+lit|Lithuanian|ISO
+jbo|Lojban|ISO
+nds|Low German; Low Saxon; German|ISO
+dsb|Lower Sorbian|ISO
+loz|Lozi|ISO
+lub|Luba-Katanga|ISO
+lua|Luba-Lulua|ISO
+lui|Luiseno|ISO
+smj|Lule Sami|ISO
+lun|Lunda|ISO
+luo|Luo (Kenya and Tanzania)|ISO
+lus|Lushai|ISO
+ltz|Luxembourgish; Letzeburgesch|ISO
+mac|Macedonian|ISO
+mad|Madurese|ISO
+mag|Magahi|ISO
+mai|Maithili|ISO
+mak|Makasar|ISO
+mlg|Malagasy|ISO
+may|Malay|ISO
+mal|Malayalam|ISO
+mlt|Maltese|ISO
+mnc|Manchu|ISO
+mdr|Mandar|ISO
+man|Mandingo|ISO
+mni|Manipuri|ISO
+mno|Manobo languages|ISO
+glv|Manx|ISO
+mao|Maori|ISO
+arn|Mapudungun; Mapuche|ISO
+mar|Marathi|ISO
+chm|Mari|ISO
+mah|Marshallese|ISO
+mwr|Marwari|ISO
+mas|Masai|ISO
+myn|Mayan languages|ISO
+men|Mende|ISO
+mic|Mi'kmaq; Micmac|ISO
+min|Minangkabau|ISO
+mwl|Mirandese|ISO
+moh|Mohawk|ISO
+mdf|Moksha|ISO
+mol|Moldavian; Moldovan|ISO
+lol|Mongo|ISO
+mon|Mongolian|ISO
+mkh|Mon-Khmer (Other)|ISO
+mos|Mossi|ISO
+mul|Multiple languages|ISO
+mun|Munda languages|ISO
+nah|Nahuatl languages|ISO
+nau|Nauru|ISO
+nav|Navajo; Navaho|ISO
+nde|Ndebele North; North Ndebele|ISO
+nbl|Ndebele South; South Ndebele|ISO
+ndo|Ndonga|ISO
+nap|Neapolitan|ISO
+new|Nepal Bhasa; Newari|ISO
+nep|Nepali|ISO
+nia|Nias|ISO
+nic|Niger-Kordofanian (Other)|ISO
+ssa|Nilo-Saharan (Other)|ISO
+niu|Niuean|ISO
+nqo|N'Ko|ISO
+zxx|No linguistic content; Not applicable|ISO
+nog|Nogai|ISO
+nai|North American Indian|ISO
+frr|Northern Frisian|ISO
+sme|Northern Sami|ISO
+nor|Norwegian|ISO
+nno|Norwegian Nynorsk; Nynorsk Norwegian|ISO
+nub|Nubian languages|ISO
+nym|Nyamwezi|ISO
+nyn|Nyankole|ISO
+nyo|Nyoro|ISO
+nzi|Nzima|ISO
+oci|Occitan (post 1500); Provençal|ISO
+oji|Ojibwa|ISO
+ori|Oriya|ISO
+orm|Oromo|ISO
+osa|Osage|ISO
+oss|Ossetian; Ossetic|ISO
+oto|Otomian languages|ISO
+pal|Pahlavi|ISO
+pau|Palauan|ISO
+pli|Pali|ISO
+pam|Pampanga; Kapampangan|ISO
+pag|Pangasinan|ISO
+pan|Panjabi; Punjabi|ISO
+pap|Papiamento|ISO
+paa|Papuan (Other)|ISO
+nso|Pedi; Sepedi; Northern Sotho|ISO
+per|Persian|ISO
+phi|Philippine (Other)|ISO
+phn|Phoenician|ISO
+pon|Pohnpeian|ISO
+pol|Polish|ISO
+por|Portuguese|ISO
+pra|Prakrit languages|ISO
+pus|Pushto; Pashto|ISO
+que|Quechua|ISO
+raj|Rajasthani|ISO
+rap|Rapanui|ISO
+rar|Rarotongan; Cook Islands Maori|ISO
+qaa-qtz|Reserved for local use|ISO
+roa|Romance (Other)|ISO
+rum|Romanian|ISO
+roh|Romansh|ISO
+rom|Romany|ISO
+run|Rundi|ISO
+rus|Russian|ISO
+sal|Salishan languages|ISO
+sam|Samaritan Aramaic|ISO
+smi|Sami languages (Other)|ISO
+smo|Samoan|ISO
+sad|Sandawe|ISO
+sag|Sango|ISO
+san|Sanskrit|ISO
+sat|Santali|ISO
+srd|Sardinian|ISO
+sas|Sasak|ISO
+sco|Scots|ISO
+sel|Selkup|ISO
+sem|Semitic (Other)|ISO
+srp|Serbian|ISO
+srr|Serer|ISO
+shn|Shan|ISO
+sna|Shona|ISO
+iii|Sichuan Yi; Nuosu|ISO
+scn|Sicilian|ISO
+sid|Sidamo|ISO
+sgn|Sign Languages|ISO
+bla|Siksika|ISO
+snd|Sindhi|ISO
+sin|Sinhala; Sinhalese|ISO
+sit|Sino-Tibetan (Other)|ISO
+sio|Siouan languages|ISO
+sms|Skolt Sami|ISO
+den|Slave (Athapascan)|ISO
+sla|Slavic (Other)|ISO
+slo|Slovak|ISO
+slv|Slovenian|ISO
+sog|Sogdian|ISO
+som|Somali|ISO
+son|Songhai languages|ISO
+snk|Soninke|ISO
+wen|Sorbian languages|ISO
+sot|Sotho Southern|ISO
+sai|South American Indian (Other)|ISO
+alt|Southern Altai|ISO
+sma|Southern Sami|ISO
+spa|Spanish; Castilian|ISO
+srn|Sranan Tongo|ISO
+suk|Sukuma|ISO
+sux|Sumerian|ISO
+sun|Sundanese|ISO
+sus|Susu|ISO
+swa|Swahili|ISO
+ssw|Swati|ISO
+swe|Swedish|ISO
+gsw|Swiss German; Alemannic; Alsatian|ISO
+syr|Syriac|ISO
+tgl|Tagalog|ISO
+tah|Tahitian|ISO
+tai|Tai (Other)|ISO
+tgk|Tajik|ISO
+tmh|Tamashek|ISO
+tam|Tamil|ISO
+tat|Tatar|ISO
+tel|Telugu|ISO
+ter|Tereno|ISO
+tet|Tetum|ISO
+tha|Thai|ISO
+tib|Tibetan|ISO
+tig|Tigre|ISO
+tir|Tigrinya|ISO
+tem|Timne|ISO
+tiv|Tiv|ISO
+tli|Tlingit|ISO
+tpi|Tok Pisin|ISO
+tkl|Tokelau|ISO
+tog|Tonga (Nyasa)|ISO
+ton|Tonga (Tonga Islands)|ISO
+tsi|Tsimshian|ISO
+tso|Tsonga|ISO
+tsn|Tswana|ISO
+tum|Tumbuka|ISO
+tup|Tupi languages|ISO
+tur|Turkish|ISO
+tuk|Turkmen|ISO
+tvl|Tuvalu|ISO
+tyv|Tuvinian|ISO
+twi|Twi|ISO
+udm|Udmurt|ISO
+uga|Ugaritic|ISO
+uig|Uighur; Uyghur|ISO
+ukr|Ukrainian|ISO
+umb|Umbundu|ISO
+mis|Uncoded languages|ISO
+und|Undetermined|ISO
+hsb|Upper Sorbian|ISO
+urd|Urdu|ISO
+uzb|Uzbek|ISO
+vai|Vai|ISO
+ven|Venda|ISO
+vie|Vietnamese|ISO
+vol|Volapük|ISO
+vot|Votic|ISO
+wak|Wakashan languages|ISO
+wal|Walamo|ISO
+wln|Walloon|ISO
+war|Waray|ISO
+was|Washo|ISO
+wel|Welsh|ISO
+fry|Western Frisian|ISO
+wol|Wolof|ISO
+xho|Xhosa|ISO
+sah|Yakut|ISO
+yao|Yao|ISO
+yap|Yapese|ISO
+yid|Yiddish|ISO
+yor|Yoruba|ISO
+ypk|Yupik languages|ISO
+znd|Zande languages|ISO
+zap|Zapotec|ISO
+zza|Zaza; Dimili; Dimli; Kirdki; Kirmanjki; Zazaki|ISO
+zen|Zenaga|ISO
+zha|Zhuang; Chuang|ISO
+zul|Zulu|ISO
+zun|Zuni|ISO
 
 **Documentation**:
 
