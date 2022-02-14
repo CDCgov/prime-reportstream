@@ -7,6 +7,8 @@ import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.cli.tests.CompareData
 import gov.cdc.prime.router.cli.tests.CompareHl7Data
 import gov.cdc.prime.router.encoding.HL7
+// TODO move to translation?
+import gov.cdc.prime.router.encoding.FHIR
 import gov.cdc.prime.router.engine.Message
 import gov.cdc.prime.router.engine.RawSubmission
 import org.apache.logging.log4j.kotlin.Logging
@@ -41,6 +43,9 @@ class FHIRFlowFunctions : Logging {
         // TODO behind an interface?
         val hl7 = HL7.deserialize(String(blobContent))
         val result = hl7.encode()
+        val fhir = FHIR.translate(hl7)
+        // store to blobstore
+        // FHIR.encode(fhir)
 
         val comparison = compare(String(blobContent), result)
         if (!comparison.passed) {
