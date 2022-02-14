@@ -16,3 +16,8 @@
 ALTER TABLE covid_result_metadata
     ADD organization_name VARCHAR(512) NULL
 ;
+
+/*
+ Add an index on the organization name to speed searches on this field
+ */
+CREATE INDEX idx_crm_organization_name ON covid_result_metadata(organization_name);
