@@ -101,40 +101,6 @@ variable "network" {
           new_bits = 8
         }
       ]
-    },
-    "vnet-peer" = {
-      "address_space"           = "10.1.0.0/16"
-      "dns_server"              = [""]
-      "location"                = "West Us"
-      "subnets"                 = ["private", "endpoint"]
-      "nsg_prefix"              = "vnetpeer-"
-      "network_security_groups" = []
-      "subnet_cidrs" = [
-        {
-          name     = "container"
-          new_bits = 8
-        },
-        {
-          name     = "public"
-          new_bits = 8
-        },
-        {
-          name     = "notused"
-          new_bits = 8
-        },
-        {
-          name     = "private"
-          new_bits = 8
-        },
-        {
-          name     = "blank"
-          new_bits = 8
-        },
-        {
-          name     = "endpoint"
-          new_bits = 8
-        },
-      ]
     }
   }
 }
