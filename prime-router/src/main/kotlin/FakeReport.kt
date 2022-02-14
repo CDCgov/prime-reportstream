@@ -3,7 +3,12 @@ package gov.cdc.prime.router
 import com.github.javafaker.Faker
 import com.github.javafaker.Name
 import gov.cdc.prime.router.common.NPIUtilities
+import gov.cdc.prime.router.metadata.ConcatenateMapper
+import gov.cdc.prime.router.metadata.ElementAndValue
 import gov.cdc.prime.router.metadata.LookupTable
+import gov.cdc.prime.router.metadata.Mapper
+import gov.cdc.prime.router.metadata.Mappers
+import gov.cdc.prime.router.metadata.UseMapper
 import org.apache.logging.log4j.kotlin.Logging
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -39,6 +44,13 @@ class FakeDataService : Logging {
                 element.nameContains("name_of_school") -> randomChoice("", context.schoolName)
                 element.nameContains("reference_range") -> randomChoice("", "Normal", "Abnormal", "Negative")
                 element.nameContains("result_format") -> "CWE"
+                element.nameContains("patient_preferred_language") -> randomChoice("ENG", "FRE", "SPA", "CHI", "KOR")
+                element.nameContains("patient_country") -> "USA"
+                element.nameContains("site_of_care") -> randomChoice(
+                    "airport", "assisted_living", "camp", "correctional_facility", "employer", "fqhc",
+                    "government_agency", "hospice", "hospital", "k12", "lab", "nursing_home", "other",
+                    "pharmacy", "primary_care", "shelter", "treatment_center", "university", "urgent_care"
+                )
                 element.nameContains("patient_age_and_units") -> {
                     val unit = randomChoice("months", "years", "days")
                     val value = when (unit) {
@@ -223,15 +235,15 @@ class FakeReport(val metadata: Metadata, val locale: Locale? = null) {
         reportState: String? = null,
         val schemaName: String? = null,
         reportCounty: String? = null,
-        val locale: Locale? = null
+        locale: Locale? = null
     ) {
         val faker = if (locale == null) Faker() else Faker(locale)
         val patientName: Name = faker.name()
         val schoolName: String = faker.university().name()
         val equipmentModel = randomChoice(
             // Use only equipment that have equipment UID and equipment UID type to pass quality gate for HL7 messages
-            "LumiraDx SARS-CoV-2 Ag Test*",
-            "BD Veritor System for Rapid Detection of SARS-CoV-2*"
+            "LumiraDx SARS-CoV-2 Ag Test",
+            "BD Veritor System for Rapid Detection of SARS-CoV-2"
         )
         // find our state
         val state: String = reportState ?: randomChoice("FL", "PA", "TX", "AZ", "ND", "CO", "LA", "NM", "VT", "GU")
@@ -300,7 +312,7 @@ class FakeReport(val metadata: Metadata, val locale: Locale? = null) {
                 }
 
                 // get fake data for element
-                mapperRef.apply(element, refAndArgs.second, evs) ?: ""
+                mapperRef.apply(element, refAndArgs.second, evs).value ?: ""
             }
             else -> buildColumn(element, rowContext)
         }

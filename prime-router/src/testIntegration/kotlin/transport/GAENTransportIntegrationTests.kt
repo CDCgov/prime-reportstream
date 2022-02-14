@@ -78,6 +78,7 @@ class GAENTransportIntegrationTests : TransportIntegrationTests() {
             settings.findReceiver("wa-phd.gaen"),
             metadata.findSchema("covid-19-gaen"),
             content = content.toByteArray(),
+            true
         )
     }
 

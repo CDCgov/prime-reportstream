@@ -9,7 +9,6 @@ import com.azure.storage.blob.models.BlobStorageException
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
-import gov.cdc.prime.router.serializers.RedoxSerializer
 import org.apache.commons.io.FilenameUtils
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.ByteArrayInputStream
@@ -23,9 +22,8 @@ import java.security.MessageDigest
 const val defaultBlobContainerName = "reports"
 
 class BlobAccess(
-    private val csvSerializer: CsvSerializer,
-    private val hl7Serializer: Hl7Serializer,
-    private val redoxSerializer: RedoxSerializer
+    private val csvSerializer: CsvSerializer? = null,
+    private val hl7Serializer: Hl7Serializer? = null
 ) : Logging {
     private val defaultConnEnvVar = "AzureWebJobsStorage"
 
@@ -63,12 +61,20 @@ class BlobAccess(
      * is optional and is added as a prefix to the blob filename.
      * @return the information about the uploaded blob
      */
-    fun uploadBody(
+    fun generateBodyAndUploadReport(
         report: Report,
         subfolderName: String? = null,
-        action: Event.EventAction = Event.EventAction.NONE
+        action: Event.EventAction = Event.EventAction.NONE,
+        sendingApplicationReport: String? = null,
+        receivingApplicationReport: String? = null,
+        receivingFacilityReport: String? = null
     ): BlobInfo {
-        val (bodyFormat, blobBytes) = createBodyBytes(report)
+        val (bodyFormat, blobBytes) = createBodyBytes(
+            report,
+            sendingApplicationReport,
+            receivingApplicationReport,
+            receivingFacilityReport
+        )
         return uploadBody(bodyFormat, blobBytes, report.name, subfolderName, action)
     }
 
@@ -97,15 +103,30 @@ class BlobAccess(
         return BlobInfo(bodyFormat, blobUrl, digest)
     }
 
-    private fun createBodyBytes(report: Report): Pair<Report.Format, ByteArray> {
+    /**
+     * Uses a serializer that matches the bodyFormat of the passed in [report] to generate a ByteArray to upload
+     * to the blobstore. [sendingApplicationReport], [receivingApplicationReport], and [receivingFacilityReport] are
+     * optional parameter that should be populated solely for empty HL7_BATCH files.
+     */
+    private fun createBodyBytes(
+        report: Report,
+        sendingApplicationReport: String? = null,
+        receivingApplicationReport: String? = null,
+        receivingFacilityReport: String? = null
+    ): Pair<Report.Format, ByteArray> {
         val outputStream = ByteArrayOutputStream()
         when (report.bodyFormat) {
-            Report.Format.INTERNAL -> csvSerializer.writeInternal(report, outputStream)
+            Report.Format.INTERNAL -> csvSerializer?.writeInternal(report, outputStream)
             // HL7 needs some additional configuration we set on the translation in organization
-            Report.Format.HL7 -> hl7Serializer.write(report, outputStream)
-            Report.Format.HL7_BATCH -> hl7Serializer.writeBatch(report, outputStream)
-            Report.Format.CSV, Report.Format.CSV_SINGLE -> csvSerializer.write(report, outputStream)
-            Report.Format.REDOX -> redoxSerializer.write(report, outputStream)
+            Report.Format.HL7 -> hl7Serializer?.write(report, outputStream)
+            Report.Format.HL7_BATCH -> hl7Serializer?.writeBatch(
+                report,
+                outputStream,
+                sendingApplicationReport,
+                receivingApplicationReport,
+                receivingFacilityReport
+            )
+            Report.Format.CSV, Report.Format.CSV_SINGLE -> csvSerializer?.write(report, outputStream)
         }
         val contentBytes = outputStream.toByteArray()
         return Pair(report.bodyFormat, contentBytes)
@@ -125,6 +146,11 @@ class BlobAccess(
         )
         logger.info("Done uploadBlob of $blobName")
         return blobClient.blobUrl
+    }
+
+    /** Checks if a blob actually exists in the blobstore */
+    fun exists(blobUrl: String): Boolean {
+        return getBlobClient(blobUrl).exists()
     }
 
     fun downloadBlob(blobUrl: String): ByteArray {

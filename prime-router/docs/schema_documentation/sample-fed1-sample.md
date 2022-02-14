@@ -12,6 +12,8 @@
 
 **ReportStream Internal Name**: lab
 
+**Type**: TEXT
+
 **PII**: No
 
 **Cardinality**: [0..1]

@@ -3,25 +3,32 @@
         {
             "title": "## 💻 Frontend",
             "labels": [
-                "frontend"
+                "frontend",
+                "javascript"
             ]
         },
         {
             "title": "## 🔧 Backend",
             "labels": [
                 "backend",
-                "router"
+                "router",
+                "index",
+                "indexes",
+                "api",
+                "sender",
+                "schema"
             ]
         },
         {
-            "title": "## 🚀 DevOps",
+            "title": "## 🚀 Pipelines",
             "labels": [
                 "DevOps", 
                 "deployment", 
                 "checks", 
                 "automated", 
                 "workflow", 
-                "scan"
+                "scan",
+                "pipeline"
             ]
         },
         {
@@ -29,7 +36,8 @@
             "labels": [
                 "fix", 
                 "fixed", 
-                "fixed", 
+                "fixes",
+                "fixing", 
                 "bug", 
                 "correct"
             ]
@@ -37,7 +45,14 @@
         {
             "title": "## 🧪 Tests",
             "labels": [
-                "test"
+                "test",
+                "tests"
+            ]
+        },
+        {
+            "title": "## 💸 Tech debt",
+            "labels": [
+                "tech-debt"
             ]
         },
         {
@@ -61,7 +76,7 @@
         }
     ],
     "max_tags_to_fetch": 50,
-    "max_pull_requests": 100,
+    "max_pull_requests": 300,
     "max_back_track_time_days": 60,
     "tag_resolver": {
       "method": "sort",

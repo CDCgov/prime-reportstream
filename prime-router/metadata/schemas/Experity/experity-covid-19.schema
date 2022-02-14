@@ -5,6 +5,7 @@
 #
 name: experity-covid-19
 topic: covid-19
+trackingElement: message_id
 description: experity CSV lab report schema
 basedOn: covid-19
 
@@ -145,6 +146,7 @@ elements:
       csvFields: [{name: Ordering_provider_last_name}]
 
     - name: ordering_provider_lastfirst_name
+      type: TEXT
       mapper: concat(ordering_provider_last_name, ordering_provider_first_name )
 
     - name: ordering_provider_street
@@ -167,9 +169,11 @@ elements:
 
 #ordering facility + reporting facility name
     - name: testing_lab_name_temp
+      type: TEXT
       csvFields: [{name: Testing_lab_name}]
 
     - name: ordering_facility_name_temp
+      type: TEXT
       csvFields: [{name: Ordering_facility_name}]
 
     - name: reporting_facility_name
@@ -260,6 +264,7 @@ elements:
     - name: illness_onset_date
       default: ""
       csvFields: [{name: Illness_onset_date, format: "M/d/yyyy"}]
+      nullifyValue: true
 
 
 # Default Values
