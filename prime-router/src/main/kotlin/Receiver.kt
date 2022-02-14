@@ -15,8 +15,12 @@ import java.time.ZoneId
  * @param topic defines the set of schemas that can translate to each other
  * @param customerStatus defines if the receiver is fully onboarded
  * @param translation configuration to translate
- * @param jurisdictionalFilter defines the set of elements and regexes that filter the data for this receiver
- * @param qualityFilter defines the set of elements and regexes that do qualiyty filtering on the data for this receiver
+ * @param jurisdictionalFilter defines the geographic region filters for this receiver
+ * @param qualityFilter defines the filters that remove data, based on quality criteria
+ * @param routingFilter The original use case was for filters that remove data the
+ * receiver does not want, based on who sent it.  However, its available for any general purpose use.
+ * @param processingModeFilter defines the filters that is normally set to remove test and debug data.
+ * @param reverseTheQualityFilter If this is true, then do the NOT of 'qualityFilter'.  Like a 'grep -v'
  * @param deidentify transform
  * @param timing defines how to delay reports to the org. If null, then send immediately
  * @param description of the receiver
@@ -29,9 +33,10 @@ open class Receiver(
     val topic: String,
     val customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
     val translation: TranslatorConfiguration,
-    val jurisdictionalFilter: List<String> = emptyList(),
-    val qualityFilter: List<String> = emptyList(),
-    // If this is true, then do the NOT of 'qualityFilter'.  Like a 'grep -v'
+    val jurisdictionalFilter: ReportStreamFilter = emptyList(),
+    val qualityFilter: ReportStreamFilter = emptyList(),
+    val routingFilter: ReportStreamFilter = emptyList(),
+    val processingModeFilter: ReportStreamFilter = emptyList(),
     val reverseTheQualityFilter: Boolean = false,
     val deidentify: Boolean = false,
     val timing: Timing? = null,
@@ -46,10 +51,12 @@ open class Receiver(
         topic: String,
         customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
         schemaName: String,
-        format: Report.Format = Report.Format.CSV
+        format: Report.Format = Report.Format.CSV,
+        timing: Timing? = null
     ) : this(
         name, organizationName, topic, customerStatus,
-        CustomConfiguration(schemaName = schemaName, format = format, emptyMap(), "standard", null)
+        CustomConfiguration(schemaName = schemaName, format = format, emptyMap(), "standard", null),
+        timing = timing
     )
 
     constructor(copy: Receiver) : this(
@@ -60,6 +67,8 @@ open class Receiver(
         copy.translation,
         copy.jurisdictionalFilter,
         copy.qualityFilter,
+        copy.routingFilter,
+        copy.processingModeFilter,
         copy.reverseTheQualityFilter,
         copy.deidentify,
         copy.timing,
@@ -93,6 +102,7 @@ open class Receiver(
         val initialTime: String = "00:00",
         val timeZone: USTimeZone = USTimeZone.EASTERN,
         val maxReportCount: Int = 500,
+        val whenEmpty: WhenEmpty = WhenEmpty()
     ) {
         /**
          * Calculate the next event time.
@@ -117,6 +127,22 @@ open class Receiver(
                 .toOffsetDateTime()
         }
 
+        /**
+         * Returns true if this receiver is scheduled to run a batch in the last minute
+         */
+        fun batchInPrevious60Seconds(now: OffsetDateTime = OffsetDateTime.now()): Boolean {
+            val zoneId = ZoneId.of(timeZone.zoneId)
+            val zonedNow = now
+                .atZoneSameInstant(zoneId)
+                .withNano(0)
+
+            val initialSeconds = LocalTime.parse(initialTime).toSecondOfDay()
+            val durationFromInitial = zonedNow.toLocalTime().toSecondOfDay() - initialSeconds
+            val period = (24 * 60 * 60) / numberPerDay
+            val secondsSinceMostRecentPeriodEnd = ((durationFromInitial + (24 * 60 * 60) - 60) % period) - period
+            return secondsSinceMostRecentPeriodEnd >= -60
+        }
+
         @JsonIgnore
         fun isValid(): Boolean {
             return numberPerDay in 1..(24 * 60)
@@ -129,6 +155,22 @@ open class Receiver(
     }
 
     /**
+     * Options when a receiver's batch is scheduled to run but there are no records for the receiver
+     */
+    data class WhenEmpty(
+        val action: EmptyOperation = EmptyOperation.NONE,
+        val onlyOncePerDay: Boolean = false
+    )
+
+    /**
+     * When it is batch time and there are no records should the receiver get a file or not
+     */
+    enum class EmptyOperation {
+        NONE,
+        SEND,
+    }
+
+    /**
      * Validate the object and return null or an error message
      */
     fun consistencyErrorMessage(metadata: Metadata): String? {
@@ -136,14 +178,6 @@ open class Receiver(
             is CustomConfiguration -> {
                 if (metadata.findSchema(translation.schemaName) == null)
                     return "Invalid schemaName: ${translation.schemaName}"
-            }
-            is Hl7Configuration -> {
-                if (transport != null && transport is RedoxTransportType)
-                    return "HL7 configurations should not have a Redox transport"
-            }
-            is RedoxConfiguration -> {
-                if (transport != null && transport !is RedoxTransportType)
-                    return "Redox configurations should have Redox transports"
             }
         }
         return null

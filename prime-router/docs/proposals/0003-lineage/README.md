@@ -46,7 +46,7 @@ The Hub implements a simple workflow engine.   Each step in the engine is a **Ta
 | Send      | Reliably deliver data to an external receiver, eg, an API, sftp site, or provide for upload (and notify with an email)
 | Wipe      | Remove data, per business rules
 
-An **Organization** can recieve and/or send data to the hub.  A typical Organization is a state or local Public Health Department.   Strac, Redox, and SimpleReport are all also Organizations in the hub.
+An **Organization** can recieve and/or send data to the hub.  A typical Organization is a state or local Public Health Department.   Strac, and SimpleReport are all also Organizations in the hub.
 
 An **OrganizationService** is an endpoint to which the Hub can send a specific kind of data to a specific place, so that the Organiation can use the data.  For example, an OrganizationService might be an sftp site where a local health department wants hl7 files uploaded every 4 hours.
 

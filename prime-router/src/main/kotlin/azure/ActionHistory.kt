@@ -2,21 +2,22 @@ package gov.cdc.prime.router.azure
 
 import com.fasterxml.jackson.core.JsonFactory
 import com.fasterxml.jackson.core.JsonGenerator
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
+import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ClientSource
-import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Organization
-import gov.cdc.prime.router.QualityFilterResult
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
-import gov.cdc.prime.router.ResultDetail
+import gov.cdc.prime.router.ReportStreamFilterResult
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.Tables.ACTION
+import gov.cdc.prime.router.azure.db.Tables.ACTION_LOG
 import gov.cdc.prime.router.azure.db.Tables.ITEM_LINEAGE
 import gov.cdc.prime.router.azure.db.Tables.REPORT_FILE
 import gov.cdc.prime.router.azure.db.Tables.REPORT_LINEAGE
@@ -98,14 +99,19 @@ class ActionHistory {
     val filteredOutReports = mutableMapOf<ReportId, ReportFile>()
 
     /**
-     * List of rows per report that have been filtered out based on quality.
+     * A List of events describing the details of what has happened during an Action.
      */
-    val filteredReportRows = mutableMapOf<ReportId, List<QualityFilterResult>>()
+    val actionLogs = mutableListOf<ActionLog>()
 
     /**
      * Messages to be queued in an azure queue as part of the result of this action.
      */
     val messages = mutableListOf<Event>()
+
+    /**
+     * This will be true if this actionHistory is being used to track generation of an empty batch file
+     */
+    val generatingEmptyReport: Boolean
 
     /**
      *
@@ -125,17 +131,44 @@ class ActionHistory {
      */
     val itemLineages = mutableSetOf<ItemLineage>()
 
-    constructor(taskAction: TaskAction, context: ExecutionContext? = null) {
+    constructor(taskAction: TaskAction, context: ExecutionContext? = null, generatingEmptyReport: Boolean = false) {
         action.actionName = taskAction
         this.context = context
+        this.generatingEmptyReport = generatingEmptyReport
     }
 
     fun setActionType(taskAction: TaskAction) {
         action.actionName = taskAction
     }
 
-    fun trackEvent(event: Event) {
+    /** Adds a queue event to the messages property to be added to the queue later */
+    private fun trackEvent(event: Event) {
         messages.add(event)
+    }
+
+    /**
+     * Track a list of logs that happened durring this action
+     *
+     * @param logs The List of ActionLogs to track against this action
+     */
+    fun trackLogs(logs: List<ActionLog>) {
+        logs.forEach {
+            trackLogs(it)
+        }
+    }
+
+    /**
+     * Track a log that happened durring this action
+     *
+     * @param log The ActionLogs to track against this action
+     */
+    fun trackLogs(log: ActionLog) {
+        log.action = action
+        actionLogs.add(log)
+    }
+
+    fun trackUsername(userName: String?) {
+        action.username = userName
     }
 
     fun trackActionParams(request: HttpRequestMessage<String?>) {
@@ -217,8 +250,9 @@ class ActionHistory {
      * Parses the client parameter and sets the sending organization
      * and client in the action table.
      * @param clientParam the client header submitted with the report
+     * @param payloadName an optional user-supplied name for the data submitted.  Eg, a filename.
      */
-    fun trackActionSender(clientParam: String) {
+    fun trackActionSenderInfo(clientParam: String, payloadName: String? = null) {
         // only set the action properties if not null
         if (clientParam.isNotBlank()) {
             try {
@@ -231,6 +265,7 @@ class ActionHistory {
                 )
             }
         }
+        action.externalName = payloadName
     }
 
     /**
@@ -238,18 +273,19 @@ class ActionHistory {
      * @param response the response created while processing the submitted report
      * @param verboseResponse the generated verbose response with all details
      */
-    fun trackActionResponse(response: HttpResponseMessage, verboseResponse: String) {
+    fun trackActionResponse(response: HttpResponseMessage, report: Report?) {
         action.httpStatus = response.status.value()
-        if (!verboseResponse.isNullOrBlank())
-            this.trackActionResponse(verboseResponse)
+        val verboseResponse = createResponseBody(true, report)
+        this.trackActionResponse(verboseResponse)
     }
 
     /**
      * Set the action response. This is primarily used by backend functions that do not have an associated HttpRequest
      * @param jsonResponse the generated stringified json representing the response
      */
-    fun trackActionResponse(jsonResponse: String) {
-        action.actionResponse = JSONB.valueOf(jsonResponse)
+    fun trackActionResponse(response: String) {
+        val jsonResponse = runCatching { jacksonObjectMapper().readTree(response) }.getOrNull()
+        action.actionResponse = JSONB.jsonbOrNull(jsonResponse?.toString())
     }
 
     /**
@@ -278,7 +314,7 @@ class ActionHistory {
     /**
      * Use this to record history info about a new externally submitted report.
      */
-    fun trackExternalInputReport(report: Report, blobInfo: BlobAccess.BlobInfo) {
+    fun trackExternalInputReport(report: Report, blobInfo: BlobAccess.BlobInfo, payloadName: String? = null) {
         if (isReportAlreadyTracked(report.id)) {
             error("Bug:  attempt to track history of a report ($report.id) we've already associated with this action")
         }
@@ -301,6 +337,8 @@ class ActionHistory {
         reportFile.bodyUrl = blobInfo.blobUrl
         reportFile.bodyFormat = blobInfo.format.toString()
         reportFile.blobDigest = blobInfo.digest
+        reportFile.externalName = payloadName
+        action.externalName = payloadName
         reportFile.itemCount = report.itemCount
         reportsReceived[reportFile.reportId] = reportFile
 
@@ -317,9 +355,34 @@ class ActionHistory {
     }
 
     /**
+     * Use this to record history info about a newly generated empty [report] for sending to [receiver] that
+     * has requested an empty batch. The [event] will be batch or send.
+     */
+    fun trackGeneratedEmptyReport(event: Event, report: Report, receiver: Receiver, blobInfo: BlobAccess.BlobInfo) {
+        val reportFile = ReportFile()
+        reportFile.reportId = report.id
+
+        reportFile.nextAction = TaskAction.send
+        reportFile.receivingOrg = receiver.organizationName
+        reportFile.receivingOrgSvc = receiver.name
+        reportFile.schemaName = report.schema.name
+        reportFile.schemaTopic = report.schema.topic
+        reportFile.bodyUrl = blobInfo.blobUrl
+        reportFile.bodyFormat = blobInfo.format.toString()
+        reportFile.blobDigest = blobInfo.digest
+        reportFile.itemCount = report.itemCount
+        reportsReceived[reportFile.reportId] = reportFile
+
+        // add to queue
+        if (event.eventAction != Event.EventAction.BATCH)
+            trackEvent(event)
+    }
+
+    /**
      * Track a report that was fully filtered out based on qualty
      */
     fun trackFilteredReport(
+        input: Report,
         report: Report,
         receiver: Receiver,
     ) {
@@ -330,8 +393,10 @@ class ActionHistory {
         reportFile.schemaName = report.schema.name
         reportFile.schemaTopic = report.schema.topic
         reportFile.itemCount = report.itemCount
+        reportFile.bodyFormat = report.bodyFormat.toString()
         filteredOutReports[reportFile.reportId] = reportFile
-        filteredReportRows[reportFile.reportId] = report.filteredItems
+        reportLineages.add(ReportLineage(null, null, input.id, report.id, null))
+        trackFilteredItems(report)
     }
 
     /**
@@ -361,9 +426,12 @@ class ActionHistory {
         reportFile.blobDigest = blobInfo.digest
         reportFile.itemCount = report.itemCount
         reportsOut[reportFile.reportId] = reportFile
-        filteredReportRows[reportFile.reportId] = report.filteredItems
+        trackFilteredItems(report)
         trackItemLineages(report)
-        trackEvent(event) // to be sent to queue later.
+
+        // batch queue messages are added by the batchDecider, not ActionHistory
+        if (event.eventAction != Event.EventAction.BATCH)
+            trackEvent(event) // to be sent to queue later.
     }
 
     fun trackCreatedReport(
@@ -386,15 +454,18 @@ class ActionHistory {
         reportFile.blobDigest = blobInfo.digest
         reportFile.itemCount = report.itemCount
         reportsOut[reportFile.reportId] = reportFile
-        filteredReportRows[reportFile.reportId] = report.filteredItems
         trackItemLineages(report)
-        trackEvent(event) // to be sent to queue later.
+        trackFilteredItems(report)
+
+        // batch queue messages are added by the batchDecider, not ActionHistory
+        if (event.eventAction != Event.EventAction.BATCH)
+            trackEvent(event) // to be sent to queue later.
     }
 
     fun trackSentReport(
         receiver: Receiver,
         sentReportId: ReportId,
-        fileName: String?,
+        filename: String?,
         params: String,
         result: String,
         itemCount: Int
@@ -411,7 +482,8 @@ class ActionHistory {
         reportFile.receivingOrgSvc = receiver.name
         reportFile.schemaName = receiver.schemaName
         reportFile.schemaTopic = receiver.topic
-        reportFile.externalName = fileName
+        reportFile.externalName = filename
+        action.externalName = filename
         reportFile.transportParams = params
         reportFile.transportResult = result
         reportFile.bodyUrl = null
@@ -447,6 +519,7 @@ class ActionHistory {
         reportFile.schemaName = parentReportFile.schemaName
         reportFile.schemaTopic = parentReportFile.schemaTopic
         reportFile.externalName = filename
+        action.externalName = filename
         reportFile.transportParams = "{ \"reportRequested\": \"${parentReportFile.reportId}\"}"
         reportFile.transportResult = "{ \"downloadedBy\": \"$downloadedBy\"}"
         reportFile.bodyUrl = null // this entry represents an external file, not a blob.
@@ -455,6 +528,36 @@ class ActionHistory {
         reportFile.itemCount = parentReportFile.itemCount
         reportFile.downloadedBy = downloadedBy
         reportsOut[reportFile.reportId] = reportFile
+
+        trackUsername(downloadedBy)
+    }
+
+    /**
+     * Record the filtered items in a report as Events in the Action
+     *
+     * NOTE: Needs to be done only once a report is tracked
+     * otherwise the report refrenced by the Detail
+     * will not match the report that is tracked and stored.
+     *
+     * If the behavior of a Report ID changing during interim
+     * transformations changes these details can be tracked sooner.
+     *
+     * @param report The report who's *filter results* to record
+     */
+    fun trackFilteredItems(report: Report) {
+        report.filteringResults.forEach {
+            trackLogs(
+                ActionLog(
+                    ActionLog.ActionLogScope.item,
+                    it,
+                    it.filteredTrackingElement,
+                    it.filteredIndex,
+                    reportId = report.id,
+                    action = action,
+                    type = ActionLog.ActionLogType.filter,
+                )
+            )
+        }
     }
 
     private fun trackItemLineages(report: Report) {
@@ -496,11 +599,35 @@ class ActionHistory {
         action.actionId = insertAction(txn)
         reportsReceived.values.forEach { it.actionId = action.actionId }
         reportsOut.values.forEach { it.actionId = action.actionId }
+        filteredOutReports.values.forEach { it.actionId = action.actionId }
         insertReports(txn)
         DatabaseAccess.saveTestData(covidMetaDataRecords, txn)
-        generateReportLineages(action.actionId)
+
+        // TODO: Generation of lineages needs to be separated from database insert functionality, since there
+        //  are conditional lineage generation rules
+        if (generatingEmptyReport) {
+            // if we are generating an empty report for the 'send' step there will be one report in and one out.
+            //  make sure to track the lineage. for the 'batch 'step there will not be any lineage
+            if (reportsIn.size == 1 && reportsOut.size == 1)
+                reportLineages.add(
+                    ReportLineage(
+                        null,
+                        action.actionId,
+                        reportsIn.values.first().reportId,
+                        reportsOut.values.first().reportId,
+                        null
+                    )
+                )
+        } else {
+            generateReportLineagesUsingItemLineage(action.actionId)
+        }
         insertReportLineages(txn)
         insertItemLineages(itemLineages, txn)
+
+        actionLogs.forEach {
+            val detailRecord = DSL.using(txn).newRecord(ACTION_LOG, it)
+            detailRecord.store()
+        }
     }
 
     /**
@@ -524,6 +651,9 @@ class ActionHistory {
         reportsOut.values.forEach {
             insertReportFile(it, txn)
         }
+        filteredOutReports.values.forEach {
+            insertReportFile(it, txn)
+        }
     }
 
     private fun insertReportFile(reportFile: ReportFile, txn: Configuration) {
@@ -543,7 +673,7 @@ class ActionHistory {
      * Use the detailed item lineage to exactly/correctly generate the report parent/child relationships.
      *
      */
-    private fun generateReportLineages(actionId: Long) {
+    private fun generateReportLineagesUsingItemLineage(actionId: Long) {
         // Extract the distinct parent/child report pairs from the Item Lineage
         val parentChildReports = itemLineages.map { Pair(it.parentReportId, it.childReportId) }.toSet()
         parentChildReports.forEach {
@@ -582,6 +712,7 @@ class ActionHistory {
 
     private fun insertReportLineages(txn: Configuration) {
         reportLineages.forEach {
+            it.actionId = action.actionId
             insertReportLineage(it, txn)
         }
     }
@@ -627,7 +758,6 @@ class ActionHistory {
     fun prettyPrintDestinationsJson(
         jsonGen: JsonGenerator,
         settings: SettingsProvider,
-        reportOptions: Options
     ) {
         var destinationCounter = 0
         jsonGen.writeArrayFieldStart("destinations")
@@ -644,7 +774,6 @@ class ActionHistory {
                     orgReceiver,
                     organization,
                     reportFiles,
-                    reportOptions,
                 )
                 if (countSent > 0) {
                     destinationCounter++
@@ -660,7 +789,6 @@ class ActionHistory {
         orgReceiver: Receiver,
         organization: Organization,
         reportFiles: List<ReportFile>,
-        reportOptions: Options,
     ): Int {
         jsonGen.writeStartObject()
         // jsonGen.writeStringField("id", reportFile.reportId.toString())   // TMI?
@@ -672,16 +800,26 @@ class ActionHistory {
         var countToPrint = 0
         reportFiles.forEach { reportFile ->
 
-            if (!filteredReportRows.getOrDefault(reportFile.reportId, emptyList()).isEmpty()) {
+            val filterDetails = actionLogs.filter {
+                it.reportId == reportFile.reportId
+            }.filter {
+                it.type == ActionLog.ActionLogType.filter
+            }
+
+            if (filterDetails.isNotEmpty()) {
                 jsonGen.writeArrayFieldStart("filteredReportRows")
-                filteredReportRows.getValue(reportFile.reportId).forEach {
-                    jsonGen.writeString(it.toString())
+                filterDetails.forEach {
+                    val detail = it.detail
+                    if (detail is ReportStreamFilterResult) {
+                        jsonGen.writeString(detail.toString())
+                    }
                 }
                 jsonGen.writeEndArray()
             }
 
             sendingAt = when {
-                reportOptions == Options.SkipSend -> {
+                reportFile.nextAction == null ||
+                    reportFile.nextAction == Event.EventAction.NONE.toTaskAction() -> {
                     "never - skipSend specified"
                 }
                 reportFile.nextActionAt != null -> {
@@ -837,7 +975,7 @@ class ActionHistory {
     data class GroupedProperties(
         val itemsByGroupingId: MutableMap<String, MutableList<Int>>,
         val messageByGroupingId: MutableMap<String, String>,
-        val scopesByGroupingId: MutableMap<String, String>
+        val scopesByGroupingId: MutableMap<String, ActionLog.ActionLogScope>
     )
 
     /**
@@ -851,43 +989,54 @@ class ActionHistory {
      * @return A json representation of the result of whatever action called this
      */
     fun createResponseBody(
-        options: Options,
-        warnings: List<ResultDetail>,
-        errors: List<ResultDetail>,
         verbose: Boolean,
-        report: Report? = null
+        report: Report?,
     ): String {
+        val warnings = actionLogs.filter { it.type == ActionLog.ActionLogType.warning }
+        val errors = actionLogs.filter { it.type == ActionLog.ActionLogType.error }
         val factory = JsonFactory()
         val outStream = ByteArrayOutputStream()
         factory.createGenerator(outStream).use {
             it.useDefaultPrettyPrinter()
             it.writeStartObject()
+
             if (report != null) {
+                val inboundReports = reportsReceived + reportsIn
+                check(inboundReports.containsKey(report.id)) {
+                    "Only tracked incoming reports can generate a response."
+                }
                 it.writeStringField("id", report.id.toString())
                 it.writeStringField("timestamp", DateTimeFormatter.ISO_INSTANT.format(Instant.now()))
                 it.writeStringField("topic", report.schema.topic)
                 it.writeNumberField("reportItemCount", report.itemCount)
+                if (action.sendingOrg != null && action.sendingOrgClient != null)
+                    it.writeStringField("sender", "${action.sendingOrg}.${action.sendingOrgClient}")
+                if (action.httpStatus != null)
+                    it.writeStringField("httpStatus", action.httpStatus?.toString() ?: "")
+                if (action.externalName != null)
+                    it.writeStringField("externalName", action.externalName)
                 // TODO: need to get the correct path and set the ENDPOINT_BASE correctly, blocked by waiting for
                 //  the historyApi to be ready. Once this is known, uncomment line below and ensure path is correct
                 // it.writeStringField("location", "[base path]/${report.id}")
+
+                // print the report routing when in verbose mode
+                if (verbose) {
+                    it.writeArrayFieldStart("routing")
+                    createItemRouting(report).forEach { ij ->
+                        it.writeStartObject()
+                        it.writeNumberField("reportIndex", ij.reportIndex)
+                        it.writeStringField("trackingId", ij.trackingId)
+                        it.writeArrayFieldStart("destinations")
+                        ij.destinations.sorted().forEach { d -> it.writeString(d) }
+                        it.writeEndArray()
+                        it.writeEndObject()
+                    }
+                    it.writeEndArray()
+                }
             } else
                 it.writeNullField("id")
 
-            this.prettyPrintDestinationsJson(it, WorkflowEngine.settingsProviderSingleton, options)
-            // print the report routing when in verbose mode
-            if (verbose) {
-                it.writeArrayFieldStart("routing")
-                createItemRouting(report).forEach { ij ->
-                    it.writeStartObject()
-                    it.writeNumberField("reportIndex", ij.reportIndex)
-                    it.writeStringField("trackingId", ij.trackingId)
-                    it.writeArrayFieldStart("destinations")
-                    ij.destinations.sorted().forEach { d -> it.writeString(d) }
-                    it.writeEndArray()
-                    it.writeEndObject()
-                }
-                it.writeEndArray()
-            }
+            this.prettyPrintDestinationsJson(it, WorkflowEngine.settingsProviderSingleton)
 
             it.writeNumberField("warningCount", warnings.size)
             it.writeNumberField("errorCount", errors.size)
@@ -917,26 +1066,26 @@ class ActionHistory {
             }
 
             /**
-             * This function parses a list of ResultDetail items to group them by
+             * This function parses a list of ActionLog items to group them by
              * groupingId and returns them as a GroupedProperties data class instance
              *
-             * @param details List of ResultDetail items to be parsed
+             * @param actionLogs List of ActionLog items to be parsed
              * @return GroupedProperties() containing items, messages, and scopes
              *     grouped by groupingId
              */
-            fun createPropertiesByGroupingId(details: List<ResultDetail>): GroupedProperties {
+            fun createPropertiesByGroupingId(actionLogs: List<ActionLog>): GroupedProperties {
                 val itemsByGroupingId = mutableMapOf<String, MutableList<Int>>()
                 val messageByGroupingId = mutableMapOf<String, String>()
-                val scopesByGroupingId = mutableMapOf<String, String>()
-                details.forEach { resultDetail ->
-                    val groupingId = resultDetail.responseMessage.groupingId()
+                val scopesByGroupingId = mutableMapOf<String, ActionLog.ActionLogScope>()
+                actionLogs.forEach { actionDetail ->
+                    val groupingId = actionDetail.detail.groupingId()
                     if (!itemsByGroupingId.containsKey(groupingId)) {
                         itemsByGroupingId[groupingId] = mutableListOf()
-                        messageByGroupingId[groupingId] = resultDetail.responseMessage.detailMsg()
-                        scopesByGroupingId[groupingId] = resultDetail.scope.toString()
+                        messageByGroupingId[groupingId] = actionDetail.detail.detailMsg()
+                        scopesByGroupingId[groupingId] = actionDetail.scope
                     }
-                    if (resultDetail.row != -1) {
-                        itemsByGroupingId[groupingId]?.add(resultDetail.row + 1)
+                    actionDetail.index?.let {
+                        itemsByGroupingId[groupingId]?.add(actionDetail.index + 1)
                     }
                 }
                 return GroupedProperties(
@@ -947,24 +1096,24 @@ class ActionHistory {
             }
 
             /**
-             * This function parses a list of ResultDetail items to group them by
+             * This function parses a list of ActionLog items to group them by
              * groupingId and returns them as a GroupedProperties data class instance
              *
              * @param field defines the name of the array in the JSON result
-             * @param resultDetailList the list of items to write to the JSON
+             * @param ActionDetailList the list of items to write to the JSON
              */
-            fun writeConsolidatedArray(field: String, resultDetailList: List<ResultDetail>) {
+            fun writeConsolidatedArray(field: String, actionDetailList: List<ActionLog>) {
                 val (
                     itemsByGroupingId,
                     messageByGroupingId,
                     scopesByGroupId
-                ) = createPropertiesByGroupingId(resultDetailList)
+                ) = createPropertiesByGroupingId(actionDetailList)
                 it.writeArrayFieldStart(field)
                 itemsByGroupingId.keys.forEach { groupingId ->
                     it.writeStartObject()
-                    it.writeStringField("scope", scopesByGroupId[groupingId] as String)
+                    it.writeStringField("scope", scopesByGroupId[groupingId].toString())
                     it.writeStringField("message", messageByGroupingId[groupingId])
-                    if (scopesByGroupId[groupingId] as String === "ITEM") {
+                    if (scopesByGroupId[groupingId] == ActionLog.ActionLogScope.item) {
                         it.writeStringField(
                             "itemNums",
                             createRowsDescription(itemsByGroupingId[groupingId])
@@ -1001,7 +1150,7 @@ class ActionHistory {
      * @return the report routing for each item
      */
     private fun createItemRouting(
-        report: Report?,
+        report: Report,
     ): List<ItemRouting> {
         // create the item routing from the item lineage
         val routingMap = mutableMapOf<Int, ItemRouting>()
@@ -1012,22 +1161,17 @@ class ActionHistory {
             }
         }
         // account for any items that routed no where and were not in the item lineage
-        return report?.let {
-            val items = mutableListOf<ItemRouting>()
-            // the report has all the submitted items
-            it.itemIndices.forEach { i ->
-                // if an item was not present, create the routing with empty destinations
-                items.add(
-                    routingMap.getOrDefault(
-                        i,
-                        ItemRouting(i, it.getString(i, it.schema.trackingElement ?: ""))
-                    )
+        val items = mutableListOf<ItemRouting>()
+        // the report has all the submitted items
+        report.itemIndices.forEach { i ->
+            // if an item was not present, create the routing with empty destinations
+            items.add(
+                routingMap.getOrDefault(
+                    i,
+                    ItemRouting(i, report.getString(i, report.schema.trackingElement ?: ""))
                 )
-            }
-            items
-        } ?: run {
-            // unlikely, but in case the report is null...
-            routingMap.toSortedMap().values.map { it }
+            )
         }
+        return items
     }
 }

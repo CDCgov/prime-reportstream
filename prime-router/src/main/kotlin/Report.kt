@@ -5,6 +5,8 @@ import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.CovidResultMetadata
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
+import gov.cdc.prime.router.metadata.ElementAndValue
+import gov.cdc.prime.router.metadata.Mappers
 import org.apache.logging.log4j.kotlin.Logging
 import tech.tablesaw.api.Row
 import tech.tablesaw.api.StringColumn
@@ -55,26 +57,42 @@ enum class Options {
 }
 
 /**
- * QualityFilterResult records the rows filtered out by a quality filter.
- * As well as the function name and arguments that did the filtering.
+ * ReportStreamFilterResult records useful information about rows filtered by one filter call.  One filter
+ * might filter many rows. ReportStreamFilterResult entries are only created when filter logging is on.  This is to
+ * prevent tons of junk logging of jurisdictionalFilters - the vast majority of which typically filter out everything.
  *
  * @property receiverName Then intended reciever for the report
  * @property originalCount The original number of items in the report
  * @property filterName The name of the filter function that removed the rows
  * @property filterArgs The arguments used in the filter function
- * @property filteredRows The row's that were removed from the report, 0 indexed
+ * @property filteredTrackingElement The trackingElement value of the rows removed.
+ * Note that we can't guarantee the Sender is sending good unique trackingElement values.
  */
-data class QualityFilterResult(
+data class ReportStreamFilterResult(
     val receiverName: String,
     val originalCount: Int,
     val filterName: String,
     val filterArgs: List<String>,
-    val filteredRows: IntArray
-) {
+    val filteredTrackingElement: String,
+    val filteredIndex: Int,
+    override val type: ActionLogDetailType = ActionLogDetailType.TRANSLATION
+) : ActionLogDetail {
+    companion object {
+        // Use this value in logs and user-facing messages if the trackingElement is missing.
+        val DEFAULT_TRACKING_VALUE = "MissingID"
+    }
+
     override fun toString(): String {
-        return "For $receiverName, qualityFilter $filterName, $filterArgs" +
-            " filtered out Rows ${filteredRows.map{ it + 1 }.joinToString(",")}" +
-            " reducing the Item count from $originalCount to ${originalCount - filteredRows.size}."
+        return "For $receiverName, filter $filterName$filterArgs" +
+            " filtered out item $filteredTrackingElement at index $filteredIndex"
+    }
+
+    override fun detailMsg(): String {
+        return toString()
+    }
+
+    override fun groupingId(): String {
+        return receiverName
     }
 }
 
@@ -93,8 +111,7 @@ class Report : Logging {
         CSV("csv", "text/csv"), // A CSV format the follows the csvFields
         CSV_SINGLE("csv", "text/csv", true),
         HL7("hl7", "application/hl7-v2", true), // HL7 with one result per file
-        HL7_BATCH("hl7", "application/hl7-v2"), // HL7 with BHS and FHS headers
-        REDOX("redox", "text/json", false); // Redox format contains multiple results (NDJSON)
+        HL7_BATCH("hl7", "application/hl7-v2"); // HL7 with BHS and FHS headers
         // FHIR
 
         companion object {
@@ -131,9 +148,10 @@ class Report : Logging {
     val destination: Receiver?
 
     /**
-     * The list of results from quality filters run against the initial report data.
+     * The list of info about data *removed* from this report by filtering.
+     * The list has one entry per filter applied, *not* one entry per row removed.
      */
-    val filteredItems: MutableList<QualityFilterResult> = mutableListOf()
+    val filteringResults: MutableList<ReportStreamFilterResult> = mutableListOf()
 
     /**
      * The time when the report was created
@@ -329,7 +347,7 @@ class Report : Logging {
             metadata = this.metadata
         )
         copy.itemLineages = createOneToOneItemLineages(this, copy)
-        copy.filteredItems.addAll(this.filteredItems)
+        copy.filteringResults.addAll(this.filteringResults)
         return copy
     }
 
@@ -379,31 +397,36 @@ class Report : Logging {
     }
 
     fun filter(
-        filterFunctions: List<Pair<JurisdictionalFilter, List<String>>>,
+        filterFunctions: List<Pair<ReportStreamFilterDefinition, List<String>>>,
         receiver: Receiver,
-        isQualityFilter: Boolean,
+        doLogging: Boolean,
+        trackingElement: String?,
         reverseTheFilter: Boolean = false
     ): Report {
-        val filteredRows = mutableListOf<QualityFilterResult>()
-        // First, only do detailed logging on qualityFilters.
-        // But, **don't** do detailed logging if reverseTheFilter is true.
-        // This is a hack, but its because the logging is nonsensical if the filter is reversed.
-        // (Its nontrivial to fix the detailed logging of a reversed filter, per deMorgan's law)
-        val doDetailedFilterLogging = isQualityFilter && !reverseTheFilter
+        val filteredRows = mutableListOf<ReportStreamFilterResult>()
         val combinedSelection = Selection.withRange(0, table.rowCount())
         filterFunctions.forEach { (filterFn, fnArgs) ->
-            val filterFnSelection = filterFn.getSelection(fnArgs, table, receiver, doDetailedFilterLogging)
-            if (doDetailedFilterLogging && filterFnSelection.size() < table.rowCount()) {
+            val filterFnSelection = filterFn.getSelection(fnArgs, table, receiver, doLogging)
+            // NOTE: It's odd that we have to do logic after the fact
+            //       to figure out what the prvious function did
+            if (doLogging && filterFnSelection.size() < table.rowCount()) {
                 val before = Selection.withRange(0, table.rowCount())
-                filteredRows.add(
-                    QualityFilterResult(
-                        receiver.fullName,
-                        table.rowCount(),
-                        filterFn.name,
-                        fnArgs,
-                        before.andNot(filterFnSelection).toArray()
-                    )
+                val filteredRowList = before.andNot(filterFnSelection).toList()
+                val rowsFiltered = getValuesInRows(
+                    trackingElement, filteredRowList, ReportStreamFilterResult.DEFAULT_TRACKING_VALUE
                 )
+                rowsFiltered.zip(filteredRowList).forEach { (trackingId, index) ->
+                    filteredRows.add(
+                        ReportStreamFilterResult(
+                            receiver.fullName,
+                            table.rowCount(),
+                            filterFn.name,
+                            fnArgs,
+                            trackingId,
+                            index
+                        )
+                    )
+                }
             }
             combinedSelection.and(filterFnSelection)
         }
@@ -418,9 +441,33 @@ class Report : Logging {
             fromThisReport("filter: $filterFunctions"),
             metadata = this.metadata
         )
-        filteredReport.filteredItems.addAll(filteredRows)
+        // Write same info to our logs that goes in the json response obj
+        if (doLogging)
+            filteredRows.forEach { filterResult -> logger.info(filterResult.toString()) }
+        filteredReport.filteringResults.addAll(this.filteringResults) // copy ReportStreamFilterResults from prev
+        filteredReport.filteringResults.addAll(filteredRows) // and add any new ReportStreamFilterResults just created.
         filteredReport.itemLineages = createItemLineages(finalCombinedSelection, this, filteredReport)
         return filteredReport
+    }
+
+    /**
+     * Return the values in column [columnName] for these [rows].  If a [default] is specified,
+     * that value is used for all cases where the value is empty/null/missing for that row in the table.
+     * If [default] is null, this may return fewer rows than in [rows].
+     *
+     * @return an emptyList if the columnName is null (not an error)
+     *
+     */
+    fun getValuesInRows(columnName: String?, rows: List<Int>, default: String? = null): List<String> {
+        if (columnName.isNullOrEmpty()) return emptyList()
+        val columnIndex = this.table.columnIndex(columnName)
+        return rows.mapNotNull { row ->
+            val value = this.table.getString(row, columnIndex)
+            if (value.isNullOrEmpty())
+                default // might be null
+            else
+                value
+        }
     }
 
     fun deidentify(): Report {
@@ -747,7 +794,7 @@ class Report : Logging {
                     if (value == null || value.isBlank()) return@mapNotNull null
                     ElementAndValue(element, value)
                 }
-                elementValue = mapper.apply(toElement, args, inputValues) ?: ""
+                elementValue = mapper.apply(toElement, args, inputValues).value ?: ""
             }
             if (toElement.useDefault(elementValue)) elementValue = mapping.useDefault[toElement.name] ?: ""
             elementValue
@@ -812,7 +859,7 @@ class Report : Logging {
             return mergedReport
         }
 
-        fun createItemLineages(parentReports: List<Report>, childReport: Report): List<ItemLineage> {
+        private fun createItemLineages(parentReports: List<Report>, childReport: Report): List<ItemLineage> {
             var childRowNum = 0
             val itemLineages = mutableListOf<ItemLineage>()
             parentReports.forEach { parentReport ->

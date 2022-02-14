@@ -1,5 +1,9 @@
 package gov.cdc.prime.router.azure
 
+import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
@@ -25,6 +29,15 @@ class HttpUtilities {
         const val oldApi = "/api/reports"
         const val watersApi = "/api/waters"
         const val tokenApi = "/api/token"
+
+        // Ignoring unknown properties because we don't require them. -DK
+        private val mapper = jacksonObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+
+        init {
+            // Format OffsetDateTime as an ISO string
+            mapper.registerModule(JavaTimeModule())
+            mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+        }
 
         /**
          * Last modified time header value formatter.
@@ -63,6 +76,17 @@ class HttpUtilities {
                 .createResponseBuilder(HttpStatus.OK)
                 .header(HttpHeaders.CONTENT_TYPE, jsonMediaType)
                 .also { addHeaderIfModified(it, lastModified) }
+                .build()
+        }
+
+        fun <T> okJSONResponse(
+            request: HttpRequestMessage<String?>,
+            body: T
+        ): HttpResponseMessage {
+            return request
+                .createResponseBuilder(HttpStatus.OK)
+                .header(HttpHeaders.CONTENT_TYPE, jsonMediaType)
+                .body(mapper.writeValueAsString(body))
                 .build()
         }
 
@@ -146,6 +170,20 @@ class HttpUtilities {
                 .build()
         }
 
+        /**
+         * The method handles the lookup table conflict failure.
+         * It uses to pass the HTTP Status 409 response code back to API consumer.
+         */
+        fun internalErrorConflictResponse(
+            request: HttpRequestMessage<String?>,
+            errorMessage: String? = null
+        ): HttpResponseMessage {
+            val response = request.createResponseBuilder(HttpStatus.CONFLICT)
+            if (!errorMessage.isNullOrBlank())
+                response.body(errorJson(errorMessage))
+            return response.build()
+        }
+
         fun errorJson(message: String): String {
             return """{"error": "$message"}"""
         }
@@ -180,31 +218,36 @@ class HttpUtilities {
          * Do a variety of checks on payload size.
          * Returns a Pair (http error code, human readable error message)
          */
-        fun payloadSizeCheck(request: HttpRequestMessage<String?>): Pair<HttpStatus, String> {
+        fun payloadSizeCheck(request: HttpRequestMessage<String?>) {
             val contentLengthStr = request.headers["content-length"]
-                ?: return HttpStatus.LENGTH_REQUIRED to "ERROR: No content-length header found.  Refusing this request."
+                ?: throw HttpException(
+                    "ERROR: No content-length header found.  Refusing this request.", HttpStatus.LENGTH_REQUIRED
+                )
             val contentLength = try {
                 contentLengthStr.toLong()
             } catch (e: NumberFormatException) {
-                return HttpStatus.LENGTH_REQUIRED to "ERROR: content-length header is not a number"
+                throw HttpException("ERROR: content-length header is not a number", HttpStatus.LENGTH_REQUIRED)
             }
             when {
                 contentLength < 0 -> {
-                    return HttpStatus.LENGTH_REQUIRED to "ERROR: negative content-length $contentLength"
+                    throw HttpException("ERROR: negative content-length $contentLength", HttpStatus.LENGTH_REQUIRED)
                 }
                 contentLength > PAYLOAD_MAX_BYTES -> {
-                    return HttpStatus.PAYLOAD_TOO_LARGE to
-                        "ERROR: content-length $contentLength is larger than max $PAYLOAD_MAX_BYTES"
+                    throw HttpException(
+                        "ERROR: content-length $contentLength is larger than max $PAYLOAD_MAX_BYTES",
+                        HttpStatus.PAYLOAD_TOO_LARGE
+                    )
                 }
             }
             // content-length header is ok.  Now check size of actual body as well
             val content = request.body
             if (content != null && content.length > PAYLOAD_MAX_BYTES) {
-                return HttpStatus.PAYLOAD_TOO_LARGE to
+                throw HttpException(
                     "ERROR: body size ${content.length} is larger than max $PAYLOAD_MAX_BYTES " +
-                    "(content-length header = $contentLength"
+                        "(content-length header = $contentLength",
+                    HttpStatus.PAYLOAD_TOO_LARGE,
+                )
             }
-            return HttpStatus.OK to ""
         }
 
         /**
@@ -219,9 +262,12 @@ class HttpUtilities {
             asyncProcessMode: Boolean = false,
             key: String? = null,
             option: Options? = null,
+            payloadName: String? = null
         ): Pair<Int, String> {
             if (!file.exists()) error("Unable to find file ${file.absolutePath}")
-            return postReportBytes(environment, file.readBytes(), sendingOrgClient, key, option, asyncProcessMode)
+            return postReportBytes(
+                environment, file.readBytes(), sendingOrgClient, key, option, asyncProcessMode, payloadName
+            )
         }
 
         /**
@@ -250,6 +296,7 @@ class HttpUtilities {
             key: String?,
             option: Options? = null,
             asyncProcessMode: Boolean = false,
+            payloadName: String? = null,
         ): Pair<Int, String> {
             val headers = mutableListOf<Pair<String, String>>()
             when (sendingOrgClient.format) {
@@ -266,6 +313,8 @@ class HttpUtilities {
             val urlBuilder = URIBuilder(environment.url.toString() + oldApi)
             if (option != null)
                 urlBuilder.setParameter("option", option.toString())
+            if (payloadName != null)
+                urlBuilder.setParameter("payloadName", payloadName)
 
             // if asyncProcessMode is present and true, add the 'processing=async' query param
             if (asyncProcessMode)
@@ -323,3 +372,6 @@ class HttpUtilities {
         }
     }
 }
+
+open class HttpException(message: String, val code: HttpStatus) : Error(message)
+class HttpNotFoundException(message: String) : HttpException(message, HttpStatus.NOT_FOUND)

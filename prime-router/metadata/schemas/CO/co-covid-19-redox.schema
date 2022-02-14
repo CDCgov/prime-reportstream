@@ -1,6 +1,0 @@
----
-name: co-covid-19-redox
-description: Colorado Department of Public Health (CDPHE) REDOX messages
-referenceUrl:
-topic: covid-19
-extends: covid-19-redox

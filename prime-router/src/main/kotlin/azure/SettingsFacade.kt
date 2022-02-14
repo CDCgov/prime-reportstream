@@ -9,6 +9,8 @@ import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
+import gov.cdc.prime.router.ReportStreamFilter
+import gov.cdc.prime.router.ReportStreamFilters
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.TranslatorConfiguration
@@ -202,7 +204,15 @@ class SettingsFacade(
                     Pair(AccessResult.SUCCESS, settingMetadata)
                 }
             }
-            val outputJson = mapper.writeValueAsString(resultMetadata)
+
+            val settingResult = mapper.readValue(setting.values.data(), clazz)
+            settingResult.meta = SettingMetadata(
+                resultMetadata.version,
+                resultMetadata.createdBy,
+                resultMetadata.createdAt
+            )
+
+            val outputJson = mapper.writeValueAsString(settingResult)
             Pair(accessResult, outputJson)
         }
     }
@@ -298,8 +308,9 @@ class OrganizationAPI
     jurisdiction: Jurisdiction,
     stateCode: String?,
     countyName: String?,
+    filters: List<ReportStreamFilters>?,
     override var meta: SettingMetadata?,
-) : Organization(name, description, jurisdiction, stateCode, countyName), SettingAPI {
+) : Organization(name, description, jurisdiction, stateCode, countyName, filters), SettingAPI {
     @get:JsonIgnore
     override val organizationName: String? = null
     override fun consistencyErrorMessage(metadata: Metadata): String? { return this.consistencyErrorMessage() }
@@ -331,8 +342,10 @@ class ReceiverAPI
     topic: String,
     customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
     translation: TranslatorConfiguration,
-    jurisdictionalFilter: List<String> = emptyList(),
-    qualityFilter: List<String> = emptyList(),
+    jurisdictionalFilter: ReportStreamFilter = emptyList(),
+    qualityFilter: ReportStreamFilter = emptyList(),
+    routingFilter: ReportStreamFilter = emptyList(),
+    processingModeFilter: ReportStreamFilter = emptyList(),
     reverseTheQualityFilter: Boolean = false,
     deidentify: Boolean = false,
     timing: Timing? = null,
@@ -347,6 +360,8 @@ class ReceiverAPI
     translation,
     jurisdictionalFilter,
     qualityFilter,
+    routingFilter,
+    processingModeFilter,
     reverseTheQualityFilter,
     deidentify,
     timing,
