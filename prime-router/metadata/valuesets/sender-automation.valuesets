@@ -126,6 +126,8 @@
       display: NULL
     - code: ASKU
       display: Asked, but unknown
+    - code: ASKU
+      display: ASKU
 
 - name: sender-automation/ethnicity
   system: LOCAL
@@ -141,6 +143,8 @@
     - code: H
       display: Mex. Amer./Hispanic
     - code: H
+      display: 2135-2
+    - code: H
       display: H
     - code: N
       display: Non Hispanic or Latino
@@ -150,6 +154,8 @@
       display: Not Hispanic or Latino
     - code: N
       display: Not Hispanic
+    - code: N
+      display: 2186-5
     - code: N
       display: N
     - code: U
@@ -378,9 +384,6 @@
       display: Nasopharyngeal structure (body structure)
       version: 2020-09-01
     - code: 71836000
-      display: Varied
-      version: 2020-09-01
-    - code: 71836000
       display: Nasopharyngeal swab
       version: 2020-09-01
     - code: 71836000
@@ -399,10 +402,17 @@
       display: Nasal structure (body structure)
       version: 2020-09-01
     - code: 45206002
+      display: Nasal aspirate 
+    - code: 45206002
+      display: 429931000124105
+    - code: 45206002
       display: 45206002
       version: 2020-09-01
     - code: 53342003
       display: Internal nose structure (body structure)
+      version: 2020-09-01
+    - code: 53342003
+      display: Varied
       version: 2020-09-01
     - code: 53342003
       display: Swab of internal nose
@@ -474,9 +484,6 @@
       display: 119297000
       version: 2020-09-01
     - code: 31389004
-      display: Oral
-      version: 2020-09-01
-    - code: 31389004
       display: Throat Swab
       version: 2020-09-01
     - code: 31389004
@@ -486,8 +493,34 @@
       display: Oropharyngeal Swab
       version: 2020-09-01
     - code: 31389004
+      display: 258529004
+      version: 2020-09-01
+    - code: 31389004
       display: 31389004
       version: 2020-09-01
+    - code: 123851003
+      display: Sputum specimen 
+    - code: 123851003
+      display: Sputum 
+    - code: 123851003
+      display: 119334006
+    - code: 123851003
+      display: Oral
+      version: 2020-09-01
+    - code: 123851003
+      display: Oral Swab
+      version: 2020-09-01
+    - code: 123851003
+      display: 418932006
+    - code: 123851003
+      display: Saliva specimen 
+    - code: 123851003
+      display: Saliva 
+    - code: 123851003
+      display: 119342007
+    - code: 123851003
+      display: 123851003 
+
 
 - name: sender-automation/specimen_type
   system: SNOMED_CT
@@ -499,13 +532,13 @@
     - code: 445297001
       display: Nasal Swab
     - code: 445297001
+      display: Nasal
+    - code: 445297001
+      display: Varied
+    - code: 445297001
       display: 445297001
     - code: 258500001
       display: Nasopharyngeal swab
-    - code: 258500001
-      display: Nasal
-    - code: 258500001
-      display: Varied
     - code: 258500001
       display: 258500001
     - code: 871810001
@@ -529,19 +562,27 @@
     - code: 258529004
       display: Throat
     - code: 258529004
-      display: Oral
-    - code: 258529004
       display: Oropharyngeal
     - code: 258529004
       display: Oropharyngeal Swab
     - code: 258529004
       display: 258529004
+    - code: 418932006
+      display: Oral
+    - code: 418932006
+      display: Oral Swab
+    - code: 418932006
+      display: 418932006
     - code: 119334006
       display: Sputum specimen 
+    - code: 119334006
+      display: Sputum 
     - code: 119334006
       display: 119334006
     - code: 119342007
       display: Saliva specimen 
+    - code: 119342007
+      display: Saliva 
     - code: 119342007
       display: 119342007 
     - code: 258607008
