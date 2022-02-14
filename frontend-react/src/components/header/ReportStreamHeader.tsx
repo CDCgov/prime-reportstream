@@ -26,7 +26,6 @@ export const ReportStreamHeader = () => {
     let itemsMenu = [<GettingStartedDropdown />, <HowItWorksDropdown />];
 
     if (authState !== null && authState.isAuthenticated) {
-
         /* RECEIVERS ONLY */
         if (
             permissionCheck(PERMISSIONS.RECEIVER, authState) ||
