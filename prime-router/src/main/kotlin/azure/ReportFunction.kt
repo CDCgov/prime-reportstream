@@ -20,6 +20,7 @@ import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Sender.ProcessingType
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.engine.RawSubmission
 import gov.cdc.prime.router.tokens.AuthenticationStrategy
 import gov.cdc.prime.router.tokens.OktaAuthentication
@@ -193,6 +194,8 @@ class ReportFunction : Logging {
                         report, validatedRequest.content.toByteArray(), sender, actionHistory, payloadName
                     )
 
+                    // Places a message on a queue for async testing of the fhir engine
+                    // Only triggers if a feature flag is enabled
                     routeToFHIREngine(receivedBlobInfo, sender, workflowEngine.queue)
 
                     // checks for errors from parseReport
@@ -272,9 +275,12 @@ class ReportFunction : Logging {
         return responseBuilder.build()
     }
 
+    /**
+     * Put a message on a queue to trigger the FHIR Engine pipeline for testing
+     */
     private fun routeToFHIREngine(blobInfo: BlobAccess.BlobInfo, sender: Sender, queue: QueueAccess) {
         try {
-            if (System.getenv("ENABLE_FHIR_ENGINE")?.isNotEmpty() ?: false)
+            if (Environment.FeatureFlags.FHIR_ENGINE_TEST_PIPELINE.enabled())
                 when (blobInfo.format) {
                     // limit to hl7
                     Report.Format.HL7 ->
@@ -289,7 +295,7 @@ class ReportFunction : Logging {
                     else -> {}
                 }
         } catch (t: Throwable) {
-            logger.info("Failed to queue message for FHIR Engine\n$t")
+            logger.error("Failed to queue message for FHIR Engine: No action required durring testing phase\n$t")
         }
     }
 

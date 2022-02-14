@@ -1,10 +1,11 @@
 package gov.cdc.prime.router.azure
 
+import assertk.assertThat
+import assertk.assertions.isEqualTo
+import assertk.assertions.isNull
 import io.mockk.every
 import io.mockk.mockkObject
 import org.junit.jupiter.api.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNull
 
 class FHIRFlowFunctionsTests {
 
@@ -31,6 +32,9 @@ OBX|4|CWE|95421-4^Resides in a congregate care setting^LN^^^^2.69||Y^Yes^HL70136
 OBX|5|CWE|95419-8^Has symptoms related to condition of interest^LN^^^^2.69||N^No^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST
 SPM|1|1234d1d1-95fe-462c-8ac6-46728dba581c&&05D2222542&ISO^1234d1d1-95fe-462c-8ac6-46728dba581c&&05D2222542&ISO||445297001^Swab of internal nose^SCT^^^^2.67||||53342003^Internal nose structure (body structure)^SCT^^^^2020-09-01|||||||||202108020000-0500|20210802000006.0000-0500"""
 
+    val badHL7Message = """FHIR - Downloaded file does not match expected file
+badffffff9bffffffcb46fffffff5ffffff886fffffff84ffffff9efffffffaffffffd23bfffffff3ffffff8d4d7ffffffff2156fffffffbaffffff963ffffffff6ffffffa0397b10607fffffffa36cffffffbf71 | 2bffffff90ffffffa22674fffffff713ffffffbd64ffffffb26c663426877fffffff6ffffffa91aeffffffd4ffffff82313b5fffffffc1ffffffaf653a387323"""
+
     @Test
     fun `process and test fhir`() {
 
@@ -43,46 +47,39 @@ SPM|1|1234d1d1-95fe-462c-8ac6-46728dba581c&&05D2222542&ISO^1234d1d1-95fe-462c-8a
         val testCases = listOf(
             TestCase(
                 "success",
-                "{\"class\":\"gov.cdc.prime.router.engine.RawSubmission\"," +
-                    "\"blobURL\":\"http://localhost:10000/devstoreaccount1/reports/receive%2Fsimple_report.hl7test%2F" +
-                    "test-covid-19-4990af55-c25b-474b-b4f6-7ccf155706b0-20220210113202.hl7\"," +
-                    "\"digest\":\"2bffffff90ffffffa22674fffffff713ffffffbd64ffffffb26c663426877fffffff6ffffffa91ae" +
-                    "ffffffd4ffffff82313b5fffffffc1ffffffaf653a387323\"," +
-                    "\"sender\":\"simple_report.hl7test\"}",
+                """{
+                    "class":"gov.cdc.prime.router.engine.RawSubmission",
+                    "blobURL":"http://localhost:10000/devstoreaccount1/reports/receive%2Fsimple_report.hl7test%2Ftest-covid-19-4990af55-c25b-474b-b4f6-7ccf155706b0-20220210113202.hl7",
+                    "digest":"2bffffff90ffffffa22674fffffff713ffffffbd64ffffffb26c663426877fffffff6ffffffa91aeffffffd4ffffff82313b5fffffffc1ffffffaf653a387323",
+                    "sender":"simple_report.hl7test"
+                }""",
                 null,
             ),
             TestCase(
                 "bad-digest",
-                "{\"class\":\"gov.cdc.prime.router.engine.RawSubmission\"," +
-                    "\"blobURL\":\"http://localhost:10000/devstoreaccount1/reports/receive%2Fsimple_report.hl7test%2F" +
-                    "test-covid-19-4990af55-c25b-474b-b4f6-7ccf155706b0-20220210113202.hl7\"," +
-                    "\"digest\":\"badffffff9bffffffcb46fffffff5ffffff886fffffff84ffffff9efffffffaffffffd23bfffffff3" +
-                    "ffffff8d4d7ffffffff2156fffffffbaffffff963ffffffff6ffffffa0397b10607fffffffa36cffffffbf71\"," +
-                    "\"sender\":\"simple_report.hl7test\"}",
-                IllegalStateException(
-                    "FHIR - Downloaded file does not match expected file " +
-                        "badffffff9bffffffcb46fffffff5ffffff886fffffff84ffffff9efffffffaffffffd23bfffffff3ffffff8d4d7" +
-                        "ffffffff2156fffffffbaffffff963ffffffff6ffffffa0397b10607fffffffa36cffffffbf71" +
-                        " | " +
-                        "2bffffff90ffffffa22674fffffff713ffffffbd64ffffffb26c663426877fffffff6ffffffa91aeffffffd4" +
-                        "ffffff82313b5fffffffc1ffffffaf653a387323"
-                ),
+                """{
+                    "class":"gov.cdc.prime.router.engine.RawSubmission",
+                    "blobURL":"http://localhost:10000/devstoreaccount1/reports/receive%2Fsimple_report.hl7test%2Ftest-covid-19-4990af55-c25b-474b-b4f6-7ccf155706b0-20220210113202.hl7",
+                    "digest":"badffffff9bffffffcb46fffffff5ffffff886fffffff84ffffff9efffffffaffffffd23bfffffff3ffffff8d4d7ffffffff2156fffffffbaffffff963ffffffff6ffffffa0397b10607fffffffa36cffffffbf71",
+                    "sender":"simple_report.hl7test"
+                }""",
+                IllegalStateException(badHL7Message),
             ),
         )
 
         mockkObject(BlobAccess.Companion)
         every { BlobAccess.Companion.downloadBlob(any()) } returns testHL7NonBulk.toByteArray()
-        val fhirEngine = FHIREngine()
-        testCases.forEach { test ->
+        val fhirEngine = FHIRFlowFunctions()
+        testCases.forEach { case ->
             try {
-                fhirEngine.process(test.message)
-                assertNull(test.exception, test.name)
+                fhirEngine.process(case.message)
+                assertThat(case.exception, case.name).isNull()
             } catch (t: Throwable) {
-                if (test.exception == null) {
-                    throw t
+                if (case.exception == null) {
+                    throw Error(case.name, t)
                 }
-                assertEquals(test.exception::class, t::class, test.name)
-                assertEquals(test.exception.message, t.message, test.name)
+                assertThat(t::class, case.name).isEqualTo(case.exception::class)
+                assertThat(t.message, case.name).isEqualTo(case.exception.message)
             }
         }
     }
@@ -93,7 +90,7 @@ SPM|1|1234d1d1-95fe-462c-8ac6-46728dba581c&&05D2222542&ISO^1234d1d1-95fe-462c-8a
             val name: String,
             val input: String,
             val output: String,
-            val exception: Throwable? = null
+            val matches: Boolean = true
         )
 
         val testCases = listOf(
@@ -106,22 +103,13 @@ SPM|1|1234d1d1-95fe-462c-8ac6-46728dba581c&&05D2222542&ISO^1234d1d1-95fe-462c-8a
                 "not matching",
                 testHL7NonBulk,
                 testOtherHL7NonBulk,
-                IllegalStateException("FHIR - HL7 processing failed")
+                false,
             )
         )
 
-        val fhirEngine = FHIREngine()
+        val fhirEngine = FHIRFlowFunctions()
         testCases.forEach { case ->
-            try {
-                fhirEngine.compare(case.input, case.output)
-                assertNull(case.exception, case.name)
-            } catch (t: Throwable) {
-                if (case.exception == null) {
-                    throw Error(case.name, t)
-                }
-                assertEquals(case.exception::class, t::class, case.name)
-                assertEquals(case.exception.message, t.message, case.name)
-            }
+            assertThat(fhirEngine.compare(case.input, case.output).passed).isEqualTo(case.matches)
         }
     }
 }

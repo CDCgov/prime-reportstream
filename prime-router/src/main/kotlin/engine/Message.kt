@@ -7,8 +7,13 @@ import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
 import com.fasterxml.jackson.module.kotlin.readValue
 import java.util.Base64
 
+// This is a size limit dictated by our infrastructure in azure
+// https://docs.microsoft.com/en-us/azure/service-bus-messaging/service-bus-azure-and-service-bus-queues-compared-contrasted
 private const val messageSizeLimit = 64 * 1000
 
+/**
+ * An interface for Messages to be put on an Azure Queue
+ */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
 interface Message {
 
@@ -35,6 +40,11 @@ interface Message {
     }
 }
 
+/**
+ * The Message representation of a raw submission to the system
+ *
+ * Models the url where the blob is stored, an digest of the blob for validation and the sender name
+ */
 data class RawSubmission(
     val blobURL: String,
     val digest: String,

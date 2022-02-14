@@ -137,11 +137,18 @@ class BlobAccess(
             return BlobInfo(bodyFormat, blobUrl, digest)
         }
 
+        /**
+         * Obtain a client for interacting with the blob store.
+         */
         fun getBlobClient(blobUrl: String, blobConnEnvVar: String = defaultConnEnvVar): BlobClient {
             val blobConnection = System.getenv(blobConnEnvVar)
             return BlobClientBuilder().connectionString(blobConnection).endpoint(blobUrl).buildClient()
         }
 
+        /**
+         * Upload a raw [blobBytes] as [blobName]
+         * @return the url for the uploaded blob
+         */
         private fun uploadBlob(
             blobName: String,
             bytes: ByteArray,
@@ -163,14 +170,20 @@ class BlobAccess(
             return getBlobClient(blobUrl).exists()
         }
 
+        /**
+         * Download the blob at the given [blobUrl]
+         */
         fun downloadBlob(blobUrl: String): ByteArray {
             val stream = ByteArrayOutputStream()
             stream.use { getBlobClient(blobUrl).download(it) }
             return stream.toByteArray()
         }
 
+        /**
+         * Copy a blob at [fromBlobUrl] to a blob in [toBlobContainer]
+         */
         fun copyBlob(fromBlobUrl: String, toBlobContainer: String, toBlobConnEnvVar: String): String {
-            val fromBytes = this.downloadBlob(fromBlobUrl)
+            val fromBytes = downloadBlob(fromBlobUrl)
             logger.info("Ready to copy ${fromBytes.size} bytes from $fromBlobUrl")
             val toFilename = BlobInfo.getBlobFilename(fromBlobUrl)
             logger.info("New blob filename will be $toFilename")
@@ -179,10 +192,16 @@ class BlobAccess(
             return toBlobUrl
         }
 
+        /**
+         * Delete a blob at [blobUrl]
+         */
         fun deleteBlob(blobUrl: String) {
             getBlobClient(blobUrl).delete()
         }
 
+        /**
+         * Check the connection to the blob store
+         */
         fun checkConnection(blobConnEnvVar: String = defaultConnEnvVar) {
             val blobConnection = System.getenv(blobConnEnvVar)
             BlobServiceClientBuilder().connectionString(blobConnection).buildClient()
@@ -223,10 +242,16 @@ class BlobAccess(
             return digest.joinToString(separator = "", limit = 40) { Integer.toHexString(it.toInt()) }
         }
 
+        /**
+         * Hash a ByteArray [input] with SHA 256
+         */
         fun sha256Digest(input: ByteArray): ByteArray {
             return hashBytes("SHA-256", input)
         }
 
+        /**
+         * Hash a ByteArray [input] with methond [type]
+         */
         fun hashBytes(type: String, input: ByteArray): ByteArray {
             return MessageDigest
                 .getInstance(type)

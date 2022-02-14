@@ -4,6 +4,7 @@ import com.microsoft.azure.functions.annotation.BindingName
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.QueueTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
+import gov.cdc.prime.router.cli.tests.CompareData
 import gov.cdc.prime.router.cli.tests.CompareHl7Data
 import gov.cdc.prime.router.engine.Message
 import gov.cdc.prime.router.engine.RawSubmission
@@ -14,7 +15,10 @@ const val fhirQueueName = "fhir-raw-received"
 /**
  * Process will work through all the reports waiting in the 'process' queue
  */
-class FHIREngine : Logging {
+class FHIRFlowFunctions : Logging {
+    /**
+     * An azure function for processing an HL7 message into and out of FHIR
+     */
     @FunctionName("process-fhir")
     @StorageAccount("AzureWebJobsStorage")
     fun process(
@@ -23,36 +27,40 @@ class FHIREngine : Logging {
         // Number of times this message has been dequeued
         @BindingName("DequeueCount") dequeueCount: Int = 1,
     ) {
-        logger.info("FHIR message: $message for the $dequeueCount time")
+        logger.debug("FHIR message: $message for the $dequeueCount time")
         val content = Message.deserialize(message)
 
-        check(content is RawSubmission) { "An unknown message was received by the FHIR Engine" }
+        check(content is RawSubmission) {
+            "An unknown message was received by the FHIR Engine ${content.javaClass.kotlin.qualifiedName}"
+        }
 
         val blobContent = content.download()
 
-        logger.info("Got content ${blobContent.size}")
-
-        // val hl7 = deserialize(content) 
-        // val fhir = translate(hl7, FHIR)
-        // val resultHL7 = translate(fhir, HL7)
-        // val result = serialize(resultHL7)
+        logger.debug("Got content ${blobContent.size}")
 
         val result = String(blobContent)
-        compare(String(blobContent), result)
-        logger.info("Succesfully handled ${content.digest}")
+        val comparison = compare(String(blobContent), result)
+        if (!comparison.passed) {
+            logger.trace("Failed on message $message\n$comparison")
+        }
     }
 
+    /**
+     * Download the file associated with a RawSubmission message
+     */
     fun RawSubmission.download(): ByteArray {
         val blobContent = BlobAccess.downloadBlob(this.blobURL)
         val localDigest = BlobAccess.digestToString(BlobAccess.sha256Digest(blobContent))
         check(this.digest == localDigest) {
-            "FHIR - Downloaded file does not match expected file ${this.digest} | $localDigest"
+            "FHIR - Downloaded file does not match expected file\n${this.digest} | $localDigest"
         }
         return blobContent
     }
 
-    internal fun compare(input: String, output: String) {
-        val result = CompareHl7Data().compare(input.byteInputStream(), output.byteInputStream())
-        check(result.passed) { "FHIR - HL7 processing failed" }
+    /**
+     * Compare two hl7 messages encoded as strings
+     */
+    internal fun compare(input: String, output: String): CompareData.Result {
+        return CompareHl7Data().compare(input.byteInputStream(), output.byteInputStream())
     }
 }

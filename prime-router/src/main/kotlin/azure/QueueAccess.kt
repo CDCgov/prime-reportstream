@@ -36,6 +36,13 @@ object QueueAccess {
         sendMessage(queueName, base64Message, invisibleDuration)
     }
 
+    /**
+     * Send a string [message] to the queue.
+     *
+     * [invisibleDuration] is the time the message is invisible in the queue (effectively a delay)
+     * https://docs.microsoft.com/en-us/java/api/com.azure.storage.queue.queueclient.sendmessagewithresponse?view=azure-java-stable#com-azure-storage-queue-queueclient-sendmessagewithresponse(com-azure-core-util-binarydata-java-time-duration-java-time-duration-java-time-duration-com-azure-core-util-context)
+     *
+     */
     fun sendMessage(
         queueName: String,
         message: String,
