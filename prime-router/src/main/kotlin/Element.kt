@@ -83,9 +83,6 @@ data class Element(
     val hl7OutputFields: List<String>? = null,
     val hl7AOEQuestion: String? = null,
 
-    // Redox specific information
-    val redoxOutputFields: List<String>? = null,
-
     /**
      * The header fields that correspond to an element.
      * A element can output to multiple CSV fields.
@@ -241,7 +238,6 @@ data class Element(
             hl7Field = this.hl7Field ?: baseElement.hl7Field,
             hl7OutputFields = this.hl7OutputFields ?: baseElement.hl7OutputFields,
             hl7AOEQuestion = this.hl7AOEQuestion ?: baseElement.hl7AOEQuestion,
-            redoxOutputFields = this.redoxOutputFields ?: baseElement.redoxOutputFields,
             documentation = this.documentation ?: baseElement.documentation,
             csvFields = this.csvFields ?: baseElement.csvFields,
             delimiter = this.delimiter ?: baseElement.delimiter,

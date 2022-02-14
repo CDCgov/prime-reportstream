@@ -89,7 +89,7 @@ jobs:
       - name: Spin up containers
         id: spin_containers
         run: |
-          docker-compose -f docker-compose.yml up -d prime_dev redox ftps sftp azurite
+          docker-compose -f docker-compose.yml up -d prime_dev ftps sftp azurite
           
       - name: Give some time for the container to start
         uses: juliangruber/sleep-action@v1
