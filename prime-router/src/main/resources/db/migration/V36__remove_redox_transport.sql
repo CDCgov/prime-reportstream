@@ -16,6 +16,7 @@ where type = 'RECEIVER'
 	and (
 	values -> 'translation' ->> 'format' = 'REDOX'
 	OR values -> 'transport' ->> 'type' = 'REDOX'
+	OR values -> 'translation' ->> 'type' = 'REDOX'
 );
 
 update setting
@@ -27,6 +28,7 @@ where setting_id in (
 	and (
 	values -> 'translation' ->> 'format' = 'REDOX'
 	OR values -> 'transport' ->> 'type' = 'REDOX'
+	OR values -> 'translation' ->> 'type' = 'REDOX'
 	)
 );
 
@@ -39,5 +41,6 @@ where setting_id in (
 	and (
 	values -> 'translation' ->> 'format' = 'REDOX'
 	OR values -> 'transport' ->> 'type' = 'REDOX'
+	OR values -> 'translation' ->> 'type' = 'REDOX'
 	)
 );
