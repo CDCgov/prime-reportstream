@@ -295,6 +295,7 @@ Examples:
             OtcProctored(),
             BadHl7(),
             Jti(),
+            SenderSettings(),
             InternationalContent(),
             DataCompareTest(),
             SantaClaus(),
@@ -542,7 +543,7 @@ abstract class CoolTest {
                 passed = bad("***$name Test FAILED***: There were errors reported.")
             }
 
-            if (destCount != null && !destCount.isNull && destCount.intValue() > 0) {
+            if (destCount != null && !destCount.isNull && destCount.intValue() >= 0) {
                 good("Data going to be sent to one or more destinations.")
             } else {
                 passed = bad("***$name Test FAILED***: There are no destinations set for sending the data.")
@@ -739,7 +740,6 @@ abstract class CoolTest {
         val csvReceiver = settings.receivers.filter { it.organizationName == orgName && it.name == "CSV" }[0]
         val hl7Receiver = settings.receivers.filter { it.organizationName == orgName && it.name == "HL7" }[0]
         val hl7BatchReceiver = settings.receivers.filter { it.organizationName == orgName && it.name == "HL7_BATCH" }[0]
-        val redoxReceiver = settings.receivers.filter { it.organizationName == orgName && it.name == "REDOX" }[0]
         val hl7NullReceiver = settings.receivers.filter { it.organizationName == orgName && it.name == "HL7_NULL" }[0]
 
         lateinit var allGoodReceivers: MutableList<Receiver>
@@ -749,13 +749,9 @@ abstract class CoolTest {
         val historyTestSender = settings.findSender("$historyTestOrgName.default")
             ?: error("Unable to find sender $historyTestOrgName.default")
 
-        fun initListOfGoodReceiversAndCounties(env: Environment) {
+        fun initListOfGoodReceiversAndCounties() {
             allGoodReceivers = mutableListOf(csvReceiver, hl7Receiver, hl7BatchReceiver, hl7NullReceiver)
-            if (env == Environment.LOCAL) {
-                allGoodReceivers.add(redoxReceiver)
-            }
-
-            allGoodCounties = allGoodReceivers.map { it.name }.joinToString(",")
+            allGoodCounties = allGoodReceivers.joinToString(",") { it.name }
         }
 
         val blobstoreReceiver = settings.receivers.filter {
@@ -775,6 +771,9 @@ abstract class CoolTest {
         }[0]
         val qualityReversedReceiver = settings.receivers.filter {
             it.organizationName == orgName && it.name == "QUALITY_REVERSED"
+        }[0]
+        val settingsTestReceiver = settings.receivers.filter {
+            it.organizationName == orgName && it.name == "SETTINGS_TEST"
         }[0]
 
         const val ANSI_RESET = "\u001B[0m"

@@ -38,11 +38,11 @@
 
 **Value Sets**
 
-Code | Display
----- | -------
-Y|Yes
-N|No
-UNK|Unknown
+Code | Display | System
+---- | ------- | ------
+Y|Yes|HL7
+N|No|HL7
+UNK|Unknown|NULLFL
 
 **Documentation**:
 
@@ -66,11 +66,11 @@ Is the patient employed in health care?
 
 **Value Sets**
 
-Code | Display
----- | -------
-Y|Yes
-N|No
-UNK|Unknown
+Code | Display | System
+---- | ------- | ------
+Y|Yes|HL7
+N|No|HL7
+UNK|Unknown|NULLFL
 
 **Documentation**:
 
@@ -94,11 +94,11 @@ Is this the patient's first test for this condition?
 
 **Value Sets**
 
-Code | Display
----- | -------
-Y|Yes
-N|No
-UNK|Unknown
+Code | Display | System
+---- | ------- | ------
+Y|Yes|HL7
+N|No|HL7
+UNK|Unknown|NULLFL
 
 **Documentation**:
 
@@ -122,11 +122,11 @@ Is the patient hospitalized?
 
 **Value Sets**
 
-Code | Display
----- | -------
-Y|Yes
-N|No
-UNK|Unknown
+Code | Display | System
+---- | ------- | ------
+Y|Yes|HL7
+N|No|HL7
+UNK|Unknown|NULLFL
 
 **Documentation**:
 
@@ -165,6 +165,8 @@ Is the patient in the ICU?
 **Name**: Age
 
 **ReportStream Internal Name**: patient_age_and_units
+
+**Type**: TEXT
 
 **PII**: No
 
@@ -265,43 +267,43 @@ the patient ID from the testing lab, the oder placer, the ordering provider, or 
 
 **Value Sets**
 
-Code | Display
----- | -------
-1002-5|American Indian or Alaska Native
-2028-9|Asian
-2054-5|Black or African American
-2076-8|Native Hawaiian or Other Pacific Islander
-2106-3|White
-2131-1|Other
-UNK|Unknown
-ASKU|Asked, but unknown
-1002-5|American Indian or Alaska Native
-2028-9|Asian
-2054-5|Black or African American
-2054-5|Black or African American
-2076-8|Native Hawaiian or Other Pacific Islander
-2106-3|White
-2016-3|Caucasian
-2131-1|Other
-UNK|Unknown
-N/A|N/A
-ASKU|Asked, but unknown
+Code | Display | System
+---- | ------- | ------
+1002-5|American Indian or Alaska Native|HL7
+2028-9|Asian|HL7
+2054-5|Black or African American|HL7
+2076-8|Native Hawaiian or Other Pacific Islander|HL7
+2106-3|White|HL7
+2131-1|Other|HL7
+UNK|Unknown|NULLFL
+ASKU|Asked, but unknown|NULLFL
+1002-5|American Indian or Alaska Native|HL7
+2028-9|Asian|HL7
+2054-5|Black or African American|HL7
+2054-5|Black or African American|HL7
+2076-8|Native Hawaiian or Other Pacific Islander|HL7
+2106-3|White|HL7
+2016-3|Caucasian|HL7
+2131-1|Other|HL7
+UNK|Unknown|NULLFL
+N/A|N/A|HL7
+ASKU|Asked, but unknown|NULLFL
 
 **Alt Value Sets**
 
-Code | Display
----- | -------
-1002-5|American Indian or Alaska Native
-2028-9|Asian
-2054-5|Black or African American
-2054-5|Black
-2076-8|Native Hawaiian or Other Pacific Islander
-2106-3|White
-2016-3|Caucasian
-2131-1|Other
-UNK|Undefined
-N/A|N/A
-ASKU|Asked, but unknown
+Code | Display | System
+---- | ------- | ------
+1002-5|American Indian or Alaska Native|HL7
+2028-9|Asian|HL7
+2054-5|Black or African American|HL7
+2054-5|Black|HL7
+2076-8|Native Hawaiian or Other Pacific Islander|HL7
+2106-3|White|HL7
+2016-3|Caucasian|HL7
+2131-1|Other|HL7
+UNK|Undefined|NULLFL
+N/A|N/A|HL7
+ASKU|Asked, but unknown|NULLFL
 
 **Documentation**:
 
@@ -382,22 +384,22 @@ The patient's zip code
 
 **Value Sets**
 
-Code | Display
----- | -------
-77386006|Pregnant
-60001007|Not Pregnant
-261665006|Unknown
-77386006|Pregnant
-60001007|Not Pregnant
-261665006|Unknown
+Code | Display | System
+---- | ------- | ------
+77386006|Pregnant|SNOMED_CT
+60001007|Not Pregnant|SNOMED_CT
+261665006|Unknown|SNOMED_CT
+77386006|Pregnant|SNOMED_CT
+60001007|Not Pregnant|SNOMED_CT
+261665006|Unknown|SNOMED_CT
 
 **Alt Value Sets**
 
-Code | Display
----- | -------
-77386006|Y
-60001007|N
-261665006|Unknown
+Code | Display | System
+---- | ------- | ------
+77386006|Y|SNOMED_CT
+60001007|N|SNOMED_CT
+261665006|Unknown|SNOMED_CT
 
 **Documentation**:
 
@@ -408,6 +410,8 @@ Is the patient pregnant?
 **Name**: Nsg Home?
 
 **ReportStream Internal Name**: resident_congregate_care_setting
+
+**Type**: TEXT
 
 **PII**: No
 
@@ -493,11 +497,11 @@ A unique code for this specimen
 
 **Value Sets**
 
-Code | Display
----- | -------
-Y|Yes
-N|No
-UNK|Unknown
+Code | Display | System
+---- | ------- | ------
+Y|Yes|HL7
+N|No|HL7
+UNK|Unknown|NULLFL
 
 **Documentation**:
 
@@ -515,7 +519,7 @@ Is the patient symptomatic?
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-09-29
+**Table**: LIVD-SARS-CoV-2
 
 **Table Column**: Test Performed LOINC Code
 
@@ -551,28 +555,28 @@ The LOINC code of the test performed. This is a standardized coded value describ
 
 **Value Sets**
 
-Code | Display
----- | -------
-260373001|Detected
-260415000|Not detected
-720735008|Presumptive positive
-10828004|Positive
-42425007|Equivocal
-260385009|Negative
-895231008|Not detected in pooled specimen
-462371000124108|Detected in pooled specimen
-419984006|Inconclusive
-125154007|Specimen unsatisfactory for evaluation
-455371000124106|Invalid result
-840539006|Disease caused by sever acute respiratory syndrome coronavirus 2 (disorder)
-840544004|Suspected disease caused by severe acute respiratory coronavirus 2 (situation)
-840546002|Exposure to severe acute respiratory syndrome coronavirus 2 (event)
-840533007|Severe acute respiratory syndrome coronavirus 2 (organism)
-840536004|Antigen of severe acute respiratory syndrome coronavirus 2 (substance)
-840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
-840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
-373121007|Test not done
-82334004|Indeterminate
+Code | Display | System
+---- | ------- | ------
+260373001|Detected|SNOMED_CT
+260415000|Not detected|SNOMED_CT
+720735008|Presumptive positive|SNOMED_CT
+10828004|Positive|SNOMED_CT
+42425007|Equivocal|SNOMED_CT
+260385009|Negative|SNOMED_CT
+895231008|Not detected in pooled specimen|SNOMED_CT
+462371000124108|Detected in pooled specimen|SNOMED_CT
+419984006|Inconclusive|SNOMED_CT
+125154007|Specimen unsatisfactory for evaluation|SNOMED_CT
+455371000124106|Invalid result|SNOMED_CT
+840539006|Disease caused by sever acute respiratory syndrome coronavirus 2 (disorder)|SNOMED_CT
+840544004|Suspected disease caused by severe acute respiratory coronavirus 2 (situation)|SNOMED_CT
+840546002|Exposure to severe acute respiratory syndrome coronavirus 2 (event)|SNOMED_CT
+840533007|Severe acute respiratory syndrome coronavirus 2 (organism)|SNOMED_CT
+840536004|Antigen of severe acute respiratory syndrome coronavirus 2 (substance)|SNOMED_CT
+840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)|SNOMED_CT
+840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)|SNOMED_CT
+373121007|Test not done|SNOMED_CT
+82334004|Indeterminate|SNOMED_CT
 
 **Documentation**:
 
@@ -606,38 +610,38 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 
 **Value Sets**
 
-Code | Display
----- | -------
-A|Abnormal (applies to non-numeric results)
-&#62;|Above absolute high-off instrument scale
-H|Above high normal
-HH|Above upper panic limits
-AC|Anti-complementary substances present
-<|Below absolute low-off instrument scale
-L|Below low normal
-LL|Below lower panic limits
-B|Better--use when direction not relevant
-TOX|Cytotoxic substance present
-DET|Detected
-IND|Indeterminate
-I|Intermediate. Indicates for microbiology susceptibilities only.
-MS|Moderately susceptible. Indicates for microbiology susceptibilities only.
-NEG|Negative
-null|No range defined, or normal ranges don't apply
-NR|Non-reactive
-N|Normal (applies to non-numeric results)
-ND|Not Detected
-POS|Positive
-QCF|Quality Control Failure
-RR|Reactive
-R|Resistant. Indicates for microbiology susceptibilities only.
-D|Significant change down
-U|Significant change up
-S|Susceptible. Indicates for microbiology susceptibilities only.
-AA|Very abnormal (applies to non-numeric units, analogous to panic limits for numeric units)
-VS|Very susceptible. Indicates for microbiology susceptibilities only.
-WR|Weakly reactive
-W|Worse--use when direction not relevant
+Code | Display | System
+---- | ------- | ------
+A|Abnormal (applies to non-numeric results)|HL7
+&#62;|Above absolute high-off instrument scale|HL7
+H|Above high normal|HL7
+HH|Above upper panic limits|HL7
+AC|Anti-complementary substances present|HL7
+<|Below absolute low-off instrument scale|HL7
+L|Below low normal|HL7
+LL|Below lower panic limits|HL7
+B|Better--use when direction not relevant|HL7
+TOX|Cytotoxic substance present|HL7
+DET|Detected|HL7
+IND|Indeterminate|HL7
+I|Intermediate. Indicates for microbiology susceptibilities only.|HL7
+MS|Moderately susceptible. Indicates for microbiology susceptibilities only.|HL7
+NEG|Negative|HL7
+null|No range defined, or normal ranges don't apply|HL7
+NR|Non-reactive|HL7
+N|Normal (applies to non-numeric results)|HL7
+ND|Not Detected|HL7
+POS|Positive|HL7
+QCF|Quality Control Failure|HL7
+RR|Reactive|HL7
+R|Resistant. Indicates for microbiology susceptibilities only.|HL7
+D|Significant change down|HL7
+U|Significant change up|HL7
+S|Susceptible. Indicates for microbiology susceptibilities only.|HL7
+AA|Very abnormal (applies to non-numeric units, analogous to panic limits for numeric units)|HL7
+VS|Very susceptible. Indicates for microbiology susceptibilities only.|HL7
+WR|Weakly reactive|HL7
+W|Worse--use when direction not relevant|HL7
 
 **Documentation**:
 
@@ -659,7 +663,7 @@ This field is generated based on the normalcy status of the result. A = abnormal
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
 
-**Table**: LIVD-SARS-CoV-2-2021-09-29
+**Table**: LIVD-SARS-CoV-2
 
 **Table Column**: Model
 
@@ -871,14 +875,14 @@ The last name of provider who ordered the test
 
 **Value Sets**
 
-Code | Display
----- | -------
-min|minutes
-h|hours
-d|days
-wk|weeks
-mo|months
-a|years
+Code | Display | System
+---- | ------- | ------
+min|minutes|UCUM
+h|hours|UCUM
+d|days|UCUM
+wk|weeks|UCUM
+mo|months|UCUM
+a|years|UCUM
 
 **Documentation**:
 
@@ -985,7 +989,7 @@ The name and OID for the application sending information to the receivers
 **Reference URL**:
 [https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
 
-**Table**: LIVD-Supplemental-2021-06-07
+**Table**: LIVD-SARS-CoV-2
 
 **Table Column**: is_home
 
@@ -1011,7 +1015,7 @@ Is the test authorized for home use by the FDA (Y, N, UNK)
 **Reference URL**:
 [https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
 
-**Table**: LIVD-Supplemental-2021-06-07
+**Table**: LIVD-SARS-CoV-2
 
 **Table Column**: is_otc
 
@@ -1037,7 +1041,7 @@ Is the test authorized for over-the-counter purchase by the FDA (Y, N, UNK)
 **Reference URL**:
 [https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
 
-**Table**: LIVD-Supplemental-2021-06-07
+**Table**: LIVD-SARS-CoV-2
 
 **Table Column**: is_unproctored
 

@@ -50,7 +50,7 @@ class LookupTableEndpointUtilities(val environment: Environment) {
     /**
      * Increase from the default read timeout in case of a super-duper long table.
      */
-    private val requestTimeoutMillis = 45000
+    private val requestTimeoutMillis = 130000
 
     /**
      * The Okta Access Token.
@@ -137,7 +137,7 @@ class LookupTableEndpointUtilities(val environment: Environment) {
     }
 
     /**
-     * Submit to the API a new table version using [tableName], [tableData], and [forceTableToLoad].
+     * Submit to the API a new table version using [tableName], [tableData], and [forceTableToCreate].
      * @return the table version information for the created table
      * @throws TableNotFoundException if the table and/or version is not found
      * @throws IOException if there is a server or API error
@@ -299,9 +299,14 @@ class LookupTableCommands : CliktCommand(
 
     companion object {
         /**
-         * Converts table data in [tableRows] to a human readable table using [colNames].
+         * Regex used to replace new lines in table data.
+         */
+        private val newLineRegex = Regex("\\r\\n|\\r|\\n")
+
+        /**
+         * Converts table data in [tableRows] to a human-readable table using [colNames].
          * @param addRowNum set to true to add row numbers to the left of the table
-         * @return the human readable table
+         * @return the human-readable table
          */
         fun rowsToPrintableTable(
             tableRows: List<Map<String, String>>,
@@ -320,7 +325,8 @@ class LookupTableCommands : CliktCommand(
                 header(headers)
                 tableRows.forEachIndexed { index, row ->
                     val data = colNames.map {
-                        row[it] ?: ""
+                        // Remove any new lines as it will affect diffs and table printouts
+                        row[it]?.replace(newLineRegex, "") ?: ""
                     }.toMutableList()
                     if (addRowNum) data.add(0, (index + 1).toString())
                     // Row takes varargs, so we convert the list to varargs
@@ -330,8 +336,8 @@ class LookupTableCommands : CliktCommand(
         }
 
         /**
-         * Converts a [versionList] to a human readable table.
-         * @return the human readable table
+         * Converts a [versionList] to a human-readable table.
+         * @return the human-readable table
          */
         fun infoToPrintableTable(versionList: List<LookupTableVersion>): StringBuilder {
             Preconditions.checkArgument(versionList.isNotEmpty())
@@ -367,16 +373,17 @@ class LookupTableCommands : CliktCommand(
                 .showInlineDiffs(true)
                 .mergeOriginalRevised(true)
                 .inlineDiffByWord(true)
+                .ignoreWhiteSpaces(true)
                 .oldTag { start: Boolean? ->
-                    if (true == start) "\u001B[9m" else "\u001B[0m" // Use strikethrough for deleted changes
+                    if (true == start) "\u001B[9;101m" else "\u001B[0m" // Use strikethrough and red for deleted changes
                 }
                 .newTag { start: Boolean? ->
-                    if (true == start) "\u001B[1m" else "\u001B[0m" // Use bold for additions
+                    if (true == start) "\u001B[1;42m" else "\u001B[0m" // Use bold and green for additions
                 }
                 .build()
 
             // We need to make sure to use the same order of column names
-            val colNames = version1Table[0].keys.toList()
+            val colNames = version2Table[0].keys.toList()
             val diff = generator.generateDiffRows(
                 rowsToPrintableTable(version1Table, colNames, false).toString().split("\n"),
                 rowsToPrintableTable(version2Table, colNames, false).toString().split("\n")
@@ -403,6 +410,11 @@ class LookupTableCommands : CliktCommand(
                         }
                     }
                 }
+                diffBuffer.add("")
+                diffBuffer.add("Found:")
+                diffBuffer.add("\tChanges  : ${diff.count { it.tag == DiffRow.Tag.CHANGE }}")
+                diffBuffer.add("\tAdditions: ${diff.count { it.tag == DiffRow.Tag.INSERT }}")
+                diffBuffer.add("\tDeletions: ${diff.count { it.tag == DiffRow.Tag.DELETE }}")
             } else diffBuffer.clear()
             return diffBuffer
         }
@@ -526,7 +538,7 @@ class LookupTableCreateCommand : GenericLookupTableCommand(
     /**
      * Silent running.  No table contents or diff output or confirmation if true.
      */
-    private val silent by option("-s", "--silent", help = "Do not generate diff or ask confirmation").flag()
+    private val silent by option("-s", "--silent", help = "Do not generate diff or ask for confirmation").flag()
 
     /**
      * Activate a created table in one shot.
@@ -552,7 +564,7 @@ class LookupTableCreateCommand : GenericLookupTableCommand(
         val inputData = csvReader().readAllWithHeader(inputFile)
         // Note: csvReader returns size of data-row(s) and NOT include the header-row.
         // (i.e. If the file contains of header row, it returns size = 0)
-        if (inputData.size < 1) {
+        if (inputData.isEmpty()) {
             TermUi.echo("ERROR: Input file ${inputFile.absolutePath} has no data.")
             return
         }
@@ -576,6 +588,7 @@ class LookupTableCreateCommand : GenericLookupTableCommand(
             val activeTable = try { tableUtil.fetchTableContent(tableName, activeVersion) } catch (e: Exception) {
                 throw PrintMessage("Error fetching active table content for table $tableName: ${e.message}", true)
             }
+            TermUi.echo("Generating a diff view of the changes.  For large tables this can take a while...")
             val diffOutput = LookupTableCommands.generateDiff(activeTable, inputData, false)
             if (diffOutput.isNotEmpty()) {
                 TermUi.echo("Here is the diff compared to the active version $activeVersion:")
@@ -601,7 +614,10 @@ class LookupTableCreateCommand : GenericLookupTableCommand(
             } catch (e: IOException) {
                 throw PrintMessage("\tError creating new table version for $tableName: ${e.message}", true)
             } catch (e: LookupTableEndpointUtilities.Companion.TableConflictException) {
-                TermUi.echo("\tSkipping ${e.message}")
+                val dupVersion = e.message?.substringAfterLast("version")
+                TermUi.echo(
+                    "Skipping creation of duplicate table $tableName since it is duplicated with version$dupVersion."
+                )
                 return
             }
 
@@ -807,7 +823,7 @@ class LookupTableLoadAllCommand : GenericLookupTableCommand(
     /**
      * Default directory for tables.
      */
-    private val defaultDir = "./src/test/resources/metadata/tables"
+    private val defaultDir = "./metadata/tables/local"
 
     /**
      * The table name.
@@ -869,7 +885,7 @@ class LookupTableLoadAllCommand : GenericLookupTableCommand(
         }
 
         TermUi.echo("Loading ${files.size} tables from ${dir.absolutePath}...")
-        files.forEach { it ->
+        files.forEach {
             val tableName = it.nameWithoutExtension
 
             var needToLoad = true
