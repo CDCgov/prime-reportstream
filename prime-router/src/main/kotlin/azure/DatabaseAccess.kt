@@ -774,6 +774,11 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             .execute()
     }
 
+    fun refreshMaterializedViews(tableName: String, txn: DataAccessTransaction? = null) {
+        val ctx = if (txn != null) DSL.using(txn) else create
+        Routines.refreshMaterializedViews(ctx.configuration(), tableName)
+    }
+
     /** Common companion object */
     companion object {
         /** Global var. Set to false prior to the lazy init, to prevent flyway migrations */
