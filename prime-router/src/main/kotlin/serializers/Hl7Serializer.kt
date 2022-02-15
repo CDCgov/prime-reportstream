@@ -1004,6 +1004,7 @@ class Hl7Serializer(
             ?: error("Schema Error: Cannot find '$valueSetName'")
         when (valueSet.system) {
             ValueSet.SetSystem.HL7,
+            ValueSet.SetSystem.ISO,
             ValueSet.SetSystem.LOINC,
             ValueSet.SetSystem.UCUM,
             ValueSet.SetSystem.SNOMED_CT -> {

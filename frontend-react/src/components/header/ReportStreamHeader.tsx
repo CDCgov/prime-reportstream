@@ -29,6 +29,7 @@ export const ReportStreamHeader = () => {
     const environment = `${process.env.REACT_APP_CLIENT_ENV}`;
 
     if (authState !== null && authState.isAuthenticated) {
+        /* RECEIVERS ONLY */
         if (
             permissionCheck(PERMISSIONS.RECEIVER, authState) ||
             permissionCheck(PERMISSIONS.PRIME_ADMIN, authState)
@@ -46,6 +47,7 @@ export const ReportStreamHeader = () => {
             );
         }
 
+        /* SENDERS ONLY */
         if (
             permissionCheck(PERMISSIONS.SENDER, authState) ||
             permissionCheck(PERMISSIONS.PRIME_ADMIN, authState)
@@ -59,15 +61,7 @@ export const ReportStreamHeader = () => {
                     className="usa-nav__link"
                 >
                     <span>Upload</span>
-                </NavLink>
-            );
-        }
-
-        if (
-            // permissionCheck(PERMISSIONS.SENDER, authState) ||
-            permissionCheck(PERMISSIONS.PRIME_ADMIN, authState)
-        ) {
-            itemsMenu.push(
+                </NavLink>,
                 <NavLink
                     to="/submissions"
                     key="submissions"
@@ -80,6 +74,7 @@ export const ReportStreamHeader = () => {
             );
         }
 
+        /* ADMIN ONLY */
         if (permissionCheck(PERMISSIONS.PRIME_ADMIN, authState)) {
             itemsMenu.push(<AdminDropdownNav />);
         }
