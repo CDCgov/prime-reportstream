@@ -89,7 +89,7 @@ AS $$
         view_exists integer;
     BEGIN
         /* Check to see what table we're updating */
-        IF table_name = 'LIVD-SARS-COV-2' THEN
+        IF upper(table_name) = 'LIVD-SARS-COV-2' THEN
             /* Look to see if the livd materialized view exists */
             SELECT COUNT(*) INTO view_exists FROM pg_matviews WHERE matviewname LIKE 'vw_livd_table';
             /* Refresh the view if it exists */
