@@ -31,6 +31,7 @@ services:
       - OKTA_clientId=0oa6fm8j4G1xfrthd4h6
       - OKTA_redirect=http://localhost:7071/api/download
       - VAULT_API_ADDR=http://vault:8200
+      - FHIR_ENGINE_TEST_PIPELINE=enabled
     depends_on:
       - azurite
       - vault

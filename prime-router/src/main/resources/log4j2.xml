@@ -18,6 +18,7 @@
         <!-- ReportStream logs -->
         <Logger name="gov.cdc.prime.router" level="info"/>
         <Logger name="gov.cdc.prime.router.credentials" level="info"/>
+        <Logger name="gov.cdc.prime.router.azure.FHIRFlowFunctions" level="debug"/>
 
         <!-- Example to turn on debugging in your favorite package
         <Logger name="gov.cdc.prime.router.azure.DatabaseAccess" level="debug" additivity="false">

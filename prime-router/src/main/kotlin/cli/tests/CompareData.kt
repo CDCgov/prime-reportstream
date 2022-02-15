@@ -305,6 +305,13 @@ class CompareData {
             errors.addAll(anotherResult.errors)
             warnings.addAll(anotherResult.warnings)
         }
+
+        override fun toString(): String {
+            return """passed: $passed
+errors: ${errors.joinToString()}
+warnings: ${warnings.joinToString()}
+"""
+        }
     }
 
     /**
