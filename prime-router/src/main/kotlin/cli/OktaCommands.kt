@@ -101,8 +101,8 @@ class LoginCommand : OktaCommand(
         return fetchAccessToken(code, codeVerifier, clientId, oktaBaseUrl)
     }
 
-    private fun authorizeUrl(clientId: String, otkaUrl: String, state: String, codeChallenge: String): String {
-        return "$otkaUrl$oktaAuthorizePath?" +
+    private fun authorizeUrl(clientId: String, oktaUrl: String, state: String, codeChallenge: String): String {
+        return "$oktaUrl$oktaAuthorizePath?" +
             "client_id=$clientId&" +
             "response_type=code&" +
             "scope=$oktaScope&" +
