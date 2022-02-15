@@ -5,7 +5,10 @@ import { SiteAlert } from "@trussworks/react-uswds";
 import { Tokens } from "@okta/okta-auth-js";
 
 import OktaSignInWidget from "../components/OktaSignInWidget";
-import { groupToOrg } from "../webreceiver-utils";
+import {
+    getOrganizationFromAccessToken,
+    groupToOrg,
+} from "../webreceiver-utils";
 import {
     setStoredOktaToken,
     useGlobalContext,
@@ -19,7 +22,7 @@ export const Login = () => {
 
     const onSuccess = (tokens: Tokens | undefined) => {
         let oktaGroups =
-            tokens?.accessToken?.claims?.organization.filter(
+            getOrganizationFromAccessToken(tokens?.accessToken).filter(
                 (group: string) => group !== PERMISSIONS.PRIME_ADMIN
             ) || [];
         setStoredOktaToken(tokens?.accessToken?.accessToken || "");
