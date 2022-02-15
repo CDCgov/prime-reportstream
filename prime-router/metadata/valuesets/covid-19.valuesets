@@ -202,6 +202,12 @@
     - code: 29092000
       display: Venous structure (body structure)
       version: 2020-09-01
+    - code: 123851003
+      display: Mouth region structure (body structure)
+      version: 2020-09-01
+    - code: 31389004
+      display: Oropharyngeal structure (body structure)
+      version: 2020-09-01
 
 - name: covid-19/yesno
   # See YES, NO, UNK in the reference URL.
