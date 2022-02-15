@@ -98,5 +98,5 @@ AS $$
             END IF;
         END IF;
     END;
-$$
+$$;
 
