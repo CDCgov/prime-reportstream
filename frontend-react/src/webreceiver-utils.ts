@@ -3,7 +3,7 @@ import { AccessToken, AuthState, UserClaims } from "@okta/okta-auth-js";
 import { PERMISSIONS } from "./resources/PermissionsResource";
 import { getStoredOrg } from "./components/GlobalContextProvider";
 
-export declare type RSUserClaims = UserClaims<{ organization: string[] }>;
+declare type RSUserClaims = UserClaims<{ organization: string[] }>;
 
 export const getOrganizationFromAccessToken = (
     accessToken: AccessToken | undefined
