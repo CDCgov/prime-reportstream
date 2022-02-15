@@ -148,6 +148,7 @@
         "postcss": "^8.4.5"
     },
     "resolutions": {
-        "react-scripts/**/node-forge": "^1.0.0"
+        "react-scripts/**/node-forge": "^1.0.0",
+        "react-scripts/**/follow-redirects": "^1.14.8"
     }
 }
