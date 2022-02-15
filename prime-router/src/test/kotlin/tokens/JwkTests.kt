@@ -59,7 +59,6 @@ ZF5YuUU+IqOKaMAu4/tsbyE+hM4WDjZYG6cSnYKoRhOoam4oHFernOLOkbJKzzC/
     val jwkString = """
               { "kty": "ES",
                 "use": "sig",
-                "kid": "ignore.REDOX",
                  "x5c": [ "a", "b", "c" ]
               }
     """.trimIndent()
@@ -93,7 +92,6 @@ ZF5YuUU+IqOKaMAu4/tsbyE+hM4WDjZYG6cSnYKoRhOoam4oHFernOLOkbJKzzC/
         val obj: Jwk = jacksonObjectMapper().readValue(jwkString, Jwk::class.java)
         assertNotNull(obj)
         assertEquals("ES", obj.kty)
-        assertEquals("ignore.REDOX", obj.kid)
         assertEquals(3, obj.x5c?.size)
         assertEquals("c", obj.x5c?.get(2))
     }

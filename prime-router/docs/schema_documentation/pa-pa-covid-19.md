@@ -334,6 +334,8 @@ Code | Display | System
 45206002|Nasal structure (body structure)|SNOMED_CT
 53342003|Internal nose structure (body structure)|SNOMED_CT
 29092000|Venous structure (body structure)|SNOMED_CT
+123851003|Mouth region structure (body structure)|SNOMED_CT
+31389004|Oropharyngeal structure (body structure)|SNOMED_CT
 
 **Documentation**:
 

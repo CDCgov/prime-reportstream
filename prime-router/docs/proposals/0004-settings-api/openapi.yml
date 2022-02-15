@@ -637,7 +637,6 @@ components:
             anyOf:
               - $ref: '#/components/schemas/CustomConfiguration'
               - $ref: '#/components/schemas/StandardHL7Configuration'
-              - $ref: '#/components/schemas/RedoxConfiguration'
               # TODO: add the email configuration
             discriminator:
               propertyName: type
@@ -703,46 +702,6 @@ components:
             - $ref: '#/components/schemas/SFTPTransport'
             - $ref: '#/components/schemas/DownloadTransport'
 
-    RedoxConfiguration:
-      description: A Redox configuration
-      type: object
-      required:
-        - type
-        - destinationId
-        - destinationName
-        - sourceId
-        - sourceName
-        - transport
-      properties:
-        type:
-          description: the discrimenator
-          type: string
-          example: REDOX
-        useTestProcessingMode:
-          description: Set a test process mode flag
-          type: boolean
-          default: false
-        destinationId:
-          description: the Redox destination id
-          type: string
-          example: fcafe93a-9e04-4e3f-9aac-203518f6c4c9
-        destinationName:
-          description: the Redox destination Name
-          type: string
-          example: CDC Bucks County PDH Destination (p)
-        sourceId:
-          description: The Redox source id
-          type: string
-          example: a3834c9d-e3ff-4602-b360-dcb0ad08fce5
-        sourceName:
-          description: The Redox source name
-          type: string
-          example: Prime Data Hub (Prod)
-        transport:
-          description: The redox transport
-          oneOf:
-            - $ref: '#/components/schemas/RedoxTransport'
-
     CustomConfiguration:
       description: A custom configuration for a custom schema
       type: object
@@ -801,20 +760,6 @@ components:
           type: string
           example: /in/test
   # TODO: Add userName and password when the secrets service is supported
-
-    RedoxTransport:
-      description: Describe the Redox transport
-      type: object
-      required: [type]
-      properties:
-        type:
-          description: The discriminator
-          type: string
-          example: REDOX
-        baseUrl:
-          description: the base URL to send the Redox message. If missing, production Redox URL is used
-          type: string
-          default: null
 
     DownloadTransport:
       description: Make the report available for download. A null transport.

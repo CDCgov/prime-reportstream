@@ -362,13 +362,6 @@ class Hl7Serializer(
             errors.add(msg)
         }
 
-        // Check for required fields now that we are done processing all the fields
-        schema.elements.forEach { element ->
-            if (!element.isOptional && mappedRows[element.name]!!.isBlank()) {
-                errors.add("The Value for ${element.name} for field ${element.hl7Field} is required")
-            }
-        }
-
         // convert sets to lists
         val rows = mappedRows.keys.associateWith {
             if (mappedRows[it] != null) listOf(mappedRows[it]!!) else emptyList()
@@ -1011,6 +1004,7 @@ class Hl7Serializer(
             ?: error("Schema Error: Cannot find '$valueSetName'")
         when (valueSet.system) {
             ValueSet.SetSystem.HL7,
+            ValueSet.SetSystem.ISO,
             ValueSet.SetSystem.LOINC,
             ValueSet.SetSystem.UCUM,
             ValueSet.SetSystem.SNOMED_CT -> {

@@ -26,7 +26,6 @@ import gov.cdc.prime.router.Translator
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import gov.cdc.prime.router.serializers.ReadResult
-import gov.cdc.prime.router.serializers.RedoxSerializer
 import java.io.File
 import java.io.OutputStream
 import java.net.HttpURLConnection
@@ -267,7 +266,7 @@ class ProcessData(
             }
             else -> {
                 val csvSerializer = CsvSerializer(metadata)
-                return if (file.extension.uppercase() == "INTERNAL") {
+                return if (FileUtilities.isInternalFile(file)) {
                     csvSerializer.readInternal(
                         schema.name,
                         file.inputStream(),
@@ -373,7 +372,6 @@ class ProcessData(
         val fileSettings = fileSettingsInstance ?: FileSettings(FileSettings.defaultSettingsDirectory)
         val csvSerializer = CsvSerializer(metadata)
         val hl7Serializer = Hl7Serializer(metadata, fileSettings)
-        val redoxSerializer = RedoxSerializer(metadata)
         echo("Loaded schema and receivers")
 
         val (schema, sender) = when (inputClientInfo) {
@@ -391,7 +389,9 @@ class ProcessData(
                 val inputSchema = (inputClientInfo as InputClientInfo.InputSchema).schemaName
                 val schName = inputSchema.lowercase()
                 metadata.findSchema(schName) ?: error("Schema $inputSchema is not found")
-                Pair(metadata.findSchema(schName), null)
+                // Get a random sender name that uses the provided schema, or null if no sender is found.
+                val sender = fileSettings.senders.filter { it.schemaName == schName }.randomOrNull()
+                Pair(metadata.findSchema(schName), sender)
             }
             else -> {
                 error("input schema or client's name must be specified")
@@ -541,7 +541,6 @@ class ProcessData(
                     hl7Serializer.write(reportWithTranslation, stream)
                 }
                 Report.Format.HL7_BATCH -> hl7Serializer.writeBatch(report, stream)
-                Report.Format.REDOX -> redoxSerializer.write(report, stream)
             }
         }
     }
