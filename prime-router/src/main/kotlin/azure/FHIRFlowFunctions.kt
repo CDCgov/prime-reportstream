@@ -41,7 +41,9 @@ class FHIRFlowFunctions : Logging {
         val result = String(blobContent)
         val comparison = compare(String(blobContent), result)
         if (!comparison.passed) {
-            logger.trace("Failed on message $message\n$comparison")
+            logger.debug("Failed on message $message\n$comparison")
+        } else {
+            logger.debug("Successfully processed $message")
         }
     }
 
