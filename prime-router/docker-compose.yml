@@ -70,6 +70,8 @@ services:
       # add a key for the dev
       - ../.environment/sftp-conf/ssh_dev_rsa_key.pem.pub:/home/bar/.ssh/keys/ssh_dev_rsa_key.pem.pub:ro
       - ../.environment/sftp-conf/ignore-putty-file-old-openssh.pub:/home/fizz/.ssh/keys/ignore-putty-file-old-openssh.pub:ro
+      # add a script for init
+      - ../.environment/sftp-conf/init.sh:/etc/sftp.d/init.sh:ro
     networks:
       - prime-router_build
 
