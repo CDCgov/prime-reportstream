@@ -12,6 +12,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
         'yarn\.lock$',
     ]
     paths = [
+        '.environment/sftp-conf',
         '.environment/soap_service/',
         '.idea/',
         '.terraform/providers/',
@@ -27,6 +28,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
         'prime-router/build.gradle.kts',
         'prime-router/docs/dependency-graph-full/dependency-graph-full.txt',
         'prime-router/docs/schema_documentation/',
+        'prime-router/docs/getting_started.md',
         'prime-router/frontend/src/assets/fonts',
         'prime-router/frontend/src/assets/img',
         'prime-router/frontend/src/assets/pdf',
@@ -34,57 +36,14 @@ title = "PRIME ReportStream Gitleaks Configuration"
         'prime-router/src/main/kotlin/cli/tests/TestKeys.kt',
         'prime-router/src/test/csv_test_files/input/',
         'prime-router/src/test/kotlin/credentials/CredentialTests',
+        '.environment/gitleaks/gitleaks-config.toml',
+        'exp/as2/keystore_steps.md',
     ]
 
 [[rules]]
-    description = "Email"
-    regex = '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}'
-    tags = [
-        "email"
-    ]
-    [rules.allowlist]
-        # TODO: Filter the real ones down
-        regexes = [
-            '(?i)@cdc.local',
-            '(?i)@email.com',
-            '(?i)@example.com',
-            '(?i)@organization.tld',
-            '(?i)@users.noreply.github.com',
-            '(?i)a@cdc.gov',
-            '(?i)adhelpdsk@cdc.gov',
-            '(?i)cbrown@cdc.gov',
-            '(?i)cglodosky@cdc.gov',
-            '(?i)data@cdc.gov',
-            '(?i)default@noemail.com',
-            '(?i)e.ripley@weyland(-)?yutani.com',
-            '(?i)giang.hoang@datarobot.com',
-            '(?i)hello@cypress.io',
-            '(?i)jbrush@avantecenters.com',
-            '(?i)jj@phd.gov',
-            '(?i)joe.jones@az.pima.gov',
-            '(?i)local@test.com',
-            '(?i)noreply@cdc.gov',
-            '(?i)no-reply@cdc.gov',
-            '(?i)prime@cdc.gov',
-            '(?i)qom6@cdc.gov',
-            '(?i)qop5@cdc.gov',
-            '(?i)qtv1@cdc.gov',
-            '(?i)que3@cdc.gov',
-            '(?i)qva8@cdc.gov',
-            '(?i)qwp3@cdc.gov',
-            '(?i)reportstream@cdc.gov',
-            '(?i)rhawes@cdc.gov',
-            '(?i)rheft@cdc.gov',
-            '(?i)support@(prime.)?cdc.gov',
-            '(?i)support@simplereport.gov',
-            '(?i)surveillanceplatform@cdc.gov',
-            '(?i)usds@cdc.gov',
-            '(?i)usds@omb.eop.gov',
-        ]
-
-[[rules]]
+    id = "envvar"
     description = "Env Var"
-    regex = '(?i)(apikey|secret|key|api|password|pass|pw|host)=[0-9a-zA-Z-_.{}]{4,120}'
+    regex = '(?i)(apikey|secret|api|password|pass|pw|host)=[0-9a-zA-Z-_.{}]{4,120}'
     tags = [
         "envvar",
     ]
@@ -105,14 +64,22 @@ title = "PRIME ReportStream Gitleaks Configuration"
             'HOST=localhost',                                   # Default cred, this is allowed (too broad??)
             'host=sftp',                                        # Default dev env sftp. not real
             'pdhstaging-pgsql\.postgres\.database\.azure\.com', # Not a secret
+            'PASSWORD=changeIT',                                # Example in a .md document - not a secret
+            'PASSWORD=mypass',                                  # Example from .md doc
         ]
         commits = [
             '57736fab4c8c3e6d8c72178cba621e6b13e61ef5',         # Documentation
+            '6b176ddfe545bfec99c732369ea5c11da956f091',
+            '11fc846be196a1522bb5012f578fa04833b11607',
+            'd4cd2eb7196add34dae214ecf2e5eba847e95507',
+            '9334dc814400d621a432875666d58df90c107bc8',
+            'c4779b9bfe72ec9ebd02c2127e8bb5f8d67f3c8b',
         ]
 
 [[rules]]
+    id = "generic-credentials"
     description = "Generic Credential"
-    regex = '''(?i)(dbpasswd|dbuser|dbname|dbhost|api_key|apikey|secret|key|api|password|user|guid|hostname|pw|auth)(.{0,20})?['|"]([0-9a-zA-Z-_\/+!{}/=]{4,120})['|"]'''
+    regex = '''(?i)(dbpasswd|dbuser|dbname|dbhost|api_key|apikey|secret|api|password|guid|hostname|pw|auth)(.{0,20})?['|"]([0-9a-zA-Z-_\/+!{}/=]{4,120})['|"]'''
     tags = [
         "API",
         "generic",
@@ -137,7 +104,6 @@ title = "PRIME ReportStream Gitleaks Configuration"
             '(capture|passive): popKey\(handler, ',
             '(const|private) val TOKEN_SIGNING_SECRET_NAME = "TokenSigningSecret"',
             '(password|user): String = "test',
-            '(patterns_to_match|key_permissions)\s*=',                                      # Terraform artifacts
             '(prime|changeIT!)',                                                            # Default cred, this is allowed (too broad??)
             '(resource|data) \"azurerm',                                                    # Terraform azure data or resource
             '/api/settings',
@@ -151,17 +117,21 @@ title = "PRIME ReportStream Gitleaks Configuration"
             '^#',                                                                           # Comment
             '^if vault secrets list \|',
             '^import (.)+ from (.)+',                                                       # react import statement (simplified)
-            'aad_object_keyvault_admin = "[0-9a-f]{8}\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\b[0-9a-f]{12}"',                           # Line contains AAD Security Group SID, not a credential
             'API_ENDPOINT_HOST = "PRIME_RS_REPORTS_API_ENDPOINT_HOST",',
             'API_ENDPOINT_HOST\"\) \?: \"localhost\"',
             'API_ENDPOINT_HOST\"\) \?: \"localhost\"',
             'api_url:',
             'apiKey: \"some_key\"',
             'API_KEY = "x-api-key"',
+            'Api = \"/api/reports\"',
+            'Api = \"/api/waters\"',
+            'ApiKeyCredential\(\"rick\"',
             'apiVersion',
             'authentication-type',
+            'authenticationType is \"okta\"',
             'authenticationType == "',
             'AuthorizedRoute path=',
+            'AuthorizePath = \"/oauth2/default/v1/authorize\"',
             'azure_key_vault_certificate_secret_version',                                   # Terraform artifact
             'class(Name)?=',                                                                # this is HTML
             'const val [A-Z]+_KEY_ALIAS = \"as2ohp\"',
@@ -174,42 +144,47 @@ title = "PRIME ReportStream Gitleaks Configuration"
             'export USERNAME=\"client\"',
             'export VPN_USERNAME=\"client\"',
             'FindSenderKeyInSettings\(',
-            'if \(key !== "query"',
-            'it\.key\.contains\(',                                                          # iterator key access
-            'key.((starts|ends)With|substr)\(',
-            'key(\s)*=(=)?(\s)*"(daily|docs|noModifier|noValue|receiver|security|user)"',
-            'key=(value|\{i\})',
             'Key\(',
+            'KeyId = \"11209921-860e-4b6d-8d7e-adc8778e1c6c\"',
+            'Key = \"x-functions-key\"',
             'KeyVaultSecret\(\"',                                                           # You are doing the right hting
-            'let key of \[',
+            'KeyFilename by option\( \"--public-key\"',
+            'KeyFilename by option\( \"--private-key\"',
             'localAuth [=!]= ',
-            'map-has-key',
             'mock_secret',
             'MockResponse\(',                                                               # Explicitly listed as Mock
             'password\" : \"text\"',
+            'passwordVariable = \"POSTGRES_PASSWORD\"',
             'Password=\"\"',                                                                # Empty anyway
             'Password=\"\"',                                                                # Empty anyway
+            'PASSWORD_VARIABLE = \"POSTGRES_PASSWORD\"',
             'PrincipalLevel\.USER',
             'private const val CREDENTIAL_KEY_PREFIX = "credential/"',
             'private const val okta([a-zA-Z0-9]+)Path = "/oauth2/default/v1/',
             'private val redoxSecret = \"secret\"',
-            'private val redoxSecret = \"secret\"',
             'rsa_key_(2048|4096)\s*=\s*\"(pdh(prod|test|staging|)|rkh-dev)-((2048|4096)-)?key\"',     # Terraform artifacts
             'SECRET_STORAGE_METHOD(\")?\s=',                                                # Method, not a secret
+            'Secret\(\"SENDGRID_ID\"',
+            'SECRET_NAME = \"TokenSigningSecret\"',
             'secretClient\.getSecret\(\"',
             'SecretHelper\.getSecretService\(\)\.fetchSecret\(',                            # You are fetching the secret properly
             'secretService getProperty \"',
             'secretService\.fetchSecret\(',                                                 # You are fetching the secret properly
+            'secret\" \"postgres_user\"',
+            'secret\" \"postgres_pass\"',
+            'secret\" \"pagerduty_url\"',
+            'secret\" \"cyberark_ip_ingress\"',
             'some_secret',                                                                  # Old local dummy REDOX secret
             'user = if \(',
             'USER" to dbUser,',
             'user\)\.isEqualTo\("user"',
             'userAgent',
+            'UserInfoPath = \"/oauth2/default/v1/userinfo\"',
+            'USER_VARIABLE = \"POSTGRES_USER\"',
             'UserApiKeyCredential\("rick"',
+            'userVariable = \"POSTGRES_USER\"',
             'val (user|password)Variable = \"POSTGRES_(USER|PASSWORD)\"$',                  # Literal value
             'val exampleKeyId = "',
-            'val key = \"(ohio|aphl(_light)?|as2ohp)\"',                                    # not really secrets
-            'val key = \"(ohio|aphl(_light)?|as2ohp)\"',                                    # not really secrets
             'val KEY_DB_(USER|PASSWORD|URL) = (\"|\\\")DB_(USER|URL|PASSWORD)(\"|\\\")',    # contained verbatim 'DB_(USER|PASSWORD|URL)'
             'val KEY_PRIME_RS_(REPORTS_)?API_ENDPOINT_HOST = \"',                           # Setting of the name of an environment variable name
             'val redoxAuthPath = \"/auth/authenticate\"',
@@ -219,6 +194,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
             'var tokenSigningSecret = "UVD4QOJ3H295Zi9Ayl3ySuoXNKiE8WYuOsaXOZfug3dwTUVBC1ZIKRPpG5LEyZDZ"',         # Invalidated
             'xox[baprs]-([0-9a-zA-Z]{10,48})',
             'KeyVaults=\(',                                                                 # List of vaults
+            'useResource } from \"rest-hooks\"'                                             # not a useR
         ]
         paths = [
             '.terraform/modules/',
@@ -228,9 +204,65 @@ title = "PRIME ReportStream Gitleaks Configuration"
             '6b04ad2134d44008a2f7bdb1fc10976830ed20ff', # Update AAD group IDs
             '2600066006d1c6d4a7fe353f08682321dada6838', # Vetted, AAD Object IDs, not credentials
             '680e5697e3dfb2c338346fe1d2a857d8dcbddcf0', # Vetted, AAD Object IDs, not credentials
+            '3d31923d9cb3ddd962b003ac8695afb6c411f64a', 
+            '0fabda5e27eced37c3278e5356f60a9bedf30be4', # useResource, not creds
+            'eab7bbc27767e327a9f33d086b7b4ef8fb6fdb42',
+            '85d581010d8dac1c058e6c719ad7656d64e27d7a',
+            '7333ccd1a8b36ff6ef0622f5a13cfc1bbe08a4cc',
+            '708b390eb25afbe52ff861018f9539b9c270bb7d',
+            '156db10cb1f5017de6b8fab94730cfda7138f616',
+            '85a563330d7b5aa8747bb545bca2d88390b981db',
+            'f3bfa59bd26903aa95a1be068190c672fb83690c',
+            '80f0f46451a91c6e0a58038692d303c92fbdbaac',
+            '7a57cb7ba9c41b8dba6313d28e35a8f831278be3',
+            '721ac790bc02be9707ebd080fc1570b41d082f03',
+            '7172c47bc7a0afc5ea10efafd23db0b526e92be7',
+            '61469721e48e34f44a1685bd61efef4ee4ce09e7',
+            'e231eb455ecb50759005258d1f4881faf72ff83e',
+            'dcb930a15029fc371866ad4d8e553fae3a6cf8f0',
+            'b9cb0cc602e27aa9219336e7a64011b4fff02513',
+            '8615c8fa562d9c2be3e6207ad5740783ad4cd30e',
+            '8615c8fa562d9c2be3e6207ad5740783ad4cd30e',
+            'c77cc3772bebf10cb6ae243c9e2eddfad4762e66',
+            'c539ee1a5e4b8f4be8f0b63a46c3fef72a52af61',
+            'ace3eca870a84f33219060106123459426bc6077',
+            'bf084bb91e145f5b16dc96280b51ceb284557cbc',
+            'bdf87a7e27b8ff74e949d0ddd372b0f7eb2134ea',
+            'fb65da5c2a3613a75af38a9aedf3ee3a61dcc2b6',
+            'cc70b6805745778ad8c7a5bf988c58b443422d2a',
+            '2fd29a18678ff86972e82f151601cb7edc7f544f',
+            '1dfe0bbd756a5c5e06dacc3c53845ac828bbabfc',
+            'b502a1aa58f96c354f67ba1b7b7cca842c58bb2c',
+            '240d93e897945039101dfafc895785baf2b421a2',
+            '2597037b60747f5e1178e9e0f8b07a86220f8979',
+            '26581eb1750e3ede729c4c1de2d7aea6de8d341e',
+            '2b45a576dc5a5d319ac02dbfe17d5e43b2c50e8f',
+            '0e252dfa81098e280b93c3fa84fef2cd2e58a66e',
+            '0f18d457e15788ed066b8f3bf96d9617aa0b5997',
+            '11fc846be196a1522bb5012f578fa04833b11607',
+            'b51147261eb1e25547b76306b050dbde1f1f9aef',
+            'b11731dfa4b29d957de4bc32810116b6047c2f7d',
+            '15c8c88a92f302beeaeca1762a653b10d33f0e66',
+            '005664b29a15aa85419fe0e6c399b2d1b076105d',
+            '9875f4f0557d056f9bad8ba19cf9fdcc6f3e84d0',
+            '3dd0f4d23f60f8c178e1065bb7ffdbd521fb201c',
+            '342b91ce77bc6dc8a9548d1d1dc90577ae7268a0',
+            '2ea7ed17ad6208730a6d8f3232b418809d28a2c9',
+            '2de36450ea7988443f00038b44c5178081991ce0',
+            '5aed1eefcb690f1e143de531a1ae5d8ed6d261f6',
+            'd348f97325b5424628f3baae0b82b40f78cf7246',
+            '2a54241edcef743fecd3fc48ff9f33c6ac5dd3f5',
+            'cd0fcffa38967baad5fe7c05d9b8f814b9e4298c',
+            'ab69519e68ce1fc8fd52972fce8d3c8f547b292e',
+            '47e606d8951210e20ee2adef433bcc0f0e17c5b4',
+            '0631723431ba7950bb04d03eab50df5cf5940e4c',
+            '6b176ddfe545bfec99c732369ea5c11da956f091',
+            'dac946b4a2d64ab38a89643d2b9058007081b451',
+            '57acfb29854659c3d8882a2a6f8275e629001253', # finds this file :(
         ]
 
 [[rules]]
+    id = "github"
     description = "Github"
     regex = '''(?i)github(.{0,20})?(?-i)['\"][0-9a-zA-Z]{35,40}['\"]'''
     tags = [
@@ -239,6 +271,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
     ]
 
 [[rules]]
+    id = "ipv4"
     description = "IPv4 addresses"
     regex = '\b((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.|$)){4}\b'
     tags = [
@@ -272,6 +305,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
         ]
 
 [[rules]]
+    id = "ipv6"
     description = "IPv6 addresses"
     regex = '([0-9a-fA-F]{0,4}|0)(\:([0-9a-fA-F]{0,4}|0)){7}'  # Cheapo, better wanted
     tags = [
@@ -285,8 +319,12 @@ title = "PRIME ReportStream Gitleaks Configuration"
         regexes = [
             '(?i)certificate fingerprint \('
         ]
+        commits = [
+            '36ecdad72b5851f1eea42f98a5339eaa1785e27a',
+        ]
 
 [[rules]]
+    id = "mailchimp"
     description = "MailChimp"
     regex = '[0-9a-f]{32}-us[0-9]{12}'
     tags = [
@@ -295,6 +333,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
     ]
 
 [[rules]]
+    id = "okta"
     description = "Okta"
     regex = '00[a-zA-Z0-9-_]{40}'
     tags = [
@@ -305,27 +344,40 @@ title = "PRIME ReportStream Gitleaks Configuration"
         regexes = [
             '//# sourceMappingURL=data:application/json;charset=utf-8;base64,',             # base64 encoding
             '00KPnlSG2vpP3VtKDlv5lsrYXhGEpnXmP1VABopqIX',                                   # Expired/invalidated
+            '00TpugqhmYtVmMO6518mCuRMoOYFldEBl0g187ufoz',
+            '00TpugqhmYtVmMO6518mCuRMoOYFldEBl0g187ufoz',
+            '00v4EbvPBXWEoaR1UBPKs3iR53pJY7EtZk5KACI57i',
+            '00Ehq9L4sZCEcOPyaHwoaFOhIwWCDfik6YvqsYNxck',
+            '0077-67e3-4c67-aa39-0be1aec66a25-3db3863f1',
+            '00nS5ACs6yHa9nLqlLpVLO8ChDGeKRjZnV4Nh4n0Qi',
+            '00mwUVYE0zzbkDgNRP6SRzvfGCYsOxIRz8KsiaaHCc',
+            '000001-1e837a04-7d87-4498-ac86-1476354ed25',
             '658195889000001-1e837a04-7d87-4498-ac86-1476354ed257',
             'remote azuregateway-[a-f0-9]*(-[a-f0-9]+)*\.vpn\.azure\.com 443',
             'zh\:',
         ]
-
-[[rules]]
-    description = "Port"
-    regex = '(?i)port(.{0,4})?[0-9]{1,10}'
-    tags = [
-        "port"
-    ]
-    [rules.allowlist]
-        files = [
+        commits = [
+          '1c5de4b8685fe0abc3f08068356cb58dc0f33577',
+          '019e88d77b9bb2f0165c09674ff2458f63790906',
+          'bdac80259f43536d095543176db3809880ee4d21',
+          '129755161a65967a52ebbdfba194fbe3141eecaf',
+          '522775ec42bdbc3ddc96364eaa4c8b0ad400afae',
+          'db794a386afba4c2a5ebe7a9b9e9b09876d7a287',
+          'a3053428225469bacde507ff9fe5b8c192eb742e',
+          'd8054e20c40132d53f2810ffa9f73f38a6863030',
+          'cd0fcffa38967baad5fe7c05d9b8f814b9e4298c',
+          'c88a5f7d8f772ee655cf899862fd23f41747da7e',
+          'e6c1731b417c35e91c6bbdd552094ffa9d571942',
+          'ba7cd88900347364a44c083df74ffb65efc9b643',
+          'b6717c633937c30f7701574850acb367e4d346e2',
+          '1f96949e3281589db03ae0f3c99b2830aea1370f',
+          '1dfe0bbd756a5c5e06dacc3c53845ac828bbabfc',
+          'b0ff0660772199677982d2efcb410426b7fca7a3',
+          '18beb7be471536213ef1b9fc2c23f5b56d89e576',
         ]
-        regex = '(?i)(=)([0-9a-zA-Z-_!{}=]{4,120})'
-    [[rules.Entropies]]
-        Min = "3.5"
-        Max = "4.5"
-        Group = "1"
 
 [[rules]]
+    id = "privateKeys"
     description = "Private Keys"
     regex = '-----BEGIN ((EC|PGP|DSA|RSA|OPENSSH) )?PRIVATE KEY( BLOCK)?-----'
     tags = [
@@ -342,9 +394,13 @@ title = "PRIME ReportStream Gitleaks Configuration"
             '9360bf82d85e45b53d5dcc9f7ebc17f3da52cd7d',                                     # Test Keys
             '6c3619d2333aac47dc82a90ccbc8e9be92e1200e',                                     # Test Keys
             'efb0f02fce90cd7117ff1b9e092afdd6c2a06de0',                                     # File rename
+            'f04ddcce15044536f8d772fbef6ccce16b7e252a',                                     
+            'b2c08884b1222b782b84d05432726ad11c6f66c5',
+            'f12de090f2cdf4ad4363bcf097216527a02af66c',                                     
         ]
 
 [[rules]]
+    id = "sendGridApiKey"
     description = "SendGrid API Key"
     regex = 'SG\.[\w_]{16,32}\.[\w_]{16,64}'
     tags = [
@@ -353,6 +409,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
     ]
 
 [[rules]]
+    id = "slack"
     description = "Slack"
     regex = 'xox[baprs]-([0-9a-zA-Z]{10,48})?'
     tags = [
@@ -361,6 +418,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
     ]
 
 [[rules]]
+    id = "slackWebhook"
     description = "Slack Webhook"
     regex = 'https://hooks.slack.com/services/T[a-zA-Z0-9_]{8}/B[a-zA-Z0-9_]{8}/[a-zA-Z0-9_]{24}'
     tags = [
@@ -369,6 +427,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
     ]
 
 [[rules]]
+    id = "sonarqubeApiKey"
     description = "SonarQube Docs API Key"
     regex = '''(?i)sonar.{0,50}(\\\"|'|`)?[0-9a-f]{40}(\\\"|'|`)?'''
     tags = [
@@ -377,6 +436,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
     ]
 
 [[rules]]
+    id = "twilioApiKey"
     description = "Twilio API Key"
     regex = '''(?i)twilio(.{0,20})?['\"][0-9a-f]{32}['\"]'''
     tags = [

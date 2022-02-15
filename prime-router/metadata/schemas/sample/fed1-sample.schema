@@ -3,6 +3,7 @@ name: fed1-sample
 topic: sample
 elements:
   - name: lab
+    type: TEXT
   - name: state
     type: TEXT
   - name: test_time

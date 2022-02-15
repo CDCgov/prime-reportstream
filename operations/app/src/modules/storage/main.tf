@@ -100,7 +100,7 @@ resource "azurerm_storage_management_policy" "retention_policy" {
   storage_account_id = azurerm_storage_account.storage_account.id
 
   rule {
-    name    = "30dayretention"
+    name    = "limitedretention"
     enabled = true
 
     filters {
@@ -110,13 +110,13 @@ resource "azurerm_storage_management_policy" "retention_policy" {
 
     actions {
       base_blob {
-        delete_after_days_since_modification_greater_than = 30
+        delete_after_days_since_modification_greater_than = 60
       }
       snapshot {
-        delete_after_days_since_creation_greater_than = 30
+        delete_after_days_since_creation_greater_than = 60
       }
       # Terraform does not appear to support deletion of versions
-      # This needs to be manually checked in the policy and set to 30 days
+      # This needs to be manually checked in the policy and set to 60 days
     }
   }
 }
@@ -181,7 +181,7 @@ resource "azurerm_storage_account" "storage_partner" {
   location                  = var.location
   account_tier              = "Standard"
   account_kind              = "StorageV2"
-  is_hns_enabled            = true # This enable Data Lake v2 for HHS Protect
+  is_hns_enabled            = true # Enable Data Lake v2 for HHS Protect
   account_replication_type  = "GRS"
   min_tls_version           = "TLS1_2"
   allow_blob_public_access  = false
@@ -265,7 +265,7 @@ resource "azurerm_storage_management_policy" "storage_partner_retention_policy" 
   storage_account_id = azurerm_storage_account.storage_partner.id
 
   rule {
-    name    = "30dayretention"
+    name    = "limitedretention"
     enabled = true
 
     filters {
@@ -275,13 +275,13 @@ resource "azurerm_storage_management_policy" "storage_partner_retention_policy" 
 
     actions {
       base_blob {
-        delete_after_days_since_modification_greater_than = 30
+        delete_after_days_since_modification_greater_than = 60
       }
       snapshot {
-        delete_after_days_since_creation_greater_than = 30
+        delete_after_days_since_creation_greater_than = 60
       }
       # Terraform does not appear to support deletion of versions
-      # This needs to be manually checked in the policy and set to 30 days
+      # This needs to be manually checked in the policy and set to 60 days
     }
   }
 }

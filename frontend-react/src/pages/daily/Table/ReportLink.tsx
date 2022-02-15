@@ -3,16 +3,16 @@ import { Button } from "@trussworks/react-uswds";
 import { useOktaAuth } from "@okta/okta-react";
 
 import ReportResource from "../../../resources/ReportResource";
-import { GLOBAL_STORAGE_KEYS } from "../../../components/GlobalContextProvider";
+import { getStoredOrg } from "../../../components/GlobalContextProvider";
 
 interface Props {
-    /* REQURIED
+    /* REQUIRED
     A ReportResource is passed in using this property. This is necessary for download()
     since that function relies on the content, fileName, and mimeType properties */
     report: ReportResource | undefined;
 
     /* OPTIONAL
-    This boolean flag changes the return value from a standart <a> link to a <Button> (USWDS)
+    This boolean flag changes the return value from a standard <a> link to a <Button> (USWDS)
     so this single component can be used in Daily.tsx and Details.tsx */
     button?: boolean;
 }
@@ -28,7 +28,7 @@ const formatFileType = (fileType: string) => {
 */
 function ReportLink(props: Props) {
     const { authState } = useOktaAuth();
-    const organization = localStorage.getItem(GLOBAL_STORAGE_KEYS.GLOBAL_ORG);
+    const organization = getStoredOrg();
 
     const handleClick = (e: any) => {
         e.preventDefault();
