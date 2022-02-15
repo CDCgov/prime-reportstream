@@ -1,7 +1,14 @@
 package gov.cdc.prime.router.azure
 
+import com.google.common.net.HttpHeaders
+import com.microsoft.azure.functions.HttpMethod
+import com.microsoft.azure.functions.HttpRequestMessage
+import com.microsoft.azure.functions.HttpResponseMessage
+import com.microsoft.azure.functions.HttpStatus
+import com.microsoft.azure.functions.annotation.AuthorizationLevel
 import com.microsoft.azure.functions.annotation.BindingName
 import com.microsoft.azure.functions.annotation.FunctionName
+import com.microsoft.azure.functions.annotation.HttpTrigger
 import com.microsoft.azure.functions.annotation.QueueTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.cli.tests.CompareData
@@ -18,6 +25,28 @@ const val fhirQueueName = "fhir-raw-received"
  * Process will work through all the reports waiting in the 'process' queue
  */
 class FHIRFlowFunctions : Logging {
+    /**
+     * An azure function for processing an HL7 message into of FHIR
+     */
+    @FunctionName("translate-hl7-fhir")
+    @StorageAccount("AzureWebJobsStorage")
+    fun receive(
+        @HttpTrigger(
+            name = "translate",
+            methods = [HttpMethod.POST],
+            authLevel = AuthorizationLevel.ANONYMOUS
+        ) request: HttpRequestMessage<String?>,
+    ): HttpResponseMessage {
+        // TODO support only hl7 content type
+
+        val hl7 = HL7.deserialize(request.body!!)
+        val fhir = FHIR.translate(hl7)
+        val responseBuilder = request.createResponseBuilder(HttpStatus.OK)
+        responseBuilder.header(HttpHeaders.CONTENT_TYPE, "application/fhir+json")
+        responseBuilder.body(FHIR.encode(fhir))
+        return responseBuilder.build()
+    }
+
     /**
      * An azure function for processing an HL7 message into and out of FHIR
      */
@@ -42,9 +71,6 @@ class FHIRFlowFunctions : Logging {
         // TODO behind an interface?
         val hl7 = HL7.deserialize(String(blobContent))
         val result = hl7.encode()
-        val fhir = FHIR.translate(hl7)
-        // store to blobstore
-        // FHIR.encode(fhir)
 
         val comparison = compare(String(blobContent), result)
         if (!comparison.passed) {
