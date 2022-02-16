@@ -26,7 +26,6 @@ import gov.cdc.prime.router.Translator
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import gov.cdc.prime.router.serializers.ReadResult
-import gov.cdc.prime.router.serializers.RedoxSerializer
 import java.io.File
 import java.io.OutputStream
 import java.net.HttpURLConnection
@@ -373,7 +372,6 @@ class ProcessData(
         val fileSettings = fileSettingsInstance ?: FileSettings(FileSettings.defaultSettingsDirectory)
         val csvSerializer = CsvSerializer(metadata)
         val hl7Serializer = Hl7Serializer(metadata, fileSettings)
-        val redoxSerializer = RedoxSerializer(metadata)
         echo("Loaded schema and receivers")
 
         val (schema, sender) = when (inputClientInfo) {
@@ -543,7 +541,6 @@ class ProcessData(
                     hl7Serializer.write(reportWithTranslation, stream)
                 }
                 Report.Format.HL7_BATCH -> hl7Serializer.writeBatch(report, stream)
-                Report.Format.REDOX -> redoxSerializer.write(report, stream)
             }
         }
     }

@@ -17,6 +17,7 @@ import gov.cdc.prime.router.credentials.SftpCredential
 import gov.cdc.prime.router.credentials.UserPassCredential
 import gov.cdc.prime.router.credentials.UserPemCredential
 import gov.cdc.prime.router.credentials.UserPpkCredential
+import net.schmizz.sshj.DefaultConfig
 import net.schmizz.sshj.SSHClient
 import net.schmizz.sshj.sftp.RemoteResourceFilter
 import net.schmizz.sshj.sftp.StatefulSFTPClient
@@ -131,8 +132,9 @@ class SftpTransport : ITransport, Logging {
             port: String,
             credential: SftpCredential,
         ): SSHClient {
+            val sshConfig = DefaultConfig()
             // create our client
-            val sshClient = SSHClient()
+            val sshClient = SSHClient(sshConfig)
             try {
                 sshClient.addHostKeyVerifier(PromiscuousVerifier())
                 sshClient.connect(host, port.toInt())
