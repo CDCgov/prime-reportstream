@@ -1,6 +1,12 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useResource } from "rest-hooks";
-import { Button, ButtonGroup, Table, TextInput } from "@trussworks/react-uswds";
+import {
+    Button,
+    ButtonGroup,
+    Label,
+    Table,
+    TextInput,
+} from "@trussworks/react-uswds";
 import { useHistory } from "react-router-dom";
 import { Helmet } from "react-helmet";
 
@@ -42,7 +48,12 @@ export function OrgsTable() {
             >
                 <h2>Organizations ({orgs.length})</h2>
                 <form autoComplete="off">
-                    Filter:
+                    <Label
+                        className="font-sans-xs usa-label"
+                        htmlFor="input-filter"
+                    >
+                        Filter:
+                    </Label>
                     <TextInput
                         id="input-filter"
                         name="input-filter"
