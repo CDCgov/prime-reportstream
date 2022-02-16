@@ -2,6 +2,7 @@ package gov.cdc.prime.router.azure
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import gov.cdc.prime.router.ActionError
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.Element
@@ -158,6 +159,34 @@ class WorkflowEngineTests {
 // todo           blobMock.deleteBlob(blobUrl = any())
         }
         confirmVerified(accessSpy, blobMock, queueMock) // todo
+    }
+
+    @Test
+    fun `test verifyNoDuplicateFile`() {
+        mockkObject(BlobAccess.Companion)
+
+        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val metadata = Metadata(schema = one)
+        val settings = FileSettings()
+        val sender = Sender("senderName", "org", Sender.Format.CSV, "covid-19", CustomerStatus.INACTIVE, one.name)
+
+        every {
+            accessSpy.checkForDuplicate(any(), any(), any())
+        }.returns(true)
+
+        val digest = "fakeDigest".toByteArray()
+        val engine = makeEngine(metadata, settings)
+        var ex: ActionError? = null
+        try {
+            engine.verifyNoDuplicateFile(sender, digest)
+        } catch (e: ActionError) {
+            ex = e
+        }
+
+        assertThat { ex != null && ex.message == "Duplicate file detected." }
+        verify(exactly = 1) {
+            accessSpy.checkForDuplicate(any(), any(), any())
+        }
     }
 
     @Test
