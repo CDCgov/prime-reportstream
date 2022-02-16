@@ -711,9 +711,11 @@ The patient's phone number with area code
 
 **ReportStream Internal Name**: patient_preferred_language
 
-**Type**: TEXT
+**Type**: CODE
 
 **PII**: No
+
+**Format**: use value found in the Display column
 
 **Cardinality**: [0..1]
 
