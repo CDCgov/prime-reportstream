@@ -97,9 +97,7 @@ export const ReportStreamHeader = () => {
                     onToggleMobileNav={toggleMobileNav}
                     mobileExpanded={expanded}
                 >
-                    {authState?.accessToken?.claims?.organization.includes(
-                        PERMISSIONS.PRIME_ADMIN
-                    ) ? (
+                    {permissionCheck(PERMISSIONS.PRIME_ADMIN, authState) ? (
                         <NetworkErrorBoundary
                             fallbackComponent={() => (
                                 <select>
