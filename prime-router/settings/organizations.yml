@@ -1848,7 +1848,6 @@
 # It has a bunch of receivers, each given a useful fake name, eg, named after the format of the data, in some cases.
 # Please try to always make the reciever name identical to the county jurisdictionalFilter name.
 # This is to aid in readability.
-
 - name: ignore
   description: FOR TESTING ONLY
   jurisdiction: FEDERAL
