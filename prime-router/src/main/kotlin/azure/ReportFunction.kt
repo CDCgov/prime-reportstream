@@ -176,6 +176,15 @@ class ReportFunction : Logging {
 
             // track the sending organization and client based on the header
             val validatedRequest = validateRequest(workflowEngine, request)
+            val rawBody = validatedRequest.content.toByteArray()
+            val digest = BlobAccess.sha256Digest(rawBody)
+
+            // check if we are preventing duplicate files from the sender
+            if (!sender.allowDuplicates) {
+                // throws ActionError if there is a duplicate detected
+                workflowEngine.verifyNoDuplicateFile(sender, digest)
+            }
+
             val payloadName = extractPayloadName(request)
             actionHistory.trackActionSenderInfo(validatedRequest.sender.fullName, payloadName)
             when (options) {
@@ -191,7 +200,7 @@ class ReportFunction : Logging {
                     )
 
                     val receivedBlobInfo = workflowEngine.recordReceivedReport(
-                        report, validatedRequest.content.toByteArray(), sender, actionHistory, payloadName
+                        report, rawBody, sender, actionHistory, payloadName
                     )
 
                     // Places a message on a queue for async testing of the fhir engine

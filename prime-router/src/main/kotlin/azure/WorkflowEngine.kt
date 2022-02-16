@@ -154,6 +154,25 @@ class WorkflowEngine(
     }
 
     /**
+     * Checks if the [sender] has already sent this report by comparing the [digest] against existing records for
+     * this sender in the report_file table. If a duplicate is found an ActionError is thrown which will be picked up
+     * by ReportFunction and logged in action and action_log.
+     */
+    fun verifyNoDuplicateFile(
+        sender: Sender,
+        digest: ByteArray
+    ) {
+        if (db.checkForDuplicate(sender.name, sender.organizationName, digest)) {
+            throw ActionError(
+                ActionLog.report(
+                    "Duplicate file detected."
+                ),
+                "Duplicate file detected"
+            )
+        }
+    }
+
+    /**
      * Record a received [report] from a [sender] into the action history and save the original [rawBody]
      * of the received message. Return the blobUrl string to the calling function to save as part of the report
      */
