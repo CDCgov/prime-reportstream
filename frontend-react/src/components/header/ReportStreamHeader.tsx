@@ -113,17 +113,16 @@ export const ReportStreamHeader = () => {
                         >
                             <NavLink
                                 to={`/admin/settings`}
-                                className="usa-button usa-button--outline"
+                                className="usa-button usa-button--outline usa-button--small padding-1"
                             >
-                                <span className="usa-breadcrumb padding-x-2 text-semibold">
+                                <span className="usa-breadcrumb padding-left-2 text-semibold">
                                     {organization}
+                                    <FontAwesomeIcon
+                                        className="padding-x-1 padding-top-0"
+                                        icon="right-left"
+                                        size="sm"
+                                    />
                                 </span>
-                                <FontAwesomeIcon
-                                    className="padding-x-1"
-                                    icon="right-left"
-                                    size="sm"
-                                    pull="right"
-                                />
                             </NavLink>
                         </NetworkErrorBoundary>
                     ) : null}

@@ -81,6 +81,8 @@ export function OrgsTable() {
                                                 )
                                             }
                                             type="button"
+                                            size="small"
+                                            className="padding-1"
                                         >
                                             Activate
                                         </Button>
@@ -92,6 +94,8 @@ export function OrgsTable() {
                                                 )
                                             }
                                             type="button"
+                                            size="small"
+                                            className="padding-1"
                                         >
                                             Edit...
                                         </Button>
