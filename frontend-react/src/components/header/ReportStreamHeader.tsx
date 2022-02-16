@@ -118,7 +118,7 @@ export const ReportStreamHeader = () => {
                                 <span className="usa-breadcrumb padding-left-2 text-semibold">
                                     {organization}
                                     <FontAwesomeIcon
-                                        className="padding-x-1 padding-top-0"
+                                        className="padding-x-1 padding-top-0 text-primary-vivid"
                                         icon="right-left"
                                         size="sm"
                                     />
