@@ -31,6 +31,7 @@ services:
       - OKTA_clientId=0oa6fm8j4G1xfrthd4h6
       - OKTA_redirect=http://localhost:7071/api/download
       - VAULT_API_ADDR=http://vault:8200
+      - FHIR_ENGINE_TEST_PIPELINE=enabled
     depends_on:
       - azurite
       - vault
@@ -62,7 +63,18 @@ services:
         - "2222:22"
     volumes:
       - ./build/sftp:/home/foo/upload
-    command: foo:pass:1001::upload
+      # add more users
+      - ../.environment/sftp-conf/users.conf:/etc/sftp/users.conf:ro
+      # add host keys so we're the same all the time and no MITM messages
+      # I removed the read-only flag from these two because we need to make sure
+      # that the files can get chmod'd on initialization, and they can't if they're RO
+      - ../.environment/sftp-conf/ssh_host_ed25519_key:/etc/ssh/ssh_host_ed25519_key
+      - ../.environment/sftp-conf/ssh_host_rsa_key:/etc/ssh/ssh_host_rsa_key
+      # add a key for the dev
+      - ../.environment/sftp-conf/ssh_dev_rsa_key.pem.pub:/home/bar/.ssh/keys/ssh_dev_rsa_key.pem.pub:ro
+      - ../.environment/sftp-conf/ignore-putty-file-old-openssh.pub:/home/fizz/.ssh/keys/ignore-putty-file-old-openssh.pub:ro
+      # add a script for init
+      - ../.environment/sftp-conf/init.sh:/etc/sftp.d/init.sh:ro
     networks:
       - prime-router_build
 
@@ -98,20 +110,6 @@ services:
       TLS_ORG: "TestOrg"
       TLS_C: "DE"
     restart: always
-    networks:
-      - prime-router_build
-
-  redox:
-    image: mockserver/mockserver:mockserver-5.11.1
-    ports:
-      - 1080:1080
-    environment:
-      MOCKSERVER_PROPERTY_FILE: /config/mockserver.properties
-      MOCKSERVER_INITIALIZATION_JSON_PATH: /config/initializerJson.json
-    volumes:
-      - type: bind
-        source: ./src/test/redox
-        target: /config
     networks:
       - prime-router_build
 

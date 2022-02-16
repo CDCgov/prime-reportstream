@@ -137,7 +137,7 @@ class CovidResultMetaDataFunction : Logging {
         reportFile: ReportFile,
         schema: Schema
     ): Report {
-        val bytes = workflowEngine.blob.downloadBlob(reportFile.bodyUrl)
+        val bytes = BlobAccess.downloadBlob(reportFile.bodyUrl)
         return workflowEngine.csvSerializer.readInternal(
             schema.name,
             ByteArrayInputStream(bytes),

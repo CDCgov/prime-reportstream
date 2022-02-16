@@ -11,6 +11,7 @@ trackingElement: testing_lab_specimen_id
 extends: az/az-covid-19
 elements:
   - name: ordering_facility_name
+    type: TEXT
     mapper: use(testing_lab_name)
 
   - name: ordering_facility_street
@@ -42,6 +43,7 @@ elements:
         format: $alt
 
   - name: message_id
+    type: TEXT
     mapper: use(testing_lab_specimen_id)
 
   - name: specimen_type
@@ -62,4 +64,5 @@ elements:
       code: 71836000
 
   - name: equipment_model_name
+    type: TEXT
     default: BinaxNOW COVID-19 Ag Card

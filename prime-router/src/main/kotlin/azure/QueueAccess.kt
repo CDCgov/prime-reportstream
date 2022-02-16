@@ -33,16 +33,33 @@ object QueueAccess {
         val base64Message = String(Base64.getEncoder().encode(event.toQueueMessage().toByteArray()))
         val now = OffsetDateTime.now()
         var invisibleDuration = Duration.between(now, event.at ?: now)
+        sendMessage(queueName, base64Message, invisibleDuration)
+    }
+
+    /**
+     * Send a string [message] to the queue.
+     *
+     * [invisibleDuration] is the time the message is invisible in the queue (effectively a delay)
+     * https://docs.microsoft.com/en-us/java/api/com.azure.storage.queue.queueclient.sendmessagewithresponse?view=azure-java-stable#com-azure-storage-queue-queueclient-sendmessagewithresponse(com-azure-core-util-binarydata-java-time-duration-java-time-duration-java-time-duration-com-azure-core-util-context)
+     *
+     */
+    fun sendMessage(
+        queueName: String,
+        message: String,
+        invisibleDuration: Duration = Duration.ZERO,
+    ) {
         // Bug:  event.at is calculated before the call to workflowengine.recordHistory
         // In cases of very large datasets, that db write can take a very long time, pushing
         // the current time past event.at.  This causes negative durations.  Hence this:
-        if (invisibleDuration.isNegative) {
-            invisibleDuration = Duration.ZERO
+        val duration = if (invisibleDuration.isNegative) {
+            Duration.ZERO
+        } else {
+            invisibleDuration
         }
         val timeToLive = invisibleDuration.plusDays(timeToLiveDays)
         createQueueClient(queueName).sendMessageWithResponse(
-            base64Message,
-            invisibleDuration,
+            message,
+            duration,
             timeToLive,
             null,
             null

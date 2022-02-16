@@ -555,6 +555,8 @@ Code | Display | System
 45206002|Nasal structure (body structure)|SNOMED_CT
 53342003|Internal nose structure (body structure)|SNOMED_CT
 29092000|Venous structure (body structure)|SNOMED_CT
+123851003|Mouth region structure (body structure)|SNOMED_CT
+31389004|Oropharyngeal structure (body structure)|SNOMED_CT
 
 **Documentation**:
 
@@ -612,7 +614,7 @@ The specimen source, such as Blood or Serum
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-latest
+**Table**: LIVD-SARS-CoV-2
 
 **Table Column**: Test Performed LOINC Code
 
@@ -632,7 +634,7 @@ The LOINC code of the test performed. This is a standardized coded value describ
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-latest
+**Table**: LIVD-SARS-CoV-2
 
 **Table Column**: Test Performed LOINC Long Name
 

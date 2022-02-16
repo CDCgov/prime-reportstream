@@ -21,6 +21,7 @@ import org.apache.commons.io.FileUtils
 import org.apache.commons.io.FilenameUtils
 import org.apache.tools.ant.filters.ReplaceTokens
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jooq.meta.jaxb.ForcedType
 import java.io.FileInputStream
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -368,7 +369,7 @@ tasks.register("generateDocs") {
 tasks.register("reloadSettings") {
     group = rootProject.description ?: ""
     description = "Reload the settings database table"
-    project.extra["cliArgs"] = listOf("multiple-settings", "set", "-i", "./settings/organizations.yml")
+    project.extra["cliArgs"] = listOf("multiple-settings", "set", "-i", "./settings/organizations.yml", "-s")
     finalizedBy("primeCLI")
 }
 
@@ -470,7 +471,6 @@ tasks.azureFunctionsRun {
         "VAULT_API_ADDR" to "http://localhost:8200",
         "SFTP_HOST_OVERRIDE" to "localhost",
         "SFTP_PORT_OVERRIDE" to "2222",
-        "REDOX_URL_OVERRIDE" to "http://localhost:1080"
     )
 
     // Load the vault variables
@@ -508,6 +508,7 @@ flyway {
 
 // Database code generation configuration
 jooq {
+    version.set("3.15.4")
     configurations {
         create("main") { // name of the jOOQ configuration
             jooqConfiguration.apply {
@@ -524,6 +525,20 @@ jooq {
                         name = "org.jooq.meta.postgres.PostgresDatabase"
                         inputSchema = "public"
                         includes = ".*"
+                        forcedTypes.addAll(
+                            arrayOf(
+                                ForcedType()
+                                    // Specify the Java type of your custom type. This corresponds to the Binding's <U> type.
+                                    .withUserType("gov.cdc.prime.router.ActionLogDetail")
+                                    // Associate that custom type with your binding.
+                                    .withBinding("gov.cdc.prime.router.ActionLogDetailBinding")
+                                    // A Java regex matching fully-qualified columns, attributes, parameters. Use the pipe to separate several expressions.
+                                    // 
+                                    // If provided, both "includeExpressions" and "includeTypes" must match.
+                                    .withIncludeExpression("action_log.detail")
+                                    .withIncludeTypes("JSONB"),
+                            )
+                        )
                     }
                     generate.apply {
                         isImmutablePojos = false
@@ -621,14 +636,14 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")
     implementation("com.microsoft.azure.functions:azure-functions-java-library:1.4.2")
     implementation("com.azure:azure-core:1.24.1")
-    implementation("com.azure:azure-core-http-netty:1.11.4")
+    implementation("com.azure:azure-core-http-netty:1.11.6")
     implementation("com.azure:azure-storage-blob:12.14.1") {
         exclude(group = "com.azure", module = "azure-core")
     }
     implementation("com.azure:azure-storage-queue:12.11.2") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-security-keyvault-secrets:4.3.5") {
+    implementation("com.azure:azure-security-keyvault-secrets:4.3.6") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
@@ -642,7 +657,7 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-api-kotlin:1.1.0")
     implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.2.0")
     implementation("tech.tablesaw:tablesaw-core:0.42.0")
-    implementation("com.github.ajalt.clikt:clikt-jvm:3.3.0")
+    implementation("com.github.ajalt.clikt:clikt-jvm:3.4.0")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.1")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.1")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.13.1")
@@ -679,7 +694,7 @@ dependencies {
     implementation("org.bouncycastle:bcprov-jdk15on:1.70")
 
     implementation("commons-net:commons-net:3.8.0")
-    implementation("com.cronutils:cron-utils:9.1.5")
+    implementation("com.cronutils:cron-utils:9.1.6")
     implementation("com.auth0:java-jwt:3.18.3")
     implementation("io.jsonwebtoken:jjwt-api:0.11.2")
     implementation("de.m3y.kformat:kformat:0.9")
@@ -689,8 +704,8 @@ dependencies {
     implementation("io.ktor:ktor-client-apache:$ktorVersion")
     implementation("io.ktor:ktor-client-logging:$ktorVersion")
     implementation("it.skrape:skrapeit-html-parser:1.1.6")
-    implementation("it.skrape:skrapeit-http-fetcher:1.1.6")
-    implementation("org.apache.poi:poi:5.1.0")
+    implementation("it.skrape:skrapeit-http-fetcher:1.2.0")
+    implementation("org.apache.poi:poi:5.2.0")
     implementation("org.apache.poi:poi-ooxml:5.1.0")
     implementation("commons-io:commons-io: 2.11.0")
 

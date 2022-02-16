@@ -97,7 +97,7 @@ Translate multiple inbound Y/N/U AOE values to RS values
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
 
-**Table**: LIVD-SARS-CoV-2-latest
+**Table**: LIVD-SARS-CoV-2
 
 **Table Column**: Model
 
@@ -276,7 +276,7 @@ Translate multiple inbound Y/N/U AOE values to RS values
 
 **ReportStream Internal Name**: order_test_date
 
-**Type**: DATE
+**Type**: DATETIME
 
 **PII**: No
 
@@ -680,11 +680,13 @@ H|Hispanic or Latino|LOCAL
 H|Hispanic|LOCAL
 H|Latino|LOCAL
 H|Mex. Amer./Hispanic|LOCAL
+H|2135-2|LOCAL
 H|H|LOCAL
 N|Non Hispanic or Latino|LOCAL
 N|Non Hispanic|LOCAL
 N|Not Hispanic or Latino|LOCAL
 N|Not Hispanic|LOCAL
+N|2186-5|LOCAL
 N|N|LOCAL
 U|Unknown|LOCAL
 U|U|LOCAL
@@ -835,6 +837,20 @@ The patient's phone number with area code
 
 ---
 
+**Name**: patient_primary_language
+
+**ReportStream Internal Name**: patient_primary_language
+
+**Type**: TEXT
+
+**PII**: No
+
+**Default Value**: eng
+
+**Cardinality**: [0..1]
+
+---
+
 **Name**: patient_race
 
 **ReportStream Internal Name**: patient_race
@@ -889,6 +905,7 @@ UNK|U|LOCAL
 UNK|Patient Declines|LOCAL
 UNK|null|LOCAL
 ASKU|Asked, but unknown|LOCAL
+ASKU|ASKU|LOCAL
 
 **Documentation**:
 
@@ -1018,11 +1035,11 @@ Translate multiple inbound values into the Pregnancy SNOMED Codes
 
 **PII**: No
 
-**Format**: use value found in the Code column
+**Format**: use value found in the Display column
 
 **Default Value**: P
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Value Sets**
 
@@ -1031,6 +1048,21 @@ Code | Display | System
 D|Debugging|HL7
 P|Production|HL7
 T|Training|HL7
+T|Training|HL7
+T|Training|HL7
+T|Training|HL7
+P|Production|HL7
+P|Production|HL7
+
+**Alt Value Sets**
+
+Code | Display | System
+---- | ------- | ------
+T|TESTING|HL7
+T|INACTIVE|HL7
+T|T|HL7
+P|ACTIVE|HL7
+P|P|HL7
 
 **Documentation**:
 
@@ -1038,7 +1070,7 @@ P, D, or T for Production, Debugging, or Training
 
 ---
 
-**Name**: testing_lab_clia
+**Name**: reporting_facility_clia
 
 **ReportStream Internal Name**: reporting_facility_clia
 
@@ -1054,7 +1086,7 @@ P, D, or T for Production, Debugging, or Training
 - [SPM-2-1-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.1.3)
 - [SPM-2-2-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2.3)
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -1062,7 +1094,7 @@ The reporting facility's CLIA
 
 ---
 
-**Name**: testing_lab_name
+**Name**: reporting_facility_name
 
 **ReportStream Internal Name**: reporting_facility_name
 
@@ -1078,7 +1110,7 @@ The reporting facility's CLIA
 - [SPM-2-1-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.1.2)
 - [SPM-2-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2.2)
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -1171,22 +1203,24 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 
 **Format**: use value found in the Display column
 
-**Cardinality**: [1..1]
+**Cardinality**: [0..1]
 
 **Value Sets**
 
 Code | Display | System
 ---- | ------- | ------
 71836000|Nasopharyngeal structure (body structure)|SNOMED_CT
-71836000|Varied|SNOMED_CT
 71836000|Nasopharyngeal swab|SNOMED_CT
 71836000|258500001|SNOMED_CT
 71836000|Nasopharyngeal aspirate|SNOMED_CT
 71836000|258411007|SNOMED_CT
 71836000|71836000|SNOMED_CT
 45206002|Nasal structure (body structure)|SNOMED_CT
+45206002|Nasal aspirate|SNOMED_CT
+45206002|429931000124105|SNOMED_CT
 45206002|45206002|SNOMED_CT
 53342003|Internal nose structure (body structure)|SNOMED_CT
+53342003|Varied|SNOMED_CT
 53342003|Swab of internal nose|SNOMED_CT
 53342003|Anterior nares swab|SNOMED_CT
 53342003|Mid-turbinate nasal swab|SNOMED_CT
@@ -1210,11 +1244,21 @@ Code | Display | System
 29092000|119361006|SNOMED_CT
 29092000|119364003|SNOMED_CT
 29092000|119297000|SNOMED_CT
-31389004|Oral|SNOMED_CT
 31389004|Throat Swab|SNOMED_CT
 31389004|Oropharyngeal|SNOMED_CT
 31389004|Oropharyngeal Swab|SNOMED_CT
+31389004|258529004|SNOMED_CT
 31389004|31389004|SNOMED_CT
+123851003|Sputum specimen|SNOMED_CT
+123851003|Sputum|SNOMED_CT
+123851003|119334006|SNOMED_CT
+123851003|Oral|SNOMED_CT
+123851003|Oral Swab|SNOMED_CT
+123851003|418932006|SNOMED_CT
+123851003|Saliva specimen|SNOMED_CT
+123851003|Saliva|SNOMED_CT
+123851003|119342007|SNOMED_CT
+123851003|123851003|SNOMED_CT
 
 **Documentation**:
 
@@ -1240,10 +1284,10 @@ Code | Display | System
 ---- | ------- | ------
 445297001|Swab of internal nose|SNOMED_CT
 445297001|Nasal Swab|SNOMED_CT
+445297001|Nasal|SNOMED_CT
+445297001|Varied|SNOMED_CT
 445297001|445297001|SNOMED_CT
 258500001|Nasopharyngeal swab|SNOMED_CT
-258500001|Nasal|SNOMED_CT
-258500001|Varied|SNOMED_CT
 258500001|258500001|SNOMED_CT
 871810001|Mid-turbinate nasal swab|SNOMED_CT
 871810001|871810001|SNOMED_CT
@@ -1255,13 +1299,17 @@ Code | Display | System
 429931000124105|429931000124105|SNOMED_CT
 258529004|Throat swab|SNOMED_CT
 258529004|Throat|SNOMED_CT
-258529004|Oral|SNOMED_CT
 258529004|Oropharyngeal|SNOMED_CT
 258529004|Oropharyngeal Swab|SNOMED_CT
 258529004|258529004|SNOMED_CT
+418932006|Oral|SNOMED_CT
+418932006|Oral Swab|SNOMED_CT
+418932006|418932006|SNOMED_CT
 119334006|Sputum specimen|SNOMED_CT
+119334006|Sputum|SNOMED_CT
 119334006|119334006|SNOMED_CT
 119342007|Saliva specimen|SNOMED_CT
+119342007|Saliva|SNOMED_CT
 119342007|119342007|SNOMED_CT
 258607008|Bronchoalveolar lavage fluid sample|SNOMED_CT
 258607008|258607008|SNOMED_CT
@@ -1339,7 +1387,7 @@ Translate multiple inbound Y/N/U AOE values to RS values
 
 **Cardinality**: [1..1]
 
-**Table**: LIVD-SARS-CoV-2-latest
+**Table**: LIVD-SARS-CoV-2
 
 **Table Column**: Test Performed LOINC Code
 
@@ -1428,11 +1476,69 @@ Translate multiple inbound Test Result values to RS values
 
 **ReportStream Internal Name**: test_result_date
 
-**Type**: DATE
+**Type**: DATETIME
 
 **PII**: No
 
 **Cardinality**: [1..1]
+
+---
+
+**Name**: test_result_status
+
+**ReportStream Internal Name**: test_result_status
+
+**Type**: CODE
+
+**PII**: No
+
+**Format**: use value found in the Display column
+
+**Default Value**: F
+
+**HL7 Fields**
+
+- [OBR-25-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.25.1)
+- [OBX-11-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.11.1)
+
+**Cardinality**: [1..1]
+
+**Value Sets**
+
+Code | Display | System
+---- | ------- | ------
+A|Some, but not all, results available|HL7
+C|Corrected, final|HL7
+F|Final results|HL7
+I|No results available; specimen received, procedure incomplete|HL7
+M|Corrected, not final|HL7
+N|Procedure completed, results pending|HL7
+O|Order received; specimen not yet received|HL7
+P|Preliminary|HL7
+R|Results stored; not yet verified|HL7
+S|No results available; procedure scheduled, but not done|HL7
+X|No results available; Order canceled|HL7
+Y|No order on record for this test|HL7
+Z|No record of this patient|HL7
+F|Final results|HL7
+F|Final results|HL7
+C|Corrected, final|HL7
+C|Corrected, final|HL7
+
+**Alt Value Sets**
+
+Code | Display | System
+---- | ------- | ------
+F|F|HL7
+F|f|HL7
+C|C|HL7
+C|c|HL7
+
+**Documentation**:
+
+The test result status, which is different from the test result itself. Per the valueset, this indicates if
+the test result is in some intermediate status, is a correction, or is the final result.
+
 
 ---
 
@@ -1743,6 +1849,18 @@ The ID number of the lab order from the placer
 
 ---
 
+**Name**: processing_mode_code_fromsettings
+
+**ReportStream Internal Name**: processing_mode_code_fromsettings
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
 **Name**: sender_id
 
 **ReportStream Internal Name**: sender_id
@@ -1756,51 +1874,6 @@ The ID number of the lab order from the placer
 **Documentation**:
 
 ID name of org that is sending this data to ReportStream.  Suitable for provenance or chain of custody tracking.  Not to be confused with sending_application, in which ReportStream acts as the 'sender' to the downstream jurisdiction.
-
----
-
-**Name**: test_result_status
-
-**ReportStream Internal Name**: test_result_status
-
-**Type**: CODE
-
-**PII**: No
-
-**Format**: use value found in the Code column
-
-**Default Value**: F
-
-**HL7 Fields**
-
-- [OBR-25-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.25.1)
-- [OBX-11-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.11.1)
-
-**Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display | System
----- | ------- | ------
-A|Some, but not all, results available|HL7
-C|Corrected, final|HL7
-F|Final results|HL7
-I|No results available; specimen received, procedure incomplete|HL7
-M|Corrected, not final|HL7
-N|Procedure completed, results pending|HL7
-O|Order received; specimen not yet received|HL7
-P|Preliminary|HL7
-R|Results stored; not yet verified|HL7
-S|No results available; procedure scheduled, but not done|HL7
-X|No results available; Order canceled|HL7
-Y|No order on record for this test|HL7
-Z|No record of this patient|HL7
-
-**Documentation**:
-
-The test result status, which is different from the test result itself. Per the valueset, this indicates if
-the test result is in some intermediate status, is a correction, or is the final result.
-
 
 ---
 
