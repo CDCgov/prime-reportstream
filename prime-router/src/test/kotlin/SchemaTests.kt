@@ -130,7 +130,7 @@ class SchemaTests {
 
         val modifiedValues = mutableMapOf<String, String>()
         modifiedValues.putAll(allElementValues1)
-        schema1.processValues(modifiedValues, mutableListOf(), mutableListOf())
+        schema1.processValues(modifiedValues, mutableListOf(), mutableListOf(), itemIndex = 1)
         assertThat(modifiedValues[elementA.name]).isEqualTo(allElementValues1[elementA.name])
         assertThat(modifiedValues[elementB.name]).isEqualTo(allElementValues1[elementB.name])
         assertThat(modifiedValues[elementC.name]).isEqualTo(allElementValues1[elementC.name])
@@ -143,7 +143,10 @@ class SchemaTests {
         modifiedValues.clear()
         modifiedValues.putAll(allElementValues1)
         modifiedValues[elementD.name] = "%%"
-        schema1.processValues(modifiedValues, mutableListOf(), mutableListOf(), specialFailureValue = "%%")
+        schema1.processValues(
+            modifiedValues, mutableListOf(), mutableListOf(), specialFailureValue = "%%",
+            itemIndex = 1
+        )
         assertThat(modifiedValues[elementD.name]).isNullOrEmpty()
     }
 }

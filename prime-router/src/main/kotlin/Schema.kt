@@ -168,7 +168,7 @@ data class Schema(
         errors: MutableList<ActionLogDetail>,
         warnings: MutableList<ActionLogDetail>,
         defaultOverrides: Map<String, String> = emptyMap(),
-        itemIndex: Int = 0,
+        itemIndex: Int,
         sender: Sender? = null,
         specialFailureValue: String? = null
     ) {

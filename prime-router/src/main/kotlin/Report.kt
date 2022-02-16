@@ -423,7 +423,7 @@ class Report : Logging {
                             filterFn.name,
                             fnArgs,
                             trackingId,
-                            index
+                            index + 1
                         )
                     )
                 }
