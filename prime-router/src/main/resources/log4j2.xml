@@ -14,6 +14,9 @@
 
         <!-- Disable some unneeded info logs -->
         <Logger name="ca.uhn.hl7v2" level="warn"/>
+        <Logger name="net.schmizz.sshj.transport" level="warn"/>
+        <Logger name="net.schmizz.sshj.connection" level="warn"/>
+        <Logger name="gov.cdc.prime.router.credentials.HashicorpVaultCredentialService" level="warn"/>
 
         <!-- ReportStream logs -->
         <Logger name="gov.cdc.prime.router" level="info"/>

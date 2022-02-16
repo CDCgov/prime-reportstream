@@ -415,7 +415,7 @@ class Report : Logging {
                 val rowsFiltered = getValuesInRows(
                     trackingElement, filteredRowList, ReportStreamFilterResult.DEFAULT_TRACKING_VALUE
                 )
-                rowsFiltered.zip(filteredRowList).forEach { (trackingId, index) ->
+                rowsFiltered.zip(filteredRowList).forEach { (trackingId, rowNum) ->
                     filteredRows.add(
                         ReportStreamFilterResult(
                             receiver.fullName,
@@ -423,7 +423,7 @@ class Report : Logging {
                             filterFn.name,
                             fnArgs,
                             trackingId,
-                            index + 1
+                            rowNum + 1
                         )
                     )
                 }
@@ -972,13 +972,14 @@ class Report : Logging {
                     )
             }
             val retval = mutableListOf<ItemLineage>()
-            for (i in 0 until prevHeader.reportFile.itemCount) {
-                if (newLineages[i] == null)
+            // Note indeces start at 1
+            for (index in 1..prevHeader.reportFile.itemCount) {
+                if (newLineages[index] == null)
                     error(
                         "Unable to create parent->child lineage " +
-                            "${prevHeader.reportFile.reportId} -> $newChildReportId: missing lineage $i"
+                            "${prevHeader.reportFile.reportId} -> $newChildReportId: missing lineage $index"
                     )
-                retval.add(newLineages[i]!!)
+                retval.add(newLineages[index]!!)
             }
             return retval
         }
