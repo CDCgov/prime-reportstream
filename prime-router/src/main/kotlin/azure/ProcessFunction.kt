@@ -37,7 +37,7 @@ class ProcessFunction {
                 return
             }
 
-            actionHistory = ActionHistory(event.eventAction.toTaskAction(), context)
+            actionHistory = ActionHistory(event.eventAction.toTaskAction())
             actionHistory.trackActionParams(message)
 
             workflowEngine.handleProcessEvent(event, context, actionHistory)

@@ -1,7 +1,6 @@
 package gov.cdc.prime.router.azure
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
@@ -34,8 +33,7 @@ class TokenFunction(val metadata: Metadata = Metadata.getInstance()) : Logging {
             name = "token",
             methods = [HttpMethod.POST],
             authLevel = AuthorizationLevel.ANONYMOUS
-        ) request: HttpRequestMessage<String?>,
-        context: ExecutionContext,
+        ) request: HttpRequestMessage<String?>
     ): HttpResponseMessage {
         // Exampling incoming URL
         // http://localhost:7071/api/token?
@@ -50,7 +48,7 @@ class TokenFunction(val metadata: Metadata = Metadata.getInstance()) : Logging {
         if (!Scope.isWellFormedScope(scope))
             return HttpUtilities.bad(request, "Incorrect scope format: $scope", HttpStatus.UNAUTHORIZED)
         val workflowEngine = WorkflowEngine.Builder().metadata(metadata).build()
-        val actionHistory = ActionHistory(TaskAction.token_auth, context)
+        val actionHistory = ActionHistory(TaskAction.token_auth)
         actionHistory.trackActionParams(request)
         val senderKeyFinder = FindSenderKeyInSettings(scope, metadata)
         val tokenAuthentication = TokenAuthentication(DatabaseJtiCache(workflowEngine.db))

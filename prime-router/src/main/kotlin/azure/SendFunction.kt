@@ -50,7 +50,7 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
         @BindingName("InsertionTime") insertionTime: Date? = null,
     ) {
         val event = Event.parseQueueMessage(message) as ReportEvent
-        val actionHistory = ActionHistory(TaskAction.send, context, event.isEmptyBatch)
+        val actionHistory = ActionHistory(TaskAction.send, event.isEmptyBatch)
         actionHistory.trackActionParams(message)
         context.logger.info(
             "Started Send Function: $message, id=$messageId," +

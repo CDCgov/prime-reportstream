@@ -45,7 +45,6 @@ class BatchFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine(
             val maxBatchSize = receiver.timing?.maxReportCount ?: defaultBatchSize
             val actionHistory = ActionHistory(
                 event.eventAction.toTaskAction(),
-                context,
                 event.isEmptyBatch
             )
             actionHistory.trackActionParams(message)
