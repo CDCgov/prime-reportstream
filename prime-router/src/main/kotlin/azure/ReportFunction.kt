@@ -20,6 +20,8 @@ import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Sender.ProcessingType
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.engine.RawSubmission
 import gov.cdc.prime.router.tokens.AuthenticationStrategy
 import gov.cdc.prime.router.tokens.OktaAuthentication
 import gov.cdc.prime.router.tokens.TokenAuthentication
@@ -188,9 +190,13 @@ class ReportFunction : Logging {
                         validatedRequest.defaults,
                     )
 
-                    workflowEngine.recordReceivedReport(
+                    val receivedBlobInfo = workflowEngine.recordReceivedReport(
                         report, validatedRequest.content.toByteArray(), sender, actionHistory, payloadName
                     )
+
+                    // Places a message on a queue for async testing of the fhir engine
+                    // Only triggers if a feature flag is enabled
+                    routeToFHIREngine(receivedBlobInfo, sender, workflowEngine.queue)
 
                     // checks for errors from parseReport
                     if (options != Options.SkipInvalidItems && errors.isNotEmpty()) {
@@ -258,7 +264,39 @@ class ReportFunction : Logging {
 
         // queue messages here after all task / action records are in
         actionHistory.queueMessages(workflowEngine)
-        return response
+        val uri = request.getUri()
+        responseBuilder.header(
+            HttpHeaders.LOCATION,
+            uri.resolve(
+                "/api/history/${sender.organizationName}/submissions/${actionHistory.action.actionId}"
+            ).toString()
+        )
+        // TODO: having to build response twice in order to save it and then include a response with the resulting actionID
+        return responseBuilder.build()
+    }
+
+    /**
+     * Put a message on a queue to trigger the FHIR Engine pipeline for testing
+     */
+    private fun routeToFHIREngine(blobInfo: BlobAccess.BlobInfo, sender: Sender, queue: QueueAccess) {
+        try {
+            if (Environment.FeatureFlags.FHIR_ENGINE_TEST_PIPELINE.enabled())
+                when (blobInfo.format) {
+                    // limit to hl7
+                    Report.Format.HL7 ->
+                        queue.sendMessage(
+                            fhirQueueName,
+                            RawSubmission(
+                                blobInfo.blobUrl,
+                                BlobAccess.digestToString(blobInfo.digest),
+                                sender.fullName
+                            ).serialize()
+                        )
+                    else -> {}
+                }
+        } catch (t: Throwable) {
+            logger.error("Failed to queue message for FHIR Engine: No action required durring testing phase\n$t")
+        }
     }
 
     /**
@@ -314,8 +352,11 @@ class ReportFunction : Logging {
 
         val processEvent = ProcessEvent(Event.EventAction.PROCESS, report.id, options, defaults, routeTo)
 
-        val blobInfo = workflowEngine.blob.uploadBody(report, senderName, action = processEvent.eventAction)
-
+        val blobInfo = workflowEngine.blob.generateBodyAndUploadReport(
+            report,
+            senderName,
+            action = processEvent.eventAction
+        )
         actionHistory.trackCreatedReport(processEvent, report, blobInfo)
         // add task to task table
         workflowEngine.insertProcessTask(report, report.bodyFormat.toString(), blobInfo.blobUrl, processEvent)

@@ -111,8 +111,7 @@ class Report : Logging {
         CSV("csv", "text/csv"), // A CSV format the follows the csvFields
         CSV_SINGLE("csv", "text/csv", true),
         HL7("hl7", "application/hl7-v2", true), // HL7 with one result per file
-        HL7_BATCH("hl7", "application/hl7-v2"), // HL7 with BHS and FHS headers
-        REDOX("redox", "text/json", false); // Redox format contains multiple results (NDJSON)
+        HL7_BATCH("hl7", "application/hl7-v2"); // HL7 with BHS and FHS headers
         // FHIR
 
         companion object {
@@ -692,6 +691,7 @@ class Report : Logging {
                     }
                     it.testKitNameId = row.getStringOrNull("test_kit_name_id").trimToNull()
                     it.testPerformedLoincCode = row.getStringOrNull("test_performed_code").trimToNull()
+                    it.organizationName = row.getStringOrNull("organization_name").trimToNull()
                 }
             }
         } catch (e: Exception) {
@@ -859,7 +859,7 @@ class Report : Logging {
             return mergedReport
         }
 
-        fun createItemLineages(parentReports: List<Report>, childReport: Report): List<ItemLineage> {
+        private fun createItemLineages(parentReports: List<Report>, childReport: Report): List<ItemLineage> {
             var childRowNum = 0
             val itemLineages = mutableListOf<ItemLineage>()
             parentReports.forEach { parentReport ->

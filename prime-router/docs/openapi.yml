@@ -90,25 +90,25 @@ paths:
         - in: query
           name: organizations
           schema:
-            oneOf:
-              - type: array
-              - type: integer
+            type: array
+            items:
+              type: integer
           required: false
           description: (`{INT, INT, INT}` || `INT` - default `ALL`) Return results from specific Organization or array of Organizations. Must have admin access.
         - in: query
           name: recipients
           schema:
-            oneOf:
-              - type: array
-              - type: integer
+            type: array
+            items:
+              type: integer
           required: false
           description: (`{INT, INT, INT}` || `INT` - default `ALL`) Return results from specific Recipient or array of Recipients.
         - in: query
           name: senders
           schema:
-            oneOf:
-              - type: array
-              - type: integer
+            type: array
+            items:
+              type: integer
           required: false
           description: (`{INT, INT, INT}`  || `INT` - default `ALL`) Return results from specific Sender or array of Senders.
         - in: query
@@ -217,7 +217,7 @@ paths:
           example: fl-phd.elr,fl-phd.download
         - in: query
           name: processing
-          description: 'sync' or 'async'. defaults to 'sync'. Determines if the incoming message will follow the sync or async process
+          description: "'sync' or 'async'. defaults to 'sync'. Determines if the incoming message will follow the sync or async process"
           required: false
           schema:
               type: string
@@ -652,7 +652,7 @@ components:
         timestamp:
           description: the timestamp for this report submission
           type: string
-          format: time-date
+          format: date-time
         topic:
           description: the topic configured for the client organization sender
           type: string
@@ -724,7 +724,8 @@ components:
           items:
             type: string
         sending_at:
-          type: time-date
+          type: string
+          format: date-time
           description: The time at which the report will be sent
         itemCount:
           type: integer
@@ -769,7 +770,7 @@ components:
         createdAt:
           description: the time that the particular revision was created
           type: string
-          format: time-date
+          format: date-time
           readOnly: true
         createdBy:
           description: the user who created the particular revision
@@ -906,7 +907,6 @@ components:
             anyOf:
               - $ref: '#/components/schemas/CustomConfiguration'
               - $ref: '#/components/schemas/StandardHL7Configuration'
-              - $ref: '#/components/schemas/RedoxConfiguration'
             discriminator:
               propertyName: type
         timing:
@@ -1121,20 +1121,6 @@ components:
           description: The file path to place the report
           type: string
           example: /in/test
-
-    RedoxTransport:
-      description: Describe the Redox transport
-      type: object
-      required: [type]
-      properties:
-        type:
-          description: The discriminator
-          type: string
-          example: REDOX
-        baseUrl:
-          description: the base URL to send the Redox message. If missing, production Redox URL is used
-          type: string
-          default: null
 
     BlobStoreTransport:
       description: Moves results to a Azure Blob Store. Typcially used for HHS Protect interfaces.

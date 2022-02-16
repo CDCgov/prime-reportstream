@@ -20,7 +20,7 @@ SERVICES=() # empty list means all services for docker-compose
 BUILD_SERVICES=()
 if [ "$(uname -m)" = "arm64" ] && [[ $(uname -av) == *"Darwin"* ]]; then
   PROFILE=apple_silicon
-  SERVICES=(sftp redox azurite ftps vault) # Only these services are M1 compatible
+  SERVICES=(sftp azurite ftps vault) # Only these services are M1 compatible
   BUILD_SERVICES=(postgresql)
 fi
 
@@ -327,7 +327,7 @@ function populate_vault() {
   wait_for_vault_creds
 
   ./prime create-credential --type=UserPass --persist=DEFAULT-SFTP --user foo --pass pass 1>>${LOG?} 2>&1
-  ./prime multiple-settings set --input settings/organizations.yml 1>>${LOG?} 2>&1
+  ./prime multiple-settings set --silent --input settings/organizations.yml 1>>${LOG?} 2>&1
 }
 
 # Orchestration for any clean-up-related activity

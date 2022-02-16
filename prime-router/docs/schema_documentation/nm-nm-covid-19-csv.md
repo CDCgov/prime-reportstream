@@ -168,6 +168,8 @@ Is the patient in the ICU?
 
 **ReportStream Internal Name**: local_file_created_date
 
+**Type**: TEXT
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1863,6 +1865,8 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 **Name**: local_symptom_onset_date
 
 **ReportStream Internal Name**: local_symptom_onset_date
+
+**Type**: TEXT
 
 **PII**: No
 

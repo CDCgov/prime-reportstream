@@ -9,7 +9,7 @@ import {
 export const TextInputComponent = (params: {
     fieldname: string;
     label: string;
-    defaultvalue: string;
+    defaultvalue: string | null;
     savefunc: (val: string) => void;
     disabled?: boolean;
 }): JSX.Element => {
@@ -24,7 +24,7 @@ export const TextInputComponent = (params: {
                     id={key}
                     name={key}
                     type="text"
-                    defaultValue={params.defaultvalue}
+                    defaultValue={params.defaultvalue || ""}
                     data-testid={key}
                     maxLength={255}
                     onChange={(e) => params.savefunc(e?.target?.value || "")}
@@ -42,7 +42,7 @@ export const TextAreaComponent = (params: {
     savefunc: (val: object) => void;
 }): JSX.Element => {
     let defaultValue = JSON.stringify(params?.defaultvalue, undefined, 2);
-    if (defaultValue === "null") {
+    if (defaultValue === "null" || defaultValue === "[]") {
         defaultValue = "";
     }
 
@@ -58,7 +58,6 @@ export const TextAreaComponent = (params: {
                     name={key}
                     defaultValue={defaultValue}
                     data-testid={key}
-                    maxLength={255}
                     onBlur={(e) =>
                         params.savefunc(JSON.parse(e?.target?.value || "{}"))
                     }

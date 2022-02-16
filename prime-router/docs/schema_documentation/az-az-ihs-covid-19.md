@@ -572,6 +572,8 @@ Code | Display | System
 45206002|Nasal structure (body structure)|SNOMED_CT
 53342003|Internal nose structure (body structure)|SNOMED_CT
 29092000|Venous structure (body structure)|SNOMED_CT
+123851003|Mouth region structure (body structure)|SNOMED_CT
+31389004|Oropharyngeal structure (body structure)|SNOMED_CT
 71836000|Nasopharyngeal structure (body structure)|SNOMED_CT
 
 **Alt Value Sets**
@@ -846,6 +848,8 @@ The postal code for the testing lab
 
 **ReportStream Internal Name**: equipment_model_name
 
+**Type**: TEXT
+
 **PII**: No
 
 **Default Value**: BinaxNOW COVID-19 Ag Card
@@ -858,6 +862,8 @@ The postal code for the testing lab
 
 **ReportStream Internal Name**: message_id
 
+**Type**: TEXT
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -867,6 +873,8 @@ The postal code for the testing lab
 **Name**: ordering_facility_name
 
 **ReportStream Internal Name**: ordering_facility_name
+
+**Type**: TEXT
 
 **PII**: No
 

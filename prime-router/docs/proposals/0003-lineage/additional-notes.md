@@ -32,7 +32,7 @@ To ensure that items can be uniquely tracked, we make the following key assumpti
 We assume that within any one report, the index ordering (eg, 0, 1, 2,...) and number of Items is fixed. That is, we can write a Report to a blob store, and read it back into memory later, and be certain that the order of the Items and the number of Items has not changed.   This simple assumption means our code can guarantee unique Item lineage tracking, because (item_index, report_id) is now a system-wide unique key for each Item.   When we read data from the blob store, we now have a simple way to match Items in the data blob to corresponding items tracked in our lineage database tables.
 
 Note that other options are not as good:
-- use the sending customer's trackingElement (bad: might not be unique, and doubly bad because it requires the send step to parse hl7, csv, and redox), or
+- use the sending customer's trackingElement (bad: might not be unique, and doubly bad because it requires the send step to parse hl7, csv), or
 - attaching our own additional unique id into the blob data (bad: the downstream receiving customer doesn't want our ids in their data)
 
 #### Numbering ####
@@ -50,13 +50,6 @@ The index columns (parent_index, child_index) in the item_lineage table are zero
 
 **Splitting and merging individual items**:  While reports break apart and merge, etc, items do not.  That is, as of this writing, we have no use cases where *rows* split or merge.  While the database is designed to handle these situations, the code has not been tested for this, and I suspect there will be issues.
 
-**RedoxTransport special case**: This is currently the only Transport that can fail/succeed on individual items.  The item_lineage.transport_result column is designed to store these fine-grained send results.   The retry mechanism adds complexity here as well.   Each time a Redox report is sent, its rows can have one of three possible statuses:
-1. Success
-2. Failed to send
-3. Not sent, because it was already successfully sent in some previous attempt.
-
-Note that because of the 'all or nothing' assertion above, the retry code in RedoxTransport was modified to track item_lineage for all three of these statuses.
-
-**Main issue remaining**:  When a Report is read into BatchFunction whose schema has no trackingElement defined in the .schema, we lose the tracking_id column in the item_lineage table.  This is an artifact of how lineage tracking works in BatchFunction, where lineage is created in-memory based on data in the Report.kt objects.   If the parent report in the lineage has no trackingElement defined, then of course we can't fill in the item_lineage.tracking_id column.  (Currently most/all redox and hl7 schemas are affected by this, as they do not have trackingElements.)  A possible fix is to read in the parent's item_lineage from the database table.  However, that ID often does not exist in the child data - its not clear what the value is of tracking an ID that is not even in the data.  Further complexity with trackingElements will arise if we begin splitting/merging Items (see comment above).
+**Main issue remaining**:  When a Report is read into BatchFunction whose schema has no trackingElement defined in the .schema, we lose the tracking_id column in the item_lineage table.  This is an artifact of how lineage tracking works in BatchFunction, where lineage is created in-memory based on data in the Report.kt objects.   If the parent report in the lineage has no trackingElement defined, then of course we can't fill in the item_lineage.tracking_id column.  (Currently most/all hl7 schemas are affected by this, as they do not have trackingElements.)  A possible fix is to read in the parent's item_lineage from the database table.  However, that ID often does not exist in the child data - its not clear what the value is of tracking an ID that is not even in the data.  Further complexity with trackingElements will arise if we begin splitting/merging Items (see comment above).
 
 

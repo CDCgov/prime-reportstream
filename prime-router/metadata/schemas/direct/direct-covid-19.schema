@@ -67,8 +67,10 @@ elements:
     csvFields: [{ name: testOrderedDate}]
 
   - name: specimen_collection_date_time
+    cardinality: ONE
     documentation: eg, 20210113
     csvFields: [{ name: specimenCollectedDate}]
+    mapper: use(specimen_collection_date_time, order_test_date)
 
   - name: test_kit_name_id
     documentation: Must match LIVD column M, "Test Kit Name ID"
