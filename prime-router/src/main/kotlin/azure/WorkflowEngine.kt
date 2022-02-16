@@ -143,14 +143,14 @@ class WorkflowEngine(
         }
     }
 
-    val blobStoreTransport: BlobStoreTransport = BlobStoreTransport(this)
+    val blobStoreTransport: BlobStoreTransport = BlobStoreTransport()
 
     /**
      * Check the connections to Azure Storage and DB
      */
     fun checkConnections() {
         db.checkConnection()
-        blob.checkConnection()
+        BlobAccess.checkConnection()
     }
 
     /**
@@ -163,17 +163,17 @@ class WorkflowEngine(
         sender: Sender,
         actionHistory: ActionHistory,
         payloadName: String? = null,
-    ): String {
+    ): BlobAccess.BlobInfo {
         // Save a copy of the original report
         val senderReportFormat = Report.Format.safeValueOf(sender.format.toString())
         val blobFilename = report.name.replace(report.bodyFormat.ext, senderReportFormat.ext)
-        val blobInfo = blob.uploadBody(
+        val blobInfo = BlobAccess.uploadBody(
             senderReportFormat, rawBody,
             blobFilename, sender.fullName, Event.EventAction.RECEIVE
         )
 
         actionHistory.trackExternalInputReport(report, blobInfo, payloadName)
-        return blobInfo.blobUrl
+        return blobInfo
     }
 
     fun insertProcessTask(
@@ -243,7 +243,7 @@ class WorkflowEngine(
                 actionHistory.trackCreatedReport(nextAction, report, receiver, blobInfo)
         } catch (e: Exception) {
             // Clean up
-            blob.deleteBlob(blobInfo.blobUrl)
+            BlobAccess.deleteBlob(blobInfo.blobUrl)
             throw e
         }
     }
@@ -524,7 +524,7 @@ class WorkflowEngine(
         db.transact { txn ->
             val task = db.fetchAndLockTask(messageEvent.reportId, txn)
 
-            val blobContent = blob.downloadBlob(task.bodyUrl)
+            val blobContent = BlobAccess.downloadBlob(task.bodyUrl)
             val currentAction = Event.EventAction.parseQueueMessage(task.nextAction.literal)
 
             val report = csvSerializer.readInternal(
@@ -642,7 +642,7 @@ class WorkflowEngine(
         // todo All of this info is already populated in the Header obj.
         val schema = metadata.findSchema(header.task.schemaName)
             ?: error("Invalid schema in queue: ${header.task.schemaName}")
-        val bytes = blob.downloadBlob(header.task.bodyUrl)
+        val bytes = BlobAccess.downloadBlob(header.task.bodyUrl)
         return when (header.task.bodyFormat) {
             // TODO after the CSV internal format is flushed from the system, this code will be safe to remove
             "CSV", "CSV_SINGLE" -> {
@@ -675,7 +675,7 @@ class WorkflowEngine(
      * Create a report object from a header including loading the blob data associated with it
      */
     fun readBody(header: Header): ByteArray {
-        return blob.downloadBlob(header.task.bodyUrl)
+        return BlobAccess.downloadBlob(header.task.bodyUrl)
     }
 
     fun recordAction(actionHistory: ActionHistory, txn: Configuration? = null) {
@@ -738,8 +738,8 @@ class WorkflowEngine(
         else null
 
         val downloadContent = (reportFile.bodyUrl != null && fetchBlobBody)
-        val content = if (downloadContent && blob.exists(reportFile.bodyUrl)) {
-            blob.downloadBlob(reportFile.bodyUrl)
+        val content = if (downloadContent && BlobAccess.exists(reportFile.bodyUrl)) {
+            BlobAccess.downloadBlob(reportFile.bodyUrl)
         } else null
         return Header(task, reportFile, itemLineages, organization, receiver, schema, content, downloadContent)
     }

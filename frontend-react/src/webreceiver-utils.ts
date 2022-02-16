@@ -1,7 +1,17 @@
-import { AuthState } from "@okta/okta-auth-js";
+import { AccessToken, AuthState, UserClaims } from "@okta/okta-auth-js";
 
 import { PERMISSIONS } from "./resources/PermissionsResource";
 import { getStoredOrg } from "./components/GlobalContextProvider";
+
+declare type RSUserClaims = UserClaims<{ organization: string[] }>;
+
+export const getOrganizationFromAccessToken = (
+    accessToken: AccessToken | undefined
+): string[] => {
+    const newclaim: RSUserClaims =
+        (accessToken?.claims as RSUserClaims) || undefined;
+    return newclaim?.organization || [];
+};
 
 const groupToOrg = (group: String | undefined): string => {
     // in order to replace all instances of the underscore we needed to use a
@@ -19,36 +29,39 @@ const groupToOrg = (group: String | undefined): string => {
         : "";
 };
 
-const getOrganization = (authState: AuthState | null) => {
+const getOrganization = (authState: AuthState | undefined | null) => {
     return groupToOrg(
-        authState!.accessToken?.claims.organization.find(
+        getOrganizationFromAccessToken(authState?.accessToken).find(
             (o: string) => !o.toLowerCase().includes("sender")
         )
     );
 };
 
-const permissionCheck = (permission: string, authState: AuthState) => {
+const permissionCheck = (
+    permission: string,
+    authState: AuthState | undefined | null
+) => {
     if (permission === PERMISSIONS.RECEIVER) {
-        return reportReceiver(authState);
+        return reportReceiver(authState || undefined);
     }
 
     /* Right now, we're checking for a "DHSender" substring, not an exact match */
-    return authState.accessToken?.claims.organization.find((org: string) =>
-        org.includes(permission)
+    return getOrganizationFromAccessToken(authState?.accessToken).find(
+        (org: string) => org.includes(permission)
     );
 };
 
 // A receiver is anyone with an organization that is not "DHSender", i.e.: "DHaz_phd"
-const reportReceiver = (authState: AuthState) => {
-    return authState.accessToken?.claims.organization.find(
+const reportReceiver = (authState: AuthState | undefined | null) => {
+    return getOrganizationFromAccessToken(authState?.accessToken).find(
         (o: string | PERMISSIONS[]) => !o.includes(PERMISSIONS.SENDER)
     );
 };
 
-const senderClient = (authState: AuthState | null) => {
+const senderClient = (authState: AuthState | undefined | null) => {
     if (authState) {
         const claimsSenderOrganization =
-            authState?.accessToken?.claims.organization.find(
+            getOrganizationFromAccessToken(authState?.accessToken).find(
                 (o: string | string[]) => o.includes("DHSender")
             ) || "";
         const claimsSenderOrganizationArray =

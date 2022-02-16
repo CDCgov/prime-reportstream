@@ -691,6 +691,7 @@ class Report : Logging {
                     }
                     it.testKitNameId = row.getStringOrNull("test_kit_name_id").trimToNull()
                     it.testPerformedLoincCode = row.getStringOrNull("test_performed_code").trimToNull()
+                    it.organizationName = row.getStringOrNull("organization_name").trimToNull()
                 }
             }
         } catch (e: Exception) {

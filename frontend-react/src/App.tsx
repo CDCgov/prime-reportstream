@@ -143,12 +143,12 @@ const App = () => {
                                  */}
                                 <AuthorizedRoute
                                     path="/submissions/:actionId"
-                                    authorize={PERMISSIONS.PRIME_ADMIN}
+                                    authorize={PERMISSIONS.SENDER}
                                     component={SubmissionDetails}
                                 />
                                 <AuthorizedRoute
                                     path="/submissions"
-                                    authorize={PERMISSIONS.PRIME_ADMIN}
+                                    authorize={PERMISSIONS.SENDER}
                                     component={Submissions}
                                 />
                                 <AuthorizedRoute
