@@ -196,7 +196,10 @@ class Hl7Serializer(
             errors: MutableList<String>,
         ): String {
             val parsedValue = try {
-                terser.get(terserSpec)
+                terser.get(terserSpec) ?: if (terserSpec.contains("OBX") || terserSpec.contains("SPM"))
+                    terser.get("/.SPECIMEN" + terserSpec.replace(".", ""))
+                else
+                    null
             } catch (e: HL7Exception) {
                 errors.add("Exception for $terserSpec: ${e.message}")
                 null
