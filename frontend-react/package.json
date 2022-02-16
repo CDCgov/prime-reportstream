@@ -145,7 +145,8 @@
         "yaml-loader": "^0.6.0"
     },
     "peerDependencies": {
-        "postcss": "^8.4.5"
+        "postcss": "^8.4.5",
+        "follow-redirects": "^1.14.8"
     },
     "resolutions": {
         "react-scripts/**/node-forge": "^1.0.0",
