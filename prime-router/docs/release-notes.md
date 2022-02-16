@@ -5,6 +5,21 @@
 - All Schemas are documented here:  [Link to detailed schema dictionaries](./schema_documentation)
 - The Hub API is documented here: [Hub OpenApi Spec](./openapi.yml)
 
+## February 15, 2022
+### Added new senders for our CSV Sending Pilot
+ReportStream continues to welcome new facilities to our CSV senders group. 
+
+### Improved testing tools
+ReportStream has added a series of tools that enhance our testing capabilities. This includes the ability to generate 
+and compare files on a per-partner basis and ensure that any new changes will not affect a downstream receiver unexpectedly.
+
+### Admin Settings UI
+ReportStream has exposed an admin settings UI available to administrators in the app, making it easier to make changes 
+for senders and receivers.
+
+### Code Cleaning and Refactoring
+We've cleaned up our code and removed some older types of transports and translations that are no longer needed, 
+reducing the complexity of our code.
 
 ## January 28, 2022
 ### Support for new date and date/time formats for CSV reports
