@@ -115,7 +115,7 @@ export const ReportStreamHeader = () => {
                                 to={`/admin/settings`}
                                 className="usa-button usa-button--outline usa-button--small padding-1"
                             >
-                                <span className="usa-breadcrumb padding-left-2 text-semibold">
+                                <span className="usa-breadcrumb padding-left-2 text-semibold text-no-wrap">
                                     {organization}
                                     <FontAwesomeIcon
                                         className="padding-x-1 padding-top-0 text-primary-vivid"
