@@ -100,9 +100,9 @@ export function OrgsTable() {
                                                 }
                                                 type="button"
                                                 size="small"
-                                                className="padding-1"
+                                                className="padding-1 usa-button--outline"
                                             >
-                                                Activate
+                                                Set
                                             </Button>
                                             <Button
                                                 key={`${eachOrg.name}_edit`}
@@ -113,9 +113,9 @@ export function OrgsTable() {
                                                 }
                                                 type="button"
                                                 size="small"
-                                                className="padding-1"
+                                                className="padding-1 usa-button--outline"
                                             >
-                                                Edit...
+                                                Edit
                                             </Button>
                                         </ButtonGroup>
                                     </td>
