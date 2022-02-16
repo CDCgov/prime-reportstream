@@ -906,19 +906,23 @@ class Report : Logging {
             childReport: Report,
             childRowNum: Int
         ): ItemLineage {
+            // Row numbers start at 0, but index need to start at 1
+            val childIndex = childRowNum + 1
+            val parentIndex = parentRowNum + 1
+
             // ok if this is null.
             if (parentReport.itemLineages != null) {
                 // Avoid losing history.
                 // If the parent report already had lineage, then pass its sins down to the next generation.
                 val grandParentReportId = parentReport.itemLineages!![parentRowNum].parentReportId
-                val grandParentRowNum = parentReport.itemLineages!![parentRowNum].parentIndex
+                val grandParentIndex = parentReport.itemLineages!![parentRowNum].parentIndex
                 val grandParentTrackingValue = parentReport.itemLineages!![parentRowNum].trackingId
                 return ItemLineage(
                     null,
                     grandParentReportId,
-                    grandParentRowNum,
+                    grandParentIndex,
                     childReport.id,
-                    childRowNum,
+                    childIndex,
                     grandParentTrackingValue,
                     null,
                     null
@@ -929,9 +933,9 @@ class Report : Logging {
                 return ItemLineage(
                     null,
                     parentReport.id,
-                    parentRowNum,
+                    parentIndex,
                     childReport.id,
-                    childRowNum,
+                    childIndex,
                     trackingElementValue,
                     null,
                     null

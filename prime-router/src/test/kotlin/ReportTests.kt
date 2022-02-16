@@ -275,16 +275,16 @@ class ReportTests {
         assertThat(merged.itemLineages!!.size).isEqualTo(4)
         val firstLineage = merged.itemLineages!![0]
         assertThat(firstLineage.parentReportId).isEqualTo(report1.id)
-        assertThat(firstLineage.parentIndex).isEqualTo(0)
+        assertThat(firstLineage.parentIndex).isEqualTo(1)
         assertThat(firstLineage.childReportId).isEqualTo(merged.id)
-        assertThat(firstLineage.childIndex).isEqualTo(0)
+        assertThat(firstLineage.childIndex).isEqualTo(1)
         assertThat(firstLineage.trackingId).isEqualTo("rep1_row1_a")
 
         val lastLineage = merged.itemLineages!![3]
         assertThat(lastLineage.parentReportId).isEqualTo(report2.id)
-        assertThat(lastLineage.parentIndex).isEqualTo(1)
+        assertThat(lastLineage.parentIndex).isEqualTo(2)
         assertThat(lastLineage.childReportId).isEqualTo(merged.id)
-        assertThat(lastLineage.childIndex).isEqualTo(3)
+        assertThat(lastLineage.childIndex).isEqualTo(4)
         assertThat(lastLineage.trackingId).isEqualTo("rep2_row2_a")
     }
 
@@ -305,16 +305,16 @@ class ReportTests {
 
         val firstLineage = reports[0].itemLineages!![0]
         assertThat(firstLineage.parentReportId).isEqualTo(report1.id)
-        assertThat(firstLineage.parentIndex).isEqualTo(0)
+        assertThat(firstLineage.parentIndex).isEqualTo(1)
         assertThat(firstLineage.childReportId).isEqualTo(reports[0].id)
-        assertThat(firstLineage.childIndex).isEqualTo(0)
+        assertThat(firstLineage.childIndex).isEqualTo(1)
         assertThat(firstLineage.trackingId).isEqualTo("rep1_row1_a")
 
         val secondLineage = reports[1].itemLineages!![0]
         assertThat(secondLineage.parentReportId).isEqualTo(report1.id)
-        assertThat(secondLineage.parentIndex).isEqualTo(1)
+        assertThat(secondLineage.parentIndex).isEqualTo(2)
         assertThat(secondLineage.childReportId).isEqualTo(reports[1].id)
-        assertThat(secondLineage.childIndex).isEqualTo(0)
+        assertThat(secondLineage.childIndex).isEqualTo(1)
         assertThat(secondLineage.trackingId).isEqualTo("rep1_row2_a")
     }
 
@@ -336,9 +336,9 @@ class ReportTests {
         val lineage = filteredReport.itemLineages!!
         assertThat(lineage.size).isEqualTo(1)
         assertThat(lineage[0].parentReportId).isEqualTo(report1.id)
-        assertThat(lineage[0].parentIndex).isEqualTo(1)
+        assertThat(lineage[0].parentIndex).isEqualTo(2)
         assertThat(lineage[0].childReportId).isEqualTo(filteredReport.id)
-        assertThat(lineage[0].childIndex).isEqualTo(0)
+        assertThat(lineage[0].childIndex).isEqualTo(1)
         assertThat(lineage[0].trackingId).isEqualTo("rep1_row2_a")
     }
 
@@ -364,16 +364,16 @@ class ReportTests {
 
         val firstLineage = reports[0].itemLineages!![0]
         assertThat(firstLineage.parentReportId).isEqualTo(report1.id)
-        assertThat(firstLineage.parentIndex).isEqualTo(0)
+        assertThat(firstLineage.parentIndex).isEqualTo(1)
         assertThat(firstLineage.childReportId).isEqualTo(reports[0].id)
-        assertThat(firstLineage.childIndex).isEqualTo(0)
+        assertThat(firstLineage.childIndex).isEqualTo(1)
         assertThat(firstLineage.trackingId).isEqualTo("rep1_row1_a")
 
         val fourthLineage = reports[3].itemLineages!![0]
         assertThat(fourthLineage.parentReportId).isEqualTo(report2.id)
-        assertThat(fourthLineage.parentIndex).isEqualTo(1)
+        assertThat(fourthLineage.parentIndex).isEqualTo(2)
         assertThat(fourthLineage.childReportId).isEqualTo(reports[3].id)
-        assertThat(fourthLineage.childIndex).isEqualTo(0)
+        assertThat(fourthLineage.childIndex).isEqualTo(1)
         assertThat(fourthLineage.trackingId).isEqualTo("rep2_row2_a")
     }
 
@@ -403,15 +403,15 @@ class ReportTests {
         assertThat(lineage.size).isEqualTo(2)
 
         assertThat(lineage[0].parentReportId).isEqualTo(report1.id)
-        assertThat(lineage[0].parentIndex).isEqualTo(1)
+        assertThat(lineage[0].parentIndex).isEqualTo(2)
         assertThat(lineage[0].childReportId).isEqualTo(filteredReport.id)
-        assertThat(lineage[0].childIndex).isEqualTo(0)
+        assertThat(lineage[0].childIndex).isEqualTo(1)
         assertThat(lineage[0].trackingId).isEqualTo("aaa")
 
         assertThat(lineage[1].parentReportId).isEqualTo(report1.id)
-        assertThat(lineage[1].parentIndex).isEqualTo(2)
+        assertThat(lineage[1].parentIndex).isEqualTo(3)
         assertThat(lineage[1].childReportId).isEqualTo(filteredReport.id)
-        assertThat(lineage[1].childIndex).isEqualTo(1)
+        assertThat(lineage[1].childIndex).isEqualTo(2)
         assertThat(lineage[1].trackingId).isEqualTo("aaa")
     }
 

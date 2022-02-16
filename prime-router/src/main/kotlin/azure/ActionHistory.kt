@@ -15,7 +15,6 @@ import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.ReportStreamFilterResult
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
-import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.Tables.ACTION
 import gov.cdc.prime.router.azure.db.Tables.ACTION_LOG
 import gov.cdc.prime.router.azure.db.Tables.ITEM_LINEAGE
@@ -681,12 +680,12 @@ class ActionHistory {
         }
 
         // If an action has no children, it has no lineage.
-        if (reportsOut.size == 0 && parentChildReports.size == 0) return // no lineage assoc with this action.
+        if (reportsOut.isEmpty() && parentChildReports.isEmpty()) return // no lineage assoc with this action.
 
         // sanity should prevail, at least in ReportStream, if not in general
-        if (reportsOut.size > 0 && parentChildReports.size == 0)
+        if (reportsOut.isNotEmpty() && parentChildReports.isEmpty())
             error("There are child reports (${reportsOut.keys.joinToString(",")}) but no item lineages")
-        if (reportsOut.size == 0 && parentChildReports.size > 0)
+        if (reportsOut.isEmpty() && parentChildReports.isNotEmpty())
             error("There are item lineages (${parentChildReports.joinToString(",")}) but no child reports")
         // compare the set of reportIds from the item lineage vs the set from report lineage.  Should be identical.
         val parentReports = parentChildReports.map { it.first }.toSet()
@@ -859,17 +858,17 @@ class ActionHistory {
             ctx: DSLContext,
         ): Map<ReportId, ReportFile> {
             val cond = if (at == null) {
-                Tables.REPORT_FILE.RECEIVING_ORG.eq(receiver.organizationName)
-                    .and(Tables.REPORT_FILE.RECEIVING_ORG_SVC.eq(receiver.name))
-                    .and(Tables.REPORT_FILE.NEXT_ACTION.eq(nextAction))
+                REPORT_FILE.RECEIVING_ORG.eq(receiver.organizationName)
+                    .and(REPORT_FILE.RECEIVING_ORG_SVC.eq(receiver.name))
+                    .and(REPORT_FILE.NEXT_ACTION.eq(nextAction))
             } else {
-                Tables.REPORT_FILE.RECEIVING_ORG.eq(receiver.organizationName)
-                    .and(Tables.REPORT_FILE.RECEIVING_ORG_SVC.eq(receiver.name))
-                    .and(Tables.REPORT_FILE.NEXT_ACTION.eq(nextAction))
-                    .and(Tables.REPORT_FILE.NEXT_ACTION_AT.eq(at))
+                REPORT_FILE.RECEIVING_ORG.eq(receiver.organizationName)
+                    .and(REPORT_FILE.RECEIVING_ORG_SVC.eq(receiver.name))
+                    .and(REPORT_FILE.NEXT_ACTION.eq(nextAction))
+                    .and(REPORT_FILE.NEXT_ACTION_AT.eq(at))
             }
             return ctx
-                .selectFrom(Tables.REPORT_FILE)
+                .selectFrom(REPORT_FILE)
                 .where(cond)
                 .limit(limit)
                 .fetch()
@@ -885,7 +884,7 @@ class ActionHistory {
             reportFiles: Map<ReportId, ReportFile>?,
             failOnError: Boolean = false
         ) {
-            var msg: String = ""
+            var msg = ""
             if (tasks == null) {
                 msg = "headers is null"
             } else {
@@ -921,7 +920,7 @@ class ActionHistory {
          * this is a way of confirming that the new tables are robust.
          */
         fun sanityCheckReport(task: Task?, reportFile: ReportFile?, failOnError: Boolean = false) {
-            var msg: String = ""
+            var msg = ""
             if (task == null) {
                 msg = "header is null"
             } else {
@@ -941,7 +940,7 @@ class ActionHistory {
                     }
                     if (task.receiverName != (reportFile.receivingOrg + "." + reportFile.receivingOrgSvc)) {
                         msg += "header.receiverName = ${task.receiverName}, but reportFile has " +
-                            "${reportFile.receivingOrg + "." + reportFile.receivingOrgSvc}"
+                            (reportFile.receivingOrg + "." + reportFile.receivingOrgSvc)
                     }
                     if (task.reportId != reportFile.reportId) {
                         msg += "header.reportId = ${task.reportId}, but reportFile.reportId= ${reportFile.reportId}, "

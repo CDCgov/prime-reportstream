@@ -44,10 +44,11 @@ class Ping : CoolTest() {
             payloadName = "$name ${status.description}",
         )
         echo("Response to POST: $responseCode")
-        echo(json)
+        echo("Response message: $json")
         if (responseCode != HttpURLConnection.HTTP_OK) {
             bad("Ping/CheckConnections Test FAILED:  response code $responseCode")
-            exitProcess(-1) // other tests won't work.
+            outputAllMsgs()
+            exitProcess(1) // other tests won't work.
         }
         try {
             val tree = jacksonObjectMapper().readTree(json)
