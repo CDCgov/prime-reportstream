@@ -5,7 +5,7 @@ import { useHistory } from "react-router-dom";
 import { Helmet } from "react-helmet";
 
 import OrgSettingsResource from "../../resources/OrgSettingsResource";
-import { useGlobalContext } from "../GlobalContextProvider";
+import { getStoredOrg, useGlobalContext } from "../GlobalContextProvider";
 
 export function OrgsTable() {
     const orgs: OrgSettingsResource[] = useResource(
@@ -14,6 +14,7 @@ export function OrgsTable() {
     ).sort((a, b) => a.name.localeCompare(b.name));
     const [filter, setFilter] = useState("");
     const { updateOrganization } = useGlobalContext();
+    const currentOrg = getStoredOrg();
     const history = useHistory();
 
     const handleSelectOrgClick = (orgName: string) => {
@@ -73,8 +74,16 @@ export function OrgsTable() {
                             .filter((eachOrg) => eachOrg.filterMatch(filter))
                             .map((eachOrg) => (
                                 <tr key={`sender-row-${eachOrg.name}`}>
-                                    <td className="font-heading-sm">
-                                        {eachOrg.name}
+                                    <td>
+                                        <span
+                                            className={
+                                                eachOrg.name === currentOrg
+                                                    ? "font-heading-sm text-bold"
+                                                    : "font-heading-sm"
+                                            }
+                                        >
+                                            {eachOrg.name}
+                                        </span>
                                     </td>
                                     <td>{eachOrg?.description || "-"}</td>
                                     <td>{eachOrg.jurisdiction || ""}</td>
