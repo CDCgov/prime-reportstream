@@ -83,9 +83,9 @@ describe("SubmissionDetails", () => {
             TODO: How can we use the object and not static strings to
             check for substrings like this?? 
         */
-        const title = screen.getByText(/SubmissionDetails Unit Test/)
+        const title = screen.getByText(/SubmissionDetails Unit Test/);
         expect(title).toBeInTheDocument();
-    })
+    });
 });
 
 describe("DetailItem", () => {
