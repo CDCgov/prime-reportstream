@@ -15,6 +15,7 @@ import gov.cdc.prime.router.cli.tests.CompareData
 import gov.cdc.prime.router.cli.tests.CompareHl7Data
 import gov.cdc.prime.router.encoding.FHIR
 import gov.cdc.prime.router.encoding.HL7
+import gov.cdc.prime.router.encoding.encode
 import gov.cdc.prime.router.engine.Message
 import gov.cdc.prime.router.engine.RawSubmission
 import org.apache.logging.log4j.kotlin.Logging
@@ -34,16 +35,26 @@ class FHIRFlowFunctions : Logging {
         @HttpTrigger(
             name = "translate",
             methods = [HttpMethod.POST],
-            authLevel = AuthorizationLevel.ANONYMOUS
+            authLevel = AuthorizationLevel.ANONYMOUS,
+            route = "translate"
         ) request: HttpRequestMessage<String?>,
     ): HttpResponseMessage {
-        // TODO support only hl7 content type
-
-        val hl7 = HL7.deserialize(request.body!!)
-        val fhir = FHIR.translate(hl7)
-        val responseBuilder = request.createResponseBuilder(HttpStatus.OK)
-        responseBuilder.header(HttpHeaders.CONTENT_TYPE, "application/fhir+json")
-        responseBuilder.body(FHIR.encode(fhir))
+        val responseBuilder = request.createResponseBuilder(HttpStatus.BAD_REQUEST)
+        try {
+            val hl7messages = HL7.deserialize(request.body!!)
+            val body = buildString {
+                hl7messages.forEach { hl7 ->
+                    val fhir = FHIR.translate(hl7)
+                    appendLine(fhir.encode())
+                }
+            }
+            responseBuilder.status(HttpStatus.OK)
+            responseBuilder.header(HttpHeaders.CONTENT_TYPE, "application/fhir+json")
+            responseBuilder.body(body)
+        } catch (e: IllegalArgumentException) {
+            responseBuilder.status(HttpStatus.BAD_REQUEST)
+            responseBuilder.body(e.message)
+        }
         return responseBuilder.build()
     }
 
@@ -70,7 +81,7 @@ class FHIRFlowFunctions : Logging {
         logger.debug("Got content ${blobContent.size}")
         // TODO behind an interface?
         val hl7 = HL7.deserialize(String(blobContent))
-        val result = hl7.encode()
+        val result = hl7.first().encode()
 
         val comparison = compare(String(blobContent), result)
         if (!comparison.passed) {
