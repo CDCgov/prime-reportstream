@@ -345,22 +345,6 @@
       keys: null
       processingType: "sync"
 
-- name: "ocrapidtest-ca"
-  description: "OC Rapid Test (CA) - CSV Uploader"
-  jurisdiction: "FEDERAL"
-  stateCode: null
-  countyName: null
-  filters: []
-  senders:
-    - name: "default"
-      organizationName: "ocrapidtest-ca"
-      format: "CSV"
-      topic: "covid-19"
-      customerStatus: "testing"
-      schemaName: "upload-covid-19"
-      keys: null
-      processingType: "sync"
-
 - name: "warrior-dx-co"
   description: "Warrior Diagnostics (CO) - CSV Uploader"
   jurisdiction: "FEDERAL"
@@ -1962,6 +1946,46 @@
         port: 22
         filePath: ./upload
         credentialName: DEFAULT-SFTP
+    - name: HL7_BATCH_PPK
+      externalName: Ignore HL7_BATCH PPK
+      organizationName: ignore
+      topic: covid-19
+      customerStatus: inactive
+      jurisdictionalFilter: [ "matches(ordering_facility_county, HL7_BATCH)" ]
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+      translation:
+        type: CUSTOM
+        schemaName: az/az-covid-19-hl7
+        format: HL7_BATCH
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP-PPK
+    - name: HL7_BATCH_PEM
+      externalName: Ignore HL7_BATCH PEM
+      organizationName: ignore
+      topic: covid-19
+      customerStatus: inactive
+      jurisdictionalFilter: [ "matches(ordering_facility_county, HL7_BATCH)" ]
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+      translation:
+        type: CUSTOM
+        schemaName: az/az-covid-19-hl7
+        format: HL7_BATCH
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP-PEM
     - name: AS2
       organizationName: ignore
       topic: covid-19
@@ -3263,6 +3287,54 @@
   senders:
     - name: "default"
       organizationName: "hollywoodsmiles-ca"
+      format: "CSV"
+      topic: "covid-19"
+      customerStatus: "testing"
+      schemaName: "upload-covid-19"
+      keys: null
+      processingType: "sync"
+
+- name: "newport-childrens-hospital-ca"
+  description: "Newport Childrens Hospital (CA) - CSV Uploader"
+  jurisdiction: "FEDERAL"
+  stateCode: null
+  countyName: null
+  filters: []
+  senders:
+    - name: "default"
+      organizationName: "newport-childrens-hospital-ca"
+      format: "CSV"
+      topic: "covid-19"
+      customerStatus: "testing"
+      schemaName: "upload-covid-19"
+      keys: null
+      processingType: "sync"
+
+- name: "elitemedlabs-co"
+  description: "EliteMed Laboratories (CO) - CSV Uploader"
+  jurisdiction: "FEDERAL"
+  stateCode: null
+  countyName: null
+  filters: []
+  senders:
+    - name: "default"
+      organizationName: "elitemedlabs-co"
+      format: "CSV"
+      topic: "covid-19"
+      customerStatus: "testing"
+      schemaName: "upload-covid-19"
+      keys: null
+      processingType: "sync"
+
+- name: "youthclinic-co"
+  description: "The Youth Clinic (CO) - CSV Uploader"
+  jurisdiction: "FEDERAL"
+  stateCode: null
+  countyName: null
+  filters: []
+  senders:
+    - name: "default"
+      organizationName: "youthclinic-co"
       format: "CSV"
       topic: "covid-19"
       customerStatus: "testing"

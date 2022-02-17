@@ -43,6 +43,19 @@ enum class Environment(
      */
     val baseUrl: String get() = getBaseUrl(url)
 
+    /**
+     * Available feature flags for enabling different features
+     */
+    enum class FeatureFlags(
+        val enabledByDefault: Boolean = false
+    ) {
+        FHIR_ENGINE_TEST_PIPELINE();
+
+        fun enabled(): Boolean {
+            return enabledByDefault || System.getenv(this.toString()) == "enabled"
+        }
+    }
+
     companion object {
         /**
          * Get the environment based on the given [environment] string.

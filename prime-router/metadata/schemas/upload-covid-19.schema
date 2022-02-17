@@ -216,7 +216,6 @@ elements:
       csvFields: [{ name: specimen_type, format: $display}]
 
     - name: specimen_source_site_code
-      cardinality: ONE 
       type: CODE
       valueSet: sender-automation/specimen_source_site_code
       documentation: Translate inbound text to outbound SNOMED Codes
