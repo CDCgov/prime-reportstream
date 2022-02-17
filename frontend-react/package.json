@@ -7,11 +7,11 @@
     "dependencies": {
         "@craco/craco": "^6.4.3",
         "@fortawesome/fontawesome-svg-core": "^1.2.36",
-        "@fortawesome/free-solid-svg-icons": "^5.15.4",
+        "@fortawesome/free-solid-svg-icons": "^6.0.0",
         "@fortawesome/react-fontawesome": "^0.1.16",
-        "@okta/okta-auth-js": "^5.11.0",
+        "@okta/okta-auth-js": "^6.1.0",
         "@okta/okta-react": "^6.4.1",
-        "@okta/okta-signin-widget": "^5.16.1",
+        "@okta/okta-signin-widget": "^6.0.1",
         "@rest-hooks/hooks": "^2.0.0",
         "@rest-hooks/rest": "^2.2.0",
         "@rest-hooks/test": "^7.1.0",
@@ -149,6 +149,6 @@
     },
     "resolutions": {
         "react-scripts/**/node-forge": "^1.0.0",
-        "@okta/**/node-fetch": "^2.6.7"
+        "react-scripts/**/follow-redirects": "^1.14.8"
     }
 }
