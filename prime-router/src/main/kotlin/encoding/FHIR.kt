@@ -39,7 +39,11 @@ class FHIR {
         // such as test_ORU_R01 to the list in config.properties. Then creating the accompanying files, such as
         // hl7/message/test_ORU_R01. Any files in fhir_mapping/hl7/resource will override the defaults allowing customization
         // of resources like Address or Organization.
-        fun translate(hl7message: Message, messageType: String = getMessageType(hl7message)): Bundle {
+        fun translate(
+            hl7message: Message,
+            messageType: String = getMessageType(hl7message),
+            engine: HL7MessageEngine = FHIR.engine
+        ): Bundle {
             // extracted from
             // https://github.com/LinuxForHealth/hl7v2-fhir-converter/blob/d5e43fffa96654e7c5bc896e020ff2fa8aac4ff2/src/main/java/io/github/linuxforhealth/hl7/HL7ToFHIRConverter.java#L135-L159
 
@@ -60,6 +64,11 @@ class FHIR {
 
         fun encode(bundle: Bundle): String {
             return getMessageEngine().getFHIRContext().encodeResourceToString(bundle)
+        }
+
+        fun decode(json: String): Bundle {
+            val parser = engine.getFHIRContext().parser
+            return parser.parseResource(Bundle::class.java, json)
         }
     }
 }
