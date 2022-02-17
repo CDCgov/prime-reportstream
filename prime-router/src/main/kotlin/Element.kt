@@ -16,7 +16,6 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.OffsetDateTime
-import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
@@ -701,7 +700,8 @@ data class Element(
             Type.DATETIME -> {
                 try {
                     val normalDateTime = getDateTime(cleanedFormattedValue, format)
-                    normalDateTime.format(datetimeFormatter)
+                    val a = normalDateTime.format(datetimeFormatter)
+                    a
                 } catch (e: DateTimeParseException) {
                     // if this value can be nullified because it is badly formatted, simply return a blank string
                     if (nullifyValue) {
@@ -864,9 +864,9 @@ data class Element(
             LocalDate::from
         )
         val parsedValue = if (ta is LocalDateTime) {
-            LocalDateTime.from(ta).atZone(ZoneId.of(USTimeZone.CENTRAL.zoneId)).toOffsetDateTime()
+            LocalDateTime.from(ta).atZone(ZoneOffset.UTC).toOffsetDateTime()
         } else {
-            LocalDate.from(ta).atStartOfDay(ZoneId.of(USTimeZone.CENTRAL.zoneId)).toOffsetDateTime()
+            LocalDate.from(ta).atStartOfDay(ZoneOffset.UTC).toOffsetDateTime()
         }
 
         return parsedValue
@@ -1130,14 +1130,14 @@ data class Element(
         const val variableDateTimePattern = "[yyyyMMddHHmmssZ]" +
             "[yyyyMMddHHmmZ]" +
             "[yyyyMMddHHmmss][yyyy-MM-dd HH:mm:ss.ZZZ]" +
-            "[yyyy-MM-dd[ HH:mm:ss[.S[S][S]]]]" +
-            "[yyyyMMdd[ HH:mm:ss[.S[S][S]]]]" +
-            "[M/d/yyyy[ HH:mm[:ss[.S[S][S]]]]]" +
-            "[yyyy/M/d[ HH:mm[:ss[.S[S][S]]]]]"
+            "[yyyy-MM-dd[ H:mm:ss[.S[S][S]]]]" +
+            "[yyyyMMdd[ H:mm:ss[.S[S][S]]]]" +
+            "[M/d/yyyy[ H:mm[:ss[.S[S][S]]]]]" +
+            "[yyyy/M/d[ H:mm[:ss[.S[S][S]]]]]"
         val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern(datePattern, Locale.ENGLISH)
         val datetimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern(datetimePattern, Locale.ENGLISH)
         val manuallyEnteredDateFormats =
-            arrayOf(datePattern, "M/d/yyyy", "MMddyyyy", "yyyy/M/d", "M/d/yyyy HH:mm", "yyyy/M/d HH:mm")
+            arrayOf(datePattern, "M/d/yyyy", "MMddyyyy", "yyyy/M/d", "M/d/yyyy H:mm", "yyyy/M/d H:mm")
         const val displayToken = "\$display"
         const val caretToken = "\$code^\$display^\$system"
         const val codeToken = "\$code"
