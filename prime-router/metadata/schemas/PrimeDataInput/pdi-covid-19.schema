@@ -98,8 +98,7 @@ elements:
   - name: patient_preferred_language
     documentation: The patient's preferred language
     cardinality: ZERO_OR_ONE
-    csvFields: [{name: Patient_preferred_language}]
-    type: TEXT
+    csvFields: [{name: Patient_preferred_language, format: $display}]
 
   - name: patient_street
     csvFields: [{name: Patient_street}]

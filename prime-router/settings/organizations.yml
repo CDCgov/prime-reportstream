@@ -345,22 +345,6 @@
       keys: null
       processingType: "sync"
 
-- name: "ocrapidtest-ca"
-  description: "OC Rapid Test (CA) - CSV Uploader"
-  jurisdiction: "FEDERAL"
-  stateCode: null
-  countyName: null
-  filters: []
-  senders:
-    - name: "default"
-      organizationName: "ocrapidtest-ca"
-      format: "CSV"
-      topic: "covid-19"
-      customerStatus: "testing"
-      schemaName: "upload-covid-19"
-      keys: null
-      processingType: "sync"
-
 - name: "warrior-dx-co"
   description: "Warrior Diagnostics (CO) - CSV Uploader"
   jurisdiction: "FEDERAL"
@@ -3303,6 +3287,54 @@
   senders:
     - name: "default"
       organizationName: "hollywoodsmiles-ca"
+      format: "CSV"
+      topic: "covid-19"
+      customerStatus: "testing"
+      schemaName: "upload-covid-19"
+      keys: null
+      processingType: "sync"
+
+- name: "newport-childrens-hospital-ca"
+  description: "Newport Childrens Hospital (CA) - CSV Uploader"
+  jurisdiction: "FEDERAL"
+  stateCode: null
+  countyName: null
+  filters: []
+  senders:
+    - name: "default"
+      organizationName: "newport-childrens-hospital-ca"
+      format: "CSV"
+      topic: "covid-19"
+      customerStatus: "testing"
+      schemaName: "upload-covid-19"
+      keys: null
+      processingType: "sync"
+
+- name: "elitemedlabs-co"
+  description: "EliteMed Laboratories (CO) - CSV Uploader"
+  jurisdiction: "FEDERAL"
+  stateCode: null
+  countyName: null
+  filters: []
+  senders:
+    - name: "default"
+      organizationName: "elitemedlabs-co"
+      format: "CSV"
+      topic: "covid-19"
+      customerStatus: "testing"
+      schemaName: "upload-covid-19"
+      keys: null
+      processingType: "sync"
+
+- name: "youthclinic-co"
+  description: "The Youth Clinic (CO) - CSV Uploader"
+  jurisdiction: "FEDERAL"
+  stateCode: null
+  countyName: null
+  filters: []
+  senders:
+    - name: "default"
+      organizationName: "youthclinic-co"
       format: "CSV"
       topic: "covid-19"
       customerStatus: "testing"
