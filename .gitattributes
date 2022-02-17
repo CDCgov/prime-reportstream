@@ -11,4 +11,5 @@
 *.yml text eol=lf
 *.csv text eol=lf
 *.hl7 text eol=lf
+.environment/sftp-conf/ssh_host_*_key text eol=lf
 
