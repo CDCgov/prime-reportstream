@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { Endpoint } from "../NetworkTypes";
 
-
 interface ResponseType<T> {
     loading: boolean;
     data?: T;
@@ -22,7 +21,6 @@ export function useNetwork<T>({ url, api }: Endpoint): ResponseType<T> {
         api.instance
             .get<T>(url)
             .then((res) => {
-                console.log(res);
                 setResponse({
                     loading: false,
                     data: res.data,
@@ -31,7 +29,6 @@ export function useNetwork<T>({ url, api }: Endpoint): ResponseType<T> {
                 });
             })
             .catch((err) => {
-                console.log(err);
                 setResponse({
                     loading: false,
                     data: undefined,
