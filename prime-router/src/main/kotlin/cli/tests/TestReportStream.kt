@@ -22,6 +22,7 @@ import gov.cdc.prime.router.azure.db.Tables.REPORT_LINEAGE
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.common.SystemExitCodes
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -176,7 +177,7 @@ Examples:
         }
         if (problem) {
             echo("Error: --env is $env but database is set to $dbEnv")
-            exitProcess(-1)
+            exitProcess(SystemExitCodes.FAILURE.exitCode)
         }
     }
 
@@ -190,7 +191,7 @@ Examples:
         if (list) {
             echo("Available options to --run <test1,test2> are:")
             printTestList(coolTestList)
-            exitProcess(0)
+            exitProcess(SystemExitCodes.SUCCESS.exitCode)
         }
         val environment = Environment.get(env)
 
@@ -245,7 +246,7 @@ Examples:
             } catch (e: java.lang.Exception) {
                 test.echo(
                     "Exception: ${e.javaClass.name}, ${e.message}: " +
-                        "${e.stackTrace.joinToString(System.lineSeparator())}"
+                        e.stackTrace.joinToString(System.lineSeparator())
                 )
                 false
             }
@@ -270,7 +271,7 @@ Examples:
                 CoolTest
                     .badMsgFormat("*** Tests FAILED:  ${failures.map { it.name }.joinToString(",")} ***")
             )
-            exitProcess(-1)
+            exitProcess(SystemExitCodes.FAILURE.exitCode)
         } else {
             TermUi.echo(
                 CoolTest.goodMsgFormat("All tests passed")
@@ -607,7 +608,7 @@ abstract class CoolTest {
         filterOrgName: Boolean = false,
         asyncProcessMode: Boolean = false
     ): List<Pair<Boolean, String>> {
-        var queryResults = mutableListOf<Pair<Boolean, String>>()
+        val queryResults = mutableListOf<Pair<Boolean, String>>()
         db = WorkflowEngine().db
         db.transact { txn ->
             receivers.forEach { receiver ->

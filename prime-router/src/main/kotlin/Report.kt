@@ -415,7 +415,7 @@ class Report : Logging {
                 val rowsFiltered = getValuesInRows(
                     trackingElement, filteredRowList, ReportStreamFilterResult.DEFAULT_TRACKING_VALUE
                 )
-                rowsFiltered.zip(filteredRowList).forEach { (trackingId, index) ->
+                rowsFiltered.zip(filteredRowList).forEach { (trackingId, rowNum) ->
                     filteredRows.add(
                         ReportStreamFilterResult(
                             receiver.fullName,
@@ -423,7 +423,7 @@ class Report : Logging {
                             filterFn.name,
                             fnArgs,
                             trackingId,
-                            index
+                            rowNum + 1
                         )
                     )
                 }
@@ -906,19 +906,23 @@ class Report : Logging {
             childReport: Report,
             childRowNum: Int
         ): ItemLineage {
+            // Row numbers start at 0, but index need to start at 1
+            val childIndex = childRowNum + 1
+            val parentIndex = parentRowNum + 1
+
             // ok if this is null.
             if (parentReport.itemLineages != null) {
                 // Avoid losing history.
                 // If the parent report already had lineage, then pass its sins down to the next generation.
                 val grandParentReportId = parentReport.itemLineages!![parentRowNum].parentReportId
-                val grandParentRowNum = parentReport.itemLineages!![parentRowNum].parentIndex
+                val grandParentIndex = parentReport.itemLineages!![parentRowNum].parentIndex
                 val grandParentTrackingValue = parentReport.itemLineages!![parentRowNum].trackingId
                 return ItemLineage(
                     null,
                     grandParentReportId,
-                    grandParentRowNum,
+                    grandParentIndex,
                     childReport.id,
-                    childRowNum,
+                    childIndex,
                     grandParentTrackingValue,
                     null,
                     null
@@ -929,9 +933,9 @@ class Report : Logging {
                 return ItemLineage(
                     null,
                     parentReport.id,
-                    parentRowNum,
+                    parentIndex,
                     childReport.id,
-                    childRowNum,
+                    childIndex,
                     trackingElementValue,
                     null,
                     null
@@ -968,13 +972,14 @@ class Report : Logging {
                     )
             }
             val retval = mutableListOf<ItemLineage>()
-            for (i in 0 until prevHeader.reportFile.itemCount) {
-                if (newLineages[i] == null)
-                    error(
+            // Note indices start at 1
+            for (index in 1..prevHeader.reportFile.itemCount) {
+                retval.add(
+                    newLineages[index] ?: error(
                         "Unable to create parent->child lineage " +
-                            "${prevHeader.reportFile.reportId} -> $newChildReportId: missing lineage $i"
+                            "${prevHeader.reportFile.reportId} -> $newChildReportId: missing lineage $index"
                     )
-                retval.add(newLineages[i]!!)
+                )
             }
             return retval
         }
