@@ -251,11 +251,11 @@ class CsvSerializerTests {
         val csvConverter = CsvSerializer(Metadata(schema = one))
         val result = csvConverter.readExternal("one", ByteArrayInputStream(csv.toByteArray()), TestSource)
         assertThat(result.errors.size).isEqualTo(0)
-        assertThat(result.report.getString(0, 1)).isEqualTo("202112010000-0600")
-        assertThat(result.report.getString(1, 1)).isEqualTo("202112020000-0600")
-        assertThat(result.report.getString(2, 1)).isEqualTo("202112030000-0600")
-        assertThat(result.report.getString(3, 1)).isEqualTo("202112040900-0600")
-        assertThat(result.report.getString(4, 1)).isEqualTo("202112051000-0600")
+        assertThat(result.report.getString(0, 1)).isEqualTo("202112010000+0000")
+        assertThat(result.report.getString(1, 1)).isEqualTo("202112020000+0000")
+        assertThat(result.report.getString(2, 1)).isEqualTo("202112030000+0000")
+        assertThat(result.report.getString(3, 1)).isEqualTo("202112040900+0000")
+        assertThat(result.report.getString(4, 1)).isEqualTo("202112051000+0000")
     }
 
     @Test

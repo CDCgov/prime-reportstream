@@ -409,23 +409,23 @@ internal class ElementTests {
 
         // Test MMddyyyy, 12012021 format
         one.toNormalized("12012021").run {
-            assertThat(this).isEqualTo("202112010000-0600")
+            assertThat(this).isEqualTo("202112010000+0000")
         }
         // Test M/d/yyyy,12/2/2021 format
         one.toNormalized("12/2/2021").run {
-            assertThat(this).isEqualTo("202112020000-0600")
+            assertThat(this).isEqualTo("202112020000+0000")
         }
         // Test yyyy/M/d,2021/12/3
         one.toNormalized("2021/12/3").run {
-            assertThat(this).isEqualTo("202112030000-0600")
+            assertThat(this).isEqualTo("202112030000+0000")
         }
         // Test M/d/yyyy HH:mm,12/4/2021 09:00
         one.toNormalized("12/4/2021 09:00").run {
-            assertThat(this).isEqualTo("202112040900-0600")
+            assertThat(this).isEqualTo("202112040900+0000")
         }
         // Test yyyy/M/d HH:mm,2021/12/05 10:00
         one.toNormalized("2021/12/05 10:00").run {
-            assertThat(this).isEqualTo("202112051000-0600")
+            assertThat(this).isEqualTo("202112051000+0000")
         }
     }
 
