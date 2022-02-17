@@ -341,7 +341,7 @@ open class BaseHistoryFunction : Logging {
                     .body(report)
                     .build()
 
-                val actionHistory = ActionHistory(TaskAction.download, context)
+                val actionHistory = ActionHistory(TaskAction.download)
                 actionHistory.trackActionRequestResponse(request, response)
                 // Give the external report_file a new UUID, so we can track its history distinct from the
                 // internal blob.   This is going to be very confusing.
