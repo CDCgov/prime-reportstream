@@ -972,14 +972,14 @@ class Report : Logging {
                     )
             }
             val retval = mutableListOf<ItemLineage>()
-            // Note indeces start at 1
+            // Note indices start at 1
             for (index in 1..prevHeader.reportFile.itemCount) {
-                if (newLineages[index] == null)
-                    error(
+                retval.add(
+                    newLineages[index] ?: error(
                         "Unable to create parent->child lineage " +
                             "${prevHeader.reportFile.reportId} -> $newChildReportId: missing lineage $index"
                     )
-                retval.add(newLineages[index]!!)
+                )
             }
             return retval
         }
