@@ -1470,12 +1470,24 @@ class Hl7Serializer(
             "FTS|1$hl7SegmentDelimiter"
     }
 
+    /**
+     * Given an hl7Configuration, this will take find the current date time and output it to a
+     * specific format depending on the configuration of the receiver
+     */
     private fun nowTimestamp(hl7Config: Hl7Configuration? = null): String {
+        // get the current time stamp
         val timestamp = OffsetDateTime.now(ZoneId.systemDefault())
-        return if (hl7Config?.convertPositiveDateTimeOffsetToNegative == true) {
-            Element.convertPositiveOffsetToNegativeOffset(Element.datetimeFormatter.format(timestamp))
+        // if the receiver wants a higher precision date time formatter, then we get the right one
+        val formatter: DateTimeFormatter = if (hl7Config?.useHighPrecisionHeaderDateTimeFormat == true) {
+            Element.highPrecisionDateTimeFormatter
         } else {
-            Element.datetimeFormatter.format(timestamp)
+            Element.datetimeFormatter
+        }
+        // use the formatter here to output the now timestamp
+        return if (hl7Config?.convertPositiveDateTimeOffsetToNegative == true) {
+            Element.convertPositiveOffsetToNegativeOffset(formatter.format(timestamp))
+        } else {
+            formatter.format(timestamp)
         }
     }
 
