@@ -5,6 +5,7 @@ import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.CovidResultMetadata
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
+import gov.cdc.prime.router.common.StringUtilities.Companion.trimToNull
 import gov.cdc.prime.router.metadata.ElementAndValue
 import gov.cdc.prime.router.metadata.Mappers
 import org.apache.logging.log4j.kotlin.Logging
@@ -1086,14 +1087,6 @@ class Report : Logging {
                     metadata = metadata ?: Metadata.getInstance()
                 )
             }
-        }
-
-        /**
-         * Takes a nullable String and trims it down to null if the string is empty
-         */
-        private fun String?.trimToNull(): String? {
-            if (this?.isEmpty() == true) return null
-            return this
         }
 
         /**
