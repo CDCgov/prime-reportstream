@@ -1,10 +1,7 @@
-import { Endpoint } from "rest-hooks";
+import { Endpoint } from "../NetworkTypes";
 import { Api } from "./Api";
 
-jest.mock("../../components/GlobalContextProvider", () => ({
-    getStoredOktaToken: () => { return "test token" },
-    getStoredOrg: () => { return "test org" }
-}))
+jest.mock("../../components/GlobalContextProvider")
 
 describe("Api.ts", () => {
 
@@ -17,8 +14,7 @@ describe("Api.ts", () => {
     // How can I test the Axios instance? :thinking:
 
     test("generateEndpoint() creates valid endpoint", () => {
-        const testEndpoint = Api.generateEndpoint("/test/url", Api)
-
+        const testEndpoint: Endpoint = Api.generateEndpoint("/test/url", Api)
         expect(testEndpoint.url).toBe("/test/url")
         expect(testEndpoint.api).toBe(Api)
     });
