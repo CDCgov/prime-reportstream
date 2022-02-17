@@ -517,7 +517,7 @@
     - code: 123851003
       display: Saliva 
     - code: 123851003
-      display: 119342007
+      display: 258560004
     - code: 123851003
       display: 123851003 
 
@@ -579,12 +579,12 @@
       display: Sputum 
     - code: 119334006
       display: 119334006
-    - code: 119342007
+    - code: 258560004
       display: Saliva specimen 
-    - code: 119342007
+    - code: 258560004
       display: Saliva 
-    - code: 119342007
-      display: 119342007 
+    - code: 258560004
+      display: 258560004 
     - code: 258607008
       display: Bronchoalveolar lavage fluid sample 
     - code: 258607008
