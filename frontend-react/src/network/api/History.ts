@@ -1,5 +1,6 @@
-import { Api } from "./Api";
 import { Endpoint } from "../NetworkTypes";
+
+import { Api } from "./Api";
 
 /* 
     Using classes allows us to keep some easy defaults when constructing

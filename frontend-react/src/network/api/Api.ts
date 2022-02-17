@@ -4,9 +4,7 @@ import {
     getStoredOktaToken,
     getStoredOrg,
 } from "../../components/GlobalContextProvider";
-
 import { Endpoint } from "../NetworkTypes";
-
 
 export abstract class Api {
     /*

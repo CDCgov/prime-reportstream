@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+
 import { Endpoint } from "../NetworkTypes";
 
 interface ResponseType<T> {
