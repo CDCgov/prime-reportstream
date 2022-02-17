@@ -11,7 +11,7 @@
       organizationName: "covidclinic-org"
       format: "CSV"
       topic: "covid-19"
-      customerStatus: "testing"
+      customerStatus: "active"
       schemaName: "upload-covid-19"
       keys: null
       processingType: "sync"
