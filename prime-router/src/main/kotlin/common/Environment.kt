@@ -103,3 +103,8 @@ enum class Environment(
         }
     }
 }
+
+enum class SystemExitCodes(val exitCode: Int) {
+    SUCCESS(0),
+    FAILURE(1)
+}
