@@ -52,7 +52,7 @@ class SoapTransportIntegrationTests : TransportIntegrationTests() {
             }
         }
     }
-    private val actionHistory = ActionHistory(TaskAction.send, context)
+    private val actionHistory = ActionHistory(TaskAction.send)
     private val transportType = SoapTransportType(
         "my-end-point",
         "http://nedss.state.pa.us/2012/B01/elrwcf/IUploadFile/UploadFiles"
