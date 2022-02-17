@@ -393,6 +393,7 @@ tasks.register<Copy>("gatherAzureResources") {
     from("./")
     into(azureResourcesTmpDir)
     include("metadata/**/*.yml")
+    include("metadata/**/*.properties")
     include("metadata/**/*.schema")
     include("metadata/**/*.valuesets")
     include("metadata/**/*.csv")
