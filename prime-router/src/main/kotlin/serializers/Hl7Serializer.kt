@@ -436,6 +436,7 @@ class Hl7Serializer(
         val cliaForSender = hl7Config?.cliaForSender ?: emptyMap()
         val suppressQst = hl7Config?.suppressQstForAoe ?: false
         val suppressAoe = hl7Config?.suppressAoe ?: false
+        val applyOTCDefault = hl7Config?.applyOTCDefault ?: false
         val useOrderingFacilityName = hl7Config?.useOrderingFacilityName
             ?: Hl7Configuration.OrderingFacilityName.STANDARD
         val stripInvalidCharactersRegex: Regex? = hl7Config?.stripInvalidCharsRegex?.let {
@@ -644,8 +645,48 @@ class Hl7Serializer(
             }
         }
 
+        if (applyOTCDefault) {
+            applyOTCDefault(terser, report, row)
+        }
+
         replaceValue(replaceValue, terser, message.patienT_RESULT.ordeR_OBSERVATION.observationReps)
         return message
+    }
+
+    private fun applyOTCDefault(
+        terser: Terser,
+        report: Report,
+        row: Int
+    ) {
+        terser.set(formPathSpec("MSH-4-1"), "PRIME OTC")
+        terser.set(formPathSpec("MSH-4-2"), "0OCDCPRIME")
+        terser.set(formPathSpec("MSH-21-1"), "PHLabReport-NoAck")
+        terser.set(formPathSpec("OBX-11-1"), "F")
+        terser.set(formPathSpec("OBR-25-1"), "F")
+        setNote(terser, 1, report.getString(row, "organizationName") ?: "")
+
+        terser.set(formPathSpec("ORC-12-3"), "SA.OverTheCounter")
+        terser.set(formPathSpec("OBR-16-3"), "SA.OverTheCounter")
+        terser.set(formPathSpec("ORC-21-1"), "SA.OverTheCounter")
+        terser.set(formPathSpec("OBX-23-1"), "SA.OverTheCounter")
+
+        terser.set(formPathSpec("ORC-22-1"), "11 Fake AtHome Test Street")
+        terser.set(formPathSpec("ORC-22-3"), "Yakutat")
+        terser.set(formPathSpec("ORC-22-4"), "AK")
+        terser.set(formPathSpec("ORC-22-5"), "99689")
+        terser.set(formPathSpec("ORC-22-9"), "02282")
+
+        terser.set(formPathSpec("ORC-23-5"), "111")
+        terser.set(formPathSpec("ORC-22-6"), "1111111")
+
+        terser.set(formPathSpec("OBX-24-1"), "11 Fake AtHome Test Street")
+        terser.set(formPathSpec("OBX-24-3"), "Yakutat")
+        terser.set(formPathSpec("OBX-24-4"), "AK")
+        terser.set(formPathSpec("OBX-24-5"), "99689")
+        terser.set(formPathSpec("OBX-24-9"), "02282")
+
+        terser.set(formPathSpec("OBX-15-1"), "00Z0000014")
+        terser.set(formPathSpec("OBX-23-10"), "00Z0000014")
     }
 
     /**
