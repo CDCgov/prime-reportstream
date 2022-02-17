@@ -8,6 +8,7 @@ https_cert_names = [
   "prime-cdc-gov",
   "reportstream-cdc-gov",
 ]
+okta_base_url             = "hhs-prime.okta.com"
 okta_redirect_url         = "https://prime.cdc.gov/download"
 aad_object_keyvault_admin = "5c6a951e-a4c2-4890-b62c-0ed8179501bb" # CT-PRIMEDATAHUBPRD-DMZ-AZ-Contributor
 

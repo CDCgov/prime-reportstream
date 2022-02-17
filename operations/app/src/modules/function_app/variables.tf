@@ -30,6 +30,11 @@ variable "ai_connection_string" {
   sensitive   = true
 }
 
+variable "okta_base_url" {
+  type        = string
+  description = "Okta base URL"
+}
+
 variable "okta_redirect_url" {
   type        = string
   description = "Okta Redirect URL"

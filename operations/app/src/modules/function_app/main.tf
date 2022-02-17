@@ -5,7 +5,7 @@ locals {
 
     "PRIME_ENVIRONMENT" = (var.environment == "prod" ? "prod" : "test")
 
-    "OKTA_baseUrl"  = "hhs-prime.okta.com"
+    "OKTA_baseUrl"  = var.okta_base_url
     "OKTA_redirect" = var.okta_redirect_url
 
     # Manage client secrets via a Key Vault
@@ -73,7 +73,7 @@ locals {
 
   # Origin records
   cors_all = [
-    "https://hhs-prime.okta.com",
+    "https://${var.okta_base_url}",
   ]
   cors_prod = [
     "https://prime.cdc.gov",
