@@ -700,8 +700,7 @@ data class Element(
             Type.DATETIME -> {
                 try {
                     val normalDateTime = getDateTime(cleanedFormattedValue, format)
-                    val a = normalDateTime.format(datetimeFormatter)
-                    a
+                    normalDateTime.format(datetimeFormatter)
                 } catch (e: DateTimeParseException) {
                     // if this value can be nullified because it is badly formatted, simply return a blank string
                     if (nullifyValue) {
