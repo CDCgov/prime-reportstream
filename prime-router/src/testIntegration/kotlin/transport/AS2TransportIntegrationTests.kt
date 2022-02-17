@@ -113,7 +113,7 @@ class AS2TransportIntegrationTests {
         val header = makeHeader()
         setupLogger()
         every { as2Transport.sendViaAS2(any(), any(), any(), any(), any()) }
-            .throws(WrappedAS2Exception("cannot connect", ConnectException()))
+            .throws(WrappedAS2Exception.wrap(ConnectException()))
         every { as2Transport.lookupCredentials(any()) }
             .returns(UserJksCredential("x", "xzy", "pass", "a1", "a2"))
 

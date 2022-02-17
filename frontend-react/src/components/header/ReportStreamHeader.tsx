@@ -1,26 +1,32 @@
 import { useOktaAuth } from "@okta/okta-react";
-import { useState } from "react";
+import React, { useState } from "react";
 import {
     Header,
-    Title,
-    PrimaryNav,
     NavMenuButton,
+    PrimaryNav,
+    Title,
 } from "@trussworks/react-uswds";
 import { NavLink } from "react-router-dom";
 import { NetworkErrorBoundary } from "rest-hooks";
+import { library } from "@fortawesome/fontawesome-svg-core";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faRightLeft } from "@fortawesome/free-solid-svg-icons";
 
 import { permissionCheck } from "../../webreceiver-utils";
 import { PERMISSIONS } from "../../resources/PermissionsResource";
+import { getStoredOrg } from "../GlobalContextProvider";
 
-import { OrganizationDropdown } from "./OrgDropdown";
 import { SignInOrUser } from "./SignInOrUser";
 import { HowItWorksDropdown } from "./HowItWorksDropdown";
 import { AdminDropdownNav } from "./AdminDropdownNav";
 import { GettingStartedDropdown } from "./GettingStartedDropdown";
 
+library.add(faRightLeft);
+
 export const ReportStreamHeader = () => {
     const { authState } = useOktaAuth();
     const [expanded, setExpanded] = useState(false);
+    const organization = getStoredOrg();
     const toggleMobileNav = (): void =>
         setExpanded((prvExpanded) => !prvExpanded);
     let itemsMenu = [<GettingStartedDropdown />, <HowItWorksDropdown />];
@@ -105,7 +111,19 @@ export const ReportStreamHeader = () => {
                                 </select>
                             )}
                         >
-                            <OrganizationDropdown />
+                            <NavLink
+                                to={`/admin/settings`}
+                                className="usa-button usa-button--outline usa-button--small padding-1"
+                            >
+                                <span className="usa-breadcrumb padding-left-2 text-semibold text-no-wrap">
+                                    {organization}
+                                    <FontAwesomeIcon
+                                        className="padding-x-1 padding-top-0 text-primary-vivid"
+                                        icon="right-left"
+                                        size="sm"
+                                    />
+                                </span>
+                            </NavLink>
                         </NetworkErrorBoundary>
                     ) : null}
                     <SignInOrUser />
