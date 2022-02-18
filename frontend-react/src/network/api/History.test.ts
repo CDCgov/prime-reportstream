@@ -1,4 +1,4 @@
-import { Endpoint } from "../NetworkTypes";
+import { Endpoint } from "../api/Api";
 
 import { Api } from "./Api";
 import { HistoryApi } from "./History";
@@ -22,6 +22,6 @@ describe("History.ts", () => {
         const detailEndpoint: Endpoint = HistoryApi.detail(testId);
 
         expect(detailEndpoint.url).toBe(`${HistoryApi.baseUrl}/${testId}`);
-        expect(detailEndpoint.api).toBe(HistoryApi)
+        expect(detailEndpoint.api).toBe(HistoryApi);
     });
 });

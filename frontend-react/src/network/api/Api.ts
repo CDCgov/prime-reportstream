@@ -4,20 +4,22 @@ import {
     getStoredOktaToken,
     getStoredOrg,
 } from "../../components/GlobalContextProvider";
-import { Endpoint } from "../NetworkTypes";
+
+export interface Endpoint {
+    url: string;
+    api: typeof Api;
+}
 
 export abstract class Api {
-    /*
-        Keeping these out of component code, as well, keeps things
-        pretty clean. Happy devs, happy Kev!
-    */
+    /* STATIC MEMBERS */
     static accessToken: string = getStoredOktaToken();
     static organization: string = getStoredOrg();
     static baseUrl: string = "/api";
 
     /*
-        The general idea is an instance per API since headers may vary.
-        This is a default that can be overridden 
+        This global config handles most use cases in which we
+        call the API. This can be overridden in a child class
+        as needed. 
     */
     static config: AxiosRequestConfig = {
         baseURL: `${process.env.REACT_APP_BACKEND_URL}`,
@@ -38,4 +40,6 @@ export abstract class Api {
             api: api,
         };
     }
+
+    /* TODO: A generic test response generator like what we've made for HistoryApi */
 }

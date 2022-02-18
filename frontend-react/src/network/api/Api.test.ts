@@ -1,4 +1,4 @@
-import { Endpoint } from "../NetworkTypes";
+import { Endpoint } from "../api/Api";
 
 import { Api } from "./Api";
 

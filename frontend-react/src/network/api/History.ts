@@ -1,5 +1,5 @@
-import { Endpoint } from "../NetworkTypes";
-import axios from 'axios'
+import { Endpoint } from "../api/Api";
+
 import { Api } from "./Api";
 
 /* 
@@ -24,7 +24,6 @@ export class Report {
     content: string = "";
     fieldName: string = "";
     mimeType: string = "";
-
 }
 
 export class Action {
@@ -33,9 +32,16 @@ export class Action {
     action: string | undefined;
 }
 
+/* 
+    Typically the only things needing set in a class extending our Api class
+    will be an override to the baseUrl. You could override the config, as well,
+    in cases where alternative/additional headers are necessary.
+*/
 export class HistoryApi extends Api {
+    /* MEMBER OVERRIDES */
     static baseUrl: string = "/api/history/report";
 
+    /* ENDPOINTS */
     static list = (): Endpoint => {
         return HistoryApi.generateEndpoint(this.baseUrl, this);
     };
@@ -44,22 +50,15 @@ export class HistoryApi extends Api {
         return HistoryApi.generateEndpoint(`${this.baseUrl}/${reportId}`, this);
     };
 
-    static testCall = (type: "list" | "detail"): Promise<unknown> => {
-        if (type == "list") {
-            return axios.get<Report[]>(this.list().url, this.config)
-        } else {
-            return axios.get<Report[]>(this.detail('123').url, this.config)
-        }
-    }
-
+    /* FOR TESTING ONLY */
     static testResponse = (many: number): Report | Report[] => {
-        if (many == 1) return new Report
+        if (many === 1) return new Report();
 
-        const responseArray: Report[] = []
+        const responseArray: Report[] = [];
         while (many > 0) {
-            responseArray[many] = new Report
-            many -= 1
+            responseArray[many] = new Report();
+            many -= 1;
         }
-        return responseArray
-    }
+        return responseArray;
+    };
 }
