@@ -683,7 +683,7 @@ dependencies {
     implementation("commons-codec:commons-codec:1.15")
     implementation("commons-io:commons-io:2.11.0")
     implementation("org.postgresql:postgresql:42.3.0")
-    implementation("com.zaxxer:HikariCP:5.0.0")
+    implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("org.flywaydb:flyway-core:8.4.2")
     implementation("org.commonmark:commonmark:0.18.1")
     implementation("com.google.guava:guava:31.0.1-jre")
