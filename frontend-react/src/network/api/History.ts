@@ -1,5 +1,5 @@
 import { Endpoint } from "../NetworkTypes";
-
+import axios from 'axios'
 import { Api } from "./Api";
 
 /* 
@@ -24,6 +24,7 @@ export class Report {
     content: string = "";
     fieldName: string = "";
     mimeType: string = "";
+
 }
 
 export class Action {
@@ -42,4 +43,23 @@ export class HistoryApi extends Api {
     static detail = (reportId: string): Endpoint => {
         return HistoryApi.generateEndpoint(`${this.baseUrl}/${reportId}`, this);
     };
+
+    static testCall = (type: "list" | "detail"): Promise<unknown> => {
+        if (type == "list") {
+            return axios.get<Report[]>(this.list().url, this.config)
+        } else {
+            return axios.get<Report[]>(this.detail('123').url, this.config)
+        }
+    }
+
+    static testResponse = (many: number): Report | Report[] => {
+        if (many == 1) return new Report
+
+        const responseArray: Report[] = []
+        while (many > 0) {
+            responseArray[many] = new Report
+            many -= 1
+        }
+        return responseArray
+    }
 }

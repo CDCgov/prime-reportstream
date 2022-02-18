@@ -1,4 +1,4 @@
-import axios, { AxiosInstance } from "axios";
+import { AxiosRequestConfig } from "axios";
 
 import {
     getStoredOktaToken,
@@ -19,14 +19,14 @@ export abstract class Api {
         The general idea is an instance per API since headers may vary.
         This is a default that can be overridden 
     */
-    static instance: AxiosInstance = axios.create({
+    static config: AxiosRequestConfig = {
         baseURL: `${process.env.REACT_APP_BACKEND_URL}`,
         headers: {
             Authorization: `Bearer ${this.accessToken}`,
             Organization: this.organization,
         },
         responseType: "json",
-    });
+    };
 
     /*
         Super convenient way to generate an Endpoint in child classes!

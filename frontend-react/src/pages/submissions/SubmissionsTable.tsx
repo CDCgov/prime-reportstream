@@ -19,7 +19,7 @@ function SubmissionsTable() {
 
     // state of pagination
     const [paginationCursor, setPaginationCursor] = useState("");
-    const [paginationSort, setPaginationSort] = useState("DESC");
+    const [paginationSort, setPaginationSort] = useState("ASC");
 
     const submissions: SubmissionsResource[] = useResource(
         SubmissionsResource.list(),
