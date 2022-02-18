@@ -5,6 +5,7 @@ import assertk.assertions.contains
 import assertk.assertions.doesNotContain
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
+import assertk.assertions.isFailure
 import assertk.assertions.isFalse
 import assertk.assertions.isGreaterThan
 import assertk.assertions.isNotEmpty
@@ -176,6 +177,19 @@ internal class ElementTests {
         }
         one.toNormalized("     ").run {
             assertThat(this).isEqualTo("")
+        }
+
+        // Hours with single digits and afternoon times
+        var testTimes = listOf(
+            "3/30/1998 9:35", "3/30/1998 09:35", "1998/3/30 9:35", "1998/3/30 09:35", "19980330 9:35:00",
+            "19980330 09:35:00", "1998-03-30 9:35:00", "1998-03-30 09:35:00"
+        )
+        testTimes.forEach {
+            assertThat(one.toNormalized(it)).isEqualTo("199803300935-0600")
+        }
+        testTimes = listOf("11/30/1998 16:35", "1998/11/30 16:35", "19981130 16:35:00", "1998-11-30 16:35:00")
+        testTimes.forEach {
+            assertThat(one.toNormalized(it)).isEqualTo("199811301635-0600")
         }
     }
 
@@ -607,7 +621,10 @@ internal class ElementTests {
         )
 
         // passing through a valid date of known manual formats does not throw an error
-        val dateTimeStrings = arrayOf("12012021", "12/2/2021", "2021/12/3", "12/4/2021 09:00", "2021/12/05 10:00")
+        val dateTimeStrings = arrayOf(
+            "12012021", "12/2/2021", "2021/12/3", "12/4/2021 09:00", "2021/12/05 10:00",
+            "3/30/1998 9:35", "1998/3/30 9:35", "2022-01-30 9:35:09", "20220130 9:35:09", "20220130 09:35:09"
+        )
 
         dateTimeStrings.forEach { dateTimeString ->
             assertThat(
@@ -964,23 +981,23 @@ internal class ElementTests {
         )
 
         // Element has value and mapperAlwaysRun is false, so we get the raw value
-        var finalValue = elements[0].processValue(mappedValues, schema)
+        var finalValue = elements[0].processValue(mappedValues, schema, itemIndex = 1)
         assertThat(finalValue.value).isEqualTo(mappedValues[elements[0].name])
 
         // Element with no raw value, no mapper and default returns a default.
-        finalValue = elements[1].processValue(mappedValues, schema)
+        finalValue = elements[1].processValue(mappedValues, schema, itemIndex = 1)
         assertThat(finalValue.value).isEqualTo(elements[1].default)
 
         // Element with mapper and no raw value returns mapper value
-        finalValue = elements[2].processValue(mappedValues, schema)
+        finalValue = elements[2].processValue(mappedValues, schema, itemIndex = 1)
         assertThat(finalValue.value).isEqualTo("${mappedValues[elements[0].name]}, ${mappedValues[elements[4].name]}")
 
         // Element with raw value and mapperAlwaysRun to false returns raw value
-        finalValue = elements[3].processValue(mappedValues, schema)
+        finalValue = elements[3].processValue(mappedValues, schema, itemIndex = 1)
         assertThat(finalValue.value).isEqualTo(mappedValues[elements[3].name])
 
         // Element with raw value and mapperAlwaysRun to true returns mapper value
-        finalValue = elements[4].processValue(mappedValues, schema)
+        finalValue = elements[4].processValue(mappedValues, schema, itemIndex = 1)
         assertThat(finalValue.value).isEqualTo("${mappedValues[elements[0].name]}, ${mappedValues[elements[4].name]}")
 
         // Element with $index
@@ -988,19 +1005,19 @@ internal class ElementTests {
         assertThat(finalValue.value).isEqualTo("${mappedValues[elements[5].name]}")
 
         // Element with $currentDate
-        finalValue = elements[6].processValue(mappedValues, schema)
+        finalValue = elements[6].processValue(mappedValues, schema, itemIndex = 1)
         assertThat(finalValue.value).isEqualTo("${mappedValues[elements[6].name]}")
 
         // Default does not override
-        finalValue = elements[7].processValue(mappedValues, schema)
+        finalValue = elements[7].processValue(mappedValues, schema, itemIndex = 1)
         assertThat(finalValue.value).isEqualTo("${mappedValues[elements[7].name]}")
 
         // Default forces override
-        finalValue = elements[8].processValue(mappedValues, schema)
+        finalValue = elements[8].processValue(mappedValues, schema, itemIndex = 1)
         assertThat(finalValue.value).isEqualTo("someDefault")
 
         // Default forces override, and the default is null.
-        finalValue = elements[9].processValue(mappedValues, schema)
+        finalValue = elements[9].processValue(mappedValues, schema, itemIndex = 1)
         assertThat(finalValue.value).isEqualTo("")
     }
 
@@ -1109,34 +1126,34 @@ internal class ElementTests {
         )
 
         // Simple value tests with elements with no mapper or default value
-        assertThat(elementA.processValue(emptyMap(), schema).value).isEqualTo("")
+        assertThat(elementA.processValue(emptyMap(), schema, itemIndex = 1).value).isEqualTo("")
 
         var allElementValues = mapOf(elementB.name to "")
-        assertThat(elementA.processValue(allElementValues, schema).value).isEqualTo("")
+        assertThat(elementA.processValue(allElementValues, schema, itemIndex = 1).value).isEqualTo("")
 
         allElementValues = mapOf(elementA.name to "")
-        assertThat(elementA.processValue(allElementValues, schema).value).isEqualTo("")
+        assertThat(elementA.processValue(allElementValues, schema, itemIndex = 1).value).isEqualTo("")
 
         allElementValues = mapOf(elementA.name to "value")
-        assertThat(elementA.processValue(allElementValues, schema).value).isEqualTo("value")
+        assertThat(elementA.processValue(allElementValues, schema, itemIndex = 1).value).isEqualTo("value")
 
         // Simple value tests with elements with no mapper, but default value
         allElementValues = mapOf(elementA.name to "", elementB.name to "")
-        assertThat(elementB.processValue(allElementValues, schema).value).isEqualTo(elementB.default)
+        assertThat(elementB.processValue(allElementValues, schema, itemIndex = 1).value).isEqualTo(elementB.default)
 
         allElementValues = mapOf(elementA.name to "", elementB.name to "value")
-        assertThat(elementB.processValue(allElementValues, schema).value).isEqualTo("value")
+        assertThat(elementB.processValue(allElementValues, schema, itemIndex = 1).value).isEqualTo("value")
 
         // Now with a mapper that returns an empty/missing value
         allElementValues = mapOf(elementC.name to "")
-        assertThat(elementC.processValue(allElementValues, schema).value).isEqualTo("")
+        assertThat(elementC.processValue(allElementValues, schema, itemIndex = 1).value).isEqualTo("")
 
         allElementValues = mapOf(elementD.name to "")
-        assertThat(elementD.processValue(allElementValues, schema).value).isEqualTo(elementD.default)
+        assertThat(elementD.processValue(allElementValues, schema, itemIndex = 1).value).isEqualTo(elementD.default)
 
         // Now with a mapper that returns some non-blank value
         allElementValues = mapOf(elementA.name to "untrimmedvalue  ")
-        assertThat(elementE.processValue(allElementValues, schema).value).isEqualTo("untrimmedvalue")
+        assertThat(elementE.processValue(allElementValues, schema, itemIndex = 1).value).isEqualTo("untrimmedvalue")
     }
 
     @Test
@@ -1210,48 +1227,52 @@ internal class ElementTests {
             )
         )
 
-        var result = elementA.processValue(emptyMap(), schema)
+        var result = elementA.processValue(emptyMap(), schema, itemIndex = 1)
         assertThat(result.errors).isEmpty()
         assertThat(result.warnings).isEmpty()
 
-        result = elementB.processValue(emptyMap(), schema)
+        result = elementB.processValue(emptyMap(), schema, itemIndex = 1)
         assertThat(result.errors).isEmpty()
         assertThat(result.warnings.size).isEqualTo(1)
 
-        result = elementC.processValue(emptyMap(), schema)
+        result = elementC.processValue(emptyMap(), schema, itemIndex = 1)
         assertThat(result.errors).isEmpty()
         assertThat(result.warnings.size).isEqualTo(2)
 
         // The mapper returns an error, but the field is not required, so we get warnings.
-        result = elementD.processValue(emptyMap(), schema)
+        result = elementD.processValue(emptyMap(), schema, itemIndex = 1)
         assertThat(result.errors).isEmpty()
         assertThat(result.warnings.size).isEqualTo(1)
 
-        result = elementE.processValue(emptyMap(), schema)
+        result = elementE.processValue(emptyMap(), schema, itemIndex = 1)
         assertThat(result.errors).isEmpty()
         assertThat(result.warnings.size).isEqualTo(2)
 
-        result = elementF.processValue(emptyMap(), schema)
+        result = elementF.processValue(emptyMap(), schema, itemIndex = 1)
         assertThat(result.errors).isEmpty()
         assertThat(result.warnings.size).isEqualTo(2)
 
         // The element value is required, so we always get an error.
-        result = elementG.processValue(emptyMap(), schema)
+        result = elementG.processValue(emptyMap(), schema, itemIndex = 1)
         assertThat(result.errors).isNotEmpty()
         assertThat(result.warnings).isEmpty()
 
-        result = elementH.processValue(emptyMap(), schema)
+        result = elementH.processValue(emptyMap(), schema, itemIndex = 1)
         assertThat(result.errors).isNotEmpty()
         assertThat(result.warnings).isEmpty()
 
-        result = elementI.processValue(emptyMap(), schema)
+        result = elementI.processValue(emptyMap(), schema, itemIndex = 1)
         assertThat(result.errors).isNotEmpty()
         assertThat(result.warnings).isNotEmpty()
 
         // And now just a required element that has a blank value
-        result = elementJ.processValue(emptyMap(), schema)
+        result = elementJ.processValue(emptyMap(), schema, itemIndex = 1)
         assertThat(result.errors).isNotEmpty()
         assertThat(result.warnings).isEmpty()
+
+        // Test an incorrect index
+        assertThat { elementJ.processValue(emptyMap(), schema, itemIndex = 0) }
+            .isFailure()
     }
 
     @Test

@@ -99,7 +99,7 @@ class GAENTransportIntegrationTests : TransportIntegrationTests() {
         every { client.executeRequest(any()).data } returns successJson.toByteArray()
         FuelManager.instance.client = client
 
-        val actionHistory = ActionHistory(TaskAction.send, context)
+        val actionHistory = ActionHistory(TaskAction.send)
         val retryItems = gaenTransport.send(transportType, header, UUID.randomUUID(), null, context, actionHistory)
 
         assertThat(retryItems).isNull()
@@ -118,7 +118,7 @@ class GAENTransportIntegrationTests : TransportIntegrationTests() {
         every { client.executeRequest(any()).data } returns maintenanceJson.toByteArray()
         FuelManager.instance.client = client
 
-        val actionHistory = ActionHistory(TaskAction.send, context)
+        val actionHistory = ActionHistory(TaskAction.send)
         val retryItems = gaenTransport.send(transportType, header, UUID.randomUUID(), null, context, actionHistory)
 
         assertThat(RetryToken.isAllItems(retryItems)).isTrue()
@@ -137,7 +137,7 @@ class GAENTransportIntegrationTests : TransportIntegrationTests() {
         every { client.executeRequest(any()).data } returns errorJson.toByteArray()
         FuelManager.instance.client = client
 
-        val actionHistory = ActionHistory(TaskAction.send, context)
+        val actionHistory = ActionHistory(TaskAction.send)
         val retryItems = gaenTransport.send(transportType, header, UUID.randomUUID(), null, context, actionHistory)
 
         assertThat(retryItems).isNull()
