@@ -179,13 +179,17 @@ internal class ElementTests {
             assertThat(this).isEqualTo("")
         }
 
-        // Hours with single digits
-        val testTimes = listOf(
+        // Hours with single digits and afternoon times
+        var testTimes = listOf(
             "3/30/1998 9:35", "3/30/1998 09:35", "1998/3/30 9:35", "1998/3/30 09:35", "19980330 9:35:00",
             "19980330 09:35:00", "1998-03-30 9:35:00", "1998-03-30 09:35:00"
         )
         testTimes.forEach {
-            assertThat(one.toNormalized(it)).isEqualTo("199803300935+0000")
+            assertThat(one.toNormalized(it)).isEqualTo("199803300935-0600")
+        }
+        testTimes = listOf("11/30/1998 16:35", "1998/11/30 16:35", "19981130 16:35:00", "1998-11-30 16:35:00")
+        testTimes.forEach {
+            assertThat(one.toNormalized(it)).isEqualTo("199811301635-0600")
         }
     }
 
@@ -410,23 +414,23 @@ internal class ElementTests {
 
         // Test MMddyyyy, 12012021 format
         one.toNormalized("12012021").run {
-            assertThat(this).isEqualTo("202112010000+0000")
+            assertThat(this).isEqualTo("202112010000-0600")
         }
         // Test M/d/yyyy,12/2/2021 format
         one.toNormalized("12/2/2021").run {
-            assertThat(this).isEqualTo("202112020000+0000")
+            assertThat(this).isEqualTo("202112020000-0600")
         }
         // Test yyyy/M/d,2021/12/3
         one.toNormalized("2021/12/3").run {
-            assertThat(this).isEqualTo("202112030000+0000")
+            assertThat(this).isEqualTo("202112030000-0600")
         }
         // Test M/d/yyyy HH:mm,12/4/2021 09:00
         one.toNormalized("12/4/2021 09:00").run {
-            assertThat(this).isEqualTo("202112040900+0000")
+            assertThat(this).isEqualTo("202112040900-0600")
         }
         // Test yyyy/M/d HH:mm,2021/12/05 10:00
         one.toNormalized("2021/12/05 10:00").run {
-            assertThat(this).isEqualTo("202112051000+0000")
+            assertThat(this).isEqualTo("202112051000-0600")
         }
     }
 

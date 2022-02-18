@@ -16,6 +16,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.OffsetDateTime
+import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
@@ -862,10 +863,12 @@ data class Element(
             Instant::from,
             LocalDate::from
         )
+        // Using CENTRAL timezone here is inconsistent with other conversions, but changing to UTC
+        // will cause issues to STLTs.
         val parsedValue = if (ta is LocalDateTime) {
-            LocalDateTime.from(ta).atZone(ZoneOffset.UTC).toOffsetDateTime()
+            LocalDateTime.from(ta).atZone(ZoneId.of(USTimeZone.CENTRAL.zoneId)).toOffsetDateTime()
         } else {
-            LocalDate.from(ta).atStartOfDay(ZoneOffset.UTC).toOffsetDateTime()
+            LocalDate.from(ta).atStartOfDay(ZoneId.of(USTimeZone.CENTRAL.zoneId)).toOffsetDateTime()
         }
 
         return parsedValue
