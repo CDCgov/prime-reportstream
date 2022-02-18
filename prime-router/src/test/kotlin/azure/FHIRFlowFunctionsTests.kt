@@ -198,7 +198,7 @@ badffffff9bffffffcb46fffffff5ffffff886fffffff84ffffff9efffffffaffffffd23bfffffff
         val fhirEngine = FHIRFlowFunctions()
         testCases.forEach { case ->
             val request = MockHttpRequestMessage(case.input)
-            val response = fhirEngine.receive(request)
+            val response = fhirEngine.convert(request)
             assertThat(response.status).isEqualTo(case.status)
             if (case.status == HttpStatus.OK) {
                 val body = response.body

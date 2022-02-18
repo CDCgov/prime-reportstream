@@ -29,14 +29,14 @@ class FHIRFlowFunctions : Logging {
     /**
      * An azure function for processing an HL7 message into of FHIR
      */
-    @FunctionName("translate-hl7-fhir")
+    @FunctionName("convert")
     @StorageAccount("AzureWebJobsStorage")
-    fun receive(
+    fun convert(
         @HttpTrigger(
-            name = "translate",
+            name = "convert",
             methods = [HttpMethod.POST],
-            authLevel = AuthorizationLevel.ANONYMOUS,
-            route = "translate"
+            authLevel = AuthorizationLevel.FUNCTION,
+            route = "\$convert-data"
         ) request: HttpRequestMessage<String?>,
     ): HttpResponseMessage {
         val responseBuilder = request.createResponseBuilder(HttpStatus.BAD_REQUEST)
