@@ -122,6 +122,7 @@ class WorkflowEngineTests {
 
     @Test
     fun `test dispatchReport with Error`() {
+        mockkObject(BlobAccess.Companion)
 
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
@@ -138,7 +139,7 @@ class WorkflowEngineTests {
         every { accessSpy.insertTask(report = eq(report1), bodyFormat.toString(), bodyUrl, eq(event)) }.returns(Unit)
 
 // todo clean up this test      every { queueMock.sendMessage(eq(event)) }.answers { throw Exception("problem") }
-        every { blobMock.deleteBlob(eq(bodyUrl)) }.returns(Unit)
+        every { BlobAccess.Companion.deleteBlob(eq(bodyUrl)) }.returns(Unit)
         every { actionHistory.trackCreatedReport(any(), any(), any(), any()) }.returns(Unit)
 
         val engine = makeEngine(metadata, settings)
@@ -161,6 +162,8 @@ class WorkflowEngineTests {
 
     @Test
     fun `test receiveReport`() {
+        mockkObject(BlobAccess.Companion)
+
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val settings = FileSettings()
@@ -168,8 +171,15 @@ class WorkflowEngineTests {
         val actionHistory = mockk<ActionHistory>()
         val sender = Sender("senderName", "org", Sender.Format.CSV, "covid-19", CustomerStatus.INACTIVE, one.name)
 
-        every { blobMock.uploadBody(Report.Format.CSV, any(), any(), sender.fullName, Event.EventAction.RECEIVE) }
-            .returns(BlobAccess.BlobInfo(Report.Format.CSV, "http://anyblob.com", "".toByteArray()))
+        every {
+            BlobAccess.Companion.uploadBody(
+                Report.Format.CSV,
+                any(),
+                any(),
+                sender.fullName,
+                Event.EventAction.RECEIVE
+            )
+        }.returns(BlobAccess.BlobInfo(Report.Format.CSV, "http://anyblob.com", "".toByteArray()))
         every { actionHistory.trackExternalInputReport(any(), any()) }.returns(Unit)
 
         val engine = makeEngine(metadata, settings)
@@ -177,7 +187,7 @@ class WorkflowEngineTests {
 
         verify(exactly = 1) {
             actionHistory.trackExternalInputReport(any(), any())
-            blobMock.uploadBody(any(), any(), any(), any(), any())
+            BlobAccess.Companion.uploadBody(any(), any(), any(), any(), any())
         }
         confirmVerified(blobMock)
     }

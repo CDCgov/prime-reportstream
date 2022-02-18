@@ -345,22 +345,6 @@
       keys: null
       processingType: "sync"
 
-- name: "ocrapidtest-ca"
-  description: "OC Rapid Test (CA) - CSV Uploader"
-  jurisdiction: "FEDERAL"
-  stateCode: null
-  countyName: null
-  filters: []
-  senders:
-    - name: "default"
-      organizationName: "ocrapidtest-ca"
-      format: "CSV"
-      topic: "covid-19"
-      customerStatus: "testing"
-      schemaName: "upload-covid-19"
-      keys: null
-      processingType: "sync"
-
 - name: "warrior-dx-co"
   description: "Warrior Diagnostics (CO) - CSV Uploader"
   jurisdiction: "FEDERAL"
@@ -582,26 +566,23 @@
       jurisdictionalFilter:
         - "orEquals(patient_state, CO, ordering_facility_state, CO)"
       translation:
-        schemaName: "co/co-covid-19-redox"
-        format: "REDOX"
-        defaults:
-          processing_mode_code: "P"
-          redox_source_name: "Prime Data Hub (Staging)"
-          redox_source_id: "d89d4057-930f-4c5b-bb39-8cddb326e928"
-          redox_destination_id: "62d62d52-3771-4151-aff4-4a3d420a8b7a"
-          redox_destination_name: "Colorado Dept of Public Health (CDPHE)"
-        nameFormat: "standard"
-        type: "CUSTOM"
-      deidentify: false
+        type: HL7
+        useBatchHeaders: true
+        receivingApplicationName: COPHD
+        receivingApplicationOID: 2.16.840.1.114222.4.3.4.34.1.1
+        receivingFacilityName: COPHD
+        receivingFacilityOID: 2.16.840.1.113883.3.89.109.100.1.3
       timing:
-        operation: "MERGE"
-        numberPerDay: 1440
-        initialTime: "00:00"
-        timeZone: "EASTERN"
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+        timeZone: CENTRAL
       transport:
-        type: REDOX
-        apiKey: some_key
-        baseUrl: http://redox:1080
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
 
 - name: tx-phd
   description: Texas Department of State Health Services
@@ -1734,104 +1715,6 @@
         initialTime: 00:00
         timeZone: EASTERN
 
-    - name: elr-bucks-local
-      organizationName: pa-phd
-      topic: covid-19
-      customerStatus: active
-      jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Bucks)" ]
-      translation:
-        type: CUSTOM
-        schemaName: pa/pa-covid-19-redox
-        defaults:
-          processing_mode_code: T
-          redox_destination_id: e0d33443-c134-4e5f-9c15-69f9ba6340bf
-          redox_destination_name: "CDC Bucks County PDH Destination (s)"
-          redox_source_id: d89d4057-930f-4c5b-bb39-8cddb326e928
-          redox_source_name: "Prime Data Hub (Staging)"
-        format: REDOX
-      timing:
-        operation: MERGE
-        numberPerDay: 1440 # Every minute
-        initialTime: 00:00
-    - name: elr-chester-local
-      topic: covid-19
-      customerStatus: active
-      organizationName: pa-phd
-      jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Chester, Delaware)" ]
-      translation:
-        type: CUSTOM
-        schemaName: pa/pa-covid-19-redox
-        defaults:
-          processing_mode_code: T
-          redox_destination_id: 86aa61ac-8864-417f-860e-d83ae46c951f
-          redox_destination_name: "CDC Chester County PDH Destination (s)"
-          redox_source_id: d89d4057-930f-4c5b-bb39-8cddb326e928
-          redox_source_name: "Prime Data Hub (Staging)"
-        format: REDOX
-      timing:
-        operation: MERGE
-        numberPerDay: 1440 # Every minute
-        initialTime: 00:00
-    - name: elr-montgomery-local
-      organizationName: pa-phd
-      topic: covid-19
-      customerStatus: active
-      jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Montgomery)" ]
-      translation:
-        type: CUSTOM
-        schemaName: pa/pa-covid-19-redox
-        defaults:
-          processing_mode_code: T
-          redox_destination_id: 21485dc8-8a6e-49d3-8b80-46531e015039
-          redox_destination_name: "CDC Montgomery County PDH Destination (s)"
-          redox_source_id: d89d4057-930f-4c5b-bb39-8cddb326e928
-          redox_source_name: "Prime Data Hub (Staging)"
-        format: REDOX
-      timing:
-        operation: MERGE
-        numberPerDay: 1440 # Every minute
-        initialTime: 00:00
-    - name: elr-philadelphia-local
-      organizationName: pa-phd
-      topic: covid-19
-      customerStatus: active
-      jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Philadelphia)" ]
-      deidentify: false
-      translation:
-        type: CUSTOM
-        schemaName: pa/pa-covid-19-redox
-        defaults:
-          processing_mode_code: T
-          redox_destination_id: 09261a90-bc55-4a88-953c-eff0240feab1
-          redox_destination_name: "CDC Philadelphia PDH Destination (p)"
-          redox_source_id: d89d4057-930f-4c5b-bb39-8cddb326e928
-          redox_source_name: "Prime Data Hub (Staging)"
-        format: REDOX
-      timing:
-        operation: MERGE
-        numberPerDay: 1440 # Every minute
-        initialTime: 00:00
-    - name: elr-allegheny-local
-      organizationName: pa-phd
-      topic: covid-19
-      customerStatus: active
-      jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Allegheny)" ]
-      deidentify: false
-      translation:
-        type: CUSTOM
-        schemaName: pa/pa-covid-19-redox
-        defaults:
-          processing_mode_code: T
-          redox_destination_id: eb6c3769-75a4-4d10-9de0-8095cdc7f10f
-          redox_destination_name: "CDC Allegheny County PDH Destination (s)"
-          redox_source_id: d89d4057-930f-4c5b-bb39-8cddb326e928
-          redox_source_name: "Prime Data Hub (Staging)"
-        format: REDOX
-      timing:
-        operation: MERGE
-        numberPerDay: 1440 # Every minute
-        initialTime: 00:00
-
 - name: pa-chester-phd
   description: Health Department - Chester County, Pennsylvania
   jurisdiction: COUNTY
@@ -2063,29 +1946,46 @@
         port: 22
         filePath: ./upload
         credentialName: DEFAULT-SFTP
-    - name: REDOX
+    - name: HL7_BATCH_PPK
+      externalName: Ignore HL7_BATCH PPK
       organizationName: ignore
       topic: covid-19
       customerStatus: inactive
-      jurisdictionalFilter: [ "matches(ordering_facility_county, REDOX)" ]
+      jurisdictionalFilter: [ "matches(ordering_facility_county, HL7_BATCH)" ]
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
       translation:
         type: CUSTOM
-        schemaName: pa/pa-covid-19-redox
-        format: REDOX
-        defaults:
-          processing_mode_code: T
-          redox_destination_id: 62d62d52-3771-4151-aff4-4a3d420a8b7a
-          redox_destination_name: "Prime Local Redox Destination"
-          redox_source_id: d89d4057-930f-4c5b-bb39-8cddb326e928
-          redox_source_name: "Prime Hub (Local)"
+        schemaName: az/az-covid-19-hl7
+        format: HL7_BATCH
       transport:
-        type: REDOX
-        apiKey: some_key
-        baseUrl: http://redox:1080
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP-PPK
+    - name: HL7_BATCH_PEM
+      externalName: Ignore HL7_BATCH PEM
+      organizationName: ignore
+      topic: covid-19
+      customerStatus: inactive
+      jurisdictionalFilter: [ "matches(ordering_facility_county, HL7_BATCH)" ]
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+      translation:
+        type: CUSTOM
+        schemaName: az/az-covid-19-hl7
+        format: HL7_BATCH
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP-PEM
     - name: AS2
       organizationName: ignore
       topic: covid-19
@@ -2579,6 +2479,7 @@
         suppressNonNPI: true
         truncateHDNamespaceIds: true
         truncateHl7Fields: OBX-23-1
+        useHighPrecisionHeaderDateTimeFormat: true
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
@@ -3339,6 +3240,102 @@
   senders:
     - name: "default"
       organizationName: "kern-county-phsd-ca"
+      format: "CSV"
+      topic: "covid-19"
+      customerStatus: "testing"
+      schemaName: "upload-covid-19"
+      keys: null
+      processingType: "sync"
+
+- name: "covidclinic-org"
+  description: "Covid Clinic - CSV Uploader"
+  jurisdiction: "FEDERAL"
+  stateCode: null
+  countyName: null
+  filters: []
+  senders:
+    - name: "default"
+      organizationName: "covidclinic-org"
+      format: "CSV"
+      topic: "covid-19"
+      customerStatus: "testing"
+      schemaName: "upload-covid-19"
+      keys: null
+      processingType: "sync"
+
+- name: "stemexpress-ca"
+  description: "Stemexpress in CA - CSV Uploader"
+  jurisdiction: "FEDERAL"
+  stateCode: null
+  countyName: null
+  filters: []
+  senders:
+    - name: "default"
+      organizationName: "stemexpress-ca"
+      format: "CSV"
+      topic: "covid-19"
+      customerStatus: "testing"
+      schemaName: "upload-covid-19"
+      keys: null
+      processingType: "sync"
+
+- name: "hollywoodsmiles-ca"
+  description: "Hollywood Smiles in CA - CSV Uploader"
+  jurisdiction: "FEDERAL"
+  stateCode: null
+  countyName: null
+  filters: []
+  senders:
+    - name: "default"
+      organizationName: "hollywoodsmiles-ca"
+      format: "CSV"
+      topic: "covid-19"
+      customerStatus: "testing"
+      schemaName: "upload-covid-19"
+      keys: null
+      processingType: "sync"
+
+- name: "newport-childrens-hospital-ca"
+  description: "Newport Childrens Hospital (CA) - CSV Uploader"
+  jurisdiction: "FEDERAL"
+  stateCode: null
+  countyName: null
+  filters: []
+  senders:
+    - name: "default"
+      organizationName: "newport-childrens-hospital-ca"
+      format: "CSV"
+      topic: "covid-19"
+      customerStatus: "testing"
+      schemaName: "upload-covid-19"
+      keys: null
+      processingType: "sync"
+
+- name: "elitemedlabs-co"
+  description: "EliteMed Laboratories (CO) - CSV Uploader"
+  jurisdiction: "FEDERAL"
+  stateCode: null
+  countyName: null
+  filters: []
+  senders:
+    - name: "default"
+      organizationName: "elitemedlabs-co"
+      format: "CSV"
+      topic: "covid-19"
+      customerStatus: "testing"
+      schemaName: "upload-covid-19"
+      keys: null
+      processingType: "sync"
+
+- name: "youthclinic-co"
+  description: "The Youth Clinic (CO) - CSV Uploader"
+  jurisdiction: "FEDERAL"
+  stateCode: null
+  countyName: null
+  filters: []
+  senders:
+    - name: "default"
+      organizationName: "youthclinic-co"
       format: "CSV"
       topic: "covid-19"
       customerStatus: "testing"

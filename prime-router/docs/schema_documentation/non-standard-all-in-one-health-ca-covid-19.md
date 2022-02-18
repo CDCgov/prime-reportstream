@@ -178,7 +178,7 @@ This field is ignored.
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 ---
 
@@ -226,7 +226,7 @@ Accension number
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -242,7 +242,7 @@ The city of the facility which the test was ordered from
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -294,7 +294,7 @@ The state of the facility which the test was ordered from
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -310,7 +310,7 @@ The address of the facility which the test was ordered from
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -326,7 +326,7 @@ The zip code of the facility which the test was ordered from
 
 **PII**: Yes
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -438,7 +438,7 @@ The phone number of the provider
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Table**: fips-county
 
@@ -458,7 +458,7 @@ The state of the provider
 
 **PII**: Yes
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -474,7 +474,7 @@ The street address of the provider
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -490,7 +490,7 @@ The zip code of the provider
 
 **PII**: Yes
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -547,7 +547,7 @@ Other states may choose to define their own formats.
 
 **Default Value**: U
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Value Sets**
 
@@ -557,11 +557,13 @@ H|Hispanic or Latino|LOCAL
 H|Hispanic|LOCAL
 H|Latino|LOCAL
 H|Mex. Amer./Hispanic|LOCAL
+H|2135-2|LOCAL
 H|H|LOCAL
 N|Non Hispanic or Latino|LOCAL
 N|Non Hispanic|LOCAL
 N|Not Hispanic or Latino|LOCAL
 N|Not Hispanic|LOCAL
+N|2186-5|LOCAL
 N|N|LOCAL
 U|Unknown|LOCAL
 U|U|LOCAL
@@ -586,7 +588,7 @@ Translate multiple inbound ethnicity values to RS / OMB values
 
 **PII**: Yes
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -606,7 +608,7 @@ The patient's first name
 
 **Default Value**: U
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Value Sets**
 
@@ -726,7 +728,7 @@ The patient's phone number with area code
 
 **Default Value**: UNK
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Value Sets**
 
@@ -770,6 +772,7 @@ UNK|U|LOCAL
 UNK|Patient Declines|LOCAL
 UNK|null|LOCAL
 ASKU|Asked, but unknown|LOCAL
+ASKU|ASKU|LOCAL
 
 **Documentation**:
 
@@ -821,7 +824,7 @@ The patient's street address
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -866,7 +869,7 @@ The ID number of the lab order from the placer
 - [SPM-2-1-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.1.3)
 - [SPM-2-2-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2.3)
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -890,7 +893,7 @@ The reporting facility's CLIA
 - [SPM-2-1-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.1.2)
 - [SPM-2-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2.2)
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -941,15 +944,17 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 Code | Display | System
 ---- | ------- | ------
 71836000|Nasopharyngeal structure (body structure)|SNOMED_CT
-71836000|Varied|SNOMED_CT
 71836000|Nasopharyngeal swab|SNOMED_CT
 71836000|258500001|SNOMED_CT
 71836000|Nasopharyngeal aspirate|SNOMED_CT
 71836000|258411007|SNOMED_CT
 71836000|71836000|SNOMED_CT
 45206002|Nasal structure (body structure)|SNOMED_CT
+45206002|Nasal aspirate|SNOMED_CT
+45206002|429931000124105|SNOMED_CT
 45206002|45206002|SNOMED_CT
 53342003|Internal nose structure (body structure)|SNOMED_CT
+53342003|Varied|SNOMED_CT
 53342003|Swab of internal nose|SNOMED_CT
 53342003|Anterior nares swab|SNOMED_CT
 53342003|Mid-turbinate nasal swab|SNOMED_CT
@@ -973,11 +978,21 @@ Code | Display | System
 29092000|119361006|SNOMED_CT
 29092000|119364003|SNOMED_CT
 29092000|119297000|SNOMED_CT
-31389004|Oral|SNOMED_CT
 31389004|Throat Swab|SNOMED_CT
 31389004|Oropharyngeal|SNOMED_CT
 31389004|Oropharyngeal Swab|SNOMED_CT
+31389004|258529004|SNOMED_CT
 31389004|31389004|SNOMED_CT
+123851003|Sputum specimen|SNOMED_CT
+123851003|Sputum|SNOMED_CT
+123851003|119334006|SNOMED_CT
+123851003|Oral|SNOMED_CT
+123851003|Oral Swab|SNOMED_CT
+123851003|418932006|SNOMED_CT
+123851003|Saliva specimen|SNOMED_CT
+123851003|Saliva|SNOMED_CT
+123851003|258560004|SNOMED_CT
+123851003|123851003|SNOMED_CT
 
 **Documentation**:
 
@@ -995,7 +1010,7 @@ Translate inbound text to outbound SNOMED Codes
 
 **Format**: use value found in the Display column
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Value Sets**
 
@@ -1003,10 +1018,10 @@ Code | Display | System
 ---- | ------- | ------
 445297001|Swab of internal nose|SNOMED_CT
 445297001|Nasal Swab|SNOMED_CT
+445297001|Nasal|SNOMED_CT
+445297001|Varied|SNOMED_CT
 445297001|445297001|SNOMED_CT
 258500001|Nasopharyngeal swab|SNOMED_CT
-258500001|Nasal|SNOMED_CT
-258500001|Varied|SNOMED_CT
 258500001|258500001|SNOMED_CT
 871810001|Mid-turbinate nasal swab|SNOMED_CT
 871810001|871810001|SNOMED_CT
@@ -1018,14 +1033,18 @@ Code | Display | System
 429931000124105|429931000124105|SNOMED_CT
 258529004|Throat swab|SNOMED_CT
 258529004|Throat|SNOMED_CT
-258529004|Oral|SNOMED_CT
 258529004|Oropharyngeal|SNOMED_CT
 258529004|Oropharyngeal Swab|SNOMED_CT
 258529004|258529004|SNOMED_CT
+418932006|Oral|SNOMED_CT
+418932006|Oral Swab|SNOMED_CT
+418932006|418932006|SNOMED_CT
 119334006|Sputum specimen|SNOMED_CT
+119334006|Sputum|SNOMED_CT
 119334006|119334006|SNOMED_CT
-119342007|Saliva specimen|SNOMED_CT
-119342007|119342007|SNOMED_CT
+258560004|Saliva specimen|SNOMED_CT
+258560004|Saliva|SNOMED_CT
+258560004|258560004|SNOMED_CT
 258607008|Bronchoalveolar lavage fluid sample|SNOMED_CT
 258607008|258607008|SNOMED_CT
 119364003|Serum specimen|SNOMED_CT
@@ -1075,7 +1094,7 @@ Translate inbound text to outbound SNOMED Codes
 
 **Format**: use value found in the Display column
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Value Sets**
 
@@ -1207,7 +1226,7 @@ the test result is in some intermediate status, is a correction, or is the final
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -1251,7 +1270,7 @@ An example of the ID is 03D2159846
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -1277,7 +1296,7 @@ Typically this will be the same as the `testing_lab_clia`, but potentially could
 - [ORC-3-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.3.2)
 - [PID-3-4-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4.1)
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -1347,7 +1366,7 @@ be offset, so this field takes the `specimen_collection_date_time` field and off
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Table**: fips-county
 
@@ -1367,7 +1386,7 @@ The state for the testing lab
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -1383,7 +1402,7 @@ The street address for the testing lab
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
