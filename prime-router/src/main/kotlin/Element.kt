@@ -1129,6 +1129,8 @@ data class Element(
         const val datePattern = "yyyyMMdd"
         const val datePatternMMddyyyy = "MMddyyyy"
         const val datetimePattern = "yyyyMMddHHmmZZZ"
+        /** includes seconds  */
+        const val highPrecisionDateTimePattern = "yyyyMMddHHmmss.SSSZZZ"
         // isn't she a beauty? This allows for all kinds of possible date time variations
         const val variableDateTimePattern = "[yyyyMMddHHmmssZ]" +
             "[yyyyMMddHHmmZ]" +
@@ -1139,6 +1141,11 @@ data class Element(
             "[yyyy/M/d[ H:mm[:ss[.S[S][S]]]]]"
         val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern(datePattern, Locale.ENGLISH)
         val datetimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern(datetimePattern, Locale.ENGLISH)
+        /** a higher precision date time formatter that includes seconds, and can be used */
+        val highPrecisionDateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern(
+            highPrecisionDateTimePattern,
+            Locale.ENGLISH
+        )
         val manuallyEnteredDateFormats =
             arrayOf(datePattern, "M/d/yyyy", "MMddyyyy", "yyyy/M/d", "M/d/yyyy H:mm", "yyyy/M/d H:mm")
         const val displayToken = "\$display"
