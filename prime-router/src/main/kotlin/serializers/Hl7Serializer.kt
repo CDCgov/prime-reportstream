@@ -126,18 +126,18 @@ class Hl7Serializer(
         val cleanedMessage = reg.replace(message, hl7SegmentDelimiter)
         val messageLines = cleanedMessage.split(hl7SegmentDelimiter)
         val nextMessage = StringBuilder()
-        var reportNumber = 1
+        var messageIndex = 1
 
         /**
          * Parse an HL7 [message] from a string.
          */
         fun parseStringMessage(message: String) {
-            val parsedMessage = convertMessageToMap(message, schema, sender = sender)
+            val parsedMessage = convertMessageToMap(message, messageIndex, schema, sender)
             parsedMessage.errors.forEach {
-                errors.add("Report $reportNumber: $it")
+                errors.add("Report $messageIndex: $it")
             }
             parsedMessage.warnings.forEach {
-                warnings.add("Report $reportNumber: $it")
+                warnings.add("Report $messageIndex: $it")
             }
             if (parsedMessage.row.isNotEmpty())
                 rowResults.add(parsedMessage)
@@ -162,7 +162,7 @@ class Hl7Serializer(
             if (nextMessage.isNotBlank() && it.startsWith("MSH")) {
                 parseStringMessage(nextMessage.toString())
                 nextMessage.clear()
-                reportNumber++
+                messageIndex++
             }
 
             if (it.isNotBlank()) {
@@ -179,10 +179,10 @@ class Hl7Serializer(
     }
 
     /**
-     * Convert an HL7 [message] based on the specified [schema].
+     * Convert an HL7 [message] with [messageIndex] index based on the specified [schema] and [sender].
      * @returns the resulting data
      */
-    fun convertMessageToMap(message: String, schema: Schema, sender: Sender? = null): RowResult {
+    fun convertMessageToMap(message: String, messageIndex: Int, schema: Schema, sender: Sender? = null): RowResult {
         /**
          * Query the terser and get a value.
          * @param terser the HAPI terser
@@ -196,7 +196,10 @@ class Hl7Serializer(
             errors: MutableList<String>,
         ): String {
             val parsedValue = try {
-                terser.get(terserSpec)
+                terser.get(terserSpec) ?: if (terserSpec.contains("OBX") || terserSpec.contains("SPM"))
+                    terser.get("/.SPECIMEN" + terserSpec.replace(".", ""))
+                else
+                    null
             } catch (e: HL7Exception) {
                 errors.add("Exception for $terserSpec: ${e.message}")
                 null
@@ -353,7 +356,10 @@ class Hl7Serializer(
             // Second, we process all the element raw values through mappers and defaults.
             val errorActionLogs = mutableListOf<ActionLogDetail>()
             val warningActionLogs = mutableListOf<ActionLogDetail>()
-            schema.processValues(mappedRows, errorActionLogs, warningActionLogs, sender = sender)
+            schema.processValues(
+                mappedRows, errorActionLogs, warningActionLogs, sender = sender,
+                itemIndex = messageIndex
+            )
             errors.addAll(errorActionLogs.map { it.detailMsg() })
             warnings.addAll(warningActionLogs.map { it.detailMsg() })
         } catch (e: Exception) {
@@ -634,7 +640,7 @@ class Hl7Serializer(
         cliaForSender.forEach { (sender, clia) ->
             try {
                 // find that sender in the map
-                if (sender.equals(senderID.trim(), ignoreCase = true) && !clia.isEmpty()) {
+                if (sender.equals(senderID.trim(), ignoreCase = true) && clia.isNotEmpty()) {
                     // if the sender needs should have a specific CLIA then overwrite the CLIA here
                     val pathSpecSendingFacilityID = formPathSpec("MSH-4-2")
                     terser.set(pathSpecSendingFacilityID, clia)

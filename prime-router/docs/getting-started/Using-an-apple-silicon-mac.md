@@ -221,8 +221,8 @@ POSTGRES_USER=prime
 POSTGRES_PASSWORD=changeIT!
 POSTGRES_URL=jdbc:postgresql://localhost:5432/prime_data_hub
 PRIME_ENVIRONMENT=local
-OKTA_baseUrl=hhs-prime.okta.com
-OKTA_clientId=0oa6fm8j4G1xfrthd4h6
+OKTA_baseUrl=hhs-prime.oktapreview.com
+OKTA_clientId=0oa2fs6vp3W5MTzjh1d7
 OKTA_redirect=http://localhost:7071/api/download
 JAVA_HOME=$(/usr/libexec/java_home)
 ```
