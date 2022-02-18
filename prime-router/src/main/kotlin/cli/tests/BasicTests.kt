@@ -16,6 +16,7 @@ import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.cli.FileUtilities
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.common.SystemExitCodes
 import kotlinx.coroutines.delay
 import org.jooq.exception.DataAccessException
 import java.io.File
@@ -44,10 +45,11 @@ class Ping : CoolTest() {
             payloadName = "$name ${status.description}",
         )
         echo("Response to POST: $responseCode")
-        echo(json)
+        echo("Response message: $json")
         if (responseCode != HttpURLConnection.HTTP_OK) {
             bad("Ping/CheckConnections Test FAILED:  response code $responseCode")
-            exitProcess(-1) // other tests won't work.
+            outputAllMsgs()
+            exitProcess(SystemExitCodes.FAILURE.exitCode) // other tests won't work.
         }
         try {
             val tree = jacksonObjectMapper().readTree(json)
