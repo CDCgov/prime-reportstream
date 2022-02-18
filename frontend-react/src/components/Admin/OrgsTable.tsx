@@ -33,7 +33,7 @@ export function OrgsTable() {
 
     const handleEditOrgClick = (orgName: string) => {
         // editing... maybe we should keep current org in sync? Switch to the "safe org"?
-        updateOrganization("PrimeAdmins");
+        // updateOrganization(orgName);
         history.push(`/admin/orgsettings/org/${orgName}`);
     };
 
