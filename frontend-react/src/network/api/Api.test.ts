@@ -11,7 +11,7 @@ describe("Api.ts", () => {
         expect(Api.baseUrl).toBe("/api");
     });
 
-    // How can I test the Axios instance? :thinking:
+    /* TODO: Test axios config somehow? */
 
     test("generateEndpoint() creates valid endpoint", () => {
         const testEndpoint: Endpoint = Api.generateEndpoint("/test/url", Api);
