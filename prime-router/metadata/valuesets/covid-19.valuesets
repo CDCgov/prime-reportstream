@@ -33,7 +33,9 @@
     - code: 119334006
       display: Sputum specimen 
     - code: 119342007
-      display: Saliva specimen 
+      display: Saliva specimen
+    - code: 258560004
+      display: Oral saliva sample 
     - code: 258607008
       display: Bronchoalveolar lavage fluid sample 
     - code: 119364003
@@ -201,6 +203,12 @@
       version: 2020-09-01
     - code: 29092000
       display: Venous structure (body structure)
+      version: 2020-09-01
+    - code: 123851003
+      display: Mouth region structure (body structure)
+      version: 2020-09-01
+    - code: 31389004
+      display: Oropharyngeal structure (body structure)
       version: 2020-09-01
 
 - name: covid-19/yesno

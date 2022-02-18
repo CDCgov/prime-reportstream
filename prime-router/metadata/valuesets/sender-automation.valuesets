@@ -126,6 +126,8 @@
       display: NULL
     - code: ASKU
       display: Asked, but unknown
+    - code: ASKU
+      display: ASKU
 
 - name: sender-automation/ethnicity
   system: LOCAL
@@ -141,6 +143,8 @@
     - code: H
       display: Mex. Amer./Hispanic
     - code: H
+      display: 2135-2
+    - code: H
       display: H
     - code: N
       display: Non Hispanic or Latino
@@ -150,6 +154,8 @@
       display: Not Hispanic or Latino
     - code: N
       display: Not Hispanic
+    - code: N
+      display: 2186-5
     - code: N
       display: N
     - code: U
@@ -378,9 +384,6 @@
       display: Nasopharyngeal structure (body structure)
       version: 2020-09-01
     - code: 71836000
-      display: Varied
-      version: 2020-09-01
-    - code: 71836000
       display: Nasopharyngeal swab
       version: 2020-09-01
     - code: 71836000
@@ -399,10 +402,17 @@
       display: Nasal structure (body structure)
       version: 2020-09-01
     - code: 45206002
+      display: Nasal aspirate 
+    - code: 45206002
+      display: 429931000124105
+    - code: 45206002
       display: 45206002
       version: 2020-09-01
     - code: 53342003
       display: Internal nose structure (body structure)
+      version: 2020-09-01
+    - code: 53342003
+      display: Varied
       version: 2020-09-01
     - code: 53342003
       display: Swab of internal nose
@@ -474,9 +484,6 @@
       display: 119297000
       version: 2020-09-01
     - code: 31389004
-      display: Oral
-      version: 2020-09-01
-    - code: 31389004
       display: Throat Swab
       version: 2020-09-01
     - code: 31389004
@@ -486,8 +493,34 @@
       display: Oropharyngeal Swab
       version: 2020-09-01
     - code: 31389004
+      display: 258529004
+      version: 2020-09-01
+    - code: 31389004
       display: 31389004
       version: 2020-09-01
+    - code: 123851003
+      display: Sputum specimen 
+    - code: 123851003
+      display: Sputum 
+    - code: 123851003
+      display: 119334006
+    - code: 123851003
+      display: Oral
+      version: 2020-09-01
+    - code: 123851003
+      display: Oral Swab
+      version: 2020-09-01
+    - code: 123851003
+      display: 418932006
+    - code: 123851003
+      display: Saliva specimen 
+    - code: 123851003
+      display: Saliva 
+    - code: 123851003
+      display: 258560004
+    - code: 123851003
+      display: 123851003 
+
 
 - name: sender-automation/specimen_type
   system: SNOMED_CT
@@ -499,13 +532,13 @@
     - code: 445297001
       display: Nasal Swab
     - code: 445297001
+      display: Nasal
+    - code: 445297001
+      display: Varied
+    - code: 445297001
       display: 445297001
     - code: 258500001
       display: Nasopharyngeal swab
-    - code: 258500001
-      display: Nasal
-    - code: 258500001
-      display: Varied
     - code: 258500001
       display: 258500001
     - code: 871810001
@@ -529,21 +562,29 @@
     - code: 258529004
       display: Throat
     - code: 258529004
-      display: Oral
-    - code: 258529004
       display: Oropharyngeal
     - code: 258529004
       display: Oropharyngeal Swab
     - code: 258529004
       display: 258529004
+    - code: 418932006
+      display: Oral
+    - code: 418932006
+      display: Oral Swab
+    - code: 418932006
+      display: 418932006
     - code: 119334006
       display: Sputum specimen 
     - code: 119334006
+      display: Sputum 
+    - code: 119334006
       display: 119334006
-    - code: 119342007
+    - code: 258560004
       display: Saliva specimen 
-    - code: 119342007
-      display: 119342007 
+    - code: 258560004
+      display: Saliva 
+    - code: 258560004
+      display: 258560004 
     - code: 258607008
       display: Bronchoalveolar lavage fluid sample 
     - code: 258607008
@@ -584,3 +625,1130 @@
       display: fingerstick whole blood
     - code: 122554006
       display: 122554006
+
+- name: sender-automation/patient_preferred_language
+  system: ISO
+  referenceUrl: https://phinvads.cdc.gov/vads/ViewValueSet.action?id=43D34BBC-617F-DD11-B38D-00188B398520#
+  values:
+  - code: abk
+    display: Abkhazian
+  - code: ace
+    display: Achinese
+  - code: ach
+    display: Acoli
+  - code: ada
+    display: Adangme
+  - code: ady
+    display: Adyghe; Adygei
+  - code: aar
+    display: Afar
+  - code: afh
+    display: Afrihili
+  - code: afr
+    display: Afrikaans
+  - code: afr
+    display: afr
+  - code: afa
+    display: Afro-Asiatic (Other)
+  - code: ain
+    display: Ainu
+  - code: aka
+    display: Akan
+  - code: akk
+    display: Akkadian
+  - code: alb
+    display: Albanian
+  - code: alb
+    display: alb
+  - code: ale
+    display: Aleut
+  - code: ale
+    display: ale
+  - code: alg
+    display: Algonquian languages
+  - code: alg
+    display: alg
+  - code: tut
+    display: Altaic (Other)
+  - code: amh
+    display: Amharic
+  - code: anp
+    display: Angika
+  - code: apa
+    display: Apache languages
+  - code: apa
+    display: apa
+  - code: ara
+    display: Arabic
+  - code: ara
+    display: ara
+  - code: arg
+    display: Aragonese
+  - code: arp
+    display: Arapaho
+  - code: arw
+    display: Arawak
+  - code: arm
+    display: Armenian
+  - code: arm
+    display: arm
+  - code: rup
+    display: Aromanian; Arumanian; Macedo-Romanian
+  - code: art
+    display: Artificial (Other)
+  - code: asm
+    display: Assamese
+  - code: ast
+    display: Asturian; Bable; Leonese; Asturleonese
+  - code: ath
+    display: Athapascan languages
+  - code: aus
+    display: Australian languages
+  - code: aus
+    display: Australian
+  - code: aus
+    display: aus
+  - code: map
+    display: Austronesian (Other)
+  - code: ava
+    display: Avaric
+  - code: ave
+    display: Avestan
+  - code: awa
+    display: Awadhi
+  - code: aym
+    display: Aymara
+  - code: aze
+    display: Azerbaijani
+  - code: ban
+    display: Balinese
+  - code: bat
+    display: Baltic (Other)
+  - code: bal
+    display: Baluchi
+  - code: bam
+    display: Bambara
+  - code: bai
+    display: Bamileke languages
+  - code: bad
+    display: Banda languages
+  - code: bnt
+    display: Bantu (Other)
+  - code: bas
+    display: Basa
+  - code: bak
+    display: Bashkir
+  - code: baq
+    display: Basque
+  - code: baq
+    display: baq
+  - code: btk
+    display: Batak languages
+  - code: bej
+    display: Beja; Bedawiyet
+  - code: bel
+    display: Belarusian
+  - code: bel
+    display: bel
+  - code: bem
+    display: Bemba
+  - code: ben
+    display: Bengali
+  - code: ber
+    display: Berber (Other)
+  - code: bho
+    display: Bhojpuri
+  - code: bih
+    display: Bihari
+  - code: bik
+    display: Bikol
+  - code: bin
+    display: Bini; Edo
+  - code: bis
+    display: Bislama
+  - code: byn
+    display: Blin; Bilin
+  - code: zbl
+    display: Blissymbols; Blissymbolics; Bliss
+  - code: nob
+    display: Norwegian Bokmål
+  - code: bos
+    display: Bosnian
+  - code: bos
+    display: bos
+  - code: bra
+    display: Braj
+  - code: bre
+    display: Breton
+  - code: bug
+    display: Buginese
+  - code: bul
+    display: Bulgarian
+  - code: bul
+    display: bul
+  - code: bua
+    display: Buriat
+  - code: bur
+    display: Burmese
+  - code: cad
+    display: Caddo
+  - code: cat
+    display: Catalan; Valencian
+  - code: cau
+    display: Caucasian (Other)
+  - code: ceb
+    display: Cebuano
+  - code: cel
+    display: Celtic (Other)
+  - code: cai
+    display: Central American Indian (Other)
+  - code: khm
+    display: Central Khmer
+  - code: chg
+    display: Chagatai
+  - code: cmc
+    display: Chamic languages
+  - code: cha
+    display: Chamorro
+  - code: che
+    display: Chechen
+  - code: chr
+    display: Cherokee
+  - code: chr
+    display: chr
+  - code: chy
+    display: Cheyenne
+  - code: chy
+    display: chy
+  - code: chb
+    display: Chibcha
+  - code: chb
+    display: chb
+  - code: nya
+    display: Chichewa; Chewa; Nyanja
+  - code: nya
+    display: nya
+  - code: chi
+    display: Chinese
+  - code: chi
+    display: chi
+  - code: chn
+    display: Chinook jargon
+  - code: chp
+    display: Chipewyan; Dene Suline
+  - code: cho
+    display: Choctaw
+  - code: chk
+    display: Chuukese
+  - code: chv
+    display: Chuvash
+  - code: nwc
+    display: Classical Newari; Old Newari; Classical Nepal Bhasa
+  - code: syc
+    display: Classical Syriac
+  - code: cop
+    display: Coptic
+  - code: cor
+    display: Cornish
+  - code: cos
+    display: Corsican
+  - code: cre
+    display: Cree
+  - code: mus
+    display: Creek
+  - code: crp
+    display: Creoles and pidgins (Other)
+  - code: cpe
+    display: Creoles and pidgins English based (Other)
+  - code: cpf
+    display: Creoles and pidgins French-based (Other)
+  - code: cpp
+    display: Creoles and pidgins Portuguese-based (Other)
+  - code: crh
+    display: Crimean Tatar; Crimean Turkish
+  - code: hrv
+    display: Croatian
+  - code: hrv
+    display: hrv
+  - code: cus
+    display: Cushitic (Other)
+  - code: cze
+    display: Czech
+  - code: dak
+    display: Dakota
+  - code: dan
+    display: Danish
+  - code: dan
+    display: dan
+  - code: dar
+    display: Dargwa
+  - code: del
+    display: Delaware
+  - code: del
+    display: del
+  - code: din
+    display: Dinka
+  - code: div
+    display: Divehi; Dhivehi; Maldivian
+  - code: doi
+    display: Dogri
+  - code: dgr
+    display: Dogrib
+  - code: dra
+    display: Dravidian (Other)
+  - code: dua
+    display: Duala
+  - code: dut
+    display: Dutch; Flemish
+  - code: dut
+    display: dut
+  - code: dyu
+    display: Dyula
+  - code: dzo
+    display: Dzongkha
+  - code: frs
+    display: Eastern Frisian
+  - code: efi
+    display: Efik
+  - code: eka
+    display: Ekajuk
+  - code: elx
+    display: Elamite
+  - code: eng
+    display: English
+  - code: eng
+    display: eng
+  - code: myv
+    display: Erzya
+  - code: epo
+    display: Esperanto
+  - code: est
+    display: Estonian
+  - code: ewe
+    display: Ewe
+  - code: ewo
+    display: Ewondo
+  - code: fan
+    display: Fang
+  - code: fat
+    display: Fanti
+  - code: fao
+    display: Faroese
+  - code: fij
+    display: Fijian
+  - code: fij
+    display: fij
+  - code: fil
+    display: Filipino; Pilipino
+  - code: fil
+    display: Filipino
+  - code: fil
+    display: fil
+  - code: fin
+    display: Finnish
+  - code: fin
+    display: fin
+  - code: fiu
+    display: Finno-Ugrian (Other)
+  - code: fon
+    display: Fon
+  - code: fre
+    display: French
+  - code: fre
+    display: fre
+  - code: fur
+    display: Friulian
+  - code: ful
+    display: Fulah
+  - code: gaa
+    display: Ga
+  - code: gla
+    display: Gaelic; Scottish Gaelic
+  - code: gla
+    display: gla
+  - code: car
+    display: Galibi Carib
+  - code: glg
+    display: Galician
+  - code: lug
+    display: Ganda
+  - code: gay
+    display: Gayo
+  - code: gba
+    display: Gbaya
+  - code: gez
+    display: Geez
+  - code: geo
+    display: Georgian
+  - code: ger
+    display: German
+  - code: ger
+    display: ger
+  - code: gem
+    display: Germanic (Other)
+  - code: gem
+    display: gem
+  - code: gil
+    display: Gilbertese
+  - code: gon
+    display: Gondi
+  - code: gor
+    display: Gorontalo
+  - code: got
+    display: Gothic
+  - code: grb
+    display: Grebo
+  - code: gre
+    display: Greek Modern (1453-)
+  - code: gre
+    display: gre
+  - code: grn
+    display: Guarani
+  - code: guj
+    display: Gujarati
+  - code: gwi
+    display: Gwich'in
+  - code: hai
+    display: Haida
+  - code: hat
+    display: Haitian; Haitian Creole
+  - code: hat
+    display: hat
+  - code: hau
+    display: Hausa
+  - code: haw
+    display: Hawaiian
+  - code: haw
+    display: haw
+  - code: heb
+    display: Hebrew
+  - code: heb
+    display: heb
+  - code: her
+    display: Herero
+  - code: hil
+    display: Hiligaynon
+  - code: him
+    display: Himachali
+  - code: hin
+    display: Hindi
+  - code: hmo
+    display: Hiri Motu
+  - code: hit
+    display: Hittite
+  - code: hmn
+    display: Hmong
+  - code: hun
+    display: Hungarian
+  - code: hup
+    display: Hupa
+  - code: iba
+    display: Iban
+  - code: ice
+    display: Icelandic
+  - code: ice
+    display: ice
+  - code: ido
+    display: Ido
+  - code: ibo
+    display: Igbo
+  - code: ijo
+    display: Ijo languages
+  - code: ilo
+    display: Iloko
+  - code: smn
+    display: Inari Sami
+  - code: inc
+    display: Indic (Other)
+  - code: ine
+    display: Indo-European (Other)
+  - code: ine
+    display: ine
+  - code: ind
+    display: Indonesian
+  - code: ind
+    display: ind
+  - code: inh
+    display: Ingush
+  - code: ina
+    display: Interlingua (International Auxiliary Language Association)
+  - code: ile
+    display: Interlingue; Occidental
+  - code: iku
+    display: Inuktitut
+  - code: ipk
+    display: Inupiaq
+  - code: ira
+    display: Iranian (Other)
+  - code: ira
+    display: ira
+  - code: gle
+    display: Irish
+  - code: gle
+    display: gle
+  - code: iro
+    display: Iroquoian languages
+  - code: ita
+    display: Italian
+  - code: ita
+    display: ita
+  - code: jpn
+    display: Japanese
+  - code: jpn
+    display: jpn
+  - code: jav
+    display: Javanese
+  - code: jrb
+    display: Judeo-Arabic
+  - code: jpr
+    display: Judeo-Persian
+  - code: kbd
+    display: Kabardian
+  - code: kab
+    display: Kabyle
+  - code: kac
+    display: Kachin; Jingpho
+  - code: kal
+    display: Kalaallisut; Greenlandic
+  - code: xal
+    display: Kalmyk; Oirat
+  - code: kam
+    display: Kamba
+  - code: kan
+    display: Kannada
+  - code: kau
+    display: Kanuri
+  - code: krc
+    display: Karachay-Balkar
+  - code: kaa
+    display: Kara-Kalpak
+  - code: krl
+    display: Karelian
+  - code: kar
+    display: Karen languages
+  - code: kas
+    display: Kashmiri
+  - code: csb
+    display: Kashubian
+  - code: kaw
+    display: Kawi
+  - code: kaw
+    display: kaw
+  - code: kaz
+    display: Kazakh
+  - code: kha
+    display: Khasi
+  - code: khi
+    display: Khoisan (Other)
+  - code: kho
+    display: Khotanese
+  - code: kik
+    display: Kikuyu; Gikuyu
+  - code: kmb
+    display: Kimbundu
+  - code: kin
+    display: Kinyarwanda
+  - code: kir
+    display: Kirghiz; Kyrgyz
+  - code: tlh
+    display: Klingon; tlhIngan-Hol
+  - code: kom
+    display: Komi
+  - code: kon
+    display: Kongo
+  - code: kok
+    display: Konkani
+  - code: kor
+    display: Korean
+  - code: kor
+    display: kor
+  - code: kos
+    display: Kosraean
+  - code: kpe
+    display: Kpelle
+  - code: kro
+    display: Kru languages
+  - code: kua
+    display: Kuanyama; Kwanyama
+  - code: kum
+    display: Kumyk
+  - code: kur
+    display: Kurdish
+  - code: kru
+    display: Kurukh
+  - code: kut
+    display: Kutenai
+  - code: lad
+    display: Ladino
+  - code: lah
+    display: Lahnda
+  - code: lam
+    display: Lamba
+  - code: day
+    display: Land Dayak languages
+  - code: lao
+    display: Lao
+  - code: lat
+    display: Latin
+  - code: lat
+    display: lat
+  - code: lav
+    display: Latvian
+  - code: lez
+    display: Lezghian
+  - code: lim
+    display: Limburgan; Limburger; Limburgish
+  - code: lin
+    display: Lingala
+  - code: lit
+    display: Lithuanian
+  - code: jbo
+    display: Lojban
+  - code: nds
+    display: Low German; Low Saxon; German
+  - code: nds
+    display: nds
+  - code: dsb
+    display: Lower Sorbian
+  - code: loz
+    display: Lozi
+  - code: lub
+    display: Luba-Katanga
+  - code: lua
+    display: Luba-Lulua
+  - code: lui
+    display: Luiseno
+  - code: smj
+    display: Lule Sami
+  - code: lun
+    display: Lunda
+  - code: luo
+    display: Luo (Kenya and Tanzania)
+  - code: lus
+    display: Lushai
+  - code: ltz
+    display: Luxembourgish; Letzeburgesch
+  - code: mac
+    display: Macedonian
+  - code: mad
+    display: Madurese
+  - code: mag
+    display: Magahi
+  - code: mai
+    display: Maithili
+  - code: mak
+    display: Makasar
+  - code: mlg
+    display: Malagasy
+  - code: may
+    display: Malay
+  - code: mal
+    display: Malayalam
+  - code: mal
+    display: mal
+  - code: mlt
+    display: Maltese
+  - code: mlt
+    display: mlt
+  - code: mnc
+    display: Manchu
+  - code: mdr
+    display: Mandar
+  - code: man
+    display: Mandingo
+  - code: mni
+    display: Manipuri
+  - code: mno
+    display: Manobo languages
+  - code: glv
+    display: Manx
+  - code: mao
+    display: Maori
+  - code: arn
+    display: Mapudungun; Mapuche
+  - code: mar
+    display: Marathi
+  - code: chm
+    display: Mari
+  - code: mah
+    display: Marshallese
+  - code: mwr
+    display: Marwari
+  - code: mas
+    display: Masai
+  - code: myn
+    display: Mayan languages
+  - code: myn
+    display: myn
+  - code: men
+    display: Mende
+  - code: mic
+    display: Mi'kmaq; Micmac
+  - code: min
+    display: Minangkabau
+  - code: mwl
+    display: Mirandese
+  - code: moh
+    display: Mohawk
+  - code: mdf
+    display: Moksha
+  - code: mol
+    display: Moldavian; Moldovan
+  - code: mol
+    display: mol
+  - code: lol
+    display: Mongo
+  - code: mon
+    display: Mongolian
+  - code: mkh
+    display: Mon-Khmer (Other)
+  - code: mos
+    display: Mossi
+  - code: mul
+    display: Multiple languages
+  - code: mun
+    display: Munda languages
+  - code: nah
+    display: Nahuatl languages
+  - code: nau
+    display: Nauru
+  - code: nav
+    display: Navajo; Navaho
+  - code: nav
+    display: nav
+  - code: nde
+    display: Ndebele North; North Ndebele
+  - code: nbl
+    display: Ndebele South; South Ndebele
+  - code: ndo
+    display: Ndonga
+  - code: nap
+    display: Neapolitan
+  - code: new
+    display: Nepal Bhasa; Newari
+  - code: nep
+    display: Nepali
+  - code: nep
+    display: nep
+  - code: nia
+    display: Nias
+  - code: nic
+    display: Niger-Kordofanian (Other)
+  - code: nic
+    display: nic
+  - code: ssa
+    display: Nilo-Saharan (Other)
+  - code: ssa
+    display: ssa
+  - code: niu
+    display: Niuean
+  - code: nqo
+    display: N'Ko
+  - code: zxx
+    display: No linguistic content; Not applicable
+  - code: nog
+    display: Nogai
+  - code: nai
+    display: North American Indian
+  - code: nai
+    display: nai
+  - code: frr
+    display: Northern Frisian
+  - code: sme
+    display: Northern Sami
+  - code: nor
+    display: Norwegian
+  - code: nno
+    display: Norwegian Nynorsk; Nynorsk Norwegian
+  - code: nub
+    display: Nubian languages
+  - code: nym
+    display: Nyamwezi
+  - code: nyn
+    display: Nyankole
+  - code: nyo
+    display: Nyoro
+  - code: nzi
+    display: Nzima
+  - code: oci
+    display: Occitan (post 1500); Provençal
+  - code: oji
+    display: Ojibwa
+  - code: ori
+    display: Oriya
+  - code: orm
+    display: Oromo
+  - code: osa
+    display: Osage
+  - code: oss
+    display: Ossetian; Ossetic
+  - code: oto
+    display: Otomian languages
+  - code: pal
+    display: Pahlavi
+  - code: pau
+    display: Palauan
+  - code: pli
+    display: Pali
+  - code: pam
+    display: Pampanga; Kapampangan
+  - code: pag
+    display: Pangasinan
+  - code: pan
+    display: Panjabi; Punjabi
+  - code: pap
+    display: Papiamento
+  - code: paa
+    display: Papuan (Other)
+  - code: nso
+    display: Pedi; Sepedi; Northern Sotho
+  - code: per
+    display: Persian
+  - code: phi
+    display: Philippine (Other)
+  - code: phi
+    display: phi
+  - code: phn
+    display: Phoenician
+  - code: pon
+    display: Pohnpeian
+  - code: pol
+    display: Polish
+  - code: pol
+    display: pol
+  - code: por
+    display: Portuguese
+  - code: por
+    display: por
+  - code: pra
+    display: Prakrit languages
+  - code: pus
+    display: Pushto; Pashto
+  - code: que
+    display: Quechua
+  - code: raj
+    display: Rajasthani
+  - code: rap
+    display: Rapanui
+  - code: rar
+    display: Rarotongan; Cook Islands Maori
+  - code: qaa-qtz
+    display: Reserved for local use
+  - code: roa
+    display: Romance (Other)
+  - code: rum
+    display: Romanian
+  - code: rum
+    display: rum
+  - code: roh
+    display: Romansh
+  - code: rom
+    display: Romany
+  - code: run
+    display: Rundi
+  - code: rus
+    display: Russian
+  - code: rus
+    display: rus
+  - code: sal
+    display: Salishan languages
+  - code: sam
+    display: Samaritan Aramaic
+  - code: smi
+    display: Sami languages (Other)
+  - code: smo
+    display: Samoan
+  - code: smo
+    display: smo
+  - code: sad
+    display: Sandawe
+  - code: sag
+    display: Sango
+  - code: san
+    display: Sanskrit
+  - code: sat
+    display: Santali
+  - code: srd
+    display: Sardinian
+  - code: sas
+    display: Sasak
+  - code: sco
+    display: Scots
+  - code: sel
+    display: Selkup
+  - code: sem
+    display: Semitic (Other)
+  - code: srp
+    display: Serbian
+  - code: srp
+    display: srp
+  - code: srr
+    display: Serer
+  - code: shn
+    display: Shan
+  - code: sna
+    display: Shona
+  - code: iii
+    display: Sichuan Yi; Nuosu
+  - code: scn
+    display: Sicilian
+  - code: scn
+    display: scn
+  - code: sid
+    display: Sidamo
+  - code: sgn
+    display: Sign Languages
+  - code: bla
+    display: Siksika
+  - code: snd
+    display: Sindhi
+  - code: sin
+    display: Sinhala; Sinhalese
+  - code: sit
+    display: Sino-Tibetan (Other)
+  - code: sio
+    display: Siouan languages
+  - code: sms
+    display: Skolt Sami
+  - code: den
+    display: Slave (Athapascan)
+  - code: sla
+    display: Slavic (Other)
+  - code: slo
+    display: Slovak
+  - code: slv
+    display: Slovenian
+  - code: slv
+    display: slv
+  - code: sog
+    display: Sogdian
+  - code: som
+    display: Somali
+  - code: som
+    display: som
+  - code: son
+    display: Songhai languages
+  - code: snk
+    display: Soninke
+  - code: wen
+    display: Sorbian languages
+  - code: sot
+    display: Sotho Southern
+  - code: sai
+    display: South American Indian (Other)
+  - code: sai
+    display: sai
+  - code: alt
+    display: Southern Altai
+  - code: sma
+    display: Southern Sami
+  - code: spa
+    display: Spanish; Castilian
+  - code: spa
+    display: Spanish
+  - code: spa
+    display: spa
+  - code: srn
+    display: Sranan Tongo
+  - code: suk
+    display: Sukuma
+  - code: sux
+    display: Sumerian
+  - code: sun
+    display: Sundanese
+  - code: sun
+    display: sun
+  - code: sus
+    display: Susu
+  - code: swa
+    display: Swahili
+  - code: swa
+    display: swa
+  - code: ssw
+    display: Swati
+  - code: swe
+    display: Swedish
+  - code: swe
+    display: swe
+  - code: gsw
+    display: Swiss German; Alemannic; Alsatian
+  - code: gsw
+    display: gsw
+  - code: syr
+    display: Syriac
+  - code: tgl
+    display: Tagalog
+  - code: tah
+    display: Tahitian
+  - code: tah
+    display: tah
+  - code: tai
+    display: Tai (Other)
+  - code: tai
+    display: tai
+  - code: tgk
+    display: Tajik
+  - code: tmh
+    display: Tamashek
+  - code: tam
+    display: Tamil
+  - code: tat
+    display: Tatar
+  - code: tel
+    display: Telugu
+  - code: ter
+    display: Tereno
+  - code: tet
+    display: Tetum
+  - code: tha
+    display: Thai
+  - code: tha
+    display: tha
+  - code: tib
+    display: Tibetan
+  - code: tib
+    display: tib
+  - code: tig
+    display: Tigre
+  - code: tir
+    display: Tigrinya
+  - code: tem
+    display: Timne
+  - code: tiv
+    display: Tiv
+  - code: tli
+    display: Tlingit
+  - code: tpi
+    display: Tok Pisin
+  - code: tkl
+    display: Tokelau
+  - code: tog
+    display: Tonga (Nyasa)
+  - code: ton
+    display: Tonga (Tonga Islands)
+  - code: ton
+    display: ton
+  - code: tsi
+    display: Tsimshian
+  - code: tso
+    display: Tsonga
+  - code: tso
+    display: tso
+  - code: tsn
+    display: Tswana
+  - code: tum
+    display: Tumbuka
+  - code: tup
+    display: Tupi languages
+  - code: tur
+    display: Turkish
+  - code: tur
+    display: tur
+  - code: tuk
+    display: Turkmen
+  - code: tuk
+    display: tuk
+  - code: tvl
+    display: Tuvalu
+  - code: tyv
+    display: Tuvinian
+  - code: twi
+    display: Twi
+  - code: udm
+    display: Udmurt
+  - code: uga
+    display: Ugaritic
+  - code: uig
+    display: Uighur; Uyghur
+  - code: uig
+    display: uig
+  - code: ukr
+    display: Ukrainian
+  - code: ukr
+    display: ukr
+  - code: umb
+    display: Umbundu
+  - code: mis
+    display: Uncoded languages
+  - code: mis
+    display: mis
+  - code: und
+    display: Undetermined
+  - code: und
+    display: und
+  - code: hsb
+    display: Upper Sorbian
+  - code: urd
+    display: Urdu
+  - code: uzb
+    display: Uzbek
+  - code: vai
+    display: Vai
+  - code: ven
+    display: Venda
+  - code: vie
+    display: Vietnamese
+  - code: vie
+    display: vie
+  - code: vol
+    display: Volapük
+  - code: vot
+    display: Votic
+  - code: wak
+    display: Wakashan languages
+  - code: wak
+    display: wak
+  - code: wal
+    display: Walamo
+  - code: wal
+    display: wal
+  - code: wln
+    display: Walloon
+  - code: wln
+    display: wln
+  - code: war
+    display: Waray
+  - code: was
+    display: Washo
+  - code: wel
+    display: Welsh
+  - code: wel
+    display: wel
+  - code: fry
+    display: Western Frisian
+  - code: wol
+    display: Wolof
+  - code: xho
+    display: Xhosa
+  - code: sah
+    display: Yakut
+  - code: yao
+    display: Yao
+  - code: yap
+    display: Yapese
+  - code: yid
+    display: Yiddish
+  - code: yid
+    display: yid
+  - code: yor
+    display: Yoruba
+  - code: ypk
+    display: Yupik languages
+  - code: znd
+    display: Zande languages
+  - code: zap
+    display: Zapotec
+  - code: zza
+    display: Zaza; Dimili; Dimli; Kirdki; Kirmanjki; Zazaki
+  - code: zen
+    display: Zenaga
+  - code: zha
+    display: Zhuang; Chuang
+  - code: zul
+    display: Zulu
+  - code: zul
+    display: zul
+  - code: zun
+    display: Zuni
+  - code: zun
+    display: zun
