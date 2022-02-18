@@ -73,7 +73,7 @@ class ReportFunction : Logging {
         // Sender should eventually be obtained directly from who is authenticated
         val sender = workflowEngine.settings.findSender(senderName)
             ?: return HttpUtilities.bad(request, "'$CLIENT_PARAMETER:$senderName': unknown sender")
-        val actionHistory = ActionHistory(TaskAction.receive, context)
+        val actionHistory = ActionHistory(TaskAction.receive)
         actionHistory.trackActionParams(request)
 
         try {
@@ -119,7 +119,7 @@ class ReportFunction : Logging {
         )
 
         try {
-            val actionHistory = ActionHistory(TaskAction.receive, context)
+            val actionHistory = ActionHistory(TaskAction.receive)
             actionHistory.trackActionParams(request)
 
             if (authenticationStrategy is OktaAuthentication) {
