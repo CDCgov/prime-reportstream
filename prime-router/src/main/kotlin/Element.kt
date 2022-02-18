@@ -863,6 +863,8 @@ data class Element(
             Instant::from,
             LocalDate::from
         )
+        // Using CENTRAL timezone here is inconsistent with other conversions, but changing to UTC
+        // will cause issues to STLTs.
         val parsedValue = if (ta is LocalDateTime) {
             LocalDateTime.from(ta).atZone(ZoneId.of(USTimeZone.CENTRAL.zoneId)).toOffsetDateTime()
         } else {
@@ -1131,14 +1133,14 @@ data class Element(
         const val variableDateTimePattern = "[yyyyMMddHHmmssZ]" +
             "[yyyyMMddHHmmZ]" +
             "[yyyyMMddHHmmss][yyyy-MM-dd HH:mm:ss.ZZZ]" +
-            "[yyyy-MM-dd[ HH:mm:ss[.S[S][S]]]]" +
-            "[yyyyMMdd[ HH:mm:ss[.S[S][S]]]]" +
-            "[M/d/yyyy[ HH:mm[:ss[.S[S][S]]]]]" +
-            "[yyyy/M/d[ HH:mm[:ss[.S[S][S]]]]]"
+            "[yyyy-MM-dd[ H:mm:ss[.S[S][S]]]]" +
+            "[yyyyMMdd[ H:mm:ss[.S[S][S]]]]" +
+            "[M/d/yyyy[ H:mm[:ss[.S[S][S]]]]]" +
+            "[yyyy/M/d[ H:mm[:ss[.S[S][S]]]]]"
         val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern(datePattern, Locale.ENGLISH)
         val datetimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern(datetimePattern, Locale.ENGLISH)
         val manuallyEnteredDateFormats =
-            arrayOf(datePattern, "M/d/yyyy", "MMddyyyy", "yyyy/M/d", "M/d/yyyy HH:mm", "yyyy/M/d HH:mm")
+            arrayOf(datePattern, "M/d/yyyy", "MMddyyyy", "yyyy/M/d", "M/d/yyyy H:mm", "yyyy/M/d H:mm")
         const val displayToken = "\$display"
         const val caretToken = "\$code^\$display^\$system"
         const val codeToken = "\$code"
