@@ -5,7 +5,7 @@ import { NetworkErrorBoundary } from "rest-hooks";
 import HipaaNotice from "../../components/HipaaNotice";
 import Spinner from "../../components/Spinner";
 import { ErrorPage } from "../error/ErrorPage";
-import { OrgSettingsTable } from "../../components/Admin/OrgSettingsTable";
+import { OrgsTable } from "../../components/Admin/OrgsTable";
 
 export function AdminMain() {
     return (
@@ -31,7 +31,7 @@ export function AdminMain() {
             >
                 <Suspense fallback={<Spinner />}>
                     <section className="grid-container margin-top-0" />
-                    <OrgSettingsTable />
+                    <OrgsTable />
                 </Suspense>
             </NetworkErrorBoundary>
             <HipaaNotice />

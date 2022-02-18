@@ -214,7 +214,6 @@ elements:
   - name: testing_lab_zip_code
     mapper: use(ordering_facility_zip_code)
 
-  # To be compatible with Redox we must have an patient_id
   # After some discussion, the placer_order_id was the best choice until STRAC provides a true patient_id
   - name: patient_id
     mapper: use(placer_order_id)

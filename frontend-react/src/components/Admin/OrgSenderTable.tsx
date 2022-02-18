@@ -74,6 +74,15 @@ export function OrgSenderTable(props: OrgSettingsTableProps) {
                         <th scope="col">Status</th>
                         <th scope="col">Meta</th>
                         <th scope="col">Action</th>
+                        <th scope="col" align="right">
+                            <NavLink
+                                className="usa-button"
+                                to={`/admin/orgnewsetting/org/${props.orgname}/settingtype/sender`}
+                                key={`sender-create-link`}
+                            >
+                                New
+                            </NavLink>
+                        </th>
                     </tr>
                 </thead>
                 <tbody id="tBodyOrgSender" className="font-mono-2xs">
@@ -86,7 +95,7 @@ export function OrgSenderTable(props: OrgSettingsTableProps) {
                             <td>
                                 {JSON.stringify(eachOrgSetting?.meta) || {}}
                             </td>
-                            <td>
+                            <td colSpan={2}>
                                 <ButtonGroup type="segmented">
                                     <NavLink
                                         className="usa-button"
