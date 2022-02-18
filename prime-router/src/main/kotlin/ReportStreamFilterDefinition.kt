@@ -347,7 +347,7 @@ class HasAtLeastOneOf : ReportStreamFilterDefinition {
 }
 
 /**
- * AtLeastOneIsTrue(columnName1, columnName2, columnName3, ...)
+ * AtLeastOneHasValue(columnName1, columnName2, columnName3, ...)
  * Implements a quality check match.  If a row has true value for any of the columns, the row is selected.
  */
 class AtLeastOneHasValue : ReportStreamFilterDefinition {

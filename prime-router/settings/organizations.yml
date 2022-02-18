@@ -690,13 +690,14 @@
   description: Vermont Department of Health
   jurisdiction: STATE
   stateCode: VT
+  filters:
+    - topic: "covid-19"
+      jurisdictionalFilter: [ "orEquals(ordering_facility_state, VT, patient_state, VT)" ]
   receivers:
     - name: elr
       organizationName: vt-doh
       topic: covid-19
       customerStatus: active
-      jurisdictionalFilter:
-        - "orEquals(ordering_facility_state, VT, patient_state, VT)"
       deidentify: false
       translation:
         type: HL7
@@ -729,8 +730,6 @@
       organizationName: vt-doh
       topic: covid-19
       customerStatus: active
-      jurisdictionalFilter:
-        - "orEquals(ordering_facility_state, VT, patient_state, VT)"
       reverseTheQualityFilter: true
       deidentify: false
       translation:
@@ -745,7 +744,7 @@
         truncateHDNamespaceIds: true
         usePid14ForPatientEmail: true
         suppressNonNPI: true
-        suppressHl7Fields: OBX-18-1, OBX-18-2, OBX-18-3, OBX-18-4, OBx-15-3
+        suppressHl7Fields: OBX-18-1, OBX-18-2, OBX-18-3, OBX-18-4, OBX-15-3
         replaceValue:
           MSH-3-1: CDC PRIME - Atlanta,
       timing:
@@ -763,14 +762,14 @@
       organizationName: vt-doh
       topic: covid-19
       customerStatus: active
-      jurisdictionalFilter:
-        - "orEquals(ordering_facility_state, VT, patient_state, VT)"
       qualityFilter:
-        - "AtLeastOneHasValue(Y, test_authorized_for_otc, test_authorized_for_home, test_authorized_for_unproctored)"
+#        - "isValidCLIA(testing_lab_clia)"
+        - "atLeastOneHasValue(Y, test_authorized_for_otc, test_authorized_for_home, test_authorized_for_unproctored)"
       reverseTheQualityFilter: false
       deidentify: false
       translation:
         type: HL7
+        applyOTCDefault: true
         useBatchHeaders: true
         receivingApplicationName: NBS
         receivingApplicationOID: 2.16.840.1.114222.4.1.185.1
@@ -781,7 +780,7 @@
         truncateHDNamespaceIds: true
         usePid14ForPatientEmail: true
         suppressNonNPI: true
-        suppressHl7Fields: OBX-18-1, OBX-18-2, OBX-18-3, OBX-18-4, OBx-15-3
+        suppressHl7Fields: OBX-18-1, OBX-18-2, OBX-18-3, OBX-18-4, OBX-15-3
         replaceValue:
           MSH-3-1: CDC PRIME - Atlanta,
       timing:
