@@ -32,3 +32,8 @@ test("SubmissionDate returns null for invalid date strings", () => {
     const submissionDate = generateSubmissionDate("I have the high ground!");
     expect(submissionDate).toBe(null);
 });
+
+test("SubmissionDate returns null for invalid date numbers", () => {
+    const submissionDate = generateSubmissionDate("-1");
+    expect(submissionDate).toBe(null);
+})

@@ -17,6 +17,7 @@ export type SubmissionDate = {
 export const generateSubmissionDate = (
     dateTimeString: string
 ): SubmissionDate | null => {
+    const inputRegex = /[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}.[0-9]{0,5}Z/
     const monthNames = [
         "Jan",
         "Feb",
@@ -35,8 +36,8 @@ export const generateSubmissionDate = (
     /* Converts to local timezone as a Date object */
     const dateTimeISO = new Date(dateTimeString);
 
-    /* Catch bad dates */
-    if (isNaN(dateTimeISO.getDate())) return null;
+    /* Catch bad input */
+    if (!dateTimeString.match(inputRegex)) return null;
 
     /* Parse time into parts */
     const minutes: number = dateTimeISO.getMinutes();
