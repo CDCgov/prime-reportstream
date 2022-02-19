@@ -29,9 +29,9 @@ import java.util.Properties
 
 plugins {
     kotlin("jvm") version "1.6.10"
-    id("org.flywaydb.flyway") version "8.4.2"
-    id("nu.studer.jooq") version "6.0.1"
-    id("com.github.johnrengelman.shadow") version "7.1.1"
+    id("org.flywaydb.flyway") version "8.5.0"
+    id("nu.studer.jooq") version "7.1.1"
+    id("com.github.johnrengelman.shadow") version "7.1.2"
     id("com.microsoft.azure.azurefunctions") version "1.8.2"
     id("org.jlleitschuh.gradle.ktlint") version "10.2.1"
     id("com.adarshr.test-logger") version "3.1.0"
@@ -615,7 +615,7 @@ buildscript {
     dependencies {
         // Now force the gradle build script to get the proper library for com.nimbusds:oauth2-oidc-sdk:9.15.  This
         // will need to be removed once this issue is resolved in Maven.
-        classpath("net.minidev:json-smart:2.4.2")
+        classpath("net.minidev:json-smart:2.4.8")
     }
 }
 
@@ -636,14 +636,14 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")
     implementation("com.microsoft.azure.functions:azure-functions-java-library:1.4.2")
     implementation("com.azure:azure-core:1.24.1")
-    implementation("com.azure:azure-core-http-netty:1.11.6")
+    implementation("com.azure:azure-core-http-netty:1.11.7")
     implementation("com.azure:azure-storage-blob:12.14.4") {
         exclude(group = "com.azure", module = "azure-core")
     }
     implementation("com.azure:azure-storage-queue:12.11.2") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-security-keyvault-secrets:4.3.6") {
+    implementation("com.azure:azure-security-keyvault-secrets:4.3.7") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
@@ -665,7 +665,7 @@ dependencies {
     implementation("com.github.javafaker:javafaker:1.0.2")
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
-    implementation("com.googlecode.libphonenumber:libphonenumber:8.12.41")
+    implementation("com.googlecode.libphonenumber:libphonenumber:8.12.43")
     implementation("org.thymeleaf:thymeleaf:3.0.14.RELEASE")
     implementation("com.sendgrid:sendgrid-java:4.8.3")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.1")
@@ -723,7 +723,7 @@ dependencies {
     // kotlinx-coroutines-core is needed by mock-fuel
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
     testImplementation("com.github.KennethWussmann:mock-fuel:1.3.0")
-    testImplementation("io.mockk:mockk:1.12.1")
+    testImplementation("io.mockk:mockk:1.12.2")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.2")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.25")
     testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
