@@ -327,7 +327,7 @@ function populate_vault() {
   wait_for_vault_creds
 
   ./prime create-credential --type=UserPass --persist=DEFAULT-SFTP --user foo --pass pass 1>>${LOG?} 2>&1
-  ./prime multiple-settings set --input settings/organizations.yml 1>>${LOG?} 2>&1
+  ./prime multiple-settings set --silent --input settings/organizations.yml 1>>${LOG?} 2>&1
 }
 
 # Orchestration for any clean-up-related activity
