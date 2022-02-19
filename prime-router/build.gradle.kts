@@ -628,7 +628,7 @@ configurations {
 }
 
 dependencies {
-    jooqGenerator("org.postgresql:postgresql:42.3.1")
+    jooqGenerator("org.postgresql:postgresql:42.3.3")
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-common:$kotlinVersion")
@@ -640,7 +640,7 @@ dependencies {
     implementation("com.azure:azure-storage-blob:12.14.4") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-storage-queue:12.11.2") {
+    implementation("com.azure:azure-storage-queue:12.11.4") {
         exclude(group = "com.azure", module = "azure-core")
     }
     implementation("com.azure:azure-security-keyvault-secrets:4.3.7") {
@@ -666,7 +666,7 @@ dependencies {
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
     implementation("com.googlecode.libphonenumber:libphonenumber:8.12.43")
-    implementation("org.thymeleaf:thymeleaf:3.0.14.RELEASE")
+    implementation("org.thymeleaf:thymeleaf:3.0.15.RELEASE")
     implementation("com.sendgrid:sendgrid-java:4.8.3")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.1")
     implementation("com.github.kittinunf.fuel:fuel:2.3.1") {
@@ -682,7 +682,7 @@ dependencies {
     implementation("org.apache.commons:commons-text:1.9")
     implementation("commons-codec:commons-codec:1.15")
     implementation("commons-io:commons-io:2.11.0")
-    implementation("org.postgresql:postgresql:42.3.0")
+    implementation("org.postgresql:postgresql:42.3.3")
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("org.flywaydb:flyway-core:8.4.2")
     implementation("org.commonmark:commonmark:0.18.1")
