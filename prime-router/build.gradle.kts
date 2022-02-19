@@ -30,7 +30,7 @@ import java.util.Properties
 plugins {
     kotlin("jvm") version "1.6.10"
     id("org.flywaydb.flyway") version "8.4.2"
-    id("nu.studer.jooq") version "6.0.1"
+    id("nu.studer.jooq") version "7.1.1"
     id("com.github.johnrengelman.shadow") version "7.1.1"
     id("com.microsoft.azure.azurefunctions") version "1.8.2"
     id("org.jlleitschuh.gradle.ktlint") version "10.2.1"
