@@ -615,7 +615,7 @@ buildscript {
     dependencies {
         // Now force the gradle build script to get the proper library for com.nimbusds:oauth2-oidc-sdk:9.15.  This
         // will need to be removed once this issue is resolved in Maven.
-        classpath("net.minidev:json-smart:2.4.2")
+        classpath("net.minidev:json-smart:2.4.8")
     }
 }
 
@@ -706,7 +706,7 @@ dependencies {
     implementation("it.skrape:skrapeit-html-parser:1.2.0")
     implementation("it.skrape:skrapeit-http-fetcher:1.2.0")
     implementation("org.apache.poi:poi:5.2.0")
-    implementation("org.apache.poi:poi-ooxml:5.1.0")
+    implementation("org.apache.poi:poi-ooxml:5.2.0")
     implementation("commons-io:commons-io: 2.11.0")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.1")
