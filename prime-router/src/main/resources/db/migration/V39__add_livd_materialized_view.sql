@@ -76,7 +76,7 @@ ORDER BY
 CREATE INDEX idx_vw_livid_manufacturer on vw_livd_table(manufacturer);
 CREATE INDEX idx_vw_livid_model on vw_livd_table(model);
 CREATE INDEX idx_vw_livid_test_performed_loinc_code on vw_livd_table(test_performed_loinc_code);
-CREATE INDEX idx_vw_livid_test_orderd_loinc_code on vw_livd_table(test_ordered_loinc_code);
+CREATE INDEX idx_vw_livid_test_ordered_loinc_code on vw_livd_table(test_ordered_loinc_code);
 CREATE INDEX idx_vw_livid_otc on vw_livd_table(is_otc, is_home, is_serial, is_unproctored);
 
 /*
@@ -91,7 +91,7 @@ AS $$
         /* Check to see what table we're updating */
         IF upper(table_name) = 'LIVD-SARS-COV-2' THEN
             /* Look to see if the livd materialized view exists */
-            SELECT COUNT(*) INTO view_exists FROM pg_matviews WHERE matviewname LIKE 'vw_livd_table';
+            SELECT COUNT(*) INTO view_exists FROM pg_matviews WHERE matviewname ILIKE 'vw_livd_table';
             /* Refresh the view if it exists */
             IF view_exists > 0 THEN
                 REFRESH MATERIALIZED VIEW vw_livd_table;
