@@ -89,18 +89,17 @@ jobs:
       - name: Spin up containers
         id: spin_containers
         run: |
-          docker-compose -f docker-compose.yml up -d prime_dev redox ftps sftp azurite
+          docker-compose -f docker-compose.yml up -d prime_dev ftps sftp azurite
           
       - name: Give some time for the container to start
         uses: juliangruber/sleep-action@v1
         with:
           time: 30s
       
-      - name: Load the lookup tables
-        run: ./gradlew reloadTables
-        
-      - name: Load the settings
-        run: ./gradlew reloadSettings
+      - name: Load the configuration
+        run: |
+         ./gradlew reloadTables
+         ./gradlew reloadSettings
         
       # Integrations tests require the metadata catalog
       - name: Run Integration Tests

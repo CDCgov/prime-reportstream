@@ -9,7 +9,6 @@ import com.azure.storage.blob.models.BlobStorageException
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
-import gov.cdc.prime.router.serializers.RedoxSerializer
 import org.apache.commons.io.FilenameUtils
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.ByteArrayInputStream
@@ -24,20 +23,8 @@ const val defaultBlobContainerName = "reports"
 
 class BlobAccess(
     private val csvSerializer: CsvSerializer? = null,
-    private val hl7Serializer: Hl7Serializer? = null,
-    private val redoxSerializer: RedoxSerializer? = null,
+    private val hl7Serializer: Hl7Serializer? = null
 ) : Logging {
-    private val defaultConnEnvVar = "AzureWebJobsStorage"
-
-    /**
-     * Metadata of a blob container.
-     */
-    private data class BlobContainerMetadata(val name: String, val connectionString: String)
-
-    /**
-     * THe blob containers.
-     */
-    private val blobContainerClients = mutableMapOf<BlobContainerMetadata, BlobContainerClient>()
 
     // Basic info about a blob: its format, url in azure, and its sha256 hash
     data class BlobInfo(
@@ -81,31 +68,6 @@ class BlobAccess(
     }
 
     /**
-     * Upload a raw [blobBytes] in the [bodyFormat] for a given [reportName].  The [action] is used to determine
-     * the folder to store the blob in.  A [subfolderName] name is optional.
-     * @return the information about the uploaded blob
-     */
-    fun uploadBody(
-        bodyFormat: Report.Format,
-        blobBytes: ByteArray,
-        reportName: String,
-        subfolderName: String? = null,
-        action: Event.EventAction = Event.EventAction.NONE
-    ): BlobInfo {
-        val subfolderNameChecked = if (subfolderName.isNullOrBlank()) "" else "$subfolderName/"
-        val blobName = when (action) {
-            Event.EventAction.RECEIVE -> "receive/$subfolderNameChecked$reportName"
-            Event.EventAction.SEND -> "ready/$subfolderNameChecked$reportName"
-            Event.EventAction.BATCH -> "batch/$subfolderNameChecked$reportName"
-            Event.EventAction.PROCESS -> "process/$subfolderNameChecked$reportName"
-            else -> "other/$subfolderNameChecked$reportName"
-        }
-        val digest = sha256Digest(blobBytes)
-        val blobUrl = uploadBlob(blobName, blobBytes)
-        return BlobInfo(bodyFormat, blobUrl, digest)
-    }
-
-    /**
      * Uses a serializer that matches the bodyFormat of the passed in [report] to generate a ByteArray to upload
      * to the blobstore. [sendingApplicationReport], [receivingApplicationReport], and [receivingFacilityReport] are
      * optional parameter that should be populated solely for empty HL7_BATCH files.
@@ -129,92 +91,146 @@ class BlobAccess(
                 receivingFacilityReport
             )
             Report.Format.CSV, Report.Format.CSV_SINGLE -> csvSerializer?.write(report, outputStream)
-            Report.Format.REDOX -> redoxSerializer?.write(report, outputStream)
         }
         val contentBytes = outputStream.toByteArray()
         return Pair(report.bodyFormat, contentBytes)
     }
 
-    private fun uploadBlob(
-        blobName: String,
-        bytes: ByteArray,
-        blobContainerName: String = defaultBlobContainerName,
-        blobConnEnvVar: String = defaultConnEnvVar
-    ): String {
-        logger.info("Starting uploadBlob of $blobName")
-        val blobClient = getBlobContainer(blobContainerName, blobConnEnvVar).getBlobClient(blobName)
-        blobClient.upload(
-            ByteArrayInputStream(bytes),
-            bytes.size.toLong()
-        )
-        logger.info("Done uploadBlob of $blobName")
-        return blobClient.blobUrl
-    }
+    companion object : Logging {
+        private val defaultConnEnvVar = "AzureWebJobsStorage"
 
-    /** Checks if a blob actually exists in the blobstore */
-    fun exists(blobUrl: String): Boolean {
-        return getBlobClient(blobUrl).exists()
-    }
+        /**
+         * Metadata of a blob container.
+         */
+        private data class BlobContainerMetadata(val name: String, val connectionString: String)
 
-    fun downloadBlob(blobUrl: String): ByteArray {
-        val stream = ByteArrayOutputStream()
-        stream.use { getBlobClient(blobUrl).download(it) }
-        return stream.toByteArray()
-    }
+        /**
+         * THe blob containers.
+         */
+        private val blobContainerClients = mutableMapOf<BlobContainerMetadata, BlobContainerClient>()
 
-    fun copyBlob(fromBlobUrl: String, toBlobContainer: String, toBlobConnEnvVar: String): String {
-        val fromBytes = this.downloadBlob(fromBlobUrl)
-        logger.info("Ready to copy ${fromBytes.size} bytes from $fromBlobUrl")
-        val toFilename = BlobInfo.getBlobFilename(fromBlobUrl)
-        logger.info("New blob filename will be $toFilename")
-        val toBlobUrl = uploadBlob(toFilename, fromBytes, toBlobContainer, toBlobConnEnvVar)
-        logger.info("New blob URL is $toBlobUrl")
-        return toBlobUrl
-    }
-
-    fun deleteBlob(blobUrl: String) {
-        getBlobClient(blobUrl).delete()
-    }
-
-    fun checkConnection(blobConnEnvVar: String = defaultConnEnvVar) {
-        val blobConnection = System.getenv(blobConnEnvVar)
-        BlobServiceClientBuilder().connectionString(blobConnection).buildClient()
-    }
-
-    /**
-     * Creates the blob container client for the given blob [name] and connection string (obtained from the
-     * environment variable [blobConnEnvVar], or reuses an existing one.
-     * @return the blob container client
-     */
-    fun getBlobContainer(name: String, blobConnEnvVar: String = defaultConnEnvVar): BlobContainerClient {
-        val blobConnection = System.getenv(blobConnEnvVar)
-        val blobContainerMetadata = BlobContainerMetadata(name, blobConnection)
-
-        return if (blobContainerClients.containsKey(blobContainerMetadata)) {
-            blobContainerClients[blobContainerMetadata]!!
-        } else {
-            val blobServiceClient = BlobServiceClientBuilder().connectionString(blobConnection).buildClient()
-            val containerClient = blobServiceClient.getBlobContainerClient(name)
-            try {
-                if (!containerClient.exists()) containerClient.create()
-            } catch (error: BlobStorageException) {
-                // This can happen when there are concurrent calls to the API
-                if (error.errorCode.equals(BlobErrorCode.CONTAINER_ALREADY_EXISTS)) {
-                    logger.warn("Container $name already exists")
-                } else {
-                    throw error
-                }
+        /**
+         * Upload a raw [blobBytes] in the [bodyFormat] for a given [reportName].  The [action] is used to determine
+         * the folder to store the blob in.  A [subfolderName] name is optional.
+         * @return the information about the uploaded blob
+         */
+        fun uploadBody(
+            bodyFormat: Report.Format,
+            blobBytes: ByteArray,
+            reportName: String,
+            subfolderName: String? = null,
+            action: Event.EventAction = Event.EventAction.NONE
+        ): BlobInfo {
+            val subfolderNameChecked = if (subfolderName.isNullOrBlank()) "" else "$subfolderName/"
+            val blobName = when (action) {
+                Event.EventAction.RECEIVE -> "receive/$subfolderNameChecked$reportName"
+                Event.EventAction.SEND -> "ready/$subfolderNameChecked$reportName"
+                Event.EventAction.BATCH -> "batch/$subfolderNameChecked$reportName"
+                Event.EventAction.PROCESS -> "process/$subfolderNameChecked$reportName"
+                else -> "other/$subfolderNameChecked$reportName"
             }
-            containerClient
+            val digest = sha256Digest(blobBytes)
+            val blobUrl = uploadBlob(blobName, blobBytes)
+            return BlobInfo(bodyFormat, blobUrl, digest)
         }
-    }
 
-    fun getBlobClient(blobUrl: String, blobConnEnvVar: String = defaultConnEnvVar): BlobClient {
-        val blobConnection = System.getenv(blobConnEnvVar)
-        return BlobClientBuilder().connectionString(blobConnection).endpoint(blobUrl).buildClient()
-    }
+        /**
+         * Obtain a client for interacting with the blob store.
+         */
+        fun getBlobClient(blobUrl: String, blobConnEnvVar: String = defaultConnEnvVar): BlobClient {
+            val blobConnection = System.getenv(blobConnEnvVar)
+            return BlobClientBuilder().connectionString(blobConnection).endpoint(blobUrl).buildClient()
+        }
 
-    companion object {
+        /**
+         * Upload a raw [blobBytes] as [blobName]
+         * @return the url for the uploaded blob
+         */
+        private fun uploadBlob(
+            blobName: String,
+            bytes: ByteArray,
+            blobContainerName: String = defaultBlobContainerName,
+            blobConnEnvVar: String = defaultConnEnvVar
+        ): String {
+            logger.info("Starting uploadBlob of $blobName")
+            val blobClient = getBlobContainer(blobContainerName, blobConnEnvVar).getBlobClient(blobName)
+            blobClient.upload(
+                ByteArrayInputStream(bytes),
+                bytes.size.toLong()
+            )
+            logger.info("Done uploadBlob of $blobName")
+            return blobClient.blobUrl
+        }
+
+        /** Checks if a blob actually exists in the blobstore */
+        fun exists(blobUrl: String): Boolean {
+            return getBlobClient(blobUrl).exists()
+        }
+
+        /**
+         * Download the blob at the given [blobUrl]
+         */
+        fun downloadBlob(blobUrl: String): ByteArray {
+            val stream = ByteArrayOutputStream()
+            stream.use { getBlobClient(blobUrl).download(it) }
+            return stream.toByteArray()
+        }
+
+        /**
+         * Copy a blob at [fromBlobUrl] to a blob in [toBlobContainer]
+         */
+        fun copyBlob(fromBlobUrl: String, toBlobContainer: String, toBlobConnEnvVar: String): String {
+            val fromBytes = downloadBlob(fromBlobUrl)
+            logger.info("Ready to copy ${fromBytes.size} bytes from $fromBlobUrl")
+            val toFilename = BlobInfo.getBlobFilename(fromBlobUrl)
+            logger.info("New blob filename will be $toFilename")
+            val toBlobUrl = uploadBlob(toFilename, fromBytes, toBlobContainer, toBlobConnEnvVar)
+            logger.info("New blob URL is $toBlobUrl")
+            return toBlobUrl
+        }
+
+        /**
+         * Delete a blob at [blobUrl]
+         */
+        fun deleteBlob(blobUrl: String) {
+            getBlobClient(blobUrl).delete()
+        }
+
+        /**
+         * Check the connection to the blob store
+         */
+        fun checkConnection(blobConnEnvVar: String = defaultConnEnvVar) {
+            val blobConnection = System.getenv(blobConnEnvVar)
+            BlobServiceClientBuilder().connectionString(blobConnection).buildClient()
+        }
+
+        /**
+         * Creates the blob container client for the given blob [name] and connection string (obtained from the
+         * environment variable [blobConnEnvVar], or reuses an existing one.
+         * @return the blob container client
+         */
+        fun getBlobContainer(name: String, blobConnEnvVar: String = defaultConnEnvVar): BlobContainerClient {
+            val blobConnection = System.getenv(blobConnEnvVar)
+            val blobContainerMetadata = BlobContainerMetadata(name, blobConnection)
+
+            return if (blobContainerClients.containsKey(blobContainerMetadata)) {
+                blobContainerClients[blobContainerMetadata]!!
+            } else {
+                val blobServiceClient = BlobServiceClientBuilder().connectionString(blobConnection).buildClient()
+                val containerClient = blobServiceClient.getBlobContainerClient(name)
+                try {
+                    if (!containerClient.exists()) containerClient.create()
+                } catch (error: BlobStorageException) {
+                    // This can happen when there are concurrent calls to the API
+                    if (error.errorCode.equals(BlobErrorCode.CONTAINER_ALREADY_EXISTS)) {
+                        logger.warn("Container $name already exists")
+                    } else {
+                        throw error
+                    }
+                }
+                containerClient
+            }
+        }
 
         /**
          * Create a hex string style of a digest.
@@ -223,10 +239,16 @@ class BlobAccess(
             return digest.joinToString(separator = "", limit = 40) { Integer.toHexString(it.toInt()) }
         }
 
+        /**
+         * Hash a ByteArray [input] with SHA 256
+         */
         fun sha256Digest(input: ByteArray): ByteArray {
             return hashBytes("SHA-256", input)
         }
 
+        /**
+         * Hash a ByteArray [input] with methond [type]
+         */
         fun hashBytes(type: String, input: ByteArray): ByteArray {
             return MessageDigest
                 .getInstance(type)

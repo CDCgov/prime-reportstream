@@ -9,7 +9,6 @@ import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
-import gov.cdc.prime.router.serializers.RedoxSerializer
 import java.io.File
 import java.util.Locale
 
@@ -110,14 +109,12 @@ class FileUtilities {
 
             val csvSerializer = CsvSerializer(metadata)
             val hl7Serializer = Hl7Serializer(metadata, settings)
-            val redoxSerializer = RedoxSerializer(metadata)
             outputFile.outputStream().use {
                 when (format) {
                     Report.Format.INTERNAL -> csvSerializer.writeInternal(report, it)
                     Report.Format.CSV, Report.Format.CSV_SINGLE -> csvSerializer.write(report, it)
                     Report.Format.HL7 -> hl7Serializer.write(report, it)
                     Report.Format.HL7_BATCH -> hl7Serializer.writeBatch(report, it)
-                    Report.Format.REDOX -> redoxSerializer.write(report, it)
                 }
             }
             return outputFile

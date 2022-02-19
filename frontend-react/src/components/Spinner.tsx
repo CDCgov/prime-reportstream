@@ -1,4 +1,4 @@
-import { SpinnerCircular } from "spinners-react";
+import { Circles } from "react-loader-spinner";
 
 interface SpinnerProps {
     /* Will this spinner be a full page spinner? Marking this true will center the
@@ -25,7 +25,7 @@ function Spinner(props: SpinnerProps) {
             style={props.fullPage ? fullPageStyles : defaultStyles}
             className="grid-container"
         >
-            <SpinnerCircular color="rgba(57, 88, 172, 1)" size="10%" />
+            <Circles ariaLabel="loading-indicator" />
         </div>
     );
 }

@@ -190,7 +190,7 @@ class ActionHistoryTests {
                 receivers = listOf(
                     Receiver(
                         "myService", "myOrg", "topic1", CustomerStatus.INACTIVE, "schema1",
-                        format = Report.Format.REDOX
+                        format = Report.Format.CSV
                     )
                 )
             )
@@ -206,7 +206,7 @@ class ActionHistoryTests {
         assertThat(reportFile.transportParams).isEqualTo("params1")
         assertThat(reportFile.transportResult).isEqualTo("result1")
         assertThat(reportFile.receivingOrgSvc).isEqualTo("myService")
-        assertThat(reportFile.bodyFormat).isEqualTo("REDOX")
+        assertThat(reportFile.bodyFormat).isEqualTo("CSV")
         assertThat(reportFile.sendingOrg).isNull()
         assertThat(reportFile.bodyUrl).isNull()
         assertThat(reportFile.blobDigest).isNull()
@@ -304,7 +304,7 @@ class ActionHistoryTests {
                 receivers = listOf(
                     Receiver(
                         "service0", "org0", "topic", CustomerStatus.INACTIVE, "schema",
-                        format = Report.Format.REDOX
+                        format = Report.Format.CSV
                     )
                 )
             )

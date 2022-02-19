@@ -58,6 +58,8 @@ class Hl7SerializerTests {
         truncateHl7Fields: String? = null,
         suppressNonNPI: Boolean = false,
         truncateHDNamespaceIds: Boolean = false,
+        convertPositiveDateTimeOffsetToNegative: Boolean = false,
+        useHighPrecisionHeaderDateTimeFormat: Boolean = false,
     ): Hl7Configuration {
         return Hl7Configuration(
             messageProfileId = "",
@@ -71,7 +73,9 @@ class Hl7SerializerTests {
             replaceValue = replaceValue,
             truncateHl7Fields = truncateHl7Fields,
             suppressNonNPI = suppressNonNPI,
-            truncateHDNamespaceIds = truncateHDNamespaceIds
+            truncateHDNamespaceIds = truncateHDNamespaceIds,
+            convertPositiveDateTimeOffsetToNegative = convertPositiveDateTimeOffsetToNegative,
+            useHighPrecisionHeaderDateTimeFormat = useHighPrecisionHeaderDateTimeFormat
         )
     }
 
@@ -811,5 +815,29 @@ NTE|1|L|This is a final comment|RE"""
         assertEquals("sending_app", parts[2])
         assertEquals("receiving_app", parts[4])
         assertEquals("receiving_facility", parts[5])
+    }
+
+    @Test
+    fun `test now timestamp logic`() {
+        // arrange our regexes
+        // this regex checks for 12 digits, and then the offset sign, and then four more digits
+        val lowPrecisionTimeStampRegex = "^\\d{12}[-|+]\\d{4}".toRegex()
+        createConfig(
+            useHighPrecisionHeaderDateTimeFormat = false,
+            convertPositiveDateTimeOffsetToNegative = false
+        ).run {
+            val timestampValue = Hl7Serializer.nowTimestamp(this)
+            assertThat(lowPrecisionTimeStampRegex.containsMatchIn(timestampValue)).isTrue()
+        }
+
+        // this regex checks for 14 digits, then a period, three digits, and then the offset
+        val highPrecisionTimeStampRegex = "\\d{14}\\.\\d{3}[-|+]\\d{4}".toRegex()
+        createConfig(
+            useHighPrecisionHeaderDateTimeFormat = true,
+            convertPositiveDateTimeOffsetToNegative = false
+        ).run {
+            val timestampValue = Hl7Serializer.nowTimestamp(this)
+            assertThat(highPrecisionTimeStampRegex.containsMatchIn(timestampValue)).isTrue()
+        }
     }
 }
