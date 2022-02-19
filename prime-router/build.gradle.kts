@@ -30,7 +30,7 @@ import java.util.Properties
 plugins {
     kotlin("jvm") version "1.6.10"
     id("org.flywaydb.flyway") version "8.4.2"
-    id("nu.studer.jooq") version "6.0.1"
+    id("nu.studer.jooq") version "7.1.1"
     id("com.github.johnrengelman.shadow") version "7.1.1"
     id("com.microsoft.azure.azurefunctions") version "1.8.2"
     id("org.jlleitschuh.gradle.ktlint") version "10.2.1"
@@ -665,7 +665,7 @@ dependencies {
     implementation("com.github.javafaker:javafaker:1.0.2")
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
-    implementation("com.googlecode.libphonenumber:libphonenumber:8.12.41")
+    implementation("com.googlecode.libphonenumber:libphonenumber:8.12.43")
     implementation("org.thymeleaf:thymeleaf:3.0.14.RELEASE")
     implementation("com.sendgrid:sendgrid-java:4.8.3")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.1")
