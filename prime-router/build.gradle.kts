@@ -643,7 +643,7 @@ dependencies {
     implementation("com.azure:azure-storage-queue:12.11.2") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-security-keyvault-secrets:4.3.6") {
+    implementation("com.azure:azure-security-keyvault-secrets:4.3.7") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
@@ -723,7 +723,7 @@ dependencies {
     // kotlinx-coroutines-core is needed by mock-fuel
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
     testImplementation("com.github.KennethWussmann:mock-fuel:1.3.0")
-    testImplementation("io.mockk:mockk:1.12.1")
+    testImplementation("io.mockk:mockk:1.12.2")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.2")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.25")
     testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
