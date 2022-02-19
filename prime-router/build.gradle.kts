@@ -637,7 +637,7 @@ dependencies {
     implementation("com.microsoft.azure.functions:azure-functions-java-library:1.4.2")
     implementation("com.azure:azure-core:1.24.1")
     implementation("com.azure:azure-core-http-netty:1.11.6")
-    implementation("com.azure:azure-storage-blob:12.14.1") {
+    implementation("com.azure:azure-storage-blob:12.14.4") {
         exclude(group = "com.azure", module = "azure-core")
     }
     implementation("com.azure:azure-storage-queue:12.11.2") {
@@ -706,7 +706,7 @@ dependencies {
     implementation("it.skrape:skrapeit-html-parser:1.2.0")
     implementation("it.skrape:skrapeit-http-fetcher:1.2.0")
     implementation("org.apache.poi:poi:5.2.0")
-    implementation("org.apache.poi:poi-ooxml:5.1.0")
+    implementation("org.apache.poi:poi-ooxml:5.2.0")
     implementation("commons-io:commons-io: 2.11.0")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.1")
