@@ -1,6 +1,5 @@
 package gov.cdc.prime.router.azure
 
-import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
@@ -11,6 +10,7 @@ import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import com.microsoft.azure.functions.annotation.QueueTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
+import gov.cdc.prime.router.azure.http.extensions.contentType
 import gov.cdc.prime.router.cli.tests.CompareData
 import gov.cdc.prime.router.cli.tests.CompareHl7Data
 import gov.cdc.prime.router.encoding.FHIR
@@ -49,10 +49,9 @@ class FHIRFlowFunctions : Logging {
                 }
             }
             responseBuilder.status(HttpStatus.OK)
-            responseBuilder.header(HttpHeaders.CONTENT_TYPE, "application/fhir+json")
+            responseBuilder.contentType(HttpUtilities.fhirMediaType)
             responseBuilder.body(body)
         } catch (e: IllegalArgumentException) {
-            responseBuilder.status(HttpStatus.BAD_REQUEST)
             responseBuilder.body(e.message)
         }
         return responseBuilder.build()

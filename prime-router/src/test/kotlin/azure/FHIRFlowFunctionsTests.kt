@@ -3,6 +3,7 @@ package gov.cdc.prime.router.azure
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
+import assertk.assertions.isSuccess
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.encoding.FHIR
 import io.mockk.every
@@ -206,11 +207,7 @@ badffffff9bffffffcb46fffffff5ffffff886fffffff84ffffff9efffffffaffffffd23bfffffff
                 val entries = body.lines().filter { it.isNotEmpty() }
                 assertThat(entries.size).isEqualTo(case.entries)
                 entries.forEach { line ->
-                    try {
-                        FHIR.decode(line)
-                    } catch (e: Throwable) {
-                        throw Error("${case.name}: $line \n\n $body", e)
-                    }
+                    assertThat { FHIR.decode(line) }.isSuccess()
                 }
             }
         }
