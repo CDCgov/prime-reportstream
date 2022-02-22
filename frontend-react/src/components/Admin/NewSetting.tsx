@@ -102,6 +102,7 @@ export function NewSetting({ match }: RouteComponentProps<Props>) {
                     label={"JSON"}
                     savefunc={(v) => (orgSetting = v)}
                     defaultvalue={[]}
+                    defaultnullvalue="[]"
                 />
                 <Grid row>
                     <Button type="button" onClick={() => history.goBack()}>
