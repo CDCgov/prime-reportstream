@@ -41,7 +41,7 @@ class FHIRFlowFunctions : Logging {
     ): HttpResponseMessage {
         val responseBuilder = request.createResponseBuilder(HttpStatus.BAD_REQUEST)
         try {
-            val hl7messages = HL7.deserialize(request.body!!)
+            val hl7messages = HL7.deserialize(request.body)
             val body = buildString {
                 hl7messages.forEach { hl7 ->
                     val fhir = FHIR.translate(hl7)

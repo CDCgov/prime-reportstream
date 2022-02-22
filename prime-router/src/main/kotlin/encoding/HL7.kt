@@ -9,7 +9,8 @@ import org.apache.logging.log4j.kotlin.Logging
 object HL7 : Logging {
     val hparser = HL7HapiParser()
 
-    fun deserialize(message: String): List<Message> {
+    fun deserialize(message: String?): List<Message> {
+        requireNotNull(message)
         val messages: MutableList<Message> = mutableListOf()
         try {
             val iterator = Hl7InputStreamMessageIterator(message.byteInputStream())
