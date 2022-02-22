@@ -13,12 +13,13 @@ import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.azure.http.extensions.contentType
 import gov.cdc.prime.router.cli.tests.CompareData
 import gov.cdc.prime.router.cli.tests.CompareHl7Data
-import gov.cdc.prime.router.encoding.FHIR
 import gov.cdc.prime.router.encoding.HL7
 import gov.cdc.prime.router.encoding.encode
 import gov.cdc.prime.router.engine.Message
 import gov.cdc.prime.router.engine.RawSubmission
+import gov.cdc.prime.router.translation.HL7toFHIR
 import org.apache.logging.log4j.kotlin.Logging
+import org.hl7.fhir.r4.model.Bundle
 
 const val fhirQueueName = "fhir-raw-received"
 
@@ -41,10 +42,10 @@ class FHIRFlowFunctions : Logging {
     ): HttpResponseMessage {
         val responseBuilder = request.createResponseBuilder(HttpStatus.BAD_REQUEST)
         try {
-            val hl7messages = HL7.deserialize(request.body)
+            val hl7messages = HL7.decode(request.body)
             val body = buildString {
-                hl7messages.forEach { hl7 ->
-                    val fhir = FHIR.translate(hl7)
+                hl7messages.forEach { message ->
+                    val fhir: Bundle = HL7toFHIR.translate(message)
                     appendLine(fhir.encode())
                 }
             }
@@ -79,7 +80,7 @@ class FHIRFlowFunctions : Logging {
 
         logger.debug("Got content ${blobContent.size}")
         // TODO behind an interface?
-        val hl7 = HL7.deserialize(String(blobContent))
+        val hl7 = HL7.decode(String(blobContent))
         val result = hl7.first().encode()
 
         val comparison = compare(String(blobContent), result)
