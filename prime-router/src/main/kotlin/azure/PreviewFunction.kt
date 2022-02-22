@@ -7,9 +7,10 @@ import com.microsoft.azure.functions.HttpResponseMessage
 import com.microsoft.azure.functions.annotation.AuthorizationLevel
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
+import gov.cdc.prime.router.ActionError
+import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.ResultDetail
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.messages.PreviewErrorResponseMessage
 import gov.cdc.prime.router.messages.PreviewMessage
@@ -49,8 +50,8 @@ class PreviewFunction(
 
     private fun badRequest(
         message: String,
-        errors: List<ResultDetail> = emptyList(),
-        warnings: List<ResultDetail> = emptyList()
+        errors: List<ActionLog> = emptyList(),
+        warnings: List<ActionLog> = emptyList()
     ): Nothing {
         val previewErrorMessage = PreviewErrorResponseMessage(message, errors, warnings)
         val response = mapper.writeValueAsString(previewErrorMessage)
@@ -84,33 +85,38 @@ class PreviewFunction(
      * Main logic of the Azure function. Useful for unit testing.
      */
     internal fun processRequest(parameters: FunctionParameters): String {
-        val warnings = mutableListOf<ResultDetail>()
+        val warnings = mutableListOf<ActionLog>()
         return readReport(parameters, warnings)
             .translate(parameters, warnings)
             .serialize(parameters, warnings)
     }
 
-    private fun readReport(parameters: FunctionParameters, warnings: MutableList<ResultDetail>): Report {
-        val errors = mutableListOf<ResultDetail>()
-        return workflowEngine.createReport(
-            sender = parameters.sender,
-            content = parameters.previewMessage.inputContent,
-            defaults = emptyMap(),
-            errors = errors,
-            warnings = warnings
-        ) ?: badRequest("Unable to deserialize report", errors, warnings)
+    private fun readReport(parameters: FunctionParameters, warnings: MutableList<ActionLog>): Report {
+        return try {
+            val (report, parseWarnings, _) = workflowEngine.parseReport(
+                parameters.sender,
+                parameters.previewMessage.inputContent,
+                emptyMap()
+            )
+            warnings.addAll(parseWarnings)
+            report
+        } catch (ae: ActionError) {
+            badRequest("Unable to deserialize report", errors = ae.details)
+        }
     }
 
-    private fun Report.translate(parameters: FunctionParameters, warnings: MutableList<ResultDetail>): Report {
-        return workflowEngine.translator.filterAndTranslateForReceiver(
-            this,
-            parameters.receiver,
+    private fun Report.translate(parameters: FunctionParameters, warnings: MutableList<ActionLog>): Report {
+        val routedReport = workflowEngine.translator.filterAndTranslateForReceiver(
+            input = this,
+            defaultValues = emptyMap(),
+            receiver = parameters.receiver,
             warnings = warnings
         ) ?: badRequest("Unable to translate the report. May not match filters", warnings = warnings)
+        return routedReport.report
     }
 
-    private fun Report.serialize(parameters: FunctionParameters, warnings: List<ResultDetail>): String {
-        val content = String(workflowEngine.serializeReport(this))
+    private fun Report.serialize(parameters: FunctionParameters, warnings: List<ActionLog>): String {
+        val content = String(workflowEngine.blob.createBodyBytes(this))
         val externalName = Report.formFilename(
             id,
             schema.name,

@@ -1,7 +1,7 @@
 package gov.cdc.prime.router.messages
 
+import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.DeepOrganization
-import gov.cdc.prime.router.ResultDetail
 
 /**
  * The [PreviewMessage] is the payload for the `preview` API end-point.
@@ -23,7 +23,7 @@ data class PreviewResponseMessage(
     val receiverName: String,
     val externalFileName: String,
     val content: String,
-    val warnings: List<ResultDetail> = emptyList()
+    val warnings: List<ActionLog> = emptyList()
 )
 
 /**
@@ -31,6 +31,6 @@ data class PreviewResponseMessage(
  */
 data class PreviewErrorResponseMessage(
     val message: String,
-    val errors: List<ResultDetail> = emptyList(),
-    val warnings: List<ResultDetail> = emptyList()
+    val errors: List<ActionLog> = emptyList(),
+    val warnings: List<ActionLog> = emptyList()
 )

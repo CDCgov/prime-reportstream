@@ -17,7 +17,6 @@ class ReportFileMessage(
     val reportId: String,
     val schemaTopic: String,
     val schemaName: String,
-    val externalFileName: String,
     val contentType: String,
     val content: String,
     val origin: Origin? = null,

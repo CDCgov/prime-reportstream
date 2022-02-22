@@ -58,13 +58,13 @@ class BlobAccess(
         receivingApplicationReport: String? = null,
         receivingFacilityReport: String? = null
     ): BlobInfo {
-        val (bodyFormat, blobBytes) = createBodyBytes(
+        val blobBytes = createBodyBytes(
             report,
             sendingApplicationReport,
             receivingApplicationReport,
             receivingFacilityReport
         )
-        return uploadBody(bodyFormat, blobBytes, report.name, subfolderName, action)
+        return uploadBody(report.bodyFormat, blobBytes, report.name, subfolderName, action)
     }
 
     /**
@@ -72,12 +72,12 @@ class BlobAccess(
      * to the blobstore. [sendingApplicationReport], [receivingApplicationReport], and [receivingFacilityReport] are
      * optional parameter that should be populated solely for empty HL7_BATCH files.
      */
-    private fun createBodyBytes(
+    fun createBodyBytes(
         report: Report,
         sendingApplicationReport: String? = null,
         receivingApplicationReport: String? = null,
         receivingFacilityReport: String? = null
-    ): Pair<Report.Format, ByteArray> {
+    ): ByteArray {
         val outputStream = ByteArrayOutputStream()
         when (report.bodyFormat) {
             Report.Format.INTERNAL -> csvSerializer?.writeInternal(report, outputStream)
@@ -92,8 +92,7 @@ class BlobAccess(
             )
             Report.Format.CSV, Report.Format.CSV_SINGLE -> csvSerializer?.write(report, outputStream)
         }
-        val contentBytes = outputStream.toByteArray()
-        return Pair(report.bodyFormat, contentBytes)
+        return outputStream.toByteArray()
     }
 
     companion object : Logging {

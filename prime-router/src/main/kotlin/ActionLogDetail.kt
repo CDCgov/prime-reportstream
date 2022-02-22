@@ -1,6 +1,5 @@
 package gov.cdc.prime.router
 import com.fasterxml.jackson.annotation.JsonTypeInfo
-import com.fasterxml.jackson.annotation.JsonSubTypes
 
 enum class ActionLogDetailType {
     // CSV Serializing errors
