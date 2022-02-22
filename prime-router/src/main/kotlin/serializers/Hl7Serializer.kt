@@ -1238,7 +1238,15 @@ class Hl7Serializer(
         // we need to pass this in via the translation configuration
         if (!suppressQst) terser.set(formPathSpec("OBX-29", aoeRep), "QST")
         // all of these values must be set on the OBX AOE's for validation
-        terser.set(formPathSpec("OBX-23-1", aoeRep), report.getStringByHl7Field(row, "OBX-23-1"))
+//        trimAndTruncateValue(
+//            value: String,
+//            hl7Field: String,
+//            hl7Config: Hl7Configuration?,
+//        terser: Terser
+        val tempVal = report.getStringByHl7Field(row, "OBX-23-1")
+        terser.set(formPathSpec("OBX-23-1", aoeRep), trimAndTruncateValue(
+            tempVal as String, "OBX-23-1", hl7Config, terser
+        ))
         // set to a default value, but look below
         // terser.set(formPathSpec("OBX-23-6", aoeRep), report.getStringByHl7Field(row, "OBX-23-6"))
         terser.set(formPathSpec("OBX-23-10", aoeRep), report.getString(row, "testing_lab_clia"))
