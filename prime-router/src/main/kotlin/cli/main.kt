@@ -271,6 +271,7 @@ fun main(args: Array<String>) = RouterCli()
             LookupTableActivateCommand(), LookupTableDiffCommand(), LookupTableLoadAllCommand()
         ),
         ConvertFileCommands(),
-        PreviewCommand()
+        PreviewCommand(),
+        SenderFilesCommand()
     )
     .main(args)

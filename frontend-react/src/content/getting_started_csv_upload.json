@@ -41,7 +41,7 @@
                                 ""
                             ],               
                             "notes": [
-                               "Enter patient’s last name. File will fail if field left blank."              
+                               "Enter patient's last name. File will fail if field left blank."              
                             ]
                         },
                         {
@@ -58,7 +58,7 @@
                                 ""
                             ],               
                             "notes": [
-                               "Enter patient’s first name. File will fail if field left blank."          
+                               "Enter patient's first name. File will fail if field left blank."          
                             ]
                         },
                         {
@@ -75,7 +75,7 @@
                                 ""
                             ],               
                             "notes": [
-                               "Enter patient’s middle name, if known. This value is optional and can be left blank if no information is provided."          
+                               "Enter patient's middle name, if known. This value is optional and can be left blank if no information is provided."          
                             ]
                         },
                         {
@@ -113,7 +113,7 @@
                                 ""
                             ],               
                             "notes": [
-                                "Enter patient’s additional address information, if applicable. This value is optional and can be left blank if no information is provided. "                
+                                "Enter patient's additional address information, if applicable. This value is optional and can be left blank if no information is provided. "                
                             ]
                         },
                         {
@@ -130,7 +130,7 @@
                                 ""
                             ],               
                             "notes": [
-                               "Enter patient’s city. File will fail if field left blank.",
+                               "Enter patient's city. File will fail if field left blank.",
                                "If no address given or homeless, populate this field with the <a href=\"#ordering-facility\" class=\"usa-link\">ordering facility</a> information."              
                             ]
                         },
@@ -148,7 +148,7 @@
                                 "Two-character state abbreviation"
                             ],               
                             "notes": [
-                               "Enter patient’s state using the two-character state abbreviation. File will fail if field left blank. ",
+                               "Enter patient's state using the two-character state abbreviation. File will fail if field left blank. ",
                                "If no address given or homeless, populate this field with the <a href=\"#ordering-facility\" class=\"usa-link\">ordering facility</a> information."                
                             ]
                         },
@@ -166,7 +166,7 @@
                                 ""
                             ],               
                             "notes": [
-                               "Enter patient’s county/parish name."          
+                               "Enter patient's county/parish name."          
                             ]
                         },
                         {
@@ -184,7 +184,7 @@
                                 "12345-6789 "
                             ],               
                             "notes": [
-                               "Enter patient’s zip code. File will fail if value is not entered using acceptable format or field is left blank. ",
+                               "Enter patient's zip code. File will fail if value is not entered using acceptable format or field is left blank. ",
                                "If no address given or homeless, populate field with the <a href=\"#ordering-facility\" class=\"usa-link\">ordering facility</a> information. "                
                             ]
                         },
@@ -202,7 +202,7 @@
                                 "000-000-0000"
                             ],               
                             "notes": [
-                               "Enter patient’s phone number. File will fail if value is not entered using acceptable format or field is left blank.",
+                               "Enter patient's phone number. File will fail if value is not entered using acceptable format or field is left blank.",
                                "If no address given or homeless, populate field with the <a href=\"#ordering-facility\" class=\"usa-link\">ordering facility</a> information. "                
                             ]
                         },
@@ -217,10 +217,10 @@
                             "valueMessage": "",
                             "valueType": "Date",
                             "values": [
-                                "YYYYMMDD"
+                                "M/d/yyyy"
                             ],               
                             "notes": [
-                               "Enter patient’s date of birth. File will fail if value is not entered using accepted format or field is left blank."     
+                               "Enter patient's date of birth. File will fail if value is not entered using accepted format or field is left blank."     
                             ]
                         },
                         {
@@ -391,10 +391,11 @@
                             "valueMessage": "",
                             "valueType": "Date",
                             "values": [
-                                "YYYYMMDD" 
+                                "M/d/yyyy HH:mm", "M/d/yyyy"
                             ],               
                             "notes": [
-                               "Enter order test date. File will fail if value is not entered using acceptable format or field is left blank. "              
+                               "Enter order test date. File will fail if value is not entered using acceptable format or field is left blank.",
+                               "M/D/yyyy HH:MM is the preferred format. If your system can't produce date and time, M/d/yyyy will also be accepted."              
                             ]
                         },
                         {
@@ -408,10 +409,11 @@
                             "valueMessage": "",
                             "valueType": "Date",
                             "values": [
-                                "YYYYMMDD" 
+                                "M/d/yyyy HH:mm", "M/d/yyyy"
                             ],               
                             "notes": [
-                               "Enter specimen collection date. If unknown, populate field with the order_test_date value. In most cases, these are the same. Can be left blank if same as order_test_date."              
+                               "Enter specimen collection date. If unknown, populate field with the order_test_date value. In most cases, these are the same. Can be left blank if same as order_test_date.",
+                               "M/D/yyyy HH:MM is the preferred format. If your system can't produce date and time, M/d/yyyy will also be accepted."             
                             ]
                         },
                         {
@@ -425,10 +427,11 @@
                             "valueMessage": "",
                             "valueType": "Date",
                             "values": [
-                                "YYYYMMDD" 
+                                "M/d/yyyy HH:mm", "M/d/yyyy" 
                             ],               
                             "notes": [
-                               "Enter the testing lab speciment received date. If unknown, populate field with the order_test_date value. In most cases, these are the same. Can be left blank if same as order_test_date."              
+                               "Enter the testing lab speciment received date. If unknown, populate field with the order_test_date value. In most cases, these are the same. Can be left blank if same as order_test_date.",
+                               "M/D/yyyy HH:MM is the preferred format. If your system can't produce date and time, M/d/yyyy will also be accepted."              
                             ]
                         },
                         {
@@ -442,10 +445,11 @@
                             "valueMessage": "",
                             "valueType": "Date",
                             "values": [
-                                "YYYYMMDD" 
+                                "M/d/yyyy HH:mm", "M/d/yyyy"
                             ],               
                             "notes": [
-                               "Enter test result date. File will fail if value is not entered using acceptable format or field is left blank. "              
+                               "Enter test result date. File will fail if value is not entered using acceptable format or field is left blank.",
+                               "M/D/yyyy HH:MM is the preferred format. If your system can't produce date and time, M/d/yyyy will also be accepted."                
                             ]
                         },
                         {
@@ -459,10 +463,11 @@
                             "valueMessage": "",
                             "valueType": "Date",
                             "values": [
-                                "YYYYMMDD" 
+                                "M/d/yyyy HH:mm", "M/d/yyyy" 
                             ],               
                             "notes": [
-                               "Enter test result date. If unknown, populate field with the test_result_date value. In most cases, these are the same. Can be left blank if same as order_test_date."              
+                               "Enter test result date. If unknown, populate field with the test_result_date value. In most cases, these are the same. Can be left blank if same as order_test_date.",
+                               "M/D/yyyy HH:MM is the preferred format. If your system can't produce date and time, M/d/yyyy will also be accepted."                
                             ]
                         }
                     ]
@@ -502,6 +507,7 @@
                 },
                 {
                     "title": "Ordering provider data elements",
+                    "slug": "ordering-provider",
                     "items": [
                         {
                             "name": "Ordering provider ID",
@@ -605,7 +611,7 @@
                                 "" 
                             ],               
                             "notes": [
-                               "Enter ordering provider’s additional address information, if applicable. This value is optional and can be left blank if no information is provided."              
+                               "Enter ordering provider's additional address information, if applicable. This value is optional and can be left blank if no information is provided."              
                             ]
                         },
                         {
@@ -622,7 +628,7 @@
                                 "" 
                             ],               
                             "notes": [
-                               "Enter ordering provider’s city. File will fail if field left blank."              
+                               "Enter ordering provider's city. File will fail if field left blank."              
                             ]
                         },
                         {
@@ -636,10 +642,10 @@
                             "valueMessage": "",
                             "valueType": "Address",
                             "values": [
-                                "Two-character state abbreviation." 
+                                "Two-character state abbreviation" 
                             ],               
                             "notes": [
-                               "Enter ordering provider’s state. File will fail if field left blank."              
+                               "Enter ordering provider's state. File will fail if field left blank."              
                             ]
                         },
                         {
@@ -673,7 +679,7 @@
                                 "000-000-0000"
                             ],               
                             "notes": [
-                               "Enter ordering provider’s phone number. File will fail if value is not entered using accepted format or field is left blank."              
+                               "Enter ordering provider's phone number. File will fail if value is not entered using accepted format or field is left blank."              
                             ]
                         }                    
                     ]
@@ -696,7 +702,7 @@
                                 "11D2030855" 
                             ],               
                             "notes": [
-                               "Enter testing lab’s CLIA number. File will fail if left blank.",
+                               "Enter testing lab's CLIA number. File will fail if left blank.",
                                "CLIA numbers can be found at <a href=\"https://www.cdc.gov/clia/LabSearch.html\" class=\"usa-link\" target=\"_blank\" rel=\"noreferrer noopener\">https://www.cdc.gov/clia/LabSearch.html</a>."              
                             ]
                         },
@@ -714,7 +720,7 @@
                                 "" 
                             ],               
                             "notes": [
-                               "Enter testing lab’s name. File will fail if field left blank."              
+                               "Enter testing lab's name. File will fail if field left blank."              
                             ]
                         },
                         {
@@ -748,7 +754,7 @@
                                 "" 
                             ],               
                             "notes": [
-                               "Enter testing lab’s additional address information, if applicable. This value is optional and can be left blank if no information is provided."              
+                               "Enter testing lab's additional address information, if applicable. This value is optional and can be left blank if no information is provided."              
                             ]
                         },
                         {
@@ -765,7 +771,7 @@
                                 "" 
                             ],               
                             "notes": [
-                               "Enter testing lab’s city. File will fail if field left blank."              
+                               "Enter testing lab's city. File will fail if field left blank."              
                             ]
                         },
                         {
@@ -779,7 +785,7 @@
                             "valueMessage": "",
                             "valueType": "Address",
                             "values": [
-                                "Two-character state abbreviation." 
+                                "Two-character state abbreviation" 
                             ],               
                             "notes": [
                                "Enter testing lab's state. File will fail if field left blank."              
@@ -816,7 +822,7 @@
                                 "000-000-0000"
                             ],               
                             "notes": [
-                               "Enter testing lab’s phone number, if known. File will fail if value is not entered using accepted format."              
+                               "Enter testing lab's phone number, if known. File will fail if value is not entered using accepted format."              
                             ]
                         }
                     ]
@@ -841,7 +847,7 @@
                                 "<code>U</code> or <code>UNK</code>" 
                             ],               
                             "notes": [
-                            "Enter patient’s pregnancy status. Field is not required, but requested for thorough reporting. Enter one of the acceptable values exactly as displayed."              
+                            "Enter patient's pregnancy status. Field is not required, but requested for thorough reporting. Enter one of the acceptable values exactly as displayed."              
                             ]
                         },
                         {
@@ -860,7 +866,7 @@
                                 "<code>U</code> or <code>UNK</code>" 
                             ],               
                             "notes": [
-                            "Enter patient’s employment in healthcare status. Field is not required, but requested for thorough reporting. Enter one of the acceptable values exactly as displayed."              
+                            "Enter patient's employment in healthcare status. Field is not required, but requested for thorough reporting. Enter one of the acceptable values exactly as displayed."              
                             ]
                         },
                         {
@@ -879,7 +885,7 @@
                                 "<code>U</code> or <code>UNK</code>" 
                             ],               
                             "notes": [
-                            "Enter patient’s symptomatic for disease status. Field is not required, but requested for thorough reporting. Enter one of the acceptable values exactly as displayed."              
+                            "Enter patient's symptomatic for disease status. Field is not required, but requested for thorough reporting. Enter one of the acceptable values exactly as displayed."              
                             ]
                         },
                         {
@@ -893,10 +899,10 @@
                             "valueMessage": "",
                             "valueType": "Date",
                             "values": [
-                                "YYYYMMDD"
+                                "M/d/yyyy"
                             ],               
                             "notes": [
-                                "Enter patient’s illness onset date.  Field is not required, but requested for thorough reporting. Enter value using accebtable format displayed."              
+                                "Enter patient's illness onset date.  Field is not required, but requested for thorough reporting. Enter value using accebtable format displayed."              
                             ]
                         },
                         {
@@ -915,7 +921,7 @@
                                 "<code>U</code> or <code>UNK</code>" 
                             ],               
                             "notes": [
-                            "Enter patient’s congregate housing status. Field is not required, but requested for thorough reporting. Enter one of the acceptable values exactly as displayed."              
+                            "Enter patient's congregate housing status. Field is not required, but requested for thorough reporting. Enter one of the acceptable values exactly as displayed."              
                             ]
                         },
                         {
@@ -934,7 +940,7 @@
                                 "<code>U</code> or <code>UNK</code>" 
                             ],               
                             "notes": [
-                            "Enter patient’s hospitalization status. Field is not required, but requested for thorough reporting. Enter one of the acceptable values exactly as displayed."              
+                            "Enter patient's hospitalization status. Field is not required, but requested for thorough reporting. Enter one of the acceptable values exactly as displayed."              
                             ]
                         },
                         {
@@ -953,7 +959,7 @@
                                 "<code>U</code> or <code>UNK</code>" 
                             ],               
                             "notes": [
-                            "Enter patient’s intensive care unit (ICU) status.  Field is not required, but requested for thorough reporting. Enter one of the acceptable values exactly as displayed."              
+                            "Enter patient's intensive care unit (ICU) status.  Field is not required, but requested for thorough reporting. Enter one of the acceptable values exactly as displayed."              
                             ]
                         }
                     ]
@@ -1010,7 +1016,7 @@
                                 "" 
                             ],               
                             "notes": [
-                               "Enter ordering facility’s additional address information, if applicable. This value is optional and can be left blank if no information is provided."              
+                               "Enter ordering facility's additional address information, if applicable. This value is optional and can be left blank if no information is provided."              
                             ]
                         },
                         {
@@ -1027,7 +1033,7 @@
                                 "" 
                             ],               
                             "notes": [
-                               "Enter ordering facility’s city. Can be left blank if same as <a href=\"#testing-facility\" class=\"usa-link\">testing_lab_city</a>."              
+                               "Enter ordering facility's city. Can be left blank if same as <a href=\"#testing-facility\" class=\"usa-link\">testing_lab_city</a>."              
                             ]
                         },
                         {
@@ -1041,10 +1047,10 @@
                             "valueMessage": "",
                             "valueType": "Address",
                             "values": [
-                                "Two-character state abbreviation." 
+                                "Two-character state abbreviation" 
                             ],               
                             "notes": [
-                               "Enter ordering facility’s state. Can be left blank if same as <a href=\"#testing-facility\" class=\"usa-link\">testing_lab_state</a>."              
+                               "Enter ordering facility's state. Can be left blank if same as <a href=\"#testing-facility\" class=\"usa-link\">testing_lab_state</a>."              
                             ]
                         },
                         {
@@ -1102,6 +1108,24 @@
                             "notes": [
                                "If there are comments from a physician or lab technician you want to relay to your public health department, enter them here. This field is not intended for characteristics of COVID-19 tests or statements about false positive or negative results. This value is optional and can be left blank if no information is provided.",
                                "<em>Do not include commas (,) in any comments.</em>"              
+                            ]
+                        },
+                        {
+                            "name": "Test result status",
+                            "colHeader": "test_result_status ",
+                            "colHeaderReportstream": "",            
+                            "required": false,
+                            "acceptedFormat": false,
+                            "acceptedValues": true,
+                            "acceptedExample": false,
+                            "valueMessage": "",
+                            "valueType": "Text",
+                            "values": [
+                                "<code>F</code> = Final result", 
+                                "<code>C</code> = Corrected result" 
+                            ],               
+                            "notes": [
+                               "Enter test result status using the accepted format. If left blank, value will default to <code>F</code> for final."              
                             ]
                         }
                     ]

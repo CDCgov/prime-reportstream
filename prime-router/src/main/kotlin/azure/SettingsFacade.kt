@@ -17,6 +17,7 @@ import gov.cdc.prime.router.TranslatorConfiguration
 import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.db.enums.SettingType
 import gov.cdc.prime.router.azure.db.tables.pojos.Setting
+import gov.cdc.prime.router.common.StringUtilities.Companion.trimToNull
 import org.jooq.JSONB
 import java.time.OffsetDateTime
 
@@ -204,7 +205,15 @@ class SettingsFacade(
                     Pair(AccessResult.SUCCESS, settingMetadata)
                 }
             }
-            val outputJson = mapper.writeValueAsString(resultMetadata)
+
+            val settingResult = mapper.readValue(setting.values.data(), clazz)
+            settingResult.meta = SettingMetadata(
+                resultMetadata.version,
+                resultMetadata.createdBy,
+                resultMetadata.createdAt
+            )
+
+            val outputJson = mapper.writeValueAsString(settingResult)
             Pair(accessResult, outputJson)
         }
     }
@@ -302,7 +311,8 @@ class OrganizationAPI
     countyName: String?,
     filters: List<ReportStreamFilters>?,
     override var meta: SettingMetadata?,
-) : Organization(name, description, jurisdiction, stateCode, countyName, filters), SettingAPI {
+) : Organization(name, description, jurisdiction, stateCode.trimToNull(), countyName.trimToNull(), filters),
+    SettingAPI {
     @get:JsonIgnore
     override val organizationName: String? = null
     override fun consistencyErrorMessage(metadata: Metadata): String? { return this.consistencyErrorMessage() }

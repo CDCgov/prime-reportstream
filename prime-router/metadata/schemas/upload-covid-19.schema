@@ -7,10 +7,28 @@ basedOn: covid-19
 
 elements:
     - name: sender_id
-      csvFields: [ { name: sender_id } ]
+      mapper: useSenderSetting(organizationName)
+
+    - name: processing_mode_code_fromsettings
+      type: TEXT
+      mapper: useSenderSetting(processingModeCode)
 
     - name: processing_mode_code
-      csvFields: [ { name: processing_mode_code } ]
+      cardinality: ONE
+      mapper: use(processing_mode_code, processing_mode_code_fromsettings)
+      csvFields: [ { name: processing_mode_code, format: $alt} ]
+      type: CODE
+      altValues:
+        - code: "T"
+          display: "TESTING"
+        - code: "T"
+          display: "INACTIVE"
+        - code: "T"
+          display: "T"
+        - code: "P"
+          display: "ACTIVE"
+        - code: "P"
+          display: "P"
 
 
 ############### Set the major ID fields
@@ -87,8 +105,9 @@ elements:
       csvFields: [{name: patient_phone_number}]
 
     - name: patient_dob
+      type: DATE
       cardinality: ONE 
-      csvFields: [{name: patient_dob, format: "yyyyMMdd"}]
+      csvFields: [{name: patient_dob}]
 
     - name: patient_gender
       cardinality: ONE 
@@ -111,22 +130,32 @@ elements:
       documentation: Translate multiple inbound Race values to RS / OMB values
       csvFields: [{ name: patient_race, format: $display}]
 
+    - name: patient_preferred_language
+      type: CODE
+      valueSet: sender-automation/patient_preferred_language
+      documentation: Translate multiple inbound Language values to the ISO-639 codes
+      csvFields: [{name: patient_preferred_language, format: $display}]
+
+    - name: patient_email
+      csvFields: [{name: patient_email }]
 
 
 ############### Order Info / Result Info / Specimen Info
     - name: order_test_date
+      type: DATETIME
       cardinality: ONE 
       nullifyValue: true
-      csvFields: [{name: order_test_date, format: "yyyyMMdd"}]
+      csvFields: [{name: order_test_date}]
 
     - name: specimen_collection_date_temp
       type: TEXT
       csvFields: [{name: specimen_collection_date }]
 
     - name: specimen_collection_date_time
+      type: DATETIME
       cardinality: ONE 
       nullifyValue: true
-      csvFields: [{name: specimen_collection_date, format: "yyyyMMdd"}]
+      csvFields: [{name: specimen_collection_date}]
       mapperOverridesValue: true
       mapper: ifNotPresent($mode:lookup, order_test_date, specimen_collection_date_temp)
 
@@ -135,25 +164,28 @@ elements:
       csvFields: [{name: testing_lab_specimen_received_date}]
 
     - name: testing_lab_specimen_received_datetime
+      type: DATETIME
       cardinality: ONE 
       nullifyValue: true
-      csvFields: [{name: testing_lab_specimen_received_date, format: "yyyyMMdd"}]
+      csvFields: [{name: testing_lab_specimen_received_date}]
       mapperOverridesValue: true
       mapper: ifNotPresent($mode:lookup, order_test_date, testing_lab_specimen_received_date_temp)
 
     - name: test_result_date
+      type: DATETIME
       cardinality: ONE 
       nullifyValue: true
-      csvFields: [{name: test_result_date, format: "yyyyMMdd"}]
+      csvFields: [{name: test_result_date}]
 
     - name: date_result_released_temp
       type: TEXT
       csvFields: [{name: date_result_released}]
 
     - name: date_result_released
+      type: DATETIME
       cardinality: ONE 
       nullifyValue: true
-      csvFields: [{name: date_result_released, format: "yyyyMMdd"}]
+      csvFields: [{name: date_result_released}]
       mapperOverridesValue: true
       mapper: ifNotPresent($mode:lookup, test_result_date, date_result_released_temp)
 
@@ -166,6 +198,19 @@ elements:
 
     - name: test_result_status
       default: F
+      cardinality: ONE 
+      nullifyValue: true
+      type: CODE
+      csvFields: [{name: test_result_status, format: $alt}]
+      altValues:
+        - code: "F"
+          display: "F"
+        - code: "F"
+          display: "f"
+        - code: "C"
+          display: "C"
+        - code: "C"
+          display: "c"
 
     - name: specimen_type
       cardinality: ONE 
@@ -175,7 +220,6 @@ elements:
       csvFields: [{ name: specimen_type, format: $display}]
 
     - name: specimen_source_site_code
-      cardinality: ONE 
       type: CODE
       valueSet: sender-automation/specimen_source_site_code
       documentation: Translate inbound text to outbound SNOMED Codes
@@ -293,11 +337,8 @@ elements:
 
     - name: ordering_facility_street2
       csvFields: [{name: ordering_facility_street2}]
-
-#    - name: ordering_facility_street2
-#      csvFields: [{name: ordering_facility_street2}]
-#      mapperOverridesValue: true
-#      mapper: ifNotPresent($mode:lookup, testing_lab_street2, ordering_facility_name_temp, ordering_facility_street_temp)
+      mapperOverridesValue: true
+      mapper: ifNotPresent($mode:lookup, testing_lab_street2, ordering_facility_name_temp, ordering_facility_street_temp)
 
     - name: ordering_facility_city
       cardinality: ONE 
@@ -326,10 +367,14 @@ elements:
 
 ################ Reporting Facility Info
     - name: reporting_facility_name
-      csvFields: [{name: testing_lab_name }]
+      cardinality: ONE
+      mapper: use(reporting_facility_name, testing_lab_name)
+      csvFields: [{name: reporting_facility_name }]
 
     - name: reporting_facility_clia
-      csvFields: [{name: testing_lab_clia}]
+      cardinality: ONE
+      mapper: use(reporting_facility_clia, testing_lab_clia)
+      csvFields: [{name: reporting_facility_clia}]
 
 
 ############### Set Other Miscellaneous Info
@@ -342,8 +387,9 @@ elements:
     - name: comment
       csvFields: [{name: comment}]
 
-    - name: comment_source
-      mapper: ifPresent(comment, L )
+#    - name: comment_source
+#      mapper: ifPresent(comment, L )
+
 
 ############### AOE fields
     - name: pregnant
@@ -375,6 +421,7 @@ elements:
       default: ""
 
     - name: illness_onset_date
+      type: DATE
       default: ""
       csvFields: [{name: illness_onset_date, format: "yyyyMMdd"}]
       nullifyValue: true

@@ -51,10 +51,12 @@ open class Receiver(
         topic: String,
         customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
         schemaName: String,
-        format: Report.Format = Report.Format.CSV
+        format: Report.Format = Report.Format.CSV,
+        timing: Timing? = null
     ) : this(
         name, organizationName, topic, customerStatus,
-        CustomConfiguration(schemaName = schemaName, format = format, emptyMap(), "standard", null)
+        CustomConfiguration(schemaName = schemaName, format = format, emptyMap(), "standard", null),
+        timing = timing
     )
 
     constructor(copy: Receiver) : this(
@@ -99,7 +101,8 @@ open class Receiver(
         val numberPerDay: Int = 1,
         val initialTime: String = "00:00",
         val timeZone: USTimeZone = USTimeZone.EASTERN,
-        val maxReportCount: Int = 500,
+        val maxReportCount: Int = 100,
+        val whenEmpty: WhenEmpty = WhenEmpty()
     ) {
         /**
          * Calculate the next event time.
@@ -152,6 +155,22 @@ open class Receiver(
     }
 
     /**
+     * Options when a receiver's batch is scheduled to run but there are no records for the receiver
+     */
+    data class WhenEmpty(
+        val action: EmptyOperation = EmptyOperation.NONE,
+        val onlyOncePerDay: Boolean = false
+    )
+
+    /**
+     * When it is batch time and there are no records should the receiver get a file or not
+     */
+    enum class EmptyOperation {
+        NONE,
+        SEND,
+    }
+
+    /**
      * Validate the object and return null or an error message
      */
     fun consistencyErrorMessage(metadata: Metadata): String? {
@@ -159,14 +178,6 @@ open class Receiver(
             is CustomConfiguration -> {
                 if (metadata.findSchema(translation.schemaName) == null)
                     return "Invalid schemaName: ${translation.schemaName}"
-            }
-            is Hl7Configuration -> {
-                if (transport != null && transport is RedoxTransportType)
-                    return "HL7 configurations should not have a Redox transport"
-            }
-            is RedoxConfiguration -> {
-                if (transport != null && transport !is RedoxTransportType)
-                    return "Redox configurations should have Redox transports"
             }
         }
         return null

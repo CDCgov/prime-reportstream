@@ -1,15 +1,28 @@
 package gov.cdc.prime.router
 
 import assertk.assertThat
+import assertk.assertions.contains
+import assertk.assertions.doesNotContain
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
+import assertk.assertions.isFailure
 import assertk.assertions.isFalse
+import assertk.assertions.isGreaterThan
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
+import assertk.assertions.size
 import assertk.assertions.startsWith
+import gov.cdc.prime.router.metadata.ConcatenateMapper
+import gov.cdc.prime.router.metadata.ElementAndValue
+import gov.cdc.prime.router.metadata.LIVDLookupMapper
+import gov.cdc.prime.router.metadata.LookupMapper
+import gov.cdc.prime.router.metadata.LookupTable
+import gov.cdc.prime.router.metadata.Mapper
+import gov.cdc.prime.router.metadata.NullMapper
+import gov.cdc.prime.router.metadata.TrimBlanksMapper
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -164,6 +177,19 @@ internal class ElementTests {
         }
         one.toNormalized("     ").run {
             assertThat(this).isEqualTo("")
+        }
+
+        // Hours with single digits and afternoon times
+        var testTimes = listOf(
+            "3/30/1998 9:35", "3/30/1998 09:35", "1998/3/30 9:35", "1998/3/30 09:35", "19980330 9:35:00",
+            "19980330 09:35:00", "1998-03-30 9:35:00", "1998-03-30 09:35:00"
+        )
+        testTimes.forEach {
+            assertThat(one.toNormalized(it)).isEqualTo("199803300935-0600")
+        }
+        testTimes = listOf("11/30/1998 16:35", "1998/11/30 16:35", "19981130 16:35:00", "1998-11-30 16:35:00")
+        testTimes.forEach {
+            assertThat(one.toNormalized(it)).isEqualTo("199811301635-0600")
         }
     }
 
@@ -379,6 +405,64 @@ internal class ElementTests {
     }
 
     @Test
+    fun `test toNormalized dateTime`() {
+        val one = Element(
+            "a",
+            type = Element.Type.DATETIME,
+            csvFields = Element.csvFields("datetime")
+        )
+
+        // Test MMddyyyy, 12012021 format
+        one.toNormalized("12012021").run {
+            assertThat(this).isEqualTo("202112010000-0600")
+        }
+        // Test M/d/yyyy,12/2/2021 format
+        one.toNormalized("12/2/2021").run {
+            assertThat(this).isEqualTo("202112020000-0600")
+        }
+        // Test yyyy/M/d,2021/12/3
+        one.toNormalized("2021/12/3").run {
+            assertThat(this).isEqualTo("202112030000-0600")
+        }
+        // Test M/d/yyyy HH:mm,12/4/2021 09:00
+        one.toNormalized("12/4/2021 09:00").run {
+            assertThat(this).isEqualTo("202112040900-0600")
+        }
+        // Test yyyy/M/d HH:mm,2021/12/05 10:00
+        one.toNormalized("2021/12/05 10:00").run {
+            assertThat(this).isEqualTo("202112051000-0600")
+        }
+    }
+
+    @Test
+    fun `test failed toNormalized dateTime`() {
+        val one = Element(
+            "a",
+            type = Element.Type.DATETIME,
+            csvFields = Element.csvFields("datetime")
+        )
+
+        // Test wrong date = 50
+        try {
+            one.toNormalized("12502021")
+        } catch (e: IllegalStateException) {
+            assertThat(e.message).isEqualTo("Invalid date: '12502021' for element 'datetime' ('a')")
+        }
+        // Test wrong month = 13
+        try {
+            one.toNormalized("13/2/2021")
+        } catch (e: IllegalStateException) {
+            assertThat(e.message).isEqualTo("Invalid date: '13/2/2021' for element 'datetime' ('a')")
+        }
+        // Test wrong year = abcd
+        try {
+            one.toNormalized("abcd/12/3")
+        } catch (e: IllegalStateException) {
+            assertThat(e.message).isEqualTo("Invalid date: 'abcd/12/3' for element 'datetime' ('a')")
+        }
+    }
+
+    @Test
     fun `test toFormatted phone`() {
         val one = Element(
             "a",
@@ -512,6 +596,72 @@ internal class ElementTests {
         val expected = InvalidDateMessage.new("a week ago", "'date' ('a')", null)
         val actual = checkForErrorDateElement.checkForError("a week ago", null)
         assertThat(actual?.detailMsg()).isEqualTo(expected.detailMsg())
+    }
+
+    @Test
+    fun `test checkForError dateTime`() {
+        val checkForErrorDateTimeElementNullify = Element(
+            "a",
+            type = Element.Type.DATETIME,
+            csvFields = Element.csvFields("datetime"),
+            nullifyValue = true
+        )
+
+        // nullify an invalid date if nullifyValue is true
+        assertThat(
+            checkForErrorDateTimeElementNullify.checkForError("a week ago")
+        ).isEqualTo(
+            null
+        )
+
+        val checkForErrorDateTimeElement = Element(
+            "a",
+            type = Element.Type.DATETIME,
+            csvFields = Element.csvFields("datetime")
+        )
+
+        // passing through a valid date of known manual formats does not throw an error
+        val dateTimeStrings = arrayOf(
+            "12012021", "12/2/2021", "2021/12/3", "12/4/2021 09:00", "2021/12/05 10:00",
+            "3/30/1998 9:35", "1998/3/30 9:35", "2022-01-30 9:35:09", "20220130 9:35:09", "20220130 09:35:09"
+        )
+
+        dateTimeStrings.forEach { dateTimeString ->
+            assertThat(
+                checkForErrorDateTimeElement.checkForError(dateTimeString)
+            ).isEqualTo(
+                null
+            )
+        }
+
+        // return an InvalidDateMessage
+        val expected = InvalidDateMessage.new("a week ago", "'datetime' ('a')", null)
+        val actual = checkForErrorDateTimeElement.checkForError("a week ago", null)
+        assertThat(actual?.detailMsg()).isEqualTo(expected.detailMsg())
+    }
+
+    @Test
+    fun `test failed checkForError dateTime`() {
+        val checkForErrorDateTimeElement = Element(
+            "a",
+            type = Element.Type.DATETIME,
+            csvFields = Element.csvFields("datetime")
+        )
+
+        // passing through a valid date of known manual formats does not throw an error
+        val dateTimeStrings = arrayOf(
+            "12502021", // Wrong date = 50
+            "13/01/2021", // Wrong month = 13
+            "abcd/12/3" // Wrong year = abcd
+        )
+
+        dateTimeStrings.forEach { dateTimeString ->
+            assertThat(
+                checkForErrorDateTimeElement.checkForError(dateTimeString)?.type
+            ).isEqualTo(
+                ActionLogDetailType.INVALID_DATE
+            )
+        }
     }
 
     @Test
@@ -831,23 +981,23 @@ internal class ElementTests {
         )
 
         // Element has value and mapperAlwaysRun is false, so we get the raw value
-        var finalValue = elements[0].processValue(mappedValues, schema)
+        var finalValue = elements[0].processValue(mappedValues, schema, itemIndex = 1)
         assertThat(finalValue.value).isEqualTo(mappedValues[elements[0].name])
 
         // Element with no raw value, no mapper and default returns a default.
-        finalValue = elements[1].processValue(mappedValues, schema)
+        finalValue = elements[1].processValue(mappedValues, schema, itemIndex = 1)
         assertThat(finalValue.value).isEqualTo(elements[1].default)
 
         // Element with mapper and no raw value returns mapper value
-        finalValue = elements[2].processValue(mappedValues, schema)
+        finalValue = elements[2].processValue(mappedValues, schema, itemIndex = 1)
         assertThat(finalValue.value).isEqualTo("${mappedValues[elements[0].name]}, ${mappedValues[elements[4].name]}")
 
         // Element with raw value and mapperAlwaysRun to false returns raw value
-        finalValue = elements[3].processValue(mappedValues, schema)
+        finalValue = elements[3].processValue(mappedValues, schema, itemIndex = 1)
         assertThat(finalValue.value).isEqualTo(mappedValues[elements[3].name])
 
         // Element with raw value and mapperAlwaysRun to true returns mapper value
-        finalValue = elements[4].processValue(mappedValues, schema)
+        finalValue = elements[4].processValue(mappedValues, schema, itemIndex = 1)
         assertThat(finalValue.value).isEqualTo("${mappedValues[elements[0].name]}, ${mappedValues[elements[4].name]}")
 
         // Element with $index
@@ -855,19 +1005,19 @@ internal class ElementTests {
         assertThat(finalValue.value).isEqualTo("${mappedValues[elements[5].name]}")
 
         // Element with $currentDate
-        finalValue = elements[6].processValue(mappedValues, schema)
+        finalValue = elements[6].processValue(mappedValues, schema, itemIndex = 1)
         assertThat(finalValue.value).isEqualTo("${mappedValues[elements[6].name]}")
 
         // Default does not override
-        finalValue = elements[7].processValue(mappedValues, schema)
+        finalValue = elements[7].processValue(mappedValues, schema, itemIndex = 1)
         assertThat(finalValue.value).isEqualTo("${mappedValues[elements[7].name]}")
 
         // Default forces override
-        finalValue = elements[8].processValue(mappedValues, schema)
+        finalValue = elements[8].processValue(mappedValues, schema, itemIndex = 1)
         assertThat(finalValue.value).isEqualTo("someDefault")
 
         // Default forces override, and the default is null.
-        finalValue = elements[9].processValue(mappedValues, schema)
+        finalValue = elements[9].processValue(mappedValues, schema, itemIndex = 1)
         assertThat(finalValue.value).isEqualTo("")
     }
 
@@ -976,34 +1126,34 @@ internal class ElementTests {
         )
 
         // Simple value tests with elements with no mapper or default value
-        assertThat(elementA.processValue(emptyMap(), schema).value).isEqualTo("")
+        assertThat(elementA.processValue(emptyMap(), schema, itemIndex = 1).value).isEqualTo("")
 
         var allElementValues = mapOf(elementB.name to "")
-        assertThat(elementA.processValue(allElementValues, schema).value).isEqualTo("")
+        assertThat(elementA.processValue(allElementValues, schema, itemIndex = 1).value).isEqualTo("")
 
         allElementValues = mapOf(elementA.name to "")
-        assertThat(elementA.processValue(allElementValues, schema).value).isEqualTo("")
+        assertThat(elementA.processValue(allElementValues, schema, itemIndex = 1).value).isEqualTo("")
 
         allElementValues = mapOf(elementA.name to "value")
-        assertThat(elementA.processValue(allElementValues, schema).value).isEqualTo("value")
+        assertThat(elementA.processValue(allElementValues, schema, itemIndex = 1).value).isEqualTo("value")
 
         // Simple value tests with elements with no mapper, but default value
         allElementValues = mapOf(elementA.name to "", elementB.name to "")
-        assertThat(elementB.processValue(allElementValues, schema).value).isEqualTo(elementB.default)
+        assertThat(elementB.processValue(allElementValues, schema, itemIndex = 1).value).isEqualTo(elementB.default)
 
         allElementValues = mapOf(elementA.name to "", elementB.name to "value")
-        assertThat(elementB.processValue(allElementValues, schema).value).isEqualTo("value")
+        assertThat(elementB.processValue(allElementValues, schema, itemIndex = 1).value).isEqualTo("value")
 
         // Now with a mapper that returns an empty/missing value
         allElementValues = mapOf(elementC.name to "")
-        assertThat(elementC.processValue(allElementValues, schema).value).isEqualTo("")
+        assertThat(elementC.processValue(allElementValues, schema, itemIndex = 1).value).isEqualTo("")
 
         allElementValues = mapOf(elementD.name to "")
-        assertThat(elementD.processValue(allElementValues, schema).value).isEqualTo(elementD.default)
+        assertThat(elementD.processValue(allElementValues, schema, itemIndex = 1).value).isEqualTo(elementD.default)
 
         // Now with a mapper that returns some non-blank value
         allElementValues = mapOf(elementA.name to "untrimmedvalue  ")
-        assertThat(elementE.processValue(allElementValues, schema).value).isEqualTo("untrimmedvalue")
+        assertThat(elementE.processValue(allElementValues, schema, itemIndex = 1).value).isEqualTo("untrimmedvalue")
     }
 
     @Test
@@ -1015,7 +1165,12 @@ internal class ElementTests {
                 return args
             }
 
-            override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): ElementResult {
+            override fun apply(
+                element: Element,
+                args: List<String>,
+                values: List<ElementAndValue>,
+                sender: Sender?
+            ): ElementResult {
                 return if (args.isEmpty()) ElementResult(null)
                 else when (args[0]) {
                     "1warning" -> ElementResult(null).warning(InvalidEquipmentMessage.new(element))
@@ -1072,47 +1227,194 @@ internal class ElementTests {
             )
         )
 
-        var result = elementA.processValue(emptyMap(), schema)
+        var result = elementA.processValue(emptyMap(), schema, itemIndex = 1)
         assertThat(result.errors).isEmpty()
         assertThat(result.warnings).isEmpty()
 
-        result = elementB.processValue(emptyMap(), schema)
+        result = elementB.processValue(emptyMap(), schema, itemIndex = 1)
         assertThat(result.errors).isEmpty()
         assertThat(result.warnings.size).isEqualTo(1)
 
-        result = elementC.processValue(emptyMap(), schema)
+        result = elementC.processValue(emptyMap(), schema, itemIndex = 1)
         assertThat(result.errors).isEmpty()
         assertThat(result.warnings.size).isEqualTo(2)
 
         // The mapper returns an error, but the field is not required, so we get warnings.
-        result = elementD.processValue(emptyMap(), schema)
+        result = elementD.processValue(emptyMap(), schema, itemIndex = 1)
         assertThat(result.errors).isEmpty()
         assertThat(result.warnings.size).isEqualTo(1)
 
-        result = elementE.processValue(emptyMap(), schema)
+        result = elementE.processValue(emptyMap(), schema, itemIndex = 1)
         assertThat(result.errors).isEmpty()
         assertThat(result.warnings.size).isEqualTo(2)
 
-        result = elementF.processValue(emptyMap(), schema)
+        result = elementF.processValue(emptyMap(), schema, itemIndex = 1)
         assertThat(result.errors).isEmpty()
         assertThat(result.warnings.size).isEqualTo(2)
 
         // The element value is required, so we always get an error.
-        result = elementG.processValue(emptyMap(), schema)
+        result = elementG.processValue(emptyMap(), schema, itemIndex = 1)
         assertThat(result.errors).isNotEmpty()
         assertThat(result.warnings).isEmpty()
 
-        result = elementH.processValue(emptyMap(), schema)
+        result = elementH.processValue(emptyMap(), schema, itemIndex = 1)
         assertThat(result.errors).isNotEmpty()
         assertThat(result.warnings).isEmpty()
 
-        result = elementI.processValue(emptyMap(), schema)
+        result = elementI.processValue(emptyMap(), schema, itemIndex = 1)
         assertThat(result.errors).isNotEmpty()
         assertThat(result.warnings).isNotEmpty()
 
         // And now just a required element that has a blank value
-        result = elementJ.processValue(emptyMap(), schema)
+        result = elementJ.processValue(emptyMap(), schema, itemIndex = 1)
         assertThat(result.errors).isNotEmpty()
         assertThat(result.warnings).isEmpty()
+
+        // Test an incorrect index
+        assertThat { elementJ.processValue(emptyMap(), schema, itemIndex = 0) }
+            .isFailure()
+    }
+
+    @Test
+    fun `test element validation`() {
+        // Type tests
+        assertThat(Element("name").validate()).isNotEmpty()
+        assertThat(Element("name", type = Element.Type.TEXT).validate()).isEmpty()
+
+        // Lookup mapper tests
+        assertThat(
+            Element("name", type = Element.Type.TEXT, mapperRef = LookupMapper())
+                .validate()
+        ).isNotEmpty()
+        assertThat(
+            Element("name", type = Element.Type.TEXT, mapperRef = LookupMapper(), tableRef = LookupTable())
+                .validate()
+        ).isNotEmpty()
+        assertThat(
+            Element("name", type = Element.Type.TEXT, mapperRef = LookupMapper(), tableColumn = "column")
+                .validate()
+        ).isNotEmpty()
+        assertThat(
+            Element(
+                "name", type = Element.Type.TEXT, mapperRef = LookupMapper(), tableRef = LookupTable(),
+                tableColumn = "column"
+            )
+                .validate()
+        ).isEmpty()
+        assertThat(
+            Element("name", type = Element.Type.TEXT, mapperRef = LIVDLookupMapper())
+                .validate()
+        ).isNotEmpty()
+        assertThat(
+            Element("name", type = Element.Type.TEXT, mapperRef = LIVDLookupMapper(), tableRef = LookupTable())
+                .validate()
+        ).isNotEmpty()
+        assertThat(
+            Element("name", type = Element.Type.TEXT, mapperRef = LIVDLookupMapper(), tableColumn = "column")
+                .validate()
+        ).isNotEmpty()
+        assertThat(
+            Element(
+                "name", type = Element.Type.TEXT, mapperRef = LIVDLookupMapper(), tableRef = LookupTable(),
+                tableColumn = "column"
+            )
+                .validate()
+        ).isEmpty()
+
+        // Mapper tests
+        assertThat(
+            Element("name", type = Element.Type.TEXT, mapperOverridesValue = true)
+                .validate()
+        ).isNotEmpty()
+        assertThat(
+            Element("name", type = Element.Type.TEXT, mapperOverridesValue = true, mapperRef = NullMapper())
+                .validate()
+        ).isEmpty()
+
+        assertThat(
+            Element("name", type = Element.Type.TEXT, mapperArgs = listOf("arg"), mapperRef = NullMapper())
+                .validate()
+        ).isEmpty()
+        assertThat(
+            Element("name", type = Element.Type.TEXT, mapperArgs = listOf("arg"), mapperRef = NullMapper())
+                .validate()
+        ).isEmpty()
+
+        // Table tests
+        assertThat(
+            Element("name", type = Element.Type.TABLE)
+                .validate()
+        ).isNotEmpty()
+        assertThat(
+            Element("name", type = Element.Type.TABLE, tableRef = LookupTable())
+                .validate()
+        ).isEmpty()
+        assertThat(
+            Element("name", type = Element.Type.TABLE_OR_BLANK)
+                .validate()
+        ).isNotEmpty()
+        assertThat(
+            Element("name", type = Element.Type.TABLE_OR_BLANK, tableRef = LookupTable())
+                .validate()
+        ).isEmpty()
+        assertThat(
+            Element("name", type = Element.Type.TEXT, tableColumn = "column")
+                .validate()
+        ).isNotEmpty()
+        assertThat(
+            Element("name", type = Element.Type.TEXT, tableColumn = "column", tableRef = LookupTable())
+                .validate()
+        ).isEmpty()
+
+        // Can be blank test
+        assertThat(
+            Element("name", type = Element.Type.TEXT_OR_BLANK)
+                .validate()
+        ).isEmpty()
+        assertThat(
+            Element("name", type = Element.Type.TEXT_OR_BLANK, default = "default")
+                .validate()
+        ).isNotEmpty()
+
+        // Multiple errors returned
+        assertThat(
+            Element("name", type = Element.Type.TEXT_OR_BLANK, default = "default", mapperArgs = listOf("arg"))
+                .validate()
+        ).size().isGreaterThan(1)
+    }
+
+    @Test
+    fun `test field mapping output`() {
+        var element = Element("name")
+        assertThat(element.fieldMapping).contains(element.name)
+
+        element = Element("name", hl7Field = "OBX-1")
+        assertThat(element.fieldMapping).contains(element.name)
+        assertThat(element.fieldMapping).contains(element.hl7Field!!)
+
+        element = Element("name", hl7Field = "OBX-1", hl7OutputFields = listOf("OBX-2", "OBX-3"))
+        assertThat(element.fieldMapping).contains(element.name)
+        assertThat(element.fieldMapping).contains(element.hl7Field!!)
+        element.hl7OutputFields!!.forEach { assertThat(element.fieldMapping).doesNotContain(it) }
+
+        element = Element("name", hl7OutputFields = listOf("OBX-2", "OBX-3"))
+        assertThat(element.fieldMapping).contains(element.name)
+        element.hl7OutputFields!!.forEach { assertThat(element.fieldMapping).contains(it) }
+
+        element = Element(
+            "name",
+            csvFields = listOf(Element.CsvField("fielda", null), Element.CsvField("fieldb", null))
+        )
+        assertThat(element.fieldMapping).contains(element.name)
+        element.csvFields!!.forEach { assertThat(element.fieldMapping).contains(it.name) }
+
+        // CSV fields win over HL7
+        element = Element(
+            "name", hl7Field = "OBX-1",
+            csvFields = listOf(Element.CsvField("fielda", null))
+        )
+        assertThat(element.fieldMapping).contains(element.name)
+        element.csvFields!!.forEach { assertThat(element.fieldMapping).contains(it.name) }
+        assertThat(element.fieldMapping).doesNotContain(element.hl7Field!!)
     }
 }

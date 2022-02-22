@@ -164,7 +164,12 @@ abstract class SettingCommand(
             is Result.Success ->
                 when (response.statusCode) {
                     HttpStatus.SC_OK -> {
-                        val version = result.value.obj().getInt("version")
+                        // need to account for an older version of the API PUT method which only returned the "meta"
+                        // object- whereas now we're returning the full JSON response
+                        val version = if (result.value.obj().has("version"))
+                            result.value.obj().getInt("version")
+                        else
+                            result.value.obj().getJSONObject("meta").getInt("version")
                         "Success. Setting $settingName at version $version"
                     }
                     HttpStatus.SC_CREATED -> "Success. Created $settingName\n"

@@ -1,5 +1,7 @@
 package gov.cdc.prime.router
 
+import gov.cdc.prime.router.metadata.Mapper
+import gov.cdc.prime.router.metadata.Mappers
 import org.apache.logging.log4j.kotlin.Logging
 
 /**
@@ -20,7 +22,17 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
         val useValueSet: Map<String, String>,
         val useMapper: Map<String, Mapper>,
         val useDefault: Map<String, String>,
-        val missing: Set<String>,
+        val missing: Set<String>
+    )
+
+    data class RoutedReport(
+        val report: Report,
+        val receiver: Receiver,
+    )
+
+    data class RoutedReportsResult(
+        val reports: List<RoutedReport>,
+        val details: List<ActionLog>,
     )
 
     /**
@@ -30,47 +42,35 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
         input: Report,
         defaultValues: DefaultValues = emptyMap(),
         limitReceiversTo: List<String> = emptyList(),
-        warnings: MutableList<ResultDetail>? = null,
-    ): List<Pair<Report, Receiver>> {
-        if (input.isEmpty()) return emptyList()
-        return settings.receivers.filter { receiver ->
+    ): RoutedReportsResult {
+        val warnings = mutableListOf<ActionLog>()
+        if (input.isEmpty()) return RoutedReportsResult(emptyList(), warnings)
+        val routedReports = settings.receivers.filter { receiver ->
             receiver.topic == input.schema.topic &&
                 (limitReceiversTo.isEmpty() || limitReceiversTo.contains(receiver.fullName))
         }.mapNotNull { receiver ->
-            val translatedReport = filterAndTranslateForReceiver(input, receiver, defaultValues, warnings)
-            translatedReport?.let { Pair(translatedReport, receiver) }
-        }
-    }
+            try {
+                // Filter the report
+                val filteredReport = filterByAllFilterTypes(settings, input, receiver) ?: return@mapNotNull null
+                if (filteredReport.isEmpty()) return@mapNotNull RoutedReport(filteredReport, receiver)
 
-    /**
-     * Filter and translate for a [input] report for a single [receiver].
-     */
-    fun filterAndTranslateForReceiver(
-        input: Report,
-        receiver: Receiver,
-        defaultValues: DefaultValues = emptyMap(),
-        warnings: MutableList<ResultDetail>? = null,
-    ): Report? {
-        try {
-            // Filter the report
-            val filteredReport = filterByAllFilterTypes(settings, input, receiver) ?: return null
-            if (filteredReport.isEmpty()) return filteredReport
-
-            // Translate the filteredReport
-            return translateByReceiver(filteredReport, receiver, defaultValues)
-        } catch (e: IllegalStateException) {
-            // catching individual translation exceptions enables overall work to continue
-            warnings?.let {
+                // Translate the filteredReport
+                val translatedReport = translateByReceiver(filteredReport, receiver, defaultValues)
+                RoutedReport(translatedReport, receiver)
+            } catch (e: IllegalStateException) {
+                // catching individual translation exceptions enables overall work to continue
                 warnings.add(
-                    ResultDetail(
-                        ResultDetail.DetailScope.TRANSLATION,
+                    ActionLog(
+                        ActionLog.ActionLogScope.translation,
+                        InvalidTranslationMessage.new(e.localizedMessage),
                         "TO:${receiver.fullName}:${receiver.schemaName}",
-                        InvalidTranslationMessage.new(e.localizedMessage)
+                        reportId = input.id,
                     )
                 )
+                return@mapNotNull null
             }
-            return null
         }
+        return RoutedReportsResult(routedReports, warnings)
     }
 
     /**
@@ -236,7 +236,7 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
      * Filter a [input] report for a [receiver] by that receiver's qualityFilter and
      * then translate the filtered report based on the receiver's schema.
      */
-    public fun translateByReceiver(
+    fun translateByReceiver(
         input: Report,
         receiver: Receiver,
         defaultValues: DefaultValues = emptyMap()
@@ -266,7 +266,7 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
         var transformed = toReport
         if (receiver.deidentify)
             transformed = transformed.deidentify()
-        var copy = transformed.copy(destination = receiver, bodyFormat = receiver.format)
+        val copy = transformed.copy(destination = receiver, bodyFormat = receiver.format)
         copy.filteringResults.addAll(input.filteringResults)
         return copy
     }
@@ -296,7 +296,11 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
      * Build the mapping that will translate a one schema to another. The mapping
      * can be used for multiple translations.
      */
-    fun buildMapping(toSchema: Schema, fromSchema: Schema, defaultValues: DefaultValues): Mapping {
+    fun buildMapping(
+        toSchema: Schema,
+        fromSchema: Schema,
+        defaultValues: DefaultValues
+    ): Mapping {
         if (toSchema.topic != fromSchema.topic) error("Trying to match schema with different topics")
 
         val useDirectly = mutableMapOf<String, String>()

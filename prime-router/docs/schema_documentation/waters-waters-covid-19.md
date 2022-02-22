@@ -48,11 +48,11 @@
 
 **Value Sets**
 
-Code | Display
----- | -------
-Y|YES
-N|NO
-UNK|UNK
+Code | Display | System
+---- | ------- | ------
+Y|YES|LOCAL
+N|NO|LOCAL
+UNK|UNK|LOCAL
 
 **Documentation**:
 
@@ -86,7 +86,7 @@ Override the base hl70136 valueset with a custom one, to handle slightly differe
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
 
-**Table**: LIVD-SARS-CoV-2-2021-09-29
+**Table**: LIVD-SARS-CoV-2
 
 **Table Column**: Model
 
@@ -108,11 +108,11 @@ Override the base hl70136 valueset with a custom one, to handle slightly differe
 
 **Value Sets**
 
-Code | Display
----- | -------
-Y|YES
-N|NO
-UNK|UNK
+Code | Display | System
+---- | ------- | ------
+Y|YES|LOCAL
+N|NO|LOCAL
+UNK|UNK|LOCAL
 
 **Documentation**:
 
@@ -136,11 +136,11 @@ Override the base hl70136 valueset with a custom one, to handle slightly differe
 
 **Value Sets**
 
-Code | Display
----- | -------
-Y|YES
-N|NO
-UNK|UNK
+Code | Display | System
+---- | ------- | ------
+Y|YES|LOCAL
+N|NO|LOCAL
+UNK|UNK|LOCAL
 
 **Documentation**:
 
@@ -164,11 +164,11 @@ Override the base hl70136 valueset with a custom one, to handle slightly differe
 
 **Value Sets**
 
-Code | Display
----- | -------
-Y|YES
-N|NO
-UNK|UNK
+Code | Display | System
+---- | ------- | ------
+Y|YES|LOCAL
+N|NO|LOCAL
+UNK|UNK|LOCAL
 
 **Documentation**:
 
@@ -214,7 +214,7 @@ unique id to track the usage of the message
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-09-29
+**Table**: LIVD-SARS-CoV-2
 
 **Table Column**: Test Ordered LOINC Code
 
@@ -230,7 +230,7 @@ unique id to track the usage of the message
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-09-29
+**Table**: LIVD-SARS-CoV-2
 
 **Table Column**: Test Ordered LOINC Long Name
 
@@ -531,24 +531,24 @@ Other states may choose to define their own formats.
 
 **Value Sets**
 
-Code | Display
----- | -------
-H|Hispanic or Latino
-N|Non Hispanic or Latino
-U|Unknown
-H|Hispanic or Latino
-N|Non Hispanic or Latino
-U|Unknown
-U|Unknown
+Code | Display | System
+---- | ------- | ------
+H|Hispanic or Latino|HL7
+N|Non Hispanic or Latino|HL7
+U|Unknown|HL7
+H|Hispanic or Latino|HL7
+N|Non Hispanic or Latino|HL7
+U|Unknown|HL7
+U|Unknown|HL7
 
 **Alt Value Sets**
 
-Code | Display
----- | -------
-H|2135-2
-N|2186-5
-U|UNK
-U|ASKU
+Code | Display | System
+---- | ------- | ------
+H|2135-2|HL7
+N|2186-5|HL7
+U|UNK|HL7
+U|ASKU|HL7
 
 **Documentation**:
 
@@ -588,14 +588,14 @@ The patient's first name
 
 **Value Sets**
 
-Code | Display
----- | -------
-M|Male
-F|Female
-O|Other
-A|Ambiguous
-U|Unknown
-N|Not applicable
+Code | Display | System
+---- | ------- | ------
+M|Male|HL7
+F|Female|HL7
+O|Other|HL7
+A|Ambiguous|HL7
+U|Unknown|HL7
+N|Not applicable|HL7
 
 **Documentation**:
 
@@ -692,16 +692,16 @@ The patient's phone number with area code
 
 **Value Sets**
 
-Code | Display
----- | -------
-1002-5|American Indian or Alaska Native
-2028-9|Asian
-2054-5|Black or African American
-2076-8|Native Hawaiian or Other Pacific Islander
-2106-3|White
-2131-1|Other
-UNK|Unknown
-ASKU|Asked, but unknown
+Code | Display | System
+---- | ------- | ------
+1002-5|American Indian or Alaska Native|HL7
+2028-9|Asian|HL7
+2054-5|Black or African American|HL7
+2076-8|Native Hawaiian or Other Pacific Islander|HL7
+2106-3|White|HL7
+2131-1|Other|HL7
+UNK|Unknown|NULLFL
+ASKU|Asked, but unknown|NULLFL
 
 **Documentation**:
 
@@ -806,11 +806,11 @@ The patient's zip code
 
 **Value Sets**
 
-Code | Display
----- | -------
-77386006|Pregnant
-60001007|Not Pregnant
-261665006|Unknown
+Code | Display | System
+---- | ------- | ------
+77386006|Pregnant|SNOMED_CT
+60001007|Not Pregnant|SNOMED_CT
+261665006|Unknown|SNOMED_CT
 
 **Documentation**:
 
@@ -842,28 +842,28 @@ Is the patient pregnant?
 
 **Value Sets**
 
-Code | Display
----- | -------
-260373001|Detected
-260415000|Not detected
-720735008|Presumptive positive
-10828004|Positive
-42425007|Equivocal
-260385009|Negative
-895231008|Not detected in pooled specimen
-462371000124108|Detected in pooled specimen
-419984006|Inconclusive
-125154007|Specimen unsatisfactory for evaluation
-455371000124106|Invalid result
-840539006|Disease caused by sever acute respiratory syndrome coronavirus 2 (disorder)
-840544004|Suspected disease caused by severe acute respiratory coronavirus 2 (situation)
-840546002|Exposure to severe acute respiratory syndrome coronavirus 2 (event)
-840533007|Severe acute respiratory syndrome coronavirus 2 (organism)
-840536004|Antigen of severe acute respiratory syndrome coronavirus 2 (substance)
-840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
-840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
-373121007|Test not done
-82334004|Indeterminate
+Code | Display | System
+---- | ------- | ------
+260373001|Detected|SNOMED_CT
+260415000|Not detected|SNOMED_CT
+720735008|Presumptive positive|SNOMED_CT
+10828004|Positive|SNOMED_CT
+42425007|Equivocal|SNOMED_CT
+260385009|Negative|SNOMED_CT
+895231008|Not detected in pooled specimen|SNOMED_CT
+462371000124108|Detected in pooled specimen|SNOMED_CT
+419984006|Inconclusive|SNOMED_CT
+125154007|Specimen unsatisfactory for evaluation|SNOMED_CT
+455371000124106|Invalid result|SNOMED_CT
+840539006|Disease caused by sever acute respiratory syndrome coronavirus 2 (disorder)|SNOMED_CT
+840544004|Suspected disease caused by severe acute respiratory coronavirus 2 (situation)|SNOMED_CT
+840546002|Exposure to severe acute respiratory syndrome coronavirus 2 (event)|SNOMED_CT
+840533007|Severe acute respiratory syndrome coronavirus 2 (organism)|SNOMED_CT
+840536004|Antigen of severe acute respiratory syndrome coronavirus 2 (substance)|SNOMED_CT
+840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)|SNOMED_CT
+840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)|SNOMED_CT
+373121007|Test not done|SNOMED_CT
+82334004|Indeterminate|SNOMED_CT
 
 ---
 
@@ -937,11 +937,11 @@ The reporting facility's CLIA
 
 **Value Sets**
 
-Code | Display
----- | -------
-Y|YES
-N|NO
-UNK|UNK
+Code | Display | System
+---- | ------- | ------
+Y|YES|LOCAL
+N|NO|LOCAL
+UNK|UNK|LOCAL
 
 **Documentation**:
 
@@ -981,27 +981,27 @@ ID name of org that is sending this data to ReportStream.  Suitable for provenan
 
 **Value Sets**
 
-Code | Display
----- | -------
-22232009|Hospital
-2081004|Hospital ship
-32074000|Long Term Care Hospital
-224929004|Secure Hospital
-42665001|Nursing Home
-30629002|Retirement Home
-74056004|Orphanage
-722173008|Prison-based care site
-20078004|Substance Abuse Treatment Center
-257573002|Boarding House
-224683003|Military Accommodation
-284546000|Hospice
-257628001|Hostel
-310207003|Sheltered Housing
-57656006|Penal Institution
-285113009|Religious institutional residence
-285141008|Work (environment)
-32911000|Homeless
-261665006|Unknown
+Code | Display | System
+---- | ------- | ------
+22232009|Hospital|SNOMED_CT
+2081004|Hospital ship|SNOMED_CT
+32074000|Long Term Care Hospital|SNOMED_CT
+224929004|Secure Hospital|SNOMED_CT
+42665001|Nursing Home|SNOMED_CT
+30629002|Retirement Home|SNOMED_CT
+74056004|Orphanage|SNOMED_CT
+722173008|Prison-based care site|SNOMED_CT
+20078004|Substance Abuse Treatment Center|SNOMED_CT
+257573002|Boarding House|SNOMED_CT
+224683003|Military Accommodation|SNOMED_CT
+284546000|Hospice|SNOMED_CT
+257628001|Hostel|SNOMED_CT
+310207003|Sheltered Housing|SNOMED_CT
+57656006|Penal Institution|SNOMED_CT
+285113009|Religious institutional residence|SNOMED_CT
+285141008|Work (environment)|SNOMED_CT
+32911000|Homeless|SNOMED_CT
+261665006|Unknown|SNOMED_CT
 
 **Documentation**:
 
@@ -1071,25 +1071,26 @@ A unique code for this specimen
 
 **Value Sets**
 
-Code | Display
----- | -------
-445297001|Swab of internal nose
-258500001|Nasopharyngeal swab
-871810001|Mid-turbinate nasal swab
-697989009|Anterior nares swab
-258411007|Nasopharyngeal aspirate
-429931000124105|Nasal aspirate
-258529004|Throat swab
-119334006|Sputum specimen
-119342007|Saliva specimen
-258607008|Bronchoalveolar lavage fluid sample
-119364003|Serum specimen
-119361006|Plasma specimen
-440500007|Dried blood spot specimen
-258580003|Whole blood sample
-122555007|Venous blood specimen
-119297000|Blood specimen
-122554006|Capillary blood specimen
+Code | Display | System
+---- | ------- | ------
+445297001|Swab of internal nose|SNOMED_CT
+258500001|Nasopharyngeal swab|SNOMED_CT
+871810001|Mid-turbinate nasal swab|SNOMED_CT
+697989009|Anterior nares swab|SNOMED_CT
+258411007|Nasopharyngeal aspirate|SNOMED_CT
+429931000124105|Nasal aspirate|SNOMED_CT
+258529004|Throat swab|SNOMED_CT
+119334006|Sputum specimen|SNOMED_CT
+119342007|Saliva specimen|SNOMED_CT
+258560004|Oral saliva sample|SNOMED_CT
+258607008|Bronchoalveolar lavage fluid sample|SNOMED_CT
+119364003|Serum specimen|SNOMED_CT
+119361006|Plasma specimen|SNOMED_CT
+440500007|Dried blood spot specimen|SNOMED_CT
+258580003|Whole blood sample|SNOMED_CT
+122555007|Venous blood specimen|SNOMED_CT
+119297000|Blood specimen|SNOMED_CT
+122554006|Capillary blood specimen|SNOMED_CT
 
 **Documentation**:
 
@@ -1113,11 +1114,11 @@ The specimen source, such as Blood or Serum
 
 **Value Sets**
 
-Code | Display
----- | -------
-Y|YES
-N|NO
-UNK|UNK
+Code | Display | System
+---- | ------- | ------
+Y|YES|LOCAL
+N|NO|LOCAL
+UNK|UNK|LOCAL
 
 **Documentation**:
 
@@ -1151,7 +1152,7 @@ Override the base hl70136 valueset with a custom one, to handle slightly differe
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
 
-**Table**: LIVD-SARS-CoV-2-2021-09-29
+**Table**: LIVD-SARS-CoV-2
 
 **Table Column**: Testkit Name ID
 
@@ -1175,28 +1176,28 @@ Follows guidence for OBX-17 as defined in the HL7 Confluence page
 
 **Value Sets**
 
-Code | Display
----- | -------
-260373001|Detected
-260415000|Not detected
-720735008|Presumptive positive
-10828004|Positive
-42425007|Equivocal
-260385009|Negative
-895231008|Not detected in pooled specimen
-462371000124108|Detected in pooled specimen
-419984006|Inconclusive
-125154007|Specimen unsatisfactory for evaluation
-455371000124106|Invalid result
-840539006|Disease caused by sever acute respiratory syndrome coronavirus 2 (disorder)
-840544004|Suspected disease caused by severe acute respiratory coronavirus 2 (situation)
-840546002|Exposure to severe acute respiratory syndrome coronavirus 2 (event)
-840533007|Severe acute respiratory syndrome coronavirus 2 (organism)
-840536004|Antigen of severe acute respiratory syndrome coronavirus 2 (substance)
-840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
-840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
-373121007|Test not done
-82334004|Indeterminate
+Code | Display | System
+---- | ------- | ------
+260373001|Detected|SNOMED_CT
+260415000|Not detected|SNOMED_CT
+720735008|Presumptive positive|SNOMED_CT
+10828004|Positive|SNOMED_CT
+42425007|Equivocal|SNOMED_CT
+260385009|Negative|SNOMED_CT
+895231008|Not detected in pooled specimen|SNOMED_CT
+462371000124108|Detected in pooled specimen|SNOMED_CT
+419984006|Inconclusive|SNOMED_CT
+125154007|Specimen unsatisfactory for evaluation|SNOMED_CT
+455371000124106|Invalid result|SNOMED_CT
+840539006|Disease caused by sever acute respiratory syndrome coronavirus 2 (disorder)|SNOMED_CT
+840544004|Suspected disease caused by severe acute respiratory coronavirus 2 (situation)|SNOMED_CT
+840546002|Exposure to severe acute respiratory syndrome coronavirus 2 (event)|SNOMED_CT
+840533007|Severe acute respiratory syndrome coronavirus 2 (organism)|SNOMED_CT
+840536004|Antigen of severe acute respiratory syndrome coronavirus 2 (substance)|SNOMED_CT
+840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)|SNOMED_CT
+840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)|SNOMED_CT
+373121007|Test not done|SNOMED_CT
+82334004|Indeterminate|SNOMED_CT
 
 **Documentation**:
 
@@ -1300,38 +1301,38 @@ The postal code for the testing lab
 
 **Value Sets**
 
-Code | Display
----- | -------
-A|Abnormal (applies to non-numeric results)
-&#62;|Above absolute high-off instrument scale
-H|Above high normal
-HH|Above upper panic limits
-AC|Anti-complementary substances present
-<|Below absolute low-off instrument scale
-L|Below low normal
-LL|Below lower panic limits
-B|Better--use when direction not relevant
-TOX|Cytotoxic substance present
-DET|Detected
-IND|Indeterminate
-I|Intermediate. Indicates for microbiology susceptibilities only.
-MS|Moderately susceptible. Indicates for microbiology susceptibilities only.
-NEG|Negative
-null|No range defined, or normal ranges don't apply
-NR|Non-reactive
-N|Normal (applies to non-numeric results)
-ND|Not Detected
-POS|Positive
-QCF|Quality Control Failure
-RR|Reactive
-R|Resistant. Indicates for microbiology susceptibilities only.
-D|Significant change down
-U|Significant change up
-S|Susceptible. Indicates for microbiology susceptibilities only.
-AA|Very abnormal (applies to non-numeric units, analogous to panic limits for numeric units)
-VS|Very susceptible. Indicates for microbiology susceptibilities only.
-WR|Weakly reactive
-W|Worse--use when direction not relevant
+Code | Display | System
+---- | ------- | ------
+A|Abnormal (applies to non-numeric results)|HL7
+&#62;|Above absolute high-off instrument scale|HL7
+H|Above high normal|HL7
+HH|Above upper panic limits|HL7
+AC|Anti-complementary substances present|HL7
+<|Below absolute low-off instrument scale|HL7
+L|Below low normal|HL7
+LL|Below lower panic limits|HL7
+B|Better--use when direction not relevant|HL7
+TOX|Cytotoxic substance present|HL7
+DET|Detected|HL7
+IND|Indeterminate|HL7
+I|Intermediate. Indicates for microbiology susceptibilities only.|HL7
+MS|Moderately susceptible. Indicates for microbiology susceptibilities only.|HL7
+NEG|Negative|HL7
+null|No range defined, or normal ranges don't apply|HL7
+NR|Non-reactive|HL7
+N|Normal (applies to non-numeric results)|HL7
+ND|Not Detected|HL7
+POS|Positive|HL7
+QCF|Quality Control Failure|HL7
+RR|Reactive|HL7
+R|Resistant. Indicates for microbiology susceptibilities only.|HL7
+D|Significant change down|HL7
+U|Significant change up|HL7
+S|Susceptible. Indicates for microbiology susceptibilities only.|HL7
+AA|Very abnormal (applies to non-numeric units, analogous to panic limits for numeric units)|HL7
+VS|Very susceptible. Indicates for microbiology susceptibilities only.|HL7
+WR|Weakly reactive|HL7
+W|Worse--use when direction not relevant|HL7
 
 **Documentation**:
 
@@ -1355,7 +1356,7 @@ This field is generated based on the normalcy status of the result. A = abnormal
 **Reference URL**:
 [https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
 
-**Table**: LIVD-Supplemental-2021-06-07
+**Table**: LIVD-SARS-CoV-2
 
 **Table Column**: is_home
 
@@ -1381,7 +1382,7 @@ Is the test authorized for home use by the FDA (Y, N, UNK)
 **Reference URL**:
 [https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
 
-**Table**: LIVD-Supplemental-2021-06-07
+**Table**: LIVD-SARS-CoV-2
 
 **Table Column**: is_otc
 
@@ -1407,7 +1408,7 @@ Is the test authorized for over-the-counter purchase by the FDA (Y, N, UNK)
 **Reference URL**:
 [https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
 
-**Table**: LIVD-Supplemental-2021-06-07
+**Table**: LIVD-SARS-CoV-2
 
 **Table Column**: is_unproctored
 

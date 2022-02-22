@@ -1,0 +1,17 @@
+# Run this:  ./prime multiple-settings set --input ./settings/prod/0071-cdphe-csvuploader.yml --env prod
+---
+- name: "cdphe-csvuploader"
+  description: "CDPHE (CO) - CSV Uploader"
+  jurisdiction: "FEDERAL"
+  stateCode: null
+  countyName: null
+  filters: []
+  senders:
+    - name: "default"
+      organizationName: "cdphe-csvuploader"
+      format: "CSV"
+      topic: "covid-19"
+      customerStatus: "testing"
+      schemaName: "upload-covid-19"
+      keys: null
+      processingType: "sync"

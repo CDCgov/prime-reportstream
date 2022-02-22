@@ -7,8 +7,8 @@ import com.microsoft.azure.functions.annotation.QueueTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
 import java.util.logging.Level
 
-const val azureQueueName = "process"
-const val azureFunctionName = "process"
+private const val azureQueueName = "process"
+private const val azureFunctionName = "process"
 
 /**
  * Process will work through all the reports waiting in the 'process' queue
@@ -37,9 +37,8 @@ class ProcessFunction {
                 return
             }
 
-            actionHistory = ActionHistory(event.eventAction.toTaskAction(), context)
+            actionHistory = ActionHistory(event.eventAction.toTaskAction())
             actionHistory.trackActionParams(message)
-            actionHistory.trackExistingInputReport(event.reportId)
 
             workflowEngine.handleProcessEvent(event, context, actionHistory)
         } catch (e: Exception) {

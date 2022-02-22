@@ -164,7 +164,7 @@ This field is ignored.
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
 
-**Table**: LIVD-SARS-CoV-2-2021-09-29
+**Table**: LIVD-SARS-CoV-2
 
 **Table Column**: Model
 
@@ -178,7 +178,7 @@ This field is ignored.
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 ---
 
@@ -226,7 +226,7 @@ Accension number
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -242,7 +242,7 @@ The city of the facility which the test was ordered from
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -294,7 +294,7 @@ The state of the facility which the test was ordered from
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -310,7 +310,7 @@ The address of the facility which the test was ordered from
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -326,7 +326,7 @@ The zip code of the facility which the test was ordered from
 
 **PII**: Yes
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -438,7 +438,7 @@ The phone number of the provider
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Table**: fips-county
 
@@ -458,7 +458,7 @@ The state of the provider
 
 **PII**: Yes
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -474,7 +474,7 @@ The street address of the provider
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -490,7 +490,7 @@ The zip code of the provider
 
 **PII**: Yes
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -547,30 +547,32 @@ Other states may choose to define their own formats.
 
 **Default Value**: U
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Value Sets**
 
-Code | Display
----- | -------
-H|Hispanic or Latino
-H|Hispanic
-H|Latino
-H|Mex. Amer./Hispanic
-H|H
-N|Non Hispanic or Latino
-N|Non Hispanic
-N|Not Hispanic or Latino
-N|Not Hispanic
-N|N
-U|Unknown
-U|U
-U|UNK
-U|Black
-U|White
-U|African American
-U|NULL
-U|Patient Declines
+Code | Display | System
+---- | ------- | ------
+H|Hispanic or Latino|LOCAL
+H|Hispanic|LOCAL
+H|Latino|LOCAL
+H|Mex. Amer./Hispanic|LOCAL
+H|2135-2|LOCAL
+H|H|LOCAL
+N|Non Hispanic or Latino|LOCAL
+N|Non Hispanic|LOCAL
+N|Not Hispanic or Latino|LOCAL
+N|Not Hispanic|LOCAL
+N|2186-5|LOCAL
+N|N|LOCAL
+U|Unknown|LOCAL
+U|U|LOCAL
+U|UNK|LOCAL
+U|Black|LOCAL
+U|White|LOCAL
+U|African American|LOCAL
+U|NULL|LOCAL
+U|Patient Declines|LOCAL
 
 **Documentation**:
 
@@ -586,7 +588,7 @@ Translate multiple inbound ethnicity values to RS / OMB values
 
 **PII**: Yes
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -606,24 +608,24 @@ The patient's first name
 
 **Default Value**: U
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Value Sets**
 
-Code | Display
----- | -------
-F|Female
-F|F
-M|Male
-M|M
-U|U
-U|UNK
-U|UNKNOWN
-O|O
-O|Other
-O|OTH
-A|A
-A|Ambiguous
+Code | Display | System
+---- | ------- | ------
+F|Female|LOCAL
+F|F|LOCAL
+M|Male|LOCAL
+M|M|LOCAL
+U|U|LOCAL
+U|UNK|LOCAL
+U|UNKNOWN|LOCAL
+O|O|LOCAL
+O|Other|LOCAL
+O|OTH|LOCAL
+A|A|LOCAL
+A|Ambiguous|LOCAL
 
 **Documentation**:
 
@@ -726,50 +728,51 @@ The patient's phone number with area code
 
 **Default Value**: UNK
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Value Sets**
 
-Code | Display
----- | -------
-2106-3|White
-2106-3|W
-2106-3|Caucasian
-2106-3|C
-2106-3|2106-3
-1002-5|American Indian or Alaska Native
-1002-5|American Indian
-1002-5|Native American
-1002-5|1002-5
-2054-5|Black or African American
-2054-5|African American
-2054-5|African American Alaska Native
-2054-5|African American Black
-2054-5|Black
-2054-5|B
-2054-5|2054-5
-2076-8|Native Hawaiian or Other Pacific Islander
-2076-8|Hawaiian
-2076-8|NH
-2076-8|2076-8
-2131-1|Other
-2131-1|OTH
-2131-1|O
-2131-1|Other Race
-2131-1|Other Race White
-2131-1|Other Race,White
-2131-1|Other Race Black
-2131-1|Other Race,Black
-2131-1|2131-1
-2028-9|Asian
-2028-9|Asian Indian
-2028-9|2028-9
-UNK|Unknown
-UNK|UNK
-UNK|U
-UNK|Patient Declines
-UNK|null
-ASKU|Asked, but unknown
+Code | Display | System
+---- | ------- | ------
+2106-3|White|LOCAL
+2106-3|W|LOCAL
+2106-3|Caucasian|LOCAL
+2106-3|C|LOCAL
+2106-3|2106-3|LOCAL
+1002-5|American Indian or Alaska Native|LOCAL
+1002-5|American Indian|LOCAL
+1002-5|Native American|LOCAL
+1002-5|1002-5|LOCAL
+2054-5|Black or African American|LOCAL
+2054-5|African American|LOCAL
+2054-5|African American Alaska Native|LOCAL
+2054-5|African American Black|LOCAL
+2054-5|Black|LOCAL
+2054-5|B|LOCAL
+2054-5|2054-5|LOCAL
+2076-8|Native Hawaiian or Other Pacific Islander|LOCAL
+2076-8|Hawaiian|LOCAL
+2076-8|NH|LOCAL
+2076-8|2076-8|LOCAL
+2131-1|Other|LOCAL
+2131-1|OTH|LOCAL
+2131-1|O|LOCAL
+2131-1|Other Race|LOCAL
+2131-1|Other Race White|LOCAL
+2131-1|Other Race,White|LOCAL
+2131-1|Other Race Black|LOCAL
+2131-1|Other Race,Black|LOCAL
+2131-1|2131-1|LOCAL
+2028-9|Asian|LOCAL
+2028-9|Asian Indian|LOCAL
+2028-9|2028-9|LOCAL
+UNK|Unknown|LOCAL
+UNK|UNK|LOCAL
+UNK|U|LOCAL
+UNK|Patient Declines|LOCAL
+UNK|null|LOCAL
+ASKU|Asked, but unknown|LOCAL
+ASKU|ASKU|LOCAL
 
 **Documentation**:
 
@@ -821,7 +824,7 @@ The patient's street address
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -866,7 +869,7 @@ The ID number of the lab order from the placer
 - [SPM-2-1-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.1.3)
 - [SPM-2-2-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2.3)
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -890,7 +893,7 @@ The reporting facility's CLIA
 - [SPM-2-1-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.1.2)
 - [SPM-2-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2.2)
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -938,46 +941,58 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 
 **Value Sets**
 
-Code | Display
----- | -------
-71836000|Nasopharyngeal structure (body structure)
-71836000|Varied
-71836000|Nasopharyngeal swab
-71836000|258500001
-71836000|Nasopharyngeal aspirate
-71836000|258411007
-71836000|71836000
-45206002|Nasal structure (body structure)
-45206002|45206002
-53342003|Internal nose structure (body structure)
-53342003|Swab of internal nose
-53342003|Anterior nares swab
-53342003|Mid-turbinate nasal swab
-53342003|Nasal
-53342003|Nasal Swab
-53342003|445297001
-53342003|697989009
-53342003|53342003
-29092000|Serum
-29092000|Serum specimen
-29092000|Plasma
-29092000|Plasma specimen
-29092000|Whole Blood
-29092000|Whole Blood Sample
-29092000|Blood specimen
-29092000|Venous blood specimen
-29092000|Capillary blood specimen
-29092000|fingerstick whole blood
-29092000|122554006
-29092000|258580003
-29092000|119361006
-29092000|119364003
-29092000|119297000
-31389004|Oral
-31389004|Throat Swab
-31389004|Oropharyngeal
-31389004|Oropharyngeal Swab
-31389004|31389004
+Code | Display | System
+---- | ------- | ------
+71836000|Nasopharyngeal structure (body structure)|SNOMED_CT
+71836000|Nasopharyngeal swab|SNOMED_CT
+71836000|258500001|SNOMED_CT
+71836000|Nasopharyngeal aspirate|SNOMED_CT
+71836000|258411007|SNOMED_CT
+71836000|71836000|SNOMED_CT
+45206002|Nasal structure (body structure)|SNOMED_CT
+45206002|Nasal aspirate|SNOMED_CT
+45206002|429931000124105|SNOMED_CT
+45206002|45206002|SNOMED_CT
+53342003|Internal nose structure (body structure)|SNOMED_CT
+53342003|Varied|SNOMED_CT
+53342003|Swab of internal nose|SNOMED_CT
+53342003|Anterior nares swab|SNOMED_CT
+53342003|Mid-turbinate nasal swab|SNOMED_CT
+53342003|Nasal|SNOMED_CT
+53342003|Nasal Swab|SNOMED_CT
+53342003|445297001|SNOMED_CT
+53342003|697989009|SNOMED_CT
+53342003|53342003|SNOMED_CT
+29092000|Serum|SNOMED_CT
+29092000|Serum specimen|SNOMED_CT
+29092000|Plasma|SNOMED_CT
+29092000|Plasma specimen|SNOMED_CT
+29092000|Whole Blood|SNOMED_CT
+29092000|Whole Blood Sample|SNOMED_CT
+29092000|Blood specimen|SNOMED_CT
+29092000|Venous blood specimen|SNOMED_CT
+29092000|Capillary blood specimen|SNOMED_CT
+29092000|fingerstick whole blood|SNOMED_CT
+29092000|122554006|SNOMED_CT
+29092000|258580003|SNOMED_CT
+29092000|119361006|SNOMED_CT
+29092000|119364003|SNOMED_CT
+29092000|119297000|SNOMED_CT
+31389004|Throat Swab|SNOMED_CT
+31389004|Oropharyngeal|SNOMED_CT
+31389004|Oropharyngeal Swab|SNOMED_CT
+31389004|258529004|SNOMED_CT
+31389004|31389004|SNOMED_CT
+123851003|Sputum specimen|SNOMED_CT
+123851003|Sputum|SNOMED_CT
+123851003|119334006|SNOMED_CT
+123851003|Oral|SNOMED_CT
+123851003|Oral Swab|SNOMED_CT
+123851003|418932006|SNOMED_CT
+123851003|Saliva specimen|SNOMED_CT
+123851003|Saliva|SNOMED_CT
+123851003|258560004|SNOMED_CT
+123851003|123851003|SNOMED_CT
 
 **Documentation**:
 
@@ -995,57 +1010,61 @@ Translate inbound text to outbound SNOMED Codes
 
 **Format**: use value found in the Display column
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Value Sets**
 
-Code | Display
----- | -------
-445297001|Swab of internal nose
-445297001|Nasal Swab
-445297001|445297001
-258500001|Nasopharyngeal swab
-258500001|Nasal
-258500001|Varied
-258500001|258500001
-871810001|Mid-turbinate nasal swab
-871810001|871810001
-697989009|Anterior nares swab
-697989009|697989009
-258411007|Nasopharyngeal aspirate
-258411007|258411007
-429931000124105|Nasal aspirate
-429931000124105|429931000124105
-258529004|Throat swab
-258529004|Throat
-258529004|Oral
-258529004|Oropharyngeal
-258529004|Oropharyngeal Swab
-258529004|258529004
-119334006|Sputum specimen
-119334006|119334006
-119342007|Saliva specimen
-119342007|119342007
-258607008|Bronchoalveolar lavage fluid sample
-258607008|258607008
-119364003|Serum specimen
-119364003|Serum
-119364003|119364003
-119361006|Plasma specimen
-119361006|Plasma
-119361006|119361006
-440500007|Dried blood spot specimen
-440500007|440500007
-258580003|Whole blood sample
-258580003|Whole blood
-258580003|258580003
-122555007|Venous blood specimen
-122555007|122555007
-119297000|Blood specimen
-119297000|119297000
-122554006|Capillary blood specimen
-122554006|fingerstick whole blood
-122554006|122554006
+Code | Display | System
+---- | ------- | ------
+445297001|Swab of internal nose|SNOMED_CT
+445297001|Nasal Swab|SNOMED_CT
+445297001|Nasal|SNOMED_CT
+445297001|Varied|SNOMED_CT
+445297001|445297001|SNOMED_CT
+258500001|Nasopharyngeal swab|SNOMED_CT
+258500001|258500001|SNOMED_CT
+871810001|Mid-turbinate nasal swab|SNOMED_CT
+871810001|871810001|SNOMED_CT
+697989009|Anterior nares swab|SNOMED_CT
+697989009|697989009|SNOMED_CT
+258411007|Nasopharyngeal aspirate|SNOMED_CT
+258411007|258411007|SNOMED_CT
+429931000124105|Nasal aspirate|SNOMED_CT
+429931000124105|429931000124105|SNOMED_CT
+258529004|Throat swab|SNOMED_CT
+258529004|Throat|SNOMED_CT
+258529004|Oropharyngeal|SNOMED_CT
+258529004|Oropharyngeal Swab|SNOMED_CT
+258529004|258529004|SNOMED_CT
+418932006|Oral|SNOMED_CT
+418932006|Oral Swab|SNOMED_CT
+418932006|418932006|SNOMED_CT
+119334006|Sputum specimen|SNOMED_CT
+119334006|Sputum|SNOMED_CT
+119334006|119334006|SNOMED_CT
+258560004|Saliva specimen|SNOMED_CT
+258560004|Saliva|SNOMED_CT
+258560004|258560004|SNOMED_CT
+258607008|Bronchoalveolar lavage fluid sample|SNOMED_CT
+258607008|258607008|SNOMED_CT
+119364003|Serum specimen|SNOMED_CT
+119364003|Serum|SNOMED_CT
+119364003|119364003|SNOMED_CT
+119361006|Plasma specimen|SNOMED_CT
+119361006|Plasma|SNOMED_CT
+119361006|119361006|SNOMED_CT
+440500007|Dried blood spot specimen|SNOMED_CT
+440500007|440500007|SNOMED_CT
+258580003|Whole blood sample|SNOMED_CT
+258580003|Whole blood|SNOMED_CT
+258580003|258580003|SNOMED_CT
+122555007|Venous blood specimen|SNOMED_CT
+122555007|122555007|SNOMED_CT
+119297000|Blood specimen|SNOMED_CT
+119297000|119297000|SNOMED_CT
+122554006|Capillary blood specimen|SNOMED_CT
+122554006|fingerstick whole blood|SNOMED_CT
+122554006|122554006|SNOMED_CT
 
 **Documentation**:
 
@@ -1075,64 +1094,64 @@ Translate inbound text to outbound SNOMED Codes
 
 **Format**: use value found in the Display column
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Value Sets**
 
-Code | Display
----- | -------
-260385009|Negative
-260385009|Neg
-260385009|Negative *** High ***
-260385009|Negative *** Low ***
-260385009|260385009
-260415000|Not detected
-260415000|NDET
-260415000|260415000
-260373001|Detected
-260373001|DET
-260373001|260373001
-10828004|Positive
-10828004|Pos
-10828004|Positive (Abnormal)
-10828004|Positive (Alpha Abnormal)
-10828004|Positive *** High ***
-10828004|Positive  *** High ***
-10828004|Positive  *** Low ***
-10828004|Positive 
-10828004|10828004
-720735008|Presumptive positive
-720735008|720735008
-419984006|Inconclusive
-419984006|Inconclusive Result
-419984006|419984006
-42425007|Equivocal
-42425007|42425007
-895231008|Not detected in pooled specimen
-895231008|895231008
-462371000124108|Detected in pooled specimen
-462371000124108|462371000124108
-455371000124106|Invalid result
-455371000124106|Invalid
-455371000124106|455371000124106
-125154007|Specimen unsatisfactory for evaluation
-125154007|125154007
-840539006|Disease caused by sever acute respiratory syndrome coronavirus 2 (disorder)
-840539006|840539006
-840544004|Suspected disease caused by severe acute respiratory coronavirus 2 (situation)
-840544004|840544004
-840546002|Exposure to severe acute respiratory syndrome coronavirus 2 (event)
-840546002|840546002
-840533007|Severe acute respiratory syndrome coronavirus 2 (organism)
-840533007|840533007
-840536004|Antigen of severe acute respiratory syndrome coronavirus 2 (substance)
-840536004|840536004
-840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
-840535000|840535000
-840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
-840534001|840534001
-373121007|Test not done
-373121007|373121007
+Code | Display | System
+---- | ------- | ------
+260385009|Negative|SNOMED_CT
+260385009|Neg|SNOMED_CT
+260385009|Negative *** High ***|SNOMED_CT
+260385009|Negative *** Low ***|SNOMED_CT
+260385009|260385009|SNOMED_CT
+260415000|Not detected|SNOMED_CT
+260415000|NDET|SNOMED_CT
+260415000|260415000|SNOMED_CT
+260373001|Detected|SNOMED_CT
+260373001|DET|SNOMED_CT
+260373001|260373001|SNOMED_CT
+10828004|Positive|SNOMED_CT
+10828004|Pos|SNOMED_CT
+10828004|Positive (Abnormal)|SNOMED_CT
+10828004|Positive (Alpha Abnormal)|SNOMED_CT
+10828004|Positive *** High ***|SNOMED_CT
+10828004|Positive  *** High ***|SNOMED_CT
+10828004|Positive  *** Low ***|SNOMED_CT
+10828004|Positive |SNOMED_CT
+10828004|10828004|SNOMED_CT
+720735008|Presumptive positive|SNOMED_CT
+720735008|720735008|SNOMED_CT
+419984006|Inconclusive|SNOMED_CT
+419984006|Inconclusive Result|SNOMED_CT
+419984006|419984006|SNOMED_CT
+42425007|Equivocal|SNOMED_CT
+42425007|42425007|SNOMED_CT
+895231008|Not detected in pooled specimen|SNOMED_CT
+895231008|895231008|SNOMED_CT
+462371000124108|Detected in pooled specimen|SNOMED_CT
+462371000124108|462371000124108|SNOMED_CT
+455371000124106|Invalid result|SNOMED_CT
+455371000124106|Invalid|SNOMED_CT
+455371000124106|455371000124106|SNOMED_CT
+125154007|Specimen unsatisfactory for evaluation|SNOMED_CT
+125154007|125154007|SNOMED_CT
+840539006|Disease caused by sever acute respiratory syndrome coronavirus 2 (disorder)|SNOMED_CT
+840539006|840539006|SNOMED_CT
+840544004|Suspected disease caused by severe acute respiratory coronavirus 2 (situation)|SNOMED_CT
+840544004|840544004|SNOMED_CT
+840546002|Exposure to severe acute respiratory syndrome coronavirus 2 (event)|SNOMED_CT
+840546002|840546002|SNOMED_CT
+840533007|Severe acute respiratory syndrome coronavirus 2 (organism)|SNOMED_CT
+840533007|840533007|SNOMED_CT
+840536004|Antigen of severe acute respiratory syndrome coronavirus 2 (substance)|SNOMED_CT
+840536004|840536004|SNOMED_CT
+840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)|SNOMED_CT
+840535000|840535000|SNOMED_CT
+840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)|SNOMED_CT
+840534001|840534001|SNOMED_CT
+373121007|Test not done|SNOMED_CT
+373121007|373121007|SNOMED_CT
 
 **Documentation**:
 
@@ -1175,21 +1194,21 @@ Translate multiple inbound Test Result values to RS values
 
 **Value Sets**
 
-Code | Display
----- | -------
-A|Some, but not all, results available
-C|Corrected, final
-F|Final results
-I|No results available; specimen received, procedure incomplete
-M|Corrected, not final
-N|Procedure completed, results pending
-O|Order received; specimen not yet received
-P|Preliminary
-R|Results stored; not yet verified
-S|No results available; procedure scheduled, but not done
-X|No results available; Order canceled
-Y|No order on record for this test
-Z|No record of this patient
+Code | Display | System
+---- | ------- | ------
+A|Some, but not all, results available|HL7
+C|Corrected, final|HL7
+F|Final results|HL7
+I|No results available; specimen received, procedure incomplete|HL7
+M|Corrected, not final|HL7
+N|Procedure completed, results pending|HL7
+O|Order received; specimen not yet received|HL7
+P|Preliminary|HL7
+R|Results stored; not yet verified|HL7
+S|No results available; procedure scheduled, but not done|HL7
+X|No results available; Order canceled|HL7
+Y|No order on record for this test|HL7
+Z|No record of this patient|HL7
 
 **Documentation**:
 
@@ -1207,7 +1226,7 @@ the test result is in some intermediate status, is a correction, or is the final
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -1251,7 +1270,7 @@ An example of the ID is 03D2159846
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -1277,7 +1296,7 @@ Typically this will be the same as the `testing_lab_clia`, but potentially could
 - [ORC-3-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.3.2)
 - [PID-3-4-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4.1)
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -1347,7 +1366,7 @@ be offset, so this field takes the `specimen_collection_date_time` field and off
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Table**: fips-county
 
@@ -1367,7 +1386,7 @@ The state for the testing lab
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -1383,7 +1402,7 @@ The street address for the testing lab
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -1457,11 +1476,11 @@ The FIPS code for the patient's county
 
 **Value Sets**
 
-Code | Display
----- | -------
-D|Debugging
-P|Production
-T|Training
+Code | Display | System
+---- | ------- | ------
+D|Debugging|HL7
+P|Production|HL7
+T|Training|HL7
 
 **Documentation**:
 
@@ -1497,7 +1516,7 @@ ID name of org that is sending this data to ReportStream.  Suitable for provenan
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-09-29
+**Table**: LIVD-SARS-CoV-2
 
 **Table Column**: Test Performed LOINC Code
 

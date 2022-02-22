@@ -38,11 +38,11 @@
 
 **Value Sets**
 
-Code | Display
----- | -------
-Y|Yes
-N|No
-UNK|Unknown
+Code | Display | System
+---- | ------- | ------
+Y|Yes|HL7
+N|No|HL7
+UNK|Unknown|NULLFL
 
 **Documentation**:
 
@@ -76,7 +76,7 @@ Is the patient employed in health care?
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
 
-**Table**: LIVD-SARS-CoV-2-2021-09-29
+**Table**: LIVD-SARS-CoV-2
 
 **Table Column**: Model
 
@@ -120,11 +120,11 @@ Accension number
 
 **Value Sets**
 
-Code | Display
----- | -------
-Y|Yes
-N|No
-UNK|Unknown
+Code | Display | System
+---- | ------- | ------
+Y|Yes|HL7
+N|No|HL7
+UNK|Unknown|NULLFL
 
 **Documentation**:
 
@@ -597,11 +597,11 @@ Other states may choose to define their own formats.
 
 **Value Sets**
 
-Code | Display
----- | -------
-H|Hispanic or Latino
-N|Non Hispanic or Latino
-U|Unknown
+Code | Display | System
+---- | ------- | ------
+H|Hispanic or Latino|HL7
+N|Non Hispanic or Latino|HL7
+U|Unknown|HL7
 
 **Documentation**:
 
@@ -641,14 +641,14 @@ The patient's first name
 
 **Value Sets**
 
-Code | Display
----- | -------
-M|Male
-F|Female
-O|Other
-A|Ambiguous
-U|Unknown
-N|Not applicable
+Code | Display | System
+---- | ------- | ------
+M|Male|HL7
+F|Female|HL7
+O|Other|HL7
+A|Ambiguous|HL7
+U|Unknown|HL7
+N|Not applicable|HL7
 
 **Documentation**:
 
@@ -745,16 +745,16 @@ The patient's phone number with area code
 
 **Value Sets**
 
-Code | Display
----- | -------
-1002-5|American Indian or Alaska Native
-2028-9|Asian
-2054-5|Black or African American
-2076-8|Native Hawaiian or Other Pacific Islander
-2106-3|White
-2131-1|Other
-UNK|Unknown
-ASKU|Asked, but unknown
+Code | Display | System
+---- | ------- | ------
+1002-5|American Indian or Alaska Native|HL7
+2028-9|Asian|HL7
+2054-5|Black or African American|HL7
+2076-8|Native Hawaiian or Other Pacific Islander|HL7
+2106-3|White|HL7
+2131-1|Other|HL7
+UNK|Unknown|NULLFL
+ASKU|Asked, but unknown|NULLFL
 
 **Documentation**:
 
@@ -912,11 +912,11 @@ pointer/link to the unique id of a previously submitted result.  Usually blank. 
 
 **Value Sets**
 
-Code | Display
----- | -------
-D|Debugging
-P|Production
-T|Training
+Code | Display | System
+---- | ------- | ------
+D|Debugging|HL7
+P|Production|HL7
+T|Training|HL7
 
 **Documentation**:
 
@@ -940,11 +940,11 @@ P, D, or T for Production, Debugging, or Training
 
 **Value Sets**
 
-Code | Display
----- | -------
-Y|Yes
-N|No
-UNK|Unknown
+Code | Display | System
+---- | ------- | ------
+Y|Yes|HL7
+N|No|HL7
+UNK|Unknown|NULLFL
 
 **Documentation**:
 
@@ -990,13 +990,15 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 
 **Value Sets**
 
-Code | Display
----- | -------
-119297000|Blood specimen (specimen)
-71836000|Nasopharyngeal structure (body structure)
-45206002|Nasal structure (body structure)
-53342003|Internal nose structure (body structure)
-29092000|Venous structure (body structure)
+Code | Display | System
+---- | ------- | ------
+119297000|Blood specimen (specimen)|SNOMED_CT
+71836000|Nasopharyngeal structure (body structure)|SNOMED_CT
+45206002|Nasal structure (body structure)|SNOMED_CT
+53342003|Internal nose structure (body structure)|SNOMED_CT
+29092000|Venous structure (body structure)|SNOMED_CT
+123851003|Mouth region structure (body structure)|SNOMED_CT
+31389004|Oropharyngeal structure (body structure)|SNOMED_CT
 
 **Documentation**:
 
@@ -1018,25 +1020,26 @@ Refers back to the specimen source site, which is then encoded into the SPM-8 se
 
 **Value Sets**
 
-Code | Display
----- | -------
-445297001|Swab of internal nose
-258500001|Nasopharyngeal swab
-871810001|Mid-turbinate nasal swab
-697989009|Anterior nares swab
-258411007|Nasopharyngeal aspirate
-429931000124105|Nasal aspirate
-258529004|Throat swab
-119334006|Sputum specimen
-119342007|Saliva specimen
-258607008|Bronchoalveolar lavage fluid sample
-119364003|Serum specimen
-119361006|Plasma specimen
-440500007|Dried blood spot specimen
-258580003|Whole blood sample
-122555007|Venous blood specimen
-119297000|Blood specimen
-122554006|Capillary blood specimen
+Code | Display | System
+---- | ------- | ------
+445297001|Swab of internal nose|SNOMED_CT
+258500001|Nasopharyngeal swab|SNOMED_CT
+871810001|Mid-turbinate nasal swab|SNOMED_CT
+697989009|Anterior nares swab|SNOMED_CT
+258411007|Nasopharyngeal aspirate|SNOMED_CT
+429931000124105|Nasal aspirate|SNOMED_CT
+258529004|Throat swab|SNOMED_CT
+119334006|Sputum specimen|SNOMED_CT
+119342007|Saliva specimen|SNOMED_CT
+258560004|Oral saliva sample|SNOMED_CT
+258607008|Bronchoalveolar lavage fluid sample|SNOMED_CT
+119364003|Serum specimen|SNOMED_CT
+119361006|Plasma specimen|SNOMED_CT
+440500007|Dried blood spot specimen|SNOMED_CT
+258580003|Whole blood sample|SNOMED_CT
+122555007|Venous blood specimen|SNOMED_CT
+119297000|Blood specimen|SNOMED_CT
+122554006|Capillary blood specimen|SNOMED_CT
 
 **Documentation**:
 
@@ -1060,11 +1063,11 @@ The specimen source, such as Blood or Serum
 
 **Value Sets**
 
-Code | Display
----- | -------
-Y|Yes
-N|No
-UNK|Unknown
+Code | Display | System
+---- | ------- | ------
+Y|Yes|HL7
+N|No|HL7
+UNK|Unknown|NULLFL
 
 **Documentation**:
 
@@ -1082,7 +1085,7 @@ Is the patient symptomatic?
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-09-29
+**Table**: LIVD-SARS-CoV-2
 
 **Table Column**: Test Performed LOINC Code
 
@@ -1102,7 +1105,7 @@ The LOINC code of the test performed. This is a standardized coded value describ
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-09-29
+**Table**: LIVD-SARS-CoV-2
 
 **Table Column**: Test Performed LOINC Long Name
 
@@ -1126,28 +1129,28 @@ The LOINC description of the test performed as related to the LOINC code.
 
 **Value Sets**
 
-Code | Display
----- | -------
-260373001|Detected
-260415000|Not detected
-720735008|Presumptive positive
-10828004|Positive
-42425007|Equivocal
-260385009|Negative
-895231008|Not detected in pooled specimen
-462371000124108|Detected in pooled specimen
-419984006|Inconclusive
-125154007|Specimen unsatisfactory for evaluation
-455371000124106|Invalid result
-840539006|Disease caused by sever acute respiratory syndrome coronavirus 2 (disorder)
-840544004|Suspected disease caused by severe acute respiratory coronavirus 2 (situation)
-840546002|Exposure to severe acute respiratory syndrome coronavirus 2 (event)
-840533007|Severe acute respiratory syndrome coronavirus 2 (organism)
-840536004|Antigen of severe acute respiratory syndrome coronavirus 2 (substance)
-840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
-840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
-373121007|Test not done
-82334004|Indeterminate
+Code | Display | System
+---- | ------- | ------
+260373001|Detected|SNOMED_CT
+260415000|Not detected|SNOMED_CT
+720735008|Presumptive positive|SNOMED_CT
+10828004|Positive|SNOMED_CT
+42425007|Equivocal|SNOMED_CT
+260385009|Negative|SNOMED_CT
+895231008|Not detected in pooled specimen|SNOMED_CT
+462371000124108|Detected in pooled specimen|SNOMED_CT
+419984006|Inconclusive|SNOMED_CT
+125154007|Specimen unsatisfactory for evaluation|SNOMED_CT
+455371000124106|Invalid result|SNOMED_CT
+840539006|Disease caused by sever acute respiratory syndrome coronavirus 2 (disorder)|SNOMED_CT
+840544004|Suspected disease caused by severe acute respiratory coronavirus 2 (situation)|SNOMED_CT
+840546002|Exposure to severe acute respiratory syndrome coronavirus 2 (event)|SNOMED_CT
+840533007|Severe acute respiratory syndrome coronavirus 2 (organism)|SNOMED_CT
+840536004|Antigen of severe acute respiratory syndrome coronavirus 2 (substance)|SNOMED_CT
+840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)|SNOMED_CT
+840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)|SNOMED_CT
+373121007|Test not done|SNOMED_CT
+82334004|Indeterminate|SNOMED_CT
 
 **Documentation**:
 
@@ -1188,21 +1191,21 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 
 **Value Sets**
 
-Code | Display
----- | -------
-A|Some, but not all, results available
-C|Corrected, final
-F|Final results
-I|No results available; specimen received, procedure incomplete
-M|Corrected, not final
-N|Procedure completed, results pending
-O|Order received; specimen not yet received
-P|Preliminary
-R|Results stored; not yet verified
-S|No results available; procedure scheduled, but not done
-X|No results available; Order canceled
-Y|No order on record for this test
-Z|No record of this patient
+Code | Display | System
+---- | ------- | ------
+A|Some, but not all, results available|HL7
+C|Corrected, final|HL7
+F|Final results|HL7
+I|No results available; specimen received, procedure incomplete|HL7
+M|Corrected, not final|HL7
+N|Procedure completed, results pending|HL7
+O|Order received; specimen not yet received|HL7
+P|Preliminary|HL7
+R|Results stored; not yet verified|HL7
+S|No results available; procedure scheduled, but not done|HL7
+X|No results available; Order canceled|HL7
+Y|No order on record for this test|HL7
+Z|No record of this patient|HL7
 
 **Documentation**:
 

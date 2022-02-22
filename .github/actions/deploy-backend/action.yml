@@ -10,6 +10,9 @@ inputs:
     required: false
   env-name:
     required: true
+  version:
+    description: "Version tag"
+    required: true
 
 runs:
   using: "composite"
@@ -68,7 +71,7 @@ runs:
 
     - uses: actions/download-artifact@v2
       with:
-        name: prime-router-build-${{ github.run_id }}
+        name: prime-router-build-${{ inputs.version }}
         path: prime-router
 
     - name: Unpack router files

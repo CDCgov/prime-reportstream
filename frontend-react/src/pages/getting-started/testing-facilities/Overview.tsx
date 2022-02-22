@@ -28,7 +28,10 @@ export const FacilitiesOverview = () => {
                     <li>
                         Meet your reporting requirements through a single
                         connection. ReportStream is working with{" "}
-                        <a href="/how-it-works/where-were-live">
+                        <a
+                            href="/how-it-works/where-were-live"
+                            className="usa-link"
+                        >
                             jurisdictions across the country
                         </a>{" "}
                         to route your data where it needs to go.
@@ -93,6 +96,18 @@ export const FacilitiesOverview = () => {
                             organizations, test manufacturers, and facilities
                             with advanced systems.
                         </p>
+                        <p>
+                            For more information, read the
+                            <a
+                                href="https://view.officeapps.live.com/op/view.aspx?src=https%3A%2F%2Fraw.githubusercontent.com%2FCDCgov%2Fprime-reportstream%2Fmaster%2Fprime-router%2Fdocs%2FReportStream-Programmers-Guide-for-Senders.docx"
+                                className="usa-link"
+                                rel="noopener noreferrer"
+                                target="_blank"
+                            >
+                                ReportStream Programmer's Guide for Testing
+                                Facilities and Senders (.docx)
+                            </a>
+                        </p>
                     </li>
                     <li>
                         <h4>
@@ -105,12 +120,10 @@ export const FacilitiesOverview = () => {
                             Use a simple online tool to submit a CSV file
                             formatted with a standard schema. Receive real-time
                             validation and feedback on file format and field
-                            values. This feature is currently being piloted in
-                            select jurisdictions with organizations or
-                            facilities that have existing Electronic Medical
-                            Record (EMR) systems.
+                            values.
                         </p>
                         <p>
+                            {" "}
                             Learn how{" "}
                             <a
                                 href="/getting-started/testing-facilities/csv-upload-guide"
@@ -126,6 +139,34 @@ export const FacilitiesOverview = () => {
                                 full documentation
                             </a>
                             .
+                        </p>
+                        <p>
+                            <em>
+                                This feature is currently being piloted in
+                                select jurisdictions with organizations or
+                                facilities that have existing Electronic Medical
+                                Record (EMR) systems. Pilot partners are
+                                selected by recommendation from jurisdictions.
+                                Find out if your jurisdiction is{" "}
+                                <a
+                                    href="/how-it-works/where-were-live"
+                                    className="usa-link"
+                                >
+                                    partnered
+                                </a>{" "}
+                                with ReportStream and{" "}
+                                <a
+                                    href={
+                                        "mailto:" +
+                                        DOMPurify.sanitize(site.orgs.RS.email) +
+                                        "?subject=Getting started with ReportStream"
+                                    }
+                                    className="usa-link"
+                                >
+                                    contact us
+                                </a>{" "}
+                                to learn more.{" "}
+                            </em>
                         </p>
                     </li>
                     <li>
@@ -168,7 +209,7 @@ export const FacilitiesOverview = () => {
                     >
                         {DOMPurify.sanitize(site.orgs.RS.email)}
                     </a>{" "}
-                    and we’ll follow up with next steps.
+                    and we'll follow up with next steps.
                 </p>
                 <p>
                     <a

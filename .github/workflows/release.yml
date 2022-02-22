@@ -13,100 +13,70 @@ defaults:
     working-directory: prime-router
 
 jobs:
-  set_build_env:
+  pre_job:
     name: "Set Build Environment"
     runs-on: ubuntu-latest
     outputs:
-      env_name: ${{ env.ENV_NAME }}
+      env_name: ${{ steps.build_vars.outputs.env_name }}
+      version: ${{ steps.build_vars.outputs.version }}
+      has_router_change: ${{ steps.build_vars.outputs.has_router_change }}
+      has_react_change: ${{ steps.build_vars.outputs.has_react_change }}
     steps:
       - name: Check out changes
         uses: actions/checkout@v2
 
-      - name: Set Build Environment - DEV
-        if: github.ref == 'refs/heads/dev-rheft'
-        run: echo >> $GITHUB_ENV ENV_NAME='dev'
-
-      - name: Set Build Environment - TEST
-        if: github.ref == 'refs/heads/ronheft/test-investigation'
-        run: echo >> $GITHUB_ENV ENV_NAME='test'
-
-      - name: Set Build Environment - STAGING
-        if: github.ref == 'refs/heads/master'
-        run: echo >> $GITHUB_ENV ENV_NAME='staging'
-
-      - name: Set Build Environment - PROD
-        if: github.ref == 'refs/heads/production'
-        run: echo >> $GITHUB_ENV ENV_NAME='prod'
+      - name: Build vars
+        id: build_vars
+        uses: ./.github/actions/build-vars
 
   build_release:
     name: "Release: Build Router"
     needs:
-      - set_build_env
+      - pre_job
+    if: needs.pre_job.outputs.has_router_change == 'true'
     runs-on: ubuntu-latest
-    env:
-      # These are for CI and not credentials of any system
-      POSTGRES_USER: prime
-      POSTGRES_PASSWORD: changeIT!
     steps:
       - name: Check out changes
         uses: actions/checkout@v2
 
-      - name: Set Environment Variables
-        run: |
-          echo >> $GITHUB_ENV DB_USER=${POSTGRES_USER}
-          echo >> $GITHUB_ENV DB_PASSWORD=${POSTGRES_PASSWORD}
-
-      - name: Spin up build containers
-        run: docker-compose -f docker-compose.postgres.yml up -d
-
-      - name: Build Prime Router Package
-        run: ./gradlew package -x fatjar -Pshowtests
-
-      - name: Tar router files
-        run: tar -czvf prime-router-build.tar.gz build
-
-      - name: Publish Unit Test Results
-        uses: EnricoMi/publish-unit-test-result-action@v1
-        # Per https://github.com/EnricoMi/publish-unit-test-result-action#support-fork-repositories-and-dependabot-branches
-        if: >
-          always() &&
-          github.event.sender.login != 'dependabot[bot]' &&
-          ( github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository )
+      - name: Build backend
+        uses: ./.github/actions/build-backend
         with:
-          # This path is from the root of the repo as needed by the plugin
-          files: prime-router/build/test-results/test/**/*.xml
-
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: prime-router-build-${{ github.run_id }}
-          path: prime-router/prime-router-build.tar.gz
-          retention-days: 3
+          version: ${{ needs.pre_job.outputs.version }}
 
   build_frontend_react_release:
     name: "Release: Build Frontend (React)"
     needs:
-      - set_build_env
+      - pre_job
+    if: needs.pre_job.outputs.has_react_change == 'true'
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: frontend-react
-
     steps:
       - name: Check out changes
         uses: actions/checkout@v2
 
       - name: Build frontend
         uses: ./.github/actions/build-frontend
+        with:
+          env-name: ${{ needs.pre_job.outputs.env_name }}
+          appinsights-staging-key: ${{ secrets.APPINSIGHTS_STAGING_KEY }}
+          appinsights-prod-key: ${{ secrets.APPINSIGHTS_PROD_KEY }}
+          version: ${{ needs.pre_job.outputs.version }}
 
   deploy_release:
-    name: "Deploy Release: ${{ needs.set_build_env.outputs.env_name }}"
+    name: "Deploy Release: ${{ needs.pre_job.outputs.env_name }}"
     needs:
-      - set_build_env
+      - pre_job
       - build_release
       - build_frontend_react_release
-    environment: ${{ needs.set_build_env.outputs.env_name }}
-    concurrency: ${{ needs.set_build_env.outputs.env_name }}
+    if: |
+      always() && 
+      (needs.pre_job.outputs.has_router_change == 'true' ||
+      needs.pre_job.outputs.has_react_change == 'true')
+    environment: ${{ needs.pre_job.outputs.env_name }}
+    concurrency: ${{ needs.pre_job.outputs.env_name }}
     runs-on: ubuntu-latest
     steps:
       - name: Check out changes
@@ -115,7 +85,7 @@ jobs:
       - name: Connect to VPN and login to Azure
         uses: ./.github/actions/vpn-azure
         with:
-          env-name: ${{ needs.set_build_env.outputs.env_name }}
+          env-name: ${{ needs.pre_job.outputs.env_name }}
           tls-key: ${{ secrets.TLS_KEY }}
           ca-cert: ${{ secrets.CA_CRT}}
           user-crt: ${{ secrets.USER_CRT }}
@@ -123,13 +93,17 @@ jobs:
           sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
 
       - name: Deploy backend
+        if: needs.pre_job.outputs.has_router_change == 'true'
         uses: ./.github/actions/deploy-backend
         with:
-          env-name: ${{ needs.set_build_env.outputs.env_name }}
+          env-name: ${{ needs.pre_job.outputs.env_name }}
           dct-root-pass: ${{ secrets.DCT_ROOT_PASS }}
           dct-repo-pass: ${{ secrets.DCT_REPO_PASS }}
+          version: ${{ needs.pre_job.outputs.version }}
 
       - name: Deploy frontend
+        if: needs.pre_job.outputs.has_react_change == 'true'
         uses: ./.github/actions/deploy-frontend
         with:
-          env-name: ${{ needs.set_build_env.outputs.env_name }}
+          env-name: ${{ needs.pre_job.outputs.env_name }}
+          version: ${{ needs.pre_job.outputs.version }}

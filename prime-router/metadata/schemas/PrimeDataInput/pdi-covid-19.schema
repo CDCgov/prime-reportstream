@@ -51,6 +51,9 @@ elements:
   - name: previous_message_id
     csvFields: [{name: Corrected_result_ID}]
 
+  - name: test_correction_reason
+    csvFields: [{name: Test_correction_reason}]
+
   - name: placer_order_id
     mapper: use(message_id)
 
@@ -95,8 +98,7 @@ elements:
   - name: patient_preferred_language
     documentation: The patient's preferred language
     cardinality: ZERO_OR_ONE
-    csvFields: [{name: Patient_preferred_language}]
-    type: TEXT
+    csvFields: [{name: Patient_preferred_language, format: $display}]
 
   - name: patient_street
     csvFields: [{name: Patient_street}]
@@ -112,6 +114,9 @@ elements:
 
   - name: patient_zip_code
     csvFields: [{name: Patient_zip_code}]
+
+  - name: patient_country
+    csvFields: [{name: Patient_country}]
 
   - name: patient_phone_number
     csvFields: [{name: Patient_phone_number}]

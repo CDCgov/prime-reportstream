@@ -5,6 +5,9 @@ import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.CovidResultMetadata
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
+import gov.cdc.prime.router.common.StringUtilities.Companion.trimToNull
+import gov.cdc.prime.router.metadata.ElementAndValue
+import gov.cdc.prime.router.metadata.Mappers
 import org.apache.logging.log4j.kotlin.Logging
 import tech.tablesaw.api.Row
 import tech.tablesaw.api.StringColumn
@@ -63,8 +66,7 @@ enum class Options {
  * @property originalCount The original number of items in the report
  * @property filterName The name of the filter function that removed the rows
  * @property filterArgs The arguments used in the filter function
- * @property filteredCount ?
- * @property filteredTrackingElements The trackingElement values of the rows removed.
+ * @property filteredTrackingElement The trackingElement value of the rows removed.
  * Note that we can't guarantee the Sender is sending good unique trackingElement values.
  */
 data class ReportStreamFilterResult(
@@ -72,9 +74,10 @@ data class ReportStreamFilterResult(
     val originalCount: Int,
     val filterName: String,
     val filterArgs: List<String>,
-    val filteredCount: Int,
-    val filteredTrackingElements: List<String>,
-) {
+    val filteredTrackingElement: String,
+    val filteredIndex: Int,
+    override val type: ActionLogDetailType = ActionLogDetailType.TRANSLATION
+) : ActionLogDetail {
     companion object {
         // Use this value in logs and user-facing messages if the trackingElement is missing.
         val DEFAULT_TRACKING_VALUE = "MissingID"
@@ -82,12 +85,15 @@ data class ReportStreamFilterResult(
 
     override fun toString(): String {
         return "For $receiverName, filter $filterName$filterArgs" +
-            " reduced the item count from $originalCount to ${originalCount - filteredCount}." +
-            if (filteredTrackingElements.isEmpty()) {
-                ""
-            } else {
-                "  Data with these IDs were filtered out: (${filteredTrackingElements.joinToString(",") })"
-            }
+            " filtered out item $filteredTrackingElement at index $filteredIndex"
+    }
+
+    override fun detailMsg(): String {
+        return toString()
+    }
+
+    override fun groupingId(): String {
+        return receiverName
     }
 }
 
@@ -106,8 +112,7 @@ class Report : Logging {
         CSV("csv", "text/csv"), // A CSV format the follows the csvFields
         CSV_SINGLE("csv", "text/csv", true),
         HL7("hl7", "application/hl7-v2", true), // HL7 with one result per file
-        HL7_BATCH("hl7", "application/hl7-v2"), // HL7 with BHS and FHS headers
-        REDOX("redox", "text/json", false); // Redox format contains multiple results (NDJSON)
+        HL7_BATCH("hl7", "application/hl7-v2"); // HL7 with BHS and FHS headers
         // FHIR
 
         companion object {
@@ -403,21 +408,26 @@ class Report : Logging {
         val combinedSelection = Selection.withRange(0, table.rowCount())
         filterFunctions.forEach { (filterFn, fnArgs) ->
             val filterFnSelection = filterFn.getSelection(fnArgs, table, receiver, doLogging)
+            // NOTE: It's odd that we have to do logic after the fact
+            //       to figure out what the prvious function did
             if (doLogging && filterFnSelection.size() < table.rowCount()) {
                 val before = Selection.withRange(0, table.rowCount())
                 val filteredRowList = before.andNot(filterFnSelection).toList()
-                filteredRows.add(
-                    ReportStreamFilterResult(
-                        receiver.fullName,
-                        table.rowCount(),
-                        filterFn.name,
-                        fnArgs,
-                        filteredRowList.size,
-                        getValuesInRows(
-                            trackingElement, filteredRowList, ReportStreamFilterResult.DEFAULT_TRACKING_VALUE
+                val rowsFiltered = getValuesInRows(
+                    trackingElement, filteredRowList, ReportStreamFilterResult.DEFAULT_TRACKING_VALUE
+                )
+                rowsFiltered.zip(filteredRowList).forEach { (trackingId, rowNum) ->
+                    filteredRows.add(
+                        ReportStreamFilterResult(
+                            receiver.fullName,
+                            table.rowCount(),
+                            filterFn.name,
+                            fnArgs,
+                            trackingId,
+                            rowNum + 1
                         )
                     )
-                )
+                }
             }
             combinedSelection.and(filterFnSelection)
         }
@@ -682,6 +692,7 @@ class Report : Logging {
                     }
                     it.testKitNameId = row.getStringOrNull("test_kit_name_id").trimToNull()
                     it.testPerformedLoincCode = row.getStringOrNull("test_performed_code").trimToNull()
+                    it.organizationName = row.getStringOrNull("organization_name").trimToNull()
                 }
             }
         } catch (e: Exception) {
@@ -849,7 +860,7 @@ class Report : Logging {
             return mergedReport
         }
 
-        fun createItemLineages(parentReports: List<Report>, childReport: Report): List<ItemLineage> {
+        private fun createItemLineages(parentReports: List<Report>, childReport: Report): List<ItemLineage> {
             var childRowNum = 0
             val itemLineages = mutableListOf<ItemLineage>()
             parentReports.forEach { parentReport ->
@@ -896,19 +907,23 @@ class Report : Logging {
             childReport: Report,
             childRowNum: Int
         ): ItemLineage {
+            // Row numbers start at 0, but index need to start at 1
+            val childIndex = childRowNum + 1
+            val parentIndex = parentRowNum + 1
+
             // ok if this is null.
             if (parentReport.itemLineages != null) {
                 // Avoid losing history.
                 // If the parent report already had lineage, then pass its sins down to the next generation.
                 val grandParentReportId = parentReport.itemLineages!![parentRowNum].parentReportId
-                val grandParentRowNum = parentReport.itemLineages!![parentRowNum].parentIndex
+                val grandParentIndex = parentReport.itemLineages!![parentRowNum].parentIndex
                 val grandParentTrackingValue = parentReport.itemLineages!![parentRowNum].trackingId
                 return ItemLineage(
                     null,
                     grandParentReportId,
-                    grandParentRowNum,
+                    grandParentIndex,
                     childReport.id,
-                    childRowNum,
+                    childIndex,
                     grandParentTrackingValue,
                     null,
                     null
@@ -919,9 +934,9 @@ class Report : Logging {
                 return ItemLineage(
                     null,
                     parentReport.id,
-                    parentRowNum,
+                    parentIndex,
                     childReport.id,
-                    childRowNum,
+                    childIndex,
                     trackingElementValue,
                     null,
                     null
@@ -958,13 +973,14 @@ class Report : Logging {
                     )
             }
             val retval = mutableListOf<ItemLineage>()
-            for (i in 0 until prevHeader.reportFile.itemCount) {
-                if (newLineages[i] == null)
-                    error(
+            // Note indices start at 1
+            for (index in 1..prevHeader.reportFile.itemCount) {
+                retval.add(
+                    newLineages[index] ?: error(
                         "Unable to create parent->child lineage " +
-                            "${prevHeader.reportFile.reportId} -> $newChildReportId: missing lineage $i"
+                            "${prevHeader.reportFile.reportId} -> $newChildReportId: missing lineage $index"
                     )
-                retval.add(newLineages[i]!!)
+                )
             }
             return retval
         }
@@ -1076,14 +1092,6 @@ class Report : Logging {
                     metadata = metadata ?: Metadata.getInstance()
                 )
             }
-        }
-
-        /**
-         * Takes a nullable String and trims it down to null if the string is empty
-         */
-        private fun String?.trimToNull(): String? {
-            if (this?.isEmpty() == true) return null
-            return this
         }
 
         /**

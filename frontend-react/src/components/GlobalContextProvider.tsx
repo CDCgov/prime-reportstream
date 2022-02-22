@@ -36,9 +36,7 @@ export function useGlobalContext() {
 
 export function clearGlobalContext(): void {
     for (let key in sessionStorage) {
-        if (key.includes(GLOBAL_STORAGE_KEYS.GLOBAL_BASE)) {
-            sessionStorage.removeItem(key);
-        }
+        sessionStorage.removeItem(key);
     }
 }
 

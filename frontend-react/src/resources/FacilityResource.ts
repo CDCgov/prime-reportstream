@@ -1,7 +1,6 @@
 import AuthResource from "./AuthResource";
 
 export default class FacilityResource extends AuthResource {
-    readonly organization: string | undefined = "";
     readonly facility: string | undefined = "";
     readonly location: string | undefined = "";
     readonly CLIA: string | undefined = "";
@@ -9,7 +8,7 @@ export default class FacilityResource extends AuthResource {
     readonly total: string | undefined = "";
 
     pk() {
-        return this.CLIA;
+        return `${this.facility}-${this.location}`;
     }
 
     /* INFO

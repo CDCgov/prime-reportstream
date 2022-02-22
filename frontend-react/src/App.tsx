@@ -6,6 +6,7 @@ import { isIE } from "react-device-detect";
 import { useIdleTimer } from "react-idle-timer";
 import { Suspense } from "react";
 import { NetworkErrorBoundary } from "rest-hooks";
+import { ToastContainer } from "react-toastify";
 
 import { Home } from "./pages/home/Home";
 import { ReportStreamFooter } from "./components/ReportStreamFooter";
@@ -28,6 +29,13 @@ import Spinner from "./components/Spinner";
 import Submissions from "./pages/submissions/Submissions";
 import { GettingStartedPublicHealthDepartments } from "./pages/getting-started/public-health-departments";
 import { GettingStartedTestingFacilities } from "./pages/getting-started/testing-facilities";
+import { AdminMain } from "./pages/admin/AdminMain";
+import { AdminOrgEdit } from "./pages/admin/AdminOrgEdit";
+import { EditReceiverSettings } from "./components/Admin/EditReceiverSettings";
+import { EditSenderSettings } from "./components/Admin/EditSenderSettings";
+import "react-toastify/dist/ReactToastify.css";
+import SubmissionDetails from "./pages/submissions/SubmissionDetails";
+import { NewSetting } from "./components/Admin/NewSetting";
 
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
 
@@ -130,10 +138,43 @@ const App = () => {
                                     authorize={PERMISSIONS.SENDER}
                                     component={Upload}
                                 />
+                                {/* TODO: AuthorizedRoute needs to take many potential auth groups.
+                                 *  We should fix this when we refactor our permissions layer.
+                                 */}
+                                <AuthorizedRoute
+                                    path="/submissions/:actionId"
+                                    authorize={PERMISSIONS.SENDER}
+                                    component={SubmissionDetails}
+                                />
                                 <AuthorizedRoute
                                     path="/submissions"
-                                    authorize={PERMISSIONS.PRIME_ADMIN}
+                                    authorize={PERMISSIONS.SENDER}
                                     component={Submissions}
+                                />
+                                <AuthorizedRoute
+                                    path="/admin/settings"
+                                    authorize={PERMISSIONS.PRIME_ADMIN}
+                                    component={AdminMain}
+                                />
+                                <AuthorizedRoute
+                                    path="/admin/orgsettings/org/:orgname"
+                                    authorize={PERMISSIONS.PRIME_ADMIN}
+                                    component={AdminOrgEdit}
+                                />
+                                <AuthorizedRoute
+                                    path="/admin/orgreceiversettings/org/:orgname/receiver/:receivername/action/:action"
+                                    authorize={PERMISSIONS.PRIME_ADMIN}
+                                    component={EditReceiverSettings}
+                                />
+                                <AuthorizedRoute
+                                    path="/admin/orgsendersettings/org/:orgname/sender/:sendername/action/:action"
+                                    authorize={PERMISSIONS.PRIME_ADMIN}
+                                    component={EditSenderSettings}
+                                />
+                                <AuthorizedRoute
+                                    path="/admin/orgnewsetting/org/:orgname/settingtype/:settingtype"
+                                    authorize={PERMISSIONS.PRIME_ADMIN}
+                                    component={NewSetting}
                                 />
                                 <SecureRoute
                                     path="/report-details"
@@ -147,6 +188,13 @@ const App = () => {
                                 />
                             </Switch>
                         </main>
+                        <ToastContainer
+                            autoClose={5000}
+                            closeButton={false}
+                            limit={2}
+                            position="bottom-center"
+                            hideProgressBar={true}
+                        />
                     </GlobalContextProvider>
                     <footer className="usa-identifier footer">
                         <ReportStreamFooter />

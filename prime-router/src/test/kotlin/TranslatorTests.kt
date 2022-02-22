@@ -126,13 +126,11 @@ class TranslatorTests {
         ).run {
             assertThat(this.itemCount).isEqualTo(1)
             assertThat(this.getRow(0)[0]).isEqualTo("0") // row 0 is only one left.
-            assertThat(this.filteringResults.size).isEqualTo(2) // two rows eliminated, and two filter messages.
-            assertThat(this.filteringResults[0].filteredCount).isEqualTo(2) // rows 2 and 3 eliminated (zero based)
-            assertThat(this.filteringResults[0].filteredTrackingElements[0]).isEqualTo("2")
-            assertThat(this.filteringResults[0].filteredTrackingElements[1]).isEqualTo("3")
-            assertThat(this.filteringResults[1].filteredCount).isEqualTo(2) // rows 1 and 3 eliminated (zero based)
-            assertThat(this.filteringResults[1].filteredTrackingElements[0]).isEqualTo("1")
-            assertThat(this.filteringResults[1].filteredTrackingElements[1]).isEqualTo("3")
+            assertThat(this.filteringResults.size).isEqualTo(4) // two rows eliminated, and two filter messages.
+            assertThat(this.filteringResults[0].filteredTrackingElement).isEqualTo("2")
+            assertThat(this.filteringResults[1].filteredTrackingElement).isEqualTo("3")
+            assertThat(this.filteringResults[2].filteredTrackingElement).isEqualTo("1")
+            assertThat(this.filteringResults[3].filteredTrackingElement).isEqualTo("3")
         }
         // Quality filter: Override the default; org filter exists.  No receiver filter.
         translator.filterByOneFilterType(
@@ -141,10 +139,9 @@ class TranslatorTests {
             assertThat(this.itemCount).isEqualTo(2)
             assertThat(this.getRow(0)[0]).isEqualTo("0")
             assertThat(this.getRow(1)[0]).isEqualTo("1")
-            assertThat(this.filteringResults.size).isEqualTo(1) // two rows eliminated, but one filter message.
-            assertThat(this.filteringResults[0].filteredCount).isEqualTo(2)
-            assertThat(this.filteringResults[0].filteredTrackingElements[0]).isEqualTo("2")
-            assertThat(this.filteringResults[0].filteredTrackingElements[1]).isEqualTo("3")
+            assertThat(this.filteringResults.size).isEqualTo(2) // two rows eliminated, but one filter message.
+            assertThat(this.filteringResults[0].filteredTrackingElement).isEqualTo("2")
+            assertThat(this.filteringResults[1].filteredTrackingElement).isEqualTo("3")
         }
         // Routing filter: Override the default; No org filter. Receiver filter exists.
         translator.filterByOneFilterType(
@@ -153,10 +150,9 @@ class TranslatorTests {
             assertThat(this.itemCount).isEqualTo(2)
             assertThat(this.getRow(0)[0]).isEqualTo("0")
             assertThat(this.getRow(1)[0]).isEqualTo("2")
-            assertThat(this.filteringResults.size).isEqualTo(1) // two rows eliminated, but one filter message.
-            assertThat(this.filteringResults[0].filteredCount).isEqualTo(2)
-            assertThat(this.filteringResults[0].filteredTrackingElements[0]).isEqualTo("1")
-            assertThat(this.filteringResults[0].filteredTrackingElements[1]).isEqualTo("3")
+            assertThat(this.filteringResults.size).isEqualTo(2) // two rows eliminated, but one filter message.
+            assertThat(this.filteringResults[0].filteredTrackingElement).isEqualTo("1")
+            assertThat(this.filteringResults[1].filteredTrackingElement).isEqualTo("3")
         }
     }
 
@@ -215,10 +211,9 @@ class TranslatorTests {
             assertThat(this.itemCount).isEqualTo(2)
             assertThat(this.getRow(0)[0]).isEqualTo("2")
             assertThat(this.getRow(1)[0]).isEqualTo("3")
-            assertThat(this.filteringResults.size).isEqualTo(1) // two rows eliminated, by one rule.
-            assertThat(this.filteringResults[0].filteredCount).isEqualTo(2) // rows 0 and 1 eliminated (zero based)
-            assertThat(this.filteringResults[0].filteredTrackingElements[0]).isEqualTo("0")
-            assertThat(this.filteringResults[0].filteredTrackingElements[1]).isEqualTo("1")
+            assertThat(this.filteringResults.size).isEqualTo(2) // two rows eliminated, by one rule.
+            assertThat(this.filteringResults[0].filteredTrackingElement).isEqualTo("0")
+            assertThat(this.filteringResults[1].filteredTrackingElement).isEqualTo("1")
         }
     }
 
@@ -270,8 +265,7 @@ class TranslatorTests {
             assertThat(this!!.itemCount).isEqualTo(1)
             assertThat(this.getRow(0)[0]).isEqualTo("2")
             assertThat(this.filteringResults.size).isEqualTo(1) // three rows eliminated, only routingFilter message.
-            assertThat(this.filteringResults[0].filteredCount).isEqualTo(1) // rows 0 eliminated
-            assertThat(this.filteringResults[0].filteredTrackingElements[0]).isEqualTo("0")
+            assertThat(this.filteringResults[0].filteredTrackingElement).isEqualTo("0")
         }
     }
 
@@ -310,10 +304,9 @@ class TranslatorTests {
             assertThat(this.itemCount).isEqualTo(2)
             assertThat(this.getRow(0)[0]).isEqualTo("x") // row 0
             assertThat(this.getRow(1)[0]).isEqualTo("") // row 0
-            assertThat(this.filteringResults.size).isEqualTo(1) // two rows eliminated by one filter
-            assertThat(this.filteringResults[0].filteredCount).isEqualTo(2)
-            assertThat(this.filteringResults[0].filteredTrackingElements[0]).isEqualTo("y")
-            assertThat(this.filteringResults[0].filteredTrackingElements[1]).isEqualTo(
+            assertThat(this.filteringResults.size).isEqualTo(2) // two rows eliminated by one filter
+            assertThat(this.filteringResults[0].filteredTrackingElement).isEqualTo("y")
+            assertThat(this.filteringResults[1].filteredTrackingElement).isEqualTo(
                 ReportStreamFilterResult.DEFAULT_TRACKING_VALUE
             )
         }
@@ -387,9 +380,9 @@ class TranslatorTests {
             TestSource,
             metadata = metadata
         )
-        translator.filterAndTranslateByReceiver(table1, warnings = mutableListOf()).run {
-            assertThat(this.size).isEqualTo(1)
-            val (mappedTable, forReceiver) = this[0]
+        translator.filterAndTranslateByReceiver(table1).run {
+            assertThat(this.reports.size).isEqualTo(1)
+            val (mappedTable, forReceiver) = this.reports[0]
             assertThat(mappedTable.schema).isEqualTo(table1.schema)
             assertThat(mappedTable.itemCount).isEqualTo(1)
             assertThat(forReceiver).isEqualTo(settings.receivers.toTypedArray()[0])

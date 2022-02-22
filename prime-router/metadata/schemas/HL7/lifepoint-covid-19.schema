@@ -7,7 +7,8 @@ extends: hl7/hl7-ingest-covid-19
 
 elements:
   - name: sender_id
-    default: lifepoint
+    cardinality: ONE
+    mapper: useSenderSetting(organizationName) 
 
   - name: processing_mode_code
     default: P
