@@ -32,6 +32,7 @@ import org.junit.jupiter.api.TestInstance
 import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class WorkflowEngineTests {
@@ -163,29 +164,25 @@ class WorkflowEngineTests {
 
     @Test
     fun `test verifyNoDuplicateFile`() {
-        mockkObject(BlobAccess.Companion)
-
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val settings = FileSettings()
         val sender = Sender("senderName", "org", Sender.Format.CSV, "covid-19", CustomerStatus.INACTIVE, one.name)
 
         every {
-            accessSpy.checkForDuplicate(any(), any(), any())
+            accessSpy.isDuplicateReportFile(any(), any(), any())
         }.returns(true)
 
         val digest = "fakeDigest".toByteArray()
         val engine = makeEngine(metadata, settings)
-        var ex: ActionError? = null
-        try {
+
+        val err = assertFailsWith<ActionError> {
             engine.verifyNoDuplicateFile(sender, digest)
-        } catch (e: ActionError) {
-            ex = e
         }
 
-        assertThat { ex != null && ex.message == "Duplicate file detected." }
+        assertThat { err.message == "Duplicate file detected." }
         verify(exactly = 1) {
-            accessSpy.checkForDuplicate(any(), any(), any())
+            accessSpy.isDuplicateReportFile(any(), any(), any())
         }
     }
 

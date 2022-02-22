@@ -411,7 +411,7 @@ class WorkflowEngine(
 
     // routeReport does all filtering and translating per receiver, generating one file per receiver to then be batched
     fun routeReport(
-        context: ExecutionContext,
+        context: ExecutionContext?,
         report: Report,
         options: Options,
         defaults: Map<String, String>,
@@ -454,7 +454,7 @@ class WorkflowEngine(
     private fun sendToDestination(
         report: Report,
         receiver: Receiver,
-        context: ExecutionContext,
+        context: ExecutionContext?,
         options: Options,
         actionHistory: ActionHistory,
         txn: DataAccessTransaction
@@ -503,7 +503,7 @@ class WorkflowEngine(
                 loggerMsg = "Queued to send immediately: ${event.toQueueMessage()}"
             }
         }
-        context.logger.info(loggerMsg)
+        context?.logger?.info(loggerMsg)
     }
 
     /**

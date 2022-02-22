@@ -590,7 +590,7 @@ class ActionHistory : Logging {
         logger.debug("Queued event: ${event.toQueueMessage()}")
     }
 
-    private fun insertAll(txn: Configuration) {
+    internal fun insertAll(txn: Configuration) {
         action.actionId = insertAction(txn)
         reportsReceived.values.forEach { it.actionId = action.actionId }
         reportsOut.values.forEach { it.actionId = action.actionId }
@@ -628,7 +628,7 @@ class ActionHistory : Logging {
     /**
      * Returns the action_id PK of the newly inserted ACTION.
      */
-    private fun insertAction(txn: Configuration): Long {
+    internal fun insertAction(txn: Configuration): Long {
         val actionRecord = DSL.using(txn).newRecord(ACTION, action)
         actionRecord.store()
         val actionId = actionRecord.actionId

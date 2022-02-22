@@ -40,7 +40,7 @@ private const val PROCESSING_TYPE_PARAMETER = "processing"
  * Azure Functions with HTTP Trigger.
  * This is basically the "front end" of the Hub. Reports come in here.
  */
-class ReportFunction : Logging {
+class ReportFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()) : Logging {
 
     data class ValidatedRequest(
         val content: String = "",
@@ -62,10 +62,9 @@ class ReportFunction : Logging {
             methods = [HttpMethod.POST],
             authLevel = AuthorizationLevel.FUNCTION
         ) request: HttpRequestMessage<String?>,
-        context: ExecutionContext,
+        context: ExecutionContext?,
+        actionHistory: ActionHistory = ActionHistory(TaskAction.receive)
     ): HttpResponseMessage {
-        val workflowEngine = WorkflowEngine()
-
         val senderName = extractClient(request)
         if (senderName.isNullOrBlank())
             return HttpUtilities.bad(request, "Expected a '$CLIENT_PARAMETER' query parameter")
@@ -73,17 +72,16 @@ class ReportFunction : Logging {
         // Sender should eventually be obtained directly from who is authenticated
         val sender = workflowEngine.settings.findSender(senderName)
             ?: return HttpUtilities.bad(request, "'$CLIENT_PARAMETER:$senderName': unknown sender")
-        val actionHistory = ActionHistory(TaskAction.receive)
         actionHistory.trackActionParams(request)
 
-        try {
-            return processRequest(request, sender, context, workflowEngine, actionHistory)
+        return try {
+            processRequest(request, sender, context, actionHistory)
         } catch (ex: Exception) {
             if (ex.message != null)
                 logger.error(ex.message!!, ex)
             else
                 logger.error(ex)
-            return HttpUtilities.internalErrorResponse(request)
+            HttpUtilities.internalErrorResponse(request)
         }
     }
 
@@ -102,8 +100,6 @@ class ReportFunction : Logging {
         ) request: HttpRequestMessage<String?>,
         context: ExecutionContext,
     ): HttpResponseMessage {
-        val workflowEngine = WorkflowEngine()
-
         val senderName = extractClient(request)
         if (senderName.isNullOrBlank())
             return HttpUtilities.bad(request, "Expected a '$CLIENT_PARAMETER' query parameter")
@@ -125,7 +121,7 @@ class ReportFunction : Logging {
             if (authenticationStrategy is OktaAuthentication) {
                 // The report is coming from a sender that is using Okta, so set "oktaSender" to true
                 return authenticationStrategy.checkAccess(request, senderName, true, actionHistory) {
-                    return@checkAccess processRequest(request, sender, context, workflowEngine, actionHistory)
+                    return@checkAccess processRequest(request, sender, context, actionHistory)
                 }
             }
 
@@ -133,7 +129,7 @@ class ReportFunction : Logging {
                 val claims = authenticationStrategy.checkAccessToken(request, "${sender.fullName}.report")
                     ?: return HttpUtilities.unauthorizedResponse(request)
                 logger.info("Claims for ${claims["sub"]} validated.  Beginning ingestReport.")
-                return processRequest(request, sender, context, workflowEngine, actionHistory)
+                return processRequest(request, sender, context, actionHistory)
             }
         } catch (ex: Exception) {
             if (ex.message != null)
@@ -152,15 +148,13 @@ class ReportFunction : Logging {
      * @param request The incoming request
      * @param sender The sender record, pulled from the database based on sender name on the request
      * @param context Execution context
-     * @param workflowEngine WorkflowEngine instance used through the entire
      * @param actionHistory ActionHistory instance to track messages and lineages\
      * @return Returns an HttpResponseMessage indicating the result of the operation and any resulting information
      */
-    private fun processRequest(
+    internal fun processRequest(
         request: HttpRequestMessage<String?>,
         sender: Sender,
-        context: ExecutionContext,
-        workflowEngine: WorkflowEngine,
+        context: ExecutionContext?,
         actionHistory: ActionHistory
     ): HttpResponseMessage {
         // determine if we should be following the sync or async workflow
@@ -175,7 +169,7 @@ class ReportFunction : Logging {
             val options = Options.valueOf(optionsText)
 
             // track the sending organization and client based on the header
-            val validatedRequest = validateRequest(workflowEngine, request)
+            val validatedRequest = validateRequest(request)
             val rawBody = validatedRequest.content.toByteArray()
             // TODO this should be only calculated once and passed, but the underlying functions are called by
             //  receive (this), process, batch, send and those do *not* need to calculate it outside of the function
@@ -222,7 +216,6 @@ class ReportFunction : Logging {
                     if (isAsync) {
                         processAsync(
                             report,
-                            workflowEngine,
                             options,
                             validatedRequest.defaults,
                             validatedRequest.routeTo,
@@ -346,7 +339,6 @@ class ReportFunction : Logging {
 
     private fun processAsync(
         parsedReport: Report,
-        workflowEngine: WorkflowEngine,
         options: Options,
         defaults: Map<String, String>,
         routeTo: List<String>,
@@ -374,14 +366,14 @@ class ReportFunction : Logging {
         workflowEngine.insertProcessTask(report, report.bodyFormat.toString(), blobInfo.blobUrl, processEvent)
     }
 
-    private fun validateRequest(engine: WorkflowEngine, request: HttpRequestMessage<String?>): ValidatedRequest {
+    internal fun validateRequest(request: HttpRequestMessage<String?>): ValidatedRequest {
         val errors = mutableListOf<ActionLog>()
         HttpUtilities.payloadSizeCheck(request)
 
         val receiverNamesText = request.queryParameters.getOrDefault(ROUTE_TO_PARAMETER, "")
         val routeTo = if (receiverNamesText.isNotBlank()) receiverNamesText.split(ROUTE_TO_SEPARATOR) else emptyList()
         val receiverNameErrors = routeTo
-            .filter { engine.settings.findReceiver(it) == null }
+            .filter { workflowEngine.settings.findReceiver(it) == null }
             .map { ActionLog.param(ROUTE_TO_PARAMETER, "Invalid receiver name: $it") }
         errors.addAll(receiverNameErrors)
 
@@ -393,7 +385,7 @@ class ReportFunction : Logging {
                 )
             )
 
-        val sender = engine.settings.findSender(clientName)
+        val sender = workflowEngine.settings.findSender(clientName)
         if (sender == null)
             errors.add(
                 ActionLog.param(
@@ -401,7 +393,7 @@ class ReportFunction : Logging {
                 )
             )
 
-        val schema = engine.metadata.findSchema(sender?.schemaName ?: "")
+        val schema = workflowEngine.metadata.findSchema(sender?.schemaName ?: "")
         if (sender != null && schema == null)
             errors.add(
                 ActionLog.param(
