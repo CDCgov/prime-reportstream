@@ -2114,6 +2114,7 @@ The patient's phone number with area code
 Code | Display | System
 ---- | ------- | ------
 abk|Abkhazian|ISO
+abk|Abkhaz|ISO
 ace|Achinese|ISO
 ach|Acoli|ISO
 ada|Adangme|ISO
@@ -2140,6 +2141,7 @@ arm|Armenian|ISO
 rup|Aromanian; Arumanian; Macedo-Romanian|ISO
 art|Artificial (Other)|ISO
 asm|Assamese|ISO
+aii|Assyrian|ISO
 ast|Asturian; Bable; Leonese; Asturleonese|ISO
 ath|Athapascan languages|ISO
 aus|Australian languages|ISO
@@ -2181,7 +2183,10 @@ bul|Bulgarian|ISO
 bua|Buriat|ISO
 bur|Burmese|ISO
 cad|Caddo|ISO
+yue|Cantonese|ISO
+yue|Cantonese; Chinese|ISO
 cat|Catalan; Valencian|ISO
+cat|Catalan|ISO
 cau|Caucasian (Other)|ISO
 ceb|Cebuano|ISO
 cel|Celtic (Other)|ISO
@@ -2219,14 +2224,17 @@ cze|Czech|ISO
 dak|Dakota|ISO
 dan|Danish|ISO
 dar|Dargwa|ISO
+prs|Dari|ISO
 del|Delaware|ISO
 din|Dinka|ISO
 div|Divehi; Dhivehi; Maldivian|ISO
+div|Dhivehi|ISO
 doi|Dogri|ISO
 dgr|Dogrib|ISO
 dra|Dravidian (Other)|ISO
 dua|Duala|ISO
 dut|Dutch; Flemish|ISO
+dut|Dutch|ISO
 dyu|Dyula|ISO
 dzo|Dzongkha|ISO
 frs|Eastern Frisian|ISO
@@ -2244,14 +2252,17 @@ fat|Fanti|ISO
 fao|Faroese|ISO
 fij|Fijian|ISO
 fil|Filipino; Pilipino|ISO
+fil|Filipino|ISO
 fin|Finnish|ISO
 fiu|Finno-Ugrian (Other)|ISO
 fon|Fon|ISO
 fre|French|ISO
+fry|Frisian|ISO
 fur|Friulian|ISO
 ful|Fulah|ISO
 gaa|Ga|ISO
 gla|Gaelic; Scottish Gaelic|ISO
+gla|Gaelic|ISO
 car|Galibi Carib|ISO
 glg|Galician|ISO
 lug|Ganda|ISO
@@ -2266,12 +2277,14 @@ gon|Gondi|ISO
 gor|Gorontalo|ISO
 got|Gothic|ISO
 grb|Grebo|ISO
+gre|Greek|ISO
 gre|Greek Modern (1453-)|ISO
 grn|Guarani|ISO
 guj|Gujarati|ISO
 gwi|Gwich'in|ISO
 hai|Haida|ISO
 hat|Haitian; Haitian Creole|ISO
+hat|Haitian|ISO
 hau|Hausa|ISO
 haw|Hawaiian|ISO
 heb|Hebrew|ISO
@@ -2295,6 +2308,7 @@ inc|Indic (Other)|ISO
 ine|Indo-European (Other)|ISO
 ind|Indonesian|ISO
 inh|Ingush|ISO
+ikt|Inuinnaqtun|ISO
 ina|Interlingua (International Auxiliary Language Association)|ISO
 ile|Interlingue; Occidental|ISO
 iku|Inuktitut|ISO
@@ -2305,6 +2319,7 @@ iro|Iroquoian languages|ISO
 ita|Italian|ISO
 jpn|Japanese|ISO
 jav|Javanese|ISO
+cjy|Jinyu Chinese|ISO
 jrb|Judeo-Arabic|ISO
 jpr|Judeo-Persian|ISO
 kbd|Kabardian|ISO
@@ -2325,11 +2340,14 @@ kaw|Kawi|ISO
 kaz|Kazakh|ISO
 kha|Khasi|ISO
 khi|Khoisan (Other)|ISO
+khm|Khmer|ISO
 kho|Khotanese|ISO
 kik|Kikuyu; Gikuyu|ISO
 kmb|Kimbundu|ISO
 kin|Kinyarwanda|ISO
 kir|Kirghiz; Kyrgyz|ISO
+kir|Kyrgyz|ISO
+kir|Kirghiz|ISO
 tlh|Klingon; tlhIngan-Hol|ISO
 kom|Komi|ISO
 kon|Kongo|ISO
@@ -2366,6 +2384,7 @@ lun|Lunda|ISO
 luo|Luo (Kenya and Tanzania)|ISO
 lus|Lushai|ISO
 ltz|Luxembourgish; Letzeburgesch|ISO
+ltz|Luxembourgish|ISO
 mac|Macedonian|ISO
 mad|Madurese|ISO
 mag|Magahi|ISO
@@ -2375,6 +2394,8 @@ mlg|Malagasy|ISO
 may|Malay|ISO
 mal|Malayalam|ISO
 mlt|Maltese|ISO
+cmn|Mandarin|ISO
+cmn|Mandarin Chinese|ISO
 mnc|Manchu|ISO
 mdr|Mandar|ISO
 man|Mandingo|ISO
@@ -2389,6 +2410,7 @@ mah|Marshallese|ISO
 mwr|Marwari|ISO
 mas|Masai|ISO
 myn|Mayan languages|ISO
+myn|Mayan|ISO
 men|Mende|ISO
 mic|Mi'kmaq; Micmac|ISO
 min|Minangkabau|ISO
@@ -2396,15 +2418,19 @@ mwl|Mirandese|ISO
 moh|Mohawk|ISO
 mdf|Moksha|ISO
 mol|Moldavian; Moldovan|ISO
+mol|Moldovan|ISO
+mol|Moldavian|ISO
 lol|Mongo|ISO
 mon|Mongolian|ISO
 mkh|Mon-Khmer (Other)|ISO
+cnr|Montenegrin|ISO
 mos|Mossi|ISO
 mul|Multiple languages|ISO
 mun|Munda languages|ISO
 nah|Nahuatl languages|ISO
 nau|Nauru|ISO
 nav|Navajo; Navaho|ISO
+nde|Ndebele|ISO
 nde|Ndebele North; North Ndebele|ISO
 nbl|Ndebele South; South Ndebele|ISO
 ndo|Ndonga|ISO
@@ -2421,14 +2447,17 @@ nog|Nogai|ISO
 nai|North American Indian|ISO
 frr|Northern Frisian|ISO
 sme|Northern Sami|ISO
+nso|Northern Sotho|ISO
 nor|Norwegian|ISO
 nno|Norwegian Nynorsk; Nynorsk Norwegian|ISO
+nno|Nynorsk|ISO
 nub|Nubian languages|ISO
 nym|Nyamwezi|ISO
 nyn|Nyankole|ISO
 nyo|Nyoro|ISO
 nzi|Nzima|ISO
 oci|Occitan (post 1500); Provençal|ISO
+oci|Occitan|ISO
 oji|Ojibwa|ISO
 ori|Oriya|ISO
 orm|Oromo|ISO
@@ -2440,9 +2469,14 @@ pau|Palauan|ISO
 pli|Pali|ISO
 pam|Pampanga; Kapampangan|ISO
 pag|Pangasinan|ISO
-pan|Panjabi; Punjabi|ISO
+pan|Panjabi|ISO
 pap|Papiamento|ISO
 paa|Papuan (Other)|ISO
+pus|Pashto|ISO
+pus|Pushto|ISO
+pst|Central Pashto|ISO
+pbt|Southern Pashto|ISO
+pus|Pashto|ISO
 nso|Pedi; Sepedi; Northern Sotho|ISO
 per|Persian|ISO
 phi|Philippine (Other)|ISO
@@ -2451,6 +2485,7 @@ pon|Pohnpeian|ISO
 pol|Polish|ISO
 por|Portuguese|ISO
 pra|Prakrit languages|ISO
+pan|Punjabi|ISO
 pus|Pushto; Pashto|ISO
 que|Quechua|ISO
 raj|Rajasthani|ISO
@@ -2487,6 +2522,7 @@ sgn|Sign Languages|ISO
 bla|Siksika|ISO
 snd|Sindhi|ISO
 sin|Sinhala; Sinhalese|ISO
+sin|Sinhalese|ISO
 sit|Sino-Tibetan (Other)|ISO
 sio|Siouan languages|ISO
 sms|Skolt Sami|ISO
@@ -2494,6 +2530,7 @@ den|Slave (Athapascan)|ISO
 sla|Slavic (Other)|ISO
 slo|Slovak|ISO
 slv|Slovenian|ISO
+slv|Slovene|ISO
 sog|Sogdian|ISO
 som|Somali|ISO
 son|Songhai languages|ISO
@@ -2504,6 +2541,7 @@ sai|South American Indian (Other)|ISO
 alt|Southern Altai|ISO
 sma|Southern Sami|ISO
 spa|Spanish; Castilian|ISO
+spa|Spanish|ISO
 srn|Sranan Tongo|ISO
 suk|Sukuma|ISO
 sux|Sumerian|ISO
@@ -2512,7 +2550,9 @@ sus|Susu|ISO
 swa|Swahili|ISO
 ssw|Swati|ISO
 swe|Swedish|ISO
-gsw|Swiss German; Alemannic; Alsatian|ISO
+gsw|Swiss German|ISO
+gsw|Alemannic|ISO
+gsw|Alsatian|ISO
 syr|Syriac|ISO
 tgl|Tagalog|ISO
 tah|Tahitian|ISO
@@ -2547,7 +2587,8 @@ tyv|Tuvinian|ISO
 twi|Twi|ISO
 udm|Udmurt|ISO
 uga|Ugaritic|ISO
-uig|Uighur; Uyghur|ISO
+uig|Uighur|ISO
+uig|Uyghur|ISO
 ukr|Ukrainian|ISO
 umb|Umbundu|ISO
 mis|Uncoded languages|ISO
@@ -3915,6 +3956,7 @@ Code | Display | System
 258529004|Throat swab|SNOMED_CT
 119334006|Sputum specimen|SNOMED_CT
 119342007|Saliva specimen|SNOMED_CT
+258560004|Oral saliva sample|SNOMED_CT
 258607008|Bronchoalveolar lavage fluid sample|SNOMED_CT
 119364003|Serum specimen|SNOMED_CT
 119361006|Plasma specimen|SNOMED_CT

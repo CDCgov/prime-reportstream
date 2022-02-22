@@ -178,6 +178,19 @@ internal class ElementTests {
         one.toNormalized("     ").run {
             assertThat(this).isEqualTo("")
         }
+
+        // Hours with single digits and afternoon times
+        var testTimes = listOf(
+            "3/30/1998 9:35", "3/30/1998 09:35", "1998/3/30 9:35", "1998/3/30 09:35", "19980330 9:35:00",
+            "19980330 09:35:00", "1998-03-30 9:35:00", "1998-03-30 09:35:00"
+        )
+        testTimes.forEach {
+            assertThat(one.toNormalized(it)).isEqualTo("199803300935-0600")
+        }
+        testTimes = listOf("11/30/1998 16:35", "1998/11/30 16:35", "19981130 16:35:00", "1998-11-30 16:35:00")
+        testTimes.forEach {
+            assertThat(one.toNormalized(it)).isEqualTo("199811301635-0600")
+        }
     }
 
     @Test
@@ -608,7 +621,10 @@ internal class ElementTests {
         )
 
         // passing through a valid date of known manual formats does not throw an error
-        val dateTimeStrings = arrayOf("12012021", "12/2/2021", "2021/12/3", "12/4/2021 09:00", "2021/12/05 10:00")
+        val dateTimeStrings = arrayOf(
+            "12012021", "12/2/2021", "2021/12/3", "12/4/2021 09:00", "2021/12/05 10:00",
+            "3/30/1998 9:35", "1998/3/30 9:35", "2022-01-30 9:35:09", "20220130 9:35:09", "20220130 09:35:09"
+        )
 
         dateTimeStrings.forEach { dateTimeString ->
             assertThat(

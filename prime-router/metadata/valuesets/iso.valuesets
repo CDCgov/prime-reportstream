@@ -508,6 +508,8 @@
   values:
   - code: abk
     display: Abkhazian
+  - code: abk
+    display: Abkhaz
   - code: ace
     display: Achinese
   - code: ach
@@ -560,6 +562,8 @@
     display: Artificial (Other)
   - code: asm
     display: Assamese
+  - code: aii
+    display: Assyrian
   - code: ast
     display: Asturian; Bable; Leonese; Asturleonese
   - code: ath
@@ -642,8 +646,14 @@
     display: Burmese
   - code: cad
     display: Caddo
+  - code: yue
+    display: Cantonese
+  - code: yue
+    display: Cantonese; Chinese
   - code: cat
     display: Catalan; Valencian
+  - code: cat
+    display: Catalan
   - code: cau
     display: Caucasian (Other)
   - code: ceb
@@ -718,12 +728,16 @@
     display: Danish
   - code: dar
     display: Dargwa
+  - code: prs
+    display: Dari
   - code: del
     display: Delaware
   - code: din
     display: Dinka
   - code: div
     display: Divehi; Dhivehi; Maldivian
+  - code: div
+    display: Dhivehi
   - code: doi
     display: Dogri
   - code: dgr
@@ -734,6 +748,8 @@
     display: Duala
   - code: dut
     display: Dutch; Flemish
+  - code: dut
+    display: Dutch
   - code: dyu
     display: Dyula
   - code: dzo
@@ -768,6 +784,8 @@
     display: Fijian
   - code: fil
     display: Filipino; Pilipino
+  - code: fil
+    display: Filipino
   - code: fin
     display: Finnish
   - code: fiu
@@ -776,6 +794,8 @@
     display: Fon
   - code: fre
     display: French
+  - code: fry
+    display: Frisian
   - code: fur
     display: Friulian
   - code: ful
@@ -784,6 +804,8 @@
     display: Ga
   - code: gla
     display: Gaelic; Scottish Gaelic
+  - code: gla
+    display: Gaelic
   - code: car
     display: Galibi Carib
   - code: glg
@@ -813,6 +835,8 @@
   - code: grb
     display: Grebo
   - code: gre
+    display: Greek
+  - code: gre
     display: Greek Modern (1453-)
   - code: grn
     display: Guarani
@@ -824,6 +848,8 @@
     display: Haida
   - code: hat
     display: Haitian; Haitian Creole
+  - code: hat
+    display: Haitian
   - code: hau
     display: Hausa
   - code: haw
@@ -870,6 +896,8 @@
     display: Indonesian
   - code: inh
     display: Ingush
+  - code: ikt
+    display: Inuinnaqtun
   - code: ina
     display: Interlingua (International Auxiliary Language Association)
   - code: ile
@@ -890,6 +918,8 @@
     display: Japanese
   - code: jav
     display: Javanese
+  - code: cjy
+    display: Jinyu Chinese
   - code: jrb
     display: Judeo-Arabic
   - code: jpr
@@ -930,6 +960,8 @@
     display: Khasi
   - code: khi
     display: Khoisan (Other)
+  - code: khm
+    display: Khmer
   - code: kho
     display: Khotanese
   - code: kik
@@ -940,6 +972,10 @@
     display: Kinyarwanda
   - code: kir
     display: Kirghiz; Kyrgyz
+  - code: kir
+    display: Kyrgyz
+  - code: kir
+    display: Kirghiz
   - code: tlh
     display: Klingon; tlhIngan-Hol
   - code: kom
@@ -1012,6 +1048,8 @@
     display: Lushai
   - code: ltz
     display: Luxembourgish; Letzeburgesch
+  - code: ltz
+    display: Luxembourgish
   - code: mac
     display: Macedonian
   - code: mad
@@ -1030,6 +1068,10 @@
     display: Malayalam
   - code: mlt
     display: Maltese
+  - code: cmn
+    display: Mandarin
+  - code: cmn
+    display: Mandarin Chinese
   - code: mnc
     display: Manchu
   - code: mdr
@@ -1058,6 +1100,8 @@
     display: Masai
   - code: myn
     display: Mayan languages
+  - code: myn
+    display: Mayan
   - code: men
     display: Mende
   - code: mic
@@ -1072,12 +1116,18 @@
     display: Moksha
   - code: mol
     display: Moldavian; Moldovan
+  - code: mol
+    display: Moldovan
+  - code: mol
+    display: Moldavian
   - code: lol
     display: Mongo
   - code: mon
     display: Mongolian
   - code: mkh
     display: Mon-Khmer (Other)
+  - code: cnr
+    display: Montenegrin
   - code: mos
     display: Mossi
   - code: mul
@@ -1090,6 +1140,8 @@
     display: Nauru
   - code: nav
     display: Navajo; Navaho
+  - code: nde
+    display: Ndebele
   - code: nde
     display: Ndebele North; North Ndebele
   - code: nbl
@@ -1122,10 +1174,14 @@
     display: Northern Frisian
   - code: sme
     display: Northern Sami
+  - code: nso
+    display: Northern Sotho
   - code: nor
     display: Norwegian
   - code: nno
     display: Norwegian Nynorsk; Nynorsk Norwegian
+  - code: nno
+    display: Nynorsk
   - code: nub
     display: Nubian languages
   - code: nym
@@ -1138,6 +1194,8 @@
     display: Nzima
   - code: oci
     display: Occitan (post 1500); Provençal
+  - code: oci
+    display: Occitan
   - code: oji
     display: Ojibwa
   - code: ori
@@ -1161,11 +1219,21 @@
   - code: pag
     display: Pangasinan
   - code: pan
-    display: Panjabi; Punjabi
+    display: Panjabi
   - code: pap
     display: Papiamento
   - code: paa
     display: Papuan (Other)
+  - code: pus
+    display: Pashto
+  - code: pus
+    display: Pushto
+  - code: pst
+    display: Central Pashto
+  - code: pbt
+    display: Southern Pashto
+  - code: pus
+    display: Pashto
   - code: nso
     display: Pedi; Sepedi; Northern Sotho
   - code: per
@@ -1182,6 +1250,8 @@
     display: Portuguese
   - code: pra
     display: Prakrit languages
+  - code: pan
+    display: Punjabi
   - code: pus
     display: Pushto; Pashto
   - code: que
@@ -1254,6 +1324,8 @@
     display: Sindhi
   - code: sin
     display: Sinhala; Sinhalese
+  - code: sin
+    display: Sinhalese
   - code: sit
     display: Sino-Tibetan (Other)
   - code: sio
@@ -1268,6 +1340,8 @@
     display: Slovak
   - code: slv
     display: Slovenian
+  - code: slv
+    display: Slovene
   - code: sog
     display: Sogdian
   - code: som
@@ -1288,6 +1362,8 @@
     display: Southern Sami
   - code: spa
     display: Spanish; Castilian
+  - code: spa
+    display: Spanish
   - code: srn
     display: Sranan Tongo
   - code: suk
@@ -1305,7 +1381,11 @@
   - code: swe
     display: Swedish
   - code: gsw
-    display: Swiss German; Alemannic; Alsatian
+    display: Swiss German
+  - code: gsw
+    display: Alemannic
+  - code: gsw
+    display: Alsatian
   - code: syr
     display: Syriac
   - code: tgl
@@ -1375,7 +1455,9 @@
   - code: uga
     display: Ugaritic
   - code: uig
-    display: Uighur; Uyghur
+    display: Uighur
+  - code: uig
+    display: Uyghur
   - code: ukr
     display: Ukrainian
   - code: umb
