@@ -1,6 +1,5 @@
 package gov.cdc.prime.router.azure
 
-import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
@@ -24,12 +23,11 @@ class RequeueFunction : Logging {
             methods = [HttpMethod.POST],
             authLevel = AuthorizationLevel.FUNCTION,
             route = "requeue/send"
-        ) request: HttpRequestMessage<String?>,
-        context: ExecutionContext,
+        ) request: HttpRequestMessage<String?>
     ): HttpResponseMessage {
         logger.info("Entering requeue/send api")
         val workflowEngine = WorkflowEngine()
-        val actionHistory = ActionHistory(TaskAction.resend, context)
+        val actionHistory = ActionHistory(TaskAction.resend)
         actionHistory.trackActionParams(request)
         val msgs = mutableListOf<String>()
         val response = try {
