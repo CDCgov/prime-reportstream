@@ -141,7 +141,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
      * Returns true if there is already a record in the report_file table that matches the passed in [senderName],
      * [senderOrgName], and [digest]
      */
-    fun checkForDuplicate(
+    fun isDuplicateReportFile(
         senderName: String,
         senderOrgName: String,
         digest: ByteArray,

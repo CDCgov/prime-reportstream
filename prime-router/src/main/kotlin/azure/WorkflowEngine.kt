@@ -162,7 +162,7 @@ class WorkflowEngine(
         sender: Sender,
         digest: ByteArray
     ) {
-        if (db.checkForDuplicate(sender.name, sender.organizationName, digest)) {
+        if (db.isDuplicateReportFile(sender.name, sender.organizationName, digest)) {
             throw ActionError(
                 ActionLog.report(
                     "Duplicate file detected."
