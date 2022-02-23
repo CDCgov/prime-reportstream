@@ -20,6 +20,8 @@ export function useNetwork<T>({ url, api }: Endpoint): ResponseType<T> {
         message: "",
     });
     const { updateCache } = useCacheContext();
+
+    debugger
     const cachedResult = useCache({ url, api });
 
     useEffect(() => {
@@ -34,6 +36,7 @@ export function useNetwork<T>({ url, api }: Endpoint): ResponseType<T> {
                         status: res.status,
                         message: "",
                     };
+                    debugger;
                     setResponse(networkResponse);
 
                     /* BUG: This is calling the updateCache() function from my empty
@@ -53,6 +56,7 @@ export function useNetwork<T>({ url, api }: Endpoint): ResponseType<T> {
                     });
                 });
         } else {
+            debugger
             setResponse(cachedResult.response);
         }
     }, [api.config, url, cachedResult]);
