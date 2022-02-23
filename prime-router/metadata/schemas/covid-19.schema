@@ -1120,7 +1120,7 @@ elements:
     type: CODE
     cardinality: ZERO_OR_ONE
 # Don't default.    default: F
-    valueSet: hl70123
+    valueSet: hl70085
     natFlatFileField: Test_result_status
     hhsGuidanceField:
     hl7Field: OBX-11-1
