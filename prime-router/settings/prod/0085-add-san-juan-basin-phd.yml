@@ -1,15 +1,15 @@
 ---
-- name: co-routt-county-phd
-  description: Routt County Public Health Department
-  jurisdiction: COUNTY
-  stateCode: CO
-  countyName: Routt
+- name: "co-san-juan-basin-phd"
+  description: "San Juan Basin Public Health Department"
+  jurisdiction: "STATE"
+  stateCode: "CO"
+  countyName: null
   receivers:
     - name: elr-download
-      organizationName: co-routt-county-phd
+      organizationName: co-san-juan-basin-phd
       topic: covid-19
       customerStatus: "active"
-      jurisdictionalFilter: [ "matches(ordering_facility_state, CO)", "matches(ordering_facility_county, Routt)" ]
+      jurisdictionalFilter: [ "matches(ordering_facility_state, CO)", "matches(ordering_facility_county, Archuleta, La Plata)" ]
       translation:
         type: CUSTOM
         schemaName: direct/direct-covid-19

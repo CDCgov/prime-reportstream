@@ -8,6 +8,7 @@
     - name: elr-download
       organizationName: co-routt-county-phd
       topic: covid-19
+      customerStatus: "active"
       jurisdictionalFilter: [ "matches(ordering_facility_state, CO)", "matches(ordering_facility_county, Routt)" ]
       translation:
         type: CUSTOM
