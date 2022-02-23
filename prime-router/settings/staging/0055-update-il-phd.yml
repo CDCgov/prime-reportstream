@@ -6,6 +6,11 @@
   stateCode: "IL"
   countyName: null
   senders: []
+  filters:
+    - topic: "covid-19"
+      jurisdictionalFilter:
+        - "orEquals(ordering_facility_state, IL, patient_state, IL)"
+      qualityFilter: []
   receivers:
   - name: "elr-secondary"
     organizationName: "il-phd"
@@ -43,9 +48,6 @@
       nameFormat: "STANDARD_SECONDARY"
       receivingOrganization: null
       type: "HL7"
-    jurisdictionalFilter:
-    - "orEquals(ordering_facility_state, IL, patient_state, IL)"
-    qualityFilter: []
     reverseTheQualityFilter: true
     deidentify: false
     timing:
@@ -56,7 +58,7 @@
       maxReportCount: 500
     description: ""
     transport: null
-    externalName: "Secondary Feed"
+    externalName: null
   - name: "elr"
     organizationName: "il-phd"
     topic: "covid-19"
@@ -93,9 +95,6 @@
       nameFormat: "STANDARD"
       receivingOrganization: null
       type: "HL7"
-    jurisdictionalFilter:
-    - "orEquals(ordering_facility_state, IL, patient_state, IL)"
-    qualityFilter: []
     reverseTheQualityFilter: false
     deidentify: false
     timing:
@@ -105,10 +104,5 @@
       timeZone: "EASTERN"
       maxReportCount: 500
     description: ""
-    transport: !<SFTP>
-      host: "moveit.illinois.gov"
-      port: "22"
-      filePath: "/Distribution/DPH/LabData/HL7-251/"
-      credentialName: null
-      type: "SFTP"
-    externalName: "Primary Feed"
+    transport: null
+    externalName: null

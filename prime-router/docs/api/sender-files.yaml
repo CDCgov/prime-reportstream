@@ -1,0 +1,101 @@
+# Returns the sender files for a given report
+openapi: "3.0.2"
+info:
+  title: ReportStream Sources API
+  version: "1.0"
+  contact:
+    name: USDS at Centers for Disease Control and Prevention
+    url: https://open.cdc.gov
+    email: usds@cdc.gov
+
+paths:
+  /api/sender-files:
+    get:
+      description: For a specified report, trace each item's ancestry and retrieve the source files submitted by senders.
+      parameters:
+        - in: query
+          name: report-id
+          description: Report-id (uuid format) of the receiver report
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: report-file-name
+          description: File name of the receiver report
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: offset
+          description: The offset into the receiver report for the first item
+          required: false
+          schema:
+            type: integer
+        - in: query
+          name: limit
+          description: The maximum number of receiver items to retrieve
+          required: false
+          schema:
+            type: integer
+        - in: query
+          name: only-report-items
+          description: Only include items in the sender file that route to the receiver report
+          required: false
+          schema:
+            type: boolean
+      responses:
+        200:
+          description: A list of the sender files associated with the specified receiver report.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReportFileMessage'
+
+components:
+  schemas:
+    ReportFileMessage:
+      type: object
+      properties:
+        reportId:
+          type: string
+          description: The report-id of the sender file
+        schemaTopic:
+          type: string
+          description: The topic for this report's schema
+        schemaName:
+          type: string
+          description: The name of this report's schema
+        contentType:
+          type: string
+          description: The name of this report's schema
+        content:
+          type: string
+          description: The name of this report's schema
+        origin:
+          type: object
+          description: Information about the blob that this report comes from
+          properties:
+            bodyUrl:
+              type: string
+            sendingOrg:
+              type: string
+            sendingOrgClient:
+              type: string
+            receivingOrg:
+              type: string
+            receivingOrgSvc:
+              type: string
+            indices:
+              type: array
+              items:
+                type: integer
+            createdAt:
+              type: string
+      required:
+        - reportId
+        - schemaTopic
+        - schemaName
+        - contentType
+        - content

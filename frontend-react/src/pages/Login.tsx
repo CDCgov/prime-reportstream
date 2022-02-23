@@ -5,8 +5,14 @@ import { SiteAlert } from "@trussworks/react-uswds";
 import { Tokens } from "@okta/okta-auth-js";
 
 import OktaSignInWidget from "../components/OktaSignInWidget";
-import { groupToOrg } from "../webreceiver-utils";
-import { useGlobalContext } from "../components/GlobalContextProvider";
+import {
+    getOrganizationFromAccessToken,
+    groupToOrg,
+} from "../webreceiver-utils";
+import {
+    setStoredOktaToken,
+    useGlobalContext,
+} from "../components/GlobalContextProvider";
 import { PERMISSIONS } from "../resources/PermissionsResource";
 import { oktaSignInConfig } from "../oktaConfig";
 
@@ -16,14 +22,17 @@ export const Login = () => {
 
     const onSuccess = (tokens: Tokens | undefined) => {
         let oktaGroups =
-            tokens?.accessToken?.claims?.organization.filter(
+            getOrganizationFromAccessToken(tokens?.accessToken).filter(
                 (group: string) => group !== PERMISSIONS.PRIME_ADMIN
             ) || [];
-        updateOrganization(groupToOrg(oktaGroups[0]) || "");
+        setStoredOktaToken(tokens?.accessToken?.accessToken || "");
+        /* Setting az-phd as default when PrimeAdmin has no sender/receiver orgs */
+        updateOrganization(groupToOrg(oktaGroups[0]) || "az-phd");
         oktaAuth.handleLoginRedirect(tokens);
     };
 
     const onError = (err: any) => {
+        setStoredOktaToken(""); // clear on error.
         console.log("error logging in", err);
     };
 
@@ -32,7 +41,7 @@ export const Login = () => {
             <SiteAlert
                 variant="info"
                 heading="This is a U.S. government service"
-                className="margin-top-neg-4 desktop:margin-top-neg-8 margin-bottom-3 tablet:margin-bottom-6"
+                className="margin-top-neg-4 desktop:margin-top-0 margin-bottom-3 tablet:margin-bottom-6"
             >
                 Your use indicates your consent to monitoring, recording, and no
                 expectation of privacy. Misuse is subject to criminal and civil

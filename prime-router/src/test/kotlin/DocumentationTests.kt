@@ -11,13 +11,19 @@ class DocumentationTests {
         `I am a code example`
         > This is preformatted text
     """.trimIndent()
-    private val elem = Element(name = "a", type = Element.Type.TEXT)
+    private val elem = Element(
+        name = "a", type = Element.Type.TEXT,
+        csvFields = Element.csvFields("Test TrackingElement")
+    )
     private val elemWithDocumentation = Element(name = "a", type = Element.Type.TEXT, documentation = documentation)
     private val schema = Schema(
         name = "Test Schema",
-        topic = "",
+        topic = "Test Topic",
         elements = listOf(elem),
-        description = "This is a test schema"
+        trackingElement = "a",
+        description = "Test Description",
+        extends = "test/extends",
+        basedOn = "TestBaseOn"
     )
 
     @Test
@@ -39,12 +45,18 @@ class DocumentationTests {
     @Test
     fun `test building documentation string from a schema`() {
         val expected = """
-### Schema:         Test Schema
-#### Description:   This is a test schema
+### Schema: Test Schema
+### Topic: Test Topic
+### Tracking Element: Test TrackingElement (a)
+### Base On: [TestBaseOn](./TestBaseOn.md)
+### Extends: [test/extends](./test-extends.md)
+#### Description: Test Description
 
 ---
 
-**Name**: a
+**Name**: Test TrackingElement
+
+**ReportStream Internal Name**: a
 
 **Type**: TEXT
 
@@ -63,6 +75,8 @@ class DocumentationTests {
     fun `test building documentation for element with documentation value`() {
         val expected = """
 **Name**: a
+
+**ReportStream Internal Name**: a
 
 **Type**: TEXT
 
@@ -89,6 +103,8 @@ $documentation
         val expected = """
 **Name**: b
 
+**ReportStream Internal Name**: a
+
 **Type**: CODE
 
 **PII**: No
@@ -112,6 +128,8 @@ $documentation
         )
         val expected = """
 **Name**: b
+
+**ReportStream Internal Name**: a
 
 **Type**: CODE
 
@@ -137,6 +155,8 @@ $documentation
         val expected = """
 **Name**: b
 
+**ReportStream Internal Name**: a
+
 **Type**: CODE
 
 **PII**: No
@@ -160,6 +180,8 @@ $documentation
         )
         val expected = """
 **Name**: b
+
+**ReportStream Internal Name**: a
 
 **Type**: TEXT
 
@@ -188,6 +210,8 @@ $documentation
         val expected = """
 **Name**: a
 
+**ReportStream Internal Name**: a
+
 **Type**: CODE
 
 **PII**: No
@@ -198,13 +222,53 @@ $documentation
 
 **Value Sets**
 
-Code | Display
----- | -------
-&#62;|Above absolute high-off instrument scale
+Code | Display | System
+---- | ------- | ------
+&#62;|Above absolute high-off instrument scale|HL7
 
 ---
 """
         val actual = DocumentationFactory.getElementDocumentation(elemWithTypeCode)
+        assertThat(actual).isEqualTo(expected)
+    }
+
+    @Test
+    fun `test documentation for element with valueSet table generation`() {
+
+        // Test case that contains element.system = HL7 and element.ValueSet.Values.system = LOINC
+        val valueSetA = ValueSet(
+            "a",
+            ValueSet.SetSystem.HL7,
+            values = listOf(
+                ValueSet.Value(
+                    ">", "Above absolute high-off instrument scale",
+                    system = ValueSet.SetSystem.LOINC
+                )
+            )
+        )
+        val elemWithValuesSetValues = Element(name = "a", type = Element.Type.CODE, valueSetRef = valueSetA)
+        val expected = """
+**Name**: a
+
+**ReportStream Internal Name**: a
+
+**Type**: CODE
+
+**PII**: No
+
+**Format**: use value found in the Code column
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display | System
+---- | ------- | ------
+&#62;|Above absolute high-off instrument scale|LOINC
+
+---
+"""
+        val actual = DocumentationFactory.getElementDocumentation(elemWithValuesSetValues)
         assertThat(actual).isEqualTo(expected)
     }
 }

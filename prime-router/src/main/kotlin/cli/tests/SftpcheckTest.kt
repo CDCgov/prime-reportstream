@@ -70,7 +70,7 @@ class SftpcheckTest : CoolTest() {
             } else {
                 sftpcheckTestResult = bad(
                     sftpcheckMessage + "FAILED with error code: : " +
-                        "${response.statusCode} - ${response?.responseMessage}..."
+                        "${response.statusCode} - ${response.responseMessage}..."
                 )
             }
         }

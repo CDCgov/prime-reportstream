@@ -18,7 +18,6 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import org.apache.logging.log4j.kotlin.Logging
 import java.time.OffsetDateTime
 import java.util.UUID
-import java.util.logging.Level
 import kotlin.collections.ArrayList
 
 class Facility private constructor(
@@ -151,7 +150,6 @@ data class FileReturn(val content: String, val filename: String, val mimetype: S
 
 class GetReports :
     BaseHistoryFunction() {
-
     @FunctionName("getReports")
     @StorageAccount("AzureWebJobsStorage")
     fun run(
@@ -343,7 +341,7 @@ open class BaseHistoryFunction : Logging {
                     .body(report)
                     .build()
 
-                val actionHistory = ActionHistory(TaskAction.download, context)
+                val actionHistory = ActionHistory(TaskAction.download)
                 actionHistory.trackActionRequestResponse(request, response)
                 // Give the external report_file a new UUID, so we can track its history distinct from the
                 // internal blob.   This is going to be very confusing.
@@ -403,59 +401,63 @@ open class BaseHistoryFunction : Logging {
     /**
      * returns null if not authorized, otherwise returns a set of claims.
      */
-    fun checkAuthenticated(request: HttpRequestMessage<String?>, context: ExecutionContext): AuthClaims? {
-        var userName = ""
-        // orgs in the settings table of the database have a format of "zz-phd",
-        // while the auth service claims has a format of "DHzz_phd"
-        // claimsOrgName will have the format of "DHzz_phd"
-        val claimsOrgName = request.headers["organization"] ?: ""
+    private fun checkAuthenticated(request: HttpRequestMessage<String?>, context: ExecutionContext): AuthClaims? {
+        val userName: String? /* Format: email */
+        val requestOrgName: String? = request.headers["organization"] /* Format: xx-phd */
+        val oktaOrganizations: List<String?>
+        val accessOrgName: String? /* Format: xx-phd */
+        var jwtToken: String? = request.headers["authorization"] /* Format: Bearer ... */
 
-        // orgName will have the format of "zz-phd" and is used to look up in the settings table of the database
-        var orgName = getOrgNameFromHeader(claimsOrgName)
+        /* INFO:
+        *   JWT cannot be parsed by OktaAuthentication object here because Admins who do not
+        *   exist in one or more DHxx_phd groups on Okta will be unable to see any receiver's
+        *   reports.
+        *
+        *   To fix this, below we apply the same verifier, and then we see if oktaOrganizations.contains(orgName) OR
+        *   oktaOrganizations.contains("DHPrimeAdmins") before authorizing.
+        */
+        if (jwtToken.isNullOrBlank() || requestOrgName.isNullOrBlank()) return null
 
-        var jwtToken = request.headers["authorization"] ?: ""
+        try {
+            /* Trims Bearer off token */
+            jwtToken = jwtToken.substring(7)
+            /* Build our verifier to spec with what's in OktaAuthentication class */
+            val jwtVerifier = JwtVerifiers.accessTokenVerifierBuilder()
+                .setIssuer("https://${System.getenv("OKTA_baseUrl")}/oauth2/default")
+                .build()
+            val jwt = jwtVerifier.decode(jwtToken)
+                ?: throw Throwable("Error in validation of jwt token")
 
-        jwtToken = if (jwtToken.length > 7) jwtToken.substring(7) else ""
+            /* Set claims from parsed jwt */
+            userName = jwt.claims["sub"].toString()
+            @Suppress("UNCHECKED_CAST")
+            oktaOrganizations = jwt.claims["organization"] as List<String>
 
-        if (jwtToken.isNotBlank()) {
-            try {
-                // get the access token verifier
-                val jwtVerifier = JwtVerifiers.accessTokenVerifierBuilder()
-                    .setIssuer("https://${System.getenv("OKTA_baseUrl")}/oauth2/default")
-                    .build()
-                // get it to decode the token from the header
-                val jwt = jwtVerifier.decode(jwtToken)
-                    ?: throw Throwable("Error in validation of jwt token")
-                // get the user name and org
-                userName = jwt.claims["sub"].toString()
-                val orgs = jwt.claims["organization"]
-
-                // a user can now be part of a sender group as well, so find the first "non-sender" group in their claims
-                @Suppress("UNCHECKED_CAST")
-                val org = if (orgs !== null) (orgs as List<String>).find {
-                    org ->
-                    !org.lowercase().contains("sender")
-                } else ""
-                if (org != null) {
-                    orgName = if (org.length > 3) org.substring(2) else ""
-                }
-            } catch (ex: Throwable) {
-                context.logger.log(Level.WARNING, "Error in verification of token", ex)
-                return null
+            accessOrgName = when {
+                oktaOrganizations.contains("DHPrimeAdmins") ||
+                    oktaOrganizations.contains(toOktaOrgName(requestOrgName)) -> requestOrgName
+                else -> null
             }
+        } catch (ex: Throwable) {
+            logger.warn("Unable authenticate user: ${ex.message}: ${ex.cause?.message ?: ""}")
+            logger.debug(ex)
+            return null
         }
-        if (userName.isNotBlank() && orgName.isNotBlank()) {
-            val organization = workflowEngine.settings.findOrganization(orgName.replace('_', '-'))
-            if (organization != null) {
-                return AuthClaims(userName, organization)
-            } else {
-                context.logger.info("User $userName failed auth: Organization $orgName is unknown to the system.")
-            }
+
+        if (userName.isNullOrBlank() || accessOrgName.isNullOrBlank()) return null
+        /*   NOTE: This was noted as taking an Okta org name and converting it, but that was prior to
+         *   the React front-end sending the org in the proper format xx-phd.
+         */
+        val dbOrganization = workflowEngine.settings.findOrganization(accessOrgName)
+        return if (dbOrganization != null) {
+            AuthClaims(userName, dbOrganization)
+        } else {
+            context.logger.info("User $userName failed auth: Organization $accessOrgName is unknown to the system.")
+            null
         }
-        return null
     }
 
-    fun getOrgNameFromHeader(orgNameHeader: String): String {
-        return if (orgNameHeader.isNotEmpty()) orgNameHeader.substring(2).replace("_", "-") else ""
+    private fun toOktaOrgName(orgNameHeader: String): String {
+        return "DH${orgNameHeader.replace('-', '_')}"
     }
 }

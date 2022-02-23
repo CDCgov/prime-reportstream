@@ -59,8 +59,13 @@ class SubmissionFunction(
         }
     }
 
-    @FunctionName("getOrgSubmissions")
-    fun organizationSubmissions(
+    /**
+     * This endpoint is meant for use by either an Admin or a User.
+     * It does not assume the user belongs to a single Organization.  Rather, it uses
+     * the organization in the URL path, after first confirming authorization to access that organization.
+     */
+    @FunctionName("getSubmissions")
+    fun submissions(
         @HttpTrigger(
             name = "getOrgSubmissions",
             methods = [HttpMethod.GET],
@@ -81,49 +86,27 @@ class SubmissionFunction(
         }
     }
 
-    /**
-     * An Azure Function that is triggered at the `/api/submissions/` endpoint
-     *
-     * @param qSortOrder a user supplied sort order overwriting the default value.
-     * @param qResultsAfterDate a user supplied `OffsetDateTime` overwriting the default value.
-     * @param qLimit a user supplied page size limit overwriting the default value.
-     * @return a list of submission history results.
-     */
-    @FunctionName("getSubmissions")
-    fun submissions(
+    @FunctionName("getSubmission")
+    fun submission(
         @HttpTrigger(
-            name = "getSubmissions",
+            name = "getSubmission",
             methods = [HttpMethod.GET],
             authLevel = AuthorizationLevel.ANONYMOUS,
-            route = "history/submissions"
+            route = "history/{organization}/submissions/{submissionId}"
         ) request: HttpRequestMessage<String?>,
+        @BindingName("organization") organization: String,
+        @BindingName("submissionId") submissionId: Long,
     ): HttpResponseMessage {
-        return oktaAuthentication.checkAccess(request, "") {
+        return oktaAuthentication.checkAccess(request, organization, true) {
 
             try {
-                @Suppress("UNCHECKED_CAST")
-                val orgs = it.jwtClaims["organization"] as? List<String>
-                require(orgs != null) {
-                    "Invalid organization"
-                }
-
-                // a user can now be part of a sender group as well, so find the first "sender" group in their claims
-                var org = (orgs).find {
-                    org ->
-                    org.startsWith(oktaSenderGroupPrefix)
-                }
-                require(org != null) {
-                    "Invalid organization"
-                }
-
-                org = org.removePrefix(oktaSenderGroupPrefix)
-
-                val (qSortOrder, resultsAfterDate, pageSize) = Parameters(request.queryParameters)
-
-                val submissions = facade.findSubmissionsAsJson(org, qSortOrder, resultsAfterDate, pageSize)
-                HttpUtilities.okResponse(request, submissions)
+                val submission = facade.findSubmission(organization, submissionId)
+                    ?: throw HttpNotFoundException("No submission found")
+                HttpUtilities.okJSONResponse(request, submission)
             } catch (e: IllegalArgumentException) {
                 HttpUtilities.badRequestResponse(request, e.message ?: "Invalid Request")
+            } catch (e: HttpNotFoundException) {
+                HttpUtilities.notFoundResponse(request, e.message)
             }
         }
     }

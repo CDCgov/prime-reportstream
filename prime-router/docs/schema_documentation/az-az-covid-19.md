@@ -1,10 +1,16 @@
 
-### Schema:         az/az-covid-19
-#### Description:   AZ COVID-19 flat file
+### Schema: az/az-covid-19
+### Topic: covid-19
+### Tracking Element: (testing_lab_specimen_id)
+### Base On: [covid-19](./covid-19.md)
+### Extends: none
+#### Description: AZ COVID-19 flat file
 
 ---
 
 **Name**: Notes
+
+**ReportStream Internal Name**: comment
 
 **Type**: TEXT
 
@@ -17,6 +23,8 @@
 ---
 
 **Name**: Ordering_Facility_City
+
+**ReportStream Internal Name**: ordering_facility_city
 
 **Type**: CITY
 
@@ -31,6 +39,8 @@ The city of the facility which the test was ordered from
 ---
 
 **Name**: Ordering_Facility_State
+
+**ReportStream Internal Name**: ordering_facility_state
 
 **Type**: TABLE
 
@@ -50,6 +60,8 @@ The state of the facility which the test was ordered from
 
 **Name**: Ordering_Facility_Address
 
+**ReportStream Internal Name**: ordering_facility_street
+
 **Type**: STREET
 
 **PII**: No
@@ -64,6 +76,8 @@ The address of the facility which the test was ordered from
 
 **Name**: Ordering_Facility_Zip
 
+**ReportStream Internal Name**: ordering_facility_zip_code
+
 **Type**: POSTAL_CODE
 
 **PII**: No
@@ -77,6 +91,8 @@ The zip code of the facility which the test was ordered from
 ---
 
 **Name**: Provider_First_Name
+
+**ReportStream Internal Name**: ordering_provider_first_name
 
 **Type**: PERSON_NAME
 
@@ -97,6 +113,8 @@ The first name of the provider who ordered the test
 
 **Name**: Provider_Last_Name
 
+**ReportStream Internal Name**: ordering_provider_last_name
+
 **Type**: PERSON_NAME
 
 **PII**: No
@@ -115,6 +133,8 @@ The last name of provider who ordered the test
 ---
 
 **Name**: Provider_Phone_Number
+
+**ReportStream Internal Name**: ordering_provider_phone_number
 
 **Type**: TELEPHONE
 
@@ -135,6 +155,8 @@ The phone number of the provider
 
 **Name**: Ordering_facility_name
 
+**ReportStream Internal Name**: organization_and_facility
+
 **Type**: TEXT
 
 **PII**: No
@@ -144,6 +166,8 @@ The phone number of the provider
 ---
 
 **Name**: Lab_Name
+
+**ReportStream Internal Name**: organization_name
 
 **Type**: TEXT
 
@@ -159,6 +183,8 @@ The SimpleReport concept of organization. It refers to organization for the orde
 
 **Name**: Patient_City
 
+**ReportStream Internal Name**: patient_city
+
 **Type**: CITY
 
 **PII**: Yes
@@ -173,6 +199,8 @@ The patient's city
 
 **Name**: Patient_County
 
+**ReportStream Internal Name**: patient_county
+
 **Type**: TABLE_OR_BLANK
 
 **PII**: No
@@ -186,6 +214,8 @@ The patient's city
 ---
 
 **Name**: Patient_Date_of_Birth
+
+**ReportStream Internal Name**: patient_dob
 
 **Type**: DATE
 
@@ -204,6 +234,8 @@ Other states may choose to define their own formats.
 
 **Name**: Ethnicity
 
+**ReportStream Internal Name**: patient_ethnicity
+
 **Type**: CODE
 
 **PII**: No
@@ -214,11 +246,11 @@ Other states may choose to define their own formats.
 
 **Value Sets**
 
-Code | Display
----- | -------
-H|Hispanic or Latino
-N|Non Hispanic or Latino
-U|Unknown
+Code | Display | System
+---- | ------- | ------
+H|Hispanic or Latino|HL7
+N|Non Hispanic or Latino|HL7
+U|Unknown|HL7
 
 **Documentation**:
 
@@ -229,6 +261,8 @@ consumers are free to define their own values. Please refer to the consumer-spec
 ---
 
 **Name**: Patient_First_Name
+
+**ReportStream Internal Name**: patient_first_name
 
 **Type**: PERSON_NAME
 
@@ -244,6 +278,8 @@ The patient's first name
 
 **Name**: Patient_Sex
 
+**ReportStream Internal Name**: patient_gender
+
 **Type**: CODE
 
 **PII**: No
@@ -254,14 +290,14 @@ The patient's first name
 
 **Value Sets**
 
-Code | Display
----- | -------
-M|Male
-F|Female
-O|Other
-A|Ambiguous
-U|Unknown
-N|Not applicable
+Code | Display | System
+---- | ------- | ------
+M|Male|HL7
+F|Female|HL7
+O|Other|HL7
+A|Ambiguous|HL7
+U|Unknown|HL7
+N|Not applicable|HL7
 
 **Documentation**:
 
@@ -271,6 +307,8 @@ The patient's gender. There is a valueset defined based on the values in PID-8-1
 ---
 
 **Name**: Patient_ID
+
+**ReportStream Internal Name**: patient_id
 
 **Type**: TEXT
 
@@ -288,6 +326,8 @@ the patient ID from the testing lab, the oder placer, the ordering provider, or 
 
 **Name**: Patient_Last_Name
 
+**ReportStream Internal Name**: patient_last_name
+
 **Type**: PERSON_NAME
 
 **PII**: Yes
@@ -301,6 +341,8 @@ The patient's last name
 ---
 
 **Name**: Patient_Phone_Number
+
+**ReportStream Internal Name**: patient_phone_number
 
 **Type**: TELEPHONE
 
@@ -316,6 +358,8 @@ The patient's phone number with area code
 
 **Name**: Race
 
+**ReportStream Internal Name**: patient_race
+
 **Type**: CODE
 
 **PII**: No
@@ -326,37 +370,37 @@ The patient's phone number with area code
 
 **Value Sets**
 
-Code | Display
----- | -------
-1002-5|American Indian or Alaska Native
-2028-9|Asian
-2054-5|Black or African American
-2076-8|Native Hawaiian or Other Pacific Islander
-2106-3|White
-2131-1|Other
-UNK|Unknown
-ASKU|Asked, but unknown
-1002-5|American Indian or Alaska Native
-2028-9|Asian
-2054-5|Black or African American
-2076-8|Native Hawaiian or Other Pacific Islander
-2106-3|White
-2131-1|Other
-UNK|Unknown
-ASKU|Asked, but unknown
+Code | Display | System
+---- | ------- | ------
+1002-5|American Indian or Alaska Native|HL7
+2028-9|Asian|HL7
+2054-5|Black or African American|HL7
+2076-8|Native Hawaiian or Other Pacific Islander|HL7
+2106-3|White|HL7
+2131-1|Other|HL7
+UNK|Unknown|NULLFL
+ASKU|Asked, but unknown|NULLFL
+1002-5|American Indian or Alaska Native|HL7
+2028-9|Asian|HL7
+2054-5|Black or African American|HL7
+2076-8|Native Hawaiian or Other Pacific Islander|HL7
+2106-3|White|HL7
+2131-1|Other|HL7
+UNK|Unknown|NULLFL
+ASKU|Asked, but unknown|NULLFL
 
 **Alt Value Sets**
 
-Code | Display
----- | -------
-1002-5|N
-2028-9|A
-2054-5|B
-2076-8|P
-2106-3|W
-2131-1|O
-UNK|O
-ASKU|O
+Code | Display | System
+---- | ------- | ------
+1002-5|N|HL7
+2028-9|A|HL7
+2054-5|B|HL7
+2076-8|P|HL7
+2106-3|W|HL7
+2131-1|O|HL7
+UNK|O|HL7
+ASKU|O|HL7
 
 **Documentation**:
 
@@ -366,6 +410,8 @@ The patient's race. There is a common valueset defined for race values, but some
 ---
 
 **Name**: Patient_State
+
+**ReportStream Internal Name**: patient_state
 
 **Type**: TABLE
 
@@ -385,6 +431,8 @@ The patient's state
 
 **Name**: Patient_Street_Address
 
+**ReportStream Internal Name**: patient_street
+
 **Type**: STREET
 
 **PII**: Yes
@@ -398,6 +446,8 @@ The patient's street address
 ---
 
 **Name**: Patient_Zip
+
+**ReportStream Internal Name**: patient_zip_code
 
 **Type**: POSTAL_CODE
 
@@ -414,6 +464,8 @@ The patient's zip code
 ---
 
 **Name**: Sending_Application
+
+**ReportStream Internal Name**: sending_application
 
 **Type**: HD
 
@@ -433,6 +485,8 @@ The name and OID for the application sending information to the receivers
 ---
 
 **Name**: Collection_Date
+
+**ReportStream Internal Name**: specimen_collection_date_time
 
 **Type**: DATETIME
 
@@ -458,6 +512,8 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 
 **Name**: Specimen_ID
 
+**ReportStream Internal Name**: specimen_id
+
 **Type**: EI
 
 **PII**: No
@@ -480,6 +536,8 @@ A unique code for this specimen
 
 **Name**: Specimen_Site
 
+**ReportStream Internal Name**: specimen_source_site_code
+
 **Type**: CODE
 
 **PII**: No
@@ -490,13 +548,15 @@ A unique code for this specimen
 
 **Value Sets**
 
-Code | Display
----- | -------
-119297000|Blood specimen (specimen)
-71836000|Nasopharyngeal structure (body structure)
-45206002|Nasal structure (body structure)
-53342003|Internal nose structure (body structure)
-29092000|Venous structure (body structure)
+Code | Display | System
+---- | ------- | ------
+119297000|Blood specimen (specimen)|SNOMED_CT
+71836000|Nasopharyngeal structure (body structure)|SNOMED_CT
+45206002|Nasal structure (body structure)|SNOMED_CT
+53342003|Internal nose structure (body structure)|SNOMED_CT
+29092000|Venous structure (body structure)|SNOMED_CT
+123851003|Mouth region structure (body structure)|SNOMED_CT
+31389004|Oropharyngeal structure (body structure)|SNOMED_CT
 
 **Documentation**:
 
@@ -506,6 +566,8 @@ Refers back to the specimen source site, which is then encoded into the SPM-8 se
 
 **Name**: Specimen_Type
 
+**ReportStream Internal Name**: specimen_type
+
 **Type**: CODE
 
 **PII**: No
@@ -516,25 +578,26 @@ Refers back to the specimen source site, which is then encoded into the SPM-8 se
 
 **Value Sets**
 
-Code | Display
----- | -------
-445297001|Swab of internal nose
-258500001|Nasopharyngeal swab
-871810001|Mid-turbinate nasal swab
-697989009|Anterior nares swab
-258411007|Nasopharyngeal aspirate
-429931000124105|Nasal aspirate
-258529004|Throat swab
-119334006|Sputum specimen
-119342007|Saliva specimen
-258607008|Bronchoalveolar lavage fluid sample
-119364003|Serum specimen
-119361006|Plasma specimen
-440500007|Dried blood spot specimen
-258580003|Whole blood sample
-122555007|Venous blood specimen
-119297000|Blood specimen
-122554006|Capillary blood specimen
+Code | Display | System
+---- | ------- | ------
+445297001|Swab of internal nose|SNOMED_CT
+258500001|Nasopharyngeal swab|SNOMED_CT
+871810001|Mid-turbinate nasal swab|SNOMED_CT
+697989009|Anterior nares swab|SNOMED_CT
+258411007|Nasopharyngeal aspirate|SNOMED_CT
+429931000124105|Nasal aspirate|SNOMED_CT
+258529004|Throat swab|SNOMED_CT
+119334006|Sputum specimen|SNOMED_CT
+119342007|Saliva specimen|SNOMED_CT
+258560004|Oral saliva sample|SNOMED_CT
+258607008|Bronchoalveolar lavage fluid sample|SNOMED_CT
+119364003|Serum specimen|SNOMED_CT
+119361006|Plasma specimen|SNOMED_CT
+440500007|Dried blood spot specimen|SNOMED_CT
+258580003|Whole blood sample|SNOMED_CT
+122555007|Venous blood specimen|SNOMED_CT
+119297000|Blood specimen|SNOMED_CT
+122554006|Capillary blood specimen|SNOMED_CT
 
 **Documentation**:
 
@@ -544,13 +607,15 @@ The specimen source, such as Blood or Serum
 
 **Name**: Test_Code
 
+**ReportStream Internal Name**: test_performed_code
+
 **Type**: TABLE
 
 **PII**: No
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-09-29
+**Table**: LIVD-SARS-CoV-2
 
 **Table Column**: Test Performed LOINC Code
 
@@ -562,13 +627,15 @@ The LOINC code of the test performed. This is a standardized coded value describ
 
 **Name**: Test_Name
 
+**ReportStream Internal Name**: test_performed_name
+
 **Type**: TABLE
 
 **PII**: No
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-09-29
+**Table**: LIVD-SARS-CoV-2
 
 **Table Column**: Test Performed LOINC Long Name
 
@@ -580,6 +647,8 @@ The LOINC description of the test performed as related to the LOINC code.
 
 **Name**: Result
 
+**ReportStream Internal Name**: test_result
+
 **Type**: CODE
 
 **PII**: No
@@ -590,28 +659,28 @@ The LOINC description of the test performed as related to the LOINC code.
 
 **Value Sets**
 
-Code | Display
----- | -------
-260373001|Detected
-260415000|Not detected
-720735008|Presumptive positive
-10828004|Positive
-42425007|Equivocal
-260385009|Negative
-895231008|Not detected in pooled specimen
-462371000124108|Detected in pooled specimen
-419984006|Inconclusive
-125154007|Specimen unsatisfactory for evaluation
-455371000124106|Invalid result
-840539006|Disease caused by sever acute respiratory syndrome coronavirus 2 (disorder)
-840544004|Suspected disease caused by severe acute respiratory coronavirus 2 (situation)
-840546002|Exposure to severe acute respiratory syndrome coronavirus 2 (event)
-840533007|Severe acute respiratory syndrome coronavirus 2 (organism)
-840536004|Antigen of severe acute respiratory syndrome coronavirus 2 (substance)
-840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
-840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
-373121007|Test not done
-82334004|Indeterminate
+Code | Display | System
+---- | ------- | ------
+260373001|Detected|SNOMED_CT
+260415000|Not detected|SNOMED_CT
+720735008|Presumptive positive|SNOMED_CT
+10828004|Positive|SNOMED_CT
+42425007|Equivocal|SNOMED_CT
+260385009|Negative|SNOMED_CT
+895231008|Not detected in pooled specimen|SNOMED_CT
+462371000124108|Detected in pooled specimen|SNOMED_CT
+419984006|Inconclusive|SNOMED_CT
+125154007|Specimen unsatisfactory for evaluation|SNOMED_CT
+455371000124106|Invalid result|SNOMED_CT
+840539006|Disease caused by sever acute respiratory syndrome coronavirus 2 (disorder)|SNOMED_CT
+840544004|Suspected disease caused by severe acute respiratory coronavirus 2 (situation)|SNOMED_CT
+840546002|Exposure to severe acute respiratory syndrome coronavirus 2 (event)|SNOMED_CT
+840533007|Severe acute respiratory syndrome coronavirus 2 (organism)|SNOMED_CT
+840536004|Antigen of severe acute respiratory syndrome coronavirus 2 (substance)|SNOMED_CT
+840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)|SNOMED_CT
+840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)|SNOMED_CT
+373121007|Test not done|SNOMED_CT
+82334004|Indeterminate|SNOMED_CT
 
 **Documentation**:
 
@@ -620,6 +689,8 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 ---
 
 **Name**: Result_Date
+
+**ReportStream Internal Name**: test_result_date
 
 **Type**: DATETIME
 
@@ -632,6 +703,8 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 ---
 
 **Name**: Lab_City
+
+**ReportStream Internal Name**: testing_lab_city
 
 **Type**: CITY
 
@@ -646,6 +719,8 @@ The city of the testing lab
 ---
 
 **Name**: Lab_CLIA
+
+**ReportStream Internal Name**: testing_lab_clia
 
 **Type**: ID_CLIA
 
@@ -673,6 +748,8 @@ An example of the ID is 03D2159846
 
 **Name**: Lab_Phone
 
+**ReportStream Internal Name**: testing_lab_phone_number
+
 **Type**: TELEPHONE
 
 **PII**: No
@@ -686,6 +763,8 @@ The phone number of the testing lab
 ---
 
 **Name**: Lab_State
+
+**ReportStream Internal Name**: testing_lab_state
 
 **Type**: TABLE
 
@@ -705,6 +784,8 @@ The state for the testing lab
 
 **Name**: Lab_Address
 
+**ReportStream Internal Name**: testing_lab_street
+
 **Type**: STREET
 
 **PII**: No
@@ -718,6 +799,8 @@ The street address for the testing lab
 ---
 
 **Name**: Lab_Zip
+
+**ReportStream Internal Name**: testing_lab_zip_code
 
 **Type**: POSTAL_CODE
 

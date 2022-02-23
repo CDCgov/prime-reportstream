@@ -26,7 +26,7 @@ function FacilitiesTable(props: FacilitiesTableProps) {
             >
                 <thead>
                     <tr>
-                        <th scope="col">Organization</th>
+                        <th scope="col">Facility</th>
                         <th scope="col">Location</th>
                         <th scope="col">CLIA</th>
                         <th scope="col">Total tests</th>
@@ -35,17 +35,14 @@ function FacilitiesTable(props: FacilitiesTableProps) {
                 </thead>
                 <tbody id="tBodyFac" className="font-mono-2xs">
                     {facilities.map((facility) => (
-                        <tr key={facility.CLIA}>
+                        <tr key={facility.pk()}>
                             <td>{facility.facility}</td>
                             <td>
                                 {facility.location ? facility.location : "-"}
                             </td>
                             <td>{facility.CLIA}</td>
                             <td>{facility.total}</td>
-                            <td>
-                                {facility.positive ? facility.positive : "-"}
-                            </td>
-                            <td></td>
+                            <td>{facility.positive}</td>
                         </tr>
                     ))}
                 </tbody>

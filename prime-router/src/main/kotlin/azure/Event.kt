@@ -92,13 +92,15 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
             val action = EventAction.parseQueueMessage(parts[1])
             return when (parts[0]) {
                 ReportEvent.eventType -> {
-                    val after = parts.getOrNull(3)?.let { OffsetDateTime.parse(it) }
+                    val after = parts.getOrNull(4)?.let { OffsetDateTime.parse(it) }
                     val reportId = UUID.fromString(parts[2])
-                    ReportEvent(action, reportId, after)
+                    val isEmpty = parts[3] == "true"
+                    ReportEvent(action, reportId, isEmpty, after)
                 }
-                ReceiverEvent.eventType -> {
-                    val after = parts.getOrNull(3)?.let { OffsetDateTime.parse(it) }
-                    ReceiverEvent(action, parts[2], after)
+                BatchEvent.eventType -> {
+                    val after = parts.getOrNull(4)?.let { OffsetDateTime.parse(it) }
+                    val isEmpty = parts[3] == "true"
+                    BatchEvent(action, parts[2], isEmpty, after)
                 }
                 ProcessEvent.eventType -> {
                     // since process event type has multiple optional parameters, they will be either populated
@@ -138,11 +140,11 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
             when (parts[0]) {
                 // Report event requires 'event type', 'action', and 'report id'. 'at' is optional
                 ReportEvent.eventType -> {
-                    if (parts.size > 4) error("Internal Error: Report events can have no more than 4 parts.")
+                    if (parts.size > 5) error("Internal Error: Report events can have no more than 4 parts.")
                 }
                 // Receiver event requires 'event type', 'action', 'receiver name'. 'at' is optional
-                ReceiverEvent.eventType -> {
-                    if (parts.size > 4) error("Internal Error: Receiver events can have no more than 4 parts.")
+                BatchEvent.eventType -> {
+                    if (parts.size > 5) error("Internal Error: Batch events can have no more than 5 parts.")
                 }
                 // Process event requires 'event type', 'action', 'report id', and 'options'.
                 //  'route to', 'default' and 'at are optional but must be present (even if a blank string).
@@ -183,9 +185,9 @@ class ProcessEvent(
         val defaultsQueueParam = defaults.map { pair -> "${pair.key}:${pair.value}" }.joinToString(",")
 
         // determine if these parts of the queue message are present
-        val atClause = if (at == null) "" else "${DateTimeFormatter.ISO_DATE_TIME.format(at)}"
-        val defaultClause = if (defaultsQueueParam.isEmpty()) "" else "$defaultsQueueParam"
-        val routeToClause = if (routeToQueueParam.isEmpty()) "" else "$routeToQueueParam"
+        val atClause = if (at == null) "" else DateTimeFormatter.ISO_DATE_TIME.format(at)
+        val defaultClause = if (defaultsQueueParam.isEmpty()) "" else defaultsQueueParam
+        val routeToClause = if (routeToQueueParam.isEmpty()) "" else routeToQueueParam
 
         // generate the process queue message
         return "$eventType$messageDelimiter$eventAction$messageDelimiter$reportId$messageDelimiter$options" +
@@ -200,6 +202,13 @@ class ProcessEvent(
             retryToken == other.retryToken
     }
 
+    override fun hashCode(): Int {
+        return (7 * eventAction.hashCode()) +
+            (31 * reportId.hashCode()) +
+            (17 * at.hashCode()) +
+            (19 * retryDuration.hashCode())
+    }
+
     companion object {
         const val eventType = "process"
     }
@@ -208,13 +217,15 @@ class ProcessEvent(
 class ReportEvent(
     eventAction: EventAction,
     val reportId: UUID,
+    val isEmptyBatch: Boolean,
     at: OffsetDateTime? = null,
-    val retryToken: RetryToken? = null
+    val retryToken: RetryToken? = null,
 ) : Event(eventAction, at) {
 
     override fun toQueueMessage(): String {
         val afterClause = if (at == null) "" else "$messageDelimiter${DateTimeFormatter.ISO_DATE_TIME.format(at)}"
-        return "$eventType$messageDelimiter$eventAction$messageDelimiter$reportId$afterClause"
+        return "$eventType$messageDelimiter$eventAction$messageDelimiter$reportId" +
+            "$messageDelimiter$isEmptyBatch$afterClause"
     }
 
     override fun equals(other: Any?): Boolean {
@@ -225,28 +236,49 @@ class ReportEvent(
             retryToken == other.retryToken
     }
 
+    override fun hashCode(): Int {
+        return (7 * eventAction.hashCode()) +
+            (31 * reportId.hashCode()) +
+            (17 * at.hashCode()) +
+            (19 * retryDuration.hashCode())
+    }
+
     companion object {
         const val eventType = "report"
     }
 }
 
-class ReceiverEvent(
+/**
+ * Queue message for Batch
+ */
+class BatchEvent(
     eventAction: EventAction,
     val receiverName: String,
+    val isEmptyBatch: Boolean,
     at: OffsetDateTime? = null,
 ) : Event(eventAction, at) {
     override fun toQueueMessage(): String {
         val afterClause = if (at == null) "" else "$messageDelimiter${DateTimeFormatter.ISO_DATE_TIME.format(at)}"
-        return "$eventType$messageDelimiter$eventAction$messageDelimiter$receiverName$afterClause"
+        return "$eventType$messageDelimiter$eventAction$messageDelimiter$receiverName" +
+            "$messageDelimiter$isEmptyBatch$afterClause"
     }
 
     override fun equals(other: Any?): Boolean {
-        return other is ReceiverEvent &&
+        return other is BatchEvent &&
             eventAction == other.eventAction &&
             receiverName == other.receiverName &&
             at == other.at
     }
 
+    override fun hashCode(): Int {
+        return (7 * eventAction.hashCode()) +
+            (19 * receiverName.hashCode()) +
+            (17 * at.hashCode())
+    }
+
+    // this should say 'batch' but will break production on deploy if there is anything in the batch queue
+    //  when it goes to prod. This value is used only to queue and dequeue message types
+    //  (toQueueMessage, parseQueueMessage)
     companion object {
         const val eventType = "receiver"
     }

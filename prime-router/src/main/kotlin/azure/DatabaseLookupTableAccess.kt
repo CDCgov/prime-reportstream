@@ -10,6 +10,7 @@ import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableVersion
 import org.jooq.JSONB
 import org.jooq.impl.DSL
 import java.lang.IllegalArgumentException
+import java.security.MessageDigest
 
 /**
  * Class to access lookup tables stored in the database.
@@ -117,6 +118,7 @@ class DatabaseLookupTableAccess(private val db: DatabaseAccess = DatabaseAccess(
                     Tables.LOOKUP_TABLE_VERSION.TABLE_NAME.eq(tableName)
                         .and(Tables.LOOKUP_TABLE_VERSION.TABLE_VERSION.eq(version))
                 )
+                .orderBy(Tables.LOOKUP_TABLE_ROW.LOOKUP_TABLE_ROW_ID.asc())
                 .fetchInto(LookupTableRow::class.java)
         }
         return rows
@@ -151,16 +153,27 @@ class DatabaseLookupTableAccess(private val db: DatabaseAccess = DatabaseAccess(
     }
 
     /**
-     * Create a new table [version] for a [tableName] using the provided [tableData].
+     * Create a new table [version] for a [tableName] using the provided [tableData].  The [force] flag is used
+     * to force an update of a lookup table.
      * This function will throw an exception upon an error and rollback any data inserted into the database.
      */
-    fun createTable(tableName: String, version: Int, tableData: List<JSONB>, username: String) {
+    fun createTable(tableName: String, version: Int, tableData: List<JSONB>, username: String, force: Boolean) {
         val batchSize = 5000
+        val newTableChecksum = tableData.toString().toSHA256()
+        // Check for duplicate tables.  If it is up-to-date and force=true,
+        // we force to update the table regardless.
+        val versionConflict = isTableUpToDate(tableName, newTableChecksum)
+        if (versionConflict != null && !force)
+            throw DuplicateTableException(
+                "Table is identical to existing table version $versionConflict."
+            )
+
         db.transact { txn ->
             val newVersion = DSL.using(txn).newRecord(Tables.LOOKUP_TABLE_VERSION)
             newVersion.isActive = false
             newVersion.createdBy = username
             newVersion.tableName = tableName
+            newVersion.tableSha256Checksum = newTableChecksum
             newVersion.tableVersion = version
             if (newVersion.store() != 1) error("Error creating new version in database.")
 
@@ -184,6 +197,8 @@ class DatabaseLookupTableAccess(private val db: DatabaseAccess = DatabaseAccess(
                 }
             } while (dataBatch != null)
         }
+        // refresh the materialized views
+        db.refreshMaterializedViews(tableName)
     }
 
     /**
@@ -200,6 +215,34 @@ class DatabaseLookupTableAccess(private val db: DatabaseAccess = DatabaseAccess(
                 ).fetchOne()?.into(LookupTableVersion::class.java)
         }
         return retVal
+    }
+
+    /**
+     * Calculate the SHA-256 checksum of the input data.
+     * @return SHA-256 checksum value
+     */
+    private fun String.toSHA256(): String {
+        val bytes = MessageDigest.getInstance("SHA-256").digest(this.toByteArray())
+        return bytes.joinToString("") { "%02x".format(it) }
+    }
+
+    /**
+     * Check against active or latest table if it equals to either of those table.
+     * @return version that equal to the new table, otherwise, null
+     */
+    private fun isTableUpToDate(tableName: String, tableSHA256: String): Int? {
+        val activeVersion = fetchActiveVersion(tableName)
+        if (activeVersion != null) {
+            val activeTableVersion = fetchVersionInfo(tableName, activeVersion)
+            if (activeTableVersion?.tableSha256Checksum == tableSHA256) return activeVersion
+        }
+
+        val latestVersion = fetchLatestVersion(tableName)
+        if (latestVersion != null) {
+            val latestTableVersion = fetchVersionInfo(tableName, latestVersion)
+            if (latestTableVersion?.tableSha256Checksum == tableSHA256) return latestVersion
+        }
+        return null
     }
 
     companion object {
@@ -231,5 +274,7 @@ class DatabaseLookupTableAccess(private val db: DatabaseAccess = DatabaseAccess(
                 inputData.subList(start, end)
             }
         }
+
+        class DuplicateTableException(message: String) : Exception(message)
     }
 }

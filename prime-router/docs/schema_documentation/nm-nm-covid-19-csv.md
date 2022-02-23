@@ -1,10 +1,16 @@
 
-### Schema:         nm/nm-covid-19-csv
-#### Description:   New Mexico Flat File
+### Schema: nm/nm-covid-19-csv
+### Topic: covid-19
+### Tracking Element: (message_id)
+### Base On: [covid-19](./covid-19.md)
+### Extends: none
+#### Description: New Mexico Flat File
 
 ---
 
 **Name**: EmpHealthcare
+
+**ReportStream Internal Name**: employed_in_healthcare
 
 **Type**: CODE
 
@@ -18,22 +24,22 @@
 
 **Value Sets**
 
-Code | Display
----- | -------
-Y|Yes
-N|No
-UNK|Unknown
-Y|Yes
-N|No
-UNK|Unknown
+Code | Display | System
+---- | ------- | ------
+Y|Yes|HL7
+N|No|HL7
+UNK|Unknown|NULLFL
+Y|Yes|HL7
+N|No|HL7
+UNK|Unknown|NULLFL
 
 **Alt Value Sets**
 
-Code | Display
----- | -------
-Y|Y
-N|N
-UNK|U
+Code | Display | System
+---- | ------- | ------
+Y|Y|HL7
+N|N|HL7
+UNK|U|HL7
 
 **Documentation**:
 
@@ -41,25 +47,9 @@ Is the patient employed in health care?
 
 ---
 
-**Name**: equipment_model_name
-
-**Type**: TABLE
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-
-**Reference URL**:
-[https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
-
-**Table**: LIVD-SARS-CoV-2-2021-09-29
-
-**Table Column**: Model
-
----
-
 **Name**: FirstTest
+
+**ReportStream Internal Name**: first_test
 
 **Type**: CODE
 
@@ -73,22 +63,22 @@ Is the patient employed in health care?
 
 **Value Sets**
 
-Code | Display
----- | -------
-Y|Yes
-N|No
-UNK|Unknown
-Y|Yes
-N|No
-UNK|Unknown
+Code | Display | System
+---- | ------- | ------
+Y|Yes|HL7
+N|No|HL7
+UNK|Unknown|NULLFL
+Y|Yes|HL7
+N|No|HL7
+UNK|Unknown|NULLFL
 
 **Alt Value Sets**
 
-Code | Display
----- | -------
-Y|Y
-N|N
-UNK|U
+Code | Display | System
+---- | ------- | ------
+Y|Y|HL7
+N|N|HL7
+UNK|U|HL7
 
 **Documentation**:
 
@@ -97,6 +87,8 @@ Is this the patient's first test for this condition?
 ---
 
 **Name**: Hospitalized
+
+**ReportStream Internal Name**: hospitalized
 
 **Type**: CODE
 
@@ -110,22 +102,22 @@ Is this the patient's first test for this condition?
 
 **Value Sets**
 
-Code | Display
----- | -------
-Y|Yes
-N|No
-UNK|Unknown
-Y|Yes
-N|No
-UNK|Unknown
+Code | Display | System
+---- | ------- | ------
+Y|Yes|HL7
+N|No|HL7
+UNK|Unknown|NULLFL
+Y|Yes|HL7
+N|No|HL7
+UNK|Unknown|NULLFL
 
 **Alt Value Sets**
 
-Code | Display
----- | -------
-Y|Y
-N|N
-UNK|U
+Code | Display | System
+---- | ------- | ------
+Y|Y|HL7
+N|N|HL7
+UNK|U|HL7
 
 **Documentation**:
 
@@ -134,6 +126,8 @@ Is the patient hospitalized?
 ---
 
 **Name**: ICU
+
+**ReportStream Internal Name**: icu
 
 **Type**: CODE
 
@@ -147,22 +141,22 @@ Is the patient hospitalized?
 
 **Value Sets**
 
-Code | Display
----- | -------
-Y|Yes
-N|No
-UNK|Unknown
-Y|Yes
-N|No
-UNK|Unknown
+Code | Display | System
+---- | ------- | ------
+Y|Yes|HL7
+N|No|HL7
+UNK|Unknown|NULLFL
+Y|Yes|HL7
+N|No|HL7
+UNK|Unknown|NULLFL
 
 **Alt Value Sets**
 
-Code | Display
----- | -------
-Y|Y
-N|N
-UNK|U
+Code | Display | System
+---- | ------- | ------
+Y|Y|HL7
+N|N|HL7
+UNK|U|HL7
 
 **Documentation**:
 
@@ -172,6 +166,10 @@ Is the patient in the ICU?
 
 **Name**: DateTimeMessage
 
+**ReportStream Internal Name**: local_file_created_date
+
+**Type**: TEXT
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -179,6 +177,8 @@ Is the patient in the ICU?
 ---
 
 **Name**: PtEmpAddrCity
+
+**ReportStream Internal Name**: local_patient_employer_city
 
 **Type**: TEXT
 
@@ -192,6 +192,8 @@ Is the patient in the ICU?
 
 **Name**: PtEmpcounty
 
+**ReportStream Internal Name**: local_patient_employer_county
+
 **Type**: TEXT
 
 **PII**: No
@@ -203,6 +205,8 @@ Is the patient in the ICU?
 ---
 
 **Name**: PtEmpName
+
+**ReportStream Internal Name**: local_patient_employer_name
 
 **Type**: TEXT
 
@@ -216,6 +220,8 @@ Is the patient in the ICU?
 
 **Name**: PtEmpPhone
 
+**ReportStream Internal Name**: local_patient_employer_phone
+
 **Type**: TEXT
 
 **PII**: No
@@ -227,6 +233,8 @@ Is the patient in the ICU?
 ---
 
 **Name**: PtEmpAddrState
+
+**ReportStream Internal Name**: local_patient_employer_state
 
 **Type**: TEXT
 
@@ -240,6 +248,8 @@ Is the patient in the ICU?
 
 **Name**: PtEmpAddrStreet
 
+**ReportStream Internal Name**: local_patient_employer_street
+
 **Type**: TEXT
 
 **PII**: No
@@ -251,6 +261,8 @@ Is the patient in the ICU?
 ---
 
 **Name**: PtEmpAddrZip
+
+**ReportStream Internal Name**: local_patient_employer_zip
 
 **Type**: TEXT
 
@@ -264,6 +276,8 @@ Is the patient in the ICU?
 
 **Name**: PtLanguage
 
+**ReportStream Internal Name**: local_patient_language
+
 **Type**: TEXT
 
 **PII**: No
@@ -275,6 +289,8 @@ Is the patient in the ICU?
 ---
 
 **Name**: Occupation
+
+**ReportStream Internal Name**: local_patient_occupation
 
 **Type**: TEXT
 
@@ -288,6 +304,8 @@ Is the patient in the ICU?
 
 **Name**: PtSchAddrCity
 
+**ReportStream Internal Name**: local_patient_school_city
+
 **Type**: TEXT
 
 **PII**: No
@@ -299,6 +317,8 @@ Is the patient in the ICU?
 ---
 
 **Name**: PtSchcounty
+
+**ReportStream Internal Name**: local_patient_school_county
 
 **Type**: TEXT
 
@@ -312,6 +332,8 @@ Is the patient in the ICU?
 
 **Name**: PtSchoolName
 
+**ReportStream Internal Name**: local_patient_school_name
+
 **Type**: TEXT
 
 **PII**: No
@@ -323,6 +345,8 @@ Is the patient in the ICU?
 ---
 
 **Name**: PtSchAddrState
+
+**ReportStream Internal Name**: local_patient_school_state
 
 **Type**: TEXT
 
@@ -336,6 +360,8 @@ Is the patient in the ICU?
 
 **Name**: PtSchAddrStreet
 
+**ReportStream Internal Name**: local_patient_school_street
+
 **Type**: TEXT
 
 **PII**: No
@@ -347,6 +373,8 @@ Is the patient in the ICU?
 ---
 
 **Name**: PtSchAddrZip
+
+**ReportStream Internal Name**: local_patient_school_zip
 
 **Type**: TEXT
 
@@ -360,6 +388,8 @@ Is the patient in the ICU?
 
 **Name**: PtSSN
 
+**ReportStream Internal Name**: local_patient_ssn
+
 **Type**: TEXT
 
 **PII**: No
@@ -371,6 +401,8 @@ Is the patient in the ICU?
 ---
 
 **Name**: ResultNotes
+
+**ReportStream Internal Name**: local_result_notes
 
 **Type**: TEXT
 
@@ -384,27 +416,23 @@ Is the patient in the ICU?
 
 **Name**: ResultTestDesc
 
+**ReportStream Internal Name**: local_result_test_desc
+
 **Type**: TABLE
 
 **PII**: No
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-01-20
+**Table**: LIVD-SARS-CoV-2
 
 **Table Column**: Component
 
 ---
 
-**Name**: local_symptom_onset_date
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
----
-
 **Name**: Result
+
+**ReportStream Internal Name**: local_test_result
 
 **Type**: CODE
 
@@ -416,32 +444,34 @@ Is the patient in the ICU?
 
 **Value Sets**
 
-Code | Display
----- | -------
-260373001|Detected
-260415000|Not detected
-720735008|Presumptive positive
-10828004|Positive
-42425007|Equivocal
-260385009|Negative
-895231008|Not detected in pooled specimen
-462371000124108|Detected in pooled specimen
-419984006|Inconclusive
-125154007|Specimen unsatisfactory for evaluation
-455371000124106|Invalid result
-840539006|Disease caused by sever acute respiratory syndrome coronavirus 2 (disorder)
-840544004|Suspected disease caused by severe acute respiratory coronavirus 2 (situation)
-840546002|Exposure to severe acute respiratory syndrome coronavirus 2 (event)
-840533007|Severe acute respiratory syndrome coronavirus 2 (organism)
-840536004|Antigen of severe acute respiratory syndrome coronavirus 2 (substance)
-840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
-840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
-373121007|Test not done
-82334004|Indeterminate
+Code | Display | System
+---- | ------- | ------
+260373001|Detected|SNOMED_CT
+260415000|Not detected|SNOMED_CT
+720735008|Presumptive positive|SNOMED_CT
+10828004|Positive|SNOMED_CT
+42425007|Equivocal|SNOMED_CT
+260385009|Negative|SNOMED_CT
+895231008|Not detected in pooled specimen|SNOMED_CT
+462371000124108|Detected in pooled specimen|SNOMED_CT
+419984006|Inconclusive|SNOMED_CT
+125154007|Specimen unsatisfactory for evaluation|SNOMED_CT
+455371000124106|Invalid result|SNOMED_CT
+840539006|Disease caused by sever acute respiratory syndrome coronavirus 2 (disorder)|SNOMED_CT
+840544004|Suspected disease caused by severe acute respiratory coronavirus 2 (situation)|SNOMED_CT
+840546002|Exposure to severe acute respiratory syndrome coronavirus 2 (event)|SNOMED_CT
+840533007|Severe acute respiratory syndrome coronavirus 2 (organism)|SNOMED_CT
+840536004|Antigen of severe acute respiratory syndrome coronavirus 2 (substance)|SNOMED_CT
+840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)|SNOMED_CT
+840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)|SNOMED_CT
+373121007|Test not done|SNOMED_CT
+82334004|Indeterminate|SNOMED_CT
 
 ---
 
 **Name**: OrdFacCity
+
+**ReportStream Internal Name**: ordering_facility_city
 
 **Type**: CITY
 
@@ -457,6 +487,8 @@ The city of the facility which the test was ordered from
 
 **Name**: OrdFacName
 
+**ReportStream Internal Name**: ordering_facility_name
+
 **Type**: TEXT
 
 **PII**: No
@@ -471,6 +503,8 @@ The name of the facility which the test was ordered from
 
 **Name**: OrdFacPhone
 
+**ReportStream Internal Name**: ordering_facility_phone_number
+
 **Type**: TELEPHONE
 
 **PII**: No
@@ -484,6 +518,8 @@ The phone number of the facility which the test was ordered from
 ---
 
 **Name**: OrdFacState
+
+**ReportStream Internal Name**: ordering_facility_state
 
 **Type**: TABLE
 
@@ -503,6 +539,8 @@ The state of the facility which the test was ordered from
 
 **Name**: OrdFacAddrStreet
 
+**ReportStream Internal Name**: ordering_facility_street
+
 **Type**: STREET
 
 **PII**: No
@@ -517,6 +555,8 @@ The address of the facility which the test was ordered from
 
 **Name**: OrdFacZip
 
+**ReportStream Internal Name**: ordering_facility_zip_code
+
 **Type**: POSTAL_CODE
 
 **PII**: No
@@ -530,6 +570,8 @@ The zip code of the facility which the test was ordered from
 ---
 
 **Name**: OrdProvFirstName
+
+**ReportStream Internal Name**: ordering_provider_first_name
 
 **Type**: PERSON_NAME
 
@@ -550,6 +592,8 @@ The first name of the provider who ordered the test
 
 **Name**: OrdProvLastName
 
+**ReportStream Internal Name**: ordering_provider_last_name
+
 **Type**: PERSON_NAME
 
 **PII**: No
@@ -568,6 +612,8 @@ The last name of provider who ordered the test
 ---
 
 **Name**: OrdProvPhone
+
+**ReportStream Internal Name**: ordering_provider_phone_number
 
 **Type**: TELEPHONE
 
@@ -588,6 +634,8 @@ The phone number of the provider
 
 **Name**: PtAddrCity
 
+**ReportStream Internal Name**: patient_city
+
 **Type**: CITY
 
 **PII**: Yes
@@ -602,6 +650,8 @@ The patient's city
 
 **Name**: PtCounty
 
+**ReportStream Internal Name**: patient_county
+
 **Type**: TABLE_OR_BLANK
 
 **PII**: No
@@ -615,6 +665,8 @@ The patient's city
 ---
 
 **Name**: PtDOB
+
+**ReportStream Internal Name**: patient_dob
 
 **Type**: DATE
 
@@ -635,6 +687,8 @@ Other states may choose to define their own formats.
 
 **Name**: PtEmailAdd
 
+**ReportStream Internal Name**: patient_email
+
 **Type**: EMAIL
 
 **PII**: Yes
@@ -644,6 +698,8 @@ Other states may choose to define their own formats.
 ---
 
 **Name**: PtEthnic
+
+**ReportStream Internal Name**: patient_ethnicity
 
 **Type**: CODE
 
@@ -655,11 +711,11 @@ Other states may choose to define their own formats.
 
 **Value Sets**
 
-Code | Display
----- | -------
-H|Hispanic or Latino
-N|Non Hispanic or Latino
-U|Unknown
+Code | Display | System
+---- | ------- | ------
+H|Hispanic or Latino|HL7
+N|Non Hispanic or Latino|HL7
+U|Unknown|HL7
 
 **Documentation**:
 
@@ -670,6 +726,8 @@ consumers are free to define their own values. Please refer to the consumer-spec
 ---
 
 **Name**: PtFirstName
+
+**ReportStream Internal Name**: patient_first_name
 
 **Type**: PERSON_NAME
 
@@ -685,6 +743,8 @@ The patient's first name
 
 **Name**: PtSex
 
+**ReportStream Internal Name**: patient_gender
+
 **Type**: CODE
 
 **PII**: No
@@ -695,14 +755,14 @@ The patient's first name
 
 **Value Sets**
 
-Code | Display
----- | -------
-M|Male
-F|Female
-O|Other
-A|Ambiguous
-U|Unknown
-N|Not applicable
+Code | Display | System
+---- | ------- | ------
+M|Male|HL7
+F|Female|HL7
+O|Other|HL7
+A|Ambiguous|HL7
+U|Unknown|HL7
+N|Not applicable|HL7
 
 **Documentation**:
 
@@ -712,6 +772,8 @@ The patient's gender. There is a valueset defined based on the values in PID-8-1
 ---
 
 **Name**: PtID
+
+**ReportStream Internal Name**: patient_id
 
 **Type**: TEXT
 
@@ -729,6 +791,8 @@ the patient ID from the testing lab, the oder placer, the ordering provider, or 
 
 **Name**: PtLastName
 
+**ReportStream Internal Name**: patient_last_name
+
 **Type**: PERSON_NAME
 
 **PII**: Yes
@@ -742,6 +806,8 @@ The patient's last name
 ---
 
 **Name**: PtPhone
+
+**ReportStream Internal Name**: patient_phone_number
 
 **Type**: TELEPHONE
 
@@ -757,6 +823,8 @@ The patient's phone number with area code
 
 **Name**: PtRace
 
+**ReportStream Internal Name**: patient_race
+
 **Type**: CODE
 
 **PII**: No
@@ -767,37 +835,37 @@ The patient's phone number with area code
 
 **Value Sets**
 
-Code | Display
----- | -------
-1002-5|American Indian or Alaska Native
-2028-9|Asian
-2054-5|Black or African American
-2076-8|Native Hawaiian or Other Pacific Islander
-2106-3|White
-2131-1|Other
-UNK|Unknown
-ASKU|Asked, but unknown
-1002-5|American Indian or Alaska Native
-2028-9|Asian
-2054-5|Black or African American
-2076-8|Native Hawaiian or Other Pacific Islander
-2106-3|White
-2131-1|Other
-UNK|Unknown
-ASKU|Asked, but unknown
+Code | Display | System
+---- | ------- | ------
+1002-5|American Indian or Alaska Native|HL7
+2028-9|Asian|HL7
+2054-5|Black or African American|HL7
+2076-8|Native Hawaiian or Other Pacific Islander|HL7
+2106-3|White|HL7
+2131-1|Other|HL7
+UNK|Unknown|NULLFL
+ASKU|Asked, but unknown|NULLFL
+1002-5|American Indian or Alaska Native|HL7
+2028-9|Asian|HL7
+2054-5|Black or African American|HL7
+2076-8|Native Hawaiian or Other Pacific Islander|HL7
+2106-3|White|HL7
+2131-1|Other|HL7
+UNK|Unknown|NULLFL
+ASKU|Asked, but unknown|NULLFL
 
 **Alt Value Sets**
 
-Code | Display
----- | -------
-1002-5|AI
-2028-9|A
-2054-5|B
-2076-8|PI
-2106-3|W
-2131-1|Other
-UNK|U
-ASKU|U
+Code | Display | System
+---- | ------- | ------
+1002-5|AI|HL7
+2028-9|A|HL7
+2054-5|B|HL7
+2076-8|PI|HL7
+2106-3|W|HL7
+2131-1|Other|HL7
+UNK|U|HL7
+ASKU|U|HL7
 
 **Documentation**:
 
@@ -807,6 +875,8 @@ The patient's race. There is a common valueset defined for race values, but some
 ---
 
 **Name**: PtAddrState
+
+**ReportStream Internal Name**: patient_state
 
 **Type**: TABLE
 
@@ -826,6 +896,8 @@ The patient's state
 
 **Name**: PtAddrStreet
 
+**ReportStream Internal Name**: patient_street
+
 **Type**: STREET
 
 **PII**: Yes
@@ -840,6 +912,8 @@ The patient's street address
 
 **Name**: PtTribe
 
+**ReportStream Internal Name**: patient_tribal_citizenship
+
 **Type**: CODE
 
 **PII**: No
@@ -850,574 +924,574 @@ The patient's street address
 
 **Value Sets**
 
-Code | Display
----- | -------
-338|Village of Afognak
-339|Agdaagux Tribe of King Cove
-340|Native Village of Akhiok
-341|Akiachak Native Community
-342|Akiak Native Community
-343|Native Village of Akutan
-344|Village of Alakanuk
-345|Alatna Village
-346|Native Village of Aleknagik
-347|Algaaciq Native Village (St. Mary's)
-348|Allakaket Village
-349|Native Village of Ambler
-350|Village of Anaktuvuk Pass
-351|Yupiit of Andreafski
-352|Angoon Community Association
-353|Village of Aniak
-354|Anvik Village
-355|Arctic Village (See Native Village of Venetie Trib
-356|Asa carsarmiut Tribe (formerly Native Village of M
-357|Native Village of Atka
-358|Village of Atmautluak
-359|Atqasuk Village (Atkasook)
-360|Native Village of Barrow Inupiat Traditional Gover
-361|Beaver Village
-362|Native Village of Belkofski
-363|Village of Bill Moore's Slough
-364|Birch Creek Tribe
-365|Native Village of Brevig Mission
-366|Native Village of Buckland
-367|Native Village of Cantwell
-368|Native Village of Chanega (aka Chenega)
-369|Chalkyitsik Village
-370|Village of Chefornak
-371|Chevak Native Village
-372|Chickaloon Native Village
-373|Native Village of Chignik
-374|Native Village of Chignik Lagoon
-375|Chignik Lake Village
-376|Chilkat Indian Village (Klukwan)
-377|Chilkoot Indian Association (Haines)
-378|Chinik Eskimo Community (Golovin)
-379|Native Village of Chistochina
-380|Native Village of Chitina
-381|Native Village of Chuathbaluk (Russian Mission, Ku
-382|Chuloonawick Native Village
-383|Circle Native Community
-384|Village of Clark's Point
-385|Native Village of Council
-386|Craig Community Association
-387|Village of Crooked Creek
-388|Curyung Tribal Council (formerly Native Village of
-389|Native Village of Deering
-390|Native Village of Diomede (aka Inalik)
-391|Village of Dot Lake
-392|Douglas Indian Association
-393|Native Village of Eagle
-394|Native Village of Eek
-395|Egegik Village
-396|Eklutna Native Village
-397|Native Village of Ekuk
-398|Ekwok Village
-399|Native Village of Elim
-400|Emmonak Village
-401|Evansville Village (aka Bettles Field)
-402|Native Village of Eyak (Cordova)
-403|Native Village of False Pass
-404|Native Village of Fort Yukon
-405|Native Village of Gakona
-406|Galena Village (aka Louden Village)
-407|Native Village of Gambell
-408|Native Village of Georgetown
-409|Native Village of Goodnews Bay
-410|Organized Village of Grayling (aka Holikachuk)
-411|Gulkana Village
-412|Native Village of Hamilton
-413|Healy Lake Village
-414|Holy Cross Village
-415|Hoonah Indian Association
-416|Native Village of Hooper Bay
-417|Hughes Village
-418|Huslia Village
-419|Hydaburg Cooperative Association
-420|Igiugig Village
-421|Village of Iliamna
-422|Inupiat Community of the Arctic Slope
-423|Iqurmuit Traditional Council (formerly Native Vill
-424|Ivanoff Bay Village
-425|Kaguyak Village
-426|Organized Village of Kake
-427|Kaktovik Village (aka Barter Island)
-428|Village of Kalskag
-429|Village of Kaltag
-430|Native Village of Kanatak
-431|Native Village of Karluk
-432|Organized Village of Kasaan
-433|Native Village of Kasigluk
-434|Kenaitze Indian Tribe
-435|Ketchikan Indian Corporation
-436|Native Village of Kiana
-437|King Island Native Community
-438|King Salmon Tribe
-439|Native Village of Kipnuk
-440|Native Village of Kivalina
-441|Klawock Cooperative Association
-442|Native Village of Kluti Kaah (aka Copper Center)
-443|Knik Tribe
-444|Native Village of Kobuk
-445|Kokhanok Village
-446|Native Village of Kongiganak
-447|Village of Kotlik
-448|Native Village of Kotzebue
-449|Native Village of Koyuk
-450|Koyukuk Native Village
-451|Organized Village of Kwethluk
-452|Native Village of Kwigillingok
-453|Native Village of Kwinhagak (aka Quinhagak)
-454|Native Village of Larsen Bay
-455|Levelock Village
-456|Lesnoi Village (aka Woody Island)
-457|Lime Village
-458|Village of Lower Kalskag
-459|Manley Hot Springs Village
-460|Manokotak Village
-461|Native Village of Marshall (aka Fortuna Ledge)
-462|Native Village of Mary's Igloo
-463|McGrath Native Village
-464|Native Village of Mekoryuk
-465|Mentasta Traditional Council
-466|Metlakatla Indian Community, Annette Island Reserv
-467|Native Village of Minto
-468|Naknek Native Village
-469|Native Village of Nanwalek (aka English Bay)
-470|Native Village of Napaimute
-471|Native Village of Napakiak
-472|Native Village of Napaskiak
-473|Native Village of Nelson Lagoon
-474|Nenana Native Association
-475|New Koliganek Village Council (formerly Koliganek
-476|New Stuyahok Village
-477|Newhalen Village
-478|Newtok Village
-479|Native Village of Nightmute
-480|Nikolai Village
-481|Native Village of Nikolski
-482|Ninilchik Village
-483|Native Village of Noatak
-484|Nome Eskimo Community
-485|Nondalton Village
-486|Noorvik Native Community
-487|Northway Village
-488|Native Village of Nuiqsut (aka Nooiksut)
-489|Nulato Village
-490|Nunakauyarmiut Tribe (formerly Native Village of T
-491|Native Village of Nunapitchuk
-492|Village of Ohogamiut
-493|Village of Old Harbor
-494|Orutsararmuit Native Village (aka Bethel)
-495|Oscarville Traditional Village
-496|Native Village of Ouzinkie
-497|Native Village of Paimiut
-498|Pauloff Harbor Village
-499|Pedro Bay Village
-500|Native Village of Perryville
-501|Petersburg Indian Association
-502|Native Village of Pilot Point
-503|Pilot Station Traditional Village
-504|Native Village of Pitka's Point
-505|Platinum Traditional Village
-506|Native Village of Point Hope
-507|Native Village of Point Lay
-508|Native Village of Port Graham
-509|Native Village of Port Heiden
-510|Native Village of Port Lions
-511|Portage Creek Village (aka Ohgsenakale)
-512|Pribilof Islands Aleut Communities of St. Paul & S
-513|Qagan Tayagungin Tribe of Sand Point Village
-514|Qawalangin Tribe of Unalaska
-515|Rampart Village
-516|Village of Red Devil
-517|Native Village of Ruby
-518|Saint George Island(See Pribilof Islands Aleut Com
-519|Native Village of Saint Michael
-520|Saint Paul Island (See Pribilof Islands Aleut Comm
-521|Village of Salamatoff
-522|Native Village of Savoonga
-523|Organized Village of Saxman
-524|Native Village of Scammon Bay
-525|Native Village of Selawik
-526|Seldovia Village Tribe
-527|Shageluk Native Village
-528|Native Village of Shaktoolik
-529|Native Village of Sheldon's Point
-530|Native Village of Shishmaref
-531|Shoonaq Tribe of Kodiak
-532|Native Village of Shungnak
-533|Sitka Tribe of Alaska
-534|Skagway Village
-535|Village of Sleetmute
-536|Village of Solomon
-537|South Naknek Village
-538|Stebbins Community Association
-539|Native Village of Stevens
-540|Village of Stony River
-541|Takotna Village
-542|Native Village of Tanacross
-543|Native Village of Tanana
-544|Native Village of Tatitlek
-545|Native Village of Tazlina
-546|Telida Village
-547|Native Village of Teller
-548|Native Village of Tetlin
-549|Central Council of the Tlingit and Haida Indian Tb
-550|Traditional Village of Togiak
-551|Tuluksak Native Community
-552|Native Village of Tuntutuliak
-553|Native Village of Tununak
-554|Twin Hills Village
-555|Native Village of Tyonek
-556|Ugashik Village
-557|Umkumiute Native Village
-558|Native Village of Unalakleet
-559|Native Village of Unga
-560|Village of Venetie (See Native Village of Venetie
-561|Native Village of Venetie Tribal Government (Arcti
-562|Village of Wainwright
-563|Native Village of Wales
-564|Native Village of White Mountain
-565|Wrangell Cooperative Association
-566|Yakutat Tlingit Tribe
-1|Absentee-Shawnee Tribe of Indians of Oklahoma
-10|Assiniboine and Sioux Tribes of the Fort Peck Indi
-100|Havasupai Tribe of the Havasupai Reservation, Ariz
-101|Ho-Chunk Nation of Wisconsin (formerly known as th
-102|Hoh Indian Tribe of the Hoh Indian Reservation, Wa
-103|Hoopa Valley Tribe, California
-104|Hopi Tribe of Arizona
-105|Hopland Band of Pomo Indians of the Hopland Ranche
-106|Houlton Band of Maliseet Indians of Maine
-107|Hualapai Indian Tribe of the Hualapai Indian Reser
-108|Huron Potawatomi, Inc., Michigan
-109|Inaja Band of Diegueno Mission Indians of the Inaj
-11|Augustine Band of Cahuilla Mission Indians of the
-110|Ione Band of Miwok Indians of California
-111|Iowa Tribe of Kansas and Nebraska
-112|Iowa Tribe of Oklahoma
-113|Jackson Rancheria of Me-Wuk Indians of California
-114|Jamestown S'Klallam Tribe of Washington
-115|Jamul Indian Village of California
-116|Jena Band of Choctaw Indians, Louisiana
-117|Jicarilla Apache Tribe of the Jicarilla Apache Ind
-118|Kaibab Band of Paiute Indians of the Kaibab Indian
-119|Kalispel Indian Community of the Kalispel Reservat
-12|Bad River Band of the Lake Superior Tribe of Chipp
-120|Karuk Tribe of California
-121|Kashia Band of Pomo Indians of the Stewarts Point
-122|Kaw Nation, Oklahoma
-123|Keweenaw Bay Indian Community of L'Anse and Ontona
-124|Kialegee Tribal Town, Oklahoma
-125|Kickapoo Tribe of Indians of the Kickapoo Reservat
-126|Kickapoo Tribe of Oklahoma
-127|Kickapoo Traditional Tribe of Texas
-128|Kiowa Indian Tribe of Oklahoma
-129|Klamath Indian Tribe of Oregon
-13|Bay Mills Indian Community of the Sault Ste. Marie
-130|Kootenai Tribe of Idaho
-131|La Jolla Band of Luiseno Mission Indians of the La
-132|La Posta Band of Diegueno Mission Indians of the L
-133|Lac Courte Oreilles Band of Lake Superior Chippewa
-134|Lac du Flambeau Band of Lake Superior Chippewa Ind
-135|Lac Vieux Desert Band of Lake Superior Chippewa In
-136|Las Vegas Tribe of Paiute Indians of the Las Vegas
-137|Little River Band of Ottawa Indians of Michigan
-138|Little Traverse Bay Bands of Odawa Indians of Mich
-139|Lower Lake Rancheria, California
-14|Bear River Band of the Rohnerville Rancheria, Cali
-140|Los Coyotes Band of Cahuilla Mission Indians of th
-141|Lovelock Paiute Tribe of the Lovelock Indian Colon
-142|Lower Brule Sioux Tribe of the Lower Brule Reserva
-143|Lower Elwha Tribal Community of the Lower Elwha Re
-144|Lower Sioux Indian Community of Minnesota Mdewakan
-145|Lummi Tribe of the Lummi Reservation, Washington
-146|Lytton Rancheria of California
-147|Makah Indian Tribe of the Makah Indian Reservation
-148|Manchester Band of Pomo Indians of the Manchester-
-149|Manzanita Band of Diegueno Mission Indians of the
-15|Berry Creek Rancheria of Maidu Indians of Californ
-150|Mashantucket Pequot Tribe of Connecticut
-151|Match-e-be-nash-she-wish Band of Pottawatomi India
-152|Mechoopda Indian Tribe of Chico Rancheria, Califor
-153|Menominee Indian Tribe of Wisconsin
-154|Mesa Grande Band of Diegueno Mission Indians of th
-155|Mescalero Apache Tribe of the Mescalero Reservatio
-156|Miami Tribe of Oklahoma
-157|Miccosukee Tribe of Indians of Florida
-158|Middletown Rancheria of Pomo Indians of California
-159|Minnesota Chippewa Tribe, Minnesota (Six component
-16|Big Lagoon Rancheria, California
-160|Bois Forte Band (Nett Lake); Fond du Lac Band; Gra
-161|Mississippi Band of Choctaw Indians, Mississippi
-162|Moapa Band of Paiute Indians of the Moapa River In
-163|Modoc Tribe of Oklahoma
-164|Mohegan Indian Tribe of Connecticut
-165|Mooretown Rancheria of Maidu Indians of California
-166|Morongo Band of Cahuilla Mission Indians of the Mo
-167|Muckleshoot Indian Tribe of the Muckleshoot Reserv
-168|Muscogee (Creek) Nation, Oklahoma
-169|Narragansett Indian Tribe of Rhode Island
-17|Big Pine Band of Owens Valley Paiute Shoshone Indi
-170|Navajo Nation, Arizona, New Mexico & Utah
-171|Nez Perce Tribe of Idaho
-172|Nisqually Indian Tribe of the Nisqually Reservatio
-173|Nooksack Indian Tribe of Washington
-174|Northern Cheyenne Tribe of the Northern Cheyenne I
-175|Northfork Rancheria of Mono Indians of California
-176|Northwestern Band of Shoshoni Nation of Utah (Wash
-177|Oglala Sioux Tribe of the Pine Ridge Reservation,
-178|Omaha Tribe of Nebraska
-179|Oneida Nation of New York
-18|Big Sandy Rancheria of Mono Indians of California
-180|Oneida Tribe of Wisconsin
-181|Onondaga Nation of New York
-182|Osage Tribe, Oklahoma
-183|Ottawa Tribe of Oklahoma
-184|Otoe-Missouria Tribe of Indians, Oklahoma
-185|Paiute Indian Tribe of Utah
-186|Paiute-Shoshone Indians of the Bishop Community of
-187|Paiute-Shoshone Tribe of the Fallon Reservation an
-188|Paiute-Shoshone Indians of the Lone Pine Community
-189|Pala Band of Luiseno Mission Indians of the Pala R
-19|Big Valley Band of Pomo Indians of the Big Valley
-190|Pascua Yaqui Tribe of Arizona
-191|Paskenta Band of Nomlaki Indians of California
-192|Passamaquoddy Tribe of Maine
-193|Pauma Band of Luiseno Mission Indians of the Pauma
-194|Pawnee Nation of Oklahoma
-195|Pechanga Band of Luiseno Mission Indians of the Pe
-196|Penobscot Tribe of Maine
-197|Peoria Tribe of Indians of Oklahoma
-198|Picayune Rancheria of Chukchansi Indians of Califo
-199|Pinoleville Rancheria of Pomo Indians of Californi
-2|Agua Caliente Band of Cahuilla Indians of the Agua
-20|Blackfeet Tribe of the Blackfeet Indian Reservatio
-200|Pit River Tribe, California (includes Big Bend, Lo
-201|Poarch Band of Creek Indians of Alabama
-202|Pokagon Band of Potawatomi Indians of Michigan
-203|Ponca Tribe of Indians of Oklahoma
-204|Ponca Tribe of Nebraska
-205|Port Gamble Indian Community of the Port Gamble Re
-206|Potter Valley Rancheria of Pomo Indians of Califor
-207|Prairie Band of Potawatomi Indians, Kansas
-208|Prairie Island Indian Community of Minnesota Mdewa
-209|Pueblo of Acoma, New Mexico
-21|Blue Lake Rancheria, California
-210|Pueblo of Cochiti, New Mexico
-211|Pueblo of Jemez, New Mexico
-212|Pueblo of Isleta, New Mexico
-213|Pueblo of Laguna, New Mexico
-214|Pueblo of Nambe, New Mexico
-215|Pueblo of Picuris, New Mexico
-216|Pueblo of Pojoaque, New Mexico
-217|Pueblo of San Felipe, New Mexico
-218|Pueblo of San Juan, New Mexico
-219|Pueblo of San Ildefonso, New Mexico
-22|Bridgeport Paiute Indian Colony of California
-220|Pueblo of Sandia, New Mexico
-221|Pueblo of Santa Ana, New Mexico
-222|Pueblo of Santa Clara, New Mexico
-223|Pueblo of Santo Domingo, New Mexico
-224|Pueblo of Taos, New Mexico
-225|Pueblo of Tesuque, New Mexico
-226|Pueblo of Zia, New Mexico
-227|Puyallup Tribe of the Puyallup Reservation, Washin
-228|Pyramid Lake Paiute Tribe of the Pyramid Lake Rese
-229|Quapaw Tribe of Indians, Oklahoma
-23|Buena Vista Rancheria of Me-Wuk Indians of Califor
-230|Quartz Valley Indian Community of the Quartz Valle
-231|Quechan Tribe of the Fort Yuma Indian Reservation,
-232|Quileute Tribe of the Quileute Reservation, Washin
-233|Quinault Tribe of the Quinault Reservation, Washin
-234|Ramona Band or Village of Cahuilla Mission Indians
-235|Red Cliff Band of Lake Superior Chippewa Indians o
-236|Red Lake Band of Chippewa Indians of the Red Lake
-237|Redding Rancheria, California
-238|Redwood Valley Rancheria of Pomo Indians of Califo
-239|Reno-Sparks Indian Colony, Nevada
-24|Burns Paiute Tribe of the Burns Paiute Indian Colo
-240|Resighini Rancheria, California (formerly known as
-241|Rincon Band of Luiseno Mission Indians of the Rinc
-242|Robinson Rancheria of Pomo Indians of California
-243|Rosebud Sioux Tribe of the Rosebud Indian Reservat
-244|Round Valley Indian Tribes of the Round Valley Res
-245|Rumsey Indian Rancheria of Wintun Indians of Calif
-246|Sac and Fox Tribe of the Mississippi in Iowa
-247|Sac and Fox Nation of Missouri in Kansas and Nebra
-248|Sac and Fox Nation, Oklahoma
-249|Saginaw Chippewa Indian Tribe of Michigan, Isabell
-25|Cabazon Band of Cahuilla Mission Indians of the Ca
-250|Salt River Pima-Maricopa Indian Community of the S
-251|Samish Indian Tribe, Washington
-252|San Carlos Apache Tribe of the San Carlos Reservat
-253|San Juan Southern Paiute Tribe of Arizona
-254|San Manual Band of Serrano Mission Indians of the
-255|San Pasqual Band of Diegueno Mission Indians of Ca
-256|Santa Rosa Indian Community of the Santa Rosa Ranc
-257|Santa Rosa Band of Cahuilla Mission Indians of the
-258|Santa Ynez Band of Chumash Mission Indians of the
-259|Santa Ysabel Band of Diegueno Mission Indians of t
-26|Cachil DeHe Band of Wintun Indians of the Colusa I
-260|Santee Sioux Tribe of the Santee Reservation of Ne
-261|Sauk-Suiattle Indian Tribe of Washington
-262|Sault Ste. Marie Tribe of Chippewa Indians of Mich
-263|Scotts Valley Band of Pomo Indians of California
-264|Seminole Nation of Oklahoma
-265|Seminole Tribe of Florida, Dania, Big Cypress, Bri
-266|Seneca Nation of New York
-267|Seneca-Cayuga Tribe of Oklahoma
-268|Shakopee Mdewakanton Sioux Community of Minnesota
-269|Shawnee Tribe, Oklahoma
-27|Caddo Indian Tribe of Oklahoma
-270|Sherwood Valley Rancheria of Pomo Indians of Calif
-271|Shingle Springs Band of Miwok Indians, Shingle Spr
-272|Shoalwater Bay Tribe of the Shoalwater Bay Indian
-273|Shoshone Tribe of the Wind River Reservation, Wyom
-274|Shoshone-Bannock Tribes of the Fort Hall Reservati
-275|Shoshone-Paiute Tribes of the Duck Valley Reservat
-276|Sisseton-Wahpeton Sioux Tribe of the Lake Traverse
-277|Skokomish Indian Tribe of the Skokomish Reservatio
-278|Skull Valley Band of Goshute Indians of Utah
-279|Smith River Rancheria, California
-28|Cahuilla Band of Mission Indians of the Cahuilla R
-280|Snoqualmie Tribe, Washington
-281|Soboba Band of Luiseno Indians, California (former
-282|Sokaogon Chippewa Community of the Mole Lake Band
-283|Southern Ute Indian Tribe of the Southern Ute Rese
-284|Spirit Lake Tribe, North Dakota (formerly known as
-285|Spokane Tribe of the Spokane Reservation, Washingt
-286|Squaxin Island Tribe of the Squaxin Island Reserva
-287|St. Croix Chippewa Indians of Wisconsin, St. Croix
-288|St. Regis Band of Mohawk Indians of New York
-289|Standing Rock Sioux Tribe of North & South Dakota
-29|Cahto Indian Tribe of the Laytonville Rancheria, C
-290|Stockbridge-Munsee Community of Mohican Indians of
-291|Stillaguamish Tribe of Washington
-292|Summit Lake Paiute Tribe of Nevada
-293|Suquamish Indian Tribe of the Port Madison Reserva
-294|Susanville Indian Rancheria, California
-295|Swinomish Indians of the Swinomish Reservation, Wa
-296|Sycuan Band of Diegueno Mission Indians of Califor
-297|Table Bluff Reservation - Wiyot Tribe, California
-298|Table Mountain Rancheria of California
-299|Te-Moak Tribe of Western Shoshone Indians of Nevad
-3|Ak Chin Indian Community of the Maricopa (Ak Chin)
-30|California Valley Miwok Tribe, California (formerl
-300|Thlopthlocco Tribal Town, Oklahoma
-301|Three Affiliated Tribes of the Fort Berthold Reser
-302|Tohono O'odham Nation of Arizona
-303|Tonawanda Band of Seneca Indians of New York
-304|Tonkawa Tribe of Indians of Oklahoma
-305|Tonto Apache Tribe of Arizona
-306|Torres-Martinez Band of Cahuilla Mission Indians o
-307|Tule River Indian Tribe of the Tule River Reservat
-308|Tulalip Tribes of the Tulalip Reservation, Washing
-309|Tunica-Biloxi Indian Tribe of Louisiana
-31|Campo Band of Diegueno Mission Indians of the Camp
-310|Tuolumne Band of Me-Wuk Indians of the Tuolumne Ra
-311|Turtle Mountain Band of Chippewa Indians of North
-312|Tuscarora Nation of New York
-313|Twenty-Nine Palms Band of Mission Indians of Calif
-314|United Auburn Indian Community of the Auburn Ranch
-315|United Keetoowah Band of Cherokee Indians of Oklah
-316|Upper Lake Band of Pomo Indians of Upper Lake Ranc
-317|Upper Sioux Indian Community of the Upper Sioux Re
-318|Upper Skagit Indian Tribe of Washington
-319|Ute Indian Tribe of the Uintah & Ouray Reservation
-32|Capitan Grande Band of Diegueno Mission Indians of
-320|Ute Mountain Tribe of the Ute Mountain Reservation
-321|Utu Utu Gwaitu Paiute Tribe of the Benton Paiute R
-322|Walker River Paiute Tribe of the Walker River Rese
-323|Wampanoag Tribe of Gay Head (Aquinnah) of Massachu
-324|Washoe Tribe of Nevada & California (Carson Colony
-325|White Mountain Apache Tribe of the Fort Apache Res
-326|Wichita and Affiliated Tribes (Wichita, Keechi, Wa
-327|Winnebago Tribe of Nebraska
-328|Winnemucca Indian Colony of Nevada
-329|Wyandotte Tribe of Oklahoma
-33|Barona Group of Capitan Grande Band of Mission Ind
-330|Yankton Sioux Tribe of South Dakota
-331|Yavapai-Apache Nation of the Camp Verde Indian Res
-332|Yavapai-Prescott Tribe of the Yavapai Reservation,
-333|Yerington Paiute Tribe of the Yerington Colony & C
-334|Yomba Shoshone Tribe of the Yomba Reservation, Nev
-335|Ysleta Del Sur Pueblo of Texas
-336|Yurok Tribe of the Yurok Reservation, California
-337|Zuni Tribe of the Zuni Reservation, New Mexico
-34|Viejas (Baron Long) Group of Capitan Grande Band o
-35|Catawba Indian Nation (aka Catawba Tribe of South
-36|Cayuga Nation of New York
-37|Cedarville Rancheria, California
-38|Chemehuevi Indian Tribe of the Chemehuevi Reservat
-39|Cher-Ae Heights Indian Community of the Trinidad R
-4|Alabama-Coushatta Tribes of Texas
-40|Cherokee Nation, Oklahoma
-41|Cheyenne-Arapaho Tribes of Oklahoma
-42|Cheyenne River Sioux Tribe of the Cheyenne River
-43|Chickasaw Nation, Oklahoma
-44|Chicken Ranch Rancheria of Me-Wuk Indians of Calif
-45|Chippewa-Cree Indians of the Rocky Boy's Reservati
-46|Chitimacha Tribe of Louisiana
-47|Choctaw Nation of Oklahoma
-48|Citizen Potawatomi Nation, Oklahoma
-49|Cloverdale Rancheria of Pomo Indians of California
-5|Alabama-Quassarte Tribal Town, Oklahoma
-50|Cocopah Tribe of Arizona
-51|Coeur D'Alene Tribe of the Coeur D'Alene Reservati
-52|Cold Springs Rancheria of Mono Indians of Californ
-53|Colorado River Indian Tribes of the Colorado River
-54|Comanche Indian Tribe, Oklahoma
-55|Confederated Salish & Kootenai Tribes of the Flath
-56|Confederated Tribes of the Chehalis Reservation, W
-57|Confederated Tribes of the Colville Reservation, W
-58|Confederated Tribes of the Coos, Lower Umpqua and
-59|Confederated Tribes of the Goshute Reservation, Ne
-6|Alturas Indian Rancheria, California
-60|Confederated Tribes of the Grand Ronde Community o
-61|Confederated Tribes of the Siletz Reservation, Ore
-62|Confederated Tribes of the Umatilla Reservation, O
-63|Confederated Tribes of the Warm Springs Reservatio
-64|Confederated Tribes and Bands of the Yakama Indian
-65|Coquille Tribe of Oregon
-66|Cortina Indian Rancheria of Wintun Indians of Cali
-67|Coushatta Tribe of Louisiana
-68|Cow Creek Band of Umpqua Indians of Oregon
-69|Coyote Valley Band of Pomo Indians of California
-7|Apache Tribe of Oklahoma
-70|Crow Tribe of Montana
-71|Crow Creek Sioux Tribe of the Crow Creek Reservati
-72|Cuyapaipe Community of Diegueno Mission Indians of
-73|Death Valley Timbi-Sha Shoshone Band of California
-74|Delaware Nation, Oklahoma (formerly Delaware Tribe
-75|Delaware Tribe of Indians, Oklahoma
-76|Dry Creek Rancheria of Pomo Indians of California
-77|Duckwater Shoshone Tribe of the Duckwater Reservat
-78|Eastern Band of Cherokee Indians of North Carolina
-79|Eastern Shawnee Tribe of Oklahoma
-8|Arapahoe Tribe of the Wind River Reservation, Wyom
-80|Elem Indian Colony of Pomo Indians of the Sulphur
-81|Elk Valley Rancheria, California
-82|Ely Shoshone Tribe of Nevada
-83|Enterprise Rancheria of Maidu Indians of Californi
-84|Flandreau Santee Sioux Tribe of South Dakota
-85|Forest County Potawatomi Community of Wisconsin Po
-86|Fort Belknap Indian Community of the Fort Belknap
-87|Fort Bidwell Indian Community of the Fort Bidwell
-88|Fort Independence Indian Community of Paiute India
-89|Fort McDermitt Paiute and Shoshone Tribes of the F
-9|Aroostook Band of Micmac Indians of Maine
-90|Fort McDowell Yavapai Nation, Arizona (formerly th
-91|Fort Mojave Indian Tribe of Arizona, California
-92|Fort Sill Apache Tribe of Oklahoma
-93|Gila River Indian Community of the Gila River Indi
-94|Grand Traverse Band of Ottawa & Chippewa Indians o
-95|Graton Rancheria, California
-96|Greenville Rancheria of Maidu Indians of Californi
-97|Grindstone Indian Rancheria of Wintun-Wailaki Indi
-98|Guidiville Rancheria of California
-99|Hannahville Indian Community of Wisconsin Potawato
+Code | Display | System
+---- | ------- | ------
+338|Village of Afognak|HL7
+339|Agdaagux Tribe of King Cove|HL7
+340|Native Village of Akhiok|HL7
+341|Akiachak Native Community|HL7
+342|Akiak Native Community|HL7
+343|Native Village of Akutan|HL7
+344|Village of Alakanuk|HL7
+345|Alatna Village|HL7
+346|Native Village of Aleknagik|HL7
+347|Algaaciq Native Village (St. Mary's)|HL7
+348|Allakaket Village|HL7
+349|Native Village of Ambler|HL7
+350|Village of Anaktuvuk Pass|HL7
+351|Yupiit of Andreafski|HL7
+352|Angoon Community Association|HL7
+353|Village of Aniak|HL7
+354|Anvik Village|HL7
+355|Arctic Village (See Native Village of Venetie Trib|HL7
+356|Asa carsarmiut Tribe (formerly Native Village of M|HL7
+357|Native Village of Atka|HL7
+358|Village of Atmautluak|HL7
+359|Atqasuk Village (Atkasook)|HL7
+360|Native Village of Barrow Inupiat Traditional Gover|HL7
+361|Beaver Village|HL7
+362|Native Village of Belkofski|HL7
+363|Village of Bill Moore's Slough|HL7
+364|Birch Creek Tribe|HL7
+365|Native Village of Brevig Mission|HL7
+366|Native Village of Buckland|HL7
+367|Native Village of Cantwell|HL7
+368|Native Village of Chanega (aka Chenega)|HL7
+369|Chalkyitsik Village|HL7
+370|Village of Chefornak|HL7
+371|Chevak Native Village|HL7
+372|Chickaloon Native Village|HL7
+373|Native Village of Chignik|HL7
+374|Native Village of Chignik Lagoon|HL7
+375|Chignik Lake Village|HL7
+376|Chilkat Indian Village (Klukwan)|HL7
+377|Chilkoot Indian Association (Haines)|HL7
+378|Chinik Eskimo Community (Golovin)|HL7
+379|Native Village of Chistochina|HL7
+380|Native Village of Chitina|HL7
+381|Native Village of Chuathbaluk (Russian Mission, Ku|HL7
+382|Chuloonawick Native Village|HL7
+383|Circle Native Community|HL7
+384|Village of Clark's Point|HL7
+385|Native Village of Council|HL7
+386|Craig Community Association|HL7
+387|Village of Crooked Creek|HL7
+388|Curyung Tribal Council (formerly Native Village of|HL7
+389|Native Village of Deering|HL7
+390|Native Village of Diomede (aka Inalik)|HL7
+391|Village of Dot Lake|HL7
+392|Douglas Indian Association|HL7
+393|Native Village of Eagle|HL7
+394|Native Village of Eek|HL7
+395|Egegik Village|HL7
+396|Eklutna Native Village|HL7
+397|Native Village of Ekuk|HL7
+398|Ekwok Village|HL7
+399|Native Village of Elim|HL7
+400|Emmonak Village|HL7
+401|Evansville Village (aka Bettles Field)|HL7
+402|Native Village of Eyak (Cordova)|HL7
+403|Native Village of False Pass|HL7
+404|Native Village of Fort Yukon|HL7
+405|Native Village of Gakona|HL7
+406|Galena Village (aka Louden Village)|HL7
+407|Native Village of Gambell|HL7
+408|Native Village of Georgetown|HL7
+409|Native Village of Goodnews Bay|HL7
+410|Organized Village of Grayling (aka Holikachuk)|HL7
+411|Gulkana Village|HL7
+412|Native Village of Hamilton|HL7
+413|Healy Lake Village|HL7
+414|Holy Cross Village|HL7
+415|Hoonah Indian Association|HL7
+416|Native Village of Hooper Bay|HL7
+417|Hughes Village|HL7
+418|Huslia Village|HL7
+419|Hydaburg Cooperative Association|HL7
+420|Igiugig Village|HL7
+421|Village of Iliamna|HL7
+422|Inupiat Community of the Arctic Slope|HL7
+423|Iqurmuit Traditional Council (formerly Native Vill|HL7
+424|Ivanoff Bay Village|HL7
+425|Kaguyak Village|HL7
+426|Organized Village of Kake|HL7
+427|Kaktovik Village (aka Barter Island)|HL7
+428|Village of Kalskag|HL7
+429|Village of Kaltag|HL7
+430|Native Village of Kanatak|HL7
+431|Native Village of Karluk|HL7
+432|Organized Village of Kasaan|HL7
+433|Native Village of Kasigluk|HL7
+434|Kenaitze Indian Tribe|HL7
+435|Ketchikan Indian Corporation|HL7
+436|Native Village of Kiana|HL7
+437|King Island Native Community|HL7
+438|King Salmon Tribe|HL7
+439|Native Village of Kipnuk|HL7
+440|Native Village of Kivalina|HL7
+441|Klawock Cooperative Association|HL7
+442|Native Village of Kluti Kaah (aka Copper Center)|HL7
+443|Knik Tribe|HL7
+444|Native Village of Kobuk|HL7
+445|Kokhanok Village|HL7
+446|Native Village of Kongiganak|HL7
+447|Village of Kotlik|HL7
+448|Native Village of Kotzebue|HL7
+449|Native Village of Koyuk|HL7
+450|Koyukuk Native Village|HL7
+451|Organized Village of Kwethluk|HL7
+452|Native Village of Kwigillingok|HL7
+453|Native Village of Kwinhagak (aka Quinhagak)|HL7
+454|Native Village of Larsen Bay|HL7
+455|Levelock Village|HL7
+456|Lesnoi Village (aka Woody Island)|HL7
+457|Lime Village|HL7
+458|Village of Lower Kalskag|HL7
+459|Manley Hot Springs Village|HL7
+460|Manokotak Village|HL7
+461|Native Village of Marshall (aka Fortuna Ledge)|HL7
+462|Native Village of Mary's Igloo|HL7
+463|McGrath Native Village|HL7
+464|Native Village of Mekoryuk|HL7
+465|Mentasta Traditional Council|HL7
+466|Metlakatla Indian Community, Annette Island Reserv|HL7
+467|Native Village of Minto|HL7
+468|Naknek Native Village|HL7
+469|Native Village of Nanwalek (aka English Bay)|HL7
+470|Native Village of Napaimute|HL7
+471|Native Village of Napakiak|HL7
+472|Native Village of Napaskiak|HL7
+473|Native Village of Nelson Lagoon|HL7
+474|Nenana Native Association|HL7
+475|New Koliganek Village Council (formerly Koliganek|HL7
+476|New Stuyahok Village|HL7
+477|Newhalen Village|HL7
+478|Newtok Village|HL7
+479|Native Village of Nightmute|HL7
+480|Nikolai Village|HL7
+481|Native Village of Nikolski|HL7
+482|Ninilchik Village|HL7
+483|Native Village of Noatak|HL7
+484|Nome Eskimo Community|HL7
+485|Nondalton Village|HL7
+486|Noorvik Native Community|HL7
+487|Northway Village|HL7
+488|Native Village of Nuiqsut (aka Nooiksut)|HL7
+489|Nulato Village|HL7
+490|Nunakauyarmiut Tribe (formerly Native Village of T|HL7
+491|Native Village of Nunapitchuk|HL7
+492|Village of Ohogamiut|HL7
+493|Village of Old Harbor|HL7
+494|Orutsararmuit Native Village (aka Bethel)|HL7
+495|Oscarville Traditional Village|HL7
+496|Native Village of Ouzinkie|HL7
+497|Native Village of Paimiut|HL7
+498|Pauloff Harbor Village|HL7
+499|Pedro Bay Village|HL7
+500|Native Village of Perryville|HL7
+501|Petersburg Indian Association|HL7
+502|Native Village of Pilot Point|HL7
+503|Pilot Station Traditional Village|HL7
+504|Native Village of Pitka's Point|HL7
+505|Platinum Traditional Village|HL7
+506|Native Village of Point Hope|HL7
+507|Native Village of Point Lay|HL7
+508|Native Village of Port Graham|HL7
+509|Native Village of Port Heiden|HL7
+510|Native Village of Port Lions|HL7
+511|Portage Creek Village (aka Ohgsenakale)|HL7
+512|Pribilof Islands Aleut Communities of St. Paul & S|HL7
+513|Qagan Tayagungin Tribe of Sand Point Village|HL7
+514|Qawalangin Tribe of Unalaska|HL7
+515|Rampart Village|HL7
+516|Village of Red Devil|HL7
+517|Native Village of Ruby|HL7
+518|Saint George Island(See Pribilof Islands Aleut Com|HL7
+519|Native Village of Saint Michael|HL7
+520|Saint Paul Island (See Pribilof Islands Aleut Comm|HL7
+521|Village of Salamatoff|HL7
+522|Native Village of Savoonga|HL7
+523|Organized Village of Saxman|HL7
+524|Native Village of Scammon Bay|HL7
+525|Native Village of Selawik|HL7
+526|Seldovia Village Tribe|HL7
+527|Shageluk Native Village|HL7
+528|Native Village of Shaktoolik|HL7
+529|Native Village of Sheldon's Point|HL7
+530|Native Village of Shishmaref|HL7
+531|Shoonaq Tribe of Kodiak|HL7
+532|Native Village of Shungnak|HL7
+533|Sitka Tribe of Alaska|HL7
+534|Skagway Village|HL7
+535|Village of Sleetmute|HL7
+536|Village of Solomon|HL7
+537|South Naknek Village|HL7
+538|Stebbins Community Association|HL7
+539|Native Village of Stevens|HL7
+540|Village of Stony River|HL7
+541|Takotna Village|HL7
+542|Native Village of Tanacross|HL7
+543|Native Village of Tanana|HL7
+544|Native Village of Tatitlek|HL7
+545|Native Village of Tazlina|HL7
+546|Telida Village|HL7
+547|Native Village of Teller|HL7
+548|Native Village of Tetlin|HL7
+549|Central Council of the Tlingit and Haida Indian Tb|HL7
+550|Traditional Village of Togiak|HL7
+551|Tuluksak Native Community|HL7
+552|Native Village of Tuntutuliak|HL7
+553|Native Village of Tununak|HL7
+554|Twin Hills Village|HL7
+555|Native Village of Tyonek|HL7
+556|Ugashik Village|HL7
+557|Umkumiute Native Village|HL7
+558|Native Village of Unalakleet|HL7
+559|Native Village of Unga|HL7
+560|Village of Venetie (See Native Village of Venetie|HL7
+561|Native Village of Venetie Tribal Government (Arcti|HL7
+562|Village of Wainwright|HL7
+563|Native Village of Wales|HL7
+564|Native Village of White Mountain|HL7
+565|Wrangell Cooperative Association|HL7
+566|Yakutat Tlingit Tribe|HL7
+1|Absentee-Shawnee Tribe of Indians of Oklahoma|HL7
+10|Assiniboine and Sioux Tribes of the Fort Peck Indi|HL7
+100|Havasupai Tribe of the Havasupai Reservation, Ariz|HL7
+101|Ho-Chunk Nation of Wisconsin (formerly known as th|HL7
+102|Hoh Indian Tribe of the Hoh Indian Reservation, Wa|HL7
+103|Hoopa Valley Tribe, California|HL7
+104|Hopi Tribe of Arizona|HL7
+105|Hopland Band of Pomo Indians of the Hopland Ranche|HL7
+106|Houlton Band of Maliseet Indians of Maine|HL7
+107|Hualapai Indian Tribe of the Hualapai Indian Reser|HL7
+108|Huron Potawatomi, Inc., Michigan|HL7
+109|Inaja Band of Diegueno Mission Indians of the Inaj|HL7
+11|Augustine Band of Cahuilla Mission Indians of the|HL7
+110|Ione Band of Miwok Indians of California|HL7
+111|Iowa Tribe of Kansas and Nebraska|HL7
+112|Iowa Tribe of Oklahoma|HL7
+113|Jackson Rancheria of Me-Wuk Indians of California|HL7
+114|Jamestown S'Klallam Tribe of Washington|HL7
+115|Jamul Indian Village of California|HL7
+116|Jena Band of Choctaw Indians, Louisiana|HL7
+117|Jicarilla Apache Tribe of the Jicarilla Apache Ind|HL7
+118|Kaibab Band of Paiute Indians of the Kaibab Indian|HL7
+119|Kalispel Indian Community of the Kalispel Reservat|HL7
+12|Bad River Band of the Lake Superior Tribe of Chipp|HL7
+120|Karuk Tribe of California|HL7
+121|Kashia Band of Pomo Indians of the Stewarts Point|HL7
+122|Kaw Nation, Oklahoma|HL7
+123|Keweenaw Bay Indian Community of L'Anse and Ontona|HL7
+124|Kialegee Tribal Town, Oklahoma|HL7
+125|Kickapoo Tribe of Indians of the Kickapoo Reservat|HL7
+126|Kickapoo Tribe of Oklahoma|HL7
+127|Kickapoo Traditional Tribe of Texas|HL7
+128|Kiowa Indian Tribe of Oklahoma|HL7
+129|Klamath Indian Tribe of Oregon|HL7
+13|Bay Mills Indian Community of the Sault Ste. Marie|HL7
+130|Kootenai Tribe of Idaho|HL7
+131|La Jolla Band of Luiseno Mission Indians of the La|HL7
+132|La Posta Band of Diegueno Mission Indians of the L|HL7
+133|Lac Courte Oreilles Band of Lake Superior Chippewa|HL7
+134|Lac du Flambeau Band of Lake Superior Chippewa Ind|HL7
+135|Lac Vieux Desert Band of Lake Superior Chippewa In|HL7
+136|Las Vegas Tribe of Paiute Indians of the Las Vegas|HL7
+137|Little River Band of Ottawa Indians of Michigan|HL7
+138|Little Traverse Bay Bands of Odawa Indians of Mich|HL7
+139|Lower Lake Rancheria, California|HL7
+14|Bear River Band of the Rohnerville Rancheria, Cali|HL7
+140|Los Coyotes Band of Cahuilla Mission Indians of th|HL7
+141|Lovelock Paiute Tribe of the Lovelock Indian Colon|HL7
+142|Lower Brule Sioux Tribe of the Lower Brule Reserva|HL7
+143|Lower Elwha Tribal Community of the Lower Elwha Re|HL7
+144|Lower Sioux Indian Community of Minnesota Mdewakan|HL7
+145|Lummi Tribe of the Lummi Reservation, Washington|HL7
+146|Lytton Rancheria of California|HL7
+147|Makah Indian Tribe of the Makah Indian Reservation|HL7
+148|Manchester Band of Pomo Indians of the Manchester-|HL7
+149|Manzanita Band of Diegueno Mission Indians of the|HL7
+15|Berry Creek Rancheria of Maidu Indians of Californ|HL7
+150|Mashantucket Pequot Tribe of Connecticut|HL7
+151|Match-e-be-nash-she-wish Band of Pottawatomi India|HL7
+152|Mechoopda Indian Tribe of Chico Rancheria, Califor|HL7
+153|Menominee Indian Tribe of Wisconsin|HL7
+154|Mesa Grande Band of Diegueno Mission Indians of th|HL7
+155|Mescalero Apache Tribe of the Mescalero Reservatio|HL7
+156|Miami Tribe of Oklahoma|HL7
+157|Miccosukee Tribe of Indians of Florida|HL7
+158|Middletown Rancheria of Pomo Indians of California|HL7
+159|Minnesota Chippewa Tribe, Minnesota (Six component|HL7
+16|Big Lagoon Rancheria, California|HL7
+160|Bois Forte Band (Nett Lake); Fond du Lac Band; Gra|HL7
+161|Mississippi Band of Choctaw Indians, Mississippi|HL7
+162|Moapa Band of Paiute Indians of the Moapa River In|HL7
+163|Modoc Tribe of Oklahoma|HL7
+164|Mohegan Indian Tribe of Connecticut|HL7
+165|Mooretown Rancheria of Maidu Indians of California|HL7
+166|Morongo Band of Cahuilla Mission Indians of the Mo|HL7
+167|Muckleshoot Indian Tribe of the Muckleshoot Reserv|HL7
+168|Muscogee (Creek) Nation, Oklahoma|HL7
+169|Narragansett Indian Tribe of Rhode Island|HL7
+17|Big Pine Band of Owens Valley Paiute Shoshone Indi|HL7
+170|Navajo Nation, Arizona, New Mexico & Utah|HL7
+171|Nez Perce Tribe of Idaho|HL7
+172|Nisqually Indian Tribe of the Nisqually Reservatio|HL7
+173|Nooksack Indian Tribe of Washington|HL7
+174|Northern Cheyenne Tribe of the Northern Cheyenne I|HL7
+175|Northfork Rancheria of Mono Indians of California|HL7
+176|Northwestern Band of Shoshoni Nation of Utah (Wash|HL7
+177|Oglala Sioux Tribe of the Pine Ridge Reservation,|HL7
+178|Omaha Tribe of Nebraska|HL7
+179|Oneida Nation of New York|HL7
+18|Big Sandy Rancheria of Mono Indians of California|HL7
+180|Oneida Tribe of Wisconsin|HL7
+181|Onondaga Nation of New York|HL7
+182|Osage Tribe, Oklahoma|HL7
+183|Ottawa Tribe of Oklahoma|HL7
+184|Otoe-Missouria Tribe of Indians, Oklahoma|HL7
+185|Paiute Indian Tribe of Utah|HL7
+186|Paiute-Shoshone Indians of the Bishop Community of|HL7
+187|Paiute-Shoshone Tribe of the Fallon Reservation an|HL7
+188|Paiute-Shoshone Indians of the Lone Pine Community|HL7
+189|Pala Band of Luiseno Mission Indians of the Pala R|HL7
+19|Big Valley Band of Pomo Indians of the Big Valley|HL7
+190|Pascua Yaqui Tribe of Arizona|HL7
+191|Paskenta Band of Nomlaki Indians of California|HL7
+192|Passamaquoddy Tribe of Maine|HL7
+193|Pauma Band of Luiseno Mission Indians of the Pauma|HL7
+194|Pawnee Nation of Oklahoma|HL7
+195|Pechanga Band of Luiseno Mission Indians of the Pe|HL7
+196|Penobscot Tribe of Maine|HL7
+197|Peoria Tribe of Indians of Oklahoma|HL7
+198|Picayune Rancheria of Chukchansi Indians of Califo|HL7
+199|Pinoleville Rancheria of Pomo Indians of Californi|HL7
+2|Agua Caliente Band of Cahuilla Indians of the Agua|HL7
+20|Blackfeet Tribe of the Blackfeet Indian Reservatio|HL7
+200|Pit River Tribe, California (includes Big Bend, Lo|HL7
+201|Poarch Band of Creek Indians of Alabama|HL7
+202|Pokagon Band of Potawatomi Indians of Michigan|HL7
+203|Ponca Tribe of Indians of Oklahoma|HL7
+204|Ponca Tribe of Nebraska|HL7
+205|Port Gamble Indian Community of the Port Gamble Re|HL7
+206|Potter Valley Rancheria of Pomo Indians of Califor|HL7
+207|Prairie Band of Potawatomi Indians, Kansas|HL7
+208|Prairie Island Indian Community of Minnesota Mdewa|HL7
+209|Pueblo of Acoma, New Mexico|HL7
+21|Blue Lake Rancheria, California|HL7
+210|Pueblo of Cochiti, New Mexico|HL7
+211|Pueblo of Jemez, New Mexico|HL7
+212|Pueblo of Isleta, New Mexico|HL7
+213|Pueblo of Laguna, New Mexico|HL7
+214|Pueblo of Nambe, New Mexico|HL7
+215|Pueblo of Picuris, New Mexico|HL7
+216|Pueblo of Pojoaque, New Mexico|HL7
+217|Pueblo of San Felipe, New Mexico|HL7
+218|Pueblo of San Juan, New Mexico|HL7
+219|Pueblo of San Ildefonso, New Mexico|HL7
+22|Bridgeport Paiute Indian Colony of California|HL7
+220|Pueblo of Sandia, New Mexico|HL7
+221|Pueblo of Santa Ana, New Mexico|HL7
+222|Pueblo of Santa Clara, New Mexico|HL7
+223|Pueblo of Santo Domingo, New Mexico|HL7
+224|Pueblo of Taos, New Mexico|HL7
+225|Pueblo of Tesuque, New Mexico|HL7
+226|Pueblo of Zia, New Mexico|HL7
+227|Puyallup Tribe of the Puyallup Reservation, Washin|HL7
+228|Pyramid Lake Paiute Tribe of the Pyramid Lake Rese|HL7
+229|Quapaw Tribe of Indians, Oklahoma|HL7
+23|Buena Vista Rancheria of Me-Wuk Indians of Califor|HL7
+230|Quartz Valley Indian Community of the Quartz Valle|HL7
+231|Quechan Tribe of the Fort Yuma Indian Reservation,|HL7
+232|Quileute Tribe of the Quileute Reservation, Washin|HL7
+233|Quinault Tribe of the Quinault Reservation, Washin|HL7
+234|Ramona Band or Village of Cahuilla Mission Indians|HL7
+235|Red Cliff Band of Lake Superior Chippewa Indians o|HL7
+236|Red Lake Band of Chippewa Indians of the Red Lake|HL7
+237|Redding Rancheria, California|HL7
+238|Redwood Valley Rancheria of Pomo Indians of Califo|HL7
+239|Reno-Sparks Indian Colony, Nevada|HL7
+24|Burns Paiute Tribe of the Burns Paiute Indian Colo|HL7
+240|Resighini Rancheria, California (formerly known as|HL7
+241|Rincon Band of Luiseno Mission Indians of the Rinc|HL7
+242|Robinson Rancheria of Pomo Indians of California|HL7
+243|Rosebud Sioux Tribe of the Rosebud Indian Reservat|HL7
+244|Round Valley Indian Tribes of the Round Valley Res|HL7
+245|Rumsey Indian Rancheria of Wintun Indians of Calif|HL7
+246|Sac and Fox Tribe of the Mississippi in Iowa|HL7
+247|Sac and Fox Nation of Missouri in Kansas and Nebra|HL7
+248|Sac and Fox Nation, Oklahoma|HL7
+249|Saginaw Chippewa Indian Tribe of Michigan, Isabell|HL7
+25|Cabazon Band of Cahuilla Mission Indians of the Ca|HL7
+250|Salt River Pima-Maricopa Indian Community of the S|HL7
+251|Samish Indian Tribe, Washington|HL7
+252|San Carlos Apache Tribe of the San Carlos Reservat|HL7
+253|San Juan Southern Paiute Tribe of Arizona|HL7
+254|San Manual Band of Serrano Mission Indians of the|HL7
+255|San Pasqual Band of Diegueno Mission Indians of Ca|HL7
+256|Santa Rosa Indian Community of the Santa Rosa Ranc|HL7
+257|Santa Rosa Band of Cahuilla Mission Indians of the|HL7
+258|Santa Ynez Band of Chumash Mission Indians of the|HL7
+259|Santa Ysabel Band of Diegueno Mission Indians of t|HL7
+26|Cachil DeHe Band of Wintun Indians of the Colusa I|HL7
+260|Santee Sioux Tribe of the Santee Reservation of Ne|HL7
+261|Sauk-Suiattle Indian Tribe of Washington|HL7
+262|Sault Ste. Marie Tribe of Chippewa Indians of Mich|HL7
+263|Scotts Valley Band of Pomo Indians of California|HL7
+264|Seminole Nation of Oklahoma|HL7
+265|Seminole Tribe of Florida, Dania, Big Cypress, Bri|HL7
+266|Seneca Nation of New York|HL7
+267|Seneca-Cayuga Tribe of Oklahoma|HL7
+268|Shakopee Mdewakanton Sioux Community of Minnesota|HL7
+269|Shawnee Tribe, Oklahoma|HL7
+27|Caddo Indian Tribe of Oklahoma|HL7
+270|Sherwood Valley Rancheria of Pomo Indians of Calif|HL7
+271|Shingle Springs Band of Miwok Indians, Shingle Spr|HL7
+272|Shoalwater Bay Tribe of the Shoalwater Bay Indian|HL7
+273|Shoshone Tribe of the Wind River Reservation, Wyom|HL7
+274|Shoshone-Bannock Tribes of the Fort Hall Reservati|HL7
+275|Shoshone-Paiute Tribes of the Duck Valley Reservat|HL7
+276|Sisseton-Wahpeton Sioux Tribe of the Lake Traverse|HL7
+277|Skokomish Indian Tribe of the Skokomish Reservatio|HL7
+278|Skull Valley Band of Goshute Indians of Utah|HL7
+279|Smith River Rancheria, California|HL7
+28|Cahuilla Band of Mission Indians of the Cahuilla R|HL7
+280|Snoqualmie Tribe, Washington|HL7
+281|Soboba Band of Luiseno Indians, California (former|HL7
+282|Sokaogon Chippewa Community of the Mole Lake Band|HL7
+283|Southern Ute Indian Tribe of the Southern Ute Rese|HL7
+284|Spirit Lake Tribe, North Dakota (formerly known as|HL7
+285|Spokane Tribe of the Spokane Reservation, Washingt|HL7
+286|Squaxin Island Tribe of the Squaxin Island Reserva|HL7
+287|St. Croix Chippewa Indians of Wisconsin, St. Croix|HL7
+288|St. Regis Band of Mohawk Indians of New York|HL7
+289|Standing Rock Sioux Tribe of North & South Dakota|HL7
+29|Cahto Indian Tribe of the Laytonville Rancheria, C|HL7
+290|Stockbridge-Munsee Community of Mohican Indians of|HL7
+291|Stillaguamish Tribe of Washington|HL7
+292|Summit Lake Paiute Tribe of Nevada|HL7
+293|Suquamish Indian Tribe of the Port Madison Reserva|HL7
+294|Susanville Indian Rancheria, California|HL7
+295|Swinomish Indians of the Swinomish Reservation, Wa|HL7
+296|Sycuan Band of Diegueno Mission Indians of Califor|HL7
+297|Table Bluff Reservation - Wiyot Tribe, California|HL7
+298|Table Mountain Rancheria of California|HL7
+299|Te-Moak Tribe of Western Shoshone Indians of Nevad|HL7
+3|Ak Chin Indian Community of the Maricopa (Ak Chin)|HL7
+30|California Valley Miwok Tribe, California (formerl|HL7
+300|Thlopthlocco Tribal Town, Oklahoma|HL7
+301|Three Affiliated Tribes of the Fort Berthold Reser|HL7
+302|Tohono O'odham Nation of Arizona|HL7
+303|Tonawanda Band of Seneca Indians of New York|HL7
+304|Tonkawa Tribe of Indians of Oklahoma|HL7
+305|Tonto Apache Tribe of Arizona|HL7
+306|Torres-Martinez Band of Cahuilla Mission Indians o|HL7
+307|Tule River Indian Tribe of the Tule River Reservat|HL7
+308|Tulalip Tribes of the Tulalip Reservation, Washing|HL7
+309|Tunica-Biloxi Indian Tribe of Louisiana|HL7
+31|Campo Band of Diegueno Mission Indians of the Camp|HL7
+310|Tuolumne Band of Me-Wuk Indians of the Tuolumne Ra|HL7
+311|Turtle Mountain Band of Chippewa Indians of North|HL7
+312|Tuscarora Nation of New York|HL7
+313|Twenty-Nine Palms Band of Mission Indians of Calif|HL7
+314|United Auburn Indian Community of the Auburn Ranch|HL7
+315|United Keetoowah Band of Cherokee Indians of Oklah|HL7
+316|Upper Lake Band of Pomo Indians of Upper Lake Ranc|HL7
+317|Upper Sioux Indian Community of the Upper Sioux Re|HL7
+318|Upper Skagit Indian Tribe of Washington|HL7
+319|Ute Indian Tribe of the Uintah & Ouray Reservation|HL7
+32|Capitan Grande Band of Diegueno Mission Indians of|HL7
+320|Ute Mountain Tribe of the Ute Mountain Reservation|HL7
+321|Utu Utu Gwaitu Paiute Tribe of the Benton Paiute R|HL7
+322|Walker River Paiute Tribe of the Walker River Rese|HL7
+323|Wampanoag Tribe of Gay Head (Aquinnah) of Massachu|HL7
+324|Washoe Tribe of Nevada & California (Carson Colony|HL7
+325|White Mountain Apache Tribe of the Fort Apache Res|HL7
+326|Wichita and Affiliated Tribes (Wichita, Keechi, Wa|HL7
+327|Winnebago Tribe of Nebraska|HL7
+328|Winnemucca Indian Colony of Nevada|HL7
+329|Wyandotte Tribe of Oklahoma|HL7
+33|Barona Group of Capitan Grande Band of Mission Ind|HL7
+330|Yankton Sioux Tribe of South Dakota|HL7
+331|Yavapai-Apache Nation of the Camp Verde Indian Res|HL7
+332|Yavapai-Prescott Tribe of the Yavapai Reservation,|HL7
+333|Yerington Paiute Tribe of the Yerington Colony & C|HL7
+334|Yomba Shoshone Tribe of the Yomba Reservation, Nev|HL7
+335|Ysleta Del Sur Pueblo of Texas|HL7
+336|Yurok Tribe of the Yurok Reservation, California|HL7
+337|Zuni Tribe of the Zuni Reservation, New Mexico|HL7
+34|Viejas (Baron Long) Group of Capitan Grande Band o|HL7
+35|Catawba Indian Nation (aka Catawba Tribe of South|HL7
+36|Cayuga Nation of New York|HL7
+37|Cedarville Rancheria, California|HL7
+38|Chemehuevi Indian Tribe of the Chemehuevi Reservat|HL7
+39|Cher-Ae Heights Indian Community of the Trinidad R|HL7
+4|Alabama-Coushatta Tribes of Texas|HL7
+40|Cherokee Nation, Oklahoma|HL7
+41|Cheyenne-Arapaho Tribes of Oklahoma|HL7
+42|Cheyenne River Sioux Tribe of the Cheyenne River|HL7
+43|Chickasaw Nation, Oklahoma|HL7
+44|Chicken Ranch Rancheria of Me-Wuk Indians of Calif|HL7
+45|Chippewa-Cree Indians of the Rocky Boy's Reservati|HL7
+46|Chitimacha Tribe of Louisiana|HL7
+47|Choctaw Nation of Oklahoma|HL7
+48|Citizen Potawatomi Nation, Oklahoma|HL7
+49|Cloverdale Rancheria of Pomo Indians of California|HL7
+5|Alabama-Quassarte Tribal Town, Oklahoma|HL7
+50|Cocopah Tribe of Arizona|HL7
+51|Coeur D'Alene Tribe of the Coeur D'Alene Reservati|HL7
+52|Cold Springs Rancheria of Mono Indians of Californ|HL7
+53|Colorado River Indian Tribes of the Colorado River|HL7
+54|Comanche Indian Tribe, Oklahoma|HL7
+55|Confederated Salish & Kootenai Tribes of the Flath|HL7
+56|Confederated Tribes of the Chehalis Reservation, W|HL7
+57|Confederated Tribes of the Colville Reservation, W|HL7
+58|Confederated Tribes of the Coos, Lower Umpqua and|HL7
+59|Confederated Tribes of the Goshute Reservation, Ne|HL7
+6|Alturas Indian Rancheria, California|HL7
+60|Confederated Tribes of the Grand Ronde Community o|HL7
+61|Confederated Tribes of the Siletz Reservation, Ore|HL7
+62|Confederated Tribes of the Umatilla Reservation, O|HL7
+63|Confederated Tribes of the Warm Springs Reservatio|HL7
+64|Confederated Tribes and Bands of the Yakama Indian|HL7
+65|Coquille Tribe of Oregon|HL7
+66|Cortina Indian Rancheria of Wintun Indians of Cali|HL7
+67|Coushatta Tribe of Louisiana|HL7
+68|Cow Creek Band of Umpqua Indians of Oregon|HL7
+69|Coyote Valley Band of Pomo Indians of California|HL7
+7|Apache Tribe of Oklahoma|HL7
+70|Crow Tribe of Montana|HL7
+71|Crow Creek Sioux Tribe of the Crow Creek Reservati|HL7
+72|Cuyapaipe Community of Diegueno Mission Indians of|HL7
+73|Death Valley Timbi-Sha Shoshone Band of California|HL7
+74|Delaware Nation, Oklahoma (formerly Delaware Tribe|HL7
+75|Delaware Tribe of Indians, Oklahoma|HL7
+76|Dry Creek Rancheria of Pomo Indians of California|HL7
+77|Duckwater Shoshone Tribe of the Duckwater Reservat|HL7
+78|Eastern Band of Cherokee Indians of North Carolina|HL7
+79|Eastern Shawnee Tribe of Oklahoma|HL7
+8|Arapahoe Tribe of the Wind River Reservation, Wyom|HL7
+80|Elem Indian Colony of Pomo Indians of the Sulphur|HL7
+81|Elk Valley Rancheria, California|HL7
+82|Ely Shoshone Tribe of Nevada|HL7
+83|Enterprise Rancheria of Maidu Indians of Californi|HL7
+84|Flandreau Santee Sioux Tribe of South Dakota|HL7
+85|Forest County Potawatomi Community of Wisconsin Po|HL7
+86|Fort Belknap Indian Community of the Fort Belknap|HL7
+87|Fort Bidwell Indian Community of the Fort Bidwell|HL7
+88|Fort Independence Indian Community of Paiute India|HL7
+89|Fort McDermitt Paiute and Shoshone Tribes of the F|HL7
+9|Aroostook Band of Micmac Indians of Maine|HL7
+90|Fort McDowell Yavapai Nation, Arizona (formerly th|HL7
+91|Fort Mojave Indian Tribe of Arizona, California|HL7
+92|Fort Sill Apache Tribe of Oklahoma|HL7
+93|Gila River Indian Community of the Gila River Indi|HL7
+94|Grand Traverse Band of Ottawa & Chippewa Indians o|HL7
+95|Graton Rancheria, California|HL7
+96|Greenville Rancheria of Maidu Indians of Californi|HL7
+97|Grindstone Indian Rancheria of Wintun-Wailaki Indi|HL7
+98|Guidiville Rancheria of California|HL7
+99|Hannahville Indian Community of Wisconsin Potawato|HL7
 
 **Documentation**:
 
@@ -1426,6 +1500,8 @@ The tribal citizenship of the patient using the TribalEntityUS (OID 2.16.840.1.1
 ---
 
 **Name**: PtAddrZip
+
+**ReportStream Internal Name**: patient_zip_code
 
 **Type**: POSTAL_CODE
 
@@ -1441,6 +1517,8 @@ The patient's zip code
 
 **Name**: Pregnant
 
+**ReportStream Internal Name**: pregnant
+
 **Type**: CODE
 
 **PII**: No
@@ -1453,22 +1531,22 @@ The patient's zip code
 
 **Value Sets**
 
-Code | Display
----- | -------
-77386006|Pregnant
-60001007|Not Pregnant
-261665006|Unknown
-77386006|Pregnant
-60001007|Not Pregnant
-261665006|Unknown
+Code | Display | System
+---- | ------- | ------
+77386006|Pregnant|SNOMED_CT
+60001007|Not Pregnant|SNOMED_CT
+261665006|Unknown|SNOMED_CT
+77386006|Pregnant|SNOMED_CT
+60001007|Not Pregnant|SNOMED_CT
+261665006|Unknown|SNOMED_CT
 
 **Alt Value Sets**
 
-Code | Display
----- | -------
-77386006|Y
-60001007|N
-261665006|U
+Code | Display | System
+---- | ------- | ------
+77386006|Y|SNOMED_CT
+60001007|N|SNOMED_CT
+261665006|U|SNOMED_CT
 
 **Documentation**:
 
@@ -1477,6 +1555,8 @@ Is the patient pregnant?
 ---
 
 **Name**: RptFacName
+
+**ReportStream Internal Name**: reporting_facility
 
 **Type**: HD
 
@@ -1495,6 +1575,8 @@ aggregator
 ---
 
 **Name**: SenderCLIA
+
+**ReportStream Internal Name**: reporting_facility_clia
 
 **Type**: ID_CLIA
 
@@ -1518,6 +1600,8 @@ The reporting facility's CLIA
 
 **Name**: CongSetting
 
+**ReportStream Internal Name**: resident_congregate_setting
+
 **Type**: CODE
 
 **PII**: No
@@ -1530,22 +1614,22 @@ The reporting facility's CLIA
 
 **Value Sets**
 
-Code | Display
----- | -------
-Y|Yes
-N|No
-UNK|Unknown
-Y|Yes
-N|No
-UNK|Unknown
+Code | Display | System
+---- | ------- | ------
+Y|Yes|HL7
+N|No|HL7
+UNK|Unknown|NULLFL
+Y|Yes|HL7
+N|No|HL7
+UNK|Unknown|NULLFL
 
 **Alt Value Sets**
 
-Code | Display
----- | -------
-Y|Y
-N|N
-UNK|U
+Code | Display | System
+---- | ------- | ------
+Y|Y|HL7
+N|N|HL7
+UNK|U|HL7
 
 **Documentation**:
 
@@ -1554,6 +1638,8 @@ Does the patient reside in a congregate care setting?
 ---
 
 **Name**: SendingApp
+
+**ReportStream Internal Name**: sending_application
 
 **Type**: HD
 
@@ -1571,6 +1657,8 @@ The name and OID for the application sending information to the receivers
 ---
 
 **Name**: SpecCollDt
+
+**ReportStream Internal Name**: specimen_collection_date_time
 
 **Type**: DATETIME
 
@@ -1596,6 +1684,8 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 
 **Name**: AccessionNum
 
+**ReportStream Internal Name**: specimen_id
+
 **Type**: EI
 
 **PII**: No
@@ -1618,6 +1708,8 @@ A unique code for this specimen
 
 **Name**: SpecType
 
+**ReportStream Internal Name**: specimen_type
+
 **Type**: CODE
 
 **PII**: No
@@ -1628,25 +1720,26 @@ A unique code for this specimen
 
 **Value Sets**
 
-Code | Display
----- | -------
-445297001|Swab of internal nose
-258500001|Nasopharyngeal swab
-871810001|Mid-turbinate nasal swab
-697989009|Anterior nares swab
-258411007|Nasopharyngeal aspirate
-429931000124105|Nasal aspirate
-258529004|Throat swab
-119334006|Sputum specimen
-119342007|Saliva specimen
-258607008|Bronchoalveolar lavage fluid sample
-119364003|Serum specimen
-119361006|Plasma specimen
-440500007|Dried blood spot specimen
-258580003|Whole blood sample
-122555007|Venous blood specimen
-119297000|Blood specimen
-122554006|Capillary blood specimen
+Code | Display | System
+---- | ------- | ------
+445297001|Swab of internal nose|SNOMED_CT
+258500001|Nasopharyngeal swab|SNOMED_CT
+871810001|Mid-turbinate nasal swab|SNOMED_CT
+697989009|Anterior nares swab|SNOMED_CT
+258411007|Nasopharyngeal aspirate|SNOMED_CT
+429931000124105|Nasal aspirate|SNOMED_CT
+258529004|Throat swab|SNOMED_CT
+119334006|Sputum specimen|SNOMED_CT
+119342007|Saliva specimen|SNOMED_CT
+258560004|Oral saliva sample|SNOMED_CT
+258607008|Bronchoalveolar lavage fluid sample|SNOMED_CT
+119364003|Serum specimen|SNOMED_CT
+119361006|Plasma specimen|SNOMED_CT
+440500007|Dried blood spot specimen|SNOMED_CT
+258580003|Whole blood sample|SNOMED_CT
+122555007|Venous blood specimen|SNOMED_CT
+119297000|Blood specimen|SNOMED_CT
+122554006|Capillary blood specimen|SNOMED_CT
 
 **Documentation**:
 
@@ -1655,6 +1748,8 @@ The specimen source, such as Blood or Serum
 ---
 
 **Name**: Symptomatic
+
+**ReportStream Internal Name**: symptomatic_for_disease
 
 **Type**: CODE
 
@@ -1668,22 +1763,22 @@ The specimen source, such as Blood or Serum
 
 **Value Sets**
 
-Code | Display
----- | -------
-Y|Yes
-N|No
-UNK|Unknown
-Y|Yes
-N|No
-UNK|Unknown
+Code | Display | System
+---- | ------- | ------
+Y|Yes|HL7
+N|No|HL7
+UNK|Unknown|NULLFL
+Y|Yes|HL7
+N|No|HL7
+UNK|Unknown|NULLFL
 
 **Alt Value Sets**
 
-Code | Display
----- | -------
-Y|Y
-N|N
-UNK|U
+Code | Display | System
+---- | ------- | ------
+Y|Y|HL7
+N|N|HL7
+UNK|U|HL7
 
 **Documentation**:
 
@@ -1692,6 +1787,8 @@ Is the patient symptomatic?
 ---
 
 **Name**: ResultTestCode
+
+**ReportStream Internal Name**: test_result
 
 **Type**: CODE
 
@@ -1703,28 +1800,28 @@ Is the patient symptomatic?
 
 **Value Sets**
 
-Code | Display
----- | -------
-260373001|Detected
-260415000|Not detected
-720735008|Presumptive positive
-10828004|Positive
-42425007|Equivocal
-260385009|Negative
-895231008|Not detected in pooled specimen
-462371000124108|Detected in pooled specimen
-419984006|Inconclusive
-125154007|Specimen unsatisfactory for evaluation
-455371000124106|Invalid result
-840539006|Disease caused by sever acute respiratory syndrome coronavirus 2 (disorder)
-840544004|Suspected disease caused by severe acute respiratory coronavirus 2 (situation)
-840546002|Exposure to severe acute respiratory syndrome coronavirus 2 (event)
-840533007|Severe acute respiratory syndrome coronavirus 2 (organism)
-840536004|Antigen of severe acute respiratory syndrome coronavirus 2 (substance)
-840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
-840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
-373121007|Test not done
-82334004|Indeterminate
+Code | Display | System
+---- | ------- | ------
+260373001|Detected|SNOMED_CT
+260415000|Not detected|SNOMED_CT
+720735008|Presumptive positive|SNOMED_CT
+10828004|Positive|SNOMED_CT
+42425007|Equivocal|SNOMED_CT
+260385009|Negative|SNOMED_CT
+895231008|Not detected in pooled specimen|SNOMED_CT
+462371000124108|Detected in pooled specimen|SNOMED_CT
+419984006|Inconclusive|SNOMED_CT
+125154007|Specimen unsatisfactory for evaluation|SNOMED_CT
+455371000124106|Invalid result|SNOMED_CT
+840539006|Disease caused by sever acute respiratory syndrome coronavirus 2 (disorder)|SNOMED_CT
+840544004|Suspected disease caused by severe acute respiratory coronavirus 2 (situation)|SNOMED_CT
+840546002|Exposure to severe acute respiratory syndrome coronavirus 2 (event)|SNOMED_CT
+840533007|Severe acute respiratory syndrome coronavirus 2 (organism)|SNOMED_CT
+840536004|Antigen of severe acute respiratory syndrome coronavirus 2 (substance)|SNOMED_CT
+840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)|SNOMED_CT
+840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)|SNOMED_CT
+373121007|Test not done|SNOMED_CT
+82334004|Indeterminate|SNOMED_CT
 
 **Documentation**:
 
@@ -1734,11 +1831,45 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 
 **Name**: TestResultDt
 
+**ReportStream Internal Name**: test_result_date
+
 **Type**: DATETIME
 
 **PII**: No
 
 **Format**: yyyyMMdd
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: equipment_model_name
+
+**ReportStream Internal Name**: equipment_model_name
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+
+**Reference URL**:
+[https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
+
+**Table**: LIVD-SARS-CoV-2
+
+**Table Column**: Model
+
+---
+
+**Name**: local_symptom_onset_date
+
+**ReportStream Internal Name**: local_symptom_onset_date
+
+**Type**: TEXT
+
+**PII**: No
 
 **Cardinality**: [0..1]
 

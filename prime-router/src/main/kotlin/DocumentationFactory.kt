@@ -1,5 +1,6 @@
 package gov.cdc.prime.router
 
+import org.apache.logging.log4j.kotlin.Logging
 import org.commonmark.parser.Parser
 import org.commonmark.renderer.html.HtmlRenderer
 import java.io.File
@@ -9,7 +10,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 /** a singleton instance to let us build documentation off of a schema or off of an element */
-object DocumentationFactory {
+object DocumentationFactory : Logging {
     // will generate a documentation string based on markdown that can then be presented
     // to end users or be converted into HTML if we want to be fancy
     private const val hl7DocumentationUrl = "https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/"
@@ -31,6 +32,7 @@ object DocumentationFactory {
         // our top-level element data points
         sb.appendLine("") // start with a blank line at the top 
         appendLabelAndData(sb, "Name", displayName)
+        appendLabelAndData(sb, "ReportStream Internal Name", element.name)
         appendLabelAndData(sb, "Type", element.type?.name)
         appendLabelAndData(sb, "PII", if (element.pii == true) "Yes" else "No")
 
@@ -63,11 +65,11 @@ object DocumentationFactory {
 
         // build the valuesets
         if (element.valueSetRef != null) {
-            appendValueSetTable(sb, "Value Sets", element.valueSetRef.values)
+            appendValueSetTable(sb, "Value Sets", element)
         }
 
         if (element.altValues?.isNotEmpty() == true) {
-            appendValueSetTable(sb, "Alt Value Sets", element.altValues)
+            appendValueSetTable(sb, "Alt Value Sets", element)
         }
 
         if (element.table?.isNotEmpty() == true) {
@@ -93,16 +95,43 @@ ${element.documentation}
     // gets the documentation
     fun getSchemaDocumentation(schema: Schema): String {
         val sb = StringBuilder()
+        var schemaTrackingName =
+            if (schema.trackingElement.isNullOrEmpty()) {
+                logger.warn("Schema ${schema.name}: TrackingElement is empty")
+                "none"
+            } else {
+                var trackingName = schema.findElement(schema.trackingElement)?.csvFields?.get(0)?.name
+                if (trackingName == null)
+                    "(${schema.trackingElement})"
+                else
+                    "$trackingName (${schema.trackingElement})"
+            }
+        var schemabaseOn = if (schema.basedOn.isNullOrBlank()) "none" else "[${schema.basedOn}](./${schema.basedOn}.md)"
+        var extendName =
+            if (schema.extends.isNullOrBlank()) {
+                "none"
+            } else {
+                schema.extends.replace('/', '-')
+            }
+        var schemaExtends = if (schema.extends.isNullOrBlank()) "none" else "[${schema.extends}](./$extendName.md)"
+        var schemaDescription = if (schema.description.isNullOrBlank()) "none" else "${schema.description}"
 
         sb.appendLine(
             """
-### Schema:         ${schema.name}
-#### Description:   ${schema.description}
+### Schema: ${schema.name}
+### Topic: ${schema.topic}
+### Tracking Element: $schemaTrackingName
+### Base On: $schemabaseOn
+### Extends: $schemaExtends
+#### Description: $schemaDescription
 
 ---"""
         )
 
-        schema.elements.sortedBy { it -> it.name }.forEach { element ->
+        schema.elements.filter { !it.csvFields.isNullOrEmpty() }.sortedBy { it -> it.name }.forEach { element ->
+            sb.append(getElementDocumentation(element))
+        }
+        schema.elements.filter { it.csvFields.isNullOrEmpty() }.sortedBy { it -> it.name }.forEach { element ->
             sb.append(getElementDocumentation(element))
         }
 
@@ -201,16 +230,23 @@ ${element.documentation}
         appendable.appendLine("")
     }
 
-    private fun appendValueSetTable(appendable: Appendable, label: String, values: Collection<ValueSet.Value>?) {
+    private fun appendValueSetTable(appendable: Appendable, label: String, element: Element) {
+        val system = element.valueSetRef?.system ?: ValueSet.SetSystem.NULLFL
+        val values: List<ValueSet.Value>? = when (label) {
+            "Value Sets" -> element.valueSetRef?.values
+            "Alt Value Sets" -> element.altValues
+            else -> emptyList()
+        }
+
         if (values?.isNotEmpty() == true) {
 
             appendable.appendLine("**$label**\n")
-            appendable.appendLine("Code | Display")
-            appendable.appendLine("---- | -------")
+            appendable.appendLine("Code | Display | System")
+            appendable.appendLine("---- | ------- | ------")
 
             values.forEach { vs ->
                 val code = if (vs.code == ">") "&#62;" else vs.code // This to solve the markdown blockquote '>'
-                appendable.appendLine("$code|${vs.display}")
+                appendable.appendLine("$code|${vs.display}|${vs.system ?: system}")
             }
             appendable.appendLine("")
         }

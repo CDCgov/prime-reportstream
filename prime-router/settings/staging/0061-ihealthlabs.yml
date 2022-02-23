@@ -1,0 +1,11 @@
+# Run this:  ./prime multiple-settings set --input ./settings/staging/0061-ihealthlabs.yml --env staging
+---
+- name: ihealthlabs
+  description: iHealthLabs
+  jurisdiction: FEDERAL
+  senders:
+  - name: default
+    organizationName: ihealthlabs
+    topic: covid-19
+    schemaName: direct/ihealthlabs-covid-19
+    format: CSV

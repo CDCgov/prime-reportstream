@@ -3,7 +3,11 @@ package gov.cdc.prime.router
 import com.google.i18n.phonenumbers.PhoneNumberUtil
 import gov.cdc.prime.router.Element.Cardinality.ONE
 import gov.cdc.prime.router.Element.Cardinality.ZERO_OR_ONE
+import gov.cdc.prime.router.metadata.ElementAndValue
+import gov.cdc.prime.router.metadata.LIVDLookupMapper
+import gov.cdc.prime.router.metadata.LookupMapper
 import gov.cdc.prime.router.metadata.LookupTable
+import gov.cdc.prime.router.metadata.Mapper
 import java.lang.Exception
 import java.text.DecimalFormat
 import java.time.DateTimeException
@@ -31,12 +35,12 @@ class AltValueNotDefinedException(message: String) : IllegalStateException(messa
  *
  *    Schema 1 -> Standard Standard -> schema 2
  *
- * To describe the intent of a element there are references to the national standards.
+ * To describe the intent of an element there are references to the national standards.
  */
 data class Element(
     // An element can either be a new element or one based on previously defined element
     // - A name of form [A-Za-z0-9_]+ is a new element
-    // - A name of form [A-Za-z0-9_]+.[A-Za-z0-9_]+ is an element based on an previously defined element
+    // - A name of form [A-Za-z0-9_]+.[A-Za-z0-9_]+ is an element based on a previously defined element
     //
     val name: String,
 
@@ -78,9 +82,6 @@ data class Element(
     val hl7Field: String? = null,
     val hl7OutputFields: List<String>? = null,
     val hl7AOEQuestion: String? = null,
-
-    // Redox specific information
-    val redoxOutputFields: List<String>? = null,
 
     /**
      * The header fields that correspond to an element.
@@ -156,6 +157,10 @@ data class Element(
         val universalIdSystem: String?
     )
 
+    /**
+     * An element can have subfields, for example when more than CSV field makes up a single element.
+     * See ElementTests for an example.
+     **/
     data class SubValue(
         val name: String,
         val value: String,
@@ -197,9 +202,17 @@ data class Element(
      */
     val isTableLookup get() = mapperRef != null && type == Type.TABLE
 
-    // Creates a field mapping string showing the external CSV header name(s)
-    // and the corresponding internal field name
-    val fieldMapping get() = "'${this.csvFields?.joinToString { it -> it.name }}' ('${this.name}')"
+    /**
+     * String showing the external field name(s) if any and the element name.
+     */
+    val fieldMapping: String get() {
+        return when {
+            !csvFields.isNullOrEmpty() -> "'${csvFields.map { it -> it.name }.joinToString(",")}' ('$name')"
+            !hl7Field.isNullOrBlank() -> "'$hl7Field' ('$name')"
+            !hl7OutputFields.isNullOrEmpty() -> "'${hl7OutputFields.joinToString(",")}}' ('$name')"
+            else -> "'$name'"
+        }
+    }
 
     fun inheritFrom(baseElement: Element): Element {
         return Element(
@@ -225,11 +238,48 @@ data class Element(
             hl7Field = this.hl7Field ?: baseElement.hl7Field,
             hl7OutputFields = this.hl7OutputFields ?: baseElement.hl7OutputFields,
             hl7AOEQuestion = this.hl7AOEQuestion ?: baseElement.hl7AOEQuestion,
-            redoxOutputFields = this.redoxOutputFields ?: baseElement.redoxOutputFields,
             documentation = this.documentation ?: baseElement.documentation,
             csvFields = this.csvFields ?: baseElement.csvFields,
             delimiter = this.delimiter ?: baseElement.delimiter,
         )
+    }
+
+    /**
+     * Generate validation error messages if this element is not valid.
+     * @return a list of error messages, or an empty list if no errors
+     */
+    fun validate(): List<String> {
+        val errorList = mutableListOf<String>()
+
+        /**
+         * Add an error [message].
+         */
+        fun addError(message: String) {
+            errorList.add("Element $name - $message.")
+        }
+
+        // All elements require a type
+        if (type == null) addError("requires an element type.")
+
+        // Table lookups require a table
+        if ((mapperRef?.name == LookupMapper().name || mapperRef?.name == LIVDLookupMapper().name) &&
+            (tableRef == null || tableColumn.isNullOrBlank())
+        )
+            addError("requires a table and table column.")
+
+        // Elements of type table need a table ref
+        if ((type == Type.TABLE || type == Type.TABLE_OR_BLANK || !tableColumn.isNullOrBlank()) && tableRef == null)
+            addError("requires a table.")
+
+        // Elements with mapper parameters require a mapper
+        if ((mapperOverridesValue == true || !mapperArgs.isNullOrEmpty()) && mapperRef == null)
+            addError("has mapper related parameters, but no mapper.")
+
+        // Elements that can be blank should not have a default
+        if (canBeBlank && default != null)
+            addError("has a default specified, but can be blank")
+
+        return errorList
     }
 
     fun nameContains(substring: String): Boolean {
@@ -257,28 +307,25 @@ data class Element(
         normalizedValue: String,
         format: String? = null,
     ): String {
-        if (normalizedValue.isEmpty()) return ""
+        val cleanedNormalizedValue = normalizedValue.trim()
+        if (cleanedNormalizedValue.isEmpty()) return ""
         val formattedValue = when (type) {
             // sometimes you just need to send through an empty column
             Type.BLANK -> ""
             Type.DATE -> {
                 if (format != null) {
-                    if (format != null) {
-                        var ta = parseDate(normalizedValue)
-                        getDate(ta, format)
-                    } else {
-                        normalizedValue
-                    }
+                    val ta = parseDate(cleanedNormalizedValue)
+                    getDate(ta, format)
                 } else {
-                    normalizedValue
+                    cleanedNormalizedValue
                 }
             }
             Type.DATETIME -> {
                 if (format != null) {
                     val formatter = DateTimeFormatter.ofPattern(format)
-                    LocalDateTime.parse(normalizedValue, datetimeFormatter).format(formatter)
+                    LocalDateTime.parse(cleanedNormalizedValue, datetimeFormatter).format(formatter)
                 } else {
-                    normalizedValue
+                    cleanedNormalizedValue
                 }
             }
             Type.CODE -> {
@@ -286,48 +333,49 @@ data class Element(
                 when (format) {
                     // TODO Revisit: there may be times that normalizedValue is not an altValue
                     altDisplayToken ->
-                        toAltDisplay(normalizedValue)
+                        toAltDisplay(cleanedNormalizedValue)
                             ?: throw AltValueNotDefinedException(
                                 "Outgoing receiver schema problem:" +
-                                    " '$normalizedValue' is not in altValues set for $fieldMapping."
+                                    " '$cleanedNormalizedValue' is not in altValues set for $fieldMapping."
                             )
                     codeToken ->
-                        toCode(normalizedValue)
+                        toCode(cleanedNormalizedValue)
                             ?: error(
                                 "Schema Error: " +
-                                    "'$normalizedValue' is not in valueSet '$valueSet' for $fieldMapping/'$format'. " +
+                                    "'$cleanedNormalizedValue' is not in valueSet " +
+                                    "'$valueSet' for $fieldMapping/'$format'. " +
                                     "\nAvailable values are " +
                                     "${valueSetRef?.values?.joinToString { "${it.code} -> ${it.display}" }}" +
                                     "\nAlt values (${altValues?.count()}) are " +
                                     "${altValues?.joinToString { "${it.code} -> ${it.display}" }}"
                             )
                     caretToken -> {
-                        val display = valueSetRef?.toDisplayFromCode(normalizedValue)
-                            ?: error("Internal Error: '$normalizedValue' cannot be formatted for $fieldMapping")
-                        "$normalizedValue^$display^${valueSetRef.systemCode}"
+                        val display = valueSetRef?.toDisplayFromCode(cleanedNormalizedValue)
+                            ?: error("Internal Error: '$cleanedNormalizedValue' cannot be formatted for $fieldMapping")
+                        "$cleanedNormalizedValue^$display^${valueSetRef.systemCode}"
                     }
                     displayToken -> {
-                        valueSetRef?.toDisplayFromCode(normalizedValue)
-                            ?: error("Internal Error: '$normalizedValue' cannot be formatted for $fieldMapping")
+                        valueSetRef?.toDisplayFromCode(cleanedNormalizedValue)
+                            ?: error("Internal Error: '$cleanedNormalizedValue' cannot be formatted for $fieldMapping")
                     }
                     systemToken -> {
                         // Very confusing, but this special case is in the HHS Guidance Confluence page
-                        if (valueSetRef?.name == "hl70136" && normalizedValue == "UNK")
+                        if (valueSetRef?.name == "hl70136" && cleanedNormalizedValue == "UNK")
                             "NULLFL"
                         else
                             valueSetRef?.systemCode ?: error("valueSetRef for $valueSet is null!")
                     }
-                    else -> normalizedValue
+                    else -> cleanedNormalizedValue
                 }
             }
             Type.TELEPHONE -> {
                 // normalized telephone always has 3 values national:country:extension
-                val parts = if (normalizedValue.contains(phoneDelimiter)) {
-                    normalizedValue.split(phoneDelimiter)
+                val parts = if (cleanedNormalizedValue.contains(phoneDelimiter)) {
+                    cleanedNormalizedValue.split(phoneDelimiter)
                 } else {
                     // remove parens from HL7 formatting
                     listOf(
-                        normalizedValue
+                        cleanedNormalizedValue
                             .replace("(", "")
                             .replace(")", ""),
                         "1", // country code
@@ -347,26 +395,26 @@ data class Element(
                 when (format) {
                     zipFiveToken -> {
                         // If this is US zip, return the first 5 digits
-                        val matchResult = Regex(usZipFormat).matchEntire(normalizedValue)
+                        val matchResult = Regex(usZipFormat).matchEntire(cleanedNormalizedValue)
                         matchResult?.groupValues?.get(1)
-                            ?: normalizedValue.padStart(5, '0')
+                            ?: cleanedNormalizedValue.padStart(5, '0')
                     }
                     zipFivePlusFourToken -> {
                         // If this a US zip, either 5 or 9 digits depending on the value
-                        val matchResult = Regex(usZipFormat).matchEntire(normalizedValue)
+                        val matchResult = Regex(usZipFormat).matchEntire(cleanedNormalizedValue)
                         if (matchResult != null && matchResult.groups[2] == null) {
                             matchResult.groups[1]?.value ?: ""
                         } else if (matchResult != null && matchResult.groups[2] != null) {
                             "${matchResult.groups[1]?.value}-${matchResult.groups[2]?.value}"
                         } else {
-                            normalizedValue.padStart(5, '0')
+                            cleanedNormalizedValue.padStart(5, '0')
                         }
                     }
-                    else -> normalizedValue.padStart(5, '0')
+                    else -> cleanedNormalizedValue.padStart(5, '0')
                 }
             }
             Type.HD -> {
-                val hdFields = parseHD(normalizedValue)
+                val hdFields = parseHD(cleanedNormalizedValue)
                 when (format) {
                     null,
                     hdNameToken -> hdFields.name
@@ -376,7 +424,7 @@ data class Element(
                 }
             }
             Type.EI -> {
-                val eiFields = parseEI(normalizedValue)
+                val eiFields = parseEI(cleanedNormalizedValue)
                 when (format) {
                     null,
                     eiNameToken -> eiFields.name
@@ -386,7 +434,7 @@ data class Element(
                     else -> error("Schema Error: unsupported EI format for output: '$format' in $fieldMapping")
                 }
             }
-            else -> normalizedValue
+            else -> cleanedNormalizedValue
         }
         return truncateIfNeeded(formattedValue)
     }
@@ -402,26 +450,29 @@ data class Element(
     // and then output based on the format. you can extend this to accept a third
     // variable which would be the element's output format, and do an extra branch
     // based on that
-    fun getDate(temporalAccessor: TemporalAccessor, outputFormat: String): String {
+    fun getDate(
+        temporalAccessor: TemporalAccessor,
+        outputFormat: String,
+        convertPositiveOffsetToNegative: Boolean = false
+    ): String {
         val outputFormatter = DateTimeFormatter.ofPattern(outputFormat)
-        val formattedDate = when {
-            // if the date parsed out as LocalDate
-            temporalAccessor is LocalDate ->
-                LocalDate.from(temporalAccessor)
-                    .atStartOfDay()
-                    .format(outputFormatter)
-            temporalAccessor is LocalDateTime ->
-                LocalDateTime.from(temporalAccessor)
-                    .format(outputFormatter)
-            temporalAccessor is OffsetDateTime ->
-                OffsetDateTime.from(temporalAccessor)
-                    .format(outputFormatter)
-            temporalAccessor is Instant ->
-                Instant.from(temporalAccessor).toString()
+        val formattedDate = when (temporalAccessor) {
+            is LocalDate -> LocalDate.from(temporalAccessor)
+                .atStartOfDay()
+                .format(outputFormatter)
+            is LocalDateTime -> LocalDateTime.from(temporalAccessor)
+                .format(outputFormatter)
+            is OffsetDateTime -> OffsetDateTime.from(temporalAccessor)
+                .format(outputFormatter)
+            is Instant -> Instant.from(temporalAccessor).toString()
             else -> error("Unsupported format!")
         }
 
-        return formattedDate
+        return if (convertPositiveOffsetToNegative) {
+            convertPositiveOffsetToNegativeOffset(formattedDate)
+        } else {
+            formattedDate
+        }
     }
 
     fun truncateIfNeeded(str: String): String {
@@ -446,21 +497,23 @@ data class Element(
     }
 
     /**
-     * Take a formatted value and check to see if can be stored in a report.
+     * Take a formatted value and check to see if it can be stored in a report.
      */
-    fun checkForError(formattedValue: String, format: String? = null): ResponseMessage? {
-        if (formattedValue.isBlank() && !isOptional && !canBeBlank) return MissingFieldMessage.new(fieldMapping)
+    fun checkForError(formattedValue: String, format: String? = null): ActionLogDetail? {
+        // remove trailing spaces
+        val cleanedValue = formattedValue.trim()
+        if (cleanedValue.isBlank() && !isOptional && !canBeBlank) return MissingFieldMessage.new(fieldMapping)
         return when (type) {
             Type.DATE -> {
                 try {
-                    LocalDate.parse(formattedValue)
+                    LocalDate.parse(cleanedValue)
                     return null
                 } catch (e: DateTimeParseException) {
                     // continue to the next try
                 }
                 try {
                     val formatter = DateTimeFormatter.ofPattern(format ?: datePattern, Locale.ENGLISH)
-                    LocalDate.parse(formattedValue, formatter)
+                    LocalDate.parse(cleanedValue, formatter)
                     return null
                 } catch (e: DateTimeParseException) {
                     // continue to the next try
@@ -469,7 +522,7 @@ data class Element(
                 // the next six date validation patterns are valid date patterns that we have seen be
                 // manually entered into EMR systems, but are not consistent, so we cannot use the "format" param
                 try {
-                    validateManualDates(formattedValue, true)
+                    validateManualDates(cleanedValue, true)
                     return null
                 } catch (e: DateTimeParseException) {
                     // continue to the next try
@@ -478,7 +531,7 @@ data class Element(
                     val optionalDateTime = variableDateTimePattern
                     val df = DateTimeFormatter.ofPattern(optionalDateTime)
                     val ta = df.parseBest(
-                        formattedValue,
+                        cleanedValue,
                         OffsetDateTime::from,
                         LocalDateTime::from,
                         Instant::from,
@@ -490,90 +543,54 @@ data class Element(
                     if (nullifyValue) {
                         return null
                     } else {
-                        InvalidDateMessage.new(formattedValue, fieldMapping, format)
+                        InvalidDateMessage.new(cleanedValue, fieldMapping, format)
                     }
                 }
             }
             Type.DATETIME -> {
                 try {
-                    // Try an ISO pattern
-                    OffsetDateTime.parse(formattedValue)
-                    return null
-                } catch (e: DateTimeParseException) {
-                    // continue to the next try
-                }
-                try {
-                    // Try a HL7 pattern
-                    val formatter = DateTimeFormatter.ofPattern(format ?: datetimePattern, Locale.ENGLISH)
-                    OffsetDateTime.parse(formattedValue, formatter)
-                    return null
-                } catch (e: DateTimeParseException) {
-                    // continue to the next try
-                }
-                try {
-                    // Try to parse using a LocalDate pattern assuming it is in our canonical dateFormatter. Central timezone.
-                    val date = LocalDate.parse(formattedValue, dateFormatter)
-                    val zoneOffset = ZoneOffset.UTC.rules.getOffset(Instant.now())
-                    OffsetDateTime.of(date, LocalTime.of(0, 0), zoneOffset)
-                    return null
-                } catch (e: DateTimeParseException) {
-                    // continue to the next try
-                }
-                try {
-                    // this is a saving throw
-                    val optionalDateTime = variableDateTimePattern
-                    val df = DateTimeFormatter.ofPattern(optionalDateTime)
-                    val ta = df.parseBest(
-                        formattedValue,
-                        OffsetDateTime::from,
-                        LocalDateTime::from,
-                        Instant::from,
-                        LocalDate::from
-                    )
-                    if (ta is LocalDateTime) {
-                        LocalDateTime.from(ta).atZone(ZoneId.of(USTimeZone.CENTRAL.zoneId)).toOffsetDateTime()
-                    } else {
-                        LocalDate.from(ta).atStartOfDay(ZoneId.of(USTimeZone.CENTRAL.zoneId)).toOffsetDateTime()
-                    }
+                    // getDateTime will throw exception it there is any error.
+                    getDateTime(cleanedValue, format)
                     return null
                 } catch (e: DateTimeParseException) {
                     // continue to the next try
                 } catch (e: DateTimeException) {
                     // this could also happen
                 }
+
                 return try {
                     // Try to parse using a LocalDate pattern, assuming it follows a non-canonical format value.
                     // Example: 'yyyy-mm-dd' - the incoming data is a Date, but not our canonical date format.
                     val formatter = DateTimeFormatter.ofPattern(format ?: datetimePattern, Locale.ENGLISH)
-                    LocalDate.parse(formattedValue, formatter)
+                    LocalDate.parse(cleanedValue, formatter)
                     null
                 } catch (e: DateTimeParseException) {
                     if (nullifyValue) {
                         return null
                     } else {
-                        InvalidDateMessage.new(formattedValue, fieldMapping, format)
+                        InvalidDateMessage.new(cleanedValue, fieldMapping, format)
                     }
                 }
             }
             Type.CODE -> {
                 // First, prioritize use of a local $alt format, even if no value set exists.
                 return if (format == altDisplayToken) {
-                    if (toAltCode(formattedValue) != null) null else
-                        InvalidCodeMessage.new(formattedValue, fieldMapping, format)
+                    if (toAltCode(cleanedValue) != null) null else
+                        InvalidCodeMessage.new(cleanedValue, fieldMapping, format)
                 } else {
                     if (valueSetRef == null) error("Schema Error: missing value set for $fieldMapping")
                     when (format) {
                         displayToken ->
-                            if (valueSetRef.toCodeFromDisplay(formattedValue) != null) null else
-                                InvalidCodeMessage.new(formattedValue, fieldMapping, format)
+                            if (valueSetRef.toCodeFromDisplay(cleanedValue) != null) null else
+                                InvalidCodeMessage.new(cleanedValue, fieldMapping, format)
                         codeToken -> {
                             val values = altValues ?: valueSetRef.values
-                            if (values.find { it.code == formattedValue } != null) null else
-                                InvalidCodeMessage.new(formattedValue, fieldMapping, format)
+                            if (values.find { it.code == cleanedValue } != null) null else
+                                InvalidCodeMessage.new(cleanedValue, fieldMapping, format)
                         }
                         else ->
-                            if (valueSetRef.toNormalizedCode(formattedValue) != null) null else
-                                InvalidCodeMessage.new(formattedValue, fieldMapping, format)
+                            if (valueSetRef.toNormalizedCode(cleanedValue) != null) null else
+                                InvalidCodeMessage.new(cleanedValue, fieldMapping, format)
                     }
                 }
             }
@@ -581,19 +598,19 @@ data class Element(
                 return try {
                     // parse can fail if the phone number is not correct, which feels like bad behavior
                     // this then causes a report level failure, not an element level failure
-                    val number = phoneNumberUtil.parse(formattedValue, "US")
+                    val number = phoneNumberUtil.parse(cleanedValue, "US")
                     if (!number.hasNationalNumber() || number.nationalNumber > 9999999999L)
-                        InvalidPhoneMessage.new(formattedValue, fieldMapping)
+                        InvalidPhoneMessage.new(cleanedValue, fieldMapping)
                     else
                         null
                 } catch (ex: Exception) {
-                    InvalidPhoneMessage.new(formattedValue, fieldMapping)
+                    InvalidPhoneMessage.new(cleanedValue, fieldMapping)
                 }
             }
             Type.POSTAL_CODE -> {
                 // Let in all formats defined by http://www.dhl.com.tw/content/dam/downloads/tw/express/forms/postcode_formats.pdf
-                return if (!Regex("^[A-Za-z\\d\\- ]{3,12}\$").matches(formattedValue))
-                    InvalidPostalMessage.new(formattedValue, fieldMapping, format)
+                return if (!Regex("^[A-Za-z\\d\\- ]{3,12}\$").matches(cleanedValue))
+                    InvalidPostalMessage.new(cleanedValue, fieldMapping, format)
                 else
                     null
             }
@@ -604,7 +621,7 @@ data class Element(
                     hdUniversalIdToken -> null
                     hdSystemToken -> null
                     hdCompleteFormat -> {
-                        val parts = formattedValue.split(hdDelimiter)
+                        val parts = cleanedValue.split(hdDelimiter)
                         if (parts.size == 1 || parts.size == 3) null else UnsupportedHDMessage.new()
                     }
                     else -> UnsupportedHDMessage.new(format, fieldMapping)
@@ -617,7 +634,7 @@ data class Element(
                     eiNamespaceIdToken -> null
                     eiSystemToken -> null
                     eiCompleteFormat -> {
-                        val parts = formattedValue.split(eiDelimiter)
+                        val parts = cleanedValue.split(eiDelimiter)
                         if (parts.size == 1 || parts.size == 4) null else UnsupportedEIMessage.new()
                     }
                     else -> UnsupportedEIMessage.new(format, fieldMapping)
@@ -632,32 +649,32 @@ data class Element(
      * Take a formatted value and turn into a normalized value stored in a report
      */
     fun toNormalized(formattedValue: String, format: String? = null): String {
-        if (formattedValue.isEmpty()) return ""
+        val cleanedFormattedValue = formattedValue.trim()
+        if (cleanedFormattedValue.isEmpty()) return ""
         return when (type) {
             Type.BLANK -> ""
             Type.DATE -> {
-
                 val normalDate = try {
-                    LocalDate.parse(formattedValue)
+                    LocalDate.parse(cleanedFormattedValue)
                 } catch (e: DateTimeParseException) {
                     null
                 } ?: try {
                     val formatter = DateTimeFormatter.ofPattern(format ?: datePattern, Locale.ENGLISH)
-                    LocalDate.parse(formattedValue, formatter)
+                    LocalDate.parse(cleanedFormattedValue, formatter)
                 } catch (e: DateTimeParseException) {
                     null
                 }
                     // the next six date validation patterns are valid date patterns that we have seen be
                     // manually entered into EMR systems, but are not consistent, so we cannot use the "format" param
                     ?: try {
-                        validateManualDates(formattedValue, false)
+                        validateManualDates(cleanedFormattedValue, false)
                     } catch (e: DateTimeParseException) {
                         null
                     } ?: try {
                     val optionalDateTime = variableDateTimePattern
                     val df = DateTimeFormatter.ofPattern(optionalDateTime)
                     val ta = df.parseBest(
-                        formattedValue,
+                        cleanedFormattedValue,
                         OffsetDateTime::from,
                         LocalDateTime::from,
                         Instant::from,
@@ -669,135 +686,89 @@ data class Element(
                     if (nullifyValue) {
                         return ""
                     } else {
-                        error("Invalid date: '$formattedValue' for element $fieldMapping")
+                        error("Invalid date: '$cleanedFormattedValue' for element $fieldMapping")
                     }
                 } catch (e: DateTimeException) {
                     // this shouldn't ever really happen because we can always extract local date from a date time
                     // but it's better to be more secure and transparent
-                    error("Unable to parse '$formattedValue' for element $fieldMapping because it was the wrong type.")
+                    error(
+                        "Unable to parse '$cleanedFormattedValue' for " +
+                            "element $fieldMapping because it was the wrong type."
+                    )
                 }
                 normalDate.format(dateFormatter)
             }
             Type.DATETIME -> {
-                val normalDateTime = try {
-                    // Try an ISO pattern
-                    OffsetDateTime.parse(formattedValue)
-                } catch (e: DateTimeParseException) {
-                    null
-                } ?: try {
-                    // Try a HL7 pattern
-                    val formatter = DateTimeFormatter.ofPattern(format ?: datetimePattern, Locale.ENGLISH)
-                    OffsetDateTime.parse(formattedValue, formatter)
-                } catch (e: DateTimeParseException) {
-                    null
-                } ?: try {
-                    // Try to parse using a LocalDate pattern assuming it is in our canonical dateFormatter. Central timezone.
-                    val date = LocalDate.parse(formattedValue, dateFormatter)
-                    val zoneOffset = ZoneOffset.UTC.rules.getOffset(Instant.now())
-                    OffsetDateTime.of(date, LocalTime.of(0, 0), zoneOffset)
-                } catch (e: DateTimeParseException) {
-                    null
-                } ?: try {
-                    // Try to parse using a LocalDate pattern, assuming it follows a non-canonical format value.
-                    // Example: 'yyyy-mm-dd' - the incoming data is a Date, but not our canonical date format.
-                    val formatter = DateTimeFormatter.ofPattern(format ?: datetimePattern, Locale.ENGLISH)
-                    val date = LocalDate.parse(formattedValue, formatter)
-                    val zoneOffset = ZoneOffset.UTC.rules.getOffset(Instant.now())
-                    OffsetDateTime.of(date, LocalTime.of(0, 0), zoneOffset)
-                } catch (e: DateTimeParseException) {
-                    null
-                } ?: try {
-                    // this is a saving throw. the variable date time pattern gives us four different
-                    // types of date patterns to try against, the very last one has nested optional
-                    // portions, which means it can accept a wider array of data, including just date without time
-                    // which we can then coerce to a date time value
-                    val optionalDateTime = variableDateTimePattern
-                    val df = DateTimeFormatter.ofPattern(optionalDateTime)
-                    // parseBest makes an attempt to take formatter with a variable pattern and will then
-                    // pick the best return type from the options we pass in, cast as a TemporalAccessor
-                    // which is a wrapper around all the other potential types.
-                    val ta = df.parseBest(
-                        formattedValue,
-                        OffsetDateTime::from,
-                        LocalDateTime::from,
-                        Instant::from,
-                        LocalDate::from
-                    )
-                    // if the TA is a local date time, parse as such and convert to offset
-                    // otherwise, if it's a date, parse just the date type and then upsize to date time
-                    // by assuming start of day. If we aren't given data with an actual time precision
-                    // then pushing it to the start of the day *should* be okay
-                    val parsedValue = if (ta is LocalDateTime) {
-                        LocalDateTime.from(ta).atZone(ZoneId.of(USTimeZone.CENTRAL.zoneId)).toOffsetDateTime()
-                    } else {
-                        LocalDate.from(ta).atStartOfDay(ZoneId.of(USTimeZone.CENTRAL.zoneId)).toOffsetDateTime()
-                    }
-                    parsedValue
+                try {
+                    val normalDateTime = getDateTime(cleanedFormattedValue, format)
+                    normalDateTime.format(datetimeFormatter)
                 } catch (e: DateTimeParseException) {
                     // if this value can be nullified because it is badly formatted, simply return a blank string
                     if (nullifyValue) {
                         return ""
                     } else {
-                        error("Invalid date: '$formattedValue' for element $fieldMapping")
+                        error("Invalid date: '$cleanedFormattedValue' for element $fieldMapping")
                     }
                 } catch (e: DateTimeException) {
                     // this shouldn't ever really happen because we can always extract local date from a date time
                     // but it's better to be more secure and transparent
-                    error("Unable to parse '$formattedValue' for element $fieldMapping because it was the wrong type.")
+                    error(
+                        "Unable to parse '$cleanedFormattedValue' for " +
+                            "element $fieldMapping because it was the wrong type."
+                    )
                 }
-                normalDateTime.format(datetimeFormatter)
             }
             Type.CODE -> {
                 // First, prioritize use of a local $alt format, even if no value set exists.
                 when (format) {
                     altDisplayToken ->
-                        toAltCode(formattedValue)
+                        toAltCode(cleanedFormattedValue)
                             ?: error(
-                                "Invalid code: '$formattedValue' is not a display value in altValues set " +
+                                "Invalid code: '$cleanedFormattedValue' is not a display value in altValues set " +
                                     "for $fieldMapping"
                             )
                     codeToken ->
-                        toCode(formattedValue)
+                        toCode(cleanedFormattedValue)
                             ?: error(
-                                "Invalid code '$formattedValue' is not a display value in valueSet " +
+                                "Invalid code '$cleanedFormattedValue' is not a display value in valueSet " +
                                     "for $fieldMapping"
                             )
                     displayToken ->
-                        valueSetRef?.toCodeFromDisplay(formattedValue)
+                        valueSetRef?.toCodeFromDisplay(cleanedFormattedValue)
                             ?: error(
-                                "Invalid code: '$formattedValue' is not a display value " +
+                                "Invalid code: '$cleanedFormattedValue' is not a display value " +
                                     "for element $fieldMapping"
                             )
                     else ->
-                        valueSetRef?.toNormalizedCode(formattedValue)
+                        valueSetRef?.toNormalizedCode(cleanedFormattedValue)
                             ?: error(
-                                "Invalid code: '$formattedValue' does not match any codes " +
+                                "Invalid code: '$cleanedFormattedValue' does not match any codes " +
                                     "for $fieldMapping"
                             )
                 }
             }
             Type.TELEPHONE -> {
-                val number = phoneNumberUtil.parse(formattedValue, "US")
+                val number = phoneNumberUtil.parse(cleanedFormattedValue, "US")
                 if (!number.hasNationalNumber() || number.nationalNumber > 9999999999L)
-                    error("Invalid phone number '$formattedValue' for $fieldMapping")
+                    error("Invalid phone number '$cleanedFormattedValue' for $fieldMapping")
                 val nationalNumber = DecimalFormat("0000000000").format(number.nationalNumber)
                 "${nationalNumber}$phoneDelimiter${number.countryCode}$phoneDelimiter${number.extension}"
             }
             Type.POSTAL_CODE -> {
                 // Let in all formats defined by http://www.dhl.com.tw/content/dam/downloads/tw/express/forms/postcode_formats.pdf
-                if (!Regex("^[A-Za-z\\d\\- ]{3,12}\$").matches(formattedValue))
-                    error("Input Error: invalid postal code '$formattedValue' for $fieldMapping")
-                formattedValue.replace(" ", "")
+                if (!Regex("^[A-Za-z\\d\\- ]{3,12}\$").matches(cleanedFormattedValue))
+                    error("Input Error: invalid postal code '$cleanedFormattedValue' for $fieldMapping")
+                cleanedFormattedValue.replace(" ", "")
             }
             Type.HD -> {
                 when (format) {
                     null,
                     hdCompleteFormat -> {
-                        parseHD(formattedValue) // to check
-                        formattedValue
+                        parseHD(cleanedFormattedValue) // to check
+                        cleanedFormattedValue
                     }
                     hdNameToken -> {
-                        val hd = parseHD(formattedValue)
+                        val hd = parseHD(cleanedFormattedValue)
                         hd.name
                     }
                     else -> error("Schema Error: invalid format value")
@@ -807,18 +778,100 @@ data class Element(
                 when (format) {
                     null,
                     eiCompleteFormat -> {
-                        parseEI(formattedValue) // to check
-                        formattedValue
+                        parseEI(cleanedFormattedValue) // to check
+                        cleanedFormattedValue
                     }
                     eiNameToken -> {
-                        val ei = parseEI(formattedValue)
+                        val ei = parseEI(cleanedFormattedValue)
                         ei.name
                     }
                     else -> error("Schema Error: invalid format value")
                 }
             }
-            else -> formattedValue
+            else -> cleanedFormattedValue
         }
+    }
+
+    /**
+     * The getDateTime function return the OffsetDatetime.  If it can't parse, it will throw either
+     * DateTimeParseException or DateTimeException.  Which allows the caller to catch the exception.
+     * @param [cleanedFormattedValue] datetime value to be parsed.
+     * @param [format] format to parse
+     * @return [OffsetDateTime] the best parsed datetime value
+     */
+    fun getDateTime(cleanedFormattedValue: String, format: String?): OffsetDateTime {
+
+        val dateTime = try {
+            // Try an ISO pattern
+            OffsetDateTime.parse(cleanedFormattedValue)
+        } catch (e: DateTimeParseException) {
+            null
+        } ?: try {
+            // Try a HL7 pattern
+            val formatter = DateTimeFormatter.ofPattern(format ?: datetimePattern, Locale.ENGLISH)
+            OffsetDateTime.parse(cleanedFormattedValue, formatter)
+        } catch (e: DateTimeParseException) {
+            null
+        } ?: try {
+            // Try to parse using a LocalDate pattern assuming it is in our canonical dateFormatter. Central timezone.
+            val date = LocalDate.parse(cleanedFormattedValue, dateFormatter)
+            val zoneOffset = ZoneOffset.UTC.rules.getOffset(Instant.now())
+            OffsetDateTime.of(date, LocalTime.of(0, 0), zoneOffset)
+        } catch (e: DateTimeParseException) {
+            null
+        } ?: try {
+            // Try to parse using a LocalDate pattern, assuming it follows a non-canonical format value.
+            // Example: 'yyyy-mm-dd' - the incoming data is a Date, but not our canonical date format.
+            val formatter = DateTimeFormatter.ofPattern(format ?: datetimePattern, Locale.ENGLISH)
+            val date = LocalDate.parse(cleanedFormattedValue, formatter)
+            val zoneOffset = ZoneOffset.UTC.rules.getOffset(Instant.now())
+            OffsetDateTime.of(date, LocalTime.of(0, 0), zoneOffset)
+        } catch (e: DateTimeParseException) {
+            null
+        } ?: try {
+            getBestDateTime(cleanedFormattedValue, datePatternMMddyyyy)
+        } catch (e: DateTimeParseException) {
+            null
+        } catch (e: DateTimeException) {
+            null
+        } ?: try {
+            getBestDateTime(cleanedFormattedValue, variableDateTimePattern)
+        } catch (e: DateTimeParseException) {
+            throw DateTimeParseException(e.message, e.parsedString, e.errorIndex)
+        } catch (e: DateTimeException) {
+            throw DateTimeException(e.message)
+        }
+
+        return dateTime
+    }
+
+    /**
+     * The getBestDateTime function parse to get the best match and return OffsetDatetime.
+     * If it can't parse, it will throw either DateTimeParseException or DateTimeException.
+     * Which allows the caller to catch the exception.
+     * @param [value] datetime value to be parsed.
+     * @param [optionalDateTime] format to parse
+     * @return [OffsetDateTime] the best parsed datetime value
+     */
+    private fun getBestDateTime(value: String, optionalDateTime: String): OffsetDateTime {
+
+        val df = DateTimeFormatter.ofPattern(optionalDateTime)
+        val ta = df.parseBest(
+            value,
+            OffsetDateTime::from,
+            LocalDateTime::from,
+            Instant::from,
+            LocalDate::from
+        )
+        // Using CENTRAL timezone here is inconsistent with other conversions, but changing to UTC
+        // will cause issues to STLTs.
+        val parsedValue = if (ta is LocalDateTime) {
+            LocalDateTime.from(ta).atZone(ZoneId.of(USTimeZone.CENTRAL.zoneId)).toOffsetDateTime()
+        } else {
+            LocalDate.from(ta).atStartOfDay(ZoneId.of(USTimeZone.CENTRAL.zoneId)).toOffsetDateTime()
+        }
+
+        return parsedValue
     }
 
     fun toNormalized(subValues: List<SubValue>): String {
@@ -919,42 +972,46 @@ data class Element(
      * Determines if an element needs to use a mapper given the [elementValue].
      * @return true if a mapper needs to be run
      */
-    fun useMapper(elementValue: String): Boolean {
+    fun useMapper(elementValue: String?): Boolean {
         val overrideValue = mapperOverridesValue != null && mapperOverridesValue
-        return mapperRef != null && (overrideValue || elementValue.isBlank())
+        return mapperRef != null && (overrideValue || elementValue.isNullOrBlank())
     }
 
     /**
      * Determines if an element needs to use a default given the [elementValue].
      * @return true if a default needs to be used
      */
-    fun useDefault(elementValue: String): Boolean {
+    fun useDefault(elementValue: String?): Boolean {
         val overrideValue = defaultOverridesValue != null && defaultOverridesValue
-        return overrideValue || elementValue.isBlank()
+        return overrideValue || elementValue.isNullOrBlank()
     }
 
     /**
      * Determine the value for this element based on the schema configuration.  This function checks if a
      * mapper needs to be run or if a default needs to be applied.
-     * @param allElementValues the values for all other elements.  Used for the mappers.
+     * @param allElementValues the values for all other elements which are updated as needed
      * @param schema the schema
      * @param defaultOverrides element name and value pairs of defaults that override schema defaults
+     * @param itemIndex the index of the item from a report being processed
+     * @param sender Sender who submitted the data.  Can be null if called at a point in code where its not known
      * @return a mutable set with the processed value or empty string
      */
     fun processValue(
         allElementValues: Map<String, String>,
         schema: Schema,
         defaultOverrides: Map<String, String> = emptyMap(),
-        index: Int = 0
-    ): String {
-        var retVal = if (allElementValues[name].isNullOrEmpty()) "" else allElementValues[name]!!
-        if (useMapper(retVal)) {
-            // This gets the requiredvalue names, then gets the value from mappedRows that has the data
+        itemIndex: Int,
+        sender: Sender? = null,
+    ): ElementResult {
+        check(itemIndex > 0) { "Item index was $itemIndex, but must be larger than 0" }
+        val retVal = ElementResult(if (allElementValues[name].isNullOrEmpty()) "" else allElementValues[name]!!)
+        if (useMapper(retVal.value) && mapperRef != null) {
+            // This gets the required value names, then gets the value from mappedRows that has the data
             val args = mapperArgs ?: emptyList()
-            val valueNames = mapperRef?.valueNames(this, args) ?: emptyList()
+            val valueNames = mapperRef.valueNames(this, args)
             val valuesForMapper = valueNames.mapNotNull { elementName ->
                 if (elementName.contains("$")) {
-                    tokenizeMapperValue(elementName, index)
+                    tokenizeMapperValue(elementName, itemIndex)
                 } else {
                     val valueElement = schema.findElement(elementName)
                     if (valueElement != null && allElementValues.containsKey(elementName) &&
@@ -967,9 +1024,21 @@ data class Element(
                 }
             }
             // Only overwrite an existing value if the mapper returns a string
-            val value = mapperRef?.apply(this, args, valuesForMapper)
+            val mapperResult = mapperRef.apply(this, args, valuesForMapper, sender)
+            val value = mapperResult.value
             if (!value.isNullOrBlank()) {
-                retVal = value
+                retVal.value = value
+            }
+
+            // Add any errors or warnings.  Use warnings as errors for required fields.
+            if (this.isOptional) {
+                retVal.warnings.addAll(mapperResult.errors)
+                retVal.warnings.addAll(mapperResult.warnings)
+            } else if (mapperResult.errors.isNotEmpty()) {
+                retVal.errors.addAll(mapperResult.errors)
+                retVal.warnings.addAll(mapperResult.warnings)
+            } else {
+                retVal.errors.addAll(mapperResult.warnings)
             }
         }
 
@@ -978,13 +1047,17 @@ data class Element(
         // Normally, default values are only apply if the value is blank at this point in the code.
         // However, if the Element has defaultOverridesValue=true set, that forces this code to run.
         // todo get rid of defaultOverrides in the URL.  I think its always an empty map!
-        if (useDefault(retVal)) {
-            retVal = if (defaultOverrides.containsKey(name)) { // First the URL default is used if it exists.
+        if (useDefault(retVal.value)) {
+            retVal.value = if (defaultOverrides.containsKey(name)) { // First the URL default is used if it exists.
                 defaultOverrides[name] ?: ""
             } else if (!default.isNullOrBlank()) { // otherwise, use the default in the schema
                 default
             } else {
-                "" // Otherwise force the value to be empty/blank.
+                // Check for cardinality and force the value to be empty/blank.
+                if (retVal.value.isNullOrBlank() && !isOptional) {
+                    retVal.errors += MissingFieldMessage.new(fieldMapping)
+                }
+                ""
             }
         }
 
@@ -1008,23 +1081,14 @@ data class Element(
                 retVal = ElementAndValue(tokenElement, currentDate)
             }
             elementName.contains("\$mode:") -> {
-                retVal = ElementAndValue(tokenElement, extractStringValue(elementName))
+                retVal = ElementAndValue(tokenElement, elementName.split(":")[1])
             }
             elementName.contains("\$string:") -> {
-                retVal = ElementAndValue(tokenElement, extractStringValue(elementName))
+                retVal = ElementAndValue(tokenElement, elementName.split(":")[1])
             }
         }
 
         return retVal
-    }
-
-    /**
-     * Retrieves the value of a generalized token as string (i.e. "$mode:literal" returns "literal")
-     * @param token the token
-     * @return the string value of a token
-     */
-    private fun extractStringValue(token: String): String {
-        return token.split(":")[1]
     }
 
     /**
@@ -1063,18 +1127,27 @@ data class Element(
 
     companion object {
         const val datePattern = "yyyyMMdd"
+        const val datePatternMMddyyyy = "MMddyyyy"
         const val datetimePattern = "yyyyMMddHHmmZZZ"
+        /** includes seconds  */
+        const val highPrecisionDateTimePattern = "yyyyMMddHHmmss.SSSZZZ"
         // isn't she a beauty? This allows for all kinds of possible date time variations
         const val variableDateTimePattern = "[yyyyMMddHHmmssZ]" +
             "[yyyyMMddHHmmZ]" +
             "[yyyyMMddHHmmss][yyyy-MM-dd HH:mm:ss.ZZZ]" +
-            "[yyyy-MM-dd[ HH:mm:ss[.S[S][S]]]]" +
-            "[yyyyMMdd[ HH:mm:ss[.S[S][S]]]]" +
-            "[M/d/yyyy[ HH:mm:ss[.S[S][S]]]]"
+            "[yyyy-MM-dd[ H:mm:ss[.S[S][S]]]]" +
+            "[yyyyMMdd[ H:mm:ss[.S[S][S]]]]" +
+            "[M/d/yyyy[ H:mm[:ss[.S[S][S]]]]]" +
+            "[yyyy/M/d[ H:mm[:ss[.S[S][S]]]]]"
         val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern(datePattern, Locale.ENGLISH)
         val datetimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern(datetimePattern, Locale.ENGLISH)
+        /** a higher precision date time formatter that includes seconds, and can be used */
+        val highPrecisionDateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern(
+            highPrecisionDateTimePattern,
+            Locale.ENGLISH
+        )
         val manuallyEnteredDateFormats =
-            arrayOf(datePattern, "M/d/yyyy", "MMddyyyy", "yyyy/M/d", "M/d/yyyy HH:mm", "yyyy/M/d HH:mm")
+            arrayOf(datePattern, "M/d/yyyy", "MMddyyyy", "yyyy/M/d", "M/d/yyyy H:mm", "yyyy/M/d H:mm")
         const val displayToken = "\$display"
         const val caretToken = "\$code^\$display^\$system"
         const val codeToken = "\$code"
@@ -1133,5 +1206,77 @@ data class Element(
                 else -> error("Internal Error: Invalid EI value '$value'")
             }
         }
+
+        /**
+         * this looks to see if there is an "all zero offset" preceded by a plus sign on the
+         * date time value. if there is, then we're going to flip this bit over to be
+         * a negative offset. Note, according to the ISO-8601 specification, UTC is *NEVER*
+         * supposed to be represented by `-0000`, only ever `+0000`. That said, RFC3339 does
+         * offer the opportunity to use `-0000` to reflect an "unknown offset time", so it
+         * is still valid and does parse. Also, Java understands and can parse from `-0000`
+         * to `+0000`, so we are not breaking our implementation there.
+         *
+         * In addition to RFC3339 allowing for `-0000`, the HL7 spec allows for that value too,
+         * so we should be good in a system that is HL7 compliant.
+         *
+         * RFC Link: https://datatracker.ietf.org/doc/html/rfc3339#section-4.3
+         */
+        fun convertPositiveOffsetToNegativeOffset(value: String): String {
+            // look for the +0 offset
+            val re = Regex(".+?\\+(00|0000|00:00)$")
+            val match = re.find(value)
+            // check to see if there is a match, if there isn't return the date as expected
+            return when (match?.groups?.isNotEmpty()) {
+                true -> {
+                    // get the offset value at the end of the string
+                    val offsetValue = match.groups.last()?.value
+                    // if there's actually a match, and all of the values in the offset are zero
+                    // because we only want to do this conversion IF the offset is zero. we never
+                    // want to do this if the offset is some other value
+                    if (offsetValue != null && offsetValue.all { it == '0' || it == ':' }) {
+                        // create our replacement values
+                        // I am doing it this way because it's possible that our desired level of
+                        // precision for date time offset could change. I don't want my code to
+                        // assume that it will always be +0000. +00 and +00:00 are also acceptable values,
+                        // so I want this to be able to handle those options as well
+                        val searchValue = "+$offsetValue"
+                        val replaceValue = "-$offsetValue"
+                        // replace the positive offset with the negative offset
+                        value.replace(searchValue, replaceValue)
+                    } else {
+                        // we had an offset, but it's not what we expected, so just return the
+                        // original value we were passed in to be safe
+                        value
+                    }
+                }
+                // the regex didn't match, so return the original value we passed in
+                else -> value
+            }
+        }
+    }
+}
+
+/**
+ * A result for a given element with a [value] that may include [errors] or [warnings].
+ */
+data class ElementResult(
+    var value: String?,
+    val errors: MutableList<ActionLogDetail> = mutableListOf(),
+    val warnings: MutableList<ActionLogDetail> = mutableListOf()
+) {
+    /**
+     * Add an error [message] to the result.
+     * @return the same instance of the result
+     */
+    fun error(message: ActionLogDetail) = apply {
+        errors.add(message)
+    }
+
+    /**
+     * Add a warning [message] to the result.
+     * @return the same instance of the result
+     */
+    fun warning(message: ActionLogDetail) = apply {
+        warnings.add(message)
     }
 }

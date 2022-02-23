@@ -1,5 +1,7 @@
 package gov.cdc.prime.router.azure
 
+import assertk.assertThat
+import assertk.assertions.isEqualTo
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.Element
@@ -58,13 +60,13 @@ class WorkflowEngineTests {
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource, metadata = metadata)
-        val event = ReportEvent(Event.EventAction.NONE, UUID.randomUUID())
+        val event = ReportEvent(Event.EventAction.NONE, UUID.randomUUID(), false)
         val bodyFormat = Report.Format.CSV
         val bodyUrl = "http://anyblob.com"
         val actionHistory = mockk<ActionHistory>()
         val receiver = Receiver("myRcvr", "topic", "mytopic", CustomerStatus.INACTIVE, "mySchema")
 
-        every { blobMock.uploadBody(report = eq(report1), any(), any()) }
+        every { blobMock.generateBodyAndUploadReport(report = eq(report1), any(), any()) }
             .returns(BlobAccess.BlobInfo(bodyFormat, bodyUrl, "".toByteArray()))
         every { accessSpy.insertTask(report = eq(report1), bodyFormat.toString(), bodyUrl, eq(event)) }.returns(Unit)
         every { actionHistory.trackCreatedReport(any(), any(), any(), any()) }.returns(Unit)
@@ -80,30 +82,64 @@ class WorkflowEngineTests {
                 nextAction = any()
             )
             actionHistory.trackCreatedReport(any(), any(), any(), any())
-            blobMock.uploadBody(report = any(), any(), any())
+            blobMock.generateBodyAndUploadReport(report = any(), any(), any())
+        }
+        confirmVerified(accessSpy, blobMock, queueMock)
+    }
+
+    @Test
+    fun `test dispatchReport - empty`() {
+        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val metadata = Metadata(schema = one)
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource, metadata = metadata)
+        val event = ReportEvent(Event.EventAction.NONE, UUID.randomUUID(), false)
+        val bodyFormat = Report.Format.CSV
+        val bodyUrl = "http://anyblob.com"
+        val actionHistory = mockk<ActionHistory>()
+        val receiver = Receiver("myRcvr", "topic", "mytopic", CustomerStatus.INACTIVE, "mySchema")
+
+        every { blobMock.generateBodyAndUploadReport(report = eq(report1), any(), any(), any(), any(), any()) }
+            .returns(BlobAccess.BlobInfo(bodyFormat, bodyUrl, "".toByteArray()))
+        every { accessSpy.insertTask(report = eq(report1), bodyFormat.toString(), bodyUrl, eq(event)) }.returns(Unit)
+        every { actionHistory.trackGeneratedEmptyReport(any(), any(), any(), any()) }.returns(Unit)
+
+        val engine = makeEngine(metadata, settings)
+        engine.dispatchReport(event, report1, actionHistory, receiver, context = null, isEmptyReport = true)
+
+        verify(exactly = 1) {
+            accessSpy.insertTask(
+                report = any(),
+                bodyFormat = any(),
+                bodyUrl = any(),
+                nextAction = any()
+            )
+            actionHistory.trackGeneratedEmptyReport(any(), any(), any(), any())
+            blobMock.generateBodyAndUploadReport(report = any(), any(), any(), any(), any(), any())
         }
         confirmVerified(accessSpy, blobMock, queueMock)
     }
 
     @Test
     fun `test dispatchReport with Error`() {
+        mockkObject(BlobAccess.Companion)
 
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource, metadata = metadata)
-        val event = ReportEvent(Event.EventAction.NONE, report1.id)
+        val event = ReportEvent(Event.EventAction.NONE, report1.id, false)
         val bodyFormat = Report.Format.CSV
         val bodyUrl = "http://anyblob.com"
         val actionHistory = mockk<ActionHistory>()
         val receiver = Receiver("MyRcvr", "topic", "mytopic", CustomerStatus.INACTIVE, "mySchema")
 
-        every { blobMock.uploadBody(report = eq(report1), any(), any()) }
+        every { blobMock.generateBodyAndUploadReport(report = eq(report1), any(), any()) }
             .returns(BlobAccess.BlobInfo(bodyFormat, bodyUrl, "".toByteArray()))
         every { accessSpy.insertTask(report = eq(report1), bodyFormat.toString(), bodyUrl, eq(event)) }.returns(Unit)
 
 // todo clean up this test      every { queueMock.sendMessage(eq(event)) }.answers { throw Exception("problem") }
-        every { blobMock.deleteBlob(eq(bodyUrl)) }.returns(Unit)
+        every { BlobAccess.Companion.deleteBlob(eq(bodyUrl)) }.returns(Unit)
         every { actionHistory.trackCreatedReport(any(), any(), any(), any()) }.returns(Unit)
 
         val engine = makeEngine(metadata, settings)
@@ -116,7 +152,7 @@ class WorkflowEngineTests {
                 bodyUrl = any(),
                 nextAction = any()
             )
-            blobMock.uploadBody(report = any(), any(), any())
+            blobMock.generateBodyAndUploadReport(report = any(), any(), any())
             actionHistory.trackCreatedReport(any(), any(), any(), any())
 // todo           queueMock.sendMessage(event = any())
 // todo           blobMock.deleteBlob(blobUrl = any())
@@ -126,6 +162,8 @@ class WorkflowEngineTests {
 
     @Test
     fun `test receiveReport`() {
+        mockkObject(BlobAccess.Companion)
+
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val settings = FileSettings()
@@ -133,16 +171,23 @@ class WorkflowEngineTests {
         val actionHistory = mockk<ActionHistory>()
         val sender = Sender("senderName", "org", Sender.Format.CSV, "covid-19", CustomerStatus.INACTIVE, one.name)
 
-        every { blobMock.uploadBody(Report.Format.CSV, any(), any(), sender.fullName, Event.EventAction.RECEIVE) }
-            .returns(BlobAccess.BlobInfo(Report.Format.CSV, "http://anyblob.com", "".toByteArray()))
+        every {
+            BlobAccess.Companion.uploadBody(
+                Report.Format.CSV,
+                any(),
+                any(),
+                sender.fullName,
+                Event.EventAction.RECEIVE
+            )
+        }.returns(BlobAccess.BlobInfo(Report.Format.CSV, "http://anyblob.com", "".toByteArray()))
         every { actionHistory.trackExternalInputReport(any(), any()) }.returns(Unit)
 
         val engine = makeEngine(metadata, settings)
-        engine.recordReceivedReport(report1, "body".toByteArray(), sender, actionHistory, engine)
+        engine.recordReceivedReport(report1, "body".toByteArray(), sender, actionHistory)
 
         verify(exactly = 1) {
             actionHistory.trackExternalInputReport(any(), any())
-            blobMock.uploadBody(any(), any(), any(), any(), any())
+            BlobAccess.Companion.uploadBody(any(), any(), any(), any(), any())
         }
         confirmVerified(blobMock)
     }
@@ -158,8 +203,8 @@ class WorkflowEngineTests {
         )
         val bodyFormat = "CSV"
         val bodyUrl = "http://anyblob.com"
-        val event = ReportEvent(Event.EventAction.SEND, report1.id)
-        val nextAction = ReportEvent(Event.EventAction.NONE, report1.id)
+        val event = ReportEvent(Event.EventAction.SEND, report1.id, false)
+        val nextAction = ReportEvent(Event.EventAction.NONE, report1.id, false)
         val task = DatabaseAccess.createTask(report1, bodyFormat, bodyUrl, event)
         val actionHistoryMock = mockk<ActionHistory>()
         mockkObject(ActionHistory.Companion)
@@ -200,5 +245,30 @@ class WorkflowEngineTests {
             accessSpy.fetchReportFile(reportId = any(), any(), any())
         }
         confirmVerified(accessSpy, blobMock, queueMock)
+    }
+
+    @Test
+    fun `test getBatchLookbackMins`() {
+        // batch once a day, two retries
+        assertThat(WorkflowEngine.getBatchLookbackMins(1, 2))
+            .isEqualTo(4320 + WorkflowEngine.BATCH_LOOKBACK_PADDING_MINS)
+        // batch every minute, two retries
+        assertThat(WorkflowEngine.getBatchLookbackMins(1440, 2))
+            .isEqualTo(3 + WorkflowEngine.BATCH_LOOKBACK_PADDING_MINS)
+        // batch every two hours, two retries
+        assertThat(WorkflowEngine.getBatchLookbackMins(12, 2))
+            .isEqualTo(360 + WorkflowEngine.BATCH_LOOKBACK_PADDING_MINS)
+        // batch 3 times a day, two retries
+        assertThat(WorkflowEngine.getBatchLookbackMins(3, 2))
+            .isEqualTo(1440 + WorkflowEngine.BATCH_LOOKBACK_PADDING_MINS)
+        // bogus batches per day value, 1 retry
+        assertThat(WorkflowEngine.getBatchLookbackMins(0, 1))
+            .isEqualTo(2880 + WorkflowEngine.BATCH_LOOKBACK_PADDING_MINS)
+        // Batch every minute, no retries
+        assertThat(WorkflowEngine.getBatchLookbackMins(1440, 0))
+            .isEqualTo(1 + WorkflowEngine.BATCH_LOOKBACK_PADDING_MINS)
+        // Batch every minute, 10 retries
+        assertThat(WorkflowEngine.getBatchLookbackMins(1440, 10))
+            .isEqualTo(11 + WorkflowEngine.BATCH_LOOKBACK_PADDING_MINS)
     }
 }

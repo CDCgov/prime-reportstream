@@ -16,13 +16,13 @@ export const WhereWereLive = () => {
                 </title>
             </Helmet>
             <section id="anchor-top">
-                <h1 className="margin-top-0">Where we're live</h1>
+                <h1 className="margin-top-0 font-body-xl">Where we're live</h1>
 
-                <p className="usa-intro">
+                <p className="usa-intro text-base">
                     ReportStream is currently live or getting set up in
                     jurisdictions across the United States.{" "}
                 </p>
-                <p className="usa-intro">
+                <p className="usa-intro text-base">
                     Don’t see your state or territory?{" "}
                     <a
                         href={
@@ -30,15 +30,19 @@ export const WhereWereLive = () => {
                             DOMPurify.sanitize(site.orgs.RS.email) +
                             "?subject=Getting started with ReportStream"
                         }
-                        className="margin-left-1"
+                        className="margin-left-1 usa-link"
                     >
                         Get in touch
                     </a>
                     .
                 </p>
             </section>
-            <section>
-                <img src={usamapsvg} alt="Map of states using ReportStream" />
+            <section className="padding-y-4">
+                <img
+                    className="margin-bottom-6"
+                    src={usamapsvg}
+                    alt="Map of states using ReportStream"
+                />
                 ReportStream has established connections to send and report
                 public health data for each of the states and territories listed
                 here.

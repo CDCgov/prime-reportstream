@@ -108,35 +108,6 @@
       port: "2222"
       filePath: "./upload_FAIL"
       type: "SFTP"
-  - name: "REDOX"
-    organizationName: "ignore"
-    topic: "covid-19"
-    translation: !<CUSTOM>
-      schemaName: "pa/pa-covid-19-redox"
-      format: "REDOX"
-      defaults:
-        redox_source_name: "Prime Data Hub (Staging)"
-        processing_mode_code: "T"
-        redox_destination_id: "21485dc8-8a6e-49d3-8b80-46531e015039"
-        redox_source_id: "d89d4057-930f-4c5b-bb39-8cddb326e928"
-        redox_destination_name: "CDC Montgomery County PDH Destination (s) TEST ONLY"
-      nameFormat: "STANDARD"
-      receivingOrganization: null
-      type: "CUSTOM"
-    jurisdictionalFilter:
-    - "matches(ordering_facility_state, IG)"
-    - "matches(ordering_facility_county, REDOX)"
-    qualityFilter: []
-    reverseTheQualityFilter: false
-    deidentify: false
-    timing:
-      operation: "MERGE"
-      numberPerDay: 1440
-      initialTime: "00:00"
-      timeZone: "EASTERN"
-      maxReportCount: 100
-    description: ""
-    transport: null
   - name: "BLOBSTORE"
     organizationName: "ignore"
     topic: "covid-19"

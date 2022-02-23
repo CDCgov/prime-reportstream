@@ -5,20 +5,20 @@ import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
 import com.github.doyaaaaaken.kotlincsv.util.CSVFieldNumDifferentException
 import com.github.doyaaaaaken.kotlincsv.util.CSVParseFormatException
 import com.github.doyaaaaaken.kotlincsv.util.MalformedCSVException
+import gov.cdc.prime.router.ActionError
+import gov.cdc.prime.router.ActionLog
+import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.AltValueNotDefinedException
 import gov.cdc.prime.router.Element
-import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Metadata
-import gov.cdc.prime.router.MissingFieldMessage
 import gov.cdc.prime.router.REPORT_MAX_ERRORS
 import gov.cdc.prime.router.REPORT_MAX_ITEMS
 import gov.cdc.prime.router.REPORT_MAX_ITEM_COLUMNS
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
-import gov.cdc.prime.router.ResponseMessage
-import gov.cdc.prime.router.ResultDetail
 import gov.cdc.prime.router.Schema
+import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Source
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.InputStream
@@ -45,12 +45,12 @@ class CsvSerializer(val metadata: Metadata) : Logging {
 
     private data class RowResult(
         val row: List<String>,
-        val errors: List<ResponseMessage>,
-        val warnings: List<ResponseMessage>,
+        val errors: List<ActionLogDetail>,
+        val warnings: List<ActionLogDetail>,
     )
 
-    fun readExternal(schemaName: String, input: InputStream, source: Source): ReadResult {
-        return readExternal(schemaName, input, listOf(source))
+    fun readExternal(schemaName: String, input: InputStream, source: Source, sender: Sender? = null): ReadResult {
+        return readExternal(schemaName, input, listOf(source), sender = sender)
     }
 
     fun readExternal(
@@ -59,10 +59,11 @@ class CsvSerializer(val metadata: Metadata) : Logging {
         sources: List<Source>,
         destination: Receiver? = null,
         defaultValues: Map<String, String> = emptyMap(),
+        sender: Sender? = null,
     ): ReadResult {
         val schema = metadata.findSchema(schemaName) ?: error("Internal Error: invalid schema name '$schemaName'")
-        val errors = mutableListOf<ResultDetail>()
-        val warnings = mutableListOf<ResultDetail>()
+        val errors = mutableListOf<ActionLog>()
+        val warnings = mutableListOf<ActionLog>()
         val rows = mutableListOf<Map<String, String>>()
         csvReader {
             quoteChar = '"'
@@ -74,91 +75,90 @@ class CsvSerializer(val metadata: Metadata) : Logging {
                 readAllWithHeaderAsSequence().forEach { row: Map<String, String> ->
                     rows.add(row)
                     if (rows.size > REPORT_MAX_ITEMS) {
-                        errors.add(
-                            ResultDetail.report(
-                                InvalidReportMessage.new(
-                                    "Your file's row size of ${rows.size} exceeds the maximum of $REPORT_MAX_ITEMS " +
-                                        "rows per file. Reduce the amount of rows in this file."
-                                )
+                        throw ActionError(
+                            ActionLog.report(
+                                "Your file's row size of ${rows.size} exceeds the maximum of $REPORT_MAX_ITEMS " +
+                                    "rows per file. Reduce the amount of rows in this file."
                             )
                         )
-                        return@open
                     }
                     if (row.size > REPORT_MAX_ITEM_COLUMNS) {
-                        errors.add(
-                            ResultDetail.report(
-                                InvalidReportMessage.new(
-                                    "Number of columns in your report exceeds the maximum of $REPORT_MAX_ITEM_COLUMNS" +
-                                        " allowed. Adjust the excess columnar data in your report."
-                                )
+                        throw ActionError(
+                            ActionLog.report(
+                                "Number of columns in your report exceeds the maximum of $REPORT_MAX_ITEM_COLUMNS" +
+                                    " allowed. Adjust the excess columnar data in your report."
                             )
                         )
-                        return@open
                     }
                 }
             } catch (ex: CSVFieldNumDifferentException) {
-                errors.add(
-                    ResultDetail.report(
-                        InvalidReportMessage.new(
-                            "CSV file has an inconsistent number of columns on row: ${ex.csvRowNum}"
-                        )
+                throw ActionError(
+                    ActionLog.report(
+                        "CSV file has an inconsistent number of columns on row: ${ex.csvRowNum}"
                     )
                 )
             } catch (ex: CSVParseFormatException) {
-                errors.add(
-                    ResultDetail.report(
-                        InvalidReportMessage.new(
-                            "There's an issue parsing your file on row: ${ex.rowNum}. " +
-                                "For additional help, contact the ReportStream team at $REPORSTREAM_SUPPORT_EMAIL."
-                        )
+                throw ActionError(
+                    ActionLog.report(
+                        "There's an issue parsing your file on row: ${ex.rowNum}. " +
+                            "For additional help, contact the ReportStream team at $REPORTSTREAM_SUPPORT_EMAIL."
                     )
                 )
             } catch (ex: MalformedCSVException) {
-                errors.add(
-                    ResultDetail.report(
-                        InvalidReportMessage.new(
-                            "There's an issue parsing your file (Error: ${ex.message}) " +
-                                "For additional help, contact the ReportStream team at $REPORSTREAM_SUPPORT_EMAIL."
-                        )
+                throw ActionError(
+                    ActionLog.report(
+                        "There's an issue parsing your file (Error: ${ex.message}) " +
+                            "For additional help, contact the ReportStream team at $REPORTSTREAM_SUPPORT_EMAIL."
                     )
                 )
             }
         }
-        if (errors.size > 0) {
-            return ReadResult(null, errors, warnings)
-        }
 
         if (rows.isEmpty()) {
-            warnings.add(ResultDetail.report(InvalidReportMessage.new("No reports were found in CSV content")))
+            warnings.add(
+                ActionLog.report(
+                    "No reports were found in CSV content",
+                    ActionLog.ActionLogType.warning
+                )
+            )
             return ReadResult(Report(schema, emptyList(), sources, destination, metadata = metadata), errors, warnings)
         }
 
         val csvMapping = buildMappingForReading(schema, defaultValues, rows[0])
-        errors.addAll(csvMapping.errors.map { ResultDetail.report(InvalidReportMessage.new(it)) })
-        warnings.addAll(csvMapping.warnings.map { ResultDetail.report(InvalidReportMessage.new(it)) })
-        if (errors.size > REPORT_MAX_ERRORS) {
-            errors.add(
-                ResultDetail.report(
-                    InvalidReportMessage.new(
-                        "Report file failed: Number of errors exceeded threshold. Contact the ReportStream team at " +
-                            "$REPORSTREAM_SUPPORT_EMAIL for assistance."
-                    )
-                )
-            )
-            return ReadResult(null, errors, warnings)
-        }
+        errors.addAll(
+            csvMapping.errors.map {
+                ActionLog.report(it)
+            }
+        )
+        warnings.addAll(
+            csvMapping.warnings.map {
+                ActionLog.report(it, ActionLog.ActionLogType.warning)
+            }
+        )
+
+        // at this point there are no branches that can return a non null report and errors > 0
         if (csvMapping.errors.isNotEmpty()) {
-            return ReadResult(null, errors, warnings)
+            throw ActionError(errors + warnings)
         }
 
         val mappedRows = rows.mapIndexedNotNull { index, row ->
-            val result = mapRow(schema, csvMapping, row, index)
+            val rowIndex = index + 1
+            val result = mapRow(schema, csvMapping, row, rowIndex, sender = sender)
             val trackingColumn = schema.findElementColumn(schema.trackingElement ?: "")
             var trackingId = if (trackingColumn != null) result.row[trackingColumn] else ""
             if (trackingId.isEmpty())
-                trackingId = "row$index"
-            errors.addAll(result.errors.map { ResultDetail.item(trackingId, it, index) })
-            warnings.addAll(result.warnings.map { ResultDetail.item(trackingId, it, index) })
+                trackingId = "row$rowIndex"
+            // Add only add unique errors and warnings
+            errors.addAll(
+                result.errors.map {
+                    ActionLog.item(trackingId, it, rowIndex, ActionLog.ActionLogType.error)
+                }.distinct()
+            )
+            warnings.addAll(
+                result.warnings.map {
+                    ActionLog.item(trackingId, it, rowIndex, ActionLog.ActionLogType.warning)
+                }.distinct()
+            )
             if (result.errors.isEmpty()) {
                 result.row
             } else {
@@ -167,14 +167,12 @@ class CsvSerializer(val metadata: Metadata) : Logging {
         }
         if (errors.size > REPORT_MAX_ERRORS) {
             errors.add(
-                ResultDetail.report(
-                    InvalidReportMessage.new(
-                        "Report file failed: Number of errors exceeded threshold. Contact the ReportStream team at " +
-                            "$REPORSTREAM_SUPPORT_EMAIL for assistance."
-                    )
+                ActionLog.report(
+                    "Report file failed: Number of errors exceeded threshold. Contact the ReportStream team at " +
+                        "$REPORTSTREAM_SUPPORT_EMAIL for assistance."
                 )
             )
-            return ReadResult(null, errors, warnings)
+            throw ActionError(errors + warnings)
         }
         return ReadResult(Report(schema, mappedRows, sources, destination, metadata = metadata), errors, warnings)
     }
@@ -238,6 +236,19 @@ class CsvSerializer(val metadata: Metadata) : Logging {
                                             " alt valueset in schema ${schema.name}"
                                     )
                                     ""
+                                } catch (e: Exception) {
+                                    // When exceptions occur in toFormatted, its hard to tell what data caused them.
+                                    // So we catch, log, and rethrow here.
+                                    val usefulTrackingElementInfo = if (schema.trackingElement != null)
+                                        "${schema.trackingElement}=" +
+                                            report.getString(row, schema.trackingElement)
+                                    else "[tracking element column missing]"
+                                    logger.error(
+                                        e.toString() +
+                                            "  Exception in row with $usefulTrackingElementInfo:" +
+                                            " schema ${schema.name} element ${element.name} = value '$value' "
+                                    )
+                                    throw e
                                 }
                             }
                         } else {
@@ -314,7 +325,7 @@ class CsvSerializer(val metadata: Metadata) : Logging {
     }
 
     /**
-     * For a input row from the CSV file map to a schema defined row by
+     * For an input row from the CSV file map to a schema defined row by
      *
      *  1. Using values from the csv file
      *  2. Using a mapper defined by the schema
@@ -324,16 +335,24 @@ class CsvSerializer(val metadata: Metadata) : Logging {
      *
      * Also, format values into the normalized format for the type
      */
-    private fun mapRow(schema: Schema, csvMapping: CsvMapping, inputRow: Map<String, String>, index: Int): RowResult {
+    private fun mapRow(
+        schema: Schema,
+        csvMapping: CsvMapping,
+        inputRow: Map<String, String>,
+        rowIndex: Int,
+        sender: Sender? = null,
+    ): RowResult {
+        // TODO Refactor this code to make the error and cardinality logic more readable and remove the use of failureValue
         val lookupValues = mutableMapOf<String, String>()
-        val errors = mutableListOf<ResponseMessage>()
-        val warnings = mutableListOf<ResponseMessage>()
+        val errors = mutableListOf<ActionLogDetail>()
+        val warnings = mutableListOf<ActionLogDetail>()
         val failureValue = "**^^validationFail**"
 
         fun useCsv(element: Element): String? {
             val csvFields = csvMapping.useCsv[element.name] ?: return null
             val subValues = csvFields.map {
-                val value = inputRow.getValue(it.name)
+                // trim off the spaces here when creating the subvalue
+                val value = inputRow.getValue(it.name).trim()
                 Element.SubValue(it.name, value, it.format)
             }
             for (subValue in subValues) {
@@ -363,25 +382,19 @@ class CsvSerializer(val metadata: Metadata) : Logging {
         }
 
         // Now process the data through mappers and default values
-        schema.elements.forEach { element ->
-            lookupValues[element.name] = element.processValue(lookupValues, schema, csvMapping.defaultOverrides, index)
-        }
+        schema.processValues(
+            lookupValues, errors, warnings, csvMapping.defaultOverrides, rowIndex, sender,
+            failureValue
+        )
 
         // Output with value
         val outputRow = schema.elements.map { element ->
-            var value = lookupValues[element.name] ?: error("Internal Error: Second pass should have all values")
-            if (value.isBlank() && !element.isOptional) {
-                errors += MissingFieldMessage.new(element.fieldMapping)
-            }
-            if (value == failureValue) {
-                value = ""
-            }
-            value
+            lookupValues[element.name] ?: error("Internal Error: Second pass should have all values")
         }
         return RowResult(outputRow, errors, warnings)
     }
 
     companion object {
-        const val REPORSTREAM_SUPPORT_EMAIL = "reportstream@cdc.gov"
+        const val REPORTSTREAM_SUPPORT_EMAIL = "reportstream@cdc.gov"
     }
 }

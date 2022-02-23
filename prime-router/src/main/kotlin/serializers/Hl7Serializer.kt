@@ -13,19 +13,21 @@ import ca.uhn.hl7v2.parser.EncodingNotSupportedException
 import ca.uhn.hl7v2.parser.ModelClassFactory
 import ca.uhn.hl7v2.preparser.PreParser
 import ca.uhn.hl7v2.util.Terser
+import gov.cdc.prime.router.ActionError
+import gov.cdc.prime.router.ActionLog
+import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.Element
-import gov.cdc.prime.router.ElementAndValue
 import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.InvalidHL7Message
-import gov.cdc.prime.router.Mapper
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.ResultDetail
 import gov.cdc.prime.router.Schema
+import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Source
 import gov.cdc.prime.router.ValueSet
-import gov.cdc.prime.router.metadata.LookupTable
+import gov.cdc.prime.router.metadata.ElementAndValue
+import gov.cdc.prime.router.metadata.Mapper
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.InputStream
 import java.io.OutputStream
@@ -84,15 +86,27 @@ class Hl7Serializer(
     }
 
     /**
-     * Write a report with BHS and FHS segments and multiple items
+     * Write a report with BHS and FHS segments and multiple items. [sendingApplicationReport],
+     * [receivingApplicationReport], and [receivingFacilityReport] are used for empty batch generation and will be used
+     * if passed in (instead of pulling them from the 1st record)
      */
     fun writeBatch(
         report: Report,
         outputStream: OutputStream,
+        sendingApplicationReport: String? = null,
+        receivingApplicationReport: String? = null,
+        receivingFacilityReport: String? = null
     ) {
         // Dev Note: HAPI doesn't support a batch of messages, so this code creates
         // these segments by hand
-        outputStream.write(createHeaders(report).toByteArray())
+        outputStream.write(
+            createHeaders(
+                report,
+                sendingApplicationReport,
+                receivingApplicationReport,
+                receivingFacilityReport
+            ).toByteArray()
+        )
         report.itemIndices.map {
             val message = createMessage(report, it)
             outputStream.write(message.toByteArray())
@@ -103,7 +117,7 @@ class Hl7Serializer(
     /*
      * Read in a file
      */
-    fun convertBatchMessagesToMap(message: String, schema: Schema): Hl7Mapping {
+    fun convertBatchMessagesToMap(message: String, schema: Schema, sender: Sender? = null): Hl7Mapping {
         val mappedRows: MutableMap<String, MutableList<String>> = mutableMapOf()
         val errors = mutableListOf<String>()
         val warnings = mutableListOf<String>()
@@ -112,18 +126,18 @@ class Hl7Serializer(
         val cleanedMessage = reg.replace(message, hl7SegmentDelimiter)
         val messageLines = cleanedMessage.split(hl7SegmentDelimiter)
         val nextMessage = StringBuilder()
-        var reportNumber = 1
+        var messageIndex = 1
 
         /**
          * Parse an HL7 [message] from a string.
          */
         fun parseStringMessage(message: String) {
-            val parsedMessage = convertMessageToMap(message, schema)
+            val parsedMessage = convertMessageToMap(message, messageIndex, schema, sender)
             parsedMessage.errors.forEach {
-                errors.add("Report $reportNumber: $it")
+                errors.add("Report $messageIndex: $it")
             }
             parsedMessage.warnings.forEach {
-                warnings.add("Report $reportNumber: $it")
+                warnings.add("Report $messageIndex: $it")
             }
             if (parsedMessage.row.isNotEmpty())
                 rowResults.add(parsedMessage)
@@ -148,7 +162,7 @@ class Hl7Serializer(
             if (nextMessage.isNotBlank() && it.startsWith("MSH")) {
                 parseStringMessage(nextMessage.toString())
                 nextMessage.clear()
-                reportNumber++
+                messageIndex++
             }
 
             if (it.isNotBlank()) {
@@ -165,10 +179,10 @@ class Hl7Serializer(
     }
 
     /**
-     * Convert an HL7 [message] based on the specified [schema].
+     * Convert an HL7 [message] with [messageIndex] index based on the specified [schema] and [sender].
      * @returns the resulting data
      */
-    fun convertMessageToMap(message: String, schema: Schema): RowResult {
+    fun convertMessageToMap(message: String, messageIndex: Int, schema: Schema, sender: Sender? = null): RowResult {
         /**
          * Query the terser and get a value.
          * @param terser the HAPI terser
@@ -182,7 +196,10 @@ class Hl7Serializer(
             errors: MutableList<String>,
         ): String {
             val parsedValue = try {
-                terser.get(terserSpec)
+                terser.get(terserSpec) ?: if (terserSpec.contains("OBX") || terserSpec.contains("SPM"))
+                    terser.get("/.SPECIMEN" + terserSpec.replace(".", ""))
+                else
+                    null
             } catch (e: HL7Exception) {
                 errors.add("Exception for $terserSpec: ${e.message}")
                 null
@@ -337,20 +354,18 @@ class Hl7Serializer(
             }
 
             // Second, we process all the element raw values through mappers and defaults.
-            schema.elements.forEach {
-                mappedRows[it.name] = it.processValue(mappedRows, schema)
-            }
+            val errorActionLogs = mutableListOf<ActionLogDetail>()
+            val warningActionLogs = mutableListOf<ActionLogDetail>()
+            schema.processValues(
+                mappedRows, errorActionLogs, warningActionLogs, sender = sender,
+                itemIndex = messageIndex
+            )
+            errors.addAll(errorActionLogs.map { it.detailMsg() })
+            warnings.addAll(warningActionLogs.map { it.detailMsg() })
         } catch (e: Exception) {
             val msg = "${e.localizedMessage} ${e.stackTraceToString()}"
             logger.error(msg)
             errors.add(msg)
-        }
-
-        // Check for required fields now that we are done processing all the fields
-        schema.elements.forEach { element ->
-            if (!element.isOptional && mappedRows[element.name]!!.isBlank()) {
-                errors.add("The Value for ${element.name} for field ${element.hl7Field} is required")
-            }
         }
 
         // convert sets to lists
@@ -358,30 +373,46 @@ class Hl7Serializer(
             if (mappedRows[it] != null) listOf(mappedRows[it]!!) else emptyList()
         }
 
-        return RowResult(rows, errors, warnings)
+        return RowResult(rows, errors.distinct(), warnings.distinct())
     }
 
     fun readExternal(
         schemaName: String,
         input: InputStream,
-        source: Source
+        source: Source,
+        sender: Sender? = null,
     ): ReadResult {
-        val errors = mutableListOf<ResultDetail>()
-        val warnings = mutableListOf<ResultDetail>()
+        val errors = mutableListOf<ActionLog>()
+        val warnings = mutableListOf<ActionLog>()
         val messageBody = input.bufferedReader().use { it.readText() }
         val schema = metadata.findSchema(schemaName) ?: error("Schema name $schemaName not found")
-        val mapping = convertBatchMessagesToMap(messageBody, schema)
+        val mapping = convertBatchMessagesToMap(messageBody, schema, sender = sender)
         val mappedRows = mapping.mappedRows
-        errors.addAll(mapping.errors.map { ResultDetail(ResultDetail.DetailScope.ITEM, "", InvalidHL7Message.new(it)) })
+        errors.addAll(
+            mapping.errors.map {
+                ActionLog(
+                    ActionLog.ActionLogScope.item,
+                    InvalidHL7Message.new(it),
+                    type = ActionLog.ActionLogType.error
+                )
+            }
+        )
         warnings.addAll(
             mapping.warnings.map {
-                ResultDetail(ResultDetail.DetailScope.ITEM, "", InvalidHL7Message.new(it))
+                ActionLog(
+                    ActionLog.ActionLogScope.item,
+                    InvalidHL7Message.new(it),
+                    type = ActionLog.ActionLogType.warning
+                )
             }
         )
         mappedRows.forEach {
             logger.debug("${it.key} -> ${it.value.joinToString()}")
         }
-        val report = if (errors.size > 0) null else Report(schema, mappedRows, source, metadata = metadata)
+        if (errors.size > 0) {
+            throw ActionError(errors)
+        }
+        val report = Report(schema, mappedRows, source, metadata = metadata)
         return ReadResult(report, errors, warnings)
     }
 
@@ -413,6 +444,9 @@ class Hl7Serializer(
         val suppressAoe = hl7Config?.suppressAoe ?: false
         val useOrderingFacilityName = hl7Config?.useOrderingFacilityName
             ?: Hl7Configuration.OrderingFacilityName.STANDARD
+        val stripInvalidCharactersRegex: Regex? = hl7Config?.stripInvalidCharsRegex?.let {
+            Regex(hl7Config.stripInvalidCharsRegex)
+        }
 
         // and we have some fields to suppress
         val suppressedFields = hl7Config
@@ -430,6 +464,7 @@ class Hl7Serializer(
             ?.map { it.trim() } ?: emptyList()
         // start processing
         var aoeSequence = 1
+        var nteSequence = 0
         val terser = Terser(message)
         setLiterals(terser)
         // we are going to set up overrides for the elements in the collection if the valueset
@@ -461,12 +496,12 @@ class Hl7Serializer(
         // serialize the rest of the elements
         reportElements.forEach { element ->
             val value = report.getString(row, element.name).let {
-                if (it.isNullOrEmpty()) {
+                if (it.isNullOrEmpty() || it == "null") {
                     element.default ?: ""
                 } else {
-                    it
+                    stripInvalidCharactersRegex?.replace(it, "") ?: it
                 }
-            }
+            }.trim()
 
             if (suppressedFields.contains(element.hl7Field) && element.hl7OutputFields.isNullOrEmpty())
                 return@forEach
@@ -513,8 +548,8 @@ class Hl7Serializer(
                 }
             } else if (element.hl7Field == "ORC-21-1") {
                 setOrderingFacilityComponent(terser, rawFacilityName = value, useOrderingFacilityName, report, row)
-            } else if (element.hl7Field == "NTE-3") {
-                setNote(terser, value)
+            } else if (element.hl7Field == "NTE-3" && value.isNotBlank()) {
+                setNote(terser, nteSequence++, value)
             } else if (element.hl7Field == "MSH-7") {
                 setComponent(
                     terser,
@@ -552,7 +587,7 @@ class Hl7Serializer(
             val tsValue = terser.get(pathSpec)
             if (!tsValue.isNullOrEmpty()) {
                 try {
-                    val dtFormatter = DateTimeFormatter.ofPattern("yyyMMddHHmmss")
+                    val dtFormatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
                     val parsedDate = OffsetDateTime.parse(tsValue, formatter).format(dtFormatter)
                     terser.set(pathSpec, parsedDate)
                 } catch (_: Exception) {
@@ -604,7 +639,7 @@ class Hl7Serializer(
         cliaForSender.forEach { (sender, clia) ->
             try {
                 // find that sender in the map
-                if (sender.equals(senderID.trim(), ignoreCase = true) && !clia.isEmpty()) {
+                if (sender.equals(senderID.trim(), ignoreCase = true) && clia.isNotEmpty()) {
                     // if the sender needs should have a specific CLIA then overwrite the CLIA here
                     val pathSpecSendingFacilityID = formPathSpec("MSH-4-2")
                     terser.set(pathSpecSendingFacilityID, clia)
@@ -822,7 +857,7 @@ class Hl7Serializer(
         if (valuesForMapper == null) {
             terser.set(pathSpec, "")
         } else {
-            val mappedValue = mapper.apply(element, args, valuesForMapper) ?: ""
+            val mappedValue = mapper.apply(element, args, valuesForMapper).value ?: ""
             val truncatedValue = trimAndTruncateValue(mappedValue, hl7Field, config, terser)
             // there are instances where we need to replace the DII value that comes from the LIVD
             // table with an OID that reflects that this is an equipment UID instead. NH raised this
@@ -868,10 +903,36 @@ class Hl7Serializer(
             Element.Type.TELEPHONE -> setTelephoneComponent(terser, value, pathSpec, element, phoneNumberFormatting)
             Element.Type.EMAIL -> setEmailComponent(terser, value, element, hl7Config)
             Element.Type.POSTAL_CODE -> setPostalComponent(terser, value, pathSpec, element)
+            Element.Type.DATE, Element.Type.DATETIME -> setDateTimeComponent(
+                terser,
+                value,
+                pathSpec,
+                hl7Field,
+                hl7Config
+            )
             else -> {
                 val truncatedValue = trimAndTruncateValue(value, hl7Field, hl7Config, terser)
                 terser.set(pathSpec, truncatedValue)
             }
+        }
+    }
+
+    internal fun setDateTimeComponent(
+        terser: Terser,
+        value: String,
+        pathSpec: String,
+        hl7Field: String,
+        hl7Config: Hl7Configuration?
+    ) {
+        // first allow the truncation to happen, so we carry that logic on down
+        val truncatedValue = trimAndTruncateValue(value, hl7Field, hl7Config, terser)
+        // if we need to convert the offset do it now
+        if (hl7Config?.convertPositiveDateTimeOffsetToNegative == true) {
+            // we need to convert the offset on date and date time to a negative offset if
+            // that is what the receiver needs
+            terser.set(pathSpec, Element.convertPositiveOffsetToNegativeOffset(truncatedValue))
+        } else {
+            terser.set(pathSpec, truncatedValue)
         }
     }
 
@@ -889,7 +950,20 @@ class Hl7Serializer(
         val maxLength = getMaxLength(hl7Field, value, hl7Config, terser)
         val hd = Element.parseHD(value, maxLength)
         if (hd.universalId != null && hd.universalIdSystem != null) {
-            terser.set("$pathSpec-1", hd.name) // already truncated
+            // if we have entered this space, there is a chance we will not have accurately calculated
+            // the max length for the HD namespace ID. Case in point, sending_application in the
+            // COVID-19 schema is coded to go into the MSH-3 segment. when getMaxLength above is invoked
+            // it doesn't accurately calculate max length because the max length for the entire field
+            // is the sum of the three subfields. thus, an HD namespace ID can slide through untruncated.
+            // we know that this could happen because the parseHD method does a split on the field, and if
+            // there's more than one field, it fills in the universalId and universalIdSystem fields.
+            // at this point now we do a final saving throw to see if maybe the subfield needs another trim.
+            if (hl7Config?.truncateHDNamespaceIds == true) {
+                val subpartMaxLength = getMaxLength("$hl7Field-1", value, hl7Config, terser)
+                terser.set("$pathSpec-1", hd.name.trimAndTruncate(subpartMaxLength))
+            } else {
+                terser.set("$pathSpec-1", hd.name)
+            }
             terser.set("$pathSpec-2", hd.universalId)
             terser.set("$pathSpec-3", hd.universalIdSystem)
         } else {
@@ -936,6 +1010,7 @@ class Hl7Serializer(
             ?: error("Schema Error: Cannot find '$valueSetName'")
         when (valueSet.system) {
             ValueSet.SetSystem.HL7,
+            ValueSet.SetSystem.ISO,
             ValueSet.SetSystem.LOINC,
             ValueSet.SetSystem.UCUM,
             ValueSet.SetSystem.SNOMED_CT -> {
@@ -1123,6 +1198,7 @@ class Hl7Serializer(
         units: String? = null,
         suppressQst: Boolean = false,
     ) {
+        val hl7Config = report.destination?.translation as? Hl7Configuration
         // if the value type is a date, we need to specify that for the AOE questions
         val valueType = when (element.type) {
             Element.Type.DATE -> "DT"
@@ -1147,10 +1223,16 @@ class Hl7Serializer(
             else -> setComponent(terser, element, "OBX-5", aoeRep, value, report)
         }
 
-        terser.set(formPathSpec("OBX-11", aoeRep), "F")
+        val rawObx19Value = report.getString(row, "test_result_date")
+        val obx19Value = if (rawObx19Value != null && hl7Config?.convertPositiveDateTimeOffsetToNegative == true) {
+            Element.convertPositiveOffsetToNegativeOffset(rawObx19Value)
+        } else {
+            rawObx19Value
+        }
+        terser.set(formPathSpec("OBX-11", aoeRep), report.getString(row, "test_result_status"))
         terser.set(formPathSpec("OBX-14", aoeRep), date)
         // some states want the observation date for the AOE questions as well
-        terser.set(formPathSpec("OBX-19", aoeRep), report.getString(row, "test_result_date"))
+        terser.set(formPathSpec("OBX-19", aoeRep), obx19Value)
         terser.set(formPathSpec("OBX-23-7", aoeRep), "XX")
         // many states can't accept the QST datapoint out at the end because it is nonstandard
         // we need to pass this in via the translation configuration
@@ -1182,13 +1264,14 @@ class Hl7Serializer(
         }
     }
 
-    private fun setNote(terser: Terser, value: String) {
+    private fun setNote(terser: Terser, nteRep: Int, value: String) {
         if (value.isBlank()) return
-        terser.set(formPathSpec("NTE-3"), value)
-        terser.set(formPathSpec("NTE-4-1"), "RE")
-        terser.set(formPathSpec("NTE-4-2"), "Remark")
-        terser.set(formPathSpec("NTE-4-3"), "HL70364")
-        terser.set(formPathSpec("NTE-4-7"), HL7_SPEC_VERSION)
+        terser.set(formPathSpec("NTE-1", nteRep), nteRep.plus(1).toString())
+        terser.set(formPathSpec("NTE-3", nteRep), value)
+        terser.set(formPathSpec("NTE-4-1", nteRep), "RE")
+        terser.set(formPathSpec("NTE-4-2", nteRep), "Remark")
+        terser.set(formPathSpec("NTE-4-3", nteRep), "HL70364")
+        terser.set(formPathSpec("NTE-4-7", nteRep), HL7_SPEC_VERSION)
     }
 
     private fun setLiterals(terser: Terser) {
@@ -1226,13 +1309,18 @@ class Hl7Serializer(
      * @param truncationLimit the starting limit
      * @return the new truncation limit or starting limit if no special characters are found
      */
-    internal fun getTruncationLimitWithEncoding(value: String, truncationLimit: Int): Int {
-        val regex = "[&^~|]".toRegex()
-        val endIndex = min(value.length, truncationLimit)
-        val matchCount = regex.findAll(value.substring(0, endIndex)).count()
+    internal fun getTruncationLimitWithEncoding(value: String, truncationLimit: Int?): Int? {
 
-        return if (matchCount > 0) {
-            truncationLimit.minus(matchCount.times(2))
+        return if (truncationLimit != null) {
+            val regex = "[&^~|]".toRegex()
+            val endIndex = min(value.length, truncationLimit)
+            val matchCount = regex.findAll(value.substring(0, endIndex)).count()
+
+            if (matchCount > 0) {
+                truncationLimit.minus(matchCount.times(2))
+            } else {
+                truncationLimit
+            }
         } else {
             truncationLimit
         }
@@ -1264,6 +1352,12 @@ class Hl7Serializer(
             ?.split(",")
             ?.map { it.trim() }
             ?: emptyList()
+
+        // The & character in HL7 is a sub sub field separator. A validly
+        // produced HL7 message should escape & characters as \T\ so that
+        // the HL7 parser doesn't interpret these as sub sub field separators.
+        // Because of this reason, all string values should go through the getTruncationLimitWithEncoding
+        // so that string values that contain sub sub field separators (^&~) will be properly truncated.
         return when {
             // This special case takes into account special rules needed by jurisdiction
             hl7Config?.truncateHDNamespaceIds == true && hl7Field in HD_FIELDS_LOCAL -> {
@@ -1271,7 +1365,7 @@ class Hl7Serializer(
             }
             // For the fields listed here use the hl7 max length
             hl7Field in hl7TruncationFields -> {
-                getHl7MaxLength(hl7Field, terser)
+                getTruncationLimitWithEncoding(value, getHl7MaxLength(hl7Field, terser))
             }
             // In general, don't truncate. The thinking is that
             // 1. the max length of the specification is "normative" not system specific.
@@ -1311,10 +1405,24 @@ class Hl7Serializer(
         }
     }
 
-    private fun createHeaders(report: Report): String {
-        val sendingApplicationReport = report.getString(0, "sending_application") ?: ""
-        val receivingApplicationReport = report.getString(0, "receiving_application") ?: ""
-        val receivingFacilityReport = report.getString(0, "receiving_facility") ?: ""
+    /**
+     * Creates the headers for hl7 batch. Generally the [sendingApplicationReportIn], [receivingApplicationReportIn], and
+     * [receivingFacilityReportIn] will come from the first item in the file. In the case of empty batch, it
+     * must be passed in.
+     */
+    private fun createHeaders(
+        report: Report,
+        sendingApplicationReportIn: String? = null,
+        receivingApplicationReportIn: String? = null,
+        receivingFacilityReportIn: String? = null
+    ): String {
+
+        val sendingApplicationReport = sendingApplicationReportIn
+            ?: (report.getString(0, "sending_application") ?: "")
+        val receivingApplicationReport = receivingApplicationReportIn
+            ?: (report.getString(0, "receiving_application") ?: "")
+        val receivingFacilityReport = receivingFacilityReportIn
+            ?: (report.getString(0, "receiving_facility") ?: "")
 
         var sendingAppTruncationLimit: Int? = null
         var receivingAppTruncationLimit: Int? = null
@@ -1352,25 +1460,20 @@ class Hl7Serializer(
             "$sendingFacility|" +
             "$receivingApp|" +
             "$receivingFacility|" +
-            nowTimestamp() +
+            nowTimestamp(hl7Config) +
             hl7SegmentDelimiter +
             "BHS|$encodingCharacters|" +
             "$sendingApp|" +
             "$sendingFacility|" +
             "$receivingApp|" +
             "$receivingFacility|" +
-            nowTimestamp() +
+            nowTimestamp(hl7Config) +
             hl7SegmentDelimiter
     }
 
     private fun createFooters(report: Report): String {
         return "BTS|${report.itemCount}$hl7SegmentDelimiter" +
             "FTS|1$hl7SegmentDelimiter"
-    }
-
-    private fun nowTimestamp(): String {
-        val timestamp = OffsetDateTime.now(ZoneId.systemDefault())
-        return Element.datetimeFormatter.format(timestamp)
     }
 
     private fun buildComponent(spec: String, component: Int = 1): String {
@@ -1413,7 +1516,7 @@ class Hl7Serializer(
             "SPM" -> "/PATIENT_RESULT/ORDER_OBSERVATION/SPECIMEN/SPM"
             "PID" -> "/PATIENT_RESULT/PATIENT/PID"
             "OBX" -> "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION$repSpec/OBX"
-            "NTE" -> "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/NTE"
+            "NTE" -> "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/NTE$repSpec"
             else -> segment
         }
     }
@@ -1622,7 +1725,7 @@ class Hl7Serializer(
          * List of fields that have the local HD type.
          */
         val HD_FIELDS_LOCAL = listOf(
-            "MSH-4-1", "OBR-3-2", "OBR-2-2", "ORC-3-2", "ORC-2-2", "ORC-4-2",
+            "MSH-3-1", "MSH-4-1", "OBR-3-2", "OBR-2-2", "ORC-3-2", "ORC-2-2", "ORC-4-2",
             "PID-3-4-1", "PID-3-6-1", "SPM-2-1-2", "SPM-2-2-2"
         )
 
@@ -1630,7 +1733,7 @@ class Hl7Serializer(
          * List of fields that have the universal HD type
          */
         val HD_FIELDS_UNIVERSAL = listOf(
-            "MSH-4-2", "OBR-3-3", "OBR-2-3", "ORC-3-3", "ORC-2-3", "ORC-4-3",
+            "MSH-3-2", "MSH-4-2", "OBR-3-3", "OBR-2-3", "ORC-3-3", "ORC-2-3", "ORC-4-3",
             "PID-3-4-2", "PID-3-6-2", "SPM-2-1-3", "SPM-2-2-3"
         )
 
@@ -1643,6 +1746,7 @@ class Hl7Serializer(
 
         // Component specific sub-component length from HL7 specification Chapter 2A
         private val CWE_MAX_LENGTHS = arrayOf(20, 199, 20, 20, 199, 20, 10, 10, 199)
+        private val CX_MAX_LENGTHS = arrayOf(15, 1, 3, 227, 5, 227, 5, 227, 8, 8, 705, 705)
         private val EI_MAX_LENGTHS = arrayOf(199, 20, 199, 6)
         private val EIP_MAX_LENGTHS = arrayOf(427, 427)
         private val HD_MAX_LENGTHS = arrayOf(20, 199, 6)
@@ -1658,6 +1762,7 @@ class Hl7Serializer(
          */
         val HL7_COMPONENT_MAX_LENGTH = mapOf(
             "CWE" to CWE_MAX_LENGTHS,
+            "CX" to CX_MAX_LENGTHS,
             "EI" to EI_MAX_LENGTHS,
             "EIP" to EIP_MAX_LENGTHS,
             "HD" to HD_MAX_LENGTHS,
@@ -1676,7 +1781,28 @@ class Hl7Serializer(
 
         // Do a lazy init because this table may never be used and it is large
         val ncesLookupTable = lazy {
-            LookupTable.read("./metadata/tables/nces_id_2021_6_28.csv")
+            Metadata.getInstance().findLookupTable("nces_id") ?: error("Unable to find the NCES ID lookup table.")
+        }
+
+        /**
+         * Given an hl7Configuration, this will take find the current date time and output it to a
+         * specific format depending on the configuration of the receiver
+         */
+        fun nowTimestamp(hl7Config: Hl7Configuration? = null): String {
+            // get the current time stamp
+            val timestamp = OffsetDateTime.now(ZoneId.systemDefault())
+            // if the receiver wants a higher precision date time formatter, then we get the right one
+            val formatter: DateTimeFormatter = if (hl7Config?.useHighPrecisionHeaderDateTimeFormat == true) {
+                Element.highPrecisionDateTimeFormatter
+            } else {
+                Element.datetimeFormatter
+            }
+            // use the formatter here to output the now timestamp
+            return if (hl7Config?.convertPositiveDateTimeOffsetToNegative == true) {
+                Element.convertPositiveOffsetToNegativeOffset(formatter.format(timestamp))
+            } else {
+                formatter.format(timestamp)
+            }
         }
     }
 }

@@ -5,6 +5,7 @@
 # 
 name: guc-la-covid-19
 topic: covid-19
+trackingElement: message_id
 description: Experity CSV lab report schema, Greenlight Urgent Care, LA
 extends: experity/experity-covid-19
 

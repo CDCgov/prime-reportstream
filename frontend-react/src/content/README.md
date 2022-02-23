@@ -29,3 +29,4 @@ build/static/media/usa_w_territories.c74b7be2.svg
 * `site.json`: site map data used to build urls
 * `usa_w_territories.svg`: Map of US with some states styled differently. Edit this file when adding states.
 * `README.md`: Obviously this file, but it is NOT included in `/build` output because in is not imported anywhere.
+* `getting_started_csv_upload.json`: Content for `/getting-started/testing-facilites`. Includes plain-language documentation for our standard schema.

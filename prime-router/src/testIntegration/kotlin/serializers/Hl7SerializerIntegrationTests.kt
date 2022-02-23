@@ -4,7 +4,6 @@ import assertk.assertThat
 import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
 import assertk.assertions.isLessThanOrEqualTo
-import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
@@ -13,6 +12,7 @@ import ca.uhn.hl7v2.DefaultHapiContext
 import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.util.Terser
+import gov.cdc.prime.router.ActionError
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.FileSource
 import gov.cdc.prime.router.Hl7Configuration
@@ -30,6 +30,7 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.nio.charset.StandardCharsets
+import kotlin.test.assertFailsWith
 import kotlin.test.fail
 
 class Hl7SerializerIntegrationTests {
@@ -52,7 +53,7 @@ class Hl7SerializerIntegrationTests {
         covid19Schema = metadata.findSchema(hl7SchemaName) ?: fail("Could not find target schema")
         csvSerializer = CsvSerializer(metadata)
         serializer = Hl7Serializer(metadata, settings)
-        testReport = csvSerializer.readExternal("primedatainput/pdi-covid-19", inputStream, TestSource).report ?: fail()
+        testReport = csvSerializer.readExternal("primedatainput/pdi-covid-19", inputStream, TestSource).report
         sampleHl7Message = """MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|Avante at Ormond Beach^10D0876999^CLIA|||20210210170737||ORU^R01^ORU_R01|371784|P|2.5.1|||NE|NE|USA||||PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
 SFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME ReportStream|0.1-SNAPSHOT||20210210
 PID|1||2a14112c-ece1-4f82-915c-7b3a8d152eda^^^Avante at Ormond Beach^PI||Buckridge^Kareem^Millie^^^^L||19580810|F||2106-3^White^HL70005^^^^2.5.1|688 Leighann Inlet^^South Rodneychester^TX^67071||^PRN^^roscoe.wilkinson@email.com^1^211^2240784|||||||||U^Unknown^HL70189||||||||N
@@ -88,6 +89,7 @@ NTE|1|L|This is a final comment|RE"""
         truncateHl7Fields: String? = null,
         suppressNonNPI: Boolean = false,
         truncateHDNamespaceIds: Boolean = false,
+        stripInvalidCharsRegex: String? = null,
     ): Hl7Configuration {
         return Hl7Configuration(
             messageProfileId = "",
@@ -101,7 +103,8 @@ NTE|1|L|This is a final comment|RE"""
             replaceValue = replaceValue,
             truncateHl7Fields = truncateHl7Fields,
             suppressNonNPI = suppressNonNPI,
-            truncateHDNamespaceIds = truncateHDNamespaceIds
+            truncateHDNamespaceIds = truncateHDNamespaceIds,
+            stripInvalidCharsRegex = stripInvalidCharsRegex
         )
     }
 
@@ -128,7 +131,7 @@ NTE|1|L|This is a final comment|RE"""
             cliaForOutOfStateTesting = "1234FAKECLIA"
         )
         val receiver = Receiver("mock", "ca-phd", "covid-19", translation = hl7Config)
-        val testReport = csvSerializer.readExternal(schema, inputStream, listOf(TestSource), receiver).report ?: fail()
+        val testReport = csvSerializer.readExternal(schema, inputStream, listOf(TestSource), receiver).report
         val output = serializer.createMessage(testReport, 2)
         assertThat(output).isNotNull()
     }
@@ -139,7 +142,7 @@ NTE|1|L|This is a final comment|RE"""
         val schema = "primedatainput/pdi-covid-19"
         val hl7Config = createConfig(suppressNonNPI = false)
         val receiver = Receiver("mock", "ca-phd", "covid-19", translation = hl7Config)
-        val pdiInput = csvSerializer.readExternal(schema, inputStream, listOf(TestSource), receiver).report ?: fail()
+        val pdiInput = csvSerializer.readExternal(schema, inputStream, listOf(TestSource), receiver).report
         val testReport = translator.translateByReceiver(pdiInput, receiver)
         val output = serializer.buildMessage(testReport, 2)
         val orderingProvider = output.patienT_RESULT.ordeR_OBSERVATION.orc.getOrderingProvider(0)
@@ -148,12 +151,26 @@ NTE|1|L|This is a final comment|RE"""
     }
 
     @Test
+    fun `test message with characters that need stripping`() {
+        val inputStream = File("./src/test/unit_test_files/bad-character-replacements.csv").inputStream()
+        val schema = "strac/strac-covid-19"
+        val hl7Config = createConfig(stripInvalidCharsRegex = "\u0019")
+        val receiver = Receiver("mock", "pa-phd", "covid-19", translation = hl7Config)
+        val stracInput = csvSerializer.readExternal(schema, inputStream, listOf(TestSource), receiver).report
+        val testReport = translator.translateByReceiver(stracInput, receiver)
+        val output = serializer.buildMessage(testReport, 0)
+        val patientName = output.patienT_RESULT.patient.pid.patientName[0]
+        assertThat(patientName.givenName.value).isEqualTo("Marie")
+        assertThat(patientName.familyName.surname.value).isEqualTo("OConnell")
+    }
+
+    @Test
     fun `test message with bad NPI and suppressed`() {
         val inputStream = File("./src/test/unit_test_files/fake-pdi-covid-19.csv").inputStream()
         val schema = "primedatainput/pdi-covid-19"
         val hl7Config = createConfig(suppressNonNPI = true)
         val receiver = Receiver("mock", "ca-phd", "covid-19", translation = hl7Config)
-        val pdiInput = csvSerializer.readExternal(schema, inputStream, listOf(TestSource), receiver).report ?: fail()
+        val pdiInput = csvSerializer.readExternal(schema, inputStream, listOf(TestSource), receiver).report
         val testReport = translator.translateByReceiver(pdiInput, receiver)
         val output = serializer.buildMessage(testReport, 2)
         val orderingProvider = output.patienT_RESULT.ordeR_OBSERVATION.orc.getOrderingProvider(0)
@@ -170,7 +187,7 @@ NTE|1|L|This is a final comment|RE"""
         val hl7Config = createConfig(truncateHl7Fields = "OBX-23-1, MSH-4-1")
         val receiver = Receiver("test", "vt-phd", "covid-19", translation = hl7Config)
 
-        val testReport = csvSerializer.readExternal(schema, inputStream, listOf(TestSource), receiver).report ?: fail()
+        val testReport = csvSerializer.readExternal(schema, inputStream, listOf(TestSource), receiver).report
         val output = serializer.createMessage(testReport, 0)
         val mcf = CanonicalModelClassFactory("2.5.1")
         context.modelClassFactory = mcf
@@ -255,7 +272,7 @@ NTE|1|L|This is a final comment|RE"""
 
     @Test
     fun `test converting hl7 into mapped list of values`() {
-        val mappedMessage = serializer.convertMessageToMap(sampleHl7Message, covid19Schema)
+        val mappedMessage = serializer.convertMessageToMap(sampleHl7Message, 1, covid19Schema)
         val mappedValues = mappedMessage.row
         println("\ntest converting hl7 into mapped list of values:\n")
         mappedValues.forEach {
@@ -269,7 +286,7 @@ NTE|1|L|This is a final comment|RE"""
     fun `test reading HL7 message from file`() {
         val inputFile = "$hl7TestFileDir/single_message.hl7"
         val message = File(inputFile).readText()
-        val mappedMessage = serializer.convertMessageToMap(message, covid19Schema)
+        val mappedMessage = serializer.convertMessageToMap(message, 1, covid19Schema)
         val mappedValues = mappedMessage.row
         mappedValues.forEach {
             println("${it.key}: ${it.value.joinToString()}")
@@ -307,7 +324,7 @@ NTE|1|L|This is a final comment|RE"""
         val message = File(inputFile)
         val source = FileSource(inputFile)
         val readResult = serializer.readExternal(hl7SchemaName, message.inputStream(), source)
-        val report = readResult.report ?: fail("Report was null and should not be")
+        val report = readResult.report
         assertThat(report.getString(0, "patient_city")).isEqualTo("South Rodneychester")
         assertThat(report.getString(1, "patient_city")).isEqualTo("North Taylor")
         assertThat(report.itemCount == 2).isTrue()
@@ -321,7 +338,7 @@ NTE|1|L|This is a final comment|RE"""
         val testCSV = File("./src/test/unit_test_files/pdi-covid-19-wa-k12.csv").inputStream()
         val testReport = csvSerializer
             .readExternal("primedatainput/pdi-covid-19", testCSV, TestSource)
-            .report ?: fail()
+            .report
 
         // This row is the happy path
         val rawValidFacilityName = testReport.getString(0, "ordering_facility_name") ?: fail()
@@ -363,7 +380,7 @@ NTE|1|L|This is a final comment|RE"""
         val testCSV = File("./src/test/unit_test_files/pdi-covid-19-wa-k12.csv").inputStream()
         val testReport = csvSerializer
             .readExternal("primedatainput/pdi-covid-19", testCSV, TestSource)
-            .report ?: fail()
+            .report
 
         // Test with STANDARD
         serializer.setOrderingFacilityComponent(
@@ -388,7 +405,7 @@ NTE|1|L|This is a final comment|RE"""
         val testCSV = File("./src/test/unit_test_files/pdi-covid-19-wa-k12.csv").inputStream()
         val testReport = csvSerializer
             .readExternal("primedatainput/pdi-covid-19", testCSV, TestSource)
-            .report ?: fail()
+            .report
 
         // Test with STANDARD
         serializer.setOrderingFacilityComponent(
@@ -412,17 +429,17 @@ NTE|1|L|This is a final comment|RE"""
         val emptyHL7 = ByteArrayInputStream("".toByteArray())
         var result = serializer.readExternal(hl7SchemaName, emptyHL7, TestSource)
         assertThat(result.report).isNotNull()
-        assertThat(result.report!!.itemCount).isEqualTo(0)
+        assertThat(result.report.itemCount).isEqualTo(0)
 
         val csvContent = ByteArrayInputStream("a,b,c\n1,2,3".toByteArray())
-        result = serializer.readExternal(hl7SchemaName, csvContent, TestSource)
-        assertThat(result.errors).isNotEmpty()
-        assertThat(result.report).isNull()
+        assertFailsWith<ActionError> {
+            result = serializer.readExternal(hl7SchemaName, csvContent, TestSource)
+        }
 
         val incompleteHL7 = ByteArrayInputStream("MSH|^~\\&|CD".toByteArray())
-        result = serializer.readExternal(hl7SchemaName, incompleteHL7, TestSource)
-        assertThat(result.errors).isNotEmpty()
-        assertThat(result.report).isNull()
+        assertFailsWith<ActionError> {
+            result = serializer.readExternal(hl7SchemaName, incompleteHL7, TestSource)
+        }
 
         // This data will throw a EncodingNotSupportedException in the serializer when parsing the message
         val incompleteHL7v2 = ByteArrayInputStream(
@@ -432,9 +449,9 @@ NTE|1|L|This is a final comment|RE"""
             PID|1||2a14112c-ece1-4f82-915c-7b3a8d152eda^^^Avante at Ormond Beach^PI||Doe^Kareem^Millie^^^^L||19580810|F||2106-3^White^HL70005^^^^2.5.1|688 Leighann Inlet^^South Rodneychester^TX^67071||^PRN^^roscoe.wilkinson@email.com^1^211^2240784|||||||||U^Unknown^HL70189||||||||N
             """.trimIndent().toByteArray()
         )
-        result = serializer.readExternal(hl7SchemaName, incompleteHL7v2, TestSource)
-        assertThat(result.errors).isNotEmpty()
-        assertThat(result.report).isNull()
+        assertFailsWith<ActionError> {
+            result = serializer.readExternal(hl7SchemaName, incompleteHL7v2, TestSource)
+        }
 
         // This data will throw a HL7Exception in the serializer when parsing the message
         val wrongHL7Version = ByteArrayInputStream(
@@ -447,9 +464,9 @@ NTE|1|L|This is a final comment|RE"""
             OBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN||260415000^Not detected^SCT|||N^Normal (applies to non-numeric results)^HL70078|||F|||202102090000-0600|||CareStart COVID-19 Antigen test_Access Bio, Inc._EUA^^99ELR||202102090000-0600||||Avante at Ormond Beach^^^^^CLIA&2.16.840.1.113883.4.7&ISO^^^^10D0876999^CLIA|170 North King Road^^Ormond Beach^FL^32174^^^^12127
             """.trimIndent().toByteArray()
         )
-        result = serializer.readExternal(hl7SchemaName, wrongHL7Version, TestSource)
-        assertThat(result.errors).isNotEmpty()
-        assertThat(result.report).isNull()
+        assertFailsWith<ActionError> {
+            result = serializer.readExternal(hl7SchemaName, wrongHL7Version, TestSource)
+        }
     }
 
     @Test
@@ -497,7 +514,7 @@ NTE|1|L|This is a final comment|RE"""
 
         val testReportBlankState = csvSerializer
             .readExternal(schema, csvContentBlankState, listOf(TestSource), receiver)
-            .report ?: fail()
+            .report
 
         val outputBlankState = serializer.createMessage(testReportBlankState, 0)
 
@@ -526,7 +543,7 @@ NTE|1|L|This is a final comment|RE"""
 
         val testReportProviderState = csvSerializer
             .readExternal(schema, csvContentProviderState, listOf(TestSource), receiver)
-            .report ?: fail()
+            .report
 
         val outputProviderState = serializer.createMessage(testReportProviderState, 0)
 
@@ -555,7 +572,7 @@ NTE|1|L|This is a final comment|RE"""
 
         val testReportFacilityState = csvSerializer
             .readExternal(schema, csvContentFacilityState, listOf(TestSource), receiver)
-            .report ?: fail()
+            .report
 
         val outputFacilityState = serializer.createMessage(testReportFacilityState, 0)
 
@@ -583,7 +600,7 @@ NTE|1|L|This is a final comment|RE"""
         val hl7Config = createConfig(cliaForSender = mapOf("fake1" to "ABCTEXT123", "fake" to "10D1234567"))
         val receiver = Receiver("test", "ca-dph", "covid-19", translation = hl7Config)
 
-        val testReport = csvSerializer.readExternal(schema, csvContent, listOf(TestSource), receiver).report ?: fail()
+        val testReport = csvSerializer.readExternal(schema, csvContent, listOf(TestSource), receiver).report
         val output = serializer.createMessage(testReport, 0)
 
         val cleanedMessage = reg.replace(output, "\r")
@@ -597,7 +614,7 @@ NTE|1|L|This is a final comment|RE"""
         val csvContentSenderNotFound = ByteArrayInputStream("senderId,testOrdered,testName,testCodingSystem,testResult,testResultText,testPerformed,testResultCodingSystem,testResultDate,testReportDate,testOrderedDate,specimenCollectedDate,deviceIdentifier,deviceName,specimenId,serialNumber,patientAge,patientAgeUnits,patientDob,patientRace,patientRaceText,patientEthnicity,patientEthnicityText,patientSex,patientZip,patientCounty,orderingProviderNpi,orderingProviderLname,orderingProviderFname,orderingProviderZip,performingFacility,performingFacilityName,performingFacilityStreet,performingFacilityStreet2,performingFacilityCity,performingFacilityState,performingFacilityZip,performingFacilityCounty,performingFacilityPhone,orderingFacilityName,orderingFacilityStreet,orderingFacilityStreet2,orderingFacilityCity,orderingFacilityState,orderingFacilityZip,orderingFacilityCounty,orderingFacilityPhone,specimenSource,patientNameLast,patientNameFirst,patientNameMiddle,patientUniqueId,patientHomeAddress,patientHomeAddress2,patientCity,patientState,patientPhone,patientPhoneArea,orderingProviderAddress,orderingProviderAddress2,orderingProviderCity,orderingProviderState,orderingProviderPhone,orderingProviderPhoneArea,firstTest,previousTestType,previousTestDate,previousTestResult,correctedTestId,healthcareEmployee,healthcareEmployeeType,symptomatic,symptomsList,hospitalized,hospitalizedCode,symptomsIcu,congregateResident,congregateResidentType,pregnant,pregnantText,patientEmail,reportingFacility\nfake,94531-1,SARS coronavirus 2 RNA panel - Respiratory specimen by NAA with probe detection,LN,260415000,Not Detected,94558-4,SCT,202110062022-0400,202110062022-0400,20211007,20211007,00382902560821,BD Veritor System for Rapid Detection of SARS-CoV-2*,4efd9df8-9424-4e50-b168-f3aa894bfa42,4efd9df8-9424-4e50-b168-f3aa894bfa42,45,yr,1975-10-10,2106-3,White,2135-2,Hispanic or Latino,M,93307,Kern County,1760085880,,,93312,05D2191150,Inovia Pharmacy,9902 Brimhall rd ste 100,,Bakersfield,CA,93312,Kern County,+16618297861,Inovia Pharmacy,9902 Brimhall rd ste 100,,Bakersfield,CA,93312,Kern County,+16618297861,445297001,Tapia,Jose,,e553c462-6bad-4e42-ab1e-0879b797aa31,1211 Dawn st,,Bakersfield,CA,+16614933107,661,9902 BRIMHALL RD STE 100,,BAKERSFIELD,CA,+16618297861,661,UNK,,,,,,,UNK,,NO,,NO,NO,,261665006,UNK,,1760085880".toByteArray()) // ktlint-disable max-line-length
         val receiverSenderNotFound = Receiver("test", "ca-dph", "covid-19", translation = hl7Config)
 
-        val testRptSenderNotFound = csvSerializer.readExternal(schema, csvContentSenderNotFound, listOf(TestSource), receiverSenderNotFound).report ?: fail() // ktlint-disable max-line-length
+        val testRptSenderNotFound = csvSerializer.readExternal(schema, csvContentSenderNotFound, listOf(TestSource), receiverSenderNotFound).report // ktlint-disable max-line-length
         val outputSenderNotFound = serializer.createMessage(testRptSenderNotFound, 0)
 
         val cleanedMessageSenderNotFound = reg.replace(outputSenderNotFound, "\r")
@@ -634,7 +651,7 @@ NTE|1|L|This is a final comment|RE"""
         )
         val receiver = Receiver("mock", "ca-dph", "covid-19", translation = hl7Config)
 
-        val testReport = csvSerializer.readExternal(schema, csvContent, listOf(TestSource), receiver).report ?: fail()
+        val testReport = csvSerializer.readExternal(schema, csvContent, listOf(TestSource), receiver).report
         val output = serializer.createMessage(testReport, 0)
 
         val cleanedMessage = reg.replace(output, "\r")

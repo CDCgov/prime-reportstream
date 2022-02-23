@@ -1,0 +1,17 @@
+# Run this:  ./prime multiple-settings set --input ./settings/staging/0070-sdilabs-ca.yml --env staging
+---
+- name: "sdilabs-ca"
+  description: "SDI Labs - CA"
+  jurisdiction: "FEDERAL"
+  stateCode: null
+  countyName: null
+  filters: []
+  senders:
+    - name: "default"
+      organizationName: "sdilabs-ca"
+      format: "CSV"
+      topic: "covid-19"
+      customerStatus: "testing"
+      schemaName: "upload-covid-19"
+      keys: null
+      processingType: "sync"

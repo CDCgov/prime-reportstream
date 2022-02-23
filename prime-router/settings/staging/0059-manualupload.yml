@@ -1,0 +1,12 @@
+# Run this:  ./prime multiple-settings set --input ./settings/staging/0059-manualupload.yml --env staging
+---
+- name: manualupload
+  description: Sender for Manual Upload of the RS Standard CSV File
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: manualupload
+      topic: covid-19
+      customerStatus: active
+      schemaName: upload-covid-19
+      format: CSV

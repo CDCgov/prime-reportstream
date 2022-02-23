@@ -26,7 +26,7 @@ function Daily() {
             <Helmet>
                 <title>Daily data | {process.env.REACT_APP_TITLE}</title>
             </Helmet>
-            <section className="grid-container margin-bottom-5">
+            <section className="grid-container margin-bottom-5 tablet:margin-top-6">
                 <h3 className="margin-bottom-0">
                     <Suspense
                         fallback={

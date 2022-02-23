@@ -11,11 +11,11 @@ import kotlin.test.Test
 import kotlin.test.assertTrue
 import kotlin.test.fail
 
-//
-// Using JUnit here, but this is not a unit test.  This tests end-to-end:  ingesting a csv file,
-// creating transformed objects, writing them to output csv files, then doing a simple 'diff'
-// to see if they match expected output files.
-//
+/**
+ * Using JUnit here, but this is not a unit test.  This tests end-to-end:  ingesting a csv file,
+ * creating transformed objects, writing them to output csv files, then doing a simple 'diff'
+ * to see if they match expected output files.
+ */
 class SimpleReportIntegrationTests {
     private val inputPath = "./src/test/csv_test_files/input/"
     private val expectedResultsPath = "./src/test/csv_test_files/expected/"
@@ -52,12 +52,9 @@ class SimpleReportIntegrationTests {
         assertThat(readResult.errors).isEmpty()
         // I removed this test- at this time, the SimpleReport parsing does return an empty column warning.
         //        assertTrue(readResult.warnings.isEmpty())
-        val inputReport = readResult.report ?: fail()
+        val inputReport = readResult.report
         // 2) Create transformed objects, according to the receiver table rules
-        val outputReports = Translator(metadata, settings).filterAndTranslateByReceiver(
-            inputReport,
-            warnings = mutableListOf<ResultDetail>()
-        )
+        val (outputReports, _) = Translator(metadata, settings).filterAndTranslateByReceiver(inputReport)
 
         // 3) Write transformed objs to files
         val outputFiles = mutableListOf<Pair<File, Receiver>>()
@@ -112,9 +109,8 @@ class SimpleReportIntegrationTests {
         // 1) Ingest the file
         val inputFileSource = FileSource(inputFilePath)
         val readResult = csvSerializer.readExternal(schema.name, inputFile.inputStream(), inputFileSource)
-        assertThat(readResult.warnings).isEmpty()
         assertThat(readResult.errors).isEmpty()
-        val inputReport = readResult.report ?: fail()
+        val inputReport = readResult.report
 
         // 2) Write the input report back out to a new file
         val outputFile = File(outputPath, inputReport.name)

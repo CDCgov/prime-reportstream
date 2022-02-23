@@ -156,7 +156,7 @@ class DataCompareTest : CoolTest() {
                             // gets back the id of the internal report
                             val internalReportId = getSingleChildReportId(reportId)
 
-                            val processResult = pollForProcessResult(internalReportId)
+                            pollForProcessResult(internalReportId)
 
                             val processResults = pollForProcessResult(internalReportId)
                             // verify each result is valid
@@ -304,6 +304,13 @@ class CompareData {
             passed = passed and anotherResult.passed
             errors.addAll(anotherResult.errors)
             warnings.addAll(anotherResult.warnings)
+        }
+
+        override fun toString(): String {
+            return """passed: $passed
+errors: ${errors.joinToString()}
+warnings: ${warnings.joinToString()}
+"""
         }
     }
 
@@ -614,6 +621,7 @@ class CompareCsvData {
 
             // Loop through all the actual rows ignoring the header row
             for (i in actualRows.indices) {
+                val rowIndex = i + 1
                 val actualRow = actualRows[i]
                 val actualMsgId = if (schemaMsgIdIndex != null) actualRow[schemaMsgIdIndex].trim() else null
                 val actualLastName = if (schemaPatLastNameIndex != null)
@@ -637,12 +645,12 @@ class CompareCsvData {
                             )
                 }
                 if (matchingExpectedRow.size == 1) {
-                    if (!compareCsvRow(actualRow, matchingExpectedRow[0], expectedRows[0], schema, i, result)) {
-                        result.errors.add("Comparison for row #$i FAILED")
+                    if (!compareCsvRow(actualRow, matchingExpectedRow[0], expectedRows[0], schema, rowIndex, result)) {
+                        result.errors.add("Comparison for row #$rowIndex FAILED")
                     }
                 } else {
                     result.errors.add(
-                        "Could not find row in expected data for message $i. " +
+                        "Could not find row in expected data for message $rowIndex. " +
                             "Was looking for ID='$actualMsgId', or patient last name='$actualLastName' " +
                             "and state='$actualPatState'"
                     )

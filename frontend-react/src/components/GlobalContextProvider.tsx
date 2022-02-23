@@ -9,16 +9,20 @@ import { createContext, useContext, useState } from "react";
 enum GLOBAL_STORAGE_KEYS {
     GLOBAL_BASE = "global-context-",
     GLOBAL_ORG = "global-context-org",
+    OKTA_ACCESS_TOKEN = "global-okta-token",
 }
 
 /* INFO
    Updating this default context model will allow us to expand on our
    global context offerings. We could store all kinds of preferences
    in here!
+
+   A change to any of these will trigger components that depend on
+   them to re-render.
 */
 export const GlobalContext = createContext({
     state: {
-        organization: getStoredOrg() || "",
+        organization: getStoredOrg(),
     },
     updateOrganization: (newOrganization: string): void => {
         /* Default placeholder function model */
@@ -32,26 +36,24 @@ export function useGlobalContext() {
 
 export function clearGlobalContext(): void {
     for (let key in sessionStorage) {
-        if (key.includes(GLOBAL_STORAGE_KEYS.GLOBAL_BASE)) {
-            sessionStorage.removeItem(key);
-        }
+        sessionStorage.removeItem(key);
     }
 }
 
-export function getStoredOrg(): string | undefined {
-    return sessionStorage.getItem(GLOBAL_STORAGE_KEYS.GLOBAL_ORG) || undefined;
+export function getStoredOrg(): string {
+    return sessionStorage.getItem(GLOBAL_STORAGE_KEYS.GLOBAL_ORG) || "";
 }
 
 export function setStoredOrg(org: string) {
     sessionStorage.setItem(GLOBAL_STORAGE_KEYS.GLOBAL_ORG, org);
 }
 
-function GlobalContextProvider({
+export function GlobalContextProvider({
     children,
 }: {
     children: JSX.Element[];
 }): JSX.Element {
-    const [organization, setOrganization] = useState(getStoredOrg() || "");
+    const [organization, setOrganization] = useState(getStoredOrg());
 
     const updateOrganization = (newOrganization: string): void => {
         setStoredOrg(newOrganization);
@@ -84,4 +86,10 @@ function GlobalContextProvider({
     );
 }
 
-export default GlobalContextProvider;
+export function getStoredOktaToken(): string {
+    return sessionStorage.getItem(GLOBAL_STORAGE_KEYS.OKTA_ACCESS_TOKEN) || "";
+}
+
+export function setStoredOktaToken(value: string) {
+    sessionStorage.setItem(GLOBAL_STORAGE_KEYS.OKTA_ACCESS_TOKEN, value);
+}

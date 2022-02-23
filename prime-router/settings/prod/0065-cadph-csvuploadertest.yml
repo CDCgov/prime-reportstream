@@ -1,0 +1,12 @@
+# Run this:  ./prime multiple-settings set --input ./settings/prod/0065-cadph-csvuploadertest.yml --env prod
+---
+- name: cadph-csvuploadertest
+  description: CA-DPH CSV Uploader Test
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: cadph-csvuploadertest
+      topic: covid-19
+      customerStatus: active
+      schemaName: manualupload/cadph-csvuploadertest-covid-19
+      format: CSV

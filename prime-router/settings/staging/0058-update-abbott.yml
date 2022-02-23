@@ -1,0 +1,13 @@
+# Run this:  ./prime multiple-settings set --input ./settings/staging/0058-update-abbott.yml --env staging
+---
+- name: abbott
+  description: Abbott
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: abbott
+      topic: covid-19
+      customerStatus: active
+      schemaName: direct/abbott-covid-19
+      format: CSV
+      processingType: async

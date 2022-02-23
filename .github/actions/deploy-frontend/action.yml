@@ -1,36 +1,47 @@
 # action.yml
 name: 'Upload Static Site (React)'
 description: 'Push react website to Azure blob storage'
+inputs:
+  env-name:
+    required: true
+  version:
+    description: "Version tag"
+    required: true
 
 runs:
   using: "composite"
   steps:
 
     - name: Set environment variables - dev
-      if: github.ref == 'refs/heads/dev-rheft'
+      if: inputs.env-name == 'dev'
       shell: bash
       run: echo "IMAGE_REPO=rkh5012" >> $GITHUB_ENV
 
     - name: Set environment variables - test
-      if: github.ref == 'refs/heads/ronheft/test-investigation'
+      if: inputs.env-name == 'test'
       shell: bash
       run: echo "IMAGE_REPO=pdhtest" >> $GITHUB_ENV
 
     - name: Set environment variables - staging
-      if: github.ref == 'refs/heads/master'
+      if: inputs.env-name == 'staging'
       shell: bash
       run: echo "IMAGE_REPO=pdhstaging" >> $GITHUB_ENV
 
     - name: Set environment variables - production
-      if: github.ref == 'refs/heads/production'
+      if: inputs.env-name == 'prod'
       shell: bash
       run: echo "IMAGE_REPO=pdhprod" >> $GITHUB_ENV
 
     - name: Download Frontend Artifact (React)
       uses: actions/download-artifact@v2
       with:
-        name: static_website_react-${{ github.run_id }}
-        path: frontend-react/build
+        name: static-website-react-${{ inputs.version }}
+        path: frontend-react
+
+    - name: Unpack frontend files
+      working-directory: frontend-react
+      run: tar -zxvf static-website-react.tar.gz
+      shell: bash
 
     - name: Upload Static Site (React)
       if: env.IMAGE_REPO

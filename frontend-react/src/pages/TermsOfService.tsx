@@ -4,7 +4,7 @@ export const TermsOfService = () => {
     return (
         <>
             <section
-                className="usa-site-alert usa-site-alert--info margin-top-neg-4 desktop:margin-top-neg-8 margin-bottom-3 tablet:margin-bottom-6"
+                className="usa-site-alert usa-site-alert--info margin-top-neg-4 desktop:margin-top-0 margin-bottom-3 tablet:margin-bottom-6"
                 id="anchor-top"
             >
                 <Alert

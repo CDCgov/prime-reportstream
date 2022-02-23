@@ -1,7 +1,7 @@
-/* eslint-disable react-hooks/rules-of-hooks */
-import { useOktaAuth } from "@okta/okta-react";
-
-import { senderClient } from "../webreceiver-utils";
+import {
+    getStoredOktaToken,
+    getStoredOrg,
+} from "../components/GlobalContextProvider";
 
 import AuthResource from "./AuthResource";
 
@@ -11,15 +11,15 @@ export default class SenderAuthResource extends AuthResource {
     }
 
     static useFetchInit = (init: RequestInit): RequestInit => {
-        const { authState } = useOktaAuth();
-        const senderOrganization = senderClient(authState);
+        const accessToken = getStoredOktaToken();
+        const organization = getStoredOrg();
 
         return {
             ...init,
             headers: {
                 ...init.headers,
-                Authorization: `Bearer ${authState?.accessToken?.accessToken}`,
-                Organization: senderOrganization,
+                Authorization: `Bearer ${accessToken}`,
+                Organization: organization,
                 "authentication-type": "okta",
             },
         };

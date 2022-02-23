@@ -1,0 +1,12 @@
+# Run this:  ./prime multiple-settings set --input ./settings/prod/0058-anavasidx.yml --env prod
+---
+- name: anavasidx
+  description: AnavasiDx
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: anavasidx
+      topic: covid-19
+      customerStatus: testing
+      schemaName: direct/anavasidx-covid-19
+      format: CSV

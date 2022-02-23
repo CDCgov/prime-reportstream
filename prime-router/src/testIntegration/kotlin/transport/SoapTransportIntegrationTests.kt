@@ -30,7 +30,7 @@ class SoapTransportIntegrationTests : TransportIntegrationTests() {
     private val responseHeaders = headersOf("Content-Type" to listOf("text/xml"))
     private val mockClientOk = HttpClient(MockEngine) {
         engine {
-            addHandler { request ->
+            addHandler { _ ->
                 respond(
                     ByteReadChannel(
                         "<response>hello there happy path</response>"
@@ -52,7 +52,7 @@ class SoapTransportIntegrationTests : TransportIntegrationTests() {
             }
         }
     }
-    private val actionHistory = ActionHistory(TaskAction.send, context)
+    private val actionHistory = ActionHistory(TaskAction.send)
     private val transportType = SoapTransportType(
         "my-end-point",
         "http://nedss.state.pa.us/2012/B01/elrwcf/IUploadFile/UploadFiles"
@@ -85,6 +85,7 @@ class SoapTransportIntegrationTests : TransportIntegrationTests() {
             settings.findReceiver("pa-phd.elr-chester-hl7"),
             metadata.findSchema("covid-19"),
             content = content.toByteArray(),
+            true
         )
     }
 

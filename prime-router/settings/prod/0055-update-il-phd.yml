@@ -6,6 +6,11 @@
   stateCode: "IL"
   countyName: null
   senders: []
+  filters:
+    - topic: "covid-19"
+      jurisdictionalFilter:
+        - "orEquals(ordering_facility_state, IL, patient_state, IL)"
+      qualityFilter: []
   receivers:
   - name: "elr-secondary"
     organizationName: "il-phd"
@@ -43,9 +48,6 @@
       nameFormat: "STANDARD_SECONDARY"
       receivingOrganization: null
       type: "HL7"
-    jurisdictionalFilter:
-    - "orEquals(ordering_facility_state, IL, patient_state, IL)"
-    qualityFilter: []
     reverseTheQualityFilter: true
     deidentify: false
     timing:
@@ -93,9 +95,6 @@
       nameFormat: "STANDARD"
       receivingOrganization: null
       type: "HL7"
-    jurisdictionalFilter:
-    - "orEquals(ordering_facility_state, IL, patient_state, IL)"
-    qualityFilter: []
     reverseTheQualityFilter: false
     deidentify: false
     timing:

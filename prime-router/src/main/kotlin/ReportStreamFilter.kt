@@ -18,8 +18,10 @@ enum class ReportStreamFilterType(val field: String) {
     PROCESSING_MODE_FILTER("processingModeFilter");
 
     // Reflection, so that we can write a single routine to handle all types of filters.
+    @Suppress("UNCHECKED_CAST")
     val filterProperty = ReportStreamFilters::class.memberProperties.first { it.name == this.field }
         as KProperty1<ReportStreamFilters, ReportStreamFilter?>
+    @Suppress("UNCHECKED_CAST")
     val receiverFilterProperty = Receiver::class.memberProperties.first { it.name == this.field }
         as KProperty1<Receiver, ReportStreamFilter>
 }

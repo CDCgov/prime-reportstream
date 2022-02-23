@@ -72,7 +72,7 @@ function SuccessPage({ data }: { data: AgreementBody | null }) {
                             <br />A copy of this confirmation has been sent to{" "}
                             {data.email}. If you don't receive confirmation,
                             check your SPAM folder for an email from
-                            reportstream@cdc.gov.
+                            no-reply@reportstream.gov.
                         </p>
                     </div>
                 </div>

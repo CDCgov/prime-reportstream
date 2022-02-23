@@ -5,6 +5,7 @@
 # 
 name: ipatientcare-covid-19
 topic: covid-19
+trackingElement: message_id
 description: iPatientCare CSV lab report schema
 basedOn: covid-19
 elements:
@@ -17,6 +18,8 @@ elements:
       csvFields: [{name: processing_mode_code}]
 
     - name: message_id
+      csvFields: [{name: Accession_no}]
+
 
 #demographics
     - name: patient_id
@@ -47,6 +50,7 @@ elements:
       csvFields: [{name: Patient ZipCode}]
 
     - name: patient_county
+      cardinality: ZERO_OR_ONE
       type: TABLE
       table: zip-code-data
       tableColumn: county
@@ -250,7 +254,7 @@ elements:
 
 #this lookup is in the covid-19 schema, but doesn't appear to execute??
     - name: equipment_model_name
-      table: LIVD-SARS-CoV-2-2021-04-28
+      table: LIVD-SARS-CoV-2
       tableColumn: Model
       mapper: livdLookup()
 

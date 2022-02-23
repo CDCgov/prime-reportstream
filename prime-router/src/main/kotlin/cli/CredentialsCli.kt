@@ -77,7 +77,6 @@ class CredentialsCli : CredentialManagement, CliktCommand(
                 it.user,
                 it.apikey
             )
-            else -> error("--type option is unknown")
         }
 
         echo("", trailingNewline = true)

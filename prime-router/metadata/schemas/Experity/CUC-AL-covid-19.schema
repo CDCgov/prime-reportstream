@@ -5,6 +5,7 @@
 # 
 name: cuc-al-covid-19
 topic: covid-19
+trackingElement: message_id
 description: Experity CSV lab report schema, Compass Urgent Care, AL
 extends: experity/experity-covid-19
 

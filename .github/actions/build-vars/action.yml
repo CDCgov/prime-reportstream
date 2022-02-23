@@ -1,0 +1,97 @@
+# action.yml
+name: 'Build Variables'
+description: 'Variables shared by build workflows'
+outputs:
+  env_name:
+    value: ${{ steps.build_result.outputs.env_name }}
+  version:
+    value: ${{ steps.version_result.outputs.version }}
+  has_router_change:
+    value: ${{ steps.backend_change_result.outputs.has_router_change }}
+  has_react_change:
+    value: ${{ steps.frontend_change_result.outputs.has_react_change }}
+
+runs:
+  using: "composite"
+  steps:
+
+    - name: Set Build Environment - DEV
+      id: build_dev
+      if: github.ref == 'refs/heads/dev-rheft'
+      shell: bash
+      run: echo "::set-output name=env_name::dev"
+
+    - name: Set Build Environment - TEST
+      id: build_test
+      if: github.ref == 'refs/heads/ronheft/test-investigation'
+      shell: bash
+      run: echo "::set-output name=env_name::test"
+
+    - name: Set Build Environment - STAGING
+      id: build_staging
+      if: github.ref == 'refs/heads/master'
+      shell: bash
+      run: echo "::set-output name=env_name::staging"
+
+    - name: Set Build Environment - PROD
+      id: build_prod
+      if: github.ref == 'refs/heads/production'
+      shell: bash
+      run: echo "::set-output name=env_name::prod"
+
+    - name: Set Build Environment - RESULT
+      id: build_result
+      shell: bash
+      run: |
+        echo "::set-output name=env_name::\
+        ${{ steps.build_dev.outputs.env_name }}\
+        ${{ steps.build_test.outputs.env_name }}\
+        ${{ steps.build_staging.outputs.env_name }}\
+        ${{ steps.build_prod.outputs.env_name }}"
+
+    - name: Set tag automatically
+      id: version_result
+      shell: bash
+      run: echo "::set-output name=version::v-$(date +%Y.%m.%d-%H%M%S)"
+
+    - uses: dorny/paths-filter@v2
+      id: backend_check
+      with:
+        list-files: csv
+        filters: |
+          router:
+            - 'prime-router/**'
+            - 'operations/**'
+            - '.github/actions/build-backend/action.yml'
+            - '.github/actions/deploy-backend/action.yml'
+
+    - name: Force backend change if prod
+      id: backend_change_result
+      shell: bash
+      run: |
+        if [[ '${{ steps.build_result.outputs.env_name }}' == 'prod' ]]; then
+          echo "::set-output name=has_router_change::true"
+        else
+          echo "::set-output name=has_router_change::${{ steps.backend_check.outputs.router }}"
+        fi
+
+    - uses: dorny/paths-filter@v2
+      id: frontend_check
+      with:
+        list-files: csv
+        filters: |
+          frontend_react:
+            - 'frontend-react/**'
+            - 'operations/**'
+            - '.github/actions/build-frontend/action.yml'
+            - '.github/actions/deploy-frontend/action.yml'
+
+    - name: Front frontend change if prod
+      id: frontend_change_result
+      shell: bash
+      run: |
+        if [[ '${{ steps.build_result.outputs.env_name }}' == 'prod' ]]; then
+          echo "::set-output name=has_react_change::true"
+        else
+          echo "::set-output name=has_react_change::${{ steps.frontend_check.outputs.frontend_react }}"
+        fi
