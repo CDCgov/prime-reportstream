@@ -1,5 +1,5 @@
 # Changing CA to use the new filter features
-# ./prime multiple-settings set --env staging --input ./settings/staging/0084-updateca-dph-truncate-fields.yml
+# ./prime multiple-settings set --env staging --input ./settings/staging/0084-update-ca-dph-truncate-fields.yml
 ---
 - name: "ca-dph"
   description: "California Department of Public Health"
