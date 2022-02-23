@@ -1252,27 +1252,32 @@ class Hl7Serializer(
                 report.getString(row, "testing_lab_clia") as String, "OBX-23-10", hl7Config, terser
             )
         )
-        terser.set(formPathSpec("OBX-15", aoeRep),
+        terser.set(
+            formPathSpec("OBX-15", aoeRep),
             trimAndTruncateValue(
                 report.getString(row, "testing_lab_clia") as String, "OBX-15", hl7Config, terser
             )
         )
-        terser.set(formPathSpec("OBX-24-1", aoeRep),
+        terser.set(
+            formPathSpec("OBX-24-1", aoeRep),
             trimAndTruncateValue(
                 report.getStringByHl7Field(row, "OBX-24-1") as String, "OBX-24-1", hl7Config, terser
             )
         )
-        terser.set(formPathSpec("OBX-24-2", aoeRep),
+        terser.set(
+            formPathSpec("OBX-24-2", aoeRep),
             trimAndTruncateValue(
                 report.getStringByHl7Field(row, "OBX-24-2") as String, "OBX-24-2", hl7Config, terser
             )
         )
-        terser.set(formPathSpec("OBX-24-3", aoeRep),
+        terser.set(
+            formPathSpec("OBX-24-3", aoeRep),
             trimAndTruncateValue(
                 report.getStringByHl7Field(row, "OBX-24-3") as String, "OBX-24-3", hl7Config, terser
             )
         )
-        terser.set(formPathSpec("OBX-24-4", aoeRep),
+        terser.set(
+            formPathSpec("OBX-24-4", aoeRep),
             trimAndTruncateValue(
                 report.getStringByHl7Field(row, "OBX-24-4") as String, "OBX-24-4", hl7Config, terser
             )
@@ -1283,7 +1288,8 @@ class Hl7Serializer(
             formPathSpec("OBX-24-5", aoeRep),
             report.getStringByHl7Field(row, "OBX-24-5")?.padStart(5, '0')
         )
-        terser.set(formPathSpec("OBX-24-9", aoeRep),
+        terser.set(
+            formPathSpec("OBX-24-9", aoeRep),
             trimAndTruncateValue(
                 report.getStringByHl7Field(row, "OBX-24-9") as String, "OBX-24-9", hl7Config, terser
             )

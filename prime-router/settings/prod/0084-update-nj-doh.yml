@@ -15,8 +15,7 @@
         - "hasAtLeastOneOf(patient_street,patient_zip_code,patient_phone_number,patient_email)"
         - "hasValidDataFor(message_id,equipment_model_name,specimen_type,test_result,patient_last_name,patient_first_name,patient_dob,ordering_provider_id,ordering_facility_name)"
         - "isValidCLIA(testing_lab_clia)"
-      routingFilter:
-        - "matches(test_result_status, F, C, P)"
+      routingFilter: null
       processingModeFilter: null
   senders: []
   receivers:
