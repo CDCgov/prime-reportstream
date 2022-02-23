@@ -28,7 +28,7 @@ function addFeatureFlag(flag: string) {
         return;
     }
 
-    // [...new Set([...array1 ,...array2])]; //   => remove duplication
+    // new Set() //   => remove duplication
     const set = new Set([...getSavedFeatureFlags(), flagClean]);
     const datastr = [...set.keys()].sort().join("\t");
     window.localStorage.setItem(LOCALSTORAGE_KEY, datastr);
