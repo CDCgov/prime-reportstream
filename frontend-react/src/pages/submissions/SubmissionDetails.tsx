@@ -104,6 +104,20 @@ function SubmissionDetailsContent() {
     );
     const submissionDate = generateSubmissionDate(actionDetails.submittedAt);
 
+    /* Conditional title strings */
+    const preTitle = `${
+        actionDetails.submitter
+    } ${actionDetails.topic.toUpperCase()} Submissions`;
+    const titleString: string = submissionDate
+        ? `${submissionDate.dateString} ${submissionDate.timeString}`
+        : "Date and Time parsing error";
+
+    /* Only used when externalName is present */
+    const titleWithFilename: string | undefined =
+        actionDetails.externalName !== ""
+            ? `${titleString} - ${actionDetails.externalName}`
+            : undefined;
+
     if (!actionDetails) {
         return <ErrorPage type="page" />;
     } else {
@@ -114,13 +128,9 @@ function SubmissionDetailsContent() {
             >
                 <div className="grid-col-12">
                     <Title
-                        preTitle={`${
-                            actionDetails.submitter
-                        } ${actionDetails.topic.toUpperCase()} Submissions`}
+                        preTitle={preTitle}
                         title={
-                            submissionDate
-                                ? `${submissionDate.dateString} ${submissionDate.timeString}`
-                                : "Parsing error"
+                            titleWithFilename ? titleWithFilename : titleString
                         }
                     />
                     <DetailItem item={"Report ID"} content={actionDetails.id} />

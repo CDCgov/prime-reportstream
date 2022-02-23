@@ -122,6 +122,7 @@ export function AdminOrgEdit({
                                 fieldname={"filters"}
                                 label={"Filters"}
                                 defaultvalue={orgSettings.filters}
+                                defaultnullvalue="[]"
                                 savefunc={(v) => (orgSettings.filters = v)}
                             />
                             <Grid row>
