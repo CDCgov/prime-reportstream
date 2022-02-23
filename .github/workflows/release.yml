@@ -6,7 +6,7 @@ on:
       - master
       - production
       - dev-rheft
-      - ronheft/test-investigation
+      - acoushawk/terraform-revamp
 
 defaults:
   run:

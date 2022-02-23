@@ -23,7 +23,7 @@ runs:
 
     - name: Set Build Environment - TEST
       id: build_test
-      if: github.ref == 'refs/heads/ronheft/test-investigation'
+      if: github.ref == 'refs/heads/acoushawk/terraform-revamp'
       shell: bash
       run: echo "::set-output name=env_name::test"
 
