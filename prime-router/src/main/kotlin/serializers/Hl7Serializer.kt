@@ -1245,6 +1245,7 @@ class Hl7Serializer(
             )
         )
         // set to a default value, but look below
+        // terser.set(formPathSpec("OBX-23-6", aoeRep), report.getStringByHl7Field(row, "OBX-23-6"))
         terser.set(formPathSpec("OBX-23-10", aoeRep), report.getString(row, "testing_lab_clia"))
         terser.set(formPathSpec("OBX-15", aoeRep), report.getString(row, "testing_lab_clia"))
         terser.set(
