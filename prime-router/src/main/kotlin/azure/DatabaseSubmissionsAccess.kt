@@ -18,6 +18,7 @@ interface SubmissionAccess {
         ASC,
     }
 
+    /* TODO: Needs to take sortColumn */
     fun <T> fetchActions(
         sendingOrg: String,
         order: SortOrder,
@@ -53,6 +54,7 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = DatabaseAccess(
      * @param limit is an Integer used for setting the number of results per page.
      * @return a list of results matching the SQL Query.
      */
+    /* TODO: Needs to take sortColumn */
     override fun <T> fetchActions(
         sendingOrg: String,
         order: SubmissionAccess.SortOrder,
@@ -61,6 +63,9 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = DatabaseAccess(
         klass: Class<T>
     ): List<T> {
 
+        /* TODO: FINALLY, this is where we can apply sortColumn instead of
+         *  defaulting to ACTION.CREATED_AT
+         */
         val sorted = if (order == SubmissionAccess.SortOrder.ASC) {
             ACTION.CREATED_AT.asc()
         } else ACTION.CREATED_AT.desc()

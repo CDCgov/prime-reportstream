@@ -35,6 +35,10 @@ class SubmissionFunction(
         )
 
         companion object {
+            /* TODO: Extract sortColumn query param
+            *   Default it to created_at
+            * */
+
             fun extractSort(query: Map<String, String>): String {
                 val qSortOrder = query.getOrDefault("sort", "DESC")
                 return qSortOrder
@@ -76,8 +80,10 @@ class SubmissionFunction(
     ): HttpResponseMessage {
         return oktaAuthentication.checkAccess(request, organization, true) {
             try {
+                /* TODO: destructure w/ qSortColumn here */
                 val (qSortOrder, resultsAfterDate, pageSize) = Parameters(request.queryParameters)
 
+                /* TODO: Pass qSortColumn with this */
                 val submissions = facade.findSubmissionsAsJson(organization, qSortOrder, resultsAfterDate, pageSize)
                 HttpUtilities.okResponse(request, submissions)
             } catch (e: IllegalArgumentException) {
