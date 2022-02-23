@@ -346,6 +346,22 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
         return itemLineages
     }
 
+    /**
+     * Fetch an action ID for a given [reportId].
+     * @param txn an optional database transaction
+     * @return an action ID, or null if no action ID was found
+     */
+    fun fetchActionIdForReport(
+        reportId: UUID,
+        txn: DataAccessTransaction? = null
+    ): Long? {
+        val ctx = if (txn != null) DSL.using(txn) else create
+        return ctx.selectDistinct(REPORT_LINEAGE.ACTION_ID)
+            .from(REPORT_LINEAGE)
+            .where(REPORT_LINEAGE.PARENT_REPORT_ID.eq(reportId))
+            .fetchOne(REPORT_LINEAGE.ACTION_ID)
+    }
+
     fun fetchDownloadableReportFiles(
         since: OffsetDateTime?,
         orgName: String,

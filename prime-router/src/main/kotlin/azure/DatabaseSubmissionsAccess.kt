@@ -44,7 +44,8 @@ interface SubmissionAccess {
 /**
  * Class to access lookup tables stored in the database.
  */
-class DatabaseSubmissionsAccess(private val db: DatabaseAccess = DatabaseAccess()) : SubmissionAccess {
+class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.databaseAccessSingleton) :
+    SubmissionAccess {
 
     /**
      * @param sendingOrg is the Organization Name returned from the Okta JWT Claim.

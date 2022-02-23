@@ -1,31 +1,24 @@
 package gov.cdc.prime.router.azure
 
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import gov.cdc.prime.router.DetailActionLog
 import gov.cdc.prime.router.DetailReport
 import gov.cdc.prime.router.DetailedSubmissionHistory
 import gov.cdc.prime.router.SubmissionHistory
+import gov.cdc.prime.router.common.JacksonMapperUtilities
 import java.time.OffsetDateTime
+import java.util.UUID
 
 /**
  * Submissions / history API
  * Contains all business logic regarding submissions and JSON serialization.
  */
 class SubmissionsFacade(
-    private val db: SubmissionAccess = DatabaseSubmissionsAccess()
+    private val dbSubmissionAccess: SubmissionAccess = DatabaseSubmissionsAccess(),
+    private val dbAccess: DatabaseAccess = WorkflowEngine.databaseAccessSingleton
 ) {
 
     // Ignoring unknown properties because we don't require them. -DK
-    private val mapper = jacksonObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-
-    init {
-        // Format OffsetDateTime as an ISO string
-        mapper.registerModule(JavaTimeModule())
-        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-    }
+    private val mapper = JacksonMapperUtilities.datesAsTextMapper
 
     /**
      * Serializes a list of Actions into a String.
@@ -76,14 +69,14 @@ class SubmissionsFacade(
         offset: OffsetDateTime?,
         pageSize: Int,
     ): List<SubmissionHistory> {
-        require(!organizationName.isNullOrBlank()) {
+        require(organizationName.isNotBlank()) {
             "Invalid organization."
         }
         require(pageSize > 0) {
             "pageSize must be a positive integer."
         }
 
-        val submissions = db.fetchActions(
+        val submissions = dbSubmissionAccess.fetchActions(
             organizationName,
             sortOrder,
             offset,
@@ -98,7 +91,7 @@ class SubmissionsFacade(
         submissionId: Long,
     ): DetailedSubmissionHistory? {
 
-        val submission = db.fetchAction(
+        val submission = dbSubmissionAccess.fetchAction(
             organizationName,
             submissionId,
             DetailedSubmissionHistory::class.java,
@@ -107,7 +100,7 @@ class SubmissionsFacade(
         )
 
         submission?.let {
-            val relatedSubmissions = db.fetchRelatedActions(
+            val relatedSubmissions = dbSubmissionAccess.fetchRelatedActions(
                 submission.actionId,
                 DetailedSubmissionHistory::class.java,
                 DetailReport::class.java,
@@ -117,6 +110,19 @@ class SubmissionsFacade(
         }
 
         return submission
+    }
+
+    /**
+     * Find a [reportId] for a given [organizationName].
+     * @return the detailed submission history or null if the report was not found
+     */
+    fun findReport(
+        organizationName: String,
+        reportId: UUID,
+    ): DetailedSubmissionHistory? {
+        val submissionId = dbAccess.fetchActionIdForReport(reportId)
+        return if (submissionId != null) findSubmission(organizationName, submissionId)
+        else null
     }
 
     companion object {
