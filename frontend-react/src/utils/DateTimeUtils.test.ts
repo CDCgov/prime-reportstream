@@ -18,9 +18,7 @@ test("SubmissionDates have valid format", () => {
     if (submissionDate) {
         // This will fail if you change the dummy object's dates!
         expect(submissionDate.dateString).toBe("7 Apr 1970");
-        expect(submissionDate.timeString).toMatch(
-            /\d{1,2}:\d{1,2} [A,P]M/
-        );
+        expect(submissionDate.timeString).toMatch(/\d{1,2}:\d{1,2} [A,P]M/);
     } else {
         throw new Error(
             "You were the chosen one! You were meant to destroy the nulls, not join them!"

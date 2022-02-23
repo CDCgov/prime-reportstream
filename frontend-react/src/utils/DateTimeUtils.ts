@@ -17,8 +17,7 @@ export type SubmissionDate = {
 export const generateSubmissionDate = (
     dateTimeString: string
 ): SubmissionDate | null => {
-    const inputRegex =
-        /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{0,5}Z/;
+    const inputRegex = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{0,5}Z/;
     const monthNames = [
         "Jan",
         "Feb",
