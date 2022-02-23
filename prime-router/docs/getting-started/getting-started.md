@@ -195,6 +195,26 @@ docker logs prime-router_postgresql_1
 docker logs prime-router_prime_dev_1 --follow
 ```
 
+### How to change Logging Levels
+
+To change the level of logging in our kotlin code, edit the src/main/resources/log4j2.xml file.  For example, to get very verbose logging across all classes:
+```
+        <Logger name="gov.cdc.prime.router" level="trace"/>
+```
+To increase the level of Azure Function logging (Microsoft's logging), edit the 'logging' section of the host.json file and add a logLevel section, like this:
+```
+  "logging": {
+    "logLevel": {
+      "default": "Trace"
+    },
+    "applicationInsights": {
+      "samplingSettings": {
+        "isEnabled": true
+      }
+    }
+  }
+```
+
 ### Debugging ReportStream
 
 The Docker container running ReportStream exposes local port `5005` for remote Java debugging. Connect your
