@@ -126,12 +126,14 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
                     fieldname={"translation"}
                     label={"Translation"}
                     defaultvalue={orgReceiverSettings.translation}
+                    defaultnullvalue={null}
                     savefunc={(v) => (orgReceiverSettings.translation = v)}
                 />
                 <TextAreaComponent
                     fieldname={"jurisdictionalFilter"}
                     label={"Jurisdictional Filter"}
                     defaultvalue={orgReceiverSettings.jurisdictionalFilter}
+                    defaultnullvalue="[]"
                     savefunc={(v) =>
                         (orgReceiverSettings.jurisdictionalFilter = v)
                     }
@@ -140,6 +142,7 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
                     fieldname={"qualityFilter"}
                     label={"Quality Filter"}
                     defaultvalue={orgReceiverSettings.qualityFilter}
+                    defaultnullvalue="[]"
                     savefunc={(v) => (orgReceiverSettings.qualityFilter = v)}
                 />
                 <CheckboxComponent
@@ -154,12 +157,14 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
                     fieldname={"routingFilter"}
                     label={"Routing Filter"}
                     defaultvalue={orgReceiverSettings.routingFilter}
+                    defaultnullvalue="[]"
                     savefunc={(v) => (orgReceiverSettings.routingFilter = v)}
                 />
                 <TextAreaComponent
                     fieldname={"processingModeFilter"}
                     label={"Processing Mode Filter"}
                     defaultvalue={orgReceiverSettings.processingModeFilter}
+                    defaultnullvalue="[]"
                     savefunc={(v) =>
                         (orgReceiverSettings.processingModeFilter = v)
                     }
@@ -174,12 +179,14 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
                     fieldname={"timing"}
                     label={"Timing"}
                     defaultvalue={orgReceiverSettings.timing}
+                    defaultnullvalue={null}
                     savefunc={(v) => (orgReceiverSettings.timing = v)}
                 />
                 <TextAreaComponent
                     fieldname={"transport"}
                     label={"Transport"}
                     defaultvalue={orgReceiverSettings.transport}
+                    defaultnullvalue={null}
                     savefunc={(v) => (orgReceiverSettings.transport = v)}
                 />
                 <TextInputComponent
