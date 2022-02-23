@@ -1245,19 +1245,8 @@ class Hl7Serializer(
             )
         )
         // set to a default value, but look below
-        // terser.set(formPathSpec("OBX-23-6", aoeRep), report.getStringByHl7Field(row, "OBX-23-6"))
-        terser.set(
-            formPathSpec("OBX-23-10", aoeRep),
-            trimAndTruncateValue(
-                report.getString(row, "testing_lab_clia") as String, "OBX-23-10", hl7Config, terser
-            )
-        )
-        terser.set(
-            formPathSpec("OBX-15", aoeRep),
-            trimAndTruncateValue(
-                report.getString(row, "testing_lab_clia") as String, "OBX-15", hl7Config, terser
-            )
-        )
+        terser.set(formPathSpec("OBX-23-10", aoeRep), report.getString(row, "testing_lab_clia"))
+        terser.set(formPathSpec("OBX-15", aoeRep), report.getString(row, "testing_lab_clia"))
         terser.set(
             formPathSpec("OBX-24-1", aoeRep),
             trimAndTruncateValue(
@@ -1288,12 +1277,7 @@ class Hl7Serializer(
             formPathSpec("OBX-24-5", aoeRep),
             report.getStringByHl7Field(row, "OBX-24-5")?.padStart(5, '0')
         )
-        terser.set(
-            formPathSpec("OBX-24-9", aoeRep),
-            trimAndTruncateValue(
-                report.getStringByHl7Field(row, "OBX-24-9") as String, "OBX-24-9", hl7Config, terser
-            )
-        )
+        terser.set(formPathSpec("OBX-24-9", aoeRep), report.getStringByHl7Field(row, "OBX-24-9"))
         // check for the OBX-23-6 value. it needs to be split apart
         val testingLabIdAssigner = report.getString(row, "testing_lab_id_assigner")
         if (testingLabIdAssigner?.contains("^") == true) {
