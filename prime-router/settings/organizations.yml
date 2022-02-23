@@ -1053,6 +1053,8 @@
       jurisdictionalFilter:
         - orEquals(ordering_facility_state, NJ, patient_state, NJ)
         - matches(processing_mode_code, P)
+      routingFilter:
+        - "matches(test_result_status, F, C, P)"
       translation:
         type: HL7
         useBatchHeaders: true
@@ -1064,7 +1066,7 @@
         truncateHl7Fields: OBX-23-1
         reportingFacilityName: CDC PRIME
         reportingFacilityId: 11D2030855
-        suppressHl7Fields: "OBX-18-1,OBX-18-2,OBX-18-3, OBX-23-1"
+        suppressHl7Fields: "OBX-18-1,OBX-18-2,OBX-18-3"
       transport:
         type: SFTP
         host: sftp
@@ -1092,7 +1094,7 @@
         receivingFacilityOID: 2.16.840.1.113883.3.1299
         truncateHDNamespaceIds: true
         truncateHl7Fields: OBX-23-1
-        suppressHl7Fields: "OBX-18-1,OBX-18-2,OBX-18-3, OBX-23-1"
+        suppressHl7Fields: "OBX-18-1,OBX-18-2,OBX-18-3"
       transport:
         type: SFTP
         host: sftp

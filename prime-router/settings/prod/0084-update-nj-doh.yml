@@ -15,7 +15,8 @@
         - "hasAtLeastOneOf(patient_street,patient_zip_code,patient_phone_number,patient_email)"
         - "hasValidDataFor(message_id,equipment_model_name,specimen_type,test_result,patient_last_name,patient_first_name,patient_dob,ordering_provider_id,ordering_facility_name)"
         - "isValidCLIA(testing_lab_clia)"
-      routingFilter: null
+      routingFilter:
+        - "matches(test_result_status, F, C, P)"
       processingModeFilter: null
   senders: []
   receivers:
@@ -36,7 +37,7 @@
       reportingFacilityId: "11D2030855"
       reportingFacilityIdType: null
       suppressQstForAoe: false
-      suppressHl7Fields: "OBX-18-1,OBX-18-2,OBX-18-3, OBX-23-1"
+      suppressHl7Fields: "OBX-18-1,OBX-18-2,OBX-18-3"
       suppressAoe: false
       defaultAoeToUnknown: false
       useBlankInsteadOfUnknown: null
@@ -98,7 +99,7 @@
       reportingFacilityId: "11D2030855"
       reportingFacilityIdType: null
       suppressQstForAoe: false
-      suppressHl7Fields: "OBX-18-1,OBX-18-2,OBX-18-3, OBX-23-1"
+      suppressHl7Fields: "OBX-18-1,OBX-18-2,OBX-18-3"
       suppressAoe: false
       defaultAoeToUnknown: false
       useBlankInsteadOfUnknown: null
@@ -160,7 +161,7 @@
       reportingFacilityId: "11D2030855"
       reportingFacilityIdType: null
       suppressQstForAoe: false
-      suppressHl7Fields: "OBX-18-1,OBX-18-2,OBX-18-3, OBX-23-1"
+      suppressHl7Fields: "OBX-18-1,OBX-18-2,OBX-18-3"
       suppressAoe: false
       defaultAoeToUnknown: false
       useBlankInsteadOfUnknown: null
@@ -222,7 +223,7 @@
       reportingFacilityId: "11D2030855"
       reportingFacilityIdType: null
       suppressQstForAoe: false
-      suppressHl7Fields: "OBX-18-1,OBX-18-2,OBX-18-3, OBX-23-1"
+      suppressHl7Fields: "OBX-18-1,OBX-18-2,OBX-18-3"
       suppressAoe: false
       defaultAoeToUnknown: false
       useBlankInsteadOfUnknown: null
