@@ -57,3 +57,6 @@ variable "primary_connection_string" {}
 variable "postgres_user" {}
 variable "postgres_pass" {}
 variable "application_key_vault_id" {}
+variable "sa_partner_connection_string" {}
+variable "client_config_key_vault_id" {}
+variable "app_config_key_vault_id" {}

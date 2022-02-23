@@ -1,9 +1,9 @@
-# locals {
-#   slots = {
-#     active : azurerm_function_app.function_app
-#     candidate : azurerm_function_app_slot.candidate
-#   }
-# }
+locals {
+  slots = {
+    active : azurerm_function_app.function_app
+    candidate : azurerm_function_app_slot.candidate
+  }
+}
 
 resource "azurerm_function_app_slot" "candidate" {
   function_app_name          = azurerm_function_app.function_app.name

@@ -11,7 +11,7 @@ resource "azurerm_storage_account" "storage_account" {
   enable_https_traffic_only = true
 
   network_rules {
-    default_action = "Deny"
+    default_action = "Allow"
     bypass         = ["None"]
 
     # ip_rules = sensitive(concat(

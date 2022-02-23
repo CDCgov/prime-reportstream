@@ -21,3 +21,7 @@ output "storage_public_id" {
 output "storage_partner_id" {
   value = azurerm_storage_account.storage_partner.id
 }
+
+output "sa_partner_connection_string" {
+  value = azurerm_storage_account.storage_partner.primary_connection_string
+}

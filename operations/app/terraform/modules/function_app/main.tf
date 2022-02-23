@@ -25,7 +25,7 @@ locals {
     # Use the CDC DNS for everything; they have mappings for all our internal
     # resources, so if we add a new resource we'll have to contact them (see
     # prime-router/docs/dns.md)
-    "WEBSITE_DNS_SERVER" = "172.17.0.135"
+
 
     "DOCKER_REGISTRY_SERVER_URL"      = var.container_registry_login_server
     "DOCKER_REGISTRY_SERVER_USERNAME" = var.container_registry_admin_username
@@ -90,20 +90,57 @@ resource "azurerm_function_app" "function_app" {
   location                   = var.location
   resource_group_name        = var.resource_group
   app_service_plan_id        = var.app_service_plan
-  storage_account_name       = "${var.resource_prefix}sasb"
+  storage_account_name       = "${var.resource_prefix}storageaccount"
   storage_account_access_key = var.primary_access_key
   https_only                 = true
   os_type                    = "linux"
   version                    = "~3"
   enable_builtin_logging     = false
 
+site_config {
+    ip_restriction {
+      action                    = "Allow"
+      name                      = "AllowVNetTraffic"
+      priority                  = 100
+      virtual_network_subnet_id = var.public_subnet[0]
+    }
+
+    ip_restriction {
+      action                    = "Allow"
+      name                      = "AllowVNetEastTraffic"
+      priority                  = 100
+      virtual_network_subnet_id = var.public_subnet[1]
+    }
+
+    ip_restriction {
+      action      = "Allow"
+      name        = "AllowFrontDoorTraffic"
+      priority    = 110
+      service_tag = "AzureFrontDoor.Backend"
+    }
+
+    scm_use_main_ip_restriction = true
+
+    http2_enabled             = true
+    always_on                 = true
+    use_32_bit_worker_process = false
+    linux_fx_version          = "DOCKER|${var.container_registry_login_server}/${var.resource_prefix}:latest"
+
+    cors {
+      allowed_origins = concat(local.cors_all, var.environment == "prod" ? local.cors_prod : local.cors_lower)
+    }
+  }
+
   app_settings = merge(local.all_app_settings, {
     "POSTGRES_URL" = "jdbc:postgresql://${var.resource_prefix}-pgsql.postgres.database.azure.com:5432/prime_data_hub?sslmode=require"
 
     # HHS Protect Storage Account
-    "PartnerStorage" = var.primary_connection_string
+    "PartnerStorage" = var.sa_partner_connection_string
   })
 
+  identity {
+    type = "SystemAssigned"
+  }
 
   tags = {
     environment = var.environment
@@ -117,10 +154,11 @@ resource "azurerm_function_app" "function_app" {
   }
 }
 
+
 # resource "azurerm_key_vault_access_policy" "functionapp_app_config_access_policy" {
-#   key_vault_id = var.application_key_vault_id
-#   tenant_id    = azurerm_function_app.function_app.identity.0.tenant_id
-#   object_id    = azurerm_function_app.function_app.identity.0.principal_id
+#   key_vault_id = var.app_config_key_vault_id
+#   tenant_id    = azurerm_function_app.function_app.identity[0].tenant_id
+#   object_id    = azurerm_function_app.function_app.identity[0].principal_id
 
 #   secret_permissions = [
 #     "Get",
@@ -128,19 +166,20 @@ resource "azurerm_function_app" "function_app" {
 # }
 
 # resource "azurerm_key_vault_access_policy" "functionapp_client_config_access_policy" {
-#   key_vault_id = var.application_key_vault_id
+#   key_vault_id = var.client_config_key_vault_id
 #   tenant_id    = azurerm_function_app.function_app.identity.0.tenant_id
 #   object_id    = azurerm_function_app.function_app.identity.0.principal_id
 
 #   secret_permissions = [
 #     "Get",
 #   ]
+
 # }
 
-# resource "azurerm_app_service_virtual_network_swift_connection" "function_app_vnet_integration" {
-#   app_service_id = azurerm_function_app.function_app.id
-#   subnet_id      = var.use_cdc_managed_vnet ? "" : var.public_subnet[0]
-# }
+resource "azurerm_app_service_virtual_network_swift_connection" "function_app_vnet_integration" {
+  app_service_id = azurerm_function_app.function_app.id
+  subnet_id      = var.use_cdc_managed_vnet ? "" : var.public_subnet[0]
+}
 
 // Enable sticky slot settings
 // Done via a template due to a missing Terraform feature:

@@ -133,7 +133,7 @@ module "function_app" {
   okta_redirect_url           = var.okta_redirect_url
   terraform_caller_ip_address = var.terraform_caller_ip_address
   use_cdc_managed_vnet        = var.use_cdc_managed_vnet
-  primary_access_key       = module.storage.sa_primary_access_key
+  primary_access_key          = module.storage.sa_primary_access_key
   container_registry_login_server = module.container_registry.container_registry_login_server
   primary_connection_string  = module.storage.sa_primary_connection_string
   app_service_plan = module.app_service_plan.service_plan_id
@@ -144,6 +144,9 @@ module "function_app" {
   container_registry_admin_password = module.container_registry.container_registry_admin_password
   public_subnet = module.network.public_subnet_ids
   application_key_vault_id = module.key_vault.application_key_vault_id
+  sa_partner_connection_string = module.storage.sa_partner_connection_string
+  client_config_key_vault_id = module.key_vault.client_config_key_vault_id
+  app_config_key_vault_id = module.key_vault.app_config_key_vault_id
 }
 
 module "front_door" {
