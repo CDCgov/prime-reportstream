@@ -23,6 +23,7 @@
         "@types/node": "^15.3.0",
         "@types/react": "^17.0.38",
         "@types/react-dom": "^17.0.5",
+        "axios": "^0.26.0",
         "craco-sass-resources-loader": "^1.1.0",
         "dompurify": "^2.3.4",
         "downloadjs": "^1.4.7",
@@ -119,6 +120,7 @@
     "devDependencies": {
         "@testing-library/jest-dom": "^5.16.1",
         "@testing-library/react": "^12.1.2",
+        "@testing-library/react-hooks": "^7.0.2",
         "@types/dompurify": "^2.3.1",
         "@types/jest": "^27.0.3",
         "@types/react-helmet": "^6.1.4",
@@ -136,6 +138,7 @@
         "eslint-plugin-react": "^7.28.0",
         "eslint-plugin-react-hooks": "^4.2.0",
         "jest-canvas-mock": "^2.3.1",
+        "msw": "^0.36.8",
         "npm-run-all": "^4.1.5",
         "prettier": "^2.5.0",
         "react-dropdown": "^1.9.2",
@@ -145,8 +148,8 @@
         "yaml-loader": "^0.6.0"
     },
     "peerDependencies": {
-        "postcss": "^8.4.5",
-        "follow-redirects": "^1.14.8"
+        "follow-redirects": "^1.14.8",
+        "postcss": "^8.4.5"
     },
     "resolutions": {
         "react-scripts/**/node-forge": "^1.0.0",
