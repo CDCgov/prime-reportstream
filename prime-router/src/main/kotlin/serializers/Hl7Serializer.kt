@@ -1246,19 +1246,48 @@ class Hl7Serializer(
         )
         // set to a default value, but look below
         // terser.set(formPathSpec("OBX-23-6", aoeRep), report.getStringByHl7Field(row, "OBX-23-6"))
-        terser.set(formPathSpec("OBX-23-10", aoeRep), report.getString(row, "testing_lab_clia"))
-        terser.set(formPathSpec("OBX-15", aoeRep), report.getString(row, "testing_lab_clia"))
-        terser.set(formPathSpec("OBX-24-1", aoeRep), report.getStringByHl7Field(row, "OBX-24-1"))
-        terser.set(formPathSpec("OBX-24-2", aoeRep), report.getStringByHl7Field(row, "OBX-24-2"))
-        terser.set(formPathSpec("OBX-24-3", aoeRep), report.getStringByHl7Field(row, "OBX-24-3"))
-        terser.set(formPathSpec("OBX-24-4", aoeRep), report.getStringByHl7Field(row, "OBX-24-4"))
+        terser.set(
+            formPathSpec("OBX-23-10", aoeRep),
+            trimAndTruncateValue(
+                report.getString(row, "testing_lab_clia") as String, "OBX-23-10", hl7Config, terser
+            )
+        )
+        terser.set(formPathSpec("OBX-15", aoeRep),
+            trimAndTruncateValue(
+                report.getString(row, "testing_lab_clia") as String, "OBX-15", hl7Config, terser
+            )
+        )
+        terser.set(formPathSpec("OBX-24-1", aoeRep),
+            trimAndTruncateValue(
+                report.getStringByHl7Field(row, "OBX-24-1") as String, "OBX-24-1", hl7Config, terser
+            )
+        )
+        terser.set(formPathSpec("OBX-24-2", aoeRep),
+            trimAndTruncateValue(
+                report.getStringByHl7Field(row, "OBX-24-2") as String, "OBX-24-2", hl7Config, terser
+            )
+        )
+        terser.set(formPathSpec("OBX-24-3", aoeRep),
+            trimAndTruncateValue(
+                report.getStringByHl7Field(row, "OBX-24-3") as String, "OBX-24-3", hl7Config, terser
+            )
+        )
+        terser.set(formPathSpec("OBX-24-4", aoeRep),
+            trimAndTruncateValue(
+                report.getStringByHl7Field(row, "OBX-24-4") as String, "OBX-24-4", hl7Config, terser
+            )
+        )
         // OBX-24-5 is a postal code as well. pad this for now
         // TODO: come up with a better way to repeat these segments
         terser.set(
             formPathSpec("OBX-24-5", aoeRep),
             report.getStringByHl7Field(row, "OBX-24-5")?.padStart(5, '0')
         )
-        terser.set(formPathSpec("OBX-24-9", aoeRep), report.getStringByHl7Field(row, "OBX-24-9"))
+        terser.set(formPathSpec("OBX-24-9", aoeRep),
+            trimAndTruncateValue(
+                report.getStringByHl7Field(row, "OBX-24-9") as String, "OBX-24-9", hl7Config, terser
+            )
+        )
         // check for the OBX-23-6 value. it needs to be split apart
         val testingLabIdAssigner = report.getString(row, "testing_lab_id_assigner")
         if (testingLabIdAssigner?.contains("^") == true) {
