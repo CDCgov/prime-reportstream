@@ -1,4 +1,4 @@
-import React, { Context, createContext, useContext, useReducer, useState } from "react";
+import React, { Context, createContext, useContext, useState } from "react";
 
 import { Endpoint } from "../api/Api";
 import { ResponseType } from "../hooks/useNetwork";
@@ -25,24 +25,27 @@ export interface CacheItem<T> {
 
 interface Cache {
     store: Array<CacheItem<any>>;
-    updateCache: ({ endpoint, response }: UpdateCacheParams) => void
+    updateCache: ({ endpoint, response }: UpdateCacheParams) => void;
+}
+
+function generateCacheItem({ endpoint, response }: UpdateCacheParams) {
+    return {
+        endpoint: endpoint,
+        response: response,
+        timeout: 600000,
+    };
 }
 
 /* Initialize empty cache and create Context */
 const CacheContext: Context<Cache> = createContext({
     store: [] as Array<CacheItem<any>>,
     updateCache: ({ endpoint, response }: UpdateCacheParams) => {
-        console.log('sample function')
-    }
+        /* Empty template to make TypeScript happy */
+    },
 });
 
-/* Helper function to create CacheItem */
-function generateCacheItem({ endpoint, response }: UpdateCacheParams): CacheItem<any> {
-    return {
-        endpoint: endpoint,
-        response: response,
-        timeout: 600000,
-    };
+export function useCacheContext() {
+    return useContext(CacheContext);
 }
 
 /* Cache provider */
@@ -69,10 +72,6 @@ function NetworkCache({ children }: { children: JSX.Element | JSX.Element[] }) {
     return (
         <CacheContext.Provider value={cache}>{children}</CacheContext.Provider>
     );
-}
-
-export function useCacheContext() {
-    return useContext(CacheContext);
 }
 
 export default NetworkCache;
