@@ -1,5 +1,4 @@
 import React, { Context, createContext, useState } from "react";
-
 import { Endpoint } from "../api/Api";
 import { ResponseType } from "../hooks/useNetwork";
 
@@ -13,58 +12,61 @@ import { ResponseType } from "../hooks/useNetwork";
     Cache: An array of CacheItems of any type.
 */
 type UpdateCacheParams = {
-    endpoint: Endpoint;
-    response: ResponseType<any>;
-};
+    endpoint: Endpoint,
+    response: ResponseType<any>
+}
 
 interface CacheItem<T> {
-    endpoint?: Endpoint;
-    response?: ResponseType<T>;
-    timeout: number;
+    endpoint?: Endpoint,
+    response?: ResponseType<T>,
+    timeout: number
 }
 
 interface Cache {
-    store: Array<CacheItem<any>>;
-    updateCache?: ({ endpoint, response }: UpdateCacheParams) => void;
+    store: Array<CacheItem<any>>,
+    updateCache?: ({ endpoint, response }: UpdateCacheParams) => void
 }
 
 function generateCacheItem({ endpoint, response }: UpdateCacheParams) {
     return {
         endpoint: endpoint,
         response: response,
-        timeout: 600000,
-    };
+        timeout: 600000
+    }
 }
 
 /* Initialize empty cache and create Context */
 const CacheContext: Context<Cache> = createContext({
-    store: [] as Array<CacheItem<any>>,
-});
+    store: [] as Array<CacheItem<any>>
+})
 
 /* Cache provider */
 function NetworkCache({ children }: { children: JSX.Element[] }) {
     /* Elements of Cache interface as state */
-    const [cacheStore, setCacheStore] = useState<Array<CacheItem<any>>>([]);
+    const [cacheStore, setCacheStore] = useState<Array<CacheItem<any>>>([])
 
     /* Update the cache store using this function from components using 
     this provider */
     const updateCacheStore = ({ endpoint, response }: UpdateCacheParams) => {
-        const cacheItem = generateCacheItem({ endpoint, response });
-        setCacheStore([...cacheStore, cacheItem]);
-    };
+        const cacheItem = generateCacheItem({ endpoint, response })
+        setCacheStore([...cacheStore, cacheItem])
+    }
 
     /* I KNOW it breaks the best practice of maintaining state at the top of
     a component, but to circumvent "definition before declaration" errors, this
     has to be our last state item. */
-    const [cache] = useState<Cache>({
+    const [cache, setCache] = useState<Cache>({
         store: cacheStore,
-        updateCache: updateCacheStore,
-    });
+        updateCache: updateCacheStore
+    })
 
     /* Wraps any children with the CacheProvider */
     return (
-        <CacheContext.Provider value={cache}>{children}</CacheContext.Provider>
-    );
+        <CacheContext.Provider value={cache}>
+            {children}
+        </CacheContext.Provider>
+    )
 }
 
-export default NetworkCache;
+export default NetworkCache
+
