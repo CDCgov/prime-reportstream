@@ -40,7 +40,10 @@ private const val PROCESSING_TYPE_PARAMETER = "processing"
  * Azure Functions with HTTP Trigger.
  * This is basically the "front end" of the Hub. Reports come in here.
  */
-class ReportFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()) : Logging {
+class ReportFunction(
+    private val workflowEngine: WorkflowEngine = WorkflowEngine(),
+    private val actionHistory: ActionHistory = ActionHistory(TaskAction.receive)
+) : Logging {
 
     data class ValidatedRequest(
         val content: String = "",
@@ -62,8 +65,7 @@ class ReportFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine
             methods = [HttpMethod.POST],
             authLevel = AuthorizationLevel.FUNCTION
         ) request: HttpRequestMessage<String?>,
-        context: ExecutionContext?,
-        actionHistory: ActionHistory = ActionHistory(TaskAction.receive)
+        context: ExecutionContext?
     ): HttpResponseMessage {
         val senderName = extractClient(request)
         if (senderName.isNullOrBlank())
@@ -75,7 +77,7 @@ class ReportFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine
         actionHistory.trackActionParams(request)
 
         return try {
-            processRequest(request, sender, context, actionHistory)
+            processRequest(request, sender, context)
         } catch (ex: Exception) {
             if (ex.message != null)
                 logger.error(ex.message!!, ex)
@@ -115,13 +117,12 @@ class ReportFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine
         )
 
         try {
-            val actionHistory = ActionHistory(TaskAction.receive)
             actionHistory.trackActionParams(request)
 
             if (authenticationStrategy is OktaAuthentication) {
                 // The report is coming from a sender that is using Okta, so set "oktaSender" to true
                 return authenticationStrategy.checkAccess(request, senderName, true, actionHistory) {
-                    return@checkAccess processRequest(request, sender, context, actionHistory)
+                    return@checkAccess processRequest(request, sender, context)
                 }
             }
 
@@ -129,7 +130,7 @@ class ReportFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine
                 val claims = authenticationStrategy.checkAccessToken(request, "${sender.fullName}.report")
                     ?: return HttpUtilities.unauthorizedResponse(request)
                 logger.info("Claims for ${claims["sub"]} validated.  Beginning ingestReport.")
-                return processRequest(request, sender, context, actionHistory)
+                return processRequest(request, sender, context)
             }
         } catch (ex: Exception) {
             if (ex.message != null)
@@ -148,14 +149,12 @@ class ReportFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine
      * @param request The incoming request
      * @param sender The sender record, pulled from the database based on sender name on the request
      * @param context Execution context
-     * @param actionHistory ActionHistory instance to track messages and lineages\
      * @return Returns an HttpResponseMessage indicating the result of the operation and any resulting information
      */
     internal fun processRequest(
         request: HttpRequestMessage<String?>,
         sender: Sender,
-        context: ExecutionContext?,
-        actionHistory: ActionHistory
+        context: ExecutionContext?
     ): HttpResponseMessage {
         // determine if we should be following the sync or async workflow
         val isAsync = processingType(request, sender) == ProcessingType.async
@@ -218,8 +217,7 @@ class ReportFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine
                             report,
                             options,
                             validatedRequest.defaults,
-                            validatedRequest.routeTo,
-                            actionHistory
+                            validatedRequest.routeTo
                         )
                     } else {
                         val routingWarnings = workflowEngine.routeReport(
@@ -341,8 +339,7 @@ class ReportFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine
         parsedReport: Report,
         options: Options,
         defaults: Map<String, String>,
-        routeTo: List<String>,
-        actionHistory: ActionHistory
+        routeTo: List<String>
     ) {
 
         val report = parsedReport.copy()

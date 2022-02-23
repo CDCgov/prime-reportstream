@@ -72,13 +72,13 @@ class ReportFunctionTests {
         val sender = Sender("Test Sender", "test", Sender.Format.CSV, "covid-19", schemaName = "covid-19")
 
         val engine = makeEngine(metadata, settings)
-        val reportFunc = spyk(ReportFunction(engine))
         val actionHistory = spyk(ActionHistory(TaskAction.receive))
+        val reportFunc = spyk(ReportFunction(engine, actionHistory))
 
         val req = MockHttpRequestMessage("test")
         val resp = HttpUtilities.okResponse(req, "fakeOkay")
 
-        every { reportFunc.processRequest(any(), any(), any(), any()) } returns resp
+        every { reportFunc.processRequest(any(), any(), any()) } returns resp
         every { engine.settings.findSender("Test Sender") } returns sender
 
         req.httpHeaders += mapOf(
@@ -87,10 +87,10 @@ class ReportFunctionTests {
         )
 
         // Invoke function run
-        reportFunc.run(req, context = null, actionHistory)
+        reportFunc.run(req, context = null)
 
         // processFunction should be called
-        verify(exactly = 1) { reportFunc.processRequest(any(), any(), any(), any()) }
+        verify(exactly = 1) { reportFunc.processRequest(any(), any(), any()) }
     }
 
     // Returns 400 bad request
@@ -108,13 +108,13 @@ class ReportFunctionTests {
         val sender = Sender("Test Sender", "test", Sender.Format.CSV, "covid-19", schemaName = "covid-19")
 
         val engine = makeEngine(metadata, settings)
-        val reportFunc = spyk(ReportFunction(engine))
         val actionHistory = spyk(ActionHistory(TaskAction.receive))
+        val reportFunc = spyk(ReportFunction(engine, actionHistory))
 
         val req = MockHttpRequestMessage("test")
         val resp = HttpUtilities.okResponse(req, "fakeOkay")
 
-        every { reportFunc.processRequest(any(), any(), any(), any()) } returns resp
+        every { reportFunc.processRequest(any(), any(), any()) } returns resp
         every { engine.settings.findSender("Test Sender") } returns sender
 
         req.httpHeaders += mapOf(
@@ -122,7 +122,7 @@ class ReportFunctionTests {
         )
 
         // Invoke function run
-        var res = reportFunc.run(req, context = null, actionHistory)
+        var res = reportFunc.run(req, context = null)
 
         // verify
         assert(res.statusCode == 400)
@@ -142,13 +142,13 @@ class ReportFunctionTests {
         val settings = FileSettings().loadOrganizations(oneOrganization)
 
         val engine = makeEngine(metadata, settings)
-        val reportFunc = spyk(ReportFunction(engine))
         val actionHistory = spyk(ActionHistory(TaskAction.receive))
+        val reportFunc = spyk(ReportFunction(engine, actionHistory))
 
         val req = MockHttpRequestMessage("test")
         val resp = HttpUtilities.okResponse(req, "fakeOkay")
 
-        every { reportFunc.processRequest(any(), any(), any(), any()) } returns resp
+        every { reportFunc.processRequest(any(), any(), any()) } returns resp
         every { engine.settings.findSender("Test Sender") } returns null
 
         req.httpHeaders += mapOf(
@@ -157,7 +157,7 @@ class ReportFunctionTests {
         )
 
         // Invoke function run
-        val res = reportFunc.run(req, context = null, actionHistory)
+        val res = reportFunc.run(req, context = null)
 
         // verify
         assert(res.statusCode == 400)
@@ -177,8 +177,8 @@ class ReportFunctionTests {
         val settings = FileSettings().loadOrganizations(oneOrganization)
 
         val engine = makeEngine(metadata, settings)
-        val reportFunc = spyk(ReportFunction(engine))
         val actionHistory = spyk(ActionHistory(TaskAction.receive))
+        val reportFunc = spyk(ReportFunction(engine, actionHistory))
         val sender = Sender(
             "Test Sender",
             "test",
@@ -196,8 +196,8 @@ class ReportFunctionTests {
         every { actionHistory.insertAction(any()) } returns 0
 
         // act
-        reportFunc.processRequest(req, sender, context = null, actionHistory)
-        reportFunc.processRequest(req, sender, context = null, actionHistory)
+        reportFunc.processRequest(req, sender, context = null)
+        reportFunc.processRequest(req, sender, context = null)
 
         // assert
         verify(exactly = 0) { engine.verifyNoDuplicateFile(any(), any()) }
@@ -218,8 +218,8 @@ class ReportFunctionTests {
         val settings = FileSettings().loadOrganizations(oneOrganization)
 
         val engine = makeEngine(metadata, settings)
-        val reportFunc = spyk(ReportFunction(engine))
         val actionHistory = spyk(ActionHistory(TaskAction.receive))
+        val reportFunc = spyk(ReportFunction(engine, actionHistory))
         val sender = Sender(
             "Test Sender",
             "test",
@@ -239,9 +239,9 @@ class ReportFunctionTests {
 
         // act
         every { accessSpy.isDuplicateReportFile(any(), any(), any(), any()) } returns false
-        reportFunc.processRequest(req, sender, context = null, actionHistory)
+        reportFunc.processRequest(req, sender, context = null)
         every { accessSpy.isDuplicateReportFile(any(), any(), any(), any()) } returns true
-        reportFunc.processRequest(req, sender, context = null, actionHistory)
+        reportFunc.processRequest(req, sender, context = null)
 
         // assert
         verify(exactly = 2) { engine.verifyNoDuplicateFile(any(), any()) }
