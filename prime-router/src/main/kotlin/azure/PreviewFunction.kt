@@ -12,7 +12,7 @@ import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Sender
-import gov.cdc.prime.router.messages.PreviewErrorResponseMessage
+import gov.cdc.prime.router.messages.PreviewErrorMessage
 import gov.cdc.prime.router.messages.PreviewMessage
 import gov.cdc.prime.router.messages.PreviewResponseMessage
 import gov.cdc.prime.router.tokens.OktaAuthentication
@@ -37,7 +37,8 @@ class PreviewFunction(
         return oktaAuthentication.checkAccess(request) {
             try {
                 val parameters = checkRequest(request)
-                val body = processRequest(parameters)
+                val response = processRequest(parameters)
+                val body = mapper.writeValueAsString(response)
                 HttpUtilities.okResponse(request, body)
             } catch (ex: IllegalArgumentException) {
                 HttpUtilities.badRequestResponse(request, ex.message ?: "")
@@ -53,7 +54,7 @@ class PreviewFunction(
         errors: List<ActionLog> = emptyList(),
         warnings: List<ActionLog> = emptyList()
     ): Nothing {
-        val previewErrorMessage = PreviewErrorResponseMessage(message, errors, warnings)
+        val previewErrorMessage = PreviewErrorMessage(message, errors, warnings)
         val response = mapper.writeValueAsString(previewErrorMessage)
         throw IllegalArgumentException(response)
     }
@@ -84,13 +85,16 @@ class PreviewFunction(
     /**
      * Main logic of the Azure function. Useful for unit testing.
      */
-    internal fun processRequest(parameters: FunctionParameters): String {
+    internal fun processRequest(parameters: FunctionParameters): PreviewResponseMessage {
         val warnings = mutableListOf<ActionLog>()
         return readReport(parameters, warnings)
             .translate(parameters, warnings)
-            .serialize(parameters, warnings)
+            .buildResponse(parameters, warnings)
     }
 
+    /**
+     * Read and parse the preview reports
+     */
     private fun readReport(parameters: FunctionParameters, warnings: MutableList<ActionLog>): Report {
         return try {
             val (report, parseWarnings, _) = workflowEngine.parseReport(
@@ -105,6 +109,9 @@ class PreviewFunction(
         }
     }
 
+    /**
+     * Translate a report into a preview report
+     */
     private fun Report.translate(parameters: FunctionParameters, warnings: MutableList<ActionLog>): Report {
         val routedReport = workflowEngine.translator.filterAndTranslateForReceiver(
             input = this,
@@ -115,7 +122,13 @@ class PreviewFunction(
         return routedReport.report
     }
 
-    private fun Report.serialize(parameters: FunctionParameters, warnings: List<ActionLog>): String {
+    /**
+     * Build a preview response from a report and warnings
+     */
+    private fun Report.buildResponse(
+        parameters: FunctionParameters,
+        warnings: List<ActionLog>
+    ): PreviewResponseMessage {
         val content = String(workflowEngine.blob.createBodyBytes(this))
         val externalName = Report.formFilename(
             id,
@@ -125,13 +138,12 @@ class PreviewFunction(
             parameters.receiver.translation,
             workflowEngine.metadata
         )
-        val response = PreviewResponseMessage(
+        return PreviewResponseMessage(
             receiverName = parameters.receiver.fullName,
             externalFileName = externalName,
             content = content,
             warnings = warnings
         )
-        return mapper.writeValueAsString(response)
     }
 
     companion object {

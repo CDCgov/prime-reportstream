@@ -27,9 +27,9 @@ data class PreviewResponseMessage(
 )
 
 /**
- * The [PreviewErrorResponseMessage] is the BAD_REQUEST status payload returned by the `preview` API end-point.
+ * The [PreviewErrorMessage] is the BAD_REQUEST status payload returned by the `preview` API end-point.
  */
-data class PreviewErrorResponseMessage(
+data class PreviewErrorMessage(
     val message: String,
     val errors: List<ActionLog> = emptyList(),
     val warnings: List<ActionLog> = emptyList()

@@ -2,9 +2,11 @@ package gov.cdc.prime.router.azure
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import assertk.assertions.isNotEmpty
 import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
 import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpRequestMessage
+import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.messages.PreviewMessage
 import io.mockk.every
 import io.mockk.mockk
@@ -12,6 +14,10 @@ import org.junit.jupiter.api.Test
 import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Path
+
+const val SENDER_NAME = "ignore.ignore-simple-report"
+const val RECEIVER_NAME = "ignore.CSV"
+const val SAMPLE_FILE = "./src/testIntegration/resources/datatests/CSV_to_HL7/sample-single-pdi-20210608-0002.csv"
 
 class PreviewFunctionTests {
     private val mapper = jacksonMapperBuilder().build()
@@ -29,27 +35,39 @@ class PreviewFunctionTests {
         return mockRequest
     }
 
-    private fun buildPreviewMessage(): String {
-        val content = Files.readString(
-            Path.of(
-                "./src/testIntegration/resources/datatests/CSV_to_HL7/sample-single-pdi-20210608-0002.csv"
-            )
+    private fun buildPreviewMessage(): PreviewMessage {
+        return PreviewMessage(
+            senderName = SENDER_NAME,
+            receiverName = RECEIVER_NAME,
+            inputContent = Files.readString(Path.of(SAMPLE_FILE))
         )
-        val previewMessage = PreviewMessage(
-            senderName = "ignore.ignore-simple-report",
-            receiverName = "ignore.CSV",
-            inputContent = content
-        )
-        return mapper.writeValueAsString(previewMessage)
+    }
+
+    private fun buildPreviewMessageJson(): String {
+        return mapper.writeValueAsString(buildPreviewMessage())
     }
 
     @Test
     fun `test checkRequest`() {
         // Happy path
-        val body = buildPreviewMessage()
+        val body = buildPreviewMessageJson()
         val mockRequest = buildRequest(body)
         val previewFunction = buildPreviewFunction()
         val functionParams = previewFunction.checkRequest(mockRequest)
-        assertThat(functionParams.sender.fullName).isEqualTo("ignore.ignore-simple-report")
+        assertThat(functionParams.sender.fullName).isEqualTo(SENDER_NAME)
+    }
+
+    @Test
+    fun `test processRequest`() {
+        val previewFunction = buildPreviewFunction()
+        val settings = FileSettings(FileSettings.defaultSettingsDirectory)
+        val previewParameters = PreviewFunction.FunctionParameters(
+            previewMessage = buildPreviewMessage(),
+            sender = settings.findSender(SENDER_NAME)!!,
+            receiver = settings.findReceiver(RECEIVER_NAME)!!
+        )
+        val response = previewFunction.processRequest(previewParameters)
+        assertThat(response.content).isNotEmpty()
+        assertThat(response.receiverName).isEqualTo(RECEIVER_NAME)
     }
 }

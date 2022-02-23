@@ -7,7 +7,6 @@ package gov.cdc.prime.router.messages
  *  [reportId] is the UUID of the report.
  *  [schemaTopic] is the topic of the pipeline
  *  [schemaName] refers to the schema of the report
- *  [externalFileName] is the name the for the report according
  *  [contentType] is the MIME content name. Usually,
  *  [content] is a JSON escaped string of the
  *  [origin] provides information about blob that the content came from
