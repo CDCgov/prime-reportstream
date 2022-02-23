@@ -22,6 +22,6 @@ assignees: victorialb-usds
 - [ ] Assign RS team member as note taker (if possible) 
 - [ ] Conduct meeting and take notes in ongoing notes doc
 - [ ] Update notes/call info in Excel 
-- [ ] Sare insights with team:
+- [ ] Share insights with team:
   - [ ] Slack
   - [ ] Research tracker in MS Lists (see here https://cdc.sharepoint.com/teams/USDSatCDC/Lists/Test%20test/AllItems.aspx?env=WebViewList) 
