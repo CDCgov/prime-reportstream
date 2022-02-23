@@ -863,6 +863,8 @@ data class Element(
             Instant::from,
             LocalDate::from
         )
+        // Using CENTRAL timezone here is inconsistent with other conversions, but changing to UTC
+        // will cause issues to STLTs.
         val parsedValue = if (ta is LocalDateTime) {
             LocalDateTime.from(ta).atZone(ZoneId.of(USTimeZone.CENTRAL.zoneId)).toOffsetDateTime()
         } else {
@@ -990,7 +992,7 @@ data class Element(
      * @param allElementValues the values for all other elements which are updated as needed
      * @param schema the schema
      * @param defaultOverrides element name and value pairs of defaults that override schema defaults
-     * @param index the index of the item from a report being processed
+     * @param itemIndex the index of the item from a report being processed
      * @param sender Sender who submitted the data.  Can be null if called at a point in code where its not known
      * @return a mutable set with the processed value or empty string
      */
@@ -998,9 +1000,10 @@ data class Element(
         allElementValues: Map<String, String>,
         schema: Schema,
         defaultOverrides: Map<String, String> = emptyMap(),
-        index: Int = 0,
+        itemIndex: Int,
         sender: Sender? = null,
     ): ElementResult {
+        check(itemIndex > 0) { "Item index was $itemIndex, but must be larger than 0" }
         val retVal = ElementResult(if (allElementValues[name].isNullOrEmpty()) "" else allElementValues[name]!!)
         if (useMapper(retVal.value) && mapperRef != null) {
             // This gets the required value names, then gets the value from mappedRows that has the data
@@ -1008,7 +1011,7 @@ data class Element(
             val valueNames = mapperRef.valueNames(this, args)
             val valuesForMapper = valueNames.mapNotNull { elementName ->
                 if (elementName.contains("$")) {
-                    tokenizeMapperValue(elementName, index)
+                    tokenizeMapperValue(elementName, itemIndex)
                 } else {
                     val valueElement = schema.findElement(elementName)
                     if (valueElement != null && allElementValues.containsKey(elementName) &&
@@ -1126,18 +1129,25 @@ data class Element(
         const val datePattern = "yyyyMMdd"
         const val datePatternMMddyyyy = "MMddyyyy"
         const val datetimePattern = "yyyyMMddHHmmZZZ"
+        /** includes seconds  */
+        const val highPrecisionDateTimePattern = "yyyyMMddHHmmss.SSSZZZ"
         // isn't she a beauty? This allows for all kinds of possible date time variations
         const val variableDateTimePattern = "[yyyyMMddHHmmssZ]" +
             "[yyyyMMddHHmmZ]" +
             "[yyyyMMddHHmmss][yyyy-MM-dd HH:mm:ss.ZZZ]" +
-            "[yyyy-MM-dd[ HH:mm:ss[.S[S][S]]]]" +
-            "[yyyyMMdd[ HH:mm:ss[.S[S][S]]]]" +
-            "[M/d/yyyy[ HH:mm[:ss[.S[S][S]]]]]" +
-            "[yyyy/M/d[ HH:mm[:ss[.S[S][S]]]]]"
+            "[yyyy-MM-dd[ H:mm:ss[.S[S][S]]]]" +
+            "[yyyyMMdd[ H:mm:ss[.S[S][S]]]]" +
+            "[M/d/yyyy[ H:mm[:ss[.S[S][S]]]]]" +
+            "[yyyy/M/d[ H:mm[:ss[.S[S][S]]]]]"
         val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern(datePattern, Locale.ENGLISH)
         val datetimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern(datetimePattern, Locale.ENGLISH)
+        /** a higher precision date time formatter that includes seconds, and can be used */
+        val highPrecisionDateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern(
+            highPrecisionDateTimePattern,
+            Locale.ENGLISH
+        )
         val manuallyEnteredDateFormats =
-            arrayOf(datePattern, "M/d/yyyy", "MMddyyyy", "yyyy/M/d", "M/d/yyyy HH:mm", "yyyy/M/d HH:mm")
+            arrayOf(datePattern, "M/d/yyyy", "MMddyyyy", "yyyy/M/d", "M/d/yyyy H:mm", "yyyy/M/d H:mm")
         const val displayToken = "\$display"
         const val caretToken = "\$code^\$display^\$system"
         const val codeToken = "\$code"

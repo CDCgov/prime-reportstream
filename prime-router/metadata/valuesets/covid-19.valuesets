@@ -33,7 +33,9 @@
     - code: 119334006
       display: Sputum specimen 
     - code: 119342007
-      display: Saliva specimen 
+      display: Saliva specimen
+    - code: 258560004
+      display: Oral saliva sample 
     - code: 258607008
       display: Bronchoalveolar lavage fluid sample 
     - code: 119364003
