@@ -20,8 +20,8 @@ This approach has the benefit of reducing your build-debug cycle time and is det
 
 ### Step 1 - Read the getting started instructions
 
-Read the [Getting Started](../getting_started.md) instructions as background information about various components 
-needed to work in ReportStream. This document may have new information not found in this document. 
+Read the [Getting Started](./getting_started.md) instructions as background information about various components 
+needed to work in ReportStream. The [Getting Started](./getting_started.md) document may have new information not found in this document. 
 
 ### Step 2 - Install dev tools
 
