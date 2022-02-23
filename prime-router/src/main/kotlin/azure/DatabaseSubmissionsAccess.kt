@@ -18,10 +18,17 @@ interface SubmissionAccess {
         ASC,
     }
 
-    /* TODO: Needs to take sortColumn */
+    /* As sorting Submission results expands, we can add
+    * column names to this enum */
+    enum class SortColumn {
+        CREATED_AT
+    }
+
+    /* TODO: (DONE) Needs to take sortColumn */
     fun <T> fetchActions(
         sendingOrg: String,
         order: SortOrder,
+        sortColumn: SortColumn,
         resultsAfterDate: OffsetDateTime? = null,
         limit: Int = 10,
         klass: Class<T>
@@ -49,26 +56,35 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = DatabaseAccess(
 
     /**
      * @param sendingOrg is the Organization Name returned from the Okta JWT Claim.
-     * @param sortOrder sort the table by date in ASC or DESC order.
+     * @param order sort the table in ASC or DESC order.
+     * @param sortColumn sort the table by specific column; default created_at.
      * @param resultsAfterDate is the Action Id of the last result in the previous list.
      * @param limit is an Integer used for setting the number of results per page.
      * @return a list of results matching the SQL Query.
      */
-    /* TODO: Needs to take sortColumn */
+    /* TODO: (DONE) Needs to take sortColumn */
     override fun <T> fetchActions(
         sendingOrg: String,
         order: SubmissionAccess.SortOrder,
+        sortColumn: SubmissionAccess.SortColumn,
         resultsAfterDate: OffsetDateTime?,
         limit: Int,
         klass: Class<T>
     ): List<T> {
 
-        /* TODO: FINALLY, this is where we can apply sortColumn instead of
+        /* TODO: (DONE) FINALLY, this is where we can apply sortColumn instead of
          *  defaulting to ACTION.CREATED_AT
          */
+
+        val column = when (sortColumn) {
+            /* Here is where we can set a column based on sortColumn's enum
+            * value */
+            SubmissionAccess.SortColumn.CREATED_AT -> ACTION.CREATED_AT
+        }
+
         val sorted = if (order == SubmissionAccess.SortOrder.ASC) {
-            ACTION.CREATED_AT.asc()
-        } else ACTION.CREATED_AT.desc()
+            column.asc()
+        } else column.desc()
 
         return db.transactReturning { txn ->
             val query = DSL.using(txn)
