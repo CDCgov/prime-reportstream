@@ -19,12 +19,12 @@ interface SubmissionAccess {
     }
 
     /* As sorting Submission results expands, we can add
-    * column names to this enum */
+    * column names to this enum. Make sure the column you
+    * wish to sort by is indexed. */
     enum class SortColumn {
         CREATED_AT
     }
 
-    /* TODO: (DONE) Needs to take sortColumn */
     fun <T> fetchActions(
         sendingOrg: String,
         order: SortOrder,
@@ -62,7 +62,6 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = DatabaseAccess(
      * @param limit is an Integer used for setting the number of results per page.
      * @return a list of results matching the SQL Query.
      */
-    /* TODO: (DONE) Needs to take sortColumn */
     override fun <T> fetchActions(
         sendingOrg: String,
         order: SubmissionAccess.SortOrder,
@@ -71,11 +70,6 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = DatabaseAccess(
         limit: Int,
         klass: Class<T>
     ): List<T> {
-
-        /* TODO: (DONE) FINALLY, this is where we can apply sortColumn instead of
-         *  defaulting to ACTION.CREATED_AT
-         */
-
         val column = when (sortColumn) {
             /* Here is where we can set a column based on sortColumn's enum
             * value */

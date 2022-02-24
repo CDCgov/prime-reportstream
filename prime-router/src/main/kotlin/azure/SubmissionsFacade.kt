@@ -39,7 +39,6 @@ class SubmissionsFacade(
      * @return a String representation of an array of actions.
      */
     // Leaving separate from FindSubmissions to encapsulate json serialization
-    /* TODO: (DONE) Needs to take sortColumn */
     fun findSubmissionsAsJson(
         organizationName: String,
         sortOrder: String,
@@ -51,7 +50,6 @@ class SubmissionsFacade(
         return mapper.writeValueAsString(result)
     }
 
-    /* TODO: (DONE) Needs to take sortColumn */
     private fun findSubmissions(
         organizationName: String,
         sortOrder: String,
@@ -64,7 +62,7 @@ class SubmissionsFacade(
         } catch (e: IllegalArgumentException) {
             SubmissionAccess.SortOrder.DESC
         }
-        /* TODO: (DONE) Convert query to enum */
+
         val column = try {
             SubmissionAccess.SortColumn.valueOf(sortColumn)
         } catch (e: IllegalArgumentException) {
