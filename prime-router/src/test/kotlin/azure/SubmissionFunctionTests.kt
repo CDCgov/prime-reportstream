@@ -39,8 +39,8 @@ data class SubmissionUnitTestCase(
 data class DetailSubmissionHistoryResponse(
     val submissionId: Long,
     val id: String?,
-    val submittedAt: OffsetDateTime,
-    val submitter: String?,
+    val timestamp: OffsetDateTime,
+    val sender: String?,
     val httpStatus: Int?,
     val externalName: String? = "",
     val actionResponse: DetailedActionResponse? = null
@@ -258,6 +258,6 @@ class SubmissionFunctionTests {
         assertThat(response.status).isEqualTo(HttpStatus.OK)
         val responseBody: DetailSubmissionHistoryResponse = mapper.readValue(response.body.toString())
         assertThat(responseBody.submissionId).isEqualTo(returnBody.actionId)
-        assertThat(responseBody.submitter).isEqualTo(returnBody.sendingOrg)
+        assertThat(responseBody.sender).isEqualTo(returnBody.sendingOrg)
     }
 }
