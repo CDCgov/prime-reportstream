@@ -8,7 +8,7 @@ import Title from "../../components/Title";
 import ActionDetailsResource, {
     Destination,
 } from "../../resources/ActionDetailsResource";
-import { generateSubmissionDate } from "../../utils/DateTimeUtils";
+import { generateDateTitles } from "../../utils/DateTimeUtils";
 import { ErrorPage } from "../error/ErrorPage";
 
 /* Custom types */
@@ -56,7 +56,7 @@ export function DetailItem({ item, content, subItem }: DetailItemProps) {
     in the history/submissions details API
 */
 export function DestinationItem({ destinationObj }: DestinationItemProps) {
-    const submissionDate = generateSubmissionDate(destinationObj.sending_at);
+    const submissionDate = generateDateTitles(destinationObj.sending_at);
     return (
         <div
             style={{
@@ -102,7 +102,21 @@ function SubmissionDetailsContent() {
         ActionDetailsResource.detail(),
         { actionId, organization }
     );
-    const submissionDate = generateSubmissionDate(actionDetails.submittedAt);
+    const submissionDate = generateDateTitles(actionDetails.submittedAt);
+
+    /* Conditional title strings */
+    const preTitle = `${
+        actionDetails.submitter
+    } ${actionDetails.topic.toUpperCase()} Submissions`;
+    const titleString: string = submissionDate
+        ? `${submissionDate.dateString} ${submissionDate.timeString}`
+        : "Date and Time parsing error";
+
+    /* Only used when externalName is present */
+    const titleWithFilename: string | undefined =
+        actionDetails.externalName !== ""
+            ? `${titleString} - ${actionDetails.externalName}`
+            : undefined;
 
     if (!actionDetails) {
         return <ErrorPage type="page" />;
@@ -114,13 +128,9 @@ function SubmissionDetailsContent() {
             >
                 <div className="grid-col-12">
                     <Title
-                        preTitle={`${
-                            actionDetails.submitter
-                        } ${actionDetails.topic.toUpperCase()} Submissions`}
+                        preTitle={preTitle}
                         title={
-                            submissionDate
-                                ? `${submissionDate.dateString} ${submissionDate.timeString}`
-                                : "Parsing error"
+                            titleWithFilename ? titleWithFilename : titleString
                         }
                     />
                     <DetailItem item={"Report ID"} content={actionDetails.id} />
