@@ -5,19 +5,37 @@ export type SubmissionDate = {
 
 /* 
     This function serves as a cleaner (read: more contained) way of parsing out
-    necessary date and time string formats for this page.
+    necessary date and time string formats for the Submissions details page.
 
     @param dateTimeString - the value representing when a report was sent, returned
     by the API  
     
     @returns SubmissionDate | null
     dateString format: 1 Jan 2022
-    timeString format: 3:00 PM
+    timeString format: 16:30
 */
-export const generateSubmissionDate = (
+export const generateDateTitles = (
     dateTimeString: string
 ): SubmissionDate | null => {
-    const inputRegex = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{0,5}Z/;
+    const dateRegex = /\d{1,2} [a-z,A-Z]{3} \d{4}/;
+    const timeRegex = /\d{1,2}:\d{2}/;
+
+    const date = new Date(dateTimeString);
+    const monthString = parseMonth(date.getMonth());
+
+    const dateString = `${date.getDate()} ${monthString} ${date.getFullYear()}`;
+    const timeString = `${date.getHours()}:${date.getMinutes()}`;
+
+    if (!dateString.match(dateRegex) || !timeString.match(timeRegex))
+        return null;
+
+    return {
+        dateString: dateString,
+        timeString: timeString,
+    };
+};
+
+const parseMonth = (numericMonth: number) => {
     const monthNames = [
         "Jan",
         "Feb",
@@ -32,36 +50,5 @@ export const generateSubmissionDate = (
         "Nov",
         "Dec",
     ];
-
-    /* Converts to local timezone as a Date object */
-    const dateTimeISO = new Date(dateTimeString);
-
-    /* Catch bad input */
-    if (!dateTimeString.match(inputRegex)) return null;
-
-    /* Parse time into parts */
-    const minutes: number = dateTimeISO.getMinutes();
-    let hours: number = dateTimeISO.getHours();
-    let meridian: string = "am";
-
-    /* 12-hour and meridian conversion */
-    if (hours > 12) {
-        /* Afternoon/evening */
-        hours -= 12;
-        meridian = "pm";
-    } else if (hours === 0) {
-        /* Midnight */
-        hours = 12;
-    }
-
-    /* Create strings from parsed values */
-    const time: string = `${hours}:${minutes} ${meridian.toUpperCase()}`;
-    const date: string = `${dateTimeISO.getDate()} ${
-        monthNames[dateTimeISO.getMonth()]
-    } ${dateTimeISO.getFullYear()}`;
-
-    return {
-        dateString: date,
-        timeString: time,
-    };
+    return monthNames[numericMonth];
 };
