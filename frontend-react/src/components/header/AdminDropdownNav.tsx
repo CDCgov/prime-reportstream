@@ -18,8 +18,9 @@ export const AdminDropdownNav = () => {
         };
     }, []);
 
-    const testMenuItems = [
+    const adminMenuItems = [
         <NavLink to="/admin/settings">Organization Settings</NavLink>,
+        <NavLink to="/features">Feature Flags</NavLink>,
     ];
 
     return (
@@ -34,7 +35,7 @@ export const AdminDropdownNav = () => {
                 isCurrent={isOpen}
             />
             <Menu
-                items={testMenuItems}
+                items={adminMenuItems}
                 isOpen={isOpen}
                 id="adminDropdown"
                 onClick={(): void => setIsOpen(false)}
