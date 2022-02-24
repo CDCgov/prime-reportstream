@@ -169,14 +169,15 @@ class ReportFunction(
 
             // track the sending organization and client based on the header
             val validatedRequest = validateRequest(request)
-            val rawBody = validatedRequest.content.toByteArray()
-            // TODO this should be only calculated once and passed, but the underlying functions are called by
-            //  receive (this), process, batch, send and those do *not* need to calculate it outside of the function
-            //  so leaving it 2x calculating on receive for the time being.
-            val digest = BlobAccess.sha256Digest(rawBody)
 
             // check if we are preventing duplicate files from the sender
             if (!sender.allowDuplicates) {
+                val rawBody = validatedRequest.content.toByteArray()
+                // TODO this should be only calculated once and passed, but the underlying functions are called by
+                //  receive (this), process, batch, send and those do *not* need to calculate it outside of the function
+                //  so leaving it 2x calculating on receive for the time being.
+                val digest = BlobAccess.sha256Digest(rawBody)
+
                 // throws ActionError if there is a duplicate detected
                 workflowEngine.verifyNoDuplicateFile(sender, digest)
             }
