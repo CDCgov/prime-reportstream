@@ -14,6 +14,11 @@ import SubmissionDetails, {
     value has the parsed timestamp. Use a function
 */
 const timeRegex: RegExp = /[0-9]{1,2}:[0-9]{1,2} [A,P]M/;
+
+/* 
+    We can only mock one behavior for useResource currently. This is a major
+    limitation for us that doesn't allow us to test negative cases.
+*/
 const mockData: ActionDetailsResource = new TestResponse(
     ResponseType.ACTION_DETAIL
 ).data;
@@ -76,6 +81,15 @@ describe("SubmissionDetails", () => {
         for (let i of testElements) {
             expect(i).toBeInTheDocument();
         }
+    });
+
+    test("Filename conditionally shows in title", () => {
+        /* 
+            TODO: How can we use the object and not static strings to
+            check for substrings like this??
+        */
+        const title = screen.getByText(/SubmissionDetails Unit Test/);
+        expect(title).toBeInTheDocument();
     });
 });
 
