@@ -1,6 +1,5 @@
 package gov.cdc.prime.router
 
-import com.fasterxml.jackson.module.kotlin.readValue
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import org.jooq.BindingGetResultSetContext
 import org.jooq.BindingSQLContext
