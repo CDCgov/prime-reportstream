@@ -463,6 +463,11 @@ class Hl7Serializer(
             ?.convertTimestampToDateTime
             ?.split(",")
             ?.map { it.trim() } ?: emptyList()
+
+        if (applyOTCDefault) {
+            applyOTCDefault(report)
+        }
+
         // start processing
         var aoeSequence = 1
         var nteSequence = 0
@@ -651,10 +656,6 @@ class Hl7Serializer(
             }
         }
 
-        if (applyOTCDefault) {
-            applyOTCDefault(terser, report, row)
-        }
-
         replaceValue(replaceValue, terser, message.patienT_RESULT.ordeR_OBSERVATION.observationReps)
         return message
     }
@@ -666,6 +667,7 @@ class Hl7Serializer(
     ) {
         terser.set(formPathSpec("MSH-4-1"), "PRIME OTC")
         terser.set(formPathSpec("MSH-4-2"), "0OCDCPRIME")
+        terser.set(formPathSpec("MSH-4-3"), "CLIA")
         terser.set(formPathSpec("MSH-21-1"), "PHLabReport-NoAck")
         terser.set(formPathSpec("OBX-11-1"), "F")
         terser.set(formPathSpec("OBR-25-1"), "F")
@@ -683,7 +685,7 @@ class Hl7Serializer(
         terser.set(formPathSpec("ORC-22-9"), "02282")
 
         terser.set(formPathSpec("ORC-23-5"), "111")
-        terser.set(formPathSpec("ORC-22-6"), "1111111")
+        terser.set(formPathSpec("ORC-23-6"), "1111111")
 
         terser.set(formPathSpec("OBX-24-1"), "11 Fake AtHome Test Street")
         terser.set(formPathSpec("OBX-24-3"), "Yakutat")
@@ -1313,32 +1315,6 @@ class Hl7Serializer(
         terser.set(formPathSpec("NTE-4-2", nteRep), "Remark")
         terser.set(formPathSpec("NTE-4-3", nteRep), "HL70364")
         terser.set(formPathSpec("NTE-4-7", nteRep), HL7_SPEC_VERSION)
-    }
-
-    private fun setOTCDefault(terser: Terser) {
-        terser.set(formPathSpec("MSH-4-1"), "PRIME OTC")
-        terser.set(formPathSpec("MSH-4-2"), "0OCDCPRIME")
-
-        terser.set(formPathSpec("OBR-16-3"), "SA.OverTheCounter")
-
-        terser.set(formPathSpec("ORC-12-3"), "SA.OverTheCounter")
-        terser.set(formPathSpec("ORC-21-1"), "SA.OverTheCounter")
-        terser.set(formPathSpec("ORC-22-1"), "11 Fake AtHome Test Street")
-        terser.set(formPathSpec("ORC-22-3"), "Yakutat")
-        terser.set(formPathSpec("ORC-22-4"), "AK")
-        terser.set(formPathSpec("ORC-22-5"), "99689")
-        terser.set(formPathSpec("ORC-22-9"), "02282")
-        terser.set(formPathSpec("ORC-23-5"), "111")
-        terser.set(formPathSpec("ORC-23-6"), "1111111")
-
-        terser.set(formPathSpec("OBX-15-1"), "00Z0000014")
-        terser.set(formPathSpec("OBX-23-1"), "SA.OverTheCounter")
-        terser.set(formPathSpec("OBX-23-10"), "00Z0000014")
-        terser.set(formPathSpec("OBX-21-1"), "11 Fake AtHome Test Street")
-        terser.set(formPathSpec("OBX-22-3"), "Yakutat")
-        terser.set(formPathSpec("OBX-22-4"), "AK")
-        terser.set(formPathSpec("OBX-22-5"), "99689")
-        terser.set(formPathSpec("OBX-22-9"), "02282")
     }
 
     private fun setLiterals(terser: Terser) {
