@@ -50,9 +50,16 @@
             ]
         },
         {
-            "title": "## 💸 Tech debt",
+            "title": "## 💸 Tech Debt",
             "labels": [
                 "tech-debt"
+            ]
+        },
+        {
+            "title": "## 🌐 Release Notes",
+            "labels": [
+                "release-notes",
+                "customer-facing"
             ]
         },
         {
