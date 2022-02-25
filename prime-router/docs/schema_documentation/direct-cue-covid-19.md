@@ -1529,6 +1529,26 @@ The patient's second address line
 
 ---
 
+**Name**: patientHomeAddress2
+
+**ReportStream Internal Name**: patient_street2_CEI
+
+**Type**: CODE
+
+**PII**: No
+
+**Format**: use value found in the Display column
+
+**Cardinality**: [0..1]
+
+**Alt Value Sets**
+
+Code | Display | System
+---- | ------- | ------
+OpET – CEI|OpET – CEI|NULLFL
+
+---
+
 **Name**: patientZip
 
 **ReportStream Internal Name**: patient_zip_code
@@ -2133,6 +2153,18 @@ The city of the testing lab
 **Documentation**:
 
 Expecting a CLIA number (eg, "10D2218834"), or empty string.
+
+---
+
+**Name**: performingFacility
+
+**ReportStream Internal Name**: testing_lab_clia_temp
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
 
 ---
 
