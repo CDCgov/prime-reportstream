@@ -1,11 +1,11 @@
 import React, { Suspense } from "react";
 import { Button, GridContainer, Grid } from "@trussworks/react-uswds";
 import { useResource, NetworkErrorBoundary, useController } from "rest-hooks";
-import { RouteComponentProps, useHistory } from "react-router-dom";
+import { NavLink, RouteComponentProps, useHistory } from "react-router-dom";
 
 import { ErrorPage } from "../../pages/error/ErrorPage";
 import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource";
-import { showAlertNotification, showError } from "../AlertNotifications";
+// import { showAlertNotification, showError } from "../AlertNotifications";
 
 import { TextInputComponent } from "./AdminFormEdit";
 
@@ -23,63 +23,81 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
             { orgname, sendername: sendername, action: action }
         );
 
-        const { fetch: fetchController } = useController();
-        const saveSenderData = async () => {
-            switch (action) {
-                case "edit":
-                    try {
-                        const data = JSON.stringify(orgSenderSettings);
-                        await fetchController(
-                            OrgSenderSettingsResource.update(),
-                            { orgname, sendername: sendername },
-                            data
-                        );
-                        showAlertNotification(
-                            "success",
-                            `Item '${sendername}' has been updated`
-                        );
-                        history.goBack();
-                    } catch (e: any) {
-                        console.trace(e);
+        // const { fetch: fetchController } = useController();
+        const { invalidate } = useController();
 
-                        showError(
-                            `Updating item '${sendername}' failed. ${e.toString()}`
-                        );
-                        return false;
-                    }
-                    break;
-                case "clone":
-                    try {
-                        const data = JSON.stringify(orgSenderSettings);
-                        await fetchController(
-                            // NOTE: this does not use the expected OrgSenderSettingsResource.create() method
-                            // due to the endpoint being an 'upsert' (PUT) instead of the expected 'insert' (POST)
-                            OrgSenderSettingsResource.update(),
-                            { orgname, sendername: orgSenderSettings.name },
-                            data
-                        );
-                        showAlertNotification(
-                            "success",
-                            `Item '${orgSenderSettings.name}' has been created`
-                        );
-                        history.goBack();
-                    } catch (e: any) {
-                        console.trace(e);
+        const goToCompareSettings = async () => {
+            let compareUrl: string = `/admin/comparesettings/org/${orgname}/settingtype/sender/action/${action}/settingid/${
+                action === "edit" ? sendername : orgSenderSettings.name
+            }/newjson/${encodeURI(JSON.stringify(orgSenderSettings)).replaceAll(
+                "/",
+                "%2F"
+            )}`;
 
-                        showError(
-                            `Cloning item '${
-                                orgSenderSettings.name
-                            }' failed. ${e.toString()}`
-                        );
-                        return false;
-                    }
-                    break;
-                default:
-                    return false;
-            }
+            await invalidate(OrgSenderSettingsResource.detail(), {
+                orgname,
+                sendername: match?.params?.sendername,
+            });
 
-            return true;
+            history.push(compareUrl);
         };
+
+        // const saveSenderData = async () => {
+        //     switch (action) {
+        //         case "edit":
+        //             try {
+        //                 const data = JSON.stringify(orgSenderSettings);
+        //                 await fetchController(
+        //                     OrgSenderSettingsResource.update(),
+        //                     { orgname, sendername: sendername },
+        //                     data
+        //                 );
+        //                 showAlertNotification(
+        //                     "success",
+        //                     `Item '${sendername}' has been updated`
+        //                 );
+        //                 history.goBack();
+        //             } catch (e: any) {
+        //                 console.trace(e);
+        //
+        //                 showError(
+        //                     `Updating item '${sendername}' failed. ${e.toString()}`
+        //                 );
+        //                 return false;
+        //             }
+        //             break;
+        //         case "clone":
+        //             try {
+        //                 const data = JSON.stringify(orgSenderSettings);
+        //                 await fetchController(
+        //                     // NOTE: this does not use the expected OrgSenderSettingsResource.create() method
+        //                     // due to the endpoint being an 'upsert' (PUT) instead of the expected 'insert' (POST)
+        //                     OrgSenderSettingsResource.update(),
+        //                     { orgname, sendername: orgSenderSettings.name },
+        //                     data
+        //                 );
+        //                 showAlertNotification(
+        //                     "success",
+        //                     `Item '${orgSenderSettings.name}' has been created`
+        //                 );
+        //                 history.goBack();
+        //             } catch (e: any) {
+        //                 console.trace(e);
+        //
+        //                 showError(
+        //                     `Cloning item '${
+        //                         orgSenderSettings.name
+        //                     }' failed. ${e.toString()}`
+        //                 );
+        //                 return false;
+        //             }
+        //             break;
+        //         default:
+        //             return false;
+        //     }
+        //
+        //     return true;
+        // };
 
         return (
             <GridContainer>
@@ -132,14 +150,22 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
                     <Button type="button" onClick={() => history.goBack()}>
                         Cancel
                     </Button>
-                    <Button
-                        form="edit-setting"
-                        type="submit"
-                        data-testid="submit"
-                        onClick={() => saveSenderData()}
+                    {/*<Button*/}
+                    {/*    form="edit-setting"*/}
+                    {/*    type="submit"*/}
+                    {/*    data-testid="submit"*/}
+                    {/*    onClick={() => saveSenderData()}*/}
+                    {/*>*/}
+                    {/*    Save*/}
+                    {/*</Button>*/}
+                    <NavLink
+                        className="usa-button"
+                        key={`sender-create-link`}
+                        onClick={() => goToCompareSettings()}
+                        to={"#"}
                     >
                         Save
-                    </Button>
+                    </NavLink>
                 </Grid>
             </GridContainer>
         );
