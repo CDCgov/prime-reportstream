@@ -2,8 +2,8 @@
 ---
 - name: "cdphe-csvuploader"
   description: "CDPHE (CO) - CSV Uploader"
-  jurisdiction: "FEDERAL"
-  stateCode: null
+  jurisdiction: "STATE"
+  stateCode: "CO"
   countyName: null
   filters: []
   senders:
