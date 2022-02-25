@@ -25,8 +25,8 @@ export class TestResponse {
 
     actionDetails: ActionDetailsResource = {
         submissionId: 12345,
-        submittedAt: "1970-04-07T16:26:14.34593Z",
-        submitter: "Jest",
+        timestamp: "1970-04-07T16:26:14.34593Z",
+        sender: "Jest",
         httpStatus: 201,
         externalName: "SubmissionDetails Unit Test",
         id: "x0000xx0-0xx0-0000-0x00-00x000x0x000",
