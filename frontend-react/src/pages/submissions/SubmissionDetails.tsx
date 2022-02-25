@@ -102,11 +102,11 @@ function SubmissionDetailsContent() {
         ActionDetailsResource.detail(),
         { actionId, organization }
     );
-    const submissionDate = generateDateTitles(actionDetails.submittedAt);
+    const submissionDate = generateDateTitles(actionDetails.timestamp);
 
     /* Conditional title strings */
     const preTitle = `${
-        actionDetails.submitter
+        actionDetails.sender
     } ${actionDetails.topic.toUpperCase()} Submissions`;
     const titleString: string = submissionDate
         ? `${submissionDate.dateString} ${submissionDate.timeString}`
