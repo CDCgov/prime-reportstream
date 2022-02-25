@@ -30,8 +30,8 @@ object HL7 : Logging {
      */
     fun decode(message: String?): List<Message> {
         requireNotNull(message)
-        val messages: MutableList<Message> = mutableListOf()
         try {
+            val messages: MutableList<Message> = mutableListOf()
             val iterator = Hl7InputStreamMessageIterator(message.byteInputStream())
             while (iterator.hasNext()) {
                 messages.add(iterator.next())

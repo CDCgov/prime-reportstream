@@ -14,6 +14,10 @@ import org.hl7.fhir.r4.model.Bundle
  * Object containing the behaviors required for translating a HL7 message
  */
 object HL7toFHIR : Logging {
+    init {
+        val props = System.getProperties()
+        props.setProperty("hl7converter.config.home", "./metadata/fhir_mapping")
+    }
 
     /**
      * A Default set of message templates for HL7 -> FHIR translation

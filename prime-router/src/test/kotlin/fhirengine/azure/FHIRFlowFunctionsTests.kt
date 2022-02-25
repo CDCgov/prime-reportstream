@@ -6,8 +6,10 @@ import assertk.assertions.isNull
 import assertk.assertions.isSuccess
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.encoding.FHIR
+import gov.cdc.prime.router.encoding.getValue
 import io.mockk.every
 import io.mockk.mockkObject
+import org.hl7.fhir.instance.model.api.IBase
 import org.junit.jupiter.api.Test
 
 class FHIRFlowFunctionsTests {
@@ -207,7 +209,11 @@ badffffff9bffffffcb46fffffff5ffffff886fffffff84ffffff9efffffffaffffffd23bfffffff
                 val entries = body.lines().filter { it.isNotEmpty() }
                 assertThat(entries.size).isEqualTo(case.entries)
                 entries.forEach { line ->
-                    assertThat { FHIR.decode(line) }.isSuccess()
+                    assertThat {
+                        val bundle = FHIR.decode(line)
+                        val values = bundle.getValue<IBase>("Bundle.entry.resource.as(MessageHeader)")
+                        assertThat(values.size).isEqualTo(1)
+                    }.isSuccess()
                 }
             }
         }
