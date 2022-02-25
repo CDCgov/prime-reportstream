@@ -28,19 +28,25 @@ class SubmissionFunction(
 
     data class Parameters(
         val sort: String,
+        val sortColumn: String,
         val cursor: OffsetDateTime?,
         val pageSize: Int,
     ) {
-        constructor(query: Map<String, String>) : this(
-            extractSort(query),
+        constructor(query: Map<String, String>) : this (
+            extractSortOrder(query),
+            extractSortCol(query),
             extractCursor(query),
             extractPageSize(query),
         )
 
         companion object {
-            fun extractSort(query: Map<String, String>): String {
+            fun extractSortOrder(query: Map<String, String>): String {
                 val qSortOrder = query.getOrDefault("sort", "DESC")
                 return qSortOrder
+            }
+
+            fun extractSortCol(query: Map<String, String>): String {
+                return query.getOrDefault("sortCol", "default")
             }
 
             fun extractCursor(query: Map<String, String>): OffsetDateTime? {
@@ -79,9 +85,14 @@ class SubmissionFunction(
     ): HttpResponseMessage {
         return oktaAuthentication.checkAccess(request, organization, true) {
             try {
-                val (qSortOrder, resultsAfterDate, pageSize) = Parameters(request.queryParameters)
-
-                val submissions = facade.findSubmissionsAsJson(organization, qSortOrder, resultsAfterDate, pageSize)
+                val (qSortOrder, qSortColumn, resultsAfterDate, pageSize) = Parameters(request.queryParameters)
+                val submissions = facade.findSubmissionsAsJson(
+                    organization,
+                    qSortOrder,
+                    qSortColumn,
+                    resultsAfterDate,
+                    pageSize
+                )
                 HttpUtilities.okResponse(request, submissions)
             } catch (e: IllegalArgumentException) {
                 HttpUtilities.badRequestResponse(request, e.message ?: "Invalid Request")

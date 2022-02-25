@@ -25,7 +25,8 @@ class SubmissionsFacade(
      *
      * @param organizationName from JWT Claim.
      * @param sortOrder sort the table by date in ASC or DESC order.
-     * @param resultsAfterDate String representation of an OffsetDateTime used for paginating results.
+     * @param sortColumn sort the table by a specific column; defaults to sorting by created_at.
+     * @param offset String representation of an OffsetDateTime used for paginating results.
      * @param pageSize Int of items to return per page.
      *
      * @return a String representation of an array of actions.
@@ -34,16 +35,18 @@ class SubmissionsFacade(
     fun findSubmissionsAsJson(
         organizationName: String,
         sortOrder: String,
+        sortColumn: String,
         offset: OffsetDateTime?,
         pageSize: Int
     ): String {
-        val result = findSubmissions(organizationName, sortOrder, offset, pageSize)
+        val result = findSubmissions(organizationName, sortOrder, sortColumn, offset, pageSize)
         return mapper.writeValueAsString(result)
     }
 
     private fun findSubmissions(
         organizationName: String,
         sortOrder: String,
+        sortColumn: String,
         offset: OffsetDateTime?,
         pageSize: Int,
     ): List<SubmissionHistory> {
@@ -52,13 +55,20 @@ class SubmissionsFacade(
         } catch (e: IllegalArgumentException) {
             SubmissionAccess.SortOrder.DESC
         }
-        return findSubmissions(organizationName, order, offset, pageSize)
+
+        val column = try {
+            SubmissionAccess.SortColumn.valueOf(sortColumn)
+        } catch (e: IllegalArgumentException) {
+            SubmissionAccess.SortColumn.CREATED_AT
+        }
+        return findSubmissions(organizationName, order, column, offset, pageSize)
     }
 
     /**
      * @param organizationName from JWT Claim.
-     * @param sortOrder sort the table by date in ASC or DESC order.
-     * @param resultsAfterDate String representation of an OffsetDateTime used for paginating results.
+     * @param sortOrder sort the table by date in ASC or DESC order; defaults to DESC.
+     * @param sortColumn sort the table by a specific column; defaults to sorting by CREATED_AT.
+     * @param offset String representation of an OffsetDateTime used for paginating results.
      * @param pageSize Int of items to return per page.
      *
      * @return a List of Actions
@@ -66,6 +76,7 @@ class SubmissionsFacade(
     private fun findSubmissions(
         organizationName: String,
         sortOrder: SubmissionAccess.SortOrder,
+        sortColumn: SubmissionAccess.SortColumn,
         offset: OffsetDateTime?,
         pageSize: Int,
     ): List<SubmissionHistory> {
@@ -79,6 +90,7 @@ class SubmissionsFacade(
         val submissions = dbSubmissionAccess.fetchActions(
             organizationName,
             sortOrder,
+            sortColumn,
             offset,
             pageSize,
             SubmissionHistory::class.java
