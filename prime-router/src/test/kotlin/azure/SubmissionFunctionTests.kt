@@ -45,6 +45,7 @@ class SubmissionFunctionTests {
         override fun <T> fetchActions(
             sendingOrg: String,
             order: SubmissionAccess.SortOrder,
+            sortColumn: SubmissionAccess.SortColumn,
             resultsAfterDate: OffsetDateTime?,
             limit: Int,
             klass: Class<T>
