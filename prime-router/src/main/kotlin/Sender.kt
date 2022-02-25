@@ -2,7 +2,6 @@ package gov.cdc.prime.router
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
-import gov.cdc.prime.router.azure.Facility
 import gov.cdc.prime.router.tokens.Jwk
 import gov.cdc.prime.router.tokens.JwkSet
 
@@ -20,7 +19,8 @@ open class Sender(
     val schemaName: String,
     val keys: List<JwkSet>? = null, // used to track server-to-server auths for this Sender via public keys sets
     val processingType: ProcessingType = ProcessingType.sync,
-    val senderType: SenderType = SenderType.facility
+    val senderType: SenderType? = null,
+    val primarySubmissionMethod: PrimarySubmissionMethod? = null,
 ) {
     /**
      * Enumeration representing whether a submission will be processed follow the synchronous or asynchronous
@@ -58,6 +58,17 @@ open class Sender(
         facility,
         @JsonProperty("hospitalSystem")
         hospitalSystem
+    }
+
+    /**
+     * @property automated ?????????????
+     * @property manual ?????????????
+     */
+    enum class PrimarySubmissionMethod {
+        @JsonProperty("automated")
+        automated,
+        @JsonProperty("manual")
+        manual
     }
 
     constructor(copy: Sender) : this(
