@@ -2,7 +2,9 @@
 ---
 - name: cadph-csvuploadertest
   description: CA-DPH CSV Uploader Test
-  jurisdiction: FEDERAL
+  jurisdiction: "STATE"
+  stateCode: "CA"
+  countyName: null
   senders:
     - name: default
       organizationName: cadph-csvuploadertest
