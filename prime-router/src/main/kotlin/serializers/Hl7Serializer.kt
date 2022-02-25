@@ -436,8 +436,10 @@ class Hl7Serializer(
     ): ORU_R01 {
         val message = ORU_R01()
         message.initQuickstart(MESSAGE_CODE, MESSAGE_TRIGGER_EVENT, processingId)
+
+        val hl7Report = report.copy()
         // set up our configuration
-        val hl7Config = report.destination?.translation as? Hl7Configuration
+        val hl7Config = hl7Report.destination?.translation as? Hl7Configuration
         val replaceValue = hl7Config?.replaceValue ?: emptyMap()
         val cliaForSender = hl7Config?.cliaForSender ?: emptyMap()
         val suppressQst = hl7Config?.suppressQstForAoe ?: false
@@ -464,10 +466,6 @@ class Hl7Serializer(
             ?.split(",")
             ?.map { it.trim() } ?: emptyList()
 
-        if (applyOTCDefault) {
-            applyOTCDefault(report)
-        }
-
         // start processing
         var aoeSequence = 1
         var nteSequence = 0
@@ -478,10 +476,10 @@ class Hl7Serializer(
         val reportElements = if (hl7Config?.valueSetOverrides.isNullOrEmpty()) {
             // there are no value set overrides, so we are going to just pass back out the
             // existing collection of schema elements
-            report.schema.elements
+            hl7Report.schema.elements
         } else {
             // we do have valueset overrides, so we need to replace any elements in place
-            report.schema.elements.map { elem ->
+            hl7Report.schema.elements.map { elem ->
                 // if we're dealing with a code type (which uses a valueset), check if we need to replace
                 if (elem.isCodeType) {
                     // is there a replacement valueset in our collection?
@@ -499,9 +497,14 @@ class Hl7Serializer(
                 }
             }
         }
+
+        if (applyOTCDefault) {
+            applyOTCDefault(hl7Report, row)
+        }
+
         // serialize the rest of the elements
         reportElements.forEach { element ->
-            val value = report.getString(row, element.name).let {
+            val value = hl7Report.getString(row, element.name).let {
                 if (it.isNullOrEmpty() || it == "null") {
                     element.default ?: ""
                 } else {
@@ -521,7 +524,7 @@ class Hl7Serializer(
                 element.hl7Field != null &&
                 (value.equals("ASKU", true) || value.equals("UNK", true))
             ) {
-                setComponent(terser, element, element.hl7Field, repeat = null, value = "", report)
+                setComponent(terser, element, element.hl7Field, repeat = null, value = "", hl7Report)
                 return@forEach
             }
 
@@ -530,30 +533,30 @@ class Hl7Serializer(
                     if (suppressedFields.contains(hl7Field))
                         return@outputFields
                     if (element.hl7Field != null && element.isTableLookup) {
-                        setComponentForTable(terser, element, hl7Field, report, row, hl7Config)
+                        setComponentForTable(terser, element, hl7Field, hl7Report, row, hl7Config)
                     } else {
-                        setComponent(terser, element, hl7Field, repeat = null, value, report)
+                        setComponent(terser, element, hl7Field, repeat = null, value, hl7Report)
                     }
                 }
             } else if (element.hl7Field == "AOE" && element.type == Element.Type.NUMBER && !suppressAoe) {
                 if (value.isNotBlank()) {
-                    val units = report.getString(row, "${element.name}_units")
-                    val date = report.getString(row, "specimen_collection_date_time") ?: ""
-                    setAOE(terser, element, aoeSequence++, date, value, report, row, units, suppressQst)
+                    val units = hl7Report.getString(row, "${element.name}_units")
+                    val date = hl7Report.getString(row, "specimen_collection_date_time") ?: ""
+                    setAOE(terser, element, aoeSequence++, date, value, hl7Report, row, units, suppressQst)
                 }
             } else if (element.hl7Field == "AOE" && !suppressAoe) {
                 if (value.isNotBlank()) {
-                    val date = report.getString(row, "specimen_collection_date_time") ?: ""
-                    setAOE(terser, element, aoeSequence++, date, value, report, row, suppressQst = suppressQst)
+                    val date = hl7Report.getString(row, "specimen_collection_date_time") ?: ""
+                    setAOE(terser, element, aoeSequence++, date, value, hl7Report, row, suppressQst = suppressQst)
                 } else {
                     // if the value is null but we're defaulting
                     if (hl7Config?.defaultAoeToUnknown == true) {
-                        val date = report.getString(row, "specimen_collection_date_time") ?: ""
-                        setAOE(terser, element, aoeSequence++, date, "UNK", report, row, suppressQst = suppressQst)
+                        val date = hl7Report.getString(row, "specimen_collection_date_time") ?: ""
+                        setAOE(terser, element, aoeSequence++, date, "UNK", hl7Report, row, suppressQst = suppressQst)
                     }
                 }
             } else if (element.hl7Field == "ORC-21-1") {
-                setOrderingFacilityComponent(terser, rawFacilityName = value, useOrderingFacilityName, report, row)
+                setOrderingFacilityComponent(terser, rawFacilityName = value, useOrderingFacilityName, hl7Report, row)
             } else if (element.hl7Field == "NTE-3" && value.isNotBlank()) {
                 setNote(terser, nteSequence++, value)
             } else if (element.hl7Field == "MSH-7") {
@@ -562,15 +565,15 @@ class Hl7Serializer(
                     element,
                     "MSH-7",
                     repeat = null,
-                    value = formatter.format(report.createdDateTime),
-                    report
+                    value = formatter.format(hl7Report.createdDateTime),
+                    hl7Report
                 )
             } else if (element.hl7Field == "MSH-11") {
-                setComponent(terser, element, "MSH-11", repeat = null, processingId, report)
+                setComponent(terser, element, "MSH-11", repeat = null, processingId, hl7Report)
             } else if (element.hl7Field != null && element.isTableLookup) {
-                setComponentForTable(terser, element, report, row, hl7Config)
+                setComponentForTable(terser, element, hl7Report, row, hl7Config)
             } else if (!element.hl7Field.isNullOrEmpty()) {
-                setComponent(terser, element, element.hl7Field, repeat = null, value, report)
+                setComponent(terser, element, element.hl7Field, repeat = null, value, hl7Report)
             }
         }
         // make sure all fields we're suppressing are empty
@@ -580,7 +583,7 @@ class Hl7Serializer(
         }
 
         if (hl7Config?.suppressNonNPI == true &&
-            report.getString(row, "ordering_provider_id_authority_type") != "NPI"
+            hl7Report.getString(row, "ordering_provider_id_authority_type") != "NPI"
         ) {
             // Suppress the ordering_provider_id if not an NPI
             for (hl7Field in listOf("ORC-12-1", "OBR-16-1", "ORC-12-9", "OBR-16-9", "ORC-12-13", "OBR-16-13")) {
@@ -628,7 +631,7 @@ class Hl7Serializer(
             }
 
             if (!originState.isNullOrEmpty()) {
-                val stateCode = report.destination?.let { settings.findOrganization(it.organizationName)?.stateCode }
+                val stateCode = hl7Report.destination?.let { settings.findOrganization(it.organizationName)?.stateCode }
 
                 if (!originState.equals(stateCode)) {
                     val sendingFacility = "MSH-4-2"
@@ -639,7 +642,7 @@ class Hl7Serializer(
         }
 
         // get sender id for the record
-        val senderID = report.getString(row, "sender_id") ?: ""
+        val senderID = hl7Report.getString(row, "sender_id") ?: ""
 
         // loop through CLIA resets
         cliaForSender.forEach { (sender, clia) ->
@@ -661,40 +664,35 @@ class Hl7Serializer(
     }
 
     private fun applyOTCDefault(
-        terser: Terser,
         report: Report,
         row: Int
     ) {
-        terser.set(formPathSpec("MSH-4-1"), "PRIME OTC")
-        terser.set(formPathSpec("MSH-4-2"), "0OCDCPRIME")
-        terser.set(formPathSpec("MSH-4-3"), "CLIA")
-        terser.set(formPathSpec("MSH-21-1"), "PHLabReport-NoAck")
-        terser.set(formPathSpec("OBX-11-1"), "F")
-        terser.set(formPathSpec("OBR-25-1"), "F")
-        setNote(terser, 1, report.getString(row, "organizationName") ?: "")
 
-        terser.set(formPathSpec("ORC-12-3"), "SA.OverTheCounter")
-        terser.set(formPathSpec("OBR-16-3"), "SA.OverTheCounter")
-        terser.set(formPathSpec("ORC-21-1"), "SA.OverTheCounter")
-        terser.set(formPathSpec("OBX-23-1"), "SA.OverTheCounter")
+        report.setString(row, "reporting_facility_name", "PRIME OTC")
+        report.setString(row, "reporting_facility_clia", "0OCDCPRIME")
+        report.setString(row, "test_result_status", "F")
+//        setNote(terser, 1, report.getString(row, "organizationName") ?: "")
 
-        terser.set(formPathSpec("ORC-22-1"), "11 Fake AtHome Test Street")
-        terser.set(formPathSpec("ORC-22-3"), "Yakutat")
-        terser.set(formPathSpec("ORC-22-4"), "AK")
-        terser.set(formPathSpec("ORC-22-5"), "99689")
-        terser.set(formPathSpec("ORC-22-9"), "02282")
+        report.setString(row, "ordering_provider_first_name", "SA.OverTheCounter")
+        report.setString(row, "ordering_facility_name", "SA.OverTheCounter")
+        report.setString(row, "testing_lab_name", "SA.OverTheCounter")
 
-        terser.set(formPathSpec("ORC-23-5"), "111")
-        terser.set(formPathSpec("ORC-23-6"), "1111111")
+        report.setString(row, "ordering_facility_street", "11 Fake AtHome Test Street")
+        report.setString(row, "ordering_facility_city", "Yakutat")
+        report.setString(row, "ordering_facility_state", "AK")
+        report.setString(row, "ordering_facility_zip_code", "99689")
+        report.setString(row, "ordering_facility_county_code", "02282")
 
-        terser.set(formPathSpec("OBX-24-1"), "11 Fake AtHome Test Street")
-        terser.set(formPathSpec("OBX-24-3"), "Yakutat")
-        terser.set(formPathSpec("OBX-24-4"), "AK")
-        terser.set(formPathSpec("OBX-24-5"), "99689")
-        terser.set(formPathSpec("OBX-24-9"), "02282")
+        report.setString(row, "ordering_facility_phone_number", "1111111111:1:")
 
-        terser.set(formPathSpec("OBX-15-1"), "00Z0000014")
-        terser.set(formPathSpec("OBX-23-10"), "00Z0000014")
+        report.setString(row, "testing_lab_street", "11 Fake AtHome Test Street")
+        report.setString(row, "testing_lab_city", "Yakutat")
+        report.setString(row, "testing_lab_state", "AK")
+        report.setString(row, "testing_lab_zip_code", "99689")
+        report.setString(row, "testing_lab_county_code", "02282")
+
+        report.setString(row, "testing_lab_clia", "00Z0000014")
+        report.setString(row, "testing_lab_id_assigner", "CLIA^2.16.840.1.113883.4.7^ISO")
     }
 
     /**

@@ -488,6 +488,11 @@ class Report : Logging {
         )
     }
 
+    fun setString(row: Int, colName: String, value: String) {
+        val column = schema.findElementColumn(colName) ?: error("Internal Error: '$colName' is not found")
+        table.stringColumn(column).set(row, value)
+    }
+
     // takes the data in the existing report and synthesizes different data from it
     // the goal is to allow us to take real data in, move it around and scramble it so it's
     // not able to point back to the actual records
