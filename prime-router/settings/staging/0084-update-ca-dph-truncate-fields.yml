@@ -1,0 +1,120 @@
+# Changing CA to use the new filter features
+# ./prime multiple-settings set --env staging --input ./settings/staging/0084-update-ca-dph-truncate-fields.yml
+---
+- name: "ca-dph"
+  description: "California Department of Public Health"
+  jurisdiction: "STATE"
+  stateCode: "CA"
+  countyName: null
+  filters:
+  - topic: "covid-19"
+    jurisdictionalFilter: [ "orEquals(ordering_facility_state, CA, patient_state, CA)" ]
+    qualityFilter:
+    - "hasAtLeastOneOf(order_test_date,specimen_collection_date_time,test_result_date)"
+    - "hasAtLeastOneOf(patient_street,patient_zip_code,patient_phone_number,patient_email)"
+    - "hasValidDataFor(message_id,equipment_model_name,specimen_type,test_result,patient_last_name,patient_first_name,patient_dob)"
+  receivers:
+  - name: "elr"
+    organizationName: "ca-dph"
+    topic: "covid-19"
+    customerStatus: "active"
+    translation: !<HL7>
+      useTestProcessingMode: false
+      useBatchHeaders: true
+      receivingApplicationName: null
+      receivingApplicationOID: null
+      receivingFacilityName: null
+      receivingFacilityOID: null
+      messageProfileId: null
+      replaceValue: {}
+      reportingFacilityName: null
+      reportingFacilityId: null
+      reportingFacilityIdType: null
+      suppressQstForAoe: false
+      suppressHl7Fields: null
+      suppressAoe: false
+      defaultAoeToUnknown: false
+      useBlankInsteadOfUnknown: null
+      truncateHDNamespaceIds: false
+      truncateHl7Fields: OBX-23-1, ORC-21-1
+      usePid14ForPatientEmail: false
+      convertTimestampToDateTime: null
+      cliaForOutOfStateTesting: null
+      cliaForSender: {}
+      phoneNumberFormatting: "STANDARD"
+      suppressNonNPI: false
+      processingModeCode: null
+      replaceDiiWithOid: null
+      useOrderingFacilityName: "STANDARD"
+      valueSetOverrides: {}
+      nameFormat: "STANDARD"
+      receivingOrganization: null
+      type: "HL7"
+    reverseTheQualityFilter: false
+    deidentify: false
+    timing:
+      operation: "MERGE"
+      numberPerDay: 1440
+      initialTime: "00:00"
+      timeZone: "EASTERN"
+      maxReportCount: 500
+    description: ""
+    transport: !<SFTP>
+      host: "172.17.6.20"
+      port: "22"
+      filePath: "./upload"
+      credentialName: null
+      type: "SFTP"
+    externalName: null
+  - name: "elr-secondary"
+    organizationName: "ca-dph"
+    topic: "covid-19"
+    customerStatus: "active"
+    translation: !<HL7>
+      useTestProcessingMode: false
+      useBatchHeaders: true
+      receivingApplicationName: null
+      receivingApplicationOID: null
+      receivingFacilityName: null
+      receivingFacilityOID: null
+      messageProfileId: null
+      replaceValue: {}
+      reportingFacilityName: null
+      reportingFacilityId: null
+      reportingFacilityIdType: null
+      suppressQstForAoe: false
+      suppressHl7Fields: null
+      suppressAoe: false
+      defaultAoeToUnknown: false
+      useBlankInsteadOfUnknown: null
+      truncateHDNamespaceIds: false
+      truncateHl7Fields: OBX-23-1, ORC-21-1
+      usePid14ForPatientEmail: false
+      convertTimestampToDateTime: null
+      cliaForOutOfStateTesting: null
+      cliaForSender: {}
+      phoneNumberFormatting: "STANDARD"
+      suppressNonNPI: false
+      processingModeCode: null
+      replaceDiiWithOid: null
+      useOrderingFacilityName: "STANDARD"
+      valueSetOverrides: {}
+      nameFormat: "STANDARD"
+      receivingOrganization: null
+      type: "HL7"
+    reverseTheQualityFilter: true
+    deidentify: false
+    timing:
+      operation: "MERGE"
+      numberPerDay: 1440
+      initialTime: "00:00"
+      timeZone: "EASTERN"
+      maxReportCount: 500
+    description: ""
+    transport: !<SFTP>
+      host: "172.17.6.20"
+      port: "22"
+      filePath: "./upload"
+      credentialName: null
+      type: "SFTP"
+    externalName: null
