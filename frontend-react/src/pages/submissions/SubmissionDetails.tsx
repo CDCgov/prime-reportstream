@@ -8,7 +8,7 @@ import Title from "../../components/Title";
 import ActionDetailsResource, {
     Destination,
 } from "../../resources/ActionDetailsResource";
-import { generateSubmissionDate } from "../../utils/DateTimeUtils";
+import { generateDateTitles } from "../../utils/DateTimeUtils";
 import { ErrorPage } from "../error/ErrorPage";
 
 /* Custom types */
@@ -56,7 +56,7 @@ export function DetailItem({ item, content, subItem }: DetailItemProps) {
     in the history/submissions details API
 */
 export function DestinationItem({ destinationObj }: DestinationItemProps) {
-    const submissionDate = generateSubmissionDate(destinationObj.sending_at);
+    const submissionDate = generateDateTitles(destinationObj.sending_at);
     return (
         <div
             style={{
@@ -102,11 +102,11 @@ function SubmissionDetailsContent() {
         ActionDetailsResource.detail(),
         { actionId, organization }
     );
-    const submissionDate = generateSubmissionDate(actionDetails.submittedAt);
+    const submissionDate = generateDateTitles(actionDetails.timestamp);
 
     /* Conditional title strings */
     const preTitle = `${
-        actionDetails.submitter
+        actionDetails.sender
     } ${actionDetails.topic.toUpperCase()} Submissions`;
     const titleString: string = submissionDate
         ? `${submissionDate.dateString} ${submissionDate.timeString}`
