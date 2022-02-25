@@ -29,24 +29,29 @@ elements:
       default: "PI"
 
     - name: patient_last_name
+      cardinality: ONE
       csvFields: [{name: Patient Last Name}]
 
     - name: patient_middle_name
       csvFields: [{name: Patient Middle Initial}]
 
     - name: patient_first_name
+      cardinality: ONE
       csvFields: [{name: Patient First Name}]
 
     - name: patient_street
       csvFields: [{name: Patient Street Address}]
 
     - name: patient_city
+      cardinality: ONE
       csvFields: [{name: Patient City}]
 
     - name: patient_state
+      cardinality: ONE
       csvFields: [{name: Patient State}]
 
     - name: patient_zip_code
+      cardinality: ONE
       csvFields: [{name: Patient Zip}]
 
 #----- If the lookup based on State & County fails too much, we'll change back to the mapper: zipCodeToCounty 
@@ -79,6 +84,7 @@ elements:
       nullifyValue: true
 
     - name: patient_gender
+      cardinality: ONE
       type: CODE
       valueSet: sender-automation/gender
       documentation: Translate multiple inbound Gender values to RS values
@@ -86,6 +92,7 @@ elements:
       default: U
 
     - name: patient_ethnicity
+      cardinality: ONE
       type: CODE
       valueSet: sender-automation/ethnicity
       documentation: Translate multiple inbound ethnicity values to RS / OMB values
@@ -93,6 +100,7 @@ elements:
       default: U
 
     - name: patient_race
+      cardinality: ONE
       type: CODE
       valueSet: sender-automation/race
       documentation: Translate multiple inbound Race values to RS / OMB values
@@ -127,6 +135,7 @@ elements:
       csvFields: [{name: Date Reported, format: "yyyyMMdd"}]
 
     - name: test_result
+      cardinality: ONE
       type: CODE
       valueSet: sender-automation/test_result
       documentation: Translate multiple inbound Test Result values to RS values
@@ -146,6 +155,7 @@ elements:
       csvFields: [{name: Specimen ID}]
 
     - name: specimen_type
+      cardinality: ONE
       type: CODE
       valueSet: sender-automation/specimen_type
       documentation: Translate inbound text to outbound SNOMED Codes
@@ -193,15 +203,19 @@ elements:
       mapper: ifNotPresent($mode:literal, $string:Patel MD, ordering_provider_id_temp)
 
     - name: ordering_provider_street
+      cardinality: ONE
       csvFields: [{name: Provider Street Address}]
 
     - name: ordering_provider_city
+      cardinality: ONE
       csvFields: [{name: Provider City}]
 
     - name: ordering_provider_state
+      cardinality: ONE
       csvFields: [{name: Provider State}]
 
     - name: ordering_provider_zip_code
+      cardinality: ONE
       csvFields: [{name: Provider ZIP}]
 
     - name: ordering_provider_phone_number
@@ -209,21 +223,27 @@ elements:
 
 #ordering facility + reporting facility name
     - name: reporting_facility_name
+      cardinality: ONE
       csvFields: [{name: Facility Name}]
 
     - name: ordering_facility_name
+      cardinality: ONE
       csvFields: [{name: Facility Name}]
 
     - name: ordering_facility_street
+      cardinality: ONE
       csvFields: [{name: Facility Street Address}]
 
     - name: ordering_facility_city
+      cardinality: ONE
       csvFields: [{name: Facility City}]
 
     - name: ordering_facility_state
+      cardinality: ONE
       csvFields: [{name: Facility State}]
 
     - name: ordering_facility_zip_code
+      cardinality: ONE
       csvFields: [{name: Facility Zip}]
 
     - name: ordering_facility_phone_number
@@ -232,18 +252,23 @@ elements:
 
 #testing lab
     - name: testing_lab_name
+      cardinality: ONE
       csvFields: [{name: Facility Name}]
 
     - name: testing_lab_street
+      cardinality: ONE
       csvFields: [{name: Facility Street Address}]
 
     - name: testing_lab_city
+      cardinality: ONE
       csvFields: [{name: Facility City}]
 
     - name: testing_lab_state
+      cardinality: ONE
       csvFields: [{name: Facility State}]
 
     - name: testing_lab_zip_code
+      cardinality: ONE
       csvFields: [{name: Facility Zip}]
 
     - name: testing_lab_phone_number
@@ -252,15 +277,19 @@ elements:
 
 #CLIA
     - name: testing_lab_clia
+      cardinality: ONE
       csvFields: [{name: Facility CLIA}]
 
     - name: testing_lab_id
+      cardinality: ONE
       csvFields: [{name: Facility CLIA}]
 
     - name: reporting_facility_clia
+      cardinality: ONE
       csvFields: [{name: Facility CLIA}]
 
     - name: filler_clia
+      cardinality: ONE
       csvFields: [{name: Facility CLIA}]
 
 

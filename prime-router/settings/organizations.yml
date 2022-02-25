@@ -666,9 +666,11 @@
       organizationName: gu-doh
       topic: covid-19
       customerStatus: active
+      deidentify: false
       jurisdictionalFilter:
         - matches(ordering_facility_state, GU)
-      deidentify: false
+      routingFilter:
+        - matches(test_result_status, F, C, P)
       translation:
         type: HL7
         useBatchHeaders: true
@@ -745,7 +747,7 @@
         truncateHDNamespaceIds: true
         usePid14ForPatientEmail: true
         suppressNonNPI: true
-        suppressHl7Fields: OBX-18-1, OBX-18-2, OBX-18-3, OBX-18-4, OBx-15-3
+        suppressHl7Fields: OBX-18-1, OBX-18-2, OBX-18-3, OBX-18-4, OBX-15-3
         replaceValue:
           MSH-3-1: CDC PRIME - Atlanta,
       timing:
@@ -1012,34 +1014,6 @@
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
         timeZone: CENTRAL
-
-- name: gu-doh
-  description: Guam Department of Health
-  jurisdiction: STATE
-  stateCode: GU
-  receivers:
-    - name: elr
-      organizationName: gu-doh
-      topic: covid-19
-      customerStatus: active
-      jurisdictionalFilter:
-        - matches(ordering_facility_state, GU)
-      translation:
-        type: HL7
-        useBatchHeaders: true
-        receivingApplicationName: GUDOH
-        receivingFacilityName: GUDOH
-      transport:
-        type: SFTP
-        host: sftp
-        port: 22
-        filePath: ./upload
-        credentialName: DEFAULT-SFTP
-      timing:
-        operation: MERGE
-        numberPerDay: 1440 # Every minute
-        initialTime: 00:00
-        timeZone: CHAMORRO
 
 - name: nj-doh
   description: New Jersey Department of Health
@@ -1332,6 +1306,7 @@
         receivingFacilityName: CDPH_CID
         receivingFacilityOID: 2.16.840.1.114222.4.1.214104
         suppressAoe: true
+        truncateHl7Fields: OBX-23-1, ORC-21-1
         truncateHDNamespaceIds: true
         cliaForOutOfStateTesting: CDPH000075
       transport:
@@ -2479,6 +2454,7 @@
         suppressNonNPI: true
         truncateHDNamespaceIds: true
         truncateHl7Fields: OBX-23-1
+        useHighPrecisionHeaderDateTimeFormat: true
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
