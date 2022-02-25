@@ -553,4 +553,35 @@ class ReportTests {
         assertThat(synthesizedReport.getString(1, "first_name")).isNotEqualTo("mary")
         assertThat(synthesizedReport.getString(2, "first_name")).isNotEqualTo("roberta")
     }
+
+    @Test
+    fun `test setString`() {
+        // arrange
+        val schema = Schema(
+            name = "test",
+            topic = "test",
+            elements = listOf(
+                Element("first_name"), // pii =  true
+                Element("test_time"), // type = DATETIME
+                Element("specimen_id"), // type = ID
+                Element("observation") // type = TEXT
+            )
+        )
+        val report = Report(
+            schema = schema,
+            values = listOf(
+                listOf("blue", "202110300809-0501", "2039784", "observationvalue"),
+                listOf("", "", "", ""),
+                listOf("green", "202110300809-0501", "123Fake", "words123"),
+                listOf("red", "null", "null", "null"),
+                listOf("black", "202110300809-0501", "!@#Fake", "asdlkj123!@#")
+            ),
+            source = TestSource
+        )
+
+        report.setString(1, "first_name", "square")
+        report.setString(2, "test_time", "20220101")
+        report.setString(3, "specimen_id", "")
+        report.setString(4, "observation", "null")
+    }
 }
