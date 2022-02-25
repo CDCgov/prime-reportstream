@@ -356,10 +356,10 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
         txn: DataAccessTransaction? = null
     ): Long? {
         val ctx = if (txn != null) DSL.using(txn) else create
-        return ctx.selectDistinct(REPORT_LINEAGE.ACTION_ID)
-            .from(REPORT_LINEAGE)
-            .where(REPORT_LINEAGE.PARENT_REPORT_ID.eq(reportId))
-            .fetchOne(REPORT_LINEAGE.ACTION_ID)
+        return ctx.select(REPORT_FILE.ACTION_ID)
+            .from(REPORT_FILE)
+            .where(REPORT_FILE.REPORT_ID.eq(reportId))
+            .fetchOne(REPORT_FILE.ACTION_ID)
     }
 
     fun fetchDownloadableReportFiles(
