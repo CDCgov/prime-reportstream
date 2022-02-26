@@ -27,7 +27,7 @@ object DateUtilities {
      * TemporalAccessor based on the variable date time pattern
      */
     fun parseDate(dateValue: String): TemporalAccessor {
-        return DateTimeFormatter.ofPattern(Element.variableDateTimePattern)
+        return DateTimeFormatter.ofPattern(variableDateTimePattern)
             .parseBest(dateValue, OffsetDateTime::from, LocalDateTime::from, Instant::from, LocalDate::from)
     }
 

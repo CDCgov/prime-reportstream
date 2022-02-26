@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.serializers
 
 import assertk.assertThat
+import assertk.assertions.isBetween
 import assertk.assertions.isEqualTo
 import assertk.assertions.isLessThanOrEqualTo
 import assertk.assertions.isNotNull
@@ -28,6 +29,7 @@ import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.TestSource
 import gov.cdc.prime.router.USTimeZone
+import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.every
 import io.mockk.mockk
@@ -37,6 +39,7 @@ import io.mockk.verify
 import org.junit.jupiter.api.TestInstance
 import java.io.ByteArrayOutputStream
 import java.io.File
+import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
 import java.time.OffsetDateTime
@@ -63,6 +66,7 @@ class Hl7SerializerTests {
         truncateHDNamespaceIds: Boolean = false,
         convertPositiveDateTimeOffsetToNegative: Boolean = false,
         useHighPrecisionHeaderDateTimeFormat: Boolean = false,
+        convertDateTimesToReceiverLocalTime: Boolean = false,
     ): Hl7Configuration {
         return Hl7Configuration(
             messageProfileId = "",
@@ -78,7 +82,8 @@ class Hl7SerializerTests {
             suppressNonNPI = suppressNonNPI,
             truncateHDNamespaceIds = truncateHDNamespaceIds,
             convertPositiveDateTimeOffsetToNegative = convertPositiveDateTimeOffsetToNegative,
-            useHighPrecisionHeaderDateTimeFormat = useHighPrecisionHeaderDateTimeFormat
+            useHighPrecisionHeaderDateTimeFormat = useHighPrecisionHeaderDateTimeFormat,
+            convertDateTimesToReceiverLocalTime = convertDateTimesToReceiverLocalTime,
         )
     }
 
@@ -869,5 +874,23 @@ NTE|1|L|This is a final comment|RE"""
         every { report.destination }.returns(receiver)
         timestampValue = Hl7Serializer.nowTimestamp(report)
         assertThat(highPrecisionTimeStampRegex.containsMatchIn(timestampValue)).isTrue()
+    }
+
+    @Test
+    fun `test now timestamp logic to local time zone`() {
+        val report = mockkClass(Report::class)
+        val receiver = mockkClass(Receiver::class)
+        every { receiver.timeZone }.returns(USTimeZone.EASTERN)
+        every { receiver.translation }.returns(
+            createConfig(convertDateTimesToReceiverLocalTime = true)
+        )
+        every { report.destination }.returns(receiver)
+        val easternTimeStampValue = Hl7Serializer.nowTimestamp(report)
+        every { receiver.timeZone }.returns(USTimeZone.PACIFIC)
+        val pacificTimeStampValue = Hl7Serializer.nowTimestamp(report)
+        val easternParsedDate = DateUtilities.parseDate(easternTimeStampValue) as OffsetDateTime
+        val pacificParsedDate = DateUtilities.parseDate(pacificTimeStampValue) as OffsetDateTime
+        val duration = Duration.between(pacificParsedDate.toLocalDateTime(), easternParsedDate.toLocalDateTime())
+        assertThat(duration.toHours()).isBetween(3, 4)
     }
 }
