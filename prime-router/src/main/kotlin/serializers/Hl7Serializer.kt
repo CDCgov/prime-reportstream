@@ -1508,25 +1508,6 @@ class Hl7Serializer(
             "FTS|1$hl7SegmentDelimiter"
     }
 
-    private fun nowTimestamp(report: Report? = null): String {
-        val hl7Config = report?.destination?.translation as? Hl7Configuration
-        // check to see if the timezone for the receiver is not null and if want to convert to the local
-        // timezone for the receiver
-        val timezone = if (
-            hl7Config?.convertDateTimesToReceiverLocalTime == true && report.destination.timeZone != null
-        ) {
-            ZoneId.of(report.destination.timeZone.zoneId)
-        } else {
-            ZoneId.systemDefault()
-        }
-        val timestamp = OffsetDateTime.now(timezone)
-        return if (hl7Config?.convertPositiveDateTimeOffsetToNegative == true) {
-            Element.convertPositiveOffsetToNegativeOffset(Element.datetimeFormatter.format(timestamp))
-        } else {
-            Element.datetimeFormatter.format(timestamp)
-        }
-    }
-
     private fun buildComponent(spec: String, component: Int = 1): String {
         if (!isField(spec)) error("Not a component path spec")
         return "$spec-$component"
@@ -1838,16 +1819,25 @@ class Hl7Serializer(
          * Given an hl7Configuration, this will take find the current date time and output it to a
          * specific format depending on the configuration of the receiver
          */
-        fun nowTimestamp(hl7Config: Hl7Configuration? = null): String {
-            // get the current time stamp
-            val timestamp = OffsetDateTime.now(ZoneId.systemDefault())
-            // if the receiver wants a higher precision date time formatter, then we get the right one
+        fun nowTimestamp(report: Report? = null): String {
+            val hl7Config = report?.destination?.translation as? Hl7Configuration
+            // check to see if the timezone for the receiver is not null and if want to convert to the local
+            // timezone for the receiver
+            val timezone = if (
+                hl7Config?.convertDateTimesToReceiverLocalTime == true && report.destination.timeZone != null
+            ) {
+                ZoneId.of(report.destination.timeZone.zoneId)
+            } else {
+                ZoneId.systemDefault()
+            }
+            val timestamp = OffsetDateTime.now(timezone)
+            // get the formatter based on the high precision header date time format
             val formatter: DateTimeFormatter = if (hl7Config?.useHighPrecisionHeaderDateTimeFormat == true) {
                 Element.highPrecisionDateTimeFormatter
             } else {
                 Element.datetimeFormatter
             }
-            // use the formatter here to output the now timestamp
+            // return the actual date
             return if (hl7Config?.convertPositiveDateTimeOffsetToNegative == true) {
                 Element.convertPositiveOffsetToNegativeOffset(formatter.format(timestamp))
             } else {

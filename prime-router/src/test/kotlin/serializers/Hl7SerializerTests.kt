@@ -846,22 +846,28 @@ NTE|1|L|This is a final comment|RE"""
         // arrange our regexes
         // this regex checks for 12 digits, and then the offset sign, and then four more digits
         val lowPrecisionTimeStampRegex = "^\\d{12}[-|+]\\d{4}".toRegex()
-        createConfig(
-            useHighPrecisionHeaderDateTimeFormat = false,
-            convertPositiveDateTimeOffsetToNegative = false
-        ).run {
-            val timestampValue = Hl7Serializer.nowTimestamp(this)
-            assertThat(lowPrecisionTimeStampRegex.containsMatchIn(timestampValue)).isTrue()
-        }
+        val report = mockkClass(Report::class)
+        val receiver = mockkClass(Receiver::class)
+        every { receiver.translation }.returns(
+            createConfig(
+                useHighPrecisionHeaderDateTimeFormat = false,
+                convertPositiveDateTimeOffsetToNegative = false
+            )
+        )
+        every { report.destination }.returns(receiver)
+        var timestampValue = Hl7Serializer.nowTimestamp(report)
+        assertThat(lowPrecisionTimeStampRegex.containsMatchIn(timestampValue)).isTrue()
 
         // this regex checks for 14 digits, then a period, three digits, and then the offset
         val highPrecisionTimeStampRegex = "\\d{14}\\.\\d{3}[-|+]\\d{4}".toRegex()
-        createConfig(
-            useHighPrecisionHeaderDateTimeFormat = true,
-            convertPositiveDateTimeOffsetToNegative = false
-        ).run {
-            val timestampValue = Hl7Serializer.nowTimestamp(this)
-            assertThat(highPrecisionTimeStampRegex.containsMatchIn(timestampValue)).isTrue()
-        }
+        every { receiver.translation }.returns(
+            createConfig(
+                useHighPrecisionHeaderDateTimeFormat = true,
+                convertPositiveDateTimeOffsetToNegative = false
+            )
+        )
+        every { report.destination }.returns(receiver)
+        timestampValue = Hl7Serializer.nowTimestamp(report)
+        assertThat(highPrecisionTimeStampRegex.containsMatchIn(timestampValue)).isTrue()
     }
 }
