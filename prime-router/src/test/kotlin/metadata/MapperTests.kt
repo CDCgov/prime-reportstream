@@ -660,4 +660,33 @@ class MapperTests {
         )
         assertThat(mapper.apply(lookupElement, args, elementAndValuesUNK).value).isNull()
     }
+
+    @Test
+    fun `test country mapper`() {
+        val mapper = CountryMapper()
+        val args = listOf("patient_zip_code")
+        val countryElement = Element("patient_country")
+        val patientPostalCodeElement = Element("patient_zip_code")
+        listOf(ElementAndValue(countryElement, "USA")).also {
+            assertThat(mapper.apply(countryElement, args, it).value).isEqualTo("USA")
+        }
+        listOf(ElementAndValue(countryElement, "MEX")).also {
+            assertThat(mapper.apply(countryElement, args, it).value).isEqualTo("MEX")
+        }
+        listOf(ElementAndValue(countryElement, "CAN")).also {
+            assertThat(mapper.apply(countryElement, args, it).value).isEqualTo("CAN")
+        }
+        listOf(ElementAndValue(countryElement, "USA"), ElementAndValue(patientPostalCodeElement, "90210")).also {
+            assertThat(mapper.apply(countryElement, args, it).value).isEqualTo("USA")
+        }
+        listOf(ElementAndValue(countryElement, "CAN"), ElementAndValue(patientPostalCodeElement, "H0H0H0")).also {
+            assertThat(mapper.apply(countryElement, args, it).value).isEqualTo("CAN")
+        }
+        listOf(ElementAndValue(countryElement, ""), ElementAndValue(patientPostalCodeElement, "90210")).also {
+            assertThat(mapper.apply(countryElement, args, it).value).isEqualTo("USA")
+        }
+        listOf(ElementAndValue(countryElement, ""), ElementAndValue(patientPostalCodeElement, "H0H0H0")).also {
+            assertThat(mapper.apply(countryElement, args, it).value).isEqualTo("CAN")
+        }
+    }
 }

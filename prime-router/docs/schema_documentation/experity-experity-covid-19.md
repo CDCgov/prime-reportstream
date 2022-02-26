@@ -1657,11 +1657,13 @@ H|Hispanic or Latino|LOCAL
 H|Hispanic|LOCAL
 H|Latino|LOCAL
 H|Mex. Amer./Hispanic|LOCAL
+H|2135-2|LOCAL
 H|H|LOCAL
 N|Non Hispanic or Latino|LOCAL
 N|Non Hispanic|LOCAL
 N|Not Hispanic or Latino|LOCAL
 N|Not Hispanic|LOCAL
+N|2186-5|LOCAL
 N|N|LOCAL
 U|Unknown|LOCAL
 U|U|LOCAL
@@ -1870,6 +1872,7 @@ UNK|U|LOCAL
 UNK|Patient Declines|LOCAL
 UNK|null|LOCAL
 ASKU|Asked, but unknown|LOCAL
+ASKU|ASKU|LOCAL
 
 **Documentation**:
 
@@ -2125,15 +2128,17 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 Code | Display | System
 ---- | ------- | ------
 71836000|Nasopharyngeal structure (body structure)|SNOMED_CT
-71836000|Varied|SNOMED_CT
 71836000|Nasopharyngeal swab|SNOMED_CT
 71836000|258500001|SNOMED_CT
 71836000|Nasopharyngeal aspirate|SNOMED_CT
 71836000|258411007|SNOMED_CT
 71836000|71836000|SNOMED_CT
 45206002|Nasal structure (body structure)|SNOMED_CT
+45206002|Nasal aspirate|SNOMED_CT
+45206002|429931000124105|SNOMED_CT
 45206002|45206002|SNOMED_CT
 53342003|Internal nose structure (body structure)|SNOMED_CT
+53342003|Varied|SNOMED_CT
 53342003|Swab of internal nose|SNOMED_CT
 53342003|Anterior nares swab|SNOMED_CT
 53342003|Mid-turbinate nasal swab|SNOMED_CT
@@ -2157,11 +2162,21 @@ Code | Display | System
 29092000|119361006|SNOMED_CT
 29092000|119364003|SNOMED_CT
 29092000|119297000|SNOMED_CT
-31389004|Oral|SNOMED_CT
 31389004|Throat Swab|SNOMED_CT
 31389004|Oropharyngeal|SNOMED_CT
 31389004|Oropharyngeal Swab|SNOMED_CT
+31389004|258529004|SNOMED_CT
 31389004|31389004|SNOMED_CT
+123851003|Sputum specimen|SNOMED_CT
+123851003|Sputum|SNOMED_CT
+123851003|119334006|SNOMED_CT
+123851003|Oral|SNOMED_CT
+123851003|Oral Swab|SNOMED_CT
+123851003|418932006|SNOMED_CT
+123851003|Saliva specimen|SNOMED_CT
+123851003|Saliva|SNOMED_CT
+123851003|258560004|SNOMED_CT
+123851003|123851003|SNOMED_CT
 
 **Documentation**:
 
@@ -2189,10 +2204,10 @@ Code | Display | System
 ---- | ------- | ------
 445297001|Swab of internal nose|SNOMED_CT
 445297001|Nasal Swab|SNOMED_CT
+445297001|Nasal|SNOMED_CT
+445297001|Varied|SNOMED_CT
 445297001|445297001|SNOMED_CT
 258500001|Nasopharyngeal swab|SNOMED_CT
-258500001|Nasal|SNOMED_CT
-258500001|Varied|SNOMED_CT
 258500001|258500001|SNOMED_CT
 871810001|Mid-turbinate nasal swab|SNOMED_CT
 871810001|871810001|SNOMED_CT
@@ -2204,14 +2219,18 @@ Code | Display | System
 429931000124105|429931000124105|SNOMED_CT
 258529004|Throat swab|SNOMED_CT
 258529004|Throat|SNOMED_CT
-258529004|Oral|SNOMED_CT
 258529004|Oropharyngeal|SNOMED_CT
 258529004|Oropharyngeal Swab|SNOMED_CT
 258529004|258529004|SNOMED_CT
+418932006|Oral|SNOMED_CT
+418932006|Oral Swab|SNOMED_CT
+418932006|418932006|SNOMED_CT
 119334006|Sputum specimen|SNOMED_CT
+119334006|Sputum|SNOMED_CT
 119334006|119334006|SNOMED_CT
-119342007|Saliva specimen|SNOMED_CT
-119342007|119342007|SNOMED_CT
+258560004|Saliva specimen|SNOMED_CT
+258560004|Saliva|SNOMED_CT
+258560004|258560004|SNOMED_CT
 258607008|Bronchoalveolar lavage fluid sample|SNOMED_CT
 258607008|258607008|SNOMED_CT
 119364003|Serum specimen|SNOMED_CT
@@ -2390,19 +2409,18 @@ Translate multiple inbound Test Result values to RS values
 
 Code | Display | System
 ---- | ------- | ------
-A|Some, but not all, results available|HL7
-C|Corrected, final|HL7
-F|Final results|HL7
-I|No results available; specimen received, procedure incomplete|HL7
-M|Corrected, not final|HL7
-N|Procedure completed, results pending|HL7
-O|Order received; specimen not yet received|HL7
-P|Preliminary|HL7
-R|Results stored; not yet verified|HL7
-S|No results available; procedure scheduled, but not done|HL7
-X|No results available; Order canceled|HL7
-Y|No order on record for this test|HL7
-Z|No record of this patient|HL7
+C|Record coming over is a correction and thus replaces a final result|HL7
+D|Deletes the OBX record|HL7
+F|Final results; Can only be changed with a corrected result|HL7
+I|Specimen in lab; results pending|HL7
+N|Not asked; used to affirmatively document that the observation identified in the OBX was not sought when the universal service ID in OBR-4 implies that it would be sought.|HL7
+O|Order detail description only (no result)|HL7
+P|Preliminary results|HL7
+R|Results entered -- not verified|HL7
+S|Partial results|HL7
+U|Results status change to final without retransmitting results already sent as ‘preliminary.’  E.g., radiology changes status from preliminary to final|HL7
+W|Post original as wrong, e.g., transmitted for wrong patient|HL7
+X|Results cannot be obtained for this observation|HL7
 
 **Documentation**:
 

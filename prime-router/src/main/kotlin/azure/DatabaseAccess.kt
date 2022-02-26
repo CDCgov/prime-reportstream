@@ -774,6 +774,11 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             .execute()
     }
 
+    fun refreshMaterializedViews(tableName: String, txn: DataAccessTransaction? = null) {
+        val ctx = if (txn != null) DSL.using(txn) else create
+        Routines.refreshMaterializedViews(ctx.configuration(), tableName)
+    }
+
     /** Common companion object */
     companion object {
         /** Global var. Set to false prior to the lazy init, to prevent flyway migrations */
@@ -917,6 +922,8 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                             record.orderingFacilityPostalCode = td.orderingFacilityPostalCode
                             record.orderingFacilityState =
                                 td.orderingFacilityState?.take(METADATA_MAX_LENGTH)
+                            record.organizationName =
+                                td.organizationName?.take(METADATA_MAX_LENGTH)
                             record.testResult = td.testResult?.take(METADATA_MAX_LENGTH)
                             record.testResultCode = td.testResultCode
                             record.equipmentModel = td.equipmentModel?.take(METADATA_MAX_LENGTH)
