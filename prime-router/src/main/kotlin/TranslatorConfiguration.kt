@@ -105,6 +105,11 @@ data class Hl7Configuration
     // we have to the local date time for the receiver. If we do not have the time, and it's not
     // clear if we are dealing with a timezone offset, then we will not convert it.
     val convertDateTimesToReceiverLocalTime: Boolean? = false,
+    /**
+     * Some receivers need a higher precision batch and file header date time
+     * value, so I am adding the option here for those who need it
+     */
+    val useHighPrecisionHeaderDateTimeFormat: Boolean? = false,
 ) : TranslatorConfiguration("HL7") {
     /**
      * Formatting for XTN fields

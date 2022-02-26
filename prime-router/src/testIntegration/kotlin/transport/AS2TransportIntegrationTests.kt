@@ -32,7 +32,7 @@ class AS2TransportIntegrationTests {
     val logger = mockkClass(Logger::class)
     val reportId = UUID.randomUUID()
     val as2Transport = spyk(AS2Transport(metadata))
-    val actionHistory = ActionHistory(TaskAction.send, context)
+    val actionHistory = ActionHistory(TaskAction.send)
     val transportType = AS2TransportType("", "id1", "id2", "a@cdc.gov")
     val task = Task(
         reportId,
@@ -113,7 +113,7 @@ class AS2TransportIntegrationTests {
         val header = makeHeader()
         setupLogger()
         every { as2Transport.sendViaAS2(any(), any(), any(), any(), any()) }
-            .throws(WrappedAS2Exception("cannot connect", ConnectException()))
+            .throws(WrappedAS2Exception.wrap(ConnectException()))
         every { as2Transport.lookupCredentials(any()) }
             .returns(UserJksCredential("x", "xzy", "pass", "a1", "a2"))
 

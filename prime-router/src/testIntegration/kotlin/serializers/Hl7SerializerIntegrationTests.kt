@@ -272,7 +272,7 @@ NTE|1|L|This is a final comment|RE"""
 
     @Test
     fun `test converting hl7 into mapped list of values`() {
-        val mappedMessage = serializer.convertMessageToMap(sampleHl7Message, covid19Schema)
+        val mappedMessage = serializer.convertMessageToMap(sampleHl7Message, 1, covid19Schema)
         val mappedValues = mappedMessage.row
         println("\ntest converting hl7 into mapped list of values:\n")
         mappedValues.forEach {
@@ -286,7 +286,7 @@ NTE|1|L|This is a final comment|RE"""
     fun `test reading HL7 message from file`() {
         val inputFile = "$hl7TestFileDir/single_message.hl7"
         val message = File(inputFile).readText()
-        val mappedMessage = serializer.convertMessageToMap(message, covid19Schema)
+        val mappedMessage = serializer.convertMessageToMap(message, 1, covid19Schema)
         val mappedValues = mappedMessage.row
         mappedValues.forEach {
             println("${it.key}: ${it.value.joinToString()}")

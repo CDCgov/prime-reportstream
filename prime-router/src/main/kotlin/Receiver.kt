@@ -109,7 +109,7 @@ open class Receiver(
         val numberPerDay: Int = 1,
         val initialTime: String = "00:00",
         val timeZone: USTimeZone = USTimeZone.EASTERN,
-        val maxReportCount: Int = 500,
+        val maxReportCount: Int = 100,
         val whenEmpty: WhenEmpty = WhenEmpty()
     ) {
         /**

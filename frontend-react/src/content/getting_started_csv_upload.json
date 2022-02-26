@@ -287,6 +287,42 @@
                             "notes": [
                                "File will fail if numeric values or text values are not entered using accepted values or field is left blank. Accepted values come from values mapped to LOINC codes you can find in the <a href=\"https://phinvads.cdc.gov/vads/SearchVocab.action\" class=\"usa-link\" target=\"_blank\" rel=\"noreferrer noopener\">PHIN VADS system</a>."              
                             ]
+                        },
+                        {
+                            "name": "Patient preferred language ",
+                            "colHeader": "patient_preferred_language",
+                            "colHeaderReportstream": "",            
+                            "required": false,
+                            "acceptedFormat": false,
+                            "acceptedValues": false,
+                            "acceptedExample": true,
+                            "valueMessage": "",
+                            "valueType": "Text",
+                            "values": [
+                                "<code>eng</code> or <code>English</code>",
+                                "<code>spa</code> or <code>Spanish</code>",
+                                "<code>fre</code> or <code>French</code>",
+                                "<code>jpn</code> or <code>Japanese</code>" 
+                            ],               
+                            "notes": [
+                               "Accepted values come from Language Concept Codes or the Language Concept Name from the <a href=\"https://phinvads.cdc.gov/vads/ViewValueSet.action?id=D0858308-9AB3-EA11-818F-005056ABE2F0#\" class=\"usa-link\" target=\"_blank\" rel=\"noreferrer noopener\">ISO-639 table in the PHIN VADS system</a>."              
+                            ]
+                        },
+                        {
+                            "name": "Patient email",
+                            "colHeader": "patient_email",
+                            "colHeaderReportstream": "",            
+                            "required": false,
+                            "acceptedFormat": false,
+                            "acceptedValues": false,
+                            "acceptedExample": false,
+                            "valueMessage": "",
+                            "valueType": "Text",
+                            "values": [
+                            ],               
+                            "notes": [ 
+                                "Enter patient email address, if known. This value is optional and can be left blank if no information is provided."            
+                            ]
                         }
                     ]
                 },
