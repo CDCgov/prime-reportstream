@@ -2,7 +2,7 @@ name: Report Stream Issue Report
 description: Report an issue with Report Stream
 title: "[Type a short name for your issue here]: "
 labels: ["issue", "triage"]
-assignees: ["Herman Cordero","Adrian Brewster"]
+assignees: ["Anshul Kumar","Adrian Brewster"]
 body:
   - type: markdown
     attributes:
