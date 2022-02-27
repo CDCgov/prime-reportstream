@@ -1,6 +1,5 @@
 package gov.cdc.prime.router.common
 
-import gov.cdc.prime.router.Element
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
