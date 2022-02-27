@@ -12,7 +12,6 @@ import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Sender
-import gov.cdc.prime.router.messages.PreviewErrorMessage
 import gov.cdc.prime.router.messages.PreviewMessage
 import gov.cdc.prime.router.messages.PreviewResponseMessage
 import gov.cdc.prime.router.tokens.OktaAuthentication
@@ -54,7 +53,7 @@ class PreviewFunction(
         errors: List<ActionLog> = emptyList(),
         warnings: List<ActionLog> = emptyList()
     ): Nothing {
-        val previewErrorMessage = PreviewErrorMessage(message, errors, warnings)
+        val previewErrorMessage = PreviewResponseMessage.Error(message, errors, warnings)
         val response = mapper.writeValueAsString(previewErrorMessage)
         throw IllegalArgumentException(response)
     }
@@ -85,7 +84,7 @@ class PreviewFunction(
     /**
      * Main logic of the Azure function. Useful for unit testing.
      */
-    internal fun processRequest(parameters: FunctionParameters): PreviewResponseMessage {
+    internal fun processRequest(parameters: FunctionParameters): PreviewResponseMessage.Success {
         val warnings = mutableListOf<ActionLog>()
         return readReport(parameters, warnings)
             .translate(parameters, warnings)
@@ -128,7 +127,7 @@ class PreviewFunction(
     private fun Report.buildResponse(
         parameters: FunctionParameters,
         warnings: List<ActionLog>
-    ): PreviewResponseMessage {
+    ): PreviewResponseMessage.Success {
         val content = String(workflowEngine.blob.createBodyBytes(this))
         val externalName = Report.formFilename(
             id,
@@ -138,7 +137,7 @@ class PreviewFunction(
             parameters.receiver.translation,
             workflowEngine.metadata
         )
-        return PreviewResponseMessage(
+        return PreviewResponseMessage.Success(
             receiverName = parameters.receiver.fullName,
             externalFileName = externalName,
             content = content,

@@ -130,7 +130,6 @@ class PreviewCommand : CliktCommand(
         try {
             getPreview()
                 .echoWarnings()
-                .saveWarnings()
                 .saveReportFiles()
         } catch (e: PrintMessage) {
             // PrintMessage is the standard way to exit a command
@@ -143,7 +142,7 @@ class PreviewCommand : CliktCommand(
     /**
      * Call the sender-files api and retrieve a list of sender files.
      */
-    private fun getPreview(): PreviewResponseMessage {
+    private fun getPreview(): PreviewResponseMessage.Success {
         // Setup
         val path = environment.value.formUrl("api/preview")
         val previewMessage = formPreviewBody()
@@ -160,7 +159,7 @@ class PreviewCommand : CliktCommand(
             .responseString()
 
         return result.map {
-            jsonMapper.readValue(it, PreviewResponseMessage::class.java)
+            jsonMapper.readValue(it, PreviewResponseMessage.Success::class.java)
         }.getOrElse {
             abort(
                 """
@@ -217,7 +216,7 @@ class PreviewCommand : CliktCommand(
     /**
      * Echo the warnings in the [PreviewResponseMessage]
      */
-    private fun PreviewResponseMessage.echoWarnings(): PreviewResponseMessage {
+    private fun PreviewResponseMessage.Success.echoWarnings(): PreviewResponseMessage.Success {
         warnings.forEach {
             echo("Warning: $it")
         }
@@ -225,16 +224,9 @@ class PreviewCommand : CliktCommand(
     }
 
     /**
-     * Save the warnings
-     */
-    private fun PreviewResponseMessage.saveWarnings(): PreviewResponseMessage {
-        return this
-    }
-
-    /**
      * Save a report file message
      */
-    private fun PreviewResponseMessage.saveReportFiles(): PreviewResponseMessage {
+    private fun PreviewResponseMessage.Success.saveReportFiles(): PreviewResponseMessage.Success {
         createDirectory(Path(outDirectory))
         saveFile(Path(outDirectory, this.externalFileName), this.content)
         return this

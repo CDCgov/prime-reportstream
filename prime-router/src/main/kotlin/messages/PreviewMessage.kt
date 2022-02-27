@@ -17,20 +17,25 @@ data class PreviewMessage(
 )
 
 /**
- * The [PreviewResponseMessage] is the OK status payload returned by the `preview` API end-point.
+ * The response message returned by the `preview` API end-point
  */
-data class PreviewResponseMessage(
-    val receiverName: String,
-    val externalFileName: String,
-    val content: String,
-    val warnings: List<ActionLog> = emptyList()
-)
+sealed interface PreviewResponseMessage {
+    /**
+     * The [Success] is the OK status payload
+     */
+    data class Success(
+        val receiverName: String,
+        val externalFileName: String,
+        val content: String,
+        val warnings: List<ActionLog> = emptyList()
+    ) : PreviewResponseMessage
 
-/**
- * The [PreviewErrorMessage] is the BAD_REQUEST status payload returned by the `preview` API end-point.
- */
-data class PreviewErrorMessage(
-    val message: String,
-    val errors: List<ActionLog> = emptyList(),
-    val warnings: List<ActionLog> = emptyList()
-)
+    /**
+     * The [PreviewErrorMessage] is the BAD_REQUEST status payload returned by the `preview` API end-point.
+     */
+    data class Error(
+        val message: String,
+        val errors: List<ActionLog> = emptyList(),
+        val warnings: List<ActionLog> = emptyList()
+    ) : PreviewResponseMessage
+}

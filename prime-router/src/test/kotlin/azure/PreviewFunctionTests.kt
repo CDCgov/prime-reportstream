@@ -2,6 +2,7 @@ package gov.cdc.prime.router.azure
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import assertk.assertions.isFailure
 import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
 import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpRequestMessage
@@ -16,6 +17,7 @@ import java.nio.file.Path
 
 const val SENDER_NAME = "ignore.ignore-simple-report"
 const val RECEIVER_NAME = "ignore.CSV"
+const val RECEIVER_WITH_ERROR = "ignore.HL7"
 const val INPUT_FILE = "./src/testIntegration/resources/datatests/CSV_to_HL7/sample-single-pdi-20210608-0002.csv"
 const val OUTPUT_FILE = "./src/test/csv_test_files/expected/pima-az-covid-19.csv"
 
@@ -70,5 +72,17 @@ class PreviewFunctionTests {
         assertThat(response.receiverName).isEqualTo(RECEIVER_NAME)
         val expectedOutput = Files.readString(Path.of(OUTPUT_FILE))
         assertThat(response.content).isEqualTo(expectedOutput)
+    }
+
+    @Test
+    fun `test processRequest with Errors`() {
+        val previewFunction = buildPreviewFunction()
+        val settings = FileSettings(FileSettings.defaultSettingsDirectory)
+        val previewParameters = PreviewFunction.FunctionParameters(
+            previewMessage = buildPreviewMessage(),
+            sender = settings.findSender(SENDER_NAME)!!,
+            receiver = settings.findReceiver(RECEIVER_WITH_ERROR)!!
+        )
+        assertThat { previewFunction.processRequest(previewParameters) }.isFailure()
     }
 }
