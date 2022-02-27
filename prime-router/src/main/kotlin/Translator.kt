@@ -227,7 +227,7 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
             Pair(filterFn, fnArgs)
         }
 
-        val filteredReport = input.translate(
+        val filteredReport = input.filter(
             filterAndArgs,
             receiver,
             doLogging,

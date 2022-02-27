@@ -397,7 +397,7 @@ class Report : Logging {
         }
     }
 
-    fun translate(
+    fun filter(
         filterFunctions: List<Pair<ReportStreamFilterDefinition, List<String>>>,
         receiver: Receiver,
         doLogging: Boolean,
