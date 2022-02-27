@@ -2,7 +2,6 @@ package gov.cdc.prime.router.azure
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import assertk.assertions.isNotEmpty
 import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
 import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpRequestMessage
@@ -17,7 +16,8 @@ import java.nio.file.Path
 
 const val SENDER_NAME = "ignore.ignore-simple-report"
 const val RECEIVER_NAME = "ignore.CSV"
-const val SAMPLE_FILE = "./src/testIntegration/resources/datatests/CSV_to_HL7/sample-single-pdi-20210608-0002.csv"
+const val INPUT_FILE = "./src/testIntegration/resources/datatests/CSV_to_HL7/sample-single-pdi-20210608-0002.csv"
+const val OUTPUT_FILE = "./src/test/csv_test_files/expected/pima-az-covid-19.csv"
 
 class PreviewFunctionTests {
     private val mapper = jacksonMapperBuilder().build()
@@ -39,7 +39,7 @@ class PreviewFunctionTests {
         return PreviewMessage(
             senderName = SENDER_NAME,
             receiverName = RECEIVER_NAME,
-            inputContent = Files.readString(Path.of(SAMPLE_FILE))
+            inputContent = Files.readString(Path.of(INPUT_FILE))
         )
     }
 
@@ -67,7 +67,8 @@ class PreviewFunctionTests {
             receiver = settings.findReceiver(RECEIVER_NAME)!!
         )
         val response = previewFunction.processRequest(previewParameters)
-        assertThat(response.content).isNotEmpty()
         assertThat(response.receiverName).isEqualTo(RECEIVER_NAME)
+        val expectedOutput = Files.readString(Path.of(OUTPUT_FILE))
+        assertThat(response.content).isEqualTo(expectedOutput)
     }
 }
