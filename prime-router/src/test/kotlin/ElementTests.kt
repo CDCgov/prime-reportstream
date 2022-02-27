@@ -238,57 +238,6 @@ internal class ElementTests {
     }
 
     @Test
-    fun `test convert positive zero offset to negative offset`() {
-        Element("a", type = Element.Type.DATE).run {
-            // all happy path tests
-            Element.convertPositiveOffsetToNegativeOffset("2022-01-05 08:00:00").run {
-                assertThat(this).isEqualTo("2022-01-05 08:00:00")
-            }
-            Element.convertPositiveOffsetToNegativeOffset("2022-01-05 08:00:00+0000").run {
-                assertThat(this).isEqualTo("2022-01-05 08:00:00-0000")
-            }
-            Element.convertPositiveOffsetToNegativeOffset("2022-01-05 08:00:00-0000").run {
-                assertThat(this).isEqualTo("2022-01-05 08:00:00-0000")
-            }
-            Element.convertPositiveOffsetToNegativeOffset("2022-01-05 08:00:00+00").run {
-                assertThat(this).isEqualTo("2022-01-05 08:00:00-00")
-            }
-            Element.convertPositiveOffsetToNegativeOffset("2022-01-05 08:00:00+00:00").run {
-                assertThat(this).isEqualTo("2022-01-05 08:00:00-00:00")
-            }
-            // non-zero offsets
-            Element.convertPositiveOffsetToNegativeOffset("2022-01-05 08:00:00-0400").run {
-                assertThat(this).isEqualTo("2022-01-05 08:00:00-0400")
-            }
-            Element.convertPositiveOffsetToNegativeOffset("2022-01-05 08:00:00+12").run {
-                assertThat(this).isEqualTo("2022-01-05 08:00:00+12")
-            }
-            Element.convertPositiveOffsetToNegativeOffset("2022-01-05 08:00:00+03:30").run {
-                assertThat(this).isEqualTo("2022-01-05 08:00:00+03:30")
-            }
-            // some unhappy paths. Don't use these formats.
-            Element.convertPositiveOffsetToNegativeOffset("2022-01-05 08:00:00+").run {
-                assertThat(this).isEqualTo("2022-01-05 08:00:00+")
-            }
-            Element.convertPositiveOffsetToNegativeOffset("2022+01+05 08:00:00").run {
-                assertThat(this).isEqualTo("2022+01+05 08:00:00")
-            }
-            Element.convertPositiveOffsetToNegativeOffset("").run {
-                assertThat(this).isEqualTo("")
-            }
-            Element.convertPositiveOffsetToNegativeOffset("     ").run {
-                assertThat(this).isEqualTo("     ")
-            }
-            Element.convertPositiveOffsetToNegativeOffset("+0000").run {
-                assertThat(this).isEqualTo("+0000")
-            }
-            Element.convertPositiveOffsetToNegativeOffset("+0000 2022-01-05").run {
-                assertThat(this).isEqualTo("+0000 2022-01-05")
-            }
-        }
-    }
-
-    @Test
     fun `test toNormalized zip`() {
         val one = Element(
             "a",

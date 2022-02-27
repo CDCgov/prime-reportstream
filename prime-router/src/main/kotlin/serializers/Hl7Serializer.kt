@@ -26,6 +26,7 @@ import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Source
 import gov.cdc.prime.router.ValueSet
+import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.metadata.ElementAndValue
 import gov.cdc.prime.router.metadata.Mapper
 import org.apache.logging.log4j.kotlin.Logging
@@ -937,7 +938,7 @@ class Hl7Serializer(
         if (hl7Config?.convertPositiveDateTimeOffsetToNegative == true) {
             // we need to convert the offset on date and date time to a negative offset if
             // that is what the receiver needs
-            terser.set(pathSpec, Element.convertPositiveOffsetToNegativeOffset(truncatedValue))
+            terser.set(pathSpec, DateUtilities.convertPositiveOffsetToNegativeOffset(truncatedValue))
         } else {
             terser.set(pathSpec, truncatedValue)
         }
@@ -1232,7 +1233,7 @@ class Hl7Serializer(
         // TODO: convert to local date time if that's what the receiver wants
         val rawObx19Value = report.getString(row, "test_result_date")
         val obx19Value = if (rawObx19Value != null && hl7Config?.convertPositiveDateTimeOffsetToNegative == true) {
-            Element.convertPositiveOffsetToNegativeOffset(rawObx19Value)
+            DateUtilities.convertPositiveOffsetToNegativeOffset(rawObx19Value)
         } else {
             rawObx19Value
         }
@@ -1833,13 +1834,13 @@ class Hl7Serializer(
             val timestamp = OffsetDateTime.now(timezone)
             // get the formatter based on the high precision header date time format
             val formatter: DateTimeFormatter = if (hl7Config?.useHighPrecisionHeaderDateTimeFormat == true) {
-                Element.highPrecisionDateTimeFormatter
+                DateUtilities.highPrecisionDateTimeFormatter
             } else {
-                Element.datetimeFormatter
+                DateUtilities.datetimeFormatter
             }
             // return the actual date
             return if (hl7Config?.convertPositiveDateTimeOffsetToNegative == true) {
-                Element.convertPositiveOffsetToNegativeOffset(formatter.format(timestamp))
+                DateUtilities.convertPositiveOffsetToNegativeOffset(formatter.format(timestamp))
             } else {
                 formatter.format(timestamp)
             }
