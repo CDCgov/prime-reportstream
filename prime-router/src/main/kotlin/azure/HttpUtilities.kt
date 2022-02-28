@@ -1,9 +1,5 @@
 package gov.cdc.prime.router.azure
 
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
@@ -13,6 +9,7 @@ import gov.cdc.prime.router.PAYLOAD_MAX_BYTES
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.common.JacksonMapperUtilities
 import org.apache.http.client.utils.URIBuilder
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.File
@@ -31,13 +28,7 @@ class HttpUtilities {
         const val tokenApi = "/api/token"
 
         // Ignoring unknown properties because we don't require them. -DK
-        private val mapper = jacksonObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-
-        init {
-            // Format OffsetDateTime as an ISO string
-            mapper.registerModule(JavaTimeModule())
-            mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-        }
+        private val mapper = JacksonMapperUtilities.datesAsTextMapper
 
         /**
          * Last modified time header value formatter.
