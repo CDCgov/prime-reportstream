@@ -162,6 +162,7 @@ class WorkflowEngineTests {
         confirmVerified(accessSpy, blobMock, queueMock) // todo
     }
 
+    /* Test duplicate detection error return message */
     @Test
     fun `test verifyNoDuplicateFile`() {
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
@@ -175,13 +176,18 @@ class WorkflowEngineTests {
 
         val digest = "fakeDigest".toByteArray()
         val engine = makeEngine(metadata, settings)
+        val payload = "test_file.fk"
 
         val err = assertFailsWith<ActionError> {
-            engine.verifyNoDuplicateFile(sender, digest)
+            engine.verifyNoDuplicateFile(sender, digest, payload)
+        }
+        val err2 = assertFailsWith<ActionError> {
+            engine.verifyNoDuplicateFile(sender, digest, null)
         }
 
-        assertThat { err.message == "Duplicate file detected." }
-        verify(exactly = 1) {
+        assertThat { err.message == "Duplicate file detected. Filename: test_file.fk" }
+        assertThat { err2.message == "Duplicate file detected." }
+        verify(exactly = 2) {
             accessSpy.isDuplicateReportFile(any(), any(), any())
         }
     }

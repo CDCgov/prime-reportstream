@@ -200,7 +200,7 @@ class ReportFunctionTests {
         reportFunc.processRequest(req, sender, context = null)
 
         // assert
-        verify(exactly = 0) { engine.verifyNoDuplicateFile(any(), any()) }
+        verify(exactly = 0) { engine.verifyNoDuplicateFile(any(), any(), any()) }
         verify(exactly = 2) { actionHistory.trackActionSenderInfo(any(), any()) }
     }
 
@@ -244,7 +244,7 @@ class ReportFunctionTests {
         reportFunc.processRequest(req, sender, context = null)
 
         // assert
-        verify(exactly = 2) { engine.verifyNoDuplicateFile(any(), any()) }
+        verify(exactly = 2) { engine.verifyNoDuplicateFile(any(), any(), any()) }
         verify(exactly = 1) { actionHistory.trackActionSenderInfo(any(), any()) }
     }
 }

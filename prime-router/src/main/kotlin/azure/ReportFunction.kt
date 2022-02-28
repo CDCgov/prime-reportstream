@@ -170,6 +170,7 @@ class ReportFunction(
             // track the sending organization and client based on the header
             val validatedRequest = validateRequest(request)
             val rawBody = validatedRequest.content.toByteArray()
+            val payloadName = extractPayloadName(request)
 
             // check if we are preventing duplicate files from the sender
             if (!sender.allowDuplicates) {
@@ -179,10 +180,9 @@ class ReportFunction(
                 val digest = BlobAccess.sha256Digest(rawBody)
 
                 // throws ActionError if there is a duplicate detected
-                workflowEngine.verifyNoDuplicateFile(sender, digest)
+                workflowEngine.verifyNoDuplicateFile(sender, digest, payloadName)
             }
 
-            val payloadName = extractPayloadName(request)
             actionHistory.trackActionSenderInfo(validatedRequest.sender.fullName, payloadName)
             when (options) {
                 Options.CheckConnections, Options.ValidatePayload -> {

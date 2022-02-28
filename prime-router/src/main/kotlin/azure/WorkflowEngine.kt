@@ -160,14 +160,19 @@ class WorkflowEngine(
      */
     fun verifyNoDuplicateFile(
         sender: Sender,
-        digest: ByteArray
+        digest: ByteArray,
+        payloadName: String?
     ) {
         if (db.isDuplicateReportFile(sender.name, sender.organizationName, digest)) {
+            var msg = "Duplicate file detected."
+            if (!payloadName.isNullOrEmpty()) {
+                msg += "File: $payloadName"
+            }
             throw ActionError(
                 ActionLog.report(
-                    "Duplicate file detected."
+                    msg
                 ),
-                "Duplicate file detected"
+                msg
             )
         }
     }
