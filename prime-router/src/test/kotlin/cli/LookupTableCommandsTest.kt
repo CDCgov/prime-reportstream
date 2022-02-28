@@ -3,9 +3,6 @@ package gov.cdc.prime.router.cli
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isTrue
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.github.kittinunf.fuel.core.FuelError
 import com.github.kittinunf.fuel.core.Response
@@ -13,6 +10,7 @@ import com.github.kittinunf.fuel.json.FuelJson
 import com.github.kittinunf.result.Result
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableVersion
+import gov.cdc.prime.router.common.JacksonMapperUtilities
 import io.mockk.every
 import io.mockk.mockk
 import org.apache.http.HttpStatus
@@ -26,7 +24,7 @@ class LookupTableCommandsTest {
     /**
      * Mapper to convert objects to JSON.
      */
-    private val mapper: ObjectMapper = jacksonMapperBuilder().addModule(JavaTimeModule()).build()
+    private val mapper = JacksonMapperUtilities.defaultMapper
 
     @Test
     fun `test rows to table`() {
