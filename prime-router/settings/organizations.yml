@@ -2493,7 +2493,7 @@
         useBatchHeaders: true
         suppressNonNPI: true
         truncateHDNamespaceIds: true
-        truncateHl7Fields: OBX-23-1
+        truncateHl7Fields: OBX-23-1, ORC-21-1
         useHighPrecisionHeaderDateTimeFormat: true
       timing:
         operation: MERGE
