@@ -2,9 +2,6 @@ package gov.cdc.prime.router.azure
 
 import assertk.assertThat
 import assertk.assertions.isNotEmpty
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpMethod
@@ -13,6 +10,7 @@ import com.microsoft.azure.functions.HttpResponseMessage
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableRow
 import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableVersion
+import gov.cdc.prime.router.common.JacksonMapperUtilities
 import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
@@ -37,7 +35,7 @@ class LookupTableFunctionsTests {
     /**
      * Mapper to convert objects to JSON.
      */
-    private val mapper: ObjectMapper = jacksonMapperBuilder().addModule(JavaTimeModule()).build()
+    private val mapper = JacksonMapperUtilities.defaultMapper
 
     @BeforeAll
     fun initDependencies() {
