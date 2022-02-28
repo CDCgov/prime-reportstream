@@ -178,7 +178,7 @@ jobs:
 
       - name: Backup db
         if: env.BACKUP_AGE_VALID == 'true'
-        uses: ./.github/actions/backup-pg-db
+        uses: ./.github/actions/db-backup
         with:
           pass: ${{ secrets[format('POSTGRESQL_{0}_PWD', env.env_name)] }}
           host: ${{ env.source_db_server }}.postgres.database.azure.com
@@ -253,7 +253,7 @@ jobs:
           file-share-name: "dbbackups"
 
       - name: Restore db
-        uses: ./.github/actions/restore-pg-db
+        uses: ./.github/actions/db-restore
         with:
           pass: ${{ secrets[format('POSTGRESQL_{0}_PWD', env.sink_env_name)] }}
           host: ${{ env.sink_db_server }}

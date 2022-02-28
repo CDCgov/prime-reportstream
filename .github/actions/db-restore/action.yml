@@ -1,5 +1,5 @@
-name: restore-pg-db
-description: Restore postgres database from file
+name: db-restore
+description: Restore postgres database from file after Azure recreation
 inputs:
   pass:
     required: true

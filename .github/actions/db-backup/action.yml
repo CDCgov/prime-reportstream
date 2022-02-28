@@ -1,4 +1,4 @@
-name: backup-pg-db
+name: db-backup
 description: Backup postgres database to file
 inputs:
   pass:
