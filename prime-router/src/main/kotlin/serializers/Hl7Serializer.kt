@@ -667,15 +667,35 @@ class Hl7Serializer(
         report: Report,
         row: Int
     ) {
-
         report.setString(row, "reporting_facility_name", "PRIME OTC")
         report.setString(row, "reporting_facility_clia", "0OCDCPRIME")
-        report.setString(row, "test_result_status", "F")
-//        setNote(terser, 1, report.getString(row, "organizationName") ?: "")
 
-        report.setString(row, "ordering_provider_first_name", "SA.OverTheCounter")
-        report.setString(row, "ordering_facility_name", "SA.OverTheCounter")
-        report.setString(row, "testing_lab_name", "SA.OverTheCounter")
+        val testResultStatus = report.getString(row, "test_result_status") ?: ""
+        if (testResultStatus.isNullOrEmpty()) {
+            report.setString(row, "test_result_status", "F")
+        }
+
+        val comment = report.getString(row, "comment")
+        report.setString(
+            row,
+            "comment",
+            comment
+                .plus(" / Organization name: ")
+                .plus(report.getString(row, "organizationName") ?: "")
+        )
+
+        val orderingProviderFirstName = report.getString(row, "ordering_provider_first_name") ?: ""
+        if (orderingProviderFirstName.isNullOrEmpty()) {
+            report.setString(row, "ordering_provider_first_name", "SA.OverTheCounter")
+        }
+        val orderingFacilityName = report.getString(row, "ordering_facility_name") ?: ""
+        if (orderingFacilityName.isNullOrEmpty()) {
+            report.setString(row, "ordering_facility_name", "SA.OverTheCounter")
+        }
+        val testingLabName = report.getString(row, "testing_lab_name") ?: ""
+        if (testingLabName.isNullOrEmpty()) {
+            report.setString(row, "testing_lab_name", "SA.OverTheCounter")
+        }
 
         report.setString(row, "ordering_facility_street", "11 Fake AtHome Test Street")
         report.setString(row, "ordering_facility_city", "Yakutat")
@@ -683,7 +703,10 @@ class Hl7Serializer(
         report.setString(row, "ordering_facility_zip_code", "99689")
         report.setString(row, "ordering_facility_county_code", "02282")
 
-        report.setString(row, "ordering_facility_phone_number", "1111111111:1:")
+        val orderingFacilityPhoneNumber = report.getString(row, "ordering_facility_phone_number") ?: ""
+        if (orderingFacilityPhoneNumber.isNullOrEmpty()) {
+            report.setString(row, "ordering_facility_phone_number", "1111111111:1:")
+        }
 
         report.setString(row, "testing_lab_street", "11 Fake AtHome Test Street")
         report.setString(row, "testing_lab_city", "Yakutat")
@@ -691,8 +714,14 @@ class Hl7Serializer(
         report.setString(row, "testing_lab_zip_code", "99689")
         report.setString(row, "testing_lab_county_code", "02282")
 
-        report.setString(row, "testing_lab_clia", "00Z0000014")
-        report.setString(row, "testing_lab_id_assigner", "CLIA^2.16.840.1.113883.4.7^ISO")
+        val testingLabClia = report.getString(row, "00Z0000014") ?: ""
+        if (testingLabClia.isNullOrEmpty()) {
+            report.setString(row, "testing_lab_clia", "1111111111:1:")
+        }
+        val testingLabIdAssigner = report.getString(row, "testing_lab_id_assigner") ?: ""
+        if (testingLabIdAssigner.isNullOrEmpty()) {
+            report.setString(row, "testing_lab_id_assigner", "CLIA^2.16.840.1.113883.4.7^ISO")
+        }
     }
 
     /**
