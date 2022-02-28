@@ -506,7 +506,7 @@ class CompareHl7Data(val result: CompareData.Result = CompareData.Result()) {
                     )
                 }
                 // For dynamic values we expect them to be have something
-                else if (actualFieldContents[repetitionIndex].isEmpty) {
+                else if ((actualFieldContents.getOrNull(repetitionIndex)?.isEmpty ?: false)) {
                     result.errors.add(
                         "No date/time of message for record $recordNum in field $fieldSpec"
                     )
