@@ -6,13 +6,13 @@ import assertk.assertions.isFailure
 import assertk.assertions.isGreaterThan
 import assertk.assertions.isInstanceOf
 import assertk.assertions.isNull
-import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
 import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpRequestMessage
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.SenderItems
+import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.messages.ReportFileMessage
 import io.mockk.every
 import io.mockk.mockk
@@ -26,7 +26,7 @@ import java.util.UUID
 import kotlin.test.Test
 
 class SenderFilesFunctionTests {
-    private val mapper = jacksonMapperBuilder().build()
+    private val mapper = JacksonMapperUtilities.defaultMapper
 
     private fun buildSenderFilesFunction(
         mockDbAccess: DatabaseAccess? = null,
