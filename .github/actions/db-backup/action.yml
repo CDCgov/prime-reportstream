@@ -22,5 +22,6 @@ runs:
   steps:
     - run: |
         sudo PGPASSWORD=${{ inputs.pass }} \
+        PGSSLMODE=require \
         pg_dump ${{ inputs.options }} --host=${{ inputs.host }} --username=${{ inputs.user }}@${{ inputs.host }} --dbname=${{ inputs.database }} -f ${{ inputs.file-path }}
       shell: bash
