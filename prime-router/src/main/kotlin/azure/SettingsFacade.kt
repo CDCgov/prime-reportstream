@@ -326,6 +326,10 @@ class SenderAPI
     topic: String,
     customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
     schemaName: String,
+    keys: List<JwkSet>? = null,
+    processingType: ProcessingType = ProcessingType.sync,
+    senderType: SenderType? = null,
+    primarySubmissionMethod: PrimarySubmissionMethod? = null,
     override var meta: SettingMetadata?,
 ) : Sender(
     name,
@@ -334,6 +338,10 @@ class SenderAPI
     topic,
     customerStatus,
     schemaName,
+    keys,
+    processingType,
+    senderType,
+    primarySubmissionMethod,
 ),
     SettingAPI
 
