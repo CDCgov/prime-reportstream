@@ -52,7 +52,7 @@ setPermissions: ## Set permissions needed for smoke tests to run successfully
 setPermissions: 
 	export $$(xargs < .vault/env/.env.local); \
 	./prime create-credential --type=UserPass --persist=DEFAULT-SFTP --user foo --pass pass; \
-	docker exec -it prime-router_sftp_1 chmod 777 /home/foo/upload; 
+	docker-compose exec sftp chmod 777 /home/foo/upload; 
 
 .PHONY: reloadState
 reloadState: ## Load the tables and settings into a running prime router
