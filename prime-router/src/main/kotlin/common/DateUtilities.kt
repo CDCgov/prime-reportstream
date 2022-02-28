@@ -19,7 +19,8 @@ object DateUtilities {
     /** includes seconds  */
     const val highPrecisionDateTimePattern = "yyyyMMddHHmmss.SSSZZZ"
     /** wraps around all the possible variations of a date for finding something that matches */
-    const val variableDateTimePattern = "[yyyyMMddHHmmssZ]" +
+    const val variableDateTimePattern = "[MMddyyyy]" +
+        "[yyyyMMddHHmmssZ]" +
         "[yyyyMMddHHmmZ]" +
         "[yyyyMMddHHmmss][yyyy-MM-dd HH:mm:ss.ZZZ]" +
         "[yyyy-MM-dd[ H:mm:ss[.S[S][S]]]]" +
@@ -51,7 +52,7 @@ object DateUtilities {
      * variable which would be the element's output format, and do an extra branch
      * based on that
      */
-    fun getDate(
+    fun getDateAsFormattedString(
         temporalAccessor: TemporalAccessor,
         outputFormat: String,
         convertPositiveOffsetToNegative: Boolean = false

@@ -316,7 +316,7 @@ data class Element(
             Type.DATE -> {
                 if (format != null) {
                     val ta = DateUtilities.parseDate(cleanedNormalizedValue)
-                    DateUtilities.getDate(ta, format)
+                    DateUtilities.getDateAsFormattedString(ta, format)
                 } else {
                     cleanedNormalizedValue
                 }
@@ -757,7 +757,6 @@ data class Element(
      * @return [OffsetDateTime] the best parsed datetime value
      */
     fun getDateTime(cleanedFormattedValue: String, format: String?): OffsetDateTime {
-
         val dateTime = try {
             // Try an ISO pattern
             OffsetDateTime.parse(cleanedFormattedValue)
@@ -811,7 +810,6 @@ data class Element(
      * @return [OffsetDateTime] the best parsed datetime value
      */
     private fun getBestDateTime(value: String, optionalDateTime: String): OffsetDateTime {
-
         val df = DateTimeFormatter.ofPattern(optionalDateTime)
         val ta = df.parseBest(
             value,
