@@ -8,7 +8,7 @@
  *
  */
 
-CREATE INDEX IF NOT EXISTS idx_report_file_blob_digest
-    on report_file
-    using btree(blob_digest)
+CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_report_file_blob_digest
+  on report_file
+  using btree(blob_digest)
 ;
