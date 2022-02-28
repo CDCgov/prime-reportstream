@@ -1,9 +1,6 @@
 name: Restore databases
 
 on:
-  push:
-    branches:
-      - josiahsiegel/restore-db
   workflow_dispatch:
     inputs:
       backup_from:
