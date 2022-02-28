@@ -33,6 +33,7 @@ private const val OPTION_PARAMETER = "option"
 private const val DEFAULT_PARAMETER = "default"
 private const val ROUTE_TO_PARAMETER = "routeTo"
 private const val VERBOSE_PARAMETER = "verbose"
+private const val ALLOW_DUPLICATES_PARAMETER = "allowDuplicate"
 private const val VERBOSE_TRUE = "true"
 private const val PROCESSING_TYPE_PARAMETER = "processing"
 
@@ -162,6 +163,8 @@ class ReportFunction(
             .header(HttpHeaders.CONTENT_TYPE, "application/json")
         // extract the verbose param and default to empty if not present
         val verboseParam = request.queryParameters.getOrDefault(VERBOSE_PARAMETER, "")
+        // allow duplicates 'override' param
+        val allowDuplicatesParam = request.queryParameters.getOrDefault(ALLOW_DUPLICATES_PARAMETER, null)
         val verbose = verboseParam.equals(VERBOSE_TRUE, true)
         val report = try {
             val optionsText = request.queryParameters.getOrDefault(OPTION_PARAMETER, "None")
@@ -172,8 +175,14 @@ class ReportFunction(
             val rawBody = validatedRequest.content.toByteArray()
             val payloadName = extractPayloadName(request)
 
+            // if the override parameter is populated, use that, otherwise use the sender value
+            val allowDuplicates = if
+            (!allowDuplicatesParam.isNullOrEmpty()) allowDuplicatesParam == "true"
+            else
+                sender.allowDuplicates
+
             // check if we are preventing duplicate files from the sender
-            if (!sender.allowDuplicates) {
+            if (!allowDuplicates) {
                 // TODO this should be only calculated once and passed, but the underlying functions are called by
                 //  receive (this), process, batch, send and those do *not* need to calculate it outside of the function
                 //  so leaving it 2x calculating on receive for the time being.
