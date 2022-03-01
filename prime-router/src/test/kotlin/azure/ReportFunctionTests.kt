@@ -69,7 +69,7 @@ class ReportFunctionTests {
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        val sender = Sender("Test Sender", "test", Sender.Format.CSV, "covid-19", schemaName = "covid-19")
+        val sender = Sender("Test Sender", "test", Sender.Format.CSV, "test", schemaName = "one")
 
         val engine = makeEngine(metadata, settings)
         val actionHistory = spyk(ActionHistory(TaskAction.receive))
@@ -105,7 +105,7 @@ class ReportFunctionTests {
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        val sender = Sender("Test Sender", "test", Sender.Format.CSV, "covid-19", schemaName = "covid-19")
+        val sender = Sender("Test Sender", "test", Sender.Format.CSV, "test", schemaName = "one")
 
         val engine = makeEngine(metadata, settings)
         val actionHistory = spyk(ActionHistory(TaskAction.receive))
@@ -183,9 +183,9 @@ class ReportFunctionTests {
             "Test Sender",
             "test",
             Sender.Format.CSV,
-            "covid-19",
+            "test",
             schemaName =
-            "covid-19",
+            "one",
             allowDuplicates = true
         )
 
@@ -224,9 +224,9 @@ class ReportFunctionTests {
             "Test Sender",
             "test",
             Sender.Format.CSV,
-            "covid-19",
+            "test",
             schemaName =
-            "covid-19",
+            "one",
             allowDuplicates = false
         )
 
@@ -268,9 +268,9 @@ class ReportFunctionTests {
             "Test Sender",
             "test",
             Sender.Format.CSV,
-            "covid-19",
+            "test",
             schemaName =
-            "covid-19",
+            "one",
             allowDuplicates = false
         )
 
@@ -313,9 +313,9 @@ class ReportFunctionTests {
             "Test Sender",
             "test",
             Sender.Format.CSV,
-            "covid-19",
+            "test",
             schemaName =
-            "covid-19",
+            "one",
             allowDuplicates = true
         )
 
