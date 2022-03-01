@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.azure
 
+import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
@@ -13,11 +14,14 @@ import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.azure.http.extensions.contentType
 import gov.cdc.prime.router.cli.tests.CompareData
 import gov.cdc.prime.router.cli.tests.CompareHl7Data
+import gov.cdc.prime.router.encoding.FHIR
 import gov.cdc.prime.router.encoding.HL7
 import gov.cdc.prime.router.encoding.encode
 import gov.cdc.prime.router.engine.Message
 import gov.cdc.prime.router.engine.RawSubmission
+import gov.cdc.prime.router.translation.FHIRtoHL7
 import gov.cdc.prime.router.translation.HL7toFHIR
+import gov.cdc.prime.router.translation.translate
 import org.apache.logging.log4j.kotlin.Logging
 import org.hl7.fhir.r4.model.Bundle
 
@@ -40,21 +44,41 @@ class FHIRFlowFunctions : Logging {
             route = "\$convert-data"
         ) request: HttpRequestMessage<String?>,
     ): HttpResponseMessage {
-        val responseBuilder = request.createResponseBuilder(HttpStatus.BAD_REQUEST)
-        try {
-            val hl7messages = HL7.decode(request.body)
-            val body = buildString {
-                hl7messages.forEach { message ->
-                    val fhir: Bundle = HL7toFHIR.translate(message)
-                    appendLine(fhir.encode())
+        val responseBuilder = request.createResponseBuilder(HttpStatus.OK)
+        val body = try {
+            val contentType = request.headers.get(HttpHeaders.CONTENT_TYPE.lowercase())
+            when (contentType) {
+                HttpUtilities.fhirMediaType, null -> {
+                    val hl7messages = HL7.decode(request.body)
+                    responseBuilder.contentType(HttpUtilities.fhirMediaType)
+                    buildString {
+                        hl7messages.forEach { message ->
+                            val fhir: Bundle = HL7toFHIR.translate(message)
+                            appendLine(fhir.encode())
+                        }
+                    }
+                }
+                HttpUtilities.hl7MediaType, "application/hl7-v2" -> {
+                    responseBuilder.contentType(HttpUtilities.hl7MediaType)
+                    val requestBody = request.body
+                    requireNotNull(requestBody)
+                    val bundle = FHIR.decode(requestBody)
+                    // FHIRtoHL7.templateHL7(bundle)
+                    val message = FHIRtoHL7.toORU_R01(bundle)
+                    message.encode()
+                }
+                else -> {
+                    throw UnsupportedMediaTypeException("Unknown media type: $contentType")
                 }
             }
-            responseBuilder.status(HttpStatus.OK)
-            responseBuilder.contentType(HttpUtilities.fhirMediaType)
-            responseBuilder.body(body)
         } catch (e: IllegalArgumentException) {
-            responseBuilder.body(e.message)
+            responseBuilder.status(HttpStatus.BAD_REQUEST)
+            e.message
+        } catch (e: HttpException) {
+            responseBuilder.status(e.code)
+            e.message
         }
+        responseBuilder.body(body)
         return responseBuilder.build()
     }
 

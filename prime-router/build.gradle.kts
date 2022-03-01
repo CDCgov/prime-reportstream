@@ -395,6 +395,7 @@ tasks.register<Copy>("gatherAzureResources") {
     from("./")
     into(azureResourcesTmpDir)
     include("metadata/**/*.yml")
+    include("metadata/**/*.hl7")
     include("metadata/**/*.properties")
     include("metadata/**/*.schema")
     include("metadata/**/*.valuesets")
@@ -710,6 +711,8 @@ dependencies {
     implementation("org.bouncycastle:bcpkix-jdk15on:1.70")
     implementation("org.bouncycastle:bcmail-jdk15on:1.70")
     implementation("org.bouncycastle:bcprov-jdk15on:1.70")
+
+    implementation("com.soywiz.korlibs.korte:korte:2.5.2")
 
     implementation("commons-net:commons-net:3.8.0")
     implementation("com.cronutils:cron-utils:9.1.6")

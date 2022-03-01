@@ -25,6 +25,7 @@ class HttpUtilities {
     companion object : Logging {
         const val jsonMediaType = "application/json"
         const val fhirMediaType = "application/fhir+json"
+        const val hl7MediaType = "application/hl7-v2+er7"
         const val oldApi = "/api/reports"
         const val watersApi = "/api/waters"
         const val tokenApi = "/api/token"
@@ -368,3 +369,4 @@ class HttpUtilities {
 
 open class HttpException(message: String, val code: HttpStatus) : Error(message)
 class HttpNotFoundException(message: String) : HttpException(message, HttpStatus.NOT_FOUND)
+class UnsupportedMediaTypeException(message: String) : HttpException(message, HttpStatus.UNSUPPORTED_MEDIA_TYPE)
