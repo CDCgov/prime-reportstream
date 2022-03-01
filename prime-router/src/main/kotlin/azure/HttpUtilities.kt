@@ -21,8 +21,10 @@ import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
 class HttpUtilities {
+
     companion object : Logging {
         const val jsonMediaType = "application/json"
+        const val fhirMediaType = "application/fhir+json"
         const val oldApi = "/api/reports"
         const val watersApi = "/api/waters"
         const val tokenApi = "/api/token"
