@@ -3,7 +3,17 @@
 ## General useful links:
 
 - All Schemas are documented here:  [Link to detailed schema dictionaries](./schema_documentation)
-- The Hub API is documented here: [Hub OpenApi Spec](./openapi.yml)
+- The ReportStream API is documented here: [Hub OpenApi Spec](./openapi.yml)
+
+## March 3, 2022
+
+### Added duplicate detection
+
+ReportStream will now reject duplicate submissions
+
+This feature is turned by setting the allowDuplicates flag to false in the Sender's settings configuration.   By default the flag is true.  A duplicate submission will return a 400 error.
+
+A duplicate is considered identical if is byte-for-byte identical to an earlier successfully submitted payload from the same organization and sender.
 
 ## February 15, 2022
 ### Added new senders for our CSV Sending Pilot
