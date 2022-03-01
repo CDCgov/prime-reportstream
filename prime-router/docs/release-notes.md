@@ -11,7 +11,7 @@
 
 ReportStream will now reject duplicate submissions
 
-This feature is turned by setting the allowDuplicates flag to false in the Sender's settings configuration.   By default the flag is true.  A duplicate submission will return a 400 error.
+This feature is turned on by setting the allowDuplicates flag to false in the Sender's settings configuration.   By default the flag is true.  A duplicate submission will return a 400 error.
 
 A duplicate is considered identical if is byte-for-byte identical to an earlier successfully submitted payload from the same organization and sender.
 
