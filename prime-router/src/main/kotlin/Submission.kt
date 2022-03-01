@@ -30,17 +30,17 @@ class DetailedSubmissionHistory(
     val actionId: Long,
     @JsonIgnore
     val actionName: TaskAction,
-    @JsonProperty("submittedAt")
+    @JsonProperty("timestamp")
     val createdAt: OffsetDateTime,
-    @JsonProperty("submitter")
+    @JsonProperty("sender")
     val sendingOrg: String?,
     val httpStatus: Int?,
-    @JsonInclude(Include.NON_NULL) val externalName: String? = "",
-    actionResponse: DetailedActionResponse?,
+    val externalName: String? = null,
+    val actionResponse: DetailedActionResponse?,
     @JsonIgnore
     var reports: MutableList<DetailReport>?,
     @JsonIgnore
-    val logs: List<DetailActionLog>?,
+    val logs: List<DetailActionLog>?
 ) {
     val id: String? = actionResponse?.id
     val destinations = mutableListOf<Destination>()
@@ -55,6 +55,18 @@ class DetailedSubmissionHistory(
 
     val errorCount: Int
         get() = errors.size
+
+    /**
+     * Number of destinations.
+     */
+    val destinationCount: Int
+        get() = destinations.size
+
+    /**
+     * Number of report items.
+     */
+    val reportItemCount: Int?
+        get() = actionResponse?.reportItemCount
 
     init {
         reports?.forEach { report ->
@@ -141,11 +153,6 @@ class DetailedSubmissionHistory(
             }
         }
     }
-    /*
-    private fun enrichWithDownloadAction(descendant: DetailedSubmissionHistory) {
-
-    }
-    */
 }
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -172,13 +179,14 @@ data class DetailReport(
     val externalName: String?,
     val createdAt: OffsetDateTime?,
     val nextActionAt: OffsetDateTime?,
-    val itemCount: Int,
+    val itemCount: Int
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class DetailedActionResponse(
     val id: String?,
     val topic: String?,
+    val reportItemCount: Int?
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)

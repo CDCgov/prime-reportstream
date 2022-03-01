@@ -559,11 +559,13 @@ H|Hispanic or Latino|LOCAL
 H|Hispanic|LOCAL
 H|Latino|LOCAL
 H|Mex. Amer./Hispanic|LOCAL
+H|2135-2|LOCAL
 H|H|LOCAL
 N|Non Hispanic or Latino|LOCAL
 N|Non Hispanic|LOCAL
 N|Not Hispanic or Latino|LOCAL
 N|Not Hispanic|LOCAL
+N|2186-5|LOCAL
 N|N|LOCAL
 U|Unknown|LOCAL
 U|U|LOCAL
@@ -772,6 +774,7 @@ UNK|U|LOCAL
 UNK|Patient Declines|LOCAL
 UNK|null|LOCAL
 ASKU|Asked, but unknown|LOCAL
+ASKU|ASKU|LOCAL
 
 **Documentation**:
 
@@ -1103,6 +1106,8 @@ Code | Display | System
 840534001|840534001|SNOMED_CT
 373121007|Test not done|SNOMED_CT
 373121007|373121007|SNOMED_CT
+82334004|Indeterminate|SNOMED_CT
+82334004|82334004|SNOMED_CT
 
 **Documentation**:
 
@@ -1447,19 +1452,18 @@ iPatientCare is an ambulatory EMR, so this field is defaulted to 'N'.
 
 Code | Display | System
 ---- | ------- | ------
-A|Some, but not all, results available|HL7
-C|Corrected, final|HL7
-F|Final results|HL7
-I|No results available; specimen received, procedure incomplete|HL7
-M|Corrected, not final|HL7
-N|Procedure completed, results pending|HL7
-O|Order received; specimen not yet received|HL7
-P|Preliminary|HL7
-R|Results stored; not yet verified|HL7
-S|No results available; procedure scheduled, but not done|HL7
-X|No results available; Order canceled|HL7
-Y|No order on record for this test|HL7
-Z|No record of this patient|HL7
+C|Record coming over is a correction and thus replaces a final result|HL7
+D|Deletes the OBX record|HL7
+F|Final results; Can only be changed with a corrected result|HL7
+I|Specimen in lab; results pending|HL7
+N|Not asked; used to affirmatively document that the observation identified in the OBX was not sought when the universal service ID in OBR-4 implies that it would be sought.|HL7
+O|Order detail description only (no result)|HL7
+P|Preliminary results|HL7
+R|Results entered -- not verified|HL7
+S|Partial results|HL7
+U|Results status change to final without retransmitting results already sent as ‘preliminary.’  E.g., radiology changes status from preliminary to final|HL7
+W|Post original as wrong, e.g., transmitted for wrong patient|HL7
+X|Results cannot be obtained for this observation|HL7
 
 **Documentation**:
 

@@ -101,7 +101,7 @@ open class Receiver(
         val numberPerDay: Int = 1,
         val initialTime: String = "00:00",
         val timeZone: USTimeZone = USTimeZone.EASTERN,
-        val maxReportCount: Int = 500,
+        val maxReportCount: Int = 100,
         val whenEmpty: WhenEmpty = WhenEmpty()
     ) {
         /**
@@ -178,14 +178,6 @@ open class Receiver(
             is CustomConfiguration -> {
                 if (metadata.findSchema(translation.schemaName) == null)
                     return "Invalid schemaName: ${translation.schemaName}"
-            }
-            is Hl7Configuration -> {
-                if (transport != null && transport is RedoxTransportType)
-                    return "HL7 configurations should not have a Redox transport"
-            }
-            is RedoxConfiguration -> {
-                if (transport != null && transport !is RedoxTransportType)
-                    return "Redox configurations should have Redox transports"
             }
         }
         return null

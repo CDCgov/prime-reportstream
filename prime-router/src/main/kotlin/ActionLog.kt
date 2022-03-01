@@ -11,7 +11,7 @@ import java.util.UUID
  * represent it's purpose.
  *
  * @property scope of the event
- * @property details about the event
+ * @property detail about the event
  * @property trackingId The ID of the item if applicable
  * @property index of the item related to message
  * @property reportId The ID of the report to which this event happened
@@ -34,12 +34,6 @@ data class ActionLog(
         return action!!.actionId
     }
 
-    /**
-     * @property REPORT scope for the event
-     * @property PARAMETER scope for the event
-     * @property ITEM scope for the event
-     * @property TRANSLATION scope for the event
-     */
     enum class ActionLogScope { parameter, report, item, translation }
 
     enum class ActionLogType { info, warning, error, filter }
@@ -145,4 +139,15 @@ data class ActionLog(
 class ActionError(val details: List<ActionLog>, message: String? = null) : Error(message) {
     constructor(detail: ActionLog, message: String? = null) : this(listOf(detail), message)
     constructor(details: List<ActionLog>) : this(details, null)
+
+    override val message: String
+        get() {
+            // Include the log details in the exception message
+            var message = super.message ?: ""
+            if (details.isNotEmpty()) {
+                message += System.lineSeparator() +
+                    details.joinToString(System.lineSeparator()) { it.detail.detailMsg() }
+            }
+            return message
+        }
 }

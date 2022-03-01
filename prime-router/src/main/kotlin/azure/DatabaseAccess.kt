@@ -5,6 +5,7 @@ import com.zaxxer.hikari.HikariDataSource
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
+import gov.cdc.prime.router.azure.db.Routines
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.Tables.ACTION
 import gov.cdc.prime.router.azure.db.Tables.COVID_RESULT_METADATA
@@ -22,6 +23,7 @@ import gov.cdc.prime.router.azure.db.tables.pojos.CovidResultMetadata
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.JtiCache
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
+import gov.cdc.prime.router.azure.db.tables.pojos.SenderItems
 import gov.cdc.prime.router.azure.db.tables.pojos.Setting
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
 import gov.cdc.prime.router.azure.db.tables.records.CovidResultMetadataRecord
@@ -254,6 +256,32 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             )
     }
 
+    /**
+     * Fetch a report_file row based on the passed blob file name.
+     */
+    fun fetchReportFileByBlobURL(
+        fileName: String,
+        txn: DataAccessTransaction? = null
+    ): ReportFile? {
+        val ctx = if (txn != null) DSL.using(txn) else create
+        return ctx.selectFrom(Tables.REPORT_FILE)
+            .where(REPORT_FILE.BODY_URL.like("%$fileName"))
+            .fetchOneInto(ReportFile::class.java)
+    }
+
+    /**
+     * Fetch a set of report_file rows based on the passed in list of [reportIds].
+     */
+    fun fetchReportFileByIds(
+        reportIds: List<ReportId>,
+        txn: DataAccessTransaction? = null
+    ): List<ReportFile> {
+        val ctx = if (txn != null) DSL.using(txn) else create
+        return ctx.selectFrom(Tables.REPORT_FILE)
+            .where(REPORT_FILE.REPORT_ID.`in`(reportIds))
+            .fetchInto(ReportFile::class.java)
+    }
+
     fun fetchAllInternalReports(
         createdDateTime: OffsetDateTime? = null,
         txn: DataAccessTransaction? = null
@@ -269,6 +297,18 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
         return ctx.selectFrom(Tables.REPORT_FILE).where(cond).fetchArray().map {
             it.into(ReportFile::class.java)
         }
+    }
+
+    fun fetchSenderItems(
+        receiverReportId: ReportId,
+        receiverReportIndex: Int,
+        limit: Int,
+        txn: DataAccessTransaction? = null
+    ): List<SenderItems> {
+        val ctx = if (txn != null) DSL.using(txn) else create
+        return ctx
+            .selectFrom(Routines.senderItems(receiverReportId, receiverReportIndex, limit))
+            .fetchInto(SenderItems::class.java)
     }
 
     /** Returns null if report has no item-level lineage info tracked. */
@@ -304,6 +344,22 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                 )
         }
         return itemLineages
+    }
+
+    /**
+     * Fetch an action ID for a given [reportId].
+     * @param txn an optional database transaction
+     * @return an action ID, or null if no action ID was found
+     */
+    fun fetchActionIdForReport(
+        reportId: UUID,
+        txn: DataAccessTransaction? = null
+    ): Long? {
+        val ctx = if (txn != null) DSL.using(txn) else create
+        return ctx.select(REPORT_FILE.ACTION_ID)
+            .from(REPORT_FILE)
+            .where(REPORT_FILE.REPORT_ID.eq(reportId))
+            .fetchOne(REPORT_FILE.ACTION_ID)
     }
 
     fun fetchDownloadableReportFiles(
@@ -734,6 +790,11 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             .execute()
     }
 
+    fun refreshMaterializedViews(tableName: String, txn: DataAccessTransaction? = null) {
+        val ctx = if (txn != null) DSL.using(txn) else create
+        Routines.refreshMaterializedViews(ctx.configuration(), tableName)
+    }
+
     /** Common companion object */
     companion object {
         /** Global var. Set to false prior to the lazy init, to prevent flyway migrations */
@@ -877,6 +938,8 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                             record.orderingFacilityPostalCode = td.orderingFacilityPostalCode
                             record.orderingFacilityState =
                                 td.orderingFacilityState?.take(METADATA_MAX_LENGTH)
+                            record.organizationName =
+                                td.organizationName?.take(METADATA_MAX_LENGTH)
                             record.testResult = td.testResult?.take(METADATA_MAX_LENGTH)
                             record.testResultCode = td.testResultCode
                             record.equipmentModel = td.equipmentModel?.take(METADATA_MAX_LENGTH)

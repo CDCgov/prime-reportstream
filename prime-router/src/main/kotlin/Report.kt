@@ -5,6 +5,7 @@ import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.CovidResultMetadata
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
+import gov.cdc.prime.router.common.StringUtilities.Companion.trimToNull
 import gov.cdc.prime.router.metadata.ElementAndValue
 import gov.cdc.prime.router.metadata.Mappers
 import org.apache.logging.log4j.kotlin.Logging
@@ -111,8 +112,7 @@ class Report : Logging {
         CSV("csv", "text/csv"), // A CSV format the follows the csvFields
         CSV_SINGLE("csv", "text/csv", true),
         HL7("hl7", "application/hl7-v2", true), // HL7 with one result per file
-        HL7_BATCH("hl7", "application/hl7-v2"), // HL7 with BHS and FHS headers
-        REDOX("redox", "text/json", false); // Redox format contains multiple results (NDJSON)
+        HL7_BATCH("hl7", "application/hl7-v2"); // HL7 with BHS and FHS headers
         // FHIR
 
         companion object {
@@ -416,7 +416,7 @@ class Report : Logging {
                 val rowsFiltered = getValuesInRows(
                     trackingElement, filteredRowList, ReportStreamFilterResult.DEFAULT_TRACKING_VALUE
                 )
-                rowsFiltered.zip(filteredRowList).forEach { (trackingId, index) ->
+                rowsFiltered.zip(filteredRowList).forEach { (trackingId, rowNum) ->
                     filteredRows.add(
                         ReportStreamFilterResult(
                             receiver.fullName,
@@ -424,7 +424,7 @@ class Report : Logging {
                             filterFn.name,
                             fnArgs,
                             trackingId,
-                            index
+                            rowNum + 1
                         )
                     )
                 }
@@ -692,6 +692,7 @@ class Report : Logging {
                     }
                     it.testKitNameId = row.getStringOrNull("test_kit_name_id").trimToNull()
                     it.testPerformedLoincCode = row.getStringOrNull("test_performed_code").trimToNull()
+                    it.organizationName = row.getStringOrNull("organization_name").trimToNull()
                 }
             }
         } catch (e: Exception) {
@@ -906,19 +907,23 @@ class Report : Logging {
             childReport: Report,
             childRowNum: Int
         ): ItemLineage {
+            // Row numbers start at 0, but index need to start at 1
+            val childIndex = childRowNum + 1
+            val parentIndex = parentRowNum + 1
+
             // ok if this is null.
             if (parentReport.itemLineages != null) {
                 // Avoid losing history.
                 // If the parent report already had lineage, then pass its sins down to the next generation.
                 val grandParentReportId = parentReport.itemLineages!![parentRowNum].parentReportId
-                val grandParentRowNum = parentReport.itemLineages!![parentRowNum].parentIndex
+                val grandParentIndex = parentReport.itemLineages!![parentRowNum].parentIndex
                 val grandParentTrackingValue = parentReport.itemLineages!![parentRowNum].trackingId
                 return ItemLineage(
                     null,
                     grandParentReportId,
-                    grandParentRowNum,
+                    grandParentIndex,
                     childReport.id,
-                    childRowNum,
+                    childIndex,
                     grandParentTrackingValue,
                     null,
                     null
@@ -929,9 +934,9 @@ class Report : Logging {
                 return ItemLineage(
                     null,
                     parentReport.id,
-                    parentRowNum,
+                    parentIndex,
                     childReport.id,
-                    childRowNum,
+                    childIndex,
                     trackingElementValue,
                     null,
                     null
@@ -968,13 +973,14 @@ class Report : Logging {
                     )
             }
             val retval = mutableListOf<ItemLineage>()
-            for (i in 0 until prevHeader.reportFile.itemCount) {
-                if (newLineages[i] == null)
-                    error(
+            // Note indices start at 1
+            for (index in 1..prevHeader.reportFile.itemCount) {
+                retval.add(
+                    newLineages[index] ?: error(
                         "Unable to create parent->child lineage " +
-                            "${prevHeader.reportFile.reportId} -> $newChildReportId: missing lineage $i"
+                            "${prevHeader.reportFile.reportId} -> $newChildReportId: missing lineage $index"
                     )
-                retval.add(newLineages[i]!!)
+                )
             }
             return retval
         }
@@ -1086,14 +1092,6 @@ class Report : Logging {
                     metadata = metadata ?: Metadata.getInstance()
                 )
             }
-        }
-
-        /**
-         * Takes a nullable String and trims it down to null if the string is empty
-         */
-        private fun String?.trimToNull(): String? {
-            if (this?.isEmpty() == true) return null
-            return this
         }
 
         /**

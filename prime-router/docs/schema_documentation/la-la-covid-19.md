@@ -1219,6 +1219,274 @@ Always filled when `patient_age` is filled
 
 ---
 
+**Name**: patient_citizenship
+
+**ReportStream Internal Name**: patient_citizenship
+
+**Type**: CODE
+
+**PII**: No
+
+**Format**: use value found in the Code column
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display | System
+---- | ------- | ------
+ABW|Aruba|ISO
+AFG|Afghanistan|ISO
+AGO|Angola|ISO
+AIA|Anguilla|ISO
+ALA|Aland Islands|ISO
+ALB|Albania|ISO
+AND|Andorra|ISO
+ARE|United Arab Emirates|ISO
+ARG|Argentina|ISO
+ARM|Armenia|ISO
+ASM|American Samoa|ISO
+ATA|Antarctica|ISO
+ATF|French Southern Territories|ISO
+ATG|Antigua and Barbuda|ISO
+AUS|Australia|ISO
+AUT|Austria|ISO
+AZE|Azerbaijan|ISO
+BDI|Burundi|ISO
+BEL|Belgium|ISO
+BEN|Benin|ISO
+BES|Bonaire, Sint Eustatius and Saba|ISO
+BFA|Burkina Faso|ISO
+BGD|Bangladesh|ISO
+BGR|Bulgaria|ISO
+BHR|Bahrain|ISO
+BHS|Bahamas|ISO
+BIH|Bosnia and Herzegovina|ISO
+BLM|Saint BarthÃ©lemy|ISO
+BLR|Belarus|ISO
+BLZ|Belize|ISO
+BMU|Bermuda|ISO
+BOL|Bolivia (Plurinational State of)|ISO
+BRA|Brazil|ISO
+BRB|Barbados|ISO
+BRN|Brunei Darussalam|ISO
+BTN|Bhutan|ISO
+BVT|Bouvet Island|ISO
+BWA|Botswana|ISO
+CAF|Central African Republic|ISO
+CAN|Canada|ISO
+CCK|Cocos (Keeling) Islands|ISO
+CHE|Switzerland|ISO
+CHL|Chile|ISO
+CHN|China|ISO
+CIV|Côte d'Ivoire|ISO
+CMR|Cameroon|ISO
+COD|Congo, Democratic Republic of the|ISO
+COG|Congo|ISO
+COK|Cook Islands|ISO
+COL|Colombia|ISO
+COM|Comoros|ISO
+CPV|Cabo Verde|ISO
+CRI|Costa Rica|ISO
+CUB|Cuba|ISO
+CUW|CuraÃ§ao|ISO
+CXR|Christmas Island|ISO
+CYM|Cayman Islands|ISO
+CYP|Cyprus|ISO
+CZE|Czechia|ISO
+DEU|Germany|ISO
+DJI|Djibouti|ISO
+DMA|Dominica|ISO
+DNK|Denmark|ISO
+DOM|Dominican Republic|ISO
+DZA|Algeria|ISO
+ECU|Ecuador|ISO
+EGY|Egypt|ISO
+ERI|Eritrea|ISO
+ESH|Western Sahara|ISO
+ESP|Spain|ISO
+EST|Estonia|ISO
+ETH|Ethiopia|ISO
+FIN|Finland|ISO
+FJI|Fiji|ISO
+FLK|Falkland Islands (Malvinas)|ISO
+FRA|France|ISO
+FRO|Faroe Islands|ISO
+FSM|Micronesia (Federated States of)|ISO
+GAB|Gabon|ISO
+GBR|United Kingdom of Great Britain and Northern Ireland|ISO
+GEO|Georgia|ISO
+GGY|Guernsey|ISO
+GHA|Ghana|ISO
+GIB|Gibraltar|ISO
+GIN|Guinea|ISO
+GLP|Guadeloupe|ISO
+GMB|Gambia|ISO
+GNB|Guinea-Bissau|ISO
+GNQ|Equatorial Guinea|ISO
+GRC|Greece|ISO
+GRD|Grenada|ISO
+GRL|Greenland|ISO
+GTM|Guatemala|ISO
+GUF|French Guiana|ISO
+GUM|Guam|ISO
+GUY|Guyana|ISO
+HKG|Hong Kong|ISO
+HMD|Heard Island and McDonald Islands|ISO
+HND|Honduras|ISO
+HRV|Croatia|ISO
+HTI|Haiti|ISO
+HUN|Hungary|ISO
+IDN|Indonesia|ISO
+IMN|Isle of Man|ISO
+IND|India|ISO
+IOT|British Indian Ocean Territory|ISO
+IRL|Ireland|ISO
+IRN|Iran (Islamic Republic of)|ISO
+IRQ|Iraq|ISO
+ISL|Iceland|ISO
+ISR|Israel|ISO
+ITA|Italy|ISO
+JAM|Jamaica|ISO
+JEY|Jersey|ISO
+JOR|Jordan|ISO
+JPN|Japan|ISO
+KAZ|Kazakhstan|ISO
+KEN|Kenya|ISO
+KGZ|Kyrgyzstan|ISO
+KHM|Cambodia|ISO
+KIR|Kiribati|ISO
+KNA|Saint Kitts and Nevis|ISO
+KOR|Korea, Republic of|ISO
+KWT|Kuwait|ISO
+LAO|Lao People's Democratic Republic|ISO
+LBN|Lebanon|ISO
+LBR|Liberia|ISO
+LBY|Libya|ISO
+LCA|Saint Lucia|ISO
+LIE|Liechtenstein|ISO
+LKA|Sri Lanka|ISO
+LSO|Lesotho|ISO
+LTU|Lithuania|ISO
+LUX|Luxembourg|ISO
+LVA|Latvia|ISO
+MAC|Macao|ISO
+MAF|Saint Martin (French part)|ISO
+MAR|Morocco|ISO
+MCO|Monaco|ISO
+MDA|Moldova, Republic of|ISO
+MDG|Madagascar|ISO
+MDV|Maldives|ISO
+MEX|Mexico|ISO
+MHL|Marshall Islands|ISO
+MKD|North Macedonia|ISO
+MLI|Mali|ISO
+MLT|Malta|ISO
+MMR|Myanmar|ISO
+MNE|Montenegro|ISO
+MNG|Mongolia|ISO
+MNP|Northern Mariana Islands|ISO
+MOZ|Mozambique|ISO
+MRT|Mauritania|ISO
+MSR|Montserrat|ISO
+MTQ|Martinique|ISO
+MUS|Mauritius|ISO
+MWI|Malawi|ISO
+MYS|Malaysia|ISO
+MYT|Mayotte|ISO
+NAM|Namibia|ISO
+NCL|New Caledonia|ISO
+NER|Niger|ISO
+NFK|Norfolk Island|ISO
+NGA|Nigeria|ISO
+NIC|Nicaragua|ISO
+NIU|Niue|ISO
+NLD|Netherlands|ISO
+NOR|Norway|ISO
+NPL|Nepal|ISO
+NRU|Nauru|ISO
+NZL|New Zealand|ISO
+OMN|Oman|ISO
+PAK|Pakistan|ISO
+PAN|Panama|ISO
+PCN|Pitcairn|ISO
+PER|Peru|ISO
+PHL|Philippines|ISO
+PLW|Palau|ISO
+PNG|Papua New Guinea|ISO
+POL|Poland|ISO
+PRI|Puerto Rico|ISO
+PRK|Korea (Democratic People's Republic of)|ISO
+PRT|Portugal|ISO
+PRY|Paraguay|ISO
+PSE|Palestine, State of|ISO
+PYF|French Polynesia|ISO
+QAT|Qatar|ISO
+REU|RÃ©union|ISO
+ROU|Romania|ISO
+RUS|Russian Federation|ISO
+RWA|Rwanda|ISO
+SAU|Saudi Arabia|ISO
+SDN|Sudan|ISO
+SEN|Senegal|ISO
+SGP|Singapore|ISO
+SGS|South Georgia and the South Sandwich Islands|ISO
+SHN|Saint Helena, Ascension and Tristan da Cunha|ISO
+SJM|Svalbard and Jan Mayen|ISO
+SLB|Solomon Islands|ISO
+SLE|Sierra Leone|ISO
+SLV|El Salvador|ISO
+SMR|San Marino|ISO
+SOM|Somalia|ISO
+SPM|Saint Pierre and Miquelon|ISO
+SRB|Serbia|ISO
+SSD|South Sudan|ISO
+STP|Sao Tome and Principe|ISO
+SUR|Suriname|ISO
+SVK|Slovakia|ISO
+SVN|Slovenia|ISO
+SWE|Sweden|ISO
+SWZ|Eswatini|ISO
+SXM|Sint Maarten (Dutch part)|ISO
+SYC|Seychelles|ISO
+SYR|Syrian Arab Republic|ISO
+TCA|Turks and Caicos Islands|ISO
+TCD|Chad|ISO
+TGO|Togo|ISO
+THA|Thailand|ISO
+TJK|Tajikistan|ISO
+TKL|Tokelau|ISO
+TKM|Turkmenistan|ISO
+TLS|Timor-Leste|ISO
+TON|Tonga|ISO
+TTO|Trinidad and Tobago|ISO
+TUN|Tunisia|ISO
+TUR|Turkey|ISO
+TUV|Tuvalu|ISO
+TWN|Taiwan, Province of China|ISO
+TZA|Tanzania, United Republic of|ISO
+UGA|Uganda|ISO
+UKR|Ukraine|ISO
+UMI|United States Minor Outlying Islands|ISO
+URY|Uruguay|ISO
+USA|United States of America|ISO
+UZB|Uzbekistan|ISO
+VAT|Holy See|ISO
+VCT|Saint Vincent and the Grenadines|ISO
+VEN|Venezuela (Bolivarian Republic of)|ISO
+VGB|Virgin Islands (British)|ISO
+VIR|Virgin Islands (U.S.)|ISO
+VNM|Viet Nam|ISO
+VUT|Vanuatu|ISO
+WLF|Wallis and Futuna|ISO
+WSM|Samoa|ISO
+YEM|Yemen|ISO
+ZAF|South Africa|ISO
+ZMB|Zambia|ISO
+ZWE|Zimbabwe|ISO
+
+---
+
 **Name**: patient_city
 
 **ReportStream Internal Name**: patient_city
@@ -1242,8 +1510,6 @@ The patient's city
 **Type**: TEXT
 
 **PII**: No
-
-**Default Value**: USA
 
 **Cardinality**: [0..1]
 
@@ -1547,6 +1813,274 @@ The patient's last name
 
 ---
 
+**Name**: patient_nationality
+
+**ReportStream Internal Name**: patient_nationality
+
+**Type**: CODE
+
+**PII**: No
+
+**Format**: use value found in the Code column
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display | System
+---- | ------- | ------
+ABW|Aruba|ISO
+AFG|Afghanistan|ISO
+AGO|Angola|ISO
+AIA|Anguilla|ISO
+ALA|Aland Islands|ISO
+ALB|Albania|ISO
+AND|Andorra|ISO
+ARE|United Arab Emirates|ISO
+ARG|Argentina|ISO
+ARM|Armenia|ISO
+ASM|American Samoa|ISO
+ATA|Antarctica|ISO
+ATF|French Southern Territories|ISO
+ATG|Antigua and Barbuda|ISO
+AUS|Australia|ISO
+AUT|Austria|ISO
+AZE|Azerbaijan|ISO
+BDI|Burundi|ISO
+BEL|Belgium|ISO
+BEN|Benin|ISO
+BES|Bonaire, Sint Eustatius and Saba|ISO
+BFA|Burkina Faso|ISO
+BGD|Bangladesh|ISO
+BGR|Bulgaria|ISO
+BHR|Bahrain|ISO
+BHS|Bahamas|ISO
+BIH|Bosnia and Herzegovina|ISO
+BLM|Saint BarthÃ©lemy|ISO
+BLR|Belarus|ISO
+BLZ|Belize|ISO
+BMU|Bermuda|ISO
+BOL|Bolivia (Plurinational State of)|ISO
+BRA|Brazil|ISO
+BRB|Barbados|ISO
+BRN|Brunei Darussalam|ISO
+BTN|Bhutan|ISO
+BVT|Bouvet Island|ISO
+BWA|Botswana|ISO
+CAF|Central African Republic|ISO
+CAN|Canada|ISO
+CCK|Cocos (Keeling) Islands|ISO
+CHE|Switzerland|ISO
+CHL|Chile|ISO
+CHN|China|ISO
+CIV|Côte d'Ivoire|ISO
+CMR|Cameroon|ISO
+COD|Congo, Democratic Republic of the|ISO
+COG|Congo|ISO
+COK|Cook Islands|ISO
+COL|Colombia|ISO
+COM|Comoros|ISO
+CPV|Cabo Verde|ISO
+CRI|Costa Rica|ISO
+CUB|Cuba|ISO
+CUW|CuraÃ§ao|ISO
+CXR|Christmas Island|ISO
+CYM|Cayman Islands|ISO
+CYP|Cyprus|ISO
+CZE|Czechia|ISO
+DEU|Germany|ISO
+DJI|Djibouti|ISO
+DMA|Dominica|ISO
+DNK|Denmark|ISO
+DOM|Dominican Republic|ISO
+DZA|Algeria|ISO
+ECU|Ecuador|ISO
+EGY|Egypt|ISO
+ERI|Eritrea|ISO
+ESH|Western Sahara|ISO
+ESP|Spain|ISO
+EST|Estonia|ISO
+ETH|Ethiopia|ISO
+FIN|Finland|ISO
+FJI|Fiji|ISO
+FLK|Falkland Islands (Malvinas)|ISO
+FRA|France|ISO
+FRO|Faroe Islands|ISO
+FSM|Micronesia (Federated States of)|ISO
+GAB|Gabon|ISO
+GBR|United Kingdom of Great Britain and Northern Ireland|ISO
+GEO|Georgia|ISO
+GGY|Guernsey|ISO
+GHA|Ghana|ISO
+GIB|Gibraltar|ISO
+GIN|Guinea|ISO
+GLP|Guadeloupe|ISO
+GMB|Gambia|ISO
+GNB|Guinea-Bissau|ISO
+GNQ|Equatorial Guinea|ISO
+GRC|Greece|ISO
+GRD|Grenada|ISO
+GRL|Greenland|ISO
+GTM|Guatemala|ISO
+GUF|French Guiana|ISO
+GUM|Guam|ISO
+GUY|Guyana|ISO
+HKG|Hong Kong|ISO
+HMD|Heard Island and McDonald Islands|ISO
+HND|Honduras|ISO
+HRV|Croatia|ISO
+HTI|Haiti|ISO
+HUN|Hungary|ISO
+IDN|Indonesia|ISO
+IMN|Isle of Man|ISO
+IND|India|ISO
+IOT|British Indian Ocean Territory|ISO
+IRL|Ireland|ISO
+IRN|Iran (Islamic Republic of)|ISO
+IRQ|Iraq|ISO
+ISL|Iceland|ISO
+ISR|Israel|ISO
+ITA|Italy|ISO
+JAM|Jamaica|ISO
+JEY|Jersey|ISO
+JOR|Jordan|ISO
+JPN|Japan|ISO
+KAZ|Kazakhstan|ISO
+KEN|Kenya|ISO
+KGZ|Kyrgyzstan|ISO
+KHM|Cambodia|ISO
+KIR|Kiribati|ISO
+KNA|Saint Kitts and Nevis|ISO
+KOR|Korea, Republic of|ISO
+KWT|Kuwait|ISO
+LAO|Lao People's Democratic Republic|ISO
+LBN|Lebanon|ISO
+LBR|Liberia|ISO
+LBY|Libya|ISO
+LCA|Saint Lucia|ISO
+LIE|Liechtenstein|ISO
+LKA|Sri Lanka|ISO
+LSO|Lesotho|ISO
+LTU|Lithuania|ISO
+LUX|Luxembourg|ISO
+LVA|Latvia|ISO
+MAC|Macao|ISO
+MAF|Saint Martin (French part)|ISO
+MAR|Morocco|ISO
+MCO|Monaco|ISO
+MDA|Moldova, Republic of|ISO
+MDG|Madagascar|ISO
+MDV|Maldives|ISO
+MEX|Mexico|ISO
+MHL|Marshall Islands|ISO
+MKD|North Macedonia|ISO
+MLI|Mali|ISO
+MLT|Malta|ISO
+MMR|Myanmar|ISO
+MNE|Montenegro|ISO
+MNG|Mongolia|ISO
+MNP|Northern Mariana Islands|ISO
+MOZ|Mozambique|ISO
+MRT|Mauritania|ISO
+MSR|Montserrat|ISO
+MTQ|Martinique|ISO
+MUS|Mauritius|ISO
+MWI|Malawi|ISO
+MYS|Malaysia|ISO
+MYT|Mayotte|ISO
+NAM|Namibia|ISO
+NCL|New Caledonia|ISO
+NER|Niger|ISO
+NFK|Norfolk Island|ISO
+NGA|Nigeria|ISO
+NIC|Nicaragua|ISO
+NIU|Niue|ISO
+NLD|Netherlands|ISO
+NOR|Norway|ISO
+NPL|Nepal|ISO
+NRU|Nauru|ISO
+NZL|New Zealand|ISO
+OMN|Oman|ISO
+PAK|Pakistan|ISO
+PAN|Panama|ISO
+PCN|Pitcairn|ISO
+PER|Peru|ISO
+PHL|Philippines|ISO
+PLW|Palau|ISO
+PNG|Papua New Guinea|ISO
+POL|Poland|ISO
+PRI|Puerto Rico|ISO
+PRK|Korea (Democratic People's Republic of)|ISO
+PRT|Portugal|ISO
+PRY|Paraguay|ISO
+PSE|Palestine, State of|ISO
+PYF|French Polynesia|ISO
+QAT|Qatar|ISO
+REU|RÃ©union|ISO
+ROU|Romania|ISO
+RUS|Russian Federation|ISO
+RWA|Rwanda|ISO
+SAU|Saudi Arabia|ISO
+SDN|Sudan|ISO
+SEN|Senegal|ISO
+SGP|Singapore|ISO
+SGS|South Georgia and the South Sandwich Islands|ISO
+SHN|Saint Helena, Ascension and Tristan da Cunha|ISO
+SJM|Svalbard and Jan Mayen|ISO
+SLB|Solomon Islands|ISO
+SLE|Sierra Leone|ISO
+SLV|El Salvador|ISO
+SMR|San Marino|ISO
+SOM|Somalia|ISO
+SPM|Saint Pierre and Miquelon|ISO
+SRB|Serbia|ISO
+SSD|South Sudan|ISO
+STP|Sao Tome and Principe|ISO
+SUR|Suriname|ISO
+SVK|Slovakia|ISO
+SVN|Slovenia|ISO
+SWE|Sweden|ISO
+SWZ|Eswatini|ISO
+SXM|Sint Maarten (Dutch part)|ISO
+SYC|Seychelles|ISO
+SYR|Syrian Arab Republic|ISO
+TCA|Turks and Caicos Islands|ISO
+TCD|Chad|ISO
+TGO|Togo|ISO
+THA|Thailand|ISO
+TJK|Tajikistan|ISO
+TKL|Tokelau|ISO
+TKM|Turkmenistan|ISO
+TLS|Timor-Leste|ISO
+TON|Tonga|ISO
+TTO|Trinidad and Tobago|ISO
+TUN|Tunisia|ISO
+TUR|Turkey|ISO
+TUV|Tuvalu|ISO
+TWN|Taiwan, Province of China|ISO
+TZA|Tanzania, United Republic of|ISO
+UGA|Uganda|ISO
+UKR|Ukraine|ISO
+UMI|United States Minor Outlying Islands|ISO
+URY|Uruguay|ISO
+USA|United States of America|ISO
+UZB|Uzbekistan|ISO
+VAT|Holy See|ISO
+VCT|Saint Vincent and the Grenadines|ISO
+VEN|Venezuela (Bolivarian Republic of)|ISO
+VGB|Virgin Islands (British)|ISO
+VIR|Virgin Islands (U.S.)|ISO
+VNM|Viet Nam|ISO
+VUT|Vanuatu|ISO
+WLF|Wallis and Futuna|ISO
+WSM|Samoa|ISO
+YEM|Yemen|ISO
+ZAF|South Africa|ISO
+ZMB|Zambia|ISO
+ZWE|Zimbabwe|ISO
+
+---
+
 **Name**: patient_phone_number
 
 **ReportStream Internal Name**: patient_phone_number
@@ -1560,6 +2094,539 @@ The patient's last name
 **Documentation**:
 
 The patient's phone number with area code
+
+---
+
+**Name**: patient_preferred_language
+
+**ReportStream Internal Name**: patient_preferred_language
+
+**Type**: CODE
+
+**PII**: No
+
+**Format**: use value found in the Code column
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display | System
+---- | ------- | ------
+abk|Abkhazian|ISO
+abk|Abkhaz|ISO
+ace|Achinese|ISO
+ach|Acoli|ISO
+ada|Adangme|ISO
+ady|Adyghe; Adygei|ISO
+aar|Afar|ISO
+afh|Afrihili|ISO
+afr|Afrikaans|ISO
+afa|Afro-Asiatic (Other)|ISO
+ain|Ainu|ISO
+aka|Akan|ISO
+akk|Akkadian|ISO
+alb|Albanian|ISO
+ale|Aleut|ISO
+alg|Algonquian languages|ISO
+tut|Altaic (Other)|ISO
+amh|Amharic|ISO
+anp|Angika|ISO
+apa|Apache languages|ISO
+ara|Arabic|ISO
+arg|Aragonese|ISO
+arp|Arapaho|ISO
+arw|Arawak|ISO
+arm|Armenian|ISO
+rup|Aromanian; Arumanian; Macedo-Romanian|ISO
+art|Artificial (Other)|ISO
+asm|Assamese|ISO
+aii|Assyrian|ISO
+ast|Asturian; Bable; Leonese; Asturleonese|ISO
+ath|Athapascan languages|ISO
+aus|Australian languages|ISO
+map|Austronesian (Other)|ISO
+ava|Avaric|ISO
+ave|Avestan|ISO
+awa|Awadhi|ISO
+aym|Aymara|ISO
+aze|Azerbaijani|ISO
+ban|Balinese|ISO
+bat|Baltic (Other)|ISO
+bal|Baluchi|ISO
+bam|Bambara|ISO
+bai|Bamileke languages|ISO
+bad|Banda languages|ISO
+bnt|Bantu (Other)|ISO
+bas|Basa|ISO
+bak|Bashkir|ISO
+baq|Basque|ISO
+btk|Batak languages|ISO
+bej|Beja; Bedawiyet|ISO
+bel|Belarusian|ISO
+bem|Bemba|ISO
+ben|Bengali|ISO
+ber|Berber (Other)|ISO
+bho|Bhojpuri|ISO
+bih|Bihari|ISO
+bik|Bikol|ISO
+bin|Bini; Edo|ISO
+bis|Bislama|ISO
+byn|Blin; Bilin|ISO
+zbl|Blissymbols; Blissymbolics; Bliss|ISO
+nob|Norwegian Bokmål|ISO
+bos|Bosnian|ISO
+bra|Braj|ISO
+bre|Breton|ISO
+bug|Buginese|ISO
+bul|Bulgarian|ISO
+bua|Buriat|ISO
+bur|Burmese|ISO
+cad|Caddo|ISO
+yue|Cantonese|ISO
+yue|Cantonese; Chinese|ISO
+cat|Catalan; Valencian|ISO
+cat|Catalan|ISO
+cau|Caucasian (Other)|ISO
+ceb|Cebuano|ISO
+cel|Celtic (Other)|ISO
+cai|Central American Indian (Other)|ISO
+khm|Central Khmer|ISO
+chg|Chagatai|ISO
+cmc|Chamic languages|ISO
+cha|Chamorro|ISO
+che|Chechen|ISO
+chr|Cherokee|ISO
+chy|Cheyenne|ISO
+chb|Chibcha|ISO
+nya|Chichewa; Chewa; Nyanja|ISO
+chi|Chinese|ISO
+chn|Chinook jargon|ISO
+chp|Chipewyan; Dene Suline|ISO
+cho|Choctaw|ISO
+chk|Chuukese|ISO
+chv|Chuvash|ISO
+nwc|Classical Newari; Old Newari; Classical Nepal Bhasa|ISO
+syc|Classical Syriac|ISO
+cop|Coptic|ISO
+cor|Cornish|ISO
+cos|Corsican|ISO
+cre|Cree|ISO
+mus|Creek|ISO
+crp|Creoles and pidgins (Other)|ISO
+cpe|Creoles and pidgins English based (Other)|ISO
+cpf|Creoles and pidgins French-based (Other)|ISO
+cpp|Creoles and pidgins Portuguese-based (Other)|ISO
+crh|Crimean Tatar; Crimean Turkish|ISO
+hrv|Croatian|ISO
+cus|Cushitic (Other)|ISO
+cze|Czech|ISO
+dak|Dakota|ISO
+dan|Danish|ISO
+dar|Dargwa|ISO
+prs|Dari|ISO
+del|Delaware|ISO
+din|Dinka|ISO
+div|Divehi; Dhivehi; Maldivian|ISO
+div|Dhivehi|ISO
+doi|Dogri|ISO
+dgr|Dogrib|ISO
+dra|Dravidian (Other)|ISO
+dua|Duala|ISO
+dut|Dutch; Flemish|ISO
+dut|Dutch|ISO
+dyu|Dyula|ISO
+dzo|Dzongkha|ISO
+frs|Eastern Frisian|ISO
+efi|Efik|ISO
+eka|Ekajuk|ISO
+elx|Elamite|ISO
+eng|English|ISO
+myv|Erzya|ISO
+epo|Esperanto|ISO
+est|Estonian|ISO
+ewe|Ewe|ISO
+ewo|Ewondo|ISO
+fan|Fang|ISO
+fat|Fanti|ISO
+fao|Faroese|ISO
+fij|Fijian|ISO
+fil|Filipino; Pilipino|ISO
+fil|Filipino|ISO
+fin|Finnish|ISO
+fiu|Finno-Ugrian (Other)|ISO
+fon|Fon|ISO
+fre|French|ISO
+fry|Frisian|ISO
+fur|Friulian|ISO
+ful|Fulah|ISO
+gaa|Ga|ISO
+gla|Gaelic; Scottish Gaelic|ISO
+gla|Gaelic|ISO
+car|Galibi Carib|ISO
+glg|Galician|ISO
+lug|Ganda|ISO
+gay|Gayo|ISO
+gba|Gbaya|ISO
+gez|Geez|ISO
+geo|Georgian|ISO
+ger|German|ISO
+gem|Germanic (Other)|ISO
+gil|Gilbertese|ISO
+gon|Gondi|ISO
+gor|Gorontalo|ISO
+got|Gothic|ISO
+grb|Grebo|ISO
+gre|Greek|ISO
+gre|Greek Modern (1453-)|ISO
+grn|Guarani|ISO
+guj|Gujarati|ISO
+gwi|Gwich'in|ISO
+hai|Haida|ISO
+hat|Haitian; Haitian Creole|ISO
+hat|Haitian|ISO
+hau|Hausa|ISO
+haw|Hawaiian|ISO
+heb|Hebrew|ISO
+her|Herero|ISO
+hil|Hiligaynon|ISO
+him|Himachali|ISO
+hin|Hindi|ISO
+hmo|Hiri Motu|ISO
+hit|Hittite|ISO
+hmn|Hmong|ISO
+hun|Hungarian|ISO
+hup|Hupa|ISO
+iba|Iban|ISO
+ice|Icelandic|ISO
+ido|Ido|ISO
+ibo|Igbo|ISO
+ijo|Ijo languages|ISO
+ilo|Iloko|ISO
+smn|Inari Sami|ISO
+inc|Indic (Other)|ISO
+ine|Indo-European (Other)|ISO
+ind|Indonesian|ISO
+inh|Ingush|ISO
+ikt|Inuinnaqtun|ISO
+ina|Interlingua (International Auxiliary Language Association)|ISO
+ile|Interlingue; Occidental|ISO
+iku|Inuktitut|ISO
+ipk|Inupiaq|ISO
+ira|Iranian (Other)|ISO
+gle|Irish|ISO
+iro|Iroquoian languages|ISO
+ita|Italian|ISO
+jpn|Japanese|ISO
+jav|Javanese|ISO
+cjy|Jinyu Chinese|ISO
+jrb|Judeo-Arabic|ISO
+jpr|Judeo-Persian|ISO
+kbd|Kabardian|ISO
+kab|Kabyle|ISO
+kac|Kachin; Jingpho|ISO
+kal|Kalaallisut; Greenlandic|ISO
+xal|Kalmyk; Oirat|ISO
+kam|Kamba|ISO
+kan|Kannada|ISO
+kau|Kanuri|ISO
+krc|Karachay-Balkar|ISO
+kaa|Kara-Kalpak|ISO
+krl|Karelian|ISO
+kar|Karen languages|ISO
+kas|Kashmiri|ISO
+csb|Kashubian|ISO
+kaw|Kawi|ISO
+kaz|Kazakh|ISO
+kha|Khasi|ISO
+khi|Khoisan (Other)|ISO
+khm|Khmer|ISO
+kho|Khotanese|ISO
+kik|Kikuyu; Gikuyu|ISO
+kmb|Kimbundu|ISO
+kin|Kinyarwanda|ISO
+kir|Kirghiz; Kyrgyz|ISO
+kir|Kyrgyz|ISO
+kir|Kirghiz|ISO
+tlh|Klingon; tlhIngan-Hol|ISO
+kom|Komi|ISO
+kon|Kongo|ISO
+kok|Konkani|ISO
+kor|Korean|ISO
+kos|Kosraean|ISO
+kpe|Kpelle|ISO
+kro|Kru languages|ISO
+kua|Kuanyama; Kwanyama|ISO
+kum|Kumyk|ISO
+kur|Kurdish|ISO
+kru|Kurukh|ISO
+kut|Kutenai|ISO
+lad|Ladino|ISO
+lah|Lahnda|ISO
+lam|Lamba|ISO
+day|Land Dayak languages|ISO
+lao|Lao|ISO
+lat|Latin|ISO
+lav|Latvian|ISO
+lez|Lezghian|ISO
+lim|Limburgan; Limburger; Limburgish|ISO
+lin|Lingala|ISO
+lit|Lithuanian|ISO
+jbo|Lojban|ISO
+nds|Low German; Low Saxon; German|ISO
+dsb|Lower Sorbian|ISO
+loz|Lozi|ISO
+lub|Luba-Katanga|ISO
+lua|Luba-Lulua|ISO
+lui|Luiseno|ISO
+smj|Lule Sami|ISO
+lun|Lunda|ISO
+luo|Luo (Kenya and Tanzania)|ISO
+lus|Lushai|ISO
+ltz|Luxembourgish; Letzeburgesch|ISO
+ltz|Luxembourgish|ISO
+mac|Macedonian|ISO
+mad|Madurese|ISO
+mag|Magahi|ISO
+mai|Maithili|ISO
+mak|Makasar|ISO
+mlg|Malagasy|ISO
+may|Malay|ISO
+mal|Malayalam|ISO
+mlt|Maltese|ISO
+cmn|Mandarin|ISO
+cmn|Mandarin Chinese|ISO
+mnc|Manchu|ISO
+mdr|Mandar|ISO
+man|Mandingo|ISO
+mni|Manipuri|ISO
+mno|Manobo languages|ISO
+glv|Manx|ISO
+mao|Maori|ISO
+arn|Mapudungun; Mapuche|ISO
+mar|Marathi|ISO
+chm|Mari|ISO
+mah|Marshallese|ISO
+mwr|Marwari|ISO
+mas|Masai|ISO
+myn|Mayan languages|ISO
+myn|Mayan|ISO
+men|Mende|ISO
+mic|Mi'kmaq; Micmac|ISO
+min|Minangkabau|ISO
+mwl|Mirandese|ISO
+moh|Mohawk|ISO
+mdf|Moksha|ISO
+mol|Moldavian; Moldovan|ISO
+mol|Moldovan|ISO
+mol|Moldavian|ISO
+lol|Mongo|ISO
+mon|Mongolian|ISO
+mkh|Mon-Khmer (Other)|ISO
+cnr|Montenegrin|ISO
+mos|Mossi|ISO
+mul|Multiple languages|ISO
+mun|Munda languages|ISO
+nah|Nahuatl languages|ISO
+nau|Nauru|ISO
+nav|Navajo; Navaho|ISO
+nde|Ndebele|ISO
+nde|Ndebele North; North Ndebele|ISO
+nbl|Ndebele South; South Ndebele|ISO
+ndo|Ndonga|ISO
+nap|Neapolitan|ISO
+new|Nepal Bhasa; Newari|ISO
+nep|Nepali|ISO
+nia|Nias|ISO
+nic|Niger-Kordofanian (Other)|ISO
+ssa|Nilo-Saharan (Other)|ISO
+niu|Niuean|ISO
+nqo|N'Ko|ISO
+zxx|No linguistic content; Not applicable|ISO
+nog|Nogai|ISO
+nai|North American Indian|ISO
+frr|Northern Frisian|ISO
+sme|Northern Sami|ISO
+nso|Northern Sotho|ISO
+nor|Norwegian|ISO
+nno|Norwegian Nynorsk; Nynorsk Norwegian|ISO
+nno|Nynorsk|ISO
+nub|Nubian languages|ISO
+nym|Nyamwezi|ISO
+nyn|Nyankole|ISO
+nyo|Nyoro|ISO
+nzi|Nzima|ISO
+oci|Occitan (post 1500); Provençal|ISO
+oci|Occitan|ISO
+oji|Ojibwa|ISO
+ori|Oriya|ISO
+orm|Oromo|ISO
+osa|Osage|ISO
+oss|Ossetian; Ossetic|ISO
+oto|Otomian languages|ISO
+pal|Pahlavi|ISO
+pau|Palauan|ISO
+pli|Pali|ISO
+pam|Pampanga; Kapampangan|ISO
+pag|Pangasinan|ISO
+pan|Panjabi|ISO
+pap|Papiamento|ISO
+paa|Papuan (Other)|ISO
+pus|Pashto|ISO
+pus|Pushto|ISO
+pst|Central Pashto|ISO
+pbt|Southern Pashto|ISO
+pus|Pashto|ISO
+nso|Pedi; Sepedi; Northern Sotho|ISO
+per|Persian|ISO
+phi|Philippine (Other)|ISO
+phn|Phoenician|ISO
+pon|Pohnpeian|ISO
+pol|Polish|ISO
+por|Portuguese|ISO
+pra|Prakrit languages|ISO
+pan|Punjabi|ISO
+pus|Pushto; Pashto|ISO
+que|Quechua|ISO
+raj|Rajasthani|ISO
+rap|Rapanui|ISO
+rar|Rarotongan; Cook Islands Maori|ISO
+qaa-qtz|Reserved for local use|ISO
+roa|Romance (Other)|ISO
+rum|Romanian|ISO
+roh|Romansh|ISO
+rom|Romany|ISO
+run|Rundi|ISO
+rus|Russian|ISO
+sal|Salishan languages|ISO
+sam|Samaritan Aramaic|ISO
+smi|Sami languages (Other)|ISO
+smo|Samoan|ISO
+sad|Sandawe|ISO
+sag|Sango|ISO
+san|Sanskrit|ISO
+sat|Santali|ISO
+srd|Sardinian|ISO
+sas|Sasak|ISO
+sco|Scots|ISO
+sel|Selkup|ISO
+sem|Semitic (Other)|ISO
+srp|Serbian|ISO
+srr|Serer|ISO
+shn|Shan|ISO
+sna|Shona|ISO
+iii|Sichuan Yi; Nuosu|ISO
+scn|Sicilian|ISO
+sid|Sidamo|ISO
+sgn|Sign Languages|ISO
+bla|Siksika|ISO
+snd|Sindhi|ISO
+sin|Sinhala; Sinhalese|ISO
+sin|Sinhalese|ISO
+sit|Sino-Tibetan (Other)|ISO
+sio|Siouan languages|ISO
+sms|Skolt Sami|ISO
+den|Slave (Athapascan)|ISO
+sla|Slavic (Other)|ISO
+slo|Slovak|ISO
+slv|Slovenian|ISO
+slv|Slovene|ISO
+sog|Sogdian|ISO
+som|Somali|ISO
+son|Songhai languages|ISO
+snk|Soninke|ISO
+wen|Sorbian languages|ISO
+sot|Sotho Southern|ISO
+sai|South American Indian (Other)|ISO
+alt|Southern Altai|ISO
+sma|Southern Sami|ISO
+spa|Spanish; Castilian|ISO
+spa|Spanish|ISO
+srn|Sranan Tongo|ISO
+suk|Sukuma|ISO
+sux|Sumerian|ISO
+sun|Sundanese|ISO
+sus|Susu|ISO
+swa|Swahili|ISO
+ssw|Swati|ISO
+swe|Swedish|ISO
+gsw|Swiss German|ISO
+gsw|Alemannic|ISO
+gsw|Alsatian|ISO
+syr|Syriac|ISO
+tgl|Tagalog|ISO
+tah|Tahitian|ISO
+tai|Tai (Other)|ISO
+tgk|Tajik|ISO
+tmh|Tamashek|ISO
+tam|Tamil|ISO
+tat|Tatar|ISO
+tel|Telugu|ISO
+ter|Tereno|ISO
+tet|Tetum|ISO
+tha|Thai|ISO
+tib|Tibetan|ISO
+tig|Tigre|ISO
+tir|Tigrinya|ISO
+tem|Timne|ISO
+tiv|Tiv|ISO
+tli|Tlingit|ISO
+tpi|Tok Pisin|ISO
+tkl|Tokelau|ISO
+tog|Tonga (Nyasa)|ISO
+ton|Tonga (Tonga Islands)|ISO
+tsi|Tsimshian|ISO
+tso|Tsonga|ISO
+tsn|Tswana|ISO
+tum|Tumbuka|ISO
+tup|Tupi languages|ISO
+tur|Turkish|ISO
+tuk|Turkmen|ISO
+tvl|Tuvalu|ISO
+tyv|Tuvinian|ISO
+twi|Twi|ISO
+udm|Udmurt|ISO
+uga|Ugaritic|ISO
+uig|Uighur|ISO
+uig|Uyghur|ISO
+ukr|Ukrainian|ISO
+umb|Umbundu|ISO
+mis|Uncoded languages|ISO
+und|Undetermined|ISO
+hsb|Upper Sorbian|ISO
+urd|Urdu|ISO
+uzb|Uzbek|ISO
+vai|Vai|ISO
+ven|Venda|ISO
+vie|Vietnamese|ISO
+vol|Volapük|ISO
+vot|Votic|ISO
+wak|Wakashan languages|ISO
+wal|Walamo|ISO
+wln|Walloon|ISO
+war|Waray|ISO
+was|Washo|ISO
+wel|Welsh|ISO
+fry|Western Frisian|ISO
+wol|Wolof|ISO
+xho|Xhosa|ISO
+sah|Yakut|ISO
+yao|Yao|ISO
+yap|Yapese|ISO
+yid|Yiddish|ISO
+yor|Yoruba|ISO
+ypk|Yupik languages|ISO
+znd|Zande languages|ISO
+zap|Zapotec|ISO
+zza|Zaza; Dimili; Dimli; Kirdki; Kirmanjki; Zazaki|ISO
+zen|Zenaga|ISO
+zha|Zhuang; Chuang|ISO
+zul|Zulu|ISO
+zun|Zuni|ISO
+
+**Documentation**:
+
+The patient's preferred language
 
 ---
 
@@ -2856,6 +3923,10 @@ Code | Display | System
 45206002|Nasal structure (body structure)|SNOMED_CT
 53342003|Internal nose structure (body structure)|SNOMED_CT
 29092000|Venous structure (body structure)|SNOMED_CT
+123851003|Mouth region structure (body structure)|SNOMED_CT
+31389004|Oropharyngeal structure (body structure)|SNOMED_CT
+39607008|Lung structure (body structure)|SNOMED_CT
+955009|Bronchial structure (body structure)|SNOMED_CT
 
 **Documentation**:
 
@@ -2888,6 +3959,7 @@ Code | Display | System
 258529004|Throat swab|SNOMED_CT
 119334006|Sputum specimen|SNOMED_CT
 119342007|Saliva specimen|SNOMED_CT
+258560004|Oral saliva sample|SNOMED_CT
 258607008|Bronchoalveolar lavage fluid sample|SNOMED_CT
 119364003|Serum specimen|SNOMED_CT
 119361006|Plasma specimen|SNOMED_CT
@@ -2896,6 +3968,10 @@ Code | Display | System
 122555007|Venous blood specimen|SNOMED_CT
 119297000|Blood specimen|SNOMED_CT
 122554006|Capillary blood specimen|SNOMED_CT
+258467004|Nasopharyngeal washings|SNOMED_CT
+418932006|Oral swab specimen|SNOMED_CT
+433801000124107|Nasopharyngeal and oropharyngeal swab|SNOMED_CT
+309171007|Lower respiratory fluid sample|SNOMED_CT
 
 **Documentation**:
 
@@ -3261,19 +4337,18 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 
 Code | Display | System
 ---- | ------- | ------
-A|Some, but not all, results available|HL7
-C|Corrected, final|HL7
-F|Final results|HL7
-I|No results available; specimen received, procedure incomplete|HL7
-M|Corrected, not final|HL7
-N|Procedure completed, results pending|HL7
-O|Order received; specimen not yet received|HL7
-P|Preliminary|HL7
-R|Results stored; not yet verified|HL7
-S|No results available; procedure scheduled, but not done|HL7
-X|No results available; Order canceled|HL7
-Y|No order on record for this test|HL7
-Z|No record of this patient|HL7
+C|Record coming over is a correction and thus replaces a final result|HL7
+D|Deletes the OBX record|HL7
+F|Final results; Can only be changed with a corrected result|HL7
+I|Specimen in lab; results pending|HL7
+N|Not asked; used to affirmatively document that the observation identified in the OBX was not sought when the universal service ID in OBR-4 implies that it would be sought.|HL7
+O|Order detail description only (no result)|HL7
+P|Preliminary results|HL7
+R|Results entered -- not verified|HL7
+S|Partial results|HL7
+U|Results status change to final without retransmitting results already sent as ‘preliminary.’  E.g., radiology changes status from preliminary to final|HL7
+W|Post original as wrong, e.g., transmitted for wrong patient|HL7
+X|Results cannot be obtained for this observation|HL7
 
 **Documentation**:
 
