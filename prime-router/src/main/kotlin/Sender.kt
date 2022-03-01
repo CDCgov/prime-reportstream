@@ -19,8 +19,9 @@ open class Sender(
     val schemaName: String,
     val keys: List<JwkSet>? = null, // used to track server-to-server auths for this Sender via public keys sets
     val processingType: ProcessingType = ProcessingType.sync,
+    val allowDuplicates: Boolean = true,
     val senderType: SenderType? = null,
-    val primarySubmissionMethod: PrimarySubmissionMethod? = null,
+    val primarySubmissionMethod: PrimarySubmissionMethod? = null
 ) {
     /**
      * Enumeration representing whether a submission will be processed follow the synchronous or asynchronous
