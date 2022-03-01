@@ -583,5 +583,15 @@ class ReportTests {
         report.setString(2, "test_time", "20220101")
         report.setString(3, "specimen_id", "")
         report.setString(4, "observation", "null")
+
+        val firstName = report.getString(1, "first_name")
+        val testTime = report.getString(1, "test_time")
+        val specimenId = report.getString(1, "specimen_id")
+        val observation = report.getString(1, "observation")
+
+        assertThat(firstName.equals("blue"))
+        assertThat(testTime.equals("20220101"))
+        assertThat(specimenId.equals("null"))
+        assertThat(observation.equals("asdlkj123!@#"))
     }
 }
