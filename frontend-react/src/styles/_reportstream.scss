@@ -238,3 +238,8 @@ h3 img[src*="svg"] {
     overflow: hidden;
     font-weight: 900;
 }
+
+/* tweak toaster notifications - other variables can be found by search node_modules for `--toastify-toast-width`  */
+:root {
+    --toastify-toast-width: 600px;
+}

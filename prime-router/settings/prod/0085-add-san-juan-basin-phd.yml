@@ -1,0 +1,21 @@
+---
+- name: "co-san-juan-basin-phd"
+  description: "San Juan Basin Public Health Department"
+  jurisdiction: "STATE"
+  stateCode: "CO"
+  countyName: null
+  receivers:
+    - name: elr-download
+      organizationName: co-san-juan-basin-phd
+      topic: covid-19
+      customerStatus: "active"
+      jurisdictionalFilter: [ "matches(ordering_facility_state, CO)", "matches(ordering_facility_county, Archuleta, La Plata)" ]
+      translation:
+        type: CUSTOM
+        schemaName: direct/direct-covid-19
+        format: CSV
+      timing:
+        operation: MERGE
+        numberPerDay: 1
+        initialTime: 09:15 # A little after the 12am EASTERN reports from simple report
+        timeZone: EASTERN
