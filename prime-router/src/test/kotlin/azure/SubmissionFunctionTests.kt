@@ -2,20 +2,24 @@ package gov.cdc.prime.router.azure
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
 import com.fasterxml.jackson.module.kotlin.readValue
+import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.ActionResponse
+import gov.cdc.prime.router.DetailedActionResponse
+import gov.cdc.prime.router.DetailedSubmissionHistory
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.SubmissionHistory
+import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.cli.tests.ExpectedSubmissionHistory
-import org.junit.jupiter.api.Test
+import gov.cdc.prime.router.common.JacksonMapperUtilities
+import io.mockk.every
+import io.mockk.mockk
+import org.jooq.exception.DataAccessException
 import org.junit.jupiter.api.TestInstance
 import java.time.OffsetDateTime
+import kotlin.test.Test
 
 data class ExpectedAPIResponse(
     val status: HttpStatus,
@@ -29,22 +33,29 @@ data class SubmissionUnitTestCase(
     val name: String?
 )
 
+/**
+ * Detail Submission History Response from the API.
+ */
+data class DetailSubmissionHistoryResponse(
+    val submissionId: Long,
+    val id: String?,
+    val timestamp: OffsetDateTime,
+    val sender: String?,
+    val httpStatus: Int?,
+    val externalName: String? = "",
+    val actionResponse: DetailedActionResponse? = null
+)
+
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class SubmissionFunctionTests {
-    // Ignoring unknown properties because we don't require them. -DK
-    val mapper = jacksonMapperBuilder().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false).build()
-
-    init {
-        // Format OffsetDateTime as an ISO string
-        mapper.registerModule(JavaTimeModule())
-        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-    }
+    private val mapper = JacksonMapperUtilities.datesAsTextMapper
 
     class TestSubmissionAccess(val dataset: List<SubmissionHistory>, val mapper: ObjectMapper) : SubmissionAccess {
 
         override fun <T> fetchActions(
             sendingOrg: String,
             order: SubmissionAccess.SortOrder,
+            sortColumn: SubmissionAccess.SortColumn,
             resultsAfterDate: OffsetDateTime?,
             limit: Int,
             klass: Class<T>
@@ -189,15 +200,15 @@ class SubmissionFunctionTests {
         )
 
         testCases.forEach {
-            var httpRequestMessage = MockHttpRequestMessage()
+            val httpRequestMessage = MockHttpRequestMessage()
             httpRequestMessage.httpHeaders += it.headers
             httpRequestMessage.parameters += it.parameters
             // Invoke
-            var response = SubmissionFunction(
+            val response = SubmissionFunction(
                 SubmissionsFacade(
                     TestSubmissionAccess(testData, mapper)
                 )
-            ).submissions(
+            ).getOrgSubmissions(
                 httpRequestMessage,
                 "simple_report",
             )
@@ -211,5 +222,43 @@ class SubmissionFunctionTests {
                 }
             }
         }
+    }
+
+    @Test
+    fun `test get report history`() {
+        val goodUuid = "662202ba-e3e5-4810-8cb8-161b75c63bc1"
+        val mockRequest = MockHttpRequestMessage()
+        val mockSubmissionFacade = mockk<SubmissionsFacade>()
+        mockRequest.httpHeaders[HttpHeaders.AUTHORIZATION.lowercase()] = "Bearer dummy"
+
+        val function = SubmissionFunction(mockSubmissionFacade)
+
+        // Invalid UUID
+        var response = function.getReportHistory(mockRequest, "org", "badUUID")
+        assertThat(response.status).isEqualTo(HttpStatus.BAD_REQUEST)
+        response = function.getReportHistory(mockRequest, "org", "550")
+        assertThat(response.status).isEqualTo(HttpStatus.BAD_REQUEST)
+
+        // Database error
+        every { mockSubmissionFacade.findReport(any(), any()) }.throws(DataAccessException("dummy"))
+        response = function.getReportHistory(mockRequest, "org", goodUuid)
+        assertThat(response.status).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR)
+
+        // Not found
+        every { mockSubmissionFacade.findReport(any(), any()) } returns null
+        response = function.getReportHistory(mockRequest, "org", goodUuid)
+        assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
+
+        // Good return
+        val returnBody = DetailedSubmissionHistory(
+            100, TaskAction.receive, OffsetDateTime.now(), "org",
+            null, null, null, null, null
+        )
+        every { mockSubmissionFacade.findReport(any(), any()) } returns returnBody
+        response = function.getReportHistory(mockRequest, "org", goodUuid)
+        assertThat(response.status).isEqualTo(HttpStatus.OK)
+        val responseBody: DetailSubmissionHistoryResponse = mapper.readValue(response.body.toString())
+        assertThat(responseBody.submissionId).isEqualTo(returnBody.actionId)
+        assertThat(responseBody.sender).isEqualTo(returnBody.sendingOrg)
     }
 }

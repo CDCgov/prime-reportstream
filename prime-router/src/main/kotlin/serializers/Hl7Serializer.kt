@@ -1308,15 +1308,40 @@ class Hl7Serializer(
         // we need to pass this in via the translation configuration
         if (!suppressQst) terser.set(formPathSpec("OBX-29", aoeRep), "QST")
         // all of these values must be set on the OBX AOE's for validation
-        terser.set(formPathSpec("OBX-23-1", aoeRep), report.getStringByHl7Field(row, "OBX-23-1"))
+        terser.set(
+            formPathSpec("OBX-23-1", aoeRep),
+            trimAndTruncateValue(
+                report.getStringByHl7Field(row, "OBX-23-1") as String, "OBX-23-1", hl7Config, terser
+            )
+        )
         // set to a default value, but look below
         // terser.set(formPathSpec("OBX-23-6", aoeRep), report.getStringByHl7Field(row, "OBX-23-6"))
         terser.set(formPathSpec("OBX-23-10", aoeRep), report.getString(row, "testing_lab_clia"))
         terser.set(formPathSpec("OBX-15", aoeRep), report.getString(row, "testing_lab_clia"))
-        terser.set(formPathSpec("OBX-24-1", aoeRep), report.getStringByHl7Field(row, "OBX-24-1"))
-        terser.set(formPathSpec("OBX-24-2", aoeRep), report.getStringByHl7Field(row, "OBX-24-2"))
-        terser.set(formPathSpec("OBX-24-3", aoeRep), report.getStringByHl7Field(row, "OBX-24-3"))
-        terser.set(formPathSpec("OBX-24-4", aoeRep), report.getStringByHl7Field(row, "OBX-24-4"))
+        terser.set(
+            formPathSpec("OBX-24-1", aoeRep),
+            trimAndTruncateValue(
+                report.getStringByHl7Field(row, "OBX-24-1") as String, "OBX-24-1", hl7Config, terser
+            )
+        )
+        terser.set(
+            formPathSpec("OBX-24-2", aoeRep),
+            trimAndTruncateValue(
+                report.getStringByHl7Field(row, "OBX-24-2") as String, "OBX-24-2", hl7Config, terser
+            )
+        )
+        terser.set(
+            formPathSpec("OBX-24-3", aoeRep),
+            trimAndTruncateValue(
+                report.getStringByHl7Field(row, "OBX-24-3") as String, "OBX-24-3", hl7Config, terser
+            )
+        )
+        terser.set(
+            formPathSpec("OBX-24-4", aoeRep),
+            trimAndTruncateValue(
+                report.getStringByHl7Field(row, "OBX-24-4") as String, "OBX-24-4", hl7Config, terser
+            )
+        )
         // OBX-24-5 is a postal code as well. pad this for now
         // TODO: come up with a better way to repeat these segments
         terser.set(
@@ -1544,15 +1569,6 @@ class Hl7Serializer(
     private fun createFooters(report: Report): String {
         return "BTS|${report.itemCount}$hl7SegmentDelimiter" +
             "FTS|1$hl7SegmentDelimiter"
-    }
-
-    private fun nowTimestamp(hl7Config: Hl7Configuration? = null): String {
-        val timestamp = OffsetDateTime.now(ZoneId.systemDefault())
-        return if (hl7Config?.convertPositiveDateTimeOffsetToNegative == true) {
-            Element.convertPositiveOffsetToNegativeOffset(Element.datetimeFormatter.format(timestamp))
-        } else {
-            Element.datetimeFormatter.format(timestamp)
-        }
     }
 
     private fun buildComponent(spec: String, component: Int = 1): String {
@@ -1861,6 +1877,27 @@ class Hl7Serializer(
         // Do a lazy init because this table may never be used and it is large
         val ncesLookupTable = lazy {
             Metadata.getInstance().findLookupTable("nces_id") ?: error("Unable to find the NCES ID lookup table.")
+        }
+
+        /**
+         * Given an hl7Configuration, this will take find the current date time and output it to a
+         * specific format depending on the configuration of the receiver
+         */
+        fun nowTimestamp(hl7Config: Hl7Configuration? = null): String {
+            // get the current time stamp
+            val timestamp = OffsetDateTime.now(ZoneId.systemDefault())
+            // if the receiver wants a higher precision date time formatter, then we get the right one
+            val formatter: DateTimeFormatter = if (hl7Config?.useHighPrecisionHeaderDateTimeFormat == true) {
+                Element.highPrecisionDateTimeFormatter
+            } else {
+                Element.datetimeFormatter
+            }
+            // use the formatter here to output the now timestamp
+            return if (hl7Config?.convertPositiveDateTimeOffsetToNegative == true) {
+                Element.convertPositiveOffsetToNegativeOffset(formatter.format(timestamp))
+            } else {
+                formatter.format(timestamp)
+            }
         }
     }
 }

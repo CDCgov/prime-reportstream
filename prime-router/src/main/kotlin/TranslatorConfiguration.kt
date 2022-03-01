@@ -101,6 +101,11 @@ data class Hl7Configuration
     // lets us strip chars we don't want showing up in the outbound message
     // this should really be done on the sender side, but it lives here for now
     val stripInvalidCharsRegex: String? = null,
+    /**
+     * Some receivers need a higher precision batch and file header date time
+     * value, so I am adding the option here for those who need it
+     */
+    val useHighPrecisionHeaderDateTimeFormat: Boolean? = false,
 ) : TranslatorConfiguration("HL7") {
     /**
      * Formatting for XTN fields

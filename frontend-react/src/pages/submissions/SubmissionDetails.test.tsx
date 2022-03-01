@@ -13,7 +13,13 @@ import SubmissionDetails, {
     Using the included regex can end up pulling various elements where the
     value has the parsed timestamp. Use a function
 */
-const timeRegex: RegExp = /[0-9]{1,2}:[0-9]{1,2} [A,P]M/;
+const dateRegex = /\d{1,2} [a-z,A-Z]{3} \d{4}/;
+const timeRegex: RegExp = /\d{1,2}:\d{2}/;
+
+/* 
+    We can only mock one behavior for useResource currently. This is a major
+    limitation for us that doesn't allow us to test negative cases.
+*/
 const mockData: ActionDetailsResource = new TestResponse(
     ResponseType.ACTION_DETAIL
 ).data;
@@ -77,6 +83,15 @@ describe("SubmissionDetails", () => {
             expect(i).toBeInTheDocument();
         }
     });
+
+    test("Filename conditionally shows in title", () => {
+        /* 
+            TODO: How can we use the object and not static strings to
+            check for substrings like this??
+        */
+        const title = screen.getByText(/SubmissionDetails Unit Test/);
+        expect(title).toBeInTheDocument();
+    });
 });
 
 describe("DetailItem", () => {
@@ -107,7 +122,7 @@ describe("DestinationItem", () => {
             These must change if we ever change the sending_at property of
             our test ActionDetailResource in TestResponse.ts
         */
-        expect(screen.getByText(/7 Apr 1970/i)).toBeInTheDocument();
+        expect(screen.getByText(dateRegex)).toBeInTheDocument();
         expect(screen.getByText(timeRegex)).toBeInTheDocument();
         expect(screen.getByText(/3/i)).toBeInTheDocument();
     });

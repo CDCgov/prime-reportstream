@@ -36,6 +36,7 @@ import { EditSenderSettings } from "./components/Admin/EditSenderSettings";
 import "react-toastify/dist/ReactToastify.css";
 import SubmissionDetails from "./pages/submissions/SubmissionDetails";
 import { NewSetting } from "./components/Admin/NewSetting";
+import { FeatureFlagUIComponent } from "./pages/misc/FeatureFlags";
 
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
 
@@ -179,6 +180,10 @@ const App = () => {
                                 <SecureRoute
                                     path="/report-details"
                                     component={Details}
+                                />
+                                <SecureRoute
+                                    path="/features"
+                                    component={FeatureFlagUIComponent}
                                 />
                                 {/* Handles any undefined route */}
                                 <Route

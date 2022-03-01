@@ -584,6 +584,46 @@
         filePath: ./upload
         credentialName: DEFAULT-SFTP
 
+- name: "co-routt-county-phd"
+  description: "Routt County Public Health Department"
+  jurisdiction: "COUNTY"
+  stateCode: "CO"
+  countyName: "Routt"
+  receivers:
+    - name: elr-download
+      organizationName: co-routt-county-phd
+      topic: covid-19
+      jurisdictionalFilter: [ "matches(ordering_facility_state, CO)", "matches(ordering_facility_county, Routt)" ]
+      translation:
+        type: CUSTOM
+        schemaName: direct/direct-covid-19
+        format: CSV
+      timing:
+        operation: MERGE
+        numberPerDay: 1440
+        initialTime: 09:15 # A little after the 12am EASTERN reports from simple report
+        timeZone: EASTERN
+
+- name: "co-san-juan-basin-phd"
+  description: "San Juan Basin Public Health Department"
+  jurisdiction: "STATE"
+  stateCode: "CO"
+  countyName: null
+  receivers:
+    - name: elr-download
+      organizationName: co-san-juan-basin-phd
+      topic: covid-19
+      jurisdictionalFilter: [ "matches(ordering_facility_state, CO)", "matches(ordering_facility_county, Archuleta, La Plata)" ]
+      translation:
+        type: CUSTOM
+        schemaName: direct/direct-covid-19
+        format: CSV
+      timing:
+        operation: MERGE
+        numberPerDay: 1440
+        initialTime: 09:15 # A little after the 12am EASTERN reports from simple report
+        timeZone: EASTERN
+
 - name: tx-phd
   description: Texas Department of State Health Services
   jurisdiction: STATE
@@ -666,9 +706,11 @@
       organizationName: gu-doh
       topic: covid-19
       customerStatus: active
+      deidentify: false
       jurisdictionalFilter:
         - matches(ordering_facility_state, GU)
-      deidentify: false
+      routingFilter:
+        - matches(test_result_status, F, C, P)
       translation:
         type: HL7
         useBatchHeaders: true
@@ -690,14 +732,13 @@
   description: Vermont Department of Health
   jurisdiction: STATE
   stateCode: VT
-  filters:
-    - topic: "covid-19"
-      jurisdictionalFilter: [ "orEquals(ordering_facility_state, VT, patient_state, VT)" ]
   receivers:
     - name: elr
       organizationName: vt-doh
       topic: covid-19
       customerStatus: active
+      jurisdictionalFilter:
+        - "orEquals(ordering_facility_state, VT, patient_state, VT)"
       deidentify: false
       translation:
         type: HL7
@@ -730,46 +771,12 @@
       organizationName: vt-doh
       topic: covid-19
       customerStatus: active
+      jurisdictionalFilter:
+        - "orEquals(ordering_facility_state, VT, patient_state, VT)"
       reverseTheQualityFilter: true
       deidentify: false
       translation:
         type: HL7
-        useBatchHeaders: true
-        receivingApplicationName: NBS
-        receivingApplicationOID: 2.16.840.1.114222.4.1.185.1
-        receivingFacilityName: VDH
-        receivingFacilityOID: 2.16.840.1.114222.4.1.185
-        suppressAoe: true
-        truncateHl7Fields: OBX-23-1
-        truncateHDNamespaceIds: true
-        usePid14ForPatientEmail: true
-        suppressNonNPI: true
-        suppressHl7Fields: OBX-18-1, OBX-18-2, OBX-18-3, OBX-18-4, OBX-15-3
-        replaceValue:
-          MSH-3-1: CDC PRIME - Atlanta,
-      timing:
-        operation: MERGE
-        numberPerDay: 1440 # Every minute
-        initialTime: 00:00
-        timeZone: CENTRAL
-      transport:
-        type: SFTP
-        host: sftp
-        port: 22
-        filePath: ./upload
-        credentialName: DEFAULT-SFTP
-    - name: elr-otc
-      organizationName: vt-doh
-      topic: covid-19
-      customerStatus: active
-      qualityFilter:
-#        - "isValidCLIA(testing_lab_clia)"
-        - "atLeastOneHasValue(Y, test_authorized_for_otc, test_authorized_for_home, test_authorized_for_unproctored)"
-      reverseTheQualityFilter: false
-      deidentify: false
-      translation:
-        type: HL7
-        applyOTCDefault: true
         useBatchHeaders: true
         receivingApplicationName: NBS
         receivingApplicationOID: 2.16.840.1.114222.4.1.185.1
@@ -1047,34 +1054,6 @@
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
         timeZone: CENTRAL
-
-- name: gu-doh
-  description: Guam Department of Health
-  jurisdiction: STATE
-  stateCode: GU
-  receivers:
-    - name: elr
-      organizationName: gu-doh
-      topic: covid-19
-      customerStatus: active
-      jurisdictionalFilter:
-        - matches(ordering_facility_state, GU)
-      translation:
-        type: HL7
-        useBatchHeaders: true
-        receivingApplicationName: GUDOH
-        receivingFacilityName: GUDOH
-      transport:
-        type: SFTP
-        host: sftp
-        port: 22
-        filePath: ./upload
-        credentialName: DEFAULT-SFTP
-      timing:
-        operation: MERGE
-        numberPerDay: 1440 # Every minute
-        initialTime: 00:00
-        timeZone: CHAMORRO
 
 - name: nj-doh
   description: New Jersey Department of Health
@@ -1367,6 +1346,7 @@
         receivingFacilityName: CDPH_CID
         receivingFacilityOID: 2.16.840.1.114222.4.1.214104
         suppressAoe: true
+        truncateHl7Fields: OBR-16-3, ORC-12-3, OBX-23-1, ORC-21-1
         truncateHDNamespaceIds: true
         cliaForOutOfStateTesting: CDPH000075
       transport:
@@ -2513,7 +2493,8 @@
         useBatchHeaders: true
         suppressNonNPI: true
         truncateHDNamespaceIds: true
-        truncateHl7Fields: OBX-23-1
+        truncateHl7Fields: OBX-23-1, ORC-21-1
+        useHighPrecisionHeaderDateTimeFormat: true
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
