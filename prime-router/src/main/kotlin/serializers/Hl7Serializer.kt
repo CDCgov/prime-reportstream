@@ -675,14 +675,17 @@ class Hl7Serializer(
             report.setString(row, "test_result_status", "F")
         }
 
-        val comment = report.getString(row, "comment")
-        report.setString(
-            row,
-            "comment",
-            comment
-                .plus(" / Organization name: ")
-                .plus(report.getString(row, "organizationName") ?: "")
-        )
+        val organizationName = report.getString(row, "organizationName") ?: ""
+        if (!organizationName.isNullOrEmpty()) {
+            val comment = report.getString(row, "comment")
+            report.setString(
+                row,
+                "comment",
+                comment
+                    .plus(" / Organization name: ")
+                    .plus(organizationName)
+            )
+        }
 
         val orderingProviderFirstName = report.getString(row, "ordering_provider_first_name") ?: ""
         if (orderingProviderFirstName.isNullOrEmpty()) {
