@@ -1,6 +1,5 @@
 package gov.cdc.prime.router.azure
 
-import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
 import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
@@ -13,6 +12,7 @@ import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.SenderItems
 import gov.cdc.prime.router.common.CsvUtilities
 import gov.cdc.prime.router.common.Hl7Utilities
+import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.messages.ReportFileMessage
 import gov.cdc.prime.router.tokens.OktaAuthentication
 import org.apache.logging.log4j.kotlin.Logging
@@ -252,7 +252,7 @@ class SenderFilesFunction(
          */
         const val DEFAULT_LIMIT_PARAM = 10000
 
-        private val mapper = jacksonMapperBuilder().build()
+        private val mapper = JacksonMapperUtilities.defaultMapper
 
         private fun mapBodyFormatToSenderFormat(bodyFormat: String): Sender.Format {
             return when (bodyFormat) {
