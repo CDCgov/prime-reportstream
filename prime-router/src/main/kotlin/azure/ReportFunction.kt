@@ -267,12 +267,13 @@ class ReportFunction(
         responseBuilder.body(
             actionHistory.createResponseBody(
                 verbose,
-                report
+                report,
+                workflowEngine.settings
             )
         )
         val response = responseBuilder.build()
         actionHistory.trackActionResult(response)
-        actionHistory.trackActionResponse(response, report)
+        actionHistory.trackActionResponse(response, report, workflowEngine.settings)
         workflowEngine.recordAction(actionHistory)
 
         // queue messages here after all task / action records are in

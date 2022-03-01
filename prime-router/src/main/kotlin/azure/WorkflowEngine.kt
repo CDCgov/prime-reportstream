@@ -574,7 +574,8 @@ class WorkflowEngine(
             // track response body
             val responseBody = actionHistory.createResponseBody(
                 true,
-                report
+                report,
+                this.settings
             )
             actionHistory.trackActionResponse(responseBody)
 
