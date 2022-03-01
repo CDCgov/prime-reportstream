@@ -4,6 +4,7 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.TemporalAccessor
 import java.util.Locale
@@ -19,14 +20,16 @@ object DateUtilities {
     /** includes seconds  */
     const val highPrecisionDateTimePattern = "yyyyMMddHHmmss.SSSZZZ"
     /** wraps around all the possible variations of a date for finding something that matches */
-    const val variableDateTimePattern = "[MMddyyyy]" +
+    const val variableDateTimePattern = "[yyyyMMdd]" +
         "[yyyyMMddHHmmssZ]" +
         "[yyyyMMddHHmmZ]" +
         "[yyyyMMddHHmmss][yyyy-MM-dd HH:mm:ss.ZZZ]" +
         "[yyyy-MM-dd[ H:mm:ss[.S[S][S]]]]" +
         "[yyyyMMdd[ H:mm:ss[.S[S][S]]]]" +
         "[M/d/yyyy[ H:mm[:ss[.S[S][S]]]]]" +
-        "[yyyy/M/d[ H:mm[:ss[.S[S][S]]]]]"
+        "[yyyy/M/d[ H:mm[:ss[.S[S][S]]]]]" +
+        "[MMddyyyy]"
+
     /** A simple date formatter */
     val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern(datePattern, Locale.ENGLISH)
     /** A default formatter for date and time */
@@ -43,7 +46,14 @@ object DateUtilities {
      */
     fun parseDate(dateValue: String): TemporalAccessor {
         return DateTimeFormatter.ofPattern(variableDateTimePattern)
-            .parseBest(dateValue, OffsetDateTime::from, LocalDateTime::from, Instant::from, LocalDate::from)
+            .parseBest(
+                dateValue,
+                OffsetDateTime::from,
+                LocalDateTime::from,
+                Instant::from,
+                LocalDate::from,
+                ZonedDateTime::from
+            )
     }
 
     /**
@@ -121,6 +131,22 @@ object DateUtilities {
             }
             // the regex didn't match, so return the original value we passed in
             else -> value
+        }
+    }
+
+    /**
+     * Given a temporal accessor of some sort, coerce it to an offset date time value.
+     * If the temporal accessor is of type LocalDate, then we don't have a time, and we coerce it
+     * to use the local "start of day", and then convert to the date time offset.
+     */
+    fun TemporalAccessor.toOffsetDateTime(): OffsetDateTime {
+        return when (this) {
+            // coerce the local date to the start of the day. it's not great, but if we did not
+            // get the time, then pushing it to start of day is *probably* okay. At some point
+            // we should probably throw a coercion warning when we do this
+            is LocalDate -> OffsetDateTime.from(LocalDate.from(this).atStartOfDay())
+            is LocalDateTime, is OffsetDateTime, is Instant -> OffsetDateTime.from(this)
+            else -> error("Unsupported format!")
         }
     }
 }
