@@ -35,8 +35,7 @@ class DetailedSubmissionHistory(
     @JsonProperty("sender")
     val sendingOrg: String?,
     val httpStatus: Int?,
-    @JsonInclude(Include.NON_NULL)
-    val externalName: String? = "",
+    val externalName: String? = null,
     val actionResponse: DetailedActionResponse?,
     @JsonIgnore
     var reports: MutableList<DetailReport>?,
